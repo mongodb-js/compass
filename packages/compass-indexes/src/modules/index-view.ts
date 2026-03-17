@@ -9,12 +9,12 @@ import { ActionTypes as SearchIndexActionTypes } from './search-indexes';
 
 export type IndexView = 'regular-indexes' | 'search-indexes';
 
-export enum ActionTypes {
-  IndexViewChanged = 'compass-indexes/index-list/index-view-changed',
-}
+export const ActionTypes = {
+  IndexViewChanged: 'compass-indexes/index-list/index-view-changed',
+} as const;
 
 export type IndexViewChangedAction = {
-  type: ActionTypes.IndexViewChanged;
+  type: typeof ActionTypes.IndexViewChanged;
   view: IndexView;
 };
 

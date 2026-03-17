@@ -151,6 +151,12 @@ const treeContainerStyles = css({
   transitionTimingFunction: 'linear',
 });
 
+const treeSVGStyles = css({
+  position: 'absolute',
+  top: 0,
+  left: 0,
+});
+
 function TreeLayout<T, X>({
   data,
   getNodeSize,
@@ -212,10 +218,10 @@ function TreeLayout<T, X>({
         className={treeContainerStyles}
       >
         <svg
+          className={treeSVGStyles}
           ref={svgRef}
           width={width}
           height={height}
-          style={{ position: 'absolute', top: 0, left: 0 }}
         >
           <defs>
             <marker

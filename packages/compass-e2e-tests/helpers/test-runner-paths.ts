@@ -3,7 +3,6 @@ import electronPath from 'electron';
 import electronPackageJson from 'electron/package.json';
 // @ts-expect-error no types for this package
 import { electronToChromium } from 'electron-to-chromium';
-import os from 'os';
 
 if (typeof electronPath !== 'string') {
   throw new Error(
@@ -36,14 +35,4 @@ export const ELECTRON_PATH = electronPath;
 export const MONOREPO_ELECTRON_VERSION = electronPackageJson.version;
 export const MONOREPO_ELECTRON_CHROMIUM_VERSION = electronToChromium(
   MONOREPO_ELECTRON_VERSION
-);
-
-export const COMPASS_WEB_SANDBOX_RUNNER_PATH = path.resolve(
-  path.dirname(require.resolve('@mongodb-js/compass-web/package.json')),
-  'scripts',
-  'electron-proxy.js'
-);
-export const COMPASS_WEB_WDIO_USER_DATA_PATH = path.resolve(
-  os.tmpdir(),
-  `wdio-electron-proxy-${Date.now()}`
 );

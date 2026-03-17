@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { addFieldToJSONSchema, getNewUnusedFieldName } from './schema';
+import { getNewUnusedFieldName } from './schema';
+import type { MongoDBJSONSchema } from 'mongodb-schema';
 
 describe('schema diagram utils', function () {
   describe('#getNewUnusedFieldName', function () {
@@ -34,89 +35,88 @@ describe('schema diagram utils', function () {
       const newFieldName = getNewUnusedFieldName(jsonSchema);
       expect(newFieldName).to.equal('field-3');
     });
-  });
 
-  describe('#addFieldToJSONSchema', function () {
-    it('should add a field to the root of the schema', function () {
+    it('should return a new unused field name for a nested field', function () {
       const jsonSchema = {
         bsonType: 'object',
         properties: {
           a: {
-            bsonType: 'string',
+            bsonType: 'object',
+            properties: {
+              'field-1': {
+                bsonType: 'string',
+              },
+            },
           },
           b: {
-            bsonType: 'string',
+            bsonType: 'object',
+            properties: {
+              'field-1': {
+                bsonType: 'string',
+              },
+              'field-2': {
+                bsonType: 'string',
+              },
+            },
           },
         },
       };
-      const newFieldSchema = {
-        bsonType: 'string',
-      };
-      const newJsonSchema = addFieldToJSONSchema(
-        jsonSchema,
-        ['c'],
-        newFieldSchema
-      );
-      expect(newJsonSchema).to.deep.equal({
-        bsonType: 'object',
-        properties: {
-          a: {
-            bsonType: 'string',
-          },
-          b: {
-            bsonType: 'string',
-          },
-          c: {
-            bsonType: 'string',
-          },
-        },
-      });
+      const newFieldName = getNewUnusedFieldName(jsonSchema, ['b']);
+      expect(newFieldName).to.equal('field-3');
     });
 
-    it('should add a field to a nested object in the schema', function () {
+    it('should return a new unused field name for a mixed field', function () {
       const jsonSchema = {
         bsonType: 'object',
         properties: {
           a: {
-            bsonType: 'string',
-          },
-          b: {
-            bsonType: 'object',
-            properties: {
-              c: {
+            anyOf: [
+              {
                 bsonType: 'string',
               },
-            },
+              {
+                bsonType: 'object',
+                properties: {
+                  'field-1': {
+                    bsonType: 'string',
+                  },
+                },
+              },
+              {
+                bsonType: 'object',
+                properties: {
+                  'field-2': {
+                    bsonType: 'string',
+                  },
+                },
+              },
+            ] as MongoDBJSONSchema[],
           },
         },
       };
-      const newFieldSchema = {
-        bsonType: 'string',
-      };
-      const newJsonSchema = addFieldToJSONSchema(
-        jsonSchema,
-        ['b', 'd'],
-        newFieldSchema
-      );
-      expect(newJsonSchema).to.deep.equal({
+      const newFieldName = getNewUnusedFieldName(jsonSchema, ['a']);
+      expect(newFieldName).to.equal('field-3');
+    });
+
+    it('should return a new unused field name for an array of objects', function () {
+      const jsonSchema = {
         bsonType: 'object',
         properties: {
           a: {
-            bsonType: 'string',
-          },
-          b: {
-            bsonType: 'object',
-            properties: {
-              c: {
-                bsonType: 'string',
-              },
-              d: {
-                bsonType: 'string',
+            bsonType: 'array',
+            items: {
+              bsonType: 'object',
+              properties: {
+                'field-1': {
+                  bsonType: 'string',
+                },
               },
             },
           },
         },
-      });
+      };
+      const newFieldName = getNewUnusedFieldName(jsonSchema, ['a']);
+      expect(newFieldName).to.equal('field-2');
     });
   });
 });

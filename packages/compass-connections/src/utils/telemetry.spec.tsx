@@ -78,7 +78,7 @@ describe('Connections telemetry', function () {
     });
 
     it('should return an array with the error code', function () {
-      const error: any = new Error('Test error');
+      const error: Error & { code?: number } = new Error('Test error');
       error.code = 123;
 
       const result = getErrorCodeCauseChain(error);
@@ -90,14 +90,16 @@ describe('Connections telemetry', function () {
       error.code = 123;
 
       // No code / codeName on error two.
-      const errorTwo = new Error('Test error two');
+      const errorTwo: Error = new Error('Test error two');
 
       const errorThree: Error & { codeName?: string } = new Error(
         'Test error three'
       );
       errorThree.codeName = 'PINEAPPLE';
 
-      const errorFour: Error & { code?: number } = new Error('Test error four');
+      const errorFour: Error & {
+        code?: number;
+      } = new Error('Test error four');
       errorFour.code = 1111;
 
       error.cause = errorTwo;

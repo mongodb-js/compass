@@ -9,6 +9,7 @@ import {
   useDarkMode,
   cx,
   useRequiredURLSearchParams,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import {
   createAggregationAutocompleter,
@@ -22,6 +23,7 @@ import type { PipelineParserError } from '../../../modules/pipeline-builder/pipe
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 
 const containerStyles = css({
   position: 'relative',
@@ -83,8 +85,9 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const editorInitialValueRef = useRef<string>(pipelineText);
-  const editorCurrentValueRef = useRef<string>(pipelineText);
-  editorCurrentValueRef.current = pipelineText;
+  const editorCurrentValueRef = useCurrentValueRef<string>(pipelineText);
+
+  useSyncAssistantGlobalState('currentPipeline', pipelineText);
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
@@ -112,7 +115,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       );
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
-  }, [num_stages, track, connectionInfoRef]);
+  }, [editorCurrentValueRef, track, num_stages, connectionInfoRef]);
 
   const annotations: Annotation[] = useMemo(() => {
     return syntaxErrors

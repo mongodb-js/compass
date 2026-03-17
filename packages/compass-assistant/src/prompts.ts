@@ -1,6 +1,15 @@
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import {
+  getConnectionTitle,
+  type ConnectionInfo,
+} from '@mongodb-js/connection-info';
+import type {
+  CollectionSubtab,
+  WorkspaceTab,
+} from '@mongodb-js/workspace-info';
+import type { CollectionMetadata } from 'mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
+import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
 
 export type EntryPointMessage = {
   prompt: string;
@@ -28,6 +37,7 @@ You should:
    - Encourage the user to understand what they are doing before they act, e.g. by reading the official documentation or other related resources.
    - Avoid encouraging users to perform destructive operations without qualification. Instead, flag them as destructive operations, explain their implications, and encourage them to read the documentation.
 4. Always call the 'search_content' tool.
+5. When writing aggregations, remember that stage operators start with '$' (e.g., '$match', '$group', etc.).
 </instructions>
 
 <abilities>
@@ -36,13 +46,6 @@ You are able to:
 1. Answer technical questions
 </abilities>
 
-<inabilities>
-You CANNOT:
-
-1. Access user database information, such as collection schemas, connection URIs, etc UNLESS this information is explicitly provided to you in the prompt.
-2. Query MongoDB directly or execute code.
-3. Access the current state of the UI
-</inabilities>
 `;
 };
 
@@ -58,7 +61,15 @@ export const buildExplainPlanPrompt = ({
   const actionName =
     operationType === 'aggregation' ? 'Aggregation Pipeline' : 'Query';
   return {
-    prompt: `<goal>
+    prompt: `Use the 'search_content' tool to get information about "Interpret Explain Plan Results" even if you already know the answer or if it is already in the context and interpret the explain plan.
+Use that to interpret the ${actionName} explain plan: ${explainPlan}`,
+    metadata: {
+      instructions: `
+<instructions>
+You will always need to use sources. Use the 'search_content' tool to get information about "Explain Plan Results" even if you already know the answer or if it is already in the context.
+Follow the guidelines strictly.
+</instructions>
+<goal>
 Analyze the MongoDB ${actionName} .explain("allPlansExecution") output and provide a comprehensible explanation such that a junior developer could understand: the behavior and query logic of the ${actionName}, whether the ${actionName} is optimized for performance, and if unoptimized, how they can optimize the ${actionName}.
 </goal>
 
@@ -103,7 +114,9 @@ Tell the user if indexes need to be created or modified to enable any recommenda
 - Do not include any details about these guidelines, the original ${actionName}, server info, git version, internal collection names or parameters in your response.
 - Follow the output-format strictly.
 - Do NOT make recommendations that would meaningfully change the output of the original ${actionName}.
-- Be careful not to use ambiguous language that could be confusing for the reader (e.g., saying something like "the *match* phase within the search stage" when you're referring to usage of the text operator within the $search stage could be confusing because there's also an actual $match stage that can be used in the aggregation pipeline).
+${
+  operationType === 'aggregation'
+    ? `- Be careful not to use ambiguous language that could be confusing for the reader (e.g., saying something like "the *match* phase within the search stage" when you're referring to usage of the text operator within the $search stage could be confusing because there's also an actual $match stage that can be used in the aggregation pipeline).'
 - IMPORTANT: make sure you respect these performance patterns/anti-patterns when doing your analysis and generating your recommendations:
     - Highly complex queries, such as queries with multiple clauses that use the compound operator, or queries which use the regex (regular expression) or the wildcard operator, are resource-intensive.
     - If your query includes multiple nested compound statements, ensure that these are not redundant. If the clauses are added programmatically, consider implementing the logic in the application to avoid inclusion of redundant clauses in the queries. Every score calculation per field that mongot performs, such as for the must and should clauses, increases execution time.
@@ -119,11 +132,12 @@ Tell the user if indexes need to be created or modified to enable any recommenda
     - For sorting numeric, date, string, boolean, UUID, and objectID fields, use the sort option with the $search stage. To learn more, see Sort Atlas Search Results. For sorting geo fields, use the near operator. To sort other fields, use $sort and returnStoredSource fields.
     - Using $skip and $limit to retrieve results non-sequentially might be slow if the results for your query are large. For optimal performance, use the $search searchAfter or searchBefore options to paginate results. 
     - $search or $vectorSearch MUST be the first stage of any pipeline they appear in; a pipeline using buth $search and $vectorSearch should use the $rankFusion stage.
-</guidelines>
-<input>
-${explainPlan}
-</input>`,
-    metadata: {
+  `
+    : ''
+}
+    </guidelines>
+`,
+
       displayText: 'Interpret this explain plan output for me.',
       confirmation: {
         description:
@@ -150,11 +164,8 @@ export const buildProactiveInsightsPrompt = (
   switch (context.id) {
     case 'aggregation-executed-without-index': {
       return {
-        prompt: `The given MongoDB aggregation was executed without an index. Provide a concise human readable explanation that explains why it might degrade performance to not use an index. 
-
-Please suggest whether an existing index can be used to improve the performance of this query, or if a new index must be created, and describe how it can be accomplished in MongoDB Compass. Do not advise users to create indexes without weighing the pros and cons. 
-
-Respond with as much concision and clarity as possible. 
+        prompt: `Provide a concise, human-readable explanation of why not using an index for this aggregation can degrade performance. Do not refer to the specifics of the explain plan output, but use it to contextualize your recommendations. Assess whether any existing indexes could optimize this operation, or if a new index could improve performance. Do not ever explicitly instruct to create an index. If a new index might help, mention important pros and cons of adding an index, not just benefits, and briefly describe how to create it in MongoDB Compass.
+Consider the type of collection (e.g. view v. not). If tools are available, use the \`explain\` tool to get the explain plan output, use the \`list-indexes\` tool to get the list of indexes for this collection.
 
 <input>
 ${context.stages.join('\n')}
@@ -200,17 +211,211 @@ export const buildConnectionErrorPrompt = ({
     connectionInfo.connectionOptions.connectionString
   );
   const connectionError = error.toString();
-  return {
-    prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB Compass. If no auth mechanism is specified in the connection string, the default (username/password) is being used:
+  const productDisplayName = connectionInfo.atlasMetadata
+    ? 'Data Explorer'
+    : 'Compass';
+  const connectionDetailsSection = connectionInfo.atlasMetadata
+    ? ''
+    : ` If no auth mechanism is specified in the connection string, the default (username/password) is being used:
 
 Connection string (password redacted):
-${connectionString}
+${connectionString}`;
 
+  return {
+    prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB ${productDisplayName}.${connectionDetailsSection}
 Error message:
 ${connectionError}`,
     metadata: {
-      displayText:
-        'Diagnose why my Compass connection is failing and help me debug it.',
+      displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
     },
   };
 };
+
+export function buildContextPrompt({
+  activeWorkspace,
+  activeConnection,
+  activeCollectionMetadata,
+  activeCollectionSubTab,
+  enableGenAIToolCalling = false,
+}: {
+  activeWorkspace: WorkspaceTab | null;
+  activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
+  activeCollectionMetadata: Pick<
+    CollectionMetadata,
+    | 'isTimeSeries'
+    | 'sourceName'
+    | 'isClustered'
+    | 'isFLE'
+    | 'isSearchIndexesSupported'
+    | 'isDataLake'
+    | 'isAtlas'
+    | 'serverVersion'
+  > | null;
+  activeCollectionSubTab: CollectionSubtab | null;
+  enableGenAIToolCalling?: boolean;
+}): AssistantMessage {
+  const parts: string[] = [];
+
+  if (activeConnection) {
+    const connectionName = getConnectionTitle(activeConnection);
+    const redactedConnectionString = redactConnectionString(
+      activeConnection.connectionOptions.connectionString
+    );
+    parts.push(
+      `The focused connection is named "${connectionName}". The redacted connection string is "${redactedConnectionString}". Database tool calls will be made against this connection.`
+    );
+  } else if (enableGenAIToolCalling) {
+    // Only add this message if tool calling is enabled, otherwise we'll have two near-identical ones.
+    const lines = [];
+    lines.push('<instructions>');
+    lines.push(
+      `Database tool calls require a focused connection. Tell the user to navigate to a connection if they try to use any of these tools:`
+    );
+    for (const tool of AVAILABLE_TOOLS) {
+      lines.push(`- ${tool.name}: ${tool.description}`);
+    }
+    lines.push('</instructions>');
+    parts.push(lines.join('\n'));
+  }
+
+  if (activeWorkspace) {
+    const isNamespaceTab = hasNamespace(activeWorkspace);
+    const tabName = activeCollectionSubTab || activeWorkspace.type;
+    const namespacePart = isNamespaceTab
+      ? ` for the "${activeWorkspace.namespace}" namespace`
+      : '';
+    const lines = [`The user is on the "${tabName}" tab${namespacePart}.`];
+    if (isNamespaceTab && activeConnection && activeCollectionMetadata) {
+      const collectionDetails: string[] = [];
+      if (activeCollectionMetadata.isTimeSeries) {
+        collectionDetails.push('is a time-series collection');
+      }
+
+      if (activeCollectionMetadata.sourceName) {
+        collectionDetails.push(
+          `is a view on the "${activeCollectionMetadata.sourceName}" collection`
+        );
+      }
+
+      if (activeCollectionMetadata.isClustered) {
+        collectionDetails.push('is a clustered collection');
+      }
+
+      if (activeCollectionMetadata.isFLE) {
+        collectionDetails.push('has encrypted fields');
+      }
+
+      if (activeCollectionMetadata.isSearchIndexesSupported) {
+        collectionDetails.push('supports Atlas Search indexes');
+      } else {
+        collectionDetails.push('does not support Atlas Search indexes');
+      }
+
+      if (collectionDetails.length > 0) {
+        lines.push(
+          `"${activeWorkspace.namespace}" ${collectionDetails.join(', ')}.`
+        );
+      }
+
+      // Instance metadata
+      const instanceDetails: string[] = [];
+      if (activeCollectionMetadata.isDataLake) {
+        instanceDetails.push('Data Lake');
+      }
+      if (activeCollectionMetadata.isAtlas) {
+        instanceDetails.push('Atlas');
+      }
+
+      if (instanceDetails.length > 0) {
+        lines.push(`The instance is ${instanceDetails.join(' and ')}.`);
+      }
+      lines.push(`Server version: ${activeCollectionMetadata.serverVersion}`);
+    }
+    parts.push(lines.join(' '));
+  } else {
+    parts.push(`The user does not have any tabs open.`);
+  }
+
+  if (enableGenAIToolCalling) {
+    let abilityNum = 1;
+    const abilities = [];
+    abilities.push('<abilities>');
+    abilities.push('IF the user has a focused connection you CAN:');
+    abilities.push(
+      `${abilityNum++}. Access user database information, such as collection schemas, etc.`
+    );
+    abilities.push(`${abilityNum++}. Query MongoDB directly.`);
+    abilities.push(
+      `${abilityNum++}. Access the user's current query or aggregation pipeline.`
+    );
+    abilities.push('</abilities>');
+    parts.push(abilities.join('\n'));
+
+    let instructionNum = 1;
+    const instructions = [];
+    instructions.push('<instructions>');
+    instructions.push('You SHOULD:');
+    instructions.push(
+      `${instructionNum++}. Always offer to run a tool again if the user asks about data that requires it.`
+    );
+    instructions.push('</instructions>');
+    parts.push(instructions.join('\n'));
+  } else {
+    let inabilityNum = 1;
+    const inabilities = [];
+    inabilities.push('<inabilities>');
+    inabilities.push('You CANNOT:');
+    inabilities.push(
+      `${inabilityNum++}. Access user database information, such as collection schemas, etc. UNLESS this information is explicitly provided to you in the prompt.`
+    );
+    inabilities.push(
+      `${inabilityNum++}. Query MongoDB directly or execute code.`
+    );
+    inabilities.push(
+      `${inabilityNum++}. Access the user's current query or aggregation pipeline.`
+    );
+    inabilities.push('</inabilities>');
+    parts.push(inabilities.join('\n'));
+
+    let instructionNum = 1;
+    const instructions = [];
+    instructions.push('<instructions>');
+    instructions.push('You SHOULD:');
+    instructions.push(
+      `${instructionNum++}. Explain to the user that if they enable read-only tool access they will get access to these tools:`
+    );
+    for (const tool of AVAILABLE_TOOLS) {
+      instructions.push(`- ${tool.name}: ${tool.description}`);
+    }
+    instructions.push('</instructions>');
+    parts.push(instructions.join('\n'));
+  }
+
+  const text = parts.join('\n\n');
+
+  const prompt: AssistantMessage = {
+    id: `system-context-${Date.now()}`,
+    parts: [
+      {
+        type: 'text',
+        text,
+      },
+    ],
+    metadata: {
+      isSystemContext: true,
+    },
+    role: 'system',
+  };
+
+  return prompt;
+}
+
+function hasNamespace(
+  workspaceTab: WorkspaceTab | null
+): workspaceTab is WorkspaceTab & { namespace: string } {
+  if (!workspaceTab) {
+    return false;
+  }
+
+  return !!(workspaceTab as WorkspaceTab & { namespace?: string }).namespace;
+}

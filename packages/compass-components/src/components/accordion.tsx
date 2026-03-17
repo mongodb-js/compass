@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -6,6 +6,7 @@ import { useId } from '@react-aria/utils';
 import { useDarkMode } from '../hooks/use-theme';
 
 import { Description, Icon } from './leafygreen';
+import { useCurrentValueRef } from '../hooks/use-current-value-ref';
 
 const buttonStyles = css({
   fontWeight: 'bold',
@@ -94,15 +95,14 @@ function Accordion({
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const darkMode = useDarkMode();
   const [localOpen, setLocalOpen] = useState(_open ?? defaultOpen);
-  const setOpenRef = useRef(_setOpen);
-  setOpenRef.current = _setOpen;
+  const setOpenRef = useCurrentValueRef(_setOpen);
   const onOpenChange = useCallback(() => {
     setLocalOpen((prevValue) => {
       const newValue = !prevValue;
       setOpenRef.current?.(newValue);
       return newValue;
     });
-  }, []);
+  }, [setOpenRef]);
   const regionId = useId();
   const labelId = useId();
   const open = typeof _open !== 'undefined' ? _open : localOpen;

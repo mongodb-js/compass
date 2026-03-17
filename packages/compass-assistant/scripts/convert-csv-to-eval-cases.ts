@@ -159,6 +159,7 @@ async function convertCSVToEvalCases() {
     }
 
     const evalCase: SimpleEvalCase = {
+      name: yourName,
       input,
       expected,
       tags,

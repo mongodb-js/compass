@@ -1,10 +1,7 @@
 import React from 'react';
 import { z } from '@mongodb-js/compass-user-data';
-import {
-  type FeatureFlagDefinition,
-  type FeatureFlags,
-  featureFlags,
-} from './feature-flags';
+import type { AtlasCloudFeatureFlags, FeatureFlags } from './feature-flags';
+import { FEATURE_FLAG_PREFERENCES } from './feature-flags';
 import { parseRecord } from './parse-record';
 import {
   extractProxySecrets,
@@ -21,7 +18,7 @@ export type THEMES = (typeof THEMES_VALUES)[number];
 
 const enableDbAndCollStatsDescription: React.ReactNode = (
   <>
-    The{' '}
+    When enabled, Compass occasionally calls the{' '}
     <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
       dbStats
     </Link>
@@ -29,7 +26,7 @@ const enableDbAndCollStatsDescription: React.ReactNode = (
     <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
       collStats
     </Link>{' '}
-    command return storage statistics for a given database or collection.
+    commands to access storage statistics for a given database or collection.
     Disabling this setting can help reduce Compass&apos; overhead on your
     MongoDB deployments.
   </>
@@ -43,6 +40,14 @@ export const SORT_ORDER_VALUES = [
 ] as const;
 
 export type SORT_ORDERS = (typeof SORT_ORDER_VALUES)[number];
+
+export const LEGACY_UUID_ENCODINGS = [
+  '',
+  'LegacyJavaUUID',
+  'LegacyCSharpUUID',
+  'LegacyPythonUUID',
+] as const;
+export type LEGACY_UUID_ENCODINGS = (typeof LEGACY_UUID_ENCODINGS)[number];
 
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
@@ -75,6 +80,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     maxTimeMS?: number;
     installURLHandlers: boolean;
     protectConnectionStringsForNewConnections: boolean;
+    legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS;
     // This preference is not a great fit for user preferences, but everything
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
@@ -82,6 +88,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
       | 'atlas-local'
       | 'atlas-dev'
       | 'atlas-qa'
+      | 'atlas-staging'
       | 'atlas'
       | 'web-sandbox-atlas-local'
       | 'web-sandbox-atlas-dev'
@@ -97,6 +104,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableAggregationBuilderRunPipeline: boolean;
     enableAggregationBuilderExtraOptions: boolean;
     enableGenAISampleDocumentPassing: boolean;
+    enableGenAIToolCalling: boolean;
     enablePerformanceAdvisorBanner: boolean;
     maximumNumberOfActiveConnections?: number;
     defaultSortOrder: SORT_ORDERS;
@@ -105,6 +113,8 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableProxySupport: boolean;
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
+    // Features that are enabled by default in Date Explorer, but are disabled in Compass
+    maxTimeMSEnvLimit?: number;
   };
 
 /**
@@ -125,6 +135,16 @@ export type InternalUserPreferences = {
   // TODO: Remove this as part of COMPASS-8970.
   enableConnectInNewWindow: boolean;
   showEndOfLifeConnectionModal: boolean;
+  zoomLevel?: number;
+  windowBounds?: {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    isMaximized?: boolean;
+    isFullScreen?: boolean;
+  };
+  enableGuideCues: boolean;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -154,6 +174,7 @@ export type NonUserPreferences = {
 
 export type AtlasProjectPreferences = {
   enableGenAIFeaturesAtlasProject: boolean;
+  enableGenAIToolCallingAtlasProject: boolean;
 };
 
 export type AtlasOrgPreferences = {
@@ -162,8 +183,7 @@ export type AtlasOrgPreferences = {
 
 export type AllPreferences = UserPreferences &
   CliOnlyPreferences &
-  NonUserPreferences &
-  PermanentFeatureFlags;
+  NonUserPreferences;
 
 // Types related to PreferenceDefinition
 type PostProcessFunction<T> = (
@@ -197,7 +217,8 @@ export type DeriveValueFunction<T> = (
   /** Get a preference's value from the current set of preferences */
   getValue: <K extends keyof AllPreferences>(key: K) => AllPreferences[K],
   /** Get a preference's state from the current set of preferences */
-  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState
+  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState,
+  atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags>
 ) => { value: T; state: PreferenceState };
 
 type SecretsConfiguration<T> = {
@@ -205,7 +226,7 @@ type SecretsConfiguration<T> = {
   merge(extracted: { remainder: string; secrets: string }): T;
 };
 
-type PreferenceDefinition<K extends keyof AllPreferences> = {
+export type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
   /** Whether the preference can be set on the command line */
@@ -266,18 +287,6 @@ export type StoredPreferencesValidator = ReturnType<
 
 export type StoredPreferences = z.output<StoredPreferencesValidator>;
 
-// Preference definitions
-const featureFlagsProps: Required<{
-  [K in keyof FeatureFlags]: PreferenceDefinition<K>;
-}> = Object.fromEntries(
-  Object.entries(featureFlags).map(([key, value]) => [
-    key as keyof FeatureFlags,
-    featureFlagToPreferenceDefinition(key, value),
-  ])
-) as unknown as Required<{
-  [K in keyof FeatureFlags]: PreferenceDefinition<K>;
-}>;
-
 const allFeatureFlagsProps: Required<{
   [K in keyof AllFeatureFlags]: PreferenceDefinition<K>;
 }> = {
@@ -313,7 +322,7 @@ const allFeatureFlagsProps: Required<{
     type: 'boolean',
   },
 
-  ...featureFlagsProps,
+  ...FEATURE_FLAG_PREFERENCES,
 };
 
 export const storedUserPreferencesProps: Required<{
@@ -376,6 +385,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Compass UI Theme',
     },
     validator: z
+
       .effect(z.enum(THEMES_VALUES), {
         type: 'preprocess',
         transform: (val) =>
@@ -452,11 +462,49 @@ export const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: null,
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  /**
+   * Zoom level for restoring browser zoom state.
+   */
+  zoomLevel: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.number().optional(),
+    type: 'number',
+  },
+  /**
+   * Window bounds for restoring window size and position.
+   */
+  windowBounds: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
     validator: z
-      .boolean()
-      .default(
-        process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL !== 'true'
-      ),
+      .object({
+        x: z.number().optional(),
+        y: z.number().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
+        isMaximized: z.boolean().optional(),
+        isFullScreen: z.boolean().optional(),
+      })
+      .optional(),
+    type: 'object',
+  },
+  /**
+   * Whether or not guide cues are enabled in the application
+   */
+  enableGuideCues: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -565,7 +613,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to make requests to a 3rd party mapping service.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableMaps'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   enableGenAIFeatures: {
@@ -592,7 +640,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Enables a tool that our Product team can use to occasionally reach out for feedback about Compass.',
     },
     deriveValue: deriveNetworkTrafficOptionState('enableFeedbackPanel'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -608,7 +656,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to send anonymous usage statistics.',
     },
     deriveValue: deriveNetworkTrafficOptionState('trackUsageStatistics'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -623,7 +671,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow Compass to periodically check for new updates.',
     },
     deriveValue: deriveNetworkTrafficOptionState('autoUpdates'),
-    validator: z.boolean().default(false),
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
   /**
@@ -692,7 +740,7 @@ export const storedUserPreferencesProps: Required<{
       long: `Enable the Chromium Developer Tools that can be used to debug Electron's process.`,
     },
     deriveValue: deriveFeatureRestrictingOptionsState('enableDevTools'),
-    validator: z.boolean().default(process.env.APP_ENV === 'webdriverio'),
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   /**
@@ -811,10 +859,11 @@ export const storedUserPreferencesProps: Required<{
 
   /**
    * Chooses atlas service backend configuration from preset
-   *  - atlas-local: local mms backend (http://localhost:8080)
-   *  - atlas-dev:   dev mms backend (cloud-dev.mongodb.com)
-   *  - atlas-qa:    qa mms backend (cloud-qa.mongodb.com)
-   *  - atlas:       mms backend (cloud.mongodb.com)
+   *  - atlas-local:      local mms backend (http://localhost:8080)
+   *  - atlas-dev:        dev mms backend (cloud-dev.mongodb.com)
+   *  - atlas-qa:         qa mms backend (cloud-qa.mongodb.com)
+   *  - atlas-staging:    staging mms backend (cloud-stage.mongodb.com)
+   *  - atlas:            mms backend (cloud.mongodb.com)
    */
   atlasServiceBackendPreset: {
     ui: true,
@@ -828,6 +877,7 @@ export const storedUserPreferencesProps: Required<{
         'atlas-local',
         'atlas-dev',
         'atlas-qa',
+        'atlas-staging',
         'atlas',
         'web-sandbox-atlas-local',
         'web-sandbox-atlas-dev',
@@ -913,6 +963,30 @@ export const storedUserPreferencesProps: Required<{
       long: 'Supplying sample field values improves the results from the AI.',
     },
     validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+
+  enableGenAIToolCalling: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable read-only tools in the MongoDB Assistant',
+      long: 'Allow the MongoDB Assistant to interact with your databases. All actions require your approval before running.',
+      longReact: (
+        <>
+          Allow the MongoDB Assistant to interact with your databases. All
+          actions require your approval before running. Learn more about{' '}
+          <Link
+            href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
+            target="_blank"
+          >
+            MongoDB database tools
+          </Link>
+        </>
+      ),
+    },
+    validator: z.boolean().default(true),
     type: 'boolean',
   },
 
@@ -1027,6 +1101,16 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(true),
     type: 'boolean',
   },
+  enableGenAIToolCallingAtlasProject: {
+    ui: false,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Gen AI Tool Calling on Atlas Project Level',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
   enableMyQueries: {
     ui: true,
     cli: true,
@@ -1049,6 +1133,53 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.boolean().default(true),
     type: 'boolean',
+  },
+  maxTimeMSEnvLimit: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short:
+        'Maximum time limit for operations in environment (milliseconds). Set to 0 for no limit.',
+    },
+    validator: z.number().min(0).default(0),
+    type: 'number',
+  },
+
+  // There are a good amount of folks who still use the legacy UUID
+  // binary subtype 3, so we provide an option to control how those
+  // values are displayed in Compass.
+  legacyUUIDDisplayEncoding: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Encoding for Displaying Legacy UUID Values',
+      long: 'Select the encoding to be used when displaying legacy UUID of the binary subtype 3.',
+      options: {
+        '': {
+          label: 'Raw data (no encoding)',
+          description: 'Display legacy UUIDs as raw binary data',
+        },
+        LegacyJavaUUID: {
+          label: 'Legacy Java UUID',
+          description:
+            'Display legacy UUIDs using Java UUID encoding. LegacyJavaUUID("UUID_STRING")',
+        },
+        LegacyCSharpUUID: {
+          label: 'Legacy C# UUID',
+          description:
+            'Display legacy UUIDs using C# UUID encoding. LegacyCSharpUUID("UUID_STRING")',
+        },
+        LegacyPythonUUID: {
+          label: 'Legacy Python UUID',
+          description:
+            'Display legacy UUIDs using Python UUID encoding. LegacyPythonUUID("UUID_STRING")',
+        },
+      },
+    },
+    validator: z.enum(LEGACY_UUID_ENCODINGS).default(''),
+    type: 'string',
   },
 
   ...allFeatureFlagsProps,
@@ -1271,27 +1402,6 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
     state:
       s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
   });
-}
-
-// Helper to convert feature flag definitions to preference definitions
-function featureFlagToPreferenceDefinition(
-  key: string,
-  featureFlag: FeatureFlagDefinition
-): PreferenceDefinition<keyof FeatureFlags> {
-  return {
-    cli: true,
-    global: true,
-    ui: true,
-    description: featureFlag.description,
-    // if a feature flag is 'released' it will always return true
-    // regardless of any persisted value.
-    deriveValue:
-      featureFlag.stage === 'released'
-        ? () => ({ value: true, state: 'hardcoded' })
-        : undefined,
-    validator: z.boolean().default(false),
-    type: 'boolean',
-  };
 }
 
 export function getPreferencesValidator() {

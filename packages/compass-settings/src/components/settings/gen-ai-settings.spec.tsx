@@ -16,7 +16,7 @@ function renderGenAiSettings({
 }) {
   return render(
     <Provider store={store}>
-      <GenAISettings isAIFeatureEnabled {...props} />
+      <GenAISettings isAIFeatureEnabled isToolCallingEnabled {...props} />
     </Provider>
   );
 }

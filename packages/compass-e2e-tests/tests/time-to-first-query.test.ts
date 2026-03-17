@@ -3,7 +3,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
@@ -36,7 +36,7 @@ describe('Time to first query', function () {
     await browser.connectWithConnectionString();
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Documents'
@@ -60,11 +60,11 @@ describe('Time to first query', function () {
     if (TEST_COMPASS_WEB) {
       await browser.connectWithConnectionString();
     } else {
-      await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+      await browser.connectByName(getDefaultConnectionNames(0));
     }
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Documents'

@@ -1,6 +1,7 @@
-import React, { useCallback, useContext, useRef, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { ImportConnectionsModal } from './components/import-modal';
 import { ExportConnectionsModal } from './components/export-modal';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 type ConnectionImportExportService = {
   getHandlers(): {
@@ -73,7 +74,7 @@ export const ConnectionImportExportProvider: React.FC = ({ children }) => {
   );
 
   const connectionImportExportServiceRef =
-    useRef<ConnectionImportExportService>({
+    useInitialValue<ConnectionImportExportService>({
       getHandlers() {
         return {
           openConnectionImportModal,
@@ -84,7 +85,7 @@ export const ConnectionImportExportProvider: React.FC = ({ children }) => {
 
   return (
     <ConnectionImportExportServiceContext.Provider
-      value={connectionImportExportServiceRef.current}
+      value={connectionImportExportServiceRef}
     >
       {children}
       <ImportConnectionsModal

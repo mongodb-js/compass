@@ -55,6 +55,11 @@ export async function disconnectAll(
     const connectionName = await connectionItem.getAttribute(
       'data-connection-name'
     );
+    if (!connectionName) {
+      throw new Error(
+        'Expected connectionItem to have a data-connection-name attribute'
+      );
+    }
     await browser.disconnectByName(connectionName);
   }
 

@@ -8,8 +8,9 @@ import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provi
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { activateDataModelingStore } from '../src/store';
 import type { DataModelingStoreServices } from '../src/store';
-import { noopDataModelStorageService } from '../src/provider';
+import inMemoryStorage from '../src/services/data-model-storage-in-memory';
 import { Provider } from 'react-redux';
+import { openToast as _openToast } from '@mongodb-js/compass-components';
 
 type ConnectionInfoWithMockData = ConnectionInfo & {
   databases: Array<{
@@ -27,7 +28,7 @@ type ConnectionInfoWithMockData = ConnectionInfo & {
 };
 
 export type DataModelingStore = Awaited<ReturnType<typeof setupStore>>;
-const testConnections = [
+export const testConnections = [
   {
     id: 'one',
     savedConnectionType: 'favorite' as const,
@@ -136,10 +137,13 @@ const testConnections = [
 
 export const setupStore = (
   services: Partial<DataModelingStoreServices> = {},
-  connections: ConnectionInfoWithMockData[] = testConnections
+  connections: ConnectionInfoWithMockData[] = testConnections,
+  openToast: typeof _openToast = _openToast
 ) => {
   return activateDataModelingStore(
-    {},
+    {
+      openToast,
+    },
     {
       logger: createNoopLogger('TEST'),
       track: createNoopTrack(),
@@ -170,12 +174,25 @@ export const setupStore = (
                 conn.databases.find((x) => x._id === database)?.collections
               );
             },
+            sample: () => {
+              return new Promise((resolve) =>
+                setTimeout(
+                  () =>
+                    resolve([
+                      { _id: 'sample1' },
+                      { _id: 'sample2' },
+                      { _id: 'sample3' },
+                    ]),
+                  1
+                )
+              );
+            },
           };
         },
       } as any,
       preferences: {} as any,
       instanceManager: new TestMongoDBInstanceManager(),
-      dataModelStorage: noopDataModelStorageService,
+      dataModelStorage: inMemoryStorage,
       ...services,
     },
     createActivateHelpers()

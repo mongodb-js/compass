@@ -15,16 +15,28 @@ export type AtlasIndexStats = {
 };
 
 export class RollingIndexesService {
+  private atlasService: Pick<
+    AtlasService,
+    | 'automationAgentRequest'
+    | 'automationAgentAwait'
+    | 'authenticatedFetch'
+    | 'cloudEndpoint'
+  >;
+  private connectionInfo: ConnectionInfoRef;
   constructor(
-    private atlasService: Pick<
+    atlasService: Pick<
       AtlasService,
       | 'automationAgentRequest'
       | 'automationAgentAwait'
       | 'authenticatedFetch'
       | 'cloudEndpoint'
     >,
-    private connectionInfo: ConnectionInfoRef
-  ) {}
+    connectionInfo: ConnectionInfoRef
+  ) {
+    this.atlasService = atlasService;
+    this.connectionInfo = connectionInfo;
+  }
+
   async listRollingIndexes(namespace: string): Promise<AtlasIndexStats[]> {
     const { atlasMetadata } = this.connectionInfo.current;
     if (!atlasMetadata) {

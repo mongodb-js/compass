@@ -21,6 +21,8 @@ describe('DrawerSection', function () {
 
     function TestDrawer() {
       const [count, _setCount] = useState(0);
+      // Exposed for testing purposes
+      // eslint-disable-next-line react-hooks/globals
       setCount = _setCount;
       return (
         <DrawerContentProvider>

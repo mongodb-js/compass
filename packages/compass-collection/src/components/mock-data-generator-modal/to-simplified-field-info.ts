@@ -1,10 +1,10 @@
 import { FIELD_NAME_SEPARATOR } from '../../transform-schema-to-field-info';
 import type { processSchema } from '../../transform-schema-to-field-info';
-import type { FieldInfo } from '../../schema-analysis-types';
+import type { PrimitiveSchemaType } from 'mongodb-schema';
 
 type UserFriendlyFieldInfoNode =
   | { [field: string]: UserFriendlyFieldInfoNode }
-  | FieldInfo['type'];
+  | PrimitiveSchemaType['name'];
 export type SimplifiedFieldInfoTree = {
   [field: string]: UserFriendlyFieldInfoNode;
 };
@@ -14,7 +14,7 @@ export type SimplifiedFieldInfoTree = {
  * ensuring that the user sees a simplification of what the LLM processes.
  */
 export default function toSimplifiedFieldInfo(
-  input: ReturnType<typeof processSchema>
+  input: ReturnType<typeof processSchema>['fieldInfo']
 ): SimplifiedFieldInfoTree {
   // ensure parent nodes are created before their children
   const sortedFieldPaths = Object.keys(input).sort(

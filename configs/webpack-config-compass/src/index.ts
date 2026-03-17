@@ -22,7 +22,8 @@ import {
   sourceLoader,
   cssLoader,
   lessLoader,
-  assetsLoader,
+  fontLoader,
+  imageLoader,
   resourceLoader,
   sharedObjectLoader,
 } from './loaders';
@@ -48,6 +49,8 @@ const sharedIgnoreWarnings: NonNullable<Configuration['ignoreWarnings']> = [
   // Optional, comes from emotion trying to (safely) use react apis that we
   // don't have in React 17
   /export 'useInsertionEffect'/,
+  // Source map format that webpack can't resolve
+  /Failed to parse source map: 'umd:/,
 ];
 
 const sharedResolveOptions = (
@@ -113,9 +116,23 @@ const sharedResolveOptions = (
   };
 };
 
+// require.resolve() is used here because otherwise, ProvidePlugin will
+// resolve the modules relative to each entry point (!!!), leading to
+// potentially mismatching versions of whatwg-url being used in different
+// parts of the bundle
+// We use these plugins because of bugs like
+// - https://issues.chromium.org/issues/40063064
+// - https://bugzilla.mozilla.org/show_bug.cgi?id=1326394
+// which have been resolved in 2024, so we should be able to remove them at some point.
+// For now, we have to pin whatwg-url to 14.0.0, because:
+// - 14.1.0 to 16.0.0 includes a buggy version of URL.parse()
+//   (https://github.com/jsdom/whatwg-url/issues/315)
+// - 16.0.0 and above depend on SharedArrayBuffer being available
+//   (github.com/jsdom/webidl-conversions/commit/83a1837ad80d341fba4da9209c8159b2d7fa2c30)
+//   which does not work for us (at least in tests).
 const providePlugin = new ProvidePlugin({
-  URL: ['whatwg-url', 'URL'],
-  URLSearchParams: ['whatwg-url', 'URLSearchParams'],
+  URL: [require.resolve('whatwg-url'), 'URL'],
+  URLSearchParams: [require.resolve('whatwg-url'), 'URLSearchParams'],
 });
 
 export function createElectronMainConfig(
@@ -223,7 +240,8 @@ export function createElectronRendererConfig(
         nodeLoader(opts),
         cssLoader(opts),
         lessLoader(opts),
-        assetsLoader(opts),
+        fontLoader(opts),
+        imageLoader(opts),
         sharedObjectLoader(opts),
         sourceLoader(opts),
       ],
@@ -280,12 +298,15 @@ export function createElectronRendererConfig(
                 process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
                   ? false
                   : {
-                      runtimeErrors: (error) => {
+                      runtimeErrors: (error: unknown) => {
                         // ResizeObserver errors are harmless and expected in some cases.
                         // We currently get them when opening the Assistant drawer.
                         if (
-                          error?.message ===
-                          'ResizeObserver loop completed with undelivered notifications.'
+                          error &&
+                          typeof error === 'object' &&
+                          'message' in error &&
+                          error.message ===
+                            'ResizeObserver loop completed with undelivered notifications.'
                         ) {
                           // eslint-disable-next-line no-console
                           console.warn(error);
@@ -365,7 +386,8 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
         nodeLoader(opts),
         cssLoader(opts, true),
         lessLoader(opts),
-        assetsLoader(opts),
+        fontLoader(opts),
+        imageLoader(opts),
         sourceLoader(opts),
       ],
       parser: {

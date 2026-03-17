@@ -29,13 +29,14 @@ describe('PipelinePreviewManager', function () {
     const dataService = mockDataService({ data: [] });
     const previewManager = new PipelinePreviewManager(dataService, preferences);
 
-    const result = await Promise.allSettled([
-      previewManager.getPreviewForStage(0, 'test.test', []),
-      previewManager.cancelPreviewForStage(0),
-    ]);
-
-    expect(result[0]).to.have.property('status', 'rejected');
-    expect(result[0]).to.have.nested.property('reason.name', 'AbortError');
+    try {
+      const result = previewManager.getPreviewForStage(0, 'test.test', []);
+      previewManager.cancelPreviewForStage(0);
+      await result;
+      expect.fail('Expected promise to reject');
+    } catch (err) {
+      expect(err).to.have.property('name', 'AbortError');
+    }
   });
 
   it('should debounce aggregation calls for the same stage', async function () {
@@ -108,7 +109,7 @@ describe('PipelinePreviewManager', function () {
       previewManager.getPreviewForStage(2, 'test.test', []),
       previewManager.getPreviewForStage(3, 'test.test', []),
       previewManager.getPreviewForStage(4, 'test.test', []),
-      previewManager.clearQueue(1),
+      Promise.resolve(previewManager.clearQueue(1)),
     ]);
 
     // Only pipeline for stage 0 was executed
@@ -157,7 +158,7 @@ describe('PipelinePreviewManager', function () {
       const pipeline = [{ $match: {} }, { $sort: {} }, { $out: 'test' }];
       expect(() => {
         createPreviewAggregation(pipeline);
-      }).to.throw;
+      }).to.throw();
     });
 
     it('should not throw when output stage is not at the end of pipeline', function () {

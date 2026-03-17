@@ -81,6 +81,42 @@ describe('#bsonEqual', function () {
         expect(bsonEqual(first, second)).to.equal(false);
       });
     });
+
+    context('when the other value is a null', function () {
+      const first = new Int32(12);
+      const second = null;
+
+      it('returns undefined', function () {
+        expect(bsonEqual(first, second)).to.equal(undefined);
+      });
+    });
+
+    context('when the other value is undefined', function () {
+      const first = new Int32(12);
+      const second = undefined;
+
+      it('returns undefined', function () {
+        expect(bsonEqual(first, second)).to.equal(undefined);
+      });
+    });
+
+    context('when the other value has no bson type tag', function () {
+      const first = new Int32(12);
+      const second = {};
+
+      it('returns undefined', function () {
+        expect(bsonEqual(first, second)).to.equal(undefined);
+      });
+    });
+
+    context("when the other value's type tag is not a string", function () {
+      const first = new Int32(12);
+      const second = { [Symbol.for('@@mdb.bson.type')]: 12 };
+
+      it('returns undefined', function () {
+        expect(bsonEqual(first, second)).to.equal(undefined);
+      });
+    });
   });
 
   context('when the value is a double', function () {

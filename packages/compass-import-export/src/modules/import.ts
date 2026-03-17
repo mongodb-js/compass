@@ -21,7 +21,7 @@ import { analyzeCSVFields } from '../import/analyze-csv-fields';
 import type { AnalyzeCSVFieldsResult } from '../import/analyze-csv-fields';
 import { importCSV } from '../import/import-csv';
 import { importJSON } from '../import/import-json';
-import { getUserDataFolderPath } from '../utils/get-user-data-file-path';
+import { getStoragePath } from '@mongodb-js/compass-utils';
 import {
   showBloatedDocumentSignalToast,
   showUnboundArraySignalToast,
@@ -177,6 +177,14 @@ const onFileSelectError = (error: Error) => ({
   error,
 });
 
+export function getUserDataFolderPath() {
+  const basepath = getStoragePath();
+  if (basepath === undefined) {
+    throw new Error('cannot access user data folder path');
+  }
+  return basepath;
+}
+
 async function getErrorLogPath(fileName: string) {
   // Create the error log output file.
   const userDataPath = getUserDataFolderPath();
@@ -221,7 +229,7 @@ export const startImport = (): ImportThunkAction<Promise<void>> => {
 
     const ignoreBlanks = ignoreBlanks_ && fileType === FILE_TYPES.CSV;
     const fileSize = fileStats?.size || 0;
-    const fields: Record<string, CSVParsableFieldType> = {};
+    const fields: Record<string, CSVParsableFieldType> = Object.create(null);
     for (const [name, type] of transform) {
       if (exclude.includes(name)) {
         continue;
@@ -654,7 +662,7 @@ const loadCSVPreviewDocs = (): ImportThunkAction<Promise<void>> => {
     try {
       const result = await listCSVFields({ input, delimiter, newline });
 
-      const fieldMap: Record<string, number[]> = {};
+      const fieldMap: Record<string, number[]> = Object.create(null);
       const fields: FieldFromCSV[] = [];
 
       // group the array fields' cells together so that large arrays don't kill

@@ -10,9 +10,7 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  TEST_COMPASS_WEB,
-  skipForWeb,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -20,7 +18,10 @@ import {
   createNestedDocumentsCollection,
   createNumbersCollection,
 } from '../helpers/insert-data';
-import { context as testRunnerContext } from '../helpers/test-runner-context';
+import {
+  isTestingWeb,
+  context as testRunnerContext,
+} from '../helpers/test-runner-context';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
 
@@ -132,16 +133,13 @@ describe('Collection documents tab', function () {
     await browser.disconnectAll();
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Documents'
     );
 
-    if (!TEST_COMPASS_WEB) {
-      // setFeature/getFeature is not supported in compass-web yet
-      maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
-    }
+    maxTimeMSBefore = (await browser.getFeature('maxTimeMS')) as string;
   });
 
   after(async function () {
@@ -150,10 +148,7 @@ describe('Collection documents tab', function () {
   });
 
   afterEach(async function () {
-    if (!TEST_COMPASS_WEB) {
-      // setFeature/getFeature is not supported in compass-web yet
-      await browser.setFeature('maxTimeMS', maxTimeMSBefore);
-    }
+    await browser.setFeature('maxTimeMS', maxTimeMSBefore);
     await screenshotIfFailed(compass, this.currentTest);
   });
 
@@ -176,6 +171,7 @@ describe('Collection documents tab', function () {
       changed_maxtimems: false,
       collection_type: 'collection',
       has_collation: false,
+      has_filter: true,
       has_limit: false,
       has_projection: false,
       has_skip: false,
@@ -185,7 +181,7 @@ describe('Collection documents tab', function () {
       used_regex: false,
     });
 
-    if (!TEST_COMPASS_WEB) {
+    if (!isTestingWeb()) {
       // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([{ Filter: '{\n  i: 5\n}' }]);
@@ -216,6 +212,7 @@ describe('Collection documents tab', function () {
       changed_maxtimems: false,
       collection_type: 'collection',
       has_collation: false,
+      has_filter: true,
       has_limit: true,
       has_projection: true,
       has_sort: true,
@@ -225,7 +222,7 @@ describe('Collection documents tab', function () {
       used_regex: false,
     });
 
-    if (!TEST_COMPASS_WEB) {
+    if (!isTestingWeb()) {
       // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([
@@ -273,7 +270,7 @@ describe('Collection documents tab', function () {
     const displayText = await documentListActionBarMessageElement.getText();
     expect(displayText).to.equal('1 – 1 of 1');
 
-    if (!TEST_COMPASS_WEB) {
+    if (!isTestingWeb()) {
       // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([
@@ -287,20 +284,23 @@ describe('Collection documents tab', function () {
 
   for (const maxTimeMSMode of ['ui', 'preference'] as const) {
     it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
-      skipForWeb(this, 'preferences modal not supported in compass-web');
-
       if (maxTimeMSMode === 'preference') {
-        await browser.openSettingsModal();
-        const settingsModal = browser.$(Selectors.SettingsModal);
-        await settingsModal.waitForDisplayed();
-        await browser.clickVisible(Selectors.GeneralSettingsButton);
+        if (isTestingWeb()) {
+          await browser.setFeature('maxTimeMS', 1);
+        } else {
+          await browser.openSettingsModal();
+          await browser.waitForOpenModal(Selectors.SettingsModal);
+          await browser.clickVisible(Selectors.GeneralSettingsButton);
 
-        await browser.setValueVisible(
-          Selectors.SettingsInputElement('maxTimeMS'),
-          '1'
-        );
-        await browser.clickVisible(Selectors.SaveSettingsButton);
-        await settingsModal.waitForDisplayed({ reverse: true });
+          await browser.setValueVisible(
+            Selectors.SettingsInputElement('maxTimeMS'),
+            '1'
+          );
+          await browser.clickVisible(Selectors.SaveSettingsButton);
+          await browser.waitForOpenModal(Selectors.SettingsModal, {
+            reverse: true,
+          });
+        }
       }
 
       // execute a query that will take a long time, but set a maxTimeMS shorter than that
@@ -591,8 +591,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.clickVisible(Selectors.CloneDocumentButton);
 
     // wait for the modal to appear
-    const insertDialog = browser.$(Selectors.InsertDialog);
-    await insertDialog.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.InsertDialog);
 
     // set the text in the editor and insert the document
     await browser.setCodemirrorEditorValue(
@@ -602,7 +601,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const insertConfirm = browser.$(Selectors.InsertConfirm);
     await insertConfirm.waitForEnabled();
     await browser.clickVisible(Selectors.InsertConfirm);
-    await insertDialog.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 10042 }');
 
@@ -637,7 +636,7 @@ FindIterable<Document> result = collection.find(filter);`);
   describe('expanding and collapsing of documents', function () {
     beforeEach(async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'nestedDocs',
         'Documents'
@@ -697,7 +696,7 @@ FindIterable<Document> result = collection.find(filter);`);
       '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
     beforeEach(async function () {
       await browser.setValidation({
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         database: 'test',
         collection: 'numbers',
         validator: REQUIRE_PHONE_VALIDATOR,
@@ -706,7 +705,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     it('Shows error info when inserting', async function () {
       await browser.navigateToCollectionTab(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'test',
         'numbers',
         'Documents'
@@ -727,12 +726,14 @@ FindIterable<Document> result = collection.find(filter);`);
       await errorElement.waitForDisplayed();
       await errorDetailsBtn.click();
 
-      const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
-      await errorDetailsJson.waitForDisplayed();
+      await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed();
 
-      // exit details
+      // now click the close button
       await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-      await errorElement.waitForDisplayed();
+      // wait for the modal to go away
+      await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed({
+        reverse: true,
+      });
     });
 
     describe('Editing', function () {
@@ -779,12 +780,13 @@ FindIterable<Document> result = collection.find(filter);`);
         await errorDetailsBtn.waitForDisplayed();
         await errorDetailsBtn.click();
 
-        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
-        await errorDetailsJson.waitForDisplayed();
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed();
 
         // exit details
         await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-        await errorDetailsJson.waitForDisplayed({ reverse: true });
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed({
+          reverse: true,
+        });
       });
 
       it('shows error info when editing via json view', async function () {
@@ -828,12 +830,13 @@ FindIterable<Document> result = collection.find(filter);`);
         await errorDetailsBtn.waitForDisplayed();
         await errorDetailsBtn.click();
 
-        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
-        await errorDetailsJson.waitForDisplayed();
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed();
 
         // exit details
         await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-        await errorDetailsJson.waitForDisplayed({ reverse: true });
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed({
+          reverse: true,
+        });
       });
 
       it('shows error info when editing via table view', async function () {
@@ -874,12 +877,13 @@ FindIterable<Document> result = collection.find(filter);`);
         await errorDetailsBtn.waitForDisplayed();
         await errorDetailsBtn.click();
 
-        const errorDetailsJson = browser.$(Selectors.ErrorDetailsJson);
-        await errorDetailsJson.waitForDisplayed();
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed();
 
         // exit details
         await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-        await errorDetailsJson.waitForDisplayed({ reverse: true });
+        await browser.$(Selectors.ErrorDetailsJson).waitForDisplayed({
+          reverse: true,
+        });
       });
     });
   });

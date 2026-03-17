@@ -7,8 +7,6 @@ import { WithAtlasProviders } from './entrypoint';
 import {
   renderWithConnections,
   screen,
-  waitFor,
-  within,
 } from '@mongodb-js/testing-library-compass';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -45,9 +43,7 @@ const HOME_PROPS = {
   hideCollectionSubMenu: () => {},
   onDisconnect: () => {},
   showCollectionSubMenu: () => {},
-  showSettings: () => {},
   getAutoConnectInfo: () => Promise.resolve(undefined),
-  showWelcomeModal: false,
   connectionStorage: new InMemoryConnectionStorage(),
 } as const;
 
@@ -82,31 +78,6 @@ describe('Home [Component]', function () {
   });
 
   describe('is not connected', function () {
-    it('renders welcome modal and hides it', async function () {
-      renderHome({ showWelcomeModal: true });
-      const modal = screen.getByTestId('welcome-modal');
-      expect(modal).to.be.visible;
-      within(modal).getByRole('button', { name: 'Start' }).click();
-      await waitFor(() => {
-        expect(screen.queryByTestId('welcome-modal')).to.not.exist;
-      });
-    });
-
-    it('calls openSettings when user clicks on settings', async function () {
-      const showSettingsSpy = sinon.spy();
-      renderHome({
-        showSettings: showSettingsSpy,
-        showWelcomeModal: true,
-      });
-
-      const modal = screen.getByTestId('welcome-modal');
-      within(modal).getByTestId('open-settings-link').click();
-      await waitFor(() => {
-        expect(screen.queryByTestId('welcome-modal')).to.not.exist;
-      });
-      expect(showSettingsSpy.callCount).to.equal(1);
-    });
-
     it('renders only the workspaces', function () {
       renderHome({}, [], createDataService());
       expect(screen.getByTestId('home')).to.be.displayed;

@@ -1,7 +1,31 @@
-import type { MongoDBJSONSchema } from 'mongodb-schema';
+import {
+  getDirectChildren,
+  getFieldFromSchema,
+  traverseSchema,
+} from './schema-traversal';
+import type { FieldPath } from '../services/data-model-storage';
+import type { FieldData } from '../services/data-model-storage';
 
-export function getNewUnusedFieldName(jsonSchema: MongoDBJSONSchema): string {
-  const existingFieldNames = new Set(Object.keys(jsonSchema.properties || {}));
+export function getNewUnusedFieldName(
+  jsonSchema: FieldData,
+  parentFieldPath: string[] = []
+): string {
+  const parentJSONSchema: FieldData | undefined =
+    parentFieldPath.length > 0
+      ? getFieldFromSchema({
+          jsonSchema,
+          fieldPath: parentFieldPath,
+        })?.jsonSchema
+      : jsonSchema;
+
+  if (!parentJSONSchema) return 'field-1';
+
+  const existingFieldNames = new Set(
+    (function* () {
+      for (const [name] of getDirectChildren(parentJSONSchema)) yield name;
+    })()
+  );
+
   let i = 1;
   let fieldName = `field-${i}`;
 
@@ -13,39 +37,15 @@ export function getNewUnusedFieldName(jsonSchema: MongoDBJSONSchema): string {
   return fieldName;
 }
 
-export function addFieldToJSONSchema(
-  jsonSchema: MongoDBJSONSchema,
-  fieldPath: string[],
-  newFieldSchema: MongoDBJSONSchema
-): MongoDBJSONSchema {
-  if (fieldPath.length === 0) {
-    throw new Error('Invalid field to add to schema');
-  }
-
-  if (fieldPath.length === 1) {
-    return {
-      ...jsonSchema,
-      properties: {
-        ...jsonSchema.properties,
-        [fieldPath[0]]: newFieldSchema,
-      },
-    };
-  }
-
-  const schemaToAddFieldTo = jsonSchema.properties?.[fieldPath[0]];
-  if (!schemaToAddFieldTo) {
-    throw new Error('Field path to add new field to does not exist');
-  }
-
-  return {
-    ...jsonSchema,
-    properties: {
-      ...jsonSchema.properties,
-      [fieldPath[0]]: addFieldToJSONSchema(
-        schemaToAddFieldTo,
-        fieldPath.slice(1),
-        newFieldSchema
-      ),
+export function extractFieldsFromFieldData(
+  parentSchema: FieldData
+): FieldPath[] {
+  const fields: FieldPath[] = [];
+  traverseSchema({
+    jsonSchema: parentSchema,
+    visitor: ({ fieldPath }) => {
+      fields.push(fieldPath);
     },
-  };
+  });
+  return fields;
 }

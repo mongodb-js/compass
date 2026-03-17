@@ -16,12 +16,13 @@ export type BaseStorageOptions = {
 // Generic base class that works with any IUserData implementation
 export abstract class BaseCompassQueryStorage<TSchema extends z.Schema> {
   protected readonly userData: IUserData<TSchema>;
-
+  protected readonly dataType: string;
   constructor(
     schemaValidator: TSchema,
-    protected readonly dataType: string,
+    dataType: string,
     userData: IUserData<TSchema>
   ) {
+    this.dataType = dataType;
     this.userData = userData;
   }
 

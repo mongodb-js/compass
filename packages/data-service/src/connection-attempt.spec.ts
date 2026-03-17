@@ -1,14 +1,13 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import { createLogger } from '@mongodb-js/compass-logging';
+import { mongoLogId } from './logger';
 
 import { createConnectionAttempt } from './connection-attempt';
 import type { UnboundDataServiceImplLogger } from './logger';
 
-const { mongoLogId } = createLogger('CONNECTION-ATTEMPT-TEST');
-
 describe('ConnectionAttempt Module', function () {
   let logger: UnboundDataServiceImplLogger;
+  const proxyOptions = {};
 
   beforeEach(function () {
     logger = {
@@ -30,6 +29,7 @@ describe('ConnectionAttempt Module', function () {
           return dataService;
         },
         logger,
+        proxyOptions,
       });
       const connectionAttemptResult = await connectionAttempt.connect({
         connectionString: 'mongodb://localhost:27017',
@@ -45,6 +45,7 @@ describe('ConnectionAttempt Module', function () {
           return dataService;
         },
         logger,
+        proxyOptions,
       });
 
       const connectPromise = connectionAttempt.connect({
@@ -65,6 +66,7 @@ describe('ConnectionAttempt Module', function () {
             throw new Error('should have been thrown');
           },
           logger,
+          proxyOptions,
         });
 
         await connectionAttempt.connect({
@@ -93,6 +95,7 @@ describe('ConnectionAttempt Module', function () {
           return dataService;
         },
         logger,
+        proxyOptions,
       });
       await connectionAttempt.connect({
         connectionString: 'mongodb://localhost:27017',

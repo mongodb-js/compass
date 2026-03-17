@@ -18,14 +18,22 @@ export async function setComboBoxValue(
       return false;
     }
   });
-  const controlledMenuId: string = await inputElement.getAttribute(
-    'aria-controls'
-  );
+  const controlledMenuId = await inputElement.getAttribute('aria-controls');
+  if (!controlledMenuId) {
+    throw new Error(
+      'Expected input element of the combobox to have an aria-controls attribute'
+    );
+  }
   const comboboxListSelectorElement = browser.$(
     `[id="${controlledMenuId}"][role="listbox"]`
   );
   await comboboxListSelectorElement.waitForDisplayed();
   await browser.setValueVisible(comboboxInputSelector, comboboxValue);
-  await browser.keys(['Enter']);
+  await browser.clickVisible(
+    comboboxListSelectorElement.$(
+      // Handle existing as well as new values
+      `[aria-label="${comboboxValue}"],[aria-label='Field: "${comboboxValue}"']`
+    )
+  );
   await comboboxListSelectorElement.waitForDisplayed({ reverse: true });
 }

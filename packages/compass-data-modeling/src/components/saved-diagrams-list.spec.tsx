@@ -29,7 +29,7 @@ const storageItems: MongoDBDataModelDescription[] = [
               indexes: [],
               displayPosition: [1, 1],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
+              fieldData: { bsonType: 'object' },
             },
           ],
           relationships: [],
@@ -37,6 +37,7 @@ const storageItems: MongoDBDataModelDescription[] = [
       },
     ],
     connectionId: null,
+    database: 'db1',
   },
   {
     id: '2',
@@ -55,7 +56,7 @@ const storageItems: MongoDBDataModelDescription[] = [
               indexes: [],
               displayPosition: [2, 2],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
+              fieldData: { bsonType: 'object' },
             },
           ],
           relationships: [],
@@ -63,6 +64,7 @@ const storageItems: MongoDBDataModelDescription[] = [
       },
     ],
     connectionId: null,
+    database: 'db2',
   },
   {
     id: '3',
@@ -81,7 +83,7 @@ const storageItems: MongoDBDataModelDescription[] = [
               indexes: [],
               displayPosition: [3, 3],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
+              fieldData: { bsonType: 'object' },
             },
           ],
           relationships: [],
@@ -89,6 +91,7 @@ const storageItems: MongoDBDataModelDescription[] = [
       },
     ],
     connectionId: null,
+    database: 'db3',
   },
 ];
 

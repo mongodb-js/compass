@@ -288,7 +288,7 @@ describe('Connection Import / Export', function () {
           await browser.selectConnectionsMenuItem(
             Selectors.ExportConnectionsModalOpen
           );
-          await browser.$(Selectors.ExportConnectionsModal).waitForDisplayed();
+          await browser.waitForOpenModal(Selectors.ExportConnectionsModal);
         }
 
         // Enter filename and adjust secrets handling
@@ -298,9 +298,10 @@ describe('Connection Import / Export', function () {
             filename
           );
 
-          if (variant === 'protected') {
+          if (variant === 'plaintext') {
             await browser.clickParent(Selectors.ExportConnectionsRemoveSecrets);
           } else if (variant === 'encrypted') {
+            await browser.clickParent(Selectors.ExportConnectionsRemoveSecrets);
             await browser.setValueVisible(
               Selectors.ExportConnectionsPassphrase,
               's3cr3t'
@@ -350,7 +351,7 @@ describe('Connection Import / Export', function () {
           await browser.selectConnectionsMenuItem(
             Selectors.ImportConnectionsModalOpen
           );
-          await browser.$(Selectors.ImportConnectionsModal).waitForDisplayed();
+          await browser.waitForOpenModal(Selectors.ImportConnectionsModal);
         }
 
         // Enter filename and adjust secrets handling

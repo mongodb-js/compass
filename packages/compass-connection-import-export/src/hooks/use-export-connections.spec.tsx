@@ -55,16 +55,16 @@ describe('useExportConnections', function () {
   });
 
   // Security-relevant test -- description is in the protect-connection-strings e2e test.
-  it('sets removeSecrets if protectConnectionStrings is set', function () {
+  it('defaults to removeSecrets and keeps it enabled when protectConnectionStrings is set', function () {
     const { result } = renderUseExportConnectionsHook();
 
-    expect(result.current.state.removeSecrets).to.equal(false);
+    expect(result.current.state.removeSecrets).to.equal(true);
     act(() => {
       result.current.onChangeRemoveSecrets({
-        target: { checked: true },
+        target: { checked: false },
       } as any);
     });
-    expect(result.current.state.removeSecrets).to.equal(true);
+    expect(result.current.state.removeSecrets).to.equal(false);
     cleanup();
 
     const { result: resultInProtectedMode } = renderUseExportConnectionsHook(
@@ -193,6 +193,9 @@ describe('useExportConnections', function () {
       .resolves(fileContents);
 
     act(() => {
+      result.current.onChangeRemoveSecrets({
+        target: { checked: false },
+      } as any);
       result.current.onChangeFilename(filename);
       result.current.onChangePassphrase('s3cr3t');
     });
@@ -261,11 +264,23 @@ describe('useExportConnections', function () {
             // expecting to include the non-favorite connections as well
             savedConnectionType: 'recent',
           },
+          {
+            id: 'id2',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:2021',
+            },
+            favorite: {
+              name: '',
+            },
+            // expecting to include the non-favorite connections as well
+            savedConnectionType: 'recent',
+          },
         ],
       }
     );
 
     expect(result.current.state.connectionList).to.deep.equal([
+      { id: 'id2', name: 'localhost:2021', selected: true },
       { id: 'id1', name: 'name1', selected: true },
     ]);
   });

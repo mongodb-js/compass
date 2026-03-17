@@ -12,6 +12,11 @@ export async function navigateToConnectTab(
   const initialTab = await browser
     .$(Selectors.SelectedAdvancedOptionsTab)
     .getAttribute('name');
+
+  if (!initialTab) {
+    throw new Error('Expected initialTab to exist');
+  }
+
   if (initialTab !== tabName) {
     await browser.clickVisible(Selectors.advancedOptionsTab(tabName));
     await browser

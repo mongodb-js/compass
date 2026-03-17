@@ -10,7 +10,7 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -38,7 +38,7 @@ describe('Bulk Update', () => {
     await browser.disconnectAll();
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Documents'
@@ -57,7 +57,7 @@ describe('Bulk Update', () => {
 
     // Open the modal.
     await browser.clickVisible(Selectors.OpenBulkUpdateButton);
-    await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.BulkUpdateModal);
 
     // Check the telemetry
     const openedEvent = await telemetryEntry('Bulk Update Opened');
@@ -105,18 +105,20 @@ describe('Bulk Update', () => {
     await browser.clickVisible(Selectors.BulkUpdateUpdateButton);
 
     // The modal should go away
-    await browser
-      .$(Selectors.BulkUpdateModal)
-      .waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.BulkUpdateModal, {
+      reverse: true,
+    });
 
     // The success toast is displayed
     await browser.$(Selectors.BulkUpdateSuccessToast).waitForDisplayed();
 
-    const toastText = await browser
-      .$(Selectors.BulkUpdateSuccessToast)
-      .getText();
+    await browser.waitUntil(async () => {
+      const toastText = await browser
+        .$(Selectors.BulkUpdateSuccessToast)
+        .getText();
+      return toastText.includes('1 document has been updated.');
+    });
 
-    expect(toastText).to.contain('1 document has been updated.');
     // We close the toast
     await browser.clickVisible(Selectors.BulkUpdateSuccessToastDismissButton);
 
@@ -150,7 +152,7 @@ describe('Bulk Update', () => {
 
     // Open the modal.
     await browser.clickVisible(Selectors.OpenBulkUpdateButton);
-    await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.BulkUpdateModal);
 
     // Change the update text
     await browser.setCodemirrorEditorValue(
@@ -184,9 +186,9 @@ describe('Bulk Update', () => {
     await browser.clickVisible(Selectors.BulkUpdateCancelButton);
 
     // Wait for the modal to go away
-    await browser
-      .$(Selectors.BulkUpdateModal)
-      .waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.BulkUpdateModal, {
+      reverse: true,
+    });
 
     // Open the dropdown
     await browser.clickVisible(Selectors.QueryBarHistoryButton);
@@ -214,7 +216,7 @@ describe('Bulk Update', () => {
     });
 
     // The modal should open
-    await browser.$(Selectors.BulkUpdateModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.BulkUpdateModal);
 
     // Make sure the query is shown in the modal.
     expect(

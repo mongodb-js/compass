@@ -128,9 +128,10 @@ export type AtlasServiceConfig = {
 
 /**
  * Atlas service backend configurations.
- *  - atlas-local:             local mms backend         (localhost)
+ *  - atlas-local:             local mms backend         (cloud-local.mongodb.com)
  *  - atlas-dev:               dev mms backend           (cloud-dev.mongodb.com)
  *  - atlas-qa:                qa mms backend            (cloud-qa.mongodb.com)
+ *  - atlas-staging:           staging mms backend       (cloud-stage.mongodb.com)
  *  - atlas:                   mms backend               (cloud.mongodb.com)
  *  - web-sandbox-atlas-local: local mms backend + proxy (localhost / proxy prefix)
  *  - web-sandbox-atlas-dev:   dev mms backend + proxy   (cloud-dev.mongodb.com / proxy prefix)
@@ -141,14 +142,14 @@ const config = {
   'atlas-local': {
     ccsBaseUrl: 'ws://localhost:61001/ws',
     cloudBaseUrl: '',
-    atlasApiBaseUrl: 'http://localhost:8080/api/private',
+    atlasApiBaseUrl: 'http://cloud-local.mongodb.com/api/private',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
-    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
+    authPortalUrl: 'https://account-local.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
-    userDataBaseUrl: 'https://cloud-dev.mongodb.com/ui/userData',
+    userDataBaseUrl: 'https://cloud-local.mongodb.com/ui/userData',
   },
   'atlas-dev': {
     ccsBaseUrl: '',
@@ -173,6 +174,18 @@ const config = {
     authPortalUrl: 'https://account-qa.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud-qa.mongodb.com/ui/userData',
+  },
+  'atlas-staging': {
+    ccsBaseUrl: '',
+    cloudBaseUrl: '',
+    atlasApiBaseUrl: 'https://cloud-stage.mongodb.com/api/private',
+    atlasLogin: {
+      clientId: '0oaq1le5jlzxCuTbu357',
+      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+    },
+    authPortalUrl: 'https://account-stage.mongodb.com/account/login',
+    assistantApiBaseUrl: 'https://knowledge-staging.mongodb.com/api/v1',
+    userDataBaseUrl: 'https://cloud-stage.mongodb.com/ui/userData',
   },
   atlas: {
     ccsBaseUrl: '',
@@ -242,6 +255,7 @@ export function getAtlasConfig(
   const { atlasServiceBackendPreset } = preferences.getPreferences();
   const envConfig = {
     atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
+    cloudBaseUrl: process.env.COMPASS_CLOUD_BASE_URL_OVERRIDE,
     atlasLogin: {
       clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
       issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,

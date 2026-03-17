@@ -1,17 +1,15 @@
 import { makePreferencesIpc } from './renderer-ipc';
 import { EventEmitter } from 'events';
 import { expect } from 'chai';
+import type { UserPreferences } from './preferences-schema';
 
 describe('Renderer IPC', function () {
   const ipcImpl = {
-    'compass:save-preferences'(attributes) {
+    'compass:save-preferences'(attributes: Partial<UserPreferences>) {
       return { savePreferences: 1, attributes };
     },
     'compass:get-preferences'() {
       return { getPreferences: 1 };
-    },
-    'compass:ensure-default-configurable-user-preferences'() {
-      return { ensureDefaultConfigurableUserPreferences: 1 };
     },
     'compass:get-configurable-user-preferences'() {
       return { getConfigurableUserPreferences: 1 };
@@ -22,7 +20,7 @@ describe('Renderer IPC', function () {
   };
   const ipcMock = Object.assign(new EventEmitter(), {
     invoke(method: string, ...args: any[]) {
-      return Promise.resolve(ipcImpl[method](...args));
+      return Promise.resolve((ipcImpl as any)[method](...args));
     },
   });
   const preferencesIpc = makePreferencesIpc(ipcMock as any);
@@ -38,12 +36,6 @@ describe('Renderer IPC', function () {
     expect(preferencesIpc.getPreferences()).to.deep.equal({
       getPreferences: 1,
     });
-  });
-
-  it('should be able to call ensureDefaultConfigurableUserPreferences', async function () {
-    expect(
-      await preferencesIpc.ensureDefaultConfigurableUserPreferences()
-    ).to.deep.equal({ ensureDefaultConfigurableUserPreferences: 1 });
   });
 
   it('should be able to call getConfigurableUserPreferences', async function () {

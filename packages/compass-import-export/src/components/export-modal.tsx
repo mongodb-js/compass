@@ -30,7 +30,7 @@ import type { ExportStatus, FieldsToExportOption } from '../modules/export';
 import type { RootExportState } from '../stores/export-store';
 import { SelectFileType } from './select-file-type';
 import { ExportSelectFields } from './export-select-fields';
-import { codeElementId, ExportCodeView } from './export-code-view';
+import { ExportCodeView } from './export-code-view';
 import type { ExportAggregation, ExportQuery } from '../export/export-types';
 import { queryHasProjection } from '../utils/query-has-projection';
 import { FieldsToExportOptions } from './export-field-options';
@@ -85,8 +85,10 @@ function useExport(): [
   ];
 }
 
-const closeButtonStyles = css({
-  marginRight: spacing[200],
+const footerStyles = css({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  gap: spacing[2],
 });
 
 const messageBannerStyles = css({
@@ -246,12 +248,7 @@ function ExportModal({
   }, [isOpen, resetExportFormState]);
 
   return (
-    <Modal
-      open={isOpen}
-      setOpen={closeExport}
-      data-testid="export-modal"
-      initialFocus={exportFullCollection ? undefined : `#${codeElementId}`}
-    >
+    <Modal open={isOpen} setOpen={closeExport} data-testid="export-modal">
       <ModalHeader
         title="Export"
         subtitle={aggregation ? `Aggregation on ${ns}` : `Collection ${ns}`}
@@ -311,7 +308,26 @@ function ExportModal({
           </>
         )}
       </ModalBody>
-      <ModalFooter>
+      <ModalFooter className={footerStyles}>
+        {((status === 'ready-to-export' &&
+          !exportFullCollection &&
+          !aggregation &&
+          !(query && queryHasProjection(query))) ||
+          status === 'select-fields-to-export') && (
+          <Button onClick={onClickBack}>Back</Button>
+        )}
+        {((status === 'ready-to-export' &&
+          (aggregation ||
+            exportFullCollection ||
+            (query && queryHasProjection(query)))) ||
+          status === 'select-field-options') && (
+          <Button
+            data-testid="export-close-export-button"
+            onClick={closeExport}
+          >
+            Cancel
+          </Button>
+        )}
         {status === 'select-field-options' && (
           <Button
             data-testid="export-next-step-button"
@@ -339,28 +355,6 @@ function ExportModal({
             variant="primary"
           >
             Export…
-          </Button>
-        )}
-        {((status === 'ready-to-export' &&
-          !exportFullCollection &&
-          !aggregation &&
-          !(query && queryHasProjection(query))) ||
-          status === 'select-fields-to-export') && (
-          <Button className={closeButtonStyles} onClick={onClickBack}>
-            Back
-          </Button>
-        )}
-        {((status === 'ready-to-export' &&
-          (aggregation ||
-            exportFullCollection ||
-            (query && queryHasProjection(query)))) ||
-          status === 'select-field-options') && (
-          <Button
-            data-testid="export-close-export-button"
-            className={closeButtonStyles}
-            onClick={closeExport}
-          >
-            Cancel
           </Button>
         )}
       </ModalFooter>

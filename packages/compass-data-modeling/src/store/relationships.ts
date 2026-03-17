@@ -180,6 +180,13 @@ export async function inferForeignToLocalRelationshipsForCollection(
             if (sampleDocs.length === 0) {
               return null;
             }
+            // For high cardinality values like ObjectId we will consider
+            // relationship existing even if a single matching documet was found
+            // for any of the used sample values. Otherwise, to reduce the risk
+            // of erroneously identifined relations, we will always expect an
+            // exact match
+            const expectedCount =
+              idSchema.bsonType === 'objectId' ? 1 : sampleDocs.length;
             const matchingDocCount = await dataService.count(
               foreignNamespace,
               {
@@ -187,10 +194,10 @@ export async function inferForeignToLocalRelationshipsForCollection(
                   $in: sampleDocs as any[], // driver wants this to be an ObjectId unless a generic type for the filter is provided, we don't currently support passing this generic value on data service level
                 },
               },
-              { hint: { _id: 1 }, maxTimeMS: 10_000 },
+              { hint: { _id: 1 }, maxTimeMS: 10_000, limit: expectedCount },
               { abortSignal, fallbackReadPreference: 'secondaryPreferred' }
             );
-            if (matchingDocCount !== sampleDocs.length) {
+            if (matchingDocCount !== expectedCount) {
               return null;
             }
             return [

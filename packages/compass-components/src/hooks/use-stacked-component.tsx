@@ -32,8 +32,8 @@ type StackedComponentProps<T extends boolean> = T extends true
 
 // TODO(LG-4109): This should be eventually supported by the LG design system
 export const withStackedComponentStyles = function <ComponentProps>(
-  WrappedComponent: ComponentType<ComponentProps>
-): ComponentType<ComponentProps> {
+  WrappedComponent: React.FC<ComponentProps>
+): React.FC<ComponentProps> {
   const ComponentWithStackedStyles = (
     props: ComponentProps,
     ref: ForwardedRef<ComponentType<ComponentProps>>

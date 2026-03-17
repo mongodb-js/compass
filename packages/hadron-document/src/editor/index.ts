@@ -8,6 +8,7 @@ import DateEditor from './date';
 import NullEditor from './null';
 import UndefinedEditor from './undefined';
 import ObjectIdEditor from './objectid';
+import UUIDEditor from './uuid';
 import type { Element } from '../element';
 
 const init = (element: Element) => ({
@@ -21,6 +22,7 @@ const init = (element: Element) => ({
   Null: new NullEditor(element),
   Undefined: new UndefinedEditor(element),
   ObjectId: new ObjectIdEditor(element),
+  UUID: new UUIDEditor(element),
 });
 
 export const ElementEditor = Object.assign(init, {
@@ -34,6 +36,7 @@ export const ElementEditor = Object.assign(init, {
   NullEditor,
   UndefinedEditor,
   ObjectIdEditor,
+  UUIDEditor,
 });
 
 export type Editor =
@@ -46,7 +49,8 @@ export type Editor =
   | Int64Editor
   | NullEditor
   | UndefinedEditor
-  | ObjectIdEditor;
+  | ObjectIdEditor
+  | UUIDEditor;
 
 export {
   DateEditor,
@@ -59,4 +63,5 @@ export {
   NullEditor,
   UndefinedEditor,
   ObjectIdEditor,
+  UUIDEditor,
 };

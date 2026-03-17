@@ -28,12 +28,17 @@ import {
   Body,
   Badge,
   Icon,
+  AtlasSkillsBanner,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getAtlasPerformanceAdvisorLink } from '../utils';
 import { useIsLastAppliedQueryOutdated } from '@mongodb-js/compass-query-bar';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  SkillsBannerContextEnum,
+  useAtlasSkillsBanner,
+} from '@mongodb-js/compass-telemetry/provider';
 import type { RootState } from '../stores/store';
 import { startAnalysis, stopAnalysis } from '../stores/schema-analysis-reducer';
 import { openExportSchema } from '../stores/schema-export-reducer';
@@ -394,6 +399,7 @@ const Schema: React.FunctionComponent<{
   onStartAnalysis,
   onStopAnalysis,
 }) => {
+  const track = useTelemetry();
   const onApplyClicked = useCallback(() => {
     void onStartAnalysis();
   }, [onStartAnalysis]);
@@ -407,6 +413,15 @@ const Schema: React.FunctionComponent<{
   );
 
   const enableExportSchema = usePreference('enableExportSchema');
+
+  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+  const [dismissed, setDismissed] = usePersistedState(
+    'mongodb_compass_dismissedAtlasSchemaSkillBanner',
+    false
+  );
+  const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
+    SkillsBannerContextEnum.Schema
+  );
 
   return (
     <>
@@ -428,6 +443,22 @@ const Schema: React.FunctionComponent<{
         >
           <div className={contentStyles}>
             {enablePerformanceAdvisorBanner && <PerformanceAdvisorBanner />}
+            <AtlasSkillsBanner
+              ctaText="Learn how to effectively design and optimize your schema."
+              skillsUrl="https://learn.mongodb.com/skills?team=growth&openTab=data+modeling"
+              onCloseSkillsBanner={() => {
+                setDismissed(true);
+                track('Atlas Skills CTA Dismissed', {
+                  context: 'Schema Tab',
+                });
+              }}
+              showBanner={shouldShowAtlasSkillsBanner && !dismissed}
+              onCtaClick={() => {
+                track('Atlas Skills CTA Clicked', {
+                  context: 'Schema Tab',
+                });
+              }}
+            />
             {analysisState === ANALYSIS_STATE_INITIAL && (
               <InitialScreen onApplyClicked={onApplyClicked} />
             )}

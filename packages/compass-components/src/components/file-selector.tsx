@@ -1,4 +1,11 @@
 import React, { type InputHTMLAttributes, useRef } from 'react';
+import { css } from '@leafygreen-ui/emotion';
+
+const displayNoneStyles = css({
+  // make sure actual input is always hidden (mms is doing something weird
+  // forcing these to be visible)
+  display: 'none !important',
+});
 
 type FileSelectorTriggerProps = {
   onClick: () => void;
@@ -33,11 +40,14 @@ export function FileSelector({
         ref={inputRef}
         type="file"
         onChange={onFilesChanged}
-        style={{ display: 'none' }}
+        className={displayNoneStyles}
       />
-      {trigger({
-        onClick: () => inputRef.current?.click(),
-      })}
+      {trigger(
+        // ref is not accessed in the render for rendering purposes, it's
+        // accessed in the callback, but the rule is not detecting it
+        // eslint-disable-next-line react-hooks/refs
+        { onClick: () => inputRef.current?.click() }
+      )}
     </>
   );
 }

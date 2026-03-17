@@ -92,7 +92,7 @@ function LegacyRefluxProvider({
 }) {
   const storeRef = useRef(store);
   const [state, setState] = useState(() => {
-    return storeRef.current.state;
+    return store.state;
   });
 
   React.useEffect(() => {

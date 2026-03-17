@@ -8,7 +8,7 @@ export async function navigateToDatabaseCollectionsTab(
   dbName: string
 ): Promise<void> {
   await browser.navigateToConnectionTab(connectionName, 'Databases');
-  await browser.clickVisible(Selectors.databaseCardClickable(dbName));
+  await browser.clickVisible(`${Selectors.databaseRow(dbName)} td:first-child`);
   await waitUntilActiveDatabaseTab(browser, connectionName, dbName);
 }
 

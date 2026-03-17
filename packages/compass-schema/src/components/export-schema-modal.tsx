@@ -60,7 +60,8 @@ const codeStyles = css({
 
 const footerStyles = css({
   display: 'flex',
-  gap: spacing[200],
+  justifyContent: 'flex-end',
+  gap: spacing[2],
 });
 
 const formatDescriptionStyles = css({
@@ -109,7 +110,7 @@ const exportSchemaFormatOptionDetails: Record<
       </div>
     ),
   },
-};
+} as const;
 
 const formatTypeRadioBoxGroupId = 'export-schema-format-type-box-group';
 const formatTypeRadioBoxGroupLabelId = `${formatTypeRadioBoxGroupId}-label`;
@@ -149,7 +150,7 @@ const ExportSchemaModal: React.FunctionComponent<{
   );
 
   return (
-    <Modal open={isOpen} setOpen={onClose} contentClassName={modalStyles}>
+    <Modal open={isOpen} setOpen={onClose} className={modalStyles}>
       <ModalHeader title="Export JSON Schema" />
       <ModalBody>
         <Label
@@ -223,6 +224,9 @@ const ExportSchemaModal: React.FunctionComponent<{
         </div>
       </ModalBody>
       <ModalFooter className={footerStyles}>
+        <Button onClick={onClose} variant="default">
+          Cancel
+        </Button>
         <Button
           variant="primary"
           isLoading={exportStatus === 'inprogress'}
@@ -232,9 +236,6 @@ const ExportSchemaModal: React.FunctionComponent<{
           data-testid="schema-export-download-button"
         >
           Export..
-        </Button>
-        <Button onClick={onClose} variant="default">
-          Cancel
         </Button>
       </ModalFooter>
     </Modal>

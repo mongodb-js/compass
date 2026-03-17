@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
@@ -12,13 +12,19 @@ import {
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
-import type { CollectionSubtab } from '@mongodb-js/compass-workspaces';
+import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   useConnectionInfoRef,
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
+import {
+  useGlobalAppRegistry,
+  useLocalAppRegistry,
+} from '@mongodb-js/compass-app-registry';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 
 type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
   ? U extends string
@@ -97,7 +103,7 @@ function WithErrorBoundary({
 }: {
   children: React.ReactNode;
   name: string;
-  type: 'content' | 'header';
+  type: 'content' | 'header' | 'drawer';
 }) {
   const { log, mongoLogId } = useLogger('COMPASS-COLLECTION-TAB-UI');
   return (
@@ -135,26 +141,41 @@ function useCollectionTabs(props: CollectionMetadata) {
       }
       return true;
     })
-    .map(({ name, content: Content, provider: Provider, header: Header }) => {
-      // `pluginTabs` never change in runtime so it's safe to call the hook here
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      Provider.useActivate(props);
-      return {
+    .map(
+      ({
         name,
-        content: (
-          <WithErrorBoundary name={name} type="content">
+        content: Content,
+        provider: Provider,
+        header: Header,
+        drawer: Drawer,
+      }) => {
+        // `pluginTabs` never change in runtime so it's safe to call the hook here
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        Provider.useActivate(props);
+        return {
+          name,
+          content: (
+            <WithErrorBoundary name={name} type="content">
+              <Provider {...props}>
+                <Content {...props} />
+              </Provider>
+            </WithErrorBoundary>
+          ),
+          title: (
             <Provider {...props}>
-              <Content {...props} />
+              <Header />
             </Provider>
-          </WithErrorBoundary>
-        ),
-        title: (
-          <Provider {...props}>
-            <Header />
-          </Provider>
-        ),
-      };
-    });
+          ),
+          drawer: Drawer ? (
+            <WithErrorBoundary name={name} type="drawer">
+              <Provider {...props}>
+                <Drawer {...props} />
+              </Provider>
+            </WithErrorBoundary>
+          ) : null,
+        };
+      }
+    );
 }
 
 const CollectionTabWithMetadata: React.FunctionComponent<
@@ -197,10 +218,14 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     pipelineText: initialPipelineText,
     query: initialQuery,
     editViewName: editViewName,
+    subTab: currentTab,
   };
 
   const tabs = useCollectionTabs(pluginProps);
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
+
+  useSyncAssistantGlobalState('activeCollectionMetadata', collectionMetadata);
+  useSyncAssistantGlobalState('activeCollectionSubTab', currentTab);
 
   return (
     <div className={collectionStyles} data-testid="collection">
@@ -224,9 +249,86 @@ const CollectionTabWithMetadata: React.FunctionComponent<
           return <ModalPlugin key={idx} {...pluginProps}></ModalPlugin>;
         })}
       </div>
+      {tabs.map(({ drawer }) => (
+        <>{drawer}</>
+      ))}
     </div>
   );
 };
+
+// Setup the Electron application menu for the collection tab
+function useCollectionTabApplicationMenu(
+  collectionMetadata: CollectionMetadata | null
+) {
+  const localAppRegistry = useLocalAppRegistry();
+  const globalAppRegistry = useGlobalAppRegistry();
+  const connectionInfoRef = useConnectionInfoRef();
+  const preferencesReadOnly = usePreference('readOnly');
+
+  const shareSchemaClick = useCallback(() => {
+    localAppRegistry.emit('menu-share-schema-json');
+  }, [localAppRegistry]);
+
+  const importClick = useCallback(() => {
+    if (!collectionMetadata) return;
+    globalAppRegistry.emit(
+      'open-import',
+      {
+        namespace: collectionMetadata.namespace,
+        origin: 'menu',
+      },
+      {
+        connectionId: connectionInfoRef.current.id,
+      },
+      {}
+    );
+  }, [collectionMetadata, globalAppRegistry, connectionInfoRef]);
+
+  const exportClick = useCallback(() => {
+    if (!collectionMetadata) return;
+    globalAppRegistry.emit(
+      'open-export',
+      {
+        exportFullCollection: true,
+        namespace: collectionMetadata.namespace,
+        origin: 'menu',
+      },
+      {
+        connectionId: connectionInfoRef.current.id,
+      }
+    );
+  }, [collectionMetadata, globalAppRegistry, connectionInfoRef]);
+
+  useApplicationMenu({
+    menu: collectionMetadata
+      ? {
+          label: '&Collection',
+          submenu: [
+            {
+              label: '&Share Schema as JSON (Legacy)',
+              accelerator: 'Alt+CmdOrCtrl+S',
+              click: shareSchemaClick,
+            },
+            {
+              type: 'separator',
+            },
+            ...(preferencesReadOnly || collectionMetadata?.isReadonly
+              ? []
+              : [
+                  {
+                    label: '&Import Data',
+                    click: importClick,
+                  },
+                ]),
+            {
+              label: '&Export Collection',
+              click: exportClick,
+            },
+          ],
+        }
+      : undefined,
+  });
+}
 
 const CollectionTab = ({
   collectionMetadata,
@@ -235,6 +337,7 @@ const CollectionTab = ({
   collectionMetadata: CollectionMetadata | null;
 }) => {
   const QueryBarPlugin = useCollectionQueryBar();
+  useCollectionTabApplicationMenu(collectionMetadata);
 
   if (!collectionMetadata) {
     return null;
@@ -251,6 +354,8 @@ const CollectionTab = ({
   };
 
   return (
+    // This component is not created in render, just accessed from context
+    // eslint-disable-next-line react-hooks/static-components
     <QueryBarPlugin {...pluginProps}>
       <CollectionTabWithMetadata
         collectionMetadata={collectionMetadata}

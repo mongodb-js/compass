@@ -3,10 +3,7 @@
     "$oid": "63f656c128ff7868ed701ca3"
   },
   "uuid": {
-    "$binary": {
-      "base64": "ACY24RDNTIuppwG3v9OJnA==",
-      "subType": "04"
-    }
+    "$uuid": "002636e1-10cd-4c8b-a9a7-01b7bfd3899c"
   },
   "name": "Arlo"
 },
@@ -15,10 +12,7 @@
     "$oid": "63f656c128ff7868ed701ca4"
   },
   "uuid": {
-    "$binary": {
-      "base64": "ADH2ysDsTLCmbB/hTKKcGA==",
-      "subType": "04"
-    }
+    "$uuid": "0031f6ca-c0ec-4cb0-a66c-1fe14ca29c18"
   },
   "name": "Basil"
 },
@@ -27,10 +21,7 @@
     "$oid": "63f656c128ff7868ed701ca5"
   },
   "uuid": {
-    "$binary": {
-      "base64": "ADVkMBdRSZauRXdnZILiEA==",
-      "subType": "04"
-    }
+    "$uuid": "00356430-1751-4996-ae45-77676482e210"
   },
   "name": "Kochka"
 }]

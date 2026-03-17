@@ -14,16 +14,13 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   connectionNameFromString,
-  DEFAULT_CONNECTION_NAME_1,
-  DEFAULT_CONNECTION_STRING_1,
+  getDefaultConnectionNames,
+  getDefaultConnectionStrings,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 import * as Selectors from '../helpers/selectors';
-import {
-  DEFAULT_CONNECTION_NAMES,
-  isTestingWeb,
-} from '../helpers/test-runner-context';
+import { isTestingWeb } from '../helpers/test-runner-context';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
 
 async function disconnect(browser: CompassBrowser) {
@@ -40,7 +37,6 @@ function hasAtlasEnvironmentVariables(): boolean {
     'E2E_TESTS_ATLAS_HOST',
     'E2E_TESTS_DATA_LAKE_HOST',
     'E2E_TESTS_ANALYTICS_NODE_HOST',
-    'E2E_TESTS_SERVERLESS_HOST',
     'E2E_TESTS_FREE_TIER_HOST',
     'E2E_TESTS_ATLAS_USERNAME',
     'E2E_TESTS_ATLAS_PASSWORD',
@@ -174,9 +170,8 @@ async function assertCannotInsertData(
   );
 
   // cancel and wait for the modal to go away
-  const insertDialog = browser.$(Selectors.InsertDialog);
   await browser.clickVisible(Selectors.InsertCancel);
-  await insertDialog.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
 }
 
 async function assertCannotCreateDb(
@@ -197,8 +192,7 @@ async function assertCannotCreateDb(
     false
   );
 
-  const createModalElement = browser.$(Selectors.CreateDatabaseModal);
-  await createModalElement.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.CreateDatabaseModal);
   await browser.setValueVisible(Selectors.CreateDatabaseDatabaseName, dbName);
   await browser.setValueVisible(
     Selectors.CreateDatabaseCollectionName,
@@ -217,7 +211,9 @@ async function assertCannotCreateDb(
 
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateDatabaseCancelButton);
-  await createModalElement.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.CreateDatabaseModal, {
+    reverse: true,
+  });
 }
 
 async function assertCannotCreateCollection(
@@ -236,8 +232,7 @@ async function assertCannotCreateCollection(
   await browser.hover(Selectors.sidebarDatabase(connectionId, dbName));
   await browser.clickVisible(Selectors.CreateCollectionButton);
 
-  const createModalElement = browser.$(Selectors.CreateCollectionModal);
-  await createModalElement.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.CreateCollectionModal);
   await browser.setValueVisible(
     Selectors.CreateDatabaseCollectionName,
     collectionName
@@ -254,7 +249,9 @@ async function assertCannotCreateCollection(
 
   // cancel and wait for the modal to go away
   await browser.clickVisible(Selectors.CreateCollectionCancelButton);
-  await createModalElement.waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.CreateCollectionModal, {
+    reverse: true,
+  });
 }
 
 function assertNotError(result: any) {
@@ -292,7 +289,7 @@ describe('Connection string', function () {
     await browser.connectWithConnectionString();
     if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -302,7 +299,7 @@ describe('Connection string', function () {
   });
 
   it('fails for authentication errors', async function () {
-    const [protocol, url] = DEFAULT_CONNECTION_STRING_1.split('://');
+    const [protocol, url] = getDefaultConnectionStrings(0).split('://');
     // connect
     await browser.connectWithConnectionString(`${protocol}://a:b@${url}`, {
       connectionStatus: 'failure',
@@ -321,7 +318,7 @@ describe('Connection string', function () {
 
     // click the review button in the toast
     await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
-    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ConnectionModal);
     const errorText = await browser
       .$(Selectors.ConnectionFormErrorMessage)
       .getText();
@@ -329,9 +326,9 @@ describe('Connection string', function () {
 
     // close the modal
     await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-    await browser
-      .$(Selectors.ConnectionModal)
-      .waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ConnectionModal, {
+      reverse: true,
+    });
   });
 
   it('can connect to an Atlas replicaset without srv', async function () {
@@ -380,30 +377,6 @@ describe('Connection string', function () {
     if (!TEST_COMPASS_WEB) {
       const result = await browser.shellEval(
         connectionNameFromString(connectionString),
-        'db.runCommand({ connectionStatus: 1 })',
-        true
-      );
-      assertNotError(result);
-      expect(result).to.have.property('ok', 1);
-    }
-  });
-
-  it('can connect to Atlas Serverless', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    const username = process.env.E2E_TESTS_ATLAS_USERNAME ?? '';
-    const password = process.env.E2E_TESTS_ATLAS_PASSWORD ?? '';
-    const host = process.env.E2E_TESTS_SERVERLESS_HOST ?? '';
-    const connectionString = `mongodb+srv://${username}:${password}@${host}`;
-    const connectionName = connectionNameFromString(connectionString);
-
-    await browser.connectWithConnectionString(connectionString);
-
-    if (!TEST_COMPASS_WEB) {
-      const result = await browser.shellEval(
-        connectionName,
         'db.runCommand({ connectionStatus: 1 })',
         true
       );
@@ -666,7 +639,7 @@ describe('Connect in a new window', () => {
     // TODO: Remove this as part of COMPASS-8970.
     skipForWeb(this, 'connecting in new window is not supported on web');
 
-    const connectionName = DEFAULT_CONNECTION_NAMES[0];
+    const connectionName = getDefaultConnectionNames(0);
     const connectionSelector = Selectors.sidebarConnection(connectionName);
     await browser.hover(connectionSelector);
 
@@ -692,7 +665,7 @@ describe('Connect in a new window', () => {
   });
 
   it('shows correct connect button', async function (this) {
-    const connectionName = DEFAULT_CONNECTION_NAMES[0];
+    const connectionName = getDefaultConnectionNames(0);
     const connectionSelector = Selectors.sidebarConnection(connectionName);
     await browser.hover(connectionSelector);
 
@@ -881,28 +854,6 @@ describe('Connection form', function () {
     expect(result).to.have.property('ok', 1);
   });
 
-  it('can connect to Atlas Serverless', async function () {
-    if (!hasAtlasEnvironmentVariables()) {
-      return this.skip();
-    }
-
-    const atlasConnectionOptions: ConnectFormState = basicAtlasOptions(
-      process.env.E2E_TESTS_SERVERLESS_HOST ?? ''
-    );
-    const connectionName = this.test?.fullTitle() ?? '';
-    await browser.connectWithConnectionForm({
-      ...atlasConnectionOptions,
-      connectionName,
-    });
-    const result = await browser.shellEval(
-      connectionName,
-      'db.runCommand({ connectionStatus: 1 })',
-      true
-    );
-    assertNotError(result);
-    expect(result).to.have.property('ok', 1);
-  });
-
   it('can connect to Atlas Datalake', async function () {
     if (!hasAtlasEnvironmentVariables()) {
       return this.skip();
@@ -1059,7 +1010,7 @@ describe('Connection form', function () {
       await browser.$(toastSelector).waitForDisplayed({ reverse: true });
 
       // make sure the connection form is populated with this connection
-      await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ConnectionModal);
       const errorText = await browser
         .$(Selectors.ConnectionFormErrorMessage)
         .getText();
@@ -1071,9 +1022,9 @@ describe('Connection form', function () {
 
       // close the modal
       await browser.clickVisible(Selectors.ConnectionModalCloseButton);
-      await browser
-        .$(Selectors.ConnectionModal)
-        .waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.ConnectionModal, {
+        reverse: true,
+      });
     }
   });
 });

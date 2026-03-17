@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.52.1",
+  "version": "0.73.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -54,26 +54,26 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@mongodb-js/compass-app-registry": "^9.4.26",
-    "@mongodb-js/compass-logging": "^1.7.19",
-    "@mongodb-js/compass-telemetry": "^1.16.1",
-    "@mongodb-js/compass-user-data": "^0.10.2",
-    "@mongodb-js/compass-utils": "^0.9.17",
-    "@mongodb-js/connection-info": "^0.21.1",
-    "bson": "^6.10.4",
-    "compass-preferences-model": "^2.57.1",
-    "electron": "^37.6.0",
-    "hadron-ipc": "^3.5.17",
+    "@mongodb-js/compass-app-registry": "^9.9.1",
+    "@mongodb-js/compass-logging": "^1.12.1",
+    "@mongodb-js/compass-telemetry": "^1.27.1",
+    "@mongodb-js/compass-user-data": "^0.17.1",
+    "@mongodb-js/compass-utils": "^0.9.30",
+    "@mongodb-js/connection-info": "^0.27.1",
+    "bson": "^7.2.0",
+    "compass-preferences-model": "^2.74.1",
+    "electron": "^37.10.3",
+    "hadron-ipc": "^3.5.29",
     "keytar": "^7.9.0",
-    "lodash": "^4.17.21",
-    "mongodb-connection-string-url": "^3.0.1",
+    "lodash": "^4.17.23",
+    "mongodb-connection-string-url": "^7.0.1",
     "react": "^17.0.2"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.11",
-    "@mongodb-js/mocha-config-compass": "^1.7.2",
+    "@mongodb-js/eslint-config-compass": "^1.4.19",
+    "@mongodb-js/mocha-config-compass": "^1.7.7",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
-    "@mongodb-js/tsconfig-compass": "^1.2.11",
+    "@mongodb-js/tsconfig-compass": "^1.2.14",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
@@ -82,6 +82,6 @@
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "sinon": "^9.2.3",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   }
 }

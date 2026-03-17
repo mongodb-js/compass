@@ -79,13 +79,9 @@ const uploadManifest = async (manifest) => {
 const downloadAssetFromEvergreen = ({ name, path: dest }) => {
   // eslint-disable-next-line no-async-promise-executor
   return new Promise(async (resolve, reject) => {
-    requireEnvironmentVariables([
-      'EVERGREEN_BUCKET_NAME',
-      'EVERGREEN_BUCKET_KEY_PREFIX',
-    ]);
-    const bucket = process.env.EVERGREEN_BUCKET_NAME;
-    const key = `${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`;
-    const url = `https://${bucket}.s3.amazonaws.com/${key}`;
+    requireEnvironmentVariables(['EVERGREEN_BUCKET_KEY_PREFIX']);
+    const key = `compass-dev/${process.env.EVERGREEN_BUCKET_KEY_PREFIX}/${name}`;
+    const url = `https://downloads.mongodb.com/${key}`;
     const stream = download(url);
     await fs.promises.mkdir(path.dirname(dest), { recursive: true });
     stream.pipe(fs.createWriteStream(dest));

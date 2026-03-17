@@ -6,7 +6,7 @@ import {
   type WorkspaceTabCoreProps,
 } from '@mongodb-js/compass-components';
 import type { DataModelingState } from './store/reducer';
-import type { WorkspacePluginProps } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePluginProps } from '@mongodb-js/workspace-info';
 
 export const WorkspaceName = 'Data Modeling' as const;
 

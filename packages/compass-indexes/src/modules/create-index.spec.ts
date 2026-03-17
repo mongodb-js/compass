@@ -26,7 +26,7 @@ describe('create-index module', function () {
   describe('#createIndexFormSubmitted', function () {
     beforeEach(function () {
       store.dispatch(updateFieldName(0, 'foo'));
-      store.dispatch(fieldTypeUpdated(0, 'text'));
+      store.dispatch(fieldTypeUpdated(0, 'text (full text search)'));
     });
 
     it('validates collation', function () {
@@ -218,18 +218,6 @@ describe('create-index module', function () {
       void store.dispatch(createIndexOpened({ query }));
 
       expect(store.getState().createIndex.isVisible).to.equal(true);
-    });
-
-    it('sets currentTab=IndexFlow if no query is provided', function () {
-      void store.dispatch(createIndexOpened());
-
-      expect(store.getState().createIndex.currentTab).to.equal('IndexFlow');
-    });
-
-    it('sets currentTab=QueryFlow if a query is provided', function () {
-      void store.dispatch(createIndexOpened({ query }));
-
-      expect(store.getState().createIndex.currentTab).to.equal('QueryFlow');
     });
   });
 

@@ -14,7 +14,12 @@ import * as GuideCueGroups from './guide-cue-groups';
 import { GuideCue } from './guide-cue';
 import Sinon from 'sinon';
 
-const renderGuideCue = (props: Partial<ComponentProps<typeof GuideCue>>) => {
+const renderGuideCue = (
+  props: Omit<
+    Partial<ComponentProps<typeof GuideCue<HTMLElement>>>,
+    'triggerNode' | 'trigger'
+  >
+) => {
   const containerRef = React.createRef<any>();
   // Wrapping GuideCue component in this way as it is easier to test for
   // outside clicks.
@@ -23,7 +28,7 @@ const renderGuideCue = (props: Partial<ComponentProps<typeof GuideCue>>) => {
       <Button data-testid="outside-component">
         Outside Guide Cue Component
       </Button>
-      <GuideCue
+      <GuideCue<HTMLButtonElement>
         cueId=""
         groupId=""
         step={0}
@@ -109,7 +114,7 @@ describe('GuideCue', function () {
 
       await waitForElementToBeRemoved(() => getGuideCuePopover());
 
-      expect(() => getGuideCuePopover()).to.throw;
+      expect(() => getGuideCuePopover()).to.throw();
     });
 
     it('hides guide cue when user clicks outside guide cue popover', async function () {
@@ -125,7 +130,7 @@ describe('GuideCue', function () {
       userEvent.click(outsideButton);
 
       await waitForElementToBeRemoved(() => getGuideCuePopover());
-      expect(() => getGuideCuePopover()).to.throw;
+      expect(() => getGuideCuePopover()).to.throw();
     });
 
     it('does not hide guide cue when user clicks inside guide cue popover', async function () {
@@ -216,7 +221,7 @@ describe('GuideCue', function () {
       });
 
       // when added GC is not visible as the group is not complete
-      expect(() => getGuideCuePopover()).to.throw;
+      expect(() => getGuideCuePopover()).to.throw();
 
       // add second cue from the group
       renderGuideCue({
@@ -264,7 +269,7 @@ describe('GuideCue', function () {
       // wait for current cue to be removed
       await waitForElementToBeRemoved(() => getGuideCuePopover());
 
-      expect(() => getGuideCuePopover()).to.throw;
+      expect(() => getGuideCuePopover()).to.throw();
     });
 
     it('calls onDismiss when dismiss action is clicked', async function () {
@@ -354,7 +359,7 @@ describe('GuideCue', function () {
       // wait for current cue to be removed
       await waitForElementToBeRemoved(() => getGuideCuePopover());
 
-      expect(() => getGuideCuePopover()).to.throw;
+      expect(() => getGuideCuePopover()).to.throw();
     });
   });
 });

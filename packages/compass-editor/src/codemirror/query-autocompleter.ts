@@ -15,7 +15,7 @@ export const createQueryAutocompleter = (
   options: Pick<CompletionOptions, 'fields' | 'serverVersion'> = {}
 ): CompletionSource => {
   const completions = completer('', {
-    meta: ['query', 'bson', 'field:identifier'],
+    meta: ['query', 'bson', 'bson-legacy-uuid', 'field:identifier'],
     ...options,
   });
 

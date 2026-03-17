@@ -44,22 +44,26 @@ const getInitialState = (): SchemaExportState => ({
   legacyModalChoice: undefined,
 });
 
-export const enum SchemaExportActions {
-  openExportSchema = 'schema-service/schema-export/openExportSchema',
-  closeExportSchema = 'schema-service/schema-export/closeExportSchema',
-  openLegacyModal = 'schema-service/schema-export/openLegacyModal',
-  closeLegacyModal = 'schema-service/schema-export/closeLegacyModal',
-  setLegacyModalChoice = 'schema-service/schema-export/setLegacyModalChoice',
-  changeExportSchemaStatus = 'schema-service/schema-export/changeExportSchemaStatus',
-  changeExportSchemaFormatStarted = 'schema-service/schema-export/changeExportSchemaFormatStarted',
-  changeExportSchemaFormatComplete = 'schema-service/schema-export/changeExportSchemaFormatComplete',
-  changeExportSchemaFormatError = 'schema-service/schema-export/changeExportSchemaFormatError',
-  cancelExportSchema = 'schema-service/schema-export/cancelExportSchema',
-  schemaDownloadReady = 'schema-service/schema-export/schemaDownloadReady',
-}
+export const SchemaExportActions = {
+  openExportSchema: 'schema-service/schema-export/openExportSchema',
+  closeExportSchema: 'schema-service/schema-export/closeExportSchema',
+  openLegacyModal: 'schema-service/schema-export/openLegacyModal',
+  closeLegacyModal: 'schema-service/schema-export/closeLegacyModal',
+  setLegacyModalChoice: 'schema-service/schema-export/setLegacyModalChoice',
+  changeExportSchemaStatus:
+    'schema-service/schema-export/changeExportSchemaStatus',
+  changeExportSchemaFormatStarted:
+    'schema-service/schema-export/changeExportSchemaFormatStarted',
+  changeExportSchemaFormatComplete:
+    'schema-service/schema-export/changeExportSchemaFormatComplete',
+  changeExportSchemaFormatError:
+    'schema-service/schema-export/changeExportSchemaFormatError',
+  cancelExportSchema: 'schema-service/schema-export/cancelExportSchema',
+  schemaDownloadReady: 'schema-service/schema-export/schemaDownloadReady',
+} as const;
 
 export type OpenExportSchemaAction = {
-  type: SchemaExportActions.openExportSchema;
+  type: typeof SchemaExportActions.openExportSchema;
 };
 export const openExportSchema = (): SchemaThunkAction<
   void,
@@ -75,7 +79,7 @@ export const openExportSchema = (): SchemaThunkAction<
 };
 
 export type CloseExportSchemaAction = {
-  type: SchemaExportActions.closeExportSchema;
+  type: typeof SchemaExportActions.closeExportSchema;
 };
 export const closeExportSchema = (): SchemaThunkAction<
   void,
@@ -91,21 +95,21 @@ export const closeExportSchema = (): SchemaThunkAction<
 };
 
 export type CancelExportSchemaAction = {
-  type: SchemaExportActions.cancelExportSchema;
+  type: typeof SchemaExportActions.cancelExportSchema;
 };
 
 export type ChangeExportSchemaFormatStartedAction = {
-  type: SchemaExportActions.changeExportSchemaFormatStarted;
+  type: typeof SchemaExportActions.changeExportSchemaFormatStarted;
   exportFormat: SchemaFormat;
 };
 
 export type ChangeExportSchemaFormatErroredAction = {
-  type: SchemaExportActions.changeExportSchemaFormatError;
+  type: typeof SchemaExportActions.changeExportSchemaFormatError;
   errorMessage: string;
 };
 
 export type ChangeExportSchemaFormatCompletedAction = {
-  type: SchemaExportActions.changeExportSchemaFormatComplete;
+  type: typeof SchemaExportActions.changeExportSchemaFormatComplete;
   exportedSchema: string;
   filename: string;
 };
@@ -515,7 +519,7 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
 
 // TODO(COMPASS-8692): clean out when phase out is confirmed.
 export type openLegacyModalAction = {
-  type: SchemaExportActions.openLegacyModal;
+  type: typeof SchemaExportActions.openLegacyModal;
 };
 
 export const openLegacyModal = (): SchemaThunkAction<void> => {
@@ -543,11 +547,11 @@ export const openLegacyModal = (): SchemaThunkAction<void> => {
 };
 
 export type closeLegacyModalAction = {
-  type: SchemaExportActions.closeLegacyModal;
+  type: typeof SchemaExportActions.closeLegacyModal;
 };
 
 export type setLegacyModalChoiceAction = {
-  type: SchemaExportActions.setLegacyModalChoice;
+  type: typeof SchemaExportActions.setLegacyModalChoice;
   choice: 'legacy' | 'export';
 };
 

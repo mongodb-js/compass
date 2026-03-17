@@ -77,6 +77,8 @@ interface CollectionProps {
   calculated_storage_size: number | undefined;
   index_count: number | undefined;
   index_size: number | undefined;
+  bucket_count: number | undefined;
+  avg_bucket_size: number | undefined;
   isTimeSeries: boolean;
   isView: boolean;
   /** Only relevant for a view and identifies collection/view from which this view was created. */

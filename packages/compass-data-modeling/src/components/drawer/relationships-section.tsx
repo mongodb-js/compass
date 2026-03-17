@@ -4,13 +4,17 @@ import {
   Badge,
   Button,
   css,
+  cx,
   Icon,
   IconButton,
   palette,
   spacing,
+  Tooltip,
+  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Relationship } from '../../services/data-model-storage';
 import { getDefaultRelationshipName } from '../../utils';
+import { isRelationshipValid } from '../../utils/utils';
 
 const titleBtnStyles = css({
   marginLeft: 'auto',
@@ -35,13 +39,28 @@ const relationshipItemStyles = css({
   alignItems: 'center',
 });
 
-const relationshipNameStyles = css({
+const relationshipNameWrapperStyles = css({
   flexGrow: 1,
+  minWidth: 0,
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[100],
+  paddingRight: spacing[200],
+});
+
+const relationshipNameStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-  minWidth: 0,
-  paddingRight: spacing[200],
+});
+
+const warnIconWrapperStyles = css({
+  display: 'flex',
+  color: palette.yellow.dark2,
+});
+
+const warnIconWrapperDarkStyles = css({
+  color: palette.yellow.light2,
 });
 
 const relationshipContentStyles = css({
@@ -65,6 +84,7 @@ export const RelationshipsSection: React.FunctionComponent<
   onEditRelationshipClick,
   onDeleteRelationshipClick,
 }) => {
+  const darkmode = useDarkMode();
   return (
     <DMDrawerSection
       label={
@@ -97,12 +117,31 @@ export const RelationshipsSection: React.FunctionComponent<
                   data-relationship-id={r.id}
                   className={relationshipItemStyles}
                 >
-                  <span
-                    className={relationshipNameStyles}
-                    title={relationshipLabel}
-                  >
-                    {relationshipLabel}
-                  </span>
+                  <div className={relationshipNameWrapperStyles}>
+                    <span
+                      className={relationshipNameStyles}
+                      title={relationshipLabel}
+                    >
+                      {relationshipLabel}
+                    </span>
+                    {!isRelationshipValid(r) && (
+                      <Tooltip
+                        trigger={
+                          <div
+                            className={cx(
+                              warnIconWrapperStyles,
+                              darkmode && warnIconWrapperDarkStyles
+                            )}
+                          >
+                            <Icon glyph="Warning" />
+                          </div>
+                        }
+                      >
+                        Cannot resolve the relationship - please verify the
+                        linked fields and namespace.
+                      </Tooltip>
+                    )}
+                  </div>
                   <IconButton
                     aria-label="Edit relationship"
                     title="Edit relationship"

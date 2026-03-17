@@ -71,6 +71,12 @@ describe('queryBarReducer', function () {
 
       ['maxTimeMS', '1', 1, true],
       ['maxTimeMS', '-1', DEFAULT_QUERY_VALUES['maxTimeMS'], false],
+
+      ['hint', '"hintPineappleIndex"', 'hintPineappleIndex', true],
+      ['hint', '{ pineapple: 1 }', { pineapple: 1 }, true],
+      ['hint', 'pineapple', DEFAULT_QUERY_VALUES['hint'], false],
+      ['hint', '1', DEFAULT_QUERY_VALUES['hint'], false],
+      ['hint', '-1', DEFAULT_QUERY_VALUES['hint'], false],
     ];
 
     specs.forEach(([field, str, expectedValue, expectedValid]) => {

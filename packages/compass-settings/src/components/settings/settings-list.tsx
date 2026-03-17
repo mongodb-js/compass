@@ -4,7 +4,10 @@ import {
   getSettingDescription,
   featureFlags,
 } from 'compass-preferences-model/provider';
-import { SORT_ORDER_VALUES } from 'compass-preferences-model/provider';
+import {
+  SORT_ORDER_VALUES,
+  LEGACY_UUID_ENCODINGS,
+} from 'compass-preferences-model/provider';
 import { settingStateLabels } from './state-labels';
 import {
   Checkbox,
@@ -22,6 +25,11 @@ import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
 import { connect } from 'react-redux';
 
+const ENUM_PREFERENCE_CONFIG = {
+  defaultSortOrder: SORT_ORDER_VALUES,
+  legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS,
+} as const;
+
 type KeysMatching<T, V> = keyof {
   [P in keyof T as T[P] extends V ? P : never]: P;
 };
@@ -38,6 +46,7 @@ type StringPreferences = KeysMatching<
   UserConfigurablePreferences,
   string | undefined
 >;
+type StringEnumPreferences = keyof typeof ENUM_PREFERENCE_CONFIG;
 type SupportedPreferences =
   | BooleanPreferences
   | NumericPreferences
@@ -72,11 +81,14 @@ export type SettingsListProps<PreferenceName extends SupportedPreferences> = {
 
 function SettingLabel({ name }: { name: SupportedPreferences }) {
   const { short, long, longReact } = getSettingDescription(name).description;
+  const featureFlagDefinition = featureFlags.find((definition) => {
+    return definition.name === name;
+  });
   return (
     <>
       <Label htmlFor={name} id={`${name}-label`}>
         {short}
-        {(featureFlags as any)[name]?.stage === 'development' && (
+        {featureFlagDefinition?.stage === 'development' && (
           <span>
             <Badge className={devBadgeStyles}>dev</Badge>
           </span>
@@ -160,7 +172,7 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
   );
 }
 
-function DefaultSortOrderSetting<PreferenceName extends 'defaultSortOrder'>({
+function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
   name,
   onChange,
   value,
@@ -172,6 +184,11 @@ function DefaultSortOrderSetting<PreferenceName extends 'defaultSortOrder'>({
   disabled: boolean;
 }) {
   const optionDescriptions = getSettingDescription(name).description.options;
+
+  if (!optionDescriptions) {
+    throw new Error(`No option descriptions found for preference ${name}`);
+  }
+
   const onChangeCallback = useCallback(
     (value: string) => {
       onChange(name, value as UserConfigurablePreferences[PreferenceName]);
@@ -193,15 +210,9 @@ function DefaultSortOrderSetting<PreferenceName extends 'defaultSortOrder'>({
         onChange={onChangeCallback}
         disabled={disabled}
       >
-        {SORT_ORDER_VALUES.map((option) => (
-          <Option
-            key={option}
-            value={option}
-            description={
-              optionDescriptions && optionDescriptions[option].description
-            }
-          >
-            {optionDescriptions && optionDescriptions[option].label}
+        {Object.entries(optionDescriptions).map(([option, details]) => (
+          <Option key={option} value={option} description={details.description}>
+            {details.label}
           </Option>
         ))}
       </Select>
@@ -268,6 +279,10 @@ type SettingsInputProps = AnySetting & {
   required?: boolean;
 };
 
+function isStringEnumPreference(name: string): name is StringEnumPreferences {
+  return name in ENUM_PREFERENCE_CONFIG;
+}
+
 function isSupported(props: AnySetting): props is
   | {
       name: StringPreferences;
@@ -298,7 +313,9 @@ function SettingsInput({
 }: SettingsInputProps): React.ReactElement {
   if (!isSupported(props)) {
     throw new Error(
-      `Do not know how to render type ${props.type} for preference ${props.name}`
+      `Do not know how to render type ${String(props.type)} for preference ${
+        props.name
+      }`
     );
   }
 
@@ -315,9 +332,9 @@ function SettingsInput({
         disabled={!!disabled}
       />
     );
-  } else if (type === 'string' && name === 'defaultSortOrder') {
+  } else if (type === 'string' && isStringEnumPreference(name)) {
     input = (
-      <DefaultSortOrderSetting
+      <StringEnumSetting
         name={name}
         onChange={onChange}
         value={value as string}

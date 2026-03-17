@@ -1,7 +1,7 @@
 import type React from 'react';
 import { useCallback, useRef, useState, useEffect } from 'react';
 import {
-  FocusState,
+  FocusStates,
   rafraf,
   useFocusState,
 } from '@mongodb-js/compass-components';
@@ -152,8 +152,8 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
 
   useEffect(() => {
     if (
-      focusState === FocusState.FocusVisible ||
-      focusState === FocusState.Focus
+      focusState === FocusStates.FocusVisible ||
+      focusState === FocusStates.Focus
     ) {
       setTabIndex(-1);
       const item = findNext(-1, items, (item) => item.id === currentTabbable);
@@ -167,13 +167,13 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
     }
 
     if (
-      focusState === FocusState.FocusWithin ||
-      focusState === FocusState.FocusWithinVisible
+      focusState === FocusStates.FocusWithin ||
+      focusState === FocusStates.FocusWithinVisible
     ) {
       setTabIndex(-1);
     }
 
-    if (focusState === FocusState.NoFocus) {
+    if (focusState === FocusStates.NoFocus) {
       setTabIndex(0);
     }
   }, [currentTabbable, focusItemById, focusState, items, onFocusMove]);
@@ -304,7 +304,7 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
     ...focusProps,
   };
 
-  const isTreeItemFocused = focusState === FocusState.FocusWithinVisible;
+  const isTreeItemFocused = focusState === FocusStates.FocusWithinVisible;
 
   return [rootProps, currentTabbable, isTreeItemFocused];
 }

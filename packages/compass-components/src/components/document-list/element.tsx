@@ -1,28 +1,26 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
-  Editor as EditorType,
 } from 'hadron-document';
 import {
   ElementEvents,
   ElementEditor,
   DEFAULT_VISIBLE_ELEMENTS,
 } from 'hadron-document';
+import { Binary } from 'bson';
 import BSONValue from '../bson-value';
 import { spacing } from '@leafygreen-ui/tokens';
-import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
+import {
+  KeyEditor,
+  ValueEditor,
+  TypeEditor,
+  isUUIDType,
+} from './element-editors';
 import { EditActions, AddFieldActions } from './element-actions';
 import { useAutoFocusContext } from './auto-focus-context';
 import { useForceUpdate } from './use-force-update';
-import { usePrevious } from './use-previous';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { Icon } from '../leafygreen';
@@ -30,6 +28,9 @@ import { useDarkMode } from '../../hooks/use-theme';
 import VisibleFieldsToggle from './visible-field-toggle';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { useContextMenuGroups } from '../context-menu';
+import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
+import { useLegacyUUIDDisplayContext } from './legacy-uuid-format-context';
+import { getBsonType } from 'hadron-type-checker';
 
 function getEditorByType(type: HadronElementType['type']) {
   switch (type) {
@@ -44,29 +45,75 @@ function getEditorByType(type: HadronElementType['type']) {
     case 'ObjectId':
       return ElementEditor[`${type}Editor` as const];
     default:
+      if (isUUIDType(type)) {
+        return ElementEditor.UUIDEditor;
+      }
       return ElementEditor.StandardEditor;
   }
 }
 
-function useElementEditor(el: HadronElementType) {
-  const editor = useRef<EditorType | null>(null);
+function useElementEditor(
+  el: HadronElementType,
+  displayType: HadronElementType['type']
+) {
+  return useMemo(
+    () => {
+      // Set the displayType on the element so editors can read it.
+      // This ensures that Binary UUIDs get the UUIDEditor even when el.currentType is 'Binary'
+      el.displayType = displayType;
+      const Editor = getEditorByType(displayType);
+      return new Editor(el);
+    },
+    // The list of deps is exhaustive, but we want `displayType` to be an
+    // explicit dependency of the memo to make sure that even if the `el`
+    // instance is the same, but `displayType` changed, we create a new editor
+    // instance
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [el, displayType]
+  );
+}
 
-  if (
-    !editor.current ||
-    editor.current?.element !== el ||
-    editor.current?.type !== el.currentType
-  ) {
-    const Editor = getEditorByType(el.currentType);
-    editor.current = new Editor(el);
+/**
+ * Gets the display type for an element, considering legacy UUID encoding preference.
+ * For Binary subtype 3 (legacy UUID), returns the appropriate legacy UUID type based on context.
+ * For Binary subtype 4 (UUID), returns 'UUID'.
+ * For all other types, returns the element's currentType.
+ */
+function getDisplayType(
+  el: HadronElementType,
+  legacyUUIDEncoding: string
+): HadronElementType['type'] {
+  // If the element already has a specific UUID type, use it
+  if (isUUIDType(el.currentType)) {
+    return el.currentType;
   }
 
-  return editor.current;
+  // Check if this is a Binary that should be displayed as a UUID type
+  if (
+    el.currentType === 'Binary' &&
+    getBsonType(el.currentValue) === 'Binary'
+  ) {
+    const binary = el.currentValue as Binary;
+    if (binary.sub_type === Binary.SUBTYPE_UUID) {
+      return 'UUID';
+    }
+    if (
+      binary.sub_type === Binary.SUBTYPE_UUID_OLD &&
+      binary.buffer.length === 16 &&
+      legacyUUIDEncoding
+    ) {
+      return legacyUUIDEncoding as HadronElementType['type'];
+    }
+  }
+
+  return el.currentType;
 }
 
 function useHadronElement(el: HadronElementType) {
   const forceUpdate = useForceUpdate();
-  const prevEl = usePrevious(el);
-  const editor = useElementEditor(el);
+  const legacyUUIDEncoding = useLegacyUUIDDisplayContext();
+  const displayType = getDisplayType(el, legacyUUIDEncoding);
+  const editor = useElementEditor(el, displayType);
   // NB: Duplicate key state is kept local to the component and not derived on
   // every change so that only the changed key is highlighed as duplicate
   const [isDuplicateKey, setIsDuplicateKey] = useState(() => {
@@ -105,11 +152,9 @@ function useHadronElement(el: HadronElementType) {
     [el, forceUpdate]
   );
 
-  useEffect(() => {
-    if (prevEl && prevEl !== el) {
-      forceUpdate();
-    }
-  }, [el, prevEl, forceUpdate]);
+  useSyncStateOnPropChange(() => {
+    forceUpdate();
+  }, [el]);
 
   useEffect(() => {
     el.on(ElementEvents.Converted, onElementChanged);
@@ -173,7 +218,7 @@ function useHadronElement(el: HadronElementType) {
       completeEdit: editor.complete.bind(editor),
     },
     type: {
-      value: el.currentType,
+      value: displayType,
       change(newVal: HadronElementType['type']) {
         el.changeType(newVal);
       },
@@ -550,30 +595,37 @@ export const HadronElement: React.FunctionComponent<{
     }
   };
 
-  const lineNumberMinWidth = useMemo(() => {
+  const lineNumberMinWidthStyle = useMemo(() => {
     // Only account for ~ line count length if we are in editing mode
     if (editingEnabled) {
       const charCount = String(lineNumberSize).length;
-      return charCount > 2 ? `${charCount}.5ch` : spacing[400];
+      return {
+        minWidth: charCount > 2 ? `${charCount}.5ch` : spacing[400],
+      };
     }
-    return spacing[400];
+    return {
+      minWidth: spacing[400],
+    };
   }, [lineNumberSize, editingEnabled]);
 
-  const elementSpacerWidth = useMemo(
-    () => calculateElementSpacerWidth(editable, level, extraGutterWidth),
+  const elementSpacerWidthStyle = useMemo(
+    () => ({
+      width: calculateElementSpacerWidth(editable, level, extraGutterWidth),
+    }),
     [editable, level, extraGutterWidth]
   );
 
   // To render the "Show more" toggle for the nested expandable elements we need
   // to calculate a proper offset so that it aligns with the nesting level
-  const nestedElementsVisibilityToggleOffset = useMemo(
-    () =>
-      calculateShowMoreToggleOffset({
+  const nestedElementsVisibilityToggleOffsetStyle = useMemo(
+    () => ({
+      paddingLeft: calculateShowMoreToggleOffset({
         editable,
         level,
         alignWithNestedExpandIcon: true,
         extraGutterWidth,
       }),
+    }),
     [editable, level, extraGutterWidth]
   );
 
@@ -649,7 +701,7 @@ export const HadronElement: React.FunctionComponent<{
                 ? lineNumberRemoved
                 : editingEnabled && !isValid && lineNumberInvalid
             )}
-            style={{ minWidth: lineNumberMinWidth }}
+            style={lineNumberMinWidthStyle}
           >
             <div
               className={cx(
@@ -684,7 +736,7 @@ export const HadronElement: React.FunctionComponent<{
             </div>
           </div>
         )}
-        <div className={elementSpacer} style={{ width: elementSpacerWidth }}>
+        <div className={elementSpacer} style={elementSpacerWidthStyle}>
           {/* spacer for nested documents */}
         </div>
         <div className={elementExpand}>
@@ -849,9 +901,7 @@ export const HadronElement: React.FunctionComponent<{
             // this for "performance" reasons
             step={editingEnabled ? DEFAULT_VISIBLE_ELEMENTS : 1000}
             onSizeChange={handleVisibleElementsChanged}
-            style={{
-              paddingLeft: nestedElementsVisibilityToggleOffset,
-            }}
+            style={nestedElementsVisibilityToggleOffsetStyle}
           ></VisibleFieldsToggle>
         </>
       )}

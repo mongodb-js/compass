@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Tue, Sep 30, 2025
+Generated on Tue, Mar 17, 2026
 
 ## Table of Contents
 
@@ -38,7 +38,13 @@ Generated on Tue, Sep 30, 2025
 
 ### Assistant
 
+- [Assistant Prompt Submitted](#event--AssistantPromptSubmittedEvent)
+- [Assistant Response Failed](#event--AssistantResponseFailedEvent)
+- [Assistant Failed](#event--AssistantFailedEvent)
 - [Assistant Feedback Submitted](#event--AssistantFeedbackSubmittedEvent)
+- [Assistant Entry Point Used](#event--AssistantEntryPointUsedEvent)
+- [Assistant Confirmation Submitted](#event--AssistantConfirmationSubmittedEvent)
+- [Assistant Response Generated](#event--AssistantResponseGeneratedEvent)
 
 ### Atlas
 
@@ -87,8 +93,19 @@ Generated on Tue, Sep 30, 2025
 - [Data Modeling Collection Added](#event--DataModelingDiagramCollectionAdded)
 - [Data Modeling Collection Removed](#event--DataModelingDiagramCollectionRemoved)
 - [Data Modeling Collection Renamed](#event--DataModelingDiagramCollectionRenamed)
+- [Data Modeling Create Diagram Modal Opened](#event--DataModelingCreateDiagramModalOpened)
+- [Data Modeling Diagram Creation Started](#event--DataModelingDiagramCreationStarted)
+- [Data Modeling Diagram Creation Relationship Inferral Started](#event--DataModelingDiagramCreationRelationshipInferralStarted)
 - [Data Modeling Diagram Created](#event--DataModelingDiagramCreated)
+- [Data Modeling Diagram Creation Cancelled](#event--DataModelingDiagramCreationCancelled)
+- [Data Modeling Diagram Creation Failed](#event--DataModelingDiagramCreationFailed)
+- [Data Modeling Add DB Collections Modal Opened](#event--DataModelingAddDBCollectionsModalOpened)
+- [Data Modeling Add DB Collections Started](#event--DataModelingAddDBCollectionsStarted)
+- [Data Modeling Add DB Collections Succeeded](#event--DataModelingAddDBCollectionsSucceeded)
+- [Data Modeling Add DB Collections Failed](#event--DataModelingAddDBCollectionsFailed)
+- [Data Modeling Add DB Collections Cancelled](#event--DataModelingAddDBCollectionsCancelled)
 - [Data Modeling Diagram Exported](#event--DataModelingDiagramExported)
+- [Data Modeling Field Added](#event--DataModelingDiagramFieldAdded)
 - [Data Modeling Field Removed](#event--DataModelingDiagramFieldRemoved)
 - [Data Modeling Field Renamed](#event--DataModelingDiagramFieldRenamed)
 - [Data Modeling Field Type Changed](#event--DataModelingDiagramFieldTypeChanged)
@@ -110,6 +127,11 @@ Generated on Tue, Sep 30, 2025
 - [Document Deleted](#event--DocumentDeletedEvent)
 - [Document Inserted](#event--DocumentInsertedEvent)
 - [Document Updated](#event--DocumentUpdatedEvent)
+
+### Drawer
+
+- [Drawer Section Opened](#event--DrawerSectionOpenedEvent)
+- [Drawer Section Closed](#event--DrawerSectionClosedEvent)
 
 ### Explain
 
@@ -134,10 +156,6 @@ Generated on Tue, Sep 30, 2025
 
 ### Gen AI
 
-- [Assistant Prompt Submitted](#event--AssistantPromptSubmittedEvent)
-- [Assistant Response Failed](#event--AssistantResponseFailedEvent)
-- [Assistant Entry Point Used](#event--AssistantEntryPointUsedEvent)
-- [Assistant Confirmation Submitted](#event--AssistantConfirmationSubmittedEvent)
 - [AI Opt In Modal Shown](#event--AiOptInModalShownEvent)
 - [AI Opt In Modal Dismissed](#event--AiOptInModalDismissedEvent)
 - [AI Generate Query Clicked](#event--AiGenerateQueryClickedEvent)
@@ -145,8 +163,6 @@ Generated on Tue, Sep 30, 2025
 - [AI Query Feedback](#event--AiQueryFeedbackEvent)
 - [AI Response Failed](#event--AiResponseFailedEvent)
 - [AI Response Generated](#event--AiResponseGeneratedEvent)
-- [Drawer Section Opened](#event--DrawerSectionOpenedEvent)
-- [Drawer Section Closed](#event--DrawerSectionClosedEvent)
 - [PipelineAI Feedback](#event--PipelineAiFeedbackEvent)
 
 ### Guide Cues
@@ -164,11 +180,26 @@ Generated on Tue, Sep 30, 2025
 
 ### Indexes
 
+- [Atlas Search Indexes for View Link Clicked](#event--AtlasSearchIndexesForViewLinkClickedEvent)
+- [Create Search Index for View Clicked](#event--CreateSearchIndexForViewClickedEvent)
 - [Index Created](#event--IndexCreatedEvent)
 - [Index Create Failed](#event--IndexCreateFailedEvent)
 - [Index Create Opened](#event--IndexCreateOpenedEvent)
 - [Index Dropped](#event--IndexDroppedEvent)
 - [Index Edited](#event--IndexEditedEvent)
+
+### Mock Data Generator
+
+- [Mock Data Generator CTA Button Viewed](#event--MockDataGeneratorCtaButtonViewedEvent)
+- [Mock Data Generator Opened](#event--MockDataGeneratorOpenedEvent)
+- [Mock Data Generator Screen Viewed](#event--MockDataGeneratorScreenViewedEvent)
+- [Mock Data Generator Screen Proceeded](#event--MockDataGeneratorScreenProceededEvent)
+- [Mock Data Generator Dismissed](#event--MockDataGeneratorDismissedEvent)
+- [Mock Data JSON Type Changed](#event--MockDataJsonTypeChangedEvent)
+- [Mock Data Faker Method Changed](#event--MockDataFakerMethodChangedEvent)
+- [Mock Data Document Count Changed](#event--MockDataDocumentCountChangedEvent)
+- [Mock Data Script Generated](#event--MockDataScriptGeneratedEvent)
+- [Mock Data Script Copied](#event--MockDataScriptCopiedEvent)
 
 ### My Queries
 
@@ -180,30 +211,20 @@ Generated on Tue, Sep 30, 2025
 
 - [Application Launched](#event--ApplicationLaunchedEvent)
 - [Atlas Link Clicked](#event--AtlasLinkClickedEvent)
+- [Atlas Skills CTA Clicked](#event--AtlasSkillsCtaClickedEvent)
+- [Atlas Skills CTA Dismissed](#event--AtlasSkillsCtaDismissedEvent)
 - [Error Fetching Attributes](#event--ErrorFetchingAttributesEvent)
 - [Keytar Secrets Migration Failed](#event--KeytarSecretsMigrationFailedEvent)
 - [Performance Advisor Clicked](#event--PerformanceAdvisorClickedEvent)
+- [Assistant Tool Call Approval](#event--AssistantToolCallApprovalEvent)
 - [Screen](#event--ScreenEvent)
 - [Secret Storage Not Available](#event--SecretStorageNotAvailableEvent)
 - [Experiment Viewed](#event--ExperimentViewedEvent)
 - [Create Index Button Clicked](#event--CreateIndexButtonClickedEvent)
-- [Error parsing query](#event--CreateIndexErrorParsingQueryEvent)
-- [Error generating covered queries](#event--CreateIndexErrorGettingCoveredQueriesEvent)
-- [Code Equivalent Toggled](#event--CreateIndexCodeEquivalentToggled)
-- [Covered Queries Button Clicked](#event--CreateIndexCoveredQueriesButtonClicked)
-- [Covered Queries Learn More Clicked](#event--CreateIndexCoveredQueriesLearnMoreClicked)
-- [ESR Learn More Clicked](#event--CreateIndexESRLearnMoreClicked)
-- [Start with an Index Tab Clicked](#event--CreateIndexIndexTabClicked)
 - [Cancel Button Clicked](#event--CreateIndexModalCancelled)
 - [Create Index Modal Closed](#event--CreateIndexModalClosed)
 - [New Index Field Added](#event--CreateIndexNewFieldAdded)
 - [Options Clicked](#event--CreateIndexOptionsClicked)
-- [View Programming Language Syntax Clicked](#event--CreateIndexProgrammingLanguageLinkClicked)
-- [Start with a Query Tab Clicked](#event--CreateIndexQueryTabClicked)
-- [Suggested Index Button Clicked](#event--CreateIndexSuggestedIndexButtonClicked)
-- [Input Index Copied](#event--CreateIndexInputIndexCopied)
-- [Index Suggestions Copied](#event--CreateIndexIndexSuggestionsCopied)
-- [Index Strategies Documentation Clicked](#event--CreateIndexStrategiesDocumentationClicked)
 - [UUID Encountered](#event--UUIDEncounteredEvent)
 
 ### Performance Tab
@@ -224,6 +245,7 @@ Generated on Tue, Sep 30, 2025
 
 ### Schema
 
+- [Schema Analysis Started](#event--SchemaAnalysisStartedEvent)
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
@@ -629,6 +651,46 @@ builder.
 
 ## Assistant
 
+<a name="event--AssistantPromptSubmittedEvent"></a>
+
+### Assistant Prompt Submitted
+
+This event is fired when user enters a prompt in the assistant chat
+and hits "enter".
+
+**Properties**:
+
+- **user_input_length** (optional): `number | undefined`
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--AssistantResponseFailedEvent"></a>
+
+### Assistant Response Failed
+
+This event is fired when the AI response encounters an error.
+
+**Properties**:
+
+- **error_name** (optional): `string | undefined`
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--AssistantFailedEvent"></a>
+
+### Assistant Failed
+
+This event is fired when the AI fails due to any error.
+
+**Properties**:
+
+- **error_name** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--AssistantFeedbackSubmittedEvent"></a>
 
 ### Assistant Feedback Submitted
@@ -639,9 +701,53 @@ This event is fired when a user submits feedback for the assistant.
 
 - **feedback** (required): `"positive" | "negative"`
 - **text** (optional): `string | undefined`
-- **request_id** (required): `string | null`
+- **request_id** (optional): `string | undefined`
 - **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--AssistantEntryPointUsedEvent"></a>
+
+### Assistant Entry Point Used
+
+This event is fired when a user uses an assistant entry point.
+
+**Properties**:
+
+- **source** (required): `"explain plan" | "performance insights" | "connection error"`
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--AssistantConfirmationSubmittedEvent"></a>
+
+### Assistant Confirmation Submitted
+
+This event is fired when a user confirms a confirmation message in the assistant chat.
+
+**Properties**:
+
+- **status** (required): `"confirmed" | "rejected"`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--AssistantResponseGeneratedEvent"></a>
+
+### Assistant Response Generated
+
+This event is fired when the AI response is generated.
+
+**Properties**:
+
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 ## Atlas
 
@@ -1084,16 +1190,169 @@ This event is fired when user renames a collection in a data modeling diagram.
 - **source** (required): `"side_panel"`
 - **is_compass_web** (optional): `true | undefined`
 
+<a name="event--DataModelingCreateDiagramModalOpened"></a>
+
+### Data Modeling Create Diagram Modal Opened
+
+This event is fired when the modal to create a new data modeling diagram is opened
+
+<a name="event--DataModelingDiagramCreationStarted"></a>
+
+### Data Modeling Diagram Creation Started
+
+This event is fired when a new data modeling diagram creation is started
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **sample_size** (required): `number | "all_documents"`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingDiagramCreationRelationshipInferralStarted"></a>
+
+### Data Modeling Diagram Creation Relationship Inferral Started
+
+This event is fired when the collections are analyzed and the relationship inferral is started
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **sample_size** (required): `number | "all_documents"`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
 <a name="event--DataModelingDiagramCreated"></a>
 
 ### Data Modeling Diagram Created
 
 This event is fired when a new data modeling diagram is created
+analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+The first two phases overlap.
 
 **Properties**:
 
 - **num_collections** (required): `number`
+- **num_relations_inferred** (optional): `number | undefined`
+- **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
 - **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingDiagramCreationCancelled"></a>
+
+### Data Modeling Diagram Creation Cancelled
+
+This event is fired when a new data modeling diagram creation is cancelled
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingDiagramCreationFailed"></a>
+
+### Data Modeling Diagram Creation Failed
+
+This event is fired when a new data modeling diagram creation has failed
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsModalOpened"></a>
+
+### Data Modeling Add DB Collections Modal Opened
+
+This event is fired when the modal to add DB collections to an existing data modeling diagram is opened
+
+<a name="event--DataModelingAddDBCollectionsStarted"></a>
+
+### Data Modeling Add DB Collections Started
+
+This event is fired when new collections from the database are to be added to an existing data modeling diagram
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **sample_size** (required): `number | "all_documents"`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsSucceeded"></a>
+
+### Data Modeling Add DB Collections Succeeded
+
+This event is fired when adding new collections from the database has succeeded
+analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+The first two phases overlap.
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **num_relations_inferred** (optional): `number | undefined`
+- **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsFailed"></a>
+
+### Data Modeling Add DB Collections Failed
+
+This event is fired when adding new collections from the database has failed
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DataModelingAddDBCollectionsCancelled"></a>
+
+### Data Modeling Add DB Collections Cancelled
+
+This event is fired when adding new collections from the database has been cancelled
+
+**Properties**:
+
+- **num_collections** (required): `number`
+- **automatically_infer_relations** (required): `boolean`
+- **analysis_time_ms** (required): `number`
+- **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--DataModelingDiagramExported"></a>
 
@@ -1104,6 +1363,17 @@ This event is fired when user exports data modeling diagram.
 **Properties**:
 
 - **format** (required): `"png" | "json" | "diagram"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DataModelingDiagramFieldAdded"></a>
+
+### Data Modeling Field Added
+
+This event is fired when user adds a field in a data modeling diagram.
+
+**Properties**:
+
+- **source** (required): `"side_panel" | "diagram"`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--DataModelingDiagramFieldRemoved"></a>
@@ -1125,7 +1395,7 @@ This event is fired when user renames a field in a data modeling diagram.
 
 **Properties**:
 
-- **source** (required): `"side_panel"`
+- **source** (required): `"side_panel" | "diagram"`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--DataModelingDiagramFieldTypeChanged"></a>
@@ -1136,7 +1406,7 @@ This event is fired when user changes a field type in a data modeling diagram.
 
 **Properties**:
 
-- **source** (required): `"side_panel"`
+- **source** (required): `"side_panel" | "diagram"`
 - **from** (optional): `string | undefined`
 - **to** (optional): `string | undefined`
 - **is_compass_web** (optional): `true | undefined`
@@ -1311,6 +1581,34 @@ This event is fired when user updates a document
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
+## Drawer
+
+<a name="event--DrawerSectionOpenedEvent"></a>
+
+### Drawer Section Opened
+
+This event is fired when user opens a drawer section. Either by switching
+to it via the drawer toolbar or by opening the drawer and the first tab is
+this drawer section.
+
+**Properties**:
+
+- **sectionId** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--DrawerSectionClosedEvent"></a>
+
+### Drawer Section Closed
+
+This event is fired when user closes a drawer section. Either by switching
+to another tab via the drawer toolbar or by closing the drawer when the
+active tab is this drawer section.
+
+**Properties**:
+
+- **sectionId** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
 ## Explain
 
 <a name="event--ExplainPlanExecutedEvent"></a>
@@ -1353,6 +1651,8 @@ This event is fired when user executes a query
 
 **Properties**:
 
+- **has_filter** (required): `boolean`
+  - Indicates whether the query includes a filter.
 - **has_projection** (required): `boolean`
   - Indicates whether the query includes a projection.
 - **has_skip** (required): `boolean`
@@ -1513,52 +1813,6 @@ the query results.
 
 ## Gen AI
 
-<a name="event--AssistantPromptSubmittedEvent"></a>
-
-### Assistant Prompt Submitted
-
-This event is fired when user enters a prompt in the assistant chat
-and hits "enter".
-
-**Properties**:
-
-- **user_input_length** (optional): `number | undefined`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--AssistantResponseFailedEvent"></a>
-
-### Assistant Response Failed
-
-This event is fired when the AI response encounters an error.
-
-**Properties**:
-
-- **error_name** (optional): `string | undefined`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--AssistantEntryPointUsedEvent"></a>
-
-### Assistant Entry Point Used
-
-This event is fired when a user uses an assistant entry point.
-
-**Properties**:
-
-- **source** (required): `"explain plan" | "performance insights" | "connection error"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--AssistantConfirmationSubmittedEvent"></a>
-
-### Assistant Confirmation Submitted
-
-This event is fired when a user confirms a confirmation message in the assistant chat.
-
-**Properties**:
-
-- **status** (required): `"confirmed" | "rejected"`
-- **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
-- **is_compass_web** (optional): `true | undefined`
-
 <a name="event--AiOptInModalShownEvent"></a>
 
 ### AI Opt In Modal Shown
@@ -1651,32 +1905,6 @@ rendered in the UI.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
-
-<a name="event--DrawerSectionOpenedEvent"></a>
-
-### Drawer Section Opened
-
-This event is fired when user opens a drawer section. Either by switching
-to it via the drawer toolbar or by opening the drawer and the first tab is
-this drawer section.
-
-**Properties**:
-
-- **sectionId** (required): `string`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--DrawerSectionClosedEvent"></a>
-
-### Drawer Section Closed
-
-This event is fired when user closes a drawer section. Either by switching
-to another tab via the drawer toolbar or by closing the drawer when the
-active tab is this drawer section.
-
-**Properties**:
-
-- **sectionId** (required): `string`
-- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--PipelineAiFeedbackEvent"></a>
 
@@ -1861,6 +2089,30 @@ This event is fired when user opens the import dialog.
 
 ## Indexes
 
+<a name="event--AtlasSearchIndexesForViewLinkClickedEvent"></a>
+
+### Atlas Search Indexes for View Link Clicked
+
+This event is fired when a user clicks the link to Atlas Search in the Indexes tab for a view.
+
+**Properties**:
+
+- **context** (required): `"Indexes Tab"`
+  - The context/screen from which the link was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--CreateSearchIndexForViewClickedEvent"></a>
+
+### Create Search Index for View Clicked
+
+This event is fired when a user clicks the button to create a search index for a view.
+
+**Properties**:
+
+- **context** (required): `"Indexes Tab"`
+  - The context/screen from which the link was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--IndexCreatedEvent"></a>
 
 ### Index Created
@@ -1963,6 +2215,132 @@ This event is fired when user updates an index.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
+## Mock Data Generator
+
+<a name="event--MockDataGeneratorCtaButtonViewedEvent"></a>
+
+### Mock Data Generator CTA Button Viewed
+
+This event is fired when the Mock Data Generator CTA button is viewed.
+
+**Properties**:
+
+- **button_enabled** (required): `boolean`
+- **gen_ai_features_enabled** (required): `boolean`
+- **send_sample_values_enabled** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataGeneratorOpenedEvent"></a>
+
+### Mock Data Generator Opened
+
+This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
+
+**Properties**:
+
+- **gen_ai_features_enabled** (required): `boolean`
+- **send_sample_values_enabled** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataGeneratorScreenViewedEvent"></a>
+
+### Mock Data Generator Screen Viewed
+
+This event is fired when the user views a screen in the Mock Data Generator modal.
+
+**Properties**:
+
+- **screen** (required): `MockDataGeneratorScreen`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataGeneratorScreenProceededEvent"></a>
+
+### Mock Data Generator Screen Proceeded
+
+This event is fired when the user proceeds to the next screen or finishes the mock data generator modal.
+
+**Properties**:
+
+- **from_screen** (required): `MockDataGeneratorScreen`
+- **to_screen** (required): `MockDataGeneratorScreen | "finish"`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataGeneratorDismissedEvent"></a>
+
+### Mock Data Generator Dismissed
+
+This event is fired when the user closes the mock data generator modal.
+
+**Properties**:
+
+- **screen** (required): `MockDataGeneratorScreen`
+- **gen_ai_features_enabled** (required): `boolean`
+- **send_sample_values_enabled** (required): `boolean`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataJsonTypeChangedEvent"></a>
+
+### Mock Data JSON Type Changed
+
+This event is fired when the user changes the JSON type for a MongoDB field type mapping.
+
+**Properties**:
+
+- **field_name** (required): `string`
+- **previous_json_type** (required): `MongoDBJsonFieldType`
+- **new_json_type** (required): `MongoDBJsonFieldType`
+- **previous_faker_method** (required): `string`
+- **new_faker_method** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataFakerMethodChangedEvent"></a>
+
+### Mock Data Faker Method Changed
+
+This event is fired when the user changes the faker method for a MongoDB field type mapping.
+
+**Properties**:
+
+- **field_name** (required): `string`
+- **json_type** (required): `MongoDBJsonFieldType`
+- **previous_faker_method** (required): `string`
+- **new_faker_method** (required): `string`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataDocumentCountChangedEvent"></a>
+
+### Mock Data Document Count Changed
+
+This event is fired when the user changes the document count for the mock data generator modal.
+
+**Properties**:
+
+- **document_count** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataScriptGeneratedEvent"></a>
+
+### Mock Data Script Generated
+
+This event is fired when the user generates a script in the mock data generator modal.
+
+**Properties**:
+
+- **field_count** (required): `number`
+- **output_docs_count** (required): `number`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--MockDataScriptCopiedEvent"></a>
+
+### Mock Data Script Copied
+
+This event is fired when the user copies the mongosh script in the script screen of the mock data generator modal.
+
+**Properties**:
+
+- **step** (required): `MockDataScriptStep`
+- **is_compass_web** (optional): `true | undefined`
+
 ## My Queries
 
 <a name="event--MyQueriesFilterEvent"></a>
@@ -2045,6 +2423,30 @@ This event is fired when a user clicks on the Atlas CTA.
   - The screen from which the Atlas CTA was clicked.
 - **is_compass_web** (optional): `true | undefined`
 
+<a name="event--AtlasSkillsCtaClickedEvent"></a>
+
+### Atlas Skills CTA Clicked
+
+This event is fired when a user clicks the Atlas Skills CTA banner.
+
+**Properties**:
+
+- **context** (required): `"Indexes Tab" | "Documents Tab" | "Aggregation Tab" | "Schema Tab"`
+  - The context/screen from which the Atlas Skills CTA was dismissed.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--AtlasSkillsCtaDismissedEvent"></a>
+
+### Atlas Skills CTA Dismissed
+
+This event is fired when a user dismisses the Atlas Skills CTA banner.
+
+**Properties**:
+
+- **context** (required): `"Indexes Tab" | "Documents Tab" | "Aggregation Tab" | "Schema Tab"`
+  - The context/screen from which the Atlas Skills CTA was dismissed.
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--ErrorFetchingAttributesEvent"></a>
 
 ### Error Fetching Attributes
@@ -2080,6 +2482,20 @@ NOTE: Should be removed as part of https://jira.mongodb.org/browse/COMPASS-7948.
 ### Performance Advisor Clicked
 
 This event is fired when a user clicks on the Performance Advisor CTA.
+
+<a name="event--AssistantToolCallApprovalEvent"></a>
+
+### Assistant Tool Call Approval
+
+**Properties**:
+
+- **type** (required): `string`
+- **approved** (required): `boolean`
+- **approval_id** (required): `string`
+- **request_id** (optional): `string | undefined`
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--ScreenEvent"></a>
 
@@ -2117,71 +2533,6 @@ a system that doesn't offer a suitable secret storage backend.
 
 **Properties**:
 
-- **flow** (optional): `"Start with Query" | "Start with Index" | undefined`
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexErrorParsingQueryEvent"></a>
-
-### Error parsing query
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexErrorGettingCoveredQueriesEvent"></a>
-
-### Error generating covered queries
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexCodeEquivalentToggled"></a>
-
-### Code Equivalent Toggled
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **toggled** (required): `"On" | "Off"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexCoveredQueriesButtonClicked"></a>
-
-### Covered Queries Button Clicked
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexCoveredQueriesLearnMoreClicked"></a>
-
-### Covered Queries Learn More Clicked
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexESRLearnMoreClicked"></a>
-
-### ESR Learn More Clicked
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexIndexTabClicked"></a>
-
-### Start with an Index Tab Clicked
-
-**Properties**:
-
 - **context** (required): `"Create Index Modal"`
 - **is_compass_web** (optional): `true | undefined`
 
@@ -2215,60 +2566,6 @@ a system that doesn't offer a suitable secret storage backend.
 <a name="event--CreateIndexOptionsClicked"></a>
 
 ### Options Clicked
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexProgrammingLanguageLinkClicked"></a>
-
-### View Programming Language Syntax Clicked
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexQueryTabClicked"></a>
-
-### Start with a Query Tab Clicked
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexSuggestedIndexButtonClicked"></a>
-
-### Suggested Index Button Clicked
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexInputIndexCopied"></a>
-
-### Input Index Copied
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexIndexSuggestionsCopied"></a>
-
-### Index Suggestions Copied
-
-**Properties**:
-
-- **context** (required): `"Create Index Modal"`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--CreateIndexStrategiesDocumentationClicked"></a>
-
-### Index Strategies Documentation Clicked
 
 **Properties**:
 
@@ -2381,11 +2678,17 @@ This event is fired when signal icon badge is rendered on the screen visible to 
 
 ## Schema
 
+<a name="event--SchemaAnalysisStartedEvent"></a>
+
+### Schema Analysis Started
+
+This event is fired when the schema analysis is started
+
 <a name="event--SchemaAnalysisCancelledEvent"></a>
 
 ### Schema Analysis Cancelled
 
-This event is fired when user analyzes the schema.
+This event is fired when user cancels the schema analysis.
 
 **Properties**:
 

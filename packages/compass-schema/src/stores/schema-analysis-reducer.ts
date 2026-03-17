@@ -38,30 +38,31 @@ export type SchemaAnalysisState = {
   resultId: string;
 };
 
-export const enum SchemaAnalysisActions {
-  analysisStarted = 'schema-service/schema-analysis/analysisStarted',
-  analysisFinished = 'schema-service/schema-analysis/analysisFinished',
-  analysisFailed = 'schema-service/schema-analysis/analysisFailed',
-  analysisErrorDismissed = 'schema-service/schema-analysis/analysisErrorDismissed',
-}
+export const SchemaAnalysisActions = {
+  analysisStarted: 'schema-service/schema-analysis/analysisStarted',
+  analysisFinished: 'schema-service/schema-analysis/analysisFinished',
+  analysisFailed: 'schema-service/schema-analysis/analysisFailed',
+  analysisErrorDismissed:
+    'schema-service/schema-analysis/analysisErrorDismissed',
+} as const;
 
 export type AnalysisStartedAction = {
-  type: SchemaAnalysisActions.analysisStarted;
+  type: typeof SchemaAnalysisActions.analysisStarted;
   analysisStartTime: number;
 };
 
 export type AnalysisFinishedAction = {
-  type: SchemaAnalysisActions.analysisFinished;
+  type: typeof SchemaAnalysisActions.analysisFinished;
   schema: Schema | null;
 };
 
 export type AnalysisFailedAction = {
-  type: SchemaAnalysisActions.analysisFailed;
+  type: typeof SchemaAnalysisActions.analysisFailed;
   error: Error;
 };
 
 export type AnalysisErrorDismissedAction = {
-  type: SchemaAnalysisActions.analysisErrorDismissed;
+  type: typeof SchemaAnalysisActions.analysisErrorDismissed;
 };
 
 export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
@@ -300,6 +301,9 @@ export const startAnalysis = (): SchemaThunkAction<
       debug('analysis already in progress. ignoring subsequent start');
       return;
     }
+
+    track('Schema Analysis Started', {}, connectionInfoRef.current);
+
     const query = queryBar.getLastAppliedQuery('schema');
 
     const sampleSize = query.limit
@@ -314,6 +318,7 @@ export const startAnalysis = (): SchemaThunkAction<
 
     const driverOptions: AggregateOptions = {
       maxTimeMS: capMaxTimeMSAtPreferenceLimit(preferences, query.maxTimeMS),
+      hint: query.hint ?? undefined,
     };
 
     analysisAbortControllerRef.current = new AbortController();

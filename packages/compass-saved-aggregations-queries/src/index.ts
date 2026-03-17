@@ -5,7 +5,7 @@ import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { activatePlugin } from './stores';
 import AggregationsQueriesList from './components/aggregations-queries-list';
-import type { WorkspacePlugin } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import {
   pipelineStorageLocator,

@@ -13,7 +13,7 @@ const CONNECTION_ITEM = {
 };
 
 const renderWebWelcomeTab = (connections: ConnectionInfo[] = []) => {
-  renderWithConnections(<WebWelcomeTab />, {
+  return renderWithConnections(<WebWelcomeTab />, {
     connections,
   });
 };
@@ -53,10 +53,23 @@ describe('WebWelcomeTab', function () {
       renderWebWelcomeTab([CONNECTION_ITEM]);
       try {
         screen.getByTestId('add-new-atlas-cluster-button');
-        expect.fail('add-new-atlas-cluster-button should not be rendered');
-      } catch {
-        // noop
+      } catch (err: any) {
+        expect(err.message).to.not.equal(
+          'add-new-atlas-cluster-button should not be rendered'
+        );
       }
+    });
+    it('does not render the connection plug SVG', function () {
+      renderWebWelcomeTab([CONNECTION_ITEM]);
+      expect(screen.queryByTestId('connection-plug-svg')).to.not.exist;
+    });
+  });
+
+  context('with at least one active connection', function () {
+    it('renders the connection plug SVG', async function () {
+      const renderResult = renderWebWelcomeTab([CONNECTION_ITEM]);
+      await renderResult.connectionsStore.actions.connect(CONNECTION_ITEM);
+      expect(screen.getByTestId('connection-plug-svg')).to.be.visible;
     });
   });
 });

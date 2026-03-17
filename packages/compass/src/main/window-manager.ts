@@ -11,10 +11,15 @@ import type {
   BrowserWindowConstructorOptions,
   FindInPageOptions,
 } from 'electron';
-import { app as electronApp, shell, BrowserWindow } from 'electron';
+import {
+  app as electronApp,
+  shell,
+  screen as electronScreen,
+  BrowserWindow,
+} from 'electron';
 import { enable } from '@electron/remote/main';
 
-import { createLogger } from '@mongodb-js/compass-logging';
+import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import {
@@ -23,7 +28,7 @@ import {
   registerConnectionIdForBrowserWindow,
 } from './auto-connect';
 
-const { debug } = createLogger('COMPASS-WINDOW-MANAGER');
+const { debug, log } = createLogger('COMPASS-WINDOW-MANAGER');
 
 const earlyOpenUrls: string[] = [];
 function earlyOpenUrlListener(
@@ -68,6 +73,7 @@ const DEFAULT_HEIGHT = (() => {
 // change significantly at widths of 1024 and less.
 const MIN_WIDTH = process.env.COMPASS_MIN_WIDTH ?? 1025;
 const MIN_HEIGHT = process.env.COMPASS_MIN_HEIGHT ?? 640;
+const SAVE_DEBOUNCE_DELAY = 500; // 500ms delay for save operations
 
 /**
  * The app's HTML shell which is the output of `./src/index.html`
@@ -77,9 +83,71 @@ const DEFAULT_URL =
   process.env.COMPASS_INDEX_RENDERER_URL ||
   pathToFileURL(path.join(__dirname, 'index.html')).toString();
 
-async function showWindowWhenReady(bw: BrowserWindow) {
+async function showWindowWhenReady(
+  bw: BrowserWindow,
+  isMaximized?: boolean,
+  isFullScreen?: boolean
+) {
   await once(bw, 'ready-to-show');
+  if (isMaximized) {
+    // win.maximize() maximizes the window.
+    // This will also show (but not focus) the window if it isn't being displayed already.
+    bw.maximize();
+    bw.focus();
+    return;
+  }
+
+  if (isFullScreen) {
+    bw.setFullScreen(true);
+  }
+
   bw.show();
+}
+
+/**
+ * Save window bounds to preferences
+ */
+async function saveWindowBounds(
+  window: BrowserWindow,
+  compassApp: typeof CompassApplication
+) {
+  try {
+    const bounds = window.getBounds();
+    const isMaximized = window.isMaximized();
+    const isFullScreen = window.isFullScreen();
+
+    await compassApp.preferences.savePreferences({
+      windowBounds: {
+        x: bounds.x,
+        y: bounds.y,
+        width: bounds.width,
+        height: bounds.height,
+        isMaximized,
+        isFullScreen,
+      },
+    });
+  } catch (err) {
+    log.warn(
+      mongoLogId(1_001_000_378),
+      'Window Manager',
+      'Failed to save window bounds',
+      { message: (err as Error).message }
+    );
+  }
+}
+
+/**
+ * Get saved window bounds from preferences
+ */
+function getSavedWindowBounds(compassApp: typeof CompassApplication) {
+  const windowBounds =
+    compassApp.preferences.getPreferences().windowBounds ?? {};
+  const { width, height, ...rest } = windowBounds;
+  return {
+    ...rest,
+    width: width ?? DEFAULT_WIDTH,
+    height: height ?? DEFAULT_HEIGHT,
+  };
 }
 
 /**
@@ -109,9 +177,11 @@ function showConnectWindow(
     }
   > = {}
 ): BrowserWindow {
+  // Get saved window bounds
+  const { isMaximized, isFullScreen, ...bounds } =
+    getSavedWindowBounds(compassApp);
   const windowOpts = {
-    width: Number(DEFAULT_WIDTH),
-    height: Number(DEFAULT_HEIGHT),
+    ...bounds,
     minWidth: Number(MIN_WIDTH),
     minHeight: Number(MIN_HEIGHT),
     /**
@@ -139,6 +209,20 @@ function showConnectWindow(
     },
   };
 
+  const primaryDisplay = electronScreen.getPrimaryDisplay();
+  log.info(
+    mongoLogId(1_001_000_380),
+    'Window Manager',
+    'Creating new browser window',
+    {
+      options: windowOpts,
+      screenSize: {
+        width: primaryDisplay.workAreaSize.width,
+        height: primaryDisplay.workAreaSize.height,
+      },
+    }
+  );
+
   debug('creating new main window:', windowOpts);
   let window: BrowserWindow | null = new BrowserWindow(windowOpts);
   if (mongodbUrl) {
@@ -156,8 +240,35 @@ function showConnectWindow(
 
   compassApp.emit('new-window', window);
 
+  // Set up window state persistence
+  let saveTimeoutId: NodeJS.Timeout | null = null;
+  const debouncedSaveWindowBounds = () => {
+    if (saveTimeoutId) {
+      clearTimeout(saveTimeoutId);
+    }
+    saveTimeoutId = setTimeout(() => {
+      if (window && !window.isDestroyed()) {
+        void saveWindowBounds(window, compassApp);
+      }
+      saveTimeoutId = null;
+    }, SAVE_DEBOUNCE_DELAY); // Debounce to avoid too frequent saves
+  };
+
+  // Save window bounds when moved or resized
+  window.on('move', debouncedSaveWindowBounds);
+  window.on('moved', debouncedSaveWindowBounds);
+  window.on('resize', debouncedSaveWindowBounds);
+  window.on('resized', debouncedSaveWindowBounds);
+  window.on('maximize', debouncedSaveWindowBounds);
+  window.on('unmaximize', debouncedSaveWindowBounds);
+  window.on('enter-full-screen', debouncedSaveWindowBounds);
+  window.on('leave-full-screen', debouncedSaveWindowBounds);
+
   const onWindowClosed = () => {
     debug('Window closed. Dereferencing.');
+    if (saveTimeoutId) {
+      clearTimeout(saveTimeoutId);
+    }
     window = null;
     void unsubscribeProxyListenerPromise.then((unsubscribe) => unsubscribe());
   };
@@ -166,7 +277,7 @@ function showConnectWindow(
 
   debug(`Loading page ${rendererUrl} in main window`);
 
-  void showWindowWhenReady(window);
+  void showWindowWhenReady(window, isMaximized, isFullScreen);
 
   void window.loadURL(rendererUrl);
 
@@ -243,6 +354,8 @@ class CompassWindowManager {
       if (first) {
         debug('sending `app:quit` msg');
         first.webContents.send('app:quit');
+        // Save window bounds before quitting
+        void saveWindowBounds(first, compassApp);
       }
     });
 
@@ -281,10 +394,19 @@ class CompassWindowManager {
     // To resize an electron window you have to do it from the main process.
     // This is here so that the e2e tests can resize the window from the
     // renderer process.
-    ipcMain?.handle('compass:maximize', () => {
-      const first = BrowserWindow.getAllWindows()[0];
-      first.maximize();
-    });
+    ipcMain?.handle(
+      'compass:maximize',
+      (evt, width: number, height: number) => {
+        const window = BrowserWindow.fromWebContents(evt.sender);
+        if (width && height) {
+          window?.setSize(width, height);
+        } else {
+          window?.maximize();
+        }
+        const [newWidth, newHeight] = window?.getSize() ?? [];
+        return window ? { width: newWidth, height: newHeight } : null;
+      }
+    );
 
     await electronApp.whenReady();
     await onAppReady();

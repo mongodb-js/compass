@@ -10,7 +10,7 @@ import {
   userEvent,
 } from '@mongodb-js/testing-library-compass';
 import MultipleConnectionSidebar from './sidebar';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { WorkspacesProvider } from '@mongodb-js/compass-workspaces';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provider';
@@ -54,7 +54,7 @@ describe('Multiple Connections Sidebar Component', function () {
     _id: '1',
     status: 'ready',
     genuineMongoDB: {
-      dbType: 'local',
+      serverName: 'mongodb',
       isGenuine: true,
     },
     build: {
@@ -278,7 +278,7 @@ describe('Multiple Connections Sidebar Component', function () {
       it('should display an empty state with a CTA to add new connection', function () {
         doRender(undefined, []);
 
-        expect(() => screen.getByRole('tree')).to.throw;
+        expect(() => screen.getByRole('tree')).to.throw();
 
         const ctaText = screen.getByText(
           'You have not connected to any deployments.'
@@ -467,6 +467,27 @@ describe('Multiple Connections Sidebar Component', function () {
           await connectAndNotifyInstanceManager(savedRecentConnection);
           expect(screen.queryByTestId(favoriteConnectionId)).to.be.visible;
           expect(screen.queryByTestId(recentConnectionId)).to.be.visible;
+        });
+
+        it('should show "No results found." when search matches nothing, and restore the list when cleared', async function () {
+          await renderAndWaitForNavigationTree();
+
+          expect(screen.getByRole('tree')).to.be.visible;
+
+          const searchInput = screen.getByRole('searchbox', { name: 'Search' });
+          userEvent.type(searchInput, 'zzz_no_match_zzz');
+
+          await waitFor(() => {
+            expect(screen.getByText('No results found.')).to.be.visible;
+          });
+          expect(screen.queryByRole('tree')).to.be.null;
+
+          userEvent.clear(searchInput);
+
+          await waitFor(() => {
+            expect(screen.getByRole('tree')).to.be.visible;
+          });
+          expect(screen.queryByText('No results found.')).to.be.null;
         });
 
         context('and performing actions', function () {

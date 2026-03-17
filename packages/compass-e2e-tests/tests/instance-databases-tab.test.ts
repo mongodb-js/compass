@@ -5,8 +5,8 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionStrings,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -33,7 +33,7 @@ describe('Instance databases tab', function () {
     await browser.disconnectAll();
     await browser.connectToDefaults();
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
   });
@@ -50,42 +50,37 @@ describe('Instance databases tab', function () {
     const dbTable = browser.$(Selectors.DatabasesTable);
     await dbTable.waitForDisplayed();
 
-    const dbSelectors = INITIAL_DATABASE_NAMES.map(Selectors.databaseCard);
+    const dbSelectors = INITIAL_DATABASE_NAMES.map(Selectors.databaseRow);
 
     for (const dbSelector of dbSelectors) {
       const found = await browser.scrollToVirtualItem(
         Selectors.DatabasesTable,
         dbSelector,
-        'grid'
+        'table'
       );
       expect(found, dbSelector).to.be.true;
     }
   });
 
-  it('links database cards to the database collections tab', async function () {
+  it('links database rows to the database collections tab', async function () {
     await browser.scrollToVirtualItem(
       Selectors.DatabasesTable,
-      Selectors.databaseCard('test'),
-      'grid'
+      Selectors.databaseRow('test'),
+      'table'
     );
-    // Click on the db name text inside the card specifically to try and have
-    // tighter control over where it clicks, because clicking in the center of
-    // the last card if all cards don't fit on screen can silently do nothing
-    // even after scrolling it into view.
-    await browser.clickVisible(Selectors.databaseCardClickable('test'), {
-      scroll: true,
-      screenshot: 'database-card.png',
-    });
+    await browser.clickVisible(
+      `${Selectors.databaseRow('test')} td:first-child`
+    );
 
     const collectionSelectors = ['json-array', 'json-file', 'numbers'].map(
-      (collectionName) => Selectors.collectionCard('test', collectionName)
+      (collectionName) => Selectors.collectionRow('test', collectionName)
     );
 
     for (const collectionSelector of collectionSelectors) {
       const found = await browser.scrollToVirtualItem(
-        Selectors.CollectionsGrid,
+        Selectors.CollectionsTable,
         collectionSelector,
-        'grid'
+        'table'
       );
       expect(found, collectionSelector).to.be.true;
     }
@@ -106,25 +101,23 @@ describe('Instance databases tab', function () {
     );
 
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
 
-    const selector = Selectors.databaseCard(dbName);
+    const selector = Selectors.databaseRow(dbName);
     await browser.scrollToVirtualItem(
       Selectors.DatabasesTable,
       selector,
-      'grid'
+      'table'
     );
-    const databaseCard = browser.$(selector);
-    await databaseCard.waitForDisplayed();
-
-    await databaseCard.scrollIntoView(false);
+    const databaseRow = browser.$(selector);
+    await databaseRow.waitForDisplayed();
 
     await browser.waitUntil(async () => {
-      // open the drop database modal from the database card
-      await browser.hover(`${selector} [title="${dbName}"]`);
-      const el = browser.$(Selectors.DatabaseCardDrop);
+      // open the drop database modal from the database row
+      await browser.hover(`${selector}`);
+      const el = browser.$(Selectors.databaseRowDrop(dbName));
       if (await el.isDisplayed()) {
         return true;
       }
@@ -134,36 +127,36 @@ describe('Instance databases tab', function () {
       return false;
     });
 
-    await browser.clickVisible(Selectors.DatabaseCardDrop);
+    await browser.clickVisible(Selectors.databaseRowDrop(dbName));
 
     await browser.dropNamespace(dbName);
 
     // wait for it to be gone (which it will be anyway because the app should
     // redirect back to the databases tab)
-    await databaseCard.waitForExist({ reverse: true });
+    await databaseRow.waitForExist({ reverse: true });
 
     // the app should stay on the instance Databases tab.
     await browser.waitUntilActiveConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
   });
 
   it('can refresh the list of databases using refresh controls', async function () {
     const db = 'test'; // added by beforeEach
-    const dbSelector = Selectors.databaseCard(db);
+    const dbSelector = Selectors.databaseRow(db);
 
     // Browse to the databases tab
     await browser.navigateToConnectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'Databases'
     );
 
-    // Make sure the db card we're going to drop is in there.
+    // Make sure the db row we're going to drop is in there.
     await browser.scrollToVirtualItem(
       Selectors.DatabasesTable,
       dbSelector,
-      'grid'
+      'table'
     );
     await browser.$(dbSelector).waitForDisplayed();
 
@@ -175,7 +168,7 @@ describe('Instance databases tab', function () {
     });
 
     // Drop the database using the driver
-    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING_1);
+    const mongoClient = new MongoClient(getDefaultConnectionStrings(0));
     await mongoClient.connect();
     try {
       const database = mongoClient.db(db);
@@ -194,7 +187,7 @@ describe('Instance databases tab', function () {
       await mongoClient.close();
     }
 
-    // Refresh again and the database card should disappear.
+    // Refresh again and the database row should disappear.
     await browser.clickVisible(Selectors.InstanceRefreshDatabaseButton, {
       scroll: true,
       screenshot: 'instance-refresh-database-button.png',

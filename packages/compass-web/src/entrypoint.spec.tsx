@@ -12,6 +12,8 @@ import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
 import { ConnectFnProvider } from '@mongodb-js/compass-connections';
 import { MockDataService as TestHelpersMockDataService } from '@mongodb-js/testing-library-compass';
+import { SandboxConnectionStorageProvider } from './connection-storage';
+import { sandboxConnectionStorage } from '../sandbox/sandbox-connection-storage';
 
 function mockDb(name: string) {
   return { _id: name, name };
@@ -63,19 +65,20 @@ describe('CompassWeb', function () {
   ) {
     const result = render(
       <ConnectFnProvider connect={connectFn as any}>
-        <CompassWeb
-          orgId=""
-          projectId=""
-          initialWorkspace={undefined as any}
-          onActiveWorkspaceTabChange={() => {}}
-          onTrack={onTrackSpy}
-          {...props}
-          initialPreferences={{
-            enableCreatingNewConnections: true,
-            ...props.initialPreferences,
-          }}
-          onFailToLoadConnections={() => {}}
-        ></CompassWeb>
+        <SandboxConnectionStorageProvider value={sandboxConnectionStorage}>
+          <CompassWeb
+            orgId=""
+            projectId=""
+            initialWorkspace={undefined as any}
+            onActiveWorkspaceTabChange={() => {}}
+            onTrack={onTrackSpy}
+            {...props}
+            initialPreferences={{
+              enableCreatingNewConnections: true,
+              ...props.initialPreferences,
+            }}
+          ></CompassWeb>
+        </SandboxConnectionStorageProvider>
       </ConnectFnProvider>
     );
     userEvent.click(
@@ -107,17 +110,5 @@ describe('CompassWeb', function () {
     });
 
     expect(onTrackSpy).to.have.been.calledWith('New Connection');
-  });
-
-  it('should render error state if connection fails', async function () {
-    await renderCompassWebAndConnect({}, (() => {
-      return Promise.reject(new Error('Failed to connect'));
-    }) as any);
-
-    await waitFor(() => {
-      screen.getByText('Failed to connect');
-    });
-
-    expect(onTrackSpy).to.have.been.calledWith('Connection Failed');
   });
 });

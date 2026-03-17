@@ -6,7 +6,7 @@ import {
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -29,7 +29,7 @@ describe('Collection indexes tab', function () {
     await browser.disconnectAll();
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       'numbers',
       'Indexes'
@@ -91,7 +91,11 @@ describe('Collection indexes tab', function () {
       Selectors.IndexFieldType
     }`;
     const indexFieldTypeElement = browser.$(indexFieldTypeSelector);
-    expect(await indexFieldTypeElement.getText()).to.equal('WILDCARD');
+    // TODO(COMPASS-8335):We can remove the waitUntil once in-progress indexes type is known
+    await browser.waitUntil(async function () {
+      const text = await indexFieldTypeElement.getText();
+      return text === 'WILDCARD';
+    });
 
     await browser.dropIndex(indexName, 'drop-index-modal-wildcard.png');
   });
@@ -116,8 +120,7 @@ describe('Collection indexes tab', function () {
 
       await browser.clickVisible(Selectors.CreateIndexButton);
 
-      const createModal = browser.$(Selectors.CreateIndexModal);
-      await createModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.CreateIndexModal);
 
       // Select i filed name from Combobox.
       const fieldNameSelect = browser.$(
@@ -152,7 +155,9 @@ describe('Collection indexes tab', function () {
 
       await browser.clickVisible(Selectors.CreateIndexConfirmButton);
 
-      await createModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.CreateIndexModal, {
+        reverse: true,
+      });
 
       const indexComponent = browser.$(Selectors.indexComponent('columnstore'));
       await indexComponent.waitForDisplayed();
@@ -164,8 +169,7 @@ describe('Collection indexes tab', function () {
         }`
       );
 
-      const dropModal = browser.$(Selectors.DropIndexModal);
-      await dropModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.DropIndexModal);
 
       await browser.setValueVisible(
         Selectors.DropIndexModalConfirmButton,
@@ -177,7 +181,9 @@ describe('Collection indexes tab', function () {
       );
       await browser.clickVisible(ConfirmButtonSelector);
 
-      await dropModal.waitForDisplayed({ reverse: true });
+      await browser.waitForOpenModal(Selectors.DropIndexModal, {
+        reverse: true,
+      });
 
       await indexComponent.waitForDisplayed({ reverse: true });
     });

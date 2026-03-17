@@ -49,8 +49,34 @@ export async function scrollToVirtualItem(
   browser: CompassBrowser,
   containerSelector: string,
   targetSelector: string,
-  role: 'grid' | 'tree'
+  role: 'grid' | 'tree' | 'table'
 ): Promise<boolean> {
+  if (role === 'table') {
+    const countStr = await browser
+      .$(`${containerSelector} table`)
+      .getAttribute('aria-rowcount');
+    // we disable virtual scrolling for tables for now
+    if (!countStr) {
+      throw new Error('Expected table to have an aria-rowcount attribute');
+    }
+    const expectedRowCount = parseInt(countStr, 10);
+    const rowCount = await browser.$$('tbody tr').length;
+
+    if (rowCount !== expectedRowCount) {
+      throw new Error(
+        `${rowCount} rows found, but expected ${expectedRowCount}. Is virtual rendering of the table disabled as expected?`
+      );
+    }
+
+    const targetElement = browser.$(targetSelector);
+    await targetElement.waitForExist();
+    // align the bottom of the element to the bottom of the view so it doesn't
+    // sit under the sticky header
+    await targetElement.scrollIntoView(false);
+    await targetElement.waitForDisplayed();
+    return true;
+  }
+
   const config = role === 'tree' ? treeConfig : gridConfig;
 
   let found = false;
@@ -65,7 +91,7 @@ export async function scrollToVirtualItem(
   // scroll to the top and return the height of the scrollbar area and the
   // scroll content
   const [scrollHeight, totalHeight] = await browser.execute(
-    (selector, getScrollContainerString) => {
+    (selector, getScrollContainerString): [number, number] | [null, null] => {
       // eslint-disable-next-line no-restricted-globals
       const container = document.querySelector(selector);
       const scrollContainer = eval(getScrollContainerString)(container);
@@ -73,13 +99,7 @@ export async function scrollToVirtualItem(
       if (!heightContainer) {
         return [null, null];
       }
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       scrollContainer.scrollTop = 0;
-
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore
       return [scrollContainer.clientHeight, heightContainer.offsetHeight];
     },
     containerSelector,

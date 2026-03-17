@@ -1,7 +1,8 @@
 import React from 'react';
+import type { LGGlyph } from '..';
 import { createGlyphComponent, palette, useDarkMode } from '..';
 
-export const ChevronCollapse = createGlyphComponent(
+export const ChevronCollapse: LGGlyph.Component = createGlyphComponent(
   'ChevronCollapse',
   (props) => {
     const isDarkMode = useDarkMode();

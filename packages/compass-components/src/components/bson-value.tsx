@@ -1,5 +1,10 @@
 import React, { useMemo } from 'react';
 import type { TypeCastMap } from 'hadron-type-checker';
+import {
+  uuidHexToString,
+  reverseJavaUUIDBytes,
+  reverseCSharpUUIDBytes,
+} from 'hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
 import { variantColors } from '@leafygreen-ui/code';
@@ -7,7 +12,9 @@ import { variantColors } from '@leafygreen-ui/code';
 import { Icon, Link } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { Theme, useDarkMode } from '../hooks/use-theme';
+import type { Theme } from '../hooks/use-theme';
+import { Themes, useDarkMode } from '../hooks/use-theme';
+import { useLegacyUUIDDisplayContext } from './document-list/legacy-uuid-format-context';
 
 type ValueProps =
   | {
@@ -31,7 +38,7 @@ const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
   Theme,
   Partial<Record<ValueTypes, string>>
 > = {
-  [Theme.Dark]: {
+  [Themes.Dark]: {
     Int32: variantColors.dark[9],
     Double: variantColors.dark[9],
     Decimal128: variantColors.dark[9],
@@ -40,7 +47,7 @@ const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
     String: variantColors.dark[7],
     ObjectId: variantColors.dark[5],
   },
-  [Theme.Light]: {
+  [Themes.Light]: {
     Int32: variantColors.light[9],
     Double: variantColors.light[9],
     Decimal128: variantColors.light[9],
@@ -49,7 +56,7 @@ const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
     String: variantColors.light[7],
     ObjectId: variantColors.light[5],
   },
-};
+} as const;
 
 const bsonValue = css({
   whiteSpace: 'nowrap',
@@ -68,13 +75,16 @@ export const BSONValueContainer: React.FunctionComponent<
   }
 > = ({ type, children, className, ...props }) => {
   const darkMode = useDarkMode();
-  const color = useMemo(() => {
+  const colorStyle = useMemo(() => {
     if (!type) {
       return;
     }
-    return VALUE_COLOR_BY_THEME_AND_TYPE[darkMode ? Theme.Dark : Theme.Light][
-      type
-    ];
+    return {
+      color:
+        VALUE_COLOR_BY_THEME_AND_TYPE[darkMode ? Themes.Dark : Themes.Light][
+          type
+        ],
+    };
   }, [type, darkMode]);
 
   return (
@@ -88,7 +98,7 @@ export const BSONValueContainer: React.FunctionComponent<
           type ? type.toLowerCase() : 'unknown'
         }`
       )}
-      style={{ color }}
+      style={colorStyle}
     >
       {children}
     </div>
@@ -116,6 +126,158 @@ const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({
       <span className={nonSelectable}>ObjectId(&apos;</span>
       {stringifiedValue}
       <span className={nonSelectable}>&apos;)</span>
+    </BSONValueContainer>
+  );
+};
+
+const toLegacyJavaUUID = ({ value }: PropsByValueType<'Binary'>) => {
+  const hex = value.toString('hex');
+  const reversedHex = reverseJavaUUIDBytes(hex);
+  return "LegacyJavaUUID('" + uuidHexToString(reversedHex) + "')";
+};
+
+const toLegacyCSharpUUID = ({ value }: PropsByValueType<'Binary'>) => {
+  const hex = value.toString('hex');
+  const reversedHex = reverseCSharpUUIDBytes(hex);
+  return "LegacyCSharpUUID('" + uuidHexToString(reversedHex) + "')";
+};
+
+const toLegacyPythonUUID = ({ value }: PropsByValueType<'Binary'>) => {
+  const hex = value.toString('hex');
+  return "LegacyPythonUUID('" + uuidHexToString(hex) + "')";
+};
+
+// Binary sub_type 3.
+const LegacyUUIDValue: React.FunctionComponent<PropsByValueType<'Binary'>> = (
+  bsonValue
+) => {
+  const legacyUUIDDisplayEncoding = useLegacyUUIDDisplayContext();
+
+  const stringifiedValue = useMemo(() => {
+    // UUID must be exactly 16 bytes.
+    if (bsonValue.value.buffer.length === 16) {
+      try {
+        if (legacyUUIDDisplayEncoding === 'LegacyJavaUUID') {
+          return toLegacyJavaUUID(bsonValue);
+        } else if (legacyUUIDDisplayEncoding === 'LegacyCSharpUUID') {
+          return toLegacyCSharpUUID(bsonValue);
+        } else if (legacyUUIDDisplayEncoding === 'LegacyPythonUUID') {
+          return toLegacyPythonUUID(bsonValue);
+        }
+      } catch {
+        // Ignore errors and fallback to the raw representation.
+        // The UUID conversion can fail if the binary data is not a valid UUID.
+      }
+    }
+
+    // Raw, no encoding.
+    return `Binary.createFromBase64('${truncate(
+      bsonValue.value.toString('base64'),
+      100
+    )}', ${bsonValue.value.sub_type})`;
+  }, [legacyUUIDDisplayEncoding, bsonValue]);
+
+  return (
+    <BSONValueContainer type="Binary" title={stringifiedValue}>
+      {stringifiedValue}
+    </BSONValueContainer>
+  );
+};
+
+// UUID value component for UUID type (Binary subtype 4)
+const UUIDValue: React.FunctionComponent<PropsByValueType<'UUID'>> = ({
+  value,
+}) => {
+  const stringifiedValue = useMemo(() => {
+    // During editing, value might be a string
+    if (typeof value === 'string') {
+      return value;
+    }
+    if (!value || !value.buffer) {
+      return String(value);
+    }
+    try {
+      // Try to get the pretty hex version of the UUID
+      return value.toUUID().toString();
+    } catch {
+      // If uuid is not following the uuid format (e.g., not exactly 16 bytes),
+      // converting it to UUID will fail. We don't want the UI to fail rendering
+      // it and instead will just display the "unformatted" hex value.
+      return value.toString('hex');
+    }
+  }, [value]);
+
+  return (
+    <BSONValueContainer type="Binary" title={stringifiedValue}>
+      <span className={nonSelectable}>UUID(&apos;</span>
+      {stringifiedValue}
+      <span className={nonSelectable}>&apos;)</span>
+    </BSONValueContainer>
+  );
+};
+
+// Legacy Java UUID value component
+const LegacyJavaUUIDValue: React.FunctionComponent<
+  PropsByValueType<'LegacyJavaUUID'>
+> = ({ value }) => {
+  const stringifiedValue = useMemo(() => {
+    // During editing, value might be a string
+    if (typeof value === 'string') {
+      return `LegacyJavaUUID('${value}')`;
+    }
+    if (!value || !value.buffer) {
+      return String(value);
+    }
+    return toLegacyJavaUUID({ value });
+  }, [value]);
+
+  return (
+    <BSONValueContainer type="Binary" title={stringifiedValue}>
+      {stringifiedValue}
+    </BSONValueContainer>
+  );
+};
+
+// Legacy C# UUID value component
+const LegacyCSharpUUIDValue: React.FunctionComponent<
+  PropsByValueType<'LegacyCSharpUUID'>
+> = ({ value }) => {
+  const stringifiedValue = useMemo(() => {
+    // During editing, value might be a string
+    if (typeof value === 'string') {
+      return `LegacyCSharpUUID('${value}')`;
+    }
+    if (!value || !value.buffer) {
+      return String(value);
+    }
+    return toLegacyCSharpUUID({ value });
+  }, [value]);
+
+  return (
+    <BSONValueContainer type="Binary" title={stringifiedValue}>
+      {stringifiedValue}
+    </BSONValueContainer>
+  );
+};
+
+// Legacy Python UUID value component
+const LegacyPythonUUIDValue: React.FunctionComponent<
+  PropsByValueType<'LegacyPythonUUID'>
+> = ({ value }) => {
+  const stringifiedValue = useMemo(() => {
+    // During editing, value might be a string
+    if (typeof value === 'string') {
+      return `LegacyPythonUUID('${value}')`;
+    }
+    if (!value || !value.buffer) {
+      return String(value);
+    }
+    return toLegacyPythonUUID({ value });
+  }, [value]);
+
+  return (
+    <BSONValueContainer type="Binary" title={stringifiedValue}>
+      {stringifiedValue}
     </BSONValueContainer>
   );
 };
@@ -238,7 +400,9 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
 };
 
 const NumberValue: React.FunctionComponent<
-  PropsByValueType<'Int32' | 'Double'> & { type: 'Int32' | 'Double' }
+  PropsByValueType<'Int32' | 'Double' | 'Int64' | 'Decimal128'> & {
+    type: 'Int32' | 'Double' | 'Int64' | 'Decimal128';
+  }
 > = ({ type, value }) => {
   const stringifiedValue = useMemo(() => {
     return String(value.valueOf());
@@ -373,7 +537,22 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
     case 'Date':
       return <DateValue value={props.value}></DateValue>;
     case 'Binary':
+      if (props.value.sub_type === Binary.SUBTYPE_UUID_OLD) {
+        return <LegacyUUIDValue value={props.value}></LegacyUUIDValue>;
+      }
       return <BinaryValue value={props.value}></BinaryValue>;
+    case 'UUID':
+      return <UUIDValue value={props.value}></UUIDValue>;
+    case 'LegacyJavaUUID':
+      return <LegacyJavaUUIDValue value={props.value}></LegacyJavaUUIDValue>;
+    case 'LegacyCSharpUUID':
+      return (
+        <LegacyCSharpUUIDValue value={props.value}></LegacyCSharpUUIDValue>
+      );
+    case 'LegacyPythonUUID':
+      return (
+        <LegacyPythonUUIDValue value={props.value}></LegacyPythonUUIDValue>
+      );
     case 'Int32':
     case 'Double':
       return <NumberValue type={props.type} value={props.value}></NumberValue>;

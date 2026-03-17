@@ -99,10 +99,12 @@ function assertDataIsShardZonesApiResponse(
 }
 
 export class AtlasGlobalWritesService {
-  constructor(
-    private atlasService: AtlasService,
-    private connectionInfo: ConnectionInfoRef
-  ) {}
+  private atlasService: AtlasService;
+  private connectionInfo: ConnectionInfoRef;
+  constructor(atlasService: AtlasService, connectionInfo: ConnectionInfoRef) {
+    this.atlasService = atlasService;
+    this.connectionInfo = connectionInfo;
+  }
 
   private getAtlasMetadata() {
     if (!this.connectionInfo.current?.atlasMetadata) {

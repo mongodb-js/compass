@@ -35,6 +35,7 @@ export type AtlasSignInThunkAction<
   A extends AnyAction = AnyAction
 > = ThunkAction<R, AtlasSignInState, { atlasAuthService: AtlasAuthService }, A>;
 
+// @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum AtlasSignInActions {
   RestoringStart = 'atlas-service/atlas-signin/StartRestoring',
   RestoringFailed = 'atlas-service/atlas-signin/RestoringFailed',
@@ -117,7 +118,7 @@ export const AttemptStateMap = new Map<number, AttemptState>();
 
 export let attemptId = 0;
 
-export function getAttempt(id?: number | null): AttemptState {
+function getAttempt(id?: number | null): AttemptState {
   if (!id) {
     id = ++attemptId;
     const controller = new AbortController();
@@ -360,6 +361,7 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
       });
       dispatch({ type: AtlasSignInActions.Success, userInfo });
       atlasAuthService.emit('signed-in');
+      AttemptStateMap.clear();
       resolve(userInfo);
     } catch (err) {
       // Only handle error if sign in wasn't aborted by the user, otherwise it

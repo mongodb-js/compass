@@ -1,8 +1,14 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from './modules';
-import { Badge, css, spacing, Tooltip } from '@mongodb-js/compass-components';
-import numeral from 'numeral';
+import {
+  Badge,
+  css,
+  spacing,
+  Tooltip,
+  compactBytes,
+  compactNumber,
+} from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const containerStyles = css({
@@ -30,12 +36,14 @@ const isNumber = (val: any): val is number => {
   return typeof val === 'number' && !isNaN(val);
 };
 
-const format = (value: any, format = 'a') => {
+const format = (value: any, formatType: 'number' | 'bytes' = 'number') => {
   if (!isNumber(value)) {
     return INVALID;
   }
-  const precision = value <= 1000 ? '0' : '0.0';
-  return numeral(value).format(precision + format);
+  const decimals = value <= 1000 ? 0 : 1;
+  return formatType === 'bytes'
+    ? compactBytes(value, true, decimals)
+    : compactNumber(value);
 };
 
 type CollectionStatsProps = {
@@ -85,9 +93,9 @@ const TabTitle = ({
   const { indexCount, totalIndexSize, avgIndexSize } = useMemo(() => {
     const { index_count = NaN, index_size = NaN } = collectionStats ?? {};
     return {
-      indexCount: format(index_count),
-      totalIndexSize: format(index_size, 'b'),
-      avgIndexSize: format(avg(index_size, index_count), 'b'),
+      indexCount: format(index_count, 'number'),
+      totalIndexSize: format(index_size, 'bytes'),
+      avgIndexSize: format(avg(index_size, index_count), 'bytes'),
     };
   }, [collectionStats]);
 

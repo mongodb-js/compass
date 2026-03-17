@@ -236,6 +236,7 @@ function Tab({
       return darkMode ? tabDarkThemeStyles : tabLightThemeStyles;
     }
 
+    // eslint-disable-next-line @mongodb-js/compass/no-inline-emotion-css
     return css(tabTheme);
   }, [tabTheme, darkMode]);
 
@@ -339,6 +340,7 @@ function Tab({
           </div>
 
           <IconButton
+            as="button"
             className={cx(closeButtonStyles, 'workspace-tab-close-button')}
             onClick={(e) => {
               e.stopPropagation();

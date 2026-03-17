@@ -102,7 +102,12 @@ import {
   createCancelError,
   isCancelError,
 } from '@mongodb-js/compass-utils';
-import type { IndexDefinition, IndexStats } from './index-detail-helper';
+import type {
+  CurrentOpProgress,
+  IndexBuildProgress,
+  IndexDefinition,
+  IndexStats,
+} from './index-detail-helper';
 import { createIndexDefinition } from './index-detail-helper';
 import type { SearchIndex } from './search-index-detail-helper';
 import type {
@@ -168,6 +173,7 @@ export type ExecutionOptions = {
 
 export type ExplainExecuteOptions = ExecutionOptions & {
   explainVerbosity?: keyof typeof ExplainVerbosity;
+  maxTimeMS?: number;
 };
 
 export type SampleOptions = {
@@ -375,10 +381,12 @@ export interface DataService {
    *
    * @param databaseName - The database name.
    * @param collectionName - The collection name.
+   * @param collectionType - The collection type ('collection', 'view', or 'timeseries').
    */
   collectionStats(
     databaseName: string,
-    collectionName: string
+    collectionName: string,
+    collectionType: 'collection' | 'view' | 'timeseries'
   ): Promise<CollectionStats>;
 
   /**
@@ -592,7 +600,9 @@ export interface DataService {
     ns: string,
     filter: Filter<Document>,
     options?: FindOptions,
-    executionOptions?: ExecutionOptions
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
   ): Promise<Document[]>;
 
   /**
@@ -732,6 +742,19 @@ export interface DataService {
       fallbackReadPreference?: ReadPreferenceMode;
     }
   ): Promise<Document[]>;
+
+  /**
+   * Fetch shard keys for the collection from the collections config.
+   *
+   * @param ns - The namespace to try to find shard key for.
+   * @param options - The query options.
+   * @param executionOptions - The execution options.
+   */
+  fetchShardKey(
+    ns: string,
+    options?: Omit<FindOptions, 'projection'>,
+    executionOptions?: ExecutionOptions
+  ): Promise<Record<string, unknown> | null>;
 
   /*** Insert ***/
 
@@ -1169,56 +1192,88 @@ class DataServiceImpl extends WithLogContext implements DataService {
   })
   async collectionStats(
     databaseName: string,
-    collectionName: string
+    collectionName: string,
+    collectionType: 'collection' | 'view' | 'timeseries'
   ): Promise<CollectionStats> {
     const ns = `${databaseName}.${collectionName}`;
 
     try {
       const coll = this._collection(ns, 'CRUD');
+
+      // Build the aggregation pipeline dynamically based on collection type
+      const groupStage: {
+        _id: null;
+        capped: { $first: string };
+        count: { $sum: string };
+        size: { $sum: { $toDouble: string } };
+        storageSize: { $sum: { $toDouble: string } };
+        totalIndexSize: { $sum: { $toDouble: string } };
+        freeStorageSize: { $sum: { $toDouble: string } };
+        unscaledCollSize: { $sum: { $multiply: unknown[] } };
+        nindexes: { $max: string };
+        timeseriesBucketCount?: { $first: string };
+        timeseriesAvgBucketSize?: { $first: string };
+      } = {
+        _id: null,
+        capped: { $first: '$storageStats.capped' },
+        count: { $sum: '$storageStats.count' },
+        size: { $sum: { $toDouble: '$storageStats.size' } },
+        storageSize: {
+          $sum: { $toDouble: '$storageStats.storageSize' },
+        },
+        totalIndexSize: {
+          $sum: { $toDouble: '$storageStats.totalIndexSize' },
+        },
+        freeStorageSize: {
+          $sum: { $toDouble: '$storageStats.freeStorageSize' },
+        },
+        unscaledCollSize: {
+          $sum: {
+            $multiply: [
+              { $toDouble: '$storageStats.avgObjSize' },
+              { $toDouble: '$storageStats.count' },
+            ],
+          },
+        },
+        nindexes: { $max: '$storageStats.nindexes' },
+      };
+
+      // Only extract bucket statistics for time series collections
+      if (collectionType === 'timeseries') {
+        groupStage.timeseriesBucketCount = {
+          $first: '$storageStats.timeseries.bucketCount',
+        };
+        groupStage.timeseriesAvgBucketSize = {
+          $first: '$storageStats.timeseries.avgBucketSize',
+        };
+      }
+
+      const addFieldsStage: Record<string, unknown> = {
+        // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
+        __proto__: null,
+        avgObjSize: {
+          $cond: {
+            if: { $ne: ['$count', 0] },
+            then: {
+              $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
+            },
+            else: 0,
+          },
+        },
+      };
+
+      // Only calculate bucket stats for time series collections
+      if (collectionType === 'timeseries') {
+        addFieldsStage.bucket_count = '$timeseriesBucketCount';
+        addFieldsStage.avg_bucket_size = '$timeseriesAvgBucketSize';
+      }
+
       const collStats = await coll
         .aggregate(
           [
             { $collStats: { storageStats: {} } },
-            {
-              $group: {
-                _id: null,
-                capped: { $first: '$storageStats.capped' },
-                count: { $sum: '$storageStats.count' },
-                size: { $sum: { $toDouble: '$storageStats.size' } },
-                storageSize: {
-                  $sum: { $toDouble: '$storageStats.storageSize' },
-                },
-                totalIndexSize: {
-                  $sum: { $toDouble: '$storageStats.totalIndexSize' },
-                },
-                freeStorageSize: {
-                  $sum: { $toDouble: '$storageStats.freeStorageSize' },
-                },
-                unscaledCollSize: {
-                  $sum: {
-                    $multiply: [
-                      { $toDouble: '$storageStats.avgObjSize' },
-                      { $toDouble: '$storageStats.count' },
-                    ],
-                  },
-                },
-                nindexes: { $max: '$storageStats.nindexes' },
-              },
-            },
-            {
-              $addFields: {
-                // `avgObjSize` is the average of per-shard `avgObjSize` weighted by `count`
-                avgObjSize: {
-                  $cond: {
-                    if: { $ne: ['$count', 0] },
-                    then: {
-                      $divide: ['$unscaledCollSize', { $toDouble: '$count' }],
-                    },
-                    else: 0,
-                  },
-                },
-              },
-            },
+            { $group: groupStage },
+            { $addFields: addFieldsStage },
           ],
           { enableUtf8Validation: false }
         )
@@ -1728,7 +1783,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     filter: Filter<Document>,
     options: CountDocumentsOptions = {},
     executionOptions?: ExecutionOptions & {
-      fallbackReadPreference: ReadPreferenceMode;
+      fallbackReadPreference?: ReadPreferenceMode;
     }
   ): Promise<number> {
     return this._cancellableOperation(
@@ -1977,15 +2032,23 @@ class DataServiceImpl extends WithLogContext implements DataService {
     ns: string,
     filter: Filter<Document>,
     options: FindOptions = {},
-    executionOptions?: ExecutionOptions
+    executionOptions?: ExecutionOptions & {
+      fallbackReadPreference?: ReadPreferenceMode;
+    }
   ): Promise<Document[]> {
     let cursor: FindCursor;
     return this._cancellableOperation(
       async (session?: ClientSession) => {
-        cursor = this._collection(ns, 'CRUD').find(filter, {
-          ...options,
-          session,
-        });
+        cursor = this._collection(ns, 'CRUD').find(
+          filter,
+          this._getOptionsWithFallbackReadPreference(
+            {
+              ...options,
+              session,
+            },
+            executionOptions
+          )
+        );
         const results = await cursor.toArray();
         void cursor.close();
         return results;
@@ -2071,7 +2134,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
           ...options,
           session,
         });
-        const results = await cursor.explain(verbosity);
+        const results = await cursor.explain({
+          verbosity,
+          maxTimeMS: executionOptions?.maxTimeMS,
+        });
         void cursor.close();
         return results;
       },
@@ -2103,7 +2169,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
           ...options,
           session,
         });
-        const results = await cursor.explain(verbosity);
+        const results = await cursor.explain({
+          verbosity,
+          maxTimeMS: executionOptions?.maxTimeMS,
+        });
         void cursor.close();
         return results;
       },
@@ -2113,30 +2182,24 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   private async _indexStats(ns: string) {
-    try {
-      const stats = await this.aggregate<IndexStats>(ns, [
-        { $indexStats: {} },
-        {
-          $project: {
-            name: 1,
-            usageHost: '$host',
-            usageCount: '$accesses.ops',
-            usageSince: '$accesses.since',
-          },
+    const stats = await this.aggregate<IndexStats>(ns, [
+      { $indexStats: {} },
+      {
+        $project: {
+          name: 1,
+          usageHost: '$host',
+          usageCount: '$accesses.ops',
+          usageSince: '$accesses.since',
+          building: 1,
         },
-      ]);
+      },
+    ]);
 
-      return Object.fromEntries(
-        stats.map((index) => {
-          return [index.name, index];
-        })
-      );
-    } catch (err) {
-      if (isNotAuthorized(err) || isNotSupportedPipelineStage(err)) {
-        return {};
-      }
-      throw err;
-    }
+    return Object.fromEntries(
+      stats.map((index) => {
+        return [index.name, index];
+      })
+    );
   }
 
   private async _indexSizes(ns: string): Promise<Record<string, number>> {
@@ -2168,10 +2231,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
   }
 
-  private async _indexProgress(ns: string): Promise<Record<string, number>> {
+  private async _indexProgress(
+    ns: string
+  ): Promise<Record<string, CurrentOpProgress>> {
     type IndexProgressResult = {
       _id: string;
-      progress: number;
+      active: boolean;
+      secsRunning?: number;
+      msg?: string;
+      progress?: number;
     };
 
     const currentOp = { $currentOp: { allUsers: true, localOps: false } };
@@ -2179,11 +2247,18 @@ class DataServiceImpl extends WithLogContext implements DataService {
       // get all ops
       currentOp,
       {
-        // filter for createIndexes commands
+        // filter for active createIndexes commands
         $match: {
           ns,
-          progress: { $type: 'object' },
+          active: true,
           'command.createIndexes': { $exists: true },
+        },
+      },
+      {
+        // ensure deterministic ordering so grouping chooses latest message
+        $sort: {
+          'command.indexes.name': 1,
+          secs_running: -1,
         },
       },
       {
@@ -2194,12 +2269,20 @@ class DataServiceImpl extends WithLogContext implements DataService {
         // group on index name
         $group: {
           _id: '$command.indexes.name',
+          active: { $max: '$active' },
+          secsRunning: { $max: '$secs_running' },
+          msg: { $first: '$msg' },
           progress: {
             $first: {
               $cond: {
-                if: { $gt: ['$progress.total', 0] },
+                if: {
+                  $and: [
+                    { $eq: [{ $type: '$progress' }, 'object'] },
+                    { $gt: ['$progress.total', 0] },
+                  ],
+                },
                 then: { $divide: ['$progress.done', '$progress.total'] },
-                else: 0,
+                else: '$$REMOVE',
               },
             },
           },
@@ -2207,31 +2290,73 @@ class DataServiceImpl extends WithLogContext implements DataService {
       },
     ];
 
-    let currentOps: IndexProgressResult[] = [];
     const db = this._database('admin', 'META');
 
     try {
-      currentOps = (await db
+      const currentOps = (await db
         .aggregate(pipeline)
         .toArray()) as IndexProgressResult[];
+
+      const indexToProgress: Record<string, CurrentOpProgress> =
+        Object.create(null);
+
+      for (const { _id, active, secsRunning, msg, progress } of currentOps) {
+        indexToProgress[_id] = { active, progress, secsRunning, msg };
+      }
+
+      return indexToProgress;
     } catch {
       // Try limiting the permissions needed:
       currentOp.$currentOp.allUsers = false;
-      try {
-        currentOps = (await db
-          .aggregate(pipeline)
-          .toArray()) as IndexProgressResult[];
-      } catch {
-        // ignore errors
+      const currentOps = (await db
+        .aggregate(pipeline)
+        .toArray()) as IndexProgressResult[];
+
+      const indexToProgress: Record<string, CurrentOpProgress> =
+        Object.create(null);
+      for (const { _id, active, secsRunning, msg, progress } of currentOps) {
+        indexToProgress[_id] = { active, progress, secsRunning, msg };
       }
+      return indexToProgress;
     }
+  }
 
-    const indexToProgress = Object.create(null);
-    for (const { _id, progress } of currentOps) {
-      indexToProgress[_id] = progress;
+  @op(mongoLogId(1_001_000_381))
+  async fetchShardKey(
+    ns: string,
+    options: Omit<FindOptions, 'projection'> = {},
+    executionOptions?: ExecutionOptions
+  ): Promise<Record<string, unknown> | null> {
+    const docs = await this.find(
+      'config.collections',
+      {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        _id: ns as any,
+        // unsplittable introduced in SPM-3364 to mark unsharded collections
+        // that are still being tracked in the catalog
+        unsplittable: { $ne: true },
+      },
+      { ...options, projection: { key: 1, _id: 0 } },
+      { abortSignal: executionOptions?.abortSignal }
+    );
+    return docs.length ? docs[0].key : null;
+  }
+
+  private async _fetchShardKeyWithSilentFail(
+    ...args: Parameters<DataService['fetchShardKey']>
+  ): ReturnType<DataService['fetchShardKey']> {
+    try {
+      return await this.fetchShardKey(...args);
+    } catch (err) {
+      // Rethrow if we aborted along the way.
+      if (this.isCancelError(err)) {
+        throw err;
+      }
+
+      // Return null on error.
+      // This is oftentimes a lack of permissions to run a find on config.collections.
+      return null;
     }
-
-    return indexToProgress;
   }
 
   @op(mongoLogId(1_001_000_047))
@@ -2245,21 +2370,42 @@ class DataServiceImpl extends WithLogContext implements DataService {
       );
       return indexes.map((compactIndexEntry) => {
         const [name, keys] = compactIndexEntry;
-        return createIndexDefinition(ns, {
+        return createIndexDefinition(ns, null, {
           name,
           key: Object.fromEntries(keys),
         });
       });
     }
 
-    const [indexes, indexStats, indexSizes, indexProgress] = await Promise.all([
+    const [
+      indexes,
+      indexSizes,
+      [indexStatsResult, indexProgressResult],
+      shardKey,
+    ] = await Promise.all([
       this._collection(ns, 'CRUD').indexes({ ...options, full: true }),
-      this._indexStats(ns),
       this._indexSizes(ns),
-      this._indexProgress(ns),
+      Promise.allSettled([this._indexStats(ns), this._indexProgress(ns)]),
+      this._fetchShardKeyWithSilentFail(ns),
     ]);
 
     const maxSize = Math.max(...Object.values(indexSizes));
+
+    const statsError =
+      indexStatsResult.status === 'rejected'
+        ? indexStatsResult.reason.message
+        : undefined;
+    const indexStats =
+      indexStatsResult.status === 'fulfilled' ? indexStatsResult.value : {};
+
+    const progressError =
+      indexProgressResult.status === 'rejected'
+        ? indexProgressResult.reason?.message
+        : undefined;
+    const indexProgress =
+      indexProgressResult.status === 'fulfilled'
+        ? indexProgressResult.value
+        : {};
 
     return indexes
       .filter((index): index is IndexDescriptionInfo & { name: string } => {
@@ -2267,13 +2413,21 @@ class DataServiceImpl extends WithLogContext implements DataService {
       })
       .map((index) => {
         const name = index.name;
+
+        const buildProgress: IndexBuildProgress = {
+          currentOp: indexProgress[name],
+          ...(statsError && { statsError }),
+          ...(progressError && { progressError }),
+        };
+
         return createIndexDefinition(
           ns,
+          shardKey ?? null,
           index,
           indexStats[name],
           indexSizes[name],
           maxSize,
-          indexProgress[name]
+          buildProgress
         );
       });
   }
@@ -2808,7 +2962,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const db = this._database(name, 'META');
     const stats = await runCommand(
       db,
-      { dbStats: 1, freeStorage: 1 },
+      { dbStats: 1 },
       {
         enableUtf8Validation: false,
         ...maybeOverrideReadPreference(
@@ -2941,6 +3095,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
       free_storage_size: data.freeStorageSize ?? 0,
       index_count: data.nindexes ?? 0,
       index_size: data.totalIndexSize ?? 0,
+      bucket_count: data.bucket_count,
+      avg_bucket_size: data.avg_bucket_size,
     };
   }
 
@@ -3127,7 +3283,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     };
 
     const assertNoExtraProps = <T>(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       _cls: new (...args: any[]) => NoExtraProps<DataService, T>
     ) => {
       // Checking that we are not exposing anything unexpected on our data service

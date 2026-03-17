@@ -118,7 +118,7 @@ interface WithPortalClassName {
 export const withPortalScrollbars = <
   ComponentProps extends WithPortalClassName
 >(
-  WrappedComponent: React.ComponentType<ComponentProps & WithPortalClassName>
+  WrappedComponent: React.ComponentType<ComponentProps>
 ) => {
   const ComponentWithScrollbars = (props: ComponentProps) => {
     const { className } = useScrollbars();

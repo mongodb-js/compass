@@ -29,9 +29,10 @@ function getAtlasService(
   const atlasService = new AtlasService(
     authService,
     preferences,
-    createNoopLogger()
+    createNoopLogger(),
+    undefined,
+    ATLAS_CONFIG
   );
-  atlasService['config'] = ATLAS_CONFIG;
   return atlasService;
 }
 

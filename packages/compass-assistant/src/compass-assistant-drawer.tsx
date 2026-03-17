@@ -1,6 +1,5 @@
 import React, { useCallback, useContext } from 'react';
 import {
-  Badge,
   css,
   DrawerSection,
   Icon,
@@ -78,13 +77,12 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
         <div className={assistantTitleStyles}>
           <div className={assistantTitleTextWrapperStyles}>
             <span className={assistantTitleTextStyles}>MongoDB Assistant</span>
-            <Badge variant="blue">Preview</Badge>
           </div>
           <ClearChatButton chat={chat} />
         </div>
       }
       label="MongoDB Assistant"
-      glyph="Sparkle"
+      glyph={'Assistant'}
       autoOpen={autoOpen}
       guideCue={{
         cueId: 'assistant-drawer',
@@ -106,7 +104,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
 export const ClearChatButton: React.FunctionComponent<{
   chat: Chat<AssistantMessage>;
 }> = ({ chat }) => {
-  const { clearError, stop } = useChat({ chat });
+  const { clearError, stop, setMessages } = useChat({ chat });
 
   const handleClearChat = useCallback(async () => {
     const confirmed = await showConfirmation({
@@ -120,11 +118,19 @@ export const ClearChatButton: React.FunctionComponent<{
     if (confirmed) {
       await stop();
       clearError();
-      chat.messages = chat.messages.filter(
-        (message) => message.metadata?.isPermanent
+
+      // TODO: We use one chat instance for the entire Assistant service but when a conversation is cleared,
+      // we need to treat it as a new chat. So, we override the ID to a newly generated one.
+      // This is used by e.g. SuggestedPrompts to reset the state of the selected index.
+      // @ts-expect-error This is a readonly property but we need to mutate it to generate a new ID
+      // eslint-disable-next-line react-hooks/immutability
+      chat.id = chat.generateId();
+
+      setMessages(
+        chat.messages.filter((message) => message.metadata?.isPermanent)
       );
     }
-  }, [stop, clearError, chat]);
+  }, [stop, clearError, chat, setMessages]);
 
   const isChatEmpty =
     chat.messages.filter((message) => !message.metadata?.isPermanent).length ===

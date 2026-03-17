@@ -18,6 +18,7 @@ import type {
 } from './common';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionsList } from '@mongodb-js/compass-connections/provider';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 type ExportConnectionsState = CommonImportExportState<ConnectionShortInfo> & {
   removeSecrets: boolean;
@@ -25,16 +26,16 @@ type ExportConnectionsState = CommonImportExportState<ConnectionShortInfo> & {
 
 const INITIAL_STATE: Readonly<ExportConnectionsState> = Object.freeze({
   ...COMMON_INITIAL_STATE,
-  removeSecrets: false,
+  removeSecrets: true,
 });
 
 function connectionInfosToConnectionShortInfos(
-  infos: Pick<ConnectionInfo, 'favorite' | 'id'>[],
+  infos: Pick<ConnectionInfo, 'favorite' | 'id' | 'connectionOptions'>[],
   existingShortInfoList?: ConnectionShortInfo[]
 ): ConnectionShortInfo[] {
   return infos.map((conn) => ({
     id: conn.id,
-    name: conn.favorite?.name ?? '',
+    name: getConnectionTitle(conn),
     selected:
       existingShortInfoList?.find(({ id }) => id === conn.id)?.selected ?? true,
   }));

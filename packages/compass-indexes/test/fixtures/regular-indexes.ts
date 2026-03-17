@@ -19,7 +19,7 @@ export const indexesList: IndexDefinition[] = [
     ns: 'foo',
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     name: 'CCCC',
@@ -38,7 +38,7 @@ export const indexesList: IndexDefinition[] = [
     ns: 'foo',
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     name: 'AAAA',
@@ -57,7 +57,7 @@ export const indexesList: IndexDefinition[] = [
     ns: 'foo',
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     name: 'BBBB',
@@ -76,7 +76,7 @@ export const indexesList: IndexDefinition[] = [
     ns: 'foo',
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
 ];
 
@@ -100,7 +100,7 @@ export const defaultSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     ns: 'citibike.trips',
@@ -131,7 +131,7 @@ export const defaultSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     ns: 'citibike.trips',
@@ -149,7 +149,7 @@ export const defaultSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
 ];
 
@@ -174,7 +174,7 @@ export const usageSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     name: 'CCCC',
@@ -193,7 +193,7 @@ export const usageSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     name: '_id_',
@@ -212,7 +212,7 @@ export const usageSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     name: 'BBBB',
@@ -244,7 +244,7 @@ export const usageSortedIndexes: IndexDefinition[] = [
 
     fields: [],
     relativeSize: 1,
-    buildProgress: 0,
+    buildProgress: {},
   },
 ];
 
@@ -254,8 +254,8 @@ export const inProgressIndexes: InProgressIndex[] = [
     name: 'AAAA',
     //version: 2,
     fields: [],
-    status: 'inprogress',
-    buildProgress: 0,
+    status: 'creating',
+    buildProgress: {},
   },
   {
     id: 'in-progress-2',
@@ -266,7 +266,7 @@ export const inProgressIndexes: InProgressIndex[] = [
         value: 1,
       },
     ],
-    status: 'inprogress',
-    buildProgress: 0,
+    status: 'creating',
+    buildProgress: {},
   },
 ];

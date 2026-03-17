@@ -59,10 +59,10 @@ class GridStoreImpl
   extends BaseRefluxStore<GridStoreOptions>
   implements GridActions
 {
-  columns!: Record<string, Record<string, TableHeaderType>>; // field key -> oid -> type
-  showing!: Record<string, TableHeaderType>;
-  stageRemove!: Record<string, Record<string, boolean>>;
-  trigger!: (params: GridStoreTriggerParams) => void;
+  declare columns: Record<string, Record<string, TableHeaderType>>; // field key -> oid -> type
+  declare showing: Record<string, TableHeaderType>;
+  declare stageRemove: Record<string, Record<string, boolean>>;
+  declare trigger: (params: GridStoreTriggerParams) => void;
 
   constructor(options: GridStoreOptions) {
     super(options);
@@ -333,7 +333,7 @@ class GridStoreImpl
    * @param {Boolean} isArray - If the parent of the element is an array.
    */
   elementRemoved(key: string, oid: string, isArray: boolean) {
-    const params: Record<string, unknown> = {};
+    const params: Record<string, unknown> = Object.create(null);
     const newShowing: typeof this.showing = {};
 
     /* If it's an array element, need to move subsequent elements up */

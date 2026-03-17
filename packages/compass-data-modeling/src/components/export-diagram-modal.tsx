@@ -1,4 +1,5 @@
 import React from 'react';
+import type { DiagramInstance } from '@mongodb-js/compass-components';
 import {
   Button,
   css,
@@ -13,6 +14,7 @@ import {
   spacing,
   SpinLoader,
   PngIcon,
+  useDiagram,
 } from '@mongodb-js/compass-components';
 import type { ExportDiagramFormat } from '../store/export-diagram';
 import {
@@ -22,8 +24,6 @@ import {
 } from '../store/export-diagram';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
-import { useDiagram } from '@mongodb-js/diagramming';
-import type { DiagramInstance } from '@mongodb-js/diagramming';
 
 const modelBodyStyles = css({
   paddingTop: spacing[600],
@@ -45,6 +45,7 @@ const radioItemStyles = css({
 
 const footerStyles = css({
   display: 'flex',
+  justifyContent: 'flex-end',
   gap: spacing[200],
 });
 
@@ -83,12 +84,12 @@ const ExportDiagramModal = ({
               <Radio
                 checked={exportFormat === 'diagram'}
                 value="diagram"
-                aria-label="Diagram File"
+                aria-label="MDM File"
                 onClick={() => onSelectFormat('diagram')}
                 size="small"
-                description="Importable into Compass so teammates can collaborate."
+                description="Importable into Compass and Data Explorer so teammates can collaborate."
               >
-                Diagram File
+                MDM File
               </Radio>
             </div>
             <div className={radioItemStyles}>
@@ -122,6 +123,13 @@ const ExportDiagramModal = ({
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
+          variant="default"
+          onClick={onCloseClick}
+          data-testid="cancel-button"
+        >
+          Cancel
+        </Button>
+        <Button
           variant="primary"
           onClick={() => onExportDiagram(diagram)}
           data-testid="export-button"
@@ -130,13 +138,6 @@ const ExportDiagramModal = ({
           isLoading={isExporting}
         >
           Export
-        </Button>
-        <Button
-          variant="default"
-          onClick={onCloseClick}
-          data-testid="cancel-button"
-        >
-          Cancel
         </Button>
       </ModalFooter>
     </Modal>

@@ -1,5 +1,5 @@
 import type { ChangeEvent } from 'react';
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import {
   TextInput,
   Select,
@@ -8,6 +8,7 @@ import {
   css,
   spacing,
   ListEditor,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { MongoClientOptions } from 'mongodb';
@@ -66,8 +67,11 @@ function UrlOptionsListEditor({
   updateConnectionFormField: UpdateConnectionFormField;
   connectionStringUrl: ConnectionStringUrl;
 }): React.ReactElement {
-  const [options, setOptions] = React.useState<Partial<UrlOption>[]>([]);
-  useEffect(() => {
+  const [options, setOptions] = React.useState<Partial<UrlOption>[]>(() => {
+    return appendEmptyOption(getUrlOptions(connectionStringUrl));
+  });
+
+  useSyncStateOnPropChange(() => {
     const newOptions = appendEmptyOption(getUrlOptions(connectionStringUrl));
     setOptions(newOptions);
   }, [connectionStringUrl]);

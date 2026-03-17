@@ -35,9 +35,18 @@ import type {
   RecentQueryStorage,
 } from '@mongodb-js/my-queries-storage/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type Collection from 'mongodb-collection-model';
 
 // Partial of DataService that mms shares with Compass.
-type QueryBarDataService = Pick<DataService, 'sample' | 'getConnectionString'>;
+type FetchCollectionMetadataDataServiceMethods =
+  | 'collectionStats'
+  | 'collectionInfo'
+  | 'listCollections'
+  | 'isListSearchIndexesSupported';
+type QueryBarDataService = Pick<
+  DataService,
+  'sample' | 'getConnectionString' | FetchCollectionMetadataDataServiceMethods
+>;
 
 type QueryBarServices = {
   instance: MongoDBInstance;
@@ -51,6 +60,7 @@ type QueryBarServices = {
   atlasAiService: AtlasAiService;
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
   recentQueryStorageAccess?: RecentQueryStorageAccess;
+  collection: Collection;
 };
 
 // TODO(COMPASS-7412): this doesn't have service injector
@@ -73,7 +83,10 @@ export type RootState = ReturnType<typeof rootQueryBarReducer>;
 export type QueryBarExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
-  dataService: Pick<QueryBarDataService, 'sample'>;
+  dataService: Pick<
+    QueryBarDataService,
+    'sample' | FetchCollectionMetadataDataServiceMethods
+  >;
   preferences: PreferencesAccess;
   favoriteQueryStorage?: FavoriteQueryStorage;
   recentQueryStorage?: RecentQueryStorage;
@@ -81,6 +94,7 @@ export type QueryBarExtraArgs = {
   track: TrackFunction;
   connectionInfoRef: ConnectionInfoRef;
   atlasAiService: AtlasAiService;
+  collection: Collection;
 };
 
 export type QueryBarThunkDispatch<A extends AnyAction = AnyAction> =
@@ -126,6 +140,7 @@ export function activatePlugin(
     atlasAiService,
     favoriteQueryStorageAccess,
     recentQueryStorageAccess,
+    collection,
   } = services;
 
   const favoriteQueryStorage = favoriteQueryStorageAccess?.getStorage();
@@ -158,6 +173,7 @@ export function activatePlugin(
       track,
       connectionInfoRef,
       atlasAiService,
+      collection,
     }
   );
 

@@ -1,1 +1,6 @@
-ignores: []
+ignores: [
+  '@mongodb-js/prettier-config-compass',
+  '@mongodb-js/tsconfig-compass',
+  "@babel/register",
+  "babel-loader"
+]

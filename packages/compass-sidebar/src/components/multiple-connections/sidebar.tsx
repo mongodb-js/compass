@@ -18,7 +18,7 @@ import { type RootState, type SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
 import { useMaybeProtectConnectionString } from '@mongodb-js/compass-maybe-protect-connection-string';
-import type { WorkspaceTab } from '@mongodb-js/compass-workspaces';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import ConnectionsNavigation from './connections-navigation';
 import CSFLEConnectionModal, {
   type CSFLEConnectionModalProps,

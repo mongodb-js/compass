@@ -120,7 +120,6 @@ async function pollToCompletion({
 type DispatchOptions = {
   githubToken: string;
   ref: string;
-  bucketName: string;
   bucketKeyPrefix: string;
   devVersion?: string;
   githubPrNumber?: string;
@@ -141,7 +140,6 @@ export async function dispatchAndWait({
   githubToken,
   ref,
   devVersion,
-  bucketName,
   bucketKeyPrefix,
   githubPrNumber,
   evergreenTaskUrl,
@@ -158,7 +156,6 @@ export async function dispatchAndWait({
     ref,
     inputs: {
       dev_version: devVersion,
-      bucket_name: bucketName,
       bucket_key_prefix: bucketKeyPrefix,
       github_pr_number: githubPrNumber,
       evergreen_task_url: evergreenTaskUrl,

@@ -20,7 +20,8 @@ const modalBodyStyles = css({
 
 export function showEndOfLifeMongoDBWarningModal(
   connectionInfo?: ConnectionInfo,
-  version?: string
+  version?: string,
+  closeSignal?: AbortSignal
 ) {
   return showConfirmation({
     title: 'End-of-life MongoDB Detected',
@@ -48,5 +49,6 @@ export function showEndOfLifeMongoDBWarningModal(
         </Link>
       </>
     ),
+    signal: closeSignal,
   });
 }

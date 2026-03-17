@@ -3,23 +3,23 @@ import type { PipelineBuilderThunkAction } from '.';
 import { isAction } from '../utils/is-action';
 import { addStage, pipelineFromStore } from './pipeline-builder/stage-editor';
 
-enum ActionTypes {
-  FocusModeEnabled = 'compass-aggregations/focusModeEnabled',
-  FocusModeDisabled = 'compass-aggregations/focusModeDisabled',
-  SelectFocusModeStage = 'compass-aggregations/selectFocusModeStage',
-}
+const ActionTypes = {
+  FocusModeEnabled: 'compass-aggregations/focusModeEnabled',
+  FocusModeDisabled: 'compass-aggregations/focusModeDisabled',
+  SelectFocusModeStage: 'compass-aggregations/selectFocusModeStage',
+} as const;
 
 type FocusModeEnabledAction = {
-  type: ActionTypes.FocusModeEnabled;
+  type: typeof ActionTypes.FocusModeEnabled;
   stageIndex: number;
 };
 
 type FocusModeDisabledAction = {
-  type: ActionTypes.FocusModeDisabled;
+  type: typeof ActionTypes.FocusModeDisabled;
 };
 
 type SelectFocusModeStageAction = {
-  type: ActionTypes.SelectFocusModeStage;
+  type: typeof ActionTypes.SelectFocusModeStage;
   index: number;
 };
 

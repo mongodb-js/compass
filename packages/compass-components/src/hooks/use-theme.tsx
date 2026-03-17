@@ -3,10 +3,12 @@ import LeafyGreenProvider, {
   useDarkMode as useLeafyGreenDarkMode,
 } from '@leafygreen-ui/leafygreen-provider';
 
-enum Theme {
-  Light = 'Light',
-  Dark = 'Dark',
-}
+const Themes = {
+  Light: 'Light',
+  Dark: 'Dark',
+} as const;
+
+export type Theme = (typeof Themes)[keyof typeof Themes];
 
 export function useDarkMode(localDarkMode?: boolean): boolean | undefined {
   const darkMode = useLeafyGreenDarkMode(localDarkMode);
@@ -29,7 +31,7 @@ export const ThemeProvider = ({
   };
 }): React.ReactElement => {
   return theme.enabled ? (
-    <LeafyGreenProvider darkMode={theme.theme === Theme.Dark}>
+    <LeafyGreenProvider darkMode={theme.theme === Themes.Dark}>
       {children}
     </LeafyGreenProvider>
   ) : (
@@ -42,13 +44,11 @@ export const ThemeProvider = ({
 const withDarkMode = function <
   ComponentProps extends WithDarkModeProps = WithDarkModeProps
 >(
-  WrappedComponent: React.ComponentType<ComponentProps & WithDarkModeProps>
+  WrappedComponent: React.ComponentType<ComponentProps>
 ): React.ComponentType<ComponentProps> {
   const ComponentWithDarkMode = (
     props: ComponentProps,
-    ref: React.ForwardedRef<
-      React.ComponentType<ComponentProps & WithDarkModeProps>
-    >
+    ref: React.ForwardedRef<React.ComponentType<ComponentProps>>
   ) => {
     const darkMode = useDarkMode();
     return (
@@ -71,4 +71,4 @@ const withDarkMode = function <
   ) as unknown as typeof WrappedComponent;
 };
 
-export { Theme, withDarkMode };
+export { Themes, withDarkMode };

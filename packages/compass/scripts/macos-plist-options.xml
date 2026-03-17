@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- 
+        NSLocalNetworkUsageDescription
+        
+        This key is required by macOS to explain why the application needs access to the local network.
+        The message is displayed to users when macOS requests permission for local network access.
+        
+        This permission is triggered when MongoDB Compass performs DNS operations (via os-dns-native)
+        to resolve MongoDB connection strings, particularly for mongodb+srv:// URIs that require SRV record lookups.
+        
+        See: https://developer.apple.com/documentation/bundleresources/information_property_list/nslocalnetworkusagedescription
+    -->
+    <key>NSLocalNetworkUsageDescription</key>
+    <string>MongoDB Compass needs access to your local network to discover and connect to MongoDB instances.</string>
+</dict>
+</plist>
+

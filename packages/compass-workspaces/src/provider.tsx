@@ -1,13 +1,17 @@
 import React, { useContext, useRef } from 'react';
 import { useSelector, useStore } from './stores/context';
-import type { OpenWorkspaceOptions, TabOptions } from './stores/workspaces';
+import type { TabOptions } from './stores/workspaces';
 import {
   collectionSubtabSelected,
   getActiveTab,
   openWorkspace as openWorkspaceAction,
 } from './stores/workspaces';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import type { CollectionSubtab, WorkspaceTab } from './types';
+import type {
+  CollectionSubtab,
+  WorkspaceTab,
+} from '@mongodb-js/workspace-info';
+import type { OpenWorkspaceOptions } from './stores/workspaces';
 import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
 
@@ -41,7 +45,7 @@ export type WorkspacesService = {
   /**
    * Open "Data Modeling" workspace
    */
-  openDataModelingWorkspace(this: void): void;
+  openDataModelingWorkspace(this: void, options?: TabOptions): void;
 
   /**
    * Open "Shell" workspace
@@ -243,15 +247,15 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           openWorkspaceAction({ type: 'My Queries' }, tabOptions)
         );
       },
-      openDataModelingWorkspace: () => {
+      openDataModelingWorkspace: (options = {}) => {
         return void store.dispatch(
           openWorkspaceAction(
             { type: 'Data Modeling' },
             {
-              // Data Modeling tab is a special case, we always want to open it
-              // in a new tab to make it easier for users to create / open new
+              // Data Modeling tab is a special case, we want to open it
+              // in a new tab by default to make it easier for users to create / open new
               // diagrams
-              newTab: true,
+              newTab: options.newTab ?? true,
             }
           )
         );

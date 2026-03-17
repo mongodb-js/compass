@@ -70,13 +70,21 @@ export class AtlasCloudConnectionStorage
   implements ConnectionStorage
 {
   private loadAllPromise: Promise<ConnectionInfo[]> | undefined;
+  private atlasService: AtlasService;
+  private orgId: string;
+  private projectId: string;
+  private logger: Logger;
   constructor(
-    private atlasService: AtlasService,
-    private orgId: string,
-    private projectId: string,
-    private logger: Logger
+    atlasService: AtlasService,
+    orgId: string,
+    projectId: string,
+    logger: Logger
   ) {
     super();
+    this.atlasService = atlasService;
+    this.orgId = orgId;
+    this.projectId = projectId;
+    this.logger = logger;
   }
   async load({ id }: { id: string }): Promise<ConnectionInfo | undefined> {
     return (await this.loadAll()).find((info) => {

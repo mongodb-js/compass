@@ -18,17 +18,31 @@ describe('search-indexes module', function () {
         status: 'INITIAL',
       });
     });
-    it('returns state when fetching starts', function () {
+    it('returns state when fetching starts (initial fetch)', function () {
       expect(
         reducer(undefined, {
           type: ActionTypes.FetchIndexesStarted,
-        })
+          reason: 'INITIAL_FETCH',
+        } as AnyAction)
       ).to.deep.equal({
         isSearchIndexesSupported: false,
         indexes: [],
         status: 'LOADING',
       });
     });
+    it('returns state when polling starts', function () {
+      expect(
+        reducer(undefined, {
+          type: ActionTypes.FetchIndexesStarted,
+          reason: 'POLL',
+        } as AnyAction)
+      ).to.deep.equal({
+        isSearchIndexesSupported: false,
+        indexes: [],
+        status: 'POLLING',
+      });
+    });
+
     it('returns state when fetching succeeds', function () {
       expect(
         reducer(undefined, {
@@ -41,15 +55,38 @@ describe('search-indexes module', function () {
         status: 'READY',
       });
     });
-    it('returns state when fetching fails', function () {
+    it('returns ERROR status when initial fetch fails', function () {
+      // First set status to LOADING (initial fetch)
+      const loadingState = reducer(undefined, {
+        type: ActionTypes.FetchIndexesStarted,
+        reason: 'INITIAL_FETCH',
+      } as AnyAction);
       expect(
-        reducer(undefined, {
+        reducer(loadingState, {
           type: ActionTypes.FetchIndexesFailed,
         })
       ).to.deep.equal({
         isSearchIndexesSupported: false,
         indexes: [],
         status: 'ERROR',
+      });
+    });
+    it('returns READY status when polling fails (keeps previous indexes)', function () {
+      // First set status to POLLING
+      const pollingState = reducer(
+        {
+          isSearchIndexesSupported: false,
+          indexes: [{ name: 'existing' }] as any,
+          status: 'POLLING',
+        },
+        {
+          type: ActionTypes.FetchIndexesFailed,
+        }
+      );
+      expect(pollingState).to.deep.equal({
+        isSearchIndexesSupported: false,
+        indexes: [{ name: 'existing' }],
+        status: 'READY',
       });
     });
   });
@@ -96,6 +133,7 @@ describe('search-indexes module', function () {
         // Set the status to LOADING
         store.dispatch({
           type: ActionTypes.FetchIndexesStarted,
+          reason: 'INITIAL_FETCH',
         });
 
         await store.dispatch(fetchIndexes() as any);
@@ -140,11 +178,18 @@ describe('search-indexes module', function () {
         });
       });
 
-      it('fetchs indexes in error state', async function () {
-        // Set the status to ERROR
+      it('fetches indexes in error state', async function () {
+        // First set the status to LOADING, then fail to get ERROR state
+        store.dispatch({
+          type: ActionTypes.FetchIndexesStarted,
+          reason: 'INITIAL_FETCH',
+        });
         store.dispatch({
           type: ActionTypes.FetchIndexesFailed,
         });
+
+        // Verify we're in ERROR state
+        expect(store.getState().searchIndexes.status).to.equal('ERROR');
 
         getSearchIndexesStub.callsFake((ns: string) => {
           expect(ns).to.equal('test.listings');

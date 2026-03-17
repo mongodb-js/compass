@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -17,7 +17,7 @@ import {
   type LGTableDataType,
   getExpandedRowModel,
   getFilteredRowModel,
-  type LgTableRowType,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import type { ShardZoneData } from '../store/reducer';
 import { ShardZonesDescription } from './shard-zones-description';
@@ -77,7 +77,7 @@ const parseData = (shardZones: ShardZoneData[]): ShardZoneExpandableRow[] => {
 };
 
 const hasFilteredChildren = (
-  row: LgTableRowType<LGTableDataType<ShardZoneRow>>
+  row: LeafyGreenTableRow<LGTableDataType<ShardZoneRow>>
 ) =>
   row.subRows.some(
     (subRow) => Object.values(subRow.columnFilters).includes(true) // columnFilters: e.g. { __global__: true }
@@ -120,8 +120,7 @@ export function ShardZonesTable({
     maxLeafRowFilterDepth: 2,
   });
 
-  const tableRef = useRef(table);
-  tableRef.current = table;
+  const tableRef = useCurrentValueRef(table);
 
   const handleSearchTextChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

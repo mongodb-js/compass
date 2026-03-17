@@ -16,64 +16,71 @@ import semver from 'semver';
 export type ValidationServerAction = 'error' | 'warn' | 'errorAndLog';
 export type ValidationLevel = 'off' | 'moderate' | 'strict';
 
-export const enum ValidationActions {
-  ValidatorChanged = 'compass-schema-validation/validation/ValidatorChanged',
-  ValidationCanceled = 'compass-schema-validation/validation/ValidationCanceled',
-  ValidationSaveStarted = 'compass-schema-validation/validation/ValidationSaveStarted',
-  ValidationSaveEnded = 'compass-schema-validation/validation/ValidationSaveEnded',
-  ValidationSaveFailed = 'compass-schema-validation/validation/ValidationSaveFailed',
-  ValidationFetched = 'compass-schema-validation/validation/ValidationFetched',
-  EmptyValidationFetched = 'compass-schema-validation/validation/EmptyValidationFetched',
-  ValidationActionChanged = 'compass-schema-validation/validation/ValidationActionChanged',
-  ValidationLevelChanged = 'compass-schema-validation/validation/ValidationLevelChanged',
-  ValidationFetchErrored = 'compass-schema-validation/validation/ValidationFetchErrored',
-}
+export const ValidationActions = {
+  ValidatorChanged: 'compass-schema-validation/validation/ValidatorChanged',
+  ValidationCanceled: 'compass-schema-validation/validation/ValidationCanceled',
+  ValidationSaveStarted:
+    'compass-schema-validation/validation/ValidationSaveStarted',
+  ValidationSaveEnded:
+    'compass-schema-validation/validation/ValidationSaveEnded',
+  ValidationSaveFailed:
+    'compass-schema-validation/validation/ValidationSaveFailed',
+  ValidationFetched: 'compass-schema-validation/validation/ValidationFetched',
+  EmptyValidationFetched:
+    'compass-schema-validation/validation/EmptyValidationFetched',
+  ValidationActionChanged:
+    'compass-schema-validation/validation/ValidationActionChanged',
+  ValidationLevelChanged:
+    'compass-schema-validation/validation/ValidationLevelChanged',
+  ValidationFetchErrored:
+    'compass-schema-validation/validation/ValidationFetchErrored',
+} as const;
 
 interface ValidatorChangedAction {
-  type: ValidationActions.ValidatorChanged;
+  type: typeof ValidationActions.ValidatorChanged;
   validator: string;
 }
 
 export interface ValidationCanceledAction {
-  type: ValidationActions.ValidationCanceled;
+  type: typeof ValidationActions.ValidationCanceled;
 }
 
 interface ValidationSaveStartedAction {
-  type: ValidationActions.ValidationSaveStarted;
+  type: typeof ValidationActions.ValidationSaveStarted;
 }
 
 interface ValidationSaveEndedAction {
-  type: ValidationActions.ValidationSaveEnded;
+  type: typeof ValidationActions.ValidationSaveEnded;
 }
 
 interface ValidationSaveFailedAction {
-  type: ValidationActions.ValidationSaveFailed;
+  type: typeof ValidationActions.ValidationSaveFailed;
   error: { message: string };
 }
 export interface ValidationFetchedAction {
-  type: ValidationActions.ValidationFetched;
+  type: typeof ValidationActions.ValidationFetched;
   validator: Document;
   validationAction: ValidationServerAction;
   validationLevel: ValidationLevel;
 }
 
 export interface ValidationFetchErroredAction {
-  type: ValidationActions.ValidationFetchErrored;
+  type: typeof ValidationActions.ValidationFetchErrored;
   error: { message: string };
 }
 
 export interface EmptyValidationFetchedAction {
-  type: ValidationActions.EmptyValidationFetched;
+  type: typeof ValidationActions.EmptyValidationFetched;
   validationTemplate: string;
 }
 
 interface ValidationActionChangedAction {
-  type: ValidationActions.ValidationActionChanged;
+  type: typeof ValidationActions.ValidationActionChanged;
   validationAction: ValidationServerAction;
 }
 
 interface ValidationLevelChangedAction {
-  type: ValidationActions.ValidationLevelChanged;
+  type: typeof ValidationActions.ValidationLevelChanged;
   validationLevel: ValidationLevel;
 }
 

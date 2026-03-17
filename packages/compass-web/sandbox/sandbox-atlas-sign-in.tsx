@@ -13,6 +13,7 @@ console.info(
 type SignInStatus = 'checking' | 'signed-in' | 'signed-out';
 
 type ProjectParams = {
+  orgId: string;
   projectId: string;
   csrfToken: string;
   csrfTime: string;
@@ -20,6 +21,7 @@ type ProjectParams = {
   enableGenAISampleDocumentPassing: boolean;
   enableGenAIFeaturesAtlasOrg: boolean;
   optInGenAIFeatures: boolean;
+  enableGenAIToolCallingAtlasProject: boolean;
   userRoles: Record<string, boolean>;
 };
 
@@ -77,7 +79,7 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
     null
   );
 
-  const signIn = ((window as any).__signIn = useCallback(async () => {
+  const signIn = useCallback(async () => {
     try {
       const { projectId } = await fetch('/authenticate', {
         method: 'POST',
@@ -93,9 +95,9 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
         description: (err as any).message,
       });
     }
-  }, []));
+  }, []);
 
-  const signOut = ((window as any).__signOut = useCallback(() => {
+  const signOut = useCallback(() => {
     return fetch('/logout').then(
       () => {
         window.location.reload();
@@ -104,7 +106,11 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
         // noop
       }
     );
-  }, []));
+  }, []);
+
+  // Global is modified only for local dev convenience
+  // eslint-disable-next-line react-hooks/immutability
+  Object.assign(window, { __signIn: signIn, __signOut: signOut });
 
   useEffect(() => {
     let mounted = true;
@@ -127,8 +133,10 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             currentOrganization: { genAIFeaturesEnabled },
             featureFlags: { groupEnabledFeatureFlags },
             userRoles,
+            currentOrganization,
           } = params;
           setProjectParams({
+            orgId: currentOrganization.id,
             projectId,
             csrfToken,
             csrfTime,
@@ -141,6 +149,8 @@ export function useAtlasProxySignIn(): AtlasLoginReturnValue {
             enableGenAIFeaturesAtlasProject: groupEnabledFeatureFlags.includes(
               'ENABLE_DATA_EXPLORER_GEN_AI_FEATURES'
             ),
+            // TODO: use real flag once available
+            enableGenAIToolCallingAtlasProject: true,
             userRoles,
           });
           setStatus('signed-in');

@@ -6,8 +6,8 @@ import {
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
-  DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionStrings,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -22,23 +22,23 @@ async function waitForCollectionAndBadge(
   collectionName: string,
   badgeSelector: string
 ) {
-  const cardSelector = Selectors.collectionCard(dbName, collectionName);
+  const rowSelector = Selectors.collectionRow(dbName, collectionName);
   await browser.scrollToVirtualItem(
-    Selectors.CollectionsGrid,
-    cardSelector,
-    'grid'
+    Selectors.CollectionsTable,
+    rowSelector,
+    'table'
   );
 
-  // Hit refresh because depending on timing the card might appear without the
+  // Hit refresh because depending on timing the row might appear without the
   // badge at first. Especially in Firefox for whatever reason.
   await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
   await browser.scrollToVirtualItem(
-    Selectors.CollectionsGrid,
-    cardSelector,
-    'grid'
+    Selectors.CollectionsTable,
+    rowSelector,
+    'table'
   );
-  await browser.$(cardSelector).$(badgeSelector).waitForDisplayed();
+  await browser.$(rowSelector).$(badgeSelector).waitForDisplayed();
 }
 
 describe('Database collections tab', function () {
@@ -61,7 +61,7 @@ describe('Database collections tab', function () {
     await browser.disconnectAll();
     await browser.connectToDefaults();
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
   });
@@ -71,7 +71,7 @@ describe('Database collections tab', function () {
   });
 
   it('contains a list of collections', async function () {
-    const collectionsGrid = browser.$(Selectors.CollectionsGrid);
+    const collectionsGrid = browser.$(Selectors.CollectionsTable);
     await collectionsGrid.waitForDisplayed();
 
     for (const collectionName of [
@@ -80,29 +80,28 @@ describe('Database collections tab', function () {
       'json-file',
       'numbers',
     ]) {
-      const collectionSelector = Selectors.collectionCard(
+      const collectionSelector = Selectors.collectionRow(
         'test',
         collectionName
       );
       const found = await browser.scrollToVirtualItem(
-        Selectors.CollectionsGrid,
+        Selectors.CollectionsTable,
         collectionSelector,
-        'grid'
+        'table'
       );
       expect(found, collectionSelector).to.be.true;
     }
   });
 
-  it('links collection cards to the collection documents tab', async function () {
+  it('links collection rows to the collection documents tab', async function () {
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
-      Selectors.collectionCard('test', 'json-array'),
-      'grid'
+      Selectors.CollectionsTable,
+      Selectors.collectionRow('test', 'json-array'),
+      'table'
     );
 
     await browser.clickVisible(
-      Selectors.collectionCardClickable('test', 'json-array'),
-      { scroll: true }
+      `${Selectors.collectionRow('test', 'json-array')} td:first-child`
     );
 
     // lands on the collection screen with all its tabs
@@ -133,26 +132,24 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
-    const selector = Selectors.collectionCard('test', collectionName);
+    const selector = Selectors.collectionRow('test', collectionName);
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
+      Selectors.CollectionsTable,
       selector,
-      'grid'
+      'table'
     );
 
-    const collectionCard = browser.$(selector);
-    await collectionCard.waitForDisplayed();
-
-    await collectionCard.scrollIntoView(false);
+    const collectionRow = browser.$(selector);
+    await collectionRow.waitForDisplayed();
 
     await browser.waitUntil(async () => {
-      // open the drop collection modal from the collection card
-      await browser.hover(`${selector} [title="${collectionName}"]`);
-      const el = browser.$(Selectors.CollectionCardDrop);
+      // open the drop collection modal from the collection row
+      await browser.hover(`${selector}`);
+      const el = browser.$(Selectors.collectionRowDrop('test', collectionName));
       if (await el.isDisplayed()) {
         return true;
       }
@@ -162,16 +159,21 @@ describe('Database collections tab', function () {
       return false;
     });
 
-    await browser.clickVisible(Selectors.CollectionCardDrop);
+    await browser.clickVisible(
+      Selectors.collectionRowDrop('test', collectionName)
+    );
 
     await browser.dropNamespace(collectionName);
 
     // wait for it to be gone
-    await collectionCard.waitForExist({ reverse: true });
+    await collectionRow.waitForExist({ reverse: true });
 
     // the app should still be on the database Collections tab because there are
     // other collections in this database
-    await browser.waitUntilActiveDatabaseTab(DEFAULT_CONNECTION_NAME_1, 'test');
+    await browser.waitUntilActiveDatabaseTab(
+      getDefaultConnectionNames(0),
+      'test'
+    );
   });
 
   it('can create a collection with custom collation', async function () {
@@ -199,7 +201,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
@@ -231,7 +233,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
@@ -268,7 +270,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
@@ -299,7 +301,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test'
     );
 
@@ -311,7 +313,7 @@ describe('Database collections tab', function () {
     );
 
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       'test',
       collectionName,
       'Indexes'
@@ -330,7 +332,7 @@ describe('Database collections tab', function () {
     const coll = `zcoll-${Date.now()}`;
 
     // Create the collection and refresh
-    const mongoClient = new MongoClient(DEFAULT_CONNECTION_STRING_1);
+    const mongoClient = new MongoClient(getDefaultConnectionStrings(0));
     await mongoClient.connect();
     try {
       const database = mongoClient.db(db);
@@ -340,18 +342,18 @@ describe('Database collections tab', function () {
     }
 
     await browser.navigateToDatabaseCollectionsTab(
-      DEFAULT_CONNECTION_NAME_1,
+      getDefaultConnectionNames(0),
       db
     );
     await browser.clickVisible(Selectors.DatabaseRefreshCollectionButton);
 
-    const collSelector = Selectors.collectionCard(db, coll);
+    const collSelector = Selectors.collectionRow(db, coll);
     await browser.scrollToVirtualItem(
-      Selectors.CollectionsGrid,
+      Selectors.CollectionsTable,
       collSelector,
-      'grid'
+      'table'
     );
-    const coll2Card = browser.$(collSelector);
-    await coll2Card.waitForDisplayed();
+    const coll2Row = browser.$(collSelector);
+    await coll2Row.waitForDisplayed();
   });
 });

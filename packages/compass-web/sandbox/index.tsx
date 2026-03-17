@@ -1,19 +1,14 @@
-import React, { useCallback, useLayoutEffect } from 'react';
+import React, { useLayoutEffect } from 'react';
 import ReactDOM from 'react-dom';
-import {
-  Body,
-  css,
-  openToast,
-  resetGlobalCSS,
-} from '@mongodb-js/compass-components';
+import { Body, css, resetGlobalCSS } from '@mongodb-js/compass-components';
 import { CompassWeb } from '../src/index';
 import { SandboxConnectionStorageProvider } from '../src/connection-storage';
-import { sandboxLogger } from './sandbox-logger';
-import { sandboxTelemetry } from './sandbox-telemetry';
 import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
 import { sandboxConnectionStorage } from './sandbox-connection-storage';
 import { useWorkspaceTabRouter } from './sandbox-workspace-tab-router';
-import { SandboxPreferencesUpdateProvider } from '../src/preferences';
+import { debug } from './sandbox-logger-and-telemetry';
+import './sandbox-preferences';
+import './sandbox-process';
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -38,6 +33,7 @@ const App = () => {
   const [currentTab, updateCurrentTab] = useWorkspaceTabRouter();
   const { status, projectParams } = useAtlasProxySignIn();
   const {
+    orgId,
     projectId,
     csrfToken,
     csrfTime,
@@ -45,6 +41,7 @@ const App = () => {
     enableGenAISampleDocumentPassing,
     enableGenAIFeaturesAtlasOrg,
     optInGenAIFeatures,
+    enableGenAIToolCallingAtlasProject,
     userRoles,
   } = projectParams ?? {};
 
@@ -61,14 +58,6 @@ const App = () => {
     getMetaEl('csrf-token').setAttribute('content', csrfToken ?? '');
     getMetaEl('csrf-time').setAttribute('content', csrfTime ?? '');
   }, [csrfToken, csrfTime]);
-
-  const onFailToLoadConnections = useCallback((error: Error) => {
-    openToast('failed-to-load-connections', {
-      title: 'Failed to load connections',
-      description: error.message,
-      variant: 'warning',
-    });
-  }, []);
 
   if (status === 'checking') {
     return null;
@@ -93,41 +82,37 @@ const App = () => {
     <SandboxConnectionStorageProvider
       value={isAtlas ? null : sandboxConnectionStorage}
     >
-      <SandboxPreferencesUpdateProvider>
-        <Body as="div" className={sandboxContainerStyles}>
-          <CompassWeb
-            orgId={''}
-            projectId={projectId ?? ''}
-            onActiveWorkspaceTabChange={updateCurrentTab}
-            initialWorkspace={currentTab ?? undefined}
-            initialPreferences={{
-              enableExportSchema: true,
-              enablePerformanceAdvisorBanner: isAtlas,
-              enableAtlasSearchIndexes: !isAtlas,
-              maximumNumberOfActiveConnections: isAtlas ? 10 : undefined,
-              atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
-              enableCreatingNewConnections: !isAtlas,
-              enableGlobalWrites: isAtlas,
-              enableRollingIndexes: isAtlas,
-              showDisabledConnections: true,
-              enableGenAIFeaturesAtlasProject:
-                isAtlas && !!enableGenAIFeaturesAtlasProject,
-              enableGenAISampleDocumentPassing:
-                isAtlas && !!enableGenAISampleDocumentPassing,
-              enableGenAIFeaturesAtlasOrg:
-                isAtlas && !!enableGenAIFeaturesAtlasOrg,
-              optInGenAIFeatures: isAtlas && !!optInGenAIFeatures,
-              enableDataModeling: true,
-              enableMyQueries: false,
-              ...groupRolePreferences,
-            }}
-            onTrack={sandboxTelemetry.track}
-            onDebug={sandboxLogger.debug}
-            onLog={sandboxLogger.log}
-            onFailToLoadConnections={onFailToLoadConnections}
-          ></CompassWeb>
-        </Body>
-      </SandboxPreferencesUpdateProvider>
+      <Body as="div" className={sandboxContainerStyles}>
+        <CompassWeb
+          orgId={orgId ?? ''}
+          projectId={projectId ?? ''}
+          onActiveWorkspaceTabChange={updateCurrentTab}
+          initialWorkspace={currentTab ?? undefined}
+          initialPreferences={{
+            enableExportSchema: true,
+            enablePerformanceAdvisorBanner: isAtlas,
+            enableAtlasSearchIndexes: !isAtlas,
+            maximumNumberOfActiveConnections: isAtlas ? 10 : undefined,
+            atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
+            enableCreatingNewConnections: !isAtlas,
+            enableGlobalWrites: isAtlas,
+            enableRollingIndexes: isAtlas,
+            enableGenAIFeaturesAtlasOrg:
+              !isAtlas || !!enableGenAIFeaturesAtlasOrg,
+            enableGenAIFeaturesAtlasProject:
+              !isAtlas || !!enableGenAIFeaturesAtlasProject,
+            enableGenAISampleDocumentPassing:
+              !!enableGenAISampleDocumentPassing,
+            enableGenAIToolCallingAtlasProject:
+              !isAtlas || !!enableGenAIToolCallingAtlasProject,
+            optInGenAIFeatures: isAtlas ? !!optInGenAIFeatures : false,
+            enableDataModelingCollapse: true,
+            enableMyQueries: isAtlas,
+            ...groupRolePreferences,
+          }}
+          onDebug={debug}
+        ></CompassWeb>
+      </Body>
     </SandboxConnectionStorageProvider>
   );
 };

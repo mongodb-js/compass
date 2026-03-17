@@ -468,7 +468,7 @@ describe('csfle-handler', function () {
 
       it('records the error for invalid shell BSON text', function () {
         expect(textToEncryptedFieldConfig('{')).to.deep.equal({
-          '$compass.error': 'Unexpected token (3:0)',
+          '$compass.error': 'Unexpected token (3:0) in (\n{\n)',
           '$compass.rawText': '{',
         });
       });

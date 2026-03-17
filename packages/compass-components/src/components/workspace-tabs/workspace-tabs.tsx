@@ -24,7 +24,8 @@ import {
 } from '@dnd-kit/sortable';
 
 import { useDarkMode } from '../../hooks/use-theme';
-import { FocusState, useFocusState } from '../../hooks/use-focus-hover';
+import type { FocusState } from '../../hooks/use-focus-hover';
+import { FocusStates, useFocusState } from '../../hooks/use-focus-hover';
 import { Icon, IconButton } from '../leafygreen';
 import { mergeProps } from '../../utils/merge-props';
 import type { Tab } from './tab';
@@ -196,12 +197,14 @@ export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
 
   useEffect(() => {
     if (
-      [
-        FocusState.Focus,
-        FocusState.FocusVisible,
-        FocusState.FocusWithin,
-        FocusState.FocusWithinVisible,
-      ].includes(focusState)
+      (
+        [
+          FocusStates.Focus,
+          FocusStates.FocusVisible,
+          FocusStates.FocusWithin,
+          FocusStates.FocusWithinVisible,
+        ] as FocusState[]
+      ).includes(focusState)
     ) {
       focusTabbable();
     }

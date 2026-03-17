@@ -38,8 +38,9 @@ import type {
 } from '@mongodb-js/my-queries-storage';
 import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
 
-type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> &
-  Pick<T, '_lastExecuted'>;
+type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> & {
+  _lastExecuted: Date;
+};
 type AutoCompleteRecentQuery = AutoCompleteQuery<RecentQuery>;
 type AutoCompleteFavoriteQuery = AutoCompleteQuery<FavoriteQuery>;
 

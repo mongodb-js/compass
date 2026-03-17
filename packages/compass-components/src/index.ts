@@ -40,6 +40,7 @@ export {
   SpinLoader,
   SpinLoaderWithLabel,
   CancelLoader,
+  ProgressLoaderWithCancel,
 } from './components/loader';
 import { ResizeHandle, ResizeDirection } from './components/resize-handle';
 import { Accordion } from './components/accordion';
@@ -82,6 +83,7 @@ export { Variant as BannerVariant } from '@leafygreen-ui/banner';
 export {
   Size as ButtonSize,
   Variant as ButtonVariant,
+  type ButtonProps,
 } from '@leafygreen-ui/button';
 export { SplitButton } from '@leafygreen-ui/split-button';
 
@@ -141,23 +143,23 @@ export {
 };
 export {
   useFocusState,
+  useFocusStateIncludingUnfocused,
   useHoverState,
-  FocusState,
+  FocusStates,
+  type FocusState,
 } from './hooks/use-focus-hover';
 export { resetGlobalCSS } from './utils/reset-global-css';
 export { getScrollbarStyles, useScrollbars } from './hooks/use-scrollbars';
 export {
   withDarkMode,
   useDarkMode,
-  Theme,
+  Themes,
   ThemeProvider,
 } from './hooks/use-theme';
-export {
-  ContentWithFallback,
-  FadeInPlaceholder,
-} from './components/content-with-fallback';
+export type { Theme } from './hooks/use-theme';
+export { useThrottledProps } from './hooks/use-throttled-props';
 export { InlineDefinition } from './components/inline-definition';
-export type { GlyphName } from '@leafygreen-ui/icon';
+export type { GlyphName, LGGlyph } from '@leafygreen-ui/icon';
 export { createGlyphComponent, createIconComponent } from '@leafygreen-ui/icon';
 export {
   SignalPopover,
@@ -216,7 +218,8 @@ export {
   useRequiredURLSearchParams,
 } from './components/links/link';
 export { ChevronCollapse } from './components/chevron-collapse-icon';
-export { formatDate } from './utils/format-date';
+export { formatDate, formatDuration } from './utils/format-date';
+export { compactBytes, compactNumber } from './utils/format';
 export {
   VirtualList,
   type VirtualListRef,
@@ -228,3 +231,26 @@ export { ParagraphSkeleton } from '@leafygreen-ui/skeleton-loader';
 export { InsightsChip } from './components/insights-chip';
 export * from './components/drawer-portal';
 export { FileSelector } from './components/file-selector';
+export {
+  DiagramProvider,
+  Diagram,
+  useDiagram,
+  getNodesBounds,
+  getViewportForBounds,
+  applyLayout,
+  getCoordinatesForNewNode,
+} from '@mongodb-js/diagramming';
+export type {
+  EdgeProps,
+  NodeProps,
+  DiagramProps,
+  FieldId,
+  DiagramInstance,
+  NodeField,
+  NodeGlyph,
+} from '@mongodb-js/diagramming';
+export { useInitialValue } from './hooks/use-initial-value';
+export { useCurrentValueRef } from './hooks/use-current-value-ref';
+// @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
+export { AtlasSkillsBanner } from './components/atlas-skills-banner';
+export { useSyncStateOnPropChange } from './hooks/use-sync-state-on-prop-change';

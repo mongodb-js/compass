@@ -2,7 +2,6 @@ import { type PackageKind } from './packages';
 import { type TestName } from './tests/types';
 
 export type SmokeTestsContext = {
-  bucketName?: string;
   bucketKeyPrefix?: string;
   platform: 'win32' | 'darwin' | 'linux';
   arch: 'x64' | 'arm64';

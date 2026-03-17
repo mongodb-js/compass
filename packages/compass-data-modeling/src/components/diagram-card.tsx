@@ -78,9 +78,7 @@ export function DiagramCard({
   onRename,
   onDelete,
 }: {
-  diagram: MongoDBDataModelDescription & {
-    databases: string;
-  };
+  diagram: MongoDBDataModelDescription;
   onOpen: (diagram: MongoDBDataModelDescription) => void;
   onRename: (id: string) => void;
   onDelete: (id: string) => void;
@@ -132,7 +130,7 @@ export function DiagramCard({
             color={palette.gray.dark1}
             className={namespaceIconStyles}
           ></Icon>
-          <span className={namespaceNameStyles}>{diagram.databases}</span>
+          <span className={namespaceNameStyles}>{diagram.database}</span>
         </div>
         <div className={lastModifiedLabel}>
           Last&nbsp;modified: {formattedDate}

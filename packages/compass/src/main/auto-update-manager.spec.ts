@@ -2,7 +2,8 @@ import { setTimeout as wait } from 'timers/promises';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import {
-  AutoUpdateManagerState,
+  type AutoUpdateManagerState,
+  AutoUpdateManagerStates,
   CompassAutoUpdateManager,
 } from './auto-update-manager';
 import type { DownloadItem } from 'electron';
@@ -69,7 +70,7 @@ describe('CompassAutoUpdateManager', function () {
 
   afterEach(function () {
     sandbox.restore();
-    CompassAutoUpdateManager['state'] = AutoUpdateManagerState.Initial;
+    CompassAutoUpdateManager['state'] = AutoUpdateManagerStates.Initial;
     CompassAutoUpdateManager['currentStateTransition'] = undefined;
     CompassAutoUpdateManager['currentActionAbortController'] =
       new AbortController();
@@ -77,11 +78,13 @@ describe('CompassAutoUpdateManager', function () {
 
   it('should not allow undefined state transitions', function () {
     const initialState = CompassAutoUpdateManager['state'];
-    CompassAutoUpdateManager.setState(AutoUpdateManagerState.UpdateAvailable);
+    CompassAutoUpdateManager.setState(AutoUpdateManagerStates.UpdateAvailable);
     expect(CompassAutoUpdateManager['state']).to.eq(initialState);
-    CompassAutoUpdateManager.setState(AutoUpdateManagerState.Restarting);
+    CompassAutoUpdateManager.setState(AutoUpdateManagerStates.Restarting);
     expect(CompassAutoUpdateManager['state']).to.eq(initialState);
-    CompassAutoUpdateManager.setState(AutoUpdateManagerState.NoUpdateAvailable);
+    CompassAutoUpdateManager.setState(
+      AutoUpdateManagerStates.NoUpdateAvailable
+    );
     expect(CompassAutoUpdateManager['state']).to.eq(initialState);
   });
 
@@ -119,9 +122,9 @@ describe('CompassAutoUpdateManager', function () {
 
       expect(
         await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.Initial,
-          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-          AutoUpdateManagerState.NoUpdateAvailable
+          AutoUpdateManagerStates.Initial,
+          AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+          AutoUpdateManagerStates.NoUpdateAvailable
         )
       ).to.eq(true);
 
@@ -143,9 +146,9 @@ describe('CompassAutoUpdateManager', function () {
 
       expect(
         await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.Initial,
-          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-          AutoUpdateManagerState.UpdateAvailable
+          AutoUpdateManagerStates.Initial,
+          AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+          AutoUpdateManagerStates.UpdateAvailable
         )
       ).to.eq(true);
 
@@ -167,9 +170,9 @@ describe('CompassAutoUpdateManager', function () {
 
       expect(
         await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.Initial,
-          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-          AutoUpdateManagerState.PromptToUpdateExternally
+          AutoUpdateManagerStates.Initial,
+          AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+          AutoUpdateManagerStates.PromptToUpdateExternally
         )
       ).to.eq(true);
 
@@ -189,9 +192,9 @@ describe('CompassAutoUpdateManager', function () {
         });
 
       CompassAutoUpdateManager.setState(
-        AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck
+        AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck
       );
-      CompassAutoUpdateManager.setState(AutoUpdateManagerState.Disabled);
+      CompassAutoUpdateManager.setState(AutoUpdateManagerStates.Disabled);
 
       await wait(1000);
 
@@ -199,7 +202,7 @@ describe('CompassAutoUpdateManager', function () {
       // meantime the state is still disabled and wasn't transitioned
       expect(stub).to.be.calledOnce;
       expect(CompassAutoUpdateManager['state']).to.eq(
-        AutoUpdateManagerState.Disabled
+        AutoUpdateManagerStates.Disabled
       );
     });
   });
@@ -228,9 +231,9 @@ describe('CompassAutoUpdateManager', function () {
         });
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-            AutoUpdateManagerState.UpdateAvailable,
-            AutoUpdateManagerState.PromptToUpdateExternally
+            AutoUpdateManagerStates.CheckingForUpdatesForManualCheck,
+            AutoUpdateManagerStates.UpdateAvailable,
+            AutoUpdateManagerStates.PromptToUpdateExternally
           )
         ).to.eq(true);
         expect(stub).to.be.calledOnce;
@@ -244,9 +247,9 @@ describe('CompassAutoUpdateManager', function () {
           });
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-            AutoUpdateManagerState.UpdateAvailable,
-            AutoUpdateManagerState.PromptToUpdateExternally
+            AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+            AutoUpdateManagerStates.UpdateAvailable,
+            AutoUpdateManagerStates.PromptToUpdateExternally
           )
         ).to.eq(true);
         expect(downloadCompassExternallyPrompt).to.be.calledOnce;
@@ -267,9 +270,9 @@ describe('CompassAutoUpdateManager', function () {
       it('should start downloading update without prompt for automatic updates', async function () {
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-            AutoUpdateManagerState.UpdateAvailable,
-            AutoUpdateManagerState.DownloadingUpdate
+            AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+            AutoUpdateManagerStates.UpdateAvailable,
+            AutoUpdateManagerStates.DownloadingUpdate
           )
         ).to.eq(true);
       });
@@ -281,9 +284,9 @@ describe('CompassAutoUpdateManager', function () {
 
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-            AutoUpdateManagerState.UpdateAvailable,
-            AutoUpdateManagerState.DownloadingUpdate
+            AutoUpdateManagerStates.CheckingForUpdatesForManualCheck,
+            AutoUpdateManagerStates.UpdateAvailable,
+            AutoUpdateManagerStates.DownloadingUpdate
           )
         ).to.eq(true);
 
@@ -297,9 +300,9 @@ describe('CompassAutoUpdateManager', function () {
 
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-            AutoUpdateManagerState.UpdateAvailable,
-            AutoUpdateManagerState.UpdateDismissed
+            AutoUpdateManagerStates.CheckingForUpdatesForManualCheck,
+            AutoUpdateManagerStates.UpdateAvailable,
+            AutoUpdateManagerStates.UpdateDismissed
           )
         ).to.eq(true);
 
@@ -312,12 +315,12 @@ describe('CompassAutoUpdateManager', function () {
         });
 
         CompassAutoUpdateManager['state'] =
-          AutoUpdateManagerState.CheckingForUpdatesForManualCheck;
+          AutoUpdateManagerStates.CheckingForUpdatesForManualCheck;
         CompassAutoUpdateManager.setState(
-          AutoUpdateManagerState.UpdateAvailable,
+          AutoUpdateManagerStates.UpdateAvailable,
           {}
         );
-        CompassAutoUpdateManager.setState(AutoUpdateManagerState.Disabled);
+        CompassAutoUpdateManager.setState(AutoUpdateManagerStates.Disabled);
 
         await wait(1000);
 
@@ -325,7 +328,7 @@ describe('CompassAutoUpdateManager', function () {
         // the state is still disabled and wasn't transitioned
         expect(stub).to.be.calledOnce;
         expect(CompassAutoUpdateManager['state']).to.eq(
-          AutoUpdateManagerState.Disabled
+          AutoUpdateManagerStates.Disabled
         );
       });
     });
@@ -354,9 +357,9 @@ describe('CompassAutoUpdateManager', function () {
 
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-            AutoUpdateManagerState.UpdateAvailable,
-            AutoUpdateManagerState.ManualDownload
+            AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+            AutoUpdateManagerStates.UpdateAvailable,
+            AutoUpdateManagerStates.ManualDownload
           )
         ).to.eq(true);
 
@@ -374,9 +377,9 @@ describe('CompassAutoUpdateManager', function () {
 
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-            AutoUpdateManagerState.UpdateAvailable,
-            AutoUpdateManagerState.DownloadingUpdate
+            AutoUpdateManagerStates.CheckingForUpdatesForManualCheck,
+            AutoUpdateManagerStates.UpdateAvailable,
+            AutoUpdateManagerStates.DownloadingUpdate
           )
         ).to.eq(true);
 
@@ -390,9 +393,9 @@ describe('CompassAutoUpdateManager', function () {
 
         expect(
           await setStateAndWaitForUpdate(
-            AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-            AutoUpdateManagerState.UpdateAvailable,
-            AutoUpdateManagerState.UpdateDismissed
+            AutoUpdateManagerStates.CheckingForUpdatesForManualCheck,
+            AutoUpdateManagerStates.UpdateAvailable,
+            AutoUpdateManagerStates.UpdateDismissed
           )
         ).to.eq(true);
 
@@ -421,9 +424,9 @@ describe('CompassAutoUpdateManager', function () {
 
       expect(
         await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.DownloadingUpdate,
-          AutoUpdateManagerState.PromptForRestart,
-          AutoUpdateManagerState.Restarting
+          AutoUpdateManagerStates.DownloadingUpdate,
+          AutoUpdateManagerStates.PromptForRestart,
+          AutoUpdateManagerStates.Restarting
         )
       ).to.eq(true);
 
@@ -445,9 +448,9 @@ describe('CompassAutoUpdateManager', function () {
 
       expect(
         await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.DownloadingUpdate,
-          AutoUpdateManagerState.PromptForRestart,
-          AutoUpdateManagerState.RestartDismissed
+          AutoUpdateManagerStates.DownloadingUpdate,
+          AutoUpdateManagerStates.PromptForRestart,
+          AutoUpdateManagerStates.RestartDismissed
         )
       ).to.eq(true);
 
@@ -488,9 +491,9 @@ describe('CompassAutoUpdateManager', function () {
     it('should transition to outdated operating system state (automatically)', async () => {
       expect(
         await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.Initial,
-          AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck,
-          AutoUpdateManagerState.OutdatedOperatingSystem
+          AutoUpdateManagerStates.Initial,
+          AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck,
+          AutoUpdateManagerStates.OutdatedOperatingSystem
         )
       ).to.be.true;
     });
@@ -498,9 +501,9 @@ describe('CompassAutoUpdateManager', function () {
     it('should transition to outdated operating system state (manually)', async () => {
       expect(
         await setStateAndWaitForUpdate(
-          AutoUpdateManagerState.Initial,
-          AutoUpdateManagerState.CheckingForUpdatesForManualCheck,
-          AutoUpdateManagerState.OutdatedOperatingSystem
+          AutoUpdateManagerStates.Initial,
+          AutoUpdateManagerStates.CheckingForUpdatesForManualCheck,
+          AutoUpdateManagerStates.OutdatedOperatingSystem
         )
       ).to.be.true;
     });
@@ -515,18 +518,18 @@ describe('CompassAutoUpdateManager', function () {
 
       // Automatic check
       CompassAutoUpdateManager['state'] =
-        AutoUpdateManagerState.CheckingForUpdatesForAutomaticCheck;
+        AutoUpdateManagerStates.CheckingForUpdatesForAutomaticCheck;
       CompassAutoUpdateManager.setState(
-        AutoUpdateManagerState.OutdatedOperatingSystem
+        AutoUpdateManagerStates.OutdatedOperatingSystem
       );
 
       expect(restartToastIpcPrompt).to.be.calledOnce;
 
       // Manual check
       CompassAutoUpdateManager['state'] =
-        AutoUpdateManagerState.CheckingForUpdatesForManualCheck;
+        AutoUpdateManagerStates.CheckingForUpdatesForManualCheck;
       CompassAutoUpdateManager.setState(
-        AutoUpdateManagerState.OutdatedOperatingSystem
+        AutoUpdateManagerStates.OutdatedOperatingSystem
       );
 
       expect(restartToastIpcPrompt).to.be.calledTwice;

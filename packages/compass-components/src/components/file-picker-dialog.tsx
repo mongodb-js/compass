@@ -20,6 +20,7 @@ import {
   Link,
   Description,
 } from './leafygreen';
+import { useInitialValue } from '../hooks/use-initial-value';
 
 const { base: redBaseColor } = palette.red;
 
@@ -132,6 +133,10 @@ const disabledDescriptionDarkStyles = css({
   color: palette.gray.light1,
 });
 
+const displayNoneStyles = css({
+  display: 'none',
+});
+
 type FileInputVariant = 'default' | 'small' | 'vertical';
 
 // Matches Electron's file dialog options.
@@ -171,11 +176,11 @@ export const FileInputBackendContext = createContext<
 function useFileInputBackend() {
   const fileInputBackendContext = useContext(FileInputBackendContext);
 
-  const fileInputBackend = useRef<null | FileInputBackend>(
-    fileInputBackendContext ? fileInputBackendContext() : null
-  );
+  const fileInputBackend = useInitialValue<null | FileInputBackend>(() => {
+    return fileInputBackendContext ? fileInputBackendContext() : null;
+  });
 
-  return fileInputBackend.current;
+  return fileInputBackend;
 }
 
 // Matches require('electron') or require('@electron/remote')
@@ -201,10 +206,12 @@ export type ElectronWebUtilsProvider = {
 export const FileInputBackendProvider: React.FunctionComponent<{
   createFileInputBackend: (() => FileInputBackend) | null;
 }> = ({ children, createFileInputBackend }) => {
-  const createFileInputBackendRef = useRef(createFileInputBackend);
+  const initialCreateFileInputBackend = useInitialValue(() => {
+    return createFileInputBackend;
+  });
 
   return (
-    <FileInputBackendContext.Provider value={createFileInputBackendRef.current}>
+    <FileInputBackendContext.Provider value={initialCreateFileInputBackend}>
       {children}
     </FileInputBackendContext.Provider>
   );
@@ -390,7 +397,7 @@ function FilePickerDialog({
       });
       onChange(files);
     },
-    [onChange]
+    [backend, onChange]
   );
 
   const handleOpenFileInput = useCallback(() => {
@@ -502,13 +509,13 @@ function FilePickerDialog({
         </div>
         <input
           data-testid={dataTestId ?? 'file-input'}
+          className={displayNoneStyles}
           ref={inputRef}
           id={`${id}_file_input`}
           name={id}
           type="file"
           multiple={multi}
           onChange={onFilesChanged}
-          style={{ display: 'none' }}
           // Force a re-render when the values change so
           // the component is controlled by the prop.
           // This is also useful for testing.

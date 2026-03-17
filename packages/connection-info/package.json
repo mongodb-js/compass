@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.21.1",
+  "version": "0.27.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -51,26 +51,26 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "lodash": "^4.17.21",
-    "mongodb": "^6.19.0",
-    "mongodb-connection-string-url": "^3.0.1",
-    "mongodb-data-service": "^22.34.1"
+    "lodash": "^4.17.23",
+    "mongodb": "^7.1.0",
+    "mongodb-connection-string-url": "^7.0.1",
+    "mongodb-data-service": "^22.39.1"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.11",
-    "@mongodb-js/mocha-config-compass": "^1.7.2",
+    "@mongodb-js/eslint-config-compass": "^1.4.19",
+    "@mongodb-js/mocha-config-compass": "^1.7.7",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
-    "@mongodb-js/tsconfig-compass": "^1.2.11",
+    "@mongodb-js/tsconfig-compass": "^1.2.14",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
     "@types/sinon-chai": "^3.2.5",
-    "bson": "^6.10.4",
+    "bson": "^7.2.0",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "sinon": "^17.0.1",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.3"
   }
 }

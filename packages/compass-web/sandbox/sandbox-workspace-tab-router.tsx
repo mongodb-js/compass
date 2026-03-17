@@ -1,8 +1,6 @@
 import { useCallback, useState } from 'react';
-import type {
-  OpenWorkspaceOptions,
-  WorkspaceTab,
-} from '@mongodb-js/compass-workspaces';
+import type { WorkspaceTab } from '@mongodb-js/workspace-info';
+import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 import { getRouteFromWorkspaceTab, getWorkspaceTabFromRoute } from '../src';
 
 export function useWorkspaceTabRouter() {

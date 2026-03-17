@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   InfoModal,
@@ -9,12 +9,10 @@ import {
   Banner,
   spacing,
   FormFieldContainer,
+  Panel,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import type { Language } from '@mongodb-js/compass-components';
-import {
-  outputLanguageToCodeLanguage,
-  codeLanguageToOutputLanguage,
-} from '../modules/languages';
 import type { OutputLanguage } from '../modules/languages';
 import { isQueryExpression, runTranspiler } from '../modules/transpiler';
 import type { InputExpression } from '../modules/transpiler';
@@ -33,13 +31,23 @@ type LanguageOption = {
 const languageOptions: LanguageOption[] = [
   { displayName: 'Java', language: 'java' },
   { displayName: 'Node', language: 'javascript' },
-  { displayName: 'C#', language: 'cs' },
+  { displayName: 'C#', language: 'csharp' },
   { displayName: 'Python', language: 'python' },
   { displayName: 'Ruby', language: 'ruby' },
   { displayName: 'Go', language: 'go' },
   { displayName: 'Rust', language: 'rust' },
   { displayName: 'PHP', language: 'php' },
 ];
+
+const SUPPORTED_LANGUAGES = new Set<string>(
+  languageOptions.map((opt) => {
+    return opt.language;
+  })
+);
+
+function isSupportedLanguage(lang: string): lang is OutputLanguage {
+  return SUPPORTED_LANGUAGES.has(lang);
+}
 
 const shellLanguageOptions: LanguageOption[] = [
   { displayName: 'Shell', language: 'javascript' },
@@ -73,6 +81,13 @@ const editorHeadingStyles = css({
 const codeStyles = css({
   alignItems: 'start',
   height: `${spacing[1600] * 4 - spacing[800]}px`,
+  '& > div': {
+    height: '100%',
+    gridTemplateRows: 'min-content auto',
+  },
+  '& pre': {
+    alignItems: 'flex-start',
+  },
 });
 
 const checkboxStyles = css({
@@ -143,12 +158,14 @@ const ExportToLanguageModal: React.FunctionComponent<
 
   const input = isQuery ? inputExpression.filter : inputExpression.aggregation;
 
-  const [wasOpen, setWasOpen] = useState(false);
-
-  useEffect(() => {
-    if (modalOpen && !wasOpen) {
+  useSyncStateOnPropChange(() => {
+    if (modalOpen) {
+      // Used for tracking, not for rendering
+      // eslint-disable-next-line react-hooks/refs
       const connectionInfo = connectionInfoRef.current;
-
+      // All this tracking logic should probably be packed into an action, but
+      // this requires a bit more refactoring than just replacing the effect
+      // with a setState in render
       if (mode === 'Query') {
         track('Query Export Opened', {}, connectionInfo);
       } else if (mode === 'Delete Query') {
@@ -158,18 +175,13 @@ const ExportToLanguageModal: React.FunctionComponent<
       } else if (mode === 'Pipeline') {
         track(
           'Aggregation Export Opened',
-          {
-            ...stageCountForTelemetry(inputExpression),
-          },
+          stageCountForTelemetry(inputExpression),
           connectionInfo
         );
       }
-
       track('Screen', { name: 'export_to_language_modal' }, connectionInfo);
     }
-
-    setWasOpen(modalOpen);
-  }, [modalOpen, wasOpen, mode, inputExpression, track, connectionInfoRef]);
+  }, [modalOpen]);
 
   const trackCopiedOutput = useCallback(() => {
     const commonProps = {
@@ -240,13 +252,16 @@ const ExportToLanguageModal: React.FunctionComponent<
             className={codeStyles}
             id="export-to-language-input"
             data-testid="export-to-language-input"
-            languageOptions={shellLanguageOptions}
-            onChange={() => {
-              // There is only one language option and we don't allow to change
-              // the value
-            }}
             language="Shell"
-            copyable={true}
+            panel={
+              <Panel
+                languageOptions={shellLanguageOptions}
+                onChange={() => {
+                  // There is only one language option and we don't allow to change
+                  // the value
+                }}
+              ></Panel>
+            }
           >
             {prettyInput}
           </Code>
@@ -265,14 +280,19 @@ const ExportToLanguageModal: React.FunctionComponent<
           <Code
             className={codeStyles}
             id="export-to-language-output"
+            language={outputLanguage}
             data-testid="export-to-language-output"
-            languageOptions={languageOptions}
-            onChange={(option: LanguageOption) =>
-              setOutputLanguage(codeLanguageToOutputLanguage(option.language))
+            panel={
+              <Panel
+                languageOptions={languageOptions}
+                onChange={(option: LanguageOption) => {
+                  if (isSupportedLanguage(option.language)) {
+                    return setOutputLanguage(option.language);
+                  }
+                }}
+                onCopy={trackCopiedOutput}
+              ></Panel>
             }
-            language={outputLanguageToCodeLanguage(outputLanguage)}
-            copyable={true}
-            onCopy={trackCopiedOutput}
           >
             {transpiledExpression || ''}
           </Code>
@@ -314,7 +334,6 @@ const ExportToLanguageModal: React.FunctionComponent<
 const mapStateToProps = (
   state: ExportToLanguageState,
   // So that the connected component types are correctly derived
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _ownProps: { namespace: string }
 ) => ({
   modalOpen: state.modalOpen,

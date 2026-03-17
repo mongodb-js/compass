@@ -91,10 +91,7 @@
       }
     },
     "uuid": {
-      "$binary": {
-        "base64": "qqqqqqqqSqqqqqqqqqqqqg==",
-        "subType": "04"
-      }
+      "$uuid": "aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa"
     },
     "md5": {
       "$binary": {

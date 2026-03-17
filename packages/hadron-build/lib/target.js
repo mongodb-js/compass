@@ -610,6 +610,20 @@ class Target {
           CFBundleURLName: protocol.name,
           CFBundleURLSchemes: protocol.schemes,
         }));
+
+        // Merge extra plist options if provided in darwin build config
+        const extraPlistOptionsPath = _.get(
+          platformSettings,
+          'extra_plist_options'
+        );
+        if (extraPlistOptionsPath) {
+          const extraPlistFilePath = this.src(extraPlistOptionsPath);
+          const extraPlistContents = plist.parse(
+            await fs.promises.readFile(extraPlistFilePath, 'utf8')
+          );
+          Object.assign(plistContents, extraPlistContents);
+        }
+
         await fs.promises.writeFile(plistFilePath, plist.build(plistContents));
       }
 

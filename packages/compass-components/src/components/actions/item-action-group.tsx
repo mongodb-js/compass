@@ -21,6 +21,10 @@ const containerStyle = css({
   gap: spacing[100],
 });
 
+const itemActionGroupContainerStyles = css({
+  display: 'inherit',
+});
+
 export type ItemActionGroupProps<Action extends string> = {
   actions: (GroupedItemAction<Action> | ItemSeparator)[];
   onAction(actionName: Action): void;
@@ -98,7 +102,9 @@ export function ItemActionGroup<Action extends string>({
               {...tooltipProps}
               // Wrapping the item in a div, because the `trigger` must accept and render `children`
               // See docs for the prop for more information
-              trigger={<div style={{ display: 'inherit' }}>{item}</div>}
+              trigger={
+                <div className={itemActionGroupContainerStyles}>{item}</div>
+              }
             >
               {tooltip}
             </Tooltip>

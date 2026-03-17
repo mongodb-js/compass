@@ -13,6 +13,7 @@ import {
 import { getStageOperator, isOutputStage } from '../../utils/stage';
 import { PipelineOutputOptionsMenu } from '../pipeline-output-options-menu';
 import type { PipelineOutputOption } from '../pipeline-output-options-menu';
+import PipelineExportActions from '../pipeline-toolbar/pipeline-export-actions';
 
 type PipelineResultsHeaderProps = {
   onChangeResultsView: (viewType: ResultsViewType) => void;
@@ -66,6 +67,7 @@ export const PipelineResultsHeader: React.FunctionComponent<
     <div className={containerStyles} data-testid="pipeline-results-header">
       <div className={pipelineOptionsStyles}>
         <Overline>All Results</Overline>
+        <PipelineExportActions />
       </div>
       <div className={pipelinePaginationStyles}>
         <PipelinePagination />

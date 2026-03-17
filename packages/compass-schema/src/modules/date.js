@@ -7,6 +7,7 @@ import { palette, spacing } from '@mongodb-js/compass-components';
 import shared from './shared';
 import many from './many';
 import { createD3Tip } from './create-d3-tip';
+import { getBsonType } from 'hadron-type-checker';
 
 function generateDefaults(n) {
   const doc = {};
@@ -17,7 +18,7 @@ function generateDefaults(n) {
 }
 
 function extractTimestamp(d) {
-  return d._bsontype === 'ObjectId' ? d.getTimestamp() : d;
+  return getBsonType(d) === 'ObjectId' ? d.getTimestamp() : d;
 }
 
 const minicharts_d3fns_date = (changeQueryFn) => {
@@ -442,7 +443,6 @@ const minicharts_d3fns_date = (changeQueryFn) => {
   };
 
   chart.cleanup = function () {
-    // eslint-disable-next-line no-unused-vars
     for (const subchart of subcharts) {
       subchart.cleanup();
     }

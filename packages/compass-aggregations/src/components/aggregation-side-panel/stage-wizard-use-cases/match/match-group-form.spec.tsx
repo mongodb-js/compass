@@ -104,7 +104,7 @@ describe('group', function () {
           ).to.exist;
           expect(() =>
             screen.getByTestId(TEST_IDS.removeGroupBtn(group.id))
-          ).to.throw;
+          ).to.throw();
         });
       });
 

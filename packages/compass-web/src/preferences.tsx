@@ -1,96 +1,60 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import type { AllPreferences } from 'compass-preferences-model/provider';
+import type {
+  AllPreferences,
+  AtlasCloudFeatureFlags,
+} from 'compass-preferences-model/provider';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
-export type SandboxPreferencesUpdateTrigger = (
-  updatePreference: (
-    preferences: Partial<AllPreferences>
-  ) => Promise<AllPreferences>
-) => () => void;
-
-const SandboxPreferencesUpdateTriggerContext =
-  React.createContext<SandboxPreferencesUpdateTrigger | null>(null);
-
-const kSandboxUpdateFn = Symbol.for('@compass-web-sandbox-update-preferences');
-
-/**
- * Only used in the sandbox to provide a way to update preferences.
- * @internal
- */
-export const SandboxPreferencesUpdateProvider = ({
-  children,
-}: {
-  children: React.ReactNode;
-}) => {
-  const [updateTrigger] = useState<SandboxPreferencesUpdateTrigger>(() => {
-    return (
-      updatePreferencesFn: (
-        preferences: Partial<AllPreferences>
-      ) => Promise<AllPreferences>
-    ) => {
-      // eslint-disable-next-line no-console
-      console.info(
-        `[compass-web sandbox] call window[Symbol.for('@compass-web-sandbox-update-preferences')]({}) to dynamically update preferences`
-      );
-      (globalThis as any)[kSandboxUpdateFn] = (
-        preferences: Partial<AllPreferences>
-      ) => {
-        return updatePreferencesFn(preferences);
-      };
-      return () => {
-        delete (globalThis as any)[kSandboxUpdateFn];
-      };
-    };
-  });
-
-  return (
-    <SandboxPreferencesUpdateTriggerContext.Provider value={updateTrigger}>
-      {children}
-    </SandboxPreferencesUpdateTriggerContext.Provider>
-  );
+const DEFAULT_COMPASS_WEB_PREFERENCES = {
+  enableExplainPlan: true,
+  enableAggregationBuilderRunPipeline: true,
+  enableAggregationBuilderExtraOptions: true,
+  enableAtlasSearchIndexes: false,
+  enableImportExport: false,
+  enableGenAIFeatures: true,
+  enableGenAIFeaturesAtlasProject: false,
+  enableGenAISampleDocumentPassing: false,
+  enableGenAIFeaturesAtlasOrg: false,
+  enableGenAIToolCallingAtlasProject: true,
+  enablePerformanceAdvisorBanner: true,
+  enableMyQueries: false,
+  cloudFeatureRolloutAccess: {
+    GEN_AI_COMPASS: false,
+  },
+  maximumNumberOfActiveConnections: 10,
+  trackUsageStatistics: true,
+  enableShell: false,
+  enableCreatingNewConnections: false,
+  enableGlobalWrites: false,
+  optInGenAIFeatures: false,
+  enableConnectInNewWindow: false,
+  maxTimeMSEnvLimit: 300_000, // 5 minutes limit for Data Explorer}
 };
 
+/**
+ * @internal
+ * exported for the sandbox to be able to hook into these
+ */
+export let compassWebPreferences: CompassWebPreferencesAccess | null = null;
+
 export function useCompassWebPreferences(
-  initialPreferences?: Partial<AllPreferences>
-): React.MutableRefObject<CompassWebPreferencesAccess> {
-  const preferencesAccess = useRef(
-    new CompassWebPreferencesAccess({
-      enableExplainPlan: true,
-      enableAggregationBuilderRunPipeline: true,
-      enableAggregationBuilderExtraOptions: true,
-      enableAtlasSearchIndexes: false,
-      enableImportExport: false,
-      enableGenAIFeatures: true,
-      enableGenAIFeaturesAtlasProject: false,
-      enableGenAISampleDocumentPassing: false,
-      enableGenAIFeaturesAtlasOrg: false,
-      enablePerformanceAdvisorBanner: true,
-      enableMyQueries: false,
-      cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: false,
+  initialPreferences: Partial<AllPreferences> = {},
+  atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags> = {}
+): CompassWebPreferencesAccess {
+  // We do want to keep a reference to current value of preferencesAccess in
+  // compass-web so that in can be exposed in the sandbox. In real production
+  // build this value just never leaves the module scope, so there's no way to
+  // access it
+  // eslint-disable-next-line react-hooks/globals
+  const preferencesAccess = (compassWebPreferences = useInitialValue(() => {
+    return new CompassWebPreferencesAccess(
+      {
+        ...DEFAULT_COMPASS_WEB_PREFERENCES,
+        ...initialPreferences,
       },
-      maximumNumberOfActiveConnections: 10,
-      trackUsageStatistics: true,
-      enableShell: false,
-      enableCreatingNewConnections: false,
-      enableGlobalWrites: false,
-      optInGenAIFeatures: false,
-      enableConnectInNewWindow: false,
-      ...initialPreferences,
-    })
-  );
-
-  const onPreferencesUpdateTriggered = useContext(
-    SandboxPreferencesUpdateTriggerContext
-  );
-
-  useEffect(() => {
-    // This is used by our sandbox so that we can call a global function in the
-    // browser from the sandbox / testing runtime to update preferences.
-    return onPreferencesUpdateTriggered?.(async (preferences) => {
-      return await preferencesAccess.current.savePreferences(preferences);
-    });
-  }, [onPreferencesUpdateTriggered]);
+      { atlasCloud: atlasCloudFeatureFlags }
+    );
+  }));
 
   return preferencesAccess;
 }

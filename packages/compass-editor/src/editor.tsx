@@ -573,6 +573,7 @@ type EditorProps = {
   placeholder?: Parameters<typeof codemirrorPlaceholder>[0];
   commands?: readonly KeyBinding[];
   initialJSONFoldAll?: boolean;
+  autoFocus?: boolean;
 } & (
   | { text: string; initialText?: never }
   | { text?: never; initialText: string }
@@ -608,7 +609,7 @@ export const languages: Record<EditorLanguage, () => LanguageSupport> = {
   'javascript-expression': () => {
     return new LanguageSupport(javascriptExpression);
   },
-};
+} as const;
 
 export const languageName = Facet.define<EditorLanguage>({});
 
@@ -735,6 +736,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     placeholder,
     commands,
     initialJSONFoldAll: _initialJSONFoldAll = true,
+    autoFocus = false,
     ...props
   },
   ref
@@ -1200,6 +1202,14 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
       containerRef.current.style.height = `${height}px`;
     }
   }, [maxLines, contentHeight, hasScroll, lineHeight, showScroll]);
+
+  const autoFocusRef = useRef(autoFocus);
+
+  useLayoutEffect(() => {
+    if (autoFocusRef.current) {
+      editorViewRef.current?.focus();
+    }
+  }, [autoFocusRef]);
 
   return (
     <div

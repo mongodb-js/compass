@@ -12,6 +12,11 @@ import {
   ContextMenuProvider,
 } from './context-menu';
 import { DrawerContentProvider } from './drawer-portal';
+import { CopyPasteContextMenu } from '../hooks/use-copy-paste-context-menu';
+import {
+  type LegacyUUIDDisplay,
+  LegacyUUIDDisplayContext,
+} from './document-list/legacy-uuid-format-context';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
 
@@ -21,6 +26,7 @@ type CompassComponentsProviderProps = {
    * value will be derived from the system settings
    */
   darkMode?: boolean;
+  legacyUUIDDisplayEncoding?: LegacyUUIDDisplay;
   popoverPortalContainer?: HTMLElement;
   /**
    * Either React children or a render callback that will get the darkMode
@@ -44,6 +50,11 @@ type CompassComponentsProviderProps = {
    * Set to disable context menus in the application.
    */
   disableContextMenus?: boolean;
+
+  /**
+   * Set to disable guide cues in the application
+   */
+  disableGuideCues?: boolean;
 } & {
   onNextGuideGue?: GuideCueProviderProps['onNext'];
   onNextGuideCueGroup?: GuideCueProviderProps['onNextGroup'];
@@ -118,6 +129,7 @@ function useDarkMode(_darkMode?: boolean) {
 export const CompassComponentsProvider = ({
   darkMode: _darkMode,
   children,
+  legacyUUIDDisplayEncoding,
   onNextGuideGue,
   onNextGuideCueGroup,
   onContextMenuOpen,
@@ -129,6 +141,7 @@ export const CompassComponentsProvider = ({
   stackedElementsZIndex,
   popoverPortalContainer: _popoverPortalContainer,
   disableContextMenus,
+  disableGuideCues,
   ...signalHooksProviderProps
 }: CompassComponentsProviderProps) => {
   const darkMode = useDarkMode(_darkMode);
@@ -154,42 +167,49 @@ export const CompassComponentsProvider = ({
       darkMode={darkMode}
       popoverPortalContainer={popoverPortalContainer}
     >
-      <DrawerContentProvider
-        onDrawerSectionOpen={onDrawerSectionOpen}
-        onDrawerSectionHide={onDrawerSectionHide}
+      <LegacyUUIDDisplayContext.Provider
+        value={legacyUUIDDisplayEncoding ?? ''}
       >
-        <StackedComponentProvider zIndex={stackedElementsZIndex}>
-          <RequiredURLSearchParamsProvider
-            utmSource={utmSource}
-            utmMedium={utmMedium}
-          >
-            <GuideCueProvider
-              onNext={onNextGuideGue}
-              onNextGroup={onNextGuideCueGroup}
+        <DrawerContentProvider
+          onDrawerSectionOpen={onDrawerSectionOpen}
+          onDrawerSectionHide={onDrawerSectionHide}
+        >
+          <StackedComponentProvider zIndex={stackedElementsZIndex}>
+            <RequiredURLSearchParamsProvider
+              utmSource={utmSource}
+              utmMedium={utmMedium}
             >
-              <SignalHooksProvider {...signalHooksProviderProps}>
-                <ConfirmationModalArea>
-                  <ContextMenuProvider
-                    disabled={disableContextMenus}
-                    onContextMenuOpen={onContextMenuOpen}
-                    onContextMenuItemClick={onContextMenuItemClick}
-                  >
-                    <ToastArea>
-                      {typeof children === 'function'
-                        ? children({
-                            darkMode,
-                            portalContainerRef: setPortalContainer,
-                            scrollContainerRef: setScrollContainer,
-                          })
-                        : children}
-                    </ToastArea>
-                  </ContextMenuProvider>
-                </ConfirmationModalArea>
-              </SignalHooksProvider>
-            </GuideCueProvider>
-          </RequiredURLSearchParamsProvider>
-        </StackedComponentProvider>
-      </DrawerContentProvider>
+              <GuideCueProvider
+                onNext={onNextGuideGue}
+                onNextGroup={onNextGuideCueGroup}
+                disabled={disableGuideCues}
+              >
+                <SignalHooksProvider {...signalHooksProviderProps}>
+                  <ConfirmationModalArea>
+                    <ContextMenuProvider
+                      disabled={disableContextMenus}
+                      onContextMenuOpen={onContextMenuOpen}
+                      onContextMenuItemClick={onContextMenuItemClick}
+                    >
+                      <CopyPasteContextMenu>
+                        <ToastArea>
+                          {typeof children === 'function'
+                            ? children({
+                                darkMode,
+                                portalContainerRef: setPortalContainer,
+                                scrollContainerRef: setScrollContainer,
+                              })
+                            : children}
+                        </ToastArea>
+                      </CopyPasteContextMenu>
+                    </ContextMenuProvider>
+                  </ConfirmationModalArea>
+                </SignalHooksProvider>
+              </GuideCueProvider>
+            </RequiredURLSearchParamsProvider>
+          </StackedComponentProvider>
+        </DrawerContentProvider>
+      </LegacyUUIDDisplayContext.Provider>
     </LeafyGreenProvider>
   );
 };

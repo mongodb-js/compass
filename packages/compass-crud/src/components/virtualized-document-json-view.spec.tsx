@@ -59,7 +59,7 @@ describe('VirtualizedDocumentJsonView', function () {
     const jsonElements = screen.getAllByTestId('editable-json');
     expect(jsonElements).to.have.lengthOf(2);
     for (const element of jsonElements) {
-      expect(() => within(element).getByLabelText('Edit')).to.throw;
+      expect(() => within(element).getByLabelText('Edit')).to.throw();
     }
   });
 
@@ -120,7 +120,7 @@ describe('VirtualizedDocumentJsonView', function () {
     expect(within(lastDocumentElement).getByText('"Name9"')).to.be.visible;
 
     // Ensure that the first element is not even on screen
-    expect(() => within(firstDocumentElement).getByText('"Name0"')).to.throw;
+    expect(() => within(firstDocumentElement).getByText('"Name0"')).to.throw();
 
     // Now scroll all the way back up
     act(() => {
@@ -169,8 +169,8 @@ describe('VirtualizedDocumentJsonView', function () {
     [documentElement] = screen.getAllByTestId('editable-json');
 
     // Verify that we have an editing state
-    expect(() => within(documentElement).getByText('Cancel')).to.throw;
-    expect(() => within(documentElement).getByText('Replace')).to.throw;
+    expect(() => within(documentElement).getByText('Cancel')).to.throw();
+    expect(() => within(documentElement).getByText('Replace')).to.throw();
   });
 
   it('preserves the edit state of document when a document goes out of visible viewport when scrolling', async function () {

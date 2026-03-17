@@ -61,7 +61,7 @@ describe('geo module', function () {
     context('when there is one circle layer', function () {
       const layers: Record<string, InternalLayer> = {
         1: { field: 'field', lat: 10, lng: 5, radius: 20, type: 'circle' },
-      };
+      } as const;
 
       it('returns the $geoWithin query', function () {
         expect(generateGeoQuery(layers)).to.deep.equal({
@@ -76,7 +76,7 @@ describe('geo module', function () {
       const layers: Record<string, InternalLayer> = {
         1: { field: 'field', lat: 10, lng: 5, radius: 20, type: 'circle' },
         2: { field: 'field', lat: 11, lng: 6, radius: 21, type: 'circle' },
-      };
+      } as const;
 
       it('returns the $or with all $geoWithin queries', function () {
         expect(generateGeoQuery(layers)).to.deep.equal({
@@ -115,7 +115,7 @@ describe('geo module', function () {
           coordinates: coordinates,
           type: 'polygon',
         },
-      };
+      } as const;
 
       it('returns the geoJSON query', function () {
         expect(generateGeoQuery(layers)).to.deep.equal({
@@ -151,7 +151,7 @@ describe('geo module', function () {
       const layers: Record<string, InternalLayer> = {
         1: { field: 'field', coordinates: coordinates1, type: 'polygon' },
         2: { field: 'field', coordinates: coordinates2, type: 'polygon' },
-      };
+      } as const;
 
       it('returns the geoJSON query', function () {
         expect(generateGeoQuery(layers)).to.deep.equal({
@@ -193,7 +193,7 @@ describe('geo module', function () {
       const layers: Record<string, InternalLayer> = {
         1: { field: 'field', coordinates: coordinates, type: 'polygon' },
         2: { field: 'field', lat: 10, lng: 5, radius: 20, type: 'circle' },
-      };
+      } as const;
 
       it('returns the geoJSON query', function () {
         expect(generateGeoQuery(layers)).to.deep.equal({

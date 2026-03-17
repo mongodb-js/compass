@@ -47,8 +47,9 @@ type EmptyContentProps = {
   icon?: React.FunctionComponent;
   title: string;
   titleClassName?: string;
-  subTitle: React.ReactNode;
+  subTitle?: React.ReactNode;
   subTitleClassName?: string;
+  containerClassName?: string;
   callToAction?: React.ReactNode;
   callToActionLink?: React.ReactNode;
 };
@@ -61,13 +62,17 @@ const EmptyContent: React.FunctionComponent<
   subTitle,
   callToAction,
   callToActionLink,
+  containerClassName,
   titleClassName,
   subTitleClassName,
 }) => {
   const darkMode = useDarkMode();
 
   return (
-    <div data-testid="empty-content" className={containerStyles}>
+    <div
+      data-testid="empty-content"
+      className={cx(containerStyles, containerClassName)}
+    >
       {Icon && (
         <div className={iconStyles}>
           <Icon />
@@ -82,7 +87,11 @@ const EmptyContent: React.FunctionComponent<
       >
         {title}
       </Subtitle>
-      <Body className={cx(subTitleStyles, subTitleClassName)}>{subTitle}</Body>
+      {subTitle && (
+        <Body className={cx(subTitleStyles, subTitleClassName)}>
+          {subTitle}
+        </Body>
+      )}
       {!!callToAction && (
         <div className={callToActionStyles}>
           {typeof callToAction === 'string' ? (

@@ -8,8 +8,8 @@ import {
 import type { CompassBrowser } from '../../helpers/compass-browser';
 import { createNumbersCollection } from '../../helpers/insert-data';
 import {
-  DEFAULT_CONNECTION_NAMES,
-  isTestingAtlasCloudSandbox,
+  getDefaultConnectionNames,
+  isTestingAtlasCloud,
 } from '../../helpers/test-runner-context';
 
 describe('Rolling indexes', function () {
@@ -17,7 +17,7 @@ describe('Rolling indexes', function () {
   let browser: CompassBrowser;
 
   before(function () {
-    if (!isTestingAtlasCloudSandbox()) {
+    if (!isTestingAtlasCloud()) {
       this.skip();
     }
   });
@@ -39,12 +39,13 @@ describe('Rolling indexes', function () {
 
     this.timeout(extendedRollingIndexesTimeout * 1.2);
 
-    await createNumbersCollection();
+    const collName = `rolling-indexes-test-${Date.now()}`;
+    await createNumbersCollection(collName);
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
-      DEFAULT_CONNECTION_NAMES[0],
+      getDefaultConnectionNames(0),
       'test',
-      'numbers',
+      collName,
       'Indexes'
     );
 

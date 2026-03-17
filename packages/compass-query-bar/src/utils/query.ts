@@ -56,7 +56,7 @@ export function doesQueryHaveExtraOptionsSet(fields?: QueryFormFields) {
 
 export function parseQueryAttributesToFormFields(
   query: Record<string, unknown>,
-  preferences: Pick<UserPreferences, 'maxTimeMS'>
+  preferences: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
 ): QueryFormFields {
   return Object.fromEntries(
     Object.entries(query)
@@ -81,7 +81,7 @@ export function parseQueryAttributesToFormFields(
  * Map query document to the query fields state only preserving valid values
  */
 export function mapQueryToFormFields(
-  preferences: Pick<UserPreferences, 'maxTimeMS'>,
+  preferences: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>,
   query?: BaseQuery,
   onlyValid = true
 ): QueryFormFields {
@@ -125,10 +125,13 @@ function isQueryProperty(field: string): field is QueryProperty {
 export function validateField(
   field: string,
   value: string,
-  { maxTimeMS: preferencesMaxTimeMS }: Pick<UserPreferences, 'maxTimeMS'>
+  {
+    maxTimeMS: preferencesMaxTimeMS,
+    maxTimeMSEnvLimit,
+  }: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
 ) {
   const validated = validate(field, value);
-  if (field === 'filter' && validated === '') {
+  if ((field === 'filter' || field === 'hint') && validated === '') {
     // TODO(COMPASS-5205): Things like { i: $} confuses queryParser and
     // ultimately it sets filter to '' whereas it has to be a {} (if valid) or
     // false (if invalid). Should probably be fixed in mongodb-query-parser,
@@ -137,22 +140,27 @@ export function validateField(
   }
 
   // Additional validation for maxTimeMS to make sure that we are not over the
-  // upper bound set in preferences
+  // upper bound set in preferences or environment limits
   if (field === 'maxTimeMS') {
+    const maxTimeMS = Number(value);
+
+    // When environment limit is set (> 0), enforce it
     if (
-      typeof preferencesMaxTimeMS !== 'undefined' &&
-      value &&
-      Number(value) >
-        (preferencesMaxTimeMS ?? DEFAULT_FIELD_VALUES['maxTimeMS'])
+      maxTimeMSEnvLimit &&
+      !Number.isNaN(maxTimeMS) &&
+      maxTimeMS > maxTimeMSEnvLimit
     ) {
       return false;
     }
-  }
 
-  // We don't have a validator for indexes, but indexes share the same structure as
-  // a sort document, so we're leveraging this to validate the hint field
-  if (field === 'hint') {
-    return validate('sort', value);
+    // Standard preference validation
+    if (
+      typeof preferencesMaxTimeMS !== 'undefined' &&
+      value &&
+      maxTimeMS > (preferencesMaxTimeMS ?? DEFAULT_FIELD_VALUES['maxTimeMS'])
+    ) {
+      return false;
+    }
   }
 
   return validated;
@@ -160,7 +168,7 @@ export function validateField(
 
 export function isQueryFieldsValid(
   fields: QueryFormFields,
-  preferences: Pick<UserPreferences, 'maxTimeMS'>
+  preferences: Pick<UserPreferences, 'maxTimeMS' | 'maxTimeMSEnvLimit'>
 ) {
   return Object.entries(fields).every(
     ([key, value]) => validateField(key, value.string, preferences) !== false

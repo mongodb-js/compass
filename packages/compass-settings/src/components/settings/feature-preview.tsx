@@ -1,21 +1,26 @@
 import React from 'react';
 import SettingsList from './settings-list';
+import type { FeatureFlagDefinition } from 'compass-preferences-model/provider';
 import {
   usePreference,
   featureFlags,
 } from 'compass-preferences-model/provider';
 
-const featureFlagFields = Object.keys(
-  featureFlags
-) as (keyof typeof featureFlags)[];
+const previewFeatureFlagFields = featureFlags
+  .filter((definition) => {
+    return (definition as FeatureFlagDefinition).stage === 'preview'; // asserting to a more generic type as we don't currently have `preview` flags
+  })
+  .map((definition) => {
+    return definition.name;
+  });
 
-const previewFeatureFlagFields = featureFlagFields.filter(
-  (k: keyof typeof featureFlags) => featureFlags[k].stage === 'preview'
-);
-
-const developmentFeatureFlagFields = featureFlagFields.filter(
-  (k: keyof typeof featureFlags) => featureFlags[k].stage === 'development'
-);
+const developmentFeatureFlagFields = featureFlags
+  .filter((definition) => {
+    return definition.stage === 'development';
+  })
+  .map((definition) => {
+    return definition.name;
+  });
 
 function useShouldShowDevFeatures(): boolean {
   const showDevFeatureFlags = usePreference('showDevFeatureFlags') ?? false;

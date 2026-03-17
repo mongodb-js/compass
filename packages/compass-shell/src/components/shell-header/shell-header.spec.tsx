@@ -4,10 +4,13 @@ import { expect } from 'chai';
 
 import { ShellHeader } from './shell-header';
 
-function renderShellHeader(props) {
+function renderShellHeader(
+  props: Partial<React.ComponentProps<typeof ShellHeader>> = {}
+) {
   return render(
     <ShellHeader
       isExpanded={false}
+      darkMode
       isOperationInProgress={false}
       onShellToggleClicked={() => {}}
       showInfoModal={() => {}}

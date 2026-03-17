@@ -1,15 +1,25 @@
-import React, { useEffect, useRef } from 'react';
-import { css, cx, palette, useDarkMode } from '@mongodb-js/compass-components';
-import type { CollectionTabInfo } from '../stores/workspaces';
+import React, { useEffect } from 'react';
+import {
+  css,
+  cx,
+  palette,
+  useCurrentValueRef,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import {
   getActiveTab,
-  type OpenWorkspaceOptions,
   type WorkspacesState,
+  type OpenWorkspaceOptions,
 } from '../stores/workspaces';
-import type { WorkspaceTab } from '../types';
+import type {
+  WorkspaceTab,
+  CollectionTabInfo,
+} from '@mongodb-js/workspace-info';
+
 import Workspaces from './workspaces';
 import { connect } from '../stores/context';
 import { WorkspacesServiceProvider } from '../provider';
+import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 
 type WorkspacesWithSidebarProps = {
   /**
@@ -27,12 +37,12 @@ type WorkspacesWithSidebarProps = {
    * @param ws current active workspace
    * @param collectionInfo active workspaces collection info
    */
-  onActiveWorkspaceTabChange<WS extends WorkspaceTab>(
+  onActiveWorkspaceTabChange: <WS extends WorkspaceTab>(
     ws: WS | null,
     collectionInfo: WS extends { type: 'Collection' }
       ? CollectionTabInfo | null
       : never
-  ): void;
+  ) => void;
   /**
    * Initial workspace tab to show (by default no tabs will be shown initially)
    */
@@ -54,6 +64,12 @@ type WorkspacesWithSidebarProps = {
    * actions from service locator context
    */
   renderModals?: () => React.ReactElement | null;
+  /**
+   * Callback that will get passed another callback function that, when called,
+   * would return back true or false depending on whether or not tabs can be
+   * safely closed without losing any important unsaved changes
+   */
+  onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
 };
 
 const containerLightThemeStyles = css({
@@ -96,11 +112,11 @@ const WorkspacesWithSidebar: React.FunctionComponent<
   renderModals,
 }) => {
   const darkMode = useDarkMode();
-  const onChange = useRef(onActiveWorkspaceTabChange);
-  onChange.current = onActiveWorkspaceTabChange;
+  const onChange = useCurrentValueRef(onActiveWorkspaceTabChange);
   useEffect(() => {
     onChange.current(activeTab, activeTabCollectionInfo);
-  }, [activeTab, activeTabCollectionInfo]);
+  }, [activeTab, activeTabCollectionInfo, onChange]);
+  useSyncAssistantGlobalState('activeWorkspace', activeTab);
   return (
     <WorkspacesServiceProvider>
       <div
@@ -125,7 +141,9 @@ export default connect((state: WorkspacesState) => {
     activeTab,
     activeTabCollectionInfo:
       activeTab?.type === 'Collection'
-        ? state.collectionInfo[activeTab.namespace]
+        ? state.collectionInfo[
+            `${activeTab.connectionId}.${activeTab.namespace}`
+          ]
         : null,
   };
 })(WorkspacesWithSidebar);

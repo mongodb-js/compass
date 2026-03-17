@@ -38,13 +38,13 @@ async function closeTab(
 
       if (autoConfirmTabClose) {
         // Tabs in "dirty" state can't be closed without confirmation
-        if (await browser.$(Selectors.ConfirmTabCloseModal).isExisting()) {
+        if (await browser.isModalOpen(Selectors.ConfirmTabCloseModal)) {
           await browser.clickVisible(
             browser.$(Selectors.ConfirmTabCloseModal).$('button=Close tab')
           );
-          await browser
-            .$(Selectors.ConfirmTabCloseModal)
-            .waitForDisplayed({ reverse: true });
+          await browser.waitForOpenModal(Selectors.ConfirmTabCloseModal, {
+            reverse: true,
+          });
         }
       }
       return (
@@ -77,6 +77,9 @@ export async function closeWorkspaceTabs(
       // are multiple tabs then another tab will immediately become active and
       // trip up the logic that checks that the tab you closed went away.
       const id = await currentActiveTab.getAttribute('id');
+      if (!id) {
+        throw new Error('Expected current active tab to have an id attribute');
+      }
       debug('closing tab', { numTabsStart, id });
       await closeTab(browser, { id }, autoConfirmTabClose);
 
@@ -94,6 +97,19 @@ export async function closeWorkspaceTab(
   selectorOptions: WorkspaceTabSelectorOptions
 ): Promise<void> {
   await closeTab(browser, selectorOptions, true);
+}
+
+export async function closeLastTab(
+  browser: CompassBrowser,
+  selectorOptions?: WorkspaceTabSelectorOptions
+) {
+  const tabs = browser.$$(Selectors.workspaceTab(selectorOptions));
+  const lastTab = tabs[(await tabs.length) - 1];
+  const id = await lastTab.getAttribute('id');
+  if (!id) {
+    throw new Error('Expected current active tab to have an id attribute');
+  }
+  await closeWorkspaceTab(browser, { id });
 }
 
 export async function openNewTab(browser: CompassBrowser): Promise<void> {

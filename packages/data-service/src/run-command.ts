@@ -96,13 +96,9 @@ export type DbStats = {
   avgObjSize: number;
   dataSize: number;
   storageSize: number;
-  freeStorageSize?: number;
   numExtents: number;
   indexes: number;
   indexSize: number;
-  indexFreeStorageSize?: number;
-  totalSize?: number;
-  totalFreeStorageSize?: number;
   scaleFactor: number;
   fsUsedSize: number;
   fsTotalSize: number;
@@ -139,7 +135,7 @@ interface RunDiagnosticsCommand {
   ): Promise<BuildInfo>;
   (
     db: Db,
-    spec: { dbStats: 1; scale?: number; freeStorage?: 1 },
+    spec: { dbStats: 1; scale?: number },
     options?: RunCommandOptions
   ): Promise<DbStats>;
   (

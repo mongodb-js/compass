@@ -14,6 +14,7 @@ import {
   Banner,
   useDarkMode,
   useRequiredURLSearchParams,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import {
   changeStageValue,
@@ -99,8 +100,7 @@ export const StageEditor = ({
   const connectionInfoRef = useConnectionInfoRef();
   const darkMode = useDarkMode();
   const editorInitialValueRef = useRef<string | null>(stageValue);
-  const editorCurrentValueRef = useRef<string | null>(stageValue);
-  editorCurrentValueRef.current = stageValue;
+  const editorCurrentValueRef = useCurrentValueRef<string | null>(stageValue);
 
   const fields = useAutocompleteFields(namespace);
 
@@ -150,6 +150,7 @@ export const StageEditor = ({
       editorInitialValueRef.current = editorCurrentValueRef.current;
     }
   }, [
+    editorCurrentValueRef,
     track,
     num_stages,
     index,

@@ -44,7 +44,7 @@ papertrail() {
       filename=$(basename "$file")
       checksum=$(shasum -a 256 "$file" | cut -f1 -d' ')
 
-      curl -G -X POST -H @.papertrail.headers "https://papertrail.devprod-infra.prod.corp.mongodb.com/trace" \
+      curl -SfL -G -X POST -H @.papertrail.headers "https://papertrail.prod.corp.mongodb.com/trace" \
         --data-urlencode "version=${version}" \
         --data-urlencode "product=${product}" \
         --data-urlencode "sha256=${checksum}" \

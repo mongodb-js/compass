@@ -22,14 +22,13 @@ import Debug from 'debug';
 import semver from 'semver';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 import {
-  DEFAULT_CONNECTION_STRINGS,
-  DEFAULT_CONNECTION_NAMES,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   isTestingWeb,
   isTestingDesktop,
   context,
   assertTestingWeb,
-  isTestingAtlasCloudExternal,
+  isTestingAtlasCloud,
+  getCloudUrlsFromContext,
 } from './test-runner-context';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -43,6 +42,15 @@ import {
 import treeKill from 'tree-kill';
 import { downloadPath } from './downloads';
 import path from 'path';
+import { globalFixturesAbortController } from './test-runner-global-fixtures';
+import { dialogOpenLocator } from './dialog-open-locator-strategy';
+import { getExtension } from './redirect-extension';
+import { COMPASS_WEB_ENTRYPOINT_HOST } from './test-runner-context';
+
+export {
+  getDefaultConnectionStrings,
+  getDefaultConnectionNames,
+} from './test-runner-context';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -63,7 +71,10 @@ const { Z_SYNC_FLUSH } = zlib.constants;
 
 const packageCompassAsync = promisify(packageCompass);
 
-// should we test compass-web (true) or compass electron (false)?
+/**
+ * should we test compass-web (true) or compass electron (false)?
+ * @deprecated use `isTestingWeb` instead
+ */
 export const TEST_COMPASS_WEB = isTestingWeb();
 
 // Extending the WebdriverIO's types to allow a verbose option to the chromedriver
@@ -91,16 +102,6 @@ export function skipForWeb(
     test.skip();
   }
 }
-
-export const DEFAULT_CONNECTION_STRING_1 = DEFAULT_CONNECTION_STRINGS[0];
-// NOTE: in browser.setupDefaultConnections() we don't give the first connection an
-// explicit name, so it gets a calculated one based off the connection string
-export const DEFAULT_CONNECTION_NAME_1 = DEFAULT_CONNECTION_NAMES[0];
-
-// for testing multiple connections
-export const DEFAULT_CONNECTION_STRING_2 = DEFAULT_CONNECTION_STRINGS[1];
-// NOTE: in browser.setupDefaultConnections() the second connection gets given an explicit name
-export const DEFAULT_CONNECTION_NAME_2 = DEFAULT_CONNECTION_NAMES[1];
 
 export const serverSatisfies = (
   semverCondition: string,
@@ -174,6 +175,30 @@ export class Compass {
         return v(browser, ...args);
       });
     }
+
+    // The waitUntil helper will continue running even if we started tests
+    // teardown on abort. To work around that, we will override the default
+    // method, will short circuit the wait if we aborted, and then throw the
+    // error instead of returning the result
+    browser.overwriteCommand(
+      'waitUntil',
+      async function (origWaitUntil, condition, options) {
+        // eslint-disable-next-line @typescript-eslint/await-thenable
+        const result = await origWaitUntil(function () {
+          if (globalFixturesAbortController.signal.aborted) {
+            return true;
+          }
+          return condition();
+        }, options);
+        if (globalFixturesAbortController.signal.aborted) {
+          throw new Error('Test run was aborted');
+        }
+        return result;
+      }
+    );
+
+    // Adding a custom locator strategy to help locate open dialogs from a selector synchronously
+    browser.addLocatorStrategy('dialogOpen', dialogOpenLocator);
 
     this.addDebugger();
   }
@@ -396,8 +421,12 @@ export class Compass {
 
   async stopBrowser(): Promise<void> {
     const logging: any[] = await this.browser.execute(function () {
-      // eslint-disable-next-line no-restricted-globals
-      return 'logging' in window && (window.logging as any);
+      const kSandboxLoggingAndTelemetryAccess = Symbol.for(
+        '@compass-web-sandbox-logging-and-telemetry-access'
+      );
+      return kSandboxLoggingAndTelemetryAccess in globalThis
+        ? (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
+        : [];
     });
     const lines = logging.map((log) => JSON.stringify(log));
     const text = lines.join('\n');
@@ -422,6 +451,8 @@ interface StartCompassOptions {
   firstRun?: boolean;
   extraSpawnArgs?: string[];
   wrapBinary?: (binary: string) => Promise<string> | string;
+  dangerouslySkipSharedConfigWaitFor?: boolean;
+  onBeforeNavigate?: (browser: CompassBrowser) => Promise<void> | void;
 }
 
 let defaultUserDataDir: string | undefined;
@@ -463,13 +494,18 @@ function execFileIgnoreError(
   stderr: string;
 }> {
   return new Promise((resolve) => {
-    execFile(path, args, opts, function (error, stdout, stderr) {
-      resolve({
-        error,
-        stdout,
-        stderr,
-      });
-    });
+    execFile(
+      path,
+      args,
+      { ...opts, encoding: 'utf8' },
+      function (error, stdout, stderr) {
+        resolve({
+          error,
+          stdout,
+          stderr,
+        });
+      }
+    );
   });
 }
 
@@ -652,14 +688,6 @@ async function startCompassElectron(
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
 
-  // Guide cues might affect too many tests in a way where the auto showing of the cue prevents
-  // clicks from working on elements. Dealing with this case-by-case is way too much work, so
-  // we disable the cues completely for the e2e tests
-  process.env.DISABLE_GUIDE_CUES = 'true';
-
-  // Making sure end-of-life connection modal is not shown, simplify any test connecting to such a server
-  process.env.COMPASS_DISABLE_END_OF_LIFE_CONNECTION_MODAL = 'true';
-
   const options = {
     automationProtocol: 'webdriver' as const,
     capabilities: {
@@ -778,40 +806,57 @@ export async function startBrowser(
   runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
-  const browserCapabilities: Record<string, Record<string, unknown>> = {
-    chrome: {
-      'goog:chromeOptions': {
-        prefs: {
-          'download.default_directory': downloadPath,
-        },
+  const browserName = context.browserName as 'chrome' | 'firefox';
+  const redirectExtension = isTestingAtlasCloud(context)
+    ? await (async () => {
+        return getExtension(
+          COMPASS_WEB_ENTRYPOINT_HOST,
+          `${context.sandboxUrl}/compass-web.mjs`
+        );
+      })()
+    : null;
+
+  const browserCapabilities: WebdriverIO.Capabilities = {
+    'goog:chromeOptions': {
+      prefs: {
+        'download.default_directory': downloadPath,
       },
+      args: isTestingAtlasCloud(context)
+        ? [
+            // We're going to be hitting localhost from remote domain, LNA needs
+            // to be disabled
+            '--disable-features=LocalNetworkAccessChecks',
+            // Allow to load extensions from cli and don't check when remote
+            // websites are accessing localhost
+            '--disable-features=DisableLoadExtensionCommandLineSwitch',
+            `--load-extension=${redirectExtension!.extensionPath}`,
+          ]
+        : [],
     },
-    firefox: {
-      'moz:firefoxOptions': {
-        prefs: {
-          'browser.download.dir': downloadPath,
-          'browser.download.folderList': 2,
-          'browser.download.manager.showWhenStarting': false,
-          'browser.helperApps.neverAsk.saveToDisk': '*/*',
-          // Hide the download (progress) panel
-          'browser.download.alwaysOpenPanel': false,
-        },
+    'moz:firefoxOptions': {
+      prefs: {
+        'browser.download.dir': downloadPath,
+        'browser.download.folderList': 2,
+        'browser.download.manager.showWhenStarting': false,
+        'browser.helperApps.neverAsk.saveToDisk': '*/*',
+        // Hide the download (progress) panel
+        'browser.download.alwaysOpenPanel': false,
+
+        ...(isTestingAtlasCloud(context) && {
+          // Need to disable LNA (see above)
+          'network.lna.skip-domains': '*.mongodb.com',
+        }),
       },
     },
   };
 
-  // webdriverio removed RemoteOptions. It is now
-  // Capabilities.WebdriverIOConfig, but Capabilities is not exported
-  const options = {
+  const options: WebdriverIO.RemoteConfig = {
     capabilities: {
-      browserName: context.browserName,
+      browserName,
       ...(context.browserVersion && {
         browserVersion: context.browserVersion,
       }),
-      ...browserCapabilities[context.browserName],
-
-      // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
-      'wdio:enforceWebDriverClassic': true,
+      ...browserCapabilities,
     },
     ...webdriverOptions,
     ...wdioOptions,
@@ -820,67 +865,21 @@ export async function startBrowser(
   debug('Starting browser via webdriverio with the following configuration:');
   debug(JSON.stringify(options, null, 2));
 
-  const browser: CompassBrowser = (await remote(options)) as CompassBrowser;
-
-  if (isTestingAtlasCloudExternal(context)) {
-    const {
-      atlasCloudExternalCookiesFile,
-      atlasCloudExternalUrl,
-      atlasCloudExternalProjectId,
-    } = context;
-
-    // To be able to use `setCookies` method, we need to first open any page on
-    // the same domain as the cookies we are going to set
-    // https://webdriver.io/docs/api/browser/setCookies/
-    await browser.navigateTo(`${atlasCloudExternalUrl}/404`);
-
-    type StoredAtlasCloudCookies = {
-      name: string;
-      value: string;
-      domain: string;
-      path: string;
-      secure: boolean;
-      httpOnly: boolean;
-      expirationDate: number;
-    }[];
-
-    const cookies: StoredAtlasCloudCookies = JSON.parse(
-      await fs.readFile(atlasCloudExternalCookiesFile, 'utf8')
-    );
-
-    await browser.setCookies(
-      cookies
-        .filter((cookie) => {
-          // These are the relevant cookies for auth:
-          // https://github.com/10gen/mms/blob/6d27992a6ab9ab31471c8bcdaa4e347aa39f4013/server/src/features/com/xgen/svc/cukes/helpers/Client.java#L122-L130
-          return (
-            cookie.name.includes('mmsa-') ||
-            cookie.name.includes('mdb-sat') ||
-            cookie.name.includes('mdb-srt')
-          );
-        })
-        .map((cookie) => ({
-          name: cookie.name,
-          value: cookie.value,
-          domain: cookie.domain,
-          path: cookie.path,
-          secure: cookie.secure,
-          httpOnly: cookie.httpOnly,
-        }))
-    );
-
-    await browser.navigateTo(
-      `${atlasCloudExternalUrl}/v2/${atlasCloudExternalProjectId}#/explorer`
-    );
-  } else {
-    await browser.navigateTo(context.sandboxUrl);
-  }
+  const browser = (await remote(options)) as CompassBrowser;
 
   const compass = new Compass(name, browser, {
     mode: 'web',
     writeCoverage: false,
     needsCloseWelcomeModal: false,
   });
+
+  if (isTestingAtlasCloud(context)) {
+    // In firefox extension needs to be loaded via special Gecko command and
+    // should be provided as a base64 string with compressed extension
+    if (browserName === 'firefox') {
+      await browser.installAddOn(redirectExtension!.extension, true);
+    }
+  }
 
   return compass;
 }
@@ -1077,6 +1076,37 @@ function augmentError(error: Error, stack: string) {
   error.stack = `${error.stack ?? ''}\nvia ${strippedLines.join('\n')}`;
 }
 
+async function setSharedConfigOnStart(
+  browser: CompassBrowser,
+  dangerouslySkipSharedConfigWaitFor = false
+) {
+  // Guide cues might affect too many tests in a way where the auto showing of
+  // the cue prevents clicks from working on elements. Dealing with this
+  // case-by-case is way too much work, so we disable the cues completely for
+  // the e2e tests
+  await browser.setFeature('enableGuideCues', false);
+
+  // Making sure end-of-life connection modal is not shown, simplify any test
+  // connecting to such a server
+  await browser.setFeature('showEndOfLifeConnectionModal', false);
+
+  // Nice-to-have for desktop tests: if devtools are enabled, you don't need to
+  // spend time enabling them manually in settings
+  await browser.setFeature('enableDevTools', true, () => {
+    // Do not validate that the value was set: some tests might pre-configure
+    // Compass in a way where changing this config is not allowed
+    return true;
+  });
+
+  // TODO(COMPASS-9977) Turn off virtual scrolling in e2e tests until we can fix
+  // browser.scrollToVirtualItem() to work with it
+  await browser.setEnv(
+    'COMPASS_DISABLE_VIRTUAL_TABLE_RENDERING',
+    'true',
+    dangerouslySkipSharedConfigWaitFor
+  );
+}
+
 export async function init(
   name?: string,
   opts: StartCompassOptions = {}
@@ -1087,42 +1117,66 @@ export async function init(
   // optional even though it always exists. So we have a lot of
   // this.test?.fullTitle() and therefore we hopefully won't end up with a lot
   // of dates in filenames in reality.
-  const compass = TEST_COMPASS_WEB
+  const compass = isTestingWeb()
     ? await startBrowser(name, opts)
     : await startCompassElectron(name, opts);
 
   const { browser } = compass;
 
-  // For browser.executeAsync(). Trying to see if it will work for browser.execute() too.
-  await browser.setTimeout({ script: 5_000 });
+  if (isTestingAtlasCloud(context)) {
+    await browser.signInToAtlas(
+      context.atlasCloudUsername,
+      context.atlasCloudPassword
+    );
 
-  if (TEST_COMPASS_WEB) {
-    // larger window for more consistent results
-    const [width, height] = await browser.execute(() => {
-      // in case setWindowSize() below doesn't work
-      // eslint-disable-next-line no-restricted-globals
-      window.resizeTo(window.screen.availWidth, window.screen.availHeight);
-      // eslint-disable-next-line no-restricted-globals
-      return [window.screen.availWidth, window.screen.availHeight];
-    });
-    // getting available width=1512, height=944 in electron on mac which is arbitrary
-    debug(`available width=${width}, height=${height}`);
-    try {
-      // window.resizeTo() doesn't work on firefox
-      await browser.setWindowSize(width, height);
-    } catch (err) {
-      console.error(err instanceof Error ? err.stack : err);
-    }
-  } else {
+    // Disable temporary marketing modal before proceeding
     await browser.execute(() => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const { ipcRenderer } = require('electron');
-      void ipcRenderer.invoke('compass:maximize');
+      globalThis.localStorage.setItem(
+        'mdb.dataExplorer.hasShownNewDEModal',
+        'true'
+      );
     });
   }
 
+  if (isTestingWeb(context)) {
+    await opts.onBeforeNavigate?.(browser);
+
+    if (isTestingAtlasCloud(context)) {
+      const urls = getCloudUrlsFromContext();
+      await browser.navigateTo(
+        `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`
+      );
+    } else {
+      await browser.navigateTo(context.sandboxUrl);
+    }
+  }
+
+  await setSharedConfigOnStart(
+    browser,
+    opts.dangerouslySkipSharedConfigWaitFor
+  );
+
+  // Matches Compass desktop defaults
+  const defaultWindowWidth = 1432;
+  const defaultWindowHeight = 840;
+
+  const { width: newWidth, height: newHeight } = await browser.resizeWindow(
+    defaultWindowWidth,
+    defaultWindowHeight,
+    opts.dangerouslySkipSharedConfigWaitFor
+  );
+
+  debug(`resized window to ${newWidth}x${newHeight}`);
+
   if (compass.needsCloseWelcomeModal) {
-    await browser.closeWelcomeModal();
+    try {
+      await browser.closeWelcomeModal();
+    } catch (err) {
+      await browser.screenshot(
+        screenshotPathName(`${name ?? 'init'}-close-welcome-modal`)
+      );
+      throw err;
+    }
   }
 
   return compass;

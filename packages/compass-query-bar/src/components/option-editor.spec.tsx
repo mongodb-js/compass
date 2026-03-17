@@ -16,8 +16,10 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 class MockPasteEvent extends window.Event {
-  constructor(private text: string) {
+  private text: string;
+  constructor(text: string) {
     super('paste', { bubbles: true, cancelable: true });
+    this.text = text;
   }
   clipboardData = {
     getData: () => {

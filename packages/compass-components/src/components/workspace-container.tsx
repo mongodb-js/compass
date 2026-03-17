@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -125,10 +125,12 @@ function WorkspaceContainer({
   }) {
   const darkMode = useDarkMode();
 
-  const scrollContainer = useRef(null);
+  const [scrollContainer, setScrollContainer] = useState<HTMLDivElement | null>(
+    null
+  );
 
   const [scrollDetectionTrigger, triggerStillInView] = useInView({
-    root: scrollContainer.current,
+    root: scrollContainer,
     // Setting this value prevents flicker on initial mount. Default value is
     // `true`, if the value is not provided we assume that the trigger is at the
     // very top of the container, which is the most common case for the initial
@@ -151,7 +153,7 @@ function WorkspaceContainer({
           {typeof toolbar === 'function' ? toolbar() : toolbar}
         </div>
       )}
-      <div className={scrollBoxStyles} ref={scrollContainer}>
+      <div className={scrollBoxStyles} ref={setScrollContainer}>
         {triggerStillInView || (
           <div className={shadowContainerStyles}>
             <div
@@ -164,6 +166,8 @@ function WorkspaceContainer({
         )}
         <div ref={scrollableContainerRef} className={workspaceContentStyles}>
           {typeof children === 'function' ? (
+            // Ref is not used directly for "rendering"
+            // eslint-disable-next-line react-hooks/refs
             children(scrollDetectionTrigger)
           ) : (
             <>

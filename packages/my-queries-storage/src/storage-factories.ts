@@ -20,7 +20,7 @@ export type WebStorageOptions = {
 };
 
 export function createWebRecentQueryStorage(options: WebStorageOptions) {
-  const userData = new AtlasUserData(RecentQuerySchema, 'recentQueries', {
+  const userData = new AtlasUserData(RecentQuerySchema, 'RecentQueries', {
     orgId: options.orgId,
     projectId: options.projectId,
     getResourceUrl: options.getResourceUrl,
@@ -32,7 +32,7 @@ export function createWebRecentQueryStorage(options: WebStorageOptions) {
 }
 
 export function createWebFavoriteQueryStorage(options: WebStorageOptions) {
-  const userData = new AtlasUserData(FavoriteQuerySchema, 'favoriteQueries', {
+  const userData = new AtlasUserData(FavoriteQuerySchema, 'FavoriteQueries', {
     orgId: options.orgId,
     projectId: options.projectId,
     getResourceUrl: options.getResourceUrl,
@@ -44,7 +44,7 @@ export function createWebFavoriteQueryStorage(options: WebStorageOptions) {
 }
 
 export function createWebPipelineStorage(options: WebStorageOptions) {
-  const userData = new AtlasUserData(PipelineSchema, 'favoriteAggregations', {
+  const userData = new AtlasUserData(PipelineSchema, 'SavedPipelines', {
     orgId: options.orgId,
     projectId: options.projectId,
     getResourceUrl: options.getResourceUrl,

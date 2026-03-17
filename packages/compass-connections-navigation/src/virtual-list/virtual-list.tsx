@@ -13,6 +13,7 @@ import {
   type ContextMenuItemGroup,
   css,
   mergeProps,
+  useCurrentValueRef,
   useFocusRing,
   useId,
 } from '@mongodb-js/compass-components';
@@ -122,11 +123,10 @@ const navigationTree = css({
 });
 
 function useAction<T>(fn: RenderItem<T>): RenderItem<T> {
-  const ref = useRef(fn);
-  ref.current = fn;
+  const ref = useCurrentValueRef(fn);
   return useMemo(() => {
     return (props) => ref.current(props);
-  }, []);
+  }, [ref]);
 }
 
 export function VirtualTree<T extends VirtualItem>({

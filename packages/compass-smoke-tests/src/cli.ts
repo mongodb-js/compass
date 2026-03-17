@@ -73,10 +73,6 @@ yargs(hideBin(process.argv))
   .version(false)
   .showHelpOnFail(false)
   .strict()
-  .option('bucketName', {
-    type: 'string',
-    default: process.env.EVERGREEN_BUCKET_NAME,
-  })
   .option('bucketKeyPrefix', {
     type: 'string',
     default: process.env.EVERGREEN_BUCKET_KEY_PREFIX,
@@ -145,7 +141,7 @@ yargs(hideBin(process.argv))
           description: 'Git reference to dispatch the workflow from',
           default: getDefaultRef(),
         }),
-    async ({ bucketName, bucketKeyPrefix, ref, githubPrNumber }) => {
+    async ({ bucketKeyPrefix, ref, githubPrNumber }) => {
       const {
         GITHUB_TOKEN,
         DEV_VERSION_IDENTIFIER,
@@ -158,8 +154,8 @@ yargs(hideBin(process.argv))
         'Expected a GITHUB_TOKEN environment variable'
       );
       assert(
-        typeof bucketName === 'string' && typeof bucketKeyPrefix === 'string',
-        'Bucket name and key prefix are needed to download'
+        typeof bucketKeyPrefix === 'string',
+        'Key prefix is needed to download'
       );
 
       await dispatchAndWait({
@@ -174,7 +170,6 @@ yargs(hideBin(process.argv))
         devVersion: DEV_VERSION_IDENTIFIER,
         githubPrNumber: GITHUB_PR_NUMBER,
         evergreenTaskUrl: EVERGREEN_TASK_URL,
-        bucketName,
         bucketKeyPrefix,
       });
     }
@@ -218,7 +213,6 @@ async function run(context: SmokeTestsContext) {
     'context',
     pick(context, [
       'forceDownload',
-      'bucketName',
       'bucketKeyPrefix',
       'platform',
       'arch',

@@ -8,14 +8,21 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { AssistantChat } from './assistant-chat';
 import { expect } from 'chai';
-import { createMockChat } from '../../test/utils';
+import {
+  createBrokenChat,
+  createMockChat,
+  createSlowTool,
+  createMockToolsTransport,
+} from '../../test/utils';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   AssistantActionsContext,
   type AssistantMessage,
 } from '../compass-assistant-provider';
 import sinon from 'sinon';
-import type { TextPart } from 'ai';
+import type { ChatTransport, SourceUrlUIPart, TextPart } from 'ai';
+import { Chat } from '../@ai-sdk/react/chat-react';
+import { ToolsControllerProvider } from '@mongodb-js/compass-generative-ai/provider';
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -38,6 +45,19 @@ describe('AssistantChat', function () {
           url: 'https://en.wikipedia.org/wiki/MongoDB',
           sourceId: '1',
         },
+        // this one should be filtered out since it has no url
+        {
+          type: 'source-url',
+          title: 'no url',
+          sourceId: '2',
+          // url isn't actually required for file_citation
+        } as unknown as SourceUrlUIPart,
+        // this one should be filtered out since it has no title
+        {
+          type: 'source-url',
+          url: 'no title',
+          sourceId: '3',
+        },
       ],
       metadata: {
         source: 'performance insights',
@@ -46,23 +66,24 @@ describe('AssistantChat', function () {
   ];
 
   function renderWithChat(
-    messages: AssistantMessage[],
+    chat: Chat<AssistantMessage>,
     {
       connections,
-      status,
+      trackingOptions = {},
     }: {
       connections?: ConnectionInfo[];
-      status?: 'submitted' | 'streaming';
+      trackingOptions?: {
+        requestId?: string;
+      };
     } = {}
   ) {
-    const chat = createMockChat({ messages, status });
     // The chat component does not use chat.sendMessage() directly, it uses
     // ensureOptInAndSend() via the AssistantActionsContext.
     const ensureOptInAndSendStub = sinon
       .stub()
       .callsFake(async (message, options, callback) => {
         // call the callback so we can test the tracking
-        callback();
+        callback(trackingOptions);
 
         await chat.sendMessage(message, options);
       });
@@ -71,9 +92,13 @@ describe('AssistantChat', function () {
       ensureOptInAndSend: ensureOptInAndSendStub,
     };
     const result = render(
-      <AssistantActionsContext.Provider value={assistantActionsContext as any}>
-        <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-      </AssistantActionsContext.Provider>,
+      <ToolsControllerProvider>
+        <AssistantActionsContext.Provider
+          value={assistantActionsContext as any}
+        >
+          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+        </AssistantActionsContext.Provider>
+      </ToolsControllerProvider>,
       {
         connections,
       }
@@ -86,7 +111,7 @@ describe('AssistantChat', function () {
   }
 
   it('renders input field and send button', function () {
-    renderWithChat([]);
+    renderWithChat(createMockChat({ messages: [] }));
 
     const inputField = screen.getByPlaceholderText('Ask a question');
     const sendButton = screen.getByLabelText('Send message');
@@ -96,7 +121,7 @@ describe('AssistantChat', function () {
   });
 
   it('input field accepts text input', function () {
-    renderWithChat([]);
+    renderWithChat(createMockChat({ messages: [] }));
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const inputField = screen.getByPlaceholderText(
@@ -109,34 +134,35 @@ describe('AssistantChat', function () {
   });
 
   it('displays the disclaimer and welcome text', function () {
-    renderWithChat([]);
-    expect(screen.getByText(/AI can make mistakes. Review for accuracy./)).to
-      .exist;
+    renderWithChat(createMockChat({ messages: [] }));
+    expect(screen.getByText(/Review answers for accuracy/)).to.exist;
   });
 
   it('displays the welcome text when there are no messages', function () {
-    renderWithChat([]);
+    renderWithChat(createMockChat({ messages: [] }));
     expect(screen.getByText(/Welcome to the MongoDB Assistant!/)).to.exist;
   });
 
   it('does not display the welcome text when there are messages', function () {
-    renderWithChat(mockMessages);
+    renderWithChat(createMockChat({ messages: mockMessages }));
     expect(screen.queryByText(/Welcome to the MongoDB Assistant!/)).to.not
       .exist;
   });
 
   it('displays loading state when chat status is submitted', function () {
-    renderWithChat([], { status: 'submitted' });
+    renderWithChat(createMockChat({ messages: [], status: 'submitted' }));
     expect(screen.getByText(/MongoDB Assistant is thinking/)).to.exist;
   });
 
   it('does not display loading in all other cases', function () {
-    renderWithChat(mockMessages, { status: 'streaming' });
+    renderWithChat(
+      createMockChat({ messages: mockMessages, status: 'streaming' })
+    );
     expect(screen.queryByText(/MongoDB Assistant is thinking/)).to.not.exist;
   });
 
   it('send button is disabled when input is empty', function () {
-    renderWithChat([]);
+    renderWithChat(createMockChat({ messages: [] }));
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const sendButton = screen.getByLabelText(
@@ -147,7 +173,7 @@ describe('AssistantChat', function () {
   });
 
   it('send button is enabled when input has text', function () {
-    renderWithChat([]);
+    renderWithChat(createMockChat({ messages: [] }));
 
     const inputField = screen.getByPlaceholderText('Ask a question');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -161,7 +187,7 @@ describe('AssistantChat', function () {
   });
 
   it('send button is disabled for whitespace-only input', async function () {
-    renderWithChat([]);
+    renderWithChat(createMockChat({ messages: [] }));
 
     const inputField = screen.getByPlaceholderText('Ask a question');
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
@@ -177,7 +203,7 @@ describe('AssistantChat', function () {
   });
 
   it('displays messages in the chat feed', function () {
-    renderWithChat(mockMessages);
+    renderWithChat(createMockChat({ messages: mockMessages }));
 
     expect(screen.getByTestId('assistant-message-user')).to.exist;
     expect(screen.getByTestId('assistant-message-assistant')).to.exist;
@@ -192,7 +218,11 @@ describe('AssistantChat', function () {
   describe('non-genuine MongoDB host handling', function () {
     it('shows warning message in chat when connected to non-genuine MongoDB', function () {
       const chat = createMockChat({ messages: [] });
-      render(<AssistantChat chat={chat} hasNonGenuineConnections={true} />);
+      render(
+        <ToolsControllerProvider>
+          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+        </ToolsControllerProvider>
+      );
 
       expect(chat.messages).to.have.length(1);
       expect(chat.messages[0].id).to.equal('non-genuine-warning');
@@ -205,9 +235,14 @@ describe('AssistantChat', function () {
 
     it('does not show warning message when all connections are genuine', function () {
       const chat = createMockChat({ messages: [] });
-      render(<AssistantChat chat={chat} hasNonGenuineConnections={false} />, {
-        connections: [],
-      });
+      render(
+        <ToolsControllerProvider>
+          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+        </ToolsControllerProvider>,
+        {
+          connections: [],
+        }
+      );
 
       const warningMessage = screen.queryByText(
         /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
@@ -218,7 +253,9 @@ describe('AssistantChat', function () {
     it('warning message is removed when all active connections are changed to genuine', async function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
-        <AssistantChat chat={chat} hasNonGenuineConnections={true} />,
+        <ToolsControllerProvider>
+          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+        </ToolsControllerProvider>,
         {}
       );
 
@@ -228,7 +265,11 @@ describe('AssistantChat', function () {
         )
       ).to.exist;
 
-      rerender(<AssistantChat chat={chat} hasNonGenuineConnections={false} />);
+      rerender(
+        <ToolsControllerProvider>
+          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+        </ToolsControllerProvider>
+      );
 
       await waitFor(() => {
         const warningMessage = screen.queryByText(
@@ -240,7 +281,11 @@ describe('AssistantChat', function () {
   });
 
   it('calls sendMessage when form is submitted', async function () {
-    const { result, ensureOptInAndSendStub } = renderWithChat([]);
+    const trackingOptions = { requestId: 'test-request-id' };
+    const { result, ensureOptInAndSendStub } = renderWithChat(
+      createMockChat({ messages: [] }),
+      { trackingOptions }
+    );
     const { track } = result;
     const inputField = screen.getByPlaceholderText('Ask a question');
     const sendButton = screen.getByLabelText('Send message');
@@ -252,12 +297,13 @@ describe('AssistantChat', function () {
       expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is aggregation?'.length,
+        request_id: 'test-request-id',
       });
     });
   });
 
   it('clears input field after successful submission', function () {
-    renderWithChat([]);
+    renderWithChat(createMockChat({ messages: [] }));
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     const inputField = screen.getByPlaceholderText(
@@ -272,7 +318,10 @@ describe('AssistantChat', function () {
   });
 
   it('trims whitespace from input before sending', async function () {
-    const { ensureOptInAndSendStub, result } = renderWithChat([]);
+    const { ensureOptInAndSendStub, result } = renderWithChat(
+      createMockChat({ messages: [] }),
+      { trackingOptions: { requestId: 'test-request-id' } }
+    );
     const { track } = result;
 
     const inputField = screen.getByPlaceholderText('Ask a question');
@@ -284,12 +333,15 @@ describe('AssistantChat', function () {
       expect(ensureOptInAndSendStub.called).to.be.true;
       expect(track).to.have.been.calledWith('Assistant Prompt Submitted', {
         user_input_length: 'What is sharding?'.length,
+        request_id: 'test-request-id',
       });
     });
   });
 
   it('does not call ensureOptInAndSend when input is empty or whitespace-only', function () {
-    const { ensureOptInAndSendStub } = renderWithChat([]);
+    const { ensureOptInAndSendStub } = renderWithChat(
+      createMockChat({ messages: [] })
+    );
 
     const inputField = screen.getByPlaceholderText('Ask a question');
     const chatForm = screen.getByTestId('assistant-chat-input');
@@ -304,8 +356,87 @@ describe('AssistantChat', function () {
     expect(ensureOptInAndSendStub.notCalled).to.be.true;
   });
 
+  describe('sending and stopping', function () {
+    it('can click the stop button after submission', async function () {
+      const chat = createMockChat({ messages: [], status: 'submitted' });
+      const stopSpy = sinon.spy(chat, 'stop');
+
+      renderWithChat(chat);
+
+      const stopButton = screen.getByLabelText('Stop message');
+      userEvent.click(stopButton);
+
+      await waitFor(() => {
+        expect(stopSpy).to.have.been.calledOnce;
+      });
+    });
+
+    it('aborts slow-running tools when stop button is clicked', async function () {
+      // Create a slow-running tool with tracking
+      const { tool: slowTool, tracking } = createSlowTool();
+
+      // Create a transport that executes our slow tool
+      const mockTransport = createMockToolsTransport([slowTool]);
+
+      // Create a chat with the mock transport
+      const chat = new Chat<AssistantMessage>({
+        messages: [],
+        transport: mockTransport as ChatTransport<AssistantMessage>,
+      });
+
+      // Create messages with a tool call in progress
+      const messagesWithRunningTool: AssistantMessage[] = [
+        {
+          id: 'assistant-with-tool',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'tool-input-available',
+              toolCallId: 'slow-tool-call-id',
+              toolName: 'slow-tool',
+              input: {},
+              state: 'approval-responded',
+              approval: {
+                id: 'slow-tool-approval-id',
+                approved: true,
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+          ],
+        },
+      ];
+
+      chat.messages = messagesWithRunningTool;
+
+      renderWithChat(chat);
+      const message = chat.sendMessage(undefined);
+
+      // Wait for the tool message to render with "Running" state
+      await waitFor(() => {
+        expect(screen.getByText(/Running/)).to.exist;
+      });
+
+      // Click the stop button
+      const stopButton = screen.getByLabelText('Stop message');
+      userEvent.click(stopButton);
+
+      // Wait for the abort to happen
+      await waitFor(() => {
+        expect(tracking.wasAborted).to.be.true;
+        expect(tracking.abortSignal?.aborted).to.be.true;
+        expect(tracking.result).to.be.undefined;
+      });
+
+      // Message sending execution should be complete
+      await message;
+
+      // Verify that the tool call was updated to show cancellation
+      expect(screen.getByText(/Tool execution was cancelled/)).to.exist;
+    });
+  });
+
   it('displays user and assistant messages with different styling', function () {
-    renderWithChat(mockMessages);
+    renderWithChat(createMockChat({ messages: mockMessages }));
 
     const userMessage = screen.getByTestId('assistant-message-user');
     const assistantMessage = screen.getByTestId('assistant-message-assistant');
@@ -330,7 +461,7 @@ describe('AssistantChat', function () {
       },
     ];
 
-    renderWithChat(messagesWithMultipleParts);
+    renderWithChat(createMockChat({ messages: messagesWithMultipleParts }));
 
     expect(screen.getByText('Here is part 1. And here is part 2.')).to.exist;
   });
@@ -349,7 +480,7 @@ describe('AssistantChat', function () {
       },
     ];
 
-    renderWithChat(messagesWithMixedParts);
+    renderWithChat(createMockChat({ messages: messagesWithMixedParts }));
 
     expect(screen.getByText('This is text content. More text content.')).to
       .exist;
@@ -371,7 +502,7 @@ describe('AssistantChat', function () {
       },
     ];
 
-    renderWithChat(messagesWithDisplayText);
+    renderWithChat(createMockChat({ messages: messagesWithDisplayText }));
 
     // Should display the displayText
     expect(
@@ -387,7 +518,7 @@ describe('AssistantChat', function () {
 
   describe('feedback buttons', function () {
     it('shows feedback buttons only for assistant messages', function () {
-      renderWithChat(mockMessages);
+      renderWithChat(createMockChat({ messages: mockMessages }));
 
       const userMessage = screen.getByTestId('assistant-message-user');
       const assistantMessage = screen.getByTestId(
@@ -408,7 +539,9 @@ describe('AssistantChat', function () {
     });
 
     it('tracks positive feedback when thumbs up is clicked', async function () {
-      const { result } = renderWithChat(mockMessages);
+      const { result } = renderWithChat(
+        createMockChat({ messages: mockMessages })
+      );
       const { track } = result;
 
       const assistantMessage = screen.getByTestId(
@@ -427,14 +560,16 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'positive',
           text: undefined,
-          request_id: null,
+          request_id: undefined,
           source: 'performance insights',
         });
       });
     });
 
     it('tracks negative feedback when thumbs down is clicked', async function () {
-      const { result } = renderWithChat(mockMessages);
+      const { result } = renderWithChat(
+        createMockChat({ messages: mockMessages })
+      );
       const { track } = result;
 
       const assistantMessage = screen.getByTestId(
@@ -454,14 +589,16 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'negative',
           text: undefined,
-          request_id: null,
+          request_id: undefined,
           source: 'performance insights',
         });
       });
     });
 
     it('tracks detailed feedback when feedback text is submitted', async function () {
-      const { result } = renderWithChat(mockMessages);
+      const { result } = renderWithChat(
+        createMockChat({ messages: mockMessages })
+      );
       const { track } = result;
 
       const assistantMessage = screen.getByTestId(
@@ -491,29 +628,33 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'negative',
           text: undefined,
-          request_id: null,
+          request_id: undefined,
           source: 'performance insights',
         });
 
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'negative',
           text: 'This response was not helpful',
-          request_id: null,
+          request_id: undefined,
           source: 'performance insights',
         });
       });
     });
 
     it('tracks it as "chat response" when source is not present', async function () {
-      const { result } = renderWithChat([
-        {
-          ...mockMessages[1],
-          metadata: {
-            ...mockMessages[1].metadata,
-            source: undefined,
-          },
-        },
-      ]);
+      const { result } = renderWithChat(
+        createMockChat({
+          messages: [
+            {
+              ...mockMessages[1],
+              metadata: {
+                ...mockMessages[1].metadata,
+                source: undefined,
+              },
+            },
+          ],
+        })
+      );
       const { track } = result;
 
       const thumbsDownButton = within(
@@ -526,7 +667,7 @@ describe('AssistantChat', function () {
         expect(track).to.have.been.calledWith('Assistant Feedback Submitted', {
           feedback: 'negative',
           text: undefined,
-          request_id: null,
+          request_id: undefined,
           source: 'chat response',
         });
       });
@@ -546,7 +687,7 @@ describe('AssistantChat', function () {
         },
       ];
 
-      renderWithChat(userOnlyMessages);
+      renderWithChat(createMockChat({ messages: userOnlyMessages }));
 
       // Should not find any feedback buttons in the entire component
       expect(screen.queryByLabelText('Thumbs Up Icon')).to.not.exist;
@@ -573,7 +714,7 @@ describe('AssistantChat', function () {
     });
 
     it('renders confirmation message when message has confirmation metadata', function () {
-      renderWithChat([mockConfirmationMessage]);
+      renderWithChat(createMockChat({ messages: [mockConfirmationMessage] }));
 
       expect(screen.getByText('Please confirm your request')).to.exist;
       expect(
@@ -584,7 +725,7 @@ describe('AssistantChat', function () {
     });
 
     it('does not render regular message content when confirmation metadata exists', function () {
-      renderWithChat([mockConfirmationMessage]);
+      renderWithChat(createMockChat({ messages: [mockConfirmationMessage] }));
 
       // Should not show the message text content when confirmation is present
       expect(screen.queryByText('This is a confirmation message.')).to.not
@@ -592,7 +733,7 @@ describe('AssistantChat', function () {
     });
 
     it('shows confirmation as pending when it is the last message', function () {
-      renderWithChat([mockConfirmationMessage]);
+      renderWithChat(createMockChat({ messages: [mockConfirmationMessage] }));
 
       expect(screen.getByText('Confirm')).to.exist;
       expect(screen.getByText('Cancel')).to.exist;
@@ -610,7 +751,7 @@ describe('AssistantChat', function () {
         },
       ];
 
-      renderWithChat(messages);
+      renderWithChat(createMockChat({ messages: messages }));
 
       // The confirmation message (first one) should show as rejected since it's not the last
       expect(screen.queryByText('Confirm')).to.not.exist;
@@ -619,9 +760,9 @@ describe('AssistantChat', function () {
     });
 
     it('adds new confirmed message when confirmation is confirmed', function () {
-      const { chat, ensureOptInAndSendStub } = renderWithChat([
-        mockConfirmationMessage,
-      ]);
+      const { chat, ensureOptInAndSendStub } = renderWithChat(
+        createMockChat({ messages: [mockConfirmationMessage] })
+      );
 
       const confirmButton = screen.getByText('Confirm');
       userEvent.click(confirmButton);
@@ -638,7 +779,9 @@ describe('AssistantChat', function () {
     });
 
     it('updates confirmation state to confirmed and adds a new message when confirm button is clicked', function () {
-      const { chat } = renderWithChat([mockConfirmationMessage]);
+      const { chat } = renderWithChat(
+        createMockChat({ messages: [mockConfirmationMessage] })
+      );
 
       const confirmButton = screen.getByText('Confirm');
       userEvent.click(confirmButton);
@@ -657,9 +800,9 @@ describe('AssistantChat', function () {
     });
 
     it('updates confirmation state to rejected and does not add a new message when cancel button is clicked', function () {
-      const { chat, ensureOptInAndSendStub } = renderWithChat([
-        mockConfirmationMessage,
-      ]);
+      const { chat, ensureOptInAndSendStub } = renderWithChat(
+        createMockChat({ messages: [mockConfirmationMessage] })
+      );
 
       const cancelButton = screen.getByText('Cancel');
       userEvent.click(cancelButton);
@@ -678,7 +821,9 @@ describe('AssistantChat', function () {
     });
 
     it('shows confirmed status after confirmation is confirmed', function () {
-      const { chat } = renderWithChat([mockConfirmationMessage]);
+      const { chat } = renderWithChat(
+        createMockChat({ messages: [mockConfirmationMessage] })
+      );
 
       // Verify buttons are initially present
       expect(screen.getByText('Confirm')).to.exist;
@@ -695,7 +840,9 @@ describe('AssistantChat', function () {
     });
 
     it('shows cancelled status after confirmation is rejected', function () {
-      const { chat } = renderWithChat([mockConfirmationMessage]);
+      const { chat } = renderWithChat(
+        createMockChat({ messages: [mockConfirmationMessage] })
+      );
 
       // Verify buttons are initially present
       expect(screen.getByText('Confirm')).to.exist;
@@ -734,7 +881,11 @@ describe('AssistantChat', function () {
         },
       };
 
-      renderWithChat([confirmationMessage1, confirmationMessage2]);
+      renderWithChat(
+        createMockChat({
+          messages: [confirmationMessage1, confirmationMessage2],
+        })
+      );
 
       expect(screen.getAllByText('Request cancelled')).to.have.length(1);
 
@@ -758,7 +909,9 @@ describe('AssistantChat', function () {
         },
       };
 
-      const { chat } = renderWithChat([messageWithExtraMetadata]);
+      const { chat } = renderWithChat(
+        createMockChat({ messages: [messageWithExtraMetadata] })
+      );
 
       const confirmButton = screen.getByText('Confirm');
       userEvent.click(confirmButton);
@@ -777,7 +930,7 @@ describe('AssistantChat', function () {
         parts: [{ type: 'text', text: 'This is a regular message' }],
       };
 
-      renderWithChat([regularMessage]);
+      renderWithChat(createMockChat({ messages: [regularMessage] }));
 
       expect(screen.queryByText('Please confirm your request')).to.not.exist;
       expect(screen.queryByText('Confirm')).to.not.exist;
@@ -786,7 +939,9 @@ describe('AssistantChat', function () {
     });
 
     it('tracks confirmation submitted when confirm button is clicked', async function () {
-      const { result } = renderWithChat([mockConfirmationMessage]);
+      const { result } = renderWithChat(
+        createMockChat({ messages: [mockConfirmationMessage] })
+      );
       const { track } = result;
 
       const confirmButton = screen.getByText('Confirm');
@@ -798,13 +953,16 @@ describe('AssistantChat', function () {
           {
             status: 'confirmed',
             source: 'performance insights',
+            request_id: undefined,
           }
         );
       });
     });
 
     it('tracks confirmation submitted when cancel button is clicked', async function () {
-      const { result } = renderWithChat([mockConfirmationMessage]);
+      const { result } = renderWithChat(
+        createMockChat({ messages: [mockConfirmationMessage] })
+      );
       const { track } = result;
 
       const cancelButton = screen.getByText('Cancel');
@@ -816,21 +974,26 @@ describe('AssistantChat', function () {
           {
             status: 'rejected',
             source: 'performance insights',
+            request_id: undefined,
           }
         );
       });
     });
 
     it('tracks it as "chat response" when source is not present', async function () {
-      const { result } = renderWithChat([
-        {
-          ...mockConfirmationMessage,
-          metadata: {
-            ...mockConfirmationMessage.metadata,
-            source: undefined,
-          },
-        },
-      ]);
+      const { result } = renderWithChat(
+        createMockChat({
+          messages: [
+            {
+              ...mockConfirmationMessage,
+              metadata: {
+                ...mockConfirmationMessage.metadata,
+                source: undefined,
+              },
+            },
+          ],
+        })
+      );
       const { track } = result;
 
       const confirmButton = screen.getByText('Confirm');
@@ -839,15 +1002,64 @@ describe('AssistantChat', function () {
       await waitFor(() => {
         expect(track).to.have.been.calledWith(
           'Assistant Confirmation Submitted',
-          { status: 'confirmed', source: 'chat response' }
+          {
+            status: 'confirmed',
+            source: 'chat response',
+            request_id: undefined,
+          }
         );
+      });
+    });
+  });
+
+  describe('error handling', function () {
+    it('displays error banner when error occurs', async function () {
+      renderWithChat(createBrokenChat());
+
+      const inputField = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(inputField, 'What is MongoDB?');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/An error occurred. Try clearing the chat/)).to
+          .exist;
+      });
+    });
+
+    it('clears error when close button is clicked', async function () {
+      const brokenChat = createBrokenChat();
+      const clearErrorSpy = sinon.spy(brokenChat, 'clearError');
+
+      renderWithChat(brokenChat);
+
+      const inputField = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(inputField, 'What is MongoDB?');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(screen.getByText(/An error occurred. Try clearing the chat/)).to
+          .exist;
+      });
+
+      const closeButton = screen.getByLabelText('Close Message');
+      userEvent.click(closeButton);
+
+      expect(clearErrorSpy).to.have.been.calledOnce;
+
+      await waitFor(() => {
+        expect(screen.queryByText(/An error occurred. Try clearing the chat/))
+          .to.not.exist;
       });
     });
   });
 
   describe('related sources', function () {
     it('displays related resources links for assistant messages that include them', async function () {
-      renderWithChat(mockMessages);
+      renderWithChat(createMockChat({ messages: mockMessages }));
       userEvent.click(screen.getByLabelText('Expand Related Resources'));
 
       // TODO(COMPASS-9860) can't find the links in test-electron on RHEL and Ubuntu.
@@ -868,7 +1080,7 @@ describe('AssistantChat', function () {
         ...message,
         parts: message.parts.filter((part) => part.type !== 'source-url'),
       }));
-      renderWithChat(messages);
+      renderWithChat(createMockChat({ messages: messages }));
 
       expect(screen.queryByLabelText('Expand Related Resources')).to.not.exist;
     });
@@ -916,7 +1128,9 @@ describe('AssistantChat', function () {
         },
       ];
 
-      renderWithChat(messagesWithDuplicateSources);
+      renderWithChat(
+        createMockChat({ messages: messagesWithDuplicateSources })
+      );
       userEvent.click(screen.getByLabelText('Expand Related Resources'));
 
       await waitFor(() => {

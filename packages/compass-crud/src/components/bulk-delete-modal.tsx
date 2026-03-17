@@ -18,8 +18,10 @@ import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
 import type { Document } from 'bson';
 
-const modalFooterSpacingStyles = css({
-  gap: spacing[200],
+const footerStyles = css({
+  display: 'flex',
+  justifyContent: 'flex-end',
+  gap: spacing[2],
 });
 
 const documentListWrapper = css({
@@ -95,10 +97,10 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   const exportButtonId = useId();
   return (
     <Modal
-      initialFocus={`#${exportButtonId}`}
       setOpen={onCancel}
       open={open}
       data-testid="bulk-delete-modal"
+      initialFocus={`#${exportButtonId}`}
     >
       <ModalHeader
         title={`Delete ${documentCount ?? ''} document${
@@ -118,6 +120,8 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
             onClick={onExportToLanguage}
             data-testid="export-button"
             id={exportButtonId}
+            // eslint-disable-next-line jsx-a11y/no-autofocus
+            autoFocus
           >
             Export
           </Button>
@@ -131,20 +135,20 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
           {preview}
         </div>
       </ModalBody>
-      <ModalFooter className={modalFooterSpacingStyles}>
-        <Button
-          variant="danger"
-          onClick={onConfirmDeletion}
-          data-testid="delete-button"
-        >
-          Delete {documentCount ?? ''} document{documentCount === 1 ? '' : 's'}
-        </Button>
+      <ModalFooter className={footerStyles}>
         <Button
           variant="default"
           onClick={onCancel}
           data-testid="cancel-button"
         >
           Cancel
+        </Button>
+        <Button
+          variant="danger"
+          onClick={onConfirmDeletion}
+          data-testid="delete-button"
+        >
+          Delete {documentCount ?? ''} document{documentCount === 1 ? '' : 's'}
         </Button>
       </ModalFooter>
     </Modal>

@@ -9,15 +9,18 @@ import FlightDiagram from '../../test/fixtures/data-model-with-relationships.jso
 describe('open-and-download-diagram', function () {
   it('should return correct content to download', function () {
     const fileName = 'test-diagram';
+    const database = 'test-database';
 
     const { edits, ...restOfContent } = getDownloadDiagramContent(
       fileName,
-      FlightDiagram.edits as any
+      FlightDiagram.edits as any,
+      database
     );
     expect(restOfContent).to.deep.equal({
       type: 'Compass Data Modeling Diagram',
       version: 1,
       name: fileName,
+      database,
     });
 
     const decodedEdits = JSON.parse(
@@ -132,6 +135,7 @@ describe('open-and-download-diagram', function () {
             version: 1,
             type: 'Compass Data Modeling Diagram',
             name: 'Test Diagram',
+            database: 'test',
             edits: Buffer.from(
               JSON.stringify([{ type: 'NonExistent' }])
             ).toString('base64'),
@@ -146,6 +150,7 @@ describe('open-and-download-diagram', function () {
             version: 1,
             type: 'Compass Data Modeling Diagram',
             name: 'Test Diagram',
+            database: 'test',
             edits: Buffer.from(
               JSON.stringify([
                 {
@@ -179,6 +184,7 @@ describe('open-and-download-diagram', function () {
           version: 1,
           type: 'Compass Data Modeling Diagram',
           name: 'Test Diagram',
+          database: 'test-database',
           edits: Buffer.from(JSON.stringify(FlightDiagram.edits)).toString(
             'base64'
           ),

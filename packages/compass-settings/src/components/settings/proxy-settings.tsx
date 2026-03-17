@@ -72,7 +72,7 @@ const UnconnectedProxySettings: React.FunctionComponent<ProxySettingsProps> = ({
           proxy: '',
           useEnvironmentVariableProxies: true,
         },
-      };
+      } as const;
       setProxyOptions({ ...proxyOptions, ...update[type] });
     },
     [proxyOptions, setProxyOptions]

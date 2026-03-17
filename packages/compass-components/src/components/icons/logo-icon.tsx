@@ -22,7 +22,7 @@ const LogoIcon = ({
   const fill = color || (darkMode ? palette.white : palette.black);
   return (
     <svg
-      className={cx(iconStyles, className, css(`height: ${height}px`))}
+      className={cx(iconStyles, className)}
       height={height}
       viewBox="0 0 15 32"
       fill="none"

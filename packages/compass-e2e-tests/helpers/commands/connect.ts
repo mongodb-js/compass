@@ -1,16 +1,12 @@
-import {
-  DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_NAME_1,
-  connectionNameFromString,
-} from '../compass';
+import { connectionNameFromString } from '../compass';
 import type { CompassBrowser } from '../compass-browser';
 import type { ConnectFormState } from '../connect-form-state';
 import * as Selectors from '../selectors';
 import Debug from 'debug';
 import {
-  DEFAULT_CONNECTION_NAMES,
-  isTestingAtlasCloudExternal,
-  isTestingAtlasCloudSandbox,
+  getDefaultConnectionNames,
+  getDefaultConnectionStrings,
+  isTestingAtlasCloud,
 } from '../test-runner-context';
 
 const debug = Debug('compass-e2e-tests');
@@ -27,7 +23,11 @@ export async function getConnectFormConnectionString(
       return await inputElem.isFocused();
     });
   }
-  return await inputElem.getValue();
+  const val = await inputElem.getValue();
+  if (typeof val !== 'string') {
+    throw new TypeError(`Expected element value to be a string, got ${val}`);
+  }
+  return val;
 }
 
 type ConnectionResultOptions = {
@@ -52,20 +52,18 @@ export async function connectWithConnectionString(
   // When testing Atlas Cloud, we can't really create a new connection, so just
   // assume a connection name was passed (with a fallback to a default one) and
   // try to use it
-  if (isTestingAtlasCloudExternal() || isTestingAtlasCloudSandbox()) {
+  if (isTestingAtlasCloud()) {
     await browser.connectByName(
-      connectionStringOrName ?? DEFAULT_CONNECTION_NAME_1
+      connectionStringOrName ?? getDefaultConnectionNames(0)
     );
     return;
   }
 
-  connectionStringOrName ??= DEFAULT_CONNECTION_STRING_1;
+  connectionStringOrName ??= getDefaultConnectionStrings(0);
 
   // if the modal is still animating away when we're connecting again, things
   // are going to get confused
-  await browser
-    .$(Selectors.ConnectionModal)
-    .waitForDisplayed({ reverse: true });
+  await browser.waitForOpenModal(Selectors.ConnectionModal, { reverse: true });
 
   // if a connection with this name already exists, remove it otherwise we'll
   // add a duplicate and things will get complicated fast
@@ -77,7 +75,7 @@ export async function connectWithConnectionString(
   }
 
   await browser.clickVisible(Selectors.SidebarNewConnectionButton);
-  await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.ConnectionModal);
 
   await browser.setValueVisible(
     Selectors.ConnectionFormStringInput,
@@ -206,7 +204,7 @@ export async function connectByName(
 }
 
 export async function connectToDefaults(browser: CompassBrowser) {
-  for (const name of DEFAULT_CONNECTION_NAMES) {
+  for (const name of getDefaultConnectionNames()) {
     // See setupDefaultConnections() for the details behind the thinking here.
     await browser.connectByName(name);
   }

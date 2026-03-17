@@ -27,7 +27,7 @@ export type QueryFormFields = {
   project: FormField<Document | null>;
   collation: FormField<Document | null>;
   sort: FormField<Document | null>;
-  hint: FormField<Document | null>;
+  hint: FormField<Document | string | null>;
   skip: FormField<number>;
   limit: FormField<number>;
   maxTimeMS: FormField<number>;

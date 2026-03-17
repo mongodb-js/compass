@@ -28,7 +28,8 @@ export type DropdownMenuButtonProps<Action extends string> = {
   activeAction?: Action;
   'data-testid'?: string;
   buttonText: string;
-  buttonProps: ButtonProps & React.ButtonHTMLAttributes<HTMLButtonElement>;
+  buttonProps: Omit<ButtonProps, 'ref'> &
+    React.ButtonHTMLAttributes<HTMLButtonElement>;
   hideOnNarrow?: boolean;
   narrowBreakpoint?: string;
 };
@@ -88,7 +89,8 @@ export function DropdownMenuButton<Action extends string>({
         children: React.ReactNode;
       }) => {
         return (
-          <Button
+          <Button<'button'>
+            as="button"
             ref={menuTriggerRef}
             data-testid={dataTestId ? `${dataTestId}-show-actions` : undefined}
             onClick={(evt) => {
@@ -120,7 +122,7 @@ export function DropdownMenuButton<Action extends string>({
           return <MenuSeparator key={`separator-${idx}`} />;
         }
 
-        const { action, label, icon } = menuAction;
+        const { action, label, icon, isDisabled } = menuAction;
         return (
           <MenuItem
             active={activeAction === action}
@@ -132,6 +134,7 @@ export function DropdownMenuButton<Action extends string>({
               icon ? <ActionGlyph glyph={icon} size={iconSize} /> : undefined
             }
             onClick={onClick}
+            disabled={isDisabled}
           >
             {label}
           </MenuItem>

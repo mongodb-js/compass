@@ -1,6 +1,6 @@
 import assert from 'assert';
 import type { Delta } from 'jsondiffpatch';
-import * as jsondiffpatch from 'jsondiffpatch';
+import * as jsondiffpatch from 'jsondiffpatch/with-text-diffs';
 
 import { type Document } from 'bson';
 
@@ -388,7 +388,7 @@ function itemsWithChanges({
       index5: innerDelta5,
     };
     */
-    assert(delta._t === 'a', 'delta._t is not a');
+    assert('_t' in delta && delta._t === 'a', 'delta._t is not a');
     const toRemove = Object.keys(delta)
       .filter((key) => key.startsWith('_') && key !== '_t')
       .map((key) => parseInt(key.slice(1), 10));

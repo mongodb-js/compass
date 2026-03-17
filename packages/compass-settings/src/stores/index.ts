@@ -11,6 +11,7 @@ import type { SettingsTabId } from './settings';
 import { openModal, reducer as settingsReducer } from './settings';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
 export type Public<T> = { [K in keyof T]: T[K] };
 
@@ -65,7 +66,11 @@ export type SettingsThunkAction<
   A extends AnyAction = AnyAction
 > = ThunkAction<R, RootState, SettingsThunkExtraArgs, A>;
 
-const onActivated = (_: unknown, services: SettingsPluginServices) => {
+const onActivated = (
+  _: unknown,
+  services: SettingsPluginServices,
+  { on, cleanup }: ActivateHelpers
+) => {
   const store = configureStore(services);
   const { globalAppRegistry } = services;
 
@@ -73,17 +78,14 @@ const onActivated = (_: unknown, services: SettingsPluginServices) => {
     void store.dispatch(openModal(tabId));
   };
 
-  ipcRenderer?.on('window:show-settings', () => onOpenSettings());
-  globalAppRegistry.on('open-compass-settings', onOpenSettings);
+  if (ipcRenderer) {
+    on(ipcRenderer, 'window:show-settings', () => onOpenSettings());
+  }
+  on(globalAppRegistry, 'open-compass-settings', onOpenSettings);
 
   return {
     store,
-    deactivate() {
-      ipcRenderer?.removeListener('window:show-settings', () =>
-        onOpenSettings()
-      );
-      globalAppRegistry.removeListener('open-compass-settings', onOpenSettings);
-    },
+    deactivate: cleanup,
   };
 };
 

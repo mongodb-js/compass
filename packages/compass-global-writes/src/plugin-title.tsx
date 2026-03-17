@@ -1,6 +1,10 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import { type RootState, ShardingStatuses } from './store/reducer';
+import {
+  type RootState,
+  type ShardingStatus,
+  ShardingStatuses,
+} from './store/reducer';
 import {
   Body,
   css,
@@ -111,13 +115,13 @@ export const PluginTitle = ({
 };
 
 export const GlobalWritesTabTitle = connect(({ status }: RootState) => {
-  const errorStatuses = [
+  const errorStatuses: ShardingStatus[] = [
     ShardingStatuses.LOADING_ERROR,
     ShardingStatuses.SHARDING_ERROR,
     ShardingStatuses.SHARD_KEY_MISMATCH,
     ShardingStatuses.SHARD_KEY_INVALID,
   ];
-  const okStatuses = [
+  const okStatuses: ShardingStatus[] = [
     ShardingStatuses.NOT_READY,
     ShardingStatuses.SHARD_KEY_CORRECT,
   ];

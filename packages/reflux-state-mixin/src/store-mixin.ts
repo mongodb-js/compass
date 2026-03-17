@@ -12,11 +12,13 @@ export type StoreWithStateMixin<T extends Record<string, unknown>> =
 
 function attachAction<T extends Record<string, unknown>>(
   this: StoreWithStateMixin<T>,
-  actionName: string & keyof T
+  actionName: keyof T
 ) {
   if (this[actionName]) {
     // eslint-disable-next-line no-console
-    console.warn('Not attaching event ' + actionName + '; key already exists');
+    console.warn(
+      'Not attaching event ' + String(actionName) + '; key already exists'
+    );
     return;
   }
   this[actionName] = Reflux.createAction();

@@ -7,8 +7,9 @@ import {
   TextInput,
   css,
   spacing,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RenameCollectionRootState } from '../../modules/rename-collection/rename-collection';
 import {
@@ -82,12 +83,11 @@ function RenameCollectionModal({
 }: RenameCollectionModalProps) {
   const [newName, setNewName] = useState(initialCollectionName);
   const isVisible = useMemo(() => modalState !== 'hidden', [modalState]);
-
-  useEffect(() => {
+  useSyncStateOnPropChange(() => {
     if (isVisible) {
       setNewName(initialCollectionName);
     }
-  }, [isVisible, initialCollectionName]);
+  }, [isVisible]);
   const onNameConfirmationChange = useCallback(
     (evt: React.ChangeEvent<HTMLInputElement>) => {
       clearError();

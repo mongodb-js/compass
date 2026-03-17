@@ -1,7 +1,8 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import {
   cleanup,
-  renderWithConnections,
+  render,
   screen,
   within,
   userEvent,
@@ -9,12 +10,14 @@ import {
 import { expect } from 'chai';
 
 import { RegularIndexesTable } from './regular-indexes-table';
+import { setupStore } from '../../../test/setup-store';
 import type {
   RegularIndex,
   InProgressIndex,
   RollingIndex,
 } from '../../modules/regular-indexes';
 import { mockRegularIndex } from '../../../test/helpers';
+import type { RootState } from '../../modules';
 
 const indexes: RegularIndex[] = [
   {
@@ -33,7 +36,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 10,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     ns: 'db.coll',
@@ -57,7 +60,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 15,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     ns: 'db.coll',
@@ -80,7 +83,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 20,
-    buildProgress: 0,
+    buildProgress: {},
   },
   {
     ns: 'db.coll',
@@ -103,7 +106,7 @@ const indexes: RegularIndex[] = [
       },
     ],
     usageCount: 25,
-    buildProgress: 0,
+    buildProgress: {},
   },
 ];
 
@@ -121,8 +124,8 @@ const inProgressIndexes: InProgressIndex[] = [
         value: -1,
       },
     ],
-    status: 'inprogress',
-    buildProgress: 0,
+    status: 'creating',
+    buildProgress: {},
   },
   {
     id: 'in-progress-2',
@@ -133,9 +136,9 @@ const inProgressIndexes: InProgressIndex[] = [
         value: 'text',
       },
     ],
-    status: 'inprogress',
+    status: 'failed',
     error: 'this is an error',
-    buildProgress: 0,
+    buildProgress: {},
   },
 ];
 
@@ -155,24 +158,34 @@ const rollingIndexes: RollingIndex[] = [
 ];
 
 const renderIndexList = (
-  props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {}
+  props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {},
+  state?: Partial<RootState>
 ) => {
-  return renderWithConnections(
-    <RegularIndexesTable
-      indexes={[]}
-      inProgressIndexes={[]}
-      rollingIndexes={[]}
-      serverVersion="4.4.0"
-      isWritable={true}
-      readOnly={false}
-      onHideIndexClick={() => {}}
-      onUnhideIndexClick={() => {}}
-      onDeleteIndexClick={() => {}}
-      onDeleteFailedIndexClick={() => {}}
-      onRegularIndexesOpened={() => {}}
-      onRegularIndexesClosed={() => {}}
-      {...props}
-    />
+  const store = setupStore({
+    ...props,
+  });
+
+  if (state) {
+    const newState = { ...store.getState(), ...state };
+    Object.assign(store.getState(), newState);
+  }
+
+  render(
+    <Provider store={store}>
+      <RegularIndexesTable
+        indexes={[]}
+        inProgressIndexes={[]}
+        rollingIndexes={[]}
+        serverVersion="4.4.0"
+        onHideIndexClick={() => {}}
+        onUnhideIndexClick={() => {}}
+        onDeleteIndexClick={() => {}}
+        onDeleteFailedIndexClick={() => {}}
+        onRegularIndexesOpened={() => {}}
+        onRegularIndexesClosed={() => {}}
+        {...props}
+      />
+    </Provider>
   );
 };
 
@@ -190,7 +203,7 @@ describe('RegularIndexesTable Component', function () {
   afterEach(cleanup);
 
   it('renders regular indexes', function () {
-    renderIndexList({ isWritable: true, readOnly: false, indexes: indexes });
+    renderIndexList({ indexes: indexes }, { isWritable: true });
 
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
@@ -202,34 +215,21 @@ describe('RegularIndexesTable Component', function () {
 
       // Renders index fields (table cells)
       for (const indexCell of indexFields) {
-        let mustExist = true;
-
-        // For _id index we always hide hide/drop index field buttons
-        if (index.name === '_id_' && indexCell === 'indexes-actions-field') {
-          mustExist = false;
-        }
-
-        if (mustExist) {
-          expect(within(indexRow).getByTestId(indexCell)).to.exist;
-        } else {
-          expect(() => {
-            within(indexRow).getByTestId(indexCell);
-          }).to.throw;
-        }
+        expect(within(indexRow).getByTestId(indexCell)).to.exist;
       }
 
       if (index.name === '_id_') {
         expect(() => {
           within(indexRow).getByTestId('index-actions-hide-action');
-        }).to.throw;
+        }).to.throw();
         expect(() => {
           within(indexRow).getByTestId('index-actions-delete-action');
-        }).to.throw;
+        }).to.throw();
       } else {
         if (index.extra.hidden) {
           expect(() =>
             within(indexRow).getByTestId('index-actions-hide-action')
-          ).to.throw;
+          ).to.throw();
           expect(within(indexRow).getByTestId('index-actions-unhide-action')).to
             .exist;
         } else {
@@ -237,7 +237,7 @@ describe('RegularIndexesTable Component', function () {
             .exist;
           expect(() =>
             within(indexRow).getByTestId('index-actions-unhide-action')
-          ).to.throw;
+          ).to.throw();
         }
         expect(within(indexRow).getByTestId('index-actions-delete-action')).to
           .exist;
@@ -259,11 +259,12 @@ describe('RegularIndexesTable Component', function () {
   });
 
   it('renders in-progress indexes', function () {
-    renderIndexList({
-      isWritable: true,
-      readOnly: false,
-      inProgressIndexes: inProgressIndexes,
-    });
+    renderIndexList(
+      {
+        inProgressIndexes: inProgressIndexes,
+      },
+      { isWritable: true }
+    );
 
     for (const index of inProgressIndexes) {
       const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
@@ -272,12 +273,15 @@ describe('RegularIndexesTable Component', function () {
         expect(within(indexRow).getByTestId(indexCell)).to.exist;
       }
 
-      expect(() => within(indexRow).getByTestId('index-actions-hide-action')).to
-        .throw;
-      if (index.status === 'inprogress') {
-        expect(() =>
-          within(indexRow).getByTestId('index-actions-delete-action')
-        ).to.throw;
+      expect(within(indexRow).queryByTestId('index-actions-hide-action')).to.not
+        .exist;
+      // For creating indexes, the building spinner is shown (no regular actions)
+      // For failed indexes, the delete action is shown
+      if (index.status === 'creating') {
+        // Creating indexes show building spinner with cancel option,
+        // but the cancel action doesn't have the index-actions-delete-action test id
+        // since it's rendered inside the building progress UI
+        expect(within(indexRow).getByTestId('index-building-spinner')).to.exist;
       } else {
         expect(within(indexRow).getByTestId('index-actions-delete-action')).to
           .exist;
@@ -286,11 +290,12 @@ describe('RegularIndexesTable Component', function () {
   });
 
   it('renders rolling indexes', function () {
-    renderIndexList({
-      isWritable: true,
-      readOnly: false,
-      rollingIndexes: rollingIndexes,
-    });
+    renderIndexList(
+      {
+        rollingIndexes: rollingIndexes,
+      },
+      { isWritable: true }
+    );
 
     for (const index of rollingIndexes) {
       const indexRow = screen.getByTestId(`indexes-row-${index.indexName}`);
@@ -299,10 +304,11 @@ describe('RegularIndexesTable Component', function () {
         expect(within(indexRow).getByTestId(indexCell)).to.exist;
       }
 
-      expect(() => within(indexRow).getByTestId('index-actions-hide-action')).to
-        .throw;
-      expect(() => within(indexRow).getByTestId('index-actions-delete-action'))
-        .to.throw;
+      expect(within(indexRow).queryByTestId('index-actions-hide-action')).to.not
+        .exist;
+      expect(() =>
+        within(indexRow).getByTestId('index-actions-delete-action')
+      ).to.throw();
 
       userEvent.click(within(indexRow).getByLabelText('Expand row'));
       const detailsRow = indexRow.nextSibling as HTMLTableRowElement;
@@ -334,84 +340,82 @@ describe('RegularIndexesTable Component', function () {
         extra: {},
         size: 11111,
         relativeSize: 0,
-        buildProgress: 0,
+        buildProgress: {},
       },
     ];
 
     // first do a sanity check to make sure that we would render it as a regular
     // index if it didn't also exist as a rolling index
-    renderIndexList({
-      isWritable: true,
-      readOnly: false,
-      indexes: indexesWithRollingIndex,
-    });
+    renderIndexList(
+      {
+        indexes: indexesWithRollingIndex,
+      },
+      { isWritable: true }
+    );
 
     let indexRow = screen.getByTestId(
       `indexes-row-${rollingIndexes[0].indexName}`
     );
     expect(within(indexRow).getByTestId('index-ready')).to.exist;
-    expect(() => within(indexRow).getByTestId('index-building')).to.throw;
+    expect(() => within(indexRow).getByTestId('index-building')).to.throw();
 
     cleanup();
 
     // then render it along with a rolling index to make sure it is not showing
     // up as a regular index too
-    renderIndexList({
-      isWritable: true,
-      readOnly: false,
-      indexes: indexesWithRollingIndex,
-      rollingIndexes,
-    });
+    renderIndexList(
+      {
+        indexes: indexesWithRollingIndex,
+        rollingIndexes,
+      },
+      { isWritable: true }
+    );
 
     indexRow = screen.getByTestId(`indexes-row-${rollingIndexes[0].indexName}`);
-    expect(() => within(indexRow).getByTestId('index-ready')).to.throw;
+    expect(() => within(indexRow).getByTestId('index-ready')).to.throw();
     expect(within(indexRow).getByTestId('index-building')).to.exist;
   });
 
   it('does not render the list if there is an error', function () {
-    renderIndexList({
-      isWritable: true,
-      readOnly: false,
-      indexes: indexes,
-      error: 'moo',
-    });
+    renderIndexList(
+      {
+        indexes: indexes,
+        error: 'moo',
+      },
+      { isWritable: true }
+    );
 
     expect(() => {
       screen.getByTestId('indexes-list');
-    }).to.throw;
+    }).to.throw();
   });
 
   it('renders the delete and hide/unhide button when a user can modify indexes', function () {
-    renderIndexList({ isWritable: true, readOnly: false, indexes: indexes });
+    renderIndexList({ indexes: indexes }, { isWritable: true });
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
       const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
-      expect(within(indexRow).getByTestId('indexes-actions-field')).to.exist;
+      const buttons = within(indexRow)
+        .getByTestId('indexes-actions-field')
+        .querySelectorAll('button');
+      if (index.name === '_id_') {
+        // you can't delete or hide the _id index
+        expect(buttons).to.be.empty;
+      } else {
+        expect(buttons).to.not.be.empty;
+      }
     });
   });
 
   it('does not render delete and hide/unhide button when a user can not modify indexes (!isWritable)', function () {
-    renderIndexList({ isWritable: false, readOnly: false, indexes: indexes });
+    renderIndexList({ indexes: indexes }, { isWritable: false });
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {
       const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
-      expect(() => {
-        within(indexRow).queryByTestId('indexes-actions-field');
-      }).to.throw;
-    });
-  });
-
-  it('does not render delete and hide/unhide button when a user can not modify indexes (isWritable, readOnly)', function () {
-    renderIndexList({ isWritable: true, readOnly: true, indexes: indexes });
-    const indexesList = screen.getByTestId('indexes-list');
-    expect(indexesList).to.exist;
-    indexes.forEach((index) => {
-      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
-      expect(() => {
-        within(indexRow).getByTestId('indexes-actions-field');
-      }).to.throw;
+      expect(within(indexRow).queryByTestId('indexes-actions-field')).to.not
+        .exist;
     });
   });
 
@@ -520,6 +524,98 @@ describe('RegularIndexesTable Component', function () {
 
       clickSort('Properties');
       expect(getIndexNames()).to.deep.eq(['b', 'a', 'c']);
+    });
+  });
+
+  describe('Index Status and Permission Handling', function () {
+    it('shows "Ready" status for completed index', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'ready_index',
+            buildProgress: {},
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-ready_index');
+      expect(within(indexRow).getByTestId('index-ready')).to.exist;
+      expect(within(indexRow).getByText('Ready')).to.exist;
+    });
+
+    it('shows "In Progress" status for building index with progress', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'building_index',
+            buildProgress: {
+              currentOp: {
+                active: true,
+                progress: 0.5,
+                msg: 'Index Build: inserting keys from external sorter',
+              },
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-building_index');
+      expect(within(indexRow).getByTestId('index-in-progress')).to.exist;
+      expect(within(indexRow).getByText('In Progress')).to.exist;
+    });
+
+    it('shows "Unknown" status when both permissions are denied', function () {
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'unknown_status_index',
+            buildProgress: {
+              statsError: 'user is not authorized',
+              progressError: 'user is not authorized',
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-unknown_status_index');
+      expect(within(indexRow).getByTestId('index-unknown')).to.exist;
+      expect(within(indexRow).getByText('Unknown')).to.exist;
+    });
+
+    it('shows "Ready" when only statsError but currentOp says not building', function () {
+      // When $indexStats fails but $currentOp works and shows no active build
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'stats_failed_index',
+            buildProgress: {
+              currentOp: { active: false },
+              statsError: 'user is not authorized',
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-stats_failed_index');
+      expect(within(indexRow).getByTestId('index-ready')).to.exist;
+    });
+
+    it('shows "In Progress" when only progressError but indexStats shows building', function () {
+      // When $currentOp fails but $indexStats shows building: true
+      renderIndexList({
+        indexes: [
+          mockRegularIndex({
+            name: 'progress_failed_index',
+            building: true,
+            buildProgress: {
+              progressError: 'user is not authorized to run currentOp',
+            },
+          }),
+        ],
+      });
+
+      const indexRow = screen.getByTestId('indexes-row-progress_failed_index');
+      expect(within(indexRow).getByTestId('index-in-progress')).to.exist;
     });
   });
 });

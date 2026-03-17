@@ -49,6 +49,7 @@ import type {
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type Collection from 'mongodb-collection-model';
 /**
  * The main application reducer.
  *
@@ -110,6 +111,10 @@ export type PipelineBuilderExtraArgs = {
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<
     'open-export' | 'view-edited' | 'agg-pipeline-out-executed'
   >;
+  collection: Collection;
+  pollingIntervalRef: {
+    searchIndexes: ReturnType<typeof setInterval> | null;
+  };
 };
 
 export type PipelineBuilderThunkDispatch<A extends Action = AnyAction> =

@@ -1,7 +1,11 @@
 import { useReducer, type Dispatch, useCallback, useEffect } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import type { MongoClientOptions, ProxyOptions } from 'mongodb';
+import type {
+  MongoClientOptions,
+  ProxyOptions,
+  AuthMechanismProperties,
+} from 'mongodb';
 import { cloneDeep, isEqual } from 'lodash';
 import type ConnectionStringUrl from 'mongodb-connection-string-url';
 
@@ -35,7 +39,6 @@ import {
   handleUpdatePassword,
   handleUpdateAuthMechanism,
 } from '../utils/authentication-handler';
-import type { AuthMechanismProperties } from '../utils/connection-string-helpers';
 import {
   parseAuthMechanismProperties,
   tryToParseConnectionString,
@@ -179,7 +182,7 @@ type ConnectionFormFieldActions =
     }
   | {
       type: 'update-auth-mechanism-property';
-      key: keyof AuthMechanismProperties;
+      key: keyof AuthMechanismProperties & string;
       value?: string;
     }
   | {

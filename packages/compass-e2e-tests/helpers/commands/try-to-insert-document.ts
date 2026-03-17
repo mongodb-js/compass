@@ -13,8 +13,7 @@ export async function tryToInsertDocument(
   await browser.clickVisible(Selectors.InsertDocumentOption);
 
   // wait for the modal to appear
-  const insertDialog = browser.$(Selectors.InsertDialog);
-  await insertDialog.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.InsertDialog);
 
   if (document) {
     // set the text in the editor
@@ -27,7 +26,7 @@ export async function tryToInsertDocument(
   // confirm
   const insertConfirm = browser.$(Selectors.InsertConfirm);
   // this selector is very brittle, so just make sure it works
-  expect(await insertConfirm.isDisplayed()).to.be.true;
+  await insertConfirm.waitForDisplayed();
   expect(await insertConfirm.getText()).to.equal('Insert');
   await insertConfirm.waitForEnabled();
   await browser.clickVisible(Selectors.InsertConfirm);

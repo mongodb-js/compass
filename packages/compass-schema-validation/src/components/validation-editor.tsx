@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { debounce } from 'lodash';
 import { connect } from 'react-redux';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -17,6 +17,7 @@ import {
   ButtonVariant,
   SpinLoader,
   Tooltip,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import {
   CodemirrorMultilineEditor,
@@ -191,18 +192,10 @@ export const ValidationEditor: React.FunctionComponent<
   const enableExportSchema = usePreference('enableExportSchema');
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
-
-  const clearSampleDocumentsRef = useRef(clearSampleDocuments);
-  clearSampleDocumentsRef.current = clearSampleDocuments;
-
-  const validatorChangedRef = useRef(validatorChanged);
-  validatorChangedRef.current = validatorChanged;
-
-  const saveValidationRef = useRef(saveValidation);
-  saveValidationRef.current = saveValidation;
-
-  const validationRef = useRef(validation);
-  validationRef.current = validation;
+  const clearSampleDocumentsRef = useCurrentValueRef(clearSampleDocuments);
+  const validatorChangedRef = useCurrentValueRef(validatorChanged);
+  const saveValidationRef = useCurrentValueRef(saveValidation);
+  const validationRef = useCurrentValueRef(validation);
 
   const trackValidator = useCallback(
     (validator: string) => {
@@ -218,11 +211,14 @@ export const ValidationEditor: React.FunctionComponent<
   );
 
   const debounceValidatorChanged = useMemo(() => {
+    // Ref value is not used directly for rendering, it's part of the callback
+    // action returned by this memo
+    // eslint-disable-next-line react-hooks/refs
     return debounce((validator: string) => {
       clearSampleDocumentsRef.current();
       trackValidator(validator);
     }, 750);
-  }, [trackValidator]);
+  }, [clearSampleDocumentsRef, trackValidator]);
 
   useEffect(() => {
     return () => {
@@ -235,7 +231,7 @@ export const ValidationEditor: React.FunctionComponent<
       validatorChangedRef.current(validator);
       debounceValidatorChanged(validator);
     },
-    [debounceValidatorChanged]
+    [debounceValidatorChanged, validatorChangedRef]
   );
 
   const darkMode = useDarkMode();
@@ -254,7 +250,7 @@ export const ValidationEditor: React.FunctionComponent<
     }
 
     saveValidationRef.current(validationRef.current);
-  }, [showConfirmation]);
+  }, [saveValidationRef, validationRef]);
 
   const isEmpty = useMemo<boolean>(() => {
     if (!validation.validator || validation.validator.length === 0) return true;

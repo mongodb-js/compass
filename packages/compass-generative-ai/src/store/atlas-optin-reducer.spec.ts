@@ -174,10 +174,10 @@ describe('atlasOptInReducer', function () {
         .dispatch(optIntoGenAIWithModalPrompt({ isCloudOptIn: true }))
         .catch(() => {});
 
-      await Promise.all([
-        store.dispatch(optIn()),
-        store.dispatch(cancelOptIn()),
-      ]);
+      const promise = store.dispatch(optIn());
+      store.dispatch(cancelOptIn());
+      await promise;
+
       expect(store.getState().optIn).to.have.nested.property(
         'state',
         'canceled'

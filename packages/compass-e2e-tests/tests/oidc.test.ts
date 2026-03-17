@@ -204,9 +204,16 @@ describe('OIDC integration', function () {
   });
 
   afterEach(async function () {
-    await browser.setFeature('browserCommandForOIDCAuth', undefined);
-    await browser.setFeature('persistOIDCTokens', undefined);
-    await browser.setFeature('enableShell', true);
+    try {
+      await browser.setFeature('browserCommandForOIDCAuth', undefined);
+      await browser.setFeature('persistOIDCTokens', undefined);
+      await browser.setFeature('enableShell', true);
+    } catch (err) {
+      // We don't want to completely fail if this failed for some reason, but
+      // keel the error log around
+      console.warn('Failed to restore the preferences before closing compass:');
+      console.warn(err);
+    }
     await screenshotIfFailed(compass, this.currentTest);
     await cleanup(compass);
   });
@@ -258,7 +265,8 @@ describe('OIDC integration', function () {
 
     await browser.removeConnection(connectionName);
     await browser.clickVisible(Selectors.SidebarNewConnectionButton);
-    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ConnectionModal);
+
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
@@ -316,7 +324,7 @@ describe('OIDC integration', function () {
 
     await browser.removeConnection(connectionName);
     await browser.clickVisible(Selectors.SidebarNewConnectionButton);
-    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ConnectionModal);
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
@@ -335,7 +343,7 @@ describe('OIDC integration', function () {
       false
     );
 
-    await browser.$(Selectors.ConfirmationModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ConfirmationModal);
     const modalHeader = browser.$(Selectors.ConfirmationModalHeading);
     expect(await modalHeader.getText()).to.include('Authentication expired');
 
@@ -361,7 +369,7 @@ describe('OIDC integration', function () {
 
     await browser.removeConnection(connectionName);
     await browser.clickVisible(Selectors.SidebarNewConnectionButton);
-    await browser.$(Selectors.ConnectionModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ConnectionModal);
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
       connectionString
@@ -380,7 +388,7 @@ describe('OIDC integration', function () {
       false
     );
 
-    await browser.$(Selectors.ConfirmationModal).waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ConfirmationModal);
     const modalHeader = browser.$(Selectors.ConfirmationModalHeading);
     expect(await modalHeader.getText()).to.include('Authentication expired');
 

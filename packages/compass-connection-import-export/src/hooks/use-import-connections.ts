@@ -19,6 +19,7 @@ import {
   useConnectionActions,
   useConnectionsList,
 } from '@mongodb-js/compass-connections/provider';
+import { getConnectionTitle } from '@mongodb-js/connection-info';
 
 type ConnectionImportInfo = ConnectionShortInfo & {
   isExistingConnection: boolean;
@@ -59,10 +60,11 @@ async function loadFile(
     });
 
     for (const info of connections) {
-      if (info.favorite?.name) {
+      const name = getConnectionTitle(info);
+      if (name) {
         const isExistingConnection = existingConnectionIds.includes(info.id);
         connectionList.push({
-          name: info.favorite.name,
+          name,
           id: info.id,
           selected: !isExistingConnection,
           isExistingConnection,

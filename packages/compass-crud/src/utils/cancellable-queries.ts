@@ -79,19 +79,13 @@ export async function fetchShardingKeys(
   }
 ): Promise<BSONObject> {
   try {
-    const docs = await dataService.find(
-      'config.collections',
-      {
-        _id: ns as any,
-        // unsplittable introduced in SPM-3364 to mark unsharded collections
-        // that are still being tracked in the catalog
-        unsplittable: { $ne: true },
-      },
-      { maxTimeMS, projection: { key: 1, _id: 0 } },
+    const shardKey = await dataService.fetchShardKey(
+      ns,
+      { maxTimeMS },
       { abortSignal: signal }
     );
-    return docs.length ? docs[0].key : {};
-  } catch (err: any) {
+    return shardKey ?? {};
+  } catch (err) {
     // rethrow if we aborted along the way
     if (dataService.isCancelError(err)) {
       throw err;

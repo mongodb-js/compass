@@ -112,7 +112,6 @@ const DatabaseModel = AmpersandModel.extend(
       data_size: 'number',
       index_count: 'number',
       index_size: 'number',
-      free_storage_size: 'number',
     },
     derived: {
       // Either returns a collection count from database stats or from real
@@ -125,18 +124,6 @@ const DatabaseModel = AmpersandModel.extend(
           return ['ready', 'refreshing'].includes(this.collectionsStatus)
             ? this.collections.length
             : this.collection_count ?? 0;
-        },
-      },
-      calculated_storage_size: {
-        deps: ['storage_size', 'free_storage_size'],
-        fn() {
-          if (
-            this.storage_size === undefined ||
-            this.free_storage_size === undefined
-          ) {
-            return undefined;
-          }
-          return this.storage_size - this.free_storage_size;
         },
       },
     },

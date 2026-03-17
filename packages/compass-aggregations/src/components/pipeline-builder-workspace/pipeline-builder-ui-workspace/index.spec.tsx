@@ -2,7 +2,7 @@ import React from 'react';
 import { cleanup, screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { renderWithStore } from '../../../../test/configure-store';
-import PipelineBuilderUIWorkspace from '.';
+import PipelineBuilderUIWorkspace, { getPipelineTextFromStages } from '.';
 
 const SOURCE_PIPELINE = [
   { $match: { _id: 1 } },
@@ -103,6 +103,59 @@ describe('PipelineBuilderUIWorkspace [Component]', function () {
       const button = screen.getByTestId('add-stage');
       button.click();
       expect(screen.getAllByTestId('stage-card')).to.have.lengthOf(1);
+    });
+  });
+
+  context('getPipelineTextFromStages', function () {
+    it('filters out disabled stages and stages with null operator or value', function () {
+      const stages = [
+        {
+          stageOperator: '$match',
+          value: '{ _id: 1 }',
+          disabled: false,
+          syntaxError: null,
+        },
+        {
+          stageOperator: null,
+          value: '{ age: { $gt: 30 } }',
+          disabled: false,
+          syntaxError: null,
+        },
+        {
+          stageOperator: '$limit',
+          value: null,
+          disabled: false,
+          syntaxError: null,
+        },
+        {
+          stageOperator: '$sort',
+          value: '{ age: -1 }',
+          disabled: true,
+          syntaxError: null,
+        },
+      ];
+      const pipelineText = getPipelineTextFromStages(stages);
+      expect(pipelineText).to.equal(`[{ $match: { _id: 1 } }]`);
+    });
+    it('return unformatted pipeline text if any stage has syntax error', function () {
+      const stages = [
+        {
+          stageOperator: '$match',
+          value: '{ _id: 1 }',
+          disabled: false,
+          syntaxError: null,
+        },
+        {
+          stageOperator: '$sort',
+          value: '{',
+          disabled: false,
+          syntaxError: new SyntaxError('Invalid expression'),
+        },
+      ];
+      const pipelineText = getPipelineTextFromStages(stages);
+      expect(pipelineText).to.equal(
+        `[{ $match: { _id: 1 } },\n{ $sort: { }\n]`
+      );
     });
   });
 });

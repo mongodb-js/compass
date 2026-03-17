@@ -66,12 +66,12 @@ export async function getTestSubject(
     };
   } else {
     assert(
-      context.bucketName !== undefined && context.bucketKeyPrefix !== undefined,
-      'Bucket name and key prefix are needed to download'
+      context.bucketKeyPrefix !== undefined,
+      'Key prefix is needed to download'
     );
 
     const filepath = await downloadFile({
-      url: `https://${context.bucketName}.s3.amazonaws.com/${context.bucketKeyPrefix}/${subject.filename}`,
+      url: `https://downloads.mongodb.com/compass-dev/${context.bucketKeyPrefix}/${subject.filename}`,
       targetFilename: subject.filename,
       clearCache: context.forceDownload,
     });

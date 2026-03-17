@@ -7,7 +7,7 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
@@ -50,16 +50,15 @@ describe('Shell', function () {
   it('has an info modal', async function () {
     await browser.connectToDefaults();
 
-    await browser.openShell(DEFAULT_CONNECTION_NAME_1);
+    await browser.openShell(getDefaultConnectionNames(0));
     await browser.clickVisible(Selectors.ShellInfoButton);
 
-    const infoModalElement = browser.$(Selectors.ShellInfoModal);
-    await infoModalElement.waitForDisplayed();
+    await browser.waitForOpenModal(Selectors.ShellInfoModal);
 
     await browser.clickVisible(Selectors.ShellInfoModalCloseButton);
-    await infoModalElement.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.ShellInfoModal, { reverse: true });
 
-    await browser.closeShell(DEFAULT_CONNECTION_NAME_1);
+    await browser.closeShell(getDefaultConnectionNames(0));
   });
 
   it('shows and hides shell based on settings', async function () {
@@ -67,25 +66,23 @@ describe('Shell', function () {
 
     expect(
       await browser.hasConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         Selectors.OpenShellItem
       )
     ).to.be.equal(true);
 
     await browser.openSettingsModal();
-    const settingsModal = browser.$(Selectors.SettingsModal);
-    await settingsModal.waitForDisplayed();
     await browser.clickVisible(Selectors.GeneralSettingsButton);
 
     await browser.clickParent(Selectors.SettingsInputElement('enableShell'));
     await browser.clickVisible(Selectors.SaveSettingsButton);
 
     // wait for the modal to go away
-    await settingsModal.waitForDisplayed({ reverse: true });
+    await browser.waitForOpenModal(Selectors.SettingsModal, { reverse: true });
 
     expect(
       await browser.hasConnectionMenuItem(
-        DEFAULT_CONNECTION_NAME_1,
+        getDefaultConnectionNames(0),
         Selectors.OpenShellItem
       )
     ).to.be.equal(false);

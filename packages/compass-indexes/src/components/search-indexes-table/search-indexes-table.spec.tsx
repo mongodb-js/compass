@@ -1,4 +1,5 @@
 import React from 'react';
+import { Provider } from 'react-redux';
 import {
   cleanup,
   render,
@@ -17,26 +18,38 @@ import {
   vectorSearchIndexes,
 } from './../../../test/fixtures/search-indexes';
 import { mockSearchIndex } from '../../../test/helpers';
+import { setupStore } from '../../../test/setup-store';
+import type { RootState } from '../../modules';
 
 const renderIndexList = (
-  props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {}
+  props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {},
+  state?: Partial<RootState>
 ) => {
   const noop = () => {};
+  const store = setupStore({
+    ...props,
+  });
+
+  if (state) {
+    const newState = { ...store.getState(), ...state };
+    Object.assign(store.getState(), newState);
+  }
+
   render(
-    <SearchIndexesTable
-      namespace="foo.bar"
-      indexes={indexes}
-      status="READY"
-      isWritable={true}
-      readOnly={false}
-      isReadonlyView={false}
-      onDropIndexClick={noop}
-      onEditIndexClick={noop}
-      onOpenCreateModalClick={noop}
-      onSearchIndexesOpened={noop}
-      onSearchIndexesClosed={noop}
-      {...props}
-    />
+    <Provider store={store}>
+      <SearchIndexesTable
+        namespace="foo.bar"
+        indexes={indexes}
+        status="READY"
+        isReadonlyView={false}
+        onDropIndexClick={noop}
+        onEditIndexClick={noop}
+        onOpenCreateModalClick={noop}
+        onSearchIndexesOpened={noop}
+        onSearchIndexesClosed={noop}
+        {...props}
+      />
+    </Provider>
   );
 };
 
@@ -106,7 +119,7 @@ describe('SearchIndexesTable Component', function () {
 
       expect(() => {
         screen.getByTestId('search-indexes-list');
-      }).to.throw;
+      }).to.throw();
     });
   }
 
@@ -119,7 +132,7 @@ describe('SearchIndexesTable Component', function () {
 
     expect(() => {
       screen.getByTestId('search-indexes-list');
-    }).to.throw;
+    }).to.throw();
 
     const button = screen.getByTestId('create-atlas-search-index-button');
     expect(button).to.exist;
@@ -136,15 +149,17 @@ describe('SearchIndexesTable Component', function () {
       index_size: 0,
       pipeline: pipelineMock,
     };
-    renderIndexList({
-      indexes: [],
-      isReadonlyView: true,
-      collectionStats: mockCollectionStats,
-    });
+    renderIndexList(
+      {
+        indexes: [],
+        isReadonlyView: true,
+      },
+      { collectionStats: mockCollectionStats }
+    );
 
     expect(() => {
       screen.getByTestId('search-indexes-list');
-    }).to.throw;
+    }).to.throw();
 
     const button = screen.getByTestId('create-atlas-search-index-button');
     expect(button).to.exist;

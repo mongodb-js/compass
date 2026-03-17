@@ -3,15 +3,28 @@ import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx, keyframes } from '@leafygreen-ui/emotion';
 import { useDarkMode } from '../hooks/use-theme';
-import { Subtitle, Button } from './leafygreen';
+import { Subtitle, Button, ProgressBar } from './leafygreen';
+import type { ProgressBarProps } from '@leafygreen-ui/progress-bar';
 
-const containerStyles = css({
+const loaderContainerStyles = css({
   display: 'flex',
   gap: spacing[200],
   flexDirection: 'column',
   justifyContent: 'center',
   alignItems: 'center',
   maxWidth: spacing[1600] * 8,
+});
+
+const progressContainerStyles = css({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  flexDirection: 'column',
+  justifyContent: 'center',
+  alignItems: 'center',
+  maxWidth: spacing[1600] * 8,
+  gap: spacing[500],
+  margin: '0 auto',
 });
 
 const textStyles = css({
@@ -36,10 +49,15 @@ type SpinLoaderWithLabelProps = Omit<SpinLoaderProps, 'size' | 'title'> & {
   ['data-testid']?: string;
 };
 
-type CancelLoaderProps = Omit<SpinLoaderWithLabelProps, 'children'> & {
+type CancelActionProps = {
   onCancel(): void;
-  cancelText: string;
+  cancelText?: string;
 };
+
+type CancelLoaderProps = Omit<SpinLoaderWithLabelProps, 'children'> &
+  CancelActionProps;
+
+type ProgressLoaderWithCancelProps = CancelActionProps & ProgressBarProps;
 
 const shellLoaderSpin = keyframes`
   0% { transform: rotate(0deg); }
@@ -94,7 +112,10 @@ function SpinLoaderWithLabel({
   const darkMode = useDarkMode(_darkMode);
 
   return (
-    <div className={cx(containerStyles, className)} data-testid={dataTestId}>
+    <div
+      className={cx(loaderContainerStyles, className)}
+      data-testid={dataTestId}
+    >
       <SpinLoader
         size={spacing[600]}
         darkMode={darkMode}
@@ -126,4 +147,29 @@ function CancelLoader({
   );
 }
 
-export { SpinLoaderWithLabel, SpinLoader, CancelLoader };
+function ProgressLoaderWithCancel({
+  cancelText = 'Cancel',
+  className,
+  onCancel,
+  ...props
+}: ProgressLoaderWithCancelProps): React.ReactElement {
+  return (
+    <div className={cx(progressContainerStyles, className)}>
+      <ProgressBar {...props} />
+      <Button
+        variant="primaryOutline"
+        onClick={onCancel}
+        data-testid={`${props['data-testid'] ?? 'spin-loader'}-button`}
+      >
+        {cancelText}
+      </Button>
+    </div>
+  );
+}
+
+export {
+  SpinLoaderWithLabel,
+  SpinLoader,
+  CancelLoader,
+  ProgressLoaderWithCancel,
+};

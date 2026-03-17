@@ -48,7 +48,7 @@ describe('PropertyField', function () {
       );
       expect(() => {
         screen.getByTestId('compound-badge');
-      }).to.throw;
+      }).to.throw();
     });
 
     it('renders cardinality badge when its compound', function () {

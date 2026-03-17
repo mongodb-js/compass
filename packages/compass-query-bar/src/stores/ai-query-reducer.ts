@@ -40,16 +40,16 @@ export const initialState: AIQueryState = {
   lastAIQueryRequestId: null,
 };
 
-export const enum AIQueryActionTypes {
-  AIQueryStarted = 'compass-query-bar/ai-query/AIQueryStarted',
-  AIQueryCancelled = 'compass-query-bar/ai-query/AIQueryCancelled',
-  AIQueryFailed = 'compass-query-bar/ai-query/AIQueryFailed',
-  AIQuerySucceeded = 'compass-query-bar/ai-query/AIQuerySucceeded',
-  CancelAIQuery = 'compass-query-bar/ai-query/CancelAIQuery',
-  ShowInput = 'compass-query-bar/ai-query/ShowInput',
-  HideInput = 'compass-query-bar/ai-query/HideInput',
-  ChangeAIPromptText = 'compass-query-bar/ai-query/ChangeAIPromptText',
-}
+export const AIQueryActionTypes = {
+  AIQueryStarted: 'compass-query-bar/ai-query/AIQueryStarted',
+  AIQueryCancelled: 'compass-query-bar/ai-query/AIQueryCancelled',
+  AIQueryFailed: 'compass-query-bar/ai-query/AIQueryFailed',
+  AIQuerySucceeded: 'compass-query-bar/ai-query/AIQuerySucceeded',
+  CancelAIQuery: 'compass-query-bar/ai-query/CancelAIQuery',
+  ShowInput: 'compass-query-bar/ai-query/ShowInput',
+  HideInput: 'compass-query-bar/ai-query/HideInput',
+  ChangeAIPromptText: 'compass-query-bar/ai-query/ChangeAIPromptText',
+} as const;
 
 const NUM_DOCUMENTS_TO_SAMPLE = 4;
 
@@ -73,15 +73,15 @@ function cleanupAbortSignal(id: string) {
 }
 
 type ShowInputAction = {
-  type: AIQueryActionTypes.ShowInput;
+  type: typeof AIQueryActionTypes.ShowInput;
 };
 
 type HideInputAction = {
-  type: AIQueryActionTypes.HideInput;
+  type: typeof AIQueryActionTypes.HideInput;
 };
 
 type ChangeAIPromptTextAction = {
-  type: AIQueryActionTypes.ChangeAIPromptText;
+  type: typeof AIQueryActionTypes.ChangeAIPromptText;
   text: string;
 };
 
@@ -91,19 +91,19 @@ export const changeAIPromptText = (text: string): ChangeAIPromptTextAction => ({
 });
 
 type AIQueryStartedAction = {
-  type: AIQueryActionTypes.AIQueryStarted;
+  type: typeof AIQueryActionTypes.AIQueryStarted;
   requestId: string;
 };
 
 type AIQueryFailedAction = {
-  type: AIQueryActionTypes.AIQueryFailed;
+  type: typeof AIQueryActionTypes.AIQueryFailed;
   errorMessage: string;
   statusCode?: number;
   errorCode?: string;
 };
 
 export type AIQuerySucceededAction = {
-  type: AIQueryActionTypes.AIQuerySucceeded;
+  type: typeof AIQueryActionTypes.AIQuerySucceeded;
   fields: QueryFormFields;
   requestId: string;
 };
@@ -166,6 +166,7 @@ export const runAIQuery = (
       logger: { log },
       connectionInfoRef,
       track,
+      collection,
     }
   ) => {
     const provideSampleDocuments =
@@ -218,6 +219,7 @@ export const runAIQuery = (
         }
       );
       const schema = await getSimplifiedSchema(sampleDocuments);
+      const { isFLE } = await collection.fetchMetadata({ dataService });
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
@@ -235,6 +237,7 @@ export const runAIQuery = (
               }
             : undefined),
           requestId,
+          enableStorage: !isFLE,
         },
         connectionInfo
       );
@@ -391,7 +394,7 @@ export const runAIQuery = (
 };
 
 type CancelAIQueryAction = {
-  type: AIQueryActionTypes.CancelAIQuery;
+  type: typeof AIQueryActionTypes.CancelAIQuery;
 };
 
 export const cancelAIQuery = (): QueryBarThunkAction<

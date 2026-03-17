@@ -1,7 +1,10 @@
 {
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.react.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    // for scripts that we run with Node.js strip-types option
+    "allowImportingTsExtensions": true,
+    "noEmit": true
   },
   "include": ["**/*"],
   "exclude": ["node_modules", "dist", "test/types"]

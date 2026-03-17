@@ -62,7 +62,6 @@ describe('CompassPipelineStorage', function () {
 
     // Remove lastModified
     const mappedAggregations = aggregations.map((x) => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { lastModified, pipelineText, ...rest } = x;
       return rest;
     });
@@ -129,12 +128,10 @@ describe('CompassPipelineStorage', function () {
       const aggregations = await pipelineStorage.loadAll();
       expect(aggregations).to.have.length(1);
       // loads lastModified from the file stats as well.
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { lastModified, pipelineText, ...restOfAggregation } =
         aggregations[0];
       expect(restOfAggregation).to.deep.equal(data);
     }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const result = await pipelineStorage.updateAttributes(data.id, {
       name: 'updated',
       namespace: 'airbnb.users',
@@ -145,7 +142,6 @@ describe('CompassPipelineStorage', function () {
     {
       const aggregations = await pipelineStorage.loadAll();
       expect(aggregations).to.have.length(1);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { lastModified, pipelineText, ...restOfAggregation } =
         aggregations[0];
       expect(restOfAggregation, 'updates in storage').to.deep.equal({

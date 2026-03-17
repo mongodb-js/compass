@@ -90,11 +90,9 @@ class CompassMainConnectionStorage implements ConnectionStorage {
 
   private readonly version = 1;
   private readonly maxAllowedRecentConnections = 10;
-
-  constructor(
-    private readonly ipcMain: ConnectionStorageIPCMain,
-    basePath?: string
-  ) {
+  private readonly ipcMain: ConnectionStorageIPCMain;
+  constructor(ipcMain: ConnectionStorageIPCMain, basePath?: string) {
+    this.ipcMain = ipcMain;
     this.userData = new FileUserData(ConnectionSchema, 'Connections', {
       basePath,
     });

@@ -5,7 +5,7 @@ import {
   shouldExcludeMessage,
 } from './docs-provider-transport';
 import type { AssistantMessage } from './compass-assistant-provider';
-import { MockLanguageModelV2 } from 'ai/test';
+import { MockLanguageModelV3 } from 'ai/test';
 import type { UIMessageChunk } from 'ai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
 
@@ -39,7 +39,7 @@ describe('DocsProviderTransport', function () {
   });
 
   describe('sending messages', function () {
-    let mockModel: MockLanguageModelV2;
+    let mockModel: MockLanguageModelV3;
     let doStream: sinon.SinonStub;
     let transport: DocsProviderTransport;
     let abortController: AbortController;
@@ -57,7 +57,7 @@ describe('DocsProviderTransport', function () {
           },
         },
       });
-      mockModel = new MockLanguageModelV2({
+      mockModel = new MockLanguageModelV3({
         doStream,
       });
       abortController = new AbortController();
@@ -187,6 +187,74 @@ describe('DocsProviderTransport', function () {
                 ],
               },
             ],
+          });
+        });
+      });
+
+      it('sends message with correct request data - with storage enabled', async function () {
+        const messages: AssistantMessage[] = [
+          {
+            id: 'included1',
+            role: 'user',
+            parts: [{ type: 'text', text: 'User message' }],
+            metadata: {
+              analyticsId: 'test-user-id',
+              requestId: 'test-request-id',
+              disableStorage: false,
+            },
+          },
+        ];
+
+        await sendMessages({
+          messages,
+        });
+
+        await waitFor(() => {
+          expect(doStream).to.have.been.calledOnce;
+          const callArgs = doStream.firstCall.args[0];
+          expect(callArgs.headers).to.deep.include({
+            'X-Client-Request-Id': 'test-request-id',
+          });
+          expect(callArgs.providerOptions.openai).to.deep.include({
+            store: false, // always false
+            metadata: {
+              analytics_id: 'test-user-id',
+              sensitive_storage: 'true',
+            },
+          });
+        });
+      });
+
+      it('sends message with correct request data - with storage disabled', async function () {
+        const messages: AssistantMessage[] = [
+          {
+            id: 'included1',
+            role: 'user',
+            parts: [{ type: 'text', text: 'User message' }],
+            metadata: {
+              analyticsId: 'test-user-id',
+              requestId: 'test-request-id',
+              disableStorage: true,
+            },
+          },
+        ];
+
+        await sendMessages({
+          messages,
+        });
+
+        await waitFor(() => {
+          expect(doStream).to.have.been.calledOnce;
+          const callArgs = doStream.firstCall.args[0];
+          expect(callArgs.headers).to.deep.include({
+            'X-Client-Request-Id': 'test-request-id',
+          });
+          expect(callArgs.providerOptions.openai).to.deep.include({
+            store: false,
+            metadata: {
+              analytics_id: 'test-user-id',
+              sensitive_storage: 'false',
+            },
           });
         });
       });

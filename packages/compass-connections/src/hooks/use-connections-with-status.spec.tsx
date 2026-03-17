@@ -60,7 +60,7 @@ describe('useConnectionsWithStatus', function () {
       }
     );
 
-    function getConnectionById(id) {
+    function getConnectionById(id: string) {
       return result.current.find((conn) => {
         return conn.connectionInfo.id === id;
       });

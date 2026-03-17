@@ -1,16 +1,10 @@
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import type { connect as devtoolsConnect } from 'mongodb-data-service';
-import React, { useContext, useRef } from 'react';
+import React, { useContext } from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
-import type {
-  ConnectionInfo,
-  ConnectionStorage,
-} from '@mongodb-js/connection-storage/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import type { ExtraConnectionData as ExtraConnectionDataForTelemetry } from '@mongodb-js/compass-telemetry';
-import { ConnectedConnectionModal } from './components/connection-modal';
 export { LegacyConnectionsModal } from './components/legacy-connections-modal';
 import {
   autoconnectCheck,
@@ -18,64 +12,12 @@ import {
   disconnect,
   loadConnections,
 } from './stores/connections-store-redux';
-import {
-  ConnectionsStoreContext,
-  ConnectionActionsProvider,
-} from './stores/store-context';
+import { ConnectionsStoreContext } from './stores/store-context';
 export type { ConnectionFeature } from './utils/connection-supports';
 export { connectionSupports, connectable } from './utils/connection-supports';
 import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
-
-const ConnectionsComponent: React.FunctionComponent<{
-  /**
-   * Application name, will be passed to the driver during connection
-   */
-  appName: string;
-  /**
-   * Callback prop that should resolve with any extra connection information to
-   * be added to the connection tracking
-   */
-  onExtraConnectionDataRequest: (
-    connectionInfo: ConnectionInfo
-  ) => Promise<[ExtraConnectionDataForTelemetry, string | null]>;
-  /**
-   * Callback prop that might optionally resolve with the connectionInfo object
-   * to be automatically connected to as soon as plugin is activated.
-   * ConnectionStorage argument can be used to pick connectionInfo from the list
-   * of existing connections
-   */
-  onAutoconnectInfoRequest?: (
-    connectionStorage: ConnectionStorage
-  ) => Promise<ConnectionInfo | undefined>;
-  /**
-   * By default any connection returned by `onAutoconnectInfoRequest` will be
-   * automatically connected. This property can be used to disable "reconnect"
-   * if connection with the matching id was explicitly disconnected by the user
-   * in the UI before in the same session. Currently this is only behavior of
-   * Compass desktop.
-   */
-  doNotReconnectDisconnectedAutoconnectInfo?: boolean;
-  /**
-   * Can be used to override default connection function
-   */
-  connectFn?: typeof devtoolsConnect | undefined;
-  /**
-   * Can be used to provide preloaded connections instead of triggering loading
-   * connections on plugin activate
-   */
-  preloadStorageConnectionInfos?: ConnectionInfo[];
-  /**
-   * When connections fail to load, this callback will be called
-   */
-  onFailToLoadConnections: (error: Error) => void;
-}> = ({ children }) => {
-  return (
-    <ConnectionActionsProvider>
-      {children}
-      <ConnectedConnectionModal />
-    </ConnectionActionsProvider>
-  );
-};
+import { useInitialValue } from '@mongodb-js/compass-components';
+import ConnectionsComponent from './stores/connections';
 
 const CompassConnectionsPlugin = registerCompassPlugin(
   {
@@ -102,7 +44,6 @@ const CompassConnectionsPlugin = registerCompassPlugin(
         appName: initialProps.appName,
         connectFn: initialProps.connectFn,
         globalAppRegistry,
-        onFailToLoadConnections: initialProps.onFailToLoadConnections,
         compassAssistant,
       });
 
@@ -148,9 +89,9 @@ const ConnectFnContext = React.createContext<
 export const ConnectFnProvider: React.FunctionComponent<{
   connect?: typeof devtoolsConnect | undefined;
 }> = ({ connect, children }) => {
-  const ref = useRef(connect);
+  const connectFn = useInitialValue(() => connect);
   return (
-    <ConnectFnContext.Provider value={ref.current}>
+    <ConnectFnContext.Provider value={connectFn}>
       {children}
     </ConnectFnContext.Provider>
   );

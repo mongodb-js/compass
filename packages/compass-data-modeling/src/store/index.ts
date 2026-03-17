@@ -9,8 +9,11 @@ import reducer from './reducer';
 import type { DataModelingExtraArgs } from './reducer';
 import thunk from 'redux-thunk';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import { openToast as _openToast } from '@mongodb-js/compass-components';
 
-export type DataModelingStoreOptions = Record<string, unknown>;
+export type DataModelingStoreOptions = {
+  openToast?: typeof _openToast;
+};
 
 export type DataModelingStoreServices = {
   preferences: PreferencesAccess;
@@ -22,12 +25,14 @@ export type DataModelingStoreServices = {
 };
 
 export function activateDataModelingStore(
-  _: DataModelingStoreOptions,
+  { openToast = _openToast }: DataModelingStoreOptions,
   services: DataModelingStoreServices,
-  { cleanup }: ActivateHelpers
+  { cleanup, addCleanup }: ActivateHelpers
 ) {
-  const cancelAnalysisControllerRef = { current: null };
-  const cancelExportControllerRef = { current: null };
+  const cancelAnalysisControllerRef: DataModelingExtraArgs['cancelAnalysisControllerRef'] =
+    { current: null };
+  const cancelExportControllerRef: DataModelingExtraArgs['cancelExportControllerRef'] =
+    { current: null };
   const store = createStore(
     reducer,
     applyMiddleware(
@@ -35,8 +40,16 @@ export function activateDataModelingStore(
         ...services,
         cancelAnalysisControllerRef,
         cancelExportControllerRef,
+        openToast,
       })
     )
   );
+
+  addCleanup(() => {
+    // Abort any ongoing analysis and exporting when deactivated.
+    cancelAnalysisControllerRef.current?.abort();
+    cancelExportControllerRef.current?.abort();
+  });
+
   return { store, deactivate: cleanup };
 }

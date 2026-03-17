@@ -2,7 +2,7 @@ import { connectionSupports } from './connection-supports';
 import { type ConnectionInfo } from '@mongodb-js/connection-storage/provider';
 import { expect } from 'chai';
 
-const mockConnections = [
+const mockConnections: ConnectionInfo[] = [
   {
     id: 'no-atlasMetadata',
     connectionOptions: {
@@ -29,6 +29,7 @@ const mockConnections = [
         globalWrites: false,
         rollingIndexes: false,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -51,6 +52,7 @@ const mockConnections = [
         globalWrites: false,
         rollingIndexes: false,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -73,6 +75,7 @@ const mockConnections = [
         globalWrites: false,
         rollingIndexes: false,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -95,6 +98,7 @@ const mockConnections = [
         globalWrites: false,
         rollingIndexes: true,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -117,6 +121,7 @@ const mockConnections = [
         globalWrites: false,
         rollingIndexes: true,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -139,6 +144,7 @@ const mockConnections = [
         globalWrites: true,
         rollingIndexes: true,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -161,6 +167,7 @@ const mockConnections = [
         globalWrites: false,
         rollingIndexes: true,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
   {
@@ -183,6 +190,7 @@ const mockConnections = [
         globalWrites: false,
         rollingIndexes: false,
       },
+      userConnectionString: 'mongodb+srv://foo',
     },
   },
 ] as const;

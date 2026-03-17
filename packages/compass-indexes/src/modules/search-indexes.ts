@@ -17,91 +17,105 @@ import type { FetchReason } from '../utils/fetch-reason';
 import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
-import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
+import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
   IndexAlreadyExists:
     'This index name is already in use. Please choose another one.',
-};
+} as const;
 
-export enum ActionTypes {
+export const ActionTypes = {
   // Fetch indexes
-  FetchSearchIndexesStarted = 'compass-indexes/search-indexes/fetch-search-indexes-started',
-  FetchSearchIndexesSucceeded = 'compass-indexes/search-indexes/fetch-search-indexes-succeeded',
-  FetchSearchIndexesFailed = 'compass-indexes/search-indexes/fetch-search-indexes-failed',
+  FetchSearchIndexesStarted:
+    'compass-indexes/search-indexes/fetch-search-indexes-started',
+  FetchSearchIndexesSucceeded:
+    'compass-indexes/search-indexes/fetch-search-indexes-succeeded',
+  FetchSearchIndexesFailed:
+    'compass-indexes/search-indexes/fetch-search-indexes-failed',
 
   // Create Index
-  CreateSearchIndexOpened = 'compass-indexes/search-indexes/create-search-index-opened',
-  CreateSearchIndexClosed = 'compass-indexes/search-indexes/create-search-index-closed',
-  CreateSearchIndexStarted = 'compass-indexes/search-indexes/create-search-index-started',
-  CreateSearchIndexFailed = 'compass-indexes/search-indexes/create-search-index-failed',
-  CreateSearchIndexSucceeded = 'compass-indexes/search-indexes/create-search-index-succeeded',
+  CreateSearchIndexOpened:
+    'compass-indexes/search-indexes/create-search-index-opened',
+  CreateSearchIndexClosed:
+    'compass-indexes/search-indexes/create-search-index-closed',
+  CreateSearchIndexStarted:
+    'compass-indexes/search-indexes/create-search-index-started',
+  CreateSearchIndexFailed:
+    'compass-indexes/search-indexes/create-search-index-failed',
+  CreateSearchIndexSucceeded:
+    'compass-indexes/search-indexes/create-search-index-succeeded',
 
   // Update Index
-  UpdateSearchIndexOpened = 'compass-indexes/search-indexes/update-search-index-opened',
-  UpdateSearchIndexClosed = 'compass-indexes/search-indexes/update-search-index-closed',
-  UpdateSearchIndexStarted = 'compass-indexes/search-indexes/update-search-index-started',
-  UpdateSearchIndexFailed = 'compass-indexes/search-indexes/update-search-index-failed',
-  UpdateSearchIndexSucceeded = 'compass-indexes/search-indexes/update-search-index-succeeded',
-}
+  UpdateSearchIndexOpened:
+    'compass-indexes/search-indexes/update-search-index-opened',
+  UpdateSearchIndexClosed:
+    'compass-indexes/search-indexes/update-search-index-closed',
+  UpdateSearchIndexStarted:
+    'compass-indexes/search-indexes/update-search-index-started',
+  UpdateSearchIndexFailed:
+    'compass-indexes/search-indexes/update-search-index-failed',
+  UpdateSearchIndexSucceeded:
+    'compass-indexes/search-indexes/update-search-index-succeeded',
+} as const;
 
 type FetchSearchIndexesStartedAction = {
-  type: ActionTypes.FetchSearchIndexesStarted;
+  type: typeof ActionTypes.FetchSearchIndexesStarted;
   reason: FetchReason;
 };
 
 type FetchSearchIndexesSucceededAction = {
-  type: ActionTypes.FetchSearchIndexesSucceeded;
+  type: typeof ActionTypes.FetchSearchIndexesSucceeded;
   indexes: SearchIndex[];
 };
 
 type FetchSearchIndexesFailedAction = {
-  type: ActionTypes.FetchSearchIndexesFailed;
+  type: typeof ActionTypes.FetchSearchIndexesFailed;
   error: string;
 };
 
 export type CreateSearchIndexOpenedAction = {
-  type: ActionTypes.CreateSearchIndexOpened;
+  type: typeof ActionTypes.CreateSearchIndexOpened;
 };
 
 type CreateSearchIndexStartedAction = {
-  type: ActionTypes.CreateSearchIndexStarted;
+  type: typeof ActionTypes.CreateSearchIndexStarted;
 };
 
 type CreateSearchIndexFailedAction = {
-  type: ActionTypes.CreateSearchIndexFailed;
+  type: typeof ActionTypes.CreateSearchIndexFailed;
   error: string;
 };
 
 type CreateSearchIndexSucceededAction = {
-  type: ActionTypes.CreateSearchIndexSucceeded;
+  type: typeof ActionTypes.CreateSearchIndexSucceeded;
 };
 
-type CreateSearchIndexClosedAction = {
-  type: ActionTypes.CreateSearchIndexClosed;
+export type CreateSearchIndexClosedAction = {
+  type: typeof ActionTypes.CreateSearchIndexClosed;
 };
 
 type UpdateSearchIndexOpenedAction = {
-  type: ActionTypes.UpdateSearchIndexOpened;
+  type: typeof ActionTypes.UpdateSearchIndexOpened;
   indexName: string;
 };
 
 type UpdateSearchIndexStartedAction = {
-  type: ActionTypes.UpdateSearchIndexStarted;
+  type: typeof ActionTypes.UpdateSearchIndexStarted;
 };
 
 type UpdateSearchIndexFailedAction = {
-  type: ActionTypes.UpdateSearchIndexFailed;
+  type: typeof ActionTypes.UpdateSearchIndexFailed;
   error: string;
 };
 
 type UpdateSearchIndexSucceededAction = {
-  type: ActionTypes.UpdateSearchIndexSucceeded;
+  type: typeof ActionTypes.UpdateSearchIndexSucceeded;
 };
 
-type UpdateSearchIndexClosedAction = {
-  type: ActionTypes.UpdateSearchIndexClosed;
+export type UpdateSearchIndexClosedAction = {
+  type: typeof ActionTypes.UpdateSearchIndexClosed;
 };
 
 type CreateSearchIndexState = {
@@ -283,6 +297,7 @@ export default function reducer(
         ...state.updateIndex,
         isBusy: false,
         isModalOpen: false,
+        error: undefined,
       },
     };
   }
@@ -299,6 +314,7 @@ export default function reducer(
         ...state.updateIndex,
         isModalOpen: false,
         isBusy: false,
+        error: undefined,
       },
     };
   }
@@ -472,12 +488,21 @@ export const createIndex = ({
     getState,
     { track, connectionInfoRef, dataService }
   ) {
-    const { namespace } = getState();
+    const { namespace, searchIndexes } = getState();
 
     dispatch(createSearchIndexStarted());
 
     if (name === '') {
       dispatch(createSearchIndexFailed('Please enter the name of the index.'));
+      return;
+    }
+
+    if (searchIndexes.indexes.some((x) => x.name === name)) {
+      dispatch(
+        createSearchIndexFailed(
+          ATLAS_SEARCH_SERVER_ERRORS['IndexAlreadyExists']
+        )
+      );
       return;
     }
 
@@ -590,7 +615,7 @@ export const updateIndex = ({
   };
 };
 
-type FetchSearchIndexesActions =
+export type FetchSearchIndexesActions =
   | FetchSearchIndexesStartedAction
   | FetchSearchIndexesSucceededAction
   | FetchSearchIndexesFailedAction;
@@ -598,23 +623,38 @@ type FetchSearchIndexesActions =
 const fetchIndexes = (
   reason: FetchReason
 ): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
-  return async (dispatch, getState, { dataService }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, preferences, connectionInfoRef }
+  ) => {
     const {
-      isReadonlyView,
       isWritable,
       namespace,
-      serverVersion,
-      searchIndexes: { status },
+      searchIndexes: { status, indexes: previousIndexes },
     } = getState();
 
+    const {
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1,
+    } = preferences.getPreferences();
+    const { atlasMetadata } = connectionInfoRef.current;
+    const { isSearchIndexesReadable } = selectReadWriteAccess({
+      isAtlas: !!atlasMetadata,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    })(getState());
+
     if (
-      (isReadonlyView &&
-        !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-          serverVersion
-        )) ||
-      !isWritable
+      !isSearchIndexesReadable ||
+      // TODO(COMPASS-10357): align on desired behavior for polling in offline-mode
+      !isWritable // isWritable is false in offline-mode
     ) {
-      return; // return if view is not search compatible
+      dispatch(fetchSearchIndexesSucceeded([]));
+      return;
     }
 
     // If we are already fetching indexes, we will wait for that
@@ -626,6 +666,19 @@ const fetchIndexes = (
       dispatch(fetchSearchIndexesStarted(reason));
       const indexes = await dataService.getSearchIndexes(namespace);
       dispatch(fetchSearchIndexesSucceeded(indexes));
+
+      // Show toasts for status changes (only on poll and refresh, not initial fetch)
+      if (
+        enableSearchActivationProgramP1 &&
+        reason !== FetchReasons.INITIAL_FETCH
+      ) {
+        showSearchIndexStatusChangeToasts(
+          previousIndexes,
+          indexes,
+          atlasMetadata,
+          namespace
+        );
+      }
     } catch (err) {
       dispatch(fetchSearchIndexesFailed((err as Error).message));
     }

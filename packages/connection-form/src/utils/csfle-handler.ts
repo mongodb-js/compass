@@ -1,4 +1,3 @@
-import { randomBytes } from 'crypto';
 import { cloneDeep } from 'lodash';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import type {
@@ -248,10 +247,8 @@ export function unsetFleOptionsIfEmptyAutoEncryption(
   const tlsOptions = filterEmptyValues(autoEncryption.tlsOptions);
 
   const {
-    /* eslint-disable @typescript-eslint/no-unused-vars */
     kmsProviders: _1,
     tlsOptions: _2,
-    /* eslint-enable @typescript-eslint/no-unused-vars */
     ...restOfTheAutoEncryption
   } = autoEncryption;
 
@@ -356,7 +353,7 @@ export function adjustCSFLEParams(
 }
 
 export function randomLocalKey(): string {
-  return randomBytes(96).toString('base64');
+  return crypto.getRandomValues(Buffer.alloc(96)).toString('base64');
 }
 
 export function handleAddKmsProvider<T extends KMSProviderType>({

@@ -1,17 +1,15 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Button, Icon, css, spacing } from '@mongodb-js/compass-components';
-import { exportToLanguage } from '../../../modules/export-to-language';
 import { SaveMenu } from './pipeline-menus';
 import PipelineName from './pipeline-name';
 import PipelineExtraSettings from './pipeline-extra-settings';
 import type { RootState } from '../../../modules';
-import { getIsPipelineInvalidFromBuilderState } from '../../../modules/pipeline-builder/builder-helpers';
 import { confirmNewPipeline } from '../../../modules/is-new-pipeline-confirm';
-import { hiddenOnNarrowPipelineToolbarStyles } from '../pipeline-toolbar-container';
 import ModifySourceBanner from '../../modify-source-banner';
 
 import { usePreference } from 'compass-preferences-model/provider';
+import PipelineExportActions from '../pipeline-export-actions';
 
 const containerStyles = css({
   display: 'flex',
@@ -32,22 +30,14 @@ const extraSettingsStyles = css({
   display: 'flex',
   flex: 'none',
 });
-
 type PipelineSettingsProps = {
   editViewName?: string;
-  isExportToLanguageEnabled?: boolean;
-  onExportToLanguage: () => void;
   onCreateNewPipeline: () => void;
 };
 
 export const PipelineSettings: React.FunctionComponent<
   PipelineSettingsProps
-> = ({
-  editViewName,
-  isExportToLanguageEnabled,
-  onExportToLanguage,
-  onCreateNewPipeline,
-}) => {
+> = ({ editViewName, onCreateNewPipeline }) => {
   const enableSavedAggregationsQueries = usePreference('enableMyQueries');
   const isPipelineNameDisplayed =
     !editViewName && !!enableSavedAggregationsQueries;
@@ -70,19 +60,7 @@ export const PipelineSettings: React.FunctionComponent<
             Create new
           </Button>
         )}
-        <Button
-          variant="primaryOutline"
-          size="xsmall"
-          leftGlyph={<Icon glyph="Code" />}
-          onClick={onExportToLanguage}
-          data-testid="pipeline-toolbar-export-button"
-          disabled={!isExportToLanguageEnabled}
-          title="Export to language"
-        >
-          <span className={hiddenOnNarrowPipelineToolbarStyles}>
-            Export to language
-          </span>
-        </Button>
+        <PipelineExportActions />
       </div>
       {editViewName && (
         <ModifySourceBanner editViewName={editViewName}></ModifySourceBanner>
@@ -96,14 +74,11 @@ export const PipelineSettings: React.FunctionComponent<
 
 export default connect(
   (state: RootState) => {
-    const hasSyntaxErrors = getIsPipelineInvalidFromBuilderState(state, false);
     return {
       editViewName: state.editViewName ?? undefined,
-      isExportToLanguageEnabled: !hasSyntaxErrors,
     };
   },
   {
-    onExportToLanguage: exportToLanguage,
     onCreateNewPipeline: confirmNewPipeline,
   }
 )(PipelineSettings);

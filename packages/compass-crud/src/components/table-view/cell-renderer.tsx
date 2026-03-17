@@ -2,12 +2,14 @@ import React from 'react';
 import {
   BSONValue,
   css,
+  DocumentList,
   Icon,
   IconButton,
   LeafyGreenProvider,
   spacing,
   withDarkMode,
 } from '@mongodb-js/compass-components';
+import type { DocumentList as DocumentListTypes } from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
 import type { ICellRendererReactComp } from 'ag-grid-react';
 import type { ICellRendererParams } from 'ag-grid-community';
@@ -89,6 +91,7 @@ export type CellRendererProps = Omit<ICellRendererParams, 'context'> & {
   drillDown: CrudActions['drillDown'];
   tz: string;
   darkMode?: boolean;
+  legacyUUIDDisplayEncoding?: DocumentListTypes.LegacyUUIDDisplay;
 };
 
 /**
@@ -284,7 +287,7 @@ class CellRenderer
         className={undoButtonClass}
         // @ts-expect-error TODO: size="small" is not an acceptable size
         size="small"
-        aria-label="Expand"
+        aria-label="Undo change"
         onClick={this.handleUndo.bind(this)}
       >
         <Icon glyph="Undo"></Icon>
@@ -302,7 +305,7 @@ class CellRenderer
           className={BUTTON_CLASS}
           // @ts-expect-error TODO: size="small" is not an acceptable size
           size="small"
-          aria-label="Expand"
+          aria-label="Expand field"
           onClick={this.handleDrillDown.bind(this)}
         >
           <Icon glyph="OpenNewTab" size="xsmall" />
@@ -347,18 +350,22 @@ class CellRenderer
 
     return (
       // `ag-grid` renders this component outside of the context chain
-      // so we re-supply the dark mode theme here.
+      // so we re-supply the dark mode theme and legacy UUID encoding here.
       <LeafyGreenProvider darkMode={this.props.darkMode}>
-        {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
-        <div
-          className={className}
-          onClick={this.handleClicked.bind(this)}
-          role="button"
+        <DocumentList.LegacyUUIDDisplayContext.Provider
+          value={this.props.legacyUUIDDisplayEncoding ?? ''}
         >
-          {this.renderUndo(canUndo, canExpand)}
-          {this.renderExpand(canExpand)}
-          {element}
-        </div>
+          {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
+          <div
+            className={className}
+            onClick={this.handleClicked.bind(this)}
+            role="button"
+          >
+            {this.renderUndo(canUndo, canExpand)}
+            {this.renderExpand(canExpand)}
+            {element}
+          </div>
+        </DocumentList.LegacyUUIDDisplayContext.Provider>
       </LeafyGreenProvider>
     );
   }

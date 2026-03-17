@@ -15,68 +15,6 @@ function localPolyfill(name) {
   return path.resolve(__dirname, 'polyfills', ...name.split('/'), 'index.ts');
 }
 
-function normalizeDepName(name) {
-  return name.replaceAll('@', '').replaceAll('/', '__');
-}
-
-function resolveDepEntry(name) {
-  const monorepoPackagesDir = path.resolve(__dirname, '..');
-  const resolvedPath = require.resolve(name);
-  if (resolvedPath.startsWith(monorepoPackagesDir)) {
-    const packageJson = require(`${name}/package.json`);
-    const packageRoot = path.dirname(require.resolve(`${name}/package.json`));
-    const entrypoint = path.join(
-      packageRoot,
-      packageJson['compass:main'] ?? packageJson['main']
-    );
-    return entrypoint;
-  }
-  return require.resolve(name);
-}
-
-/**
- * Takes in a webpack configuration for a library package and creates a
- * multi-compiler config that splits the library into multiple parts that can be
- * properly processed by another webpack compilation.
- *
- * This is opposed to using a webpack chunk splitting feature that will generate
- * the code that uses internal webpack module runtime that will not be handled
- * by any other bundler (see TODO). This custom code splitting is way less
- * advanced, but works well for leaf node dependencies of the package.
- *
- * TODO(COMPASS-9445): This naive implementation works well only for leaf
- * dependencies with a single export file. A better approach would be to coerce
- * webpack to produce a require-able web bundle, which in theory should be
- * possible with a combination of `splitChunks`, `chunkFormat: 'commonjs'`, and
- * `target: 'web'`, but in practice produced bundle doesn't work due to webpack
- * runtime exports not being built correctly. We should investigate and try to
- * fix this to remove this custom chunk splitting logic.
- */
-function createSiblingBundleFromLeafDeps(
-  config,
-  deps,
-  moduleType = 'commonjs2'
-) {
-  const siblings = Object.fromEntries(
-    deps.map((depName) => {
-      return [depName, `${moduleType} ./${normalizeDepName(depName)}.js`];
-    })
-  );
-  const baseConfig = merge(config, { externals: siblings });
-  const configs = [baseConfig].concat(
-    deps.map((depName) => {
-      return merge(baseConfig, {
-        entry: resolveDepEntry(depName),
-        output: {
-          filename: `${normalizeDepName(depName)}.js`,
-          library: { type: moduleType },
-        },
-      });
-    })
-  );
-  return configs;
-}
-
 /**
  * Atlas Cloud uses in-flight compression that doesn't compress anything that is
  * bigger than 10MB, we want to make sure that compass-web assets stay under the
@@ -95,6 +33,7 @@ module.exports = (env, args) => {
 
   delete config.externals;
 
+  // Shared configuration for dev mode and packaged library
   config = merge(config, {
     context: __dirname,
     resolve: {
@@ -156,7 +95,12 @@ module.exports = (env, args) => {
         // ),
 
         // Things that are easier to polyfill than to deal with their usage
+        'process/browser': require.resolve('process/browser'),
+        process: localPolyfill('process'),
+
+        'stream/promises': localPolyfill('stream/promises'),
         stream: require.resolve('readable-stream'),
+
         path: require.resolve('path-browserify'),
         // The `/` so that we are resolving the installed polyfill version with
         // the same name as Node.js built-in, not a built-in Node.js one
@@ -197,14 +141,30 @@ module.exports = (env, args) => {
         // "polyfill" that throws in module scope on import. See
         // https://github.com/mongodb/node-mongodb-native/blob/main/src/deps.ts
         // for the full list of dependencies that fall under that rule
+        'kerberos/package.json': localPolyfill('throwError'),
         kerberos: localPolyfill('throwError'),
+
         '@mongodb-js/zstd': localPolyfill('throwError'),
         '@aws-sdk/credential-providers': localPolyfill('throwError'),
         'gcp-metadata': localPolyfill('throwError'),
         snappy: localPolyfill('throwError'),
         socks: localPolyfill('throwError'),
         aws4: localPolyfill('throwError'),
+
+        'mongodb-client-encryption/package.json': localPolyfill('throwError'),
         'mongodb-client-encryption': localPolyfill('throwError'),
+
+        // We want to use the cjs dist instead of esm to make sure that no dynamic
+        // import code from mcp-server ends up in compass bundle
+        'mongodb-mcp-server': require.resolve('mongodb-mcp-server'),
+        // mongodb-mcp-server polyfills
+        // This is only used by StreamableHttpTransport which we do not use.
+        express: false,
+        http2: false,
+        // Only used by Atlas Local tools which we do not currently use.
+        '@mongodb-js/atlas-local': localPolyfill('throwError'),
+        // Only used by Atlas tools which we do not currently use.
+        'node-fetch': false,
       },
     },
     plugins: [
@@ -212,6 +172,10 @@ module.exports = (env, args) => {
         // Can be either `web` or `webdriverio`, helpful if we need special
         // behavior for tests in sandbox
         'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
+        // NB: DefinePlugin completely replaces matched string with a provided
+        // value, in most cases WE DO NOT WANT THAT and process variables in the
+        // code are added to be able to change them in runtime. Do not add new
+        // records unless you're super sure it's needed
       }),
 
       new webpack.ProvidePlugin({
@@ -219,19 +183,115 @@ module.exports = (env, args) => {
         // Required by the driver to function in browser environment
         process: [localPolyfill('process'), 'process'],
       }),
+
+      // Plugin to collect entrypoint filename information and save it in a
+      // manifest file
+      function (compiler) {
+        compiler.hooks.emit.tap('manifest', function (compilation) {
+          const stats = compilation.getStats().toJson({
+            all: false,
+            outputPath: true,
+            entrypoints: true,
+          });
+
+          if (!('index' in stats.entrypoints)) {
+            throw new Error('Missing expected entrypoint in the stats object');
+          }
+
+          const assets = JSON.stringify(
+            stats.entrypoints.index.assets
+              .map((asset) => {
+                return asset.name;
+              })
+              // The root entrypoint is at the end of the assets list, but
+              // we'd want to preload it first, reversing here puts the
+              // manifest list in the load order we want
+              .reverse(),
+            null,
+            2
+          );
+
+          compilation.emitAsset(
+            'assets-manifest.json',
+            new webpack.sources.RawSource(assets)
+          );
+        });
+      },
+
+      // Only applied when running webpack in --watch mode. In this mode we want
+      // to constantly rebuild d.ts files when source changes, we also don't
+      // want to fail and stop compilation if we failed to generate definitions
+      // for whatever reason, we only print the error
+      function (compiler) {
+        compiler.hooks.watchRun.tap('compile-ts', function () {
+          compiler.hooks.done.tapPromise('compile-ts', async function () {
+            const logger = compiler.getInfrastructureLogger('compile-ts');
+            try {
+              await execFileAsync('npm', ['run', 'typescript']);
+              logger.log('Compiled TypeScript definitions successfully');
+            } catch (err) {
+              logger.error('Failed to complie TypeScript definitions:');
+              logger.error();
+              logger.error(err.stdout);
+            }
+          });
+        });
+      },
+
+      /**
+       * Plug into the normalModuleFactory to remove the `node:` schema from
+       * imports: webpack doesn't handle node: schema for web and doesn't allow
+       * to alias imports with the schema so we clean them up before we can get
+       * to the aliasing flow.
+       *
+       * @see {@link https://github.com/webpack/webpack/issues/14166}
+       */
+      function (compiler) {
+        compiler.hooks.normalModuleFactory.tap(
+          'RemoveNodeSchemaPlugin',
+          (factory) => {
+            factory.hooks.beforeResolve.tap(
+              'RemoveNodeSchemaPlugin',
+              (data) => {
+                // Remove the `node:` prefix and allow a "normal" webpack
+                // resolution mechanism to do the rest
+                if (data.request.startsWith('node:')) {
+                  data.request = data.request.replace('node:', '');
+                  for (const dep of data.dependencies) {
+                    dep.request = dep.request.replace('node:', '');
+                    dep.userRequest = dep.userRequest.replace('node:', '');
+                  }
+                }
+              }
+            );
+          }
+        );
+      },
     ],
     performance: {
-      hints: serve || args.watch ? 'warning' : 'error',
-      maxEntrypointSize: MAX_COMPRESSION_FILE_SIZE,
+      hints:
+        serve || args.watch || config.mode !== 'production'
+          ? 'warning'
+          : 'error',
+      // Entrypoint is basically the whole distribution size as there is only
+      // one entry and all chunks are summed up, we only care that separate
+      // chunks are under `MAX_COMPRESSION_FILE_SIZE`
+      maxEntrypointSize: Infinity,
       maxAssetSize: MAX_COMPRESSION_FILE_SIZE,
+    },
+    experiments: {
+      outputModule: true,
     },
   });
 
+  // When served, build it as a normal web app changing the entry point to
+  // sandbox
   if (serve) {
     config.output = {
       path: config.output.path,
       filename: config.output.filename,
       assetModuleFilename: config.output.assetModuleFilename,
+      publicPath: '/',
     };
 
     return merge(config, {
@@ -272,58 +332,61 @@ module.exports = (env, args) => {
     });
   }
 
+  // For library output, reconfigure the build into a esm library output
   config.output = {
     path: config.output.path,
-    filename: config.output.filename,
-    library: {
-      type: 'commonjs-static',
+    filename: (pathData) => {
+      return pathData.chunk.hasEntryModule()
+        ? 'compass-web.mjs'
+        : '[name].[contenthash].mjs';
     },
+    library: {
+      type: 'module',
+    },
+    clean: true,
   };
 
-  const compassWebConfig = merge(config, {
+  // Add code that exposes some internals of compass-web. Useful for e2e tests /
+  // local sync
+  if (process.env.COMPASS_WEB_EXPOSE_INTERNALS === 'true') {
+    config.entry.index = [
+      path.resolve(__dirname, 'sandbox', 'sandbox-process.ts'),
+      path.resolve(__dirname, 'sandbox', 'sandbox-preferences.ts'),
+      path.resolve(__dirname, 'sandbox', 'sandbox-logger-and-telemetry.ts'),
+      config.entry.index,
+    ];
+  }
+
+  return merge(config, {
+    module: {
+      rules: [
+        {
+          test: /\.(m|c)?(js|ts)x?$/,
+          use: {
+            loader: path.join(__dirname, 'scripts', 'patch-d3-for-esm.js'),
+          },
+        },
+      ],
+    },
+    externalsType: 'window',
+    // MMS implementation defines these global variables in https://github.com/10gen/mms/blob/e188be1f58a46c7c4a0ab485f8c09096aaa6f3a8/client/packages/project/dataExplorerCompassWeb/hooks/useCompassWebModule.tsx#L6-L11
+    // if you're changing these value, make sure to update the mms part
     externals: {
-      react: 'commonjs2 react',
-      'react-dom': 'commonjs2 react-dom',
+      react: ['__compassWebSharedRuntime', 'React'],
+      'react-dom': ['__compassWebSharedRuntime', 'ReactDOM'],
 
       // TODO(CLOUDP-228421): move Socket implementation from mms codebase when
       // active work on the communication protocol is wrapped up
-      tls: 'commonjs2 tls',
+      tls: ['__compassWebSharedRuntime', 'tls'],
     },
-    plugins: [
-      // Only applied when running webpack in --watch mode. In this mode we want
-      // to constantly rebuild d.ts files when source changes, we also don't
-      // want to fail and stop compilation if we failed to generate definitions
-      // for whatever reason, we only print the error
-      function (compiler) {
-        compiler.hooks.watchRun.tapPromise('compile-ts', async function () {
-          const logger = compiler.getInfrastructureLogger('compile-ts');
-          try {
-            await execFileAsync('npm', ['run', 'typescript']);
-            logger.log('Compiled TypeScript definitions successfully');
-          } catch (err) {
-            logger.error('Failed to complie TypeScript definitions:');
-            logger.error();
-            logger.error(err.stdout);
-          }
-        });
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+        maxInitialRequests: Infinity,
+        // Kinda arbitrary numbers to give us a decent abount of code split
+        minSize: 1_000_000,
+        maxSize: 4_000_000,
       },
-    ],
+    },
   });
-
-  // Split production bundle into more chunks to make sure it's easier for us to
-  // stay under the max chunk limit. Be careful when adding new packages here,
-  // make sure you're only selecting big packages with the smallest amount of
-  // shared dependencies possible
-  const bundles = createSiblingBundleFromLeafDeps(compassWebConfig, [
-    '@mongodb-js/compass-components',
-    'ag-grid-community',
-    'bson-transpilers',
-    // bson is not that big, but is a shared dependency of compass-web,
-    // compass-components and bson-transpilers, so splitting it out
-    'bson',
-    // dependency of compass-collection
-    '@faker-js/faker',
-  ]);
-
-  return bundles;
 };

@@ -4,8 +4,8 @@ import type { DataModelingThunkAction } from './reducer';
 import { exportToJson, exportToPng } from '../services/export-diagram';
 import { selectCurrentModelFromState } from './diagram';
 import { openToast } from '@mongodb-js/compass-components';
+import type { DiagramInstance } from '@mongodb-js/compass-components';
 import { isCancelError } from '@mongodb-js/compass-utils';
-import type { DiagramInstance } from '@mongodb-js/diagramming';
 import { downloadDiagram } from '../services/open-and-download-diagram';
 
 export type ExportDiagramFormat = 'png' | 'json' | 'diagram';
@@ -16,33 +16,33 @@ export type ExportDiagramState = {
   exportFormat?: ExportDiagramFormat;
 };
 
-export enum ExportDiagramActionTypes {
-  MODAL_OPENED = 'data-modeling/export-diagram/MODAL_OPENED',
-  MODAL_CLOSED = 'data-modeling/export-diagram/MODAL_CLOSED',
-  FORMAT_SELECTED = 'data-modeling/export-diagram/FORMAT_SELECTED',
-  EXPORT_STARTED = 'data-modeling/export-diagram/EXPORT_STARTED',
-  EXPORT_COMPLETED = 'data-modeling/export-diagram/EXPORT_COMPLETED',
-}
+export const ExportDiagramActionTypes = {
+  MODAL_OPENED: 'data-modeling/export-diagram/MODAL_OPENED',
+  MODAL_CLOSED: 'data-modeling/export-diagram/MODAL_CLOSED',
+  FORMAT_SELECTED: 'data-modeling/export-diagram/FORMAT_SELECTED',
+  EXPORT_STARTED: 'data-modeling/export-diagram/EXPORT_STARTED',
+  EXPORT_COMPLETED: 'data-modeling/export-diagram/EXPORT_COMPLETED',
+} as const;
 
 type ModalOpenedAction = {
-  type: ExportDiagramActionTypes.MODAL_OPENED;
+  type: typeof ExportDiagramActionTypes.MODAL_OPENED;
 };
 
 type ModalClosedAction = {
-  type: ExportDiagramActionTypes.MODAL_CLOSED;
+  type: typeof ExportDiagramActionTypes.MODAL_CLOSED;
 };
 
 type FormatSelectedAction = {
-  type: ExportDiagramActionTypes.FORMAT_SELECTED;
+  type: typeof ExportDiagramActionTypes.FORMAT_SELECTED;
   format: ExportDiagramFormat;
 };
 
 type ExportStartedAction = {
-  type: ExportDiagramActionTypes.EXPORT_STARTED;
+  type: typeof ExportDiagramActionTypes.EXPORT_STARTED;
 };
 
 type ExportCompletedAction = {
-  type: ExportDiagramActionTypes.EXPORT_COMPLETED;
+  type: typeof ExportDiagramActionTypes.EXPORT_COMPLETED;
 };
 
 export type ExportDiagramActions =
@@ -129,7 +129,7 @@ export function exportDiagram(
           cancelController.signal
         );
       } else if (exportFormat === 'diagram') {
-        downloadDiagram(diagram.name, diagram.edits.current);
+        downloadDiagram(diagram.name, diagram.edits.current, diagram.database);
       } else {
         throw new Error(`Unsupported export format: ${exportFormat}`);
       }

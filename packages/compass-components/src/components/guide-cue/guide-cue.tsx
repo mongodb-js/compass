@@ -10,7 +10,7 @@ import { guideCueService, type ShowCueEventDetail } from './guide-cue-service';
 import { GuideCue as LGGuideCue } from '@leafygreen-ui/guide-cue';
 import { GROUP_STEPS_MAP } from './guide-cue-groups';
 import type { GroupName } from './guide-cue-groups';
-import { css, cx } from '../..';
+import { css, cx, useCurrentValueRef } from '../..';
 import { rafraf } from '../../utils/rafraf';
 
 const hiddenPopoverStyles = css({
@@ -33,14 +33,17 @@ export type GroupCue = Cue & {
 type GuideCueContextValue = {
   onNext?: (cue: Cue) => void;
   onNextGroup?: (groupCue: GroupCue) => void;
+  disabled?: boolean;
 };
+
 const GuideCueContext = React.createContext<GuideCueContextValue>({});
+
 export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
   children,
+  disabled = false,
   ...callbacks
 }) => {
-  const callbacksRef = useRef(callbacks);
-  callbacksRef.current = callbacks;
+  const callbacksRef = useCurrentValueRef(callbacks);
   const value = useMemo(
     () => ({
       onNext(cue: Cue) {
@@ -49,8 +52,9 @@ export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
       onNextGroup(groupCue: GroupCue) {
         callbacksRef.current.onNextGroup?.(groupCue);
       },
+      disabled,
     }),
-    []
+    [disabled, callbacksRef]
   );
   return (
     <GuideCueContext.Provider value={value}>
@@ -251,12 +255,14 @@ export const GuideCue = <T extends HTMLElement>({
     };
   }, [isCueOpen, cueData, onNext, setOpen]);
 
+  const isCueDisabled = context.disabled;
+
   return (
     <>
       {readyToRender && (
         <LGGuideCue
           {...restOfCueProps}
-          open={isCueOpen}
+          open={!isCueDisabled && isCueOpen}
           numberOfSteps={guideCueService.getCountOfSteps(cueData.groupId)}
           onDismiss={() => {
             onDismiss?.();
@@ -278,7 +284,10 @@ export const GuideCue = <T extends HTMLElement>({
           {description}
         </LGGuideCue>
       )}
-      {trigger?.({ ref: refEl })}
+      {trigger?.(
+        // eslint-disable-next-line react-hooks/refs
+        { ref: refEl }
+      )}
     </>
   );
 };

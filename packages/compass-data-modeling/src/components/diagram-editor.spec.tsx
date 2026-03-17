@@ -4,9 +4,7 @@ import {
   createDefaultConnectionInfo,
   createPluginTestHelpers,
   screen,
-  userEvent,
   waitFor,
-  within,
 } from '@mongodb-js/testing-library-compass';
 import DiagramEditor from './diagram-editor';
 import type { DataModelingStore } from '../../test/setup-store';
@@ -14,12 +12,9 @@ import type {
   Edit,
   MongoDBDataModelDescription,
 } from '../services/data-model-storage';
-import diagramming from '@mongodb-js/diagramming';
-import sinon from 'sinon';
-import { DiagramProvider } from '@mongodb-js/diagramming';
 import { DataModelingWorkspaceTab } from '..';
 import { openDiagram } from '../store/diagram';
-import { DrawerAnchor } from '@mongodb-js/compass-components';
+import { DrawerAnchor, DiagramProvider } from '@mongodb-js/compass-components';
 import { type AnalysisOptions, startAnalysis } from '../store/analysis-process';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 
@@ -46,14 +41,14 @@ const storageItems: MongoDBDataModelDescription[] = [
               indexes: [],
               displayPosition: [50, 50],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
+              fieldData: { bsonType: 'object' },
             },
             {
               ns: 'db1.collection2',
               indexes: [],
               displayPosition: [150, 150],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
+              fieldData: { bsonType: 'object' },
             },
           ],
           relationships: [],
@@ -61,6 +56,7 @@ const storageItems: MongoDBDataModelDescription[] = [
       },
     ],
     connectionId: null,
+    database: 'db1',
   },
   {
     id: 'new-diagram-id',
@@ -79,14 +75,14 @@ const storageItems: MongoDBDataModelDescription[] = [
               indexes: [],
               displayPosition: [0, 0],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
+              fieldData: { bsonType: 'object' },
             },
             {
               ns: 'db1.collection2',
               indexes: [],
               displayPosition: [0, 0],
               shardKey: {},
-              jsonSchema: { bsonType: 'object' },
+              fieldData: { bsonType: 'object' },
             },
           ],
           relationships: [],
@@ -94,6 +90,7 @@ const storageItems: MongoDBDataModelDescription[] = [
       },
     ],
     connectionId: null,
+    database: 'db1',
   },
 ];
 
@@ -167,7 +164,11 @@ const renderDiagramEditor = async ({
   } = await renderWithActiveConnection(
     <DrawerAnchor>
       <DiagramProvider fitView>
-        <DiagramEditor />
+        <DiagramEditor
+          // We need to stub the Diagram component because the imported one is
+          // not bundled for CJS correctly and will throw on render
+          DiagramComponent={mockDiagramming.Diagram}
+        />
       </DiagramProvider>
     </DrawerAnchor>,
     mockConnections[0],
@@ -205,14 +206,6 @@ const renderDiagramEditor = async ({
 
 describe('DiagramEditor', function () {
   let store: DataModelingStore;
-
-  before(function () {
-    // We need to tub the Diagram import because it has problems with ESM/CJS interop
-    sinon.stub(diagramming, 'Diagram').callsFake(mockDiagramming.Diagram);
-    sinon
-      .stub(diagramming, 'applyLayout')
-      .callsFake(mockDiagramming.applyLayout as any);
-  });
 
   context('with existing diagram', function () {
     beforeEach(async function () {
@@ -263,6 +256,10 @@ describe('DiagramEditor', function () {
           collections: ['collection1', 'collection2'],
           analysisOptions: {
             automaticallyInferRelations: false,
+            samplingOptions: {
+              sampleSize: 100,
+              allDocuments: false,
+            },
           },
         },
       });
@@ -272,20 +269,6 @@ describe('DiagramEditor', function () {
       await waitFor(() => {
         expect(screen.getByTestId('model-preview')).to.be.visible;
       });
-    });
-
-    it('shows the banner', function () {
-      expect(screen.getByText('Questions about your data?')).to.be.visible;
-    });
-
-    it('banner can be closed', function () {
-      const closeBtn = within(screen.getByTestId('data-info-banner')).getByRole(
-        'button',
-        { name: 'Close Message' }
-      );
-      expect(closeBtn).to.be.visible;
-      userEvent.click(closeBtn);
-      expect(screen.queryByText('Questions about your data?')).not.to.exist;
     });
   });
 });

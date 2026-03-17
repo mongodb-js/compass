@@ -11,10 +11,6 @@ defaults:
 on:
   workflow_dispatch:
     inputs:
-      bucket_name:
-        type: string
-        description: 'S3 bucket to download installers from'
-        required: true
       bucket_key_prefix:
         type: string
         description: 'S3 bucket key prefix to download installers from'
@@ -74,7 +70,7 @@ jobs:
         include:
           # MacOS
           - package: osx_dmg
-            runs-on: macos-13
+            runs-on: macos-15-intel
             arch: x64
             hadron-platform: darwin
           - package: osx_zip
@@ -111,7 +107,7 @@ jobs:
             arch: x64
             hadron-platform: linux
             distro-id: rhel80
-            post-checkout-command: |
+            prepare-container: |
               dnf clean all && dnf update -y --refresh
               dnf install -y gcc gcc-c++ make git nss dbus xorg-x11-server-Xvfb yum-utils
               # Enable the devel repo to install compat-openssl11 (bringing libcrupto.so.1.1 to run mongod)
@@ -181,20 +177,29 @@ jobs:
       DEBUG: compass:smoketests:*,compass-e2e-tests:*
       # Similar to total task timeout, setting these higher than the default
       # value to account for very slow windows machines
-      COMPASS_E2E_MOCHA_TIMEOUT: 720000 # 12min
+      COMPASS_E2E_MOCHA_TIMEOUT: 1200000 # 20min
       COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: 600000 # 10min
     steps:
+      - name: Run prepare-container command
+        if: matrix.prepare-container
+        run: ${{ matrix.prepare-container }}
       - name: Checkout
         uses: actions/checkout@v2
+        # The way actions/checkout sets up `safe.directly` config option doesn't
+        # work for GHA workflows that use containers, so we have to follow-up
+        # the checkout by setting this option ourselves specifically on a system
+        # level (not global or local)
+        #
+        # See: https://github.com/actions/checkout/issues/1169
+      - name: Set git safe.directory config
+        if: matrix.container
+        run: |
+          git config --system --add safe.directory $GITHUB_WORKSPACE
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.15.1
+          node-version: 22.21.1
           cache: 'npm'
-
-      - name: Run post-checkout command
-        if: matrix.post-checkout-command
-        run: ${{ matrix.post-checkout-command }}
 
       - name: Cache downloads
         uses: actions/cache@v4
@@ -230,7 +235,6 @@ jobs:
 
       - name: Run tests
         env:
-          EVERGREEN_BUCKET_NAME: ${{ inputs.bucket_name }}
           EVERGREEN_BUCKET_KEY_PREFIX: ${{ inputs.bucket_key_prefix }}
           HADRON_DISTRIBUTION: ${{ matrix.hadron-distribution }}
           DEV_VERSION_IDENTIFIER: ${{ inputs.dev_version }}

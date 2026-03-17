@@ -20,16 +20,21 @@ export type ConnectionScopedAppRegistry<
   Partial<Pick<ConnectionScopedAppRegistryImpl<T>, L>>;
 
 interface EventForwarder<T extends string> {
-  emit(event: T, ...payload: any[]): void;
+  emit(event: T, ...payload: unknown[]): void;
 }
 
 export class ConnectionScopedAppRegistryImpl<T extends string>
   implements EventForwarder<T>
 {
+  private readonly appRegistryEmitter: AppRegistry['emit'];
+  private readonly connectionInfoRef: ConnectionInfoRef;
   constructor(
-    private readonly appRegistryEmitter: AppRegistry['emit'],
-    private readonly connectionInfoRef: ConnectionInfoRef
-  ) {}
+    appRegistryEmitter: AppRegistry['emit'],
+    connectionInfoRef: ConnectionInfoRef
+  ) {
+    this.appRegistryEmitter = appRegistryEmitter;
+    this.connectionInfoRef = connectionInfoRef;
+  }
 
   /**
    * @deprecated
@@ -43,7 +48,7 @@ export class ConnectionScopedAppRegistryImpl<T extends string>
    * to understand how other plugins communicate with these plugins without
    * relying on AppRegistry events.
    */
-  emit(event: T, ...payload: any[]): void {
+  emit(event: T, ...payload: unknown[]): void {
     const connectionId = this.connectionInfoRef.current.id;
     this.appRegistryEmitter(event, ...payload, { connectionId });
   }

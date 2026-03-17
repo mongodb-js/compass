@@ -12,6 +12,7 @@ import serverVersion from './server-version';
 import namespace from './namespace';
 import createIndex from './create-index';
 import collectionStats from './collection-stats';
+import indexesDrawer from './indexes-drawer';
 import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import type { DataService } from 'mongodb-data-service';
 import type { Logger } from '@mongodb-js/compass-logging';
@@ -59,6 +60,9 @@ const reducer = combineReducers({
 
   // The stats for the collection
   collectionStats,
+
+  // The indexes drawer state (current drawer view, index type, index name)
+  indexesDrawer,
 });
 
 export type SortDirection = 'asc' | 'desc';

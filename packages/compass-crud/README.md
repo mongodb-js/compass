@@ -101,6 +101,7 @@ application can be listened to via [compass-app-registry][compass-app-registry].
   `insertMany` and `insertOne` complete.
 - **'document-updated'**: indicates a document was updated.
 - **'document-deleted'**: indicates a document was deleted.
+- **'documents-deleted'**: indicates multiple documents were deleted.
 
 #### Local
 
@@ -110,6 +111,7 @@ application can be listened to via [compass-app-registry][compass-app-registry].
   `insertMany` and `insertOne` complete.
 - **'document-updated'**: indicates a document was updated.
 - **'document-deleted'**: indicates a document was deleted.
+- **'documents-deleted'**: indicates multiple documents were deleted.
 
 ### App Registry Events Received
 
@@ -135,6 +137,7 @@ application can be listened to via [compass-app-registry][compass-app-registry].
 - **document-inserted**
 - **document-updated**
 - **document-deleted**
+- **documents-deleted**
 
 ## Development
 

@@ -18,10 +18,10 @@ import {
   fieldNameHasError,
 } from '../../../utils/validation';
 
-enum MONGODB_SCHEME {
-  MONGODB = 'MONGODB',
-  MONGODB_SRV = 'MONGODB_SRV',
-}
+const MONGODB_SCHEME = {
+  MONGODB: 'MONGODB',
+  MONGODB_SRV: 'MONGODB_SRV',
+} as const;
 
 const descriptionStyles = css({
   marginTop: spacing[200],

@@ -19,6 +19,8 @@ import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { IndexesTabTitle } from './plugin-title';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
+import { IndexesDrawer } from './plugin-drawer';
+import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 
 export const CompassIndexesPluginProvider = registerCompassPlugin(
   {
@@ -38,6 +40,7 @@ export const CompassIndexesPluginProvider = registerCompassPlugin(
     collection: collectionModelLocator,
     atlasService: atlasServiceLocator,
     preferences: preferencesLocator,
+    workspaces: workspacesServiceLocator,
   }
 );
 
@@ -46,4 +49,5 @@ export const CompassIndexesPlugin = {
   provider: CompassIndexesPluginProvider,
   content: Indexes as React.FunctionComponent,
   header: IndexesTabTitle as React.FunctionComponent,
+  drawer: IndexesDrawer as React.FunctionComponent,
 };

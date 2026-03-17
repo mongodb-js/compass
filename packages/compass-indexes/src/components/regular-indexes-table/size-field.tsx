@@ -1,6 +1,5 @@
-import numeral from 'numeral';
 import React from 'react';
-import { Body, Tooltip } from '@mongodb-js/compass-components';
+import { Body, Tooltip, compactBytes } from '@mongodb-js/compass-components';
 
 type SizeFieldProps = {
   size: number;
@@ -8,8 +7,8 @@ type SizeFieldProps = {
 };
 
 export const formatSize = (size: number) => {
-  const precision = size <= 1000 ? '0' : '0.0';
-  return numeral(size).format(precision + ' b');
+  const decimals = size <= 1000 ? 0 : 1;
+  return compactBytes(size, true, decimals);
 };
 
 export const getSizeTooltip = (relativeSize: number): string => {

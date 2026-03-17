@@ -9,6 +9,8 @@ const checkboxStyles = css({
   padding: spacing[100],
 });
 
+const checkboxSelectAllStyles = css({ paddingRight: 0 });
+
 const containerStyles = css({
   display: 'flex',
   flexDirection: 'column',
@@ -37,6 +39,7 @@ const selectAllLabelStyles = css({ lineHeight: '16px' });
 type SelectItem = {
   id: string;
   selected: boolean;
+  disabled?: boolean;
 };
 
 type SelectListProps<T extends SelectItem> = {
@@ -62,10 +65,15 @@ export function SelectList<T extends SelectItem>(
   const selectAll = items.every((item) => item.selected);
   const selectNone = items.every((item) => !item.selected);
 
+  const allOptionsDisabled = items.every((item) => item.disabled);
+
   const handleSelectAllChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       onChange(
-        items.map((item) => ({ ...item, selected: !!e.target.checked }))
+        items.map((item) => ({
+          ...item,
+          selected: item.disabled ? item.selected : !!e.target.checked,
+        }))
       );
     },
     [items, onChange]
@@ -75,7 +83,10 @@ export function SelectList<T extends SelectItem>(
       onChange(
         items.map((item) =>
           e.target.name === `select-${item.id}`
-            ? { ...item, selected: !!e.target.checked }
+            ? {
+                ...item,
+                selected: item.disabled ? item.selected : !!e.target.checked,
+              }
             : item
         )
       );
@@ -87,13 +98,13 @@ export function SelectList<T extends SelectItem>(
     <div className={cx(props.className, containerStyles)}>
       <div className={listHeaderStyles}>
         <Checkbox
-          className={cx(checkboxStyles, css({ paddingRight: 0 }))}
+          className={cx(checkboxStyles, checkboxSelectAllStyles)}
           data-testid="select-list-all-checkbox"
           aria-label="Select all"
           onChange={handleSelectAllChange}
           checked={selectAll}
           indeterminate={!selectAll && !selectNone}
-          disabled={disabled}
+          disabled={disabled || allOptionsDisabled}
         />
         <div className={selectAllLabelStyles}>{label.name}</div>
       </div>
@@ -115,7 +126,7 @@ export function SelectList<T extends SelectItem>(
               }
               onChange={handleSelectItemChange}
               checked={item.selected}
-              disabled={disabled}
+              disabled={item.disabled || disabled}
             />
           </div>
         ))}

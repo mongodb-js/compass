@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type HadronDocument from 'hadron-document';
 import { DocumentEvents, ElementEvents } from 'hadron-document';
 import type { Element } from 'hadron-document';
@@ -67,12 +73,13 @@ const StatusMessages: Record<Status, string> = {
   ['DeleteStart']: 'Removing document…',
   ['DeleteError']: '',
   ['DeleteSuccess']: 'Document deleted.',
-};
+} as const;
 
 function useHadronDocumentStatus(
   doc: HadronDocument,
   editing: boolean,
-  deleting: boolean
+  deleting: boolean,
+  initialError: Error | null = null
 ) {
   const [status, setStatus] = useState<Status>(() => {
     return editing
@@ -107,18 +114,6 @@ function useHadronDocumentStatus(
     },
     []
   );
-
-  useEffect(() => {
-    if (status !== 'Initial') {
-      return;
-    }
-
-    if (editing) {
-      updateStatus('Editing');
-    } else if (deleting) {
-      updateStatus('Deleting');
-    }
-  }, [status, updateStatus, editing, deleting]);
 
   useEffect(() => {
     const onUpdate = () => {
@@ -214,7 +209,32 @@ function useHadronDocumentStatus(
     }
   }, [status, updateStatus]);
 
-  return { status, updateStatus, error };
+  const derivedStatus = useMemo(() => {
+    if (status !== 'Initial') {
+      return status;
+    }
+    if (editing) {
+      return 'Editing';
+    }
+    if (deleting) {
+      return 'Deleting';
+    }
+    return status;
+  }, [status, editing, deleting]);
+
+  const derivedError = useMemo(() => {
+    if (error) {
+      return error;
+    }
+    if (initialError) {
+      return {
+        message: initialError.message,
+      };
+    }
+    return null;
+  }, [error, initialError]);
+
+  return { status: derivedStatus, updateStatus, error: derivedError };
 }
 
 const container = css({
@@ -287,7 +307,7 @@ const EditActionsFooter: React.FunctionComponent<{
   editing: boolean;
   deleting: boolean;
   modified?: boolean;
-  containsErrors?: boolean;
+  validationError?: Error | null;
   alwaysForceUpdate?: boolean;
   onUpdate(force: boolean): void;
   onDelete(): void;
@@ -297,7 +317,7 @@ const EditActionsFooter: React.FunctionComponent<{
   editing,
   deleting,
   modified = false,
-  containsErrors = false,
+  validationError: initialError = null,
   alwaysForceUpdate = false,
   onUpdate,
   onDelete,
@@ -307,14 +327,13 @@ const EditActionsFooter: React.FunctionComponent<{
     status: _status,
     updateStatus,
     error,
-  } = useHadronDocumentStatus(doc, editing, deleting);
-
+  } = useHadronDocumentStatus(doc, editing, deleting, initialError);
   const darkMode = useDarkMode();
 
   // Allow props to override event based status of the document (helpful for
   // JSON editor where changing the document text doesn't really generate any
   // changes of the HadronDocument)
-  const status = containsErrors
+  const status = initialError
     ? 'ContainsErrors'
     : modified
     ? 'Modified'

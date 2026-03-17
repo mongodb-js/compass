@@ -14,7 +14,7 @@ describe('side-panel module', function () {
     beforeEach(async function () {
       store = (await configureStore()).plugin.store;
 
-      const localStorageValues: Record<string, string> = {};
+      const localStorageValues: Record<string, string> = Object.create(null);
 
       fakeLocalStorage = sinon.stub(global, 'localStorage').value({
         getItem: sinon.fake((key: string) => {

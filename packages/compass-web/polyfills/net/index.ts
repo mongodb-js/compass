@@ -8,10 +8,10 @@ import { Duplex } from 'stream';
  * used when running compass-web in a local sandbox, mms has their own
  * implementation
  */
-enum MESSAGE_TYPE {
-  JSON = 0x01,
-  BINARY = 0x02,
-}
+const MESSAGE_TYPE = {
+  JSON: 0x01,
+  BINARY: 0x02,
+} as const;
 
 class Socket extends Duplex {
   private _ws: WebSocket | null = null;
@@ -128,7 +128,10 @@ class Socket extends Duplex {
     return this.encodeMessageWithTypeByte(message, MESSAGE_TYPE.BINARY);
   }
 
-  encodeMessageWithTypeByte(message: Uint8Array, type: MESSAGE_TYPE) {
+  encodeMessageWithTypeByte(
+    message: Uint8Array,
+    type: (typeof MESSAGE_TYPE)[keyof typeof MESSAGE_TYPE]
+  ) {
     const encoded = new Uint8Array(message.length + 1);
     encoded[0] = type;
     encoded.set(message, 1);

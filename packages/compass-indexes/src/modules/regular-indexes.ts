@@ -1,5 +1,5 @@
 import { isEqual, pick } from 'lodash';
-import type { IndexDefinition } from 'mongodb-data-service';
+import type { IndexBuildProgress, IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
   openToast,
@@ -21,6 +21,7 @@ import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { AtlasIndexStats } from './rolling-indexes-service';
 import { connectionSupports } from '@mongodb-js/compass-connections';
+import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
 
 export type RegularIndex = Partial<IndexDefinition> &
   Pick<
@@ -41,9 +42,9 @@ export type RegularIndex = Partial<IndexDefinition> &
 
 export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
-  status: 'inprogress' | 'failed';
+  status: 'creating' | 'failed';
   error?: string;
-  buildProgress: number;
+  buildProgress: IndexBuildProgress;
 };
 
 export type RollingIndex = Partial<AtlasIndexStats> &
@@ -82,31 +83,34 @@ export const prepareInProgressIndex = (
     id,
     // TODO(COMPASS-8335): we need the type because it shows in the table
     // TODO(COMPASS-8335): the table can also use cardinality
-    status: 'inprogress',
+    status: 'creating',
     fields: inProgressIndexFields,
     name: inProgressIndexName,
-    buildProgress: 0,
+    // Locally created in-progress indexes start with active: true, no progress info yet
+    buildProgress: { currentOp: { active: true } },
     // TODO(COMPASS-8335): we never mapped properties and the table does have
     // room to display them
   };
 };
 
-export enum ActionTypes {
-  IndexesOpened = 'compass-indexes/regular-indexes/indexes-opened',
-  IndexesClosed = 'compass-indexes/regular-indexes/indexes-closed',
+export const ActionTypes = {
+  IndexesOpened: 'compass-indexes/regular-indexes/indexes-opened',
+  IndexesClosed: 'compass-indexes/regular-indexes/indexes-closed',
 
-  FetchIndexesStarted = 'compass-indexes/regular-indexes/fetch-indexes-started',
-  FetchIndexesSucceeded = 'compass-indexes/regular-indexes/fetch-indexes-succeeded',
-  FetchIndexesFailed = 'compass-indexes/regular-indexes/fetch-indexes-failed',
+  FetchIndexesStarted: 'compass-indexes/regular-indexes/fetch-indexes-started',
+  FetchIndexesSucceeded:
+    'compass-indexes/regular-indexes/fetch-indexes-succeeded',
+  FetchIndexesFailed: 'compass-indexes/regular-indexes/fetch-indexes-failed',
 
   // Basically the same thing as ActionTypes.IndexCreationSucceeded
   // in that it will remove the index, but it is for manually removing the row
   // of an index that failed
-  FailedIndexRemoved = 'compass-indexes/regular-indexes/failed-index-removed',
+  FailedIndexRemoved: 'compass-indexes/regular-indexes/failed-index-removed',
 
-  IndexCreationStarted = 'compass-indexes/create-index/index-creation-started',
-  IndexCreationSucceeded = 'compass-indexes/create-index/index-creation-succeeded',
-  IndexCreationFailed = 'compass-indexes/create-index/index-creation-failed',
+  IndexCreationStarted: 'compass-indexes/create-index/index-creation-started',
+  IndexCreationSucceeded:
+    'compass-indexes/create-index/index-creation-succeeded',
+  IndexCreationFailed: 'compass-indexes/create-index/index-creation-failed',
 
   // Special case event that happens on a timeout when rolling index is created.
   //
@@ -117,56 +121,57 @@ export enum ActionTypes {
   // end up with a stuck "in progress" index. For cases like this we will just
   // check whether or not index is still in progress after a few polls and
   // remove the in progress index from the list.
-  RollingIndexTimeoutCheck = 'compass-indexes/create-index/rolling-index-timeout-check',
-}
+  RollingIndexTimeoutCheck:
+    'compass-indexes/create-index/rolling-index-timeout-check',
+} as const;
 
 type IndexesOpenedAction = {
-  type: ActionTypes.IndexesOpened;
+  type: typeof ActionTypes.IndexesOpened;
 };
 
 type IndexesClosedAction = {
-  type: ActionTypes.IndexesClosed;
+  type: typeof ActionTypes.IndexesClosed;
 };
 
 type FetchIndexesStartedAction = {
-  type: ActionTypes.FetchIndexesStarted;
+  type: typeof ActionTypes.FetchIndexesStarted;
   reason: FetchReason;
 };
 
 type FetchIndexesSucceededAction = {
-  type: ActionTypes.FetchIndexesSucceeded;
+  type: typeof ActionTypes.FetchIndexesSucceeded;
   indexes: RegularIndex[];
   rollingIndexes?: RollingIndex[];
 };
 
 type FetchIndexesFailedAction = {
-  type: ActionTypes.FetchIndexesFailed;
+  type: typeof ActionTypes.FetchIndexesFailed;
   error: string;
 };
 
 type IndexCreationStartedAction = {
-  type: ActionTypes.IndexCreationStarted;
+  type: typeof ActionTypes.IndexCreationStarted;
   inProgressIndex: InProgressIndex;
 };
 
 type IndexCreationSucceededAction = {
-  type: ActionTypes.IndexCreationSucceeded;
+  type: typeof ActionTypes.IndexCreationSucceeded;
   inProgressIndexId: string;
 };
 
 type IndexCreationFailedAction = {
-  type: ActionTypes.IndexCreationFailed;
+  type: typeof ActionTypes.IndexCreationFailed;
   inProgressIndexId: string;
   error: string;
 };
 
 type FailedIndexRemovedAction = {
-  type: ActionTypes.FailedIndexRemoved;
+  type: typeof ActionTypes.FailedIndexRemoved;
   inProgressIndexId: string;
 };
 
 type RollingIndexTimeoutCheckAction = {
-  type: ActionTypes.RollingIndexTimeoutCheck;
+  type: typeof ActionTypes.RollingIndexTimeoutCheck;
   indexId: string;
 };
 
@@ -366,7 +371,7 @@ const fetchIndexesFailed = (error: string): FetchIndexesFailedAction => ({
   error,
 });
 
-type FetchIndexesActions =
+export type FetchIndexesActions =
   | FetchIndexesStartedAction
   | FetchIndexesSucceededAction
   | FetchIndexesFailedAction;
@@ -394,12 +399,26 @@ const fetchIndexes = (
     }
   ) => {
     const {
-      isReadonlyView,
       namespace,
       regularIndexes: { status },
+      isWritable,
     } = getState();
 
-    if (isReadonlyView) {
+    const { readOnly, readWrite, enableAtlasSearchIndexes } =
+      preferences.getPreferences();
+    const { atlasMetadata } = connectionInfoRef.current;
+    const { isRegularIndexesReadable } = selectReadWriteAccess({
+      isAtlas: !!atlasMetadata,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    })(getState());
+
+    if (
+      !isRegularIndexesReadable ||
+      // TODO(COMPASS-10357): align on desired behavior for polling in offline-mode
+      !isWritable // isWritable is false in offline-mode
+    ) {
       dispatch(fetchIndexesSucceeded([]));
       return;
     }
@@ -425,8 +444,8 @@ const fetchIndexes = (
         dataService.indexes(namespace),
         shouldFetchRollingIndexes
           ? rollingIndexesService.listRollingIndexes(namespace)
-          : undefined,
-      ] as [Promise<IndexDefinition[]>, Promise<AtlasIndexStats[]> | undefined];
+          : Promise.resolve(undefined),
+      ] as const;
       const [indexes, rollingIndexes] = await Promise.all(promises);
       const indexesBefore = pickCollectionStatFields(getState());
       dispatch(fetchIndexesSucceeded(indexes, rollingIndexes));

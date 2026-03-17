@@ -6,10 +6,8 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-  DEFAULT_CONNECTION_NAME_1,
-  DEFAULT_CONNECTION_STRING_1,
-  DEFAULT_CONNECTION_STRING_2,
-  DEFAULT_CONNECTION_NAME_2,
+  getDefaultConnectionNames,
+  getDefaultConnectionStrings,
 } from '../helpers/compass';
 import type { QueryOptions } from '../helpers/commands';
 import type { Compass } from '../helpers/compass';
@@ -44,8 +42,8 @@ async function openMenuForQueryItem(
   await browser.$(Selectors.SavedItemMenu).waitForDisplayed();
 }
 
-const knownQueryNames: Record<string, true> = {};
-const knownQueryFilters: Record<string, true> = {};
+const knownQueryNames: Record<string, true> = Object.create(null);
+const knownQueryFilters: Record<string, true> = Object.create(null);
 
 async function saveQuery(
   browser: CompassBrowser,
@@ -72,7 +70,7 @@ async function saveQuery(
 
   // Run a query
   await browser.navigateToCollectionTab(
-    DEFAULT_CONNECTION_NAME_1,
+    getDefaultConnectionNames(0),
     databaseName,
     collectionName,
     'Documents'
@@ -114,7 +112,7 @@ async function saveAggregation(
 
   // Navigate to aggregation
   await browser.navigateToCollectionTab(
-    DEFAULT_CONNECTION_NAME_1,
+    getDefaultConnectionNames(0),
     databaseName,
     collectionName,
     'Aggregations'
@@ -133,8 +131,7 @@ async function saveAggregation(
   await browser.clickVisible(Selectors.SavePipelineSaveAsAction);
 
   // wait for the modal to appear
-  const savePipelineModal = browser.$(Selectors.SavePipelineModal);
-  await savePipelineModal.waitForDisplayed();
+  await browser.waitForOpenModal(Selectors.SavePipelineModal);
 
   // set aggregation name
   await browser.waitForAnimations(Selectors.SavePipelineNameInput);
@@ -145,8 +142,10 @@ async function saveAggregation(
 
   // click save button
   const createButton = browser.$(Selectors.SavePipelineModal).$('button=Save');
-
   await createButton.click();
+  await browser.waitForOpenModal(Selectors.SavePipelineModal, {
+    reverse: true,
+  });
 }
 
 describe('My Queries tab', function () {
@@ -163,10 +162,10 @@ describe('My Queries tab', function () {
     browser = compass.browser;
     await browser.setupDefaultConnections();
 
-    client_1 = new MongoClient(DEFAULT_CONNECTION_STRING_1);
+    client_1 = new MongoClient(getDefaultConnectionStrings(0));
     await client_1.connect();
 
-    client_2 = new MongoClient(DEFAULT_CONNECTION_STRING_2);
+    client_2 = new MongoClient(getDefaultConnectionStrings(1));
     await client_2.connect();
   });
   beforeEach(async function () {
@@ -192,7 +191,7 @@ describe('My Queries tab', function () {
     'when a user has a saved query associated with a collection that exists in the single connection',
     function () {
       it('opens a saved query', async function () {
-        await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+        await browser.connectByName(getDefaultConnectionNames(0));
 
         const favoriteQueryName = 'list of numbers greater than 10 - query';
         const newFavoriteQueryName = `${favoriteQueryName} (renamed)`;
@@ -208,7 +207,7 @@ describe('My Queries tab', function () {
 
         await browser.closeWorkspaceTabs();
         await browser.navigateToConnectionTab(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           'Databases'
         );
         await browser.navigateToMyQueries();
@@ -241,15 +240,16 @@ describe('My Queries tab', function () {
 
         // rename the query
         await browser.clickVisible(Selectors.SavedItemMenuItemRename);
-        const renameModal = browser.$(Selectors.RenameSavedItemModal);
-        await renameModal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.RenameSavedItemModal);
 
         await browser.setValueVisible(
           Selectors.RenameSavedItemModalTextInput,
           newFavoriteQueryName
         );
         await browser.clickVisible(Selectors.RenameSavedItemModalSubmit);
-        await renameModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.RenameSavedItemModal, {
+          reverse: true,
+        });
 
         // rename the collection associated with the query to force the open item modal
         await client_1
@@ -257,7 +257,7 @@ describe('My Queries tab', function () {
           .renameCollection('numbers', 'numbers-renamed');
 
         await browser.selectConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           Selectors.RefreshDatabasesItem,
           false
         );
@@ -271,8 +271,8 @@ describe('My Queries tab', function () {
         );
 
         // the open item modal - select a new collection
-        const openModal = browser.$(Selectors.OpenSavedItemModal);
-        await openModal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal);
+
         await browser.selectOption({
           selectSelector: `${Selectors.OpenSavedItemDatabaseField} button`,
           optionText: 'test',
@@ -282,7 +282,9 @@ describe('My Queries tab', function () {
           optionText: 'numbers-renamed',
         });
         await browser.clickVisible(Selectors.OpenSavedItemModalConfirmButton);
-        await openModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal, {
+          reverse: true,
+        });
 
         // we should eventually arrive on the collection
         const namespace = await browser.getActiveTabNamespace();
@@ -291,7 +293,7 @@ describe('My Queries tab', function () {
         // back to my queries
         await browser.closeWorkspaceTabs();
         await browser.navigateToConnectionTab(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           'Databases'
         );
         await browser.navigateToMyQueries();
@@ -306,7 +308,7 @@ describe('My Queries tab', function () {
       });
 
       it('opens a saved aggregation', async function () {
-        await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+        await browser.connectByName(getDefaultConnectionNames(0));
 
         const savedAggregationName =
           'list of numbers greater than 10 - aggregation';
@@ -340,7 +342,7 @@ describe('My Queries tab', function () {
           'another list of numbers greater than 10 - query';
         const newCollectionName = 'numbers-renamed';
 
-        await browser.connectByName(DEFAULT_CONNECTION_NAME_1);
+        await browser.connectByName(getDefaultConnectionNames(0));
 
         // save a query and rename the collection associated with the query, so that the query must be opened with the "select namespace" modal
         await saveQuery(
@@ -354,7 +356,7 @@ describe('My Queries tab', function () {
 
         await browser.closeWorkspaceTabs();
         await browser.navigateToConnectionTab(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           'Databases'
         );
         await browser.navigateToMyQueries();
@@ -389,7 +391,7 @@ describe('My Queries tab', function () {
           .renameCollection('numbers', newCollectionName);
 
         await browser.selectConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           Selectors.RefreshDatabasesItem,
           false
         );
@@ -399,8 +401,7 @@ describe('My Queries tab', function () {
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
         // the open item modal - select a new collection
-        const openModal = browser.$(Selectors.OpenSavedItemModal);
-        await openModal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal);
         await browser.selectOption({
           selectSelector: `${Selectors.OpenSavedItemDatabaseField} button`,
           optionText: 'test',
@@ -415,7 +416,9 @@ describe('My Queries tab', function () {
         );
 
         await browser.clickVisible(Selectors.OpenSavedItemModalConfirmButton);
-        await openModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal, {
+          reverse: true,
+        });
 
         await browser.navigateToMyQueries();
 
@@ -450,7 +453,7 @@ describe('My Queries tab', function () {
         await client_1.db('test').dropCollection('numbers');
 
         await browser.selectConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           Selectors.RefreshDatabasesItem,
           false
         );
@@ -466,7 +469,7 @@ describe('My Queries tab', function () {
           const activeConnectionName = await browser
             .$(Selectors.workspaceTab({ active: true }))
             .getAttribute('data-connection-name');
-          return activeConnectionName === DEFAULT_CONNECTION_NAME_2;
+          return activeConnectionName === getDefaultConnectionNames(1);
         });
       });
     }
@@ -497,12 +500,12 @@ describe('My Queries tab', function () {
           .renameCollection('numbers', newCollectionName);
 
         await browser.selectConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           Selectors.RefreshDatabasesItem,
           false
         );
         await browser.selectConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_2,
+          getDefaultConnectionNames(1),
           Selectors.RefreshDatabasesItem,
           false
         );
@@ -513,11 +516,10 @@ describe('My Queries tab', function () {
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
         // the open item modal - select a new connection, database and collection
-        const openModal = browser.$(Selectors.OpenSavedItemModal);
-        await openModal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal);
         await browser.selectOption({
           selectSelector: `${Selectors.OpenSavedItemConnectionField} button`,
-          optionText: DEFAULT_CONNECTION_NAME_2,
+          optionText: getDefaultConnectionNames(1),
         });
         await browser.selectOption({
           selectSelector: `${Selectors.OpenSavedItemDatabaseField} button`,
@@ -530,14 +532,16 @@ describe('My Queries tab', function () {
 
         await browser.clickVisible(Selectors.OpenSavedItemModalConfirmButton);
 
-        await openModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.OpenSavedItemModal, {
+          reverse: true,
+        });
 
         // we should land on connection-2 because that's the one we just selected
         await browser.waitUntil(async () => {
           const activeConnectionName = await browser
             .$(Selectors.workspaceTab({ active: true }))
             .getAttribute('data-connection-name');
-          return activeConnectionName === DEFAULT_CONNECTION_NAME_2;
+          return activeConnectionName === getDefaultConnectionNames(1);
         });
       });
     }
@@ -561,12 +565,12 @@ describe('My Queries tab', function () {
         );
 
         await browser.selectConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_1,
+          getDefaultConnectionNames(0),
           Selectors.RefreshDatabasesItem,
           false
         );
         await browser.selectConnectionMenuItem(
-          DEFAULT_CONNECTION_NAME_2,
+          getDefaultConnectionNames(1),
           Selectors.RefreshDatabasesItem,
           false
         );
@@ -577,14 +581,15 @@ describe('My Queries tab', function () {
         await browser.clickVisible(Selectors.myQueriesItem(favoriteQueryName));
 
         // the open item modal - select a new connection, database and collection
-        const selectModal = browser.$(Selectors.SelectConnectionModal);
-        await selectModal.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.SelectConnectionModal);
 
         const connectionId = await browser.getConnectionIdByName(
-          DEFAULT_CONNECTION_NAME_2
+          getDefaultConnectionNames(1)
         );
         if (!connectionId) {
-          throw new Error(`Connection ${DEFAULT_CONNECTION_NAME_2} not found`);
+          throw new Error(
+            `Connection ${getDefaultConnectionNames(1)} not found`
+          );
         }
 
         await browser.clickParent(
@@ -595,14 +600,16 @@ describe('My Queries tab', function () {
           Selectors.SelectConnectionModalConfirmButton
         );
 
-        await selectModal.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.SelectConnectionModal, {
+          reverse: true,
+        });
 
         // we should land on connection-2 because that's the one we just selected
         await browser.waitUntil(async () => {
           const activeConnectionName = await browser
             .$(Selectors.workspaceTab({ active: true }))
             .getAttribute('data-connection-name');
-          return activeConnectionName === DEFAULT_CONNECTION_NAME_2;
+          return activeConnectionName === getDefaultConnectionNames(1);
         });
       });
     }

@@ -31,6 +31,8 @@ describe('ConnectionThemeProvider', function () {
       let capturedTheme: ReturnType<typeof useTabTheme> = undefined;
 
       const TestComponent = () => {
+        // Doing this to test the value
+        // eslint-disable-next-line react-hooks/globals
         capturedTheme = useTabTheme();
         return null;
       };
@@ -53,6 +55,8 @@ describe('ConnectionThemeProvider', function () {
       let capturedTheme: ReturnType<typeof useTabTheme> = undefined;
 
       const TestComponent = () => {
+        // Doing this to test the value
+        // eslint-disable-next-line react-hooks/globals
         capturedTheme = useTabTheme();
         return null;
       };
@@ -87,6 +91,8 @@ describe('ConnectionThemeProvider', function () {
       let capturedTheme: ReturnType<typeof useTabTheme> = undefined;
 
       const TestComponent = () => {
+        // Doing this to test the value
+        // eslint-disable-next-line react-hooks/globals
         capturedTheme = useTabTheme();
         return null;
       };
@@ -119,6 +125,8 @@ describe('ConnectionThemeProvider', function () {
       };
 
       const TestComponent = () => {
+        // Doing this to test the value
+        // eslint-disable-next-line react-hooks/globals
         capturedTheme = useTabTheme();
         return null;
       };
@@ -151,6 +159,8 @@ describe('ConnectionThemeProvider', function () {
       };
 
       const TestComponent = () => {
+        // Doing this to test the value
+        // eslint-disable-next-line react-hooks/globals
         capturedTheme = useTabTheme();
         return <div>Theme consumer</div>;
       };

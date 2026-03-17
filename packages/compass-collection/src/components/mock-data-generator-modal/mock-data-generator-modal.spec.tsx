@@ -1,23 +1,36 @@
 import { expect } from 'chai';
+import sinon from 'sinon';
 import React from 'react';
 import {
   screen,
   renderWithActiveConnection,
   waitFor,
   userEvent,
-  waitForElementToBeRemoved,
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import MockDataGeneratorModal from './mock-data-generator-modal';
-import { MockDataGeneratorStep } from './types';
-import { StepButtonLabelMap } from './constants';
+import type { FakerSchema, MockDataGeneratorStep } from './types';
+import { DataGenerationSteps, MockDataGeneratorSteps } from './types';
+import {
+  DEFAULT_CONNECTION_STRING_FALLBACK,
+  StepButtonLabelMap,
+  DEFAULT_DOCUMENT_COUNT,
+} from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import type { MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
+import { type MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
+import * as scriptGenerationUtils from './script-generation-utils';
+
+// Helper to create fakerSchemaGeneration in completed state
+const createCompletedFakerSchema = (schema: FakerSchema) => ({
+  status: 'completed' as const,
+  fakerSchema: schema,
+  requestId: 'test-request-id',
+});
 
 const defaultSchemaAnalysisState: SchemaAnalysisState = {
   status: 'complete',
@@ -25,21 +38,29 @@ const defaultSchemaAnalysisState: SchemaAnalysisState = {
     name: {
       type: 'String',
       probability: 1.0,
-      sample_values: ['John', 'Jane'],
+      sampleValues: ['John', 'Jane'],
     },
   },
+  arrayLengthMap: {},
   sampleDocument: { name: 'John' },
-  schemaMetadata: { maxNestingDepth: 1, validationRules: null },
+  schemaMetadata: {
+    maxNestingDepth: 1,
+    validationRules: null,
+    avgDocumentSize: undefined,
+  },
 };
+const mockUserConnectionString = 'mockUserConnectionString';
 
 describe('MockDataGeneratorModal', () => {
   async function renderModal({
     isOpen = true,
-    currentStep = MockDataGeneratorStep.SCHEMA_CONFIRMATION,
+    currentStep = MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
     enableGenAISampleDocumentPassing = false,
     mockServices = createMockServices(),
     schemaAnalysis = defaultSchemaAnalysisState,
+    fakerSchemaGeneration = { status: 'idle' },
     connectionInfo,
+    documentCount = DEFAULT_DOCUMENT_COUNT.toString(),
   }: {
     isOpen?: boolean;
     enableGenAISampleDocumentPassing?: boolean;
@@ -47,24 +68,25 @@ describe('MockDataGeneratorModal', () => {
     mockServices?: any;
     connectionInfo?: ConnectionInfo;
     schemaAnalysis?: SchemaAnalysisState;
+    fakerSchemaGeneration?: CollectionState['fakerSchemaGeneration'];
+    documentCount?: string;
   } = {}) {
     const initialState: CollectionState = {
       workspaceTabId: 'test-workspace-tab-id',
       namespace: 'test.collection',
       metadata: null,
       schemaAnalysis,
-      fakerSchemaGeneration: {
-        status: 'idle',
-      },
+      fakerSchemaGeneration,
       mockDataGenerator: {
         isModalOpen: isOpen,
         currentStep: currentStep,
+        documentCount: documentCount,
       },
     };
 
     const store = createStore(
       collectionTabReducer,
-      initialState,
+      initialState as any,
       applyMiddleware(thunk.withExtraArgument(mockServices))
     );
 
@@ -90,7 +112,6 @@ describe('MockDataGeneratorModal', () => {
             fields: [
               {
                 fieldPath: 'name',
-                mongoType: 'String',
                 fakerMethod: 'person.firstName',
                 fakerArgs: [],
               },
@@ -119,96 +140,240 @@ describe('MockDataGeneratorModal', () => {
     it('renders the modal when isOpen is true', async () => {
       await renderModal();
 
-      expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.open;
     });
 
     it('does not render the modal when isOpen is false', async () => {
       await renderModal({ isOpen: false });
 
-      expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed;
     });
 
     it('closes the modal when the close button is clicked', async () => {
       await renderModal();
 
-      expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.open;
       userEvent.click(screen.getByLabelText('Close modal'));
       await waitFor(
         () =>
-          expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist
+          expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed
       );
+    });
+
+    it('fires a track event when the close button is clicked', async () => {
+      const result = await renderModal();
+      userEvent.click(screen.getByLabelText('Close modal'));
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Generator Dismissed',
+          {
+            screen: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
+            gen_ai_features_enabled: false,
+            send_sample_values_enabled: false,
+          }
+        );
+      });
     });
 
     it('closes the modal when the cancel button is clicked', async () => {
       await renderModal();
 
-      expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.open;
       userEvent.click(screen.getByText('Cancel'));
       await waitFor(
         () =>
-          expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist
+          expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed
       );
     });
 
-    function createMockServicesWithSlowAiRequest() {
-      let abortSignalReceived = false;
-      let rejectPromise: (reason?: any) => void;
-      const rejectedPromise = new Promise((_resolve, reject) => {
-        rejectPromise = reject;
-      });
-
-      const baseMockServices = createMockServices();
-
-      const mockAiService = {
-        ...baseMockServices.atlasAiService,
-        getMockDataSchema: (request: any) => {
-          if (request?.signal) {
-            request.signal.addEventListener('abort', () => {
-              abortSignalReceived = true;
-              rejectPromise(new Error('Request aborted'));
-            });
-          }
-          return rejectedPromise;
-        },
-        getAbortSignalReceived: () => abortSignalReceived,
-      };
-
-      return {
-        ...baseMockServices,
-        atlasAiService: mockAiService,
-      };
-    }
-
-    it('cancels in-flight faker mapping requests when the cancel button is clicked', async () => {
-      const mockServices = createMockServicesWithSlowAiRequest();
-      await renderModal({ mockServices: mockServices as any });
-
-      expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      userEvent.click(screen.getByText('Confirm'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
-      });
-
+    it('fires a track event when the cancel button is clicked', async () => {
+      const result = await renderModal();
       userEvent.click(screen.getByText('Cancel'));
-
-      expect(mockServices.atlasAiService.getAbortSignalReceived()).to.be.true;
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Generator Dismissed',
+          {
+            screen: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
+            gen_ai_features_enabled: false,
+            send_sample_values_enabled: false,
+          }
+        );
+      });
     });
 
-    it('cancels in-flight faker mapping requests when the back button is clicked after schema confirmation', async () => {
-      const mockServices = createMockServicesWithSlowAiRequest();
-      await renderModal({ mockServices: mockServices as any });
-
-      expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      userEvent.click(screen.getByText('Confirm'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
+    it('shows loading spinner when faker schema generation is in progress', async () => {
+      await renderModal({
+        fakerSchemaGeneration: {
+          status: 'in-progress',
+          requestId: 'test-request-id',
+        },
       });
 
-      userEvent.click(screen.getByText('Back'));
+      expect(screen.getByTestId('raw-schema-confirmation-loader')).to.exist;
+      expect(screen.getByText('Generating mock data mappings...')).to.exist;
+    });
 
-      expect(mockServices.atlasAiService.getAbortSignalReceived()).to.be.true;
+    it('disables the Confirm button when faker schema generation is in progress', async () => {
+      await renderModal({
+        fakerSchemaGeneration: {
+          status: 'in-progress',
+          requestId: 'test-request-id',
+        },
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Confirm' })
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('shows sample values banner when sample document passing is disabled and projectId is available', async () => {
+      await renderModal({
+        enableGenAISampleDocumentPassing: false,
+        connectionInfo: {
+          id: 'test-connection-id',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+          atlasMetadata: {
+            orgId: 'test-org-id',
+            projectId: 'test-project-id',
+            clusterName: 'test-cluster',
+            clusterType: 'REPLICASET' as const,
+            clusterState: 'IDLE' as const,
+            clusterUniqueId: 'test-cluster-unique-id',
+            metricsId: 'test-metrics-id',
+            metricsType: 'replicaSet' as const,
+            regionalBaseUrl: null,
+            instanceSize: 'M10',
+            supports: {
+              globalWrites: false,
+              rollingIndexes: true,
+            },
+            userConnectionString: 'mongodb+srv://localhost:27017',
+          },
+        },
+      });
+
+      expect(screen.getByTestId('sample-values-banner')).to.exist;
+      expect(screen.getByText('Enable Sending Sample Field Values')).to.exist;
+      expect(screen.getByTestId('sample-values-banner-settings-button')).to
+        .exist;
+    });
+
+    it('hides sample values banner when sample document passing is enabled', async () => {
+      await renderModal({
+        enableGenAISampleDocumentPassing: true,
+        connectionInfo: {
+          id: 'test-connection-id',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+          atlasMetadata: {
+            orgId: 'test-org-id',
+            projectId: 'test-project-id',
+            clusterName: 'test-cluster',
+            clusterType: 'REPLICASET' as const,
+            clusterState: 'IDLE' as const,
+            clusterUniqueId: 'test-cluster-unique-id',
+            metricsId: 'test-metrics-id',
+            metricsType: 'replicaSet' as const,
+            regionalBaseUrl: null,
+            instanceSize: 'M10',
+            supports: {
+              globalWrites: false,
+              rollingIndexes: true,
+            },
+            userConnectionString: 'mongodb+srv://localhost:27017',
+          },
+        },
+      });
+
+      expect(screen.queryByTestId('sample-values-banner')).to.not.exist;
+    });
+
+    it('dismisses sample values banner when close button is clicked', async () => {
+      await renderModal({
+        enableGenAISampleDocumentPassing: false,
+        connectionInfo: {
+          id: 'test-connection-id',
+          connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+          atlasMetadata: {
+            orgId: 'test-org-id',
+            projectId: 'test-project-id',
+            clusterName: 'test-cluster',
+            clusterType: 'REPLICASET' as const,
+            clusterState: 'IDLE' as const,
+            clusterUniqueId: 'test-cluster-unique-id',
+            metricsId: 'test-metrics-id',
+            metricsType: 'replicaSet' as const,
+            regionalBaseUrl: null,
+            instanceSize: 'M10',
+            supports: {
+              globalWrites: false,
+              rollingIndexes: true,
+            },
+            userConnectionString: 'mongodb+srv://localhost:27017',
+          },
+        },
+      });
+
+      expect(screen.getByTestId('sample-values-banner')).to.exist;
+
+      // Click the dismiss button
+      const banner = screen.getByTestId('sample-values-banner');
+      const closeButton = banner
+        .querySelector('[aria-label="X Icon"]')
+        ?.closest('button') as HTMLElement;
+      userEvent.click(closeButton);
+
+      await waitFor(() => {
+        expect(screen.queryByTestId('sample-values-banner')).to.not.exist;
+      });
+    });
+
+    it('opens project settings URL when settings button is clicked', async () => {
+      const windowOpenStub = sinon.stub(window, 'open');
+
+      try {
+        await renderModal({
+          enableGenAISampleDocumentPassing: false,
+          connectionInfo: {
+            id: 'test-connection-id',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            atlasMetadata: {
+              orgId: 'test-org-id',
+              projectId: 'test-project-id',
+              clusterName: 'test-cluster',
+              clusterType: 'REPLICASET' as const,
+              clusterState: 'IDLE' as const,
+              clusterUniqueId: 'test-cluster-unique-id',
+              metricsId: 'test-metrics-id',
+              metricsType: 'replicaSet' as const,
+              regionalBaseUrl: null,
+              instanceSize: 'M10',
+              supports: {
+                globalWrites: false,
+                rollingIndexes: true,
+              },
+              userConnectionString: 'mongodb+srv://localhost:27017',
+            },
+          },
+        });
+
+        // Click the settings button
+        const settingsButton = screen.getByTestId(
+          'sample-values-banner-settings-button'
+        );
+        userEvent.click(settingsButton);
+
+        expect(windowOpenStub).to.have.been.calledWith(
+          `${window.location.origin}/v2/test-project-id#/settings/groupSettings`,
+          '_blank',
+          'noopener noreferrer'
+        );
+      } finally {
+        windowOpenStub.restore();
+      }
     });
   });
 
@@ -228,41 +393,36 @@ describe('MockDataGeneratorModal', () => {
       expect(screen.getByText('test.collection')).to.exist;
     });
 
-    it('uses the appropriate copy when Generative AI sample document passing is enabled', async () => {
+    it('displays the description copy with Faker functions link', async () => {
+      await renderModal();
+      expect(screen.getByText(/We'll use the identified schema to generate/)).to
+        .exist;
+      expect(screen.getByRole('link', { name: 'Faker functions' })).to.exist;
+    });
+
+    it('displays sample document when sample document passing is enabled', async () => {
       await renderModal({ enableGenAISampleDocumentPassing: true });
-      expect(screen.getByText('Sample Documents Collected')).to.exist;
-      expect(
-        screen.getByText(
-          'A sample of documents from your collection will be sent to an LLM for processing.'
-        )
-      ).to.exist;
       // fragment from { "name": "John" }
       expect(screen.getByText('"John"')).to.exist;
       expect(screen.queryByText('"String"')).to.not.exist;
     });
 
-    it('uses the appropriate copy when Generative AI sample document passing is disabled', async () => {
+    it('displays schema when sample document passing is disabled', async () => {
       await renderModal();
-      expect(screen.getByText('Document Schema Identified')).to.exist;
-      expect(
-        screen.queryByText(
-          'We have identified the following schema from your documents. This schema will be sent to an LLM for processing.'
-        )
-      ).to.exist;
       // fragment from { "name": "String" }
       expect(screen.getByText('"String"')).to.exist;
       expect(screen.queryByText('"John"')).to.not.exist;
     });
 
-    it('renders the faker schema editor when the confirm button is clicked', async () => {
+    it('advances to Preview and Doc Count step when the confirm button is clicked and LLM succeeds', async () => {
       await renderModal();
 
       expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      expect(screen.queryByTestId('faker-schema-editor')).to.not.exist;
+      expect(screen.queryByTestId('preview-and-doc-count-screen')).to.not.exist;
       userEvent.click(screen.getByText('Confirm'));
       await waitFor(() => {
         expect(screen.queryByTestId('raw-schema-confirmation')).to.not.exist;
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
+        expect(screen.getByTestId('preview-and-doc-count-screen')).to.exist;
       });
     });
 
@@ -273,11 +433,12 @@ describe('MockDataGeneratorModal', () => {
       await renderModal({ mockServices });
 
       expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      expect(screen.queryByTestId('faker-schema-editor')).to.not.exist;
+      expect(screen.queryByTestId('preview-and-doc-count-screen')).to.not.exist;
       userEvent.click(screen.getByText('Confirm'));
       await waitFor(() => {
         expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-        expect(screen.queryByTestId('faker-schema-editor')).to.not.exist;
+        expect(screen.queryByTestId('preview-and-doc-count-screen')).to.not
+          .exist;
       });
 
       expect(screen.getByText('LLM Request failed. Please confirm again.')).to
@@ -285,351 +446,58 @@ describe('MockDataGeneratorModal', () => {
     });
   });
 
-  describe('on the schema editor step', () => {
-    const mockSchemaAnalysis: SchemaAnalysisState = {
-      ...defaultSchemaAnalysisState,
-      processedSchema: {
-        name: {
-          type: 'String',
-          probability: 1.0,
-        },
-        age: {
-          type: 'Int32',
-          probability: 1.0,
-        },
-        email: {
-          type: 'String',
-          probability: 1.0,
-        },
-        username: {
-          type: 'String',
-          probability: 1.0,
-        },
-      },
-      sampleDocument: {
-        name: 'Jane',
-        age: 99,
-        email: 'Jane@email.com',
-        username: 'JaneDoe123',
-      },
-    };
-    const mockServicesWithMockDataResponse = createMockServices();
-    mockServicesWithMockDataResponse.atlasAiService.getMockDataSchema = () =>
-      Promise.resolve({
-        fields: [
-          {
-            fieldPath: 'name',
-            mongoType: 'String',
+  describe('on the preview and doc count step', () => {
+    it('renders the document count input with default value', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
             fakerMethod: 'person.firstName',
             fakerArgs: [],
-          },
-          {
-            fieldPath: 'age',
-            mongoType: 'Int32',
-            fakerMethod: 'number.int',
-            fakerArgs: [],
-          },
-          {
-            fieldPath: 'email',
+            probability: 1.0,
             mongoType: 'String',
-            fakerMethod: 'internet',
-            fakerArgs: [],
           },
-          {
-            fieldPath: 'username',
-            mongoType: 'String',
-            fakerMethod: 'noSuchMethod',
-            fakerArgs: [],
-          },
-        ],
+        }),
       });
 
-    it('shows a loading spinner when the faker schema generation is in progress', async () => {
-      const mockServices = createMockServices();
-      mockServices.atlasAiService.getMockDataSchema = () =>
-        new Promise((resolve) =>
-          setTimeout(
-            () =>
-              resolve({
-                fields: [],
-              }),
-            1
-          )
-        );
-
-      await renderModal({ mockServices });
-
-      // advance to the schema editor step
-      userEvent.click(screen.getByText('Confirm'));
-      expect(screen.getByTestId('faker-schema-editor-loader')).to.exist;
+      const input = screen.getByTestId('document-count-input');
+      expect(input).to.exist;
+      expect(input).to.have.value(DEFAULT_DOCUMENT_COUNT.toString());
     });
 
-    it('shows the faker schema editor when the faker schema generation is completed', async () => {
+    it('renders the preview section with sample documents', async () => {
       await renderModal({
-        mockServices: mockServicesWithMockDataResponse,
-        schemaAnalysis: mockSchemaAnalysis,
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
       });
 
-      // advance to the schema editor step
-      userEvent.click(screen.getByText('Confirm'));
-
-      expect(await screen.findByTestId('faker-schema-editor')).to.exist;
-      expect(screen.getByText('name')).to.exist;
-      expect(screen.getByText('age')).to.exist;
-    });
-
-    it('shows correct values for the faker schema editor', async () => {
-      await renderModal({
-        mockServices: mockServicesWithMockDataResponse,
-        schemaAnalysis: mockSchemaAnalysis,
-      });
-
-      // advance to the schema editor step
-      userEvent.click(screen.getByText('Confirm'));
-      await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
-      });
-      // the "name" field should be selected by default
-      expect(screen.getByText('name')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'person.firstName'
-      );
-      // select the "age" field
-      userEvent.click(screen.getByText('age'));
-      expect(screen.getByText('age')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('Int32');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'number.int'
-      );
-      // select the "email" field
-      userEvent.click(screen.getByText('email'));
-      expect(screen.getByText('email')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      // the "email" field should have a warning banner since the faker method is invalid
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'Unrecognized'
-      );
+      expect(screen.getByText('Preview Mock Data')).to.exist;
       expect(
         screen.getByText(
-          'Please select a function or we will default fill this field with the string "Unrecognized"'
+          /Below are examples of documents that will be generated/
         )
       ).to.exist;
-
-      // select the "username" field
-      userEvent.click(screen.getByText('username'));
-      expect(screen.getByText('username')).to.exist;
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'Unrecognized'
-      );
     });
 
-    it('does not show any fields that are not in the input schema', async () => {
-      const mockServices = createMockServices();
-      mockServices.atlasAiService.getMockDataSchema = () =>
-        Promise.resolve({
-          fields: [
-            {
-              fieldPath: 'name',
-              mongoType: 'String',
-              fakerMethod: 'person.firstName',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-            {
-              fieldPath: 'email',
-              mongoType: 'String',
-              fakerMethod: 'internet.email',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-          ],
-        });
-      await renderModal({
-        mockServices,
-      });
-
-      // advance to the schema editor step
-      userEvent.click(screen.getByText('Confirm'));
-
-      await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
-      });
-
-      expect(screen.getByText('name')).to.exist;
-      expect(screen.queryByText('email')).to.not.exist;
-    });
-
-    it('shows unmapped fields as "Unrecognized"', async () => {
-      const mockServices = createMockServices();
-      mockServices.atlasAiService.getMockDataSchema = () =>
-        Promise.resolve({
-          fields: [
-            {
-              fieldPath: 'name',
-              mongoType: 'String',
-              fakerMethod: 'person.firstName',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-            {
-              fieldPath: 'age',
-              mongoType: 'Int32',
-              fakerMethod: 'number.int',
-              fakerArgs: [],
-              isArray: false,
-              probability: 1.0,
-            },
-          ],
-        });
-
-      await renderModal({
-        mockServices,
-        schemaAnalysis: {
-          ...defaultSchemaAnalysisState,
-          processedSchema: {
-            name: {
-              type: 'String',
-              probability: 1.0,
-            },
-            age: {
-              type: 'Int32',
-              probability: 1.0,
-            },
-            type: {
-              type: 'String',
-              probability: 1.0,
-              sample_values: ['cat', 'dog'],
-            },
-          },
-          sampleDocument: { name: 'Peaches', age: 10, type: 'cat' },
-        },
-      });
-
-      // advance to the schema editor step
-      userEvent.click(screen.getByText('Confirm'));
-      await waitForElementToBeRemoved(() =>
-        screen.queryByTestId('faker-schema-editor-loader')
-      );
-
-      // select the "name" field
-      userEvent.click(screen.getByText('name'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'person.firstName'
-      );
-
-      // select the "age" field
-      userEvent.click(screen.getByText('age'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('Int32');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'number.int'
-      );
-
-      // select the "type" field
-      userEvent.click(screen.getByText('type'));
-      expect(screen.getByLabelText('JSON Type')).to.have.value('String');
-      expect(screen.getByLabelText('Faker Function')).to.have.value(
-        'Unrecognized'
-      );
-    });
-
-    it('disables the Next button when the faker schema mapping is not confirmed', async () => {
-      await renderModal({
-        mockServices: mockServicesWithMockDataResponse,
-      });
-
-      // advance to the schema editor step
-      userEvent.click(screen.getByText('Confirm'));
-      await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
-      });
-
-      expect(
-        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
-      ).to.equal('true');
-    });
-
-    it('resets the confirm schema mapping state when the user clicks the back button then goes back to the schema editor step', async () => {
-      await renderModal({
-        mockServices: mockServicesWithMockDataResponse,
-      });
-
-      // advance to the schema editor step
-      userEvent.click(screen.getByText('Confirm'));
-      await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
-      });
-      expect(
-        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
-      ).to.equal('true');
-      // click confirm mappings button
-      userEvent.click(screen.getByText('Confirm mappings'));
-      expect(
-        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
-      ).to.equal('false');
-
-      // click back button
-      userEvent.click(screen.getByText('Back'));
-      await waitFor(() => {
-        expect(screen.getByTestId('raw-schema-confirmation')).to.exist;
-      });
-
-      // click next button to advance to the schema editor step again
-      userEvent.click(screen.getByTestId('next-step-button'));
-      await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
-      });
-      // the next button should be disabled again
-      expect(
-        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
-      ).to.equal('true');
-    });
-
-    it('preserves the confirm schema mapping state when the user clicks the next button then goes back to the schema editor step', async () => {
-      await renderModal({
-        mockServices: mockServicesWithMockDataResponse,
-      });
-
-      // advance to the schema editor step
-      userEvent.click(screen.getByText('Confirm'));
-      await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
-      });
-      expect(
-        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
-      ).to.equal('true');
-      // click confirm mappings button
-      userEvent.click(screen.getByText('Confirm mappings'));
-      expect(
-        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
-      ).to.equal('false');
-
-      // click next button
-      userEvent.click(screen.getByTestId('next-step-button'));
-      await waitFor(() => {
-        expect(screen.queryByTestId('faker-schema-editor')).to.not.exist;
-      });
-
-      // click back button to go back to the schema editor step
-      userEvent.click(screen.getByText('Back'));
-      await waitFor(() => {
-        expect(screen.getByTestId('faker-schema-editor')).to.exist;
-      });
-      // the next button should not be disabled
-      expect(
-        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
-      ).to.equal('false');
-    });
-  });
-
-  describe('on the generate data step', () => {
     it('enables the Back button', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
 
       expect(
         screen
@@ -638,8 +506,127 @@ describe('MockDataGeneratorModal', () => {
       ).to.not.equal('true');
     });
 
+    it('displays estimated disk size when avgDocumentSize is available', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        schemaAnalysis: {
+          ...defaultSchemaAnalysisState,
+          schemaMetadata: {
+            ...defaultSchemaAnalysisState.schemaMetadata,
+            avgDocumentSize: 500,
+          },
+        },
+      });
+
+      expect(screen.getByTestId('estimated-disk-size')).to.exist;
+      expect(screen.getByText('Estimated Disk Size')).to.exist;
+      // Default 1000 docs * 500 bytes = 500,000 bytes = 500.0 kB (SI units)
+      expect(screen.getByText(/500.*kB/)).to.exist;
+    });
+
+    it('disables Generate Script button when document count is invalid', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        documentCount: '0', // Invalid: below minimum
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Generate Script' })
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+
+    it('enables Generate Script button when document count is valid', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        documentCount: '1000', // Valid
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Generate Script' })
+          .getAttribute('aria-disabled')
+      ).to.not.equal('true');
+    });
+  });
+
+  describe('on the script result step', () => {
+    it('enables the Back button', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(
+        screen
+          .getByRole('button', { name: 'Back' })
+          .getAttribute('aria-disabled')
+      ).to.not.equal('true');
+    });
+
+    it('renders the title and description', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(screen.getByText('Generate Mock Data Script')).to.exist;
+      expect(
+        screen.getByText(/We've created the following script for your use\./)
+      ).to.exist;
+    });
+
     it('renders the main sections: Prerequisites, steps, and Resources', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
 
       expect(screen.getByText('Prerequisites')).to.exist;
       expect(screen.getByText('1. Create a .js file with the following script'))
@@ -649,13 +636,23 @@ describe('MockDataGeneratorModal', () => {
     });
 
     it('closes the modal when the Done button is clicked', async () => {
-      await renderModal({ currentStep: MockDataGeneratorStep.GENERATE_DATA });
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
 
-      expect(screen.getByTestId('generate-mock-data-modal')).to.exist;
+      expect(screen.getByTestId('generate-mock-data-modal')).to.be.open;
       userEvent.click(screen.getByText('Done'));
       await waitFor(
         () =>
-          expect(screen.queryByTestId('generate-mock-data-modal')).to.not.exist
+          expect(screen.getByTestId('generate-mock-data-modal')).to.be.closed
       );
     });
 
@@ -678,12 +675,21 @@ describe('MockDataGeneratorModal', () => {
             globalWrites: false,
             rollingIndexes: true,
           },
+          userConnectionString: mockUserConnectionString,
         },
       };
 
       await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
         connectionInfo: atlasConnectionInfo,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
       });
 
       const databaseUsersLink = screen.getByRole('link', {
@@ -702,7 +708,7 @@ describe('MockDataGeneratorModal', () => {
       };
 
       await renderModal({
-        currentStep: MockDataGeneratorStep.GENERATE_DATA,
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
         connectionInfo: nonAtlasConnectionInfo,
       });
 
@@ -710,7 +716,197 @@ describe('MockDataGeneratorModal', () => {
         .to.not.exist;
     });
 
-    // todo: assert that the generated script is displayed in the code block (CLOUDP-333860)
+    it('shows error banner when script generation fails', async () => {
+      // Mock the generateScript function to return an error
+      const generateScriptStub = sinon.stub(
+        scriptGenerationUtils,
+        'generateScript'
+      );
+      generateScriptStub.returns({
+        success: false,
+        error: 'Test error: Invalid faker schema format',
+      });
+
+      try {
+        await renderModal({
+          currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+          fakerSchemaGeneration: createCompletedFakerSchema({
+            name: {
+              fakerMethod: 'person.firstName',
+              fakerArgs: [],
+              probability: 1.0,
+              mongoType: 'String',
+            },
+          }),
+        });
+
+        expect(screen.getByRole('alert')).to.exist;
+        expect(screen.getByText(/Script Generation Failed:/)).to.exist;
+        expect(screen.getByText(/Test error: Invalid faker schema format/)).to
+          .exist;
+        expect(screen.getByText(/Please go back to the start screen/)).to.exist;
+
+        const codeBlock = screen.getByText('// Script generation failed.');
+        expect(codeBlock).to.exist;
+      } finally {
+        generateScriptStub.restore();
+      }
+    });
+
+    it('displays the script when generation succeeds', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+          email: {
+            fakerMethod: 'internet.email',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      // Check that no error banner is displayed
+      expect(screen.queryByRole('alert')).to.not.exist;
+      expect(screen.queryByText('Script generation failed')).to.not.exist;
+      expect(screen.getByText('firstName')).to.exist; // faker method
+      expect(screen.getByText('insertMany')).to.exist;
+    });
+
+    it('fires a track event when the script is generated', async () => {
+      const result = await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        documentCount: '100',
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+          email: {
+            fakerMethod: 'internet.email',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Script Generated',
+          {
+            field_count: 2,
+            output_docs_count: 100,
+          }
+        );
+      });
+    });
+
+    it('fires a track event when the mongosh script is copied', async () => {
+      const result = await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+          email: {
+            fakerMethod: 'internet.email',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      const codeCopyButtons = screen.getAllByTestId('lg-code-copy_button');
+      const mongoshCopyButton = codeCopyButtons[1];
+
+      expect(codeCopyButtons).to.have.length(2);
+      userEvent.click(mongoshCopyButton);
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Script Copied',
+          {
+            step: DataGenerationSteps.RUN_SCRIPT,
+          }
+        );
+      });
+    });
+
+    it('shows userConnectionString in the mongosh command when available', async () => {
+      const atlasConnectionInfo: ConnectionInfo = {
+        id: 'test-atlas-connection',
+        connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+        atlasMetadata: {
+          orgId: 'test-org',
+          projectId: 'test-project-123',
+          clusterName: 'test-cluster',
+          clusterUniqueId: 'test-cluster-unique-id',
+          clusterType: 'REPLICASET' as const,
+          clusterState: 'IDLE' as const,
+          metricsId: 'test-metrics-id',
+          metricsType: 'replicaSet' as const,
+          regionalBaseUrl: null,
+          instanceSize: 'M10',
+          supports: {
+            globalWrites: false,
+            rollingIndexes: true,
+          },
+          userConnectionString: mockUserConnectionString,
+        },
+      };
+
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        connectionInfo: atlasConnectionInfo,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(screen.getByText(mockUserConnectionString, { exact: false })).to
+        .exist;
+    });
+
+    it('shows fallback connection string when there is no Atlas metadata', async () => {
+      const atlasConnectionInfoWithoutAtlasMetadata: ConnectionInfo = {
+        id: 'test-atlas-connection',
+        connectionOptions: { connectionString: 'mongodb://localhost:27017' },
+      };
+
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        connectionInfo: atlasConnectionInfoWithoutAtlasMetadata,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(
+        screen.getByText(DEFAULT_CONNECTION_STRING_FALLBACK, { exact: false })
+      ).to.exist;
+    });
   });
 
   describe('when rendering the modal in a specific step', () => {
@@ -718,12 +914,31 @@ describe('MockDataGeneratorModal', () => {
       StepButtonLabelMap
     ) as unknown as MockDataGeneratorStep[];
 
-    // note: these tests can be removed after every modal step is implemented
     steps.forEach((currentStep) => {
       it(`renders the button with the correct label when the user is in step "${currentStep}"`, async () => {
         await renderModal({ currentStep });
         expect(screen.getByTestId('next-step-button')).to.have.text(
           StepButtonLabelMap[currentStep]
+        );
+      });
+
+      it('fires a track event when the user is viewing a mock data generator step', async () => {
+        const result = await renderModal({ currentStep });
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Generator Screen Viewed',
+          {
+            screen: currentStep,
+          }
+        );
+      });
+
+      it('does not fire a track event when the modal is closed', async () => {
+        const result = await renderModal({ currentStep, isOpen: false });
+        expect(result.track).to.not.have.been.calledWith(
+          'Mock Data Generator Screen Viewed',
+          {
+            screen: currentStep,
+          }
         );
       });
     });

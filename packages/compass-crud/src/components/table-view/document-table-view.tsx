@@ -37,6 +37,7 @@ import type {
   GridReadyEvent,
   RowNode,
   ValueGetterParams,
+  ColumnResizedEvent,
 } from 'ag-grid-community';
 
 const MIXED = 'Mixed' as const;
@@ -70,6 +71,9 @@ export type DocumentTableViewProps = {
   tz: string;
   className?: string;
   darkMode?: boolean;
+  legacyUUIDDisplayEncoding?: string;
+  columnWidths: Record<string, number>;
+  onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
 };
 
 export type GridContext = {
@@ -88,7 +92,7 @@ export type GridContext = {
 /**
  * Represents the table view of the documents tab.
  */
-class DocumentTableView extends React.Component<DocumentTableViewProps> {
+export class DocumentTableView extends React.Component<DocumentTableViewProps> {
   AGGrid: React.ReactElement;
   collection: string;
   topLevel: boolean;
@@ -148,6 +152,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         const fid = data.isFooter ? '1' : '0';
         return String(data.hadronDocument.getStringId()) + fid;
       },
+      onColumnResized: this.onColumnResized.bind(this),
     };
 
     this.collection = mongodbns(props.ns).collection;
@@ -209,6 +214,23 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
    */
   onCellDoubleClicked(event: CellDoubleClickedEvent) {
     this.addFooter(event.node, event.data, 'editing');
+  }
+
+  /**
+   * Callback for when a column's width is changed
+   *
+   * @param {Object} event
+   *     finished {Boolean} - indicates the end of a stream of column resize events
+   */
+  onColumnResized(event: ColumnResizedEvent) {
+    if (event.finished) {
+      const columnState = this.columnApi?.getColumnState() || [];
+      const currentColumnWidths: Record<string, number> = Object.create(null);
+      for (const column of columnState) {
+        if (column.width) currentColumnWidths[column.colId] = column.width;
+      }
+      this.props.onColumnWidthChange(currentColumnWidths);
+    }
   }
 
   /**
@@ -729,6 +751,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         parentType: '',
         tz: this.props.tz,
         darkMode: this.props.darkMode,
+        legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
       editable: false,
       cellEditorFramework: CellEditor,
@@ -802,6 +825,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         parentType: parentType,
         tz: this.props.tz,
         darkMode: this.props.darkMode,
+        legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
 
       editable: function (params) {
@@ -844,7 +868,10 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
         drillDown: this.props.drillDown,
         tz: this.props.tz,
         darkMode: this.props.darkMode,
+        legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
+      resizable: true,
+      width: this.props.columnWidths[String(path[path.length - 1])],
     };
   };
 
@@ -865,8 +892,11 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
     path: (string | number)[],
     types: TableHeaderType[]
   ): ColDef[] => {
-    const headers: Record<string, ColDef> = {};
-    const headerTypes: Record<string, Record<string, TableHeaderType>> = {};
+    const headers: Record<string, ColDef> = Object.create(null);
+    const headerTypes: Record<
+      string,
+      Record<string, TableHeaderType>
+    > = Object.create(null);
     const isEditable = this.props.isEditable;
     const parentType = types.length ? types[types.length - 1] : 'Object';
 
@@ -921,7 +951,7 @@ class DocumentTableView extends React.Component<DocumentTableViewProps> {
      the grid. This is handled here for the initial header values, and then
      in the GridStore for any subsequent updates. */
     const columnHeaders = Object.values(headers);
-    const showing: Record<string, TableHeaderType> = {};
+    const showing: Record<string, TableHeaderType> = Object.create(null);
 
     map(headerTypes, function (oids, key) {
       const colTypes = Object.values(oids);

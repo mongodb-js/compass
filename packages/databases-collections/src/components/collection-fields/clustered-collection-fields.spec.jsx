@@ -1,17 +1,14 @@
 import React from 'react';
-import { mount } from 'enzyme';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { FormFieldContainer } from '@mongodb-js/compass-components';
 import ClusteredCollectionFields from './clustered-collection-fields';
 
 describe('ClusteredCollectionFields [Component]', function () {
   context('when isClustered prop is true', function () {
-    let component;
-
-    beforeEach(function () {
-      component = mount(
+    it('renders the form field containers', function () {
+      render(
         <ClusteredCollectionFields
           isTimeSeries={false}
           isClustered
@@ -21,22 +18,17 @@ describe('ClusteredCollectionFields [Component]', function () {
           expireAfterSeconds=""
         />
       );
-    });
-
-    afterEach(function () {
-      component = null;
-    });
-
-    it('renders the form field containers', function () {
-      expect(component.find(FormFieldContainer).length).to.equal(3);
+      // When expanded, there should be 2 text inputs (name and expireAfterSeconds)
+      expect(screen.getByRole('textbox', { name: /name/i })).to.exist;
+      expect(
+        screen.getByRole('spinbutton', { name: /expireAfterSeconds/i })
+      ).to.exist;
     });
   });
 
   context('when isClustered prop is false', function () {
-    let component;
-
-    beforeEach(function () {
-      component = mount(
+    it('does not render the fields', function () {
+      render(
         <ClusteredCollectionFields
           isTimeSeries={false}
           isClustered={false}
@@ -46,28 +38,36 @@ describe('ClusteredCollectionFields [Component]', function () {
           expireAfterSeconds=""
         />
       );
-    });
-
-    afterEach(function () {
-      component = null;
-    });
-
-    it('does not render the fields', function () {
-      expect(component.find(FormFieldContainer).length).to.equal(1);
+      // When collapsed, the text inputs should not be visible
+      expect(screen.queryByRole('textbox', { name: /name/i })).to.not.exist;
+      expect(
+        screen.queryByRole('spinbutton', { name: /expireAfterSeconds/i })
+      ).to.not.exist;
     });
 
     it('has the clustered checkbox enabled', function () {
-      expect(component.find('Checkbox').props().disabled).to.equal(false);
+      render(
+        <ClusteredCollectionFields
+          isTimeSeries={false}
+          isClustered={false}
+          clusteredIndex={{}}
+          onChangeIsClustered={() => {}}
+          onChangeField={() => {}}
+          expireAfterSeconds=""
+        />
+      );
+      const checkbox = screen.getByRole('checkbox', {
+        name: /Clustered Collection/i,
+      });
+      expect(checkbox).to.exist;
+      expect(checkbox).to.not.have.attribute('aria-disabled', 'true');
     });
   });
 
   describe('when the clustered checkbox is clicked', function () {
-    let component;
-    let onChangeSpy;
-
-    beforeEach(function () {
-      onChangeSpy = sinon.spy();
-      component = mount(
+    it('calls the onchange with clustered collection on', function () {
+      const onChangeSpy = sinon.spy();
+      render(
         <ClusteredCollectionFields
           isTimeSeries={false}
           isClustered={false}
@@ -77,19 +77,11 @@ describe('ClusteredCollectionFields [Component]', function () {
           expireAfterSeconds=""
         />
       );
-      component
-        .find('input[type="checkbox"]')
-        .at(0)
-        .simulate('change', { target: { checked: true } });
-      component.update();
-    });
+      const checkbox = screen.getByRole('checkbox', {
+        name: /Clustered Collection/i,
+      });
+      userEvent.click(checkbox, undefined, { skipPointerEventsCheck: true });
 
-    afterEach(function () {
-      component = null;
-      onChangeSpy = null;
-    });
-
-    it('calls the onchange with time series collection on', function () {
       expect(onChangeSpy.callCount).to.equal(1);
       expect(onChangeSpy.firstCall.args[0]).to.deep.equal(true);
     });

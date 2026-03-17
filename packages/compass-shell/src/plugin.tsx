@@ -17,9 +17,9 @@ import reducer, {
   loadHistory,
 } from './stores/store';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
-import { Theme, ThemeProvider } from '@mongodb-js/compass-components';
+import { Themes, ThemeProvider } from '@mongodb-js/compass-components';
 
-const SHELL_THEME = { theme: Theme.Dark, enabled: true };
+const SHELL_THEME = { theme: Themes.Dark, enabled: true };
 
 type ShellPluginProps = {
   runtimeId?: string;

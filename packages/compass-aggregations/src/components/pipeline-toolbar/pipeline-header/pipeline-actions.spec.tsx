@@ -12,7 +12,6 @@ import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
 import { renderWithStore } from '../../../../test/configure-store';
-import { changeStageDisabled } from '../../../modules/pipeline-builder/stage-editor';
 import {
   type PreferencesAccess,
   createSandboxFromDefaultPreferences,
@@ -26,13 +25,11 @@ describe('PipelineActions', function () {
   describe('options visible', function () {
     let onRunAggregationSpy: SinonSpy;
     let onToggleOptionsSpy: SinonSpy;
-    let onExportAggregationResultsSpy: SinonSpy;
     let onExplainAggregationSpy: SinonSpy;
 
     beforeEach(function () {
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
-      onExportAggregationResultsSpy = spy();
       onExplainAggregationSpy = spy();
 
       render(
@@ -40,11 +37,9 @@ describe('PipelineActions', function () {
           isOptionsVisible={true}
           showAIEntry={false}
           showRunButton={true}
-          showExportButton={true}
           showExplainButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
-          onExportAggregationResults={onExportAggregationResultsSpy}
           isExplainButtonDisabled={false}
           onExplainAggregation={onExplainAggregationSpy}
           onUpdateView={() => {}}
@@ -62,17 +57,6 @@ describe('PipelineActions', function () {
       userEvent.click(button);
 
       expect(onRunAggregationSpy.calledOnce).to.be.true;
-    });
-
-    it('calls onExportAggregationResults on click', function () {
-      const button = screen.getByTestId(
-        'pipeline-toolbar-export-aggregation-button'
-      );
-      expect(button).to.exist;
-
-      userEvent.click(button);
-
-      expect(onExportAggregationResultsSpy.calledOnce).to.be.true;
     });
 
     it('calls onExplainAggregation on click', function () {
@@ -107,11 +91,9 @@ describe('PipelineActions', function () {
           isOptionsVisible={false}
           showAIEntry={false}
           showRunButton={true}
-          showExportButton={true}
           showExplainButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
-          onExportAggregationResults={() => {}}
           onUpdateView={() => {}}
           onExplainAggregation={() => {}}
           onCollectionScanInsightActionButtonClick={() => {}}
@@ -151,11 +133,9 @@ describe('PipelineActions', function () {
             isOptionsVisible={false}
             showAIEntry={false}
             showRunButton={true}
-            showExportButton={true}
             showExplainButton={true}
             onRunAggregation={onRunAggregationSpy}
             onToggleOptions={onToggleOptionsSpy}
-            onExportAggregationResults={() => {}}
             onUpdateView={() => {}}
             onExplainAggregation={() => {}}
             onCollectionScanInsightActionButtonClick={() => {}}
@@ -174,26 +154,21 @@ describe('PipelineActions', function () {
 
   describe('disables actions when pipeline is invalid', function () {
     let onRunAggregationSpy: SinonSpy;
-    let onExportAggregationResultsSpy: SinonSpy;
     let onExplainAggregationSpy: SinonSpy;
 
     beforeEach(function () {
       onRunAggregationSpy = spy();
-      onExportAggregationResultsSpy = spy();
       onExplainAggregationSpy = spy();
       render(
         <PipelineActions
           isExplainButtonDisabled={true}
-          isExportButtonDisabled={true}
           isRunButtonDisabled={true}
           isOptionsVisible={true}
           showAIEntry={false}
           showRunButton={true}
-          showExportButton={true}
           showExplainButton={true}
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={() => {}}
-          onExportAggregationResults={onExportAggregationResultsSpy}
           onExplainAggregation={onExplainAggregationSpy}
           onUpdateView={() => {}}
           onCollectionScanInsightActionButtonClick={() => {}}
@@ -211,18 +186,6 @@ describe('PipelineActions', function () {
         skipPointerEventsCheck: true,
       });
       expect(onRunAggregationSpy.calledOnce).to.be.false;
-    });
-
-    it('export action disabled', function () {
-      const button = screen.getByTestId(
-        'pipeline-toolbar-export-aggregation-button'
-      );
-      expect(button.getAttribute('aria-disabled')).to.equal('true');
-
-      userEvent.click(button, undefined, {
-        skipPointerEventsCheck: true,
-      });
-      expect(onExportAggregationResultsSpy.calledOnce).to.be.false;
     });
 
     it('explain action disabled', function () {
@@ -243,7 +206,6 @@ describe('PipelineActions', function () {
       const result = await renderWithStore(
         <ConnectedPipelineActions
           showExplainButton={true}
-          showExportButton={true}
           showRunButton={true}
           onToggleOptions={() => {}}
         ></ConnectedPipelineActions>,
@@ -261,12 +223,6 @@ describe('PipelineActions', function () {
       expect(
         screen
           .getByTestId('pipeline-toolbar-explain-aggregation-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
-
-      expect(
-        screen
-          .getByTestId('pipeline-toolbar-export-aggregation-button')
           .getAttribute('aria-disabled')
       ).to.equal('true');
 
@@ -296,41 +252,7 @@ describe('PipelineActions', function () {
 
         expect(
           screen
-            .getByTestId('pipeline-toolbar-export-aggregation-button')
-            .getAttribute('aria-disabled')
-        ).to.equal('true');
-
-        expect(
-          screen
             .getByTestId('pipeline-toolbar-run-button')
-            .getAttribute('aria-disabled')
-        ).to.equal('true');
-      });
-    });
-
-    it('should disable export button when pipeline is $out / $merge', async function () {
-      await renderPipelineActions({
-        pipeline: [{ $out: 'foo' }],
-      });
-
-      expect(
-        screen
-          .getByTestId('pipeline-toolbar-export-aggregation-button')
-          .getAttribute('aria-disabled')
-      ).to.equal('true');
-    });
-
-    it('should disable export button when last enabled stage is $out / $merge', async function () {
-      const { store } = await renderPipelineActions({
-        pipeline: [{ $out: 'foo' }, { $match: { _id: 1 } }],
-      });
-
-      store.dispatch(changeStageDisabled(1, true));
-
-      await waitFor(() => {
-        expect(
-          screen
-            .getByTestId('pipeline-toolbar-export-aggregation-button')
             .getAttribute('aria-disabled')
         ).to.equal('true');
       });

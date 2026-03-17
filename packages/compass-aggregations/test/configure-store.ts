@@ -32,6 +32,7 @@ function getMockedPluginArgs(
     CompassAggregationsPlugin.provider.withMockServices({
       atlasAiService,
       collection: {
+        fetchMetadata: () => ({}),
         toJSON: () => ({}),
         on: () => {},
         removeListener: () => {},

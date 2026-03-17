@@ -9,7 +9,6 @@ import {
   render,
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
-import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import { getDataServiceForConnection } from './connections-store-redux';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 
@@ -31,6 +30,19 @@ const mockConnections = [
     },
     favorite: {
       name: 'peaches',
+    },
+    savedConnectionType: 'favorite' as const,
+  },
+  {
+    id: 'grapes',
+    connectionOptions: {
+      connectionString: 'mongodb://grapes',
+      oidc: {
+        enableUntrustedEndpoints: true,
+      },
+    },
+    favorite: {
+      name: 'grapes',
     },
     savedConnectionType: 'favorite' as const,
   },
@@ -56,31 +68,6 @@ describe('CompassConnections store', function () {
   afterEach(() => {
     sinon.resetHistory();
     sinon.restore();
-  });
-
-  describe('#loadAll', function () {
-    it('calls onFailToLoadConnections when it fails to loadAll connections', async function () {
-      const onFailToLoadConnectionsSpy = sinon.spy();
-      const connectionStorage = new InMemoryConnectionStorage();
-      connectionStorage.loadAll = sinon
-        .stub()
-        .rejects(new Error('loadAll failed'));
-
-      renderCompassConnections({
-        connections: 'no-preload',
-        connectionStorage,
-        onFailToLoadConnections: onFailToLoadConnectionsSpy,
-      });
-
-      await waitFor(() => {
-        expect(onFailToLoadConnectionsSpy).to.have.been.calledOnce;
-      });
-
-      expect(onFailToLoadConnectionsSpy.firstCall.firstArg).to.have.property(
-        'message',
-        'loadAll failed'
-      );
-    });
   });
 
   describe('#connect', function () {
@@ -172,7 +159,7 @@ describe('CompassConnections store', function () {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Debug for me')).to.exist;
+        expect(screen.getByText('Debug')).to.exist;
       });
     });
 
@@ -198,7 +185,7 @@ describe('CompassConnections store', function () {
       });
 
       // The debug button should not be present when assistant is disabled
-      expect(screen.queryByText('Debug for me')).to.not.exist;
+      expect(screen.queryByText('Debug')).to.not.exist;
       expect(screen.queryByTestId('connection-error-debug')).to.not.exist;
     });
 
@@ -240,7 +227,7 @@ describe('CompassConnections store', function () {
     });
 
     it('should show device auth code modal when OIDC flow triggers the notification', async function () {
-      let resolveConnect;
+      let resolveConnect: undefined | (() => void);
       const connectFn = sinon.stub().callsFake(() => {
         return new Promise((resolve) => {
           resolveConnect = () => resolve({});
@@ -278,6 +265,7 @@ describe('CompassConnections store', function () {
         expect(screen.getByText('ABCabc123')).to.exist;
       });
 
+      if (!resolveConnect) throw new Error('resolveConnect is not defined');
       resolveConnect();
 
       await connectPromise;
@@ -373,7 +361,8 @@ describe('CompassConnections store', function () {
       });
 
       // Send a heartbeat fail with an error that's not a non-retryable error code.
-      dataService['emit']('serverHeartbeatFailed', {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (dataService as any)['emit']('serverHeartbeatFailed', {
         failure: new Error('code: 1234, Not the error we are looking for'),
       });
 
@@ -413,7 +402,8 @@ describe('CompassConnections store', function () {
       dataService.isConnected = () => true;
 
       // Send a heartbeat fail with an error that's a non-retryable error code.
-      dataService['emit']('serverHeartbeatFailed', {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (dataService as any)['emit']('serverHeartbeatFailed', {
         failure: new Error('code: 3003, reason: Insufficient permissions'),
       });
 
@@ -459,6 +449,35 @@ describe('CompassConnections store', function () {
         screen.getByText(`Connected to ${mockConnections[0].favorite.name}`)
       ).to.exist;
     });
+
+    it('shallow merges', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        connections: mockConnections,
+      });
+
+      expect(
+        connectionsStore.getState().connections.byId[mockConnections[2].id].info
+          .connectionOptions.oidc
+      ).to.deep.equal({
+        enableUntrustedEndpoints: true,
+      });
+
+      const updatedConnection = {
+        ...mockConnections[2],
+        connectionOptions: {
+          ...mockConnections[2].connectionOptions,
+          oidc: {},
+        },
+        savedConnectionType: 'recent' as const,
+      };
+
+      await connectionsStore.actions.saveAndConnect(updatedConnection);
+
+      expect(
+        connectionsStore.getState().connections.byId[updatedConnection.id].info
+          .connectionOptions.oidc
+      ).to.deep.equal({});
+    });
   });
 
   describe('#disconnect', function () {
@@ -482,7 +501,9 @@ describe('CompassConnections store', function () {
       await connectPromise;
 
       expect(track).to.have.been.calledWith('Connection Disconnected');
-      expect(() => screen.getByText(/Connecting to/)).to.throw;
+      await waitFor(() => {
+        expect(screen.queryByText(/Connecting to/)).to.not.exist;
+      });
     });
   });
 
@@ -497,10 +518,12 @@ describe('CompassConnections store', function () {
       // proceeding
       connectionsStore.actions.createNewConnection();
 
+      const connectionInfoId =
+        connectionsStore.getState().editingConnectionInfoId;
+      if (!connectionInfoId) throw new Error('No editingConnectionInfoId set');
+
       const editingConnection =
-        connectionsStore.getState().connections.byId[
-          connectionsStore.getState().editingConnectionInfoId
-        ];
+        connectionsStore.getState().connections.byId[connectionInfoId];
 
       const newConnection = {
         ...editingConnection.info,

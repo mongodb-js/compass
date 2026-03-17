@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { DataModelingState } from '../store/reducer';
 import { redoEdit, undoEdit } from '../store/diagram';
@@ -16,9 +16,15 @@ import {
   Tooltip,
   Breadcrumbs,
   type BreadcrumbItem,
+  useHotkeys,
+  Menu,
+  MenuItem,
 } from '@mongodb-js/compass-components';
 import AddCollection from './icons/add-collection';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
+import { dualSourceHandlerDebounce } from '../utils/utils';
+import { reselectCollections } from '../store/reselect-collections-wizard';
 
 const breadcrumbsStyles = css({
   padding: `${spacing[300]}px ${spacing[400]}px`,
@@ -54,26 +60,31 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
   diagramName?: string;
   hasUndo: boolean;
   hasRedo: boolean;
+  diagramEditorHasFocus?: boolean;
   isInRelationshipDrawingMode: boolean;
   onUndoClick: () => void;
   onRedoClick: () => void;
   onExportClick: () => void;
   onRelationshipDrawingToggle: () => void;
   onAddCollectionClick: () => void;
+  onAddCollectionsFromDatabaseClick: () => void;
 }> = ({
   step,
   diagramName,
   hasUndo,
   onUndoClick,
   hasRedo,
+  diagramEditorHasFocus,
   onRedoClick,
   onExportClick,
   onRelationshipDrawingToggle,
   onAddCollectionClick,
+  onAddCollectionsFromDatabaseClick,
   isInRelationshipDrawingMode,
 }) => {
   const darkmode = useDarkMode();
   const { openDataModelingWorkspace } = useOpenWorkspace();
+  const [isAddCollectionMenuOpen, setIsAddCollectionMenuOpen] = useState(false);
 
   const breadcrumbItems: [
     ...BreadcrumbItem[],
@@ -85,6 +96,41 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
     ],
     [diagramName, openDataModelingWorkspace]
   );
+
+  // Use dualSourceHandlerDebounce to avoid handling the same keypresses
+  // coming through useHotkeys and the application menu.
+  const [undoHotkey, undoAppMenu] = useMemo(
+    () => dualSourceHandlerDebounce(onUndoClick),
+    [onUndoClick]
+  );
+  const [redoHotkey, redoAppMenu] = useMemo(
+    () => dualSourceHandlerDebounce(onRedoClick),
+    [onRedoClick]
+  );
+
+  // macOS: Cmd+Shift+Z = Redo, Cmd+Z = Undo
+  // Windows/Linux: Ctrl+Z = Undo, Ctrl+Y = Redo
+  useHotkeys('mod+z', undoHotkey, { enabled: step === 'EDITING' }, [
+    undoHotkey,
+  ]);
+  useHotkeys('mod+shift+z', redoHotkey, { enabled: step === 'EDITING' }, [
+    redoHotkey,
+  ]);
+  useHotkeys('mod+y', redoHotkey, { enabled: step === 'EDITING' }, [
+    redoHotkey,
+  ]);
+
+  // Take over the undo/redo functionality in the application menu
+  // if either no element is focused or a child of the data modeling editor
+  // view is focused.
+  useApplicationMenu({
+    roles: diagramEditorHasFocus
+      ? {
+          undo: undoAppMenu,
+          redo: redoAppMenu,
+        }
+      : {},
+  });
 
   if (step !== 'EDITING') {
     return null;
@@ -98,26 +144,71 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
         data-testid="diagram-editor-toolbar"
       >
         <div className={toolbarGroupStyles}>
-          <IconButton
-            aria-label="Undo"
-            disabled={!hasUndo}
-            onClick={onUndoClick}
+          <Tooltip
+            trigger={
+              <IconButton
+                aria-label="Undo"
+                disabled={!hasUndo}
+                onClick={onUndoClick}
+              >
+                <Icon glyph="Undo"></Icon>
+              </IconButton>
+            }
           >
-            <Icon glyph="Undo"></Icon>
-          </IconButton>
-          <IconButton
-            aria-label="Redo"
-            disabled={!hasRedo}
-            onClick={onRedoClick}
+            Undo
+          </Tooltip>
+          <Tooltip
+            trigger={
+              <IconButton
+                aria-label="Redo"
+                disabled={!hasRedo}
+                onClick={onRedoClick}
+              >
+                <Icon glyph="Redo"></Icon>
+              </IconButton>
+            }
           >
-            <Icon glyph="Redo"></Icon>
-          </IconButton>
-          <IconButton
-            aria-label="Add Collection"
-            onClick={onAddCollectionClick}
+            Redo
+          </Tooltip>
+          <Menu
+            align="bottom"
+            justify="start"
+            open={isAddCollectionMenuOpen}
+            setOpen={setIsAddCollectionMenuOpen}
+            data-testid="add-collection-menu"
+            trigger={({ onClick }: any) => {
+              return (
+                <Tooltip
+                  trigger={
+                    <IconButton aria-label="Add Collection" onClick={onClick}>
+                      <AddCollection />
+                    </IconButton>
+                  }
+                >
+                  Add or select collections from the database
+                </Tooltip>
+              );
+            }}
           >
-            <AddCollection />
-          </IconButton>
+            <MenuItem
+              data-testid="add-new-collection"
+              onClick={() => {
+                setIsAddCollectionMenuOpen(false);
+                onAddCollectionClick();
+              }}
+            >
+              Add a new Collection
+            </MenuItem>
+            <MenuItem
+              data-testid="select-from-database"
+              onClick={() => {
+                setIsAddCollectionMenuOpen(false);
+                onAddCollectionsFromDatabaseClick();
+              }}
+            >
+              Select from database
+            </MenuItem>
+          </Menu>
           <Tooltip
             trigger={
               <IconButton
@@ -134,13 +225,19 @@ export const DiagramEditorToolbar: React.FunctionComponent<{
               </IconButton>
             }
           >
-            Drag from one collection to another to create a relationship.
+            Add a relationship by dragging from one collection to another
           </Tooltip>
         </div>
         <div className={toolbarGroupStyles}>
-          <Button size="xsmall" aria-label="Export" onClick={onExportClick}>
-            <Icon glyph="Export"></Icon>
-          </Button>
+          <Tooltip
+            trigger={
+              <Button size="xsmall" aria-label="Export" onClick={onExportClick}>
+                <Icon glyph="Export"></Icon>
+              </Button>
+            }
+          >
+            Export data model
+          </Tooltip>
         </div>
       </div>
     </div>
@@ -151,7 +248,7 @@ export default connect(
   (state: DataModelingState) => {
     const { diagram, step } = state;
     return {
-      step: step,
+      step,
       hasUndo: (diagram?.edits.prev.length ?? 0) > 0,
       hasRedo: (diagram?.edits.next.length ?? 0) > 0,
       diagramName: diagram?.name,
@@ -161,5 +258,6 @@ export default connect(
     onUndoClick: undoEdit,
     onRedoClick: redoEdit,
     onExportClick: showExportModal,
+    onAddCollectionsFromDatabaseClick: reselectCollections,
   }
 )(DiagramEditorToolbar);

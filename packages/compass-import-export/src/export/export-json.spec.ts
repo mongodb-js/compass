@@ -22,6 +22,7 @@ import { fixtures } from '../../test/fixtures';
 import { exportJSONFromQuery, exportJSONFromAggregation } from './export-json';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { getBsonType } from 'hadron-type-checker';
 
 const { expect } = chai;
 chai.use(sinonChai);
@@ -230,12 +231,12 @@ describe('exportJSON', function () {
         // Remove newly created _id's as they won't match when we compare below.
         if (!ejsonToInsertWithout_id[0]._id) {
           for (const doc of writtenResultDocs) {
-            if (doc._id && doc._id._bsontype === 'ObjectId') {
+            if (doc._id && getBsonType(doc._id) === 'ObjectId') {
               delete doc._id;
             }
           }
           for (const doc of ejsonToInsertWithout_id) {
-            if (doc._id && doc._id._bsontype === 'ObjectId') {
+            if (doc._id && getBsonType(doc._id) === 'ObjectId') {
               delete doc._id;
             }
           }
@@ -274,12 +275,10 @@ describe('exportJSON', function () {
     expect(result.docsWritten).to.equal(0);
     expect(result.aborted).to.be.true;
 
-    try {
-      await fs.promises.readFile(resultPath, 'utf8');
-      expect.fail('Expected file to not exist');
-    } catch {
-      // noop
-    }
+    const error = await fs.promises
+      .readFile(resultPath, 'utf8')
+      .catch((e) => e);
+    expect(error).to.be.instanceOf(Error);
     // close the stream so that afterEach hook can clear the tmpdir
     // otherwise it will throw an error (for windows)
     output.close();
@@ -313,10 +312,11 @@ describe('exportJSON', function () {
     try {
       JSON.parse(data);
       expect.fail('Expected file to not be valid JSON');
-    } catch {
+    } catch (err: any) {
       // With signal part of streams pipeline the file is created and if
       // the signal is aborted the stream is destroyed and file is not
       // writable anymore and as a result its not able to write trailing ] to the file.
+      expect(err.message).to.not.equal('Expected file to not be valid JSON');
     }
     expect(result.aborted).to.be.true;
     expect(result.docsWritten).to.equal(0);

@@ -16,10 +16,9 @@ import {
 import { useDataModelSavedItems } from '../provider';
 import {
   deleteDiagram,
-  selectCurrentModel,
   openDiagram,
   openDiagramFromFile,
-  renameDiagram,
+  showDiagramRenameModal,
 } from '../store/diagram';
 import type { MongoDBDataModelDescription } from '../services/data-model-storage';
 import CollaborateIcon from './icons/collaborate';
@@ -27,7 +26,6 @@ import SchemaVisualizationIcon from './icons/schema-visualization';
 import FlexibilityIcon from './icons/flexibility';
 import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
 import { DiagramListToolbar } from './diagram-list-toolbar';
-import toNS from 'mongodb-ns';
 import { ImportDiagramButton } from './import-diagram-button';
 
 const sortBy = [
@@ -120,7 +118,7 @@ const featureDescription: Record<
     title: 'Interactive Diagram Analysis',
     subtitle: 'Explore and annotate interactive diagrams',
   },
-};
+} as const;
 
 const FeaturesList: React.FunctionComponent<{ features: Feature[] }> = ({
   features,
@@ -195,34 +193,15 @@ export const SavedDiagramsList: React.FunctionComponent<{
   onImportDiagramClick,
 }) => {
   const { items, status } = useDataModelSavedItems();
-  const decoratedItems = useMemo<
-    (MongoDBDataModelDescription & {
-      databases: string;
-    })[]
-  >(() => {
-    return items.map((item) => {
-      const databases = new Set(
-        selectCurrentModel(item.edits).collections.map(
-          ({ ns }) => toNS(ns).database
-        )
-      );
-      return {
-        ...item,
-        databases: Array.from(databases).join(', '),
-      };
-    });
-  }, [items]);
   const [search, setSearch] = useState('');
   const filteredItems = useMemo(() => {
     try {
       const regex = new RegExp(search, 'i');
-      return decoratedItems.filter(
-        (x) => regex.test(x.name) || (x.databases && regex.test(x.databases))
-      );
+      return items.filter((x) => regex.test(x.name) || regex.test(x.database));
     } catch {
-      return decoratedItems;
+      return items;
     }
-  }, [decoratedItems, search]);
+  }, [items, search]);
   const [sortControls, sortState] = useSortControls(sortBy);
   const sortedItems = useSortedItems(filteredItems, sortState);
 
@@ -284,6 +263,6 @@ export default connect(null, {
   onCreateDiagramClick: createNewDiagram,
   onOpenDiagramClick: openDiagram,
   onDiagramDeleteClick: deleteDiagram,
-  onDiagramRenameClick: renameDiagram,
+  onDiagramRenameClick: showDiagramRenameModal,
   onImportDiagramClick: openDiagramFromFile,
 })(SavedDiagramsList);

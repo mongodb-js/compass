@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useRef } from 'react';
+import React, { createContext, useContext } from 'react';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import {
   createServiceLocator,
@@ -13,6 +13,7 @@ import type {
   ConnectionId,
   ConnectionState,
 } from './stores/connections-store-redux';
+import { useCurrentValueRef } from '@mongodb-js/compass-components';
 
 export type { ConnectionInfo };
 
@@ -74,19 +75,23 @@ export type ConnectionInfoRef = {
 export const useConnectionInfoRef = () => {
   const connectionId = useContext(ConnectionIdContext);
   const testEnvConnection = useContext(TestEnvCurrentConnectionContext);
-  const testEnvConnectionRef = useRef(testEnvConnection?.info);
-  testEnvConnectionRef.current = testEnvConnection?.info;
+  const testEnvConnectionRef = useCurrentValueRef(testEnvConnection?.info);
   const connectionInfoRefFromStore = useConnectionInfoRefForId(
     connectionId ?? ''
   );
   const connectionInfoRef = connectionInfoRefFromStore.current
     ? connectionInfoRefFromStore
     : testEnvConnectionRef;
+  // We're accessing it for a runtime validation, not for rendering purposes
+  // eslint-disable-next-line react-hooks/refs
   if (!connectionInfoRef.current) {
     throw new Error(
       'Can not access connection info inside a `useConnectionInfoRef` hook. Make sure that you are only calling this hook inside connected application scope'
     );
   }
+  // This is basically a special-case useRef hook, so it's okay for us to access ref
+  // in render
+  // eslint-disable-next-line react-hooks/refs
   return connectionInfoRef as ConnectionInfoRef;
 };
 

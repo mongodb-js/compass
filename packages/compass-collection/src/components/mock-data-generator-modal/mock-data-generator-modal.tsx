@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 
 import {
@@ -13,8 +13,12 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 
-import { type MockDataGeneratorState, MockDataGeneratorStep } from './types';
-import { StepButtonLabelMap } from './constants';
+import { type MockDataGeneratorStep, MockDataGeneratorSteps } from './types';
+import {
+  MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
+  StepButtonLabelMap,
+} from './constants';
+import { validateDocumentCount } from './utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
   mockDataGeneratorModalClosed,
@@ -22,9 +26,18 @@ import {
   generateFakerMappings,
   mockDataGeneratorPreviousButtonClicked,
 } from '../../modules/collection-tab';
+
 import RawSchemaConfirmationScreen from './raw-schema-confirmation-screen';
-import FakerSchemaEditorScreen from './faker-schema-editor-screen';
+import PreviewAndDocCountScreen from './preview-and-doc-count-screen';
 import ScriptScreen from './script-screen';
+import {
+  useTelemetry,
+  useTrackOnChange,
+} from '@mongodb-js/compass-telemetry/provider';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from 'compass-preferences-model/provider';
 
 const footerStyles = css`
   flex-direction: row;
@@ -50,7 +63,8 @@ interface Props {
   onConfirmSchema: () => Promise<void>;
   onPreviousStep: () => void;
   namespace: string;
-  fakerSchemaGenerationState: MockDataGeneratorState;
+  fakerSchemaGenerationStatus: 'idle' | 'in-progress' | 'completed' | 'error';
+  documentCount: string;
 }
 
 const MockDataGeneratorModal = ({
@@ -61,55 +75,77 @@ const MockDataGeneratorModal = ({
   onConfirmSchema,
   onPreviousStep,
   namespace,
-  fakerSchemaGenerationState,
+  fakerSchemaGenerationStatus,
+  documentCount,
 }: Props) => {
-  const [isSchemaConfirmed, setIsSchemaConfirmed] =
-    React.useState<boolean>(false);
+  const track = useTelemetry();
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const isSampleDocumentPassingEnabled = usePreference(
+    'enableGenAISampleDocumentPassing'
+  );
 
   const modalBodyContent = useMemo(() => {
     switch (currentStep) {
-      case MockDataGeneratorStep.SCHEMA_CONFIRMATION:
+      case MockDataGeneratorSteps.SCHEMA_CONFIRMATION:
         return <RawSchemaConfirmationScreen />;
-      case MockDataGeneratorStep.SCHEMA_EDITOR:
-        return (
-          <FakerSchemaEditorScreen
-            isSchemaConfirmed={isSchemaConfirmed}
-            onSchemaConfirmed={setIsSchemaConfirmed}
-            fakerSchemaGenerationState={fakerSchemaGenerationState}
-          />
-        );
-      case MockDataGeneratorStep.DOCUMENT_COUNT:
-        return <></>; // TODO: CLOUDP-333856
-      case MockDataGeneratorStep.PREVIEW_DATA:
-        return <></>; // TODO: CLOUDP-333857
-      case MockDataGeneratorStep.GENERATE_DATA:
+      case MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT:
+        return <PreviewAndDocCountScreen />;
+      case MockDataGeneratorSteps.SCRIPT_RESULT:
         return <ScriptScreen />;
     }
-  }, [currentStep, fakerSchemaGenerationState, isSchemaConfirmed]);
+  }, [currentStep]);
+
+  // TODO: CLOUDP-381913 - Update Mock Data Generator Analytics Calls
+  useTrackOnChange(
+    (track) => {
+      if (isOpen) {
+        track('Mock Data Generator Screen Viewed', {
+          screen: currentStep,
+        });
+      }
+    },
+    [currentStep, isOpen]
+  );
 
   const isNextButtonDisabled =
-    currentStep === MockDataGeneratorStep.SCHEMA_EDITOR && !isSchemaConfirmed;
+    (currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION &&
+      fakerSchemaGenerationStatus === 'in-progress') ||
+    (currentStep === MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT &&
+      !validateDocumentCount(documentCount).isValid);
 
-  const handleNextClick = () => {
-    if (currentStep === MockDataGeneratorStep.GENERATE_DATA) {
+  const handleNextClick = useCallback(() => {
+    const nextStep = MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP[currentStep];
+    track('Mock Data Generator Screen Proceeded', {
+      from_screen: currentStep,
+      to_screen: nextStep,
+    });
+
+    if (currentStep === MockDataGeneratorSteps.SCRIPT_RESULT) {
       onClose();
-    } else if (currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION) {
+    } else if (currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION) {
       void onConfirmSchema();
     } else {
       onNextStep();
     }
-  };
+  }, [currentStep, onConfirmSchema, onNextStep, onClose, track]);
 
   const shouldShowNamespace =
-    currentStep !== MockDataGeneratorStep.GENERATE_DATA;
+    currentStep !== MockDataGeneratorSteps.SCRIPT_RESULT;
 
-  const handlePreviousClick = () => {
-    if (currentStep === MockDataGeneratorStep.SCHEMA_EDITOR) {
-      // reset isSchemaConfirmed state when previous step is clicked
-      setIsSchemaConfirmed(false);
-    }
-    onPreviousStep();
-  };
+  const onModalClose = useCallback(() => {
+    track('Mock Data Generator Dismissed', {
+      screen: currentStep,
+      gen_ai_features_enabled: isAIFeatureEnabled,
+      send_sample_values_enabled: isSampleDocumentPassingEnabled,
+    });
+    onClose();
+  }, [
+    currentStep,
+    track,
+    onClose,
+    isAIFeatureEnabled,
+    isSampleDocumentPassingEnabled,
+  ]);
 
   return (
     <Modal
@@ -117,12 +153,12 @@ const MockDataGeneratorModal = ({
       open={isOpen}
       setOpen={(open) => {
         if (!open) {
-          onClose();
+          onModalClose();
         }
       }}
       data-testid="generate-mock-data-modal"
     >
-      <ModalHeader title="Generate Mock Data" />
+      <ModalHeader title="Generate Mock Data Script" />
       <ModalBody>
         {shouldShowNamespace && (
           <Body className={namespaceStyles}>{namespace}</Body>
@@ -133,13 +169,13 @@ const MockDataGeneratorModal = ({
       </ModalBody>
       <ModalFooter className={footerStyles}>
         <Button
-          onClick={handlePreviousClick}
-          disabled={currentStep === MockDataGeneratorStep.SCHEMA_CONFIRMATION}
+          onClick={onPreviousStep}
+          disabled={currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION}
         >
           Back
         </Button>
         <div className={rightButtonsStyles}>
-          <Button onClick={onClose}>Cancel</Button>
+          <Button onClick={onModalClose}>Cancel</Button>
           <Button
             variant={ButtonVariant.Primary}
             onClick={handleNextClick}
@@ -158,7 +194,8 @@ const mapStateToProps = (state: CollectionState) => ({
   isOpen: state.mockDataGenerator.isModalOpen,
   currentStep: state.mockDataGenerator.currentStep,
   namespace: state.namespace,
-  fakerSchemaGenerationState: state.fakerSchemaGeneration,
+  fakerSchemaGenerationStatus: state.fakerSchemaGeneration?.status ?? 'idle',
+  documentCount: state.mockDataGenerator.documentCount,
 });
 
 const ConnectedMockDataGeneratorModal = connect(mapStateToProps, {

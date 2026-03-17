@@ -7,7 +7,7 @@ import {
   useConnectionInfo,
   useConnectionsListRef,
 } from '@mongodb-js/compass-connections/provider';
-import type { WorkspacePluginProps } from '@mongodb-js/compass-workspaces';
+import type { WorkspacePluginProps } from '@mongodb-js/workspace-info';
 
 import { DatabasesWorkspaceName } from './databases-plugin';
 

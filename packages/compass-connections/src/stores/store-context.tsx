@@ -14,6 +14,7 @@ import type {
   configureStore,
   ConnectionId,
   ConnectionState,
+  State,
 } from './connections-store-redux';
 import {
   cancelEditConnection,
@@ -40,8 +41,9 @@ import {
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
-import { isEqual } from 'lodash';
+import { isEqual, memoize } from 'lodash';
 import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 type ConnectionsStore = ReturnType<typeof configureStore> extends Store<
   infer S,
@@ -210,14 +212,14 @@ export function useConnectionsListRef(): {
 function useConnections() {
   const actions = useConnectionActions();
   const connectionsListRef = useConnectionsListRef();
-  return useRef({
+  return useInitialValue({
     ...actions,
     ...connectionsListRef,
     getDataServiceForConnection,
     on: connectionsEventEmitter.on,
     off: connectionsEventEmitter.off,
     removeListener: connectionsEventEmitter.removeListener,
-  }).current;
+  });
 }
 
 export type ConnectionsService = ReturnType<typeof useConnections>;
@@ -325,10 +327,13 @@ export function useConnectionForId(
  * Returns only connection info state and a title and subscribes to changes
  */
 export function useConnectionInfoForId(
-  connectionId: ConnectionId
+  connectionId?: ConnectionId
 ): (ConnectionInfo & { title: string }) | null {
   return useSelector(
     (state) => {
+      if (!connectionId) {
+        return null;
+      }
       const connection = state.connections.byId[connectionId];
       return connection
         ? { ...connection.info, title: getConnectionTitle(connection.info) }
@@ -385,3 +390,11 @@ export function useConnectionsListLoadingStatus() {
     };
   }, isEqual);
 }
+
+export const selectActiveConnections = memoize(
+  (connectionsById: State['connections']['byId']) => {
+    return Object.values(connectionsById).filter((connection) => {
+      return connection.status === 'connected';
+    });
+  }
+);

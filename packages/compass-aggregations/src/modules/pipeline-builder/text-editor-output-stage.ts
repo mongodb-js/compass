@@ -20,22 +20,25 @@ import type {
 } from './pipeline-ai';
 import { getDestinationNamespaceFromStage } from '../../utils/stage';
 
-const enum OutputStageActionTypes {
-  FetchStarted = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchStarted',
-  FetchSucceded = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchSucceded',
-  FetchFailed = 'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchFailed',
-}
+const OutputStageActionTypes = {
+  FetchStarted:
+    'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchStarted',
+  FetchSucceded:
+    'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchSucceded',
+  FetchFailed:
+    'compass-aggregations/pipeline-builder/text-editor-output-stage/FetchFailed',
+} as const;
 
 type OutputStageFetchStartedAction = {
-  type: OutputStageActionTypes.FetchStarted;
+  type: typeof OutputStageActionTypes.FetchStarted;
 };
 
 type OutputStageFetchSuccededAction = {
-  type: OutputStageActionTypes.FetchSucceded;
+  type: typeof OutputStageActionTypes.FetchSucceded;
 };
 
 type OutputStageFetchFailedAction = {
-  type: OutputStageActionTypes.FetchFailed;
+  type: typeof OutputStageActionTypes.FetchFailed;
   serverError: MongoServerError;
 };
 

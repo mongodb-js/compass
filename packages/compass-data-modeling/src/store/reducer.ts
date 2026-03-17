@@ -20,6 +20,12 @@ import type {
   ExportDiagramActions,
 } from './export-diagram';
 import { exportDiagramReducer } from './export-diagram';
+import { type openToast as _openToast } from '@mongodb-js/compass-components';
+import type {
+  ReselectCollectionsWizardActions,
+  ReselectCollectionsWizardActionTypes,
+} from './reselect-collections-wizard';
+import { reselectCollectionsWizardReducer } from './reselect-collections-wizard';
 
 const reducer = combineReducers({
   step: stepReducer,
@@ -27,25 +33,30 @@ const reducer = combineReducers({
   analysisProgress: analysisProcessReducer,
   diagram: diagramReducer,
   exportDiagram: exportDiagramReducer,
+  reselectCollections: reselectCollectionsWizardReducer,
 });
 
 export type DataModelingActions =
   | GenerateDiagramWizardActions
   | AnalysisProgressActions
   | DiagramActions
-  | ExportDiagramActions;
+  | ExportDiagramActions
+  | ReselectCollectionsWizardActions;
 
-export type DataModelingActionTypes =
-  | GenerateDiagramWizardActionTypes
-  | AnalysisProcessActionTypes
-  | DiagramActionTypes
-  | ExportDiagramActionTypes;
+type _ActionTypes = typeof GenerateDiagramWizardActionTypes &
+  typeof AnalysisProcessActionTypes &
+  typeof DiagramActionTypes &
+  typeof ExportDiagramActionTypes &
+  typeof ReselectCollectionsWizardActionTypes;
+
+export type DataModelingActionTypes = _ActionTypes[keyof _ActionTypes];
 
 export type DataModelingState = ReturnType<typeof reducer>;
 
 export type DataModelingExtraArgs = DataModelingStoreServices & {
   cancelAnalysisControllerRef: { current: AbortController | null };
   cancelExportControllerRef: { current: AbortController | null };
+  openToast: typeof _openToast;
 };
 
 export type DataModelingThunkAction<R, A extends AnyAction> = ThunkAction<

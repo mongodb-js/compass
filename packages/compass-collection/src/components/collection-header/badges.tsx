@@ -12,9 +12,11 @@ export type CollectionBadgeType =
   | 'fle'
   | 'clustered';
 
-const badges: Record<
-  CollectionBadgeType,
-  { label: React.ReactNode; variant?: BadgeVariant }
+const badges: Readonly<
+  Record<
+    CollectionBadgeType,
+    { label: React.ReactNode; variant?: BadgeVariant }
+  >
 > = {
   readonly: {
     label: 'READ-ONLY',

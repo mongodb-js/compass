@@ -1,5 +1,6 @@
 {
   "ignoredOrgs": ["@mongodb-js", "@leafygreen-ui", "@mongosh"],
   "ignoredPackages": [],
-  "licenseOverrides": {}
+  "licenseOverrides": {},
+  "additionalAllowedLicenses": ["BlueOak-1.0.0"]
 }

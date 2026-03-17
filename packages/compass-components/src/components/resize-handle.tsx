@@ -2,10 +2,12 @@ import React, { useRef } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 
-enum ResizeDirection {
-  TOP = 'TOP',
-  RIGHT = 'RIGHT',
-}
+const ResizeDirections = {
+  TOP: 'TOP',
+  RIGHT: 'RIGHT',
+} as const;
+
+type ResizeDirection = (typeof ResizeDirections)[keyof typeof ResizeDirections];
 
 const baseResizerStyles = css({
   all: 'unset',
@@ -47,7 +49,7 @@ const verticalResizerStyle = css({
   bottom: 0,
   top: 0,
   ':hover': {
-    cursor: 'ew-resize',
+    cursor: 'col-resize',
   },
 });
 
@@ -58,7 +60,7 @@ const horizontalResizerStyle = css({
   right: 0,
   left: 0,
   ':hover': {
-    cursor: 'ns-resize',
+    cursor: 'row-resize',
   },
 });
 
@@ -89,7 +91,7 @@ function ResizeHandle({
   let dimensionTitle = 'Width';
   let resizerStyle = verticalResizerStyle;
 
-  if (direction === ResizeDirection.TOP) {
+  if (direction === ResizeDirections.TOP) {
     directionTitle = 'horizontal';
     dimensionTitle = 'Height';
     resizerStyle = horizontalResizerStyle;
@@ -118,9 +120,9 @@ function ResizeHandle({
       }}
       onMouseMove={(event) => {
         if (isDragging.current) {
-          if (direction === ResizeDirection.RIGHT) {
+          if (direction === ResizeDirections.RIGHT) {
             onChange(boundSize(value + event.movementX));
-          } else if (direction === ResizeDirection.TOP) {
+          } else if (direction === ResizeDirections.TOP) {
             onChange(boundSize(value - event.movementY));
           }
         }
@@ -131,9 +133,9 @@ function ResizeHandle({
         event.currentTarget.blur();
 
         isDragging.current = false;
-        if (direction === ResizeDirection.RIGHT) {
+        if (direction === ResizeDirections.RIGHT) {
           onChange(boundSize(value + event.movementX));
-        } else if (direction === ResizeDirection.TOP) {
+        } else if (direction === ResizeDirections.TOP) {
           onChange(boundSize(value - event.movementY));
         }
       }}
@@ -141,4 +143,4 @@ function ResizeHandle({
   );
 }
 
-export { ResizeHandle, ResizeDirection };
+export { ResizeHandle, ResizeDirections as ResizeDirection };

@@ -27,6 +27,7 @@ function renderDiagramEditorToolbar(
         onExportClick={() => {}}
         onRelationshipDrawingToggle={() => {}}
         onAddCollectionClick={() => {}}
+        onAddCollectionsFromDatabaseClick={() => {}}
         {...props}
       />
     </WorkspacesServiceProvider>
@@ -101,12 +102,32 @@ describe('DiagramEditorToolbar', function () {
     });
   });
 
-  context('add collection button', function () {
-    it('starts adding collection', function () {
+  context('add collection menu', function () {
+    it('starts adding new collection', function () {
       const addCollectionSpy = sinon.spy();
       renderDiagramEditorToolbar({ onAddCollectionClick: addCollectionSpy });
       const addButton = screen.getByRole('button', { name: 'Add Collection' });
       userEvent.click(addButton);
+      userEvent.click(
+        screen.getByRole('menuitem', {
+          name: 'Add a new Collection',
+        })
+      );
+      expect(addCollectionSpy).to.have.been.calledOnce;
+    });
+
+    it('starts adding new collection from database', function () {
+      const addCollectionSpy = sinon.spy();
+      renderDiagramEditorToolbar({
+        onAddCollectionsFromDatabaseClick: addCollectionSpy,
+      });
+      const addButton = screen.getByRole('button', { name: 'Add Collection' });
+      userEvent.click(addButton);
+      userEvent.click(
+        screen.getByRole('menuitem', {
+          name: 'Select from database',
+        })
+      );
       expect(addCollectionSpy).to.have.been.calledOnce;
     });
   });

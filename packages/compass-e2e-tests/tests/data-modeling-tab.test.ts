@@ -4,12 +4,12 @@ import {
   init,
   cleanup,
   screenshotIfFailed,
-  DEFAULT_CONNECTION_NAME_1,
+  getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import {
-  createNumbersCollection,
+  createNestedDocumentsCollection,
   createNumbersStringCollection,
 } from '../helpers/insert-data';
 import {
@@ -22,7 +22,7 @@ import toNS from 'mongodb-ns';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
-import type { ChainablePromiseElement } from 'webdriverio';
+import { Key, type ChainablePromiseElement } from 'webdriverio';
 
 type Node = {
   id: string;
@@ -77,7 +77,8 @@ async function setupDiagram(
     diagramName: string;
     connectionName: string;
     databaseName: string;
-  }
+  },
+  stopAtStep?: 'newDiagramSetup' | 'collectionsSelection' | 'diagramSettings'
 ) {
   await browser.navigateToDataModeling();
 
@@ -89,37 +90,62 @@ async function setupDiagram(
     Selectors.CreateDataModelNameInput,
     options.diagramName
   );
-  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Select existing connection
   await browser.selectOption({
     selectSelector: Selectors.CreateDataModelConnectionSelector,
     optionText: options.connectionName,
   });
-  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Select a database
   await browser.selectOption({
     selectSelector: Selectors.CreateDataModelDatabaseSelector,
     optionText: options.databaseName,
   });
+  if (stopAtStep === 'newDiagramSetup') {
+    return;
+  }
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Ensure that all the collections are selected by default
   const text = await browser.$(Selectors.CreateDataModelModal).getText();
   // 2 is based on the collections we create in beforeEach hook
   expect(text).to.contain('2/2 total collections selected.');
+  if (stopAtStep === 'collectionsSelection') {
+    return;
+  }
+  await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
+  // Pass the diagram settings step without changes
+  expect(await browser.$(Selectors.CreateDataModelModal).getText()).to.contain(
+    'Diagram settings'
+  );
+  if (stopAtStep === 'diagramSettings') {
+    return;
+  }
+  await browser.$(Selectors.CreateDataModelConfirmButton).isClickable();
   await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
   // Wait for the diagram editor to load
   const dataModelEditor = browser.$(Selectors.DataModelEditor);
   await dataModelEditor.waitForDisplayed();
 
-  // Close the info banner to get it out of the way
-  const infoBannerCloseBtn = browser.$(Selectors.DataModelInfoBannerCloseBtn);
-  await infoBannerCloseBtn.waitForClickable();
-  await browser.clickVisible(Selectors.DataModelInfoBannerCloseBtn);
+  // Expect the overview drawer to be opened and close it
+  const drawer = browser.$(Selectors.SideDrawer);
+  await drawer.waitForDisplayed();
+  await browser.$('span=Data Model Overview').waitForDisplayed();
+  await closeDrawerIfOpen(browser);
+}
+
+async function closeDrawerIfOpen(browser: CompassBrowser) {
+  const drawer = browser.$(Selectors.SideDrawer);
+  if (
+    (await drawer.isDisplayed()) &&
+    (await drawer.$(Selectors.SideDrawerCloseButton).isClickable())
+  ) {
+    await browser.clickVisible(Selectors.SideDrawerCloseButton);
+    await drawer.waitForDisplayed({ reverse: true, withinViewport: true });
+  }
 }
 
 async function selectCollectionOnTheDiagram(
@@ -128,14 +154,7 @@ async function selectCollectionOnTheDiagram(
 ) {
   // If the drawer is open, close it
   // Otherwise the drawer or the minimap can cover the collection node
-  const drawer = browser.$(Selectors.SideDrawer);
-  if (
-    (await drawer.isDisplayed()) &&
-    (await drawer.$(Selectors.SideDrawerCloseButton).isClickable())
-  ) {
-    await browser.clickVisible(Selectors.SideDrawerCloseButton);
-    await drawer.waitForDisplayed({ reverse: true });
-  }
+  await closeDrawerIfOpen(browser);
 
   // Click on the collection node to open the drawer
   const collectionNode = browser.$(Selectors.DataModelPreviewCollection(ns));
@@ -148,7 +167,7 @@ async function selectCollectionOnTheDiagram(
     y: 15,
   });
 
-  await drawer.waitForDisplayed();
+  await browser.$(Selectors.SideDrawer).waitForDisplayed();
 
   const collectionName = await browser.getInputByLabel(
     browser.$(Selectors.SideDrawer).$(Selectors.DataModelNameInputLabel)
@@ -266,12 +285,12 @@ describe('Data Modeling tab', function () {
 
   beforeEach(async function () {
     await browser.setupDefaultConnections();
-    await browser.setFeature('enableDataModeling', true);
+    await browser.setFeature('enableDataModelingCollapse', true);
     if (exportFileName) {
       cleanUpDownloadedFile(exportFileName);
     }
-    await createNumbersStringCollection('testCollection-one');
-    await createNumbersCollection('testCollection-two');
+    await createNumbersStringCollection('testCollection-flat');
+    await createNestedDocumentsCollection('testCollection-nested');
     await browser.disconnectAll();
     await browser.connectToDefaults();
   });
@@ -294,294 +313,399 @@ describe('Data Modeling tab', function () {
     const dataModelName = 'Test Data Model';
     await setupDiagram(browser, {
       diagramName: dataModelName,
-      connectionName: DEFAULT_CONNECTION_NAME_1,
+      connectionName: getDefaultConnectionNames(0),
       databaseName: 'test',
     });
-
-    const dataModelEditor = browser.$(Selectors.DataModelEditor);
-    await dataModelEditor.waitForDisplayed();
 
     const nodes = await getDiagramNodes(browser, 2);
     expect(nodes).to.have.lengthOf(2);
-    expect(nodes[0].id).to.equal('test.testCollection-one');
-    expect(nodes[1].id).to.equal('test.testCollection-two');
-
-    // Apply change to the model
-
-    // react flow uses its own coordinate system,
-    // so we get the node element location for the pointer action
-    const testCollection1 = browser.$(
-      Selectors.DataModelPreviewCollection('test.testCollection-one')
-    );
-    const startPosition = await dragNode(
-      browser,
-      Selectors.DataModelPreviewCollection('test.testCollection-one'),
-      { x: 100, y: 0 }
-    );
-    await browser.waitForAnimations(dataModelEditor);
-
-    // Check that the first node has moved and mark the new position
-    const newPosition = await testCollection1.getLocation();
-    expect(newPosition).not.to.deep.equal(startPosition);
-
-    // Undo the change
-    await browser.clickVisible(Selectors.DataModelUndoButton);
-    await browser.waitForAnimations(dataModelEditor);
-    const positionAfterUndone = await testCollection1.getLocation();
-    expect(positionAfterUndone).to.deep.equal(startPosition);
-
-    // Redo the change
-    await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
-    await browser.clickVisible(Selectors.DataModelRedoButton);
-    await browser.waitForAnimations(dataModelEditor);
-    const positionAfterRedo = await testCollection1.getLocation();
-    expect(positionAfterRedo).to.deep.equal(newPosition);
-    // Open a new tab
-    await browser.openNewTab();
-
-    // Open the saved diagram
-    await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
-    await browser.$(Selectors.DataModelEditor).waitForDisplayed();
-
-    // TODO: Verify that the diagram has the latest changes COMPASS-9479
-    const savedNodes = await getDiagramNodes(browser, 2);
-    expect(savedNodes).to.have.lengthOf(2);
-
-    // Open a new tab
-    await browser.openNewTab();
-
-    // Delete the saved diagram
-    await browser.clickVisible(
-      Selectors.DataModelsListItemActions(dataModelName)
-    );
-    await browser.clickVisible(Selectors.DataModelsListItemDeleteButton);
-    await browser.clickVisible(Selectors.confirmationModalConfirmButton());
-    await browser
-      .$(Selectors.DataModelsListItem(dataModelName))
-      .waitForDisplayed({ reverse: true });
+    expect(nodes[0].id).to.equal('test.testCollection-flat');
+    expect(nodes[1].id).to.equal('test.testCollection-nested');
   });
 
-  it('allows undo after opening a diagram', async function () {
-    const dataModelName = 'Test Data Model - Undo After Open';
-    await setupDiagram(browser, {
-      diagramName: dataModelName,
-      connectionName: DEFAULT_CONNECTION_NAME_1,
-      databaseName: 'test',
-    });
+  it('allows configuring the sample size during diagram creation', async function () {
+    const dataModelName = 'Test Data Model - Sample Size';
 
-    const dataModelEditor = browser.$(Selectors.DataModelEditor);
-    await dataModelEditor.waitForDisplayed();
-
-    await dragNode(
+    await setupDiagram(
       browser,
-      Selectors.DataModelPreviewCollection('test.testCollection-one'),
-      { x: 100, y: 0 }
-    );
-    await browser.waitForAnimations(dataModelEditor);
-
-    // Open the saved diagram in new tab
-    await browser.openNewTab();
-    await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
-    await browser.$(Selectors.DataModelEditor).waitForDisplayed();
-
-    // Ensure that undo button is enabled
-    await browser.waitForAriaDisabled(Selectors.DataModelUndoButton, false);
-
-    // Undo the change
-    await browser.clickVisible(Selectors.DataModelUndoButton);
-    await browser.waitForAnimations(dataModelEditor);
-
-    // Ensure that undo button is now disabled and redo is enabled
-    await browser.waitForAriaDisabled(Selectors.DataModelUndoButton, true);
-    await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
-  });
-
-  it('exports the data model to JSON', async function () {
-    const dataModelName = 'Test Export Model - JSON';
-    exportFileName = `${dataModelName}.json`;
-    await setupDiagram(browser, {
-      diagramName: dataModelName,
-      connectionName: DEFAULT_CONNECTION_NAME_1,
-      databaseName: 'test',
-    });
-
-    await browser.clickVisible(Selectors.DataModelExportButton);
-    const exportModal = browser.$(Selectors.DataModelExportModal);
-    await exportModal.waitForDisplayed();
-
-    await browser.clickParent(Selectors.DataModelExportJsonOption);
-    await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
-
-    const { fileExists, filePath } = await waitForFileDownload(
-      exportFileName,
-      browser
-    );
-    expect(fileExists).to.be.true;
-
-    const content = readFileSync(filePath, 'utf-8');
-    const model = JSON.parse(content);
-
-    // Within beforeEach hook, we create these two collections
-    expect(model).to.deep.equal({
-      collections: {
-        'test.testCollection-one': {
-          ns: 'test.testCollection-one',
-          jsonSchema: {
-            bsonType: 'object',
-            required: ['_id', 'i', 'iString', 'j'],
-            properties: {
-              _id: {
-                bsonType: 'objectId',
-              },
-              i: {
-                bsonType: 'int',
-              },
-              iString: {
-                bsonType: 'string',
-              },
-              j: {
-                bsonType: 'int',
-              },
-            },
-          },
-        },
-        'test.testCollection-two': {
-          ns: 'test.testCollection-two',
-          jsonSchema: {
-            bsonType: 'object',
-            required: ['_id', 'i', 'j'],
-            properties: {
-              _id: {
-                bsonType: 'objectId',
-              },
-              i: {
-                bsonType: 'int',
-              },
-              j: {
-                bsonType: 'int',
-              },
-            },
-          },
-        },
+      {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName: 'test',
       },
-      relationships: [],
-    });
-  });
-
-  it('exports the data model to PNG', async function () {
-    if (process.platform === 'win32') {
-      console.warn('Skipping PNG export test on Windows');
-      this.skip();
-    }
-    const dataModelName = 'Test Export Model - PNG';
-    exportFileName = `${dataModelName}.png`;
-    await setupDiagram(browser, {
-      diagramName: dataModelName,
-      connectionName: DEFAULT_CONNECTION_NAME_1,
-      databaseName: 'test',
-    });
-
-    await browser.clickVisible(Selectors.DataModelExportButton);
-    const exportModal = browser.$(Selectors.DataModelExportModal);
-    await exportModal.waitForDisplayed();
-
-    await browser.clickParent(Selectors.DataModelExportPngOption);
-    await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
-
-    const { fileExists, filePath } = await waitForFileDownload(
-      exportFileName,
-      browser
+      'diagramSettings'
     );
-    expect(fileExists).to.be.true;
 
-    const { data } = await recognize(filePath, 'eng', {
-      cachePath: tmpdir,
-    });
+    // We're now on the select collections step
+    // Verify that sample size input is visible with default value of 100
+    const sampleSizeInput = browser.$(Selectors.DataModelSampleSizeInput);
+    await sampleSizeInput.scrollIntoView();
+    await sampleSizeInput.waitForDisplayed();
+    expect(await sampleSizeInput.getValue()).to.equal('100');
 
-    const text = data.text.toLowerCase();
+    // Verify no warning is shown initially (default is 100, threshold is 100)
+    const warning = browser.$(Selectors.DataModelSampleSizeWarning);
+    expect(await warning.isDisplayed()).to.be.false;
 
-    expect(text).to.include('testCollection-one'.toLowerCase());
-    expect(text).to.include('testCollection-two'.toLowerCase());
+    // Change to a larger sample size (> 100) and verify warning appears
+    await sampleSizeInput.setValue('200');
+    await warning.waitForDisplayed();
+    expect(await warning.getText()).to.include('Consider your dataset size');
 
-    expect(text).to.include('id objectId'.toLowerCase());
-    expect(text).to.include('i int');
-    // Disabled as it's not recognized correctly by tesseract.js at the moment.
-    // expect(text).to.include('j int');
-    // it does not correctly recognize `iString` and only returns `String`.
-    // its already good enough to verify this for now and if it flakes
-    // more, we may need to revisit this test.
-    expect(text).to.include('String string'.toLowerCase());
-  });
+    // Change back to a smaller value and verify warning disappears
+    await sampleSizeInput.setValue('50');
+    await warning.waitForDisplayed({ reverse: true });
 
-  it('exports the data model to compass format and imports it back', async function () {
-    const dataModelName = 'Test Export Model - Save-Open';
-    exportFileName = `${dataModelName}.mdm`;
-    await setupDiagram(browser, {
-      diagramName: dataModelName,
-      connectionName: DEFAULT_CONNECTION_NAME_1,
-      databaseName: 'test',
-    });
+    // Proceed to create the diagram
+    await browser.clickVisible(Selectors.CreateDataModelConfirmButton);
 
+    // Wait for the diagram editor to load
     const dataModelEditor = browser.$(Selectors.DataModelEditor);
     await dataModelEditor.waitForDisplayed();
 
-    await dragNode(
-      browser,
-      Selectors.DataModelPreviewCollection('test.testCollection-one'),
-      { x: 100, y: 0 }
-    );
+    // Verify the diagram was created successfully
+    const nodes = await getDiagramNodes(browser, 2);
+    expect(nodes).to.have.lengthOf(2);
+  });
 
-    await browser.waitForAnimations(dataModelEditor);
+  context('Undo/Redo and Storage', function () {
+    it('actions are undoable and persist after re-opening', async function () {
+      const dataModelName = 'Test Data Model - Undo/Redo';
 
-    await browser.clickVisible(Selectors.DataModelExportButton);
-    const exportModal = browser.$(Selectors.DataModelExportModal);
-    await exportModal.waitForDisplayed();
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName: 'test',
+      });
 
-    await browser.clickParent(Selectors.DataModelExportDiagramOption);
-    await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
 
-    const { fileExists, filePath } = await waitForFileDownload(
-      exportFileName,
-      browser
-    );
-    expect(fileExists).to.be.true;
+      const nodes = await getDiagramNodes(browser, 2);
+      expect(nodes).to.have.lengthOf(2);
+      expect(nodes[0].id).to.equal('test.testCollection-flat');
+      expect(nodes[1].id).to.equal('test.testCollection-nested');
 
-    const content = readFileSync(filePath, 'utf-8');
-    const model = JSON.parse(content);
+      // Apply change to the model
 
-    expect(model.name).to.equal(dataModelName);
+      // react flow uses its own coordinate system,
+      // so we get the node element location for the pointer action
+      const testCollection1 = browser.$(
+        Selectors.DataModelPreviewCollection('test.testCollection-flat')
+      );
+      const startPosition = await dragNode(
+        browser,
+        Selectors.DataModelPreviewCollection('test.testCollection-flat'),
+        { x: 100, y: 0 }
+      );
+      await browser.waitForAnimations(dataModelEditor);
 
-    const edits = JSON.parse(
-      Buffer.from(model.edits, 'base64').toString('utf-8')
-    );
-    expect(edits).to.be.an('array').of.length(2);
-    expect(edits[0].type).to.equal('SetModel');
-    expect(edits[1].type).to.equal('MoveCollection');
+      // Check that the first node has moved and mark the new position
+      const newPosition = await testCollection1.getLocation();
+      expect(newPosition).not.to.deep.equal(startPosition);
 
-    // Open the saved diagram
-    await browser.closeWorkspaceTabs();
-    await browser.navigateToDataModeling();
+      // Undo the change
+      await browser.clickVisible(Selectors.DataModelUndoButton);
+      await browser.waitForAnimations(dataModelEditor);
+      const positionAfterUndone = await testCollection1.getLocation();
+      expect(positionAfterUndone).to.deep.equal(startPosition);
 
-    await browser.selectFile(Selectors.ImportDataModelInput, filePath);
-    await browser.$(Selectors.DataModelEditor).waitForDisplayed();
-    const savedNodes = await getDiagramNodes(browser, 2);
+      // Redo the change
+      await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
+      await browser.clickVisible(Selectors.DataModelRedoButton);
+      await browser.waitForAnimations(dataModelEditor);
+      const positionAfterRedo = await testCollection1.getLocation();
+      expect(positionAfterRedo).to.deep.equal(newPosition);
+      // Open a new tab
+      await browser.openNewTab();
 
-    expect(savedNodes).to.have.lengthOf(2);
-    expect(savedNodes[0].id).to.equal('test.testCollection-one');
-    expect(savedNodes[1].id).to.equal('test.testCollection-two');
+      // Open the saved diagram
+      await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
+      await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 
-    // Ensure that two diagrams exist (with correct incremental name)
-    await browser.closeWorkspaceTabs();
-    await browser.navigateToDataModeling();
+      const savedNodes = await getDiagramNodes(browser, 2);
+      expect(savedNodes).to.have.lengthOf(2);
 
-    const cardsSelector = Selectors.DataModelsListItem();
-    await browser.waitForAnimations(cardsSelector);
-    const titles = await browser
-      .$$(cardsSelector)
-      .map((element) => element.getAttribute('data-diagram-name'));
-    expect(titles).to.include(dataModelName);
-    // The second one is the one we just opened
-    expect(titles).to.include(`${dataModelName} (1)`);
+      // Open a new tab
+      await browser.openNewTab();
+
+      // Delete the saved diagram
+      await browser.clickVisible(
+        Selectors.DataModelsListItemActions(dataModelName)
+      );
+      await browser.clickVisible(Selectors.DataModelsListItemDeleteButton);
+      await browser.clickVisible(Selectors.confirmationModalConfirmButton());
+      await browser
+        .$(Selectors.DataModelsListItem(dataModelName))
+        .waitForDisplayed({ reverse: true });
+
+      // Verify that the existing diagram is now no longer accessible
+      await browser.closeLastTab();
+      await browser.waitUntil(async () => {
+        const text = await browser
+          .$(Selectors.WorkspaceTabsContainer)
+          .getText();
+        return text.includes('This data model has been deleted.');
+      });
+    });
+
+    it('allows undo after opening a diagram', async function () {
+      const dataModelName = 'Test Data Model - Undo After Open';
+      const oldName = 'testCollection-flat';
+      const newName = 'testCollection-renamed';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName: 'test',
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+
+      // Apply change to the diagram
+      await selectCollectionOnTheDiagram(browser, `test.${oldName}`);
+      const drawer = browser.$(Selectors.SideDrawer);
+      await browser.setValueVisible(
+        browser.$(Selectors.DataModelNameInput),
+        newName
+      );
+      await drawer.click();
+
+      // Open the saved diagram in new tab
+      await browser.openNewTab();
+      await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
+      await browser.$(Selectors.DataModelEditor).waitForDisplayed();
+
+      // Verify that the change is applied and the undo button is enabled
+      await browser
+        .$(Selectors.DataModelPreviewCollection(`test.${newName}`))
+        .waitForDisplayed();
+      await browser.waitForAriaDisabled(Selectors.DataModelUndoButton, false);
+
+      // Undo the change
+      await browser.clickVisible(Selectors.DataModelUndoButton);
+      await browser.waitForAnimations(dataModelEditor);
+
+      // Verify that the change is reverted, undo is disabled and redo is enabled
+      await browser
+        .$(Selectors.DataModelPreviewCollection(`test.${oldName}`))
+        .waitForDisplayed();
+      await browser.waitForAriaDisabled(Selectors.DataModelUndoButton, true);
+      await browser.waitForAriaDisabled(Selectors.DataModelRedoButton, false);
+    });
+  });
+
+  context('Export', function () {
+    it('exports the data model to JSON', async function () {
+      const dataModelName = 'Test Export Model - JSON';
+      exportFileName = `${dataModelName}.json`;
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName: 'test',
+      });
+
+      await browser.clickVisible(Selectors.DataModelExportButton);
+      await browser.waitForOpenModal(Selectors.DataModelExportModal);
+
+      await browser.clickParent(Selectors.DataModelExportJsonOption);
+      await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
+
+      const { fileExists, filePath } = await waitForFileDownload(
+        exportFileName,
+        browser
+      );
+      expect(fileExists).to.be.true;
+
+      const content = readFileSync(filePath, 'utf-8');
+      const model = JSON.parse(content);
+
+      // Within beforeEach hook, we create these two collections
+      expect(model).to.deep.equal({
+        collections: {
+          'test.testCollection-flat': {
+            ns: 'test.testCollection-flat',
+            jsonSchema: {
+              bsonType: 'object',
+              required: ['_id', 'i', 'iString', 'j'],
+              properties: {
+                _id: {
+                  bsonType: 'objectId',
+                },
+                i: {
+                  bsonType: 'int',
+                },
+                iString: {
+                  bsonType: 'string',
+                },
+                j: {
+                  bsonType: 'int',
+                },
+              },
+            },
+          },
+          'test.testCollection-nested': {
+            ns: 'test.testCollection-nested',
+            jsonSchema: {
+              bsonType: 'object',
+              required: ['_id', 'addresses', 'names', 'phoneNumbers'],
+              properties: {
+                _id: {
+                  bsonType: 'objectId',
+                },
+                addresses: {
+                  bsonType: 'array',
+                  items: {
+                    bsonType: 'string',
+                  },
+                },
+                names: {
+                  bsonType: 'object',
+                  properties: {
+                    firstName: {
+                      bsonType: 'string',
+                    },
+                    lastName: {
+                      bsonType: 'string',
+                    },
+                  },
+                  required: ['firstName', 'lastName'],
+                },
+                phoneNumbers: {
+                  bsonType: 'array',
+                  items: {
+                    bsonType: 'object',
+                    properties: {
+                      label: {
+                        bsonType: 'string',
+                      },
+                      number: {
+                        bsonType: 'string',
+                      },
+                    },
+                    required: ['label', 'number'],
+                  },
+                },
+              },
+            },
+          },
+        },
+        relationships: [],
+      });
+    });
+
+    it('exports the data model to PNG', async function () {
+      if (process.platform === 'win32') {
+        console.warn('Skipping PNG export test on Windows');
+        this.skip();
+      }
+      const dataModelName = 'Test Export Model - PNG';
+      exportFileName = `${dataModelName}.png`;
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName: 'test',
+      });
+
+      await browser.clickVisible(Selectors.DataModelExportButton);
+      await browser.waitForOpenModal(Selectors.DataModelExportModal);
+
+      await browser.clickParent(Selectors.DataModelExportPngOption);
+      await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
+
+      const { fileExists, filePath } = await waitForFileDownload(
+        exportFileName,
+        browser
+      );
+      expect(fileExists).to.be.true;
+
+      const { data } = await recognize(filePath, 'eng', {
+        cachePath: tmpdir,
+      });
+
+      const text = data.text.toLowerCase();
+
+      expect(text).to.include('testCollection-flat'.toLowerCase());
+      expect(text).to.include('testCollection-nested'.toLowerCase());
+
+      expect(text).to.include('id objectId'.toLowerCase());
+      expect(text).to.include('i int');
+      // Disabled as it's not recognized correctly by tesseract.js at the moment.
+      // expect(text).to.include('j int');
+      // it does not correctly recognize `iString` and only returns `String`.
+      // its already good enough to verify this for now and if it flakes
+      // more, we may need to revisit this test.
+      expect(text).to.include('String string'.toLowerCase());
+    });
+
+    it('exports the data model to compass format and imports it back', async function () {
+      const dataModelName = 'Test Export Model - Save-Open';
+      const databaseName = 'test';
+      exportFileName = `${dataModelName}.mdm`;
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName,
+      });
+
+      const dataModelEditor = browser.$(Selectors.DataModelEditor);
+
+      await dragNode(
+        browser,
+        Selectors.DataModelPreviewCollection('test.testCollection-flat'),
+        { x: 100, y: 0 }
+      );
+
+      await browser.waitForAnimations(dataModelEditor);
+
+      await browser.clickVisible(Selectors.DataModelExportButton);
+      await browser.waitForOpenModal(Selectors.DataModelExportModal);
+
+      await browser.clickParent(Selectors.DataModelExportDiagramOption);
+      await browser.clickVisible(Selectors.DataModelExportModalConfirmButton);
+
+      const { fileExists, filePath } = await waitForFileDownload(
+        exportFileName,
+        browser
+      );
+      expect(fileExists).to.be.true;
+
+      const content = readFileSync(filePath, 'utf-8');
+      const model = JSON.parse(content);
+
+      expect(model.name).to.equal(dataModelName);
+      expect(model.database).to.equal(databaseName);
+
+      const edits = JSON.parse(
+        Buffer.from(model.edits, 'base64').toString('utf-8')
+      );
+      expect(edits).to.be.an('array').of.length(2);
+      expect(edits[0].type).to.equal('SetModel');
+      expect(edits[1].type).to.equal('MoveCollection');
+
+      // Open the saved diagram
+      await browser.closeWorkspaceTabs();
+      await browser.navigateToDataModeling();
+
+      await browser.selectFile(Selectors.ImportDataModelInput, filePath);
+      await browser.$(Selectors.DataModelEditor).waitForDisplayed();
+      const savedNodes = await getDiagramNodes(browser, 2);
+
+      expect(savedNodes).to.have.lengthOf(2);
+      expect(savedNodes[0].id).to.equal('test.testCollection-flat');
+      expect(savedNodes[1].id).to.equal('test.testCollection-nested');
+
+      // Ensure that two diagrams exist (with correct incremental name)
+      await browser.closeWorkspaceTabs();
+      await browser.navigateToDataModeling();
+
+      const cardsSelector = Selectors.DataModelsListItem();
+      await browser.waitForAnimations(cardsSelector);
+      const titles = await browser
+        .$$(cardsSelector)
+        .map((element) => element.getAttribute('data-diagram-name'));
+      expect(titles).to.include(dataModelName);
+      // The second one is the one we just opened
+      expect(titles).to.include(`${dataModelName} (1)`);
+    });
   });
 
   context('Drawer and Diagram interactions', function () {
@@ -589,18 +713,15 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Add Relationship Manually';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
-
-      const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
 
       // There are no edges initially
       await getDiagramEdges(browser, 0);
 
       // Click on the collection to open the drawer
-      await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-flat');
 
       // Click the add relationship button
       const drawer = browser.$(Selectors.SideDrawer);
@@ -616,7 +737,7 @@ describe('Data Modeling tab', function () {
         drawer.$(Selectors.DataModelRelationshipLocalCollectionSelect)
       );
       expect(await localCollectionSelect.getValue()).to.equal(
-        'testCollection-one'
+        'testCollection-flat'
       );
 
       // Select the foreign collection
@@ -624,36 +745,38 @@ describe('Data Modeling tab', function () {
         selectSelector: await browser.getInputByLabel(
           drawer.$(Selectors.DataModelRelationshipForeignCollectionSelect)
         ),
-        optionText: 'testCollection-two',
+        optionText: 'testCollection-nested',
       });
 
       // See the relationship on the diagram
       const edges = await getDiagramEdges(browser, 1);
       expect(edges).to.have.lengthOf(1);
       expect(edges[0]).to.deep.include({
-        source: 'test.testCollection-one',
-        target: 'test.testCollection-two',
+        source: 'test.testCollection-flat',
+        target: 'test.testCollection-nested',
         markerStart: 'one',
         markerEnd: 'one',
       });
       const relationshipId = edges[0].id;
 
       // Select the other collection and see that the new relationship is listed
-      await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
-      const relationshipItem = drawer.$(
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-nested');
+      const secondCollectionRelationshipItem = drawer.$(
         Selectors.DataModelCollectionRelationshipItem(relationshipId)
       );
-      await relationshipItem.waitForDisplayed();
-      expect(await relationshipItem.getText()).to.include('testCollection-one');
+      await secondCollectionRelationshipItem.waitForDisplayed();
+      expect(await secondCollectionRelationshipItem.getText()).to.include(
+        'testCollection-flat'
+      );
 
       // Edit the relationship
-      await relationshipItem
+      await secondCollectionRelationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .waitForDisplayed();
-      await relationshipItem
+      await secondCollectionRelationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .waitForClickable();
-      await relationshipItem
+      await secondCollectionRelationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemEdit)
         .click();
 
@@ -670,24 +793,27 @@ describe('Data Modeling tab', function () {
       const updatedEdges = await getDiagramEdges(browser, 1);
       expect(updatedEdges).to.have.lengthOf(1);
       expect(updatedEdges[0]).to.deep.include({
-        source: 'test.testCollection-one',
-        target: 'test.testCollection-two',
+        source: 'test.testCollection-flat',
+        target: 'test.testCollection-nested',
         markerStart: 'one',
         markerEnd: 'many',
       });
 
       // Select the first collection again and delete the relationship
-      await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
-      await relationshipItem.waitForDisplayed();
-      await relationshipItem
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-flat');
+      const firstCollectionRelationshipItem = drawer.$(
+        Selectors.DataModelCollectionRelationshipItem(relationshipId)
+      );
+      await firstCollectionRelationshipItem.waitForDisplayed();
+      await firstCollectionRelationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemDelete)
         .waitForClickable();
-      await relationshipItem
+      await firstCollectionRelationshipItem
         .$(Selectors.DataModelCollectionRelationshipItemDelete)
         .click();
 
       // Verify that the relationship is removed from the list and the diagram
-      await relationshipItem.waitForDisplayed({ reverse: true });
+      await firstCollectionRelationshipItem.waitForDisplayed({ reverse: true });
       await getDiagramEdges(browser, 0);
     });
 
@@ -695,7 +821,7 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Relationship By Drawing';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
@@ -704,7 +830,7 @@ describe('Data Modeling tab', function () {
       );
 
       const targetNode = browser.$(
-        Selectors.DataModelPreviewCollection('test.testCollection-two')
+        Selectors.DataModelPreviewCollection('test.testCollection-nested')
       );
 
       const targetPosition = await targetNode.getLocation();
@@ -712,7 +838,7 @@ describe('Data Modeling tab', function () {
 
       await dragNode(
         browser,
-        Selectors.DataModelPreviewCollection('test.testCollection-one'),
+        Selectors.DataModelPreviewCollection('test.testCollection-flat'),
         {
           x: Math.round(targetPosition.x + targetSize.width / 2),
           y: Math.round(targetPosition.y + targetSize.height / 2),
@@ -723,8 +849,8 @@ describe('Data Modeling tab', function () {
       const edges = await getDiagramEdges(browser, 1);
       expect(edges).to.have.lengthOf(1);
       expect(edges[0]).to.deep.include({
-        source: 'test.testCollection-one',
-        target: 'test.testCollection-two',
+        source: 'test.testCollection-flat',
+        target: 'test.testCollection-nested',
         markerStart: 'one',
         markerEnd: 'one',
       });
@@ -735,13 +861,13 @@ describe('Data Modeling tab', function () {
         drawer.$(Selectors.DataModelRelationshipLocalCollectionSelect)
       );
       expect(await localCollectionSelect.getValue()).to.equal(
-        'testCollection-one'
+        'testCollection-flat'
       );
       const foreignCollectionSelect = await browser.getInputByLabel(
         drawer.$(Selectors.DataModelRelationshipForeignCollectionSelect)
       );
       expect(await foreignCollectionSelect.getValue()).to.equal(
-        'testCollection-two'
+        'testCollection-nested'
       );
     });
 
@@ -749,15 +875,12 @@ describe('Data Modeling tab', function () {
       const dataModelName = 'Test Edit Collection';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
-      const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
-
       // Click on the collection to open the drawer.
-      await selectCollectionOnTheDiagram(browser, 'test.testCollection-one');
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-flat');
 
       const drawer = browser.$(Selectors.SideDrawer);
 
@@ -777,11 +900,11 @@ describe('Data Modeling tab', function () {
       });
 
       // Select the second collection and verify that the new name is in the diagram.
-      await selectCollectionOnTheDiagram(browser, 'test.testCollection-two');
+      await selectCollectionOnTheDiagram(browser, 'test.testCollection-nested');
       const nodes = await getDiagramNodes(browser, 2);
       expect(nodes).to.have.lengthOf(2);
       expect(nodes[0].id).to.equal('test.renamedOne');
-      expect(nodes[1].id).to.equal('test.testCollection-two');
+      expect(nodes[1].id).to.equal('test.testCollection-nested');
 
       // Remove the collection.
       await drawer
@@ -800,19 +923,20 @@ describe('Data Modeling tab', function () {
       expect(nodesPostDelete[0].id).to.equal('test.renamedOne');
     });
 
-    it('adding a new collection from the toolbar', async function () {
-      const dataModelName = 'Test Edit Collection';
+    it('adding a new empty collection from the toolbar', async function () {
+      const dataModelName = 'Test Edit New Collection';
       await setupDiagram(browser, {
         diagramName: dataModelName,
-        connectionName: DEFAULT_CONNECTION_NAME_1,
+        connectionName: getDefaultConnectionNames(0),
         databaseName: 'test',
       });
 
-      const dataModelEditor = browser.$(Selectors.DataModelEditor);
-      await dataModelEditor.waitForDisplayed();
-
       // Click on the add collection button.
-      await browser.clickVisible(Selectors.DataModelAddCollectionBtn);
+      await browser.clickVisible(Selectors.DataModelAddCollectionMenuBtn);
+      const actionsMenu = browser.$(Selectors.DataModelAddCollectionMenu);
+      await actionsMenu.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.DataModelAddEmptyCollectionOption);
 
       // Verify that the new collection is added to the diagram.
       const nodes = await getDiagramNodes(browser, 3);
@@ -838,6 +962,220 @@ describe('Data Modeling tab', function () {
       // This is to ensure that the initial edit of the collection name wasn't a separate edit
       await browser.clickVisible(Selectors.DataModelUndoButton);
       await getDiagramNodes(browser, 2);
+
+      // Repeatedly Redo + Undo through keyboard shortcuts
+      await browser.keys([Key.Control, 'y']);
+      await getDiagramNodes(browser, 3);
+      await browser.keys([Key.Control, 'z']);
+      await getDiagramNodes(browser, 2);
+      await browser.keys([Key.Command, Key.Shift, 'z']);
+      await getDiagramNodes(browser, 3);
+      await browser.keys([Key.Command, 'z']);
+      await getDiagramNodes(browser, 2);
+    });
+
+    it('adding a new database collection from the toolbar', async function () {
+      const dataModelName = 'Test Edit New Database Collection';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName: 'test',
+      });
+
+      // Add more collections
+      const collections = ['testCollection-three', 'testCollection-four'];
+      await Promise.all(
+        collections.map((coll) => createNumbersStringCollection(coll))
+      );
+
+      // Click on the add collection button.
+      await browser.clickVisible(Selectors.DataModelAddCollectionMenuBtn);
+      const actionsMenu = browser.$(Selectors.DataModelAddCollectionMenu);
+      await actionsMenu.waitForDisplayed();
+
+      await browser.clickVisible(Selectors.DataModelSelectFromDatabaseOption);
+
+      // Wait for modal to show up
+      await browser
+        .$(Selectors.DataModelReselectCollectionsModal)
+        .waitForDisplayed();
+
+      // Click on the connect button and wait for collections to show up
+      await browser
+        .$(Selectors.DataModelReselectCollectionsModalConfirmButton)
+        .click();
+
+      // Verify that user is able to see new collections in the list
+      // Since the list is scrollable, we need to ensure that the item is in view
+      // before we try to click on it.
+      for (const coll of collections) {
+        const collItem = Selectors.DataModelSelectCollectionItem(coll);
+        await browser.$(collItem).scrollIntoView();
+        await browser.$(collItem).waitForClickable();
+        await browser.$(collItem).click();
+      }
+
+      // Confirm adding the selected collections
+      await browser.clickVisible(
+        Selectors.DataModelReselectCollectionsModalConfirmButton
+      );
+
+      // Confirm the settings
+      expect(
+        await browser.$(Selectors.DataModelReselectCollectionsModal).getText()
+      ).to.contain('Diagram settings');
+
+      await browser.clickVisible(
+        Selectors.DataModelReselectCollectionsModalConfirmButton
+      );
+
+      // Wait for the diagram editor to load
+      await browser.$(Selectors.DataModelEditor).waitForDisplayed();
+
+      // Verify that the new collection is added to the diagram.
+      const nodes = await getDiagramNodes(browser, 4);
+      const nodeIds = nodes.map((n) => n.id);
+      expect(nodeIds).to.include.members([
+        'test.testCollection-three',
+        'test.testCollection-four',
+      ]);
+
+      // Repeatedly Redo + Undo through keyboard shortcuts
+      // Two collections were added at once, so count changes by 2
+      await browser.keys([Key.Control, 'z']);
+      await getDiagramNodes(browser, 2); // I
+      await browser.keys([Key.Command, Key.Shift, 'z']);
+      await getDiagramNodes(browser, 4);
+      await browser.keys([Key.Command, 'z']);
+      await getDiagramNodes(browser, 2);
+    });
+
+    it('selecting and adding fields via the diagram, editing via the sidebar', async function () {
+      const dataModelName = 'Test Data Model - Fields via Diagram';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName: 'test',
+      });
+
+      // Ensure that we see the collection
+      const testCollection1 = browser.$(
+        Selectors.DataModelPreviewCollection('test.testCollection-flat')
+      );
+      await testCollection1.waitForDisplayed();
+
+      // Click on the + button of the collection to add a new field
+      await closeDrawerIfOpen(browser);
+      const addFieldButton = testCollection1.$(Selectors.DataModelAddFieldBtn);
+      await addFieldButton.waitForClickable();
+      await addFieldButton.click();
+
+      // Find the new field - 'field-1' and edit its name
+      // (via the drawer - inline edit is too flaky)
+      await closeDrawerIfOpen(browser);
+      const newField = testCollection1.$(
+        Selectors.DataModelDiagramField('field-1')
+      );
+      await newField.waitForDisplayed();
+      await newField.click();
+
+      const drawerNF = browser.$(Selectors.SideDrawer);
+      await drawerNF.waitForDisplayed();
+      const newFieldNameInTheDrawer = await browser.getInputByLabel(
+        drawerNF.$(Selectors.DataModelFieldNameInputLabel)
+      );
+      await newFieldNameInTheDrawer.setValue('Gandalf');
+      await drawerNF.click(); // Unfocus the input.
+
+      // Verify that the name is updated in the diagram
+      const renamedField = testCollection1.$(
+        Selectors.DataModelDiagramField('Gandalf')
+      );
+      await renamedField.waitForDisplayed();
+    });
+
+    it('allows collapsing and expanding collections and fields on the diagram', async function () {
+      const dataModelName = 'Test Data Model - Collapse/Expand in Diagram';
+      await setupDiagram(browser, {
+        diagramName: dataModelName,
+        connectionName: getDefaultConnectionNames(0),
+        databaseName: 'test',
+      });
+
+      // Ensure that we see the collection
+      const testCollection1 = browser.$(
+        Selectors.DataModelPreviewCollection('test.testCollection-nested')
+      );
+      await testCollection1.waitForDisplayed();
+      await closeDrawerIfOpen(browser);
+
+      // Verify that the fields are expanded
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('names'))
+        .waitForDisplayed();
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('firstName'))
+        .waitForDisplayed();
+
+      // Click on the collapse all button
+      const collapseAllButton = testCollection1.$(
+        Selectors.DataModelCollapseAllButton
+      );
+      await collapseAllButton.waitForClickable();
+      await collapseAllButton.click();
+
+      // Verify that the fields are collapsed
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('names'))
+        .waitForDisplayed();
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('firstName'))
+        .waitForDisplayed({ reverse: true });
+
+      // Click on the expand all button
+      const expandAllButton = testCollection1.$(
+        Selectors.DataModelExpandAllButton
+      );
+      await expandAllButton.waitForClickable();
+      await expandAllButton.click();
+
+      // Verify that the fields are expanded
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('names'))
+        .waitForDisplayed();
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('firstName'))
+        .waitForDisplayed();
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('phoneNumbers'))
+        .waitForDisplayed();
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('label'))
+        .waitForDisplayed();
+
+      // Click on the collapse field button
+      const collapseFieldButton = testCollection1.$(
+        Selectors.DataModelCollapseFieldButton(
+          'test.testCollection-nested',
+          'phoneNumbers'
+        )
+      );
+      await collapseFieldButton.waitForClickable();
+      await collapseFieldButton.click();
+
+      // Verify that the field is collapsed, while the other is expanded
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('names'))
+        .waitForDisplayed();
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('firstName'))
+        .waitForDisplayed();
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('phoneNumbers'))
+        .waitForDisplayed();
+      await testCollection1
+        .$(Selectors.DataModelDiagramField('label'))
+        .waitForDisplayed({ reverse: true });
     });
   });
 });

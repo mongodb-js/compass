@@ -52,7 +52,7 @@ type QueryBarState = {
 
 export const INITIAL_STATE: QueryBarState = {
   isReadonlyConnection: false,
-  fields: mapQueryToFormFields({}, DEFAULT_FIELD_VALUES),
+  fields: mapQueryToFormFields({ maxTimeMSEnvLimit: 0 }, DEFAULT_FIELD_VALUES),
   expanded: false,
   serverVersion: '3.6.0',
   lastAppliedQuery: { source: null, query: {} },
@@ -62,25 +62,26 @@ export const INITIAL_STATE: QueryBarState = {
   favoriteQueries: [],
 };
 
-export enum QueryBarActions {
-  ChangeReadonlyConnectionStatus = 'compass-query-bar/ChangeReadonlyConnectionStatus',
-  ToggleQueryOptions = 'compass-query-bar/ToggleQueryOptions',
-  ChangeField = 'compass-query-bar/ChangeField',
-  SetQuery = 'compass-query-bar/SetQuery',
-  ApplyQuery = 'compass-query-bar/ApplyQuery',
-  ResetQuery = 'compass-query-bar/ResetQuery',
-  ApplyFromHistory = 'compass-query-bar/ApplyFromHistory',
-  RecentQueriesFetched = 'compass-query-bar/RecentQueriesFetched',
-  FavoriteQueriesFetched = 'compass-query-bar/FavoriteQueriesFetched',
-}
+export const QueryBarActions = {
+  ChangeReadonlyConnectionStatus:
+    'compass-query-bar/ChangeReadonlyConnectionStatus',
+  ToggleQueryOptions: 'compass-query-bar/ToggleQueryOptions',
+  ChangeField: 'compass-query-bar/ChangeField',
+  SetQuery: 'compass-query-bar/SetQuery',
+  ApplyQuery: 'compass-query-bar/ApplyQuery',
+  ResetQuery: 'compass-query-bar/ResetQuery',
+  ApplyFromHistory: 'compass-query-bar/ApplyFromHistory',
+  RecentQueriesFetched: 'compass-query-bar/RecentQueriesFetched',
+  FavoriteQueriesFetched: 'compass-query-bar/FavoriteQueriesFetched',
+} as const;
 
 type ChangeReadonlyConnectionStatusAction = {
-  type: QueryBarActions.ChangeReadonlyConnectionStatus;
+  type: typeof QueryBarActions.ChangeReadonlyConnectionStatus;
   readonly: boolean;
 };
 
 type ToggleQueryOptionsAction = {
-  type: QueryBarActions.ToggleQueryOptions;
+  type: typeof QueryBarActions.ToggleQueryOptions;
   force?: boolean;
 };
 
@@ -91,7 +92,7 @@ export const toggleQueryOptions = (
 };
 
 type ChangeFieldAction<T = QueryProperty> = {
-  type: QueryBarActions.ChangeField;
+  type: typeof QueryBarActions.ChangeField;
   name: T;
   value: FormField<T>;
 };
@@ -103,6 +104,7 @@ export const changeField = (
   return (dispatch, getState, { preferences }) => {
     const parsedValue = validateField(name, stringValue, {
       maxTimeMS: preferences.getPreferences().maxTimeMS ?? undefined,
+      maxTimeMSEnvLimit: preferences.getPreferences().maxTimeMSEnvLimit,
     });
     const isValid = parsedValue !== false;
     dispatch({
@@ -118,7 +120,7 @@ export const changeField = (
 };
 
 type ApplyQueryAction = {
-  type: QueryBarActions.ApplyQuery;
+  type: typeof QueryBarActions.ApplyQuery;
   query: BaseQuery;
   source: string;
 };
@@ -149,7 +151,7 @@ export const applyQuery = (
 };
 
 type ResetQueryAction = {
-  type: QueryBarActions.ResetQuery;
+  type: typeof QueryBarActions.ResetQuery;
   fields: QueryFormFields;
   source: string;
 };
@@ -162,7 +164,7 @@ export const resetQuery = (
       return false;
     }
     const fields = mapQueryToFormFields(
-      { maxTimeMS: preferences.getPreferences().maxTimeMS },
+      preferences.getPreferences(),
       DEFAULT_FIELD_VALUES
     );
     dispatch({ type: QueryBarActions.ResetQuery, fields, source });
@@ -171,7 +173,7 @@ export const resetQuery = (
 };
 
 type SetQueryAction = {
-  type: QueryBarActions.SetQuery;
+  type: typeof QueryBarActions.SetQuery;
   fields: QueryFormFields;
 };
 
@@ -179,10 +181,7 @@ export const setQuery = (
   query: BaseQuery
 ): QueryBarThunkAction<void, SetQueryAction> => {
   return (dispatch, getState, { preferences }) => {
-    const fields = mapQueryToFormFields(
-      { maxTimeMS: preferences.getPreferences().maxTimeMS },
-      query
-    );
+    const fields = mapQueryToFormFields(preferences.getPreferences(), query);
     dispatch({ type: QueryBarActions.SetQuery, fields });
   };
 };
@@ -219,7 +218,7 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
 };
 
 type ApplyFromHistoryAction = {
-  type: QueryBarActions.ApplyFromHistory;
+  type: typeof QueryBarActions.ApplyFromHistory;
   fields: QueryFormFields;
 };
 
@@ -230,7 +229,7 @@ export const applyFromHistory = (
   return (dispatch, getState, { localAppRegistry, preferences }) => {
     const currentFields = getState().queryBar.fields;
     const currentQuery = currentQueryFieldsToRetain.reduce<
-      Record<string, Document | number>
+      Record<string, Document | number | string>
     >((acc, key) => {
       const { value } = currentFields[key];
       if (value) {
@@ -238,14 +237,11 @@ export const applyFromHistory = (
       }
       return acc;
     }, {});
-    const fields = mapQueryToFormFields(
-      { maxTimeMS: preferences.getPreferences().maxTimeMS },
-      {
-        ...DEFAULT_FIELD_VALUES,
-        ...query,
-        ...currentQuery,
-      }
-    );
+    const fields = mapQueryToFormFields(preferences.getPreferences(), {
+      ...DEFAULT_FIELD_VALUES,
+      ...query,
+      ...currentQuery,
+    });
     dispatch({
       type: QueryBarActions.ApplyFromHistory,
       fields,
@@ -258,7 +254,7 @@ export const applyFromHistory = (
 };
 
 type RecentQueriesFetchedAction = {
-  type: QueryBarActions.RecentQueriesFetched;
+  type: typeof QueryBarActions.RecentQueriesFetched;
   recents: RecentQuery[];
 };
 export const fetchRecents = (): QueryBarThunkAction<
@@ -311,7 +307,7 @@ export const fetchSavedQueries = (): QueryBarThunkAction<void> => {
 };
 
 type FavoriteQueriesFetchedAction = {
-  type: QueryBarActions.FavoriteQueriesFetched;
+  type: typeof QueryBarActions.FavoriteQueriesFetched;
   favorites: FavoriteQuery[];
 };
 export const fetchFavorites = (): QueryBarThunkAction<

@@ -1463,7 +1463,7 @@ type IndexDroppedEvent = ConnectionScopedEvent<{
  * to it via the drawer toolbar or by opening the drawer and the first tab is
  * this drawer section.
  *
- * @category Gen AI
+ * @category Drawer
  */
 type DrawerSectionOpenedEvent = CommonEvent<{
   name: 'Drawer Section Opened';
@@ -1477,7 +1477,7 @@ type DrawerSectionOpenedEvent = CommonEvent<{
  * to another tab via the drawer toolbar or by closing the drawer when the
  * active tab is this drawer section.
  *
- * @category Gen AI
+ * @category Drawer
  */
 type DrawerSectionClosedEvent = CommonEvent<{
   name: 'Drawer Section Closed';
@@ -1490,24 +1490,26 @@ type DrawerSectionClosedEvent = CommonEvent<{
  * This event is fired when user enters a prompt in the assistant chat
  * and hits "enter".
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantPromptSubmittedEvent = CommonEvent<{
+type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Prompt Submitted';
   payload: {
     user_input_length?: number;
+    request_id?: string;
   };
 }>;
 
 /**
  * This event is fired when a user uses an assistant entry point.
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantEntryPointUsedEvent = CommonEvent<{
+type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
   name: 'Assistant Entry Point Used';
   payload: {
     source: 'explain plan' | 'performance insights' | 'connection error';
+    request_id?: string;
   };
 }>;
 
@@ -1516,12 +1518,12 @@ type AssistantEntryPointUsedEvent = CommonEvent<{
  *
  * @category Assistant
  */
-type AssistantFeedbackSubmittedEvent = CommonEvent<{
+type AssistantFeedbackSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Feedback Submitted';
   payload: {
     feedback: 'positive' | 'negative';
     text: string | undefined;
-    request_id: string | null;
+    request_id?: string;
     source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
   };
 }>;
@@ -1529,25 +1531,67 @@ type AssistantFeedbackSubmittedEvent = CommonEvent<{
 /**
  * This event is fired when a user confirms a confirmation message in the assistant chat.
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantConfirmationSubmittedEvent = CommonEvent<{
+type AssistantConfirmationSubmittedEvent = ConnectionScopedEvent<{
   name: 'Assistant Confirmation Submitted';
   payload: {
     status: 'confirmed' | 'rejected';
     source: AssistantEntryPointUsedEvent['payload']['source'] | 'chat response';
+    request_id?: string;
+  };
+}>;
+
+/**
+ * This event is fired when the AI response is generated.
+ *
+ * @category Assistant
+ */
+type AssistantResponseGeneratedEvent = ConnectionScopedEvent<{
+  name: 'Assistant Response Generated';
+  payload: {
+    request_id?: string;
   };
 }>;
 
 /**
  * This event is fired when the AI response encounters an error.
  *
- * @category Gen AI
+ * @category Assistant
  */
-type AssistantResponseFailedEvent = CommonEvent<{
+type AssistantResponseFailedEvent = ConnectionScopedEvent<{
   name: 'Assistant Response Failed';
   payload: {
     error_name?: string;
+    request_id?: string;
+  };
+}>;
+
+/**
+ * This event is fired when the AI fails due to any error.
+ *
+ * @category Assistant
+ */
+type AssistantFailedEvent = CommonEvent<{
+  name: 'Assistant Failed';
+  payload: {
+    error_name?: string;
+  };
+}>;
+
+/*
+ * This event is fired when a tool call was either approved or rejected by the
+ * user.
+ *
+ * @category Assistant
+ */
+type AssistantToolCallApprovalEvent = ConnectionScopedEvent<{
+  name: 'Assistant Tool Call Approval';
+  payload: {
+    type: string;
+    approved: boolean;
+    approval_id: string;
+    request_id?: string;
   };
 }>;
 
@@ -1793,6 +1837,11 @@ type QueryExportOpenedEvent = ConnectionScopedEvent<{
 type QueryExecutedEvent = ConnectionScopedEvent<{
   name: 'Query Executed';
   payload: {
+    /**
+     * Indicates whether the query includes a filter.
+     */
+    has_filter: boolean;
+
     /**
      * Indicates whether the query includes a projection.
      */
@@ -2081,6 +2130,16 @@ type SchemaValidationAddedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when the schema analysis is started
+ *
+ * @category Schema
+ */
+type SchemaAnalysisStartedEvent = ConnectionScopedEvent<{
+  name: 'Schema Analysis Started';
+  payload: Record<string, never>;
+}>;
+
+/**
  * This event is fired when user analyzes the schema.
  *
  * @category Schema
@@ -2135,7 +2194,7 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
- * This event is fired when user analyzes the schema.
+ * This event is fired when user cancels the schema analysis.
  *
  * @category Schema
  */
@@ -2655,6 +2714,36 @@ type AtlasLinkClickedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when a user clicks the Atlas Skills CTA banner.
+ *
+ * @category Other
+ */
+type AtlasSkillsCtaClickedEvent = CommonEvent<{
+  name: 'Atlas Skills CTA Clicked';
+  payload: {
+    /**
+     * The context/screen from which the Atlas Skills CTA was dismissed.
+     */
+    context: 'Documents Tab' | 'Aggregation Tab' | 'Indexes Tab' | 'Schema Tab';
+  };
+}>;
+
+/**
+ * This event is fired when a user dismisses the Atlas Skills CTA banner.
+ *
+ * @category Other
+ */
+type AtlasSkillsCtaDismissedEvent = CommonEvent<{
+  name: 'Atlas Skills CTA Dismissed';
+  payload: {
+    /**
+     * The context/screen from which the Atlas Skills CTA was dismissed.
+     */
+    context: 'Documents Tab' | 'Aggregation Tab' | 'Indexes Tab' | 'Schema Tab';
+  };
+}>;
+
+/**
  * This event is fired when the application launch is initiated.
  *
  * @category Other
@@ -2828,21 +2917,6 @@ export type CreateIndexModalContext = 'Create Index Modal';
 type CreateIndexButtonClickedEvent = CommonEvent<{
   name: 'Create Index Button Clicked';
   payload: {
-    flow: 'Start with Query' | 'Start with Index' | undefined;
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexErrorParsingQueryEvent = CommonEvent<{
-  name: 'Error parsing query';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexErrorGettingCoveredQueriesEvent = CommonEvent<{
-  name: 'Error generating covered queries';
-  payload: {
     context: CreateIndexModalContext;
   };
 }>;
@@ -2869,42 +2943,6 @@ type CreateIndexOptionsClicked = CommonEvent<{
   };
 }>;
 
-type CreateIndexCoveredQueriesButtonClicked = CommonEvent<{
-  name: 'Covered Queries Button Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexSuggestedIndexButtonClicked = CommonEvent<{
-  name: 'Suggested Index Button Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexIndexTabClicked = CommonEvent<{
-  name: 'Start with an Index Tab Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexQueryTabClicked = CommonEvent<{
-  name: 'Start with a Query Tab Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexCodeEquivalentToggled = CommonEvent<{
-  name: 'Code Equivalent Toggled';
-  payload: {
-    context: CreateIndexModalContext;
-    toggled: 'On' | 'Off';
-  };
-}>;
-
 type CreateIndexModalClosed = CommonEvent<{
   name: 'Create Index Modal Closed';
   payload: {
@@ -2914,48 +2952,6 @@ type CreateIndexModalClosed = CommonEvent<{
 
 type CreateIndexModalCancelled = CommonEvent<{
   name: 'Cancel Button Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexProgrammingLanguageLinkClicked = CommonEvent<{
-  name: 'View Programming Language Syntax Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexCoveredQueriesLearnMoreClicked = CommonEvent<{
-  name: 'Covered Queries Learn More Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexESRLearnMoreClicked = CommonEvent<{
-  name: 'ESR Learn More Clicked';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexInputIndexCopied = CommonEvent<{
-  name: 'Input Index Copied';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexIndexSuggestionsCopied = CommonEvent<{
-  name: 'Index Suggestions Copied';
-  payload: {
-    context: CreateIndexModalContext;
-  };
-}>;
-
-type CreateIndexStrategiesDocumentationClicked = CommonEvent<{
-  name: 'Index Strategies Documentation Clicked';
   payload: {
     context: CreateIndexModalContext;
   };
@@ -2998,14 +2994,166 @@ type DataModelingDiagramCollectionRenamed = CommonEvent<{
 }>;
 
 /**
- * This event is fired when a new data modeling diagram is created
+ * This event is fired when the modal to create a new data modeling diagram is opened
  *
  * @category Data Modeling
  */
-type DataModelingDiagramCreated = CommonEvent<{
+type DataModelingCreateDiagramModalOpened = CommonEvent<{
+  name: 'Data Modeling Create Diagram Modal Opened';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a new data modeling diagram creation is started
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreationStarted = ConnectionScopedEvent<{
+  name: 'Data Modeling Diagram Creation Started';
+  payload: {
+    num_collections: number;
+    automatically_infer_relations: boolean;
+    sample_size: number | 'all_documents';
+  };
+}>;
+
+/**
+ * This event is fired when the collections are analyzed and the relationship inferral is started
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreationRelationshipInferralStarted =
+  ConnectionScopedEvent<{
+    name: 'Data Modeling Diagram Creation Relationship Inferral Started';
+    payload: {
+      num_collections: number;
+      sample_size: number | 'all_documents';
+    };
+  }>;
+
+/**
+ * This event is fired when a new data modeling diagram is created
+ * analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+ * relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+ * The first two phases overlap.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreated = ConnectionScopedEvent<{
   name: 'Data Modeling Diagram Created';
   payload: {
     num_collections: number;
+    num_relations_inferred?: number;
+    analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
+  };
+}>;
+
+/**
+ * This event is fired when a new data modeling diagram creation is cancelled
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreationCancelled = ConnectionScopedEvent<{
+  name: 'Data Modeling Diagram Creation Cancelled';
+  payload: {
+    num_collections: number;
+    automatically_infer_relations: boolean;
+    analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
+  };
+}>;
+
+/**
+ * This event is fired when a new data modeling diagram creation has failed
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramCreationFailed = ConnectionScopedEvent<{
+  name: 'Data Modeling Diagram Creation Failed';
+  payload: {
+    num_collections: number;
+    automatically_infer_relations: boolean;
+    analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
+  };
+}>;
+
+/**
+ * This event is fired when the modal to add DB collections to an existing data modeling diagram is opened
+ *
+ * @category Data Modeling
+ */
+type DataModelingAddDBCollectionsModalOpened = CommonEvent<{
+  name: 'Data Modeling Add DB Collections Modal Opened';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when new collections from the database are to be added to an existing data modeling diagram
+ *
+ * @category Data Modeling
+ */
+type DataModelingAddDBCollectionsStarted = ConnectionScopedEvent<{
+  name: 'Data Modeling Add DB Collections Started';
+  payload: {
+    num_collections: number;
+    automatically_infer_relations: boolean;
+    sample_size: number | 'all_documents';
+  };
+}>;
+
+/**
+ * This event is fired when adding new collections from the database has succeeded
+ * analysis_time_ms is the total time taken to sample collections, build schemas and infer relationships, if applicable.
+ * relationship_inference_phase_ms is the time taken for just the relationship inference phase, if applicable.
+ * The first two phases overlap.
+ *
+ * @category Data Modeling
+ */
+type DataModelingAddDBCollectionsSucceeded = ConnectionScopedEvent<{
+  name: 'Data Modeling Add DB Collections Succeeded';
+  payload: {
+    num_collections: number;
+    num_relations_inferred?: number;
+    analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
+  };
+}>;
+
+/**
+ * This event is fired when adding new collections from the database has failed
+ *
+ * @category Data Modeling
+ */
+type DataModelingAddDBCollectionsFailed = ConnectionScopedEvent<{
+  name: 'Data Modeling Add DB Collections Failed';
+  payload: {
+    num_collections: number;
+    automatically_infer_relations: boolean;
+    analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
+  };
+}>;
+
+/**
+ * This event is fired when adding new collections from the database has been cancelled
+ *
+ * @category Data Modeling
+ */
+type DataModelingAddDBCollectionsCancelled = ConnectionScopedEvent<{
+  name: 'Data Modeling Add DB Collections Cancelled';
+  payload: {
+    num_collections: number;
+    automatically_infer_relations: boolean;
+    analysis_time_ms: number;
+    relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3034,6 +3182,18 @@ type DataModelingDiagramFieldRemoved = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when user adds a field in a data modeling diagram.
+ *
+ * @category Data Modeling
+ */
+type DataModelingDiagramFieldAdded = CommonEvent<{
+  name: 'Data Modeling Field Added';
+  payload: {
+    source: 'side_panel' | 'diagram';
+  };
+}>;
+
+/**
  * This event is fired when user renames a field in a data modeling diagram.
  *
  * @category Data Modeling
@@ -3041,7 +3201,7 @@ type DataModelingDiagramFieldRemoved = CommonEvent<{
 type DataModelingDiagramFieldRenamed = CommonEvent<{
   name: 'Data Modeling Field Renamed';
   payload: {
-    source: 'side_panel';
+    source: 'side_panel' | 'diagram';
   };
 }>;
 
@@ -3053,7 +3213,7 @@ type DataModelingDiagramFieldRenamed = CommonEvent<{
 type DataModelingDiagramFieldTypeChanged = CommonEvent<{
   name: 'Data Modeling Field Type Changed';
   payload: {
-    source: 'side_panel';
+    source: 'side_panel' | 'diagram';
     from?: string;
     to?: string;
   };
@@ -3128,6 +3288,197 @@ type ContextMenuItemClicked = CommonEvent<{
   };
 }>;
 
+// Types for the Mock Data Generator events
+type MockDataGeneratorScreen =
+  | 'SCHEMA_CONFIRMATION'
+  | 'PREVIEW_AND_DOC_COUNT'
+  | 'SCRIPT_RESULT';
+type MongoDBJsonFieldType =
+  | 'String'
+  | 'Number'
+  | 'Boolean'
+  | 'Date'
+  | 'Int32'
+  | 'Decimal128'
+  | 'Long'
+  | 'ObjectId'
+  | 'RegExp'
+  | 'Symbol'
+  | 'MaxKey'
+  | 'MinKey'
+  | 'Binary'
+  | 'Code'
+  | 'Timestamp'
+  | 'DBRef';
+type MockDataScriptStep =
+  | 'install fakerjs'
+  | 'create js file'
+  | 'mongosh script';
+
+/**
+ * This event is fired when the Mock Data Generator CTA button is viewed.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorCtaButtonViewedEvent = CommonEvent<{
+  name: 'Mock Data Generator CTA Button Viewed';
+  payload: {
+    button_enabled: boolean;
+    gen_ai_features_enabled: boolean;
+    send_sample_values_enabled: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the enabled "Generate Mock Data" button in the collection tab header.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorOpenedEvent = CommonEvent<{
+  name: 'Mock Data Generator Opened';
+  payload: {
+    gen_ai_features_enabled: boolean;
+    send_sample_values_enabled: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the user views a screen in the Mock Data Generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorScreenViewedEvent = CommonEvent<{
+  name: 'Mock Data Generator Screen Viewed';
+  payload: {
+    screen: MockDataGeneratorScreen;
+  };
+}>;
+
+/**
+ * This event is fired when the user proceeds to the next screen or finishes the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorScreenProceededEvent = CommonEvent<{
+  name: 'Mock Data Generator Screen Proceeded';
+  payload: {
+    from_screen: MockDataGeneratorScreen;
+    to_screen: MockDataGeneratorScreen | 'finish';
+  };
+}>;
+
+/**
+ * This event is fired when the user closes the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataGeneratorDismissedEvent = CommonEvent<{
+  name: 'Mock Data Generator Dismissed';
+  payload: {
+    screen: MockDataGeneratorScreen;
+    gen_ai_features_enabled: boolean;
+    send_sample_values_enabled: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the user changes the JSON type for a MongoDB field type mapping.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataJsonTypeChangedEvent = CommonEvent<{
+  name: 'Mock Data JSON Type Changed';
+  payload: {
+    field_name: string;
+    previous_json_type: MongoDBJsonFieldType;
+    new_json_type: MongoDBJsonFieldType;
+    previous_faker_method: string;
+    new_faker_method: string;
+  };
+}>;
+
+/**
+ * This event is fired when the user changes the faker method for a MongoDB field type mapping.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataFakerMethodChangedEvent = CommonEvent<{
+  name: 'Mock Data Faker Method Changed';
+  payload: {
+    field_name: string;
+    json_type: MongoDBJsonFieldType;
+    previous_faker_method: string;
+    new_faker_method: string;
+  };
+}>;
+
+/**
+ * This event is fired when the user changes the document count for the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataDocumentCountChangedEvent = CommonEvent<{
+  name: 'Mock Data Document Count Changed';
+  payload: {
+    document_count: number;
+  };
+}>;
+
+/**
+ * This event is fired when the user generates a script in the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataScriptGeneratedEvent = CommonEvent<{
+  name: 'Mock Data Script Generated';
+  payload: {
+    field_count: number;
+    output_docs_count: number;
+  };
+}>;
+
+/**
+ * This event is fired when the user copies the mongosh script in the script screen of the mock data generator modal.
+ *
+ * @category Mock Data Generator
+ */
+type MockDataScriptCopiedEvent = CommonEvent<{
+  name: 'Mock Data Script Copied';
+  payload: {
+    step: MockDataScriptStep;
+  };
+}>;
+
+/**
+ * This event is fired when a user clicks the link to Atlas Search in the Indexes tab for a view.
+ *
+ * @category Indexes
+ */
+type AtlasSearchIndexesForViewLinkClickedEvent = CommonEvent<{
+  name: 'Atlas Search Indexes for View Link Clicked';
+  payload: {
+    /**
+     * The context/screen from which the link was clicked.
+     */
+    context: 'Indexes Tab';
+  };
+}>;
+
+/**
+ * This event is fired when a user clicks the button to create a search index for a view.
+ *
+ * @category Indexes
+ */
+type CreateSearchIndexForViewClickedEvent = CommonEvent<{
+  name: 'Create Search Index for View Clicked';
+  payload: {
+    /**
+     * The context/screen from which the link was clicked.
+     */
+    context: 'Indexes Tab';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3146,9 +3497,11 @@ export type TelemetryEvent =
   | AggregationUseCaseSavedEvent
   | AssistantPromptSubmittedEvent
   | AssistantResponseFailedEvent
+  | AssistantFailedEvent
   | AssistantFeedbackSubmittedEvent
   | AssistantEntryPointUsedEvent
   | AssistantConfirmationSubmittedEvent
+  | AssistantResponseGeneratedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
   | AiGenerateQueryClickedEvent
@@ -3158,6 +3511,9 @@ export type TelemetryEvent =
   | AiResponseGeneratedEvent
   | ApplicationLaunchedEvent
   | AtlasLinkClickedEvent
+  | AtlasSearchIndexesForViewLinkClickedEvent
+  | AtlasSkillsCtaClickedEvent
+  | AtlasSkillsCtaDismissedEvent
   | AtlasSignInErrorEvent
   | AtlasSignInSuccessEvent
   | AtlasSignOutEvent
@@ -3179,13 +3535,25 @@ export type TelemetryEvent =
   | ConnectionFailedEvent
   | ConnectionImportedEvent
   | ConnectionRemovedEvent
+  | CreateSearchIndexForViewClickedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
   | DataModelingDiagramCollectionAdded
   | DataModelingDiagramCollectionRemoved
   | DataModelingDiagramCollectionRenamed
+  | DataModelingCreateDiagramModalOpened
+  | DataModelingDiagramCreationStarted
+  | DataModelingDiagramCreationRelationshipInferralStarted
   | DataModelingDiagramCreated
+  | DataModelingDiagramCreationCancelled
+  | DataModelingDiagramCreationFailed
+  | DataModelingAddDBCollectionsModalOpened
+  | DataModelingAddDBCollectionsStarted
+  | DataModelingAddDBCollectionsSucceeded
+  | DataModelingAddDBCollectionsFailed
+  | DataModelingAddDBCollectionsCancelled
   | DataModelingDiagramExported
+  | DataModelingDiagramFieldAdded
   | DataModelingDiagramFieldRemoved
   | DataModelingDiagramFieldRenamed
   | DataModelingDiagramFieldTypeChanged
@@ -3231,6 +3599,7 @@ export type TelemetryEvent =
   | PerformancePausedEvent
   | PerformanceResumedEvent
   | PipelineAiFeedbackEvent
+  | AssistantToolCallApprovalEvent
   | QueryEditedEvent
   | QueryExecutedEvent
   | QueryExportedEvent
@@ -3245,6 +3614,7 @@ export type TelemetryEvent =
   | QueryHistoryRecentEvent
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
+  | SchemaAnalysisStartedEvent
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent
@@ -3273,23 +3643,20 @@ export type TelemetryEvent =
   | TimeToFirstByteEvent
   | ExperimentViewedEvent
   | CreateIndexButtonClickedEvent
-  | CreateIndexErrorParsingQueryEvent
-  | CreateIndexErrorGettingCoveredQueriesEvent
-  | CreateIndexCodeEquivalentToggled
-  | CreateIndexCoveredQueriesButtonClicked
-  | CreateIndexCoveredQueriesLearnMoreClicked
-  | CreateIndexESRLearnMoreClicked
-  | CreateIndexIndexTabClicked
   | CreateIndexModalCancelled
   | CreateIndexModalClosed
   | CreateIndexNewFieldAdded
   | CreateIndexOptionsClicked
-  | CreateIndexProgrammingLanguageLinkClicked
-  | CreateIndexQueryTabClicked
-  | CreateIndexSuggestedIndexButtonClicked
-  | CreateIndexInputIndexCopied
-  | CreateIndexIndexSuggestionsCopied
-  | CreateIndexStrategiesDocumentationClicked
   | UUIDEncounteredEvent
   | ContextMenuOpened
-  | ContextMenuItemClicked;
+  | ContextMenuItemClicked
+  | MockDataGeneratorCtaButtonViewedEvent
+  | MockDataGeneratorOpenedEvent
+  | MockDataGeneratorScreenViewedEvent
+  | MockDataGeneratorScreenProceededEvent
+  | MockDataGeneratorDismissedEvent
+  | MockDataJsonTypeChangedEvent
+  | MockDataFakerMethodChangedEvent
+  | MockDataDocumentCountChangedEvent
+  | MockDataScriptGeneratedEvent
+  | MockDataScriptCopiedEvent;

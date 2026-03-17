@@ -13,6 +13,7 @@ import { MongoClient } from 'mongodb';
 
 import delay from '../helpers/delay';
 import type { ConnectFormState } from '../helpers/connect-form-state';
+import { startMockAssistantServer } from '../helpers/assistant-service';
 
 const CONNECTION_HOSTS = '127.0.0.1:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;
@@ -503,15 +504,15 @@ describe('CSFLE / QE', function () {
           databaseName
         );
 
-        const selector = Selectors.collectionCard(databaseName, collectionName);
+        const selector = Selectors.collectionRow(databaseName, collectionName);
         await browser.scrollToVirtualItem(
-          Selectors.CollectionsGrid,
+          Selectors.CollectionsTable,
           selector,
-          'grid'
+          'table'
         );
 
-        const collectionCard = browser.$(selector);
-        await collectionCard.waitForDisplayed();
+        const collectionRow = browser.$(selector);
+        await collectionRow.waitForDisplayed();
 
         const collectionListFLE2BadgeElement = browser.$(
           Selectors.CollectionListFLE2Badge
@@ -560,8 +561,7 @@ describe('CSFLE / QE', function () {
         await browser.clickVisible(Selectors.InsertDocumentOption);
 
         // wait for the modal to appear
-        const insertDialog = browser.$(Selectors.InsertDialog);
-        await insertDialog.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.InsertDialog);
 
         // set the text in the editor
         await browser.setCodemirrorEditorValue(
@@ -582,7 +582,9 @@ describe('CSFLE / QE', function () {
         await browser.clickVisible(Selectors.InsertConfirm);
 
         // wait for the modal to go away
-        await insertDialog.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.InsertDialog, {
+          reverse: true,
+        });
 
         const result = await browser.getFirstListDocument();
 
@@ -642,7 +644,7 @@ describe('CSFLE / QE', function () {
             ['prefixPreview', 'suffixPreview', 'substringPreview'].includes(
               mode as string
             ) &&
-            !serverSatisfies('>= 8.2.0-rc4', true)
+            !serverSatisfies('>= 8.2.0', true)
           ) {
             // QE Prefix/Suffix/Substring Support only available on 8.2+
             return this.skip();
@@ -773,6 +775,10 @@ describe('CSFLE / QE', function () {
           "{ phoneNumber: '10101010' }"
         );
 
+        // Wait for the documents to be shown
+        // (switching from json view to list view).
+        await browser.$(Selectors.DocumentListEntry).waitForDisplayed();
+
         const modifiedResult = await browser.getFirstListDocument();
         expect(modifiedResult.phoneNumber).to.be.equal('"10101010"');
       });
@@ -901,8 +907,7 @@ describe('CSFLE / QE', function () {
         await browser.clickVisible(Selectors.CloneDocumentButton);
 
         // wait for the modal to appear
-        const insertDialog = browser.$(Selectors.InsertDialog);
-        await insertDialog.waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.InsertDialog);
 
         // set the text in the editor
         await browser.setCodemirrorEditorValue(
@@ -923,7 +928,9 @@ describe('CSFLE / QE', function () {
         await browser.clickVisible(Selectors.InsertConfirm);
 
         // wait for the modal to go away
-        await insertDialog.waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.InsertDialog, {
+          reverse: true,
+        });
 
         await browser.runFindOperation('Documents', "{ name: 'Third' }");
 
@@ -993,14 +1000,14 @@ describe('CSFLE / QE', function () {
           )
         );
 
-        await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.CSFLEConnectionModal);
 
         await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
 
         await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
-        await browser
-          .$(Selectors.CSFLEConnectionModal)
-          .waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.CSFLEConnectionModal, {
+          reverse: true,
+        });
 
         const encryptedResult = await browser.getFirstListDocument();
 
@@ -1019,14 +1026,14 @@ describe('CSFLE / QE', function () {
           )
         );
 
-        await browser.$(Selectors.CSFLEConnectionModal).waitForDisplayed();
+        await browser.waitForOpenModal(Selectors.CSFLEConnectionModal);
 
         await browser.clickVisible(Selectors.SetCSFLEEnabledLabel);
 
         await browser.clickVisible(Selectors.CSFLEConnectionModalCloseButton);
-        await browser
-          .$(Selectors.CSFLEConnectionModal)
-          .waitForDisplayed({ reverse: true });
+        await browser.waitForOpenModal(Selectors.CSFLEConnectionModal, {
+          reverse: true,
+        });
 
         decryptedResult = await browser.getFirstListDocument();
 
@@ -1342,6 +1349,141 @@ describe('CSFLE / QE', function () {
       decryptedResult = await browser.getFirstListDocument();
       delete decryptedResult.__safeContent__;
       expect(decryptedResult).to.deep.equal({ v: '"456"', _id: '"ghjk"' });
+    });
+  });
+
+  describe('compass assistant sets store:false in the api request ', function () {
+    const databaseName = 'fle-test-assistant';
+    const collectionName = 'ai-collection';
+
+    let compass: Compass;
+    let browser: CompassBrowser;
+    let plainMongo: MongoClient;
+    let mockAssistantServer: Awaited<
+      ReturnType<typeof startMockAssistantServer>
+    >;
+
+    before(async function () {
+      // Queryable Encryption v2 only available on 7.0+
+      if (!serverSatisfies('>= 7.0', true)) {
+        return this.skip();
+      }
+      compass = await init(this.test?.fullTitle());
+      browser = compass.browser;
+      mockAssistantServer = await startMockAssistantServer();
+      await browser.setEnv(
+        'COMPASS_ASSISTANT_BASE_URL_OVERRIDE',
+        mockAssistantServer.endpoint
+      );
+    });
+
+    beforeEach(async function () {
+      await browser.disconnectAll();
+      await browser.connectWithConnectionForm({
+        hosts: [CONNECTION_HOSTS],
+        fleKeyVaultNamespace: `${databaseName}.keyvault`,
+        kmsProviders: {
+          local: [
+            {
+              name: 'local',
+              key: 'A'.repeat(128),
+            },
+          ],
+        },
+        fleEncryptedFieldsMap: `{
+          '${databaseName}.${collectionName}': {
+            fields: [
+              {
+                path: 'phoneNumber',
+                keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                bsonType: 'string',
+                queries: { queryType: 'equality' }
+              }
+            ]
+          },
+        }`,
+        connectionName,
+      });
+      await browser.shellEval(connectionName, [
+        `use ${databaseName}`,
+        'db.keyvault.insertOne({' +
+          '"_id": UUID("28bbc608-524e-4717-9246-33633361788e"),' +
+          '"keyMaterial": BinData(0, "/yeYyj8IxowIIZGOs5iUcJaUm7KHhoBDAAzNxBz8c5mr2hwBIsBWtDiMU4nhx3fCBrrN3cqXG6jwPgR22gZDIiMZB5+xhplcE9EgNoEEBtRufBE2VjtacpXoqrMgW0+m4Dw76qWUCsF/k1KxYBJabM35KkEoD6+BI1QxU0rwRsR1rE/OLuBPKOEq6pmT5x74i+ursFlTld+5WiOySRDcZg=="),' +
+          '"creationDate": ISODate("2022-05-27T18:28:33.925Z"),' +
+          '"updateDate": ISODate("2022-05-27T18:28:33.925Z"),' +
+          '"status": 0,' +
+          '"masterKey": { "provider" : "local:local" }' +
+          '})',
+        // make sure there is a collection so we can navigate to the database
+        `db.getMongo().getDB('${databaseName}').createCollection('default')`,
+      ]);
+      await refresh(browser, connectionName);
+
+      plainMongo = await MongoClient.connect(CONNECTION_STRING);
+
+      await browser.setFeature('enableGenAIFeatures', true);
+      await browser.setFeature('enableGenAISampleDocumentPassing', true);
+      await browser.setFeature('optInGenAIFeatures', true);
+    });
+
+    after(async function () {
+      if (compass) {
+        await cleanup(compass);
+      }
+      await mockAssistantServer?.stop();
+    });
+
+    afterEach(async function () {
+      if (compass) {
+        await screenshotIfFailed(compass, this.currentTest);
+      }
+      await plainMongo.db(databaseName).dropDatabase();
+      await plainMongo.close();
+      mockAssistantServer?.clearRequests();
+    });
+
+    it('when sending message in assistant sidebar', async function () {
+      await browser.clickVisible(Selectors.AssistantDrawerButton);
+      await browser.$(Selectors.AssistantDrawerCloseButton).waitForDisplayed();
+
+      const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
+      await chatInput.waitForDisplayed();
+      await chatInput.setValue('What is mongodb?');
+      await browser.clickVisible(Selectors.AssistantChatSubmitButton);
+
+      // Wait for AssistantChatSubmitButton to be disabled
+      await browser.waitUntil(async () => {
+        const isDiabled = await browser
+          .$(Selectors.AssistantChatSubmitButton)
+          .getAttribute('aria-disabled');
+        return isDiabled === 'true';
+      });
+
+      const requests = mockAssistantServer.getRequests();
+      expect(requests.length).to.equal(1);
+      expect(requests[0].content.store).to.equal(false);
+      expect(requests[0].content.metadata.sensitive_storage).to.equal('false');
+    });
+
+    it('when sending message from other entrypoint', async function () {
+      // We are already connected to fle/qe connection, let's try to connect
+      // to another invalid connection and trigger assistant from connection
+      // error toast (Debug button)
+
+      await browser.connectWithConnectionString(
+        'mongodb-invalid://localhost:27017',
+        { connectionStatus: 'failure' }
+      );
+      await browser.clickVisible(
+        browser.$(Selectors.ConnectionToastErrorDebugButton)
+      );
+
+      await browser.$(Selectors.AssistantChatMessages).isDisplayed();
+
+      const requests = mockAssistantServer.getRequests();
+      expect(requests.length).to.equal(1);
+      expect(requests[0].content.store).to.equal(false);
+      expect(requests[0].content.metadata.sensitive_storage).to.equal('false');
     });
   });
 });

@@ -45,6 +45,11 @@ export const connectingIconStyle = css`
   animation: ${connectingIconAnimation} 1.5s linear infinite;
 `;
 
+const noMarkerStyles = css({
+  width: spacing[200],
+  height: spacing[200],
+});
+
 function ConnectingStatusMarker(): React.ReactElement {
   return (
     <svg
@@ -86,7 +91,7 @@ function FailedStatusMarker(): React.ReactElement {
 }
 
 function NoMarker(): React.ReactElement {
-  return <div style={{ width: spacing[200], height: spacing[200] }}></div>;
+  return <div className={noMarkerStyles}></div>;
 }
 
 const MARKER_COMPONENTS: Record<StatusMarker, React.FunctionComponent> = {
