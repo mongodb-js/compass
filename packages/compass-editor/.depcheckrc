@@ -3,12 +3,7 @@ ignores:
  - '@mongodb-js/tsconfig-compass'
  - '@types/chai'
  - '@types/sinon-chai'
- - 'hast'
- - 'rehype-sanitize'
- - 'rehype-stringify'
- - 'remark-parse'
- - 'remark-rehype'
  - 'sinon'
- - 'unified'
+ - 'hast'
 ignore-patterns:
  - 'dist'
