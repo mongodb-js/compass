@@ -211,14 +211,13 @@ export function useJsonSchemaAutocompleter(
   schema: JSONSchema7 | undefined,
   text: string
 ): JsonSchemaAutocompleterResult {
-  const [completer, setCompleter] = useState<CompletionSource | undefined>(
-    undefined
-  );
-  const [extensions, setExtensions] = useState<Extension[]>([]);
+  const [editorConfig, setEditorConfig] = useState<{
+    completer: CompletionSource | undefined;
+    extensions: Extension[];
+  }>({ completer: undefined, extensions: [] });
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
 
   const languageServiceRef = useRef<LanguageService | null>(null);
-  const markdownParserRef = useRef<any>(null);
 
   // Per-instance cache for parsed JSON documents in case we need to support multiple editors
   const jsonDocCacheRef = useRef<JsonDocumentCache>({
@@ -229,8 +228,7 @@ export function useJsonSchemaAutocompleter(
   // Load extensions and language service when schema changes
   useEffect(() => {
     if (!schema) {
-      setCompleter(undefined);
-      setExtensions([]);
+      setEditorConfig({ completer: undefined, extensions: [] });
       languageServiceRef.current = null;
       return;
     }
@@ -293,8 +291,6 @@ export function useJsonSchemaAutocompleter(
         })
         .use(rehypeSanitize.default)
         .use(rehypeStringify.default);
-
-      markdownParserRef.current = markdownParser;
 
       // schema is already checked above in the if(!schema) guard
       const languageService = createJsonLanguageService(schema!);
@@ -493,12 +489,14 @@ export function useJsonSchemaAutocompleter(
       });
 
       if (!aborted) {
-        setCompleter(() => completionSource);
-        setExtensions([
-          tooltipTheme,
-          triggerCompletionOnType,
-          hoverTooltip(hoverSource),
-        ]);
+        setEditorConfig({
+          completer: completionSource,
+          extensions: [
+            tooltipTheme,
+            triggerCompletionOnType,
+            hoverTooltip(hoverSource),
+          ],
+        });
       }
     }
 
@@ -513,7 +511,11 @@ export function useJsonSchemaAutocompleter(
 
   // Validate text against schema whenever text or extensions change
   useEffect(() => {
-    if (!schema || !languageServiceRef.current || extensions.length === 0) {
+    if (
+      !schema ||
+      !languageServiceRef.current ||
+      editorConfig.extensions.length === 0
+    ) {
       setAnnotations([]);
       return;
     }
@@ -567,7 +569,7 @@ export function useJsonSchemaAutocompleter(
     return () => {
       aborted = true;
     };
-  }, [schema, text, extensions.length]);
+  }, [schema, text, editorConfig.extensions.length]);
 
   // Compute hasErrors from annotations - both error and warning severity block validation
   // Note: vscode-json-languageservice reports schema violations (missing required fields,
@@ -578,5 +580,10 @@ export function useJsonSchemaAutocompleter(
     );
   }, [annotations]);
 
-  return { completer, extensions, annotations, hasErrors };
+  return {
+    completer: editorConfig.completer,
+    extensions: editorConfig.extensions,
+    annotations,
+    hasErrors,
+  };
 }
