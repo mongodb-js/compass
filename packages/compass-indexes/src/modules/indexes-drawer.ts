@@ -9,15 +9,15 @@ import {
 import type { FetchIndexesActions } from './regular-indexes';
 import {
   ActionTypes as SearchIndexesActionTypes,
-  CreateSearchIndexSucceededAction,
   refreshSearchIndexes,
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
-  UpdateSearchIndexSucceededAction,
 } from './search-indexes';
 import type {
   CreateSearchIndexClosedAction,
+  CreateSearchIndexSucceededAction,
   UpdateSearchIndexClosedAction,
+  UpdateSearchIndexSucceededAction,
 } from './search-indexes';
 import type { FetchSearchIndexesActions } from './search-indexes';
 import { showConfirmation } from '@mongodb-js/compass-components';
@@ -84,7 +84,7 @@ const confirmViewChangeIfDirty = async (isDirty: boolean): Promise<boolean> => {
     return true;
   }
 
-  return await showConfirmation({
+  return showConfirmation({
     title: 'Any unsaved progress will be lost',
     buttonText: 'Discard',
     variant: 'danger',
