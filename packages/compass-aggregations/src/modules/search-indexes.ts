@@ -206,6 +206,22 @@ export const openIndexesListDrawerView =
     };
   };
 
+export const openEditSearchIndexDrawerView = (
+  indexName: string
+): PipelineBuilderThunkAction<void> => {
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry.emit('open-edit-search-index-drawer-view', indexName);
+  };
+};
+
+export const openCreateSearchIndexDrawerView = (
+  indexType: string
+): PipelineBuilderThunkAction<void> => {
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry.emit('open-create-search-index-drawer-view', indexType);
+  };
+};
+
 /**
  * Checks whether a namespace has existing search indexes
  *

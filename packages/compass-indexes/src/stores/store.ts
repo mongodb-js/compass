@@ -34,7 +34,12 @@ import {
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { RollingIndexesService } from '../modules/rolling-indexes-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { openIndexesListDrawerView } from '../modules/indexes-drawer';
+import {
+  openCreateSearchIndexDrawerView,
+  openEditSearchIndexDrawerView,
+  openIndexesListDrawerView,
+  SearchIndexType,
+} from '../modules/indexes-drawer';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 export type IndexesDataServiceProps =
@@ -148,6 +153,22 @@ export function activateIndexesPlugin(
   on(localAppRegistry, 'open-indexes-list-drawer-view', () => {
     void store.dispatch(openIndexesListDrawerView());
   });
+
+  on(
+    localAppRegistry,
+    'open-edit-search-index-drawer-view',
+    (indexName: string) => {
+      void store.dispatch(openEditSearchIndexDrawerView(indexName));
+    }
+  );
+
+  on(
+    localAppRegistry,
+    'open-create-search-index-drawer-view',
+    (indexType: SearchIndexType) => {
+      void store.dispatch(openCreateSearchIndexDrawerView(indexType));
+    }
+  );
 
   on(globalAppRegistry, 'refresh-data', () => {
     void store.dispatch(fetchRegularIndexes());

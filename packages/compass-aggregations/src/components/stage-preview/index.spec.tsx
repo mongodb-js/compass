@@ -11,12 +11,14 @@ import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
+import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
 const renderStagePreview = (
   props: Partial<ComponentProps<typeof StagePreview>> = {},
-  pipeline = DEFAULT_PIPELINE
+  pipeline = DEFAULT_PIPELINE,
+  storeOptions: Partial<ConfigureStoreOptions> = {}
 ) => {
   return renderWithStore(
     <StagePreview
@@ -29,7 +31,7 @@ const renderStagePreview = (
       shouldRenderStage={false}
       {...props}
     />,
-    { pipeline }
+    { pipeline, ...storeOptions }
   );
 };
 
@@ -121,5 +123,163 @@ describe('StagePreview', function () {
     });
     const docs = screen.getAllByTestId('readonly-document');
     expect(docs).to.have.length(2);
+  });
+
+  describe('search index stale results banner', function () {
+    it('should show stale results banner when index is rebuilding but queryable', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+        },
+        [{ $search: { index: 'test-index' } }],
+        {
+          searchIndexes: [
+            {
+              name: 'test-index',
+              status: 'BUILDING',
+              queryable: true,
+            } as any,
+          ],
+        }
+      );
+
+      expect(
+        screen.getByText(
+          /Results shown are based on the most recently built index version/i
+        )
+      ).to.exist;
+    });
+
+    it('should show stale results banner for $vectorSearch', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$vectorSearch',
+          documents: [{ _id: 1 }],
+        },
+        [{ $vectorSearch: { index: 'vector-index' } }],
+        {
+          searchIndexes: [
+            {
+              name: 'vector-index',
+              status: 'BUILDING',
+              queryable: true,
+            } as any,
+          ],
+        }
+      );
+
+      expect(
+        screen.getByText(
+          /Results shown are based on the most recently built index version/i
+        )
+      ).to.exist;
+    });
+
+    it('should NOT show stale results banner when index is ready', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+        },
+        [{ $search: { index: 'test-index' } }],
+        {
+          searchIndexes: [
+            {
+              name: 'test-index',
+              status: 'READY',
+              queryable: true,
+            } as any,
+          ],
+        }
+      );
+
+      expect(
+        screen.queryByText(
+          /Results shown are based on the most recently built index version/i
+        )
+      ).to.not.exist;
+    });
+
+    it('should NOT show stale results banner when index is not queryable', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+        },
+        [{ $search: { index: 'test-index' } }],
+        {
+          searchIndexes: [
+            {
+              name: 'test-index',
+              status: 'BUILDING',
+              queryable: false,
+            } as any,
+          ],
+        }
+      );
+
+      expect(
+        screen.queryByText(
+          /Results shown are based on the most recently built index version/i
+        )
+      ).to.not.exist;
+    });
+
+    it('should NOT show stale results banner when no search index name found', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+        },
+        [{ $search: {} }],
+        {
+          searchIndexes: [
+            {
+              name: 'test-index',
+              status: 'BUILDING',
+              queryable: true,
+            } as any,
+          ],
+        }
+      );
+
+      expect(
+        screen.queryByText(
+          /Results shown are based on the most recently built index version/i
+        )
+      ).to.not.exist;
+    });
+
+    it('should NOT show stale results banner for non-search stages', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$match',
+          documents: [{ _id: 1 }],
+        },
+        [{ $match: { _id: 1 } }],
+        {
+          searchIndexes: [
+            {
+              name: 'test-index',
+              status: 'BUILDING',
+              queryable: true,
+            } as any,
+          ],
+        }
+      );
+
+      expect(
+        screen.queryByText(
+          /Results shown are based on the most recently built index version/i
+        )
+      ).to.not.exist;
+    });
   });
 });

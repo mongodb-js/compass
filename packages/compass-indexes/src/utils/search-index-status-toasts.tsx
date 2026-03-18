@@ -31,7 +31,10 @@ export function showSearchIndexStatusChangeToasts(
           timeout: 5000,
           variant: 'progress',
         });
-      } else if (previousIndex.status !== 'BUILDING') {
+      } else if (
+        previousIndex.status === 'READY' ||
+        previousIndex.status === 'FAILED'
+      ) {
         openToast(`search-index-rebuilding-${index.name}`, {
           title: `${indexTypeLabel} is rebuilding`,
           description: `${indexTypeLabel} ${index.name} is rebuilding and is ${

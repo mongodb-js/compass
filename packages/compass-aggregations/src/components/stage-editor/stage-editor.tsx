@@ -27,6 +27,19 @@ import type { PipelineParserError } from '../../modules/pipeline-builder/pipelin
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import {
+  openCreateSearchIndexDrawerView,
+  openEditSearchIndexDrawerView,
+  openIndexesListDrawerView,
+} from '../../modules/search-indexes';
+import { usePreference } from 'compass-preferences-model/provider';
+import {
+  getSearchIndexNameFromSearchStage,
+  isSearchStage,
+} from '../../utils/stage';
+import ServerErrorBanner from '../server-error-banner';
+import { SearchIndex } from 'mongodb-data-service';
+import SearchIndexDoesNotExistBanner from '../search-index-does-not-exist-banner';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -77,8 +90,12 @@ type StageEditorProps = {
   serverError: MongoServerError | null;
   num_stages: number;
   editor_view_type: 'text' | 'stage' | 'focus';
+  searchIndexes: SearchIndex[];
   className?: string;
   onChange: (index: number, value: string) => void;
+  onViewSearchIndexesClick: () => void;
+  onCreateSearchIndexClick: (searchIndexType: string) => void;
+  onEditSearchIndexClick: (indexName: string) => void;
   editorRef?: React.Ref<EditorRef>;
 };
 
@@ -88,12 +105,16 @@ export const StageEditor = ({
   stageOperator,
   index,
   onChange,
+  onViewSearchIndexesClick,
+  onCreateSearchIndexClick,
+  onEditSearchIndexClick,
   serverError,
   syntaxError,
   className,
   serverVersion,
   num_stages,
   editor_view_type,
+  searchIndexes,
   editorRef,
 }: StageEditorProps) => {
   const track = useTelemetry();
@@ -159,6 +180,15 @@ export const StageEditor = ({
     connectionInfoRef,
   ]);
 
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
+  const searchIndexName = enableSearchActivationProgramP1
+    ? getSearchIndexNameFromSearchStage(stageOperator, stageValue)
+    : null;
+  const searchIndexDoesNotExist =
+    !!searchIndexName && searchIndexes.every((x) => x.name !== searchIndexName);
+
   return (
     <div
       data-testid="stage-editor"
@@ -197,15 +227,34 @@ export const StageEditor = ({
         </Banner>
       )}
       {serverError && (
-        <Banner
-          variant="danger"
-          data-testid="stage-editor-error-message"
-          title={serverError.message}
-          className={bannerStyles}
-        >
-          {serverError.message}
-        </Banner>
+        <ServerErrorBanner
+          message={serverError.message}
+          searchIndexName={searchIndexName}
+          // Don't show link when in focus mode as modal covers the drawer
+          onEditSearchIndexClick={
+            editor_view_type !== 'focus' ? onEditSearchIndexClick : undefined
+          }
+        />
       )}
+      {!serverError &&
+        !syntaxError &&
+        searchIndexDoesNotExist &&
+        isSearchStage(stageOperator) && (
+          <SearchIndexDoesNotExistBanner
+            searchStageOperator={stageOperator}
+            // Don't show links when in focus mode as modal covers the drawer
+            onViewIndexesClick={
+              editor_view_type !== 'focus'
+                ? onViewSearchIndexesClick
+                : undefined
+            }
+            onCreateSearchIndexClick={
+              editor_view_type !== 'focus'
+                ? onCreateSearchIndexClick
+                : undefined
+            }
+          />
+        )}
     </div>
   );
 };
@@ -224,7 +273,13 @@ export default connect(
       serverVersion: state.serverVersion,
       num_stages,
       editor_view_type: mapPipelineModeToEditorViewType(state),
+      searchIndexes: state.searchIndexes.indexes,
     };
   },
-  { onChange: changeStageValue }
+  {
+    onChange: changeStageValue,
+    onViewSearchIndexesClick: openIndexesListDrawerView,
+    onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
+    onEditSearchIndexClick: openEditSearchIndexDrawerView,
+  }
 )(StageEditor);

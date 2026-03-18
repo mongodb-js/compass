@@ -1,7 +1,7 @@
 import React, { type ComponentProps } from 'react';
 import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
-import { screen, within } from '@mongodb-js/testing-library-compass';
+import { screen, within, cleanup } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import {
   FocusModePreview,
@@ -14,12 +14,14 @@ import {
 } from '../../constants';
 
 import { renderWithStore } from '../../../test/configure-store';
+import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
 const renderFocusModePreview = (
   props: Partial<ComponentProps<typeof FocusModePreview>> = {},
-  pipeline = DEFAULT_PIPELINE
+  pipeline = DEFAULT_PIPELINE,
+  storeOptions: Partial<ConfigureStoreOptions> = {}
 ) => {
   return renderWithStore(
     <FocusModePreview
@@ -33,11 +35,13 @@ const renderFocusModePreview = (
       onCollapse={() => {}}
       {...props}
     />,
-    { pipeline }
+    { pipeline, ...storeOptions }
   );
 };
 
 describe('FocusModeStagePreview', function () {
+  afterEach(cleanup);
+
   it('renders stage input', async function () {
     await renderWithStore(
       <InputPreview onExpand={() => {}} onCollapse={() => {}} />
@@ -146,6 +150,86 @@ describe('FocusModeStagePreview', function () {
       });
       const preview = screen.getByTestId('focus-mode-stage-preview');
       expect(within(preview).getByTestId('atlas-only-stage-preview')).to.exist;
+    });
+
+    describe('search index stale results banner', function () {
+      it('should show stale results banner when showSearchIndexStaleResultsBanner is true', async function () {
+        await renderFocusModePreview({
+          stageOperator: '$search',
+          documents: [
+            new HadronDocument({ _id: 12345 }),
+            new HadronDocument({ _id: 54321 }),
+          ],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'test-index',
+        });
+
+        expect(
+          screen.getByText(
+            /Results shown are based on the most recently built index version/i
+          )
+        ).to.exist;
+      });
+
+      it('should show stale results banner for $vectorSearch', async function () {
+        await renderFocusModePreview({
+          stageOperator: '$vectorSearch',
+          documents: [new HadronDocument({ _id: 1 })],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'vector-index',
+        });
+
+        expect(
+          screen.getByText(
+            /Results shown are based on the most recently built index version/i
+          )
+        ).to.exist;
+      });
+
+      it('should NOT show stale results banner when showSearchIndexStaleResultsBanner is false', async function () {
+        await renderFocusModePreview({
+          stageOperator: '$search',
+          documents: [new HadronDocument({ _id: 1 })],
+          showSearchIndexStaleResultsBanner: false,
+          searchIndexName: 'test-index',
+        });
+
+        expect(
+          screen.queryByText(
+            /Results shown are based on the most recently built index version/i
+          )
+        ).to.not.exist;
+      });
+
+      it('should NOT show stale results banner when there are no documents', async function () {
+        await renderFocusModePreview({
+          stageOperator: '$search',
+          documents: [],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'test-index',
+        });
+
+        expect(
+          screen.queryByText(
+            /Results shown are based on the most recently built index version/i
+          )
+        ).to.not.exist;
+      });
+
+      it('should NOT show stale results banner for non-search stages', async function () {
+        await renderFocusModePreview({
+          stageOperator: '$match',
+          documents: [new HadronDocument({ _id: 1 })],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: null,
+        });
+
+        expect(
+          screen.queryByText(
+            /Results shown are based on the most recently built index version/i
+          )
+        ).to.not.exist;
+      });
     });
   });
 });

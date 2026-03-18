@@ -3,6 +3,8 @@ import toNS from 'mongodb-ns';
 /**
  * Link to Atlas search indexes page. Supports certain query params that can be
  * part of hash url: https://github.com/10gen/mms/blob/ba8025a4be58591cea0299ab500d2cf06e187f95/client/packages/project/nds/clusters/components/AtlasSearch/routeUtil.ts#L20-L30
+ *
+ * Note: this is a copy of packages/compass-indexes/src/utils/atlas-search-indexes-link.ts
  */
 export function getAtlasSearchIndexesLink({
   clusterName,

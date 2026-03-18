@@ -2,6 +2,9 @@ import {
   filterStageOperators,
   findAtlasOperator,
   getDestinationNamespaceFromStage,
+  getSearchIndexNameFromSearchStage,
+  getSearchIndexNameFromPipeline,
+  getSearchStageOperatorFromPipeline,
 } from './stage';
 import { expect } from 'chai';
 
@@ -327,6 +330,202 @@ describe('utils', function () {
           })
         ).to.equal(null);
       });
+    });
+  });
+
+  context('getSearchIndexNameFromSearchStage', function () {
+    it('returns null when stageOperator is null', function () {
+      expect(
+        getSearchIndexNameFromSearchStage(null, '{ index: "myIndex" }')
+      ).to.equal(null);
+    });
+
+    it('returns null when stageValue is null', function () {
+      expect(getSearchIndexNameFromSearchStage('$search', null)).to.equal(null);
+    });
+
+    it('returns null when stageOperator is not a search stage', function () {
+      expect(
+        getSearchIndexNameFromSearchStage('$match', '{ field: "value" }')
+      ).to.equal(null);
+    });
+
+    it('returns index name from $search stage', function () {
+      expect(
+        getSearchIndexNameFromSearchStage(
+          '$search',
+          '{ index: "mySearchIndex", text: { query: "test", path: "field" } }'
+        )
+      ).to.equal('mySearchIndex');
+    });
+
+    it('returns index name from $searchMeta stage', function () {
+      expect(
+        getSearchIndexNameFromSearchStage(
+          '$searchMeta',
+          '{ index: "metaIndex", facet: { operator: { text: { query: "test", path: "field" } } } }'
+        )
+      ).to.equal('metaIndex');
+    });
+
+    it('returns index name from $vectorSearch stage', function () {
+      expect(
+        getSearchIndexNameFromSearchStage(
+          '$vectorSearch',
+          '{ index: "vectorIndex", path: "embedding", queryVector: [0.1, 0.2], numCandidates: 100, limit: 10 }'
+        )
+      ).to.equal('vectorIndex');
+    });
+
+    it('returns null when index field is missing', function () {
+      expect(
+        getSearchIndexNameFromSearchStage(
+          '$search',
+          '{ text: { query: "test", path: "field" } }'
+        )
+      ).to.equal(null);
+    });
+
+    it('returns null when index field is not a string', function () {
+      expect(
+        getSearchIndexNameFromSearchStage('$search', '{ index: 123 }')
+      ).to.equal(null);
+    });
+
+    it('returns null when stageValue is invalid BSON', function () {
+      expect(
+        getSearchIndexNameFromSearchStage('$search', '{ invalid bson }')
+      ).to.equal(null);
+    });
+  });
+
+  context('getSearchIndexNameFromPipeline', function () {
+    it('returns null for empty pipeline', function () {
+      expect(getSearchIndexNameFromPipeline('[]')).to.equal(null);
+    });
+
+    it('returns null for invalid pipeline text', function () {
+      expect(getSearchIndexNameFromPipeline('not a pipeline')).to.equal(null);
+    });
+
+    it('returns null when pipeline is not an array', function () {
+      expect(getSearchIndexNameFromPipeline('{ $match: {} }')).to.equal(null);
+    });
+
+    it('returns null when first stage is not a search stage', function () {
+      expect(
+        getSearchIndexNameFromPipeline('[{ $match: { field: "value" } }]')
+      ).to.equal(null);
+    });
+
+    it('returns index name from $search stage', function () {
+      expect(
+        getSearchIndexNameFromPipeline(
+          '[{ $search: { index: "mySearchIndex", text: { query: "test", path: "field" } } }]'
+        )
+      ).to.equal('mySearchIndex');
+    });
+
+    it('returns index name from $searchMeta stage', function () {
+      expect(
+        getSearchIndexNameFromPipeline(
+          '[{ $searchMeta: { index: "metaIndex", facet: { operator: { text: { query: "test", path: "field" } } } } }]'
+        )
+      ).to.equal('metaIndex');
+    });
+
+    it('returns index name from $vectorSearch stage', function () {
+      expect(
+        getSearchIndexNameFromPipeline(
+          '[{ $vectorSearch: { index: "vectorIndex", path: "embedding", queryVector: [0.1, 0.2], numCandidates: 100, limit: 10 } }]'
+        )
+      ).to.equal('vectorIndex');
+    });
+
+    it('returns index name when search stage is followed by other stages', function () {
+      expect(
+        getSearchIndexNameFromPipeline(
+          '[{ $search: { index: "myIndex", text: { query: "test", path: "field" } } }, { $limit: 10 }]'
+        )
+      ).to.equal('myIndex');
+    });
+
+    it('returns null when search stage is not the first stage', function () {
+      expect(
+        getSearchIndexNameFromPipeline(
+          '[{ $match: { active: true } }, { $search: { index: "myIndex", text: { query: "test", path: "field" } } }]'
+        )
+      ).to.equal(null);
+    });
+
+    it('returns null when index field is missing', function () {
+      expect(
+        getSearchIndexNameFromPipeline(
+          '[{ $search: { text: { query: "test", path: "field" } } }]'
+        )
+      ).to.equal(null);
+    });
+
+    it('returns null when index field is not a string', function () {
+      expect(
+        getSearchIndexNameFromPipeline('[{ $search: { index: 123 } }]')
+      ).to.equal(null);
+    });
+  });
+
+  context('getSearchStageOperatorFromPipeline', function () {
+    it('returns null for empty pipeline', function () {
+      expect(getSearchStageOperatorFromPipeline('[]')).to.equal(null);
+    });
+
+    it('returns null for invalid pipeline text', function () {
+      expect(getSearchStageOperatorFromPipeline('not a pipeline')).to.equal(
+        null
+      );
+    });
+
+    it('returns null when pipeline is not an array', function () {
+      expect(getSearchStageOperatorFromPipeline('{ $match: {} }')).to.equal(
+        null
+      );
+    });
+
+    it('returns null when no search stage exists', function () {
+      expect(
+        getSearchStageOperatorFromPipeline('[{ $match: { field: "value" } }]')
+      ).to.equal(null);
+    });
+
+    it('returns $search operator', function () {
+      expect(
+        getSearchStageOperatorFromPipeline(
+          '[{ $search: { index: "myIndex", text: { query: "test", path: "field" } } }]'
+        )
+      ).to.equal('$search');
+    });
+
+    it('returns $searchMeta operator', function () {
+      expect(
+        getSearchStageOperatorFromPipeline(
+          '[{ $searchMeta: { index: "metaIndex", facet: { operator: { text: { query: "test", path: "field" } } } } }]'
+        )
+      ).to.equal('$searchMeta');
+    });
+
+    it('returns $vectorSearch operator', function () {
+      expect(
+        getSearchStageOperatorFromPipeline(
+          '[{ $vectorSearch: { index: "vectorIndex", path: "embedding", queryVector: [0.1, 0.2], numCandidates: 100, limit: 10 } }]'
+        )
+      ).to.equal('$vectorSearch');
+    });
+
+    it('returns null when search stage is not the first stage', function () {
+      expect(
+        getSearchStageOperatorFromPipeline(
+          '[{ $match: { active: true } }, { $vectorSearch: { index: "myIndex", path: "embedding", queryVector: [0.1], numCandidates: 10, limit: 5 } }]'
+        )
+      ).to.equal(null);
     });
   });
 });

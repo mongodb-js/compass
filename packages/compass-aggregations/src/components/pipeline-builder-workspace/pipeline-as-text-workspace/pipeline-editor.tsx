@@ -1,7 +1,6 @@
 import React, { useRef, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
-  ErrorSummary,
   css,
   WarningSummary,
   spacing,
@@ -24,6 +23,19 @@ import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
+import { usePreference } from 'compass-preferences-model/provider';
+import {
+  getSearchIndexNameFromPipeline,
+  getSearchStageOperatorFromPipeline,
+} from '../../../utils/stage';
+import {
+  openCreateSearchIndexDrawerView,
+  openEditSearchIndexDrawerView,
+  openIndexesListDrawerView,
+} from '../../../modules/search-indexes';
+import ServerErrorBanner from '../../server-error-banner';
+import { SearchIndex } from 'mongodb-data-service';
+import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
 
 const containerStyles = css({
   position: 'relative',
@@ -69,7 +81,11 @@ export type PipelineEditorProps = {
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   serverVersion: string;
+  searchIndexes: SearchIndex[];
   onChangePipelineText: (value: string) => void;
+  onViewSearchIndexesClick: () => void;
+  onCreateSearchIndexClick: (searchIndexType: string) => void;
+  onEditSearchIndexClick: (indexName: string) => void;
 };
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
@@ -79,7 +95,11 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   serverError,
   syntaxErrors,
   serverVersion,
+  searchIndexes,
   onChangePipelineText,
+  onViewSearchIndexesClick,
+  onCreateSearchIndexClick,
+  onEditSearchIndexClick,
 }) => {
   const fields = useAutocompleteFields(namespace);
   const track = useTelemetry();
@@ -137,7 +157,21 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
   const darkMode = useDarkMode();
 
-  const showErrorContainer = serverError || syntaxErrors.length > 0;
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
+  const searchIndexName = enableSearchActivationProgramP1
+    ? getSearchIndexNameFromPipeline(pipelineText)
+    : null;
+  const searchStageOperator = enableSearchActivationProgramP1
+    ? getSearchStageOperatorFromPipeline(pipelineText)
+    : null;
+  const searchIndexDoesNotExist =
+    !!searchIndexName && searchIndexes.every((x) => x.name !== searchIndexName);
+  const showSearchIndexDoesNotExistBanner =
+    searchIndexDoesNotExist && !!searchStageOperator;
+  const showErrorContainer =
+    serverError || syntaxErrors.length > 0 || showSearchIndexDoesNotExistBanner;
 
   return (
     <div
@@ -165,7 +199,17 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
           ) : serverError ? (
-            <ErrorSummary errors={serverError.message} />
+            <ServerErrorBanner
+              message={serverError.message}
+              searchIndexName={searchIndexName}
+              onEditSearchIndexClick={onEditSearchIndexClick}
+            />
+          ) : showSearchIndexDoesNotExistBanner ? (
+            <SearchIndexDoesNotExistBanner
+              searchStageOperator={searchStageOperator}
+              onViewIndexesClick={onViewSearchIndexesClick}
+              onCreateSearchIndexClick={onCreateSearchIndexClick}
+            />
           ) : null}
         </div>
       )}
@@ -187,6 +231,7 @@ const mapState = ({
     },
   },
   serverVersion,
+  searchIndexes: { indexes: searchIndexes },
 }: RootState) => ({
   namespace,
   num_stages: pipeline.length,
@@ -194,10 +239,14 @@ const mapState = ({
   serverError: pipelineServerError ?? outputStageServerError,
   syntaxErrors,
   serverVersion,
+  searchIndexes,
 });
 
 const mapDispatch = {
   onChangePipelineText: changeEditorValue,
+  onViewSearchIndexesClick: openIndexesListDrawerView,
+  onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
+  onEditSearchIndexClick: openEditSearchIndexDrawerView,
 };
 
 export default connect(mapState, mapDispatch)(PipelineEditor);
