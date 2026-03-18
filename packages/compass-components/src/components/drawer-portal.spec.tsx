@@ -1052,15 +1052,16 @@ describe('DrawerSection', function () {
       });
 
       // First click on close button
-      userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+      const closeButton = screen.getByRole('button', { name: 'Close drawer' });
+      userEvent.click(closeButton);
 
       await waitFor(() => {
         expect(beforeSectionHideSpy).to.have.been.calledOnce;
       });
 
       // Multiple rapid clicks while first is still pending
-      userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
-      userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+      userEvent.click(closeButton);
+      userEvent.click(closeButton);
 
       // Should still only be called once (concurrent calls are ignored)
       expect(beforeSectionHideSpy).to.have.been.calledOnce;
