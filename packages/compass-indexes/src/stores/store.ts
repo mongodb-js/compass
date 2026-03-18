@@ -38,8 +38,8 @@ import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
   openIndexesListDrawerView,
-  SearchIndexType,
 } from '../modules/indexes-drawer';
+import type { SearchIndexType } from '../modules/indexes-drawer';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 export type IndexesDataServiceProps =
