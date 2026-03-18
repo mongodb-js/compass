@@ -1,5 +1,5 @@
 import React from 'react';
-import { connect, useSelector } from 'react-redux';
+import { connect, useSelector, shallowEqual } from 'react-redux';
 import {
   Banner,
   Link,
@@ -178,14 +178,15 @@ export function Indexes({
     'enableAtlasSearchIndexes',
   ]);
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-    useSelector(selectIsViewSearchCompatible(isAtlas));
+    useSelector(selectIsViewSearchCompatible(isAtlas), shallowEqual);
   const { isRegularIndexesReadable, isSearchIndexesReadable } = useSelector(
     selectReadWriteAccess({
       isAtlas,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-    })
+    }),
+    shallowEqual
   );
   const getBanner = () => {
     if (isReadonlyView) {
