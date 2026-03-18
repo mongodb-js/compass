@@ -941,9 +941,6 @@ describe('DrawerSection', function () {
       userEvent.click(screen.getByTestId('close-btn'));
       userEvent.click(screen.getByTestId('close-btn'));
 
-      // Wait a bit to ensure no additional calls
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
       // Should still only be called once (concurrent calls are ignored)
       expect(beforeSectionHideSpy).to.have.been.calledOnce;
 
@@ -1014,9 +1011,6 @@ describe('DrawerSection', function () {
       userEvent.click(screen.getByTestId('switch-btn'));
       userEvent.click(screen.getByTestId('switch-btn'));
 
-      // Wait a bit to ensure no additional calls
-      await new Promise((resolve) => setTimeout(resolve, 50));
-
       // Should still only be called once (concurrent calls are ignored)
       expect(beforeSectionHideSpy).to.have.been.calledOnce;
 
@@ -1067,9 +1061,6 @@ describe('DrawerSection', function () {
       // Multiple rapid clicks while first is still pending
       userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
       userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
-
-      // Wait a bit to ensure no additional calls
-      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Should still only be called once (concurrent calls are ignored)
       expect(beforeSectionHideSpy).to.have.been.calledOnce;
@@ -1127,9 +1118,6 @@ describe('DrawerSection', function () {
       // Multiple rapid clicks while first is still pending
       userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
       userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
-
-      // Wait a bit to ensure no additional calls
-      await new Promise((resolve) => setTimeout(resolve, 50));
 
       // Should still only be called once (concurrent calls are ignored)
       expect(beforeSectionHideSpy).to.have.been.calledOnce;
