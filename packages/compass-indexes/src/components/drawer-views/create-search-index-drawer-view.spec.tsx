@@ -24,7 +24,6 @@ function renderCreateSearchIndexDrawerView(
       namespace: 'test.collection',
       searchIndexes: [],
       currentIndexType: 'search' as SearchIndexType,
-      isDirty: false,
       isBusy: false,
       error: undefined,
       onClose: noop,
