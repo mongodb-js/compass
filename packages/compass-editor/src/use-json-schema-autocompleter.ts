@@ -20,12 +20,54 @@ import { hoverTooltip, EditorView } from '@codemirror/view';
 import { css, spacing } from '@mongodb-js/compass-components';
 import type { Annotation } from './editor';
 import type { Element, ElementContent, Root } from 'hast';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkRehype from 'remark-rehype';
+import rehypeSanitize from 'rehype-sanitize';
+import rehypeStringify from 'rehype-stringify';
 
 // The URI we use for the schema
 const SCHEMA_URI = 'inmemory://json-schema.json';
 
 // The URI we use for the current document being edited
 const DOCUMENT_URI = 'file:///json-schema-document.json';
+
+// Create markdown parser using remark for rendering hover tooltips
+const markdownParser = unified()
+  .use(remarkParse)
+  .use(remarkRehype, {
+    handlers: {
+      // Custom handler for links to add target="_blank" and rel="noopener noreferrer"
+      link(state: unknown, node: { url: string; title?: string }) {
+        const result: Element = {
+          type: 'element',
+          tagName: 'a',
+          properties: {
+            href: node.url,
+            target: '_blank',
+            rel: 'noopener noreferrer',
+            ...(node.title ? { title: node.title } : {}),
+          },
+          children: (
+            state as {
+              all: (n: unknown) => ElementContent[];
+            }
+          ).all(node),
+        };
+        return result;
+      },
+    },
+  })
+  .use(() => {
+    // Custom rehype plugin to unwrap paragraph tags (render inline without <p>)
+    return (tree: Root) => {
+      tree.children = tree.children.flatMap((node) =>
+        node.type === 'element' && node.tagName === 'p' ? node.children : [node]
+      );
+    };
+  })
+  .use(rehypeSanitize)
+  .use(rehypeStringify);
 
 // Shared tooltip styles for hover and lint tooltips
 const tooltipStyles = {
@@ -233,280 +275,208 @@ export function useJsonSchemaAutocompleter(
       return;
     }
 
-    let aborted = false;
+    // schema is already checked above in the if(!schema) guard
+    const languageService = createJsonLanguageService(schema!);
+    languageServiceRef.current = languageService;
 
-    async function loadExtensions() {
-      // Dynamically import ESM-only dependencies (remark/rehype ecosystem)
-      const [
-        { unified },
-        remarkParse,
-        remarkRehype,
-        rehypeSanitize,
-        rehypeStringify,
-      ] = await Promise.all([
-        import('unified'),
-        import('remark-parse'),
-        import('remark-rehype'),
-        import('rehype-sanitize'),
-        import('rehype-stringify'),
-      ]);
+    // Capture cache reference for use in closures
+    const jsonDocCache = jsonDocCacheRef.current;
 
-      if (aborted) return;
+    // Helper to create a TextDocument from content
+    const createTextDoc = (content: string): TextDocument => {
+      return LSPTextDocument.create(DOCUMENT_URI, 'json', 0, content);
+    };
 
-      // Create markdown parser using remark for rendering hover tooltips
-      const markdownParser = unified()
-        .use(remarkParse.default)
-        .use(remarkRehype.default, {
-          handlers: {
-            // Custom handler for links to add target="_blank" and rel="noopener noreferrer"
-            link(state: unknown, node: { url: string; title?: string }) {
-              const result: Element = {
-                type: 'element',
-                tagName: 'a',
-                properties: {
-                  href: node.url,
-                  target: '_blank',
-                  rel: 'noopener noreferrer',
-                  ...(node.title ? { title: node.title } : {}),
-                },
-                children: (
-                  state as {
-                    all: (n: unknown) => ElementContent[];
-                  }
-                ).all(node),
-              };
-              return result;
-            },
-          },
-        })
-        .use(() => {
-          // Custom rehype plugin to unwrap paragraph tags (render inline without <p>)
-          return (tree: Root) => {
-            tree.children = tree.children.flatMap((node) =>
-              node.type === 'element' && node.tagName === 'p'
-                ? node.children
-                : [node]
-            );
-          };
-        })
-        .use(rehypeSanitize.default)
-        .use(rehypeStringify.default);
-
-      // schema is already checked above in the if(!schema) guard
-      const languageService = createJsonLanguageService(schema!);
-      languageServiceRef.current = languageService;
-
-      // Capture cache reference for use in closures
-      const jsonDocCache = jsonDocCacheRef.current;
-
-      // Helper to create a TextDocument from content
-      const createTextDoc = (content: string): TextDocument => {
-        return LSPTextDocument.create(DOCUMENT_URI, 'json', 0, content);
-      };
-
-      // Create completion source for autocompletion
-      const completionSource: CompletionSource = async (context) => {
-        // Don't auto-trigger right after comma (user just finished a value)
-        if (!context.explicit) {
-          const currentLine = context.state.doc.lineAt(context.pos);
-          const textBeforeCursor = context.state.sliceDoc(
-            currentLine.from,
-            context.pos
-          );
-          if (textBeforeCursor.trimEnd().endsWith(',')) {
-            return null;
-          }
-        }
-
-        const content = context.state.doc.toString();
-        const textDoc = createTextDoc(content);
-        const jsonDocument = getJsonDocument(
-          languageService,
-          textDoc,
-          jsonDocCache
+    // Create completion source for autocompletion
+    const completionSource: CompletionSource = async (context) => {
+      // Don't auto-trigger right after comma (user just finished a value)
+      if (!context.explicit) {
+        const currentLine = context.state.doc.lineAt(context.pos);
+        const textBeforeCursor = context.state.sliceDoc(
+          currentLine.from,
+          context.pos
         );
-
-        // Calculate LSP position
-        const line = context.state.doc.lineAt(context.pos);
-        const position = {
-          line: line.number - 1,
-          character: context.pos - line.from,
-        };
-
-        const completions = await languageService.doComplete(
-          textDoc,
-          position,
-          jsonDocument
-        );
-
-        if (!completions || completions.items.length === 0) {
+        if (textBeforeCursor.trimEnd().endsWith(',')) {
           return null;
         }
-
-        const options: Completion[] = [];
-
-        for (const item of completions.items) {
-          const { detail, documentation, kind, label, textEdit, insertText } =
-            item;
-
-          const completion: Completion = {
-            label,
-            detail,
-            type: fromCompletionItemKind(kind),
-            info:
-              documentation && typeof documentation === 'string'
-                ? documentation
-                : documentation &&
-                  typeof documentation === 'object' &&
-                  'value' in documentation
-                ? documentation.value
-                : undefined,
-          };
-
-          if (textEdit && 'range' in textEdit) {
-            const insert = textEdit.newText;
-            const insertTextFormat = item.insertTextFormat;
-            const from = textDoc.offsetAt(textEdit.range.start);
-            const to = textDoc.offsetAt(textEdit.range.end);
-
-            completion.apply = (view) => {
-              if (insertTextFormat === InsertTextFormatMap.Snippet) {
-                snippet(insert.replaceAll(/\$(\d+)/g, '$${$1}'))(
-                  view,
-                  completion,
-                  from,
-                  to
-                );
-              } else {
-                view.dispatch(
-                  insertCompletionText(view.state, insert, from, to)
-                );
-              }
-
-              // Close the completion popup to prevent it from re-triggering
-              // immediately after applying.
-              closeCompletion(view);
-            };
-          } else if (insertText) {
-            completion.apply = insertText;
-          }
-
-          options.push(completion);
-        }
-
-        // Calculate the 'from' position for filtering.
-        const word = context.matchBefore(/[\w$]*$/);
-        const from = word ? word.from : context.pos;
-
-        return {
-          from,
-          options,
-          validFor: /^[\w$]*$/,
-        };
-      };
-
-      // Create hover tooltip source
-      const hoverSource: HoverTooltipSource = async (view, pos) => {
-        const content = view.state.doc.toString();
-        const textDoc = createTextDoc(content);
-        const jsonDocument = getJsonDocument(
-          languageService,
-          textDoc,
-          jsonDocCache
-        );
-
-        // Calculate LSP position
-        const line = view.state.doc.lineAt(pos);
-        const position = {
-          line: line.number - 1,
-          character: pos - line.from,
-        };
-
-        const hover = await languageService.doHover(
-          textDoc,
-          position,
-          jsonDocument
-        );
-
-        if (!hover || !hover.contents) {
-          return null;
-        }
-
-        let start = pos;
-        let end: number | undefined;
-
-        if (hover.range) {
-          start = textDoc.offsetAt(hover.range.start);
-          end = textDoc.offsetAt(hover.range.end);
-        }
-
-        // Extract the text content from the hover
-        let hoverText = '';
-        const contents = hover.contents;
-        if (typeof contents === 'string') {
-          hoverText = contents;
-        } else if (Array.isArray(contents)) {
-          hoverText = contents
-            .map((c) => (typeof c === 'string' ? c : c.value))
-            .join('\n\n');
-        } else if ('value' in contents) {
-          hoverText = contents.value;
-        }
-
-        const tooltipView: TooltipView = {
-          dom: (() => {
-            const div = document.createElement('div');
-            div.className = hoverTooltipStyles;
-            div.dataset.testid = 'json-schema-hover-tooltip';
-            div.innerHTML = String(markdownParser.processSync(hoverText));
-            return div;
-          })(),
-        };
-
-        return {
-          pos: start,
-          end,
-          create: () => tooltipView,
-        };
-      };
-
-      // Extension to trigger completions on specific JSON characters
-      const triggerCompletionOnType = EditorView.updateListener.of((update) => {
-        if (!update.docChanged) return;
-
-        update.changes.iterChanges((_fromA, _toA, _fromB, _toB, inserted) => {
-          const insertedText = inserted.toString();
-
-          const shouldTrigger =
-            insertedText.startsWith('"') ||
-            insertedText === ':' ||
-            insertedText.startsWith('\n');
-
-          if (shouldTrigger) {
-            startCompletion(update.view);
-          }
-        });
-      });
-
-      if (!aborted) {
-        setEditorConfig({
-          completer: completionSource,
-          extensions: [
-            tooltipTheme,
-            triggerCompletionOnType,
-            hoverTooltip(hoverSource),
-          ],
-        });
       }
-    }
 
-    loadExtensions().catch(() => {
-      // Continue without schema support on error
+      const content = context.state.doc.toString();
+      const textDoc = createTextDoc(content);
+      const jsonDocument = getJsonDocument(
+        languageService,
+        textDoc,
+        jsonDocCache
+      );
+
+      // Calculate LSP position
+      const line = context.state.doc.lineAt(context.pos);
+      const position = {
+        line: line.number - 1,
+        character: context.pos - line.from,
+      };
+
+      const completions = await languageService.doComplete(
+        textDoc,
+        position,
+        jsonDocument
+      );
+
+      if (!completions || completions.items.length === 0) {
+        return null;
+      }
+
+      const options: Completion[] = [];
+
+      for (const item of completions.items) {
+        const { detail, documentation, kind, label, textEdit, insertText } =
+          item;
+
+        const completion: Completion = {
+          label,
+          detail,
+          type: fromCompletionItemKind(kind),
+          info:
+            documentation && typeof documentation === 'string'
+              ? documentation
+              : documentation &&
+                typeof documentation === 'object' &&
+                'value' in documentation
+              ? documentation.value
+              : undefined,
+        };
+
+        if (textEdit && 'range' in textEdit) {
+          const insert = textEdit.newText;
+          const insertTextFormat = item.insertTextFormat;
+          const from = textDoc.offsetAt(textEdit.range.start);
+          const to = textDoc.offsetAt(textEdit.range.end);
+
+          completion.apply = (view) => {
+            if (insertTextFormat === InsertTextFormatMap.Snippet) {
+              snippet(insert.replaceAll(/\$(\d+)/g, '$${$1}'))(
+                view,
+                completion,
+                from,
+                to
+              );
+            } else {
+              view.dispatch(insertCompletionText(view.state, insert, from, to));
+            }
+
+            // Close the completion popup to prevent it from re-triggering
+            // immediately after applying.
+            closeCompletion(view);
+          };
+        } else if (insertText) {
+          completion.apply = insertText;
+        }
+
+        options.push(completion);
+      }
+
+      // Calculate the 'from' position for filtering.
+      const word = context.matchBefore(/[\w$]*$/);
+      const from = word ? word.from : context.pos;
+
+      return {
+        from,
+        options,
+        validFor: /^[\w$]*$/,
+      };
+    };
+
+    // Create hover tooltip source
+    const hoverSource: HoverTooltipSource = async (view, pos) => {
+      const content = view.state.doc.toString();
+      const textDoc = createTextDoc(content);
+      const jsonDocument = getJsonDocument(
+        languageService,
+        textDoc,
+        jsonDocCache
+      );
+
+      // Calculate LSP position
+      const line = view.state.doc.lineAt(pos);
+      const position = {
+        line: line.number - 1,
+        character: pos - line.from,
+      };
+
+      const hover = await languageService.doHover(
+        textDoc,
+        position,
+        jsonDocument
+      );
+
+      if (!hover || !hover.contents) {
+        return null;
+      }
+
+      let start = pos;
+      let end: number | undefined;
+
+      if (hover.range) {
+        start = textDoc.offsetAt(hover.range.start);
+        end = textDoc.offsetAt(hover.range.end);
+      }
+
+      // Extract the text content from the hover
+      let hoverText = '';
+      const contents = hover.contents;
+      if (typeof contents === 'string') {
+        hoverText = contents;
+      } else if (Array.isArray(contents)) {
+        hoverText = contents
+          .map((c) => (typeof c === 'string' ? c : c.value))
+          .join('\n\n');
+      } else if ('value' in contents) {
+        hoverText = contents.value;
+      }
+
+      const tooltipView: TooltipView = {
+        dom: (() => {
+          const div = document.createElement('div');
+          div.className = hoverTooltipStyles;
+          div.dataset.testid = 'json-schema-hover-tooltip';
+          div.innerHTML = String(markdownParser.processSync(hoverText));
+          return div;
+        })(),
+      };
+
+      return {
+        pos: start,
+        end,
+        create: () => tooltipView,
+      };
+    };
+
+    // Extension to trigger completions on specific JSON characters
+    const triggerCompletionOnType = EditorView.updateListener.of((update) => {
+      if (!update.docChanged) return;
+
+      update.changes.iterChanges((_fromA, _toA, _fromB, _toB, inserted) => {
+        const insertedText = inserted.toString();
+
+        const shouldTrigger =
+          insertedText.startsWith('"') ||
+          insertedText === ':' ||
+          insertedText.startsWith('\n');
+
+        if (shouldTrigger) {
+          startCompletion(update.view);
+        }
+      });
     });
 
-    return () => {
-      aborted = true;
-    };
+    setEditorConfig({
+      completer: completionSource,
+      extensions: [
+        tooltipTheme,
+        triggerCompletionOnType,
+        hoverTooltip(hoverSource),
+      ],
+    });
   }, [schema]);
 
   // Validate text against schema whenever text or extensions change

@@ -90,14 +90,10 @@ async function collectAllAbsoluteImports(entryPoints = []) {
         queueImport(path.node.source.value);
       },
       CallExpression(path) {
-        const isRequireCall =
-          path.node.callee.type === 'Identifier' &&
-          path.node.callee.name === 'require';
-        // Dynamic import() has callee.type === 'Import', not 'Identifier'
-        const isDynamicImport = path.node.callee.type === 'Import';
-
         if (
-          (isRequireCall || isDynamicImport) &&
+          path.node.callee.type === 'Identifier' &&
+          (path.node.callee.name === 'require' ||
+            path.node.callee.name === 'import') &&
           path.node.arguments.length === 1 &&
           (path.node.arguments[0].type === 'Literal' ||
             path.node.arguments[0].type === 'StringLiteral')
