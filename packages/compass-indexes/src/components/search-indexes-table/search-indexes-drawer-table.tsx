@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { connect, useSelector, shallowEqual } from 'react-redux';
 import type { SearchIndex } from 'mongodb-data-service';
 import {
   css,
@@ -141,7 +141,8 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-    })
+    }),
+    shallowEqual
   );
 
   const onActionDispatch = useCallback(
