@@ -38,7 +38,6 @@ import {
   isSearchStage,
 } from '../../utils/stage';
 import ServerErrorBanner from '../server-error-banner';
-import { SearchIndex } from 'mongodb-data-service';
 import SearchIndexDoesNotExistBanner from '../search-index-does-not-exist-banner';
 
 const editorContainerStyles = css({
@@ -90,7 +89,8 @@ type StageEditorProps = {
   serverError: MongoServerError | null;
   num_stages: number;
   editor_view_type: 'text' | 'stage' | 'focus';
-  searchIndexes: SearchIndex[];
+  searchIndexName: string | null;
+  showSearchIndexDoesNotExistBanner: boolean;
   className?: string;
   onChange: (index: number, value: string) => void;
   onViewSearchIndexesClick: () => void;
@@ -114,7 +114,8 @@ export const StageEditor = ({
   serverVersion,
   num_stages,
   editor_view_type,
-  searchIndexes,
+  searchIndexName,
+  showSearchIndexDoesNotExistBanner,
   editorRef,
 }: StageEditorProps) => {
   const track = useTelemetry();
@@ -124,6 +125,10 @@ export const StageEditor = ({
   const editorCurrentValueRef = useCurrentValueRef<string | null>(stageValue);
 
   const fields = useAutocompleteFields(namespace);
+
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
@@ -180,15 +185,6 @@ export const StageEditor = ({
     connectionInfoRef,
   ]);
 
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
-  const searchIndexName = enableSearchActivationProgramP1
-    ? getSearchIndexNameFromSearchStage(stageOperator, stageValue)
-    : null;
-  const searchIndexDoesNotExist =
-    !!searchIndexName && searchIndexes.every((x) => x.name !== searchIndexName);
-
   return (
     <div
       data-testid="stage-editor"
@@ -236,9 +232,10 @@ export const StageEditor = ({
           }
         />
       )}
-      {!serverError &&
+      {enableSearchActivationProgramP1 &&
+        !serverError &&
         !syntaxError &&
-        searchIndexDoesNotExist &&
+        showSearchIndexDoesNotExistBanner &&
         isSearchStage(stageOperator) && (
           <SearchIndexDoesNotExistBanner
             searchStageOperator={stageOperator}
@@ -264,6 +261,15 @@ export default connect(
     const stages = state.pipelineBuilder.stageEditor.stages;
     const stage = stages[ownProps.index] as StoreStage;
     const num_stages = pipelineFromStore(stages).length;
+    const editor_view_type = mapPipelineModeToEditorViewType(state);
+    const searchIndexName = getSearchIndexNameFromSearchStage(
+      stage.stageOperator,
+      stage.value
+    );
+    const showSearchIndexDoesNotExistBanner =
+      !!searchIndexName &&
+      state.searchIndexes.indexes.every((x) => x.name !== searchIndexName);
+
     return {
       namespace: state.namespace,
       stageValue: stage.value,
@@ -272,8 +278,9 @@ export default connect(
       serverError: !stage.empty ? stage.serverError ?? null : null,
       serverVersion: state.serverVersion,
       num_stages,
-      editor_view_type: mapPipelineModeToEditorViewType(state),
-      searchIndexes: state.searchIndexes.indexes,
+      editor_view_type,
+      searchIndexName,
+      showSearchIndexDoesNotExistBanner,
     };
   },
   {

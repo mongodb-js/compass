@@ -249,56 +249,34 @@ export function getSearchIndexNameFromSearchStage(
 
 /**
  * Finds the search stage ($search, $searchMeta, or $vectorSearch) in a pipeline
- * and extracts the index name from it. Search stages must be the first stage in a pipeline.
- * Returns null if no search stage is found or if the pipeline cannot be parsed.
+ * and extracts both the stage operator and index name from it.
+ * Search stages must be the first stage in a pipeline.
  */
-export function getSearchIndexNameFromPipeline(
-  pipelineText: string
-): string | null {
+export function getSearchStageInfoFromPipeline(pipelineText: string): {
+  searchIndexName: string | null;
+  searchStageOperator: SearchStageOperator | null;
+} {
+  const invalid = { searchIndexName: null, searchStageOperator: null };
   try {
     const pipeline = parseShellBSON<Document[]>(pipelineText);
     if (!Array.isArray(pipeline) || pipeline.length === 0) {
-      return null;
+      return invalid;
     }
 
     const firstStage = pipeline[0];
     const stageOperator = getStageOperator(firstStage);
 
     if (!isSearchStage(stageOperator)) {
-      return null;
+      return invalid;
     }
 
     const indexName = firstStage[stageOperator]?.index;
-    return typeof indexName === 'string' ? indexName : null;
+    return {
+      searchIndexName: typeof indexName === 'string' ? indexName : null,
+      searchStageOperator: stageOperator,
+    };
   } catch {
-    return null;
-  }
-}
-
-/**
- * Finds the search stage ($search, $searchMeta, or $vectorSearch) in a pipeline
- * and returns the stage operator. Search stages must be the first stage in a pipeline.
- * Returns null if no search stage is found or if the pipeline cannot be parsed.
- */
-export function getSearchStageOperatorFromPipeline(
-  pipelineText: string
-): SearchStageOperator | null {
-  try {
-    const pipeline = parseShellBSON<Document[]>(pipelineText);
-    if (!Array.isArray(pipeline) || pipeline.length === 0) {
-      return null;
-    }
-
-    const firstStage = pipeline[0];
-    const stageOperator = getStageOperator(firstStage);
-
-    if (!isSearchStage(stageOperator)) {
-      return null;
-    }
-
-    return stageOperator;
-  } catch {
-    return null;
+    return invalid;
   }
 }
 

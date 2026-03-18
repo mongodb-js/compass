@@ -183,9 +183,10 @@ function StagePreviewBody({
     return (
       <div className={previewBodyStyles}>
         <div className={documentsStyles}>{docs}</div>
-        {showSearchIndexStaleResultsBanner && (
-          <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
-        )}
+        {enableSearchActivationProgramP1 &&
+          showSearchIndexStaleResultsBanner && (
+            <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
+          )}
       </div>
     );
   }

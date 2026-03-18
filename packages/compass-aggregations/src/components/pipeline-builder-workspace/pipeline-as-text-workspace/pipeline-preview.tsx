@@ -20,7 +20,7 @@ import { AtlasStagePreview } from '../../stage-preview/atlas-stage-preview';
 import {
   isMissingAtlasStageSupport,
   findAtlasOperator,
-  getSearchIndexNameFromPipeline,
+  getSearchStageInfoFromPipeline,
 } from '../../../utils/stage';
 import {
   expandPreviewDocs,
@@ -162,7 +162,7 @@ const PreviewResults = ({
         isEditable={false}
         className={documentListStyles}
       />
-      {showSearchIndexStaleResultsBanner && (
+      {enableSearchActivationProgramP1 && showSearchIndexStaleResultsBanner && (
         <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
       )}
     </>
@@ -243,7 +243,7 @@ const mapState = (state: RootState) => {
     serverError
   );
 
-  const searchIndexName = getSearchIndexNameFromPipeline(pipelineText);
+  const { searchIndexName } = getSearchStageInfoFromPipeline(pipelineText);
   const showSearchIndexStaleResultsBanner =
     !!searchIndexName &&
     state.searchIndexes.indexes.some(

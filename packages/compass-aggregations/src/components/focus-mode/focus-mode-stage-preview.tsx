@@ -162,9 +162,10 @@ export const FocusModePreview = ({
           copyToClipboard={copyToClipboard}
           className={documentListStyles}
         />
-        {showSearchIndexStaleResultsBanner && (
-          <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
-        )}
+        {enableSearchActivationProgramP1 &&
+          showSearchIndexStaleResultsBanner && (
+            <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
+          )}
       </>
     );
   } else if (!enableSearchActivationProgramP1 && isSearchStage(stageOperator)) {

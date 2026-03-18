@@ -142,6 +142,9 @@ describe('StagePreview', function () {
               queryable: true,
             } as any,
           ],
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
         }
       );
 
@@ -168,6 +171,9 @@ describe('StagePreview', function () {
               queryable: true,
             } as any,
           ],
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
         }
       );
 
@@ -272,6 +278,38 @@ describe('StagePreview', function () {
               queryable: true,
             } as any,
           ],
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
+        }
+      );
+
+      expect(
+        screen.queryByText(
+          /Results shown are based on the most recently built index version/i
+        )
+      ).to.not.exist;
+    });
+
+    it('should NOT show stale results banner when feature flag is disabled', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+        },
+        [{ $search: { index: 'test-index' } }],
+        {
+          searchIndexes: [
+            {
+              name: 'test-index',
+              status: 'BUILDING',
+              queryable: true,
+            } as any,
+          ],
+          preferences: {
+            enableSearchActivationProgramP1: false,
+          },
         }
       );
 

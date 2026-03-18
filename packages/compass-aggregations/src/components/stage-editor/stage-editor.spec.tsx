@@ -26,7 +26,8 @@ describe('StageEditor [Component]', function () {
         serverError={null}
         num_stages={0}
         editor_view_type="text"
-        searchIndexes={[]}
+        searchIndexName={null}
+        showSearchIndexDoesNotExistBanner={false}
       />
     );
   });
@@ -49,7 +50,8 @@ describe('StageEditor [Component]', function () {
           serverError={null}
           num_stages={1}
           editor_view_type="text"
-          searchIndexes={[]}
+          searchIndexName={null}
+          showSearchIndexDoesNotExistBanner={false}
         />
       );
 
@@ -74,7 +76,8 @@ describe('StageEditor [Component]', function () {
           serverError={serverError}
           num_stages={1}
           editor_view_type="text"
-          searchIndexes={[]}
+          searchIndexName="test"
+          showSearchIndexDoesNotExistBanner={false}
           onEditSearchIndexClick={spy}
         />
       );
@@ -96,10 +99,16 @@ describe('StageEditor [Component]', function () {
           serverError={null}
           num_stages={1}
           editor_view_type="text"
-          searchIndexes={[]}
+          searchIndexName="nonexistent"
+          showSearchIndexDoesNotExistBanner={true}
           onViewSearchIndexesClick={spy}
           onCreateSearchIndexClick={spy}
-        />
+        />,
+        {
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
+        }
       );
 
       expect(screen.getByText(/index doesn't exist/i)).to.exist;
@@ -120,10 +129,16 @@ describe('StageEditor [Component]', function () {
           serverError={null}
           num_stages={1}
           editor_view_type="text"
-          searchIndexes={[]}
+          searchIndexName="nonexistent"
+          showSearchIndexDoesNotExistBanner={true}
           onViewSearchIndexesClick={spy}
           onCreateSearchIndexClick={spy}
-        />
+        />,
+        {
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
+        }
       );
 
       expect(screen.getByText(/Vector search index doesn't exist/i)).to.exist;
@@ -146,8 +161,14 @@ describe('StageEditor [Component]', function () {
           serverError={serverError}
           num_stages={1}
           editor_view_type="text"
-          searchIndexes={[]}
-        />
+          searchIndexName="test"
+          showSearchIndexDoesNotExistBanner={true}
+        />,
+        {
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
+        }
       );
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
@@ -167,8 +188,14 @@ describe('StageEditor [Component]', function () {
           serverError={null}
           num_stages={1}
           editor_view_type="text"
-          searchIndexes={[]}
-        />
+          searchIndexName="test"
+          showSearchIndexDoesNotExistBanner={true}
+        />,
+        {
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
+        }
       );
 
       expect(screen.getByTestId('stage-editor-syntax-error')).to.exist;
@@ -188,10 +215,16 @@ describe('StageEditor [Component]', function () {
           serverError={null}
           num_stages={1}
           editor_view_type="focus"
-          searchIndexes={[]}
+          searchIndexName="test"
+          showSearchIndexDoesNotExistBanner={true}
           onViewSearchIndexesClick={spy}
           onCreateSearchIndexClick={spy}
-        />
+        />,
+        {
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
+        }
       );
 
       // Banner should show but without links
@@ -217,7 +250,8 @@ describe('StageEditor [Component]', function () {
           serverError={serverError}
           num_stages={1}
           editor_view_type="focus"
-          searchIndexes={[]}
+          searchIndexName="test-index"
+          showSearchIndexDoesNotExistBanner={false}
           onEditSearchIndexClick={spy}
         />
       );
@@ -243,7 +277,8 @@ describe('StageEditor [Component]', function () {
           serverError={serverError}
           num_stages={1}
           editor_view_type="text"
-          searchIndexes={[]}
+          searchIndexName="test-index"
+          showSearchIndexDoesNotExistBanner={false}
           onEditSearchIndexClick={spy}
         />
       );
@@ -269,7 +304,8 @@ describe('StageEditor [Component]', function () {
           serverError={serverError}
           num_stages={1}
           editor_view_type="text"
-          searchIndexes={[]}
+          searchIndexName="test-index"
+          showSearchIndexDoesNotExistBanner={false}
           onEditSearchIndexClick={spy}
         />
       );
@@ -291,10 +327,44 @@ describe('StageEditor [Component]', function () {
           serverError={null}
           num_stages={1}
           editor_view_type="text"
-          searchIndexes={[]}
+          searchIndexName={null}
+          showSearchIndexDoesNotExistBanner={false}
           onViewSearchIndexesClick={spy}
           onCreateSearchIndexClick={spy}
-        />
+        />,
+        {
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
+        }
+      );
+
+      expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
+    });
+
+    it('should NOT show search index does not exist banner when feature flag is disabled', function () {
+      render(
+        <StageEditor
+          namespace="test.test"
+          stageValue='{ index: "nonexistent" }'
+          stageOperator="$search"
+          index={0}
+          serverVersion="3.6.0"
+          onChange={spy}
+          syntaxError={null}
+          serverError={null}
+          num_stages={1}
+          editor_view_type="text"
+          searchIndexName="nonexistent"
+          showSearchIndexDoesNotExistBanner={true}
+          onViewSearchIndexesClick={spy}
+          onCreateSearchIndexClick={spy}
+        />,
+        {
+          preferences: {
+            enableSearchActivationProgramP1: false,
+          },
+        }
       );
 
       expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;

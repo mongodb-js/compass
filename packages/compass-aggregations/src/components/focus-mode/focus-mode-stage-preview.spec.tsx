@@ -154,15 +154,23 @@ describe('FocusModeStagePreview', function () {
 
     describe('search index stale results banner', function () {
       it('should show stale results banner when showSearchIndexStaleResultsBanner is true', async function () {
-        await renderFocusModePreview({
-          stageOperator: '$search',
-          documents: [
-            new HadronDocument({ _id: 12345 }),
-            new HadronDocument({ _id: 54321 }),
-          ],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: 'test-index',
-        });
+        await renderFocusModePreview(
+          {
+            stageOperator: '$search',
+            documents: [
+              new HadronDocument({ _id: 12345 }),
+              new HadronDocument({ _id: 54321 }),
+            ],
+            showSearchIndexStaleResultsBanner: true,
+            searchIndexName: 'test-index',
+          },
+          [],
+          {
+            preferences: {
+              enableSearchActivationProgramP1: true,
+            },
+          }
+        );
 
         expect(
           screen.getByText(
@@ -172,12 +180,20 @@ describe('FocusModeStagePreview', function () {
       });
 
       it('should show stale results banner for $vectorSearch', async function () {
-        await renderFocusModePreview({
-          stageOperator: '$vectorSearch',
-          documents: [new HadronDocument({ _id: 1 })],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: 'vector-index',
-        });
+        await renderFocusModePreview(
+          {
+            stageOperator: '$vectorSearch',
+            documents: [new HadronDocument({ _id: 1 })],
+            showSearchIndexStaleResultsBanner: true,
+            searchIndexName: 'vector-index',
+          },
+          [],
+          {
+            preferences: {
+              enableSearchActivationProgramP1: true,
+            },
+          }
+        );
 
         expect(
           screen.getByText(
@@ -217,12 +233,43 @@ describe('FocusModeStagePreview', function () {
       });
 
       it('should NOT show stale results banner for non-search stages', async function () {
-        await renderFocusModePreview({
-          stageOperator: '$match',
-          documents: [new HadronDocument({ _id: 1 })],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: null,
-        });
+        await renderFocusModePreview(
+          {
+            stageOperator: '$match',
+            documents: [new HadronDocument({ _id: 1 })],
+            showSearchIndexStaleResultsBanner: true,
+            searchIndexName: null,
+          },
+          [],
+          {
+            preferences: {
+              enableSearchActivationProgramP1: true,
+            },
+          }
+        );
+
+        expect(
+          screen.queryByText(
+            /Results shown are based on the most recently built index version/i
+          )
+        ).to.not.exist;
+      });
+
+      it('should NOT show stale results banner when feature flag is disabled', async function () {
+        await renderFocusModePreview(
+          {
+            stageOperator: '$search',
+            documents: [new HadronDocument({ _id: 1 })],
+            showSearchIndexStaleResultsBanner: true,
+            searchIndexName: 'test-index',
+          },
+          [],
+          {
+            preferences: {
+              enableSearchActivationProgramP1: false,
+            },
+          }
+        );
 
         expect(
           screen.queryByText(

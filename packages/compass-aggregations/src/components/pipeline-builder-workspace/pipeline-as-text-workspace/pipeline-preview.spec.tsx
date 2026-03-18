@@ -222,11 +222,18 @@ describe('PipelinePreview', function () {
 
   describe('search index stale results banner', function () {
     it('should show stale results banner when showSearchIndexStaleResultsBanner is true', async function () {
-      await renderPipelineEditor({
-        previewDocs: [new HadronDocument({ _id: 1 })],
-        showSearchIndexStaleResultsBanner: true,
-        searchIndexName: 'test-index',
-      });
+      await renderPipelineEditor(
+        {
+          previewDocs: [new HadronDocument({ _id: 1 })],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'test-index',
+        },
+        {
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
+        }
+      );
 
       expect(
         screen.getByText(
@@ -278,21 +285,49 @@ describe('PipelinePreview', function () {
     });
 
     it('should show stale results banner with multiple documents', async function () {
-      await renderPipelineEditor({
-        previewDocs: [
-          new HadronDocument({ _id: 1 }),
-          new HadronDocument({ _id: 2 }),
-          new HadronDocument({ _id: 3 }),
-        ],
-        showSearchIndexStaleResultsBanner: true,
-        searchIndexName: 'vector-index',
-      });
+      await renderPipelineEditor(
+        {
+          previewDocs: [
+            new HadronDocument({ _id: 1 }),
+            new HadronDocument({ _id: 2 }),
+            new HadronDocument({ _id: 3 }),
+          ],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'vector-index',
+        },
+        {
+          preferences: {
+            enableSearchActivationProgramP1: true,
+          },
+        }
+      );
 
       expect(
         screen.getByText(
           /Results shown are based on the most recently built index version/i
         )
       ).to.exist;
+    });
+
+    it('should NOT show stale results banner when feature flag is disabled', async function () {
+      await renderPipelineEditor(
+        {
+          previewDocs: [new HadronDocument({ _id: 1 })],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'test-index',
+        },
+        {
+          preferences: {
+            enableSearchActivationProgramP1: false,
+          },
+        }
+      );
+
+      expect(
+        screen.queryByText(
+          /Results shown are based on the most recently built index version/i
+        )
+      ).to.not.exist;
     });
   });
 });

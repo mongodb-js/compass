@@ -11,7 +11,8 @@ import { PipelineEditor } from './pipeline-editor';
 import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 
 const renderPipelineEditor = (
-  props: Partial<ComponentProps<typeof PipelineEditor>> = {}
+  props: Partial<ComponentProps<typeof PipelineEditor>> = {},
+  storeOptions: any = {}
 ) => {
   return renderWithStore(
     <PipelineEditor
@@ -20,14 +21,17 @@ const renderPipelineEditor = (
       syntaxErrors={[]}
       serverError={null}
       serverVersion="4.2"
-      searchIndexes={[]}
+      searchIndexName={null}
+      searchStageOperator={null}
+      showSearchIndexDoesNotExistBanner={false}
       onChangePipelineText={() => {}}
       onViewSearchIndexesClick={() => {}}
       onCreateSearchIndexClick={() => {}}
       onEditSearchIndexClick={() => {}}
       num_stages={1}
       {...props}
-    />
+    />,
+    storeOptions
   );
 };
 
@@ -63,10 +67,19 @@ describe('PipelineEditor', function () {
   describe('search index banners', function () {
     describe('SearchIndexDoesNotExistBanner', function () {
       it('should show search index does not exist banner for $search stage', async function () {
-        await renderPipelineEditor({
-          pipelineText: '[{ $search: { index: "nonexistent" } }]',
-          searchIndexes: [],
-        });
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $search: { index: "nonexistent" } }]',
+            searchIndexName: 'nonexistent',
+            searchStageOperator: '$search',
+            showSearchIndexDoesNotExistBanner: true,
+          },
+          {
+            preferences: {
+              enableSearchActivationProgramP1: true,
+            },
+          }
+        );
 
         expect(screen.getByText(/Search index doesn't exist/i)).to.exist;
         expect(screen.getByText('View Search Indexes')).to.exist;
@@ -74,10 +87,19 @@ describe('PipelineEditor', function () {
       });
 
       it('should show search index does not exist banner for $vectorSearch stage', async function () {
-        await renderPipelineEditor({
-          pipelineText: '[{ $vectorSearch: { index: "nonexistent" } }]',
-          searchIndexes: [],
-        });
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $vectorSearch: { index: "nonexistent" } }]',
+            searchIndexName: 'nonexistent',
+            searchStageOperator: '$vectorSearch',
+            showSearchIndexDoesNotExistBanner: true,
+          },
+          {
+            preferences: {
+              enableSearchActivationProgramP1: true,
+            },
+          }
+        );
 
         expect(screen.getByText(/Vector search index doesn't exist/i)).to.exist;
         expect(screen.getByText('View Search Indexes')).to.exist;
@@ -85,42 +107,96 @@ describe('PipelineEditor', function () {
       });
 
       it('should NOT show search index does not exist banner when index exists', async function () {
-        await renderPipelineEditor({
-          pipelineText: '[{ $search: { index: "existing-index" } }]',
-          searchIndexes: [{ name: 'existing-index' } as any],
-        });
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $search: { index: "existing-index" } }]',
+            searchIndexName: 'existing-index',
+            searchStageOperator: '$search',
+            showSearchIndexDoesNotExistBanner: false,
+          },
+          {
+            preferences: {
+              enableSearchActivationProgramP1: true,
+            },
+          }
+        );
 
         expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
       });
 
       it('should NOT show search index does not exist banner for non-search stages', async function () {
-        await renderPipelineEditor({
-          pipelineText: '[{ $match: { _id: 1 } }]',
-          searchIndexes: [],
-        });
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $match: { _id: 1 } }]',
+            searchIndexName: null,
+            searchStageOperator: null,
+            showSearchIndexDoesNotExistBanner: false,
+          },
+          {
+            preferences: {
+              enableSearchActivationProgramP1: true,
+            },
+          }
+        );
 
         expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
       });
 
       it('should prioritize serverError over searchIndexDoesNotExist', async function () {
-        await renderPipelineEditor({
-          pipelineText: '[{ $search: { index: "nonexistent" } }]',
-          searchIndexes: [],
-          serverError: new MongoServerError({ message: 'Server error' }),
-        });
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $search: { index: "nonexistent" } }]',
+            searchIndexName: 'nonexistent',
+            searchStageOperator: '$search',
+            showSearchIndexDoesNotExistBanner: true,
+            serverError: new MongoServerError({ message: 'Server error' }),
+          },
+          {
+            preferences: {
+              enableSearchActivationProgramP1: true,
+            },
+          }
+        );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
         expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
       });
 
       it('should prioritize syntaxError over searchIndexDoesNotExist', async function () {
-        await renderPipelineEditor({
-          pipelineText: '[{ $search: { index: "nonexistent" } }]',
-          searchIndexes: [],
-          syntaxErrors: [new PipelineParserError('Syntax error')],
-        });
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $search: { index: "nonexistent" } }]',
+            searchIndexName: 'nonexistent',
+            searchStageOperator: '$search',
+            showSearchIndexDoesNotExistBanner: true,
+            syntaxErrors: [new PipelineParserError('Syntax error')],
+          },
+          {
+            preferences: {
+              enableSearchActivationProgramP1: true,
+            },
+          }
+        );
 
         expect(screen.getByTestId('pipeline-editor-syntax-error')).to.exist;
+        expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
+      });
+
+      it('should NOT show search index does not exist banner when feature flag is disabled', async function () {
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $search: { index: "nonexistent" } }]',
+            searchIndexName: 'nonexistent',
+            searchStageOperator: '$search',
+            showSearchIndexDoesNotExistBanner: true,
+          },
+          {
+            preferences: {
+              enableSearchActivationProgramP1: false,
+            },
+          }
+        );
+
         expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
       });
     });
@@ -129,6 +205,9 @@ describe('PipelineEditor', function () {
       it('should show edit link for search index definition errors', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $search: { index: "test-index" } }]',
+          searchIndexName: 'test-index',
+          searchStageOperator: '$search',
+          showSearchIndexDoesNotExistBanner: false,
           serverError: new MongoServerError({
             message:
               "geoWithin requires path 'location' to be indexed as 'geo'",
@@ -142,6 +221,9 @@ describe('PipelineEditor', function () {
       it('should NOT show edit link for non-definition server errors', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $search: { index: "test-index" } }]',
+          searchIndexName: 'test-index',
+          searchStageOperator: '$search',
+          showSearchIndexDoesNotExistBanner: false,
           serverError: new MongoServerError({
             message: 'Connection timeout',
           }),
@@ -154,6 +236,9 @@ describe('PipelineEditor', function () {
       it('should NOT show edit link when no search index name found', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $match: { _id: 1 } }]',
+          searchIndexName: null,
+          searchStageOperator: null,
+          showSearchIndexDoesNotExistBanner: false,
           serverError: new MongoServerError({
             message:
               "geoWithin requires path 'location' to be indexed as 'geo'",
@@ -168,6 +253,9 @@ describe('PipelineEditor', function () {
         const onEditSearchIndexClick = sinon.spy();
         await renderPipelineEditor({
           pipelineText: '[{ $search: { index: "test-index" } }]',
+          searchIndexName: 'test-index',
+          searchStageOperator: '$search',
+          showSearchIndexDoesNotExistBanner: false,
           serverError: new MongoServerError({
             message: "autocomplete requires path 'title' to be indexed",
           }),
