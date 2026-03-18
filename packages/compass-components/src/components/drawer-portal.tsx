@@ -20,6 +20,7 @@ import { GuideCue, type GuideCueProps } from './guide-cue/guide-cue';
 import { useSyncStateOnPropChange } from '../hooks/use-sync-state-on-prop-change';
 import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
 import { useInitialValue } from '../hooks/use-initial-value';
+import { useCurrentValueRef } from '../hooks/use-current-value-ref';
 
 type ToolbarData = Required<DrawerLayoutProps>['toolbarData'];
 
@@ -417,6 +418,9 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
         return;
       }
 
+      // Flag to prevent concurrent checkBeforeHide operations
+      let isChecking = false;
+
       const handleClick = (event: Event) => {
         // Find the clicked button
         const target = event.target as HTMLElement;
@@ -458,33 +462,64 @@ export const DrawerAnchor: React.FunctionComponent = ({ children }) => {
           return;
         }
 
+        // Prevent concurrent checkBeforeHide operations
+        if (isChecking) {
+          return;
+        }
+
         // Prevent LeafyGreen from handling - we'll call our guarded functions instead
         event.stopPropagation();
         event.preventDefault();
 
+        isChecking = true;
+
         // Determine which guarded action to call
         if (isCloseButton) {
           // Close drawer
-          void checkBeforeHide(currentDrawerTab).then((canHide) => {
-            if (canHide) {
-              actions.current.closeDrawer();
-            }
-          });
-        } else if (clickedToolbarItem) {
-          if (clickedToolbarItem.id === currentDrawerTab) {
-            // Clicking the same tab closes the drawer
-            void checkBeforeHide(currentDrawerTab).then((canHide) => {
+          void checkBeforeHide(currentDrawerTab)
+            .then((canHide) => {
               if (canHide) {
                 actions.current.closeDrawer();
               }
+            })
+            .catch(() => {
+              // If checkBeforeHide throws, allow the action to proceed
+              actions.current.closeDrawer();
+            })
+            .finally(() => {
+              isChecking = false;
             });
+        } else if (clickedToolbarItem) {
+          if (clickedToolbarItem.id === currentDrawerTab) {
+            // Clicking the same tab closes the drawer
+            void checkBeforeHide(currentDrawerTab)
+              .then((canHide) => {
+                if (canHide) {
+                  actions.current.closeDrawer();
+                }
+              })
+              .catch(() => {
+                // If checkBeforeHide throws, allow the action to proceed
+                actions.current.closeDrawer();
+              })
+              .finally(() => {
+                isChecking = false;
+              });
           } else {
             // Switching to a different tab
-            void checkBeforeHide(currentDrawerTab).then((canHide) => {
-              if (canHide) {
+            void checkBeforeHide(currentDrawerTab)
+              .then((canHide) => {
+                if (canHide) {
+                  actions.current.openDrawer(clickedToolbarItem.id);
+                }
+              })
+              .catch(() => {
+                // If checkBeforeHide throws, allow the action to proceed
                 actions.current.openDrawer(clickedToolbarItem.id);
-              }
-            });
+              })
+              .finally(() => {
+                isChecking = false;
+              });
           }
         }
       };
@@ -697,32 +732,58 @@ export function useDrawerActions() {
   const currentDrawerTab = useContext(DrawerCurrentTabStateContext);
   const { checkBeforeHide } = useContext(BeforeSectionHideContext);
 
-  const currentDrawerTabRef = useRef(currentDrawerTab);
-  useLayoutEffect(() => {
-    currentDrawerTabRef.current = currentDrawerTab;
-  }, [currentDrawerTab]);
+  const currentDrawerTabRef = useCurrentValueRef(currentDrawerTab);
+  const isCheckingRef = useRef(false);
 
   const stableActions = useInitialValue({
     openDrawer: (id: string) => {
       rafraf(() => {
         // If switching to a different drawer, check if current one allows hiding
         if (currentDrawerTabRef.current && currentDrawerTabRef.current !== id) {
-          void checkBeforeHide(currentDrawerTabRef.current).then((canHide) => {
-            if (canHide) {
+          // Prevent concurrent checkBeforeHide operations
+          if (isCheckingRef.current) {
+            return;
+          }
+          isCheckingRef.current = true;
+
+          void checkBeforeHide(currentDrawerTabRef.current)
+            .then((canHide) => {
+              if (canHide) {
+                actions.current.openDrawer(id);
+              }
+            })
+            .catch(() => {
+              // If checkBeforeHide throws, allow the action to proceed
               actions.current.openDrawer(id);
-            }
-          });
+            })
+            .finally(() => {
+              isCheckingRef.current = false;
+            });
         } else {
           actions.current.openDrawer(id);
         }
       });
     },
     closeDrawer: () => {
-      void checkBeforeHide(currentDrawerTabRef.current).then((canHide) => {
-        if (canHide) {
+      // Prevent concurrent checkBeforeHide operations
+      if (isCheckingRef.current) {
+        return;
+      }
+      isCheckingRef.current = true;
+
+      void checkBeforeHide(currentDrawerTabRef.current)
+        .then((canHide) => {
+          if (canHide) {
+            actions.current.closeDrawer();
+          }
+        })
+        .catch(() => {
+          // If checkBeforeHide throws, allow the action to proceed
           actions.current.closeDrawer();
-        }
-      });
+        })
+        .finally(() => {
+          isCheckingRef.current = false;
+        });
     },
   });
   return stableActions;
