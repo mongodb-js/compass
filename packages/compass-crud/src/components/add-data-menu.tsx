@@ -53,7 +53,7 @@ function AddDataMenuButton({
     if (isMockDataGeneratorEnabled) {
       actions.push({
         action: 'generate-mock-data' as const,
-        label: 'Generate mock data',
+        label: 'Generate Mock Data Script',
       });
     }
 
