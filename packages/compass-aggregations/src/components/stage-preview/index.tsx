@@ -241,7 +241,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
   );
 
   const shouldRenderStage = Boolean(
-    !stage.disabled && !stage.syntaxError && !stage.syntaxError && stage.value
+    !stage.disabled && !stage.syntaxError && !stage.serverError && stage.value
   );
 
   const searchIndexName = getSearchIndexNameFromSearchStage(
