@@ -193,7 +193,7 @@ export const DrawerContentProvider: React.FunctionComponent<{
   >({});
 
   const beforeSectionHideContextValue =
-    useMemo<BeforeSectionHideContextValue>(() => {
+    useInitialValue<BeforeSectionHideContextValue>(() => {
       return {
         callbacks: beforeSectionHideCallbacksRef,
         register: (id, callback) => {
@@ -217,7 +217,7 @@ export const DrawerContentProvider: React.FunctionComponent<{
           }
         },
       };
-    }, []);
+    });
 
   const prevDrawerCurrentTabRef = React.useRef<string | null>(null);
 
