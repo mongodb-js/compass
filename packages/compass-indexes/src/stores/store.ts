@@ -146,7 +146,7 @@ export function activateIndexesPlugin(
   });
 
   on(localAppRegistry, 'open-indexes-list-drawer-view', () => {
-    store.dispatch(openIndexesListDrawerView());
+    void store.dispatch(openIndexesListDrawerView());
   });
 
   on(globalAppRegistry, 'refresh-data', () => {

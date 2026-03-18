@@ -17,7 +17,6 @@ import {
 } from '../../modules/indexes-drawer';
 import {
   useOnAsyncSuccess,
-  useConfirmCancel,
   useIndexDefinitionChange,
 } from './drawer-view-hooks';
 import {
@@ -69,7 +68,6 @@ const headerContainerStyles = css({
 type EditSearchIndexViewProps = {
   namespace: string;
   searchIndex: SearchIndex;
-  isDirty: boolean;
   isBusy: boolean;
   error?: string;
   onClose: () => void;
@@ -83,7 +81,6 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
 > = ({
   namespace,
   searchIndex,
-  isDirty,
   isBusy,
   error,
   onClose,
@@ -137,7 +134,6 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     setIndexDefinition,
     onIndexDefinitionEdit
   );
-  const onCancelClick = useConfirmCancel(isDirty, onClose);
 
   const onSaveClick = useCallback(() => {
     updateIndex({
@@ -218,7 +214,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
         <Button
           data-testid="edit-search-index-drawer-view-cancel-button"
           variant="default"
-          onClick={() => void onCancelClick()}
+          onClick={onClose}
         >
           Cancel
         </Button>
@@ -250,7 +246,6 @@ const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => {
   return {
     namespace,
     searchIndex,
-    isDirty: indexesDrawer.isDirty,
     isBusy: searchIndexes.updateIndex.isBusy,
     error: searchIndexes.updateIndex.error,
   };

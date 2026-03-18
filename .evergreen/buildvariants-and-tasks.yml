@@ -327,7 +327,8 @@ buildvariants:
 tasks:
   - name: check
     tags:
-      - required-for-publish
+      - required-for-publish-web
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -335,7 +336,8 @@ tasks:
       - func: check
   - name: test
     tags:
-      - required-for-publish
+      - required-for-publish-web
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_creates_breaking_commit
     commands:
@@ -348,7 +350,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: test-electron
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -359,7 +361,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: test-connectivity
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: clone
       - func: test-connectivity
@@ -368,7 +370,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: test-csfle
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -379,7 +381,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: e2e-coverage-1
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -392,7 +394,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: e2e-coverage-2
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -405,7 +407,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: e2e-coverage-3
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -418,7 +420,8 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: generate-vulnerability-report
     tags:
-      - required-for-publish
+      - required-for-publish-web
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -428,7 +431,7 @@ tasks:
           debug: compass*,electron*,hadron*,mongo*
   - name: publish
     depends_on:
-      - name: .required-for-publish
+      - name: .required-for-publish-desktop
         variant: '*'
         patch_optional: true
     commands:
@@ -441,7 +444,7 @@ tasks:
       - func: publish
   - name: publish-web
     depends_on:
-      - name: .required-for-publish
+      - name: .required-for-publish-web
         variant: '*'
         patch_optional: true
     commands:
@@ -454,7 +457,7 @@ tasks:
       - func: publish-web
   - name: package-compass
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - package-task
     commands:
       - func: prepare
@@ -476,7 +479,7 @@ tasks:
           compass_distribution: compass
   - name: package-compass-isolated
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - package-task
     commands:
       - func: prepare
@@ -498,7 +501,7 @@ tasks:
           compass_distribution: compass-isolated
   - name: package-compass-readonly
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - package-task
     commands:
       - func: prepare
@@ -520,7 +523,7 @@ tasks:
           compass_distribution: compass-readonly
   - name: smoketest-packaged-app
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -532,7 +535,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-community-1
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -554,7 +557,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-community-2
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -576,7 +579,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-community-3
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -598,7 +601,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-enterprise-1
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -620,7 +623,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-enterprise-2
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -642,7 +645,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-enterprise-3
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -664,7 +667,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-1
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -686,7 +689,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-2
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -708,7 +711,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-3
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -730,7 +733,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-enterprise-1
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -752,7 +755,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-enterprise-2
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -774,7 +777,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-enterprise-3
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -796,7 +799,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-community-1
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -818,7 +821,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-community-2
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -840,7 +843,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-community-3
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -862,7 +865,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-enterprise-1
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -884,7 +887,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-enterprise-2
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -906,7 +909,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-enterprise-3
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -928,7 +931,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-1
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -950,7 +953,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-2
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -972,7 +975,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-3
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -994,7 +997,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-1
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1018,7 +1021,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-macos-11-1
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1042,7 +1045,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-2
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1066,7 +1069,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-macos-11-2
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1090,7 +1093,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-3
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1114,7 +1117,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-macos-11-3
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1138,7 +1141,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-chrome-1
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1160,7 +1163,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-chrome-2
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1182,7 +1185,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-chrome-3
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1204,7 +1207,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-firefox-1
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1226,7 +1229,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-firefox-2
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1248,7 +1251,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-firefox-3
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1270,7 +1273,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-can-bundle-compass-web
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1282,7 +1285,7 @@ tasks:
           debug: compass*,electron*,hadron*,mongo*
   - name: test-web-sandbox-atlas-cloud
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1295,7 +1298,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: create_static_analysis_report
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     depends_on:
       - name: .package-task
         variant: '*'

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { showConfirmation } from '@mongodb-js/compass-components';
 
 /**
  * Hook that calls `onSuccess` when an async operation completes successfully.
@@ -18,29 +17,6 @@ export function useOnAsyncSuccess(
     }
     prevIsBusyRef.current = isBusy;
   }, [isBusy, error, onSuccess]);
-}
-
-/**
- * Hook that returns a cancel handler which shows a confirmation dialog if there are unsaved changes.
- */
-export function useConfirmCancel(
-  isEditing: boolean,
-  onClose: () => void
-): () => Promise<void> {
-  return useCallback(async () => {
-    if (isEditing) {
-      const isConfirmed = await showConfirmation({
-        title: 'Any unsaved progress will be lost',
-        buttonText: 'Discard',
-        variant: 'danger',
-        description: 'Are you sure you want to continue?',
-      });
-      if (!isConfirmed) {
-        return;
-      }
-    }
-    onClose();
-  }, [isEditing, onClose]);
 }
 
 /**

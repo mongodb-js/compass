@@ -345,7 +345,8 @@ buildvariants:
 tasks:
   - name: check
     tags:
-      - required-for-publish
+      - required-for-publish-web
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -354,7 +355,8 @@ tasks:
 
   - name: test
     tags:
-      - required-for-publish
+      - required-for-publish-web
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_creates_breaking_commit
     commands:
@@ -368,7 +370,7 @@ tasks:
 
   - name: test-electron
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -380,7 +382,7 @@ tasks:
 
   - name: test-connectivity
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: clone
       - func: test-connectivity
@@ -390,7 +392,7 @@ tasks:
 
   - name: test-csfle
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -403,7 +405,7 @@ tasks:
 <% for(const group of E2E_TEST_GROUPS) { %>
   - name: e2e-coverage-<%= group.number %>
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -418,7 +420,8 @@ tasks:
 
   - name: generate-vulnerability-report
     tags:
-      - required-for-publish
+      - required-for-publish-web
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -431,7 +434,7 @@ tasks:
   # releases in parallel
   - name: publish
     depends_on:
-      - name: '.required-for-publish'
+      - name: '.required-for-publish-desktop'
         variant: '*'
         patch_optional: true
     commands:
@@ -445,7 +448,7 @@ tasks:
 
   - name: publish-web
     depends_on:
-      - name: '.required-for-publish'
+      - name: '.required-for-publish-web'
         variant: '*'
         patch_optional: true
     commands:
@@ -460,7 +463,7 @@ tasks:
 <% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
   - name: package-<%= distribution %>
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - package-task
     commands:
       - func: prepare
@@ -484,7 +487,7 @@ tasks:
 
   - name: smoketest-packaged-app
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -499,7 +502,7 @@ tasks:
   <% for(const group of E2E_TEST_GROUPS) { %>
   - name: test-server-<%= serverVersion.name %>-<%= group.number %>
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -525,7 +528,7 @@ tasks:
 <% for(const group of E2E_TEST_GROUPS) { %>
   - name: test-packaged-app-<%= group.number %>
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -550,7 +553,7 @@ tasks:
 
   - name: test-packaged-app-macos-11-<%= group.number %>
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -578,7 +581,7 @@ tasks:
   <% for(const group of E2E_TEST_GROUPS) { %>
   - name: test-web-sandbox-<%= browser %>-<%= group.number %>
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -603,7 +606,7 @@ tasks:
 
   - name: test-can-bundle-compass-web
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -616,7 +619,7 @@ tasks:
 
   - name: test-web-sandbox-atlas-cloud
     tags:
-      - required-for-publish
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -630,7 +633,7 @@ tasks:
 
   - name: create_static_analysis_report
     tags:
-      - required-for-publish
+      - required-for-publish-desktop
     depends_on:
       - name: ".package-task"
         variant: "*"
