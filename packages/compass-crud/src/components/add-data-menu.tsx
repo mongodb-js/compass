@@ -54,7 +54,6 @@ function AddDataMenuButton({
       actions.push({
         action: 'generate-mock-data' as const,
         label: 'Generate mock data',
-        icon: 'Sparkle',
       });
     }
 
