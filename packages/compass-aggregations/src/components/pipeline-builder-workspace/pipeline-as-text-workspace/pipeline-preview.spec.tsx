@@ -16,7 +16,8 @@ import type { ConfigureStoreOptions } from '../../../stores/store';
 
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelinePreview>> = {},
-  storeOptions: Partial<ConfigureStoreOptions> = {}
+  storeOptions: Partial<ConfigureStoreOptions> = {},
+  services: any = {}
 ) => {
   return renderWithStore(
     <PipelinePreview
@@ -33,7 +34,8 @@ const renderPipelineEditor = (
       onCollapse={() => {}}
       {...props}
     />,
-    storeOptions
+    storeOptions,
+    services
   );
 };
 
@@ -228,6 +230,7 @@ describe('PipelinePreview', function () {
           showSearchIndexStaleResultsBanner: true,
           searchIndexName: 'test-index',
         },
+        {},
         {
           preferences: {
             enableSearchActivationProgramP1: true,
@@ -295,6 +298,7 @@ describe('PipelinePreview', function () {
           showSearchIndexStaleResultsBanner: true,
           searchIndexName: 'vector-index',
         },
+        {},
         {
           preferences: {
             enableSearchActivationProgramP1: true,
@@ -316,6 +320,7 @@ describe('PipelinePreview', function () {
           showSearchIndexStaleResultsBanner: true,
           searchIndexName: 'test-index',
         },
+        {},
         {
           preferences: {
             enableSearchActivationProgramP1: false,

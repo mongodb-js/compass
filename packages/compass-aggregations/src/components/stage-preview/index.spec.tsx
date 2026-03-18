@@ -18,7 +18,8 @@ const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 const renderStagePreview = (
   props: Partial<ComponentProps<typeof StagePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
-  storeOptions: Partial<ConfigureStoreOptions> = {}
+  storeOptions: Partial<ConfigureStoreOptions> = {},
+  services: any = {}
 ) => {
   return renderWithStore(
     <StagePreview
@@ -29,9 +30,12 @@ const renderStagePreview = (
       isMissingAtlasOnlyStageSupport={false}
       stageOperator=""
       shouldRenderStage={false}
+      showSearchIndexStaleResultsBanner={false}
+      searchIndexName={null}
       {...props}
     />,
-    { pipeline, ...storeOptions }
+    { pipeline, ...storeOptions },
+    services
   );
 };
 
@@ -132,16 +136,12 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$search',
           documents: [{ _id: 1 }],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'test-index',
         },
         [{ $search: { index: 'test-index' } }],
+        {},
         {
-          searchIndexes: [
-            {
-              name: 'test-index',
-              status: 'BUILDING',
-              queryable: true,
-            } as any,
-          ],
           preferences: {
             enableSearchActivationProgramP1: true,
           },
@@ -161,16 +161,12 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$vectorSearch',
           documents: [{ _id: 1 }],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'vector-index',
         },
         [{ $vectorSearch: { index: 'vector-index' } }],
+        {},
         {
-          searchIndexes: [
-            {
-              name: 'vector-index',
-              status: 'BUILDING',
-              queryable: true,
-            } as any,
-          ],
           preferences: {
             enableSearchActivationProgramP1: true,
           },
@@ -190,17 +186,10 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$search',
           documents: [{ _id: 1 }],
+          showSearchIndexStaleResultsBanner: false,
+          searchIndexName: 'test-index',
         },
-        [{ $search: { index: 'test-index' } }],
-        {
-          searchIndexes: [
-            {
-              name: 'test-index',
-              status: 'READY',
-              queryable: true,
-            } as any,
-          ],
-        }
+        [{ $search: { index: 'test-index' } }]
       );
 
       expect(
@@ -216,17 +205,10 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$search',
           documents: [{ _id: 1 }],
+          showSearchIndexStaleResultsBanner: false,
+          searchIndexName: 'test-index',
         },
-        [{ $search: { index: 'test-index' } }],
-        {
-          searchIndexes: [
-            {
-              name: 'test-index',
-              status: 'BUILDING',
-              queryable: false,
-            } as any,
-          ],
-        }
+        [{ $search: { index: 'test-index' } }]
       );
 
       expect(
@@ -242,17 +224,10 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$search',
           documents: [{ _id: 1 }],
+          showSearchIndexStaleResultsBanner: false,
+          searchIndexName: null,
         },
-        [{ $search: {} }],
-        {
-          searchIndexes: [
-            {
-              name: 'test-index',
-              status: 'BUILDING',
-              queryable: true,
-            } as any,
-          ],
-        }
+        [{ $search: {} }]
       );
 
       expect(
@@ -270,14 +245,8 @@ describe('StagePreview', function () {
           documents: [{ _id: 1 }],
         },
         [{ $match: { _id: 1 } }],
+        {},
         {
-          searchIndexes: [
-            {
-              name: 'test-index',
-              status: 'BUILDING',
-              queryable: true,
-            } as any,
-          ],
           preferences: {
             enableSearchActivationProgramP1: true,
           },
@@ -297,16 +266,12 @@ describe('StagePreview', function () {
           shouldRenderStage: true,
           stageOperator: '$search',
           documents: [{ _id: 1 }],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'test-index',
         },
         [{ $search: { index: 'test-index' } }],
+        {},
         {
-          searchIndexes: [
-            {
-              name: 'test-index',
-              status: 'BUILDING',
-              queryable: true,
-            } as any,
-          ],
           preferences: {
             enableSearchActivationProgramP1: false,
           },

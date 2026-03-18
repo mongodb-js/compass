@@ -6,10 +6,12 @@ import { expect } from 'chai';
 import type { MongoServerError } from 'mongodb';
 
 import { StageEditor } from './stage-editor';
+import { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 
 const renderStageEditor = (
   props: Partial<ComponentProps<typeof StageEditor>> = {},
-  renderOptions: any = {}
+  storeOptions: any = {},
+  services: any = {}
 ) => {
   return render(
     <StageEditor
@@ -29,8 +31,7 @@ const renderStageEditor = (
       onCreateSearchIndexClick={() => {}}
       onEditSearchIndexClick={() => {}}
       {...props}
-    />,
-    renderOptions
+    />
   );
 };
 
@@ -51,7 +52,7 @@ describe('StageEditor [Component]', function () {
     it('should show syntax error banner when syntaxError exists', function () {
       renderStageEditor({
         stageValue: '',
-        syntaxError: { message: 'Invalid syntax', loc: { index: 0 } },
+        syntaxError: new PipelineParserError('Invalid syntax'),
         num_stages: 1,
       });
 
@@ -77,20 +78,13 @@ describe('StageEditor [Component]', function () {
     });
 
     it('should show search index does not exist banner when appropriate', function () {
-      renderStageEditor(
-        {
-          stageValue: '{ index: "nonexistent" }',
-          stageOperator: '$search',
-          num_stages: 1,
-          searchIndexName: 'nonexistent',
-          showSearchIndexDoesNotExistBanner: true,
-        },
-        {
-          preferences: {
-            enableSearchActivationProgramP1: true,
-          },
-        }
-      );
+      renderStageEditor({
+        stageValue: '{ index: "nonexistent" }',
+        stageOperator: '$search',
+        num_stages: 1,
+        searchIndexName: 'nonexistent',
+        showSearchIndexDoesNotExistBanner: true,
+      });
 
       expect(screen.getByText(/index doesn't exist/i)).to.exist;
       expect(screen.getByText('View Search Indexes')).to.exist;
@@ -98,20 +92,13 @@ describe('StageEditor [Component]', function () {
     });
 
     it('should show search index does not exist banner for $vectorSearch', function () {
-      renderStageEditor(
-        {
-          stageValue: '{ index: "nonexistent" }',
-          stageOperator: '$vectorSearch',
-          num_stages: 1,
-          searchIndexName: 'nonexistent',
-          showSearchIndexDoesNotExistBanner: true,
-        },
-        {
-          preferences: {
-            enableSearchActivationProgramP1: true,
-          },
-        }
-      );
+      renderStageEditor({
+        stageValue: '{ index: "nonexistent" }',
+        stageOperator: '$vectorSearch',
+        num_stages: 1,
+        searchIndexName: 'nonexistent',
+        showSearchIndexDoesNotExistBanner: true,
+      });
 
       expect(screen.getByText(/Vector search index doesn't exist/i)).to.exist;
       expect(screen.getByText('View Search Indexes')).to.exist;
@@ -121,63 +108,42 @@ describe('StageEditor [Component]', function () {
     it('should prioritize serverError over searchIndexDoesNotExist', function () {
       const serverError = { message: 'Server error' } as MongoServerError;
 
-      renderStageEditor(
-        {
-          stageValue: '{ index: "test" }',
-          stageOperator: '$search',
-          serverError,
-          num_stages: 1,
-          searchIndexName: 'test',
-          showSearchIndexDoesNotExistBanner: true,
-        },
-        {
-          preferences: {
-            enableSearchActivationProgramP1: true,
-          },
-        }
-      );
+      renderStageEditor({
+        stageValue: '{ index: "test" }',
+        stageOperator: '$search',
+        serverError,
+        num_stages: 1,
+        searchIndexName: 'test',
+        showSearchIndexDoesNotExistBanner: true,
+      });
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
       expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
     });
 
-    it('should prioritize syntaxError over searchIndexDoesNotExist', function () {
-      renderStageEditor(
-        {
-          stageValue: '{ index: "test" }',
-          stageOperator: '$search',
-          syntaxError: { message: 'Syntax error', loc: { index: 0 } },
-          num_stages: 1,
-          searchIndexName: 'test',
-          showSearchIndexDoesNotExistBanner: true,
-        },
-        {
-          preferences: {
-            enableSearchActivationProgramP1: true,
-          },
-        }
-      );
+    it('should prioritize syntaxError over searchIndexDoesNotExistBanner', function () {
+      renderStageEditor({
+        stageValue: '{ index: "test" }',
+        stageOperator: '$search',
+        syntaxError: new PipelineParserError('Syntax error'),
+        num_stages: 1,
+        searchIndexName: 'test',
+        showSearchIndexDoesNotExistBanner: true,
+      });
 
       expect(screen.getByTestId('stage-editor-syntax-error')).to.exist;
       expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
     });
 
     it('should not show action links in focus mode for search index does not exist banner', function () {
-      renderStageEditor(
-        {
-          stageValue: '{ index: "test" }',
-          stageOperator: '$search',
-          num_stages: 1,
-          editor_view_type: 'focus',
-          searchIndexName: 'test',
-          showSearchIndexDoesNotExistBanner: true,
-        },
-        {
-          preferences: {
-            enableSearchActivationProgramP1: true,
-          },
-        }
-      );
+      renderStageEditor({
+        stageValue: '{ index: "test" }',
+        stageOperator: '$search',
+        num_stages: 1,
+        editor_view_type: 'focus',
+        searchIndexName: 'test',
+        showSearchIndexDoesNotExistBanner: true,
+      });
 
       // Banner should show but without links
       expect(screen.getByText(/index doesn't exist/i)).to.exist;
@@ -238,36 +204,10 @@ describe('StageEditor [Component]', function () {
     });
 
     it('should not show search index does not exist banner for non-search stages', function () {
-      renderStageEditor(
-        {
-          stageValue: '{ _id: 1 }',
-          num_stages: 1,
-        },
-        {
-          preferences: {
-            enableSearchActivationProgramP1: true,
-          },
-        }
-      );
-
-      expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
-    });
-
-    it('should NOT show search index does not exist banner when feature flag is disabled', function () {
-      renderStageEditor(
-        {
-          stageValue: '{ index: "nonexistent" }',
-          stageOperator: '$search',
-          num_stages: 1,
-          searchIndexName: 'nonexistent',
-          showSearchIndexDoesNotExistBanner: true,
-        },
-        {
-          preferences: {
-            enableSearchActivationProgramP1: false,
-          },
-        }
-      );
+      renderStageEditor({
+        stageValue: '{ _id: 1 }',
+        num_stages: 1,
+      });
 
       expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
     });

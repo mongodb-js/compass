@@ -21,7 +21,8 @@ const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 const renderFocusModePreview = (
   props: Partial<ComponentProps<typeof FocusModePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
-  storeOptions: Partial<ConfigureStoreOptions> = {}
+  storeOptions: Partial<ConfigureStoreOptions> = {},
+  services: any = {}
 ) => {
   return renderWithStore(
     <FocusModePreview
@@ -35,7 +36,8 @@ const renderFocusModePreview = (
       onCollapse={() => {}}
       {...props}
     />,
-    { pipeline, ...storeOptions }
+    { pipeline, ...storeOptions },
+    services
   );
 };
 
@@ -165,6 +167,7 @@ describe('FocusModeStagePreview', function () {
             searchIndexName: 'test-index',
           },
           [],
+          {},
           {
             preferences: {
               enableSearchActivationProgramP1: true,
@@ -188,6 +191,7 @@ describe('FocusModeStagePreview', function () {
             searchIndexName: 'vector-index',
           },
           [],
+          {},
           {
             preferences: {
               enableSearchActivationProgramP1: true,
@@ -241,6 +245,7 @@ describe('FocusModeStagePreview', function () {
             searchIndexName: null,
           },
           [],
+          {},
           {
             preferences: {
               enableSearchActivationProgramP1: true,
@@ -264,6 +269,7 @@ describe('FocusModeStagePreview', function () {
             searchIndexName: 'test-index',
           },
           [],
+          {},
           {
             preferences: {
               enableSearchActivationProgramP1: false,
