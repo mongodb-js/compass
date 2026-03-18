@@ -304,7 +304,8 @@ describe('indexes-drawer module', function () {
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
 
         // Reset the stub to track only the next call
-        showConfirmationStub.resetHistory();
+        showConfirmationStub.reset();
+        showConfirmationStub.resolves(true);
 
         // Try to open indexes list view
         await store.dispatch(openIndexesListDrawerView());
@@ -336,8 +337,8 @@ describe('indexes-drawer module', function () {
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
 
         // Change stub to return false (user cancels)
+        showConfirmationStub.reset();
         showConfirmationStub.resolves(false);
-        showConfirmationStub.resetHistory();
 
         // Try to open indexes list view
         await store.dispatch(openIndexesListDrawerView());
@@ -387,7 +388,8 @@ describe('indexes-drawer module', function () {
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
 
         // Reset the stub to track only the next call
-        showConfirmationStub.resetHistory();
+        showConfirmationStub.reset();
+        showConfirmationStub.resolves(true);
 
         // Try to open create view
         await store.dispatch(openCreateSearchIndexDrawerView('vectorSearch'));
@@ -416,8 +418,8 @@ describe('indexes-drawer module', function () {
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
 
         // Change stub to return false (user cancels)
+        showConfirmationStub.reset();
         showConfirmationStub.resolves(false);
-        showConfirmationStub.resetHistory();
 
         // Try to open create view
         await store.dispatch(openCreateSearchIndexDrawerView('search'));
@@ -456,7 +458,8 @@ describe('indexes-drawer module', function () {
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
 
         // Reset the stub to track only the next call
-        showConfirmationStub.resetHistory();
+        showConfirmationStub.reset();
+        showConfirmationStub.resolves(true);
 
         // Try to open edit view
         await store.dispatch(openEditSearchIndexDrawerView('another-index'));
@@ -485,8 +488,8 @@ describe('indexes-drawer module', function () {
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
 
         // Change stub to return false (user cancels)
+        showConfirmationStub.reset();
         showConfirmationStub.resolves(false);
-        showConfirmationStub.resetHistory();
 
         // Try to open edit view
         await store.dispatch(openEditSearchIndexDrawerView('my-index'));
