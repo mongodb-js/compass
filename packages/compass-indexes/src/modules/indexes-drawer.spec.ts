@@ -14,7 +14,9 @@ import reducer, {
   setIsDirty,
 } from './indexes-drawer';
 import { ActionTypes as SearchIndexesActionTypes } from './search-indexes';
-import * as compassComponents from '@mongodb-js/compass-components';
+
+// Importing this to stub showConfirmation
+import * as indexesDrawerSlice from './indexes-drawer';
 
 describe('indexes-drawer module', function () {
   let store: IndexesStore;
@@ -273,14 +275,11 @@ describe('indexes-drawer module', function () {
     let showConfirmationStub: sinon.SinonStub;
 
     beforeEach(function () {
-      // Stub showConfirmation before each test to prevent it from being called
-      showConfirmationStub = sinon
-        .stub(compassComponents, 'showConfirmation')
-        .resolves(true);
+      showConfirmationStub = sinon.stub(indexesDrawerSlice, 'showConfirmation');
     });
 
     afterEach(function () {
-      sinon.restore();
+      showConfirmationStub.restore();
     });
 
     describe('openIndexesListDrawerView', function () {
@@ -293,6 +292,9 @@ describe('indexes-drawer module', function () {
       });
 
       it('shows confirmation dialog when isDirty is true and dispatches action when confirmed', async function () {
+        // Stub showConfirmation to return true (user confirms)
+        showConfirmationStub.resolves(true);
+
         // Set initial view to something other than indexes-list (without isDirty)
         await store.dispatch(openCreateSearchIndexDrawerView('search'));
         expect(store.getState().indexesDrawer.currentView).to.equal(
@@ -302,10 +304,6 @@ describe('indexes-drawer module', function () {
         // Now set isDirty to true
         store.dispatch(setIsDirty(true));
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
-
-        // Reset the stub to track only the next call
-        showConfirmationStub.reset();
-        showConfirmationStub.resolves(true);
 
         // Try to open indexes list view
         await store.dispatch(openIndexesListDrawerView());
@@ -326,6 +324,9 @@ describe('indexes-drawer module', function () {
       });
 
       it('shows confirmation dialog when isDirty is true and does not dispatch action when cancelled', async function () {
+        // Stub showConfirmation to return false (user cancels)
+        showConfirmationStub.resolves(false);
+
         // Set initial view to something other than indexes-list (without isDirty)
         await store.dispatch(openCreateSearchIndexDrawerView('search'));
         expect(store.getState().indexesDrawer.currentView).to.equal(
@@ -335,10 +336,6 @@ describe('indexes-drawer module', function () {
         // Now set isDirty to true
         store.dispatch(setIsDirty(true));
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
-
-        // Change stub to return false (user cancels)
-        showConfirmationStub.reset();
-        showConfirmationStub.resolves(false);
 
         // Try to open indexes list view
         await store.dispatch(openIndexesListDrawerView());
@@ -377,6 +374,9 @@ describe('indexes-drawer module', function () {
       });
 
       it('shows confirmation dialog when isDirty is true and dispatches action when confirmed', async function () {
+        // Stub showConfirmation to return true (user confirms)
+        showConfirmationStub.resolves(true);
+
         // Set initial view to edit (without isDirty)
         await store.dispatch(openEditSearchIndexDrawerView('test-index'));
         expect(store.getState().indexesDrawer.currentView).to.equal(
@@ -386,10 +386,6 @@ describe('indexes-drawer module', function () {
         // Now set isDirty to true
         store.dispatch(setIsDirty(true));
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
-
-        // Reset the stub to track only the next call
-        showConfirmationStub.reset();
-        showConfirmationStub.resolves(true);
 
         // Try to open create view
         await store.dispatch(openCreateSearchIndexDrawerView('vectorSearch'));
@@ -407,6 +403,9 @@ describe('indexes-drawer module', function () {
       });
 
       it('shows confirmation dialog when isDirty is true and does not dispatch action when cancelled', async function () {
+        // Stub showConfirmation to return false (user cancels)
+        showConfirmationStub.resolves(false);
+
         // Set initial view to edit (without isDirty)
         await store.dispatch(openEditSearchIndexDrawerView('test-index'));
         expect(store.getState().indexesDrawer.currentView).to.equal(
@@ -416,10 +415,6 @@ describe('indexes-drawer module', function () {
         // Now set isDirty to true
         store.dispatch(setIsDirty(true));
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
-
-        // Change stub to return false (user cancels)
-        showConfirmationStub.reset();
-        showConfirmationStub.resolves(false);
 
         // Try to open create view
         await store.dispatch(openCreateSearchIndexDrawerView('search'));
@@ -447,6 +442,9 @@ describe('indexes-drawer module', function () {
       });
 
       it('shows confirmation dialog when isDirty is true and dispatches action when confirmed', async function () {
+        // Stub showConfirmation to return true (user confirms)
+        showConfirmationStub.resolves(true);
+
         // Set initial view to create (without isDirty)
         await store.dispatch(openCreateSearchIndexDrawerView('search'));
         expect(store.getState().indexesDrawer.currentView).to.equal(
@@ -456,10 +454,6 @@ describe('indexes-drawer module', function () {
         // Now set isDirty to true
         store.dispatch(setIsDirty(true));
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
-
-        // Reset the stub to track only the next call
-        showConfirmationStub.reset();
-        showConfirmationStub.resolves(true);
 
         // Try to open edit view
         await store.dispatch(openEditSearchIndexDrawerView('another-index'));
@@ -477,6 +471,9 @@ describe('indexes-drawer module', function () {
       });
 
       it('shows confirmation dialog when isDirty is true and does not dispatch action when cancelled', async function () {
+        // Stub showConfirmation to return false (user cancels)
+        showConfirmationStub.resolves(false);
+
         // Set initial view to create (without isDirty)
         await store.dispatch(openCreateSearchIndexDrawerView('search'));
         expect(store.getState().indexesDrawer.currentView).to.equal(
@@ -486,10 +483,6 @@ describe('indexes-drawer module', function () {
         // Now set isDirty to true
         store.dispatch(setIsDirty(true));
         expect(store.getState().indexesDrawer.isDirty).to.equal(true);
-
-        // Change stub to return false (user cancels)
-        showConfirmationStub.reset();
-        showConfirmationStub.resolves(false);
 
         // Try to open edit view
         await store.dispatch(openEditSearchIndexDrawerView('my-index'));

@@ -20,7 +20,7 @@ import type {
   UpdateSearchIndexSucceededAction,
 } from './search-indexes';
 import type { FetchSearchIndexesActions } from './search-indexes';
-import { showConfirmation } from '@mongodb-js/compass-components';
+import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
 export type IndexesDrawerViewType =
   | 'indexes-list'
   | 'create-search-index'
@@ -74,6 +74,10 @@ export type IndexesDrawerActions =
   | OpenCreateSearchIndexDrawerViewAction
   | OpenEditSearchIndexDrawerViewAction
   | SetIsDirtyIndexDrawerAction;
+
+// Exporting this for test only to stub it and set
+// its value. This enables to test the confirmation dialog.
+export const showConfirmation = showConfirmationModal;
 
 /**
  * Helper to check if view change should be allowed when there are unsaved changes.
