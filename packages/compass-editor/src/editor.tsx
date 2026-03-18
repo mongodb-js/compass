@@ -5,7 +5,6 @@ import React, {
   useImperativeHandle,
   useRef,
   useState,
-  useMemo,
 } from 'react';
 import type { Command, KeyBinding } from '@codemirror/view';
 import {
