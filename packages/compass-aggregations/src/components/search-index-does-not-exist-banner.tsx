@@ -10,6 +10,7 @@ import {
   mapSearchStageOperatorToSearchIndexType,
   SearchStageOperator,
 } from '../utils/stage';
+import type { SearchIndexType } from '../modules/search-indexes';
 
 const bannerStyles = css({
   flex: 'none',
@@ -22,7 +23,7 @@ const bannerStyles = css({
 type SearchIndexDoesNotExistBannerProps = {
   searchStageOperator: SearchStageOperator;
   onViewIndexesClick?: () => void;
-  onCreateSearchIndexClick?: (searchIndexType: string) => void;
+  onCreateSearchIndexClick?: (searchIndexType: SearchIndexType) => void;
 };
 
 export default function SearchIndexDoesNotExistBanner({

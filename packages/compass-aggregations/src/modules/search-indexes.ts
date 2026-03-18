@@ -13,6 +13,8 @@ const SearchIndexesStatuses = {
 
 export type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
 
+export type SearchIndexType = 'search' | 'vectorSearch';
+
 const FetchReasons = {
   INITIAL_FETCH: 'INITIAL_FETCH',
   POLL: 'POLL',
@@ -215,7 +217,7 @@ export const openEditSearchIndexDrawerView = (
 };
 
 export const openCreateSearchIndexDrawerView = (
-  indexType: string
+  indexType: SearchIndexType
 ): PipelineBuilderThunkAction<void> => {
   return (_dispatch, _getState, { localAppRegistry }) => {
     localAppRegistry.emit('open-create-search-index-drawer-view', indexType);

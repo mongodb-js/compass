@@ -33,6 +33,7 @@ import {
 } from '../../../modules/search-indexes';
 import ServerErrorBanner from '../../server-error-banner';
 import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
+import type { SearchIndexType } from '../../../modules/search-indexes';
 
 const containerStyles = css({
   position: 'relative',
@@ -83,7 +84,7 @@ export type PipelineEditorProps = {
   showSearchIndexDoesNotExistBanner: boolean;
   onChangePipelineText: (value: string) => void;
   onViewSearchIndexesClick: () => void;
-  onCreateSearchIndexClick: (searchIndexType: string) => void;
+  onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
   onEditSearchIndexClick: (indexName: string) => void;
 };
 
@@ -196,6 +197,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
             <ServerErrorBanner
               message={serverError.message}
               searchIndexName={searchIndexName}
+              dataTestId="pipeline-editor-error-message"
               onEditSearchIndexClick={onEditSearchIndexClick}
             />
           ) : enableSearchActivationProgramP1 &&
@@ -227,13 +229,14 @@ const mapState = ({
     },
   },
   serverVersion,
-  searchIndexes: { indexes: searchIndexes },
+  searchIndexes: { indexes: searchIndexes, status: searchIndexesStatus },
 }: RootState) => {
   const { searchIndexName, searchStageOperator } =
     getSearchStageInfoFromPipeline(pipelineText);
   const showSearchIndexDoesNotExistBanner =
     !!searchIndexName &&
     !!searchStageOperator &&
+    searchIndexesStatus === 'READY' &&
     searchIndexes.every((x) => x.name !== searchIndexName);
 
   return {

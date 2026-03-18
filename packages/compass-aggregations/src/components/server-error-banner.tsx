@@ -21,19 +21,21 @@ type ServerErrorBannerProps = {
   message: string;
   searchIndexName: string | null;
   onEditSearchIndexClick?: (indexName: string) => void;
+  dataTestId?: string;
 };
 
 export default function ServerErrorBanner({
   message,
   searchIndexName,
   onEditSearchIndexClick,
+  dataTestId = 'server-error-banner',
 }: ServerErrorBannerProps) {
   const { openDrawer } = useDrawerActions();
 
   return (
     <Banner
       variant="danger"
-      data-testid="stage-editor-error-message"
+      data-testid={dataTestId}
       title={message}
       className={bannerStyles}
     >

@@ -32,6 +32,7 @@ import {
   openEditSearchIndexDrawerView,
   openIndexesListDrawerView,
 } from '../../modules/search-indexes';
+import type { SearchIndexType } from '../../modules/search-indexes';
 import { usePreference } from 'compass-preferences-model/provider';
 import {
   getSearchIndexNameFromSearchStage,
@@ -94,7 +95,7 @@ type StageEditorProps = {
   className?: string;
   onChange: (index: number, value: string) => void;
   onViewSearchIndexesClick: () => void;
-  onCreateSearchIndexClick: (searchIndexType: string) => void;
+  onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
   onEditSearchIndexClick: (indexName: string) => void;
   editorRef?: React.Ref<EditorRef>;
 };
@@ -226,6 +227,7 @@ export const StageEditor = ({
         <ServerErrorBanner
           message={serverError.message}
           searchIndexName={searchIndexName}
+          dataTestId="stage-editor-error-message"
           // Don't show link when in focus mode as modal covers the drawer
           onEditSearchIndexClick={
             editor_view_type !== 'focus' ? onEditSearchIndexClick : undefined
@@ -268,6 +270,7 @@ export default connect(
     );
     const showSearchIndexDoesNotExistBanner =
       !!searchIndexName &&
+      state.searchIndexes.status === 'READY' &&
       state.searchIndexes.indexes.every((x) => x.name !== searchIndexName);
 
     return {
