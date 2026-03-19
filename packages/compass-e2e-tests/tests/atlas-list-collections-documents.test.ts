@@ -11,6 +11,10 @@ import type { CompassBrowser } from '../helpers/compass-browser';
 
 const DATABASE_NAME = 'collections_db';
 
+// The collections_db database has ~5K collections, so we need longer timeouts
+const LONG_TIMEOUT_MS = 1000 * 60 * 5; // 5 minutes for WebDriver operations
+const MOCHA_TIMEOUT_MS = LONG_TIMEOUT_MS * 1.2; // 6 minutes for Mocha
+
 /**
  * Check if basic Atlas environment variables are available.
  * Only checks the minimum required variables for this test.
@@ -48,6 +52,9 @@ function buildAtlasConnectionString(): string {
 }
 
 describe('Atlas: List collections and documents', function () {
+  // The collections_db database has ~5K collections, so we need a longer timeout
+  this.timeout(MOCHA_TIMEOUT_MS);
+
   let compass: Compass;
   let browser: CompassBrowser;
   let connectionString: string;
@@ -73,18 +80,34 @@ describe('Atlas: List collections and documents', function () {
   });
 
   it('should list collections from collections_db and display documents from the first collection', async function () {
-    // Navigate to the database collections tab
-    await browser.navigateToDatabaseCollectionsTab(connectionName, DATABASE_NAME);
+    // Navigate to the Databases tab first
+    await browser.navigateToConnectionTab(connectionName, 'Databases');
 
-    // Wait for the collections list to be displayed
+    // Click on the database row to open it (with extended timeout for large list)
+    await browser.clickVisible(
+      `${Selectors.databaseRow(DATABASE_NAME)} td:first-child`,
+      { timeout: LONG_TIMEOUT_MS }
+    );
+
+    // Wait for the database tab to become active (with extended timeout)
+    const workspaceTab = browser.$(
+      Selectors.workspaceTab({
+        connectionName,
+        namespace: DATABASE_NAME,
+        active: true,
+      })
+    );
+    await workspaceTab.waitForDisplayed({ timeout: LONG_TIMEOUT_MS });
+
+    // Wait for the collections list to be displayed (with extended timeout for 5K collections)
     const collectionsGrid = browser.$(Selectors.CollectionsTable);
-    await collectionsGrid.waitForDisplayed();
+    await collectionsGrid.waitForDisplayed({ timeout: LONG_TIMEOUT_MS });
 
     // Get the first collection row
     const firstCollectionRow = browser.$(
       `${Selectors.CollectionsTable} [data-testid^="collections-list-row-"]`
     );
-    await firstCollectionRow.waitForDisplayed();
+    await firstCollectionRow.waitForDisplayed({ timeout: LONG_TIMEOUT_MS });
 
     // Get the collection name from the first row
     const collectionNameElement = firstCollectionRow.$('td:first-child');
@@ -126,4 +149,3 @@ describe('Atlas: List collections and documents', function () {
     }
   });
 });
-
