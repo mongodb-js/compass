@@ -1,6 +1,11 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  cleanup,
+  RenderConnectionsOptions,
+} from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import type { MongoServerError } from 'mongodb';
@@ -9,7 +14,8 @@ import { StageEditor } from './stage-editor';
 import { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 
 const renderStageEditor = (
-  props: Partial<ComponentProps<typeof StageEditor>> = {}
+  props: Partial<ComponentProps<typeof StageEditor>> = {},
+  renderOptions: Partial<RenderConnectionsOptions> = {}
 ) => {
   return render(
     <StageEditor
@@ -29,7 +35,8 @@ const renderStageEditor = (
       onCreateSearchIndexClick={() => {}}
       onEditSearchIndexClick={() => {}}
       {...props}
-    />
+    />,
+    renderOptions
   );
 };
 
@@ -49,7 +56,8 @@ describe('StageEditor [Component]', function () {
   describe('error and warning banners', function () {
     it('should show syntax error banner when syntaxError exists', function () {
       renderStageEditor({
-        stageValue: '',
+        stageOperator: '$match',
+        stageValue: '{ foo: }',
         syntaxError: new PipelineParserError('Invalid syntax'),
         num_stages: 1,
       });
@@ -76,13 +84,18 @@ describe('StageEditor [Component]', function () {
     });
 
     it('should show search index does not exist banner when appropriate', function () {
-      renderStageEditor({
-        stageValue: '{ index: "nonexistent" }',
-        stageOperator: '$search',
-        num_stages: 1,
-        searchIndexName: 'nonexistent',
-        showSearchIndexDoesNotExistBanner: true,
-      });
+      renderStageEditor(
+        {
+          stageValue: '{ index: "nonexistent" }',
+          stageOperator: '$search',
+          num_stages: 1,
+          searchIndexName: 'nonexistent',
+          showSearchIndexDoesNotExistBanner: true,
+        },
+        {
+          preferences: { enableSearchActivationProgramP1: true },
+        }
+      );
 
       expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;
       expect(screen.getByText('View Search Indexes')).to.exist;
@@ -90,13 +103,18 @@ describe('StageEditor [Component]', function () {
     });
 
     it('should show search index does not exist banner for $vectorSearch', function () {
-      renderStageEditor({
-        stageValue: '{ index: "nonexistent" }',
-        stageOperator: '$vectorSearch',
-        num_stages: 1,
-        searchIndexName: 'nonexistent',
-        showSearchIndexDoesNotExistBanner: true,
-      });
+      renderStageEditor(
+        {
+          stageValue: '{ index: "nonexistent" }',
+          stageOperator: '$vectorSearch',
+          num_stages: 1,
+          searchIndexName: 'nonexistent',
+          showSearchIndexDoesNotExistBanner: true,
+        },
+        {
+          preferences: { enableSearchActivationProgramP1: true },
+        }
+      );
 
       expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;
       expect(screen.getByText('View Search Indexes')).to.exist;
@@ -106,14 +124,19 @@ describe('StageEditor [Component]', function () {
     it('should prioritize serverError over searchIndexDoesNotExist', function () {
       const serverError = { message: 'Server error' } as MongoServerError;
 
-      renderStageEditor({
-        stageValue: '{ index: "test" }',
-        stageOperator: '$search',
-        serverError,
-        num_stages: 1,
-        searchIndexName: 'test',
-        showSearchIndexDoesNotExistBanner: true,
-      });
+      renderStageEditor(
+        {
+          stageValue: '{ index: "test" }',
+          stageOperator: '$search',
+          serverError,
+          num_stages: 1,
+          searchIndexName: 'test',
+          showSearchIndexDoesNotExistBanner: true,
+        },
+        {
+          preferences: { enableSearchActivationProgramP1: true },
+        }
+      );
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
       expect(screen.queryByTestId('search-index-does-not-exist-banner')).to.not
@@ -121,14 +144,19 @@ describe('StageEditor [Component]', function () {
     });
 
     it('should prioritize syntaxError over searchIndexDoesNotExistBanner', function () {
-      renderStageEditor({
-        stageValue: '{ index: "test" }',
-        stageOperator: '$search',
-        syntaxError: new PipelineParserError('Syntax error'),
-        num_stages: 1,
-        searchIndexName: 'test',
-        showSearchIndexDoesNotExistBanner: true,
-      });
+      renderStageEditor(
+        {
+          stageValue: '{ index: "test" }',
+          stageOperator: '$search',
+          syntaxError: new PipelineParserError('Syntax error'),
+          num_stages: 1,
+          searchIndexName: 'test',
+          showSearchIndexDoesNotExistBanner: true,
+        },
+        {
+          preferences: { enableSearchActivationProgramP1: true },
+        }
+      );
 
       expect(screen.getByTestId('stage-editor-syntax-error')).to.exist;
       expect(screen.queryByTestId('search-index-does-not-exist-banner')).to.not
@@ -136,14 +164,19 @@ describe('StageEditor [Component]', function () {
     });
 
     it('should not show action links in focus mode for search index does not exist banner', function () {
-      renderStageEditor({
-        stageValue: '{ index: "test" }',
-        stageOperator: '$search',
-        num_stages: 1,
-        editor_view_type: 'focus',
-        searchIndexName: 'test',
-        showSearchIndexDoesNotExistBanner: true,
-      });
+      renderStageEditor(
+        {
+          stageValue: '{ index: "test" }',
+          stageOperator: '$search',
+          num_stages: 1,
+          editor_view_type: 'focus',
+          searchIndexName: 'test',
+          showSearchIndexDoesNotExistBanner: true,
+        },
+        {
+          preferences: { enableSearchActivationProgramP1: true },
+        }
+      );
 
       // Banner should show but without links
       expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;

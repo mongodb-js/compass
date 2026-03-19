@@ -45,7 +45,7 @@ describe('search-stage-errors', function () {
       it('is case-insensitive', function () {
         expect(
           isSearchIndexDefinitionError(
-            "GEOWITH REQUIRES PATH 'LOCATION' TO BE INDEXED AS 'GEO'"
+            "GEOWITHIN REQUIRES PATH 'LOCATION' TO BE INDEXED AS 'GEO'"
           )
         ).to.be.true;
       });

@@ -37,6 +37,7 @@ const renderFocusModePreview = (
       {...props}
     />,
     { pipeline, ...storeOptions },
+    undefined,
     services
   );
 };
@@ -170,7 +171,9 @@ describe('FocusModeStagePreview', function () {
           {},
           {
             preferences: {
-              enableSearchActivationProgramP1: true,
+              getPreferences() {
+                return { enableSearchActivationProgramP1: true };
+              },
             },
           }
         );
@@ -192,7 +195,9 @@ describe('FocusModeStagePreview', function () {
           {},
           {
             preferences: {
-              enableSearchActivationProgramP1: true,
+              getPreferences() {
+                return { enableSearchActivationProgramP1: true };
+              },
             },
           }
         );
@@ -233,14 +238,16 @@ describe('FocusModeStagePreview', function () {
           {
             stageOperator: '$match',
             documents: [new HadronDocument({ _id: 1 })],
-            showSearchIndexStaleResultsBanner: true,
+            showSearchIndexStaleResultsBanner: false,
             searchIndexName: null,
           },
           [],
           {},
           {
             preferences: {
-              enableSearchActivationProgramP1: true,
+              getPreferences() {
+                return { enableSearchActivationProgramP1: true };
+              },
             },
           }
         );
@@ -262,7 +269,9 @@ describe('FocusModeStagePreview', function () {
           {},
           {
             preferences: {
-              enableSearchActivationProgramP1: false,
+              getPreferences() {
+                return { enableSearchActivationProgramP1: false };
+              },
             },
           }
         );

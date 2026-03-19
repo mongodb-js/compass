@@ -24,7 +24,7 @@ const renderStagePreview = (
   return renderWithStore(
     <StagePreview
       documents={[]}
-      index={1}
+      index={Math.max(pipeline.length - 1, 0)}
       isLoading={false}
       isDisabled={false}
       isMissingAtlasOnlyStageSupport={false}
@@ -35,6 +35,7 @@ const renderStagePreview = (
       {...props}
     />,
     { pipeline, ...storeOptions },
+    undefined,
     services
   );
 };
@@ -143,7 +144,9 @@ describe('StagePreview', function () {
         {},
         {
           preferences: {
-            enableSearchActivationProgramP1: true,
+            getPreferences() {
+              return { enableSearchActivationProgramP1: true };
+            },
           },
         }
       );
@@ -164,7 +167,9 @@ describe('StagePreview', function () {
         {},
         {
           preferences: {
-            enableSearchActivationProgramP1: true,
+            getPreferences() {
+              return { enableSearchActivationProgramP1: true };
+            },
           },
         }
       );
@@ -231,7 +236,9 @@ describe('StagePreview', function () {
         {},
         {
           preferences: {
-            enableSearchActivationProgramP1: true,
+            getPreferences() {
+              return { enableSearchActivationProgramP1: true };
+            },
           },
         }
       );
@@ -253,7 +260,9 @@ describe('StagePreview', function () {
         {},
         {
           preferences: {
-            enableSearchActivationProgramP1: false,
+            getPreferences() {
+              return { enableSearchActivationProgramP1: false };
+            },
           },
         }
       );

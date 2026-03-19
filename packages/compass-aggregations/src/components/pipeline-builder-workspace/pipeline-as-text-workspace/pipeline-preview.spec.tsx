@@ -35,6 +35,7 @@ const renderPipelineEditor = (
       {...props}
     />,
     storeOptions,
+    undefined,
     services
   );
 };
@@ -233,7 +234,9 @@ describe('PipelinePreview', function () {
         {},
         {
           preferences: {
-            enableSearchActivationProgramP1: true,
+            getPreferences() {
+              return { enableSearchActivationProgramP1: true };
+            },
           },
         }
       );
@@ -288,7 +291,9 @@ describe('PipelinePreview', function () {
         {},
         {
           preferences: {
-            enableSearchActivationProgramP1: true,
+            getPreferences() {
+              return { enableSearchActivationProgramP1: true };
+            },
           },
         }
       );
@@ -306,7 +311,9 @@ describe('PipelinePreview', function () {
         {},
         {
           preferences: {
-            enableSearchActivationProgramP1: false,
+            getPreferences() {
+              return { enableSearchActivationProgramP1: false };
+            },
           },
         }
       );
