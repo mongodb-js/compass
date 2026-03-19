@@ -12,7 +12,7 @@ import * as Selectors from '../helpers/selectors';
 import {
   createGeospatialCollection,
   createNumbersCollection,
-} from '../helpers/insert-data';
+} from '../helpers/mongo-clients';
 import {
   cleanUpDownloadedFile,
   waitForFileDownload,
