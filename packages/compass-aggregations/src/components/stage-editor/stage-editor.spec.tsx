@@ -9,9 +9,7 @@ import { StageEditor } from './stage-editor';
 import { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 
 const renderStageEditor = (
-  props: Partial<ComponentProps<typeof StageEditor>> = {},
-  storeOptions: any = {},
-  services: any = {}
+  props: Partial<ComponentProps<typeof StageEditor>> = {}
 ) => {
   return render(
     <StageEditor

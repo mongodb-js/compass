@@ -6,10 +6,8 @@ import {
   Banner,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
-import {
-  mapSearchStageOperatorToSearchIndexType,
-  SearchStageOperator,
-} from '../utils/stage';
+import { mapSearchStageOperatorToSearchIndexType } from '../utils/stage';
+import type { SearchStageOperator } from '../utils/stage';
 import type { SearchIndexType } from '../modules/search-indexes';
 
 const bannerStyles = css({
