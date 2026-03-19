@@ -21,7 +21,7 @@ import type { Telemetry } from '../helpers/telemetry';
 import {
   createDummyCollections,
   createNumbersCollection,
-} from '../helpers/insert-data';
+} from '../helpers/mongo-clients';
 
 const { expect } = chai;
 

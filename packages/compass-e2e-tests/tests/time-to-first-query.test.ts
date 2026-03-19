@@ -7,7 +7,7 @@ import {
   TEST_COMPASS_WEB,
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
-import { createNumbersCollection } from '../helpers/insert-data';
+import { createNumbersCollection } from '../helpers/mongo-clients';
 
 describe('Time to first query', function () {
   let compass: Compass | undefined;
