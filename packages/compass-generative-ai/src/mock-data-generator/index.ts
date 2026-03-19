@@ -4,7 +4,7 @@ export {
   type MockDataSchemaToolOutput,
   type MockDataSchemaRawField,
   type RawSchema,
-  // Backwards compatibility
+  // Backwards compatibility: remove once CLOUDP-381919 updates atlas-ai-service.ts to import the new names above.
   MockDataSchemaResponseShape,
   type MockDataSchemaResponse,
 } from './schema';

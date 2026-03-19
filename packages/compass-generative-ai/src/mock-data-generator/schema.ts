@@ -1,8 +1,5 @@
 import { z } from 'zod';
 
-// Note: fakerArgs uses array of objects with "json" property to work around
-// an OpenAI limitation where dynamic values cannot be captured in field names.
-// See MockDataSchemaGenerationPrompt.java buildFakerArgsItems() for details.
 const fakerArgItemSchema = z.union([
   z.object({ json: z.string() }),
   z.string(),
@@ -43,6 +40,7 @@ export interface MockDataSchemaRawField {
 
 export type RawSchema = Record<string, MockDataSchemaRawField>;
 
-// Backwards compatibility re-exports
+// Backwards compatibility: remove once CLOUDP-381919 updates
+// atlas-ai-service.ts to import the new names above.
 export { mockDataSchemaToolSchema as MockDataSchemaResponseShape };
 export type { MockDataSchemaToolOutput as MockDataSchemaResponse };

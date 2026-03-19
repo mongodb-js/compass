@@ -2,7 +2,6 @@ import type { RawSchema } from './schema';
 
 /**
  * Formats the schema input into the user prompt format expected by the LLM.
- * Ported from MockDataSchemaGenerationPrompt.buildUserPrompt()
  */
 export function formatSchemaForPrompt(
   databaseName: string,

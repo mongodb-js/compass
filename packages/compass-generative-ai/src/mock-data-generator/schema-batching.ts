@@ -7,7 +7,6 @@ export const MAX_CHUNKS = 10;
 
 /**
  * Splits a schema into smaller chunks for processing.
- * Ported from NaturalLanguageQueryGenerator.splitSchemaIntoChunks()
  */
 export function splitSchemaIntoChunks(
   rawSchema: RawSchema,
@@ -30,7 +29,6 @@ export function splitSchemaIntoChunks(
 
 /**
  * Merges multiple chunk responses into a single response.
- * Ported from NaturalLanguageQueryGenerator.mergeChunkResponses()
  */
 export function mergeChunkResponses(
   chunkResponses: MockDataSchemaToolOutput[]
