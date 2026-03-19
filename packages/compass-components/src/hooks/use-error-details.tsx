@@ -1,6 +1,19 @@
 import { showConfirmation } from './use-confirmation';
 import { Code, ConfirmationModalVariant } from '../components/leafygreen';
+import { css } from '@leafygreen-ui/emotion';
+import { spacing } from '@leafygreen-ui/tokens';
 import React from 'react';
+
+const errorDetailsModalStyles = css({
+  maxHeight: '90vh',
+});
+
+// Reserve space for modal header, footer, and padding (LeafyGreen tokens)
+const errorDetailsContentStyles = css({
+  marginTop: spacing[200],
+  maxHeight: `calc(90vh - ${spacing[1600] * 5}px)`,
+  overflow: 'auto',
+});
 
 export const showErrorDetails = function showErrorDetails({
   details,
@@ -12,16 +25,19 @@ export const showErrorDetails = function showErrorDetails({
   void showConfirmation({
     title: 'Error details',
     description: (
-      <Code
-        language="json"
-        data-testid="error-details-json"
-        id="error-details-json"
-      >
-        {JSON.stringify(details, undefined, 2)}
-      </Code>
+      <div className={errorDetailsContentStyles}>
+        <Code
+          language="json"
+          data-testid="error-details-json"
+          id="error-details-json"
+        >
+          {JSON.stringify(details, undefined, 2)}
+        </Code>
+      </div>
     ),
     hideCancelButton: true,
     buttonText: closeAction.replace(/\b\w/g, (c) => c.toUpperCase()),
     variant: ConfirmationModalVariant.Default,
+    className: errorDetailsModalStyles,
   });
 };
