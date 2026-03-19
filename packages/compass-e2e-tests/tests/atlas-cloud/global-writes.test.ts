@@ -7,7 +7,7 @@ import {
   Selectors,
 } from '../../helpers/compass';
 import type { CompassBrowser } from '../../helpers/compass-browser';
-import { createGeospatialCollection } from '../../helpers/insert-data';
+import { createGeospatialCollection } from '../../helpers/mongo-clients';
 import {
   getDefaultConnectionNames,
   isTestingAtlasCloud,
