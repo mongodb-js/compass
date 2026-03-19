@@ -1,34 +1,70 @@
 import { expect } from 'chai';
-import type { Compass } from '../../helpers/compass';
+import type { Compass } from '../helpers/compass';
 import {
   cleanup,
   init,
   screenshotIfFailed,
   Selectors,
-} from '../../helpers/compass';
-import type { CompassBrowser } from '../../helpers/compass-browser';
-import {
-  getDefaultConnectionNames,
-  isTestingAtlasCloud,
-} from '../../helpers/test-runner-context';
+  connectionNameFromString,
+} from '../helpers/compass';
+import type { CompassBrowser } from '../helpers/compass-browser';
 
 const DATABASE_NAME = 'collections_db';
 
-describe('Atlas Cloud: List collections and documents', function () {
+/**
+ * Check if basic Atlas environment variables are available.
+ * Only checks the minimum required variables for this test.
+ */
+function hasBasicAtlasEnvVars(): boolean {
+  const requiredVars = [
+    'E2E_TESTS_ATLAS_HOST',
+    'E2E_TESTS_ATLAS_USERNAME',
+    'E2E_TESTS_ATLAS_PASSWORD',
+  ];
+
+  const missingKeys = requiredVars.filter((key) => !process.env[key]);
+
+  if (missingKeys.length > 0) {
+    const keysStr = missingKeys.join(', ');
+    if (process.env.ci || process.env.CI) {
+      throw new Error(`Missing required environmental variable(s): ${keysStr}`);
+    }
+    return false;
+  }
+
+  return true;
+}
+
+function buildAtlasConnectionString(): string {
+  const username = encodeURIComponent(
+    process.env.E2E_TESTS_ATLAS_USERNAME ?? ''
+  );
+  const password = encodeURIComponent(
+    process.env.E2E_TESTS_ATLAS_PASSWORD ?? ''
+  );
+  const host = process.env.E2E_TESTS_ATLAS_HOST ?? '';
+
+  return `mongodb+srv://${username}:${password}@${host}`;
+}
+
+describe('Atlas: List collections and documents', function () {
   let compass: Compass;
   let browser: CompassBrowser;
+  let connectionString: string;
+  let connectionName: string;
 
   before(function () {
-    if (!isTestingAtlasCloud()) {
+    if (!hasBasicAtlasEnvVars()) {
       this.skip();
     }
+    connectionString = buildAtlasConnectionString();
+    connectionName = connectionNameFromString(connectionString);
   });
 
   beforeEach(async function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
-    await browser.setupDefaultConnections();
-    await browser.connectToDefaults();
+    await browser.connectWithConnectionString(connectionString);
   });
 
   afterEach(async function () {
@@ -38,10 +74,7 @@ describe('Atlas Cloud: List collections and documents', function () {
 
   it('should list collections from collections_db and display documents from the first collection', async function () {
     // Navigate to the database collections tab
-    await browser.navigateToDatabaseCollectionsTab(
-      getDefaultConnectionNames(0),
-      DATABASE_NAME
-    );
+    await browser.navigateToDatabaseCollectionsTab(connectionName, DATABASE_NAME);
 
     // Wait for the collections list to be displayed
     const collectionsGrid = browser.$(Selectors.CollectionsTable);
@@ -55,9 +88,9 @@ describe('Atlas Cloud: List collections and documents', function () {
 
     // Get the collection name from the first row
     const collectionNameElement = firstCollectionRow.$('td:first-child');
-    const collectionName = await collectionNameElement.getText();
+    const collectionNameText = await collectionNameElement.getText();
 
-    expect(collectionName).to.be.a('string').and.not.be.empty;
+    expect(collectionNameText).to.be.a('string').and.not.be.empty;
 
     // Click on the first collection to navigate to documents
     await collectionNameElement.click();
@@ -93,3 +126,4 @@ describe('Atlas Cloud: List collections and documents', function () {
     }
   });
 });
+
