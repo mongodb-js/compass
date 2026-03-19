@@ -223,6 +223,17 @@ describe('ValidationEditor [Component]', function () {
       expect(applyBtn).to.be.visible;
       expect(applyBtn).to.have.attribute('aria-disabled', 'false');
     });
+
+    it('shows the updated confirmation title before applying', async function () {
+      userEvent.click(screen.getByTestId(updateValidationTestId));
+
+      expect(await screen.findByText('Confirm applying rules?')).to.exist;
+      expect(
+        screen.queryByText(
+          'Are you sure you want to apply these validation rules?'
+        )
+      ).to.not.exist;
+    });
   });
 
   context('when the validation saving is in progress', function () {
