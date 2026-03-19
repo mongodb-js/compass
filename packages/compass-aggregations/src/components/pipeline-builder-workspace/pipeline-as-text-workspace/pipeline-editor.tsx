@@ -236,7 +236,7 @@ const mapState = ({
   const showSearchIndexDoesNotExistBanner =
     !!searchIndexName &&
     !!searchStageOperator &&
-    searchIndexesStatus === 'READY' &&
+    ['READY', 'POLLING'].includes(searchIndexesStatus) &&
     searchIndexes.every((x) => x.name !== searchIndexName);
 
   return {

@@ -270,7 +270,7 @@ export default connect(
     );
     const showSearchIndexDoesNotExistBanner =
       !!searchIndexName &&
-      state.searchIndexes.status === 'READY' &&
+      ['READY', 'POLLING'].includes(state.searchIndexes.status) &&
       state.searchIndexes.indexes.every((x) => x.name !== searchIndexName);
 
     return {
