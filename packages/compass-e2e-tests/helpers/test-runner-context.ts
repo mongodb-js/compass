@@ -276,10 +276,16 @@ if (context.browserVersion === undefined) {
     context.browserName === 'firefox' ? 'latest' : 'stable';
 }
 
+/**
+ * Returns true if the tests are running against Compass desktop
+ */
 export function isTestingDesktop(ctx = context): ctx is DesktopParsedArgs {
   return testEnv === 'desktop';
 }
 
+/**
+ * Returns if tests are running against Compass desktop. Throws otherwise
+ */
 export function assertTestingDesktop(
   ctx = context
 ): asserts ctx is DesktopParsedArgs {
@@ -290,28 +296,42 @@ export function assertTestingDesktop(
   }
 }
 
-export function isTestingWeb(ctx = context): ctx is WebParsedArgs {
+/**
+ * Returns true if tests are running against compass-web in local sandbox (without Atlas Cloud integration available)
+ */
+export function isTestingWebSandbox(ctx = context): ctx is WebParsedArgs {
   return testEnv === 'web';
 }
 
-export function assertTestingWeb(ctx = context): asserts ctx is WebParsedArgs {
-  if (!isTestingWeb(ctx)) {
+/**
+ * Returns if tests are running against compass-web in local sandbox (without Atlas Cloud integration available). Throws otherwise
+ */
+export function assertTestingWebSandbox(
+  ctx = context
+): asserts ctx is WebParsedArgs {
+  if (!isTestingWebSandbox(ctx)) {
     throw new Error(
       `Expected tested runtime to be web, but got ${String(testEnv)}`
     );
   }
 }
 
-export function isTestingAtlasCloud(
+/**
+ * Returns true if tests are running against compass-web in cloud-<env>.mongodb.com
+ */
+export function isTestingWebAtlasCloud(
   ctx = context
 ): ctx is AtlasCloudParsedArgs {
-  return isTestingWeb(ctx) && !!ctx.testAtlasCloud;
+  return isTestingWebSandbox(ctx) && !!ctx.testAtlasCloud;
 }
 
-export function assertTestingAtlasCloud(
+/**
+ * Returns if tests are running against compass-web in cloud-<env>.mongodb.com. Throws otherwise
+ */
+export function assertTestingWebAtlasCloud(
   ctx = context
 ): asserts ctx is WebParsedArgs & AtlasCloudParsedArgs {
-  if (!isTestingAtlasCloud(ctx)) {
+  if (!isTestingWebAtlasCloud(ctx)) {
     throw new Error(`Expected tested runtime to be web w/ Atlas Cloud account`);
   }
 }
@@ -342,7 +362,7 @@ type TestConnectionInfo = ConnectionInfo & {
   testServer?: Partial<MongoClusterOptions>;
 };
 
-export const DEFAULT_CONNECTIONS: TestConnectionInfo[] = isTestingAtlasCloud(
+export const DEFAULT_CONNECTIONS: TestConnectionInfo[] = isTestingWebAtlasCloud(
   context
 )
   ? []
@@ -437,7 +457,7 @@ const CLOUD_URLS = {
 } as const;
 
 export function getCloudUrlsFromContext(ctx = context) {
-  assertTestingAtlasCloud(ctx);
+  assertTestingWebAtlasCloud(ctx);
   return CLOUD_URLS[context.atlasCloudEnvironment as keyof typeof CLOUD_URLS];
 }
 
@@ -459,7 +479,7 @@ export const ATLAS_CLOUD_TEST_UTILS: {
     : 'null'
 );
 
-if (isTestingAtlasCloud() && !ATLAS_CLOUD_TEST_UTILS) {
+if (isTestingWebAtlasCloud() && !ATLAS_CLOUD_TEST_UTILS) {
   throw new Error(
     'Trying to test Atlas Cloud environment, but test utils config is not provided. Make sure that ATLAS_CLOUD_TEST_UTILS env variable is available'
   );

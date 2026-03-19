@@ -3,7 +3,7 @@ import type {
   AllPreferences,
   UserPreferences,
 } from 'compass-preferences-model';
-import { isTestingWeb } from '../test-runner-context';
+import { isTestingWebSandbox } from '../test-runner-context';
 import { inspect } from 'util';
 
 async function _waitUntilPreferencesAccessAvailable(
@@ -14,7 +14,7 @@ async function _waitUntilPreferencesAccessAvailable(
     interval: 3000,
   };
 
-  if (!isTestingWeb()) {
+  if (!isTestingWebSandbox()) {
     await browser.waitUntil(() => {
       return browser.execute(async () => {
         try {
@@ -111,7 +111,7 @@ export async function setFeature<K extends keyof UserPreferences>(
     const doesPreferenceExists = name in currentPreferences;
     await browser.waitUntil(
       async () => {
-        const newPreferences = await (isTestingWeb()
+        const newPreferences = await (isTestingWebSandbox()
           ? _setFeatureWeb
           : _setFeatureDesktop)(browser, name, value);
         latestValue = newPreferences[name];
@@ -157,7 +157,7 @@ export async function getFeatures(
   browser: CompassBrowser
 ): Promise<AllPreferences> {
   await _waitUntilPreferencesAccessAvailable(browser);
-  return await (isTestingWeb() ? _getFeaturesWeb : _getFeaturesDesktop)(
+  return await (isTestingWebSandbox() ? _getFeaturesWeb : _getFeaturesDesktop)(
     browser
   );
 }

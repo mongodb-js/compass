@@ -20,7 +20,7 @@ import {
 import type { Compass } from '../helpers/compass';
 import type { ConnectFormState } from '../helpers/connect-form-state';
 import * as Selectors from '../helpers/selectors';
-import { isTestingWeb } from '../helpers/test-runner-context';
+import { isTestingWebSandbox } from '../helpers/test-runner-context';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
 
 async function disconnect(browser: CompassBrowser) {
@@ -673,7 +673,7 @@ describe('Connect in a new window', () => {
     await connectionElement.$(Selectors.ConnectButton).waitForDisplayed();
     await connectionElement.$(Selectors.ConnectDropdownButton).waitForExist({
       // TODO: Remove this as part of COMPASS-8970.
-      reverse: isTestingWeb(),
+      reverse: isTestingWebSandbox(),
     });
   });
 });

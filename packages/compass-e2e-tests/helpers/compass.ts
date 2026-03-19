@@ -23,11 +23,11 @@ import semver from 'semver';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 import {
   DEFAULT_CONNECTIONS_SERVER_INFO,
-  isTestingWeb,
+  isTestingWebSandbox,
   isTestingDesktop,
   context,
-  assertTestingWeb,
-  isTestingAtlasCloud,
+  assertTestingWebSandbox,
+  isTestingWebAtlasCloud,
   getCloudUrlsFromContext,
 } from './test-runner-context';
 import {
@@ -75,7 +75,7 @@ const packageCompassAsync = promisify(packageCompass);
  * should we test compass-web (true) or compass electron (false)?
  * @deprecated use `isTestingWeb` instead
  */
-export const TEST_COMPASS_WEB = isTestingWeb();
+export const TEST_COMPASS_WEB = isTestingWebSandbox();
 
 // Extending the WebdriverIO's types to allow a verbose option to the chromedriver
 declare global {
@@ -801,13 +801,13 @@ export async function startBrowser(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   opts: StartCompassOptions = {}
 ) {
-  assertTestingWeb(context);
+  assertTestingWebSandbox(context);
 
   runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
   const browserName = context.browserName as 'chrome' | 'firefox';
-  const redirectExtension = isTestingAtlasCloud(context)
+  const redirectExtension = isTestingWebAtlasCloud(context)
     ? await (async () => {
         return getExtension(
           COMPASS_WEB_ENTRYPOINT_HOST,
@@ -821,7 +821,7 @@ export async function startBrowser(
       prefs: {
         'download.default_directory': downloadPath,
       },
-      args: isTestingAtlasCloud(context)
+      args: isTestingWebAtlasCloud(context)
         ? [
             // We're going to be hitting localhost from remote domain, LNA needs
             // to be disabled
@@ -842,7 +842,7 @@ export async function startBrowser(
         // Hide the download (progress) panel
         'browser.download.alwaysOpenPanel': false,
 
-        ...(isTestingAtlasCloud(context) && {
+        ...(isTestingWebAtlasCloud(context) && {
           // Need to disable LNA (see above)
           'network.lna.skip-domains': '*.mongodb.com',
         }),
@@ -873,7 +873,7 @@ export async function startBrowser(
     needsCloseWelcomeModal: false,
   });
 
-  if (isTestingAtlasCloud(context)) {
+  if (isTestingWebAtlasCloud(context)) {
     // In firefox extension needs to be loaded via special Gecko command and
     // should be provided as a base64 string with compressed extension
     if (browserName === 'firefox') {
@@ -1117,13 +1117,13 @@ export async function init(
   // optional even though it always exists. So we have a lot of
   // this.test?.fullTitle() and therefore we hopefully won't end up with a lot
   // of dates in filenames in reality.
-  const compass = isTestingWeb()
+  const compass = isTestingWebSandbox()
     ? await startBrowser(name, opts)
     : await startCompassElectron(name, opts);
 
   const { browser } = compass;
 
-  if (isTestingAtlasCloud(context)) {
+  if (isTestingWebAtlasCloud(context)) {
     await browser.signInToAtlas(
       context.atlasCloudUsername,
       context.atlasCloudPassword
@@ -1138,10 +1138,10 @@ export async function init(
     });
   }
 
-  if (isTestingWeb(context)) {
+  if (isTestingWebSandbox(context)) {
     await opts.onBeforeNavigate?.(browser);
 
-    if (isTestingAtlasCloud(context)) {
+    if (isTestingWebAtlasCloud(context)) {
       const urls = getCloudUrlsFromContext();
       await browser.navigateTo(
         `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`

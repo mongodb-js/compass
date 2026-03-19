@@ -1,15 +1,15 @@
 import gunzip from './gunzip';
 import fs from 'fs';
 import {
-  assertTestingAtlasCloud,
+  assertTestingWebAtlasCloud,
   ATLAS_CLOUD_TEST_UTILS,
   context,
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   getCloudUrlsFromContext,
-  isTestingAtlasCloud,
+  isTestingWebAtlasCloud,
   isTestingDesktop,
-  isTestingWeb,
+  isTestingWebSandbox,
   RUN_ID,
 } from './test-runner-context';
 import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths';
@@ -81,7 +81,7 @@ export function allowServerWarnings(...filters: WarningFilter[]): () => void {
 }
 
 async function createAtlasCloudResources() {
-  assertTestingAtlasCloud(context);
+  assertTestingWebAtlasCloud(context);
 
   debug('Creating Atlas Cloud resources...');
 
@@ -305,7 +305,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
         throwIfAborted();
       }
 
-      if (isTestingAtlasCloud(context)) {
+      if (isTestingWebAtlasCloud(context)) {
         // Both tasks can take a decent amount of time and are not overlapping
         // with each other, so we can run them in parallel
         await Promise.all([
@@ -329,7 +329,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
           `${context.sandboxUrl}/assets-manifest.json`,
           globalFixturesAbortController.signal
         );
-      } else if (isTestingWeb(context)) {
+      } else if (isTestingWebSandbox(context)) {
         debug('Starting compass-web sandbox ...');
         const cleanupSandbox = spawnCompassWebSandbox(
           globalFixturesAbortController.signal
