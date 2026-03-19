@@ -176,9 +176,7 @@ describe('FocusModeStagePreview', function () {
         );
 
         expect(
-          screen.getByText(
-            /Results shown are based on the most recently built index version/i
-          )
+          screen.getByTestId('search-index-stale-results-banner')
         ).to.exist;
       });
 
@@ -200,9 +198,7 @@ describe('FocusModeStagePreview', function () {
         );
 
         expect(
-          screen.getByText(
-            /Results shown are based on the most recently built index version/i
-          )
+          screen.getByTestId('search-index-stale-results-banner')
         ).to.exist;
       });
 
@@ -215,9 +211,7 @@ describe('FocusModeStagePreview', function () {
         });
 
         expect(
-          screen.queryByText(
-            /Results shown are based on the most recently built index version/i
-          )
+          screen.queryByTestId('search-index-stale-results-banner')
         ).to.not.exist;
       });
 
@@ -230,9 +224,7 @@ describe('FocusModeStagePreview', function () {
         });
 
         expect(
-          screen.queryByText(
-            /Results shown are based on the most recently built index version/i
-          )
+          screen.queryByTestId('search-index-stale-results-banner')
         ).to.not.exist;
       });
 
@@ -254,9 +246,7 @@ describe('FocusModeStagePreview', function () {
         );
 
         expect(
-          screen.queryByText(
-            /Results shown are based on the most recently built index version/i
-          )
+          screen.queryByTestId('search-index-stale-results-banner')
         ).to.not.exist;
       });
 
@@ -278,9 +268,7 @@ describe('FocusModeStagePreview', function () {
         );
 
         expect(
-          screen.queryByText(
-            /Results shown are based on the most recently built index version/i
-          )
+          screen.queryByTestId('search-index-stale-results-banner')
         ).to.not.exist;
       });
     });

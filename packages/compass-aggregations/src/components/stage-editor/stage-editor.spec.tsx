@@ -84,7 +84,7 @@ describe('StageEditor [Component]', function () {
         showSearchIndexDoesNotExistBanner: true,
       });
 
-      expect(screen.getByText(/index doesn't exist/i)).to.exist;
+      expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;
       expect(screen.getByText('View Search Indexes')).to.exist;
       expect(screen.getByText('Create a New Index')).to.exist;
     });
@@ -98,7 +98,7 @@ describe('StageEditor [Component]', function () {
         showSearchIndexDoesNotExistBanner: true,
       });
 
-      expect(screen.getByText(/Vector search index doesn't exist/i)).to.exist;
+      expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;
       expect(screen.getByText('View Search Indexes')).to.exist;
       expect(screen.getByText('Create a New Index')).to.exist;
     });
@@ -116,7 +116,8 @@ describe('StageEditor [Component]', function () {
       });
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
-      expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
+      expect(screen.queryByTestId('search-index-does-not-exist-banner')).to.not
+        .exist;
     });
 
     it('should prioritize syntaxError over searchIndexDoesNotExistBanner', function () {
@@ -130,7 +131,8 @@ describe('StageEditor [Component]', function () {
       });
 
       expect(screen.getByTestId('stage-editor-syntax-error')).to.exist;
-      expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
+      expect(screen.queryByTestId('search-index-does-not-exist-banner')).to.not
+        .exist;
     });
 
     it('should not show action links in focus mode for search index does not exist banner', function () {
@@ -144,7 +146,7 @@ describe('StageEditor [Component]', function () {
       });
 
       // Banner should show but without links
-      expect(screen.getByText(/index doesn't exist/i)).to.exist;
+      expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;
       expect(screen.queryByText('View Search Indexes')).to.not.exist;
       expect(screen.queryByText('Create a New Index')).to.not.exist;
     });
@@ -207,7 +209,8 @@ describe('StageEditor [Component]', function () {
         num_stages: 1,
       });
 
-      expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
+      expect(screen.queryByTestId('search-index-does-not-exist-banner')).to.not
+        .exist;
     });
   });
 });

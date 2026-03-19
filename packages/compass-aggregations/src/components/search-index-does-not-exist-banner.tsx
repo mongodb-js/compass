@@ -37,7 +37,12 @@ export default function SearchIndexDoesNotExistBanner({
   } index doesn't exist.`;
 
   return (
-    <Banner variant="warning" title={message} className={bannerStyles}>
+    <Banner
+      variant="warning"
+      data-testid="search-index-does-not-exist-banner"
+      title={message}
+      className={bannerStyles}
+    >
       {message}{' '}
       {onViewIndexesClick && onCreateSearchIndexClick && (
         <>

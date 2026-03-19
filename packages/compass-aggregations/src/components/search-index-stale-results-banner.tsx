@@ -40,6 +40,7 @@ function SearchIndexStaleResultsBanner({
   return showBanner ? (
     <Banner
       variant="info"
+      data-testid="search-index-stale-results-banner"
       title={message}
       className={bannerStyles}
       dismissible

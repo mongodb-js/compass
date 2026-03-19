@@ -81,7 +81,8 @@ describe('PipelineEditor', function () {
           }
         );
 
-        expect(screen.getByText(/Search index doesn't exist/i)).to.exist;
+        expect(screen.getByTestId('search-index-does-not-exist-banner')).to
+          .exist;
         expect(screen.getByText('View Search Indexes')).to.exist;
         expect(screen.getByText('Create a New Index')).to.exist;
       });
@@ -101,7 +102,8 @@ describe('PipelineEditor', function () {
           }
         );
 
-        expect(screen.getByText(/Vector search index doesn't exist/i)).to.exist;
+        expect(screen.getByTestId('search-index-does-not-exist-banner')).to
+          .exist;
         expect(screen.getByText('View Search Indexes')).to.exist;
         expect(screen.getByText('Create a New Index')).to.exist;
       });
@@ -121,7 +123,8 @@ describe('PipelineEditor', function () {
           }
         );
 
-        expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
+        expect(screen.queryByTestId('search-index-does-not-exist-banner')).to
+          .not.exist;
       });
 
       it('should NOT show search index does not exist banner for non-search stages', async function () {
@@ -139,7 +142,8 @@ describe('PipelineEditor', function () {
           }
         );
 
-        expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
+        expect(screen.queryByTestId('search-index-does-not-exist-banner')).to
+          .not.exist;
       });
 
       it('should prioritize serverError over searchIndexDoesNotExist', async function () {
@@ -159,7 +163,8 @@ describe('PipelineEditor', function () {
         );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
-        expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
+        expect(screen.queryByTestId('search-index-does-not-exist-banner')).to
+          .not.exist;
       });
 
       it('should prioritize syntaxError over searchIndexDoesNotExist', async function () {
@@ -179,7 +184,8 @@ describe('PipelineEditor', function () {
         );
 
         expect(screen.getByTestId('pipeline-editor-syntax-error')).to.exist;
-        expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
+        expect(screen.queryByTestId('search-index-does-not-exist-banner')).to
+          .not.exist;
       });
 
       it('should NOT show search index does not exist banner when feature flag is disabled', async function () {
@@ -197,7 +203,8 @@ describe('PipelineEditor', function () {
           }
         );
 
-        expect(screen.queryByText(/index doesn't exist/i)).to.not.exist;
+        expect(screen.queryByTestId('search-index-does-not-exist-banner')).to
+          .not.exist;
       });
     });
 

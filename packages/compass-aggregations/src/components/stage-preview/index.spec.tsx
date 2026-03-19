@@ -148,11 +148,7 @@ describe('StagePreview', function () {
         }
       );
 
-      expect(
-        screen.getByText(
-          /Results shown are based on the most recently built index version/i
-        )
-      ).to.exist;
+      expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
     });
 
     it('should show stale results banner for $vectorSearch', async function () {
@@ -173,11 +169,7 @@ describe('StagePreview', function () {
         }
       );
 
-      expect(
-        screen.getByText(
-          /Results shown are based on the most recently built index version/i
-        )
-      ).to.exist;
+      expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
     });
 
     it('should NOT show stale results banner when index is ready', async function () {
@@ -192,11 +184,8 @@ describe('StagePreview', function () {
         [{ $search: { index: 'test-index' } }]
       );
 
-      expect(
-        screen.queryByText(
-          /Results shown are based on the most recently built index version/i
-        )
-      ).to.not.exist;
+      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
     });
 
     it('should NOT show stale results banner when index is not queryable', async function () {
@@ -211,11 +200,8 @@ describe('StagePreview', function () {
         [{ $search: { index: 'test-index' } }]
       );
 
-      expect(
-        screen.queryByText(
-          /Results shown are based on the most recently built index version/i
-        )
-      ).to.not.exist;
+      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
     });
 
     it('should NOT show stale results banner when no search index name found', async function () {
@@ -230,11 +216,8 @@ describe('StagePreview', function () {
         [{ $search: {} }]
       );
 
-      expect(
-        screen.queryByText(
-          /Results shown are based on the most recently built index version/i
-        )
-      ).to.not.exist;
+      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
     });
 
     it('should NOT show stale results banner for non-search stages', async function () {
@@ -253,11 +236,8 @@ describe('StagePreview', function () {
         }
       );
 
-      expect(
-        screen.queryByText(
-          /Results shown are based on the most recently built index version/i
-        )
-      ).to.not.exist;
+      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
     });
 
     it('should NOT show stale results banner when feature flag is disabled', async function () {
@@ -278,11 +258,8 @@ describe('StagePreview', function () {
         }
       );
 
-      expect(
-        screen.queryByText(
-          /Results shown are based on the most recently built index version/i
-        )
-      ).to.not.exist;
+      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
     });
   });
 });
