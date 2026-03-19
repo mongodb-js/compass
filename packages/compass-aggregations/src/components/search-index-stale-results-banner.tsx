@@ -1,10 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { buildAtlasSearchLink } from '@mongodb-js/atlas-service/provider';
 
 import { css, spacing, Link, Banner } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { RootState } from '../modules';
-import { getAtlasSearchIndexesLink } from '../utils/atlas-search-indexes-link';
 
 const bannerStyles = css({
   flex: 'none',
@@ -29,9 +29,9 @@ function SearchIndexStaleResultsBanner({
     'Results shown are based on the most recently built index version.';
 
   const href =
-    !!atlasMetadata?.clusterName && searchIndexName
-      ? getAtlasSearchIndexesLink({
-          clusterName: atlasMetadata.clusterName,
+    atlasMetadata && searchIndexName
+      ? buildAtlasSearchLink({
+          atlasMetadata,
           namespace,
           indexName: searchIndexName,
         })

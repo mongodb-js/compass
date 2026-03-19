@@ -1,8 +1,7 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { render, screen, cleanup } from '@mongodb-js/testing-library-compass';
+import { render, screen } from '@mongodb-js/testing-library-compass';
 import type { RenderConnectionsOptions } from '@mongodb-js/testing-library-compass';
-import sinon from 'sinon';
 import { expect } from 'chai';
 import type { MongoServerError } from 'mongodb';
 
@@ -37,15 +36,8 @@ const renderStageEditor = (
 };
 
 describe('StageEditor [Component]', function () {
-  const spy = sinon.spy();
-
-  afterEach(cleanup);
-
-  beforeEach(function () {
-    renderStageEditor({ onChange: spy });
-  });
-
   it('renders the wrapper div', function () {
+    renderStageEditor();
     expect(screen.getByTestId('stage-editor')).to.exist;
   });
 

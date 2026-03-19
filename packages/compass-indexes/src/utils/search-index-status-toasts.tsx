@@ -1,8 +1,8 @@
 import React from 'react';
+import { buildAtlasSearchLink } from '@mongodb-js/atlas-service/provider';
 import type { SearchIndex } from 'mongodb-data-service';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { Link, openToast } from '@mongodb-js/compass-components';
-import { getAtlasSearchIndexesLink } from './atlas-search-indexes-link';
 
 /**
  * Detects search indexes that transitioned statuses and shows appropriate toast notifications.
@@ -57,8 +57,8 @@ export function showSearchIndexStatusChangeToasts(
             {index.queryable ? 'queryable' : 'non-queryable'}.{' '}
             {atlasMetadata ? (
               <Link
-                href={getAtlasSearchIndexesLink({
-                  clusterName: atlasMetadata.clusterName,
+                href={buildAtlasSearchLink({
+                  atlasMetadata,
                   namespace,
                   indexName: index.name,
                   view: 'StatusDetails',
