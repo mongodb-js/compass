@@ -175,7 +175,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableSearchActivationProgramP1',
     stage: 'development',
-    atlasCloudFeatureFlagName: null,
+    atlasCloudFeatureFlagName: 'DATA_EXPLORER_ENABLE_SEARCH_INDEXES_MANAGEMENT',
     description: {
       short: 'Enable interface to view and modify search indexes',
     },
