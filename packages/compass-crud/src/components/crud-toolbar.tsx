@@ -151,6 +151,7 @@ export type CrudToolbarProps = {
   instanceDescription: string;
   isWritable: boolean;
   isFetching: boolean;
+  isMockDataGeneratorEnabled?: boolean;
   lastCountRunMaxTimeMS: number;
   loadingCount: boolean;
   onApplyClicked: () => void;
@@ -185,6 +186,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   instanceDescription,
   isWritable,
   isFetching,
+  isMockDataGeneratorEnabled,
   lastCountRunMaxTimeMS,
   loadingCount,
   onApplyClicked,
@@ -368,6 +370,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               insertDataHandler={insertDataHandler}
               isWritable={isWritable}
               instanceDescription={instanceDescription}
+              isMockDataGeneratorEnabled={isMockDataGeneratorEnabled}
             />
           )}
           {!readonly && (

@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Icon,
   Tooltip,
@@ -7,6 +7,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useLocalAppRegistry } from '@mongodb-js/compass-app-registry';
 import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
 
 const tooltipContainerStyles = css({
@@ -20,18 +21,22 @@ const addDataMenuButtonStyles = css({
 
 type AddDataMenuProps = {
   instanceDescription: string;
-  insertDataHandler: (openInsertKey: AddDataOption) => void;
+  insertDataHandler: (openInsertKey: 'import-file' | 'insert-document') => void;
   isWritable: boolean;
+  isMockDataGeneratorEnabled?: boolean;
 };
 
 function AddDataMenuButton({
   insertDataHandler,
   isDisabled = false,
+  isMockDataGeneratorEnabled = false,
 }: {
-  insertDataHandler: (openInsertKey: AddDataOption) => void;
+  insertDataHandler: (openInsertKey: 'import-file' | 'insert-document') => void;
   isDisabled?: boolean;
+  isMockDataGeneratorEnabled?: boolean;
 }) {
   const isImportExportEnabled = usePreference('enableImportExport');
+  const localAppRegistry = useLocalAppRegistry();
 
   const addDataActions = useMemo(() => {
     const actions: MenuAction<AddDataOption>[] = [
@@ -45,14 +50,32 @@ function AddDataMenuButton({
       });
     }
 
+    if (isMockDataGeneratorEnabled) {
+      actions.push({
+        action: 'generate-mock-data' as const,
+        label: 'Generate Mock Data Script',
+      });
+    }
+
     return actions;
-  }, [isImportExportEnabled]);
+  }, [isImportExportEnabled, isMockDataGeneratorEnabled]);
+
+  const handleAction = useCallback(
+    (action: AddDataOption) => {
+      if (action === 'generate-mock-data') {
+        localAppRegistry.emit('open-mock-data-generator-modal');
+      } else {
+        insertDataHandler(action);
+      }
+    },
+    [localAppRegistry, insertDataHandler]
+  );
 
   return (
     <DropdownMenuButton<AddDataOption>
       data-testid="crud-add-data"
       actions={addDataActions}
-      onAction={insertDataHandler}
+      onAction={handleAction}
       buttonText="Add data"
       buttonProps={{
         size: 'xsmall',
@@ -66,15 +89,21 @@ function AddDataMenuButton({
   );
 }
 
-type AddDataOption = 'import-file' | 'insert-document';
+type AddDataOption = 'import-file' | 'insert-document' | 'generate-mock-data';
 
 const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
   instanceDescription,
   insertDataHandler,
   isWritable,
+  isMockDataGeneratorEnabled,
 }) => {
   if (isWritable) {
-    return <AddDataMenuButton insertDataHandler={insertDataHandler} />;
+    return (
+      <AddDataMenuButton
+        insertDataHandler={insertDataHandler}
+        isMockDataGeneratorEnabled={isMockDataGeneratorEnabled}
+      />
+    );
   }
 
   // When we're not writable return a disabled button with the instance
@@ -89,6 +118,7 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
           <AddDataMenuButton
             insertDataHandler={insertDataHandler}
             isDisabled={true}
+            isMockDataGeneratorEnabled={isMockDataGeneratorEnabled}
           />
           {tooltipChildren}
         </div>
