@@ -19,7 +19,7 @@ import {
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
-import { isTestingWebSandbox } from '../helpers/test-runner-context';
+import { isTestingWeb } from '../helpers/test-runner-context';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures';
 import type { LogEntry } from '@mongodb-js/compass-test-server';
 
@@ -519,7 +519,7 @@ describe('Collection aggregations tab', function () {
         }
 
         if (maxTimeMSMode === 'preference') {
-          if (isTestingWebSandbox()) {
+          if (isTestingWeb()) {
             await browser.setFeature('maxTimeMS', 1);
           } else {
             await browser.openSettingsModal();

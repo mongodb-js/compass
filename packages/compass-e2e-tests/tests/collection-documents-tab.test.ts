@@ -19,7 +19,7 @@ import {
   createNumbersCollection,
 } from '../helpers/mongo-clients';
 import {
-  isTestingWebSandbox,
+  isTestingWeb,
   context as testRunnerContext,
 } from '../helpers/test-runner-context';
 import type { ChainablePromiseElement } from 'webdriverio';
@@ -183,7 +183,7 @@ describe('Collection documents tab', function () {
       used_regex: false,
     });
 
-    if (!isTestingWebSandbox()) {
+    if (!isTestingWeb()) {
       // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([{ Filter: '{\n  i: 5\n}' }]);
@@ -224,7 +224,7 @@ describe('Collection documents tab', function () {
       used_regex: false,
     });
 
-    if (!isTestingWebSandbox()) {
+    if (!isTestingWeb()) {
       // no query history in compass-web yet
       const queries = await getRecentQueries(browser, true);
       expect(queries).to.deep.include.members([
@@ -289,7 +289,7 @@ describe('Collection documents tab', function () {
       const displayText = await documentListActionBarMessageElement.getText();
       expect(displayText).to.equal('1 – 1 of 1');
 
-      if (!isTestingWebSandbox()) {
+      if (!isTestingWeb()) {
         // no query history in compass-web yet
         const queries = await getRecentQueries(browser, true);
         expect(queries).to.deep.include.members([
@@ -304,7 +304,7 @@ describe('Collection documents tab', function () {
     for (const maxTimeMSMode of ['ui', 'preference'] as const) {
       it(`supports maxTimeMS (set via ${maxTimeMSMode})`, async function () {
         if (maxTimeMSMode === 'preference') {
-          if (isTestingWebSandbox()) {
+          if (isTestingWeb()) {
             await browser.setFeature('maxTimeMS', 1);
           } else {
             await browser.openSettingsModal();

@@ -9,13 +9,13 @@ import * as Selectors from '../helpers/selectors';
 import { createNumbersCollection } from '../helpers/mongo-clients';
 import type { Compass } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { isTestingWebSandbox } from '../helpers/test-runner-context';
+import { isTestingWeb } from '../helpers/test-runner-context';
 
 async function setReadOnlyFeatureViaSettingsModal(
   browser: CompassBrowser,
   newValue: boolean
 ) {
-  if (isTestingWebSandbox()) {
+  if (isTestingWeb()) {
     // No settings modal in web
     return browser.setFeature('readOnly', newValue);
   }

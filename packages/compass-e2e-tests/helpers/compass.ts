@@ -23,10 +23,10 @@ import semver from 'semver';
 import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
 import {
   DEFAULT_CONNECTIONS_SERVER_INFO,
-  isTestingWebSandbox,
+  isTestingWeb,
   isTestingDesktop,
   context,
-  assertTestingWebSandbox,
+  assertTestingWeb,
   isTestingWebAtlasCloud,
   getCloudUrlsFromContext,
 } from './test-runner-context';
@@ -75,7 +75,7 @@ const packageCompassAsync = promisify(packageCompass);
  * should we test compass-web (true) or compass electron (false)?
  * @deprecated use `isTestingWeb` instead
  */
-export const TEST_COMPASS_WEB = isTestingWebSandbox();
+export const TEST_COMPASS_WEB = isTestingWeb();
 
 // Extending the WebdriverIO's types to allow a verbose option to the chromedriver
 declare global {
@@ -801,7 +801,7 @@ export async function startBrowser(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   opts: StartCompassOptions = {}
 ) {
-  assertTestingWebSandbox(context);
+  assertTestingWeb(context);
 
   runCounter++;
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
@@ -1117,7 +1117,7 @@ export async function init(
   // optional even though it always exists. So we have a lot of
   // this.test?.fullTitle() and therefore we hopefully won't end up with a lot
   // of dates in filenames in reality.
-  const compass = isTestingWebSandbox()
+  const compass = isTestingWeb()
     ? await startBrowser(name, opts)
     : await startCompassElectron(name, opts);
 
@@ -1138,7 +1138,7 @@ export async function init(
     });
   }
 
-  if (isTestingWebSandbox(context)) {
+  if (isTestingWeb(context)) {
     await opts.onBeforeNavigate?.(browser);
 
     if (isTestingWebAtlasCloud(context)) {

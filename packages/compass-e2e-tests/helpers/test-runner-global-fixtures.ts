@@ -9,7 +9,7 @@ import {
   getCloudUrlsFromContext,
   isTestingWebAtlasCloud,
   isTestingDesktop,
-  isTestingWebSandbox,
+  isTestingWeb,
   RUN_ID,
 } from './test-runner-context';
 import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths';
@@ -329,7 +329,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
           `${context.sandboxUrl}/assets-manifest.json`,
           globalFixturesAbortController.signal
         );
-      } else if (isTestingWebSandbox(context)) {
+      } else if (isTestingWeb(context)) {
         debug('Starting compass-web sandbox ...');
         const cleanupSandbox = spawnCompassWebSandbox(
           globalFixturesAbortController.signal

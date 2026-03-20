@@ -297,19 +297,17 @@ export function assertTestingDesktop(
 }
 
 /**
- * Returns true if tests are running against compass-web in local sandbox (without Atlas Cloud integration available)
+ * Returns true if tests are running against compass-web in either local sandbox or integrated in Atlas Cloud
  */
-export function isTestingWebSandbox(ctx = context): ctx is WebParsedArgs {
+export function isTestingWeb(ctx = context): ctx is WebParsedArgs {
   return testEnv === 'web';
 }
 
 /**
- * Returns if tests are running against compass-web in local sandbox (without Atlas Cloud integration available). Throws otherwise
+ * Returns if tests are running against compass-web in either local sandbox or integrated in Atlas Cloud. Throws otherwise
  */
-export function assertTestingWebSandbox(
-  ctx = context
-): asserts ctx is WebParsedArgs {
-  if (!isTestingWebSandbox(ctx)) {
+export function assertTestingWeb(ctx = context): asserts ctx is WebParsedArgs {
+  if (!isTestingWeb(ctx)) {
     throw new Error(
       `Expected tested runtime to be web, but got ${String(testEnv)}`
     );
@@ -322,7 +320,7 @@ export function assertTestingWebSandbox(
 export function isTestingWebAtlasCloud(
   ctx = context
 ): ctx is AtlasCloudParsedArgs {
-  return isTestingWebSandbox(ctx) && !!ctx.testAtlasCloud;
+  return isTestingWeb(ctx) && !!ctx.testAtlasCloud;
 }
 
 /**
