@@ -45,7 +45,17 @@ const waitUntil = async (
 export function spawnCompassWebSandbox(signal: AbortSignal) {
   const proc = crossSpawn.spawn(
     'npm',
-    ['run', '--unsafe-perm', 'start', '--workspace', '@mongodb-js/compass-web'],
+    [
+      'run',
+      '--unsafe-perm',
+      'start',
+      '--workspace',
+      '@mongodb-js/compass-web',
+      '--',
+      '--mode',
+      'production',
+      '--no-devtool',
+    ],
     { env: process.env, signal }
   );
   proc.stdout.pipe(process.stdout);

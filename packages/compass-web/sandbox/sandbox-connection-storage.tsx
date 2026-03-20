@@ -2,6 +2,7 @@ import type {
   ConnectionInfo,
   ConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
+import { sandboxConnectionStorage } from '../src/connection-storage';
 
 const historyKey = 'CONNECTIONS_HISTORY_V$';
 
@@ -58,4 +59,4 @@ class SandboxConnectionStorage implements ConnectionStorage {
   }
 }
 
-export const sandboxConnectionStorage = new SandboxConnectionStorage();
+sandboxConnectionStorage.current = new SandboxConnectionStorage();

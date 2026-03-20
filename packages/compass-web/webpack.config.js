@@ -6,8 +6,9 @@ const {
   isServe,
   merge,
 } = require('@mongodb-js/webpack-config-compass');
-const { execFile } = require('child_process');
+const { execFile, spawn } = require('child_process');
 const { promisify } = require('util');
+const { createWebSocketProxy } = require('./scripts/ws-proxy');
 
 const execFileAsync = promisify(execFile);
 
@@ -24,18 +25,65 @@ const MAX_COMPRESSION_FILE_SIZE = 10_000_000;
 
 module.exports = (env, args) => {
   const serve = isServe({ env });
+  const watch = env.WEBPACK_WATCH === true;
 
-  let config = createWebConfig({
-    ...args,
-    hot: serve,
-    entry: path.resolve(__dirname, serve ? 'sandbox' : 'src', 'index.tsx'),
-  });
+  if (watch && serve) {
+    throw new Error('Can not watch and serve at the same time');
+  }
 
-  delete config.externals;
+  const sharedWebConfig = merge(
+    createWebConfig({
+      ...args,
+      hot: serve,
+    }),
+    {
+      plugins: [
+        new webpack.DefinePlugin({
+          // Can be either `web` or `webdriverio`, helpful if we need special
+          // behavior for tests in sandbox
+          'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
+          // NB: DefinePlugin completely replaces matched string with a provided
+          // value, in most cases WE DO NOT WANT THAT and process variables in the
+          // code are added to be able to change them in runtime. Do not add new
+          // records unless you're super sure it's needed
+        }),
+      ],
+    }
+  );
 
-  // Shared configuration for dev mode and packaged library
-  config = merge(config, {
+  // Stuff from shared config that doesn't apply at all here
+  delete sharedWebConfig.entry;
+  delete sharedWebConfig.output;
+  delete sharedWebConfig.externals;
+
+  const libraryConfig = merge(sharedWebConfig, {
     context: __dirname,
+    entry: { index: path.resolve(__dirname, 'src', 'index.tsx') },
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: (pathData) => {
+        return pathData.chunk.hasEntryModule()
+          ? 'compass-web.mjs'
+          : '[name].[contenthash].mjs';
+      },
+      library: {
+        type: 'module',
+      },
+      clean: true,
+    },
+    module: {
+      rules: [
+        {
+          test: /\.(m|c)?(js|ts)x?$/,
+          use: {
+            // Our d3 version is out of date, so it's easier to patch it to be
+            // "strict mode" compatible instead of trying to update across the
+            // whole repo. See the file for details
+            loader: path.join(__dirname, 'scripts', 'patch-d3-for-esm.js'),
+          },
+        },
+      ],
+    },
     resolve: {
       alias: {
         // Dependencies for the unsupported connection types in data-service
@@ -45,16 +93,6 @@ module.exports = (env, args) => {
         '@mongodb-js/devtools-proxy-support': localPolyfill(
           '@mongodb-js/devtools-proxy-support'
         ),
-
-        ...(config.mode === 'production'
-          ? {
-              // We don't need saslprep in the product web bundle, as we don't use scram auth there.
-              // We use a local polyfill for the driver to avoid having it in the bundle
-              // as it is a decent size. We do use scram auth in tests and local
-              // development, so we want it there.
-              '@mongodb-js/saslprep': localPolyfill('@mongodb-js/saslprep'),
-            }
-          : {}),
 
         // Replace 'devtools-connect' with a package that just directly connects
         // using the driver (= web-compatible driver) logic, because devtools-connect
@@ -167,17 +205,18 @@ module.exports = (env, args) => {
         'node-fetch': false,
       },
     },
-    plugins: [
-      new webpack.DefinePlugin({
-        // Can be either `web` or `webdriverio`, helpful if we need special
-        // behavior for tests in sandbox
-        'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
-        // NB: DefinePlugin completely replaces matched string with a provided
-        // value, in most cases WE DO NOT WANT THAT and process variables in the
-        // code are added to be able to change them in runtime. Do not add new
-        // records unless you're super sure it's needed
-      }),
+    externalsType: 'window',
+    // MMS implementation defines these global variables in https://github.com/10gen/mms/blob/e188be1f58a46c7c4a0ab485f8c09096aaa6f3a8/client/packages/project/dataExplorerCompassWeb/hooks/useCompassWebModule.tsx#L6-L11
+    // if you're changing these values, make sure to update the mms part
+    externals: {
+      react: ['__compassWebSharedRuntime', 'React'],
+      'react-dom': ['__compassWebSharedRuntime', 'ReactDOM'],
 
+      // TODO(CLOUDP-228421): move Socket implementation from mms codebase when
+      // active work on the communication protocol is wrapped up
+      tls: ['__compassWebSharedRuntime', 'tls'],
+    },
+    plugins: [
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
         // Required by the driver to function in browser environment
@@ -268,9 +307,18 @@ module.exports = (env, args) => {
         );
       },
     ],
+    optimization: {
+      splitChunks: {
+        chunks: 'all',
+        maxInitialRequests: Infinity,
+        // Kinda arbitrary numbers to give us a decent abount of code split
+        minSize: 1_000_000,
+        maxSize: 4_000_000,
+      },
+    },
     performance: {
       hints:
-        serve || args.watch || config.mode !== 'production'
+        serve || args.watch || sharedWebConfig.mode !== 'production'
           ? 'warning'
           : 'error',
       // Entrypoint is basically the whole distribution size as there is only
@@ -284,109 +332,98 @@ module.exports = (env, args) => {
     },
   });
 
-  // When served, build it as a normal web app changing the entry point to
-  // sandbox
-  if (serve) {
-    config.output = {
-      path: config.output.path,
-      filename: config.output.filename,
-      assetModuleFilename: config.output.assetModuleFilename,
-      publicPath: '/',
-    };
+  // Add code that exposes some internals of compass-web. Useful for e2e tests /
+  // local sync
+  if (watch || serve || process.env.COMPASS_WEB_EXPOSE_INTERNALS === 'true') {
+    libraryConfig.entry.index = [
+      path.resolve(__dirname, 'sandbox', 'sandbox-process.ts'),
+      path.resolve(__dirname, 'sandbox', 'sandbox-preferences.ts'),
+      path.resolve(__dirname, 'sandbox', 'sandbox-logger-and-telemetry.ts'),
+      path.resolve(__dirname, 'sandbox', 'sandbox-connection-storage.tsx'),
+      libraryConfig.entry.index,
+    ];
+  }
 
-    return merge(config, {
+  // For watch mode we will additionally start a simple static file server
+  if (watch) {
+    const staticServerProcess = spawn(
+      'npm',
+      ['run', '--workspace', '@mongodb-js/compass-web', 'serve-dist'],
+      { stdio: 'inherit' }
+    );
+
+    process.on('beforeExit', () => {
+      staticServerProcess.kill();
+    });
+
+    return libraryConfig;
+  }
+
+  // For serve mode, we will create a local sandbox application that will
+  // roughly reproduce how compass-web is embedded inside Atlas Cloud
+  if (serve) {
+    const wsProxy = createWebSocketProxy(1337);
+
+    process.on('beforeExit', () => {
+      for (const client of Array.from(wsProxy.clients())) {
+        client.close();
+      }
+      wsProxy.close();
+    });
+
+    const sandboxConfig = merge(sharedWebConfig, {
+      entry: { sandbox: path.resolve(__dirname, 'sandbox', 'index.tsx') },
+      resolve: {
+        alias: {
+          // Local polyfills for tls / net that allow us to connect to our
+          // sandbox tls proxy
+          tls: localPolyfill('tls'),
+          net: localPolyfill('net'),
+          'stream/promises': localPolyfill('stream/promises'),
+          stream: require.resolve('readable-stream'),
+        },
+      },
       devServer: {
-        hot: true,
-        open: false,
-        magicHtml: false,
-        port: 4242,
-        historyApiFallback: {
-          rewrites: [{ from: /./, to: 'index.html' }],
-        },
-        static: {
-          directory: path.resolve(__dirname, 'sandbox'),
-          publicPath: '/',
-        },
+        bonjour: false,
         client: {
           overlay:
             process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
               ? false
               : { warnings: false, errors: true, runtimeErrors: true },
         },
-      },
-      resolve: {
-        alias: {
-          // Local polyfill for tls that allow us to connect to any MongoDB
-          // server, not only to the Atlas Cloud one
-          tls: localPolyfill('tls'),
+        devMiddleware: {
+          writeToDisk: true,
         },
-      },
-      plugins: [
-        new webpack.DefinePlugin({
-          // Matches the electron-proxy.js default value
-          'process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG': JSON.stringify(
-            process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG ?? 'dev'
-          ),
-        }),
-      ],
-    });
-  }
-
-  // For library output, reconfigure the build into a esm library output
-  config.output = {
-    path: config.output.path,
-    filename: (pathData) => {
-      return pathData.chunk.hasEntryModule()
-        ? 'compass-web.mjs'
-        : '[name].[contenthash].mjs';
-    },
-    library: {
-      type: 'module',
-    },
-    clean: true,
-  };
-
-  // Add code that exposes some internals of compass-web. Useful for e2e tests /
-  // local sync
-  if (process.env.COMPASS_WEB_EXPOSE_INTERNALS === 'true') {
-    config.entry.index = [
-      path.resolve(__dirname, 'sandbox', 'sandbox-process.ts'),
-      path.resolve(__dirname, 'sandbox', 'sandbox-preferences.ts'),
-      path.resolve(__dirname, 'sandbox', 'sandbox-logger-and-telemetry.ts'),
-      config.entry.index,
-    ];
-  }
-
-  return merge(config, {
-    module: {
-      rules: [
-        {
-          test: /\.(m|c)?(js|ts)x?$/,
-          use: {
-            loader: path.join(__dirname, 'scripts', 'patch-d3-for-esm.js'),
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+        },
+        historyApiFallback: {
+          index: '/static/index.html',
+        },
+        host: 'localhost',
+        port: 7777,
+        hot: true,
+        open: false,
+        static: [
+          {
+            directory: path.resolve(__dirname, 'sandbox', 'static'),
+            publicPath: '/static',
           },
-        },
-      ],
-    },
-    externalsType: 'window',
-    // MMS implementation defines these global variables in https://github.com/10gen/mms/blob/e188be1f58a46c7c4a0ab485f8c09096aaa6f3a8/client/packages/project/dataExplorerCompassWeb/hooks/useCompassWebModule.tsx#L6-L11
-    // if you're changing these value, make sure to update the mms part
-    externals: {
-      react: ['__compassWebSharedRuntime', 'React'],
-      'react-dom': ['__compassWebSharedRuntime', 'ReactDOM'],
-
-      // TODO(CLOUDP-228421): move Socket implementation from mms codebase when
-      // active work on the communication protocol is wrapped up
-      tls: ['__compassWebSharedRuntime', 'tls'],
-    },
-    optimization: {
-      splitChunks: {
-        chunks: 'all',
-        maxInitialRequests: Infinity,
-        // Kinda arbitrary numbers to give us a decent abount of code split
-        minSize: 1_000_000,
-        maxSize: 4_000_000,
+          // Multicompiler mode is having some issues serving assets from both
+          // compilations, so we force it to serve our dist by tricking it into
+          // thinking that this is static assets
+          {
+            directory: path.resolve(__dirname, 'dist'),
+            publicPath: '/',
+            watch: false, // no need to watch, we're already watching source
+          },
+        ],
       },
-    },
-  });
+    });
+
+    return [libraryConfig, sandboxConfig];
+  }
+
+  return libraryConfig;
 };
