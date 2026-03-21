@@ -852,6 +852,7 @@ export async function startBrowser(
 
   const options: WebdriverIO.RemoteConfig = {
     capabilities: {
+      webSocketUrl: true,
       browserName,
       ...(context.browserVersion && {
         browserVersion: context.browserVersion,
