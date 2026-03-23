@@ -59,4 +59,9 @@ class SandboxConnectionStorage implements ConnectionStorage {
   }
 }
 
-sandboxConnectionStorage.current = new SandboxConnectionStorage();
+sandboxConnectionStorage.current = Object.hasOwn(
+  globalThis,
+  '__compassWebEnableSandboxStorage'
+)
+  ? new SandboxConnectionStorage()
+  : null;
