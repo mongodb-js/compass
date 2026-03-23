@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { render, waitFor, cleanup } from '@mongodb-js/testing-library-compass';
+import { render, waitFor } from '@mongodb-js/testing-library-compass';
 import { CompletionContext } from '@codemirror/autocomplete';
 import type { CompletionSource } from '@codemirror/autocomplete';
 import { EditorView } from '@codemirror/view';
@@ -111,27 +111,7 @@ function TestEditorWithSchema({
   );
 }
 
-function typeInEditor(editorRef: React.RefObject<EditorRef>, text: string) {
-  for (const char of text) {
-    const editor = editorRef.current?.editor;
-    if (!editor) {
-      throw new Error('Expected editor to be mounted');
-    }
-
-    const cursor = editor.state.selection.main.head;
-    editor.dispatch({
-      changes: { from: cursor, to: cursor, insert: char },
-      selection: { anchor: cursor + char.length },
-      userEvent: 'input.type',
-    });
-  }
-}
-
 describe('useJsonSchemaAutocompleter', function () {
-  afterEach(function () {
-    cleanup();
-  });
-
   describe('validation', function () {
     it('returns hasErrors=false for valid JSON matching schema', async function () {
       const validJson = '{"name": "test", "count": 42}';

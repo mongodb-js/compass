@@ -276,7 +276,7 @@ export function useJsonSchemaAutocompleter(
     }
 
     // schema is already checked above in the if(!schema) guard
-    const languageService = createJsonLanguageService(schema!);
+    const languageService = createJsonLanguageService(schema);
     languageServiceRef.current = languageService;
 
     // Capture cache reference for use in closures
@@ -327,6 +327,7 @@ export function useJsonSchemaAutocompleter(
       }
 
       // Use a token-based range that includes punctuation e.g. lucene.xxxx
+      // eslint-disable-next-line no-useless-escape
       const word = context.matchBefore(/[^\s"'`:;,=()\[\]{}]*$/);
       const filterFrom = word ? word.from : context.pos;
 
@@ -408,6 +409,7 @@ export function useJsonSchemaAutocompleter(
         to: context.pos,
         options,
         // Keep list active while typing token characters including punctuation
+        // eslint-disable-next-line no-useless-escape
         validFor: /[^\s"'`:;,=()\[\]{}]*/,
       };
     };
