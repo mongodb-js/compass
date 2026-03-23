@@ -689,9 +689,9 @@ async function startCompassElectron(
   }
 
   const options = {
+    automationProtocol: 'webdriver' as const,
     capabilities: {
       browserName: 'chromium',
-      webSocketUrl: true,
       browserVersion: testPackagedApp
         ? await getChromiumVersionFromBinary(binary)
         : MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -700,6 +700,8 @@ async function startCompassElectron(
         binary: maybeWrappedBinary,
         args: chromeArgs,
       },
+      // from https://github.com/webdriverio-community/wdio-electron-service/blob/32457f60382cb4970c37c7f0a19f2907aaa32443/packages/wdio-electron-service/src/launcher.ts#L102
+      'wdio:enforceWebDriverClassic': true,
       'wdio:chromedriverOptions': {
         // enable logging so we don't have to debug things blindly
         // This goes in .log/webdriver/wdio-chromedriver-*.log. It is the
