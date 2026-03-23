@@ -183,7 +183,7 @@
   },
   "dependencies": {
     "@mongodb-js/device-id": "^0.4.6",
-    "@mongosh/node-runtime-worker-thread": "^5.0.3",
+    "@mongosh/node-runtime-worker-thread": "^5.2.2",
     "clipboard": "^2.0.6",
     "kerberos": "^7.0.0",
     "keytar": "^7.9.0",
@@ -236,7 +236,7 @@
     "@mongodb-js/eslint-config-compass": "^1.4.19",
     "@mongodb-js/get-os-info": "^0.6.6",
     "@mongodb-js/mocha-config-compass": "^1.7.7",
-    "@mongodb-js/mongodb-downloader": "^1.1.7",
+    "@mongodb-js/mongodb-downloader": "^1.1.8",
     "@mongodb-js/my-queries-storage": "^0.56.1",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
     "@mongodb-js/sbom-tools": "^0.10.5",

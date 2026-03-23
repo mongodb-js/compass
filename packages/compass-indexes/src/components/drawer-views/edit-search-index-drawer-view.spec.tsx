@@ -26,7 +26,6 @@ function renderEditSearchIndexDrawerView(
   const defaultProps: React.ComponentProps<typeof EditSearchIndexDrawerView> = {
     namespace: 'test.collection',
     searchIndex: defaultSearchIndex as SearchIndex,
-    isDirty: false,
     isBusy: false,
     error: undefined,
     onClose: noop,

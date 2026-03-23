@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { connect, useSelector, shallowEqual } from 'react-redux';
 import type { SearchIndex } from 'mongodb-data-service';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import {
@@ -145,10 +145,12 @@ export const SearchIndexesTable: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-    })
+    }),
+    shallowEqual
   );
   const { isViewPipelineSearchQueryable } = useSelector(
-    selectIsViewSearchCompatible(isAtlas)
+    selectIsViewSearchCompatible(isAtlas),
+    shallowEqual
   );
 
   const renderActions = useCallback(

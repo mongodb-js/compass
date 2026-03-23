@@ -17,7 +17,6 @@ import {
 } from '../../modules/indexes-drawer';
 import {
   useOnAsyncSuccess,
-  useConfirmCancel,
   useIndexDefinitionChange,
 } from './drawer-view-hooks';
 import type { SearchIndexType } from '../../modules/indexes-drawer';
@@ -71,7 +70,6 @@ type CreateSearchIndexViewProps = {
   namespace: string;
   searchIndexes: SearchIndex[];
   currentIndexType: SearchIndexType;
-  isDirty: boolean;
   isBusy: boolean;
   error?: string;
   onClose: () => void;
@@ -90,7 +88,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   namespace,
   searchIndexes,
   currentIndexType,
-  isDirty,
   isBusy,
   error,
   onClose,
@@ -135,7 +132,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     setIndexDefinition,
     onIndexDefinitionEdit
   );
-  const onCancelClick = useConfirmCancel(isDirty, onClose);
 
   const onCreateClick = useCallback(() => {
     createIndex({
@@ -201,7 +197,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
         <Button
           data-testid="create-search-index-drawer-view-cancel-button"
           variant="default"
-          onClick={() => void onCancelClick()}
+          onClick={onClose}
         >
           Cancel
         </Button>
@@ -224,7 +220,6 @@ const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => ({
   namespace,
   searchIndexes: searchIndexes.indexes,
   currentIndexType: indexesDrawer.currentIndexType,
-  isDirty: indexesDrawer.isDirty,
   isBusy: searchIndexes.createIndex.isBusy,
   error: searchIndexes.createIndex.error,
 });
