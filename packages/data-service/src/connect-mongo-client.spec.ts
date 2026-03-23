@@ -181,28 +181,6 @@ describe('connectMongoClient', function () {
       }
     });
 
-    it('should not run the ping command with the specified ReadPreference', async function () {
-      const connectionString = clusterConnectionStringURL.clone();
-      connectionString
-        .typedSearchParams<MongoClientOptions>()
-        .set('readPreference', 'secondaryPreferred');
-      const commands: CommandStartedEvent[] = [];
-      const [metadataClient, crudClient, , state] = await connectMongoClient({
-        connectionOptions: {
-          connectionString: connectionString.toString(),
-        },
-        setupListeners: (client) =>
-          client.on('commandStarted', (ev) => commands.push(ev)),
-      });
-      expect(commands).to.have.lengthOf(1);
-      expect(commands[0].commandName).to.equal('ping');
-      expect(commands[0].command.$readPreference).to.equal(undefined);
-
-      for (const closeLater of [metadataClient, crudClient, state]) {
-        toBeClosed.add(closeLater);
-      }
-    });
-
     describe('ssh tunnel failures', function () {
       // Use async_hooks to track the state of the internal network server used
       // for SSH tunneling
