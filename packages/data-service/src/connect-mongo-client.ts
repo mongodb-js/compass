@@ -249,12 +249,6 @@ export async function connectMongoClientDataService({
       connectLogger,
       CompassMongoClient
     );
-    try {
-      await runCommand(client.db('admin'), { ping: 1 });
-    } catch (err) {
-      await client.close().catch(() => {});
-      throw err;
-    }
     return {
       client: Object.assign(client, {
         async [createClonedClient]() {
