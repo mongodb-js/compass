@@ -1,4 +1,3 @@
-import { expect } from 'chai';
 import type { Compass } from '../helpers/compass';
 import {
   cleanup,
@@ -10,6 +9,7 @@ import {
 import type { CompassBrowser } from '../helpers/compass-browser';
 
 const DATABASE_NAME = 'collections_db';
+const TEST_COLLECTION_NAME = 'test_collection_1';
 
 /**
  * Check if basic Atlas environment variables are available.
@@ -47,7 +47,7 @@ function buildAtlasConnectionString(): string {
   return `mongodb+srv://${username}:${password}@${host}`;
 }
 
-describe('Atlas: List collections and documents', function () {
+describe('Atlas: Database with large number of collections', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let connectionString: string;
@@ -72,63 +72,64 @@ describe('Atlas: List collections and documents', function () {
     await cleanup(compass);
   });
 
-  it('should list the collections_db database', async function () {
-    // Navigate to the Databases tab
-    await browser.navigateToConnectionTab(connectionName, 'Databases');
+  it('can navigate to a collection and run a find query', async function () {
+    // Navigate directly to a collection in the database with many collections
+    await browser.navigateToCollectionTab(
+      connectionName,
+      DATABASE_NAME,
+      TEST_COLLECTION_NAME,
+      'Documents'
+    );
 
-    // Wait for the database row to be displayed
-    const databaseRow = browser.$(Selectors.databaseRow(DATABASE_NAME));
-    await databaseRow.waitForDisplayed();
+    // Run a simple find operation
+    await browser.runFindOperation('Documents', '{}');
 
-    // Verify the database name is visible
-    const databaseNameCell = databaseRow.$('td:first-child');
-    const databaseNameText = await databaseNameCell.getText();
-
-    expect(databaseNameText).to.include(DATABASE_NAME);
+    // Verify the documents tab is active and showing results
+    const documentList = browser.$(Selectors.DocumentList);
+    await documentList.waitForDisplayed();
   });
 
-  it('should list collections from compass_e2e database', async function () {
-    const testDbName = 'compass_e2e';
-
-    // Navigate to the Databases tab
-    await browser.navigateToConnectionTab(connectionName, 'Databases');
-
-    // Click on the database row to open it
-    await browser.clickVisible(
-      `${Selectors.databaseRow(testDbName)} td:first-child`
+  it('can insert a document into a collection', async function () {
+    // Navigate to a collection
+    await browser.navigateToCollectionTab(
+      connectionName,
+      DATABASE_NAME,
+      TEST_COLLECTION_NAME,
+      'Documents'
     );
 
-    // Wait for the database tab to become active
-    const workspaceTab = browser.$(
-      Selectors.workspaceTab({
-        connectionName,
-        namespace: testDbName,
-        active: true,
-      })
+    // Generate a unique value for this test run
+    const uniqueValue = `test_${Date.now()}`;
+
+    // Open the insert document modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+
+    // Wait for the modal to appear
+    await browser.waitForOpenModal(Selectors.InsertDialog);
+
+    // Set the document content
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertJSONEditor,
+      `{ "testField": "${uniqueValue}" }`
     );
-    await workspaceTab.waitForDisplayed();
 
-    // Wait for the collections list to be displayed
-    const collectionsGrid = browser.$(Selectors.CollectionsTable);
-    await collectionsGrid.waitForDisplayed();
+    // Confirm the insert
+    const insertConfirm = browser.$(Selectors.InsertConfirm);
+    await insertConfirm.waitForEnabled();
+    await browser.clickVisible(Selectors.InsertConfirm);
+    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
 
-    // Get the first collection row
-    const firstCollectionRow = browser.$(
-      `${Selectors.CollectionsTable} [data-testid^="collections-list-row-"]`
+    // Find the inserted document
+    await browser.runFindOperation(
+      'Documents',
+      `{ "testField": "${uniqueValue}" }`
     );
-    await firstCollectionRow.waitForDisplayed();
 
-    // Get the collection name from the first row
-    const collectionNameElement = firstCollectionRow.$('td:first-child');
-    const collectionNameText = await collectionNameElement.getText();
-
-    // Verify we got a collection name
-    expect(collectionNameText).to.be.a('string').and.not.be.empty;
+    // Verify the document was inserted
+    const documentEntry = browser.$(Selectors.DocumentListEntry);
+    await documentEntry.waitForDisplayed();
   });
-
-  // NOTE: We intentionally don't test listing collections from collections_db
-  // because it has ~5K collections which causes WebDriver timeouts due to
-  // browser rendering limitations. The database listing test above verifies
-  // it exists, and this test verifies collections listing works with a
-  // reasonably-sized database.
 });
