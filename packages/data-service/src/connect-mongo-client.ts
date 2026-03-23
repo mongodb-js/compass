@@ -20,7 +20,6 @@ import _ from 'lodash';
 import { redactConnectionOptions, redactConnectionString } from './redact';
 import type { ConnectionOptions } from './connection-options';
 import { getTunnelOptions, waitForTunnelError } from './ssh-tunnel-helpers';
-import { runCommand } from './run-command';
 import type { UnboundDataServiceImplLogger } from './logger';
 import { debug as _debug } from './logger';
 
