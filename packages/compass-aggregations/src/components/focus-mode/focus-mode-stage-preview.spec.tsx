@@ -1,7 +1,7 @@
 import React, { type ComponentProps } from 'react';
 import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
-import { screen, within, cleanup } from '@mongodb-js/testing-library-compass';
+import { screen, within } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import {
   FocusModePreview,
@@ -43,8 +43,6 @@ const renderFocusModePreview = (
 };
 
 describe('FocusModeStagePreview', function () {
-  afterEach(cleanup);
-
   it('renders stage input', async function () {
     await renderWithStore(
       <InputPreview onExpand={() => {}} onCollapse={() => {}} />
