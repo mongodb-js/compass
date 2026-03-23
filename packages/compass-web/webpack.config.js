@@ -392,7 +392,7 @@ module.exports = (env, args) => {
         client: {
           overlay:
             process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
-              ? false
+              ? { warnings: false, errors: false, runtimeErrors: false }
               : { warnings: false, errors: true, runtimeErrors: true },
         },
         devMiddleware: {
@@ -405,9 +405,9 @@ module.exports = (env, args) => {
         historyApiFallback: true,
         host: 'localhost',
         port: 7777,
-        hot: true,
-        liveReload: true,
-        open: false,
+        hot: libraryConfig.mode === 'development',
+        liveReload: libraryConfig.mode === 'development',
+        open: process.env.OPEN_BROWSER !== 'false',
         static: [
           // Multicompiler mode is having some issues serving assets from both
           // compilations, so we force it to serve our dist by tricking it into
