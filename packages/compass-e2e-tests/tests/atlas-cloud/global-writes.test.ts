@@ -10,7 +10,7 @@ import type { CompassBrowser } from '../../helpers/compass-browser';
 import { createGeospatialCollection } from '../../helpers/mongo-clients';
 import {
   getDefaultConnectionNames,
-  isTestingAtlasCloud,
+  isTestingWebAtlasCloud,
 } from '../../helpers/test-runner-context';
 
 type GeoShardingFormData = {
@@ -74,7 +74,7 @@ describe('Global writes', function () {
   let browser: CompassBrowser;
 
   before(function () {
-    if (!isTestingAtlasCloud()) {
+    if (!isTestingWebAtlasCloud()) {
       this.skip();
     }
   });
