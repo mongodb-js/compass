@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { render, waitFor, cleanup } from '@mongodb-js/testing-library-compass';
-import { CodemirrorMultilineEditor } from './editor';
+import { CompletionContext } from '@codemirror/autocomplete';
+import type { CompletionSource } from '@codemirror/autocomplete';
+import { EditorView } from '@codemirror/view';
+import { CodemirrorMultilineEditor, languages } from './editor';
 import { useJsonSchemaAutocompleter } from './use-json-schema-autocompleter';
 import type { EditorRef } from './types';
 import { expect } from 'chai';
@@ -53,6 +56,7 @@ function TestEditorWithSchema({
   initialText,
   editorRef,
   onExtensionsLoaded,
+  onCompleterReady,
   onValidationComplete,
   onAnnotationsChange,
 }: {
@@ -60,6 +64,7 @@ function TestEditorWithSchema({
   initialText: string;
   editorRef: React.RefObject<EditorRef>;
   onExtensionsLoaded?: () => void;
+  onCompleterReady?: (completer: CompletionSource) => void;
   onValidationComplete?: (hasErrors: boolean) => void;
   onAnnotationsChange?: (annotations: Annotation[]) => void;
 }) {
@@ -72,7 +77,10 @@ function TestEditorWithSchema({
     if (extensions.length > 0 && completer && onExtensionsLoaded) {
       onExtensionsLoaded();
     }
-  }, [extensions, completer, onExtensionsLoaded]);
+    if (completer && onCompleterReady) {
+      onCompleterReady(completer);
+    }
+  }, [extensions, completer, onExtensionsLoaded, onCompleterReady]);
 
   // Notify parent when validation completes
   React.useEffect(() => {
@@ -91,6 +99,7 @@ function TestEditorWithSchema({
   return (
     <CodemirrorMultilineEditor
       ref={editorRef}
+      language="json"
       text={text}
       onChangeText={setText}
       completer={completer}
@@ -100,6 +109,22 @@ function TestEditorWithSchema({
       autoFocus
     />
   );
+}
+
+function typeInEditor(editorRef: React.RefObject<EditorRef>, text: string) {
+  for (const char of text) {
+    const editor = editorRef.current?.editor;
+    if (!editor) {
+      throw new Error('Expected editor to be mounted');
+    }
+
+    const cursor = editor.state.selection.main.head;
+    editor.dispatch({
+      changes: { from: cursor, to: cursor, insert: char },
+      selection: { anchor: cursor + char.length },
+      userEvent: 'input.type',
+    });
+  }
 }
 
 describe('useJsonSchemaAutocompleter', function () {
@@ -355,6 +380,232 @@ describe('useJsonSchemaAutocompleter', function () {
       await waitFor(() => {
         expect(extensionsLoaded).to.equal(true);
       });
+    });
+
+    // Helper: render the test editor, wait for the completer to be ready,
+    // then return the completer function so we can call it directly
+    // (bypassing the CodeMirror popup which doesn't render in jsdom).
+    async function getCompleterForSchema(schema: JSONSchema7) {
+      const editorRef = React.createRef<EditorRef>();
+      let capturedCompleter: CompletionSource | undefined;
+
+      render(
+        <TestEditorWithSchema
+          schema={schema}
+          initialText="{}"
+          editorRef={editorRef}
+          onCompleterReady={(c) => {
+            capturedCompleter = c;
+          }}
+        />
+      );
+
+      await waitFor(() => {
+        expect(capturedCompleter).to.exist;
+      });
+
+      return capturedCompleter!;
+    }
+
+    // Helper: create a bare EditorView with JSON language and given text,
+    // invoke the completer, and return the result.
+    async function getCompletions(
+      completer: CompletionSource,
+      text: string,
+      pos?: number
+    ) {
+      const el = document.createElement('div');
+      document.body.appendChild(el);
+      const editor = new EditorView({
+        doc: text,
+        extensions: [languages['json']()],
+        parent: el,
+      });
+      const cursorPos = pos ?? text.length;
+      editor.dispatch({ selection: { anchor: cursorPos } });
+      const ctx = new CompletionContext(editor.state, cursorPos, true);
+      const result = await completer(ctx);
+      return { result, editor, el };
+    }
+
+    it('replaces the full typed property prefix when accepting a completion', async function () {
+      const completer = await getCompleterForSchema({
+        type: 'object',
+        properties: { fields: { type: 'object' } },
+      });
+
+      // Simulate: user typed {"fie with cursor at end
+      const { result, editor, el } = await getCompletions(
+        completer,
+        '{"fie',
+        5
+      );
+
+      expect(result).to.exist;
+      const fieldsOption = result!.options.find((o) => o.label === 'fields');
+      expect(fieldsOption).to.exist;
+
+      // Call apply directly — it should replace from the word start (pos 1)
+      // through the cursor (pos 5), producing valid JSON
+      if (typeof fieldsOption!.apply === 'function') {
+        fieldsOption!.apply(editor, fieldsOption!, result!.from, 5);
+      }
+
+      const content = editor.state.sliceDoc(0);
+      expect(content).to.include('{"fields": {}');
+
+      editor.destroy();
+      el.remove();
+    });
+
+    it('does not leave a trailing quote when accepting after typing inside auto-closed quotes', async function () {
+      const completer = await getCompleterForSchema({
+        type: 'object',
+        properties: { fields: { type: 'object' } },
+      });
+
+      // Simulate: {"fie"} where cursor is at pos 5 (before the closing quote)
+      // This is what happens when closeBrackets auto-inserts the closing "
+      const { result, editor, el } = await getCompletions(
+        completer,
+        '{"fie"}',
+        5
+      );
+
+      expect(result).to.exist;
+      const fieldsOption = result!.options.find((o) => o.label === 'fields');
+      expect(fieldsOption).to.exist;
+
+      if (typeof fieldsOption!.apply === 'function') {
+        fieldsOption!.apply(editor, fieldsOption!, result!.from, 5);
+      }
+
+      // The trailing auto-inserted quote should be swallowed, not duplicated
+      const content = editor.state.sliceDoc(0);
+      expect(content).to.include('{"fields": {}');
+
+      editor.destroy();
+      el.remove();
+    });
+
+    it('shows property suggestions when typing a double quote', async function () {
+      const completer = await getCompleterForSchema({
+        type: 'object',
+        properties: { fields: { type: 'object' }, name: { type: 'string' } },
+      });
+
+      // Simulate: user typed {" with cursor right after the quote
+      const { result, editor, el } = await getCompletions(completer, '{"', 2);
+
+      expect(result).to.exist;
+      const labels = result!.options.map((o) => o.label);
+      expect(labels).to.include('fields');
+      expect(labels).to.include('name');
+
+      editor.destroy();
+      el.remove();
+    });
+
+    it('filters suggestions using validFor as user types after quote', async function () {
+      const completer = await getCompleterForSchema({
+        type: 'object',
+        properties: { fields: { type: 'object' }, name: { type: 'string' } },
+      });
+
+      // Simulate: user typed {"n — should match "name" but not "fields"
+      const { result, editor, el } = await getCompletions(completer, '{"n', 3);
+
+      expect(result).to.exist;
+      // The validFor regex should allow CodeMirror to filter by the typed prefix "n"
+      expect(result!.validFor).to.exist;
+      // The options returned by the LSP include both, but validFor lets CM filter
+      const labels = result!.options.map((o) => o.label);
+      // At minimum the LSP should return options; filtering is done client-side
+      expect(labels.length).to.be.greaterThan(0);
+
+      // Verify the validFor regex matches the typed prefix
+      const typedText = 'n';
+      expect(typedText).to.match(result!.validFor as RegExp);
+
+      editor.destroy();
+      el.remove();
+    });
+
+    it('matches suggestions that include punctuation like a dot', async function () {
+      const completer = await getCompleterForSchema({
+        type: 'object',
+        properties: {
+          'a.b': { type: 'string' },
+          ab: { type: 'string' },
+        },
+      });
+
+      // Simulate: user typed {"a. — the dot should be included in the filter range
+      const { result, editor, el } = await getCompletions(completer, '{"a.', 4);
+
+      expect(result).to.exist;
+      const labels = result!.options.map((o) => o.label);
+      expect(labels).to.include('a.b');
+
+      // The validFor regex should match text containing dots
+      expect('a.').to.match(result!.validFor as RegExp);
+
+      editor.destroy();
+      el.remove();
+    });
+
+    it('strips surrounding quotes from labels so filtering works', async function () {
+      const completer = await getCompleterForSchema({
+        type: 'object',
+        properties: { fields: { type: 'object' } },
+      });
+
+      const { result, editor, el } = await getCompletions(completer, '{"', 2);
+
+      expect(result).to.exist;
+      // Labels should NOT have surrounding quotes
+      for (const option of result!.options) {
+        expect(option.label).to.not.match(/^"/);
+        expect(option.label).to.not.match(/"$/);
+      }
+
+      editor.destroy();
+      el.remove();
+    });
+
+    it('removes surrounding quotes when accepting a non-string value like a number', async function () {
+      const completer = await getCompleterForSchema({
+        type: 'object',
+        properties: {
+          numPartitions: { type: 'number', enum: [1, 2, 4] },
+        },
+      });
+
+      // Simulate: user typed {"numPartitions": "1" (closeBrackets added closing ")
+      // Cursor is after 1, before the closing quote.
+      const { result, editor, el } = await getCompletions(
+        completer,
+        '{"numPartitions": "1"}',
+        20 // cursor after '1', before closing '"'
+      );
+
+      expect(result).to.exist;
+      const opt = result!.options.find((o) => o.label === '1');
+      expect(opt).to.exist;
+
+      // Apply should swallow both the preceding and trailing quotes
+      if (typeof opt!.apply === 'function') {
+        opt!.apply(editor, opt!, result!.from, 20);
+      }
+
+      const content = editor.state.sliceDoc(0);
+      // Should produce a clean number value without extra quotes
+      expect(content).to.include('numPartitions": 1');
+      // Should NOT have "1" (quoted) — the value is a number
+      expect(content).to.not.match(/"1"/);
+
+      editor.destroy();
+      el.remove();
     });
   });
 

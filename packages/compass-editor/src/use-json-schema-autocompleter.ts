@@ -326,14 +326,23 @@ export function useJsonSchemaAutocompleter(
         return null;
       }
 
+      // Use a token-based range that includes punctuation e.g. lucene.xxxx
+      const word = context.matchBefore(/[^\s"'`:;,=()\[\]{}]*$/);
+      const filterFrom = word ? word.from : context.pos;
+
       const options: Completion[] = [];
 
       for (const item of completions.items) {
         const { detail, documentation, kind, label, textEdit, insertText } =
           item;
 
+        // Strip surrounding quotes from the label so that CodeMirror's
+        // prefix filtering matches the text the user is actually typing
+        // (the filtering range starts after the opening quote).
+        const displayLabel = label.replace(/^"(.*)"$/, '$1');
+
         const completion: Completion = {
-          label,
+          label: displayLabel,
           detail,
           type: fromCompletionItemKind(kind),
           info:
@@ -349,19 +358,38 @@ export function useJsonSchemaAutocompleter(
         if (textEdit && 'range' in textEdit) {
           const insert = textEdit.newText;
           const insertTextFormat = item.insertTextFormat;
-          const from = textDoc.offsetAt(textEdit.range.start);
-          const to = textDoc.offsetAt(textEdit.range.end);
 
-          completion.apply = (view) => {
+          completion.apply = (view, _completion, from, to) => {
+            // Swallow a preceding double quote if present. This handles two cases:
+            // 1. Key completions: insert starts with '"', avoid doubling it.
+            // 2. Non-string value completions (numbers, booleans): the user typed
+            //    '"' but the LSP returns an unquoted value like `1`, so we need to
+            //    remove the quote the user already typed.
+            let adjFrom = from;
+            if (from > 0 && view.state.sliceDoc(from - 1, from) === '"') {
+              adjFrom = from - 1;
+            }
+
+            // Also swallow a trailing quote right at `to` if present. This covers the
+            // common case where closeBrackets auto-inserts the closing quote and the
+            // cursor is still before it ("fie|"), otherwise we'd leave an extra '"'.
+            let adjTo = to;
+            const next = view.state.sliceDoc(to, to + 1);
+            if (next === '"') {
+              adjTo = to + 1;
+            }
+
             if (insertTextFormat === InsertTextFormatMap.Snippet) {
               snippet(insert.replaceAll(/\$(\d+)/g, '$${$1}'))(
                 view,
                 completion,
-                from,
-                to
+                adjFrom,
+                adjTo
               );
             } else {
-              view.dispatch(insertCompletionText(view.state, insert, from, to));
+              view.dispatch(
+                insertCompletionText(view.state, insert, adjFrom, adjTo)
+              );
             }
 
             // Close the completion popup to prevent it from re-triggering
@@ -375,14 +403,12 @@ export function useJsonSchemaAutocompleter(
         options.push(completion);
       }
 
-      // Calculate the 'from' position for filtering.
-      const word = context.matchBefore(/[\w$]*$/);
-      const from = word ? word.from : context.pos;
-
       return {
-        from,
+        from: filterFrom,
+        to: context.pos,
         options,
-        validFor: /^[\w$]*$/,
+        // Keep list active while typing token characters including punctuation
+        validFor: /[^\s"'`:;,=()\[\]{}]*/,
       };
     };
 
@@ -434,6 +460,10 @@ export function useJsonSchemaAutocompleter(
         hoverText = contents.value;
       }
 
+      if (!hoverText) {
+        return null;
+      }
+
       const tooltipView: TooltipView = {
         dom: (() => {
           const div = document.createElement('div');
@@ -459,9 +489,7 @@ export function useJsonSchemaAutocompleter(
         const insertedText = inserted.toString();
 
         const shouldTrigger =
-          insertedText.startsWith('"') ||
-          insertedText === ':' ||
-          insertedText.startsWith('\n');
+          insertedText === ':' || insertedText.startsWith('\n');
 
         if (shouldTrigger) {
           startCompletion(update.view);
