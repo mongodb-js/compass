@@ -5,6 +5,7 @@ const {
   createWebConfig,
   isServe,
   merge,
+  HtmlWebpackPlugin,
 } = require('@mongodb-js/webpack-config-compass');
 const { execFile, spawn } = require('child_process');
 const { promisify } = require('util');
@@ -373,6 +374,9 @@ module.exports = (env, args) => {
 
     const sandboxConfig = merge(sharedWebConfig, {
       entry: { sandbox: path.resolve(__dirname, 'sandbox', 'index.tsx') },
+      output: {
+        publicPath: '/',
+      },
       resolve: {
         alias: {
           // Local polyfills for tls / net that allow us to connect to our
@@ -398,18 +402,13 @@ module.exports = (env, args) => {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
         },
-        historyApiFallback: {
-          index: '/static/index.html',
-        },
+        historyApiFallback: true,
         host: 'localhost',
         port: 7777,
         hot: true,
+        liveReload: true,
         open: false,
         static: [
-          {
-            directory: path.resolve(__dirname, 'sandbox', 'static'),
-            publicPath: '/static',
-          },
           // Multicompiler mode is having some issues serving assets from both
           // compilations, so we force it to serve our dist by tricking it into
           // thinking that this is static assets
@@ -420,6 +419,12 @@ module.exports = (env, args) => {
           },
         ],
       },
+      plugins: [
+        new HtmlWebpackPlugin({
+          title: 'Compass Web Sandbox',
+          template: path.resolve(__dirname, 'sandbox', 'index.html'),
+        }),
+      ],
     });
 
     return [libraryConfig, sandboxConfig];

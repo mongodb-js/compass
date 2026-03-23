@@ -434,3 +434,4 @@ export { webpackArgsWithDefaults, isServe } from './args';
 export { default as webpack } from 'webpack';
 export { merge } from 'webpack-merge';
 export { default as WebpackDevServer } from 'webpack-dev-server';
+export { default as HtmlWebpackPlugin } from 'html-webpack-plugin';
