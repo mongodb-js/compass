@@ -31,7 +31,7 @@ function saveHistory(history: ConnectionInfo[]) {
   }
 }
 
-class SandboxConnectionStorage implements ConnectionStorage {
+export class SandboxConnectionStorage implements ConnectionStorage {
   private _connections = new Map(
     getHistory().map((info) => {
       return [info.id, info];

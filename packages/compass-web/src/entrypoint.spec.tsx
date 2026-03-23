@@ -12,8 +12,8 @@ import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
 import { ConnectFnProvider } from '@mongodb-js/compass-connections';
 import { MockDataService as TestHelpersMockDataService } from '@mongodb-js/testing-library-compass';
-import { SandboxConnectionStorageProvider } from './connection-storage';
-import { sandboxConnectionStorage } from '../sandbox/sandbox-connection-storage';
+import { sandboxConnectionStorage } from './connection-storage';
+import { SandboxConnectionStorage } from '../sandbox/sandbox-connection-storage';
 
 function mockDb(name: string) {
   return { _id: name, name };
@@ -37,6 +37,8 @@ class MockDataService extends TestHelpersMockDataService {
   }
 }
 
+sandboxConnectionStorage.current = new SandboxConnectionStorage();
+
 describe('CompassWeb', function () {
   before(function () {
     // TODO(COMPASS-7551): for some reason, specifically evergreen rhel machine can't
@@ -55,7 +57,6 @@ describe('CompassWeb', function () {
   const onTrackSpy = Sinon.spy();
 
   afterEach(function () {
-    cleanup();
     Sinon.resetHistory();
   });
 
@@ -65,20 +66,18 @@ describe('CompassWeb', function () {
   ) {
     const result = render(
       <ConnectFnProvider connect={connectFn as any}>
-        <SandboxConnectionStorageProvider value={sandboxConnectionStorage}>
-          <CompassWeb
-            orgId=""
-            projectId=""
-            initialWorkspace={undefined as any}
-            onActiveWorkspaceTabChange={() => {}}
-            onTrack={onTrackSpy}
-            {...props}
-            initialPreferences={{
-              enableCreatingNewConnections: true,
-              ...props.initialPreferences,
-            }}
-          ></CompassWeb>
-        </SandboxConnectionStorageProvider>
+        <CompassWeb
+          orgId=""
+          projectId=""
+          initialWorkspace={undefined as any}
+          onActiveWorkspaceTabChange={() => {}}
+          onTrack={onTrackSpy}
+          {...props}
+          initialPreferences={{
+            enableCreatingNewConnections: true,
+            ...props.initialPreferences,
+          }}
+        ></CompassWeb>
       </ConnectFnProvider>
     );
     userEvent.click(
