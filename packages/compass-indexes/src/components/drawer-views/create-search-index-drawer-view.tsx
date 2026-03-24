@@ -48,6 +48,14 @@ import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/ind
 import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
 import type { JSONSchema7 } from 'json-schema';
 
+/**
+ * Strips snippet tab-stop placeholders (e.g. `${1:default}` → `default`)
+ * so the template can be used as plain editor text
+ */
+function normalizeSnippet(snippet: string): string {
+  return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
+}
+
 export const getNextAvailableIndexName = (
   indexes: SearchIndex[],
   defaultIndexName: string
@@ -97,9 +105,11 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
 }) => {
   const editorRef = useRef<EditorRef>(null);
   const [indexDefinition, setIndexDefinition] = useState(
-    currentIndexType === 'vectorSearch'
-      ? ATLAS_VECTOR_SEARCH_TEMPLATE.snippet
-      : ATLAS_SEARCH_TEMPLATES[0].snippet
+    normalizeSnippet(
+      currentIndexType === 'vectorSearch'
+        ? ATLAS_VECTOR_SEARCH_TEMPLATE.snippet
+        : ATLAS_SEARCH_TEMPLATES[0].snippet
+    )
   );
   const [name, setName] = useState(
     getNextAvailableIndexName(
