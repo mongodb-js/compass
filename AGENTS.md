@@ -183,7 +183,7 @@ export default connect((state) => ({
 
 ### Shared components should have a single look and feel
 
-Shared components in `/compass-components` define the baseline design system.
+Shared components in `packages/compass-components` define the baseline design system.
 Avoid adding new props or configuration options to a shared component to satisfy a one-off request for a visual change. If a new feature requires a different look and feel, bring up the discrepancy and ask for feedback on how to move forward.
 
 ## Commits and pull requests
