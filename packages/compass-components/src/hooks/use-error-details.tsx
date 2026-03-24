@@ -7,6 +7,8 @@ import React from 'react';
 const errorDetailsContentClassName = css({
   paddingTop: spacing[400],
   overflow: 'auto',
+  // Cap description height so the modal footer (Back) stays in view; not modal-level — local to this wrapper only.
+  maxHeight: 'calc(90vh - 180px)',
 });
 
 export const showErrorDetails = function showErrorDetails({
