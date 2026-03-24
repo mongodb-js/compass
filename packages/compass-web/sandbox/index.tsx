@@ -26,7 +26,6 @@ Object.assign(globalThis, {
 const sandboxContainerStyles = css({
   width: '100%',
   height: '100%',
-  display: 'grid',
 });
 
 resetGlobalCSS();

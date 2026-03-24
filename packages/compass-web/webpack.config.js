@@ -409,6 +409,10 @@ module.exports = (env, args) => {
         liveReload: libraryConfig.mode === 'development',
         open: process.env.OPEN_BROWSER !== 'false',
         static: [
+          {
+            directory: path.resolve(__dirname, 'sandbox', 'static'),
+            publicPath: '/static',
+          },
           // Multicompiler mode is having some issues serving assets from both
           // compilations, so we force it to serve our dist by tricking it into
           // thinking that this is static assets
