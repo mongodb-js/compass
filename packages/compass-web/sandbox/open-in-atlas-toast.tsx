@@ -58,16 +58,10 @@ function Instructions() {
   );
 }
 
-// TODO: needs process polyfill here too
-const IS_CI = false;
-// process.env.ci ||
-// process.env.CI ||
-// process.env.IS_CI ||
-// process.env.NODE_ENV === 'test' ||
-// process.env.APP_ENV === 'webdriverio';
+const IS_E2E = process.env.APP_ENV === 'webdriverio';
 
 function showOpenInAtlasToast() {
-  if (IS_CI) {
+  if (IS_E2E) {
     return;
   }
 
