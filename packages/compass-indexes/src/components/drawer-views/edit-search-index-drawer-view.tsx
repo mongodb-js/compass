@@ -227,7 +227,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
             completer={completer}
             customExtensions={extensions}
             annotations={annotations}
-            disabled={!isSearchIndexesWritable}
+            readOnly={!isSearchIndexesWritable}
           />
         </div>
         {error && <ErrorSummary errors={error} />}

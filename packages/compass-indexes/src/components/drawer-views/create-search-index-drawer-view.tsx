@@ -227,7 +227,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
             completer={completer}
             customExtensions={extensions}
             annotations={annotations}
-            disabled={!isSearchIndexesWritable}
+            readOnly={!isSearchIndexesWritable}
           />
         </div>
         {error && <ErrorSummary errors={error} />}
@@ -259,7 +259,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
           {!atlasMetadata
             ? 'cluster.'
             : 'project, please contact Project Owner to request the Project Data Access Admin role.'}
-          .
         </Tooltip>
       </div>
     </div>
