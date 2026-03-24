@@ -5,9 +5,9 @@ import { spacing } from '@leafygreen-ui/tokens';
 import React from 'react';
 
 const errorDetailsContentClassName = css({
-  paddingTop: spacing[400],
-  overflow: 'auto',
-  maxHeight: 'calc(90vh - 180px)',
+  paddingTop: spacing[400], // small gap above JSON
+  maxHeight: '60vh', // cap JSON area height so footer can stay visible
+  overflow: 'auto', // scroll JSON when long
 });
 
 export const showErrorDetails = function showErrorDetails({
