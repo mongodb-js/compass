@@ -81,6 +81,10 @@ function showOpenInAtlasToast() {
             void showConfirmation({
               title: 'Test local compass-web in Atlas Cloud environment',
               description: <Instructions></Instructions>,
+              hideCancelButton: true,
+              confirmButtonProps: {
+                children: 'OK',
+              },
             });
           }}
         >

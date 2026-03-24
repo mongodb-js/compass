@@ -27,7 +27,6 @@ import {
 } from './compass';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
-  buildCompassWebPackage,
   spawnCompassWebSandbox,
   spawnCompassWebStaticServer,
   waitForCompassWebSandboxToBeReady,
@@ -277,25 +276,17 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
       }
 
       if (isTestingAtlasCloud(context)) {
-        // Both tasks can take a decent amount of time and are not overlapping
-        // with each other, so we can run them in parallel
-        await Promise.all([
-          createAtlasCloudResources(),
-          (async () => {
-            if (context.compile) {
-              debug('Building compass-web library ...');
-              await buildCompassWebPackage(
-                globalFixturesAbortController.signal
-              );
-            }
-          })(),
-        ]);
+        if (context.compile) {
+          debug('Building compass-web and starting a static server ...');
+          const cleanupServer = spawnCompassWebStaticServer(
+            globalFixturesAbortController.signal
+          );
+          cleanupFns.push(cleanupServer);
+        }
 
-        debug('Starting static server for the compass-web assets ...');
-        const cleanupServer = spawnCompassWebStaticServer(
-          globalFixturesAbortController.signal
-        );
-        cleanupFns.push(cleanupServer);
+        await createAtlasCloudResources();
+
+        debug('Waiting for the compass-web assets to be available ...');
         await waitForCompassWebStaticAssetsToBeReady(
           `${context.sandboxUrl}/assets-manifest.json`,
           globalFixturesAbortController.signal
