@@ -154,7 +154,7 @@ ${toolCall.errorText}
     if (isAwaitingApproval && runButtonRef.current) {
       runButtonRef.current.focus();
     }
-  }, [isAwaitingApproval, toolCall.approval]);
+  }, [isAwaitingApproval, toolCall.approval?.id]);
 
   if (toolCall.state === 'input-streaming') {
     // The tool call renders with undefined input or incomplete input and then
