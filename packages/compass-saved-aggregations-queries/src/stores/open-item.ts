@@ -453,6 +453,7 @@ const openItem =
           item.type === 'query' || item.type === 'updatemany'
             ? item.query
             : undefined,
+        savedItemName: item.name,
         newTab: true,
       }
     );

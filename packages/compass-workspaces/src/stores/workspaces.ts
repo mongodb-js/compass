@@ -682,6 +682,7 @@ export type OpenWorkspaceOptions =
           | 'initialPipeline'
           | 'initialPipelineText'
           | 'editViewName'
+          | 'savedItemName'
         >
       > & { initialSubtab?: CollectionSubtab });
 

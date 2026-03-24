@@ -19,6 +19,8 @@ type PluginTitleProps = {
   isTimeSeries?: boolean;
   isReadonly?: boolean;
   sourceName?: string | null;
+  /** From workspace tab when opened from My Queries (Documents / Aggregations only) */
+  savedItemName?: string;
 } & WorkspaceTabCoreProps &
   WorkspacePluginProps<typeof CollectionWorkspaceTitle>;
 
@@ -28,6 +30,8 @@ function PluginTitle({
   isReadonly,
   isTimeSeries,
   sourceName,
+  savedItemName,
+  subTab,
   namespace,
   ...tabProps
 }: PluginTitleProps) {
@@ -54,6 +58,10 @@ function PluginTitle({
     tooltip.push(['Derived from', collection]);
   } else {
     tooltip.push(['Collection', collection]);
+  }
+
+  if (savedItemName && (subTab === 'Documents' || subTab === 'Aggregations')) {
+    tooltip.push(['My Query', savedItemName]);
   }
 
   return (

@@ -163,6 +163,9 @@ const CompassWorkspaces: React.FunctionComponent<CompassWorkspacesProps> = ({
               <WorkspaceTabTitle
                 {...workspaceTabCoreProps}
                 {...(inferredFromPrivileges ? { inferredFromPrivileges } : {})}
+                {...(tab.type === 'Collection' && tab.savedItemName
+                  ? { savedItemName: tab.savedItemName }
+                  : {})}
               />
             </WorkspaceTabContextProvider>
           </ErrorBoundary>
