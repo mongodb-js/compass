@@ -148,9 +148,12 @@ describe('schemaBatching', function () {
     });
 
     it('throws for schema exceeding maximum fields', function () {
-      const schema = makeSchema(FIELDS_PER_CHUNK * MAX_CHUNKS + 1);
+      const MAX_FIELDS = FIELDS_PER_CHUNK * MAX_CHUNKS;
+      const schema = makeSchema(MAX_FIELDS + 1);
       expect(() => validateSchemaSize(schema)).to.throw(
-        `Schema too large: 301 fields exceeds maximum of 300 fields`
+        `Schema too large: ${
+          MAX_FIELDS + 1
+        } fields exceeds maximum of ${MAX_FIELDS} fields`
       );
     });
   });
