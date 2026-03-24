@@ -7,7 +7,6 @@ import React from 'react';
 const errorDetailsContentClassName = css({
   paddingTop: spacing[400],
   overflow: 'auto',
-  maxHeight: 'calc(90vh - 180px)',
 });
 
 export const showErrorDetails = function showErrorDetails({
