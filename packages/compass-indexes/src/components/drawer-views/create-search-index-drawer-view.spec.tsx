@@ -9,17 +9,22 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
+import { Provider } from 'react-redux';
 
 import {
   CreateSearchIndexDrawerView,
   getNextAvailableIndexName,
 } from './create-search-index-drawer-view';
 import type { SearchIndexType } from '../../modules/indexes-drawer';
+import { setupStore } from '../../../test/setup-store';
 
 const noop = () => {};
 
 function renderCreateSearchIndexDrawerView(
-  props: Partial<React.ComponentProps<typeof CreateSearchIndexDrawerView>> = {}
+  props: Partial<React.ComponentProps<typeof CreateSearchIndexDrawerView>> = {},
+  options: {
+    preferences?: Record<string, unknown>;
+  } = {}
 ) {
   const defaultProps: React.ComponentProps<typeof CreateSearchIndexDrawerView> =
     {
@@ -34,7 +39,14 @@ function renderCreateSearchIndexDrawerView(
       onIndexDefinitionEdit: noop,
     };
 
-  render(<CreateSearchIndexDrawerView {...defaultProps} {...props} />);
+  const store = setupStore();
+
+  render(
+    <Provider store={store}>
+      <CreateSearchIndexDrawerView {...defaultProps} {...props} />
+    </Provider>,
+    { preferences: options.preferences }
+  );
 }
 
 describe('CreateSearchIndexDrawerView', function () {
@@ -220,6 +232,20 @@ describe('CreateSearchIndexDrawerView', function () {
         );
         expect(submitButton).to.have.attribute('aria-disabled', 'true');
       });
+    });
+  });
+
+  describe('when user does not have write permissions', function () {
+    it('disables the submit button', function () {
+      renderCreateSearchIndexDrawerView(
+        {},
+        { preferences: { readOnly: true } }
+      );
+
+      const submitButton = screen.getByTestId(
+        'create-search-index-drawer-view-submit-button'
+      );
+      expect(submitButton).to.have.attribute('aria-disabled', 'true');
     });
   });
 });
