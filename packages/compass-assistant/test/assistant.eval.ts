@@ -154,7 +154,7 @@ async function makeAssistantCall(
   const prompt = allText(input.messages);
 
   const result = streamText({
-    model: openai.responses('mongodb-chat-latest'),
+    model: openai.responses('mongodb-chat-2'),
     temperature: getChatTemperature(),
     prompt,
     providerOptions: {
