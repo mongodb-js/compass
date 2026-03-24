@@ -17,6 +17,7 @@ import {
   isSearchStage,
   isMissingAtlasStageSupport,
   isOutputStage,
+  getSearchIndexNameFromSearchStage,
 } from '../../utils/stage';
 
 import LoadingOverlay from '../loading-overlay';
@@ -26,6 +27,8 @@ import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 import SearchNoResults from '../search-no-results';
+import { usePreference } from 'compass-preferences-model/provider';
+import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 
 const centeredContent = css({
   display: 'flex',
@@ -72,12 +75,18 @@ function NoPreviewDocuments() {
   );
 }
 
+const previewBodyStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[400],
+  width: '100%',
+  height: '100%',
+});
+
 const documentsStyles = css({
   gap: spacing[200],
   display: 'flex',
   alignItems: 'stretch',
-  width: '100%',
-  height: '100%',
   overflowX: 'auto',
 });
 
@@ -106,6 +115,8 @@ type StagePreviewProps = {
   stageOperator: string | null;
   documents: DocumentType[] | null;
   shouldRenderStage: boolean;
+  showSearchIndexStaleResultsBanner: boolean;
+  searchIndexName: string | null;
 };
 
 function StagePreviewBody({
@@ -115,7 +126,13 @@ function StagePreviewBody({
   isMissingAtlasOnlyStageSupport,
   shouldRenderStage,
   isLoading,
+  showSearchIndexStaleResultsBanner,
+  searchIndexName,
 }: StagePreviewProps) {
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
+
   if (!shouldRenderStage) {
     return <NoPreviewDocuments />;
   }
@@ -145,7 +162,11 @@ function StagePreviewBody({
     );
   }
 
-  if (isSearchStage(stageOperator) && documents?.length === 0) {
+  if (
+    !enableSearchActivationProgramP1 &&
+    isSearchStage(stageOperator) &&
+    documents?.length === 0
+  ) {
     return <SearchNoResults />;
   }
 
@@ -159,7 +180,15 @@ function StagePreviewBody({
         </KeylineCard>
       );
     });
-    return <div className={documentsStyles}>{docs}</div>;
+    return (
+      <div className={previewBodyStyles}>
+        <div className={documentsStyles}>{docs}</div>
+        {enableSearchActivationProgramP1 &&
+          showSearchIndexStaleResultsBanner && (
+            <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
+          )}
+      </div>
+    );
   }
 
   return <NoPreviewDocuments />;
@@ -215,6 +244,16 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     !stage.disabled && !stage.syntaxError && !stage.syntaxError && stage.value
   );
 
+  const searchIndexName = getSearchIndexNameFromSearchStage(
+    stage.stageOperator,
+    stage.value
+  );
+  const showSearchIndexStaleResultsBanner =
+    !!searchIndexName &&
+    state.searchIndexes.indexes.some(
+      (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
+    );
+
   return {
     isLoading: stage.loading,
     isDisabled: stage.disabled,
@@ -222,5 +261,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     shouldRenderStage,
     documents: stage.previewDocs,
     isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
+    showSearchIndexStaleResultsBanner,
+    searchIndexName,
   };
 })(StagePreview);
