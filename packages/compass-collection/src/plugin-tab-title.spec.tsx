@@ -31,17 +31,29 @@ const connection: ConnectionInfo = {
   favorite: { name: 'Local' },
 };
 
-const mockStore = createStore(() => ({
-  metadata: {
-    isTimeSeries: false,
-    isReadonly: false,
-    sourceName: null,
-  },
-}));
+function createMockCollectionStore(
+  overrides: {
+    documentsTabSavedQueryName?: string;
+    aggregationsPipelineName?: string;
+  } = {}
+) {
+  return createStore(() => ({
+    metadata: {
+      isTimeSeries: false,
+      isReadonly: false,
+      sourceName: null,
+    },
+    documentsTabSavedQueryName: overrides.documentsTabSavedQueryName ?? '',
+    aggregationsPipelineName: overrides.aggregationsPipelineName ?? '',
+  }));
+}
 
-async function renderTabTitle(ui: React.ReactElement) {
+async function renderTabTitle(
+  ui: React.ReactElement,
+  store = createMockCollectionStore()
+) {
   return renderWithActiveConnection(
-    <Provider store={mockStore}>{ui}</Provider>,
+    <Provider store={store}>{ui}</Provider>,
     connection,
     { connections: [connection] }
   );
@@ -52,30 +64,24 @@ describe('CollectionPluginTitleComponent', function () {
     cleanup();
   });
 
-  it('adds saved item name to the tab tooltip when opened from My Queries', async function () {
+  it('adds My Query line on Documents when query bar matched a favorite (not only from My Queries)', async function () {
+    const store = createMockCollectionStore({
+      documentsTabSavedQueryName: 'Orders filter',
+    });
     await renderTabTitle(
-      <CollectionPluginTitleComponent
-        {...tabCoreProps}
-        namespace="db.coll"
-        savedItemName="My saved query"
-      />
+      <CollectionPluginTitleComponent {...tabCoreProps} namespace="db.coll" />,
+      store
     );
 
     const tabButton = await screen.findByTestId('workspace-tab-button');
     userEvent.hover(tabButton);
 
     const tooltip = await screen.findByTestId('workspace-tab-tooltip');
-    expect(tooltip.textContent).to.include('Connection:');
-    expect(tooltip.textContent).to.include('Local');
-    expect(tooltip.textContent).to.include('Database:');
-    expect(tooltip.textContent).to.include('db');
-    expect(tooltip.textContent).to.include('Collection:');
-    expect(tooltip.textContent).to.include('coll');
     expect(tooltip.textContent).to.include('My Query:');
-    expect(tooltip.textContent).to.include('My saved query');
+    expect(tooltip.textContent).to.include('Orders filter');
   });
 
-  it('does not add a My Query row when there is no saved item name', async function () {
+  it('does not add a My Query row when there is no saved query/pipeline name', async function () {
     await renderTabTitle(
       <CollectionPluginTitleComponent {...tabCoreProps} namespace="db.coll" />
     );
@@ -87,14 +93,17 @@ describe('CollectionPluginTitleComponent', function () {
     expect(tooltip.textContent).to.not.include('My Query:');
   });
 
-  it('does not add My Query row on Schema when savedItemName is set', async function () {
+  it('does not add My Query row on Schema even when Documents has a name', async function () {
+    const store = createMockCollectionStore({
+      documentsTabSavedQueryName: 'Should not show on Schema',
+    });
     await renderTabTitle(
       <CollectionPluginTitleComponent
         {...tabCoreProps}
         subTab="Schema"
         namespace="db.coll"
-        savedItemName="Should not show"
-      />
+      />,
+      store
     );
 
     const tabButton = await screen.findByTestId('workspace-tab-button');
@@ -104,14 +113,17 @@ describe('CollectionPluginTitleComponent', function () {
     expect(tooltip.textContent).to.not.include('My Query:');
   });
 
-  it('adds My Query row on Aggregations when saved from My Queries', async function () {
+  it('adds My Query line on Aggregations from pipeline name state', async function () {
+    const store = createMockCollectionStore({
+      aggregationsPipelineName: 'My pipeline',
+    });
     await renderTabTitle(
       <CollectionPluginTitleComponent
         {...tabCoreProps}
         subTab="Aggregations"
         namespace="db.coll"
-        savedItemName="My pipeline"
-      />
+      />,
+      store
     );
 
     const tabButton = await screen.findByTestId('workspace-tab-button');

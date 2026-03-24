@@ -74,11 +74,6 @@ const CollectionWorkspaceSchema = z.object({
   initialPipelineText: z.string().optional(),
   initialAggregation: z.unknown().optional(),
   editViewName: z.string().optional(),
-  /**
-   * Display name when this tab was opened from My Queries with a saved
-   * query/aggregation (Documents / Aggregations tab tooltip only).
-   */
-  savedItemName: z.string().optional(),
   connectionId: z.string(),
   namespace: z.string(),
   // TODO(COMPASS-9456): Remove the `inferredFromPrivileges` field here.

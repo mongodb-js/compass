@@ -19,6 +19,7 @@ import {
   QueryBarActions,
   fetchSavedQueries,
 } from './query-bar-reducer';
+import { subscribeMatchedFavoriteNameToCollectionTab } from './sync-matched-favorite-name';
 import { aiQueryReducer } from './ai-query-reducer';
 import { getQueryAttributes } from '../utils';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -186,5 +187,13 @@ export function activatePlugin(
 
   store.dispatch(fetchSavedQueries());
 
-  return { store, deactivate: cleanup, context: QueryBarStoreContext };
+  const unsubscribeMatchedFavorite =
+    subscribeMatchedFavoriteNameToCollectionTab(store, localAppRegistry);
+
+  const deactivateAll = () => {
+    unsubscribeMatchedFavorite();
+    cleanup();
+  };
+
+  return { store, deactivate: deactivateAll, context: QueryBarStoreContext };
 }

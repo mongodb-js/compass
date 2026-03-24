@@ -29,6 +29,7 @@ import {
 import { INITIAL_PANEL_OPEN_LOCAL_STORAGE_KEY } from '../modules/side-panel';
 import type { DataService } from '../modules/data-service';
 import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import { subscribePipelineNameToCollectionTab } from './sync-pipeline-name-to-collection-tab';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 import type { MongoDBInstance } from 'mongodb-instance-model';
 import type Database from 'mongodb-database-model';
@@ -276,6 +277,13 @@ export function activateAggregationsPlugin(
   addCleanup(() => {
     store.dispatch(stopPollingSearchIndexes());
   });
+
+  const unsubscribePipelineName = subscribePipelineNameToCollectionTab(
+    store,
+    localAppRegistry
+  );
+
+  addCleanup(unsubscribePipelineName);
 
   return {
     store,

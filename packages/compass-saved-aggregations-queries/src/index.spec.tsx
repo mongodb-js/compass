@@ -456,7 +456,6 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
               {
                 initialAggregation: undefined,
                 initialQuery: query,
-                savedItemName: query._name,
                 newTab: true,
               }
             );
@@ -511,7 +510,6 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
                   {
                     initialAggregation: undefined,
                     initialQuery: query,
-                    savedItemName: query._name,
                     newTab: true,
                   }
                 );
@@ -576,7 +574,6 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
                 {
                   initialAggregation: undefined,
                   initialQuery: query,
-                  savedItemName: query._name,
                   newTab: true,
                 }
               );
@@ -610,7 +607,6 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
               {
                 initialAggregation: undefined,
                 initialQuery: query,
-                savedItemName: query._name,
                 newTab: true,
               }
             );
@@ -670,7 +666,6 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
                   {
                     initialAggregation: undefined,
                     initialQuery: query,
-                    savedItemName: query._name,
                     newTab: true,
                   }
                 );
@@ -739,7 +734,6 @@ describe('AggregationsAndQueriesAndUpdatemanyList', function () {
                   {
                     initialAggregation: undefined,
                     initialQuery: query,
-                    savedItemName: query._name,
                     newTab: true,
                   }
                 );

@@ -75,6 +75,8 @@ describe('MockDataGeneratorModal', () => {
       workspaceTabId: 'test-workspace-tab-id',
       namespace: 'test.collection',
       metadata: null,
+      documentsTabSavedQueryName: '',
+      aggregationsPipelineName: '',
       schemaAnalysis,
       fakerSchemaGeneration,
       mockDataGenerator: {

@@ -122,6 +122,15 @@ export type CollectionState = {
   namespace: string;
   metadata: CollectionMetadata | null;
   editViewName?: string;
+  /**
+   * Matched favorite query name for the current query bar state (Documents tab).
+   * Synced from query-bar; empty when no saved favorite matches.
+   */
+  documentsTabSavedQueryName: string;
+  /**
+   * Pipeline display name next to Save (Aggregations tab). Synced from aggregations store.
+   */
+  aggregationsPipelineName: string;
   schemaAnalysis: SchemaAnalysisState;
   mockDataGenerator: {
     isModalOpen: boolean;
@@ -132,6 +141,10 @@ export type CollectionState = {
 };
 
 export const CollectionActions = {
+  DocumentsTabSavedQueryNameChanged:
+    'compass-collection/DocumentsTabSavedQueryNameChanged',
+  AggregationsPipelineNameChanged:
+    'compass-collection/AggregationsPipelineNameChanged',
   CollectionMetadataFetched: 'compass-collection/CollectionMetadataFetched',
   SchemaAnalysisStarted: 'compass-collection/SchemaAnalysisStarted',
   SchemaAnalysisFinished: 'compass-collection/SchemaAnalysisFinished',
@@ -155,6 +168,16 @@ export const CollectionActions = {
   FakerMappingGenerationFailed:
     'compass-collection/FakerMappingGenerationFailed',
 } as const;
+
+interface DocumentsTabSavedQueryNameChangedAction {
+  type: typeof CollectionActions.DocumentsTabSavedQueryNameChanged;
+  name: string;
+}
+
+interface AggregationsPipelineNameChangedAction {
+  type: typeof CollectionActions.AggregationsPipelineNameChanged;
+  name: string;
+}
 
 interface CollectionMetadataFetchedAction {
   type: typeof CollectionActions.CollectionMetadataFetched;
@@ -234,6 +257,8 @@ const reducer: Reducer<CollectionState, Action> = (
     workspaceTabId: '',
     namespace: '',
     metadata: null,
+    documentsTabSavedQueryName: '',
+    aggregationsPipelineName: '',
     schemaAnalysis: {
       status: SCHEMA_ANALYSIS_STATE_INITIAL,
     },
@@ -248,6 +273,30 @@ const reducer: Reducer<CollectionState, Action> = (
   },
   action
 ) => {
+  if (
+    isAction<DocumentsTabSavedQueryNameChangedAction>(
+      action,
+      CollectionActions.DocumentsTabSavedQueryNameChanged
+    )
+  ) {
+    return {
+      ...state,
+      documentsTabSavedQueryName: action.name,
+    };
+  }
+
+  if (
+    isAction<AggregationsPipelineNameChangedAction>(
+      action,
+      CollectionActions.AggregationsPipelineNameChanged
+    )
+  ) {
+    return {
+      ...state,
+      aggregationsPipelineName: action.name,
+    };
+  }
+
   if (
     isAction<CollectionMetadataFetchedAction>(
       action,

@@ -19,8 +19,8 @@ type PluginTitleProps = {
   isTimeSeries?: boolean;
   isReadonly?: boolean;
   sourceName?: string | null;
-  /** From workspace tab when opened from My Queries (Documents / Aggregations only) */
-  savedItemName?: string;
+  documentsTabSavedQueryName: string;
+  aggregationsPipelineName: string;
 } & WorkspaceTabCoreProps &
   WorkspacePluginProps<typeof CollectionWorkspaceTitle>;
 
@@ -30,7 +30,8 @@ function PluginTitle({
   isReadonly,
   isTimeSeries,
   sourceName,
-  savedItemName,
+  documentsTabSavedQueryName,
+  aggregationsPipelineName,
   subTab,
   namespace,
   ...tabProps
@@ -60,8 +61,15 @@ function PluginTitle({
     tooltip.push(['Collection', collection]);
   }
 
-  if (savedItemName && (subTab === 'Documents' || subTab === 'Aggregations')) {
-    tooltip.push(['My Query', savedItemName]);
+  const myQueryLine =
+    subTab === 'Documents'
+      ? documentsTabSavedQueryName
+      : subTab === 'Aggregations'
+      ? aggregationsPipelineName
+      : '';
+
+  if (myQueryLine) {
+    tooltip.push(['My Query', myQueryLine]);
   }
 
   return (
@@ -91,5 +99,7 @@ export const CollectionPluginTitleComponent = connect(
     isTimeSeries: state.metadata?.isTimeSeries,
     isReadonly: state.metadata?.isReadonly,
     sourceName: state.metadata?.sourceName,
+    documentsTabSavedQueryName: state.documentsTabSavedQueryName,
+    aggregationsPipelineName: state.aggregationsPipelineName,
   })
 )(PluginTitle);

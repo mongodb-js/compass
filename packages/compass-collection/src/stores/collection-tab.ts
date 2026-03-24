@@ -9,6 +9,7 @@ import reducer, {
   analyzeCollectionSchema,
   cancelSchemaAnalysis,
   openMockDataGeneratorModal,
+  CollectionActions,
 } from '../modules/collection-tab';
 import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
 import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
@@ -186,6 +187,8 @@ export function activatePlugin(
       namespace,
       metadata: null,
       editViewName,
+      documentsTabSavedQueryName: '',
+      aggregationsPipelineName: '',
       schemaAnalysis: {
         status: SCHEMA_ANALYSIS_STATE_INITIAL,
       },
@@ -234,6 +237,28 @@ export function activatePlugin(
   on(localAppRegistry, 'open-mock-data-generator-modal', () => {
     void store.dispatch(openMockDataGeneratorModal());
   });
+
+  on(
+    localAppRegistry,
+    'compass-collection-documents-tab-saved-query-name',
+    (name: string) => {
+      store.dispatch({
+        type: CollectionActions.DocumentsTabSavedQueryNameChanged,
+        name,
+      });
+    }
+  );
+
+  on(
+    localAppRegistry,
+    'compass-collection-aggregations-pipeline-name',
+    (name: string) => {
+      store.dispatch({
+        type: CollectionActions.AggregationsPipelineNameChanged,
+        name,
+      });
+    }
+  );
 
   const handleSchemaAnalysisRetrigger = (eventType: string) => {
     const currentState = store.getState();
