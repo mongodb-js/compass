@@ -255,7 +255,8 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
           }
           enabled={!isSearchIndexesWritable}
         >
-          You currently don't have permission to edit {indexLabel}es in this{' '}
+          You currently don&apos;t have permission to edit {indexLabel}es in
+          this{' '}
           {!atlasMetadata
             ? 'cluster.'
             : 'project, please contact Project Owner to request the Project Data Access Admin role.'}
