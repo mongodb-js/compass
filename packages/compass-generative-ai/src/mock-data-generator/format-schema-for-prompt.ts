@@ -12,7 +12,7 @@ export function formatSchemaForPrompt(
   const schemaJson = JSON.stringify(documentSchema, null, 2);
 
   let validationRulesPhrase = '';
-  if (validationRules !== null) {
+  if (validationRules !== null && validationRules !== undefined) {
     validationRulesPhrase =
       '\n\n' +
       'Please also include the following MongoDB schema validation rules that are applied' +
@@ -28,6 +28,7 @@ The collection name is \`${collectionName}\`
 Documents in the collection are described by the following schema:
 
 ${schemaJson}
+
 ${validationRulesPhrase}
 `;
 }
