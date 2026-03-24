@@ -52,6 +52,7 @@
     "@mongodb-js/testing-library-compass": "^1.5.3",
     "@mongodb-js/tsconfig-compass": "^1.2.14",
     "@types/chai": "^4.2.21",
+    "@types/hast": "^3.0.4",
     "@types/mocha": "^9.0.0",
     "@types/prettier": "^2.7.1",
     "@types/sinon-chai": "^3.2.5",
@@ -74,9 +75,18 @@
     "@lezer/highlight": "^1.2.1",
     "@mongodb-js/compass-components": "^1.64.1",
     "@mongodb-js/mongodb-constants": "^0.20.1",
+    "hast": "^0.0.2",
+    "json-schema": "^0.4.0",
     "mongodb-query-parser": "^4.7.6",
     "polished": "^4.2.2",
     "prettier": "^2.7.1",
-    "react": "^17.0.2"
+    "react": "^17.0.2",
+    "rehype-sanitize": "^5.0.1",
+    "rehype-stringify": "^9.0.4",
+    "remark-parse": "^10.0.0",
+    "remark-rehype": "^10.0.0",
+    "unified": "^10.0.0",
+    "vscode-json-languageservice": "^5.7.2",
+    "vscode-languageserver-textdocument": "^1.0.12"
   }
 }
