@@ -4,18 +4,10 @@ import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import React from 'react';
 
-const errorDetailsModalClassName = css({
-  maxHeight: '90vh',
-  display: 'flex',
-  flexDirection: 'column',
-  overflow: 'hidden',
-});
-
 const errorDetailsContentClassName = css({
   paddingTop: spacing[400],
   overflow: 'auto',
-  flex: 1,
-  minHeight: 0,
+  maxHeight: 'calc(90vh - 180px)',
 });
 
 export const showErrorDetails = function showErrorDetails({
@@ -41,6 +33,5 @@ export const showErrorDetails = function showErrorDetails({
     hideCancelButton: true,
     buttonText: closeAction.replace(/\b\w/g, (c) => c.toUpperCase()),
     variant: ConfirmationModalVariant.Default,
-    className: errorDetailsModalClassName,
   });
 };

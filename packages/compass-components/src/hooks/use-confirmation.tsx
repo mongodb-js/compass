@@ -26,7 +26,6 @@ type ConfirmationProperties = Partial<
     | 'requiredInputText'
     | 'initialFocus'
     | 'confirmButtonProps'
-    | 'className'
   >
 > & {
   buttonText?: React.ReactNode;
@@ -191,7 +190,6 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
         open={confirmationProps.open}
         title={confirmationProps.title ?? 'Are you sure?'}
         variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}
-        className={confirmationProps.className}
         confirmButtonProps={{
           id: confirmationProps.hideCancelButton ? initialFocusId : undefined,
           className: confirmationProps.hideConfirmButton
