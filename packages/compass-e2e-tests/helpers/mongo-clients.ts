@@ -2,6 +2,7 @@ import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
 import { getDefaultConnectionStrings } from './test-runner-context';
 import { redactConnectionString } from 'mongodb-connection-string-url';
+import { noServerWarningsCheckpoint } from './test-runner-global-fixtures';
 
 // This is a list of all the known database names that get created by tests so
 // that we can know what to drop when we clean up before every test. If a new
@@ -86,9 +87,15 @@ export const beforeEach = async () => {
   await Promise.all(promises);
 };
 
+export const afterEach = () => {
+  // Check for unexpected server warnings after each test
+  noServerWarningsCheckpoint();
+};
+
 export const mochaRootHooks: Mocha.RootHookObject = {
   beforeAll,
   beforeEach,
+  afterEach,
   afterAll,
 };
 

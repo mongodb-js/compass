@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Mar 18 2026.
+This document was automatically generated on Mon Mar 23 2026.
 
 ## List of dependencies
 
@@ -33,7 +33,7 @@ This document was automatically generated on Wed Mar 18 2026.
 | **[@aws-sdk/token-providers](#99d7de31617461f599de8e4cdee01741f743db9ed9f7ca9d3b80b988b223945a)**                           | 3.1009.0           | Apache-2.0                          |
 | **[@aws-sdk/util-endpoints](#c23973da782a6cba11d027693ffe0030067ed3c68d6a5ba504d1bc68653d1434)**                            | 3.996.5            | Apache-2.0                          |
 | **[@aws-sdk/util-user-agent-node](#41f37fddb280b3c783eb440e48349a9ab5d5f607e2643d03b5fad9579c90a387)**                      | 3.973.7            | Apache-2.0                          |
-| **[@aws-sdk/xml-builder](#f253fb0f17ad4eab0ae961bb9730bfc7c2ba6a6f1dad7c3e5730c80c95b45e20)**                               | 3.972.11           | Apache-2.0                          |
+| **[@aws-sdk/xml-builder](#a77288d36c0c955e96f0bbbb3bf0d15e4ad5638389fb4270d025ecc6fd2d9d40)**                               | 3.972.14           | Apache-2.0                          |
 | **[@aws/lambda-invoke-store](#0823bf4e042fb134d2b390f1b6e47caf3fbd9378dee1351ec2572f606669ccbe)**                           | 0.2.4              | Apache-2.0                          |
 | **[@babel/code-frame](#086ad4aad8de2504678bf654b2d0d3e1efb8517bd0ba2a9e52b7da05892e3a65)**                                  | 7.27.1             | MIT                                 |
 | **[@babel/compat-data](#15781d53a48d891464b3376818cd55f033c52bfb4c4f628f0bbf77b20eb04eb7)**                                 | 7.28.0             | MIT                                 |
@@ -287,8 +287,8 @@ This document was automatically generated on Wed Mar 18 2026.
 | **[fast-deep-equal](#60db03f2d9496a0b9ae959899afa824927ba0b591f97c193aa8b0c67acc710e6)**                                    | 3.1.3              | MIT                                 |
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2              | MIT                                 |
 | **[fast-uri](#1ea5904acf2bbd97077988b465d770463c17bc14b33319b8d7a8ceb1e056b3fd)**                                           | 3.0.1              | MIT                                 |
-| **[fast-xml-builder](#0214410d2baa000d47ed52b679e5f13c25265269ac9c191f229a37c33dd56a2e)**                                   | 1.0.0              | MIT                                 |
-| **[fast-xml-parser](#d5b3f2086cdaaf493f979b61856ccb64b10e9cc1662a8061a3981f2f4790e070)**                                    | 5.4.1              | MIT                                 |
+| **[fast-xml-builder](#37a0e599fe1e49e5394d7fe31c7de1a70e6530a300655305d76ec4b97141105a)**                                   | 1.1.4              | MIT                                 |
+| **[fast-xml-parser](#d3acd57271b7ae880a5f3b287732c81cac346835ad2c14a7b3fa4272b1854e9e)**                                    | 5.5.6              | MIT                                 |
 | **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**                                         | 3.2.0              | MIT                                 |
 | **[file-uri-to-path](#9eb41790b1cce0829afe7926edf4be80e0dd6927cd8376c00a54a8fc86f8943e)**                                   | 1.0.0              | MIT                                 |
 | **[finalhandler](#630473d4a6adfa4151f6ae6d5bacb67f50d3aa14eae0b912a30b4bff3e899d7d)**                                       | 2.1.1              | MIT                                 |
@@ -453,6 +453,7 @@ This document was automatically generated on Wed Mar 18 2026.
 | **[papaparse](#a94a34c1e6cf2f678ffd64381c6d54f9ad5f6b3c65281a0b077dd5b92f028684)**                                          | 5.3.2              | MIT                                 |
 | **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**                                           | 1.3.3              | MIT                                 |
 | **[path-exists](#3ae48f237e1a4424a3b1b60cfc95f35ca29141cd956f8bda85e763d7969e12c7)**                                        | 4.0.0              | MIT                                 |
+| **[path-expression-matcher](#cdb3851dc27d642c2929e021571345b5e735d6a2e98cd17ba1936935dee8239c)**                            | 1.2.0              | MIT                                 |
 | **[path-to-regexp](#305718d439cc19b5b94829196196a34cb0170653881b608f7167ef7de095ca60)**                                     | 8.2.0              | MIT                                 |
 | **[picocolors](#7c5f372425355293c448d7405cb3b0a1fe19402bd0298caae8e341077624f0b7)**                                         | 1.1.1              | ISC                                 |
 | **[polished](#41f40703c540ffc63abf67340f3944d1f3071fd6b35f499912e723da526b9807)**                                           | 4.3.1              | MIT                                 |
@@ -4590,9 +4591,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="f253fb0f17ad4eab0ae961bb9730bfc7c2ba6a6f1dad7c3e5730c80c95b45e20"></a>
+<a id="a77288d36c0c955e96f0bbbb3bf0d15e4ad5638389fb4270d025ecc6fd2d9d40"></a>
 
-### [@aws-sdk/xml-builder](https://www.npmjs.com/package/@aws-sdk/xml-builder) (version 3.972.11)
+### [@aws-sdk/xml-builder](https://www.npmjs.com/package/@aws-sdk/xml-builder) (version 3.972.14)
 
 License tags: Apache-2.0
 
@@ -22899,9 +22900,9 @@ License files:
       The complete list of contributors can be found at:
       - https://github.com/garycourt/uri-js/graphs/contributors
 
-<a id="0214410d2baa000d47ed52b679e5f13c25265269ac9c191f229a37c33dd56a2e"></a>
+<a id="37a0e599fe1e49e5394d7fe31c7de1a70e6530a300655305d76ec4b97141105a"></a>
 
-### [fast-xml-builder](https://www.npmjs.com/package/fast-xml-builder) (version 1.0.0)
+### [fast-xml-builder](https://www.npmjs.com/package/fast-xml-builder) (version 1.1.4)
 
 License tags: MIT
 
@@ -22931,9 +22932,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="d5b3f2086cdaaf493f979b61856ccb64b10e9cc1662a8061a3981f2f4790e070"></a>
+<a id="d3acd57271b7ae880a5f3b287732c81cac346835ad2c14a7b3fa4272b1854e9e"></a>
 
-### [fast-xml-parser](https://www.npmjs.com/package/fast-xml-parser) (version 5.4.1)
+### [fast-xml-parser](https://www.npmjs.com/package/fast-xml-parser) (version 5.5.6)
 
 License tags: MIT
 
@@ -30844,6 +30845,38 @@ License files:
       The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+<a id="cdb3851dc27d642c2929e021571345b5e735d6a2e98cd17ba1936935dee8239c"></a>
+
+### [path-expression-matcher](https://www.npmjs.com/package/path-expression-matcher) (version 1.2.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      MIT License
+
+      Copyright (c) 2024
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in all
+      copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+      SOFTWARE.
 
 <a id="305718d439cc19b5b94829196196a34cb0170653881b608f7167ef7de095ca60"></a>
 

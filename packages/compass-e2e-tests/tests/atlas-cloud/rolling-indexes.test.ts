@@ -6,10 +6,10 @@ import {
   Selectors,
 } from '../../helpers/compass';
 import type { CompassBrowser } from '../../helpers/compass-browser';
-import { createNumbersCollection } from '../../helpers/insert-data';
+import { createNumbersCollection } from '../../helpers/mongo-clients';
 import {
   getDefaultConnectionNames,
-  isTestingAtlasCloud,
+  isTestingWebAtlasCloud,
 } from '../../helpers/test-runner-context';
 
 describe('Rolling indexes', function () {
@@ -17,7 +17,7 @@ describe('Rolling indexes', function () {
   let browser: CompassBrowser;
 
   before(function () {
-    if (!isTestingAtlasCloud()) {
+    if (!isTestingWebAtlasCloud()) {
       this.skip();
     }
   });

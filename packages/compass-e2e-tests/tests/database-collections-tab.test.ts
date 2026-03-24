@@ -14,7 +14,7 @@ import * as Selectors from '../helpers/selectors';
 import {
   createDummyCollections,
   createNumbersCollection,
-} from '../helpers/insert-data';
+} from '../helpers/mongo-clients';
 
 async function waitForCollectionAndBadge(
   browser: CompassBrowser,

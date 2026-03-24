@@ -10,7 +10,7 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/insert-data';
+import { createNumbersCollection } from '../helpers/mongo-clients';
 import { startMockAssistantServer } from '../helpers/assistant-service';
 
 async function setup(

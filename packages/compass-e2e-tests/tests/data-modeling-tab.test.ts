@@ -11,7 +11,7 @@ import * as Selectors from '../helpers/selectors';
 import {
   createNestedDocumentsCollection,
   createNumbersStringCollection,
-} from '../helpers/insert-data';
+} from '../helpers/mongo-clients';
 import {
   cleanUpDownloadedFile,
   waitForFileDownload,
