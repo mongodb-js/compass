@@ -38,7 +38,8 @@ const App = () => {
     useState<Error | null>(null);
 
   useEffect(() => {
-    // @ts-expect-error sandbox won't be able to resolve this correctly from this URL
+    // @ts-expect-error this is a "public" url of the asset produced by webpack,
+    // TS won't be able to resolve the types from that
     void import(/* webpackIgnore: true */ '/compass-web.mjs')
       .then(setCompassWebModule)
       .catch(setCompassWebModuleError);
