@@ -100,8 +100,9 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
     ? JSON.stringify(toolCall.output, null, 2)
     : '';
 
-  const isAwaitingApproval =
-    toolCall.state === 'approval-requested' && toolCall.approval;
+  const approval =
+    toolCall.state === 'approval-requested' ? toolCall.approval : undefined;
+  const isAwaitingApproval = !!approval;
   const wasApproved = toolCall.approval?.approved === true;
   const isDenied = toolCall.state === 'output-denied';
   const didRun =
