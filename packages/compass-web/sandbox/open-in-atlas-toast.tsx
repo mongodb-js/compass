@@ -10,9 +10,6 @@ import {
 const listStyles = css({
   listStyle: 'decimal',
   marginLeft: spacing[500],
-  '& > li': {
-    marginTop: spacing[100],
-  },
 });
 
 function Instructions() {
@@ -25,33 +22,45 @@ function Instructions() {
       </p>
       <ol className={listStyles}>
         <li>
-          Install &quot;Header Editor Lite&quot; browser extension (
-          <Link
-            href="https://chromewebstore.google.com/detail/header-editor-lite/eningockdidmgiojffjmkdblpjocbhgh"
-            target="_blank"
-          >
-            Chrome
-          </Link>
-          &nbsp;|&nbsp;
-          <Link
-            href="https://addons.mozilla.org/en-US/firefox/addon/header-editor-lite/"
-            target="_blank"
-          >
-            Firefox
-          </Link>
-          )
+          <p>
+            Install &quot;Header Editor Lite&quot; browser extension (
+            <Link
+              href="https://chromewebstore.google.com/detail/header-editor-lite/eningockdidmgiojffjmkdblpjocbhgh"
+              target="_blank"
+            >
+              Chrome
+            </Link>
+            &nbsp;|&nbsp;
+            <Link
+              href="https://addons.mozilla.org/en-US/firefox/addon/header-editor-lite/"
+              target="_blank"
+            >
+              Firefox
+            </Link>
+            )
+          </p>
         </li>
         <li>
-          Import configuration file from{' '}
-          <code>
-            packages/compass-web/scripts/redirect-extension-config.json
-          </code>{' '}
-          (redirects will be enabled by default)
+          <p>
+            Import configuration file from{' '}
+            <code>
+              packages/compass-web/scripts/redirect-extension-config.json
+            </code>{' '}
+            (redirects will be enabled by default)
+          </p>
         </li>
-        <li>Navigate to Atlas Cloud environment of choice</li>
         <li>
-          When you are done with testing, disable the redirects from the
-          extension UI
+          <p>Navigate to Atlas Cloud environment of choice</p>
+          <p>
+            If everything was configured correctly, you should see a commit hash
+            in the Compass sidebar header that would not be visible otherwise
+          </p>
+        </li>
+        <li>
+          <p>
+            When you are done with testing, disable the redirects from the
+            extension UI
+          </p>
         </li>
       </ol>
     </>
