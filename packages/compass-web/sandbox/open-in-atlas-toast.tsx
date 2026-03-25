@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import {
+  Badge,
   Link,
   css,
   openToast,
@@ -54,6 +55,13 @@ function Instructions() {
           <p>
             If everything was configured correctly, you should see a commit hash
             in the Compass sidebar header that would not be visible otherwise
+          </p>
+        </li>
+        <li>
+          <p>
+            <Badge>Optional</Badge>&nbsp;You can also apply your local build of
+            mms to the environment by activating the <code>mms localhost</code>{' '}
+            redirect in the extension
           </p>
         </li>
         <li>
