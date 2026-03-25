@@ -429,5 +429,69 @@ describe('ToolToggle', function () {
         );
       });
     });
+
+    it('shows disabled message with Project Settings link when projectId is provided but enableGenAIToolCallingAtlasProject is false', async function () {
+      const projectId = 'test-project-id';
+      const mockAtlasService = {
+        assistantApiEndpoint: sinon
+          .stub()
+          .returns('https://example.com/assistant/api/v1'),
+      };
+      const mockAtlasAiService = {
+        ensureAiFeatureAccess: sinon.stub().resolves(),
+      };
+      const mockToolsController = {
+        setActiveTools: sinon.stub().resolves(),
+        getActiveTools: sinon.stub().returns({}),
+        setContext: sinon.stub().resolves(),
+      };
+      const mockAtlasAuthService = {
+        getOrganizationId: sinon.stub().returns('test-org-id'),
+      };
+
+      const Provider = CompassAssistantProvider.withMockServices({
+        atlasService: mockAtlasService as unknown as AtlasService,
+        atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
+        toolsController: mockToolsController as unknown as ToolsController,
+        atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+      });
+
+      render(
+        <Provider
+          projectId={projectId}
+          appNameForPrompt="Test"
+          originForPrompt="test"
+        >
+          <ToolToggle />
+        </Provider>,
+        {
+          preferences: {
+            enableGenAIToolCallingAtlasProject: false,
+            enableGenAIToolCalling: false,
+          },
+        }
+      );
+
+      const button = screen.getByTestId('tool-toggle-button');
+      userEvent.click(button);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(
+            /These are disabled for project users with data access/i
+          )
+        ).to.exist;
+      });
+
+      // Check that the Project Settings link is present with correct URL
+      const projectSettingsLink = screen.getByRole('link', {
+        name: /Project Settings/i,
+      });
+      expect(projectSettingsLink).to.exist;
+      const href = projectSettingsLink.getAttribute('href');
+      expect(href).to.match(
+        new RegExp(`/v2/${projectId}#/settings/groupSettings$`)
+      );
+    });
   });
 });
