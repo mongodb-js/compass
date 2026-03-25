@@ -31,7 +31,7 @@ import { ToolToggle } from './tool-toggle';
 import { ToolsIntroCard } from './tools-intro-card';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
-import { assistantIsThinking, partIsToolUI, stopChat } from '../utils';
+import { isAssistantThinking, partIsToolUI, stopChat } from '../utils';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -297,7 +297,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       );
     }) ?? null;
 
-  const shouldDisplayThinking = assistantIsThinking(status, messages);
+  const shouldDisplayThinking = isAssistantThinking(status, messages);
 
   useEffect(() => {
     let foundNewMessages = false;

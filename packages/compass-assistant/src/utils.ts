@@ -122,7 +122,7 @@ function isToolRunning(messages: AssistantMessage[]): boolean {
   });
 }
 
-export function assistantIsThinking(
+export function isAssistantThinking(
   status: ChatStatus,
   messages: AssistantMessage[]
 ): boolean {

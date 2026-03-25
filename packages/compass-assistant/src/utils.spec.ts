@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { assistantIsThinking, getToolState, partIsToolUI } from './utils';
+import { isAssistantThinking, getToolState, partIsToolUI } from './utils';
 import type { AssistantMessage } from './compass-assistant-provider';
 import type {
   ChatStatus,
@@ -74,12 +74,12 @@ describe('utils', function () {
     });
   });
 
-  describe('assistantIsThinking', function () {
+  describe('isAssistantThinking', function () {
     describe('when status is "submitted"', function () {
       it('should return true', function () {
         const status: ChatStatus = 'submitted';
         const messages: AssistantMessage[] = [];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return true even with existing messages', function () {
@@ -91,7 +91,7 @@ describe('utils', function () {
             parts: [{ type: 'text', text: 'Hello' }],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
     });
 
@@ -113,7 +113,7 @@ describe('utils', function () {
             ],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return true when a tool is in input-available state', function () {
@@ -132,7 +132,7 @@ describe('utils', function () {
             ],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return false when tool is completed', function () {
@@ -153,7 +153,7 @@ describe('utils', function () {
             ],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.false;
+        expect(isAssistantThinking(status, messages)).to.be.false;
       });
     });
 
@@ -161,7 +161,7 @@ describe('utils', function () {
       it('should return true when there are no messages yet', function () {
         const status: ChatStatus = 'streaming';
         const messages: AssistantMessage[] = [];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return true when last message is from user', function () {
@@ -173,7 +173,7 @@ describe('utils', function () {
             parts: [{ type: 'text', text: 'Hello' }],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return true when assistant message has no parts', function () {
@@ -185,7 +185,7 @@ describe('utils', function () {
             parts: [],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return true when last part is step-start', function () {
@@ -197,7 +197,7 @@ describe('utils', function () {
             parts: [{ type: 'step-start' }],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return true when last part is a tool UI part', function () {
@@ -217,7 +217,7 @@ describe('utils', function () {
             ],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return true when last part is empty text', function () {
@@ -229,7 +229,7 @@ describe('utils', function () {
             parts: [{ type: 'text', text: '' }],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return true when last part is whitespace-only text', function () {
@@ -241,7 +241,7 @@ describe('utils', function () {
             parts: [{ type: 'text', text: '   \n  ' }],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return false when last part has meaningful text', function () {
@@ -253,7 +253,7 @@ describe('utils', function () {
             parts: [{ type: 'text', text: 'Hello, how can I help?' }],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.false;
+        expect(isAssistantThinking(status, messages)).to.be.false;
       });
 
       it('should return false when text part has content after other parts', function () {
@@ -268,7 +268,7 @@ describe('utils', function () {
             ],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.false;
+        expect(isAssistantThinking(status, messages)).to.be.false;
       });
     });
 
@@ -282,13 +282,13 @@ describe('utils', function () {
             parts: [{ type: 'text', text: 'Done!' }],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.false;
+        expect(isAssistantThinking(status, messages)).to.be.false;
       });
 
       it('should return false when status is error', function () {
         const status: ChatStatus = 'error';
         const messages: AssistantMessage[] = [];
-        expect(assistantIsThinking(status, messages)).to.be.false;
+        expect(isAssistantThinking(status, messages)).to.be.false;
       });
 
       it('should return true when status is ready but a tool is still running', function () {
@@ -308,7 +308,7 @@ describe('utils', function () {
             ],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
 
       it('should return true when status is error but a tool is still running', function () {
@@ -327,7 +327,7 @@ describe('utils', function () {
             ],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
     });
 
@@ -356,7 +356,7 @@ describe('utils', function () {
             ],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.false;
+        expect(isAssistantThinking(status, messages)).to.be.false;
       });
 
       it('should return true when tool is still running even with previous text', function () {
@@ -381,7 +381,7 @@ describe('utils', function () {
             ],
           },
         ];
-        expect(assistantIsThinking(status, messages)).to.be.true;
+        expect(isAssistantThinking(status, messages)).to.be.true;
       });
     });
   });
