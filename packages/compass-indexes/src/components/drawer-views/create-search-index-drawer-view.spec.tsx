@@ -236,7 +236,7 @@ describe('CreateSearchIndexDrawerView', function () {
   });
 
   describe('when user does not have write permissions', function () {
-    it('disables the submit button', function () {
+    it('disables the submit button and sets the editor to read-only', function () {
       renderCreateSearchIndexDrawerView(
         {},
         { preferences: { readOnly: true } }
@@ -246,6 +246,12 @@ describe('CreateSearchIndexDrawerView', function () {
         'create-search-index-drawer-view-submit-button'
       );
       expect(submitButton).to.have.attribute('aria-disabled', 'true');
+
+      const editor = screen.getByTestId(
+        'create-search-index-drawer-view-editor'
+      );
+      const cmContent = editor.querySelector('.cm-content');
+      expect(cmContent).to.have.attribute('aria-readonly', 'true');
     });
   });
 });
