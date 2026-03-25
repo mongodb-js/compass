@@ -393,12 +393,14 @@ module.exports = (env, args) => {
         },
       },
       devServer: {
+        allowedHosts: 'all',
         bonjour: false,
         client: {
           overlay:
             process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
               ? { warnings: false, errors: false, runtimeErrors: false }
               : { warnings: false, errors: true, runtimeErrors: true },
+          webSocketURL: 'ws://localhost:7777/ws',
         },
         devMiddleware: {
           writeToDisk: true,
