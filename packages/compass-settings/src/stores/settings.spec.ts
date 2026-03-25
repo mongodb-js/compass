@@ -54,6 +54,30 @@ describe('Settings store actions', function () {
         true
       );
     });
+
+    it('tracks a "Setting Changed" event', async function () {
+      const track = sinonSandbox.stub();
+      const store = configureStore({ preferencesSandbox, track });
+      await store.dispatch(fetchSettings() as any);
+      await store.dispatch(changeFieldValue('readOnly', true) as any);
+      expect(track).to.have.been.calledWith('Setting Changed', {
+        setting: 'readOnly',
+      });
+    });
+
+    it('tracks each setting change individually', async function () {
+      const track = sinonSandbox.stub();
+      const store = configureStore({ preferencesSandbox, track });
+      await store.dispatch(fetchSettings() as any);
+      await store.dispatch(changeFieldValue('readOnly', true) as any);
+      await store.dispatch(changeFieldValue('enableShell', false) as any);
+      expect(track).to.have.been.calledWith('Setting Changed', {
+        setting: 'readOnly',
+      });
+      expect(track).to.have.been.calledWith('Setting Changed', {
+        setting: 'enableShell',
+      });
+    });
   });
 
   describe('saveSettings', function () {

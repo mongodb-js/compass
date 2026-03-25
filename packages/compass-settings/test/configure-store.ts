@@ -5,6 +5,7 @@ import type {
 import { configureStore as _configureStore } from '../src/stores';
 import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 
 class MockAtlasAuthService extends AtlasAuthService {
@@ -30,10 +31,12 @@ export default function configureStore(
 ) {
   const preferences = new ReadOnlyPreferenceAccess();
   const logger = createNoopLogger();
+  const track = createNoopTrack();
   const atlasAuthService = new MockAtlasAuthService();
   return _configureStore({
     preferences,
     logger,
+    track,
     atlasAuthService: options.atlasAuthService ?? atlasAuthService,
     ...options,
   } as any);
