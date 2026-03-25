@@ -3,7 +3,7 @@ import type { JudgeModelConfig } from 'mongodb-assistant-eval/scorers';
 import { buildConversationInstructionsPrompt } from '../src/prompts';
 
 export const EVAL_TARGET = 'MongoDB Compass';
-export const EVAL_MODEL = 'mongodb-chat-latest';
+export const EVAL_MODEL = 'mongodb-chat-2';
 export const EVAL_USER_AGENT = 'mongodb-compass/x.x.x';
 export const BRAINTRUST_PROXY_ENDPOINT = 'https://api.braintrust.dev/v1/proxy';
 export const EVAL_CLUSTER_UID = 'eval-test-cluster';

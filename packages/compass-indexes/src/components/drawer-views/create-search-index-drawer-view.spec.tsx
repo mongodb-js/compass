@@ -4,9 +4,11 @@ import {
   render,
   screen,
   userEvent,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
 
 import {
   CreateSearchIndexDrawerView,
@@ -143,6 +145,81 @@ describe('CreateSearchIndexDrawerView', function () {
         'create-search-index-drawer-view-submit-button'
       );
       expect(submitButton).to.have.attribute('aria-disabled', 'false');
+    });
+  });
+
+  describe('JSON schema validation', function () {
+    it('shows lint markers for schema violations', async function () {
+      renderCreateSearchIndexDrawerView();
+
+      // Wait for the editor to be ready
+      const editor = screen.getByTestId(
+        'create-search-index-drawer-view-editor'
+      );
+      expect(editor).to.exist;
+
+      // Set invalid JSON that violates the search index schema
+      await setCodemirrorEditorValue(editor, '{"invalidField": "value"}');
+
+      // Wait for lint markers to appear (schema validation reports errors/warnings)
+      await waitFor(() => {
+        const lintMarkers = document.querySelectorAll(
+          '.cm-lint-marker-error, .cm-lint-marker-warning'
+        );
+        expect(lintMarkers.length).to.be.greaterThan(0);
+      });
+    });
+
+    it('disables submit button when JSON has schema validation errors', async function () {
+      renderCreateSearchIndexDrawerView();
+
+      const editor = screen.getByTestId(
+        'create-search-index-drawer-view-editor'
+      );
+      expect(editor).to.exist;
+
+      // Set syntactically valid JSON that violates schema
+      await setCodemirrorEditorValue(editor, '{"notAValidProperty": 123}');
+
+      // Wait for validation to run and button to be disabled
+      await waitFor(() => {
+        const submitButton = screen.getByTestId(
+          'create-search-index-drawer-view-submit-button'
+        );
+        expect(submitButton).to.have.attribute('aria-disabled', 'true');
+      });
+    });
+
+    it('enables submit button for valid JSON matching schema', async function () {
+      renderCreateSearchIndexDrawerView();
+
+      // The default template should be valid - wait for validation to complete
+      await waitFor(() => {
+        const submitButton = screen.getByTestId(
+          'create-search-index-drawer-view-submit-button'
+        );
+        expect(submitButton).to.have.attribute('aria-disabled', 'false');
+      });
+    });
+
+    it('disables submit button for malformed JSON syntax', async function () {
+      renderCreateSearchIndexDrawerView();
+
+      const editor = screen.getByTestId(
+        'create-search-index-drawer-view-editor'
+      );
+      expect(editor).to.exist;
+
+      // Set syntactically invalid JSON
+      await setCodemirrorEditorValue(editor, '{"unclosed": ');
+
+      // Wait for validation to run and button to be disabled
+      await waitFor(() => {
+        const submitButton = screen.getByTestId(
+          'create-search-index-drawer-view-submit-button'
+        );
+        expect(submitButton).to.have.attribute('aria-disabled', 'true');
+      });
     });
   });
 });

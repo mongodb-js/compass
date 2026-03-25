@@ -14,6 +14,7 @@ import {
   makeFactuality,
   makeBinaryNdcgAtK,
 } from 'mongodb-assistant-eval/scorers';
+
 import { EVAL_MODEL, instructions, judgeConfig } from './eval-config';
 
 export type SimpleEvalCase = {

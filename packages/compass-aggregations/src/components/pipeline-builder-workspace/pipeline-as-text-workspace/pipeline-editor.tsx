@@ -1,7 +1,6 @@
 import React, { useRef, useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
-  ErrorSummary,
   css,
   WarningSummary,
   spacing,
@@ -24,6 +23,17 @@ import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
+import { usePreference } from 'compass-preferences-model/provider';
+import { getSearchStageInfoFromPipeline } from '../../../utils/stage';
+import type { SearchStageOperator } from '../../../utils/stage';
+import {
+  openCreateSearchIndexDrawerView,
+  openEditSearchIndexDrawerView,
+  openIndexesListDrawerView,
+} from '../../../modules/search-indexes';
+import ServerErrorBanner from '../../server-error-banner';
+import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
+import type { SearchIndexType } from '../../../modules/search-indexes';
 
 const containerStyles = css({
   position: 'relative',
@@ -69,7 +79,13 @@ export type PipelineEditorProps = {
   syntaxErrors: PipelineParserError[];
   serverError: MongoServerError | null;
   serverVersion: string;
+  searchIndexName: string | null;
+  searchStageOperator: SearchStageOperator | null;
+  showSearchIndexDoesNotExistBanner: boolean;
   onChangePipelineText: (value: string) => void;
+  onViewSearchIndexesClick: () => void;
+  onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
+  onEditSearchIndexClick: (indexName: string) => void;
 };
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
@@ -79,7 +95,13 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   serverError,
   syntaxErrors,
   serverVersion,
+  searchIndexName,
+  searchStageOperator,
+  showSearchIndexDoesNotExistBanner,
   onChangePipelineText,
+  onViewSearchIndexesClick,
+  onCreateSearchIndexClick,
+  onEditSearchIndexClick,
 }) => {
   const fields = useAutocompleteFields(namespace);
   const track = useTelemetry();
@@ -137,7 +159,14 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
   const darkMode = useDarkMode();
 
-  const showErrorContainer = serverError || syntaxErrors.length > 0;
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
+
+  const showErrorContainer =
+    serverError ||
+    syntaxErrors.length > 0 ||
+    (enableSearchActivationProgramP1 && showSearchIndexDoesNotExistBanner);
 
   return (
     <div
@@ -165,7 +194,20 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
           ) : serverError ? (
-            <ErrorSummary errors={serverError.message} />
+            <ServerErrorBanner
+              message={serverError.message}
+              searchIndexName={searchIndexName}
+              dataTestId="pipeline-editor-error-message"
+              onEditSearchIndexClick={onEditSearchIndexClick}
+            />
+          ) : enableSearchActivationProgramP1 &&
+            searchStageOperator &&
+            showSearchIndexDoesNotExistBanner ? (
+            <SearchIndexDoesNotExistBanner
+              searchStageOperator={searchStageOperator}
+              onViewIndexesClick={onViewSearchIndexesClick}
+              onCreateSearchIndexClick={onCreateSearchIndexClick}
+            />
           ) : null}
         </div>
       )}
@@ -187,17 +229,34 @@ const mapState = ({
     },
   },
   serverVersion,
-}: RootState) => ({
-  namespace,
-  num_stages: pipeline.length,
-  pipelineText,
-  serverError: pipelineServerError ?? outputStageServerError,
-  syntaxErrors,
-  serverVersion,
-});
+  searchIndexes: { indexes: searchIndexes, status: searchIndexesStatus },
+}: RootState) => {
+  const { searchIndexName, searchStageOperator } =
+    getSearchStageInfoFromPipeline(pipelineText);
+  const showSearchIndexDoesNotExistBanner =
+    !!searchIndexName &&
+    !!searchStageOperator &&
+    ['READY', 'POLLING'].includes(searchIndexesStatus) &&
+    searchIndexes.every((x) => x.name !== searchIndexName);
+
+  return {
+    namespace,
+    num_stages: pipeline.length,
+    pipelineText,
+    serverError: pipelineServerError ?? outputStageServerError,
+    syntaxErrors,
+    serverVersion,
+    searchIndexName,
+    searchStageOperator,
+    showSearchIndexDoesNotExistBanner,
+  };
+};
 
 const mapDispatch = {
   onChangePipelineText: changeEditorValue,
+  onViewSearchIndexesClick: openIndexesListDrawerView,
+  onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
+  onEditSearchIndexClick: openEditSearchIndexDrawerView,
 };
 
 export default connect(mapState, mapDispatch)(PipelineEditor);

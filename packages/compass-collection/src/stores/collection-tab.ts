@@ -8,6 +8,7 @@ import reducer, {
   collectionMetadataFetched,
   analyzeCollectionSchema,
   cancelSchemaAnalysis,
+  openMockDataGeneratorModal,
 } from '../modules/collection-tab';
 import { MockDataGeneratorSteps } from '../components/mock-data-generator-modal/types';
 import { DEFAULT_DOCUMENT_COUNT } from '../components/mock-data-generator-modal/constants';
@@ -228,6 +229,10 @@ export function activatePlugin(
 
   on(localAppRegistry, 'menu-share-schema-json', () => {
     store.dispatch(selectTab('Schema'));
+  });
+
+  on(localAppRegistry, 'open-mock-data-generator-modal', () => {
+    void store.dispatch(openMockDataGeneratorModal());
   });
 
   const handleSchemaAnalysisRetrigger = (eventType: string) => {

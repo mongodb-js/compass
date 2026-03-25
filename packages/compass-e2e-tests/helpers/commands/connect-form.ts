@@ -6,7 +6,7 @@ import type { ConnectFormState } from '../connect-form-state';
 import Debug from 'debug';
 import {
   DEFAULT_CONNECTIONS,
-  isTestingAtlasCloud,
+  isTestingWebAtlasCloud,
 } from '../test-runner-context';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 const debug = Debug('compass-e2e-tests');
@@ -935,7 +935,7 @@ let screenshotCounter = 0;
 export async function setupDefaultConnections(browser: CompassBrowser) {
   // When running tests against Atlas Cloud, connections can't be added or
   // removed from the UI manually, so we skip setup for default connections
-  if (isTestingAtlasCloud()) {
+  if (isTestingWebAtlasCloud()) {
     return;
   }
 
