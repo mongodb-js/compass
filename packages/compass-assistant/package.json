@@ -76,10 +76,10 @@
   },
   "devDependencies": {
     "@fast-csv/parse": "^5.0.5",
+    "@mongodb-js/compass-test-server": "^0.4.2",
     "@mongodb-js/eslint-config-compass": "^1.4.19",
     "@mongodb-js/mocha-config-compass": "^1.7.7",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
-    "@mongodb-js/compass-test-server": "^0.4.2",
     "@mongodb-js/testing-library-compass": "^1.5.3",
     "@mongodb-js/tsconfig-compass": "^1.2.14",
     "@types/chai": "^4.2.21",
@@ -89,7 +89,7 @@
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
     "autoevals": "^0.0.132",
-    "braintrust": "^2.0.4",
+    "braintrust": "^2.2.2",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0",
@@ -101,10 +101,5 @@
     "typescript": "^5.9.3",
     "xvfb-maybe": "^0.2.1"
   },
-  "is_compass_plugin": true,
-  "overrides": {
-    "braintrust": {
-      "esbuild": "0.26.0"
-    }
-  }
+  "is_compass_plugin": true
 }
