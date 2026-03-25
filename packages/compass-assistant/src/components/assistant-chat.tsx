@@ -23,7 +23,7 @@ import { ToolCallMessage } from './tool-call-message';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
-import { type ToolUIPart } from 'ai';
+import type { ToolUIPart } from 'ai';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
@@ -31,7 +31,7 @@ import { ToolToggle } from './tool-toggle';
 import { ToolsIntroCard } from './tools-intro-card';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
-import { getToolState, partIsToolUI, stopChat } from '../utils';
+import { assistantIsThinking, partIsToolUI, stopChat } from '../utils';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -223,37 +223,6 @@ const toolToggleContainerStyles = css({
 const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedAssistantToolsIntro' as const;
 
-function lastMessageIsEmptyOrTool(messages: AssistantMessage[]): boolean {
-  if (messages.length === 0) {
-    return true;
-  }
-
-  const message = messages[messages.length - 1];
-
-  if (message.parts.length === 0) {
-    return true;
-  }
-  const part = message.parts[message.parts.length - 1];
-  if (partIsToolUI(part) || (part.type === 'text' && part.text.trim() === '')) {
-    return true;
-  }
-
-  return false;
-}
-
-function isToolRunning(messages: AssistantMessage[]): boolean {
-  // Check if there are any running tools
-  return messages.some((message) => {
-    return message.parts.some((part) => {
-      if (partIsToolUI(part)) {
-        const toolState = getToolState(part.state);
-        return toolState === 'running';
-      }
-      return false;
-    });
-  });
-}
-
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -328,10 +297,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       );
     }) ?? null;
 
-  const shouldDisplayThinking =
-    status === 'submitted' ||
-    isToolRunning(messages) ||
-    (status === 'streaming' && lastMessageIsEmptyOrTool(messages));
+  const shouldDisplayThinking = assistantIsThinking(status, messages);
 
   useEffect(() => {
     let foundNewMessages = false;
