@@ -33,7 +33,7 @@ This document was automatically generated on Wed Mar 25 2026.
 | **[@aws-sdk/token-providers](#99d7de31617461f599de8e4cdee01741f743db9ed9f7ca9d3b80b988b223945a)**                           | 3.1009.0           | Apache-2.0                          |
 | **[@aws-sdk/util-endpoints](#c23973da782a6cba11d027693ffe0030067ed3c68d6a5ba504d1bc68653d1434)**                            | 3.996.5            | Apache-2.0                          |
 | **[@aws-sdk/util-user-agent-node](#41f37fddb280b3c783eb440e48349a9ab5d5f607e2643d03b5fad9579c90a387)**                      | 3.973.7            | Apache-2.0                          |
-| **[@aws-sdk/xml-builder](#a77288d36c0c955e96f0bbbb3bf0d15e4ad5638389fb4270d025ecc6fd2d9d40)**                               | 3.972.14           | Apache-2.0                          |
+| **[@aws-sdk/xml-builder](#2612a059349f84a3ef8ea02c1005e3ae687b43fdcfb70a025ce7a2e1cb1c7050)**                               | 3.972.15           | Apache-2.0                          |
 | **[@aws/lambda-invoke-store](#0823bf4e042fb134d2b390f1b6e47caf3fbd9378dee1351ec2572f606669ccbe)**                           | 0.2.4              | Apache-2.0                          |
 | **[@babel/code-frame](#086ad4aad8de2504678bf654b2d0d3e1efb8517bd0ba2a9e52b7da05892e3a65)**                                  | 7.27.1             | MIT                                 |
 | **[@babel/compat-data](#15781d53a48d891464b3376818cd55f033c52bfb4c4f628f0bbf77b20eb04eb7)**                                 | 7.28.0             | MIT                                 |
@@ -292,7 +292,7 @@ This document was automatically generated on Wed Mar 25 2026.
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2              | MIT                                 |
 | **[fast-uri](#1ea5904acf2bbd97077988b465d770463c17bc14b33319b8d7a8ceb1e056b3fd)**                                           | 3.0.1              | MIT                                 |
 | **[fast-xml-builder](#37a0e599fe1e49e5394d7fe31c7de1a70e6530a300655305d76ec4b97141105a)**                                   | 1.1.4              | MIT                                 |
-| **[fast-xml-parser](#d3acd57271b7ae880a5f3b287732c81cac346835ad2c14a7b3fa4272b1854e9e)**                                    | 5.5.6              | MIT                                 |
+| **[fast-xml-parser](#1edd68d10296c5e70396c4f2d95ef2070e6878a5ed751629bcb8d5e531e277f2)**                                    | 5.5.8              | MIT                                 |
 | **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**                                         | 3.2.0              | MIT                                 |
 | **[file-uri-to-path](#9eb41790b1cce0829afe7926edf4be80e0dd6927cd8376c00a54a8fc86f8943e)**                                   | 1.0.0              | MIT                                 |
 | **[finalhandler](#630473d4a6adfa4151f6ae6d5bacb67f50d3aa14eae0b912a30b4bff3e899d7d)**                                       | 2.1.1              | MIT                                 |
@@ -553,7 +553,7 @@ This document was automatically generated on Wed Mar 25 2026.
 | **[strip-bom-buf](#4f426c3eaeb7d288c70eb64ad2e2617952c0d8da8cdedf4f8cb29ba65bb3b65e)**                                      | 2.0.0              | MIT                                 |
 | **[strip-bom-stream](#f7e90a4335dbb561f2b002d1b73cdb9d891c023959465fee58c1636e0216af2e)**                                   | 4.0.0              | MIT                                 |
 | **[strip-json-comments](#30c033ea06e2fc5831069ae3348fedc44cf44d65ec1ca8e7a0afd01789f5bb05)**                                | 2.0.1              | MIT                                 |
-| **[strnum](#ba2e5570472d4433c1e7d94804a5075e35c482de8f097c2bbb99dc7f15d22682)**                                             | 2.1.2              | MIT                                 |
+| **[strnum](#11a919e37126ca4da988fb347a77eb8bd9afde71e1fefc13ff53e7f72de3a367)**                                             | 2.2.2              | MIT                                 |
 | **[style-mod](#65cbf3eb373755d5dd9f5c58cf62d48dd4a33349e67d644af61d8d5438dbc1b5)**                                          | 4.1.2              | MIT                                 |
 | **[style-to-object](#a13ff1db998d00430594044801432a2f2244dad01c667bbb176270eef03a9674)**                                    | 0.4.4              | MIT                                 |
 | **[stylis](#131ca0470639719771dc1f233c9962655afffb6d27143e894c43e967517107cf)**                                             | 4.2.0              | MIT                                 |
@@ -4607,9 +4607,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="a77288d36c0c955e96f0bbbb3bf0d15e4ad5638389fb4270d025ecc6fd2d9d40"></a>
+<a id="2612a059349f84a3ef8ea02c1005e3ae687b43fdcfb70a025ce7a2e1cb1c7050"></a>
 
-### [@aws-sdk/xml-builder](https://www.npmjs.com/package/@aws-sdk/xml-builder) (version 3.972.14)
+### [@aws-sdk/xml-builder](https://www.npmjs.com/package/@aws-sdk/xml-builder) (version 3.972.15)
 
 License tags: Apache-2.0
 
@@ -23053,9 +23053,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="d3acd57271b7ae880a5f3b287732c81cac346835ad2c14a7b3fa4272b1854e9e"></a>
+<a id="1edd68d10296c5e70396c4f2d95ef2070e6878a5ed751629bcb8d5e531e277f2"></a>
 
-### [fast-xml-parser](https://www.npmjs.com/package/fast-xml-parser) (version 5.5.6)
+### [fast-xml-parser](https://www.npmjs.com/package/fast-xml-parser) (version 5.5.8)
 
 License tags: MIT
 
@@ -40406,9 +40406,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="ba2e5570472d4433c1e7d94804a5075e35c482de8f097c2bbb99dc7f15d22682"></a>
+<a id="11a919e37126ca4da988fb347a77eb8bd9afde71e1fefc13ff53e7f72de3a367"></a>
 
-### [strnum](https://www.npmjs.com/package/strnum) (version 2.1.2)
+### [strnum](https://www.npmjs.com/package/strnum) (version 2.2.2)
 
 License tags: MIT
 
