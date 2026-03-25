@@ -4,7 +4,7 @@ import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import React from 'react';
 
-const errorDetailsContentClassName = css({
+const errorDetailsContentStyles = css({
   paddingTop: spacing[400], // small gap above JSON
   maxHeight: '60vh', // cap JSON area height so footer can stay visible
   overflow: 'auto', // scroll JSON when long
@@ -20,7 +20,7 @@ export const showErrorDetails = function showErrorDetails({
   void showConfirmation({
     title: 'Error details',
     description: (
-      <div className={errorDetailsContentClassName}>
+      <div className={errorDetailsContentStyles}>
         <Code
           language="json"
           data-testid="error-details-json"
