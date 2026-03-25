@@ -290,6 +290,45 @@ describe('utils', function () {
         const messages: AssistantMessage[] = [];
         expect(assistantIsThinking(status, messages)).to.be.false;
       });
+
+      it('should return true when status is ready but a tool is still running', function () {
+        const status: ChatStatus = 'ready';
+        const messages: AssistantMessage[] = [
+          {
+            id: '1',
+            role: 'assistant',
+            parts: [
+              {
+                type: 'tool-call',
+                toolCallId: '123',
+                state: 'approval-responded',
+                input: {},
+                approval: { id: 'a1', approved: true },
+              } as unknown as ToolUIPart,
+            ],
+          },
+        ];
+        expect(assistantIsThinking(status, messages)).to.be.true;
+      });
+
+      it('should return true when status is error but a tool is still running', function () {
+        const status: ChatStatus = 'error';
+        const messages: AssistantMessage[] = [
+          {
+            id: '1',
+            role: 'assistant',
+            parts: [
+              {
+                type: 'tool-call',
+                toolCallId: '456',
+                state: 'input-available',
+                input: {},
+              } as unknown as ToolUIPart,
+            ],
+          },
+        ];
+        expect(assistantIsThinking(status, messages)).to.be.true;
+      });
     });
 
     describe('complex scenarios', function () {
