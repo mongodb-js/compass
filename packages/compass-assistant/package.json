@@ -50,7 +50,8 @@
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
     "convert-eval-cases": "ts-node scripts/convert-csv-to-eval-cases.ts && npm run reformat",
-    "eval": "braintrust eval test/assistant.eval.ts --verbose"
+    "eval": "npx tsx test/assistant.eval.ts",
+    "eval:tool-calls": "npx tsx test/tool-calls.eval.ts"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.1",
@@ -75,6 +76,7 @@
   },
   "devDependencies": {
     "@fast-csv/parse": "^5.0.5",
+    "@mongodb-js/compass-test-server": "^0.4.2",
     "@mongodb-js/eslint-config-compass": "^1.4.19",
     "@mongodb-js/mocha-config-compass": "^1.7.7",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
@@ -86,13 +88,15 @@
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
-    "autoevals": "^0.0.130",
-    "braintrust": "^0.2.4",
+    "autoevals": "^0.0.132",
+    "braintrust": "^2.2.2",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0",
+    "mongodb": "^7.1.0",
+    "mongodb-assistant-eval": "^0.0.8",
     "nyc": "^15.1.0",
-    "openai": "^4.104.0",
+    "openai": "^6.3.0",
     "sinon": "^17.0.1",
     "typescript": "^5.9.3",
     "xvfb-maybe": "^0.2.1"
