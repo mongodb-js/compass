@@ -766,6 +766,7 @@ FindIterable<Document> result = collection.find(filter);`);
       before(function () {
         unsubscribeAllowWarningsFilter = allowServerWarnings((l: LogEntry) => {
           return (
+            !!l.id &&
             [7267501, 23802].includes(l.id) &&
             ['DocumentValidationFailure'].includes(l.attr?.error?.codeName)
           );
