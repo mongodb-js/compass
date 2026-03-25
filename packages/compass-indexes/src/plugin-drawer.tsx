@@ -1,9 +1,14 @@
 import React, { useCallback } from 'react';
 import {
+  Button,
   css,
   DrawerSection,
+  Icon,
+  IconButton,
+  Link,
   showConfirmation,
   spacing,
+  Subtitle,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
@@ -12,7 +17,10 @@ import IndexesListDrawerView from './components/drawer-views/indexes-list-drawer
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import CreateSearchIndexView from './components/drawer-views/create-search-index-drawer-view';
 import EditSearchIndexView from './components/drawer-views/edit-search-index-drawer-view';
-import type { IndexesDrawerViewType } from './modules/indexes-drawer';
+import {
+  IndexesDrawerViewType,
+  openIndexesListDrawerView,
+} from './modules/indexes-drawer';
 import CreateIndexModal from './components/create-index-modal/create-index-modal';
 
 const indexesTitleStyles = css({
@@ -21,8 +29,17 @@ const indexesTitleStyles = css({
   justifyContent: 'space-between',
 });
 
-const indexesTitleTextStyles = css({
-  marginRight: spacing[200],
+const indexesTitleLinkStyles = css({
+  width: 'fit-content',
+});
+
+const indexesTitleLinkContentStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
+  fontSize: '16px',
+  lineHeight: '28px',
+  fontWeight: '600',
 });
 
 export const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
@@ -32,12 +49,18 @@ type DrawerProps = {
   currentView: IndexesDrawerViewType;
   isDirty: boolean;
   subTab?: CollectionSubtab;
+  openIndexesListDrawerView: () => void;
 };
 
 /**
  * Drawer component that wraps search indexes management in a DrawerSection.
  */
-const Drawer = ({ currentView, isDirty, subTab }: DrawerProps) => {
+const Drawer = ({
+  currentView,
+  isDirty,
+  subTab,
+  openIndexesListDrawerView,
+}: DrawerProps) => {
   const isIndexesDrawerEnabled = usePreference(
     'enableSearchActivationProgramP1'
   );
@@ -66,9 +89,18 @@ const Drawer = ({ currentView, isDirty, subTab }: DrawerProps) => {
           subTab === 'Indexes' ? INDEXES_DRAWER_ID_DISABLED : INDEXES_DRAWER_ID
         }
         title={
-          <div className={indexesTitleStyles}>
-            <span className={indexesTitleTextStyles}>Indexes</span>
-          </div>
+          currentView === 'indexes-list' ? (
+            <div className={indexesTitleStyles}>Indexes</div>
+          ) : (
+            <div className={indexesTitleLinkStyles}>
+              <Link onClick={openIndexesListDrawerView}>
+                <div className={indexesTitleLinkContentStyles}>
+                  <Icon glyph="ArrowLeft" />
+                  Back to All Indexes
+                </div>
+              </Link>
+            </div>
+          )
         }
         label={
           subTab === 'Indexes'
@@ -102,4 +134,8 @@ const mapState = ({ indexesDrawer }: RootState) => ({
   isDirty: indexesDrawer.isDirty,
 });
 
-export const IndexesDrawer = connect(mapState)(Drawer);
+const mapDispatch = {
+  openIndexesListDrawerView,
+};
+
+export const IndexesDrawer = connect(mapState, mapDispatch)(Drawer);
