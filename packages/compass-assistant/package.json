@@ -101,5 +101,10 @@
     "typescript": "^5.9.3",
     "xvfb-maybe": "^0.2.1"
   },
-  "is_compass_plugin": true
+  "is_compass_plugin": true,
+  "overrides": {
+    "braintrust": {
+      "esbuild": "0.26.0"
+    }
+  }
 }
