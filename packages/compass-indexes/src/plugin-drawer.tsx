@@ -17,6 +17,7 @@ import EditSearchIndexView from './components/drawer-views/edit-search-index-dra
 import { openIndexesListDrawerView } from './modules/indexes-drawer';
 import type { IndexesDrawerViewType } from './modules/indexes-drawer';
 import CreateIndexModal from './components/create-index-modal/create-index-modal';
+import { BaseFontSize, fontWeights } from '@leafygreen-ui/tokens';
 
 const indexesTitleLinkStyles = css({
   width: 'fit-content',
@@ -26,9 +27,8 @@ const indexesTitleLinkContentStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[200],
-  fontSize: '16px',
-  lineHeight: '28px',
-  fontWeight: '600',
+  fontSize: BaseFontSize.Body2,
+  fontWeight: fontWeights.semiBold,
 });
 
 export const INDEXES_DRAWER_ID = 'compass-indexes-drawer';
