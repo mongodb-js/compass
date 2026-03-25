@@ -2,15 +2,15 @@ import type { Compass } from '../../helpers/compass';
 import { cleanup, init, screenshotIfFailed } from '../../helpers/compass';
 import {
   context,
-  assertTestingAtlasCloud,
-  isTestingAtlasCloud,
+  assertTestingWebAtlasCloud,
+  isTestingWebAtlasCloud,
 } from '../../helpers/test-runner-context';
 
 describe('Error states', function () {
   let compass: Compass;
 
   before(function () {
-    if (!isTestingAtlasCloud()) {
+    if (!isTestingWebAtlasCloud()) {
       this.skip();
     }
   });
@@ -23,7 +23,7 @@ describe('Error states', function () {
   it('should show error state if fetching connection info failed initially', async function () {
     compass = await init(this.test?.fullTitle(), {
       async onBeforeNavigate(browser) {
-        assertTestingAtlasCloud(context);
+        assertTestingWebAtlasCloud(context);
         const mock = await browser.mock(
           `/explorer/v1/groups/${context.atlasCloudProjectId}/clusters/connectionInfo`
         );

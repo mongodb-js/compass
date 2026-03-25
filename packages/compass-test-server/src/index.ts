@@ -4,7 +4,15 @@ import { createHash } from 'crypto';
 import path from 'path';
 import os from 'os';
 
-export type { MongoCluster, MongoClusterOptions } from 'mongodb-runner';
+export type {
+  MongoCluster,
+  MongoClusterOptions,
+  LogEntry,
+} from 'mongodb-runner';
+export {
+  ServerLogsChecker,
+  type WarningFilter,
+} from '@mongodb-js/mongodb-server-log-checker';
 
 function hash(input: string): string {
   return createHash('sha256').update(input).digest('hex').slice(0, 12);

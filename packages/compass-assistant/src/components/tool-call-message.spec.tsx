@@ -420,6 +420,26 @@ describe('ToolCallMessage', function () {
       expect(screen.queryByText('Run')).to.not.exist;
       expect(screen.queryByText('Cancel')).to.not.exist;
     });
+
+    it('focuses the Run button when approval is requested', async function () {
+      const approvalTool: ToolUIPart = {
+        ...baseToolCall,
+        state: 'approval-requested',
+        approval: { id: 'approval-1', approved: undefined },
+      };
+
+      render(
+        <ToolCallMessage
+          connection={defaultConnection}
+          toolCall={approvalTool}
+        />
+      );
+
+      const runButton = screen.getByRole('button', { name: /Run/ });
+      await waitFor(() => {
+        expect(document.activeElement).to.equal(runButton);
+      });
+    });
   });
 
   describe('edge cases', function () {

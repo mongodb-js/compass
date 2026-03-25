@@ -1,5 +1,10 @@
-import React from 'react';
-import { css, DrawerSection, spacing } from '@mongodb-js/compass-components';
+import React, { useCallback } from 'react';
+import {
+  css,
+  DrawerSection,
+  showConfirmation,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
 import type { RootState } from './modules';
@@ -25,16 +30,30 @@ const INDEXES_DRAWER_ID_DISABLED = 'compass-indexes-drawer-disabled';
 
 type DrawerProps = {
   currentView: IndexesDrawerViewType;
+  isDirty: boolean;
   subTab?: CollectionSubtab;
 };
 
 /**
  * Drawer component that wraps search indexes management in a DrawerSection.
  */
-const Drawer = ({ currentView, subTab }: DrawerProps) => {
+const Drawer = ({ currentView, isDirty, subTab }: DrawerProps) => {
   const isIndexesDrawerEnabled = usePreference(
     'enableSearchActivationProgramP1'
   );
+
+  const beforeSectionHide = useCallback(async () => {
+    if (!isDirty) {
+      return true;
+    }
+
+    return await showConfirmation({
+      title: 'Any unsaved progress will be lost',
+      buttonText: 'Discard',
+      variant: 'danger',
+      description: 'Are you sure you want to continue?',
+    });
+  }, [isDirty]);
 
   if (!isIndexesDrawerEnabled) {
     return null;
@@ -58,6 +77,15 @@ const Drawer = ({ currentView, subTab }: DrawerProps) => {
         }
         glyph="SearchIndex"
         disabled={subTab === 'Indexes'}
+        beforeSectionHide={beforeSectionHide}
+        guideCue={{
+          cueId: 'indexes-drawer',
+          title: 'Easily access all your search indexes',
+          description: 'Click to view and manage search indexes.',
+          buttonText: 'Got it',
+          tooltipAlign: 'left',
+          tooltipJustify: 'start',
+        }}
       >
         {currentView === 'indexes-list' && <IndexesListDrawerView />}
         {currentView === 'create-search-index' && <CreateSearchIndexView />}
@@ -71,6 +99,7 @@ const Drawer = ({ currentView, subTab }: DrawerProps) => {
 
 const mapState = ({ indexesDrawer }: RootState) => ({
   currentView: indexesDrawer.currentView,
+  isDirty: indexesDrawer.isDirty,
 });
 
 export const IndexesDrawer = connect(mapState)(Drawer);

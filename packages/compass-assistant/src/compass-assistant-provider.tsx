@@ -660,7 +660,7 @@ export function createDefaultChat({
               init
             );
           },
-        }).responses('mongodb-chat-latest'),
+        }).responses('mongodb-chat-2'),
       }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onError: (err: Error) => {

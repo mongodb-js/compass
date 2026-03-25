@@ -340,4 +340,797 @@ describe('DrawerSection', function () {
         .visible;
     });
   });
+
+  describe('beforeSectionHide', function () {
+    it('prevents drawer from closing when beforeSectionHide resolves to false', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(false);
+
+      render(
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title="Test section"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is a test section')).to.be.visible;
+      });
+
+      // Try to close the drawer
+      userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+
+      // Callback should have been called
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+      });
+
+      // Drawer should still be open
+      expect(screen.getByText('This is a test section')).to.be.visible;
+    });
+
+    it('allows drawer to close when beforeSectionHide resolves to true', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(true);
+
+      render(
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title="Test section"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is a test section')).to.be.visible;
+      });
+
+      // Try to close the drawer
+      userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+
+      // Callback should have been called and drawer should close
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+        expect(screen.queryByText('This is a test section')).not.to.exist;
+      });
+    });
+
+    it('prevents switching to another section when beforeSectionHide resolves to false', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(false);
+
+      render(
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="section-1"
+              label="Section 1"
+              title="Section 1"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is section 1
+            </DrawerSection>
+            <DrawerSection
+              id="section-2"
+              label="Section 2"
+              title="Section 2"
+              glyph="Bell"
+            >
+              This is section 2
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is section 1')).to.be.visible;
+      });
+
+      // Try to switch to section 2
+      userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
+
+      // Callback should have been called
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+      });
+
+      // Section 1 should still be visible (switch was prevented)
+      expect(screen.getByText('This is section 1')).to.be.visible;
+      expect(screen.queryByText('This is section 2')).not.to.exist;
+    });
+
+    it('allows switching to another section when beforeSectionHide resolves to true', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(true);
+
+      render(
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="section-1"
+              label="Section 1"
+              title="Section 1"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is section 1
+            </DrawerSection>
+            <DrawerSection
+              id="section-2"
+              label="Section 2"
+              title="Section 2"
+              glyph="Bell"
+            >
+              This is section 2
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is section 1')).to.be.visible;
+      });
+
+      // Try to switch to section 2
+      userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
+
+      // Callback should have been called and switch should happen
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+        expect(screen.getByText('This is section 2')).to.be.visible;
+      });
+
+      expect(screen.queryByText('This is section 1')).not.to.exist;
+    });
+
+    it('prevents programmatic closeDrawer when beforeSectionHide resolves to false', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(false);
+
+      const ControlElement = () => {
+        const { closeDrawer } = useDrawerActions();
+        return (
+          <button data-testid="close-btn" onClick={() => closeDrawer()}>
+            Close programmatically
+          </button>
+        );
+      };
+
+      render(
+        <DrawerContentProvider>
+          <ControlElement />
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title="Test section"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is a test section')).to.be.visible;
+      });
+
+      // Try to close programmatically
+      userEvent.click(screen.getByTestId('close-btn'));
+
+      // Callback should have been called
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+      });
+
+      // Drawer should still be open
+      expect(screen.getByText('This is a test section')).to.be.visible;
+    });
+
+    it('allows programmatic closeDrawer when beforeSectionHide resolves to true', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(true);
+
+      const ControlElement = () => {
+        const { closeDrawer } = useDrawerActions();
+        return (
+          <button data-testid="close-btn" onClick={() => closeDrawer()}>
+            Close programmatically
+          </button>
+        );
+      };
+
+      render(
+        <DrawerContentProvider>
+          <ControlElement />
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title="Test section"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is a test section')).to.be.visible;
+      });
+
+      // Try to close programmatically
+      userEvent.click(screen.getByTestId('close-btn'));
+
+      // Callback should have been called and drawer should close
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+        expect(screen.queryByText('This is a test section')).not.to.exist;
+      });
+    });
+
+    it('prevents programmatic openDrawer to different section when beforeSectionHide resolves to false', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(false);
+
+      const ControlElement = () => {
+        const { openDrawer } = useDrawerActions();
+        return (
+          <button
+            data-testid="switch-btn"
+            onClick={() => openDrawer('section-2')}
+          >
+            Switch programmatically
+          </button>
+        );
+      };
+
+      render(
+        <DrawerContentProvider>
+          <ControlElement />
+          <DrawerAnchor>
+            <DrawerSection
+              id="section-1"
+              label="Section 1"
+              title="Section 1"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is section 1
+            </DrawerSection>
+            <DrawerSection
+              id="section-2"
+              label="Section 2"
+              title="Section 2"
+              glyph="Bell"
+            >
+              This is section 2
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is section 1')).to.be.visible;
+      });
+
+      // Try to switch programmatically
+      userEvent.click(screen.getByTestId('switch-btn'));
+
+      // Callback should have been called
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+      });
+
+      // Section 1 should still be visible (switch was prevented)
+      expect(screen.getByText('This is section 1')).to.be.visible;
+      expect(screen.queryByText('This is section 2')).not.to.exist;
+    });
+
+    it('allows programmatic openDrawer to different section when beforeSectionHide resolves to true', async function () {
+      const beforeSectionHideSpy = sinon.stub().resolves(true);
+
+      const ControlElement = () => {
+        const { openDrawer } = useDrawerActions();
+        return (
+          <button
+            data-testid="switch-btn"
+            onClick={() => openDrawer('section-2')}
+          >
+            Switch programmatically
+          </button>
+        );
+      };
+
+      render(
+        <DrawerContentProvider>
+          <ControlElement />
+          <DrawerAnchor>
+            <DrawerSection
+              id="section-1"
+              label="Section 1"
+              title="Section 1"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is section 1
+            </DrawerSection>
+            <DrawerSection
+              id="section-2"
+              label="Section 2"
+              title="Section 2"
+              glyph="Bell"
+            >
+              This is section 2
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is section 1')).to.be.visible;
+      });
+
+      // Try to switch programmatically
+      userEvent.click(screen.getByTestId('switch-btn'));
+
+      // Callback should have been called and switch should happen
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+        expect(screen.getByText('This is section 2')).to.be.visible;
+      });
+
+      expect(screen.queryByText('This is section 1')).not.to.exist;
+    });
+
+    it('allows drawer to close when beforeSectionHide throws an error', async function () {
+      const beforeSectionHideSpy = sinon
+        .stub()
+        .rejects(new Error('Test error'));
+
+      render(
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title="Test section"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is a test section')).to.be.visible;
+      });
+
+      // Try to close the drawer
+      userEvent.click(screen.getByRole('button', { name: 'Close drawer' }));
+
+      // Callback should have been called and drawer should close (error is caught)
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+        expect(screen.queryByText('This is a test section')).not.to.exist;
+      });
+    });
+
+    it('allows switching sections when beforeSectionHide throws an error', async function () {
+      const beforeSectionHideSpy = sinon
+        .stub()
+        .rejects(new Error('Test error'));
+
+      render(
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="section-1"
+              label="Section 1"
+              title="Section 1"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is section 1
+            </DrawerSection>
+            <DrawerSection
+              id="section-2"
+              label="Section 2"
+              title="Section 2"
+              glyph="Bell"
+            >
+              This is section 2
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is section 1')).to.be.visible;
+      });
+
+      // Try to switch to section 2
+      userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
+
+      // Callback should have been called and switch should happen (error is caught)
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+        expect(screen.getByText('This is section 2')).to.be.visible;
+      });
+
+      expect(screen.queryByText('This is section 1')).not.to.exist;
+    });
+
+    it('allows programmatic closeDrawer when beforeSectionHide throws an error', async function () {
+      const beforeSectionHideSpy = sinon
+        .stub()
+        .rejects(new Error('Test error'));
+
+      const ControlElement = () => {
+        const { closeDrawer } = useDrawerActions();
+        return (
+          <button data-testid="close-btn" onClick={() => closeDrawer()}>
+            Close programmatically
+          </button>
+        );
+      };
+
+      render(
+        <DrawerContentProvider>
+          <ControlElement />
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title="Test section"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is a test section')).to.be.visible;
+      });
+
+      // Try to close programmatically
+      userEvent.click(screen.getByTestId('close-btn'));
+
+      // Callback should have been called and drawer should close (error is caught)
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+        expect(screen.queryByText('This is a test section')).not.to.exist;
+      });
+    });
+
+    it('allows programmatic openDrawer when beforeSectionHide throws an error', async function () {
+      const beforeSectionHideSpy = sinon
+        .stub()
+        .rejects(new Error('Test error'));
+
+      const ControlElement = () => {
+        const { openDrawer } = useDrawerActions();
+        return (
+          <button
+            data-testid="switch-btn"
+            onClick={() => openDrawer('section-2')}
+          >
+            Switch programmatically
+          </button>
+        );
+      };
+
+      render(
+        <DrawerContentProvider>
+          <ControlElement />
+          <DrawerAnchor>
+            <DrawerSection
+              id="section-1"
+              label="Section 1"
+              title="Section 1"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is section 1
+            </DrawerSection>
+            <DrawerSection
+              id="section-2"
+              label="Section 2"
+              title="Section 2"
+              glyph="Bell"
+            >
+              This is section 2
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is section 1')).to.be.visible;
+      });
+
+      // Try to switch programmatically
+      userEvent.click(screen.getByTestId('switch-btn'));
+
+      // Callback should have been called and switch should happen (error is caught)
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+        expect(screen.getByText('This is section 2')).to.be.visible;
+      });
+
+      expect(screen.queryByText('This is section 1')).not.to.exist;
+    });
+
+    it('prevents concurrent closeDrawer calls while beforeSectionHide is pending', async function () {
+      let resolveCallback: (value: boolean) => void;
+      const beforeSectionHideSpy = sinon
+        .stub()
+        .returns(new Promise((resolve) => (resolveCallback = resolve)));
+
+      const ControlElement = () => {
+        const { closeDrawer } = useDrawerActions();
+        return (
+          <button data-testid="close-btn" onClick={() => closeDrawer()}>
+            Close programmatically
+          </button>
+        );
+      };
+
+      render(
+        <DrawerContentProvider>
+          <ControlElement />
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title="Test section"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is a test section')).to.be.visible;
+      });
+
+      // First close attempt
+      userEvent.click(screen.getByTestId('close-btn'));
+
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+      });
+
+      // Second close attempt while first is still pending
+      userEvent.click(screen.getByTestId('close-btn'));
+      userEvent.click(screen.getByTestId('close-btn'));
+
+      // Should still only be called once (concurrent calls are ignored)
+      expect(beforeSectionHideSpy).to.have.been.calledOnce;
+
+      // Resolve the first call
+      resolveCallback!(true);
+
+      await waitFor(() => {
+        expect(screen.queryByText('This is a test section')).not.to.exist;
+      });
+    });
+
+    it('prevents concurrent openDrawer calls while beforeSectionHide is pending', async function () {
+      let resolveCallback: (value: boolean) => void;
+      const beforeSectionHideSpy = sinon
+        .stub()
+        .returns(new Promise((resolve) => (resolveCallback = resolve)));
+
+      const ControlElement = () => {
+        const { openDrawer } = useDrawerActions();
+        return (
+          <button
+            data-testid="switch-btn"
+            onClick={() => openDrawer('section-2')}
+          >
+            Switch programmatically
+          </button>
+        );
+      };
+
+      render(
+        <DrawerContentProvider>
+          <ControlElement />
+          <DrawerAnchor>
+            <DrawerSection
+              id="section-1"
+              label="Section 1"
+              title="Section 1"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is section 1
+            </DrawerSection>
+            <DrawerSection
+              id="section-2"
+              label="Section 2"
+              title="Section 2"
+              glyph="Bell"
+            >
+              This is section 2
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is section 1')).to.be.visible;
+      });
+
+      // First switch attempt
+      userEvent.click(screen.getByTestId('switch-btn'));
+
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+      });
+
+      // Second switch attempt while first is still pending
+      userEvent.click(screen.getByTestId('switch-btn'));
+      userEvent.click(screen.getByTestId('switch-btn'));
+
+      // Should still only be called once (concurrent calls are ignored)
+      expect(beforeSectionHideSpy).to.have.been.calledOnce;
+
+      // Resolve the first call
+      resolveCallback!(true);
+
+      await waitFor(() => {
+        expect(screen.getByText('This is section 2')).to.be.visible;
+      });
+
+      expect(screen.queryByText('This is section 1')).not.to.exist;
+    });
+
+    it('prevents concurrent clicks on close button while beforeSectionHide is pending', async function () {
+      let resolveCallback: (value: boolean) => void;
+      const beforeSectionHideSpy = sinon
+        .stub()
+        .returns(new Promise((resolve) => (resolveCallback = resolve)));
+
+      render(
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="test-section"
+              label="Test section"
+              title="Test section"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is a test section
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is a test section')).to.be.visible;
+      });
+
+      // First click on close button
+      const closeButton = screen.getByRole('button', { name: 'Close drawer' });
+      userEvent.click(closeButton);
+
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+      });
+
+      // Multiple rapid clicks while first is still pending
+      userEvent.click(closeButton);
+      userEvent.click(closeButton);
+
+      // Should still only be called once (concurrent calls are ignored)
+      expect(beforeSectionHideSpy).to.have.been.calledOnce;
+
+      // Resolve the first call
+      resolveCallback!(true);
+
+      await waitFor(() => {
+        expect(screen.queryByText('This is a test section')).not.to.exist;
+      });
+    });
+
+    it('prevents concurrent clicks on toolbar buttons while beforeSectionHide is pending', async function () {
+      let resolveCallback: (value: boolean) => void;
+      const beforeSectionHideSpy = sinon
+        .stub()
+        .returns(new Promise((resolve) => (resolveCallback = resolve)));
+
+      render(
+        <DrawerContentProvider>
+          <DrawerAnchor>
+            <DrawerSection
+              id="section-1"
+              label="Section 1"
+              title="Section 1"
+              glyph="Trash"
+              autoOpen
+              beforeSectionHide={beforeSectionHideSpy}
+            >
+              This is section 1
+            </DrawerSection>
+            <DrawerSection
+              id="section-2"
+              label="Section 2"
+              title="Section 2"
+              glyph="Bell"
+            >
+              This is section 2
+            </DrawerSection>
+          </DrawerAnchor>
+        </DrawerContentProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('This is section 1')).to.be.visible;
+      });
+
+      // First click to switch sections
+      userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
+
+      await waitFor(() => {
+        expect(beforeSectionHideSpy).to.have.been.calledOnce;
+      });
+
+      // Multiple rapid clicks while first is still pending
+      userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
+      userEvent.click(screen.getByRole('button', { name: 'Section 2' }));
+
+      // Should still only be called once (concurrent calls are ignored)
+      expect(beforeSectionHideSpy).to.have.been.calledOnce;
+
+      // Resolve the first call
+      resolveCallback!(true);
+
+      await waitFor(() => {
+        expect(screen.getByText('This is section 2')).to.be.visible;
+      });
+
+      expect(screen.queryByText('This is section 1')).not.to.exist;
+    });
+  });
 });

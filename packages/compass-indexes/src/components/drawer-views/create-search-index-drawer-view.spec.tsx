@@ -4,27 +4,33 @@ import {
   render,
   screen,
   userEvent,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
+import { Provider } from 'react-redux';
 
 import {
   CreateSearchIndexDrawerView,
   getNextAvailableIndexName,
 } from './create-search-index-drawer-view';
 import type { SearchIndexType } from '../../modules/indexes-drawer';
+import { setupStore } from '../../../test/setup-store';
 
 const noop = () => {};
 
 function renderCreateSearchIndexDrawerView(
-  props: Partial<React.ComponentProps<typeof CreateSearchIndexDrawerView>> = {}
+  props: Partial<React.ComponentProps<typeof CreateSearchIndexDrawerView>> = {},
+  options: {
+    preferences?: Record<string, unknown>;
+  } = {}
 ) {
   const defaultProps: React.ComponentProps<typeof CreateSearchIndexDrawerView> =
     {
       namespace: 'test.collection',
       searchIndexes: [],
       currentIndexType: 'search' as SearchIndexType,
-      isDirty: false,
       isBusy: false,
       error: undefined,
       onClose: noop,
@@ -33,7 +39,14 @@ function renderCreateSearchIndexDrawerView(
       onIndexDefinitionEdit: noop,
     };
 
-  render(<CreateSearchIndexDrawerView {...defaultProps} {...props} />);
+  const store = setupStore();
+
+  render(
+    <Provider store={store}>
+      <CreateSearchIndexDrawerView {...defaultProps} {...props} />
+    </Provider>,
+    { preferences: options.preferences }
+  );
 }
 
 describe('CreateSearchIndexDrawerView', function () {
@@ -144,6 +157,101 @@ describe('CreateSearchIndexDrawerView', function () {
         'create-search-index-drawer-view-submit-button'
       );
       expect(submitButton).to.have.attribute('aria-disabled', 'false');
+    });
+  });
+
+  describe('JSON schema validation', function () {
+    it('shows lint markers for schema violations', async function () {
+      renderCreateSearchIndexDrawerView();
+
+      // Wait for the editor to be ready
+      const editor = screen.getByTestId(
+        'create-search-index-drawer-view-editor'
+      );
+      expect(editor).to.exist;
+
+      // Set invalid JSON that violates the search index schema
+      await setCodemirrorEditorValue(editor, '{"invalidField": "value"}');
+
+      // Wait for lint markers to appear (schema validation reports errors/warnings)
+      await waitFor(() => {
+        const lintMarkers = document.querySelectorAll(
+          '.cm-lint-marker-error, .cm-lint-marker-warning'
+        );
+        expect(lintMarkers.length).to.be.greaterThan(0);
+      });
+    });
+
+    it('disables submit button when JSON has schema validation errors', async function () {
+      renderCreateSearchIndexDrawerView();
+
+      const editor = screen.getByTestId(
+        'create-search-index-drawer-view-editor'
+      );
+      expect(editor).to.exist;
+
+      // Set syntactically valid JSON that violates schema
+      await setCodemirrorEditorValue(editor, '{"notAValidProperty": 123}');
+
+      // Wait for validation to run and button to be disabled
+      await waitFor(() => {
+        const submitButton = screen.getByTestId(
+          'create-search-index-drawer-view-submit-button'
+        );
+        expect(submitButton).to.have.attribute('aria-disabled', 'true');
+      });
+    });
+
+    it('enables submit button for valid JSON matching schema', async function () {
+      renderCreateSearchIndexDrawerView();
+
+      // The default template should be valid - wait for validation to complete
+      await waitFor(() => {
+        const submitButton = screen.getByTestId(
+          'create-search-index-drawer-view-submit-button'
+        );
+        expect(submitButton).to.have.attribute('aria-disabled', 'false');
+      });
+    });
+
+    it('disables submit button for malformed JSON syntax', async function () {
+      renderCreateSearchIndexDrawerView();
+
+      const editor = screen.getByTestId(
+        'create-search-index-drawer-view-editor'
+      );
+      expect(editor).to.exist;
+
+      // Set syntactically invalid JSON
+      await setCodemirrorEditorValue(editor, '{"unclosed": ');
+
+      // Wait for validation to run and button to be disabled
+      await waitFor(() => {
+        const submitButton = screen.getByTestId(
+          'create-search-index-drawer-view-submit-button'
+        );
+        expect(submitButton).to.have.attribute('aria-disabled', 'true');
+      });
+    });
+  });
+
+  describe('when user does not have write permissions', function () {
+    it('disables the submit button and sets the editor to read-only', function () {
+      renderCreateSearchIndexDrawerView(
+        {},
+        { preferences: { readOnly: true } }
+      );
+
+      const submitButton = screen.getByTestId(
+        'create-search-index-drawer-view-submit-button'
+      );
+      expect(submitButton).to.have.attribute('aria-disabled', 'true');
+
+      const editor = screen.getByTestId(
+        'create-search-index-drawer-view-editor'
+      );
+      const cmContent = editor.querySelector('.cm-content');
+      expect(cmContent).to.have.attribute('aria-readonly', 'true');
     });
   });
 });

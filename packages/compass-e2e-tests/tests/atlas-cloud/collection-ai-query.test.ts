@@ -9,8 +9,8 @@ import {
 } from '../../helpers/compass';
 import type { Compass } from '../../helpers/compass';
 import * as Selectors from '../../helpers/selectors';
-import { createNumbersCollection } from '../../helpers/insert-data';
-import { isTestingAtlasCloud } from '../../helpers/test-runner-context';
+import { createNumbersCollection } from '../../helpers/mongo-clients';
+import { isTestingWebAtlasCloud } from '../../helpers/test-runner-context';
 import { switchPipelineMode } from '../../helpers/commands/switch-pipeline-mode';
 
 describe('Collection ai query (with real Cloud backend)', function () {
@@ -18,7 +18,7 @@ describe('Collection ai query (with real Cloud backend)', function () {
   let browser: CompassBrowser;
 
   before(function () {
-    if (!isTestingAtlasCloud()) {
+    if (!isTestingWebAtlasCloud()) {
       this.skip();
     }
   });

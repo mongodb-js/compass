@@ -15,11 +15,13 @@ import * as Selectors from '../helpers/selectors';
 import {
   createNestedDocumentsCollection,
   createNumbersCollection,
-} from '../helpers/insert-data';
+} from '../helpers/mongo-clients';
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
 import { isTestingWeb } from '../helpers/test-runner-context';
+import { allowServerWarnings } from '../helpers/test-runner-global-fixtures';
+import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;
 
@@ -472,6 +474,26 @@ describe('Collection aggregations tab', function () {
 
   describe('maxTimeMS', function () {
     let maxTimeMSBefore: any;
+    let unsubscribeAllowWarnings: () => void;
+
+    before(function () {
+      unsubscribeAllowWarnings = allowServerWarnings(
+        8996503, // Allow "$function is deprecated" warning
+        (l: LogEntry) => {
+          // 23798 = "Plan executor error", 23799 = "Aggregate command executor error"
+          return (
+            l.id === 23799 &&
+            ['MaxTimeMSExpired', 'Interrupted'].includes(
+              l.attr?.error?.codeName
+            )
+          );
+        }
+      );
+    });
+
+    after(function () {
+      unsubscribeAllowWarnings();
+    });
 
     beforeEach(async function () {
       maxTimeMSBefore = await browser.getFeature('maxTimeMS');
@@ -651,6 +673,21 @@ describe('Collection aggregations tab', function () {
         collection: VALIDATED_OUT_COLLECTION,
         validator: '{}',
       });
+    });
+
+    let unsubscribeAllowWarnings: () => void;
+
+    before(function () {
+      unsubscribeAllowWarnings = allowServerWarnings((l: LogEntry) => {
+        return (
+          l.id === 23799 &&
+          ['DocumentValidationFailure'].includes(l.attr?.error?.codeName)
+        );
+      });
+    });
+
+    after(function () {
+      unsubscribeAllowWarnings();
     });
 
     it('Shows error info when inserting', async function () {
@@ -951,31 +988,46 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
-    const slowQuery = `{
-      sleep: {
-        $function: {
-          body: function () {
-            return sleep(10000) || true;
+    const unsubscribeAllowWarnings = allowServerWarnings(
+      8996503, // Allow "$function is deprecated" warning
+      (l: LogEntry) => {
+        return (
+          l.id === 23799 && ['Interrupted'].includes(l.attr?.error?.codeName)
+        );
+      }
+    );
+    try {
+      const slowQuery = `{
+        sleep: {
+          $function: {
+            body: function () {
+              return sleep(10000) || true;
+            },
+            args: [],
+            lang: "js",
           },
-          args: [],
-          lang: "js",
         },
-      },
-    }`;
+      }`;
 
-    // Set first stage to a very slow $addFields
-    await browser.selectStageOperator(0, '$addFields');
-    await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), slowQuery);
+      // Set first stage to a very slow $addFields
+      await browser.selectStageOperator(0, '$addFields');
+      await browser.setCodemirrorEditorValue(
+        Selectors.stageEditor(0),
+        slowQuery
+      );
 
-    // Run and wait for results
-    await goToRunAggregation(browser);
+      // Run and wait for results
+      await goToRunAggregation(browser);
 
-    // Cancel aggregation run
-    await browser.clickVisible(Selectors.AggregationResultsCancelButton);
-    // Wait for the empty results banner (this is our indicator that we didn't
-    // load anything and dismissed "Loading" banner)
-    const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
-    await emptyResultsBanner.waitForDisplayed();
+      // Cancel aggregation run
+      await browser.clickVisible(Selectors.AggregationResultsCancelButton);
+      // Wait for the empty results banner (this is our indicator that we didn't
+      // load anything and dismissed "Loading" banner)
+      const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
+      await emptyResultsBanner.waitForDisplayed();
+    } finally {
+      unsubscribeAllowWarnings();
+    }
   });
 
   it('handles errors in aggregations', async function () {

@@ -27,7 +27,7 @@ import {
   isTestingDesktop,
   context,
   assertTestingWeb,
-  isTestingAtlasCloud,
+  isTestingWebAtlasCloud,
   getCloudUrlsFromContext,
 } from './test-runner-context';
 import {
@@ -807,7 +807,7 @@ export async function startBrowser(
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
   const browserName = context.browserName as 'chrome' | 'firefox';
-  const redirectExtension = isTestingAtlasCloud(context)
+  const redirectExtension = isTestingWebAtlasCloud(context)
     ? await (async () => {
         return getExtension(
           COMPASS_WEB_ENTRYPOINT_HOST,
@@ -821,7 +821,7 @@ export async function startBrowser(
       prefs: {
         'download.default_directory': downloadPath,
       },
-      args: isTestingAtlasCloud(context)
+      args: isTestingWebAtlasCloud(context)
         ? [
             // We're going to be hitting localhost from remote domain, LNA needs
             // to be disabled
@@ -842,7 +842,7 @@ export async function startBrowser(
         // Hide the download (progress) panel
         'browser.download.alwaysOpenPanel': false,
 
-        ...(isTestingAtlasCloud(context) && {
+        ...(isTestingWebAtlasCloud(context) && {
           // Need to disable LNA (see above)
           'network.lna.skip-domains': '*.mongodb.com',
         }),
@@ -873,7 +873,7 @@ export async function startBrowser(
     needsCloseWelcomeModal: false,
   });
 
-  if (isTestingAtlasCloud(context)) {
+  if (isTestingWebAtlasCloud(context)) {
     // In firefox extension needs to be loaded via special Gecko command and
     // should be provided as a base64 string with compressed extension
     if (browserName === 'firefox') {
@@ -1123,7 +1123,7 @@ export async function init(
 
   const { browser } = compass;
 
-  if (isTestingAtlasCloud(context)) {
+  if (isTestingWebAtlasCloud(context)) {
     await browser.signInToAtlas(
       context.atlasCloudUsername,
       context.atlasCloudPassword
@@ -1141,7 +1141,7 @@ export async function init(
   if (isTestingWeb(context)) {
     await opts.onBeforeNavigate?.(browser);
 
-    if (isTestingAtlasCloud(context)) {
+    if (isTestingWebAtlasCloud(context)) {
       const urls = getCloudUrlsFromContext();
       await browser.navigateTo(
         `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`

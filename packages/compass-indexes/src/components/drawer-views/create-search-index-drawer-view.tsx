@@ -1,11 +1,5 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
-import { connect } from 'react-redux';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { connect, shallowEqual, useSelector } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
   createIndex,
@@ -17,7 +11,6 @@ import {
 } from '../../modules/indexes-drawer';
 import {
   useOnAsyncSuccess,
-  useConfirmCancel,
   useIndexDefinitionChange,
 } from './drawer-view-hooks';
 import type { SearchIndexType } from '../../modules/indexes-drawer';
@@ -29,6 +22,7 @@ import {
   SpinLoader,
   Subtitle,
   TextInput,
+  Tooltip,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import {
@@ -40,7 +34,10 @@ import {
   overflowWrapStyles,
 } from './drawer-view-styles';
 import type { Document } from 'mongodb';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorMultilineEditor,
+  useJsonSchemaAutocompleter,
+} from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import {
@@ -48,6 +45,20 @@ import {
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
 import type { SearchIndex } from 'mongodb-data-service';
+import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/index_jsonEditor.json';
+import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
+import type { JSONSchema7 } from 'json-schema';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
+
+/**
+ * Strips snippet tab-stop placeholders (e.g. `${1:default}` → `default`)
+ * so the template can be used as plain editor text
+ */
+function normalizeSnippet(snippet: string): string {
+  return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
+}
 
 export const getNextAvailableIndexName = (
   indexes: SearchIndex[],
@@ -71,7 +82,6 @@ type CreateSearchIndexViewProps = {
   namespace: string;
   searchIndexes: SearchIndex[];
   currentIndexType: SearchIndexType;
-  isDirty: boolean;
   isBusy: boolean;
   error?: string;
   onClose: () => void;
@@ -90,7 +100,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   namespace,
   searchIndexes,
   currentIndexType,
-  isDirty,
   isBusy,
   error,
   onClose,
@@ -100,9 +109,11 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
 }) => {
   const editorRef = useRef<EditorRef>(null);
   const [indexDefinition, setIndexDefinition] = useState(
-    currentIndexType === 'vectorSearch'
-      ? ATLAS_VECTOR_SEARCH_TEMPLATE.snippet
-      : ATLAS_SEARCH_TEMPLATES[0].snippet
+    normalizeSnippet(
+      currentIndexType === 'vectorSearch'
+        ? ATLAS_VECTOR_SEARCH_TEMPLATE.snippet
+        : ATLAS_SEARCH_TEMPLATES[0].snippet
+    )
   );
   const [name, setName] = useState(
     getNextAvailableIndexName(
@@ -111,15 +122,33 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     )
   );
 
-  const isCreateEnabled = useMemo(() => {
-    try {
-      parseShellBSON(indexDefinition);
-      return !isBusy;
-    } catch {
-      // If current definition is invalid, don't enable create
-      return false;
-    }
-  }, [indexDefinition, isBusy]);
+  const { atlasMetadata } = useConnectionInfo();
+  const isAtlas = !!atlasMetadata;
+  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+    'readOnly',
+    'readWrite',
+    'enableAtlasSearchIndexes',
+  ]);
+  const { isSearchIndexesWritable } = useSelector(
+    selectReadWriteAccess({
+      isAtlas,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    }),
+    shallowEqual
+  );
+
+  // Use the JSON schema autocomplete hook for validation and autocomplete
+  const jsonSchema = (
+    currentIndexType === 'vectorSearch'
+      ? vectorSearchIndexSchema
+      : searchIndexSchema
+  ) as JSONSchema7;
+  const { completer, extensions, annotations, hasErrors } =
+    useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
+
+  const isCreateEnabled = !hasErrors && !isBusy;
 
   // Reset state on unmount
   useEffect(() => {
@@ -135,7 +164,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     setIndexDefinition,
     onIndexDefinitionEdit
   );
-  const onCancelClick = useConfirmCancel(isDirty, onClose);
 
   const onCreateClick = useCallback(() => {
     createIndex({
@@ -173,6 +201,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
           errorMessage={
             name === '' ? 'Please enter the name of the index.' : ''
           }
+          disabled={!isSearchIndexesWritable}
         />
         <Body>
           By default, your {indexLabel.toLowerCase()} will have the following
@@ -193,6 +222,12 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
             onChangeText={onChangeText}
             minLines={16}
             showLineNumbers={true}
+            language={'json'}
+            initialJSONFoldAll={false}
+            completer={completer}
+            customExtensions={extensions}
+            annotations={annotations}
+            readOnly={!isSearchIndexesWritable}
           />
         </div>
         {error && <ErrorSummary errors={error} />}
@@ -201,20 +236,31 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
         <Button
           data-testid="create-search-index-drawer-view-cancel-button"
           variant="default"
-          onClick={() => void onCancelClick()}
+          onClick={onClose}
         >
           Cancel
         </Button>
-        <Button
-          data-testid="create-search-index-drawer-view-submit-button"
-          variant="primary"
-          isLoading={isBusy}
-          loadingIndicator={<SpinLoader />}
-          disabled={!isCreateEnabled}
-          onClick={onCreateClick}
+        <Tooltip
+          trigger={
+            <Button
+              data-testid="create-search-index-drawer-view-submit-button"
+              variant="primary"
+              isLoading={isBusy}
+              loadingIndicator={<SpinLoader />}
+              disabled={!isCreateEnabled || !isSearchIndexesWritable}
+              onClick={onCreateClick}
+            >
+              Create {indexLabel}
+            </Button>
+          }
+          enabled={!isSearchIndexesWritable}
         >
-          Create {indexLabel}
-        </Button>
+          You currently don&apos;t have permission to create {indexLabel}es in
+          this{' '}
+          {!atlasMetadata
+            ? 'cluster.'
+            : 'project, please contact Project Owner to request the Project Data Access Admin role.'}
+        </Tooltip>
       </div>
     </div>
   );
@@ -224,7 +270,6 @@ const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => ({
   namespace,
   searchIndexes: searchIndexes.indexes,
   currentIndexType: indexesDrawer.currentIndexType,
-  isDirty: indexesDrawer.isDirty,
   isBusy: searchIndexes.createIndex.isBusy,
   error: searchIndexes.createIndex.error,
 });
