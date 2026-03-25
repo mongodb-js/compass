@@ -14,10 +14,8 @@ import IndexesListDrawerView from './components/drawer-views/indexes-list-drawer
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import CreateSearchIndexView from './components/drawer-views/create-search-index-drawer-view';
 import EditSearchIndexView from './components/drawer-views/edit-search-index-drawer-view';
-import {
-  IndexesDrawerViewType,
-  openIndexesListDrawerView,
-} from './modules/indexes-drawer';
+import { openIndexesListDrawerView } from './modules/indexes-drawer';
+import type { IndexesDrawerViewType } from './modules/indexes-drawer';
 import CreateIndexModal from './components/create-index-modal/create-index-modal';
 
 const indexesTitleLinkStyles = css({
