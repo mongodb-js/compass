@@ -1,14 +1,11 @@
 import React, { useCallback } from 'react';
 import {
-  Button,
   css,
   DrawerSection,
   Icon,
-  IconButton,
   Link,
   showConfirmation,
   spacing,
-  Subtitle,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
@@ -22,12 +19,6 @@ import {
   openIndexesListDrawerView,
 } from './modules/indexes-drawer';
 import CreateIndexModal from './components/create-index-modal/create-index-modal';
-
-const indexesTitleStyles = css({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-});
 
 const indexesTitleLinkStyles = css({
   width: 'fit-content',
@@ -90,7 +81,7 @@ const Drawer = ({
         }
         title={
           currentView === 'indexes-list' ? (
-            <div className={indexesTitleStyles}>Indexes</div>
+            'Indexes'
           ) : (
             <div className={indexesTitleLinkStyles}>
               <Link onClick={openIndexesListDrawerView}>
