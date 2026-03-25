@@ -30,12 +30,11 @@ export default function configureStore(
 ) {
   const preferences = new ReadOnlyPreferenceAccess();
   const logger = createNoopLogger();
-  const track = () => {};
   const atlasAuthService = new MockAtlasAuthService();
   return _configureStore({
     preferences,
     logger,
-    track,
+    track: () => {},
     atlasAuthService: options.atlasAuthService ?? atlasAuthService,
     ...options,
   } as any);
