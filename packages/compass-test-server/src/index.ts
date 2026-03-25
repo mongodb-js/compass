@@ -9,7 +9,10 @@ export type {
   MongoClusterOptions,
   LogEntry,
 } from 'mongodb-runner';
-export { ServerLogsChecker, type WarningFilter } from './server-logs-checker';
+export {
+  ServerLogsChecker,
+  type WarningFilter,
+} from '@mongodb-js/mongodb-server-log-checker';
 
 function hash(input: string): string {
   return createHash('sha256').update(input).digest('hex').slice(0, 12);

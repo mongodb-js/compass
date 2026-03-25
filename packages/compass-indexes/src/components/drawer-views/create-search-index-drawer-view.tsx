@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
@@ -39,7 +33,10 @@ import {
   overflowWrapStyles,
 } from './drawer-view-styles';
 import type { Document } from 'mongodb';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorMultilineEditor,
+  useJsonSchemaAutocompleter,
+} from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import {
@@ -47,6 +44,17 @@ import {
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
 import type { SearchIndex } from 'mongodb-data-service';
+import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/index_jsonEditor.json';
+import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
+import type { JSONSchema7 } from 'json-schema';
+
+/**
+ * Strips snippet tab-stop placeholders (e.g. `${1:default}` → `default`)
+ * so the template can be used as plain editor text
+ */
+function normalizeSnippet(snippet: string): string {
+  return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
+}
 
 export const getNextAvailableIndexName = (
   indexes: SearchIndex[],
@@ -97,9 +105,11 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
 }) => {
   const editorRef = useRef<EditorRef>(null);
   const [indexDefinition, setIndexDefinition] = useState(
-    currentIndexType === 'vectorSearch'
-      ? ATLAS_VECTOR_SEARCH_TEMPLATE.snippet
-      : ATLAS_SEARCH_TEMPLATES[0].snippet
+    normalizeSnippet(
+      currentIndexType === 'vectorSearch'
+        ? ATLAS_VECTOR_SEARCH_TEMPLATE.snippet
+        : ATLAS_SEARCH_TEMPLATES[0].snippet
+    )
   );
   const [name, setName] = useState(
     getNextAvailableIndexName(
@@ -108,15 +118,16 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     )
   );
 
-  const isCreateEnabled = useMemo(() => {
-    try {
-      parseShellBSON(indexDefinition);
-      return !isBusy;
-    } catch {
-      // If current definition is invalid, don't enable create
-      return false;
-    }
-  }, [indexDefinition, isBusy]);
+  // Use the JSON schema autocomplete hook for validation and autocomplete
+  const jsonSchema = (
+    currentIndexType === 'vectorSearch'
+      ? vectorSearchIndexSchema
+      : searchIndexSchema
+  ) as JSONSchema7;
+  const { completer, extensions, annotations, hasErrors } =
+    useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
+
+  const isCreateEnabled = !hasErrors && !isBusy;
 
   // Reset state on unmount
   useEffect(() => {
@@ -189,6 +200,11 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
             onChangeText={onChangeText}
             minLines={16}
             showLineNumbers={true}
+            language={'json'}
+            initialJSONFoldAll={false}
+            completer={completer}
+            customExtensions={extensions}
+            annotations={annotations}
           />
         </div>
         {error && <ErrorSummary errors={error} />}

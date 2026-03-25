@@ -41,14 +41,21 @@ import {
   overflowWrapStyles,
 } from './drawer-view-styles';
 import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorMultilineEditor,
+  useJsonSchemaAutocompleter,
+} from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import type { SearchIndex } from 'mongodb-data-service';
+import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/index_jsonEditor.json';
+import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
+import type { JSONSchema7 } from 'json-schema';
 
 const scrollContainerStyles = css({
   overflowX: 'auto',
+  flexShrink: 0,
 });
 
 const headerContainerStyles = css({
@@ -86,7 +93,20 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     JSON.stringify(searchIndex.latestDefinition, null, 2)
   );
 
+  // Use the JSON schema autocomplete hook for validation and autocomplete
+  const jsonSchema = (
+    searchIndex.type === 'vectorSearch'
+      ? vectorSearchIndexSchema
+      : searchIndexSchema
+  ) as JSONSchema7;
+  const { completer, extensions, annotations, hasErrors } =
+    useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
+
   const isSaveEnabled = useMemo(() => {
+    if (hasErrors) {
+      return false;
+    }
+
     try {
       const currentParsed = parseShellBSON(indexDefinition);
       const initialParsed = searchIndex.latestDefinition;
@@ -98,7 +118,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       // If current definition is invalid, don't enable save
       return false;
     }
-  }, [indexDefinition, searchIndex.latestDefinition, isBusy]);
+  }, [indexDefinition, searchIndex.latestDefinition, isBusy, hasErrors]);
 
   // Reset state on unmount
   useEffect(() => {
@@ -181,6 +201,11 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
             onChangeText={onChangeText}
             minLines={16}
             showLineNumbers={true}
+            language={'json'}
+            initialJSONFoldAll={false}
+            completer={completer}
+            customExtensions={extensions}
+            annotations={annotations}
           />
         </div>
         {error && <ErrorSummary errors={error} />}

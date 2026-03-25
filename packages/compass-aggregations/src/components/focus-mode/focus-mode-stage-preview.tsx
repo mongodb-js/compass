@@ -19,6 +19,7 @@ import {
   isSearchStage,
   isMissingAtlasStageSupport,
   isOutputStage,
+  getSearchIndexNameFromSearchStage,
 } from '../../utils/stage';
 import {
   collapsePreviewDocsForStage,
@@ -26,6 +27,8 @@ import {
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import SearchNoResults from '../search-no-results';
+import { usePreference } from 'compass-preferences-model/provider';
+import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 
 const containerStyles = css({
   display: 'flex',
@@ -83,6 +86,8 @@ type FocusModePreviewProps = {
   stageIndex?: number;
   stageOperator?: string | null;
   isMissingAtlasOnlyStageSupport?: boolean;
+  showSearchIndexStaleResultsBanner?: boolean;
+  searchIndexName?: string | null;
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
 };
@@ -94,6 +99,8 @@ export const FocusModePreview = ({
   stageIndex = -1,
   stageOperator = '',
   isMissingAtlasOnlyStageSupport = false,
+  showSearchIndexStaleResultsBanner = false,
+  searchIndexName = null,
   onExpand,
   onCollapse,
 }: FocusModePreviewProps) => {
@@ -111,6 +118,10 @@ export const FocusModePreview = ({
       }
     },
     [onExpand, onCollapse, stageIndex]
+  );
+
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
   );
 
   const docCount = documents?.length ?? 0;
@@ -144,14 +155,20 @@ export const FocusModePreview = ({
     );
   } else if (documents && documents.length > 0) {
     content = (
-      <DocumentListView
-        isEditable={false}
-        docs={documents ?? []}
-        copyToClipboard={copyToClipboard}
-        className={documentListStyles}
-      />
+      <>
+        <DocumentListView
+          isEditable={false}
+          docs={documents ?? []}
+          copyToClipboard={copyToClipboard}
+          className={documentListStyles}
+        />
+        {enableSearchActivationProgramP1 &&
+          showSearchIndexStaleResultsBanner && (
+            <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
+          )}
+      </>
     );
-  } else if (isSearchStage(stageOperator)) {
+  } else if (!enableSearchActivationProgramP1 && isSearchStage(stageOperator)) {
     content = <SearchNoResults />;
   } else {
     content = (
@@ -202,6 +219,7 @@ export const FocusModeStageInput = connect(
     pipelineBuilder: {
       stageEditor: { stages },
     },
+    searchIndexes,
   }: RootState) => {
     if (stageIndex === -1) {
       return {};
@@ -240,12 +258,24 @@ export const FocusModeStageInput = connect(
       return {};
     }
 
+    const searchIndexName = getSearchIndexNameFromSearchStage(
+      previousStage.stageOperator,
+      previousStage.value
+    );
+    const showSearchIndexStaleResultsBanner =
+      !!searchIndexName &&
+      searchIndexes.indexes.some(
+        (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
+      );
+
     return {
       isLoading: previousStage.loading,
       documents: previousStage.previewDocs,
       stageIndex: previousStageIndex,
       stageOperator: previousStage.stageOperator,
       isMissingAtlasOnlyStageSupport,
+      showSearchIndexStaleResultsBanner,
+      searchIndexName,
     };
   },
   {
@@ -261,6 +291,7 @@ export const FocusModeStageOutput = connect(
     pipelineBuilder: {
       stageEditor: { stages },
     },
+    searchIndexes,
   }: RootState) => {
     if (stageIndex === -1) {
       return {};
@@ -272,12 +303,25 @@ export const FocusModeStageOutput = connect(
       stage.stageOperator,
       stage.serverError
     );
+
+    const searchIndexName = getSearchIndexNameFromSearchStage(
+      stage.stageOperator,
+      stage.value
+    );
+    const showSearchIndexStaleResultsBanner =
+      !!searchIndexName &&
+      searchIndexes.indexes.some(
+        (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
+      );
+
     return {
       isLoading: stage.loading,
       documents: stage.previewDocs,
       stageIndex,
       stageOperator: stage.stageOperator,
       isMissingAtlasOnlyStageSupport,
+      showSearchIndexStaleResultsBanner,
+      searchIndexName,
     };
   },
   {
