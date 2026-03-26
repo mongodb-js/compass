@@ -87,8 +87,8 @@ export const ToolsIntroCard: React.FunctionComponent<ToolsIntroCardProps> = ({
   const projectId = useAssistantProjectId();
 
   const settingsText = projectId
-    ? 'project-wide in Project Settings'
-    : 'in Settings';
+    ? 'Toggle them for this chat or Project Owners can manage them project-wide in Project Settings.'
+    : 'Toggle them for this chat or manage them in Settings.';
   const learnMoreUrl = projectId
     ? 'https://www.mongodb.com/docs/atlas/atlas-ui/query-with-natural-language/data-explorer-ai-assistant/'
     : 'https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/';
@@ -113,8 +113,8 @@ export const ToolsIntroCard: React.FunctionComponent<ToolsIntroCardProps> = ({
 
         <Description className={descriptionStyles}>
           Explore your data effortlessly with natural language. These read-only
-          tools never make changes and only run with your approval. Toggle them
-          for this chat or manage them {settingsText}.
+          tools never make changes and only run with your approval.{' '}
+          {settingsText}
         </Description>
 
         <div className={actionsStyles}>
