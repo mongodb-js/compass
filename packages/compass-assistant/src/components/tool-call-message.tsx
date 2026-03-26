@@ -14,7 +14,7 @@ import {
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
 import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
-import { getToolState } from '../utils';
+import { cleanToolCallOutput, getToolState } from '../utils';
 
 const { Message } = LgChatMessage;
 
@@ -91,13 +91,18 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
 
   const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
 
+  const cleanedOutput = React.useMemo(
+    () => (toolCall.output ? cleanToolCallOutput(toolCall.output) : null),
+    [toolCall.output]
+  );
+
   const hasOutput = !!(
-    toolCall.output &&
+    cleanedOutput &&
     (toolCall.state === 'output-available' || toolCall.state === 'output-error')
   );
 
-  const outputText = toolCall.output
-    ? JSON.stringify(toolCall.output, null, 2)
+  const outputText = cleanedOutput
+    ? JSON.stringify(cleanedOutput, null, 2)
     : '';
 
   const isAwaitingApproval =
