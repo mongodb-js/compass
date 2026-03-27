@@ -66,8 +66,8 @@ function Instructions() {
         </li>
         <li>
           <p>
-            When you are done with testing, remember to disable the redirects from the
-            extension UI
+            When you are done with testing, remember to disable the redirects
+            from the extension UI
           </p>
         </li>
       </ol>
