@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useRef } from 'react';
 import type {
   ConnectionStorage,
   ConnectionInfo,
@@ -50,6 +50,10 @@ type ClusterDescription = {
 
 export type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
   dataProcessingRegion: { regionalUrl: string };
+};
+
+export const sandboxConnectionStorage: { current: ConnectionStorage | null } = {
+  current: null,
 };
 
 const VISIBLE_CLUSTER_STATES: AtlasClusterMetadata['clusterState'][] = [
@@ -201,12 +205,9 @@ export const AtlasCloudConnectionStorageProvider = createServiceProvider(
     const storage = useRef(
       new AtlasCloudConnectionStorage(atlasService, orgId, projectId, logger)
     );
-    const sandboxConnectionStorage = useContext(
-      SandboxConnectionStorageContext
-    );
     return (
       <ConnectionStorageProvider
-        value={sandboxConnectionStorage ?? storage.current}
+        value={sandboxConnectionStorage.current ?? storage.current}
       >
         {children}
       </ConnectionStorageProvider>

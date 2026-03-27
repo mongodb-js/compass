@@ -8,10 +8,12 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
+import { Provider } from 'react-redux';
 
 import { EditSearchIndexDrawerView } from './edit-search-index-drawer-view';
 import { mockSearchIndex } from '../../../test/helpers';
 import type { SearchIndex } from 'mongodb-data-service';
+import { setupStore } from '../../../test/setup-store';
 
 const defaultSearchIndex = mockSearchIndex({
   name: 'testIndex',
@@ -27,7 +29,10 @@ const defaultSearchIndex = mockSearchIndex({
 const noop = () => {};
 
 function renderEditSearchIndexDrawerView(
-  props: Partial<React.ComponentProps<typeof EditSearchIndexDrawerView>> = {}
+  props: Partial<React.ComponentProps<typeof EditSearchIndexDrawerView>> = {},
+  options: {
+    preferences?: Record<string, unknown>;
+  } = {}
 ) {
   const defaultProps: React.ComponentProps<typeof EditSearchIndexDrawerView> = {
     namespace: 'test.collection',
@@ -40,7 +45,14 @@ function renderEditSearchIndexDrawerView(
     onIndexDefinitionEdit: noop,
   };
 
-  render(<EditSearchIndexDrawerView {...defaultProps} {...props} />);
+  const store = setupStore();
+
+  render(
+    <Provider store={store}>
+      <EditSearchIndexDrawerView {...defaultProps} {...props} />
+    </Provider>,
+    { preferences: options.preferences }
+  );
 }
 
 describe('EditSearchIndexDrawerView', function () {
@@ -225,6 +237,21 @@ describe('EditSearchIndexDrawerView', function () {
         );
         expect(submitButton).to.have.attribute('aria-disabled', 'false');
       });
+    });
+  });
+
+  describe('when user does not have write permissions', function () {
+    it('disables the submit button and sets the editor to read-only', function () {
+      renderEditSearchIndexDrawerView({}, { preferences: { readOnly: true } });
+
+      const submitButton = screen.getByTestId(
+        'edit-search-index-drawer-view-submit-button'
+      );
+      expect(submitButton).to.have.attribute('aria-disabled', 'true');
+
+      const editor = screen.getByTestId('edit-search-index-drawer-view-editor');
+      const cmContent = editor.querySelector('.cm-content');
+      expect(cmContent).to.have.attribute('aria-readonly', 'true');
     });
   });
 });
