@@ -19,6 +19,7 @@ import {
 } from 'compass-preferences-model/provider';
 import { useAssistantProjectId } from '../compass-assistant-provider';
 import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
+import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 
 const popoverContentStyles = css({
   padding: spacing[400],
@@ -119,6 +120,7 @@ export const ToolToggle: React.FunctionComponent = () => {
   const enableGenAIToolCallingAtlasProject = usePreference(
     'enableGenAIToolCallingAtlasProject'
   );
+
   const projectId = useAssistantProjectId();
   const learnMoreUrl = projectId
     ? 'https://www.mongodb.com/docs/atlas/atlas-ui/query-with-natural-language/data-explorer-ai-assistant/'
@@ -188,9 +190,19 @@ export const ToolToggle: React.FunctionComponent = () => {
                 />
               </div>
               <Description>
-                {areToolCallsEnabled
-                  ? 'These are currently enabled and require approval. You can use natural language to explore data and generate queries.'
-                  : 'These are currently disabled. Enable them to use natural language to explore data and generate queries.'}
+                {areToolCallsEnabled ? (
+                  'These are currently enabled and require approval. You can use natural language to explore data and generate queries.'
+                ) : projectId && !enableGenAIToolCallingAtlasProject ? (
+                  <>
+                    These are disabled for project users with data access.
+                    Project Owners can enable this feature in{' '}
+                    <Link href={buildProjectSettingsUrl({ projectId })}>
+                      Project Settings.
+                    </Link>
+                  </>
+                ) : (
+                  'These are currently disabled. Enable them to use natural language to explore data and generate queries.'
+                )}
               </Description>
             </div>
             <Link href={learnMoreUrl} target="_blank">

@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Mar 25 2026.
+This document was automatically generated on Fri Mar 27 2026.
 
 ## List of dependencies
 
@@ -429,7 +429,7 @@ This document was automatically generated on Wed Mar 25 2026.
 | **[mongodb-query-parser](#8bf39cbac0c53665ed53fc4eacf8c990b1881fd4f0cb8dba34c2d9d2b1a7ae1f)**                               | 4.7.6              | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6              | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0             | Apache-2.0                          |
-| **[mongodb](#af6fb6c5b9e3da65371aabbd16a55eee36392e0779db3a41f28b93d3b97750a1)**                                            | 7.1.0              | Apache-2.0                          |
+| **[mongodb](#71db4d6739a9dc892a0fa23a6b9beef3b83bd28ced0c57b39bc667538a270708)**                                            | 7.1.1              | Apache-2.0                          |
 | **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**                                                 | 2.1.3              | MIT                                 |
 | **[napi-build-utils](#4446cbf58ee41dfc4c30b35af90a053cab7e15fcc9736c67a43265eeef531372)**                                   | 2.0.0              | MIT                                 |
 | **[native-machine-id](#bbfaa5ab42199dbf008376a78ed5e9399068f58266fa0a07d7853c4f22c77e1e)**                                  | 0.3.6              | Apache-2.0                          |
@@ -462,7 +462,7 @@ This document was automatically generated on Wed Mar 25 2026.
 | **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**                                           | 1.3.3              | MIT                                 |
 | **[path-exists](#3ae48f237e1a4424a3b1b60cfc95f35ca29141cd956f8bda85e763d7969e12c7)**                                        | 4.0.0              | MIT                                 |
 | **[path-expression-matcher](#cdb3851dc27d642c2929e021571345b5e735d6a2e98cd17ba1936935dee8239c)**                            | 1.2.0              | MIT                                 |
-| **[path-to-regexp](#305718d439cc19b5b94829196196a34cb0170653881b608f7167ef7de095ca60)**                                     | 8.2.0              | MIT                                 |
+| **[path-to-regexp](#2a588a3a53f84c38deb7694bd8fb3618c6659f5afb52a74c90024a3b71732994)**                                     | 8.4.0              | MIT                                 |
 | **[picocolors](#7c5f372425355293c448d7405cb3b0a1fe19402bd0298caae8e341077624f0b7)**                                         | 1.1.1              | ISC                                 |
 | **[polished](#41f40703c540ffc63abf67340f3944d1f3071fd6b35f499912e723da526b9807)**                                           | 4.3.1              | MIT                                 |
 | **[prebuild-install](#034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20)**                                   | 7.1.3              | MIT                                 |
@@ -29811,9 +29811,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="af6fb6c5b9e3da65371aabbd16a55eee36392e0779db3a41f28b93d3b97750a1"></a>
+<a id="71db4d6739a9dc892a0fa23a6b9beef3b83bd28ced0c57b39bc667538a270708"></a>
 
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 7.1.0)
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 7.1.1)
 
 License tags: Apache-2.0
 
@@ -31150,9 +31150,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="305718d439cc19b5b94829196196a34cb0170653881b608f7167ef7de095ca60"></a>
+<a id="2a588a3a53f84c38deb7694bd8fb3618c6659f5afb52a74c90024a3b71732994"></a>
 
-### [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) (version 8.2.0)
+### [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) (version 8.4.0)
 
 License tags: MIT
 

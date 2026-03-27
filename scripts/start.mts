@@ -28,7 +28,6 @@ if (isOurHelp) {
 const targets = {
   desktop: { enabled: false, args: [] as string[] },
   sandbox: { enabled: false, args: [] as string[] },
-  sync: { enabled: false, args: [] as string[] },
 };
 
 let currentTarget: keyof typeof targets | null = null;
@@ -46,10 +45,7 @@ for (const arg of args) {
 }
 
 // Check for mutually exclusive targets
-if (
-  targets.sandbox.enabled &&
-  (targets.desktop.enabled || targets.sync.enabled)
-) {
+if (targets.sandbox.enabled && targets.desktop.enabled) {
   console.error('Error: sandbox target must be run alone.');
   console.error(
     'Please run sandbox by itself, not combined with other targets.'
@@ -58,11 +54,7 @@ if (
 }
 
 // If no targets specified, default to desktop
-if (
-  !targets.desktop.enabled &&
-  !targets.sandbox.enabled &&
-  !targets.sync.enabled
-) {
+if (!targets.desktop.enabled && !targets.sandbox.enabled) {
   targets.desktop.enabled = true;
 }
 
@@ -247,12 +239,6 @@ function spawnTarget(
 if (targets.desktop.enabled) {
   subProcesses.push(
     spawnTarget('start', 'mongodb-compass', targets.desktop.args, 'desktop')
-  );
-}
-
-if (targets.sync.enabled) {
-  subProcesses.push(
-    spawnTarget('sync', '@mongodb-js/compass-web', targets.sync.args, 'sync')
   );
 }
 

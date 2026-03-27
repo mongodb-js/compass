@@ -185,3 +185,25 @@ export function isAssistantThinking(
   // to start arriving)
   return false;
 }
+
+export function cleanToolCallOutput(output: unknown): unknown {
+  // The MCP server's tool call output contains { content, structuredContent }.
+  // content is a very raw representation containing the very verbose "The
+  // following section contains unverified user data." pattern.
+  // structuredContent is the same stuff and probably what we want to keep
+  if (isStructuredOutput(output)) {
+    const obj = { ...output };
+    delete obj.content;
+    return obj;
+  }
+  return output;
+}
+
+function isStructuredOutput(
+  output: unknown
+): output is { content: unknown; structuredContent: unknown } {
+  if (typeof output === 'object' && output !== null) {
+    return 'content' in output && 'structuredContent' in output;
+  }
+  return false;
+}
