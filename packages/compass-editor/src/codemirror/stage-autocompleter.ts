@@ -2,10 +2,10 @@ import type { CompletionSource } from '@codemirror/autocomplete';
 import type { CompletionOptions } from '../autocompleter';
 import { completer } from '../autocompleter';
 import {
-  createAceCompatAutocompleter,
-  createCompletionResultForIdPrefix,
+  mapMongoDBCompletionToCodemirrorCompletion,
+  ID_REGEX,
 } from './ace-compat-autocompleter';
-import { aggLink, completeWordsInString } from './utils';
+import { aggLink, completeWordsInString, resolveTokenAtCursor } from './utils';
 import { createQueryAutocompleter } from './query-autocompleter';
 
 export const createStageAutocompleter = ({
@@ -51,27 +51,43 @@ export const createStageAutocompleter = ({
     return completion;
   });
 
-  return createAceCompatAutocompleter({
-    String({ prefix, context }) {
-      if (prefix.text.startsWith('$')) {
-        return createCompletionResultForIdPrefix({
-          prefix,
-          completions: fieldsReferenceCompletions,
-          // We don't need escaping, we are inside a string
-          escape: 'never',
-        });
-      }
+  return (context) => {
+    const prefix = context.matchBefore(ID_REGEX);
+    const token = resolveTokenAtCursor(context);
 
-      return completeWordsInString(context);
-    },
-    IdentifierLike({ prefix, context }) {
-      if (stageOperator === '$match') {
-        return queryAutocompleter(context);
+    if (!prefix || prefix.text === '') {
+      return null;
+    }
+
+    if (['BlockComment', 'LineComment'].includes(token.type.name)) {
+      return null;
+    }
+
+    if (token.type.name === 'String') {
+      if (prefix.text.startsWith('$')) {
+        return {
+          from: prefix.from,
+          to: prefix.to,
+          options: fieldsReferenceCompletions.map((completion) =>
+            mapMongoDBCompletionToCodemirrorCompletion(completion, 'never')
+          ),
+          validFor: ID_REGEX,
+        };
       }
-      return createCompletionResultForIdPrefix({
-        prefix,
-        completions: stageCompletions,
-      });
-    },
-  });
+      return completeWordsInString(context);
+    }
+
+    if (stageOperator === '$match') {
+      return queryAutocompleter(context);
+    }
+
+    return {
+      from: prefix.from,
+      to: prefix.to,
+      options: stageCompletions.map((completion) =>
+        mapMongoDBCompletionToCodemirrorCompletion(completion)
+      ),
+      validFor: ID_REGEX,
+    };
+  };
 };

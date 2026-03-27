@@ -9,12 +9,30 @@ describe('query autocompleter', function () {
 
   after(cleanup);
 
-  it('returns all completions when current token is vaguely matches identifier', async function () {
-    expect(await getCompletions('foo')).to.have.lengthOf(49);
+  it('returns completions when current token matches identifier', async function () {
+    const completions = await getCompletions('{ $e');
+    expect(completions.length).to.be.greaterThan(0);
+    expect(
+      completions.every((c) => c.type === 'property' || c.type === 'method')
+    ).to.be.true;
   });
 
-  it("doesn't return anything when not matching identifier", async function () {
-    expect(await getCompletions('[')).to.have.lengthOf(0);
+  it('returns BSON constructors in value position', async function () {
+    const completions = await getCompletions('{ field: O');
+    expect(completions.length).to.be.greaterThan(0);
+    expect(completions.map((c) => c.label)).to.include('ObjectId');
+  });
+
+  it('does not return field names in value position', async function () {
+    const completions = await getCompletions('{ field: O', {
+      fields: ['orangeField'],
+    } as any);
+    const fieldCompletions = completions.filter((c) => c.detail === 'field');
+    expect(fieldCompletions).to.have.lengthOf(0);
+  });
+
+  it("doesn't return anything when not matching identifier in value position", async function () {
+    expect(await getCompletions('{ field: [')).to.have.lengthOf(0);
   });
 
   it('completes "any text" when inside a string', async function () {
