@@ -54,8 +54,12 @@ import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/ind
 import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
 import type { JSONSchema7 } from 'json-schema';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionInfo,
+  useConnectionInfoRef,
+} from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const scrollContainerStyles = css({
   overflowX: 'auto',
@@ -92,6 +96,17 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   updateIndex,
   onIndexDefinitionEdit,
 }) => {
+  const track = useTelemetry();
+  const connectionInfoRef = useConnectionInfoRef();
+
+  useEffect(() => {
+    track(
+      'Screen',
+      { name: 'edit_search_index_drawer' },
+      connectionInfoRef.current
+    );
+  }, [track, connectionInfoRef]);
+
   const editorRef = useRef<EditorRef>(null);
   const [indexDefinition, setIndexDefinition] = useState(
     JSON.stringify(searchIndex.latestDefinition, null, 2)
@@ -157,11 +172,15 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   );
 
   const onSaveClick = useCallback(() => {
+    track('Search Index Edit Submitted', {
+      context: 'Edit Search Index Drawer View',
+      index_type: searchIndex.type ?? 'search',
+    });
     updateIndex({
       name: searchIndex.name,
       definition: parseShellBSON(indexDefinition),
     });
-  }, [searchIndex, indexDefinition, updateIndex]);
+  }, [searchIndex, indexDefinition, updateIndex, track]);
 
   const indexLabel =
     searchIndex.type === 'vectorSearch'
@@ -236,7 +255,13 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
         <Button
           data-testid="edit-search-index-drawer-view-cancel-button"
           variant="default"
-          onClick={onClose}
+          onClick={() => {
+            track('Search Index Edit Cancelled', {
+              context: 'Edit Search Index Drawer View',
+              index_type: searchIndex.type ?? 'search',
+            });
+            onClose();
+          }}
         >
           Cancel
         </Button>

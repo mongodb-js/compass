@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { buildAtlasSearchLink } from '@mongodb-js/atlas-service/provider';
 
 import { css, spacing, Link, Banner } from '@mongodb-js/compass-components';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { RootState } from '../modules';
 
@@ -25,6 +26,7 @@ function SearchIndexStaleResultsBanner({
 }: SearchIndexStaleResultsBannerProps) {
   const [showBanner, setShowBanner] = React.useState(true);
   const { atlasMetadata } = useConnectionInfo();
+  const track = useTelemetry();
   const message =
     'Results shown are based on the most recently built index version.';
 
@@ -46,7 +48,19 @@ function SearchIndexStaleResultsBanner({
       dismissible
       onClose={() => setShowBanner(false)}
     >
-      {message} {href && <Link href={href}>View Index Definition</Link>}
+      {message}{' '}
+      {href && (
+        <Link
+          href={href}
+          onClick={() => {
+            track('Search Index View Definition Link Clicked', {
+              context: 'Search Index Stale Results Banner',
+            });
+          }}
+        >
+          View Index Definition
+        </Link>
+      )}
     </Banner>
   ) : null;
 }
