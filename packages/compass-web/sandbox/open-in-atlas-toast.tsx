@@ -24,7 +24,7 @@ function Instructions() {
       <ol className={listStyles}>
         <li>
           <p>
-            Install &quot;Header Editor Lite&quot; browser extension (
+            Install the &quot;Header Editor Lite&quot; browser extension (
             <Link
               href="https://chromewebstore.google.com/detail/header-editor-lite/eningockdidmgiojffjmkdblpjocbhgh"
               target="_blank"
@@ -43,7 +43,7 @@ function Instructions() {
         </li>
         <li>
           <p>
-            Import configuration file from{' '}
+            In the extension, import the configuration file from{' '}
             <code>
               packages/compass-web/scripts/redirect-extension-config.json
             </code>{' '}
@@ -51,7 +51,7 @@ function Instructions() {
           </p>
         </li>
         <li>
-          <p>Navigate to Atlas Cloud environment of choice</p>
+          <p>Navigate to your Atlas Cloud environment of choice</p>
           <p>
             If everything was configured correctly, you should see a commit hash
             in the Compass sidebar header that would not be visible otherwise
@@ -66,7 +66,7 @@ function Instructions() {
         </li>
         <li>
           <p>
-            When you are done with testing, disable the redirects from the
+            When you are done with testing, remember to disable the redirects from the
             extension UI
           </p>
         </li>
