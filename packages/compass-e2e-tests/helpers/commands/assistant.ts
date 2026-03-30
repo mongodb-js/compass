@@ -15,6 +15,10 @@ export async function openAssistantDrawer(browser: CompassBrowser) {
 }
 
 export async function clearChat(browser: CompassBrowser): Promise<void> {
+  if (!(await browser.$(Selectors.AssistantClearChatButton).isDisplayed())) {
+    return;
+  }
+
   await browser.screenshot('before-clear-chat.png');
 
   await browser.clickVisible(Selectors.AssistantClearChatButton);
