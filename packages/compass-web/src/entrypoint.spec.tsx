@@ -69,8 +69,6 @@ describe('CompassWeb', function () {
         <CompassWeb
           orgId=""
           projectId=""
-          initialWorkspace={undefined as any}
-          onActiveWorkspaceTabChange={() => {}}
           onTrack={onTrackSpy}
           {...props}
           initialPreferences={{
