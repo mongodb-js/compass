@@ -1,3 +1,5 @@
+import { toJSString } from 'mongodb-query-parser';
+
 import type { RawSchema } from './schema';
 
 /**
@@ -9,15 +11,18 @@ export function formatSchemaForPrompt(
   documentSchema: RawSchema,
   validationRules?: Record<string, unknown> | null
 ): string {
-  const schemaJson = JSON.stringify(documentSchema, null, 2);
+  const schemaStr = toJSString(documentSchema) ?? '{}';
 
   let validationRulesPhrase = '';
   if (validationRules !== null && validationRules !== undefined) {
+    const validationStr = toJSString(validationRules) ?? '{}';
     validationRulesPhrase =
       '\n\n' +
       'Please also include the following MongoDB schema validation rules that are applied' +
       ' to each document:\n\n' +
-      JSON.stringify(validationRules, null, 2);
+      '```\n' +
+      validationStr +
+      '\n```';
   }
 
   return `Generate a JSON Schema for a faker-js factory function for the following collection's schema.
@@ -27,7 +32,9 @@ The collection name is \`${collectionName}\`
 
 Documents in the collection are described by the following schema:
 
-${schemaJson}
+\`\`\`
+${schemaStr}
+\`\`\`
 
 ${validationRulesPhrase}
 `;

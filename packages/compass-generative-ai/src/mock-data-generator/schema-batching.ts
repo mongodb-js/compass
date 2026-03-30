@@ -22,13 +22,13 @@ export function splitSchemaIntoChunks(
     return [];
   }
 
-  const chunks: RawSchema[] = [];
-  for (let i = 0; i < entries.length; i += fieldsPerChunk) {
-    const chunkEntries = entries.slice(i, i + fieldsPerChunk);
-    chunks.push(Object.fromEntries(chunkEntries));
-  }
-
-  return chunks;
+  return Array.from(
+    { length: Math.ceil(entries.length / fieldsPerChunk) },
+    (_, i) =>
+      Object.fromEntries(
+        entries.slice(i * fieldsPerChunk, (i + 1) * fieldsPerChunk)
+      )
+  );
 }
 
 /**
