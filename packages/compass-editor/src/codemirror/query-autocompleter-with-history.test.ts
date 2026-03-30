@@ -104,7 +104,9 @@ describe('query history autocompleter', function () {
   it('returns combined completions that match the prefix of the field', async function () {
     const completions = await getCompletions('scor', {
       savedQueries,
-      options: undefined,
+      options: {
+        fields: ['score', 'scoreValue', 'scoreCategory'],
+      },
       queryProperty: 'filter',
       onApply: mockOnApply,
       theme: 'light',
@@ -112,9 +114,21 @@ describe('query history autocompleter', function () {
     const queryHistoryCompletions = getQueryHistoryAutocompletions(completions);
 
     expect(queryHistoryCompletions).to.have.lengthOf(2);
-    expect(completions).to.have.length.greaterThan(
-      queryHistoryCompletions.length
-    );
+    expect(completions).to.have.length(5);
+  });
+
+  it('returns combined completions that match the prefix of the value', async function () {
+    const completions = await getCompletions('{ scoreCategory: legac', {
+      savedQueries,
+      options: undefined,
+      queryProperty: 'filter',
+      onApply: mockOnApply,
+      theme: 'light',
+    });
+    const queryHistoryCompletions = getQueryHistoryAutocompletions(completions);
+
+    expect(queryHistoryCompletions).to.have.lengthOf(0);
+    expect(completions).to.have.length(3);
   });
 
   it('returns completions that match with multiple fields', async function () {
@@ -151,9 +165,8 @@ describe('query history autocompleter', function () {
   });
 
   it('completes regular query autocompletion items', async function () {
-    // 'foo' matches > 45 methods and fields in the query autocompletion.
     const completions = (
-      await getCompletions('foo', {
+      await getCompletions('$a', {
         savedQueries,
         options: undefined,
         queryProperty: '',
@@ -162,7 +175,8 @@ describe('query history autocompleter', function () {
       })
     ).filter(({ type }) => type !== 'favorite' && type !== 'query-history');
 
-    expect(completions).to.have.length.greaterThan(40);
+    // $all and $and.
+    expect(completions).to.have.lengthOf(2);
   });
 
   it('completes fields inside a string', async function () {
