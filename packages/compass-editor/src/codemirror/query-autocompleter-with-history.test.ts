@@ -10,6 +10,21 @@ function getQueryHistoryAutocompletions(completions: Readonly<Completion[]>) {
   );
 }
 
+function createSavedQueryWithFilter(filter: any): SavedQuery {
+  return {
+    type: 'recent',
+    lastExecuted: new Date('2023-06-04T18:00:00Z'),
+    queryProperties: {
+      filter,
+      project: { userId: 1, isActive: 1 },
+      collation: { locale: 'simple' },
+      sort: { userId: 1 },
+      limit: 10,
+      maxTimeMS: 500,
+    },
+  };
+}
+
 describe('query history autocompleter', function () {
   const { getCompletions, cleanup } = setupCodemirrorCompleter(
     createQueryWithHistoryAutocompleter
@@ -82,7 +97,7 @@ describe('query history autocompleter', function () {
       await getCompletions('{}', {
         savedQueries,
         options: undefined,
-        queryProperty: '',
+        queryProperty: 'filter',
         onApply: mockOnApply,
         theme: 'light',
       })
@@ -94,7 +109,7 @@ describe('query history autocompleter', function () {
       await getCompletions('', {
         savedQueries,
         options: undefined,
-        queryProperty: '',
+        queryProperty: 'filter',
         onApply: mockOnApply,
         theme: 'light',
       })
@@ -133,6 +148,59 @@ describe('query history autocompleter', function () {
   category: 1,
   price: 1
 }`);
+  });
+
+  it('will not autocomplete fields with more than 200 characters', async function () {
+    const completions = getQueryHistoryAutocompletions(
+      await getCompletions('{ price: 1, category: 1', {
+        savedQueries: [
+          createSavedQueryWithFilter({
+            allA: Array(201).fill('a').join(''),
+          }),
+        ],
+        options: undefined,
+        queryProperty: 'filter',
+        onApply: mockOnApply,
+        theme: 'light',
+      })
+    );
+    expect(completions).to.have.lengthOf(0);
+  });
+
+  it('does not autocomplete nested fields', async function () {
+    const completions = getQueryHistoryAutocompletions(
+      await getCompletions('{ pineapple: { tre', {
+        savedQueries: [
+          createSavedQueryWithFilter({
+            pineapple: { tree: 'orange' },
+          }),
+        ],
+        options: undefined,
+        queryProperty: 'filter',
+        onApply: mockOnApply,
+        theme: 'light',
+      })
+    );
+    expect(completions).to.have.lengthOf(0);
+  });
+
+  it('does not autocomplete more than ten items', async function () {
+    const completions = getQueryHistoryAutocompletions(
+      await getCompletions('{ pineapp', {
+        savedQueries: [
+          ...Array(12).fill(
+            createSavedQueryWithFilter({
+              pineapple: true,
+            })
+          ),
+        ],
+        options: undefined,
+        queryProperty: 'filter',
+        onApply: mockOnApply,
+        theme: 'light',
+      })
+    );
+    expect(completions).to.have.lengthOf(10);
   });
 
   it('does not return fields that match in other query properties', async function () {
