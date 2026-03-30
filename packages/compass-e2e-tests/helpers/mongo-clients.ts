@@ -142,6 +142,20 @@ export async function createNestedDocumentsCollection(
   );
 }
 
+export async function createSidebarDatabase(): Promise<void> {
+  const promises = [];
+
+  for (const client of clients) {
+    promises.push(
+      client
+        .db('my-sidebar-database')
+        .collection('my-sidebar-collection')
+        .insertMany([...Array(5).keys()].map((i) => ({ docIndex: i })))
+    );
+  }
+  await Promise.all(promises);
+}
+
 export async function createNumbersCollection(
   name = 'numbers',
   numberOfRecords = 1000,
