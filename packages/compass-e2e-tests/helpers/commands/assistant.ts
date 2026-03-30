@@ -15,24 +15,31 @@ export async function openAssistantDrawer(browser: CompassBrowser) {
 }
 
 export async function clearChat(browser: CompassBrowser): Promise<void> {
-  const clearChatButton = browser.$(Selectors.AssistantClearChatButton);
-  if (await clearChatButton.isDisplayed()) {
-    await browser.clickVisible(clearChatButton);
-    await browser.clickVisible(
-      Selectors.AssistantConfirmClearChatModalConfirmButton
-    );
+  await browser.screenshot('before-clear-chat.png');
 
-    // Wait for the confirmation modal to close
-    await browser
-      .$(Selectors.AssistantConfirmClearChatModalConfirmButton)
-      .waitForDisplayed({ reverse: true });
+  await browser.clickVisible(Selectors.AssistantClearChatButton);
 
-    // Wait for the chat messages to actually clear
-    await browser.waitUntil(async () => {
+  await browser.$(Selectors.AssistantConfirmClearChatModal).waitForDisplayed();
+
+  await browser.screenshot('before-clear-chat-confirm.png');
+
+  await browser.clickVisible(
+    Selectors.AssistantConfirmClearChatModalConfirmButton
+  );
+
+  // Wait for the confirmation modal to close
+  await browser
+    .$(Selectors.AssistantConfirmClearChatModalConfirmButton)
+    .waitForDisplayed({ reverse: true });
+
+  // Wait for the chat messages to actually clear
+  await browser.waitUntil(
+    async () => {
       const messages = await browser.getDisplayedMessages();
       return messages.length === 0;
-    });
-  }
+    },
+    { timeout: 10_000, timeoutMsg: 'Expected chat messages to be cleared' }
+  );
 }
 
 export async function getDisplayedMessages(

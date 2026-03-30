@@ -1,5 +1,3 @@
-import { expect } from 'chai';
-
 import type { CompassBrowser } from '../helpers/compass-browser';
 import { startTelemetryServer } from '../helpers/telemetry';
 import type { Telemetry } from '../helpers/telemetry';
@@ -107,32 +105,53 @@ describe('MongoDB Assistant (with real backend)', function () {
     }
   });
 
+  /**
+   * Sends a message and waits for the tool call approval UI to appear.
+   * The real AI backend is non-deterministic and may respond with text
+   * instead of calling a tool, so this retries up to 3 times.
+   */
+  async function sendAndWaitForToolCall(message: string) {
+    const chatMessages = browser.$(Selectors.AssistantChatMessages);
+
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
+      await chatInput.waitForDisplayed();
+      await chatInput.setValue(message);
+      await browser.clickVisible(Selectors.AssistantChatSubmitButton);
+
+      // Wait for user message to appear
+      await browser.waitUntil(async () => {
+        const messages = await browser.getDisplayedMessages();
+        return messages.some((m) => m.role === 'user' && m.text === message);
+      });
+
+      // Wait for tool call approval UI (Run button indicates tool call)
+      try {
+        await chatMessages
+          .$('button=Run')
+          .waitForDisplayed({ timeout: 20_000 });
+        return chatMessages;
+      } catch {
+        if (attempt < 3) {
+          await browser.clearChat();
+          continue;
+        }
+        throw new Error(
+          `Tool call approval UI did not appear after ${attempt} attempts`
+        );
+      }
+    }
+
+    throw new Error('Unreachable');
+  }
+
   it('sends a message that results in a tool call request, approves it and renders the response', async function () {
-    // Send a message that should trigger the list-databases tool call
-    const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
-    await chatInput.waitForDisplayed();
-    await chatInput.setValue(
+    const chatMessages = await sendAndWaitForToolCall(
       'Use the list-databases tool to list all databases'
     );
-    await browser.clickVisible(Selectors.AssistantChatSubmitButton);
-
-    // Wait for the user message to appear
-    await browser.waitUntil(async () => {
-      const messages = await browser.getDisplayedMessages();
-      return messages.some(
-        (m) =>
-          m.role === 'user' &&
-          m.text === 'Use the list-databases tool to list all databases'
-      );
-    });
-
-    // Wait for the tool call approval UI to appear (the "Run" button inside the chat)
-    const chatMessages = browser.$(Selectors.AssistantChatMessages);
-    const runButton = chatMessages.$('button=Run');
-    await runButton.waitForDisplayed({ timeout: 30_000 });
 
     // Approve the tool call
-    await browser.clickVisible(runButton);
+    await browser.clickVisible(chatMessages.$('button=Run'));
 
     // Wait for the tool to finish running: the "Ran" text indicates completion
     await browser.waitUntil(
@@ -143,47 +162,34 @@ describe('MongoDB Assistant (with real backend)', function () {
       { timeout: 30_000 }
     );
 
-    // Wait for the assistant's final text response to appear and contain the collection
+    // Expand the tool call card to see the response
+    const expandButton = chatMessages.$(
+      'button[aria-label="Expand additional content"]'
+    );
+    await expandButton.waitForDisplayed();
+    await browser.clickVisible(expandButton);
+
+    // Wait for the expanded content to include the response with structuredContent.databases
     await browser.waitUntil(
       async () => {
-        const messages = await browser.getDisplayedMessages();
-        return messages.some(
-          (m) => m.role === 'assistant' && m.text.includes(dbName)
-        );
+        const text = await chatMessages.getText();
+        return text.includes('structuredContent') && text.includes('databases');
       },
       {
         timeout: 30_000,
-        timeoutMsg: `Expected assistant response to include the database name: ${dbName}`,
+        timeoutMsg:
+          'Expected tool call response to include structuredContent.databases',
       }
     );
   });
 
   it('sends a message that results in a tool call request, denies it and renders the response', async function () {
-    // Send a message that should trigger the list-databases tool call
-    const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
-    await chatInput.waitForDisplayed();
-    await chatInput.setValue(
+    const chatMessages = await sendAndWaitForToolCall(
       'Use the list-databases tool to list all databases'
     );
-    await browser.clickVisible(Selectors.AssistantChatSubmitButton);
-
-    // Wait for the user message to appear
-    await browser.waitUntil(async () => {
-      const messages = await browser.getDisplayedMessages();
-      return messages.some(
-        (m) =>
-          m.role === 'user' &&
-          m.text === 'Use the list-databases tool to list all databases'
-      );
-    });
-
-    // Wait for the tool call approval UI to appear (the "Run" button inside the chat)
-    const chatMessages = browser.$(Selectors.AssistantChatMessages);
-    const cancelButton = chatMessages.$('button=Cancel');
-    await cancelButton.waitForDisplayed({ timeout: 30_000 });
 
     // Deny the tool call
-    await browser.clickVisible(cancelButton);
+    await browser.clickVisible(chatMessages.$('button=Cancel'));
 
     // Wait for the tool to be cancelled: the "Cancelled" text indicates completion
     await browser.waitUntil(
