@@ -49,6 +49,8 @@ describe('MongoDB Assistant (with mocked backend)', function () {
       telemetry = await startTelemetryServer();
       compass = await init(this.test?.fullTitle());
 
+      browser = compass.browser;
+
       await compass.browser.setEnv(
         'COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE',
         mockAtlasServer.endpoint
@@ -107,27 +109,6 @@ describe('MongoDB Assistant (with mocked backend)', function () {
         }
       };
 
-      const setup = async () => {
-        browser = compass.browser;
-        await setAIFeatures(true);
-
-        await browser.setupDefaultConnections();
-        await browser.connectToDefaults();
-        await browser.selectConnectionMenuItem(
-          getDefaultConnectionNames(0),
-          Selectors.CreateDatabaseButton,
-          false
-        );
-        await browser.addDatabase(dbName, collectionName);
-
-        await browser.navigateToCollectionTab(
-          getDefaultConnectionNames(0),
-          dbName,
-          collectionName,
-          'Aggregations'
-        );
-      };
-
       setAIFeatures = async (newValue: boolean) => {
         await browser.setFeature('enableGenAIFeatures', newValue);
         await browser.setFeature('enableGenAISampleDocumentPassing', newValue);
@@ -145,9 +126,29 @@ describe('MongoDB Assistant (with mocked backend)', function () {
         await browser.setFeature('optInGenAIFeatures', newValue);
       };
 
-      await setup();
+      await setAIFeatures(true);
+
+      await browser.setupDefaultConnections();
+      await browser.connectToDefaults();
+      await browser.selectConnectionMenuItem(
+        getDefaultConnectionNames(0),
+        Selectors.CreateDatabaseButton,
+        false
+      );
+      await browser.addDatabase(dbName, collectionName);
+
+      await browser.navigateToCollectionTab(
+        getDefaultConnectionNames(0),
+        dbName,
+        collectionName,
+        'Aggregations'
+      );
     } catch (err) {
-      await browser.screenshot(screenshotPathName('before-MongoDB-Assistant'));
+      if (browser) {
+        await browser.screenshot(
+          screenshotPathName('before-MongoDB-Assistant')
+        );
+      }
       throw err;
     }
   });
