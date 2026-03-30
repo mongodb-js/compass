@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Mar 29 2026.
+This document was automatically generated on Mon Mar 30 2026.
 
 ## List of dependencies
 
@@ -422,7 +422,7 @@ This document was automatically generated on Sun Mar 29 2026.
 | **[mongodb-client-encryption](#f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e)**                          | 7.0.0              | Apache-2.0                          |
 | **[mongodb-cloud-info](#283405446370da6094c1c0937886696adf82e5316b05dc14968c19d66b05356d)**                                 | 2.3.6              | Apache-2.0                          |
 | **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**                      | 7.0.1              | Apache-2.0                          |
-| **[mongodb-log-writer](#81ec4d4efe99c89e6e4d8d6f9d84b7f87ef4ae92bbc9328d484f13ba894c84ed)**                                 | 2.5.6              | Apache-2.0                          |
+| **[mongodb-log-writer](#41de265e46da14679ed02f56213dfeddc448522f56b1b3ebd39689c43af5d5f1)**                                 | 2.5.7              | Apache-2.0                          |
 | **[mongodb-mcp-server](#513777b6b1ad3efec6684d327b00ef349ee36f6f012e06fa2f50ab84de172633)**                                 | 1.6.1-prerelease.2 | Apache-2.0                          |
 | **[mongodb-ns](#15cc8a3da3a5e870e2d1230562cb9b6bbacd596d19d09daf5ad4d7bdbe331fa1)**                                         | 3.0.3              | Apache-2.0                          |
 | **[mongodb-ns](#1681b02f7072ef576cc967fe600d4bc561bc1f5f8e0e451d2903288655650eaf)**                                         | 3.1.6              | Apache-2.0                          |
@@ -28327,9 +28327,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="81ec4d4efe99c89e6e4d8d6f9d84b7f87ef4ae92bbc9328d484f13ba894c84ed"></a>
+<a id="41de265e46da14679ed02f56213dfeddc448522f56b1b3ebd39689c43af5d5f1"></a>
 
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.6)
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.7)
 
 License tags: Apache-2.0
 
