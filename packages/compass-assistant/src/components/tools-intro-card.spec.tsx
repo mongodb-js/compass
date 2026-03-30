@@ -70,8 +70,9 @@ describe('ToolsIntroCard', function () {
     expect(
       screen.getByText(/Explore your data effortlessly with natural language/)
     ).to.exist;
-    expect(screen.getByText(/for this chat or manage them in Settings/)).to
-      .exist;
+    expect(
+      screen.getByText(/Toggle them for this chat or manage them in Settings/)
+    ).to.exist;
   });
 
   it('mentions project settings in the description text when projectId is provided', function () {
@@ -82,7 +83,7 @@ describe('ToolsIntroCard', function () {
     ).to.exist;
     expect(
       screen.getByText(
-        /for this chat or manage them project-wide in Project Settings/
+        /Toggle them for this chat or Project Owners can manage them project-wide in Project Settings/
       )
     ).to.exist;
   });

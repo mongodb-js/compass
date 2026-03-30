@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 
 /**
  * Hook that calls `onSuccess` when an async operation completes successfully.
@@ -22,7 +21,6 @@ export function useOnAsyncSuccess(
 
 /**
  * Hook that returns a text change handler for the index definition editor.
- * Marks the form as editing and validates the definition.
  */
 export function useIndexDefinitionChange(
   setIndexDefinition: (definition: string) => void,
@@ -31,13 +29,7 @@ export function useIndexDefinitionChange(
   return useCallback(
     (newDefinition: string) => {
       onIndexDefinitionEdit(true);
-
-      try {
-        parseShellBSON(newDefinition);
-        setIndexDefinition(newDefinition);
-      } catch {
-        // Parsing error handled elsewhere if needed
-      }
+      setIndexDefinition(newDefinition);
     },
     [setIndexDefinition, onIndexDefinitionEdit]
   );

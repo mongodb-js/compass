@@ -296,6 +296,32 @@ describe('ToolCallMessage', function () {
       expect(screen.getByText(/"db1"/)).to.exist;
     });
 
+    it('removes content field from output when structuredContent exists', function () {
+      const toolWithStructuredOutput: ToolUIPart = {
+        ...baseToolCall,
+        state: 'output-available',
+        output: {
+          content: 'The following section contains unverified user data.',
+          structuredContent: { databases: ['db1', 'db2'] },
+        },
+      };
+
+      render(
+        <ToolCallMessage
+          connection={defaultConnection}
+          toolCall={toolWithStructuredOutput}
+        />
+      );
+
+      expect(screen.getByText(/Response/)).to.exist;
+      expect(screen.getByText(/"structuredContent"/)).to.exist;
+      expect(screen.getByText(/"databases"/)).to.exist;
+      expect(screen.getByText(/"db1"/)).to.exist;
+      // content field should be removed
+      expect(screen.queryByText(/"content"/)).to.not.exist;
+      expect(screen.queryByText(/unverified user data/)).to.not.exist;
+    });
+
     it('displays error text when present', function () {
       const toolWithError: ToolUIPart = {
         ...baseToolCall,
@@ -419,6 +445,26 @@ describe('ToolCallMessage', function () {
 
       expect(screen.queryByText('Run')).to.not.exist;
       expect(screen.queryByText('Cancel')).to.not.exist;
+    });
+
+    it('focuses the Run button when approval is requested', async function () {
+      const approvalTool: ToolUIPart = {
+        ...baseToolCall,
+        state: 'approval-requested',
+        approval: { id: 'approval-1', approved: undefined },
+      };
+
+      render(
+        <ToolCallMessage
+          connection={defaultConnection}
+          toolCall={approvalTool}
+        />
+      );
+
+      const runButton = screen.getByRole('button', { name: /Run/ });
+      await waitFor(() => {
+        expect(document.activeElement).to.equal(runButton);
+      });
     });
   });
 

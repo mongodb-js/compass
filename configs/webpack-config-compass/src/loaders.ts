@@ -3,7 +3,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { execSync } from 'child_process';
 
 import type { ConfigArgs } from './args';
-import { isServe } from './args';
+import { shouldEnableHotReload } from './args';
 import chalk from 'chalk';
 
 function isLatestBrowserslist() {
@@ -110,14 +110,7 @@ export const javascriptLoader = (args: ConfigArgs, web = false) => ({
           },
         ],
         ['web', 'electron-renderer'].includes(args.target as string) &&
-          // react-refresh only works when NODE_ENV is dev and will throw
-          // otherwise
-          args.nodeEnv === 'development' &&
-          // we only need it when webpack-dev-server is running
-          isServe(args) &&
-          // and only if hot-reload is enabled (it is not in Compass main right
-          // now)
-          args.hot &&
+          shouldEnableHotReload(args) &&
           require.resolve('react-refresh/babel'),
       ].filter(Boolean),
     },
