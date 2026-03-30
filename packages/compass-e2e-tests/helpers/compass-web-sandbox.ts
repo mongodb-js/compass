@@ -1,6 +1,4 @@
 import crossSpawn from 'cross-spawn';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
 import Debug from 'debug';
 import treeKill from 'tree-kill';
 
@@ -45,7 +43,17 @@ const waitUntil = async (
 export function spawnCompassWebSandbox(signal: AbortSignal) {
   const proc = crossSpawn.spawn(
     'npm',
-    ['run', '--unsafe-perm', 'start', '--workspace', '@mongodb-js/compass-web'],
+    [
+      'run',
+      '--unsafe-perm',
+      'start',
+      '--workspace',
+      '@mongodb-js/compass-web',
+      '--',
+      '--mode',
+      'production',
+      '--no-devtool',
+    ],
     { env: process.env, signal }
   );
   proc.stdout.pipe(process.stdout);
@@ -80,23 +88,19 @@ export async function waitForCompassWebSandboxToBeReady(
   );
 }
 
-export function buildCompassWebPackage(signal: AbortSignal) {
-  return promisify(execFile)(
-    'npm',
-    ['run', 'compile', '--workspace', '@mongodb-js/compass-web'],
-    { env: process.env, signal }
-  );
-}
-
 export function spawnCompassWebStaticServer(signal: AbortSignal) {
   const proc = crossSpawn.spawn(
     'npm',
     [
       'run',
       '--unsafe-perm',
-      'serve-dist',
+      'watch',
       '--workspace',
       '@mongodb-js/compass-web',
+      '--',
+      '--mode',
+      'production',
+      '--no-devtool',
     ],
     { env: process.env, signal }
   );

@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Mar 25 2026.
+This document was automatically generated on Mon Mar 30 2026.
 
 ## List of dependencies
 
@@ -33,7 +33,7 @@ This document was automatically generated on Wed Mar 25 2026.
 | **[@aws-sdk/token-providers](#99d7de31617461f599de8e4cdee01741f743db9ed9f7ca9d3b80b988b223945a)**                           | 3.1009.0           | Apache-2.0                          |
 | **[@aws-sdk/util-endpoints](#c23973da782a6cba11d027693ffe0030067ed3c68d6a5ba504d1bc68653d1434)**                            | 3.996.5            | Apache-2.0                          |
 | **[@aws-sdk/util-user-agent-node](#41f37fddb280b3c783eb440e48349a9ab5d5f607e2643d03b5fad9579c90a387)**                      | 3.973.7            | Apache-2.0                          |
-| **[@aws-sdk/xml-builder](#a77288d36c0c955e96f0bbbb3bf0d15e4ad5638389fb4270d025ecc6fd2d9d40)**                               | 3.972.14           | Apache-2.0                          |
+| **[@aws-sdk/xml-builder](#2612a059349f84a3ef8ea02c1005e3ae687b43fdcfb70a025ce7a2e1cb1c7050)**                               | 3.972.15           | Apache-2.0                          |
 | **[@aws/lambda-invoke-store](#0823bf4e042fb134d2b390f1b6e47caf3fbd9378dee1351ec2572f606669ccbe)**                           | 0.2.4              | Apache-2.0                          |
 | **[@babel/code-frame](#086ad4aad8de2504678bf654b2d0d3e1efb8517bd0ba2a9e52b7da05892e3a65)**                                  | 7.27.1             | MIT                                 |
 | **[@babel/compat-data](#15781d53a48d891464b3376818cd55f033c52bfb4c4f628f0bbf77b20eb04eb7)**                                 | 7.28.0             | MIT                                 |
@@ -292,7 +292,7 @@ This document was automatically generated on Wed Mar 25 2026.
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2              | MIT                                 |
 | **[fast-uri](#1ea5904acf2bbd97077988b465d770463c17bc14b33319b8d7a8ceb1e056b3fd)**                                           | 3.0.1              | MIT                                 |
 | **[fast-xml-builder](#37a0e599fe1e49e5394d7fe31c7de1a70e6530a300655305d76ec4b97141105a)**                                   | 1.1.4              | MIT                                 |
-| **[fast-xml-parser](#d3acd57271b7ae880a5f3b287732c81cac346835ad2c14a7b3fa4272b1854e9e)**                                    | 5.5.6              | MIT                                 |
+| **[fast-xml-parser](#1edd68d10296c5e70396c4f2d95ef2070e6878a5ed751629bcb8d5e531e277f2)**                                    | 5.5.8              | MIT                                 |
 | **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**                                         | 3.2.0              | MIT                                 |
 | **[file-uri-to-path](#9eb41790b1cce0829afe7926edf4be80e0dd6927cd8376c00a54a8fc86f8943e)**                                   | 1.0.0              | MIT                                 |
 | **[finalhandler](#630473d4a6adfa4151f6ae6d5bacb67f50d3aa14eae0b912a30b4bff3e899d7d)**                                       | 2.1.1              | MIT                                 |
@@ -422,14 +422,14 @@ This document was automatically generated on Wed Mar 25 2026.
 | **[mongodb-client-encryption](#f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e)**                          | 7.0.0              | Apache-2.0                          |
 | **[mongodb-cloud-info](#283405446370da6094c1c0937886696adf82e5316b05dc14968c19d66b05356d)**                                 | 2.3.6              | Apache-2.0                          |
 | **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**                      | 7.0.1              | Apache-2.0                          |
-| **[mongodb-log-writer](#81ec4d4efe99c89e6e4d8d6f9d84b7f87ef4ae92bbc9328d484f13ba894c84ed)**                                 | 2.5.6              | Apache-2.0                          |
+| **[mongodb-log-writer](#41de265e46da14679ed02f56213dfeddc448522f56b1b3ebd39689c43af5d5f1)**                                 | 2.5.7              | Apache-2.0                          |
 | **[mongodb-mcp-server](#513777b6b1ad3efec6684d327b00ef349ee36f6f012e06fa2f50ab84de172633)**                                 | 1.6.1-prerelease.2 | Apache-2.0                          |
 | **[mongodb-ns](#15cc8a3da3a5e870e2d1230562cb9b6bbacd596d19d09daf5ad4d7bdbe331fa1)**                                         | 3.0.3              | Apache-2.0                          |
 | **[mongodb-ns](#1681b02f7072ef576cc967fe600d4bc561bc1f5f8e0e451d2903288655650eaf)**                                         | 3.1.6              | Apache-2.0                          |
 | **[mongodb-query-parser](#8bf39cbac0c53665ed53fc4eacf8c990b1881fd4f0cb8dba34c2d9d2b1a7ae1f)**                               | 4.7.6              | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6              | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0             | Apache-2.0                          |
-| **[mongodb](#af6fb6c5b9e3da65371aabbd16a55eee36392e0779db3a41f28b93d3b97750a1)**                                            | 7.1.0              | Apache-2.0                          |
+| **[mongodb](#71db4d6739a9dc892a0fa23a6b9beef3b83bd28ced0c57b39bc667538a270708)**                                            | 7.1.1              | Apache-2.0                          |
 | **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**                                                 | 2.1.3              | MIT                                 |
 | **[napi-build-utils](#4446cbf58ee41dfc4c30b35af90a053cab7e15fcc9736c67a43265eeef531372)**                                   | 2.0.0              | MIT                                 |
 | **[native-machine-id](#bbfaa5ab42199dbf008376a78ed5e9399068f58266fa0a07d7853c4f22c77e1e)**                                  | 0.3.6              | Apache-2.0                          |
@@ -462,7 +462,7 @@ This document was automatically generated on Wed Mar 25 2026.
 | **[parseurl](#c3fdd1b6fb725cb30e8fed82cf929953b46129d347d8404a4a51b633389fbae8)**                                           | 1.3.3              | MIT                                 |
 | **[path-exists](#3ae48f237e1a4424a3b1b60cfc95f35ca29141cd956f8bda85e763d7969e12c7)**                                        | 4.0.0              | MIT                                 |
 | **[path-expression-matcher](#cdb3851dc27d642c2929e021571345b5e735d6a2e98cd17ba1936935dee8239c)**                            | 1.2.0              | MIT                                 |
-| **[path-to-regexp](#305718d439cc19b5b94829196196a34cb0170653881b608f7167ef7de095ca60)**                                     | 8.2.0              | MIT                                 |
+| **[path-to-regexp](#2a588a3a53f84c38deb7694bd8fb3618c6659f5afb52a74c90024a3b71732994)**                                     | 8.4.0              | MIT                                 |
 | **[picocolors](#7c5f372425355293c448d7405cb3b0a1fe19402bd0298caae8e341077624f0b7)**                                         | 1.1.1              | ISC                                 |
 | **[polished](#41f40703c540ffc63abf67340f3944d1f3071fd6b35f499912e723da526b9807)**                                           | 4.3.1              | MIT                                 |
 | **[prebuild-install](#034b3dd1336ef871b8a3739cb1647e8750e3bf21d4ecc9bbfb45525b798ddf20)**                                   | 7.1.3              | MIT                                 |
@@ -553,7 +553,7 @@ This document was automatically generated on Wed Mar 25 2026.
 | **[strip-bom-buf](#4f426c3eaeb7d288c70eb64ad2e2617952c0d8da8cdedf4f8cb29ba65bb3b65e)**                                      | 2.0.0              | MIT                                 |
 | **[strip-bom-stream](#f7e90a4335dbb561f2b002d1b73cdb9d891c023959465fee58c1636e0216af2e)**                                   | 4.0.0              | MIT                                 |
 | **[strip-json-comments](#30c033ea06e2fc5831069ae3348fedc44cf44d65ec1ca8e7a0afd01789f5bb05)**                                | 2.0.1              | MIT                                 |
-| **[strnum](#ba2e5570472d4433c1e7d94804a5075e35c482de8f097c2bbb99dc7f15d22682)**                                             | 2.1.2              | MIT                                 |
+| **[strnum](#11a919e37126ca4da988fb347a77eb8bd9afde71e1fefc13ff53e7f72de3a367)**                                             | 2.2.2              | MIT                                 |
 | **[style-mod](#65cbf3eb373755d5dd9f5c58cf62d48dd4a33349e67d644af61d8d5438dbc1b5)**                                          | 4.1.2              | MIT                                 |
 | **[style-to-object](#a13ff1db998d00430594044801432a2f2244dad01c667bbb176270eef03a9674)**                                    | 0.4.4              | MIT                                 |
 | **[stylis](#131ca0470639719771dc1f233c9962655afffb6d27143e894c43e967517107cf)**                                             | 4.2.0              | MIT                                 |
@@ -4607,9 +4607,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="a77288d36c0c955e96f0bbbb3bf0d15e4ad5638389fb4270d025ecc6fd2d9d40"></a>
+<a id="2612a059349f84a3ef8ea02c1005e3ae687b43fdcfb70a025ce7a2e1cb1c7050"></a>
 
-### [@aws-sdk/xml-builder](https://www.npmjs.com/package/@aws-sdk/xml-builder) (version 3.972.14)
+### [@aws-sdk/xml-builder](https://www.npmjs.com/package/@aws-sdk/xml-builder) (version 3.972.15)
 
 License tags: Apache-2.0
 
@@ -23053,9 +23053,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="d3acd57271b7ae880a5f3b287732c81cac346835ad2c14a7b3fa4272b1854e9e"></a>
+<a id="1edd68d10296c5e70396c4f2d95ef2070e6878a5ed751629bcb8d5e531e277f2"></a>
 
-### [fast-xml-parser](https://www.npmjs.com/package/fast-xml-parser) (version 5.5.6)
+### [fast-xml-parser](https://www.npmjs.com/package/fast-xml-parser) (version 5.5.8)
 
 License tags: MIT
 
@@ -28327,9 +28327,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="81ec4d4efe99c89e6e4d8d6f9d84b7f87ef4ae92bbc9328d484f13ba894c84ed"></a>
+<a id="41de265e46da14679ed02f56213dfeddc448522f56b1b3ebd39689c43af5d5f1"></a>
 
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.6)
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.7)
 
 License tags: Apache-2.0
 
@@ -29811,9 +29811,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="af6fb6c5b9e3da65371aabbd16a55eee36392e0779db3a41f28b93d3b97750a1"></a>
+<a id="71db4d6739a9dc892a0fa23a6b9beef3b83bd28ced0c57b39bc667538a270708"></a>
 
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 7.1.0)
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 7.1.1)
 
 License tags: Apache-2.0
 
@@ -31150,9 +31150,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="305718d439cc19b5b94829196196a34cb0170653881b608f7167ef7de095ca60"></a>
+<a id="2a588a3a53f84c38deb7694bd8fb3618c6659f5afb52a74c90024a3b71732994"></a>
 
-### [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) (version 8.2.0)
+### [path-to-regexp](https://www.npmjs.com/package/path-to-regexp) (version 8.4.0)
 
 License tags: MIT
 
@@ -40406,9 +40406,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="ba2e5570472d4433c1e7d94804a5075e35c482de8f097c2bbb99dc7f15d22682"></a>
+<a id="11a919e37126ca4da988fb347a77eb8bd9afde71e1fefc13ff53e7f72de3a367"></a>
 
-### [strnum](https://www.npmjs.com/package/strnum) (version 2.1.2)
+### [strnum](https://www.npmjs.com/package/strnum) (version 2.2.2)
 
 License tags: MIT
 
