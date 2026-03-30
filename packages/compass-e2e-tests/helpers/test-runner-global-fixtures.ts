@@ -1,13 +1,13 @@
 import gunzip from './gunzip';
 import fs from 'fs';
 import {
-  assertTestingAtlasCloud,
+  assertTestingWebAtlasCloud,
   ATLAS_CLOUD_TEST_UTILS,
   context,
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   getCloudUrlsFromContext,
-  isTestingAtlasCloud,
+  isTestingWebAtlasCloud,
   isTestingDesktop,
   isTestingWeb,
   RUN_ID,
@@ -33,7 +33,6 @@ import {
 } from './compass';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
-  buildCompassWebPackage,
   spawnCompassWebSandbox,
   spawnCompassWebStaticServer,
   waitForCompassWebSandboxToBeReady,
@@ -81,7 +80,7 @@ export function allowServerWarnings(...filters: WarningFilter[]): () => void {
 }
 
 async function createAtlasCloudResources() {
-  assertTestingAtlasCloud(context);
+  assertTestingWebAtlasCloud(context);
 
   debug('Creating Atlas Cloud resources...');
 
@@ -305,26 +304,18 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
         throwIfAborted();
       }
 
-      if (isTestingAtlasCloud(context)) {
-        // Both tasks can take a decent amount of time and are not overlapping
-        // with each other, so we can run them in parallel
-        await Promise.all([
-          createAtlasCloudResources(),
-          (async () => {
-            if (context.compile) {
-              debug('Building compass-web library ...');
-              await buildCompassWebPackage(
-                globalFixturesAbortController.signal
-              );
-            }
-          })(),
-        ]);
+      if (isTestingWebAtlasCloud(context)) {
+        if (context.compile) {
+          debug('Building compass-web and starting a static server ...');
+          const cleanupServer = spawnCompassWebStaticServer(
+            globalFixturesAbortController.signal
+          );
+          cleanupFns.push(cleanupServer);
+        }
 
-        debug('Starting static server for the compass-web assets ...');
-        const cleanupServer = spawnCompassWebStaticServer(
-          globalFixturesAbortController.signal
-        );
-        cleanupFns.push(cleanupServer);
+        await createAtlasCloudResources();
+
+        debug('Waiting for the compass-web assets to be available ...');
         await waitForCompassWebStaticAssetsToBeReady(
           `${context.sandboxUrl}/assets-manifest.json`,
           globalFixturesAbortController.signal

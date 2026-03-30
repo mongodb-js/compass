@@ -1,4 +1,10 @@
-import type { ToolUIPart, UIDataTypes, UIMessagePart, UITools } from 'ai';
+import type {
+  ChatStatus,
+  ToolUIPart,
+  UIDataTypes,
+  UIMessagePart,
+  UITools,
+} from 'ai';
 import type { AssistantMessage } from './compass-assistant-provider';
 import type { Chat } from './@ai-sdk/react/chat-react';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
@@ -101,4 +107,103 @@ export async function getHashedActiveUserId(
     );
     return 'unknown';
   }
+}
+
+function isToolRunning(messages: AssistantMessage[]): boolean {
+  // Check if there are any running tools
+  return messages.some((message) => {
+    return message.parts.some((part) => {
+      if (partIsToolUI(part)) {
+        const toolState = getToolState(part.state);
+        return toolState === 'running';
+      }
+      return false;
+    });
+  });
+}
+
+export function isAssistantThinking(
+  status: ChatStatus,
+  messages: AssistantMessage[]
+): boolean {
+  if (status === 'submitted') {
+    // we sent the message, but the response hasn't started streaming yet
+    return true;
+  }
+
+  if (status === 'streaming') {
+    if (messages.length === 0) {
+      // no messages have even started to arrive yet
+      return true;
+    }
+
+    const message = messages[messages.length - 1];
+
+    if (message.role === 'user') {
+      // the assistant's response hasn't started to arrive yet
+      return true;
+    }
+
+    if (message.parts.length === 0) {
+      // the assistant's response message has been created but it doesn't have
+      // any content yet
+      return true;
+    }
+
+    const part = message.parts[message.parts.length - 1];
+
+    if (part.type === 'step-start') {
+      // a new step has started but it doesn't have any content yet
+      return true;
+    }
+
+    if (partIsToolUI(part)) {
+      // a tool UI part is present, but it hasn't fully arrived yet (because
+      // we're still streaming), so keep waiting
+      return true;
+    }
+
+    if (part.type === 'text' && part.text.trim() === '') {
+      // we got the start of the text response, but there's no text to display
+      // yet, so keep waiting until something at least shows up
+      return true;
+    }
+
+    // enough text should have arrived for us to at least start showing
+    // something to the user, so we can stop showing the thinking state now
+    return false;
+  }
+
+  if (isToolRunning(messages)) {
+    // a tool call is executing
+    return true;
+  }
+
+  // assume that we're in a state where we're waiting for user input or busy
+  // streaming a response so we don't want to be showing the thinking state.
+  // (the design calls for only showing it when we're waiting for the response
+  // to start arriving)
+  return false;
+}
+
+export function cleanToolCallOutput(output: unknown): unknown {
+  // The MCP server's tool call output contains { content, structuredContent }.
+  // content is a very raw representation containing the very verbose "The
+  // following section contains unverified user data." pattern.
+  // structuredContent is the same stuff and probably what we want to keep
+  if (isStructuredOutput(output)) {
+    const obj = { ...output };
+    delete obj.content;
+    return obj;
+  }
+  return output;
+}
+
+function isStructuredOutput(
+  output: unknown
+): output is { content: unknown; structuredContent: unknown } {
+  if (typeof output === 'object' && output !== null) {
+    return 'content' in output && 'structuredContent' in output;
+  }
+  return false;
 }

@@ -73,6 +73,7 @@ export class ToolsController {
       loggers: ['mcp'],
       readOnly: true,
       telemetry: 'disabled',
+      previewFeatures: ['search'],
     });
 
     this.runner = new InMemoryRunner({
