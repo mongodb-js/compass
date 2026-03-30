@@ -148,12 +148,12 @@ describe('MongoDB Assistant (with real backend)', function () {
       async () => {
         const messages = await browser.getDisplayedMessages();
         return messages.some(
-          (m) => m.role === 'assistant' && m.text.includes(collectionName)
+          (m) => m.role === 'assistant' && m.text.includes(dbName)
         );
       },
       {
         timeout: 30_000,
-        timeoutMsg: `Expected assistant response to include the collection name: ${collectionName}`,
+        timeoutMsg: `Expected assistant response to include the database name: ${dbName}`,
       }
     );
   });
