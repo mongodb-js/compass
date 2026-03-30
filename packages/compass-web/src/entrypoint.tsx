@@ -6,12 +6,7 @@ import AppRegistry, {
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { useConnectionActions } from '@mongodb-js/compass-connections/provider';
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
-import type {
-  CollectionTabInfo,
-  WorkspaceTab,
-} from '@mongodb-js/workspace-info';
 import WorkspacesPlugin, {
-  type OpenWorkspaceOptions,
   WorkspacesProvider,
   WorkspacesStorageServiceProviderWeb,
 } from '@mongodb-js/compass-workspaces';
@@ -102,6 +97,8 @@ import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 import { assertsUserDataType } from '@mongodb-js/compass-user-data';
+import { useSyncHistory } from './use-sync-history';
+import type { History } from './use-sync-history';
 
 const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -241,33 +238,6 @@ export type CompassWebProps = {
   darkMode?: boolean;
 
   /**
-   * Optional. If passed, compass-web will try to find connection info with that
-   * id in connection storage and pass it as autoconnect info to the
-   * compass-connections
-   */
-  initialAutoconnectId?: string;
-  /**
-   * Optional. If passed, compass-web will open provided workspace right away.
-   * If workspace requires active connection, the connectionId from the
-   * workspace will be used for the autoconnect info getter. In that case
-   * connectionId from the workspace takes precedence over
-   * `initialAutoconnectId`
-   */
-  initialWorkspace?: OpenWorkspaceOptions;
-
-  /**
-   * Callback prop called when current active workspace changes. Can be used to
-   * communicate current workspace back to the parent component for example to
-   * sync router with the current active workspace
-   */
-  onActiveWorkspaceTabChange: <WS extends WorkspaceTab>(
-    ws: WS | null,
-    collectionInfo: WS extends { type: 'Collection' }
-      ? CollectionTabInfo | null
-      : never
-  ) => void;
-
-  /**
    * Set of initial preferences to override default values
    */
   initialPreferences?: Partial<AllPreferences>;
@@ -301,11 +271,15 @@ export type CompassWebProps = {
   onOpenConnectViaModal?: (atlasMetadata?: AtlasClusterMetadata) => void;
 
   /**
-   * Callback that will get passed another callback function that, when called,
-   * would return back true or false depending on whether or not tabs can be
-   * safely closed without losing any important unsaved changes
+   * A "react-router"-like history instance to be used to manipulate the current
+   * route state. Optional, if not provided, no router handling logic will apply
    */
-  onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
+  history?: History;
+  /**
+   * Optional prefix to take into consideration when parsing current route
+   * (default: "explorer")
+   */
+  historyRoutePrefix?: string;
 };
 
 function CompassWorkspace({
@@ -487,16 +461,14 @@ const CompassWeb = ({
   orgId,
   projectId,
   darkMode,
-  initialAutoconnectId,
-  initialWorkspace: _initialWorkspace,
-  onActiveWorkspaceTabChange,
   initialPreferences,
   atlasCloudFeatureFlags,
   onLog,
   onDebug,
   onTrack,
   onOpenConnectViaModal,
-  onBeforeUnloadCallbackRequest,
+  history,
+  historyRoutePrefix,
 }: CompassWebProps) => {
   const appRegistry = useInitialValue(new AppRegistry());
   const preferencesAccess = useCompassWebPreferences(
@@ -511,16 +483,12 @@ const CompassWeb = ({
       preferences: preferencesAccess,
     });
 
-  // TODO (COMPASS-9565): My Queries feature flag will be used to conditionally provide storage providers
-  const initialWorkspace = useInitialValue(_initialWorkspace);
-  const initialWorkspaceTabs = useInitialValue(() =>
-    initialWorkspace ? [initialWorkspace] : []
-  );
-
-  const autoconnectId =
-    initialWorkspace && 'connectionId' in initialWorkspace
-      ? initialWorkspace.connectionId
-      : initialAutoconnectId ?? undefined;
+  const {
+    initialWorkspaceTabs,
+    autoconnectId,
+    onActiveWorkspaceTabChange,
+    onBeforeUnloadCallbackRequest,
+  } = useSyncHistory(history, historyRoutePrefix);
 
   return (
     <GlobalAppRegistryProvider value={appRegistry}>
