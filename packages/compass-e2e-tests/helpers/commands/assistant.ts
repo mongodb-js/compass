@@ -21,6 +21,17 @@ export async function clearChat(browser: CompassBrowser): Promise<void> {
     await browser.clickVisible(
       Selectors.AssistantConfirmClearChatModalConfirmButton
     );
+
+    // Wait for the confirmation modal to close
+    await browser
+      .$(Selectors.AssistantConfirmClearChatModalConfirmButton)
+      .waitForDisplayed({ reverse: true });
+
+    // Wait for the chat messages to actually clear
+    await browser.waitUntil(async () => {
+      const messages = await browser.getDisplayedMessages();
+      return messages.length === 0;
+    });
   }
 }
 
