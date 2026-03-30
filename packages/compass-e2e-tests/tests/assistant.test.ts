@@ -157,4 +157,55 @@ describe('MongoDB Assistant (with real backend)', function () {
       }
     );
   });
+
+  it('sends a message that results in a tool call request, denies it and renders the response', async function () {
+    // Send a message that should trigger the list-databases tool call
+    const chatInput = browser.$(Selectors.AssistantChatInputTextArea);
+    await chatInput.waitForDisplayed();
+    await chatInput.setValue(
+      'Use the list-databases tool to list all databases'
+    );
+    await browser.clickVisible(Selectors.AssistantChatSubmitButton);
+
+    // Wait for the user message to appear
+    await browser.waitUntil(async () => {
+      const messages = await browser.getDisplayedMessages();
+      return messages.some(
+        (m) =>
+          m.role === 'user' &&
+          m.text === 'Use the list-databases tool to list all databases'
+      );
+    });
+
+    // Wait for the tool call approval UI to appear (the "Run" button inside the chat)
+    const chatMessages = browser.$(Selectors.AssistantChatMessages);
+    const cancelButton = chatMessages.$('button=Cancel');
+    await cancelButton.waitForDisplayed({ timeout: 30_000 });
+
+    // Deny the tool call
+    await browser.clickVisible(cancelButton);
+
+    // Wait for the tool to be cancelled: the "Cancelled" text indicates completion
+    await browser.waitUntil(
+      async () => {
+        const text = await chatMessages.getText();
+        return text.includes('Cancelled list-databases');
+      },
+      { timeout: 30_000 }
+    );
+
+    // Wait for the assistant's final text response to appear
+    await browser.waitUntil(
+      async () => {
+        const messages = await browser.getDisplayedMessages();
+        return messages.some(
+          (m) => m.role === 'assistant' && m.text.length > 0
+        );
+      },
+      {
+        timeout: 30_000,
+        timeoutMsg: `Expected assistant response to follow the cancelled tool call`,
+      }
+    );
+  });
 });
