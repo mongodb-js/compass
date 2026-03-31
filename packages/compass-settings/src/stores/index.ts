@@ -10,6 +10,7 @@ import { PreferencesSandbox } from './preferences-sandbox';
 import type { SettingsTabId } from './settings';
 import { openModal, reducer as settingsReducer } from './settings';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
@@ -19,12 +20,14 @@ export type SettingsThunkExtraArgs = {
   preferencesSandbox: Public<PreferencesSandbox>;
   atlasAuthService: AtlasAuthService;
   logger: Logger;
+  track: TrackFunction;
   preferences: PreferencesAccess;
   atlasAiService: AtlasAiService;
 };
 
 export type SettingsPluginServices = {
   logger: Logger;
+  track: TrackFunction;
   preferences: PreferencesAccess;
   atlasAiService: AtlasAiService;
   atlasAuthService: AtlasAuthService;
@@ -48,6 +51,7 @@ export function configureStore(
         preferences: options.preferences,
         preferencesSandbox,
         logger: options.logger,
+        track: options.track,
         atlasAuthService: options.atlasAuthService,
         atlasAiService: options.atlasAiService,
       })

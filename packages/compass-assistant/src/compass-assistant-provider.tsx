@@ -68,7 +68,7 @@ import type {
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
 import { UUID } from 'bson';
-import { getHashedActiveUserId } from './utils';
+import { getHashedActiveUserId, stopChat } from './utils';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -352,7 +352,7 @@ export const AssistantProvider: React.FunctionComponent<
       }
 
       if (chat.status === 'streaming') {
-        await chat.stop();
+        await stopChat(chat);
       }
 
       const contextPrompt = buildContextPrompt({

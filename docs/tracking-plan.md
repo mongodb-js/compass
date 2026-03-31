@@ -260,6 +260,7 @@ Generated on Tue, Mar 31, 2026
 
 ### Settings
 
+- [Setting Changed](#event--SettingChangedEvent)
 - [Theme Changed](#event--ThemeChangedEvent)
 
 ### Shell
@@ -2824,6 +2825,18 @@ This event is fired when user generates validation rules.
   - The id of the connection associated to this event.
 
 ## Settings
+
+<a name="event--SettingChangedEvent"></a>
+
+### Setting Changed
+
+This event is fired when a user toggles a setting in the settings modal.
+
+**Properties**:
+
+- **setting** (required): `string`
+  - The name of the setting that was changed.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--ThemeChangedEvent"></a>
 

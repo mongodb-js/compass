@@ -361,8 +361,8 @@ This document was automatically generated on Tue Mar 31 2026.
 | **[javascript-stringify](#e0d27d21a288d227e51243715c044b3933d9fc0fb025dc16ec79c78af35f85a7)**                               | 2.1.0              | MIT                                 |
 | **[jose](#9bf013b12d5fa87804279a368fe71609a841374b58c2dd067d0ebf14a989b98b)**                                               | 6.1.3              | MIT                                 |
 | **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**                                          | 4.0.0              | MIT                                 |
-| **[js-yaml](#c82a34a38ab0debe302cf958caa7a51b455f5fb8a32a3ce6b9b4cab3f500c60a)**                                            | 3.14.1             | MIT                                 |
-| **[js-yaml](#b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf)**                                            | 4.1.0              | MIT                                 |
+| **[js-yaml-js-types](#94fe5e72af8a132923f015d2da5fc0d6cc8d214f0b2b3eca7f42fbf67f09cbf5)**                                   | 1.0.1              | MIT                                 |
+| **[js-yaml](#af705ed1eb31f1af61a3698569d8e0370c173e67024075b4f306d8c9010f1298)**                                            | 4.1.1              | MIT                                 |
 | **[jsbn](#936d5c89291f7b505f688e45ff8261d3f225f96e0e981fd0366a9efda9e0e7f2)**                                               | 1.1.0              | MIT                                 |
 | **[jsesc](#ea0becb009dc00e5116c19296121a196c13ad07e74e6a35b68220ae5e3aac71c)**                                              | 3.1.0              | MIT                                 |
 | **[json-bigint](#88c834751617826d41739bc9c4eda53c24014d5a030f6265ec4ea569c58cf995)**                                        | 1.0.0              | MIT                                 |
@@ -25906,9 +25906,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="c82a34a38ab0debe302cf958caa7a51b455f5fb8a32a3ce6b9b4cab3f500c60a"></a>
+<a id="94fe5e72af8a132923f015d2da5fc0d6cc8d214f0b2b3eca7f42fbf67f09cbf5"></a>
 
-### [js-yaml](https://www.npmjs.com/package/js-yaml) (version 3.14.1)
+### [js-yaml-js-types](https://www.npmjs.com/package/js-yaml-js-types) (version 1.0.1)
 
 License tags: MIT
 
@@ -25918,7 +25918,7 @@ License files:
 
       (The MIT License)
 
-      Copyright (C) 2011-2015 by Vitaly Puzrin
+      Copyright (C) 2020 by authors
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -25938,9 +25938,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf"></a>
+<a id="af705ed1eb31f1af61a3698569d8e0370c173e67024075b4f306d8c9010f1298"></a>
 
-### [js-yaml](https://www.npmjs.com/package/js-yaml) (version 4.1.0)
+### [js-yaml](https://www.npmjs.com/package/js-yaml) (version 4.1.1)
 
 License tags: MIT
 
