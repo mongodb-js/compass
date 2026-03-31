@@ -75,14 +75,26 @@ export async function stopChat(chat: Chat<AssistantMessage>) {
     };
   });
 
+  const wasActive = chat.status === 'streaming' || chat.status === 'submitted';
+
   await chat.stop();
+
+  if (!wasActive) {
+    return;
+  }
 
   // chat.stop() fires the abort signal but returns immediately without
   // waiting for the stream pipeline to fully terminate. Wait for
   // makeRequest to catch the abort and set status to 'ready', otherwise
   // the stream's internal job queue can push buffered chunks back after
   // the caller clears messages.
-  if (chat.status !== 'ready' && chat.status !== 'error') {
+  // Note: status can change asynchronously between the check above and
+  // here (e.g. stop() may have already resolved the abort), so we
+  // re-check at runtime.
+  if (
+    (chat.status as string) !== 'ready' &&
+    (chat.status as string) !== 'error'
+  ) {
     await new Promise<void>((resolve) => {
       const unsubscribe = chat['~registerStatusCallback'](() => {
         if (chat.status === 'ready' || chat.status === 'error') {
