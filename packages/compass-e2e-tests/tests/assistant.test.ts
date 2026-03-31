@@ -10,6 +10,10 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
+import {
+  isTestingWeb,
+  isTestingWebAtlasCloud,
+} from '../helpers/test-runner-context';
 
 describe('MongoDB Assistant (with real backend)', function () {
   let compass: Compass;
@@ -23,6 +27,11 @@ describe('MongoDB Assistant (with real backend)', function () {
   const collectionName = 'assistant-test';
 
   before(async function () {
+    if (isTestingWeb() && !isTestingWebAtlasCloud()) {
+      // The assistant does not allow requests from localhost:7777 yet
+      this.skip();
+    }
+
     try {
       telemetry = await startTelemetryServer();
       compass = await init(this.test?.fullTitle());
