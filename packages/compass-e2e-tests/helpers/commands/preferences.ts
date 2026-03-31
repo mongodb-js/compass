@@ -11,7 +11,7 @@ async function _waitUntilPreferencesAccessAvailable(
 ): Promise<void> {
   const waitUntilOptions = {
     timeoutMsg: 'Preferences are not available',
-    interval: 5000,
+    interval: 3000,
   };
 
   if (!isTestingWeb()) {
