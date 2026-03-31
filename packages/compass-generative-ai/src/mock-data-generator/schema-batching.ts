@@ -1,3 +1,5 @@
+import chunk from 'lodash/chunk';
+
 import type { MockDataSchemaToolOutput, RawSchema } from './schema';
 
 // Based on token output limits; provides safe buffer.
@@ -12,22 +14,8 @@ export function splitSchemaIntoChunks(
   rawSchema: RawSchema,
   fieldsPerChunk: number = FIELDS_PER_CHUNK
 ): RawSchema[] {
-  if (fieldsPerChunk <= 0) {
-    throw new Error('fieldsPerChunk must be a positive integer');
-  }
-
-  const entries = Object.entries(rawSchema);
-
-  if (entries.length === 0) {
-    return [];
-  }
-
-  return Array.from(
-    { length: Math.ceil(entries.length / fieldsPerChunk) },
-    (_, i) =>
-      Object.fromEntries(
-        entries.slice(i * fieldsPerChunk, (i + 1) * fieldsPerChunk)
-      )
+  return chunk(Object.entries(rawSchema), fieldsPerChunk).map((entries) =>
+    Object.fromEntries(entries)
   );
 }
 
