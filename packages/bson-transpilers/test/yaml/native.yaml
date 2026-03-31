@@ -1441,7 +1441,7 @@ tests:
         shell: new RegExp("\\n")
       output:
         javascript: new RegExp('\n')
-        python: re.compile(r"\\n")
+        python: re.compile(r"\n")
         java: Pattern.compile("\\n")
         csharp: new Regex("\n")
         php: new Regex("\n")
