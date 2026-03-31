@@ -356,8 +356,10 @@ export function buildContextPrompt({
     instructions.push('<instructions>');
     instructions.push('You SHOULD:');
     instructions.push(
-      `${instructionNum++}. Always offer to run a tool again if the user asks about data that requires it.`,
-      `${instructionNum++}. Always use the 'collection-schema' tool to access collection schema information whenever asked to generate queries or aggregations and before performing queries or aggregations.`
+      `${instructionNum++}. Always offer to run a tool again if the user asks about data that requires it.`
+    );
+    instructions.push(
+      `${instructionNum++}. When the 'collection-schema' tool is available (for example, once the user has a focused connection), use it to access collection schema information whenever asked to generate queries or aggregations and before performing queries or aggregations.`
     );
     instructions.push('</instructions>');
     parts.push(instructions.join('\n'));
