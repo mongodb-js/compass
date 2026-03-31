@@ -71,7 +71,7 @@
     "@mongodb-js/sbom-tools": "^0.10.6",
     "@testing-library/dom": "^8.20.1",
     "husky": "^8.0.3",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "lerna": "^7.1.5",
     "lodash": "^4.17.23",
     "node-gyp": "^10.2.0"

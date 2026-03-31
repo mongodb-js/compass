@@ -13,6 +13,7 @@ const {
 } = require('./helper/error');
 
 const yaml = require('js-yaml');
+const schema = yaml.DEFAULT_SCHEMA.extend(require('js-yaml-js-types').all);
 
 const getCodeGenerationVisitor = require('./codegeneration/CodeGenerationVisitor');
 const getJavascriptVisitor = require('./codegeneration/javascript/Visitor');
@@ -65,7 +66,7 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
   const Transpiler = generator(visitor);
   const transpiler = new Transpiler();
 
-  const doc = yaml.load(symbols);
+  const doc = yaml.load(symbols, { schema });
 
   /* Object validation. If the symbol table is missing any of these elements,
    * then an error should be thrown. Can be empty, but must exist. */
