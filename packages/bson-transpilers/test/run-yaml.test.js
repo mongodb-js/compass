@@ -97,9 +97,6 @@ fs.readdirSync(testpath).map((file) => {
       if (skipType.indexOf(type) !== -1) {
         continue;
       }
-      // if (!(mode === 'native' && type === 'numeric_literals')) {
-      //   continue;
-      // }
       describe(`${type}`, function () {
         for (const test of tests.tests[type]) {
           const description = test.description
