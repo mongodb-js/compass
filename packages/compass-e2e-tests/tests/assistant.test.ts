@@ -88,7 +88,9 @@ describe('MongoDB Assistant (with real backend)', function () {
 
   after(async function () {
     await cleanup(compass);
-    await telemetry.stop();
+    if (telemetry) {
+      await telemetry.stop();
+    }
   });
 
   beforeEach(async function () {
