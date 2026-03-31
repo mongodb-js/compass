@@ -10,6 +10,10 @@ on:
   schedule:
     # Run daily at 6 AM UTC (after the update-dependencies workflow runs at midnight)
     - cron: '0 6 * * *'
+  # TODO: Remove push trigger before merging
+  push:
+    branches:
+      - COMPASS-10456
 
 permissions:
   contents: none # We use the github app token to merge the PR
@@ -30,7 +34,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
-          DRY_RUN: ${{ inputs.dry_run }}
+          # Always dry-run on push trigger, otherwise use the input value
+          DRY_RUN: ${{ github.event_name == 'push' || inputs.dry_run }}
         run: |
           set -e
 
