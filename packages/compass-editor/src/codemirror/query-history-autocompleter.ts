@@ -56,13 +56,18 @@ export function createQueryLabel(
   query: SavedQuery,
   propertyName: string
 ): string {
-  if (!query.queryProperties[propertyName]) {
+  const queryProperty = query.queryProperties[propertyName];
+  if (
+    queryProperty === '' ||
+    queryProperty === undefined ||
+    queryProperty === null
+  ) {
     return '';
   }
 
   // The autocompletion uses a fuzzy search on the label, we only want to
   // auto complete property that is being edited, not all of them.
-  return toJSString(query.queryProperties[propertyName]) || '';
+  return toJSString(queryProperty) || '';
 }
 
 export function createQueryDisplayLabel(query: SavedQuery): string {
@@ -89,18 +94,22 @@ function prepareQueries(
   return savedQueries
     .map((query) => {
       const queryValue = query.queryProperties[queryProperty];
-      // Only some query properties are objects. For instance sort can be an array.
+      // Only some query properties are objects for instance limit is a scalar.
       const isObject = typeof queryValue === 'object';
 
       let scalarSimplified = '';
       let fields: PreparedField[] = [];
 
-      if (!queryValue) {
+      if (
+        queryProperty === '' ||
+        queryProperty === undefined ||
+        queryProperty === null
+      ) {
         return null;
       }
 
       if (!isObject) {
-        if (queryValue.length && queryValue.length > MAX_VALUE_LENGTH) {
+        if (queryValue?.length && queryValue?.length > MAX_VALUE_LENGTH) {
           return null;
         }
 
@@ -110,7 +119,26 @@ function prepareQueries(
         }
         scalarSimplified = str ? simplifyQueryStringForAutocomplete(str) : '';
       } else if (queryValue) {
-        fields = Object.entries(queryValue)
+        const queryIsArray = Array.isArray(queryValue);
+        // We only support autocompletion for objects and arrays of key value pairs.
+        if (
+          queryIsArray &&
+          queryValue.some(
+            (value: any) =>
+              typeof value !== 'object' ||
+              Array.isArray(value) ||
+              value.length !== 2
+          )
+        ) {
+          return null;
+        }
+
+        // Sort can be an array of key values, or an object, we want to support both.
+        const queryIterable = queryIsArray
+          ? queryValue
+          : Object.entries(queryValue);
+
+        fields = queryIterable
           // Some queries can have a ton of fields, we slice to avoid long loops on each character typed.
           .slice(0, MAX_FIELDS)
           .map(([key, value]) => {
@@ -127,6 +155,7 @@ function prepareQueries(
 
         // Prioritize performance over showing every query.
         if (
+          fields.length === 0 ||
           fields.some((field) => field.simplified.length > MAX_VALUE_LENGTH)
         ) {
           return null;

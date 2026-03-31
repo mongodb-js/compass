@@ -246,4 +246,94 @@ describe('query history autocompleter', function () {
       ).map((completion) => completion.label)
     ).to.deep.eq(['bar', '1', 'buz', '2', 'foo']);
   });
+
+  it('does not drop queries where the scalar property value is 0', async function () {
+    const queriesWithZero: SavedQuery[] = [
+      {
+        type: 'recent',
+        lastExecuted: new Date('2023-06-01T12:00:00Z'),
+        queryProperties: {
+          filter: { status: 'active' },
+          limit: 0,
+          skip: 0,
+          maxTimeMS: 0,
+        },
+      },
+    ];
+
+    for (const prop of ['limit', 'skip', 'maxTimeMS'] as const) {
+      const completions = getQueryHistoryAutocompletions(
+        await getCompletions('0', {
+          savedQueries: queriesWithZero,
+          options: undefined,
+          queryProperty: prop,
+          onApply: mockOnApply,
+          theme: 'light',
+        })
+      );
+      expect(completions).to.have.lengthOf(1);
+    }
+  });
+
+  it('handles array-valued properties through Object.entries', async function () {
+    const queryWithArraySort: SavedQuery[] = [
+      {
+        type: 'recent',
+        lastExecuted: new Date('2023-06-01T12:00:00Z'),
+        queryProperties: {
+          filter: { status: 'active' },
+          sort: [['$natural', -1]],
+        },
+      },
+    ];
+
+    const completions = getQueryHistoryAutocompletions(
+      await getCompletions('0', {
+        savedQueries: queryWithArraySort,
+        options: undefined,
+        queryProperty: 'sort',
+        onApply: mockOnApply,
+        theme: 'light',
+      })
+    );
+    expect(completions).to.have.lengthOf(0);
+  });
+
+  it('ignores non-key value arrays', async function () {
+    const invalidArrays = [
+      [1, 2, 3],
+      ['a', 'b', 'c'],
+      [{ key: 'value' }, { key2: 'value2' }],
+      [
+        ['$natural', -1],
+        ['$natural', -1],
+        ['one', 'two', 'three'],
+      ],
+      [],
+    ];
+
+    for (const arr of invalidArrays) {
+      const queryWithArraySort: SavedQuery[] = [
+        {
+          type: 'recent',
+          lastExecuted: new Date('2023-06-01T12:00:00Z'),
+          queryProperties: {
+            filter: { status: 'active' },
+            sort: arr,
+          },
+        },
+      ];
+
+      const completions = getQueryHistoryAutocompletions(
+        await getCompletions('', {
+          savedQueries: queryWithArraySort,
+          options: undefined,
+          queryProperty: 'sort',
+          onApply: mockOnApply,
+          theme: 'light',
+        })
+      );
+      expect(completions).to.have.lengthOf(0);
+    }
+  });
 });
