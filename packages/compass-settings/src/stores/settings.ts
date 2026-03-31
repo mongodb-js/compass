@@ -212,12 +212,13 @@ export const changeFieldValue = <K extends keyof UserConfigurablePreferences>(
   return async (
     dispatch,
     getState,
-    { preferencesSandbox: sandbox, logger }
+    { preferencesSandbox: sandbox, logger, track }
   ): Promise<void> => {
     const { loadingState } = getState().settings;
     if (loadingState === 'loading') {
       throw new Error("Can't change preferences while sandbox is being set up");
     }
+    track('Setting Changed', { setting: field });
     // User input component should always be in sync with user input while user
     // is typing, otherwise it can cause unexpected behavior of the DOM input
     // node and React component. We make sure value is in sync by first updating
