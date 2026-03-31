@@ -57,7 +57,7 @@
     "@mongodb-js/devtools-proxy-support": "^0.7.6",
     "bson": "^7.2.0",
     "hadron-ipc": "^3.5.30",
-    "js-yaml": "^4.1.0",
+    "js-yaml": "^4.1.1",
     "lodash": "^4.17.23",
     "react": "^17.0.2",
     "yargs-parser": "^21.1.1"

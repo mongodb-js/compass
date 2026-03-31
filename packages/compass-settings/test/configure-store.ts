@@ -34,6 +34,7 @@ export default function configureStore(
   return _configureStore({
     preferences,
     logger,
+    track: () => {},
     atlasAuthService: options.atlasAuthService ?? atlasAuthService,
     ...options,
   } as any);
