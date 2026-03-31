@@ -11,6 +11,8 @@ const { getBsonType } = require('hadron-type-checker');
 
 const transpiler = require('../index');
 
+const schema = yaml.DEFAULT_SCHEMA.extend(require('js-yaml-js-types').all);
+
 const outputLanguages = process.env.OUTPUT
   ? process.env.OUTPUT.split(',')
   : [
@@ -35,7 +37,7 @@ const skipType = [];
 const readYAML = (filename) => {
   let parseResult;
   try {
-    parseResult = yaml.load(fs.readFileSync(filename));
+    parseResult = yaml.load(fs.readFileSync(filename), { schema });
   } catch (err) {
     err.message = `${filename}: ${err.message}`;
     throw err;
@@ -95,6 +97,9 @@ fs.readdirSync(testpath).map((file) => {
       if (skipType.indexOf(type) !== -1) {
         continue;
       }
+      // if (!(mode === 'native' && type === 'numeric_literals')) {
+      //   continue;
+      // }
       describe(`${type}`, function () {
         for (const test of tests.tests[type]) {
           const description = test.description

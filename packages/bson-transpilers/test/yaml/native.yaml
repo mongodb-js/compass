@@ -1026,49 +1026,49 @@ tests:
         ruby: '0x123abc'
         rust: '0x123abc'
     - input:
-        shell: 0o1234567
+        shell: '0o1234567'
       output:
-        javascript: 0o1234567
-        python: 0o1234567
+        javascript: '0o1234567'
+        python: '0o1234567'
         java: '01234567'
         csharp: '342391'
         php: '01234567'
-        ruby: 0o1234567
-        rust: 0o1234567
-        go: 0o1234567
+        ruby: '0o1234567'
+        rust: '0o1234567'
+        go: '0o1234567'
     - input:
         shell: '01234567'
       output:
         javascript: '01234567'
-        python: 0o1234567
+        python: '0o1234567'
         java: '01234567'
         csharp: '342391'
         php: '01234567'
-        ruby: 0o1234567
-        rust: 0o1234567
+        ruby: '0o1234567'
+        rust: '0o1234567'
         go: '01234567'
     - input:
         shell: '001234567'
       output:
         javascript: '001234567'
-        python: 0o1234567
+        python: '0o1234567'
         java: '01234567'
         csharp: '342391'
         php: '01234567'
-        ruby: 0o1234567
-        rust: 0o1234567
+        ruby: '0o1234567'
+        rust: '0o1234567'
         go: '001234567'
     - input:
-        shell: 0O1234567
+        shell: '0O1234567'
       output:
-        javascript: 0O1234567
-        python: 0o1234567
+        javascript: '0O1234567'
+        python: '0o1234567'
         java: '01234567'
         csharp: '342391'
         php: '01234567'
-        ruby: 0o1234567
-        rust: 0o1234567
-        go: 0O1234567
+        ruby: '0o1234567'
+        rust: '0o1234567'
+        go: '0O1234567'
   misc_literals:
     - input:
         shell: 'true'
