@@ -1,8 +1,5 @@
 export { CompassWeb } from './entrypoint';
 export type { CompassWebProps } from './entrypoint';
-export * from './url-builder';
-export type { WorkspaceTab } from '@mongodb-js/workspace-info';
-export type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 export {
   CompassExperimentationProvider,
   ExperimentTestNames,

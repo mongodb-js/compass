@@ -49,7 +49,6 @@ function getRouteFromCollectionSubTab(subTab: CollectionSubtab): string {
   }
 }
 
-/** @public */
 export function getWorkspaceTabFromRoute(
   route: string
 ): OpenWorkspaceOptions | null {
@@ -86,7 +85,6 @@ function buildAbsoluteURL(...parts: string[]) {
   );
 }
 
-/** @public */
 export function getRouteFromWorkspaceTab(tab: WorkspaceTab | null) {
   let route: string;
   switch (tab?.type) {
