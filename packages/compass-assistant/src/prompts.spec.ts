@@ -91,6 +91,7 @@ IF the user has a focused connection you CAN:
 <instructions>
 You SHOULD:
 1. Always offer to run a tool again if the user asks about data that requires it.
+2. When the 'collection-schema' tool is available (for example, once the user has a focused connection), use it to access collection schema information whenever asked to generate queries or aggregations and before performing queries or aggregations.
 </instructions>
 `.trim();
 

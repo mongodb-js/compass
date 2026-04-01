@@ -275,6 +275,30 @@ describe('ToolsController', function () {
         expect(listDatabasesTool).to.have.property('needsApproval', true);
         expect(listDatabasesTool).to.have.property('strict', true);
       });
+
+      it('collection-schema tool has a custom description that instructs the model to use it before queries and aggregations', function () {
+        const tools = toolsController.getActiveTools();
+        const tool = tools['collection-schema'];
+        expect(tool.description).to.include(
+          'Always use this tool to access collection schema information whenever asked to generate queries or aggregations and before performing queries or aggregations.'
+        );
+      });
+
+      it('find tool has a custom description that instructs the model to use collection-schema first', function () {
+        const tools = toolsController.getActiveTools();
+        const tool = tools['find'];
+        expect(tool.description).to.include(
+          'Always use the collection-schema tool to access collection schema information before using this tool to perform queries.'
+        );
+      });
+
+      it('aggregate tool has a custom description that instructs the model to use collection-schema first', function () {
+        const tools = toolsController.getActiveTools();
+        const tool = tools['aggregate'];
+        expect(tool.description).to.include(
+          'Always use the collection-schema tool to access collection schema information before using this tool to perform aggregations.'
+        );
+      });
     });
 
     describe('no active tools', function () {

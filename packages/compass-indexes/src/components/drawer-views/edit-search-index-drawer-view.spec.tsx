@@ -12,7 +12,6 @@ import { Provider } from 'react-redux';
 
 import { EditSearchIndexDrawerView } from './edit-search-index-drawer-view';
 import { mockSearchIndex } from '../../../test/helpers';
-import type { SearchIndex } from 'mongodb-data-service';
 import { setupStore } from '../../../test/setup-store';
 
 const defaultSearchIndex = mockSearchIndex({
@@ -36,7 +35,7 @@ function renderEditSearchIndexDrawerView(
 ) {
   const defaultProps: React.ComponentProps<typeof EditSearchIndexDrawerView> = {
     namespace: 'test.collection',
-    searchIndex: defaultSearchIndex as SearchIndex,
+    searchIndex: defaultSearchIndex,
     isBusy: false,
     error: undefined,
     onClose: noop,
@@ -123,7 +122,7 @@ describe('EditSearchIndexDrawerView', function () {
       });
 
       renderEditSearchIndexDrawerView({
-        searchIndex: vectorSearchIndex as SearchIndex,
+        searchIndex: vectorSearchIndex,
       });
 
       expect(screen.getByTestId('edit-search-index-drawer-view')).to.exist;

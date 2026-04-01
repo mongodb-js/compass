@@ -32,6 +32,7 @@ export const createStageAutocompleter = ({
       'expr:*',
       'conv',
       'bson',
+      'bson-legacy-uuid',
       'field:identifier',
       ...(['$project', '$group'].includes(stageOperator ?? '')
         ? (['accumulator', 'accumulator:*'] as const)
