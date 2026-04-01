@@ -22,6 +22,7 @@ import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
 type CompassContext = {
+  enableTelemetry: boolean;
   query?: string;
   pipeline?: string;
 };
@@ -55,6 +56,7 @@ class InMemoryRunner extends TransportRunnerBase {
 type ToolsControllerConfig = {
   logger: Logger;
   getTelemetryAnonymousId: () => string;
+  enableTelemetry: boolean;
 };
 
 export class ToolsController {
@@ -66,13 +68,19 @@ export class ToolsController {
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
 
-  constructor({ logger, getTelemetryAnonymousId }: ToolsControllerConfig) {
+  constructor({
+    logger,
+    getTelemetryAnonymousId,
+    enableTelemetry,
+  }: ToolsControllerConfig) {
     this.logger = logger;
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
       loggers: ['mcp'],
       readOnly: true,
-      telemetry: 'disabled',
+      // NOTE: the preference could change at runtime. As a best-effort way of
+      // keeping it in sync we'll change it every time we set the tools' context
+      telemetry: enableTelemetry ? 'enabled' : 'disabled',
       previewFeatures: ['search'],
     });
 
@@ -248,6 +256,10 @@ export class ToolsController {
   }
 
   setContext(context: ToolsContext): void {
+    // make sure this property is always in sync with the tools' config
+    this.runner.userConfig.telemetry = context.enableTelemetry
+      ? 'enabled'
+      : 'disabled';
     this.context = context;
   }
 
