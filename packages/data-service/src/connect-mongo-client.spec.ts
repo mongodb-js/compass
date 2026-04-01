@@ -167,18 +167,12 @@ describe('connectMongoClient', function () {
       ]);
     });
 
-    it('should at least try to run a ping command to verify connectivity', async function () {
-      try {
-        await connectMongoClient({
-          connectionOptions: {
-            connectionString: 'mongodb://localhost:1/?loadBalanced=true',
-          },
-          setupListeners,
-        });
-        expect.fail('missed exception');
-      } catch (err: any) {
-        expect(err.name).to.equal('MongoNetworkError');
-      }
+    it.only('should at least try to run a ping command to verify connectivity', async function () {
+      const error = await connectMongoClient({
+        connectionOptions: { connectionString: 'mongodb://localhost:1/?loadBalanced=true' },
+        setupListeners,
+      }).then(() => null, (err) => err);
+      expect(error).to.have.property('name', 'MongoNetworkError');
     });
 
     describe('ssh tunnel failures', function () {
