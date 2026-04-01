@@ -703,6 +703,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableTelemetry: true,
         connections: [],
         query,
         pipeline,
@@ -768,6 +769,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableTelemetry: true,
         connections: [],
         query,
         pipeline,
@@ -841,6 +843,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableTelemetry: true,
         connections: [],
         query,
         pipeline,
@@ -925,6 +928,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableTelemetry: true,
         connections: [
           {
             connectionId: 'connection-1',
