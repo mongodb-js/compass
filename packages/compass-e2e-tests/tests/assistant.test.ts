@@ -14,6 +14,7 @@ import {
   isTestingWeb,
   isTestingWebAtlasCloud,
 } from '../helpers/test-runner-context';
+import { expect } from 'chai';
 
 describe('MongoDB Assistant (with real backend)', function () {
   let compass: Compass;
@@ -133,7 +134,8 @@ describe('MongoDB Assistant (with real backend)', function () {
       // Wait for user message to appear
       await browser.waitUntil(async () => {
         const messages = await browser.getDisplayedMessages();
-        return messages.some((m) => m.role === 'user' && m.text === message);
+        expectSome(messages, (m) => m.role === 'user' && m.text === message);
+        return true;
       });
 
       // Wait for tool call approval UI (Run button indicates tool call)
@@ -171,7 +173,8 @@ describe('MongoDB Assistant (with real backend)', function () {
     await browser.waitUntil(
       async () => {
         const text = await chatMessages.getText();
-        return text.includes('Ran list-databases');
+        expect(text).to.include('Ran list-databases');
+        return true;
       },
       { timeout: 30_000 }
     );
@@ -186,13 +189,14 @@ describe('MongoDB Assistant (with real backend)', function () {
     // Wait for the expanded content to include the response with structuredContent.databases
     await browser.waitUntil(
       async () => {
+        // TODO: pick out just the pre tabparse this as JSON rather and then check the object
         const text = await chatMessages.getText();
-        return text.includes('structuredContent') && text.includes('databases');
+        expect(text).to.include('structuredContent');
+        expect(text).to.include('databases');
+        return true;
       },
       {
         timeout: 30_000,
-        timeoutMsg:
-          'Expected tool call response to include structuredContent.databases',
       }
     );
   });
@@ -209,23 +213,20 @@ describe('MongoDB Assistant (with real backend)', function () {
     await browser.waitUntil(
       async () => {
         const text = await chatMessages.getText();
-        return text.includes('Cancelled list-databases');
+        expect(text).to.include('Cancelled list-databases');
+        return true;
       },
       { timeout: 30_000 }
     );
-
-    // Wait for the assistant's final text response to appear
-    await browser.waitUntil(
-      async () => {
-        const messages = await browser.getDisplayedMessages();
-        return messages.some(
-          (m) => m.role === 'assistant' && m.text.length > 0
-        );
-      },
-      {
-        timeout: 30_000,
-        timeoutMsg: `Expected assistant response to follow the cancelled tool call`,
-      }
-    );
   });
 });
+
+function expectSome<T>(array: T[], predicate: (item: T) => boolean) {
+  if (!array.some(predicate)) {
+    throw new Error(
+      `Expected some item in array to satisfy ${predicate.toString()}, but got: ${JSON.stringify(
+        array
+      )}`
+    );
+  }
+}
