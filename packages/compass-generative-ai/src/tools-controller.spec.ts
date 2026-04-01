@@ -367,6 +367,24 @@ describe('ToolsController', function () {
       const result = await tools['get-current-query'].execute?.({}, {} as any);
       expect(result.query).to.equal('new query');
     });
+
+    it('syncs telemetry setting with runner userConfig', function () {
+      toolsController.setContext({
+        enableTelemetry: true,
+        connections: [],
+      });
+      expect((toolsController as any).runner.userConfig.telemetry).to.equal(
+        'enabled'
+      );
+
+      toolsController.setContext({
+        enableTelemetry: false,
+        connections: [],
+      });
+      expect((toolsController as any).runner.userConfig.telemetry).to.equal(
+        'disabled'
+      );
+    });
   });
 
   describe('setConnectionIdForToolCall', function () {
