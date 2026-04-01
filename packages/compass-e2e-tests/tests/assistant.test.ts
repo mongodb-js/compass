@@ -143,6 +143,9 @@ describe('MongoDB Assistant (with real backend)', function () {
           .waitForDisplayed({ timeout: 20_000 });
         return chatMessages;
       } catch {
+        await browser.screenshot(
+          screenshotPathName(`sendAndWaitForToolCall-attempt-${attempt}`)
+        );
         if (attempt < 3) {
           await browser.clearChat();
           continue;
