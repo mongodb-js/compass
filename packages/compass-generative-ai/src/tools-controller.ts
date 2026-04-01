@@ -166,7 +166,7 @@ export class ToolsController {
         }
 
         tools[toolBase.name] = tool({
-          description: toolBase.description,
+          description: getCustomToolDescription(toolBase),
           inputSchema: z.object(
             Object.fromEntries(
               Object.entries(toolBase.argsShape).map(([key, value]) => {
@@ -326,5 +326,31 @@ export class ToolsController {
         { error: error.message }
       );
     }
+  }
+}
+
+function getCustomToolDescription(toolBase: {
+  name: string;
+  description: string;
+}): string {
+  // We want to provide more detailed descriptions for some tools to help guide the model in using them effectively.
+  switch (toolBase.name) {
+    case 'collection-schema':
+      return (
+        toolBase.description +
+        ' Always use this tool to access collection schema information whenever asked to generate queries or aggregations and before performing queries or aggregations.'
+      );
+    case 'find':
+      return (
+        toolBase.description +
+        ' Always use the collection-schema tool to access collection schema information before using this tool to perform queries.'
+      );
+    case 'aggregate':
+      return (
+        toolBase.description +
+        ' Always use the collection-schema tool to access collection schema information before using this tool to perform aggregations.'
+      );
+    default:
+      return toolBase.description;
   }
 }

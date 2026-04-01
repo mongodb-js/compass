@@ -301,6 +301,8 @@ export function getOptionBasedQueries(
         );
       })
       .sort((a, b) => a.lastExecuted.getTime() - b.lastExecuted.getTime())
+      // Only take the most recent 5 queries.
+      .slice(-5)
   );
 }
 

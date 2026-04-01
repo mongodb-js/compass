@@ -7,6 +7,7 @@ const expect = chai.expect;
 
 const { getTree } = require('../');
 const yaml = require('js-yaml');
+const schema = yaml.DEFAULT_SCHEMA.extend(require('js-yaml-js-types').all);
 
 const modes = process.env.MODE ? process.env.MODE.split(',') : [];
 
@@ -22,7 +23,7 @@ const getANTLRVisitor = {
 const readYAML = (filename) => {
   let parseResult;
   try {
-    parseResult = yaml.load(fs.readFileSync(filename));
+    parseResult = yaml.load(fs.readFileSync(filename), { schema });
   } catch (err) {
     err.message = `${filename}: ${err.message}`;
     throw err;
@@ -48,7 +49,7 @@ describe('Casting tests', function () {
           getVisitor(getCodeGenerationVisitor(ANTLRVisitor))
         );
         const transpiler = new Transpiler();
-        const doc = yaml.load(symbols);
+        const doc = yaml.load(symbols, { schema });
         transpiler.Types = Object.assign({}, doc.BasicTypes, doc.BsonTypes);
         transpiler.Symbols = Object.assign(
           {

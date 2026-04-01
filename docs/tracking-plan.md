@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Mar 30, 2026
+Generated on Wed, Apr 1, 2026
 
 ## Table of Contents
 
@@ -260,6 +260,7 @@ Generated on Mon, Mar 30, 2026
 
 ### Settings
 
+- [Setting Changed](#event--SettingChangedEvent)
 - [Theme Changed](#event--ThemeChangedEvent)
 
 ### Shell
@@ -2824,6 +2825,18 @@ This event is fired when user generates validation rules.
   - The id of the connection associated to this event.
 
 ## Settings
+
+<a name="event--SettingChangedEvent"></a>
+
+### Setting Changed
+
+This event is fired when a user toggles a setting in the settings modal.
+
+**Properties**:
+
+- **setting** (required): `string`
+  - The name of the setting that was changed.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--ThemeChangedEvent"></a>
 

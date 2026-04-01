@@ -58,6 +58,7 @@ describe('createStageAutocompleter', function () {
     const completions = getCompletions('{ a', { fields });
     expect(meta(await completions)).to.deep.eq([
       'bson',
+      'bson-legacy-uuid',
       'conv',
       'expr:arith',
       'expr:set',
@@ -79,17 +80,29 @@ describe('createStageAutocompleter', function () {
     ]);
   });
 
-  it('returns query completions for $match stage', async function () {
-    const completions = getCompletions('{ a', {
+  it('returns query completions for $match stage field', async function () {
+    const completions = getCompletions('{ me', {
       fields,
       stageOperator: '$match',
     });
-    expect(meta(await completions)).to.deep.eq([
-      'bson',
-      'bson-legacy-uuid',
-      'query',
-      'field',
-    ]);
+    // na[me] and $com[me]nt
+    expect(meta(await completions)).to.deep.eq(['query', 'field']);
+  });
+
+  it('returns query completions for $match stage value', async function () {
+    const bsonCompletions = getCompletions('{ pineapple: me', {
+      fields,
+      stageOperator: '$match',
+    });
+    // Ti[me]stamp
+    expect(meta(await bsonCompletions)).to.deep.eq(['bson']);
+
+    const completions = getCompletions('{ pineapple: le', {
+      fields,
+      stageOperator: '$match',
+    });
+    // [le]gacy UUIDs match.
+    expect(meta(await completions)).to.deep.eq(['bson-legacy-uuid']);
   });
 
   ['$project', '$group'].forEach((stageOperator) => {

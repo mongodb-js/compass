@@ -20,6 +20,7 @@ import {
 } from 'compass-preferences-model/provider';
 import { useChat } from './@ai-sdk/react/use-chat';
 import type { Chat } from './@ai-sdk/react/chat-react';
+import { stopChat } from './utils';
 
 const assistantTitleStyles = css({
   display: 'flex',
@@ -104,7 +105,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
 export const ClearChatButton: React.FunctionComponent<{
   chat: Chat<AssistantMessage>;
 }> = ({ chat }) => {
-  const { clearError, stop, setMessages } = useChat({ chat });
+  const { clearError } = useChat({ chat });
 
   const handleClearChat = useCallback(async () => {
     const confirmed = await showConfirmation({
@@ -116,7 +117,7 @@ export const ClearChatButton: React.FunctionComponent<{
       'data-testid': 'assistant-confirm-clear-chat-modal',
     });
     if (confirmed) {
-      await stop();
+      await stopChat(chat);
       clearError();
 
       // TODO: We use one chat instance for the entire Assistant service but when a conversation is cleared,
@@ -126,11 +127,14 @@ export const ClearChatButton: React.FunctionComponent<{
       // eslint-disable-next-line react-hooks/immutability
       chat.id = chat.generateId();
 
-      setMessages(
-        chat.messages.filter((message) => message.metadata?.isPermanent)
+      // Set messages directly on the chat instance (not through the hook's
+      // setMessages) to avoid a race with the stream's jobExecutor queue
+      // which can push buffered chunks after stop() resolves.
+      chat.messages = chat.messages.filter(
+        (message) => message.metadata?.isPermanent
       );
     }
-  }, [stop, clearError, chat, setMessages]);
+  }, [clearError, chat]);
 
   const isChatEmpty =
     chat.messages.filter((message) => !message.metadata?.isPermanent).length ===

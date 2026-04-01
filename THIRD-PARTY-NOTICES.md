@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Mar 30 2026.
+This document was automatically generated on Wed Apr 01 2026.
 
 ## List of dependencies
 
@@ -361,8 +361,8 @@ This document was automatically generated on Mon Mar 30 2026.
 | **[javascript-stringify](#e0d27d21a288d227e51243715c044b3933d9fc0fb025dc16ec79c78af35f85a7)**                               | 2.1.0              | MIT                                 |
 | **[jose](#9bf013b12d5fa87804279a368fe71609a841374b58c2dd067d0ebf14a989b98b)**                                               | 6.1.3              | MIT                                 |
 | **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**                                          | 4.0.0              | MIT                                 |
-| **[js-yaml](#c82a34a38ab0debe302cf958caa7a51b455f5fb8a32a3ce6b9b4cab3f500c60a)**                                            | 3.14.1             | MIT                                 |
-| **[js-yaml](#b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf)**                                            | 4.1.0              | MIT                                 |
+| **[js-yaml-js-types](#94fe5e72af8a132923f015d2da5fc0d6cc8d214f0b2b3eca7f42fbf67f09cbf5)**                                   | 1.0.1              | MIT                                 |
+| **[js-yaml](#af705ed1eb31f1af61a3698569d8e0370c173e67024075b4f306d8c9010f1298)**                                            | 4.1.1              | MIT                                 |
 | **[jsbn](#936d5c89291f7b505f688e45ff8261d3f225f96e0e981fd0366a9efda9e0e7f2)**                                               | 1.1.0              | MIT                                 |
 | **[jsesc](#ea0becb009dc00e5116c19296121a196c13ad07e74e6a35b68220ae5e3aac71c)**                                              | 3.1.0              | MIT                                 |
 | **[json-bigint](#88c834751617826d41739bc9c4eda53c24014d5a030f6265ec4ea569c58cf995)**                                        | 1.0.0              | MIT                                 |
@@ -420,13 +420,13 @@ This document was automatically generated on Mon Mar 30 2026.
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0              | MIT                                 |
 | **[mongodb-build-info](#072a485ce651997e66b97b522fce57ad957256d3fae4c7c7179933ee22c75ecd)**                                 | 1.9.6              | Apache-2.0                          |
 | **[mongodb-client-encryption](#f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e)**                          | 7.0.0              | Apache-2.0                          |
-| **[mongodb-cloud-info](#283405446370da6094c1c0937886696adf82e5316b05dc14968c19d66b05356d)**                                 | 2.3.6              | Apache-2.0                          |
+| **[mongodb-cloud-info](#da99078943bd2acc41da07d6285eb8cb5dfc492472612cdd55a0231002a06b3a)**                                 | 2.3.7              | Apache-2.0                          |
 | **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**                      | 7.0.1              | Apache-2.0                          |
 | **[mongodb-log-writer](#41de265e46da14679ed02f56213dfeddc448522f56b1b3ebd39689c43af5d5f1)**                                 | 2.5.7              | Apache-2.0                          |
 | **[mongodb-mcp-server](#513777b6b1ad3efec6684d327b00ef349ee36f6f012e06fa2f50ab84de172633)**                                 | 1.6.1-prerelease.2 | Apache-2.0                          |
 | **[mongodb-ns](#15cc8a3da3a5e870e2d1230562cb9b6bbacd596d19d09daf5ad4d7bdbe331fa1)**                                         | 3.0.3              | Apache-2.0                          |
 | **[mongodb-ns](#1681b02f7072ef576cc967fe600d4bc561bc1f5f8e0e451d2903288655650eaf)**                                         | 3.1.6              | Apache-2.0                          |
-| **[mongodb-query-parser](#8bf39cbac0c53665ed53fc4eacf8c990b1881fd4f0cb8dba34c2d9d2b1a7ae1f)**                               | 4.7.6              | Apache-2.0                          |
+| **[mongodb-query-parser](#15d86e029ff832c873116c6f438515a59156d8fa89923d43d69591f2ad42fdc1)**                               | 4.7.7              | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6              | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0             | Apache-2.0                          |
 | **[mongodb](#71db4d6739a9dc892a0fa23a6b9beef3b83bd28ced0c57b39bc667538a270708)**                                            | 7.1.1              | Apache-2.0                          |
@@ -25906,9 +25906,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="c82a34a38ab0debe302cf958caa7a51b455f5fb8a32a3ce6b9b4cab3f500c60a"></a>
+<a id="94fe5e72af8a132923f015d2da5fc0d6cc8d214f0b2b3eca7f42fbf67f09cbf5"></a>
 
-### [js-yaml](https://www.npmjs.com/package/js-yaml) (version 3.14.1)
+### [js-yaml-js-types](https://www.npmjs.com/package/js-yaml-js-types) (version 1.0.1)
 
 License tags: MIT
 
@@ -25918,7 +25918,7 @@ License files:
 
       (The MIT License)
 
-      Copyright (C) 2011-2015 by Vitaly Puzrin
+      Copyright (C) 2020 by authors
 
       Permission is hereby granted, free of charge, to any person obtaining a copy
       of this software and associated documentation files (the "Software"), to deal
@@ -25938,9 +25938,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="b7325d630b0ab313450fcd188788f6ee374aadd75df4969a9e3c48507ef88bdf"></a>
+<a id="af705ed1eb31f1af61a3698569d8e0370c173e67024075b4f306d8c9010f1298"></a>
 
-### [js-yaml](https://www.npmjs.com/package/js-yaml) (version 4.1.0)
+### [js-yaml](https://www.npmjs.com/package/js-yaml) (version 4.1.1)
 
 License tags: MIT
 
@@ -27914,9 +27914,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="283405446370da6094c1c0937886696adf82e5316b05dc14968c19d66b05356d"></a>
+<a id="da99078943bd2acc41da07d6285eb8cb5dfc492472612cdd55a0231002a06b3a"></a>
 
-### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.3.6)
+### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.3.7)
 
 License tags: Apache-2.0
 
@@ -29175,9 +29175,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="8bf39cbac0c53665ed53fc4eacf8c990b1881fd4f0cb8dba34c2d9d2b1a7ae1f"></a>
+<a id="15d86e029ff832c873116c6f438515a59156d8fa89923d43d69591f2ad42fdc1"></a>
 
-### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.7.6)
+### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.7.7)
 
 License tags: Apache-2.0
 

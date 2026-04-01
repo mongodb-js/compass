@@ -83,7 +83,7 @@
     "@mongodb-js/explain-plan-helper": "^1.5.8",
     "@mongodb-js/my-queries-storage": "^0.57.0",
     "@mongodb-js/reflux-state-mixin": "^1.2.32",
-    "@mongodb-js/shell-bson-parser": "^1.5.6",
+    "@mongodb-js/shell-bson-parser": "^1.5.7",
     "ag-grid-community": "^20.2.0",
     "ag-grid-react": "^20.2.0",
     "bson": "^7.2.0",
@@ -95,7 +95,7 @@
     "mongodb": "^7.1.1",
     "mongodb-data-service": "^22.39.2",
     "mongodb-ns": "^3.0.1",
-    "mongodb-query-parser": "^4.7.6",
+    "mongodb-query-parser": "^4.7.7",
     "react": "^17.0.2",
     "reflux": "^0.4.1",
     "semver": "^7.6.3"

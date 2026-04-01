@@ -13,6 +13,7 @@ const {
 } = require('./helper/error');
 
 const yaml = require('js-yaml');
+const schema = yaml.DEFAULT_SCHEMA.extend(require('js-yaml-js-types').all);
 
 const getCodeGenerationVisitor = require('./codegeneration/CodeGenerationVisitor');
 const getJavascriptVisitor = require('./codegeneration/javascript/Visitor');
@@ -61,11 +62,11 @@ const loadJSTree = (input, start) => {
   return parser[start]();
 };
 
-const getTranspiler = (loadTree, visitor, generator, symbols) => {
+const createTranspiler = (loadTree, visitor, generator, symbols) => {
   const Transpiler = generator(visitor);
   const transpiler = new Transpiler();
 
-  const doc = yaml.load(symbols);
+  const doc = yaml.load(symbols, { schema });
 
   /* Object validation. If the symbol table is missing any of these elements,
    * then an error should be thrown. Can be empty, but must exist. */
@@ -155,80 +156,117 @@ const getTranspiler = (loadTree, visitor, generator, symbols) => {
   };
 };
 
+const TranspilersCache = new Map();
+
+const getOrCreateTranspiler = (name, ...args) => {
+  const existingTranspiler = TranspilersCache.get(name);
+  return (
+    existingTranspiler ??
+    TranspilersCache.set(name, createTranspiler(...args)).get(name)
+  );
+};
+
 module.exports = {
   shell: {
-    java: getTranspiler(
-      loadJSTree,
-      getShellVisitor(
-        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
-      ),
-      getJavaGenerator,
-      shelljavasymbols
-    ),
-    python: getTranspiler(
-      loadJSTree,
-      getShellVisitor(
-        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
-      ),
-      getPythonGenerator,
-      shellpythonsymbols
-    ),
-    csharp: getTranspiler(
-      loadJSTree,
-      getShellVisitor(
-        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
-      ),
-      getCsharpGenerator,
-      shellcsharpsymbols
-    ),
-    javascript: getTranspiler(
-      loadJSTree,
-      getShellVisitor(
-        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
-      ),
-      getJavascriptGenerator,
-      shelljavascriptsymbols
-    ),
-    object: getTranspiler(
-      loadJSTree,
-      getShellVisitor(
-        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
-      ),
-      getObjectGenerator,
-      shellobjectsymbols
-    ),
-    ruby: getTranspiler(
-      loadJSTree,
-      getShellVisitor(
-        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
-      ),
-      getRubyGenerator,
-      shellrubysymbols
-    ),
-    go: getTranspiler(
-      loadJSTree,
-      getShellVisitor(
-        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
-      ),
-      getGoGenerator,
-      shellgosymbols
-    ),
-    rust: getTranspiler(
-      loadJSTree,
-      getShellVisitor(
-        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
-      ),
-      getRustGenerator,
-      shellrustsymbols
-    ),
-    php: getTranspiler(
-      loadJSTree,
-      getShellVisitor(
-        getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
-      ),
-      getPhpGenerator,
-      shellphpsymbols
-    ),
+    get java() {
+      return getOrCreateTranspiler(
+        'java',
+        loadJSTree,
+        getShellVisitor(
+          getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+        ),
+        getJavaGenerator,
+        shelljavasymbols
+      );
+    },
+    get python() {
+      return getOrCreateTranspiler(
+        'python',
+        loadJSTree,
+        getShellVisitor(
+          getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+        ),
+        getPythonGenerator,
+        shellpythonsymbols
+      );
+    },
+    get csharp() {
+      return getOrCreateTranspiler(
+        'csharp',
+        loadJSTree,
+        getShellVisitor(
+          getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+        ),
+        getCsharpGenerator,
+        shellcsharpsymbols
+      );
+    },
+    get javascript() {
+      return getOrCreateTranspiler(
+        'javascript',
+        loadJSTree,
+        getShellVisitor(
+          getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+        ),
+        getJavascriptGenerator,
+        shelljavascriptsymbols
+      );
+    },
+    get object() {
+      return getOrCreateTranspiler(
+        'object',
+        loadJSTree,
+        getShellVisitor(
+          getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+        ),
+        getObjectGenerator,
+        shellobjectsymbols
+      );
+    },
+    get ruby() {
+      return getOrCreateTranspiler(
+        'ruby',
+        loadJSTree,
+        getShellVisitor(
+          getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+        ),
+        getRubyGenerator,
+        shellrubysymbols
+      );
+    },
+    get go() {
+      return getOrCreateTranspiler(
+        'go',
+        loadJSTree,
+        getShellVisitor(
+          getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+        ),
+        getGoGenerator,
+        shellgosymbols
+      );
+    },
+    get rust() {
+      return getOrCreateTranspiler(
+        'rust',
+        loadJSTree,
+        getShellVisitor(
+          getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+        ),
+        getRustGenerator,
+        shellrustsymbols
+      );
+    },
+    get php() {
+      return getOrCreateTranspiler(
+        'php',
+        loadJSTree,
+        getShellVisitor(
+          getJavascriptVisitor(getCodeGenerationVisitor(JavascriptANTLRVisitor))
+        ),
+        getPhpGenerator,
+        shellphpsymbols
+      );
+    },
   },
   getTree: {
     shell: loadJSTree,
