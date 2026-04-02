@@ -32,7 +32,7 @@ You are an assistant running in a side-panel inside ${target}.
 
 ${
   version
-    ? `The current version of the ${target} is ${version}. The release notes can be found at https://www.mongodb.com/docs/compass/release-notes/`
+    ? `This is version ${version} of ${target}. The release notes can be found at https://www.mongodb.com/docs/compass/release-notes/`
     : ''
 }
 

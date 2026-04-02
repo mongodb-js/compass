@@ -26,9 +26,7 @@ describe('prompts', function () {
       const result = buildConversationInstructionsPrompt({
         target: 'MongoDB Compass',
       });
-      expect(result).to.include(
-        'The current version of the MongoDB Compass is 1.45.0'
-      );
+      expect(result).to.include('This is version 1.45.0 of MongoDB Compass');
       expect(result).to.include(
         'https://www.mongodb.com/docs/compass/release-notes/'
       );
@@ -39,7 +37,7 @@ describe('prompts', function () {
       const result = buildConversationInstructionsPrompt({
         target: 'MongoDB Atlas Data Explorer',
       });
-      expect(result).to.not.include('The current version of the');
+      expect(result).to.not.include('This is version');
       expect(result).to.not.include('release-notes');
     });
   });
