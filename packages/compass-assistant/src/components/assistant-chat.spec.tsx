@@ -1062,11 +1062,6 @@ describe('AssistantChat', function () {
       renderWithChat(createMockChat({ messages: mockMessages }));
       userEvent.click(screen.getByLabelText('Expand Related Resources'));
 
-      // TODO(COMPASS-9860) can't find the links in test-electron on RHEL and Ubuntu.
-      if ((process as any).type === 'renderer') {
-        return this.skip();
-      }
-
       await waitFor(() => {
         expect(screen.getByRole('link', { name: 'MongoDB' })).to.have.attribute(
           'href',
@@ -1086,11 +1081,6 @@ describe('AssistantChat', function () {
     });
 
     it('displays identical source titles only once', async function () {
-      // TODO(COMPASS-9860) can't find the links in test-electron on RHEL and Ubuntu.
-      if ((process as any).type === 'renderer') {
-        return this.skip();
-      }
-
       const messagesWithDuplicateSources: AssistantMessage[] = [
         {
           id: 'assistant-with-duplicate-sources',
