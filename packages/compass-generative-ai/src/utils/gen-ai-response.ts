@@ -8,19 +8,24 @@ export async function getAiQueryResponse(
   message: AiQueryPrompt,
   abortSignal: AbortSignal
 ): Promise<string> {
-  const { instructions, requestId, userId } = message.metadata;
+  const { instructions, requestId, analyticsId, sensitiveStorage } =
+    message.metadata;
   const response = streamText({
     model,
     messages: [{ role: 'user', content: message.prompt }],
     providerOptions: {
       openai: {
         instructions,
-        metadata: { userId },
+        metadata: {
+          analytics_id: analyticsId,
+          sensitive_storage: sensitiveStorage,
+        },
         store: false,
       },
     },
     headers: {
       'X-Client-Request-Id': requestId,
+      'X-Assistant-Entrypoint': 'natural-language-to-mql',
     },
     abortSignal,
   }).toUIMessageStream();

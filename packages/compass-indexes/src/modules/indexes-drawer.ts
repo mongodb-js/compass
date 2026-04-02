@@ -1,5 +1,6 @@
 import type { AnyAction } from 'redux';
 import type { IndexesThunkAction } from './index';
+import { isAction } from '../utils/is-action';
 import {
   refreshRegularIndexes,
   startPollingRegularIndexes,
@@ -7,11 +8,19 @@ import {
 } from './regular-indexes';
 import type { FetchIndexesActions } from './regular-indexes';
 import {
+  ActionTypes as SearchIndexesActionTypes,
   refreshSearchIndexes,
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
 } from './search-indexes';
+import type {
+  CreateSearchIndexClosedAction,
+  CreateSearchIndexSucceededAction,
+  UpdateSearchIndexClosedAction,
+  UpdateSearchIndexSucceededAction,
+} from './search-indexes';
 import type { FetchSearchIndexesActions } from './search-indexes';
+import { showConfirmation as showConfirmationModal } from '@mongodb-js/compass-components';
 export type IndexesDrawerViewType =
   | 'indexes-list'
   | 'create-search-index'
@@ -21,14 +30,16 @@ export type SearchIndexType = 'search' | 'vectorSearch';
 
 export type State = {
   currentView: IndexesDrawerViewType;
-  currentIndexType: SearchIndexType | null;
-  currentIndexName: string | null;
+  currentIndexType: SearchIndexType;
+  currentIndexName: string;
+  isDirty: boolean;
 };
 
 export const INITIAL_STATE: State = {
   currentView: 'indexes-list',
-  currentIndexType: null,
-  currentIndexName: null,
+  currentIndexType: 'search',
+  currentIndexName: '',
+  isDirty: false,
 };
 
 export const OPEN_INDEXES_LIST_DRAWER_VIEW =
@@ -37,21 +48,97 @@ export const OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW =
   'indexes/drawer/OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW' as const;
 export const OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW =
   'indexes/drawer/OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW' as const;
+export const SET_IS_DIRTY = 'indexes/drawer/SET_IS_DIRTY' as const;
 
-export const openIndexesListDrawerView = () => ({
-  type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-});
+type OpenIndexesListDrawerViewAction = {
+  type: typeof OPEN_INDEXES_LIST_DRAWER_VIEW;
+};
+
+type OpenCreateSearchIndexDrawerViewAction = {
+  type: typeof OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW;
+  currentIndexType: SearchIndexType;
+};
+
+type OpenEditSearchIndexDrawerViewAction = {
+  type: typeof OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW;
+  currentIndexName: string;
+};
+
+type SetIsDirtyIndexDrawerAction = {
+  type: typeof SET_IS_DIRTY;
+  isDirty: boolean;
+};
+
+export type IndexesDrawerActions =
+  | OpenIndexesListDrawerViewAction
+  | OpenCreateSearchIndexDrawerViewAction
+  | OpenEditSearchIndexDrawerViewAction
+  | SetIsDirtyIndexDrawerAction;
+
+// Exporting this for test only to stub it and set
+// its value. This enables to test the confirmation dialog.
+export const showConfirmation = showConfirmationModal;
+
+/**
+ * Helper to check if view change should be allowed when there are unsaved changes.
+ * Returns true if allowed, false if user cancelled.
+ */
+const confirmViewChangeIfDirty = async (isDirty: boolean): Promise<boolean> => {
+  if (!isDirty) {
+    return true;
+  }
+
+  return showConfirmation({
+    title: 'Any unsaved progress will be lost',
+    buttonText: 'Discard',
+    variant: 'danger',
+    description: 'Are you sure you want to continue?',
+  });
+};
+
+export const openIndexesListDrawerView = (): IndexesThunkAction<
+  Promise<void>,
+  OpenIndexesListDrawerViewAction
+> => {
+  return async (dispatch, getState) => {
+    const { isDirty } = getState().indexesDrawer;
+    const confirmed = await confirmViewChangeIfDirty(isDirty);
+    if (!confirmed) {
+      return;
+    }
+    dispatch({ type: OPEN_INDEXES_LIST_DRAWER_VIEW });
+  };
+};
 
 export const openCreateSearchIndexDrawerView = (
   currentIndexType: SearchIndexType
-) => ({
-  type: OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW,
-  currentIndexType,
-});
+): IndexesThunkAction<Promise<void>, OpenCreateSearchIndexDrawerViewAction> => {
+  return async (dispatch, getState) => {
+    const { isDirty } = getState().indexesDrawer;
+    const confirmed = await confirmViewChangeIfDirty(isDirty);
+    if (!confirmed) {
+      return;
+    }
+    dispatch({ type: OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW, currentIndexType });
+  };
+};
 
-export const openEditSearchIndexDrawerView = (currentIndexName: string) => ({
-  type: OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW,
-  currentIndexName,
+export const openEditSearchIndexDrawerView = (
+  currentIndexName: string
+): IndexesThunkAction<Promise<void>, OpenEditSearchIndexDrawerViewAction> => {
+  return async (dispatch, getState) => {
+    const { isDirty } = getState().indexesDrawer;
+    const confirmed = await confirmViewChangeIfDirty(isDirty);
+    if (!confirmed) {
+      return;
+    }
+    dispatch({ type: OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW, currentIndexName });
+  };
+};
+
+export const setIsDirty = (isDirty: boolean): SetIsDirtyIndexDrawerAction => ({
+  type: SET_IS_DIRTY,
+  isDirty,
 });
 
 export const refreshAllIndexes = (): IndexesThunkAction<
@@ -85,25 +172,98 @@ export default function reducer(
   state = INITIAL_STATE,
   action: AnyAction
 ): State {
-  switch (action.type) {
-    case OPEN_INDEXES_LIST_DRAWER_VIEW:
-      return {
-        ...state,
-        currentView: 'indexes-list',
-      };
-    case OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW:
-      return {
-        ...state,
-        currentView: 'create-search-index',
-        currentIndexType: action.currentIndexType,
-      };
-    case OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW:
-      return {
-        ...state,
-        currentView: 'edit-search-index',
-        currentIndexName: action.currentIndexName,
-      };
-    default:
-      return state;
+  if (
+    isAction<OpenIndexesListDrawerViewAction>(
+      action,
+      OPEN_INDEXES_LIST_DRAWER_VIEW
+    )
+  ) {
+    return {
+      ...state,
+      currentView: 'indexes-list',
+    };
   }
+
+  if (
+    isAction<OpenCreateSearchIndexDrawerViewAction>(
+      action,
+      OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW
+    )
+  ) {
+    return {
+      ...state,
+      currentView: 'create-search-index',
+      currentIndexType: action.currentIndexType,
+    };
+  }
+
+  if (
+    isAction<OpenEditSearchIndexDrawerViewAction>(
+      action,
+      OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW
+    )
+  ) {
+    return {
+      ...state,
+      currentView: 'edit-search-index',
+      currentIndexName: action.currentIndexName,
+    };
+  }
+
+  if (isAction<SetIsDirtyIndexDrawerAction>(action, SET_IS_DIRTY)) {
+    return {
+      ...state,
+      isDirty: action.isDirty,
+    };
+  }
+
+  if (
+    isAction<CreateSearchIndexSucceededAction>(
+      action,
+      SearchIndexesActionTypes.CreateSearchIndexSucceeded
+    )
+  ) {
+    return {
+      ...state,
+      isDirty: false,
+    };
+  }
+
+  if (
+    isAction<UpdateSearchIndexSucceededAction>(
+      action,
+      SearchIndexesActionTypes.UpdateSearchIndexSucceeded
+    )
+  ) {
+    return {
+      ...state,
+      isDirty: false,
+    };
+  }
+
+  if (
+    isAction<CreateSearchIndexClosedAction>(
+      action,
+      SearchIndexesActionTypes.CreateSearchIndexClosed
+    )
+  ) {
+    return {
+      ...state,
+      isDirty: false,
+    };
+  }
+
+  if (
+    isAction<UpdateSearchIndexClosedAction>(
+      action,
+      SearchIndexesActionTypes.UpdateSearchIndexClosed
+    )
+  ) {
+    return {
+      ...state,
+      isDirty: false,
+    };
+  }
+
+  return state;
 }

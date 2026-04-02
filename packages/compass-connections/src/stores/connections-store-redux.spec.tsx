@@ -9,7 +9,6 @@ import {
   render,
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
-import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import { getDataServiceForConnection } from './connections-store-redux';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 
@@ -31,6 +30,19 @@ const mockConnections = [
     },
     favorite: {
       name: 'peaches',
+    },
+    savedConnectionType: 'favorite' as const,
+  },
+  {
+    id: 'grapes',
+    connectionOptions: {
+      connectionString: 'mongodb://grapes',
+      oidc: {
+        enableUntrustedEndpoints: true,
+      },
+    },
+    favorite: {
+      name: 'grapes',
     },
     savedConnectionType: 'favorite' as const,
   },
@@ -56,31 +68,6 @@ describe('CompassConnections store', function () {
   afterEach(() => {
     sinon.resetHistory();
     sinon.restore();
-  });
-
-  describe('#loadAll', function () {
-    it('calls onFailToLoadConnections when it fails to loadAll connections', async function () {
-      const onFailToLoadConnectionsSpy = sinon.spy();
-      const connectionStorage = new InMemoryConnectionStorage();
-      connectionStorage.loadAll = sinon
-        .stub()
-        .rejects(new Error('loadAll failed'));
-
-      renderCompassConnections({
-        connections: 'no-preload',
-        connectionStorage,
-        onFailToLoadConnections: onFailToLoadConnectionsSpy,
-      });
-
-      await waitFor(() => {
-        expect(onFailToLoadConnectionsSpy).to.have.been.calledOnce;
-      });
-
-      expect(onFailToLoadConnectionsSpy.firstCall.firstArg).to.have.property(
-        'message',
-        'loadAll failed'
-      );
-    });
   });
 
   describe('#connect', function () {
@@ -461,6 +448,35 @@ describe('CompassConnections store', function () {
       expect(
         screen.getByText(`Connected to ${mockConnections[0].favorite.name}`)
       ).to.exist;
+    });
+
+    it('shallow merges', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        connections: mockConnections,
+      });
+
+      expect(
+        connectionsStore.getState().connections.byId[mockConnections[2].id].info
+          .connectionOptions.oidc
+      ).to.deep.equal({
+        enableUntrustedEndpoints: true,
+      });
+
+      const updatedConnection = {
+        ...mockConnections[2],
+        connectionOptions: {
+          ...mockConnections[2].connectionOptions,
+          oidc: {},
+        },
+        savedConnectionType: 'recent' as const,
+      };
+
+      await connectionsStore.actions.saveAndConnect(updatedConnection);
+
+      expect(
+        connectionsStore.getState().connections.byId[updatedConnection.id].info
+          .connectionOptions.oidc
+      ).to.deep.equal({});
     });
   });
 

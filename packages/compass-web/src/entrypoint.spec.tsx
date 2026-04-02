@@ -12,6 +12,8 @@ import { CompassWeb } from './entrypoint';
 import Sinon from 'sinon';
 import { ConnectFnProvider } from '@mongodb-js/compass-connections';
 import { MockDataService as TestHelpersMockDataService } from '@mongodb-js/testing-library-compass';
+import { sandboxConnectionStorage } from './connection-storage';
+import { SandboxConnectionStorage } from '../sandbox/sandbox-connection-storage';
 
 function mockDb(name: string) {
   return { _id: name, name };
@@ -35,6 +37,8 @@ class MockDataService extends TestHelpersMockDataService {
   }
 }
 
+sandboxConnectionStorage.current = new SandboxConnectionStorage();
+
 describe('CompassWeb', function () {
   before(function () {
     // TODO(COMPASS-7551): for some reason, specifically evergreen rhel machine can't
@@ -53,7 +57,6 @@ describe('CompassWeb', function () {
   const onTrackSpy = Sinon.spy();
 
   afterEach(function () {
-    cleanup();
     Sinon.resetHistory();
   });
 
@@ -74,7 +77,6 @@ describe('CompassWeb', function () {
             enableCreatingNewConnections: true,
             ...props.initialPreferences,
           }}
-          onFailToLoadConnections={() => {}}
         ></CompassWeb>
       </ConnectFnProvider>
     );
@@ -107,17 +109,5 @@ describe('CompassWeb', function () {
     });
 
     expect(onTrackSpy).to.have.been.calledWith('New Connection');
-  });
-
-  it('should render error state if connection fails', async function () {
-    await renderCompassWebAndConnect({}, (() => {
-      return Promise.reject(new Error('Failed to connect'));
-    }) as any);
-
-    await waitFor(() => {
-      screen.getByText('Failed to connect');
-    });
-
-    expect(onTrackSpy).to.have.been.calledWith('Connection Failed');
   });
 });

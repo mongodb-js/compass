@@ -7,7 +7,7 @@ import {
 } from '../helpers/compass';
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/insert-data';
+import { createNumbersCollection } from '../helpers/mongo-clients';
 import { expect } from 'chai';
 import { isTestingDesktop } from '../helpers/test-runner-context';
 

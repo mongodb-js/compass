@@ -1,19 +1,27 @@
-import React, { useCallback, useLayoutEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
+import * as tls from 'tls';
 import {
   Body,
+  CompassComponentsProvider,
   css,
-  openToast,
   resetGlobalCSS,
 } from '@mongodb-js/compass-components';
-import { CompassWeb } from '../src/index';
-import { SandboxConnectionStorageProvider } from '../src/connection-storage';
-import { useAtlasProxySignIn } from './sandbox-atlas-sign-in';
-import { sandboxConnectionStorage } from './sandbox-connection-storage';
-import { useWorkspaceTabRouter } from './sandbox-workspace-tab-router';
-import { debug } from './sandbox-logger-and-telemetry';
-import './sandbox-preferences';
-import './sandbox-process';
+import type * as CompassWebModule from '../src';
+import { OpenInAtlasToast } from './open-in-atlas-toast';
+
+Object.assign(globalThis, {
+  __compassWebSharedRuntime: {
+    React,
+    ReactDOM,
+    // TODO(CLOUDP-262964): move Socket implementation to compass codebase
+    tls,
+  },
+  // Two conditions need to be matching: this value set to true AND special
+  // imports added directly to the compass-web build, there is no way to
+  // activate this otherwise
+  __compassWebEnableSandboxStorage: true,
+});
 
 const sandboxContainerStyles = css({
   width: '100%',
@@ -22,112 +30,67 @@ const sandboxContainerStyles = css({
 
 resetGlobalCSS();
 
-function getMetaEl(name: string) {
-  return (
-    document.querySelector(`meta[name="${name}" i]`) ??
-    (() => {
-      const el = document.createElement('meta');
-      el.setAttribute('name', name);
-      document.head.prepend(el);
-      return el;
-    })()
-  );
-}
-
 const App = () => {
-  const [currentTab, updateCurrentTab] = useWorkspaceTabRouter();
-  const { status, projectParams } = useAtlasProxySignIn();
-  const {
-    orgId,
-    projectId,
-    csrfToken,
-    csrfTime,
-    enableGenAIFeaturesAtlasProject,
-    enableGenAISampleDocumentPassing,
-    enableGenAIFeaturesAtlasOrg,
-    optInGenAIFeatures,
-    enableGenAIToolCallingAtlasProject,
-    userRoles,
-  } = projectParams ?? {};
+  const [compassWebModule, setCompassWebModule] = useState<
+    typeof CompassWebModule | null
+  >(null);
+  const [compassWebModuleError, setCompassWebModuleError] =
+    useState<Error | null>(null);
 
-  const atlasServiceSandboxBackendVariant =
-    process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'local'
-      ? 'web-sandbox-atlas-local'
-      : process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'dev'
-      ? 'web-sandbox-atlas-dev'
-      : process.env.COMPASS_WEB_HTTP_PROXY_CLOUD_CONFIG === 'qa'
-      ? 'web-sandbox-atlas-qa'
-      : 'web-sandbox-atlas';
-
-  useLayoutEffect(() => {
-    getMetaEl('csrf-token').setAttribute('content', csrfToken ?? '');
-    getMetaEl('csrf-time').setAttribute('content', csrfTime ?? '');
-  }, [csrfToken, csrfTime]);
-
-  const onFailToLoadConnections = useCallback((error: Error) => {
-    openToast('failed-to-load-connections', {
-      title: 'Failed to load connections',
-      description: error.message,
-      variant: 'warning',
-    });
+  useEffect(() => {
+    // @ts-expect-error this is a "public" url of the asset produced by webpack,
+    // TS won't be able to resolve the types from that
+    void import(/* webpackIgnore: true */ '/compass-web.mjs')
+      .then(setCompassWebModule)
+      .catch(setCompassWebModuleError);
   }, []);
 
-  if (status === 'checking') {
+  if (compassWebModuleError) {
+    throw compassWebModuleError;
+  }
+
+  if (!compassWebModule) {
     return null;
   }
 
-  const isAtlas = status === 'signed-in';
-
-  const groupRolePreferences = (() => {
-    if (!isAtlas) {
-      return {};
-    }
-    if (userRoles?.isDataAccessAdmin) {
-      return {};
-    }
-    if (userRoles?.isDataAccessWrite) {
-      return { readWrite: true };
-    }
-    return { readOnly: true };
-  })();
+  const { CompassWeb, getRouteFromWorkspaceTab, getWorkspaceTabFromRoute } =
+    compassWebModule;
 
   return (
-    <SandboxConnectionStorageProvider
-      value={isAtlas ? null : sandboxConnectionStorage}
-    >
+    <CompassComponentsProvider>
       <Body as="div" className={sandboxContainerStyles}>
         <CompassWeb
-          orgId={orgId ?? ''}
-          projectId={projectId ?? ''}
-          onActiveWorkspaceTabChange={updateCurrentTab}
-          initialWorkspace={currentTab ?? undefined}
+          orgId=""
+          projectId=""
+          initialWorkspace={
+            getWorkspaceTabFromRoute(window.location.pathname) ?? undefined
+          }
+          onActiveWorkspaceTabChange={(tab) => {
+            const newPath = getRouteFromWorkspaceTab(tab);
+            window.history.replaceState(null, '', newPath);
+          }}
+          // Some overrides for the default compass-web preferences to enable the
+          // features that would be disabled by default otherwise
           initialPreferences={{
             enableExportSchema: true,
-            enablePerformanceAdvisorBanner: isAtlas,
-            enableAtlasSearchIndexes: !isAtlas,
-            maximumNumberOfActiveConnections: isAtlas ? 10 : undefined,
-            atlasServiceBackendPreset: atlasServiceSandboxBackendVariant,
-            enableCreatingNewConnections: !isAtlas,
-            enableGlobalWrites: isAtlas,
-            enableRollingIndexes: isAtlas,
-            enableGenAIFeaturesAtlasOrg:
-              !isAtlas || !!enableGenAIFeaturesAtlasOrg,
-            enableGenAIFeaturesAtlasProject:
-              !isAtlas || !!enableGenAIFeaturesAtlasProject,
-            enableGenAISampleDocumentPassing:
-              !!enableGenAISampleDocumentPassing,
-            enableGenAIToolCallingAtlasProject:
-              !isAtlas || !!enableGenAIToolCallingAtlasProject,
-            optInGenAIFeatures: isAtlas ? !!optInGenAIFeatures : false,
+            enablePerformanceAdvisorBanner: false,
+            enableAtlasSearchIndexes: true,
+            maximumNumberOfActiveConnections: undefined,
+            enableCreatingNewConnections: true,
+            enableGlobalWrites: false,
+            enableRollingIndexes: false,
+            enableGenAIFeaturesAtlasOrg: true,
+            enableGenAIFeaturesAtlasProject: true,
+            enableGenAISampleDocumentPassing: false,
+            enableGenAIToolCallingAtlasProject: true,
+            optInGenAIFeatures: false,
             enableDataModelingCollapse: true,
-            enableMyQueries: isAtlas,
-            ...groupRolePreferences,
+            enableMyQueries: false,
           }}
-          onDebug={debug}
-          onFailToLoadConnections={onFailToLoadConnections}
         ></CompassWeb>
+        <OpenInAtlasToast></OpenInAtlasToast>
       </Body>
-    </SandboxConnectionStorageProvider>
+    </CompassComponentsProvider>
   );
 };
 

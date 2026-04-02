@@ -85,6 +85,9 @@ export type IndexesTableProps<T> = {
   ['data-testid']: string;
   columns: LGColumnDef<T>[];
   data: LGTableDataType<T>[];
+  tableWrapperClassName?: string;
+  cellClassName?: string;
+  showActionsOnHover?: boolean;
 };
 
 export function IndexesTable<T>({
@@ -92,6 +95,9 @@ export function IndexesTable<T>({
   ['data-testid']: dataTestId,
   columns,
   data,
+  tableWrapperClassName,
+  cellClassName,
+  showActionsOnHover = true,
 }: IndexesTableProps<T>) {
   const [sorting, setSorting] = useTabState<SortingState>(
     `${id}-sorting-state`,
@@ -113,7 +119,7 @@ export function IndexesTable<T>({
   return (
     <div className={tableWrapperStyles}>
       <Table
-        className={tableStyles}
+        className={cx(tableStyles, tableWrapperClassName)}
         data-testid={`${dataTestId}-list`}
         table={table}
         shouldTruncate={false}
@@ -127,7 +133,7 @@ export function IndexesTable<T>({
               {headerGroup.headers.map((header) => {
                 return (
                   <HeaderCell
-                    className={tableHeadCellStyles}
+                    className={cx(tableHeadCellStyles, cellClassName)}
                     data-testid={`${dataTestId}-header-${header.id}`}
                     key={header.id}
                     header={header}
@@ -162,9 +168,11 @@ export function IndexesTable<T>({
                       key={cell.id}
                       id={cell.id}
                       cell={cell}
-                      className={cx({
-                        [indexActionsCellClassName]: isActionsCell,
-                        [indexActionsCellStyles]: isActionsCell,
+                      className={cx(cellClassName, {
+                        [indexActionsCellClassName]:
+                          isActionsCell && showActionsOnHover,
+                        [indexActionsCellStyles]:
+                          isActionsCell && showActionsOnHover,
                       })}
                       data-testid={`${dataTestId}-${cell.column.id}-field`}
                     >

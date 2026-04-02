@@ -2605,6 +2605,21 @@ type DatabaseCreatedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when a user toggles a setting in the settings modal.
+ *
+ * @category Settings
+ */
+type SettingChangedEvent = CommonEvent<{
+  name: 'Setting Changed';
+  payload: {
+    /**
+     * The name of the setting that was changed.
+     */
+    setting: string;
+  };
+}>;
+
+/**
  * This event is fired when a user changes the theme.
  *
  * @category Settings
@@ -3013,6 +3028,7 @@ type DataModelingDiagramCreationStarted = ConnectionScopedEvent<{
   payload: {
     num_collections: number;
     automatically_infer_relations: boolean;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3026,6 +3042,7 @@ type DataModelingDiagramCreationRelationshipInferralStarted =
     name: 'Data Modeling Diagram Creation Relationship Inferral Started';
     payload: {
       num_collections: number;
+      sample_size: number | 'all_documents';
     };
   }>;
 
@@ -3044,6 +3061,7 @@ type DataModelingDiagramCreated = ConnectionScopedEvent<{
     num_relations_inferred?: number;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3059,6 +3077,7 @@ type DataModelingDiagramCreationCancelled = ConnectionScopedEvent<{
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3074,6 +3093,7 @@ type DataModelingDiagramCreationFailed = ConnectionScopedEvent<{
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3097,6 +3117,7 @@ type DataModelingAddDBCollectionsStarted = ConnectionScopedEvent<{
   payload: {
     num_collections: number;
     automatically_infer_relations: boolean;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3115,6 +3136,7 @@ type DataModelingAddDBCollectionsSucceeded = ConnectionScopedEvent<{
     num_relations_inferred?: number;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3130,6 +3152,7 @@ type DataModelingAddDBCollectionsFailed = ConnectionScopedEvent<{
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3145,6 +3168,7 @@ type DataModelingAddDBCollectionsCancelled = ConnectionScopedEvent<{
     automatically_infer_relations: boolean;
     analysis_time_ms: number;
     relationship_inference_phase_ms?: number;
+    sample_size: number | 'all_documents';
   };
 }>;
 
@@ -3621,6 +3645,7 @@ export type TelemetryEvent =
   | SignalLinkClickedEvent
   | SignalOpenedEvent
   | SignalShownEvent
+  | SettingChangedEvent
   | SwitchViewTypeEvent
   | ThemeChangedEvent
   | UpdateExportedEvent

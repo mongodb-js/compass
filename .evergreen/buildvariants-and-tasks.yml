@@ -2,39 +2,45 @@
 # Edit buildvariants-and-tasks.in.yml instead.
 buildvariants:
   - name: check
+    tags:
+      - run-on-pr
     display_name: Check
     run_on: ubuntu2204-large
     tasks:
       - name: check
   - name: unit-tests-ubuntu
+    tags:
+      - run-on-pr
     display_name: Unit Tests Ubuntu
     run_on: ubuntu2204-large
-    patchable: true
     tasks:
       - name: test
       - name: test-electron
   - name: unit-tests-windows
+    tags:
+      - run-on-pr
     display_name: Unit Tests Windows
     run_on: windows-vsCurrent-large
-    patchable: true
     tasks:
       - name: test
       - name: test-electron
   - name: unit-tests-rhel
+    tags:
+      - run-on-pr
     display_name: Unit Tests RHEL
     run_on: rhel93-large
-    patchable: true
     tasks:
       - name: test
       - name: test-electron
   - name: unit-tests-macos
     display_name: Unit Tests MacOS
     run_on: macos-15-arm64-gui
-    patchable: false
     tasks:
       - name: test
       - name: test-electron
   - name: package-ubuntu
+    tags:
+      - run-on-pr
     expansions:
       target_platform: ubuntu
     display_name: Package Ubuntu
@@ -44,6 +50,8 @@ buildvariants:
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-windows
+    tags:
+      - run-on-pr
     expansions:
       target_platform: windows
     display_name: Package Windows
@@ -53,6 +61,8 @@ buildvariants:
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-rhel
+    tags:
+      - run-on-pr
     expansions:
       target_platform: rhel
     display_name: Package RHEL
@@ -62,6 +72,8 @@ buildvariants:
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-macos-x64
+    tags:
+      - run-on-pr
     expansions:
       target_platform: macos
     display_name: Package MacOS Intel
@@ -71,6 +83,8 @@ buildvariants:
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: package-macos-arm
+    tags:
+      - run-on-pr
     expansions:
       target_platform: macos-arm
     display_name: Package MacOS Arm64
@@ -80,6 +94,8 @@ buildvariants:
       - name: package-compass-isolated
       - name: package-compass-readonly
   - name: smoketest-packaged-app
+    tags:
+      - run-on-pr
     display_name: Smoke Test via GitHub Actions
     run_on: ubuntu2204-large
     depends_on:
@@ -118,7 +134,6 @@ buildvariants:
   - name: test-eol-servers
     display_name: Test EoL Servers
     run_on: ubuntu2004-large
-    patchable: false
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -130,9 +145,10 @@ buildvariants:
       - name: test-server-60x-enterprise-2
       - name: test-server-60x-enterprise-3
   - name: test-maintained-servers
+    tags:
+      - run-on-pr
     display_name: Test Maintained Servers
     run_on: ubuntu2204-large
-    patchable: true
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -152,7 +168,6 @@ buildvariants:
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
     run_on: ubuntu2204-large
-    patchable: false
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -161,9 +176,10 @@ buildvariants:
       - name: test-server-latest-alpha-2
       - name: test-server-latest-alpha-3
   - name: test-packaged-app-ubuntu
+    tags:
+      - run-on-pr
     display_name: Test Packaged App Ubuntu 22.04
     run_on: ubuntu2204-large
-    patchable: true
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -172,9 +188,10 @@ buildvariants:
       - name: test-packaged-app-2
       - name: test-packaged-app-3
   - name: test-packaged-app-windows
+    tags:
+      - run-on-pr
     display_name: Test Packaged App Windows 10
     run_on: windows-vsCurrent-large
-    patchable: true
     depends_on:
       - name: package-compass
         variant: package-windows
@@ -183,9 +200,10 @@ buildvariants:
       - name: test-packaged-app-2
       - name: test-packaged-app-3
   - name: test-packaged-app-rhel
+    tags:
+      - run-on-pr
     display_name: Test Packaged App RHEL 9.3
     run_on: rhel93-large
-    patchable: true
     depends_on:
       - name: package-compass
         variant: package-rhel
@@ -194,9 +212,10 @@ buildvariants:
       - name: test-packaged-app-2
       - name: test-packaged-app-3
   - name: test-packaged-app-macos-11-arm
+    tags:
+      - run-on-pr
     display_name: Test Packaged App MacOS arm64 11
     run_on: macos-11-arm64-gui
-    patchable: true
     depends_on:
       - name: package-compass
         variant: package-macos-arm
@@ -207,7 +226,6 @@ buildvariants:
   - name: test-packaged-app-macos-11-x64
     display_name: Test Packaged App MacOS x64 11
     run_on: macos-11-gui
-    patchable: false
     depends_on:
       - name: package-compass
         variant: package-macos-x64
@@ -216,9 +234,10 @@ buildvariants:
       - name: test-packaged-app-macos-11-2
       - name: test-packaged-app-macos-11-3
   - name: test-packaged-app-macos-15-arm
+    tags:
+      - run-on-pr
     display_name: Test Packaged App MacOS arm64 15
     run_on: macos-15-arm64-gui
-    patchable: true
     depends_on:
       - name: package-compass
         variant: package-macos-arm
@@ -229,7 +248,6 @@ buildvariants:
   - name: test-packaged-app-macos-15-x64
     display_name: Test Packaged App MacOS x64 15
     run_on: macos-15-amd64-gui
-    patchable: false
     depends_on:
       - name: package-compass
         variant: package-macos-x64
@@ -238,23 +256,30 @@ buildvariants:
       - name: test-packaged-app-2
       - name: test-packaged-app-3
   - name: publish
+    tags:
+      - run-on-pr
     display_name: Publish Artifacts
     run_on: ubuntu2204-large
     tasks:
       - name: publish
       - name: publish-web
-      - name: publish-dev-release-info
   - name: static-analysis
+    tags:
+      - run-on-pr
     display_name: Create Static Analysis Report
     run_on: ubuntu2004-large
     tasks:
       - name: create_static_analysis_report
   - name: connectivity-tests
+    tags:
+      - run-on-pr
     display_name: Connectivity Tests
     run_on: ubuntu2204-large
     tasks:
       - name: test-connectivity
   - name: e2e-coverage
+    tags:
+      - run-on-pr
     display_name: E2E Coverage
     run_on: ubuntu2204-large
     tasks:
@@ -262,11 +287,15 @@ buildvariants:
       - name: e2e-coverage-2
       - name: e2e-coverage-3
   - name: csfle-tests
+    tags:
+      - run-on-pr
     display_name: CSFLE Tests
     run_on: ubuntu2204-large
     tasks:
       - name: test-csfle
   - name: test-web-sandbox
+    tags:
+      - run-on-pr
     display_name: Test Web Sandbox
     run_on: ubuntu2204-large
     tasks:
@@ -277,6 +306,8 @@ buildvariants:
       - name: test-web-sandbox-firefox-2
       - name: test-web-sandbox-firefox-3
   - name: test-can-bundle-compass-web
+    tags:
+      - run-on-pr
     display_name: Test Can Bundle Compass Web
     run_on: ubuntu2204-large
     tasks:
@@ -287,6 +318,8 @@ buildvariants:
     tasks:
       - name: test-web-sandbox-atlas-cloud
   - name: generate-vulnerability-report
+    tags:
+      - run-on-pr
     display_name: Vulnerability Report
     run_on: ubuntu2204-large
     tasks:
@@ -294,8 +327,8 @@ buildvariants:
 tasks:
   - name: check
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-web
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -303,8 +336,8 @@ tasks:
       - func: check
   - name: test
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-web
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_creates_breaking_commit
     commands:
@@ -317,8 +350,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: test-electron
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -329,8 +361,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: test-connectivity
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: clone
       - func: test-connectivity
@@ -339,8 +370,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: test-csfle
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -351,8 +381,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: e2e-coverage-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -365,8 +394,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: e2e-coverage-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -379,8 +407,7 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: e2e-coverage-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -393,8 +420,8 @@ tasks:
           mongodb_version: 8.0.x-enterprise
   - name: generate-vulnerability-report
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-web
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -403,11 +430,10 @@ tasks:
         vars:
           debug: compass*,electron*,hadron*,mongo*
   - name: publish
-    tags:
-      - run-on-pr
     depends_on:
-      - name: .required-for-publish
+      - name: .required-for-publish-desktop
         variant: '*'
+        patch_optional: true
     commands:
       - func: prepare
       - func: install
@@ -417,11 +443,10 @@ tasks:
       - func: get-all-artifacts
       - func: publish
   - name: publish-web
-    tags:
-      - run-on-pr
     depends_on:
-      - name: .required-for-publish
+      - name: .required-for-publish-web
         variant: '*'
+        patch_optional: true
     commands:
       - func: prepare
       - func: install
@@ -430,18 +455,9 @@ tasks:
           scope: '@mongodb-js/compass-web'
       - func: upload-web
       - func: publish-web
-  - name: publish-dev-release-info
-    tags: []
-    depends_on:
-      - name: publish
-        variant: '*'
-    commands:
-      - func: prepare
-      - func: publish-dev-release-info
   - name: package-compass
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
       - package-task
     commands:
       - func: prepare
@@ -463,8 +479,7 @@ tasks:
           compass_distribution: compass
   - name: package-compass-isolated
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
       - package-task
     commands:
       - func: prepare
@@ -486,8 +501,7 @@ tasks:
           compass_distribution: compass-isolated
   - name: package-compass-readonly
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
       - package-task
     commands:
       - func: prepare
@@ -509,8 +523,7 @@ tasks:
           compass_distribution: compass-readonly
   - name: smoketest-packaged-app
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -522,8 +535,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-community-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -545,8 +557,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-community-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -568,8 +579,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-community-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -591,8 +601,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-enterprise-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -614,8 +623,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-enterprise-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -637,8 +645,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-60x-enterprise-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -660,8 +667,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -683,8 +689,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -706,8 +711,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -729,8 +733,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-enterprise-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -752,8 +755,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-enterprise-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -775,8 +777,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-enterprise-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -798,8 +799,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-community-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -821,8 +821,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-community-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -844,8 +843,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-community-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -867,8 +865,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-enterprise-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -890,8 +887,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-enterprise-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -913,8 +909,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-80x-enterprise-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -936,8 +931,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -959,8 +953,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -982,8 +975,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -1005,8 +997,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1030,8 +1021,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-macos-11-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1055,8 +1045,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1080,8 +1069,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-macos-11-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1105,8 +1093,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1130,8 +1117,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-macos-11-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1155,8 +1141,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-chrome-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1178,8 +1163,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-chrome-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1201,8 +1185,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-chrome-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1224,8 +1207,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-firefox-1
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1247,8 +1229,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-firefox-2
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1270,8 +1251,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-firefox-3
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1293,7 +1273,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-can-bundle-compass-web
     tags:
-      - run-on-pr
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
@@ -1305,11 +1285,9 @@ tasks:
           debug: compass*,electron*,hadron*,mongo*
   - name: test-web-sandbox-atlas-cloud
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-web
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
-    patchable: false
     commands:
       - func: prepare
       - func: install
@@ -1320,8 +1298,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: create_static_analysis_report
     tags:
-      - required-for-publish
-      - run-on-pr
+      - required-for-publish-desktop
     depends_on:
       - name: .package-task
         variant: '*'

@@ -15,6 +15,7 @@ import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider
 import { waitFor } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 const NOOP_DATA_PROVIDER: IndexesDataService = {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -147,6 +148,8 @@ export const setupStore = (
 
   const atlasService = {} as AtlasService;
 
+  const workspaces = {} as WorkspacesService;
+
   return activateIndexesPlugin(
     {
       namespace: 'citibike.trips',
@@ -165,6 +168,7 @@ export const setupStore = (
       collection: createMockCollection(),
       connectionInfoRef,
       atlasService,
+      workspaces,
       preferences: {
         getPreferences() {
           return {

@@ -323,7 +323,6 @@ function collectionColumns({
         const storageSize = collection.storage_size;
         const freeStorageSize = collection.free_storage_size ?? 0;
         const usedStorageSize = storageSize - freeStorageSize;
-        const documentSize = collection.document_size;
         const displayValue = compactBytes(storageSize);
 
         const definition = (
@@ -338,12 +337,6 @@ function collectionColumns({
             <div>
               <strong>Free:</strong> {compactBytes(freeStorageSize)}
             </div>
-            {documentSize !== undefined && (
-              <div>
-                <strong>Data Size:</strong> {compactBytes(documentSize)}{' '}
-                (uncompressed)
-              </div>
-            )}
           </div>
         );
 
@@ -357,13 +350,12 @@ function collectionColumns({
         );
       },
     },
-    /*
     {
-      accessorKey: 'free_storage_size',
-      header: 'Free storage size',
+      accessorKey: 'document_size',
+      header: 'Data size',
       enableSorting: true,
       sortUndefined: 'last',
-      maxSize: 100,
+      maxSize: 80,
       cell: (info) => {
         const collection = info.row.original;
         if (!isReady(collection.status)) {
@@ -374,12 +366,12 @@ function collectionColumns({
         if (type === 'view') {
           return '-';
         }
-        return enableDbAndCollStats && collection.free_storage_size !== undefined
-          ? compactBytes(collection.free_storage_size)
+
+        return enableDbAndCollStats && collection.document_size !== undefined
+          ? compactBytes(collection.document_size)
           : '-';
       },
     },
-    */
     {
       accessorKey: 'document_count',
       header: 'Documents',

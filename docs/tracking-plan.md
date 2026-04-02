@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Feb 23, 2026
+Generated on Wed, Apr 1, 2026
 
 ## Table of Contents
 
@@ -260,6 +260,7 @@ Generated on Mon, Feb 23, 2026
 
 ### Settings
 
+- [Setting Changed](#event--SettingChangedEvent)
 - [Theme Changed](#event--ThemeChangedEvent)
 
 ### Shell
@@ -1206,6 +1207,7 @@ This event is fired when a new data modeling diagram creation is started
 
 - **num_collections** (required): `number`
 - **automatically_infer_relations** (required): `boolean`
+- **sample_size** (required): `number | "all_documents"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1219,6 +1221,7 @@ This event is fired when the collections are analyzed and the relationship infer
 **Properties**:
 
 - **num_collections** (required): `number`
+- **sample_size** (required): `number | "all_documents"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1238,6 +1241,7 @@ The first two phases overlap.
 - **num_relations_inferred** (optional): `number | undefined`
 - **analysis_time_ms** (required): `number`
 - **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1254,6 +1258,7 @@ This event is fired when a new data modeling diagram creation is cancelled
 - **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
 - **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1270,6 +1275,7 @@ This event is fired when a new data modeling diagram creation has failed
 - **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
 - **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1290,6 +1296,7 @@ This event is fired when new collections from the database are to be added to an
 
 - **num_collections** (required): `number`
 - **automatically_infer_relations** (required): `boolean`
+- **sample_size** (required): `number | "all_documents"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1309,6 +1316,7 @@ The first two phases overlap.
 - **num_relations_inferred** (optional): `number | undefined`
 - **analysis_time_ms** (required): `number`
 - **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1325,6 +1333,7 @@ This event is fired when adding new collections from the database has failed
 - **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
 - **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1341,6 +1350,7 @@ This event is fired when adding new collections from the database has been cance
 - **automatically_infer_relations** (required): `boolean`
 - **analysis_time_ms** (required): `number`
 - **relationship_inference_phase_ms** (optional): `number | undefined`
+- **sample_size** (required): `number | "all_documents"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -2815,6 +2825,18 @@ This event is fired when user generates validation rules.
   - The id of the connection associated to this event.
 
 ## Settings
+
+<a name="event--SettingChangedEvent"></a>
+
+### Setting Changed
+
+This event is fired when a user toggles a setting in the settings modal.
+
+**Properties**:
+
+- **setting** (required): `string`
+  - The name of the setting that was changed.
+- **is_compass_web** (optional): `true | undefined`
 
 <a name="event--ThemeChangedEvent"></a>
 

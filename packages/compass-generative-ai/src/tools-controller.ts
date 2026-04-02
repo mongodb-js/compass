@@ -22,6 +22,7 @@ import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
 type CompassContext = {
+  enableTelemetry: boolean;
   query?: string;
   pipeline?: string;
 };
@@ -55,6 +56,7 @@ class InMemoryRunner extends TransportRunnerBase {
 type ToolsControllerConfig = {
   logger: Logger;
   getTelemetryAnonymousId: () => string;
+  enableTelemetry: boolean;
 };
 
 export class ToolsController {
@@ -66,13 +68,20 @@ export class ToolsController {
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
 
-  constructor({ logger, getTelemetryAnonymousId }: ToolsControllerConfig) {
+  constructor({
+    logger,
+    getTelemetryAnonymousId,
+    enableTelemetry,
+  }: ToolsControllerConfig) {
     this.logger = logger;
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
       loggers: ['mcp'],
       readOnly: true,
-      telemetry: 'disabled',
+      // NOTE: the preference could change at runtime. As a best-effort way of
+      // keeping it in sync we'll change it every time we set the tools' context
+      telemetry: enableTelemetry ? 'enabled' : 'disabled',
+      previewFeatures: ['search'],
     });
 
     this.runner = new InMemoryRunner({
@@ -165,7 +174,7 @@ export class ToolsController {
         }
 
         tools[toolBase.name] = tool({
-          description: toolBase.description,
+          description: getCustomToolDescription(toolBase),
           inputSchema: z.object(
             Object.fromEntries(
               Object.entries(toolBase.argsShape).map(([key, value]) => {
@@ -247,6 +256,10 @@ export class ToolsController {
   }
 
   setContext(context: ToolsContext): void {
+    // make sure this property is always in sync with the tools' config
+    this.runner.userConfig.telemetry = context.enableTelemetry
+      ? 'enabled'
+      : 'disabled';
     this.context = context;
   }
 
@@ -325,5 +338,31 @@ export class ToolsController {
         { error: error.message }
       );
     }
+  }
+}
+
+function getCustomToolDescription(toolBase: {
+  name: string;
+  description: string;
+}): string {
+  // We want to provide more detailed descriptions for some tools to help guide the model in using them effectively.
+  switch (toolBase.name) {
+    case 'collection-schema':
+      return (
+        toolBase.description +
+        ' Always use this tool to access collection schema information whenever asked to generate queries or aggregations and before performing queries or aggregations.'
+      );
+    case 'find':
+      return (
+        toolBase.description +
+        ' Always use the collection-schema tool to access collection schema information before using this tool to perform queries.'
+      );
+    case 'aggregate':
+      return (
+        toolBase.description +
+        ' Always use the collection-schema tool to access collection schema information before using this tool to perform aggregations.'
+      );
+    default:
+      return toolBase.description;
   }
 }

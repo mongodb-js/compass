@@ -8,7 +8,7 @@ import {
   getDefaultConnectionNames,
 } from '../helpers/compass';
 import type { CompassBrowser } from '../helpers/compass-browser';
-import { createDummyCollections } from '../helpers/insert-data';
+import { createDummyCollections } from '../helpers/mongo-clients';
 import * as Selectors from '../helpers/selectors';
 
 const databaseName = 'test';

@@ -18,6 +18,7 @@ import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
+import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -87,11 +88,11 @@ type CreateSearchIndexFailedAction = {
   error: string;
 };
 
-type CreateSearchIndexSucceededAction = {
+export type CreateSearchIndexSucceededAction = {
   type: typeof ActionTypes.CreateSearchIndexSucceeded;
 };
 
-type CreateSearchIndexClosedAction = {
+export type CreateSearchIndexClosedAction = {
   type: typeof ActionTypes.CreateSearchIndexClosed;
 };
 
@@ -109,11 +110,11 @@ type UpdateSearchIndexFailedAction = {
   error: string;
 };
 
-type UpdateSearchIndexSucceededAction = {
+export type UpdateSearchIndexSucceededAction = {
   type: typeof ActionTypes.UpdateSearchIndexSucceeded;
 };
 
-type UpdateSearchIndexClosedAction = {
+export type UpdateSearchIndexClosedAction = {
   type: typeof ActionTypes.UpdateSearchIndexClosed;
 };
 
@@ -296,6 +297,7 @@ export default function reducer(
         ...state.updateIndex,
         isBusy: false,
         isModalOpen: false,
+        error: undefined,
       },
     };
   }
@@ -312,6 +314,7 @@ export default function reducer(
         ...state.updateIndex,
         isModalOpen: false,
         isBusy: false,
+        error: undefined,
       },
     };
   }
@@ -339,9 +342,15 @@ export default function reducer(
       ActionTypes.FetchSearchIndexesSucceeded
     )
   ) {
+    // Keep existing reference when the data hasn't changed to avoid
+    // unnecessary re-renders (e.g. during polling).
+    const indexes = isEqual(state.indexes, action.indexes)
+      ? state.indexes
+      : action.indexes;
+
     return {
       ...state,
-      indexes: action.indexes,
+      indexes,
       status: FetchStatuses.READY,
     };
   }
@@ -485,12 +494,21 @@ export const createIndex = ({
     getState,
     { track, connectionInfoRef, dataService }
   ) {
-    const { namespace } = getState();
+    const { namespace, searchIndexes } = getState();
 
     dispatch(createSearchIndexStarted());
 
     if (name === '') {
       dispatch(createSearchIndexFailed('Please enter the name of the index.'));
+      return;
+    }
+
+    if (searchIndexes.indexes.some((x) => x.name === name)) {
+      dispatch(
+        createSearchIndexFailed(
+          ATLAS_SEARCH_SERVER_ERRORS['IndexAlreadyExists']
+        )
+      );
       return;
     }
 
@@ -619,11 +637,15 @@ const fetchIndexes = (
     const {
       isWritable,
       namespace,
-      searchIndexes: { status },
+      searchIndexes: { status, indexes: previousIndexes },
     } = getState();
 
-    const { readOnly, readWrite, enableAtlasSearchIndexes } =
-      preferences.getPreferences();
+    const {
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1,
+    } = preferences.getPreferences();
     const { atlasMetadata } = connectionInfoRef.current;
     const { isSearchIndexesReadable } = selectReadWriteAccess({
       isAtlas: !!atlasMetadata,
@@ -650,6 +672,19 @@ const fetchIndexes = (
       dispatch(fetchSearchIndexesStarted(reason));
       const indexes = await dataService.getSearchIndexes(namespace);
       dispatch(fetchSearchIndexesSucceeded(indexes));
+
+      // Show toasts for status changes (only on poll and refresh, not initial fetch)
+      if (
+        enableSearchActivationProgramP1 &&
+        reason !== FetchReasons.INITIAL_FETCH
+      ) {
+        showSearchIndexStatusChangeToasts(
+          previousIndexes,
+          indexes,
+          atlasMetadata,
+          namespace
+        );
+      }
     } catch (err) {
       dispatch(fetchSearchIndexesFailed((err as Error).message));
     }

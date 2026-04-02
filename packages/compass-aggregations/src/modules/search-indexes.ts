@@ -13,6 +13,8 @@ const SearchIndexesStatuses = {
 
 export type SearchIndexesStatus = keyof typeof SearchIndexesStatuses;
 
+export type SearchIndexType = 'search' | 'vectorSearch';
+
 const FetchReasons = {
   INITIAL_FETCH: 'INITIAL_FETCH',
   POLL: 'POLL',
@@ -196,6 +198,29 @@ export const stopPollingSearchIndexes =
 export const createSearchIndex = (): PipelineBuilderThunkAction<void> => {
   return (_dispatch, _getState, { localAppRegistry }) => {
     localAppRegistry.emit('open-create-search-index-modal');
+  };
+};
+
+export const openIndexesListDrawerView =
+  (): PipelineBuilderThunkAction<void> => {
+    return (_dispatch, _getState, { localAppRegistry }) => {
+      localAppRegistry.emit('open-indexes-list-drawer-view');
+    };
+  };
+
+export const openEditSearchIndexDrawerView = (
+  indexName: string
+): PipelineBuilderThunkAction<void> => {
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry.emit('open-edit-search-index-drawer-view', indexName);
+  };
+};
+
+export const openCreateSearchIndexDrawerView = (
+  indexType: SearchIndexType
+): PipelineBuilderThunkAction<void> => {
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry.emit('open-create-search-index-drawer-view', indexType);
   };
 };
 

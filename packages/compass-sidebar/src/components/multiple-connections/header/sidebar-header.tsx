@@ -6,7 +6,6 @@ import {
   type ItemAction,
   ItemActionControls,
   Badge,
-  BadgeVariant,
 } from '@mongodb-js/compass-components';
 
 const sidebarHeaderStyles = css({
@@ -22,11 +21,6 @@ const sidebarHeaderTextStyles = css({
   fontWeight: 600,
 });
 
-const badgeStyles = css({
-  verticalAlign: 'middle',
-  marginLeft: spacing[100],
-});
-
 type Action = 'open-compass-settings';
 
 const actions: ItemAction<Action>[] = [
@@ -36,6 +30,11 @@ const actions: ItemAction<Action>[] = [
     icon: 'Settings',
   },
 ];
+
+const SHOULD_SHOW_COMMIT_HASH =
+  process.env.APP_ENV === 'webdriverio' ||
+  process.env.NODE_ENV === 'development';
+const COMMIT_HASH = process.env.GIT_COMMIT_HASH;
 
 export function SidebarHeader({
   onAction,
@@ -48,14 +47,10 @@ export function SidebarHeader({
     <div className={sidebarHeaderStyles} data-testid="sidebar-header">
       <Subtitle className={sidebarHeaderTextStyles}>
         {isCompassWeb ? 'Data Explorer' : 'Compass'}
-        {isCompassWeb && (
-          <Badge
-            variant={BadgeVariant.Blue}
-            className={badgeStyles}
-            data-testid="sidebar-header-badge"
-          >
-            Preview
-          </Badge>
+        {SHOULD_SHOW_COMMIT_HASH && COMMIT_HASH && (
+          <>
+            &nbsp;<Badge variant="blue">{COMMIT_HASH}</Badge>
+          </>
         )}
       </Subtitle>
       {!isCompassWeb && (

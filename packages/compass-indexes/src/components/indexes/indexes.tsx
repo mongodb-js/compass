@@ -1,5 +1,6 @@
 import React from 'react';
-import { connect, useSelector } from 'react-redux';
+import { connect, useSelector, shallowEqual } from 'react-redux';
+import { buildAtlasSearchLink } from '@mongodb-js/atlas-service/provider';
 import {
   Banner,
   Link,
@@ -32,7 +33,6 @@ import {
 import type { IndexView } from '../../modules/index-view';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import CreateIndexModal from '../create-index-modal/create-index-modal';
 import ViewVersionIncompatibleBanner from '../view-incompatible-components/view-version-incompatible-banner';
 import ViewSearchIncompatibleBanner from '../view-incompatible-components/view-pipeline-incompatible-banner';
@@ -82,8 +82,8 @@ const AtlasIndexesBanner = ({
         <Link
           target="_blank"
           rel="noopener"
-          href={getAtlasSearchIndexesLink({
-            clusterName: atlasMetadata.clusterName,
+          href={buildAtlasSearchLink({
+            atlasMetadata,
             namespace,
           })}
           onClick={() => {
@@ -178,14 +178,15 @@ export function Indexes({
     'enableAtlasSearchIndexes',
   ]);
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-    useSelector(selectIsViewSearchCompatible(isAtlas));
+    useSelector(selectIsViewSearchCompatible(isAtlas), shallowEqual);
   const { isRegularIndexesReadable, isSearchIndexesReadable } = useSelector(
     selectReadWriteAccess({
       isAtlas,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-    })
+    }),
+    shallowEqual
   );
   const getBanner = () => {
     if (isReadonlyView) {

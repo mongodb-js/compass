@@ -34,6 +34,13 @@ import {
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { RollingIndexesService } from '../modules/rolling-indexes-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import {
+  openCreateSearchIndexDrawerView,
+  openEditSearchIndexDrawerView,
+  openIndexesListDrawerView,
+} from '../modules/indexes-drawer';
+import type { SearchIndexType } from '../modules/indexes-drawer';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
 
 export type IndexesDataServiceProps =
   | 'indexes'
@@ -64,6 +71,7 @@ export type IndexesPluginServices = {
   track: TrackFunction;
   atlasService: AtlasService;
   preferences: PreferencesAccess;
+  workspaces: WorkspacesService;
 };
 
 export type IndexesPluginOptions = {
@@ -90,6 +98,7 @@ export function activateIndexesPlugin(
     collection: collectionModel,
     atlasService,
     preferences,
+    workspaces,
   }: IndexesPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -141,6 +150,26 @@ export function activateIndexesPlugin(
     store.dispatch(createSearchIndexOpened());
   });
 
+  on(localAppRegistry, 'open-indexes-list-drawer-view', () => {
+    void store.dispatch(openIndexesListDrawerView());
+  });
+
+  on(
+    localAppRegistry,
+    'open-edit-search-index-drawer-view',
+    (indexName: string) => {
+      void store.dispatch(openEditSearchIndexDrawerView(indexName));
+    }
+  );
+
+  on(
+    localAppRegistry,
+    'open-create-search-index-drawer-view',
+    (indexType: SearchIndexType) => {
+      void store.dispatch(openCreateSearchIndexDrawerView(indexType));
+    }
+  );
+
   on(globalAppRegistry, 'refresh-data', () => {
     void store.dispatch(fetchRegularIndexes());
     if (options.isSearchIndexesSupported) {
@@ -172,6 +201,14 @@ export function activateIndexesPlugin(
     store.dispatch(stopPollingRegularIndexes());
     store.dispatch(stopPollingSearchIndexes());
   });
+
+  const onCloseOrReplace = () => {
+    return !store.getState().indexesDrawer.isDirty;
+  };
+
+  addCleanup(workspaces.onTabReplace?.(onCloseOrReplace));
+
+  addCleanup(workspaces.onTabClose?.(onCloseOrReplace));
 
   return { store, deactivate: () => cleanup() };
 }

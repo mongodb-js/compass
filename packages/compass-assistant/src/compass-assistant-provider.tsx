@@ -68,7 +68,7 @@ import type {
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
 import { UUID } from 'bson';
-import { getHashedActiveUserId } from './utils';
+import { getHashedActiveUserId, stopChat } from './utils';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -112,7 +112,7 @@ export type AssistantMessage = UIMessage & {
     /** Whether to enable or disable storage of this message in chatapi. */
     disableStorage?: boolean;
     /** SHA-256 hashed User ID. */
-    userId?: string;
+    analyticsId?: string;
     /** The request ID associated with this message. */
     requestId?: string;
   };
@@ -352,7 +352,7 @@ export const AssistantProvider: React.FunctionComponent<
       }
 
       if (chat.status === 'streaming') {
-        await chat.stop();
+        await stopChat(chat);
       }
 
       const contextPrompt = buildContextPrompt({
@@ -383,7 +383,7 @@ export const AssistantProvider: React.FunctionComponent<
               ),
               connectionInfo,
               requestId,
-              userId: await getHashedActiveUserId(preferences, logger),
+              analyticsId: await getHashedActiveUserId(preferences, logger),
             },
           }
         : undefined;
@@ -404,6 +404,7 @@ export const AssistantProvider: React.FunctionComponent<
         ? activeCollectionSubTab || activeWorkspace.type
         : null;
       setToolsContext(toolsController, {
+        enableTelemetry: prefs.trackUsageStatistics,
         activeConnection,
         connections: activeConnections,
         query,
@@ -660,7 +661,7 @@ export function createDefaultChat({
               init
             );
           },
-        }).responses('mongodb-chat-latest'),
+        }).responses('mongodb-chat-2'),
       }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onError: (err: Error) => {
@@ -680,6 +681,7 @@ export function createDefaultChat({
 export function setToolsContext(
   toolsController: ToolsController,
   {
+    enableTelemetry,
     activeConnection,
     connections,
     query,
@@ -688,6 +690,7 @@ export function setToolsContext(
     enableGenAIToolCalling,
     activeTab,
   }: {
+    enableTelemetry: boolean;
     activeConnection: ActiveConnectionInfo | null;
     connections: ActiveConnectionInfo[];
     query?: string | null;
@@ -712,6 +715,7 @@ export function setToolsContext(
     }
     toolsController.setActiveTools(toolGroups);
     toolsController.setContext({
+      enableTelemetry,
       connections: connections.map((connection) => {
         if (!connection.connectOptions) {
           throw new Error(
@@ -730,6 +734,7 @@ export function setToolsContext(
   } else {
     toolsController.setActiveTools(new Set([]));
     toolsController.setContext({
+      enableTelemetry,
       connections: [],
       query: undefined,
       pipeline: undefined,

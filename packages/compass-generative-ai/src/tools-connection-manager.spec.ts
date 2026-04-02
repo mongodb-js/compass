@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
+import { ConnectionStateConnected } from 'mongodb-mcp-server';
 import type { LoggerBase } from 'mongodb-mcp-server';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 
@@ -229,6 +230,67 @@ describe('ToolsConnectionManager', function () {
       expect(connectionString).to.include(
         'appName=MongoDB+Compass+Database+Tools'
       );
+    });
+
+    describe('isSearchSupported on ConnectionStateConnected', function () {
+      it('returns true when getSearchIndexes resolves', async function () {
+        const mockProvider = {
+          close: sandbox.stub().resolves(),
+          getSearchIndexes: sandbox.stub().resolves([]),
+        };
+        connectStub.resolves(mockProvider as any);
+
+        await connectionManager.connectToCompassConnection(
+          mockConnectionParams
+        );
+
+        const state = connectionManager.currentConnectionState;
+        expect(state).to.be.instanceOf(ConnectionStateConnected);
+        const result = await (
+          state as ConnectionStateConnected
+        ).isSearchSupported();
+        expect(result).to.be.true;
+      });
+
+      it('returns false when getSearchIndexes rejects', async function () {
+        const mockProvider = {
+          close: sandbox.stub().resolves(),
+          getSearchIndexes: sandbox
+            .stub()
+            .rejects(new Error('search not available')),
+        };
+        connectStub.resolves(mockProvider as any);
+
+        await connectionManager.connectToCompassConnection(
+          mockConnectionParams
+        );
+
+        const state = connectionManager.currentConnectionState;
+        expect(state).to.be.instanceOf(ConnectionStateConnected);
+        const result = await (
+          state as ConnectionStateConnected
+        ).isSearchSupported();
+        expect(result).to.be.false;
+      });
+
+      it('caches the result and only calls getSearchIndexes once', async function () {
+        const mockProvider = {
+          close: sandbox.stub().resolves(),
+          getSearchIndexes: sandbox.stub().resolves([]),
+        };
+        connectStub.resolves(mockProvider as any);
+
+        await connectionManager.connectToCompassConnection(
+          mockConnectionParams
+        );
+
+        const state =
+          connectionManager.currentConnectionState as ConnectionStateConnected;
+        await state.isSearchSupported();
+        await state.isSearchSupported();
+
+        expect(mockProvider.getSearchIndexes.callCount).to.equal(1);
+      });
     });
   });
 

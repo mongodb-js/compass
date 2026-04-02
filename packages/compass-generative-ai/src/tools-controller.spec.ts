@@ -19,6 +19,7 @@ describe('ToolsController', function () {
     getTelemetryAnonymousId = sandbox.stub().returns('test-anonymous-id');
 
     toolsController = new ToolsController({
+      enableTelemetry: false,
       logger,
       getTelemetryAnonymousId,
     });
@@ -112,6 +113,7 @@ describe('ToolsController', function () {
       it('get-current-query returns context query', async function () {
         const testQuery = '{ name: "test" }';
         toolsController.setContext({
+          enableTelemetry: false,
           query: testQuery,
           connections: [],
         });
@@ -127,6 +129,7 @@ describe('ToolsController', function () {
 
       it('get-current-query returns undefined when no query in context', async function () {
         toolsController.setContext({
+          enableTelemetry: false,
           connections: [],
         });
 
@@ -165,6 +168,7 @@ describe('ToolsController', function () {
       it('get-current-pipeline returns context pipeline', async function () {
         const testPipeline = '[{ $match: { status: "active" } }]';
         toolsController.setContext({
+          enableTelemetry: false,
           pipeline: testPipeline,
           connections: [],
         });
@@ -180,6 +184,7 @@ describe('ToolsController', function () {
 
       it('get-current-pipeline returns undefined when no pipeline in context', async function () {
         toolsController.setContext({
+          enableTelemetry: false,
           connections: [],
         });
 
@@ -201,6 +206,7 @@ describe('ToolsController', function () {
 
       it('ignores db tools if the server is not started', function () {
         const newController = new ToolsController({
+          enableTelemetry: false,
           logger,
           getTelemetryAnonymousId,
         });
@@ -275,6 +281,30 @@ describe('ToolsController', function () {
         expect(listDatabasesTool).to.have.property('needsApproval', true);
         expect(listDatabasesTool).to.have.property('strict', true);
       });
+
+      it('collection-schema tool has a custom description that instructs the model to use it before queries and aggregations', function () {
+        const tools = toolsController.getActiveTools();
+        const tool = tools['collection-schema'];
+        expect(tool.description).to.include(
+          'Always use this tool to access collection schema information whenever asked to generate queries or aggregations and before performing queries or aggregations.'
+        );
+      });
+
+      it('find tool has a custom description that instructs the model to use collection-schema first', function () {
+        const tools = toolsController.getActiveTools();
+        const tool = tools['find'];
+        expect(tool.description).to.include(
+          'Always use the collection-schema tool to access collection schema information before using this tool to perform queries.'
+        );
+      });
+
+      it('aggregate tool has a custom description that instructs the model to use collection-schema first', function () {
+        const tools = toolsController.getActiveTools();
+        const tool = tools['aggregate'];
+        expect(tool.description).to.include(
+          'Always use the collection-schema tool to access collection schema information before using this tool to perform aggregations.'
+        );
+      });
     });
 
     describe('no active tools', function () {
@@ -289,6 +319,7 @@ describe('ToolsController', function () {
     it('sets context with query', async function () {
       const query = '{ status: "active" }';
       toolsController.setContext({
+        enableTelemetry: false,
         query,
         connections: [],
       });
@@ -303,6 +334,7 @@ describe('ToolsController', function () {
     it('sets context with pipeline', async function () {
       const pipeline = '[{ $match: { age: { $gte: 18 } } }]';
       toolsController.setContext({
+        enableTelemetry: false,
         pipeline,
         connections: [],
       });
@@ -327,20 +359,28 @@ describe('ToolsController', function () {
       ];
 
       toolsController.setContext({
+        enableTelemetry: false,
         connections,
       });
 
       // Context is set internally, verify through tool execution
-      expect(() => toolsController.setContext({ connections })).to.not.throw();
+      expect(() =>
+        toolsController.setContext({
+          enableTelemetry: false,
+          connections,
+        })
+      ).to.not.throw();
     });
 
     it('updates existing context', async function () {
       toolsController.setContext({
+        enableTelemetry: false,
         query: 'old query',
         connections: [],
       });
 
       toolsController.setContext({
+        enableTelemetry: false,
         query: 'new query',
         connections: [],
       });
@@ -350,6 +390,24 @@ describe('ToolsController', function () {
 
       const result = await tools['get-current-query'].execute?.({}, {} as any);
       expect(result.query).to.equal('new query');
+    });
+
+    it('syncs telemetry setting with runner userConfig', function () {
+      toolsController.setContext({
+        enableTelemetry: true,
+        connections: [],
+      });
+      expect((toolsController as any).runner.userConfig.telemetry).to.equal(
+        'enabled'
+      );
+
+      toolsController.setContext({
+        enableTelemetry: false,
+        connections: [],
+      });
+      expect((toolsController as any).runner.userConfig.telemetry).to.equal(
+        'disabled'
+      );
     });
   });
 
@@ -425,6 +483,7 @@ describe('ToolsController', function () {
 
       it('handles errors during server startup gracefully', async function () {
         const errorController = new ToolsController({
+          enableTelemetry: false,
           logger,
           getTelemetryAnonymousId: () => {
             throw new Error('Telemetry error');
@@ -527,6 +586,7 @@ describe('ToolsController', function () {
     it('context persists across tool group changes', async function () {
       const query = '{ test: 1 }';
       toolsController.setContext({
+        enableTelemetry: false,
         query,
         connections: [],
       });
@@ -569,6 +629,7 @@ describe('ToolsController', function () {
       });
 
       toolsController.setContext({
+        enableTelemetry: false,
         connections: [],
       });
 

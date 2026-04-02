@@ -27,7 +27,6 @@ import {
   createSearchIndexAutocompleter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
-import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { Document } from 'mongodb';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {
@@ -41,17 +40,7 @@ import {
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
-
-// Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
-function parseShellBSON(source: string): Document[] {
-  const parsed = _parseShellBSON(source, { mode: ParseMode.Loose });
-  if (!parsed || typeof parsed !== 'object') {
-    // XXX(COMPASS-5689): We've hit the condition in
-    // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
-    throw new Error('The provided index definition is invalid.');
-  }
-  return parsed;
-}
+import { parseShellBSON } from '../../utils/parse-shell-bson';
 
 const bodyStyles = css({
   display: 'flex',
@@ -138,6 +127,13 @@ const searchIndexTypes = [
   },
 ] as const;
 
+type SearchIndexEditorState = {
+  indexType: SearchIndexType;
+  indexName: string;
+  indexDefinition: string;
+  parsingError: ParsingError | undefined;
+};
+
 export const BaseSearchIndexModal: React.FunctionComponent<
   BaseSearchIndexModalProps
 > = ({
@@ -145,7 +141,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   mode,
   initialIndexName,
   initialIndexDefinition,
-  initialIndexType,
+  initialIndexType: _initialIndexType,
   isModalOpen,
   isBusy,
   isVectorSearchSupported,
@@ -153,23 +149,23 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   onSubmit,
   onClose,
 }) => {
-  const initialSearchIndexType: SearchIndexType =
-    initialIndexType === 'search' || initialIndexType === 'vectorSearch'
-      ? initialIndexType
+  const initialIndexType =
+    _initialIndexType === 'search' || _initialIndexType === 'vectorSearch'
+      ? _initialIndexType
       : 'search';
   const editorRef = useRef<EditorRef>(null);
   const connectionInfoRef = useConnectionInfoRef();
-
-  const [indexName, setIndexName] = useState(initialIndexName);
-  const [searchIndexType, setSearchIndexType] = useState<SearchIndexType>(
-    initialSearchIndexType
-  );
-  const [indexDefinition, setIndexDefinition] = useState(
-    initialIndexDefinition
-  );
-  const [parsingError, setParsingError] = useState<ParsingError | undefined>(
-    undefined
-  );
+  const [
+    { indexType: searchIndexType, indexName, indexDefinition, parsingError },
+    setSearchIndexEditorState,
+  ] = useState<SearchIndexEditorState>(() => {
+    return {
+      indexType: initialIndexType,
+      indexName: initialIndexName,
+      indexDefinition: initialIndexDefinition,
+      parsingError: undefined,
+    };
+  });
 
   // https://github.com/mongodb-js/ejson-shell-parser/blob/master/src/index.ts#L30
   // Wraps the input in (\n$input\n) so we need to substract 4 chars from the position.
@@ -220,25 +216,33 @@ export const BaseSearchIndexModal: React.FunctionComponent<
 
   useSyncStateOnPropChange(() => {
     if (isModalOpen) {
-      setSearchIndexType(initialSearchIndexType);
-      setIndexName(initialIndexName);
-      setIndexDefinition(initialIndexDefinition);
-      setParsingError(undefined);
+      setSearchIndexEditorState({
+        indexType: initialIndexType,
+        indexName: initialIndexName,
+        indexDefinition: initialIndexDefinition,
+        parsingError: undefined,
+      });
     }
   }, [isModalOpen]);
 
   const onSearchIndexDefinitionChanged = useCallback(
     (newDefinition: string) => {
-      setParsingError(undefined);
+      let parsingError = undefined;
 
       try {
         parseShellBSON(newDefinition);
-        setIndexDefinition(newDefinition);
       } catch (ex) {
-        setParsingError(ex as ParsingError);
+        parsingError = ex as ParsingError;
       }
+      setSearchIndexEditorState((prevState) => {
+        return {
+          ...prevState,
+          indexDefinition: newDefinition,
+          parsingError,
+        };
+      });
     },
-    [setIndexDefinition, setParsingError]
+    []
   );
 
   const onSubmitIndex = useCallback(() => {
@@ -276,32 +280,34 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   );
 
   const onChangeSearchIndexType = useCallback(
-    ({ target: { value } }: React.ChangeEvent<HTMLInputElement>) => {
-      setSearchIndexType(value as SearchIndexType);
+    ({ target: { value: newType } }: React.ChangeEvent<HTMLInputElement>) => {
+      const newDefinitionTemplate =
+        newType === 'vectorSearch'
+          ? ATLAS_VECTOR_SEARCH_TEMPLATE
+          : ATLAS_SEARCH_TEMPLATES[0];
 
-      if (value === 'vectorSearch') {
-        setIndexDefinition(ATLAS_VECTOR_SEARCH_TEMPLATE.snippet);
-        onChangeTemplate(ATLAS_VECTOR_SEARCH_TEMPLATE);
+      setSearchIndexEditorState((prevState) => {
+        return {
+          ...prevState,
+          parsingError: undefined,
+          // Reset index name, but only if it's still a default one for the
+          // previous index type
+          indexName:
+            newType === 'vectorSearch' && prevState.indexName === 'default'
+              ? 'vector_index'
+              : prevState.indexName === 'vector_index'
+              ? 'default'
+              : prevState.indexName,
+          indexType: newType as SearchIndexType,
+        };
+      });
 
-        if (indexName === 'default') {
-          setIndexName('vector_index');
-        }
-      } else {
-        setIndexDefinition(ATLAS_SEARCH_TEMPLATES[0].snippet);
-        onChangeTemplate(ATLAS_SEARCH_TEMPLATES[0]);
-
-        if (indexName === 'vector_index') {
-          setIndexName('default');
-        }
-      }
+      // We don't reset `indexDefinition` in the setState above, instead a
+      // snippet will be programmatically applied to the editor and change the
+      // value
+      onChangeTemplate(newDefinitionTemplate);
     },
-    [
-      setSearchIndexType,
-      onChangeTemplate,
-      setIndexDefinition,
-      setIndexName,
-      indexName,
-    ]
+    [onChangeTemplate]
   );
 
   const fields = useAutocompleteFields(namespace);
@@ -348,9 +354,14 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                       : ''
                   }
                   value={indexName}
-                  onChange={(evt: React.ChangeEvent<HTMLInputElement>) =>
-                    setIndexName(evt.target.value)
-                  }
+                  onChange={(evt: React.ChangeEvent<HTMLInputElement>) => {
+                    setSearchIndexEditorState((prevState) => {
+                      return {
+                        ...prevState,
+                        indexName: evt.target.value,
+                      };
+                    });
+                  }}
                 />
               </section>
               <HorizontalRule />
@@ -430,6 +441,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               )}
             </section>
             <CodemirrorMultilineEditor
+              key={searchIndexType}
               ref={editorRef}
               id="definition-of-search-index"
               data-testid="definition-of-search-index"

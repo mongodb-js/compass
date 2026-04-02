@@ -13,7 +13,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "0.65.0",
+  "version": "0.67.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -46,12 +46,13 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.17",
-    "@mongodb-js/mocha-config-compass": "^1.7.5",
+    "@mongodb-js/eslint-config-compass": "^1.4.20",
+    "@mongodb-js/mocha-config-compass": "^1.7.7",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
-    "@mongodb-js/testing-library-compass": "^1.5.0",
+    "@mongodb-js/testing-library-compass": "^1.5.4",
     "@mongodb-js/tsconfig-compass": "^1.2.14",
     "@types/chai": "^4.2.21",
+    "@types/hast": "^3.0.4",
     "@types/mocha": "^9.0.0",
     "@types/prettier": "^2.7.1",
     "@types/sinon-chai": "^3.2.5",
@@ -72,11 +73,20 @@
     "@codemirror/state": "^6.5.2",
     "@codemirror/view": "^6.38.0",
     "@lezer/highlight": "^1.2.1",
-    "@mongodb-js/compass-components": "^1.63.0",
-    "@mongodb-js/mongodb-constants": "^0.20.1",
-    "mongodb-query-parser": "^4.7.6",
+    "@mongodb-js/compass-components": "^1.65.0",
+    "@mongodb-js/mongodb-constants": "^0.20.2",
+    "hast": "^0.0.2",
+    "json-schema": "^0.4.0",
+    "mongodb-query-parser": "^4.7.7",
     "polished": "^4.2.2",
     "prettier": "^2.7.1",
-    "react": "^17.0.2"
+    "react": "^17.0.2",
+    "rehype-sanitize": "^5.0.1",
+    "rehype-stringify": "^9.0.4",
+    "remark-parse": "^10.0.0",
+    "remark-rehype": "^10.0.0",
+    "unified": "^10.0.0",
+    "vscode-json-languageservice": "^5.7.2",
+    "vscode-languageserver-textdocument": "^1.0.12"
   }
 }

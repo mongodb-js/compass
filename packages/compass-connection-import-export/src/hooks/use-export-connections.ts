@@ -26,7 +26,7 @@ type ExportConnectionsState = CommonImportExportState<ConnectionShortInfo> & {
 
 const INITIAL_STATE: Readonly<ExportConnectionsState> = Object.freeze({
   ...COMMON_INITIAL_STATE,
-  removeSecrets: false,
+  removeSecrets: true,
 });
 
 function connectionInfosToConnectionShortInfos(

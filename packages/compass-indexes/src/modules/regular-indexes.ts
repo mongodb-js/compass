@@ -1,5 +1,5 @@
 import { isEqual, pick } from 'lodash';
-import type { IndexDefinition } from 'mongodb-data-service';
+import type { IndexBuildProgress, IndexDefinition } from 'mongodb-data-service';
 import type { AnyAction } from 'redux';
 import {
   openToast,
@@ -44,7 +44,7 @@ export type InProgressIndex = Pick<IndexDefinition, 'name' | 'fields'> & {
   id: string;
   status: 'creating' | 'failed';
   error?: string;
-  buildProgress: number;
+  buildProgress: IndexBuildProgress;
 };
 
 export type RollingIndex = Partial<AtlasIndexStats> &
@@ -86,7 +86,8 @@ export const prepareInProgressIndex = (
     status: 'creating',
     fields: inProgressIndexFields,
     name: inProgressIndexName,
-    buildProgress: 0,
+    // Locally created in-progress indexes start with active: true, no progress info yet
+    buildProgress: { currentOp: { active: true } },
     // TODO(COMPASS-8335): we never mapped properties and the table does have
     // room to display them
   };
@@ -243,16 +244,36 @@ export default function reducer(
           })
         )
     );
+
+    // Keep existing references when the data hasn't changed to avoid
+    // unnecessary re-renders (e.g. during polling).
+    const indexes = isEqual(state.indexes, action.indexes)
+      ? state.indexes
+      : action.indexes;
+    const rollingIndexes = isEqual(state.rollingIndexes, action.rollingIndexes)
+      ? state.rollingIndexes
+      : action.rollingIndexes;
+
+    // Remove in progress stubs when we got the "real" indexes from one of the
+    // backends. Keep the error ones around even if the name matches (should
+    // only be possible in cases of "index with the same name already exists")
+    const filteredInProgressIndexes = state.inProgressIndexes.filter(
+      (inProgress) => {
+        return !!inProgress.error || !allIndexNames.has(inProgress.name);
+      }
+    );
+    const inProgressIndexes = isEqual(
+      state.inProgressIndexes,
+      filteredInProgressIndexes
+    )
+      ? state.inProgressIndexes
+      : filteredInProgressIndexes;
+
     return {
       ...state,
-      indexes: action.indexes,
-      rollingIndexes: action.rollingIndexes,
-      // Remove in progress stubs when we got the "real" indexes from one of the
-      // backends. Keep the error ones around even if the name matches (should
-      // only be possible in cases of "index with the same name already exists")
-      inProgressIndexes: state.inProgressIndexes.filter((inProgress) => {
-        return !!inProgress.error || !allIndexNames.has(inProgress.name);
-      }),
+      indexes,
+      rollingIndexes,
+      inProgressIndexes,
       status: FetchStatuses.READY,
     };
   }

@@ -1,20 +1,25 @@
 import gunzip from './gunzip';
 import fs from 'fs';
 import {
-  assertTestingAtlasCloud,
+  assertTestingWebAtlasCloud,
   ATLAS_CLOUD_TEST_UTILS,
   context,
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   getCloudUrlsFromContext,
-  isTestingAtlasCloud,
+  isTestingWebAtlasCloud,
   isTestingDesktop,
   isTestingWeb,
   RUN_ID,
 } from './test-runner-context';
 import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths';
 import Debug from 'debug';
-import { startTestServer } from '@mongodb-js/compass-test-server';
+import {
+  startTestServer,
+  ServerLogsChecker,
+  type LogEntry,
+  type WarningFilter,
+} from '@mongodb-js/compass-test-server';
 import { MongoClient } from 'mongodb';
 import { isEnterprise } from 'mongodb-build-info';
 import {
@@ -23,11 +28,11 @@ import {
   rebuildNativeModules,
   removeUserDataDir,
   screenshotPathName,
+  serverSatisfies,
   startBrowser,
 } from './compass';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
-  buildCompassWebPackage,
   spawnCompassWebSandbox,
   spawnCompassWebStaticServer,
   waitForCompassWebSandboxToBeReady,
@@ -36,6 +41,7 @@ import {
 import { template } from 'lodash';
 import { randomBytes } from 'crypto';
 import { isAtlasCloudPage } from './commands/atlas-cloud/utils';
+import type { ClusterTypes } from './commands';
 
 export const globalFixturesAbortController = new AbortController();
 
@@ -51,8 +57,30 @@ const debug = Debug('compass-e2e-tests:mocha-global-fixtures');
 
 const cleanupFns: (() => Promise<void> | void)[] = [];
 
+export const serverLogsCheckers: ServerLogsChecker[] = [];
+
+export function noServerWarningsCheckpoint() {
+  for (const checker of serverLogsCheckers) {
+    checker.noServerWarningsCheckpoint();
+  }
+}
+
+export function allowServerWarnings(...filters: WarningFilter[]): () => void {
+  const unsubscribeFns: (() => void)[] = [];
+  for (const filter of filters) {
+    for (const checker of serverLogsCheckers) {
+      unsubscribeFns.push(checker.allowWarning(filter));
+    }
+  }
+  return () => {
+    for (const fn of unsubscribeFns) {
+      fn();
+    }
+  };
+}
+
 async function createAtlasCloudResources() {
-  assertTestingAtlasCloud(context);
+  assertTestingWebAtlasCloud(context);
 
   debug('Creating Atlas Cloud resources...');
 
@@ -187,7 +215,7 @@ async function createAtlasCloudResources() {
           atlasCloudDbuserUsername,
           atlasCloudDbuserPassword,
           testClusterName,
-          'GeoSharded' // Atlas cloud test suite currently requires a geosharded cluster
+          context.atlasCloudDefaultClusterType as ClusterTypes
         );
 
       DEFAULT_CONNECTIONS.push({
@@ -264,6 +292,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
             getConnectionTitle(connectionInfo)
           );
           const server = await startTestServer(connectionInfo.testServer);
+          serverLogsCheckers.push(new ServerLogsChecker(server));
           cleanupFns.push(() => {
             debug(
               'Stopping server for connection %s',
@@ -275,26 +304,18 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
         throwIfAborted();
       }
 
-      if (isTestingAtlasCloud(context)) {
-        // Both tasks can take a decent amount of time and are not overlapping
-        // with each other, so we can run them in parallel
-        await Promise.all([
-          createAtlasCloudResources(),
-          (async () => {
-            if (context.compile) {
-              debug('Building compass-web library ...');
-              await buildCompassWebPackage(
-                globalFixturesAbortController.signal
-              );
-            }
-          })(),
-        ]);
+      if (isTestingWebAtlasCloud(context)) {
+        if (context.compile) {
+          debug('Building compass-web and starting a static server ...');
+          const cleanupServer = spawnCompassWebStaticServer(
+            globalFixturesAbortController.signal
+          );
+          cleanupFns.push(cleanupServer);
+        }
 
-        debug('Starting static server for the compass-web assets ...');
-        const cleanupServer = spawnCompassWebStaticServer(
-          globalFixturesAbortController.signal
-        );
-        cleanupFns.push(cleanupServer);
+        await createAtlasCloudResources();
+
+        debug('Waiting for the compass-web assets to be available ...');
         await waitForCompassWebStaticAssetsToBeReady(
           `${context.sandboxUrl}/assets-manifest.json`,
           globalFixturesAbortController.signal
@@ -314,6 +335,17 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     debug('Getting mongodb server info');
     await updateMongoDBServerInfo();
+    if (serverSatisfies('< 8.2')) {
+      for (const checker of serverLogsCheckers) {
+        checker.allowWarning((l: LogEntry) => {
+          // "Aggregate command executor error" with CommandNotSupported
+          // This happens when Compass probes for search index support on older non-Atlas servers
+          return (
+            l.id === 23799 && l.attr?.error?.codeName === 'CommandNotSupported'
+          );
+        });
+      }
+    }
 
     throwIfAborted();
 
@@ -364,6 +396,13 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
 export async function mochaGlobalTeardown() {
   debug('Cleaning up after the tests ...');
+
+  // Close server log checkers
+  for (const checker of serverLogsCheckers) {
+    checker.close();
+  }
+  serverLogsCheckers.length = 0;
+
   await Promise.allSettled(
     cleanupFns.map((fn) => {
       // We get a mix of sync and non-sync functions here. Awaiting even the

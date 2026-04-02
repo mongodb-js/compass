@@ -72,3 +72,34 @@ export function buildChartsUrl(
   }
   return `${url}`;
 }
+
+export function buildAtlasSearchLink({
+  atlasMetadata,
+  namespace,
+  indexName,
+  view,
+}: {
+  atlasMetadata: AtlasClusterMetadata;
+  namespace: string;
+  indexName?: string;
+  view?: string;
+}): string {
+  const { projectId, clusterName } = atlasMetadata;
+  const url = new URL(
+    `/v2/${projectId}#/clusters/atlasSearch/${clusterName}`,
+    window.location.origin
+  );
+  const { database, collection } = toNS(namespace);
+  if (database && collection) {
+    url.searchParams.set('database', database);
+    url.searchParams.set('collectionName', collection);
+    if (indexName) {
+      url.searchParams.set('indexName', indexName);
+      if (view) {
+        url.searchParams.set('view', view);
+      }
+    }
+  }
+
+  return `${url}`;
+}

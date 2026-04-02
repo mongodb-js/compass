@@ -499,7 +499,7 @@ describe('CompassAssistantProvider', function () {
       });
       const firstCallArgs = sendMessageSpy.firstCall.args[0];
       expect(firstCallArgs?.metadata?.requestId).to.be.a('string');
-      expect(firstCallArgs?.metadata?.userId).to.be.a('string');
+      expect(firstCallArgs?.metadata?.analyticsId).to.be.a('string');
       expect(firstCallArgs?.metadata?.connectionInfo).to.be.undefined;
       expect(firstCallArgs?.metadata?.disableStorage).to.be.false;
     });
@@ -568,7 +568,7 @@ describe('CompassAssistantProvider', function () {
           parts: [
             {
               type: 'text',
-              text: "<instructions>\nDatabase tool calls require a focused connection. Tell the user to navigate to a connection if they try to use any of these tools:\n- find: Retrieves specific documents that match your search criteria.\n- aggregate: Performs complex data processing, grouping, and calculations.\n- count: Quickly returns the total number of documents matching a query.\n- list-databases: Displays all available databases in the connected cluster.\n- list-collections: Shows all collections within a specified database.\n- collection-schema: Describes the schema structure of a collection.\n- collection-indexes: Lists all indexes defined on a collection.\n- collection-storage-size: Returns the storage size information for a collection.\n- db-stats: Provides database statistics including size and usage.\n- explain: Provides execution statistics and query plan information.\n- mongodb-logs: Returns the most recent logged mongod events.\n- get-current-query: Get the current query from the querybar.\n- get-current-pipeline: Get the current pipeline from the aggregation builder.\n</instructions>\n\nThe user does not have any tabs open.\n\n<abilities>\nIF the user has a focused connection you CAN:\n1. Access user database information, such as collection schemas, etc.\n2. Query MongoDB directly.\n3. Access the user's current query or aggregation pipeline.\n</abilities>\n\n<instructions>\nYou SHOULD:\n1. Always offer to run a tool again if the user asks about data that requires it.\n</instructions>",
+              text: "<instructions>\nDatabase tool calls require a focused connection. Tell the user to navigate to a connection if they try to use any of these tools:\n- find: Retrieves specific documents that match your search criteria.\n- aggregate: Performs complex data processing, grouping, and calculations.\n- count: Quickly returns the total number of documents matching a query.\n- list-databases: Displays all available databases in the connected cluster.\n- list-collections: Shows all collections within a specified database.\n- collection-schema: Describes the schema structure of a collection.\n- collection-indexes: Lists all indexes defined on a collection.\n- collection-storage-size: Returns the storage size information for a collection.\n- db-stats: Provides database statistics including size and usage.\n- explain: Provides execution statistics and query plan information.\n- mongodb-logs: Returns the most recent logged mongod events.\n- get-current-query: Get the current query from the querybar.\n- get-current-pipeline: Get the current pipeline from the aggregation builder.\n</instructions>\n\nThe user does not have any tabs open.\n\n<abilities>\nIF the user has a focused connection you CAN:\n1. Access user database information, such as collection schemas, etc.\n2. Query MongoDB directly.\n3. Access the user's current query or aggregation pipeline.\n</abilities>\n\n<instructions>\nYou SHOULD:\n1. Always offer to run a tool again if the user asks about data that requires it.\n2. When the 'collection-schema' tool is available (for example, once the user has a focused connection), use it to access collection schema information whenever asked to generate queries or aggregations and before performing queries or aggregations.\n</instructions>",
             },
           ],
         },
@@ -703,6 +703,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableTelemetry: true,
         connections: [],
         query,
         pipeline,
@@ -768,6 +769,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableTelemetry: true,
         connections: [],
         query,
         pipeline,
@@ -841,6 +843,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableTelemetry: true,
         connections: [],
         query,
         pipeline,
@@ -925,6 +928,7 @@ describe('CompassAssistantProvider', function () {
 
       expect(mockToolsController.setContext.callCount).to.equal(1);
       expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableTelemetry: true,
         connections: [
           {
             connectionId: 'connection-1',

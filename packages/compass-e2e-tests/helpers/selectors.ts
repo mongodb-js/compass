@@ -621,6 +621,7 @@ export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
 export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
 export const ErrorDetailsJson = '[data-testid="error-details-json"]';
+export const DocumentTableContainer = `.document-table-view-container`;
 
 // Insert Document modal
 
@@ -1516,6 +1517,7 @@ export const DataModelCollapseFieldButton = (
 ) => `[data-testid="field-expand-toggle-${collection}-${fieldName}"]`;
 export const DataModelSampleSizeInput = `${CreateDataModelModal} [data-testid="sample-size-input"]`;
 export const DataModelSampleSizeWarning = `${CreateDataModelModal} [data-testid="sample-size-warning"]`;
+export const DataModelAllDocumentsOption = `${CreateDataModelModal} input[type="radio"][value="allDocuments"]`;
 
 // Side drawer
 export const SideDrawer = `[data-testid="${getDrawerIds().root}"]`;
