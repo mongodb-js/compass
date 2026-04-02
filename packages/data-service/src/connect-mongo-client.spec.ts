@@ -167,7 +167,7 @@ describe('connectMongoClient', function () {
       ]);
     });
 
-    it('should at least try to run a ping command to verify connectivity', async function () {
+    it('throws network error if loadBalanced is true and there is no server running at the host and port specified', async function () {
       const error = await connectMongoClient({
         connectionOptions: {
           connectionString: 'mongodb://localhost:1/?loadBalanced=true',
