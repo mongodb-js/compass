@@ -1,17 +1,10 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-export async function openShell(
+async function waitForShellToBeReady(
   browser: CompassBrowser,
   connectionName: string
 ): Promise<void> {
-  await browser.selectConnectionMenuItem(
-    connectionName,
-    Selectors.OpenShellItem,
-    false // the item is not contained in the three-dot menu
-  );
-
-  // try and make sure the shell tab is active and ready
   await browser.waitUntil(async () => {
     const currentActiveTab = browser.$(
       Selectors.workspaceTab({ active: true })
@@ -24,4 +17,26 @@ export async function openShell(
   });
 
   await browser.clickVisible(Selectors.ShellInputEditor);
+}
+
+export async function openShellFromSidebar(
+  browser: CompassBrowser,
+  connectionName: string
+): Promise<void> {
+  await browser.selectConnectionMenuItem(
+    connectionName,
+    Selectors.OpenShellItem,
+    false // the item is not contained in the three-dot menu
+  );
+
+  await waitForShellToBeReady(browser, connectionName);
+}
+
+export async function openShellFromCollectionHeader(
+  browser: CompassBrowser,
+  connectionName: string
+): Promise<void> {
+  await browser.clickVisible(Selectors.CollectionHeaderOpenShellButton);
+
+  await waitForShellToBeReady(browser, connectionName);
 }
