@@ -63,6 +63,7 @@ const CollectionHeaderActions: React.FunctionComponent<
       {showOpenShellButton && (
         <Button
           size="small"
+          data-testid="collection-header-open-shell-button"
           onClick={() => {
             openShellWorkspace(connectionId, {
               initialEvaluate: `use ${database}`,

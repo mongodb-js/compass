@@ -66,6 +66,8 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
       return new ToolsController({
         logger,
         getTelemetryAnonymousId: () => telemetryAnonymousId ?? '',
+        // we will set this later through setContext()
+        enableTelemetry: false,
       });
     }, [logger, telemetryAnonymousId]);
 
