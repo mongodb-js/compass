@@ -26,8 +26,15 @@ export const buildConversationInstructionsPrompt = ({
 }: {
   target: string;
 }) => {
+  const version = process.env.HADRON_APP_VERSION;
   return `
 You are an assistant running in a side-panel inside ${target}.
+
+${
+  version
+    ? `The current version of the ${target} is ${version}. The changelog can be found at https://www.mongodb.com/docs/compass/release-notes/`
+    : ''
+}
 
 <instructions>
 You should:

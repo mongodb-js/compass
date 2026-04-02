@@ -1,7 +1,49 @@
 import { expect } from 'chai';
-import { buildExplainPlanPrompt, buildContextPrompt } from './prompts';
+import {
+  buildConversationInstructionsPrompt,
+  buildExplainPlanPrompt,
+  buildContextPrompt,
+} from './prompts';
 
 describe('prompts', function () {
+  describe('buildConversationInstructionsPrompt', function () {
+    let originalVersion: string | undefined;
+
+    beforeEach(function () {
+      originalVersion = process.env.HADRON_APP_VERSION;
+    });
+
+    afterEach(function () {
+      if (originalVersion === undefined) {
+        delete process.env.HADRON_APP_VERSION;
+      } else {
+        process.env.HADRON_APP_VERSION = originalVersion;
+      }
+    });
+
+    it('should include the version and changelog link when HADRON_APP_VERSION is set', function () {
+      process.env.HADRON_APP_VERSION = '1.45.0';
+      const result = buildConversationInstructionsPrompt({
+        target: 'MongoDB Compass',
+      });
+      expect(result).to.include(
+        'The current version of the MongoDB Compass is 1.45.0'
+      );
+      expect(result).to.include(
+        'https://www.mongodb.com/docs/compass/release-notes/'
+      );
+    });
+
+    it('should not include the version or changelog link when HADRON_APP_VERSION is not set', function () {
+      delete process.env.HADRON_APP_VERSION;
+      const result = buildConversationInstructionsPrompt({
+        target: 'MongoDB Atlas Data Explorer',
+      });
+      expect(result).to.not.include('The current version of the');
+      expect(result).to.not.include('release-notes');
+    });
+  });
+
   describe('buildExplainPlanPrompt', function () {
     const mockExplainPlan = JSON.stringify({
       stages: [{ stage: 'COLLSCAN', executionTimeMillisEstimate: 100 }],
