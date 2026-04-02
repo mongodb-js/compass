@@ -167,11 +167,16 @@ describe('connectMongoClient', function () {
       ]);
     });
 
-    it.only('should at least try to run a ping command to verify connectivity', async function () {
+    it('should at least try to run a ping command to verify connectivity', async function () {
       const error = await connectMongoClient({
-        connectionOptions: { connectionString: 'mongodb://localhost:1/?loadBalanced=true' },
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:1/?loadBalanced=true',
+        },
         setupListeners,
-      }).then(() => null, (err) => err);
+      }).then(
+        () => null,
+        (err) => err
+      );
       expect(error).to.have.property('name', 'MongoNetworkError');
     });
 
