@@ -573,6 +573,12 @@ export const HadronElement: React.FunctionComponent<{
               );
             },
           },
+          {
+            label: 'Copy value',
+            onAction: () => {
+              void navigator.clipboard.writeText(element.toEJSON());
+            },
+          },
           type.value === 'String' && isValidUrl(value.value)
             ? {
                 label: 'Open URL in browser',
