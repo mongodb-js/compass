@@ -605,6 +605,7 @@ export class AtlasAiService {
       description:
         'Generate faker.js mappings for MongoDB schema fields to create realistic mock data',
       inputSchema: mockDataSchemaToolSchema,
+      strict: true,
     });
 
     const response = streamText({
