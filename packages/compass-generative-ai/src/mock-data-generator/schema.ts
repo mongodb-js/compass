@@ -39,8 +39,3 @@ export interface MockDataSchemaRawField {
 }
 
 export type RawSchema = Record<string, MockDataSchemaRawField>;
-
-// Backwards compatibility: remove once CLOUDP-381919 updates
-// atlas-ai-service.ts to import the new names above.
-export { mockDataSchemaToolSchema as MockDataSchemaResponseShape };
-export type { MockDataSchemaToolOutput as MockDataSchemaResponse };
