@@ -536,8 +536,8 @@ describe('AtlasAiService', function () {
             expect(requestBody).to.include('88888');
           });
 
-          it('includes non-null validation rules in the generated prompt', async function () {
-            const validationRuleMarker = 'AGE_MUST_BE_21_OR_OLDER';
+          it('includes validation rules in the generated prompt', async function () {
+            const VALIDATION_RULE = 'AGE_MUST_BE_21_OR_OLDER';
             let capturedRequestBody = '';
 
             const fetchStub = sandbox.stub().callsFake((...args: unknown[]) => {
@@ -565,7 +565,7 @@ describe('AtlasAiService', function () {
                     bsonType: 'object',
                     properties: {
                       age: {
-                        description: validationRuleMarker,
+                        description: VALIDATION_RULE,
                         minimum: 21,
                       },
                     },
@@ -575,7 +575,7 @@ describe('AtlasAiService', function () {
               mockConnectionInfo
             );
 
-            expect(capturedRequestBody).to.include(validationRuleMarker);
+            expect(capturedRequestBody).to.include(VALIDATION_RULE);
           });
 
           it('throws AtlasAiServiceApiResponseParseError when no tool call returned', async function () {
