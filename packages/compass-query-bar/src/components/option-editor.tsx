@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   css,
   cx,
@@ -76,6 +76,59 @@ const editorWithErrorStyles = css({
   },
 });
 
+// Matches BaseEditor's default lineHeight prop value.
+const EDITOR_LINE_HEIGHT = 16;
+const MAX_EDITOR_LINES = 50;
+
+// The initial rendered height of the editor container (single line of content
+// + cm-content padding + container padding/border). Acts as the floor for
+// the resize grip — the editor should never shrink below this.
+const MIN_EDITOR_HEIGHT = 28;
+const MAX_EDITOR_HEIGHT = MAX_EDITOR_LINES * EDITOR_LINE_HEIGHT;
+
+function clampHeight(h: number) {
+  return Math.max(MIN_EDITOR_HEIGHT, Math.min(MAX_EDITOR_HEIGHT, h));
+}
+
+// Matches the LeafyGreen "Resize" glyph — two diagonal lines in the corner.
+const resizeGripSvg = encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">` +
+    `<path fill-rule="evenodd" clip-rule="evenodd" ` +
+    `d="M14.7706 5.71967C15.0631 6.01256 15.0631 6.48744 14.7706 6.78033` +
+    `L6.77898 14.7803C6.4864 15.0732 6.01202 15.0732 5.71944 14.7803` +
+    `C5.42685 14.4874 5.42685 14.0126 5.71944 13.7197L13.711 5.71967` +
+    `C14.0036 5.42678 14.478 5.42678 14.7706 5.71967Z" ` +
+    `fill="${palette.gray.base}"/>` +
+    `<path fill-rule="evenodd" clip-rule="evenodd" ` +
+    `d="M14.7806 10.2197C15.0731 10.5126 15.0731 10.9874 14.7806 11.2803` +
+    `L11.2842 14.7803C10.9917 15.0732 10.5173 15.0732 10.2247 14.7803` +
+    `C9.93212 14.4874 9.93212 14.0126 10.2247 13.7197L13.721 10.2197` +
+    `C14.0136 9.92678 14.488 9.92678 14.7806 10.2197Z" ` +
+    `fill="${palette.gray.base}"/>` +
+    `</svg>`
+);
+
+const resizeGripStyles = css({
+  position: 'absolute',
+  bottom: 0,
+  right: 0,
+  width: 16,
+  height: 16,
+  padding: 0,
+  border: 'none',
+  background: 'transparent',
+  backgroundImage: `url("data:image/svg+xml,${resizeGripSvg}")`,
+  backgroundSize: '100% 100%',
+  cursor: 'ns-resize',
+  opacity: 0.6,
+  zIndex: 100,
+  outline: 'none',
+  transition: 'opacity 150ms ease',
+  '&:hover, &:focus-visible': {
+    opacity: 1,
+  },
+});
+
 type OptionEditorProps = {
   optionName: QueryOptionOfTypeDocument;
   namespace: string;
@@ -128,13 +181,69 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
 
   const darkMode = useDarkMode();
 
+  // Tracks the user's manual resize height in pixels. When null, the editor
+  // auto-grows with content (no cap). Once the user drags the resize grip,
+  // this holds the pixel height for the container.
+  const [userHeight, setUserHeight] = useState<number | null>(null);
+
+  const handleGripMouseDown = useCallback(() => {
+    const handleMouseMove = (event: MouseEvent) => {
+      setUserHeight((prev) =>
+        clampHeight((prev ?? MIN_EDITOR_HEIGHT) + event.movementY)
+      );
+    };
+
+    const handleMouseUp = () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }, []);
+
+  const handleGripKeyDown = useCallback((event: React.KeyboardEvent) => {
+    const step = EDITOR_LINE_HEIGHT;
+    let handled = true;
+
+    switch (event.key) {
+      case 'ArrowDown':
+        setUserHeight((prev) =>
+          clampHeight((prev ?? MIN_EDITOR_HEIGHT) + step)
+        );
+        break;
+      case 'ArrowUp':
+        setUserHeight((prev) =>
+          clampHeight((prev ?? MIN_EDITOR_HEIGHT) - step)
+        );
+        break;
+      case 'End':
+        setUserHeight(MAX_EDITOR_HEIGHT);
+        break;
+      case 'Home':
+        setUserHeight(MIN_EDITOR_HEIGHT);
+        break;
+      default:
+        handled = false;
+    }
+
+    if (handled) {
+      event.preventDefault();
+    }
+  }, []);
+
+  // When the user has manually resized, cap maxLines high so the container's
+  // CSS height is the actual constraint. Otherwise omit it to preserve the
+  // original auto-grow behavior (editor grows with content, no cap).
+  const maxLines = userHeight !== null ? MAX_EDITOR_LINES : undefined;
+
   const onApplyRef = useRef(onApply);
   onApplyRef.current = onApply;
 
   const commands = useMemo<Command[]>(() => {
     return [
       {
-        key: 'Enter',
+        key: 'Mod-Enter',
         run() {
           onApplyRef.current?.();
           return true;
@@ -244,6 +353,11 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         hasError && editorWithErrorStyles
       )}
       ref={editorContainerRef}
+      style={
+        userHeight !== null
+          ? { height: userHeight, minHeight: MIN_EDITOR_HEIGHT }
+          : undefined
+      }
     >
       <InlineEditor
         ref={editorRef}
@@ -258,7 +372,22 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         onFocus={onFocus}
         onPaste={onPaste}
         onBlur={onBlur}
+        maxLines={maxLines}
       />
+      {!disabled && optionName === 'filter' && (
+        <div
+          role="slider"
+          aria-orientation="vertical"
+          aria-valuenow={userHeight ?? MIN_EDITOR_HEIGHT}
+          aria-valuemin={MIN_EDITOR_HEIGHT}
+          aria-valuemax={MAX_EDITOR_HEIGHT}
+          aria-label="Resize query editor"
+          tabIndex={0}
+          className={resizeGripStyles}
+          onMouseDown={handleGripMouseDown}
+          onKeyDown={handleGripKeyDown}
+        />
+      )}
     </div>
   );
 };
