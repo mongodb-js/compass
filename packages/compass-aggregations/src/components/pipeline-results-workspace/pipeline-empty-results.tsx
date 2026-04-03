@@ -14,6 +14,7 @@ const ZeroGraphic: React.FunctionComponent = () => {
 
   return (
     <svg
+      className="darkreader-ignore-child-inline-style"
       width="72"
       height="72"
       viewBox="0 0 72 72"
