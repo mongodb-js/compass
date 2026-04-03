@@ -21,7 +21,6 @@ import {
   getCoordinatesForNewNode,
   type openToast as _openToast,
   showConfirmation,
-  showPrompt,
 } from '@mongodb-js/compass-components';
 import {
   getDiagramContentsFromFile,
@@ -321,6 +320,7 @@ export const diagramReducer: Reducer<DiagramState> = (
       selectedItems: null,
     };
   }
+
   return state;
 };
 
@@ -707,31 +707,20 @@ export function deleteDiagram(
 export function renameDiagram(
   id: string,
   newName: string
-): RenameDiagramAction {
-  return { type: DiagramActionTypes.RENAME_DIAGRAM, id, name: newName };
-}
-
-export function showDiagramRenameModal(
-  id: string // TODO maybe pass the whole thing here, we always have it when calling this, then we don't need to re-load storage
 ): DataModelingThunkAction<Promise<void>, RenameDiagramAction> {
-  return async (dispatch, getState, { dataModelStorage }) => {
+  return async (dispatch, getState, { dataModelStorage, openToast }) => {
     try {
       const diagram = await dataModelStorage.load(id);
-      if (!diagram) {
+      if (!diagram || !newName) {
         return;
       }
-      const newName = await showPrompt({
-        title: 'Rename diagram',
-        label: 'Name',
-        defaultValue: diagram.name,
-      });
-      if (!newName) {
-        return;
-      }
+
+      await dataModelStorage.save({ ...diagram, name: newName });
       dispatch({ type: DiagramActionTypes.RENAME_DIAGRAM, id, name: newName });
-      void dataModelStorage.save({ ...diagram, name: newName });
-    } catch {
-      // TODO log
+    } catch (error) {
+      handleError(openToast, 'Error renaming diagram', [
+        (error as Error).message,
+      ]);
     }
   };
 }
