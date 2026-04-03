@@ -11,10 +11,12 @@ import { RuntimeMap } from './stores/store';
 
 describe('CompassShellPlugin WorkspaceTab', function () {
   it('returns a renderable plugin', async function () {
+    const attemptedEvals: any[][] = [];
     RuntimeMap.set('test', {
       eventEmitter: new EventEmitter(),
       terminate() {},
-      evaluate() {
+      evaluate(...args: any[]) {
+        attemptedEvals.push(args);
         return Promise.resolve({});
       },
     } as any);
@@ -28,6 +30,7 @@ describe('CompassShellPlugin WorkspaceTab', function () {
 
     await waitFor(() => {
       expect(screen.getByTestId('shell-section')).to.exist;
+      expect(attemptedEvals).to.deep.equal([['version()']]);
     });
   });
 });

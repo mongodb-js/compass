@@ -1,7 +1,9 @@
 import type { CompassBrowser } from '../compass-browser';
 import * as Selectors from '../selectors';
 
-async function getOutputText(browser: CompassBrowser): Promise<string[]> {
+export async function getShellOutputText(
+  browser: CompassBrowser
+): Promise<string[]> {
   return await browser.$$(Selectors.ShellOutput).map((element) => {
     return element.getText();
   });
@@ -15,12 +17,12 @@ export async function shellEval(
 ): Promise<string> {
   // Keep in mind that for multiple connections this will open a new tab and
   // focus it.
-  await browser.openShell(connectionName);
+  await browser.openShellFromSidebar(connectionName);
 
   const strings = Array.isArray(input) ? input : [input];
 
   for (const str of strings) {
-    const numLines = (await getOutputText(browser)).length;
+    const numLines = (await getShellOutputText(browser)).length;
 
     const command = parse === true ? `JSON.stringify(${str})` : str;
 
@@ -29,7 +31,7 @@ export async function shellEval(
 
     // wait until more output appears
     await browser.waitUntil(async () => {
-      const lines = await getOutputText(browser);
+      const lines = await getShellOutputText(browser);
       if (
         lines.length >
         /**
@@ -48,7 +50,7 @@ export async function shellEval(
     });
   }
 
-  const output = await getOutputText(browser);
+  const output = await getShellOutputText(browser);
 
   let result = Array.isArray(output) ? output.pop() : output;
 
