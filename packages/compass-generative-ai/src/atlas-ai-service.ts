@@ -553,7 +553,13 @@ export class AtlasAiService {
     );
 
     // Validate schema size and check if batching is needed
-    validateSchemaSize(schema);
+    try {
+      validateSchemaSize(schema);
+    } catch {
+      throw new AtlasAiServiceInvalidInputError(
+        'The provided schema is too large to process. Please reduce the schema size and try again.'
+      );
+    }
 
     if (!needsBatching(schema)) {
       // Small schema: single LLM call
@@ -562,6 +568,7 @@ export class AtlasAiService {
         collectionName,
         schema,
         input.validationRules,
+        input.requestId,
         signal
       );
     }
@@ -576,6 +583,7 @@ export class AtlasAiService {
         collectionName,
         chunk,
         input.validationRules,
+        input.requestId,
         signal
       );
       chunkResponses.push(response);
@@ -592,6 +600,7 @@ export class AtlasAiService {
     collectionName: string,
     schema: RawSchema,
     validationRules: Record<string, unknown> | null | undefined,
+    requestId: string,
     signal: AbortSignal
   ): Promise<MockDataSchemaToolOutput> {
     const userPrompt = formatSchemaForPrompt(
@@ -618,6 +627,10 @@ export class AtlasAiService {
           instructions: MOCK_DATA_SCHEMA_PROMPT,
           store: false,
         },
+      },
+      headers: {
+        'X-Client-Request-Id': requestId,
+        'X-Assistant-Entrypoint': 'mock-data-schema',
       },
       abortSignal: signal,
     });

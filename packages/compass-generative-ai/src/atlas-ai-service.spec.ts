@@ -536,6 +536,48 @@ describe('AtlasAiService', function () {
             expect(requestBody).to.include('88888');
           });
 
+          it('includes non-null validation rules in the generated prompt', async function () {
+            const validationRuleMarker = 'AGE_MUST_BE_21_OR_OLDER';
+            let capturedRequestBody = '';
+
+            const fetchStub = sandbox.stub().callsFake((...args: unknown[]) => {
+              capturedRequestBody = String(
+                (args[1] as { body?: string })?.body ?? ''
+              );
+              // Return a valid response so test doesn't error out
+              return createToolCallStreamResponse('mockDataSchema', {
+                fields: [
+                  {
+                    fieldPath: 'age',
+                    fakerMethod: 'number.int',
+                    fakerArgs: [],
+                  },
+                ],
+              });
+            }) as typeof fetch;
+            global.fetch = fetchStub;
+
+            await atlasAiService.getMockDataSchema(
+              {
+                ...mockSchemaInput,
+                validationRules: {
+                  $jsonSchema: {
+                    bsonType: 'object',
+                    properties: {
+                      age: {
+                        description: validationRuleMarker,
+                        minimum: 21,
+                      },
+                    },
+                  },
+                },
+              },
+              mockConnectionInfo
+            );
+
+            expect(capturedRequestBody).to.include(validationRuleMarker);
+          });
+
           it('throws AtlasAiServiceApiResponseParseError when no tool call returned', async function () {
             // Create a response with no tool calls (just text output)
             const responseId = `resp_${Date.now()}`;
