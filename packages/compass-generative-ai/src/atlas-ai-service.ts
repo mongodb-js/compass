@@ -628,10 +628,6 @@ export class AtlasAiService {
           store: false,
         },
       },
-      headers: {
-        'X-Client-Request-Id': requestId,
-        'X-Assistant-Entrypoint': 'mock-data-schema',
-      },
       abortSignal: signal,
     });
 
