@@ -74,7 +74,7 @@ const EmptyContent: React.FunctionComponent<
       className={cx(containerStyles, containerClassName)}
     >
       {Icon && (
-        <div className={iconStyles}>
+        <div className={cx(iconStyles, 'darkreader-ignore-child-inline-style')}>
           <Icon />
         </div>
       )}
