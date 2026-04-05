@@ -555,6 +555,8 @@ export const CollectionTabStats = (
 };
 export const CollectionStatsTooltip =
   '[data-testid="collection-stats-tooltip"]';
+export const CollectionHeaderOpenShellButton =
+  '[data-testid="collection-header-open-shell-button"]';
 
 export const collectionSubTab = (
   tabName: string,
@@ -621,6 +623,7 @@ export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
 export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
 export const ErrorDetailsJson = '[data-testid="error-details-json"]';
+export const DocumentTableContainer = `.document-table-view-container`;
 
 // Insert Document modal
 

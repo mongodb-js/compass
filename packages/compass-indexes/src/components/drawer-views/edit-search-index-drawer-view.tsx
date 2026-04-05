@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { connect } from 'react-redux';
+import { connect, shallowEqual, useSelector } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
   updateIndex,
@@ -29,6 +29,7 @@ import {
   SpinLoader,
   Subtitle,
   Body,
+  Tooltip,
   useDarkMode,
   cx,
 } from '@mongodb-js/compass-components';
@@ -52,6 +53,9 @@ import type { SearchIndex } from 'mongodb-data-service';
 import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/index_jsonEditor.json';
 import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
 import type { JSONSchema7 } from 'json-schema';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 
 const scrollContainerStyles = css({
   overflowX: 'auto',
@@ -91,6 +95,23 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   const editorRef = useRef<EditorRef>(null);
   const [indexDefinition, setIndexDefinition] = useState(
     JSON.stringify(searchIndex.latestDefinition, null, 2)
+  );
+
+  const { atlasMetadata } = useConnectionInfo();
+  const isAtlas = !!atlasMetadata;
+  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+    'readOnly',
+    'readWrite',
+    'enableAtlasSearchIndexes',
+  ]);
+  const { isSearchIndexesWritable } = useSelector(
+    selectReadWriteAccess({
+      isAtlas,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    }),
+    shallowEqual
   );
 
   // Use the JSON schema autocomplete hook for validation and autocomplete
@@ -206,6 +227,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
             completer={completer}
             customExtensions={extensions}
             annotations={annotations}
+            readOnly={!isSearchIndexesWritable}
           />
         </div>
         {error && <ErrorSummary errors={error} />}
@@ -218,16 +240,27 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
         >
           Cancel
         </Button>
-        <Button
-          data-testid="edit-search-index-drawer-view-submit-button"
-          variant="primary"
-          isLoading={isBusy}
-          loadingIndicator={<SpinLoader />}
-          disabled={!isSaveEnabled}
-          onClick={onSaveClick}
+        <Tooltip
+          trigger={
+            <Button
+              data-testid="edit-search-index-drawer-view-submit-button"
+              variant="primary"
+              isLoading={isBusy}
+              loadingIndicator={<SpinLoader />}
+              disabled={!isSaveEnabled || !isSearchIndexesWritable}
+              onClick={onSaveClick}
+            >
+              Save and Rebuild
+            </Button>
+          }
+          enabled={!isSearchIndexesWritable}
         >
-          Save and Rebuild
-        </Button>
+          You currently don&apos;t have permission to edit {indexLabel}es in
+          this{' '}
+          {!atlasMetadata
+            ? 'cluster.'
+            : 'project, please contact Project Owner to request the Project Data Access Admin role.'}
+        </Tooltip>
       </div>
     </div>
   );

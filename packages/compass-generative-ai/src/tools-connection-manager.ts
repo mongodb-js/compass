@@ -1,5 +1,6 @@
 import {
   ConnectionManager,
+  ConnectionStateConnected,
   type ConnectionStateDisconnected,
   type LoggerBase,
 } from 'mongodb-mcp-server';
@@ -122,12 +123,10 @@ To connect, choose a connection from Compass's connection sidebar - https://www.
         id: connectionId,
         provider: serviceProvider,
       };
-      return void this.changeState('connection-success', {
-        tag: 'connected',
-        serviceProvider,
-        // TODO(COMPASS-10214): implement if needed
-        isSearchSupported: () => Promise.resolve(false),
-      });
+      return void this.changeState(
+        'connection-success',
+        new ConnectionStateConnected(serviceProvider)
+      );
     } catch (error) {
       this.logger.error({
         id: mongoLogId(1_001_000_412),

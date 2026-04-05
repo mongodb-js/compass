@@ -18,7 +18,7 @@ async function setup(
   dbName: string,
   collName: string
 ) {
-  await createNumbersCollection();
+  await createNumbersCollection(collName);
   await browser.setupDefaultConnections();
   await browser.connectToDefaults();
   await browser.navigateToCollectionTab(
@@ -30,6 +30,7 @@ async function setup(
 
   await browser.setFeature('enableGenAIFeatures', true);
   await browser.setFeature('enableGenAISampleDocumentPassing', true);
+  await browser.setFeature('enableGenAIFeaturesAtlasOrg', true);
   await browser.setFeature('optInGenAIFeatures', true);
 }
 

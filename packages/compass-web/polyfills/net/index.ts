@@ -29,7 +29,7 @@ class Socket extends Duplex {
   }) {
     const { wsURL, ...atlasOptions } =
       lookup?.() ?? ({} as { wsURL?: string; clusterName?: string });
-    this._ws = new WebSocket(wsURL ?? '/ws-proxy');
+    this._ws = new WebSocket(wsURL ?? 'http://localhost:1337');
     this._ws.binaryType = 'arraybuffer';
     this._ws.addEventListener(
       'open',

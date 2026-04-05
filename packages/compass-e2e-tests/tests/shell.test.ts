@@ -12,6 +12,8 @@ import {
 import type { Compass } from '../helpers/compass';
 import * as Selectors from '../helpers/selectors';
 import chai from 'chai';
+import { createSidebarDatabase } from '../helpers/mongo-clients';
+import { getShellOutputText } from '../helpers/commands';
 const { expect } = chai;
 
 describe('Shell', function () {
@@ -47,10 +49,62 @@ describe('Shell', function () {
     await screenshotIfFailed(compass, this.currentTest);
   });
 
+  describe('with a dataset', function () {
+    beforeEach(async function () {
+      // Create a database that has a name that isn't the default `test`.
+      await createSidebarDatabase();
+
+      await browser.connectToDefaults();
+
+      await browser.navigateToCollectionTab(
+        getDefaultConnectionNames(0),
+        'my-sidebar-database',
+        'my-sidebar-collection',
+        'Documents'
+      );
+    });
+
+    it('uses the database and collection it is opened from', async function () {
+      await browser.openShellFromCollectionHeader(getDefaultConnectionNames(0));
+
+      await browser.waitUntil(async () => {
+        const output = await getShellOutputText(browser);
+
+        // Wait for the shell to use the database.
+        return output.length === 2;
+      });
+
+      // Shell is focused, we run the default command
+      // which will find documents in the sidebar collection.
+      await browser.keys(['Enter']);
+
+      // Wait for the find command to complete.
+      await browser.waitUntil(async () => {
+        const output = await getShellOutputText(browser);
+
+        if (output.length > 3) {
+          await browser
+            .$(`${Selectors.ShellInput} [aria-label="Chevron Right Icon"]`)
+            .waitForDisplayed();
+          return true;
+        }
+        return false;
+      });
+
+      const output = await getShellOutputText(browser);
+      expect(output.slice(0, 3)).to.deep.equal([
+        'use my-sidebar-database',
+        'switched to db my-sidebar-database',
+        'db["my-sidebar-collection"].find()',
+      ]);
+      expect(output[3]).to.include('docIndex');
+    });
+  });
+
   it('has an info modal', async function () {
     await browser.connectToDefaults();
 
-    await browser.openShell(getDefaultConnectionNames(0));
+    await browser.openShellFromSidebar(getDefaultConnectionNames(0));
     await browser.clickVisible(Selectors.ShellInfoButton);
 
     await browser.waitForOpenModal(Selectors.ShellInfoModal);

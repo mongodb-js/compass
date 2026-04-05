@@ -6,7 +6,6 @@ import React, {
   useMemo,
   useRef,
 } from 'react';
-import path from 'path';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -318,6 +317,15 @@ export function createElectronFileInputBackend<ElectronWindow>(
   };
 }
 
+function basename(path: string): string {
+  return (
+    path
+      .replace(/(\/|\\)$/, '')
+      .split(/(\/|\\)/)
+      .pop() ?? ''
+  );
+}
+
 /**
  * This component is not intended to work in a browser environment. It is designed
  * to be used in environments like Electron where you have access to nodes fs module
@@ -383,7 +391,7 @@ function FilePickerDialog({
 
   const buttonText = React.useMemo(() => {
     if (Array.isArray(values) && values.length > 0) {
-      return values.map((file) => path.basename(file)).join(', ');
+      return values.map((file) => basename(file)).join(', ');
     }
 
     return multi ? 'Select files…' : 'Select a file…';

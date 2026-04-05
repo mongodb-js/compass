@@ -79,3 +79,14 @@ export function webpackArgsWithDefaults(
     ...(more as ConfigArgs[])
   );
 }
+
+export function shouldEnableHotReload(args: ConfigArgs): boolean {
+  return Boolean(
+    // react-refresh only works when NODE_ENV is dev and will throw otherwise
+    args.nodeEnv === 'development' &&
+      // we only need it when webpack-dev-server is running
+      isServe(args) &&
+      // and only if hot-reload is enabled (it is not in Compass main right now)
+      args.hot
+  );
+}

@@ -89,11 +89,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
       | 'atlas-dev'
       | 'atlas-qa'
       | 'atlas-staging'
-      | 'atlas'
-      | 'web-sandbox-atlas-local'
-      | 'web-sandbox-atlas-dev'
-      | 'web-sandbox-atlas-qa'
-      | 'web-sandbox-atlas';
+      | 'atlas';
     optInGenAIFeatures: boolean;
     // Features that are enabled by default in Compass, but are disabled in Data
     // Explorer
@@ -873,17 +869,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Configuration used by atlas service',
     },
     validator: z
-      .enum([
-        'atlas-local',
-        'atlas-dev',
-        'atlas-qa',
-        'atlas-staging',
-        'atlas',
-        'web-sandbox-atlas-local',
-        'web-sandbox-atlas-dev',
-        'web-sandbox-atlas-qa',
-        'web-sandbox-atlas',
-      ])
+      .enum(['atlas-local', 'atlas-dev', 'atlas-qa', 'atlas-staging', 'atlas'])
       .default('atlas'),
     type: 'string',
   },

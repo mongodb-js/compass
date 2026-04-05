@@ -1,8 +1,15 @@
-import { completeAnyWord, ifIn } from '@codemirror/autocomplete';
-import type { CompletionContext } from '@codemirror/autocomplete';
+import {
+  completeAnyWord,
+  ifIn,
+  snippetCompletion,
+} from '@codemirror/autocomplete';
+import type { Completion, CompletionContext } from '@codemirror/autocomplete';
 import { syntaxTree } from '@codemirror/language';
 import type { EditorState } from '@codemirror/state';
 import { urlWithUtmParams } from '@mongodb-js/compass-components';
+
+import { wrapField } from '../autocompleter';
+import type { CompletionResult as MongoDBCompletionResult } from '../autocompleter';
 
 export const completeWordsInString = ifIn(['String'], completeAnyWord);
 
@@ -114,4 +121,77 @@ export function getAncestryOfToken(token: Token, document: string): string[] {
     document
   ).reverse();
   return list;
+}
+
+export function isPropertyValue(token: Token): boolean {
+  let current: Token | null = token;
+  while (current) {
+    // A token is in the value position of an object when it's a child
+    // of a Property node, it has a previous sibling (the key of the property),
+    // and the previous sibling isn't an opening bracket, which would indicate
+    // a computed property name (e.g. { [expr]: value }).
+    if (
+      current.parent?.name === 'Property' &&
+      current.prevSibling &&
+      current.prevSibling.name !== '['
+    ) {
+      return true;
+    }
+
+    // We walk up when we're in an array expression as it could
+    // be a property value inside an array.
+    // This is helpful for cases where we are autocompleting inside an
+    // array of values, e.g. the start of "ObjectId" { _id: { $in: [ Obj ] } }.
+    if (
+      current.parent?.name === 'ArrayExpression' ||
+      current.parent?.name === 'Array'
+    ) {
+      current = current.parent;
+      continue;
+    }
+    break;
+  }
+  return false;
+}
+
+export function mapMongoDBCompletionToCodemirrorCompletion(
+  completion: MongoDBCompletionResult,
+  escape: 'always' | 'never' | 'invalid' = 'invalid'
+): Completion {
+  const cmCompletion = {
+    label: completion.value,
+    apply:
+      escape === 'never'
+        ? completion.value
+        : wrapField(completion.value, escape === 'always'),
+    detail: completion.meta?.startsWith('field') ? 'field' : completion.meta,
+    type: completion.meta?.startsWith('field') ? 'field' : 'method',
+    info() {
+      if (!completion.description) {
+        return null;
+      }
+
+      const infoNode = document.createElement('div');
+      infoNode.classList.add('completion-info');
+      infoNode.addEventListener('mousedown', (evt) => {
+        // If we are clicking a link inside the info block, we have to prevent
+        // default browser behavior that will remove the focus from the editor
+        // and cause the autocompleter to dissapear before browser handles the
+        // actual click. This is very similar to how codemirror handles clicks
+        // on the list items
+        // @see {@link https://github.com/codemirror/autocomplete/blob/82480a7d51d60ad933808e42f6189d841a5a6bc8/src/tooltip.ts#L96-L97}
+        if ((evt.target as HTMLElement).nodeName === 'A') {
+          evt.preventDefault();
+        }
+      });
+      infoNode.innerHTML = completion.description;
+      return infoNode;
+    },
+  };
+
+  if (completion.snippet) {
+    return snippetCompletion(completion.snippet, cmCompletion);
+  }
+
+  return cmCompletion;
 }

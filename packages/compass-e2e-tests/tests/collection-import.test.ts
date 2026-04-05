@@ -1426,8 +1426,7 @@ describe('Collection import', function () {
       await browser.selectFile(Selectors.ImportFileInput, jsonPath);
 
       // Wait for the modal to appear.
-      const importModal = browser.$(Selectors.ImportModal);
-      await importModal.waitForDisplayed();
+      await browser.waitForOpenModal(Selectors.ImportModal);
 
       // Confirm import.
       await browser.clickVisible(Selectors.ImportConfirm);

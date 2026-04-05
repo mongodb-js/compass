@@ -1,0 +1,83 @@
+{
+  "//": "This configuration was created for the Header Editor Lite browser extension",
+  "request": [
+    {
+      "enable": true,
+      "group": "compass-web",
+      "ruleType": "redirect",
+      "isFunction": false,
+      "code": "",
+      "forceRunner": "auto",
+      "name": "cloud-dev / cloud-local: compass-web localhost",
+      "to": "http://localhost:7777/compass-web.mjs",
+      "condition": {
+        "regex": "https://downloads\\.mongodb\\.com/compass/compass-web/dev/index.mjs",
+        "resourceTypes": ["script"]
+      },
+      "encoding": "utf-8"
+    },
+    {
+      "enable": true,
+      "group": "compass-web",
+      "ruleType": "redirect",
+      "isFunction": false,
+      "code": "",
+      "forceRunner": "auto",
+      "name": "cloud-qa: compass-web localhost",
+      "to": "http://localhost:7777/compass-web.mjs",
+      "condition": {
+        "regex": "https://downloads\\.mongodb\\.com/compass/compass-web/qa/index.mjs",
+        "resourceTypes": ["script"]
+      },
+      "encoding": "utf-8"
+    },
+    {
+      "enable": true,
+      "group": "compass-web",
+      "ruleType": "redirect",
+      "isFunction": false,
+      "code": "",
+      "forceRunner": "auto",
+      "name": "cloud-stage: compass-web localhost",
+      "to": "http://localhost:7777/compass-web.mjs",
+      "condition": {
+        "regex": "https://downloads\\.mongodb\\.com/compass/compass-web/staging/index.mjs",
+        "resourceTypes": ["script"]
+      },
+      "encoding": "utf-8"
+    },
+    {
+      "enable": true,
+      "group": "compass-web",
+      "ruleType": "redirect",
+      "isFunction": false,
+      "code": "",
+      "forceRunner": "auto",
+      "name": "cloud: compass-web localhost",
+      "to": "http://localhost:7777/compass-web.mjs",
+      "condition": {
+        "regex": "https://downloads\\.mongodb\\.com/compass/compass-web/prod/index.mjs",
+        "resourceTypes": ["script"]
+      },
+      "encoding": "utf-8"
+    },
+    {
+      "enable": false,
+      "group": "mms",
+      "ruleType": "redirect",
+      "isFunction": false,
+      "code": "",
+      "forceRunner": "auto",
+      "name": "cloud (any environment): mms localhost",
+      "condition": {
+        "regex": "https:\\/\\/assets(?:-\\w+?)?\\.mongodb-cdn\\.com\\/mms(.+?)(?:\\.[\\w\\d]+(\\.min)?)?\\.js",
+        "resourceTypes": ["script"]
+      },
+      "to": "http://localhost:8081$1$2.js",
+      "encoding": "UTF-8"
+    }
+  ],
+  "sendHeader": [],
+  "receiveHeader": [],
+  "receiveBody": []
+}

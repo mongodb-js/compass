@@ -9,7 +9,11 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
-import { z } from 'zod';
+import {
+  MockDataSchemaResponseShape,
+  type MockDataSchemaResponse,
+  type MockDataSchemaRawField,
+} from './mock-data-generator';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
 import {
@@ -222,10 +226,8 @@ const aiURLConfig = {
   },
 } as const;
 
-export interface MockDataSchemaRawField {
-  type: string;
-  sampleValues?: unknown[];
-}
+export type { MockDataSchemaRawField, MockDataSchemaResponse };
+export { MockDataSchemaResponseShape };
 
 export interface MockDataSchemaRequest {
   collectionName: string;
@@ -236,29 +238,6 @@ export interface MockDataSchemaRequest {
   requestId: string;
   signal: AbortSignal;
 }
-
-export const MockDataSchemaResponseShape = z.object({
-  fields: z.array(
-    z.object({
-      fieldPath: z.string(),
-      fakerMethod: z.string(),
-      fakerArgs: z.array(
-        z.union([
-          z.object({
-            json: z.string(),
-          }),
-          z.string(),
-          z.number(),
-          z.boolean(),
-        ])
-      ),
-    })
-  ),
-});
-
-export type MockDataSchemaResponse = z.infer<
-  typeof MockDataSchemaResponseShape
->;
 
 async function getHashedActiveUserId(
   preferences: PreferencesAccess,

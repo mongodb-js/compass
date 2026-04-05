@@ -766,7 +766,8 @@ FindIterable<Document> result = collection.find(filter);`);
       before(function () {
         unsubscribeAllowWarningsFilter = allowServerWarnings((l: LogEntry) => {
           return (
-            l.id === 7267501 &&
+            !!l.id &&
+            [7267501, 23802].includes(l.id) &&
             ['DocumentValidationFailure'].includes(l.attr?.error?.codeName)
           );
         });
@@ -880,6 +881,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
       it('shows error info when editing via table view', async function () {
         await browser.clickVisible(Selectors.SelectTableView);
+        await browser.$(Selectors.DocumentTableContainer).waitForDisplayed();
 
         const document = browser.$('.ag-center-cols-clipper .ag-row-first');
         await document.waitForDisplayed();
