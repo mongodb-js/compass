@@ -37,6 +37,13 @@ import {
 import { parseXmlToJsonResponse } from './utils/parse-xml-response';
 import { getAiQueryResponse } from './utils/gen-ai-response';
 
+const mockDataTool = tool({
+  description:
+    'Generate faker.js mappings for MongoDB schema fields to create realistic mock data',
+  inputSchema: mockDataSchemaToolSchema,
+  strict: true,
+});
+
 export type GenerativeAiInput = {
   userInput: string;
   collectionName: string;
@@ -605,13 +612,6 @@ export class AtlasAiService {
       schema,
       validationRules
     );
-
-    const mockDataTool = tool({
-      description:
-        'Generate faker.js mappings for MongoDB schema fields to create realistic mock data',
-      inputSchema: mockDataSchemaToolSchema,
-      strict: true,
-    });
 
     const response = streamText({
       model: this.mockDataAiModel,
