@@ -112,6 +112,9 @@ export class AtlasService {
   driverProxyEndpoint(path?: string): string {
     return `${this.config.ccsBaseUrl}${normalizePath(path)}`;
   }
+  multiplexWebsocketEndpoint(projectId: string): string {
+    return `${this.config.multiplexedWsBaseUrl}${normalizePath(projectId)}`;
+  }
   async fetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     throwIfNetworkTrafficDisabled(this.preferences);
     throwIfAborted(init?.signal as AbortSignal);

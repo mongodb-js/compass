@@ -147,11 +147,9 @@ const WithMultiplexTransport = createServiceProvider(
         return;
       }
 
-      // TODO: CCS urls
-      const ccsUrl = `https://cloud-dev.mongodb.com/ccs/${projectId}`;
+      const ccsUrl = atlasService.multiplexWebsocketEndpoint(projectId);
       if (!ccsUrl) {
-        // CCS is not configured for this environment; skip initialisation.
-        return;
+        throw new Error('CCS WebSocket URL is not defined in the config');
       }
 
       const transport = new MultiplexWebSocketTransport(ccsUrl);
