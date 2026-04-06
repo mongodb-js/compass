@@ -83,50 +83,50 @@ ignore:
         created: 2025-05-28T10:50:52.409Z
   SNYK-JS-ELECTRON-15875869:
     - '*':
-      reason: >-
-        Not applicable: requires offscreen rendering to be enabled
-        (webPreferences.offscreen: true) which Compass does not use.
-        Putting on a short expiration time as we're expecting to
-        update Electron soon.
-      expires: 2026-07-06T00:00:00.000Z
-      created: 2026-04-06T00:00:00.000Z
+        reason: >-
+          Not applicable: requires offscreen rendering to be enabled
+          (webPreferences.offscreen: true) which Compass does not use.
+          Putting on a short expiration time as we're expecting to
+          update Electron soon.
+        expires: 2026-07-06T00:00:00.000Z
+        created: 2026-04-06T00:00:00.000Z
   SNYK-JS-ELECTRON-15875853:
     - '*':
-      reason: >-
-        Not applicable: requires untrusted input to be spread into
-        webPreferences. Compass hardcodes all webPreferences values
-        and no external input flows into them.
-      expires: 2026-07-06T00:00:00.000Z
-      created: 2026-04-06T00:00:00.000Z
+        reason: >-
+          Not applicable: requires untrusted input to be spread into
+          webPreferences. Compass hardcodes all webPreferences values
+          and no external input flows into them.
+        expires: 2026-07-06T00:00:00.000Z
+        created: 2026-04-06T00:00:00.000Z
   SNYK-JS-ELECTRON-15876398:
     - '*':
-      reason: >-
-        Not applicable: requires session.setPermissionRequestHandler
-        to be registered which Compass does not use.
-      expires: 2026-07-06T00:00:00.000Z
-      created: 2026-04-06T00:00:00.000Z
+        reason: >-
+          Not applicable: requires session.setPermissionRequestHandler
+          to be registered which Compass does not use.
+        expires: 2026-07-06T00:00:00.000Z
+        created: 2026-04-06T00:00:00.000Z
   SNYK-JS-ELECTRON-15876334:
     - '*':
-      reason: >-
-        Not applicable: requires child windows with differing
-        webPreferences. Compass denies all child windows via
-        setWindowOpenHandler returning { action: 'deny' }.
-      expires: 2026-07-06T00:00:00.000Z
-      created: 2026-04-06T00:00:00.000Z
+        reason: >-
+          Not applicable: requires child windows with differing
+          webPreferences. Compass denies all child windows via
+          setWindowOpenHandler returning { action: 'deny' }.
+        expires: 2026-07-06T00:00:00.000Z
+        created: 2026-04-06T00:00:00.000Z
   SNYK-JS-ELECTRON-15876712:
     - '*':
-      reason: >-
-        Not applicable: requires the powerMonitor module which
-        Compass does not import or use.
-      expires: 2026-07-06T00:00:00.000Z
-      created: 2026-04-06T00:00:00.000Z
+        reason: >-
+          Not applicable: requires the powerMonitor module which
+          Compass does not import or use.
+        expires: 2026-07-06T00:00:00.000Z
+        created: 2026-04-06T00:00:00.000Z
   SNYK-JS-ELECTRON-15876716:
     - '*':
-      reason: >-
-        Not applicable: requires app.moveToApplicationsFolder()
-        which Compass does not call.
-      expires: 2026-07-06T00:00:00.000Z
-      created: 2026-04-06T00:00:00.000Z
+        reason: >-
+          Not applicable: requires app.moveToApplicationsFolder()
+          which Compass does not call.
+        expires: 2026-07-06T00:00:00.000Z
+        created: 2026-04-06T00:00:00.000Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':
