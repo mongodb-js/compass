@@ -27,7 +27,3 @@ export {
   getMultiplexTransport,
   setMultiplexTransport,
 } from './multiplex-ws-transport';
-export type {
-  FrameHeader,
-  MultiplexSocketCallbacks,
-} from './multiplex-ws-transport';

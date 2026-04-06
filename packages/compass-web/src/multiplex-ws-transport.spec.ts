@@ -145,7 +145,7 @@ async function connectTransport(
   return ws;
 }
 
-describe.only('MultiplexWebSocketTransport', function () {
+describe('MultiplexWebSocketTransport', function () {
   let clock: sinon.SinonFakeTimers;
   let OriginalWebSocket: typeof WebSocket;
 

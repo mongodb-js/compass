@@ -40,11 +40,14 @@ const NO_RETRY_CLOSE_CODES = new Set([
   1009, // Message too big
   1011, // Internal error (fatal server-side error)
   1015, // TLS handshake failure
-  4000, // Application-specific do-not-retry codes
-  4001,
-  4002,
-  4003,
-  4004,
+
+  3000, // Close code unauthorized
+  3003, // Close code forbidden
+
+  4004, // Close code not found
+  4029, // Close code too many connections
+  4100, // Close code application shut
+  4111, // Close code shutting down
 ]);
 export interface FrameHeader {
   v: number;
