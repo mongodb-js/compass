@@ -404,6 +404,7 @@ export const AssistantProvider: React.FunctionComponent<
         ? activeCollectionSubTab || activeWorkspace.type
         : null;
       setToolsContext(toolsController, {
+        enableTelemetry: prefs.trackUsageStatistics,
         activeConnection,
         connections: activeConnections,
         query,
@@ -680,6 +681,7 @@ export function createDefaultChat({
 export function setToolsContext(
   toolsController: ToolsController,
   {
+    enableTelemetry,
     activeConnection,
     connections,
     query,
@@ -688,6 +690,7 @@ export function setToolsContext(
     enableGenAIToolCalling,
     activeTab,
   }: {
+    enableTelemetry: boolean;
     activeConnection: ActiveConnectionInfo | null;
     connections: ActiveConnectionInfo[];
     query?: string | null;
@@ -712,6 +715,7 @@ export function setToolsContext(
     }
     toolsController.setActiveTools(toolGroups);
     toolsController.setContext({
+      enableTelemetry,
       connections: connections.map((connection) => {
         if (!connection.connectOptions) {
           throw new Error(
@@ -730,6 +734,7 @@ export function setToolsContext(
   } else {
     toolsController.setActiveTools(new Set([]));
     toolsController.setContext({
+      enableTelemetry,
       connections: [],
       query: undefined,
       pipeline: undefined,

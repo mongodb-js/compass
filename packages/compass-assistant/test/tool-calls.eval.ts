@@ -64,6 +64,7 @@ const logger = createNoopLogger('EVAL-TOOLS-CONTROLLER');
 const toolsController = new ToolsController({
   logger,
   getTelemetryAnonymousId: () => 'eval-anonymous-id',
+  enableTelemetry: false,
 });
 
 let toolsInitialized = false;
@@ -103,6 +104,7 @@ function getToolsForCase({
 
   toolsController.setActiveTools(toolGroups);
   toolsController.setContext({
+    enableTelemetry: false,
     connections: [connectionConfig],
     query: input.currentQuery ? JSON.stringify(input.currentQuery) : undefined,
     pipeline: input.currentPipeline

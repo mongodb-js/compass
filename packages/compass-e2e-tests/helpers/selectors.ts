@@ -555,6 +555,8 @@ export const CollectionTabStats = (
 };
 export const CollectionStatsTooltip =
   '[data-testid="collection-stats-tooltip"]';
+export const CollectionHeaderOpenShellButton =
+  '[data-testid="collection-header-open-shell-button"]';
 
 export const collectionSubTab = (
   tabName: string,
