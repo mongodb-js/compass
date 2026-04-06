@@ -56,7 +56,7 @@
     "globals": "^15.14.0",
     "hadron-build": "^25.9.4",
     "jszip": "^3.10.1",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "mocha": "^10.2.0",
     "mongodb": "^7.1.1",
     "mongodb-build-info": "^1.8.1",

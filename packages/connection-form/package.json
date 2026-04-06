@@ -52,7 +52,7 @@
     "@mongodb-js/compass-editor": "^0.67.0",
     "@mongodb-js/connection-info": "^0.27.2",
     "@mongodb-js/shell-bson-parser": "^1.5.7",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "mongodb": "^7.1.1",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.1",
