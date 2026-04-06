@@ -48,7 +48,7 @@ const getMockConnectionInfo = (): ConnectionInfo => {
   };
 };
 
-class MockAtlasService implements Partial<AtlasService> {
+class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
   cloudEndpoint = (url: string) => `${['/cloud', url].join('/')}`;
   adminApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;

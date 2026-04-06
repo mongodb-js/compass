@@ -542,7 +542,7 @@ export class AtlasAiService {
     }
 
     this.logger.log.info(
-      this.logger.mongoLogId(1_001_000_418),
+      this.logger.mongoLogId(1_001_000_419),
       'AtlasAiService',
       'Running mock data schema generation via Knowledge Server',
       {
@@ -568,26 +568,23 @@ export class AtlasAiService {
         collectionName,
         schema,
         input.validationRules,
-        input.requestId,
         signal
       );
     }
 
-    // Large schema: batch into chunks and merge results
+    // Large schema: batch into chunks and merge results in parallel
     const chunks = splitSchemaIntoChunks(schema);
-    const chunkResponses: MockDataSchemaToolOutput[] = [];
-
-    for (const chunk of chunks) {
-      const response = await this.generateSchemaForSingleChunk(
-        databaseName,
-        collectionName,
-        chunk,
-        input.validationRules,
-        input.requestId,
-        signal
-      );
-      chunkResponses.push(response);
-    }
+    const chunkResponses = await Promise.all(
+      chunks.map((chunk) =>
+        this.generateSchemaForSingleChunk(
+          databaseName,
+          collectionName,
+          chunk,
+          input.validationRules,
+          signal
+        )
+      )
+    );
 
     return mergeChunkResponses(chunkResponses);
   }
@@ -600,7 +597,6 @@ export class AtlasAiService {
     collectionName: string,
     schema: RawSchema,
     validationRules: Record<string, unknown> | null | undefined,
-    requestId: string,
     signal: AbortSignal
   ): Promise<MockDataSchemaToolOutput> {
     const userPrompt = formatSchemaForPrompt(
