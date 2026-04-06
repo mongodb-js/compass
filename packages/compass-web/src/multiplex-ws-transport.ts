@@ -89,7 +89,7 @@ function toAbsoluteWsUrl(url: string): string {
 }
 
 /** Parse a WebSocket binary message into a (header, payload) pair. Returns null on malformed input. */
-function parseFrame(
+export function parseFrame(
   data: Uint8Array
 ): { header: FrameHeader; payload: Uint8Array } | null {
   if (data.length < 4) return null;
@@ -111,7 +111,10 @@ function parseFrame(
 }
 
 /** Encode a header + optional payload into a WebSocket binary message. */
-function buildFrame(header: FrameHeader, payload?: Uint8Array): Uint8Array {
+export function buildFrame(
+  header: FrameHeader,
+  payload?: Uint8Array
+): Uint8Array {
   const headerBytes = bsonSerialize(header);
   if (!payload || payload.length === 0) {
     return headerBytes;
