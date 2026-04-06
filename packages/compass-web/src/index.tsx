@@ -22,3 +22,12 @@ export type {
   DebugFunction,
   TrackFunction,
 } from './logger-and-telemetry';
+export {
+  MultiplexWebSocketTransport,
+  getMultiplexTransport,
+  setMultiplexTransport,
+} from './multiplex-ws-transport';
+export type {
+  FrameHeader,
+  MultiplexSocketCallbacks,
+} from './multiplex-ws-transport';

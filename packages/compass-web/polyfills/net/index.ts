@@ -2,6 +2,13 @@
 import { ipVersion } from 'is-ip';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { Duplex } from 'stream';
+import { getMultiplexTransport } from '../../src/multiplex-ws-transport';
+
+type ConnectOptions = Pick<ConnectionOptions, 'lookup'> & {
+  host: string;
+  port: number;
+  tls?: boolean;
+};
 
 /**
  * net.Socket interface that works over the WebSocket connection. For now, only
@@ -15,20 +22,65 @@ const MESSAGE_TYPE = {
 
 class Socket extends Duplex {
   private _ws: WebSocket | null = null;
+
+  // Multiplex transport state
+  private _localPort = 0;
+  private _remoteHost = '';
+  private _remotePort = 0;
+
   constructor() {
     super();
   }
-  connect({
-    lookup,
-    ...options
-  }: {
-    host: string;
-    port: number;
-    lookup?: ConnectionOptions['lookup'];
-    tls?: boolean;
-  }) {
+
+  private setupMultiplexedConnection(options: ConnectOptions) {
+    const transport = getMultiplexTransport();
+    if (!transport) {
+      throw new Error('Multiplex transport is not available');
+    }
+    // Multiplex path: tunnel this logical connection over the single shared
+    // WebSocket, using BSON 5-tuple framing.
+    this._remoteHost = options.host;
+    this._remotePort = options.port;
+    this._localPort = transport.allocatePort();
+
+    transport.registerSocket(this._localPort, {
+      onConnect: () => {
+        setTimeout(() => {
+          this.emit(options.tls ? 'secureConnect' : 'connect');
+        });
+      },
+      onData: (data: Uint8Array) => {
+        setTimeout(() => {
+          this.push(Buffer.from(data));
+        });
+      },
+      onClose: () => {
+        this._teardown();
+        setTimeout(() => this.emit('close'));
+      },
+      onError: (err: Error) => {
+        this._teardown();
+        setTimeout(() => this.emit('error', err));
+      },
+    });
+
+    transport.connectStream(
+      this._localPort,
+      this._remoteHost,
+      this._remotePort,
+      options.lookup?.()
+    );
+
+    return this;
+  }
+
+  connect(options: ConnectOptions): Socket {
+    if (getMultiplexTransport()) {
+      return this.setupMultiplexedConnection(options);
+    }
+
     const { wsURL, ...atlasOptions } =
-      lookup?.() ?? ({} as { wsURL?: string; clusterName?: string });
+      options.lookup?.() ?? ({} as { wsURL?: string; clusterName?: string });
     this._ws = new WebSocket(wsURL ?? 'http://localhost:1337');
     this._ws.binaryType = 'arraybuffer';
     this._ws.addEventListener(
@@ -81,17 +133,49 @@ class Socket extends Duplex {
   _read() {
     // noop
   }
-  _write(chunk: ArrayBufferLike, _encoding: BufferEncoding, cb: () => void) {
-    this._ws?.send(this.encodeBinaryMessageWithTypeByte(new Uint8Array(chunk)));
+  _write(chunk: Buffer, _encoding: BufferEncoding, cb: () => void) {
+    const transport = getMultiplexTransport();
+    if (transport && this._localPort !== 0) {
+      transport.sendData(
+        this._localPort,
+        this._remoteHost,
+        this._remotePort,
+        new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength)
+      );
+    } else {
+      this._ws?.send(
+        this.encodeBinaryMessageWithTypeByte(new Uint8Array(chunk))
+      );
+    }
     setTimeout(() => {
       cb();
     });
   }
+  private _teardown(sendError = false): void {
+    if (this._localPort === 0) return;
+    const transport = getMultiplexTransport();
+    if (sendError && transport) {
+      transport.sendError(this._localPort, this._remoteHost, this._remotePort);
+    }
+    transport?.unregisterSocket(this._localPort);
+    this._localPort = 0;
+  }
   destroy() {
-    this._ws?.close();
+    if (this._localPort !== 0) {
+      this._teardown(true);
+    } else {
+      this._ws?.close();
+    }
     return this;
   }
   end(fn?: () => void) {
+    if (this._localPort !== 0) {
+      this._teardown(true);
+      setTimeout(() => {
+        fn?.();
+      });
+      return this;
+    }
     if (this._ws?.readyState === this._ws?.CLOSED) {
       setTimeout(() => {
         fn?.();

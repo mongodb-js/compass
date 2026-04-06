@@ -86,6 +86,10 @@ const App = () => {
             optInGenAIFeatures: false,
             enableDataModelingCollapse: true,
             enableMyQueries: false,
+            enableMultiplexWebSocketOnWeb: true,
+          }}
+          atlasCloudFeatureFlags={{
+            DATA_EXPLORER_ENABLE_MULTIPLEX_WEBSOCKET_ON_WEB: true,
           }}
         ></CompassWeb>
         <OpenInAtlasToast></OpenInAtlasToast>
