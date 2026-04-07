@@ -2605,6 +2605,21 @@ type DatabaseCreatedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when a user toggles a setting in the settings modal.
+ *
+ * @category Settings
+ */
+type SettingChangedEvent = CommonEvent<{
+  name: 'Setting Changed';
+  payload: {
+    /**
+     * The name of the setting that was changed.
+     */
+    setting: string;
+  };
+}>;
+
+/**
  * This event is fired when a user changes the theme.
  *
  * @category Settings
@@ -3807,6 +3822,7 @@ export type TelemetryEvent =
   | SignalLinkClickedEvent
   | SignalOpenedEvent
   | SignalShownEvent
+  | SettingChangedEvent
   | SwitchViewTypeEvent
   | ThemeChangedEvent
   | UpdateExportedEvent

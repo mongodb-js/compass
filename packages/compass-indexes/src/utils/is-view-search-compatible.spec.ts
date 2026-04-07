@@ -47,7 +47,7 @@ describe('is-view-search-compatible', function () {
           return { ...mockCollection, pipeline };
         },
         on: Sinon.spy(),
-      } as any;
+      };
     }
 
     function getSelectIsViewSearchCompatibleResult(

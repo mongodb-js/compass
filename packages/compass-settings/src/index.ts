@@ -1,5 +1,6 @@
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { atlasAuthServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
@@ -16,6 +17,7 @@ export const CompassSettingsPlugin = registerCompassPlugin(
   },
   {
     logger: createLoggerLocator('COMPASS-SETTINGS'),
+    track: telemetryLocator,
     preferences: preferencesLocator,
     atlasAiService: atlasAiServiceLocator,
     atlasAuthService: atlasAuthServiceLocator,

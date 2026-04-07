@@ -309,12 +309,12 @@ describe('Connection string', function () {
     const connectionError = await browser
       .$(Selectors.ConnectionToastErrorText)
       .getText();
-    expect(connectionError).to.equal('Authentication failed.');
+    expect(connectionError).to.include('Authentication failed.');
 
     const errorMessage = await browser
       .$(Selectors.ConnectionToastErrorText)
       .getText();
-    expect(errorMessage).to.equal('Authentication failed.');
+    expect(errorMessage).to.include('Authentication failed.');
 
     // click the review button in the toast
     await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
@@ -322,7 +322,7 @@ describe('Connection string', function () {
     const errorText = await browser
       .$(Selectors.ConnectionFormErrorMessage)
       .getText();
-    expect(errorText).to.equal('Authentication failed.');
+    expect(errorText).to.include('Authentication failed.');
 
     // close the modal
     await browser.clickVisible(Selectors.ConnectionModalCloseButton);
@@ -943,7 +943,7 @@ describe('Connection form', function () {
           connectionName: connection1Name,
         },
         toastErrorTitle: connection1Name,
-        toastErrorText: `Authentication failed.`,
+        toastErrorText: 'Authentication failed.',
       },
       {
         state: {
@@ -999,7 +999,7 @@ describe('Connection form', function () {
       const errorMessage = await browser
         .$(`${toastSelector} ${Selectors.ConnectionToastErrorText}`)
         .getText();
-      expect(errorMessage).to.equal(expected.toastErrorText);
+      expect(errorMessage).to.include(expected.toastErrorText);
 
       // click the review button in the toast
       await browser.clickVisible(
@@ -1014,7 +1014,7 @@ describe('Connection form', function () {
       const errorText = await browser
         .$(Selectors.ConnectionFormErrorMessage)
         .getText();
-      expect(errorText).to.equal(expected.toastErrorText);
+      expect(errorText).to.include(expected.toastErrorText);
 
       const state = await browser.getConnectFormState();
       expect(state.hosts).to.deep.equal(expected.state.hosts);

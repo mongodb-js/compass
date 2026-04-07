@@ -77,9 +77,9 @@ describe('CreateSearchIndexDrawerView', function () {
     it('has default index name set to "default"', function () {
       renderCreateSearchIndexDrawerView();
 
-      const nameInput = screen.getByTestId(
+      const nameInput: HTMLInputElement = screen.getByTestId(
         'create-search-index-drawer-view-name-input'
-      ) as HTMLInputElement;
+      );
       expect(nameInput.value).to.equal('default');
     });
 
@@ -115,9 +115,9 @@ describe('CreateSearchIndexDrawerView', function () {
         currentIndexType: 'vectorSearch',
       });
 
-      const nameInput = screen.getByTestId(
+      const nameInput: HTMLInputElement = screen.getByTestId(
         'create-search-index-drawer-view-name-input'
-      ) as HTMLInputElement;
+      );
       expect(nameInput.value).to.equal('vector_index');
     });
   });

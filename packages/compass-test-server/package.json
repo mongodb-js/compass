@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@mongodb-js/mongodb-server-log-checker": "^0.2.1",
-    "mongodb-runner": "^6.7.2"
+    "mongodb-runner": "^6.7.3"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.20",

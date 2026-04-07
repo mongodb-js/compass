@@ -2,29 +2,62 @@ import type { CompletionSource } from '@codemirror/autocomplete';
 import type { CompletionOptions } from '../autocompleter';
 import { completer } from '../autocompleter';
 import {
-  createAceCompatAutocompleter,
-  createCompletionResultForIdPrefix,
-} from './ace-compat-autocompleter';
-import { completeWordsInString } from './utils';
+  resolveTokenAtCursor,
+  completeWordsInString,
+  mapMongoDBCompletionToCodemirrorCompletion,
+  isPropertyValue,
+} from './utils';
 
 /**
- * Autocompleter for the document object, only autocompletes field names in the
- * appropriate format (either escaped or not) both for javascript and json modes
+ * Autocompleter for MongoDB queries, completes field names, query
+ * operators, and bson values based on the context.
  */
 export const createQueryAutocompleter = (
   options: Pick<CompletionOptions, 'fields' | 'serverVersion'> = {}
 ): CompletionSource => {
-  const completions = completer('', {
-    meta: ['query', 'bson', 'bson-legacy-uuid', 'field:identifier'],
+  const fieldCompletions = completer('', {
+    meta: ['query', 'field:identifier'],
+    ...options,
+  });
+  const valueCompletions = completer('', {
+    meta: ['bson', 'bson-legacy-uuid'],
     ...options,
   });
 
-  return createAceCompatAutocompleter({
-    String({ context }) {
-      return completeWordsInString(context);
-    },
-    IdentifierLike({ prefix }) {
-      return createCompletionResultForIdPrefix({ prefix, completions });
-    },
-  });
+  return (context) => {
+    const token = resolveTokenAtCursor(context);
+
+    // Don't autocomplete while in a comment.
+    if (['BlockComment', 'LineComment'].includes(token.type.name)) {
+      return null;
+    }
+    const prefix = context.state
+      .sliceDoc(token.from, context.pos)
+      .replace(/^("|')/, '');
+
+    if (!prefix) {
+      return null;
+    }
+
+    const isValueCompletion = isPropertyValue(token);
+
+    if (isValueCompletion && token.type.name === 'String') {
+      return completeWordsInString(context) ?? null;
+    }
+
+    const completions = isValueCompletion ? valueCompletions : fieldCompletions;
+
+    return {
+      from: token.from,
+      to: token.to,
+      options: completions
+        .filter((completion) =>
+          completion.value.toLowerCase().includes(prefix.toLowerCase())
+        )
+        .map((completion) =>
+          mapMongoDBCompletionToCodemirrorCompletion(completion)
+        ),
+      filter: false,
+    };
+  };
 };

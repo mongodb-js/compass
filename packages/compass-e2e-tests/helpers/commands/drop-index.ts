@@ -10,10 +10,14 @@ export async function dropIndex(
   const indexComponent = browser.$(indexComponentSelector);
   await indexComponent.waitForDisplayed();
 
-  await browser.hover(indexComponentSelector);
-  await browser.clickVisible(
-    `${indexComponentSelector} ${Selectors.IndexesTableDropIndexButton}`
-  );
+  await browser.waitUntil(async () => {
+    await browser.hover(indexComponentSelector);
+    await browser.clickVisible(
+      `${indexComponentSelector} ${Selectors.IndexesTableDropIndexButton}`
+    );
+    // Check if modal opened successfully
+    return await browser.isModalOpen(Selectors.DropIndexModal);
+  });
 
   await browser.waitForOpenModal(Selectors.DropIndexModal);
 

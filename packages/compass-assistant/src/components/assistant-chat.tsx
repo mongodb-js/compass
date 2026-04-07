@@ -342,7 +342,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     async ({ text, metadata }: SendMessageOptions) => {
       const trimmedMessageBody = text.trim();
       if (trimmedMessageBody) {
-        await chat.stop();
+        await stopChat(chat);
         void ensureOptInAndSend?.(
           {
             text: trimmedMessageBody,

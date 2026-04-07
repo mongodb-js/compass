@@ -112,7 +112,7 @@ const Drawer = ({
         {currentView === 'edit-search-index' && <EditSearchIndexView />}
       </DrawerSection>
       {/* The drawer tab will re-use this modal for creating regular indexes */}
-      <CreateIndexModal />
+      {subTab !== 'Indexes' && <CreateIndexModal />}
     </>
   );
 };

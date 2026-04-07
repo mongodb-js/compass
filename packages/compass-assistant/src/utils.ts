@@ -75,7 +75,40 @@ export async function stopChat(chat: Chat<AssistantMessage>) {
     };
   });
 
+  const wasActive = chat.status === 'streaming' || chat.status === 'submitted';
+
   await chat.stop();
+
+  if (!wasActive) {
+    return;
+  }
+
+  // chat.stop() fires the abort signal but returns immediately without
+  // waiting for the stream pipeline to fully terminate. Wait for
+  // makeRequest to catch the abort and set status to 'ready', otherwise
+  // the stream's internal job queue can push buffered chunks back after
+  // the caller clears messages.
+  // Note: status can change asynchronously between the check above and
+  // here (e.g. stop() may have already resolved the abort), so we
+  // re-check at runtime.
+  if (
+    (chat.status as string) !== 'ready' &&
+    (chat.status as string) !== 'error'
+  ) {
+    await new Promise<void>((resolve) => {
+      const unsubscribe = chat['~registerStatusCallback'](() => {
+        if (chat.status === 'ready' || chat.status === 'error') {
+          unsubscribe();
+          resolve();
+        }
+      });
+    });
+  }
+
+  // Allow any final in-flight job executor writes to settle. The executor
+  // uses microtasks internally so yielding to the macrotask queue ensures
+  // they have all completed.
+  await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 export async function getHashedActiveUserId(

@@ -24,8 +24,6 @@ export {
   createAIPlaceholderHTMLPlaceholder,
 } from './components';
 
-export { MockDataSchemaResponseShape } from './atlas-ai-service';
-
 export {
   AtlasAiServiceInvalidInputError,
   AtlasAiServiceApiResponseParseError,
@@ -34,7 +32,9 @@ export {
 export type {
   MockDataSchemaRequest,
   MockDataSchemaRawField,
-  MockDataSchemaResponse,
+  MockDataSchemaToolOutput,
 } from './atlas-ai-service';
+
+export { mockDataSchemaToolSchema } from './atlas-ai-service';
 
 export { READ_ONLY_DATABASE_TOOLS, AVAILABLE_TOOLS } from './available-tools';

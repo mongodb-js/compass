@@ -1,0 +1,76 @@
+name: Merge update dependencies PRs
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run mode - only check PRs without merging'
+        type: boolean
+        default: false
+        required: false
+  schedule:
+    # Run daily at 6 AM UTC (after the update-dependencies workflow runs at midnight)
+    - cron: '0 6 * * *'
+
+permissions:
+  contents: none # We use the github app token to merge the PR
+
+jobs:
+  merge_update_dependencies_prs:
+    name: Merge update dependencies PRs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Github App Token
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
+      - name: Merge PRs
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          set -e
+
+          # Find all open PRs with the 'bot' label and branch prefix 'ci/update-'
+          PR_DATA=$(gh pr list \
+            --state open \
+            --label bot \
+            --json number,headRefName,title \
+            --jq '.[] | select(.headRefName | startswith("ci/update-"))')
+
+          if [ -z "${PR_DATA}" ]; then
+            echo "No update dependencies PRs found"
+            exit 0
+          fi
+
+          PR_NUMBERS=$(echo "${PR_DATA}" | jq -r '.number')
+          echo "Found PRs:"
+          echo "${PR_DATA}" | jq -r '"  #\(.number): \(.title) (\(.headRefName))"'
+
+          if [ "${DRY_RUN}" = "true" ]; then
+            echo ""
+            echo "=== DRY RUN MODE ==="
+            echo ""
+          fi
+
+          for PR_NUMBER in ${PR_NUMBERS}; do
+            echo ""
+            echo "Processing PR #${PR_NUMBER}..."
+
+            # Wait for checks to complete and check if they pass
+            if gh pr checks "${PR_NUMBER}" --watch --fail-fast; then
+              echo "All checks passed for PR #${PR_NUMBER}"
+              if [ "${DRY_RUN}" = "true" ]; then
+                echo "[DRY RUN] Would merge PR #${PR_NUMBER} with --squash --delete-branch"
+              else
+                echo "Merging PR #${PR_NUMBER}..."
+                gh pr merge "${PR_NUMBER}" --squash --delete-branch
+                echo "Successfully merged PR #${PR_NUMBER}"
+              fi
+            else
+              echo "Checks failed for PR #${PR_NUMBER}, skipping..."
+            fi
+          done

@@ -75,3 +75,4 @@ export * from './leafygreen';
 export * from './atlas-cloud/user';
 export * from './atlas-cloud/cluster';
 export * from './atlas-cloud/config-service';
+export * from './assistant';

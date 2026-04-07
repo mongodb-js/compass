@@ -43,6 +43,27 @@ const codeStyles = css({
 - Ensure tests are meaningful, maintainable, and cover edge cases.
 - Avoid false positive tests.
 
+#### Running tests
+
+To run tests for a specific file in a package:
+
+```bash
+# From the package directory
+cd packages/<package-name>
+npm test src/path/to/file.spec.ts
+
+# Or from the monorepo root
+npm test -w @mongodb-js/<package-name> src/path/to/file.spec.ts
+```
+
+To filter tests by description (describe/it blocks) within all test files:
+
+```bash
+npm test -- --grep="test description pattern"
+```
+
+Note: Use `--grep="pattern"` with equals sign, not `--grep "pattern"` with a space.
+
 #### Testing components, not the store
 
 Follow the guiding principles from Redux and Testing Library. See [Redux Guiding Principles](https://redux.js.org/usage/writing-tests#guiding-principles) and [Testing Library Guiding Principles](https://testing-library.com/docs/guiding-principles/).
@@ -180,6 +201,11 @@ export default connect((state) => ({
   data: state.something,
 }))(MyComponent);
 ```
+
+### Shared components should have a single look and feel
+
+Shared components in `packages/compass-components` define the baseline design system.
+Avoid adding new props or configuration options to a shared component to satisfy a one-off request for a visual change. If a new feature requires a different look and feel, bring up the discrepancy and ask for feedback on how to move forward.
 
 ## Commits and pull requests
 
