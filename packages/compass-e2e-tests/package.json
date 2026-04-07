@@ -51,7 +51,7 @@
     "cross-spawn": "^7.0.5",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
-    "electron": "^37.10.3",
+    "electron": "^41.1.1",
     "electron-to-chromium": "^1.5.357",
     "glob": "^10.2.5",
     "globals": "^15.14.0",

@@ -20,7 +20,7 @@ const UNIT_TESTS_BUILD_VARIANTS = [
     display_name: 'Unit Tests MacOS',
     // We only have gui variants of the macos 15, so both unit tests will be
     // running on it. We will not be running those on patches to save resources
-    run_on: 'macos-15-arm64-gui', 
+    run_on: 'macos-15-arm64-gui',
     run_on_prs: false,
   }
 ];
@@ -78,15 +78,15 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     depends_on: 'package-rhel',
   },
   {
-    name: 'test-packaged-app-macos-11-arm',
-    display_name: 'MacOS arm64 11',
-    run_on: 'macos-11-arm64-gui',
+    name: 'test-packaged-app-macos-14-arm',
+    display_name: 'MacOS arm64 14',
+    run_on: 'macos-14-arm64-gui',
     depends_on: 'package-macos-arm'
   },
   {
-    name: 'test-packaged-app-macos-11-x64',
-    display_name: 'MacOS x64 11',
-    run_on: 'macos-11-gui',
+    name: 'test-packaged-app-macos-14-x64',
+    display_name: 'MacOS x64 14',
+    run_on: 'macos-14-gui',
     run_on_prs: false,
     depends_on: 'package-macos-x64'
   },
@@ -249,11 +249,7 @@ buildvariants:
         variant: <%= buildVariant.depends_on %>
     tasks:
     <% for (const group of E2E_TEST_GROUPS) { %>
-    <% if (['test-packaged-app-macos-11-arm', 'test-packaged-app-macos-11-x64'].includes(buildVariant.name)) { %>
-    - name: test-packaged-app-macos-11-<%= group.number %>
-    <% } else { %>
     - name: test-packaged-app-<%= group.number %>
-    <% } %>
     <% } %>
 <% } %>
 
@@ -560,30 +556,7 @@ tasks:
           e2e_test_group: <%= group.number %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
-  - name: test-packaged-app-macos-11-<%= group.number %>
-    tags:
-      - required-for-publish-desktop
-      - assigned_to_jira_team_compass_compass
-      - foliage_check_task_only
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: 'compass-e2e-tests'
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 8.0.5
-          compass_distribution: compass
-          e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
-          e2e_test_group: <%= group.number %>
-          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+
 <% } %>
 
 <% for (const browser of BROWSERS) { %>
