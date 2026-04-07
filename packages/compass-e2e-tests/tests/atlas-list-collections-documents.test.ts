@@ -1,12 +1,12 @@
-import type { Compass } from '../helpers/compass';
+import type { Compass } from '../helpers/compass.ts';
 import {
   cleanup,
   init,
   screenshotIfFailed,
   Selectors,
   connectionNameFromString,
-} from '../helpers/compass';
-import type { CompassBrowser } from '../helpers/compass-browser';
+} from '../helpers/compass.ts';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 
 const DATABASE_NAME = 'collections_db';
 const TEST_COLLECTION_NAME = 'test_collection_1';

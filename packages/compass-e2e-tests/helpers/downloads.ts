@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 
-export const downloadPath = path.join(__dirname, 'downloads');
+export const downloadPath = path.join(import.meta.dirname, 'downloads');
 
 export const waitForFileDownload = async (
   filename: string,

@@ -1,4 +1,4 @@
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
@@ -8,10 +8,10 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   connectionNameFromString,
-} from '../helpers/compass';
-import { setupProxyServer } from '../helpers/proxy';
-import * as Selectors from '../helpers/selectors';
-import type { Compass } from '../helpers/compass';
+} from '../helpers/compass.ts';
+import { setupProxyServer } from '../helpers/proxy.ts';
+import * as Selectors from '../helpers/selectors.ts';
+import type { Compass } from '../helpers/compass.ts';
 import type { OIDCMockProviderConfig } from '@mongodb-js/oidc-mock-provider';
 import { OIDCMockProvider } from '@mongodb-js/oidc-mock-provider';
 import path from 'path';
@@ -24,7 +24,7 @@ import type { Socket, AddressInfo } from 'net';
 import { expect } from 'chai';
 import type { MongoCluster } from '@mongodb-js/compass-test-server';
 import { startTestServer } from '@mongodb-js/compass-test-server';
-import ConnectionString from 'mongodb-connection-string-url';
+import { ConnectionString } from 'mongodb-connection-string-url';
 
 const DEFAULT_TOKEN_PAYLOAD = {
   expires_in: 3600,
@@ -43,7 +43,7 @@ const DEFAULT_AUTH_INFO = {
 
 function getTestBrowserShellCommand() {
   return `${process.execPath} ${path.resolve(
-    __dirname,
+    import.meta.dirname,
     '..',
     'fixtures',
     'curl.js'

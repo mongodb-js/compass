@@ -1,5 +1,5 @@
-import type { CompassBrowser } from '../compass-browser';
-import * as Selectors from '../selectors';
+import type { CompassBrowser } from '../compass-browser.ts';
+import * as Selectors from '../selectors.ts';
 
 async function resetForRemove(browser: CompassBrowser) {
   await browser.hideVisibleModal();

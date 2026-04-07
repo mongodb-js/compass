@@ -1,14 +1,14 @@
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
   TEST_COMPASS_WEB,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/mongo-clients';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
+import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 import { expect } from 'chai';
 
 describe('Global Tabs', function () {

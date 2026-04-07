@@ -1,12 +1,12 @@
 import { expect } from 'chai';
-import type { Compass } from '../helpers/compass';
-import { cleanup, init, screenshotIfFailed } from '../helpers/compass';
-import type { CompassBrowser } from '../helpers/compass-browser';
-import { createNumbersCollection } from '../helpers/mongo-clients';
+import type { Compass } from '../helpers/compass.ts';
+import { cleanup, init, screenshotIfFailed } from '../helpers/compass.ts';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
+import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 import {
   getDefaultConnectionNames,
   isTestingDesktop,
-} from '../helpers/test-runner-context';
+} from '../helpers/test-runner-context.ts';
 
 describe('routing', function () {
   let compass: Compass;

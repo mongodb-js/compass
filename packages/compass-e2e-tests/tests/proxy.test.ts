@@ -3,16 +3,16 @@ import {
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-} from '../helpers/compass';
+} from '../helpers/compass.ts';
 import { expect } from 'chai';
-import type { Compass } from '../helpers/compass';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { Compass } from '../helpers/compass.ts';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import type { Server as HTTPServer, IncomingMessage } from 'http';
 import { createServer as createHTTPServer } from 'http';
 import type { AddressInfo, Server, Socket } from 'net';
 import { once } from 'events';
-import { setupProxyServer } from '../helpers/proxy';
-import * as Selectors from '../helpers/selectors';
+import { setupProxyServer } from '../helpers/proxy.ts';
+import * as Selectors from '../helpers/selectors.ts';
 
 async function listen(srv: Server): Promise<void> {
   srv.listen(0);

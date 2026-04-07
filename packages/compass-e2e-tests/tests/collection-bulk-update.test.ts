@@ -1,20 +1,20 @@
 import { expect } from 'chai';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   deleteCommonVariedProperties,
   startTelemetryServer,
-} from '../helpers/telemetry';
-import type { Telemetry } from '../helpers/telemetry';
+} from '../helpers/telemetry.ts';
+import type { Telemetry } from '../helpers/telemetry.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   skipForWeb,
   getDefaultConnectionNames,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/mongo-clients';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
+import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 
 describe('Bulk Update', () => {
   let compass: Compass;

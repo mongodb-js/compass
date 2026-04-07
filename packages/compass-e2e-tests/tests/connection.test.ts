@@ -3,9 +3,10 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
-import ConnectionString from 'mongodb-connection-string-url';
+import { ConnectionString } from 'mongodb-connection-string-url';
+// @ts-expect-error broken esm types
 import resolveMongodbSrv from 'resolve-mongodb-srv';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
@@ -16,12 +17,12 @@ import {
   connectionNameFromString,
   getDefaultConnectionNames,
   getDefaultConnectionStrings,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import type { ConnectFormState } from '../helpers/connect-form-state';
-import * as Selectors from '../helpers/selectors';
-import { isTestingWeb } from '../helpers/test-runner-context';
-import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import type { ConnectFormState } from '../helpers/connect-form-state.ts';
+import * as Selectors from '../helpers/selectors.ts';
+import { isTestingWeb } from '../helpers/test-runner-context.ts';
+import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document.ts';
 
 async function disconnect(browser: CompassBrowser) {
   try {

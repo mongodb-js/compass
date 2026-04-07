@@ -1,16 +1,16 @@
 import chai from 'chai';
 
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
   getDefaultConnectionNames,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/mongo-clients';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
+import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 
 const { expect } = chai;
 

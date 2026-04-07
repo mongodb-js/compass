@@ -1,6 +1,6 @@
 import { inspect } from 'util';
-import type { CompassBrowser } from '../compass-browser';
-import { isTestingDesktop } from '../test-runner-context';
+import type { CompassBrowser } from '../compass-browser.ts';
+import { isTestingDesktop } from '../test-runner-context.ts';
 
 type WindowSize = Awaited<ReturnType<CompassBrowser['getWindowSize']>>;
 

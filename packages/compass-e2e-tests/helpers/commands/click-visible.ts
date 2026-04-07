@@ -1,6 +1,6 @@
-import type { CompassBrowser } from '../compass-browser';
+import type { CompassBrowser } from '../compass-browser.ts';
 import type { ChainablePromiseElement } from 'webdriverio';
-import { resolveElement } from '../utils';
+import { resolveElement } from '../utils.ts';
 
 interface ClickOptions {
   timeout?: number;
