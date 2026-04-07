@@ -32,7 +32,7 @@ class Socket extends Duplex {
     super();
   }
 
-  private setupMultiplexedConnection(options: ConnectOptions) {
+  private setupMultiplexedConnection(options: Omit<ConnectOptions, 'lookup'>) {
     const transport = getMultiplexTransport();
     if (!transport) {
       throw new Error('Multiplex transport is not available');
@@ -67,20 +67,19 @@ class Socket extends Duplex {
     transport.connectStream(
       this._localPort,
       this._remoteHost,
-      this._remotePort,
-      options.lookup?.()
+      this._remotePort
     );
 
     return this;
   }
 
-  connect(options: ConnectOptions): Socket {
+  connect({ lookup, ...options }: ConnectOptions): Socket {
     if (getMultiplexTransport()) {
       return this.setupMultiplexedConnection(options);
     }
 
     const { wsURL, ...atlasOptions } =
-      options.lookup?.() ?? ({} as { wsURL?: string; clusterName?: string });
+      lookup?.() ?? ({} as { wsURL?: string; clusterName?: string });
     this._ws = new WebSocket(wsURL ?? 'http://localhost:1337');
     this._ws.binaryType = 'arraybuffer';
     this._ws.addEventListener(

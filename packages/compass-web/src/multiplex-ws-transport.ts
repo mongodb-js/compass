@@ -307,24 +307,16 @@ export class MultiplexWebSocketTransport {
    * An optional metadata payload (BSON-encoded) can carry routing info
    * (e.g. projectId, clusterName) for the CCS service.
    */
-  connectStream(
-    localPort: number,
-    destAddr: string,
-    destPort: number,
-    meta?: Record<string, unknown>
-  ): void {
-    const metaPayload =
-      meta && Object.keys(meta).length > 0 ? bsonSerialize(meta) : undefined;
-
+  connectStream(localPort: number, destAddr: string, destPort: number): void {
     const header: FrameHeader = {
       v: this.options.protocolVersion,
       sa: this.options.sourceAddress,
       sp: localPort,
       da: destAddr,
       dp: destPort,
-      sz: metaPayload?.length ?? 0,
+      sz: 0,
     };
-    this.sendRaw(buildFrame(header, metaPayload));
+    this.sendRaw(buildFrame(header));
   }
 
   /** Send a data frame for an established logical stream. */
