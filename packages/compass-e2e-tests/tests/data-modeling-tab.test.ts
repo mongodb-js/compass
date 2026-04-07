@@ -17,12 +17,14 @@ import {
   waitForFileDownload,
 } from '../helpers/downloads.ts';
 import { readFileSync } from 'fs';
-import { recognize } from 'tesseract.js';
+import tesseract from 'tesseract.js';
 import toNS from 'mongodb-ns';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
 import { Key, type ChainablePromiseElement } from 'webdriverio';
+
+const { recognize } = tesseract;
 
 type Node = {
   id: string;
