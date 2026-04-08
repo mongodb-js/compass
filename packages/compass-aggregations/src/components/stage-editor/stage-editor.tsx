@@ -12,12 +12,14 @@ import {
   spacing,
   palette,
   Banner,
+  Link,
   useDarkMode,
   useRequiredURLSearchParams,
   useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import {
   changeStageValue,
+  getIndexOfFirstStageWithServerError,
   pipelineFromStore,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
@@ -88,6 +90,7 @@ type StageEditorProps = {
   serverVersion: string;
   syntaxError: PipelineParserError | null;
   serverError: MongoServerError | null;
+  serverErrorStageIdx: number | null;
   num_stages: number;
   editor_view_type: 'text' | 'stage' | 'focus';
   searchIndexName: string | null;
@@ -110,6 +113,7 @@ export const StageEditor = ({
   onCreateSearchIndexClick,
   onEditSearchIndexClick,
   serverError,
+  serverErrorStageIdx,
   syntaxError,
   className,
   serverVersion,
@@ -186,6 +190,15 @@ export const StageEditor = ({
     connectionInfoRef,
   ]);
 
+  const onClickStageWithError = useCallback(() => {
+    document
+      .querySelector(`[data-stage-index="${serverErrorStageIdx}"]`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [serverErrorStageIdx]);
+
+  const isServerErrorUpstream =
+    serverErrorStageIdx !== null && serverErrorStageIdx < index;
+
   return (
     <div
       data-testid="stage-editor"
@@ -223,7 +236,7 @@ export const StageEditor = ({
             : syntaxError.message}
         </Banner>
       )}
-      {serverError && (
+      {serverError && !isServerErrorUpstream && (
         <ServerErrorBanner
           message={serverError.message}
           searchIndexName={searchIndexName}
@@ -233,6 +246,19 @@ export const StageEditor = ({
             editor_view_type !== 'focus' ? onEditSearchIndexClick : undefined
           }
         />
+      )}
+      {isServerErrorUpstream && (
+        <Banner
+          variant="warning"
+          data-testid="stage-editor-upstream-error-message"
+          className={bannerStyles}
+        >
+          An error occurred on{' '}
+          <Link as="button" onClick={onClickStageWithError}>
+            Stage {serverErrorStageIdx + 1}
+          </Link>
+          .
+        </Banner>
       )}
       {enableSearchActivationProgramP1 &&
         !serverError &&
@@ -279,6 +305,10 @@ export default connect(
       stageOperator: stage.stageOperator,
       syntaxError: !stage.empty ? stage.syntaxError ?? null : null,
       serverError: !stage.empty ? stage.serverError ?? null : null,
+      serverErrorStageIdx: getIndexOfFirstStageWithServerError(
+        stages,
+        ownProps.index
+      ),
       serverVersion: state.serverVersion,
       num_stages,
       editor_view_type,

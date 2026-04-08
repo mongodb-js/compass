@@ -69,7 +69,7 @@
     "@mongodb-js/my-queries-storage": "^0.57.0",
     "@mongodb-js/workspace-info": "^1.7.0",
     "compass-preferences-model": "^2.75.0",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "mongodb-collection-model": "^5.40.2",
     "mongodb-database-model": "^2.40.2",
     "mongodb-instance-model": "^12.69.0",

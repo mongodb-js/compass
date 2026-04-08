@@ -1,20 +1,20 @@
 import { expect } from 'chai';
-import type { Compass } from '../helpers/compass';
-import { screenshotIfFailed, skipForWeb } from '../helpers/compass';
+import type { Compass } from '../helpers/compass.ts';
+import { screenshotIfFailed, skipForWeb } from '../helpers/compass.ts';
 import {
   init,
   cleanup,
   runCompassOnce,
   subtestTitle,
-} from '../helpers/compass';
+} from '../helpers/compass.ts';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
-import * as Selectors from '../helpers/selectors';
-import type { Telemetry } from '../helpers/telemetry';
-import { startTelemetryServer } from '../helpers/telemetry';
+import * as Selectors from '../helpers/selectors.ts';
+import type { Telemetry } from '../helpers/telemetry.ts';
+import { startTelemetryServer } from '../helpers/telemetry.ts';
 import { UUID } from 'bson';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import Debug from 'debug';
 const debug = Debug('import-export-connections');
 

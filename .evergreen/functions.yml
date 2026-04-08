@@ -808,6 +808,7 @@ functions:
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- web \
             --test-atlas-cloud \
             --test-filter="time-to-first-query" \
+            --test-filter="routing" \
             --test-filter="atlas-cloud/**/*"
 
   test-connectivity:

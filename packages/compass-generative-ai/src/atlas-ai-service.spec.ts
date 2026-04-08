@@ -1,6 +1,6 @@
 import Sinon from 'sinon';
 import { expect } from 'chai';
-import { AtlasAiService } from './atlas-ai-service';
+import { AtlasAiService, type GenerativeAiInput } from './atlas-ai-service';
 import {
   AtlasAiServiceInvalidInputError,
   AtlasAiServiceApiResponseParseError,
@@ -10,6 +10,7 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { ObjectId } from 'mongodb';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 
 const ATLAS_USER = {
   firstName: 'John',
@@ -60,7 +61,7 @@ class MockAtlasService {
   };
 }
 
-function makeResponse(content: any) {
+function makeResponse(content: unknown) {
   return {
     ok: true,
     json: () => Promise.resolve(content),
@@ -106,7 +107,7 @@ describe('AtlasAiService', function () {
         const mockAtlasService = new MockAtlasService();
         atlasAiService = new AtlasAiService({
           apiURLPreset,
-          atlasService: mockAtlasService as any,
+          atlasService: mockAtlasService as unknown as AtlasService,
           preferences,
           logger: createNoopLogger(),
         });
@@ -222,6 +223,136 @@ describe('AtlasAiService', function () {
           signal: new AbortController().signal,
         };
 
+        /**
+         * Mocks an OpenAI Responses API stream containing a completed tool call.
+         */
+        function createToolCallStreamResponse(
+          toolName: string,
+          toolArgs: Record<string, unknown>
+        ): Response {
+          const responseId = `resp_${Date.now()}`;
+          const itemId = `item_${Date.now()}`;
+          const callId = `call_${Date.now()}`;
+          let sequenceNumber = 0;
+          const encoder = new TextEncoder();
+
+          const chunks: Uint8Array[] = [];
+
+          // response.created event
+          chunks.push(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: 'response.created',
+                response: {
+                  id: responseId,
+                  object: 'realtime.response',
+                  status: 'in_progress',
+                  output: [],
+                  usage: {
+                    input_tokens: 0,
+                    output_tokens: 0,
+                    total_tokens: 0,
+                  },
+                },
+                sequence_number: sequenceNumber++,
+              })}\n\n`
+            )
+          );
+
+          // response.output_item.added event for function_call
+          chunks.push(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: 'response.output_item.added',
+                output_index: 0,
+                item: {
+                  type: 'function_call',
+                  id: itemId,
+                  call_id: callId,
+                  name: toolName,
+                  arguments: '',
+                },
+                sequence_number: sequenceNumber++,
+              })}\n\n`
+            )
+          );
+
+          // Send function call arguments
+          const argsString = JSON.stringify(toolArgs);
+          chunks.push(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: 'response.function_call_arguments.delta',
+                item_id: itemId,
+                output_index: 0,
+                delta: argsString,
+                sequence_number: sequenceNumber++,
+              })}\n\n`
+            )
+          );
+
+          // response.output_item.done event
+          chunks.push(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: 'response.output_item.done',
+                output_index: 0,
+                item: {
+                  type: 'function_call',
+                  id: itemId,
+                  call_id: callId,
+                  name: toolName,
+                  arguments: argsString,
+                  status: 'completed',
+                },
+                sequence_number: sequenceNumber++,
+              })}\n\n`
+            )
+          );
+
+          // response.completed event
+          chunks.push(
+            encoder.encode(
+              `data: ${JSON.stringify({
+                type: 'response.completed',
+                response: {
+                  id: responseId,
+                  object: 'realtime.response',
+                  status: 'completed',
+                  output: [
+                    {
+                      type: 'function_call',
+                      id: itemId,
+                      call_id: callId,
+                      name: toolName,
+                      arguments: argsString,
+                    },
+                  ],
+                  usage: {
+                    input_tokens: 10,
+                    output_tokens: 20,
+                    total_tokens: 30,
+                  },
+                },
+                sequence_number: sequenceNumber++,
+              })}\n\n`
+            )
+          );
+
+          const stream = new ReadableStream({
+            start(controller) {
+              for (const chunk of chunks) {
+                controller.enqueue(chunk);
+              }
+              controller.close();
+            },
+          });
+
+          return new Response(stream, {
+            headers: { 'Content-Type': 'text/event-stream' },
+          });
+        }
+
         if (apiURLPreset === 'admin-api') {
           it('throws AtlasAiServiceInvalidInputError for admin-api preset', async function () {
             try {
@@ -235,15 +366,15 @@ describe('AtlasAiService', function () {
             } catch (err) {
               expect(err).to.be.instanceOf(AtlasAiServiceInvalidInputError);
               expect((err as Error).message).to.match(
-                /mock-data-schema is not available for admin-api/i
+                /mock-data-schema requires Atlas connection/i
               );
             }
           });
         }
 
         if (apiURLPreset === 'cloud') {
-          it('makes a post request to the correct endpoint', async function () {
-            const mockResponse = {
+          it('returns mock data schema from AI tool call', async function () {
+            const mockToolOutput = {
               fields: [
                 {
                   fieldPath: 'name',
@@ -259,7 +390,9 @@ describe('AtlasAiService', function () {
             };
             const fetchStub = sandbox
               .stub()
-              .resolves(makeResponse(mockResponse));
+              .resolves(
+                createToolCallStreamResponse('mockDataSchema', mockToolOutput)
+              );
             global.fetch = fetchStub;
 
             const result = await atlasAiService.getMockDataSchema(
@@ -268,69 +401,24 @@ describe('AtlasAiService', function () {
             );
 
             expect(fetchStub).to.have.been.calledOnce;
-            const { args } = fetchStub.firstCall;
-            expect(args[0]).to.eq(
-              '/cloud/ai/v1/groups/testProject/mock-data-schema?request_id=test-request-id'
-            );
-            expect(result).to.deep.equal(mockResponse);
+            expect(result).to.deep.equal(mockToolOutput);
           });
 
-          it('includes sample values by default (includeSampleValues=true)', async function () {
-            const mockResponse = {
+          it('calls AI endpoint with correct URL format', async function () {
+            const mockToolOutput = {
               fields: [
                 {
                   fieldPath: 'name',
                   fakerMethod: 'person.fullName',
                   fakerArgs: [],
                 },
-                {
-                  fieldPath: 'age',
-                  fakerMethod: 'number.int',
-                  fakerArgs: [{ json: '{"min": 18, "max": 122}' }],
-                },
               ],
             };
             const fetchStub = sandbox
               .stub()
-              .resolves(makeResponse(mockResponse));
-            global.fetch = fetchStub;
-
-            await atlasAiService.getMockDataSchema(
-              { ...mockSchemaInput, includeSampleValues: true },
-              mockConnectionInfo
-            );
-
-            const { args } = fetchStub.firstCall;
-            const requestBody = JSON.parse(args[1].body);
-
-            expect(requestBody.schema.name.sampleValues).to.deep.equal([
-              'John',
-              'Jane',
-              'Bob',
-            ]);
-            expect(requestBody.schema.age.sampleValues).to.deep.equal([
-              25, 30, 35,
-            ]);
-          });
-
-          it('excludes sample values when includeSampleValues=false', async function () {
-            const mockResponse = {
-              fields: [
-                {
-                  fieldPath: 'name',
-                  fakerMethod: 'person.fullName',
-                  fakerArgs: [],
-                },
-                {
-                  fieldPath: 'age',
-                  fakerMethod: 'number.int',
-                  fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
-                },
-              ],
-            };
-            const fetchStub = sandbox
-              .stub()
-              .resolves(makeResponse(mockResponse));
+              .resolves(
+                createToolCallStreamResponse('mockDataSchema', mockToolOutput)
+              );
             global.fetch = fetchStub;
 
             await atlasAiService.getMockDataSchema(
@@ -339,67 +427,240 @@ describe('AtlasAiService', function () {
             );
 
             const { args } = fetchStub.firstCall;
-            const requestBody = JSON.parse(args[1].body);
-
-            expect(requestBody.schema.name).to.not.have.property(
-              'sampleValues'
-            );
-            expect(requestBody.schema.age).to.not.have.property('sampleValues');
-            expect(requestBody.schema.name.type).to.equal('string');
+            // The AI SDK uses the base URL to construct the endpoint
+            expect(args[0]).to.include(BASE_URL);
           });
 
-          it('makes POST request with correct headers and body structure', async function () {
-            const mockResponse = {
+          it('strips sample values when includeSampleValues=false', async function () {
+            const mockToolOutput = {
               fields: [
                 {
                   fieldPath: 'name',
                   fakerMethod: 'person.fullName',
                   fakerArgs: [],
                 },
-                {
-                  fieldPath: 'age',
-                  fakerMethod: 'number.int',
-                  fakerArgs: [{ json: '{"min": 18, "max": 65}' }],
-                },
               ],
             };
             const fetchStub = sandbox
               .stub()
-              .resolves(makeResponse(mockResponse));
+              .resolves(
+                createToolCallStreamResponse('mockDataSchema', mockToolOutput)
+              );
             global.fetch = fetchStub;
 
-            await atlasAiService.getMockDataSchema(
-              mockSchemaInput,
-              mockConnectionInfo
-            );
-
-            const { args } = fetchStub.firstCall;
-
-            expect(args[1].method).to.equal('POST');
-            expect(args[1].headers['Content-Type']).to.equal(
-              'application/json'
-            );
-            expect(args[1].headers['Accept']).to.equal('application/json');
-
-            const requestBody = JSON.parse(args[1].body);
-            expect(requestBody).to.have.property(
-              'collectionName',
-              'test-collection'
-            );
-            expect(requestBody).to.have.property('databaseName', 'test-db');
-            expect(requestBody).to.have.property('schema');
-          });
-
-          it('throws AtlasAiServiceApiResponseParseError when API response has invalid format', async function () {
-            const invalidMockResponse = {
-              invalidField: 'invalid data',
-              content: {
-                wrongFieldName: [],
+            const schemaWithSamples = {
+              ...mockSchemaInput,
+              schema: {
+                name: {
+                  type: 'string',
+                  sampleValues: ['SAMPLE_JOHN', 'SAMPLE_JANE'],
+                },
+                age: {
+                  type: 'number',
+                  sampleValues: [99999, 88888],
+                },
               },
+              includeSampleValues: false,
+            };
+
+            await atlasAiService.getMockDataSchema(
+              schemaWithSamples,
+              mockConnectionInfo
+            );
+
+            expect(fetchStub).to.have.been.calledOnce;
+
+            const { args } = fetchStub.firstCall;
+            const requestBody = args[1].body as string;
+
+            // Verify sample values are not in the request
+            expect(requestBody).to.not.include('SAMPLE_JOHN');
+            expect(requestBody).to.not.include('SAMPLE_JANE');
+            expect(requestBody).to.not.include('99999');
+            expect(requestBody).to.not.include('88888');
+
+            // Verify the schema fields are still present (type info)
+            expect(requestBody).to.include('name');
+            expect(requestBody).to.include('age');
+            expect(requestBody).to.include("type: 'string'");
+            expect(requestBody).to.include("type: 'number'");
+          });
+
+          it('includes sample values when includeSampleValues=true', async function () {
+            const mockToolOutput = {
+              fields: [
+                {
+                  fieldPath: 'name',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+              ],
             };
             const fetchStub = sandbox
               .stub()
-              .resolves(makeResponse(invalidMockResponse));
+              .resolves(
+                createToolCallStreamResponse('mockDataSchema', mockToolOutput)
+              );
+            global.fetch = fetchStub;
+
+            const schemaWithSamples = {
+              ...mockSchemaInput,
+              schema: {
+                name: {
+                  type: 'string',
+                  sampleValues: ['SAMPLE_JOHN', 'SAMPLE_JANE'],
+                },
+                age: {
+                  type: 'number',
+                  sampleValues: [99999, 88888],
+                },
+              },
+              includeSampleValues: true,
+            };
+
+            await atlasAiService.getMockDataSchema(
+              schemaWithSamples,
+              mockConnectionInfo
+            );
+
+            expect(fetchStub).to.have.been.calledOnce;
+
+            // Inspect the request body to verify sample values are present
+            const { args } = fetchStub.firstCall;
+            const requestBody = args[1].body as string;
+
+            // Verify sample values are in the request
+            expect(requestBody).to.include('SAMPLE_JOHN');
+            expect(requestBody).to.include('SAMPLE_JANE');
+            expect(requestBody).to.include('99999');
+            expect(requestBody).to.include('88888');
+          });
+
+          it('includes validation rules in the generated prompt', async function () {
+            const VALIDATION_RULE = 'AGE_MUST_BE_21_OR_OLDER';
+            let capturedRequestBody = '';
+
+            const fetchStub = sandbox.stub().callsFake((...args: unknown[]) => {
+              capturedRequestBody = String(
+                (args[1] as { body?: string })?.body ?? ''
+              );
+              // Return a valid response so test doesn't error out
+              return createToolCallStreamResponse('mockDataSchema', {
+                fields: [
+                  {
+                    fieldPath: 'age',
+                    fakerMethod: 'number.int',
+                    fakerArgs: [],
+                  },
+                ],
+              });
+            }) as typeof fetch;
+            global.fetch = fetchStub;
+
+            await atlasAiService.getMockDataSchema(
+              {
+                ...mockSchemaInput,
+                validationRules: {
+                  $jsonSchema: {
+                    bsonType: 'object',
+                    properties: {
+                      age: {
+                        description: VALIDATION_RULE,
+                        minimum: 21,
+                      },
+                    },
+                  },
+                },
+              },
+              mockConnectionInfo
+            );
+
+            expect(capturedRequestBody).to.include(VALIDATION_RULE);
+          });
+
+          it('throws AtlasAiServiceApiResponseParseError when no tool call returned', async function () {
+            // Create a response with no tool calls (just text output)
+            const responseId = `resp_${Date.now()}`;
+            const itemId = `item_${Date.now()}`;
+            let sequenceNumber = 0;
+            const encoder = new TextEncoder();
+
+            const chunks: Uint8Array[] = [];
+            chunks.push(
+              encoder.encode(
+                `data: ${JSON.stringify({
+                  type: 'response.created',
+                  response: {
+                    id: responseId,
+                    object: 'realtime.response',
+                    status: 'in_progress',
+                    output: [],
+                    usage: {
+                      input_tokens: 0,
+                      output_tokens: 0,
+                      total_tokens: 0,
+                    },
+                  },
+                  sequence_number: sequenceNumber++,
+                })}\n\n`
+              )
+            );
+            chunks.push(
+              encoder.encode(
+                `data: ${JSON.stringify({
+                  type: 'response.output_item.added',
+                  output_index: 0,
+                  item: {
+                    id: itemId,
+                    type: 'message',
+                    role: 'assistant',
+                    content: [],
+                  },
+                  sequence_number: sequenceNumber++,
+                })}\n\n`
+              )
+            );
+            chunks.push(
+              encoder.encode(
+                `data: ${JSON.stringify({
+                  type: 'response.completed',
+                  response: {
+                    id: responseId,
+                    object: 'realtime.response',
+                    status: 'completed',
+                    output: [
+                      {
+                        id: itemId,
+                        type: 'message',
+                        role: 'assistant',
+                        content: [],
+                      },
+                    ],
+                    usage: {
+                      input_tokens: 10,
+                      output_tokens: 5,
+                      total_tokens: 15,
+                    },
+                  },
+                  sequence_number: sequenceNumber++,
+                })}\n\n`
+              )
+            );
+
+            const stream = new ReadableStream({
+              start(controller) {
+                for (const chunk of chunks) {
+                  controller.enqueue(chunk);
+                }
+                controller.close();
+              },
+            });
+
+            const fetchStub = sandbox.stub().resolves(
+              new Response(stream, {
+                headers: { 'Content-Type': 'text/event-stream' },
+              })
+            );
             global.fetch = fetchStub;
 
             try {
@@ -413,128 +674,9 @@ describe('AtlasAiService', function () {
             } catch (err) {
               expect(err).to.be.instanceOf(AtlasAiServiceApiResponseParseError);
               expect((err as Error).message).to.equal(
-                'Response does not match expected schema'
+                'AI did not return expected mock data schema tool call'
               );
             }
-          });
-
-          it('includes validation rules in request body when provided', async function () {
-            const mockResponse = {
-              fields: [
-                {
-                  fieldPath: 'email',
-                  mongoType: 'String',
-                  fakerMethod: 'internet.email',
-                  fakerArgs: [],
-                },
-                {
-                  fieldPath: 'age',
-                  mongoType: 'Int32',
-                  fakerMethod: 'number.int',
-                  fakerArgs: [{ json: '{"min": 18, "max": 120}' }],
-                },
-              ],
-            };
-            const fetchStub = sandbox
-              .stub()
-              .resolves(makeResponse(mockResponse));
-            global.fetch = fetchStub;
-
-            const validationRules = {
-              $jsonSchema: {
-                bsonType: 'object',
-                required: ['email', 'age'],
-                properties: {
-                  email: {
-                    bsonType: 'string',
-                    pattern:
-                      '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
-                  },
-                  age: {
-                    bsonType: 'int',
-                    minimum: 18,
-                    maximum: 120,
-                  },
-                },
-              },
-            };
-
-            const inputWithValidationRules = {
-              ...mockSchemaInput,
-              validationRules,
-            };
-
-            await atlasAiService.getMockDataSchema(
-              inputWithValidationRules,
-              mockConnectionInfo
-            );
-
-            const { args } = fetchStub.firstCall;
-            const requestBody = JSON.parse(args[1].body as string);
-
-            expect(requestBody).to.have.property('validationRules');
-            expect(requestBody.validationRules).to.deep.equal(validationRules);
-          });
-
-          it('includes null validation rules in request body when not provided', async function () {
-            const mockResponse = {
-              fields: [
-                {
-                  fieldPath: 'name',
-                  mongoType: 'String',
-                  fakerMethod: 'person.fullName',
-                  fakerArgs: [],
-                },
-              ],
-            };
-            const fetchStub = sandbox
-              .stub()
-              .resolves(makeResponse(mockResponse));
-            global.fetch = fetchStub;
-
-            await atlasAiService.getMockDataSchema(
-              mockSchemaInput,
-              mockConnectionInfo
-            );
-
-            const { args } = fetchStub.firstCall;
-            const requestBody = JSON.parse(args[1].body as string);
-
-            expect(requestBody).to.have.property('validationRules');
-            expect(requestBody.validationRules).to.be.null;
-          });
-
-          it('excludes validation rules from request body when explicitly undefined', async function () {
-            const mockResponse = {
-              fields: [
-                {
-                  fieldPath: 'name',
-                  mongoType: 'String',
-                  fakerMethod: 'person.fullName',
-                  fakerArgs: [],
-                },
-              ],
-            };
-            const fetchStub = sandbox
-              .stub()
-              .resolves(makeResponse(mockResponse));
-            global.fetch = fetchStub;
-
-            const inputWithUndefinedValidationRules = {
-              ...mockSchemaInput,
-              validationRules: undefined,
-            };
-
-            await atlasAiService.getMockDataSchema(
-              inputWithUndefinedValidationRules,
-              mockConnectionInfo
-            );
-
-            const { args } = fetchStub.firstCall;
-            const requestBody = JSON.parse(args[1].body as string);
-
-            // When validationRules is undefined, JSON.stringify excludes it from the output
-            expect(requestBody).to.not.have.property('validationRules');
           });
         }
       });
@@ -546,7 +688,7 @@ describe('AtlasAiService', function () {
     const mockConnectionInfo = getMockConnectionInfo();
 
     function streamChunkResponse(
-      readableStreamController: ReadableStreamController<any>,
+      readableStreamController: ReadableStreamController<Uint8Array>,
       chunks: Chunk[]
     ) {
       const responseId = `resp_${Date.now()}`;
@@ -713,7 +855,7 @@ describe('AtlasAiService', function () {
       const mockAtlasService = new MockAtlasService();
       atlasAiService = new AtlasAiService({
         apiURLPreset: 'cloud',
-        atlasService: mockAtlasService as any,
+        atlasService: mockAtlasService as unknown as AtlasService,
         preferences,
         logger: createNoopLogger(),
       });
@@ -825,7 +967,7 @@ describe('AtlasAiService', function () {
             .resolves(streamableFetchMock(successResponse.request));
           global.fetch = fetchStub;
 
-          const input = {
+          const input: GenerativeAiInput = {
             userInput: 'test',
             signal: new AbortController().signal,
             collectionName: 'jam',
@@ -839,7 +981,7 @@ describe('AtlasAiService', function () {
           };
 
           const res = await atlasAiService[functionName](
-            input as any,
+            input,
             mockConnectionInfo
           );
 

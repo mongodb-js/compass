@@ -1,17 +1,17 @@
 import { expect } from 'chai';
 
-import type { CompassBrowser } from '../../helpers/compass-browser';
+import type { CompassBrowser } from '../../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
-} from '../../helpers/compass';
-import type { Compass } from '../../helpers/compass';
-import * as Selectors from '../../helpers/selectors';
-import { createNumbersCollection } from '../../helpers/mongo-clients';
-import { isTestingWebAtlasCloud } from '../../helpers/test-runner-context';
-import { switchPipelineMode } from '../../helpers/commands/switch-pipeline-mode';
+} from '../../helpers/compass.ts';
+import type { Compass } from '../../helpers/compass.ts';
+import * as Selectors from '../../helpers/selectors.ts';
+import { createNumbersCollection } from '../../helpers/mongo-clients.ts';
+import { isTestingWebAtlasCloud } from '../../helpers/test-runner-context.ts';
+import { switchPipelineMode } from '../../helpers/commands/switch-pipeline-mode.ts';
 
 describe('Collection ai query (with real Cloud backend)', function () {
   let compass: Compass;

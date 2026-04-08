@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Apr 05 2026.
+This document was automatically generated on Wed Apr 08 2026.
 
 ## List of dependencies
 
@@ -375,9 +375,9 @@ This document was automatically generated on Sun Apr 05 2026.
 | **[leaflet-defaulticon-compatibility](#7fba582082c899d764d8e4214d2f6f06cd043b2dce51598ec24ce299f5640a6e)**                  | 0.1.1              | BSD-2-Clause                        |
 | **[leaflet-draw](#d3f67d0a666ece9171dffece3f3db67430e7055b1e8b857d806555d65b720d0e)**                                       | 1.0.4              | MIT                                 |
 | **[leaflet](#0c77955158defdd249f5abf69232ca350038122d4fc768826d9d79ce402761f4)**                                            | 1.5.1              | BSD-2-Clause                        |
-| **[lodash-es](#a591ea211f9167d2f80166d42532d3c01f7843fafac380deb0bcf693cdf6fa1d)**                                          | 4.17.21            | MIT                                 |
+| **[lodash-es](#dc01c5e6fde0737bcb22063adffcc9ce21afc19e9f408f5d22878215419c3d25)**                                          | 4.18.1             | MIT                                 |
 | **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**                                       | 4.6.2              | MIT                                 |
-| **[lodash](#22f51d3e8133cb84c9c410b8485c738362f6bf7ad6e2057f6eabc4b65442425f)**                                             | 4.17.23            | MIT                                 |
+| **[lodash](#02c5607a9d3316c6c04fcbf8d5fb61810668de71f499205765e125fd4829cd17)**                                             | 4.18.1             | MIT                                 |
 | **[lottie-web](#1f97ad7c365ecbd3628b72df96e42dada0d2e9a4aa6d79b66e93911bdebb6ccd)**                                         | 5.13.0             | MIT                                 |
 | **[lru-cache](#c72f841ac82faee207770e04c12f44202825ab841319ffb4cd7764a76731e4bf)**                                          | 11.2.6             | BlueOak-1.0.0                       |
 | **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**                                          | 5.1.1              | ISC                                 |
@@ -26528,9 +26528,9 @@ License files:
 
       SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-<a id="a591ea211f9167d2f80166d42532d3c01f7843fafac380deb0bcf693cdf6fa1d"></a>
+<a id="dc01c5e6fde0737bcb22063adffcc9ce21afc19e9f408f5d22878215419c3d25"></a>
 
-### [lodash-es](https://www.npmjs.com/package/lodash-es) (version 4.17.21)
+### [lodash-es](https://www.npmjs.com/package/lodash-es) (version 4.18.1)
 
 License tags: MIT
 
@@ -26644,9 +26644,9 @@ License files:
       licenses; we recommend you read them, as their terms may differ from the
       terms above.
 
-<a id="22f51d3e8133cb84c9c410b8485c738362f6bf7ad6e2057f6eabc4b65442425f"></a>
+<a id="02c5607a9d3316c6c04fcbf8d5fb61810668de71f499205765e125fd4829cd17"></a>
 
-### [lodash](https://www.npmjs.com/package/lodash) (version 4.17.23)
+### [lodash](https://www.npmjs.com/package/lodash) (version 4.18.1)
 
 License tags: MIT
 

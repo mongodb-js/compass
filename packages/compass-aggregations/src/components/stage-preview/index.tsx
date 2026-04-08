@@ -8,6 +8,7 @@ import {
   palette,
   Body,
   KeylineCard,
+  Link,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
@@ -25,6 +26,7 @@ import { AtlasStagePreview } from './atlas-stage-preview';
 import OutputStagePreivew from './output-stage-preview';
 import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { getIndexOfFirstStageWithServerError } from '../../modules/pipeline-builder/stage-editor';
 
 import SearchNoResults from '../search-no-results';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -117,6 +119,7 @@ type StagePreviewProps = {
   shouldRenderStage: boolean;
   showSearchIndexStaleResultsBanner: boolean;
   searchIndexName: string | null;
+  serverErrorStageIdx: number | null;
 };
 
 function StagePreviewBody({
@@ -128,6 +131,7 @@ function StagePreviewBody({
   isLoading,
   showSearchIndexStaleResultsBanner,
   searchIndexName,
+  serverErrorStageIdx,
 }: StagePreviewProps) {
   const enableSearchActivationProgramP1 = usePreference(
     'enableSearchActivationProgramP1'
@@ -158,6 +162,29 @@ function StagePreviewBody({
     return (
       <div className={centeredContent}>
         <LoadingOverlay text="Loading Preview Documents..." />
+      </div>
+    );
+  }
+
+  if (serverErrorStageIdx !== null) {
+    return (
+      <div className={centeredContent}>
+        <Body>
+          <span data-testid="stage-preview-upstream-error">
+            Preview unavailable — error on{' '}
+            <Link
+              as="button"
+              onClick={() => {
+                document
+                  .querySelector(`[data-stage-index="${serverErrorStageIdx}"]`)
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }}
+            >
+              Stage {serverErrorStageIdx + 1}
+            </Link>
+            .
+          </span>
+        </Body>
       </div>
     );
   }
@@ -263,5 +290,9 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
     showSearchIndexStaleResultsBanner,
     searchIndexName,
+    serverErrorStageIdx: getIndexOfFirstStageWithServerError(
+      state.pipelineBuilder.stageEditor.stages,
+      ownProps.index
+    ),
   };
 })(StagePreview);

@@ -1,6 +1,6 @@
-import type { CompassBrowser } from '../../compass-browser';
-import { ATLAS_CLOUD_TEST_UTILS } from '../../test-runner-context';
-import { doCloudFetch } from './utils';
+import type { CompassBrowser } from '../../compass-browser.ts';
+import { ATLAS_CLOUD_TEST_UTILS } from '../../test-runner-context.ts';
+import { doCloudFetch } from './utils.ts';
 
 type FeatureFlag = {
   phase: string;

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import type { CompassBrowser } from '../compass-browser';
-import * as Selectors from '../selectors';
+import type { CompassBrowser } from '../compass-browser.ts';
+import * as Selectors from '../selectors.ts';
 
 type Message = {
   text: string;

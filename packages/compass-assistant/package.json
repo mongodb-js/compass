@@ -67,7 +67,7 @@
     "ai": "^6.0.3",
     "bson": "^7.2.0",
     "compass-preferences-model": "^2.75.0",
-    "lodash": "^4.17.21",
+    "lodash": "^4.18.1",
     "mongodb-collection-model": "^5.40.2",
     "mongodb-connection-string-url": "^7.0.1",
     "react": "^17.0.2",

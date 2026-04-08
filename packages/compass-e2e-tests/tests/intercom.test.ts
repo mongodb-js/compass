@@ -4,8 +4,8 @@ import {
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
 
 describe('Intercom integration', function () {
   let compass: Compass;

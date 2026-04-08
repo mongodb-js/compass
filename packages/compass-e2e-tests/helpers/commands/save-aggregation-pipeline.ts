@@ -1,5 +1,5 @@
-import { Selectors } from '../compass';
-import type { CompassBrowser } from '../compass-browser';
+import { Selectors } from '../compass.ts';
+import type { CompassBrowser } from '../compass-browser.ts';
 
 /**
  * Saves an aggregation pipeline.

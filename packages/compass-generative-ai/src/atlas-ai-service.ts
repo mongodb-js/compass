@@ -10,9 +10,16 @@ import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
 import { EJSON } from 'bson';
 import {
-  MockDataSchemaResponseShape,
-  type MockDataSchemaResponse,
+  mockDataSchemaToolSchema,
+  type MockDataSchemaToolOutput,
   type MockDataSchemaRawField,
+  type RawSchema,
+  MOCK_DATA_SCHEMA_PROMPT,
+  formatSchemaForPrompt,
+  splitSchemaIntoChunks,
+  mergeChunkResponses,
+  validateSchemaSize,
+  needsBatching,
 } from './mock-data-generator';
 import { getStore } from './store/atlas-ai-store';
 import { optIntoGenAIWithModalPrompt } from './store/atlas-optin-reducer';
@@ -21,7 +28,7 @@ import {
   AtlasAiServiceApiResponseParseError,
 } from './atlas-ai-errors';
 import { createOpenAI } from '@ai-sdk/openai';
-import { type LanguageModel } from 'ai';
+import { streamText, tool, type LanguageModel } from 'ai';
 import type { AiQueryPrompt } from './utils/gen-ai-prompt';
 import {
   buildAggregateQueryPrompt,
@@ -30,7 +37,14 @@ import {
 import { parseXmlToJsonResponse } from './utils/parse-xml-response';
 import { getAiQueryResponse } from './utils/gen-ai-response';
 
-type GenerativeAiInput = {
+const mockDataTool = tool({
+  description:
+    'Generate faker.js mappings for MongoDB schema fields to create realistic mock data',
+  inputSchema: mockDataSchemaToolSchema,
+  strict: true,
+});
+
+export type GenerativeAiInput = {
   userInput: string;
   collectionName: string;
   databaseName: string;
@@ -220,14 +234,11 @@ const aiURLConfig = {
     query: (projectId: string) => {
       return `ai/v1/groups/${projectId}/mql-query`;
     },
-    'mock-data-schema': (projectId: string) => {
-      return `ai/v1/groups/${projectId}/mock-data-schema`;
-    },
   },
 } as const;
 
-export type { MockDataSchemaRawField, MockDataSchemaResponse };
-export { MockDataSchemaResponseShape };
+export type { MockDataSchemaRawField, MockDataSchemaToolOutput };
+export { mockDataSchemaToolSchema };
 
 export interface MockDataSchemaRequest {
   collectionName: string;
@@ -273,7 +284,7 @@ async function getHashedActiveUserId(
 /**
  * The type of resource from the natural language query REST API
  */
-type AIResourceType = 'query' | 'aggregation' | 'mock-data-schema';
+type AIResourceType = 'query' | 'aggregation';
 
 export class AtlasAiService {
   private initPromise: Promise<void> | null = null;
@@ -283,7 +294,8 @@ export class AtlasAiService {
   private preferences: PreferencesAccess;
   private logger: Logger;
 
-  private aiModel: LanguageModel;
+  private nlqAiModel: LanguageModel;
+  private mockDataAiModel: LanguageModel;
 
   constructor({
     apiURLPreset,
@@ -304,7 +316,8 @@ export class AtlasAiService {
 
     const PLACEHOLDER_BASE_URL =
       'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
-    this.aiModel = createOpenAI({
+
+    this.nlqAiModel = createOpenAI({
       apiKey: '',
       baseURL: PLACEHOLDER_BASE_URL,
       fetch: (url, init) => {
@@ -318,6 +331,18 @@ export class AtlasAiService {
         return this.atlasService.authenticatedFetch(uri, init);
       },
     }).responses('mongodb-slim-latest');
+
+    this.mockDataAiModel = createOpenAI({
+      apiKey: '',
+      baseURL: PLACEHOLDER_BASE_URL,
+      fetch: (url, init) => {
+        const uri = String(url).replace(
+          PLACEHOLDER_BASE_URL,
+          this.atlasService.assistantApiEndpoint()
+        );
+        return this.atlasService.authenticatedFetch(uri, init);
+      },
+    }).responses('mongodb-slim-2');
   }
 
   /**
@@ -330,12 +355,6 @@ export class AtlasAiService {
     if (atlasMetadata) {
       return this.atlasService.cloudEndpoint(
         aiURLConfig.cloud[resourceType](atlasMetadata.projectId)
-      );
-    }
-
-    if (resourceType === 'mock-data-schema') {
-      throw new AtlasAiServiceInvalidInputError(
-        "Can't perform generative ai request: mock-data-schema is not available for admin-api"
       );
     }
 
@@ -498,62 +517,147 @@ export class AtlasAiService {
     );
   }
 
+  /**
+   * Generates mock data schema mappings using the Knowledge Server's AI.
+   * Uses tool calling with the mockDataSchema tool to get structured output.
+   * For large schemas, automatically batches requests into smaller chunks.
+   */
   async getMockDataSchema(
     input: MockDataSchemaRequest,
     connectionInfo: ConnectionInfo
-  ): Promise<MockDataSchemaResponse> {
-    const { collectionName, databaseName } = input;
-    let schema = input.schema;
+  ): Promise<MockDataSchemaToolOutput> {
+    await this.initPromise;
+    this.throwIfAINotEnabled();
 
-    const url = `${this.getUrlForEndpoint(
-      'mock-data-schema',
-      connectionInfo
-    )}?request_id=${encodeURIComponent(input.requestId)}`;
+    // Mock data schema generation requires cloud API (atlas metadata)
+    if (!connectionInfo.atlasMetadata) {
+      throw new AtlasAiServiceInvalidInputError(
+        "Can't perform generative ai request: mock-data-schema requires Atlas connection"
+      );
+    }
 
+    const { collectionName, databaseName, signal } = input;
+    let schema: RawSchema = input.schema;
+
+    // Strip sample values if not requested
     if (!input.includeSampleValues) {
-      const newSchema: Record<
-        string,
-        Omit<MockDataSchemaRawField, 'sampleValues'>
-      > = Object.create(null);
+      const newSchema: RawSchema = Object.create(null);
       for (const [k, v] of Object.entries(schema)) {
         newSchema[k] = { type: v.type };
       }
       schema = newSchema;
     }
 
-    const res = await this.atlasService.authenticatedFetch(url, {
-      method: 'POST',
-      body: JSON.stringify({
-        collectionName,
+    this.logger.log.info(
+      this.logger.mongoLogId(1_001_000_419),
+      'AtlasAiService',
+      'Running mock data schema generation via Knowledge Server',
+      {
+        namespace: `${databaseName}.${collectionName}`,
+        requestId: input.requestId,
+        fieldCount: Object.keys(schema).length,
+      }
+    );
+
+    // Validate schema size and check if batching is needed
+    try {
+      validateSchemaSize(schema);
+    } catch {
+      throw new AtlasAiServiceInvalidInputError(
+        'The provided schema is too large to process. Please reduce the schema size and try again.'
+      );
+    }
+
+    if (!needsBatching(schema)) {
+      // Small schema: single LLM call
+      return this.generateSchemaForSingleChunk(
         databaseName,
+        collectionName,
         schema,
-        validationRules: input.validationRules,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
+        input.validationRules,
+        signal
+      );
+    }
+
+    // Large schema: batch into chunks and merge results in parallel
+    const chunks = splitSchemaIntoChunks(schema);
+    const chunkResponses = await Promise.all(
+      chunks.map((chunk) =>
+        this.generateSchemaForSingleChunk(
+          databaseName,
+          collectionName,
+          chunk,
+          input.validationRules,
+          signal
+        )
+      )
+    );
+
+    return mergeChunkResponses(chunkResponses);
+  }
+
+  /**
+   * Generates mock data schema for a single chunk of fields using streamText with tool calling.
+   */
+  private async generateSchemaForSingleChunk(
+    databaseName: string,
+    collectionName: string,
+    schema: RawSchema,
+    validationRules: Record<string, unknown> | null | undefined,
+    signal: AbortSignal
+  ): Promise<MockDataSchemaToolOutput> {
+    const userPrompt = formatSchemaForPrompt(
+      databaseName,
+      collectionName,
+      schema,
+      validationRules
+    );
+
+    const response = streamText({
+      model: this.mockDataAiModel,
+      messages: [{ role: 'user', content: userPrompt }],
+      tools: { mockDataSchema: mockDataTool },
+      toolChoice: { type: 'tool', toolName: 'mockDataSchema' },
+      providerOptions: {
+        openai: {
+          instructions: MOCK_DATA_SCHEMA_PROMPT,
+          store: false,
+        },
       },
-      signal: input.signal,
+      abortSignal: signal,
     });
 
-    try {
-      const data = await res.json();
-      return MockDataSchemaResponseShape.parse(data);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.stack : String(err);
+    // Consume the stream and extract the tool call result
+    const toolCalls = await response.toolCalls;
+
+    if (!toolCalls || toolCalls.length === 0) {
       this.logger.log.error(
         this.logger.mongoLogId(1_001_000_311),
         'AtlasAiService',
-        'Failed to parse mock data schema response with expected schema',
+        'Mock data schema generation did not return tool call',
         {
           namespace: `${databaseName}.${collectionName}`,
-          message: errorMessage,
         }
       );
       throw new AtlasAiServiceApiResponseParseError(
-        'Response does not match expected schema'
+        'AI did not return expected mock data schema tool call'
       );
     }
+
+    const toolResult = toolCalls[0];
+    if (
+      toolResult.type !== 'tool-call' ||
+      toolResult.toolName !== 'mockDataSchema'
+    ) {
+      throw new AtlasAiServiceApiResponseParseError(
+        `Unexpected tool called: ${
+          toolResult.type === 'tool-call' ? toolResult.toolName : 'unknown'
+        }`
+      );
+    }
+
+    // toolResult.input contains the validated schema from the tool call
+    return toolResult.input as MockDataSchemaToolOutput;
   }
 
   async optIntoGenAIFeatures() {
@@ -585,7 +689,7 @@ export class AtlasAiService {
   ): Promise<T> {
     this.throwIfAINotEnabled();
     const response = await getAiQueryResponse(
-      this.aiModel,
+      this.nlqAiModel,
       message,
       options.signal
     );

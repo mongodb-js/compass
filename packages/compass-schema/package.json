@@ -90,7 +90,7 @@
     "leaflet": "^1.5.1",
     "leaflet-defaulticon-compatibility": "^0.1.1",
     "leaflet-draw": "^1.0.4",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "mongodb": "^7.1.1",
     "mongodb-query-util": "^2.6.3",
     "mongodb-schema": "^12.6.3",

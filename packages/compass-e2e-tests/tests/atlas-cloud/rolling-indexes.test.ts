@@ -1,16 +1,16 @@
-import type { Compass } from '../../helpers/compass';
+import type { Compass } from '../../helpers/compass.ts';
 import {
   cleanup,
   init,
   screenshotIfFailed,
   Selectors,
-} from '../../helpers/compass';
-import type { CompassBrowser } from '../../helpers/compass-browser';
-import { createNumbersCollection } from '../../helpers/mongo-clients';
+} from '../../helpers/compass.ts';
+import type { CompassBrowser } from '../../helpers/compass-browser.ts';
+import { createNumbersCollection } from '../../helpers/mongo-clients.ts';
 import {
   getDefaultConnectionNames,
   isTestingWebAtlasCloud,
-} from '../../helpers/test-runner-context';
+} from '../../helpers/test-runner-context.ts';
 
 describe('Rolling indexes', function () {
   let compass: Compass;

@@ -1431,6 +1431,7 @@ export const AutoUpdateReleaseNotesLink =
   '[data-testid="auto-update-release-notes-link"]';
 
 // Data Modeling
+export const DiagramList = '[data-testid="saved-diagram-list"]';
 export const SidebarDataModelingTab = `${Sidebar} [aria-label="Data Modeling"]`;
 export const ImportDataModelInput = '[data-testid="import-diagram-file-input"]';
 export const CreateNewDataModelButton = '[data-testid="create-diagram-button"]';

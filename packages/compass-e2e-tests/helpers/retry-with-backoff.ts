@@ -1,4 +1,4 @@
-import delay from './delay';
+import delay from './delay.ts';
 
 export default async function retryWithBackoff<T>(
   fn: () => Promise<T>,

@@ -5,12 +5,12 @@ import {
   runCompassOnce,
   positionalArgs,
   skipForWeb,
-} from '../helpers/compass';
+} from '../helpers/compass.ts';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-import * as Selectors from '../helpers/selectors';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import * as Selectors from '../helpers/selectors.ts';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 
 async function getCheckboxAndBannerState(
   browser: CompassBrowser,

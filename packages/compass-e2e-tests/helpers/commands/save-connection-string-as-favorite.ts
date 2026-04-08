@@ -1,6 +1,6 @@
 import { UUID } from 'bson';
-import type { CompassBrowser } from '../compass-browser';
-import * as Selectors from '../selectors';
+import type { CompassBrowser } from '../compass-browser.ts';
+import * as Selectors from '../selectors.ts';
 
 // TODO(COMPASS-8023): Provide a counterpart `browser.saveConnection` method to
 // be able to edit existing connection

@@ -1,23 +1,23 @@
 import { expect } from 'chai';
 
 import clipboard from 'clipboardy';
-import type { CompassBrowser } from '../helpers/compass-browser';
-import { startTelemetryServer } from '../helpers/telemetry';
-import type { Telemetry } from '../helpers/telemetry';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
+import { startTelemetryServer } from '../helpers/telemetry.ts';
+import type { Telemetry } from '../helpers/telemetry.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
   screenshotPathName,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
-import { startMockAtlasServiceServer } from '../helpers/mock-atlas-service';
-import { startMockAssistantServer } from '../helpers/assistant-service';
-import type { MockAssistantResponse } from '../helpers/assistant-service';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
+import { startMockAtlasServiceServer } from '../helpers/mock-atlas-service.ts';
+import { startMockAssistantServer } from '../helpers/assistant-service.ts';
+import type { MockAssistantResponse } from '../helpers/assistant-service.ts';
 
-import { context } from '../helpers/test-runner-context';
+import { context } from '../helpers/test-runner-context.ts';
 
 describe('MongoDB Assistant (with mocked backend)', function () {
   let compass: Compass;

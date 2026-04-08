@@ -2,8 +2,14 @@
   "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
   "compilerOptions": {
     "noEmit": true,
-    "module": "nodenext",
-    "moduleResolution": "nodenext"
+    // We can't "type": "module" in package.json because this breaks our eslint
+    // config, but we do want to force esm on all the source code in this
+    // package. The only way to do it currently with TS is this combination of
+    // module / moduleResolution. This also kinda matches how we run the code
+    // anyway even if it's a bit weird looking
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true
   },
-  "include": ["helpers", "installers", "tests", "*.ts"]
+  "include": ["helpers", "installers", "tests", "*.ts", "index.ts"]
 }

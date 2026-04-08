@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
@@ -8,13 +8,13 @@ import {
   serverSatisfies,
   getDefaultConnectionStrings,
   getDefaultConnectionNames,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
 import {
   createDummyCollections,
   createNumbersCollection,
-} from '../helpers/mongo-clients';
+} from '../helpers/mongo-clients.ts';
 
 async function waitForCollectionAndBadge(
   browser: CompassBrowser,
