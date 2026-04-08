@@ -32,6 +32,7 @@ const renderStagePreview = (
       shouldRenderStage={false}
       showSearchIndexStaleResultsBanner={false}
       searchIndexName={null}
+      serverErrorStageIdx={null}
       {...props}
     />,
     { pipeline, ...storeOptions },
@@ -269,6 +270,31 @@ describe('StagePreview', function () {
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
         .exist;
+    });
+  });
+
+  describe('upstream stage error', function () {
+    it('should show upstream error with link to errored stage', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$match',
+        serverErrorStageIdx: 0,
+      });
+
+      expect(screen.getByTestId('stage-preview-upstream-error')).to.exist;
+      const link = screen.getByRole('button', { name: 'Stage 1' });
+      expect(link).to.exist;
+    });
+
+    it('should not show upstream error when serverErrorStageIdx is null', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$match',
+        documents: [],
+        serverErrorStageIdx: null,
+      });
+
+      expect(screen.queryByTestId('stage-preview-upstream-error')).to.not.exist;
     });
   });
 });
