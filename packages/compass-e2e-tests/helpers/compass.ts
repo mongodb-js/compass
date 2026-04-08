@@ -41,6 +41,7 @@ import {
   MONOREPO_ELECTRON_VERSION,
   E2E_WORKSPACE_PATH,
   DOWNLOADS_PATH,
+  MONOREPO_ROOT_PATH,
 } from './test-runner-paths.ts';
 import treeKill from 'tree-kill';
 import path from 'path';
@@ -169,12 +170,14 @@ export class Compass {
     this.needsCloseWelcomeModal = needsCloseWelcomeModal;
     this.logs = [];
     this.renderLogs = [];
+  }
 
+  async prepare() {
     for (const [k, v] of Object.entries(Commands)) {
       this.browser.addCommand(k, (...args) => {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        return v(browser, ...args);
+        // @ts-expect-error really hard to get these exactly right for
+        // typescript, but we know what we're doing
+        return v(this.browser, ...args);
       });
     }
 
@@ -182,7 +185,7 @@ export class Compass {
     // teardown on abort. To work around that, we will override the default
     // method, will short circuit the wait if we aborted, and then throw the
     // error instead of returning the result
-    browser.overwriteCommand(
+    this.browser.overwriteCommand(
       'waitUntil',
       async function (origWaitUntil, condition, options) {
         // eslint-disable-next-line @typescript-eslint/await-thenable
@@ -200,12 +203,18 @@ export class Compass {
     );
 
     // Adding a custom locator strategy to help locate open dialogs from a selector synchronously
-    browser.addLocatorStrategy('dialogOpen', dialogOpenLocator);
+    this.browser.addLocatorStrategy('dialogOpen', dialogOpenLocator);
 
     this.addDebugger();
+
+    await this.addRendererLogRecorder();
+
+    if (this.mode === 'electron') {
+      await this.getElectronAppPaths();
+    }
   }
 
-  async recordElectronLogs(): Promise<void> {
+  async addRendererLogRecorder(): Promise<void> {
     debug('Setting up renderer log listeners ...');
     const puppeteerBrowser = await this.browser.getPuppeteer();
     const pages = await puppeteerBrowser.pages();
@@ -242,7 +251,9 @@ export class Compass {
       };
       void run();
     });
+  }
 
+  async getElectronAppPaths(): Promise<void> {
     // get the app logPath out of electron early in case the app crashes before we
     // close it and load the logs
     [this.logPath, this.userDataPath, this.appName, this.mainProcessPid] =
@@ -256,6 +267,76 @@ export class Compass {
           ipcRenderer.invoke('compass:mainProcessPid'),
         ] as const);
       });
+  }
+
+  async getApplicationLogs(): Promise<{ raw: Buffer; structured: any[] }> {
+    if (this.mode === 'web') {
+      const log: unknown[] = await this.browser.execute(function () {
+        const kSandboxLoggingAndTelemetryAccess = Symbol.for(
+          '@compass-web-sandbox-logging-and-telemetry-access'
+        );
+        return kSandboxLoggingAndTelemetryAccess in globalThis
+          ? (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
+          : [];
+      });
+      return {
+        raw: Buffer.from(
+          log
+            .map((line) => {
+              return JSON.stringify(line);
+            })
+            .join('\n')
+        ),
+        structured: log,
+      };
+    } else {
+      const emptyLogs = { raw: Buffer.from(''), structured: [] };
+
+      if (!this.logPath) {
+        debug('no log path provided');
+        return emptyLogs;
+      }
+
+      const names = await fs.readdir(this.logPath);
+      const logNames = names.filter((name) => name.endsWith('_log.gz'));
+
+      if (!logNames.length) {
+        debug('no log output indicator found!');
+        return emptyLogs;
+      }
+
+      // find the latest log file
+      let latest = 0;
+      let lastName = logNames[0];
+      for (const name of logNames.slice(1)) {
+        const id = name.slice(0, name.indexOf('_'));
+        const time = new ObjectId(id).getTimestamp().valueOf();
+        if (time > latest) {
+          latest = time;
+          lastName = name;
+        }
+      }
+
+      const filename = path.join(this.logPath, lastName);
+      debug('reading Compass application logs from', filename);
+      const contents = await promisify(gunzip)(await fs.readFile(filename), {
+        finishFlush: Z_SYNC_FLUSH,
+      });
+      return {
+        raw: contents,
+        structured: contents
+          .toString()
+          .split('\n')
+          .filter((line) => line.trim())
+          .map((line) => {
+            try {
+              return EJSON.parse(line);
+            } catch {
+              return { unparsabableLine: line };
+            }
+          }),
+      };
+    }
   }
 
   addDebugger(): void {
@@ -364,87 +445,62 @@ export class Compass {
     }
   }
 
-  async stopElectron(): Promise<void> {
-    const renderLogPath = path.join(
-      LOG_PATH,
-      `electron-render.${this.name}.json`
-    );
-    debug(`Writing application render process log to ${renderLogPath}`);
-    await fs.writeFile(renderLogPath, JSON.stringify(this.renderLogs, null, 2));
-
-    if (this.writeCoverage) {
-      // coverage
-      debug('Writing coverage');
-      const coverage: Coverage = await this.browser.executeAsync((done) => {
-        void (async () => {
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          const mainCoverage = await require('electron').ipcRenderer.invoke(
-            'coverage'
-          );
-          done({
-            main: JSON.stringify(mainCoverage, null, 4),
-            renderer: JSON.stringify((window as any).__coverage__, null, 4),
-          });
-        })();
-      });
-      if (coverage.main) {
-        await fs.writeFile(
-          path.join(LOG_COVERAGE_PATH, `main.${this.name}.log`),
-          coverage.main
-        );
-      }
-      if (coverage.renderer) {
-        await fs.writeFile(
-          path.join(LOG_COVERAGE_PATH, `renderer.${this.name}.log`),
-          coverage.renderer
-        );
-      }
+  async captureCoverage() {
+    if (this.mode === 'web') {
+      debug('Coverage not supported by compass-web');
+      return;
     }
 
-    const copyCompassLog = async () => {
-      const compassLog = await getCompassLog(this.logPath ?? '');
+    // coverage
+    debug('Writing coverage');
+    const coverage: Coverage = await this.browser.execute(async () => {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const mainCoverage = await require('electron').ipcRenderer.invoke(
+        'coverage'
+      );
+      return {
+        main: JSON.stringify(mainCoverage, null, 4),
+        renderer: JSON.stringify((window as any).__coverage__, null, 4),
+      };
+    });
+    if (coverage.main) {
+      await fs.writeFile(
+        path.join(LOG_COVERAGE_PATH, `main.${this.name}.log`),
+        coverage.main
+      );
+    }
+    if (coverage.renderer) {
+      await fs.writeFile(
+        path.join(LOG_COVERAGE_PATH, `renderer.${this.name}.log`),
+        coverage.renderer
+      );
+    }
+  }
+
+  async stop() {
+    debug(`Stopping Compass application [${this.name}]`);
+    try {
+      const renderLogPath = path.join(LOG_PATH, `render.${this.name}.json`);
+      debug(`Writing application render process log to ${renderLogPath}`);
+      await fs.writeFile(
+        renderLogPath,
+        JSON.stringify(this.renderLogs, null, 2)
+      );
+      const compassLog = await this.getApplicationLogs();
       const compassLogPath = path.join(
         LOG_PATH,
         `compass-log.${this.name}.log`
       );
       debug(`Writing Compass application log to ${compassLogPath}`);
       await fs.writeFile(compassLogPath, compassLog.raw);
-      return compassLog;
-    };
-
-    // Copy log files before stopping in case that stopping itself fails and needs to be debugged
-    await copyCompassLog();
-
-    debug(`Stopping Compass application [${this.name}]`);
-    await this.browser.deleteSession({ shutdownDriver: true });
-
-    this.logs = (await copyCompassLog()).structured;
-  }
-
-  async stopBrowser(): Promise<void> {
-    const logging: any[] = await this.browser.execute(function () {
-      const kSandboxLoggingAndTelemetryAccess = Symbol.for(
-        '@compass-web-sandbox-logging-and-telemetry-access'
-      );
-      return kSandboxLoggingAndTelemetryAccess in globalThis
-        ? (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
-        : [];
-    });
-    const lines = logging.map((log) => JSON.stringify(log));
-    const text = lines.join('\n');
-    const compassLogPath = path.join(LOG_PATH, `compass-log.${this.name}.log`);
-    debug(`Writing Compass application log to ${compassLogPath}`);
-    await fs.writeFile(compassLogPath, text);
-
-    debug(`Stopping Compass application [${this.name}]`);
-    await this.browser.deleteSession({ shutdownDriver: true });
-  }
-
-  async stop(): Promise<void> {
-    if (TEST_COMPASS_WEB) {
-      await this.stopBrowser();
-    } else {
-      await this.stopElectron();
+      this.logs = compassLog.structured;
+      if (this.writeCoverage) {
+        await this.captureCoverage();
+      }
+    } catch (err) {
+      debug('Failed to capture run info while stopping Compass:', err);
+    } finally {
+      await this.browser.deleteSession({ shutdownDriver: true });
     }
   }
 }
@@ -783,8 +839,6 @@ async function startCompassElectron(
     needsCloseWelcomeModal,
   });
 
-  await compass.recordElectronLogs();
-
   return compass;
 }
 
@@ -886,54 +940,6 @@ export async function startBrowser(
   return compass;
 }
 
-/**
- * @param {string} logPath The compass application log path
- * @returns {Promise<CompassLog>}
- */
-async function getCompassLog(
-  logPath: string
-): Promise<{ raw: Buffer; structured: any[] }> {
-  const names = await fs.readdir(logPath);
-  const logNames = names.filter((name) => name.endsWith('_log.gz'));
-
-  if (!logNames.length) {
-    debug('no log output indicator found!');
-    return { raw: Buffer.from(''), structured: [] };
-  }
-
-  // find the latest log file
-  let latest = 0;
-  let lastName = logNames[0];
-  for (const name of logNames.slice(1)) {
-    const id = name.slice(0, name.indexOf('_'));
-    const time = new ObjectId(id).getTimestamp().valueOf();
-    if (time > latest) {
-      latest = time;
-      lastName = name;
-    }
-  }
-
-  const filename = path.join(logPath, lastName);
-  debug('reading Compass application logs from', filename);
-  const contents = await promisify(gunzip)(await fs.readFile(filename), {
-    finishFlush: Z_SYNC_FLUSH,
-  });
-  return {
-    raw: contents,
-    structured: contents
-      .toString()
-      .split('\n')
-      .filter((line) => line.trim())
-      .map((line) => {
-        try {
-          return EJSON.parse(line);
-        } catch {
-          return { unparsabableLine: line };
-        }
-      }),
-  };
-}
-
 function formattedDate(): string {
   // Mimicking webdriver path with this for consistency
   return new Date().toISOString().replace(/:/g, '-').replace(/Z$/, '');
@@ -954,7 +960,7 @@ export async function rebuildNativeModules(
     electronVersion: MONOREPO_ELECTRON_VERSION,
     buildPath: compassPath,
     // monorepo root, so that the root packages are also inspected
-    projectRootPath: path.resolve(compassPath, '..', '..'),
+    projectRootPath: MONOREPO_ROOT_PATH,
   };
   await rebuild(rebuildOptions);
 }
@@ -1115,6 +1121,8 @@ export async function init(
   const compass = isTestingWeb()
     ? await startBrowser(name, opts)
     : await startCompassElectron(name, opts);
+
+  await compass.prepare();
 
   const { browser } = compass;
 
