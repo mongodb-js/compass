@@ -22,6 +22,7 @@ import {
   createDummyCollections,
   createNumbersCollection,
 } from '../helpers/mongo-clients.ts';
+import { FIXTURES_PATH } from '../helpers/test-runner-paths.ts';
 
 const { expect } = chai;
 
@@ -393,12 +394,7 @@ describe('Collection import', function () {
   });
 
   it('supports JSON files', async function () {
-    const jsonPath = path.resolve(
-      import.meta.dirname,
-      '..',
-      'fixtures',
-      'listings.json'
-    );
+    const jsonPath = path.resolve(FIXTURES_PATH, 'listings.json');
 
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -441,12 +437,7 @@ describe('Collection import', function () {
   });
 
   it('supports JSON files with extended json', async function () {
-    const jsonPath = path.resolve(
-      import.meta.dirname,
-      '..',
-      'fixtures',
-      'extended-json.json'
-    );
+    const jsonPath = path.resolve(FIXTURES_PATH, 'extended-json.json');
 
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -490,12 +481,7 @@ describe('Collection import', function () {
   });
 
   it('displays an error for a malformed JSON file', async function () {
-    const jsonPath = path.resolve(
-      import.meta.dirname,
-      '..',
-      'fixtures',
-      'broken-json.json'
-    );
+    const jsonPath = path.resolve(FIXTURES_PATH, 'broken-json.json');
 
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -556,12 +542,7 @@ describe('Collection import', function () {
     });
 
     it('with JSON + abort on error checked, it displays a validation error with details', async function () {
-      const jsonPath = path.resolve(
-        import.meta.dirname,
-        '..',
-        'fixtures',
-        'three-documents.json'
-      );
+      const jsonPath = path.resolve(FIXTURES_PATH, 'three-documents.json');
 
       await browser.navigateWithinCurrentCollectionTabs('Documents');
 
@@ -616,12 +597,7 @@ describe('Collection import', function () {
 
     it('with CSV + abort on error unchecked, it includes the details in a file', async function () {
       const filename = 'array-documents.csv';
-      const csvPath = path.resolve(
-        import.meta.dirname,
-        '..',
-        'fixtures',
-        filename
-      );
+      const csvPath = path.resolve(FIXTURES_PATH, filename);
 
       await browser.navigateWithinCurrentCollectionTabs('Documents');
 
@@ -680,12 +656,7 @@ describe('Collection import', function () {
   });
 
   it('supports CSV files', async function () {
-    const csvPath = path.resolve(
-      import.meta.dirname,
-      '..',
-      'fixtures',
-      'listings.csv'
-    );
+    const csvPath = path.resolve(FIXTURES_PATH, 'listings.csv');
 
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -809,12 +780,7 @@ describe('Collection import', function () {
   });
 
   it('supports CSV files with arrays, objects and arrays of objects', async function () {
-    const csvPath = path.resolve(
-      import.meta.dirname,
-      '..',
-      'fixtures',
-      'array-documents.csv'
-    );
+    const csvPath = path.resolve(FIXTURES_PATH, 'array-documents.csv');
 
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -970,12 +936,7 @@ describe('Collection import', function () {
   });
 
   it('supports CSV files with BOM', async function () {
-    const csvPath = path.resolve(
-      import.meta.dirname,
-      '..',
-      'fixtures',
-      'source-with-bom.csv'
-    );
+    const csvPath = path.resolve(FIXTURES_PATH, 'source-with-bom.csv');
 
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -1066,12 +1027,7 @@ describe('Collection import', function () {
   });
 
   it('displays an error if an incompatible type is chosen for a column', async function () {
-    const csvPath = path.resolve(
-      import.meta.dirname,
-      '..',
-      'fixtures',
-      'listings.csv'
-    );
+    const csvPath = path.resolve(FIXTURES_PATH, 'listings.csv');
 
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -1126,12 +1082,7 @@ describe('Collection import', function () {
   });
 
   it('allows changing the delimiter', async function () {
-    const csvPath = path.resolve(
-      import.meta.dirname,
-      '..',
-      'fixtures',
-      'source-with-bom.csv'
-    );
+    const csvPath = path.resolve(FIXTURES_PATH, 'source-with-bom.csv');
 
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -1213,12 +1164,7 @@ describe('Collection import', function () {
   });
 
   it('stops on errors and displays the first error', async function () {
-    const jsonPath = path.resolve(
-      import.meta.dirname,
-      '..',
-      'fixtures',
-      'three-documents.json'
-    );
+    const jsonPath = path.resolve(FIXTURES_PATH, 'three-documents.json');
 
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -1275,12 +1221,7 @@ describe('Collection import', function () {
 
   it('shows a log file with the errors', async function () {
     const fileName = 'three-documents.json';
-    const jsonPath = path.resolve(
-      import.meta.dirname,
-      '..',
-      'fixtures',
-      fileName
-    );
+    const jsonPath = path.resolve(FIXTURES_PATH, fileName);
 
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -1353,12 +1294,7 @@ describe('Collection import', function () {
     it('aborts an in progress CSV import', async function () {
       // 279712 documents, so this should take a while to import, giving us lots
       // of time to disconnect in time.
-      const csvPath = path.resolve(
-        import.meta.dirname,
-        '..',
-        'fixtures',
-        'listings-large.csv'
-      );
+      const csvPath = path.resolve(FIXTURES_PATH, 'listings-large.csv');
 
       await browser.navigateToCollectionTab(
         getDefaultConnectionNames(0),
@@ -1427,12 +1363,7 @@ describe('Collection import', function () {
     it('aborts an in progress JSON import', async function () {
       // 279712 documents, so this should take a while to import, giving us lots
       // of time to disconnect in time.
-      const jsonPath = path.resolve(
-        import.meta.dirname,
-        '..',
-        'fixtures',
-        'listings-large.json'
-      );
+      const jsonPath = path.resolve(FIXTURES_PATH, 'listings-large.json');
 
       await browser.navigateToCollectionTab(
         getDefaultConnectionNames(0),
@@ -1497,12 +1428,7 @@ describe('Collection import', function () {
     it('aborts when disconnected', async function () {
       // 279712 documents, so this should take a while to import, giving us lots
       // of time to disconnect in time.
-      const csvPath = path.resolve(
-        import.meta.dirname,
-        '..',
-        'fixtures',
-        'listings-large.csv'
-      );
+      const csvPath = path.resolve(FIXTURES_PATH, 'listings-large.csv');
 
       await browser.navigateToCollectionTab(
         getDefaultConnectionNames(0),

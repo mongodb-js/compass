@@ -13,6 +13,7 @@ import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import type { ConnectFormState } from '../helpers/connect-form-state.ts';
 import { context } from '../helpers/test-runner-context.ts';
+import { FIXTURES_PATH } from '../helpers/test-runner-paths.ts';
 
 const DEFAULT_FLE_ENCRYPTED_FIELDS_MAP =
   "{\n/**\n * // Client-side encrypted fields map configuration:\n * 'database.collection': {\n *   fields: [\n *     {\n *       keyId: UUID(\"...\"),\n *       path: '...',\n *       bsonType: '...',\n *       queries: [{ queryType: 'equality' }]\n *     }\n *   ]\n * }\n */\n}\n";
@@ -224,9 +225,8 @@ describe('Connection form', function () {
   });
 
   it('parses and formats a URI for X.509 authentication', async function () {
-    const fixturesPath = path.resolve(import.meta.dirname, '..', 'fixtures');
-    const tlsCAFile = path.join(fixturesPath, 'ca.pem');
-    const tlsCertificateKeyFile = path.join(fixturesPath, 'client.pem');
+    const tlsCAFile = path.join(FIXTURES_PATH, 'ca.pem');
+    const tlsCertificateKeyFile = path.join(FIXTURES_PATH, 'client.pem');
     const connectionString = `mongodb://localhost:27017/?authMechanism=MONGODB-X509&authSource=%24external&tls=true&tlsCAFile=${encodeURIComponent(
       tlsCAFile
     )}&tlsCertificateKeyFile=${encodeURIComponent(
@@ -519,9 +519,8 @@ describe('Connection form', function () {
   });
 
   it('does not update the URI for SSH tunnel with identity file authentication', async function () {
-    const fixturesPath = path.resolve(import.meta.dirname, '..', 'fixtures');
     // reuse the .pem file from above. contents doesn't matter.
-    const sshIdentityKeyFile = path.join(fixturesPath, 'client.pem');
+    const sshIdentityKeyFile = path.join(FIXTURES_PATH, 'client.pem');
 
     const state: ConnectFormState = {
       proxyMethod: 'identity',

@@ -25,6 +25,7 @@ import { expect } from 'chai';
 import type { MongoCluster } from '@mongodb-js/compass-test-server';
 import { startTestServer } from '@mongodb-js/compass-test-server';
 import { ConnectionString } from 'mongodb-connection-string-url';
+import { FIXTURES_PATH } from '../helpers/test-runner-paths.ts';
 
 const DEFAULT_TOKEN_PAYLOAD = {
   expires_in: 3600,
@@ -42,12 +43,7 @@ const DEFAULT_AUTH_INFO = {
 };
 
 function getTestBrowserShellCommand() {
-  return `${process.execPath} ${path.resolve(
-    import.meta.dirname,
-    '..',
-    'fixtures',
-    'curl.js'
-  )}`;
+  return `${process.execPath} ${path.resolve(FIXTURES_PATH, 'curl.js')}`;
 }
 
 /**

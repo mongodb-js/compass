@@ -1,11 +1,12 @@
 import path from 'path';
 import fs from 'fs';
 import electronPath from 'electron';
+import url from 'url';
 // @ts-expect-error no types for this package
 import { electronToChromium } from 'electron-to-chromium';
 
 function requireResolve(module: string) {
-  return import.meta.resolve(module).replace('file://', '');
+  return url.fileURLToPath(import.meta.resolve(module));
 }
 
 if (typeof electronPath !== 'string') {
@@ -27,6 +28,9 @@ export const COMPASS_DESKTOP_PATH = path.dirname(
 export const COMPASS_WEB_PATH = path.dirname(
   requireResolve('@mongodb-js/compass-web/package.json')
 );
+export const MOCHA_REPORTER_PATH = requireResolve(
+  '@mongodb-js/mocha-config-compass/reporter'
+);
 export const LOG_PATH = path.resolve(E2E_WORKSPACE_PATH, '.log');
 export const LOG_OUTPUT_PATH = path.join(LOG_PATH, 'output');
 export const LOG_SCREENSHOTS_PATH = path.join(LOG_PATH, 'screenshots');
@@ -42,3 +46,7 @@ export const MONOREPO_ELECTRON_VERSION = JSON.parse(
 export const MONOREPO_ELECTRON_CHROMIUM_VERSION = electronToChromium(
   MONOREPO_ELECTRON_VERSION
 );
+
+export const FIXTURES_PATH = path.join(E2E_WORKSPACE_PATH, 'fixtures');
+// Directory provided to the app / browser as a default download folder
+export const DOWNLOADS_PATH = path.join(E2E_WORKSPACE_PATH, 'downloads');

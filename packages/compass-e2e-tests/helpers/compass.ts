@@ -39,9 +39,10 @@ import {
   LOG_SCREENSHOTS_PATH,
   ELECTRON_PATH,
   MONOREPO_ELECTRON_VERSION,
+  E2E_WORKSPACE_PATH,
+  DOWNLOADS_PATH,
 } from './test-runner-paths.ts';
 import treeKill from 'tree-kill';
-import { downloadPath } from './downloads.ts';
 import path from 'path';
 import { globalFixturesAbortController } from './test-runner-global-fixtures.ts';
 import { dialogOpenLocator } from './dialog-open-locator-strategy.ts';
@@ -727,7 +728,7 @@ async function startCompassElectron(
     const cdpSession = await page.target().createCDPSession();
     await cdpSession.send('Browser.setDownloadBehavior', {
       behavior: 'allow',
-      downloadPath: downloadPath,
+      downloadPath: DOWNLOADS_PATH,
     });
   } catch (err) {
     debug('Failed to start remote webdriver session', {
@@ -820,7 +821,7 @@ export async function startBrowser(
   const browserCapabilities: WebdriverIO.Capabilities = {
     'goog:chromeOptions': {
       prefs: {
-        'download.default_directory': downloadPath,
+        'download.default_directory': DOWNLOADS_PATH,
       },
       args: isTestingWebAtlasCloud(context)
         ? [
@@ -836,7 +837,7 @@ export async function startBrowser(
     },
     'moz:firefoxOptions': {
       prefs: {
-        'browser.download.dir': downloadPath,
+        'browser.download.dir': DOWNLOADS_PATH,
         'browser.download.folderList': 2,
         'browser.download.manager.showWhenStarting': false,
         'browser.helperApps.neverAsk.saveToDisk': '*/*',
@@ -1312,12 +1313,11 @@ export function positionalArgs(positionalArgs: string[]) {
     const wrapperPath =
       process.platform === 'win32'
         ? path.join(
-            import.meta.dirname,
-            '..',
+            E2E_WORKSPACE_PATH,
             'positional-args',
             'positional-args.exe'
           )
-        : path.join(import.meta.dirname, '..', 'scripts', 'positional-args.sh');
+        : path.join(E2E_WORKSPACE_PATH, 'scripts', 'positional-args.sh');
 
     console.log({
       binary: process.env.BINARY,

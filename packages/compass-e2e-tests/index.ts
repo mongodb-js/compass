@@ -1,5 +1,5 @@
-#!/usr/bin/env ts-node
 import path from 'path';
+import url from 'url';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
 import Mocha from 'mocha';
@@ -13,6 +13,10 @@ import {
 import { mochaRootHooks } from './helpers/mongo-clients.ts';
 // @ts-expect-error no types for this package
 import logRunning from 'why-is-node-running';
+import {
+  E2E_WORKSPACE_PATH,
+  MOCHA_REPORTER_PATH,
+} from './helpers/test-runner-paths.ts';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -69,7 +73,7 @@ async function main() {
     await Promise.all(
       e2eTestFilter.map((filter) => {
         return glob(`tests/**/${filter}.{test,spec}.ts`, {
-          cwd: import.meta.dirname,
+          cwd: E2E_WORKSPACE_PATH,
         });
       })
     )
@@ -107,9 +111,7 @@ async function main() {
   const mocha = new Mocha({
     timeout: context.mochaTimeout,
     bail: context.mochaBail,
-    reporter: import.meta
-      .resolve('@mongodb-js/mocha-config-compass/reporter')
-      .replace('file://', ''),
+    reporter: MOCHA_REPORTER_PATH,
   });
 
   // @ts-expect-error mocha types are incorrect, global setup this is bound to
@@ -126,7 +128,7 @@ async function main() {
   debug('Test order:', tests);
 
   tests.forEach((testPath: string) => {
-    mocha.addFile(path.join(import.meta.dirname, testPath));
+    mocha.addFile(path.join(E2E_WORKSPACE_PATH, testPath));
   });
 
   debug('Running E2E tests');
