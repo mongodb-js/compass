@@ -636,8 +636,13 @@ tasks:
         vars:
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          # We're only running a special subset of tests as provisioning atlas
+          # clusters in CI is both pricey and flakey, so we want to limit the
+          # coverage to reduce those factors (at least for now)
           atlas_cloud_test_args: '--test-filter="time-to-first-query" --test-filter="routing" --test-filter="atlas-cloud/**/*"'
 
+  # We run the global writes tests separately from test-web-sandbox-atlas-cloud
+  # as they require a GeoSharded cluster which is expensive to provision (M30+)
   - name: test-web-sandbox-atlas-cloud-global-writes
     tags:
       - assigned_to_jira_team_compass_compass
