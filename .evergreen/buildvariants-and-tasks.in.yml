@@ -336,6 +336,9 @@ buildvariants:
     run_on: ubuntu2204-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-global-writes
+        # We only run these tests nightly as they require a GeoSharded cluster
+        # which is expensive to provision (M30+).
+        allowed_requesters: ["ad_hoc"]
 
   - name: generate-vulnerability-report
     tags:

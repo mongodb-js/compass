@@ -322,6 +322,8 @@ buildvariants:
     run_on: ubuntu2204-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-global-writes
+        allowed_requesters:
+          - ad_hoc
   - name: generate-vulnerability-report
     tags:
       - run-on-pr
