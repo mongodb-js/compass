@@ -1,5 +1,5 @@
 import fs from 'fs';
-import { DOWNLOADS_PATH } from './test-runner-paths';
+import { DOWNLOADS_PATH } from './test-runner-paths.ts';
 
 export const waitForFileDownload = async (
   filename: string,
