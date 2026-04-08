@@ -31,7 +31,12 @@ import { ToolToggle } from './tool-toggle';
 import { ToolsIntroCard } from './tools-intro-card';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
-import { isAssistantThinking, partIsToolUI, stopChat } from '../utils';
+import {
+  isAssistantThinking,
+  partIsApprovalRequest,
+  partIsToolUI,
+  stopChat,
+} from '../utils';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -230,6 +235,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const track = useTelemetry();
   const darkMode = useDarkMode();
   const isToolCallingEnabled = usePreference('enableToolCalling');
+  const enableGenAIToolCallingAtlasProject = usePreference(
+    'enableGenAIToolCallingAtlasProject'
+  );
+  const enableGenAIToolCalling = usePreference('enableGenAIToolCalling');
+  const areToolCallsEnabled =
+    !!enableGenAIToolCallingAtlasProject && enableGenAIToolCalling;
   const [dismissedAssistantToolsIntro, setDismissedAssistantToolsIntro] =
     usePersistedState(DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY, false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -373,6 +384,24 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       setMessages(() => newMessages);
     }
   }, [activeConnection, chat, setMessages, toolsController]);
+
+  const prevToolCallingEnabled = useRef(areToolCallsEnabled);
+  useEffect(() => {
+    if (prevToolCallingEnabled.current && !areToolCallsEnabled) {
+      // Reject all pending tool approval requests when tool calling is toggled off
+      for (const message of chat.messages) {
+        for (const part of message.parts) {
+          if (partIsApprovalRequest(part)) {
+            void addToolApprovalResponse({
+              id: part.approval.id,
+              approved: false,
+            });
+          }
+        }
+      }
+    }
+    prevToolCallingEnabled.current = areToolCallsEnabled;
+  }, [areToolCallsEnabled, chat.messages, addToolApprovalResponse]);
 
   const handleMessageSend = useCallback(
     async ({ text, metadata }: SendMessageOptions) => {

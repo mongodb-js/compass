@@ -15,6 +15,7 @@ import {
   createMockToolsTransport,
 } from '../../test/utils';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { AllPreferences } from 'compass-preferences-model';
 import {
   AssistantActionsContext,
   type AssistantMessage,
@@ -72,9 +73,11 @@ describe('AssistantChat', function () {
     chat: Chat<AssistantMessage>,
     {
       connections,
+      preferences,
       trackingOptions = {},
     }: {
       connections?: ConnectionInfo[];
+      preferences?: Partial<AllPreferences>;
       trackingOptions?: {
         requestId?: string;
       };
@@ -104,6 +107,7 @@ describe('AssistantChat', function () {
       </ToolsControllerProvider>,
       {
         connections,
+        preferences,
       }
     );
     return {
@@ -1300,6 +1304,116 @@ describe('AssistantChat', function () {
       // Give the effect a chance to run
       await waitFor(() => {
         expect(setConnectionIdSpy).to.not.have.been.called;
+      });
+    });
+  });
+
+  describe('rejecting pending tool calls when tool calling is toggled off', function () {
+    it('rejects pending approval requests when user toggles off tool calling', async function () {
+      const messagesWithMultiplePending: AssistantMessage[] = [
+        {
+          id: 'assistant-with-tools',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'tool-input-available',
+              toolCallId: 'tool-call-1',
+              toolName: 'list-databases',
+              input: {},
+              state: 'approval-requested',
+              approval: {
+                id: 'approval-1',
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+            {
+              type: 'tool-input-available',
+              toolCallId: 'tool-call-2',
+              toolName: 'list-collections',
+              input: {},
+              state: 'approval-requested',
+              approval: {
+                id: 'approval-2',
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+          ],
+        },
+      ];
+
+      const chat = createMockChat({ messages: messagesWithMultiplePending });
+      const addToolApprovalResponseSpy = sinon.spy(
+        chat,
+        'addToolApprovalResponse'
+      );
+
+      const { result } = renderWithChat(chat, {
+        preferences: {
+          enableGenAIToolCallingAtlasProject: true,
+          enableGenAIToolCalling: true,
+        },
+      });
+
+      await result.preferences.savePreferences({
+        enableGenAIToolCalling: false,
+      });
+
+      await waitFor(() => {
+        expect(addToolApprovalResponseSpy).to.have.been.calledWith({
+          id: 'approval-1',
+          approved: false,
+        });
+        expect(addToolApprovalResponseSpy).to.have.been.calledWith({
+          id: 'approval-2',
+          approved: false,
+        });
+      });
+    });
+
+    it('rejects pending approvals when atlas project toggle is turned off', async function () {
+      const messagesWithPendingApproval: AssistantMessage[] = [
+        {
+          id: 'assistant-with-pending-tool',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'tool-input-available',
+              toolCallId: 'tool-call-1',
+              toolName: 'list-databases',
+              input: {},
+              state: 'approval-requested',
+              approval: {
+                id: 'approval-1',
+              },
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+          ],
+        },
+      ];
+
+      const chat = createMockChat({ messages: messagesWithPendingApproval });
+      const addToolApprovalResponseSpy = sinon.spy(
+        chat,
+        'addToolApprovalResponse'
+      );
+
+      const { result } = renderWithChat(chat, {
+        preferences: {
+          enableGenAIToolCallingAtlasProject: true,
+          enableGenAIToolCalling: true,
+        },
+      });
+
+      // Toggle off at the project level
+      await result.preferences.savePreferences({
+        enableGenAIToolCallingAtlasProject: false,
+      });
+
+      await waitFor(() => {
+        expect(addToolApprovalResponseSpy).to.have.been.calledWith({
+          id: 'approval-1',
+          approved: false,
+        });
       });
     });
   });

@@ -62,13 +62,17 @@ import {
   useAssistantGlobalState,
 } from './assistant-global-state';
 import { lastAssistantMessageIsCompleteWithApprovalResponses } from 'ai';
-import type { ToolSet, UIDataTypes, UIMessagePart, UITools } from 'ai';
+import type { ToolSet } from 'ai';
 import type {
   CollectionSubtab,
   WorkspaceTab,
 } from '@mongodb-js/workspace-info';
 import { UUID } from 'bson';
-import { getHashedActiveUserId, stopChat } from './utils';
+import {
+  getHashedActiveUserId,
+  partIsApprovalRequest,
+  stopChat,
+} from './utils';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -743,10 +747,4 @@ export function setToolsContext(
       pipeline: undefined,
     });
   }
-}
-
-function partIsApprovalRequest(
-  part: UIMessagePart<UIDataTypes, UITools>
-): part is UIMessagePart<UIDataTypes, UITools> & { approval: { id: string } } {
-  return (part as { state?: string }).state === 'approval-requested';
 }
