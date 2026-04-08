@@ -738,12 +738,7 @@ async function startCompassElectron(
     // with a running app that hangs the test runner in CI causing the run to
     // fail with idle timeout. We will try to clean up a potentially hanging app
     // before rethrowing an error
-
-    // ps-list is ESM-only in recent versions.
-    // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-    const { default: psList }: typeof import('ps-list') = await eval(
-      `import('ps-list')`
-    );
+    const { default: psList } = await import('ps-list');
     const processList = await psList();
 
     const filteredProcesses = processList.filter((p) => {
