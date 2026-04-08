@@ -115,6 +115,8 @@ export type AssistantMessage = UIMessage & {
     analyticsId?: string;
     /** The request ID associated with this message. */
     requestId?: string;
+    /** Tool call IDs that have already had their connection ID registered. */
+    registeredToolCallIds?: string[];
   };
 };
 
@@ -328,8 +330,9 @@ export const AssistantProvider: React.FunctionComponent<
         await toolsController.startServer();
       }
 
-      // Automatically deny any pending tool approval requests in the chat before
-      // sending the new message because ai sdk does not allow leaving them.
+      // Automatically deny any pending tool approval requests in the chat
+      // before sending the new message because the assistant does not allow
+      // leaving them
       let foundToolApprovalRequests = false;
       for (const message of chat.messages) {
         for (const part of message.parts) {

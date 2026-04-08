@@ -22,7 +22,10 @@ import {
 import sinon from 'sinon';
 import type { ChatTransport, SourceUrlUIPart, TextPart } from 'ai';
 import { Chat } from '../@ai-sdk/react/chat-react';
-import { ToolsControllerProvider } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  ToolsControllerProvider,
+  ToolsController,
+} from '@mongodb-js/compass-generative-ai/provider';
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -1143,6 +1146,160 @@ describe('AssistantChat', function () {
           name: 'MongoDB Atlas Guide',
         });
         expect(atlasGuideLinks).to.have.length(1);
+      });
+    });
+  });
+
+  describe('tool call connection ID registration', function () {
+    let setConnectionIdSpy: sinon.SinonSpy;
+
+    beforeEach(function () {
+      setConnectionIdSpy = sinon.spy(
+        ToolsController.prototype,
+        'setConnectionIdForToolCall'
+      );
+    });
+
+    afterEach(function () {
+      setConnectionIdSpy.restore();
+    });
+
+    it('registers connection IDs for tool calls when connection info is present', async function () {
+      const messagesWithToolCall: AssistantMessage[] = [
+        {
+          id: 'assistant-with-tool',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'tool-input-available',
+              toolCallId: 'tool-call-1',
+              toolName: 'list-databases',
+              input: {},
+              state: 'approval-requested',
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+          ],
+          metadata: {
+            connectionInfo: { id: 'conn-1', name: 'My Connection' },
+          },
+        },
+      ];
+
+      renderWithChat(createMockChat({ messages: messagesWithToolCall }));
+
+      await waitFor(() => {
+        expect(setConnectionIdSpy).to.have.been.calledWith({
+          toolCallId: 'tool-call-1',
+          connectionId: 'conn-1',
+        });
+      });
+    });
+
+    it('registers connection IDs for multiple tool calls in the same message', async function () {
+      const messagesWithMultipleToolCalls: AssistantMessage[] = [
+        {
+          id: 'assistant-with-tools',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'tool-input-available',
+              toolCallId: 'tool-call-1',
+              toolName: 'list-databases',
+              input: {},
+              state: 'approval-requested',
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+            {
+              type: 'tool-input-available',
+              toolCallId: 'tool-call-2',
+              toolName: 'list-collections',
+              input: {},
+              state: 'approval-requested',
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+          ],
+          metadata: {
+            connectionInfo: { id: 'conn-1', name: 'My Connection' },
+          },
+        },
+      ];
+
+      renderWithChat(
+        createMockChat({ messages: messagesWithMultipleToolCalls })
+      );
+
+      await waitFor(() => {
+        expect(setConnectionIdSpy).to.have.been.calledWith({
+          toolCallId: 'tool-call-1',
+          connectionId: 'conn-1',
+        });
+        expect(setConnectionIdSpy).to.have.been.calledWith({
+          toolCallId: 'tool-call-2',
+          connectionId: 'conn-1',
+        });
+      });
+    });
+
+    it('does not re-register tool calls that have already been registered', async function () {
+      const messagesWithRegisteredToolCall: AssistantMessage[] = [
+        {
+          id: 'assistant-with-tool',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'tool-input-available',
+              toolCallId: 'tool-call-1',
+              toolName: 'list-databases',
+              input: {},
+              state: 'approval-requested',
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+          ],
+          metadata: {
+            connectionInfo: { id: 'conn-1', name: 'My Connection' },
+            registeredToolCallIds: ['tool-call-1'],
+          },
+        },
+      ];
+
+      renderWithChat(
+        createMockChat({ messages: messagesWithRegisteredToolCall })
+      );
+
+      // Give the effect a chance to run
+      await waitFor(() => {
+        expect(setConnectionIdSpy).to.not.have.been.called;
+      });
+    });
+
+    it('does not register tool call connection IDs when no connection info is available', async function () {
+      const messagesWithToolCallNoConnection: AssistantMessage[] = [
+        {
+          id: 'assistant-with-tool',
+          role: 'assistant',
+          parts: [
+            {
+              type: 'tool-input-available',
+              toolCallId: 'tool-call-1',
+              toolName: 'list-databases',
+              input: {},
+              state: 'approval-requested',
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            } as any,
+          ],
+          metadata: {
+            connectionInfo: null,
+          },
+        },
+      ];
+
+      renderWithChat(
+        createMockChat({ messages: messagesWithToolCallNoConnection })
+      );
+
+      // Give the effect a chance to run
+      await waitFor(() => {
+        expect(setConnectionIdSpy).to.not.have.been.called;
       });
     });
   });

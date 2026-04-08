@@ -298,45 +298,81 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     }) ?? null;
 
   const shouldDisplayThinking = isAssistantThinking(status, messages);
+  const toolsController = useToolsController();
 
   useEffect(() => {
-    let foundNewMessages = false;
+    let hasChanges = false;
 
     // Fill in connection info for newly created messages as soon as possible so
     // that all tool calls will use the correct connection even if the user
     // navigates around while the assistant is responding.
+    // Also register connection IDs for any new tool calls so that the tools
+    // controller knows which connection to use when executing them.
     const newMessages: AssistantMessage[] = chat.messages.map((message) => {
-      if (message.metadata?.connectionInfo !== undefined) {
-        // If it is set or null, then we have already processed this message
-        return { ...message };
-      }
-      const connectionInfo = activeConnection
-        ? {
-            id: activeConnection.id,
-            name: getConnectionTitle(activeConnection),
-          }
-        : null;
+      const connectionInfo =
+        message.metadata?.connectionInfo !== undefined
+          ? message.metadata.connectionInfo
+          : activeConnection
+          ? {
+              id: activeConnection.id,
+              name: getConnectionTitle(activeConnection),
+            }
+          : null;
 
-      if (!connectionInfo) {
-        // leave the message unchanged
-        return { ...message };
+      // Collect tool call IDs from this message's parts
+      const toolCallIds = message.parts
+        .filter(partIsToolUI)
+        .map((part) => part.toolCallId)
+        .filter(Boolean);
+
+      const registeredToolCallIds =
+        message.metadata?.registeredToolCallIds ?? [];
+      const newToolCallIds = toolCallIds.filter(
+        (id) => !registeredToolCallIds.includes(id)
+      );
+
+      // Register the connection ID for any new tool calls
+      if (connectionInfo && newToolCallIds.length > 0) {
+        for (const toolCallId of newToolCallIds) {
+          toolsController.setConnectionIdForToolCall({
+            toolCallId,
+            connectionId: connectionInfo.id,
+          });
+        }
       }
 
-      foundNewMessages = true;
+      const needsConnectionInfo =
+        message.metadata?.connectionInfo === undefined && connectionInfo;
+      const needsToolCallRegistration =
+        connectionInfo && newToolCallIds.length > 0;
+
+      if (!needsConnectionInfo && !needsToolCallRegistration) {
+        return message;
+      }
+
+      hasChanges = true;
 
       return {
         ...message,
         metadata: {
           ...message.metadata,
-          connectionInfo,
+          ...(needsConnectionInfo ? { connectionInfo } : {}),
+          ...(needsToolCallRegistration
+            ? {
+                registeredToolCallIds: [
+                  ...registeredToolCallIds,
+                  ...newToolCallIds,
+                ],
+              }
+            : {}),
         },
       };
     });
 
-    if (foundNewMessages) {
+    if (hasChanges) {
       setMessages(() => newMessages);
     }
-  }, [activeConnection, chat, setMessages]);
+  }, [activeConnection, chat, setMessages, toolsController]);
 
   const handleMessageSend = useCallback(
     async ({ text, metadata }: SendMessageOptions) => {
@@ -458,30 +494,18 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [ensureOptInAndSend, setMessages, track]
   );
 
-  const toolsController = useToolsController();
-
   const handleToolApproval = useCallback(
     ({
       message,
-      toolCallId,
       type,
       approvalId,
       approved,
     }: {
       message: AssistantMessage;
-      toolCallId: string;
       type: string;
       approvalId: string;
       approved: boolean;
     }) => {
-      // TODO: we can probably move this to a useEffect() similar to where we
-      // fill in the message connection info and then it will work even when we
-      // auto-approve a tool call
-      toolsController.setConnectionIdForToolCall({
-        toolCallId,
-        connectionId: message.metadata?.connectionInfo?.id ?? null,
-      });
-
       void addToolApprovalResponse({
         id: approvalId,
         approved,
@@ -498,7 +522,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         message.metadata?.connectionInfo ?? undefined
       );
     },
-    [addToolApprovalResponse, toolsController, track]
+    [addToolApprovalResponse, track]
   );
 
   const handleStopButtonClick = useCallback(async () => {
@@ -606,7 +630,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                           onApprove={(approvalId) =>
                             handleToolApproval({
                               message,
-                              toolCallId,
                               type: toolCall.type,
                               approvalId,
                               approved: true,
@@ -615,7 +638,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                           onDeny={(approvalId) =>
                             handleToolApproval({
                               message,
-                              toolCallId,
                               type: toolCall.type,
                               approvalId,
                               approved: false,
