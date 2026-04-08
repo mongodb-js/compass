@@ -3497,6 +3497,16 @@ type CreateSearchIndexForViewClickedEvent = CommonEvent<{
   };
 }>;
 
+export type SearchIndexesTelemetryContext =
+  | 'Server Error Banner'
+  | 'Search Index Does Not Exist Banner'
+  | 'Search Index Stale Results Banner'
+  | 'Stage Toolbar'
+  | 'Indexes List Drawer View'
+  | 'Create Search Index Drawer View'
+  | 'Edit Search Index Drawer View'
+  | 'Search Indexes Drawer Table';
+
 /**
  * This event is fired when user clicks the "Edit Search Index" link in the
  * server error banner.
@@ -3507,7 +3517,7 @@ type SearchIndexEditLinkClickedEvent = CommonEvent<{
   name: 'Search Index Edit Link Clicked';
   payload: {
     /** The context/screen from which the link was clicked. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
   };
 }>;
 
@@ -3521,7 +3531,7 @@ type SearchIndexViewIndexesLinkClickedEvent = CommonEvent<{
   name: 'Search Index View Indexes Link Clicked';
   payload: {
     /** The context/screen from which the link was clicked. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
   };
 }>;
 
@@ -3535,7 +3545,7 @@ type SearchIndexCreateLinkClickedEvent = CommonEvent<{
   name: 'Search Index Create Link Clicked';
   payload: {
     /** The context/screen from which the link was clicked. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
     /** The type of index being created. */
     index_type: string;
   };
@@ -3551,7 +3561,7 @@ type SearchIndexViewDefinitionLinkClickedEvent = CommonEvent<{
   name: 'Search Index View Definition Link Clicked';
   payload: {
     /** The context/screen from which the link was clicked. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
   };
 }>;
 
@@ -3564,7 +3574,7 @@ type SearchIndexViewIndexesButtonClickedEvent = CommonEvent<{
   name: 'Search Index View Indexes Button Clicked';
   payload: {
     /** The context/screen from which the button was clicked. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
   };
 }>;
 
@@ -3578,7 +3588,7 @@ type IndexCreateActionClickedEvent = CommonEvent<{
   name: 'Index Create Action Clicked';
   payload: {
     /** The context/screen from which the action was clicked. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
     /** The type of index being created. */
     index_type: string;
   };
@@ -3593,7 +3603,7 @@ type IndexRefreshClickedEvent = CommonEvent<{
   name: 'Index Refresh Clicked';
   payload: {
     /** The context/screen from which the button was clicked. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
   };
 }>;
 
@@ -3606,7 +3616,7 @@ type SearchIndexCreateSubmittedEvent = CommonEvent<{
   name: 'Search Index Create Submitted';
   payload: {
     /** The context/screen from which the form was submitted. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
     /** The type of index being created. */
     index_type: string;
   };
@@ -3621,7 +3631,7 @@ type SearchIndexCreateCancelledEvent = CommonEvent<{
   name: 'Search Index Create Cancelled';
   payload: {
     /** The context/screen from which the cancel button was clicked. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
     /** The type of index that was being created. */
     index_type: string;
   };
@@ -3636,7 +3646,7 @@ type SearchIndexEditSubmittedEvent = CommonEvent<{
   name: 'Search Index Edit Submitted';
   payload: {
     /** The context/screen from which the form was submitted. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
     /** The type of index being edited. */
     index_type: string;
   };
@@ -3651,7 +3661,7 @@ type SearchIndexEditCancelledEvent = CommonEvent<{
   name: 'Search Index Edit Cancelled';
   payload: {
     /** The context/screen from which the cancel button was clicked. */
-    context: string;
+    context: SearchIndexesTelemetryContext;
     /** The type of index that was being edited. */
     index_type: string;
   };
