@@ -1,5 +1,4 @@
 import path from 'path';
-import url from 'url';
 import { glob } from 'glob';
 import crossSpawn from 'cross-spawn';
 import Mocha from 'mocha';
