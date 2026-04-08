@@ -401,7 +401,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       }
     }
     prevToolCallingEnabled.current = areToolCallsEnabled;
-  }, [areToolCallsEnabled, chat.messages, addToolApprovalResponse]);
+  }, [areToolCallsEnabled, chat, addToolApprovalResponse]);
 
   const handleMessageSend = useCallback(
     async ({ text, metadata }: SendMessageOptions) => {

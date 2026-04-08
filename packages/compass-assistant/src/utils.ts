@@ -15,8 +15,17 @@ export type ToolState = 'idle' | 'running' | 'success' | 'error' | 'canceled';
 // Type guard to check if a message part is an approval request
 export function partIsApprovalRequest(
   part: UIMessagePart<UIDataTypes, UITools>
-): part is UIMessagePart<UIDataTypes, UITools> & { approval: { id: string } } {
-  return (part as { state?: string }).state === 'approval-requested';
+): part is ToolUIPart & { approval: { id: string } } {
+  if (!partIsToolUI(part) || part.state !== 'approval-requested') {
+    return false;
+  }
+  const approval = (part as ToolUIPart & { approval?: unknown }).approval;
+  return (
+    typeof approval === 'object' &&
+    approval !== null &&
+    'id' in approval &&
+    typeof (approval as { id: unknown }).id === 'string'
+  );
 }
 
 // Type guard to check if a message part is a ToolUIPart
