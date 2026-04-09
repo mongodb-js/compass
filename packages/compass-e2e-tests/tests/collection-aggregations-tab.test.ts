@@ -991,6 +991,11 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
+    if (isTestingWebAtlasCloud()) {
+      // No $function on the free tier, skipping this test.
+      return this.skip();
+    }
+
     const unsubscribeAllowWarnings = allowServerWarnings(
       8996503, // Allow "$function is deprecated" warning
       (l: LogEntry) => {
