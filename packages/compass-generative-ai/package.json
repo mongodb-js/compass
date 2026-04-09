@@ -81,6 +81,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@faker-js/faker": "^9.0.0",
     "@mongodb-js/eslint-config-compass": "^1.4.20",
     "@mongodb-js/mocha-config-compass": "^1.7.7",
     "@mongodb-js/prettier-config-compass": "^1.2.9",

@@ -8,5 +8,6 @@ ignores:
  - '@types/react'
  - '@types/react-dom'
  - 'p-queue'
+ - '@faker-js/faker'
 ignore-patterns:
  - 'dist'
