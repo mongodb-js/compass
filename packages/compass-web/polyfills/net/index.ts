@@ -44,11 +44,6 @@ class Socket extends Duplex {
     this._localPort = transport.allocatePort();
 
     transport.registerSocket(this._localPort, {
-      onConnect: () => {
-        setTimeout(() => {
-          this.emit(options.tls ? 'secureConnect' : 'connect');
-        });
-      },
       onData: (data: Uint8Array) => {
         setTimeout(() => {
           this.push(Buffer.from(data));
@@ -64,11 +59,11 @@ class Socket extends Duplex {
       },
     });
 
-    transport.connectStream(
-      this._localPort,
-      this._remoteHost,
-      this._remotePort
-    );
+    // The websocket is connected already and we will emit the connect
+    // event so that driver sends the first message to the server.
+    setTimeout(() => {
+      this.emit(options.tls ? 'secureConnect' : 'connect');
+    });
 
     return this;
   }
@@ -150,18 +145,23 @@ class Socket extends Duplex {
       cb();
     });
   }
-  private _teardown(sendError = false): void {
+  private _teardown(errorMessage?: string): void {
     if (this._localPort === 0) return;
     const transport = getMultiplexTransport();
-    if (sendError && transport) {
-      transport.sendError(this._localPort, this._remoteHost, this._remotePort);
+    if (errorMessage && transport) {
+      transport.sendError(
+        this._localPort,
+        this._remoteHost,
+        this._remotePort,
+        errorMessage
+      );
     }
     transport?.unregisterSocket(this._localPort);
     this._localPort = 0;
   }
   destroy() {
     if (this._localPort !== 0) {
-      this._teardown(true);
+      this._teardown('Stream destroyed by client');
     } else {
       this._ws?.close();
     }
@@ -169,7 +169,7 @@ class Socket extends Duplex {
   }
   end(fn?: () => void) {
     if (this._localPort !== 0) {
-      this._teardown(true);
+      this._teardown('Stream ended by client');
       setTimeout(() => {
         fn?.();
       });

@@ -141,13 +141,13 @@ const WithMultiplexTransport = createServiceProvider(
       'enableMultiplexWebSocketOnWeb',
     ]);
     const atlasService = atlasServiceLocator();
+    const ccsUrl = atlasService.multiplexWebsocketEndpoint(projectId);
 
     useEffect(() => {
       if (!enableMultiplexWebSocketOnWeb) {
         return;
       }
 
-      const ccsUrl = atlasService.multiplexWebsocketEndpoint(projectId);
       if (!ccsUrl) {
         throw new Error('CCS WebSocket URL is not defined in the config');
       }
@@ -169,7 +169,7 @@ const WithMultiplexTransport = createServiceProvider(
         transport.close();
         setMultiplexTransport(null);
       };
-    }, [enableMultiplexWebSocketOnWeb, atlasService, projectId]);
+    }, [enableMultiplexWebSocketOnWeb, ccsUrl]);
 
     return <>{children}</>;
   }

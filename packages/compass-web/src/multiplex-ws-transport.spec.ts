@@ -8,7 +8,7 @@ import {
   buildFrame,
 } from './multiplex-ws-transport';
 import type {
-  FrameHeader,
+  Header,
   MultiplexSocketCallbacks,
 } from './multiplex-ws-transport';
 
@@ -97,13 +97,21 @@ class FakeWebSocket {
   }
 }
 
-function serverFrame(
+function serverFrame<V extends -1 | 1>(
   dp: number,
   payload = new Uint8Array(0),
-  v = 1
+  v: V = 1 as V,
+  er: V extends -1 ? string : never = '' as V extends -1 ? string : never
 ): ArrayBuffer {
   const frame = buildFrame(
-    { v, sa: 'localhost', sp: 0, da: 'localhost', dp, sz: payload.length },
+    {
+      sa: 'localhost',
+      sp: 0,
+      da: 'localhost',
+      dp,
+      sz: payload.length,
+      ...(v === -1 ? { er, v: -1 } : { v: 1 }),
+    },
     payload.length > 0 ? payload : undefined
   );
   // buildFrame returns a Uint8Array backed by its own buffer — slice to get
@@ -126,7 +134,6 @@ function makeCallbacks(): {
       onError: [],
     });
   const cb: MultiplexSocketCallbacks = {
-    onConnect: () => calls.onConnect.push([]),
     onData: (d) => calls.onData.push([d]),
     onClose: () => calls.onClose.push([]),
     onError: (e) => calls.onError.push([e]),
@@ -176,15 +183,6 @@ describe('MultiplexWebSocketTransport', function () {
       await connecting;
     });
 
-    it('returns the same promise on repeated calls', function () {
-      const transport = new MultiplexWebSocketTransport(
-        'wss://test.example.com/ccs'
-      );
-      const p1 = transport.connect();
-      const p2 = transport.connect();
-      expect(p1).to.equal(p2);
-    });
-
     it('rejects if the transport was already closed', async function () {
       const transport = new MultiplexWebSocketTransport(
         'wss://test.example.com/ccs'
@@ -210,17 +208,6 @@ describe('MultiplexWebSocketTransport', function () {
       ws = await connectTransport(transport);
     });
 
-    it('fires onConnect for a zero-payload ACK frame', function () {
-      const { calls, cb } = makeCallbacks();
-      const port = transport.allocatePort();
-      transport.registerSocket(port, cb);
-
-      ws.receiveMessage(serverFrame(port, new Uint8Array(0)));
-
-      expect(calls.onConnect).to.have.length(1);
-      expect(calls.onData).to.have.length(0);
-    });
-
     it('fires onData with the payload bytes', function () {
       const { calls, cb } = makeCallbacks();
       const port = transport.allocatePort();
@@ -238,7 +225,7 @@ describe('MultiplexWebSocketTransport', function () {
       const port = transport.allocatePort();
       transport.registerSocket(port, cb);
 
-      ws.receiveMessage(serverFrame(port, new Uint8Array(0), -1));
+      ws.receiveMessage(serverFrame(port, new Uint8Array(0), -1, 'Test error'));
 
       expect(calls.onError).to.have.length(1);
       // Socket is unregistered — subsequent messages for it are silently dropped
@@ -282,27 +269,6 @@ describe('MultiplexWebSocketTransport', function () {
     });
   });
 
-  describe('#connectStream()', function () {
-    it('sends a frame with the correct 5-tuple header fields', async function () {
-      const transport = new MultiplexWebSocketTransport(
-        'wss://test.example.com/ccs'
-      );
-      const ws = await connectTransport(transport);
-
-      const port = transport.allocatePort();
-      transport.connectStream(port, 'db.example.com', 27017);
-
-      expect(ws.sent).to.have.length(1);
-      const result = parseFrame(ws.sent[0]);
-      expect(result).to.not.be.null;
-      expect(result!.header.v).to.equal(1);
-      expect(result!.header.sa).to.equal('localhost');
-      expect(result!.header.sp).to.equal(port);
-      expect(result!.header.da).to.equal('db.example.com');
-      expect(result!.header.dp).to.equal(27017);
-    });
-  });
-
   describe('#sendData()', function () {
     it('sends a frame whose payload matches the provided data', async function () {
       const transport = new MultiplexWebSocketTransport(
@@ -327,28 +293,12 @@ describe('MultiplexWebSocketTransport', function () {
       );
       const ws = await connectTransport(transport);
 
-      transport.sendError(1, 'db.example.com', 27017);
+      transport.sendError(1, 'db.example.com', 27017, 'Test error');
 
       const result = parseFrame(ws.sent[0]);
       expect(result).to.not.be.null;
       expect(result!.header.v).to.equal(-1);
-    });
-  });
-
-  describe('pending frame buffering', function () {
-    it('buffers frames sent before the WebSocket opens and flushes on open', async function () {
-      const transport = new MultiplexWebSocketTransport(
-        'wss://test.example.com/ccs'
-      );
-      const connecting = transport.connect();
-      const ws = FakeWebSocket.latest();
-
-      transport.sendError(1, 'db.example.com', 27017);
-      expect(ws.sent).to.have.length(0); // still buffered
-
-      ws.open();
-      await connecting; // flush happens in the open handler (microtask)
-      expect(ws.sent).to.have.length(1);
+      expect(result!.header).to.have.property('er', 'Test error');
     });
   });
 
@@ -357,10 +307,10 @@ describe('MultiplexWebSocketTransport', function () {
       const transport = new MultiplexWebSocketTransport(
         'wss://test.example.com/ccs'
       );
-      await connectTransport(transport);
+      const ws = await connectTransport(transport);
 
-      // Code 1006 = abnormal closure, not in NO_RETRY_CLOSE_CODES
-      FakeWebSocket.latest().serverClose(1006);
+      // Code 1010, not in NO_RETRY_CLOSE_CODES
+      ws.serverClose(1010);
 
       expect(FakeWebSocket.instances).to.have.length(1); // no immediate reconnect
       clock.tick(501); // past first delay (500ms * 2^0)
@@ -371,9 +321,9 @@ describe('MultiplexWebSocketTransport', function () {
       const transport = new MultiplexWebSocketTransport(
         'wss://test.example.com/ccs'
       );
-      await connectTransport(transport);
+      const ws = await connectTransport(transport);
 
-      FakeWebSocket.latest().serverClose(1000);
+      ws.serverClose(1000);
       clock.tick(30_000);
 
       expect(FakeWebSocket.instances).to.have.length(1);
@@ -441,7 +391,7 @@ describe('MultiplexWebSocketTransport', function () {
   });
 
   describe('parseFrame / buildFrame', function () {
-    const baseHeader: FrameHeader = {
+    const baseHeader: Header = {
       v: 1,
       sa: 'localhost',
       sp: 42,
@@ -521,6 +471,41 @@ describe('MultiplexWebSocketTransport', function () {
         expect(result!.header.dp).to.equal(baseHeader.dp);
         expect(result!.payload).to.deep.equal(payload);
       });
+    });
+  });
+
+  describe('builds url correctly', function () {
+    function getWsUrl(path: string) {
+      const transport = new MultiplexWebSocketTransport(path);
+      // @ts-expect-error - accessing private method for testing
+      return transport.buildWsUrl();
+    }
+    it('handles absolute wss:// URLs', function () {
+      expect(getWsUrl('wss://test.example.com/ccs')).to.equal(
+        'wss://test.example.com/ccs'
+      );
+    });
+
+    it('handles absolute ws:// URLs', function () {
+      expect(getWsUrl('ws://test.example.com/ccs')).to.equal(
+        'ws://test.example.com/ccs'
+      );
+    });
+
+    it('resolves relative URLs against window.location', function () {
+      const expectedProtocol =
+        window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      expect(getWsUrl('/ccs')).to.equal(
+        `${expectedProtocol}//${window.location.host}/ccs`
+      );
+    });
+
+    it('resolves protocol-relative URLs', function () {
+      const expectedProtocol =
+        window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      expect(getWsUrl('//example.com/ccs')).to.equal(
+        `${expectedProtocol}//example.com/ccs`
+      );
     });
   });
 });

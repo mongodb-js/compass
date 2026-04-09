@@ -3,19 +3,20 @@
  * that multiplexes all MongoDB driver connections using BSON 5-tuple framing.
  *
  * Protocol frame layout (each WebSocket binary message):
- *   [BSON document: FrameHeader][raw payload bytes]
+ *   [BSON document: Header][raw payload bytes]
  *
- * FrameHeader fields:
+ * Header fields:
  *   v  – version (1 for normal frames, -1 for error/close signal)
  *   sa – source address   (client-side: "localhost")
  *   sp – source port      (client-side: locally allocated integer)
  *   da – destination address (MongoDB hostname)
  *   dp – destination port    (MongoDB port, e.g. 27017)
  *   sz – payload size in bytes
+ *   er – error message (only present when v=-1)
  *
  * Direction semantics:
- *   Client → Server: sa/sp identify the logical stream; da/dp identify the MongoDB endpoint.
- *   Server → Client: da/dp identify the logical stream back to the client
+ *   Client  ->  Server: sa/sp identify the logical stream; da/dp identify the MongoDB endpoint.
+ *   Server  ->  Client: da/dp identify the logical stream back to the client
  *                    (da="localhost", dp = the client's sp for that stream).
  *
  * Demultiplexing on the client side: dp in a server-to-client frame equals
@@ -29,38 +30,31 @@ import {
 
 /**
  * WebSocket close codes that must NOT trigger reconnection.
- * 1000 = normal closure (intentional), anything in this set is permanent.
  */
 const NO_RETRY_CLOSE_CODES = new Set([
   1000, // Normal closure
   1002, // Protocol error
-  1003, // Unsupported data
-  1007, // Invalid payload data
+  1006, // Abnormal closure
   1008, // Policy violation
   1009, // Message too big
-  1011, // Internal error (fatal server-side error)
-  1015, // TLS handshake failure
-
   3000, // Close code unauthorized
-  3003, // Close code forbidden
-
-  4004, // Close code not found
-  4029, // Close code too many connections
-  4100, // Close code application shut
-  4111, // Close code shutting down
+  3003, // Forbidden
+  4004, // Not found
+  4101, // Do not try again
 ]);
-export interface FrameHeader {
-  v: number;
+
+export type Routing = {
+  sz: number;
   sa: string;
   sp: number;
   da: string;
   dp: number;
-  sz: number;
-}
+};
+export type ErrorHeader = { v: -1; er: string };
+export type SuccessHeader = { v: 1 };
+export type Header = (SuccessHeader | ErrorHeader) & Routing;
 
 type MultiplexWebSocketTransportOptions = {
-  /** Protocol version to use. Defaults to 1. */
-  protocolVersion?: number;
   /** Source address to use in CONNECT frames. Defaults to "localhost". */
   sourceAddress?: string;
   /** Max number of reconnect attempts before giving up. Defaults to 5. */
@@ -71,8 +65,6 @@ type MultiplexWebSocketTransportOptions = {
 
 /** Callbacks called by the transport when events occur on a logical stream. */
 export interface MultiplexSocketCallbacks {
-  /** Called when the server acknowledges the logical stream is established. */
-  onConnect(): void;
   /** Called when payload bytes arrive from the server for this stream. */
   onData(data: Uint8Array): void;
   /** Called when the server gracefully closes this stream. */
@@ -81,20 +73,10 @@ export interface MultiplexSocketCallbacks {
   onError(err: Error): void;
 }
 
-function toAbsoluteWsUrl(url: string): string {
-  if (url.startsWith('/') || url.startsWith('//')) {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return url.startsWith('//')
-      ? `${protocol}${url}`
-      : `${protocol}//${window.location.host}${url}`;
-  }
-  return url;
-}
-
 /** Parse a WebSocket binary message into a (header, payload) pair. Returns null on malformed input. */
 export function parseFrame(
   data: Uint8Array
-): { header: FrameHeader; payload: Uint8Array } | null {
+): { header: Header; payload: Uint8Array } | null {
   if (data.length < 4) return null;
 
   // BSON documents start with a 4-byte little-endian int32 containing the total doc size.
@@ -105,7 +87,7 @@ export function parseFrame(
 
   try {
     const headerSlice = data.slice(0, headerSize);
-    const header = bsonDeserialize(headerSlice) as FrameHeader;
+    const header = bsonDeserialize(headerSlice) as Header;
     const payload = data.slice(headerSize);
     return { header, payload };
   } catch {
@@ -114,10 +96,7 @@ export function parseFrame(
 }
 
 /** Encode a header + optional payload into a WebSocket binary message. */
-export function buildFrame(
-  header: FrameHeader,
-  payload?: Uint8Array
-): Uint8Array {
+export function buildFrame(header: Header, payload?: Uint8Array): Uint8Array {
   const headerBytes = bsonSerialize(header);
   if (!payload || payload.length === 0) {
     return headerBytes;
@@ -141,11 +120,6 @@ export class MultiplexWebSocketTransport {
   private nextPort = 1;
   private reconnectAttempts = 0;
   private closed = false;
-  /**
-   * Frames buffered while the WebSocket is reconnecting — flushed when
-   * the new connection opens.
-   */
-  private pendingFrames: Uint8Array[] = [];
   private connectPromise: Promise<void> | null = null;
   private connectResolve: (() => void) | null = null;
   private connectReject: ((err: Error) => void) | null = null;
@@ -156,12 +130,10 @@ export class MultiplexWebSocketTransport {
       sourceAddress: 'localhost',
       maxReconnectAttempts: 5,
       baseReconnectDelayMs: 500,
-      protocolVersion: 1,
     }
   ) {
     this.baseUrl = baseUrl;
     this.options = {
-      protocolVersion: options.protocolVersion ?? 1,
       sourceAddress: options.sourceAddress ?? 'localhost',
       maxReconnectAttempts: options.maxReconnectAttempts ?? 5,
       baseReconnectDelayMs: options.baseReconnectDelayMs ?? 500,
@@ -169,13 +141,20 @@ export class MultiplexWebSocketTransport {
   }
 
   private buildWsUrl(): string {
-    return toAbsoluteWsUrl(this.baseUrl);
+    const url = this.baseUrl;
+    if (url.startsWith('wss://') || url.startsWith('ws://')) {
+      return url;
+    }
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    return url.startsWith('//')
+      ? `${protocol}${url}`
+      : `${protocol}//${window.location.host}${url}`;
   }
 
   /** Open the shared WebSocket. Returns a promise that resolves when the connection is ready. */
-  connect(): Promise<void> {
+  async connect(): Promise<void> {
     if (this.connectPromise) return this.connectPromise;
-    if (this.closed) return Promise.reject(new Error('Transport is closed'));
+    if (this.closed) throw new Error('Transport is closed');
 
     this.connectPromise = new Promise<void>((resolve, reject) => {
       this.connectResolve = resolve;
@@ -183,7 +162,7 @@ export class MultiplexWebSocketTransport {
       this.openWebSocket();
     });
 
-    return this.connectPromise;
+    return await this.connectPromise;
   }
 
   private openWebSocket(): void {
@@ -196,11 +175,6 @@ export class MultiplexWebSocketTransport {
       'open',
       () => {
         this.reconnectAttempts = 0;
-        // Flush frames buffered during a reconnect window
-        for (const frame of this.pendingFrames) {
-          ws.send(frame);
-        }
-        this.pendingFrames = [];
         this.connectResolve?.();
         this.connectResolve = null;
         this.connectReject = null;
@@ -219,7 +193,6 @@ export class MultiplexWebSocketTransport {
         const permanentClose = NO_RETRY_CLOSE_CODES.has(event.code);
         const exhaustedConnectAttempts =
           this.reconnectAttempts >= this.options.maxReconnectAttempts;
-
         if (!permanentClose && !exhaustedConnectAttempts) {
           this.reconnectAttempts++;
           const delay =
@@ -236,9 +209,7 @@ export class MultiplexWebSocketTransport {
           }, delay);
         } else {
           const err = new Error(
-            `WebSocket closed: code=${event.code} reason=${
-              event.reason || '(none)'
-            }`
+            `WebSocket closed: code=${event.code} reason=${event.reason}`
           );
           this.connectReject?.(err);
           this.connectResolve = null;
@@ -264,21 +235,15 @@ export class MultiplexWebSocketTransport {
 
     const { header, payload } = parsed;
 
-    // In server→client frames, `dp` is the client's local port (our sp).
+    // In server -> client frames, `dp` is the client's local port (our sp).
     const localPort = header.dp;
     const callbacks = this.sockets.get(localPort);
     if (!callbacks) return;
 
     if (header.v === -1) {
       // Server sent an error/close signal for this stream
-      callbacks.onError(new Error('Connection closed by remote'));
+      callbacks.onError(new Error(`Connection closed by remote: ${header.er}`));
       this.sockets.delete(localPort);
-      return;
-    }
-
-    if (header.sz === 0 && payload.length === 0) {
-      // Zero-payload acknowledgment: the logical stream is established
-      callbacks.onConnect();
       return;
     }
 
@@ -302,23 +267,6 @@ export class MultiplexWebSocketTransport {
     this.sockets.delete(localPort);
   }
 
-  /**
-   * Send the initial CONNECT frame for a new logical stream.
-   * An optional metadata payload (BSON-encoded) can carry routing info
-   * (e.g. projectId, clusterName) for the CCS service.
-   */
-  connectStream(localPort: number, destAddr: string, destPort: number): void {
-    const header: FrameHeader = {
-      v: this.options.protocolVersion,
-      sa: this.options.sourceAddress,
-      sp: localPort,
-      da: destAddr,
-      dp: destPort,
-      sz: 0,
-    };
-    this.sendRaw(buildFrame(header));
-  }
-
   /** Send a data frame for an established logical stream. */
   sendData(
     localPort: number,
@@ -326,8 +274,8 @@ export class MultiplexWebSocketTransport {
     destPort: number,
     data: Uint8Array
   ): void {
-    const header: FrameHeader = {
-      v: this.options.protocolVersion,
+    const header: Header = {
+      v: 1,
       sa: this.options.sourceAddress,
       sp: localPort,
       da: destAddr,
@@ -341,14 +289,20 @@ export class MultiplexWebSocketTransport {
    * Send a v=-1 error frame to signal that this logical stream is closing
    * (either because the driver closed the connection or the cluster disconnected).
    */
-  sendError(localPort: number, destAddr: string, destPort: number): void {
-    const header: FrameHeader = {
+  sendError(
+    localPort: number,
+    destAddr: string,
+    destPort: number,
+    errorMessage: string
+  ): void {
+    const header: Header = {
       v: -1,
       sa: this.options.sourceAddress,
       sp: localPort,
       da: destAddr,
       dp: destPort,
       sz: 0,
+      er: errorMessage,
     };
     this.sendRaw(buildFrame(header));
   }
@@ -356,16 +310,12 @@ export class MultiplexWebSocketTransport {
   private sendRaw(frame: Uint8Array): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(frame);
-    } else {
-      // Buffer until the WebSocket (re)connects
-      this.pendingFrames.push(frame);
     }
   }
 
   /** Close the shared WebSocket and notify all registered streams. */
   close(): void {
     this.closed = true;
-    this.pendingFrames = [];
     this.ws?.close(1000, 'tab closed');
     this.ws = null;
     this.connectPromise = null;
