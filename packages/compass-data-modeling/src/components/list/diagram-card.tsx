@@ -10,7 +10,7 @@ import {
   useDarkMode,
   useFormattedDate,
 } from '@mongodb-js/compass-components';
-import type { MongoDBDataModelDescription } from '../services/data-model-storage';
+import type { MongoDBDataModelDescription } from '../../services/data-model-storage';
 import React from 'react';
 
 // Same as saved-queries-aggregations
@@ -80,7 +80,7 @@ export function DiagramCard({
 }: {
   diagram: MongoDBDataModelDescription;
   onOpen: (diagram: MongoDBDataModelDescription) => void;
-  onRename: (id: string) => void;
+  onRename: (id: string, name: string) => void;
   onDelete: (id: string) => void;
 }) {
   const darkmode = useDarkMode();
@@ -111,7 +111,7 @@ export function DiagramCard({
           onAction={(action) => {
             switch (action) {
               case 'rename':
-                onRename(diagram.id);
+                onRename(diagram.id, diagram.name);
                 break;
               case 'delete':
                 onDelete(diagram.id);

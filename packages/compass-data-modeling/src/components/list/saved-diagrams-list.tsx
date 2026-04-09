@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
-import { createNewDiagram } from '../store/generate-diagram-wizard';
+import { createNewDiagram } from '../../store/generate-diagram-wizard';
 import {
   Button,
   css,
@@ -13,20 +13,20 @@ import {
   WorkspaceContainer,
   Body,
 } from '@mongodb-js/compass-components';
-import { useDataModelSavedItems } from '../provider';
+import { useDataModelSavedItems } from '../../provider';
 import {
   deleteDiagram,
   openDiagram,
   openDiagramFromFile,
-  showDiagramRenameModal,
-} from '../store/diagram';
-import type { MongoDBDataModelDescription } from '../services/data-model-storage';
-import CollaborateIcon from './icons/collaborate';
-import SchemaVisualizationIcon from './icons/schema-visualization';
-import FlexibilityIcon from './icons/flexibility';
+} from '../../store/diagram';
+import type { MongoDBDataModelDescription } from '../../services/data-model-storage';
+import CollaborateIcon from '../icons/collaborate';
+import SchemaVisualizationIcon from '../icons/schema-visualization';
+import FlexibilityIcon from '../icons/flexibility';
 import { CARD_HEIGHT, CARD_WIDTH, DiagramCard } from './diagram-card';
 import { DiagramListToolbar } from './diagram-list-toolbar';
 import { ImportDiagramButton } from './import-diagram-button';
+import { openRenameDiagramModal } from '../../store/rename-diagram-modal';
 
 const sortBy = [
   {
@@ -183,7 +183,7 @@ export const SavedDiagramsList: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
   onOpenDiagramClick: (diagram: MongoDBDataModelDescription) => void;
   onDiagramDeleteClick: (id: string) => void;
-  onDiagramRenameClick: (id: string) => void;
+  onDiagramRenameClick: (id: string, name: string) => void;
   onImportDiagramClick: (file: File) => void;
 }> = ({
   onCreateDiagramClick,
@@ -263,6 +263,6 @@ export default connect(null, {
   onCreateDiagramClick: createNewDiagram,
   onOpenDiagramClick: openDiagram,
   onDiagramDeleteClick: deleteDiagram,
-  onDiagramRenameClick: showDiagramRenameModal,
+  onDiagramRenameClick: openRenameDiagramModal,
   onImportDiagramClick: openDiagramFromFile,
 })(SavedDiagramsList);

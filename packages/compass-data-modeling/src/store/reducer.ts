@@ -26,6 +26,11 @@ import type {
   ReselectCollectionsWizardActionTypes,
 } from './reselect-collections-wizard';
 import { reselectCollectionsWizardReducer } from './reselect-collections-wizard';
+import {
+  renameDiagramModalReducer,
+  type RenameDiagramModalActions,
+  type RenameDiagramModalActionTypes,
+} from './rename-diagram-modal';
 
 const reducer = combineReducers({
   step: stepReducer,
@@ -33,6 +38,7 @@ const reducer = combineReducers({
   analysisProgress: analysisProcessReducer,
   diagram: diagramReducer,
   exportDiagram: exportDiagramReducer,
+  renameDiagramModal: renameDiagramModalReducer,
   reselectCollections: reselectCollectionsWizardReducer,
 });
 
@@ -41,12 +47,14 @@ export type DataModelingActions =
   | AnalysisProgressActions
   | DiagramActions
   | ExportDiagramActions
+  | RenameDiagramModalActions
   | ReselectCollectionsWizardActions;
 
 type _ActionTypes = typeof GenerateDiagramWizardActionTypes &
   typeof AnalysisProcessActionTypes &
   typeof DiagramActionTypes &
   typeof ExportDiagramActionTypes &
+  typeof RenameDiagramModalActionTypes &
   typeof ReselectCollectionsWizardActionTypes;
 
 export type DataModelingActionTypes = _ActionTypes[keyof _ActionTypes];

@@ -17,9 +17,9 @@ import {
   DMFormFieldContainer,
 } from './drawer-section-components';
 import { useChangeOnBlur } from './use-change-on-blur';
-import { getIsNewNameValid } from './util';
 import { useConnectionInfoForId } from '@mongodb-js/compass-connections/provider';
 import { useDataModelSavedItems } from '../../provider';
+import { useNewNameValidation } from '../../utils/use-new-name-validation';
 
 const infoContainerStyles = css({
   marginTop: spacing[400],
@@ -115,16 +115,12 @@ const DiagramOverviewDrawerContent: React.FunctionComponent<
   const {
     isValid: isDiagramNameValid,
     errorMessage: diagramNameEditErrorMessage,
-  } = useMemo(
-    () =>
-      getIsNewNameValid({
-        newName: diagramName,
-        existingNames: diagramNames,
-        currentName: _diagramName,
-        entity: 'Diagram',
-      }),
-    [diagramName, _diagramName, diagramNames]
-  );
+  } = useNewNameValidation({
+    newName: diagramName,
+    existingNames: diagramNames,
+    currentName: _diagramName,
+    entity: 'Diagram',
+  });
 
   return (
     <>
