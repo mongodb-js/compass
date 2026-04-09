@@ -32,10 +32,68 @@ permissions:
   contents: read
 
 jobs:
-  publish:
-    name: Upload compass-web entrypoint file to assets bucket
+  configure_deployments:
+    name: Configure deployments
     runs-on: ubuntu-latest
+    outputs:
+      environments: ${{ steps.define_environments.outputs.environments }}
+      commit_hash: ${{ steps.define_commit_hash.outputs.commit_hash }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.21.1
+          cache: 'npm'
+
+      - name: Install npm@10.2.4
+        run: |
+          npm install -g npm@10.2.4
+          npm -v
+
+      - id: define_environments
+        name: Define environments configurations
+        run: |
+          # Select all environments up to and including the one selected for the
+          # release
+          environments=""
+          for env in "dev" "qa" "staging" "prod"; do
+            environments+="\"$env\", "
+            if [[ $env == "${{ inputs.publish_environment }}" ]]; then
+              break
+            fi
+          done
+          environments=${environments/%, /} # remove trailing comma
+          echo "Publishing compass-web to $environments"
+          echo "environments=[$environments]" >> "$GITHUB_OUTPUT"
+      - id: define_commit_hash
+        name: Resolve release hash
+        env:
+          COMPASS_WEB_RELEASE_COMMIT: '${{ inputs.dangerously_override_commit_hash }}'
+        run: |
+          # Use latest dev deploy as a default one for the release: this matches
+          # our continuous deployment strategy
+          commit_hash=${COMPASS_WEB_RELEASE_COMMIT:-"$(npm run --silent latest-release -w packages/compass-web dev)"}
+          echo "Publishing compass-web version $commit_hash"
+          echo "commit_hash=$commit_hash" >> "$GITHUB_OUTPUT"
+
+  publish:
+    name: Publish compass-web ${{ needs.configure_deployments.outputs.commit_hash }} in ${{ matrix.environment }}
+    runs-on: ubuntu-latest
+    needs: configure_deployments
+    strategy:
+      # By using matrix with max parallel 1 we run the combinations in sequence
+      # one after another. The fail fast option guarantees that deploy doesn't
+      # proceed when a previous one failed
+      max-parallel: 1
+      fail-fast: true
+      matrix:
+        environment: ${{ fromJSON(needs.configure_deployments.outputs.environments) }}
     environment: compass-web
+    outputs:
+      environments: ${{ steps.check_if_deployed.outputs.already_deployed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,7 +107,7 @@ jobs:
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - name: Setup Node.js Environment
+      - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: 22.21.1
@@ -60,32 +118,50 @@ jobs:
           npm install -g npm@10.2.4
           npm -v
 
-      - name: Install Dependencies
+      - id: check_if_deployed
+        name: Check current release version for ${{ matrix.environment }} env
+        env:
+          COMPASS_WEB_RELEASE_COMMIT: ${{ needs.configure_deployments.outputs.commit_hash }}
+        run: |
+          current_release_commit_hash="$(npm run --silent latest-release -w packages/compass-web ${{ matrix.environment }})"
+          if [[ $current_release_commit_hash == $COMPASS_WEB_RELEASE_COMMIT ]]; then
+            echo "Release $COMPASS_WEB_RELEASE_COMMIT already published on ${{ matrix.environment }}"
+            echo "already_deployed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "Release $COMPASS_WEB_RELEASE_COMMIT is not published yet on ${{ matrix.environment }}"
+          fi
+
+      - name: Install dependencies
+        if: ${{ !steps.check_if_deployed.outputs.already_deployed }}
         run: |
           npm ci
 
       - name: Test compass-web with Atlas Cloud
-        if: ${{ !inputs.dangerously_skip_e2e_tests }}
+        # TODO(COMPASS-10576): can't run automated tests in staging, prod
+        # environments at the moment
+        if: ${{ !steps.check_if_deployed.outputs.already_deployed && !inputs.dangerously_skip_e2e_tests && contains(fromJSON('["dev", "qa"]'), matrix.environment) }}
         env:
           EVG_USER: ${{ secrets.EVERGREEN_SERVICE_USER_USERNAME }}
           EVG_API_KEY: ${{ secrets.EVERGREEN_SERVICE_USER_API_KEY }}
-          COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT: ${{ inputs.publish_environment }}
-          COMPASS_WEB_E2E_TEST_EVERGREEN_PATCH_DESCRIPTION: 'Test compass-web against Atlas ${{ inputs.publish_environment }} env before release (GHA: https://github.com/mongodb-js/compass/actions/runs/${{ github.run_id }})'
-          COMPASS_WEB_RELEASE_COMMIT: ${{ inputs.dangerously_override_commit_hash }}
+          COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT: ${{ matrix.environment }}
+          COMPASS_WEB_E2E_TEST_EVERGREEN_PATCH_DESCRIPTION: 'Test compass-web against Atlas ${{ matrix.environment }} env before release (GHA: https://github.com/mongodb-js/compass/actions/runs/${{ github.run_id }})'
+          COMPASS_WEB_RELEASE_COMMIT: ${{ needs.configure_deployments.outputs.commit_hash }}
         run: |
           npm run --workspace @mongodb-js/compass-web test-e2e-atlas
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS credentials
+        if: ${{ !steps.check_if_deployed.outputs.already_deployed }}
         uses: aws-actions/configure-aws-credentials@56d6a583f00f6bad6d19d91d53a7bc3b8143d0e9 # v5.1.1
         with:
           role-to-assume: arn:aws:iam::119629040606:role/s3-access.cdn-origin-compass
           aws-region: us-east-1
 
       - name: Upload updated entrypoint
+        if: ${{ !steps.check_if_deployed.outputs.already_deployed }}
         env:
           COMPASS_WEB_PUBLISH_DRY_RUN: ${{ inputs.dry_run }}
-          COMPASS_WEB_PUBLISH_ENVIRONMENT: ${{ inputs.publish_environment }}
-          COMPASS_WEB_RELEASE_COMMIT: ${{ inputs.dangerously_override_commit_hash }}
+          COMPASS_WEB_PUBLISH_ENVIRONMENT: ${{ matrix.environment }}
+          COMPASS_WEB_RELEASE_COMMIT: ${{ needs.configure_deployments.outputs.commit_hash }}
           # Set by "Configure AWS Credentials" step
           DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID: '${{ env.AWS_ACCESS_KEY_ID }}'
           DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY: '${{ env.AWS_SECRET_ACCESS_KEY }}'
