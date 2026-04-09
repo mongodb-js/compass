@@ -198,7 +198,7 @@ function buildWebArgs(yargs: Argv) {
       })
       .options('atlas-cloud-default-cluster-type', {
         type: 'string',
-        default: 'Dedicated',
+        default: 'Free',
         choices: ['GeoSharded', 'Free', 'Flex', 'Dedicated'],
         description: 'Cluster type to provision.',
       })
