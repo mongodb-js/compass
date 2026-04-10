@@ -2057,7 +2057,7 @@ const mflixMovieCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       {
         fieldPath: 'writers[]',
         fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Bech Hecht"]' }],
+        fakerArgs: [{ json: '["Ben Hecht"]' }],
       },
       {
         fieldPath: 'awards.wins',

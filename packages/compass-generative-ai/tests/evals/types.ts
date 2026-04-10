@@ -132,7 +132,7 @@ export type MockDataGeneratorExpectedField = Omit<
 
 export interface MockDataGeneratorExpected {
   response: {
-    fields: Array<MockDataGeneratorExpectedField | LlmCompletedField>;
+    fields: Array<MockDataGeneratorExpectedField>;
   };
 }
 

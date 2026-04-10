@@ -116,7 +116,7 @@ export const PercentRecognizedScorer = withSkipResultOnUnexpected(
     const unrecognizedFields = outputFields.filter(
       (field) => field.fakerMethod === UNRECOGNIZED_METHOD
     );
-    const unrecorgnizedFieldCount = unrecognizedFields.length;
+    const unrecognizedFieldCount = unrecognizedFields.length;
     const unrecognizedFieldPaths = unrecognizedFields.map(
       (field) => field.fieldPath
     );
@@ -125,11 +125,11 @@ export const PercentRecognizedScorer = withSkipResultOnUnexpected(
       name: 'FakerFieldPercentRecognized',
       score:
         totalFields > 0
-          ? (totalFields - unrecorgnizedFieldCount) / totalFields
+          ? (totalFields - unrecognizedFieldCount) / totalFields
           : 0,
       metadata: {
         totalFields,
-        unrecorgnizedFieldCount,
+        unrecognizedFieldCount,
         unrecognizedFields,
         unrecognizedFieldPaths,
       },
