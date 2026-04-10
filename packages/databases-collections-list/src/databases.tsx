@@ -238,6 +238,7 @@ const DatabasesList: React.FunctionComponent<{
       data-testid="databases-list"
       columns={columns}
       items={databases}
+      sortPersistKey="databases"
       itemType="database"
       onItemClick={onDatabaseClick}
       onDeleteItemClick={onDeleteDatabaseClick}

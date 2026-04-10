@@ -163,6 +163,7 @@ export const AggregationsQueriesList = ({
   // search results are sorted by match score
   const [sortControls, sortState] = useSortControls(sortBy, {
     isDisabled: Boolean(search),
+    persistId: 'my-queries',
   });
 
   useTrackOnChange(

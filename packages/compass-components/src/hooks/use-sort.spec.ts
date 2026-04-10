@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import sinon from 'sinon';
 import {
   render,
   screen,
@@ -186,5 +187,64 @@ describe('use-sort', function () {
       useSortedItems(items as Record<string, unknown>[], result.current[1])
     );
     expect(sortedItems).to.deep.equal(items);
+  });
+
+  describe('persistId', function () {
+    let localStorageValues: Record<string, string>;
+
+    beforeEach(function () {
+      localStorageValues = {};
+      sinon.stub(global, 'localStorage').value({
+        getItem: sinon.fake((key: string) => {
+          return localStorageValues[key] ?? null;
+        }),
+        setItem: sinon.fake((key: string, value: any) => {
+          localStorageValues[key] = value.toString();
+        }),
+      });
+    });
+
+    afterEach(function () {
+      sinon.restore();
+    });
+
+    it('should update localStorage when sort order changes', function () {
+      const { result } = renderHook(() =>
+        useSortControls(sortBy, { persistId: 'test-order' })
+      );
+      render(result.current[0]);
+
+      userEvent.click(screen.getByTitle(/sortascending/i));
+
+      const { result: reRenderedResult } = renderHook(() =>
+        useSortControls(sortBy, { persistId: 'test-order' })
+      );
+      expect(reRenderedResult.current[1]).to.deep.equal({
+        name: 'title',
+        order: -1,
+      });
+      const stored = JSON.parse(localStorageValues['compass-sort-test-order']);
+      expect(stored).to.deep.equal({ name: 'title', order: -1 });
+    });
+
+    it('should restore sort state from localStorage', function () {
+      localStorageValues['compass-sort-test-persist'] = JSON.stringify({
+        name: 'age',
+        order: -1,
+      });
+
+      const { result } = renderHook(() =>
+        useSortControls(sortBy, { persistId: 'test-persist' })
+      );
+
+      expect(result.current[1]).to.deep.equal({ name: 'age', order: -1 });
+    });
+
+    it('should not persist when persistId is not provided', function () {
+      renderHook(() => useSortControls(sortBy));
+
+      expect(localStorageValues['compass-sort-test-no-persist']).to.be
+        .undefined;
+    });
   });
 });

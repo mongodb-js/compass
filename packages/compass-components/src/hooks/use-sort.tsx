@@ -1,8 +1,9 @@
-import React, { useReducer, useMemo } from 'react';
+import React, { useCallback, useReducer, useMemo } from 'react';
 import { useId } from '@react-aria/utils';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Button, Icon, Label, Option, Select } from '../components/leafygreen';
+import { usePersistedState } from './use-persisted-state';
 
 const controlsContainer = css({
   display: 'flex',
@@ -33,6 +34,7 @@ type SortAction<T> =
 
 type SortOptions = {
   isDisabled?: boolean;
+  persistId?: string;
 };
 
 type Unwrap<T extends ArrayLike<unknown>> = T extends ArrayLike<infer V>
@@ -45,8 +47,19 @@ export function useSortControls<T extends string>(
 ): [React.ReactElement, SortState<Unwrap<typeof items>['name']>] {
   const labelId = 'sort-by';
   const controlId = useId();
+  const persistId = options?.persistId;
 
-  const [sortState, dispatch] = useReducer(
+  const defaultState: SortState<T> = useMemo(
+    () => ({ name: items[0]?.name ?? null, order: 1 }),
+    [items]
+  );
+
+  const [persistedState, setPersistedState] = usePersistedState<SortState<T>>(
+    `compass-sort-${persistId ?? ''}`,
+    defaultState
+  );
+
+  const [localState, dispatch] = useReducer(
     (state: SortState<T>, action: SortAction<T>): SortState<T> => {
       if (action.type === 'change-name' && action.name !== state.name) {
         return {
@@ -62,8 +75,32 @@ export function useSortControls<T extends string>(
       }
       return state;
     },
-    { name: items[0]?.name ?? null, order: 1 }
+    defaultState
   );
+
+  const sortState = persistId ? persistedState : localState;
+
+  const onChangeName = useCallback(
+    (name: T | null) => {
+      if (persistId) {
+        setPersistedState((prev) => ({ ...prev, name }));
+      } else {
+        dispatch({ type: 'change-name', name });
+      }
+    },
+    [persistId, setPersistedState]
+  );
+
+  const onChangeOrder = useCallback(() => {
+    if (persistId) {
+      setPersistedState((prev) => ({
+        ...prev,
+        order: (prev.order * -1) as SortOrder,
+      }));
+    } else {
+      dispatch({ type: 'change-order' });
+    }
+  }, [persistId, setPersistedState]);
 
   const sortControls = useMemo(() => {
     const glyph =
@@ -88,7 +125,7 @@ export function useSortControls<T extends string>(
           className={select}
           style={{ minWidth: `calc(${longestLabel}ch + ${spacing[1600]}px)` }}
           onChange={(value) => {
-            dispatch({ type: 'change-name', name: (value as T) || null });
+            onChangeName((value as T) || null);
           }}
           defaultValue={sortState.name ?? undefined}
         >
@@ -102,14 +139,20 @@ export function useSortControls<T extends string>(
           aria-label={glyph}
           title={glyph}
           rightGlyph={<Icon glyph={glyph}></Icon>}
-          onClick={() => {
-            dispatch({ type: 'change-order' });
-          }}
+          onClick={onChangeOrder}
           disabled={sortState.name === null || options?.isDisabled}
         ></Button>
       </div>
     );
-  }, [sortState, items, labelId, controlId, options?.isDisabled]);
+  }, [
+    sortState,
+    items,
+    labelId,
+    controlId,
+    options?.isDisabled,
+    onChangeName,
+    onChangeOrder,
+  ]);
 
   return [
     sortControls,

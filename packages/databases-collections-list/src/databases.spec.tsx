@@ -2,7 +2,6 @@ import React from 'react';
 import {
   render,
   screen,
-  cleanup,
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
@@ -77,8 +76,6 @@ describe('Databases', function () {
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
   });
-
-  afterEach(cleanup);
 
   const renderDatabasesList = (
     props: Partial<React.ComponentProps<typeof DatabasesList>>
@@ -272,5 +269,62 @@ describe('Databases', function () {
     expect(screen.getByRole('tooltip').textContent).to.equal(
       'Your privileges grant you access to this namespace, but it might not currently exist'
     );
+  });
+
+  describe('sort persistence', function () {
+    let localStorageValues: Record<string, string>;
+
+    beforeEach(function () {
+      localStorageValues = {};
+      Sinon.stub(global, 'localStorage').value({
+        getItem: Sinon.fake((key: string) => {
+          return localStorageValues[key] ?? null;
+        }),
+        setItem: Sinon.fake((key: string, value: string) => {
+          localStorageValues[key] = value.toString();
+        }),
+      });
+    });
+
+    afterEach(function () {
+      Sinon.restore();
+    });
+
+    it('restores sort order on re-render', async function () {
+      const { unmount } = render(
+        <PreferencesProvider value={preferences}>
+          <DatabasesList databases={dbs} onDatabaseClick={Sinon.spy()} />
+        </PreferencesProvider>
+      );
+
+      userEvent.click(screen.getByLabelText('Sort by Database name'));
+      await waitFor(() => {
+        const result = inspectTable(screen, 'databases-list');
+        expect(result.getColumn('Database name')).to.deep.equal([
+          'bar',
+          'bat',
+          'buz',
+          'foo',
+        ]);
+      });
+
+      unmount();
+
+      render(
+        <PreferencesProvider value={preferences}>
+          <DatabasesList databases={dbs} onDatabaseClick={Sinon.spy()} />
+        </PreferencesProvider>
+      );
+
+      await waitFor(() => {
+        const result = inspectTable(screen, 'databases-list');
+        expect(result.getColumn('Database name')).to.deep.equal([
+          'bar',
+          'bat',
+          'buz',
+          'foo',
+        ]);
+      });
+    });
   });
 });

@@ -620,4 +620,62 @@ describe('Collections', () => {
     expect(tooltipText).to.include('Free:');
     expect(tooltipText).to.not.include('Data Size:');
   });
+
+  describe('sort persistence', function () {
+    let localStorageValues: Record<string, string>;
+
+    beforeEach(function () {
+      localStorageValues = {};
+      Sinon.stub(global, 'localStorage').value({
+        getItem: Sinon.fake((key: string) => {
+          return localStorageValues[key] ?? null;
+        }),
+        setItem: Sinon.fake((key: string, value: string) => {
+          localStorageValues[key] = value.toString();
+        }),
+      });
+    });
+
+    afterEach(function () {
+      Sinon.restore();
+    });
+
+    it('restores sort order on re-render', async function () {
+      const { unmount } = render(
+        <PreferencesProvider value={preferences}>
+          <CollectionsList
+            namespace="db"
+            collections={colls}
+            onCollectionClick={Sinon.spy()}
+          />
+        </PreferencesProvider>
+      );
+
+      expect(
+        inspectTable(screen, 'collections-list').getColumn('Collection name')[0]
+      ).to.equal('foo');
+      userEvent.click(screen.getByLabelText('Sort by Collection name'));
+      await waitFor(() => {
+        const result = inspectTable(screen, 'collections-list');
+        expect(result.getColumn('Collection name')[0]).to.equal('bar');
+      });
+
+      unmount();
+
+      render(
+        <PreferencesProvider value={preferences}>
+          <CollectionsList
+            namespace="db"
+            collections={colls}
+            onCollectionClick={Sinon.spy()}
+          />
+        </PreferencesProvider>
+      );
+
+      await waitFor(() => {
+        const result = inspectTable(screen, 'collections-list');
+        expect(result.getColumn('Collection name')[0]).to.equal('bar');
+      });
+    });
+  });
 });

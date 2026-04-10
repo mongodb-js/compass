@@ -202,7 +202,9 @@ export const SavedDiagramsList: React.FunctionComponent<{
       return items;
     }
   }, [items, search]);
-  const [sortControls, sortState] = useSortControls(sortBy);
+  const [sortControls, sortState] = useSortControls(sortBy, {
+    persistId: 'data-models',
+  });
   const sortedItems = useSortedItems(filteredItems, sortState);
 
   if (status === 'INITIAL' || status === 'LOADING') {

@@ -10,6 +10,7 @@ import type {
   CellContext,
   LeafyGreenVirtualTable,
   LeafyGreenTable,
+  SortingState,
 } from '@mongodb-js/compass-components';
 import {
   css,
@@ -31,6 +32,7 @@ import {
   Cell,
   ItemActionGroup,
   useLeafyGreenTable,
+  usePersistedState,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -60,6 +62,7 @@ type ItemsTableProps<T> = {
   itemType: 'collection' | 'database';
   columns: LGColumnDef<T>[];
   items: T[];
+  sortPersistKey?: string;
   onItemClick: (id: string) => void;
   onDeleteItemClick?: (id: string) => void;
   onCreateItemClick?: () => void;
@@ -98,6 +101,17 @@ const breadcrumbContainerStyles = css({
 const pushRightStyles = css({
   marginLeft: 'auto',
 });
+
+const EMPTY_SORTING: SortingState = [];
+
+function usePersistedSorting(sortPersistKey?: string) {
+  const [sorting, setSorting] = usePersistedState<SortingState>(
+    `compass-sort-${sortPersistKey ?? ''}`,
+    EMPTY_SORTING
+  );
+
+  return sortPersistKey ? { sorting, onSortingChange: setSorting } : {};
+}
 
 const bannerRowStyles = css({
   paddingTop: spacing[200],
@@ -503,6 +517,7 @@ export const VirtualItemsTable = <T extends Item>({
   itemType,
   columns,
   items,
+  sortPersistKey,
   onItemClick,
   onDeleteItemClick,
   onCreateItemClick,
@@ -515,6 +530,8 @@ export const VirtualItemsTable = <T extends Item>({
     return calculateColumnsWithActions(columns, onDeleteItemClick);
   }, [columns, onDeleteItemClick]);
 
+  const persistedSorting = usePersistedSorting(sortPersistKey);
+
   const table = useLeafyGreenVirtualTable<T>({
     containerRef: tableContainerRef,
     data: items,
@@ -523,6 +540,12 @@ export const VirtualItemsTable = <T extends Item>({
       estimateSize: () => 40,
       overscan: 10,
     },
+    ...(persistedSorting.sorting
+      ? {
+          state: { sorting: persistedSorting.sorting },
+          onSortingChange: persistedSorting.onSortingChange,
+        }
+      : {}),
   });
 
   const rowItems = mapVirtualRowItems(table);
@@ -560,6 +583,7 @@ export const ItemsTable = <T extends Item>({
   itemType,
   columns,
   items,
+  sortPersistKey,
   onItemClick,
   onDeleteItemClick,
   onCreateItemClick,
@@ -570,9 +594,18 @@ export const ItemsTable = <T extends Item>({
     return calculateColumnsWithActions(columns, onDeleteItemClick);
   }, [columns, onDeleteItemClick]);
 
+  const persistedSorting = usePersistedSorting(sortPersistKey);
+
   const table = useLeafyGreenTable<T>({
     data: items,
     columns: columnsWithActions,
+    ...(persistedSorting.sorting
+      ? {
+          // TODO
+          state: { sorting: persistedSorting.sorting },
+          onSortingChange: persistedSorting.onSortingChange,
+        }
+      : {}),
   });
 
   const rowItems = mapRowItems(table);

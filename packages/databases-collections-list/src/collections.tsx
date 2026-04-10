@@ -498,6 +498,7 @@ const CollectionsList: React.FunctionComponent<{
       namespace={namespace}
       columns={columns}
       items={collections}
+      sortPersistKey="collections"
       itemType="collection"
       onItemClick={onCollectionClick}
       onDeleteItemClick={onDeleteCollectionClick}
