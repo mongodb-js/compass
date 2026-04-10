@@ -1,9 +1,9 @@
-import React, { useCallback, useReducer, useMemo } from 'react';
+import React, { useReducer, useMemo } from 'react';
 import { useId } from '@react-aria/utils';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Button, Icon, Label, Option, Select } from '../components/leafygreen';
-import { usePersistedState } from './use-persisted-state';
+import { useEffectOnChange } from './use-effect-on-change';
 
 const controlsContainer = css({
   display: 'flex',
@@ -32,9 +32,10 @@ type SortAction<T> =
   | { type: 'change-name'; name: T | null }
   | { type: 'change-order' };
 
-type SortOptions = {
+type SortOptions<T> = {
   isDisabled?: boolean;
-  persistId?: string;
+  initialState?: SortState<T>;
+  onChange?: (state: SortState<T>) => void;
 };
 
 type Unwrap<T extends ArrayLike<unknown>> = T extends ArrayLike<infer V>
@@ -43,23 +44,12 @@ type Unwrap<T extends ArrayLike<unknown>> = T extends ArrayLike<infer V>
 
 export function useSortControls<T extends string>(
   items: readonly { name: T; label: string }[],
-  options?: SortOptions
+  options?: SortOptions<T>
 ): [React.ReactElement, SortState<Unwrap<typeof items>['name']>] {
   const labelId = 'sort-by';
   const controlId = useId();
-  const persistId = options?.persistId;
 
-  const defaultState: SortState<T> = useMemo(
-    () => ({ name: items[0]?.name ?? null, order: 1 }),
-    [items]
-  );
-
-  const [persistedState, setPersistedState] = usePersistedState<SortState<T>>(
-    `compass-sort-${persistId ?? ''}`,
-    defaultState
-  );
-
-  const [localState, dispatch] = useReducer(
+  const [sortState, dispatch] = useReducer(
     (state: SortState<T>, action: SortAction<T>): SortState<T> => {
       if (action.type === 'change-name' && action.name !== state.name) {
         return {
@@ -75,32 +65,14 @@ export function useSortControls<T extends string>(
       }
       return state;
     },
-    defaultState
+    options?.initialState ?? { name: items[0]?.name ?? null, order: 1 }
   );
 
-  const sortState = persistId ? persistedState : localState;
-
-  const onChangeName = useCallback(
-    (name: T | null) => {
-      if (persistId) {
-        setPersistedState((prev) => ({ ...prev, name }));
-      } else {
-        dispatch({ type: 'change-name', name });
-      }
-    },
-    [persistId, setPersistedState]
-  );
-
-  const onChangeOrder = useCallback(() => {
-    if (persistId) {
-      setPersistedState((prev) => ({
-        ...prev,
-        order: (prev.order * -1) as SortOrder,
-      }));
-    } else {
-      dispatch({ type: 'change-order' });
-    }
-  }, [persistId, setPersistedState]);
+  // The sort controls are self contained, however, consumers
+  // may want to persist the sort state or react to changes.
+  useEffectOnChange(() => {
+    options?.onChange?.(sortState);
+  }, sortState);
 
   const sortControls = useMemo(() => {
     const glyph =
@@ -125,7 +97,7 @@ export function useSortControls<T extends string>(
           className={select}
           style={{ minWidth: `calc(${longestLabel}ch + ${spacing[1600]}px)` }}
           onChange={(value) => {
-            onChangeName((value as T) || null);
+            dispatch({ type: 'change-name', name: (value as T) || null });
           }}
           defaultValue={sortState.name ?? undefined}
         >
@@ -139,20 +111,14 @@ export function useSortControls<T extends string>(
           aria-label={glyph}
           title={glyph}
           rightGlyph={<Icon glyph={glyph}></Icon>}
-          onClick={onChangeOrder}
+          onClick={() => {
+            dispatch({ type: 'change-order' });
+          }}
           disabled={sortState.name === null || options?.isDisabled}
         ></Button>
       </div>
     );
-  }, [
-    sortState,
-    items,
-    labelId,
-    controlId,
-    options?.isDisabled,
-    onChangeName,
-    onChangeOrder,
-  ]);
+  }, [sortState, items, labelId, controlId, options?.isDisabled]);
 
   return [
     sortControls,

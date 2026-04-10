@@ -12,6 +12,7 @@ import {
   Link,
   WorkspaceContainer,
   Body,
+  usePersistedState,
 } from '@mongodb-js/compass-components';
 import { useDataModelSavedItems } from '../provider';
 import {
@@ -202,8 +203,14 @@ export const SavedDiagramsList: React.FunctionComponent<{
       return items;
     }
   }, [items, search]);
+
+  const [initialSortState, setSortState] = usePersistedState<{
+    name: (typeof sortBy)[number]['name'] | null;
+    order: 1 | -1;
+  }>('saved-diagrams-list-controls', { name: sortBy[0].name, order: 1 });
   const [sortControls, sortState] = useSortControls(sortBy, {
-    persistId: 'data-models',
+    initialState: initialSortState,
+    onChange: setSortState,
   });
   const sortedItems = useSortedItems(filteredItems, sortState);
 

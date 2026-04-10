@@ -32,13 +32,15 @@ import {
   Cell,
   ItemActionGroup,
   useLeafyGreenTable,
-  usePersistedState,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import toNS from 'mongodb-ns';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
+import {
+  useOpenWorkspace,
+  useTabState,
+} from '@mongodb-js/compass-workspaces/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import {
   buildChartsUrl,
@@ -62,7 +64,6 @@ type ItemsTableProps<T> = {
   itemType: 'collection' | 'database';
   columns: LGColumnDef<T>[];
   items: T[];
-  sortPersistKey?: string;
   onItemClick: (id: string) => void;
   onDeleteItemClick?: (id: string) => void;
   onCreateItemClick?: () => void;
@@ -103,15 +104,6 @@ const pushRightStyles = css({
 });
 
 const EMPTY_SORTING: SortingState = [];
-
-function usePersistedSorting(sortPersistKey?: string) {
-  const [sorting, setSorting] = usePersistedState<SortingState>(
-    `compass-sort-${sortPersistKey ?? ''}`,
-    EMPTY_SORTING
-  );
-
-  return sortPersistKey ? { sorting, onSortingChange: setSorting } : {};
-}
 
 const bannerRowStyles = css({
   paddingTop: spacing[200],
@@ -517,7 +509,6 @@ export const VirtualItemsTable = <T extends Item>({
   itemType,
   columns,
   items,
-  sortPersistKey,
   onItemClick,
   onDeleteItemClick,
   onCreateItemClick,
@@ -530,7 +521,10 @@ export const VirtualItemsTable = <T extends Item>({
     return calculateColumnsWithActions(columns, onDeleteItemClick);
   }, [columns, onDeleteItemClick]);
 
-  const persistedSorting = usePersistedSorting(sortPersistKey);
+  const [sortState, setSortState] = useTabState(
+    `${itemType}-list-virtual-items-table`,
+    EMPTY_SORTING
+  );
 
   const table = useLeafyGreenVirtualTable<T>({
     containerRef: tableContainerRef,
@@ -540,12 +534,8 @@ export const VirtualItemsTable = <T extends Item>({
       estimateSize: () => 40,
       overscan: 10,
     },
-    ...(persistedSorting.sorting
-      ? {
-          state: { sorting: persistedSorting.sorting },
-          onSortingChange: persistedSorting.onSortingChange,
-        }
-      : {}),
+    state: { sorting: sortState },
+    onSortingChange: setSortState,
   });
 
   const rowItems = mapVirtualRowItems(table);
@@ -583,7 +573,6 @@ export const ItemsTable = <T extends Item>({
   itemType,
   columns,
   items,
-  sortPersistKey,
   onItemClick,
   onDeleteItemClick,
   onCreateItemClick,
@@ -594,17 +583,16 @@ export const ItemsTable = <T extends Item>({
     return calculateColumnsWithActions(columns, onDeleteItemClick);
   }, [columns, onDeleteItemClick]);
 
-  const persistedSorting = usePersistedSorting(sortPersistKey);
+  const [sortState, setSortState] = useTabState(
+    `${itemType}-list-virtual-items-table`,
+    EMPTY_SORTING
+  );
 
   const table = useLeafyGreenTable<T>({
     data: items,
     columns: columnsWithActions,
-    ...(persistedSorting.sorting
-      ? {
-          state: { sorting: persistedSorting.sorting },
-          onSortingChange: persistedSorting.onSortingChange,
-        }
-      : {}),
+    state: { sorting: sortState },
+    onSortingChange: setSortState,
   });
 
   const rowItems = mapRowItems(table);

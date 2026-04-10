@@ -5,6 +5,7 @@ import {
   screen,
   userEvent,
   renderHook,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { useSortControls, useSortedItems } from './use-sort';
 
@@ -189,62 +190,33 @@ describe('use-sort', function () {
     expect(sortedItems).to.deep.equal(items);
   });
 
-  describe('persistId', function () {
-    let localStorageValues: Record<string, string>;
+  it('should call onChange when sort order changes', async function () {
+    const onChangeStub = sinon.stub();
+    const { result } = renderHook(() =>
+      useSortControls(sortBy, {
+        initialState: { name: 'title', order: 1 },
+        onChange: onChangeStub,
+      })
+    );
+    render(result.current[0]);
 
-    beforeEach(function () {
-      localStorageValues = {};
-      sinon.stub(global, 'localStorage').value({
-        getItem: sinon.fake((key: string) => {
-          return localStorageValues[key] ?? null;
-        }),
-        setItem: sinon.fake((key: string, value: any) => {
-          localStorageValues[key] = value.toString();
-        }),
-      });
+    expect(onChangeStub.called).to.be.false;
+
+    userEvent.click(screen.getByTitle(/sortascending/i));
+
+    await waitFor(() => {
+      expect(onChangeStub.calledOnceWith({ name: 'title', order: -1 })).to.be
+        .true;
     });
+  });
 
-    afterEach(function () {
-      sinon.restore();
-    });
+  it('should use initial state when provided', function () {
+    const { result } = renderHook(() =>
+      useSortControls(sortBy, { initialState: { name: 'age', order: -1 } })
+    );
+    render(result.current[0]);
 
-    it('should update localStorage when sort order changes', function () {
-      const { result } = renderHook(() =>
-        useSortControls(sortBy, { persistId: 'test-order' })
-      );
-      render(result.current[0]);
-
-      userEvent.click(screen.getByTitle(/sortascending/i));
-
-      const { result: reRenderedResult } = renderHook(() =>
-        useSortControls(sortBy, { persistId: 'test-order' })
-      );
-      expect(reRenderedResult.current[1]).to.deep.equal({
-        name: 'title',
-        order: -1,
-      });
-      const stored = JSON.parse(localStorageValues['compass-sort-test-order']);
-      expect(stored).to.deep.equal({ name: 'title', order: -1 });
-    });
-
-    it('should restore sort state from localStorage', function () {
-      localStorageValues['compass-sort-test-persist'] = JSON.stringify({
-        name: 'age',
-        order: -1,
-      });
-
-      const { result } = renderHook(() =>
-        useSortControls(sortBy, { persistId: 'test-persist' })
-      );
-
-      expect(result.current[1]).to.deep.equal({ name: 'age', order: -1 });
-    });
-
-    it('should not persist when persistId is not provided', function () {
-      renderHook(() => useSortControls(sortBy));
-
-      expect(localStorageValues['compass-sort-test-no-persist']).to.be
-        .undefined;
-    });
+    expect(screen.queryByText('Title'), 'Title should not exist').to.not.exist;
+    expect(screen.getByText('Age'), 'Age is the initial sort').to.be.visible;
   });
 });
