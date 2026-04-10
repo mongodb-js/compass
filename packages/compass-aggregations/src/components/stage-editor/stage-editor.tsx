@@ -266,6 +266,7 @@ export const StageEditor = ({
         showSearchIndexDoesNotExistBanner &&
         isSearchStage(stageOperator) && (
           <SearchIndexDoesNotExistBanner
+            searchIndexName={searchIndexName}
             searchStageOperator={stageOperator}
             // Don't show links when in focus mode as modal covers the drawer
             onViewIndexesClick={

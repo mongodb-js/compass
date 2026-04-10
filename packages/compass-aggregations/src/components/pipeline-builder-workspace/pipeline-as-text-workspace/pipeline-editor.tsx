@@ -204,6 +204,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
             searchStageOperator &&
             showSearchIndexDoesNotExistBanner ? (
             <SearchIndexDoesNotExistBanner
+              searchIndexName={searchIndexName}
               searchStageOperator={searchStageOperator}
               onViewIndexesClick={onViewSearchIndexesClick}
               onCreateSearchIndexClick={onCreateSearchIndexClick}

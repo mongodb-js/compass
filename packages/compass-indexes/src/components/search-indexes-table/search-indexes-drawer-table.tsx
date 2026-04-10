@@ -163,9 +163,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
         <SearchIndexActions
           index={index}
           onDropIndex={onDropIndexClick}
-          onEditIndex={
-            index.status === 'BUILDING' ? undefined : onEditIndexClick
-          }
+          onEditIndex={onEditIndexClick}
         />
       );
     },
