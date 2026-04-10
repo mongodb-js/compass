@@ -1,5 +1,19 @@
-import type { MockDataGeneratorCaseConfig } from '../types';
+import type {
+  MockDataGeneratorCaseConfig,
+  MockDataInputFieldSchema,
+} from '../types';
 import { DatelikeMethodCriterion, IdlikeMethodCriterion } from '../types';
+
+function removeSampleValues(
+  schema: MockDataInputFieldSchema
+): MockDataInputFieldSchema {
+  return Object.fromEntries(
+    Object.entries(schema).map(([key, { sampleValues, ...rest }]) => [
+      key,
+      rest,
+    ])
+  );
+}
 
 // --- Simple Case ---
 
@@ -265,12 +279,7 @@ const chargeCreditCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
     name: 'Charge Credit Example Without Sample Values',
     hasSampleValues: false,
   },
-  providedSchema: Object.fromEntries(
-    Object.entries(chargeCreditCase.providedSchema).map(([key, value]) => {
-      const { sampleValues, ...rest } = value;
-      return [key, rest];
-    })
-  ),
+  providedSchema: removeSampleValues(chargeCreditCase.providedSchema),
   expectedResponse: {
     fields: [
       {
@@ -1086,12 +1095,7 @@ const fundingEventCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
     name: 'Funding Event Example (no sample values)',
     hasSampleValues: false,
   },
-  providedSchema: Object.fromEntries(
-    Object.entries(fundingEventCase.providedSchema).map(([key, value]) => {
-      const { sampleValues, ...rest } = value;
-      return [key, rest];
-    })
-  ),
+  providedSchema: removeSampleValues(fundingEventCase.providedSchema),
   expectedResponse: {
     fields: [
       {
@@ -1450,12 +1454,7 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
     name: 'Weather Gridpoint Example (no sample values)',
     hasSampleValues: false,
   },
-  providedSchema: Object.fromEntries(
-    Object.entries(weatherGridpointCase.providedSchema).map(([key, value]) => {
-      const { sampleValues, ...rest } = value;
-      return [key, rest];
-    })
-  ),
+  providedSchema: removeSampleValues(weatherGridpointCase.providedSchema),
   expectedResponse: {
     fields: [
       {
@@ -1986,12 +1985,7 @@ const mflixMovieCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
     name: 'Mflix Movie Example (no sample values)',
     hasSampleValues: false,
   },
-  providedSchema: Object.fromEntries(
-    Object.entries(mflixMovieCase.providedSchema).map(([key, value]) => {
-      const { sampleValues, ...rest } = value;
-      return [key, rest];
-    })
-  ),
+  providedSchema: removeSampleValues(mflixMovieCase.providedSchema),
   expectedResponse: {
     fields: [
       {

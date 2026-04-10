@@ -52,11 +52,17 @@ async function generateSchemaForChunk(
 
   const toolCalls = await response.toolCalls;
 
-  if (!toolCalls || toolCalls.length === 0) {
+  const firstToolCall = toolCalls?.[0];
+
+  if (
+    !firstToolCall ||
+    firstToolCall.type !== 'tool-call' ||
+    firstToolCall.toolName !== 'mockDataSchema'
+  ) {
     throw new Error('LLM did not return a mockDataSchema tool call');
   }
 
-  return toolCalls[0].input as MockDataSchemaToolOutput;
+  return firstToolCall.input as MockDataSchemaToolOutput;
 }
 
 export async function generateSchemaForEval(
