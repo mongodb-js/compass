@@ -34,9 +34,11 @@ export default function SearchIndexDoesNotExistBanner({
   const { openDrawer } = useDrawerActions();
   const searchIndexType =
     mapSearchStageOperatorToSearchIndexType(searchStageOperator);
-  const message = `${
-    searchIndexType === 'vectorSearch' ? 'Vector search' : 'Search'
-  } index ‘${searchIndexName ?? ''}’ doesn't exist.`;
+  const indexLabel =
+    searchIndexType === 'vectorSearch' ? 'Vector search' : 'Search';
+  const message = searchIndexName
+    ? `${indexLabel} index '${searchIndexName}' doesn't exist.`
+    : `${indexLabel} index doesn't exist.`;
 
   return (
     <Banner
