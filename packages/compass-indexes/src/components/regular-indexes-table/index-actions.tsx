@@ -115,6 +115,7 @@ const buildIndexActions = (
     actions.push({
       action: 'delete',
       label: `Cancel Index ${index.name}`,
+      tooltip: 'Cancel Index',
       icon: 'XWithCircle',
       variant: 'destructive',
     });
@@ -128,11 +129,13 @@ const buildIndexActions = (
           ? {
               action: 'unhide',
               label: `Unhide Index ${index.name}`,
+              tooltip: `Unhide Index`,
               icon: 'Visibility',
             }
           : {
               action: 'hide',
               label: `Hide Index ${index.name}`,
+              tooltip: `Hide Index`,
               icon: 'VisibilityOff',
             }
       );
@@ -143,6 +146,7 @@ const buildIndexActions = (
       actions.push({
         action: 'delete',
         label: `Drop Index ${index.name}`,
+        tooltip: 'Drop Index',
         icon: 'Trash',
       });
     }
