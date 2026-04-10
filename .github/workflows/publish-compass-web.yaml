@@ -158,7 +158,7 @@ jobs:
         if: ${{ !steps.check_if_deployed.outputs.already_deployed }}
         env:
           COMPASS_WEB_PUBLISH_DRY_RUN: ${{ inputs.dry_run }}
-          COMPASS_WEB_PUBLISH_ENVIRONMENT: ${{ matrix.environment }}
+          COMPASS_WEB_PUBLISH_ENVIRONMENT: ${{ steps.publish_environment.outputs.environment }}
           COMPASS_WEB_RELEASE_COMMIT: ${{ needs.configure_deployments.outputs.commit_hash }}
           # Set by "Configure AWS Credentials" step
           DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID: '${{ env.AWS_ACCESS_KEY_ID }}'
