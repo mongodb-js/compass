@@ -146,6 +146,7 @@ export interface FieldMismatch {
 export interface ScorerMetadata extends Record<string, unknown> {
   totalFields: number;
   matches: number;
+  missingFields: Array<string>;
   fieldMismatches: Array<FieldMismatch>;
 }
 
