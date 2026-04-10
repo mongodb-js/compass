@@ -24,6 +24,9 @@ function localPolyfill(name) {
  */
 const MAX_COMPRESSION_FILE_SIZE = 10_000_000;
 
+/**
+ * @type {(env: Record<string, any>, args: Record<string, any>) => import('webpack').Configuration}
+ */
 module.exports = (env, args) => {
   const serve = isServe({ env });
   const watch = env.WEBPACK_WATCH === true;
