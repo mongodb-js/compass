@@ -601,7 +601,6 @@ export const ItemsTable = <T extends Item>({
     columns: columnsWithActions,
     ...(persistedSorting.sorting
       ? {
-          // TODO
           state: { sorting: persistedSorting.sorting },
           onSortingChange: persistedSorting.onSortingChange,
         }
