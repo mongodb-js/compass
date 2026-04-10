@@ -65,7 +65,8 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
     "upload-dist": "node --experimental-strip-types scripts/release/upload-dist.mts",
     "upload-entrypoint": "node --experimental-strip-types scripts/release/upload-entrypoint.mts",
-    "serve-dist": "node --experimental-strip-types scripts/dist-file-server.mts"
+    "serve-dist": "node --experimental-strip-types scripts/dist-file-server.mts",
+    "latest-release": "node --experimental-strip-types scripts/release/get-latest.mts"
   },
   "peerDependencies": {
     "react": "^17.0.2",
