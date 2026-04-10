@@ -38,6 +38,7 @@ function createFieldScorer(
   return (args) => {
     let matches = 0;
     const fieldMismatches: Array<FieldMismatch> = [];
+    const missingFields: Array<string> = [];
 
     const schemaFieldNames = Object.keys(args.input.providedSchema);
     const totalFields = schemaFieldNames.length;
@@ -54,6 +55,7 @@ function createFieldScorer(
       const actualField = actualOutputMap.get(fieldName);
 
       if (!expectedField || !actualField) {
+        missingFields.push(fieldName);
         continue;
       }
 
@@ -81,6 +83,7 @@ function createFieldScorer(
     const metadata: ScorerMetadata = {
       totalFields,
       matches,
+      missingFields,
       fieldMismatches,
     };
 
@@ -99,7 +102,7 @@ export const FakerFieldNameAccuracy = withSkipResultOnUnexpected(
   )
 );
 
-export const FakerSuggestedMethodAccuracy = withSkipResultOnUnexpected(
+export const FakerMethodSuggestionAccuracy = withSkipResultOnUnexpected(
   createFieldScorer(
     'FakerMethodSuggestionAccuracy',
     (field: MockDataGeneratorExpectedField) => field.fakerMethod

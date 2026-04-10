@@ -3,7 +3,7 @@ import { Eval } from 'braintrust';
 import { generateSchemaForEval } from './mock-data-api';
 import {
   FakerFieldNameAccuracy,
-  FakerSuggestedMethodAccuracy,
+  FakerMethodSuggestionAccuracy,
   PercentRecognizedScorer,
   FakerArgParseableScorer,
   MethodRunnableScorer,
@@ -53,7 +53,7 @@ function createMockDataGeneratorEval() {
     },
     scores: [
       FakerFieldNameAccuracy,
-      FakerSuggestedMethodAccuracy,
+      FakerMethodSuggestionAccuracy,
       PercentRecognizedScorer,
       FakerArgParseableScorer,
       MethodRunnableScorer,
