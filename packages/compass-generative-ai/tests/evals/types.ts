@@ -121,6 +121,7 @@ export interface MockDataGeneratorEvalOutput {
 
 export interface MockDataGeneratorMetadata extends Record<string, unknown> {
   name: string;
+  hasSampleValues: boolean;
 }
 
 export type MockDataGeneratorExpectedField = Omit<
