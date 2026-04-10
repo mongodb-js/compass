@@ -1,16 +1,16 @@
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   skipForWeb,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
 import clipboard from 'clipboardy';
 import { expect } from 'chai';
-import * as Selectors from '../helpers/selectors';
-import type { ConnectFormState } from '../helpers/connect-form-state';
-import { context } from '../helpers/test-runner-context';
+import * as Selectors from '../helpers/selectors.ts';
+import type { ConnectFormState } from '../helpers/connect-form-state.ts';
+import { context } from '../helpers/test-runner-context.ts';
 
 async function expectCopyConnectionStringToClipboard(
   browser: CompassBrowser,

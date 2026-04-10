@@ -555,6 +555,8 @@ export const CollectionTabStats = (
 };
 export const CollectionStatsTooltip =
   '[data-testid="collection-stats-tooltip"]';
+export const CollectionHeaderOpenShellButton =
+  '[data-testid="collection-header-open-shell-button"]';
 
 export const collectionSubTab = (
   tabName: string,
@@ -621,6 +623,7 @@ export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
 export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
 export const ErrorDetailsJson = '[data-testid="error-details-json"]';
+export const DocumentTableContainer = `.document-table-view-container`;
 
 // Insert Document modal
 
@@ -1428,6 +1431,7 @@ export const AutoUpdateReleaseNotesLink =
   '[data-testid="auto-update-release-notes-link"]';
 
 // Data Modeling
+export const DiagramList = '[data-testid="saved-diagram-list"]';
 export const SidebarDataModelingTab = `${Sidebar} [aria-label="Data Modeling"]`;
 export const ImportDataModelInput = '[data-testid="import-diagram-file-input"]';
 export const CreateNewDataModelButton = '[data-testid="create-diagram-button"]';

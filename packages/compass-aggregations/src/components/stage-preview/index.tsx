@@ -8,6 +8,7 @@ import {
   palette,
   Body,
   KeylineCard,
+  Link,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
@@ -17,6 +18,7 @@ import {
   isSearchStage,
   isMissingAtlasStageSupport,
   isOutputStage,
+  getSearchIndexNameFromSearchStage,
 } from '../../utils/stage';
 
 import LoadingOverlay from '../loading-overlay';
@@ -24,8 +26,11 @@ import { AtlasStagePreview } from './atlas-stage-preview';
 import OutputStagePreivew from './output-stage-preview';
 import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { getIndexOfFirstStageWithServerError } from '../../modules/pipeline-builder/stage-editor';
 
 import SearchNoResults from '../search-no-results';
+import { usePreference } from 'compass-preferences-model/provider';
+import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 
 const centeredContent = css({
   display: 'flex',
@@ -72,12 +77,18 @@ function NoPreviewDocuments() {
   );
 }
 
+const previewBodyStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[400],
+  width: '100%',
+  height: '100%',
+});
+
 const documentsStyles = css({
   gap: spacing[200],
   display: 'flex',
   alignItems: 'stretch',
-  width: '100%',
-  height: '100%',
   overflowX: 'auto',
 });
 
@@ -106,6 +117,9 @@ type StagePreviewProps = {
   stageOperator: string | null;
   documents: DocumentType[] | null;
   shouldRenderStage: boolean;
+  showSearchIndexStaleResultsBanner: boolean;
+  searchIndexName: string | null;
+  serverErrorStageIdx: number | null;
 };
 
 function StagePreviewBody({
@@ -115,7 +129,14 @@ function StagePreviewBody({
   isMissingAtlasOnlyStageSupport,
   shouldRenderStage,
   isLoading,
+  showSearchIndexStaleResultsBanner,
+  searchIndexName,
+  serverErrorStageIdx,
 }: StagePreviewProps) {
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
+
   if (!shouldRenderStage) {
     return <NoPreviewDocuments />;
   }
@@ -145,7 +166,34 @@ function StagePreviewBody({
     );
   }
 
-  if (isSearchStage(stageOperator) && documents?.length === 0) {
+  if (serverErrorStageIdx !== null) {
+    return (
+      <div className={centeredContent}>
+        <Body>
+          <span data-testid="stage-preview-upstream-error">
+            Preview unavailable — error on{' '}
+            <Link
+              as="button"
+              onClick={() => {
+                document
+                  .querySelector(`[data-stage-index="${serverErrorStageIdx}"]`)
+                  ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              }}
+            >
+              Stage {serverErrorStageIdx + 1}
+            </Link>
+            .
+          </span>
+        </Body>
+      </div>
+    );
+  }
+
+  if (
+    !enableSearchActivationProgramP1 &&
+    isSearchStage(stageOperator) &&
+    documents?.length === 0
+  ) {
     return <SearchNoResults />;
   }
 
@@ -159,7 +207,15 @@ function StagePreviewBody({
         </KeylineCard>
       );
     });
-    return <div className={documentsStyles}>{docs}</div>;
+    return (
+      <div className={previewBodyStyles}>
+        <div className={documentsStyles}>{docs}</div>
+        {enableSearchActivationProgramP1 &&
+          showSearchIndexStaleResultsBanner && (
+            <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
+          )}
+      </div>
+    );
   }
 
   return <NoPreviewDocuments />;
@@ -215,6 +271,16 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     !stage.disabled && !stage.syntaxError && !stage.syntaxError && stage.value
   );
 
+  const searchIndexName = getSearchIndexNameFromSearchStage(
+    stage.stageOperator,
+    stage.value
+  );
+  const showSearchIndexStaleResultsBanner =
+    !!searchIndexName &&
+    state.searchIndexes.indexes.some(
+      (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
+    );
+
   return {
     isLoading: stage.loading,
     isDisabled: stage.disabled,
@@ -222,5 +288,11 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     shouldRenderStage,
     documents: stage.previewDocs,
     isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
+    showSearchIndexStaleResultsBanner,
+    searchIndexName,
+    serverErrorStageIdx: getIndexOfFirstStageWithServerError(
+      state.pipelineBuilder.stageEditor.stages,
+      ownProps.index
+    ),
   };
 })(StagePreview);

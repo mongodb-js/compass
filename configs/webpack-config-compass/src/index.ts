@@ -14,7 +14,11 @@ import { builtinModules } from 'module';
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer';
 import { WebpackPluginStartElectron } from './webpack-plugin-start-electron';
 import type { ConfigArgs, WebpackConfig } from './args';
-import { isServe, webpackArgsWithDefaults } from './args';
+import {
+  isServe,
+  shouldEnableHotReload,
+  webpackArgsWithDefaults,
+} from './args';
 import {
   sourceMapLoader,
   javascriptLoader,
@@ -296,8 +300,10 @@ export function createElectronRendererConfig(
             client: {
               overlay:
                 process.env.DISABLE_DEVSERVER_OVERLAY === 'true'
-                  ? false
+                  ? { errors: false, warnings: false, runtimeErrors: false }
                   : {
+                      errors: true,
+                      warnings: false,
                       runtimeErrors: (error: unknown) => {
                         // ResizeObserver errors are harmless and expected in some cases.
                         // We currently get them when opening the Assistant drawer.
@@ -314,8 +320,6 @@ export function createElectronRendererConfig(
                         }
                         return true;
                       },
-                      errors: true,
-                      warnings: false,
                     },
             },
             https: false,
@@ -324,10 +328,12 @@ export function createElectronRendererConfig(
           plugins: [
             new WebpackPluginStartElectron() as WebpackPluginInstance,
           ].concat(
-            opts.hot
+            shouldEnableHotReload(opts)
               ? [
                   // Plugin types are not matching Webpack 5, but they work
-                  new ReactRefreshWebpackPlugin() as unknown as WebpackPluginInstance,
+                  new ReactRefreshWebpackPlugin({
+                    overlay: process.env.DISABLE_DEVSERVER_OVERLAY !== 'true',
+                  }) as unknown as WebpackPluginInstance,
                 ]
               : []
           ),
@@ -409,10 +415,12 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
     ignoreWarnings: sharedIgnoreWarnings,
     plugins: [
       providePlugin,
-      ...(isServe(opts) && opts.hot
+      ...(shouldEnableHotReload(opts)
         ? [
             // Plugin types are not matching Webpack 5, but they work
-            new ReactRefreshWebpackPlugin() as unknown as WebpackPluginInstance,
+            new ReactRefreshWebpackPlugin({
+              overlay: process.env.DISABLE_DEVSERVER_OVERLAY !== 'true',
+            }) as unknown as WebpackPluginInstance,
           ]
         : opts.analyze
         ? [
@@ -430,7 +438,12 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
 }
 
 export { sharedExternals, pluginExternals };
-export { webpackArgsWithDefaults, isServe } from './args';
+export {
+  webpackArgsWithDefaults,
+  isServe,
+  shouldEnableHotReload,
+} from './args';
 export { default as webpack } from 'webpack';
 export { merge } from 'webpack-merge';
 export { default as WebpackDevServer } from 'webpack-dev-server';
+export { default as HtmlWebpackPlugin } from 'html-webpack-plugin';

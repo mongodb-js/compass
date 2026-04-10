@@ -1,6 +1,6 @@
-import type { CompassBrowser } from '../compass-browser';
-import * as Selectors from '../selectors';
-import type { WorkspaceTabSelectorOptions } from '../selectors';
+import type { CompassBrowser } from '../compass-browser.ts';
+import * as Selectors from '../selectors.ts';
+import type { WorkspaceTabSelectorOptions } from '../selectors.ts';
 
 type CollectionWorkspaceSubTab =
   | 'Documents'

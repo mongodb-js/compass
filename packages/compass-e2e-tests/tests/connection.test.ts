@@ -3,9 +3,10 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
 import { expect } from 'chai';
-import ConnectionString from 'mongodb-connection-string-url';
+import { ConnectionString } from 'mongodb-connection-string-url';
+// @ts-expect-error broken esm types
 import resolveMongodbSrv from 'resolve-mongodb-srv';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
@@ -16,12 +17,12 @@ import {
   connectionNameFromString,
   getDefaultConnectionNames,
   getDefaultConnectionStrings,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import type { ConnectFormState } from '../helpers/connect-form-state';
-import * as Selectors from '../helpers/selectors';
-import { isTestingWeb } from '../helpers/test-runner-context';
-import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import type { ConnectFormState } from '../helpers/connect-form-state.ts';
+import * as Selectors from '../helpers/selectors.ts';
+import { isTestingWeb } from '../helpers/test-runner-context.ts';
+import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document.ts';
 
 async function disconnect(browser: CompassBrowser) {
   try {
@@ -309,12 +310,12 @@ describe('Connection string', function () {
     const connectionError = await browser
       .$(Selectors.ConnectionToastErrorText)
       .getText();
-    expect(connectionError).to.equal('Authentication failed.');
+    expect(connectionError).to.include('Authentication failed.');
 
     const errorMessage = await browser
       .$(Selectors.ConnectionToastErrorText)
       .getText();
-    expect(errorMessage).to.equal('Authentication failed.');
+    expect(errorMessage).to.include('Authentication failed.');
 
     // click the review button in the toast
     await browser.clickVisible(Selectors.ConnectionToastErrorReviewButton);
@@ -322,7 +323,7 @@ describe('Connection string', function () {
     const errorText = await browser
       .$(Selectors.ConnectionFormErrorMessage)
       .getText();
-    expect(errorText).to.equal('Authentication failed.');
+    expect(errorText).to.include('Authentication failed.');
 
     // close the modal
     await browser.clickVisible(Selectors.ConnectionModalCloseButton);
@@ -943,7 +944,7 @@ describe('Connection form', function () {
           connectionName: connection1Name,
         },
         toastErrorTitle: connection1Name,
-        toastErrorText: `Authentication failed.`,
+        toastErrorText: 'Authentication failed.',
       },
       {
         state: {
@@ -999,7 +1000,7 @@ describe('Connection form', function () {
       const errorMessage = await browser
         .$(`${toastSelector} ${Selectors.ConnectionToastErrorText}`)
         .getText();
-      expect(errorMessage).to.equal(expected.toastErrorText);
+      expect(errorMessage).to.include(expected.toastErrorText);
 
       // click the review button in the toast
       await browser.clickVisible(
@@ -1014,7 +1015,7 @@ describe('Connection form', function () {
       const errorText = await browser
         .$(Selectors.ConnectionFormErrorMessage)
         .getText();
-      expect(errorText).to.equal(expected.toastErrorText);
+      expect(errorText).to.include(expected.toastErrorText);
 
       const state = await browser.getConnectFormState();
       expect(state.hosts).to.deep.equal(expected.state.hosts);

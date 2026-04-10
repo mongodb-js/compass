@@ -133,10 +133,6 @@ export type AtlasServiceConfig = {
  *  - atlas-qa:                qa mms backend            (cloud-qa.mongodb.com)
  *  - atlas-staging:           staging mms backend       (cloud-stage.mongodb.com)
  *  - atlas:                   mms backend               (cloud.mongodb.com)
- *  - web-sandbox-atlas-local: local mms backend + proxy (localhost / proxy prefix)
- *  - web-sandbox-atlas-dev:   dev mms backend + proxy   (cloud-dev.mongodb.com / proxy prefix)
- *  - web-sandbox-atlas-qa:    qa mms backend + proxy    (cloud-qa.mongodb.com / proxy prefix)
- *  - web-sandbox-atlas:       mms backend + proxy       (cloud.mongodb.com / proxy prefix)
  */
 const config = {
   'atlas-local': {
@@ -198,54 +194,6 @@ const config = {
     authPortalUrl: 'https://account.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud.mongodb.com/ui/userData',
-  },
-  'web-sandbox-atlas-local': {
-    ccsBaseUrl: '/ccs',
-    cloudBaseUrl: '/cloud-mongodb-com',
-    atlasApiBaseUrl: 'http://localhost:8080/api/private',
-    atlasLogin: {
-      clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
-    },
-    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
-    userDataBaseUrl: 'https://cloud-dev.mongodb.com/ui/userData',
-  },
-  'web-sandbox-atlas-dev': {
-    ccsBaseUrl: '/ccs',
-    cloudBaseUrl: '/cloud-mongodb-com',
-    atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
-    atlasLogin: {
-      clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
-    },
-    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
-    userDataBaseUrl: '/cloud-mongodb-com/ui/userData',
-  },
-  'web-sandbox-atlas-qa': {
-    ccsBaseUrl: '/ccs',
-    cloudBaseUrl: '/cloud-mongodb-com',
-    atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
-    atlasLogin: {
-      clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
-    },
-    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
-    userDataBaseUrl: '/cloud-mongodb-com/ui/userData',
-  },
-  'web-sandbox-atlas': {
-    ccsBaseUrl: '/ccs',
-    cloudBaseUrl: '/cloud-mongodb-com',
-    atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
-    atlasLogin: {
-      clientId: '0oajzdcznmE8GEyio297',
-      issuer: 'https://auth.mongodb.com/oauth2/default',
-    },
-    authPortalUrl: 'https://account.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
-    userDataBaseUrl: '/cloud-mongodb-com/ui/userData',
   },
 } as const;
 

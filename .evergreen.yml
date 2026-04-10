@@ -1,6 +1,9 @@
 stepback: false
 exec_timeout_secs: 5400
 foliage_should_block_merges: false
+github_pr_aliases:
+  - variant_tags: ['run-on-pr']
+    task: '.*'
 ignore:
   - docs/**/*.md
   - AUTHORS

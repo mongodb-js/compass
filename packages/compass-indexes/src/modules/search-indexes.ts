@@ -88,7 +88,7 @@ type CreateSearchIndexFailedAction = {
   error: string;
 };
 
-type CreateSearchIndexSucceededAction = {
+export type CreateSearchIndexSucceededAction = {
   type: typeof ActionTypes.CreateSearchIndexSucceeded;
 };
 
@@ -110,7 +110,7 @@ type UpdateSearchIndexFailedAction = {
   error: string;
 };
 
-type UpdateSearchIndexSucceededAction = {
+export type UpdateSearchIndexSucceededAction = {
   type: typeof ActionTypes.UpdateSearchIndexSucceeded;
 };
 
@@ -342,9 +342,15 @@ export default function reducer(
       ActionTypes.FetchSearchIndexesSucceeded
     )
   ) {
+    // Keep existing reference when the data hasn't changed to avoid
+    // unnecessary re-renders (e.g. during polling).
+    const indexes = isEqual(state.indexes, action.indexes)
+      ? state.indexes
+      : action.indexes;
+
     return {
       ...state,
-      indexes: action.indexes,
+      indexes,
       status: FetchStatuses.READY,
     };
   }

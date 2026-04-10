@@ -1,5 +1,5 @@
-import type { CompassBrowser } from '../compass-browser';
-import * as Selectors from '../selectors';
+import type { CompassBrowser } from '../compass-browser.ts';
+import * as Selectors from '../selectors.ts';
 
 export async function dropIndex(
   browser: CompassBrowser,
@@ -10,10 +10,14 @@ export async function dropIndex(
   const indexComponent = browser.$(indexComponentSelector);
   await indexComponent.waitForDisplayed();
 
-  await browser.hover(indexComponentSelector);
-  await browser.clickVisible(
-    `${indexComponentSelector} ${Selectors.IndexesTableDropIndexButton}`
-  );
+  await browser.waitUntil(async () => {
+    await browser.hover(indexComponentSelector);
+    await browser.clickVisible(
+      `${indexComponentSelector} ${Selectors.IndexesTableDropIndexButton}`
+    );
+    // Check if modal opened successfully
+    return await browser.isModalOpen(Selectors.DropIndexModal);
+  });
 
   await browser.waitForOpenModal(Selectors.DropIndexModal);
 

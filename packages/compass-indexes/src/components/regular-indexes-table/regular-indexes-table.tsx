@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { connect, useSelector, shallowEqual } from 'react-redux';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
 
@@ -68,7 +68,8 @@ export const RegularIndexesTable: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-    })
+    }),
+    shallowEqual
   );
 
   useEffect(() => {

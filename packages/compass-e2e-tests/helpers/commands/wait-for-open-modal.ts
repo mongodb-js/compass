@@ -1,6 +1,6 @@
 import { inspect } from 'node:util';
 import type { WaitForOptions } from 'webdriverio';
-import type { CompassBrowser } from '../compass-browser';
+import type { CompassBrowser } from '../compass-browser.ts';
 
 export async function waitForOpenModal(
   browser: CompassBrowser,

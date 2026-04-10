@@ -1,5 +1,5 @@
 import { type ChainablePromiseElement } from 'webdriverio';
-import { type CompassBrowser } from './compass-browser';
+import { type CompassBrowser } from './compass-browser.ts';
 
 export function resolveElement(
   browser: CompassBrowser,

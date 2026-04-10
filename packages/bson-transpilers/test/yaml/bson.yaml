@@ -256,7 +256,7 @@ tests:
         php: '03'
         ruby: 0o3.to_i
         go: int32(0o3)
-        rust: 0o3
+        rust: '0o3'
   Double: []
   Long:
     - description: number arg

@@ -1,28 +1,30 @@
 import { expect } from 'chai';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
 import {
   createNestedDocumentsCollection,
   createNumbersStringCollection,
-} from '../helpers/insert-data';
+} from '../helpers/mongo-clients.ts';
 import {
   cleanUpDownloadedFile,
   waitForFileDownload,
-} from '../helpers/downloads';
+} from '../helpers/downloads.ts';
 import { readFileSync } from 'fs';
-import { recognize } from 'tesseract.js';
+import tesseract from 'tesseract.js';
 import toNS from 'mongodb-ns';
 import path from 'path';
 import os from 'os';
 import fs from 'fs/promises';
 import { Key, type ChainablePromiseElement } from 'webdriverio';
+
+const { recognize } = tesseract;
 
 type Node = {
   id: string;
@@ -417,6 +419,7 @@ describe('Data Modeling tab', function () {
       expect(positionAfterRedo).to.deep.equal(newPosition);
       // Open a new tab
       await browser.openNewTab();
+      await browser.$(Selectors.DiagramList).waitForDisplayed();
 
       // Open the saved diagram
       await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
@@ -427,6 +430,7 @@ describe('Data Modeling tab', function () {
 
       // Open a new tab
       await browser.openNewTab();
+      await browser.$(Selectors.DiagramList).waitForDisplayed();
 
       // Delete the saved diagram
       await browser.clickVisible(
@@ -471,6 +475,7 @@ describe('Data Modeling tab', function () {
 
       // Open the saved diagram in new tab
       await browser.openNewTab();
+      await browser.$(Selectors.DiagramList).waitForDisplayed();
       await browser.clickVisible(Selectors.DataModelsListItem(dataModelName));
       await browser.$(Selectors.DataModelEditor).waitForDisplayed();
 

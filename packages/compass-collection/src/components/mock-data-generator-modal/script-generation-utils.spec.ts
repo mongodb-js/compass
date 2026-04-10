@@ -72,7 +72,9 @@ describe('Script Generation', () => {
     email: faker.internet.email()
   };`;
       expect(result.script).to.contain(expectedReturnBlock);
-      expect(result.script).to.contain('use("testdb")');
+      expect(result.script).to.contain('const DB_NAME = "testdb"');
+      expect(result.script).to.contain('const COLL_NAME = "users"');
+      expect(result.script).to.contain('use(DB_NAME)');
       expect(result.script).to.contain('insertMany');
 
       // Test that the generated document code is executable
@@ -382,13 +384,17 @@ describe('Script Generation', () => {
 
       expect(result1.success).to.equal(true);
       if (result1.success) {
-        expect(result1.script).to.contain('use("test\'db`with\\"quotes")');
         expect(result1.script).to.contain(
-          'getCollection("coll\\nwith\\ttabs")'
+          'const DB_NAME = "test\'db`with\\"quotes"'
         );
+        expect(result1.script).to.contain(
+          'const COLL_NAME = "coll\\nwith\\ttabs"'
+        );
+        expect(result1.script).to.contain('use(DB_NAME)');
+        expect(result1.script).to.contain('getCollection(COLL_NAME)');
         // Should not contain unescaped special characters that could break JS
-        expect(result1.script).not.to.contain("use('test'db");
-        expect(result1.script).not.to.contain("getCollection('coll\nwith");
+        expect(result1.script).not.to.contain("DB_NAME = 'test'db");
+        expect(result1.script).not.to.contain("COLL_NAME = 'coll\nwith");
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result1.script);
@@ -407,9 +413,11 @@ describe('Script Generation', () => {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval
         expect(() => new Function(result2.script)).to.not.throw();
 
-        // Verify template literal characters are properly escaped in console.log
-        expect(result2.script).to.contain('test\\`\\${}');
-        expect(result2.script).to.contain('collection\\`\\${}');
+        // Verify template literal characters are properly handled in constants via JSON.stringify
+        expect(result2.script).to.contain('const DB_NAME = "test`${}"');
+        expect(result2.script).to.contain('const COLL_NAME = "collection`${}"');
+        expect(result2.script).to.contain('use(DB_NAME)');
+        expect(result2.script).to.contain('getCollection(COLL_NAME)');
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result2.script);
@@ -438,28 +446,23 @@ describe('Script Generation', () => {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval
         expect(() => new Function(result.script)).to.not.throw();
 
-        // Verify malicious code is safely contained in string
+        // Verify malicious code is safely contained in DB_NAME and COLL_NAME constants
+        // Note: prettier may split long lines and uses single quotes when string contains double quotes
         expect(result.script).to.contain(
-          'use(\'test`; require("fs").rmSync("/"); //\')'
+          '\'test`; require("fs").rmSync("/"); //\''
         );
-        expect(result.script).to.contain('getCollection(\'my "collection"\')');
-
-        // Verify template literal injection is prevented (backticks are escaped)
         expect(result.script).to.contain(
-          'test\\`; require("fs").rmSync("/"); //'
+          'const COLL_NAME = \'my "collection"\''
         );
-
-        // Verify malicious code in name is safely contained in code comment
-        expect(result.script).to.contain(
-          '// Generated for database: test`; require("fs").rmSync("/"); //; collection: my "collection"'
-        );
+        expect(result.script).to.contain('use(DB_NAME)');
+        expect(result.script).to.contain('getCollection(COLL_NAME)');
 
         // Test that the generated document code is executable
         testDocumentCodeExecution(result.script);
       }
     });
 
-    it('should sanitize newlines in database and collection names in comments', () => {
+    it('should sanitize newlines in database and collection names in constants', () => {
       const schema = {
         field: {
           mongoType: 'String' as const,
@@ -477,10 +480,15 @@ describe('Script Generation', () => {
 
       expect(result.success).to.equal(true);
       if (result.success) {
-        // Verify newlines are replaced with spaces in comments to prevent syntax errors
+        // Verify newlines are escaped in constants via JSON.stringify
         expect(result.script).to.contain(
-          '// Generated for database: test with newlines; collection: coll with  returns'
+          'const DB_NAME = "test\\nwith\\nnewlines"'
         );
+        expect(result.script).to.contain(
+          'const COLL_NAME = "coll\\rwith\\r\\nreturns"'
+        );
+        expect(result.script).to.contain('use(DB_NAME)');
+        expect(result.script).to.contain('getCollection(COLL_NAME)');
 
         // Verify the script is still syntactically valid
         // eslint-disable-next-line @typescript-eslint/no-implied-eval

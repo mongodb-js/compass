@@ -567,6 +567,7 @@ type EditorProps = {
   'data-testid'?: string;
   annotations?: Annotation[];
   completer?: CompletionSource;
+  customExtensions?: Extension[];
   minLines?: number;
   maxLines?: number;
   lineHeight?: number;
@@ -714,6 +715,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     highlightActiveLine: shouldHighlightActiveLine = true,
     annotations,
     completer,
+    customExtensions,
     darkMode: _darkMode,
     disabled = false,
     className,
@@ -958,6 +960,14 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     editorViewRef
   );
 
+  const customExtensionsCompartment = useCodemirrorExtensionCompartment(
+    () => {
+      return customExtensions ?? [];
+    },
+    [customExtensions],
+    editorViewRef
+  );
+
   const updateEditorContentHeight = useCallback(() => {
     editorViewRef.current?.requestMeasure({
       read(view) {
@@ -1070,6 +1080,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
             );
           },
         }),
+        customExtensionsCompartment,
       ],
       parent: domNode,
     }));
@@ -1127,6 +1138,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     placeholderExtension,
     commandsExtension,
     updateEditorContentHeight,
+    customExtensionsCompartment,
   ]);
 
   useEffect(() => {

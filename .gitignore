@@ -35,6 +35,7 @@ config/*/.npmrc
 .sbom
 .logs
 .evergreen/logs
+.augment
 
 # The update-dependencies workflow does a sparse checkout
 # and we don't want to include these files in the PRs it creates.

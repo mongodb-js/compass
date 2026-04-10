@@ -233,6 +233,23 @@ function remapPipelineStageIndexesInStore() {
   };
 }
 
+export function getIndexOfFirstStageWithServerError(
+  stages: StageEditorState['stages'],
+  toIndex: number
+): number | null {
+  for (let i = 0; i < toIndex; i++) {
+    const stage = stages[i];
+    if (
+      stage?.type === 'stage' &&
+      stage?.serverError !== null &&
+      !stage?.disabled
+    ) {
+      return i;
+    }
+  }
+  return null;
+}
+
 function canRunStage(stage?: StoreStage, allowOut = false): boolean {
   return (
     !!stage &&
@@ -325,6 +342,20 @@ export const loadStagePreview = (
       if (dataService.dataService?.isCancelError(err)) {
         return;
       }
+
+      // Cancel subsequent stages' preview fetches as they will
+      // error as well.
+      for (let i = idx + 1; i < stages.length; i++) {
+        const futureStage = stages[i];
+        if (
+          futureStage.type === 'stage' &&
+          !futureStage.disabled &&
+          futureStage.loading
+        ) {
+          pipelineBuilder.cancelPreviewForStage(futureStage.idxInPipeline);
+        }
+      }
+
       dispatch({
         type: StageEditorActionTypes.StagePreviewFetchError,
         id: idx,
@@ -1150,12 +1181,12 @@ const reducer: Reducer<StageEditorState, Action> = (
       ...state,
       stages: [
         ...state.stages.slice(0, action.id),
-        {
-          ...state.stages[action.id],
+        ...state.stages.slice(action.id).map((stage) => ({
+          ...stage,
           loading: false,
+          previewDocs: null,
           serverError: action.error,
-        },
-        ...state.stages.slice(action.id + 1),
+        })),
       ],
     };
   }

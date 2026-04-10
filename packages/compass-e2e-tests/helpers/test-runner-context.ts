@@ -4,7 +4,7 @@ import {
 } from '@mongodb-js/connection-info';
 import type { MongoClusterOptions } from 'mongodb-runner';
 import yargs from 'yargs';
-import type { Argv, CamelCase } from 'yargs';
+import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import Debug from 'debug';
 import { execFileSync } from 'child_process';
@@ -107,18 +107,23 @@ function buildDesktopArgs(yargs: Argv) {
     );
 }
 
-type _AtlasCloudSandboxArgsKebabCase =
+type AtlasCloudSandboxArgs =
   | 'atlas-cloud-environment'
   | 'atlas-cloud-project-id'
   | 'atlas-cloud-username'
   | 'atlas-cloud-password'
   | 'atlas-cloud-dbuser-username'
   | 'atlas-cloud-dbuser-password'
-  | 'atlas-cloud-default-cluster';
-
-type AtlasCloudSandboxArgs =
-  | _AtlasCloudSandboxArgsKebabCase
-  | CamelCase<_AtlasCloudSandboxArgsKebabCase>;
+  | 'atlas-cloud-default-cluster'
+  | 'atlas-cloud-default-cluster-type'
+  | 'atlasCloudEnvironment'
+  | 'atlasCloudProjectId'
+  | 'atlasCloudUsername'
+  | 'atlasCloudPassword'
+  | 'atlasCloudDbuserUsername'
+  | 'atlasCloudDbuserPassword'
+  | 'atlasCloudDefaultCluster'
+  | 'atlasCloudDefaultClusterType';
 
 let testEnv: 'desktop' | 'web' | undefined;
 
@@ -190,6 +195,13 @@ function buildWebArgs(yargs: Argv) {
         default: [],
         description:
           'One or more cluster names in the project to be used for testing. At least one cluster name needs to be provided',
+      })
+      .options('atlas-cloud-default-cluster-type', {
+        type: 'string',
+        default: 'GeoSharded',
+        choices: ['GeoSharded', 'Free', 'Flex', 'Dedicated'],
+        description:
+          'Cluster type to provision. Default is GeoSharded as this is a requirement for "Global Writes" testing',
       })
       .implies({
         'atlas-cloud-project-id': [
@@ -268,10 +280,16 @@ if (context.browserVersion === undefined) {
     context.browserName === 'firefox' ? 'latest' : 'stable';
 }
 
+/**
+ * Returns true if the tests are running against Compass desktop
+ */
 export function isTestingDesktop(ctx = context): ctx is DesktopParsedArgs {
   return testEnv === 'desktop';
 }
 
+/**
+ * Returns if tests are running against Compass desktop. Throws otherwise
+ */
 export function assertTestingDesktop(
   ctx = context
 ): asserts ctx is DesktopParsedArgs {
@@ -282,10 +300,16 @@ export function assertTestingDesktop(
   }
 }
 
+/**
+ * Returns true if tests are running against compass-web in either local sandbox or integrated in Atlas Cloud
+ */
 export function isTestingWeb(ctx = context): ctx is WebParsedArgs {
   return testEnv === 'web';
 }
 
+/**
+ * Returns if tests are running against compass-web in either local sandbox or integrated in Atlas Cloud. Throws otherwise
+ */
 export function assertTestingWeb(ctx = context): asserts ctx is WebParsedArgs {
   if (!isTestingWeb(ctx)) {
     throw new Error(
@@ -294,16 +318,22 @@ export function assertTestingWeb(ctx = context): asserts ctx is WebParsedArgs {
   }
 }
 
-export function isTestingAtlasCloud(
+/**
+ * Returns true if tests are running against compass-web in cloud-<env>.mongodb.com
+ */
+export function isTestingWebAtlasCloud(
   ctx = context
 ): ctx is AtlasCloudParsedArgs {
   return isTestingWeb(ctx) && !!ctx.testAtlasCloud;
 }
 
-export function assertTestingAtlasCloud(
+/**
+ * Returns if tests are running against compass-web in cloud-<env>.mongodb.com. Throws otherwise
+ */
+export function assertTestingWebAtlasCloud(
   ctx = context
 ): asserts ctx is WebParsedArgs & AtlasCloudParsedArgs {
-  if (!isTestingAtlasCloud(ctx)) {
+  if (!isTestingWebAtlasCloud(ctx)) {
     throw new Error(`Expected tested runtime to be web w/ Atlas Cloud account`);
   }
 }
@@ -334,7 +364,7 @@ type TestConnectionInfo = ConnectionInfo & {
   testServer?: Partial<MongoClusterOptions>;
 };
 
-export const DEFAULT_CONNECTIONS: TestConnectionInfo[] = isTestingAtlasCloud(
+export const DEFAULT_CONNECTIONS: TestConnectionInfo[] = isTestingWebAtlasCloud(
   context
 )
   ? []
@@ -429,7 +459,7 @@ const CLOUD_URLS = {
 } as const;
 
 export function getCloudUrlsFromContext(ctx = context) {
-  assertTestingAtlasCloud(ctx);
+  assertTestingWebAtlasCloud(ctx);
   return CLOUD_URLS[context.atlasCloudEnvironment as keyof typeof CLOUD_URLS];
 }
 
@@ -451,7 +481,7 @@ export const ATLAS_CLOUD_TEST_UTILS: {
     : 'null'
 );
 
-if (isTestingAtlasCloud() && !ATLAS_CLOUD_TEST_UTILS) {
+if (isTestingWebAtlasCloud() && !ATLAS_CLOUD_TEST_UTILS) {
   throw new Error(
     'Trying to test Atlas Cloud environment, but test utils config is not provided. Make sure that ATLAS_CLOUD_TEST_UTILS env variable is available'
   );

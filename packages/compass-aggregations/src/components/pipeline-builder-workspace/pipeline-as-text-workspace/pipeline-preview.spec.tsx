@@ -1,16 +1,23 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  within,
+  userEvent,
+  cleanup,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import { renderWithStore } from '../../../../test/configure-store';
 
 import { PipelinePreview } from './pipeline-preview';
 import HadronDocument from 'hadron-document';
+import type { ConfigureStoreOptions } from '../../../stores/store';
 
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelinePreview>> = {},
-  storeOptions: any = {}
+  storeOptions: Partial<ConfigureStoreOptions> = {},
+  services: any = {}
 ) => {
   return renderWithStore(
     <PipelinePreview
@@ -21,15 +28,21 @@ const renderPipelineEditor = (
       previewDocs={null}
       isMissingAtlasSupport={false}
       atlasOperator=""
+      showSearchIndexStaleResultsBanner={false}
+      searchIndexName={null}
       onExpand={() => {}}
       onCollapse={() => {}}
       {...props}
     />,
-    storeOptions
+    storeOptions,
+    undefined,
+    services
   );
 };
 
 describe('PipelinePreview', function () {
+  afterEach(cleanup);
+
   it('renders editor workspace', async function () {
     await renderPipelineEditor({});
     const container = screen.getByTestId('pipeline-as-text-preview');
@@ -207,6 +220,106 @@ describe('PipelinePreview', function () {
         previewDocs: [new HadronDocument({ _id: 1 })],
       });
       expect(screen.getByText(staleMessage)).to.exist;
+    });
+  });
+
+  describe('search index stale results banner', function () {
+    it('should show stale results banner when showSearchIndexStaleResultsBanner is true', async function () {
+      await renderPipelineEditor(
+        {
+          previewDocs: [new HadronDocument({ _id: 1 })],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'test-index',
+        },
+        {},
+        {
+          preferences: {
+            getPreferences() {
+              return { enableSearchActivationProgramP1: true };
+            },
+          },
+        }
+      );
+
+      expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
+    });
+
+    it('should NOT show stale results banner when showSearchIndexStaleResultsBanner is false', async function () {
+      await renderPipelineEditor({
+        previewDocs: [new HadronDocument({ _id: 1 })],
+        showSearchIndexStaleResultsBanner: false,
+        searchIndexName: 'test-index',
+      });
+
+      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
+    });
+
+    it('should NOT show stale results banner when there are no documents', async function () {
+      await renderPipelineEditor({
+        previewDocs: [],
+        showSearchIndexStaleResultsBanner: true,
+        searchIndexName: 'test-index',
+      });
+
+      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
+    });
+
+    it('should NOT show stale results banner when previewDocs is null', async function () {
+      await renderPipelineEditor({
+        previewDocs: null,
+        showSearchIndexStaleResultsBanner: true,
+        searchIndexName: 'test-index',
+      });
+
+      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
+    });
+
+    it('should show stale results banner with multiple documents', async function () {
+      await renderPipelineEditor(
+        {
+          previewDocs: [
+            new HadronDocument({ _id: 1 }),
+            new HadronDocument({ _id: 2 }),
+            new HadronDocument({ _id: 3 }),
+          ],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'vector-index',
+        },
+        {},
+        {
+          preferences: {
+            getPreferences() {
+              return { enableSearchActivationProgramP1: true };
+            },
+          },
+        }
+      );
+
+      expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
+    });
+
+    it('should NOT show stale results banner when feature flag is disabled', async function () {
+      await renderPipelineEditor(
+        {
+          previewDocs: [new HadronDocument({ _id: 1 })],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'test-index',
+        },
+        {},
+        {
+          preferences: {
+            getPreferences() {
+              return { enableSearchActivationProgramP1: false };
+            },
+          },
+        }
+      );
+
+      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
     });
   });
 });

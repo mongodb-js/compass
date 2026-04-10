@@ -1,6 +1,6 @@
 import chai, { expect } from 'chai';
 import { promises as fs } from 'fs';
-import type { CompassBrowser } from '../compass-browser';
+import type { CompassBrowser } from '../compass-browser.ts';
 import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);

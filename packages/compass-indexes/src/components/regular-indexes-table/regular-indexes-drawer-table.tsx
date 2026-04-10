@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { connect, useSelector, shallowEqual } from 'react-redux';
 import { usePreferences } from 'compass-preferences-model/provider';
 
 import type { RootState } from '../../modules';
@@ -114,7 +114,8 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-    })
+    }),
+    shallowEqual
   );
 
   const { data: allData } = useRegularIndexesTable({

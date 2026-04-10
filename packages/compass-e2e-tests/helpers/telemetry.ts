@@ -3,8 +3,8 @@ import http from 'http';
 import type { AddressInfo } from 'net';
 import { EJSON } from 'bson';
 import type { MongoLogEntry } from 'mongodb-log-writer';
-import { TEST_COMPASS_WEB } from './compass';
-import type { CompassBrowser } from './compass-browser';
+import { TEST_COMPASS_WEB } from './compass.ts';
+import type { CompassBrowser } from './compass-browser.ts';
 import { expect } from 'chai';
 
 export type Telemetry = {

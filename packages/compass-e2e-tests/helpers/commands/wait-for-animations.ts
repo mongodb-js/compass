@@ -1,7 +1,7 @@
 import _ from 'lodash';
 import type { ChainablePromiseElement } from 'webdriverio';
-import type { CompassBrowser } from '../compass-browser';
-import { resolveElement } from '../utils';
+import type { CompassBrowser } from '../compass-browser.ts';
+import { resolveElement } from '../utils.ts';
 
 export async function waitForAnimations(
   browser: CompassBrowser,

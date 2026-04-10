@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { connect } from 'react-redux';
+import { connect, shallowEqual, useSelector } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
   updateIndex,
@@ -17,7 +17,6 @@ import {
 } from '../../modules/indexes-drawer';
 import {
   useOnAsyncSuccess,
-  useConfirmCancel,
   useIndexDefinitionChange,
 } from './drawer-view-hooks';
 import {
@@ -30,6 +29,7 @@ import {
   SpinLoader,
   Subtitle,
   Body,
+  Tooltip,
   useDarkMode,
   cx,
 } from '@mongodb-js/compass-components';
@@ -42,14 +42,24 @@ import {
   overflowWrapStyles,
 } from './drawer-view-styles';
 import { IndexStatus } from '../search-indexes-table/use-search-indexes-table';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorMultilineEditor,
+  useJsonSchemaAutocompleter,
+} from '@mongodb-js/compass-editor';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import type { SearchIndex } from 'mongodb-data-service';
+import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/index_jsonEditor.json';
+import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
+import type { JSONSchema7 } from 'json-schema';
+import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { usePreferences } from 'compass-preferences-model/provider';
 
 const scrollContainerStyles = css({
   overflowX: 'auto',
+  flexShrink: 0,
 });
 
 const headerContainerStyles = css({
@@ -62,7 +72,6 @@ const headerContainerStyles = css({
 type EditSearchIndexViewProps = {
   namespace: string;
   searchIndex: SearchIndex;
-  isDirty: boolean;
   isBusy: boolean;
   error?: string;
   onClose: () => void;
@@ -76,7 +85,6 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
 > = ({
   namespace,
   searchIndex,
-  isDirty,
   isBusy,
   error,
   onClose,
@@ -89,7 +97,37 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     JSON.stringify(searchIndex.latestDefinition, null, 2)
   );
 
+  const { atlasMetadata } = useConnectionInfo();
+  const isAtlas = !!atlasMetadata;
+  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+    'readOnly',
+    'readWrite',
+    'enableAtlasSearchIndexes',
+  ]);
+  const { isSearchIndexesWritable } = useSelector(
+    selectReadWriteAccess({
+      isAtlas,
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+    }),
+    shallowEqual
+  );
+
+  // Use the JSON schema autocomplete hook for validation and autocomplete
+  const jsonSchema = (
+    searchIndex.type === 'vectorSearch'
+      ? vectorSearchIndexSchema
+      : searchIndexSchema
+  ) as JSONSchema7;
+  const { completer, extensions, annotations, hasErrors } =
+    useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
+
   const isSaveEnabled = useMemo(() => {
+    if (hasErrors) {
+      return false;
+    }
+
     try {
       const currentParsed = parseShellBSON(indexDefinition);
       const initialParsed = searchIndex.latestDefinition;
@@ -101,7 +139,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       // If current definition is invalid, don't enable save
       return false;
     }
-  }, [indexDefinition, searchIndex.latestDefinition, isBusy]);
+  }, [indexDefinition, searchIndex.latestDefinition, isBusy, hasErrors]);
 
   // Reset state on unmount
   useEffect(() => {
@@ -117,7 +155,6 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     setIndexDefinition,
     onIndexDefinitionEdit
   );
-  const onCancelClick = useConfirmCancel(isDirty, onClose);
 
   const onSaveClick = useCallback(() => {
     updateIndex({
@@ -185,6 +222,12 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
             onChangeText={onChangeText}
             minLines={16}
             showLineNumbers={true}
+            language={'json'}
+            initialJSONFoldAll={false}
+            completer={completer}
+            customExtensions={extensions}
+            annotations={annotations}
+            readOnly={!isSearchIndexesWritable}
           />
         </div>
         {error && <ErrorSummary errors={error} />}
@@ -193,20 +236,31 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
         <Button
           data-testid="edit-search-index-drawer-view-cancel-button"
           variant="default"
-          onClick={() => void onCancelClick()}
+          onClick={onClose}
         >
           Cancel
         </Button>
-        <Button
-          data-testid="edit-search-index-drawer-view-submit-button"
-          variant="primary"
-          isLoading={isBusy}
-          loadingIndicator={<SpinLoader />}
-          disabled={!isSaveEnabled}
-          onClick={onSaveClick}
+        <Tooltip
+          trigger={
+            <Button
+              data-testid="edit-search-index-drawer-view-submit-button"
+              variant="primary"
+              isLoading={isBusy}
+              loadingIndicator={<SpinLoader />}
+              disabled={!isSaveEnabled || !isSearchIndexesWritable}
+              onClick={onSaveClick}
+            >
+              Save and Rebuild
+            </Button>
+          }
+          enabled={!isSearchIndexesWritable}
         >
-          Save and Rebuild
-        </Button>
+          You currently don&apos;t have permission to edit {indexLabel}es in
+          this{' '}
+          {!atlasMetadata
+            ? 'cluster.'
+            : 'project, please contact Project Owner to request the Project Data Access Admin role.'}
+        </Tooltip>
       </div>
     </div>
   );
@@ -225,7 +279,6 @@ const mapState = ({ namespace, searchIndexes, indexesDrawer }: RootState) => {
   return {
     namespace,
     searchIndex,
-    isDirty: indexesDrawer.isDirty,
     isBusy: searchIndexes.updateIndex.isBusy,
     error: searchIndexes.updateIndex.error,
   };

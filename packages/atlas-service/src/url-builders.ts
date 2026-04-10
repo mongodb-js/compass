@@ -3,10 +3,14 @@ import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
 export function buildPerformanceMetricsUrl({
   projectId,
+  clusterName,
   metricsType,
   metricsId,
 }: AtlasClusterMetadata): string {
   const url = new URL(`/v2/${projectId}`, window.location.origin);
+  if (metricsType === 'flex') {
+    return `${url}#/flex/realtime/${clusterName}`;
+  }
   return `${url}#/host/${metricsType}/${metricsId}/realtime/panel`;
 }
 
@@ -19,27 +23,39 @@ export function buildProjectSettingsUrl({
 
 export function buildMonitoringUrl({
   projectId,
+  clusterName,
   metricsType,
   metricsId,
 }: AtlasClusterMetadata): string {
   const url = new URL(`/v2/${projectId}`, window.location.origin);
+  if (metricsType === 'flex') {
+    return `${url}#/flex/monitoring/${clusterName}`;
+  }
   return `${url}#/host/${metricsType}/${metricsId}`;
 }
 
 export function buildClusterOverviewUrl({
   projectId,
   clusterName,
+  metricsType,
 }: AtlasClusterMetadata): string {
   const url = new URL(`/v2/${projectId}`, window.location.origin);
+  if (metricsType === 'flex') {
+    return `${url}#/flex/detail/${clusterName}`;
+  }
   return `${url}#/clusters/detail/${clusterName}`;
 }
 
 export function buildQueryInsightsUrl({
   projectId,
+  clusterName,
   metricsType,
   metricsId,
 }: AtlasClusterMetadata): string {
   const url = new URL(`/v2/${projectId}`, window.location.origin);
+  if (metricsType === 'flex') {
+    return `${url}#/flex/queryInsights/${clusterName}`;
+  }
   return `${url}#/metrics/${metricsType}/${metricsId}/queryInsights/shape`;
 }
 
@@ -54,5 +70,36 @@ export function buildChartsUrl(
   if (database) {
     url.searchParams.set('database', database);
   }
+  return `${url}`;
+}
+
+export function buildAtlasSearchLink({
+  atlasMetadata,
+  namespace,
+  indexName,
+  view,
+}: {
+  atlasMetadata: AtlasClusterMetadata;
+  namespace: string;
+  indexName?: string;
+  view?: string;
+}): string {
+  const { projectId, clusterName } = atlasMetadata;
+  const url = new URL(
+    `/v2/${projectId}#/clusters/atlasSearch/${clusterName}`,
+    window.location.origin
+  );
+  const { database, collection } = toNS(namespace);
+  if (database && collection) {
+    url.searchParams.set('database', database);
+    url.searchParams.set('collectionName', collection);
+    if (indexName) {
+      url.searchParams.set('indexName', indexName);
+      if (view) {
+        url.searchParams.set('view', view);
+      }
+    }
+  }
+
   return `${url}`;
 }

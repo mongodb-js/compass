@@ -203,6 +203,8 @@ export function isAtlasOnlyStage(
   return !!stageOperator && ATLAS_ONLY_OPERATOR_NAMES.has(stageOperator);
 }
 
+export type SearchStageOperator = '$search' | '$searchMeta' | '$vectorSearch';
+
 /*
 Atlas Search does not return an error if there is no search index - it just
 returns no results. So if the connection has access to Atlas Search and the
@@ -211,11 +213,71 @@ different error.
 */
 export function isSearchStage(
   stageOperator: string | null | undefined
-): stageOperator is '$search' | '$searchMeta' | '$vectorSearch' {
+): stageOperator is SearchStageOperator {
   if (!stageOperator) {
     return false;
   }
   return ['$search', '$searchMeta', '$vectorSearch'].includes(stageOperator);
+}
+
+export function mapSearchStageOperatorToSearchIndexType(
+  searchStageOperator: SearchStageOperator
+): 'search' | 'vectorSearch' {
+  return searchStageOperator === '$vectorSearch' ? 'vectorSearch' : 'search';
+}
+
+/**
+ * Extracts the search index name from a $search, $searchMeta, or $vectorSearch stage.
+ * Returns null if the stage value cannot be parsed or doesn't contain an index field.
+ */
+export function getSearchIndexNameFromSearchStage(
+  stageOperator: string | null,
+  stageValue: string | null
+): string | null {
+  if (!stageOperator || !stageValue || !isSearchStage(stageOperator)) {
+    return null;
+  }
+
+  try {
+    const stage = parseShellBSON<Document>(`{${stageOperator}: ${stageValue}}`);
+    const indexName = stage[stageOperator]?.index;
+    return typeof indexName === 'string' ? indexName : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Finds the search stage ($search, $searchMeta, or $vectorSearch) in a pipeline
+ * and extracts both the stage operator and index name from it.
+ * Search stages must be the first stage in a pipeline.
+ */
+export function getSearchStageInfoFromPipeline(pipelineText: string): {
+  searchIndexName: string | null;
+  searchStageOperator: SearchStageOperator | null;
+} {
+  const invalid = { searchIndexName: null, searchStageOperator: null };
+  try {
+    const pipeline = parseShellBSON<Document[]>(pipelineText);
+    if (!Array.isArray(pipeline) || pipeline.length === 0) {
+      return invalid;
+    }
+
+    const firstStage = pipeline[0];
+    const stageOperator = getStageOperator(firstStage);
+
+    if (!isSearchStage(stageOperator)) {
+      return invalid;
+    }
+
+    const indexName = firstStage[stageOperator]?.index;
+    return {
+      searchIndexName: typeof indexName === 'string' ? indexName : null,
+      searchStageOperator: stageOperator,
+    };
+  } catch {
+    return invalid;
+  }
 }
 
 const STAGE_OPERATORS_MAP = new Map(

@@ -74,8 +74,8 @@ const SavedPipelinesButton: React.FunctionComponent = () => {
       className={savedAggregationsPopoverStyles}
       // To prevent popover from closing when confirmation modal is shown
       containedElements={containedElements}
-      trigger={({ onClick, ref, children }) => {
-        return (
+      trigger={({ onClick, ref, children }) => (
+        <>
           <button
             data-testid="pipeline-toolbar-open-pipelines-button"
             onClick={onClick}
@@ -89,10 +89,10 @@ const SavedPipelinesButton: React.FunctionComponent = () => {
           >
             <Icon glyph="Folder" />
             <Icon glyph="CaretDown" />
-            {children}
           </button>
-        );
-      }}
+          {children}
+        </>
+      )}
       open={isVisible}
       setOpen={setIsVisible}
     >

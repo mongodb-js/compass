@@ -1,7 +1,5 @@
-import path from 'path';
 import fs from 'fs';
-
-export const downloadPath = path.join(__dirname, 'downloads');
+import { DOWNLOADS_PATH } from './test-runner-paths.ts';
 
 export const waitForFileDownload = async (
   filename: string,
@@ -10,7 +8,7 @@ export const waitForFileDownload = async (
   fileExists: boolean;
   filePath: string;
 }> => {
-  const filePath = `${downloadPath}/${filename}`;
+  const filePath = `${DOWNLOADS_PATH}/${filename}`;
   await browser.waitUntil(
     function () {
       return fs.existsSync(filePath);
@@ -22,7 +20,7 @@ export const waitForFileDownload = async (
 };
 
 export const cleanUpDownloadedFile = (filename: string) => {
-  const filePath = `${downloadPath}/${filename}`;
+  const filePath = `${DOWNLOADS_PATH}/${filename}`;
   try {
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);

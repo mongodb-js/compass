@@ -1,7 +1,8 @@
 import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
-import { getDefaultConnectionStrings } from './test-runner-context';
+import { getDefaultConnectionStrings } from './test-runner-context.ts';
 import { redactConnectionString } from 'mongodb-connection-string-url';
+import { noServerWarningsCheckpoint } from './test-runner-global-fixtures.ts';
 
 // This is a list of all the known database names that get created by tests so
 // that we can know what to drop when we clean up before every test. If a new
@@ -86,9 +87,15 @@ export const beforeEach = async () => {
   await Promise.all(promises);
 };
 
+export const afterEach = () => {
+  // Check for unexpected server warnings after each test
+  noServerWarningsCheckpoint();
+};
+
 export const mochaRootHooks: Mocha.RootHookObject = {
   beforeAll,
   beforeEach,
+  afterEach,
   afterAll,
 };
 
@@ -133,6 +140,20 @@ export async function createNestedDocumentsCollection(
       );
     })
   );
+}
+
+export async function createSidebarDatabase(): Promise<void> {
+  const promises = [];
+
+  for (const client of clients) {
+    promises.push(
+      client
+        .db('my-sidebar-database')
+        .collection('my-sidebar-collection')
+        .insertMany([...Array(5).keys()].map((i) => ({ docIndex: i })))
+    );
+  }
+  await Promise.all(promises);
 }
 
 export async function createNumbersCollection(

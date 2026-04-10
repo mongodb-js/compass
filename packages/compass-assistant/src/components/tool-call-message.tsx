@@ -14,7 +14,7 @@ import {
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
 import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
-import { getToolState } from '../utils';
+import { cleanToolCallOutput, getToolState } from '../utils';
 
 const { Message } = LgChatMessage;
 
@@ -76,6 +76,8 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
 }) => {
   const darkMode = useDarkMode();
 
+  const runButtonRef = React.useRef<HTMLButtonElement>(null);
+
   const chips = [];
 
   // TODO: find a better way to only display this when the connection is relevant
@@ -89,16 +91,22 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
 
   const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
 
+  const cleanedOutput = React.useMemo(
+    () => (toolCall.output ? cleanToolCallOutput(toolCall.output) : null),
+    [toolCall.output]
+  );
+
   const hasOutput = !!(
-    toolCall.output &&
+    cleanedOutput &&
     (toolCall.state === 'output-available' || toolCall.state === 'output-error')
   );
 
-  const outputText = toolCall.output
-    ? JSON.stringify(toolCall.output, null, 2)
+  const outputText = cleanedOutput
+    ? JSON.stringify(cleanedOutput, null, 2)
     : '';
 
-  const isAwaitingApproval = toolCall.state === 'approval-requested';
+  const isAwaitingApproval =
+    toolCall.state === 'approval-requested' && !!toolCall.approval;
   const wasApproved = toolCall.approval?.approved === true;
   const isDenied = toolCall.state === 'output-denied';
   const didRun =
@@ -147,6 +155,12 @@ ${toolCall.errorText}
     title = <>Run {toolNameElement}?</>;
   }
 
+  React.useEffect(() => {
+    if (isAwaitingApproval && runButtonRef.current) {
+      runButtonRef.current.focus();
+    }
+  }, [isAwaitingApproval, toolCall.approval?.id]);
+
   if (toolCall.state === 'input-streaming') {
     // The tool call renders with undefined input or incomplete input and then
     // soon after with an object. At that point even if there are no parameters
@@ -179,7 +193,7 @@ ${toolCall.errorText}
         >
           {expandableContentText}
         </Message.ActionCard.ExpandableContent>
-        {isAwaitingApproval && toolCall.approval && (
+        {isAwaitingApproval && (
           <Message.ActionCard.Button
             onClick={() => onDeny?.(toolCall.approval.id)}
             variant="default"
@@ -187,11 +201,12 @@ ${toolCall.errorText}
             Cancel
           </Message.ActionCard.Button>
         )}
-        {isAwaitingApproval && toolCall.approval && (
+        {isAwaitingApproval && (
           <Message.ActionCard.Button
             onClick={() => onApprove?.(toolCall.approval.id)}
             variant="primary"
             rightGlyph={<Icon glyph="Return" />}
+            ref={runButtonRef}
           >
             Run
           </Message.ActionCard.Button>

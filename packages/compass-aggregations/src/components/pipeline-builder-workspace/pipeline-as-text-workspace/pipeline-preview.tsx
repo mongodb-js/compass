@@ -20,12 +20,15 @@ import { AtlasStagePreview } from '../../stage-preview/atlas-stage-preview';
 import {
   isMissingAtlasStageSupport,
   findAtlasOperator,
+  getSearchStageInfoFromPipeline,
 } from '../../../utils/stage';
 import {
   expandPreviewDocs,
   collapsePreviewDocs,
 } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import SearchNoResults from '../../search-no-results';
+import { usePreference } from 'compass-preferences-model/provider';
+import SearchIndexStaleResultsBanner from '../../search-index-stale-results-banner';
 
 const containerStyles = css({
   display: 'flex',
@@ -76,6 +79,8 @@ type PipelinePreviewProps = {
   atlasOperator: string;
   previewDocs: HadronDocument[] | null;
   isPreviewStale: boolean;
+  showSearchIndexStaleResultsBanner: boolean;
+  searchIndexName: string | null;
   onExpand: () => void;
   onCollapse: () => void;
 };
@@ -86,17 +91,25 @@ const PreviewResults = ({
   isMissingAtlasSupport,
   atlasOperator,
   isPreviewStale,
+  showSearchIndexStaleResultsBanner,
+  searchIndexName,
 }: {
   previewDocs: HadronDocument[] | null;
   isLoading: boolean;
   isMissingAtlasSupport: boolean;
   atlasOperator: string;
   isPreviewStale: boolean;
+  showSearchIndexStaleResultsBanner: boolean;
+  searchIndexName: string | null;
 }) => {
   const copyToClipboard = useCallback((doc: HadronDocument) => {
     const str = doc.toEJSON();
     void navigator.clipboard.writeText(str);
   }, []);
+
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
 
   if (isLoading) {
     return (
@@ -127,7 +140,7 @@ const PreviewResults = ({
   }
 
   if (previewDocs.length === 0) {
-    if (atlasOperator) {
+    if (!enableSearchActivationProgramP1 && atlasOperator) {
       return <SearchNoResults />;
     }
     return (
@@ -149,6 +162,9 @@ const PreviewResults = ({
         isEditable={false}
         className={documentListStyles}
       />
+      {enableSearchActivationProgramP1 && showSearchIndexStaleResultsBanner && (
+        <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
+      )}
     </>
   );
 };
@@ -161,6 +177,8 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
   previewDocs,
   atlasOperator,
   isPreviewStale,
+  showSearchIndexStaleResultsBanner,
+  searchIndexName,
   onExpand,
   onCollapse,
 }) => {
@@ -203,6 +221,8 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
         atlasOperator={atlasOperator}
         previewDocs={previewDocs}
         isPreviewStale={isPreviewStale}
+        showSearchIndexStaleResultsBanner={showSearchIndexStaleResultsBanner}
+        searchIndexName={searchIndexName}
       />
       <div className={outputStageStyles} data-testid="output-stage-preview">
         <OutputStageBanner stageOperator={stageOperator} />
@@ -214,7 +234,7 @@ export const PipelinePreview: React.FunctionComponent<PipelinePreviewProps> = ({
 const mapState = (state: RootState) => {
   const stageOperators = getPipelineStageOperatorsFromBuilderState(state);
   const lastStage = stageOperators[stageOperators.length - 1] ?? '';
-  const { isLoading, previewDocs, serverError, isPreviewStale } =
+  const { isLoading, previewDocs, serverError, isPreviewStale, pipelineText } =
     state.pipelineBuilder.textEditor.pipeline;
   const atlasOperator = findAtlasOperator(stageOperators) ?? '';
   const isMissingAtlasSupport = isMissingAtlasStageSupport(
@@ -222,6 +242,14 @@ const mapState = (state: RootState) => {
     atlasOperator,
     serverError
   );
+
+  const { searchIndexName } = getSearchStageInfoFromPipeline(pipelineText);
+  const showSearchIndexStaleResultsBanner =
+    !!searchIndexName &&
+    state.searchIndexes.indexes.some(
+      (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
+    );
+
   return {
     isLoading,
     previewDocs,
@@ -230,6 +258,8 @@ const mapState = (state: RootState) => {
     isMissingAtlasSupport,
     atlasOperator,
     isPreviewStale,
+    showSearchIndexStaleResultsBanner,
+    searchIndexName,
   };
 };
 

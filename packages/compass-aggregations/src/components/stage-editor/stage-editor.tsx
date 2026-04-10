@@ -12,12 +12,14 @@ import {
   spacing,
   palette,
   Banner,
+  Link,
   useDarkMode,
   useRequiredURLSearchParams,
   useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import {
   changeStageValue,
+  getIndexOfFirstStageWithServerError,
   pipelineFromStore,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
@@ -27,6 +29,19 @@ import type { PipelineParserError } from '../../modules/pipeline-builder/pipelin
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import {
+  openCreateSearchIndexDrawerView,
+  openEditSearchIndexDrawerView,
+  openIndexesListDrawerView,
+} from '../../modules/search-indexes';
+import type { SearchIndexType } from '../../modules/search-indexes';
+import { usePreference } from 'compass-preferences-model/provider';
+import {
+  getSearchIndexNameFromSearchStage,
+  isSearchStage,
+} from '../../utils/stage';
+import ServerErrorBanner from '../server-error-banner';
+import SearchIndexDoesNotExistBanner from '../search-index-does-not-exist-banner';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -75,10 +90,16 @@ type StageEditorProps = {
   serverVersion: string;
   syntaxError: PipelineParserError | null;
   serverError: MongoServerError | null;
+  serverErrorStageIdx: number | null;
   num_stages: number;
   editor_view_type: 'text' | 'stage' | 'focus';
+  searchIndexName: string | null;
+  showSearchIndexDoesNotExistBanner: boolean;
   className?: string;
   onChange: (index: number, value: string) => void;
+  onViewSearchIndexesClick: () => void;
+  onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
+  onEditSearchIndexClick: (indexName: string) => void;
   editorRef?: React.Ref<EditorRef>;
 };
 
@@ -88,12 +109,18 @@ export const StageEditor = ({
   stageOperator,
   index,
   onChange,
+  onViewSearchIndexesClick,
+  onCreateSearchIndexClick,
+  onEditSearchIndexClick,
   serverError,
+  serverErrorStageIdx,
   syntaxError,
   className,
   serverVersion,
   num_stages,
   editor_view_type,
+  searchIndexName,
+  showSearchIndexDoesNotExistBanner,
   editorRef,
 }: StageEditorProps) => {
   const track = useTelemetry();
@@ -103,6 +130,10 @@ export const StageEditor = ({
   const editorCurrentValueRef = useCurrentValueRef<string | null>(stageValue);
 
   const fields = useAutocompleteFields(namespace);
+
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
@@ -159,6 +190,15 @@ export const StageEditor = ({
     connectionInfoRef,
   ]);
 
+  const onClickStageWithError = useCallback(() => {
+    document
+      .querySelector(`[data-stage-index="${serverErrorStageIdx}"]`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [serverErrorStageIdx]);
+
+  const isServerErrorUpstream =
+    serverErrorStageIdx !== null && serverErrorStageIdx < index;
+
   return (
     <div
       data-testid="stage-editor"
@@ -196,16 +236,50 @@ export const StageEditor = ({
             : syntaxError.message}
         </Banner>
       )}
-      {serverError && (
+      {serverError && !isServerErrorUpstream && (
+        <ServerErrorBanner
+          message={serverError.message}
+          searchIndexName={searchIndexName}
+          dataTestId="stage-editor-error-message"
+          // Don't show link when in focus mode as modal covers the drawer
+          onEditSearchIndexClick={
+            editor_view_type !== 'focus' ? onEditSearchIndexClick : undefined
+          }
+        />
+      )}
+      {isServerErrorUpstream && (
         <Banner
-          variant="danger"
-          data-testid="stage-editor-error-message"
-          title={serverError.message}
+          variant="warning"
+          data-testid="stage-editor-upstream-error-message"
           className={bannerStyles}
         >
-          {serverError.message}
+          An error occurred on{' '}
+          <Link as="button" onClick={onClickStageWithError}>
+            Stage {serverErrorStageIdx + 1}
+          </Link>
+          .
         </Banner>
       )}
+      {enableSearchActivationProgramP1 &&
+        !serverError &&
+        !syntaxError &&
+        showSearchIndexDoesNotExistBanner &&
+        isSearchStage(stageOperator) && (
+          <SearchIndexDoesNotExistBanner
+            searchStageOperator={stageOperator}
+            // Don't show links when in focus mode as modal covers the drawer
+            onViewIndexesClick={
+              editor_view_type !== 'focus'
+                ? onViewSearchIndexesClick
+                : undefined
+            }
+            onCreateSearchIndexClick={
+              editor_view_type !== 'focus'
+                ? onCreateSearchIndexClick
+                : undefined
+            }
+          />
+        )}
     </div>
   );
 };
@@ -215,16 +289,37 @@ export default connect(
     const stages = state.pipelineBuilder.stageEditor.stages;
     const stage = stages[ownProps.index] as StoreStage;
     const num_stages = pipelineFromStore(stages).length;
+    const editor_view_type = mapPipelineModeToEditorViewType(state);
+    const searchIndexName = getSearchIndexNameFromSearchStage(
+      stage.stageOperator,
+      stage.value
+    );
+    const showSearchIndexDoesNotExistBanner =
+      !!searchIndexName &&
+      ['READY', 'POLLING'].includes(state.searchIndexes.status) &&
+      state.searchIndexes.indexes.every((x) => x.name !== searchIndexName);
+
     return {
       namespace: state.namespace,
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
       syntaxError: !stage.empty ? stage.syntaxError ?? null : null,
       serverError: !stage.empty ? stage.serverError ?? null : null,
+      serverErrorStageIdx: getIndexOfFirstStageWithServerError(
+        stages,
+        ownProps.index
+      ),
       serverVersion: state.serverVersion,
       num_stages,
-      editor_view_type: mapPipelineModeToEditorViewType(state),
+      editor_view_type,
+      searchIndexName,
+      showSearchIndexDoesNotExistBanner,
     };
   },
-  { onChange: changeStageValue }
+  {
+    onChange: changeStageValue,
+    onViewSearchIndexesClick: openIndexesListDrawerView,
+    onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
+    onEditSearchIndexClick: openEditSearchIndexDrawerView,
+  }
 )(StageEditor);

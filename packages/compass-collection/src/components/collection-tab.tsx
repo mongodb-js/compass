@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
@@ -11,10 +11,17 @@ import {
   useCollectionSubTabs,
 } from './collection-tab-provider';
 import type { CollectionTabOptions } from '../stores/collection-tab';
+import { selectHasSchemaAnalysisData } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
+  useTelemetry,
+  useAssignment,
+  ExperimentTestNames,
+  ExperimentTestGroups,
+} from '@mongodb-js/compass-telemetry/provider';
+import {
+  useConnectionInfo,
   useConnectionInfoRef,
   useConnectionSupports,
 } from '@mongodb-js/compass-connections/provider';
@@ -25,6 +32,8 @@ import {
   useLocalAppRegistry,
 } from '@mongodb-js/compass-app-registry';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
+import { SCHEMA_ANALYSIS_STATE_COMPLETE } from '../schema-analysis-types';
+import { MAX_COLLECTION_NESTING_DEPTH } from './mock-data-generator-modal/utils';
 
 type CollectionSubtabTrackingId = Lowercase<CollectionSubtab> extends infer U
   ? U extends string
@@ -64,6 +73,8 @@ const collectionModalContainerStyles = css({
 type ConnectionTabConnectedProps = {
   collectionMetadata: CollectionMetadata;
   onTabClick: (tab: CollectionSubtab) => void;
+  hasSchemaAnalysisData: boolean;
+  analyzedSchemaDepth: number;
 };
 
 // TODO(COMPASS-7937): Wrong place for these types and type descriptions
@@ -190,9 +201,12 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   collectionMetadata,
   subTab: currentTab,
   onTabClick,
+  hasSchemaAnalysisData,
+  analyzedSchemaDepth,
 }) => {
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
+  const connectionInfo = useConnectionInfo();
   useEffect(() => {
     const activeSubTabName = currentTab
       ? trackingIdForTabName(currentTab)
@@ -210,6 +224,42 @@ const CollectionTabWithMetadata: React.FunctionComponent<
   }, [currentTab, track, connectionInfoRef]);
   const pluginModals = useCollectionScopedModals();
 
+  // Compute Mock Data Generator eligibility
+  const { isReadonly, isTimeSeries, sourceName } = collectionMetadata;
+  const atlasMetadata = connectionInfo.atlasMetadata;
+  const isMockDataGeneratorEligible = Boolean(
+    atlasMetadata && // Only show in Atlas
+      !isReadonly && // Don't show for readonly collections (views)
+      !isTimeSeries && // Don't show for time series collections
+      !sourceName // sourceName indicates it's a view
+  );
+
+  const mockDataGeneratorAssignment = useAssignment(
+    ExperimentTestNames.mockDataGenerator,
+    isMockDataGeneratorEligible // Only track eligible collections
+  );
+
+  const isInMockDataTreatmentVariant =
+    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
+    ExperimentTestGroups.mockDataGeneratorVariant;
+
+  const exceedsMaxNestingDepth =
+    analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
+
+  const isMockDataGeneratorEnabled = useMemo(() => {
+    return (
+      isMockDataGeneratorEligible &&
+      isInMockDataTreatmentVariant &&
+      hasSchemaAnalysisData &&
+      !exceedsMaxNestingDepth
+    );
+  }, [
+    isMockDataGeneratorEligible,
+    isInMockDataTreatmentVariant,
+    hasSchemaAnalysisData,
+    exceedsMaxNestingDepth,
+  ]);
+
   const pluginProps = {
     ...collectionMetadata,
     namespace: namespace,
@@ -219,6 +269,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     query: initialQuery,
     editViewName: editViewName,
     subTab: currentTab,
+    isMockDataGeneratorEnabled,
   };
 
   const tabs = useCollectionTabs(pluginProps);
@@ -367,9 +418,15 @@ const CollectionTab = ({
 
 const ConnectedCollectionTab = connect(
   (state: CollectionState) => {
+    const analyzedSchemaDepth =
+      state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_COMPLETE
+        ? state.schemaAnalysis.schemaMetadata.maxNestingDepth
+        : 0;
     return {
       namespace: state.namespace,
       collectionMetadata: state.metadata,
+      hasSchemaAnalysisData: selectHasSchemaAnalysisData(state),
+      analyzedSchemaDepth,
     };
   },
   {

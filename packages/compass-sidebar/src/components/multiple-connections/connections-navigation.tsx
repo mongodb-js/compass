@@ -110,6 +110,12 @@ const noDeploymentStyles = css({
   gap: spacing[200],
 });
 
+const noSearchResultsStyles = css({
+  paddingLeft: spacing[400],
+  paddingRight: spacing[400],
+  paddingTop: spacing[400],
+});
+
 /**
  * Indicates only Atlas cluster connections are supported, and the user cannot navigate
  * to other types of connections from this UI.
@@ -613,13 +619,22 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       {isInitialConnectionsLoad ? (
         <ConnectionsPlaceholder></ConnectionsPlaceholder>
       ) : connections.length > 0 ? (
-        <ConnectionsNavigationTree
-          connections={filtered || connections}
-          activeWorkspace={activeWorkspace}
-          onItemAction={onItemAction}
-          onItemExpand={onItemExpand}
-          expanded={expanded}
-        />
+        filtered && filtered.length === 0 ? (
+          <div
+            className={noSearchResultsStyles}
+            data-testid="no-search-results"
+          >
+            <Body>No results found.</Body>
+          </div>
+        ) : (
+          <ConnectionsNavigationTree
+            connections={filtered || connections}
+            activeWorkspace={activeWorkspace}
+            onItemAction={onItemAction}
+            onItemExpand={onItemExpand}
+            expanded={expanded}
+          />
+        )
       ) : connections.length === 0 ? (
         <div className={noDeploymentStyles}>
           <Body data-testid="no-deployments-text">

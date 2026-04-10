@@ -1,13 +1,13 @@
 import _ from 'lodash';
 import { expect } from 'chai';
-import type { CompassBrowser } from '../compass-browser';
-import * as Selectors from '../selectors';
-import type { ConnectFormState } from '../connect-form-state';
+import type { CompassBrowser } from '../compass-browser.ts';
+import * as Selectors from '../selectors.ts';
+import type { ConnectFormState } from '../connect-form-state.ts';
 import Debug from 'debug';
 import {
   DEFAULT_CONNECTIONS,
-  isTestingAtlasCloud,
-} from '../test-runner-context';
+  isTestingWebAtlasCloud,
+} from '../test-runner-context.ts';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 const debug = Debug('compass-e2e-tests');
 
@@ -935,7 +935,7 @@ let screenshotCounter = 0;
 export async function setupDefaultConnections(browser: CompassBrowser) {
   // When running tests against Atlas Cloud, connections can't be added or
   // removed from the UI manually, so we skip setup for default connections
-  if (isTestingAtlasCloud()) {
+  if (isTestingWebAtlasCloud()) {
     return;
   }
 

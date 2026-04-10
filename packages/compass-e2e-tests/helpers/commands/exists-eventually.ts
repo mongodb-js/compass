@@ -1,4 +1,4 @@
-import type { CompassBrowser } from '../compass-browser';
+import type { CompassBrowser } from '../compass-browser.ts';
 
 export async function existsEventually(
   browser: CompassBrowser,

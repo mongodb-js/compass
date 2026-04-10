@@ -1,0 +1,3 @@
+For git commits and GitHub pull requests in this repository, use `COMMIT_MESSAGES.md` as the single source of truth.
+
+When the user asks you to draft or create a commit message, PR title, or PR description, read and follow `COMMIT_MESSAGES.md` by reference.

@@ -13,6 +13,11 @@ if [[ "${EVERGREEN_BRANCH_NAME}" != "main" ]]; then
   exit 0;
 fi
 
+if [[ "${EVERGREEN_IS_PATCH}" == "true" ]]; then 
+  echo "Trying to publish main compass (dev build) from patch. Skipping...";
+  exit 0;
+fi
+
 JSON_CONTENT=$( jq -n \
   --arg id "$DEV_VERSION_IDENTIFIER" \
   --arg key "${EVERGREEN_BUCKET_KEY_PREFIX}" \

@@ -131,7 +131,7 @@ class ChartComponent extends React.Component {
    */
   render() {
     return (
-      <div className="chart">
+      <div className="chart" data-testid="chart-component">
         <div
           ref={(container) => {
             this.containerRef = container;

@@ -1,13 +1,13 @@
-import { connectionNameFromString } from '../compass';
-import type { CompassBrowser } from '../compass-browser';
-import type { ConnectFormState } from '../connect-form-state';
-import * as Selectors from '../selectors';
+import { connectionNameFromString } from '../compass.ts';
+import type { CompassBrowser } from '../compass-browser.ts';
+import type { ConnectFormState } from '../connect-form-state.ts';
+import * as Selectors from '../selectors.ts';
 import Debug from 'debug';
 import {
   getDefaultConnectionNames,
   getDefaultConnectionStrings,
-  isTestingAtlasCloud,
-} from '../test-runner-context';
+  isTestingWebAtlasCloud,
+} from '../test-runner-context.ts';
 
 const debug = Debug('compass-e2e-tests');
 
@@ -52,7 +52,7 @@ export async function connectWithConnectionString(
   // When testing Atlas Cloud, we can't really create a new connection, so just
   // assume a connection name was passed (with a fallback to a default one) and
   // try to use it
-  if (isTestingAtlasCloud()) {
+  if (isTestingWebAtlasCloud()) {
     await browser.connectByName(
       connectionStringOrName ?? getDefaultConnectionNames(0)
     );

@@ -872,4 +872,151 @@ describe('Collection Tab Content store', function () {
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
   });
+
+  describe('open-mock-data-generator-modal event listener', function () {
+    it('should open mock data generator modal when event is emitted and AI access succeeds', async function () {
+      const ensureAiFeatureAccess = sandbox.stub().resolves();
+      const mockAtlasAiService = { ensureAiFeatureAccess };
+
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      const mockCollection = {
+        _id: defaultMetadata.namespace,
+        fetchMetadata() {
+          return Promise.resolve(defaultMetadata);
+        },
+        toJSON() {
+          return this;
+        },
+      };
+
+      ({ store, deactivate } = activatePlugin(
+        defaultTabOptions,
+        {
+          dataService,
+          atlasAiService: mockAtlasAiService as typeof atlasAiService,
+          localAppRegistry,
+          globalAppRegistry,
+          collection: mockCollection as any,
+          workspaces: {} as any,
+          experimentationServices: {
+            getAssignment,
+            assignExperiment,
+          } as any,
+          connectionInfoRef: mockAtlasConnectionInfo as any,
+          logger: createNoopLogger('COMPASS-COLLECTION-TEST'),
+          preferences: new ReadOnlyPreferenceAccess({
+            enableGenAIFeatures: true,
+            enableGenAIFeaturesAtlasOrg: true,
+            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          }),
+        },
+        mockActivateHelpers
+      ));
+
+      await waitFor(() => {
+        expect(store.getState())
+          .to.have.property('metadata')
+          .deep.eq(defaultMetadata);
+      });
+
+      const state = store.getState() as {
+        mockDataGenerator: { isModalOpen: boolean };
+      };
+
+      // Verify modal is initially closed
+      expect(state.mockDataGenerator.isModalOpen).to.be.false;
+
+      // Emit the event
+      localAppRegistry.emit('open-mock-data-generator-modal');
+
+      await waitFor(() => {
+        expect(ensureAiFeatureAccess).to.have.been.calledOnce;
+        const updatedState = store.getState() as {
+          mockDataGenerator: { isModalOpen: boolean };
+        };
+        expect(updatedState.mockDataGenerator.isModalOpen).to.be.true;
+      });
+    });
+
+    it('should not open modal when ensureAiFeatureAccess fails', async function () {
+      const ensureAiFeatureAccess = sandbox
+        .stub()
+        .rejects(new Error('AI feature access denied'));
+      const mockAtlasAiService = { ensureAiFeatureAccess };
+
+      const getAssignment = sandbox.spy(() =>
+        Promise.resolve(
+          createMockAssignment(ExperimentTestGroups.mockDataGeneratorVariant)
+        )
+      );
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      const mockCollection = {
+        _id: defaultMetadata.namespace,
+        fetchMetadata() {
+          return Promise.resolve(defaultMetadata);
+        },
+        toJSON() {
+          return this;
+        },
+      };
+
+      ({ store, deactivate } = activatePlugin(
+        defaultTabOptions,
+        {
+          dataService,
+          atlasAiService: mockAtlasAiService as typeof atlasAiService,
+          localAppRegistry,
+          globalAppRegistry,
+          collection: mockCollection as any,
+          workspaces: {} as any,
+          experimentationServices: {
+            getAssignment,
+            assignExperiment,
+          } as any,
+          connectionInfoRef: mockAtlasConnectionInfo as any,
+          logger: createNoopLogger('COMPASS-COLLECTION-TEST'),
+          preferences: new ReadOnlyPreferenceAccess({
+            enableGenAIFeatures: true,
+            enableGenAIFeaturesAtlasOrg: true,
+            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+          }),
+        },
+        mockActivateHelpers
+      ));
+
+      await waitFor(() => {
+        expect(store.getState())
+          .to.have.property('metadata')
+          .deep.eq(defaultMetadata);
+      });
+
+      const state = store.getState() as {
+        mockDataGenerator: { isModalOpen: boolean };
+      };
+
+      // Verify modal is initially closed
+      expect(state.mockDataGenerator.isModalOpen).to.be.false;
+
+      // Emit the event
+      localAppRegistry.emit('open-mock-data-generator-modal');
+
+      await waitFor(() => {
+        expect(ensureAiFeatureAccess).to.have.been.calledOnce;
+      });
+
+      // Wait a bit to ensure modal stays closed
+      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
+      const finalState = store.getState() as {
+        mockDataGenerator: { isModalOpen: boolean };
+      };
+      expect(finalState.mockDataGenerator.isModalOpen).to.be.false;
+    });
+  });
 });

@@ -1029,4 +1029,78 @@ describe('CrudToolbar Component', function () {
       ).to.not.exist;
     });
   });
+
+  describe('Mock Data Generator menu item', function () {
+    function renderCrudToolbarWithMockDataGenerator(
+      isMockDataGeneratorEnabled: boolean
+    ) {
+      return renderWithConnections(
+        <CrudToolbar
+          activeDocumentView="List"
+          count={55}
+          end={20}
+          getPage={noop}
+          insertDataHandler={noop}
+          loadingCount={false}
+          isFetching={false}
+          docsPerPage={25}
+          isWritable
+          lastCountRunMaxTimeMS={1234}
+          instanceDescription=""
+          onApplyClicked={noop}
+          onResetClicked={noop}
+          onUpdateButtonClicked={noop}
+          onDeleteButtonClicked={noop}
+          onExpandAllClicked={noop}
+          onCollapseAllClicked={noop}
+          openExportFileDialog={noop}
+          onOpenExportToLanguage={noop}
+          outdated={false}
+          page={0}
+          readonly={false}
+          refreshDocuments={noop}
+          resultId="123"
+          start={0}
+          viewSwitchHandler={noop}
+          updateMaxDocumentsPerPage={noop}
+          queryLimit={0}
+          querySkip={0}
+          isMockDataGeneratorEnabled={isMockDataGeneratorEnabled}
+        />
+      );
+    }
+
+    it('should show "Generate Mock Data Script" menu item when isMockDataGeneratorEnabled is true', function () {
+      renderCrudToolbarWithMockDataGenerator(true);
+
+      // Open the Add Data dropdown menu
+      userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+
+      expect(screen.getByText('Generate Mock Data Script')).to.be.visible;
+    });
+
+    it('should not show "Generate Mock Data Script" menu item when isMockDataGeneratorEnabled is false', function () {
+      renderCrudToolbarWithMockDataGenerator(false);
+
+      // Open the Add Data dropdown menu
+      userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+
+      expect(screen.queryByText('Generate Mock Data Script')).to.not.exist;
+    });
+
+    it('should emit "open-mock-data-generator-modal" event when "Generate Mock Data Script" is clicked', function () {
+      const { localAppRegistry } = renderCrudToolbarWithMockDataGenerator(true);
+      const emitSpy = sinon.spy(localAppRegistry, 'emit');
+
+      // Open the Add Data dropdown menu
+      userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+
+      // Click the Generate Mock Data Script option
+      userEvent.click(screen.getByText('Generate Mock Data Script'));
+
+      expect(emitSpy).to.have.been.calledOnceWith(
+        'open-mock-data-generator-modal'
+      );
+    });
+  });
 });

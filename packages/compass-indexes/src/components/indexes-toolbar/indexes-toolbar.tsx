@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import { buildAtlasSearchLink } from '@mongodb-js/atlas-service/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import {
   Button,
@@ -21,7 +22,6 @@ import semver from 'semver';
 
 import type { RootState } from '../../modules';
 import { createSearchIndexOpened } from '../../modules/search-indexes';
-import { getAtlasSearchIndexesLink } from '../../utils/atlas-search-indexes-link';
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
@@ -186,8 +186,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
             </Button>
             {showAtlasSearchLink && atlasMetadata && (
               <Link
-                href={getAtlasSearchIndexesLink({
-                  clusterName: atlasMetadata.clusterName,
+                href={buildAtlasSearchLink({
+                  atlasMetadata,
                   namespace,
                 })}
                 hideExternalIcon

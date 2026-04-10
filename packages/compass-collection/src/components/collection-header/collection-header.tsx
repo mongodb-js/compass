@@ -19,20 +19,6 @@ import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import MockDataGeneratorModal from '../mock-data-generator-modal/mock-data-generator-modal';
-import { connect } from 'react-redux';
-import { openMockDataGeneratorModal } from '../../modules/collection-tab';
-import type { CollectionState } from '../../modules/collection-tab';
-import {
-  SCHEMA_ANALYSIS_STATE_ERROR,
-  SCHEMA_ANALYSIS_STATE_COMPLETE,
-  type SchemaAnalysisStatus,
-  type SchemaAnalysisError,
-} from '../../schema-analysis-types';
-import {
-  selectHasSchemaAnalysisData,
-  selectIsCollectionEmpty,
-  selectHasUnsupportedStateError,
-} from '../../stores/collection-tab';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
@@ -73,13 +59,6 @@ type CollectionHeaderProps = {
   sourceName?: string;
   editViewName?: string;
   sourcePipeline?: unknown[];
-  onOpenMockDataModal: () => void;
-  hasSchemaAnalysisData: boolean;
-  analyzedSchemaDepth: number;
-  schemaAnalysisStatus: SchemaAnalysisStatus | null;
-  schemaAnalysisError: SchemaAnalysisError | null;
-  isCollectionEmpty: boolean;
-  hasUnsupportedStateError: boolean;
 };
 
 const getInsightsForPipeline = (pipeline: any[], isAtlas: boolean) => {
@@ -114,12 +93,6 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   sourceName,
   editViewName,
   sourcePipeline,
-  onOpenMockDataModal,
-  hasSchemaAnalysisData,
-  analyzedSchemaDepth,
-  schemaAnalysisError,
-  isCollectionEmpty,
-  hasUnsupportedStateError,
 }) => {
   const darkMode = useDarkMode();
   const showInsights = usePreference('showInsights');
@@ -193,16 +166,9 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
         <CollectionHeaderActions
           editViewName={editViewName}
           isReadonly={isReadonly}
-          isTimeSeries={isTimeSeries}
           namespace={namespace}
           sourceName={sourceName}
           sourcePipeline={sourcePipeline}
-          onOpenMockDataModal={onOpenMockDataModal}
-          hasSchemaAnalysisData={hasSchemaAnalysisData}
-          analyzedSchemaDepth={analyzedSchemaDepth}
-          schemaAnalysisError={schemaAnalysisError}
-          isCollectionEmpty={isCollectionEmpty}
-          hasUnsupportedStateError={hasUnsupportedStateError}
         />
       </div>
       <MockDataGeneratorModal />
@@ -210,27 +176,4 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   );
 };
 
-const mapStateToProps = (state: CollectionState) => {
-  const { schemaAnalysis } = state;
-
-  return {
-    schemaAnalysisError:
-      schemaAnalysis && schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_ERROR
-        ? schemaAnalysis.error
-        : null,
-    hasSchemaAnalysisData: selectHasSchemaAnalysisData(state),
-    analyzedSchemaDepth:
-      schemaAnalysis && schemaAnalysis.status === SCHEMA_ANALYSIS_STATE_COMPLETE
-        ? schemaAnalysis.schemaMetadata.maxNestingDepth
-        : 0,
-    schemaAnalysisStatus: schemaAnalysis?.status || null,
-    isCollectionEmpty: selectIsCollectionEmpty(state),
-    hasUnsupportedStateError: selectHasUnsupportedStateError(state),
-  };
-};
-
-const ConnectedCollectionHeader = connect(mapStateToProps, {
-  onOpenMockDataModal: openMockDataGeneratorModal,
-})(CollectionHeader);
-
-export default ConnectedCollectionHeader;
+export default CollectionHeader;

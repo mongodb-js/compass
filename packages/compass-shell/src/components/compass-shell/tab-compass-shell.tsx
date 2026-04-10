@@ -60,6 +60,7 @@ type CompassShellProps = {
 
 function useInitialEval(
   initialEvaluate: string | string[] | undefined,
+  mongoshVersion: string | null,
   isRender: boolean
 ) {
   const [initialEvalApplied, setInitialEvalApplied] = useTabState(
@@ -68,14 +69,14 @@ function useInitialEval(
   );
   useEffect(() => {
     // as soon as we render the first time, set it to true
-    if (isRender && !initialEvalApplied) {
+    if (isRender && mongoshVersion && !initialEvalApplied) {
       setInitialEvalApplied(true);
     }
-  }, [initialEvalApplied, setInitialEvalApplied, isRender]);
+  }, [initialEvalApplied, mongoshVersion, setInitialEvalApplied, isRender]);
   return initialEvalApplied ? undefined : initialEvaluate;
 }
 
-let _mongoshVersion = '';
+let _mongoshVersion: string | null = null;
 
 export const CompassShell: React.FC<CompassShellProps> = ({
   runtime,
@@ -86,10 +87,6 @@ export const CompassShell: React.FC<CompassShellProps> = ({
 }) => {
   const enableShell = usePreference('enableShell');
   const canRenderShell = !!(enableShell && initialHistory && runtime);
-
-  // initialEvaluate will only be set on the first render of the browser-repl
-  // component
-  const initialEvaluate = useInitialEval(_initialEvaluate, canRenderShell);
 
   const editorRef = useRef<EditorRef>(null);
 
@@ -112,6 +109,15 @@ export const CompassShell: React.FC<CompassShellProps> = ({
     'mongoshVersion',
     _mongoshVersion
   );
+
+  // initialEvaluate will only be set on the first render of the browser-repl
+  // component
+  const initialEvaluate = useInitialEval(
+    _initialEvaluate,
+    mongoshVersion,
+    canRenderShell
+  );
+
   const logger = useLogger('COMPASS-SHELL');
 
   useEffect(() => {

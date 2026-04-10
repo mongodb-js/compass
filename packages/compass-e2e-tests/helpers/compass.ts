@@ -10,26 +10,26 @@ import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
-import { run as packageCompass } from 'hadron-build/commands/release';
+import { run as packageCompass } from 'hadron-build/commands/release.js';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
-export * as Selectors from './selectors';
-export * as Commands from './commands';
-import * as Commands from './commands';
-import type { CompassBrowser } from './compass-browser';
-import type { LogEntry } from './telemetry';
+export * as Selectors from './selectors.ts';
+export * as Commands from './commands/index.ts';
+import * as Commands from './commands/index.ts';
+import type { CompassBrowser } from './compass-browser.ts';
+import type { LogEntry } from './telemetry.ts';
 import Debug from 'debug';
 import semver from 'semver';
-import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags';
+import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags.ts';
 import {
   DEFAULT_CONNECTIONS_SERVER_INFO,
   isTestingWeb,
   isTestingDesktop,
   context,
   assertTestingWeb,
-  isTestingAtlasCloud,
+  isTestingWebAtlasCloud,
   getCloudUrlsFromContext,
-} from './test-runner-context';
+} from './test-runner-context.ts';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
   LOG_PATH,
@@ -38,19 +38,21 @@ import {
   LOG_OUTPUT_PATH,
   LOG_SCREENSHOTS_PATH,
   ELECTRON_PATH,
-} from './test-runner-paths';
+  MONOREPO_ELECTRON_VERSION,
+  E2E_WORKSPACE_PATH,
+  DOWNLOADS_PATH,
+} from './test-runner-paths.ts';
 import treeKill from 'tree-kill';
-import { downloadPath } from './downloads';
 import path from 'path';
-import { globalFixturesAbortController } from './test-runner-global-fixtures';
-import { dialogOpenLocator } from './dialog-open-locator-strategy';
-import { getExtension } from './redirect-extension';
-import { COMPASS_WEB_ENTRYPOINT_HOST } from './test-runner-context';
+import { globalFixturesAbortController } from './test-runner-global-fixtures.ts';
+import { dialogOpenLocator } from './dialog-open-locator-strategy.ts';
+import { getExtension } from './redirect-extension.ts';
+import { COMPASS_WEB_ENTRYPOINT_HOST } from './test-runner-context.ts';
 
 export {
   getDefaultConnectionStrings,
   getDefaultConnectionNames,
-} from './test-runner-context';
+} from './test-runner-context.ts';
 
 const killAsync = async (pid: number, signal?: string) => {
   return new Promise<void>((resolve, reject) => {
@@ -726,7 +728,7 @@ async function startCompassElectron(
     const cdpSession = await page.target().createCDPSession();
     await cdpSession.send('Browser.setDownloadBehavior', {
       behavior: 'allow',
-      downloadPath: downloadPath,
+      downloadPath: DOWNLOADS_PATH,
     });
   } catch (err) {
     debug('Failed to start remote webdriver session', {
@@ -807,7 +809,7 @@ export async function startBrowser(
   const { webdriverOptions, wdioOptions } = await processCommonOpts();
 
   const browserName = context.browserName as 'chrome' | 'firefox';
-  const redirectExtension = isTestingAtlasCloud(context)
+  const redirectExtension = isTestingWebAtlasCloud(context)
     ? await (async () => {
         return getExtension(
           COMPASS_WEB_ENTRYPOINT_HOST,
@@ -819,9 +821,9 @@ export async function startBrowser(
   const browserCapabilities: WebdriverIO.Capabilities = {
     'goog:chromeOptions': {
       prefs: {
-        'download.default_directory': downloadPath,
+        'download.default_directory': DOWNLOADS_PATH,
       },
-      args: isTestingAtlasCloud(context)
+      args: isTestingWebAtlasCloud(context)
         ? [
             // We're going to be hitting localhost from remote domain, LNA needs
             // to be disabled
@@ -835,14 +837,14 @@ export async function startBrowser(
     },
     'moz:firefoxOptions': {
       prefs: {
-        'browser.download.dir': downloadPath,
+        'browser.download.dir': DOWNLOADS_PATH,
         'browser.download.folderList': 2,
         'browser.download.manager.showWhenStarting': false,
         'browser.helperApps.neverAsk.saveToDisk': '*/*',
         // Hide the download (progress) panel
         'browser.download.alwaysOpenPanel': false,
 
-        ...(isTestingAtlasCloud(context) && {
+        ...(isTestingWebAtlasCloud(context) && {
           // Need to disable LNA (see above)
           'network.lna.skip-domains': '*.mongodb.com',
         }),
@@ -873,7 +875,7 @@ export async function startBrowser(
     needsCloseWelcomeModal: false,
   });
 
-  if (isTestingAtlasCloud(context)) {
+  if (isTestingWebAtlasCloud(context)) {
     // In firefox extension needs to be loaded via special Gecko command and
     // should be provided as a base64 string with compressed extension
     if (browserName === 'firefox') {
@@ -940,23 +942,16 @@ function formattedDate(): string {
 export async function rebuildNativeModules(
   compassPath = COMPASS_DESKTOP_PATH
 ): Promise<void> {
-  const fullCompassPath = require.resolve(
-    path.join(compassPath, 'package.json')
-  );
+  const compassPackageJsonPath = path.join(compassPath, 'package.json');
   const {
     config: {
       hadron: { rebuild: rebuildConfig },
     },
-  } = JSON.parse(await fs.readFile(fullCompassPath, 'utf8'));
-
-  const fullElectronPath = require.resolve('electron/package.json');
-  const electronVersion = JSON.parse(
-    await fs.readFile(fullElectronPath, 'utf8')
-  ).version;
+  } = JSON.parse(await fs.readFile(compassPackageJsonPath, 'utf8'));
 
   const rebuildOptions: RebuildOptions = {
     ...rebuildConfig,
-    electronVersion,
+    electronVersion: MONOREPO_ELECTRON_VERSION,
     buildPath: compassPath,
     // monorepo root, so that the root packages are also inspected
     projectRootPath: path.resolve(compassPath, '..', '..'),
@@ -1123,7 +1118,7 @@ export async function init(
 
   const { browser } = compass;
 
-  if (isTestingAtlasCloud(context)) {
+  if (isTestingWebAtlasCloud(context)) {
     await browser.signInToAtlas(
       context.atlasCloudUsername,
       context.atlasCloudPassword
@@ -1141,7 +1136,7 @@ export async function init(
   if (isTestingWeb(context)) {
     await opts.onBeforeNavigate?.(browser);
 
-    if (isTestingAtlasCloud(context)) {
+    if (isTestingWebAtlasCloud(context)) {
       const urls = getCloudUrlsFromContext();
       await browser.navigateTo(
         `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`
@@ -1317,8 +1312,12 @@ export function positionalArgs(positionalArgs: string[]) {
 
     const wrapperPath =
       process.platform === 'win32'
-        ? path.join(__dirname, '..', 'positional-args', 'positional-args.exe')
-        : path.join(__dirname, '..', 'scripts', 'positional-args.sh');
+        ? path.join(
+            E2E_WORKSPACE_PATH,
+            'positional-args',
+            'positional-args.exe'
+          )
+        : path.join(E2E_WORKSPACE_PATH, 'scripts', 'positional-args.sh');
 
     console.log({
       binary: process.env.BINARY,

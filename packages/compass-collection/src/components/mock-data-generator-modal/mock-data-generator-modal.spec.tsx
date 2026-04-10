@@ -21,7 +21,7 @@ import {
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { type MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
+import { type MockDataSchemaToolOutput } from '@mongodb-js/compass-generative-ai';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import * as scriptGenerationUtils from './script-generation-utils';
 
@@ -116,7 +116,7 @@ describe('MockDataGeneratorModal', () => {
                 fakerArgs: [],
               },
             ],
-          } as MockDataSchemaResponse);
+          } as MockDataSchemaToolOutput);
         },
       },
       workspaces: {},
@@ -594,6 +594,25 @@ describe('MockDataGeneratorModal', () => {
           .getByRole('button', { name: 'Back' })
           .getAttribute('aria-disabled')
       ).to.not.equal('true');
+    });
+
+    it('renders the title and description', async () => {
+      await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+
+      expect(screen.getByText('Generate Mock Data Script')).to.exist;
+      expect(
+        screen.getByText(/We've created the following script for your use\./)
+      ).to.exist;
     });
 
     it('renders the main sections: Prerequisites, steps, and Resources', async () => {

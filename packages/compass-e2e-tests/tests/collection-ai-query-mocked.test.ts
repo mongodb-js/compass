@@ -1,24 +1,24 @@
 import { expect } from 'chai';
 
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
   screenshotPathName,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/insert-data';
-import { startMockAssistantServer } from '../helpers/assistant-service';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
+import { createNumbersCollection } from '../helpers/mongo-clients.ts';
+import { startMockAssistantServer } from '../helpers/assistant-service.ts';
 
 async function setup(
   browser: CompassBrowser,
   dbName: string,
   collName: string
 ) {
-  await createNumbersCollection();
+  await createNumbersCollection(collName);
   await browser.setupDefaultConnections();
   await browser.connectToDefaults();
   await browser.navigateToCollectionTab(
@@ -30,6 +30,7 @@ async function setup(
 
   await browser.setFeature('enableGenAIFeatures', true);
   await browser.setFeature('enableGenAISampleDocumentPassing', true);
+  await browser.setFeature('enableGenAIFeaturesAtlasOrg', true);
   await browser.setFeature('optInGenAIFeatures', true);
 }
 

@@ -63,6 +63,40 @@ describe('createQueryLabel', function () {
     expect(result).to.equal("{\n  name: 'pineapple'\n}");
   });
 
+  it('should return the string representation of the property even when it is falsy', () => {
+    const result = createQueryLabel(
+      {
+        type: 'favorite',
+        lastExecuted: new Date('2023-06-03T16:00:00Z'),
+        queryProperties: {
+          filter: { pineapple: false },
+          project: {},
+          sort: undefined,
+          limit: undefined,
+        },
+      },
+      'filter'
+    );
+    expect(result).to.equal('{\n  pineapple: false\n}');
+  });
+
+  it('should return the string representation of the property even when it is falsy', () => {
+    const result = createQueryLabel(
+      {
+        type: 'favorite',
+        lastExecuted: new Date('2023-06-03T16:00:00Z'),
+        queryProperties: {
+          filter: { pineapple: false },
+          project: {},
+          sort: undefined,
+          limit: 0,
+        },
+      },
+      'limit'
+    );
+    expect(result).to.equal('0');
+  });
+
   it('should return an empty string if the property value is undefined', () => {
     const result = createQueryLabel(
       {

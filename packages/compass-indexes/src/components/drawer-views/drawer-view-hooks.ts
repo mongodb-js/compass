@@ -1,6 +1,4 @@
 import { useCallback, useEffect, useRef } from 'react';
-import { showConfirmation } from '@mongodb-js/compass-components';
-import { parseShellBSON } from '../../utils/parse-shell-bson';
 
 /**
  * Hook that calls `onSuccess` when an async operation completes successfully.
@@ -22,31 +20,7 @@ export function useOnAsyncSuccess(
 }
 
 /**
- * Hook that returns a cancel handler which shows a confirmation dialog if there are unsaved changes.
- */
-export function useConfirmCancel(
-  isEditing: boolean,
-  onClose: () => void
-): () => Promise<void> {
-  return useCallback(async () => {
-    if (isEditing) {
-      const isConfirmed = await showConfirmation({
-        title: 'Any unsaved progress will be lost',
-        buttonText: 'Discard',
-        variant: 'danger',
-        description: 'Are you sure you want to continue?',
-      });
-      if (!isConfirmed) {
-        return;
-      }
-    }
-    onClose();
-  }, [isEditing, onClose]);
-}
-
-/**
  * Hook that returns a text change handler for the index definition editor.
- * Marks the form as editing and validates the definition.
  */
 export function useIndexDefinitionChange(
   setIndexDefinition: (definition: string) => void,
@@ -55,13 +29,7 @@ export function useIndexDefinitionChange(
   return useCallback(
     (newDefinition: string) => {
       onIndexDefinitionEdit(true);
-
-      try {
-        parseShellBSON(newDefinition);
-        setIndexDefinition(newDefinition);
-      } catch {
-        // Parsing error handled elsewhere if needed
-      }
+      setIndexDefinition(newDefinition);
     },
     [setIndexDefinition, onIndexDefinitionEdit]
   );
