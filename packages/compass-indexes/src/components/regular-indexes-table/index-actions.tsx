@@ -128,13 +128,11 @@ const buildIndexActions = (
           ? {
               action: 'unhide',
               label: `Unhide Index ${index.name}`,
-              tooltip: `Unhide Index`,
               icon: 'Visibility',
             }
           : {
               action: 'hide',
               label: `Hide Index ${index.name}`,
-              tooltip: `Hide Index`,
               icon: 'VisibilityOff',
             }
       );
