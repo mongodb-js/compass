@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Thu, Apr 9, 2026
+Generated on Fri, Apr 10, 2026
 
 ## Table of Contents
 
@@ -187,6 +187,8 @@ Generated on Thu, Apr 9, 2026
 - [Index Create Opened](#event--IndexCreateOpenedEvent)
 - [Index Dropped](#event--IndexDroppedEvent)
 - [Index Edited](#event--IndexEditedEvent)
+- [Index Create Action Clicked](#event--IndexCreateActionClickedEvent)
+- [Index Refresh Clicked](#event--IndexRefreshClickedEvent)
 
 ### Mock Data Generator
 
@@ -257,6 +259,19 @@ Generated on Thu, Apr 9, 2026
 - [Schema Validation Edited](#event--SchemaValidationEditedEvent)
 - [Schema Validation Updated](#event--SchemaValidationUpdatedEvent)
 - [Schema Validation Generated](#event--SchemaValidationGeneratedEvent)
+
+### Search Indexes
+
+- [Search Index Edit Link Clicked](#event--SearchIndexEditLinkClickedEvent)
+- [Search Index View Indexes Link Clicked](#event--SearchIndexViewIndexesLinkClickedEvent)
+- [Search Index Create Link Clicked](#event--SearchIndexCreateLinkClickedEvent)
+- [Search Index View Definition Link Clicked](#event--SearchIndexViewDefinitionLinkClickedEvent)
+- [Search Index View Indexes Button Clicked](#event--SearchIndexViewIndexesButtonClickedEvent)
+- [Search Index Create Submitted](#event--SearchIndexCreateSubmittedEvent)
+- [Search Index Create Cancelled](#event--SearchIndexCreateCancelledEvent)
+- [Search Index Edit Submitted](#event--SearchIndexEditSubmittedEvent)
+- [Search Index Edit Cancelled](#event--SearchIndexEditCancelledEvent)
+- [Search Index Status Details Link Clicked](#event--SearchIndexStatusDetailsLinkClickedEvent)
 
 ### Settings
 
@@ -2216,6 +2231,33 @@ This event is fired when user updates an index.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
+<a name="event--IndexCreateActionClickedEvent"></a>
+
+### Index Create Action Clicked
+
+This event is fired when user clicks a create action in the indexes drawer
+(e.g. "Standard Index", "Search Index", "Vector Search Index").
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the action was clicked.
+- **index_type** (required): `string`
+  - The type of index being created.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--IndexRefreshClickedEvent"></a>
+
+### Index Refresh Clicked
+
+This event is fired when user clicks the refresh button in the indexes drawer.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
 ## Mock Data Generator
 
 <a name="event--MockDataGeneratorCtaButtonViewedEvent"></a>
@@ -2506,7 +2548,7 @@ This event is fired when a user activates (i.e., navigates to) a screen.
 
 **Properties**:
 
-- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "globalwrites" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | "end_of_life_mongodb_modal" | "export_diagram_modal" | undefined`
+- **name** (optional): `"my_queries" | "aggregations" | "documents" | "collections" | "databases" | "indexes" | "globalwrites" | "performance" | "schema" | "validation" | "confirm_new_pipeline_modal" | "create_collection_modal" | "create_database_modal" | "drop_collection_modal" | "drop_database_modal" | "create_index_modal" | "create_search_index_modal" | "create_view_modal" | "csfle_connection_modal" | "delete_pipeline_modal" | "drop_index_modal" | "export_modal" | "export_to_language_modal" | "import_modal" | "insert_document_modal" | "non_genuine_mongodb_modal" | "rename_collection_modal" | "restore_pipeline_modal" | "save_pipeline_modal" | "shell_info_modal" | "update_search_index_modal" | "end_of_life_mongodb_modal" | "export_diagram_modal" | "indexes_list_drawer" | "create_search_index_drawer" | "edit_search_index_drawer" | undefined`
   - The name of the screen that was activated.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -2823,6 +2865,143 @@ This event is fired when user generates validation rules.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
+
+## Search Indexes
+
+<a name="event--SearchIndexEditLinkClickedEvent"></a>
+
+### Search Index Edit Link Clicked
+
+This event is fired when user clicks the "Edit Search Index" link in the
+server error banner.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the link was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchIndexViewIndexesLinkClickedEvent"></a>
+
+### Search Index View Indexes Link Clicked
+
+This event is fired when user clicks the "View Search Indexes" link in the
+search index does not exist banner.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the link was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchIndexCreateLinkClickedEvent"></a>
+
+### Search Index Create Link Clicked
+
+This event is fired when user clicks the "Create a New Index" link in the
+search index does not exist banner.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the link was clicked.
+- **index_type** (required): `string`
+  - The type of index being created.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchIndexViewDefinitionLinkClickedEvent"></a>
+
+### Search Index View Definition Link Clicked
+
+This event is fired when user clicks the "View Index Definition" link in the
+stale results banner.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the link was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchIndexViewIndexesButtonClickedEvent"></a>
+
+### Search Index View Indexes Button Clicked
+
+This event is fired when user clicks the "View Indexes" button in the stage toolbar.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchIndexCreateSubmittedEvent"></a>
+
+### Search Index Create Submitted
+
+This event is fired when user submits the create search index form in the drawer.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the form was submitted.
+- **index_type** (required): `string`
+  - The type of index being created.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchIndexCreateCancelledEvent"></a>
+
+### Search Index Create Cancelled
+
+This event is fired when user cancels creating a search index in the drawer.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the cancel button was clicked.
+- **index_type** (required): `string`
+  - The type of index that was being created.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchIndexEditSubmittedEvent"></a>
+
+### Search Index Edit Submitted
+
+This event is fired when user submits the edit search index form in the drawer.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the form was submitted.
+- **index_type** (required): `string`
+  - The type of index being edited.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchIndexEditCancelledEvent"></a>
+
+### Search Index Edit Cancelled
+
+This event is fired when user cancels editing a search index in the drawer.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the cancel button was clicked.
+- **index_type** (required): `string`
+  - The type of index that was being edited.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchIndexStatusDetailsLinkClickedEvent"></a>
+
+### Search Index Status Details Link Clicked
+
+This event is fired when user clicks the "View Status Details by Node" link
+in the index build failed toast.
+
+**Properties**:
+
+- **index_type** (required): `string`
+  - The type of the index.
+- **is_compass_web** (optional): `true | undefined`
 
 ## Settings
 

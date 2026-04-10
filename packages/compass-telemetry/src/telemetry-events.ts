@@ -2897,7 +2897,10 @@ type ScreenEvent = ConnectionScopedEvent<{
       | 'shell_info_modal'
       | 'update_search_index_modal'
       | 'end_of_life_mongodb_modal'
-      | 'export_diagram_modal';
+      | 'export_diagram_modal'
+      | 'indexes_list_drawer'
+      | 'create_search_index_drawer'
+      | 'edit_search_index_drawer';
   };
 }>;
 
@@ -3494,6 +3497,190 @@ type CreateSearchIndexForViewClickedEvent = CommonEvent<{
   };
 }>;
 
+export type SearchIndexesTelemetryContext =
+  | 'Server Error Banner'
+  | 'Search Index Does Not Exist Banner'
+  | 'Search Index Stale Results Banner'
+  | 'Stage Toolbar'
+  | 'Indexes List Drawer View'
+  | 'Create Search Index Drawer View'
+  | 'Edit Search Index Drawer View'
+  | 'Search Indexes Drawer Table';
+
+/**
+ * This event is fired when user clicks the "Edit Search Index" link in the
+ * server error banner.
+ *
+ * @category Search Indexes
+ */
+type SearchIndexEditLinkClickedEvent = CommonEvent<{
+  name: 'Search Index Edit Link Clicked';
+  payload: {
+    /** The context/screen from which the link was clicked. */
+    context: SearchIndexesTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the "View Search Indexes" link in the
+ * search index does not exist banner.
+ *
+ * @category Search Indexes
+ */
+type SearchIndexViewIndexesLinkClickedEvent = CommonEvent<{
+  name: 'Search Index View Indexes Link Clicked';
+  payload: {
+    /** The context/screen from which the link was clicked. */
+    context: SearchIndexesTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the "Create a New Index" link in the
+ * search index does not exist banner.
+ *
+ * @category Search Indexes
+ */
+type SearchIndexCreateLinkClickedEvent = CommonEvent<{
+  name: 'Search Index Create Link Clicked';
+  payload: {
+    /** The context/screen from which the link was clicked. */
+    context: SearchIndexesTelemetryContext;
+    /** The type of index being created. */
+    index_type: string;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the "View Index Definition" link in the
+ * stale results banner.
+ *
+ * @category Search Indexes
+ */
+type SearchIndexViewDefinitionLinkClickedEvent = CommonEvent<{
+  name: 'Search Index View Definition Link Clicked';
+  payload: {
+    /** The context/screen from which the link was clicked. */
+    context: SearchIndexesTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the "View Indexes" button in the stage toolbar.
+ *
+ * @category Search Indexes
+ */
+type SearchIndexViewIndexesButtonClickedEvent = CommonEvent<{
+  name: 'Search Index View Indexes Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: SearchIndexesTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks a create action in the indexes drawer
+ * (e.g. "Standard Index", "Search Index", "Vector Search Index").
+ *
+ * @category Indexes
+ */
+type IndexCreateActionClickedEvent = CommonEvent<{
+  name: 'Index Create Action Clicked';
+  payload: {
+    /** The context/screen from which the action was clicked. */
+    context: SearchIndexesTelemetryContext;
+    /** The type of index being created. */
+    index_type: string;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the refresh button in the indexes drawer.
+ *
+ * @category Indexes
+ */
+type IndexRefreshClickedEvent = CommonEvent<{
+  name: 'Index Refresh Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: SearchIndexesTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when user submits the create search index form in the drawer.
+ *
+ * @category Search Indexes
+ */
+type SearchIndexCreateSubmittedEvent = CommonEvent<{
+  name: 'Search Index Create Submitted';
+  payload: {
+    /** The context/screen from which the form was submitted. */
+    context: SearchIndexesTelemetryContext;
+    /** The type of index being created. */
+    index_type: string;
+  };
+}>;
+
+/**
+ * This event is fired when user cancels creating a search index in the drawer.
+ *
+ * @category Search Indexes
+ */
+type SearchIndexCreateCancelledEvent = CommonEvent<{
+  name: 'Search Index Create Cancelled';
+  payload: {
+    /** The context/screen from which the cancel button was clicked. */
+    context: SearchIndexesTelemetryContext;
+    /** The type of index that was being created. */
+    index_type: string;
+  };
+}>;
+
+/**
+ * This event is fired when user submits the edit search index form in the drawer.
+ *
+ * @category Search Indexes
+ */
+type SearchIndexEditSubmittedEvent = CommonEvent<{
+  name: 'Search Index Edit Submitted';
+  payload: {
+    /** The context/screen from which the form was submitted. */
+    context: SearchIndexesTelemetryContext;
+    /** The type of index being edited. */
+    index_type: string;
+  };
+}>;
+
+/**
+ * This event is fired when user cancels editing a search index in the drawer.
+ *
+ * @category Search Indexes
+ */
+type SearchIndexEditCancelledEvent = CommonEvent<{
+  name: 'Search Index Edit Cancelled';
+  payload: {
+    /** The context/screen from which the cancel button was clicked. */
+    context: SearchIndexesTelemetryContext;
+    /** The type of index that was being edited. */
+    index_type: string;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the "View Status Details by Node" link
+ * in the index build failed toast.
+ *
+ * @category Search Indexes
+ */
+type SearchIndexStatusDetailsLinkClickedEvent = CommonEvent<{
+  name: 'Search Index Status Details Link Clicked';
+  payload: {
+    /** The type of the index. */
+    index_type: string;
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3675,4 +3862,16 @@ export type TelemetryEvent =
   | MockDataFakerMethodChangedEvent
   | MockDataDocumentCountChangedEvent
   | MockDataScriptGeneratedEvent
-  | MockDataScriptCopiedEvent;
+  | MockDataScriptCopiedEvent
+  | SearchIndexEditLinkClickedEvent
+  | SearchIndexViewIndexesLinkClickedEvent
+  | SearchIndexCreateLinkClickedEvent
+  | SearchIndexViewDefinitionLinkClickedEvent
+  | SearchIndexViewIndexesButtonClickedEvent
+  | IndexCreateActionClickedEvent
+  | IndexRefreshClickedEvent
+  | SearchIndexCreateSubmittedEvent
+  | SearchIndexCreateCancelledEvent
+  | SearchIndexEditSubmittedEvent
+  | SearchIndexEditCancelledEvent
+  | SearchIndexStatusDetailsLinkClickedEvent;
