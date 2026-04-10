@@ -23,7 +23,7 @@ const openai = createOpenAI({
   },
 });
 
-const modelName = process.env.MOCK_DATA_EVAL_MODEL ?? 'mongodb-slim-2';
+const modelName = process.env.MOCK_DATA_EVAL_MODEL ?? 'mongodb-slim-2.1-mini';
 
 const mockDataTool = tool({
   description:
