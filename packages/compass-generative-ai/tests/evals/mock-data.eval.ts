@@ -1,26 +1,66 @@
 import { Eval } from 'braintrust';
-import type {
-  MockDataEvalCaseInput,
-  MockDataTaskOutput,
-  MockDataEvalCaseExpected,
-} from './types';
-import { makeMockDataCall } from './mock-data-api';
+
+import { generateSchemaForEval } from './mock-data-api';
 import {
-  FieldCoverage,
-  FakerMethodValidity,
-  FakerMethodRelevance,
+  FakerFieldNameAccuracy,
+  FakerSuggestedMethodAccuracy,
+  PercentRecognizedScorer,
+  FakerArgParseableScorer,
+  MethodRunnableScorer,
 } from './mock-data-scorers';
-import { generateMockDataEvalCases } from './use-cases/mock-data-schema';
+import { mockDataEvalCases } from './use-cases/mock-data-schema';
+import type {
+  MockDataGeneratorEvalInput,
+  MockDataGeneratorEvalOutput,
+  MockDataGeneratorExpected,
+  MockDataGeneratorMetadata,
+} from './types';
 
-const MOCK_DATA_PROJECT_NAME = 'compass-mock-data-generator';
+const MAX_CONCURRENCY = 3;
+const TRIAL_COUNT = 3;
 
-void Eval<MockDataEvalCaseInput, MockDataTaskOutput, MockDataEvalCaseExpected>(
-  MOCK_DATA_PROJECT_NAME,
-  {
-    data: () => {
-      return generateMockDataEvalCases();
+function createMockDataGeneratorEval() {
+  return Eval<
+    MockDataGeneratorEvalInput,
+    MockDataGeneratorEvalOutput,
+    MockDataGeneratorExpected,
+    MockDataGeneratorMetadata
+  >('compass-mock-data-generator', {
+    data: mockDataEvalCases.map((evalCase) => ({
+      input: {
+        providedSchema: evalCase.providedSchema,
+      },
+      expected: {
+        response: evalCase.expectedResponse,
+      },
+      metadata: evalCase.metadata,
+    })),
+    task: async (input) => {
+      try {
+        const response = await generateSchemaForEval(input.providedSchema);
+
+        return {
+          response,
+        };
+      } catch {
+        return {
+          response: {
+            errorType: 'UNEXPECTED_EVAL_ERROR' as const,
+            fields: [],
+          },
+        };
+      }
     },
-    task: makeMockDataCall,
-    scores: [FieldCoverage, FakerMethodValidity, FakerMethodRelevance],
-  }
-);
+    scores: [
+      FakerFieldNameAccuracy,
+      FakerSuggestedMethodAccuracy,
+      PercentRecognizedScorer,
+      FakerArgParseableScorer,
+      MethodRunnableScorer,
+    ],
+    trialCount: TRIAL_COUNT,
+    maxConcurrency: MAX_CONCURRENCY,
+  });
+}
+
+void createMockDataGeneratorEval();

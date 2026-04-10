@@ -1,105 +1,240 @@
-import type { MockDataEvalScorer } from './types';
-import { faker } from '@faker-js/faker/locale/en';
+import { faker } from '@faker-js/faker';
 
-export const FieldCoverage: MockDataEvalScorer = ({ input, output }) => {
-  const inputFields = Object.keys(input.schema);
-  if (inputFields.length === 0) return { name: 'FieldCoverage', score: 1 };
+import type {
+  MockDataGeneratorEvalScorer,
+  MockDataGeneratorExpectedField,
+  FieldMismatch,
+  ScorerMetadata,
+} from './types';
+import { isEvalCriterion, UNRECOGNIZED_METHOD } from './types';
 
-  const outputFieldPaths = new Set(output.fields.map((f) => f.fieldPath));
-  const covered = inputFields.filter((f) => outputFieldPaths.has(f)).length;
+// --- Scorer Wrapper ---
 
-  return {
-    name: 'FieldCoverage',
-    score: covered / inputFields.length,
-    metadata: {
-      totalInputFields: inputFields.length,
-      coveredFields: covered,
-      missingFields: inputFields.filter((f) => !outputFieldPaths.has(f)),
-    },
+/**
+ * Wraps a scorer to skip scoring when an `UNEXPECTED_EVAL_ERROR` occurs,
+ * preventing misleading zero scores from being recorded.
+ */
+function withSkipResultOnUnexpected(
+  scorer: MockDataGeneratorEvalScorer
+): MockDataGeneratorEvalScorer {
+  return async (args) => {
+    if (args.output.response.errorType === 'UNEXPECTED_EVAL_ERROR') {
+      return null; // omits scoring
+    }
+    return scorer(args);
   };
-};
-
-function isValidFakerMethod(method: string): boolean {
-  if (method === 'unrecognized') return true;
-
-  const parts = method.split('.');
-  if (parts.length !== 2) return false;
-
-  const [moduleName, methodName] = parts;
-  const fakerModule = (faker as unknown as Record<string, unknown>)[moduleName];
-
-  if (!fakerModule || typeof fakerModule !== 'object') return false;
-  return (
-    typeof (fakerModule as Record<string, unknown>)[methodName] === 'function'
-  );
 }
 
-export const FakerMethodValidity: MockDataEvalScorer = ({ output }) => {
-  if (output.fields.length === 0)
-    return { name: 'FakerMethodValidity', score: 1 };
+// --- Field Scorers ---
 
-  const results = output.fields.map((field) =>
-    isValidFakerMethod(field.fakerMethod)
-  );
-  const validCount = results.filter(Boolean).length;
+type FieldValueExtractor = (
+  field: MockDataGeneratorExpectedField
+) => MockDataGeneratorExpectedField['fakerMethod'];
 
-  return {
-    name: 'FakerMethodValidity',
-    score: validCount / output.fields.length,
-    metadata: {
-      totalFields: output.fields.length,
-      validMethods: validCount,
-      invalidMethods: output.fields
-        .filter((_, i) => !results[i])
-        .map((f) => f.fakerMethod),
-    },
-  };
-};
+function createFieldScorer(
+  name: string,
+  valueExtractor: FieldValueExtractor
+): MockDataGeneratorEvalScorer {
+  return (args) => {
+    let matches = 0;
+    const fieldMismatches: Array<FieldMismatch> = [];
 
-export const FakerMethodRelevance: MockDataEvalScorer = ({
-  output,
-  expected,
-}) => {
-  if (expected.fieldMappings.length === 0)
-    return { name: 'FakerMethodRelevance', score: 1 };
+    const schemaFieldNames = Object.keys(args.input.providedSchema);
+    const totalFields = schemaFieldNames.length;
 
-  const outputByPath = new Map(
-    output.fields.map((f) => [f.fieldPath, f] as const)
-  );
-
-  let matchCount = 0;
-  const details: Array<{
-    fieldPath: string;
-    actual: string;
-    matched: boolean;
-  }> = [];
-
-  for (const mapping of expected.fieldMappings) {
-    const outputField = outputByPath.get(mapping.fieldPath);
-    if (!outputField) {
-      details.push({
-        fieldPath: mapping.fieldPath,
-        actual: 'MISSING',
-        matched: false,
-      });
-      continue;
-    }
-
-    const matched = mapping.acceptableMethods.some((pattern) =>
-      new RegExp(`^${pattern}$`).test(outputField.fakerMethod)
+    const expectedOutputMap = new Map(
+      args.expected.response.fields.map((field) => [field.fieldPath, field])
+    );
+    const actualOutputMap = new Map(
+      args.output.response.fields.map((field) => [field.fieldPath, field])
     );
 
-    if (matched) matchCount++;
-    details.push({
-      fieldPath: mapping.fieldPath,
-      actual: outputField.fakerMethod,
-      matched,
-    });
-  }
+    for (const fieldName of schemaFieldNames) {
+      const expectedField = expectedOutputMap.get(fieldName);
+      const actualField = actualOutputMap.get(fieldName);
 
-  return {
-    name: 'FakerMethodRelevance',
-    score: matchCount / expected.fieldMappings.length,
-    metadata: { details },
+      if (!expectedField || !actualField) {
+        continue;
+      }
+
+      const expectedValue = valueExtractor(expectedField);
+      const actualValue = valueExtractor(actualField) as string;
+
+      if (
+        isEvalCriterion(expectedValue) &&
+        expectedValue.satisfiedBy(actualValue)
+      ) {
+        matches++;
+      } else if (expectedValue === actualValue) {
+        matches++;
+      } else {
+        fieldMismatches.push({
+          field: fieldName,
+          expected: isEvalCriterion(expectedValue)
+            ? expectedValue.name
+            : expectedValue,
+          generated: actualValue,
+        });
+      }
+    }
+
+    const metadata: ScorerMetadata = {
+      totalFields,
+      matches,
+      fieldMismatches,
+    };
+
+    return {
+      name,
+      score: totalFields > 0 ? matches / totalFields : 0,
+      metadata,
+    };
   };
-};
+}
+
+export const FakerFieldNameAccuracy = withSkipResultOnUnexpected(
+  createFieldScorer(
+    'FakerFieldNameAccuracy',
+    (field: MockDataGeneratorExpectedField) => field.fieldPath
+  )
+);
+
+export const FakerSuggestedMethodAccuracy = withSkipResultOnUnexpected(
+  createFieldScorer(
+    'FakerMethodSuggestionAccuracy',
+    (field: MockDataGeneratorExpectedField) => field.fakerMethod
+  )
+);
+
+// --- Percent Recognized Scorer ---
+
+export const PercentRecognizedScorer = withSkipResultOnUnexpected(
+  (args: Parameters<MockDataGeneratorEvalScorer>[0]) => {
+    const outputFields = args.output.response.fields;
+    const totalFields = outputFields.length;
+
+    const unrecognizedFields = outputFields.filter(
+      (field) => field.fakerMethod === UNRECOGNIZED_METHOD
+    );
+    const unrecorgnizedFieldCount = unrecognizedFields.length;
+    const unrecognizedFieldPaths = unrecognizedFields.map(
+      (field) => field.fieldPath
+    );
+
+    return {
+      name: 'FakerFieldPercentRecognized',
+      score:
+        totalFields > 0
+          ? (totalFields - unrecorgnizedFieldCount) / totalFields
+          : 0,
+      metadata: {
+        totalFields,
+        unrecorgnizedFieldCount,
+        unrecognizedFields,
+        unrecognizedFieldPaths,
+      },
+    };
+  }
+);
+
+// --- Arg Parseable Scorer ---
+
+export const FakerArgParseableScorer = withSkipResultOnUnexpected(
+  (args: Parameters<MockDataGeneratorEvalScorer>[0]) => {
+    const outputFields = args.output.response.fields;
+
+    let fakerArgCount = 0;
+    let passCount = 0;
+    const pathsWithDiscrepancies: Set<string> = new Set();
+    for (const field of outputFields) {
+      for (const arg of field.fakerArgs) {
+        if (typeof arg === 'object' && 'json' in arg) {
+          fakerArgCount++;
+          try {
+            const parsed = JSON.parse(arg.json);
+
+            if (
+              Array.isArray(parsed) ||
+              (typeof parsed === 'object' && parsed !== null)
+            ) {
+              passCount++;
+            } else {
+              pathsWithDiscrepancies.add(field.fieldPath);
+            }
+          } catch {
+            pathsWithDiscrepancies.add(field.fieldPath);
+            continue;
+          }
+        }
+      }
+    }
+
+    if (fakerArgCount === 0) {
+      return {
+        name: 'FakerArgParseableScorer',
+        score: 1,
+      };
+    }
+
+    return {
+      name: 'FakerArgParseableScorer',
+      score: passCount ? passCount / fakerArgCount : 0,
+      metadata: {
+        fakerArgCount,
+        passCount,
+        pathsWithDiscrepancies: Array.from(pathsWithDiscrepancies),
+      },
+    };
+  }
+);
+
+// --- Method Runnable Scorer ---
+
+export const MethodRunnableScorer = withSkipResultOnUnexpected(
+  (args: Parameters<MockDataGeneratorEvalScorer>[0]) => {
+    const recognizedOutputFields = args.output.response.fields.filter(
+      (field) => field.fakerMethod !== UNRECOGNIZED_METHOD
+    );
+
+    const totalRecognizedMethods = recognizedOutputFields.length;
+    let nonexistentMethods = 0;
+    let nonrunnableMethods = 0;
+
+    for (const field of recognizedOutputFields) {
+      const [module, method] = field.fakerMethod.split('.');
+
+      // @ts-expect-error TS(7053)
+      const fakerMethod: unknown = faker?.[module]?.[method];
+      if (typeof fakerMethod !== 'function') {
+        nonexistentMethods++;
+        nonrunnableMethods++;
+        continue;
+      }
+
+      try {
+        const parsedArgs: unknown[] = field.fakerArgs.map((arg) => {
+          if (typeof arg === 'object' && 'json' in arg) {
+            return JSON.parse(arg.json);
+          }
+          return arg;
+        });
+
+        (fakerMethod as (...a: unknown[]) => unknown)(...parsedArgs);
+      } catch {
+        nonrunnableMethods++;
+      }
+    }
+
+    return {
+      name: 'FakerMethodRunnableScorer',
+      score: totalRecognizedMethods
+        ? (totalRecognizedMethods - nonrunnableMethods) / totalRecognizedMethods
+        : 0,
+      metadata: {
+        totalRecognizedMethods,
+        nonexistentMethods,
+        nonrunnableMethods,
+      },
+    };
+  }
+);

@@ -28,29 +28,134 @@ export type ConversationEvalScorer = EvalScorer<
 
 // --- Mock Data Generator eval types ---
 
-import type {
-  RawSchema,
-  MockDataSchemaToolOutput,
-} from '../../src/mock-data-generator';
+export const UNRECOGNIZED_METHOD = 'unrecognized';
 
-export type MockDataEvalCaseInput = {
-  databaseName: string;
-  collectionName: string;
-  schema: RawSchema;
-  validationRules?: Record<string, unknown> | null;
+/**
+ * EvalCriterion is a standardized interface that `FakerMethodSuggestionAccuracy` scorer can
+ * use to determine if a field satisfies a general condition, or criterion, that exact-equality
+ * is not sufficient for.
+ */
+export interface EvalCriterion {
+  readonly name: string;
+  satisfiedBy(method: unknown): boolean;
+  methods: Array<string>;
+}
+
+export const DatelikeMethodCriterion: EvalCriterion =
+  (function DatelikeMethodCriterion() {
+    const DATELIKE_METHODS = new Set<string>([
+      'date.anytime',
+      'date.past',
+      'date.recent',
+      'date.soon',
+      'date.future',
+      'date.between',
+    ]);
+
+    return {
+      name: 'DatelikeMethodCriterion' as const,
+      satisfiedBy(method: string): boolean {
+        if (typeof method !== 'string') {
+          return false;
+        }
+        return DATELIKE_METHODS.has(method);
+      },
+      methods: Array.from(DATELIKE_METHODS),
+    };
+  })();
+
+export const IdlikeMethodCriterion: EvalCriterion =
+  (function IdlikeMethodCriterion() {
+    const IDLIKE_METHODS = new Set<string>([
+      'string.alphanumeric',
+      'string.uuid',
+    ]);
+
+    return {
+      name: 'IdlikeMethodCriterion' as const,
+      satisfiedBy(method: string): boolean {
+        if (typeof method !== 'string') {
+          return false;
+        }
+        return IDLIKE_METHODS.has(method);
+      },
+      methods: Array.from(IDLIKE_METHODS),
+    };
+  })();
+
+export const isEvalCriterion = (method: unknown): method is EvalCriterion => {
+  return (
+    typeof method === 'object' &&
+    method !== null &&
+    typeof (method as { satisfiedBy?: unknown }).satisfiedBy === 'function' &&
+    typeof (method as { name?: unknown }).name === 'string'
+  );
 };
 
-export type MockDataTaskOutput = MockDataSchemaToolOutput;
+export interface MockDataInputFieldSchema {
+  [key: string]: {
+    type: string;
+    probability: number;
+    sampleValues?: Array<unknown>;
+  };
+}
 
-export type MockDataEvalCaseExpected = {
-  fieldMappings: Array<{
-    fieldPath: string;
-    acceptableMethods: string[]; // regex patterns
-  }>;
+export type FakerArgument = string | number | boolean | { json: string };
+
+export interface LlmCompletedField {
+  fakerArgs: Array<FakerArgument>;
+  fakerMethod: string;
+  fieldPath: string;
+}
+
+export interface MockDataGeneratorEvalInput {
+  providedSchema: MockDataInputFieldSchema;
+}
+
+export interface MockDataGeneratorEvalOutput {
+  response: {
+    errorType?: 'UNEXPECTED_EVAL_ERROR';
+    fields: Array<LlmCompletedField>;
+  };
+}
+
+export interface MockDataGeneratorMetadata extends Record<string, unknown> {
+  name: string;
+}
+
+export type MockDataGeneratorExpectedField = Omit<
+  LlmCompletedField,
+  'fakerMethod'
+> & {
+  fakerMethod: string | EvalCriterion;
 };
 
-export type MockDataEvalScorer = EvalScorer<
-  MockDataEvalCaseInput,
-  MockDataTaskOutput,
-  MockDataEvalCaseExpected
+export interface MockDataGeneratorExpected {
+  response: {
+    fields: Array<MockDataGeneratorExpectedField | LlmCompletedField>;
+  };
+}
+
+export interface FieldMismatch {
+  field: string;
+  expected: string;
+  generated: string;
+}
+
+export interface ScorerMetadata extends Record<string, unknown> {
+  totalFields: number;
+  matches: number;
+  fieldMismatches: Array<FieldMismatch>;
+}
+
+export interface MockDataGeneratorCaseConfig {
+  providedSchema: MockDataInputFieldSchema;
+  expectedResponse: MockDataGeneratorExpected['response'];
+  metadata: MockDataGeneratorMetadata;
+}
+
+export type MockDataGeneratorEvalScorer = EvalScorer<
+  MockDataGeneratorEvalInput,
+  MockDataGeneratorEvalOutput,
+  MockDataGeneratorExpected
 >;

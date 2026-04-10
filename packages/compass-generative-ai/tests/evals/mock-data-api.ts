@@ -1,6 +1,6 @@
 import { streamText, tool } from 'ai';
 import { createOpenAI } from '@ai-sdk/openai';
-import type { MockDataEvalCaseInput, MockDataTaskOutput } from './types';
+import type { MockDataInputFieldSchema } from './types';
 import {
   mockDataSchemaToolSchema,
   MOCK_DATA_SCHEMA_PROMPT,
@@ -33,17 +33,9 @@ const mockDataTool = tool({
 });
 
 async function generateSchemaForChunk(
-  databaseName: string,
-  collectionName: string,
-  schema: RawSchema,
-  validationRules?: Record<string, unknown> | null
+  schema: RawSchema
 ): Promise<MockDataSchemaToolOutput> {
-  const userPrompt = formatSchemaForPrompt(
-    databaseName,
-    collectionName,
-    schema,
-    validationRules
-  );
+  const userPrompt = formatSchemaForPrompt('foo', 'bar', schema);
 
   const response = streamText({
     model: openai.responses(modelName),
@@ -67,30 +59,18 @@ async function generateSchemaForChunk(
   return toolCalls[0].input as MockDataSchemaToolOutput;
 }
 
-export async function makeMockDataCall(
-  input: MockDataEvalCaseInput
-): Promise<MockDataTaskOutput> {
-  const { databaseName, collectionName, schema, validationRules } = input;
-
-  if (!needsBatching(schema)) {
-    return generateSchemaForChunk(
-      databaseName,
-      collectionName,
-      schema,
-      validationRules
-    );
+export async function generateSchemaForEval(
+  providedSchema: MockDataInputFieldSchema
+): Promise<MockDataSchemaToolOutput> {
+  if (!needsBatching(providedSchema)) {
+    return generateSchemaForChunk(providedSchema);
   }
 
-  const chunks = splitSchemaIntoChunks(schema);
+  const chunks = splitSchemaIntoChunks(providedSchema);
   const chunkResponses: MockDataSchemaToolOutput[] = [];
 
   for (const chunk of chunks) {
-    const response = await generateSchemaForChunk(
-      databaseName,
-      collectionName,
-      chunk,
-      validationRules
-    );
+    const response = await generateSchemaForChunk(chunk);
     chunkResponses.push(response);
   }
 
