@@ -349,7 +349,7 @@ describe('Collection documents tab', function () {
     }
 
     after(function () {
-      unsubscribeAllowWarningsFilter();
+      unsubscribeAllowWarningsFilter?.();
     });
   });
 
