@@ -65,7 +65,10 @@ import {
   AtlasAiServiceProvider,
   ToolsControllerProvider,
 } from '@mongodb-js/compass-generative-ai/provider';
-import { LoggerProvider } from '@mongodb-js/compass-logging/provider';
+import {
+  LoggerProvider,
+  useLogger,
+} from '@mongodb-js/compass-logging/provider';
 import {
   TelemetryProvider,
   useTelemetry,
@@ -140,6 +143,7 @@ const WithMultiplexTransport = createServiceProvider(
     const { enableMultiplexWebSocketOnWeb } = usePreferences([
       'enableMultiplexWebSocketOnWeb',
     ]);
+    const logger = useLogger('COMPASS-WEB-MULTIPLEXING');
     const atlasService = atlasServiceLocator();
     const ccsUrl = atlasService.multiplexWebsocketEndpoint(projectId);
 
@@ -152,16 +156,15 @@ const WithMultiplexTransport = createServiceProvider(
         throw new Error('CCS WebSocket URL is not defined in the config');
       }
 
-      const transport = new MultiplexWebSocketTransport(ccsUrl);
+      const transport = new MultiplexWebSocketTransport(ccsUrl, { logger });
       setMultiplexTransport(transport);
 
       transport.connect().catch((err: Error) => {
-        // Non-fatal: the driver will surface connection errors via the individual
-        // socket callbacks if the WS can't be established.
-        // eslint-disable-next-line no-console
-        console.error(
-          '[compass-web] Multiplex WebSocket transport failed:',
-          err
+        logger.log.error(
+          logger.mongoLogId(1_001_000_406),
+          'COMPASS-WEB-MULTIPLEXING',
+          'Multiplex WebSocket transport failed',
+          { error: err.message }
         );
       });
 
@@ -169,7 +172,7 @@ const WithMultiplexTransport = createServiceProvider(
         transport.close();
         setMultiplexTransport(null);
       };
-    }, [enableMultiplexWebSocketOnWeb, ccsUrl]);
+    }, [enableMultiplexWebSocketOnWeb, ccsUrl, logger]);
 
     return <>{children}</>;
   }

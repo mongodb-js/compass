@@ -27,7 +27,7 @@ import {
   serialize as bsonSerialize,
   deserialize as bsonDeserialize,
 } from 'bson';
-
+import { type Logger } from '@mongodb-js/compass-logging/provider';
 /**
  * WebSocket close codes that must NOT trigger reconnection.
  */
@@ -61,6 +61,8 @@ type MultiplexWebSocketTransportOptions = {
   maxReconnectAttempts?: number;
   /** Base delay in ms for exponential backoff when reconnecting. Defaults to 500ms. */
   baseReconnectDelayMs?: number;
+  /** Logger to use for debugging. */
+  logger?: Logger;
 };
 
 /** Callbacks called by the transport when events occur on a logical stream. */
@@ -107,14 +109,26 @@ export function buildFrame(header: Header, payload?: Uint8Array): Uint8Array {
   return frame;
 }
 
+class DisposableWebSocket extends WebSocket {
+  constructor(...args: ConstructorParameters<typeof WebSocket>) {
+    super(...args);
+  }
+  [Symbol.dispose]() {
+    this.close(1000, 'tab closed');
+  }
+}
+
 /**
  * Manages a single shared WebSocket connection for a browser tab and multiplexes
  * all MongoDB driver TCP connections over it using BSON 5-tuple framing.
  */
 export class MultiplexWebSocketTransport {
-  private ws: WebSocket | null = null;
+  private ws: DisposableWebSocket | null = null;
   private readonly baseUrl: string;
-  private readonly options: Required<MultiplexWebSocketTransportOptions>;
+  private readonly options: Required<
+    Omit<MultiplexWebSocketTransportOptions, 'logger'>
+  >;
+  private readonly logger?: Logger;
   private readonly sockets = new Map<number, MultiplexSocketCallbacks>();
   /** Monotonically increasing counter used as the logical "source port" for each stream. */
   private nextPort = 1;
@@ -126,18 +140,25 @@ export class MultiplexWebSocketTransport {
 
   constructor(
     baseUrl: string,
-    options: MultiplexWebSocketTransportOptions = {
-      sourceAddress: 'localhost',
-      maxReconnectAttempts: 5,
-      baseReconnectDelayMs: 500,
-    }
+    { logger, ...options }: MultiplexWebSocketTransportOptions = {}
   ) {
     this.baseUrl = baseUrl;
+    this.logger = logger;
     this.options = {
       sourceAddress: options.sourceAddress ?? 'localhost',
       maxReconnectAttempts: options.maxReconnectAttempts ?? 5,
       baseReconnectDelayMs: options.baseReconnectDelayMs ?? 500,
     };
+    this.logger?.log.info(
+      this.logger?.mongoLogId(1_001_000_400),
+      'COMPASS-WEB-MULTIPLEXING',
+      'MultiplexWebSocketTransport created',
+      this.options
+    );
+  }
+
+  get url(): string {
+    return this.buildWsUrl();
   }
 
   private buildWsUrl(): string {
@@ -166,8 +187,7 @@ export class MultiplexWebSocketTransport {
   }
 
   private openWebSocket(): void {
-    const url = this.buildWsUrl();
-    const ws = new WebSocket(url);
+    const ws = new DisposableWebSocket(this.url);
     ws.binaryType = 'arraybuffer';
     this.ws = ws;
 
@@ -178,6 +198,12 @@ export class MultiplexWebSocketTransport {
         this.connectResolve?.();
         this.connectResolve = null;
         this.connectReject = null;
+        this.logger?.log.info(
+          this.logger?.mongoLogId(1_001_000_404),
+          'COMPASS-WEB-MULTIPLEXING',
+          'WebSocket connection established',
+          { url: this.url }
+        );
       },
       { once: true }
     );
@@ -185,7 +211,6 @@ export class MultiplexWebSocketTransport {
     ws.addEventListener(
       'close',
       (event) => {
-        if (this.ws !== ws) return; // stale event from a previous socket
         this.ws = null;
 
         if (this.closed) return;
@@ -193,6 +218,19 @@ export class MultiplexWebSocketTransport {
         const permanentClose = NO_RETRY_CLOSE_CODES.has(event.code);
         const exhaustedConnectAttempts =
           this.reconnectAttempts >= this.options.maxReconnectAttempts;
+
+        this.logger?.log.info(
+          this.logger?.mongoLogId(1_001_000_405),
+          'COMPASS-WEB-MULTIPLEXING',
+          'WebSocket closed',
+          {
+            code: event.code,
+            reason: event.reason,
+            permanentClose,
+            exhaustedConnectAttempts,
+          }
+        );
+
         if (!permanentClose && !exhaustedConnectAttempts) {
           this.reconnectAttempts++;
           const delay =
@@ -259,11 +297,23 @@ export class MultiplexWebSocketTransport {
 
   /** Register callbacks for a logical stream identified by its local port. */
   registerSocket(localPort: number, callbacks: MultiplexSocketCallbacks): void {
+    this.logger?.log.info(
+      this.logger?.mongoLogId(1_001_000_403),
+      'COMPASS-WEB-MULTIPLEXING',
+      'Registering socket',
+      { localPort }
+    );
     this.sockets.set(localPort, callbacks);
   }
 
   /** Remove callbacks for a logical stream (call after error or close). */
   unregisterSocket(localPort: number): void {
+    this.logger?.log.info(
+      this.logger?.mongoLogId(1_001_000_402),
+      'COMPASS-WEB-MULTIPLEXING',
+      'Unregistering socket',
+      { localPort }
+    );
     this.sockets.delete(localPort);
   }
 
@@ -315,6 +365,11 @@ export class MultiplexWebSocketTransport {
 
   /** Close the shared WebSocket and notify all registered streams. */
   close(): void {
+    this.logger?.log.info(
+      this.logger?.mongoLogId(1_001_000_401),
+      'COMPASS-WEB-MULTIPLEXING',
+      'Closing MultiplexWebSocketTransport'
+    );
     this.closed = true;
     this.ws?.close(1000, 'tab closed');
     this.ws = null;
