@@ -25,7 +25,7 @@ function getSignedFilename(filename) {
  * of the release process and we sign them here. For linux, we
  * create and sign the archive when creating corresponding deb/rpm file.
  *
- * @param {import('./Target')} target
+ * @param {import('./target')} target
  */
 function signArchive(target, cb) {
   const { app_archive_name, platform } = target;

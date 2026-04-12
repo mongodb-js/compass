@@ -6,6 +6,7 @@ import {
   Banner,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { mapSearchStageOperatorToSearchIndexType } from '../utils/stage';
 import type { SearchStageOperator } from '../utils/stage';
 import type { SearchIndexType } from '../modules/search-indexes';
@@ -30,6 +31,7 @@ export default function SearchIndexDoesNotExistBanner({
   onCreateSearchIndexClick,
 }: SearchIndexDoesNotExistBannerProps) {
   const { openDrawer } = useDrawerActions();
+  const track = useTelemetry();
   const searchIndexType =
     mapSearchStageOperatorToSearchIndexType(searchStageOperator);
   const message = `${
@@ -48,6 +50,9 @@ export default function SearchIndexDoesNotExistBanner({
         <>
           <Link
             onClick={() => {
+              track('Search Index View Indexes Link Clicked', {
+                context: 'Search Index Does Not Exist Banner',
+              });
               openDrawer('compass-indexes-drawer');
               onViewIndexesClick();
             }}
@@ -57,6 +62,10 @@ export default function SearchIndexDoesNotExistBanner({
           {' or '}
           <Link
             onClick={() => {
+              track('Search Index Create Link Clicked', {
+                context: 'Search Index Does Not Exist Banner',
+                index_type: searchIndexType,
+              });
               openDrawer('compass-indexes-drawer');
               onCreateSearchIndexClick(searchIndexType);
             }}

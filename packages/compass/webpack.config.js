@@ -14,6 +14,9 @@ const {
   merge,
 } = require('@mongodb-js/webpack-config-compass');
 
+/**
+ * @type {(env: Record<string, any>, args: Record<string, any>) => import('webpack').Configuration}
+ */
 module.exports = (_env, args) => {
   const opts = {
     ...webpackArgsWithDefaults(args),
