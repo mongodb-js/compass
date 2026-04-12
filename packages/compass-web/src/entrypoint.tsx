@@ -26,6 +26,7 @@ import {
   CompassComponentsProvider,
   css,
   useInitialValue,
+  openToast,
 } from '@mongodb-js/compass-components';
 import {
   CollectionTabsProvider,
@@ -166,6 +167,11 @@ const WithMultiplexTransport = createServiceProvider(
           'Multiplex WebSocket transport failed',
           { error: err.message }
         );
+        openToast('multiplex-websocket-connection-failed', {
+          title: 'WebSocket Connection Failed',
+          description: `Failed to connect to the multiplex WebSocket transport: ${err.message}`,
+          variant: 'warning',
+        });
       });
 
       return () => {

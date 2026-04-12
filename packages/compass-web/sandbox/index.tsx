@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import * as tls from 'tls';
 import {
   Body,
   CompassComponentsProvider,
@@ -14,8 +13,6 @@ Object.assign(globalThis, {
   __compassWebSharedRuntime: {
     React,
     ReactDOM,
-    // TODO(CLOUDP-262964): move Socket implementation to compass codebase
-    tls,
   },
   // Two conditions need to be matching: this value set to true AND special
   // imports added directly to the compass-web build, there is no way to
@@ -87,9 +84,6 @@ const App = () => {
             enableDataModelingCollapse: true,
             enableMyQueries: false,
             enableMultiplexWebSocketOnWeb: true,
-          }}
-          atlasCloudFeatureFlags={{
-            DATA_EXPLORER_ENABLE_MULTIPLEX_WEBSOCKET_ON_WEB: true,
           }}
         ></CompassWeb>
         <OpenInAtlasToast></OpenInAtlasToast>

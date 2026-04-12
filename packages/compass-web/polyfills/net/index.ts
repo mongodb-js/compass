@@ -33,37 +33,43 @@ class Socket extends Duplex {
   }
 
   private setupMultiplexedConnection(options: Omit<ConnectOptions, 'lookup'>) {
-    const transport = getMultiplexTransport();
-    if (!transport) {
-      throw new Error('Multiplex transport is not available');
+    try {
+      const transport = getMultiplexTransport();
+      if (!transport) {
+        throw new Error('Multiplex transport is not available');
+      }
+      // Multiplex path: tunnel this logical connection over the single shared
+      // WebSocket, using BSON 5-tuple framing.
+      this._remoteHost = options.host;
+      this._remotePort = options.port;
+      this._localPort = transport.allocatePort();
+
+      transport.registerSocket(this._localPort, {
+        onData: (data: Uint8Array) => {
+          setTimeout(() => {
+            this.push(Buffer.from(data));
+          });
+        },
+        onClose: () => {
+          this._teardown();
+          setTimeout(() => this.emit('close'));
+        },
+        onError: (err: Error) => {
+          this._teardown();
+          setTimeout(() => this.emit('error', err));
+        },
+      });
+
+      // The websocket is connected already and we will emit the connect
+      // event so that driver sends the first message to the server.
+      setTimeout(() => {
+        this.emit(options.tls ? 'secureConnect' : 'connect');
+      });
+    } catch (err) {
+      setTimeout(() =>
+        this.emit('error', err instanceof Error ? err : new Error(String(err)))
+      );
     }
-    // Multiplex path: tunnel this logical connection over the single shared
-    // WebSocket, using BSON 5-tuple framing.
-    this._remoteHost = options.host;
-    this._remotePort = options.port;
-    this._localPort = transport.allocatePort();
-
-    transport.registerSocket(this._localPort, {
-      onData: (data: Uint8Array) => {
-        setTimeout(() => {
-          this.push(Buffer.from(data));
-        });
-      },
-      onClose: () => {
-        this._teardown();
-        setTimeout(() => this.emit('close'));
-      },
-      onError: (err: Error) => {
-        this._teardown();
-        setTimeout(() => this.emit('error', err));
-      },
-    });
-
-    // The websocket is connected already and we will emit the connect
-    // event so that driver sends the first message to the server.
-    setTimeout(() => {
-      this.emit(options.tls ? 'secureConnect' : 'connect');
-    });
 
     return this;
   }

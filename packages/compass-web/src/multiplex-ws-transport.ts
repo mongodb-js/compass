@@ -158,18 +158,7 @@ export class MultiplexWebSocketTransport {
   }
 
   get url(): string {
-    return this.buildWsUrl();
-  }
-
-  private buildWsUrl(): string {
-    const url = this.baseUrl;
-    if (url.startsWith('wss://') || url.startsWith('ws://')) {
-      return url;
-    }
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    return url.startsWith('//')
-      ? `${protocol}${url}`
-      : `${protocol}//${window.location.host}${url}`;
+    return this.baseUrl;
   }
 
   /** Open the shared WebSocket. Returns a promise that resolves when the connection is ready. */
@@ -297,6 +286,9 @@ export class MultiplexWebSocketTransport {
 
   /** Register callbacks for a logical stream identified by its local port. */
   registerSocket(localPort: number, callbacks: MultiplexSocketCallbacks): void {
+    if (this.ws?.readyState !== WebSocket.OPEN) {
+      throw new Error('WebSocket connection is not open');
+    }
     this.logger?.log.info(
       this.logger?.mongoLogId(1_001_000_403),
       'COMPASS-WEB-MULTIPLEXING',
@@ -359,7 +351,7 @@ export class MultiplexWebSocketTransport {
 
   private sendRaw(frame: Uint8Array): void {
     if (this.ws?.readyState === WebSocket.OPEN) {
-      this.ws.send(frame);
+      this.ws.send(frame.buffer as ArrayBuffer);
     }
   }
 
