@@ -188,7 +188,7 @@ export default function reducer(
     return {
       ...state,
       currentView: 'indexes-list',
-      focusedIndexName: action.focusedIndexName,
+      focusedIndexName: action.focusedIndexName ?? '',
       focusedIndexVersion: state.focusedIndexVersion + 1,
     };
   }
