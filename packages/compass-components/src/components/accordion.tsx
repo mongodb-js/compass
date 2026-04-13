@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
@@ -95,6 +95,11 @@ function Accordion({
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const darkMode = useDarkMode();
   const [localOpen, setLocalOpen] = useState(_open ?? defaultOpen);
+  useEffect(() => {
+    if (typeof _open !== 'undefined') {
+      setLocalOpen(_open);
+    }
+  }, [_open]);
   const setOpenRef = useCurrentValueRef(_setOpen);
   const onOpenChange = useCallback(() => {
     setLocalOpen((prevValue) => {
