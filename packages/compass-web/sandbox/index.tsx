@@ -63,17 +63,8 @@ const App = () => {
         <CompassWeb
           orgId=""
           projectId=""
-          initialWorkspace={
-            getWorkspaceTabFromRoute(window.location.pathname) ?? undefined
-          }
-          onActiveWorkspaceTabChange={(tab) => {
-            const newPath = getRouteFromWorkspaceTab(tab);
-            window.history.replaceState(null, '', newPath);
-          }}
           /** Configured in webpack.config.js when start the multiplex ws proxy */
           multiplexedWsBaseUrl="ws://localhost:1338"
-          // Some overrides for the default compass-web preferences to enable the
-          // features that would be disabled by default otherwise
           // Some overrides for the default compass-web preferences to enable
           // the features that would be disabled by default otherwise
           initialPreferences={{

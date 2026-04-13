@@ -352,7 +352,13 @@ export type CompassWebProps = {
    * A "react-router"-like history instance to be used to manipulate the current
    * route state. Optional, if not provided, no router handling logic will apply
    */
-  onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
+  history?: History;
+
+  /**
+   * Optional prefix to take into consideration when parsing current route
+   * (default: "explorer")
+   */
+  historyRoutePrefix?: string;
 
   /**
    * Optional base URL for the multiplexed WebSocket transport (e.g.
@@ -360,12 +366,6 @@ export type CompassWebProps = {
    * from the atlas-service config for the active backend preset.
    */
   multiplexedWsBaseUrl?: string;
-  history?: History;
-  /**
-   * Optional prefix to take into consideration when parsing current route
-   * (default: "explorer")
-   */
-  historyRoutePrefix?: string;
 };
 
 function CompassWorkspace({
