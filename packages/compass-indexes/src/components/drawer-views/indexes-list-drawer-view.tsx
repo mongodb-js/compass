@@ -58,6 +58,8 @@ type IndexesListDrawerViewProps = {
   isReadonlyView: boolean;
   regularIndexes: Pick<RegularIndexesState, 'indexes' | 'error' | 'status'>;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
+  focusedIndexName: string | null;
+  focusedIndexVersion: number;
   onRefreshClick: () => void;
   onCreateRegularIndexClick: () => void;
   onCreateSearchIndexClick: (currentIndexType: SearchIndexType) => void;
@@ -77,6 +79,8 @@ const IndexesListDrawerView: React.FunctionComponent<
   isReadonlyView,
   regularIndexes,
   searchIndexes,
+  focusedIndexName,
+  focusedIndexVersion,
   onRefreshClick,
   onCreateRegularIndexClick,
   onCreateSearchIndexClick,
@@ -85,6 +89,12 @@ const IndexesListDrawerView: React.FunctionComponent<
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { openDrawer } = useDrawerActions();
+  const [isStandardAccordionOpen, setIsStandardAccordionOpen] = useState(
+    focusedIndexName === null
+  );
+  useEffect(() => {
+    setIsStandardAccordionOpen(focusedIndexName === null);
+  }, [focusedIndexName, focusedIndexVersion]);
 
   const { atlasMetadata } = useConnectionInfo();
   const isAtlas = !!atlasMetadata;
@@ -207,7 +217,11 @@ const IndexesListDrawerView: React.FunctionComponent<
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <Accordion text="Standard" defaultOpen={true}>
+      <Accordion
+        text="Standard"
+        open={isStandardAccordionOpen}
+        setOpen={setIsStandardAccordionOpen}
+      >
         {isRegularIndexesReadable ? (
           <RegularIndexesDrawerTable searchTerm={searchTerm} />
         ) : (
@@ -219,7 +233,11 @@ const IndexesListDrawerView: React.FunctionComponent<
       <Accordion text="Search" defaultOpen={true}>
         {getSearchIndexesBanner()}
         {isSearchIndexesReadable && (
-          <SearchIndexesDrawerTable searchTerm={searchTerm} />
+          <SearchIndexesDrawerTable
+            searchTerm={searchTerm}
+            focusedIndexName={focusedIndexName}
+            focusedIndexVersion={focusedIndexVersion}
+          />
         )}
       </Accordion>
     </div>
@@ -230,10 +248,17 @@ const mapState = ({
   isReadonlyView,
   regularIndexes,
   searchIndexes,
+  indexesDrawer,
 }: RootState) => ({
   isReadonlyView,
   regularIndexes,
   searchIndexes,
+  focusedIndexName: searchIndexes.indexes.some(
+    (x) => x.name === indexesDrawer.focusedIndexName
+  )
+    ? indexesDrawer.focusedIndexName
+    : null,
+  focusedIndexVersion: indexesDrawer.focusedIndexVersion,
 });
 
 const mapDispatch = {

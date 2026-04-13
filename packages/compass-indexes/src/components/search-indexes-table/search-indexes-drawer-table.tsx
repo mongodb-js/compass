@@ -114,6 +114,8 @@ type SearchIndexesDrawerTableProps = {
   onEditIndexClick: (name: string) => void;
   onCreateSearchIndexClick: (indexType: SearchIndexType) => void;
   searchTerm?: string;
+  focusedIndexName: string | null;
+  focusedIndexVersion: number;
 };
 
 export const SearchIndexesDrawerTable: React.FunctionComponent<
@@ -122,6 +124,8 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
   indexes,
   status,
   searchTerm,
+  focusedIndexName,
+  focusedIndexVersion,
   onEditIndexClick,
   onDropIndexClick,
   onCreateSearchIndexClick,
@@ -207,6 +211,20 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     return allData.filter((item) => item.name.includes(searchTerm));
   }, [allData, searchTerm]);
 
+  // Expand the focused index row by default, collapse others.
+  // focusedIndexVersion ensures the expanded state is reset even when
+  // the same index is focused again.
+  const defaultExpanded = useMemo(() => {
+    if (!focusedIndexName) {
+      return undefined;
+    }
+    const rowIndex = data.findIndex((item) => item.name === focusedIndexName);
+    if (rowIndex === -1) {
+      return undefined;
+    }
+    return { [String(rowIndex)]: true };
+  }, [data, focusedIndexName, focusedIndexVersion]);
+
   if (!isReadyStatus(status)) {
     return null;
   }
@@ -231,6 +249,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
           : COLUMNS_FOR_DRAWER
       }
       data={data}
+      defaultExpanded={defaultExpanded}
       tableWrapperClassName={tableWrapperStyles}
       cellClassName={drawerCellStyles}
       showActionsOnHover={false}

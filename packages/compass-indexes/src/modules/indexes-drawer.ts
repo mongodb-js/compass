@@ -32,6 +32,8 @@ export type State = {
   currentView: IndexesDrawerViewType;
   currentIndexType: SearchIndexType;
   currentIndexName: string;
+  focusedIndexName: string;
+  focusedIndexVersion: number;
   isDirty: boolean;
 };
 
@@ -39,6 +41,8 @@ export const INITIAL_STATE: State = {
   currentView: 'indexes-list',
   currentIndexType: 'search',
   currentIndexName: '',
+  focusedIndexName: '',
+  focusedIndexVersion: 0,
   isDirty: false,
 };
 
@@ -52,6 +56,7 @@ export const SET_IS_DIRTY = 'indexes/drawer/SET_IS_DIRTY' as const;
 
 type OpenIndexesListDrawerViewAction = {
   type: typeof OPEN_INDEXES_LIST_DRAWER_VIEW;
+  focusedIndexName: string;
 };
 
 type OpenCreateSearchIndexDrawerViewAction = {
@@ -96,17 +101,19 @@ const confirmViewChangeIfDirty = async (isDirty: boolean): Promise<boolean> => {
   });
 };
 
-export const openIndexesListDrawerView = (): IndexesThunkAction<
-  Promise<void>,
-  OpenIndexesListDrawerViewAction
-> => {
+export const openIndexesListDrawerView = (
+  focusedIndexName?: string
+): IndexesThunkAction<Promise<void>, OpenIndexesListDrawerViewAction> => {
   return async (dispatch, getState) => {
     const { isDirty } = getState().indexesDrawer;
     const confirmed = await confirmViewChangeIfDirty(isDirty);
     if (!confirmed) {
       return;
     }
-    dispatch({ type: OPEN_INDEXES_LIST_DRAWER_VIEW });
+    dispatch({
+      type: OPEN_INDEXES_LIST_DRAWER_VIEW,
+      focusedIndexName: focusedIndexName ?? '',
+    });
   };
 };
 
@@ -181,6 +188,8 @@ export default function reducer(
     return {
       ...state,
       currentView: 'indexes-list',
+      focusedIndexName: action.focusedIndexName,
+      focusedIndexVersion: state.focusedIndexVersion + 1,
     };
   }
 

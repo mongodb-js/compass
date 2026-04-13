@@ -36,6 +36,7 @@ describe('indexes-drawer module', function () {
       it('sets currentView to indexes-list', function () {
         const state = reducer(INITIAL_STATE, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
+          focusedIndexName: '',
         });
 
         expect(state.currentView).to.equal('indexes-list');
@@ -46,17 +47,45 @@ describe('indexes-drawer module', function () {
           currentView: 'create-search-index' as const,
           currentIndexType: 'search' as const,
           currentIndexName: 'test-index',
+          focusedIndexName: '',
+          focusedIndexVersion: 0,
           isDirty: false,
         };
 
         const state = reducer(previousState, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
+          focusedIndexName: '',
         });
 
         expect(state.currentView).to.equal('indexes-list');
         expect(state.currentIndexType).to.equal('search');
         expect(state.currentIndexName).to.equal('test-index');
         expect(state.isDirty).to.equal(false);
+      });
+
+      it('sets focusedIndexName from the action', function () {
+        const state = reducer(INITIAL_STATE, {
+          type: OPEN_INDEXES_LIST_DRAWER_VIEW,
+          focusedIndexName: 'myIndex',
+        });
+
+        expect(state.focusedIndexName).to.equal('myIndex');
+      });
+
+      it('increments focusedIndexVersion on each dispatch', function () {
+        expect(INITIAL_STATE.focusedIndexVersion).to.equal(0);
+
+        const state1 = reducer(INITIAL_STATE, {
+          type: OPEN_INDEXES_LIST_DRAWER_VIEW,
+          focusedIndexName: 'myIndex',
+        });
+        expect(state1.focusedIndexVersion).to.equal(1);
+
+        const state2 = reducer(state1, {
+          type: OPEN_INDEXES_LIST_DRAWER_VIEW,
+          focusedIndexName: 'myIndex',
+        });
+        expect(state2.focusedIndexVersion).to.equal(2);
       });
     });
 
@@ -123,6 +152,8 @@ describe('indexes-drawer module', function () {
           currentView: 'edit-search-index' as const,
           currentIndexType: 'vectorSearch' as const,
           currentIndexName: 'test-index',
+          focusedIndexName: '',
+          focusedIndexVersion: 0,
           isDirty: false,
         };
 
@@ -157,6 +188,8 @@ describe('indexes-drawer module', function () {
           currentView: 'create-search-index' as const,
           currentIndexType: 'vectorSearch' as const,
           currentIndexName: 'test-index',
+          focusedIndexName: '',
+          focusedIndexVersion: 0,
           isDirty: true,
         };
 
@@ -190,6 +223,8 @@ describe('indexes-drawer module', function () {
           currentView: 'edit-search-index' as const,
           currentIndexType: 'search' as const,
           currentIndexName: 'my-index',
+          focusedIndexName: '',
+          focusedIndexVersion: 0,
           isDirty: true,
         };
 
@@ -223,6 +258,8 @@ describe('indexes-drawer module', function () {
           currentView: 'create-search-index' as const,
           currentIndexType: 'vectorSearch' as const,
           currentIndexName: 'test-index',
+          focusedIndexName: '',
+          focusedIndexVersion: 0,
           isDirty: true,
         };
 
@@ -256,6 +293,8 @@ describe('indexes-drawer module', function () {
           currentView: 'edit-search-index' as const,
           currentIndexType: 'search' as const,
           currentIndexName: 'my-index',
+          focusedIndexName: '',
+          focusedIndexVersion: 0,
           isDirty: true,
         };
 
@@ -289,6 +328,30 @@ describe('indexes-drawer module', function () {
         expect(store.getState().indexesDrawer.currentView).to.equal(
           'indexes-list'
         );
+      });
+
+      it('sets focusedIndexName when provided', async function () {
+        await store.dispatch(openIndexesListDrawerView('mySearchIndex'));
+
+        expect(store.getState().indexesDrawer.focusedIndexName).to.equal(
+          'mySearchIndex'
+        );
+      });
+
+      it('defaults focusedIndexName to empty string when not provided', async function () {
+        await store.dispatch(openIndexesListDrawerView());
+
+        expect(store.getState().indexesDrawer.focusedIndexName).to.equal('');
+      });
+
+      it('increments focusedIndexVersion on each dispatch', async function () {
+        expect(store.getState().indexesDrawer.focusedIndexVersion).to.equal(0);
+
+        await store.dispatch(openIndexesListDrawerView('myIndex'));
+        expect(store.getState().indexesDrawer.focusedIndexVersion).to.equal(1);
+
+        await store.dispatch(openIndexesListDrawerView('myIndex'));
+        expect(store.getState().indexesDrawer.focusedIndexVersion).to.equal(2);
       });
 
       it('shows confirmation dialog when isDirty is true and dispatches action when confirmed', async function () {

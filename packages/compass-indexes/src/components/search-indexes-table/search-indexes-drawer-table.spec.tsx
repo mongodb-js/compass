@@ -32,6 +32,8 @@ const renderIndexList = (
         onDropIndexClick={noop}
         onEditIndexClick={noop}
         onCreateSearchIndexClick={noop}
+        focusedIndexName={null}
+        focusedIndexVersion={0}
         {...props}
       />
     </Provider>
@@ -142,5 +144,52 @@ describe('SearchIndexesDrawerTable Component', function () {
     expect(screen.getByText('default').closest('tr') as HTMLTableRowElement).to
       .exist;
     expect(() => screen.getByText('another')).to.throw();
+  });
+
+  context('focused index', function () {
+    it('marks the focused index row as expanded', function () {
+      renderIndexList({
+        focusedIndexName: 'default',
+        focusedIndexVersion: 1,
+      });
+
+      const focusedRow = screen
+        .getByText('default')
+        .closest('tr') as HTMLTableRowElement;
+      const otherRow = screen
+        .getByText('another')
+        .closest('tr') as HTMLTableRowElement;
+
+      expect(focusedRow).to.have.attribute('data-expanded', 'true');
+      expect(otherRow).to.have.attribute('data-expanded', 'false');
+    });
+
+    it('does not mark any row as expanded when focusedIndexName is null', function () {
+      renderIndexList({
+        focusedIndexName: null,
+        focusedIndexVersion: 0,
+      });
+
+      for (const index of indexes) {
+        const row = screen
+          .getByText(index.name)
+          .closest('tr') as HTMLTableRowElement;
+        expect(row).to.have.attribute('data-expanded', 'false');
+      }
+    });
+
+    it('does not mark any row as expanded when focusedIndexName does not match', function () {
+      renderIndexList({
+        focusedIndexName: 'nonexistent',
+        focusedIndexVersion: 1,
+      });
+
+      for (const index of indexes) {
+        const row = screen
+          .getByText(index.name)
+          .closest('tr') as HTMLTableRowElement;
+        expect(row).to.have.attribute('data-expanded', 'false');
+      }
+    });
   });
 });

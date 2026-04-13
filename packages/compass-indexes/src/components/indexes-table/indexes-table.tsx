@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   css,
   cx,
@@ -88,6 +88,7 @@ export type IndexesTableProps<T> = {
   tableWrapperClassName?: string;
   cellClassName?: string;
   showActionsOnHover?: boolean;
+  defaultExpanded?: Record<string, boolean>;
 };
 
 export function IndexesTable<T>({
@@ -98,18 +99,26 @@ export function IndexesTable<T>({
   tableWrapperClassName,
   cellClassName,
   showActionsOnHover = true,
+  defaultExpanded,
 }: IndexesTableProps<T>) {
   const [sorting, setSorting] = useTabState<SortingState>(
     `${id}-sorting-state`,
     []
   );
+  const [expanded, setExpanded] = useState<true | Record<string, boolean>>(
+    defaultExpanded ?? {}
+  );
+  useEffect(() => {
+    setExpanded(defaultExpanded ?? {});
+  }, [defaultExpanded]);
   const table = useLeafyGreenTable<T>({
     data,
     columns,
     enableSortingRemoval: false,
     withPagination: false,
-    state: { sorting },
+    state: { sorting, expanded },
     onSortingChange: setSorting,
+    onExpandedChange: setExpanded,
   });
 
   const { rows } = table.getRowModel();
