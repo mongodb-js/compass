@@ -28,6 +28,12 @@ import {
   deserialize as bsonDeserialize,
 } from 'bson';
 import { type Logger } from '@mongodb-js/compass-logging/provider';
+
+/**
+ * Minimum valid BSON document size: 4 bytes for length + 1 byte for terminator.
+ */
+const MIN_BSON_DOCUMENT_SIZE = 5;
+
 /**
  * WebSocket close codes that must NOT trigger reconnection.
  */
@@ -85,7 +91,8 @@ export function parseFrame(
   const headerSize =
     data[0] | (data[1] << 8) | (data[2] << 16) | ((data[3] << 24) >>> 0);
 
-  if (headerSize < 5 || headerSize > data.length) return null;
+  if (headerSize < MIN_BSON_DOCUMENT_SIZE || headerSize > data.length)
+    return null;
 
   try {
     const headerSlice = data.slice(0, headerSize);
@@ -278,7 +285,12 @@ export class MultiplexWebSocketTransport {
     return this.nextPort++;
   }
 
-  /** Register callbacks for a logical stream identified by its local port. */
+  /**
+   * Register callbacks for a logical stream identified by its local port.
+   * Note: The WebSocket connection must be open before calling this method.
+   * If the connection closes immediately after registration, the onError callback
+   * will be invoked by the close event handler.
+   */
   registerSocket(localPort: number, callbacks: MultiplexSocketCallbacks): void {
     if (this.ws?.readyState !== WebSocket.OPEN) {
       throw new Error('WebSocket connection is not open');
@@ -344,8 +356,17 @@ export class MultiplexWebSocketTransport {
   }
 
   private sendRaw(frame: Uint8Array): void {
+    // In order to be able to send the data, we SHOULD have connected
+    // to the server and ws should be in `OPEN` state.
     if (this.ws?.readyState === WebSocket.OPEN) {
       this.ws.send(frame.buffer as ArrayBuffer);
+    } else {
+      this.logger?.log.error(
+        this.logger?.mongoLogId(1_001_000_406),
+        'COMPASS-WEB-MULTIPLEXING',
+        'Failed to send frame, WebSocket not open',
+        { readyState: this.ws?.readyState }
+      );
     }
   }
 

@@ -11,9 +11,11 @@ type ConnectOptions = Pick<ConnectionOptions, 'lookup'> & {
 };
 
 /**
- * net.Socket interface that works over the WebSocket connection. For now, only
- * used when running compass-web in a local sandbox, mms has their own
- * implementation
+ * net.Socket polyfill that works over WebSocket connections.
+ *
+ * Supports two modes:
+ * 1. Multiplexed transport: Uses a shared WebSocket with BSON framing
+ * 2. Direct WebSocket proxy: Direct connection to local proxy server
  */
 const MESSAGE_TYPE = {
   JSON: 0x01,
