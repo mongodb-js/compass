@@ -150,7 +150,7 @@ export class MultiplexWebSocketTransport {
       baseReconnectDelayMs: options.baseReconnectDelayMs ?? 500,
     };
     this.logger?.log.info(
-      this.logger?.mongoLogId(1_001_000_400),
+      this.logger?.mongoLogId(1_001_000_420),
       'COMPASS-WEB-MULTIPLEXING',
       'MultiplexWebSocketTransport created',
       this.options
@@ -202,7 +202,7 @@ export class MultiplexWebSocketTransport {
         this.connectResolve = null;
         this.connectReject = null;
         this.logger?.log.info(
-          this.logger?.mongoLogId(1_001_000_404),
+          this.logger?.mongoLogId(1_001_000_421),
           'COMPASS-WEB-MULTIPLEXING',
           'WebSocket connection established',
           { url: this.url }
@@ -223,7 +223,7 @@ export class MultiplexWebSocketTransport {
           this.reconnectAttempts >= this.options.maxReconnectAttempts;
 
         this.logger?.log.info(
-          this.logger?.mongoLogId(1_001_000_405),
+          this.logger?.mongoLogId(1_001_000_422),
           'COMPASS-WEB-MULTIPLEXING',
           'WebSocket closed',
           {
@@ -314,7 +314,7 @@ export class MultiplexWebSocketTransport {
       throw new Error('WebSocket connection is not open');
     }
     this.logger?.log.info(
-      this.logger?.mongoLogId(1_001_000_403),
+      this.logger?.mongoLogId(1_001_000_423),
       'COMPASS-WEB-MULTIPLEXING',
       'Registering socket',
       { localPort }
@@ -325,7 +325,7 @@ export class MultiplexWebSocketTransport {
   /** Remove callbacks for a logical stream (call after error or close). */
   unregisterSocket(localPort: number): void {
     this.logger?.log.info(
-      this.logger?.mongoLogId(1_001_000_402),
+      this.logger?.mongoLogId(1_001_000_424),
       'COMPASS-WEB-MULTIPLEXING',
       'Unregistering socket',
       { localPort }
@@ -380,7 +380,7 @@ export class MultiplexWebSocketTransport {
       this.ws.send(frame.buffer as ArrayBuffer);
     } else {
       this.logger?.log.error(
-        this.logger?.mongoLogId(1_001_000_406),
+        this.logger?.mongoLogId(1_001_000_425),
         'COMPASS-WEB-MULTIPLEXING',
         'Failed to send frame, WebSocket not open',
         { readyState: this.ws?.readyState }
@@ -391,7 +391,7 @@ export class MultiplexWebSocketTransport {
   /** Close the shared WebSocket and notify all registered streams. */
   close(reason = 'Tab Closed'): void {
     this.logger?.log.info(
-      this.logger?.mongoLogId(1_001_000_401),
+      this.logger?.mongoLogId(1_001_000_426),
       'COMPASS-WEB-MULTIPLEXING',
       'Closing MultiplexWebSocketTransport'
     );

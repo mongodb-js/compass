@@ -177,7 +177,7 @@ const WithMultiplexTransport = createServiceProvider(
           }
 
           logger.log.error(
-            logger.mongoLogId(1_001_000_406),
+            logger.mongoLogId(1_001_000_419),
             'COMPASS-WEB-MULTIPLEXING',
             'Multiplex WebSocket transport failed',
             { error: (err as Error).message }
