@@ -17,13 +17,15 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "files": [
-    "dist",
-    "provider.js",
-    "provider.d.ts"
+    "dist"
   ],
   "license": "SSPL",
   "main": "dist/index.js",
   "compass:main": "src/index.tsx",
+  "exports": {
+    ".": "./dist/index.js",
+    "./provider": "./dist/provider.js"
+  },
   "compass:exports": {
     ".": "./src/index.tsx",
     "./provider": "./src/provider.ts"

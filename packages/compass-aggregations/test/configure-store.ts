@@ -73,7 +73,7 @@ function getMockedPluginArgs(
  */
 export default function configureStore(
   ...args: Parameters<typeof getMockedPluginArgs>
-) {
+): any /* TODO: typescript is struggling to infer the types here correctly */ {
   const [Plugin, initialProps, connectionInfo, renderOptions] =
     getMockedPluginArgs(...args);
   const { activatePluginWithActiveConnection } =

@@ -47,20 +47,30 @@ import {
 } from 'compass-preferences-model/provider';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import { CompassComponentsProvider } from '@mongodb-js/compass-components';
+
+/**
+ * NB: we are breaking the rules in this package and importing code directly
+ * from source so that we can create a better unit testing expirience while
+ * avoiding exposing the internals of the connections logic to the rest of the
+ * code in the repo. This is not a pattern that should be used anywhere else in
+ * the codebase!
+ */
 import {
   TestEnvCurrentConnectionContext,
   ConnectionInfoProvider,
-} from '@mongodb-js/compass-connections/src/connection-info-provider';
-import type { State } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
-import { createDefaultConnectionInfo } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
-import { getDataServiceForConnection } from '@mongodb-js/compass-connections/src/stores/connections-store-redux';
+} from '../../../packages/compass-connections/src/connection-info-provider';
+import type { State } from '../../../packages/compass-connections/src/stores/connections-store-redux';
+import { createDefaultConnectionInfo } from '../../../packages/compass-connections/src/stores/connections-store-redux';
+import { getDataServiceForConnection } from '../../../packages/compass-connections/src/stores/connections-store-redux';
 import {
   useConnectionActions,
   useStore,
-} from '@mongodb-js/compass-connections/src/stores/store-context';
+} from '../../../packages/compass-connections/src/stores/store-context';
 import CompassConnections, {
   ConnectFnProvider,
-} from '@mongodb-js/compass-connections/src/index';
+} from '../../../packages/compass-connections/src/index';
+/***/
+
 import type {
   CompassPluginComponent,
   CompassPlugin,

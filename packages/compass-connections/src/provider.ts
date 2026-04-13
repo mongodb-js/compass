@@ -1,6 +1,11 @@
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { useConnectionInfo } from './connection-info-provider';
 import type { DataService } from 'mongodb-data-service';
+import type {
+  ConnectionsEventEmitter,
+  ConnectionsEventMap,
+  ConnectionState,
+} from './stores/connections-store-redux';
 import { getDataServiceForConnection } from './stores/connections-store-redux';
 
 export type { DataService };
@@ -87,3 +92,6 @@ const ConnectionStatus = {
 } as const;
 
 export { ConnectionStatus };
+export type { ConnectionId } from './stores/connections-store-redux';
+
+export type { ConnectionsEventEmitter, ConnectionsEventMap, ConnectionState };
