@@ -1,4 +1,4 @@
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
@@ -8,8 +8,8 @@ import {
   TEST_COMPASS_WEB,
   Selectors,
   connectionNameFromString,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
 import { expect } from 'chai';
 import { ConnectionString } from 'mongodb-connection-string-url';
 

@@ -1,19 +1,19 @@
-import type { CompassBrowser } from '../helpers/compass-browser';
-import { startTelemetryServer } from '../helpers/telemetry';
-import type { Telemetry } from '../helpers/telemetry';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
+import { startTelemetryServer } from '../helpers/telemetry.ts';
+import type { Telemetry } from '../helpers/telemetry.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
   screenshotPathName,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
 import {
   isTestingWeb,
   isTestingWebAtlasCloud,
-} from '../helpers/test-runner-context';
+} from '../helpers/test-runner-context.ts';
 import { expect } from 'chai';
 
 describe('MongoDB Assistant (with real backend)', function () {

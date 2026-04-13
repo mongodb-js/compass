@@ -16,24 +16,24 @@
   "keywords": [
     "mongodb-js"
   ],
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    ".": "./lib/index.js"
+    ".": "./dist/index.js"
   },
   "compass:exports": {
     ".": "./src/index.ts"
   },
-  "types": "./lib/index.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
-    "lib",
+    "dist",
     "package.json",
     "README.md"
   ],
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "clean": "node -e \"fs.rmSync('lib', { recursive: true, force: true })\" || true",
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" || true",
     "precompile": "npm run clean",
     "compile": "tsc -p tsconfig-build.json",
     "depcheck": "compass-scripts check-peer-deps && depcheck",
@@ -57,7 +57,7 @@
     "@mongodb-js/devtools-proxy-support": "^0.7.6",
     "bson": "^7.2.0",
     "debug": "^4.3.4",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "mongodb": "^7.1.1",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.1",

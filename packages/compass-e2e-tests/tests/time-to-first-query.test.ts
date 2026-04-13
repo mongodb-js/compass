@@ -5,9 +5,9 @@ import {
   screenshotIfFailed,
   getDefaultConnectionNames,
   TEST_COMPASS_WEB,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import { createNumbersCollection } from '../helpers/mongo-clients';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 
 describe('Time to first query', function () {
   let compass: Compass | undefined;

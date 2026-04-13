@@ -5,12 +5,12 @@ import {
   runCompassOnce,
   positionalArgs,
   skipForWeb,
-} from '../helpers/compass';
+} from '../helpers/compass.ts';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
-import * as Selectors from '../helpers/selectors';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import * as Selectors from '../helpers/selectors.ts';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 
 async function getCheckboxAndBannerState(
   browser: CompassBrowser,
@@ -223,11 +223,7 @@ describe('Global preferences', function () {
       wrapBinary: positionalArgs(['mongodb://usr:53cr3t@localhost:0/']),
     });
     try {
-      // ps-list is ESM-only in recent versions.
-      // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-      const processList: typeof import('ps-list') = await eval(
-        `import('ps-list')`
-      );
+      const processList = await import('ps-list');
       const list = await processList.default();
       for (const proc of list) {
         expect(JSON.stringify(proc)).to.not.include('53cr3t');

@@ -1,8 +1,8 @@
 {
-  "extends": "@mongodb-js/tsconfig-compass/tsconfig.react.json",
+  "extends": "@mongodb-js/tsconfig-compass/tsconfig.common.json",
   "compilerOptions": {
-    "outDir": "lib"
+    "outDir": "dist"
   },
   "include": ["**/*"],
-  "exclude": ["node_modules", "lib"]
+  "exclude": ["node_modules", "dist"]
 }

@@ -1,15 +1,15 @@
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/mongo-clients';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
+import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 import { expect } from 'chai';
-import { isTestingDesktop } from '../helpers/test-runner-context';
+import { isTestingDesktop } from '../helpers/test-runner-context.ts';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 const PASSING_VALIDATOR = '{ $jsonSchema: {} }';

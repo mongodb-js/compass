@@ -1,6 +1,6 @@
 import chai from 'chai';
 import { promises as fs } from 'fs';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
@@ -9,18 +9,18 @@ import {
   serverSatisfies,
   skipForWeb,
   getDefaultConnectionNames,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
 import {
   createNestedDocumentsCollection,
   createNumbersCollection,
-} from '../helpers/mongo-clients';
-import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline';
+} from '../helpers/mongo-clients.ts';
+import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline.ts';
 import type { ChainablePromiseElement } from 'webdriverio';
-import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode';
-import { isTestingWeb } from '../helpers/test-runner-context';
-import { allowServerWarnings } from '../helpers/test-runner-global-fixtures';
+import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode.ts';
+import { isTestingWeb } from '../helpers/test-runner-context.ts';
+import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
 import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;

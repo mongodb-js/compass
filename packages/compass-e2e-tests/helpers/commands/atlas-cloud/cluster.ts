@@ -1,7 +1,7 @@
-import ConnectionString from 'mongodb-connection-string-url';
-import type { CompassBrowser } from '../../compass-browser';
-import { getCloudUrlsFromContext } from '../../test-runner-context';
-import { getProjectIdFromPageUrl, doCloudFetch } from './utils';
+import { ConnectionString } from 'mongodb-connection-string-url';
+import type { CompassBrowser } from '../../compass-browser.ts';
+import { getCloudUrlsFromContext } from '../../test-runner-context.ts';
+import { getProjectIdFromPageUrl, doCloudFetch } from './utils.ts';
 
 export async function getClusterConnectionStringsFromNames(
   browser: CompassBrowser,

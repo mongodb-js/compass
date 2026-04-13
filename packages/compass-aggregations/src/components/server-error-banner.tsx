@@ -7,6 +7,7 @@ import {
   Banner,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { isSearchIndexDefinitionError } from '../utils/search-stage-errors';
 
 const bannerStyles = css({
@@ -31,6 +32,7 @@ export default function ServerErrorBanner({
   dataTestId = 'server-error-banner',
 }: ServerErrorBannerProps) {
   const { openDrawer } = useDrawerActions();
+  const track = useTelemetry();
 
   return (
     <Banner
@@ -47,6 +49,9 @@ export default function ServerErrorBanner({
             {' '}
             <Link
               onClick={() => {
+                track('Search Index Edit Link Clicked', {
+                  context: 'Server Error Banner',
+                });
                 openDrawer('compass-indexes-drawer');
                 onEditSearchIndexClick(searchIndexName);
               }}

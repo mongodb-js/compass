@@ -5,10 +5,10 @@ import {
   screenshotIfFailed,
   skipForWeb,
   getDefaultConnectionNames,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import { startTelemetryServer } from '../helpers/telemetry';
-import type { Telemetry, LogEntry } from '../helpers/telemetry';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import { startTelemetryServer } from '../helpers/telemetry.ts';
+import type { Telemetry, LogEntry } from '../helpers/telemetry.ts';
 
 describe('Logging and Telemetry integration', function () {
   before(function () {

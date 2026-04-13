@@ -1,9 +1,9 @@
-import type { CompassBrowser } from '../compass-browser';
+import type { CompassBrowser } from '../compass-browser.ts';
 import type {
   AllPreferences,
   UserPreferences,
 } from 'compass-preferences-model';
-import { isTestingWeb } from '../test-runner-context';
+import { isTestingWeb } from '../test-runner-context.ts';
 import { inspect } from 'util';
 
 async function _waitUntilPreferencesAccessAvailable(

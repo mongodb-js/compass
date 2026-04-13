@@ -61,7 +61,7 @@
     "@mongodb-js/workspace-info": "^1.7.0",
     "bson": "^7.2.0",
     "compass-preferences-model": "^2.75.0",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "mongodb-collection-model": "^5.40.2",
     "mongodb-database-model": "^2.40.2",
     "mongodb-ns": "^3.0.1",

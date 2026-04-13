@@ -1,6 +1,6 @@
-import type { CompassBrowser } from '../helpers/compass-browser';
-import { startTelemetryServer } from '../helpers/telemetry';
-import type { Telemetry } from '../helpers/telemetry';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
+import { startTelemetryServer } from '../helpers/telemetry.ts';
+import type { Telemetry } from '../helpers/telemetry.ts';
 import {
   init,
   cleanup,
@@ -8,12 +8,12 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   getDefaultConnectionNames,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
 import chai from 'chai';
-import { createSidebarDatabase } from '../helpers/mongo-clients';
-import { getShellOutputText } from '../helpers/commands';
+import { createSidebarDatabase } from '../helpers/mongo-clients.ts';
+import { getShellOutputText } from '../helpers/commands/index.ts';
 const { expect } = chai;
 
 describe('Shell', function () {

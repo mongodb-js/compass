@@ -1,5 +1,5 @@
-import type { CompassBrowser } from '../compass-browser';
-import type { Telemetry } from '../telemetry';
+import type { CompassBrowser } from '../compass-browser.ts';
+import type { Telemetry } from '../telemetry.ts';
 
 // eslint-disable-next-line @typescript-eslint/require-await
 export async function listenForTelemetryEvents(

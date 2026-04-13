@@ -1,10 +1,10 @@
-import type { Compass } from '../../helpers/compass';
-import { cleanup, init, screenshotIfFailed } from '../../helpers/compass';
+import type { Compass } from '../../helpers/compass.ts';
+import { cleanup, init, screenshotIfFailed } from '../../helpers/compass.ts';
 import {
   context,
   assertTestingWebAtlasCloud,
   isTestingWebAtlasCloud,
-} from '../../helpers/test-runner-context';
+} from '../../helpers/test-runner-context.ts';
 
 describe('Error states', function () {
   let compass: Compass;

@@ -1,5 +1,5 @@
 {
-  "extends": "./tsconfig.json",
+  "extends": "@mongodb-js/tsconfig-compass/tsconfig.build.json",
   "compilerOptions": {
     // reversing options that are not relevant for the build
     "allowImportingTsExtensions": false,

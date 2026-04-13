@@ -1,7 +1,7 @@
 import { Key } from 'webdriverio';
-import type { CompassBrowser } from '../compass-browser';
-import * as Selectors from '../selectors';
-import type { WorkspaceTabSelectorOptions } from '../selectors';
+import type { CompassBrowser } from '../compass-browser.ts';
+import * as Selectors from '../selectors.ts';
+import type { WorkspaceTabSelectorOptions } from '../selectors.ts';
 import Debug from 'debug';
 const debug = Debug('compass-e2e-tests');
 

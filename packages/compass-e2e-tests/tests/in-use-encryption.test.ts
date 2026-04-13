@@ -1,19 +1,19 @@
 import { expect } from 'chai';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   serverSatisfies,
   skipForWeb,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
 import { MongoClient } from 'mongodb';
 
-import delay from '../helpers/delay';
-import type { ConnectFormState } from '../helpers/connect-form-state';
-import { startMockAssistantServer } from '../helpers/assistant-service';
+import delay from '../helpers/delay.ts';
+import type { ConnectFormState } from '../helpers/connect-form-state.ts';
+import { startMockAssistantServer } from '../helpers/assistant-service.ts';
 
 const CONNECTION_HOSTS = '127.0.0.1:27091';
 const CONNECTION_STRING = `mongodb://${CONNECTION_HOSTS}/`;

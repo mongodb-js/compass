@@ -1,6 +1,6 @@
 import type { ChainablePromiseElement } from 'webdriverio';
-import type { CompassBrowser } from '../compass-browser';
-import { resolveElement } from '../utils';
+import type { CompassBrowser } from '../compass-browser.ts';
+import { resolveElement } from '../utils.ts';
 
 export async function waitForAriaDisabled(
   browser: CompassBrowser,

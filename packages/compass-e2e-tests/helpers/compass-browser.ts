@@ -1,4 +1,4 @@
-import type * as Commands from './commands';
+import type * as Commands from './commands/index.ts';
 
 type CommandsType = typeof Commands;
 

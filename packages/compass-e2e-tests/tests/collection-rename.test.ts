@@ -1,15 +1,15 @@
 import { expect } from 'chai';
-import type { Compass } from '../helpers/compass';
+import type { Compass } from '../helpers/compass.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   TEST_COMPASS_WEB,
   getDefaultConnectionNames,
-} from '../helpers/compass';
-import type { CompassBrowser } from '../helpers/compass-browser';
-import { createDummyCollections } from '../helpers/mongo-clients';
-import * as Selectors from '../helpers/selectors';
+} from '../helpers/compass.ts';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
+import { createDummyCollections } from '../helpers/mongo-clients.ts';
+import * as Selectors from '../helpers/selectors.ts';
 
 const databaseName = 'test';
 const initialCollectionName = 'csv-file';

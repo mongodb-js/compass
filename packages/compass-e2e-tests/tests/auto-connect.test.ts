@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import type { Compass } from '../helpers/compass';
+import type { Compass } from '../helpers/compass.ts';
 import {
   init,
   cleanup,
@@ -7,12 +7,12 @@ import {
   skipForWeb,
   screenshotPathName,
   connectionNameFromString,
-} from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
+} from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
 import os from 'os';
 import path from 'path';
 import { promises as fs } from 'fs';
-import { getDefaultConnectionNames } from '../helpers/test-runner-context';
+import { getDefaultConnectionNames } from '../helpers/test-runner-context.ts';
 
 const connectionStringSuccess = 'mongodb://127.0.0.1:27091/test';
 const connectionNameSuccess = 'Success';

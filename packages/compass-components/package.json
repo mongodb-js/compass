@@ -3,19 +3,19 @@
   "version": "1.65.0",
   "description": "React Components used in Compass",
   "license": "SSPL",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "compass:exports": {
     ".": "./src/index.ts"
   },
-  "types": "./lib/index.d.ts",
+  "types": "./dist/index.d.ts",
   "files": [
-    "lib"
+    "dist"
   ],
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "clean": "node -e \"fs.rmSync('lib', { recursive: true, force: true })\" || true",
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" || true",
     "precompile": "npm run clean",
     "compile": "tsc -p tsconfig-build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -96,7 +96,7 @@
     "hadron-document": "^8.11.3",
     "hadron-type-checker": "^7.5.3",
     "is-electron-renderer": "^2.0.1",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "mongodb-query-util": "^2.6.3",
     "polished": "^4.2.2",
     "react": "^17.0.2",

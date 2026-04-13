@@ -1,30 +1,30 @@
 import chai from 'chai';
 import clipboard from 'clipboardy';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   deleteCommonVariedProperties,
   startTelemetryServer,
-} from '../helpers/telemetry';
-import type { Telemetry } from '../helpers/telemetry';
+} from '../helpers/telemetry.ts';
+import type { Telemetry } from '../helpers/telemetry.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
-import * as Selectors from '../helpers/selectors';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
 import {
   createNestedDocumentsCollection,
   createNumbersCollection,
-} from '../helpers/mongo-clients';
+} from '../helpers/mongo-clients.ts';
 import {
   isTestingWeb,
   context as testRunnerContext,
-} from '../helpers/test-runner-context';
+} from '../helpers/test-runner-context.ts';
 import type { ChainablePromiseElement } from 'webdriverio';
-import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document';
-import { allowServerWarnings } from '../helpers/test-runner-global-fixtures';
+import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document.ts';
+import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
 import type { LogEntry } from '@mongodb-js/compass-test-server';
 
 const { expect } = chai;

@@ -1,4 +1,4 @@
-import gunzip from './gunzip';
+import gunzip from './gunzip.ts';
 import fs from 'fs';
 import {
   assertTestingWebAtlasCloud,
@@ -11,8 +11,8 @@ import {
   isTestingDesktop,
   isTestingWeb,
   RUN_ID,
-} from './test-runner-context';
-import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths';
+} from './test-runner-context.ts';
+import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths.ts';
 import Debug from 'debug';
 import {
   startTestServer,
@@ -30,18 +30,20 @@ import {
   screenshotPathName,
   serverSatisfies,
   startBrowser,
-} from './compass';
+} from './compass.ts';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   spawnCompassWebSandbox,
   spawnCompassWebStaticServer,
   waitForCompassWebSandboxToBeReady,
   waitForCompassWebStaticAssetsToBeReady,
-} from './compass-web-sandbox';
-import { template } from 'lodash';
+} from './compass-web-sandbox.ts';
+import lodash from 'lodash';
 import { randomBytes } from 'crypto';
-import { isAtlasCloudPage } from './commands/atlas-cloud/utils';
-import type { ClusterTypes } from './commands';
+import { isAtlasCloudPage } from './commands/atlas-cloud/utils.ts';
+import type { ClusterTypes } from './commands/index.ts';
+
+const { template } = lodash;
 
 export const globalFixturesAbortController = new AbortController();
 

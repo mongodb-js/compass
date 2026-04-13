@@ -1,8 +1,8 @@
 import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
-import { getDefaultConnectionStrings } from './test-runner-context';
+import { getDefaultConnectionStrings } from './test-runner-context.ts';
 import { redactConnectionString } from 'mongodb-connection-string-url';
-import { noServerWarningsCheckpoint } from './test-runner-global-fixtures';
+import { noServerWarningsCheckpoint } from './test-runner-global-fixtures.ts';
 
 // This is a list of all the known database names that get created by tests so
 // that we can know what to drop when we clean up before every test. If a new

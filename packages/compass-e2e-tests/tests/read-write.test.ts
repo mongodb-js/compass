@@ -3,12 +3,12 @@ import {
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
-} from '../helpers/compass';
+} from '../helpers/compass.ts';
 import { expect } from 'chai';
-import * as Selectors from '../helpers/selectors';
-import { createNumbersCollection } from '../helpers/mongo-clients';
-import type { Compass } from '../helpers/compass';
-import type { CompassBrowser } from '../helpers/compass-browser';
+import * as Selectors from '../helpers/selectors.ts';
+import { createNumbersCollection } from '../helpers/mongo-clients.ts';
+import type { Compass } from '../helpers/compass.ts';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 
 describe('readWrite: true', function () {
   let compass: Compass;

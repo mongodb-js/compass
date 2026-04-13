@@ -5,7 +5,7 @@
   "license": "SSPL",
   "files": [
     "tsconfig.common.json",
-    "tsconfig.react.json"
+    "tsconfig.build.json"
   ],
   "peerDependencies": {
     "typescript": "^5.9.3"

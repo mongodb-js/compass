@@ -1,10 +1,12 @@
-import { template } from 'lodash';
-import type { CompassBrowser } from '../../compass-browser';
+import lodash from 'lodash';
+import type { CompassBrowser } from '../../compass-browser.ts';
 import {
   ATLAS_CLOUD_TEST_UTILS,
   getCloudUrlsFromContext,
-} from '../../test-runner-context';
-import { isAtlasCloudPage, doCloudFetch } from './utils';
+} from '../../test-runner-context.ts';
+import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
+
+const { template } = lodash;
 
 export async function signInToAtlas(
   browser: CompassBrowser,

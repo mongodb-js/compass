@@ -4,7 +4,7 @@ import {
 } from '@mongodb-js/connection-info';
 import type { MongoClusterOptions } from 'mongodb-runner';
 import yargs from 'yargs';
-import type { Argv, CamelCase } from 'yargs';
+import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import Debug from 'debug';
 import { execFileSync } from 'child_process';
@@ -107,7 +107,7 @@ function buildDesktopArgs(yargs: Argv) {
     );
 }
 
-type _AtlasCloudSandboxArgsKebabCase =
+type AtlasCloudSandboxArgs =
   | 'atlas-cloud-environment'
   | 'atlas-cloud-project-id'
   | 'atlas-cloud-username'
@@ -115,11 +115,15 @@ type _AtlasCloudSandboxArgsKebabCase =
   | 'atlas-cloud-dbuser-username'
   | 'atlas-cloud-dbuser-password'
   | 'atlas-cloud-default-cluster'
-  | 'atlas-cloud-default-cluster-type';
-
-type AtlasCloudSandboxArgs =
-  | _AtlasCloudSandboxArgsKebabCase
-  | CamelCase<_AtlasCloudSandboxArgsKebabCase>;
+  | 'atlas-cloud-default-cluster-type'
+  | 'atlasCloudEnvironment'
+  | 'atlasCloudProjectId'
+  | 'atlasCloudUsername'
+  | 'atlasCloudPassword'
+  | 'atlasCloudDbuserUsername'
+  | 'atlasCloudDbuserPassword'
+  | 'atlasCloudDefaultCluster'
+  | 'atlasCloudDefaultClusterType';
 
 let testEnv: 'desktop' | 'web' | undefined;
 

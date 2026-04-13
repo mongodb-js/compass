@@ -8,6 +8,9 @@ import {
 } from '@mongodb-js/compass-components';
 import type * as CompassWebModule from '../src';
 import { OpenInAtlasToast } from './open-in-atlas-toast';
+import { createHashHistory } from 'history';
+
+const hashHistory = createHashHistory();
 
 Object.assign(globalThis, {
   __compassWebSharedRuntime: {
@@ -18,6 +21,8 @@ Object.assign(globalThis, {
   // imports added directly to the compass-web build, there is no way to
   // activate this otherwise
   __compassWebEnableSandboxStorage: true,
+  // For testing purposes to programmatically trigger navigation
+  hashHistory,
 });
 
 const sandboxContainerStyles = css({
@@ -50,8 +55,7 @@ const App = () => {
     return null;
   }
 
-  const { CompassWeb, getRouteFromWorkspaceTab, getWorkspaceTabFromRoute } =
-    compassWebModule;
+  const { CompassWeb } = compassWebModule;
 
   return (
     <CompassComponentsProvider>
@@ -70,6 +74,8 @@ const App = () => {
           multiplexedWsBaseUrl="ws://localhost:1338"
           // Some overrides for the default compass-web preferences to enable the
           // features that would be disabled by default otherwise
+          // Some overrides for the default compass-web preferences to enable
+          // the features that would be disabled by default otherwise
           initialPreferences={{
             enableExportSchema: true,
             enablePerformanceAdvisorBanner: false,
@@ -87,6 +93,7 @@ const App = () => {
             enableMyQueries: false,
             enableMultiplexWebSocketOnWeb: true,
           }}
+          history={hashHistory}
         ></CompassWeb>
         <OpenInAtlasToast></OpenInAtlasToast>
       </Body>

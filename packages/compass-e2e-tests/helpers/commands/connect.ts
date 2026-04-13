@@ -1,13 +1,13 @@
-import { connectionNameFromString } from '../compass';
-import type { CompassBrowser } from '../compass-browser';
-import type { ConnectFormState } from '../connect-form-state';
-import * as Selectors from '../selectors';
+import { connectionNameFromString } from '../compass.ts';
+import type { CompassBrowser } from '../compass-browser.ts';
+import type { ConnectFormState } from '../connect-form-state.ts';
+import * as Selectors from '../selectors.ts';
 import Debug from 'debug';
 import {
   getDefaultConnectionNames,
   getDefaultConnectionStrings,
   isTestingWebAtlasCloud,
-} from '../test-runner-context';
+} from '../test-runner-context.ts';
 
 const debug = Debug('compass-e2e-tests');
 

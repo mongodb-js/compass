@@ -60,7 +60,7 @@
     "@mongodb-js/connection-storage": "^0.74.0",
     "bson": "^7.2.0",
     "compass-preferences-model": "^2.75.0",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "mongodb": "^7.1.1",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.1",

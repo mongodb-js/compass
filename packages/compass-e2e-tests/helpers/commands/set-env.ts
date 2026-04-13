@@ -1,4 +1,4 @@
-import type { CompassBrowser } from '../compass-browser';
+import type { CompassBrowser } from '../compass-browser.ts';
 import { inspect } from 'util';
 
 /**

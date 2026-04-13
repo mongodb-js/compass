@@ -82,7 +82,7 @@
     "bson": "^7.2.0",
     "compass-preferences-model": "^2.75.0",
     "javascript-stringify": "^2.0.1",
-    "lodash": "^4.17.23",
+    "lodash": "^4.18.1",
     "mongodb": "^7.1.1",
     "mongodb-ns": "^3.0.1",
     "mongodb-query-parser": "^4.7.7",

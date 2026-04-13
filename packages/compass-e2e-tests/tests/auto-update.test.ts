@@ -4,7 +4,7 @@ import {
   cleanup,
   Selectors,
   screenshotPathName,
-} from '../helpers/compass';
+} from '../helpers/compass.ts';
 
 function wait(ms: number) {
   return new Promise((resolve) => {

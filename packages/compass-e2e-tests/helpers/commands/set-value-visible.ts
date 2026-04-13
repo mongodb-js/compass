@@ -1,7 +1,7 @@
 import { Key } from 'webdriverio';
-import type { CompassBrowser } from '../compass-browser';
+import type { CompassBrowser } from '../compass-browser.ts';
 import type { ChainablePromiseElement } from 'webdriverio';
-import { resolveElement } from '../utils';
+import { resolveElement } from '../utils.ts';
 
 export async function setValueVisible(
   browser: CompassBrowser,

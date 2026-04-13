@@ -22,6 +22,7 @@ const renderStageEditor = (
       onChange={() => {}}
       syntaxError={null}
       serverError={null}
+      serverErrorStageIdx={null}
       num_stages={0}
       editor_view_type="text"
       searchIndexName={null}
@@ -231,6 +232,35 @@ describe('StageEditor [Component]', function () {
       });
 
       expect(screen.queryByTestId('search-index-does-not-exist-banner')).to.not
+        .exist;
+    });
+
+    it('should show upstream error banner with link to errored stage', function () {
+      renderStageEditor({
+        serverError: {
+          message: 'Server error occurred',
+        } as MongoServerError,
+        serverErrorStageIdx: 0,
+        index: 1,
+        num_stages: 3,
+      });
+
+      expect(screen.getByTestId('stage-editor-upstream-error-message')).to
+        .exist;
+      expect(screen.getByRole('button', { name: 'Stage 1' })).to.exist;
+    });
+
+    it('should not show upstream error banner on the stage with the server error', function () {
+      renderStageEditor({
+        serverError: {
+          message: 'Server error occurred',
+        } as MongoServerError,
+        serverErrorStageIdx: 0,
+        num_stages: 3,
+      });
+
+      expect(screen.getByTestId('stage-editor-error-message')).to.exist;
+      expect(screen.queryByTestId('stage-editor-upstream-error-message')).to.not
         .exist;
     });
   });

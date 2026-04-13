@@ -10,6 +10,8 @@ const ATLAS_METADATA = {
   clusterName: 'MyCluster',
 } as AtlasClusterMetadata;
 
+const onStatusDetailsLinkClick = () => {};
+
 describe('showSearchIndexStatusChangeToasts', function () {
   let openToastStub: sinon.SinonStub;
 
@@ -29,7 +31,13 @@ describe('showSearchIndexStatusChangeToasts', function () {
     it('shows a "build in progress" toast when a new index appears in BUILDING state', function () {
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'BUILDING' });
 
-      showSearchIndexStatusChangeToasts([], [newIndex], undefined, NAMESPACE);
+      showSearchIndexStatusChangeToasts(
+        [],
+        [newIndex],
+        undefined,
+        NAMESPACE,
+        onStatusDetailsLinkClick
+      );
 
       expect(openToastStub).to.have.been.calledOnce;
       expect(openToastStub.firstCall.args[0]).to.equal(
@@ -54,7 +62,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         [previousIndex],
         [newIndex],
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       expect(openToastStub).to.have.been.calledOnce;
@@ -76,7 +85,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         [previousIndex],
         [newIndex],
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       expect(openToastStub).not.to.have.been.called;
@@ -89,7 +99,13 @@ describe('showSearchIndexStatusChangeToasts', function () {
         type: 'vectorSearch',
       });
 
-      showSearchIndexStatusChangeToasts([], [newIndex], undefined, NAMESPACE);
+      showSearchIndexStatusChangeToasts(
+        [],
+        [newIndex],
+        undefined,
+        NAMESPACE,
+        onStatusDetailsLinkClick
+      );
 
       expect(openToastStub.firstCall.args[1].description).to.include(
         'Vector search index'
@@ -108,7 +124,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         [previousIndex],
         [newIndex],
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       expect(openToastStub.firstCall.args[1].description).to.include(
@@ -133,7 +150,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         [previousIndex],
         [newIndex],
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       expect(openToastStub).to.have.been.calledOnce;
@@ -154,7 +172,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         [previousIndex],
         [newIndex],
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       expect(openToastStub).not.to.have.been.called;
@@ -163,7 +182,13 @@ describe('showSearchIndexStatusChangeToasts', function () {
     it('shows a "build failed" toast for a new index that appears already FAILED', function () {
       const newIndex = mockSearchIndex({ name: 'myIndex', status: 'FAILED' });
 
-      showSearchIndexStatusChangeToasts([], [newIndex], undefined, NAMESPACE);
+      showSearchIndexStatusChangeToasts(
+        [],
+        [newIndex],
+        undefined,
+        NAMESPACE,
+        onStatusDetailsLinkClick
+      );
 
       expect(openToastStub).to.have.been.calledOnce;
       expect(openToastStub.firstCall.args[1].variant).to.equal('warning');
@@ -182,7 +207,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         [previousIndex],
         [newIndex],
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       expect(openToastStub).to.have.been.calledOnce;
@@ -204,7 +230,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         [previousIndex],
         [newIndex],
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       expect(openToastStub).not.to.have.been.called;
@@ -226,7 +253,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         [previousIndex],
         [newIndex],
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       expect(openToastStub.firstCall.args[1].description).to.include(
@@ -247,7 +275,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         [previousIndex],
         [newIndex],
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       // description is a React element; the Link child should be null when no atlasMetadata
@@ -267,7 +296,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         [previousIndex],
         [newIndex],
         ATLAS_METADATA,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       const description = openToastStub.firstCall.args[1].description;
@@ -295,7 +325,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         previousIndexes,
         newIndexes,
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       expect(openToastStub).to.have.been.calledTwice;
@@ -321,7 +352,8 @@ describe('showSearchIndexStatusChangeToasts', function () {
         previousIndexes,
         newIndexes,
         undefined,
-        NAMESPACE
+        NAMESPACE,
+        onStatusDetailsLinkClick
       );
 
       expect(openToastStub).not.to.have.been.called;

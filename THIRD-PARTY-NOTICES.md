@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Sun Apr 05 2026.
+This document was automatically generated on Mon Apr 13 2026.
 
 ## List of dependencies
 
@@ -97,7 +97,7 @@ This document was automatically generated on Sun Apr 05 2026.
 | **[@floating-ui/react-dom](#efe6c567c3c1d938b8eca9f8ea0a574964195b9282179c8fe0af77c9b73d2257)**                             | 2.1.6              | MIT                                 |
 | **[@floating-ui/react](#1d4fb10fe29ebbe51aa464245053b41f86740a68be4c6ed53dc2072106a5381c)**                                 | 0.26.28            | MIT                                 |
 | **[@floating-ui/utils](#cb18d9d8dfd980ce2f266d23aa09fa1b5dfb5f0cca1cb1eccc9b9cce3e27e9d4)**                                 | 0.2.10             | MIT                                 |
-| **[@hono/node-server](#c8c09e016b342dc1b4f7144f8ca54fe679ddfb0611d61de38e24515afce1546d)**                                  | 1.19.11            | MIT                                 |
+| **[@hono/node-server](#db6e0ec0964a245752e6946273da2a86050c5e23b46424067787033dab2a2396)**                                  | 1.19.13            | MIT                                 |
 | **[@jridgewell/gen-mapping](#1e660067f4d1364dc830c372517d8ec92eddc9af7eaa6b1e698d478b286abafa)**                            | 0.1.1              | MIT                                 |
 | **[@jridgewell/gen-mapping](#145bee95e17934f7606726323f25f7f35b66b3cd10c310665f6654cc43685ec4)**                            | 0.3.13             | MIT                                 |
 | **[@jridgewell/resolve-uri](#f356bc3bb9c04f5fe4e387a4eea4e74125aae03bb50f846d956d7d986d200f50)**                            | 3.1.0              | MIT                                 |
@@ -199,7 +199,7 @@ This document was automatically generated on Sun Apr 05 2026.
 | **[ast-types](#b10f17e6889028ee16e1f388d24ed535333cd289f0871c70d99c6180f498c6e0)**                                          | 0.13.4             | MIT                                 |
 | **[bail](#7bb145b871ec0ce498fe08f97b015e1298676bc4b6584732692f919e426a34a1)**                                               | 2.0.2              | MIT                                 |
 | **[base64-js](#cf278cb8d073b3bd22b60816c2ba78b69043aec6bcd673437b4c1db3375153d6)**                                          | 1.5.1              | MIT                                 |
-| **[basic-ftp](#da192bb3a89fc6c761608c0f6e78c2f75e839e0a8be4c9b49b3d2640524f05ee)**                                          | 5.2.0              | MIT                                 |
+| **[basic-ftp](#31f3b30d9604f55c561ecd7584cd87af184b71534de64bc4bbe2b1f1f28a9d3a)**                                          | 5.2.2              | MIT                                 |
 | **[bcrypt-pbkdf](#b6b5900f1e48a933591abc1c918fbcc9c890b3d071f607c59d704bc1c13b3937)**                                       | 1.0.2              | BSD-3-Clause                        |
 | **[bignumber.js](#72ac920aeb92af6ca1db48e34a5fb141e8e8e98ad9fab1e2223c1ecc8b539f73)**                                       | 9.3.1              | MIT                                 |
 | **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**                                           | 1.5.0              | MIT                                 |
@@ -375,9 +375,9 @@ This document was automatically generated on Sun Apr 05 2026.
 | **[leaflet-defaulticon-compatibility](#7fba582082c899d764d8e4214d2f6f06cd043b2dce51598ec24ce299f5640a6e)**                  | 0.1.1              | BSD-2-Clause                        |
 | **[leaflet-draw](#d3f67d0a666ece9171dffece3f3db67430e7055b1e8b857d806555d65b720d0e)**                                       | 1.0.4              | MIT                                 |
 | **[leaflet](#0c77955158defdd249f5abf69232ca350038122d4fc768826d9d79ce402761f4)**                                            | 1.5.1              | BSD-2-Clause                        |
-| **[lodash-es](#a591ea211f9167d2f80166d42532d3c01f7843fafac380deb0bcf693cdf6fa1d)**                                          | 4.17.21            | MIT                                 |
+| **[lodash-es](#dc01c5e6fde0737bcb22063adffcc9ce21afc19e9f408f5d22878215419c3d25)**                                          | 4.18.1             | MIT                                 |
 | **[lodash.merge](#996e40d63a94f1b8693d7c81e0cdfb874c6432d6bbd675976fc1b6b13652c8db)**                                       | 4.6.2              | MIT                                 |
-| **[lodash](#22f51d3e8133cb84c9c410b8485c738362f6bf7ad6e2057f6eabc4b65442425f)**                                             | 4.17.23            | MIT                                 |
+| **[lodash](#02c5607a9d3316c6c04fcbf8d5fb61810668de71f499205765e125fd4829cd17)**                                             | 4.18.1             | MIT                                 |
 | **[lottie-web](#1f97ad7c365ecbd3628b72df96e42dada0d2e9a4aa6d79b66e93911bdebb6ccd)**                                         | 5.13.0             | MIT                                 |
 | **[lru-cache](#c72f841ac82faee207770e04c12f44202825ab841319ffb4cd7764a76731e4bf)**                                          | 11.2.6             | BlueOak-1.0.0                       |
 | **[lru-cache](#fe7f0a2f2cf4c92f13c3a2a63f14f80f20f6919979306dc054e4f947c1234651)**                                          | 5.1.1              | ISC                                 |
@@ -7030,9 +7030,9 @@ License files:
       IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
       CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="c8c09e016b342dc1b4f7144f8ca54fe679ddfb0611d61de38e24515afce1546d"></a>
+<a id="db6e0ec0964a245752e6946273da2a86050c5e23b46424067787033dab2a2396"></a>
 
-### [@hono/node-server](https://www.npmjs.com/package/@hono/node-server) (version 1.19.11)
+### [@hono/node-server](https://www.npmjs.com/package/@hono/node-server) (version 1.19.13)
 
 License tags: MIT
 
@@ -19923,9 +19923,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="da192bb3a89fc6c761608c0f6e78c2f75e839e0a8be4c9b49b3d2640524f05ee"></a>
+<a id="31f3b30d9604f55c561ecd7584cd87af184b71534de64bc4bbe2b1f1f28a9d3a"></a>
 
-### [basic-ftp](https://www.npmjs.com/package/basic-ftp) (version 5.2.0)
+### [basic-ftp](https://www.npmjs.com/package/basic-ftp) (version 5.2.2)
 
 License tags: MIT
 
@@ -26528,9 +26528,9 @@ License files:
 
       SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-<a id="a591ea211f9167d2f80166d42532d3c01f7843fafac380deb0bcf693cdf6fa1d"></a>
+<a id="dc01c5e6fde0737bcb22063adffcc9ce21afc19e9f408f5d22878215419c3d25"></a>
 
-### [lodash-es](https://www.npmjs.com/package/lodash-es) (version 4.17.21)
+### [lodash-es](https://www.npmjs.com/package/lodash-es) (version 4.18.1)
 
 License tags: MIT
 
@@ -26644,9 +26644,9 @@ License files:
       licenses; we recommend you read them, as their terms may differ from the
       terms above.
 
-<a id="22f51d3e8133cb84c9c410b8485c738362f6bf7ad6e2057f6eabc4b65442425f"></a>
+<a id="02c5607a9d3316c6c04fcbf8d5fb61810668de71f499205765e125fd4829cd17"></a>
 
-### [lodash](https://www.npmjs.com/package/lodash) (version 4.17.23)
+### [lodash](https://www.npmjs.com/package/lodash) (version 4.18.1)
 
 License tags: MIT
 

@@ -21,7 +21,7 @@ import {
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
-import { type MockDataSchemaResponse } from '@mongodb-js/compass-generative-ai';
+import { type MockDataSchemaToolOutput } from '@mongodb-js/compass-generative-ai';
 import type { SchemaAnalysisState } from '../../schema-analysis-types';
 import * as scriptGenerationUtils from './script-generation-utils';
 
@@ -116,7 +116,7 @@ describe('MockDataGeneratorModal', () => {
                 fakerArgs: [],
               },
             ],
-          } as MockDataSchemaResponse);
+          } as MockDataSchemaToolOutput);
         },
       },
       workspaces: {},

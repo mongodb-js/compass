@@ -1,8 +1,13 @@
 import path from 'path';
+import fs from 'fs';
 import electronPath from 'electron';
-import electronPackageJson from 'electron/package.json';
+import url from 'url';
 // @ts-expect-error no types for this package
 import { electronToChromium } from 'electron-to-chromium';
+
+function requireResolve(module: string) {
+  return url.fileURLToPath(import.meta.resolve(module));
+}
 
 if (typeof electronPath !== 'string') {
   throw new Error(
@@ -11,17 +16,20 @@ if (typeof electronPath !== 'string') {
 }
 
 export const E2E_WORKSPACE_PATH = path.dirname(
-  require.resolve('compass-e2e-tests/package.json')
+  requireResolve('compass-e2e-tests/package.json')
 );
 // <root>/packages/compass-e2e-tests
 // <root>/packages
 // <root>
 export const MONOREPO_ROOT_PATH = path.resolve(E2E_WORKSPACE_PATH, '..', '..');
 export const COMPASS_DESKTOP_PATH = path.dirname(
-  require.resolve('mongodb-compass/package.json')
+  requireResolve('mongodb-compass/package.json')
 );
 export const COMPASS_WEB_PATH = path.dirname(
-  require.resolve('@mongodb-js/compass-web/package.json')
+  requireResolve('@mongodb-js/compass-web/package.json')
+);
+export const MOCHA_REPORTER_PATH = requireResolve(
+  '@mongodb-js/mocha-config-compass/reporter'
 );
 export const LOG_PATH = path.resolve(E2E_WORKSPACE_PATH, '.log');
 export const LOG_OUTPUT_PATH = path.join(LOG_PATH, 'output');
@@ -32,7 +40,13 @@ export const LOG_COVERAGE_PATH = path.join(LOG_PATH, 'coverage');
 export const COVERAGE_PATH = (process.env.COVERAGE = MONOREPO_ROOT_PATH);
 
 export const ELECTRON_PATH = electronPath;
-export const MONOREPO_ELECTRON_VERSION = electronPackageJson.version;
+export const MONOREPO_ELECTRON_VERSION = JSON.parse(
+  fs.readFileSync(requireResolve('electron/package.json'), 'utf8')
+).version;
 export const MONOREPO_ELECTRON_CHROMIUM_VERSION = electronToChromium(
   MONOREPO_ELECTRON_VERSION
 );
+
+export const FIXTURES_PATH = path.join(E2E_WORKSPACE_PATH, 'fixtures');
+// Directory provided to the app / browser as a default download folder
+export const DOWNLOADS_PATH = path.join(E2E_WORKSPACE_PATH, 'downloads');

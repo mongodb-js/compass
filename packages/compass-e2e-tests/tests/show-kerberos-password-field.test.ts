@@ -1,15 +1,15 @@
-import type { CompassBrowser } from '../helpers/compass-browser';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
   cleanup,
   screenshotIfFailed,
   skipForWeb,
   TEST_COMPASS_WEB,
-} from '../helpers/compass';
-import type { Compass } from '../helpers/compass';
+} from '../helpers/compass.ts';
+import type { Compass } from '../helpers/compass.ts';
 import { expect } from 'chai';
-import * as Selectors from '../helpers/selectors';
-import type { ConnectFormState } from '../helpers/connect-form-state';
+import * as Selectors from '../helpers/selectors.ts';
+import type { ConnectFormState } from '../helpers/connect-form-state.ts';
 
 describe('showKerberosPasswordField', function () {
   let compass: Compass;
