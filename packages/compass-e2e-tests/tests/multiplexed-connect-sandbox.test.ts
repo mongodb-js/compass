@@ -1,12 +1,12 @@
 import { expect } from 'chai';
-import type { Compass } from '../helpers/compass';
-import { cleanup, init, screenshotIfFailed } from '../helpers/compass';
+import type { Compass } from '../helpers/compass.ts';
+import { cleanup, init, screenshotIfFailed } from '../helpers/compass.ts';
 import {
   getDefaultConnectionNames,
   isTestingWeb,
-} from '../helpers/test-runner-context';
-import type { CompassBrowser } from '../helpers/compass-browser';
-import { createNumbersCollection } from '../helpers/mongo-clients';
+} from '../helpers/test-runner-context.ts';
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
+import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 
 describe('Multiplex WebSocket connection using sandbox', function () {
   let compass: Compass;
