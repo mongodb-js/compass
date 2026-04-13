@@ -1,4 +1,4 @@
-import S3 from 'aws-sdk/clients/s3.js';
+import type S3 from 'aws-sdk/clients/s3.js';
 import child_process from 'child_process';
 import path from 'path';
 import { promisify } from 'util';
@@ -44,7 +44,8 @@ let s3Client;
 
 export const asyncPutObject: (
   params: S3.Types.PutObjectRequest
-) => Promise<S3.Types.PutObjectOutput> = (params) => {
+) => Promise<S3.Types.PutObjectOutput> = async (params) => {
+  const { default: S3 } = await import('aws-sdk/clients/s3.js');
   s3Client ??= new S3({
     credentials: getAWSCredentials(),
   });

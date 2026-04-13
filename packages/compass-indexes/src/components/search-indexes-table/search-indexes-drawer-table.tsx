@@ -21,6 +21,7 @@ import SearchIndexActions from './search-index-actions';
 import type { RootState } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import {
   getIndexFields,
@@ -130,6 +131,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
   onDropIndexClick,
   onCreateSearchIndexClick,
 }) => {
+  const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
   const isAtlas = !!atlasMetadata;
 
@@ -153,12 +155,20 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     (action: string) => {
       switch (action) {
         case 'createSearchIndex':
+          track('Index Create Action Clicked', {
+            context: 'Search Indexes Drawer Table',
+            index_type: 'search',
+          });
           return onCreateSearchIndexClick('search');
         case 'createVectorSearchIndex':
+          track('Index Create Action Clicked', {
+            context: 'Search Indexes Drawer Table',
+            index_type: 'vectorSearch',
+          });
           return onCreateSearchIndexClick('vectorSearch');
       }
     },
-    [onCreateSearchIndexClick]
+    [onCreateSearchIndexClick, track]
   );
 
   const renderActions = useCallback(

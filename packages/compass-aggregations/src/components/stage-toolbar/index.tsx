@@ -27,6 +27,7 @@ import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { ServerEnvironment } from '../../modules/env';
 import {
   createSearchIndex,
@@ -141,6 +142,7 @@ export function StageToolbar({
   );
   const darkMode = useDarkMode();
   const { openDrawer } = useDrawerActions();
+  const track = useTelemetry();
 
   const insight = useMemo(
     () =>
@@ -178,6 +180,9 @@ export function StageToolbar({
               size="xsmall"
               className={viewIndexesButtonStyles}
               onClick={() => {
+                track('Search Index View Indexes Button Clicked', {
+                  context: 'Stage Toolbar',
+                });
                 openDrawer('compass-indexes-drawer');
                 onClickViewSearchIndexes(
                   getSearchIndexNameFromSearchStage(

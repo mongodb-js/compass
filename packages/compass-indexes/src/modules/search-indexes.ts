@@ -632,7 +632,7 @@ const fetchIndexes = (
   return async (
     dispatch,
     getState,
-    { dataService, preferences, connectionInfoRef }
+    { dataService, preferences, connectionInfoRef, track }
   ) => {
     const {
       isWritable,
@@ -682,7 +682,12 @@ const fetchIndexes = (
           previousIndexes,
           indexes,
           atlasMetadata,
-          namespace
+          namespace,
+          (index) => {
+            track('Search Index Status Details Link Clicked', {
+              index_type: index.type ?? 'search',
+            });
+          }
         );
       }
     } catch (err) {
