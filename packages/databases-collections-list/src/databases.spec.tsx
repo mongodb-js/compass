@@ -2,7 +2,6 @@ import React from 'react';
 import {
   render,
   screen,
-  cleanup,
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
@@ -77,8 +76,6 @@ describe('Databases', function () {
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
   });
-
-  afterEach(cleanup);
 
   const renderDatabasesList = (
     props: Partial<React.ComponentProps<typeof DatabasesList>>

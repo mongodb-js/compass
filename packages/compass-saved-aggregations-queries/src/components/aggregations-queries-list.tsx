@@ -4,6 +4,7 @@ import {
   VirtualGrid,
   css,
   spacing,
+  usePersistedState,
   useSortControls,
   useSortedItems,
 } from '@mongodb-js/compass-components';
@@ -159,10 +160,16 @@ export const AggregationsQueriesList = ({
     [filters.collection]
   );
 
+  const [initialSortState, setSortState] = usePersistedState<{
+    name: (typeof sortBy)[number]['name'] | null;
+    order: 1 | -1;
+  }>('saved-queries-list-controls', { name: sortBy[0].name, order: 1 });
   // If a user is searching, we disable the sort as
   // search results are sorted by match score
   const [sortControls, sortState] = useSortControls(sortBy, {
     isDisabled: Boolean(search),
+    initialState: initialSortState,
+    onChange: setSortState,
   });
 
   useTrackOnChange(

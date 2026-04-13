@@ -12,6 +12,22 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 
 export type ToolState = 'idle' | 'running' | 'success' | 'error' | 'canceled';
 
+// Type guard to check if a message part is an approval request
+export function partIsApprovalRequest(
+  part: UIMessagePart<UIDataTypes, UITools>
+): part is ToolUIPart & { approval: { id: string } } {
+  if (!partIsToolUI(part) || part.state !== 'approval-requested') {
+    return false;
+  }
+  const approval = (part as ToolUIPart & { approval?: unknown }).approval;
+  return (
+    typeof approval === 'object' &&
+    approval !== null &&
+    'id' in approval &&
+    typeof (approval as { id: unknown }).id === 'string'
+  );
+}
+
 // Type guard to check if a message part is a ToolUIPart
 export function partIsToolUI(
   part: UIMessagePart<UIDataTypes, UITools>

@@ -1,9 +1,11 @@
 import { expect } from 'chai';
+import sinon from 'sinon';
 import {
   render,
   screen,
   userEvent,
   renderHook,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { useSortControls, useSortedItems } from './use-sort';
 
@@ -186,5 +188,35 @@ describe('use-sort', function () {
       useSortedItems(items as Record<string, unknown>[], result.current[1])
     );
     expect(sortedItems).to.deep.equal(items);
+  });
+
+  it('should call onChange when sort order changes', async function () {
+    const onChangeStub = sinon.stub();
+    const { result } = renderHook(() =>
+      useSortControls(sortBy, {
+        initialState: { name: 'title', order: 1 },
+        onChange: onChangeStub,
+      })
+    );
+    render(result.current[0]);
+
+    expect(onChangeStub.called).to.be.false;
+
+    userEvent.click(screen.getByTitle(/sortascending/i));
+
+    await waitFor(() => {
+      expect(onChangeStub.calledOnceWith({ name: 'title', order: -1 })).to.be
+        .true;
+    });
+  });
+
+  it('should use initial state when provided', function () {
+    const { result } = renderHook(() =>
+      useSortControls(sortBy, { initialState: { name: 'age', order: -1 } })
+    );
+    render(result.current[0]);
+
+    expect(screen.queryByText('Title'), 'Title should not exist').to.not.exist;
+    expect(screen.getByText('Age'), 'Age is the initial sort').to.be.visible;
   });
 });

@@ -342,7 +342,7 @@ export class AtlasAiService {
         );
         return this.atlasService.authenticatedFetch(uri, init);
       },
-    }).responses('mongodb-slim-2');
+    }).responses('mongodb-slim-2.1-mini');
   }
 
   /**
