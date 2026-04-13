@@ -33,10 +33,16 @@ type ToolsContext = CompassContext & {
   connections: ToolsConnectParams[];
 };
 
+class NoopDefaultMetrics {
+  observe(): void {
+    // no-op
+  }
+}
+
 class NoopMetrics implements Metrics<DefaultMetrics> {
   constructor() {}
   get<K extends keyof DefaultMetrics>(_key: K): DefaultMetrics[K] {
-    return undefined as unknown as DefaultMetrics[K];
+    return new NoopDefaultMetrics() as unknown as DefaultMetrics[K];
   }
   getMetrics(): Promise<string> {
     return Promise.resolve('');
