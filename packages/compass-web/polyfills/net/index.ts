@@ -47,27 +47,27 @@ class Socket extends Duplex {
 
       transport.registerSocket(this._localPort, {
         onData: (data: Uint8Array) => {
-          setTimeout(() => {
+          queueMicrotask(() => {
             this.push(Buffer.from(data));
           });
         },
         onClose: () => {
           this._teardown();
-          setTimeout(() => this.emit('close'));
+          queueMicrotask(() => this.emit('close'));
         },
         onError: (err: Error) => {
           this._teardown();
-          setTimeout(() => this.emit('error', err));
+          queueMicrotask(() => this.emit('error', err));
         },
       });
 
       // The websocket is connected already and we will emit the connect
       // event so that driver sends the first message to the server.
-      setTimeout(() => {
+      queueMicrotask(() => {
         this.emit(options.tls ? 'secureConnect' : 'connect');
       });
     } catch (err) {
-      setTimeout(() =>
+      queueMicrotask(() =>
         this.emit('error', err instanceof Error ? err : new Error(String(err)))
       );
     }
