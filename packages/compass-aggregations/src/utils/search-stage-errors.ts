@@ -29,3 +29,14 @@ export function isSearchIndexDefinitionError(errorMessage: string): boolean {
     pattern.test(errorMessage)
   );
 }
+
+const RERANK_NOT_ENABLED_PATTERN =
+  /\$rerank is not enabled.*Enable the \$rerank Project Setting/i;
+
+export function isRerankNotEnabledError(errorMessage: string): boolean {
+  if (!errorMessage) {
+    return false;
+  }
+
+  return RERANK_NOT_ENABLED_PATTERN.test(errorMessage);
+}

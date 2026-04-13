@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import {
   css,
   WarningSummary,
+  Banner,
+  Button,
+  Link,
   spacing,
   palette,
   useDarkMode,
@@ -10,6 +13,7 @@ import {
   useRequiredURLSearchParams,
   useCurrentValueRef,
 } from '@mongodb-js/compass-components';
+import semver from 'semver';
 import {
   createAggregationAutocompleter,
   CodemirrorMultilineEditor,
@@ -21,7 +25,10 @@ import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionInfoRef,
+  useConnectionInfo,
+} from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { usePreference } from 'compass-preferences-model/provider';
 import { getSearchStageInfoFromPipeline } from '../../../utils/stage';
@@ -106,6 +113,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const fields = useAutocompleteFields(namespace);
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
+  const { atlasMetadata } = useConnectionInfo();
   const editorInitialValueRef = useRef<string>(pipelineText);
   const editorCurrentValueRef = useCurrentValueRef<string>(pipelineText);
 
@@ -163,6 +171,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     'enableSearchActivationProgramP1'
   );
 
+  const showRerankVersionWarning =
+    pipelineText.includes('$rerank') &&
+    !semver.gte(semver.coerce(serverVersion) ?? '0.0.0', '8.3.0');
+
   const showErrorContainer =
     serverError ||
     syntaxErrors.length > 0 ||
@@ -186,6 +198,28 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           className={codeEditorStyles}
         />
       </div>
+      {showRerankVersionWarning && (
+        <div className={errorContainerStyles}>
+          <Banner
+            variant="warning"
+            data-testid="pipeline-editor-rerank-version-warning"
+          >
+            Upgrade your cluster to MongoDB 8.3+ to use $rerank.
+            {atlasMetadata && (
+              <>
+                {' '}
+                <Link
+                  href={`#/clusters/edit/${encodeURIComponent(
+                    atlasMetadata.clusterName
+                  )}`}
+                >
+                  Upgrade Cluster
+                </Link>
+              </>
+            )}
+          </Banner>
+        </div>
+      )}
       {showErrorContainer && (
         <div
           className={errorContainerStyles}

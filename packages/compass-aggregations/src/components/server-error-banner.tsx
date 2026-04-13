@@ -8,7 +8,12 @@ import {
   useDrawerActions,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { isSearchIndexDefinitionError } from '../utils/search-stage-errors';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
+import {
+  isSearchIndexDefinitionError,
+  isRerankNotEnabledError,
+} from '../utils/search-stage-errors';
 
 const bannerStyles = css({
   flex: 'none',
@@ -33,15 +38,32 @@ export default function ServerErrorBanner({
 }: ServerErrorBannerProps) {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
+  const { atlasMetadata } = useConnectionInfo();
+
+  const rerankNotEnabled = isRerankNotEnabledError(message);
+  const title = rerankNotEnabled ? 'Native Reranking not enabled' : message;
+  const description = rerankNotEnabled
+    ? 'Enable native reranking in project settings.'
+    : message;
+  const projectSettingsHref =
+    rerankNotEnabled && atlasMetadata
+      ? buildProjectSettingsUrl(atlasMetadata)
+      : null;
 
   return (
     <Banner
       variant="danger"
       data-testid={dataTestId}
-      title={message}
+      title={title}
       className={bannerStyles}
     >
-      {message}
+      {description}
+      {projectSettingsHref && (
+        <>
+          {' '}
+          <Link href={projectSettingsHref}>Project Settings</Link>
+        </>
+      )}
       {searchIndexName &&
         isSearchIndexDefinitionError(message) &&
         onEditSearchIndexClick && (
