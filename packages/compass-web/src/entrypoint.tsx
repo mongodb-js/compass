@@ -136,9 +136,11 @@ const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
 const WithMultiplexTransport = createServiceProvider(
   function WithMultiplexTransport({
     projectId,
+    baseUrl,
     children,
   }: {
     projectId: string;
+    baseUrl?: string;
     children: React.ReactNode;
   }) {
     const { enableMultiplexWebSocketOnWeb } = usePreferences([
@@ -146,7 +148,8 @@ const WithMultiplexTransport = createServiceProvider(
     ]);
     const logger = useLogger('COMPASS-WEB-MULTIPLEXING');
     const atlasService = atlasServiceLocator();
-    const ccsUrl = atlasService.multiplexWebsocketEndpoint(projectId);
+    const ccsUrl =
+      baseUrl ?? atlasService.multiplexWebsocketEndpoint(projectId);
 
     useEffect(() => {
       if (!enableMultiplexWebSocketOnWeb) {
@@ -365,6 +368,13 @@ export type CompassWebProps = {
    * safely closed without losing any important unsaved changes
    */
   onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
+
+  /**
+   * Optional base URL for the multiplexed WebSocket transport (e.g.
+   * "ws://localhost:1338" in local sandbox). When omitted, the URL is derived
+   * from the atlas-service config for the active backend preset.
+   */
+  multiplexedWsBaseUrl?: string;
 };
 
 function CompassWorkspace({
@@ -551,6 +561,7 @@ const CompassWeb = ({
   onActiveWorkspaceTabChange,
   initialPreferences,
   atlasCloudFeatureFlags,
+  multiplexedWsBaseUrl,
   onLog,
   onDebug,
   onTrack,
@@ -589,7 +600,10 @@ const CompassWeb = ({
             <TelemetryProvider options={telemetryOptions}>
               <CompassComponentsProviderWeb darkMode={darkMode}>
                 <WithAtlasProviders>
-                  <WithMultiplexTransport projectId={projectId}>
+                  <WithMultiplexTransport
+                    projectId={projectId}
+                    baseUrl={multiplexedWsBaseUrl}
+                  >
                     <WithStorageProviders orgId={orgId} projectId={projectId}>
                       <DataModelStorageServiceProviderWeb
                         orgId={orgId}

@@ -101,7 +101,10 @@ export function parseFrame(
 export function buildFrame(header: Header, payload?: Uint8Array): Uint8Array {
   const headerBytes = bsonSerialize(header);
   if (!payload || payload.length === 0) {
-    return headerBytes;
+    // bsonSerialize returns a Buffer (Node.js) which may be a view into a
+    // pooled allocation (byteOffset > 0). Wrap in a fresh Uint8Array so that
+    // .buffer covers exactly this frame and nothing else.
+    return new Uint8Array(headerBytes);
   }
   const frame = new Uint8Array(headerBytes.length + payload.length);
   frame.set(headerBytes, 0);
@@ -109,21 +112,12 @@ export function buildFrame(header: Header, payload?: Uint8Array): Uint8Array {
   return frame;
 }
 
-class DisposableWebSocket extends WebSocket {
-  constructor(...args: ConstructorParameters<typeof WebSocket>) {
-    super(...args);
-  }
-  [Symbol.dispose]() {
-    this.close(1000, 'tab closed');
-  }
-}
-
 /**
  * Manages a single shared WebSocket connection for a browser tab and multiplexes
  * all MongoDB driver TCP connections over it using BSON 5-tuple framing.
  */
 export class MultiplexWebSocketTransport {
-  private ws: DisposableWebSocket | null = null;
+  private ws: WebSocket | null = null;
   private readonly baseUrl: string;
   private readonly options: Required<
     Omit<MultiplexWebSocketTransportOptions, 'logger'>
@@ -176,7 +170,7 @@ export class MultiplexWebSocketTransport {
   }
 
   private openWebSocket(): void {
-    const ws = new DisposableWebSocket(this.url);
+    const ws = new WebSocket(this.url);
     ws.binaryType = 'arraybuffer';
     this.ws = ws;
 

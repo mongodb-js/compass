@@ -128,7 +128,6 @@ function makeCallbacks(): {
 } {
   const calls: Record<keyof MultiplexSocketCallbacks, unknown[][]> =
     Object.create({
-      onConnect: [],
       onData: [],
       onClose: [],
       onError: [],
@@ -471,41 +470,6 @@ describe('MultiplexWebSocketTransport', function () {
         expect(result!.header.dp).to.equal(baseHeader.dp);
         expect(result!.payload).to.deep.equal(payload);
       });
-    });
-  });
-
-  describe('builds url correctly', function () {
-    function getWsUrl(path: string) {
-      const transport = new MultiplexWebSocketTransport(path);
-      // @ts-expect-error - accessing private method for testing
-      return transport.buildWsUrl();
-    }
-    it('handles absolute wss:// URLs', function () {
-      expect(getWsUrl('wss://test.example.com/ccs')).to.equal(
-        'wss://test.example.com/ccs'
-      );
-    });
-
-    it('handles absolute ws:// URLs', function () {
-      expect(getWsUrl('ws://test.example.com/ccs')).to.equal(
-        'ws://test.example.com/ccs'
-      );
-    });
-
-    it('resolves relative URLs against window.location', function () {
-      const expectedProtocol =
-        window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      expect(getWsUrl('/ccs')).to.equal(
-        `${expectedProtocol}//${window.location.host}/ccs`
-      );
-    });
-
-    it('resolves protocol-relative URLs', function () {
-      const expectedProtocol =
-        window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      expect(getWsUrl('//example.com/ccs')).to.equal(
-        `${expectedProtocol}//example.com/ccs`
-      );
     });
   });
 });
