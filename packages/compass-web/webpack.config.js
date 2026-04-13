@@ -203,9 +203,6 @@ module.exports = (env, args) => {
 
         'prom-client': false,
         diagnostics_channel: false,
-        // We want to use the cjs dist instead of esm to make sure that no dynamic
-        // import code from mcp-server ends up in compass bundle
-        // 'mongodb-mcp-server': require.resolve('mongodb-mcp-server'),
         // mongodb-mcp-server polyfills
         // This is only used by StreamableHttpTransport which we do not use.
         express: false,
