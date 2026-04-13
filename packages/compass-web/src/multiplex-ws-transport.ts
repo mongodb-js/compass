@@ -40,10 +40,9 @@ const MIN_BSON_DOCUMENT_SIZE = 5;
 const NO_RETRY_CLOSE_CODES = new Set([
   1000, // Normal closure
   1002, // Protocol error
-  1006, // Abnormal closure
   1008, // Policy violation
   1009, // Message too big
-  3000, // Close code unauthorized
+  3000, // Unauthorized
   3003, // Forbidden
   4004, // Not found
   4101, // Do not try again
@@ -163,7 +162,7 @@ export class MultiplexWebSocketTransport {
   }
 
   /** Open the shared WebSocket. Returns a promise that resolves when the connection is ready. */
-  async connect(): Promise<void> {
+  async connect(signal?: AbortSignal): Promise<void> {
     if (this.connectPromise) return this.connectPromise;
     if (this.closed) throw new Error('Transport is closed');
 
@@ -173,7 +172,21 @@ export class MultiplexWebSocketTransport {
       this.openWebSocket();
     });
 
-    return await this.connectPromise;
+    return await Promise.race([
+      this.connectPromise,
+      signal
+        ? new Promise<void>((_, reject) => {
+            signal.addEventListener(
+              'abort',
+              () =>
+                reject(
+                  signal.reason ?? new Error('Connection aborted by caller')
+                ),
+              { once: true }
+            );
+          })
+        : new Promise<void>(() => {}),
+    ]);
   }
 
   private openWebSocket(): void {
@@ -226,14 +239,19 @@ export class MultiplexWebSocketTransport {
           const delay =
             this.options.baseReconnectDelayMs *
             Math.pow(2, this.reconnectAttempts - 1);
-          this.connectPromise = null;
-          setTimeout(() => {
-            if (this.closed) return;
+
+          // Keep the same promise across retries to prevent hanging callers.
+          // Only create a new promise if there isn't one already pending.
+          if (this.connectResolve === null && this.connectReject === null) {
             this.connectPromise = new Promise<void>((resolve, reject) => {
               this.connectResolve = resolve;
               this.connectReject = reject;
-              this.openWebSocket();
             });
+          }
+
+          setTimeout(() => {
+            if (this.closed) return;
+            this.openWebSocket();
           }, delay);
         } else {
           const err = new Error(
@@ -371,14 +389,14 @@ export class MultiplexWebSocketTransport {
   }
 
   /** Close the shared WebSocket and notify all registered streams. */
-  close(): void {
+  close(reason = 'Tab Closed'): void {
     this.logger?.log.info(
       this.logger?.mongoLogId(1_001_000_401),
       'COMPASS-WEB-MULTIPLEXING',
       'Closing MultiplexWebSocketTransport'
     );
     this.closed = true;
-    this.ws?.close(1000, 'tab closed');
+    this.ws?.close(1000, reason);
     this.ws = null;
     this.connectPromise = null;
     for (const callbacks of this.sockets.values()) {

@@ -143,6 +143,7 @@ const WithMultiplexTransport = createServiceProvider(
     baseUrl?: string;
     children: React.ReactNode;
   }) {
+    const abortControllerRef = useRef(new AbortController());
     const { enableMultiplexWebSocketOnWeb } = usePreferences([
       'enableMultiplexWebSocketOnWeb',
     ]);
@@ -152,6 +153,7 @@ const WithMultiplexTransport = createServiceProvider(
       baseUrl ?? atlasService.multiplexWebsocketEndpoint(projectId);
 
     useEffect(() => {
+      const abortController = abortControllerRef.current;
       if (!enableMultiplexWebSocketOnWeb) {
         return;
       }
@@ -161,24 +163,38 @@ const WithMultiplexTransport = createServiceProvider(
       }
 
       const transport = new MultiplexWebSocketTransport(ccsUrl, { logger });
-      setMultiplexTransport(transport);
 
-      transport.connect().catch((err: Error) => {
-        logger.log.error(
-          logger.mongoLogId(1_001_000_406),
-          'COMPASS-WEB-MULTIPLEXING',
-          'Multiplex WebSocket transport failed',
-          { error: err.message }
-        );
-        openToast('multiplex-websocket-connection-failed', {
-          title: 'WebSocket Connection Failed',
-          description: `Failed to connect to the multiplex WebSocket transport: ${err.message}`,
-          variant: 'warning',
-        });
-      });
+      // Wait for transport.connect() to complete before registering it globally.
+      // This prevents the net polyfill from trying to use the transport before
+      // the underlying WebSocket is ready, which would cause dropped frames.
+      void (async () => {
+        try {
+          await transport.connect(abortController.signal);
+          setMultiplexTransport(transport);
+        } catch (err) {
+          if ((err as Error)?.name === 'AbortError') {
+            return;
+          }
+
+          logger.log.error(
+            logger.mongoLogId(1_001_000_406),
+            'COMPASS-WEB-MULTIPLEXING',
+            'Multiplex WebSocket transport failed',
+            { error: (err as Error).message }
+          );
+          openToast('multiplex-websocket-connection-failed', {
+            title: 'WebSocket Connection Failed',
+            description: `Failed to connect to the multiplex WebSocket transport: ${
+              (err as Error).message
+            }`,
+            variant: 'warning',
+          });
+        }
+      })();
 
       return () => {
-        transport.close();
+        abortController.abort();
+        transport.close('Compass Web Entrypoint Unmount');
         setMultiplexTransport(null);
       };
     }, [enableMultiplexWebSocketOnWeb, ccsUrl, logger]);
