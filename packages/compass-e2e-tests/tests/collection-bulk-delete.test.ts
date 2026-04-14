@@ -56,7 +56,8 @@ describe('Bulk Delete', function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Open the modal.
-    await browser.clickVisible(Selectors.OpenBulkDeleteButton);
+    await browser.clickVisible(Selectors.OpenBulkActionsMenuButton);
+    await browser.clickVisible(Selectors.BulkDeleteDocumentsMenuItem);
     await browser.waitForOpenModal(Selectors.BulkDeleteModal);
 
     // Check the telemetry
@@ -133,7 +134,8 @@ describe('Bulk Delete', function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Open the modal.
-    await browser.clickVisible(Selectors.OpenBulkDeleteButton);
+    await browser.clickVisible(Selectors.OpenBulkActionsMenuButton);
+    await browser.clickVisible(Selectors.BulkDeleteDocumentsMenuItem);
     await browser.waitForOpenModal(Selectors.BulkDeleteModal);
 
     // Check that it will update the expected number of documents
@@ -175,7 +177,8 @@ describe('Bulk Delete', function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Open the modal.
-    await browser.clickVisible(Selectors.OpenBulkDeleteButton);
+    await browser.clickVisible(Selectors.OpenBulkActionsMenuButton);
+    await browser.clickVisible(Selectors.BulkDeleteDocumentsMenuItem);
     await browser.waitForOpenModal(Selectors.BulkDeleteModal);
 
     // Click the export button

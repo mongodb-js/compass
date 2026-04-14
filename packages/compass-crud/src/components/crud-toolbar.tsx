@@ -30,8 +30,6 @@ import { ViewSwitcher } from './view-switcher';
 import { type DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model/provider';
-import UpdateMenu from './update-data-menu';
-import DeleteMenu from './delete-data-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
@@ -52,20 +50,26 @@ const crudToolbarStyles = css({
 const crudBarStyles = css({
   width: '100%',
   display: 'flex',
+  flexWrap: 'nowrap',
   gap: spacing[200],
   justifyContent: 'space-between',
+  minWidth: 0,
 });
 
 const toolbarLeftActionStyles = css({
   display: 'flex',
   alignItems: 'center',
+  flexWrap: 'nowrap',
   gap: spacing[200],
+  minWidth: 0,
 });
 
 const toolbarRightActionStyles = css({
   display: 'flex',
   alignItems: 'center',
+  flexWrap: 'nowrap',
   gap: spacing[200],
+  flexShrink: 0,
 });
 
 const prevNextStyles = css({
@@ -113,6 +117,12 @@ type ExpandControlsOption = 'expand-all' | 'collapse-all';
 const expandControlsOptions: MenuAction<ExpandControlsOption>[] = [
   { action: 'expand-all', label: 'Expand all documents' },
   { action: 'collapse-all', label: 'Collapse all documents' },
+];
+
+type BulkToolbarOption = 'update' | 'delete';
+const bulkToolbarActions: MenuAction<BulkToolbarOption>[] = [
+  { action: 'update', label: 'Bulk update documents' },
+  { action: 'delete', label: 'Bulk delete documents' },
 ];
 
 const OUTDATED_WARNING = `The content is outdated and no longer in sync
@@ -244,6 +254,39 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
     [querySkip, queryLimit]
   );
 
+  const bulkOpsEnabled = isWritable && !shouldDisableBulkOp;
+  const bulkActionsDisabledTooltip = isWritable
+    ? 'Remove limit and skip in your query to perform bulk update or delete'
+    : instanceDescription;
+
+  const onBulkToolbarAction = useCallback(
+    (action: BulkToolbarOption) => {
+      if (action === 'update') {
+        onUpdateButtonClicked();
+      } else {
+        onDeleteButtonClicked();
+      }
+    },
+    [onUpdateButtonClicked, onDeleteButtonClicked]
+  );
+
+  const bulkDropdown = (
+    <DropdownMenuButton<BulkToolbarOption>
+      data-testid="crud-bulk-actions"
+      actions={bulkToolbarActions}
+      onAction={onBulkToolbarAction}
+      buttonText="BULK"
+      buttonProps={{
+        size: 'xsmall',
+        disabled: !bulkOpsEnabled,
+        title: 'BULK',
+        ['aria-label']: 'BULK',
+        leftGlyph: <Icon glyph="Database" />,
+      }}
+      narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
+    />
+  );
+
   const contextMenuRef = useContextMenuGroups(
     () => [
       {
@@ -373,28 +416,25 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               isMockDataGeneratorEnabled={isMockDataGeneratorEnabled}
             />
           )}
-          {!readonly && (
-            <UpdateMenu
-              isWritable={isWritable && !shouldDisableBulkOp}
-              disabledTooltip={
-                isWritable
-                  ? 'Remove limit and skip in your query to perform an update'
-                  : instanceDescription
-              }
-              onClick={onUpdateButtonClicked}
-            ></UpdateMenu>
-          )}
-          {!readonly && (
-            <DeleteMenu
-              isWritable={isWritable && !shouldDisableBulkOp}
-              disabledTooltip={
-                isWritable
-                  ? 'Remove limit and skip in your query to perform a delete'
-                  : instanceDescription
-              }
-              onClick={onDeleteButtonClicked}
-            ></DeleteMenu>
-          )}
+          {!readonly &&
+            (bulkOpsEnabled ? (
+              bulkDropdown
+            ) : (
+              <Tooltip
+                trigger={({
+                  children: tooltipChildren,
+                  ...tooltipTriggerProps
+                }: React.HTMLProps<HTMLInputElement>) => (
+                  <div {...tooltipTriggerProps}>
+                    {bulkDropdown}
+                    {tooltipChildren}
+                  </div>
+                )}
+                justify="middle"
+              >
+                {bulkActionsDisabledTooltip}
+              </Tooltip>
+            ))}
           {isImportExportEnabled && (
             <DropdownMenuButton<ExportDataOption>
               data-testid="crud-export-collection"

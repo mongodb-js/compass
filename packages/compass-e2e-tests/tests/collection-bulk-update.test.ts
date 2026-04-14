@@ -56,7 +56,8 @@ describe('Bulk Update', () => {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Open the modal.
-    await browser.clickVisible(Selectors.OpenBulkUpdateButton);
+    await browser.clickVisible(Selectors.OpenBulkActionsMenuButton);
+    await browser.clickVisible(Selectors.BulkUpdateDocumentsMenuItem);
     await browser.waitForOpenModal(Selectors.BulkUpdateModal);
 
     // Check the telemetry
@@ -151,7 +152,8 @@ describe('Bulk Update', () => {
     await browser.runFindOperation('Documents', '{ i: { $gt: 5 } }');
 
     // Open the modal.
-    await browser.clickVisible(Selectors.OpenBulkUpdateButton);
+    await browser.clickVisible(Selectors.OpenBulkActionsMenuButton);
+    await browser.clickVisible(Selectors.BulkUpdateDocumentsMenuItem);
     await browser.waitForOpenModal(Selectors.BulkUpdateModal);
 
     // Change the update text

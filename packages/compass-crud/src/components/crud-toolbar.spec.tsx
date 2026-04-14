@@ -24,8 +24,9 @@ const testErrorMessageId = 'document-list-error-summary';
 const testDocumentsPerPageId = 'crud-document-per-page-selector';
 
 const addDataText = 'Add Data';
-const updateDataText = 'Update';
-const deleteDataText = 'Delete';
+const bulkMenuButtonName = /^BULK$/i;
+const bulkUpdateMenuItemText = 'Bulk update documents';
+const bulkDeleteMenuItemText = 'Bulk delete documents';
 
 describe('CrudToolbar Component', function () {
   let preferences: PreferencesAccess;
@@ -253,14 +254,14 @@ describe('CrudToolbar Component', function () {
     );
   });
 
-  it('should not render the add data, update and delete buttons when it is readonly', function () {
+  it('should not render the add data or bulk actions when it is readonly', function () {
     renderCrudToolbar({
       readonly: true,
     });
 
     expect(screen.queryByText(addDataText)).to.not.exist;
-    expect(screen.queryByText(updateDataText)).to.not.exist;
-    expect(screen.queryByText(deleteDataText)).to.not.exist;
+    expect(screen.queryByRole('button', { name: bulkMenuButtonName })).to.not
+      .exist;
   });
 
   it('should call to open the export dialog when export is clicked', function () {
@@ -277,70 +278,44 @@ describe('CrudToolbar Component', function () {
     expect(exportSpy.firstCall.args[0]).to.be.true;
   });
 
-  describe('update button', function () {
-    it('should render disabled when the query has a skip', function () {
+  describe('Bulk dropdown', function () {
+    it('should render the bulk menu trigger disabled when the query has a skip', function () {
       renderCrudToolbar({
         querySkip: 10,
       });
 
-      expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
-        'aria-disabled'
-      );
+      expect(
+        screen.getByRole('button', { name: bulkMenuButtonName })
+      ).to.have.attr('aria-disabled', 'true');
     });
 
-    it('should render disabled when the query has a limit', function () {
+    it('should render the bulk menu trigger disabled when the query has a limit', function () {
       renderCrudToolbar({
         queryLimit: 10,
       });
 
-      expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
-        'aria-disabled'
-      );
+      expect(
+        screen.getByRole('button', { name: bulkMenuButtonName })
+      ).to.have.attr('aria-disabled', 'true');
     });
 
-    it('should propagate click events', function () {
+    it('should call onUpdateButtonClicked when "Bulk update documents" is chosen', function () {
       const onUpdateButtonClickedSpy = sinon.spy();
 
       renderCrudToolbar({ onUpdateButtonClicked: onUpdateButtonClickedSpy });
 
-      userEvent.click(screen.getByText(updateDataText).closest('button')!);
+      userEvent.click(screen.getByRole('button', { name: bulkMenuButtonName }));
+      userEvent.click(screen.getByText(bulkUpdateMenuItemText));
       expect(onUpdateButtonClickedSpy).to.have.been.called;
     });
-  });
 
-  describe('delete button', function () {
-    it('should render disabled when the query has a skip', function () {
-      renderCrudToolbar({
-        querySkip: 10,
-      });
-
-      expect(
-        screen
-          .getByText(deleteDataText)
-          .closest('button')
-          ?.getAttribute('aria-disabled')
-      ).to.equal('true');
-    });
-
-    it('should render disabled when the query has a limit', function () {
-      renderCrudToolbar({
-        queryLimit: 10,
-      });
-
-      expect(
-        screen
-          .getByText(deleteDataText)
-          .closest('button')
-          ?.getAttribute('aria-disabled')
-      ).to.equal('true');
-    });
-
-    it('should propagate click events', function () {
+    it('should call onDeleteButtonClicked when "Bulk delete documents" is chosen', function () {
       const onDeleteButtonClickedSpy = sinon.spy();
 
       renderCrudToolbar({ onDeleteButtonClicked: onDeleteButtonClickedSpy });
 
-      userEvent.click(screen.getByText(deleteDataText).closest('button')!);
+      userEvent.click(screen.getByRole('button', { name: bulkMenuButtonName }));
+      userEvent.click(screen.getByText(bulkDeleteMenuItemText));
       expect(onDeleteButtonClickedSpy).to.have.been.called;
     });
   });
