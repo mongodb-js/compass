@@ -56,7 +56,7 @@ export default function ServerErrorBanner({
     : message;
   const projectSettingsHref =
     rerankNotEnabled && atlasMetadata
-      ? buildProjectSettingsUrl(atlasMetadata)
+      ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
       : null;
 
   return (

@@ -176,7 +176,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
     isError && error ? isRerankNotEnabledError(error.message) : false;
   const projectSettingsHref =
     rerankNotEnabled && atlasMetadata
-      ? buildProjectSettingsUrl(atlasMetadata)
+      ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
       : null;
   const upgradeClusterHref = atlasMetadata
     ? `#/clusters/edit/${encodeURIComponent(atlasMetadata.clusterName)}`

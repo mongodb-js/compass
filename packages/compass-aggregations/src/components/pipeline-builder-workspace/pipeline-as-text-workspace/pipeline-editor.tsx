@@ -84,7 +84,7 @@ const noMarginBannerStyles = css({
   textAlign: 'left',
 });
 
-const rerankVersionBannerContentStyles = css({
+const rerankBannerContentStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
@@ -215,7 +215,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
             variant="danger"
             data-testid="pipeline-editor-rerank-version-warning"
           >
-            <div className={rerankVersionBannerContentStyles}>
+            <div className={rerankBannerContentStyles}>
               <span>Upgrade your cluster to MongoDB 8.3+ to use $rerank.</span>
               {atlasMetadata && (
                 <Button
