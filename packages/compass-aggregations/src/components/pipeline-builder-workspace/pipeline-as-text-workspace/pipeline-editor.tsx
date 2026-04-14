@@ -13,7 +13,6 @@ import {
   useRequiredURLSearchParams,
   useCurrentValueRef,
 } from '@mongodb-js/compass-components';
-import semver from 'semver';
 import {
   createAggregationAutocompleter,
   CodemirrorMultilineEditor,
@@ -39,6 +38,10 @@ import {
   openIndexesListDrawerView,
 } from '../../../modules/search-indexes';
 import ServerErrorBanner from '../../server-error-banner';
+import {
+  isRerankVersionSupported,
+  RERANK_MIN_SERVER_VERSION,
+} from '../../../utils/search-stage-errors';
 import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
 import type { SearchIndexType } from '../../../modules/search-indexes';
 
@@ -77,12 +80,6 @@ const errorContainerStyles = css({
   marginTop: 'auto',
   marginLeft: spacing[400],
   marginRight: spacing[400],
-});
-
-const noMarginBannerStyles = css({
-  flex: 'none',
-  textAlign: 'left',
-  margin: 0,
 });
 
 const rerankBannerContentStyles = css({
@@ -184,10 +181,9 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     'enableSearchActivationProgramP1'
   );
 
-  const normalizedServerVersion = semver.valid(semver.coerce(serverVersion));
   const showRerankVersionWarning =
     pipelineText.includes('$rerank') &&
-    (!normalizedServerVersion || semver.lt(normalizedServerVersion, '8.3.0'));
+    !isRerankVersionSupported(serverVersion);
 
   const showErrorContainer =
     serverError ||
@@ -219,7 +215,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
             data-testid="pipeline-editor-rerank-version-warning"
           >
             <div className={rerankBannerContentStyles}>
-              <span>Upgrade your cluster to MongoDB 8.3+ to use $rerank.</span>
+              <span>
+                Upgrade your cluster to MongoDB {RERANK_MIN_SERVER_VERSION}+ to
+                use $rerank.
+              </span>
               {atlasMetadata && (
                 <Button
                   size="xsmall"
@@ -249,7 +248,6 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
               searchIndexName={searchIndexName}
               dataTestId="pipeline-editor-error-message"
               onEditSearchIndexClick={onEditSearchIndexClick}
-              className={noMarginBannerStyles}
             />
           ) : enableSearchActivationProgramP1 &&
             searchStageOperator &&

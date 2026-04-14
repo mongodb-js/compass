@@ -30,8 +30,11 @@ import {
 } from '../../utils/stage';
 import { getStageOperator } from '../../utils/stage';
 import { gotoOutResults } from '../../modules/out-results-fn';
-import { isRerankNotEnabledError } from '../../utils/search-stage-errors';
-import semver from 'semver';
+import {
+  isRerankNotEnabledError,
+  isRerankVersionSupported,
+  RERANK_MIN_SERVER_VERSION,
+} from '../../utils/search-stage-errors';
 
 const containerStyles = css({
   overflow: 'hidden',
@@ -169,10 +172,9 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   const { atlasMetadata } = useConnectionInfo();
   let results: React.ReactElement | null = null;
 
-  const normalizedServerVersion = semver.valid(semver.coerce(serverVersion));
   const showRerankVersionWarning =
     pipelineText.includes('$rerank') &&
-    (!normalizedServerVersion || semver.lt(normalizedServerVersion, '8.3.0'));
+    !isRerankVersionSupported(serverVersion);
 
   const rerankNotEnabled =
     isError && error ? isRerankNotEnabledError(error.message) : false;
@@ -301,7 +303,10 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
             className={errorBannerStyles}
           >
             <div className={rerankBannerContentStyles}>
-              <span>Upgrade your cluster to MongoDB 8.3+ to use $rerank.</span>
+              <span>
+                Upgrade your cluster to MongoDB {RERANK_MIN_SERVER_VERSION}+ to
+                use $rerank.
+              </span>
               {upgradeClusterHref && (
                 <Button
                   size="xsmall"

@@ -1,13 +1,11 @@
 import React from 'react';
 
 import {
-  css,
-  cx,
-  spacing,
-  Link,
   Banner,
   Button,
   Icon,
+  Link,
+  css,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -19,10 +17,6 @@ import {
 } from '../utils/search-stage-errors';
 
 const bannerStyles = css({
-  flex: 'none',
-  marginTop: spacing[200],
-  marginLeft: spacing[200],
-  marginRight: spacing[200],
   textAlign: 'left',
 });
 
@@ -38,7 +32,6 @@ type ServerErrorBannerProps = {
   searchIndexName: string | null;
   onEditSearchIndexClick?: (indexName: string) => void;
   dataTestId?: string;
-  className?: string;
 };
 
 export default function ServerErrorBanner({
@@ -46,7 +39,6 @@ export default function ServerErrorBanner({
   searchIndexName,
   onEditSearchIndexClick,
   dataTestId = 'server-error-banner',
-  className,
 }: ServerErrorBannerProps) {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
@@ -61,14 +53,10 @@ export default function ServerErrorBanner({
       : null;
 
   return (
-    <Banner
-      variant="danger"
-      data-testid={dataTestId}
-      className={cx(bannerStyles, className)}
-    >
+    <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>
       {rerankNotEnabled ? (
         <>
-          <b>Native reranking not enabled</b>
+          <strong>Native reranking not enabled</strong>
           <br />
           <div className={bannerContentStyles}>
             <span>{description}</span>
