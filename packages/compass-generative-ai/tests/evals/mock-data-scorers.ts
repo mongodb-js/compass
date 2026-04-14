@@ -6,7 +6,11 @@ import type {
   FieldMismatch,
   ScorerMetadata,
 } from './types';
-import { isEvalCriterion, UNRECOGNIZED_METHOD } from './types';
+import {
+  isEvalCriterion,
+  UNRECOGNIZED_METHOD,
+  type MockDataInputFieldSchema,
+} from './types';
 
 // --- Scorer Wrapper ---
 
@@ -62,7 +66,19 @@ function createFieldScorer(
       const expectedValue = valueExtractor(expectedField);
       const actualValue = valueExtractor(actualField) as string;
 
+      // When the field has sampleValues, helpers.arrayElement is a valid
+      // choice: using sample data directly is a valid mock data strategy.
+      // ArrayElementArgAccuracy scorer checks the args are correct.
+      const fieldHasSampleValues =
+        (args.input.providedSchema[fieldName]?.sampleValues?.length ?? 0) > 0;
+
       if (
+        fieldHasSampleValues &&
+        (actualValue === 'helpers.arrayElement' ||
+          actualValue === 'helpers.arrayElements')
+      ) {
+        matches++;
+      } else if (
         isEvalCriterion(expectedValue) &&
         expectedValue.satisfiedBy(actualValue)
       ) {
@@ -237,6 +253,116 @@ export const MethodRunnableScorer = withSkipResultOnUnexpected(
         totalRecognizedMethods,
         nonexistentMethods,
         nonrunnableMethods,
+      },
+    };
+  }
+);
+
+// --- Array Element Arg Accuracy Scorer ---
+
+/**
+ * When the LLM uses helpers.arrayElement/arrayElements, validates that the
+ * array arg contains values derived from the field's sampleValues in the
+ * input schema. Skips fields that have no sampleValues or don't use
+ * helpers.arrayElement/arrayElements.
+ */
+function parseSampleValues(
+  schema: MockDataInputFieldSchema,
+  fieldPath: string
+): unknown[] | null {
+  const fieldDef = schema[fieldPath];
+  if (!fieldDef?.sampleValues || fieldDef.sampleValues.length === 0) {
+    return null;
+  }
+  return fieldDef.sampleValues.filter(
+    (v: unknown) => v !== null && v !== undefined
+  );
+}
+
+export const ArrayElementArgAccuracy = withSkipResultOnUnexpected(
+  (args: Parameters<MockDataGeneratorEvalScorer>[0]) => {
+    const outputFields = args.output.response.fields;
+    const schema = args.input.providedSchema;
+
+    let checked = 0;
+    let passed = 0;
+    const failures: Array<{
+      fieldPath: string;
+      argValues: unknown[];
+      sampleValues: unknown[];
+    }> = [];
+
+    for (const field of outputFields) {
+      if (
+        field.fakerMethod !== 'helpers.arrayElement' &&
+        field.fakerMethod !== 'helpers.arrayElements'
+      ) {
+        continue;
+      }
+
+      const sampleValues = parseSampleValues(schema, field.fieldPath);
+      if (!sampleValues) {
+        continue;
+      }
+
+      // Extract the array arg (first json arg that parses to an array)
+      let argValues: unknown[] | null = null;
+      for (const arg of field.fakerArgs) {
+        if (typeof arg === 'object' && 'json' in arg) {
+          try {
+            const parsed: unknown = JSON.parse(arg.json);
+            if (Array.isArray(parsed)) {
+              argValues = parsed;
+              break;
+            }
+          } catch {
+            // skip unparseable
+          }
+        }
+      }
+
+      if (!argValues) {
+        continue;
+      }
+
+      checked++;
+
+      // Check that the arg array has overlap with sample values.
+      // Case-insensitive for strings since the LLM may normalize casing.
+      const sampleSet = new Set(
+        sampleValues.map((v: unknown) =>
+          typeof v === 'string' ? v.toLowerCase() : v
+        )
+      );
+      const matchCount = argValues.filter((v: unknown) =>
+        sampleSet.has(typeof v === 'string' ? v.toLowerCase() : v)
+      ).length;
+
+      if (matchCount > 0) {
+        passed++;
+      } else {
+        failures.push({
+          fieldPath: field.fieldPath,
+          argValues,
+          sampleValues,
+        });
+      }
+    }
+
+    if (checked === 0) {
+      return {
+        name: 'ArrayElementArgAccuracy',
+        score: 1,
+      };
+    }
+
+    return {
+      name: 'ArrayElementArgAccuracy',
+      score: passed / checked,
+      metadata: {
+        checked,
+        passed,
+        failures,
       },
     };
   }

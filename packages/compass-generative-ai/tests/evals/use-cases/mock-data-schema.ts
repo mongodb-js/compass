@@ -2,7 +2,12 @@ import type {
   MockDataGeneratorCaseConfig,
   MockDataInputFieldSchema,
 } from '../types';
-import { DatelikeMethodCriterion, IdlikeMethodCriterion } from '../types';
+import {
+  DatelikeMethodCriterion,
+  IdlikeMethodCriterion,
+  NumericFieldMethodCriterion,
+  SecondaryAddressCriterion,
+} from '../types';
 
 function removeSampleValues(
   schema: MockDataInputFieldSchema
@@ -677,12 +682,12 @@ const ecommerceCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'placedAt',
-        fakerMethod: 'date.past',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'updatedAt',
-        fakerMethod: 'date.past',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -720,7 +725,7 @@ const ecommerceCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'customer.accountCreated',
-        fakerMethod: 'date.past',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -735,7 +740,7 @@ const ecommerceCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'shippingAddress.unit',
-        fakerMethod: 'location.secondaryAddress',
+        fakerMethod: SecondaryAddressCriterion,
         fakerArgs: [],
       },
       {
@@ -775,7 +780,7 @@ const ecommerceCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'billingAddress.unit',
-        fakerMethod: 'location.secondaryAddress',
+        fakerMethod: SecondaryAddressCriterion,
         fakerArgs: [],
       },
       {
@@ -834,21 +839,13 @@ const ecommerceCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'items[].pricing.unitPrice',
-        fakerMethod: 'commerce.price',
-        fakerArgs: [{ json: JSON.stringify({ min: 10, max: 500, dec: 2 }) }],
+        fakerMethod: NumericFieldMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'items[].pricing.discount.amount',
-        fakerMethod: 'number.float',
-        fakerArgs: [
-          {
-            json: JSON.stringify({
-              min: 5,
-              max: 50,
-              fractionDigits: 2,
-            }),
-          },
-        ],
+        fakerMethod: NumericFieldMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'items[].pricing.discount.code',
@@ -862,21 +859,13 @@ const ecommerceCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'items[].pricing.finalPrice',
-        fakerMethod: 'commerce.price',
-        fakerArgs: [{ json: JSON.stringify({ min: 10, max: 500, dec: 2 }) }],
+        fakerMethod: NumericFieldMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'items[].pricing.tax',
-        fakerMethod: 'number.float',
-        fakerArgs: [
-          {
-            json: JSON.stringify({
-              min: 0.5,
-              max: 50,
-              fractionDigits: 2,
-            }),
-          },
-        ],
+        fakerMethod: NumericFieldMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'items[].fulfillment.warehouse',
@@ -908,12 +897,12 @@ const ecommerceCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'items[].fulfillment.shippedAt',
-        fakerMethod: 'date.recent',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'items[].fulfillment.estimatedDelivery',
-        fakerMethod: 'date.future',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -953,33 +942,33 @@ const ecommerceCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'pricing.subtotal',
-        fakerMethod: 'commerce.price',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'pricing.discounts',
-        fakerMethod: 'commerce.price',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'pricing.shipping',
-        fakerMethod: 'commerce.price',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'pricing.tax',
-        fakerMethod: 'commerce.price',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'pricing.total',
-        fakerMethod: 'commerce.price',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'pricing.currency',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["USD"]' }],
+        fakerMethod: 'finance.currencyCode',
+        fakerArgs: [],
       },
     ],
   },

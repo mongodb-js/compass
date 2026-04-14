@@ -7,6 +7,7 @@ import {
   PercentRecognizedScorer,
   FakerArgParseableScorer,
   MethodRunnableScorer,
+  ArrayElementArgAccuracy,
 } from './mock-data-scorers';
 import { mockDataEvalCases } from './use-cases/mock-data-schema';
 import type {
@@ -57,6 +58,7 @@ function createMockDataGeneratorEval() {
       PercentRecognizedScorer,
       FakerArgParseableScorer,
       MethodRunnableScorer,
+      ArrayElementArgAccuracy,
     ],
     trialCount: TRIAL_COUNT,
     maxConcurrency: MAX_CONCURRENCY,

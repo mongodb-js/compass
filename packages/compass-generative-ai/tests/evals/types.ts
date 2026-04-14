@@ -83,6 +83,49 @@ export const IdlikeMethodCriterion: EvalCriterion =
     };
   })();
 
+/**
+ * NumericFieldMethodCriterion for Number-typed fields. Accepts number.int and
+ * number.float. Rejects commerce.price and finance.amount which return strings.
+ */
+export const NumericFieldMethodCriterion: EvalCriterion =
+  (function NumericFieldMethodCriterion() {
+    const METHODS = new Set<string>(['number.int', 'number.float']);
+
+    return {
+      name: 'NumericFieldMethodCriterion' as const,
+      satisfiedBy(method: string): boolean {
+        if (typeof method !== 'string') {
+          return false;
+        }
+        return METHODS.has(method);
+      },
+      methods: Array.from(METHODS),
+    };
+  })();
+
+/**
+ * SecondaryAddressCriterion accepts location.secondaryAddress and
+ * string.alphanumeric.
+ */
+export const SecondaryAddressCriterion: EvalCriterion =
+  (function SecondaryAddressCriterion() {
+    const METHODS = new Set<string>([
+      'location.secondaryAddress',
+      'string.alphanumeric',
+    ]);
+
+    return {
+      name: 'SecondaryAddressCriterion' as const,
+      satisfiedBy(method: string): boolean {
+        if (typeof method !== 'string') {
+          return false;
+        }
+        return METHODS.has(method);
+      },
+      methods: Array.from(METHODS),
+    };
+  })();
+
 export const isEvalCriterion = (method: unknown): method is EvalCriterion => {
   return (
     typeof method === 'object' &&
