@@ -111,6 +111,25 @@ export const AddFieldActions: React.FunctionComponent<{
     return null;
   }
 
+  const addFieldMenuItemCount = (onAddFieldToElement ? 1 : 0) + 1;
+
+  if (addFieldMenuItemCount === 1) {
+    return (
+      <button
+        type="button"
+        data-testid="hadron-document-add-element"
+        title="Add field"
+        className={cx(buttonReset, addFieldButton)}
+        onClick={(evt) => {
+          evt.stopPropagation();
+          onAddFieldAfterElement();
+        }}
+      >
+        +
+      </button>
+    );
+  }
+
   return (
     <Menu
       open={isOpen}
