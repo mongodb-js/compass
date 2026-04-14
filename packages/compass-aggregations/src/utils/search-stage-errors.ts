@@ -30,13 +30,14 @@ export function isSearchIndexDefinitionError(errorMessage: string): boolean {
   );
 }
 
-const RERANK_NOT_ENABLED_PATTERN =
-  /\\?\$rerank is not enabled[\s\S]*?Enable the \\?\$rerank Project Setting/i;
-
 export function isRerankNotEnabledError(errorMessage: string): boolean {
   if (!errorMessage) {
     return false;
   }
 
-  return RERANK_NOT_ENABLED_PATTERN.test(errorMessage);
+  const lower = errorMessage.toLowerCase();
+  return (
+    lower.includes('$rerank is not enabled') &&
+    lower.includes('enable the $rerank project setting')
+  );
 }
