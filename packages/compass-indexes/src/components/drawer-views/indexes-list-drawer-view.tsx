@@ -96,9 +96,11 @@ const IndexesListDrawerView: React.FunctionComponent<
   const [isStandardAccordionOpen, setIsStandardAccordionOpen] = useState(
     focusedIndexName === null
   );
-  useEffect(() => {
+  const [prevVersion, setPrevVersion] = useState(focusedIndexVersion);
+  if (prevVersion !== focusedIndexVersion) {
+    setPrevVersion(focusedIndexVersion);
     setIsStandardAccordionOpen(focusedIndexName === null);
-  }, [focusedIndexName, focusedIndexVersion]);
+  }
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
 
