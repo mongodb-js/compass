@@ -82,6 +82,7 @@ const errorContainerStyles = css({
 const noMarginBannerStyles = css({
   flex: 'none',
   textAlign: 'left',
+  margin: 0,
 });
 
 const rerankBannerContentStyles = css({
