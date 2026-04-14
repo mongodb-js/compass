@@ -133,21 +133,21 @@ const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
 const WithMultiplexTransport = createServiceProvider(
   function WithMultiplexTransport({
     projectId,
-    baseUrl,
     children,
   }: {
     projectId: string;
-    baseUrl?: string;
     children: React.ReactNode;
   }) {
     const abortControllerRef = useRef(new AbortController());
-    const { enableMultiplexWebSocketOnWeb } = usePreferences([
-      'enableMultiplexWebSocketOnWeb',
-    ]);
+    const enableMultiplexWebSocketOnWeb = true;
+    // const { enableMultiplexWebSocketOnWeb } = usePreferences([
+    //   'enableMultiplexWebSocketOnWeb',
+    // ]);
     const logger = useLogger('COMPASS-WEB-MULTIPLEXING');
     const atlasService = atlasServiceLocator();
-    const ccsUrl =
-      baseUrl ?? atlasService.multiplexWebsocketEndpoint(projectId);
+    const ccsUrl = projectId
+      ? atlasService.multiplexWebsocketEndpoint(projectId)
+      : undefined;
 
     useEffect(() => {
       const abortController = abortControllerRef.current;
@@ -155,11 +155,10 @@ const WithMultiplexTransport = createServiceProvider(
         return;
       }
 
-      if (!ccsUrl) {
-        throw new Error('CCS WebSocket URL is not defined in the config');
-      }
-
-      const transport = new MultiplexWebSocketTransport(ccsUrl, { logger });
+      const transport = new MultiplexWebSocketTransport({
+        baseUrl: ccsUrl,
+        logger,
+      });
 
       // Wait for transport.connect() to complete before registering it globally.
       // This prevents the net polyfill from trying to use the transport before
@@ -359,13 +358,6 @@ export type CompassWebProps = {
    * (default: "explorer")
    */
   historyRoutePrefix?: string;
-
-  /**
-   * Optional base URL for the multiplexed WebSocket transport (e.g.
-   * "ws://localhost:1338" in local sandbox). When omitted, the URL is derived
-   * from the atlas-service config for the active backend preset.
-   */
-  multiplexedWsBaseUrl?: string;
 };
 
 function CompassWorkspace({
@@ -549,7 +541,6 @@ const CompassWeb = ({
   darkMode,
   initialPreferences,
   atlasCloudFeatureFlags,
-  multiplexedWsBaseUrl,
   onLog,
   onDebug,
   onTrack,
@@ -585,10 +576,7 @@ const CompassWeb = ({
             <TelemetryProvider options={telemetryOptions}>
               <CompassComponentsProviderWeb darkMode={darkMode}>
                 <WithAtlasProviders>
-                  <WithMultiplexTransport
-                    projectId={projectId}
-                    baseUrl={multiplexedWsBaseUrl}
-                  >
+                  <WithMultiplexTransport projectId={projectId}>
                     <WithStorageProviders orgId={orgId} projectId={projectId}>
                       <DataModelStorageServiceProviderWeb
                         orgId={orgId}

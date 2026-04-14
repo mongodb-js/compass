@@ -34,18 +34,18 @@ class Socket extends Duplex {
   }
 
   private setupMultiplexedConnection(options: Omit<ConnectOptions, 'lookup'>) {
-    try {
-      const transport = getMultiplexTransport();
-      if (!transport) {
-        throw new Error('Multiplex transport is not available');
-      }
-      // Multiplex path: tunnel this logical connection over the single shared
-      // WebSocket, using BSON 5-tuple framing.
-      this._remoteHost = options.host;
-      this._remotePort = options.port;
-      this._localPort = transport.allocatePort();
+    const transport = getMultiplexTransport();
+    if (!transport) {
+      throw new Error('Multiplex transport is not available');
+    }
+    // Multiplex path: tunnel this logical connection over the single shared
+    // WebSocket, using BSON 5-tuple framing.
+    this._remoteHost = options.host;
+    this._remotePort = options.port;
+    this._localPort = transport.allocatePort();
 
-      transport.registerSocket(this._localPort, {
+    transport
+      .registerSocket(this._localPort, {
         onData: (data: Uint8Array) => {
           queueMicrotask(() => {
             this.push(Buffer.from(data));
@@ -59,19 +59,22 @@ class Socket extends Duplex {
           this._teardown();
           queueMicrotask(() => this.emit('error', err));
         },
+      })
+      .then(() => {
+        // The websocket is connected already and we will emit the connect
+        // event so that driver sends the first message to the server.
+        queueMicrotask(() => {
+          this.emit(options.tls ? 'secureConnect' : 'connect');
+        });
+      })
+      .catch((err) => {
+        queueMicrotask(() =>
+          this.emit(
+            'error',
+            err instanceof Error ? err : new Error(String(err))
+          )
+        );
       });
-
-      // The websocket is connected already and we will emit the connect
-      // event so that driver sends the first message to the server.
-      queueMicrotask(() => {
-        this.emit(options.tls ? 'secureConnect' : 'connect');
-      });
-    } catch (err) {
-      queueMicrotask(() =>
-        this.emit('error', err instanceof Error ? err : new Error(String(err)))
-      );
-    }
-
     return this;
   }
 
