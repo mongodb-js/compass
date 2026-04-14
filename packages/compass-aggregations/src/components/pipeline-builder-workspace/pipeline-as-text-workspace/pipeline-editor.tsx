@@ -5,7 +5,7 @@ import {
   WarningSummary,
   Banner,
   Button,
-  Link,
+  Icon,
   spacing,
   palette,
   useDarkMode,
@@ -77,6 +77,18 @@ const errorContainerStyles = css({
   marginTop: 'auto',
   marginLeft: spacing[400],
   marginRight: spacing[400],
+});
+
+const noMarginBannerStyles = css({
+  flex: 'none',
+  textAlign: 'left',
+});
+
+const rerankVersionBannerContentStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
 });
 
 export type PipelineEditorProps = {
@@ -201,22 +213,26 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       {showRerankVersionWarning && (
         <div className={errorContainerStyles}>
           <Banner
-            variant="warning"
+            variant="danger"
             data-testid="pipeline-editor-rerank-version-warning"
           >
-            Upgrade your cluster to MongoDB 8.3+ to use $rerank.
-            {atlasMetadata && (
-              <>
-                {' '}
-                <Link
-                  href={`#/clusters/edit/${encodeURIComponent(
-                    atlasMetadata.clusterName
-                  )}`}
-                >
-                  Upgrade Cluster
-                </Link>
-              </>
-            )}
+            <div className={rerankVersionBannerContentStyles}>
+              <span>Upgrade your cluster to MongoDB 8.3+ to use $rerank.</span>
+              <Button
+                size="xsmall"
+                href={
+                  atlasMetadata
+                    ? `#/clusters/edit/${encodeURIComponent(
+                        atlasMetadata.clusterName
+                      )}`
+                    : '#/clusters'
+                }
+                target="_blank"
+                rightGlyph={<Icon glyph="OpenNewTab" />}
+              >
+                Upgrade Cluster
+              </Button>
+            </div>
           </Banner>
         </div>
       )}
@@ -233,6 +249,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
               searchIndexName={searchIndexName}
               dataTestId="pipeline-editor-error-message"
               onEditSearchIndexClick={onEditSearchIndexClick}
+              className={noMarginBannerStyles}
             />
           ) : enableSearchActivationProgramP1 &&
             searchStageOperator &&

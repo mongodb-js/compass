@@ -8,11 +8,14 @@ import {
   CancelLoader,
   Subtitle,
   Button,
+  Icon,
   palette,
   Banner,
   BannerVariant,
   showErrorDetails,
 } from '@mongodb-js/compass-components';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 import type { RootState } from '../../modules';
 import {
   type AggregationError,
@@ -27,6 +30,8 @@ import {
 } from '../../utils/stage';
 import { getStageOperator } from '../../utils/stage';
 import { gotoOutResults } from '../../modules/out-results-fn';
+import { isRerankNotEnabledError } from '../../utils/search-stage-errors';
+import semver from 'semver';
 
 const containerStyles = css({
   overflow: 'hidden',
@@ -69,6 +74,12 @@ const errorBannerContentStyles = css({
 
 const errorBannerTextStyles = css({
   flex: 1,
+});
+
+const rerankBannerContentStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
 });
 
 const errorDetailsBtnStyles = css({
@@ -133,6 +144,8 @@ type PipelineResultsWorkspaceProps = {
   onOutClick?: (ns: string) => void;
   onCancel: () => void;
   onRetry: () => void;
+  serverVersion: string;
+  pipelineText: string;
 };
 
 export const PipelineResultsWorkspace: React.FunctionComponent<
@@ -150,10 +163,53 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   onOutClick,
   onRetry,
   onCancel,
+  serverVersion,
+  pipelineText,
 }) => {
+  const { atlasMetadata } = useConnectionInfo();
   let results: React.ReactElement | null = null;
 
-  if (isError && error) {
+  const showRerankVersionWarning =
+    pipelineText.includes('$rerank') &&
+    !semver.gte(semver.coerce(serverVersion) ?? '0.0.0', '8.3.0');
+
+  const rerankNotEnabled =
+    isError && error ? isRerankNotEnabledError(error.message) : false;
+  const projectSettingsHref =
+    rerankNotEnabled && atlasMetadata
+      ? buildProjectSettingsUrl(atlasMetadata)
+      : null;
+  const upgradeClusterHref = atlasMetadata
+    ? `#/clusters/edit/${encodeURIComponent(atlasMetadata.clusterName)}`
+    : null;
+
+  if (isError && error && rerankNotEnabled) {
+    results = (
+      <ResultsContainer>
+        <Banner
+          data-testid="pipeline-results-error"
+          variant={BannerVariant.Danger}
+          className={errorBannerStyles}
+        >
+          <b>Native reranking not enabled</b>
+          <br />
+          <div className={rerankBannerContentStyles}>
+            <span>Enable native reranking in project settings.</span>
+            {projectSettingsHref && (
+              <Button
+                size="xsmall"
+                href={projectSettingsHref}
+                target="_blank"
+                rightGlyph={<Icon glyph="OpenNewTab" />}
+              >
+                Project Settings
+              </Button>
+            )}
+          </div>
+        </Banner>
+      </ResultsContainer>
+    );
+  } else if (isError && error) {
     results = (
       <ResultsContainer>
         <Banner
@@ -236,6 +292,29 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
 
   return (
     <div data-testid="pipeline-results-workspace" className={containerStyles}>
+      {showRerankVersionWarning && (
+        <ResultsContainer>
+          <Banner
+            variant={BannerVariant.Danger}
+            data-testid="pipeline-results-rerank-version-warning"
+            className={errorBannerStyles}
+          >
+            <div className={rerankBannerContentStyles}>
+              <span>Upgrade your cluster to MongoDB 8.3+ to use $rerank.</span>
+              {upgradeClusterHref && (
+                <Button
+                  size="xsmall"
+                  href={upgradeClusterHref}
+                  target="_blank"
+                  rightGlyph={<Icon glyph="OpenNewTab" />}
+                >
+                  Upgrade Cluster
+                </Button>
+              )}
+            </div>
+          </Banner>
+        </ResultsContainer>
+      )}
       <div className={resultsStyles}>{results}</div>
     </div>
   );
@@ -244,7 +323,13 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
 const mapState = (state: RootState) => {
   const {
     namespace,
+    serverVersion,
     aggregation: { documents, loading, error, resultsViewType, pipeline },
+    pipelineBuilder: {
+      textEditor: {
+        pipeline: { pipelineText },
+      },
+    },
   } = state;
   const lastStage = pipeline[pipeline.length - 1];
   const stageOperator = getStageOperator(lastStage) ?? '';
@@ -262,6 +347,8 @@ const mapState = (state: RootState) => {
       namespace,
       lastStage
     ),
+    serverVersion,
+    pipelineText,
   };
 };
 

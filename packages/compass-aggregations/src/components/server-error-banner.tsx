@@ -5,6 +5,8 @@ import {
   spacing,
   Link,
   Banner,
+  Button,
+  Icon,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -23,11 +25,19 @@ const bannerStyles = css({
   textAlign: 'left',
 });
 
+const bannerContentStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
+});
+
 type ServerErrorBannerProps = {
   message: string;
   searchIndexName: string | null;
   onEditSearchIndexClick?: (indexName: string) => void;
   dataTestId?: string;
+  className?: string;
 };
 
 export default function ServerErrorBanner({
@@ -35,13 +45,12 @@ export default function ServerErrorBanner({
   searchIndexName,
   onEditSearchIndexClick,
   dataTestId = 'server-error-banner',
+  className,
 }: ServerErrorBannerProps) {
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
-
   const rerankNotEnabled = isRerankNotEnabledError(message);
-  const title = rerankNotEnabled ? 'Native Reranking not enabled' : message;
   const description = rerankNotEnabled
     ? 'Enable native reranking in project settings.'
     : message;
@@ -54,15 +63,28 @@ export default function ServerErrorBanner({
     <Banner
       variant="danger"
       data-testid={dataTestId}
-      title={title}
-      className={bannerStyles}
+      className={className ?? bannerStyles}
     >
-      {description}
-      {projectSettingsHref && (
+      {rerankNotEnabled ? (
         <>
-          {' '}
-          <Link href={projectSettingsHref}>Project Settings</Link>
+          <b>Native reranking not enabled</b>
+          <br />
+          <div className={bannerContentStyles}>
+            <span>{description}</span>
+            {projectSettingsHref && (
+              <Button
+                size="xsmall"
+                href={projectSettingsHref}
+                target="_blank"
+                rightGlyph={<Icon glyph="OpenNewTab" />}
+              >
+                Project Settings
+              </Button>
+            )}
+          </div>
         </>
+      ) : (
+        message
       )}
       {searchIndexName &&
         isSearchIndexDefinitionError(message) &&

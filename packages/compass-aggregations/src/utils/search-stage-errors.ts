@@ -31,7 +31,7 @@ export function isSearchIndexDefinitionError(errorMessage: string): boolean {
 }
 
 const RERANK_NOT_ENABLED_PATTERN =
-  /\$rerank is not enabled[\s\S]*?Enable the \$rerank Project Setting/i;
+  /\\?\$rerank is not enabled[\s\S]*?Enable the \\?\$rerank Project Setting/i;
 
 export function isRerankNotEnabledError(errorMessage: string): boolean {
   if (!errorMessage) {
