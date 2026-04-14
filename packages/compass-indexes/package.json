@@ -76,7 +76,7 @@
     "@mongodb-js/compass-telemetry": "^1.28.0",
     "@mongodb-js/compass-workspaces": "^0.82.0",
     "@mongodb-js/connection-info": "^0.27.2",
-    "@mongodb-js/mongodb-constants": "^0.20.2",
+    "@mongodb-js/mongodb-constants": "^0.21.0",
     "@mongodb-js/search-index-schema": "^1.0.0",
     "@mongodb-js/shell-bson-parser": "^1.5.7",
     "@mongodb-js/workspace-info": "^1.7.0",
