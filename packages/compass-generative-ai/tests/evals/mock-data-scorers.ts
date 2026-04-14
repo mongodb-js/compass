@@ -6,11 +6,7 @@ import type {
   FieldMismatch,
   ScorerMetadata,
 } from './types';
-import {
-  isEvalCriterion,
-  UNRECOGNIZED_METHOD,
-  type MockDataInputFieldSchema,
-} from './types';
+import { isEvalCriterion, UNRECOGNIZED_METHOD } from './types';
 
 // --- Scorer Wrapper ---
 
@@ -68,7 +64,7 @@ function createFieldScorer(
 
       // When the field has sampleValues, helpers.arrayElement is a valid
       // choice: using sample data directly is a valid mock data strategy.
-      // ArrayElementArgAccuracy scorer checks the args are correct.
+      // FakerSampleValueAccuracy scorer checks the args are correct.
       const fieldHasSampleValues =
         (args.input.providedSchema[fieldName]?.sampleValues?.length ?? 0) > 0;
 
@@ -258,28 +254,15 @@ export const MethodRunnableScorer = withSkipResultOnUnexpected(
   }
 );
 
-// --- Array Element Arg Accuracy Scorer ---
+// --- Sample Value Accuracy Scorer ---
 
 /**
- * When the LLM uses helpers.arrayElement/arrayElements, validates that the
- * array arg contains values derived from the field's sampleValues in the
- * input schema. Skips fields that have no sampleValues or don't use
- * helpers.arrayElement/arrayElements.
+ * For fields where the LLM uses helpers.arrayElement/arrayElements, validates
+ * that all arg values come from the field's sampleValues in the input schema.
+ * Counts as failure when: sampleValues are missing for the field, the array
+ * arg is missing/unparseable, or any arg value is not in sampleValues.
  */
-function parseSampleValues(
-  schema: MockDataInputFieldSchema,
-  fieldPath: string
-): unknown[] | null {
-  const fieldDef = schema[fieldPath];
-  if (!fieldDef?.sampleValues || fieldDef.sampleValues.length === 0) {
-    return null;
-  }
-  return fieldDef.sampleValues.filter(
-    (v: unknown) => v !== null && v !== undefined
-  );
-}
-
-export const ArrayElementArgAccuracy = withSkipResultOnUnexpected(
+export const FakerSampleValueAccuracy = withSkipResultOnUnexpected(
   (args: Parameters<MockDataGeneratorEvalScorer>[0]) => {
     const outputFields = args.output.response.fields;
     const schema = args.input.providedSchema;
@@ -288,8 +271,9 @@ export const ArrayElementArgAccuracy = withSkipResultOnUnexpected(
     let passed = 0;
     const failures: Array<{
       fieldPath: string;
-      argValues: unknown[];
-      sampleValues: unknown[];
+      reason: string;
+      argValues?: unknown[];
+      sampleValues?: unknown[];
     }> = [];
 
     for (const field of outputFields) {
@@ -300,8 +284,18 @@ export const ArrayElementArgAccuracy = withSkipResultOnUnexpected(
         continue;
       }
 
-      const sampleValues = parseSampleValues(schema, field.fieldPath);
-      if (!sampleValues) {
+      checked++;
+
+      const fieldDef = schema[field.fieldPath];
+      const sampleValues = (fieldDef?.sampleValues ?? []).filter(
+        (v: unknown) => v !== null && v !== undefined
+      );
+
+      if (sampleValues.length === 0) {
+        failures.push({
+          fieldPath: field.fieldPath,
+          reason: 'no sampleValues for field',
+        });
         continue;
       }
 
@@ -316,33 +310,29 @@ export const ArrayElementArgAccuracy = withSkipResultOnUnexpected(
               break;
             }
           } catch {
-            // skip unparseable
+            // fall through to failure
           }
         }
       }
 
       if (!argValues) {
+        failures.push({
+          fieldPath: field.fieldPath,
+          reason: 'missing or unparseable array arg',
+        });
         continue;
       }
 
-      checked++;
+      // Every arg value must appear in sampleValues (exact match).
+      const sampleSet = new Set<unknown>(sampleValues);
+      const allMatch = argValues.every((v: unknown) => sampleSet.has(v));
 
-      // Check that the arg array has overlap with sample values.
-      // Case-insensitive for strings since the LLM may normalize casing.
-      const sampleSet = new Set(
-        sampleValues.map((v: unknown) =>
-          typeof v === 'string' ? v.toLowerCase() : v
-        )
-      );
-      const matchCount = argValues.filter((v: unknown) =>
-        sampleSet.has(typeof v === 'string' ? v.toLowerCase() : v)
-      ).length;
-
-      if (matchCount > 0) {
+      if (allMatch) {
         passed++;
       } else {
         failures.push({
           fieldPath: field.fieldPath,
+          reason: 'arg values not in sampleValues',
           argValues,
           sampleValues,
         });
@@ -351,13 +341,13 @@ export const ArrayElementArgAccuracy = withSkipResultOnUnexpected(
 
     if (checked === 0) {
       return {
-        name: 'ArrayElementArgAccuracy',
+        name: 'FakerSampleValueAccuracy',
         score: 1,
       };
     }
 
     return {
-      name: 'ArrayElementArgAccuracy',
+      name: 'FakerSampleValueAccuracy',
       score: passed / checked,
       metadata: {
         checked,
