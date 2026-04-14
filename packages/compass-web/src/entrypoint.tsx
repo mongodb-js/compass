@@ -139,10 +139,9 @@ const WithMultiplexTransport = createServiceProvider(
     children: React.ReactNode;
   }) {
     const abortControllerRef = useRef(new AbortController());
-    const enableMultiplexWebSocketOnWeb = true;
-    // const { enableMultiplexWebSocketOnWeb } = usePreferences([
-    //   'enableMultiplexWebSocketOnWeb',
-    // ]);
+    const { enableMultiplexWebSocketOnWeb } = usePreferences([
+      'enableMultiplexWebSocketOnWeb',
+    ]);
     const logger = useLogger('COMPASS-WEB-MULTIPLEXING');
     const atlasService = atlasServiceLocator();
     const ccsUrl = atlasService.multiplexWebsocketEndpoint(projectId);
