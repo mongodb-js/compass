@@ -169,8 +169,10 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   const { atlasMetadata } = useConnectionInfo();
   let results: React.ReactElement | null = null;
 
+  const normalizedServerVersion = semver.valid(semver.coerce(serverVersion));
   const showRerankVersionWarning =
-    pipelineText.includes('$rerank') && !semver.gte(serverVersion, '8.3.0');
+    pipelineText.includes('$rerank') &&
+    (!normalizedServerVersion || semver.lt(normalizedServerVersion, '8.3.0'));
 
   const rerankNotEnabled =
     isError && error ? isRerankNotEnabledError(error.message) : false;

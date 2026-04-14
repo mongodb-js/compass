@@ -183,8 +183,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     'enableSearchActivationProgramP1'
   );
 
+  const normalizedServerVersion = semver.valid(semver.coerce(serverVersion));
   const showRerankVersionWarning =
-    pipelineText.includes('$rerank') && !semver.gte(serverVersion, '8.3.0');
+    pipelineText.includes('$rerank') &&
+    (!normalizedServerVersion || semver.lt(normalizedServerVersion, '8.3.0'));
 
   const showErrorContainer =
     serverError ||

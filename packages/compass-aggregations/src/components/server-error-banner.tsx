@@ -2,6 +2,7 @@ import React from 'react';
 
 import {
   css,
+  cx,
   spacing,
   Link,
   Banner,
@@ -63,7 +64,7 @@ export default function ServerErrorBanner({
     <Banner
       variant="danger"
       data-testid={dataTestId}
-      className={className ?? bannerStyles}
+      className={cx(bannerStyles, className)}
     >
       {rerankNotEnabled ? (
         <>
