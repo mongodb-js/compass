@@ -9,7 +9,7 @@ import type { AtlasServiceConfig } from './util';
 
 const ATLAS_CONFIG: AtlasServiceConfig = {
   ccsBaseUrl: 'ws://example.com',
-  multiplexedWsBaseUrl: 'ws://example.com/multiplex',
+  multiplexedWsBaseUrls: ['ws://example.com/multiplex'],
   cloudBaseUrl: 'ws://example.com/cloud',
   atlasApiBaseUrl: 'http://example.com/api',
   atlasLogin: {
