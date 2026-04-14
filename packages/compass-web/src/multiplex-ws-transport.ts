@@ -141,7 +141,7 @@ export class MultiplexWebSocketTransport implements Disposable {
     logger,
     sourceAddress,
   }: MultiplexWebSocketTransportOptions) {
-    this.baseUrl = baseUrl ?? 'ws://localhost:1338';
+    this.baseUrl = _wsUrlOverride ?? baseUrl ?? 'ws://localhost:1338';
     this.sourceAddress = sourceAddress ?? 'localhost';
     this.logger = logger;
     this.logger?.log.info(
@@ -394,4 +394,9 @@ export function setMultiplexTransport(
 }
 export function getMultiplexTransport(): MultiplexWebSocketTransport | null {
   return _activeTransport;
+}
+
+let _wsUrlOverride: string | null = null;
+export function setWebSocketUrlOverride(url: string | null): void {
+  _wsUrlOverride = url;
 }

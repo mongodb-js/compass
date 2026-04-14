@@ -145,9 +145,7 @@ const WithMultiplexTransport = createServiceProvider(
     // ]);
     const logger = useLogger('COMPASS-WEB-MULTIPLEXING');
     const atlasService = atlasServiceLocator();
-    const ccsUrl = projectId
-      ? atlasService.multiplexWebsocketEndpoint(projectId)
-      : undefined;
+    const ccsUrl = atlasService.multiplexWebsocketEndpoint(projectId);
 
     useEffect(() => {
       const abortController = abortControllerRef.current;

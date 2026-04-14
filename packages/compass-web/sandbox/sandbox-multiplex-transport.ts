@@ -1,4 +1,7 @@
-import { getMultiplexTransport } from '../src/multiplex-ws-transport';
+import {
+  getMultiplexTransport,
+  setWebSocketUrlOverride,
+} from '../src/multiplex-ws-transport';
 
 const kSandboxMultiplexTransport = Symbol.for(
   '@compass-web-sandbox-multiplex-transport'
@@ -14,3 +17,7 @@ Object.defineProperty(globalThis, kSandboxMultiplexTransport, {
     return getMultiplexTransport;
   },
 });
+
+if (Object.hasOwn(globalThis, '__compassWebEnableSandboxMultiplexWsOverride')) {
+  setWebSocketUrlOverride('ws://localhost:1338');
+}

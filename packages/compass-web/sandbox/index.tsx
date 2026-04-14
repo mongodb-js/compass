@@ -21,6 +21,7 @@ Object.assign(globalThis, {
   // imports added directly to the compass-web build, there is no way to
   // activate this otherwise
   __compassWebEnableSandboxStorage: true,
+  __compassWebEnableSandboxMultiplexWsOverride: true,
   // For testing purposes to programmatically trigger navigation
   hashHistory,
 });
