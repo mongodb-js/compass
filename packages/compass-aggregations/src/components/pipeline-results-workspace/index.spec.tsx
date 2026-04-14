@@ -84,7 +84,7 @@ describe('PipelineResultsWorkspace', function () {
     expect(onRetry).to.be.calledOnce;
   });
 
-  it('renders friendly banner for rerank not enabled error', async function () {
+  it('renders cta to enable for rerank not enabled error', async function () {
     await renderPipelineResultsWorkspace({
       isError: true,
       error: {

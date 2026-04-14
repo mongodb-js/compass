@@ -282,7 +282,7 @@ describe('PipelineEditor', function () {
     });
 
     describe('$rerank not enabled error', function () {
-      it('should show friendly message for rerank not enabled error', async function () {
+      it('should show cta to enable rerank', async function () {
         await renderPipelineEditor({
           pipelineText: '[{ $rerank: {} }]',
           serverError: new MongoServerError({

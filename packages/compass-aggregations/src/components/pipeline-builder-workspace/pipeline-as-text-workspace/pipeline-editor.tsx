@@ -184,8 +184,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   );
 
   const showRerankVersionWarning =
-    pipelineText.includes('$rerank') &&
-    !semver.gte(semver.coerce(serverVersion) ?? '0.0.0', '8.3.0');
+    pipelineText.includes('$rerank') && !semver.gte(serverVersion, '8.3.0');
 
   const showErrorContainer =
     serverError ||
@@ -218,20 +217,18 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           >
             <div className={rerankVersionBannerContentStyles}>
               <span>Upgrade your cluster to MongoDB 8.3+ to use $rerank.</span>
-              <Button
-                size="xsmall"
-                href={
-                  atlasMetadata
-                    ? `#/clusters/edit/${encodeURIComponent(
-                        atlasMetadata.clusterName
-                      )}`
-                    : '#/clusters'
-                }
-                target="_blank"
-                rightGlyph={<Icon glyph="OpenNewTab" />}
-              >
-                Upgrade Cluster
-              </Button>
+              {atlasMetadata && (
+                <Button
+                  size="xsmall"
+                  href={`#/clusters/edit/${encodeURIComponent(
+                    atlasMetadata.clusterName
+                  )}`}
+                  target="_blank"
+                  rightGlyph={<Icon glyph="OpenNewTab" />}
+                >
+                  Upgrade Cluster
+                </Button>
+              )}
             </div>
           </Banner>
         </div>

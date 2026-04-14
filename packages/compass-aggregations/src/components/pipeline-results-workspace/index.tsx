@@ -170,8 +170,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   let results: React.ReactElement | null = null;
 
   const showRerankVersionWarning =
-    pipelineText.includes('$rerank') &&
-    !semver.gte(semver.coerce(serverVersion) ?? '0.0.0', '8.3.0');
+    pipelineText.includes('$rerank') && !semver.gte(serverVersion, '8.3.0');
 
   const rerankNotEnabled =
     isError && error ? isRerankNotEnabledError(error.message) : false;
