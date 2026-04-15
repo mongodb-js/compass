@@ -73,9 +73,8 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
           {noBadge ? (
             <div className={typeFieldStyles}>
               {text}
-              <Link hideExternalIcon href={link}>
+              <Link hideExternalIcon aria-label={text} href={link}>
                 <Icon
-                  aria-label={text}
                   glyph="InfoWithCircle"
                   fill={darkMode ? palette.gray.light1 : palette.gray.dark1}
                 />
