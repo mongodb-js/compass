@@ -17,6 +17,7 @@ import {
   DEFAULT_CONNECTION_STRING_FALLBACK,
   StepButtonLabelMap,
   DEFAULT_DOCUMENT_COUNT,
+  MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
 } from './constants';
 import type { CollectionState } from '../../modules/collection-tab';
 import { default as collectionTabReducer } from '../../modules/collection-tab';
@@ -196,6 +197,74 @@ describe('MockDataGeneratorModal', () => {
             screen: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
             gen_ai_features_enabled: false,
             send_sample_values_enabled: false,
+          }
+        );
+      });
+    });
+
+    it('fires a Screen Proceeded track event when advancing from SCHEMA_CONFIRMATION', async () => {
+      const result = await renderModal();
+      userEvent.click(screen.getByText('Confirm'));
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Generator Screen Proceeded',
+          {
+            from_screen: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
+            to_screen:
+              MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP[
+                MockDataGeneratorSteps.SCHEMA_CONFIRMATION
+              ],
+          }
+        );
+      });
+    });
+
+    it('fires a Screen Proceeded track event when advancing from PREVIEW_AND_DOC_COUNT', async () => {
+      const result = await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+      userEvent.click(screen.getByText('Generate Script'));
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Generator Screen Proceeded',
+          {
+            from_screen: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+            to_screen:
+              MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP[
+                MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT
+              ],
+          }
+        );
+      });
+    });
+
+    it('fires a Screen Proceeded track event with finish when clicking Done on SCRIPT_RESULT', async () => {
+      const result = await renderModal({
+        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+      });
+      userEvent.click(screen.getByText('Done'));
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Generator Screen Proceeded',
+          {
+            from_screen: MockDataGeneratorSteps.SCRIPT_RESULT,
+            to_screen: 'finish',
           }
         );
       });
@@ -572,6 +641,58 @@ describe('MockDataGeneratorModal', () => {
           .getByRole('button', { name: 'Generate Script' })
           .getAttribute('aria-disabled')
       ).to.not.equal('true');
+    });
+
+    it('fires a Document Count Changed track event on blur with a valid value', async () => {
+      const result = await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        documentCount: '500',
+      });
+
+      const input = screen.getByTestId('document-count-input');
+      input.focus();
+      input.blur();
+
+      await waitFor(() => {
+        expect(result.track).to.have.been.calledWith(
+          'Mock Data Document Count Changed',
+          {
+            document_count: 500,
+          }
+        );
+      });
+    });
+
+    it('does not fire a Document Count Changed track event on blur with an invalid value', async () => {
+      const result = await renderModal({
+        currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
+        fakerSchemaGeneration: createCompletedFakerSchema({
+          name: {
+            fakerMethod: 'person.firstName',
+            fakerArgs: [],
+            probability: 1.0,
+            mongoType: 'String',
+          },
+        }),
+        documentCount: '0',
+      });
+
+      const input = screen.getByTestId('document-count-input');
+      input.focus();
+      input.blur();
+
+      expect(result.track).to.not.have.been.calledWith(
+        'Mock Data Document Count Changed',
+        sinon.match.any
+      );
     });
   });
 

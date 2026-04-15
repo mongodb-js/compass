@@ -95,7 +95,6 @@ const MockDataGeneratorModal = ({
     }
   }, [currentStep]);
 
-  // TODO: CLOUDP-381913 - Update Mock Data Generator Analytics Calls
   useTrackOnChange(
     (track) => {
       if (isOpen) {

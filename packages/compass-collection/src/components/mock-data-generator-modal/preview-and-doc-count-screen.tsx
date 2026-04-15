@@ -23,6 +23,7 @@ import type { FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import { generateDocument } from './script-generation-utils';
 import { validateDocumentCount } from './utils';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const BYTE_PRECISION_THRESHOLD = 1000;
 
@@ -104,6 +105,7 @@ const PreviewAndDocCountScreen = ({
   arrayLengthMap,
   onDocumentCountChanged,
 }: PreviewAndDocCountScreenProps) => {
+  const track = useTelemetry();
   const validationState = validateDocumentCount(documentCount);
 
   const estimatedDiskSize = useMemo(() => {
@@ -131,6 +133,15 @@ const PreviewAndDocCountScreen = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     onDocumentCountChanged(event.target.value);
+  };
+
+  const handleDocumentCountBlur = () => {
+    const validation = validateDocumentCount(documentCount);
+    if (validation.isValid && validation.parsedValue) {
+      track('Mock Data Document Count Changed', {
+        document_count: validation.parsedValue,
+      });
+    }
   };
 
   const sampleDocuments = useMemo(() => {
@@ -164,6 +175,7 @@ const PreviewAndDocCountScreen = ({
             type="number"
             value={documentCount}
             onChange={handleDocumentCountChange}
+            onBlur={handleDocumentCountBlur}
             min={1}
             max={MAX_DOCUMENT_COUNT}
             state={errorState.state}
