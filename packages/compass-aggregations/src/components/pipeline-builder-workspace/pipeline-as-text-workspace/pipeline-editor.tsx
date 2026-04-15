@@ -3,6 +3,9 @@ import { connect } from 'react-redux';
 import {
   css,
   WarningSummary,
+  Banner,
+  Button,
+  Icon,
   spacing,
   palette,
   useDarkMode,
@@ -21,7 +24,10 @@ import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionInfoRef,
+  useConnectionInfo,
+} from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { usePreference } from 'compass-preferences-model/provider';
 import { getSearchStageInfoFromPipeline } from '../../../utils/stage';
@@ -32,6 +38,10 @@ import {
   openIndexesListDrawerView,
 } from '../../../modules/search-indexes';
 import ServerErrorBanner from '../../server-error-banner';
+import {
+  isRerankVersionSupported,
+  RERANK_MIN_SERVER_VERSION,
+} from '../../../utils/search-stage-errors';
 import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
 import type { SearchIndexType } from '../../../modules/search-indexes';
 
@@ -72,6 +82,13 @@ const errorContainerStyles = css({
   marginRight: spacing[400],
 });
 
+const rerankBannerContentStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
+});
+
 export type PipelineEditorProps = {
   namespace: string;
   num_stages: number;
@@ -106,6 +123,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const fields = useAutocompleteFields(namespace);
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
+  const { atlasMetadata } = useConnectionInfo();
   const editorInitialValueRef = useRef<string>(pipelineText);
   const editorCurrentValueRef = useCurrentValueRef<string>(pipelineText);
 
@@ -163,6 +181,10 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     'enableSearchActivationProgramP1'
   );
 
+  const showRerankVersionWarning =
+    pipelineText.includes('$rerank') &&
+    !isRerankVersionSupported(serverVersion);
+
   const showErrorContainer =
     serverError ||
     syntaxErrors.length > 0 ||
@@ -186,6 +208,33 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           className={codeEditorStyles}
         />
       </div>
+      {showRerankVersionWarning && (
+        <div className={errorContainerStyles}>
+          <Banner
+            variant="danger"
+            data-testid="pipeline-editor-rerank-version-warning"
+          >
+            <div className={rerankBannerContentStyles}>
+              <span>
+                Upgrade your cluster to MongoDB {RERANK_MIN_SERVER_VERSION}+ to
+                use $rerank.
+              </span>
+              {atlasMetadata && (
+                <Button
+                  size="xsmall"
+                  href={`#/clusters/edit/${encodeURIComponent(
+                    atlasMetadata.clusterName
+                  )}`}
+                  target="_blank"
+                  rightGlyph={<Icon glyph="OpenNewTab" />}
+                >
+                  Upgrade Cluster
+                </Button>
+              )}
+            </div>
+          </Banner>
+        </div>
+      )}
       {showErrorContainer && (
         <div
           className={errorContainerStyles}
