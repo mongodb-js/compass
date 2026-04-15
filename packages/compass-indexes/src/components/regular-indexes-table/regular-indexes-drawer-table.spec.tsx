@@ -181,15 +181,12 @@ describe('RegularIndexesDrawerTable Component', function () {
   });
 
   context('type rendering', function () {
-    it('renders type without badge styling', function () {
+    it('renders type without badge', function () {
       renderIndexList({ indexes }, { isWritable: true });
 
       const indexRow = screen.getByTestId('indexes-row-_id_');
-      const typeField = within(indexRow).getByTestId('indexes-type-field');
-      expect(typeField).to.exist;
-      expect(typeField.textContent).to.include('hashed');
-      // noBadge renders without the Badge component
-      expect(typeField.querySelector('[class*="badge"]')).to.not.exist;
+      expect(within(indexRow).getByText('hashed')).to.exist;
+      expect(within(indexRow).queryByTestId('hashed-badge')).to.not.exist;
     });
   });
 });
