@@ -72,7 +72,7 @@
     "mongodb": "^7.1.1",
     "mongodb-collection-model": "^5.40.2",
     "mongodb-connection-string-url": "^7.0.1",
-    "mongodb-ns": "^3.0.1",
+    "mongodb-ns": "^3.1.0",
     "mongodb-schema": "^12.6.3",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
