@@ -26,7 +26,7 @@ export function selectReadWriteAccess({
     const { isWritable, isReadonlyView, isSearchIndexesSupported } = state;
 
     const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-      selectIsViewSearchCompatible()(state);
+      selectIsViewSearchCompatible(state);
 
     const isRegularIndexesReadable = !isReadonlyView;
     const isRegularIndexesWritable =

@@ -99,7 +99,7 @@ const IndexesListDrawerView: React.FunctionComponent<
     'enableAtlasSearchIndexes',
   ]);
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-    useSelector(selectIsViewSearchCompatible(), shallowEqual);
+    useSelector(selectIsViewSearchCompatible, shallowEqual);
   const {
     isRegularIndexesReadable,
     isRegularIndexesWritable,

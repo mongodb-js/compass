@@ -147,7 +147,7 @@ export const SearchIndexesTable: React.FunctionComponent<
     shallowEqual
   );
   const { isViewPipelineSearchQueryable } = useSelector(
-    selectIsViewSearchCompatible(),
+    selectIsViewSearchCompatible,
     shallowEqual
   );
 

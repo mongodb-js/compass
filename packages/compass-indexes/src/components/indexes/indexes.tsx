@@ -176,7 +176,7 @@ export function Indexes({
     'enableAtlasSearchIndexes',
   ]);
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-    useSelector(selectIsViewSearchCompatible(), shallowEqual);
+    useSelector(selectIsViewSearchCompatible, shallowEqual);
   const { isRegularIndexesReadable, isSearchIndexesReadable } = useSelector(
     selectReadWriteAccess({
       readOnly,

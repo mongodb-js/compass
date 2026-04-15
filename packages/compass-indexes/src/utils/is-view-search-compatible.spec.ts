@@ -33,7 +33,7 @@ describe('is-view-search-compatible', function () {
         React.createElement(Provider, { store, children });
 
       const { result } = renderHook(
-        () => useSelector(selectIsViewSearchCompatible()),
+        () => useSelector(selectIsViewSearchCompatible),
         { wrapper }
       );
       return result.current;
