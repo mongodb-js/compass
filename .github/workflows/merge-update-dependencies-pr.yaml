@@ -64,10 +64,10 @@ jobs:
             if gh pr checks "${PR_NUMBER}" --watch --fail-fast; then
               echo "All checks passed for PR #${PR_NUMBER}"
               if [ "${DRY_RUN}" = "true" ]; then
-                echo "[DRY RUN] Would merge PR #${PR_NUMBER} with --squash --delete-branch"
+                echo "[DRY RUN] Would merge PR #${PR_NUMBER} with --squash --delete-branch --admin"
               else
                 echo "Merging PR #${PR_NUMBER}..."
-                gh pr merge "${PR_NUMBER}" --squash --delete-branch
+                gh pr merge "${PR_NUMBER}" --squash --delete-branch --admin
                 echo "Successfully merged PR #${PR_NUMBER}"
               fi
             else
