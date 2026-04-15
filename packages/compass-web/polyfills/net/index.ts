@@ -180,7 +180,7 @@ class Socket extends Duplex {
   end(fn?: () => void) {
     if (this._localPort !== 0) {
       this._teardown('Stream ended by client');
-      setTimeout(() => {
+      queueMicrotask(() => {
         fn?.();
       });
       return this;

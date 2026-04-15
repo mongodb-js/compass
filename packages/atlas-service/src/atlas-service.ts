@@ -113,7 +113,7 @@ export class AtlasService {
     return `${this.config.ccsBaseUrl}${normalizePath(path)}`;
   }
   multiplexWebsocketEndpoint(projectId: string): string {
-    const { 0: ccsBaseUrl } = this.config.multiplexedWsBaseUrls;
+    const [ccsBaseUrl] = this.config.multiplexedWsBaseUrls;
     return `${ccsBaseUrl}${normalizePath(projectId)}`;
   }
   async fetch(url: RequestInfo | URL, init?: RequestInit): Promise<Response> {

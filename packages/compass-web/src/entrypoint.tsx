@@ -157,34 +157,23 @@ const WithMultiplexTransport = createServiceProvider(
         logger,
       });
 
-      // Wait for transport.connect() to complete before registering it globally.
-      // This prevents the net polyfill from trying to use the transport before
-      // the underlying WebSocket is ready, which would cause dropped frames.
-      void (async () => {
-        try {
-          await transport.connect(abortController.signal);
-          setMultiplexTransport(transport);
-        } catch (err) {
-          if ((err as Error)?.name === 'AbortError') {
-            return;
-          }
-
-          logger.log.error(
-            logger.mongoLogId(1_001_000_427),
-            'COMPASS-WEB-MULTIPLEXING',
-            'Multiplex WebSocket transport failed',
-            { error: (err as Error).message }
-          );
-          openToast('multiplex-websocket-connection-failed', {
-            title: 'WebSocket Connection Failed',
-            description: `Failed to connect to the multiplex WebSocket transport: ${
-              (err as Error).message
-            }`,
-            variant: 'warning',
-          });
+      setMultiplexTransport(transport);
+      void transport.connect(abortController.signal).catch((err: Error) => {
+        if (err.name === 'AbortError') {
+          return;
         }
-      })();
-
+        logger.log.error(
+          logger.mongoLogId(1_001_000_427),
+          'COMPASS-WEB-MULTIPLEXING',
+          'Multiplex WebSocket transport failed',
+          { error: err.message }
+        );
+        openToast('multiplex-websocket-connection-failed', {
+          title: 'WebSocket Connection Failed',
+          description: err.message,
+          variant: 'warning',
+        });
+      });
       return () => {
         abortController.abort();
         transport.close('Compass Web Entrypoint Unmount');

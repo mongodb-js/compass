@@ -19,5 +19,5 @@ Object.defineProperty(globalThis, kSandboxMultiplexTransport, {
 });
 
 if (Object.hasOwn(globalThis, '__compassWebEnableSandboxMultiplexWsOverride')) {
-  setWebSocketUrlOverride('ws://localhost:1338');
+  setWebSocketUrlOverride('ws://localhost:1337');
 }

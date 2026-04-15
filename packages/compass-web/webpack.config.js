@@ -10,9 +10,6 @@ const {
 const { execFile, spawn, execFileSync } = require('child_process');
 const { promisify } = require('util');
 const { createWebSocketProxy } = require('./scripts/ws-proxy');
-const {
-  createMultiplexWebSocketProxy,
-} = require('./scripts/multiplex-ws-proxy');
 
 const execFileAsync = promisify(execFile);
 
@@ -373,18 +370,12 @@ module.exports = (env, args) => {
   // roughly reproduce how compass-web is embedded inside Atlas Cloud
   if (serve) {
     const wsProxy = createWebSocketProxy(1337);
-    const multiplexWsProxy = createMultiplexWebSocketProxy(1338);
 
     process.on('beforeExit', () => {
       for (const client of Array.from(wsProxy.clients())) {
         client.close();
       }
       wsProxy.close();
-
-      for (const client of Array.from(multiplexWsProxy.clients())) {
-        client.close();
-      }
-      multiplexWsProxy.close();
     });
 
     const sandboxConfig = merge(sharedWebConfig, {
