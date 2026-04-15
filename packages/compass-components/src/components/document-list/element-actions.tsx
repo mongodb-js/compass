@@ -90,6 +90,26 @@ const menuItem = css({
   whiteSpace: 'nowrap',
 });
 
+const AddFieldButton: React.FunctionComponent<{
+  onClick?: (evt: React.MouseEvent<HTMLButtonElement>) => void;
+}> = ({ onClick, ...props }) => {
+  return (
+    <button
+      type="button"
+      data-testid="hadron-document-add-element"
+      title="Add field"
+      className={cx(buttonReset, addFieldButton)}
+      onClick={(evt) => {
+        evt.stopPropagation();
+        onClick?.(evt);
+      }}
+      {...props}
+    >
+      +
+    </button>
+  );
+};
+
 export const AddFieldActions: React.FunctionComponent<{
   type: TypeCastTypes;
   parentType?: TypeCastTypes;
@@ -111,6 +131,10 @@ export const AddFieldActions: React.FunctionComponent<{
     return null;
   }
 
+  if (onAddFieldAfterElement && !onAddFieldToElement) {
+    return <AddFieldButton onClick={onAddFieldAfterElement} />;
+  }
+
   return (
     <Menu
       open={isOpen}
@@ -125,19 +149,7 @@ export const AddFieldActions: React.FunctionComponent<{
       }: Omit<React.HTMLProps<HTMLButtonElement>, 'type'>) => {
         return (
           <>
-            <button
-              type="button"
-              data-testid="hadron-document-add-element"
-              title="Add field"
-              className={cx(buttonReset, addFieldButton)}
-              onClick={(evt) => {
-                evt.stopPropagation();
-                onClick?.(evt);
-              }}
-              {...props}
-            >
-              +
-            </button>
+            <AddFieldButton onClick={onClick} {...props} />
             {children}
           </>
         );
