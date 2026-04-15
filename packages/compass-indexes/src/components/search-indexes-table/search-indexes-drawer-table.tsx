@@ -168,7 +168,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     [onCreateSearchIndexClick, track]
   );
 
-  const renderName = useCallback((name: string) => {
+  const renderNameOverride = useCallback((name: string) => {
     if (name.length > 10) {
       return (
         <InlineDefinition definition={name}>{`${name.slice(
@@ -181,7 +181,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     return name;
   }, []);
 
-  const renderType = useCallback(
+  const renderTypeOverride = useCallback(
     (index: SearchIndex) =>
       index.type === 'vectorSearch' ? 'Vector' : 'Search',
     []
@@ -224,8 +224,8 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
 
   const { data: allData } = useSearchIndexesTable({
     indexes,
-    renderName,
-    renderType,
+    renderNameOverride,
+    renderTypeOverride,
     renderActions,
     renderExpandedContentOverride,
   });

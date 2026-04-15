@@ -125,7 +125,7 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     shallowEqual
   );
 
-  const renderName = useCallback((name: string) => {
+  const renderNameOverride = useCallback((name: string) => {
     if (name.length > 8) {
       return (
         <InlineDefinition definition={name}>{`${name.slice(
@@ -138,7 +138,7 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     return name;
   }, []);
 
-  const renderType = useCallback((index: MergedIndex) => {
+  const renderTypeOverride = useCallback((index: MergedIndex) => {
     if (index.compassIndexType === 'in-progress-index') {
       return <TypeField type="unknown" noBadge />;
     }
@@ -157,13 +157,13 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     indexes,
     inProgressIndexes,
     rollingIndexes,
-    renderName,
-    renderType,
     serverVersion,
     onHideIndexClick,
     onUnhideIndexClick,
     onDeleteIndexClick,
     onDeleteFailedIndexClick,
+    renderNameOverride,
+    renderTypeOverride,
   });
 
   // Filter data based on search term
