@@ -59,8 +59,9 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
   extra,
   noBadge = false,
 }) => {
-  const link = getIndexHelpLink(type);
+  const link = getIndexHelpLink(type) ?? '#';
   const darkMode = useDarkMode();
+  const text = type ?? 'unknown';
   return (
     <Tooltip
       enabled={canRenderTooltip(type)}
@@ -71,16 +72,17 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
         <div {...tooltipTriggerProps}>
           {noBadge ? (
             <div className={typeFieldStyles}>
-              {type ?? 'unknown'}
-              <Link hideExternalIcon href={link ?? '#'}>
+              {text}
+              <Link hideExternalIcon href={link}>
                 <Icon
+                  aria-label={text}
                   glyph="InfoWithCircle"
                   fill={darkMode ? palette.gray.light1 : palette.gray.dark1}
                 />
               </Link>
             </div>
           ) : (
-            <BadgeWithIconLink text={type ?? 'unknown'} link={link ?? '#'} />
+            <BadgeWithIconLink text={text} link={link} />
           )}
           {tooltipChildren}
         </div>
