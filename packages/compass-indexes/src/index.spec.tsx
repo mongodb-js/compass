@@ -131,18 +131,18 @@ describe('CompassIndexesPlugin', function () {
       /** Wait for the row to appear with creating badge first */
 
       expect(
-        within(
-          screen.getByTestId(`indexes-row-${inProgressIndex.id}`)
-        ).getByText('Creating')
+        within(screen.getByTestId('indexes-row-field_a_1')).getByText(
+          'Creating'
+        )
       ).to.exist;
 
       /** Now wait for the rolling index to show up */
 
       await waitFor(() => {
         expect(
-          within(
-            screen.getByTestId('indexes-row-rollingIndex-field_a_1')
-          ).getByText('Building')
+          within(screen.getByTestId('indexes-row-field_a_1')).getByText(
+            'Building'
+          )
         ).to.exist;
       });
 
@@ -153,9 +153,9 @@ describe('CompassIndexesPlugin', function () {
       );
 
       expect(
-        within(
-          screen.getByTestId('indexes-row-rollingIndex-field_a_1')
-        ).getByText('Building')
+        within(screen.getByTestId('indexes-row-field_a_1')).getByText(
+          'Building'
+        )
       ).to.exist;
     });
   });
@@ -179,12 +179,12 @@ describe('CompassIndexesPlugin', function () {
 
     result.plugin.store.dispatch(indexCreationStarted(inProgressIndex));
 
-    expect(screen.getByTestId('indexes-row-test')).to.exist;
+    expect(screen.getByTestId('indexes-row-test_index')).to.exist;
 
     /** Timeout check "fired" before index was returned from the API, index is removed */
 
     result.plugin.store.dispatch(rollingIndexTimeoutCheck('test'));
 
-    expect(() => screen.getByTestId('indexes-row-test')).to.throw();
+    expect(() => screen.getByTestId('indexes-row-test_index')).to.throw();
   });
 });

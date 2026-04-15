@@ -267,7 +267,7 @@ describe('RegularIndexesTable Component', function () {
     );
 
     for (const index of inProgressIndexes) {
-      const indexRow = screen.getByTestId(`indexes-row-${index.id}`);
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
 
       for (const indexCell of indexFields) {
         expect(within(indexRow).getByTestId(indexCell)).to.exist;
@@ -298,9 +298,7 @@ describe('RegularIndexesTable Component', function () {
     );
 
     for (const index of rollingIndexes) {
-      const indexRow = screen.getByTestId(
-        `indexes-row-rollingIndex-${index.indexName}`
-      );
+      const indexRow = screen.getByTestId(`indexes-row-${index.indexName}`);
 
       for (const indexCell of indexFields) {
         expect(within(indexRow).getByTestId(indexCell)).to.exist;
@@ -317,7 +315,7 @@ describe('RegularIndexesTable Component', function () {
       expect(detailsRow).to.exist;
 
       const details = within(detailsRow).getByTestId(
-        `indexes-details-rollingIndex-${index.indexName}`
+        `indexes-details-${index.indexName}`
       );
       expect(details).to.exist;
 
@@ -373,9 +371,7 @@ describe('RegularIndexesTable Component', function () {
       { isWritable: true }
     );
 
-    indexRow = screen.getByTestId(
-      `indexes-row-rollingIndex-${rollingIndexes[0].indexName}`
-    );
+    indexRow = screen.getByTestId(`indexes-row-${rollingIndexes[0].indexName}`);
     expect(() => within(indexRow).getByTestId('index-ready')).to.throw();
     expect(within(indexRow).getByTestId('index-building')).to.exist;
   });

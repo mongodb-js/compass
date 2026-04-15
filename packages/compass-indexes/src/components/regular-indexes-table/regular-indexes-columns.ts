@@ -120,7 +120,7 @@ export const COLUMNS: LGColumnDef<IndexInfo>[] = [
   {
     accessorKey: 'name',
     header: 'Name & Definition',
-    cell: (info) => info.getValue(),
+    cell: (info) => info.row.original.displayName,
     enableSorting: true,
   },
   {
@@ -177,7 +177,7 @@ export const COLUMNS_FOR_DRAWER: LGColumnDef<IndexInfo>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
-    cell: (info) => info.getValue(),
+    cell: (info) => info.row.original.displayName,
     enableSorting: true,
   },
   {

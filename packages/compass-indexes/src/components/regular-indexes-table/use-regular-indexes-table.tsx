@@ -31,7 +31,8 @@ export type MergedIndex =
 
 export type IndexInfo = {
   id: string;
-  name: React.ReactNode;
+  name: string;
+  displayName: React.ReactNode;
   indexInfo: MergedIndex;
   type: React.ReactNode;
   size: React.ReactNode;
@@ -133,7 +134,8 @@ function getInProgressIndexInfo(
 ): CommonIndexInfo {
   return {
     id: index.id,
-    name: renderName(index.name),
+    name: index.name,
+    displayName: renderName(index.name),
     indexInfo: index,
     type: renderType(index),
     size: <SizeField size={0} relativeSize={0} />,
@@ -162,7 +164,8 @@ function getRollingIndexInfo(
 ): CommonIndexInfo {
   return {
     id: `rollingIndex-${index.indexName}`,
-    name: renderName(index.indexName),
+    name: index.indexName,
+    displayName: renderName(index.indexName),
     indexInfo: index,
     type: renderType(index),
     size: <SizeField size={0} relativeSize={0} />,
@@ -196,7 +199,8 @@ function getRegularIndexInfo(
 
   return {
     id: index.name,
-    name: renderName(index.name),
+    name: index.name,
+    displayName: renderName(index.name),
     indexInfo: index,
     type: renderType(index),
     size: <SizeField size={index.size} relativeSize={index.relativeSize} />,
@@ -291,7 +295,7 @@ export function useRegularIndexesTable({
             return (
               <IndexKeysBadge
                 keys={index.fields}
-                data-testid={`indexes-details-${indexData.id}`}
+                data-testid={`indexes-details-${indexData.name}`}
               />
             );
           },

@@ -158,7 +158,7 @@ export function IndexesTable<T>({
                 row={row}
                 className={rowStyles}
                 data-testid={`${dataTestId}-row-${
-                  (row.original as { id?: string }).id ?? row.id
+                  (row.original as { name?: string }).name ?? row.id
                 }`}
               >
                 {row.getVisibleCells().map((cell: LeafyGreenTableCell<T>) => {

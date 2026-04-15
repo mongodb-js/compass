@@ -235,7 +235,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     if (!searchTerm) {
       return allData;
     }
-    return allData.filter((item) => item.id.includes(searchTerm));
+    return allData.filter((item) => item.name.includes(searchTerm));
   }, [allData, searchTerm]);
 
   if (!isReadyStatus(status)) {

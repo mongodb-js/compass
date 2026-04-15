@@ -125,7 +125,7 @@ describe('RegularIndexesDrawerTable Component', function () {
     renderIndexList({ inProgressIndexes }, { isWritable: true });
 
     for (const index of inProgressIndexes) {
-      const indexRow = screen.getByTestId(`indexes-row-${index.id}`);
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
       expect(indexRow).to.exist;
     }
   });
@@ -134,9 +134,7 @@ describe('RegularIndexesDrawerTable Component', function () {
     renderIndexList({ rollingIndexes }, { isWritable: true });
 
     for (const index of rollingIndexes) {
-      const indexRow = screen.getByTestId(
-        `indexes-row-rollingIndex-${index.indexName}`
-      );
+      const indexRow = screen.getByTestId(`indexes-row-${index.indexName}`);
       expect(indexRow).to.exist;
     }
   });

@@ -14,7 +14,8 @@ import type { LGTableDataType } from '@mongodb-js/compass-components';
 
 export type SearchIndexInfo = {
   id: string;
-  name: React.ReactNode;
+  name: string;
+  displayName: React.ReactNode;
   indexInfo: SearchIndex;
   status: React.ReactNode;
   type: React.ReactNode;
@@ -190,7 +191,8 @@ export function useSearchIndexesTable({
 
         return {
           id: index.name,
-          name: renderName(index.name),
+          name: index.name,
+          displayName: renderName(index.name),
           status: (
             <IndexStatus
               status={index.status}
