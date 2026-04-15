@@ -8,7 +8,6 @@ import type {
   RollingIndex,
 } from '../../modules/regular-indexes';
 
-import TypeField from './type-field';
 import SizeField from './size-field';
 import UsageField from './usage-field';
 import PropertyField from './property-field';
@@ -32,7 +31,7 @@ export type MergedIndex =
 
 export type IndexInfo = {
   id: string;
-  name: string;
+  name: React.ReactNode;
   indexInfo: MergedIndex;
   type: React.ReactNode;
   size: React.ReactNode;
@@ -123,16 +122,20 @@ function mergeIndexes(
 function getInProgressIndexInfo(
   index: MappedInProgressIndex,
   {
+    renderName,
+    renderType,
     onDeleteFailedIndexClick,
   }: {
+    renderName: (name: string) => React.ReactNode;
+    renderType: (index: MergedIndex) => React.ReactNode;
     onDeleteFailedIndexClick: (indexName: string) => void;
   }
 ): CommonIndexInfo {
   return {
     id: index.id,
-    name: index.name,
+    name: renderName(index.name),
     indexInfo: index,
-    type: <TypeField type="unknown" />,
+    type: renderType(index),
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
     // TODO(COMPASS-8335): add properties for in-progress indexes
@@ -147,13 +150,21 @@ function getInProgressIndexInfo(
   };
 }
 
-function getRollingIndexInfo(index: MappedRollingIndex): CommonIndexInfo {
+function getRollingIndexInfo(
+  index: MappedRollingIndex,
+  {
+    renderName,
+    renderType,
+  }: {
+    renderName: (name: string) => React.ReactNode;
+    renderType: (index: MergedIndex) => React.ReactNode;
+  }
+): CommonIndexInfo {
   return {
     id: `rollingIndex-${index.indexName}`,
-    name: index.indexName,
+    name: renderName(index.indexName),
     indexInfo: index,
-    // TODO(COMPASS-8335): check that label really is a regular index type
-    type: <TypeField type={index.indexType.label as RegularIndex['type']} />,
+    type: renderType(index),
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
     // TODO(COMPASS-7589): add properties for rolling indexes
@@ -166,11 +177,15 @@ function getRollingIndexInfo(index: MappedRollingIndex): CommonIndexInfo {
 function getRegularIndexInfo(
   index: MappedRegularIndex,
   {
+    renderName,
+    renderType,
     serverVersion,
     onHideIndexClick,
     onUnhideIndexClick,
     onDeleteIndexClick,
   }: {
+    renderName: (name: string) => React.ReactNode;
+    renderType: (index: MergedIndex) => React.ReactNode;
     serverVersion: string;
     onHideIndexClick: (indexName: string) => void;
     onUnhideIndexClick: (indexName: string) => void;
@@ -181,9 +196,9 @@ function getRegularIndexInfo(
 
   return {
     id: index.name,
-    name: index.name,
+    name: renderName(index.name),
     indexInfo: index,
-    type: <TypeField type={index.type} extra={index.extra} />,
+    type: renderType(index),
     size: <SizeField size={index.size} relativeSize={index.relativeSize} />,
     usageCount: (
       <UsageField usage={index.usageCount} since={index.usageSince} />
@@ -217,6 +232,8 @@ export type UseRegularIndexesTableProps = {
   indexes: RegularIndex[];
   inProgressIndexes: InProgressIndex[];
   rollingIndexes: RollingIndex[];
+  renderName: (name: string) => React.ReactNode;
+  renderType: (index: MergedIndex) => React.ReactNode;
   serverVersion: string;
   onHideIndexClick: (name: string) => void;
   onUnhideIndexClick: (name: string) => void;
@@ -228,6 +245,8 @@ export function useRegularIndexesTable({
   indexes,
   inProgressIndexes,
   rollingIndexes,
+  renderName,
+  renderType,
   serverVersion,
   onHideIndexClick,
   onUnhideIndexClick,
@@ -246,12 +265,19 @@ export function useRegularIndexesTable({
         let indexData: CommonIndexInfo;
         if (index.compassIndexType === 'in-progress-index') {
           indexData = getInProgressIndexInfo(index, {
+            renderName,
+            renderType,
             onDeleteFailedIndexClick,
           });
         } else if (index.compassIndexType === 'rolling-index') {
-          indexData = getRollingIndexInfo(index);
+          indexData = getRollingIndexInfo(index, {
+            renderName,
+            renderType,
+          });
         } else {
           indexData = getRegularIndexInfo(index, {
+            renderName,
+            renderType,
             serverVersion,
             onDeleteIndexClick,
             onHideIndexClick,
@@ -265,7 +291,7 @@ export function useRegularIndexesTable({
             return (
               <IndexKeysBadge
                 keys={index.fields}
-                data-testid={`indexes-details-${indexData.name}`}
+                data-testid={`indexes-details-${indexData.id}`}
               />
             );
           },
@@ -273,6 +299,8 @@ export function useRegularIndexesTable({
       }),
     [
       allIndexes,
+      renderName,
+      renderType,
       onDeleteIndexClick,
       onDeleteFailedIndexClick,
       onHideIndexClick,

@@ -11,6 +11,7 @@ import sinon from 'sinon';
 
 import { RegularIndexesDrawerTable } from './regular-indexes-drawer-table';
 import { setupStore } from '../../../test/setup-store';
+import { mockRegularIndex } from '../../../test/helpers';
 import type {
   RegularIndex,
   InProgressIndex,
@@ -124,7 +125,7 @@ describe('RegularIndexesDrawerTable Component', function () {
     renderIndexList({ inProgressIndexes }, { isWritable: true });
 
     for (const index of inProgressIndexes) {
-      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      const indexRow = screen.getByTestId(`indexes-row-${index.id}`);
       expect(indexRow).to.exist;
     }
   });
@@ -133,7 +134,9 @@ describe('RegularIndexesDrawerTable Component', function () {
     renderIndexList({ rollingIndexes }, { isWritable: true });
 
     for (const index of rollingIndexes) {
-      const indexRow = screen.getByTestId(`indexes-row-${index.indexName}`);
+      const indexRow = screen.getByTestId(
+        `indexes-row-rollingIndex-${index.indexName}`
+      );
       expect(indexRow).to.exist;
     }
   });
@@ -159,5 +162,36 @@ describe('RegularIndexesDrawerTable Component', function () {
 
     expect(screen.getByTestId('indexes-row-album_id_artist_id')).to.exist;
     expect(() => screen.getByTestId('indexes-row-_id_')).to.throw();
+  });
+
+  context('name truncation', function () {
+    it('truncates names longer than 8 characters', function () {
+      const longNameIndex = mockRegularIndex({
+        name: 'a_long_index_name',
+      });
+      renderIndexList({ indexes: [longNameIndex] }, { isWritable: true });
+
+      expect(screen.getByText('a_long_i…')).to.exist;
+    });
+
+    it('does not truncate names with 8 or fewer characters', function () {
+      const shortNameIndex = mockRegularIndex({ name: 'short' });
+      renderIndexList({ indexes: [shortNameIndex] }, { isWritable: true });
+
+      expect(screen.getByText('short')).to.exist;
+    });
+  });
+
+  context('type rendering', function () {
+    it('renders type without badge styling', function () {
+      renderIndexList({ indexes }, { isWritable: true });
+
+      const indexRow = screen.getByTestId('indexes-row-_id_');
+      const typeField = within(indexRow).getByTestId('indexes-type-field');
+      expect(typeField).to.exist;
+      expect(typeField.textContent).to.include('hashed');
+      // noBadge renders without the Badge component
+      expect(typeField.querySelector('[class*="badge"]')).to.not.exist;
+    });
   });
 });

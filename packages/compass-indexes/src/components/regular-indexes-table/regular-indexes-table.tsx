@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
@@ -24,7 +24,9 @@ import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import { useRegularIndexesTable } from './use-regular-indexes-table';
+import type { MergedIndex } from './use-regular-indexes-table';
 import { COLUMNS, COLUMNS_WITH_ACTIONS } from './regular-indexes-columns';
+import TypeField from './type-field';
 
 type RegularIndexesTableProps = {
   indexes: RegularIndex[];
@@ -79,10 +81,24 @@ export const RegularIndexesTable: React.FunctionComponent<
     };
   }, [tabId, onRegularIndexesOpened, onRegularIndexesClosed]);
 
+  const renderName = useCallback((name: string) => name, []);
+
+  const renderType = useCallback((index: MergedIndex) => {
+    if (index.compassIndexType === 'in-progress-index') {
+      return <TypeField type="unknown" />;
+    }
+    if (index.compassIndexType === 'rolling-index') {
+      return <TypeField type={index.indexType.label as RegularIndex['type']} />;
+    }
+    return <TypeField type={index.type} extra={index.extra} />;
+  }, []);
+
   const { data } = useRegularIndexesTable({
     indexes,
     inProgressIndexes,
     rollingIndexes,
+    renderName,
+    renderType,
     serverVersion,
     onHideIndexClick,
     onUnhideIndexClick,

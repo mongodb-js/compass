@@ -12,11 +12,9 @@ import {
 } from '@mongodb-js/compass-components';
 import type { LGTableDataType } from '@mongodb-js/compass-components';
 
-import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
-
 export type SearchIndexInfo = {
   id: string;
-  name: string;
+  name: React.ReactNode;
   indexInfo: SearchIndex;
   status: React.ReactNode;
   type: React.ReactNode;
@@ -46,16 +44,6 @@ export function IndexStatus({
       {status}
     </Badge>
   );
-}
-
-export function SearchIndexType({
-  type,
-  link,
-}: {
-  type: string;
-  link: string;
-}) {
-  return <BadgeWithIconLink text={type} link={link} />;
 }
 
 const searchIndexFieldStyles = css({
@@ -171,12 +159,12 @@ export function getIndexFields(
 
 export type UseSearchIndexesTableProps = {
   indexes: SearchIndex[];
+  renderName: (name: string) => React.ReactNode;
+  renderType: (index: SearchIndex) => React.ReactNode;
   renderActions: (
     index: SearchIndex,
     isVectorSearchIndex: boolean
   ) => React.ReactNode;
-  // Use "Vector" for drawer, "Vector Search" for tab
-  vectorTypeLabel?: 'Vector' | 'Vector Search';
   // Override the default expanded content renderer
   renderExpandedContentOverride?: (
     index: SearchIndex,
@@ -190,8 +178,9 @@ export type UseSearchIndexesTableProps = {
  */
 export function useSearchIndexesTable({
   indexes,
+  renderName,
+  renderType,
   renderActions,
-  vectorTypeLabel = 'Vector Search',
   renderExpandedContentOverride,
 }: UseSearchIndexesTableProps) {
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
@@ -201,23 +190,14 @@ export function useSearchIndexesTable({
 
         return {
           id: index.name,
-          name: index.name,
+          name: renderName(index.name),
           status: (
             <IndexStatus
               status={index.status}
               data-testid={`search-indexes-status-${index.name}`}
             />
           ),
-          type: (
-            <SearchIndexType
-              type={isVectorSearchIndex ? vectorTypeLabel : 'Search'}
-              link={
-                isVectorSearchIndex
-                  ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/'
-                  : 'https://www.mongodb.com/docs/atlas/atlas-search/create-index/'
-              }
-            />
-          ),
+          type: renderType(index),
           indexInfo: index,
           isVectorSearchIndex,
           actions: renderActions(index, isVectorSearchIndex),
@@ -239,7 +219,13 @@ export function useSearchIndexesTable({
               ),
         };
       }),
-    [indexes, vectorTypeLabel, renderExpandedContentOverride, renderActions]
+    [
+      indexes,
+      renderName,
+      renderType,
+      renderExpandedContentOverride,
+      renderActions,
+    ]
   );
 
   return { data };

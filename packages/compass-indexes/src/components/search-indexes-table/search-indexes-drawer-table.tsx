@@ -5,6 +5,7 @@ import {
   css,
   DropdownMenuButton,
   EmptyContent,
+  InlineDefinition,
   Link,
 } from '@mongodb-js/compass-components';
 
@@ -167,6 +168,25 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     [onCreateSearchIndexClick, track]
   );
 
+  const renderName = useCallback((name: string) => {
+    if (name.length > 10) {
+      return (
+        <InlineDefinition definition={name}>{`${name.slice(
+          0,
+          10
+        )}…`}</InlineDefinition>
+      );
+    }
+
+    return name;
+  }, []);
+
+  const renderType = useCallback(
+    (index: SearchIndex) =>
+      index.type === 'vectorSearch' ? 'Vector' : 'Search',
+    []
+  );
+
   const renderActions = useCallback(
     (index: SearchIndex) => {
       return (
@@ -204,7 +224,8 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
 
   const { data: allData } = useSearchIndexesTable({
     indexes,
-    vectorTypeLabel: 'Vector',
+    renderName,
+    renderType,
     renderActions,
     renderExpandedContentOverride,
   });
@@ -214,7 +235,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     if (!searchTerm) {
       return allData;
     }
-    return allData.filter((item) => item.name.includes(searchTerm));
+    return allData.filter((item) => item.id.includes(searchTerm));
   }, [allData, searchTerm]);
 
   if (!isReadyStatus(status)) {

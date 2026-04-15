@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
 import { usePreferences } from 'compass-preferences-model/provider';
 
@@ -21,11 +21,18 @@ import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import { useRegularIndexesTable } from './use-regular-indexes-table';
+import type { MergedIndex } from './use-regular-indexes-table';
+import TypeField from './type-field';
 import {
   COLUMNS_FOR_DRAWER,
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './regular-indexes-columns';
-import { Button, css, EmptyContent } from '@mongodb-js/compass-components';
+import {
+  Button,
+  css,
+  EmptyContent,
+  InlineDefinition,
+} from '@mongodb-js/compass-components';
 import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
 import { createIndexOpened } from '../../modules/create-index';
 
@@ -118,10 +125,40 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     shallowEqual
   );
 
+  const renderName = useCallback((name: string) => {
+    if (name.length > 8) {
+      return (
+        <InlineDefinition definition={name}>{`${name.slice(
+          0,
+          8
+        )}…`}</InlineDefinition>
+      );
+    }
+
+    return name;
+  }, []);
+
+  const renderType = useCallback((index: MergedIndex) => {
+    if (index.compassIndexType === 'in-progress-index') {
+      return <TypeField type="unknown" noBadge />;
+    }
+    if (index.compassIndexType === 'rolling-index') {
+      return (
+        <TypeField
+          type={index.indexType.label as RegularIndex['type']}
+          noBadge
+        />
+      );
+    }
+    return <TypeField type={index.type} extra={index.extra} noBadge />;
+  }, []);
+
   const { data: allData } = useRegularIndexesTable({
     indexes,
     inProgressIndexes,
     rollingIndexes,
+    renderName,
+    renderType,
     serverVersion,
     onHideIndexClick,
     onUnhideIndexClick,
@@ -134,7 +171,7 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     if (!searchTerm) {
       return allData;
     }
-    return allData.filter((item) => item.name.includes(searchTerm));
+    return allData.filter((item) => item.id.includes(searchTerm));
   }, [allData, searchTerm]);
 
   if (error) {

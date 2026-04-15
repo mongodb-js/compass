@@ -1,9 +1,26 @@
 import React from 'react';
 import getIndexHelpLink from '../../utils/index-link-helper';
-import { Tooltip, Body } from '@mongodb-js/compass-components';
+import {
+  Tooltip,
+  Body,
+  Link,
+  Icon,
+  css,
+  palette,
+  spacing,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 
 import type { RegularIndex } from '../../modules/regular-indexes';
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
+
+const typeFieldStyles = css({
+  display: 'flex',
+  textTransform: 'capitalize',
+  alignItems: 'center',
+  gap: spacing[50],
+  minWidth: spacing[1800],
+});
 
 export const canRenderTooltip = (type: string) => {
   return ['text', 'wildcard', 'columnstore'].indexOf(type ?? '') !== -1;
@@ -15,6 +32,7 @@ type TypeFieldProps = {
   type: RegularIndex['type'] | 'unknown';
   // in-progress and rolling indexes don't have extra
   extra?: RegularIndex['extra'];
+  noBadge?: boolean;
 };
 
 export const IndexTypeTooltip: React.FunctionComponent<{
@@ -39,8 +57,10 @@ export const IndexTypeTooltip: React.FunctionComponent<{
 const TypeField: React.FunctionComponent<TypeFieldProps> = ({
   type,
   extra,
+  noBadge = false,
 }) => {
   const link = getIndexHelpLink(type);
+  const darkMode = useDarkMode();
   return (
     <Tooltip
       enabled={canRenderTooltip(type)}
@@ -49,7 +69,19 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
         ...tooltipTriggerProps
       }: React.HTMLProps<HTMLDivElement>) => (
         <div {...tooltipTriggerProps}>
-          <BadgeWithIconLink text={type ?? 'unknown'} link={link ?? '#'} />
+          {noBadge ? (
+            <div className={typeFieldStyles}>
+              {type ?? 'unknown'}
+              <Link hideExternalIcon href={link ?? '#'}>
+                <Icon
+                  glyph="InfoWithCircle"
+                  fill={darkMode ? palette.gray.light1 : palette.gray.dark1}
+                />
+              </Link>
+            </div>
+          ) : (
+            <BadgeWithIconLink text={type ?? 'unknown'} link={link ?? '#'} />
+          )}
           {tooltipChildren}
         </div>
       )}

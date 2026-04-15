@@ -33,6 +33,7 @@ import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compati
 
 import { useSearchIndexesTable } from './use-search-indexes-table';
 import { COLUMNS, COLUMNS_WITH_ACTIONS } from './search-indexes-columns';
+import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 type SearchIndexesTableProps = {
   namespace: string;
@@ -153,6 +154,25 @@ export const SearchIndexesTable: React.FunctionComponent<
     shallowEqual
   );
 
+  const renderName = useCallback((name: string) => name, []);
+
+  const renderType = useCallback((index: SearchIndex) => {
+    if (index.type === 'vectorSearch') {
+      return (
+        <BadgeWithIconLink
+          text="Vector Search"
+          link="https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/"
+        />
+      );
+    }
+    return (
+      <BadgeWithIconLink
+        text="Search"
+        link="https://www.mongodb.com/docs/atlas/atlas-search/create-index/"
+      />
+    );
+  }, []);
+
   const renderActions = useCallback(
     (index: SearchIndex, isVectorSearchIndex: boolean) => (
       <SearchIndexActions
@@ -185,7 +205,8 @@ export const SearchIndexesTable: React.FunctionComponent<
 
   const { data } = useSearchIndexesTable({
     indexes,
-    vectorTypeLabel: 'Vector Search',
+    renderName,
+    renderType,
     renderActions,
   });
 
