@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import { Menu, MenuItem } from '@leafygreen-ui/menu';
 import { css, cx } from '@leafygreen-ui/emotion';
@@ -90,9 +90,10 @@ const menuItem = css({
   whiteSpace: 'nowrap',
 });
 
-const AddFieldButton: React.FunctionComponent<{
-  onClick?: (evt: React.MouseEvent<HTMLButtonElement>) => void;
-}> = ({ onClick, ...props }) => {
+const AddFieldButton = forwardRef(function AddFieldButton(
+  { onClick, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>,
+  ref: React.Ref<HTMLButtonElement>
+) {
   return (
     <button
       type="button"
@@ -104,11 +105,12 @@ const AddFieldButton: React.FunctionComponent<{
         onClick?.(evt);
       }}
       {...props}
+      ref={ref}
     >
       +
     </button>
   );
-};
+});
 
 export const AddFieldActions: React.FunctionComponent<{
   type: TypeCastTypes;
@@ -145,11 +147,14 @@ export const AddFieldActions: React.FunctionComponent<{
       trigger={({
         children,
         onClick,
+        ref,
         ...props
-      }: Omit<React.HTMLProps<HTMLButtonElement>, 'type'>) => {
+      }: Omit<React.HTMLProps<HTMLButtonElement>, 'type'> & {
+        ref?: React.Ref<HTMLButtonElement>;
+      }) => {
         return (
           <>
-            <AddFieldButton onClick={onClick} {...props} />
+            <AddFieldButton onClick={onClick} ref={ref} {...props} />
             {children}
           </>
         );
