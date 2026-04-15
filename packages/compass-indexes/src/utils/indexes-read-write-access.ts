@@ -7,12 +7,10 @@ import { selectIsViewSearchCompatible } from './is-view-search-compatible';
  * @returns A selector function that can be used with useSelector
  */
 export function selectReadWriteAccess({
-  isAtlas,
   readOnly,
   readWrite,
   enableAtlasSearchIndexes,
 }: {
-  isAtlas: boolean;
   readOnly: boolean;
   readWrite: boolean;
   enableAtlasSearchIndexes: boolean;
@@ -28,7 +26,7 @@ export function selectReadWriteAccess({
     const { isWritable, isReadonlyView, isSearchIndexesSupported } = state;
 
     const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-      selectIsViewSearchCompatible(isAtlas)(state);
+      selectIsViewSearchCompatible()(state);
 
     const isRegularIndexesReadable = !isReadonlyView;
     const isRegularIndexesWritable =
