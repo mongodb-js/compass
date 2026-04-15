@@ -136,10 +136,9 @@ const PreviewAndDocCountScreen = ({
   };
 
   const handleDocumentCountBlur = () => {
-    const validation = validateDocumentCount(documentCount);
-    if (validation.isValid && validation.parsedValue) {
+    if (validationState.isValid && validationState.parsedValue !== undefined) {
       track('Mock Data Document Count Changed', {
-        document_count: validation.parsedValue,
+        document_count: validationState.parsedValue,
       });
     }
   };
