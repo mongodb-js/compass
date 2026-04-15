@@ -32,7 +32,7 @@ type TypeFieldProps = {
   type: RegularIndex['type'] | 'unknown';
   // in-progress and rolling indexes don't have extra
   extra?: RegularIndex['extra'];
-  noBadge?: boolean;
+  showBadge?: boolean;
 };
 
 export const IndexTypeTooltip: React.FunctionComponent<{
@@ -57,7 +57,7 @@ export const IndexTypeTooltip: React.FunctionComponent<{
 const TypeField: React.FunctionComponent<TypeFieldProps> = ({
   type,
   extra,
-  noBadge = false,
+  showBadge = true,
 }) => {
   const link = getIndexHelpLink(type) ?? '#';
   const darkMode = useDarkMode();
@@ -70,7 +70,9 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
         ...tooltipTriggerProps
       }: React.HTMLProps<HTMLDivElement>) => (
         <div {...tooltipTriggerProps}>
-          {noBadge ? (
+          {showBadge ? (
+            <BadgeWithIconLink text={text} link={link} />
+          ) : (
             <div className={typeFieldStyles}>
               {text}
               <Link hideExternalIcon aria-label={text} href={link}>
@@ -80,8 +82,6 @@ const TypeField: React.FunctionComponent<TypeFieldProps> = ({
                 />
               </Link>
             </div>
-          ) : (
-            <BadgeWithIconLink text={text} link={link} />
           )}
           {tooltipChildren}
         </div>

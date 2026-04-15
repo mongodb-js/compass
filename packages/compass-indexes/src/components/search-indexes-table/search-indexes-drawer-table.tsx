@@ -2,11 +2,13 @@ import React, { useCallback, useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
 import type { SearchIndex } from 'mongodb-data-service';
 import {
+  Body,
   css,
   DropdownMenuButton,
   EmptyContent,
   InlineDefinition,
   Link,
+  spacing,
 } from '@mongodb-js/compass-components';
 
 import { isReadyStatus } from '../../utils/fetch-status';
@@ -26,7 +28,6 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import {
   getIndexFields,
-  searchIndexDetailsForDrawerStyles,
   useSearchIndexesTable,
 } from './use-search-indexes-table';
 import {
@@ -34,6 +35,56 @@ import {
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './search-indexes-columns';
 import { ZeroSearchIndexesGraphic } from '../icons/zero-search-indexes-graphic';
+
+const searchIndexDetailsForDrawerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[100],
+  padding: spacing[200],
+});
+
+function renderNameOverride(name: string): React.ReactNode {
+  if (name.length > 10) {
+    return (
+      <InlineDefinition definition={name}>{`${name.slice(
+        0,
+        10
+      )}…`}</InlineDefinition>
+    );
+  }
+
+  return name;
+}
+
+function renderTypeOverride(index: SearchIndex): React.ReactNode {
+  return index.type === 'vectorSearch' ? 'Vector' : 'Search';
+}
+
+function renderExpandedContentOverride(
+  index: SearchIndex,
+  isVectorSearchIndex: boolean
+): React.JSX.Element {
+  return (
+    <Body className={searchIndexDetailsForDrawerStyles}>
+      <div>
+        <b>Index Name: </b>
+        {index.name}
+      </div>
+      <div>
+        <b>Status: </b>
+        {index.status}
+      </div>
+      <div>
+        <b>Index Fields: </b>
+        {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
+      </div>
+      <div>
+        <b>Queryable: </b>
+        {index.queryable.toString()}
+      </div>
+    </Body>
+  );
+}
 
 const emptyContentStyles = css({
   marginTop: 0,
@@ -168,25 +219,6 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     [onCreateSearchIndexClick, track]
   );
 
-  const renderNameOverride = useCallback((name: string) => {
-    if (name.length > 10) {
-      return (
-        <InlineDefinition definition={name}>{`${name.slice(
-          0,
-          10
-        )}…`}</InlineDefinition>
-      );
-    }
-
-    return name;
-  }, []);
-
-  const renderTypeOverride = useCallback(
-    (index: SearchIndex) =>
-      index.type === 'vectorSearch' ? 'Vector' : 'Search',
-    []
-  );
-
   const renderActions = useCallback(
     (index: SearchIndex) => {
       return (
@@ -200,26 +232,6 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
       );
     },
     [onDropIndexClick, onEditIndexClick]
-  );
-
-  const renderExpandedContentOverride = useCallback(
-    (index: SearchIndex, isVectorSearchIndex: boolean) => (
-      <div className={searchIndexDetailsForDrawerStyles}>
-        <div>
-          <b>Status: </b>
-          {index.status}
-        </div>
-        <div>
-          <b>Index Fields: </b>
-          {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
-        </div>
-        <div>
-          <b>Queryable: </b>
-          {index.queryable.toString()}
-        </div>
-      </div>
-    ),
-    []
   );
 
   const { data: allData } = useSearchIndexesTable({

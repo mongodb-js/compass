@@ -44,7 +44,7 @@ export type IndexInfo = {
   renderExpandedContent: React.ReactNode;
 };
 
-type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;
+export type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;
 
 /**
  * Determines the display status for a regular index based on its build progress.
@@ -266,6 +266,10 @@ export type UseRegularIndexesTableProps = {
   onDeleteFailedIndexClick: (name: string) => void;
   renderNameOverride?: (name: string) => React.ReactNode;
   renderTypeOverride?: (index: MergedIndex) => React.ReactNode;
+  renderExpandedContentOverride?: (
+    index: MergedIndex,
+    indexData: CommonIndexInfo
+  ) => React.JSX.Element;
 };
 
 export function useRegularIndexesTable({
@@ -279,6 +283,7 @@ export function useRegularIndexesTable({
   onDeleteFailedIndexClick,
   renderNameOverride,
   renderTypeOverride,
+  renderExpandedContentOverride,
 }: UseRegularIndexesTableProps) {
   const allIndexes: MergedIndex[] = mergeIndexes(
     indexes,
@@ -314,20 +319,21 @@ export function useRegularIndexesTable({
 
         return {
           ...indexData,
-          renderExpandedContent() {
-            return (
-              <IndexKeysBadge
-                keys={index.fields}
-                data-testid={`indexes-details-${indexData.name}`}
-              />
-            );
-          },
+          renderExpandedContent: renderExpandedContentOverride
+            ? () => renderExpandedContentOverride(index, indexData)
+            : () => (
+                <IndexKeysBadge
+                  keys={index.fields}
+                  data-testid={`indexes-details-${indexData.name}`}
+                />
+              ),
         };
       }),
     [
       allIndexes,
       renderNameOverride,
       renderTypeOverride,
+      renderExpandedContentOverride,
       onDeleteIndexClick,
       onDeleteFailedIndexClick,
       onHideIndexClick,

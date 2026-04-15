@@ -7,7 +7,6 @@ import {
   Disclaimer,
   Tooltip,
   css,
-  palette,
   spacing,
 } from '@mongodb-js/compass-components';
 import type { LGTableDataType } from '@mongodb-js/compass-components';
@@ -59,14 +58,6 @@ export const searchIndexDetailsStyles = css({
   gap: spacing[100],
   marginBottom: spacing[200],
   padding: `0px ${spacing[1600]}px`,
-});
-
-export const searchIndexDetailsForDrawerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[100],
-  padding: spacing[200],
-  color: palette.gray.dark1,
 });
 
 export function VectorSearchIndexDetails({
