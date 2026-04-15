@@ -3,6 +3,7 @@ import { useId } from '@react-aria/utils';
 import { css } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Button, Icon, Label, Option, Select } from '../components/leafygreen';
+import { useEffectOnChange } from './use-effect-on-change';
 
 const controlsContainer = css({
   display: 'flex',
@@ -31,8 +32,10 @@ type SortAction<T> =
   | { type: 'change-name'; name: T | null }
   | { type: 'change-order' };
 
-type SortOptions = {
+type SortOptions<T> = {
   isDisabled?: boolean;
+  initialState?: SortState<T>;
+  onChange?: (state: SortState<T>) => void;
 };
 
 type Unwrap<T extends ArrayLike<unknown>> = T extends ArrayLike<infer V>
@@ -41,7 +44,7 @@ type Unwrap<T extends ArrayLike<unknown>> = T extends ArrayLike<infer V>
 
 export function useSortControls<T extends string>(
   items: readonly { name: T; label: string }[],
-  options?: SortOptions
+  options?: SortOptions<T>
 ): [React.ReactElement, SortState<Unwrap<typeof items>['name']>] {
   const labelId = 'sort-by';
   const controlId = useId();
@@ -62,8 +65,14 @@ export function useSortControls<T extends string>(
       }
       return state;
     },
-    { name: items[0]?.name ?? null, order: 1 }
+    options?.initialState ?? { name: items[0]?.name ?? null, order: 1 }
   );
+
+  // The sort controls are self contained, however, consumers
+  // may want to persist the sort state or react to changes.
+  useEffectOnChange(() => {
+    options?.onChange?.(sortState);
+  }, sortState);
 
   const sortControls = useMemo(() => {
     const glyph =

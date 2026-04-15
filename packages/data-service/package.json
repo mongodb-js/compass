@@ -62,7 +62,7 @@
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.1",
     "mongodb-log-writer": "^2.4.4",
-    "mongodb-ns": "^3.0.1"
+    "mongodb-ns": "^3.1.0"
   },
   "devDependencies": {
     "@mongodb-js/compass-test-server": "^0.4.4",

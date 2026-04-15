@@ -69,14 +69,14 @@ const ZeroState: React.FunctionComponent<ZeroStateProps> = ({
         <span>
           Define a{' '}
           <Link
-            // TODO(COMPASS-10427): add url
+            href="https://www.mongodb.com/docs/atlas/atlas-search/manage-indexes/"
             target="_blank"
           >
             search
           </Link>{' '}
           or{' '}
           <Link
-            // TODO(COMPASS-10427): add url
+            href="https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-type/"
             target="_blank"
           >
             vector search index
