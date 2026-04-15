@@ -183,6 +183,19 @@ const config = {
     assistantApiBaseUrl: 'https://knowledge-staging.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud-stage.mongodb.com/ui/userData',
   },
+  'atlas-internal': {
+    ccsBaseUrl: '',
+    // multiplexedWsBaseUrls: ['wss://cloud-internal.mongodb.com/ccs'],
+    cloudBaseUrl: '',
+    atlasApiBaseUrl: 'https://cloud-internal.mongodb.com/api/private',
+    atlasLogin: {
+      clientId: '',
+      issuer: '',
+    },
+    authPortalUrl: '',
+    assistantApiBaseUrl: '',
+    userDataBaseUrl: '',
+  },
   atlas: {
     ccsBaseUrl: '',
     cloudBaseUrl: '',

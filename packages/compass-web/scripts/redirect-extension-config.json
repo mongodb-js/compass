@@ -62,6 +62,21 @@
       "encoding": "utf-8"
     },
     {
+      "enable": true,
+      "group": "compass-web",
+      "ruleType": "redirect",
+      "isFunction": false,
+      "code": "",
+      "forceRunner": "auto",
+      "name": "cloud-internal: compass-web localhost",
+      "to": "http://localhost:7777/compass-web.mjs",
+      "condition": {
+        "regex": "https://downloads\\.mongodb\\.com/compass/compass-web/prod/index.mjs",
+        "resourceTypes": ["script"]
+      },
+      "encoding": "utf-8"
+    },
+    {
       "enable": false,
       "group": "mms",
       "ruleType": "redirect",
