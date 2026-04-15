@@ -191,7 +191,7 @@ describe('indexes-read-write-access', function () {
           const result = getSelectReadWriteAccessResult(
             {
               isReadonly: true,
-              serverVersion: '7.0.0',
+              serverVersion: '8.1.0',
             },
             { readOnly: true }
           );

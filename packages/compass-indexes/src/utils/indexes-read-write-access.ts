@@ -3,7 +3,7 @@ import { selectIsViewSearchCompatible } from './is-view-search-compatible';
 
 /**
  * Selector function that returns read/write access information for indexes.
- * @param params - Parameters from useConnectionInfo and usePreferences
+ * @param params - Parameters from usePreferences
  * @returns A selector function that can be used with useSelector
  */
 export function selectReadWriteAccess({
