@@ -374,4 +374,71 @@ describe('HadronElement', function () {
       expect(result).to.equal('emptyObj');
     });
   });
+
+  describe('add field button', function () {
+    it('runs the only add-field action on a single click when the menu would have one item', function () {
+      const doc = new HadronDocument({ _id: 'id1', name: 'Jane' });
+      const idElement = doc.get('_id')!;
+      const onAddElement = sinon.spy();
+
+      render(
+        <HadronElement
+          value={idElement}
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={onAddElement}
+        />
+      );
+
+      userEvent.click(screen.getByTestId('hadron-document-add-element'));
+
+      expect(onAddElement).to.have.been.calledOnce;
+      expect(screen.queryByTestId('hadron-document-add-sibling')).to.not.exist;
+    });
+
+    it('opens the add-field menu when both add-to-field and add-after are available', function () {
+      const doc = new HadronDocument({ nested: { inner: 'v' } });
+      const nestedElement = doc.get('nested')!;
+      const onAddElement = sinon.spy();
+
+      render(
+        <HadronElement
+          value={nestedElement}
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={onAddElement}
+        />
+      );
+
+      userEvent.click(screen.getByTestId('hadron-document-add-element'));
+
+      expect(onAddElement).to.not.have.been.called;
+      expect(screen.getByTestId('hadron-document-add-child')).to.exist;
+      expect(screen.getByTestId('hadron-document-add-sibling')).to.exist;
+    });
+
+    it('opens the add-field menu for array elements with two actions', function () {
+      const doc = new HadronDocument({ items: [1, 2] });
+      const itemsElement = doc.get('items')!;
+      const onAddElement = sinon.spy();
+
+      render(
+        <HadronElement
+          value={itemsElement}
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={onAddElement}
+        />
+      );
+
+      userEvent.click(screen.getByTestId('hadron-document-add-element'));
+
+      expect(onAddElement).to.not.have.been.called;
+      expect(screen.getByTestId('hadron-document-add-child')).to.exist;
+      expect(screen.getByTestId('hadron-document-add-sibling')).to.exist;
+    });
+  });
 });

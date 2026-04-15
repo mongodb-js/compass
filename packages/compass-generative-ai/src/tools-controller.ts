@@ -8,6 +8,8 @@ import {
   UserConfigSchema,
 } from 'mongodb-mcp-server';
 import type {
+  DefaultMetrics,
+  Metrics,
   Server,
   TransportRunnerConfig,
   UserConfig,
@@ -30,6 +32,22 @@ type CompassContext = {
 type ToolsContext = CompassContext & {
   connections: ToolsConnectParams[];
 };
+
+class NoopDefaultMetrics {
+  observe(): void {
+    // no-op
+  }
+}
+
+class NoopMetrics implements Metrics<DefaultMetrics> {
+  constructor() {}
+  get<K extends keyof DefaultMetrics>(_key: K): DefaultMetrics[K] {
+    return new NoopDefaultMetrics() as unknown as DefaultMetrics[K];
+  }
+  getMetrics(): Promise<string> {
+    return Promise.resolve('');
+  }
+}
 
 /**
  * In-memory MCP runner that doesn't bind to any external transport.
@@ -92,6 +110,7 @@ export class ToolsController {
       telemetryProperties: {
         hosting_mode: 'compass',
       },
+      metrics: new NoopMetrics(),
     });
 
     this.connectionManager = new ToolsConnectionManager({
