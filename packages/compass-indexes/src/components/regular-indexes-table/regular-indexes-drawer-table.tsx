@@ -20,10 +20,8 @@ import type {
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
-import {
-  CommonIndexInfo,
-  useRegularIndexesTable,
-} from './use-regular-indexes-table';
+import { useRegularIndexesTable } from './use-regular-indexes-table';
+import type { CommonIndexInfo } from './use-regular-indexes-table';
 import type { MergedIndex } from './use-regular-indexes-table';
 import TypeField from './type-field';
 import {
