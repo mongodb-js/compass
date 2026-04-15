@@ -58,7 +58,7 @@
     "bson-transpilers": "^3.3.3",
     "compass-preferences-model": "^2.75.0",
     "@mongodb-js/compass-app-registry": "^9.10.0",
-    "mongodb-ns": "^3.0.1",
+    "mongodb-ns": "^3.1.0",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
     "redux": "^4.2.1"

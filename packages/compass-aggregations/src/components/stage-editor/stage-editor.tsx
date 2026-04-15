@@ -237,15 +237,17 @@ export const StageEditor = ({
         </Banner>
       )}
       {serverError && !isServerErrorUpstream && (
-        <ServerErrorBanner
-          message={serverError.message}
-          searchIndexName={searchIndexName}
-          dataTestId="stage-editor-error-message"
-          // Don't show link when in focus mode as modal covers the drawer
-          onEditSearchIndexClick={
-            editor_view_type !== 'focus' ? onEditSearchIndexClick : undefined
-          }
-        />
+        <div className={bannerStyles}>
+          <ServerErrorBanner
+            message={serverError.message}
+            searchIndexName={searchIndexName}
+            dataTestId="stage-editor-error-message"
+            // Don't show link when in focus mode as modal covers the drawer
+            onEditSearchIndexClick={
+              editor_view_type !== 'focus' ? onEditSearchIndexClick : undefined
+            }
+          />
+        </div>
       )}
       {isServerErrorUpstream && (
         <Banner
