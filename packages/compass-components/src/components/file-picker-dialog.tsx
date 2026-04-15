@@ -300,7 +300,7 @@ export function createElectronFileInputBackend<ElectronWindow>(
             for (const listener of listeners) listener(files);
           })
           .catch(() => {
-            /* ignore */
+            for (const listener of listeners) listener([]);
           });
       },
       onFilesChosen(listener) {

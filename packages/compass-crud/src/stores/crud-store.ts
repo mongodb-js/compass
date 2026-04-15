@@ -1266,10 +1266,12 @@ class CrudStoreImpl
    * Open an import file dialog from compass-import-export-plugin.
    * Emits a global app registry event the plugin listens to.
    */
-  openImportFileDialog() {
+  openImportFileDialog(
+    origin: 'empty-state' | 'crud-toolbar' = 'empty-state'
+  ) {
     this.connectionScopedAppRegistry.emit('open-import', {
       namespace: this.state.ns,
-      origin: 'empty-state',
+      origin,
     });
   }
 
