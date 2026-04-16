@@ -254,9 +254,7 @@ function hasConnectionId(obj: unknown): obj is { connectionId: string } {
 
 // Redux store types
 
-export type AssistantState = {
-  projectId: string | undefined;
-};
+export type AssistantState = Record<string, never>;
 
 type AssistantExtraArgs = {
   chat: Chat<AssistantMessage>;
@@ -515,7 +513,6 @@ function activateAssistantPlugin(
     chat: initialChat,
     originForPrompt,
     appNameForPrompt,
-    projectId,
   }: {
     chat?: Chat<AssistantMessage>;
     originForPrompt: string;
@@ -554,7 +551,7 @@ function activateAssistantPlugin(
 
   const store = createStore(
     reducer,
-    { projectId },
+    {},
     applyMiddleware(
       thunk.withExtraArgument({
         chat,
@@ -576,7 +573,7 @@ function getChat(): AssistantThunkAction<Chat<AssistantMessage>> {
   return (_dispatch, _getState, { chat }) => chat;
 }
 
-// Connected AssistantProvider component — reads projectId from Redux store
+// Connected AssistantProvider component
 const AssistantProviderInner: React.FunctionComponent<
   PropsWithChildren<{
     projectId?: string;
@@ -648,15 +645,14 @@ const AssistantProviderInner: React.FunctionComponent<
   );
 };
 
-const ConnectedAssistantProvider = connect((state: AssistantState) => ({
-  projectId: state.projectId,
-}))(AssistantProviderInner);
+const ConnectedAssistantProvider = connect()(AssistantProviderInner);
 
 export const CompassAssistantProvider = registerCompassPlugin(
   {
     name: 'CompassAssistant',
     component: function CompassAssistantComponent({
       children,
+      projectId,
     }: PropsWithChildren<{
       appNameForPrompt: string;
       originForPrompt: string;
@@ -665,7 +661,9 @@ export const CompassAssistantProvider = registerCompassPlugin(
     }>) {
       return (
         <AssistantGlobalStateProvider>
-          <ConnectedAssistantProvider>{children}</ConnectedAssistantProvider>
+          <ConnectedAssistantProvider projectId={projectId}>
+            {children}
+          </ConnectedAssistantProvider>
         </AssistantGlobalStateProvider>
       );
     },
