@@ -33,6 +33,9 @@ export type State = {
   currentIndexType: SearchIndexType;
   currentIndexName: string;
   focusedIndexName: string;
+  // Incremented on every OPEN_INDEXES_LIST_DRAWER_VIEW dispatch so that
+  // re-focusing the same index consecutively still triggers a state change and
+  // re-renders the UI.
   focusedIndexVersion: number;
   isDirty: boolean;
 };
