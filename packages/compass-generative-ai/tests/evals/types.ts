@@ -41,47 +41,38 @@ export interface EvalCriterion {
   methods: Array<string>;
 }
 
-export const DatelikeMethodCriterion: EvalCriterion =
-  (function DatelikeMethodCriterion() {
-    const DATELIKE_METHODS = new Set<string>([
-      'date.anytime',
-      'date.past',
-      'date.recent',
-      'date.soon',
-      'date.future',
-      'date.between',
-    ]);
+const DATELIKE_METHODS = new Set<string>([
+  'date.anytime',
+  'date.past',
+  'date.recent',
+  'date.soon',
+  'date.future',
+  'date.between',
+]);
 
-    return {
-      name: 'DatelikeMethodCriterion' as const,
-      satisfiedBy(method: string): boolean {
-        if (typeof method !== 'string') {
-          return false;
-        }
-        return DATELIKE_METHODS.has(method);
-      },
-      methods: Array.from(DATELIKE_METHODS),
-    };
-  })();
+export const DatelikeMethodCriterion: EvalCriterion = {
+  name: 'DatelikeMethodCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return DATELIKE_METHODS.has(method);
+  },
+  methods: Array.from(DATELIKE_METHODS),
+};
 
-export const IdlikeMethodCriterion: EvalCriterion =
-  (function IdlikeMethodCriterion() {
-    const IDLIKE_METHODS = new Set<string>([
-      'string.alphanumeric',
-      'string.uuid',
-    ]);
+const IDLIKE_METHODS = new Set<string>(['string.alphanumeric', 'string.uuid']);
 
-    return {
-      name: 'IdlikeMethodCriterion' as const,
-      satisfiedBy(method: string): boolean {
-        if (typeof method !== 'string') {
-          return false;
-        }
-        return IDLIKE_METHODS.has(method);
-      },
-      methods: Array.from(IDLIKE_METHODS),
-    };
-  })();
+export const IdlikeMethodCriterion: EvalCriterion = {
+  name: 'IdlikeMethodCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return IDLIKE_METHODS.has(method);
+  },
+  methods: Array.from(IDLIKE_METHODS),
+};
 
 export const isEvalCriterion = (method: unknown): method is EvalCriterion => {
   return (
