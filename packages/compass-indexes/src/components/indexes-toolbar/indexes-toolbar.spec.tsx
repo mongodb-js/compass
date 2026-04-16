@@ -134,7 +134,7 @@ describe('IndexesToolbar Component', function () {
         expect(screen.queryByText('Create Index')).to.not.exist;
       });
 
-      it('should render the create search index button <8.1', function () {
+      it('should render the create search index button', function () {
         expect(screen.getByText('Create Search Index')).to.be.visible;
       });
 

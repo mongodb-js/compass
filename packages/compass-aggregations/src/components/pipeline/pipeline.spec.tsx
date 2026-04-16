@@ -5,8 +5,6 @@ import {
   createPluginTestHelpers,
 } from '@mongodb-js/testing-library-compass';
 import sinon from 'sinon';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
-
 import Pipeline from './pipeline';
 import type { PipelineProps } from './pipeline';
 import { CompassAggregationsPlugin } from '../../index';
@@ -83,36 +81,10 @@ const createMockPipelineProps = (
   ...overrides,
 });
 
-// Non-Atlas connection (no atlasMetadata)
-const mockNonAtlasConnectionInfo: ConnectionInfo = {
-  id: 'TEST-NON-ATLAS',
+const mockConnectionInfo = {
+  id: 'TEST',
   connectionOptions: {
     connectionString: 'mongodb://localhost:27020',
-  },
-};
-
-// Atlas connection (with atlasMetadata)
-const mockAtlasConnectionInfo: ConnectionInfo = {
-  id: 'TEST-ATLAS',
-  connectionOptions: {
-    connectionString: 'mongodb+srv://cluster.mongodb.net',
-  },
-  atlasMetadata: {
-    orgId: 'testOrg',
-    projectId: 'testProject',
-    clusterName: 'testCluster',
-    clusterUniqueId: 'testClusterUniqueId',
-    clusterType: 'REPLICASET',
-    clusterState: 'IDLE',
-    metricsId: 'testMetricsId',
-    metricsType: 'replicaSet',
-    regionalBaseUrl: null,
-    instanceSize: 'M10',
-    supports: {
-      globalWrites: false,
-      rollingIndexes: true,
-    },
-    userConnectionString: 'mongodb+srv://cluster.mongodb.net',
   },
 };
 
@@ -142,7 +114,7 @@ describe('Pipeline search indexes polling', function () {
             stopPollingSearchIndexes: stopPollingStub,
           })}
         />,
-        mockNonAtlasConnectionInfo,
+        mockConnectionInfo,
         { connectFn: () => mockDataService() }
       );
 
@@ -164,7 +136,7 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo,
+          mockConnectionInfo,
           { connectFn: () => mockDataService() }
         );
 
@@ -185,7 +157,7 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo,
+          mockConnectionInfo,
           { connectFn: () => mockDataService() }
         );
 
@@ -204,7 +176,7 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo,
+          mockConnectionInfo,
           { connectFn: () => mockDataService() }
         );
 
@@ -214,8 +186,8 @@ describe('Pipeline search indexes polling', function () {
     });
   });
 
-  describe('when readonly view with non-Atlas connection', function () {
-    // Non-Atlas (Compass) requires server version >= 8.1.0 for view search compatibility
+  describe('when readonly view', function () {
+    // Requires server version >= 8.1.0 for view search compatibility
 
     describe('when server version < 8.1.0 (not compatible)', function () {
       it('does not poll when hasSearchStage is true and serverVersion is 7.0.0', async function () {
@@ -230,7 +202,7 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo,
+          mockConnectionInfo,
           { connectFn: () => mockDataService() }
         );
 
@@ -250,7 +222,7 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo,
+          mockConnectionInfo,
           { connectFn: () => mockDataService() }
         );
 
@@ -272,7 +244,7 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo,
+          mockConnectionInfo,
           { connectFn: () => mockDataService() }
         );
 
@@ -292,95 +264,7 @@ describe('Pipeline search indexes polling', function () {
               stopPollingSearchIndexes: stopPollingStub,
             })}
           />,
-          mockNonAtlasConnectionInfo,
-          { connectFn: () => mockDataService() }
-        );
-
-        expect(startPollingStub.called).to.equal(false);
-        expect(stopPollingStub.calledOnce).to.equal(true);
-      });
-    });
-  });
-
-  describe('when readonly view with Atlas connection', function () {
-    // Atlas (Data Explorer) requires server version >= 8.0.0 for view search compatibility
-
-    describe('when server version < 8.0.0 (not compatible)', function () {
-      it('does not poll when hasSearchStage is true and serverVersion is 7.0.0', async function () {
-        await renderWithActiveConnection(
-          <Pipeline
-            {...createMockPipelineProps({
-              isReadonlyView: true,
-              hasSearchStage: true,
-              serverVersion: '7.0.0',
-              isSearchIndexesSupported: true,
-              startPollingSearchIndexes: startPollingStub,
-              stopPollingSearchIndexes: stopPollingStub,
-            })}
-          />,
-          mockAtlasConnectionInfo,
-          { connectFn: () => mockDataService() }
-        );
-
-        expect(startPollingStub.called).to.equal(false);
-        expect(stopPollingStub.called).to.equal(false);
-      });
-    });
-
-    describe('when server version >= 8.0.0 (compatible)', function () {
-      it('calls startPollingSearchIndexes when hasSearchStage is true and serverVersion is 8.0.0', async function () {
-        await renderWithActiveConnection(
-          <Pipeline
-            {...createMockPipelineProps({
-              isReadonlyView: true,
-              hasSearchStage: true,
-              serverVersion: '8.0.0',
-              isSearchIndexesSupported: true,
-              startPollingSearchIndexes: startPollingStub,
-              stopPollingSearchIndexes: stopPollingStub,
-            })}
-          />,
-          mockAtlasConnectionInfo,
-          { connectFn: () => mockDataService() }
-        );
-
-        expect(startPollingStub.calledOnce).to.equal(true);
-        expect(stopPollingStub.called).to.equal(false);
-      });
-
-      it('calls startPollingSearchIndexes when hasSearchStage is true and serverVersion is 8.1.0', async function () {
-        await renderWithActiveConnection(
-          <Pipeline
-            {...createMockPipelineProps({
-              isReadonlyView: true,
-              hasSearchStage: true,
-              serverVersion: '8.1.0',
-              isSearchIndexesSupported: true,
-              startPollingSearchIndexes: startPollingStub,
-              stopPollingSearchIndexes: stopPollingStub,
-            })}
-          />,
-          mockAtlasConnectionInfo,
-          { connectFn: () => mockDataService() }
-        );
-
-        expect(startPollingStub.calledOnce).to.equal(true);
-        expect(stopPollingStub.called).to.equal(false);
-      });
-
-      it('calls stopPollingSearchIndexes when hasSearchStage is false', async function () {
-        await renderWithActiveConnection(
-          <Pipeline
-            {...createMockPipelineProps({
-              isReadonlyView: true,
-              hasSearchStage: false,
-              serverVersion: '8.0.0',
-              isSearchIndexesSupported: true,
-              startPollingSearchIndexes: startPollingStub,
-              stopPollingSearchIndexes: stopPollingStub,
-            })}
-          />,
-          mockAtlasConnectionInfo,
+          mockConnectionInfo,
           { connectFn: () => mockDataService() }
         );
 

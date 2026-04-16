@@ -170,18 +170,15 @@ export function Indexes({
       ? refreshRegularIndexes
       : refreshSearchIndexes;
 
-  const { atlasMetadata } = useConnectionInfo();
-  const isAtlas = !!atlasMetadata;
   const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
   ]);
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-    useSelector(selectIsViewSearchCompatible(isAtlas), shallowEqual);
+    useSelector(selectIsViewSearchCompatible, shallowEqual);
   const { isRegularIndexesReadable, isSearchIndexesReadable } = useSelector(
     selectReadWriteAccess({
-      isAtlas,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,

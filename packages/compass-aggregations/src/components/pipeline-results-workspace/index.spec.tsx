@@ -21,6 +21,8 @@ const renderPipelineResultsWorkspace = (
       onRetry={() => {}}
       onCancel={() => {}}
       resultsViewType={'document'}
+      serverVersion="8.0.0"
+      pipelineText="[{$match: {}}]"
       {...props}
     />
   );
@@ -80,6 +82,38 @@ describe('PipelineResultsWorkspace', function () {
       skipPointerEventsCheck: true,
     });
     expect(onRetry).to.be.calledOnce;
+  });
+
+  it('renders cta to enable for rerank not enabled error', async function () {
+    await renderPipelineResultsWorkspace({
+      isError: true,
+      error: {
+        message:
+          'MMS API error: MmsApiError(HttpError { status: 400, message: "{\\"error\\":\\"$rerank is not enabled for demo. Enable the $rerank Project Setting to run this pipeline.\\"}" })',
+      },
+    });
+    expect(screen.getByText('Native reranking not enabled')).to.exist;
+    expect(screen.getByText('Enable native reranking in project settings.')).to
+      .exist;
+    expect(screen.queryByText('RETRY')).to.not.exist;
+  });
+
+  it('renders version warning when server < 8.3 and pipeline has $rerank', async function () {
+    await renderPipelineResultsWorkspace({
+      serverVersion: '8.0.0',
+      pipelineText: '[{ $rerank: {} }]',
+    });
+    expect(screen.getByTestId('pipeline-results-rerank-version-warning')).to
+      .exist;
+  });
+
+  it('does not render version warning when server >= 8.3', async function () {
+    await renderPipelineResultsWorkspace({
+      serverVersion: '8.3.0',
+      pipelineText: '[{ $rerank: {} }]',
+    });
+    expect(screen.queryByTestId('pipeline-results-rerank-version-warning')).to
+      .not.exist;
   });
 
   it('should render $out / $merge result screen', async function () {

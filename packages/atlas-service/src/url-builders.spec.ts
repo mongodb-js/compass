@@ -142,7 +142,7 @@ describe('url-builders', function () {
           namespace: 'myDB.myCollection',
         })
       ).to.equal(
-        `${TEST_ORIGIN}/v2/proj123?database=myDB&collectionName=myCollection#/clusters/atlasSearch/myCluster`
+        `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch/myCluster?collectionName=myCollection&database=myDB`
       );
     });
 
@@ -154,7 +154,7 @@ describe('url-builders', function () {
           indexName: 'myIndex',
         })
       ).to.equal(
-        `${TEST_ORIGIN}/v2/proj123?database=myDB&collectionName=myCollection&indexName=myIndex#/clusters/atlasSearch/myCluster`
+        `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch/myCluster?collectionName=myCollection&database=myDB&indexName=myIndex`
       );
     });
 
@@ -167,7 +167,7 @@ describe('url-builders', function () {
           view: 'editIndex',
         })
       ).to.equal(
-        `${TEST_ORIGIN}/v2/proj123?database=myDB&collectionName=myCollection&indexName=myIndex&view=editIndex#/clusters/atlasSearch/myCluster`
+        `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch/myCluster?collectionName=myCollection&database=myDB&indexName=myIndex&view=editIndex`
       );
     });
 
@@ -179,7 +179,7 @@ describe('url-builders', function () {
       });
       expect(url).to.not.include('view=');
       expect(url).to.equal(
-        `${TEST_ORIGIN}/v2/proj123?database=myDB&collectionName=myCollection#/clusters/atlasSearch/myCluster`
+        `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch/myCluster?collectionName=myCollection&database=myDB`
       );
     });
 

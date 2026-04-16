@@ -44,12 +44,14 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
       {
         action: 'edit',
         label: `Edit Index ${index.name}`,
+        tooltip: 'Edit Index',
         icon: 'Edit',
         isDisabled: !onEditIndex,
       },
       {
         action: 'drop',
         label: `Drop Index ${index.name}`,
+        tooltip: 'Drop Index',
         icon: 'Trash',
       },
     ];
