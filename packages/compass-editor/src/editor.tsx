@@ -176,7 +176,7 @@ export const editorPalette = {
     foldPlaceholderColor: palette.gray.base,
     foldPlaceholderBackgroundColor: palette.gray.light3,
     autocompleteColor: palette.black,
-    autocompleteBackgroundColor: palette.gray.light3,
+    autocompleteBackgroundColor: palette.white,
     autocompleteBorderColor: palette.gray.light2,
     autocompleteMatchColor: palette.green.dark1,
     autocompleteSelectedBackgroundColor: palette.gray.light2,

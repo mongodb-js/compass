@@ -1,5 +1,8 @@
 import { expect } from 'chai';
-import { isSearchIndexDefinitionError } from './search-stage-errors';
+import {
+  isSearchIndexDefinitionError,
+  isRerankNotEnabledError,
+} from './search-stage-errors';
 
 describe('search-stage-errors', function () {
   describe('isSearchIndexDefinitionError', function () {
@@ -106,6 +109,22 @@ describe('search-stage-errors', function () {
           isSearchIndexDefinitionError(undefined as unknown as string)
         ).to.be.false;
       });
+    });
+  });
+
+  describe('isRerankNotEnabledError', function () {
+    it('returns true when message contains $rerank is not enabled', function () {
+      expect(
+        isRerankNotEnabledError(
+          '$rerank is not enabled for my project. Enable the $rerank Project Setting to run this pipeline.'
+        )
+      ).to.be.true;
+    });
+
+    it('returns false for other rerank errors', function () {
+      expect(
+        isRerankNotEnabledError('num_docs_to_rerank must be between 1 and 1000')
+      ).to.be.false;
     });
   });
 });

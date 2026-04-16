@@ -140,9 +140,9 @@ describe('Databases', function () {
     const row = screen.getByTestId('databases-list-row-foo');
     userEvent.hover(row);
 
-    const deleteButton = row.querySelector('[title="Delete foo"]');
+    const deleteButton = screen.getByLabelText('Delete foo');
     expect(deleteButton).to.exist;
-    userEvent.click(deleteButton as Element);
+    userEvent.click(deleteButton);
     expect(deleteSpy.calledOnce).to.be.true;
   });
 

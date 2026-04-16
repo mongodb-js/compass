@@ -185,7 +185,6 @@ export const SearchIndexesTable: React.FunctionComponent<
 
   const { data } = useSearchIndexesTable({
     indexes,
-    vectorTypeLabel: 'Vector Search',
     renderActions,
   });
 
