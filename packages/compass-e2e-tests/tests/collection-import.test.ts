@@ -240,9 +240,6 @@ describe('Collection import', function () {
     await browser.clickVisible(
       `${Selectors.InsertDialog} ${Selectors.HadronDocumentAddElementMenuButton}`
     );
-    await browser.clickVisible(
-      `${Selectors.InsertDialog} ${Selectors.HadronDocumentAddSibling}`
-    );
 
     // set the type to Date (this causes an error)
     await browser

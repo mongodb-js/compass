@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import type { TypeCastTypes } from 'hadron-type-checker';
 import { Menu, MenuItem } from '@leafygreen-ui/menu';
 import { css, cx } from '@leafygreen-ui/emotion';
@@ -90,6 +90,28 @@ const menuItem = css({
   whiteSpace: 'nowrap',
 });
 
+const AddFieldButton = forwardRef(function AddFieldButton(
+  { onClick, ...props }: React.ButtonHTMLAttributes<HTMLButtonElement>,
+  ref: React.Ref<HTMLButtonElement>
+) {
+  return (
+    <button
+      type="button"
+      data-testid="hadron-document-add-element"
+      title="Add field"
+      className={cx(buttonReset, addFieldButton)}
+      onClick={(evt) => {
+        evt.stopPropagation();
+        onClick?.(evt);
+      }}
+      {...props}
+      ref={ref}
+    >
+      +
+    </button>
+  );
+});
+
 export const AddFieldActions: React.FunctionComponent<{
   type: TypeCastTypes;
   parentType?: TypeCastTypes;
@@ -111,6 +133,10 @@ export const AddFieldActions: React.FunctionComponent<{
     return null;
   }
 
+  if (onAddFieldAfterElement && !onAddFieldToElement) {
+    return <AddFieldButton onClick={onAddFieldAfterElement} />;
+  }
+
   return (
     <Menu
       open={isOpen}
@@ -121,23 +147,14 @@ export const AddFieldActions: React.FunctionComponent<{
       trigger={({
         children,
         onClick,
+        ref,
         ...props
-      }: Omit<React.HTMLProps<HTMLButtonElement>, 'type'>) => {
+      }: Omit<React.HTMLProps<HTMLButtonElement>, 'type'> & {
+        ref?: React.Ref<HTMLButtonElement>;
+      }) => {
         return (
           <>
-            <button
-              type="button"
-              data-testid="hadron-document-add-element"
-              title="Add field"
-              className={cx(buttonReset, addFieldButton)}
-              onClick={(evt) => {
-                evt.stopPropagation();
-                onClick?.(evt);
-              }}
-              {...props}
-            >
-              +
-            </button>
+            <AddFieldButton onClick={onClick} ref={ref} {...props} />
             {children}
           </>
         );

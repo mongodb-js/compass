@@ -63,6 +63,7 @@ export const COLUMNS: LGColumnDef<SearchIndexInfo>[] = [
   {
     accessorKey: 'name',
     header: 'Name and Fields',
+    cell: (info) => info.row.original.displayName,
     enableSorting: true,
   },
   ...COLUMNS_COMMON,
@@ -81,6 +82,7 @@ export const COLUMNS_FOR_DRAWER: LGColumnDef<SearchIndexInfo>[] = [
   {
     accessorKey: 'name',
     header: 'Name',
+    cell: (info) => info.row.original.displayName,
     enableSorting: true,
   },
   ...COLUMNS_COMMON,

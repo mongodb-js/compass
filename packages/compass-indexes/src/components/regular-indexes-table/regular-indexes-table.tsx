@@ -21,7 +21,6 @@ import type {
   RollingIndex,
 } from '../../modules/regular-indexes';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import { useRegularIndexesTable } from './use-regular-indexes-table';
 import { COLUMNS, COLUMNS_WITH_ACTIONS } from './regular-indexes-columns';
@@ -56,7 +55,6 @@ export const RegularIndexesTable: React.FunctionComponent<
   error,
 }) => {
   const tabId = useWorkspaceTabId();
-  const { atlasMetadata } = useConnectionInfo();
   const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
     'readOnly',
     'readWrite',
@@ -64,7 +62,6 @@ export const RegularIndexesTable: React.FunctionComponent<
   ]);
   const { isRegularIndexesWritable } = useSelector(
     selectReadWriteAccess({
-      isAtlas: !!atlasMetadata,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,

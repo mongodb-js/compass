@@ -156,6 +156,11 @@ module.exports = (_env, args) => {
       // amount of dependencies is massive and can benefit from them more
       optimization,
       externals,
+      resolve: {
+        alias: {
+          '@mongodb-js/atlas-local': false,
+        },
+      },
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         ...compileOnlyPlugins,

@@ -33,6 +33,7 @@ export type MergedIndex =
 export type IndexInfo = {
   id: string;
   name: string;
+  displayName: React.ReactNode;
   indexInfo: MergedIndex;
   type: React.ReactNode;
   size: React.ReactNode;
@@ -43,7 +44,7 @@ export type IndexInfo = {
   renderExpandedContent: React.ReactNode;
 };
 
-type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;
+export type CommonIndexInfo = Omit<IndexInfo, 'renderExpandedContent'>;
 
 /**
  * Determines the display status for a regular index based on its build progress.
@@ -123,16 +124,25 @@ function mergeIndexes(
 function getInProgressIndexInfo(
   index: MappedInProgressIndex,
   {
+    renderNameOverride,
+    renderTypeOverride,
     onDeleteFailedIndexClick,
   }: {
+    renderNameOverride?: (name: string) => React.ReactNode;
+    renderTypeOverride?: (index: MergedIndex) => React.ReactNode;
     onDeleteFailedIndexClick: (indexName: string) => void;
   }
 ): CommonIndexInfo {
   return {
     id: index.id,
     name: index.name,
+    displayName: renderNameOverride
+      ? renderNameOverride(index.name)
+      : index.name,
     indexInfo: index,
-    type: <TypeField type="unknown" />,
+    type: renderTypeOverride
+      ? renderTypeOverride(index)
+      : getDefaultType(index),
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
     // TODO(COMPASS-8335): add properties for in-progress indexes
@@ -147,13 +157,26 @@ function getInProgressIndexInfo(
   };
 }
 
-function getRollingIndexInfo(index: MappedRollingIndex): CommonIndexInfo {
+function getRollingIndexInfo(
+  index: MappedRollingIndex,
+  {
+    renderNameOverride,
+    renderTypeOverride,
+  }: {
+    renderNameOverride?: (name: string) => React.ReactNode;
+    renderTypeOverride?: (index: MergedIndex) => React.ReactNode;
+  }
+): CommonIndexInfo {
   return {
     id: `rollingIndex-${index.indexName}`,
     name: index.indexName,
+    displayName: renderNameOverride
+      ? renderNameOverride(index.indexName)
+      : index.indexName,
     indexInfo: index,
-    // TODO(COMPASS-8335): check that label really is a regular index type
-    type: <TypeField type={index.indexType.label as RegularIndex['type']} />,
+    type: renderTypeOverride
+      ? renderTypeOverride(index)
+      : getDefaultType(index),
     size: <SizeField size={0} relativeSize={0} />,
     usageCount: <UsageField usage={undefined} since={undefined} />,
     // TODO(COMPASS-7589): add properties for rolling indexes
@@ -166,11 +189,15 @@ function getRollingIndexInfo(index: MappedRollingIndex): CommonIndexInfo {
 function getRegularIndexInfo(
   index: MappedRegularIndex,
   {
+    renderNameOverride,
+    renderTypeOverride,
     serverVersion,
     onHideIndexClick,
     onUnhideIndexClick,
     onDeleteIndexClick,
   }: {
+    renderNameOverride?: (name: string) => React.ReactNode;
+    renderTypeOverride?: (index: MergedIndex) => React.ReactNode;
     serverVersion: string;
     onHideIndexClick: (indexName: string) => void;
     onUnhideIndexClick: (indexName: string) => void;
@@ -182,8 +209,13 @@ function getRegularIndexInfo(
   return {
     id: index.name,
     name: index.name,
+    displayName: renderNameOverride
+      ? renderNameOverride(index.name)
+      : index.name,
     indexInfo: index,
-    type: <TypeField type={index.type} extra={index.extra} />,
+    type: renderTypeOverride
+      ? renderTypeOverride(index)
+      : getDefaultType(index),
     size: <SizeField size={index.size} relativeSize={index.relativeSize} />,
     usageCount: (
       <UsageField usage={index.usageCount} since={index.usageSince} />
@@ -213,6 +245,16 @@ function getRegularIndexInfo(
   };
 }
 
+function getDefaultType(index: MergedIndex): React.ReactNode {
+  if (index.compassIndexType === 'in-progress-index') {
+    return <TypeField type="unknown" />;
+  }
+  if (index.compassIndexType === 'rolling-index') {
+    return <TypeField type={index.indexType.label as RegularIndex['type']} />;
+  }
+  return <TypeField type={index.type} extra={index.extra} />;
+}
+
 export type UseRegularIndexesTableProps = {
   indexes: RegularIndex[];
   inProgressIndexes: InProgressIndex[];
@@ -222,6 +264,12 @@ export type UseRegularIndexesTableProps = {
   onUnhideIndexClick: (name: string) => void;
   onDeleteIndexClick: (name: string) => void;
   onDeleteFailedIndexClick: (name: string) => void;
+  renderNameOverride?: (name: string) => React.ReactNode;
+  renderTypeOverride?: (index: MergedIndex) => React.ReactNode;
+  renderExpandedContentOverride?: (
+    index: MergedIndex,
+    indexData: CommonIndexInfo
+  ) => React.JSX.Element;
 };
 
 export function useRegularIndexesTable({
@@ -233,6 +281,9 @@ export function useRegularIndexesTable({
   onUnhideIndexClick,
   onDeleteIndexClick,
   onDeleteFailedIndexClick,
+  renderNameOverride,
+  renderTypeOverride,
+  renderExpandedContentOverride,
 }: UseRegularIndexesTableProps) {
   const allIndexes: MergedIndex[] = mergeIndexes(
     indexes,
@@ -246,12 +297,19 @@ export function useRegularIndexesTable({
         let indexData: CommonIndexInfo;
         if (index.compassIndexType === 'in-progress-index') {
           indexData = getInProgressIndexInfo(index, {
+            renderNameOverride,
+            renderTypeOverride,
             onDeleteFailedIndexClick,
           });
         } else if (index.compassIndexType === 'rolling-index') {
-          indexData = getRollingIndexInfo(index);
+          indexData = getRollingIndexInfo(index, {
+            renderNameOverride,
+            renderTypeOverride,
+          });
         } else {
           indexData = getRegularIndexInfo(index, {
+            renderNameOverride,
+            renderTypeOverride,
             serverVersion,
             onDeleteIndexClick,
             onHideIndexClick,
@@ -261,18 +319,21 @@ export function useRegularIndexesTable({
 
         return {
           ...indexData,
-          renderExpandedContent() {
-            return (
-              <IndexKeysBadge
-                keys={index.fields}
-                data-testid={`indexes-details-${indexData.name}`}
-              />
-            );
-          },
+          renderExpandedContent: renderExpandedContentOverride
+            ? () => renderExpandedContentOverride(index, indexData)
+            : () => (
+                <IndexKeysBadge
+                  keys={index.fields}
+                  data-testid={`indexes-details-${indexData.name}`}
+                />
+              ),
         };
       }),
     [
       allIndexes,
+      renderNameOverride,
+      renderTypeOverride,
+      renderExpandedContentOverride,
       onDeleteIndexClick,
       onDeleteFailedIndexClick,
       onHideIndexClick,
