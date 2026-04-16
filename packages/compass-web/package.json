@@ -26,7 +26,10 @@
   "main": "dist/compass-web.mjs",
   "compass:main": "src/index.tsx",
   "exports": {
-    ".": "./dist/compass-web.mjs",
+    ".": {
+      "types": "./dist/compass-web.d.ts",
+      "default": "./dist/compass-web.mjs"
+    },
     "./package.json": "./package.json"
   },
   "compass:exports": {
