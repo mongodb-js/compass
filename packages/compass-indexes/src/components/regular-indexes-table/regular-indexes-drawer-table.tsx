@@ -21,13 +21,77 @@ import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 import { useRegularIndexesTable } from './use-regular-indexes-table';
+import type { CommonIndexInfo } from './use-regular-indexes-table';
+import type { MergedIndex } from './use-regular-indexes-table';
+import TypeField from './type-field';
 import {
   COLUMNS_FOR_DRAWER,
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './regular-indexes-columns';
-import { Button, css, EmptyContent } from '@mongodb-js/compass-components';
+import {
+  Body,
+  Button,
+  css,
+  EmptyContent,
+  IndexKeysBadge,
+  InlineDefinition,
+  spacing,
+} from '@mongodb-js/compass-components';
 import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic';
 import { createIndexOpened } from '../../modules/create-index';
+
+const indexDetailsForDrawerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[100],
+  padding: spacing[200],
+});
+
+function renderNameOverride(name: string): React.ReactNode {
+  if (name.length > 8) {
+    return (
+      <InlineDefinition definition={name}>{`${name.slice(
+        0,
+        8
+      )}…`}</InlineDefinition>
+    );
+  }
+
+  return name;
+}
+
+function renderTypeOverride(index: MergedIndex): React.ReactNode {
+  if (index.compassIndexType === 'in-progress-index') {
+    return <TypeField type="unknown" showBadge={false} />;
+  }
+  if (index.compassIndexType === 'rolling-index') {
+    return (
+      <TypeField
+        type={index.indexType.label as RegularIndex['type']}
+        showBadge={false}
+      />
+    );
+  }
+  return <TypeField type={index.type} extra={index.extra} showBadge={false} />;
+}
+
+function renderExpandedContentOverride(
+  index: MergedIndex,
+  indexData: CommonIndexInfo
+): React.JSX.Element {
+  return (
+    <Body className={indexDetailsForDrawerStyles}>
+      <div>
+        <b>Index Name: </b>
+        {indexData.name}
+      </div>
+      <IndexKeysBadge
+        keys={index.fields}
+        data-testid={`indexes-details-${indexData.name}`}
+      />
+    </Body>
+  );
+}
 
 const emptyContentStyles = css({
   marginTop: 0,
@@ -127,6 +191,9 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     onUnhideIndexClick,
     onDeleteIndexClick,
     onDeleteFailedIndexClick,
+    renderNameOverride,
+    renderTypeOverride,
+    renderExpandedContentOverride,
   });
 
   // Filter data based on search term

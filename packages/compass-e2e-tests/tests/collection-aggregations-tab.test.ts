@@ -212,6 +212,7 @@ describe('Collection aggregations tab', function () {
     }
 
     if (serverSatisfies('>=8.2')) {
+      expectedAggregations.push('$score');
       expectedAggregations.push('$scoreFusion');
     }
 

@@ -115,6 +115,7 @@ const buildIndexActions = (
     actions.push({
       action: 'delete',
       label: `Cancel Index ${index.name}`,
+      tooltip: 'Cancel Index',
       icon: 'XWithCircle',
       variant: 'destructive',
     });
@@ -145,6 +146,7 @@ const buildIndexActions = (
       actions.push({
         action: 'delete',
         label: `Drop Index ${index.name}`,
+        tooltip: 'Drop Index',
         icon: 'Trash',
       });
     }
