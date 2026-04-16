@@ -426,9 +426,7 @@ const fetchIndexes = (
 
     const { readOnly, readWrite, enableAtlasSearchIndexes } =
       preferences.getPreferences();
-    const { atlasMetadata } = connectionInfoRef.current;
     const { isRegularIndexesReadable } = selectReadWriteAccess({
-      isAtlas: !!atlasMetadata,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,

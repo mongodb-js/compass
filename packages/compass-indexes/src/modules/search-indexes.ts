@@ -648,7 +648,6 @@ const fetchIndexes = (
     } = preferences.getPreferences();
     const { atlasMetadata } = connectionInfoRef.current;
     const { isSearchIndexesReadable } = selectReadWriteAccess({
-      isAtlas: !!atlasMetadata,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
