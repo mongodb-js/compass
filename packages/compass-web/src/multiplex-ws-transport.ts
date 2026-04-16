@@ -27,7 +27,6 @@ import {
   serialize as bsonSerialize,
   deserialize as bsonDeserialize,
 } from 'bson';
-import DisposableStack from 'core-js/actual/disposable-stack';
 import { type Logger } from '@mongodb-js/compass-logging/provider';
 
 /**
@@ -47,7 +46,7 @@ export type SuccessHeader = { v: 1 };
 export type Header = (SuccessHeader | ErrorHeader) & Routing;
 
 type MultiplexWebSocketTransportOptions = {
-  /** Base URL for the WebSocket server, e.g. "ws://localhost:1338". */
+  /** Base URL for the WebSocket server, e.g. "ws://localhost:1337". */
   baseUrl?: string;
   /** Source address to use in CONNECT frames. Defaults to "localhost". */
   sourceAddress?: string;
@@ -109,11 +108,23 @@ export function addEventListener<K extends keyof WebSocketEventMap>(
   eventType: K,
   eventListener: (event: WebSocketEventMap[K]) => void,
   options?: boolean | AddEventListenerOptions
-) {
-  eventTarget.addEventListener(eventType, eventListener, options);
+): { [Symbol.dispose](): void };
+export function addEventListener<K extends keyof AbortSignalEventMap>(
+  eventTarget: AbortSignal | undefined,
+  eventType: K,
+  eventListener: (event: AbortSignalEventMap[K]) => void,
+  options?: boolean | AddEventListenerOptions
+): { [Symbol.dispose](): void };
+export function addEventListener(
+  eventTarget: EventTarget | undefined,
+  eventType: string,
+  eventListener: (event: Event) => void,
+  options?: boolean | AddEventListenerOptions
+): { [Symbol.dispose](): void } {
+  eventTarget?.addEventListener(eventType, eventListener, options);
   return {
     [Symbol.dispose]() {
-      eventTarget.removeEventListener(eventType, eventListener, options);
+      eventTarget?.removeEventListener(eventType, eventListener, options);
     },
   };
 }
@@ -141,7 +152,7 @@ export class MultiplexWebSocketTransport implements Disposable {
     logger,
     sourceAddress,
   }: MultiplexWebSocketTransportOptions) {
-    this.baseUrl = _wsUrlOverride ?? baseUrl ?? 'ws://localhost:1338';
+    this.baseUrl = _wsUrlOverride ?? baseUrl ?? 'ws://localhost:1337';
     this.sourceAddress = sourceAddress ?? 'localhost';
     this.logger = logger;
     this.logger?.log.info(
@@ -167,19 +178,18 @@ export class MultiplexWebSocketTransport implements Disposable {
     this.connectPromise = new Promise<void>((resolve, reject) => {
       this.connectResolve = resolve;
       this.connectReject = reject;
-      this.openWebSocket();
     });
 
-    signal?.addEventListener(
-      'abort',
-      (event) => {
-        const reason = (event.target as AbortSignal).reason;
-        this.connectReject?.(reason ?? new Error('Connection aborted.'));
-      },
-      { once: true }
-    );
+    const dispose = addEventListener(signal, 'abort', (event) => {
+      const reason: unknown = (event.target as AbortSignal).reason;
+      this.connectReject?.(
+        reason instanceof Error ? reason : new Error('Connection aborted.')
+      );
+    });
 
-    return await this.connectPromise;
+    this.openWebSocket();
+
+    return await this.connectPromise.finally(() => dispose[Symbol.dispose]());
   }
 
   private openWebSocket(): void {
@@ -197,7 +207,7 @@ export class MultiplexWebSocketTransport implements Disposable {
     disposableStack.use(
       addEventListener(ws, 'message', this.onMessage.bind(this))
     );
-    disposableStack.defer(() => this.close.bind(this)('Transport Disposed'));
+    disposableStack.defer(this.close.bind(this, 'Transport Disposed'));
     this.disposableStack = disposableStack;
   }
 
@@ -226,7 +236,15 @@ export class MultiplexWebSocketTransport implements Disposable {
       }
     );
 
-    const err = new Error(`WebSocket closed: code=${code} reason=${reason}`);
+    const errorMessage = [
+      'Connection failed',
+      (code && `[${code}]`) || null,
+      (reason && `${reason}`) || null,
+    ]
+      .filter(Boolean)
+      .join(' - ');
+
+    const err = new Error(errorMessage);
     this.connectReject?.(err);
     this.connectResolve = null;
     this.connectReject = null;
