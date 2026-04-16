@@ -23,8 +23,6 @@ const openai = createOpenAI({
   },
 });
 
-const modelName = process.env.MOCK_DATA_EVAL_MODEL ?? 'mongodb-slim-2.1-mini';
-
 const mockDataTool = tool({
   description:
     'Generate faker.js mappings for MongoDB schema fields to create realistic mock data',
@@ -38,7 +36,7 @@ async function generateSchemaForChunk(
   const userPrompt = formatSchemaForPrompt('foo', 'bar', schema);
 
   const response = streamText({
-    model: openai.responses(modelName),
+    model: openai.responses('mongodb-slim-2.1-mini'),
     messages: [{ role: 'user', content: userPrompt }],
     tools: { mockDataSchema: mockDataTool },
     toolChoice: { type: 'tool', toolName: 'mockDataSchema' },
