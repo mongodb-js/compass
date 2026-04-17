@@ -216,41 +216,57 @@ export class Compass {
 
   async addRendererLogRecorder(): Promise<void> {
     debug('Setting up renderer log listeners ...');
-    const puppeteerBrowser = await this.browser.getPuppeteer();
-    const pages = await puppeteerBrowser.pages();
-    const page = pages[0];
 
-    page.on('console', (message) => {
-      const run = async () => {
-        // human and machine readable, always UTC
-        const timestamp = new Date().toISOString();
-
-        // startGroup, endGroup, log, table, warning, etc.
-        const type = message.type();
-
-        const text = message.text();
-
-        // first arg is usually == text, but not always
-        const args = [];
-        for (const arg of message.args()) {
-          let value;
-          try {
-            value = await arg.jsonValue();
-          } catch {
-            // there are still some edge cases we can't easily convert into text
-            console.error('could not convert', arg);
-            value = '¯\\_(ツ)_/¯';
-          }
-          args.push(value);
+    if (this.browser.isBidi) {
+      this.browser.on('log.entryAdded', (entry) => {
+        if (entry.type !== 'console') {
+          return;
         }
+        const timestamp = new Date().toISOString();
+        const { type, text, args } = entry as {
+          type: string;
+          text: string | null;
+          args: any[];
+        }; // webdriver doesn't export the type we need here
+        this.renderLogs.push({ timestamp, type, text: text ?? '', args });
+      });
+    } else {
+      const puppeteerBrowser = await this.browser.getPuppeteer();
+      const pages = await puppeteerBrowser.pages();
+      const page = pages[0];
 
-        // uncomment to see browser logs
-        //console.log({ timestamp, type, text, args });
+      page.on('console', (message) => {
+        const run = async () => {
+          // human and machine readable, always UTC
+          const timestamp = new Date().toISOString();
 
-        this.renderLogs.push({ timestamp, type, text, args });
-      };
-      void run();
-    });
+          // startGroup, endGroup, log, table, warning, etc.
+          const type = message.type();
+
+          const text = message.text();
+
+          // first arg is usually == text, but not always
+          const args = [];
+          for (const arg of message.args()) {
+            let value;
+            try {
+              value = await arg.jsonValue();
+            } catch {
+              // there are still some edge cases we can't easily convert into text
+              console.error('could not convert', arg);
+              value = '¯\\_(ツ)_/¯';
+            }
+            args.push(value);
+          }
+
+          // uncomment to see browser logs
+          //console.log({ timestamp, type, text, args });
+
+          this.renderLogs.push({ timestamp, type, text, args });
+        };
+        void run();
+      });
+    }
   }
 
   async getElectronAppPaths(): Promise<void> {
