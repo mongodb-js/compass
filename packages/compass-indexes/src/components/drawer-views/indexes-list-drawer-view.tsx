@@ -30,10 +30,7 @@ import ViewPipelineIncompatibleBanner from '../view-incompatible-components/view
 import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import {
-  useConnectionInfo,
-  useConnectionInfoRef,
-} from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import RegularIndexesDrawerTable from '../regular-indexes-table/regular-indexes-drawer-table';
@@ -96,15 +93,13 @@ const IndexesListDrawerView: React.FunctionComponent<
     track('Screen', { name: 'indexes_list_drawer' }, connectionInfoRef.current);
   }, [track, connectionInfoRef]);
 
-  const { atlasMetadata } = useConnectionInfo();
-  const isAtlas = !!atlasMetadata;
   const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
   ]);
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-    useSelector(selectIsViewSearchCompatible(isAtlas), shallowEqual);
+    useSelector(selectIsViewSearchCompatible, shallowEqual);
   const {
     isRegularIndexesReadable,
     isRegularIndexesWritable,
@@ -112,7 +107,6 @@ const IndexesListDrawerView: React.FunctionComponent<
     isSearchIndexesWritable,
   } = useSelector(
     selectReadWriteAccess({
-      isAtlas,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,

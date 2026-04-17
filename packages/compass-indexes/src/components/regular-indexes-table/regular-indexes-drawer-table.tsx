@@ -18,8 +18,6 @@ import type {
   RollingIndex,
 } from '../../modules/regular-indexes';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-
 import { useRegularIndexesTable } from './use-regular-indexes-table';
 import type { CommonIndexInfo } from './use-regular-indexes-table';
 import type { MergedIndex } from './use-regular-indexes-table';
@@ -166,7 +164,6 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
   error,
   searchTerm,
 }) => {
-  const { atlasMetadata } = useConnectionInfo();
   const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
     'readOnly',
     'readWrite',
@@ -174,7 +171,6 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
   ]);
   const { isRegularIndexesWritable } = useSelector(
     selectReadWriteAccess({
-      isAtlas: !!atlasMetadata,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,

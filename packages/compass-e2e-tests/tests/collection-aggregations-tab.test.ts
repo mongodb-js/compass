@@ -19,7 +19,10 @@ import {
 import { saveAggregationPipeline } from '../helpers/commands/save-aggregation-pipeline.ts';
 import type { ChainablePromiseElement } from 'webdriverio';
 import { switchPipelineMode } from '../helpers/commands/switch-pipeline-mode.ts';
-import { isTestingWeb } from '../helpers/test-runner-context.ts';
+import {
+  isTestingWeb,
+  isTestingWebAtlasCloud,
+} from '../helpers/test-runner-context.ts';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
 import type { LogEntry } from '@mongodb-js/compass-test-server';
 
@@ -237,7 +240,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('shows atlas only stage preview', async function () {
-    if (!serverSatisfies('>=8.0.14')) {
+    if (!serverSatisfies('>=8.0.14') || isTestingWebAtlasCloud()) {
       return this.skip();
     }
     await browser.selectStageOperator(0, '$rankFusion');
@@ -989,6 +992,11 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
+    if (isTestingWebAtlasCloud()) {
+      // No $function on the free tier, skipping this test.
+      return this.skip();
+    }
+
     const unsubscribeAllowWarnings = allowServerWarnings(
       8996503, // Allow "$function is deprecated" warning
       (l: LogEntry) => {
@@ -1261,7 +1269,7 @@ describe('Collection aggregations tab', function () {
     });
 
     it('previews atlas operators - $rankFusion', async function () {
-      if (!serverSatisfies('>=8.0.14')) {
+      if (!serverSatisfies('>=8.0.14') || isTestingWebAtlasCloud()) {
         return this.skip();
       }
       await browser.selectStageOperator(0, '$match');
@@ -1609,7 +1617,7 @@ describe('Collection aggregations tab', function () {
     });
 
     it('handles atlas only operator', async function () {
-      if (!serverSatisfies('>=8.0.14')) {
+      if (!serverSatisfies('>=8.0.14') || isTestingWebAtlasCloud()) {
         return this.skip();
       }
       await browser.selectStageOperator(0, '$rankFusion');
