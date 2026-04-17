@@ -1,7 +1,7 @@
 import { ipVersion } from 'is-ip';
 import type { ConnectionOptions } from 'mongodb-data-service';
 import { Duplex } from 'stream';
-import { getMultiplexTransport } from '../../src/multiplex-ws-transport';
+import { getMultiplexLink } from '../../src/multiplex-link';
 
 type ConnectOptions = Pick<ConnectionOptions, 'lookup'> & {
   host: string;
@@ -13,7 +13,7 @@ type ConnectOptions = Pick<ConnectionOptions, 'lookup'> & {
  * net.Socket polyfill that works over WebSocket connections.
  *
  * Supports two modes:
- * 1. Multiplexed transport: Uses a shared WebSocket with BSON framing
+ * 1. Multiplexed link: Uses a shared WebSocket with BSON framing
  * 2. Direct WebSocket proxy: Direct connection to local proxy server
  */
 const MESSAGE_TYPE = {
@@ -24,7 +24,7 @@ const MESSAGE_TYPE = {
 class Socket extends Duplex {
   private _ws: WebSocket | null = null;
 
-  // Multiplex transport state
+  // Multiplex link state
   private _localPort = 0;
   private _remoteHost = '';
   private _remotePort = 0;
@@ -34,17 +34,17 @@ class Socket extends Duplex {
   }
 
   private setupMultiplexedConnection(options: Omit<ConnectOptions, 'lookup'>) {
-    const transport = getMultiplexTransport();
-    if (!transport) {
-      throw new Error('Multiplex transport is not available');
+    const link = getMultiplexLink();
+    if (!link) {
+      throw new Error('Link is not available');
     }
     // Multiplex path: tunnel this logical connection over the single shared
     // WebSocket, using BSON 5-tuple framing.
     this._remoteHost = options.host;
     this._remotePort = options.port;
-    this._localPort = transport.allocatePort();
+    this._localPort = link.allocatePort();
 
-    transport
+    link
       .registerSocket(this._localPort, {
         onData: (data: Uint8Array) => {
           queueMicrotask(() => {
@@ -79,7 +79,7 @@ class Socket extends Duplex {
   }
 
   connect({ lookup, ...options }: ConnectOptions): Socket {
-    if (getMultiplexTransport()) {
+    if (getMultiplexLink()) {
       return this.setupMultiplexedConnection(options);
     }
 
@@ -138,9 +138,9 @@ class Socket extends Duplex {
     // noop
   }
   _write(chunk: Buffer, _encoding: BufferEncoding, cb: () => void) {
-    const transport = getMultiplexTransport();
-    if (transport && this._localPort !== 0) {
-      transport.sendData(
+    const link = getMultiplexLink();
+    if (link && this._localPort !== 0) {
+      link.sendData(
         this._localPort,
         this._remoteHost,
         this._remotePort,
@@ -157,16 +157,16 @@ class Socket extends Duplex {
   }
   private _teardown(errorMessage?: string): void {
     if (this._localPort === 0) return;
-    const transport = getMultiplexTransport();
-    if (errorMessage && transport) {
-      transport.sendError(
+    const link = getMultiplexLink();
+    if (errorMessage && link) {
+      link.sendError(
         this._localPort,
         this._remoteHost,
         this._remotePort,
         errorMessage
       );
     }
-    transport?.unregisterSocket(this._localPort);
+    link?.unregisterSocket(this._localPort);
     this._localPort = 0;
   }
   destroy() {

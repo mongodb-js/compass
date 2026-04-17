@@ -29,7 +29,7 @@ function buildFrame(header, payload) {
  *
  * Accepts a single shared WebSocket connection and demultiplexes it into
  * individual TLS connections using the same BSON 5-tuple framing as
- * MultiplexWebSocketTransport on the client side.
+ * Link on the client side.
  */
 function createWebSocketProxy(port = 1337, logger = console) {
   const wsServer = new WebSocketServer({ host: 'localhost', port }, () => {

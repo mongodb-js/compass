@@ -29,14 +29,14 @@ describe('Multiplex WebSocket connection', function () {
     await browser.waitUntil(
       () => {
         return browser.execute(() => {
-          const kMultiplexTransport = Symbol.for(
-            '@compass-web-sandbox-multiplex-transport'
+          const kMultiplexLink = Symbol.for(
+            '@compass-web-sandbox-multiplex-link'
           );
-          const getTransport = (globalThis as any)[kMultiplexTransport];
-          return !!getTransport?.();
+          const getLink = (globalThis as any)[kMultiplexLink];
+          return !!getLink?.();
         });
       },
-      { timeoutMsg: 'Expected MultiplexWebSocketTransport to be created' }
+      { timeoutMsg: 'Expected MultiplexWebSocketLink to be created' }
     );
 
     await browser.setupDefaultConnections();
@@ -63,9 +63,9 @@ describe('Multiplex WebSocket connection', function () {
     );
 
     const actualWsUrl = await browser.execute(() => {
-      const kMux = Symbol.for('@compass-web-sandbox-multiplex-transport');
-      const getTransport = (globalThis as any)[kMux];
-      return getTransport?.()?.url ?? null;
+      const kMux = Symbol.for('@compass-web-sandbox-multiplex-link');
+      const getLink = (globalThis as any)[kMux];
+      return getLink?.()?.url ?? null;
     });
 
     expect(actualWsUrl).to.equal(expectedWsUrl);

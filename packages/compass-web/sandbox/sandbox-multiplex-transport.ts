@@ -1,20 +1,18 @@
 import {
-  getMultiplexTransport,
+  getMultiplexLink,
   setWebSocketUrlOverride,
-} from '../src/multiplex-ws-transport';
+} from '../src/multiplex-link';
 
-const kSandboxMultiplexTransport = Symbol.for(
-  '@compass-web-sandbox-multiplex-transport'
-);
+const kSandboxMultiplexLink = Symbol.for('@compass-web-sandbox-multiplex-link');
 
 // eslint-disable-next-line no-console
 console.info(
-  `[compass-web sandbox] call window[Symbol.for('@compass-web-sandbox-multiplex-transport')]() to get the active MultiplexWebSocketTransport`
+  `[compass-web sandbox] call window[Symbol.for('@compass-web-sandbox-multiplex-link')]() to get the active Link`
 );
 
-Object.defineProperty(globalThis, kSandboxMultiplexTransport, {
+Object.defineProperty(globalThis, kSandboxMultiplexLink, {
   get() {
-    return getMultiplexTransport;
+    return getMultiplexLink;
   },
 });
 

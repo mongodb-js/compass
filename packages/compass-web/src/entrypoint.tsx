@@ -101,10 +101,7 @@ import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 import { assertsUserDataType } from '@mongodb-js/compass-user-data';
-import {
-  MultiplexWebSocketTransport,
-  setMultiplexTransport,
-} from './multiplex-ws-transport';
+import { Link, setMultiplexLink } from './multiplex-link';
 import { useSyncHistory } from './use-sync-history';
 import type { History } from './use-sync-history';
 
@@ -152,13 +149,13 @@ const WithMultiplexTransport = createServiceProvider(
         return;
       }
 
-      const transport = new MultiplexWebSocketTransport({
+      const link = new Link({
         baseUrl: ccsUrl,
         logger,
       });
 
-      setMultiplexTransport(transport);
-      void transport.connect(abortController.signal).catch((err: Error) => {
+      setMultiplexLink(link);
+      void link.connect(abortController.signal).catch((err: Error) => {
         if (err.name === 'AbortError') {
           return;
         }
@@ -176,8 +173,8 @@ const WithMultiplexTransport = createServiceProvider(
       });
       return () => {
         abortController.abort();
-        transport.close('Compass Web Entrypoint Unmount');
-        setMultiplexTransport(null);
+        link.close('Compass Web Entrypoint Unmount');
+        setMultiplexLink(null);
       };
     }, [enableMultiplexWebSocketOnWeb, ccsUrl, logger]);
 

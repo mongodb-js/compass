@@ -1,5 +1,5 @@
 /**
- * MultiplexWebSocketTransport — single shared WebSocket per browser tab
+ * MultiplexLink uses a single shared WebSocket per browser tab
  * that multiplexes all MongoDB driver connections using BSON 5-tuple framing.
  *
  * Protocol frame layout (each WebSocket binary message):
@@ -45,14 +45,14 @@ export type ErrorHeader = { v: -1; er: string };
 export type SuccessHeader = { v: 1 };
 export type Header = (SuccessHeader | ErrorHeader) & Routing;
 
-type MultiplexWebSocketTransportOptions = {
+type LinkOptions = {
   /** Base URL for the WebSocket server, e.g. "ws://localhost:1337". */
   baseUrl?: string;
   /** Logger to use for debugging. */
   logger?: Logger;
 };
 
-/** Callbacks called by the transport when events occur on a logical stream. */
+/** Callbacks called by the link when events occur on a logical stream. */
 export interface MultiplexSocketCallbacks {
   /** Called when payload bytes arrive from the server for this stream. */
   onData(data: Uint8Array): void;
@@ -147,7 +147,7 @@ export function addEventListener(
  * Manages a single shared WebSocket connection for a browser tab and multiplexes
  * all MongoDB driver TCP connections over it using BSON 5-tuple framing.
  */
-export class MultiplexWebSocketTransport implements Disposable {
+export class Link implements Disposable {
   private ws: WebSocket | null = null;
   private readonly baseUrl: string;
   /** Everytime we create a new WS (in connect), we create a new source address */
@@ -162,13 +162,13 @@ export class MultiplexWebSocketTransport implements Disposable {
   private connectResolve: (() => void) | null = null;
   private connectReject: ((err: Error) => void) | null = null;
 
-  constructor({ baseUrl, logger }: MultiplexWebSocketTransportOptions) {
+  constructor({ baseUrl, logger }: LinkOptions) {
     this.baseUrl = _wsUrlOverride ?? baseUrl ?? 'ws://localhost:1337';
     this.logger = logger;
     this.logger?.log.info(
       this.logger?.mongoLogId(1_001_000_420),
       'COMPASS-WEB-MULTIPLEXING',
-      'MultiplexWebSocketTransport created',
+      'Link created',
       {
         baseUrl: this.baseUrl,
       }
@@ -182,7 +182,7 @@ export class MultiplexWebSocketTransport implements Disposable {
   /** Open the shared WebSocket. Returns a promise that resolves when the connection is ready. */
   async connect(signal?: AbortSignal): Promise<void> {
     if (this.connectPromise) return this.connectPromise;
-    if (this.closed) throw new Error('Transport is closed');
+    if (this.closed) throw new Error('Link is closed');
 
     const { promise, resolve, reject } = Promise.withResolvers<void>();
     this.connectPromise = promise;
@@ -210,7 +210,7 @@ export class MultiplexWebSocketTransport implements Disposable {
     this.logger?.log.info(
       this.logger?.mongoLogId(1_001_000_420),
       'COMPASS-WEB-MULTIPLEXING',
-      'MultiplexWebSocketTransport connecting to WS',
+      'Link connecting to WS',
       {
         sa: this.sourceAddress,
       }
@@ -226,7 +226,7 @@ export class MultiplexWebSocketTransport implements Disposable {
     disposableStack.use(
       addEventListener(ws, 'message', this.onMessage.bind(this))
     );
-    disposableStack.defer(this.close.bind(this, 'Transport Disposed'));
+    disposableStack.defer(this.close.bind(this, 'Link Disposed'));
     this.disposableStack = disposableStack;
   }
 
@@ -400,7 +400,7 @@ export class MultiplexWebSocketTransport implements Disposable {
     this.logger?.log.info(
       this.logger?.mongoLogId(1_001_000_426),
       'COMPASS-WEB-MULTIPLEXING',
-      'Closing MultiplexWebSocketTransport',
+      'Closing Link',
       { reason, sourceAddress: this.sourceAddress }
     );
     this.closed = true;
@@ -423,18 +423,16 @@ export class MultiplexWebSocketTransport implements Disposable {
   }
 
   [Symbol.dispose](): void {
-    this.close('Transport Disposed');
+    this.close('Link Disposed');
   }
 }
 
-let _activeTransport: MultiplexWebSocketTransport | null = null;
-export function setMultiplexTransport(
-  transport: MultiplexWebSocketTransport | null
-): void {
-  _activeTransport = transport;
+let _activeLink: Link | null = null;
+export function setMultiplexLink(link: Link | null): void {
+  _activeLink = link;
 }
-export function getMultiplexTransport(): MultiplexWebSocketTransport | null {
-  return _activeTransport;
+export function getMultiplexLink(): Link | null {
+  return _activeLink;
 }
 
 let _wsUrlOverride: string | null = null;

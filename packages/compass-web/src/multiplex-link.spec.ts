@@ -1,16 +1,16 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {
-  MultiplexWebSocketTransport,
-  getMultiplexTransport,
-  setMultiplexTransport,
+  Link,
+  getMultiplexLink,
+  setMultiplexLink,
   parseFrame,
   buildFrame,
-} from './multiplex-ws-transport';
+} from './multiplex-link';
 import type {
   Header,
   MultiplexSocketCallbacks,
-} from './multiplex-ws-transport';
+} from './multiplex-link';
 
 class FakeWebSocket {
   static CONNECTING = 0;
@@ -140,18 +140,16 @@ function makeCallbacks(): {
   return { calls, cb };
 }
 
-/** Open a fake socket and await the transport's connect promise together. */
-async function connectTransport(
-  transport: MultiplexWebSocketTransport
-): Promise<FakeWebSocket> {
-  const connecting = transport.connect();
+/** Open a fake socket and await the link's connect promise together. */
+async function connectLink(link: Link): Promise<FakeWebSocket> {
+  const connecting = link.connect();
   const ws = FakeWebSocket.latest();
   ws.open();
   await connecting;
   return ws;
 }
 
-describe('MultiplexWebSocketTransport', function () {
+describe('MultiplexLink', function () {
   let clock: sinon.SinonFakeTimers;
   let OriginalWebSocket: typeof WebSocket;
 
@@ -167,52 +165,52 @@ describe('MultiplexWebSocketTransport', function () {
   afterEach(function () {
     clock.restore();
     globalThis.WebSocket = OriginalWebSocket;
-    setMultiplexTransport(null);
+    setMultiplexLink(null);
   });
 
   describe('#connect()', function () {
     it('opens a WebSocket and resolves when the connection is accepted', async function () {
-      const transport = new MultiplexWebSocketTransport({
+      const link = new Link({
         baseUrl: 'wss://test.example.com/ccs',
       });
-      const connecting = transport.connect();
+      const connecting = link.connect();
       expect(FakeWebSocket.instances).to.have.length(1);
 
       FakeWebSocket.latest().open();
       await connecting;
     });
 
-    it('rejects if the transport was already closed', async function () {
-      const transport = new MultiplexWebSocketTransport({
+    it('rejects if the link was already closed', async function () {
+      const link = new Link({
         baseUrl: 'wss://test.example.com/ccs',
       });
-      transport.close('Test close');
+      link.close('Test close');
 
       let err: Error | undefined;
       try {
-        await transport.connect();
+        await link.connect();
       } catch (e) {
         err = e as Error;
       }
-      expect(err?.message).to.include('Transport is closed');
+      expect(err?.message).to.include('Link is closed');
     });
   });
 
   describe('incoming message routing', function () {
-    let transport: MultiplexWebSocketTransport;
+    let link: Link;
     let ws: FakeWebSocket;
 
     beforeEach(async function () {
-      transport = new MultiplexWebSocketTransport({
+      link = new Link({
         baseUrl: 'wss://test.example.com/ccs',
       });
-      ws = await connectTransport(transport);
+      ws = await connectLink(link);
     });
 
     it('fires onData with the payload bytes', async function () {
       const { calls, cb } = makeCallbacks();
-      const port = transport.allocatePort();
-      await transport.registerSocket(port, cb);
+      const port = link.allocatePort();
+      await link.registerSocket(port, cb);
 
       const payload = new Uint8Array([0xde, 0xad, 0xbe, 0xef]);
       ws.receiveMessage(serverFrame(port, payload));
@@ -223,8 +221,8 @@ describe('MultiplexWebSocketTransport', function () {
 
     it('fires onError and unregisters the socket for a v=-1 error frame', async function () {
       const { calls, cb } = makeCallbacks();
-      const port = transport.allocatePort();
-      await transport.registerSocket(port, cb);
+      const port = link.allocatePort();
+      await link.registerSocket(port, cb);
 
       ws.receiveMessage(serverFrame(port, new Uint8Array(0), -1, 'Test error'));
 
@@ -237,10 +235,10 @@ describe('MultiplexWebSocketTransport', function () {
     it('routes frames to the correct socket by local port', async function () {
       const { calls: c1, cb: cb1 } = makeCallbacks();
       const { calls: c2, cb: cb2 } = makeCallbacks();
-      const port1 = transport.allocatePort();
-      const port2 = transport.allocatePort();
-      await transport.registerSocket(port1, cb1);
-      await transport.registerSocket(port2, cb2);
+      const port1 = link.allocatePort();
+      const port2 = link.allocatePort();
+      await link.registerSocket(port1, cb1);
+      await link.registerSocket(port2, cb2);
 
       ws.receiveMessage(serverFrame(port2, new Uint8Array([0x01])));
 
@@ -250,7 +248,7 @@ describe('MultiplexWebSocketTransport', function () {
 
     it('silently ignores frames for unknown ports', async function () {
       const { calls, cb } = makeCallbacks();
-      await transport.registerSocket(99, cb);
+      await link.registerSocket(99, cb);
 
       ws.receiveMessage(serverFrame(42, new Uint8Array([1])));
 
@@ -260,7 +258,7 @@ describe('MultiplexWebSocketTransport', function () {
 
     it('silently ignores malformed frames', async function () {
       const { calls, cb } = makeCallbacks();
-      await transport.registerSocket(1, cb);
+      await link.registerSocket(1, cb);
 
       // Too short to be a valid BSON document
       ws.receiveMessage(new Uint8Array([0x01, 0x02]).buffer);
@@ -272,13 +270,13 @@ describe('MultiplexWebSocketTransport', function () {
 
   describe('#sendData()', function () {
     it('sends a frame whose payload matches the provided data', async function () {
-      const transport = new MultiplexWebSocketTransport({
+      const link = new Link({
         baseUrl: 'wss://test.example.com/ccs',
       });
-      const ws = await connectTransport(transport);
+      const ws = await connectLink(link);
 
       const data = new Uint8Array([0xca, 0xfe]);
-      transport.sendData(1, 'db.example.com', 27017, data);
+      link.sendData(1, 'db.example.com', 27017, data);
 
       const result = parseFrame(ws.sent[0]);
       expect(result).to.not.be.null;
@@ -289,12 +287,12 @@ describe('MultiplexWebSocketTransport', function () {
 
   describe('#sendError()', function () {
     it('sends a frame with v=-1', async function () {
-      const transport = new MultiplexWebSocketTransport({
+      const link = new Link({
         baseUrl: 'wss://test.example.com/ccs',
       });
-      const ws = await connectTransport(transport);
+      const ws = await connectLink(link);
 
-      transport.sendError(1, 'db.example.com', 27017, 'Test error');
+      link.sendError(1, 'db.example.com', 27017, 'Test error');
 
       const result = parseFrame(ws.sent[0]);
       expect(result).to.not.be.null;
@@ -305,36 +303,36 @@ describe('MultiplexWebSocketTransport', function () {
 
   describe('#close()', function () {
     it('calls onClose on every registered socket', async function () {
-      const transport = new MultiplexWebSocketTransport({
+      const link = new Link({
         baseUrl: 'wss://test.example.com/ccs',
       });
-      await connectTransport(transport);
+      await connectLink(link);
 
       const { calls: c1, cb: cb1 } = makeCallbacks();
       const { calls: c2, cb: cb2 } = makeCallbacks();
-      await transport.registerSocket(1, cb1);
-      await transport.registerSocket(2, cb2);
+      await link.registerSocket(1, cb1);
+      await link.registerSocket(2, cb2);
 
-      transport.close('Test close');
+      link.close('Test close');
 
       expect(c1.onClose).to.have.length(1);
       expect(c2.onClose).to.have.length(1);
     });
   });
 
-  describe('module-level singleton transport instance', function () {
-    it('getMultiplexTransport returns null by default', function () {
-      expect(getMultiplexTransport()).to.be.null;
+  describe('module-level singleton link instance', function () {
+    it('getMultiplexLink returns null by default', function () {
+      expect(getMultiplexLink()).to.be.null;
     });
 
-    it('setMultiplexTransport / getMultiplexTransport', function () {
-      const transport = new MultiplexWebSocketTransport({
+    it('setMultiplexLink / getMultiplexLink', function () {
+      const link = new Link({
         baseUrl: 'wss://test.example.com/ccs',
       });
-      setMultiplexTransport(transport);
-      expect(getMultiplexTransport()).to.equal(transport);
-      setMultiplexTransport(null);
-      expect(getMultiplexTransport()).to.be.null;
+      setMultiplexLink(link);
+      expect(getMultiplexLink()).to.equal(link);
+      setMultiplexLink(null);
+      expect(getMultiplexLink()).to.be.null;
     });
   });
 

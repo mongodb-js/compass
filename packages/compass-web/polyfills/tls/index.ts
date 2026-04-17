@@ -10,7 +10,7 @@
  */
 import type { SocketConnectOpts } from 'net';
 import { createConnection } from 'net';
-import { getMultiplexTransport } from '../../src/multiplex-ws-transport';
+import { getMultiplexLink } from '../../src/multiplex-link';
 
 declare global {
   interface Window {
@@ -28,7 +28,7 @@ export const connect = (options: { host: string; port: number }) => {
    * multiplexing is enabled, we do not need to use that. And in order to continue to support the
    * non-multiplexing, we will use `__compassWebSharedRuntime.tls` to connect.
    */
-  const isMultiplexingEnabled = !!getMultiplexTransport();
+  const isMultiplexingEnabled = !!getMultiplexLink();
   const isGlobalTlsAvailable = !!window.__compassWebSharedRuntime?.tls;
 
   if (!isMultiplexingEnabled && isGlobalTlsAvailable) {
