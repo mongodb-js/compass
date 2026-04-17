@@ -184,10 +184,10 @@ export class MultiplexWebSocketTransport implements Disposable {
     if (this.connectPromise) return this.connectPromise;
     if (this.closed) throw new Error('Transport is closed');
 
-    this.connectPromise = new Promise<void>((resolve, reject) => {
-      this.connectResolve = resolve;
-      this.connectReject = reject;
-    });
+    const { promise, resolve, reject } = Promise.withResolvers<void>();
+    this.connectPromise = promise;
+    this.connectResolve = resolve;
+    this.connectReject = reject;
 
     const dispose = addEventListener(signal, 'abort', (event) => {
       const reason: unknown = (event.target as AbortSignal).reason;
