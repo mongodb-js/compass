@@ -15,7 +15,7 @@ trap_handler() {
 trap trap_handler ERR EXIT
 
 # https://jira.mongodb.org/browse/MONGOSH-1856
-cp -v node_modules/@mongosh/node-runtime-worker-thread/dist/purls.txt node-runtime-worker-thread-purls.txt
+cp -v "$(npm ls @mongosh/node-runtime-worker-thread --parseable | head -1)/dist/purls.txt" node-runtime-worker-thread-purls.txt
 scp -v -i "$SIGNING_SERVER_PRIVATE_KEY_CYGPATH" -P "$SIGNING_SERVER_PORT" \
   .sbom/dependencies.json /tmp/artifactory_password node-runtime-worker-thread-purls.txt \
   "$SIGNING_SERVER_USERNAME"@"$SIGNING_SERVER_HOSTNAME":/tmp/
