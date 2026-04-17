@@ -36,7 +36,7 @@ describe('Multiplex WebSocket connection', function () {
           return !!getLink?.();
         });
       },
-      { timeoutMsg: 'Expected MultiplexWebSocketLink to be created' }
+      { timeoutMsg: 'Expected MultiplexWebLink to be created' }
     );
 
     await browser.setupDefaultConnections();
