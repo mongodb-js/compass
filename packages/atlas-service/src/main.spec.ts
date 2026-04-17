@@ -47,8 +47,9 @@ describe('CompassAuthServiceMain', function () {
     destroy: sandbox.stub(),
   };
 
-  const defaultConfig = {
+  const defaultConfig: util.AtlasServiceConfig = {
     ccsBaseUrl: 'ws://example.com',
+    multiplexedWsBaseUrls: ['ws://example.com/multiplex'],
     cloudBaseUrl: 'ws://example.com/cloud',
     atlasApiBaseUrl: 'http://example.com/api',
     atlasLogin: {

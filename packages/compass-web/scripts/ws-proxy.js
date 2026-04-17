@@ -2,107 +2,200 @@
 const net = require('net');
 const tls = require('tls');
 const { WebSocketServer } = require('ws');
+const { serialize, deserialize } = require('bson');
+
+function parseFrame(data) {
+  if (data.length < 4) return null;
+  const headerSize =
+    data[0] | (data[1] << 8) | (data[2] << 16) | ((data[3] << 24) >>> 0);
+  if (headerSize < 5 || headerSize > data.length) return null;
+  try {
+    const header = deserialize(data.slice(0, headerSize));
+    const payload = data.slice(headerSize);
+    return { header, payload };
+  } catch {
+    return null;
+  }
+}
+
+function buildFrame(header, payload) {
+  const headerBytes = Buffer.from(serialize(header));
+  if (!payload || payload.length === 0) return headerBytes;
+  return Buffer.concat([headerBytes, payload]);
+}
 
 /**
- * Creates a simple passthrough proxy that accepts a websocket connection and
- * establishes a corresponding socket connection to a server. The connection
- * flow starts by the frontend sending a connection options message after which
- * every follow-up message is directly written to the opened socket stream
+ * Creates a multiplexed WebSocket proxy for local sandbox development.
+ *
+ * Accepts a single shared WebSocket connection and demultiplexes it into
+ * individual TLS connections using the same BSON 5-tuple framing as
+ * MultiplexWebSocketTransport on the client side.
  */
 function createWebSocketProxy(port = 1337, logger = console) {
   const wsServer = new WebSocketServer({ host: 'localhost', port }, () => {
-    logger.log('ws server listening at %s', wsServer.options.port);
+    logger.log('[multiplex] ws proxy listening at %s', wsServer.options.port);
   });
 
-  const SOCKET_ERROR_EVENT_LIST = ['error', 'close', 'timeout', 'parseError'];
-
   wsServer.on('connection', (ws) => {
-    let socket;
-    logger.log('new ws connection (total %s)', wsServer.clients.size);
-    ws.on('close', () => {
-      logger.log('ws closed');
-      socket?.removeAllListeners();
-      socket?.end();
-    });
-    ws.on('message', async (data) => {
-      if (socket) {
-        socket.write(decodeMessageWithTypeByte(data), 'binary');
-      } else {
-        // First message before socket is created is with connection info
-        const { tls: useSecureConnection, ...connectOptions } =
-          decodeMessageWithTypeByte(data);
+    // sp (client source port) -> Socket
+    const streams = new Map();
 
+    logger.log(
+      '[ws-proxy] new ws connection (total %s)',
+      wsServer.clients.size
+    );
+
+    ws.on('error', (err) => {
+      logger.log('[ws-proxy] ws error: %s', err.message);
+    });
+
+    ws.on('close', (code, reason) => {
+      logger.log(
+        '[ws-proxy] ws closed, code=%d, reason=%s, destroying %d stream(s)',
+        code,
+        reason,
+        streams.size
+      );
+      for (const socket of streams.values()) {
+        socket.destroy();
+      }
+      streams.clear();
+    });
+
+    function safeSend(frame) {
+      if (ws.readyState === ws.OPEN) {
+        ws.send(frame);
+      }
+    }
+
+    ws.on('message', (rawData) => {
+      const data = Buffer.isBuffer(rawData) ? rawData : Buffer.from(rawData);
+      const parsed = parseFrame(data);
+      if (!parsed) return;
+
+      const { header, payload } = parsed;
+      const { v, sp, da, dp } = header;
+
+      if (v === -1) {
+        // Client is closing this stream
+        const socket = streams.get(sp);
+        if (socket) {
+          socket.destroy();
+          streams.delete(sp);
+        }
+        return;
+      }
+
+      if (!streams.has(sp)) {
+        // First frame for this sp = CONNECT: open TLS connection to da:dp
         logger.log(
-          'setting up new%s connection to %s:%s',
-          useSecureConnection ? ' secure' : '',
-          connectOptions.host,
-          connectOptions.port
+          '[ws-proxy.socket.open] tls stream sp=%d -> %s:%d',
+          sp,
+          da,
+          dp
         );
-        socket = useSecureConnection
-          ? tls.connect({
-              servername: connectOptions.host,
-              ...connectOptions,
-            })
-          : net.createConnection(connectOptions);
+
+        // All the localhost addresses will use net instead of tls. This is not the perfect
+        // solution and does not cover every use case but it allows us to connect to locally
+        // running clusters without worrying much.
+        const secure = !da.match(/^localhost$|^127\.0\.0\.1$|^::1$/);
+
+        const socket = secure
+          ? tls.connect({ servername: da, host: da, port: dp })
+          : net.connect({ host: da, port: dp });
         socket.setKeepAlive(true, 300000);
         socket.setTimeout(30000);
         socket.setNoDelay(true);
-        const connectEvent = useSecureConnection ? 'secureConnect' : 'connect';
-        SOCKET_ERROR_EVENT_LIST.forEach((evt) => {
-          socket.on(evt, (err) => {
-            logger.log('server socket error event (%s)', evt, err);
-            ws.close(evt === 'close' ? 1001 : 1011);
-          });
-        });
+
+        streams.set(sp, socket);
+
+        const connectEvent = secure ? 'secureConnect' : 'connect';
         socket.on(connectEvent, () => {
           logger.log(
-            'server socket connected at %s:%s',
-            connectOptions.host,
-            connectOptions.port
+            '[ws-proxy.socket.%s] stream sp=%d connected to %s:%d',
+            connectEvent,
+            sp,
+            da,
+            dp
           );
-          socket.setTimeout(0);
-          const encoded = encodeStringMessageWithTypeByte(
-            JSON.stringify({ preMessageOk: 1 })
+          // No frame needed: the client net polyfill emits secureConnect immediately
+          // when registering the socket, without waiting for a proxy signal.
+        });
+
+        socket.on('data', (chunk) => {
+          logger.log(
+            '[ws-proxy.socket.data] stream sp=%d sending %d bytes',
+            sp,
+            chunk.length
           );
-          ws.send(encoded);
+          safeSend(
+            buildFrame(
+              {
+                v: 1,
+                sa: 'localhost',
+                sp: 0,
+                da: 'localhost',
+                dp: sp,
+                sz: chunk.length,
+              },
+              chunk
+            )
+          );
         });
-        socket.on('data', async (data) => {
-          ws.send(encodeBinaryMessageWithTypeByte(data));
+
+        socket.on('close', (hadError) => {
+          logger.log(
+            '[ws-proxy.socket.close] stream sp=%d closed, hadError=%s',
+            sp,
+            hadError
+          );
+          streams.delete(sp);
+          safeSend(
+            buildFrame({
+              v: -1,
+              sa: 'localhost',
+              sp: 0,
+              da: 'localhost',
+              dp: sp,
+              sz: 0,
+              er: hadError ? 'tcp closed with error' : 'tcp closed',
+            })
+          );
         });
+
+        socket.on('error', (err) => {
+          logger.log(
+            '[ws-proxy.socket.error] stream sp=%d error: %s',
+            sp,
+            err.message
+          );
+          streams.delete(sp);
+          safeSend(
+            buildFrame({
+              v: -1,
+              sa: 'localhost',
+              sp: 0,
+              da: 'localhost',
+              dp: sp,
+              sz: 0,
+              er: err.message,
+            })
+          );
+        });
+
+        if (payload.length > 0) {
+          socket.write(payload);
+        }
+      } else {
+        const socket = streams.get(sp);
+        if (socket && payload.length > 0) {
+          socket.write(payload);
+        }
       }
     });
   });
 
   return wsServer;
-}
-
-function encodeStringMessageWithTypeByte(message) {
-  const utf8Encoder = new TextEncoder();
-  const utf8Array = utf8Encoder.encode(message);
-  return encodeMessageWithTypeByte(utf8Array, 0x01);
-}
-
-function encodeBinaryMessageWithTypeByte(message) {
-  return encodeMessageWithTypeByte(message, 0x02);
-}
-
-function encodeMessageWithTypeByte(message, type) {
-  const encoded = new Uint8Array(message.length + 1);
-  encoded[0] = type;
-  encoded.set(message, 1);
-  return encoded;
-}
-
-function decodeMessageWithTypeByte(message) {
-  const typeByte = message[0];
-  if (typeByte === 0x01) {
-    const jsonBytes = message.subarray(1);
-    const textDecoder = new TextDecoder('utf-8');
-    const jsonStr = textDecoder.decode(jsonBytes);
-    return JSON.parse(jsonStr);
-  } else if (typeByte === 0x02) {
-    return message.subarray(1);
-  }
 }
 
 module.exports = { createWebSocketProxy };

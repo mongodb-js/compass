@@ -796,20 +796,15 @@ functions:
           # CCS connection / op running time is slower than default timeouts
           COMPASS_E2E_MOCHA_TIMEOUT: '1440000' # 24 min
           COMPASS_E2E_WEBDRIVER_WAITFOR_TIMEOUT: '960000' # 16 min
+          ATLAS_CLOUD_TEST_ARGS: '${atlas_cloud_test_args|}'
         script: |
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
-          # Run the tests
-          echo "Starting e2e tests..."
-          # We're only running a special subset of tests as provisioning atlas
-          # clusters in CI is both pricey and flakey, so we want to limit the
-          # coverage to reduce those factors (at least for now)
+          echo "Starting atlas cloud e2e tests..."
           npm run --unsafe-perm --workspace compass-e2e-tests test-ci -- -- web \
             --test-atlas-cloud \
-            --test-filter="time-to-first-query" \
-            --test-filter="routing" \
-            --test-filter="atlas-cloud/**/*"
+            $ATLAS_CLOUD_TEST_ARGS
 
   test-connectivity:
     - command: shell.exec

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import * as tls from 'tls';
 import {
   Body,
   CompassComponentsProvider,
@@ -17,13 +16,12 @@ Object.assign(globalThis, {
   __compassWebSharedRuntime: {
     React,
     ReactDOM,
-    // TODO(CLOUDP-262964): move Socket implementation to compass codebase
-    tls,
   },
   // Two conditions need to be matching: this value set to true AND special
   // imports added directly to the compass-web build, there is no way to
   // activate this otherwise
   __compassWebEnableSandboxStorage: true,
+  __compassWebEnableSandboxMultiplexWsOverride: true,
   // For testing purposes to programmatically trigger navigation
   hashHistory,
 });
@@ -83,6 +81,7 @@ const App = () => {
             optInGenAIFeatures: false,
             enableDataModelingCollapse: true,
             enableMyQueries: false,
+            enableMultiplexWebSocketOnWeb: true,
           }}
           history={hashHistory}
         ></CompassWeb>
