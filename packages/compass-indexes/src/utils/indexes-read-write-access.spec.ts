@@ -3,53 +3,24 @@ import { useSelector } from 'react-redux';
 import { renderHook } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import React from 'react';
-import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { selectReadWriteAccess } from './indexes-read-write-access';
 import { setupStore } from '../../test/setup-store';
 import type { IndexesPluginOptions } from '../stores/store';
 
 describe('indexes-read-write-access', function () {
   describe('selectReadWriteAccess', function () {
-    function createAtlasConnectionInfo(): ConnectionInfo {
-      return {
-        id: 'TEST',
-        connectionOptions: {
-          connectionString: 'mongodb://localhost:27017',
-        },
-        atlasMetadata: {
-          orgId: 'test-org',
-          projectId: 'test-project',
-          clusterName: 'test-cluster',
-          clusterUniqueId: 'test-cluster-unique-id',
-          clusterType: 'REPLICASET' as const,
-          clusterState: 'IDLE' as const,
-          metricsId: 'test-metrics-id',
-          metricsType: 'replicaSet' as const,
-          regionalBaseUrl: null,
-          instanceSize: 'M10',
-          userConnectionString: 'mongodb://localhost:27017',
-          supports: {
-            globalWrites: false,
-            rollingIndexes: true,
-          },
-        },
-      };
-    }
-
     function getSelectReadWriteAccessResult(
       options: Partial<IndexesPluginOptions> = {},
       preferences: {
         readOnly?: boolean;
         readWrite?: boolean;
         enableAtlasSearchIndexes?: boolean;
-      } = {},
-      connectionInfo?: ConnectionInfo
+      } = {}
     ) {
       const store = setupStore(options, {}, {});
       const wrapper = ({ children }: { children: React.ReactNode }) =>
         React.createElement(Provider, { store, children });
 
-      const isAtlas = !!connectionInfo?.atlasMetadata;
       const readOnly = preferences.readOnly ?? false;
       const readWrite = preferences.readWrite ?? false;
       const enableAtlasSearchIndexes =
@@ -58,7 +29,6 @@ describe('indexes-read-write-access', function () {
         () =>
           useSelector(
             selectReadWriteAccess({
-              isAtlas,
               readOnly,
               readWrite,
               enableAtlasSearchIndexes,
@@ -188,10 +158,9 @@ describe('indexes-read-write-access', function () {
           const result = getSelectReadWriteAccessResult(
             {
               isReadonly: true,
-              serverVersion: '8.0.0',
+              serverVersion: '8.1.0',
             },
-            { enableAtlasSearchIndexes: true },
-            createAtlasConnectionInfo()
+            { enableAtlasSearchIndexes: true }
           );
           expect(result.isSearchIndexesReadable).to.equal(true);
         });
@@ -200,10 +169,9 @@ describe('indexes-read-write-access', function () {
           const result = getSelectReadWriteAccessResult(
             {
               isReadonly: true,
-              serverVersion: '8.0.0',
+              serverVersion: '8.1.0',
             },
-            { enableAtlasSearchIndexes: false },
-            createAtlasConnectionInfo()
+            { enableAtlasSearchIndexes: false }
           );
           expect(result.isSearchIndexesReadable).to.equal(false);
         });
@@ -212,10 +180,9 @@ describe('indexes-read-write-access', function () {
           const result = getSelectReadWriteAccessResult(
             {
               isReadonly: true,
-              serverVersion: '8.0.0',
+              serverVersion: '8.1.0',
             },
-            { enableAtlasSearchIndexes: true },
-            createAtlasConnectionInfo()
+            { enableAtlasSearchIndexes: true }
           );
           expect(result.isSearchIndexesWritable).to.equal(true);
         });
@@ -224,10 +191,9 @@ describe('indexes-read-write-access', function () {
           const result = getSelectReadWriteAccessResult(
             {
               isReadonly: true,
-              serverVersion: '7.0.0',
+              serverVersion: '8.1.0',
             },
-            { readOnly: true },
-            createAtlasConnectionInfo()
+            { readOnly: true }
           );
           expect(result.isSearchIndexesWritable).to.equal(false);
         });

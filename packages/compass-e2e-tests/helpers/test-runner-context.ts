@@ -198,10 +198,9 @@ function buildWebArgs(yargs: Argv) {
       })
       .options('atlas-cloud-default-cluster-type', {
         type: 'string',
-        default: 'GeoSharded',
+        default: 'Free',
         choices: ['GeoSharded', 'Free', 'Flex', 'Dedicated'],
-        description:
-          'Cluster type to provision. Default is GeoSharded as this is a requirement for "Global Writes" testing',
+        description: 'Cluster type to provision.',
       })
       .implies({
         'atlas-cloud-project-id': [

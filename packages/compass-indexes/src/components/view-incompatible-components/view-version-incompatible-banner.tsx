@@ -27,8 +27,6 @@ const ViewVersionIncompatibleBanner = ({
   const { atlasMetadata } = useConnectionInfo();
   const isAtlas = !!atlasMetadata;
 
-  // return if compatible, 8.1+ for compass and 8.0+ for data explorer
-  const searchIndexOnViewsMinVersion = isAtlas ? '8.0' : '8.1';
   // if compass version matches min compatibility for DE, we recommend Atlas UI as well
   const recommendedCta = isAtlas
     ? 'Upgrade your cluster or manage search indexes on views in the Atlas UI.'
@@ -44,7 +42,7 @@ const ViewVersionIncompatibleBanner = ({
         <span>
           Your MongoDB version is {serverVersion}. Creating and managing search
           indexes on views {!isAtlas && 'in Compass'} is supported on MongoDB
-          version {searchIndexOnViewsMinVersion} or higher. {recommendedCta}
+          version 8.1 or higher. {recommendedCta}
         </span>
         {isAtlas && (
           <Button
@@ -54,7 +52,7 @@ const ViewVersionIncompatibleBanner = ({
             })}
             target="_blank"
           >
-            Upgrade Cluster
+            Upgrade&nbsp;Cluster
           </Button>
         )}
       </div>

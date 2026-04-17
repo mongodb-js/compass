@@ -317,6 +317,12 @@ buildvariants:
     run_on: ubuntu2204-large
     tasks:
       - name: test-web-sandbox-atlas-cloud
+  - name: test-web-sandbox-atlas-cloud-geo-sharded
+    display_name: Test Web Sandbox Geo Sharded (w/ Atlas Cloud login)
+    run_on: ubuntu2204-large
+    tasks:
+      - name: test-web-sandbox-atlas-cloud-geo-sharded
+        cron: '@daily'
   - name: generate-vulnerability-report
     tags:
       - run-on-pr
@@ -1296,6 +1302,28 @@ tasks:
         vars:
           compass_distribution: compass
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
+          atlas_cloud_test_args: >-
+            --test-filter="time-to-first-query" --test-filter="routing"
+            --test-filter="collection-heading"
+            --test-filter="collection-documents-tab"
+            --test-filter="collection-aggregations-tab"
+            --test-filter="collection-indexes-tab"
+            --test-filter="collection-schema-tab" --test-filter="atlas-cloud/*"
+  - name: test-web-sandbox-atlas-cloud-geo-sharded
+    tags:
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-web-sandbox-atlas-cloud
+        vars:
+          compass_distribution: compass
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
+          atlas_cloud_test_args: >-
+            --atlas-cloud-default-cluster-type=GeoSharded
+            --test-filter="atlas-cloud/dedicated-cluster/**/*"
   - name: create_static_analysis_report
     tags:
       - required-for-publish-desktop

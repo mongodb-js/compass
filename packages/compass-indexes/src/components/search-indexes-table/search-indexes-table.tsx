@@ -122,8 +122,7 @@ export const SearchIndexesTable: React.FunctionComponent<
   onSearchIndexesClosed,
 }) => {
   const { openCollectionWorkspace } = useOpenWorkspace();
-  const { id: connectionId, atlasMetadata } = useConnectionInfo();
-  const isAtlas = !!atlasMetadata;
+  const { id: connectionId } = useConnectionInfo();
 
   const tabId = useWorkspaceTabId();
 
@@ -141,7 +140,6 @@ export const SearchIndexesTable: React.FunctionComponent<
   }, [tabId, onSearchIndexesOpened, onSearchIndexesClosed]);
   const { isSearchIndexesWritable } = useSelector(
     selectReadWriteAccess({
-      isAtlas,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
@@ -149,7 +147,7 @@ export const SearchIndexesTable: React.FunctionComponent<
     shallowEqual
   );
   const { isViewPipelineSearchQueryable } = useSelector(
-    selectIsViewSearchCompatible(isAtlas),
+    selectIsViewSearchCompatible,
     shallowEqual
   );
 
