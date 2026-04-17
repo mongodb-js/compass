@@ -349,6 +349,13 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
       }
     }
 
+    // SERVER-120253: The server may warn about converting non-integer
+    // expireAfterSeconds to integer in index specs. This is a server-side
+    // conversion that happens regardless of the BSON type sent by the client.
+    if (serverSatisfies('>= 9.0.0-rc0')) {
+      allowServerWarnings(12025301);
+    }
+
     throwIfAborted();
 
     try {

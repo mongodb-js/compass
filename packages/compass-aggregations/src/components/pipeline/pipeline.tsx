@@ -16,7 +16,7 @@ import { DEFAULT_SAMPLE_SIZE, DEFAULT_LARGE_LIMIT } from '../../constants';
 import type { SavingPipelineModalProps } from '../saving-pipeline-modal/saving-pipeline-modal';
 import type { SettingsProps } from '../settings/settings';
 import type { Workspace } from '../../modules/workspace';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 const pipelineStyles = css({
@@ -106,14 +106,8 @@ const Pipeline: React.FC<PipelineProps> = ({
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
 }) => {
-  const { atlasMetadata } = useConnectionInfo();
-  const isViewVersionSearchCompatible = atlasMetadata
-    ? VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
-        serverVersion
-      )
-    : VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-        serverVersion
-      );
+  const isViewVersionSearchCompatible =
+    VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(serverVersion);
   const isSearchIndexesReadable = isReadonlyView
     ? isViewVersionSearchCompatible
     : isSearchIndexesSupported;
