@@ -199,7 +199,7 @@ This document was automatically generated on Fri Apr 17 2026.
 | **[ast-types](#b10f17e6889028ee16e1f388d24ed535333cd289f0871c70d99c6180f498c6e0)**                                          | 0.13.4       | MIT                                 |
 | **[bail](#7bb145b871ec0ce498fe08f97b015e1298676bc4b6584732692f919e426a34a1)**                                               | 2.0.2        | MIT                                 |
 | **[base64-js](#cf278cb8d073b3bd22b60816c2ba78b69043aec6bcd673437b4c1db3375153d6)**                                          | 1.5.1        | MIT                                 |
-| **[basic-ftp](#31f3b30d9604f55c561ecd7584cd87af184b71534de64bc4bbe2b1f1f28a9d3a)**                                          | 5.2.2        | MIT                                 |
+| **[basic-ftp](#0f6539780f315b40194fcbc42d82299dcf6fddea0e1c9635269f5726fd3668b1)**                                          | 5.3.0        | MIT                                 |
 | **[bcrypt-pbkdf](#b6b5900f1e48a933591abc1c918fbcc9c890b3d071f607c59d704bc1c13b3937)**                                       | 1.0.2        | BSD-3-Clause                        |
 | **[bignumber.js](#72ac920aeb92af6ca1db48e34a5fb141e8e8e98ad9fab1e2223c1ecc8b539f73)**                                       | 9.3.1        | MIT                                 |
 | **[bindings](#acdb65ce90d2786593049f690752613250632fd5aeaa2960152abc4f0e8f3a44)**                                           | 1.5.0        | MIT                                 |
@@ -19928,9 +19928,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="31f3b30d9604f55c561ecd7584cd87af184b71534de64bc4bbe2b1f1f28a9d3a"></a>
+<a id="0f6539780f315b40194fcbc42d82299dcf6fddea0e1c9635269f5726fd3668b1"></a>
 
-### [basic-ftp](https://www.npmjs.com/package/basic-ftp) (version 5.2.2)
+### [basic-ftp](https://www.npmjs.com/package/basic-ftp) (version 5.3.0)
 
 License tags: MIT
 
