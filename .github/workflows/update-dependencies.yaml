@@ -71,7 +71,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.21.1
+          node-version: 24.14.0
           cache: 'npm'
 
       - name: Install npm@11.13.0
@@ -128,6 +128,6 @@ jobs:
             your convenience.</p>
 
             <p>If CI is red and you think that failures are related to the
-            version updates, you should raise an issue, so that it can be 
+            version updates, you should raise an issue, so that it can be
             manually resolved and we can continue to update the package group to
             latest.</p>

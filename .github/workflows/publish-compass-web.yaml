@@ -50,7 +50,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: 22.21.1
+          node-version: 24.14.0
           cache: 'npm'
 
       - name: Install npm@11.13.0
@@ -113,7 +113,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: 22.21.1
+          node-version: 24.14.0
           cache: 'npm'
 
       - name: Install npm@11.13.0
