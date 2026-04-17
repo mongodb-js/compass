@@ -345,7 +345,7 @@ module.exports = (env, args) => {
       path.resolve(__dirname, 'sandbox', 'sandbox-preferences.ts'),
       path.resolve(__dirname, 'sandbox', 'sandbox-logger-and-telemetry.ts'),
       path.resolve(__dirname, 'sandbox', 'sandbox-connection-storage.tsx'),
-      path.resolve(__dirname, 'sandbox', 'sandbox-multiplex-transport.ts'),
+      path.resolve(__dirname, 'sandbox', 'sandbox-multiplex-link.ts'),
       libraryConfig.entry.index,
     ];
   }
