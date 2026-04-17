@@ -232,6 +232,15 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable Chatbot API for Generative AI',
     },
   },
+  {
+    name: 'enableMultiplexWebSocketOnWeb',
+    stage: 'development',
+    atlasCloudFeatureFlagName:
+      'DATA_EXPLORER_ENABLE_MULTIPLEX_WEBSOCKET_ON_WEB',
+    description: {
+      short: 'Enable multiplexing websocket on web',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;

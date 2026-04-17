@@ -164,3 +164,12 @@ if (typeof HTMLCanvasElement !== 'undefined') {
     configurable: true,
   });
 }
+
+// Mock DisposableStack. Current version of jsdom does not support it.
+if (typeof globalThis.DisposableStack === 'undefined') {
+  globalThis.DisposableStack = class DisposableStack {
+    dispose() {}
+    use() {}
+    defer() {}
+  };
+}
