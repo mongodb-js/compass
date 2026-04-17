@@ -855,6 +855,8 @@ async function startCompassElectron(
     needsCloseWelcomeModal,
   });
 
+  await compass.prepare();
+
   return compass;
 }
 
@@ -944,6 +946,8 @@ export async function startBrowser(
     writeCoverage: false,
     needsCloseWelcomeModal: false,
   });
+
+  await compass.prepare();
 
   if (isTestingWebAtlasCloud(context)) {
     // In firefox extension needs to be loaded via special Gecko command and
@@ -1137,8 +1141,6 @@ export async function init(
   const compass = isTestingWeb()
     ? await startBrowser(name, opts)
     : await startCompassElectron(name, opts);
-
-  await compass.prepare();
 
   const { browser } = compass;
 
