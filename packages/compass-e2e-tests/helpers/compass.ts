@@ -148,7 +148,7 @@ export class Compass {
   writeCoverage: boolean;
   needsCloseWelcomeModal: boolean;
   renderLogs: RenderLogEntry[];
-  logs: LogEntry[];
+  logs: { raw: Buffer; structured: LogEntry[] };
   logPath?: string;
   userDataPath?: string;
   appName?: string;
@@ -168,7 +168,7 @@ export class Compass {
     this.mode = mode;
     this.writeCoverage = writeCoverage;
     this.needsCloseWelcomeModal = needsCloseWelcomeModal;
-    this.logs = [];
+    this.logs = { raw: Buffer.from(''), structured: [] };
     this.renderLogs = [];
   }
 
@@ -269,74 +269,80 @@ export class Compass {
       });
   }
 
-  async getApplicationLogs(): Promise<{ raw: Buffer; structured: any[] }> {
-    if (this.mode === 'web') {
-      const log: unknown[] = await this.browser.execute(function () {
-        const kSandboxLoggingAndTelemetryAccess = Symbol.for(
-          '@compass-web-sandbox-logging-and-telemetry-access'
-        );
-        return kSandboxLoggingAndTelemetryAccess in globalThis
-          ? (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
-          : [];
-      });
-      return {
-        raw: Buffer.from(
-          log
-            .map((line) => {
-              return JSON.stringify(line);
-            })
-            .join('\n')
-        ),
-        structured: log,
-      };
-    } else {
-      const emptyLogs = { raw: Buffer.from(''), structured: [] };
-
-      if (!this.logPath) {
-        debug('no log path provided');
-        return emptyLogs;
-      }
-
-      const names = await fs.readdir(this.logPath);
-      const logNames = names.filter((name) => name.endsWith('_log.gz'));
-
-      if (!logNames.length) {
-        debug('no log output indicator found!');
-        return emptyLogs;
-      }
-
-      // find the latest log file
-      let latest = 0;
-      let lastName = logNames[0];
-      for (const name of logNames.slice(1)) {
-        const id = name.slice(0, name.indexOf('_'));
-        const time = new ObjectId(id).getTimestamp().valueOf();
-        if (time > latest) {
-          latest = time;
-          lastName = name;
+  /**
+   * Resolves current application logs, updates internal state, and returns the
+   * logs. In desktop, can be called even after the session was closed. In web,
+   * relies on browser session still existing and will fail if it doesn't.
+   */
+  async fetchApplicationLogs(): Promise<{ raw: Buffer; structured: any[] }> {
+    try {
+      if (this.mode === 'web') {
+        const log: LogEntry[] = await this.browser.execute(function () {
+          const kSandboxLoggingAndTelemetryAccess = Symbol.for(
+            '@compass-web-sandbox-logging-and-telemetry-access'
+          );
+          return kSandboxLoggingAndTelemetryAccess in globalThis
+            ? (globalThis as any)[kSandboxLoggingAndTelemetryAccess].logging
+            : [];
+        });
+        this.logs = {
+          raw: Buffer.from(
+            log
+              .map((line) => {
+                return JSON.stringify(line);
+              })
+              .join('\n')
+          ),
+          structured: log,
+        };
+      } else {
+        if (!this.logPath) {
+          throw new Error('No log path provided');
         }
-      }
 
-      const filename = path.join(this.logPath, lastName);
-      debug('reading Compass application logs from', filename);
-      const contents = await promisify(gunzip)(await fs.readFile(filename), {
-        finishFlush: Z_SYNC_FLUSH,
-      });
-      return {
-        raw: contents,
-        structured: contents
-          .toString()
-          .split('\n')
-          .filter((line) => line.trim())
-          .map((line) => {
-            try {
-              return EJSON.parse(line);
-            } catch {
-              return { unparsabableLine: line };
-            }
-          }),
-      };
+        const names = await fs.readdir(this.logPath);
+        const logNames = names.filter((name) => name.endsWith('_log.gz'));
+
+        if (!logNames.length) {
+          throw new Error('No log output indicator found!');
+        }
+
+        // find the latest log file
+        let latest = 0;
+        let lastName = logNames[0];
+        for (const name of logNames.slice(1)) {
+          const id = name.slice(0, name.indexOf('_'));
+          const time = new ObjectId(id).getTimestamp().valueOf();
+          if (time > latest) {
+            latest = time;
+            lastName = name;
+          }
+        }
+
+        const filename = path.join(this.logPath, lastName);
+        debug('reading Compass application logs from', filename);
+        const contents = await promisify(gunzip)(await fs.readFile(filename), {
+          finishFlush: Z_SYNC_FLUSH,
+        });
+        this.logs = {
+          raw: contents,
+          structured: contents
+            .toString()
+            .split('\n')
+            .filter((line) => line.trim())
+            .map((line) => {
+              try {
+                return EJSON.parse(line);
+              } catch {
+                return { unparsabableLine: line };
+              }
+            }),
+        };
+      }
+    } catch (err) {
+      debug('Failed to update application logs', err);
     }
+    return this.logs;
   }
 
   addDebugger(): void {
@@ -486,14 +492,13 @@ export class Compass {
         renderLogPath,
         JSON.stringify(this.renderLogs, null, 2)
       );
-      const compassLog = await this.getApplicationLogs();
+      await this.fetchApplicationLogs();
       const compassLogPath = path.join(
         LOG_PATH,
         `compass-log.${this.name}.log`
       );
       debug(`Writing Compass application log to ${compassLogPath}`);
-      await fs.writeFile(compassLogPath, compassLog.raw);
-      this.logs = compassLog.structured;
+      await fs.writeFile(compassLogPath, this.logs.raw);
       if (this.writeCoverage) {
         await this.captureCoverage();
       }
