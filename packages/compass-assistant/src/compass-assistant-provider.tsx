@@ -77,8 +77,8 @@ import {
 } from './utils';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import type { ThunkAction, ThunkDispatch } from 'redux-thunk';
-import type { Action, AnyAction, Dispatch } from 'redux';
+import type { ThunkAction } from 'redux-thunk';
+import type { Action, AnyAction } from 'redux';
 import { connect } from 'react-redux';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
@@ -271,12 +271,6 @@ export type AssistantThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   AssistantState,
   AssistantExtraArgs,
   A
->;
-
-type AssistantThunkDispatch = ThunkDispatch<
-  AssistantState,
-  AssistantExtraArgs,
-  AnyAction
 >;
 
 const reducer = (
@@ -507,6 +501,56 @@ function handleEntryPoint<T>(
   };
 }
 
+// Individual entry point action creators for connect mapDispatchToProps
+function interpretExplainPlanThunk(
+  props: {
+    namespace: string;
+    explainPlan: string;
+    operationType: 'query' | 'aggregation';
+  },
+  globalState: GlobalState,
+  openDrawer: (id: string) => void
+): AssistantThunkAction<void> {
+  return handleEntryPoint(
+    'explain plan',
+    buildExplainPlanPrompt,
+    props,
+    globalState,
+    openDrawer
+  );
+}
+
+function interpretConnectionErrorThunk(
+  props: {
+    connectionInfo: ConnectionInfo;
+    error: Error;
+  },
+  globalState: GlobalState,
+  openDrawer: (id: string) => void
+): AssistantThunkAction<void> {
+  return handleEntryPoint(
+    'connection error',
+    buildConnectionErrorPrompt,
+    props,
+    globalState,
+    openDrawer
+  );
+}
+
+function tellMoreAboutInsightThunk(
+  props: ProactiveInsightsContext,
+  globalState: GlobalState,
+  openDrawer: (id: string) => void
+): AssistantThunkAction<void> {
+  return handleEntryPoint(
+    'performance insights',
+    buildProactiveInsightsPrompt,
+    props,
+    globalState,
+    openDrawer
+  );
+}
+
 // Activate function — creates a real Redux store with services as thunk extra args
 function activateAssistantPlugin(
   {
@@ -577,12 +621,50 @@ function getChat(): AssistantThunkAction<Chat<AssistantMessage>> {
 const AssistantProviderInner: React.FunctionComponent<
   PropsWithChildren<{
     projectId?: string;
-    dispatch: Dispatch;
+    getChat: () => Chat<AssistantMessage>;
+    ensureOptInAndSend: (
+      message: SendMessage,
+      options: SendOptions,
+      callback: (options: {
+        requestId: string;
+        connectionInfo?: BasicConnectionInfo;
+      }) => void,
+      globalState: GlobalState
+    ) => Promise<void>;
+    interpretExplainPlan: (
+      props: {
+        namespace: string;
+        explainPlan: string;
+        operationType: 'query' | 'aggregation';
+      },
+      globalState: GlobalState,
+      openDrawer: (id: string) => void
+    ) => void;
+    interpretConnectionError: (
+      props: {
+        connectionInfo: ConnectionInfo;
+        error: Error;
+      },
+      globalState: GlobalState,
+      openDrawer: (id: string) => void
+    ) => void;
+    tellMoreAboutInsight: (
+      props: ProactiveInsightsContext,
+      globalState: GlobalState,
+      openDrawer: (id: string) => void
+    ) => void;
   }>
-> = ({ projectId, dispatch: _dispatch, children }) => {
-  const thunkDispatch = _dispatch as AssistantThunkDispatch;
+> = ({
+  projectId,
+  getChat: getChatAction,
+  ensureOptInAndSend,
+  interpretExplainPlan,
+  interpretConnectionError,
+  tellMoreAboutInsight,
+  children,
+}) => {
   // chat is stable — created once in activate, never changes
-  const [chat] = React.useState(() => thunkDispatch(getChat()));
+  const [chat] = React.useState(() => getChatAction());
   const { openDrawer } = useDrawerActions();
 
   const assistantGlobalStateRef = useCurrentValueRef(useAssistantGlobalState());
@@ -590,46 +672,32 @@ const AssistantProviderInner: React.FunctionComponent<
 
   const assistantActionsContext = useInitialValue<AssistantActionsContextType>({
     interpretExplainPlan: (props) => {
-      thunkDispatch(
-        handleEntryPoint(
-          'explain plan',
-          buildExplainPlanPrompt,
-          props,
-          assistantGlobalStateRef.current,
-          openDrawerRef.current
-        )
+      interpretExplainPlan(
+        props,
+        assistantGlobalStateRef.current,
+        openDrawerRef.current
       );
     },
     interpretConnectionError: (props) => {
-      thunkDispatch(
-        handleEntryPoint(
-          'connection error',
-          buildConnectionErrorPrompt,
-          props,
-          assistantGlobalStateRef.current,
-          openDrawerRef.current
-        )
+      interpretConnectionError(
+        props,
+        assistantGlobalStateRef.current,
+        openDrawerRef.current
       );
     },
     tellMoreAboutInsight: (props) => {
-      thunkDispatch(
-        handleEntryPoint(
-          'performance insights',
-          buildProactiveInsightsPrompt,
-          props,
-          assistantGlobalStateRef.current,
-          openDrawerRef.current
-        )
+      tellMoreAboutInsight(
+        props,
+        assistantGlobalStateRef.current,
+        openDrawerRef.current
       );
     },
     ensureOptInAndSend: async (message, options, callback) => {
-      await thunkDispatch(
-        ensureOptInAndSendThunk(
-          message,
-          options,
-          callback,
-          assistantGlobalStateRef.current
-        )
+      await ensureOptInAndSend(
+        message,
+        options,
+        callback,
+        assistantGlobalStateRef.current
       );
     },
   });
@@ -645,7 +713,13 @@ const AssistantProviderInner: React.FunctionComponent<
   );
 };
 
-const ConnectedAssistantProvider = connect()(AssistantProviderInner);
+const ConnectedAssistantProvider = connect(null, {
+  getChat,
+  ensureOptInAndSend: ensureOptInAndSendThunk,
+  interpretExplainPlan: interpretExplainPlanThunk,
+  interpretConnectionError: interpretConnectionErrorThunk,
+  tellMoreAboutInsight: tellMoreAboutInsightThunk,
+})(AssistantProviderInner);
 
 export const CompassAssistantProvider = registerCompassPlugin(
   {
