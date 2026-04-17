@@ -100,6 +100,7 @@ export function buildFrame(header: Header, payload?: Uint8Array): Uint8Array {
   return frame;
 }
 
+/** Generates a string on each call: "a", "b", ..., "z", "aa", "ab", etc. */
 const getNextHostname = (function* getNextHostname() {
   let i = 0;
   while (true) {

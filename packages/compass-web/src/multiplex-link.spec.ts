@@ -7,10 +7,7 @@ import {
   parseFrame,
   buildFrame,
 } from './multiplex-link';
-import type {
-  Header,
-  MultiplexSocketCallbacks,
-} from './multiplex-link';
+import type { Header, MultiplexSocketCallbacks } from './multiplex-link';
 
 class FakeWebSocket {
   static CONNECTING = 0;
