@@ -209,7 +209,7 @@ export class Link implements Disposable {
     this.sourceAddress = getNextHostname.next().value;
 
     this.logger?.log.info(
-      this.logger?.mongoLogId(1_001_000_420),
+      this.logger?.mongoLogId(1_001_000_428),
       'COMPASS-WEB-MULTIPLEXING',
       'Link connecting to WS',
       {
