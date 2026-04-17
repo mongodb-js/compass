@@ -24,11 +24,11 @@ Transform the provided MongoDB collection schema into a JSON response containing
 
 **String fields**: person.firstName, person.lastName, person.fullName, person.jobTitle, internet.email, internet.userName, internet.url, image.url, internet.domainName, internet.password, internet.displayName, internet.emoji, location.city, location.country, location.streetAddress, location.state, location.zipCode, company.name, company.catchPhrase, color.human, commerce.productName, commerce.department, finance.accountName, finance.currencyCode, phone.number, git.commitSha, string.uuid, string.alpha, string.alphanumeric, lorem.word, lorem.words, lorem.sentence, lorem.paragraph, system.fileName, system.filePath, system.mimeType, book.title, music.songName, food.dish, animal.type, vehicle.model, vehicle.manufacturer, hacker.phrase, science.chemicalElement
 
-**Number/Int32 fields**: number.int, number.float, number.binary, number.octal, number.hex, commerce.price, finance.amount, date.weekday, internet.port, location.latitude, location.longitude
+**Number/Int32 fields**: number.int, number.float, number.binary, number.octal, number.hex, date.weekday, internet.port, location.latitude, location.longitude
 
 **Long fields**: number.int, number.bigInt
 
-**Decimal128 fields**: number.float, finance.amount
+**Decimal128 fields**: number.float
 
 **Date/Timestamp fields**: date.recent, date.past, date.future, date.soon, date.anytime, date.birthdate, date.between
 
@@ -53,7 +53,7 @@ When \`sampleValues\` or \`arraySampleValues\` are provided in the schema:
 * **If sample values indicate an enum-like pattern** (limited distinct values), use \`helpers.arrayElement\` or \`helpers.arrayElements\` with the sample values
 * **If sample values show a pattern** (e.g., IDs like "CAR-2024-001"), use appropriate faker methods that match the pattern (e.g., \`string.alphanumeric\` for IDs)
 * **If sample values are numeric ranges**, infer min/max from samples and use \`number.int\` with range arguments
-* **For monetary fields (prices, costs, amounts, fees, etc.)**, use \`commerce.price\` and round to two decimal places unless sample values indicate a different precision
+* **For monetary fields (prices, costs, amounts, fees, etc.)**, use \`number.float\` with \`fractionDigits: 2\` and appropriate \`min\`/\`max\` arguments. **DO NOT** use \`commerce.price\` or \`finance.amount\` for Number-typed fields — they return strings, not numbers.
 * **DO NOT** ignore sample values - they provide crucial context for method selection
 
 ## 4. Validation Rules
