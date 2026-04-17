@@ -41,90 +41,75 @@ export interface EvalCriterion {
   methods: Array<string>;
 }
 
-export const DatelikeMethodCriterion: EvalCriterion =
-  (function DatelikeMethodCriterion() {
-    const DATELIKE_METHODS = new Set<string>([
-      'date.anytime',
-      'date.past',
-      'date.recent',
-      'date.soon',
-      'date.future',
-      'date.between',
-    ]);
+const DATELIKE_METHODS = new Set<string>([
+  'date.anytime',
+  'date.past',
+  'date.recent',
+  'date.soon',
+  'date.future',
+  'date.between',
+]);
 
-    return {
-      name: 'DatelikeMethodCriterion' as const,
-      satisfiedBy(method: string): boolean {
-        if (typeof method !== 'string') {
-          return false;
-        }
-        return DATELIKE_METHODS.has(method);
-      },
-      methods: Array.from(DATELIKE_METHODS),
-    };
-  })();
+export const DatelikeMethodCriterion: EvalCriterion = {
+  name: 'DatelikeMethodCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return DATELIKE_METHODS.has(method);
+  },
+  methods: Array.from(DATELIKE_METHODS),
+};
 
-export const IdlikeMethodCriterion: EvalCriterion =
-  (function IdlikeMethodCriterion() {
-    const IDLIKE_METHODS = new Set<string>([
-      'string.alphanumeric',
-      'string.uuid',
-    ]);
+const IDLIKE_METHODS = new Set<string>(['string.alphanumeric', 'string.uuid']);
 
-    return {
-      name: 'IdlikeMethodCriterion' as const,
-      satisfiedBy(method: string): boolean {
-        if (typeof method !== 'string') {
-          return false;
-        }
-        return IDLIKE_METHODS.has(method);
-      },
-      methods: Array.from(IDLIKE_METHODS),
-    };
-  })();
+export const IdlikeMethodCriterion: EvalCriterion = {
+  name: 'IdlikeMethodCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return IDLIKE_METHODS.has(method);
+  },
+  methods: Array.from(IDLIKE_METHODS),
+};
 
 /**
  * NumericFieldMethodCriterion for Number-typed fields. Accepts number.int and
  * number.float. Rejects commerce.price and finance.amount which return strings.
  */
-export const NumericFieldMethodCriterion: EvalCriterion =
-  (function NumericFieldMethodCriterion() {
-    const METHODS = new Set<string>(['number.int', 'number.float']);
+const NUMERIC_FIELD_METHODS = new Set<string>(['number.int', 'number.float']);
 
-    return {
-      name: 'NumericFieldMethodCriterion' as const,
-      satisfiedBy(method: string): boolean {
-        if (typeof method !== 'string') {
-          return false;
-        }
-        return METHODS.has(method);
-      },
-      methods: Array.from(METHODS),
-    };
-  })();
+export const NumericFieldMethodCriterion: EvalCriterion = {
+  name: 'NumericFieldMethodCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return NUMERIC_FIELD_METHODS.has(method);
+  },
+  methods: Array.from(NUMERIC_FIELD_METHODS),
+};
 
 /**
  * SecondaryAddressCriterion accepts location.secondaryAddress and
  * string.alphanumeric.
  */
-export const SecondaryAddressCriterion: EvalCriterion =
-  (function SecondaryAddressCriterion() {
-    const METHODS = new Set<string>([
-      'location.secondaryAddress',
-      'string.alphanumeric',
-    ]);
+const SECONDARY_ADDRESS_METHODS = new Set<string>([
+  'location.secondaryAddress',
+  'string.alphanumeric',
+]);
 
-    return {
-      name: 'SecondaryAddressCriterion' as const,
-      satisfiedBy(method: string): boolean {
-        if (typeof method !== 'string') {
-          return false;
-        }
-        return METHODS.has(method);
-      },
-      methods: Array.from(METHODS),
-    };
-  })();
+export const SecondaryAddressCriterion: EvalCriterion = {
+  name: 'SecondaryAddressCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return SECONDARY_ADDRESS_METHODS.has(method);
+  },
+  methods: Array.from(SECONDARY_ADDRESS_METHODS),
+};
 
 export const isEvalCriterion = (method: unknown): method is EvalCriterion => {
   return (
