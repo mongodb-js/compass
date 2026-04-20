@@ -40,8 +40,6 @@ Transform the provided MongoDB collection schema into a JSON response containing
 
 **Array fields**: helpers.arrayElement. **DO NOT** use \`helpers.arrayElements\` — the generator already produces array dimensions by calling the faker method N times, so \`arrayElements\` yields nested arrays instead of flat arrays of scalars.
 
-**CRITICAL — \`helpers.arrayElement\` arg requirement**: \`helpers.arrayElement\` ALWAYS requires a non-empty array argument — calling it with no args or an empty array throws at runtime. Every use of \`helpers.arrayElement\` MUST include exactly one \`fakerArgs\` entry of the form \`{"json": "[...values...]"}\` containing at least one value. If \`sampleValues\` are provided, pass those. If not, invent a plausible set (3–10 items) from your domain knowledge of the field name (e.g. for a field named \`rated\`, use MPAA ratings \`["G","PG","PG-13","R","NC-17"]\`; for \`genres[]\`, use common movie genres). **NEVER** emit \`helpers.arrayElement\` with \`fakerArgs: []\`.
-
 ### Example Method Selection Guidelines
 * For string fields containing email patterns → use \`internet.email\`
 * For string fields containing URLs → use \`internet.url\`
