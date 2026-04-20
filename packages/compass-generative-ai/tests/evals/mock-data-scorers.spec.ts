@@ -609,9 +609,9 @@ describe('Mock Data Scorers', function () {
       expect(result).to.have.property('score', 0);
     });
 
-    it('skips (scores 1) when every arrayElement field has no sampleValues', async function () {
+    it('skips when arrayElement field has no sampleValues', async function () {
       // Sample Value Accuracy measures whether the LLM correctly used
-      // *provided* sampleValues. If none were provided the scorer has nothing
+      // provided sampleValues. If none were provided the scorer has nothing
       // to validate, so the field is not counted in `checked`. The scorer's
       // default 1.0 then applies.
       const result = await FakerSampleValueAccuracy(
