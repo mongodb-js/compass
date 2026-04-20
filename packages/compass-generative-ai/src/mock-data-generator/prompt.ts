@@ -49,7 +49,7 @@ Transform the provided MongoDB collection schema into a JSON response containing
 * For date fields → use \`date.past\`, \`date.future\`, or \`date.recent\` depending on context
 
 ## 3. Using Sample Values
-When \`sampleValues\` or \`arraySampleValues\` are provided in the schema:
+When \`sampleValues\` are provided in the schema:
 * **If sample values indicate an enum-like pattern** (limited distinct values), use \`helpers.arrayElement\` with the sample values
 * **If sample values show a pattern** (e.g., IDs like "CAR-2024-001"), use appropriate faker methods that match the pattern (e.g., \`string.alphanumeric\` for IDs)
 * **If sample values are numeric ranges**, infer min/max from samples and use \`number.int\` with range arguments
@@ -165,10 +165,10 @@ Documents in the collection are described by the following schema:
     "modifications[]": {
       "type": "string",
       "probability": 0.8,
-      "arraySampleValues": [
-        ["Leather Seats", "Sunroof", "Premium Sound System"],
-        ["Sport Package", "Navigation System"],
-        ["Cold Weather Package", "Heated Seats"]
+      "sampleValues": [
+        "Leather Seats", "Sunroof", "Premium Sound System",
+        "Sport Package", "Navigation System",
+        "Cold Weather Package", "Heated Seats"
       ]
     }
   }
