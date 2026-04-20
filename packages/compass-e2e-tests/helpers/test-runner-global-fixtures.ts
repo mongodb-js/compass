@@ -337,22 +337,23 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
 
     debug('Getting mongodb server info');
     await updateMongoDBServerInfo();
+
+    debug('Adding globally shared server warning skips');
     if (serverSatisfies('< 8.2')) {
-      for (const checker of serverLogsCheckers) {
-        checker.allowWarning((l: LogEntry) => {
-          // "Aggregate command executor error" with CommandNotSupported
-          // This happens when Compass probes for search index support on older non-Atlas servers
-          return (
-            l.id === 23799 && l.attr?.error?.codeName === 'CommandNotSupported'
-          );
-        });
-      }
+      allowServerWarnings((l: LogEntry) => {
+        // "Aggregate command executor error" with CommandNotSupported This
+        // happens when Compass probes for search index support on older
+        // non-Atlas servers
+        return (
+          l.id === 23799 && l.attr?.error?.codeName === 'CommandNotSupported'
+        );
+      });
     }
 
     // SERVER-120253: The server may warn about converting non-integer
     // expireAfterSeconds to integer in index specs. This is a server-side
     // conversion that happens regardless of the BSON type sent by the client.
-    if (serverSatisfies('>= 9.0.0-rc0')) {
+    if (serverSatisfies('>=9.0.0-alpha0')) {
       allowServerWarnings(12025301);
     }
 

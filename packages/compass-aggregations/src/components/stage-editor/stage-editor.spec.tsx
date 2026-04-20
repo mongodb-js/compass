@@ -196,13 +196,18 @@ describe('StageEditor [Component]', function () {
         message: "geoWithin requires path 'location' to be indexed as 'geo'",
       } as MongoServerError;
 
-      renderStageEditor({
-        stageValue: '{ index: "test-index" }',
-        stageOperator: '$search',
-        serverError,
-        num_stages: 1,
-        searchIndexName: 'test-index',
-      });
+      renderStageEditor(
+        {
+          stageValue: '{ index: "test-index" }',
+          stageOperator: '$search',
+          serverError,
+          num_stages: 1,
+          searchIndexName: 'test-index',
+        },
+        {
+          preferences: { enableSearchActivationProgramP1: true },
+        }
+      );
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
       expect(screen.getByText('Edit Search Index')).to.exist;
