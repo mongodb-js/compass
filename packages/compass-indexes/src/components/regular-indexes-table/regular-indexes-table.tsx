@@ -79,6 +79,7 @@ export const RegularIndexesTable: React.FunctionComponent<
     };
   }, [tabId, onRegularIndexesOpened, onRegularIndexesClosed]);
 
+  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
   const { data } = useRegularIndexesTable({
     indexes,
     inProgressIndexes,
@@ -95,9 +96,6 @@ export const RegularIndexesTable: React.FunctionComponent<
     // displaying it.
     return null;
   }
-
-  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
-
   return (
     <IndexesTable
       id="regular-indexes"

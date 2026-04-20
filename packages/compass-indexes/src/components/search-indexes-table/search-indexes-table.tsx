@@ -183,6 +183,7 @@ export const SearchIndexesTable: React.FunctionComponent<
     ]
   );
 
+  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
   const { data } = useSearchIndexesTable({
     indexes,
     vectorTypeLabel: 'Vector Search',
@@ -205,8 +206,6 @@ export const SearchIndexesTable: React.FunctionComponent<
       />
     );
   }
-
-  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
 
   return (
     <IndexesTable

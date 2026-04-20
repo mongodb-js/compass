@@ -224,7 +224,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
 
   // Convert name-keyed expandedRows from Redux to row-index-keyed for the table
   const expanded = useMemo(() => {
-    const result: Record<string, boolean> = {};
+    const result: Record<string, boolean> = Object.create(null);
     data.forEach((item, idx) => {
       if (expandedRows[item.name]) {
         result[String(idx)] = true;

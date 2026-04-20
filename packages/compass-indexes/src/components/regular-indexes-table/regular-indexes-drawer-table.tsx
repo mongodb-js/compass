@@ -118,6 +118,7 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     shallowEqual
   );
 
+  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
   const { data: allData } = useRegularIndexesTable({
     indexes,
     inProgressIndexes,
@@ -150,8 +151,6 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
       />
     );
   }
-
-  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
 
   return (
     <IndexesTable
