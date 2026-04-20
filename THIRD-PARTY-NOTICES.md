@@ -233,7 +233,7 @@ This document was automatically generated on Mon Apr 20 2026.
 | **[core-js](#b3e57358472a05e43852c75fc867d187048f9fe93ea808d08722e88e6a7ae296)**                                            | 3.49.0       | MIT                                 |
 | **[cpu-features](#5cc8a81a046950da99f4224ebaf7f620dad62a61362f6cc5e8629aebf7d59094)**                                       | 0.0.10       | MIT                                 |
 | **[crelt](#806aff03b8ffaac07d96530102f540d10d005fc2cedb14e55e25e1bbd78a12a8)**                                              | 1.0.6        | MIT                                 |
-| **[cross-fetch](#a20c045c29ed2b3df6d5165307a9aeb0ed2d67089b57f716fdc3dd82d9c40bc7)**                                        | 3.2.0        | MIT                                 |
+| **[cross-fetch](#44e9471fe0b5c81008419b4f7434ec84ca4e6a75e60a45f3bf8b1e0adf9b5549)**                                        | 4.1.0        | MIT                                 |
 | **[css-loader](#36a5fb6f554559a2f884527f4dd7aa81131ccc3b1aee899472cfec2eda765798)**                                         | 4.3.0        | MIT                                 |
 | **[d3-flextree](#d4848a862048d0f4733db2a8631b802f3b5f86f2d4a1efb77fc8b8cf9a06bf73)**                                        | 2.1.2        | WTFPL                               |
 | **[d3-hierarchy](#e718643319205524a77c56ca75dcbf37e3975cc5e187760d1eef01cdd94a7d74)**                                       | 1.1.9        | BSD-3-Clause                        |
@@ -418,12 +418,12 @@ This document was automatically generated on Mon Apr 20 2026.
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0        | MIT                                 |
 | **[mongodb-build-info](#072a485ce651997e66b97b522fce57ad957256d3fae4c7c7179933ee22c75ecd)**                                 | 1.9.6        | Apache-2.0                          |
 | **[mongodb-client-encryption](#f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e)**                          | 7.0.0        | Apache-2.0                          |
-| **[mongodb-cloud-info](#da99078943bd2acc41da07d6285eb8cb5dfc492472612cdd55a0231002a06b3a)**                                 | 2.3.7        | Apache-2.0                          |
+| **[mongodb-cloud-info](#c9e3ea2d44f39f1137a828527f79e7c707c97c999ac0e2b45dea304975f3f74c)**                                 | 2.3.10       | Apache-2.0                          |
 | **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**                      | 7.0.1        | Apache-2.0                          |
 | **[mongodb-log-writer](#41de265e46da14679ed02f56213dfeddc448522f56b1b3ebd39689c43af5d5f1)**                                 | 2.5.7        | Apache-2.0                          |
 | **[mongodb-mcp-server](#07cc529c3de73373ab4b3771b6c26c7f881f361d3fa7377dffb1c9676d2518c7)**                                 | 1.9.0        | Apache-2.0                          |
 | **[mongodb-ns](#1681b02f7072ef576cc967fe600d4bc561bc1f5f8e0e451d2903288655650eaf)**                                         | 3.1.6        | Apache-2.0                          |
-| **[mongodb-query-parser](#15d86e029ff832c873116c6f438515a59156d8fa89923d43d69591f2ad42fdc1)**                               | 4.7.7        | Apache-2.0                          |
+| **[mongodb-query-parser](#8198d827c4388efbea79902ccd2ba5648fb06ff3b44438987dec046c6168bf39)**                               | 4.7.8        | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6        | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0       | Apache-2.0                          |
 | **[mongodb](#71db4d6739a9dc892a0fa23a6b9beef3b83bd28ced0c57b39bc667538a270708)**                                            | 7.1.1        | Apache-2.0                          |
@@ -443,7 +443,6 @@ This document was automatically generated on Mon Apr 20 2026.
 | **[node-machine-id](#04300d9a81d7dde11af595a215cba70df140afadb59a5032f596d7ea2bcc1add)**                                    | 1.1.12       | MIT                                 |
 | **[numeral](#b3c90be596160f7dccbd1ff771ddbffb9a1b19d0bb9456553d8822903386573e)**                                            | 1.5.6        | MIT                                 |
 | **[numeral](#d274a180ad09fc1ae9325f01bf5dc1296caf553888d952fab7ebf524dfdc56a1)**                                            | 2.0.6        | MIT                                 |
-| **[oauth4webapi](#8eb00a333dd3de30cbe56c7d8c57d5d1535ba2c3bf733c80d86dbf61f13a750f)**                                       | 3.8.3        | MIT                                 |
 | **[oauth4webapi](#049995747cf68e607b5ca197e44829b4a77c53aa86255f8af0c8b6cdb335f2d3)**                                       | 3.8.5        | MIT                                 |
 | **[object-assign](#598e372231bb5bef26b7d61105282eb20e14ade430143052d064d2d406769b95)**                                      | 4.1.1        | MIT                                 |
 | **[object-inspect](#ecbef7226b7af9b6efde6c61e71aaefa8a0bf57a726689d055c866298db9886e)**                                     | 1.13.4       | MIT                                 |
@@ -20989,9 +20988,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="a20c045c29ed2b3df6d5165307a9aeb0ed2d67089b57f716fdc3dd82d9c40bc7"></a>
+<a id="44e9471fe0b5c81008419b4f7434ec84ca4e6a75e60a45f3bf8b1e0adf9b5549"></a>
 
-### [cross-fetch](https://www.npmjs.com/package/cross-fetch) (version 3.2.0)
+### [cross-fetch](https://www.npmjs.com/package/cross-fetch) (version 4.1.0)
 
 License tags: MIT
 
@@ -27720,9 +27719,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="da99078943bd2acc41da07d6285eb8cb5dfc492472612cdd55a0231002a06b3a"></a>
+<a id="c9e3ea2d44f39f1137a828527f79e7c707c97c999ac0e2b45dea304975f3f74c"></a>
 
-### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.3.7)
+### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.3.10)
 
 License tags: Apache-2.0
 
@@ -28769,9 +28768,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="15d86e029ff832c873116c6f438515a59156d8fa89923d43d69591f2ad42fdc1"></a>
+<a id="8198d827c4388efbea79902ccd2ba5648fb06ff3b44438987dec046c6168bf39"></a>
 
-### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.7.7)
+### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.7.8)
 
 License tags: Apache-2.0
 
@@ -30256,38 +30255,6 @@ License files:
       WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
       FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
       OTHER DEALINGS IN THE SOFTWARE.
-
-<a id="8eb00a333dd3de30cbe56c7d8c57d5d1535ba2c3bf733c80d86dbf61f13a750f"></a>
-
-### [oauth4webapi](https://www.npmjs.com/package/oauth4webapi) (version 3.8.3)
-
-License tags: MIT
-
-License files:
-
-- LICENSE.md:
-
-      The MIT License (MIT)
-
-      Copyright (c) 2022 Filip Skokan
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all
-      copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-      SOFTWARE.
 
 <a id="049995747cf68e607b5ca197e44829b4a77c53aa86255f8af0c8b6cdb335f2d3"></a>
 
