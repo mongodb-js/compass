@@ -5,9 +5,11 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { CompassAtlasAuthService } from './compass-atlas-auth-service';
+import type { AtlasServiceConfig } from './util';
 
-const ATLAS_CONFIG = {
+const ATLAS_CONFIG: AtlasServiceConfig = {
   ccsBaseUrl: 'ws://example.com',
+  multiplexedWsBaseUrls: ['ws://example.com/multiplex'],
   cloudBaseUrl: 'ws://example.com/cloud',
   atlasApiBaseUrl: 'http://example.com/api',
   atlasLogin: {

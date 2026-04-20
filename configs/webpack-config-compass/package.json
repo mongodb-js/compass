@@ -11,7 +11,7 @@
     "email": "compass@mongodb.com"
   },
   "homepage": "https://github.com/mongodb-js/compass",
-  "version": "1.12.3",
+  "version": "1.13.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mongodb-js/compass.git"
@@ -44,9 +44,9 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.20",
+    "@mongodb-js/eslint-config-compass": "^1.4.21",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
-    "@mongodb-js/tsconfig-compass": "^1.2.14",
+    "@mongodb-js/tsconfig-compass": "^1.3.0",
     "@types/cli-progress": "^3.9.2",
     "@types/html-webpack-plugin": "^3.2.9",
     "@types/webpack-bundle-analyzer": "^4.7.0",
@@ -55,21 +55,21 @@
     "whatwg-url": "14.0.0"
   },
   "dependencies": {
-    "@babel/core": "^7.24.3",
-    "@babel/plugin-proposal-decorators": "^7.21.0",
-    "@babel/plugin-transform-runtime": "^7.21.4",
-    "@babel/preset-env": "^7.21.4",
-    "@babel/preset-react": "^7.18.6",
-    "@babel/preset-typescript": "^7.21.4",
-    "@babel/runtime": "^7.21.0",
+    "@babel/core": "^7.29.0",
+    "@babel/plugin-proposal-decorators": "^7.29.0",
+    "@babel/plugin-transform-runtime": "^7.29.0",
+    "@babel/preset-env": "^7.29.2",
+    "@babel/preset-react": "^7.28.5",
+    "@babel/preset-typescript": "^7.28.5",
+    "@babel/runtime": "^7.29.2",
     "@cerner/duplicate-package-checker-webpack-plugin": "^2.1.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
     "babel-loader": "^8.2.5",
     "babel-plugin-istanbul": "^5.2.0",
-    "browserslist": "^4.28.1",
+    "browserslist": "^4.28.2",
     "chalk": "^4.1.2",
     "cli-progress": "^3.9.1",
-    "core-js": "^3.17.3",
+    "core-js": "^3.49.0",
     "css-loader": "^4.3.0",
     "electron": "^37.10.3",
     "html-webpack-plugin": "^5.6.0",

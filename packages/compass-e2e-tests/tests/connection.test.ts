@@ -1057,7 +1057,9 @@ describe('SRV connectivity', function () {
       await cleanup(compass);
     }
 
-    const { logs } = compass;
+    const {
+      logs: { structured: logs },
+    } = compass;
 
     // Find information about which DNS resolutions happened and how:
     const resolutionLogs = logs
@@ -1134,7 +1136,9 @@ describe('System CA access', function () {
       await cleanup(compass);
     }
 
-    const { logs } = compass;
+    const {
+      logs: { structured: logs },
+    } = compass;
     const systemCALogs = logs.filter((log) => log.id === 1_000_000_049);
     expect(systemCALogs).to.have.lengthOf(2);
     expect(new Set(systemCALogs.map((log) => log.ctx))).to.deep.equal(

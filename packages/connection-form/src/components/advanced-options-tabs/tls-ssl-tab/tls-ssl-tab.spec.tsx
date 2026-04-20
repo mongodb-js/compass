@@ -11,7 +11,7 @@ import ConnectionStringUrl from 'mongodb-connection-string-url';
 
 import SSLTab, { getTLSOptionForConnectionString } from './tls-ssl-tab';
 import { FileInputBackendProvider } from '@mongodb-js/compass-components';
-import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components/lib/components/file-picker-dialog';
+import { createJSDomFileInputDummyBackend } from '@mongodb-js/compass-components';
 
 describe('SchemaInput', function () {
   let updateConnectionFormFieldSpy: sinon.SinonSpy;

@@ -223,11 +223,7 @@ describe('Global preferences', function () {
       wrapBinary: positionalArgs(['mongodb://usr:53cr3t@localhost:0/']),
     });
     try {
-      // ps-list is ESM-only in recent versions.
-      // eslint-disable-next-line @typescript-eslint/consistent-type-imports
-      const processList: typeof import('ps-list') = await eval(
-        `import('ps-list')`
-      );
+      const processList = await import('ps-list');
       const list = await processList.default();
       for (const proc of list) {
         expect(JSON.stringify(proc)).to.not.include('53cr3t');

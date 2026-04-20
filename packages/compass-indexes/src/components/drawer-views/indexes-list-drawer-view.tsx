@@ -30,8 +30,9 @@ import ViewPipelineIncompatibleBanner from '../view-incompatible-components/view
 import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import RegularIndexesDrawerTable from '../regular-indexes-table/regular-indexes-drawer-table';
 import SearchIndexesDrawerTable from '../search-indexes-table/search-indexes-drawer-table';
 
@@ -85,16 +86,20 @@ const IndexesListDrawerView: React.FunctionComponent<
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { openDrawer } = useDrawerActions();
+  const track = useTelemetry();
+  const connectionInfoRef = useConnectionInfoRef();
 
-  const { atlasMetadata } = useConnectionInfo();
-  const isAtlas = !!atlasMetadata;
+  useEffect(() => {
+    track('Screen', { name: 'indexes_list_drawer' }, connectionInfoRef.current);
+  }, [track, connectionInfoRef]);
+
   const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
   ]);
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
-    useSelector(selectIsViewSearchCompatible(isAtlas), shallowEqual);
+    useSelector(selectIsViewSearchCompatible, shallowEqual);
   const {
     isRegularIndexesReadable,
     isRegularIndexesWritable,
@@ -102,7 +107,6 @@ const IndexesListDrawerView: React.FunctionComponent<
     isSearchIndexesWritable,
   } = useSelector(
     selectReadWriteAccess({
-      isAtlas,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
@@ -119,18 +123,30 @@ const IndexesListDrawerView: React.FunctionComponent<
     (action: string) => {
       switch (action) {
         case 'createRegularIndex':
+          track('Index Create Action Clicked', {
+            context: 'Indexes List Drawer View',
+            index_type: 'regular',
+          });
           return onCreateRegularIndexClick();
         case 'createSearchIndex':
+          track('Index Create Action Clicked', {
+            context: 'Indexes List Drawer View',
+            index_type: 'search',
+          });
           onCreateSearchIndexClick('search');
           openDrawer(INDEXES_DRAWER_ID);
           return;
         case 'createVectorSearchIndex':
+          track('Index Create Action Clicked', {
+            context: 'Indexes List Drawer View',
+            index_type: 'vectorSearch',
+          });
           onCreateSearchIndexClick('vectorSearch');
           openDrawer(INDEXES_DRAWER_ID);
           return;
       }
     },
-    [onCreateRegularIndexClick, onCreateSearchIndexClick, openDrawer]
+    [onCreateRegularIndexClick, onCreateSearchIndexClick, openDrawer, track]
   );
 
   const getSearchIndexesBanner = () => {
@@ -166,7 +182,12 @@ const IndexesListDrawerView: React.FunctionComponent<
             isRefreshing ||
             (!isRegularIndexesReadable && !isSearchIndexesReadable)
           }
-          onClick={onRefreshClick}
+          onClick={() => {
+            track('Index Refresh Clicked', {
+              context: 'Indexes List Drawer View',
+            });
+            onRefreshClick();
+          }}
           variant="default"
           size="xsmall"
           leftGlyph={refreshButtonIcon}

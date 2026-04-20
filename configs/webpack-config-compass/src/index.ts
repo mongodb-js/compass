@@ -61,7 +61,7 @@ const sharedResolveOptions = (
   target: ConfigArgs['target']
 ): Pick<
   ResolveOptions,
-  'mainFields' | 'exportsFields' | 'extensions' | 'alias'
+  'mainFields' | 'exportsFields' | 'extensions' | 'alias' | 'modules'
 > => {
   if (typeof target === 'string') {
     target = [target];
@@ -117,6 +117,12 @@ const sharedResolveOptions = (
       // the actual component packages, never needed in the webpack bundles
       '@lg-tools/test-harnesses': false,
     },
+    modules: [
+      // This allows us to find the packages that are not hoisted to the root of
+      // the project, but are installed within webpack-config-compass itself.
+      'node_modules',
+      path.resolve(__dirname, '..', 'node_modules'),
+    ],
   };
 };
 

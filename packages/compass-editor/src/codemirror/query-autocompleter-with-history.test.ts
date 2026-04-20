@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { createQueryWithHistoryAutocompleter } from './query-autocompleter-with-history';
 import { setupCodemirrorCompleter } from '../../test/completer';
-import type { SavedQuery } from '../../dist/codemirror/query-history-autocompleter';
+import type { SavedQuery } from './query-history-autocompleter';
 import type { Completion } from '@codemirror/autocomplete';
 
 function getQueryHistoryAutocompletions(completions: Readonly<Completion[]>) {

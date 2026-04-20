@@ -14,6 +14,9 @@ const {
   merge,
 } = require('@mongodb-js/webpack-config-compass');
 
+/**
+ * @type {(env: Record<string, any>, args: Record<string, any>) => import('webpack').Configuration}
+ */
 module.exports = (_env, args) => {
   const opts = {
     ...webpackArgsWithDefaults(args),
@@ -153,6 +156,11 @@ module.exports = (_env, args) => {
       // amount of dependencies is massive and can benefit from them more
       optimization,
       externals,
+      resolve: {
+        alias: {
+          '@mongodb-js/atlas-local': false,
+        },
+      },
       plugins: [
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         ...compileOnlyPlugins,

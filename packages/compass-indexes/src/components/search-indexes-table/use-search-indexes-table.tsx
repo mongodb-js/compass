@@ -7,16 +7,15 @@ import {
   Disclaimer,
   Tooltip,
   css,
-  palette,
   spacing,
 } from '@mongodb-js/compass-components';
 import type { LGTableDataType } from '@mongodb-js/compass-components';
-
 import BadgeWithIconLink from '../indexes-table/badge-with-icon-link';
 
 export type SearchIndexInfo = {
   id: string;
   name: string;
+  displayName: React.ReactNode;
   indexInfo: SearchIndex;
   status: React.ReactNode;
   type: React.ReactNode;
@@ -48,16 +47,6 @@ export function IndexStatus({
   );
 }
 
-export function SearchIndexType({
-  type,
-  link,
-}: {
-  type: string;
-  link: string;
-}) {
-  return <BadgeWithIconLink text={type} link={link} />;
-}
-
 const searchIndexFieldStyles = css({
   // Override LeafyGreen's uppercase styles as we want to keep the case sensitivity of the key.
   textTransform: 'none',
@@ -69,14 +58,6 @@ export const searchIndexDetailsStyles = css({
   gap: spacing[100],
   marginBottom: spacing[200],
   padding: `0px ${spacing[1600]}px`,
-});
-
-export const searchIndexDetailsForDrawerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[100],
-  padding: spacing[200],
-  color: palette.gray.dark1,
 });
 
 export function VectorSearchIndexDetails({
@@ -175,9 +156,9 @@ export type UseSearchIndexesTableProps = {
     index: SearchIndex,
     isVectorSearchIndex: boolean
   ) => React.ReactNode;
-  // Use "Vector" for drawer, "Vector Search" for tab
-  vectorTypeLabel?: 'Vector' | 'Vector Search';
-  // Override the default expanded content renderer
+  // Override the default field renderers
+  renderNameOverride?: (name: string) => React.ReactNode;
+  renderTypeOverride?: (index: SearchIndex) => React.ReactNode;
   renderExpandedContentOverride?: (
     index: SearchIndex,
     isVectorSearchIndex: boolean
@@ -191,7 +172,8 @@ export type UseSearchIndexesTableProps = {
 export function useSearchIndexesTable({
   indexes,
   renderActions,
-  vectorTypeLabel = 'Vector Search',
+  renderNameOverride,
+  renderTypeOverride,
   renderExpandedContentOverride,
 }: UseSearchIndexesTableProps) {
   const data = useMemo<LGTableDataType<SearchIndexInfo>[]>(
@@ -202,20 +184,26 @@ export function useSearchIndexesTable({
         return {
           id: index.name,
           name: index.name,
+          displayName: renderNameOverride
+            ? renderNameOverride(index.name)
+            : index.name,
           status: (
             <IndexStatus
               status={index.status}
               data-testid={`search-indexes-status-${index.name}`}
             />
           ),
-          type: (
-            <SearchIndexType
-              type={isVectorSearchIndex ? vectorTypeLabel : 'Search'}
-              link={
-                isVectorSearchIndex
-                  ? 'https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/'
-                  : 'https://www.mongodb.com/docs/atlas/atlas-search/create-index/'
-              }
+          type: renderTypeOverride ? (
+            renderTypeOverride(index)
+          ) : isVectorSearchIndex ? (
+            <BadgeWithIconLink
+              text="Vector Search"
+              link="https://www.mongodb.com/docs/atlas/atlas-vector-search/create-index/"
+            />
+          ) : (
+            <BadgeWithIconLink
+              text="Search"
+              link="https://www.mongodb.com/docs/atlas/atlas-search/create-index/"
             />
           ),
           indexInfo: index,
@@ -239,7 +227,13 @@ export function useSearchIndexesTable({
               ),
         };
       }),
-    [indexes, vectorTypeLabel, renderExpandedContentOverride, renderActions]
+    [
+      indexes,
+      renderNameOverride,
+      renderTypeOverride,
+      renderExpandedContentOverride,
+      renderActions,
+    ]
   );
 
   return { data };

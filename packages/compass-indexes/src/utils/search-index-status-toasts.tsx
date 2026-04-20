@@ -11,7 +11,8 @@ export function showSearchIndexStatusChangeToasts(
   previousIndexes: SearchIndex[],
   newIndexes: SearchIndex[],
   atlasMetadata: AtlasClusterMetadata | undefined,
-  namespace: string
+  namespace: string,
+  onStatusDetailsLinkClick: (index: SearchIndex) => void
 ): void {
   const previousIndexesMap = new Map(
     previousIndexes.map((index) => [index.name, index])
@@ -64,6 +65,7 @@ export function showSearchIndexStatusChangeToasts(
                   view: 'StatusDetails',
                 })}
                 target="_blank"
+                onClick={() => onStatusDetailsLinkClick(index)}
               >
                 View Status Details by Node
               </Link>
@@ -71,7 +73,7 @@ export function showSearchIndexStatusChangeToasts(
           </>
         ),
         dismissible: true,
-        timeout: 5000,
+        timeout: 0, // do not auto-dismiss
         variant: 'warning',
       });
     } else if (index.status === 'READY' && previousIndex?.status !== 'READY') {
