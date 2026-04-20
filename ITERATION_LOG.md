@@ -74,6 +74,17 @@ Top failure categories (from 240 scorer events):
 
 ---
 
+## Iteration 6 (prompt, REVERTED) — forbid empty-arg `helpers.arrayElement`
+
+- **Hypothesis**: In iteration 5 one Weather-no-samples trial emitted `helpers.arrayElement` with `fakerArgs: []` on ~6 fields, causing runtime errors (FakerMethodRunnableScorer dropped to 0.991). Adding an explicit prompt directive — "`helpers.arrayElement` ALWAYS requires a non-empty array argument; if sampleValues aren't provided, invent 3-10 plausible values" — should fix the runtime-crash class.
+- **Change**: `packages/compass-generative-ai/src/mock-data-generator/prompt.ts` — new "CRITICAL" bullet under Array-fields guidance.
+- **Experiment**: `CLOUDP-397105-eval-iteration-1776713576`.
+- **Scores**: `FakerMethodRunnableScorer` 0.991 → **1.000** (+0.9%, fixed the target); but `FakerSampleValueAccuracy` 1.000 → **0.867** (-13.3%) and `FakerMethodSuggestionAccuracy` 0.995 → 0.976 (-1.9%). Aggregate **0.9977 → 0.9736** (-2.4%).
+- **Decision**: **Revert**. The prompt's "invent plausible values" clause backfired — the LLM started _augmenting_ provided sampleValues with invented extras on Mflix/Funding/Ecommerce fields. E.g. for `rated` (sampleValues `["PASSED"]`) the LLM emitted `["PASSED","G","PG","PG-13","R","NC-17"]`; the extras aren't in sampleValues so FakerSampleValueAccuracy flagged them. The runtime fix is real but the cost is larger than the gain at this margin.
+- **Alternative for future**: Repair `helpers.arrayElement` with empty args at the eval-task layer (fall back to a generic string method) rather than ask the LLM to self-police via prompt. Keeps the repair local and avoids LLM over-correction.
+
+---
+
 ## Stopping
 
-Stopping after iteration 5. Aggregate 0.9977 leaves ~0.23% gap to ceiling; remaining failures are one-trial LLM variance (e.g. one trial of Mflix picking `person.fullName` for `cast[]` instead of `helpers.arrayElement`, one trial of Weather picking `location.city` for `forecastOffice`). Further iterations would shuffle variance rather than fix systematic issues.
+Stopping after iteration 6 (reverted). Final state matches iteration 5: aggregate **0.9977**. Remaining failures are one-trial LLM variance (Mflix `cast[]/directors[]/writers[]` picking `person.fullName` instead of `helpers.arrayElement`, Weather `forecastOffice` picking `location.city`, one stochastic empty-arg `arrayElement` in Weather no-samples). Further prompt iterations show a clear pattern of hitting the LLM's over-correction tendency — hypotheses now outrun the signal.
