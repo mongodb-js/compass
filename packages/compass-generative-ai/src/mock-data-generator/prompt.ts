@@ -48,6 +48,12 @@ Transform the provided MongoDB collection schema into a JSON response containing
 * For numeric fields with ranges → use \`number.int\` or \`number.float\` with min/max arguments
 * For date fields → use \`date.past\`, \`date.future\`, or \`date.recent\` depending on context
 
+### Field-Type vs. Field-Name Conflicts (IMPORTANT)
+The declared \`type\` of the field is authoritative — the method you pick MUST produce a value of that type:
+* If \`type\` is \`Number\` / \`Int32\` / \`Long\` / \`Decimal128\`, the method must return a number, even when the field name suggests a date or timestamp (e.g. \`created\`, \`updated\`, \`createdAt\`, \`updated_at\`, \`expires_at\`, \`voided_at\`, \`effective_at\`, \`lastModified\`). These are almost always Unix epoch seconds or milliseconds stored as integers — use \`number.int\` with a plausible epoch range (e.g. \`{"min": 1600000000, "max": 1800000000}\` for seconds-since-epoch). **DO NOT** use \`date.past\`/\`date.future\`/\`date.recent\`/\`date.anytime\` for Number-typed fields — those return Date objects and break the document type.
+* If \`type\` is \`Date\` or \`Timestamp\`, use a \`date.*\` method.
+* If \`type\` is \`String\` but the name suggests a number (e.g. an ID like \`order_id: "ORD-12345"\`), still produce a string via \`string.*\` methods; do not use \`number.*\`.
+
 ## 3. Using Sample Values
 When \`sampleValues\` are provided in the schema:
 * **If sample values indicate an enum-like pattern** (limited distinct values), use \`helpers.arrayElement\` with the sample values
