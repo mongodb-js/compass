@@ -330,7 +330,7 @@ export class AtlasAiService {
         );
         return this.atlasService.authenticatedFetch(uri, init);
       },
-    }).responses('mongodb-slim-latest');
+    }).responses('mongodb-slim-2.1-mini');
 
     this.mockDataAiModel = createOpenAI({
       apiKey: '',
