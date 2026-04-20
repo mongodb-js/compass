@@ -48,12 +48,24 @@ Transform the provided MongoDB collection schema into a JSON response containing
 * For numeric fields with ranges → use \`number.int\` or \`number.float\` with min/max arguments
 * For date fields → use \`date.past\`, \`date.future\`, or \`date.recent\` depending on context
 
+### Field-Type vs. Field-Name Conflicts (IMPORTANT)
+The declared \`type\` of the field is authoritative — the method you pick MUST produce a value of that type:
+* If \`type\` is \`Number\` / \`Int32\` / \`Long\` / \`Decimal128\`, the method must return a number, even when the field name suggests a date or timestamp (e.g. \`created\`, \`updated\`, \`createdAt\`, \`updated_at\`, \`expires_at\`, \`voided_at\`, \`effective_at\`, \`lastModified\`). These are almost always Unix epoch seconds or milliseconds stored as integers — use \`number.int\` with a plausible epoch range (e.g. \`{"min": 1600000000, "max": 1800000000}\` for seconds-since-epoch). **DO NOT** use \`date.past\`/\`date.future\`/\`date.recent\`/\`date.anytime\` for Number-typed fields — those return Date objects and break the document type.
+* If \`type\` is \`Date\` or \`Timestamp\`, use a \`date.*\` method.
+* If \`type\` is \`String\` but the name suggests a number (e.g. an ID like \`order_id: "ORD-12345"\`), still produce a string via \`string.*\` methods; do not use \`number.*\`.
+
 ## 3. Using Sample Values
 When \`sampleValues\` are provided in the schema:
 * **If sample values indicate an enum-like pattern** (limited distinct values), use \`helpers.arrayElement\` with the sample values
 * **If sample values show a pattern** (e.g., IDs like "CAR-2024-001"), use appropriate faker methods that match the pattern (e.g., \`string.alphanumeric\` for IDs)
 * **If sample values are numeric ranges**, infer min/max from samples and use \`number.int\` with range arguments
 * **For monetary fields (prices, costs, amounts, fees, etc.)**, use \`number.float\` with \`fractionDigits: 2\` and appropriate \`min\`/\`max\` arguments. **DO NOT** use \`commerce.price\` or \`finance.amount\` for Number-typed fields — they return strings, not numbers.
+* **Match sample-value format precisely**:
+  * Country fields: ISO-3166 alpha-2 codes like \`"US"\`, \`"CA"\`, \`"GB"\` → use \`location.countryCode\`. Full names like \`"United States"\`, \`"France"\` → use \`location.country\`.
+  * State fields: 2-letter codes like \`"OR"\`, \`"CA"\` → use \`location.state\` with \`{"abbreviated": true}\`. Full names like \`"Oregon"\` → use \`location.state\` without abbreviated.
+  * Currency fields: 3-letter ISO codes like \`"USD"\`, \`"EUR"\` → use \`finance.currencyCode\`.
+  * Language fields: ISO codes like \`"en"\`, \`"fr"\` → use \`location.language\` or similar; full names like \`"English"\` → use \`helpers.arrayElement\` with plausible full-name values.
+  * Strings consisting entirely of digits like \`"7849302847561234"\` → use \`string.numeric\` (NOT \`string.alphanumeric\` — those are strictly digits). If mixed letters and digits, use \`string.alphanumeric\`.
 * **DO NOT** ignore sample values - they provide crucial context for method selection
 
 ## 4. Validation Rules

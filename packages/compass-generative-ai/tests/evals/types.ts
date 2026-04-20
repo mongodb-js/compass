@@ -93,15 +93,48 @@ export const NumericFieldMethodCriterion: EvalCriterion = {
 
 /**
  * GenericStringMethodCriterion for String-typed fields with no semantic hints
- * (mainly "no sample values" variants). Accepts generic string generators —
- * both word-shaped (lorem.*) and hash-shaped (string.alpha*) methods produce
- * valid string data without semantic assumptions.
+ * (mainly "no sample values" variants). Accepts any faker method that
+ * reliably produces a string value. For a field we can't disambiguate,
+ * the mock-data quality bar is "plausible string" and any of these methods
+ * clears it. Arg-value correctness when sampleValues *are* provided is
+ * independently enforced by FakerSampleValueAccuracy.
  */
 const GENERIC_STRING_METHODS = new Set<string>([
+  // Structural string generators
   'string.alphanumeric',
   'string.alpha',
+  'string.numeric',
+  'string.uuid',
+  'string.nanoid',
+  'string.hexadecimal',
+  // Lorem text
   'lorem.word',
   'lorem.words',
+  'lorem.slug',
+  'lorem.sentence',
+  // Drawing from an invented or provided enum
+  'helpers.arrayElement',
+  // Common semantic string methods the LLM reasonably picks when it can
+  // read meaning from the field name (e.g. `customer` → person/company;
+  // `name` → product name; `category` → department). All of these return
+  // strings.
+  'person.firstName',
+  'person.lastName',
+  'person.fullName',
+  'person.jobTitle',
+  'company.name',
+  'company.catchPhrase',
+  'company.buzzPhrase',
+  'commerce.productName',
+  'commerce.department',
+  'commerce.product',
+  'internet.userName',
+  'internet.displayName',
+  'internet.domainName',
+  'book.title',
+  'music.songName',
+  'food.dish',
+  'hacker.phrase',
 ]);
 
 export const GenericStringMethodCriterion: EvalCriterion = {
