@@ -73,7 +73,7 @@ export function showSearchIndexStatusChangeToasts(
           </>
         ),
         dismissible: true,
-        timeout: 5000,
+        timeout: 0, // do not auto-dismiss
         variant: 'warning',
       });
     } else if (index.status === 'READY' && previousIndex?.status !== 'READY') {

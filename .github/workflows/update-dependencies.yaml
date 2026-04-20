@@ -16,6 +16,7 @@ on:
           - leafygreen
           - devtools-shared-prod
           - devtools-shared-dev
+          - webpack-config
           - all
         required: true
   schedule:
@@ -35,13 +36,14 @@ jobs:
         name: Define groups to update
         env:
           SHOULD_INCLUDE_ALL_GROUPS: ${{ inputs.group_name == '' ||  inputs.group_name == 'all' }}
+          INPUT_GROUP_NAME: ${{ inputs.group_name }}
         run: |
-          echo "Configuring matrix (inputs.group_name=${{ inputs.group_name }})"
+          echo "Configuring matrix (inputs.group_name=$INPUT_GROUP_NAME)"
           if [[ "$SHOULD_INCLUDE_ALL_GROUPS" = "true" ]]; then
             # When adding new group, don't forget to update the `workflow_dispatch`
-            echo 'group_name=["electron","eslint","typescript","mongosh","leafygreen","devtools-shared-prod","devtools-shared-dev"]' >> "$GITHUB_OUTPUT"
+            echo 'group_name=["electron","eslint","typescript","mongosh","leafygreen","devtools-shared-prod","devtools-shared-dev","webpack-config"]' >> "$GITHUB_OUTPUT"
           else
-            echo 'group_name=["${{ inputs.group_name }}"]' >> "$GITHUB_OUTPUT"
+            echo "group_name=[\"$INPUT_GROUP_NAME\"]" >> "$GITHUB_OUTPUT"
           fi
   update_dependencies_group:
     name: Update ${{ matrix.group_name }} to latest

@@ -331,6 +331,15 @@ buildvariants:
     tasks:
       - name: test-web-sandbox-atlas-cloud
 
+  - name: test-web-sandbox-atlas-cloud-geo-sharded
+    display_name: Test Web Sandbox Geo Sharded (w/ Atlas Cloud login)
+    run_on: ubuntu2204-large
+    tasks:
+      - name: test-web-sandbox-atlas-cloud-geo-sharded
+        # Only run these tests once per day as they require dedicated
+        # clusters which are slower, and can be expensive, to provision.
+        cron: '@daily'
+
   - name: generate-vulnerability-report
     tags:
       - run-on-pr
@@ -630,6 +639,26 @@ tasks:
         vars:
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          # We're only running a special subset of tests as provisioning atlas
+          # clusters in CI is both pricey and flakey, so we want to limit the
+          # coverage to reduce those factors (at least for now)
+          atlas_cloud_test_args: '--test-filter="time-to-first-query" --test-filter="routing" --test-filter="collection-heading" --test-filter="collection-documents-tab" --test-filter="collection-aggregations-tab" --test-filter="collection-indexes-tab" --test-filter="collection-schema-tab" --test-filter="atlas-cloud/*"'
+
+  # We run the global writes and rolling indexes tests separately from test-web-sandbox-atlas-cloud
+  # as they require a GeoSharded cluster which is expensive to provision (M30+)
+  - name: test-web-sandbox-atlas-cloud-geo-sharded
+    tags:
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-web-sandbox-atlas-cloud
+        vars:
+          compass_distribution: compass
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
+          atlas_cloud_test_args: '--atlas-cloud-default-cluster-type=GeoSharded --test-filter="atlas-cloud/dedicated-cluster/**/*"'
 
   - name: create_static_analysis_report
     tags:

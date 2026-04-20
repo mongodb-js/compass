@@ -85,21 +85,21 @@ export function buildAtlasSearchLink({
   view?: string;
 }): string {
   const { projectId, clusterName } = atlasMetadata;
-  const url = new URL(
-    `/v2/${projectId}#/clusters/atlasSearch/${clusterName}`,
-    window.location.origin
-  );
+  const hashParams = new URLSearchParams();
   const { database, collection } = toNS(namespace);
   if (database && collection) {
-    url.searchParams.set('database', database);
-    url.searchParams.set('collectionName', collection);
+    hashParams.set('collectionName', collection);
+    hashParams.set('database', database);
     if (indexName) {
-      url.searchParams.set('indexName', indexName);
+      hashParams.set('indexName', indexName);
       if (view) {
-        url.searchParams.set('view', view);
+        hashParams.set('view', view);
       }
     }
   }
-
-  return `${url}`;
+  const hashQuery = hashParams.toString();
+  const hash = `/clusters/atlasSearch/${clusterName}${
+    hashQuery ? `?${hashQuery}` : ''
+  }`;
+  return `${window.location.origin}/v2/${projectId}#${hash}`;
 }

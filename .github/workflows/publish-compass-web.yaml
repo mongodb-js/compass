@@ -27,6 +27,11 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  # Do not allow to run more than one publish at the same time by setting
+  # concurrency group name to static value
+  group: publish-compass-web
+
 permissions:
   id-token: write
   contents: read

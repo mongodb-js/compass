@@ -20,12 +20,14 @@ const bannerStyles = css({
 });
 
 type SearchIndexDoesNotExistBannerProps = {
+  searchIndexName: string | null;
   searchStageOperator: SearchStageOperator;
   onViewIndexesClick?: () => void;
   onCreateSearchIndexClick?: (searchIndexType: SearchIndexType) => void;
 };
 
 export default function SearchIndexDoesNotExistBanner({
+  searchIndexName,
   searchStageOperator,
   onViewIndexesClick,
   onCreateSearchIndexClick,
@@ -34,9 +36,11 @@ export default function SearchIndexDoesNotExistBanner({
   const track = useTelemetry();
   const searchIndexType =
     mapSearchStageOperatorToSearchIndexType(searchStageOperator);
-  const message = `${
-    searchIndexType === 'vectorSearch' ? 'Vector search' : 'Search'
-  } index doesn't exist.`;
+  const indexLabel =
+    searchIndexType === 'vectorSearch' ? 'Vector search' : 'Search';
+  const message = searchIndexName
+    ? `${indexLabel} index '${searchIndexName}' doesn't exist.`
+    : `${indexLabel} index doesn't exist.`;
 
   return (
     <Banner

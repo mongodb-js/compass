@@ -86,6 +86,7 @@ export function ItemActionGroup<Action extends string>({
           <ItemComponent
             key={itemProps.action}
             {...itemProps}
+            tooltip={tooltip}
             iconSize={iconSize}
             iconStyle={iconStyle}
             iconClassName={iconClassName}

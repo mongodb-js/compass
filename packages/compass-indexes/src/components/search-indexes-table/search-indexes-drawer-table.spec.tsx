@@ -16,6 +16,7 @@ import {
   searchIndexes as indexes,
   vectorSearchIndexes,
 } from '../../../test/fixtures/search-indexes';
+import { mockSearchIndex } from '../../../test/helpers';
 import { setupStore } from '../../../test/setup-store';
 
 const renderIndexList = (
@@ -122,8 +123,9 @@ describe('SearchIndexesDrawerTable Component', function () {
     it('renders the vector search index details when expanded', function () {
       renderIndexList({ indexes: vectorSearchIndexes });
 
+      // 'vectorSearching123' is >10 chars, so it gets truncated in the drawer
       const indexRow = screen
-        .getByText('vectorSearching123')
+        .getByText('vectorSear…')
         .closest('tr') as HTMLTableRowElement;
 
       const expandButton = within(indexRow).getByLabelText('Expand row');
@@ -133,6 +135,48 @@ describe('SearchIndexesDrawerTable Component', function () {
       expect(screen.getByText('Status:')).to.exist;
       expect(screen.getByText('Index Fields:')).to.exist;
       expect(screen.getByText('Queryable:')).to.exist;
+    });
+  });
+
+  context('name truncation', function () {
+    it('truncates names longer than 10 characters', function () {
+      const longNameIndex = mockSearchIndex({
+        name: 'a_very_long_index_name',
+      });
+      renderIndexList({ indexes: [longNameIndex] });
+
+      expect(screen.getByText('a_very_lon…')).to.exist;
+    });
+
+    it('does not truncate names with 10 or fewer characters', function () {
+      const shortNameIndex = mockSearchIndex({ name: 'short' });
+      renderIndexList({ indexes: [shortNameIndex] });
+
+      expect(screen.getByText('short')).to.exist;
+    });
+  });
+
+  context('type rendering', function () {
+    it('renders "Search" as plain text for search indexes', function () {
+      const searchIndex = mockSearchIndex({
+        name: 'my_search',
+        type: 'search',
+      });
+      renderIndexList({ indexes: [searchIndex] });
+
+      const indexRow = screen
+        .getByText('my_search')
+        .closest('tr') as HTMLTableRowElement;
+      expect(within(indexRow).getByText('Search')).to.exist;
+    });
+
+    it('renders "Vector" as plain text for vector search indexes', function () {
+      renderIndexList({ indexes: vectorSearchIndexes });
+
+      const indexRow = screen
+        .getByText('pineapple')
+        .closest('tr') as HTMLTableRowElement;
+      expect(within(indexRow).getByText('Vector')).to.exist;
     });
   });
 

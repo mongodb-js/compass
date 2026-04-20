@@ -14,7 +14,8 @@
       "ESNext.Iterator",
       "DOM",
       "DOM.Iterable",
-      "DOM.AsyncIterable"
+      "DOM.AsyncIterable",
+      "ESNext.Disposable"
     ],
     "target": "es2022",
     "removeComments": false,

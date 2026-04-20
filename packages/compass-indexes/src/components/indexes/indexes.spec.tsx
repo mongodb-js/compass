@@ -332,7 +332,7 @@ describe('Indexes Component', function () {
     });
 
     describe('when isReadonly view', function () {
-      it('renders ViewVersionIncompatibleBanner if view version is <8.0', async function () {
+      it('renders ViewVersionIncompatibleBanner if view version is <8.1', async function () {
         await renderIndexes(undefined, undefined, {
           isReadonlyView: true,
           serverVersion: '8.0.0',
@@ -394,27 +394,7 @@ describe('Indexes Component', function () {
         expect(screen.getByText('Create Atlas Search Index')).to.be.visible;
       });
 
-      it('renders correct empty state if 8.0 and has no indexes in Compass', async function () {
-        const getSearchIndexesStub = sinon.stub().resolves([]);
-        const dataProvider = {
-          getSearchIndexes: getSearchIndexesStub,
-        };
-        await renderIndexes(undefined, dataProvider, {
-          indexView: 'search-indexes',
-          isReadonlyView: true,
-          serverVersion: '8.0.0',
-        });
-
-        expect(
-          screen.queryByText(
-            /Upgrade your cluster to create search indexes on views./i
-          )
-        ).to.exist;
-        expect(screen.queryByText('No standard indexes')).to.exist;
-        expect(screen.queryByText('Create Atlas Search Index')).to.not.exist;
-      });
-
-      it('renders correct empty state if <8.0 and has no indexes', async function () {
+      it('renders correct empty state if <8.1 and has no indexes', async function () {
         const getSearchIndexesStub = sinon.stub().resolves([]);
         const dataProvider = {
           getSearchIndexes: getSearchIndexesStub,

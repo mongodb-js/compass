@@ -20,6 +20,7 @@ import {
 } from '../helpers/mongo-clients.ts';
 import {
   isTestingWeb,
+  isTestingWebAtlasCloud,
   context as testRunnerContext,
 } from '../helpers/test-runner-context.ts';
 import type { ChainablePromiseElement } from 'webdriverio';
@@ -243,6 +244,11 @@ describe('Collection documents tab', function () {
     let unsubscribeAllowWarningsFilter: () => void;
 
     before(function () {
+      if (isTestingWebAtlasCloud()) {
+        // No $where on the free tier, so we're skipping these.
+        return this.skip();
+      }
+
       unsubscribeAllowWarningsFilter = allowServerWarnings(
         8996500, // allow "$where is deprecated" warnings
         (l: LogEntry) => {
@@ -343,7 +349,7 @@ describe('Collection documents tab', function () {
     }
 
     after(function () {
-      unsubscribeAllowWarningsFilter();
+      unsubscribeAllowWarningsFilter?.();
     });
   });
 
@@ -374,6 +380,10 @@ describe('Collection documents tab', function () {
   });
 
   it('can export to language', async function () {
+    if (isTestingWebAtlasCloud()) {
+      return this.skip();
+    }
+
     await navigateToTab(browser, 'Documents'); // just in case the previous test failed before it could clean up
 
     await browser.runFindOperation('Documents', '{ i: 5 }');
