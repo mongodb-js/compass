@@ -659,7 +659,7 @@ describe('MockDataGeneratorModal', () => {
 
       const input = screen.getByTestId('document-count-input');
       input.focus();
-      input.blur();
+      userEvent.tab();
 
       await waitFor(() => {
         expect(result.track).to.have.been.calledWith(
@@ -687,7 +687,7 @@ describe('MockDataGeneratorModal', () => {
 
       const input = screen.getByTestId('document-count-input');
       input.focus();
-      input.blur();
+      userEvent.tab();
 
       expect(result.track).to.not.have.been.calledWith(
         'Mock Data Document Count Changed',
