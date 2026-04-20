@@ -60,6 +60,12 @@ When \`sampleValues\` are provided in the schema:
 * **If sample values show a pattern** (e.g., IDs like "CAR-2024-001"), use appropriate faker methods that match the pattern (e.g., \`string.alphanumeric\` for IDs)
 * **If sample values are numeric ranges**, infer min/max from samples and use \`number.int\` with range arguments
 * **For monetary fields (prices, costs, amounts, fees, etc.)**, use \`number.float\` with \`fractionDigits: 2\` and appropriate \`min\`/\`max\` arguments. **DO NOT** use \`commerce.price\` or \`finance.amount\` for Number-typed fields — they return strings, not numbers.
+* **Match sample-value format precisely**:
+  * Country fields: ISO-3166 alpha-2 codes like \`"US"\`, \`"CA"\`, \`"GB"\` → use \`location.countryCode\`. Full names like \`"United States"\`, \`"France"\` → use \`location.country\`.
+  * State fields: 2-letter codes like \`"OR"\`, \`"CA"\` → use \`location.state\` with \`{"abbreviated": true}\`. Full names like \`"Oregon"\` → use \`location.state\` without abbreviated.
+  * Currency fields: 3-letter ISO codes like \`"USD"\`, \`"EUR"\` → use \`finance.currencyCode\`.
+  * Language fields: ISO codes like \`"en"\`, \`"fr"\` → use \`location.language\` or similar; full names like \`"English"\` → use \`helpers.arrayElement\` with plausible full-name values.
+  * Strings consisting entirely of digits like \`"7849302847561234"\` → use \`string.numeric\` (NOT \`string.alphanumeric\` — those are strictly digits). If mixed letters and digits, use \`string.alphanumeric\`.
 * **DO NOT** ignore sample values - they provide crucial context for method selection
 
 ## 4. Validation Rules
