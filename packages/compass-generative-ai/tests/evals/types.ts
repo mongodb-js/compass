@@ -96,12 +96,21 @@ export const NumericFieldMethodCriterion: EvalCriterion = {
  * (mainly "no sample values" variants). Accepts generic string generators —
  * both word-shaped (lorem.*) and hash-shaped (string.alpha*) methods produce
  * valid string data without semantic assumptions.
+ *
+ * Also accepts `helpers.arrayElement`: when the field has no sampleValues,
+ * the LLM may invent a domain-plausible enum (e.g. `["Drama","Comedy",...]`
+ * for `genres[]`, `["isolated","scattered","numerous","widespread"]` for
+ * NOAA weather `coverage`). These inventions are consistently higher-quality
+ * mock data than generic lorem.word / string.alphanumeric output, so we
+ * accept them here. Arg-value correctness when sampleValues *are* provided
+ * is still enforced by FakerSampleValueAccuracy.
  */
 const GENERIC_STRING_METHODS = new Set<string>([
   'string.alphanumeric',
   'string.alpha',
   'lorem.word',
   'lorem.words',
+  'helpers.arrayElement',
 ]);
 
 export const GenericStringMethodCriterion: EvalCriterion = {
