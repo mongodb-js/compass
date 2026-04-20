@@ -814,7 +814,7 @@ export function createDefaultChat({
               init
             );
           },
-        }).responses('mongodb-chat-2'),
+        }).responses('mongodb-chat-2.1-mini-reasoning'),
       }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onError: (err: Error) => {
