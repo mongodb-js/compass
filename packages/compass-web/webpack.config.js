@@ -203,8 +203,9 @@ module.exports = (env, args) => {
         'mongodb-client-encryption': localPolyfill('throwError'),
 
         'prom-client': false,
-        diagnostics_channel: false,
-
+        // lru-cache (bundled inside mongodb-mcp-server) calls channel() and
+        // tracingChannel() from diagnostics_channel
+        diagnostics_channel: localPolyfill('diagnostics_channel'),
         // We want to use the cjs dist instead of esm to make sure that no dynamic
         // import code from mcp-server ends up in compass bundle.
         // Otherwise, this breaks COMPILE_CLIENT_BAZEL task on mms side.
