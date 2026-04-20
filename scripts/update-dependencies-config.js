@@ -58,4 +58,14 @@ module.exports = {
     '@mongodb-js/signing-utils',
     'mongodb-runner',
   ],
+  'webpack-config': [
+    '@babel/core',
+    '@babel/plugin-proposal-decorators',
+    '@babel/plugin-transform-runtime',
+    '@babel/preset-env',
+    '@babel/preset-react',
+    '@babel/preset-typescript',
+    '@babel/runtime',
+    'core-js',
+  ],
 };

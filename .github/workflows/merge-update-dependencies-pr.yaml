@@ -31,8 +31,84 @@ jobs:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
           DRY_RUN: ${{ inputs.dry_run }}
+          EVG_USER: ${{ secrets.EVERGREEN_SERVICE_USER_USERNAME }}
+          EVG_API_KEY: ${{ secrets.EVERGREEN_SERVICE_USER_API_KEY }}
         run: |
           set -e
+
+          # Function to restart failed Evergreen tasks for a PR
+          # Schedules a restart and returns immediately (does not wait for completion)
+          restart_failed_evergreen_tasks() {
+            local pr_number=$1
+
+            # Get failed Evergreen checks - the link points to a build URL
+            local failed_evg_checks=$(gh pr checks "${pr_number}" --json name,state,link \
+              --jq '.[] | select(.state == "FAILURE" and (.name | test("^evergreen/"; "i"))) | .link')
+
+            if [ -z "${failed_evg_checks}" ]; then
+              echo "No failed Evergreen checks found"
+              return 1
+            fi
+
+            echo "Found failed Evergreen checks:"
+            echo "${failed_evg_checks}"
+
+            # Track which versions we've already restarted to avoid duplicates
+            local restarted_versions=""
+
+            # Extract build IDs and get version IDs via API
+            for check_url in ${failed_evg_checks}; do
+              # Extract build ID from URL (format: https://evergreen.mongodb.com/build/<build_id>)
+              local build_id=$(echo "${check_url}" | grep -oE '/build/[^/]+$' | sed 's|/build/||')
+
+              if [ -z "${build_id}" ]; then
+                echo "Could not extract build ID from: ${check_url}"
+                continue
+              fi
+
+              # Get the version ID from the build via API
+              local version_id=$(curl -s \
+                -H "Api-User: ${EVG_USER}" \
+                -H "Api-Key: ${EVG_API_KEY}" \
+                "https://evergreen.mongodb.com/rest/v2/builds/${build_id}" | jq -r '.version')
+
+              if [ -z "${version_id}" ] || [ "${version_id}" = "null" ]; then
+                echo "Could not get version ID for build: ${build_id}"
+                continue
+              fi
+
+              # Skip if we've already restarted this version
+              if echo "${restarted_versions}" | grep -q "${version_id}"; then
+                continue
+              fi
+              restarted_versions="${restarted_versions} ${version_id}"
+
+              echo "Restarting failed tasks for Evergreen version: ${version_id}"
+
+              if [ "${DRY_RUN}" = "true" ]; then
+                echo "[DRY RUN] Would restart failed tasks for version ${version_id}"
+              else
+                # Use Evergreen REST API to restart the version (restarts all failed tasks)
+                local response=$(curl -s -w "\n%{http_code}" -X POST \
+                  -H "Api-User: ${EVG_USER}" \
+                  -H "Api-Key: ${EVG_API_KEY}" \
+                  -H "Content-Type: application/json" \
+                  "https://evergreen.mongodb.com/rest/v2/versions/${version_id}/restart")
+
+                local http_code=$(echo "${response}" | tail -n1)
+                local body=$(echo "${response}" | sed '$d')
+
+                if [ "${http_code}" -ge 200 ] && [ "${http_code}" -lt 300 ]; then
+                  echo "Successfully scheduled restart for version ${version_id}"
+                else
+                  echo "Failed to restart version ${version_id}: HTTP ${http_code}"
+                  echo "Response: ${body}"
+                fi
+              fi
+            done
+
+            return 0
+          }
 
           # Find all open PRs with the 'bot' label and branch prefix 'ci/update-'
           PR_DATA=$(gh pr list \
@@ -71,6 +147,12 @@ jobs:
                 echo "Successfully merged PR #${PR_NUMBER}"
               fi
             else
-              echo "Checks failed for PR #${PR_NUMBER}, skipping..."
+              echo "Checks failed for PR #${PR_NUMBER}"
+              echo "Attempting to restart failed Evergreen tasks..."
+              if restart_failed_evergreen_tasks "${PR_NUMBER}"; then
+                echo "Restart scheduled. Will check again on next workflow run."
+              else
+                echo "No Evergreen tasks to restart, skipping PR..."
+              fi
             fi
           done

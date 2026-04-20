@@ -22,7 +22,6 @@ import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import type { RootState } from '../../modules';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
@@ -180,8 +179,6 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
   onCreateSearchIndexClick,
 }) => {
   const track = useTelemetry();
-  const { atlasMetadata } = useConnectionInfo();
-  const isAtlas = !!atlasMetadata;
 
   const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
     'readOnly',
@@ -191,7 +188,6 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
 
   const { isSearchIndexesWritable } = useSelector(
     selectReadWriteAccess({
-      isAtlas,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,

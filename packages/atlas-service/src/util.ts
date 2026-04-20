@@ -98,6 +98,10 @@ export type AtlasServiceConfig = {
    */
   ccsBaseUrl: string;
   /**
+   * Multiplexed WebSocket base urls. Its a list to support regionalization.
+   */
+  multiplexedWsBaseUrls: string[];
+  /**
    * Cloud UI backend base url
    */
   cloudBaseUrl: string;
@@ -134,9 +138,10 @@ export type AtlasServiceConfig = {
  *  - atlas-staging:           staging mms backend       (cloud-stage.mongodb.com)
  *  - atlas:                   mms backend               (cloud.mongodb.com)
  */
-const config = {
+const config = Object.create({
   'atlas-local': {
     ccsBaseUrl: 'ws://localhost:61001/ws',
+    multiplexedWsBaseUrls: ['ws://cloud-local.mongodb.com/ccs'],
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'http://cloud-local.mongodb.com/api/private',
     atlasLogin: {
@@ -149,6 +154,7 @@ const config = {
   },
   'atlas-dev': {
     ccsBaseUrl: '',
+    multiplexedWsBaseUrls: ['wss://cloud-dev.mongodb.com/ccs'],
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
     atlasLogin: {
@@ -161,6 +167,7 @@ const config = {
   },
   'atlas-qa': {
     ccsBaseUrl: '',
+    multiplexedWsBaseUrls: ['wss://cloud-qa.mongodb.com/ccs'],
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud-qa.mongodb.com/api/private',
     atlasLogin: {
@@ -173,6 +180,7 @@ const config = {
   },
   'atlas-staging': {
     ccsBaseUrl: '',
+    multiplexedWsBaseUrls: ['wss://cloud-stage.mongodb.com/ccs'],
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud-stage.mongodb.com/api/private',
     atlasLogin: {
@@ -185,6 +193,7 @@ const config = {
   },
   atlas: {
     ccsBaseUrl: '',
+    multiplexedWsBaseUrls: ['wss://cloud.mongodb.com/ccs'],
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
     atlasLogin: {
@@ -195,7 +204,7 @@ const config = {
     assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud.mongodb.com/ui/userData',
   },
-} as const;
+});
 
 export function getAtlasConfig(
   preferences: Pick<PreferencesAccess, 'getPreferences'>

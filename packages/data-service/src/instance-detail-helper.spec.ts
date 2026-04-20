@@ -7,6 +7,7 @@ import {
   getDatabasesByRoles,
   getPrivilegesByDatabaseAndCollection,
   getInstance,
+  isNotAuthorized,
 } from './instance-detail-helper';
 
 import * as fixtures from '../test/fixtures';
@@ -625,6 +626,35 @@ describe('instance-detail-helper', function () {
           },
         })
       ).to.deep.equal(['aws', 'local']);
+    });
+  });
+
+  describe('#isNotAuthorized', function () {
+    it('returns true for MongoDB error code 13 (Unauthorized)', function () {
+      expect(isNotAuthorized({ code: 13 })).to.equal(true);
+      expect(
+        isNotAuthorized({ code: 13, customErrorField: 'Authorization failure' })
+      ).to.equal(true);
+    });
+
+    it('returns true for "not authorized|allowed" message patterns', function () {
+      expect(isNotAuthorized({ message: 'user is not authorized' })).to.equal(
+        true
+      );
+      expect(isNotAuthorized({ message: 'Not Authorized' })).to.equal(true);
+      expect(isNotAuthorized({ message: 'not allowed' })).to.equal(true);
+      expect(isNotAuthorized({ message: 'Not Allowed' })).to.equal(true);
+    });
+
+    it('returns false for null or undefined errors', function () {
+      expect(isNotAuthorized(null)).to.equal(false);
+      expect(isNotAuthorized(undefined)).to.equal(false);
+    });
+
+    it('returns false for unrelated errors', function () {
+      expect(isNotAuthorized({ code: 42 })).to.equal(false);
+      expect(isNotAuthorized({ message: 'some other error' })).to.equal(false);
+      expect(isNotAuthorized(new Error('Network timeout'))).to.equal(false);
     });
   });
 });

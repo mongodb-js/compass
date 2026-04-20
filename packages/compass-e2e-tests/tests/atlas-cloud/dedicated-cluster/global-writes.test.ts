@@ -1,17 +1,17 @@
 import { expect } from 'chai';
-import type { Compass } from '../../helpers/compass.ts';
+import type { Compass } from '../../../helpers/compass.ts';
 import {
   cleanup,
   init,
   screenshotIfFailed,
   Selectors,
-} from '../../helpers/compass.ts';
-import type { CompassBrowser } from '../../helpers/compass-browser.ts';
-import { createGeospatialCollection } from '../../helpers/mongo-clients.ts';
+} from '../../../helpers/compass.ts';
+import type { CompassBrowser } from '../../../helpers/compass-browser.ts';
+import { createGeospatialCollection } from '../../../helpers/mongo-clients.ts';
 import {
   getDefaultConnectionNames,
   isTestingWebAtlasCloud,
-} from '../../helpers/test-runner-context.ts';
+} from '../../../helpers/test-runner-context.ts';
 
 type GeoShardingFormData = {
   secondShardKey: string;
