@@ -291,20 +291,24 @@ export const FakerSampleValueAccuracy = withSkipResultOnUnexpected(
         continue;
       }
 
-      checked++;
-
       const fieldDef = schema[field.fieldPath];
       const sampleValues = (fieldDef?.sampleValues ?? []).filter(
         (v: unknown) => v !== null && v !== undefined
       );
 
+      // When the field has no sampleValues, there's nothing to validate the
+      // LLM's invented array against — skip (do not count as checked). The
+      // scorer measures accuracy *in using provided sample values*, not
+      // whether arrayElement was an appropriate method choice (that's
+      // FakerMethodSuggestionAccuracy's job). The LLM's invented enums are
+      // typically high-quality domain-plausible values (e.g. genre lists,
+      // country names, unit codes) and produce better mock data than the
+      // alternatives like lorem.word.
       if (sampleValues.length === 0) {
-        failures.push({
-          fieldPath: field.fieldPath,
-          reason: 'no sampleValues for field',
-        });
         continue;
       }
+
+      checked++;
 
       // Extract the array arg (first json arg that parses to an array)
       let argValues: unknown[] | null = null;
