@@ -1946,17 +1946,39 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return { oldName, newName };
   })
   async renameDatabase(oldName: string, newName: string): Promise<void> {
-    if (oldName === newName) {
-      throw new Error('The new database name must differ from the old name.');
+    const normalizedNewName = (newName ?? '').trim();
+    if (!normalizedNewName) {
+      throw new Error('The new database name must not be empty.');
     }
-    if (!newName || newName.includes('.') || newName.includes('$')) {
+    if (
+      normalizedNewName.includes('.') ||
+      normalizedNewName.includes('$') ||
+      /\s/.test(normalizedNewName)
+    ) {
       throw new Error(
-        'The new database name must not be empty or contain "." or "$".'
+        'The new database name must not contain ".", "$", or whitespace.'
       );
+    }
+    if (oldName === normalizedNewName) {
+      throw new Error('The new database name must differ from the old name.');
     }
 
     const sourceDb = this._database(oldName, 'META');
+    const targetDb = this._database(normalizedNewName, 'META');
     const adminDb = this._database('admin', 'META');
+
+    // Reject up front if the target database already contains any collection.
+    // A non-empty listCollections result means the database exists — we don't
+    // want to silently merge databases or rely on per-collection conflicts
+    // surfacing mid-operation.
+    const existingTargetCollections = await targetDb
+      .listCollections({}, { nameOnly: true })
+      .toArray();
+    if (existingTargetCollections.length > 0) {
+      throw new Error(
+        `Target database "${normalizedNewName}" already exists. Choose a different name or drop the existing database first.`
+      );
+    }
 
     const collections = await sourceDb
       .listCollections({}, { nameOnly: false })
@@ -1981,7 +2003,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     for (const collection of movable) {
       const from = `${oldName}.${collection.name as string}`;
-      const to = `${newName}.${collection.name as string}`;
+      const to = `${normalizedNewName}.${collection.name as string}`;
       await adminDb.command({
         renameCollection: from,
         to,

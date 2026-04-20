@@ -33,18 +33,20 @@ export function activateRenameDatabasePlugin(
     databaseName: string
   ): Promise<boolean> {
     const prefix = `${databaseName}.`;
-    const pipelineExists = await pipelineStorage
-      ?.getStorage()
-      .loadAll()
-      .then((pipelines) =>
-        pipelines.some(({ namespace }) => namespace?.startsWith(prefix))
-      )
-      .catch(() => false);
-    const queryExists = await queryStorage
-      ?.getStorage()
-      .loadAll()
-      .then((queries) => queries.some(({ _ns }) => _ns?.startsWith(prefix)))
-      .catch(() => false);
+    const pipelineExists =
+      (await pipelineStorage
+        ?.getStorage()
+        .loadAll()
+        .then((pipelines) =>
+          pipelines.some(({ namespace }) => namespace?.startsWith(prefix))
+        )
+        .catch(() => false)) ?? false;
+    const queryExists =
+      (await queryStorage
+        ?.getStorage()
+        .loadAll()
+        .then((queries) => queries.some(({ _ns }) => _ns?.startsWith(prefix)))
+        .catch(() => false)) ?? false;
 
     return Boolean(pipelineExists || queryExists);
   }

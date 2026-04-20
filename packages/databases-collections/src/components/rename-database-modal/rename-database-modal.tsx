@@ -181,12 +181,13 @@ function RenameDatabaseModal({
       }
       variant={modalState === 'input-form' ? 'primary' : 'danger'}
       submitDisabled={
-        modalState === 'input-form' &&
-        (newName === '' ||
-          initialDatabaseName === newName ||
-          doesDatabaseExist ||
-          isInvalidName ||
-          hasViews)
+        isRunning ||
+        (modalState === 'input-form' &&
+          (newName === '' ||
+            initialDatabaseName === newName ||
+            doesDatabaseExist ||
+            isInvalidName ||
+            hasViews))
       }
       data-testid="rename-database-modal"
     >
