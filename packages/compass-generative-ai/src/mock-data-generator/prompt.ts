@@ -38,7 +38,7 @@ Transform the provided MongoDB collection schema into a JSON response containing
 
 **Binary fields**: string.hexadecimal, string.binary
 
-**Array fields**: helpers.arrayElements, helpers.arrayElement
+**Array fields**: helpers.arrayElement. **DO NOT** use \`helpers.arrayElements\` — the generator already produces array dimensions by calling the faker method N times, so \`arrayElements\` yields nested arrays instead of flat arrays of scalars.
 
 ### Example Method Selection Guidelines
 * For string fields containing email patterns → use \`internet.email\`
@@ -50,7 +50,7 @@ Transform the provided MongoDB collection schema into a JSON response containing
 
 ## 3. Using Sample Values
 When \`sampleValues\` or \`arraySampleValues\` are provided in the schema:
-* **If sample values indicate an enum-like pattern** (limited distinct values), use \`helpers.arrayElement\` or \`helpers.arrayElements\` with the sample values
+* **If sample values indicate an enum-like pattern** (limited distinct values), use \`helpers.arrayElement\` with the sample values
 * **If sample values show a pattern** (e.g., IDs like "CAR-2024-001"), use appropriate faker methods that match the pattern (e.g., \`string.alphanumeric\` for IDs)
 * **If sample values are numeric ranges**, infer min/max from samples and use \`number.int\` with range arguments
 * **For monetary fields (prices, costs, amounts, fees, etc.)**, use \`number.float\` with \`fractionDigits: 2\` and appropriate \`min\`/\`max\` arguments. **DO NOT** use \`commerce.price\` or \`finance.amount\` for Number-typed fields — they return strings, not numbers.
@@ -215,10 +215,9 @@ Documents in the collection are described by the following schema:
     },
     {
       "fieldPath": "modifications[]",
-      "fakerMethod": "helpers.arrayElements",
+      "fakerMethod": "helpers.arrayElement",
       "fakerArgs": [
-        {"json": "[\\"Leather Seats\\", \\"Sunroof\\", \\"Premium Sound System\\", \\"Sport Package\\", \\"Navigation System\\", \\"Cold Weather Package\\", \\"Heated Seats\\", \\"Tinted Windows\\", \\"Alloy Wheels\\", \\"Backup Camera\\"]"},
-        {"json": "{\\"min\\": 1, \\"max\\": 4}"}
+        {"json": "[\\"Leather Seats\\", \\"Sunroof\\", \\"Premium Sound System\\", \\"Sport Package\\", \\"Navigation System\\", \\"Cold Weather Package\\", \\"Heated Seats\\", \\"Tinted Windows\\", \\"Alloy Wheels\\", \\"Backup Camera\\"]"}
       ]
     }
   ]
@@ -230,7 +229,7 @@ Documents in the collection are described by the following schema:
 Key observations:
 - \`fieldPath\` preserves exact schema field keys (e.g., "car_id", "facility.name", "modifications[]")
 - \`fakerArgs\` is always an array \`[]\` - never a single value
-- **When to include args**: \`maker\` uses \`helpers.arrayElement\` with sampleValues since they indicate an enum-like pattern; \`year\` uses \`number.int\` with min/max derived from sampleValues range; \`modifications[]\` uses \`helpers.arrayElements\` with arraySampleValues
+- **When to include args**: \`maker\` uses \`helpers.arrayElement\` with sampleValues since they indicate an enum-like pattern; \`year\` uses \`number.int\` with min/max derived from sampleValues range; \`modifications[]\` uses \`helpers.arrayElement\` with the flat list of sampleValues — the generator handles the array dimension by calling the method N times per document
 - **When to use empty args**: \`model\`, \`facility.name\`, \`facility.location\` use \`[]\` because no sample values provided and method defaults are sufficient
 - JSON-serialized arguments properly escape quotes: \`{"json": "{\\"min\\": 2020, \\"max\\": 2024}"}\`
 - Only include \`fakerArgs\` when they add value (constraints from sample values, validation rules) - otherwise prefer \`[]\`
@@ -246,11 +245,13 @@ function createMockDocument() {
         'facility.name': faker.company.name(),
         'facility.location': faker.location.city(),
         'facility.established': faker.number.int({ min: 1950, max: 2020 }),
-        'modifications': faker.helpers.arrayElements([
-            'Leather Seats', 'Sunroof', 'Premium Sound System', 'Sport Package',
-            'Navigation System', 'Cold Weather Package', 'Heated Seats',
-            'Tinted Windows', 'Alloy Wheels', 'Backup Camera'
-        ], { min: 1, max: 4 })
+        'modifications': Array.from({ length: 3 }, () =>
+            faker.helpers.arrayElement([
+                'Leather Seats', 'Sunroof', 'Premium Sound System', 'Sport Package',
+                'Navigation System', 'Cold Weather Package', 'Heated Seats',
+                'Tinted Windows', 'Alloy Wheels', 'Backup Camera'
+            ])
+        )
     }
 }
 </explanation>

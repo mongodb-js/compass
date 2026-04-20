@@ -6,6 +6,8 @@ import {
   DatelikeMethodCriterion,
   IdlikeMethodCriterion,
   NumericFieldMethodCriterion,
+  GenericStringMethodCriterion,
+  LoremTextMethodCriterion,
   SecondaryAddressCriterion,
 } from '../types';
 
@@ -228,8 +230,9 @@ export const chargeCreditCase: MockDataGeneratorCaseConfig = {
         fakerArgs: [{ json: '["paid", "promotional"]' }],
       },
       {
+        // Unix timestamp integer — treated as numeric, not Date
         fieldPath: 'created',
-        fakerMethod: DatelikeMethodCriterion,
+        fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
@@ -294,7 +297,7 @@ const chargeCreditCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'object',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -304,17 +307,17 @@ const chargeCreditCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'amount.monetary.value',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'amount.type',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'applicability_config.scope.price_type',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -324,45 +327,51 @@ const chargeCreditCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'category',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
+        // Unix timestamp integer — treated as numeric, not Date
         fieldPath: 'created',
-        fakerMethod: DatelikeMethodCriterion,
+        fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
         fieldPath: 'customer',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
+        // Unix timestamp integer
         fieldPath: 'effective_at',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
+        // Unix timestamp integer
         fieldPath: 'expires_at',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
         fieldPath: 'name',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
+        // Priority level — integer
         fieldPath: 'priority',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
+        // Unix timestamp integer
         fieldPath: 'updated',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
+        // Unix timestamp integer
         fieldPath: 'voided_at',
         fakerMethod: 'number.int',
         fakerArgs: [],
@@ -825,7 +834,7 @@ const ecommerceCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'items[].category[]',
-        fakerMethod: 'helpers.arrayElements',
+        fakerMethod: 'helpers.arrayElement',
         fakerArgs: [
           {
             json: JSON.stringify(['Electronics', 'Audio', 'Headphones']),
@@ -1057,7 +1066,7 @@ export const fundingEventCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'network_settlement_summary[].settled_gross_amount',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1109,12 +1118,12 @@ const fundingEventCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'collection_resource_type',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'network_settlement_summary[].settled_gross_amount',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1453,12 +1462,12 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'Type',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.geometry',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1468,7 +1477,7 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'properties.@type',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1478,33 +1487,33 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'properties.elevation.value',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.elevation.maxValue',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.elevation.minValue',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.elevation.unitCode',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.elevation.qualityControl',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Z"]' }],
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'properties.forecastOffice',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["DEN"]' }],
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'properties.gridId',
@@ -1513,71 +1522,72 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'properties.gridX',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.gridY',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].coverage',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].weather',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].intensity',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["light", "moderate", "heavy"]' }],
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].visibility.value',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].visibility.maxValue',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].visibility.minValue',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].visibility.unitCode',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath:
           'properties.weather.values[].value[].visibility.qualityControl',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Z"]' }],
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].attributes[]',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.hazards.values[].value[].phenomenon',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.hazards.values[].value[].significance',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
+        // Event number — integer
         fieldPath: 'properties.hazards.values[].value[].event_number',
         fakerMethod: 'number.int',
         fakerArgs: [],
@@ -1789,12 +1799,12 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
     fields: [
       {
         fieldPath: 'title',
-        fakerMethod: 'lorem.lines',
+        fakerMethod: LoremTextMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'plot',
-        fakerMethod: 'lorem.sentence',
+        fakerMethod: LoremTextMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1833,7 +1843,7 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'fullplot',
-        fakerMethod: 'lorem.paragraph',
+        fakerMethod: LoremTextMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1843,7 +1853,7 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'released',
-        fakerMethod: 'date.recent',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1872,12 +1882,12 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'awards.text',
-        fakerMethod: 'lorem.sentence',
+        fakerMethod: LoremTextMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'lastupdated',
-        fakerMethod: 'date.recent',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1927,7 +1937,7 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'tomatoes.dvd',
-        fakerMethod: 'date.recent',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1947,7 +1957,7 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'tomatoes.lastUpdated',
-        fakerMethod: 'date.recent',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1957,8 +1967,8 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'tomatoes.production',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Universal Pictures"]' }],
+        fakerMethod: 'company.name',
+        fakerArgs: [],
       },
       {
         fieldPath: 'tomatoes.fresh',
@@ -1979,35 +1989,37 @@ const mflixMovieCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
     fields: [
       {
         fieldPath: 'title',
-        fakerMethod: 'lorem.lines',
+        fakerMethod: LoremTextMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'plot',
-        fakerMethod: 'lorem.sentence',
+        fakerMethod: LoremTextMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'genres[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Mystery", "Drama", "Romance"]' }],
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
       },
       {
+        // Runtime in minutes — integer
         fieldPath: 'runtime',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
         fieldPath: 'rated',
-        fakerMethod: 'string.alphanumeric',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'cast[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Ryan Gosling"]' }],
+        fakerMethod: 'person.fullName',
+        fakerArgs: [],
       },
       {
+        // Comment count — integer
         fieldPath: 'num_mflix_comments',
         fakerMethod: 'number.int',
         fakerArgs: [],
@@ -2019,134 +2031,145 @@ const mflixMovieCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'fullplot',
-        fakerMethod: 'lorem.paragraph',
+        fakerMethod: LoremTextMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'languages[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["EN", "SP", "FR", "JP", "DE"]' }],
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'released',
-        fakerMethod: 'date.recent',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'directors[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Steven Spielberg"]' }],
+        fakerMethod: 'person.fullName',
+        fakerArgs: [],
       },
       {
         fieldPath: 'writers[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Ben Hecht"]' }],
+        fakerMethod: 'person.fullName',
+        fakerArgs: [],
       },
       {
+        // Award count — integer
         fieldPath: 'awards.wins',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
+        // Nomination count — integer
         fieldPath: 'awards.nominations',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
         fieldPath: 'awards.text',
-        fakerMethod: 'lorem.sentence',
+        fakerMethod: LoremTextMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'lastupdated',
-        fakerMethod: 'date.recent',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
+        // Year — integer
         fieldPath: 'year',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
+        // Rating — without samples, could be integer (1-5 stars) or decimal
+        // (7.8/10); both are valid rating conventions
         fieldPath: 'imdb.rating',
-        fakerMethod: 'number.float',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
+        // Vote count — integer
         fieldPath: 'imdb.votes',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
+        // IMDB ID — integer
         fieldPath: 'imdb.id',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
         fieldPath: 'countries[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [
-          {
-            json: '["US", "UK", "CA", "AU", "NZ", "PH", "BR", "MX", "KR"]',
-          },
-        ],
-      },
-      {
-        fieldPath: 'type',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["movie"]' }],
-      },
-      {
-        fieldPath: 'tomatoes.viewer.rating',
-        fakerMethod: 'number.float',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
+        fieldPath: 'type',
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
+      },
+      {
+        // Rating — could be integer or decimal without samples
+        fieldPath: 'tomatoes.viewer.rating',
+        fakerMethod: NumericFieldMethodCriterion,
+        fakerArgs: [],
+      },
+      {
+        // Review count — integer
         fieldPath: 'tomatoes.viewer.numReviews',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
+        // Percentage meter 0-100 — integer
         fieldPath: 'tomatoes.viewer.meter',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
         fieldPath: 'tomatoes.dvd',
-        fakerMethod: 'date.recent',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
+        // Rating — could be integer or decimal without samples
         fieldPath: 'tomatoes.critic.rating',
-        fakerMethod: 'number.float',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
+        // Review count — integer
         fieldPath: 'tomatoes.critic.numReviews',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
         fieldPath: 'tomatoes.critic.meter',
-        fakerMethod: 'number.int',
+        fakerMethod: NumericFieldMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'tomatoes.lastUpdated',
-        fakerMethod: 'date.recent',
+        fakerMethod: DatelikeMethodCriterion,
         fakerArgs: [],
       },
       {
+        // Count of rotten reviews — integer
         fieldPath: 'tomatoes.rotten',
         fakerMethod: 'number.int',
         fakerArgs: [],
       },
       {
+        // Without samples, string fallback is acceptable
         fieldPath: 'tomatoes.production',
-        fakerMethod: 'company.name',
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
+        // Count of fresh reviews — integer
         fieldPath: 'tomatoes.fresh',
         fakerMethod: 'number.int',
         fakerArgs: [],

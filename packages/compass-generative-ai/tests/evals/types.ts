@@ -92,6 +92,57 @@ export const NumericFieldMethodCriterion: EvalCriterion = {
 };
 
 /**
+ * GenericStringMethodCriterion for String-typed fields with no semantic hints
+ * (mainly "no sample values" variants). Accepts generic string generators —
+ * both word-shaped (lorem.*) and hash-shaped (string.alpha*) methods produce
+ * valid string data without semantic assumptions.
+ */
+const GENERIC_STRING_METHODS = new Set<string>([
+  'string.alphanumeric',
+  'string.alpha',
+  'lorem.word',
+  'lorem.words',
+]);
+
+export const GenericStringMethodCriterion: EvalCriterion = {
+  name: 'GenericStringMethodCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return GENERIC_STRING_METHODS.has(method);
+  },
+  methods: Array.from(GENERIC_STRING_METHODS),
+};
+
+/**
+ * LoremTextMethodCriterion for text-content fields (titles, plots, paragraphs,
+ * descriptions). Accepts the full range of lorem.* methods since text fields
+ * can reasonably be represented as words, sentences, lines, or paragraphs.
+ */
+const LOREM_TEXT_METHODS = new Set<string>([
+  'lorem.word',
+  'lorem.words',
+  'lorem.sentence',
+  'lorem.sentences',
+  'lorem.paragraph',
+  'lorem.paragraphs',
+  'lorem.lines',
+  'lorem.text',
+]);
+
+export const LoremTextMethodCriterion: EvalCriterion = {
+  name: 'LoremTextMethodCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return LOREM_TEXT_METHODS.has(method);
+  },
+  methods: Array.from(LOREM_TEXT_METHODS),
+};
+
+/**
  * SecondaryAddressCriterion accepts location.secondaryAddress and
  * string.alphanumeric.
  */

@@ -63,16 +63,14 @@ function createFieldScorer(
       const actualValue = valueExtractor(actualField) as string;
 
       // When the field has sampleValues, helpers.arrayElement is a valid
-      // choice: using sample data directly is a valid mock data strategy.
+      // choice — using sample data directly is a valid mock data strategy.
+      // Only the singular form is accepted since the downstream generator
+      // wraps in Array.from({length: N}, ...)
       // FakerSampleValueAccuracy scorer checks the args are correct.
       const fieldHasSampleValues =
         (args.input.providedSchema[fieldName]?.sampleValues?.length ?? 0) > 0;
 
-      if (
-        fieldHasSampleValues &&
-        (actualValue === 'helpers.arrayElement' ||
-          actualValue === 'helpers.arrayElements')
-      ) {
+      if (fieldHasSampleValues && actualValue === 'helpers.arrayElement') {
         matches++;
       } else if (
         isEvalCriterion(expectedValue) &&
@@ -277,10 +275,19 @@ export const FakerSampleValueAccuracy = withSkipResultOnUnexpected(
     }> = [];
 
     for (const field of outputFields) {
-      if (
-        field.fakerMethod !== 'helpers.arrayElement' &&
-        field.fakerMethod !== 'helpers.arrayElements'
-      ) {
+      // arrayElements always produces wrong-typed mock data in Compass's
+      // generator (nested arrays for array fields, array values for scalar
+      // fields), so flag it as a failure and don't check sampleValues.
+      if (field.fakerMethod === 'helpers.arrayElements') {
+        checked++;
+        failures.push({
+          fieldPath: field.fieldPath,
+          reason:
+            'helpers.arrayElements produces wrong-typed data in the generator; use helpers.arrayElement',
+        });
+        continue;
+      }
+      if (field.fakerMethod !== 'helpers.arrayElement') {
         continue;
       }
 
