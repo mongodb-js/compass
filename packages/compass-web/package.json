@@ -139,6 +139,7 @@
     "mongodb": "^7.1.1",
     "mongodb-data-service": "^22.39.3",
     "mongodb-log-writer": "^2.4.4",
+    "mongodb-mcp-server": "1.9.0",
     "mongodb-ns": "^3.1.0",
     "nyc": "^15.1.0",
     "os-browserify": "^0.3.0",
