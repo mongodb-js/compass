@@ -32,6 +32,7 @@ export type Actions =
   | 'select-database'
   | 'create-database'
   | 'drop-database'
+  | 'rename-database'
   // collection item related action
   | 'select-collection'
   | 'create-collection'

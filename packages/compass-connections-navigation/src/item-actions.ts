@@ -209,6 +209,13 @@ export const databaseItemActions = ({
     },
     canDeleteDatabase
       ? {
+          action: 'rename-database',
+          icon: 'Edit',
+          label: 'Rename database',
+        }
+      : null,
+    canDeleteDatabase
+      ? {
           action: 'drop-database',
           icon: 'Trash',
           label: 'Drop database',
@@ -378,6 +385,13 @@ export const databaseContextMenuActions = ({
           action: 'create-database',
           icon: 'Plus',
           label: 'Create database',
+        },
+    hasWriteActionsDisabled || !canDeleteDatabase
+      ? null
+      : {
+          action: 'rename-database',
+          icon: 'Edit',
+          label: 'Rename database',
         },
     hasWriteActionsDisabled || !canDeleteDatabase
       ? null

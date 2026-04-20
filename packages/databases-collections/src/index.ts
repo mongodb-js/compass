@@ -16,6 +16,8 @@ import { activatePlugin as activateCreateNamespacePlugin } from './stores/create
 import { DatabasesPlugin, DatabasesWorkspaceName } from './databases-plugin';
 import MappedRenameCollectionModal from './components/rename-collection-modal/rename-collection-modal';
 import { activateRenameCollectionPlugin } from './stores/rename-collection';
+import MappedRenameDatabaseModal from './components/rename-database-modal/rename-database-modal';
+import { activateRenameDatabasePlugin } from './stores/rename-database';
 import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import {
@@ -78,6 +80,20 @@ export const RenameCollectionPlugin = registerCompassPlugin(
     name: 'RenameCollectionPlugin',
     component: MappedRenameCollectionModal,
     activate: activateRenameCollectionPlugin,
+  },
+  {
+    connections: connectionsLocator,
+    instancesManager: mongoDBInstancesManagerLocator,
+    queryStorage: favoriteQueryStorageAccessLocator,
+    pipelineStorage: pipelineStorageLocator,
+  }
+);
+
+export const RenameDatabasePlugin = registerCompassPlugin(
+  {
+    name: 'RenameDatabasePlugin',
+    component: MappedRenameDatabaseModal,
+    activate: activateRenameDatabasePlugin,
   },
   {
     connections: connectionsLocator,

@@ -494,6 +494,21 @@ export interface DataService {
    */
   dropDatabase(name: string): Promise<boolean>;
 
+  /**
+   * Renames a database by moving every collection from the source database to
+   * a new target database name and then dropping the source database.
+   *
+   * MongoDB does not natively support renaming a database, so this operation
+   * is implemented as a sequence of `renameCollection` admin commands followed
+   * by `dropDatabase`. It is therefore not atomic and will fail early if any
+   * individual collection cannot be moved (for example, sharded collections
+   * or collections targeted by MongoDB-managed system namespaces).
+   *
+   * @param oldName - The existing database name.
+   * @param newName - The new database name.
+   */
+  renameDatabase(oldName: string, newName: string): Promise<void>;
+
   /*** Indexes ***/
 
   /**
@@ -1925,6 +1940,59 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async dropDatabase(name: string): Promise<boolean> {
     const db = this._database(name, 'CRUD');
     return await db.dropDatabase();
+  }
+
+  @op(mongoLogId(1_001_000_429), ([oldName, newName]) => {
+    return { oldName, newName };
+  })
+  async renameDatabase(oldName: string, newName: string): Promise<void> {
+    if (oldName === newName) {
+      throw new Error('The new database name must differ from the old name.');
+    }
+    if (!newName || newName.includes('.') || newName.includes('$')) {
+      throw new Error(
+        'The new database name must not be empty or contain "." or "$".'
+      );
+    }
+
+    const sourceDb = this._database(oldName, 'META');
+    const adminDb = this._database('admin', 'META');
+
+    const collections = await sourceDb
+      .listCollections({}, { nameOnly: false })
+      .toArray();
+
+    // Filter out views (type === 'view') and system collections; the admin
+    // renameCollection command cannot move views across databases.
+    const movable = collections.filter((c) => {
+      if (c.type === 'view') return false;
+      if (typeof c.name === 'string' && c.name.startsWith('system.')) {
+        return false;
+      }
+      return true;
+    });
+
+    const hasViews = collections.some((c) => c.type === 'view');
+    if (hasViews) {
+      throw new Error(
+        'Cannot rename a database that contains views. Drop or recreate the views in the new database manually.'
+      );
+    }
+
+    for (const collection of movable) {
+      const from = `${oldName}.${collection.name as string}`;
+      const to = `${newName}.${collection.name as string}`;
+      await adminDb.command({
+        renameCollection: from,
+        to,
+        dropTarget: false,
+      });
+    }
+
+    // Drop the now-empty source database to complete the rename. Any remaining
+    // system collections (e.g. system.views that we refused above would have
+    // already aborted this call) are removed with the database.
+    await sourceDb.dropDatabase();
   }
 
   @op(mongoLogId(1_001_000_182), ([ns, name], result) => {
