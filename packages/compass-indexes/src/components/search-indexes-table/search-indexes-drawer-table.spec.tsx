@@ -32,8 +32,8 @@ const renderIndexList = (
         onDropIndexClick={noop}
         onEditIndexClick={noop}
         onCreateSearchIndexClick={noop}
-        focusedIndexName={null}
-        focusedIndexVersion={0}
+        onToggleRowExpanded={noop}
+        expandedRows={{}}
         {...props}
       />
     </Provider>
@@ -122,19 +122,34 @@ describe('SearchIndexesDrawerTable Component', function () {
 
   context('vector search index', function () {
     it('renders the vector search index details when expanded', function () {
-      renderIndexList({ indexes: vectorSearchIndexes });
+      renderIndexList({
+        indexes: vectorSearchIndexes,
+        expandedRows: { vectorSearching123: true },
+      });
+
+      expect(screen.getByText('Status:')).to.exist;
+      expect(screen.getByText('Index Fields:')).to.exist;
+      expect(screen.getByText('Queryable:')).to.exist;
+    });
+
+    it('calls onToggleRowExpanded when expand button is clicked', function () {
+      const onToggleRowExpandedSpy = sinon.spy();
+      renderIndexList({
+        indexes: vectorSearchIndexes,
+        onToggleRowExpanded: onToggleRowExpandedSpy,
+      });
 
       const indexRow = screen
         .getByText('vectorSearching123')
         .closest('tr') as HTMLTableRowElement;
 
       const expandButton = within(indexRow).getByLabelText('Expand row');
-      expect(expandButton).to.exist;
       userEvent.click(expandButton);
 
-      expect(screen.getByText('Status:')).to.exist;
-      expect(screen.getByText('Index Fields:')).to.exist;
-      expect(screen.getByText('Queryable:')).to.exist;
+      expect(onToggleRowExpandedSpy.calledOnce).to.be.true;
+      expect(
+        onToggleRowExpandedSpy.calledWith('vectorSearching123')
+      ).to.be.true;
     });
   });
 
@@ -146,11 +161,10 @@ describe('SearchIndexesDrawerTable Component', function () {
     expect(() => screen.getByText('another')).to.throw();
   });
 
-  context('focused index', function () {
-    it('marks the focused index row as expanded', function () {
+  context('expanded rows', function () {
+    it('marks the expanded index row as expanded', function () {
       renderIndexList({
-        focusedIndexName: 'default',
-        focusedIndexVersion: 1,
+        expandedRows: { default: true },
       });
 
       const focusedRow = screen
@@ -164,10 +178,9 @@ describe('SearchIndexesDrawerTable Component', function () {
       expect(otherRow).to.have.attribute('data-expanded', 'false');
     });
 
-    it('does not mark any row as expanded when focusedIndexName is null', function () {
+    it('does not mark any row as expanded when expandedRows is empty', function () {
       renderIndexList({
-        focusedIndexName: null,
-        focusedIndexVersion: 0,
+        expandedRows: {},
       });
 
       for (const index of indexes) {
@@ -178,10 +191,9 @@ describe('SearchIndexesDrawerTable Component', function () {
       }
     });
 
-    it('does not mark any row as expanded when focusedIndexName does not match', function () {
+    it('does not mark any row as expanded when expandedRows contains a non-matching index', function () {
       renderIndexList({
-        focusedIndexName: 'nonexistent',
-        focusedIndexVersion: 1,
+        expandedRows: { nonexistent: true },
       });
 
       for (const index of indexes) {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
 import type { SearchIndex } from 'mongodb-data-service';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -206,12 +206,16 @@ export const SearchIndexesTable: React.FunctionComponent<
     );
   }
 
+  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
+
   return (
     <IndexesTable
       id="search-indexes"
       data-testid="search-indexes"
       columns={isSearchIndexesWritable ? COLUMNS_WITH_ACTIONS : COLUMNS}
       data={data}
+      expanded={expanded}
+      onExpandedChange={setExpanded}
     />
   );
 };

@@ -13,6 +13,7 @@ import { dropSearchIndex } from '../../modules/search-indexes';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
+  toggleRowExpanded,
 } from '../../modules/indexes-drawer';
 import type { SearchIndexType } from '../../modules/indexes-drawer';
 import type { FetchStatus } from '../../utils/fetch-status';
@@ -114,9 +115,9 @@ type SearchIndexesDrawerTableProps = {
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
   onCreateSearchIndexClick: (indexType: SearchIndexType) => void;
+  onToggleRowExpanded: (indexName: string) => void;
   searchTerm?: string;
-  focusedIndexName: string | null;
-  focusedIndexVersion: number;
+  expandedRows: Record<string, boolean>;
 };
 
 export const SearchIndexesDrawerTable: React.FunctionComponent<
@@ -125,11 +126,11 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
   indexes,
   status,
   searchTerm,
-  focusedIndexName,
-  focusedIndexVersion,
+  expandedRows,
   onEditIndexClick,
   onDropIndexClick,
   onCreateSearchIndexClick,
+  onToggleRowExpanded,
 }) => {
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
@@ -221,19 +222,34 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     return allData.filter((item) => item.name.includes(searchTerm));
   }, [allData, searchTerm]);
 
-  // Expand the focused index row by default, collapse others.
-  // focusedIndexVersion ensures the expanded state is reset even when
-  // the same index is focused again.
-  const defaultExpanded = useMemo(() => {
-    if (!focusedIndexName) {
-      return undefined;
-    }
-    const rowIndex = data.findIndex((item) => item.name === focusedIndexName);
-    if (rowIndex === -1) {
-      return undefined;
-    }
-    return { [String(rowIndex)]: true };
-  }, [data, focusedIndexName, focusedIndexVersion]);
+  // Convert name-keyed expandedRows from Redux to row-index-keyed for the table
+  const expanded = useMemo(() => {
+    const result: Record<string, boolean> = {};
+    data.forEach((item, idx) => {
+      if (expandedRows[item.name]) {
+        result[String(idx)] = true;
+      }
+    });
+    return result;
+  }, [data, expandedRows]);
+
+  // Convert row-index-keyed expanded state back to index names on toggle
+  const handleExpandedChange = useCallback(
+    (newExpanded: true | Record<string, boolean>) => {
+      if (typeof newExpanded === 'boolean') {
+        return;
+      }
+      // Find which row changed by diffing old vs new
+      for (let key = 0; key < data.length; key++) {
+        const wasExpanded = expanded[key] ?? false;
+        const isNowExpanded = newExpanded[key] ?? false;
+        if (wasExpanded !== isNowExpanded) {
+          onToggleRowExpanded(data[key].name);
+        }
+      }
+    },
+    [data, expanded, onToggleRowExpanded]
+  );
 
   if (!isReadyStatus(status)) {
     return null;
@@ -259,7 +275,8 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
           : COLUMNS_FOR_DRAWER
       }
       data={data}
-      defaultExpanded={defaultExpanded}
+      expanded={expanded}
+      onExpandedChange={handleExpandedChange}
       tableWrapperClassName={tableWrapperStyles}
       cellClassName={drawerCellStyles}
       showActionsOnHover={false}
@@ -267,15 +284,17 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
   );
 };
 
-const mapState = ({ searchIndexes }: RootState) => ({
+const mapState = ({ searchIndexes, indexesDrawer }: RootState) => ({
   status: searchIndexes.status,
   indexes: searchIndexes.indexes,
+  expandedRows: indexesDrawer.expandedRows,
 });
 
 const mapDispatch = {
   onDropIndexClick: dropSearchIndex,
   onEditIndexClick: openEditSearchIndexDrawerView,
   onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
+  onToggleRowExpanded: toggleRowExpanded,
 };
 
 export default connect(mapState, mapDispatch)(SearchIndexesDrawerTable);

@@ -8,10 +8,12 @@ import reducer, {
   OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW,
   OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW,
   SET_IS_DIRTY,
+  TOGGLE_ROW_EXPANDED,
   openIndexesListDrawerView,
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
   setIsDirty,
+  toggleRowExpanded,
 } from './indexes-drawer';
 import { ActionTypes as SearchIndexesActionTypes } from './search-indexes';
 
@@ -47,8 +49,8 @@ describe('indexes-drawer module', function () {
           currentView: 'create-search-index' as const,
           currentIndexType: 'search' as const,
           currentIndexName: 'test-index',
-          focusedIndexName: '',
-          focusedIndexVersion: 0,
+          expandedRows: {},
+          listViewVersion: 0,
           isDirty: false,
         };
 
@@ -61,31 +63,39 @@ describe('indexes-drawer module', function () {
         expect(state.currentIndexType).to.equal('search');
         expect(state.currentIndexName).to.equal('test-index');
         expect(state.isDirty).to.equal(false);
+        expect(state.listViewVersion).to.equal(1);
       });
 
-      it('sets focusedIndexName from the action', function () {
+      it('sets expandedRows with the focused index when focusedIndexName is provided', function () {
         const state = reducer(INITIAL_STATE, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
           focusedIndexName: 'myIndex',
         });
 
-        expect(state.focusedIndexName).to.equal('myIndex');
+        expect(state.expandedRows).to.deep.equal({ myIndex: true });
       });
 
-      it('increments focusedIndexVersion on each dispatch', function () {
-        expect(INITIAL_STATE.focusedIndexVersion).to.equal(0);
+      it('sets expandedRows to empty when focusedIndexName is empty', function () {
+        const state = reducer(INITIAL_STATE, {
+          type: OPEN_INDEXES_LIST_DRAWER_VIEW,
+          focusedIndexName: '',
+        });
 
+        expect(state.expandedRows).to.deep.equal({});
+      });
+
+      it('replaces expandedRows on each dispatch', function () {
         const state1 = reducer(INITIAL_STATE, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-          focusedIndexName: 'myIndex',
+          focusedIndexName: 'indexA',
         });
-        expect(state1.focusedIndexVersion).to.equal(1);
+        expect(state1.expandedRows).to.deep.equal({ indexA: true });
 
         const state2 = reducer(state1, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-          focusedIndexName: 'myIndex',
+          focusedIndexName: 'indexB',
         });
-        expect(state2.focusedIndexVersion).to.equal(2);
+        expect(state2.expandedRows).to.deep.equal({ indexB: true });
       });
     });
 
@@ -152,8 +162,8 @@ describe('indexes-drawer module', function () {
           currentView: 'edit-search-index' as const,
           currentIndexType: 'vectorSearch' as const,
           currentIndexName: 'test-index',
-          focusedIndexName: '',
-          focusedIndexVersion: 0,
+          expandedRows: {},
+          listViewVersion: 0,
           isDirty: false,
         };
 
@@ -166,6 +176,48 @@ describe('indexes-drawer module', function () {
         expect(state.currentView).to.equal('edit-search-index');
         expect(state.currentIndexType).to.equal('vectorSearch');
         expect(state.currentIndexName).to.equal('test-index');
+      });
+    });
+
+    describe('TOGGLE_ROW_EXPANDED', function () {
+      it('expands a collapsed row', function () {
+        const state = reducer(INITIAL_STATE, {
+          type: TOGGLE_ROW_EXPANDED,
+          indexName: 'myIndex',
+        });
+
+        expect(state.expandedRows).to.deep.equal({ myIndex: true });
+      });
+
+      it('collapses an expanded row', function () {
+        const previousState = {
+          ...INITIAL_STATE,
+          expandedRows: { myIndex: true },
+        };
+
+        const state = reducer(previousState, {
+          type: TOGGLE_ROW_EXPANDED,
+          indexName: 'myIndex',
+        });
+
+        expect(state.expandedRows).to.deep.equal({ myIndex: false });
+      });
+
+      it('preserves other expanded rows', function () {
+        const previousState = {
+          ...INITIAL_STATE,
+          expandedRows: { indexA: true, indexB: true },
+        };
+
+        const state = reducer(previousState, {
+          type: TOGGLE_ROW_EXPANDED,
+          indexName: 'indexA',
+        });
+
+        expect(state.expandedRows).to.deep.equal({
+          indexA: false,
+          indexB: true,
+        });
       });
     });
 
@@ -188,8 +240,8 @@ describe('indexes-drawer module', function () {
           currentView: 'create-search-index' as const,
           currentIndexType: 'vectorSearch' as const,
           currentIndexName: 'test-index',
-          focusedIndexName: '',
-          focusedIndexVersion: 0,
+          expandedRows: {},
+          listViewVersion: 0,
           isDirty: true,
         };
 
@@ -223,8 +275,8 @@ describe('indexes-drawer module', function () {
           currentView: 'edit-search-index' as const,
           currentIndexType: 'search' as const,
           currentIndexName: 'my-index',
-          focusedIndexName: '',
-          focusedIndexVersion: 0,
+          expandedRows: {},
+          listViewVersion: 0,
           isDirty: true,
         };
 
@@ -258,8 +310,8 @@ describe('indexes-drawer module', function () {
           currentView: 'create-search-index' as const,
           currentIndexType: 'vectorSearch' as const,
           currentIndexName: 'test-index',
-          focusedIndexName: '',
-          focusedIndexVersion: 0,
+          expandedRows: {},
+          listViewVersion: 0,
           isDirty: true,
         };
 
@@ -293,8 +345,8 @@ describe('indexes-drawer module', function () {
           currentView: 'edit-search-index' as const,
           currentIndexType: 'search' as const,
           currentIndexName: 'my-index',
-          focusedIndexName: '',
-          focusedIndexVersion: 0,
+          expandedRows: {},
+          listViewVersion: 0,
           isDirty: true,
         };
 
@@ -330,28 +382,50 @@ describe('indexes-drawer module', function () {
         );
       });
 
-      it('sets focusedIndexName when provided', async function () {
+      it('sets expandedRows with focused index when it exists in search indexes', async function () {
+        Object.assign(store.getState(), {
+          searchIndexes: {
+            ...store.getState().searchIndexes,
+            indexes: [{ name: 'mySearchIndex' }],
+          },
+        });
+
         await store.dispatch(openIndexesListDrawerView('mySearchIndex'));
 
-        expect(store.getState().indexesDrawer.focusedIndexName).to.equal(
-          'mySearchIndex'
-        );
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({
+          mySearchIndex: true,
+        });
       });
 
-      it('defaults focusedIndexName to empty string when not provided', async function () {
+      it('sets expandedRows to empty when focused index does not exist in search indexes', async function () {
+        await store.dispatch(openIndexesListDrawerView('nonexistent'));
+
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({});
+      });
+
+      it('sets expandedRows to empty when no focused index is provided', async function () {
         await store.dispatch(openIndexesListDrawerView());
 
-        expect(store.getState().indexesDrawer.focusedIndexName).to.equal('');
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({});
       });
 
-      it('increments focusedIndexVersion on each dispatch', async function () {
-        expect(store.getState().indexesDrawer.focusedIndexVersion).to.equal(0);
+      it('replaces expandedRows on each dispatch', async function () {
+        Object.assign(store.getState(), {
+          searchIndexes: {
+            ...store.getState().searchIndexes,
+            indexes: [{ name: 'indexA' }, { name: 'indexB' }],
+          },
+        });
 
-        await store.dispatch(openIndexesListDrawerView('myIndex'));
-        expect(store.getState().indexesDrawer.focusedIndexVersion).to.equal(1);
+        await store.dispatch(openIndexesListDrawerView('indexA'));
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({
+          indexA: true,
+        });
 
-        await store.dispatch(openIndexesListDrawerView('myIndex'));
-        expect(store.getState().indexesDrawer.focusedIndexVersion).to.equal(2);
+        await store.dispatch(openIndexesListDrawerView('indexB'));
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({
+          indexB: true,
+        });
       });
 
       it('shows confirmation dialog when isDirty is true and dispatches action when confirmed', async function () {
@@ -572,6 +646,22 @@ describe('indexes-drawer module', function () {
         store.dispatch(setIsDirty(false));
 
         expect(store.getState().indexesDrawer.isDirty).to.equal(false);
+      });
+    });
+
+    describe('toggleRowExpanded', function () {
+      it('toggles a row expanded state', function () {
+        store.dispatch(toggleRowExpanded('myIndex'));
+
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({
+          myIndex: true,
+        });
+
+        store.dispatch(toggleRowExpanded('myIndex'));
+
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({
+          myIndex: false,
+        });
       });
     });
   });

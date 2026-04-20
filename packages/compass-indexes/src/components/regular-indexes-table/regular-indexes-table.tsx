@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
@@ -96,12 +96,16 @@ export const RegularIndexesTable: React.FunctionComponent<
     return null;
   }
 
+  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
+
   return (
     <IndexesTable
       id="regular-indexes"
       data-testid="indexes"
       columns={isRegularIndexesWritable ? COLUMNS_WITH_ACTIONS : COLUMNS}
       data={data}
+      expanded={expanded}
+      onExpandedChange={setExpanded}
     />
   );
 };

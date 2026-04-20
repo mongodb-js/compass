@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import {
   css,
   cx,
@@ -80,6 +80,8 @@ const tableHeadCellStyles = css({
   },
 });
 
+type ExpandedState = true | Record<string, boolean>;
+
 export type IndexesTableProps<T> = {
   id: string;
   ['data-testid']: string;
@@ -88,7 +90,8 @@ export type IndexesTableProps<T> = {
   tableWrapperClassName?: string;
   cellClassName?: string;
   showActionsOnHover?: boolean;
-  defaultExpanded?: Record<string, boolean>;
+  expanded: ExpandedState;
+  onExpandedChange: (expanded: ExpandedState) => void;
 };
 
 export function IndexesTable<T>({
@@ -99,18 +102,31 @@ export function IndexesTable<T>({
   tableWrapperClassName,
   cellClassName,
   showActionsOnHover = true,
-  defaultExpanded,
+  expanded,
+  onExpandedChange,
 }: IndexesTableProps<T>) {
   const [sorting, setSorting] = useTabState<SortingState>(
     `${id}-sorting-state`,
     []
   );
-  const [expanded, setExpanded] = useState<true | Record<string, boolean>>(
-    defaultExpanded ?? {}
+  // Keep a ref to the current expanded state so we can resolve updater
+  // functions from useLeafyGreenTable's onExpandedChange synchronously.
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
+  // useLeafyGreenTable's onExpandedChange passes a SetStateAction (value or
+  // updater function). We resolve the updater before forwarding to the caller.
+  const handleExpandedChange = useCallback(
+    (
+      updaterOrValue: ExpandedState | ((old: ExpandedState) => ExpandedState)
+    ) => {
+      const newValue =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(expandedRef.current)
+          : updaterOrValue;
+      onExpandedChange(newValue);
+    },
+    [onExpandedChange]
   );
-  useEffect(() => {
-    setExpanded(defaultExpanded ?? {});
-  }, [defaultExpanded]);
   const table = useLeafyGreenTable<T>({
     data,
     columns,
@@ -118,7 +134,7 @@ export function IndexesTable<T>({
     withPagination: false,
     state: { sorting, expanded },
     onSortingChange: setSorting,
-    onExpandedChange: setExpanded,
+    onExpandedChange: handleExpandedChange,
   });
 
   const { rows } = table.getRowModel();
