@@ -38,3 +38,6 @@ export type {
 export { mockDataSchemaToolSchema } from './atlas-ai-service';
 
 export { READ_ONLY_DATABASE_TOOLS, AVAILABLE_TOOLS } from './available-tools';
+
+export const AI_MODEL_CHAT_VERSION = 'mongodb-chat-2.1-mini-reasoning';
+export const AI_MODEL_SLIM_VERSION = 'mongodb-slim-2.1-mini';

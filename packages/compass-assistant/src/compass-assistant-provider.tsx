@@ -80,6 +80,7 @@ import thunk from 'redux-thunk';
 import type { ThunkAction } from 'redux-thunk';
 import type { Action, AnyAction } from 'redux';
 import { connect } from 'react-redux';
+import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -814,7 +815,7 @@ export function createDefaultChat({
               init
             );
           },
-        }).responses('mongodb-chat-1'),
+        }).responses(AI_MODEL_CHAT_VERSION),
       }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onError: (err: Error) => {

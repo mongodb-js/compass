@@ -4,6 +4,7 @@ import type {
   ConversationEvalCaseInput,
   ConversationTaskOutput,
 } from './types';
+import { AI_MODEL_SLIM_VERSION } from '../../src';
 
 export async function makeChatbotCall(
   input: ConversationEvalCaseInput
@@ -19,7 +20,7 @@ export async function makeChatbotCall(
     },
   });
   const result = streamText({
-    model: openai.responses('mongodb-slim-1'),
+    model: openai.responses(AI_MODEL_SLIM_VERSION),
     temperature: undefined,
     prompt: input.messages,
     providerOptions: {
