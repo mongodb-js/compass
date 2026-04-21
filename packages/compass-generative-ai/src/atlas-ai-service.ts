@@ -36,6 +36,7 @@ import {
 } from './utils/gen-ai-prompt';
 import { parseXmlToJsonResponse } from './utils/parse-xml-response';
 import { getAiQueryResponse } from './utils/gen-ai-response';
+import { AI_MODEL_SLIM_VERSION } from './index';
 
 const mockDataTool = tool({
   description:
@@ -330,7 +331,7 @@ export class AtlasAiService {
         );
         return this.atlasService.authenticatedFetch(uri, init);
       },
-    }).responses('mongodb-slim-latest');
+    }).responses(AI_MODEL_SLIM_VERSION);
 
     this.mockDataAiModel = createOpenAI({
       apiKey: '',
@@ -342,7 +343,7 @@ export class AtlasAiService {
         );
         return this.atlasService.authenticatedFetch(uri, init);
       },
-    }).responses('mongodb-slim-2.1-mini');
+    }).responses(AI_MODEL_SLIM_VERSION);
   }
 
   /**
