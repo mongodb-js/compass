@@ -11,6 +11,7 @@ import {
   type MockDataSchemaToolOutput,
   type RawSchema,
 } from '../../src/mock-data-generator';
+import { AI_MODEL_SLIM_VERSION } from '../../src';
 
 const openai = createOpenAI({
   baseURL:
@@ -36,7 +37,7 @@ async function generateSchemaForChunk(
   const userPrompt = formatSchemaForPrompt('foo', 'bar', schema);
 
   const response = streamText({
-    model: openai.responses('mongodb-slim-2.1-mini'),
+    model: openai.responses(AI_MODEL_SLIM_VERSION),
     messages: [{ role: 'user', content: userPrompt }],
     tools: { mockDataSchema: mockDataTool },
     toolChoice: { type: 'tool', toolName: 'mockDataSchema' },
