@@ -33,16 +33,16 @@ type FieldValueExtractor = (
 
 /**
  * Builds a per-field scorer. For each field in the input schema, the
- * scorer decides match/mismatch. The scorer has three acceptance paths, in priority order:
+ * scorer decides match/mismatch. The scorer has three acceptance
+ * paths, in priority order:
  *
- * 1. If the field has provided
- *    sampleValues AND the LLM picked `helpers.arrayElement`, auto-
- *    accept. Using real sample data via arrayElement is always a
- *    valid mock strategy; arg correctness is independently verified
- *    by FakerSampleValueAccuracy.
- * 2. If `expectedValue` is an `EvalCriterion`
- *    (e.g. `GenericStringMethodCriterion`) that accepts the actual
- *    method, match.
+ * 1. If the field has provided sampleValues AND the LLM picked
+ *    `helpers.arrayElement`, auto-accept. Using real sample data via
+ *    arrayElement is always a valid mock strategy; arg correctness
+ *    is independently verified by FakerSampleValueAccuracy.
+ * 2. If `expectedValue` is an `EvalCriterion` (e.g.
+ *    `GenericStringMethodCriterion`) that accepts the actual method,
+ *    match.
  * 3. Otherwise the expected and actual strings must be exactly equal.
  *
  * The test-case author controls per-field strictness by choosing
