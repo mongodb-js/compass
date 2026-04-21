@@ -330,7 +330,7 @@ export class AtlasAiService {
         );
         return this.atlasService.authenticatedFetch(uri, init);
       },
-    }).responses('mongodb-slim-latest');
+    }).responses('mongodb-slim-1');
 
     this.mockDataAiModel = createOpenAI({
       apiKey: '',
@@ -342,7 +342,7 @@ export class AtlasAiService {
         );
         return this.atlasService.authenticatedFetch(uri, init);
       },
-    }).responses('mongodb-slim-2.1-mini');
+    }).responses('mongodb-slim-1');
   }
 
   /**

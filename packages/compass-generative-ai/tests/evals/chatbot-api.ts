@@ -19,7 +19,7 @@ export async function makeChatbotCall(
     },
   });
   const result = streamText({
-    model: openai.responses('mongodb-slim-latest'),
+    model: openai.responses('mongodb-slim-1'),
     temperature: undefined,
     prompt: input.messages,
     providerOptions: {
