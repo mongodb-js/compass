@@ -12,6 +12,10 @@ import {
   DatelikeMethodCriterion,
   IdlikeMethodCriterion,
   NumericFieldMethodCriterion,
+  TokenStringMethodCriterion,
+  GenericStringMethodCriterion,
+  LoremTextMethodCriterion,
+  ShortPhraseStringCriterion,
   SecondaryAddressCriterion,
   isEvalCriterion,
 } from './types';
@@ -80,15 +84,33 @@ describe('EvalCriterion', function () {
   });
 
   describe('IdlikeMethodCriterion', function () {
-    it('accepts valid id methods', function () {
+    it('accepts structural ID generators', function () {
       expect(IdlikeMethodCriterion.satisfiedBy('string.alphanumeric')).to.be
         .true;
       expect(IdlikeMethodCriterion.satisfiedBy('string.uuid')).to.be.true;
+      expect(IdlikeMethodCriterion.satisfiedBy('string.nanoid')).to.be.true;
+      expect(IdlikeMethodCriterion.satisfiedBy('string.hexadecimal')).to.be
+        .true;
+      expect(IdlikeMethodCriterion.satisfiedBy('database.mongodbObjectId')).to
+        .be.true;
+    });
+
+    it('accepts helpers.arrayElement (LLM invents a plausible ID list)', function () {
+      expect(IdlikeMethodCriterion.satisfiedBy('helpers.arrayElement')).to.be
+        .true;
     });
 
     it('rejects non-id methods', function () {
       expect(IdlikeMethodCriterion.satisfiedBy('number.int')).to.be.false;
+      // string.alpha excludes digits — wrong shape for typical IDs
       expect(IdlikeMethodCriterion.satisfiedBy('string.alpha')).to.be.false;
+    });
+
+    it('rejects name methods that produce wrong-shape IDs', function () {
+      expect(IdlikeMethodCriterion.satisfiedBy('person.fullName')).to.be.false;
+      expect(IdlikeMethodCriterion.satisfiedBy('company.name')).to.be.false;
+      expect(IdlikeMethodCriterion.satisfiedBy('commerce.productName')).to.be
+        .false;
     });
   });
 
@@ -126,6 +148,119 @@ describe('EvalCriterion', function () {
       expect(SecondaryAddressCriterion.satisfiedBy('location.streetAddress')).to
         .be.false;
       expect(SecondaryAddressCriterion.satisfiedBy('number.int')).to.be.false;
+    });
+  });
+
+  describe('TokenStringMethodCriterion', function () {
+    it('accepts structural and short-word string generators', function () {
+      expect(TokenStringMethodCriterion.satisfiedBy('string.alphanumeric')).to
+        .be.true;
+      expect(TokenStringMethodCriterion.satisfiedBy('string.alpha')).to.be.true;
+      expect(TokenStringMethodCriterion.satisfiedBy('string.numeric')).to.be
+        .true;
+      expect(TokenStringMethodCriterion.satisfiedBy('string.uuid')).to.be.true;
+      expect(TokenStringMethodCriterion.satisfiedBy('lorem.word')).to.be.true;
+      expect(TokenStringMethodCriterion.satisfiedBy('lorem.words')).to.be.true;
+      expect(TokenStringMethodCriterion.satisfiedBy('lorem.slug')).to.be.true;
+      expect(TokenStringMethodCriterion.satisfiedBy('helpers.arrayElement')).to
+        .be.true;
+    });
+
+    it('rejects semantic-name string generators that would be shape-wrong for token fields', function () {
+      // e.g. `unitCode` should not be `"Jennifer"`; `coverage` should not be
+      // a company name; `rated` should not be a product name. These methods
+      // produce multi-word human-flavored strings that don't resemble the
+      // small-vocabulary tokens the field actually holds.
+      expect(TokenStringMethodCriterion.satisfiedBy('person.firstName')).to.be
+        .false;
+      expect(TokenStringMethodCriterion.satisfiedBy('person.fullName')).to.be
+        .false;
+      expect(TokenStringMethodCriterion.satisfiedBy('company.name')).to.be
+        .false;
+      expect(TokenStringMethodCriterion.satisfiedBy('commerce.productName')).to
+        .be.false;
+      expect(TokenStringMethodCriterion.satisfiedBy('commerce.department')).to
+        .be.false;
+      expect(TokenStringMethodCriterion.satisfiedBy('book.title')).to.be.false;
+      expect(TokenStringMethodCriterion.satisfiedBy('music.songName')).to.be
+        .false;
+    });
+
+    it('rejects non-string values', function () {
+      expect(TokenStringMethodCriterion.satisfiedBy(42)).to.be.false;
+      expect(TokenStringMethodCriterion.satisfiedBy(null)).to.be.false;
+    });
+  });
+
+  describe('GenericStringMethodCriterion', function () {
+    it('is a strict superset of TokenStringMethodCriterion', function () {
+      for (const method of TokenStringMethodCriterion.methods) {
+        expect(
+          GenericStringMethodCriterion.satisfiedBy(method),
+          `expected GenericStringMethodCriterion to accept ${method}`
+        ).to.be.true;
+      }
+    });
+
+    it('additionally accepts semantic-name string generators (for ambiguous fields)', function () {
+      expect(GenericStringMethodCriterion.satisfiedBy('person.fullName')).to.be
+        .true;
+      expect(GenericStringMethodCriterion.satisfiedBy('company.name')).to.be
+        .true;
+      expect(GenericStringMethodCriterion.satisfiedBy('commerce.productName'))
+        .to.be.true;
+    });
+
+    it('rejects non-string-producing methods', function () {
+      expect(GenericStringMethodCriterion.satisfiedBy('number.int')).to.be
+        .false;
+      expect(GenericStringMethodCriterion.satisfiedBy('date.past')).to.be.false;
+      expect(GenericStringMethodCriterion.satisfiedBy('location.latitude')).to
+        .be.false;
+    });
+  });
+
+  describe('ShortPhraseStringCriterion', function () {
+    it('accepts short-phrase / title-shape methods', function () {
+      expect(ShortPhraseStringCriterion.satisfiedBy('lorem.word')).to.be.true;
+      expect(ShortPhraseStringCriterion.satisfiedBy('lorem.words')).to.be.true;
+      expect(ShortPhraseStringCriterion.satisfiedBy('lorem.sentence')).to.be
+        .true;
+      expect(ShortPhraseStringCriterion.satisfiedBy('book.title')).to.be.true;
+      expect(ShortPhraseStringCriterion.satisfiedBy('music.songName')).to.be
+        .true;
+    });
+
+    it('accepts helpers.arrayElement (LLM invents a plausible title list)', function () {
+      expect(ShortPhraseStringCriterion.satisfiedBy('helpers.arrayElement')).to
+        .be.true;
+    });
+
+    it('rejects prose-shaped methods (those belong on LoremTextMethodCriterion)', function () {
+      // Multi-sentence / paragraph methods would produce wrong-shape output
+      // for a title field.
+      expect(ShortPhraseStringCriterion.satisfiedBy('lorem.paragraph')).to.be
+        .false;
+      expect(ShortPhraseStringCriterion.satisfiedBy('lorem.paragraphs')).to.be
+        .false;
+      expect(ShortPhraseStringCriterion.satisfiedBy('lorem.text')).to.be.false;
+    });
+
+    it('rejects person/company name methods', function () {
+      expect(ShortPhraseStringCriterion.satisfiedBy('person.fullName')).to.be
+        .false;
+      expect(ShortPhraseStringCriterion.satisfiedBy('company.name')).to.be
+        .false;
+    });
+  });
+
+  describe('LoremTextMethodCriterion excludes short-phrase title methods', function () {
+    // Sanity: the prose criterion should NOT accept book.title / song names
+    // (those would produce wrong-shape data for a prose field).
+    it('rejects book.title and music.songName', function () {
+      expect(LoremTextMethodCriterion.satisfiedBy('book.title')).to.be.false;
+      expect(LoremTextMethodCriterion.satisfiedBy('music.songName')).to.be
+        .false;
     });
   });
 

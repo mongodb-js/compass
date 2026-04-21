@@ -61,7 +61,22 @@ export const DatelikeMethodCriterion: EvalCriterion = {
   methods: Array.from(DATELIKE_METHODS),
 };
 
-const IDLIKE_METHODS = new Set<string>(['string.alphanumeric', 'string.uuid']);
+/**
+ * IdlikeMethodCriterion for fields whose samples are identifier-shaped
+ * strings (alphanumeric IDs, UUIDs, ObjectIds, prefixed tokens). Every
+ * method here produces a fixed-width or near-fixed-width string of
+ * letters/digits with no spaces — i.e. something shaped like an ID.
+ */
+const IDLIKE_METHODS = new Set<string>([
+  'string.alphanumeric',
+  'string.uuid',
+  'string.nanoid',
+  'string.hexadecimal',
+  'database.mongodbObjectId',
+  // Covers the case where the LLM invents a plausible ID list rather
+  // than reaching for a structural generator.
+  'helpers.arrayElement',
+]);
 
 export const IdlikeMethodCriterion: EvalCriterion = {
   name: 'IdlikeMethodCriterion',
@@ -92,12 +107,61 @@ export const NumericFieldMethodCriterion: EvalCriterion = {
 };
 
 /**
- * GenericStringMethodCriterion for String-typed fields with no semantic hints
- * (mainly "no sample values" variants). Accepts any faker method that
- * reliably produces a string value. For a field we can't disambiguate,
- * the mock-data quality bar is "plausible string" and any of these methods
- * clears it. Arg-value correctness when sampleValues *are* provided is
- * independently enforced by FakerSampleValueAccuracy.
+ * TokenStringMethodCriterion for fields whose value is one of a
+ * constrained set of short label-like tokens: enum values, unit codes,
+ * type descriptors, rating codes, single-word category tokens, etc. —
+ * e.g. `unitCode` (`"m"`, `"ft"`), `coverage` (`"isolated"`,
+ * `"scattered"`), `rated` (`"G"`, `"PG-13"`), `@type`, `category`
+ * (`"paid"`, `"promotional"`).
+ *
+ * A person / company / product name would be semantically wrong for
+ * these fields — it would produce multi-word human-flavored strings
+ * that don't resemble the small-vocabulary token the field actually
+ * holds — so this criterion intentionally excludes the semantic-name
+ * generators. Accepts only methods that produce short, label-shaped,
+ * or structurally-constrained strings, plus `helpers.arrayElement`
+ * for when the LLM invents a domain-plausible enum from the field
+ * name.
+ */
+const TOKEN_STRING_METHODS = new Set<string>([
+  // Structural string generators (fixed-shape codes, hash-like tokens)
+  'string.alphanumeric',
+  'string.alpha',
+  'string.numeric',
+  'string.uuid',
+  'string.nanoid',
+  'string.hexadecimal',
+  // Short word-shaped tokens
+  'lorem.word',
+  'lorem.words',
+  'lorem.slug',
+  // Draw a token from an invented or provided enum
+  'helpers.arrayElement',
+]);
+
+export const TokenStringMethodCriterion: EvalCriterion = {
+  name: 'TokenStringMethodCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return TOKEN_STRING_METHODS.has(method);
+  },
+  methods: Array.from(TOKEN_STRING_METHODS),
+};
+
+/**
+ * GenericStringMethodCriterion for String-typed fields whose semantics are
+ * genuinely ambiguous (e.g. `customer` could be a person or a company;
+ * `name` could be a product, brand, or user-chosen label;
+ * `forecastOffice` could be a city or an organization). Accepts any
+ * faker method that reliably produces a string value, including the
+ * semantic-name generators. Strictly a superset of
+ * `TokenStringMethodCriterion`.
+ *
+ * For fields that where semantic-name methods may be shape-wrong
+ * (eg. enum / code / type-descriptor fields),
+ * prefer `TokenStringMethodCriterion` instead.
  */
 const GENERIC_STRING_METHODS = new Set<string>([
   // Structural string generators
@@ -149,9 +213,15 @@ export const GenericStringMethodCriterion: EvalCriterion = {
 };
 
 /**
- * LoremTextMethodCriterion for text-content fields (titles, plots, paragraphs,
- * descriptions). Accepts the full range of lorem.* methods since text fields
- * can reasonably be represented as words, sentences, lines, or paragraphs.
+ * LoremTextMethodCriterion for prose / multi-sentence text-content fields
+ * (plots, descriptions, paragraphs, fact-like blurbs). Accepts the full
+ * lorem.* family since prose fields can reasonably be words, sentences,
+ * lines, or paragraphs.
+ *
+ * For short title-cased phrase fields (movie titles, song names), prefer
+ * `ShortPhraseStringCriterion` instead — `book.title` / `music.songName`
+ * fit the semantic shape and are excluded from this criterion on purpose
+ * (a `plot` should not be `faker.book.title()`).
  */
 const LOREM_TEXT_METHODS = new Set<string>([
   'lorem.word',
@@ -173,6 +243,35 @@ export const LoremTextMethodCriterion: EvalCriterion = {
     return LOREM_TEXT_METHODS.has(method);
   },
   methods: Array.from(LOREM_TEXT_METHODS),
+};
+
+/**
+ * ShortPhraseStringCriterion for fields that hold a short title-cased
+ * phrase (movie titles, song names, book titles). Movies, songs, and
+ * books share the same semantic shape — a few title-cased words — so the
+ * LLM reasonably picks `book.title` or `music.songName` for any of them.
+ * Also accepts the short-lorem methods (one word / few words / one
+ * sentence) since an invented phrase is shape-appropriate, and
+ * `helpers.arrayElement` for when the LLM invents a plausible title list.
+ */
+const SHORT_PHRASE_METHODS = new Set<string>([
+  'lorem.word',
+  'lorem.words',
+  'lorem.sentence',
+  'book.title',
+  'music.songName',
+  'helpers.arrayElement',
+]);
+
+export const ShortPhraseStringCriterion: EvalCriterion = {
+  name: 'ShortPhraseStringCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return SHORT_PHRASE_METHODS.has(method);
+  },
+  methods: Array.from(SHORT_PHRASE_METHODS),
 };
 
 /**

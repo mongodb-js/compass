@@ -6,8 +6,10 @@ import {
   DatelikeMethodCriterion,
   IdlikeMethodCriterion,
   NumericFieldMethodCriterion,
+  TokenStringMethodCriterion,
   GenericStringMethodCriterion,
   LoremTextMethodCriterion,
+  ShortPhraseStringCriterion,
   SecondaryAddressCriterion,
 } from '../types';
 
@@ -297,7 +299,7 @@ const chargeCreditCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'object',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -312,12 +314,12 @@ const chargeCreditCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'amount.type',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'applicability_config.scope.price_type',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -326,8 +328,11 @@ const chargeCreditCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
         fakerArgs: [],
       },
       {
+        // Short enum tokens ("paid", "promotional"). Semantic-name
+        // methods like `commerce.productName` or `company.name` would
+        // produce wrong-domain data, so use the narrower criterion.
         fieldPath: 'category',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -337,8 +342,10 @@ const chargeCreditCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
         fakerArgs: [],
       },
       {
+        // Samples are Stripe-style prefixed alphanumeric IDs
+        // ("cus_QrvQguzkIK8zTj").
         fieldPath: 'customer',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: IdlikeMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1118,7 +1125,7 @@ const fundingEventCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'collection_resource_type',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1462,12 +1469,12 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'Type',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.geometry',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1477,7 +1484,7 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'properties.@type',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1502,12 +1509,12 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'properties.elevation.unitCode',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.elevation.qualityControl',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1532,17 +1539,17 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'properties.weather.values[].value[].coverage',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].weather',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].intensity',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1562,28 +1569,28 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'properties.weather.values[].value[].visibility.unitCode',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath:
           'properties.weather.values[].value[].visibility.qualityControl',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.weather.values[].value[].attributes[]',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.hazards.values[].value[].phenomenon',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
         fieldPath: 'properties.hazards.values[].value[].significance',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1799,7 +1806,7 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
     fields: [
       {
         fieldPath: 'title',
-        fakerMethod: LoremTextMethodCriterion,
+        fakerMethod: ShortPhraseStringCriterion,
         fakerArgs: [],
       },
       {
@@ -1989,7 +1996,7 @@ const mflixMovieCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
     fields: [
       {
         fieldPath: 'title',
-        fakerMethod: LoremTextMethodCriterion,
+        fakerMethod: ShortPhraseStringCriterion,
         fakerArgs: [],
       },
       {
@@ -1999,7 +2006,7 @@ const mflixMovieCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'genres[]',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -2010,7 +2017,7 @@ const mflixMovieCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'rated',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -2108,7 +2115,7 @@ const mflixMovieCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'type',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: TokenStringMethodCriterion,
         fakerArgs: [],
       },
       {
