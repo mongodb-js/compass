@@ -8,7 +8,7 @@
 #
 name: Release Notes - Labels
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, edited, labeled, unlabeled, synchronize]
 
 permissions:
@@ -60,7 +60,7 @@ jobs:
         with:
           mode: maximum
           count: 0
-          labels: "wip, work in progress, work-in-progress"
+          labels: 'wip, work in progress, work-in-progress'
 
       - uses: mheap/github-action-required-labels@388fd6af37b34cdfe5a23b37060e763217e58b03 # 5.5.0
         if: |
@@ -71,4 +71,4 @@ jobs:
         with:
           mode: minimum
           count: 1
-          labels: "feature flagged, no release notes, release notes"
+          labels: 'feature flagged, no release notes, release notes'
