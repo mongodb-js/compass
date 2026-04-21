@@ -31,6 +31,25 @@ type FieldValueExtractor = (
   field: MockDataGeneratorExpectedField
 ) => MockDataGeneratorExpectedField['fakerMethod'];
 
+/**
+ * Builds a per-field scorer. For each field in the input schema, the
+ * scorer decides match/mismatch. The scorer has three acceptance paths, in priority order:
+ *
+ * 1. If the field has provided
+ *    sampleValues AND the LLM picked `helpers.arrayElement`, auto-
+ *    accept. Using real sample data via arrayElement is always a
+ *    valid mock strategy; arg correctness is independently verified
+ *    by FakerSampleValueAccuracy.
+ * 2. If `expectedValue` is an `EvalCriterion`
+ *    (e.g. `GenericStringMethodCriterion`) that accepts the actual
+ *    method, match.
+ * 3. Otherwise the expected and actual strings must be exactly equal.
+ *
+ * The test-case author controls per-field strictness by choosing
+ * either a string literal (strict, exact match required) or a
+ * criterion (flexible, accepts any method the criterion allows) as
+ * the expected faker method.
+ */
 function createFieldScorer(
   name: string,
   valueExtractor: FieldValueExtractor
@@ -62,22 +81,24 @@ function createFieldScorer(
       const expectedValue = valueExtractor(expectedField);
       const actualValue = valueExtractor(actualField) as string;
 
-      // When the field has sampleValues, helpers.arrayElement is a valid
-      // choice — using sample data directly is a valid mock data strategy.
-      // Only the singular form is accepted since the downstream generator
-      // wraps in Array.from({length: N}, ...)
-      // FakerSampleValueAccuracy scorer checks the args are correct.
+      // Only the singular `helpers.arrayElement` is auto-accepted —
+      // `helpers.arrayElements` (plural) produces wrong-typed data in
+      // the generator's Array.from wrapping and is caught as a failure
+      // by FakerSampleValueAccuracy.
       const fieldHasSampleValues =
         (args.input.providedSchema[fieldName]?.sampleValues?.length ?? 0) > 0;
 
       if (fieldHasSampleValues && actualValue === 'helpers.arrayElement') {
+        // Case 1: sample-value + helpers.arrayElement
         matches++;
       } else if (
         isEvalCriterion(expectedValue) &&
         expectedValue.satisfiedBy(actualValue)
       ) {
+        // Case 2: criterion match
         matches++;
       } else if (expectedValue === actualValue) {
+        // Case 3: exact match
         matches++;
       } else {
         fieldMismatches.push({

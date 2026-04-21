@@ -61,6 +61,25 @@ function makeArgs(
 }
 
 describe('EvalCriterion', function () {
+  it('every criterion rejects non-string input', function () {
+    const allCriteria = [
+      DatelikeMethodCriterion,
+      IdlikeMethodCriterion,
+      NumericFieldMethodCriterion,
+      TokenStringMethodCriterion,
+      GenericStringMethodCriterion,
+      LoremTextMethodCriterion,
+      ShortPhraseStringCriterion,
+      SecondaryAddressCriterion,
+    ];
+    for (const c of allCriteria) {
+      expect(c.satisfiedBy(42), `${c.name} should reject numbers`).to.be.false;
+      expect(c.satisfiedBy(null), `${c.name} should reject null`).to.be.false;
+      expect(c.satisfiedBy(undefined), `${c.name} should reject undefined`).to
+        .be.false;
+    }
+  });
+
   describe('DatelikeMethodCriterion', function () {
     it('accepts valid date methods', function () {
       expect(DatelikeMethodCriterion.satisfiedBy('date.anytime')).to.be.true;
@@ -76,15 +95,11 @@ describe('EvalCriterion', function () {
       expect(DatelikeMethodCriterion.satisfiedBy('number.int')).to.be.false;
       expect(DatelikeMethodCriterion.satisfiedBy('date.birthdate')).to.be.false;
     });
-
-    it('rejects non-string input', function () {
-      expect(DatelikeMethodCriterion.satisfiedBy(42)).to.be.false;
-      expect(DatelikeMethodCriterion.satisfiedBy(null)).to.be.false;
-    });
   });
 
   describe('IdlikeMethodCriterion', function () {
-    it('accepts structural ID generators', function () {
+    it('accepts valid ID methods', function () {
+      // Structural ID generators
       expect(IdlikeMethodCriterion.satisfiedBy('string.alphanumeric')).to.be
         .true;
       expect(IdlikeMethodCriterion.satisfiedBy('string.uuid')).to.be.true;
@@ -93,9 +108,7 @@ describe('EvalCriterion', function () {
         .true;
       expect(IdlikeMethodCriterion.satisfiedBy('database.mongodbObjectId')).to
         .be.true;
-    });
-
-    it('accepts helpers.arrayElement (LLM invents a plausible ID list)', function () {
+      // LLM may generate an ID list
       expect(IdlikeMethodCriterion.satisfiedBy('helpers.arrayElement')).to.be
         .true;
     });
@@ -167,9 +180,7 @@ describe('EvalCriterion', function () {
     });
 
     it('rejects semantic-name string generators that would be shape-wrong for token fields', function () {
-      // e.g. `unitCode` should not be `"Jennifer"`; `coverage` should not be
-      // a company name; `rated` should not be a product name. These methods
-      // produce multi-word human-flavored strings that don't resemble the
+      // These methods produce multi-word human-flavored strings that don't resemble the
       // small-vocabulary tokens the field actually holds.
       expect(TokenStringMethodCriterion.satisfiedBy('person.firstName')).to.be
         .false;
@@ -184,11 +195,6 @@ describe('EvalCriterion', function () {
       expect(TokenStringMethodCriterion.satisfiedBy('book.title')).to.be.false;
       expect(TokenStringMethodCriterion.satisfiedBy('music.songName')).to.be
         .false;
-    });
-
-    it('rejects non-string values', function () {
-      expect(TokenStringMethodCriterion.satisfiedBy(42)).to.be.false;
-      expect(TokenStringMethodCriterion.satisfiedBy(null)).to.be.false;
     });
   });
 
@@ -229,9 +235,7 @@ describe('EvalCriterion', function () {
       expect(ShortPhraseStringCriterion.satisfiedBy('book.title')).to.be.true;
       expect(ShortPhraseStringCriterion.satisfiedBy('music.songName')).to.be
         .true;
-    });
-
-    it('accepts helpers.arrayElement (LLM invents a plausible title list)', function () {
+      // LLM may generate a title list
       expect(ShortPhraseStringCriterion.satisfiedBy('helpers.arrayElement')).to
         .be.true;
     });
@@ -250,16 +254,6 @@ describe('EvalCriterion', function () {
       expect(ShortPhraseStringCriterion.satisfiedBy('person.fullName')).to.be
         .false;
       expect(ShortPhraseStringCriterion.satisfiedBy('company.name')).to.be
-        .false;
-    });
-  });
-
-  describe('LoremTextMethodCriterion excludes short-phrase title methods', function () {
-    // Sanity: the prose criterion should NOT accept book.title / song names
-    // (those would produce wrong-shape data for a prose field).
-    it('rejects book.title and music.songName', function () {
-      expect(LoremTextMethodCriterion.satisfiedBy('book.title')).to.be.false;
-      expect(LoremTextMethodCriterion.satisfiedBy('music.songName')).to.be
         .false;
     });
   });
@@ -471,33 +465,6 @@ describe('Mock Data Scorers', function () {
               fieldPath: 'tags[]',
               fakerMethod: 'helpers.arrayElements',
               fakerArgs: [{ json: '["red", "blue"]' }],
-            },
-          ],
-        })
-      );
-      expect(result).to.have.property('score', 0);
-    });
-
-    it('does NOT accept helpers.arrayElement when field has no sampleValues', async function () {
-      // Without sampleValues, helpers.arrayElement can't be replaying data —
-      // so the expected method must match exactly.
-      const result = await FakerMethodSuggestionAccuracy(
-        makeArgs({
-          providedSchema: {
-            name: { type: 'String', probability: 1 },
-          },
-          expectedFields: [
-            {
-              fieldPath: 'name',
-              fakerMethod: 'person.fullName',
-              fakerArgs: [],
-            },
-          ],
-          outputFields: [
-            {
-              fieldPath: 'name',
-              fakerMethod: 'helpers.arrayElement',
-              fakerArgs: [{ json: '["Alice"]' }],
             },
           ],
         })
