@@ -1,4 +1,4 @@
-import type { MockDataSchemaToolOutput } from '@mongodb-js/compass-generative-ai';
+import type { MockDataSchemaToolOutput } from '@mongodb-js/compass-generative-ai/provider';
 import type { FakerArg } from './script-generation-utils';
 import type { MongoDBFieldType } from '../../schema-analysis-types';
 

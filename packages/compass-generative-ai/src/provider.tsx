@@ -103,3 +103,25 @@ export type { ToolGroup } from './tools-controller';
 
 // Export the hook for direct use in components
 export const useToolsController = useToolsControllerContext;
+
+export { AVAILABLE_TOOLS, READ_ONLY_DATABASE_TOOLS } from './available-tools';
+export { AI_MODEL_CHAT_VERSION, AI_MODEL_SLIM_VERSION } from './model-version';
+
+export {
+  AIExperienceEntry,
+  GenerativeAIInput,
+  createAIPlaceholderHTMLPlaceholder,
+} from './components';
+
+export {
+  AtlasAiServiceInvalidInputError,
+  AtlasAiServiceApiResponseParseError,
+} from './atlas-ai-errors';
+
+export type {
+  MockDataSchemaRequest,
+  MockDataSchemaRawField,
+  MockDataSchemaToolOutput,
+} from './atlas-ai-service';
+
+export { mockDataSchemaToolSchema } from './atlas-ai-service';
