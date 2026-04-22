@@ -6,6 +6,7 @@ import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import {
   openCreateSearchIndexDrawerView,
   refreshAllIndexes,
+  setRegularIndexesAccordionOpen,
   startPollingAllIndexes,
   stopPollingAllIndexes,
 } from '../../modules/indexes-drawer';
@@ -62,8 +63,8 @@ type IndexesListDrawerViewProps = {
   isReadonlyView: boolean;
   regularIndexes: Pick<RegularIndexesState, 'indexes' | 'error' | 'status'>;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
-  expandedRows: Record<string, boolean>;
-  listViewVersion: number;
+  isRegularIndexesAccordionOpen: boolean;
+  onRegularIndexesAccordionOpen: (isOpen: boolean) => void;
   onRefreshClick: () => void;
   onCreateRegularIndexClick: () => void;
   onCreateSearchIndexClick: (currentIndexType: SearchIndexType) => void;
@@ -83,8 +84,8 @@ const IndexesListDrawerView: React.FunctionComponent<
   isReadonlyView,
   regularIndexes,
   searchIndexes,
-  expandedRows,
-  listViewVersion,
+  isRegularIndexesAccordionOpen,
+  onRegularIndexesAccordionOpen,
   onRefreshClick,
   onCreateRegularIndexClick,
   onCreateSearchIndexClick,
@@ -93,16 +94,6 @@ const IndexesListDrawerView: React.FunctionComponent<
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { openDrawer } = useDrawerActions();
-  const hasExpandedSearchIndex = Object.values(expandedRows).some(Boolean);
-  const [isStandardAccordionOpen, setIsStandardAccordionOpen] = useState(
-    !hasExpandedSearchIndex
-  );
-  const [prevListViewVersion, setPrevListViewVersion] =
-    useState(listViewVersion);
-  if (prevListViewVersion !== listViewVersion) {
-    setPrevListViewVersion(listViewVersion);
-    setIsStandardAccordionOpen(!hasExpandedSearchIndex);
-  }
 
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
@@ -251,8 +242,8 @@ const IndexesListDrawerView: React.FunctionComponent<
       />
       <Accordion
         text="Standard"
-        open={isStandardAccordionOpen}
-        setOpen={setIsStandardAccordionOpen}
+        open={isRegularIndexesAccordionOpen}
+        setOpen={onRegularIndexesAccordionOpen}
       >
         {isRegularIndexesReadable ? (
           <RegularIndexesDrawerTable searchTerm={searchTerm} />
@@ -281,14 +272,14 @@ const mapState = ({
   isReadonlyView,
   regularIndexes,
   searchIndexes,
-  expandedRows: indexesDrawer.expandedRows,
-  listViewVersion: indexesDrawer.listViewVersion,
+  isRegularIndexesAccordionOpen: indexesDrawer.isRegularIndexesAccordionOpen,
 });
 
 const mapDispatch = {
   onRefreshClick: refreshAllIndexes,
   onCreateRegularIndexClick: createIndexOpened,
   onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
+  onRegularIndexesAccordionOpen: setRegularIndexesAccordionOpen,
   startPolling: startPollingAllIndexes,
   stopPolling: stopPollingAllIndexes,
 };

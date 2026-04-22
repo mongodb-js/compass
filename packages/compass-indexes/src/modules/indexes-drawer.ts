@@ -32,11 +32,8 @@ export type State = {
   currentView: IndexesDrawerViewType;
   currentIndexType: SearchIndexType;
   currentIndexName: string;
-  expandedRows: Record<string, boolean>;
-  // Incremented on every OPEN_INDEXES_LIST_DRAWER_VIEW dispatch so that
-  // the drawer view can detect external focus events and reset the
-  // Standard accordion accordingly, even when the drawer is already open.
-  listViewVersion: number;
+  expandedRowIndexNames: string[];
+  isRegularIndexesAccordionOpen: boolean;
   isDirty: boolean;
 };
 
@@ -44,8 +41,8 @@ export const INITIAL_STATE: State = {
   currentView: 'indexes-list',
   currentIndexType: 'search',
   currentIndexName: '',
-  expandedRows: {},
-  listViewVersion: 0,
+  expandedRowIndexNames: [],
+  isRegularIndexesAccordionOpen: true,
   isDirty: false,
 };
 
@@ -56,17 +53,18 @@ export const OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW =
 export const OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW =
   'indexes/drawer/OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW' as const;
 export const SET_IS_DIRTY = 'indexes/drawer/SET_IS_DIRTY' as const;
-export const TOGGLE_ROW_EXPANDED =
-  'indexes/drawer/TOGGLE_ROW_EXPANDED' as const;
+export const SET_EXPANDED_ROWS = 'indexes/drawer/SET_EXPANDED_ROWS' as const;
+export const SET_REGULAR_INDEXES_ACCORDION_OPEN =
+  'indexes/drawer/SET_REGULAR_INDEXES_ACCORDION_OPEN' as const;
 
 type OpenIndexesListDrawerViewAction = {
   type: typeof OPEN_INDEXES_LIST_DRAWER_VIEW;
-  focusedIndexName: string;
+  expandedRowIndexNames: string[];
 };
 
-type ToggleRowExpandedAction = {
-  type: typeof TOGGLE_ROW_EXPANDED;
-  indexName: string;
+type SetExpandedRowsAction = {
+  type: typeof SET_EXPANDED_ROWS;
+  expandedRowIndexNames: string[];
 };
 
 type OpenCreateSearchIndexDrawerViewAction = {
@@ -84,12 +82,18 @@ type SetIsDirtyIndexDrawerAction = {
   isDirty: boolean;
 };
 
+type SetRegularIndexesAccordionOpenAction = {
+  type: typeof SET_REGULAR_INDEXES_ACCORDION_OPEN;
+  isOpen: boolean;
+};
+
 export type IndexesDrawerActions =
   | OpenIndexesListDrawerViewAction
   | OpenCreateSearchIndexDrawerViewAction
   | OpenEditSearchIndexDrawerViewAction
   | SetIsDirtyIndexDrawerAction
-  | ToggleRowExpandedAction;
+  | SetExpandedRowsAction
+  | SetRegularIndexesAccordionOpenAction;
 
 // Exporting this for test only to stub it and set
 // its value. This enables to test the confirmation dialog.
@@ -123,14 +127,12 @@ export const openIndexesListDrawerView = (
     if (!confirmed) {
       return;
     }
-    const validatedName =
+    const indexExists =
       focusedIndexName &&
-      state.searchIndexes.indexes.some((x) => x.name === focusedIndexName)
-        ? focusedIndexName
-        : '';
+      state.searchIndexes.indexes.some((x) => x.name === focusedIndexName);
     dispatch({
       type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-      focusedIndexName: validatedName,
+      expandedRowIndexNames: indexExists ? [focusedIndexName] : [],
     });
   };
 };
@@ -166,11 +168,18 @@ export const setIsDirty = (isDirty: boolean): SetIsDirtyIndexDrawerAction => ({
   isDirty,
 });
 
-export const toggleRowExpanded = (
-  indexName: string
-): ToggleRowExpandedAction => ({
-  type: TOGGLE_ROW_EXPANDED,
-  indexName,
+export const setExpandedRows = (
+  expandedRowIndexNames: string[]
+): SetExpandedRowsAction => ({
+  type: SET_EXPANDED_ROWS,
+  expandedRowIndexNames,
+});
+
+export const setRegularIndexesAccordionOpen = (
+  isOpen: boolean
+): SetRegularIndexesAccordionOpenAction => ({
+  type: SET_REGULAR_INDEXES_ACCORDION_OPEN,
+  isOpen,
 });
 
 export const refreshAllIndexes = (): IndexesThunkAction<
@@ -213,10 +222,8 @@ export default function reducer(
     return {
       ...state,
       currentView: 'indexes-list',
-      expandedRows: action.focusedIndexName
-        ? { [action.focusedIndexName]: true }
-        : {},
-      listViewVersion: state.listViewVersion + 1,
+      expandedRowIndexNames: action.expandedRowIndexNames,
+      isRegularIndexesAccordionOpen: action.expandedRowIndexNames.length === 0,
     };
   }
 
@@ -253,14 +260,22 @@ export default function reducer(
     };
   }
 
-  if (isAction<ToggleRowExpandedAction>(action, TOGGLE_ROW_EXPANDED)) {
-    const current = state.expandedRows[action.indexName] ?? false;
+  if (isAction<SetExpandedRowsAction>(action, SET_EXPANDED_ROWS)) {
     return {
       ...state,
-      expandedRows: {
-        ...state.expandedRows,
-        [action.indexName]: !current,
-      },
+      expandedRowIndexNames: action.expandedRowIndexNames,
+    };
+  }
+
+  if (
+    isAction<SetRegularIndexesAccordionOpenAction>(
+      action,
+      SET_REGULAR_INDEXES_ACCORDION_OPEN
+    )
+  ) {
+    return {
+      ...state,
+      isRegularIndexesAccordionOpen: action.isOpen,
     };
   }
 
