@@ -99,7 +99,6 @@ export class ToolsController {
       // NOTE: the preference could change at runtime. As a best-effort way of
       // keeping it in sync we'll change it every time we set the tools' context
       telemetry: enableTelemetry ? 'enabled' : 'disabled',
-      previewFeatures: ['search'],
     });
 
     this.runner = new InMemoryRunner({
