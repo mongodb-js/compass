@@ -6,6 +6,7 @@ import {
   renderWithActiveConnection,
   waitFor,
   userEvent,
+  fireEvent,
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
@@ -643,7 +644,7 @@ describe('MockDataGeneratorModal', () => {
       ).to.not.equal('true');
     });
 
-    it('fires a Document Count Changed track event on blur with a valid value', async () => {
+    it('fires a Document Count Changed track event on blur when the value changed to a valid value', async () => {
       const result = await renderModal({
         currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
         fakerSchemaGeneration: createCompletedFakerSchema({
@@ -658,20 +659,21 @@ describe('MockDataGeneratorModal', () => {
       });
 
       const input = screen.getByTestId('document-count-input');
-      input.focus();
-      userEvent.tab();
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: '600' } });
+      fireEvent.blur(input);
 
       await waitFor(() => {
         expect(result.track).to.have.been.calledWith(
           'Mock Data Document Count Changed',
           {
-            document_count: 500,
+            document_count: 600,
           }
         );
       });
     });
 
-    it('does not fire a Document Count Changed track event on blur with an invalid value', async () => {
+    it('does not fire a Document Count Changed track event on blur when the value did not change', async () => {
       const result = await renderModal({
         currentStep: MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT,
         fakerSchemaGeneration: createCompletedFakerSchema({
@@ -682,12 +684,12 @@ describe('MockDataGeneratorModal', () => {
             mongoType: 'String',
           },
         }),
-        documentCount: '0',
+        documentCount: '500',
       });
 
       const input = screen.getByTestId('document-count-input');
-      input.focus();
-      userEvent.tab();
+      fireEvent.focus(input);
+      fireEvent.blur(input);
 
       expect(result.track).to.not.have.been.calledWith(
         'Mock Data Document Count Changed',
