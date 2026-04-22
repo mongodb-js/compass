@@ -82,7 +82,13 @@ describe('MongoDB Assistant (with real backend)', function () {
       await setAIOptIn(true);
       await setAIFeatures(true);
     } catch (err) {
-      await browser.screenshot(screenshotPathName('before-MongoDB-Assistant'));
+      try {
+        await browser.screenshot(
+          screenshotPathName('before-MongoDB-Assistant')
+        );
+      } catch (screenshotErr) {
+        console.error('Failed to take screenshot after error:', screenshotErr);
+      }
       throw err;
     }
   });

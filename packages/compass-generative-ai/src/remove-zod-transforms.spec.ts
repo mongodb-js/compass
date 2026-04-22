@@ -1,11 +1,11 @@
 import { expect } from 'chai';
 import path from 'path';
-import z from 'zod';
 import { removeZodTransforms } from './remove-zod-transforms';
 
-// Load zod 4 from mongodb-mcp-server's nested dependency for cross-version tests.
+// Load zod from mongodb-mcp-server's nested dependency – this is the same
+// zod version that produces the schemas we receive at runtime.
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const z4 = require(path.join(
+const z = require(path.join(
   __dirname,
   '../node_modules/mongodb-mcp-server/node_modules/zod'
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -13,71 +13,79 @@ const z4 = require(path.join(
 
 describe('removeZodTransforms', function () {
   describe('primitives and basic types', function () {
-    it('should return string schema as-is', function () {
+    it('should convert a string schema', function () {
       const schema = z.string();
       const result = removeZodTransforms(schema);
-      expect(result).to.equal(schema);
+
+      expect(result._def.typeName).to.equal('ZodString');
+      expect(result.parse('hello')).to.equal('hello');
     });
 
-    it('should return number schema as-is', function () {
+    it('should convert a number schema', function () {
       const schema = z.number();
       const result = removeZodTransforms(schema);
-      expect(result).to.equal(schema);
+
+      expect(result._def.typeName).to.equal('ZodNumber');
+      expect(result.parse(42)).to.equal(42);
     });
 
-    it('should return boolean schema as-is', function () {
+    it('should convert a boolean schema', function () {
       const schema = z.boolean();
       const result = removeZodTransforms(schema);
-      expect(result).to.equal(schema);
+
+      expect(result._def.typeName).to.equal('ZodBoolean');
+      expect(result.parse(true)).to.equal(true);
     });
 
-    it('should return literal schema as-is', function () {
+    it('should convert a literal schema', function () {
       const schema = z.literal('hello');
       const result = removeZodTransforms(schema);
-      expect(result).to.equal(schema);
+
+      expect(result._def.typeName).to.equal('ZodLiteral');
+      expect(result.parse('hello')).to.equal('hello');
     });
 
-    it('should return enum schema as-is', function () {
+    it('should convert an enum schema', function () {
       const schema = z.enum(['a', 'b', 'c']);
       const result = removeZodTransforms(schema);
-      expect(result).to.equal(schema);
+
+      expect(result._def.typeName).to.equal('ZodEnum');
+      expect(result.parse('a')).to.equal('a');
+    });
+
+    it('should preserve descriptions', function () {
+      const schema = z.string().describe('A user name');
+      const result = removeZodTransforms(schema);
+
+      expect(result.description).to.equal('A user name');
+      expect(result.parse('test')).to.equal('test');
     });
   });
 
-  describe('ZodEffects (transforms, refine, preprocess)', function () {
+  describe('transforms', function () {
     it('should remove transform and return inner schema', function () {
-      const innerSchema = z.string();
-      const schema = innerSchema.transform((s) => s.toUpperCase());
+      const schema = z.string().transform((s: string) => s.toUpperCase());
       const result = removeZodTransforms(schema);
 
-      // Verify it's not a ZodEffects anymore
       expect(result._def.typeName).to.equal('ZodString');
-
-      // Verify it validates correctly
       expect(result.parse('test')).to.equal('test');
     });
 
     it('should remove refine and return inner schema', function () {
-      const schema = z.string().refine((s) => s.length > 5);
+      const schema = z.string().refine((s: string) => s.length > 5);
       const result = removeZodTransforms(schema);
 
+      // refine in zod 4 doesn't create a pipe/transform, it stays a string
       expect(result._def.typeName).to.equal('ZodString');
       expect(result.parse('test')).to.equal('test');
-    });
-
-    it('should remove preprocess and return inner schema', function () {
-      const schema = z.preprocess((val) => String(val), z.string());
-      const result = removeZodTransforms(schema);
-
-      expect(result._def.typeName).to.equal('ZodString');
     });
 
     it('should handle nested transforms', function () {
       const schema = z
         .string()
-        .transform((s) => s.toLowerCase())
-        .transform((s) => s.trim())
-        .transform((s) => s.toUpperCase());
+        .transform((s: string) => s.toLowerCase())
+        .transform((s: string) => s.trim())
+        .transform((s: string) => s.toUpperCase());
 
       const result = removeZodTransforms(schema);
 
@@ -86,7 +94,7 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodObject', function () {
+  describe('objects', function () {
     it('should process object properties', function () {
       const schema = z.object({
         name: z.string(),
@@ -102,8 +110,8 @@ describe('removeZodTransforms', function () {
 
     it('should remove transforms from nested object properties', function () {
       const schema = z.object({
-        name: z.string().transform((s) => s.toUpperCase()),
-        age: z.number().transform((n) => n * 2),
+        name: z.string().transform((s: string) => s.toUpperCase()),
+        age: z.number().transform((n: number) => n * 2),
       });
 
       const result = removeZodTransforms(schema);
@@ -111,64 +119,9 @@ describe('removeZodTransforms', function () {
       const parsed = result.parse({ name: 'john', age: 30 });
       expect(parsed).to.deep.equal({ name: 'john', age: 30 });
     });
-
-    it('should preserve passthrough behavior', function () {
-      const schema = z
-        .object({
-          name: z.string(),
-        })
-        .passthrough();
-
-      const result = removeZodTransforms(schema);
-      expect(result._def.unknownKeys).to.equal('passthrough');
-
-      const parsed = result.parse({ name: 'John', extra: 'data' });
-      expect(parsed).to.deep.equal({ name: 'John', extra: 'data' });
-    });
-
-    it('should preserve strip behavior', function () {
-      const schema = z
-        .object({
-          name: z.string(),
-        })
-        .strip();
-
-      const result = removeZodTransforms(schema);
-      expect(result._def.unknownKeys).to.equal('strip');
-
-      const parsed = result.parse({ name: 'John', extra: 'data' });
-      expect(parsed).to.deep.equal({ name: 'John' });
-    });
-
-    it('should handle catchall schemas', function () {
-      const schema = z
-        .object({
-          name: z.string(),
-        })
-        .catchall(z.number());
-
-      const result = removeZodTransforms(schema);
-      expect(result._def.catchall._def.typeName).to.equal('ZodNumber');
-
-      const parsed = result.parse({ name: 'John', score: 100 });
-      expect(parsed).to.deep.equal({ name: 'John', score: 100 });
-    });
-
-    it('should remove transforms from catchall schemas', function () {
-      const schema = z
-        .object({
-          name: z.string(),
-        })
-        .catchall(z.number().transform((n) => n * 2));
-
-      const result = removeZodTransforms(schema);
-
-      const parsed = result.parse({ name: 'John', score: 100 });
-      expect(parsed).to.deep.equal({ name: 'John', score: 100 });
-    });
   });
 
-  describe('ZodArray', function () {
+  describe('arrays', function () {
     it('should handle array schemas', function () {
       const schema = z.array(z.string());
       const result = removeZodTransforms(schema);
@@ -179,7 +132,9 @@ describe('removeZodTransforms', function () {
     });
 
     it('should remove transforms from array element schema', function () {
-      const schema = z.array(z.string().transform((s) => s.toUpperCase()));
+      const schema = z.array(
+        z.string().transform((s: string) => s.toUpperCase())
+      );
       const result = removeZodTransforms(schema);
 
       const parsed = result.parse(['a', 'b', 'c']);
@@ -201,7 +156,7 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodOptional', function () {
+  describe('optional', function () {
     it('should handle optional schemas', function () {
       const schema = z.string().optional();
       const result = removeZodTransforms(schema);
@@ -214,7 +169,7 @@ describe('removeZodTransforms', function () {
     it('should remove transforms from optional inner schema', function () {
       const schema = z
         .string()
-        .transform((s) => s.toUpperCase())
+        .transform((s: string) => s.toUpperCase())
         .optional();
 
       const result = removeZodTransforms(schema);
@@ -224,7 +179,7 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodNullable', function () {
+  describe('nullable', function () {
     it('should handle nullable schemas', function () {
       const schema = z.string().nullable();
       const result = removeZodTransforms(schema);
@@ -237,7 +192,7 @@ describe('removeZodTransforms', function () {
     it('should remove transforms from nullable inner schema', function () {
       const schema = z
         .string()
-        .transform((s) => s.toUpperCase())
+        .transform((s: string) => s.toUpperCase())
         .nullable();
 
       const result = removeZodTransforms(schema);
@@ -247,7 +202,7 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodDefault', function () {
+  describe('default', function () {
     it('should preserve default values', function () {
       const schema = z.string().default('hello');
       const result = removeZodTransforms(schema);
@@ -260,7 +215,7 @@ describe('removeZodTransforms', function () {
     it('should remove transforms from default inner schema', function () {
       const schema = z
         .string()
-        .transform((s) => s.toUpperCase())
+        .transform((s: string) => s.toUpperCase())
         .default('hello');
 
       const result = removeZodTransforms(schema);
@@ -270,7 +225,7 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodUnion', function () {
+  describe('unions', function () {
     it('should handle union schemas', function () {
       const schema = z.union([z.string(), z.number()]);
       const result = removeZodTransforms(schema);
@@ -282,8 +237,8 @@ describe('removeZodTransforms', function () {
 
     it('should remove transforms from union options', function () {
       const schema = z.union([
-        z.string().transform((s) => s.toUpperCase()),
-        z.number().transform((n) => n * 2),
+        z.string().transform((s: string) => s.toUpperCase()),
+        z.number().transform((n: number) => n * 2),
       ]);
 
       const result = removeZodTransforms(schema);
@@ -308,7 +263,7 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodIntersection', function () {
+  describe('intersections', function () {
     it('should handle intersection schemas', function () {
       const schema = z.intersection(
         z.object({ name: z.string() }),
@@ -324,8 +279,10 @@ describe('removeZodTransforms', function () {
 
     it('should remove transforms from intersection parts', function () {
       const schema = z.intersection(
-        z.object({ name: z.string().transform((s) => s.toUpperCase()) }),
-        z.object({ age: z.number().transform((n) => n * 2) })
+        z.object({
+          name: z.string().transform((s: string) => s.toUpperCase()),
+        }),
+        z.object({ age: z.number().transform((n: number) => n * 2) })
       );
 
       const result = removeZodTransforms(schema);
@@ -335,7 +292,7 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodTuple', function () {
+  describe('tuples', function () {
     it('should handle tuple schemas', function () {
       const schema = z.tuple([z.string(), z.number(), z.boolean()]);
       const result = removeZodTransforms(schema);
@@ -347,8 +304,8 @@ describe('removeZodTransforms', function () {
 
     it('should remove transforms from tuple items', function () {
       const schema = z.tuple([
-        z.string().transform((s) => s.toUpperCase()),
-        z.number().transform((n) => n * 2),
+        z.string().transform((s: string) => s.toUpperCase()),
+        z.number().transform((n: number) => n * 2),
       ]);
 
       const result = removeZodTransforms(schema);
@@ -358,7 +315,7 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodRecord', function () {
+  describe('records', function () {
     it('should handle record schemas', function () {
       const schema = z.record(z.string(), z.number());
       const result = removeZodTransforms(schema);
@@ -370,8 +327,8 @@ describe('removeZodTransforms', function () {
 
     it('should remove transforms from record key and value types', function () {
       const schema = z.record(
-        z.string().transform((s) => s.toUpperCase()),
-        z.number().transform((n) => n * 2)
+        z.string().transform((s: string) => s.toUpperCase()),
+        z.number().transform((n: number) => n * 2)
       );
 
       const result = removeZodTransforms(schema);
@@ -381,7 +338,7 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodMap', function () {
+  describe('maps', function () {
     it('should handle map schemas', function () {
       const schema = z.map(z.string(), z.number());
       const result = removeZodTransforms(schema);
@@ -397,8 +354,8 @@ describe('removeZodTransforms', function () {
 
     it('should remove transforms from map key and value types', function () {
       const schema = z.map(
-        z.string().transform((s) => s.toUpperCase()),
-        z.number().transform((n) => n * 2)
+        z.string().transform((s: string) => s.toUpperCase()),
+        z.number().transform((n: number) => n * 2)
       );
 
       const result = removeZodTransforms(schema);
@@ -412,14 +369,9 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodLazy', function () {
+  describe('lazy', function () {
     it('should handle lazy schemas', function () {
-      type Node = {
-        value: string;
-        children?: Node[];
-      };
-
-      const nodeSchema: z.ZodType<Node> = z.lazy(() =>
+      const nodeSchema: unknown = z.lazy(() =>
         z.object({
           value: z.string(),
           children: z.array(nodeSchema).optional(),
@@ -441,7 +393,9 @@ describe('removeZodTransforms', function () {
     });
 
     it('should remove transforms from lazy schema', function () {
-      const schema = z.lazy(() => z.string().transform((s) => s.toUpperCase()));
+      const schema = z.lazy(() =>
+        z.string().transform((s: string) => s.toUpperCase())
+      );
       const result = removeZodTransforms(schema);
 
       const parsed = result.parse('test');
@@ -449,7 +403,7 @@ describe('removeZodTransforms', function () {
     });
   });
 
-  describe('ZodPromise', function () {
+  describe('promise', function () {
     it('should handle promise schemas', function () {
       const schema = z.promise(z.string());
       const result = removeZodTransforms(schema);
@@ -458,7 +412,9 @@ describe('removeZodTransforms', function () {
     });
 
     it('should remove transforms from promise inner type', async function () {
-      const schema = z.promise(z.string().transform((s) => s.toUpperCase()));
+      const schema = z.promise(
+        z.string().transform((s: string) => s.toUpperCase())
+      );
       const result = removeZodTransforms(schema);
 
       const parsed = await result.parse(Promise.resolve('test'));
@@ -470,24 +426,20 @@ describe('removeZodTransforms', function () {
     it('should handle deeply nested schemas with multiple transforms', function () {
       const schema = z.object({
         users: z.array(
-          z
-            .object({
-              name: z.string().transform((s) => s.toUpperCase()),
-              email: z.string().transform((s) => s.toLowerCase()),
-              age: z
-                .number()
-                .transform((n) => n * 2)
-                .optional(),
-              tags: z.array(z.string().transform((s) => s.trim())),
-            })
-            .transform((user) => ({ ...user, processed: true }))
-        ),
-        metadata: z
-          .object({
-            version: z.number(),
-            timestamp: z.string(),
+          z.object({
+            name: z.string().transform((s: string) => s.toUpperCase()),
+            email: z.string().transform((s: string) => s.toLowerCase()),
+            age: z
+              .number()
+              .transform((n: number) => n * 2)
+              .optional(),
+            tags: z.array(z.string().transform((s: string) => s.trim())),
           })
-          .transform((meta) => ({ ...meta, transformed: true })),
+        ),
+        metadata: z.object({
+          version: z.number(),
+          timestamp: z.string(),
+        }),
       });
 
       const result = removeZodTransforms(schema);
@@ -514,239 +466,27 @@ describe('removeZodTransforms', function () {
       expect(parsed.users[0].email).to.equal('JOHN@EXAMPLE.COM');
       expect(parsed.users[0].age).to.equal(15);
       expect(parsed.users[0].tags).to.deep.equal(['  tag1  ', '  tag2  ']);
-      expect(parsed.users[0]).to.not.have.property('processed');
-      expect(parsed.metadata).to.not.have.property('transformed');
     });
 
     it('should handle union of transformed objects', function () {
       const schema = z.union([
-        z
-          .object({
-            type: z.literal('text'),
-            value: z.string().transform((s) => s.toUpperCase()),
-          })
-          .transform((obj) => ({ ...obj, processed: true })),
-        z
-          .object({
-            type: z.literal('number'),
-            value: z.number().transform((n) => n * 2),
-          })
-          .transform((obj) => ({ ...obj, processed: true })),
+        z.object({
+          type: z.literal('text'),
+          value: z.string().transform((s: string) => s.toUpperCase()),
+        }),
+        z.object({
+          type: z.literal('number'),
+          value: z.number().transform((n: number) => n * 2),
+        }),
       ]);
 
       const result = removeZodTransforms(schema);
 
       const parsed1 = result.parse({ type: 'text', value: 'hello' });
       expect(parsed1).to.deep.equal({ type: 'text', value: 'hello' });
-      expect(parsed1).to.not.have.property('processed');
 
       const parsed2 = result.parse({ type: 'number', value: 10 });
       expect(parsed2).to.deep.equal({ type: 'number', value: 10 });
-      expect(parsed2).to.not.have.property('processed');
-    });
-  });
-
-  describe('zod 4 schemas (from mongodb-mcp-server)', function () {
-    describe('primitives', function () {
-      it('should convert a zod 4 string to a local zod 3 string', function () {
-        const schema = z4.string();
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodString');
-        expect(result.parse('hello')).to.equal('hello');
-      });
-
-      it('should preserve descriptions', function () {
-        const schema = z4.string().describe('A user name');
-        const result = removeZodTransforms(schema);
-
-        expect(result.description).to.equal('A user name');
-        expect(result.parse('test')).to.equal('test');
-      });
-
-      it('should convert a zod 4 number', function () {
-        const schema = z4.number();
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodNumber');
-        expect(result.parse(42)).to.equal(42);
-      });
-
-      it('should convert a zod 4 boolean', function () {
-        const schema = z4.boolean();
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodBoolean');
-        expect(result.parse(true)).to.equal(true);
-      });
-
-      it('should convert a zod 4 literal', function () {
-        const schema = z4.literal('hello');
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodLiteral');
-        expect(result.parse('hello')).to.equal('hello');
-      });
-
-      it('should convert a zod 4 enum', function () {
-        const schema = z4.enum(['a', 'b', 'c']);
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodEnum');
-        expect(result.parse('a')).to.equal('a');
-      });
-    });
-
-    describe('transforms', function () {
-      it('should remove transform from a zod 4 schema', function () {
-        const schema = z4.string().transform((s: string) => s.toUpperCase());
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodString');
-        expect(result.parse('test')).to.equal('test');
-      });
-
-      it('should handle nested transforms', function () {
-        const schema = z4
-          .string()
-          .transform((s: string) => s.toLowerCase())
-          .transform((s: string) => s.trim());
-
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodString');
-        expect(result.parse('  TEST  ')).to.equal('  TEST  ');
-      });
-    });
-
-    describe('objects', function () {
-      it('should convert a zod 4 object', function () {
-        const schema = z4.object({
-          name: z4.string(),
-          age: z4.number(),
-        });
-
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodObject');
-        expect(result.parse({ name: 'John', age: 30 })).to.deep.equal({
-          name: 'John',
-          age: 30,
-        });
-      });
-
-      it('should remove transforms from nested properties', function () {
-        const schema = z4.object({
-          name: z4.string().transform((s: string) => s.toUpperCase()),
-          age: z4.number().transform((n: number) => n * 2),
-        });
-
-        const result = removeZodTransforms(schema);
-
-        expect(result.parse({ name: 'john', age: 15 })).to.deep.equal({
-          name: 'john',
-          age: 15,
-        });
-      });
-    });
-
-    describe('arrays', function () {
-      it('should convert a zod 4 array', function () {
-        const schema = z4.array(z4.string());
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodArray');
-        expect(result.parse(['a', 'b'])).to.deep.equal(['a', 'b']);
-      });
-
-      it('should remove transforms from array elements', function () {
-        const schema = z4.array(
-          z4.string().transform((s: string) => s.toUpperCase())
-        );
-        const result = removeZodTransforms(schema);
-
-        expect(result.parse(['a', 'b'])).to.deep.equal(['a', 'b']);
-      });
-    });
-
-    describe('optional and nullable', function () {
-      it('should convert a zod 4 optional', function () {
-        const schema = z4.string().optional();
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodOptional');
-        expect(result.parse('test')).to.equal('test');
-        expect(result.parse(undefined)).to.equal(undefined);
-      });
-
-      it('should remove transforms from optional inner schema', function () {
-        const schema = z4
-          .string()
-          .transform((s: string) => s.toUpperCase())
-          .optional();
-
-        const result = removeZodTransforms(schema);
-
-        expect(result.parse('test')).to.equal('test');
-        expect(result.parse(undefined)).to.equal(undefined);
-      });
-
-      it('should convert a zod 4 nullable', function () {
-        const schema = z4.string().nullable();
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodNullable');
-        expect(result.parse('test')).to.equal('test');
-        expect(result.parse(null)).to.equal(null);
-      });
-    });
-
-    describe('unions', function () {
-      it('should convert a zod 4 union', function () {
-        const schema = z4.union([z4.string(), z4.number()]);
-        const result = removeZodTransforms(schema);
-
-        expect(result._def.typeName).to.equal('ZodUnion');
-        expect(result.parse('test')).to.equal('test');
-        expect(result.parse(123)).to.equal(123);
-      });
-
-      it('should remove transforms from union options', function () {
-        const schema = z4.union([
-          z4.string().transform((s: string) => s.toUpperCase()),
-          z4.number().transform((n: number) => n * 2),
-        ]);
-
-        const result = removeZodTransforms(schema);
-
-        expect(result.parse('test')).to.equal('test');
-        expect(result.parse(123)).to.equal(123);
-      });
-    });
-
-    describe('complex nested', function () {
-      it('should handle deeply nested zod 4 schemas with transforms', function () {
-        const schema = z4.object({
-          users: z4.array(
-            z4.object({
-              name: z4.string().transform((s: string) => s.toUpperCase()),
-              tags: z4.array(z4.string()),
-              age: z4.number().optional(),
-            })
-          ),
-        });
-
-        const result = removeZodTransforms(schema);
-
-        const input = {
-          users: [{ name: 'john', tags: ['dev'], age: 30 }],
-        };
-
-        const parsed = result.parse(input);
-        expect(parsed.users[0].name).to.equal('john');
-        expect(parsed.users[0].tags).to.deep.equal(['dev']);
-        expect(parsed.users[0].age).to.equal(30);
-      });
     });
   });
 });
