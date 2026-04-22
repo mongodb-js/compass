@@ -4,7 +4,7 @@ import type {
   ConversationEvalCaseInput,
   ConversationTaskOutput,
 } from './types';
-import { AI_MODEL_SLIM_VERSION } from '../../src';
+import { AI_MODEL_SLIM_VERSION } from '../../src/model-version';
 
 export async function makeChatbotCall(
   input: ConversationEvalCaseInput

@@ -80,7 +80,7 @@ import thunk from 'redux-thunk';
 import type { ThunkAction } from 'redux-thunk';
 import type { Action, AnyAction } from 'redux';
 import { connect } from 'react-redux';
-import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai';
+import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 

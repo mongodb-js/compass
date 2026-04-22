@@ -9,7 +9,7 @@ import type {
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
-import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
+import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai/provider';
 
 export type EntryPointMessage = {
   prompt: string;

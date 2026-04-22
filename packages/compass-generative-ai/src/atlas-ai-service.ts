@@ -36,7 +36,7 @@ import {
 } from './utils/gen-ai-prompt';
 import { parseXmlToJsonResponse } from './utils/parse-xml-response';
 import { getAiQueryResponse } from './utils/gen-ai-response';
-import { AI_MODEL_SLIM_VERSION } from './index';
+import { AI_MODEL_SLIM_VERSION } from './model-version';
 
 const mockDataTool = tool({
   description:

@@ -11,7 +11,7 @@ import {
   type MockDataSchemaToolOutput,
   type RawSchema,
 } from '../../src/mock-data-generator';
-import { AI_MODEL_SLIM_VERSION } from '../../src';
+import { AI_MODEL_SLIM_VERSION } from '../../src/model-version';
 
 const openai = createOpenAI({
   baseURL:
