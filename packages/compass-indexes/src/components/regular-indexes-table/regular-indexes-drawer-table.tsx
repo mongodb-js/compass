@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
 import { usePreferences } from 'compass-preferences-model/provider';
 
@@ -118,7 +118,6 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
     shallowEqual
   );
 
-  const [expanded, setExpanded] = useState<true | Record<string, boolean>>({});
   const { data: allData } = useRegularIndexesTable({
     indexes,
     inProgressIndexes,
@@ -162,8 +161,6 @@ export const RegularIndexesDrawerTable: React.FunctionComponent<
           : COLUMNS_FOR_DRAWER
       }
       data={data}
-      expanded={expanded}
-      onExpandedChange={setExpanded}
       tableWrapperClassName={tableWrapperStyles}
       cellClassName={drawerCellStyles}
       showActionsOnHover={false}

@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   css,
   cx,
@@ -90,8 +90,8 @@ export type IndexesTableProps<T> = {
   tableWrapperClassName?: string;
   cellClassName?: string;
   showActionsOnHover?: boolean;
-  expanded: ExpandedState;
-  onExpandedChange: (expanded: ExpandedState) => void;
+  expanded?: ExpandedState;
+  onExpandedChange?: (expanded: ExpandedState) => void;
 };
 
 export function IndexesTable<T>({
@@ -102,13 +102,16 @@ export function IndexesTable<T>({
   tableWrapperClassName,
   cellClassName,
   showActionsOnHover = true,
-  expanded,
-  onExpandedChange,
+  expanded: expandedProp,
+  onExpandedChange: onExpandedChangeProp,
 }: IndexesTableProps<T>) {
   const [sorting, setSorting] = useTabState<SortingState>(
     `${id}-sorting-state`,
     []
   );
+  const [expandedInternal, setExpandedInternal] = useState<ExpandedState>({});
+  const expanded = expandedProp ?? expandedInternal;
+  const onExpandedChange = onExpandedChangeProp ?? setExpandedInternal;
   // Keep a ref to the current expanded state so we can resolve updater
   // functions from useLeafyGreenTable's onExpandedChange synchronously.
   const expandedRef = useRef(expanded);
