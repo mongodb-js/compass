@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { openToast } from '@mongodb-js/compass-components';
-import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai';
+import { GenerativeAIInput } from '@mongodb-js/compass-generative-ai/provider';
 import { connect } from '../stores/context';
 import { usePreference } from 'compass-preferences-model/provider';
 

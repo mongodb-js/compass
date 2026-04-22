@@ -1,2 +1,6 @@
 'use strict';
-module.exports = require('@mongodb-js/mocha-config-compass/compass-plugin');
+const base = require('@mongodb-js/mocha-config-compass/compass-plugin');
+module.exports = {
+  ...base,
+  spec: [...base.spec, 'tests/**/*.spec.*'],
+};

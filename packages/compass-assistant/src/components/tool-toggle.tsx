@@ -18,7 +18,7 @@ import {
   usePreferencesContext,
 } from 'compass-preferences-model/provider';
 import { useAssistantProjectId } from '../compass-assistant-provider';
-import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
+import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 
 const popoverContentStyles = css({
