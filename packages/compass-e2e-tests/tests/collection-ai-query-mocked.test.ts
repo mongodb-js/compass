@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { AI_MODEL_SLIM_VERSION } from '@mongodb-js/compass-generative-ai';
+import { AI_MODEL_SLIM_VERSION } from '@mongodb-js/compass-generative-ai/provider';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,

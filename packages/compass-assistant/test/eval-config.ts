@@ -1,7 +1,7 @@
 import { OpenAI } from 'openai';
 import type { JudgeModelConfig } from 'mongodb-assistant-eval/scorers';
 import { buildConversationInstructionsPrompt } from '../src/prompts';
-import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai';
+import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai/provider';
 
 export const EVAL_TARGET = 'MongoDB Compass';
 export const EVAL_MODEL = AI_MODEL_CHAT_VERSION;

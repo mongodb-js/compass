@@ -11,7 +11,7 @@ import {
 import {
   AIExperienceEntry,
   createAIPlaceholderHTMLPlaceholder,
-} from '@mongodb-js/compass-generative-ai';
+} from '@mongodb-js/compass-generative-ai/provider';
 import { connect } from '../stores/context';
 import {
   useIsAIFeatureEnabled,
