@@ -6,6 +6,7 @@ import {
   Banner,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { mapSearchStageOperatorToSearchIndexType } from '../utils/stage';
 import type { SearchStageOperator } from '../utils/stage';
 import type { SearchIndexType } from '../modules/search-indexes';
@@ -19,22 +20,27 @@ const bannerStyles = css({
 });
 
 type SearchIndexDoesNotExistBannerProps = {
+  searchIndexName: string | null;
   searchStageOperator: SearchStageOperator;
   onViewIndexesClick?: () => void;
   onCreateSearchIndexClick?: (searchIndexType: SearchIndexType) => void;
 };
 
 export default function SearchIndexDoesNotExistBanner({
+  searchIndexName,
   searchStageOperator,
   onViewIndexesClick,
   onCreateSearchIndexClick,
 }: SearchIndexDoesNotExistBannerProps) {
   const { openDrawer } = useDrawerActions();
+  const track = useTelemetry();
   const searchIndexType =
     mapSearchStageOperatorToSearchIndexType(searchStageOperator);
-  const message = `${
-    searchIndexType === 'vectorSearch' ? 'Vector search' : 'Search'
-  } index doesn't exist.`;
+  const indexLabel =
+    searchIndexType === 'vectorSearch' ? 'Vector search' : 'Search';
+  const message = searchIndexName
+    ? `${indexLabel} index '${searchIndexName}' doesn't exist.`
+    : `${indexLabel} index doesn't exist.`;
 
   return (
     <Banner
@@ -48,6 +54,9 @@ export default function SearchIndexDoesNotExistBanner({
         <>
           <Link
             onClick={() => {
+              track('Search Index View Indexes Link Clicked', {
+                context: 'Search Index Does Not Exist Banner',
+              });
               openDrawer('compass-indexes-drawer');
               onViewIndexesClick();
             }}
@@ -57,6 +66,10 @@ export default function SearchIndexDoesNotExistBanner({
           {' or '}
           <Link
             onClick={() => {
+              track('Search Index Create Link Clicked', {
+                context: 'Search Index Does Not Exist Banner',
+                index_type: searchIndexType,
+              });
               openDrawer('compass-indexes-drawer');
               onCreateSearchIndexClick(searchIndexType);
             }}

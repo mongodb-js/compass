@@ -49,8 +49,12 @@ import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/ind
 import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
 import type { JSONSchema7 } from 'json-schema';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import {
+  useConnectionInfo,
+  useConnectionInfoRef,
+} from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 /**
  * Strips snippet tab-stop placeholders (e.g. `${1:default}` → `default`)
@@ -107,6 +111,17 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   createIndex,
   onIndexDefinitionEdit,
 }) => {
+  const track = useTelemetry();
+  const connectionInfoRef = useConnectionInfoRef();
+
+  useEffect(() => {
+    track(
+      'Screen',
+      { name: 'create_search_index_drawer' },
+      connectionInfoRef.current
+    );
+  }, [track, connectionInfoRef]);
+
   const editorRef = useRef<EditorRef>(null);
   const [indexDefinition, setIndexDefinition] = useState(
     normalizeSnippet(
@@ -123,7 +138,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   );
 
   const { atlasMetadata } = useConnectionInfo();
-  const isAtlas = !!atlasMetadata;
   const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
     'readOnly',
     'readWrite',
@@ -131,7 +145,6 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   ]);
   const { isSearchIndexesWritable } = useSelector(
     selectReadWriteAccess({
-      isAtlas,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
@@ -166,12 +179,16 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   );
 
   const onCreateClick = useCallback(() => {
+    track('Search Index Create Submitted', {
+      context: 'Create Search Index Drawer View',
+      index_type: currentIndexType,
+    });
     createIndex({
       name,
       definition: parseShellBSON(indexDefinition),
       type: currentIndexType,
     });
-  }, [name, indexDefinition, createIndex, currentIndexType]);
+  }, [name, indexDefinition, createIndex, currentIndexType, track]);
 
   const indexLabel =
     currentIndexType === 'vectorSearch'
@@ -190,7 +207,11 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
         >
           Create {indexLabel} for {namespace}
         </Subtitle>
-        <Body>For semantic search and AI applications.</Body>
+        <Body>
+          {currentIndexType === 'search'
+            ? 'Full-text search for relevance-based app features.'
+            : 'For semantic search and AI applications.'}
+        </Body>
         <TextInput
           data-testid="create-search-index-drawer-view-name-input"
           value={name}
@@ -236,7 +257,13 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
         <Button
           data-testid="create-search-index-drawer-view-cancel-button"
           variant="default"
-          onClick={onClose}
+          onClick={() => {
+            track('Search Index Create Cancelled', {
+              context: 'Create Search Index Drawer View',
+              index_type: currentIndexType,
+            });
+            onClose();
+          }}
         >
           Cancel
         </Button>

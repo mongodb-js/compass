@@ -8,7 +8,7 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai';
+import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai/provider';
 import type { RootState } from '../../../modules';
 import { runAggregation } from '../../../modules/aggregation';
 import { updateView } from '../../../modules/update-view';

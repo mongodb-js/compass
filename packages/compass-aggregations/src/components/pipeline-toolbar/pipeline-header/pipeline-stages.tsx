@@ -10,7 +10,7 @@ import {
   Button,
   Icon,
 } from '@mongodb-js/compass-components';
-import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai';
+import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai/provider';
 import { useIsAIFeatureEnabled } from 'compass-preferences-model/provider';
 
 import type { RootState } from '../../../modules';

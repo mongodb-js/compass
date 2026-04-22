@@ -193,16 +193,26 @@ describe('PipelineEditor', function () {
 
     describe('ServerErrorBanner with search index edit link', function () {
       it('should show edit link for search index definition errors', async function () {
-        await renderPipelineEditor({
-          pipelineText: '[{ $search: { index: "test-index" } }]',
-          searchIndexName: 'test-index',
-          searchStageOperator: '$search',
-          showSearchIndexDoesNotExistBanner: false,
-          serverError: new MongoServerError({
-            message:
-              "geoWithin requires path 'location' to be indexed as 'geo'",
-          }),
-        });
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $search: { index: "test-index" } }]',
+            searchIndexName: 'test-index',
+            searchStageOperator: '$search',
+            showSearchIndexDoesNotExistBanner: false,
+            serverError: new MongoServerError({
+              message:
+                "geoWithin requires path 'location' to be indexed as 'geo'",
+            }),
+          },
+          {},
+          {
+            preferences: {
+              getPreferences() {
+                return { enableSearchActivationProgramP1: true };
+              },
+            },
+          }
+        );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
         expect(screen.getByText('Edit Search Index')).to.exist;
@@ -241,23 +251,69 @@ describe('PipelineEditor', function () {
 
       it('should call onEditSearchIndexClick when edit link is clicked', async function () {
         const onEditSearchIndexClick = sinon.spy();
-        await renderPipelineEditor({
-          pipelineText: '[{ $search: { index: "test-index" } }]',
-          searchIndexName: 'test-index',
-          searchStageOperator: '$search',
-          showSearchIndexDoesNotExistBanner: false,
-          serverError: new MongoServerError({
-            message:
-              "geoWithin requires path 'location' to be indexed as 'geo'",
-          }),
-          onEditSearchIndexClick,
-        });
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $search: { index: "test-index" } }]',
+            searchIndexName: 'test-index',
+            searchStageOperator: '$search',
+            showSearchIndexDoesNotExistBanner: false,
+            serverError: new MongoServerError({
+              message:
+                "geoWithin requires path 'location' to be indexed as 'geo'",
+            }),
+            onEditSearchIndexClick,
+          },
+          {},
+          {
+            preferences: {
+              getPreferences() {
+                return { enableSearchActivationProgramP1: true };
+              },
+            },
+          }
+        );
 
         const editLink = screen.getByText('Edit Search Index');
         editLink.click();
 
         expect(onEditSearchIndexClick.calledOnce).to.be.true;
         expect(onEditSearchIndexClick.calledWith('test-index')).to.be.true;
+      });
+    });
+
+    describe('$rerank version warning', function () {
+      it('should show warning when server < 8.3 and pipeline has $rerank', async function () {
+        await renderPipelineEditor({
+          serverVersion: '8.0.0',
+          pipelineText: '[{ $rerank: {} }]',
+        });
+        expect(screen.getByTestId('pipeline-editor-rerank-version-warning')).to
+          .exist;
+      });
+
+      it('should not show warning when server >= 8.3', async function () {
+        await renderPipelineEditor({
+          serverVersion: '8.3.0',
+          pipelineText: '[{ $rerank: {} }]',
+        });
+        expect(screen.queryByTestId('pipeline-editor-rerank-version-warning'))
+          .to.not.exist;
+      });
+    });
+
+    describe('$rerank not enabled error', function () {
+      it('should show cta to enable rerank', async function () {
+        await renderPipelineEditor({
+          pipelineText: '[{ $rerank: {} }]',
+          serverError: new MongoServerError({
+            message:
+              'MMS API error: MmsApiError(HttpError { status: 400, message: "{\\"error\\":\\"$rerank is not enabled for demo. Enable the $rerank Project Setting to run this pipeline.\\"}" })',
+          }),
+        });
+
+        expect(screen.getByText('Native reranking not enabled')).to.exist;
+        expect(screen.getByText('Enable native reranking in project settings.'))
+          .to.exist;
       });
     });
   });

@@ -1,20 +1,31 @@
 import React from 'react';
 
 import {
-  css,
-  spacing,
-  Link,
   Banner,
+  Button,
+  Icon,
+  Link,
+  css,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
-import { isSearchIndexDefinitionError } from '../utils/search-stage-errors';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
+import {
+  isSearchIndexDefinitionError,
+  isRerankNotEnabledError,
+} from '../utils/search-stage-errors';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const bannerStyles = css({
-  flex: 'none',
-  marginTop: spacing[200],
-  marginLeft: spacing[200],
-  marginRight: spacing[200],
   textAlign: 'left',
+});
+
+const bannerContentStyles = css({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
 });
 
 type ServerErrorBannerProps = {
@@ -30,23 +41,55 @@ export default function ServerErrorBanner({
   onEditSearchIndexClick,
   dataTestId = 'server-error-banner',
 }: ServerErrorBannerProps) {
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
   const { openDrawer } = useDrawerActions();
+  const track = useTelemetry();
+  const { atlasMetadata } = useConnectionInfo();
+  const rerankNotEnabled = isRerankNotEnabledError(message);
+  const description = rerankNotEnabled
+    ? 'Enable native reranking in project settings.'
+    : message;
+  const projectSettingsHref =
+    rerankNotEnabled && atlasMetadata
+      ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
+      : null;
 
   return (
-    <Banner
-      variant="danger"
-      data-testid={dataTestId}
-      title={message}
-      className={bannerStyles}
-    >
-      {message}
-      {searchIndexName &&
+    <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>
+      {rerankNotEnabled ? (
+        <>
+          <strong>Native reranking not enabled</strong>
+          <br />
+          <div className={bannerContentStyles}>
+            <span>{description}</span>
+            {projectSettingsHref && (
+              <Button
+                size="xsmall"
+                href={projectSettingsHref}
+                target="_blank"
+                rightGlyph={<Icon glyph="OpenNewTab" />}
+              >
+                Project Settings
+              </Button>
+            )}
+          </div>
+        </>
+      ) : (
+        message
+      )}
+      {enableSearchActivationProgramP1 &&
+        searchIndexName &&
         isSearchIndexDefinitionError(message) &&
         onEditSearchIndexClick && (
           <>
             {' '}
             <Link
               onClick={() => {
+                track('Search Index Edit Link Clicked', {
+                  context: 'Server Error Banner',
+                });
                 openDrawer('compass-indexes-drawer');
                 onEditSearchIndexClick(searchIndexName);
               }}

@@ -7,6 +7,8 @@
  * TODO(COMPASS-10449): Use assistant to categorize errors instead of static whitelist
  */
 
+import semver from 'semver';
+
 const INDEX_DEFINITION_ERROR_PATTERNS: RegExp[] = [
   /geoWithin requires path '.*' to be indexed as 'geo'/i,
   /geoShape requires path '.*' to be indexed as 'geo' with indexShapes=true/i,
@@ -27,5 +29,24 @@ export function isSearchIndexDefinitionError(errorMessage: string): boolean {
 
   return INDEX_DEFINITION_ERROR_PATTERNS.some((pattern) =>
     pattern.test(errorMessage)
+  );
+}
+
+export const RERANK_MIN_SERVER_VERSION = '8.3.0';
+
+export function isRerankVersionSupported(serverVersion: string): boolean {
+  const normalized = semver.valid(semver.coerce(serverVersion));
+  return !!normalized && semver.gte(normalized, RERANK_MIN_SERVER_VERSION);
+}
+
+export function isRerankNotEnabledError(errorMessage: string): boolean {
+  if (!errorMessage) {
+    return false;
+  }
+
+  const lower = errorMessage.toLowerCase();
+  return (
+    lower.includes('$rerank is not enabled') &&
+    lower.includes('enable the $rerank project setting')
   );
 }

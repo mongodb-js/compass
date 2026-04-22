@@ -115,7 +115,7 @@ export const updateView = (): PipelineBuilderThunkAction<Promise<void>> => {
     );
 
     if (
-      VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsDataExplorer(
+      VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
         serverVersion
       ) &&
       ds &&

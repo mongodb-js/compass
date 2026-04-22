@@ -2,10 +2,13 @@ import React, { useCallback, useMemo } from 'react';
 import { connect, useSelector, shallowEqual } from 'react-redux';
 import type { SearchIndex } from 'mongodb-data-service';
 import {
+  Body,
   css,
   DropdownMenuButton,
   EmptyContent,
+  InlineDefinition,
   Link,
+  spacing,
 } from '@mongodb-js/compass-components';
 
 import { isReadyStatus } from '../../utils/fetch-status';
@@ -19,12 +22,11 @@ import type { FetchStatus } from '../../utils/fetch-status';
 import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import type { RootState } from '../../modules';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import {
   getIndexFields,
-  searchIndexDetailsForDrawerStyles,
   useSearchIndexesTable,
 } from './use-search-indexes-table';
 import {
@@ -32,6 +34,56 @@ import {
   COLUMNS_FOR_DRAWER_WITH_ACTIONS,
 } from './search-indexes-columns';
 import { ZeroSearchIndexesGraphic } from '../icons/zero-search-indexes-graphic';
+
+const searchIndexDetailsForDrawerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[100],
+  padding: spacing[200],
+});
+
+function renderNameOverride(name: string): React.ReactNode {
+  if (name.length > 10) {
+    return (
+      <InlineDefinition definition={name}>{`${name.slice(
+        0,
+        10
+      )}…`}</InlineDefinition>
+    );
+  }
+
+  return name;
+}
+
+function renderTypeOverride(index: SearchIndex): React.ReactNode {
+  return index.type === 'vectorSearch' ? 'Vector' : 'Search';
+}
+
+function renderExpandedContentOverride(
+  index: SearchIndex,
+  isVectorSearchIndex: boolean
+): React.JSX.Element {
+  return (
+    <Body className={searchIndexDetailsForDrawerStyles}>
+      <div>
+        <b>Index Name: </b>
+        {index.name}
+      </div>
+      <div>
+        <b>Status: </b>
+        {index.status}
+      </div>
+      <div>
+        <b>Index Fields: </b>
+        {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
+      </div>
+      <div>
+        <b>Queryable: </b>
+        {index.queryable.toString()}
+      </div>
+    </Body>
+  );
+}
 
 const emptyContentStyles = css({
   marginTop: 0,
@@ -68,14 +120,14 @@ const ZeroState: React.FunctionComponent<ZeroStateProps> = ({
         <span>
           Define a{' '}
           <Link
-            // TODO(COMPASS-10427): add url
+            href="https://www.mongodb.com/docs/atlas/atlas-search/manage-indexes/"
             target="_blank"
           >
             search
           </Link>{' '}
           or{' '}
           <Link
-            // TODO(COMPASS-10427): add url
+            href="https://www.mongodb.com/docs/atlas/atlas-vector-search/vector-search-type/"
             target="_blank"
           >
             vector search index
@@ -126,8 +178,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
   onDropIndexClick,
   onCreateSearchIndexClick,
 }) => {
-  const { atlasMetadata } = useConnectionInfo();
-  const isAtlas = !!atlasMetadata;
+  const track = useTelemetry();
 
   const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
     'readOnly',
@@ -137,7 +188,6 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
 
   const { isSearchIndexesWritable } = useSelector(
     selectReadWriteAccess({
-      isAtlas,
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
@@ -149,12 +199,20 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     (action: string) => {
       switch (action) {
         case 'createSearchIndex':
+          track('Index Create Action Clicked', {
+            context: 'Search Indexes Drawer Table',
+            index_type: 'search',
+          });
           return onCreateSearchIndexClick('search');
         case 'createVectorSearchIndex':
+          track('Index Create Action Clicked', {
+            context: 'Search Indexes Drawer Table',
+            index_type: 'vectorSearch',
+          });
           return onCreateSearchIndexClick('vectorSearch');
       }
     },
-    [onCreateSearchIndexClick]
+    [onCreateSearchIndexClick, track]
   );
 
   const renderActions = useCallback(
@@ -163,38 +221,17 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
         <SearchIndexActions
           index={index}
           onDropIndex={onDropIndexClick}
-          onEditIndex={
-            index.status === 'BUILDING' ? undefined : onEditIndexClick
-          }
+          onEditIndex={onEditIndexClick}
         />
       );
     },
     [onDropIndexClick, onEditIndexClick]
   );
 
-  const renderExpandedContentOverride = useCallback(
-    (index: SearchIndex, isVectorSearchIndex: boolean) => (
-      <div className={searchIndexDetailsForDrawerStyles}>
-        <div>
-          <b>Status: </b>
-          {index.status}
-        </div>
-        <div>
-          <b>Index Fields: </b>
-          {getIndexFields(index.latestDefinition, isVectorSearchIndex)}
-        </div>
-        <div>
-          <b>Queryable: </b>
-          {index.queryable.toString()}
-        </div>
-      </div>
-    ),
-    []
-  );
-
   const { data: allData } = useSearchIndexesTable({
     indexes,
-    vectorTypeLabel: 'Vector',
+    renderNameOverride,
+    renderTypeOverride,
     renderActions,
     renderExpandedContentOverride,
   });
