@@ -3,6 +3,19 @@ import type {
   ConnectionStorage,
 } from '@mongodb-js/connection-storage/provider';
 import { sandboxConnectionStorage } from '../src/connection-storage';
+import ConnectionString from 'mongodb-connection-string-url';
+
+function ensureConnectionWithCompression(
+  connectionInfo: ConnectionInfo
+): ConnectionInfo {
+  const cs = new ConnectionString(
+    connectionInfo.connectionOptions.connectionString
+  );
+  cs.searchParams.delete('compressors');
+  cs.searchParams.append('compressors', 'zlib');
+  connectionInfo.connectionOptions.connectionString = cs.toString();
+  return connectionInfo;
+}
 
 const historyKey = 'CONNECTIONS_HISTORY_V$';
 
@@ -15,14 +28,16 @@ function getHistory(): ConnectionInfo[] {
     const binStr = window.atob(b64Str);
     const bytes = Uint8Array.from(binStr, (v) => v.codePointAt(0) ?? 0);
     const str = new TextDecoder().decode(bytes);
-    return JSON.parse(str);
+    return JSON.parse(str).map(ensureConnectionWithCompression);
   } catch {
     return [];
   }
 }
 function saveHistory(history: ConnectionInfo[]) {
   try {
-    const bytes = new TextEncoder().encode(JSON.stringify(history));
+    const bytes = new TextEncoder().encode(
+      JSON.stringify(history.map(ensureConnectionWithCompression))
+    );
     const binStr = String.fromCodePoint(...bytes);
     const b64Str = window.btoa(binStr);
     localStorage.setItem(historyKey, b64Str);
@@ -44,7 +59,10 @@ export class SandboxConnectionStorage implements ConnectionStorage {
     return Promise.resolve(this._connections.get(id));
   }
   save({ connectionInfo }: { connectionInfo: ConnectionInfo }): Promise<void> {
-    this._connections.set(connectionInfo.id, connectionInfo);
+    this._connections.set(
+      connectionInfo.id,
+      ensureConnectionWithCompression(connectionInfo)
+    );
     setTimeout(() => {
       saveHistory(Array.from(this._connections.values()));
     }, 0);
@@ -65,3 +83,5 @@ sandboxConnectionStorage.current = Object.hasOwn(
 )
   ? new SandboxConnectionStorage()
   : null;
+
+(window as any).SandboxConnectionStorage = sandboxConnectionStorage;

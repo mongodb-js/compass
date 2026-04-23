@@ -91,6 +91,10 @@ module.exports = (env, args) => {
             loader: path.join(__dirname, 'scripts', 'patch-d3-for-esm.js'),
           },
         },
+        {
+          test: /\.wasm$/,
+          type: 'asset/resource',
+        },
       ],
     },
     resolve: {
@@ -195,7 +199,7 @@ module.exports = (env, args) => {
         '@mongodb-js/zstd': localPolyfill('throwError'),
         '@aws-sdk/credential-providers': localPolyfill('throwError'),
         'gcp-metadata': localPolyfill('throwError'),
-        snappy: localPolyfill('throwError'),
+        snappy: localPolyfill('snappy'),
         socks: localPolyfill('throwError'),
         aws4: localPolyfill('throwError'),
 
