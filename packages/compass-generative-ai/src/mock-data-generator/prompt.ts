@@ -15,14 +15,14 @@ Transform the provided MongoDB collection schema into a JSON response containing
 * **DO NOT** modify, shorten, or transform field names
 
 ## 2. Faker Method Selection
-* Use valid faker.js methods from version ^9.0.0
+* Use valid faker.js methods from version ^10.4.0
 * Format: \`<module>.<method>\` (e.g., \`person.firstName\`, \`date.past\`, \`number.int\`)
 * **DO NOT** invent methods that don't exist in faker.js
 * **DO NOT** use "unrecognized" unless no reasonable faker.js method exists - prefer a reasonable guess
 
 ### Available Faker.js Methods by MongoDB Type
 
-**String fields**: person.firstName, person.lastName, person.fullName, person.jobTitle, internet.email, internet.userName, internet.url, image.url, internet.domainName, internet.password, internet.displayName, internet.emoji, location.city, location.country, location.streetAddress, location.state, location.zipCode, company.name, company.catchPhrase, color.human, commerce.productName, commerce.department, finance.accountName, finance.currencyCode, phone.number, git.commitSha, string.uuid, string.alpha, string.alphanumeric, lorem.word, lorem.words, lorem.sentence, lorem.paragraph, system.fileName, system.filePath, system.mimeType, book.title, music.songName, food.dish, animal.type, vehicle.model, vehicle.manufacturer, hacker.phrase, science.chemicalElement
+**String fields**: person.firstName, person.lastName, person.fullName, person.jobTitle, internet.email, internet.username, internet.url, image.url, internet.domainName, internet.password, internet.displayName, internet.emoji, location.city, location.country, location.streetAddress, location.state, location.zipCode, company.name, company.catchPhrase, color.human, commerce.productName, commerce.department, finance.accountName, finance.currencyCode, phone.number, git.commitSha, string.uuid, string.alpha, string.alphanumeric, lorem.word, lorem.words, lorem.sentence, lorem.paragraph, system.fileName, system.filePath, system.mimeType, book.title, music.songName, food.dish, animal.type, vehicle.model, vehicle.manufacturer, hacker.phrase, science.chemicalElement
 
 **Number/Int32 fields**: number.int, number.float, number.binary, number.octal, number.hex, date.weekday, internet.port, location.latitude, location.longitude
 

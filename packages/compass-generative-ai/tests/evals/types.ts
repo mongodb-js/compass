@@ -180,8 +180,7 @@ const GENERIC_STRING_METHODS = new Set<string>([
   'helpers.arrayElement',
   // Common semantic string methods the LLM reasonably picks when it can
   // read meaning from the field name (e.g. `customer` → person/company;
-  // `name` → product name; `category` → department). All of these return
-  // strings.
+  // `name` → product name). All of these return strings.
   'person.firstName',
   'person.lastName',
   'person.fullName',
@@ -192,7 +191,7 @@ const GENERIC_STRING_METHODS = new Set<string>([
   'commerce.productName',
   'commerce.department',
   'commerce.product',
-  'internet.userName',
+  'internet.username',
   'internet.displayName',
   'internet.domainName',
   'book.title',
