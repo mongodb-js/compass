@@ -1830,11 +1830,8 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
         fakerArgs: [{ json: '["PASSED"]' }],
       },
       {
-        // Either echo sample names via helpers.arrayElement, or generate
-        // realistic person names with a semantic generator — both are
-        // valid mock-data strategies for a cast list.
         fieldPath: 'cast[]',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: 'person.fullName',
         fakerArgs: [],
       },
       {
@@ -1863,15 +1860,13 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
         fakerArgs: [],
       },
       {
-        // Person-name list — accept either sample echo or a semantic name generator.
         fieldPath: 'directors[]',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: 'person.fullName',
         fakerArgs: [],
       },
       {
-        // Person-name list — accept either sample echo or a semantic name generator.
         fieldPath: 'writers[]',
-        fakerMethod: GenericStringMethodCriterion,
+        fakerMethod: 'person.fullName',
         fakerArgs: [],
       },
       {
