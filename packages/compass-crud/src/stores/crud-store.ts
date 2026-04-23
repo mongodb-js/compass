@@ -1204,6 +1204,7 @@ class CrudStoreImpl
       'Bulk Update Executed',
       {
         isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+        has_filter: !!this.queryBar.getLastAppliedQuery('crud').filter,
       },
       this.connectionInfoRef.current
     );
@@ -1956,7 +1957,13 @@ class CrudStoreImpl
   }
 
   async runBulkDelete() {
-    this.track('Bulk Delete Executed', {}, this.connectionInfoRef.current);
+    this.track(
+      'Bulk Delete Executed',
+      {
+        has_filter: !!this.queryBar.getLastAppliedQuery('crud').filter,
+      },
+      this.connectionInfoRef.current
+    );
 
     const { affected } = this.state.bulkDelete;
     this.closeBulkDeleteDialog();

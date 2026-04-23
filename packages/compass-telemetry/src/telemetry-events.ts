@@ -998,6 +998,8 @@ type BulkUpdateExecutedEvent = ConnectionScopedEvent<{
      * Specifies if update preview was supported (the update preview runs inside a transaction.)
      */
     isUpdatePreviewSupported: boolean;
+    /** Specifies if a filter was set in the query */
+    has_filter: boolean;
   };
 }>;
 
@@ -1018,7 +1020,10 @@ type BulkDeleteOpenedEvent = ConnectionScopedEvent<{
  */
 type BulkDeleteExecutedEvent = ConnectionScopedEvent<{
   name: 'Bulk Delete Executed';
-  payload: Record<string, never>;
+  payload: {
+    /** Specifies if a filter was set in the query */
+    has_filter: boolean;
+  };
 }>;
 
 /**
