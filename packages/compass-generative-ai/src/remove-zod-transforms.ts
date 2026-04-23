@@ -1,5 +1,16 @@
 import z from 'zod/v4';
 
+function isZodSchema(value: unknown): value is z.ZodType {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    '_zod' in value &&
+    typeof (value as Record<string, unknown>)._zod === 'object' &&
+    (value as Record<string, Record<string, unknown>>)._zod !== null &&
+    'def' in (value as Record<string, Record<string, unknown>>)._zod
+  );
+}
+
 /**
  * Recursively remove Zod transforms from a Zod schema.
  *
@@ -7,9 +18,17 @@ import z from 'zod/v4';
  * transforms (like the MCP server's toEJSON). We strip transforms so the AI
  * SDK receives plain JSON without BSON deserialization side-effects.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function removeZodTransforms(schema: any): z.ZodType {
-  const def = schema._zod.def;
+export function removeZodTransforms(schema: unknown): z.ZodType {
+  if (!isZodSchema(schema)) {
+    throw new Error(
+      `removeZodTransforms: expected a Zod v4 schema but received ${typeof schema}`
+    );
+  }
+
+  // We access internal zod v4 def properties that aren't on the base type,
+  // but are present at runtime after checking def.type.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const def: any = schema._zod.def;
 
   // ZodPipe — created by .transform(), .preprocess(), and .pipe()
   if (def.type === 'pipe') {

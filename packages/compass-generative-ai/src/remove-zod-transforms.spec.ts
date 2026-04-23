@@ -3,6 +3,26 @@ import z from 'zod/v4';
 import { removeZodTransforms } from './remove-zod-transforms';
 
 describe('removeZodTransforms', function () {
+  describe('input validation', function () {
+    it('should throw for null', function () {
+      expect(() => removeZodTransforms(null)).to.throw(
+        'expected a Zod v4 schema'
+      );
+    });
+
+    it('should throw for a plain object', function () {
+      expect(() => removeZodTransforms({ foo: 'bar' })).to.throw(
+        'expected a Zod v4 schema'
+      );
+    });
+
+    it('should throw for a string', function () {
+      expect(() => removeZodTransforms('not a schema')).to.throw(
+        'expected a Zod v4 schema'
+      );
+    });
+  });
+
   describe('primitives and basic types', function () {
     it('should return string schema as-is', function () {
       const schema = z.string();
@@ -306,7 +326,8 @@ describe('removeZodTransforms', function () {
         metadata: { count: 1 },
       };
 
-      const parsed = result.parse(input);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed: any = result.parse(input);
       expect(parsed.users[0].name).to.equal('john');
       expect(parsed.users[0].age).to.equal(25);
       expect(parsed.users[0].tags).to.deep.equal(['  tag1  ']);
@@ -334,7 +355,8 @@ describe('removeZodTransforms', function () {
         filter: { name: 'John', age: { $gt: 25 } },
       };
 
-      const parsed = result.parse(input);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const parsed: any = result.parse(input);
       expect(parsed.database).to.equal('test');
       expect(parsed.collection).to.equal('users');
       expect(parsed.filter).to.deep.equal({
