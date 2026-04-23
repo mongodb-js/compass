@@ -50,7 +50,7 @@ export function removeZodTransforms(schema: unknown): z.ZodType {
     return cleanIn.pipe(cleanOut);
   }
 
-  // ZodObject — process each property
+  // ZodObject — process each property, preserving the unknown-keys policy
   if (def.type === 'object') {
     const shape = def.shape;
     const newShape: Record<string, z.ZodType> = Object.create(null);
@@ -58,8 +58,21 @@ export function removeZodTransforms(schema: unknown): z.ZodType {
       newShape[key] = removeZodTransforms(shape[key]);
     }
     let result = z.object(newShape);
-    if (def.catchall) {
-      result = result.catchall(removeZodTransforms(def.catchall));
+    if ('catchall' in def) {
+      const catchall = def.catchall;
+      if (catchall === undefined) {
+        // Explicit .strip()
+        result = result.strip();
+      } else if (catchall._zod.def.type === 'never') {
+        // .strict()
+        result = result.strict();
+      } else if (catchall._zod.def.type === 'unknown') {
+        // .loose() / .passthrough()
+        result = result.loose();
+      } else {
+        // Explicit .catchall(T)
+        result = result.catchall(removeZodTransforms(catchall));
+      }
     }
     return result;
   }

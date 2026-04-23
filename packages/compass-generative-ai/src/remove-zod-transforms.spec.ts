@@ -118,6 +118,38 @@ describe('removeZodTransforms', function () {
       expect(parsed).to.deep.equal({ name: 'John', extra: 'field' });
     });
 
+    it('should preserve loose behavior', function () {
+      const schema = z.object({ name: z.string() }).loose();
+
+      const result = removeZodTransforms(schema);
+      const parsed = result.parse({ name: 'John', extra: 'field' });
+      expect(parsed).to.deep.equal({ name: 'John', extra: 'field' });
+    });
+
+    it('should preserve strict behavior', function () {
+      const schema = z.object({ name: z.string() }).strict();
+
+      const result = removeZodTransforms(schema);
+      expect(() => result.parse({ name: 'John', extra: 'field' })).to.throw();
+      expect(result.parse({ name: 'John' })).to.deep.equal({ name: 'John' });
+    });
+
+    it('should preserve strip behavior', function () {
+      const schema = z.object({ name: z.string() }).strip();
+
+      const result = removeZodTransforms(schema);
+      const parsed = result.parse({ name: 'John', extra: 'field' });
+      expect(parsed).to.deep.equal({ name: 'John' });
+    });
+
+    it('should strip unknown keys by default', function () {
+      const schema = z.object({ name: z.string() });
+
+      const result = removeZodTransforms(schema);
+      const parsed = result.parse({ name: 'John', extra: 'field' });
+      expect(parsed).to.deep.equal({ name: 'John' });
+    });
+
     it('should handle catchall schemas', function () {
       const schema = z.object({ name: z.string() }).catchall(z.number());
 
