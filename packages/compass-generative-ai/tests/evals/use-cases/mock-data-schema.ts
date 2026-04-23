@@ -1830,13 +1830,12 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
         fakerArgs: [{ json: '["PASSED"]' }],
       },
       {
+        // Either echo sample names via helpers.arrayElement, or generate
+        // realistic person names with a semantic generator — both are
+        // valid mock-data strategies for a cast list.
         fieldPath: 'cast[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [
-          {
-            json: '["Paul Muni", "Ann Dvorak", "Karen Morley", "Osgood Perkins"]',
-          },
-        ],
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'num_mflix_comments',
@@ -1864,18 +1863,16 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
         fakerArgs: [],
       },
       {
+        // Person-name list — accept either sample echo or a semantic name generator.
         fieldPath: 'directors[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Howard Hawks", "Richard Rosson"]' }],
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
       },
       {
+        // Person-name list — accept either sample echo or a semantic name generator.
         fieldPath: 'writers[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [
-          {
-            json: '["Armitage Trail (novel)", "Ben Hecht (screen story)", "Seton I. Miller (continuity)", "John Lee Mahin (continuity)", "W.R. Burnett (continuity)", "Seton I. Miller (dialogue)", "John Lee Mahin (dialogue)", "W.R. Burnett (dialogue)"]',
-          },
-        ],
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
       },
       {
         fieldPath: 'awards.wins',

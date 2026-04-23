@@ -95,6 +95,7 @@ When MongoDB schema validation rules are provided:
 * **CRITICAL - DO NOT**: Serialize primitives as JSON strings (e.g., \`{"json": "3"}\` is WRONG)
 * **CRITICAL - DO NOT**: Use unescaped quotes in JSON strings - always escape inner quotes with \`\\"\`
 * **CRITICAL - DO NOT**: Include unnecessary arguments - if no sample values or constraints, use \`[]\`
+* **CRITICAL - DO NOT**: Pass a format template string to \`phone.number\` (e.g. \`"+1-###-###-####"\`). Faker v10 removed the positional format-string signature — always use \`fakerArgs: []\` for \`phone.number\`.
 
 ### JSON Escaping Examples
 * Simple object: \`{"json": "{\\"min\\": 1, \\"max\\": 10}"}\`
