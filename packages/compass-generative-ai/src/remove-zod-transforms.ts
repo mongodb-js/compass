@@ -1,109 +1,101 @@
-import z from 'zod';
+import z from 'zod/v4';
 
-/** Recursively remove Zod transforms from a Zod schema. */
 /**
- * @param schema - The Zod schema to remove transforms from.
- * @returns The Zod schema without transforms.
+ * Recursively remove Zod transforms from a Zod schema.
+ *
+ * The AI SDK parses model responses through the inputSchema, which triggers
+ * transforms (like the MCP server's toEJSON). We strip transforms so the AI
+ * SDK receives plain JSON without BSON deserialization side-effects.
  */
-export function removeZodTransforms(schema: z.ZodTypeAny): z.ZodTypeAny {
-  const def = schema._def;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function removeZodTransforms(schema: any): z.ZodType {
+  const def = schema._zod.def;
 
-  // ZodEffects (transform, refine, preprocess) - unwrap and continue
-  if ('schema' in def && 'effect' in def) {
-    return removeZodTransforms(def.schema);
+  // ZodPipe — created by .transform(), .preprocess(), and .pipe()
+  if (def.type === 'pipe') {
+    const inDef = def.in._zod.def;
+    const outDef = def.out._zod.def;
+
+    if (outDef.type === 'transform') {
+      // .transform(fn) → pipe { in: <original>, out: transform }
+      return removeZodTransforms(def.in);
+    }
+    if (inDef.type === 'transform') {
+      // .preprocess(fn, schema) → pipe { in: transform, out: <target> }
+      return removeZodTransforms(def.out);
+    }
+
+    // Explicit .pipe(a, b) — recursively clean both sides
+    const cleanIn = removeZodTransforms(def.in);
+    const cleanOut = removeZodTransforms(def.out);
+    return cleanIn.pipe(cleanOut);
   }
 
-  // ZodObject - process each property
-  if ('shape' in def && typeof def.shape === 'function') {
-    const shape = def.shape();
-    const newShape: Record<string, z.ZodTypeAny> = Object.create(null);
+  // ZodObject — process each property
+  if (def.type === 'object') {
+    const shape = def.shape;
+    const newShape: Record<string, z.ZodType> = Object.create(null);
     for (const key in shape) {
       newShape[key] = removeZodTransforms(shape[key]);
     }
     let result = z.object(newShape);
-    if (def.unknownKeys === 'passthrough') {
-      result = result.passthrough() as any;
-    } else if (def.unknownKeys === 'strip') {
-      result = result.strip();
-    }
-    if (def.catchall && def.catchall._def.typeName !== 'ZodNever') {
+    if (def.catchall) {
       result = result.catchall(removeZodTransforms(def.catchall));
     }
     return result;
   }
 
   // ZodArray
-  if ('type' in def && def.typeName === 'ZodArray') {
-    return z.array(removeZodTransforms(def.type));
+  if (def.type === 'array') {
+    return z.array(removeZodTransforms(def.element));
   }
 
   // ZodOptional
-  if ('innerType' in def && def.typeName === 'ZodOptional') {
+  if (def.type === 'optional') {
     return removeZodTransforms(def.innerType).optional();
   }
 
   // ZodNullable
-  if ('innerType' in def && def.typeName === 'ZodNullable') {
+  if (def.type === 'nullable') {
     return removeZodTransforms(def.innerType).nullable();
   }
 
   // ZodDefault
-  if ('innerType' in def && def.typeName === 'ZodDefault') {
-    return removeZodTransforms(def.innerType).default(def.defaultValue());
+  if (def.type === 'default') {
+    return removeZodTransforms(def.innerType).default(def.defaultValue);
   }
 
   // ZodUnion
-  if ('options' in def && def.typeName === 'ZodUnion') {
+  if (def.type === 'union') {
     return z.union(
       def.options.map(removeZodTransforms) as [
-        z.ZodTypeAny,
-        z.ZodTypeAny,
-        ...z.ZodTypeAny[]
+        z.ZodType,
+        z.ZodType,
+        ...z.ZodType[]
       ]
     );
   }
 
-  // ZodIntersection
-  if ('left' in def && 'right' in def) {
-    return z.intersection(
-      removeZodTransforms(def.left),
-      removeZodTransforms(def.right)
-    );
-  }
-
   // ZodTuple
-  if ('items' in def && def.typeName === 'ZodTuple') {
+  if (def.type === 'tuple') {
     return z.tuple(
-      def.items.map(removeZodTransforms) as [z.ZodTypeAny, ...z.ZodTypeAny[]]
+      def.items.map(removeZodTransforms) as [z.ZodType, ...z.ZodType[]]
     );
   }
 
   // ZodRecord
-  if ('keyType' in def && 'valueType' in def && def.typeName === 'ZodRecord') {
+  if (def.type === 'record') {
     return z.record(
-      removeZodTransforms(def.keyType),
-      removeZodTransforms(def.valueType)
-    );
-  }
-
-  // ZodMap
-  if ('keyType' in def && 'valueType' in def && def.typeName === 'ZodMap') {
-    return z.map(
-      removeZodTransforms(def.keyType),
+      removeZodTransforms(def.keyType) as z.ZodString,
       removeZodTransforms(def.valueType)
     );
   }
 
   // ZodLazy
-  if ('getter' in def && def.typeName === 'ZodLazy') {
+  if (def.type === 'lazy') {
     return z.lazy(() => removeZodTransforms(def.getter()));
   }
 
-  // ZodPromise
-  if ('type' in def && def.typeName === 'ZodPromise') {
-    return z.promise(removeZodTransforms(def.type));
-  }
-
-  // Primitives and other types - return as-is
+  // Primitives and other types — return as-is
   return schema;
 }
