@@ -12,7 +12,10 @@ function ensureConnectionWithCompression(
     connectionInfo.connectionOptions.connectionString
   );
   cs.searchParams.delete('compressors');
-  cs.searchParams.append('compressors', 'zlib');
+  const compressor = process.env.COMPRESSION_ALGORITHM;
+  if (compressor && ['zlib', 'snappy'].includes(compressor)) {
+    cs.searchParams.append('compressors', compressor);
+  }
   connectionInfo.connectionOptions.connectionString = cs.toString();
   return connectionInfo;
 }

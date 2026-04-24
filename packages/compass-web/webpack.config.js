@@ -45,6 +45,9 @@ module.exports = (env, args) => {
         new webpack.DefinePlugin({
           // Can be either `web` or `webdriverio`, helpful if we need special
           // behavior for tests in sandbox
+          'process.env.COMPRESSION_ALGORITHM': JSON.stringify(
+            process.env.COMPRESSION_ALGORITHM ?? ''
+          ),
           'process.env.APP_ENV': JSON.stringify(process.env.APP_ENV ?? 'web'),
           'process.env.GIT_COMMIT_HASH': JSON.stringify(
             execFileSync('git', ['rev-parse', '--short', 'HEAD'], {

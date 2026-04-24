@@ -1,44 +1,52 @@
-import { Buffer } from 'buffer';
-import init, { compress, decompress } from './zlib_wasm';
 import {
   addCompressionStat,
   addDecompressionStat,
 } from '../../src/compression-stats';
 
-let initialized = false;
-async function initZlib() {
-  if (!initialized) {
-    await init();
-    initialized = true;
-  }
-}
+const algorithm = 'deflate';
 
 export function inflate(
   buffer: Uint8Array,
   callback: (err: Error | null, result?: Buffer) => void
 ): void {
-  initZlib()
-    .then(() => {
-      const start = performance.now();
-      const decompressed = decompress(buffer, 0);
-      addDecompressionStat(buffer.length, decompressed.length, start);
-      callback(null, Buffer.from(decompressed));
-    })
-    .catch(callback);
+  const start = performance.now();
+  const ds = new DecompressionStream(algorithm);
+  const writer = ds.writable.getWriter();
+
+  (async () => {
+    // Start consuming the readable stream immediately to prevent backpressure
+    const readPromise = new Response(ds.readable).arrayBuffer();
+
+    await writer.ready;
+    await writer.write(Buffer.from(buffer));
+    await writer.close();
+
+    const decompressed = await readPromise;
+    addDecompressionStat(buffer.length, decompressed.byteLength, start);
+    callback(null, Buffer.from(decompressed));
+  })().catch(callback);
 }
 export function deflate(
   buffer: Uint8Array,
   _opt: { asBuffer: true },
   callback: (err: Error | null, result?: Buffer) => void
 ): void {
-  initZlib()
-    .then(() => {
-      const start = performance.now();
-      const compressed = compress(buffer, 6);
-      addCompressionStat(buffer.length, compressed.length, start);
-      callback(null, Buffer.from(compressed));
-    })
-    .catch(callback);
+  const start = performance.now();
+  const cs = new CompressionStream(algorithm);
+  const writer = cs.writable.getWriter();
+
+  (async () => {
+    // Start consuming the readable stream immediately to prevent backpressure
+    const readPromise = new Response(cs.readable).arrayBuffer();
+
+    await writer.ready;
+    await writer.write(Buffer.from(buffer));
+    await writer.close();
+
+    const compressed = await readPromise;
+    addCompressionStat(buffer.length, compressed.byteLength, start);
+    callback(null, Buffer.from(compressed));
+  })().catch(callback);
 }
 
 export default { inflate, deflate };
