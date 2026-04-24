@@ -22,6 +22,8 @@ export type EditableDocumentProps = {
   showInsights?: boolean;
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
+  /** Ignored for editable documents; only readonly previews use sticky headers. */
+  stickyDocumentHeaderInScrollContainer?: boolean;
 };
 
 type EditableDocumentState = {

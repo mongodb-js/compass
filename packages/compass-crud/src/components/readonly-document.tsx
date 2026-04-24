@@ -1,5 +1,12 @@
 import React from 'react';
-import { DocumentList, css, spacing } from '@mongodb-js/compass-components';
+import {
+  DocumentList,
+  css,
+  cx,
+  spacing,
+  palette,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import { withPreferences } from 'compass-preferences-model/provider';
@@ -23,6 +30,40 @@ export const documentContentStyles = css({
   paddingBottom: spacing[400],
 });
 
+const stickyDocumentRootStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  height: '100%',
+  minHeight: 0,
+});
+
+const stickyHeaderRowStyles = (backgroundColor: string) =>
+  css({
+    position: 'sticky',
+    top: 0,
+    zIndex: 1,
+    flexShrink: 0,
+    backgroundColor,
+    paddingTop: spacing[400],
+    paddingBottom: spacing[100],
+  });
+
+const stickyScrollBodyStyles = css({
+  flex: 1,
+  minHeight: 0,
+  overflow: 'auto',
+});
+
+function StickyReadonlyDocumentChrome({
+  render,
+}: {
+  render: (stickyBackground: string) => React.ReactNode;
+}) {
+  const darkMode = useDarkMode();
+  const stickyBackground = darkMode ? palette.black : palette.white;
+  return <>{render(stickyBackground)}</>;
+}
+
 export type ReadonlyDocumentProps = {
   copyToClipboard?: (doc: Document) => void;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
@@ -30,6 +71,11 @@ export type ReadonlyDocumentProps = {
   showInsights?: boolean;
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
+  /**
+   * When true, the first root field row and document actions stay in a sticky header
+   * inside the nearest scroll container (e.g. Aggregations stage preview cards).
+   */
+  stickyDocumentHeaderInScrollContainer?: boolean;
 };
 
 type ReadonlyDocumentState = {
@@ -87,8 +133,8 @@ class ReadonlyDocument extends React.Component<
    * Unsubscribe from the document events.
    */
   unsubscribeFromDocumentEvents(doc: Document) {
-    doc.on(DocumentEvents.Expanded, this.handleExpanded);
-    doc.on(DocumentEvents.Collapsed, this.handleCollapsed);
+    doc.off(DocumentEvents.Expanded, this.handleExpanded);
+    doc.off(DocumentEvents.Collapsed, this.handleCollapsed);
   }
 
   handleExpanded = () => {
@@ -131,7 +177,16 @@ class ReadonlyDocument extends React.Component<
    *
    * @returns {Array} The elements.
    */
-  renderElements() {
+  renderElements(options?: {
+    visibleRootElementSlice?: [number, number];
+    lineNumberCounterStart?: number;
+    showVisibleFieldsToggle?: boolean;
+  }) {
+    const {
+      visibleRootElementSlice,
+      lineNumberCounterStart,
+      showVisibleFieldsToggle,
+    } = options ?? {};
     return (
       <>
         <DocumentList.Document
@@ -140,6 +195,9 @@ class ReadonlyDocument extends React.Component<
           extraGutterWidth={spacing[900]}
           onUpdateQuery={this.props.onUpdateQuery}
           query={this.props.query}
+          visibleRootElementSlice={visibleRootElementSlice}
+          lineNumberCounterStart={lineNumberCounterStart}
+          showVisibleFieldsToggle={showVisibleFieldsToggle}
         />
       </>
     );
@@ -169,6 +227,55 @@ class ReadonlyDocument extends React.Component<
    * @returns {React.Component} The component.
    */
   render() {
+    if (this.props.stickyDocumentHeaderInScrollContainer) {
+      const visibleRootCount = this.props.doc.getVisibleElements().length;
+      if (visibleRootCount === 0) {
+        return (
+          <div className={documentStyles} data-testid="readonly-document">
+            <div className={documentContentStyles}>
+              {this.renderElements()}
+              {this.renderActions()}
+            </div>
+          </div>
+        );
+      }
+
+      return (
+        <div
+          className={cx(documentStyles, stickyDocumentRootStyles)}
+          data-testid="readonly-document"
+        >
+          <StickyReadonlyDocumentChrome
+            render={(stickyBackground) => (
+              <>
+                <div
+                  className={stickyHeaderRowStyles(stickyBackground)}
+                  data-testid="readonly-document-sticky-header"
+                >
+                  {this.renderElements({
+                    visibleRootElementSlice: [0, 1],
+                    lineNumberCounterStart: 1,
+                    showVisibleFieldsToggle: false,
+                  })}
+                  {this.renderActions()}
+                </div>
+                <div className={stickyScrollBodyStyles}>
+                  <div className={documentContentStyles}>
+                    {visibleRootCount > 1
+                      ? this.renderElements({
+                          visibleRootElementSlice: [1, visibleRootCount],
+                          lineNumberCounterStart: 2,
+                        })
+                      : null}
+                  </div>
+                </div>
+              </>
+            )}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className={documentStyles} data-testid="readonly-document">
         <div className={documentContentStyles}>
