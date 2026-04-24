@@ -1831,12 +1831,8 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'cast[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [
-          {
-            json: '["Paul Muni", "Ann Dvorak", "Karen Morley", "Osgood Perkins"]',
-          },
-        ],
+        fakerMethod: 'person.fullName',
+        fakerArgs: [],
       },
       {
         fieldPath: 'num_mflix_comments',
@@ -1865,17 +1861,13 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'directors[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Howard Hawks", "Richard Rosson"]' }],
+        fakerMethod: 'person.fullName',
+        fakerArgs: [],
       },
       {
         fieldPath: 'writers[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [
-          {
-            json: '["Armitage Trail (novel)", "Ben Hecht (screen story)", "Seton I. Miller (continuity)", "John Lee Mahin (continuity)", "W.R. Burnett (continuity)", "Seton I. Miller (dialogue)", "John Lee Mahin (dialogue)", "W.R. Burnett (dialogue)"]',
-          },
-        ],
+        fakerMethod: 'person.fullName',
+        fakerArgs: [],
       },
       {
         fieldPath: 'awards.wins',
