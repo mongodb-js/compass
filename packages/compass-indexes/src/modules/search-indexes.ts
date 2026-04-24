@@ -18,6 +18,7 @@ import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
+import { isAutoEmbedIndex } from '../utils/is-auto-embed-index';
 import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
@@ -726,23 +727,38 @@ export const pollSearchIndexes = (): IndexesThunkAction<
 // its value. This enables to test dropSearchIndex action.
 export const showConfirmation = showConfirmationModal;
 
+const AUTO_EMBED_DROP_CONFIRMATION_DESCRIPTION =
+  'Dropping this index will permanently remove all generated vector embeddings associated with it. All queries that use this index will stop working. If you create a new index later, embeddings will be generated again and will use additional tokens.';
+
+const DEFAULT_DROP_CONFIRMATION_DESCRIPTION =
+  'If you drop this index, all queries using it will no longer function.';
+
 export const dropSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
   return async function (
     dispatch,
     getState,
-    { track, connectionInfoRef, dataService }
+    { track, connectionInfoRef, dataService, preferences }
   ) {
-    const { namespace } = getState();
+    const { namespace, searchIndexes } = getState();
+    const { enableAutoEmbeddingPublicPreview } = preferences.getPreferences();
 
+    const index = searchIndexes.indexes.find((i) => i.name === name);
+    const useAutoEmbedDropCopy =
+      Boolean(enableAutoEmbeddingPublicPreview) &&
+      index !== undefined &&
+      isAutoEmbedIndex(index);
+
+    const description = useAutoEmbedDropCopy
+      ? AUTO_EMBED_DROP_CONFIRMATION_DESCRIPTION
+      : DEFAULT_DROP_CONFIRMATION_DESCRIPTION;
     const isConfirmed = await showConfirmation({
       title: `Are you sure you want to drop "${name}" from Cluster?`,
       buttonText: 'Drop Index',
       variant: 'danger',
       requiredInputText: name,
-      description:
-        'If you drop this index, all queries using it will no longer function.',
+      description,
     });
     if (!isConfirmed) {
       return;

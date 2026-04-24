@@ -1,9 +1,9 @@
 import {
   ATLAS_SEARCH_TEMPLATES,
+  ATLAS_VECTOR_AUTO_EMBED_TEMPLATE,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
 import type { AllPreferences } from 'compass-preferences-model';
-import { ATLAS_VECTOR_AUTO_EMBED_TEMPLATE } from '../search-index-template-dropdown/vector-search-index-template-dropdown';
 import { expect } from 'chai';
 import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';

@@ -17,7 +17,12 @@ import {
 import { setupStoreAndWait } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
 import sinon from 'sinon';
-import type { IndexesDataService, IndexesStore } from '../stores/store';
+import type { SearchIndex } from 'mongodb-data-service';
+import type {
+  IndexesDataService,
+  IndexesPluginServices,
+  IndexesStore,
+} from '../stores/store';
 import { readonlyViewChanged } from './is-readonly-view';
 
 // Importing this to stub showConfirmation
@@ -277,6 +282,108 @@ describe('search-indexes module', function () {
         'index_name',
       ]);
       expect(store.getState().searchIndexes.error).to.be.undefined;
+    });
+
+    it('uses auto-embed drop confirmation copy when preview flag is on and index has autoEmbed fields', async function () {
+      const autoEmbedIndexes: SearchIndex[] = [
+        {
+          id: 'ae1',
+          name: 'myAutoEmbed',
+          type: 'vectorSearch',
+          status: 'READY',
+          queryable: true,
+          latestDefinition: {
+            fields: [{ type: 'autoEmbed', path: 'content' }],
+          },
+        },
+      ];
+      const getIndexesStub = sinon.stub().resolves(autoEmbedIndexes);
+      const dropStub = sinon.stub().resolves();
+      const localStore = await setupStoreAndWait(
+        { namespace: 'citibike.trips', isSearchIndexesSupported: true },
+        {
+          createSearchIndex: createSearchIndexStub,
+          updateSearchIndex: updateSearchIndexStub,
+          getSearchIndexes: getIndexesStub,
+          dropSearchIndex: dropStub,
+        },
+        {
+          preferences: {
+            getPreferences() {
+              return {
+                enableRollingIndexes: true,
+                enableAtlasSearchIndexes: true,
+                enableAutoEmbeddingPublicPreview: true,
+              };
+            },
+          } as Partial<IndexesPluginServices>,
+        }
+      );
+      showConfirmationStub.resolves(false);
+      await localStore.dispatch(dropSearchIndex('myAutoEmbed'));
+      expect(showConfirmationStub.calledOnce).to.be.true;
+      expect(showConfirmationStub.firstCall.args[0].description).to.include(
+        'generated vector embeddings'
+      );
+    });
+
+    it('uses default drop confirmation copy when preview flag is on but index is not auto-embed', async function () {
+      const getIndexesStub = sinon.stub().resolves(searchIndexes);
+      const localStore = await setupStoreAndWait(
+        { namespace: 'citibike.trips', isSearchIndexesSupported: true },
+        {
+          createSearchIndex: createSearchIndexStub,
+          updateSearchIndex: updateSearchIndexStub,
+          getSearchIndexes: getIndexesStub,
+          dropSearchIndex: dropSearchIndexStub,
+        },
+        {
+          preferences: {
+            getPreferences() {
+              return {
+                enableRollingIndexes: true,
+                enableAtlasSearchIndexes: true,
+                enableAutoEmbeddingPublicPreview: true,
+              };
+            },
+          } as Partial<IndexesPluginServices>,
+        }
+      );
+      showConfirmationStub.resolves(false);
+      await localStore.dispatch(dropSearchIndex('default'));
+      expect(showConfirmationStub.firstCall.args[0].description).to.equal(
+        'If you drop this index, all queries using it will no longer function.'
+      );
+    });
+
+    it('uses default drop confirmation copy when preview flag is off even for auto-embed index', async function () {
+      const autoEmbedIndexes: SearchIndex[] = [
+        {
+          id: 'ae1',
+          name: 'myAutoEmbed',
+          type: 'vectorSearch',
+          status: 'READY',
+          queryable: true,
+          latestDefinition: {
+            fields: [{ type: 'autoEmbed', path: 'content' }],
+          },
+        },
+      ];
+      const getIndexesStub = sinon.stub().resolves(autoEmbedIndexes);
+      const localStore = await setupStoreAndWait(
+        { namespace: 'citibike.trips', isSearchIndexesSupported: true },
+        {
+          createSearchIndex: createSearchIndexStub,
+          updateSearchIndex: updateSearchIndexStub,
+          getSearchIndexes: getIndexesStub,
+          dropSearchIndex: dropSearchIndexStub,
+        }
+      );
+      showConfirmationStub.resolves(false);
+      await localStore.dispatch(dropSearchIndex('myAutoEmbed'));
+      expect(showConfirmationStub.firstCall.args[0].description).to.equal(
+        'If you drop this index, all queries using it will no longer function.'
+      );
     });
   });
 

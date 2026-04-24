@@ -30,12 +30,12 @@ import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {
-  ATLAS_VECTOR_AUTO_EMBED_TEMPLATE,
   VectorSearchIndexTemplateDropdown,
   type VectorIndexTemplateChoice,
 } from '../search-index-template-dropdown/vector-search-index-template-dropdown';
 import {
   ATLAS_SEARCH_TEMPLATES,
+  ATLAS_VECTOR_AUTO_EMBED_TEMPLATE,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
   type SearchTemplate,
 } from '@mongodb-js/mongodb-constants';

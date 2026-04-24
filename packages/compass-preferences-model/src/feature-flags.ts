@@ -247,7 +247,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
    */
   {
     name: 'enableAutoEmbeddingPublicPreview',
-    stage: 'development',
+    stage: 'preview',
     atlasCloudFeatureFlagName: 'ATLAS_SEARCH_AUTO_EMBEDDING_PUBLIC_PREVIEW',
     description: {
       short:
