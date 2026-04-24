@@ -90,7 +90,7 @@ This document was automatically generated on Fri Apr 24 2026.
 | **[@emotion/use-insertion-effect-with-fallbacks](#a7662316f90ed8cb032ced23bee64ce0574a0b8eb63d56ee8eedb8c56cfc2812)**       | 1.2.0        | MIT                                 |
 | **[@emotion/utils](#e99b2a20e001e7734cc4f71b8fa6de4d5578c101b034e4571c7b51f86704f663)**                                     | 1.4.2        | MIT                                 |
 | **[@emotion/weak-memoize](#87ba3696f63d7274d407f7e4e93881675689944435b0d8af05b1f5bac283250d)**                              | 0.4.0        | MIT                                 |
-| **[@faker-js/faker](#3aaf6e1bc86b1ced83f200961c042aa63002ff42b18ad1042c24bde52df8ee49)**                                    | 9.9.0        | MIT                                 |
+| **[@faker-js/faker](#f5a8ba92aeaeb15079b8d47c68c0302243d8ec85cc1cf54c18d4c7c6bf11e471)**                                    | 10.4.0       | MIT                                 |
 | **[@floating-ui/core](#52eaaaf13a60e5614d4e42dc0c8df65304c83c88e8d34e448677b62df5a5a7b3)**                                  | 1.7.3        | MIT                                 |
 | **[@floating-ui/dom](#5dc31aa39bfa54e98ceef86b9ce9c257a0a5882f5ca51d3ba3b5df7c7678ad98)**                                   | 1.7.4        | MIT                                 |
 | **[@floating-ui/react-dom](#efe6c567c3c1d938b8eca9f8ea0a574964195b9282179c8fe0af77c9b73d2257)**                             | 2.1.6        | MIT                                 |
@@ -6594,9 +6594,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="3aaf6e1bc86b1ced83f200961c042aa63002ff42b18ad1042c24bde52df8ee49"></a>
+<a id="f5a8ba92aeaeb15079b8d47c68c0302243d8ec85cc1cf54c18d4c7c6bf11e471"></a>
 
-### [@faker-js/faker](https://www.npmjs.com/package/@faker-js/faker) (version 9.9.0)
+### [@faker-js/faker](https://www.npmjs.com/package/@faker-js/faker) (version 10.4.0)
 
 License tags: MIT
 
