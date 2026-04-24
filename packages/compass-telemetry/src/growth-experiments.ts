@@ -1,5 +1,5 @@
 export const ExperimentTestNames = {
-  mockDataGenerator: 'MOCK_DATA_GENERATOR_20251001',
+  mockDataGenerator: 'MOCK_DATA_GENERATOR_20260506',
   atlasSkills: 'ATLAS_SKILLS_EXPERIMENT_20251007',
 } as const;
 
