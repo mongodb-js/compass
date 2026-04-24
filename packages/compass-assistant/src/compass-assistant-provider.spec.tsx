@@ -368,6 +368,7 @@ describe('CompassAssistantProvider', function () {
       enableToolCalling = true,
       enableGenAIToolCallingAtlasProject = true,
       enableGenAIToolCalling = true,
+      maxTimeMS,
       query,
       pipeline,
       connections,
@@ -382,6 +383,7 @@ describe('CompassAssistantProvider', function () {
       enableToolCalling?: boolean;
       enableGenAIToolCallingAtlasProject?: boolean;
       enableGenAIToolCalling?: boolean;
+      maxTimeMS?: number;
       query?: string;
       pipeline?: string;
       connections?: ActiveConnectionInfo[];
@@ -412,6 +414,7 @@ describe('CompassAssistantProvider', function () {
             enableToolCalling,
             enableGenAIToolCallingAtlasProject,
             enableGenAIToolCalling,
+            maxTimeMS,
           },
         }
       );
@@ -945,6 +948,56 @@ describe('CompassAssistantProvider', function () {
         ],
         query,
         pipeline,
+      });
+    });
+
+    it('forwards maxTimeMS preference to toolsController.setContext', async function () {
+      const mockChat = new Chat<AssistantMessage>({
+        messages: [
+          {
+            id: 'assistant',
+            role: 'assistant',
+            parts: [{ type: 'text', text: 'Hello user!' }],
+          },
+        ],
+      });
+
+      const sendMessageSpy = sinon.spy(mockChat, 'sendMessage');
+
+      const mockToolsController = {
+        setActiveTools: sinon.stub(),
+        getActiveTools: sinon.stub(),
+        setContext: sinon.stub(),
+        startServer: sinon.stub().resolves(),
+        stopServer: sinon.stub().resolves(),
+        setConnectionIdForToolCall: sinon.stub(),
+      };
+
+      await renderOpenAssistantDrawer({
+        chat: mockChat,
+        toolsController: mockToolsController,
+        enableToolCalling: true,
+        enableGenAIToolCalling: true,
+        maxTimeMS: 5000,
+      });
+
+      const input = screen.getByPlaceholderText('Ask a question');
+      const sendButton = screen.getByLabelText('Send message');
+
+      userEvent.type(input, 'Hello assistant');
+      userEvent.click(sendButton);
+
+      await waitFor(() => {
+        expect(sendMessageSpy.calledOnce).to.be.true;
+      });
+
+      expect(mockToolsController.setContext.callCount).to.equal(1);
+      expect(mockToolsController.setContext.firstCall.args[0]).to.deep.equal({
+        enableTelemetry: true,
+        maxTimeMS: 5000,
+        connections: [],
+        query: undefined,
+        pipeline: undefined,
       });
     });
 
