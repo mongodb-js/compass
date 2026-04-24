@@ -1,7 +1,7 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import type { Document } from 'mongodb';
-import { screen, cleanup } from '@mongodb-js/testing-library-compass';
+import { screen, cleanup, within } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import { renderWithStore } from '../../../test/configure-store';
@@ -107,6 +107,18 @@ describe('StagePreview', function () {
     });
     const docs = screen.getAllByTestId('readonly-document');
     expect(docs).to.have.length(2);
+  });
+  it('renders document previews with a sticky header row for multi-field documents', async function () {
+    await renderStagePreview({
+      shouldRenderStage: true,
+      documents: [{ _id: 1, name: 'a' }],
+    });
+    const previewDoc = screen.getByTestId('readonly-document');
+    expect(within(previewDoc).getByTestId('readonly-document-sticky-header')).to
+      .exist;
+    expect(within(previewDoc).getAllByTestId('hadron-document')).to.have.length(
+      2
+    );
   });
   it('renders missing search index text for $search', async function () {
     await renderStagePreview({

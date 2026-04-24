@@ -107,6 +107,9 @@ const documentStyles = css({
   flexShrink: 0,
   overflow: 'auto',
   padding: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  minHeight: 0,
 });
 
 type StagePreviewProps = {
@@ -202,7 +205,11 @@ function StagePreviewBody({
       return (
         <KeylineCard key={i} className={documentContainerStyles}>
           <div className={documentStyles}>
-            <Document doc={doc} editable={false} />
+            <Document
+              doc={doc}
+              editable={false}
+              stickyDocumentHeaderInScrollContainer
+            />
           </div>
         </KeylineCard>
       );
