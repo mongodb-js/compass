@@ -1200,11 +1200,12 @@ class CrudStoreImpl
   }
 
   async runBulkUpdate() {
+    const query = this.queryBar.getLastAppliedQuery('crud');
     this.track(
       'Bulk Update Executed',
       {
         isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
-        has_filter: !!this.queryBar.getLastAppliedQuery('crud').filter,
+        has_filter: Object.keys(query.filter ?? {}).length > 0,
       },
       this.connectionInfoRef.current
     );
@@ -1220,7 +1221,7 @@ class CrudStoreImpl
     });
 
     const { ns } = this.state;
-    const { filter = {} } = this.queryBar.getLastAppliedQuery('crud');
+    const { filter = {} } = query;
     let update;
     try {
       update = parseShellBSON(this.state.bulkUpdate.updateText);
@@ -1957,10 +1958,11 @@ class CrudStoreImpl
   }
 
   async runBulkDelete() {
+    const query = this.queryBar.getLastAppliedQuery('crud');
     this.track(
       'Bulk Delete Executed',
       {
-        has_filter: !!this.queryBar.getLastAppliedQuery('crud').filter,
+        has_filter: Object.keys(query.filter ?? {}).length > 0,
       },
       this.connectionInfoRef.current
     );
@@ -1983,7 +1985,7 @@ class CrudStoreImpl
 
     if (confirmation) {
       this.bulkDeleteInProgress();
-      const { filter = {} } = this.queryBar.getLastAppliedQuery('crud');
+      const { filter = {} } = query;
       try {
         await this.dataService.deleteMany(this.state.ns, filter);
         this.bulkDeleteSuccess();
