@@ -1,7 +1,7 @@
 import { tool } from 'ai';
 import type { ToolSet } from 'ai';
 import type { Logger } from '@mongodb-js/compass-logging';
-import z from 'zod';
+import z from 'zod/v4';
 import {
   Keychain,
   TransportRunnerBase,
@@ -99,7 +99,6 @@ export class ToolsController {
       // NOTE: the preference could change at runtime. As a best-effort way of
       // keeping it in sync we'll change it every time we set the tools' context
       telemetry: enableTelemetry ? 'enabled' : 'disabled',
-      previewFeatures: ['search'],
     });
 
     this.runner = new InMemoryRunner({
@@ -197,13 +196,10 @@ export class ToolsController {
           inputSchema: z.object(
             Object.fromEntries(
               Object.entries(toolBase.argsShape).map(([key, value]) => {
-                return [
-                  key,
-                  // TODO: MCP server applies transformations like toEJSON.
-                  // We should come up with a better solution for this but for now we recursively remove the transforms.
-                  // AI SDK applies transformations defined in the schema *before* sending the request to the model.
-                  removeZodTransforms(value),
-                ];
+                // TODO: MCP server applies transformations like toEJSON.
+                // We should come up with a better solution for this but for now we recursively remove the transforms.
+                // AI SDK applies transformations defined in the schema *before* sending the request to the model.
+                return [key, removeZodTransforms(value)];
               })
             )
           ),
