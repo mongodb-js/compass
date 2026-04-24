@@ -108,12 +108,17 @@ const documentContainerStyles = css({
   maxHeight: 'min(85vh, 900px)',
   minHeight: 0,
   overflow: 'hidden',
+  alignSelf: 'stretch',
 });
 
 const documentStyles = css({
   flexBasis: '164px',
   flexGrow: 1,
-  flexShrink: 0,
+  // Must shrink inside max-height card; flex-shrink: 0 keeps intrinsic content
+  // height and blocks the inner document scroller from ever activating.
+  flexShrink: 1,
+  minHeight: 0,
+  maxHeight: '100%',
   // Clip overflow here so only the document body scrolls inside ReadonlyDocument;
   // otherwise this outer div becomes the scrollport and the whole preview (including
   // the intended fixed header) scrolls away together.
@@ -121,7 +126,6 @@ const documentStyles = css({
   padding: 0,
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 0,
 });
 
 type StagePreviewProps = {
