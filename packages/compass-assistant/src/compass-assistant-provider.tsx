@@ -425,6 +425,7 @@ export function ensureOptInAndSendThunk(
       : null;
     setToolsContext(toolsController, {
       enableTelemetry: prefs.trackUsageStatistics,
+      maxTimeMS: prefs.maxTimeMS,
       activeConnection,
       connections: activeConnections,
       query,
@@ -836,6 +837,7 @@ export function setToolsContext(
   toolsController: ToolsController,
   {
     enableTelemetry,
+    maxTimeMS,
     activeConnection,
     connections,
     query,
@@ -845,6 +847,7 @@ export function setToolsContext(
     activeTab,
   }: {
     enableTelemetry: boolean;
+    maxTimeMS?: number;
     activeConnection: ActiveConnectionInfo | null;
     connections: ActiveConnectionInfo[];
     query?: string | null;
@@ -870,6 +873,7 @@ export function setToolsContext(
     toolsController.setActiveTools(toolGroups);
     toolsController.setContext({
       enableTelemetry,
+      maxTimeMS,
       connections: connections.map((connection) => {
         if (!connection.connectOptions) {
           throw new Error(
@@ -889,6 +893,7 @@ export function setToolsContext(
     toolsController.setActiveTools(new Set([]));
     toolsController.setContext({
       enableTelemetry,
+      maxTimeMS,
       connections: [],
       query: undefined,
       pipeline: undefined,
