@@ -37,11 +37,8 @@ const stickyDocumentRootStyles = css({
   minHeight: 0,
 });
 
-const stickyHeaderRowStyles = (backgroundColor: string) =>
+const previewPinnedHeaderRowStyles = (backgroundColor: string) =>
   css({
-    position: 'sticky',
-    top: 0,
-    zIndex: 1,
     flexShrink: 0,
     backgroundColor,
     paddingTop: spacing[400],
@@ -54,14 +51,14 @@ const stickyScrollBodyStyles = css({
   overflow: 'auto',
 });
 
-function StickyReadonlyDocumentChrome({
+function PreviewDocumentHeaderChrome({
   render,
 }: {
-  render: (stickyBackground: string) => React.ReactNode;
+  render: (headerBackground: string) => React.ReactNode;
 }) {
   const darkMode = useDarkMode();
-  const stickyBackground = darkMode ? palette.black : palette.white;
-  return <>{render(stickyBackground)}</>;
+  const headerBackground = darkMode ? palette.black : palette.white;
+  return <>{render(headerBackground)}</>;
 }
 
 export type ReadonlyDocumentProps = {
@@ -245,11 +242,11 @@ class ReadonlyDocument extends React.Component<
           className={cx(documentStyles, stickyDocumentRootStyles)}
           data-testid="readonly-document"
         >
-          <StickyReadonlyDocumentChrome
-            render={(stickyBackground) => (
+          <PreviewDocumentHeaderChrome
+            render={(headerBackground) => (
               <>
                 <div
-                  className={stickyHeaderRowStyles(stickyBackground)}
+                  className={previewPinnedHeaderRowStyles(headerBackground)}
                   data-testid="readonly-document-sticky-header"
                 >
                   {this.renderElements({

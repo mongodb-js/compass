@@ -105,7 +105,10 @@ const documentStyles = css({
   flexBasis: '164px',
   flexGrow: 1,
   flexShrink: 0,
-  overflow: 'auto',
+  // Clip overflow here so only the document body scrolls inside ReadonlyDocument;
+  // otherwise this outer div becomes the scrollport and the whole preview (including
+  // the intended fixed header) scrolls away together.
+  overflow: 'hidden',
   padding: 0,
   display: 'flex',
   flexDirection: 'column',
