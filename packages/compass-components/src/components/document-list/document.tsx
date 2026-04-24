@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import type {
   default as HadronDocumentType,
   Element as HadronElementType,
@@ -74,6 +74,11 @@ const hadronDocument = css({
   counterReset: 'line-number',
 });
 
+const hadronDocumentLineCounterOffset = (start: number) =>
+  css({
+    counterReset: `line-number ${start - 1}`,
+  });
+
 // TODO: This element should implement treegrid aria role to be accessible
 // https://www.w3.org/TR/wai-aria-practices/examples/treegrid/treegrid-1.html
 // https://jira.mongodb.org/browse/COMPASS-5614
@@ -86,6 +91,12 @@ const HadronDocument: React.FunctionComponent<{
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
   className?: string;
+  /** When set, only this slice of root-level visible elements is rendered (for split layouts). */
+  visibleRootElementSlice?: [number, number];
+  /** 1-based index of the first rendered line for CSS line-number counter alignment. */
+  lineNumberCounterStart?: number;
+  /** When false, the root-level visible-fields toggle is not rendered (used for a sticky header slice). */
+  showVisibleFieldsToggle?: boolean;
 }> = ({
   value: document,
   editable = false,
@@ -95,8 +106,18 @@ const HadronDocument: React.FunctionComponent<{
   onUpdateQuery,
   query,
   className = '',
+  visibleRootElementSlice,
+  lineNumberCounterStart = 1,
+  showVisibleFieldsToggle = true,
 }) => {
   const { elements, visibleElements } = useHadronDocument(document);
+  const slicedVisibleElements = useMemo(() => {
+    if (!visibleRootElementSlice) {
+      return visibleElements;
+    }
+    const [start, end] = visibleRootElementSlice;
+    return visibleElements.slice(start, end);
+  }, [visibleElements, visibleRootElementSlice]);
   const [autoFocus, setAutoFocus] = useState<{
     id: string;
     type: 'key' | 'value' | 'type';
@@ -125,12 +146,16 @@ const HadronDocument: React.FunctionComponent<{
   return (
     <div className={className}>
       <div
-        className={hadronDocument}
+        className={cx(
+          hadronDocument,
+          lineNumberCounterStart !== 1 &&
+            hadronDocumentLineCounterOffset(lineNumberCounterStart)
+        )}
         data-testid="hadron-document"
         data-id={document.uuid}
       >
         <AutoFocusContext.Provider value={editing ? autoFocus : null}>
-          {visibleElements.map((el, idx) => {
+          {slicedVisibleElements.map((el, idx) => {
             return (
               <HadronElement
                 key={idx}
@@ -160,23 +185,25 @@ const HadronDocument: React.FunctionComponent<{
           })}
         </AutoFocusContext.Provider>
       </div>
-      <VisibleFieldsToggle
-        // TODO: "Hide items" button will only be shown when document is not
-        // edited because it's not decided how to handle changes to the fields
-        // that are changed but then hidden
-        // https://jira.mongodb.org/browse/COMPASS-5587
-        showHideButton={!editing}
-        currentSize={document.maxVisibleElementsCount}
-        totalSize={elements.length}
-        minSize={DEFAULT_VISIBLE_DOCUMENT_ELEMENTS}
-        // In the editing mode we allow to show / hide less fields because
-        // historically Compass was doing this for "performance" reasons
-        step={editing ? 100 : 1000}
-        onSizeChange={handleVisibleFieldsChanged}
-        style={{
-          paddingLeft: showMoreToggleOffset,
-        }}
-      ></VisibleFieldsToggle>
+      {showVisibleFieldsToggle && (
+        <VisibleFieldsToggle
+          // TODO: "Hide items" button will only be shown when document is not
+          // edited because it's not decided how to handle changes to the fields
+          // that are changed but then hidden
+          // https://jira.mongodb.org/browse/COMPASS-5587
+          showHideButton={!editing}
+          currentSize={document.maxVisibleElementsCount}
+          totalSize={elements.length}
+          minSize={DEFAULT_VISIBLE_DOCUMENT_ELEMENTS}
+          // In the editing mode we allow to show / hide less fields because
+          // historically Compass was doing this for "performance" reasons
+          step={editing ? 100 : 1000}
+          onSizeChange={handleVisibleFieldsChanged}
+          style={{
+            paddingLeft: showMoreToggleOffset,
+          }}
+        ></VisibleFieldsToggle>
+      )}
     </div>
   );
 };
