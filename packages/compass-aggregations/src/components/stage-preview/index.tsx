@@ -83,6 +83,7 @@ const previewBodyStyles = css({
   gap: spacing[400],
   width: '100%',
   height: '100%',
+  minHeight: 0,
 });
 
 const documentsStyles = css({
@@ -90,6 +91,8 @@ const documentsStyles = css({
   display: 'flex',
   alignItems: 'stretch',
   overflowX: 'auto',
+  minHeight: 0,
+  flex: 1,
 });
 
 const documentContainerStyles = css({
@@ -99,6 +102,12 @@ const documentContainerStyles = css({
   flexShrink: 0,
   width: '384px',
   marginBottom: spacing[200],
+  // Without a cap the card grows with the full document, so no inner element
+  // gets a bounded height and the stage preview column scrolls the whole card
+  // (header scrolls away). Limit height so the document body scroller engages.
+  maxHeight: 'min(85vh, 900px)',
+  minHeight: 0,
+  overflow: 'hidden',
 });
 
 const documentStyles = css({
@@ -243,6 +252,9 @@ const stagePreviewStyles = css({
   alignItems: 'stretch',
   position: 'relative',
   flexGrow: 1,
+  minHeight: 0,
+  display: 'flex',
+  flexDirection: 'column',
 });
 
 // exported for tests

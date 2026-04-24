@@ -28,6 +28,8 @@ const stageStyles = css({
   flexDirection: 'column',
   alignItems: 'stretch',
   overflow: 'hidden', // this is so that the top left red border corner does not get cut off when there's a server error
+  minHeight: 0,
+  flex: 1,
 });
 
 const stageWarningStyles = css({
@@ -40,6 +42,9 @@ const stageErrorStyles = css({
 
 const stageContentStyles = css({
   display: 'flex',
+  alignItems: 'stretch',
+  minHeight: 0,
+  flex: 1,
 });
 
 const stageEditorNoPreviewStyles = css({
@@ -51,7 +56,9 @@ const stagePreviewContainerStyles = css({
   position: 'relative',
   flexDirection: 'column',
   width: '100%',
-  overflow: 'auto',
+  minHeight: 0,
+  flex: '1 1 0',
+  overflow: 'hidden',
 });
 
 const stageEditorContainerStyles = css({
