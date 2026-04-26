@@ -39,10 +39,12 @@ const stickyDocumentRootStyles = css({
 
 const previewPinnedHeaderRowStyles = (backgroundColor: string) =>
   css({
+    position: 'relative',
     flexShrink: 0,
     backgroundColor,
     paddingTop: spacing[400],
     paddingBottom: spacing[100],
+    zIndex: 1,
   });
 
 const stickyScrollBodyStyles = css({
@@ -209,6 +211,9 @@ class ReadonlyDocument extends React.Component<
         }
         onExpand={this.handleExpandAll}
         expanded={this.state.expanded}
+        // Preview cards split header/body: hover target is easy to miss while
+        // scrolling; keep expand caret visible (COMPASS-10630).
+        onlyShowOnHover={!this.props.stickyDocumentHeaderInScrollContainer}
         insights={
           this.props.showInsights
             ? getInsightsForDocument(this.props.doc)
