@@ -1,17 +1,11 @@
 import React from 'react';
-import {
-  DocumentList,
-  css,
-  cx,
-  spacing,
-  palette,
-  useDarkMode,
-} from '@mongodb-js/compass-components';
+import { DocumentList, css, cx, spacing } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import { withPreferences } from 'compass-preferences-model/provider';
 import { getInsightsForDocument } from '../utils';
 import { DocumentEvents } from 'hadron-document';
+import { StickyPreviewGutter } from './readonly-document-sticky-preview-gutter';
 type BSONObject = TypeCastMap['Object'];
 
 export const documentStyles = css({
@@ -30,38 +24,20 @@ export const documentContentStyles = css({
   paddingBottom: spacing[400],
 });
 
-const stickyDocumentRootStyles = css({
+const stickyPreviewRowStyles = css({
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection: 'row',
+  alignItems: 'stretch',
   height: '100%',
   minHeight: 0,
 });
 
-const previewPinnedHeaderRowStyles = (backgroundColor: string) =>
-  css({
-    position: 'relative',
-    flexShrink: 0,
-    backgroundColor,
-    paddingTop: spacing[400],
-    paddingBottom: spacing[100],
-    zIndex: 1,
-  });
-
-const stickyScrollBodyStyles = css({
+const stickyPreviewDocumentScrollStyles = css({
   flex: 1,
+  minWidth: 0,
   minHeight: 0,
   overflow: 'auto',
 });
-
-function PreviewDocumentHeaderChrome({
-  render,
-}: {
-  render: (headerBackground: string) => React.ReactNode;
-}) {
-  const darkMode = useDarkMode();
-  const headerBackground = darkMode ? palette.black : palette.white;
-  return <>{render(headerBackground)}</>;
-}
 
 export type ReadonlyDocumentProps = {
   copyToClipboard?: (doc: Document) => void;
@@ -71,8 +47,8 @@ export type ReadonlyDocumentProps = {
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
   /**
-   * When true, the first root field row and document actions stay in a sticky header
-   * inside the nearest scroll container (e.g. Aggregations stage preview cards).
+   * When true, expand/actions stay in a fixed left gutter while the document scrolls
+   * beside it (e.g. Aggregations stage preview cards).
    */
   stickyDocumentHeaderInScrollContainer?: boolean;
 };
@@ -180,18 +156,19 @@ class ReadonlyDocument extends React.Component<
     visibleRootElementSlice?: [number, number];
     lineNumberCounterStart?: number;
     showVisibleFieldsToggle?: boolean;
+    extraGutterWidth?: number;
   }) {
     const {
       visibleRootElementSlice,
       lineNumberCounterStart,
       showVisibleFieldsToggle,
+      extraGutterWidth = spacing[900],
     } = options ?? {};
     return (
       <>
         <DocumentList.Document
           value={this.props.doc}
-          // Provide extra whitespace for the expand button
-          extraGutterWidth={spacing[900]}
+          extraGutterWidth={extraGutterWidth}
           onUpdateQuery={this.props.onUpdateQuery}
           query={this.props.query}
           visibleRootElementSlice={visibleRootElementSlice}
@@ -202,18 +179,26 @@ class ReadonlyDocument extends React.Component<
     );
   }
 
-  renderActions() {
+  renderActions(options?: {
+    layout?: 'overlay' | 'gutter';
+    onlyShowOnHover?: boolean;
+  }) {
+    const { layout = 'overlay', onlyShowOnHover } = options ?? {};
+    const resolvedOnlyShowOnHover =
+      onlyShowOnHover ??
+      (layout === 'gutter'
+        ? false
+        : !this.props.stickyDocumentHeaderInScrollContainer);
     return (
       <DocumentList.DocumentActionsGroup
+        layout={layout}
         onCopy={this.props.copyToClipboard ? this.handleCopy : undefined}
         onClone={
           this.props.openInsertDocumentDialog ? this.handleClone : undefined
         }
         onExpand={this.handleExpandAll}
         expanded={this.state.expanded}
-        // Preview cards split header/body: hover target is easy to miss while
-        // scrolling; keep expand caret visible (COMPASS-10630).
-        onlyShowOnHover={!this.props.stickyDocumentHeaderInScrollContainer}
+        onlyShowOnHover={resolvedOnlyShowOnHover}
         insights={
           this.props.showInsights
             ? getInsightsForDocument(this.props.doc)
@@ -230,50 +215,19 @@ class ReadonlyDocument extends React.Component<
    */
   render() {
     if (this.props.stickyDocumentHeaderInScrollContainer) {
-      const visibleRootCount = this.props.doc.getVisibleElements().length;
-      if (visibleRootCount === 0) {
-        return (
-          <div className={documentStyles} data-testid="readonly-document">
-            <div className={documentContentStyles}>
-              {this.renderElements()}
-              {this.renderActions()}
-            </div>
-          </div>
-        );
-      }
-
       return (
         <div
-          className={cx(documentStyles, stickyDocumentRootStyles)}
+          className={cx(documentStyles, stickyPreviewRowStyles)}
           data-testid="readonly-document"
         >
-          <PreviewDocumentHeaderChrome
-            render={(headerBackground) => (
-              <>
-                <div
-                  className={previewPinnedHeaderRowStyles(headerBackground)}
-                  data-testid="readonly-document-sticky-header"
-                >
-                  {this.renderElements({
-                    visibleRootElementSlice: [0, 1],
-                    lineNumberCounterStart: 1,
-                    showVisibleFieldsToggle: false,
-                  })}
-                  {this.renderActions()}
-                </div>
-                <div className={stickyScrollBodyStyles}>
-                  <div className={documentContentStyles}>
-                    {visibleRootCount > 1
-                      ? this.renderElements({
-                          visibleRootElementSlice: [1, visibleRootCount],
-                          lineNumberCounterStart: 2,
-                        })
-                      : null}
-                  </div>
-                </div>
-              </>
-            )}
-          />
+          <StickyPreviewGutter>
+            {this.renderActions({ layout: 'gutter' })}
+          </StickyPreviewGutter>
+          <div className={stickyPreviewDocumentScrollStyles}>
+            <div className={documentContentStyles}>
+              {this.renderElements({ extraGutterWidth: spacing[200] })}
+            </div>
+          </div>
         </div>
       );
     }

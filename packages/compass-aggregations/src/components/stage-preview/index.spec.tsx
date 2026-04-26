@@ -108,16 +108,17 @@ describe('StagePreview', function () {
     const docs = screen.getAllByTestId('readonly-document');
     expect(docs).to.have.length(2);
   });
-  it('renders document previews with a sticky header row for multi-field documents', async function () {
+  it('renders document previews with a sticky left gutter for expand actions', async function () {
     await renderStagePreview({
       shouldRenderStage: true,
       documents: [{ _id: 1, name: 'a' }],
     });
     const previewDoc = screen.getByTestId('readonly-document');
-    expect(within(previewDoc).getByTestId('readonly-document-sticky-header')).to
+    expect(within(previewDoc).getByTestId('readonly-document-sticky-gutter')).to
       .exist;
+    expect(within(previewDoc).getByTestId('expand-document-button')).to.exist;
     expect(within(previewDoc).getAllByTestId('hadron-document')).to.have.length(
-      2
+      1
     );
   });
   it('renders missing search index text for $search', async function () {
