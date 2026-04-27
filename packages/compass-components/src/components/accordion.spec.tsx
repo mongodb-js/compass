@@ -20,9 +20,9 @@ describe('Accordion Component', function () {
     renderAccordion();
 
     expect(screen.getByTestId('my-test-id')).to.exist;
-    const button = screen.getByText('Accordion Test');
-    userEvent.click(button);
-    expect(screen.getByText('Hello World')).to.be.visible;
+    const summary = screen.getByText('Accordion Test');
+    userEvent.click(summary);
+    expect(summary.closest('details')).to.have.attribute('open');
   });
 
   it('should close the accordion on click - default open', function () {
@@ -31,22 +31,22 @@ describe('Accordion Component', function () {
     });
 
     expect(screen.getByTestId('my-test-id')).to.exist;
-    const button = screen.getByText('Accordion Test');
+    const summary = screen.getByText('Accordion Test');
     expect(screen.getByText('Hello World')).to.be.visible;
-    userEvent.click(button);
+    userEvent.click(summary);
 
-    expect(screen.queryByText('Hello World')).not.to.exist;
+    expect(summary.closest('details')).to.not.have.attribute('open');
   });
 
   it('should close the accordion after clicking to open then close', function () {
     renderAccordion();
 
     expect(screen.getByTestId('my-test-id')).to.exist;
-    const button = screen.getByText('Accordion Test');
-    userEvent.click(button);
-    expect(screen.getByText('Hello World')).to.be.visible;
-    userEvent.click(button);
-    expect(screen.queryByText('Hello World')).to.not.exist;
+    const summary = screen.getByText('Accordion Test');
+    userEvent.click(summary);
+    expect(summary.closest('details')).to.have.attribute('open');
+    userEvent.click(summary);
+    expect(summary.closest('details')).to.not.have.attribute('open');
   });
 
   it('should show a hint', function () {

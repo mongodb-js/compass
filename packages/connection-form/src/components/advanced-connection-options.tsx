@@ -33,8 +33,7 @@ function AdvancedConnectionOptions({
   errors,
   updateConnectionFormField,
   connectionOptions,
-  open,
-  setOpen,
+  onOpenToggle,
   openSettingsModal,
 }: {
   errors: ConnectionFormError[];
@@ -44,14 +43,13 @@ function AdvancedConnectionOptions({
   openSettingsModal?: (tab?: string) => void;
 } & Pick<
   React.ComponentProps<typeof Accordion>,
-  'open' | 'setOpen'
+  'onOpenToggle'
 >): React.ReactElement {
   return (
     <Accordion
       data-testid="advanced-connection-options"
       text="Advanced Connection Options"
-      open={open}
-      setOpen={setOpen}
+      onOpenToggle={onOpenToggle}
     >
       <div className={connectionTabsContainer}>
         {disabled && (
