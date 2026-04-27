@@ -35,12 +35,6 @@ export type CreateIndexFormProps = {
   onRemoveFieldClick: (idx: number) => void; // Minus icon.
 };
 
-export function schemaFieldNamesFromAutocomplete(
-  schemaFields: ReadonlyArray<{ name: string }>
-): string[] {
-  return schemaFields.map((field) => field.name);
-}
-
 function CreateIndexForm({
   namespace,
   fields,
@@ -63,7 +57,7 @@ function CreateIndexForm({
 
   const schemaFields = useAutocompleteFields(namespace);
   const schemaFieldNames = useMemo(() => {
-    return schemaFieldNamesFromAutocomplete(schemaFields);
+    return schemaFields.map((field) => field.name);
   }, [schemaFields]);
 
   return (

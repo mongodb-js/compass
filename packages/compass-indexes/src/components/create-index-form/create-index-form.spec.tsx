@@ -1,10 +1,7 @@
 import React from 'react';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
-import {
-  CreateIndexForm,
-  schemaFieldNamesFromAutocomplete,
-} from './create-index-form';
+import { CreateIndexForm } from './create-index-form';
 import type { Field } from '../../modules/create-index';
 import { expect } from 'chai';
 import { setupStore } from '../../../test/setup-store';
@@ -53,13 +50,5 @@ describe('CreateIndexForm', () => {
     userEvent.click(optionsButton);
 
     expect(screen.getByTestId('create-index-modal-options')).to.exist;
-  });
-});
-
-describe('schemaFieldNamesFromAutocomplete', () => {
-  it('includes _id alongside other field names', () => {
-    expect(
-      schemaFieldNamesFromAutocomplete([{ name: '_id' }, { name: 'foo' }])
-    ).to.deep.equal(['_id', 'foo']);
   });
 });
