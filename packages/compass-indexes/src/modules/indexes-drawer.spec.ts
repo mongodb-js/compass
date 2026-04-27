@@ -40,7 +40,7 @@ describe('indexes-drawer module', function () {
       it('sets currentView to indexes-list', function () {
         const state = reducer(INITIAL_STATE, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-          expandedRowIndexNames: [],
+          expandedRows: {},
         });
 
         expect(state.currentView).to.equal('indexes-list');
@@ -51,14 +51,14 @@ describe('indexes-drawer module', function () {
           currentView: 'create-search-index' as const,
           currentIndexType: 'search' as const,
           currentIndexName: 'test-index',
-          expandedRowIndexNames: [],
+          expandedRows: {},
           isRegularIndexesAccordionOpen: false,
           isDirty: false,
         };
 
         const state = reducer(previousState, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-          expandedRowIndexNames: [],
+          expandedRows: {},
         });
 
         expect(state.currentView).to.equal('indexes-list');
@@ -68,48 +68,48 @@ describe('indexes-drawer module', function () {
         expect(state.isRegularIndexesAccordionOpen).to.equal(true);
       });
 
-      it('sets expandedRowIndexNames from the action', function () {
+      it('sets expandedRows from the action', function () {
         const state = reducer(INITIAL_STATE, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-          expandedRowIndexNames: ['myIndex'],
+          expandedRows: { myIndex: true },
         });
 
-        expect(state.expandedRowIndexNames).to.deep.equal(['myIndex']);
+        expect(state.expandedRows).to.deep.equal({ myIndex: true });
       });
 
-      it('sets expandedRowIndexNames to empty when none provided', function () {
+      it('sets expandedRows to empty when none provided', function () {
         const state = reducer(INITIAL_STATE, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-          expandedRowIndexNames: [],
+          expandedRows: {},
         });
 
-        expect(state.expandedRowIndexNames).to.deep.equal([]);
+        expect(state.expandedRows).to.deep.equal({});
       });
 
-      it('replaces expandedRowIndexNames on each dispatch', function () {
+      it('replaces expandedRows on each dispatch', function () {
         const state1 = reducer(INITIAL_STATE, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-          expandedRowIndexNames: ['indexA'],
+          expandedRows: { indexA: true },
         });
-        expect(state1.expandedRowIndexNames).to.deep.equal(['indexA']);
+        expect(state1.expandedRows).to.deep.equal({ indexA: true });
 
         const state2 = reducer(state1, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-          expandedRowIndexNames: ['indexB'],
+          expandedRows: { indexB: true },
         });
-        expect(state2.expandedRowIndexNames).to.deep.equal(['indexB']);
+        expect(state2.expandedRows).to.deep.equal({ indexB: true });
       });
 
-      it('closes regular indexes accordion when expandedRowIndexNames has entries', function () {
+      it('closes regular indexes accordion when expandedRows has entries', function () {
         const state = reducer(INITIAL_STATE, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-          expandedRowIndexNames: ['myIndex'],
+          expandedRows: { myIndex: true },
         });
 
         expect(state.isRegularIndexesAccordionOpen).to.equal(false);
       });
 
-      it('opens regular indexes accordion when expandedRowIndexNames is empty', function () {
+      it('opens regular indexes accordion when expandedRows is empty', function () {
         const previousState = {
           ...INITIAL_STATE,
           isRegularIndexesAccordionOpen: false,
@@ -117,7 +117,7 @@ describe('indexes-drawer module', function () {
 
         const state = reducer(previousState, {
           type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-          expandedRowIndexNames: [],
+          expandedRows: {},
         });
 
         expect(state.isRegularIndexesAccordionOpen).to.equal(true);
@@ -187,7 +187,7 @@ describe('indexes-drawer module', function () {
           currentView: 'edit-search-index' as const,
           currentIndexType: 'vectorSearch' as const,
           currentIndexName: 'test-index',
-          expandedRowIndexNames: [],
+          expandedRows: {},
           isRegularIndexesAccordionOpen: true,
           isDirty: false,
         };
@@ -205,27 +205,27 @@ describe('indexes-drawer module', function () {
     });
 
     describe('SET_EXPANDED_ROWS', function () {
-      it('sets expanded row index names', function () {
+      it('sets expanded rows', function () {
         const state = reducer(INITIAL_STATE, {
           type: SET_EXPANDED_ROWS,
-          expandedRowIndexNames: ['myIndex'],
+          expandedRows: { myIndex: true },
         });
 
-        expect(state.expandedRowIndexNames).to.deep.equal(['myIndex']);
+        expect(state.expandedRows).to.deep.equal({ myIndex: true });
       });
 
-      it('replaces expanded row index names entirely', function () {
+      it('replaces expanded rows entirely', function () {
         const previousState = {
           ...INITIAL_STATE,
-          expandedRowIndexNames: ['indexA'],
+          expandedRows: { indexA: true },
         };
 
         const state = reducer(previousState, {
           type: SET_EXPANDED_ROWS,
-          expandedRowIndexNames: ['indexB'],
+          expandedRows: { indexB: true },
         });
 
-        expect(state.expandedRowIndexNames).to.deep.equal(['indexB']);
+        expect(state.expandedRows).to.deep.equal({ indexB: true });
       });
     });
 
@@ -253,10 +253,10 @@ describe('indexes-drawer module', function () {
         expect(state.isRegularIndexesAccordionOpen).to.equal(false);
       });
 
-      it('does not affect expandedRowIndexNames', function () {
+      it('does not affect expandedRows', function () {
         const previousState = {
           ...INITIAL_STATE,
-          expandedRowIndexNames: ['myIndex'],
+          expandedRows: { myIndex: true },
         };
 
         const state = reducer(previousState, {
@@ -264,7 +264,7 @@ describe('indexes-drawer module', function () {
           isOpen: false,
         });
 
-        expect(state.expandedRowIndexNames).to.deep.equal(['myIndex']);
+        expect(state.expandedRows).to.deep.equal({ myIndex: true });
       });
     });
 
@@ -287,7 +287,7 @@ describe('indexes-drawer module', function () {
           currentView: 'create-search-index' as const,
           currentIndexType: 'vectorSearch' as const,
           currentIndexName: 'test-index',
-          expandedRowIndexNames: [],
+          expandedRows: {},
           isRegularIndexesAccordionOpen: true,
           isDirty: true,
         };
@@ -322,7 +322,7 @@ describe('indexes-drawer module', function () {
           currentView: 'edit-search-index' as const,
           currentIndexType: 'search' as const,
           currentIndexName: 'my-index',
-          expandedRowIndexNames: [],
+          expandedRows: {},
           isRegularIndexesAccordionOpen: true,
           isDirty: true,
         };
@@ -357,7 +357,7 @@ describe('indexes-drawer module', function () {
           currentView: 'create-search-index' as const,
           currentIndexType: 'vectorSearch' as const,
           currentIndexName: 'test-index',
-          expandedRowIndexNames: [],
+          expandedRows: {},
           isRegularIndexesAccordionOpen: true,
           isDirty: true,
         };
@@ -392,7 +392,7 @@ describe('indexes-drawer module', function () {
           currentView: 'edit-search-index' as const,
           currentIndexType: 'search' as const,
           currentIndexName: 'my-index',
-          expandedRowIndexNames: [],
+          expandedRows: {},
           isRegularIndexesAccordionOpen: true,
           isDirty: true,
         };
@@ -429,7 +429,7 @@ describe('indexes-drawer module', function () {
         );
       });
 
-      it('sets expandedRowIndexNames with focused index when it exists in search indexes', async function () {
+      it('sets expandedRows with focused index when it exists in search indexes', async function () {
         Object.assign(store.getState(), {
           searchIndexes: {
             ...store.getState().searchIndexes,
@@ -439,28 +439,24 @@ describe('indexes-drawer module', function () {
 
         await store.dispatch(openIndexesListDrawerView('mySearchIndex'));
 
-        expect(
-          store.getState().indexesDrawer.expandedRowIndexNames
-        ).to.deep.equal(['mySearchIndex']);
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({
+          mySearchIndex: true,
+        });
       });
 
-      it('sets expandedRowIndexNames to empty when focused index does not exist in search indexes', async function () {
+      it('sets expandedRows to empty when focused index does not exist in search indexes', async function () {
         await store.dispatch(openIndexesListDrawerView('nonexistent'));
 
-        expect(
-          store.getState().indexesDrawer.expandedRowIndexNames
-        ).to.deep.equal([]);
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({});
       });
 
-      it('sets expandedRowIndexNames to empty when no focused index is provided', async function () {
+      it('sets expandedRows to empty when no focused index is provided', async function () {
         await store.dispatch(openIndexesListDrawerView());
 
-        expect(
-          store.getState().indexesDrawer.expandedRowIndexNames
-        ).to.deep.equal([]);
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({});
       });
 
-      it('replaces expandedRowIndexNames on each dispatch', async function () {
+      it('replaces expandedRows on each dispatch', async function () {
         Object.assign(store.getState(), {
           searchIndexes: {
             ...store.getState().searchIndexes,
@@ -469,14 +465,14 @@ describe('indexes-drawer module', function () {
         });
 
         await store.dispatch(openIndexesListDrawerView('indexA'));
-        expect(
-          store.getState().indexesDrawer.expandedRowIndexNames
-        ).to.deep.equal(['indexA']);
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({
+          indexA: true,
+        });
 
         await store.dispatch(openIndexesListDrawerView('indexB'));
-        expect(
-          store.getState().indexesDrawer.expandedRowIndexNames
-        ).to.deep.equal(['indexB']);
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({
+          indexB: true,
+        });
       });
 
       it('shows confirmation dialog when isDirty is true and dispatches action when confirmed', async function () {
@@ -701,21 +697,21 @@ describe('indexes-drawer module', function () {
     });
 
     describe('setExpandedRows', function () {
-      it('sets expanded row index names', function () {
-        store.dispatch(setExpandedRows(['myIndex']));
+      it('sets expanded rows', function () {
+        store.dispatch(setExpandedRows({ myIndex: true }));
 
-        expect(
-          store.getState().indexesDrawer.expandedRowIndexNames
-        ).to.deep.equal(['myIndex']);
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({
+          myIndex: true,
+        });
       });
 
-      it('replaces expanded row index names entirely', function () {
-        store.dispatch(setExpandedRows(['indexA']));
-        store.dispatch(setExpandedRows(['indexB']));
+      it('replaces expanded rows entirely', function () {
+        store.dispatch(setExpandedRows({ indexA: true }));
+        store.dispatch(setExpandedRows({ indexB: true }));
 
-        expect(
-          store.getState().indexesDrawer.expandedRowIndexNames
-        ).to.deep.equal(['indexB']);
+        expect(store.getState().indexesDrawer.expandedRows).to.deep.equal({
+          indexB: true,
+        });
       });
     });
 

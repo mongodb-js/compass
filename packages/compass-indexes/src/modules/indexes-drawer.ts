@@ -32,7 +32,7 @@ export type State = {
   currentView: IndexesDrawerViewType;
   currentIndexType: SearchIndexType;
   currentIndexName: string;
-  expandedRowIndexNames: string[];
+  expandedRows: Record<string, boolean>;
   isRegularIndexesAccordionOpen: boolean;
   isDirty: boolean;
 };
@@ -41,7 +41,7 @@ export const INITIAL_STATE: State = {
   currentView: 'indexes-list',
   currentIndexType: 'search',
   currentIndexName: '',
-  expandedRowIndexNames: [],
+  expandedRows: {},
   isRegularIndexesAccordionOpen: true,
   isDirty: false,
 };
@@ -59,12 +59,12 @@ export const SET_REGULAR_INDEXES_ACCORDION_OPEN =
 
 type OpenIndexesListDrawerViewAction = {
   type: typeof OPEN_INDEXES_LIST_DRAWER_VIEW;
-  expandedRowIndexNames: string[];
+  expandedRows: Record<string, boolean>;
 };
 
 type SetExpandedRowsAction = {
   type: typeof SET_EXPANDED_ROWS;
-  expandedRowIndexNames: string[];
+  expandedRows: Record<string, boolean>;
 };
 
 type OpenCreateSearchIndexDrawerViewAction = {
@@ -132,7 +132,7 @@ export const openIndexesListDrawerView = (
       state.searchIndexes.indexes.some((x) => x.name === focusedIndexName);
     dispatch({
       type: OPEN_INDEXES_LIST_DRAWER_VIEW,
-      expandedRowIndexNames: indexExists ? [focusedIndexName] : [],
+      expandedRows: indexExists ? { [focusedIndexName]: true } : {},
     });
   };
 };
@@ -169,10 +169,10 @@ export const setIsDirty = (isDirty: boolean): SetIsDirtyIndexDrawerAction => ({
 });
 
 export const setExpandedRows = (
-  expandedRowIndexNames: string[]
+  expandedRows: Record<string, boolean>
 ): SetExpandedRowsAction => ({
   type: SET_EXPANDED_ROWS,
-  expandedRowIndexNames,
+  expandedRows,
 });
 
 export const setRegularIndexesAccordionOpen = (
@@ -222,8 +222,9 @@ export default function reducer(
     return {
       ...state,
       currentView: 'indexes-list',
-      expandedRowIndexNames: action.expandedRowIndexNames,
-      isRegularIndexesAccordionOpen: action.expandedRowIndexNames.length === 0,
+      expandedRows: action.expandedRows,
+      isRegularIndexesAccordionOpen:
+        Object.keys(action.expandedRows).length === 0,
     };
   }
 
@@ -263,7 +264,7 @@ export default function reducer(
   if (isAction<SetExpandedRowsAction>(action, SET_EXPANDED_ROWS)) {
     return {
       ...state,
-      expandedRowIndexNames: action.expandedRowIndexNames,
+      expandedRows: action.expandedRows,
     };
   }
 

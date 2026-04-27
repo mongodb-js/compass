@@ -115,9 +115,9 @@ type SearchIndexesDrawerTableProps = {
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
   onCreateSearchIndexClick: (indexType: SearchIndexType) => void;
-  onExpandedChange: (expandedRowIndexNames: string[]) => void;
+  onExpandedChange: (expandedRows: Record<string, boolean>) => void;
   searchTerm?: string;
-  expandedRowIndexNames: string[];
+  expandedRows: Record<string, boolean>;
 };
 
 export const SearchIndexesDrawerTable: React.FunctionComponent<
@@ -126,7 +126,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
   indexes,
   status,
   searchTerm,
-  expandedRowIndexNames,
+  expandedRows,
   onEditIndexClick,
   onDropIndexClick,
   onCreateSearchIndexClick,
@@ -222,32 +222,14 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     return allData.filter((item) => item.name.includes(searchTerm));
   }, [allData, searchTerm]);
 
-  // Convert index names to row-index-keyed Record for LeafyGreen table
-  const expanded = useMemo(() => {
-    const result: Record<string, boolean> = Object.create(null);
-    data.forEach((item, idx) => {
-      if (expandedRowIndexNames.includes(item.name)) {
-        result[String(idx)] = true;
-      }
-    });
-    return result;
-  }, [data, expandedRowIndexNames]);
-
-  // Convert row-index-keyed Record back to index names for Redux
   const handleExpandedChange = useCallback(
     (newExpanded: true | Record<string, boolean>) => {
       if (newExpanded === true) {
         return;
       }
-      const names: string[] = [];
-      for (const [key, value] of Object.entries(newExpanded)) {
-        if (value && data[Number(key)]) {
-          names.push(data[Number(key)].name);
-        }
-      }
-      onExpandedChange(names);
+      onExpandedChange(newExpanded);
     },
-    [data, onExpandedChange]
+    [onExpandedChange]
   );
 
   if (!isReadyStatus(status)) {
@@ -274,7 +256,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
           : COLUMNS_FOR_DRAWER
       }
       data={data}
-      expanded={expanded}
+      expanded={expandedRows}
       onExpandedChange={handleExpandedChange}
       tableWrapperClassName={tableWrapperStyles}
       cellClassName={drawerCellStyles}
@@ -286,7 +268,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
 const mapState = ({ searchIndexes, indexesDrawer }: RootState) => ({
   status: searchIndexes.status,
   indexes: searchIndexes.indexes,
-  expandedRowIndexNames: indexesDrawer.expandedRowIndexNames,
+  expandedRows: indexesDrawer.expandedRows,
 });
 
 const mapDispatch = {

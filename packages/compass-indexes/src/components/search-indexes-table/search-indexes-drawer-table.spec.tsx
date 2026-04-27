@@ -33,7 +33,7 @@ const renderIndexList = (
         onEditIndexClick={noop}
         onCreateSearchIndexClick={noop}
         onExpandedChange={noop}
-        expandedRowIndexNames={[]}
+        expandedRows={{}}
         {...props}
       />
     </Provider>
@@ -124,7 +124,7 @@ describe('SearchIndexesDrawerTable Component', function () {
     it('renders the vector search index details when expanded', function () {
       renderIndexList({
         indexes: vectorSearchIndexes,
-        expandedRowIndexNames: ['vectorSearching123'],
+        expandedRows: { vectorSearching123: true },
       });
 
       expect(screen.getByText('Status:')).to.exist;
@@ -147,9 +147,9 @@ describe('SearchIndexesDrawerTable Component', function () {
       userEvent.click(expandButton);
 
       expect(onExpandedChangeSpy.calledOnce).to.be.true;
-      expect(onExpandedChangeSpy.firstCall.args[0]).to.deep.equal([
-        'vectorSearching123',
-      ]);
+      expect(onExpandedChangeSpy.firstCall.args[0]).to.deep.equal({
+        vectorSearching123: true,
+      });
     });
   });
 
@@ -164,7 +164,7 @@ describe('SearchIndexesDrawerTable Component', function () {
   context('expanded rows', function () {
     it('marks the expanded index row as expanded', function () {
       renderIndexList({
-        expandedRowIndexNames: ['default'],
+        expandedRows: { default: true },
       });
 
       const focusedRow = screen
@@ -178,9 +178,9 @@ describe('SearchIndexesDrawerTable Component', function () {
       expect(otherRow).to.have.attribute('data-expanded', 'false');
     });
 
-    it('does not mark any row as expanded when expandedRowIndexNames is empty', function () {
+    it('does not mark any row as expanded when expandedRows is empty', function () {
       renderIndexList({
-        expandedRowIndexNames: [],
+        expandedRows: {},
       });
 
       for (const index of indexes) {
@@ -191,9 +191,9 @@ describe('SearchIndexesDrawerTable Component', function () {
       }
     });
 
-    it('does not mark any row as expanded when expandedRowIndexNames contains a non-matching index', function () {
+    it('does not mark any row as expanded when expandedRows contains a non-matching index', function () {
       renderIndexList({
-        expandedRowIndexNames: ['nonexistent'],
+        expandedRows: { nonexistent: true },
       });
 
       for (const index of indexes) {

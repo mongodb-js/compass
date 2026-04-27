@@ -94,7 +94,7 @@ export type IndexesTableProps<T> = {
   onExpandedChange?: (expanded: ExpandedState) => void;
 };
 
-export function IndexesTable<T>({
+export function IndexesTable<T extends { id: string }>({
   id,
   ['data-testid']: dataTestId,
   columns,
@@ -132,6 +132,7 @@ export function IndexesTable<T>({
   );
   const table = useLeafyGreenTable<T>({
     data,
+    getRowId: (row) => row.id,
     columns,
     enableSortingRemoval: false,
     withPagination: false,
