@@ -493,6 +493,72 @@ describe('Base Search Index Modal', function () {
     });
   });
 
+  describe('update mode auto-embed edit restriction banner', function () {
+    const autoEmbedDefinitionString = JSON.stringify({
+      fields: [{ type: 'autoEmbed', path: 'content' }],
+    });
+
+    it('shows the restriction banner when preview flag is on and index is auto-embed', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+      const banner = screen.getByTestId('auto-embed-edit-restricted-banner');
+      expect(banner).to.be.visible;
+      expect(banner.textContent).to.include(
+        'You cannot edit an autoEmbed field'
+      );
+    });
+
+    it('does not show the restriction banner when preview flag is off', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: false } }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-restricted-banner')).to.not
+        .exist;
+    });
+
+    it('does not show the restriction banner when index is not auto-embed', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-restricted-banner')).to.not
+        .exist;
+    });
+
+    it('does not show the restriction banner in create mode', function () {
+      cleanup();
+      renderBaseSearchIndexModal(
+        {
+          mode: 'create',
+          initialIndexName: 'default',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-restricted-banner')).to.not
+        .exist;
+    });
+  });
+
   describe('when rendered and isVectorSearchSupported is false', function () {
     let onSubmitSpy: SinonSpy;
 

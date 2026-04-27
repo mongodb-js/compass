@@ -47,6 +47,7 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
+import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
 
 const bodyStyles = css({
   display: 'flex',
@@ -360,6 +361,18 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     return createSearchIndexAutocompleter({ fields });
   }, [fields]);
 
+  const showAutoEmbedEditRestrictedBanner = useMemo(() => {
+    if (mode !== 'update' || !enableAutoEmbeddingPublicPreview) {
+      return false;
+    }
+    try {
+      const latestDefinition = parseShellBSON(initialIndexDefinition);
+      return isAutoEmbedIndex({ latestDefinition });
+    } catch {
+      return false;
+    }
+  }, [mode, enableAutoEmbeddingPublicPreview, initialIndexDefinition]);
+
   const isEditingVectorSearchIndex =
     mode === 'update' && initialIndexType === 'vectorSearch';
 
@@ -522,6 +535,14 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             Note: Updating the index may slow down your device temporarily due
             to resource usage. Save indexes only with changes to avoid
             reindexing.
+          </Banner>
+        )}
+        {showAutoEmbedEditRestrictedBanner && (
+          <Banner data-testid="auto-embed-edit-restricted-banner">
+            You cannot edit an autoEmbed field (updating path, model,
+            quantization, etc.) in an existing index during Public Preview. This
+            includes adding, removing, or modifying fields. To use a different
+            autoEmbed configuration, create a new index.
           </Banner>
         )}
       </ModalBody>
