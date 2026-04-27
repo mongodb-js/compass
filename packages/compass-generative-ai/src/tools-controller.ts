@@ -25,6 +25,7 @@ export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
 type CompassContext = {
   enableTelemetry: boolean;
+  maxTimeMS?: number;
   query?: string;
   pipeline?: string;
 };
@@ -75,6 +76,7 @@ type ToolsControllerConfig = {
   logger: Logger;
   getTelemetryAnonymousId: () => string;
   enableTelemetry: boolean;
+  maxTimeMS?: number;
 };
 
 export class ToolsController {
@@ -90,15 +92,17 @@ export class ToolsController {
     logger,
     getTelemetryAnonymousId,
     enableTelemetry,
+    maxTimeMS,
   }: ToolsControllerConfig) {
     this.logger = logger;
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
       loggers: ['mcp'],
       readOnly: true,
-      // NOTE: the preference could change at runtime. As a best-effort way of
-      // keeping it in sync we'll change it every time we set the tools' context
+      // NOTE: the preferences could change at runtime. As a best-effort way of
+      // keeping them in sync we'll change them every time we set the tools' context
       telemetry: enableTelemetry ? 'enabled' : 'disabled',
+      maxTimeMS,
     });
 
     this.runner = new InMemoryRunner({
@@ -271,10 +275,11 @@ export class ToolsController {
   }
 
   setContext(context: ToolsContext): void {
-    // make sure this property is always in sync with the tools' config
+    // make sure these properties are always in sync with the tools' config
     this.runner.userConfig.telemetry = context.enableTelemetry
       ? 'enabled'
       : 'disabled';
+    this.runner.userConfig.maxTimeMS = context.maxTimeMS;
     this.context = context;
   }
 
