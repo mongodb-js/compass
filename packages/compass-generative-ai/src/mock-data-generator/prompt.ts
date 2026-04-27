@@ -15,20 +15,20 @@ Transform the provided MongoDB collection schema into a JSON response containing
 * **DO NOT** modify, shorten, or transform field names
 
 ## 2. Faker Method Selection
-* Use valid faker.js methods from version ^9.0.0
+* Use valid faker.js methods from version ^10.4.0
 * Format: \`<module>.<method>\` (e.g., \`person.firstName\`, \`date.past\`, \`number.int\`)
 * **DO NOT** invent methods that don't exist in faker.js
 * **DO NOT** use "unrecognized" unless no reasonable faker.js method exists - prefer a reasonable guess
 
 ### Available Faker.js Methods by MongoDB Type
 
-**String fields**: person.firstName, person.lastName, person.fullName, person.jobTitle, internet.email, internet.userName, internet.url, image.url, internet.domainName, internet.password, internet.displayName, internet.emoji, location.city, location.country, location.streetAddress, location.state, location.zipCode, company.name, company.catchPhrase, color.human, commerce.productName, commerce.department, finance.accountName, finance.currencyCode, phone.number, git.commitSha, string.uuid, string.alpha, string.alphanumeric, lorem.word, lorem.words, lorem.sentence, lorem.paragraph, system.fileName, system.filePath, system.mimeType, book.title, music.songName, food.dish, animal.type, vehicle.model, vehicle.manufacturer, hacker.phrase, science.chemicalElement
+**String fields**: person.firstName, person.lastName, person.fullName, person.jobTitle, internet.email, internet.username, internet.url, image.url, internet.domainName, internet.password, internet.displayName, internet.emoji, location.city, location.country, location.streetAddress, location.state, location.zipCode, company.name, company.catchPhrase, color.human, commerce.productName, commerce.department, finance.accountName, finance.currencyCode, phone.number, git.commitSha, string.uuid, string.alpha, string.alphanumeric, lorem.word, lorem.words, lorem.sentence, lorem.paragraph, system.fileName, system.filePath, system.mimeType, book.title, music.songName, food.dish, animal.type, vehicle.model, vehicle.manufacturer, hacker.phrase, science.chemicalElement
 
-**Number/Int32 fields**: number.int, number.float, number.binary, number.octal, number.hex, commerce.price, finance.amount, date.weekday, internet.port, location.latitude, location.longitude
+**Number/Int32 fields**: number.int, number.float, number.binary, number.octal, number.hex, date.weekday, internet.port, location.latitude, location.longitude
 
 **Long fields**: number.int, number.bigInt
 
-**Decimal128 fields**: number.float, finance.amount
+**Decimal128 fields**: number.float
 
 **Date/Timestamp fields**: date.recent, date.past, date.future, date.soon, date.anytime, date.birthdate, date.between
 
@@ -38,7 +38,7 @@ Transform the provided MongoDB collection schema into a JSON response containing
 
 **Binary fields**: string.hexadecimal, string.binary
 
-**Array fields**: helpers.arrayElements, helpers.arrayElement
+**Array fields**: helpers.arrayElement. **DO NOT** use \`helpers.arrayElements\` — the generator already produces array dimensions by calling the faker method N times, so \`arrayElements\` yields nested arrays instead of flat arrays of scalars.
 
 ### Example Method Selection Guidelines
 * For string fields containing email patterns → use \`internet.email\`
@@ -48,12 +48,24 @@ Transform the provided MongoDB collection schema into a JSON response containing
 * For numeric fields with ranges → use \`number.int\` or \`number.float\` with min/max arguments
 * For date fields → use \`date.past\`, \`date.future\`, or \`date.recent\` depending on context
 
+### Field-Type vs. Field-Name Conflicts (IMPORTANT)
+The declared \`type\` of the field is authoritative — the method you pick MUST produce a value of that type:
+* If \`type\` is \`Number\` / \`Int32\` / \`Long\` / \`Decimal128\`, the method must return a number, even when the field name suggests a date or timestamp (e.g. \`created\`, \`updated\`, \`createdAt\`, \`updated_at\`, \`expires_at\`, \`voided_at\`, \`effective_at\`, \`lastModified\`). These are almost always Unix epoch seconds or milliseconds stored as integers — use \`number.int\` with a plausible epoch range (e.g. \`{"min": 1600000000, "max": 1800000000}\` for seconds-since-epoch). **DO NOT** use \`date.past\`/\`date.future\`/\`date.recent\`/\`date.anytime\` for Number-typed fields — those return Date objects and break the document type.
+* If \`type\` is \`Date\` or \`Timestamp\`, use a \`date.*\` method.
+* If \`type\` is \`String\` but the name suggests a number (e.g. an ID like \`order_id: "ORD-12345"\`), still produce a string via \`string.*\` methods; do not use \`number.*\`.
+
 ## 3. Using Sample Values
-When \`sampleValues\` or \`arraySampleValues\` are provided in the schema:
-* **If sample values indicate an enum-like pattern** (limited distinct values), use \`helpers.arrayElement\` or \`helpers.arrayElements\` with the sample values
+When \`sampleValues\` are provided in the schema:
+* **If sample values indicate an enum-like pattern** (limited distinct values), use \`helpers.arrayElement\` with the sample values
 * **If sample values show a pattern** (e.g., IDs like "CAR-2024-001"), use appropriate faker methods that match the pattern (e.g., \`string.alphanumeric\` for IDs)
 * **If sample values are numeric ranges**, infer min/max from samples and use \`number.int\` with range arguments
-* **For monetary fields (prices, costs, amounts, fees, etc.)**, use \`commerce.price\` and round to two decimal places unless sample values indicate a different precision
+* **For monetary fields (prices, costs, amounts, fees, etc.)**, use \`number.float\` with \`fractionDigits: 2\` and appropriate \`min\`/\`max\` arguments. **DO NOT** use \`commerce.price\` or \`finance.amount\` for Number-typed fields — they return strings, not numbers.
+* **Match sample-value format precisely**:
+  * Country fields: ISO-3166 alpha-2 codes like \`"US"\`, \`"CA"\`, \`"GB"\` → use \`location.countryCode\`. Full names like \`"United States"\`, \`"France"\` → use \`location.country\`.
+  * State fields: 2-letter codes like \`"OR"\`, \`"CA"\` → use \`location.state\` with \`{"abbreviated": true}\`. Full names like \`"Oregon"\` → use \`location.state\` without abbreviated.
+  * Currency fields: 3-letter ISO codes like \`"USD"\`, \`"EUR"\` → use \`finance.currencyCode\`.
+  * Language fields: ISO codes like \`"en"\`, \`"fr"\` → use \`location.language\` or similar; full names like \`"English"\` → use \`helpers.arrayElement\` with plausible full-name values.
+  * Strings consisting entirely of digits like \`"7849302847561234"\` → use \`string.numeric\` (NOT \`string.alphanumeric\` — those are strictly digits). If mixed letters and digits, use \`string.alphanumeric\`.
 * **DO NOT** ignore sample values - they provide crucial context for method selection
 
 ## 4. Validation Rules
@@ -83,6 +95,7 @@ When MongoDB schema validation rules are provided:
 * **CRITICAL - DO NOT**: Serialize primitives as JSON strings (e.g., \`{"json": "3"}\` is WRONG)
 * **CRITICAL - DO NOT**: Use unescaped quotes in JSON strings - always escape inner quotes with \`\\"\`
 * **CRITICAL - DO NOT**: Include unnecessary arguments - if no sample values or constraints, use \`[]\`
+* **CRITICAL - DO NOT**: Pass a format template string to \`phone.number\` (e.g. \`"+1-###-###-####"\`). Faker v10 removed the positional format-string signature — always use \`fakerArgs: []\` for \`phone.number\`.
 
 ### JSON Escaping Examples
 * Simple object: \`{"json": "{\\"min\\": 1, \\"max\\": 10}"}\`
@@ -165,10 +178,10 @@ Documents in the collection are described by the following schema:
     "modifications[]": {
       "type": "string",
       "probability": 0.8,
-      "arraySampleValues": [
-        ["Leather Seats", "Sunroof", "Premium Sound System"],
-        ["Sport Package", "Navigation System"],
-        ["Cold Weather Package", "Heated Seats"]
+      "sampleValues": [
+        "Leather Seats", "Sunroof", "Premium Sound System",
+        "Sport Package", "Navigation System",
+        "Cold Weather Package", "Heated Seats"
       ]
     }
   }
@@ -215,10 +228,9 @@ Documents in the collection are described by the following schema:
     },
     {
       "fieldPath": "modifications[]",
-      "fakerMethod": "helpers.arrayElements",
+      "fakerMethod": "helpers.arrayElement",
       "fakerArgs": [
-        {"json": "[\\"Leather Seats\\", \\"Sunroof\\", \\"Premium Sound System\\", \\"Sport Package\\", \\"Navigation System\\", \\"Cold Weather Package\\", \\"Heated Seats\\", \\"Tinted Windows\\", \\"Alloy Wheels\\", \\"Backup Camera\\"]"},
-        {"json": "{\\"min\\": 1, \\"max\\": 4}"}
+        {"json": "[\\"Leather Seats\\", \\"Sunroof\\", \\"Premium Sound System\\", \\"Sport Package\\", \\"Navigation System\\", \\"Cold Weather Package\\", \\"Heated Seats\\", \\"Tinted Windows\\", \\"Alloy Wheels\\", \\"Backup Camera\\"]"}
       ]
     }
   ]
@@ -230,7 +242,7 @@ Documents in the collection are described by the following schema:
 Key observations:
 - \`fieldPath\` preserves exact schema field keys (e.g., "car_id", "facility.name", "modifications[]")
 - \`fakerArgs\` is always an array \`[]\` - never a single value
-- **When to include args**: \`maker\` uses \`helpers.arrayElement\` with sampleValues since they indicate an enum-like pattern; \`year\` uses \`number.int\` with min/max derived from sampleValues range; \`modifications[]\` uses \`helpers.arrayElements\` with arraySampleValues
+- **When to include args**: \`maker\` uses \`helpers.arrayElement\` with sampleValues since they indicate an enum-like pattern; \`year\` uses \`number.int\` with min/max derived from sampleValues range; \`modifications[]\` uses \`helpers.arrayElement\` with the flat list of sampleValues — the generator handles the array dimension by calling the method N times per document
 - **When to use empty args**: \`model\`, \`facility.name\`, \`facility.location\` use \`[]\` because no sample values provided and method defaults are sufficient
 - JSON-serialized arguments properly escape quotes: \`{"json": "{\\"min\\": 2020, \\"max\\": 2024}"}\`
 - Only include \`fakerArgs\` when they add value (constraints from sample values, validation rules) - otherwise prefer \`[]\`
@@ -246,11 +258,13 @@ function createMockDocument() {
         'facility.name': faker.company.name(),
         'facility.location': faker.location.city(),
         'facility.established': faker.number.int({ min: 1950, max: 2020 }),
-        'modifications': faker.helpers.arrayElements([
-            'Leather Seats', 'Sunroof', 'Premium Sound System', 'Sport Package',
-            'Navigation System', 'Cold Weather Package', 'Heated Seats',
-            'Tinted Windows', 'Alloy Wheels', 'Backup Camera'
-        ], { min: 1, max: 4 })
+        'modifications': Array.from({ length: 3 }, () =>
+            faker.helpers.arrayElement([
+                'Leather Seats', 'Sunroof', 'Premium Sound System', 'Sport Package',
+                'Navigation System', 'Cold Weather Package', 'Heated Seats',
+                'Tinted Windows', 'Alloy Wheels', 'Backup Camera'
+            ])
+        )
     }
 }
 </explanation>

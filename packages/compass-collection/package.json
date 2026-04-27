@@ -48,7 +48,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "@faker-js/faker": "^9.0.0",
+    "@faker-js/faker": "^10.4.0",
     "@mongodb-js/atlas-service": "^0.85.1",
     "@mongodb-js/compass-assistant": "^1.33.1",
     "@mongodb-js/compass-app-registry": "^9.11.1",
