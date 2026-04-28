@@ -241,6 +241,14 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable multiplexing websocket on web',
     },
   },
+  {
+    name: 'enableRerankAggregationStage',
+    stage: 'development',
+    atlasCloudFeatureFlagName: 'ATLAS_SEARCH_NATIVE_RERANK_UI',
+    description: {
+      short: 'Enable $rerank aggregation stage UI',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;
