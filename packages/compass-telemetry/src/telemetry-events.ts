@@ -3311,23 +3311,6 @@ type MockDataGeneratorScreen =
   | 'SCHEMA_CONFIRMATION'
   | 'PREVIEW_AND_DOC_COUNT'
   | 'SCRIPT_RESULT';
-type MongoDBJsonFieldType =
-  | 'String'
-  | 'Number'
-  | 'Boolean'
-  | 'Date'
-  | 'Int32'
-  | 'Decimal128'
-  | 'Long'
-  | 'ObjectId'
-  | 'RegExp'
-  | 'Symbol'
-  | 'MaxKey'
-  | 'MinKey'
-  | 'Binary'
-  | 'Code'
-  | 'Timestamp'
-  | 'DBRef';
 type MockDataScriptStep =
   | 'install fakerjs'
   | 'create js file'
@@ -3396,37 +3379,6 @@ type MockDataGeneratorDismissedEvent = CommonEvent<{
     screen: MockDataGeneratorScreen;
     gen_ai_features_enabled: boolean;
     send_sample_values_enabled: boolean;
-  };
-}>;
-
-/**
- * This event is fired when the user changes the JSON type for a MongoDB field type mapping.
- *
- * @category Mock Data Generator
- */
-type MockDataJsonTypeChangedEvent = CommonEvent<{
-  name: 'Mock Data JSON Type Changed';
-  payload: {
-    field_name: string;
-    previous_json_type: MongoDBJsonFieldType;
-    new_json_type: MongoDBJsonFieldType;
-    previous_faker_method: string;
-    new_faker_method: string;
-  };
-}>;
-
-/**
- * This event is fired when the user changes the faker method for a MongoDB field type mapping.
- *
- * @category Mock Data Generator
- */
-type MockDataFakerMethodChangedEvent = CommonEvent<{
-  name: 'Mock Data Faker Method Changed';
-  payload: {
-    field_name: string;
-    json_type: MongoDBJsonFieldType;
-    previous_faker_method: string;
-    new_faker_method: string;
   };
 }>;
 
@@ -3889,8 +3841,6 @@ export type TelemetryEvent =
   | MockDataGeneratorScreenViewedEvent
   | MockDataGeneratorScreenProceededEvent
   | MockDataGeneratorDismissedEvent
-  | MockDataJsonTypeChangedEvent
-  | MockDataFakerMethodChangedEvent
   | MockDataDocumentCountChangedEvent
   | MockDataScriptGeneratedEvent
   | MockDataScriptCopiedEvent
