@@ -2,26 +2,34 @@ import React from 'react';
 import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
-import { renderWithStore } from '../../../test/configure-store';
+import {
+  renderWithStore,
+  createExperimentProviderProps,
+} from '../../../test/configure-store';
 import StageToolbar from './';
 import {
   changeStageCollapsed,
   changeStageDisabled,
 } from '../../modules/pipeline-builder/stage-editor';
-import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
+import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 
 const renderStageToolbar = async (
   pipeline: any[] = [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
-  preferences?: ReadOnlyPreferenceAccess
+  {
+    enableSearchActivationExperiment = false,
+  }: { enableSearchActivationExperiment?: boolean } = {}
 ) => {
-  const result = await renderWithStore(
-    <StageToolbar index={0} />,
-    {
-      pipeline,
-    },
-    undefined,
-    preferences ? { preferences } : undefined
-  );
+  let ui: React.ReactElement = <StageToolbar index={0} />;
+  if (enableSearchActivationExperiment) {
+    ui = (
+      <CompassExperimentationProvider
+        {...createExperimentProviderProps({ isInVariant: true })}
+      >
+        {ui}
+      </CompassExperimentationProvider>
+    );
+  }
+  const result = await renderWithStore(ui, { pipeline });
   return result.plugin.store;
 };
 
@@ -65,51 +73,38 @@ describe('StageToolbar', function () {
     expect(screen.getByTestId('stage-option-menu-button')).to.exist;
   });
   context('View Indexes button', function () {
-    it('does not render when enableSearchActivationProgramP1 is disabled', async function () {
+    it('does not render when experiment is not in variant', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }]);
       expect(
         screen.queryByTestId('stage-toolbar-view-indexes-button')
       ).to.not.exist;
     });
     it('does not render when stage is not a search stage', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({
-        enableSearchActivationProgramP1: true,
+      await renderStageToolbar([{ $match: { _id: 1 } }], {
+        enableSearchActivationExperiment: true,
       });
-      await renderStageToolbar([{ $match: { _id: 1 } }], preferences);
       expect(
         screen.queryByTestId('stage-toolbar-view-indexes-button')
       ).to.not.exist;
     });
-    it('renders when enableSearchActivationProgramP1 is enabled and stage is $search', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({
-        enableSearchActivationProgramP1: true,
+    it('renders when experiment is in variant and stage is $search', async function () {
+      await renderStageToolbar([{ $search: { index: 'default' } }], {
+        enableSearchActivationExperiment: true,
       });
-      await renderStageToolbar(
-        [{ $search: { index: 'default' } }],
-        preferences
-      );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
-    it('renders when enableSearchActivationProgramP1 is enabled and stage is $searchMeta', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({
-        enableSearchActivationProgramP1: true,
+    it('renders when experiment is in variant and stage is $searchMeta', async function () {
+      await renderStageToolbar([{ $searchMeta: { index: 'default' } }], {
+        enableSearchActivationExperiment: true,
       });
-      await renderStageToolbar(
-        [{ $searchMeta: { index: 'default' } }],
-        preferences
-      );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
-    it('renders when enableSearchActivationProgramP1 is enabled and stage is $vectorSearch', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({
-        enableSearchActivationProgramP1: true,
+    it('renders when experiment is in variant and stage is $vectorSearch', async function () {
+      await renderStageToolbar([{ $vectorSearch: { index: 'default' } }], {
+        enableSearchActivationExperiment: true,
       });
-      await renderStageToolbar(
-        [{ $vectorSearch: { index: 'default' } }],
-        preferences
-      );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });

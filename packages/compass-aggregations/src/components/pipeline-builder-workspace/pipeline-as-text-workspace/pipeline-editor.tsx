@@ -23,13 +23,16 @@ import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  useSearchActivationProgramP1,
+} from '@mongodb-js/compass-telemetry/provider';
 import {
   useConnectionInfoRef,
   useConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
-import { usePreference } from 'compass-preferences-model/provider';
+
 import { getSearchStageInfoFromPipeline } from '../../../utils/stage';
 import type { SearchStageOperator } from '../../../utils/stage';
 import {
@@ -177,9 +180,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
   const darkMode = useDarkMode();
 
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
 
   const showRerankVersionWarning =
     pipelineText.includes('$rerank') &&

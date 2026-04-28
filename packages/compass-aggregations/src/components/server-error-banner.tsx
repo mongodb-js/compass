@@ -8,14 +8,16 @@ import {
   css,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  useSearchActivationProgramP1,
+} from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
 } from '../utils/search-stage-errors';
-import { usePreference } from 'compass-preferences-model/provider';
 
 const bannerStyles = css({
   textAlign: 'left',
@@ -41,9 +43,7 @@ export default function ServerErrorBanner({
   onEditSearchIndexClick,
   dataTestId = 'server-error-banner',
 }: ServerErrorBannerProps) {
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();

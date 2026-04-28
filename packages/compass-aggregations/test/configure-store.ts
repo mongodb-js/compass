@@ -9,6 +9,42 @@ import { CompassAggregationsPlugin } from '../src/index';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import React from 'react';
 import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
+import sinon from 'sinon';
+
+export function createExperimentProviderProps({
+  isInVariant = false,
+}: { isInVariant?: boolean } = {}) {
+  const commonAsyncStatus = {
+    asyncStatus: null,
+    error: null,
+    isLoading: false,
+    isError: false,
+    isSuccess: true,
+  };
+
+  const mockUseAssignment = sinon.stub().returns({
+    assignment: isInVariant
+      ? {
+          assignmentData: {
+            variant: ExperimentTestGroups.searchActivationProgramP1Variant,
+          },
+        }
+      : null,
+    ...commonAsyncStatus,
+  });
+
+  const mockUseTrackInSample = sinon.stub().returns(commonAsyncStatus);
+  const mockAssignExperiment = sinon.stub().resolves(null);
+  const mockGetAssignment = sinon.stub().resolves(null);
+
+  return {
+    useAssignment: mockUseAssignment,
+    useTrackInSample: mockUseTrackInSample,
+    assignExperiment: mockAssignExperiment,
+    getAssignment: mockGetAssignment,
+  };
+}
 
 export class MockAtlasAiService {
   async getAggregationFromUserInput() {

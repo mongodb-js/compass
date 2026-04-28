@@ -1,10 +1,13 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import type { Document } from 'mongodb';
-import { screen, cleanup } from '@mongodb-js/testing-library-compass';
+import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
-import { renderWithStore } from '../../../test/configure-store';
+import {
+  renderWithStore,
+  createExperimentProviderProps,
+} from '../../../test/configure-store';
 
 import { StagePreview } from './';
 import {
@@ -12,6 +15,7 @@ import {
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
 import type { ConfigureStoreOptions } from '../../stores/store';
+import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
@@ -19,9 +23,11 @@ const renderStagePreview = (
   props: Partial<ComponentProps<typeof StagePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
-  services: any = {}
+  {
+    enableSearchActivationExperiment = false,
+  }: { enableSearchActivationExperiment?: boolean } = {}
 ) => {
-  return renderWithStore(
+  let ui: React.ReactElement = (
     <StagePreview
       documents={[]}
       index={Math.max(pipeline.length - 1, 0)}
@@ -34,15 +40,21 @@ const renderStagePreview = (
       searchIndexName={null}
       serverErrorStageIdx={null}
       {...props}
-    />,
-    { pipeline, ...storeOptions },
-    undefined,
-    services
+    />
   );
+  if (enableSearchActivationExperiment) {
+    ui = (
+      <CompassExperimentationProvider
+        {...createExperimentProviderProps({ isInVariant: true })}
+      >
+        {ui}
+      </CompassExperimentationProvider>
+    );
+  }
+  return renderWithStore(ui, { pipeline, ...storeOptions });
 };
 
 describe('StagePreview', function () {
-  afterEach(cleanup);
   it('renders empty content when stage is disabled', async function () {
     await renderStagePreview({
       isDisabled: true,
@@ -143,13 +155,7 @@ describe('StagePreview', function () {
         },
         [{ $search: { index: 'test-index' } }],
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -166,13 +172,7 @@ describe('StagePreview', function () {
         },
         [{ $vectorSearch: { index: 'vector-index' } }],
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -235,38 +235,21 @@ describe('StagePreview', function () {
         },
         [{ $match: { _id: 1 } }],
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
         .exist;
     });
 
-    it('should NOT show stale results banner when feature flag is disabled', async function () {
-      await renderStagePreview(
-        {
-          shouldRenderStage: true,
-          stageOperator: '$search',
-          documents: [{ _id: 1 }],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: 'test-index',
-        },
-        [{ $search: { index: 'test-index' } }],
-        {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: false };
-            },
-          },
-        }
-      );
+    it('should NOT show stale results banner when experiment is not in variant', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [{ _id: 1 }],
+        showSearchIndexStaleResultsBanner: true,
+        searchIndexName: 'test-index',
+      });
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
         .exist;

@@ -170,18 +170,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /**
-   * Feature flag for CLOUDP-308952.
-   */
-  {
-    name: 'enableSearchActivationProgramP1',
-    stage: 'development',
-    atlasCloudFeatureFlagName: 'DATA_EXPLORER_ENABLE_SEARCH_INDEXES_MANAGEMENT',
-    description: {
-      short: 'Enable interface to view and modify search indexes',
-    },
-  },
-
-  /**
    * Feature flag for AI Assistant.
    */
   {

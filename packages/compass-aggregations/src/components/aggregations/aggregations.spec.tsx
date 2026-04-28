@@ -3,21 +3,13 @@ import { expect } from 'chai';
 
 import Aggregations from '.';
 import { renderWithStore } from '../../../test/configure-store';
-import { cleanup, screen } from '@mongodb-js/testing-library-compass';
+import { screen } from '@mongodb-js/testing-library-compass';
 
 describe('Aggregations [Component]', function () {
   beforeEach(async function () {
     await renderWithStore(
-      <Aggregations
-        showRunButton={true}
-        showExplainButton={true}
-        enableSearchActivationProgramP1={false}
-      />
+      <Aggregations showRunButton={true} showExplainButton={true} />
     );
-  });
-
-  afterEach(function () {
-    cleanup();
   });
 
   it('renders the correct root classname', function () {
