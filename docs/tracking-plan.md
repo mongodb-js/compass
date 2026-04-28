@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Wed, Apr 15, 2026
+Generated on Mon, Apr 27, 2026
 
 ## Table of Contents
 
@@ -197,8 +197,6 @@ Generated on Wed, Apr 15, 2026
 - [Mock Data Generator Screen Viewed](#event--MockDataGeneratorScreenViewedEvent)
 - [Mock Data Generator Screen Proceeded](#event--MockDataGeneratorScreenProceededEvent)
 - [Mock Data Generator Dismissed](#event--MockDataGeneratorDismissedEvent)
-- [Mock Data JSON Type Changed](#event--MockDataJsonTypeChangedEvent)
-- [Mock Data Faker Method Changed](#event--MockDataFakerMethodChangedEvent)
 - [Mock Data Document Count Changed](#event--MockDataDocumentCountChangedEvent)
 - [Mock Data Script Generated](#event--MockDataScriptGeneratedEvent)
 - [Mock Data Script Copied](#event--MockDataScriptCopiedEvent)
@@ -2319,35 +2317,6 @@ This event is fired when the user closes the mock data generator modal.
 - **screen** (required): `MockDataGeneratorScreen`
 - **gen_ai_features_enabled** (required): `boolean`
 - **send_sample_values_enabled** (required): `boolean`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--MockDataJsonTypeChangedEvent"></a>
-
-### Mock Data JSON Type Changed
-
-This event is fired when the user changes the JSON type for a MongoDB field type mapping.
-
-**Properties**:
-
-- **field_name** (required): `string`
-- **previous_json_type** (required): `MongoDBJsonFieldType`
-- **new_json_type** (required): `MongoDBJsonFieldType`
-- **previous_faker_method** (required): `string`
-- **new_faker_method** (required): `string`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--MockDataFakerMethodChangedEvent"></a>
-
-### Mock Data Faker Method Changed
-
-This event is fired when the user changes the faker method for a MongoDB field type mapping.
-
-**Properties**:
-
-- **field_name** (required): `string`
-- **json_type** (required): `MongoDBJsonFieldType`
-- **previous_faker_method** (required): `string`
-- **new_faker_method** (required): `string`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--MockDataDocumentCountChangedEvent"></a>

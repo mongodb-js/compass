@@ -79,7 +79,7 @@ export const javascriptLoader = (args: ConfigArgs, web = false) => ({
               ? cloudSupportedBrowserslistConfig
               : browserslistElectronVersion,
             useBuiltIns: 'usage',
-            corejs: { version: '3.12', proposals: true },
+            corejs: { version: '3.49', proposals: true },
           },
         ],
         require.resolve('@babel/preset-react'),

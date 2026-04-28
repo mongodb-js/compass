@@ -69,12 +69,12 @@ describe('createStageAutocompleter', function () {
       'expr:string',
       'expr:cond',
       'expr:date',
+      'expr:type',
       'expr:get',
       'expr:var',
       'expr:literal',
       'expr:text',
       'expr:regex',
-      'expr:type',
       'expr:bit',
       'field',
     ]);

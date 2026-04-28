@@ -1,7 +1,7 @@
 import { tool } from 'ai';
 import type { ToolSet } from 'ai';
 import type { Logger } from '@mongodb-js/compass-logging';
-import z from 'zod';
+import z from 'zod/v4';
 import {
   Keychain,
   TransportRunnerBase,
@@ -25,6 +25,7 @@ export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
 type CompassContext = {
   enableTelemetry: boolean;
+  maxTimeMS?: number;
   query?: string;
   pipeline?: string;
 };
@@ -75,6 +76,7 @@ type ToolsControllerConfig = {
   logger: Logger;
   getTelemetryAnonymousId: () => string;
   enableTelemetry: boolean;
+  maxTimeMS?: number;
 };
 
 export class ToolsController {
@@ -90,16 +92,17 @@ export class ToolsController {
     logger,
     getTelemetryAnonymousId,
     enableTelemetry,
+    maxTimeMS,
   }: ToolsControllerConfig) {
     this.logger = logger;
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
       loggers: ['mcp'],
       readOnly: true,
-      // NOTE: the preference could change at runtime. As a best-effort way of
-      // keeping it in sync we'll change it every time we set the tools' context
+      // NOTE: the preferences could change at runtime. As a best-effort way of
+      // keeping them in sync we'll change them every time we set the tools' context
       telemetry: enableTelemetry ? 'enabled' : 'disabled',
-      previewFeatures: ['search'],
+      maxTimeMS,
     });
 
     this.runner = new InMemoryRunner({
@@ -197,13 +200,10 @@ export class ToolsController {
           inputSchema: z.object(
             Object.fromEntries(
               Object.entries(toolBase.argsShape).map(([key, value]) => {
-                return [
-                  key,
-                  // TODO: MCP server applies transformations like toEJSON.
-                  // We should come up with a better solution for this but for now we recursively remove the transforms.
-                  // AI SDK applies transformations defined in the schema *before* sending the request to the model.
-                  removeZodTransforms(value),
-                ];
+                // TODO: MCP server applies transformations like toEJSON.
+                // We should come up with a better solution for this but for now we recursively remove the transforms.
+                // AI SDK applies transformations defined in the schema *before* sending the request to the model.
+                return [key, removeZodTransforms(value)];
               })
             )
           ),
@@ -275,10 +275,11 @@ export class ToolsController {
   }
 
   setContext(context: ToolsContext): void {
-    // make sure this property is always in sync with the tools' config
+    // make sure these properties are always in sync with the tools' config
     this.runner.userConfig.telemetry = context.enableTelemetry
       ? 'enabled'
       : 'disabled';
+    this.runner.userConfig.maxTimeMS = context.maxTimeMS;
     this.context = context;
   }
 

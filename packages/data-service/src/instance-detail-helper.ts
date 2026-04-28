@@ -324,12 +324,21 @@ export function getDatabasesByRoles(
   return [...results];
 }
 
+// From https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml#L206
+const ERROR_CODE_UNAUTHORIZED = 13;
+
 export function isNotAuthorized(err: any) {
   if (!err) {
     return false;
   }
+
+  if (err.code === ERROR_CODE_UNAUTHORIZED) {
+    return true;
+  }
+
+  // Check for message patterns
   const msg = (err as Error).message || JSON.stringify(err);
-  return new RegExp('not (authorized|allowed)').test(msg);
+  return new RegExp('not (authorized|allowed)', 'i').test(msg);
 }
 
 export function isNotSupportedPipelineStage(err: any) {

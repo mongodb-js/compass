@@ -45,9 +45,9 @@ export const MongoDBFieldTypeValues: MongoDBFieldType[] = [
 ];
 
 /**
- * Map of MongoDB types to available Faker v9 methods.
+ * Map of MongoDB types to available Faker v10 methods.
  * Not all Faker methods are included here.
- * More can be found in the Faker.js API: https://v9.fakerjs.dev/api/
+ * More can be found in the Faker.js API: https://v10.fakerjs.dev/api/
  */
 export const MONGO_TYPE_TO_FAKER_METHODS: Readonly<
   Record<MongoDBFieldType, Array<{ method: string; description?: string }>>
@@ -70,7 +70,7 @@ export const MONGO_TYPE_TO_FAKER_METHODS: Readonly<
     { method: 'internet.password', description: 'Randomly generated password' },
     { method: 'internet.url' },
     { method: 'internet.domainName' },
-    { method: 'internet.userName' },
+    { method: 'internet.username' },
     { method: 'phone.number' },
     { method: 'location.city' },
     { method: 'location.country' },

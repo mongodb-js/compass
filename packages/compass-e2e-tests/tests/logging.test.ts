@@ -37,10 +37,11 @@ describe('Logging and Telemetry integration', function () {
         );
       } finally {
         await cleanup(compass);
+        await compass.fetchApplicationLogs();
         await telemetry.stop();
       }
 
-      logs = compass.logs;
+      logs = compass.logs.structured;
       expect(logs).not.to.be.undefined;
     });
 
@@ -487,7 +488,7 @@ describe('Logging and Telemetry integration', function () {
     });
 
     it('provides logging information for uncaught exceptions', function () {
-      const uncaughtEntry = compass.logs.find(
+      const uncaughtEntry = compass.logs.structured.find(
         (entry) => entry.id === 1_001_000_002
       );
 

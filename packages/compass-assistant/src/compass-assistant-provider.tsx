@@ -5,6 +5,7 @@ import { createContext, useContext } from 'react';
 import {
   createServiceLocator,
   registerCompassPlugin,
+  type ActivateHelpers,
 } from '@mongodb-js/compass-app-registry';
 import {
   atlasAuthServiceLocator,
@@ -33,7 +34,6 @@ import {
 } from 'compass-preferences-model/provider';
 import {
   createLoggerLocator,
-  useLogger,
   type Logger,
 } from '@mongodb-js/compass-logging/provider';
 import {
@@ -43,7 +43,6 @@ import {
 import {
   telemetryLocator,
   type TrackFunction,
-  useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
 import type {
   AtlasAiService,
@@ -56,7 +55,10 @@ import {
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
 import { createOpenAI } from '@ai-sdk/openai';
-import type { ActiveConnectionInfo } from './assistant-global-state';
+import type {
+  ActiveConnectionInfo,
+  GlobalState,
+} from './assistant-global-state';
 import {
   AssistantGlobalStateProvider,
   useAssistantGlobalState,
@@ -73,6 +75,12 @@ import {
   partIsApprovalRequest,
   stopChat,
 } from './utils';
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
+import type { ThunkAction } from 'redux-thunk';
+import type { Action, AnyAction } from 'redux';
+import { connect } from 'react-redux';
+import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -245,262 +253,455 @@ function hasConnectionId(obj: unknown): obj is { connectionId: string } {
   );
 }
 
-export const AssistantProvider: React.FunctionComponent<
-  PropsWithChildren<{
+// Redux store types
+
+export type AssistantState = Record<string, never>;
+
+type AssistantExtraArgs = {
+  chat: Chat<AssistantMessage>;
+  atlasAiService: AtlasAiService;
+  toolsController: ToolsController;
+  preferences: PreferencesAccess;
+  logger: Logger;
+  track: TrackFunction;
+  lastContextPromptRef: { current: string | null };
+};
+
+export type AssistantThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+  R,
+  AssistantState,
+  AssistantExtraArgs,
+  A
+>;
+
+const reducer = (
+  state: AssistantState = {} as AssistantState
+): AssistantState => state;
+
+// Thunk action for the core send logic
+export function ensureOptInAndSendThunk(
+  _message: SendMessage,
+  options: SendOptions,
+  callback: (options: {
+    requestId: string;
+    connectionInfo?: BasicConnectionInfo;
+  }) => void,
+  globalState: GlobalState
+): AssistantThunkAction<Promise<void>> {
+  return async (_dispatch, _getState, extra) => {
+    const {
+      activeWorkspace,
+      activeConnections,
+      activeCollectionMetadata,
+      activeCollectionSubTab,
+    } = globalState;
+    const {
+      chat,
+      atlasAiService,
+      toolsController,
+      preferences,
+      logger,
+      track,
+      lastContextPromptRef,
+    } = extra;
+
+    try {
+      await atlasAiService.ensureAiFeatureAccess();
+    } catch {
+      // opt-in failed: just do nothing
+      return;
+    }
+
+    const activeConnection =
+      activeConnections.find((connInfo) => {
+        return (
+          hasConnectionId(activeWorkspace) &&
+          connInfo.id === activeWorkspace.connectionId
+        );
+      }) ?? null;
+
+    const requestId = new UUID().toString();
+    const connectionInfo = activeConnection
+      ? {
+          id: activeConnection.id,
+          name: getConnectionTitle(activeConnection),
+        }
+      : undefined;
+
+    // Call the callback to indicate that the opt-in was successful. A good
+    // place to do tracking.
+    callback({ requestId, connectionInfo });
+
+    const prefs = preferences.getPreferences();
+
+    const enableToolCalling = prefs.enableToolCalling;
+    const enableGenAIToolCalling =
+      prefs.enableGenAIToolCallingAtlasProject && prefs.enableGenAIToolCalling;
+
+    if (enableToolCalling && enableGenAIToolCalling) {
+      // Start the server once the first time both the feature flag and
+      // setting are enabled, just before sending a message so that it will be
+      // there when we call getActiveTools(). It is just some one-time setup
+      // so we don't stop it again if the setting is turned off. It would just log
+      // a lot of things every time. Main reason to lazy-start it is to avoid
+      // all those logs appearing even if the feature flag and/or setting is
+      // off.
+      await toolsController.startServer();
+    }
+
+    // Automatically deny any pending tool approval requests in the chat
+    // before sending the new message because the assistant does not allow
+    // leaving them
+    let foundToolApprovalRequests = false;
+    for (const message of chat.messages) {
+      for (const part of message.parts) {
+        if (partIsApprovalRequest(part)) {
+          foundToolApprovalRequests = true;
+          await chat.addToolApprovalResponse({
+            id: part.approval.id,
+            approved: false,
+          });
+        }
+      }
+    }
+
+    if (foundToolApprovalRequests) {
+      // Even though we await the promise above, if we immediately send
+      // the message then ai sdk will throw because we haven't dealt with the
+      // approval requests. Maybe because chat.addToolApprovalResponse() does
+      // not always return a promise?
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    }
+
+    if (chat.status === 'streaming') {
+      await stopChat(chat);
+    }
+
+    const contextPrompt = buildContextPrompt({
+      activeWorkspace,
+      activeConnection,
+      activeCollectionMetadata,
+      activeCollectionSubTab,
+      enableGenAIToolCalling: enableToolCalling && enableGenAIToolCalling,
+    });
+
+    // use just the text so we have a stable reference to compare against
+    const contextPromptText =
+      contextPrompt.parts[0].type === 'text' ? contextPrompt.parts[0].text : '';
+
+    const hasSystemContextMessage = chat.messages.some((message) => {
+      return message.metadata?.isSystemContext;
+    });
+
+    const message = _message
+      ? {
+          ..._message,
+          metadata: {
+            ..._message.metadata,
+            disableStorage: activeConnections.some(
+              (info) => info.connectionOptions.fleOptions
+            ),
+            connectionInfo,
+            requestId,
+            analyticsId: await getHashedActiveUserId(preferences, logger),
+          },
+        }
+      : undefined;
+
+    const shouldSendContextPrompt =
+      message?.metadata?.sendContext &&
+      (!lastContextPromptRef.current ||
+        lastContextPromptRef.current !== contextPromptText ||
+        !hasSystemContextMessage);
+    if (shouldSendContextPrompt) {
+      lastContextPromptRef.current = contextPromptText;
+      chat.messages = [...chat.messages, contextPrompt];
+    }
+
+    const query = globalState.currentQuery;
+    const pipeline = globalState.currentPipeline;
+    const activeTab: ActiveTabType = activeWorkspace
+      ? activeCollectionSubTab || activeWorkspace.type
+      : null;
+    setToolsContext(toolsController, {
+      enableTelemetry: prefs.trackUsageStatistics,
+      maxTimeMS: prefs.maxTimeMS,
+      activeConnection,
+      connections: activeConnections,
+      query,
+      pipeline,
+      enableToolCalling,
+      enableGenAIToolCalling,
+      activeTab,
+    });
+
+    try {
+      await chat.sendMessage(message, options);
+      track(
+        'Assistant Response Generated',
+        {
+          request_id: requestId,
+        },
+        connectionInfo
+      );
+    } catch (err) {
+      logger.log.error(
+        logger.mongoLogId(1_001_000_418),
+        'Assistant',
+        'Failed to generate response',
+        { err }
+      );
+      track(
+        'Assistant Response Failed',
+        {
+          error_name: (err as Error).name,
+          request_id: requestId,
+        },
+        connectionInfo
+      );
+      throw err;
+    }
+  };
+}
+
+// Thunk action for entry point handlers
+function handleEntryPoint<T>(
+  entryPointName: 'explain plan' | 'performance insights' | 'connection error',
+  builder: (props: T) => EntryPointMessage,
+  props: T,
+  globalState: GlobalState,
+  openDrawer: (id: string) => void
+): AssistantThunkAction<void> {
+  return (dispatch, _getState, { track }) => {
+    const { prompt, metadata } = builder(props);
+    void dispatch(
+      ensureOptInAndSendThunk(
+        {
+          text: prompt,
+          metadata: {
+            ...metadata,
+            source: entryPointName,
+            sendContext: true,
+          },
+        },
+        {},
+        ({ requestId, connectionInfo }) => {
+          openDrawer(ASSISTANT_DRAWER_ID);
+
+          track(
+            'Assistant Entry Point Used',
+            {
+              source: entryPointName,
+              request_id: requestId,
+            },
+            connectionInfo
+          );
+        },
+        globalState
+      )
+    );
+  };
+}
+
+// Individual entry point action creators for connect mapDispatchToProps
+function interpretExplainPlanThunk(
+  props: {
+    namespace: string;
+    explainPlan: string;
+    operationType: 'query' | 'aggregation';
+  },
+  globalState: GlobalState,
+  openDrawer: (id: string) => void
+): AssistantThunkAction<void> {
+  return handleEntryPoint(
+    'explain plan',
+    buildExplainPlanPrompt,
+    props,
+    globalState,
+    openDrawer
+  );
+}
+
+function interpretConnectionErrorThunk(
+  props: {
+    connectionInfo: ConnectionInfo;
+    error: Error;
+  },
+  globalState: GlobalState,
+  openDrawer: (id: string) => void
+): AssistantThunkAction<void> {
+  return handleEntryPoint(
+    'connection error',
+    buildConnectionErrorPrompt,
+    props,
+    globalState,
+    openDrawer
+  );
+}
+
+function tellMoreAboutInsightThunk(
+  props: ProactiveInsightsContext,
+  globalState: GlobalState,
+  openDrawer: (id: string) => void
+): AssistantThunkAction<void> {
+  return handleEntryPoint(
+    'performance insights',
+    buildProactiveInsightsPrompt,
+    props,
+    globalState,
+    openDrawer
+  );
+}
+
+// Activate function — creates a real Redux store with services as thunk extra args
+function activateAssistantPlugin(
+  {
+    chat: initialChat,
+    originForPrompt,
+    appNameForPrompt,
+  }: {
+    chat?: Chat<AssistantMessage>;
+    originForPrompt: string;
     appNameForPrompt: string;
-    chat: Chat<AssistantMessage>;
+    projectId?: string;
+  },
+  {
+    atlasService,
+    atlasAiService,
+    toolsController,
+    preferences,
+    logger,
+    track,
+  }: {
+    atlasService: AtlasService;
     atlasAiService: AtlasAiService;
     toolsController: ToolsController;
     preferences: PreferencesAccess;
+    logger: Logger;
+    track: TrackFunction;
+  },
+  { cleanup }: ActivateHelpers
+) {
+  const chat =
+    initialChat ??
+    createDefaultChat({
+      originForPrompt,
+      appNameForPrompt,
+      atlasService,
+      logger,
+      track,
+      getTools: () => toolsController.getActiveTools(),
+    });
+
+  const lastContextPromptRef = { current: null as string | null };
+
+  const store = createStore(
+    reducer,
+    {},
+    applyMiddleware(
+      thunk.withExtraArgument({
+        chat,
+        atlasAiService,
+        toolsController,
+        preferences,
+        logger,
+        track,
+        lastContextPromptRef,
+      })
+    )
+  );
+
+  return { store, deactivate: cleanup };
+}
+
+// Getter thunk to access chat from extra args
+function getChat(): AssistantThunkAction<Chat<AssistantMessage>> {
+  return (_dispatch, _getState, { chat }) => chat;
+}
+
+// Connected AssistantProvider component
+const AssistantProviderInner: React.FunctionComponent<
+  PropsWithChildren<{
     projectId?: string;
-  }>
-> = ({
-  chat,
-  atlasAiService,
-  toolsController,
-  preferences,
-  projectId,
-  children,
-}) => {
-  const { openDrawer } = useDrawerActions();
-  const track = useTelemetry();
-  const logger = useLogger('COMPASS-ASSISTANT');
-
-  const assistantGlobalStateRef = useCurrentValueRef(useAssistantGlobalState());
-
-  const lastContextPromptRef = useRef<string | null>(null);
-
-  const ensureOptInAndSend = useInitialValue(() => {
-    return async function (
-      _message: SendMessage,
+    getChat: () => Chat<AssistantMessage>;
+    ensureOptInAndSend: (
+      message: SendMessage,
       options: SendOptions,
-      callback: ({
-        requestId,
-        connectionInfo,
-      }: {
+      callback: (options: {
         requestId: string;
         connectionInfo?: BasicConnectionInfo;
-      }) => void
-    ) {
-      const {
-        activeWorkspace,
-        activeConnections,
-        activeCollectionMetadata,
-        activeCollectionSubTab,
-      } = assistantGlobalStateRef.current;
+      }) => void,
+      globalState: GlobalState
+    ) => Promise<void>;
+    interpretExplainPlan: (
+      props: {
+        namespace: string;
+        explainPlan: string;
+        operationType: 'query' | 'aggregation';
+      },
+      globalState: GlobalState,
+      openDrawer: (id: string) => void
+    ) => void;
+    interpretConnectionError: (
+      props: {
+        connectionInfo: ConnectionInfo;
+        error: Error;
+      },
+      globalState: GlobalState,
+      openDrawer: (id: string) => void
+    ) => void;
+    tellMoreAboutInsight: (
+      props: ProactiveInsightsContext,
+      globalState: GlobalState,
+      openDrawer: (id: string) => void
+    ) => void;
+  }>
+> = ({
+  projectId,
+  getChat: getChatAction,
+  ensureOptInAndSend,
+  interpretExplainPlan,
+  interpretConnectionError,
+  tellMoreAboutInsight,
+  children,
+}) => {
+  // chat is stable — created once in activate, never changes
+  const [chat] = React.useState(() => getChatAction());
+  const { openDrawer } = useDrawerActions();
 
-      try {
-        await atlasAiService.ensureAiFeatureAccess();
-      } catch {
-        // opt-in failed: just do nothing
-        return;
-      }
-
-      const activeConnection =
-        activeConnections.find((connInfo) => {
-          return (
-            hasConnectionId(activeWorkspace) &&
-            connInfo.id === activeWorkspace.connectionId
-          );
-        }) ?? null;
-
-      const requestId = new UUID().toString();
-      const connectionInfo = activeConnection
-        ? {
-            id: activeConnection.id,
-            name: getConnectionTitle(activeConnection),
-          }
-        : undefined;
-
-      // Call the callback to indicate that the opt-in was successful. A good
-      // place to do tracking.
-      callback({ requestId, connectionInfo });
-
-      const prefs = preferences.getPreferences();
-
-      const enableToolCalling = prefs.enableToolCalling;
-      const enableGenAIToolCalling =
-        prefs.enableGenAIToolCallingAtlasProject &&
-        prefs.enableGenAIToolCalling;
-
-      if (enableToolCalling && enableGenAIToolCalling) {
-        // Start the server once the first time both the feature flag and
-        // setting are enabled, just before sending a message so that it will be
-        // there when we call getActiveTools(). It is just some one-time setup
-        // so we don't stop it again if the setting is turned off. It would just log
-        // a lot of things every time. Main reason to lazy-start it is to avoid
-        // all those logs appearing even if the feature flag and/or setting is
-        // off.
-        await toolsController.startServer();
-      }
-
-      // Automatically deny any pending tool approval requests in the chat
-      // before sending the new message because the assistant does not allow
-      // leaving them
-      let foundToolApprovalRequests = false;
-      for (const message of chat.messages) {
-        for (const part of message.parts) {
-          if (partIsApprovalRequest(part)) {
-            foundToolApprovalRequests = true;
-            await chat.addToolApprovalResponse({
-              id: part.approval.id,
-              approved: false,
-            });
-          }
-        }
-      }
-
-      if (foundToolApprovalRequests) {
-        // Even though we await the promise above, if we immediately send
-        // the message then ai sdk will throw because we haven't dealt with the
-        // approval requests. Maybe because chat.addToolApprovalResponse() does
-        // not always return a promise?
-        await new Promise((resolve) => setTimeout(resolve, 0));
-      }
-
-      if (chat.status === 'streaming') {
-        await stopChat(chat);
-      }
-
-      const contextPrompt = buildContextPrompt({
-        activeWorkspace,
-        activeConnection,
-        activeCollectionMetadata,
-        activeCollectionSubTab,
-        enableGenAIToolCalling: enableToolCalling && enableGenAIToolCalling,
-      });
-
-      // use just the text so we have a stable reference to compare against
-      const contextPromptText =
-        contextPrompt.parts[0].type === 'text'
-          ? contextPrompt.parts[0].text
-          : '';
-
-      const hasSystemContextMessage = chat.messages.some((message) => {
-        return message.metadata?.isSystemContext;
-      });
-
-      const message = _message
-        ? {
-            ..._message,
-            metadata: {
-              ..._message.metadata,
-              disableStorage: activeConnections.some(
-                (info) => info.connectionOptions.fleOptions
-              ),
-              connectionInfo,
-              requestId,
-              analyticsId: await getHashedActiveUserId(preferences, logger),
-            },
-          }
-        : undefined;
-
-      const shouldSendContextPrompt =
-        message?.metadata?.sendContext &&
-        (!lastContextPromptRef.current ||
-          lastContextPromptRef.current !== contextPromptText ||
-          !hasSystemContextMessage);
-      if (shouldSendContextPrompt) {
-        lastContextPromptRef.current = contextPromptText;
-        chat.messages = [...chat.messages, contextPrompt];
-      }
-
-      const query = assistantGlobalStateRef.current.currentQuery;
-      const pipeline = assistantGlobalStateRef.current.currentPipeline;
-      const activeTab: ActiveTabType = activeWorkspace
-        ? activeCollectionSubTab || activeWorkspace.type
-        : null;
-      setToolsContext(toolsController, {
-        enableTelemetry: prefs.trackUsageStatistics,
-        activeConnection,
-        connections: activeConnections,
-        query,
-        pipeline,
-        enableToolCalling,
-        enableGenAIToolCalling,
-        activeTab,
-      });
-
-      try {
-        await chat.sendMessage(message, options);
-        track(
-          'Assistant Response Generated',
-          {
-            request_id: requestId,
-          },
-          connectionInfo
-        );
-      } catch (err) {
-        logger.log.error(
-          logger.mongoLogId(1_001_000_418),
-          'Assistant',
-          'Failed to generate response',
-          { err }
-        );
-        track(
-          'Assistant Response Failed',
-          {
-            error_name: (err as Error).name,
-            request_id: requestId,
-          },
-          connectionInfo
-        );
-        throw err;
-      }
-    };
-  });
-
-  const createEntryPointHandler = useInitialValue(() => {
-    return function <T>(
-      entryPointName:
-        | 'explain plan'
-        | 'performance insights'
-        | 'connection error',
-      builder: (props: T) => EntryPointMessage
-    ) {
-      return function (props: T) {
-        const { prompt, metadata } = builder(props);
-        void ensureOptInAndSend(
-          {
-            text: prompt,
-            metadata: {
-              ...metadata,
-              source: entryPointName,
-              sendContext: true,
-            },
-          },
-          {},
-          ({ requestId, connectionInfo }) => {
-            openDrawer(ASSISTANT_DRAWER_ID);
-
-            track(
-              'Assistant Entry Point Used',
-              {
-                source: entryPointName,
-                request_id: requestId,
-              },
-              connectionInfo
-            );
-          }
-        );
-      };
-    };
-  });
+  const assistantGlobalStateRef = useCurrentValueRef(useAssistantGlobalState());
+  const openDrawerRef = useCurrentValueRef(openDrawer);
 
   const assistantActionsContext = useInitialValue<AssistantActionsContextType>({
-    interpretExplainPlan: createEntryPointHandler(
-      'explain plan',
-      buildExplainPlanPrompt
-    ),
-    interpretConnectionError: createEntryPointHandler(
-      'connection error',
-      buildConnectionErrorPrompt
-    ),
-    tellMoreAboutInsight: createEntryPointHandler(
-      'performance insights',
-      buildProactiveInsightsPrompt
-    ),
-    ensureOptInAndSend,
+    interpretExplainPlan: (props) => {
+      interpretExplainPlan(
+        props,
+        assistantGlobalStateRef.current,
+        openDrawerRef.current
+      );
+    },
+    interpretConnectionError: (props) => {
+      interpretConnectionError(
+        props,
+        assistantGlobalStateRef.current,
+        openDrawerRef.current
+      );
+    },
+    tellMoreAboutInsight: (props) => {
+      tellMoreAboutInsight(
+        props,
+        assistantGlobalStateRef.current,
+        openDrawerRef.current
+      );
+    },
+    ensureOptInAndSend: async (message, options, callback) => {
+      await ensureOptInAndSend(
+        message,
+        options,
+        callback,
+        assistantGlobalStateRef.current
+      );
+    },
   });
 
   return (
@@ -514,88 +715,35 @@ export const AssistantProvider: React.FunctionComponent<
   );
 };
 
+const ConnectedAssistantProvider = connect(null, {
+  getChat,
+  ensureOptInAndSend: ensureOptInAndSendThunk,
+  interpretExplainPlan: interpretExplainPlanThunk,
+  interpretConnectionError: interpretConnectionErrorThunk,
+  tellMoreAboutInsight: tellMoreAboutInsightThunk,
+})(AssistantProviderInner);
+
 export const CompassAssistantProvider = registerCompassPlugin(
   {
     name: 'CompassAssistant',
-    component: ({
-      appNameForPrompt,
-      chat,
-      atlasAiService,
-      toolsController,
-      preferences,
-      projectId,
+    component: function CompassAssistantComponent({
       children,
+      projectId,
     }: PropsWithChildren<{
       appNameForPrompt: string;
       originForPrompt: string;
       chat?: Chat<AssistantMessage>;
-      atlasAiService?: AtlasAiService;
-      toolsController?: ToolsController;
-      preferences?: PreferencesAccess;
       projectId?: string;
-    }>) => {
-      if (!chat) {
-        throw new Error('Chat was not provided by the state');
-      }
-      if (!atlasAiService) {
-        throw new Error('atlasAiService was not provided by the state');
-      }
-      if (!toolsController) {
-        throw new Error('toolsController was not provided by the state');
-      }
-      if (!preferences) {
-        throw new Error('preferences was not provided by the state');
-      }
+    }>) {
       return (
         <AssistantGlobalStateProvider>
-          <AssistantProvider
-            appNameForPrompt={appNameForPrompt}
-            chat={chat}
-            atlasAiService={atlasAiService}
-            toolsController={toolsController}
-            preferences={preferences}
-            projectId={projectId}
-          >
+          <ConnectedAssistantProvider projectId={projectId}>
             {children}
-          </AssistantProvider>
+          </ConnectedAssistantProvider>
         </AssistantGlobalStateProvider>
       );
     },
-    activate: (
-      { chat: initialChat, originForPrompt, appNameForPrompt, projectId },
-      {
-        atlasService,
-        atlasAiService,
-        toolsController,
-        preferences,
-        logger,
-        track,
-      }
-    ) => {
-      const chat =
-        initialChat ??
-        createDefaultChat({
-          originForPrompt,
-          appNameForPrompt,
-          atlasService,
-          logger,
-          track,
-          getTools: () => toolsController.getActiveTools(),
-        });
-
-      return {
-        store: {
-          state: {
-            chat,
-            atlasAiService,
-            toolsController,
-            preferences,
-            projectId,
-          },
-        },
-        deactivate: () => {},
-      };
-    },
+    activate: activateAssistantPlugin,
   },
   {
     atlasService: atlasServiceLocator,
@@ -668,7 +816,7 @@ export function createDefaultChat({
               init
             );
           },
-        }).responses('mongodb-chat-2'),
+        }).responses(AI_MODEL_CHAT_VERSION),
       }),
     sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithApprovalResponses,
     onError: (err: Error) => {
@@ -689,6 +837,7 @@ export function setToolsContext(
   toolsController: ToolsController,
   {
     enableTelemetry,
+    maxTimeMS,
     activeConnection,
     connections,
     query,
@@ -698,6 +847,7 @@ export function setToolsContext(
     activeTab,
   }: {
     enableTelemetry: boolean;
+    maxTimeMS?: number;
     activeConnection: ActiveConnectionInfo | null;
     connections: ActiveConnectionInfo[];
     query?: string | null;
@@ -723,6 +873,7 @@ export function setToolsContext(
     toolsController.setActiveTools(toolGroups);
     toolsController.setContext({
       enableTelemetry,
+      maxTimeMS,
       connections: connections.map((connection) => {
         if (!connection.connectOptions) {
           throw new Error(
@@ -742,6 +893,7 @@ export function setToolsContext(
     toolsController.setActiveTools(new Set([]));
     toolsController.setContext({
       enableTelemetry,
+      maxTimeMS,
       connections: [],
       query: undefined,
       pipeline: undefined,

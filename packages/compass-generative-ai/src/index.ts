@@ -19,12 +19,6 @@ export const CompassGenerativeAIPlugin = registerCompassPlugin(
 );
 
 export {
-  AIExperienceEntry,
-  GenerativeAIInput,
-  createAIPlaceholderHTMLPlaceholder,
-} from './components';
-
-export {
   AtlasAiServiceInvalidInputError,
   AtlasAiServiceApiResponseParseError,
 } from './atlas-ai-errors';
@@ -35,6 +29,5 @@ export type {
   MockDataSchemaToolOutput,
 } from './atlas-ai-service';
 
-export { mockDataSchemaToolSchema } from './atlas-ai-service';
-
 export { READ_ONLY_DATABASE_TOOLS, AVAILABLE_TOOLS } from './available-tools';
+export { AI_MODEL_CHAT_VERSION, AI_MODEL_SLIM_VERSION } from './model-version';

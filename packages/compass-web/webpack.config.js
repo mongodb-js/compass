@@ -170,6 +170,7 @@ module.exports = (env, args) => {
 
         // Polyfills that are required for the driver to function in browser
         // environment
+        tls: localPolyfill('tls'),
         net: localPolyfill('net'),
         'timers/promises': require.resolve('timers-browserify'),
         timers: require.resolve('timers-browserify'),
@@ -202,7 +203,14 @@ module.exports = (env, args) => {
         'mongodb-client-encryption': localPolyfill('throwError'),
 
         'prom-client': false,
-        diagnostics_channel: false,
+        // lru-cache (bundled inside mongodb-mcp-server) calls channel() and
+        // tracingChannel() from diagnostics_channel
+        diagnostics_channel: localPolyfill('diagnostics_channel'),
+        // We want to use the cjs dist instead of esm to make sure that no dynamic
+        // import code from mcp-server ends up in compass bundle.
+        // Otherwise, this breaks COMPILE_CLIENT_BAZEL task on mms side.
+        'mongodb-mcp-server': require.resolve('mongodb-mcp-server'),
+
         // mongodb-mcp-server polyfills
         // This is only used by StreamableHttpTransport which we do not use.
         express: false,
@@ -219,10 +227,6 @@ module.exports = (env, args) => {
     externals: {
       react: ['__compassWebSharedRuntime', 'React'],
       'react-dom': ['__compassWebSharedRuntime', 'ReactDOM'],
-
-      // TODO(CLOUDP-228421): move Socket implementation from mms codebase when
-      // active work on the communication protocol is wrapped up
-      tls: ['__compassWebSharedRuntime', 'tls'],
     },
     plugins: [
       new webpack.ProvidePlugin({
@@ -348,6 +352,7 @@ module.exports = (env, args) => {
       path.resolve(__dirname, 'sandbox', 'sandbox-preferences.ts'),
       path.resolve(__dirname, 'sandbox', 'sandbox-logger-and-telemetry.ts'),
       path.resolve(__dirname, 'sandbox', 'sandbox-connection-storage.tsx'),
+      path.resolve(__dirname, 'sandbox', 'sandbox-multiplex-link.ts'),
       libraryConfig.entry.index,
     ];
   }
