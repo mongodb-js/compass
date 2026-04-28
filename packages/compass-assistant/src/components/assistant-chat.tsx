@@ -24,8 +24,10 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
 import type { ToolUIPart } from 'ai';
-import { useAssistantGlobalState } from '../assistant-global-state';
-import type { WorkspaceTab } from '@mongodb-js/workspace-info';
+import {
+  getActiveAssistantConnection,
+  useAssistantGlobalState,
+} from '../assistant-global-state';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { ToolToggle } from './tool-toggle';
 import { ToolsIntroCard } from './tools-intro-card';
@@ -45,7 +47,13 @@ const { InputBar } = LgChatInputBar;
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
-  hasNonGenuineConnections: boolean;
+  /**
+   * When provided, the chat manages a banner-style warning message about
+   * non-genuine MongoDB connections. Should only be set by exactly one
+   * `AssistantChat` instance (e.g. the drawer), so multiple consumers
+   * sharing the same chat don't fight over the message.
+   */
+  hasNonGenuineConnections?: boolean;
 }
 
 export type SendMessageOptions = {
@@ -210,16 +218,6 @@ const inputBarTextareaProps = {
   placeholder: 'Ask a question',
 };
 
-// Type guard to check if activeWorkspace has a connectionId property
-function hasConnectionId(
-  obj: WorkspaceTab | null
-): obj is WorkspaceTab & { connectionId: string } {
-  if (!obj) {
-    return false;
-  }
-  return !!(obj as WorkspaceTab & { connectionId: string }).connectionId;
-}
-
 const toolToggleContainerStyles = css({
   paddingLeft: spacing[50],
   paddingRight: spacing[50],
@@ -282,6 +280,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   }, [lastMessageId, lastMessageRole, scrollToBottom]);
 
   useEffect(() => {
+    if (hasNonGenuineConnections === undefined) {
+      // Skip — another AssistantChat instance owns the warning message.
+      return;
+    }
     const hasExistingNonGenuineWarning = chat.messages.some(
       (message) => message.id === 'non-genuine-warning'
     );
@@ -298,15 +300,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     }
   }, [hasNonGenuineConnections, chat, setMessages]);
 
-  const { activeConnections, activeWorkspace } = useAssistantGlobalState();
+  const globalState = useAssistantGlobalState();
 
-  const activeConnection =
-    activeConnections.find((connInfo) => {
-      return (
-        hasConnectionId(activeWorkspace) &&
-        connInfo.id === activeWorkspace.connectionId
-      );
-    }) ?? null;
+  const activeConnection = getActiveAssistantConnection(globalState);
 
   const shouldDisplayThinking = isAssistantThinking(status, messages);
   const toolsController = useToolsController();

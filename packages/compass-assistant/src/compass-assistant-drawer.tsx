@@ -21,6 +21,8 @@ import {
 import { useChat } from './@ai-sdk/react/use-chat';
 import type { Chat } from './@ai-sdk/react/chat-react';
 import { stopChat } from './utils';
+import { useAssistantGlobalState } from './assistant-global-state';
+import { WorkspaceName as AssistantWorkspaceName } from './plugin-tab-title';
 
 const assistantTitleStyles = css({
   display: 'flex',
@@ -60,8 +62,15 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
 
   const enableAIAssistant = usePreference('enableAIAssistant');
   const isAiFeatureEnabled = useIsAIFeatureEnabled();
+  const { activeWorkspace } = useAssistantGlobalState();
 
   if (!enableAIAssistant || !isAiFeatureEnabled) {
+    return null;
+  }
+
+  // Hide the drawer when the Assistant tab is active — the tab already
+  // renders the same chat, and showing both is redundant.
+  if (activeWorkspace?.type === AssistantWorkspaceName) {
     return null;
   }
 

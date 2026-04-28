@@ -33,6 +33,12 @@ export type DataModelingWorkspace = z.output<
   typeof DataModelingWorkspaceSchema
 >;
 
+const AssistantWorkspaceSchema = z.object({
+  type: z.literal('Assistant'),
+});
+
+export type AssistantWorkspace = z.output<typeof AssistantWorkspaceSchema>;
+
 const DatabasesWorkspaceSchema = z.object({
   type: z.literal('Databases'),
   connectionId: z.string(),
@@ -92,6 +98,7 @@ const WorkspaceTabPropsSchema = z.discriminatedUnion('type', [
   WelcomeWorkspaceSchema,
   MyQueriesWorkspaceSchema,
   DataModelingWorkspaceSchema,
+  AssistantWorkspaceSchema,
   DatabasesWorkspaceSchema,
   ServerStatsWorkspaceSchema,
   ShellWorkspaceSchema,
@@ -121,6 +128,7 @@ export type AnyWorkspace =
   | WelcomeWorkspace
   | MyQueriesWorkspace
   | DataModelingWorkspace
+  | AssistantWorkspace
   | ShellWorkspace
   | ServerStatsWorkspace
   | DatabasesWorkspace

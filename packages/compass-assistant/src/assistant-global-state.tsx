@@ -18,6 +18,12 @@ export type GlobalState = {
   currentQuery: string | null;
   currentPipeline: string | null;
   activeCollectionSubTab: CollectionSubtab | null;
+  /**
+   * The connection the user picked from the connection selector inside the
+   * Assistant workspace tab. Only consulted when the active workspace is the
+   * Assistant tab — otherwise the connection comes from the workspace itself.
+   */
+  assistantTabConnectionId: string | null;
 };
 
 const INITIAL_STATE: GlobalState = {
@@ -27,6 +33,7 @@ const INITIAL_STATE: GlobalState = {
   currentQuery: null,
   currentPipeline: null,
   activeCollectionSubTab: null,
+  assistantTabConnectionId: null,
 };
 
 const AssistantGlobalStateContext = React.createContext<GlobalState>({
@@ -79,4 +86,36 @@ export function useSyncAssistantGlobalState<T extends keyof GlobalState>(
 
 export function useAssistantGlobalState() {
   return React.useContext(AssistantGlobalStateContext);
+}
+
+/**
+ * Resolve the connection the assistant should treat as "active" for the
+ * current workspace. When viewing the Assistant tab, this is the connection
+ * the user picked from the in-tab selector; for connection-scoped workspaces
+ * it's `activeWorkspace.connectionId`; otherwise null.
+ */
+export function getActiveAssistantConnection(
+  globalState: Pick<
+    GlobalState,
+    'activeConnections' | 'activeWorkspace' | 'assistantTabConnectionId'
+  >
+): ActiveConnectionInfo | null {
+  const { activeConnections, activeWorkspace, assistantTabConnectionId } =
+    globalState;
+  let connectionId: string | null = null;
+  if (activeWorkspace?.type === 'Assistant') {
+    connectionId = assistantTabConnectionId;
+  } else if (
+    activeWorkspace &&
+    'connectionId' in activeWorkspace &&
+    typeof activeWorkspace.connectionId === 'string'
+  ) {
+    connectionId = activeWorkspace.connectionId;
+  }
+  if (!connectionId) {
+    return null;
+  }
+  return (
+    activeConnections.find((connInfo) => connInfo.id === connectionId) ?? null
+  );
 }

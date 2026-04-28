@@ -3,6 +3,7 @@ export {
   useAssistantProjectId,
 } from './compass-assistant-provider';
 export { CompassAssistantDrawer } from './compass-assistant-drawer';
+export { AssistantWorkspaceTab } from './assistant-workspace-tab';
 export {
   useAssistantActions,
   compassAssistantServiceLocator,

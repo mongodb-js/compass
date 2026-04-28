@@ -61,6 +61,7 @@ import type {
 } from './assistant-global-state';
 import {
   AssistantGlobalStateProvider,
+  getActiveAssistantConnection,
   useAssistantGlobalState,
 } from './assistant-global-state';
 import { lastAssistantMessageIsCompleteWithApprovalResponses } from 'ai';
@@ -243,16 +244,6 @@ export type CompassAssistantService = {
   getIsAssistantEnabled: () => boolean;
 };
 
-// Type guard to check if activeWorkspace has a connectionId property
-function hasConnectionId(obj: unknown): obj is { connectionId: string } {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'connectionId' in obj &&
-    typeof (obj as any).connectionId === 'string'
-  );
-}
-
 // Redux store types
 
 export type AssistantState = Record<string, never>;
@@ -312,13 +303,7 @@ export function ensureOptInAndSendThunk(
       return;
     }
 
-    const activeConnection =
-      activeConnections.find((connInfo) => {
-        return (
-          hasConnectionId(activeWorkspace) &&
-          connInfo.id === activeWorkspace.connectionId
-        );
-      }) ?? null;
+    const activeConnection = getActiveAssistantConnection(globalState);
 
     const requestId = new UUID().toString();
     const connectionInfo = activeConnection

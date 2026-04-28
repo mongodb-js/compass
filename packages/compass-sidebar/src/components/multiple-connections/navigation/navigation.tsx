@@ -11,7 +11,10 @@ import {
   useOpenWorkspace,
   useWorkspacePlugins,
 } from '@mongodb-js/compass-workspaces/provider';
-import { usePreference } from 'compass-preferences-model/provider';
+import {
+  useIsAIFeatureEnabled,
+  usePreference,
+} from 'compass-preferences-model/provider';
 import React from 'react';
 
 const navigationItem = css({
@@ -99,10 +102,19 @@ export function Navigation({
   currentLocation: string | null;
 }): React.ReactElement {
   const { hasWorkspacePlugin } = useWorkspacePlugins();
-  const { openMyQueriesWorkspace, openDataModelingWorkspace } =
-    useOpenWorkspace();
+  const {
+    openMyQueriesWorkspace,
+    openDataModelingWorkspace,
+    openAssistantWorkspace,
+  } = useOpenWorkspace();
   const isDataModelingEnabled = usePreference('enableDataModeling');
   const isMyQueriesEnabled = usePreference('enableMyQueries');
+  const isAIAssistantEnabled = usePreference('enableAIAssistant');
+  const isAIFeatureEnabled = useIsAIFeatureEnabled();
+  const showAssistantNav =
+    hasWorkspacePlugin('Assistant') &&
+    isAIAssistantEnabled &&
+    isAIFeatureEnabled;
   return (
     <div>
       {hasWorkspacePlugin('My Queries') && isMyQueriesEnabled && (
@@ -119,6 +131,14 @@ export function Navigation({
           glyph="Diagram"
           label="Data Modeling"
           isActive={currentLocation === 'Data Modeling'}
+        />
+      )}
+      {showAssistantNav && (
+        <NavigationItem
+          onClick={openAssistantWorkspace}
+          glyph="Sparkle"
+          label="MongoDB Assistant"
+          isActive={currentLocation === 'Assistant'}
         />
       )}
     </div>

@@ -97,7 +97,10 @@ import {
   type PipelineStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 import { createServiceProvider } from '@mongodb-js/compass-app-registry';
-import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
+import {
+  CompassAssistantProvider,
+  AssistantWorkspaceTab,
+} from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
 import { assertsUserDataType } from '@mongodb-js/compass-user-data';
@@ -358,6 +361,7 @@ function CompassWorkspace({
         CollectionWorkspace,
         DataModelingWorkspace,
         MyQueriesWorkspace,
+        AssistantWorkspaceTab,
       ]}
     >
       <CollectionTabsProvider
