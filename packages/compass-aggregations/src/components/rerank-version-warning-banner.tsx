@@ -25,7 +25,7 @@ const bannerButtonStyles = css({
 export const RerankVersionWarningBanner = ({
   'data-testid': dataTestId,
 }: {
-  'data-testid': string;
+  'data-testid'?: string;
 }) => {
   const { atlasMetadata } = useConnectionInfo();
   const upgradeClusterHref = atlasMetadata

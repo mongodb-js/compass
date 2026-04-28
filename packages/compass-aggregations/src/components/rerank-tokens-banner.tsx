@@ -13,7 +13,7 @@ const bannerStyles = css({
 export const RerankTokensBanner = ({
   'data-testid': dataTestId,
 }: {
-  'data-testid': string;
+  'data-testid'?: string;
 }) => {
   const enableRerank = usePreference('enableRerank');
   const [isDismissed, setIsDismissed] = usePersistedState(

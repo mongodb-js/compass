@@ -193,16 +193,26 @@ describe('PipelineEditor', function () {
 
     describe('ServerErrorBanner with search index edit link', function () {
       it('should show edit link for search index definition errors', async function () {
-        await renderPipelineEditor({
-          pipelineText: '[{ $search: { index: "test-index" } }]',
-          searchIndexName: 'test-index',
-          searchStageOperator: '$search',
-          showSearchIndexDoesNotExistBanner: false,
-          serverError: new MongoServerError({
-            message:
-              "geoWithin requires path 'location' to be indexed as 'geo'",
-          }),
-        });
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $search: { index: "test-index" } }]',
+            searchIndexName: 'test-index',
+            searchStageOperator: '$search',
+            showSearchIndexDoesNotExistBanner: false,
+            serverError: new MongoServerError({
+              message:
+                "geoWithin requires path 'location' to be indexed as 'geo'",
+            }),
+          },
+          {},
+          {
+            preferences: {
+              getPreferences() {
+                return { enableSearchActivationProgramP1: true };
+              },
+            },
+          }
+        );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
         expect(screen.getByText('Edit Search Index')).to.exist;
@@ -241,17 +251,27 @@ describe('PipelineEditor', function () {
 
       it('should call onEditSearchIndexClick when edit link is clicked', async function () {
         const onEditSearchIndexClick = sinon.spy();
-        await renderPipelineEditor({
-          pipelineText: '[{ $search: { index: "test-index" } }]',
-          searchIndexName: 'test-index',
-          searchStageOperator: '$search',
-          showSearchIndexDoesNotExistBanner: false,
-          serverError: new MongoServerError({
-            message:
-              "geoWithin requires path 'location' to be indexed as 'geo'",
-          }),
-          onEditSearchIndexClick,
-        });
+        await renderPipelineEditor(
+          {
+            pipelineText: '[{ $search: { index: "test-index" } }]',
+            searchIndexName: 'test-index',
+            searchStageOperator: '$search',
+            showSearchIndexDoesNotExistBanner: false,
+            serverError: new MongoServerError({
+              message:
+                "geoWithin requires path 'location' to be indexed as 'geo'",
+            }),
+            onEditSearchIndexClick,
+          },
+          {},
+          {
+            preferences: {
+              getPreferences() {
+                return { enableSearchActivationProgramP1: true };
+              },
+            },
+          }
+        );
 
         const editLink = screen.getByText('Edit Search Index');
         editLink.click();
