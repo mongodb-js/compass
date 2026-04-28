@@ -11,6 +11,7 @@ import {
   IconButton,
   SignalPopover,
   Button,
+  Link,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
@@ -29,6 +30,7 @@ import {
   createSearchIndex,
   openIndexesListDrawerView,
 } from '../../modules/search-indexes';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const toolbarStyles = css({
   width: '100%',
@@ -87,6 +89,10 @@ const viewIndexesButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
+const viewTokenUsageLinkStyles = css({
+  whiteSpace: 'nowrap',
+});
+
 const textStyles = css({
   flex: 1,
   whiteSpace: 'nowrap',
@@ -136,9 +142,20 @@ export function StageToolbar({
   const enableSearchActivationProgramP1 = usePreference(
     'enableSearchActivationProgramP1'
   );
+  const enableRerank = usePreference('enableRerank');
   const darkMode = useDarkMode();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
+  const { atlasMetadata } = useConnectionInfo();
+
+  const viewTokenUsageHref =
+    enableRerank && stage.stageOperator === '$rerank'
+      ? atlasMetadata
+        ? `#/clusters/atlasSearch/${encodeURIComponent(
+            atlasMetadata.clusterName
+          )}/rerank/usage`
+        : 'https://dochub.mongodb.org/core/$rerank'
+      : null;
 
   const insight = useMemo(
     () =>
@@ -169,6 +186,16 @@ export function StageToolbar({
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
         <ToggleStage index={index} />
+        {viewTokenUsageHref && (
+          <Link
+            href={viewTokenUsageHref}
+            target="_blank"
+            className={viewTokenUsageLinkStyles}
+            data-testid="stage-toolbar-view-token-usage-link"
+          >
+            View token usage
+          </Link>
+        )}
         {enableSearchActivationProgramP1 &&
           isSearchStage(stage.stageOperator) && (
             <Button

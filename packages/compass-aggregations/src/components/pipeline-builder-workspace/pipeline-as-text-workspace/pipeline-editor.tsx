@@ -12,6 +12,7 @@ import {
   cx,
   useRequiredURLSearchParams,
   useCurrentValueRef,
+  usePersistedState,
 } from '@mongodb-js/compass-components';
 import {
   createAggregationAutocompleter,
@@ -24,10 +25,7 @@ import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import {
-  useConnectionInfoRef,
-  useConnectionInfo,
-} from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { usePreference } from 'compass-preferences-model/provider';
 import { getSearchStageInfoFromPipeline } from '../../../utils/stage';
@@ -38,10 +36,8 @@ import {
   openIndexesListDrawerView,
 } from '../../../modules/search-indexes';
 import ServerErrorBanner from '../../server-error-banner';
-import {
-  isRerankVersionSupported,
-  RERANK_MIN_SERVER_VERSION,
-} from '../../../utils/search-stage-errors';
+import { isRerankVersionSupported } from '../../../utils/search-stage-errors';
+import { RerankVersionWarningBanner } from '../../rerank-version-warning-banner';
 import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
 import type { SearchIndexType } from '../../../modules/search-indexes';
 
@@ -82,11 +78,13 @@ const errorContainerStyles = css({
   marginRight: spacing[400],
 });
 
-const rerankBannerContentStyles = css({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '100%',
+const rerankTokensBannerStyles = css({
+  borderRadius: 0,
+  border: 'none',
+  marginTop: -spacing[400],
+  '&::before': {
+    display: 'none',
+  },
 });
 
 export type PipelineEditorProps = {
@@ -99,6 +97,7 @@ export type PipelineEditorProps = {
   searchIndexName: string | null;
   searchStageOperator: SearchStageOperator | null;
   showSearchIndexDoesNotExistBanner: boolean;
+  autoPreview: boolean;
   onChangePipelineText: (value: string) => void;
   onViewSearchIndexesClick: () => void;
   onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
@@ -115,6 +114,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   searchIndexName,
   searchStageOperator,
   showSearchIndexDoesNotExistBanner,
+  autoPreview,
   onChangePipelineText,
   onViewSearchIndexesClick,
   onCreateSearchIndexClick,
@@ -123,7 +123,6 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const fields = useAutocompleteFields(namespace);
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
-  const { atlasMetadata } = useConnectionInfo();
   const editorInitialValueRef = useRef<string>(pipelineText);
   const editorCurrentValueRef = useCurrentValueRef<string>(pipelineText);
 
@@ -180,8 +179,13 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const enableSearchActivationProgramP1 = usePreference(
     'enableSearchActivationProgramP1'
   );
+  const enableRerank = usePreference('enableRerank');
+
+  const [isTokensBannerDismissed, setIsTokensBannerDismissed] =
+    usePersistedState('mongodb_compass_dismissed_rerank_tokens_banner', false);
 
   const showRerankVersionWarning =
+    enableRerank &&
     pipelineText.includes('$rerank') &&
     !isRerankVersionSupported(serverVersion);
 
@@ -195,6 +199,23 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       className={cx(containerStyles, darkMode && containerDarkStyles)}
       data-testid="pipeline-as-text-editor"
     >
+      {enableRerank &&
+        pipelineText.includes('$rerank') &&
+        autoPreview &&
+        !isTokensBannerDismissed && (
+          <Banner
+            variant="info"
+            data-testid="pipeline-editor-rerank-tokens-banner"
+            className={rerankTokensBannerStyles}
+            dismissible
+            onClose={() => setIsTokensBannerDismissed(true)}
+          >
+            <strong>$rerank consumes tokens</strong>
+            <br />
+            Turn off the preview or disable the stage to avoid running $rerank
+            while editing.
+          </Banner>
+        )}
       <div className={editorContainerStyles}>
         <CodemirrorMultilineEditor
           text={pipelineText}
@@ -210,29 +231,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       </div>
       {showRerankVersionWarning && (
         <div className={errorContainerStyles}>
-          <Banner
-            variant="danger"
-            data-testid="pipeline-editor-rerank-version-warning"
-          >
-            <div className={rerankBannerContentStyles}>
-              <span>
-                Upgrade your cluster to MongoDB {RERANK_MIN_SERVER_VERSION}+ to
-                use $rerank.
-              </span>
-              {atlasMetadata && (
-                <Button
-                  size="xsmall"
-                  href={`#/clusters/edit/${encodeURIComponent(
-                    atlasMetadata.clusterName
-                  )}`}
-                  target="_blank"
-                  rightGlyph={<Icon glyph="OpenNewTab" />}
-                >
-                  Upgrade Cluster
-                </Button>
-              )}
-            </div>
-          </Banner>
+          <RerankVersionWarningBanner data-testid="pipeline-editor-rerank-version-warning" />
         </div>
       )}
       {showErrorContainer && (
@@ -267,6 +266,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
 const mapState = ({
   namespace,
+  autoPreview,
   pipelineBuilder: {
     textEditor: {
       pipeline: {
@@ -299,6 +299,7 @@ const mapState = ({
     searchIndexName,
     searchStageOperator,
     showSearchIndexDoesNotExistBanner,
+    autoPreview,
   };
 };
 

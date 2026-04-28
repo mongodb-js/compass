@@ -1,9 +1,14 @@
 import React, { useCallback } from 'react';
-import { withPreferences } from 'compass-preferences-model/provider';
+import {
+  withPreferences,
+  usePreference,
+} from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 import {
+  Badge,
+  BadgeVariant,
   Combobox,
   ComboboxOption,
   css,
@@ -25,6 +30,48 @@ const inputWidth = spacing[1400] * 3;
 const comboxboxOptionsWidth = spacing[1200] * 14;
 // left position of options popover wrt input. this aligns it with the start of input
 const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
+
+const PREVIEW_STAGES = new Set(['$rerank']);
+const START_FREE_STAGES = new Set(['$rerank']);
+
+const stageCustomContentStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[100],
+  padding: `${spacing[100]}px 0`,
+});
+
+const stageNameRowStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
+});
+
+const stageDescriptionStyles = css({
+  fontSize: '12px',
+  color: 'var(--lg-text-color-secondary, #5c6c75)',
+});
+
+const StageCustomContent = ({
+  name,
+  description,
+}: {
+  name: string;
+  description: string;
+}) => (
+  <div className={stageCustomContentStyles}>
+    <div className={stageNameRowStyles}>
+      <span>{name}</span>
+      {PREVIEW_STAGES.has(name) && (
+        <Badge variant={BadgeVariant.Blue}>Preview</Badge>
+      )}
+      {START_FREE_STAGES.has(name) && (
+        <Badge variant={BadgeVariant.Blue}>Start Free</Badge>
+      )}
+    </div>
+    <span className={stageDescriptionStyles}>{description}</span>
+  </div>
+);
 
 const comboboxStyles = css({
   width: inputWidth,
@@ -123,6 +170,11 @@ export const StageOperatorSelect = ({
     },
     [onChange, index]
   );
+  const enableRerank = usePreference('enableRerank');
+  const visibleStages = enableRerank
+    ? stages
+    : stages.filter((s) => s.name !== '$rerank');
+
   const versionIncompatibleCompass =
     !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
       serverVersion
@@ -149,21 +201,35 @@ export const StageOperatorSelect = ({
       data-testid="stage-operator-combobox"
       className={comboboxStyles}
     >
-      {stages.map((stage: Stage, index) => (
-        <ComboboxOption
-          data-testid={`combobox-option-stage-${stage.name}`}
-          key={`combobox-option-stage-${index}`}
-          value={stage.name}
-          disabled={isSearchStage(stage.name) && disableSearchStage}
-          description={getStageDescription(
-            stage,
-            sourceName,
-            serverVersion,
-            versionIncompatibleCompass,
-            pipelineIsSearchQueryable
-          )}
-        />
-      ))}
+      {visibleStages.map((stage: Stage, index) => {
+        const description = getStageDescription(
+          stage,
+          sourceName,
+          serverVersion,
+          versionIncompatibleCompass,
+          pipelineIsSearchQueryable
+        );
+        const hasBadges =
+          PREVIEW_STAGES.has(stage.name) || START_FREE_STAGES.has(stage.name);
+        return (
+          <ComboboxOption
+            data-testid={`combobox-option-stage-${stage.name}`}
+            key={`combobox-option-stage-${index}`}
+            value={stage.name}
+            disabled={isSearchStage(stage.name) && disableSearchStage}
+            {...(hasBadges
+              ? {
+                  customContent: (
+                    <StageCustomContent
+                      name={stage.name}
+                      description={description}
+                    />
+                  ),
+                }
+              : { description })}
+          />
+        );
+      })}
     </Combobox>
   );
 };

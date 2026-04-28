@@ -42,6 +42,8 @@ import {
 } from '../../utils/stage';
 import ServerErrorBanner from '../server-error-banner';
 import SearchIndexDoesNotExistBanner from '../search-index-does-not-exist-banner';
+import { isRerankVersionSupported } from '../../utils/search-stage-errors';
+import { RerankVersionWarningBanner } from '../rerank-version-warning-banner';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -134,6 +136,7 @@ export const StageEditor = ({
   const enableSearchActivationProgramP1 = usePreference(
     'enableSearchActivationProgramP1'
   );
+  const enableRerank = usePreference('enableRerank');
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
@@ -222,6 +225,13 @@ export const StageEditor = ({
           onBlur={onBlurEditor}
         />
       </div>
+      {enableRerank &&
+        stageOperator === '$rerank' &&
+        !isRerankVersionSupported(serverVersion) && (
+          <div className={bannerStyles}>
+            <RerankVersionWarningBanner data-testid="stage-editor-rerank-version-warning" />
+          </div>
+        )}
       {syntaxError && (
         <Banner
           variant="warning"

@@ -85,9 +85,15 @@ export const filterStageOperators = ({
             [env, ATLAS]
           : env,
     },
-  }).filter((op) => {
-    return disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly);
-  });
+  })
+    .filter((op) => {
+      return disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly);
+    })
+    .sort((a, b) => {
+      if (a.name === '$rerank') return -1;
+      if (b.name === '$rerank') return 1;
+      return 0;
+    });
 
   FilteredStagesCache.set(cacheKey, filteredStages);
 

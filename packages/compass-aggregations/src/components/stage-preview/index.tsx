@@ -20,7 +20,6 @@ import {
   isOutputStage,
   getSearchIndexNameFromSearchStage,
 } from '../../utils/stage';
-
 import LoadingOverlay from '../loading-overlay';
 import { AtlasStagePreview } from './atlas-stage-preview';
 import OutputStagePreivew from './output-stage-preview';
@@ -286,6 +285,8 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     isDisabled: stage.disabled,
     stageOperator: stage.stageOperator,
     shouldRenderStage,
+    serverVersion: state.serverVersion,
+    serverVersion: state.serverVersion,
     documents: stage.previewDocs,
     isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
     showSearchIndexStaleResultsBanner,

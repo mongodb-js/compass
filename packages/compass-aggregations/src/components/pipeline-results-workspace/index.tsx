@@ -15,6 +15,7 @@ import {
   showErrorDetails,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 import type { RootState } from '../../modules';
 import {
@@ -33,8 +34,8 @@ import { gotoOutResults } from '../../modules/out-results-fn';
 import {
   isRerankNotEnabledError,
   isRerankVersionSupported,
-  RERANK_MIN_SERVER_VERSION,
 } from '../../utils/search-stage-errors';
+import { RerankVersionWarningBanner } from '../rerank-version-warning-banner';
 
 const containerStyles = css({
   overflow: 'hidden',
@@ -149,6 +150,7 @@ type PipelineResultsWorkspaceProps = {
   onRetry: () => void;
   serverVersion: string;
   pipelineText: string;
+  hasRerankStage?: boolean;
 };
 
 export const PipelineResultsWorkspace: React.FunctionComponent<
@@ -168,12 +170,15 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   onCancel,
   serverVersion,
   pipelineText,
+  hasRerankStage,
 }) => {
   const { atlasMetadata } = useConnectionInfo();
+  const enableRerank = usePreference('enableRerank');
   let results: React.ReactElement | null = null;
 
   const showRerankVersionWarning =
-    pipelineText.includes('$rerank') &&
+    enableRerank &&
+    (pipelineText.includes('$rerank') || !!hasRerankStage) &&
     !isRerankVersionSupported(serverVersion);
 
   const rerankNotEnabled =
@@ -182,9 +187,6 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
     rerankNotEnabled && atlasMetadata
       ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
       : null;
-  const upgradeClusterHref = atlasMetadata
-    ? `#/clusters/edit/${encodeURIComponent(atlasMetadata.clusterName)}`
-    : null;
 
   if (isError && error && rerankNotEnabled) {
     results = (
@@ -297,28 +299,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
     <div data-testid="pipeline-results-workspace" className={containerStyles}>
       {showRerankVersionWarning && (
         <ResultsContainer>
-          <Banner
-            variant={BannerVariant.Danger}
-            data-testid="pipeline-results-rerank-version-warning"
-            className={errorBannerStyles}
-          >
-            <div className={rerankBannerContentStyles}>
-              <span>
-                Upgrade your cluster to MongoDB {RERANK_MIN_SERVER_VERSION}+ to
-                use $rerank.
-              </span>
-              {upgradeClusterHref && (
-                <Button
-                  size="xsmall"
-                  href={upgradeClusterHref}
-                  target="_blank"
-                  rightGlyph={<Icon glyph="OpenNewTab" />}
-                >
-                  Upgrade Cluster
-                </Button>
-              )}
-            </div>
-          </Banner>
+          <RerankVersionWarningBanner data-testid="pipeline-results-rerank-version-warning" />
         </ResultsContainer>
       )}
       <div className={resultsStyles}>{results}</div>
@@ -335,6 +316,7 @@ const mapState = (state: RootState) => {
       textEditor: {
         pipeline: { pipelineText },
       },
+      stageEditor: { stages },
     },
   } = state;
   const lastStage = pipeline[pipeline.length - 1];
@@ -355,6 +337,10 @@ const mapState = (state: RootState) => {
     ),
     serverVersion,
     pipelineText,
+    hasRerankStage: stages.some(
+      (s) =>
+        'stageOperator' in s && s.stageOperator === '$rerank' && !s.disabled
+    ),
   };
 };
 
