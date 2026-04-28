@@ -82,7 +82,7 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
         onEditIndex?.(index.name);
       }
     },
-    [onDropIndex, onEditIndex, index, track]
+    [context, onDropIndex, onEditIndex, index, track]
   );
 
   return (
