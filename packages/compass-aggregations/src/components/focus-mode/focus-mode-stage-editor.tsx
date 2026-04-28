@@ -1,19 +1,12 @@
 import React, { useRef } from 'react';
-import {
-  css,
-  spacing,
-  Link,
-  Banner,
-  rafraf,
-  usePersistedState,
-} from '@mongodb-js/compass-components';
+import { css, spacing, Link, rafraf } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model/provider';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
+import { RerankTokensBanner } from '../rerank-tokens-banner';
 import { PIPELINE_HELP_URI } from '../../constants';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
@@ -39,14 +32,6 @@ const editorStyles = css({
   paddingBottom: spacing[400],
 });
 
-const rerankTokensBannerStyles = css({
-  borderRadius: 0,
-  border: 'none',
-  '&::before': {
-    display: 'none',
-  },
-});
-
 export const FocusModeStageEditor = ({
   index,
   operator,
@@ -57,9 +42,6 @@ export const FocusModeStageEditor = ({
   autoPreview: boolean;
 }) => {
   const editorRef = useRef<EditorRef>(null);
-  const enableRerank = usePreference('enableRerank');
-  const [isTokensBannerDismissed, setIsTokensBannerDismissed] =
-    usePersistedState('mongodb_compass_dismissed_rerank_tokens_banner', false);
 
   if (index === -1) {
     return null;
@@ -85,23 +67,9 @@ export const FocusModeStageEditor = ({
           Open docs
         </Link>
       </div>
-      {enableRerank &&
-        operator === '$rerank' &&
-        autoPreview &&
-        !isTokensBannerDismissed && (
-          <Banner
-            variant="info"
-            data-testid="focus-mode-rerank-tokens-banner"
-            className={rerankTokensBannerStyles}
-            dismissible
-            onClose={() => setIsTokensBannerDismissed(true)}
-          >
-            <strong>$rerank consumes tokens</strong>
-            <br />
-            Turn off the preview or disable the stage to avoid running $rerank
-            while editing.
-          </Banner>
-        )}
+      {operator === '$rerank' && autoPreview && (
+        <RerankTokensBanner data-testid="focus-mode-rerank-tokens-banner" />
+      )}
       <div className={editorStyles}>
         <StageEditor editorRef={editorRef} index={index} />
       </div>

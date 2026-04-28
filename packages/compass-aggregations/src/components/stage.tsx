@@ -4,21 +4,19 @@ import { Resizable } from 're-resizable';
 
 import {
   KeylineCard,
-  Banner,
   css,
   cx,
   spacing,
   palette,
   rafraf,
-  usePersistedState,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../modules';
-import { usePreference } from 'compass-preferences-model/provider';
 
 import ResizeHandle from './resize-handle';
 import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
+import { RerankTokensBanner } from './rerank-tokens-banner';
 import StagePreview from './stage-preview';
 import { hasSyntaxError } from '../utils/stage';
 import type { EditorRef } from '@mongodb-js/compass-editor';
@@ -60,14 +58,6 @@ const stagePreviewContainerStyles = css({
 const stageEditorContainerStyles = css({
   paddingTop: spacing[200],
   paddingBottom: spacing[200],
-});
-
-const rerankTokensBannerStyles = css({
-  borderRadius: 0,
-  border: 'none',
-  '&::before': {
-    display: 'none',
-  },
 });
 
 const RESIZABLE_DIRECTIONS = {
@@ -155,9 +145,6 @@ function Stage({
 }: StageProps) {
   const editorRef = useRef<EditorRef>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const enableRerank = usePreference('enableRerank');
-  const [isTokensBannerDismissed, setIsTokensBannerDismissed] =
-    usePersistedState('mongodb_compass_dismissed_rerank_tokens_banner', false);
 
   const opacity = isEnabled ? 1 : DEFAULT_OPACITY;
 
@@ -197,23 +184,9 @@ function Stage({
             index={index}
           />
         </div>
-        {enableRerank &&
-          stageOperator === '$rerank' &&
-          isAutoPreviewing &&
-          !isTokensBannerDismissed && (
-            <Banner
-              variant="info"
-              data-testid="stage-rerank-tokens-banner"
-              className={rerankTokensBannerStyles}
-              dismissible
-              onClose={() => setIsTokensBannerDismissed(true)}
-            >
-              <strong>$rerank consumes tokens</strong>
-              <br />
-              Turn off the preview or disable the stage to avoid running $rerank
-              while editing.
-            </Banner>
-          )}
+        {stageOperator === '$rerank' && isAutoPreviewing && (
+          <RerankTokensBanner data-testid="stage-rerank-tokens-banner" />
+        )}
         {isExpanded && (
           <div style={{ opacity }} className={stageContentStyles}>
             <ResizableEditor

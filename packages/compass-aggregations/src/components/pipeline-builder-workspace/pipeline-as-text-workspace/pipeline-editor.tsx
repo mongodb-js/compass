@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import {
   css,
   WarningSummary,
-  Banner,
   Button,
   Icon,
   spacing,
@@ -12,7 +11,6 @@ import {
   cx,
   useRequiredURLSearchParams,
   useCurrentValueRef,
-  usePersistedState,
 } from '@mongodb-js/compass-components';
 import {
   createAggregationAutocompleter,
@@ -38,6 +36,7 @@ import {
 import ServerErrorBanner from '../../server-error-banner';
 import { isRerankVersionSupported } from '../../../utils/search-stage-errors';
 import { RerankVersionWarningBanner } from '../../rerank-version-warning-banner';
+import { RerankTokensBanner } from '../../rerank-tokens-banner';
 import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
 import type { SearchIndexType } from '../../../modules/search-indexes';
 
@@ -76,15 +75,6 @@ const errorContainerStyles = css({
   marginTop: 'auto',
   marginLeft: spacing[400],
   marginRight: spacing[400],
-});
-
-const rerankTokensBannerStyles = css({
-  borderRadius: 0,
-  border: 'none',
-  marginTop: -spacing[400],
-  '&::before': {
-    display: 'none',
-  },
 });
 
 export type PipelineEditorProps = {
@@ -181,9 +171,6 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   );
   const enableRerank = usePreference('enableRerank');
 
-  const [isTokensBannerDismissed, setIsTokensBannerDismissed] =
-    usePersistedState('mongodb_compass_dismissed_rerank_tokens_banner', false);
-
   const showRerankVersionWarning =
     enableRerank &&
     pipelineText.includes('$rerank') &&
@@ -199,23 +186,9 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       className={cx(containerStyles, darkMode && containerDarkStyles)}
       data-testid="pipeline-as-text-editor"
     >
-      {enableRerank &&
-        pipelineText.includes('$rerank') &&
-        autoPreview &&
-        !isTokensBannerDismissed && (
-          <Banner
-            variant="info"
-            data-testid="pipeline-editor-rerank-tokens-banner"
-            className={rerankTokensBannerStyles}
-            dismissible
-            onClose={() => setIsTokensBannerDismissed(true)}
-          >
-            <strong>$rerank consumes tokens</strong>
-            <br />
-            Turn off the preview or disable the stage to avoid running $rerank
-            while editing.
-          </Banner>
-        )}
+      {pipelineText.includes('$rerank') && autoPreview && (
+        <RerankTokensBanner data-testid="pipeline-editor-rerank-tokens-banner" />
+      )}
       <div className={editorContainerStyles}>
         <CodemirrorMultilineEditor
           text={pipelineText}
