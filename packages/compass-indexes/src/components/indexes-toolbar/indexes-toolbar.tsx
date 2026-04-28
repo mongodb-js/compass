@@ -112,6 +112,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     showInsights: preferencesShowInsights,
   } = usePreferences(['readWrite', 'enableAtlasSearchIndexes', 'showInsights']);
   const { atlasMetadata } = useConnectionInfo();
+  const track = useTelemetry();
   const showInsights = preferencesShowInsights && !errorMessage;
   const showCreateIndexButton =
     (!isReadonlyView ||
@@ -190,6 +191,11 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                   atlasMetadata,
                   namespace,
                 })}
+                onClick={() => {
+                  track('Manage Search Indexes Link Clicked', {
+                    context: 'Indexes Tab',
+                  });
+                }}
                 hideExternalIcon
                 arrowAppearance="persist"
               >
