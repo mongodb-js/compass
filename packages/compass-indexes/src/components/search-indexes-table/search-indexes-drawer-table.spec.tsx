@@ -211,12 +211,8 @@ describe('SearchIndexesDrawerTable Component', function () {
         expandedRows: { default: true },
       });
 
-      const focusedRow = screen
-        .getByText('default')
-        .closest('tr') as HTMLTableRowElement;
-      const otherRow = screen
-        .getByText('another')
-        .closest('tr') as HTMLTableRowElement;
+      const focusedRow = screen.getByTestId('search-indexes-row-default');
+      const otherRow = screen.getByTestId('search-indexes-row-another');
 
       expect(focusedRow).to.have.attribute('data-expanded', 'true');
       expect(otherRow).to.have.attribute('data-expanded', 'false');
