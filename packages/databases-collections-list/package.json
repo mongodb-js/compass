@@ -32,8 +32,8 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "tsc -p tsconfig-build.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "compile": "tsc-compass -p tsconfig-build.json",
+    "typecheck": "tsc-compass -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -74,7 +74,6 @@
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
-    "sinon": "^9.2.3",
-    "typescript": "^5.9.3"
+    "sinon": "^9.2.3"
   }
 }

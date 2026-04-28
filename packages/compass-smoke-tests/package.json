@@ -20,7 +20,7 @@
   "license": "SSPL",
   "scripts": {
     "start": "ts-node src/cli.ts",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc-compass -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -40,7 +40,6 @@
     "depcheck": "^1.4.1",
     "hadron-build": "^25.9.6",
     "lodash": "^4.18.1",
-    "typescript": "^5.9.3",
     "yargs": "^17.7.2"
   }
 }

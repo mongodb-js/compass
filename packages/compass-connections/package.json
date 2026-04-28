@@ -32,7 +32,7 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "tsc -p tsconfig-build.json",
+    "compile": "tsc-compass -p tsconfig-build.json",
     "precompile": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\" || true",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
@@ -47,7 +47,7 @@
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc-compass -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@mongodb-js/compass-app-registry": "^9.11.1",

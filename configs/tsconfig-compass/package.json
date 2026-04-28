@@ -3,18 +3,19 @@
   "version": "1.3.0",
   "description": "Shared Compass Typescript configuration",
   "license": "SSPL",
+  "bin": {
+    "tsc-compass": "bin/tsc.js"
+  },
   "files": [
     "tsconfig.common.json",
     "tsconfig.build.json"
   ],
-  "peerDependencies": {
-    "typescript": "^5.9.3"
-  },
   "devDependencies": {
     "@mongodb-js/prettier-config-compass": "^1.2.9"
   },
   "dependencies": {
-    "@mongodb-js/tsconfig-devtools": "^1.1.1"
+    "@mongodb-js/tsconfig-devtools": "^1.1.1",
+    "typescript": "^5.9.3"
   },
   "scripts": {
     "check": "npm run lint",

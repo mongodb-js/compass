@@ -13,10 +13,10 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "compile": "tsc -p tsconfig-build.json",
+    "compile": "tsc-compass -p tsconfig-build.json",
     "test": "mocha",
     "test-electron": "xvfb-maybe electron-mocha --no-sandbox",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc-compass -p tsconfig.json --noEmit",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
     "eslint": "eslint-compass",
@@ -57,7 +57,6 @@
     "electron-mocha": "^12.2.0",
     "mocha": "^10.2.0",
     "react-dom": "^17.0.2",
-    "typescript": "^5.9.3",
     "xvfb-maybe": "^0.2.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",

@@ -34,9 +34,9 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "bootstrap": "npm run compile",
-    "compile": "tsc -p tsconfig-build.json",
+    "compile": "tsc-compass -p tsconfig-build.json",
     "start": "npm run webpack serve -- --mode development",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc-compass -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -102,7 +102,6 @@
     "nyc": "^15.1.0",
     "p-queue": "^7.4.1",
     "sinon": "^9.2.3",
-    "typescript": "^5.9.3",
     "xvfb-maybe": "^0.2.1"
   },
   "is_compass_plugin": true

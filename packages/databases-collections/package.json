@@ -27,8 +27,8 @@
   },
   "scripts": {
     "bootstrap": "npm run compile",
-    "compile": "tsc -p tsconfig-build.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "compile": "tsc-compass -p tsconfig-build.json",
+    "typecheck": "tsc-compass -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -53,8 +53,7 @@
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",
-    "sinon": "^9.2.3",
-    "typescript": "^5.9.3"
+    "sinon": "^9.2.3"
   },
   "dependencies": {
     "@mongodb-js/compass-app-registry": "^9.11.1",

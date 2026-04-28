@@ -32,9 +32,9 @@
   "scripts": {
     "bootstrap": "npm run compile",
     "prepublishOnly": "npm run compile && compass-scripts check-exports-exist",
-    "compile": "tsc -p tsconfig-build.json",
+    "compile": "tsc-compass -p tsconfig-build.json",
     "postcompile": "gen-esm-wrapper . ./dist/.esm-wrapper.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc-compass -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -51,7 +51,6 @@
     "@types/html-webpack-plugin": "^3.2.9",
     "@types/webpack-bundle-analyzer": "^4.7.0",
     "depcheck": "^1.4.1",
-    "typescript": "^5.9.3",
     "whatwg-url": "14.0.0"
   },
   "dependencies": {

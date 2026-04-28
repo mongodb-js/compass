@@ -30,8 +30,8 @@
   },
   "types": "./dist/index.d.ts",
   "scripts": {
-    "compile": "tsc -p tsconfig-build.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "compile": "tsc-compass -p tsconfig-build.json",
+    "typecheck": "tsc-compass -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
     "prettier": "prettier-compass",
     "lint": "npm run eslint . && npm run prettier -- --check .",
@@ -55,8 +55,7 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0",
-    "nyc": "^15.1.0",
-    "typescript": "^5.9.3"
+    "nyc": "^15.1.0"
   },
   "dependencies": {
     "@testing-library/react": "^12.1.5",
