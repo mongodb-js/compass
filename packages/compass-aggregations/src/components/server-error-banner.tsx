@@ -11,6 +11,7 @@ import {
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
@@ -40,6 +41,9 @@ export default function ServerErrorBanner({
   onEditSearchIndexClick,
   dataTestId = 'server-error-banner',
 }: ServerErrorBannerProps) {
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
@@ -75,7 +79,8 @@ export default function ServerErrorBanner({
       ) : (
         message
       )}
-      {searchIndexName &&
+      {enableSearchActivationProgramP1 &&
+        searchIndexName &&
         isSearchIndexDefinitionError(message) &&
         onEditSearchIndexClick && (
           <>

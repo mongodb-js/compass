@@ -31,9 +31,6 @@ const comboxboxOptionsWidth = spacing[1200] * 14;
 // left position of options popover wrt input. this aligns it with the start of input
 const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
 
-const PREVIEW_STAGES = new Set(['$rerank']);
-const START_FREE_STAGES = new Set(['$rerank']);
-
 const stageCustomContentStyles = css({
   display: 'flex',
   flexDirection: 'column',
@@ -62,10 +59,8 @@ const StageCustomContent = ({
   <div className={stageCustomContentStyles}>
     <div className={stageNameRowStyles}>
       <span>{name}</span>
-      {PREVIEW_STAGES.has(name) && (
-        <Badge variant={BadgeVariant.Blue}>Preview</Badge>
-      )}
-      {START_FREE_STAGES.has(name) && (
+      {name === '$rerank' && <Badge variant={BadgeVariant.Blue}>Preview</Badge>}
+      {name === '$rerank' && (
         <Badge variant={BadgeVariant.Blue}>Start Free</Badge>
       )}
     </div>
@@ -172,7 +167,9 @@ export const StageOperatorSelect = ({
   );
   const enableRerank = usePreference('enableRerank');
   const visibleStages = enableRerank
-    ? stages
+    ? [...stages].sort((a, b) =>
+        a.name === '$rerank' ? -1 : b.name === '$rerank' ? 1 : 0
+      )
     : stages.filter((s) => s.name !== '$rerank');
 
   const versionIncompatibleCompass =
@@ -209,8 +206,7 @@ export const StageOperatorSelect = ({
           versionIncompatibleCompass,
           pipelineIsSearchQueryable
         );
-        const hasBadges =
-          PREVIEW_STAGES.has(stage.name) || START_FREE_STAGES.has(stage.name);
+        const hasBadges = stage.name === '$rerank';
         return (
           <ComboboxOption
             data-testid={`combobox-option-stage-${stage.name}`}

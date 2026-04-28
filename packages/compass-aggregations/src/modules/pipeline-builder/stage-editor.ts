@@ -533,7 +533,7 @@ export const changeStageValue = (
 };
 
 const replaceOperatorSnippetTokens = (str: string): string => {
-  const regex = /\${[0-9]+:?([a-z0-9.()\-]+)?}/gi;
+  const regex = /\${[0-9]+:?([a-z0-9.()-]+)?}/gi;
   return str.replace(regex, function (_match, replaceWith) {
     return replaceWith ?? '';
   });
