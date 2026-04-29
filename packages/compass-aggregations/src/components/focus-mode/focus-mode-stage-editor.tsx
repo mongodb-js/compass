@@ -88,7 +88,7 @@ const mapState = ({
   return {
     index: stageIndex,
     operator: currentStage?.stageOperator,
-    autoPreview,
+    autoPreview: autoPreview ?? false,
   };
 };
 

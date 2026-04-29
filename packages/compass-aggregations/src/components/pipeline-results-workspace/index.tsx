@@ -150,7 +150,7 @@ type PipelineResultsWorkspaceProps = {
   onRetry: () => void;
   serverVersion: string;
   pipelineText: string;
-  hasRerankStage?: boolean;
+  hasRerankStage: boolean;
 };
 
 export const PipelineResultsWorkspace: React.FunctionComponent<
@@ -178,7 +178,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
 
   const showRerankVersionWarning =
     enableRerank &&
-    (pipelineText.includes('$rerank') || !!hasRerankStage) &&
+    (pipelineText.includes('$rerank') || hasRerankStage) &&
     !isRerankVersionSupported(serverVersion);
 
   const rerankNotEnabled =
@@ -338,8 +338,7 @@ const mapState = (state: RootState) => {
     serverVersion,
     pipelineText,
     hasRerankStage: stages.some(
-      (s) =>
-        'stageOperator' in s && s.stageOperator === '$rerank' && !s.disabled
+      (s) => s.type === 'stage' && s.stageOperator === '$rerank' && !s.disabled
     ),
   };
 };

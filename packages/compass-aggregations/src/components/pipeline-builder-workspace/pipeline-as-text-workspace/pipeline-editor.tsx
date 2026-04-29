@@ -272,7 +272,7 @@ const mapState = ({
     searchIndexName,
     searchStageOperator,
     showSearchIndexDoesNotExistBanner,
-    autoPreview,
+    autoPreview: autoPreview ?? false,
   };
 };
 
