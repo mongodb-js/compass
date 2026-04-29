@@ -95,14 +95,15 @@ function Accordion({
 }: React.PropsWithChildren<AccordionProps>): React.ReactElement {
   const darkMode = useDarkMode();
   const [localOpen, setLocalOpen] = useState(_open ?? defaultOpen);
+  const openRef = useCurrentValueRef(
+    typeof _open !== 'undefined' ? _open : localOpen
+  );
   const setOpenRef = useCurrentValueRef(_setOpen);
   const onOpenChange = useCallback(() => {
-    setLocalOpen((prevValue) => {
-      const newValue = !prevValue;
-      setOpenRef.current?.(newValue);
-      return newValue;
-    });
-  }, [setOpenRef]);
+    const newValue = !openRef.current;
+    setLocalOpen(newValue);
+    setOpenRef.current?.(newValue);
+  }, [setOpenRef, openRef]);
   const regionId = useId();
   const labelId = useId();
   const open = typeof _open !== 'undefined' ? _open : localOpen;

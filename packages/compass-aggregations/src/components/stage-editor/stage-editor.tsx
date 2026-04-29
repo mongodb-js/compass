@@ -97,7 +97,7 @@ type StageEditorProps = {
   showSearchIndexDoesNotExistBanner: boolean;
   className?: string;
   onChange: (index: number, value: string) => void;
-  onViewSearchIndexesClick: () => void;
+  onViewSearchIndexesClick: (indexName?: string) => void;
   onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
   onEditSearchIndexClick: (indexName: string) => void;
   editorRef?: React.Ref<EditorRef>;

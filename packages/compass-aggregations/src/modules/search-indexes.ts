@@ -201,12 +201,13 @@ export const createSearchIndex = (): PipelineBuilderThunkAction<void> => {
   };
 };
 
-export const openIndexesListDrawerView =
-  (): PipelineBuilderThunkAction<void> => {
-    return (_dispatch, _getState, { localAppRegistry }) => {
-      localAppRegistry.emit('open-indexes-list-drawer-view');
-    };
+export const openIndexesListDrawerView = (
+  indexName?: string
+): PipelineBuilderThunkAction<void> => {
+  return (_dispatch, _getState, { localAppRegistry }) => {
+    localAppRegistry.emit('open-indexes-list-drawer-view', indexName);
   };
+};
 
 export const openEditSearchIndexDrawerView = (
   indexName: string
