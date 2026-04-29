@@ -155,6 +155,7 @@ export const SearchIndexesTable: React.FunctionComponent<
     (index: SearchIndex, isVectorSearchIndex: boolean) => (
       <SearchIndexActions
         index={index}
+        context="Indexes Tab"
         onDropIndex={onDropIndexClick}
         onEditIndex={onEditIndexClick}
         onRunAggregateIndex={(name: string) => {

@@ -220,6 +220,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
       return (
         <SearchIndexActions
           index={index}
+          context="Search Indexes Drawer Table"
           onDropIndex={onDropIndexClick}
           onEditIndex={onEditIndexClick}
         />

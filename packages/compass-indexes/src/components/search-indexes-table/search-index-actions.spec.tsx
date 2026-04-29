@@ -27,6 +27,7 @@ describe('SearchIndexActions Component', function () {
     render(
       <SearchIndexActions
         index={{ name: 'artist_id_index' } as SearchIndex}
+        context="Indexes Tab"
         onDropIndex={onDropSpy}
         onEditIndex={onEditSpy}
         onRunAggregateIndex={onRunAggregateIndexSpy}
