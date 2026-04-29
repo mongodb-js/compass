@@ -3435,6 +3435,22 @@ type AtlasSearchIndexesForViewLinkClickedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when a user clicks the "Manage your search indexes" link
+ * in the Indexes toolbar to navigate to Atlas Search.
+ *
+ * @category Indexes
+ */
+type ManageSearchIndexesLinkClickedEvent = CommonEvent<{
+  name: 'Manage Search Indexes Link Clicked';
+  payload: {
+    /**
+     * The context/screen from which the link was clicked.
+     */
+    context: 'Indexes Tab';
+  };
+}>;
+
+/**
  * This event is fired when a user clicks the button to create a search index for a view.
  *
  * @category Indexes
@@ -3857,4 +3873,5 @@ export type TelemetryEvent =
   | SearchIndexCreateCancelledEvent
   | SearchIndexEditSubmittedEvent
   | SearchIndexEditCancelledEvent
+  | ManageSearchIndexesLinkClickedEvent
   | SearchIndexStatusDetailsLinkClickedEvent;
