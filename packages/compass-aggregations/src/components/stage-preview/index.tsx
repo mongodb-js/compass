@@ -285,7 +285,6 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     isDisabled: stage.disabled,
     stageOperator: stage.stageOperator,
     shouldRenderStage,
-    serverVersion: state.serverVersion,
     documents: stage.previewDocs,
     isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
     showSearchIndexStaleResultsBanner,
