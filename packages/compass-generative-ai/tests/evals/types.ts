@@ -289,8 +289,7 @@ export const ShortPhraseStringCriterion: EvalCriterion = {
  * MongoDB rejects the insert with "Longitude/latitude is out of bounds".
  * Accepts `location.latitude` (always within `[-90, 90]`, valid for both
  * slots) and `number.float` (the prompt instructs pairing this with
- * `{min: -90, max: 90}` args; arg correctness is exercised by the runnable
- * scorer, not this method-shape criterion).
+ * `{min: -90, max: 90}` args.
  */
 const GEO_COORDINATE_METHODS = new Set<string>([
   'location.latitude',
