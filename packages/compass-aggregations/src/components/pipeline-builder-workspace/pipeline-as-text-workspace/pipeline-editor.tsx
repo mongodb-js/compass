@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import {
   css,
   WarningSummary,
-  Button,
-  Icon,
   spacing,
   palette,
   useDarkMode,

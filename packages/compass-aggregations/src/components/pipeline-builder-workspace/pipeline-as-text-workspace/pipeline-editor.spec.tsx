@@ -25,6 +25,7 @@ const renderPipelineEditor = (
       searchIndexName={null}
       searchStageOperator={null}
       showSearchIndexDoesNotExistBanner={false}
+      autoPreview={false}
       onChangePipelineText={() => {}}
       onViewSearchIndexesClick={() => {}}
       onCreateSearchIndexClick={() => {}}
@@ -281,19 +282,78 @@ describe('PipelineEditor', function () {
       });
     });
 
+    describe('$rerank tokens banner', function () {
+      afterEach(function () {
+        localStorage.removeItem(
+          'mongodb_compass_dismissed_rerank_tokens_banner'
+        );
+      });
+
+      it('shows tokens banner when pipeline has $rerank and autoPreview is true', async function () {
+        await renderPipelineEditor(
+          { pipelineText: '[{ $rerank: {} }]', autoPreview: true },
+          {},
+          {
+            preferences: {
+              getPreferences() {
+                return { enableRerank: true };
+              },
+            },
+          }
+        );
+        expect(screen.getByTestId('pipeline-editor-rerank-tokens-banner')).to
+          .exist;
+      });
+
+      it('does not show tokens banner when autoPreview is false', async function () {
+        await renderPipelineEditor(
+          { pipelineText: '[{ $rerank: {} }]', autoPreview: false },
+          {},
+          {
+            preferences: {
+              getPreferences() {
+                return { enableRerank: true };
+              },
+            },
+          }
+        );
+        expect(screen.queryByTestId('pipeline-editor-rerank-tokens-banner')).to
+          .not.exist;
+      });
+    });
+
     describe('$rerank version warning', function () {
+      const rerankPreferences = {
+        preferences: {
+          getPreferences() {
+            return { enableRerank: true };
+          },
+        },
+      };
+
       it('should show warning when server < 8.3 and pipeline has $rerank', async function () {
-        await renderPipelineEditor({
-          serverVersion: '8.0.0',
-          pipelineText: '[{ $rerank: {} }]',
-        });
+        await renderPipelineEditor(
+          { serverVersion: '8.0.0', pipelineText: '[{ $rerank: {} }]' },
+          {},
+          rerankPreferences
+        );
         expect(screen.getByTestId('pipeline-editor-rerank-version-warning')).to
           .exist;
       });
 
       it('should not show warning when server >= 8.3', async function () {
+        await renderPipelineEditor(
+          { serverVersion: '8.3.0', pipelineText: '[{ $rerank: {} }]' },
+          {},
+          rerankPreferences
+        );
+        expect(screen.queryByTestId('pipeline-editor-rerank-version-warning'))
+          .to.not.exist;
+      });
+
+      it('should not show warning when enableRerank is false', async function () {
         await renderPipelineEditor({
-          serverVersion: '8.3.0',
+          serverVersion: '8.0.0',
           pipelineText: '[{ $rerank: {} }]',
         });
         expect(screen.queryByTestId('pipeline-editor-rerank-version-warning'))

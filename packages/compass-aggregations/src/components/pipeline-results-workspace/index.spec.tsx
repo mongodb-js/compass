@@ -7,8 +7,17 @@ import { spy } from 'sinon';
 import { renderWithStore } from '../../../test/configure-store';
 import { PipelineResultsWorkspace } from './index';
 
+const rerankPreferences = {
+  preferences: {
+    getPreferences() {
+      return { enableRerank: true };
+    },
+  },
+};
+
 const renderPipelineResultsWorkspace = (
-  props: Partial<ComponentProps<typeof PipelineResultsWorkspace>> = {}
+  props: Partial<ComponentProps<typeof PipelineResultsWorkspace>> = {},
+  services: any = {}
 ) => {
   return renderWithStore(
     <PipelineResultsWorkspace
@@ -23,8 +32,12 @@ const renderPipelineResultsWorkspace = (
       resultsViewType={'document'}
       serverVersion="8.0.0"
       pipelineText="[{$match: {}}]"
+      hasRerankStage={false}
       {...props}
-    />
+    />,
+    undefined,
+    undefined,
+    services
   );
 };
 
@@ -99,17 +112,26 @@ describe('PipelineResultsWorkspace', function () {
   });
 
   it('renders version warning when server < 8.3 and pipeline has $rerank', async function () {
-    await renderPipelineResultsWorkspace({
-      serverVersion: '8.0.0',
-      pipelineText: '[{ $rerank: {} }]',
-    });
+    await renderPipelineResultsWorkspace(
+      { serverVersion: '8.0.0', pipelineText: '[{ $rerank: {} }]' },
+      rerankPreferences
+    );
     expect(screen.getByTestId('pipeline-results-rerank-version-warning')).to
       .exist;
   });
 
   it('does not render version warning when server >= 8.3', async function () {
+    await renderPipelineResultsWorkspace(
+      { serverVersion: '8.3.0', pipelineText: '[{ $rerank: {} }]' },
+      rerankPreferences
+    );
+    expect(screen.queryByTestId('pipeline-results-rerank-version-warning')).to
+      .not.exist;
+  });
+
+  it('does not render version warning when enableRerank is false', async function () {
     await renderPipelineResultsWorkspace({
-      serverVersion: '8.3.0',
+      serverVersion: '8.0.0',
       pipelineText: '[{ $rerank: {} }]',
     });
     expect(screen.queryByTestId('pipeline-results-rerank-version-warning')).to

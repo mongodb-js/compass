@@ -64,6 +64,36 @@ describe('StageToolbar', function () {
     await renderStageToolbar();
     expect(screen.getByTestId('stage-option-menu-button')).to.exist;
   });
+  context('View token usage link', function () {
+    it('does not render when enableRerank is false', async function () {
+      await renderStageToolbar([{ $rerank: {} }]);
+      expect(
+        screen.queryByTestId('stage-toolbar-view-token-usage-link')
+      ).to.not.exist;
+    });
+
+    it('does not render when stage is not $rerank', async function () {
+      const preferences = new ReadOnlyPreferenceAccess({
+        enableRerank: true,
+      });
+      await renderStageToolbar([{ $match: { _id: 1 } }], preferences);
+      expect(
+        screen.queryByTestId('stage-toolbar-view-token-usage-link')
+      ).to.not.exist;
+    });
+
+    it('renders when enableRerank is true and stage is $rerank', async function () {
+      const preferences = new ReadOnlyPreferenceAccess({
+        enableRerank: true,
+      });
+      await renderStageToolbar([{ $rerank: {} }], preferences);
+      expect(
+        screen.getByTestId('stage-toolbar-view-token-usage-link')
+      ).to.exist;
+      expect(screen.getByText('View token usage')).to.exist;
+    });
+  });
+
   context('View Indexes button', function () {
     it('does not render when enableSearchActivationProgramP1 is disabled', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }]);
