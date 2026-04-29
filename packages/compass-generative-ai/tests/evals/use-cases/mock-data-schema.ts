@@ -2216,7 +2216,6 @@ const airbnbGeoJsonCase: MockDataGeneratorCaseConfig = {
     'address.location.coordinates[]': {
       type: 'Number',
       probability: 1,
-      sampleValues: [-8.75383, 41.3596, 151.21346, -33.87603, -73.94472],
     },
     'address.location.is_location_exact': {
       type: 'Boolean',
