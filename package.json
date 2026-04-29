@@ -67,18 +67,27 @@
   },
   "//": "See depcheck for why we have some of these dependencies at the root of the monorepo",
   "devDependencies": {
+    "@mongodb-js/diagramming": "^2.3.3",
+    "@mongodb-js/eslint-config-devtools": "^0.11.5",
     "@mongodb-js/monorepo-tools": "^1.4.8",
     "@mongodb-js/sbom-tools": "^0.10.11",
     "@testing-library/dom": "^8.20.1",
+    "ag-grid-react": "^20.2.0",
+    "braintrust": "^2.2.2",
+    "chai-enzyme": "^1.0.0-beta.1",
+    "express": "^4.22.1",
     "husky": "^8.0.3",
     "js-yaml": "^4.1.1",
     "lerna": "^7.1.5",
     "lodash": "^4.18.1",
-    "node-gyp": "^10.2.0"
+    "node-gyp": "^10.2.0",
+    "react-leaflet": "^2.4.0",
+    "react-leaflet-draw": "^0.19.0",
+    "reflux": "^0.4.1"
   },
   "engines": {
     "node": ">=22.21.1",
-    "npm": ">=10.2.4"
+    "npm": ">=11.13.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
@@ -90,14 +99,6 @@
     "scripts"
   ],
   "overrides": {
-    "braintrust": {
-      "esbuild": "0.26.0"
-    },
-    "@types/react": "^17.0.83",
-    "@types/react-dom": "^17.0.25",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "qs": "^6.14.1",
     "@mongodb-js/eslint-config-devtools": {
       "@typescript-eslint/eslint-plugin": "^8.58.0",
       "@typescript-eslint/parser": "^8.58.0",
@@ -106,15 +107,22 @@
       "eslint-plugin-react": "^7.37.5",
       "eslint-plugin-react-hooks": "^7.0.1"
     },
-    "@leafygreen-ui/button": "^25.2.1",
-    "@leafygreen-ui/confirmation-modal": "^11.0.1",
-    "@leafygreen-ui/form-field": "^4.0.9",
-    "@leafygreen-ui/leafygreen-provider": "^5.0.4",
-    "@leafygreen-ui/marketing-modal": "^8.2.1",
-    "@leafygreen-ui/modal": "^22.0.1",
-    "@leafygreen-ui/select": "^17.0.3",
-    "@leafygreen-ui/text-input": "^16.2.3",
-    "@leafygreen-ui/tokens": "^4.2.2",
-    "@leafygreen-ui/typography": "^22.2.4"
+    "@mongodb-js/diagramming": {
+      "@leafygreen-ui/icon": "^14.8.0",
+      "@leafygreen-ui/leafygreen-provider": "^5.0.4",
+      "@leafygreen-ui/palette": "^5.0.2",
+      "@leafygreen-ui/select": "^17.0.3",
+      "@leafygreen-ui/tokens": "^4.2.2",
+      "@leafygreen-ui/tooltip": "^14.3.1",
+      "@leafygreen-ui/typography": "^22.2.4"
+    },
+    "@types/react": "^17.0.83",
+    "@types/react-dom": "^17.0.25",
+    "braintrust": {
+      "esbuild": "0.26.0"
+    },
+    "qs": "^6.14.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   }
 }
