@@ -4,7 +4,7 @@ import {
   renderWithActiveConnection,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { RerankVersionWarningBanner } from './rerank-version-warning-banner';
 
 const atlasConnectionInfo: ConnectionInfo = {
@@ -25,8 +25,7 @@ describe('RerankVersionWarningBanner', function () {
   it('renders the version warning message', async function () {
     await renderWithActiveConnection(
       <RerankVersionWarningBanner data-testid="rerank-version-warning" />,
-      nonAtlasConnectionInfo,
-      { preferences: { enableRerank: true } }
+      nonAtlasConnectionInfo
     );
     expect(screen.getByTestId('rerank-version-warning')).to.exist;
     expect(screen.getByText(/Upgrade your cluster/)).to.exist;
@@ -35,10 +34,10 @@ describe('RerankVersionWarningBanner', function () {
   it('shows Atlas upgrade link when atlasMetadata is present', async function () {
     await renderWithActiveConnection(
       <RerankVersionWarningBanner data-testid="rerank-version-warning" />,
-      atlasConnectionInfo,
-      { preferences: { enableRerank: true } }
+      atlasConnectionInfo
     );
-    const link = screen.getByRole('link', { name: /Upgrade Cluster/i });
+    const link = await screen.findByRole('link', { name: /Upgrade Cluster/i });
+    expect(link).to.be.visible;
     expect(link)
       .to.have.attribute('href')
       .that.includes('/clusters/edit/myCluster');
@@ -47,10 +46,10 @@ describe('RerankVersionWarningBanner', function () {
   it('shows docs link when atlasMetadata is not present', async function () {
     await renderWithActiveConnection(
       <RerankVersionWarningBanner data-testid="rerank-version-warning" />,
-      nonAtlasConnectionInfo,
-      { preferences: { enableRerank: true } }
+      nonAtlasConnectionInfo
     );
-    const link = screen.getByRole('link', { name: /Upgrade Cluster/i });
+    const link = await screen.findByRole('link', { name: /Upgrade Cluster/i });
+    expect(link).to.be.visible;
     expect(link).to.have.attribute(
       'href',
       'https://www.mongodb.com/docs/atlas/tutorial/major-version-change/'
