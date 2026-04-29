@@ -7,6 +7,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildUpgradeClusterUrl } from '@mongodb-js/atlas-service/provider';
 import { RERANK_MIN_SERVER_VERSION } from '../utils/search-stage-errors';
 
 const bannerContentStyles = css({
@@ -29,7 +30,7 @@ export const RerankVersionWarningBanner = ({
 }) => {
   const { atlasMetadata } = useConnectionInfo();
   const upgradeClusterHref = atlasMetadata
-    ? `#/clusters/edit/${encodeURIComponent(atlasMetadata.clusterName)}`
+    ? buildUpgradeClusterUrl(atlasMetadata)
     : 'https://www.mongodb.com/docs/atlas/tutorial/major-version-change/';
 
   return (

@@ -11,6 +11,7 @@ import {
   BadgeVariant,
   Combobox,
   ComboboxOption,
+  Description,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -31,40 +32,27 @@ const comboxboxOptionsWidth = spacing[1200] * 14;
 // left position of options popover wrt input. this aligns it with the start of input
 const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
 
-const stageCustomContentStyles = css({
+const rerankStageOptionStyles = css({
   display: 'flex',
   flexDirection: 'column',
   gap: spacing[100],
   padding: `${spacing[100]}px 0`,
 });
 
-const stageNameRowStyles = css({
+const rerankStageNameRowStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[200],
 });
 
-const stageDescriptionStyles = css({
-  fontSize: '12px',
-  color: 'var(--lg-text-color-secondary, #5c6c75)',
-});
-
-const StageCustomContent = ({
-  name,
-  description,
-}: {
-  name: string;
-  description: string;
-}) => (
-  <div className={stageCustomContentStyles}>
-    <div className={stageNameRowStyles}>
-      <span>{name}</span>
-      {name === '$rerank' && <Badge variant={BadgeVariant.Blue}>Preview</Badge>}
-      {name === '$rerank' && (
-        <Badge variant={BadgeVariant.Blue}>Start Free</Badge>
-      )}
+const RerankStageOption = ({ description }: { description: string }) => (
+  <div className={rerankStageOptionStyles}>
+    <div className={rerankStageNameRowStyles}>
+      <span>$rerank</span>
+      <Badge variant={BadgeVariant.Blue}>Preview</Badge>
+      <Badge variant={BadgeVariant.Blue}>Start Free</Badge>
     </div>
-    <span className={stageDescriptionStyles}>{description}</span>
+    <Description>{description}</Description>
   </div>
 );
 
@@ -206,20 +194,16 @@ export const StageOperatorSelect = ({
           versionIncompatibleCompass,
           pipelineIsSearchQueryable
         );
-        const hasBadges = stage.name === '$rerank';
         return (
           <ComboboxOption
             data-testid={`combobox-option-stage-${stage.name}`}
             key={stage.name}
             value={stage.name}
             disabled={isSearchStage(stage.name) && disableSearchStage}
-            {...(hasBadges
+            {...(stage.name === '$rerank'
               ? {
                   customContent: (
-                    <StageCustomContent
-                      name={stage.name}
-                      description={description}
-                    />
+                    <RerankStageOption description={description} />
                   ),
                 }
               : { description })}

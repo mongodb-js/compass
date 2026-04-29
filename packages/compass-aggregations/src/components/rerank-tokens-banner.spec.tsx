@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  render,
-  screen,
-  userEvent,
-  cleanup,
-} from '@mongodb-js/testing-library-compass';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { RerankTokensBanner } from './rerank-tokens-banner';
 
@@ -12,7 +7,6 @@ const DISMISSED_KEY = 'mongodb_compass_dismissed_rerank_tokens_banner';
 
 describe('RerankTokensBanner', function () {
   afterEach(function () {
-    cleanup();
     localStorage.removeItem(DISMISSED_KEY);
   });
 
@@ -37,9 +31,7 @@ describe('RerankTokensBanner', function () {
     });
     expect(screen.getByTestId('rerank-tokens-banner')).to.exist;
 
-    userEvent.click(screen.getByRole('button', { name: /close/i }), undefined, {
-      skipPointerEventsCheck: true,
-    });
+    userEvent.click(screen.getByRole('button', { name: /close/i }));
 
     expect(screen.queryByTestId('rerank-tokens-banner')).to.not.exist;
   });

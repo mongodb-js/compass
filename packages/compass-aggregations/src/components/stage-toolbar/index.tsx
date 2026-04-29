@@ -31,6 +31,7 @@ import {
   openIndexesListDrawerView,
 } from '../../modules/search-indexes';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
 
 const toolbarStyles = css({
   width: '100%',
@@ -151,9 +152,7 @@ export function StageToolbar({
   const viewTokenUsageHref =
     enableRerank && stage.stageOperator === '$rerank'
       ? atlasMetadata
-        ? `#/clusters/atlasSearch/${encodeURIComponent(
-            atlasMetadata.clusterName
-          )}/rerank/usage`
+        ? buildRerankTokenUsageUrl(atlasMetadata)
         : 'https://dochub.mongodb.org/core/$rerank'
       : null;
 

@@ -73,6 +73,22 @@ export function buildChartsUrl(
   return `${url}`;
 }
 
+export function buildUpgradeClusterUrl({
+  projectId,
+  clusterName,
+}: AtlasClusterMetadata): string {
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  return `${url}#/clusters/edit/${clusterName}`;
+}
+
+export function buildRerankTokenUsageUrl({
+  projectId,
+  clusterName,
+}: AtlasClusterMetadata): string {
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  return `${url}#/clusters/atlasSearch/${clusterName}/rerank/usage`;
+}
+
 export function buildAtlasSearchLink({
   atlasMetadata,
   namespace,
