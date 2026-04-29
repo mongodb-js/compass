@@ -11,11 +11,11 @@ import {
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
-import { usePreference } from 'compass-preferences-model/provider';
 import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
 } from '../utils/search-stage-errors';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const bannerStyles = css({
   textAlign: 'left',

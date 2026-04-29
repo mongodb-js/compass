@@ -198,7 +198,7 @@ export const StageOperatorSelect = ({
       data-testid="stage-operator-combobox"
       className={comboboxStyles}
     >
-      {visibleStages.map((stage: Stage, index) => {
+      {visibleStages.map((stage: Stage) => {
         const description = getStageDescription(
           stage,
           sourceName,
@@ -210,7 +210,7 @@ export const StageOperatorSelect = ({
         return (
           <ComboboxOption
             data-testid={`combobox-option-stage-${stage.name}`}
-            key={`combobox-option-stage-${index}`}
+            key={stage.name}
             value={stage.name}
             disabled={isSearchStage(stage.name) && disableSearchStage}
             {...(hasBadges
