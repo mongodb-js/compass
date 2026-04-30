@@ -32,6 +32,7 @@ import { getStageOperator } from '../../utils/stage';
 import { gotoOutResults } from '../../modules/out-results-fn';
 import {
   isRerankNotEnabledError,
+  getVoyageProjectRateLimitInfo,
   isRerankVersionSupported,
   RERANK_MIN_SERVER_VERSION,
 } from '../../utils/search-stage-errors';
@@ -178,6 +179,8 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
 
   const rerankNotEnabled =
     isError && error ? isRerankNotEnabledError(error.message) : false;
+  const rateLimitInfo =
+    isError && error ? getVoyageProjectRateLimitInfo(error.message) : null;
   const projectSettingsHref =
     rerankNotEnabled && atlasMetadata
       ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
@@ -208,6 +211,26 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
                 Project Settings
               </Button>
             )}
+          </div>
+        </Banner>
+      </ResultsContainer>
+    );
+  } else if (isError && error && rateLimitInfo) {
+    results = (
+      <ResultsContainer>
+        <Banner
+          data-testid="pipeline-results-error"
+          variant={BannerVariant.Danger}
+          className={errorBannerStyles}
+        >
+          <b>Rate limit exceeded</b>
+          <br />
+          <div className={rerankBannerContentStyles}>
+            <span>
+              Exceeded {rateLimitInfo.limit}{' '}
+              {rateLimitInfo.type === 'rpm' ? 'requests' : 'tokens'} per minute
+              rate limit for {rateLimitInfo.model}
+            </span>
           </div>
         </Banner>
       </ResultsContainer>

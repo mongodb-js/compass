@@ -14,6 +14,7 @@ import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
+  getVoyageProjectRateLimitInfo,
 } from '../utils/search-stage-errors';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -48,6 +49,7 @@ export default function ServerErrorBanner({
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
   const rerankNotEnabled = isRerankNotEnabledError(message);
+  const rateLimitInfo = getVoyageProjectRateLimitInfo(message);
   const description = rerankNotEnabled
     ? 'Enable native reranking in project settings.'
     : message;
@@ -75,6 +77,16 @@ export default function ServerErrorBanner({
               </Button>
             )}
           </div>
+        </>
+      ) : rateLimitInfo ? (
+        <>
+          <strong>Rate limit exceeded</strong>
+          <br />
+          <span>
+            Exceeded {rateLimitInfo.limit}{' '}
+            {rateLimitInfo.type === 'rpm' ? 'requests' : 'tokens'} per minute
+            rate limit for {rateLimitInfo.model}
+          </span>
         </>
       ) : (
         message
