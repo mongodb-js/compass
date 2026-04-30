@@ -31,7 +31,6 @@ const renderPipelineResultsWorkspace = (
       onCancel={() => {}}
       resultsViewType={'document'}
       serverVersion="8.0.0"
-      pipelineText="[{$match: {}}]"
       hasRerankStage={false}
       {...props}
     />,
@@ -113,7 +112,7 @@ describe('PipelineResultsWorkspace', function () {
 
   it('renders version warning when server < 8.3 and pipeline has $rerank', async function () {
     await renderPipelineResultsWorkspace(
-      { serverVersion: '8.0.0', pipelineText: '[{ $rerank: {} }]' },
+      { serverVersion: '8.0.0', hasRerankStage: true },
       rerankPreferences
     );
     expect(screen.getByTestId('pipeline-results-rerank-version-warning')).to
@@ -122,7 +121,7 @@ describe('PipelineResultsWorkspace', function () {
 
   it('does not render version warning when server >= 8.3', async function () {
     await renderPipelineResultsWorkspace(
-      { serverVersion: '8.3.0', pipelineText: '[{ $rerank: {} }]' },
+      { serverVersion: '8.3.0', hasRerankStage: true },
       rerankPreferences
     );
     expect(screen.queryByTestId('pipeline-results-rerank-version-warning')).to
@@ -132,7 +131,7 @@ describe('PipelineResultsWorkspace', function () {
   it('does not render version warning when enableRerank is false', async function () {
     await renderPipelineResultsWorkspace({
       serverVersion: '8.0.0',
-      pipelineText: '[{ $rerank: {} }]',
+      hasRerankStage: true,
     });
     expect(screen.queryByTestId('pipeline-results-rerank-version-warning')).to
       .not.exist;

@@ -1,6 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { screen, cleanup } from '@mongodb-js/testing-library-compass';
+import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import { renderWithStore } from '../../../test/configure-store';
@@ -80,7 +80,6 @@ describe('FocusMode', function () {
 
   context('$rerank tokens banner', function () {
     afterEach(function () {
-      cleanup();
       localStorage.removeItem('mongodb_compass_dismissed_rerank_tokens_banner');
     });
 

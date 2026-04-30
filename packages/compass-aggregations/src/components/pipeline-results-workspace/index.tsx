@@ -149,7 +149,6 @@ type PipelineResultsWorkspaceProps = {
   onCancel: () => void;
   onRetry: () => void;
   serverVersion: string;
-  pipelineText: string;
   hasRerankStage: boolean;
 };
 
@@ -169,7 +168,6 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   onRetry,
   onCancel,
   serverVersion,
-  pipelineText,
   hasRerankStage,
 }) => {
   const { atlasMetadata } = useConnectionInfo();
@@ -177,9 +175,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   let results: React.ReactElement | null = null;
 
   const showRerankVersionWarning =
-    enableRerank &&
-    (pipelineText.includes('$rerank') || hasRerankStage) &&
-    !isRerankVersionSupported(serverVersion);
+    enableRerank && hasRerankStage && !isRerankVersionSupported(serverVersion);
 
   const rerankNotEnabled =
     isError && error ? isRerankNotEnabledError(error.message) : false;
@@ -312,12 +308,6 @@ const mapState = (state: RootState) => {
     namespace,
     serverVersion,
     aggregation: { documents, loading, error, resultsViewType, pipeline },
-    pipelineBuilder: {
-      textEditor: {
-        pipeline: { pipelineText },
-      },
-      stageEditor: { stages },
-    },
   } = state;
   const lastStage = pipeline[pipeline.length - 1];
   const stageOperator = getStageOperator(lastStage) ?? '';
@@ -336,9 +326,8 @@ const mapState = (state: RootState) => {
       lastStage
     ),
     serverVersion,
-    pipelineText,
-    hasRerankStage: stages.some(
-      (s) => s.type === 'stage' && s.stageOperator === '$rerank' && !s.disabled
+    hasRerankStage: pipeline.some(
+      (stage) => getStageOperator(stage) === '$rerank'
     ),
   };
 };

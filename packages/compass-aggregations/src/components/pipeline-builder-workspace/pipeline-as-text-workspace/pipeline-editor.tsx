@@ -201,9 +201,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
         />
       </div>
       {showRerankVersionWarning && (
-        <div className={errorContainerStyles}>
-          <RerankVersionWarningBanner data-testid="pipeline-editor-rerank-version-warning" />
-        </div>
+        <RerankVersionWarningBanner data-testid="pipeline-editor-rerank-version-warning" />
       )}
       {showErrorContainer && (
         <div
