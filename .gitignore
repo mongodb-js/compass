@@ -2,6 +2,7 @@ npm-debug.log
 build
 dist
 node_modules
+.claude/worktrees/
 .DS_Store
 .idea
 *.swp

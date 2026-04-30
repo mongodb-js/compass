@@ -16,7 +16,8 @@ import sinon from 'sinon';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type {
-  CrudStore,
+  CrudReduxStore,
+  CrudState,
   CrudStoreOptions,
   DocumentsPluginServices,
 } from './crud-store';
@@ -26,6 +27,34 @@ import {
   activateDocumentsPlugin as _activate,
   MAX_DOCS_PER_PAGE_STORAGE_KEY,
 } from './crud-store';
+import {
+  cancelOperation,
+  copyToClipboard,
+  getPage,
+  openDeleteQueryExportToLanguageDialog,
+  refreshDocuments,
+  removeDocument,
+  replaceDocument,
+  seedDocumentsTestState,
+  updateDocument,
+  updateMaxDocumentsPerPage,
+} from './documents';
+import {
+  insertDocument,
+  insertMany,
+  openInsertDocumentDialog,
+  seedInsertTestState,
+  toggleInsertDocument,
+} from './insert';
+import {
+  closeBulkUpdateModal,
+  openBulkUpdateModal,
+  runBulkUpdate,
+  saveUpdateQuery,
+  updateBulkUpdatePreview,
+} from './bulk-update';
+import { closeBulkDeleteDialog, openBulkDeleteDialog } from './bulk-delete';
+import { drillDown, pathChanged, viewChanged } from './view';
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
@@ -68,14 +97,21 @@ chai.use(chaiAsPromised);
 
 const delay = util.promisify(setTimeout);
 
-function waitForStates(store, cbs, timeout = 2000) {
+type StateAssertion = (state: CrudState, index: number) => void;
+
+function waitForStates(
+  store: CrudReduxStore,
+  cbs: StateAssertion[],
+  timeout = 2000
+) {
   let numMatches = 0;
-  const states: any[] = [];
+  const states: CrudState[] = [];
   const errors: Error[] = [];
   let unsubscribe: () => void;
 
   const waiter = new Promise((resolve, reject) => {
-    unsubscribe = store.listen((state) => {
+    unsubscribe = store.subscribe(() => {
+      const state = store.getState();
       states.push(state);
       try {
         // eslint-disable-next-line callback-return
@@ -127,7 +163,11 @@ function waitForStates(store, cbs, timeout = 2000) {
     });
 }
 
-function waitForState(store, cb, timeout?: number) {
+function waitForState(
+  store: CrudReduxStore,
+  cb: StateAssertion,
+  timeout?: number
+) {
   return waitForStates(store, [cb], timeout);
 }
 
@@ -296,7 +336,7 @@ describe('store', function () {
   });
 
   describe('#getInitialState', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin();
@@ -305,16 +345,13 @@ describe('store', function () {
     });
 
     it('sets the initial state', function () {
-      expect(store.state.resultId).to.be.a('number');
-      delete (store.state as any).resultId; // always different
+      const state = store.getState();
+      expect(state.documents.resultId).to.be.a('number');
+      const documents: Partial<typeof state.documents> = { ...state.documents };
+      delete documents.resultId; // always different
 
-      expect(store.state).to.deep.equal({
+      expect(documents).to.deep.equal({
         abortController: null,
-        bulkDelete: {
-          affected: 0,
-          previews: [],
-          status: 'closed',
-        },
         debouncingLoad: false,
         lastCountRunMaxTimeMS: 5000,
         loadingCount: false,
@@ -324,24 +361,14 @@ describe('store', function () {
         docsPerPage: 25,
         end: 0,
         error: null,
-        insert: {
-          doc: null,
-          isCommentNeeded: true,
-          isOpen: false,
-          jsonDoc: null,
-          jsonView: false,
-          csfleState: { state: 'none' },
-          mode: 'modifying',
-        },
-        bulkUpdate: {
-          isOpen: false,
-          preview: {
-            changes: [],
-          },
-          serverError: undefined,
-          syntaxError: undefined,
-          updateText: '{\n  $set: {\n\n  },\n}',
-        },
+        ns: 'compass-crud.test',
+        page: 0,
+        shardKeys: null,
+        start: 0,
+        status: 'initial',
+        isCollectionScan: false,
+      });
+      expect(state.collectionMeta).to.deep.equal({
         instanceDescription: 'Topology type: Unknown is not writable',
         isDataLake: false,
         isReadonly: false,
@@ -349,20 +376,7 @@ describe('store', function () {
         isTimeSeries: false,
         isUpdatePreviewSupported: true,
         isWritable: false,
-        ns: 'compass-crud.test',
-        page: 0,
-        shardKeys: null,
-        start: 0,
-        status: 'initial',
-        table: {
-          doc: null,
-          editParams: null,
-          path: [],
-          types: [],
-        },
-        isCollectionScan: false,
         version: '6.0.0',
-        view: 'List',
         collectionStats: {
           avg_document_size: 1,
           document_count: 10,
@@ -370,11 +384,43 @@ describe('store', function () {
           storage_size: 20,
         },
       });
+      expect(state.view).to.deep.equal({
+        view: 'List',
+        table: {
+          doc: null,
+          editParams: null,
+          path: [],
+          types: [],
+        },
+      });
+      expect(state.insert).to.deep.equal({
+        doc: null,
+        isCommentNeeded: true,
+        isOpen: false,
+        jsonDoc: null,
+        jsonView: false,
+        csfleState: { state: 'none' },
+        mode: 'modifying',
+      });
+      expect(state.bulkUpdate).to.deep.equal({
+        isOpen: false,
+        preview: {
+          changes: [],
+        },
+        serverError: undefined,
+        syntaxError: undefined,
+        updateText: '{\n  $set: {\n\n  },\n}',
+      });
+      expect(state.bulkDelete).to.deep.equal({
+        affected: 0,
+        previews: [],
+        status: 'closed',
+      });
     });
   });
 
   describe('#copyToClipboard', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
     let mockCopyToClipboard: any;
 
     beforeEach(function () {
@@ -406,7 +452,7 @@ describe('store', function () {
       const doc = { _id: 'testing', name: 'heart 5' };
       const hadronDoc = new HadronDocument(doc);
 
-      store.copyToClipboard(hadronDoc);
+      store.dispatch(copyToClipboard(hadronDoc));
       expect(mockCopyToClipboard).to.have.been.calledOnceWithExactly(
         '{\n  "_id": "testing",\n  "name": "heart 5"\n}'
       );
@@ -414,14 +460,14 @@ describe('store', function () {
   });
 
   describe('#toggleInsertDocument', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(async function () {
       const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
 
-      await store.openInsertDocumentDialog({ foo: 1 });
+      await store.dispatch(openInsertDocumentDialog({ foo: 1 }));
     });
 
     it('switches between JSON and Document view', async function () {
@@ -431,7 +477,7 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.jsonView', false);
       });
 
-      store.toggleInsertDocument('List');
+      store.dispatch(toggleInsertDocument('List'));
 
       await listener;
 
@@ -439,14 +485,14 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.jsonView', true);
       });
 
-      store.toggleInsertDocument('JSON');
+      store.dispatch(toggleInsertDocument('JSON'));
 
       await listener;
     });
   });
 
   describe('#removeDocument', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin();
@@ -459,19 +505,23 @@ describe('store', function () {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(function () {
-        store.state.docs = [hadronDoc];
-        store.state.count = 1;
-        store.state.end = 1;
+        store.dispatch(
+          seedDocumentsTestState({
+            docs: [hadronDoc],
+            count: 1,
+            end: 1,
+          })
+        );
       });
 
       it('deletes the document from the collection', async function () {
         const listener = waitForState(store, (state) => {
-          expect(state.docs.length).to.equal(0);
-          expect(state.count).to.equal(0);
-          expect(state.end).to.equal(0);
+          expect(state.documents.docs.length).to.equal(0);
+          expect(state.documents.count).to.equal(0);
+          expect(state.documents.end).to.equal(0);
         });
 
-        void store.removeDocument(hadronDoc);
+        void store.dispatch(removeDocument(hadronDoc));
 
         await listener;
       });
@@ -482,19 +532,23 @@ describe('store', function () {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(function () {
-        store.state.docs = [hadronDoc];
-        store.state.count = 1;
-        store.state.end = 1;
+        store.dispatch(
+          seedDocumentsTestState({
+            docs: [hadronDoc],
+            count: 1,
+            end: 1,
+          })
+        );
       });
 
       it('deletes the document from the collection', async function () {
         const listener = waitForState(store, (state) => {
-          expect(state.docs.length).to.equal(0);
-          expect(state.count).to.equal(0);
-          expect(state.end).to.equal(0);
+          expect(state.documents.docs.length).to.equal(0);
+          expect(state.documents.count).to.equal(0);
+          expect(state.documents.end).to.equal(0);
         });
 
-        void store.removeDocument(hadronDoc);
+        void store.dispatch(removeDocument(hadronDoc));
 
         await listener;
       });
@@ -505,19 +559,23 @@ describe('store', function () {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(function () {
-        store.state.docs = [hadronDoc];
-        store.state.count = null;
-        store.state.end = 1;
+        store.dispatch(
+          seedDocumentsTestState({
+            docs: [hadronDoc],
+            count: null,
+            end: 1,
+          })
+        );
       });
 
       it('keeps the count as null after the delete', async function () {
         const listener = waitForState(store, (state) => {
-          expect(state.docs.length).to.equal(0);
-          expect(state.count).to.equal(null);
-          expect(state.end).to.equal(0);
+          expect(state.documents.docs.length).to.equal(0);
+          expect(state.documents.count).to.equal(null);
+          expect(state.documents.end).to.equal(0);
         });
 
-        void store.removeDocument(hadronDoc);
+        void store.dispatch(removeDocument(hadronDoc));
 
         await listener;
       });
@@ -539,13 +597,13 @@ describe('store', function () {
           done();
         });
 
-        void store.removeDocument(hadronDoc);
+        void store.dispatch(removeDocument(hadronDoc));
       });
     });
   });
 
   describe('#updateDocument', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(async function () {
       const plugin = activatePlugin();
@@ -566,17 +624,18 @@ describe('store', function () {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(function () {
-        store.state.docs = [hadronDoc];
+        store.dispatch(seedDocumentsTestState({ docs: [hadronDoc] }));
         hadronDoc.elements.at(1)?.rename('new name');
       });
 
       it('replaces the document in the list', function (done) {
-        const unsubscribe = store.listen((state) => {
-          expect(state.docs[0]).to.not.equal(hadronDoc);
-          expect(state.docs[0].elements.at(1).key === 'new name');
+        const unsubscribe = store.subscribe(() => {
+          const state = store.getState();
+          expect(state.documents.docs![0]).to.not.equal(hadronDoc);
+          expect(state.documents.docs![0].elements.at(1)!.key === 'new name');
           unsubscribe();
           done();
-        }, store);
+        });
 
         hadronDoc.on(DocumentEvents.UpdateBlocked, () => {
           done(new Error("Didn't expect update to be blocked."));
@@ -590,7 +649,7 @@ describe('store', function () {
           );
         });
 
-        void store.updateDocument(hadronDoc);
+        void store.dispatch(updateDocument(hadronDoc));
       });
     });
 
@@ -599,7 +658,7 @@ describe('store', function () {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(function () {
-        store.state.docs = [hadronDoc];
+        store.dispatch(seedDocumentsTestState({ docs: [hadronDoc] }));
         hadronDoc.insertAfter(
           hadronDoc.elements.at(1)!,
           'new field',
@@ -608,14 +667,17 @@ describe('store', function () {
       });
 
       it('updates the document in the list', function (done) {
-        const unsubscribe = store.listen((state) => {
-          expect(state.docs[0]).to.not.equal(hadronDoc);
-          expect(state.docs[0]).to.have.property('elements');
-          expect(state.docs[0].elements.at(2).key).to.equal('new field');
+        const unsubscribe = store.subscribe(() => {
+          const state = store.getState();
+          expect(state.documents.docs![0]).to.not.equal(hadronDoc);
+          expect(state.documents.docs![0]).to.have.property('elements');
+          expect(state.documents.docs![0].elements.at(2)!.key).to.equal(
+            'new field'
+          );
           unsubscribe();
           // Ensure we have enough time for update-blocked or update-error to be called.
           setTimeout(() => done(), 100);
-        }, store);
+        });
 
         hadronDoc.on(DocumentEvents.UpdateBlocked, () => {
           done(new Error("Didn't expect update to be blocked."));
@@ -629,7 +691,7 @@ describe('store', function () {
           );
         });
 
-        void store.updateDocument(hadronDoc);
+        void store.dispatch(updateDocument(hadronDoc));
       });
     });
 
@@ -651,7 +713,7 @@ describe('store', function () {
           done();
         });
 
-        void store.updateDocument(hadronDoc);
+        void store.dispatch(updateDocument(hadronDoc));
       });
     });
 
@@ -672,7 +734,7 @@ describe('store', function () {
           done();
         });
 
-        void store.updateDocument(hadronDoc);
+        void store.dispatch(updateDocument(hadronDoc));
       });
     });
 
@@ -690,7 +752,7 @@ describe('store', function () {
           done();
         });
 
-        void store.updateDocument(hadronDoc);
+        void store.dispatch(updateDocument(hadronDoc));
       });
     });
 
@@ -705,7 +767,7 @@ describe('store', function () {
       });
 
       it('has the original value for the edited value in the query', async function () {
-        await store.updateDocument(hadronDoc);
+        await store.dispatch(updateDocument(hadronDoc));
 
         expect(stub.getCall(0).args[1]).to.deep.equal({
           _id: 'testing',
@@ -727,17 +789,17 @@ describe('store', function () {
         let stub;
 
         beforeEach(function () {
-          store.state.shardKeys = { yes: 1 };
+          store.dispatch(seedDocumentsTestState({ shardKeys: { yes: 1 } }));
           hadronDoc.get('name')?.edit('Desert Sand');
           stub = sinon.stub(dataService, 'findOneAndUpdate').resolves({});
         });
 
         afterEach(function () {
-          store.state.shardKeys = null;
+          store.dispatch(seedDocumentsTestState({ shardKeys: null }));
         });
 
         it('has the shard key in the query', async function () {
-          await store.updateDocument(hadronDoc);
+          await store.dispatch(updateDocument(hadronDoc));
 
           expect(stub.getCall(0).args[1]).to.deep.equal({
             _id: 'testing',
@@ -767,7 +829,7 @@ describe('store', function () {
           done();
         });
 
-        void store.updateDocument(invalidHadronDoc);
+        void store.dispatch(updateDocument(invalidHadronDoc));
       });
     });
 
@@ -801,7 +863,7 @@ describe('store', function () {
             DocumentEvents.UpdateError
           );
 
-          await store.updateDocument(hadronDoc);
+          await store.dispatch(updateDocument(hadronDoc));
           expect((await updateErrorEvent)[0]).to.match(/Update blocked/);
 
           expect(findOneAndReplaceStub).to.not.have.been.called;
@@ -816,7 +878,7 @@ describe('store', function () {
   });
 
   describe('#bulkUpdateModal', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(async function () {
       const plugin = activatePlugin();
@@ -830,13 +892,13 @@ describe('store', function () {
     });
 
     it('opens the bulk update dialog with a proper initialised state', async function () {
-      void store.openBulkUpdateModal();
+      void store.dispatch(openBulkUpdateModal());
 
       await waitForState(store, (state) => {
         expect(state.bulkUpdate.previewAbortController).to.not.exist;
       });
 
-      const bulkUpdate = store.state.bulkUpdate;
+      const bulkUpdate = store.getState().bulkUpdate;
 
       delete bulkUpdate.preview.changes[0].before._id;
       delete bulkUpdate.preview.changes[0].after._id;
@@ -863,16 +925,16 @@ describe('store', function () {
     });
 
     it('closes the bulk dialog keeping previous state', async function () {
-      void store.openBulkUpdateModal();
-      void store.openBulkUpdateModal();
+      void store.dispatch(openBulkUpdateModal());
+      void store.dispatch(openBulkUpdateModal());
 
       await waitForState(store, (state) => {
         expect(state.bulkUpdate.previewAbortController).to.not.exist;
       });
 
-      store.closeBulkUpdateModal();
+      store.dispatch(closeBulkUpdateModal());
 
-      const bulkUpdate = store.state.bulkUpdate;
+      const bulkUpdate = store.getState().bulkUpdate;
 
       delete bulkUpdate.preview.changes[0].before._id;
       delete bulkUpdate.preview.changes[0].after._id;
@@ -900,7 +962,7 @@ describe('store', function () {
   });
 
   describe('favourited bulk update queries coming from My Queries', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin({
@@ -929,7 +991,7 @@ describe('store', function () {
   });
 
   describe('#bulkDeleteDialog', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin();
@@ -939,18 +1001,22 @@ describe('store', function () {
 
     it('opens the bulk dialog with a proper initialised state', function () {
       const hadronDoc = new HadronDocument({ a: 1 });
-      store.state.docs = [hadronDoc];
-      store.state.count = 1;
+      store.dispatch(
+        seedDocumentsTestState({
+          docs: [hadronDoc],
+          count: 1,
+        })
+      );
 
-      store.openBulkDeleteDialog();
+      store.dispatch(openBulkDeleteDialog());
 
-      const previews = store.state.bulkDelete.previews;
+      const previews = store.getState().bulkDelete.previews;
 
       // because we make a copy of the previews what comes out will not be the
       // same as what goes in so just check the previews separately
       expect(previews[0].doc.a).to.deep.equal(new Int32(1));
 
-      expect(store.state.bulkDelete).to.deep.equal({
+      expect(store.getState().bulkDelete).to.deep.equal({
         previews,
         status: 'open',
         affected: 1,
@@ -959,18 +1025,22 @@ describe('store', function () {
 
     it('closes the bulk dialog keeping previous state', function () {
       const hadronDoc = new HadronDocument({ a: 1 });
-      store.state.docs = [hadronDoc];
-      store.state.count = 1;
+      store.dispatch(
+        seedDocumentsTestState({
+          docs: [hadronDoc],
+          count: 1,
+        })
+      );
 
-      store.openBulkDeleteDialog();
-      store.closeBulkDeleteDialog();
+      store.dispatch(openBulkDeleteDialog());
+      store.dispatch(closeBulkDeleteDialog());
 
-      const previews = store.state.bulkDelete.previews;
+      const previews = store.getState().bulkDelete.previews;
 
       // same comment as above
       expect(previews[0].doc.a).to.deep.equal(new Int32(1));
 
-      expect(store.state.bulkDelete).to.deep.equal({
+      expect(store.getState().bulkDelete).to.deep.equal({
         previews,
         status: 'closed',
         affected: 1,
@@ -979,7 +1049,7 @@ describe('store', function () {
 
     it('triggers code export', function (done) {
       mockQueryBar.getLastAppliedQuery.returns({ filter: { query: 1 } });
-      store.localAppRegistry.on(
+      localAppRegistry.on(
         'open-query-export-to-language',
         (options, exportMode) => {
           expect(exportMode).to.equal('Delete Query');
@@ -989,12 +1059,12 @@ describe('store', function () {
         }
       );
 
-      store.openDeleteQueryExportToLanguageDialog();
+      store.dispatch(openDeleteQueryExportToLanguageDialog());
     });
   });
 
   describe('#replaceDocument', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin();
@@ -1007,15 +1077,15 @@ describe('store', function () {
       const hadronDoc = new HadronDocument(doc);
 
       beforeEach(function () {
-        store.state.docs = [hadronDoc];
+        store.dispatch(seedDocumentsTestState({ docs: [hadronDoc] }));
       });
 
       it('replaces the document in the list', async function () {
         const listener = waitForState(store, (state) => {
-          expect(state.docs[0]).to.not.equal(hadronDoc);
+          expect(state.documents.docs[0]).to.not.equal(hadronDoc);
         });
 
-        void store.replaceDocument(hadronDoc);
+        void store.dispatch(replaceDocument(hadronDoc));
 
         await listener;
       });
@@ -1037,7 +1107,7 @@ describe('store', function () {
           done();
         });
 
-        void store.replaceDocument(hadronDoc);
+        void store.dispatch(replaceDocument(hadronDoc));
       });
     });
 
@@ -1052,7 +1122,7 @@ describe('store', function () {
       });
 
       it('has the original value for the edited value in the query', async function () {
-        await store.replaceDocument(hadronDoc);
+        await store.dispatch(replaceDocument(hadronDoc));
 
         expect(stub.getCall(0).args[2]).to.deep.equal({
           _id: 'testing',
@@ -1069,17 +1139,17 @@ describe('store', function () {
         let stub;
 
         beforeEach(function () {
-          store.state.shardKeys = { yes: 1 };
+          store.dispatch(seedDocumentsTestState({ shardKeys: { yes: 1 } }));
           hadronDoc.get('name')?.edit('Desert Sand');
           stub = sinon.stub(dataService, 'findOneAndReplace').resolves({});
         });
 
         afterEach(function () {
-          store.state.shardKeys = null;
+          store.dispatch(seedDocumentsTestState({ shardKeys: null }));
         });
 
         it('has the shard key in the query', async function () {
-          await store.replaceDocument(hadronDoc);
+          await store.dispatch(replaceDocument(hadronDoc));
 
           expect(stub.getCall(0).args[1]).to.deep.equal({
             _id: 'testing',
@@ -1124,7 +1194,7 @@ describe('store', function () {
             DocumentEvents.UpdateError
           );
 
-          await store.replaceDocument(hadronDoc);
+          await store.dispatch(replaceDocument(hadronDoc));
           expect((await updateErrorEvent)[0]).to.match(/Update blocked/);
 
           expect(findOneAndReplaceStub).to.not.have.been.called;
@@ -1139,7 +1209,7 @@ describe('store', function () {
   });
 
   describe('#insertOneDocument', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin();
@@ -1157,9 +1227,9 @@ describe('store', function () {
 
         it('inserts the document', async function () {
           const listener = waitForState(store, (state) => {
-            expect(state.docs.length).to.equal(1);
-            expect(state.count).to.equal(1);
-            expect(state.end).to.equal(1);
+            expect(state.documents.docs.length).to.equal(1);
+            expect(state.documents.count).to.equal(1);
+            expect(state.documents.end).to.equal(1);
             expect(state.insert.doc).to.equal(null);
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
@@ -1167,8 +1237,8 @@ describe('store', function () {
             expect(state.insert.error).to.equal(undefined);
           });
 
-          store.state.insert.doc = doc;
-          void store.insertDocument();
+          store.dispatch(seedInsertTestState({ doc: doc }));
+          void store.dispatch(insertDocument());
 
           await listener;
         });
@@ -1178,7 +1248,7 @@ describe('store', function () {
         const doc = new HadronDocument({ name: 'testing' });
 
         beforeEach(function () {
-          store.state.insert.doc = doc;
+          store.dispatch(seedInsertTestState({ doc: doc }));
           mockQueryBar.getLastAppliedQuery.returns({
             filter: { name: 'something' },
           });
@@ -1186,8 +1256,8 @@ describe('store', function () {
 
         it('inserts the document but does not add to the list', async function () {
           const listener = waitForState(store, (state) => {
-            expect(state.docs.length).to.equal(0);
-            expect(state.count).to.equal(0);
+            expect(state.documents.docs.length).to.equal(0);
+            expect(state.documents.count).to.equal(0);
             expect(state.insert.doc).to.equal(null);
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
@@ -1195,7 +1265,7 @@ describe('store', function () {
             expect(state.insert.error).to.equal(undefined);
           });
 
-          void store.insertDocument();
+          void store.dispatch(insertDocument());
 
           await listener;
         });
@@ -1207,16 +1277,20 @@ describe('store', function () {
         const hadronDoc = new HadronDocument({});
 
         beforeEach(function () {
-          store.state.insert.jsonView = true;
-          store.state.insert.doc = hadronDoc;
-          store.state.insert.jsonDoc = jsonDoc;
-          store.state.count = 0;
+          store.dispatch(
+            seedInsertTestState({
+              jsonView: true,
+              doc: hadronDoc,
+              jsonDoc: jsonDoc,
+            })
+          );
+          store.dispatch(seedDocumentsTestState({ count: 0 }));
         });
 
         it('does not insert the document and sets the error', async function () {
           const listener = waitForState(store, (state) => {
-            expect(state.docs.length).to.equal(0);
-            expect(state.count).to.equal(0);
+            expect(state.documents.docs.length).to.equal(0);
+            expect(state.documents.count).to.equal(0);
             expect(state.insert.doc).to.deep.equal(hadronDoc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
@@ -1226,7 +1300,7 @@ describe('store', function () {
             expect(state.insert.mode).to.equal('error');
           });
 
-          void store.insertDocument();
+          void store.dispatch(insertDocument());
 
           await listener;
         });
@@ -1240,10 +1314,14 @@ describe('store', function () {
         const jsonDoc = '{ "status": "testing" }';
 
         beforeEach(function () {
-          store.state.insert.jsonView = true;
-          store.state.insert.doc = hadronDoc;
-          store.state.insert.jsonDoc = jsonDoc;
-          store.state.count = 0;
+          store.dispatch(
+            seedInsertTestState({
+              jsonView: true,
+              doc: hadronDoc,
+              jsonDoc: jsonDoc,
+            })
+          );
+          store.dispatch(seedDocumentsTestState({ count: 0 }));
         });
 
         afterEach(function () {
@@ -1252,8 +1330,8 @@ describe('store', function () {
 
         it('does not insert the document', async function () {
           const listener = waitForState(store, (state) => {
-            expect(state.docs.length).to.equal(0);
-            expect(state.count).to.equal(0);
+            expect(state.documents.docs.length).to.equal(0);
+            expect(state.documents.count).to.equal(0);
             expect(state.insert.doc).to.deep.equal(hadronDoc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
@@ -1262,7 +1340,7 @@ describe('store', function () {
             expect(state.insert.error.message).to.not.be.empty;
           });
 
-          void store.insertDocument();
+          void store.dispatch(insertDocument());
 
           await listener;
         });
@@ -1273,9 +1351,13 @@ describe('store', function () {
         const jsonDoc = '';
 
         beforeEach(function () {
-          store.state.insert.doc = doc;
-          store.state.insert.jsonDoc = jsonDoc;
-          store.state.count = 0;
+          store.dispatch(
+            seedInsertTestState({
+              doc: doc,
+              jsonDoc: jsonDoc,
+            })
+          );
+          store.dispatch(seedDocumentsTestState({ count: 0 }));
         });
 
         afterEach(function () {
@@ -1284,8 +1366,8 @@ describe('store', function () {
 
         it('does not insert the document', async function () {
           const listener = waitForState(store, (state) => {
-            expect(state.docs.length).to.equal(0);
-            expect(state.count).to.equal(0);
+            expect(state.documents.docs.length).to.equal(0);
+            expect(state.documents.count).to.equal(0);
             expect(state.insert.doc).to.equal(doc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
@@ -1294,8 +1376,8 @@ describe('store', function () {
             expect(state.insert.error.message).to.not.be.empty;
           });
 
-          store.state.insert.doc = doc;
-          void store.insertDocument();
+          store.dispatch(seedInsertTestState({ doc: doc }));
+          void store.dispatch(insertDocument());
 
           await listener;
         });
@@ -1307,10 +1389,14 @@ describe('store', function () {
         const jsonDoc = '{ "status": "testing" }';
 
         beforeEach(function () {
-          store.state.insert.jsonView = true;
-          store.state.insert.doc = hadronDoc;
-          store.state.insert.jsonDoc = jsonDoc;
-          store.state.count = 0;
+          store.dispatch(
+            seedInsertTestState({
+              jsonView: true,
+              doc: hadronDoc,
+              jsonDoc: jsonDoc,
+            })
+          );
+          store.dispatch(seedDocumentsTestState({ count: 0 }));
         });
 
         afterEach(async function () {
@@ -1319,8 +1405,8 @@ describe('store', function () {
 
         it('does not insert the document', async function () {
           const listener = waitForState(store, (state) => {
-            expect(state.docs.length).to.equal(0);
-            expect(state.count).to.equal(0);
+            expect(state.documents.docs.length).to.equal(0);
+            expect(state.documents.count).to.equal(0);
             expect(state.insert.doc).to.deep.equal(hadronDoc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
@@ -1330,7 +1416,7 @@ describe('store', function () {
             expect(state.insert.error.info).not.to.be.empty;
           });
 
-          void store.insertDocument();
+          void store.dispatch(insertDocument());
 
           await listener;
         });
@@ -1339,7 +1425,7 @@ describe('store', function () {
   });
 
   describe('#insertManyDocuments', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin();
@@ -1357,7 +1443,7 @@ describe('store', function () {
           '[ { "name": "Chashu", "type": "Norwegian Forest" }, { "name": "Rey", "type": "Viszla" } ]';
 
         it('inserts the document', async function () {
-          const resultId = store.state.resultId;
+          const resultId = store.getState().documents.resultId;
 
           const listener = waitForStates(store, [
             (state) => {
@@ -1369,40 +1455,40 @@ describe('store', function () {
               expect(state.insert.jsonView).to.equal(false);
               expect(state.insert.error).to.equal(undefined);
 
-              expect(state.status).to.equal('fetching');
-              expect(state.abortController).to.not.be.null;
-              expect(state.error).to.be.null;
+              expect(state.documents.status).to.equal('fetching');
+              expect(state.documents.abortController).to.not.be.null;
+              expect(state.documents.error).to.be.null;
             },
             (state) => {
               // after it refreshed the documents it will update the store again
-              expect(state.error).to.equal(null);
-              expect(state.docs.length).to.equal(2);
-              expect(state.count).to.equal(2);
-              expect(state.end).to.equal(2);
+              expect(state.documents.error).to.equal(null);
+              expect(state.documents.docs.length).to.equal(2);
+              expect(state.documents.count).to.equal(2);
+              expect(state.documents.end).to.equal(2);
 
               // this is fetchedInitial because there's no filter/projection/collation
-              expect(state.status).to.equal('fetchedInitial');
-              expect(state.error).to.be.null;
-              expect(state.docs).to.have.lengthOf(2);
-              expect(state.count).to.equal(2);
-              expect(state.page).to.equal(0);
-              expect(state.start).to.equal(1);
-              expect(state.end).to.equal(2);
-              expect(state.table).to.deep.equal({
+              expect(state.documents.status).to.equal('fetchedInitial');
+              expect(state.documents.error).to.be.null;
+              expect(state.documents.docs).to.have.lengthOf(2);
+              expect(state.documents.count).to.equal(2);
+              expect(state.documents.page).to.equal(0);
+              expect(state.documents.start).to.equal(1);
+              expect(state.documents.end).to.equal(2);
+              expect(state.view.table).to.deep.equal({
                 doc: null,
                 editParams: null,
                 path: [],
                 types: [],
               });
-              expect(state.shardKeys).to.deep.equal({});
+              expect(state.documents.shardKeys).to.deep.equal({});
 
-              expect(state.abortController).to.be.null;
-              expect(state.resultId).to.not.equal(resultId);
+              expect(state.documents.abortController).to.be.null;
+              expect(state.documents.resultId).to.not.equal(resultId);
             },
           ]);
 
-          store.state.insert.jsonDoc = docs;
-          void store.insertMany();
+          store.dispatch(seedInsertTestState({ jsonDoc: docs }));
+          void store.dispatch(insertMany());
 
           await listener;
         });
@@ -1420,9 +1506,9 @@ describe('store', function () {
 
         it('inserts both documents but does not add to the list', async function () {
           const listener = waitForState(store, (state) => {
-            expect(state.docs.length).to.equal(0);
-            expect(state.count).to.equal(0);
-            expect(state.end).to.equal(0);
+            expect(state.documents.docs.length).to.equal(0);
+            expect(state.documents.count).to.equal(0);
+            expect(state.documents.end).to.equal(0);
             expect(state.insert.doc).to.equal(null);
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
@@ -1430,8 +1516,8 @@ describe('store', function () {
             expect(state.insert.error).to.equal(undefined);
           });
 
-          store.state.insert.jsonDoc = docs;
-          void store.insertMany();
+          store.dispatch(seedInsertTestState({ jsonDoc: docs }));
+          void store.dispatch(insertMany());
 
           await listener;
         });
@@ -1447,16 +1533,16 @@ describe('store', function () {
 
         it('inserts both documents but only adds the matching one to the list', async function () {
           const listener = waitForState(store, (state) => {
-            expect(state.error).to.be.null;
-            expect(state.docs).to.have.lengthOf(1);
-            expect(state.count).to.equal(1);
-            expect(state.page).to.equal(0);
-            expect(state.start).to.equal(1);
-            expect(state.end).to.equal(1);
+            expect(state.documents.error).to.be.null;
+            expect(state.documents.docs).to.have.lengthOf(1);
+            expect(state.documents.count).to.equal(1);
+            expect(state.documents.page).to.equal(0);
+            expect(state.documents.start).to.equal(1);
+            expect(state.documents.end).to.equal(1);
           });
 
-          store.state.insert.jsonDoc = docs;
-          void store.insertMany();
+          store.dispatch(seedInsertTestState({ jsonDoc: docs }));
+          void store.dispatch(insertMany());
 
           await listener;
         });
@@ -1468,8 +1554,8 @@ describe('store', function () {
         '[ { "name": "Chashu", "type": "Norwegian Forest", "status": "invalid" }, { "name": "Rey", "type": "Viszla" } ]';
 
       beforeEach(function () {
-        store.state.insert.jsonDoc = JSON.stringify(docs);
-        store.state.count = 0;
+        store.dispatch(seedInsertTestState({ jsonDoc: JSON.stringify(docs) }));
+        store.dispatch(seedDocumentsTestState({ count: 0 }));
       });
 
       afterEach(function () {
@@ -1478,8 +1564,8 @@ describe('store', function () {
 
       it('does not insert the document', async function () {
         const listener = waitForState(store, (state) => {
-          expect(state.docs.length).to.equal(0);
-          expect(state.count).to.equal(0);
+          expect(state.documents.docs.length).to.equal(0);
+          expect(state.documents.count).to.equal(0);
           expect(state.insert.doc?.generateObject()).to.deep.equal({});
           expect(state.insert.jsonDoc).to.deep.equal(docs);
           expect(state.insert.isOpen).to.equal(true);
@@ -1490,8 +1576,8 @@ describe('store', function () {
           );
         });
 
-        store.state.insert.jsonDoc = docs;
-        void store.insertMany();
+        store.dispatch(seedInsertTestState({ jsonDoc: docs }));
+        void store.dispatch(insertMany());
 
         await listener;
       });
@@ -1500,7 +1586,7 @@ describe('store', function () {
 
   describe('#openInsertDocumentDialog', function () {
     const doc = { _id: 1, name: 'test' };
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin();
@@ -1514,7 +1600,7 @@ describe('store', function () {
           expect(state.insert.doc.elements.at(0).key).to.equal('name');
         });
 
-        void store.openInsertDocumentDialog(doc, true);
+        void store.dispatch(openInsertDocumentDialog(doc, true));
 
         await listener;
       });
@@ -1526,7 +1612,7 @@ describe('store', function () {
           expect(state.insert.doc.elements.at(0).key).to.equal('_id');
         });
 
-        void store.openInsertDocumentDialog(doc, false);
+        void store.dispatch(openInsertDocumentDialog(doc, false));
 
         await listener;
       });
@@ -1558,7 +1644,7 @@ describe('store', function () {
 
         getCSFLEMode.returns('unavailable');
 
-        void store.openInsertDocumentDialog(doc, false);
+        void store.dispatch(openInsertDocumentDialog(doc, false));
 
         await listener;
 
@@ -1580,7 +1666,7 @@ describe('store', function () {
           encryptedFields: { encryptedFields: [] },
         });
 
-        void store.openInsertDocumentDialog(doc, false);
+        void store.dispatch(openInsertDocumentDialog(doc, false));
 
         await listener;
 
@@ -1606,7 +1692,7 @@ describe('store', function () {
         });
         isUpdateAllowed.resolves(false);
 
-        void store.openInsertDocumentDialog(doc, false);
+        void store.dispatch(openInsertDocumentDialog(doc, false));
 
         await listener;
 
@@ -1632,7 +1718,7 @@ describe('store', function () {
         });
         isUpdateAllowed.resolves(true);
 
-        void store.openInsertDocumentDialog(doc, false);
+        void store.dispatch(openInsertDocumentDialog(doc, false));
 
         await listener;
 
@@ -1657,7 +1743,7 @@ describe('store', function () {
         });
         isUpdateAllowed.resolves(true);
 
-        void store.openInsertDocumentDialog(doc, false);
+        void store.dispatch(openInsertDocumentDialog(doc, false));
 
         await listener;
 
@@ -1669,7 +1755,7 @@ describe('store', function () {
   });
 
   describe('#drillDown', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin();
@@ -1683,20 +1769,20 @@ describe('store', function () {
 
     it('sets the drill down state', async function () {
       const listener = waitForState(store, (state) => {
-        expect(state.table.doc).to.deep.equal(doc);
-        expect(state.table.path).to.deep.equal(['field3']);
-        expect(state.table.types).to.deep.equal(['String']);
-        expect(state.table.editParams).to.deep.equal(editParams);
+        expect(state.view.table.doc).to.deep.equal(doc);
+        expect(state.view.table.path).to.deep.equal(['field3']);
+        expect(state.view.table.types).to.deep.equal(['String']);
+        expect(state.view.table.editParams).to.deep.equal(editParams);
       });
 
-      store.drillDown(doc, element, editParams);
+      store.dispatch(drillDown(doc, element, editParams));
 
       await listener;
     });
   });
 
   describe('#pathChanged', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin();
@@ -1709,18 +1795,18 @@ describe('store', function () {
 
     it('sets the path and types state', async function () {
       const listener = waitForState(store, (state) => {
-        expect(state.table.path).to.deep.equal(path);
-        expect(state.table.types).to.deep.equal(types);
+        expect(state.view.table.path).to.deep.equal(path);
+        expect(state.view.table.types).to.deep.equal(types);
       });
 
-      store.pathChanged(path, types);
+      store.dispatch(pathChanged(path, types));
 
       await listener;
     });
   });
 
   describe('#viewChanged', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       const plugin = activatePlugin();
@@ -1730,10 +1816,10 @@ describe('store', function () {
 
     it('sets the view', async function () {
       const listener = waitForState(store, (state) => {
-        expect(state.view).to.equal('Table');
+        expect(state.view.view).to.equal('Table');
       });
 
-      store.viewChanged('Table');
+      store.dispatch(viewChanged('Table'));
 
       await listener;
     });
@@ -1741,7 +1827,7 @@ describe('store', function () {
 
   describe('#refreshDocuments', function () {
     context('when there is no shard key', function () {
-      let store: CrudStore;
+      let store: CrudReduxStore;
 
       beforeEach(async function () {
         const plugin = activatePlugin();
@@ -1759,22 +1845,22 @@ describe('store', function () {
         it('resets the documents to the first page', async function () {
           const listener = waitForStates(store, [
             (state) => {
-              expect(state.debouncingLoad).to.equal(true);
-              expect(state.count).to.equal(null);
+              expect(state.documents.debouncingLoad).to.equal(true);
+              expect(state.documents.count).to.equal(null);
             },
 
             (state) => {
-              expect(state.error).to.equal(null);
-              expect(state.docs).to.have.length(2);
-              expect(state.docs[0].doc.name).to.equal('testing1');
-              expect(state.debouncingLoad).to.equal(false);
-              expect(state.count).to.equal(2);
-              expect(state.start).to.equal(1);
-              expect(state.shardKeys).to.deep.equal({});
+              expect(state.documents.error).to.equal(null);
+              expect(state.documents.docs).to.have.length(2);
+              expect(state.documents.docs[0].doc.name).to.equal('testing1');
+              expect(state.documents.debouncingLoad).to.equal(false);
+              expect(state.documents.count).to.equal(2);
+              expect(state.documents.start).to.equal(1);
+              expect(state.documents.shardKeys).to.deep.equal({});
             },
           ]);
 
-          void store.refreshDocuments();
+          void store.dispatch(refreshDocuments());
 
           await listener;
         });
@@ -1785,22 +1871,22 @@ describe('store', function () {
           });
           const listener = waitForStates(store, [
             (state) => {
-              expect(state.debouncingLoad).to.equal(true);
-              expect(state.count).to.equal(null);
+              expect(state.documents.debouncingLoad).to.equal(true);
+              expect(state.documents.count).to.equal(null);
             },
 
             (state) => {
-              expect(state.error).to.equal(null);
-              expect(state.docs).to.have.length(2);
-              expect(state.docs[0].doc.name).to.equal('testing2');
-              expect(state.debouncingLoad).to.equal(false);
-              expect(state.count).to.equal(2);
-              expect(state.start).to.equal(1);
-              expect(state.shardKeys).to.deep.equal({});
+              expect(state.documents.error).to.equal(null);
+              expect(state.documents.docs).to.have.length(2);
+              expect(state.documents.docs[0].doc.name).to.equal('testing2');
+              expect(state.documents.debouncingLoad).to.equal(false);
+              expect(state.documents.count).to.equal(2);
+              expect(state.documents.start).to.equal(1);
+              expect(state.documents.shardKeys).to.deep.equal({});
             },
           ]);
 
-          void store.refreshDocuments();
+          void store.dispatch(refreshDocuments());
 
           await listener;
         });
@@ -1819,13 +1905,13 @@ describe('store', function () {
 
         it('resets the documents to the first page', async function () {
           const listener = waitForState(store, (state) => {
-            expect(state.error).to.not.equal(null);
-            expect(state.docs).to.have.length(0);
-            expect(state.count).to.equal(null);
-            expect(state.start).to.equal(0);
+            expect(state.documents.error).to.not.equal(null);
+            expect(state.documents.docs).to.have.length(0);
+            expect(state.documents.count).to.equal(null);
+            expect(state.documents.start).to.equal(0);
           });
 
-          void store.refreshDocuments();
+          void store.dispatch(refreshDocuments());
 
           await listener;
         });
@@ -1833,7 +1919,7 @@ describe('store', function () {
     });
 
     context('when there is a shard key', function () {
-      let store: CrudStore;
+      let store: CrudReduxStore;
       beforeEach(async function () {
         const plugin = activatePlugin();
         store = plugin.store;
@@ -1852,18 +1938,18 @@ describe('store', function () {
 
       it('looks up the shard keys', async function () {
         const listener = waitForState(store, (state) => {
-          expect(state.error).to.equal(null);
-          expect(state.shardKeys).to.deep.equal({ a: 1 });
+          expect(state.documents.error).to.equal(null);
+          expect(state.documents.shardKeys).to.deep.equal({ a: 1 });
         });
 
-        void store.refreshDocuments();
+        void store.dispatch(refreshDocuments());
 
         await listener;
       });
     });
 
     context('when the collection is a timeseries', function () {
-      let store: CrudStore;
+      let store: CrudReduxStore;
 
       beforeEach(async function () {
         if (!satisfies(cluster().serverVersion, '>= 5.0.0')) {
@@ -1887,10 +1973,10 @@ describe('store', function () {
       it('does not specify the _id_ index as hint', async function () {
         const spy = sinon.spy(dataService, 'aggregate');
         const listener = waitForState(store, (state) => {
-          expect(state.count).to.equal(0);
+          expect(state.documents.count).to.equal(0);
         });
 
-        void store.refreshDocuments();
+        void store.dispatch(refreshDocuments());
 
         await listener;
 
@@ -1902,7 +1988,7 @@ describe('store', function () {
     });
 
     context('when cancelling the operation', function () {
-      let store: CrudStore;
+      let store: CrudReduxStore;
 
       beforeEach(function () {
         const plugin = activatePlugin();
@@ -1916,30 +2002,32 @@ describe('store', function () {
         const listener = waitForStates(store, [
           (state) => {
             // cancel the operation as soon as the query starts
-            expect(state.status).to.equal('fetching');
-            expect(state.count).to.be.null;
-            expect(state.loadingCount).to.be.true; // initially count is still loading
-            expect(state.error).to.be.null;
-            expect(state.abortController).to.not.be.null;
+            expect(state.documents.status).to.equal('fetching');
+            expect(state.documents.count).to.be.null;
+            expect(state.documents.loadingCount).to.be.true; // initially count is still loading
+            expect(state.documents.error).to.be.null;
+            expect(state.documents.abortController).to.not.be.null;
 
-            store.cancelOperation();
+            store.dispatch(cancelOperation());
           },
 
           (state) => {
             // cancelOperation cleans up abortController
-            expect(state.abortController).to.be.null;
+            expect(state.documents.abortController).to.be.null;
           },
 
           (state) => {
             // the operation should fail
-            expect(state.status).to.equal('error');
-            expect(state.error.message).to.equal('This operation was aborted');
-            expect(state.abortController).to.be.null;
-            expect(state.loadingCount).to.be.false; // eventually count loads
+            expect(state.documents.status).to.equal('error');
+            expect(state.documents.error.message).to.equal(
+              'This operation was aborted'
+            );
+            expect(state.documents.abortController).to.be.null;
+            expect(state.documents.loadingCount).to.be.false; // eventually count loads
           },
         ]);
 
-        void store.refreshDocuments();
+        void store.dispatch(refreshDocuments());
 
         await listener;
 
@@ -1952,7 +2040,7 @@ describe('store', function () {
   });
 
   describe('#getPage', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
     let findSpy;
 
     beforeEach(async function () {
@@ -1960,7 +2048,7 @@ describe('store', function () {
       store = plugin.store;
       deactivate = () => plugin.deactivate();
 
-      findSpy = sinon.spy(store.dataService, 'find');
+      findSpy = sinon.spy(dataService, 'find');
 
       const docs = [...Array(1000).keys()].map((i) => ({ i }));
       await dataService.insertMany('compass-crud.test', docs);
@@ -1971,25 +2059,25 @@ describe('store', function () {
     });
 
     it('does nothing for negative page numbers', async function () {
-      await store.getPage(-1);
+      await store.dispatch(getPage(-1));
       expect(findSpy.called).to.be.false;
     });
 
     it('does nothing if documents are already being fetched', async function () {
-      store.state.status = 'fetching';
-      await store.getPage(1);
+      store.dispatch(seedDocumentsTestState({ status: 'fetching' }));
+      await store.dispatch(getPage(1));
       expect(findSpy.called).to.be.false;
     });
 
     it('does nothing if the page being requested is past the end', async function () {
       mockQueryBar.getLastAppliedQuery.returns({ limit: 25 });
-      await store.getPage(1); // there is only one page of 25
+      await store.dispatch(getPage(1)); // there is only one page of 25
       expect(findSpy.called).to.be.false;
     });
 
     it('does not ask for documents past the end', async function () {
       mockQueryBar.getLastAppliedQuery.returns({ limit: 26 });
-      await store.getPage(1); // there is only one page of 25
+      await store.dispatch(getPage(1)); // there is only one page of 25
       expect(findSpy.called).to.be.true;
       const opts = findSpy.args[0][2];
       // the second page should only have 1 due to the limit
@@ -1997,32 +2085,32 @@ describe('store', function () {
     });
 
     it('sets status fetchedPagination if it succeeds with no filter', async function () {
-      await store.getPage(1); // there is only one page of 25
+      await store.dispatch(getPage(1)); // there is only one page of 25
       expect(findSpy.called).to.be.true;
-      expect(store.state.status).to.equal('fetchedPagination');
+      expect(store.getState().documents.status).to.equal('fetchedPagination');
     });
 
     it('sets status fetchedPagination if it succeeds with a filter', async function () {
       mockQueryBar.getLastAppliedQuery.returns({ filter: { i: { $gt: 1 } } });
-      await store.getPage(1); // there is only one page of 25
+      await store.dispatch(getPage(1)); // there is only one page of 25
       expect(findSpy.called).to.be.true;
-      expect(store.state.status).to.equal('fetchedPagination');
+      expect(store.getState().documents.status).to.equal('fetchedPagination');
     });
 
     it('sets status error if it fails', async function () {
       // remove the spy and replace it with a stub
       findSpy.restore();
       const findStub = sinon
-        .stub(store.dataService, 'find')
+        .stub(dataService, 'find')
         .rejects(new Error('This is a fake error.'));
 
-      expect(store.state.abortController).to.be.null;
+      expect(store.getState().documents.abortController).to.be.null;
 
-      const promise = store.getPage(1);
-      expect(store.state.abortController).to.not.be.null;
+      const promise = store.dispatch(getPage(1));
+      expect(store.getState().documents.abortController).to.not.be.null;
 
       await promise;
-      expect(store.state.error).to.have.property(
+      expect(store.getState().documents.error).to.have.property(
         'message',
         'This is a fake error.'
       );
@@ -2031,17 +2119,17 @@ describe('store', function () {
     });
 
     it('allows the operation to be cancelled', async function () {
-      expect(store.state.abortController).to.be.null;
+      expect(store.getState().documents.abortController).to.be.null;
 
-      const promise = store.getPage(1);
-      expect(store.state.abortController).to.not.be.null;
+      const promise = store.dispatch(getPage(1));
+      expect(store.getState().documents.abortController).to.not.be.null;
 
-      store.cancelOperation();
-      expect(store.state.abortController).to.be.null;
-      expect(store.state.error).to.be.null;
+      store.dispatch(cancelOperation());
+      expect(store.getState().documents.abortController).to.be.null;
+      expect(store.getState().documents.error).to.be.null;
 
       await promise;
-      expect(store.state.error).to.have.property(
+      expect(store.getState().documents.error).to.have.property(
         'message',
         'This operation was aborted'
       );
@@ -2051,7 +2139,7 @@ describe('store', function () {
   });
 
   describe.skip('default query for view with own sort order', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(async function () {
       const plugin = activatePlugin();
@@ -2078,8 +2166,10 @@ describe('store', function () {
 
     it('returns documents in view order', async function () {
       const listener = waitForState(store, (state) => {
-        expect(state.docs).to.have.lengthOf(4);
-        expect(state.docs.map((doc) => doc.generateObject())).to.deep.equal([
+        expect(state.documents.docs).to.have.lengthOf(4);
+        expect(
+          state.documents.docs.map((doc) => doc.generateObject())
+        ).to.deep.equal([
           { _id: '003', cat: 'amy' },
           { _id: '002', cat: 'chashu' },
           { _id: '001', cat: 'nori' },
@@ -2087,7 +2177,7 @@ describe('store', function () {
         ]);
       });
 
-      void store.refreshDocuments();
+      void store.dispatch(refreshDocuments());
 
       await listener;
     });
@@ -2512,7 +2602,7 @@ describe('store', function () {
   describe('saveUpdateQuery', function () {
     let favoriteQueriesStorage;
     let saveQueryStub;
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       favoriteQueriesStorage = compassFavoriteQueryStorageAccess.getStorage();
@@ -2536,8 +2626,10 @@ describe('store', function () {
 
     it('should save the query once is submitted to save', async function () {
       mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
-      await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
-      await store.saveUpdateQuery('my-query');
+      await store.dispatch(
+        updateBulkUpdatePreview('{ $set: { anotherField: 2 } }')
+      );
+      await store.dispatch(saveUpdateQuery('my-query'));
 
       expect(saveQueryStub).to.have.been.calledWith({
         _name: 'my-query',
@@ -2555,7 +2647,7 @@ describe('store', function () {
   describe('updateBulkUpdatePreview', function () {
     context('with isUpdatePreviewSupported=false', function () {
       let previewUpdateStub;
-      let store: CrudStore;
+      let store: CrudReduxStore;
 
       beforeEach(function () {
         previewUpdateStub = sinon.stub().resolves({
@@ -2575,13 +2667,15 @@ describe('store', function () {
       });
 
       it('never calls dataService.previewUpdate()', async function () {
-        void store.openBulkUpdateModal();
+        void store.dispatch(openBulkUpdateModal());
         mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
-        await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
+        await store.dispatch(
+          updateBulkUpdatePreview('{ $set: { anotherField: 2 } }')
+        );
 
         expect(previewUpdateStub.called).to.be.false;
 
-        expect(store.state.bulkUpdate).to.deep.equal({
+        expect(store.getState().bulkUpdate).to.deep.equal({
           isOpen: true,
           preview: {
             changes: [],
@@ -2594,24 +2688,28 @@ describe('store', function () {
       });
 
       it('resets syntaxError when there is no syntax error', async function () {
-        void store.openBulkUpdateModal();
+        void store.dispatch(openBulkUpdateModal());
         mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
-        await store.updateBulkUpdatePreview('{ $set: { anotherField:  } }'); // syntax error
+        await store.dispatch(
+          updateBulkUpdatePreview('{ $set: { anotherField:  } }')
+        ); // syntax error
 
         expect(previewUpdateStub.called).to.be.false;
 
-        expect(store.state.bulkUpdate.syntaxError?.name).to.equal(
+        expect(store.getState().bulkUpdate.syntaxError?.name).to.equal(
           'SyntaxError'
         );
-        expect(store.state.bulkUpdate.syntaxError?.message).to.equal(
+        expect(store.getState().bulkUpdate.syntaxError?.message).to.equal(
           'Unexpected token (2:25) in (\n{ $set: { anotherField:  } }\n)'
         );
 
-        await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
+        await store.dispatch(
+          updateBulkUpdatePreview('{ $set: { anotherField: 2 } }')
+        );
 
         expect(previewUpdateStub.called).to.be.false;
 
-        expect(store.state.bulkUpdate).to.deep.equal({
+        expect(store.getState().bulkUpdate).to.deep.equal({
           isOpen: true,
           preview: {
             changes: [],
@@ -2626,7 +2724,7 @@ describe('store', function () {
 
     context('with isUpdatePreviewSupported=true', function () {
       let previewUpdateStub;
-      let store: CrudStore;
+      let store: CrudReduxStore;
 
       beforeEach(function () {
         previewUpdateStub = sinon.stub().resolves({
@@ -2645,14 +2743,16 @@ describe('store', function () {
       });
 
       it('calls dataService.previewUpdate()', async function () {
-        void store.openBulkUpdateModal();
+        void store.dispatch(openBulkUpdateModal());
         mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
-        await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
+        await store.dispatch(
+          updateBulkUpdatePreview('{ $set: { anotherField: 2 } }')
+        );
 
         // why two? because it also gets called when the dialog opens
         expect(previewUpdateStub.callCount).to.equal(2);
 
-        expect(store.state.bulkUpdate).to.deep.equal({
+        expect(store.getState().bulkUpdate).to.deep.equal({
           isOpen: true,
           preview: {
             changes: [
@@ -2674,7 +2774,7 @@ describe('store', function () {
   describe('saveRecentQueryQuery', function () {
     let recentQueriesStorage;
     let saveQueryStub;
-    let store: CrudStore;
+    let store: CrudReduxStore;
 
     beforeEach(function () {
       recentQueriesStorage = compassRecentQueryStorageAccess.getStorage();
@@ -2697,8 +2797,10 @@ describe('store', function () {
 
     it('should save the query once is run', async function () {
       mockQueryBar.getLastAppliedQuery.returns({ filter: { field: 1 } });
-      await store.updateBulkUpdatePreview('{ $set: { anotherField: 2 } }');
-      await store.runBulkUpdate();
+      await store.dispatch(
+        updateBulkUpdatePreview('{ $set: { anotherField: 2 } }')
+      );
+      await store.dispatch(runBulkUpdate());
 
       expect(saveQueryStub).to.have.been.calledWith({
         _ns: 'compass-crud.testview',
@@ -2713,7 +2815,7 @@ describe('store', function () {
   });
 
   describe('#updateMaxDocumentsPerPage', function () {
-    let store: CrudStore;
+    let store: CrudReduxStore;
     let fakeLocalStorage: sinon.SinonStub;
     let fakeGetItem: (key: string) => string | null;
     let fakeSetItem: (key: string, value: string) => void;
@@ -2742,27 +2844,39 @@ describe('store', function () {
 
     it('should update the number of documents per page in the state and in localStorage', async function () {
       let listener = waitForState(store, (state) => {
-        expect(state).to.have.property('docsPerPage', 50);
+        expect(state.documents.docsPerPage).to.equal(50);
         expect(fakeGetItem(MAX_DOCS_PER_PAGE_STORAGE_KEY)).to.equal('50');
       });
-      store.updateMaxDocumentsPerPage(50);
+      store.dispatch(updateMaxDocumentsPerPage(50));
       await listener;
 
       listener = waitForState(store, (state) => {
-        expect(state).to.have.property('docsPerPage', 75);
+        expect(state.documents.docsPerPage).to.equal(75);
         expect(fakeGetItem(MAX_DOCS_PER_PAGE_STORAGE_KEY)).to.equal('75');
       });
-      store.updateMaxDocumentsPerPage(75);
+      store.dispatch(updateMaxDocumentsPerPage(75));
       await listener;
     });
 
     it('should trigger refresh of documents when documents per page changes', function () {
-      const refreshSpy = sinon.spy(store, 'refreshDocuments');
-      store.updateMaxDocumentsPerPage(50);
+      // refreshDocuments transitions documents.status into 'fetching'; count
+      // those edges to confirm only one refresh was kicked off across the two
+      // dispatches with the same value.
+      let prevStatus = store.getState().documents.status;
+      let fetchingTransitions = 0;
+      const unsubscribe = store.subscribe(() => {
+        const newStatus = store.getState().documents.status;
+        if (newStatus !== prevStatus && newStatus === 'fetching') {
+          fetchingTransitions++;
+        }
+        prevStatus = newStatus;
+      });
+      store.dispatch(updateMaxDocumentsPerPage(50));
       // calling it twice with the same count but the refresh should be
       // triggered only once
-      store.updateMaxDocumentsPerPage(50);
-      expect(refreshSpy).to.be.calledOnce;
+      store.dispatch(updateMaxDocumentsPerPage(50));
+      unsubscribe();
+      expect(fetchingTransitions).to.equal(1);
     });
   });
 });

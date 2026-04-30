@@ -1,43 +1,22 @@
 import Reflux from 'reflux';
 
+/**
+ * Reflux actions consumed by the legacy grid-store. The crud store itself is
+ * Redux-based; these actions only exist to drive the still-Reflux grid store
+ * from components.
+ */
 const configureActions = () => {
   const actions = Reflux.createActions([
     'addColumn',
     'cleanCols',
-    'closeInsertDocumentDialog',
-    'closeBulkUpdateModal',
-    'copyToClipboard',
-    'documentRemoved',
-    'drillDown',
     'elementAdded',
     'elementMarkRemoved',
     'elementRemoved',
     'elementTypeChanged',
-    'getPage',
-    'insertDocument',
-    'insertMany',
-    'toggleInsertDocumentView',
-    'toggleInsertDocument',
-    'openInsertDocumentDialog',
-    'openBulkUpdateModal',
-    'updateBulkUpdatePreview',
-    'runBulkUpdate',
-    'openExportFileDialog',
-    'openImportFileDialog',
-    'pathChanged',
-    'refreshDocuments',
-    'cancelOperation',
-    'removeDocument',
     'removeColumn',
     'renameColumn',
     'replaceDoc',
-    'replaceDocument',
     'resetColumns',
-    'updateDocument',
-    'updateJsonDoc',
-    'viewChanged',
-    'updateComment',
-    'updateMaxDocumentsPerPage',
   ]);
 
   return actions;

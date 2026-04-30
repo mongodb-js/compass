@@ -143,7 +143,7 @@ function isOperationTimedOutError(err: ErrorWithPossibleCode) {
 
 export type CrudToolbarProps = {
   activeDocumentView: DocumentView;
-  count?: number;
+  count?: number | null;
   end: number;
   error?: ErrorWithPossibleCode | null;
   getPage: (page: number) => void;
@@ -166,7 +166,7 @@ export type CrudToolbarProps = {
   page: number;
   readonly: boolean;
   refreshDocuments: () => void;
-  resultId: string;
+  resultId: number;
   start: number;
   viewSwitchHandler: (view: DocumentView) => void;
   insights?: Signal;

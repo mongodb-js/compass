@@ -20,14 +20,15 @@ import { cx, spacing, withDarkMode } from '@mongodb-js/compass-components';
 import type {
   BSONObject,
   CrudActions,
-  CrudStore,
   TableState,
 } from '../../stores/crud-store';
 import type {
   GridActions,
+  GridStore,
   GridStoreTriggerParams,
   TableHeaderType,
 } from '../../stores/grid-store';
+import { GridStoreContext } from '../../stores/grid-store-context';
 import type {
   CellDoubleClickedEvent,
   ColDef,
@@ -66,7 +67,6 @@ export type DocumentTableViewProps = {
   replaceDocument: CrudActions['replaceDocument'];
   updateDocument: CrudActions['updateDocument'];
   start: number;
-  store: CrudStore;
   table: TableState;
   tz: string;
   className?: string;
@@ -93,6 +93,8 @@ export type GridContext = {
  * Represents the table view of the documents tab.
  */
 export class DocumentTableView extends React.Component<DocumentTableViewProps> {
+  static contextType = GridStoreContext;
+  declare context: GridStore | null;
   AGGrid: React.ReactElement;
   collection: string;
   topLevel: boolean;
@@ -162,10 +164,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
   }
 
   componentDidMount() {
-    this.unsubscribeGridStore = this.props.store.gridStore.listen(
-      this.modifyColumns,
-      this
-    );
+    this.unsubscribeGridStore = this.context?.listen(this.modifyColumns, this);
   }
 
   componentWillUnmount() {

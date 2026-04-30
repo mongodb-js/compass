@@ -23,14 +23,57 @@ import type { DocumentTableViewProps } from './table-view/document-table-view';
 import DocumentTableView from './table-view/document-table-view';
 import type { CrudToolbarProps } from './crud-toolbar';
 import { CrudToolbar } from './crud-toolbar';
-import type { Document } from 'hadron-document';
+import { Document } from 'hadron-document';
 import type { DOCUMENTS_STATUSES } from '../constants/documents-statuses';
 import {
   DOCUMENTS_STATUS_ERROR,
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_FETCHED_INITIAL,
 } from '../constants/documents-statuses';
-import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
+import { connect } from 'react-redux';
+import type { BSONObject, CrudState, DocumentView } from '../stores/crud-store';
+import {
+  refreshDocuments,
+  cancelOperation,
+  copyToClipboard,
+  removeDocument,
+  updateDocument,
+  replaceDocument,
+  openImportFileDialog,
+  openExportFileDialog,
+  openCreateIndexModal,
+  openCreateSearchIndexModal,
+  openQueryExportToLanguageDialog,
+  openDeleteQueryExportToLanguageDialog,
+  getPage,
+  updateMaxDocumentsPerPage,
+} from '../stores/documents';
+import { drillDown, pathChanged, viewChanged } from '../stores/view';
+import {
+  openInsertDocumentDialog,
+  insertDocument,
+  insertMany,
+  toggleInsertDocument,
+  toggleInsertDocumentView,
+  closeInsertDocumentDialog,
+  updateJsonDoc,
+  updateComment,
+} from '../stores/insert';
+import type { InsertState } from '../stores/insert';
+import {
+  openBulkUpdateModal,
+  closeBulkUpdateModal,
+  updateBulkUpdatePreview,
+  runBulkUpdate,
+  saveUpdateQuery,
+} from '../stores/bulk-update';
+import type { BulkUpdateState } from '../stores/bulk-update';
+import {
+  openBulkDeleteDialog,
+  closeBulkDeleteDialog,
+  runBulkDelete,
+} from '../stores/bulk-delete';
+import type { BulkDeleteState } from '../stores/bulk-delete';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
@@ -66,35 +109,28 @@ const loaderContainerStyles = css({
 });
 
 export type DocumentListProps = {
-  store: CrudStore;
-  openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
-  openBulkUpdateModal: () => void;
+  // State props (from mapStateToProps)
+  isDataLake: boolean;
+  isReadonly: boolean;
+  bulkDelete: BulkDeleteState;
+  // Action props (from mapDispatchToProps)
+  openBulkUpdateModal: (updateText?: string) => void;
   updateBulkUpdatePreview: (updateText: string) => void;
   runBulkUpdate: () => void;
   saveUpdateQuery: (name: string) => void;
-  openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
+  cancelOperation: () => void;
+  openBulkDeleteDialog: () => void;
+  closeBulkDeleteDialog: () => void;
+  runBulkDelete: () => void;
+  openCreateIndexModal: () => void;
+  openCreateSearchIndexModal: () => void;
+  openQueryExportToLanguageDialog: () => void;
+  openDeleteQueryExportToLanguageDialog: () => void;
+  // Document state
   docs: Document[];
   view: DocumentView;
-  insert: Partial<InsertDocumentDialogProps> &
-    Required<
-      Pick<
-        InsertDocumentDialogProps,
-        | 'doc'
-        | 'csfleState'
-        | 'isOpen'
-        | 'error'
-        | 'mode'
-        | 'jsonDoc'
-        | 'isCommentNeeded'
-      >
-    >;
-  bulkUpdate: Partial<BulkUpdateModalProps> &
-    Required<
-      Pick<
-        BulkUpdateModalProps,
-        'isOpen' | 'syntaxError' | 'serverError' | 'preview' | 'updateText'
-      >
-    >;
+  insert: InsertState;
+  bulkUpdate: BulkUpdateState;
   status: DOCUMENTS_STATUSES;
   debouncingLoad?: boolean;
   viewChanged: CrudToolbarProps['viewSwitchHandler'];
@@ -102,6 +138,9 @@ export type DocumentListProps = {
   isCollectionScan?: boolean;
   isSearchIndexesSupported: boolean;
   isUpdatePreviewSupported: boolean;
+  // Carried via the connector for child components to consume.
+  openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
+  openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
 } & Omit<DocumentListViewProps, 'className'> &
   Omit<DocumentTableViewProps, 'className'> &
   Omit<DocumentJsonViewProps, 'className'> &
@@ -133,11 +172,13 @@ export type DocumentListProps = {
     | 'isWritable'
     | 'isMockDataGeneratorEnabled'
     | 'instanceDescription'
-    | 'refreshDocuments'
     | 'resultId'
     | 'docsPerPage'
     | 'updateMaxDocumentsPerPage'
-  >;
+  > & {
+    /** Refresh documents; pass `true` when triggered by the user clicking "Apply". */
+    refreshDocuments: (onApply?: boolean) => void;
+  };
 
 const DocumentViewComponent: React.FunctionComponent<
   DocumentListProps & {
@@ -293,13 +334,24 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     end,
     page,
     getPage,
-    store,
+    isDataLake,
+    isReadonly,
+    bulkDelete,
     openExportFileDialog,
     viewChanged,
     isWritable,
     isMockDataGeneratorEnabled,
     instanceDescription,
     refreshDocuments,
+    cancelOperation,
+    openBulkDeleteDialog,
+    closeBulkDeleteDialog,
+    runBulkDelete,
+    saveUpdateQuery,
+    openDeleteQueryExportToLanguageDialog,
+    openQueryExportToLanguageDialog,
+    openCreateIndexModal,
+    openCreateSearchIndexModal,
     resultId,
     isCollectionScan,
     isSearchIndexesSupported,
@@ -340,43 +392,43 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
   );
 
   const onApplyClicked = useCallback(() => {
-    void store.refreshDocuments(true);
-  }, [store]);
+    refreshDocuments(true);
+  }, [refreshDocuments]);
 
   const onResetClicked = useCallback(() => {
-    void store.refreshDocuments();
-  }, [store]);
+    refreshDocuments();
+  }, [refreshDocuments]);
 
   const onCancelClicked = useCallback(() => {
-    void store.cancelOperation();
-  }, [store]);
+    cancelOperation();
+  }, [cancelOperation]);
 
   const onUpdateButtonClicked = useCallback(() => {
     openBulkUpdateModal();
   }, [openBulkUpdateModal]);
 
   const onDeleteButtonClicked = useCallback(() => {
-    store.openBulkDeleteDialog();
-  }, [store]);
+    openBulkDeleteDialog();
+  }, [openBulkDeleteDialog]);
 
   const onSaveUpdateQuery = useCallback(
     (name: string) => {
-      void store.saveUpdateQuery(name);
+      void saveUpdateQuery(name);
     },
-    [store]
+    [saveUpdateQuery]
   );
 
   const onCancelBulkDeleteDialog = useCallback(() => {
-    store.closeBulkDeleteDialog();
-  }, [store]);
+    closeBulkDeleteDialog();
+  }, [closeBulkDeleteDialog]);
 
   const onConfirmBulkDeleteDialog = useCallback(() => {
-    void store.runBulkDelete();
-  }, [store]);
+    runBulkDelete();
+  }, [runBulkDelete]);
 
   const onExportToLanguageDeleteQuery = useCallback(() => {
-    store.openDeleteQueryExportToLanguageDialog();
-  }, [store]);
+    openDeleteQueryExportToLanguageDialog();
+  }, [openDeleteQueryExportToLanguageDialog]);
 
   const query = useLastAppliedQuery('crud');
   const outdated = useIsLastAppliedQueryOutdated('crud');
@@ -395,8 +447,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
 
   const isEditable =
     !preferencesReadOnly &&
-    !store.state.isDataLake &&
-    !store.state.isReadonly &&
+    !isDataLake &&
+    !isReadonly &&
     Object.keys(query.project ?? {}).length === 0;
 
   const isEmpty = docs.length === 0;
@@ -589,9 +641,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             onExpandAllClicked={onExpandAllClicked}
             onCollapseAllClicked={onCollapseAllClicked}
             openExportFileDialog={openExportFileDialog}
-            onOpenExportToLanguage={store.openQueryExportToLanguageDialog.bind(
-              store
-            )}
+            onOpenExportToLanguage={openQueryExportToLanguageDialog}
             outdated={outdated}
             readonly={!isEditable}
             viewSwitchHandler={handleViewChanged}
@@ -606,8 +656,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               isCollectionScan: Boolean(isCollectionScan),
               isSearchIndexesSupported,
               canCreateIndexes: !preferencesReadWrite,
-              onCreateIndex: store.openCreateIndexModal.bind(store),
-              onCreateSearchIndex: store.openCreateSearchIndexModal.bind(store),
+              onCreateIndex: openCreateIndexModal,
+              onCreateSearchIndex: openCreateSearchIndexModal,
               onAssistantButtonClick: tellMoreAboutInsight
                 ? () =>
                     tellMoreAboutInsight({
@@ -633,16 +683,22 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             updateJsonDoc={updateJsonDoc}
             toggleInsertDocument={toggleInsertDocument}
             toggleInsertDocumentView={toggleInsertDocumentView}
-            jsonView
             version={version}
             ns={ns}
             updateComment={updateComment}
-            {...insert}
+            doc={insert.doc ?? new Document({})}
+            jsonDoc={insert.jsonDoc ?? ''}
+            jsonView={insert.jsonView}
+            error={insert.error}
+            csfleState={insert.csfleState}
+            mode={insert.mode}
+            isOpen={insert.isOpen}
+            isCommentNeeded={insert.isCommentNeeded}
           />
           <BulkUpdateModal
             ns={ns}
             filter={query.filter ?? {}}
-            count={count}
+            count={count ?? undefined}
             enablePreview={isUpdatePreviewSupported}
             {...bulkUpdate}
             closeBulkUpdateModal={closeBulkUpdateModal}
@@ -651,13 +707,13 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             saveUpdateQuery={onSaveUpdateQuery}
           />
           <BulkDeleteModal
-            open={store.state.bulkDelete.status === 'open'}
-            namespace={store.state.ns}
-            documentCount={store.state.bulkDelete.affected}
+            open={bulkDelete.status === 'open'}
+            namespace={ns}
+            documentCount={bulkDelete.affected}
             filter={query.filter ?? {}}
             onCancel={onCancelBulkDeleteDialog}
             onConfirmDeletion={onConfirmBulkDeleteDialog}
-            sampleDocuments={store.state.bulkDelete.previews}
+            sampleDocuments={bulkDelete.previews}
             onExportToLanguage={onExportToLanguageDeleteQuery}
           />
         </>
@@ -666,4 +722,73 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
   );
 };
 
-export default withDarkMode(DocumentList);
+type OwnProps = {
+  isMockDataGeneratorEnabled?: boolean;
+};
+
+export default connect(
+  (state: CrudState) => ({
+    isDataLake: state.collectionMeta.isDataLake,
+    isReadonly: state.collectionMeta.isReadonly,
+    isWritable: state.collectionMeta.isWritable,
+    instanceDescription: state.collectionMeta.instanceDescription,
+    isSearchIndexesSupported: state.collectionMeta.isSearchIndexesSupported,
+    isUpdatePreviewSupported: state.collectionMeta.isUpdatePreviewSupported,
+    version: state.collectionMeta.version,
+    view: state.view.view,
+    table: state.view.table,
+    insert: state.insert,
+    bulkUpdate: state.bulkUpdate,
+    bulkDelete: state.bulkDelete,
+    docs: state.documents.docs ?? [],
+    ns: state.documents.ns,
+    start: state.documents.start,
+    end: state.documents.end,
+    page: state.documents.page,
+    count: state.documents.count,
+    status: state.documents.status,
+    error: state.documents.error,
+    resultId: state.documents.resultId,
+    isCollectionScan: state.documents.isCollectionScan,
+    loadingCount: state.documents.loadingCount,
+    lastCountRunMaxTimeMS: state.documents.lastCountRunMaxTimeMS,
+    debouncingLoad: state.documents.debouncingLoad,
+    docsPerPage: state.documents.docsPerPage,
+  }),
+  {
+    refreshDocuments,
+    cancelOperation,
+    copyToClipboard,
+    drillDown,
+    removeDocument,
+    updateDocument,
+    replaceDocument,
+    pathChanged,
+    viewChanged,
+    openImportFileDialog: (_origin: 'empty-state' | 'crud-toolbar') =>
+      openImportFileDialog(),
+    openExportFileDialog,
+    openCreateIndexModal,
+    openCreateSearchIndexModal,
+    openQueryExportToLanguageDialog,
+    openDeleteQueryExportToLanguageDialog,
+    getPage,
+    updateMaxDocumentsPerPage,
+    openInsertDocumentDialog,
+    insertDocument,
+    insertMany,
+    toggleInsertDocument,
+    toggleInsertDocumentView,
+    closeInsertDocumentDialog,
+    updateJsonDoc,
+    updateComment,
+    openBulkUpdateModal,
+    closeBulkUpdateModal,
+    updateBulkUpdatePreview,
+    runBulkUpdate,
+    saveUpdateQuery,
+    openBulkDeleteDialog,
+    closeBulkDeleteDialog,
+    runBulkDelete,
+  }
+)(withDarkMode(DocumentList)) as unknown as React.ComponentType<OwnProps>;

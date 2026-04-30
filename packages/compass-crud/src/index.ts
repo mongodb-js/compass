@@ -1,4 +1,5 @@
 import React from 'react';
+import { useStore } from 'react-redux';
 import type { DocumentProps } from './components/document';
 import Document from './components/document';
 import type { DocumentListProps } from './components/document-list';
@@ -7,7 +8,9 @@ import InsertDocumentDialog from './components/insert-document-dialog';
 import {
   type EmittedAppRegistryEvents,
   activateDocumentsPlugin,
+  type CrudReduxStore,
 } from './stores/crud-store';
+import { GridStoreContext } from './stores/grid-store-context';
 import {
   connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
@@ -37,14 +40,16 @@ import { CrudTabTitle } from './plugin-title';
 const CompassDocumentsPluginProvider = registerCompassPlugin(
   {
     name: 'CompassDocuments',
-    component: function CrudProvider({ children, ...props }) {
+    // The redux store carries a side-channel reference to the still-Reflux
+    // grid store; surface it via a dedicated React context so components can
+    // subscribe to grid events without holding a reference to the store
+    // object itself.
+    component: function CrudProvider({ children }) {
+      const reduxStore = useStore() as unknown as CrudReduxStore;
       return React.createElement(
-        React.Fragment,
-        null,
-        // Cloning children with props is a workaround for reflux store.
-        React.isValidElement(children)
-          ? React.cloneElement(children, props)
-          : null
+        GridStoreContext.Provider,
+        { value: reduxStore.gridStore },
+        children
       );
     },
     activate: activateDocumentsPlugin,
@@ -72,8 +77,8 @@ const CompassDocumentsPluginProvider = registerCompassPlugin(
 export const CompassDocumentsPlugin = {
   name: 'Documents' as const,
   provider: CompassDocumentsPluginProvider,
-  content: DocumentList as any, // as any because of reflux store
-  header: CrudTabTitle as any, // as any because of reflux store
+  content: DocumentList,
+  header: CrudTabTitle,
 };
 
 export default DocumentList;

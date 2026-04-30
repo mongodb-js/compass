@@ -63,7 +63,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   insertDocument: () => void;
   insertMany: () => void;
   isOpen: boolean;
-  error: WriteError;
+  error?: WriteError;
   mode: 'modifying' | 'error';
   version: string;
   updateJsonDoc: (value: string | null) => void;
