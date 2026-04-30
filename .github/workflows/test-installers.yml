@@ -201,6 +201,10 @@ jobs:
           node-version: 22.21.1
           cache: 'npm'
 
+      - name: Install npm@11.13.0
+        run: |
+          npm install -g npm@11.13.0
+
       - name: Cache downloads
         uses: actions/cache@v4
         with:
