@@ -234,6 +234,9 @@ jobs:
           persist-credentials: false
           path: compass-mongodb-com
       - name: Install Compass Update server
+        env:
+          # We don't want engines requirement in compass-mongodb-com to affect the install
+          npm_config_engine_strict: false
         if: matrix.install-update-server
         run: npm install --no-save --workspace packages/compass-smoke-tests ./compass-mongodb-com
 
