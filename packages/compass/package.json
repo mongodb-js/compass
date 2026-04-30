@@ -267,7 +267,7 @@
     "minimatch": "^10.0.1",
     "mongodb": "^7.1.1",
     "mongodb-build-info": "^1.8.1",
-    "mongodb-cloud-info": "^2.3.11",
+    "mongodb-cloud-info": "^2.3.12",
     "mongodb-connection-string-url": "^7.0.1",
     "mongodb-data-service": "^22.39.4",
     "mongodb-log-writer": "^2.4.4",

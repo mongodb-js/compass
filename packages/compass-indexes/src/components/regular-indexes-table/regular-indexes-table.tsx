@@ -92,7 +92,6 @@ export const RegularIndexesTable: React.FunctionComponent<
     // displaying it.
     return null;
   }
-
   return (
     <IndexesTable
       id="regular-indexes"
