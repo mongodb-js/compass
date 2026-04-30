@@ -25,9 +25,6 @@ const addDataMenuButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
-// `display: contents` makes the wrapper transparent for layout so the
-// trigger button continues to lay out as a direct flex child of the
-// surrounding toolbar.
 const addDataMenuWrapperStyles = css({
   display: 'contents',
 });
@@ -108,10 +105,6 @@ function AddDataMenuButton({
     [localAppRegistry, insertDataHandler]
   );
 
-  // Detect the user opening the menu from the capture phase, before the
-  // trigger button calls evt.stopPropagation() in its bubble-phase handler.
-  // The menu items render in a portal so their clicks don't bubble through
-  // here; this only fires for clicks on the trigger button itself.
   const handleClickCapture = useCallback(() => {
     setHasOpenedMenu(true);
   }, []);
