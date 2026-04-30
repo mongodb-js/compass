@@ -1,9 +1,10 @@
 module.exports = function (source) {
   if (/node_modules(\/|\\)d3(\1)/.test(this.resourcePath)) {
-    // Our version of d3 uses `this` as a reference to global object / window.
-    // This is not allowed in "strict mode" and all esm code will be running in
-    // this mode. We are 4 major versions behind, so patching is an easy way to
-    // deal with this for now without forcing us to update to latest
+    // TODO(COMPASS-10644): Our version of d3 uses `this` as a reference to
+    // global object / window. This is not allowed in "strict mode" and all esm
+    // code will be running in this mode. We are 4 major versions behind, so
+    // patching is an easy way to deal with this for now without forcing us to
+    // update to latest
     source = source
       .replace(
         /\bthis\.(document|Element|navigator|CSSStyleDeclaration|d3)/g,
