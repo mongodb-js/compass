@@ -14,12 +14,7 @@ import type { CollectionTabOptions } from '../stores/collection-tab';
 import { selectHasSchemaAnalysisData } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
-import {
-  useTelemetry,
-  useAssignment,
-  ExperimentTestNames,
-  ExperimentTestGroups,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   useConnectionInfo,
   useConnectionInfoRef,
@@ -234,28 +229,19 @@ const CollectionTabWithMetadata: React.FunctionComponent<
       !sourceName // sourceName indicates it's a view
   );
 
-  const mockDataGeneratorAssignment = useAssignment(
-    ExperimentTestNames.mockDataGenerator,
-    isMockDataGeneratorEligible // Only track eligible collections
-  );
-
-  const isInMockDataTreatmentVariant =
-    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
-    ExperimentTestGroups.mockDataGeneratorVariant;
-
   const exceedsMaxNestingDepth =
     analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
 
+  // True when prerequisites for the Mock Data Generator menu item are met
+  // Independent of experiment variant assignment
   const isMockDataGeneratorEnabled = useMemo(() => {
     return (
       isMockDataGeneratorEligible &&
-      isInMockDataTreatmentVariant &&
       hasSchemaAnalysisData &&
       !exceedsMaxNestingDepth
     );
   }, [
     isMockDataGeneratorEligible,
-    isInMockDataTreatmentVariant,
     hasSchemaAnalysisData,
     exceedsMaxNestingDepth,
   ]);

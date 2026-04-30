@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Icon,
   Tooltip,
@@ -8,6 +8,12 @@ import {
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useLocalAppRegistry } from '@mongodb-js/compass-app-registry';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+  useAssignment,
+  useFireExperimentViewed,
+} from '@mongodb-js/compass-telemetry/provider';
 import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
 
 const tooltipContainerStyles = css({
@@ -38,6 +44,24 @@ function AddDataMenuButton({
   const isImportExportEnabled = usePreference('enableImportExport');
   const localAppRegistry = useLocalAppRegistry();
 
+  const mockDataGeneratorAssignment = useAssignment(
+    ExperimentTestNames.mockDataGenerator,
+    false // "Experiment Viewed" is fired below on menu open
+  );
+  const isInMockDataTreatmentVariant =
+    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
+    ExperimentTestGroups.mockDataGeneratorVariant;
+
+  const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
+
+  // Fire the experiment exposure only once the user has opened the menu AND
+  // all menu-item visibility prerequisites are met (independent of variant,
+  // so control and treatment are both tracked).
+  useFireExperimentViewed({
+    testName: ExperimentTestNames.mockDataGenerator,
+    shouldFire: hasOpenedMenu && isMockDataGeneratorEnabled,
+  });
+
   const addDataActions = useMemo(() => {
     const actions: MenuAction<AddDataOption>[] = [
       { action: 'insert-document' as const, label: 'Insert document' },
@@ -50,7 +74,8 @@ function AddDataMenuButton({
       });
     }
 
-    if (isMockDataGeneratorEnabled) {
+    // The menu item only renders for users in treatment variant group
+    if (isMockDataGeneratorEnabled && isInMockDataTreatmentVariant) {
       actions.push({
         action: 'generate-mock-data' as const,
         label: 'Generate Mock Data Script',
@@ -58,7 +83,11 @@ function AddDataMenuButton({
     }
 
     return actions;
-  }, [isImportExportEnabled, isMockDataGeneratorEnabled]);
+  }, [
+    isImportExportEnabled,
+    isMockDataGeneratorEnabled,
+    isInMockDataTreatmentVariant,
+  ]);
 
   const handleAction = useCallback(
     (action: AddDataOption) => {
@@ -71,11 +100,18 @@ function AddDataMenuButton({
     [localAppRegistry, insertDataHandler]
   );
 
+  const handleMenuOpenChange = useCallback((isOpen: boolean) => {
+    if (isOpen) {
+      setHasOpenedMenu(true);
+    }
+  }, []);
+
   return (
     <DropdownMenuButton<AddDataOption>
       data-testid="crud-add-data"
       actions={addDataActions}
       onAction={handleAction}
+      onMenuOpenChange={handleMenuOpenChange}
       buttonText="Add data"
       buttonProps={{
         size: 'xsmall',

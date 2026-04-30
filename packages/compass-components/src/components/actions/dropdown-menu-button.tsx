@@ -32,6 +32,7 @@ export type DropdownMenuButtonProps<Action extends string> = {
     React.ButtonHTMLAttributes<HTMLButtonElement>;
   hideOnNarrow?: boolean;
   narrowBreakpoint?: string;
+  onMenuOpenChange?: (isOpen: boolean) => void;
 };
 
 export function DropdownMenuButton<Action extends string>({
@@ -46,17 +47,32 @@ export function DropdownMenuButton<Action extends string>({
   'data-testid': dataTestId,
   hideOnNarrow = true,
   narrowBreakpoint = '900px',
+  onMenuOpenChange,
 }: DropdownMenuButtonProps<Action>) {
   // This ref is used by the Menu component to calculate the height and position
   // of the menu.
   const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  const setMenuOpen: React.Dispatch<React.SetStateAction<boolean>> =
+    useCallback(
+      (value) => {
+        setIsMenuOpen((prev) => {
+          const next = typeof value === 'function' ? value(prev) : value;
+          if (next !== prev) {
+            onMenuOpenChange?.(next);
+          }
+          return next;
+        });
+      },
+      [onMenuOpenChange]
+    );
+
   const onClick: React.MouseEventHandler<HTMLElement> = useCallback(
     (evt) => {
       evt.stopPropagation();
       if (evt.currentTarget.dataset.menuitem) {
-        setIsMenuOpen(false);
+        setMenuOpen(false);
       }
       const actionName = evt.currentTarget.dataset.action;
       if (typeof actionName !== 'string') {
@@ -64,7 +80,7 @@ export function DropdownMenuButton<Action extends string>({
       }
       onAction(actionName as Action);
     },
-    [onAction]
+    [onAction, setMenuOpen]
   );
 
   const shouldRender = isMenuOpen || (isVisible && actions.length > 0);
@@ -76,7 +92,7 @@ export function DropdownMenuButton<Action extends string>({
   return (
     <Menu
       open={isMenuOpen}
-      setOpen={setIsMenuOpen}
+      setOpen={setMenuOpen}
       justify="start"
       refEl={menuTriggerRef}
       renderMode={renderMode}
