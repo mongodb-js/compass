@@ -521,7 +521,8 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             />
             {searchIndexType === 'vectorSearch' &&
               enableAutoEmbeddingPublicPreview &&
-              vectorTemplateChoice === 'autoEmbed' && (
+              vectorTemplateChoice === 'autoEmbed' &&
+              mode === 'create' && (
                 <Banner data-testid="auto-embedding-cost-banner">
                   {`Automated Embedding uses embedding models, which incur usage-based costs. The generated vector embeddings are stored in your MongoDB cluster. The model inference platform runs on MongoDB's infrastructure in GCP cloud in a US region.`}
                 </Banner>

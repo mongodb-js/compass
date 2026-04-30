@@ -559,6 +559,24 @@ describe('Base Search Index Modal', function () {
     });
   });
 
+  describe('auto-embedding cost banner', function () {
+    it('does not show in update mode (only create mode shows it)', function () {
+      const autoEmbedDefinitionString = JSON.stringify({
+        fields: [{ type: 'autoEmbed', path: 'content' }],
+      });
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+      expect(screen.queryByTestId('auto-embedding-cost-banner')).to.not.exist;
+    });
+  });
+
   describe('when rendered and isVectorSearchSupported is false', function () {
     let onSubmitSpy: SinonSpy;
 
