@@ -67,6 +67,9 @@ const AtlasIndexesBanner = ({
   dismissed: boolean;
   onDismissClick: () => void;
 }) => {
+  const { enableSearchActivationProgramP1 } = usePreferences([
+    'enableSearchActivationProgramP1',
+  ]);
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
 
@@ -77,7 +80,9 @@ const AtlasIndexesBanner = ({
   return (
     <Banner variant="info" dismissible onClose={onDismissClick}>
       <Body weight="medium">Looking for search indexes?</Body>
-      These indexes can be created and viewed under{' '}
+      {enableSearchActivationProgramP1
+        ? 'View index sizes, queryability status, and per-node build progress in '
+        : 'These indexes can be created and viewed under '}
       {atlasMetadata ? (
         <Link
           target="_blank"
