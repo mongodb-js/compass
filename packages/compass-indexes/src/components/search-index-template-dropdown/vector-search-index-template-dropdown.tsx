@@ -1,6 +1,6 @@
 import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
 import {
-  ATLAS_VECTOR_AUTO_EMBED_TEMPLATE,
+  ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
 import React, { useCallback } from 'react';
@@ -32,7 +32,7 @@ const VECTOR_TEMPLATE_BY_CHOICE: Record<
   VectorIndexTemplateChoice,
   SearchTemplate
 > = {
-  autoEmbed: ATLAS_VECTOR_AUTO_EMBED_TEMPLATE,
+  autoEmbed: ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
   bringYourOwn: ATLAS_VECTOR_SEARCH_TEMPLATE,
 };
 

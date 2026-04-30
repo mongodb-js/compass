@@ -1,6 +1,6 @@
 import {
   ATLAS_SEARCH_TEMPLATES,
-  ATLAS_VECTOR_AUTO_EMBED_TEMPLATE,
+  ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
 import type { AllPreferences } from 'compass-preferences-model';
@@ -157,7 +157,7 @@ describe('Base Search Index Modal', function () {
             getCodemirrorEditorValue('definition-of-search-index')
           ).to.equal(
             normalizeSnippetPlaceholders(
-              ATLAS_VECTOR_AUTO_EMBED_TEMPLATE.snippet
+              ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE.snippet
             )
           );
         });
@@ -485,7 +485,7 @@ describe('Base Search Index Modal', function () {
           );
           expect(indexDef).to.equal(
             normalizeSnippetPlaceholders(
-              ATLAS_VECTOR_AUTO_EMBED_TEMPLATE.snippet
+              ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE.snippet
             )
           );
         });

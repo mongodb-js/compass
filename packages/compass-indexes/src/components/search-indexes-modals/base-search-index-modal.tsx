@@ -35,7 +35,7 @@ import {
 } from '../search-index-template-dropdown/vector-search-index-template-dropdown';
 import {
   ATLAS_SEARCH_TEMPLATES,
-  ATLAS_VECTOR_AUTO_EMBED_TEMPLATE,
+  ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
   type SearchTemplate,
 } from '@mongodb-js/mongodb-constants';
@@ -319,7 +319,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       const newDefinitionTemplate =
         newType === 'vectorSearch'
           ? enableAutoEmbeddingPublicPreview
-            ? ATLAS_VECTOR_AUTO_EMBED_TEMPLATE
+            ? ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE
             : ATLAS_VECTOR_SEARCH_TEMPLATE
           : ATLAS_SEARCH_TEMPLATES[0];
 
