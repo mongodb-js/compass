@@ -17,6 +17,10 @@ import EditSearchIndexView from './components/drawer-views/edit-search-index-dra
 import { openIndexesListDrawerView } from './modules/indexes-drawer';
 import type { IndexesDrawerViewType } from './modules/indexes-drawer';
 import CreateIndexModal from './components/create-index-modal/create-index-modal';
+import {
+  ExperimentTestNames,
+  useAssignment,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const indexesTitleLinkStyles = css({
   width: 'fit-content',
@@ -52,6 +56,12 @@ const Drawer = ({
   const isIndexesDrawerEnabled = usePreference(
     'enableSearchActivationProgramP1'
   );
+
+  // @experiment Search Activation Program P1, only running for DE
+  // Before compass-web is initialized in mms, the user is assigned to the experiment
+  // The assignment determines whether the feature flag enableSearchActivationProgramP1 gets set
+  // This useAssignment is only used to track the experiment viewed event
+  useAssignment(ExperimentTestNames.searchActivationProgramP1, true);
 
   const beforeSectionHide = useCallback(async () => {
     if (!isDirty) {
