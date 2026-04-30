@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   css,
   cx,
@@ -80,6 +80,8 @@ const tableHeadCellStyles = css({
   },
 });
 
+type ExpandedState = true | Record<string, boolean>;
+
 export type IndexesTableProps<T> = {
   id: string;
   ['data-testid']: string;
@@ -88,9 +90,11 @@ export type IndexesTableProps<T> = {
   tableWrapperClassName?: string;
   cellClassName?: string;
   showActionsOnHover?: boolean;
+  expanded?: ExpandedState;
+  onExpandedChange?: (expanded: ExpandedState) => void;
 };
 
-export function IndexesTable<T>({
+export function IndexesTable<T extends { id: string }>({
   id,
   ['data-testid']: dataTestId,
   columns,
@@ -98,18 +102,43 @@ export function IndexesTable<T>({
   tableWrapperClassName,
   cellClassName,
   showActionsOnHover = true,
+  expanded: expandedProp,
+  onExpandedChange: onExpandedChangeProp,
 }: IndexesTableProps<T>) {
   const [sorting, setSorting] = useTabState<SortingState>(
     `${id}-sorting-state`,
     []
   );
+  const [expandedInternal, setExpandedInternal] = useState<ExpandedState>({});
+  const expanded = expandedProp ?? expandedInternal;
+  const onExpandedChange = onExpandedChangeProp ?? setExpandedInternal;
+  // Keep a ref to the current expanded state so we can resolve updater
+  // functions from useLeafyGreenTable's onExpandedChange synchronously.
+  const expandedRef = useRef(expanded);
+  expandedRef.current = expanded;
+  // useLeafyGreenTable's onExpandedChange passes a SetStateAction (value or
+  // updater function). We resolve the updater before forwarding to the caller.
+  const handleExpandedChange = useCallback(
+    (
+      updaterOrValue: ExpandedState | ((old: ExpandedState) => ExpandedState)
+    ) => {
+      const newValue =
+        typeof updaterOrValue === 'function'
+          ? updaterOrValue(expandedRef.current)
+          : updaterOrValue;
+      onExpandedChange(newValue);
+    },
+    [onExpandedChange]
+  );
   const table = useLeafyGreenTable<T>({
     data,
+    getRowId: (row) => row.id,
     columns,
     enableSortingRemoval: false,
     withPagination: false,
-    state: { sorting },
+    state: { sorting, expanded },
     onSortingChange: setSorting,
+    onExpandedChange: handleExpandedChange,
   });
 
   const { rows } = table.getRowModel();
