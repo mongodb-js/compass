@@ -174,7 +174,8 @@ const ScriptScreen = ({
             Install{' '}
             <Link href="https://www.mongodb.com/docs/mongodb-shell/install/">
               mongosh
-            </Link>
+            </Link>{' '}
+            (2.5 or later)
           </li>
           <li>
             Install{' '}
