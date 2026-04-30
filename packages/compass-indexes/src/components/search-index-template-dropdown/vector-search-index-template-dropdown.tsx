@@ -31,10 +31,10 @@ const dropdownLabelStyles = css({
 const VECTOR_TEMPLATE_BY_CHOICE: Record<
   VectorIndexTemplateChoice,
   SearchTemplate
-> = {
+> = Object.create({
   autoEmbed: ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
   bringYourOwn: ATLAS_VECTOR_SEARCH_TEMPLATE,
-};
+});
 
 type VectorSearchIndexTemplateDropdownProps = {
   tooltip: string;
