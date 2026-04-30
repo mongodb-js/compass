@@ -4,6 +4,7 @@ import {
   openToast,
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
+import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
 import type { SearchIndex } from 'mongodb-data-service';
 
@@ -825,6 +826,54 @@ export function getInitialVectorSearchIndexPipelineText(name: string) {
       // number (not decimals), or string to use as a prefilter.
       "filter": {}
     },
+  },
+]`;
+}
+
+/**
+ * {@link VECTOR_SEARCH_AUTO_EMBED_STAGE} `.snippet` uses VS Code tab-stops
+ * (`${n:label}`). Aggregation text must be valid shell BSON, so each index is
+ * mapped to a literal. Indices follow the snippet shipped in
+ * `@mongodb-js/mongodb-constants`.
+ */
+function stripVectorSearchAutoEmbedSnippetPlaceholders(
+  snippet: string,
+  indexName: string
+): string {
+  return snippet.replace(/\$\{(\d+):[^}]*\}/g, (_match, id: string) => {
+    switch (id) {
+      case '1':
+        return '"string"';
+      case '2':
+        return '0';
+      case '3':
+        return '1';
+      case '4':
+        return JSON.stringify('<field-to-search>');
+      case '5':
+        return '50';
+      case '6':
+        return JSON.stringify(indexName);
+      case '7':
+        return '10';
+      case '8':
+        return '';
+      case '9':
+        return 'false';
+      default:
+        return 'null';
+    }
+  });
+}
+
+export function getInitialAutoEmbedSearchIndexPipelineText(name: string) {
+  const stageValue = stripVectorSearchAutoEmbedSnippetPlaceholders(
+    VECTOR_SEARCH_AUTO_EMBED_STAGE.snippet,
+    name
+  ).trim();
+  return `[
+  {
+    $vectorSearch: ${VECTOR_SEARCH_AUTO_EMBED_STAGE.comment} ${stageValue}
   },
 ]`;
 }

@@ -477,3 +477,23 @@ describe('#getInitialVectorSearchIndexPipelineText', function () {
       index: "pineapple",`);
   });
 });
+
+describe('#getInitialAutoEmbedSearchIndexPipelineText', function () {
+  it('returns parseable pipeline text with index name and no editor placeholders', function () {
+    const text =
+      searchIndexesSlice.getInitialAutoEmbedSearchIndexPipelineText(
+        'pineapple'
+      );
+    expect(text).to.include('index: "pineapple"');
+    expect(text).to.match(/"text"\s*:\s*"string"/);
+    expect(text).not.to.match(/\$\{\d+:/);
+  });
+
+  it('replaces template tab-stops with literals (${4:string} → path, ${5:numCandidates} → 50, ${9:boolean} → false)', function () {
+    const text =
+      searchIndexesSlice.getInitialAutoEmbedSearchIndexPipelineText('idx');
+    expect(text).to.include('path: "<field-to-search>"');
+    expect(text).to.include('numCandidates: 50');
+    expect(text).to.include('exact: false');
+  });
+});
