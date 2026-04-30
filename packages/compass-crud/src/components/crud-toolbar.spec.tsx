@@ -13,7 +13,10 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { CrudToolbar } from './crud-toolbar';
 import { renderWithQueryBar } from '../../test/render-with-query-bar';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
   /* noop */
@@ -1034,18 +1037,22 @@ describe('CrudToolbar Component', function () {
     function renderCrudToolbarWithMockDataGenerator({
       isMockDataGeneratorEnabled = false,
       isInTreatment = false,
+      isInExperiment = true,
     }: {
       isMockDataGeneratorEnabled?: boolean;
       isInTreatment?: boolean;
+      isInExperiment?: boolean;
     } = {}) {
       const mockUseAssignment = sinon.stub().returns({
-        assignment: {
-          assignmentData: {
-            variant: isInTreatment
-              ? ExperimentTestGroups.mockDataGeneratorVariant
-              : ExperimentTestGroups.mockDataGeneratorControl,
-          },
-        },
+        assignment: isInExperiment
+          ? {
+              assignmentData: {
+                variant: isInTreatment
+                  ? ExperimentTestGroups.mockDataGeneratorVariant
+                  : ExperimentTestGroups.mockDataGeneratorControl,
+              },
+            }
+          : null,
         asyncStatus: null,
         error: null,
         isLoading: false,
@@ -1196,7 +1203,7 @@ describe('CrudToolbar Component', function () {
         });
         const calls = experimentViewedCalls(track);
         expect(calls[0].args[1]).to.deep.equal({
-          test_name: 'MOCK_DATA_GENERATOR_ITERATION_20260506',
+          test_name: ExperimentTestNames.mockDataGenerator,
         });
       });
 
@@ -1212,6 +1219,18 @@ describe('CrudToolbar Component', function () {
           expect(experimentViewedCalls(track)).to.have.lengthOf(1);
         });
         expect(screen.queryByText('Generate Mock Data Script')).to.not.exist;
+      });
+
+      it('does not fire "Experiment Viewed" when the user is not in the experiment', async function () {
+        const { track } = renderCrudToolbarWithMockDataGenerator({
+          isMockDataGeneratorEnabled: true,
+          isInExperiment: false,
+        });
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(experimentViewedCalls(track)).to.have.lengthOf(0);
       });
     });
   });

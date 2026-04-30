@@ -25,6 +25,13 @@ const addDataMenuButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
+// `display: contents` makes the wrapper transparent for layout so the
+// trigger button continues to lay out as a direct flex child of the
+// surrounding toolbar.
+const addDataMenuWrapperStyles = css({
+  display: 'contents',
+});
+
 type AddDataMenuProps = {
   instanceDescription: string;
   insertDataHandler: (openInsertKey: 'import-file' | 'insert-document') => void;
@@ -48,18 +55,19 @@ function AddDataMenuButton({
     ExperimentTestNames.mockDataGenerator,
     false // "Experiment Viewed" is fired below on menu open
   );
+  const mockDataGeneratorVariant =
+    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant;
   const isInMockDataTreatmentVariant =
-    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
-    ExperimentTestGroups.mockDataGeneratorVariant;
+    mockDataGeneratorVariant === ExperimentTestGroups.mockDataGeneratorVariant;
 
   const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
 
-  // Fire the experiment exposure only once the user has opened the menu AND
-  // all menu-item visibility prerequisites are met (independent of variant,
-  // so control and treatment are both tracked).
+  // Fire exposure only when the user has opened the menu, the feature is
+  // enabled for them, and they're in the experiment.
   useFireExperimentViewed({
     testName: ExperimentTestNames.mockDataGenerator,
-    shouldFire: hasOpenedMenu && isMockDataGeneratorEnabled,
+    shouldFire:
+      hasOpenedMenu && isMockDataGeneratorEnabled && !!mockDataGeneratorVariant,
   });
 
   const addDataActions = useMemo(() => {
@@ -100,28 +108,34 @@ function AddDataMenuButton({
     [localAppRegistry, insertDataHandler]
   );
 
-  const handleMenuOpenChange = useCallback((isOpen: boolean) => {
-    if (isOpen) {
-      setHasOpenedMenu(true);
-    }
+  // Detect the user opening the menu from the capture phase, before the
+  // trigger button calls evt.stopPropagation() in its bubble-phase handler.
+  // The menu items render in a portal so their clicks don't bubble through
+  // here; this only fires for clicks on the trigger button itself.
+  const handleClickCapture = useCallback(() => {
+    setHasOpenedMenu(true);
   }, []);
 
   return (
-    <DropdownMenuButton<AddDataOption>
-      data-testid="crud-add-data"
-      actions={addDataActions}
-      onAction={handleAction}
-      onMenuOpenChange={handleMenuOpenChange}
-      buttonText="Add data"
-      buttonProps={{
-        size: 'xsmall',
-        variant: 'primary',
-        leftGlyph: <Icon glyph="PlusWithCircle" />,
-        disabled: isDisabled,
-        className: addDataMenuButtonStyles,
-      }}
-      narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
-    ></DropdownMenuButton>
+    <span
+      onClickCapture={handleClickCapture}
+      className={addDataMenuWrapperStyles}
+    >
+      <DropdownMenuButton<AddDataOption>
+        data-testid="crud-add-data"
+        actions={addDataActions}
+        onAction={handleAction}
+        buttonText="Add data"
+        buttonProps={{
+          size: 'xsmall',
+          variant: 'primary',
+          leftGlyph: <Icon glyph="PlusWithCircle" />,
+          disabled: isDisabled,
+          className: addDataMenuButtonStyles,
+        }}
+        narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
+      ></DropdownMenuButton>
+    </span>
   );
 }
 

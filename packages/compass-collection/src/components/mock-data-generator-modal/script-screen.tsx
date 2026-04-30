@@ -258,6 +258,7 @@ const ScriptScreen = ({
                 <Link
                   href={`${window.location.origin}/v2/${connectionInfo.atlasMetadata.projectId}#/security/database/users`}
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Access your Database Users
                 </Link>
