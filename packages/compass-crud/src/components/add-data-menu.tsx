@@ -62,12 +62,11 @@ function AddDataMenuButton({
 
   const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
 
-  // Fire exposure when the user has opened the menu, is statically eligible
-  // (Atlas, writable, not view, not time-series), and is bucketed into the
-  // experiment. We deliberately do NOT gate on isMockDataGeneratorEligibleWithSchemaAnalysisChecks
-  // here — that depends on `hasSchemaAnalysisData`, which is variant-gated
-  // upstream (treatment-only), so requiring it would prevent control users
-  // from ever firing exposure.
+  // Fire experiment-viewed when the user opens the menu, is statically eligible
+  // (Atlas, writable, not view, not time-series), and is in the experiment.
+  // We don't gate on isMockDataGeneratorEligibleWithSchemaAnalysisChecks here
+  // because we only run schema analysis for treatment, so gating on it would
+  // prevent experiment viewed from firing for control
   useFireExperimentViewed({
     testName: ExperimentTestNames.mockDataGenerator,
     shouldFire:
