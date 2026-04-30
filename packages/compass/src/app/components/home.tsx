@@ -20,9 +20,6 @@ import { AppRegistryProvider } from '@mongodb-js/compass-app-registry';
 import React from 'react';
 import Workspace from './workspace';
 import { getExtraConnectionData } from '../utils/telemetry';
-// The only place where the app-stores plugin can be used as a plugin and not a
-// provider
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { CompassInstanceStorePlugin } from '@mongodb-js/compass-app-stores';
 import FieldStorePlugin from '@mongodb-js/compass-field-store';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';

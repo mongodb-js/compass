@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-
+import { AI_MODEL_SLIM_VERSION } from '@mongodb-js/compass-generative-ai/provider';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   init,
@@ -108,7 +108,7 @@ describe('Collection ai query (with mocked backend)', function () {
       expect(queryRequest.req.headers).to.have.property(
         'x-assistant-entrypoint'
       );
-      expect(queryRequest.content.model).to.equal('mongodb-slim-latest');
+      expect(queryRequest.content.model).to.equal(AI_MODEL_SLIM_VERSION);
       expect(queryRequest.content.instructions).to.be.a('string');
       expect(queryRequest.content.store).to.equal(false);
       expect(queryRequest.content.metadata).to.have.property('analytics_id');

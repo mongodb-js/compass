@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import HadronDocument from 'hadron-document';
 
@@ -23,6 +23,7 @@ import type { FakerSchema } from './types';
 import type { ArrayLengthMap } from './script-generation-utils';
 import { generateDocument } from './script-generation-utils';
 import { validateDocumentCount } from './utils';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const BYTE_PRECISION_THRESHOLD = 1000;
 
@@ -104,6 +105,8 @@ const PreviewAndDocCountScreen = ({
   arrayLengthMap,
   onDocumentCountChanged,
 }: PreviewAndDocCountScreenProps) => {
+  const track = useTelemetry();
+  const valueOnFocusRef = useRef(documentCount);
   const validationState = validateDocumentCount(documentCount);
 
   const estimatedDiskSize = useMemo(() => {
@@ -131,6 +134,22 @@ const PreviewAndDocCountScreen = ({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     onDocumentCountChanged(event.target.value);
+  };
+
+  const handleDocumentCountFocus = () => {
+    valueOnFocusRef.current = documentCount;
+  };
+
+  const handleDocumentCountBlur = () => {
+    if (
+      validationState.isValid &&
+      validationState.parsedValue !== undefined &&
+      documentCount !== valueOnFocusRef.current
+    ) {
+      track('Mock Data Document Count Changed', {
+        document_count: validationState.parsedValue,
+      });
+    }
   };
 
   const sampleDocuments = useMemo(() => {
@@ -164,6 +183,8 @@ const PreviewAndDocCountScreen = ({
             type="number"
             value={documentCount}
             onChange={handleDocumentCountChange}
+            onFocus={handleDocumentCountFocus}
+            onBlur={handleDocumentCountBlur}
             min={1}
             max={MAX_DOCUMENT_COUNT}
             state={errorState.state}

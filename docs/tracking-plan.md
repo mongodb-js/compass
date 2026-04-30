@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Fri, Apr 17, 2026
+Generated on Thu, Apr 30, 2026
 
 ## Table of Contents
 
@@ -188,7 +188,10 @@ Generated on Fri, Apr 17, 2026
 - [Index Dropped](#event--IndexDroppedEvent)
 - [Index Edited](#event--IndexEditedEvent)
 - [Index Create Action Clicked](#event--IndexCreateActionClickedEvent)
+- [Index Edit Action Clicked](#event--IndexEditActionClickedEvent)
+- [Index Drop Action Clicked](#event--IndexDropActionClickedEvent)
 - [Index Refresh Clicked](#event--IndexRefreshClickedEvent)
+- [Manage Search Indexes Link Clicked](#event--ManageSearchIndexesLinkClickedEvent)
 
 ### Mock Data Generator
 
@@ -197,8 +200,6 @@ Generated on Fri, Apr 17, 2026
 - [Mock Data Generator Screen Viewed](#event--MockDataGeneratorScreenViewedEvent)
 - [Mock Data Generator Screen Proceeded](#event--MockDataGeneratorScreenProceededEvent)
 - [Mock Data Generator Dismissed](#event--MockDataGeneratorDismissedEvent)
-- [Mock Data JSON Type Changed](#event--MockDataJsonTypeChangedEvent)
-- [Mock Data Faker Method Changed](#event--MockDataFakerMethodChangedEvent)
 - [Mock Data Document Count Changed](#event--MockDataDocumentCountChangedEvent)
 - [Mock Data Script Generated](#event--MockDataScriptGeneratedEvent)
 - [Mock Data Script Copied](#event--MockDataScriptCopiedEvent)
@@ -2246,6 +2247,34 @@ This event is fired when user clicks a create action in the indexes drawer
   - The type of index being created.
 - **is_compass_web** (optional): `true | undefined`
 
+<a name="event--IndexEditActionClickedEvent"></a>
+
+### Index Edit Action Clicked
+
+This event is fired when user clicks the edit action on a search index.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the action was clicked.
+- **index_type** (required): `string`
+  - The type of index being edited.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--IndexDropActionClickedEvent"></a>
+
+### Index Drop Action Clicked
+
+This event is fired when user clicks the drop action on a search index.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the action was clicked.
+- **index_type** (required): `string`
+  - The type of index being dropped.
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--IndexRefreshClickedEvent"></a>
 
 ### Index Refresh Clicked
@@ -2256,6 +2285,19 @@ This event is fired when user clicks the refresh button in the indexes drawer.
 
 - **context** (required): `SearchIndexesTelemetryContext`
   - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--ManageSearchIndexesLinkClickedEvent"></a>
+
+### Manage Search Indexes Link Clicked
+
+This event is fired when a user clicks the "Manage your search indexes" link
+in the Indexes toolbar to navigate to Atlas Search.
+
+**Properties**:
+
+- **context** (required): `"Indexes Tab"`
+  - The context/screen from which the link was clicked.
 - **is_compass_web** (optional): `true | undefined`
 
 ## Mock Data Generator
@@ -2319,35 +2361,6 @@ This event is fired when the user closes the mock data generator modal.
 - **screen** (required): `MockDataGeneratorScreen`
 - **gen_ai_features_enabled** (required): `boolean`
 - **send_sample_values_enabled** (required): `boolean`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--MockDataJsonTypeChangedEvent"></a>
-
-### Mock Data JSON Type Changed
-
-This event is fired when the user changes the JSON type for a MongoDB field type mapping.
-
-**Properties**:
-
-- **field_name** (required): `string`
-- **previous_json_type** (required): `MongoDBJsonFieldType`
-- **new_json_type** (required): `MongoDBJsonFieldType`
-- **previous_faker_method** (required): `string`
-- **new_faker_method** (required): `string`
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--MockDataFakerMethodChangedEvent"></a>
-
-### Mock Data Faker Method Changed
-
-This event is fired when the user changes the faker method for a MongoDB field type mapping.
-
-**Properties**:
-
-- **field_name** (required): `string`
-- **json_type** (required): `MongoDBJsonFieldType`
-- **previous_faker_method** (required): `string`
-- **new_faker_method** (required): `string`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--MockDataDocumentCountChangedEvent"></a>

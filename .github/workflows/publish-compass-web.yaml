@@ -27,6 +27,11 @@ on:
         type: boolean
         default: false
 
+concurrency:
+  # Do not allow to run more than one publish at the same time by setting
+  # concurrency group name to static value
+  group: publish-compass-web
+
 permissions:
   id-token: write
   contents: read
@@ -48,9 +53,9 @@ jobs:
           node-version: 22.21.1
           cache: 'npm'
 
-      - name: Install npm@10.2.4
+      - name: Install npm@11.13.0
         run: |
-          npm install -g npm@10.2.4
+          npm install -g npm@11.13.0
           npm -v
 
       - id: define_environments
@@ -111,9 +116,9 @@ jobs:
           node-version: 22.21.1
           cache: 'npm'
 
-      - name: Install npm@10.2.4
+      - name: Install npm@11.13.0
         run: |
-          npm install -g npm@10.2.4
+          npm install -g npm@11.13.0
           npm -v
 
       - id: check_if_deployed

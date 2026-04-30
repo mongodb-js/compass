@@ -32,6 +32,8 @@ export type State = {
   currentView: IndexesDrawerViewType;
   currentIndexType: SearchIndexType;
   currentIndexName: string;
+  expandedRows: Record<string, boolean>;
+  isRegularIndexesAccordionOpen: boolean;
   isDirty: boolean;
 };
 
@@ -39,6 +41,8 @@ export const INITIAL_STATE: State = {
   currentView: 'indexes-list',
   currentIndexType: 'search',
   currentIndexName: '',
+  expandedRows: {},
+  isRegularIndexesAccordionOpen: true,
   isDirty: false,
 };
 
@@ -49,9 +53,18 @@ export const OPEN_CREATE_SEARCH_INDEX_DRAWER_VIEW =
 export const OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW =
   'indexes/drawer/OPEN_EDIT_SEARCH_INDEX_DRAWER_VIEW' as const;
 export const SET_IS_DIRTY = 'indexes/drawer/SET_IS_DIRTY' as const;
+export const SET_EXPANDED_ROWS = 'indexes/drawer/SET_EXPANDED_ROWS' as const;
+export const SET_REGULAR_INDEXES_ACCORDION_OPEN =
+  'indexes/drawer/SET_REGULAR_INDEXES_ACCORDION_OPEN' as const;
 
 type OpenIndexesListDrawerViewAction = {
   type: typeof OPEN_INDEXES_LIST_DRAWER_VIEW;
+  expandedRows: Record<string, boolean>;
+};
+
+type SetExpandedRowsAction = {
+  type: typeof SET_EXPANDED_ROWS;
+  expandedRows: Record<string, boolean>;
 };
 
 type OpenCreateSearchIndexDrawerViewAction = {
@@ -69,11 +82,18 @@ type SetIsDirtyIndexDrawerAction = {
   isDirty: boolean;
 };
 
+type SetRegularIndexesAccordionOpenAction = {
+  type: typeof SET_REGULAR_INDEXES_ACCORDION_OPEN;
+  isOpen: boolean;
+};
+
 export type IndexesDrawerActions =
   | OpenIndexesListDrawerViewAction
   | OpenCreateSearchIndexDrawerViewAction
   | OpenEditSearchIndexDrawerViewAction
-  | SetIsDirtyIndexDrawerAction;
+  | SetIsDirtyIndexDrawerAction
+  | SetExpandedRowsAction
+  | SetRegularIndexesAccordionOpenAction;
 
 // Exporting this for test only to stub it and set
 // its value. This enables to test the confirmation dialog.
@@ -96,17 +116,24 @@ const confirmViewChangeIfDirty = async (isDirty: boolean): Promise<boolean> => {
   });
 };
 
-export const openIndexesListDrawerView = (): IndexesThunkAction<
-  Promise<void>,
-  OpenIndexesListDrawerViewAction
-> => {
+export const openIndexesListDrawerView = (
+  focusedIndexName?: string
+): IndexesThunkAction<Promise<void>, OpenIndexesListDrawerViewAction> => {
   return async (dispatch, getState) => {
-    const { isDirty } = getState().indexesDrawer;
-    const confirmed = await confirmViewChangeIfDirty(isDirty);
+    const state = getState();
+    const confirmed = await confirmViewChangeIfDirty(
+      state.indexesDrawer.isDirty
+    );
     if (!confirmed) {
       return;
     }
-    dispatch({ type: OPEN_INDEXES_LIST_DRAWER_VIEW });
+    const indexExists =
+      focusedIndexName &&
+      state.searchIndexes.indexes.some((x) => x.name === focusedIndexName);
+    dispatch({
+      type: OPEN_INDEXES_LIST_DRAWER_VIEW,
+      expandedRows: indexExists ? { [focusedIndexName]: true } : {},
+    });
   };
 };
 
@@ -139,6 +166,20 @@ export const openEditSearchIndexDrawerView = (
 export const setIsDirty = (isDirty: boolean): SetIsDirtyIndexDrawerAction => ({
   type: SET_IS_DIRTY,
   isDirty,
+});
+
+export const setExpandedRows = (
+  expandedRows: Record<string, boolean>
+): SetExpandedRowsAction => ({
+  type: SET_EXPANDED_ROWS,
+  expandedRows,
+});
+
+export const setRegularIndexesAccordionOpen = (
+  isOpen: boolean
+): SetRegularIndexesAccordionOpenAction => ({
+  type: SET_REGULAR_INDEXES_ACCORDION_OPEN,
+  isOpen,
 });
 
 export const refreshAllIndexes = (): IndexesThunkAction<
@@ -181,6 +222,9 @@ export default function reducer(
     return {
       ...state,
       currentView: 'indexes-list',
+      expandedRows: action.expandedRows,
+      isRegularIndexesAccordionOpen:
+        Object.keys(action.expandedRows).length === 0,
     };
   }
 
@@ -214,6 +258,25 @@ export default function reducer(
     return {
       ...state,
       isDirty: action.isDirty,
+    };
+  }
+
+  if (isAction<SetExpandedRowsAction>(action, SET_EXPANDED_ROWS)) {
+    return {
+      ...state,
+      expandedRows: action.expandedRows,
+    };
+  }
+
+  if (
+    isAction<SetRegularIndexesAccordionOpenAction>(
+      action,
+      SET_REGULAR_INDEXES_ACCORDION_OPEN
+    )
+  ) {
+    return {
+      ...state,
+      isRegularIndexesAccordionOpen: action.isOpen,
     };
   }
 

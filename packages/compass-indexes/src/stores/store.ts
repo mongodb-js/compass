@@ -150,9 +150,13 @@ export function activateIndexesPlugin(
     store.dispatch(createSearchIndexOpened());
   });
 
-  on(localAppRegistry, 'open-indexes-list-drawer-view', () => {
-    void store.dispatch(openIndexesListDrawerView());
-  });
+  on(
+    localAppRegistry,
+    'open-indexes-list-drawer-view',
+    (indexName?: string) => {
+      void store.dispatch(openIndexesListDrawerView(indexName));
+    }
+  );
 
   on(
     localAppRegistry,

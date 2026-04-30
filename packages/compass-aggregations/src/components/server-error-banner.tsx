@@ -15,6 +15,7 @@ import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
 } from '../utils/search-stage-errors';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const bannerStyles = css({
   textAlign: 'left',
@@ -40,6 +41,9 @@ export default function ServerErrorBanner({
   onEditSearchIndexClick,
   dataTestId = 'server-error-banner',
 }: ServerErrorBannerProps) {
+  const enableSearchActivationProgramP1 = usePreference(
+    'enableSearchActivationProgramP1'
+  );
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
@@ -75,7 +79,8 @@ export default function ServerErrorBanner({
       ) : (
         message
       )}
-      {searchIndexName &&
+      {enableSearchActivationProgramP1 &&
+        searchIndexName &&
         isSearchIndexDefinitionError(message) &&
         onEditSearchIndexClick && (
           <>

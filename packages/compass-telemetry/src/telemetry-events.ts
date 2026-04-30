@@ -3311,23 +3311,6 @@ type MockDataGeneratorScreen =
   | 'SCHEMA_CONFIRMATION'
   | 'PREVIEW_AND_DOC_COUNT'
   | 'SCRIPT_RESULT';
-type MongoDBJsonFieldType =
-  | 'String'
-  | 'Number'
-  | 'Boolean'
-  | 'Date'
-  | 'Int32'
-  | 'Decimal128'
-  | 'Long'
-  | 'ObjectId'
-  | 'RegExp'
-  | 'Symbol'
-  | 'MaxKey'
-  | 'MinKey'
-  | 'Binary'
-  | 'Code'
-  | 'Timestamp'
-  | 'DBRef';
 type MockDataScriptStep =
   | 'install fakerjs'
   | 'create js file'
@@ -3400,37 +3383,6 @@ type MockDataGeneratorDismissedEvent = CommonEvent<{
 }>;
 
 /**
- * This event is fired when the user changes the JSON type for a MongoDB field type mapping.
- *
- * @category Mock Data Generator
- */
-type MockDataJsonTypeChangedEvent = CommonEvent<{
-  name: 'Mock Data JSON Type Changed';
-  payload: {
-    field_name: string;
-    previous_json_type: MongoDBJsonFieldType;
-    new_json_type: MongoDBJsonFieldType;
-    previous_faker_method: string;
-    new_faker_method: string;
-  };
-}>;
-
-/**
- * This event is fired when the user changes the faker method for a MongoDB field type mapping.
- *
- * @category Mock Data Generator
- */
-type MockDataFakerMethodChangedEvent = CommonEvent<{
-  name: 'Mock Data Faker Method Changed';
-  payload: {
-    field_name: string;
-    json_type: MongoDBJsonFieldType;
-    previous_faker_method: string;
-    new_faker_method: string;
-  };
-}>;
-
-/**
  * This event is fired when the user changes the document count for the mock data generator modal.
  *
  * @category Mock Data Generator
@@ -3483,6 +3435,22 @@ type AtlasSearchIndexesForViewLinkClickedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when a user clicks the "Manage your search indexes" link
+ * in the Indexes toolbar to navigate to Atlas Search.
+ *
+ * @category Indexes
+ */
+type ManageSearchIndexesLinkClickedEvent = CommonEvent<{
+  name: 'Manage Search Indexes Link Clicked';
+  payload: {
+    /**
+     * The context/screen from which the link was clicked.
+     */
+    context: 'Indexes Tab';
+  };
+}>;
+
+/**
  * This event is fired when a user clicks the button to create a search index for a view.
  *
  * @category Indexes
@@ -3505,7 +3473,8 @@ export type SearchIndexesTelemetryContext =
   | 'Indexes List Drawer View'
   | 'Create Search Index Drawer View'
   | 'Edit Search Index Drawer View'
-  | 'Search Indexes Drawer Table';
+  | 'Search Indexes Drawer Table'
+  | 'Indexes Tab';
 
 /**
  * This event is fired when user clicks the "Edit Search Index" link in the
@@ -3590,6 +3559,36 @@ type IndexCreateActionClickedEvent = CommonEvent<{
     /** The context/screen from which the action was clicked. */
     context: SearchIndexesTelemetryContext;
     /** The type of index being created. */
+    index_type: string;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the edit action on a search index.
+ *
+ * @category Indexes
+ */
+type IndexEditActionClickedEvent = CommonEvent<{
+  name: 'Index Edit Action Clicked';
+  payload: {
+    /** The context/screen from which the action was clicked. */
+    context: SearchIndexesTelemetryContext;
+    /** The type of index being edited. */
+    index_type: string;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the drop action on a search index.
+ *
+ * @category Indexes
+ */
+type IndexDropActionClickedEvent = CommonEvent<{
+  name: 'Index Drop Action Clicked';
+  payload: {
+    /** The context/screen from which the action was clicked. */
+    context: SearchIndexesTelemetryContext;
+    /** The type of index being dropped. */
     index_type: string;
   };
 }>;
@@ -3858,8 +3857,6 @@ export type TelemetryEvent =
   | MockDataGeneratorScreenViewedEvent
   | MockDataGeneratorScreenProceededEvent
   | MockDataGeneratorDismissedEvent
-  | MockDataJsonTypeChangedEvent
-  | MockDataFakerMethodChangedEvent
   | MockDataDocumentCountChangedEvent
   | MockDataScriptGeneratedEvent
   | MockDataScriptCopiedEvent
@@ -3869,9 +3866,12 @@ export type TelemetryEvent =
   | SearchIndexViewDefinitionLinkClickedEvent
   | SearchIndexViewIndexesButtonClickedEvent
   | IndexCreateActionClickedEvent
+  | IndexEditActionClickedEvent
+  | IndexDropActionClickedEvent
   | IndexRefreshClickedEvent
   | SearchIndexCreateSubmittedEvent
   | SearchIndexCreateCancelledEvent
   | SearchIndexEditSubmittedEvent
   | SearchIndexEditCancelledEvent
+  | ManageSearchIndexesLinkClickedEvent
   | SearchIndexStatusDetailsLinkClickedEvent;
