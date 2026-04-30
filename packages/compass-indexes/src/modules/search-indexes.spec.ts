@@ -18,6 +18,7 @@ import { setupStoreAndWait } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
 import sinon from 'sinon';
 import type { SearchIndex } from 'mongodb-data-service';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type {
   IndexesDataService,
   IndexesPluginServices,
@@ -316,7 +317,7 @@ describe('search-indexes module', function () {
                 enableAutoEmbeddingPublicPreview: true,
               };
             },
-          } as Partial<IndexesPluginServices>,
+          } as unknown as PreferencesAccess,
         }
       );
       showConfirmationStub.resolves(false);
@@ -346,7 +347,7 @@ describe('search-indexes module', function () {
                 enableAutoEmbeddingPublicPreview: true,
               };
             },
-          } as Partial<IndexesPluginServices>,
+          } as unknown as PreferencesAccess,
         }
       );
       showConfirmationStub.resolves(false);
