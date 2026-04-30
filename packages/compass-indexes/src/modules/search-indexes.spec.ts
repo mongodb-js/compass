@@ -19,11 +19,7 @@ import { searchIndexes } from '../../test/fixtures/search-indexes';
 import sinon from 'sinon';
 import type { SearchIndex } from 'mongodb-data-service';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
-import type {
-  IndexesDataService,
-  IndexesPluginServices,
-  IndexesStore,
-} from '../stores/store';
+import type { IndexesDataService, IndexesStore } from '../stores/store';
 import { readonlyViewChanged } from './is-readonly-view';
 
 // Importing this to stub showConfirmation
