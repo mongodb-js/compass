@@ -234,7 +234,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 
   // True when prerequisites for the Mock Data Generator menu item are met
   // Independent of experiment variant assignment
-  const isMockDataGeneratorEnabled = useMemo(() => {
+  const isMockDataGeneratorEligibleWithSchemaAnalysisChecks = useMemo(() => {
     return (
       isMockDataGeneratorEligible &&
       hasSchemaAnalysisData &&
@@ -255,7 +255,8 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     query: initialQuery,
     editViewName: editViewName,
     subTab: currentTab,
-    isMockDataGeneratorEnabled,
+    isMockDataGeneratorEligibleWithSchemaAnalysisChecks,
+    isMockDataGeneratorEligible,
   };
 
   const tabs = useCollectionTabs(pluginProps);
