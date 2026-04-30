@@ -1,5 +1,5 @@
 module.exports = function (source) {
-  if (this.resourcePath.includes('d3')) {
+  if (/node_modules(\/|\\)d3(\1)/.test(this.resourcePath)) {
     // Our version of d3 uses `this` as a reference to global object / window.
     // This is not allowed in "strict mode" and all esm code will be running in
     // this mode. We are 4 major versions behind, so patching is an easy way to
