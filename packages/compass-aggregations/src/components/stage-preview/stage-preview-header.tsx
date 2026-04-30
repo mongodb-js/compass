@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Body, Link, Tooltip } from '@mongodb-js/compass-components';
+import { usePreferences } from 'compass-preferences-model/provider';
 import type { RootState } from '../../modules';
 import { getStageInfo } from '../../utils/stage';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
@@ -39,7 +40,7 @@ export type StagePreviewHeaderProps = {
   destination?: string | null;
 };
 
-function StagePreviewHeader({
+function StagePreviewHeaderInner({
   stageOperator,
   previewSize,
   description,
@@ -74,18 +75,38 @@ function StagePreviewHeader({
   );
 }
 
-export default connect((state: RootState, ownProps: { index: number }) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[
-    ownProps.index
-  ] as StoreStage;
-  const stageInfo = getStageInfo(
-    state.namespace,
-    stage.stageOperator,
-    stage.value
+const ConnectedStagePreviewHeader = connect(
+  (
+    state: RootState,
+    ownProps: { index: number; enableAutoEmbeddingPublicPreview: boolean }
+  ) => {
+    const stage = state.pipelineBuilder.stageEditor.stages[
+      ownProps.index
+    ] as StoreStage;
+    const stageInfo = getStageInfo(
+      state.namespace,
+      stage.stageOperator,
+      stage.value,
+      ownProps.enableAutoEmbeddingPublicPreview
+    );
+    return {
+      stageOperator: stage.stageOperator,
+      previewSize: stage.previewDocs?.length ?? 0,
+      ...stageInfo,
+    };
+  }
+)(StagePreviewHeaderInner);
+
+export default function StagePreviewHeader(props: { index: number }) {
+  const { enableAutoEmbeddingPublicPreview } = usePreferences([
+    'enableAutoEmbeddingPublicPreview',
+  ]);
+  return (
+    <ConnectedStagePreviewHeader
+      index={props.index}
+      enableAutoEmbeddingPublicPreview={Boolean(
+        enableAutoEmbeddingPublicPreview
+      )}
+    />
   );
-  return {
-    stageOperator: stage.stageOperator,
-    previewSize: stage.previewDocs?.length ?? 0,
-    ...stageInfo,
-  };
-})(StagePreviewHeader);
+}
