@@ -8,9 +8,13 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type { SearchIndex } from 'mongodb-data-service';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+
+type SearchIndexActionContext = 'Search Indexes Drawer Table' | 'Indexes Tab';
 
 type IndexActionsProps = {
   index: SearchIndex;
+  context: SearchIndexActionContext;
   onDropIndex: (name: string) => void;
   onEditIndex?: (name: string) => void;
   onRunAggregateIndex?: (name: string) => void;
@@ -35,6 +39,7 @@ const notQueryableAggregateStyles = css({ visibility: 'hidden' });
 
 const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
   index,
+  context,
   onDropIndex,
   onEditIndex,
   onRunAggregateIndex,
@@ -59,15 +64,25 @@ const IndexActions: React.FunctionComponent<IndexActionsProps> = ({
     return actions;
   }, [index, onEditIndex]);
 
+  const track = useTelemetry();
+
   const onAction = useCallback(
     (action: SearchIndexAction) => {
       if (action === 'drop') {
+        track('Index Drop Action Clicked', {
+          context,
+          index_type: index.type ?? 'search',
+        });
         onDropIndex(index.name);
       } else if (action === 'edit') {
+        track('Index Edit Action Clicked', {
+          context,
+          index_type: index.type ?? 'search',
+        });
         onEditIndex?.(index.name);
       }
     },
-    [onDropIndex, onEditIndex, index]
+    [context, onDropIndex, onEditIndex, index, track]
   );
 
   return (
