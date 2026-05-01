@@ -76,8 +76,9 @@ buildvariants:
       - run-on-pr
     expansions:
       target_platform: macos
+      DEVELOPER_DIR: /Applications/Xcode_15.3.app/Contents/Developer
     display_name: Package MacOS Intel
-    run_on: macos-14
+    run_on: macos-13
     tasks:
       - name: package-compass
       - name: package-compass-isolated
@@ -87,8 +88,9 @@ buildvariants:
       - run-on-pr
     expansions:
       target_platform: macos-arm
+      DEVELOPER_DIR: /Applications/Xcode_15.3.app/Contents/Developer
     display_name: Package MacOS Arm64
-    run_on: macos-14-arm64
+    run_on: macos-13-arm64
     tasks:
       - name: package-compass
       - name: package-compass-isolated

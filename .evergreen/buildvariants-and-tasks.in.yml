@@ -47,14 +47,17 @@ const PACKAGE_BUILD_VARIANTS = [
   {
     name: 'package-macos-x64',
     display_name: 'Package MacOS Intel',
-    run_on: 'macos-14',
+    run_on: 'macos-13',
     target_platform: 'macos',
+    // macos-13 hosts default to Xcode 14.3.1; opt into 15.3 (DEVPROD-31897)
+    developer_dir: '/Applications/Xcode_15.3.app/Contents/Developer',
   },
   {
     name: 'package-macos-arm',
     display_name: 'Package MacOS Arm64',
-    run_on: 'macos-14-arm64',
+    run_on: 'macos-13-arm64',
     target_platform: 'macos-arm',
+    developer_dir: '/Applications/Xcode_15.3.app/Contents/Developer',
   }
 ];
 
@@ -172,6 +175,9 @@ buildvariants:
       - run-on-pr
     expansions:
       target_platform: <%= buildVariant.target_platform %>
+      <% if (buildVariant.developer_dir) { %>
+      DEVELOPER_DIR: <%= buildVariant.developer_dir %>
+      <% } %>
     display_name: <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     tasks:

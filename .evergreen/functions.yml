@@ -413,6 +413,7 @@ functions:
       params:
         working_dir: src
         shell: bash
+        include_expansions_in_env: [DEVELOPER_DIR]
         env:
           <<: *compass-env
           DEBUG: ${debug}
@@ -438,7 +439,12 @@ functions:
         working_dir: src
         shell: bash
         include_expansions_in_env:
-          [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
+          [
+            AWS_ACCESS_KEY_ID,
+            AWS_SECRET_ACCESS_KEY,
+            AWS_SESSION_TOKEN,
+            DEVELOPER_DIR,
+          ]
         env:
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
@@ -458,6 +464,7 @@ functions:
       params:
         working_dir: src
         shell: bash
+        include_expansions_in_env: [DEVELOPER_DIR]
         env:
           <<: *compass-env
           DEBUG: ${debug}
