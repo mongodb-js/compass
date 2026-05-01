@@ -52,10 +52,13 @@ function AddDataMenuButton({
     ExperimentTestNames.mockDataGenerator,
     false // "Experiment Viewed" is fired below on menu open
   );
-  const mockDataGeneratorVariant =
-    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant;
+  const mockDataGeneratorAssignmentData =
+    mockDataGeneratorAssignment?.assignment?.assignmentData;
+  const isInMockDataExperiment =
+    mockDataGeneratorAssignmentData?.isInSample === true;
   const isInMockDataTreatmentVariant =
-    mockDataGeneratorVariant === ExperimentTestGroups.mockDataGeneratorVariant;
+    mockDataGeneratorAssignmentData?.variant ===
+    ExperimentTestGroups.mockDataGeneratorVariant;
 
   const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
 
@@ -67,7 +70,7 @@ function AddDataMenuButton({
     shouldFire:
       hasOpenedMenu &&
       isMockDataGeneratorEligibleAndSchemaReady &&
-      !!mockDataGeneratorVariant,
+      isInMockDataExperiment,
   });
 
   const addDataActions = useMemo(() => {

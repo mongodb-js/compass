@@ -1044,15 +1044,14 @@ describe('CrudToolbar Component', function () {
       isInExperiment?: boolean;
     } = {}) {
       const mockUseAssignment = sinon.stub().returns({
-        assignment: isInExperiment
-          ? {
-              assignmentData: {
-                variant: isInTreatment
-                  ? ExperimentTestGroups.mockDataGeneratorVariant
-                  : ExperimentTestGroups.mockDataGeneratorControl,
-              },
-            }
-          : null,
+        assignment: {
+          assignmentData: {
+            isInSample: isInExperiment,
+            variant: isInTreatment
+              ? ExperimentTestGroups.mockDataGeneratorVariant
+              : ExperimentTestGroups.mockDataGeneratorControl,
+          },
+        },
         asyncStatus: null,
         error: null,
         isLoading: false,
