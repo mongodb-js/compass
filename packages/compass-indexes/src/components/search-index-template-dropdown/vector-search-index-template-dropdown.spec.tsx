@@ -3,12 +3,7 @@ import { expect } from 'chai';
 import { VectorSearchIndexTemplateDropdown } from './vector-search-index-template-dropdown';
 import sinon from 'sinon';
 import type { SinonSpy } from 'sinon';
-import {
-  render,
-  screen,
-  cleanup,
-  userEvent,
-} from '@mongodb-js/testing-library-compass';
+import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
 
