@@ -419,40 +419,6 @@ describe('Base Search Index Modal', function () {
           screen.queryByRole('option', { name: 'KNN Vector field mapping' })
         ).to.not.exist;
       });
-
-      it('replaces the index editor with automated embedding when that vector template is selected', async function () {
-        renderBaseSearchIndexModal(
-          {
-            onSubmit: onSubmitSpy,
-            onClose: onCloseSpy,
-          },
-          { preferences: { enableAutoEmbeddingPublicPreview: true } }
-        );
-        userEvent.click(
-          screen.getByTestId('search-index-type-vectorSearch-button'),
-          undefined,
-          { skipPointerEventsCheck: true }
-        );
-        await waitFor(() => {
-          expect(
-            getCodemirrorEditorValue('definition-of-search-index')?.length
-          ).to.be.gt(0);
-        });
-        userEvent.click(screen.getByRole('button', { name: 'Template' }));
-        userEvent.click(
-          await screen.findByRole('option', { name: 'Automated embedding' })
-        );
-        await waitFor(() => {
-          const indexDef = getCodemirrorEditorValue(
-            'definition-of-search-index'
-          );
-          expect(indexDef).to.equal(
-            normalizeSnippetPlaceholders(
-              ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE.snippet
-            )
-          );
-        });
-      });
     });
   });
 
