@@ -76,7 +76,7 @@ buildvariants:
       - run-on-pr
     expansions:
       target_platform: macos
-      DEVELOPER_DIR: /Applications/Xcode_15.3.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode15.3.app/Contents/Developer
     display_name: Package MacOS Intel
     run_on: macos-13
     tasks:
@@ -88,7 +88,7 @@ buildvariants:
       - run-on-pr
     expansions:
       target_platform: macos-arm
-      DEVELOPER_DIR: /Applications/Xcode_15.3.app/Contents/Developer
+      DEVELOPER_DIR: /Applications/Xcode15.3.app/Contents/Developer
     display_name: Package MacOS Arm64
     run_on: macos-13-arm64
     tasks:
