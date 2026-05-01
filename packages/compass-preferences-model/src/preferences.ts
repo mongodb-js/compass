@@ -173,7 +173,7 @@ export class Preferences {
       await this._preferencesStorage.updatePreferences(userPreferenceOverrides);
     } catch (err) {
       this._logger.log.error(
-        this._logger.mongoLogId(1_001_000_157),
+        this._logger.mongoLogId(1_001_000_160),
         'preferences',
         'Failed to sync embedder-provided preferences',
         {
