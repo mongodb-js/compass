@@ -17,6 +17,8 @@ import {
 import { setupStoreAndWait } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
 import sinon from 'sinon';
+import type { SearchIndex } from 'mongodb-data-service';
+import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { IndexesDataService, IndexesStore } from '../stores/store';
 import { readonlyViewChanged } from './is-readonly-view';
 
@@ -278,6 +280,108 @@ describe('search-indexes module', function () {
       ]);
       expect(store.getState().searchIndexes.error).to.be.undefined;
     });
+
+    it('uses auto-embed drop confirmation copy when preview flag is on and index has autoEmbed fields', async function () {
+      const autoEmbedIndexes: SearchIndex[] = [
+        {
+          id: 'ae1',
+          name: 'myAutoEmbed',
+          type: 'vectorSearch',
+          status: 'READY',
+          queryable: true,
+          latestDefinition: {
+            fields: [{ type: 'autoEmbed', path: 'content' }],
+          },
+        },
+      ];
+      const getIndexesStub = sinon.stub().resolves(autoEmbedIndexes);
+      const dropStub = sinon.stub().resolves();
+      const localStore = await setupStoreAndWait(
+        { namespace: 'citibike.trips', isSearchIndexesSupported: true },
+        {
+          createSearchIndex: createSearchIndexStub,
+          updateSearchIndex: updateSearchIndexStub,
+          getSearchIndexes: getIndexesStub,
+          dropSearchIndex: dropStub,
+        },
+        {
+          preferences: {
+            getPreferences() {
+              return {
+                enableRollingIndexes: true,
+                enableAtlasSearchIndexes: true,
+                enableAutoEmbeddingPublicPreview: true,
+              };
+            },
+          } as unknown as PreferencesAccess,
+        }
+      );
+      showConfirmationStub.resolves(false);
+      await localStore.dispatch(dropSearchIndex('myAutoEmbed'));
+      expect(showConfirmationStub.calledOnce).to.be.true;
+      expect(showConfirmationStub.firstCall.args[0].description).to.include(
+        'generated vector embeddings'
+      );
+    });
+
+    it('uses default drop confirmation copy when preview flag is on but index is not auto-embed', async function () {
+      const getIndexesStub = sinon.stub().resolves(searchIndexes);
+      const localStore = await setupStoreAndWait(
+        { namespace: 'citibike.trips', isSearchIndexesSupported: true },
+        {
+          createSearchIndex: createSearchIndexStub,
+          updateSearchIndex: updateSearchIndexStub,
+          getSearchIndexes: getIndexesStub,
+          dropSearchIndex: dropSearchIndexStub,
+        },
+        {
+          preferences: {
+            getPreferences() {
+              return {
+                enableRollingIndexes: true,
+                enableAtlasSearchIndexes: true,
+                enableAutoEmbeddingPublicPreview: true,
+              };
+            },
+          } as unknown as PreferencesAccess,
+        }
+      );
+      showConfirmationStub.resolves(false);
+      await localStore.dispatch(dropSearchIndex('default'));
+      expect(showConfirmationStub.firstCall.args[0].description).to.equal(
+        'If you drop this index, all queries using it will no longer function.'
+      );
+    });
+
+    it('uses default drop confirmation copy when preview flag is off even for auto-embed index', async function () {
+      const autoEmbedIndexes: SearchIndex[] = [
+        {
+          id: 'ae1',
+          name: 'myAutoEmbed',
+          type: 'vectorSearch',
+          status: 'READY',
+          queryable: true,
+          latestDefinition: {
+            fields: [{ type: 'autoEmbed', path: 'content' }],
+          },
+        },
+      ];
+      const getIndexesStub = sinon.stub().resolves(autoEmbedIndexes);
+      const localStore = await setupStoreAndWait(
+        { namespace: 'citibike.trips', isSearchIndexesSupported: true },
+        {
+          createSearchIndex: createSearchIndexStub,
+          updateSearchIndex: updateSearchIndexStub,
+          getSearchIndexes: getIndexesStub,
+          dropSearchIndex: dropSearchIndexStub,
+        }
+      );
+      showConfirmationStub.resolves(false);
+      await localStore.dispatch(dropSearchIndex('myAutoEmbed'));
+      expect(showConfirmationStub.firstCall.args[0].description).to.equal(
+        'If you drop this index, all queries using it will no longer function.'
+      );
+    });
   });
 
   describe('startPollingSearchIndexes and stopPollingSearchIndexes', function () {
@@ -368,5 +472,25 @@ describe('#getInitialVectorSearchIndexPipelineText', function () {
     ).to.include(`$vectorSearch: {
       // Name of the Atlas Vector Search index to use.
       index: "pineapple",`);
+  });
+});
+
+describe('#getInitialAutoEmbedSearchIndexPipelineText', function () {
+  it('returns parseable pipeline text with index name and no editor placeholders', function () {
+    const text =
+      searchIndexesSlice.getInitialAutoEmbedSearchIndexPipelineText(
+        'pineapple'
+      );
+    expect(text).to.include('index: "pineapple"');
+    expect(text).to.match(/"text"\s*:\s*"string"/);
+    expect(text).not.to.match(/\$\{\d+:/);
+  });
+
+  it('replaces template tab-stops with literals (${4:string} → path, ${5:numCandidates} → 50, ${9:boolean} → false)', function () {
+    const text =
+      searchIndexesSlice.getInitialAutoEmbedSearchIndexPipelineText('idx');
+    expect(text).to.include('path: "<field-to-search>"');
+    expect(text).to.include('numCandidates: 50');
+    expect(text).to.include('exact: false');
   });
 });

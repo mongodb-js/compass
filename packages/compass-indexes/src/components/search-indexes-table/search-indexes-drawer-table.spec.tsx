@@ -200,8 +200,7 @@ describe('SearchIndexesDrawerTable Component', function () {
   it('filters indexes based on searchTerm', function () {
     renderIndexList({ indexes, searchTerm: 'default' });
 
-    expect(screen.getByText('default').closest('tr') as HTMLTableRowElement).to
-      .exist;
+    expect(screen.getByText('default').closest('tr')).to.exist;
     expect(() => screen.getByText('another')).to.throw();
   });
 

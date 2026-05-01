@@ -80,17 +80,15 @@ describe('TypeField', function () {
     it('renders tooltip', function () {
       ['text', 'wildcard', 'columnstore'].forEach(
         (x) =>
-          expect(
-            canRenderTooltip(x as any),
-            `it renders tooltip when type is ${x}`
-          ).to.be.true
+          expect(canRenderTooltip(x), `it renders tooltip when type is ${x}`).to
+            .be.true
       );
     });
     it('does not render tooltip', function () {
       ['geo', 'hashed', 'clustered'].forEach(
         (x) =>
           expect(
-            canRenderTooltip(x as any),
+            canRenderTooltip(x),
             `it does not render tooltip when type is ${x}`
           ).to.be.false
       );
