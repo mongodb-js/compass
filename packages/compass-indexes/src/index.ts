@@ -1,9 +1,13 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import { activateIndexesPlugin } from './stores/store';
+import {
+  activateIndexesPlugin,
+  type IndexesDataServiceProps,
+} from './stores/store';
 import Indexes from './components/indexes/indexes';
 import {
   connectionInfoRefLocator,
+  type DataServiceLocator,
   dataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import {
@@ -27,7 +31,9 @@ export const CompassIndexesPluginProvider = registerCompassPlugin(
     activate: activateIndexesPlugin,
   },
   {
-    dataService: dataServiceLocator,
+    dataService:
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      dataServiceLocator as DataServiceLocator<IndexesDataServiceProps>,
     connectionInfoRef: connectionInfoRefLocator,
     instance: mongoDBInstanceLocator,
     logger: createLoggerLocator('COMPASS-INDEXES-UI'),

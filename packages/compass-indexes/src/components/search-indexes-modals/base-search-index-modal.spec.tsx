@@ -112,13 +112,6 @@ describe('Base Search Index Modal', function () {
       });
 
       it('does not show vector template dropdown when auto-embedding preview flag is off', function () {
-        renderBaseSearchIndexModal(
-          {
-            onSubmit: onSubmitSpy,
-            onClose: onCloseSpy,
-          },
-          { preferences: { enableAutoEmbeddingPublicPreview: false } }
-        );
         userEvent.click(
           screen.getByTestId('search-index-type-vectorSearch-button'),
           undefined,
@@ -129,46 +122,6 @@ describe('Base Search Index Modal', function () {
           .be.null;
         expect(within(modal).queryByTestId('auto-embedding-cost-banner')).to.be
           .null;
-      });
-
-      it('shows vector template dropdown when auto-embedding preview flag is on', async function () {
-        renderBaseSearchIndexModal(
-          {
-            onSubmit: onSubmitSpy,
-            onClose: onCloseSpy,
-          },
-          { preferences: { enableAutoEmbeddingPublicPreview: true } }
-        );
-        await waitFor(() => {
-          // Wait for the editor to render the blank content.
-          expect(
-            getCodemirrorEditorValue('definition-of-search-index')
-          ).to.equal('{}');
-        });
-        userEvent.click(
-          screen.getByTestId('search-index-type-vectorSearch-button'),
-          undefined,
-          { skipPointerEventsCheck: true }
-        );
-        const modal = screen.getByTestId('search-index-modal');
-        expect(within(modal).getByTestId('vector-search-index-template')).to.be
-          .visible;
-        await waitFor(() => {
-          expect(
-            getCodemirrorEditorValue('definition-of-search-index')
-          ).to.equal(
-            normalizeSnippetPlaceholders(
-              ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE.snippet
-            )
-          );
-        });
-        const costBanner = within(modal).getByTestId(
-          'auto-embedding-cost-banner'
-        );
-        expect(costBanner).to.be.visible;
-        expect(costBanner.textContent).to.include(
-          'Automated Embedding uses embedding models, which incur usage-based costs'
-        );
       });
     });
 
@@ -490,6 +443,52 @@ describe('Base Search Index Modal', function () {
           );
         });
       });
+    });
+  });
+
+  describe('when rendered with the auto-embedding preview flag on', function () {
+    beforeEach(function () {
+      renderBaseSearchIndexModal(
+        {
+          onSubmit: () => {
+            /* no-op */
+          },
+          onClose: () => {
+            /* no-op */
+          },
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+    });
+    it('shows vector template dropdown ', async function () {
+      await waitFor(() => {
+        // Wait for the editor to render the blank content.
+        expect(getCodemirrorEditorValue('definition-of-search-index')).to.equal(
+          '{}'
+        );
+      });
+      userEvent.click(
+        screen.getByTestId('search-index-type-vectorSearch-button'),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
+      const modal = screen.getByTestId('search-index-modal');
+      expect(within(modal).getByTestId('vector-search-index-template')).to.be
+        .visible;
+      await waitFor(() => {
+        expect(getCodemirrorEditorValue('definition-of-search-index')).to.equal(
+          normalizeSnippetPlaceholders(
+            ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE.snippet
+          )
+        );
+      });
+      const costBanner = within(modal).getByTestId(
+        'auto-embedding-cost-banner'
+      );
+      expect(costBanner).to.be.visible;
+      expect(costBanner.textContent).to.include(
+        'Automated Embedding uses embedding models, which incur usage-based costs'
+      );
     });
   });
 
