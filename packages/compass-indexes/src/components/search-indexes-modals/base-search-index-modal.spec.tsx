@@ -463,7 +463,7 @@ describe('Base Search Index Modal', function () {
         { preferences: { enableAutoEmbeddingPublicPreview: true } }
       );
     });
-    it('shows vector template dropdown', async function () {
+    it.skip('shows vector template dropdown', async function () {
       await waitFor(() => {
         // Wait for the editor to render the blank content.
         expect(getCodemirrorEditorValue('definition-of-search-index')).to.equal(

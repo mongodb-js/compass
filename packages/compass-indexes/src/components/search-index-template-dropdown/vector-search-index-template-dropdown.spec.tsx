@@ -13,8 +13,6 @@ import {
 import React from 'react';
 
 describe('Vector Search Index Template Dropdown', function () {
-  afterEach(cleanup);
-
   describe('when rendered', function () {
     let onTemplateChoiceSpy: SinonSpy;
 
