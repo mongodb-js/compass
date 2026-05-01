@@ -6,7 +6,6 @@ import type {
   AllPreferences,
   PreferenceState,
   PreferenceStateInformation,
-  StoredPreferences,
   UserConfigurablePreferences,
   UserPreferences,
   DeriveValueFunction,
@@ -165,7 +164,7 @@ export class Preferences {
    * listeners when computed values change.
    */
   async syncEmbedderProvidedPreferences(
-    userPreferenceOverrides: Partial<StoredPreferences>,
+    userPreferenceOverrides: Partial<AllPreferences>,
     atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags> = {}
   ): Promise<void> {
     const originalPreferences = this.getPreferences();
