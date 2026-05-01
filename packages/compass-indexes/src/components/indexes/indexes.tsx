@@ -79,30 +79,28 @@ const AtlasIndexesBanner = ({
 
   return (
     <Banner variant="info" dismissible onClose={onDismissClick}>
-      <Body weight="medium">Looking for search indexes?</Body>
+      {!enableSearchActivationProgramP1 && (
+        <Body weight="medium">Looking for search indexes?</Body>
+      )}
       {enableSearchActivationProgramP1
         ? 'View index sizes, queryability status, and per-node build progress in '
         : 'These indexes can be created and viewed under '}
-      {atlasMetadata ? (
-        <Link
-          target="_blank"
-          rel="noopener"
-          href={buildAtlasSearchLink({
-            atlasMetadata,
-            namespace,
-          })}
-          onClick={() => {
-            track('Atlas Search Indexes for View Link Clicked', {
-              context: 'Indexes Tab',
-            });
-          }}
-          hideExternalIcon
-        >
-          {linkTitle}
-        </Link>
-      ) : (
-        linkTitle
-      )}
+      <Link
+        target="_blank"
+        rel="noopener"
+        href={buildAtlasSearchLink({
+          atlasMetadata,
+          namespace,
+        })}
+        onClick={() => {
+          track('Atlas Search Indexes for View Link Clicked', {
+            context: 'Indexes Tab',
+          });
+        }}
+        hideExternalIcon
+      >
+        {linkTitle}
+      </Link>
     </Banner>
   );
 };
