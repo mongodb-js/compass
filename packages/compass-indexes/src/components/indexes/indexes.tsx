@@ -53,8 +53,6 @@ const containerStyles = css({
   flexGrow: 1,
 });
 
-const linkTitle = 'Search and Vector Search.';
-
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
@@ -99,8 +97,9 @@ const AtlasIndexesBanner = ({
         }}
         hideExternalIcon
       >
-        {linkTitle}
+        Search and Vector Search
       </Link>
+      {'.'}
     </Banner>
   );
 };
