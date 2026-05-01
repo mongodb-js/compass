@@ -6,6 +6,7 @@ import type {
   AllPreferences,
   PreferenceState,
   PreferenceStateInformation,
+  StoredPreferences,
   UserConfigurablePreferences,
   UserPreferences,
   DeriveValueFunction,
@@ -156,6 +157,36 @@ export class Preferences {
     this._afterPreferencesUpdate(originalPreferences, newPreferences);
 
     return newPreferences;
+  }
+
+  /**
+   * Apply preference values supplied by an embedding host (e.g. CompassWeb
+   * props) without persisting invalid or unknown keys. Notifies preference
+   * listeners when computed values change.
+   */
+  async syncEmbedderProvidedPreferences(
+    userPreferenceOverrides: Partial<StoredPreferences>,
+    atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags> = {}
+  ): Promise<void> {
+    const originalPreferences = this.getPreferences();
+
+    try {
+      await this._preferencesStorage.updatePreferences(userPreferenceOverrides);
+    } catch (err) {
+      this._logger.log.error(
+        this._logger.mongoLogId(1_001_000_157),
+        'preferences',
+        'Failed to sync embedder-provided preferences',
+        {
+          error: (err as Error).message,
+        }
+      );
+      return;
+    }
+
+    this._globalPreferences.atlasCloud = { ...atlasCloudFeatureFlags };
+    const newPreferences = this.getPreferences();
+    this._afterPreferencesUpdate(originalPreferences, newPreferences);
   }
 
   _afterPreferencesUpdate(

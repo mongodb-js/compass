@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { Preferences } from './preferences';
+import { InMemoryStorage } from './preferences-in-memory-storage';
 import { expect } from 'chai';
 import { FEATURE_FLAG_DEFINITIONS } from './feature-flags';
 import { PersistentStorage } from './preferences-persistent-storage';
@@ -299,6 +300,48 @@ describe('Preferences class', function () {
       enableShell: 'derived',
       readWrite: 'derived',
       ...expectedReleasedFeatureFlagsStates,
+    });
+  });
+
+  describe('syncEmbedderProvidedPreferences', function () {
+    it('updates stored preferences and notifies listeners', async function () {
+      const preferences = new Preferences({
+        logger,
+        preferencesStorage: new InMemoryStorage(),
+      });
+      const changed: Partial<Record<string, unknown>>[] = [];
+      preferences.onPreferencesChanged((prefs) => {
+        changed.push(prefs);
+      });
+
+      await preferences.syncEmbedderProvidedPreferences({ enableMaps: false });
+
+      expect(preferences.getPreferences().enableMaps).to.equal(false);
+      expect(changed.some((c) => c.enableMaps === false)).to.equal(true);
+    });
+
+    it('updates atlas cloud feature flags used for derived values', async function () {
+      const preferences = new Preferences({
+        logger,
+        preferencesStorage: new InMemoryStorage(),
+        globalPreferences: { atlasCloud: {} },
+      });
+      const changed: Partial<Record<string, unknown>>[] = [];
+      preferences.onPreferencesChanged((prefs) => {
+        changed.push(prefs);
+      });
+
+      await preferences.syncEmbedderProvidedPreferences(
+        {},
+        { DATA_EXPLORER_ENABLE_SEARCH_INDEXES_MANAGEMENT: true }
+      );
+
+      expect(
+        preferences.getPreferences().enableSearchActivationProgramP1
+      ).to.equal(true);
+      expect(
+        changed.some((c) => c.enableSearchActivationProgramP1 === true)
+      ).to.equal(true);
     });
   });
 });

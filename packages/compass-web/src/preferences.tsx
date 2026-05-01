@@ -1,3 +1,4 @@
+import { useLayoutEffect } from 'react';
 import type {
   AllPreferences,
   AtlasCloudFeatureFlags,
@@ -55,6 +56,13 @@ export function useCompassWebPreferences(
       { atlasCloud: atlasCloudFeatureFlags }
     );
   }));
+
+  useLayoutEffect(() => {
+    void preferencesAccess.syncEmbedderProvidedPreferences(
+      initialPreferences,
+      atlasCloudFeatureFlags
+    );
+  }, [preferencesAccess, initialPreferences, atlasCloudFeatureFlags]);
 
   return preferencesAccess;
 }
