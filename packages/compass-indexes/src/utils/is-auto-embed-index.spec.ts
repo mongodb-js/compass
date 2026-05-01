@@ -16,17 +16,13 @@ describe('isAutoEmbedIndex', function () {
       isAutoEmbedIndex(
         indexWithDefinition({
           mappings: { dynamic: true },
-        } as SearchIndex['latestDefinition'])
+        })
       )
     ).to.be.false;
   });
 
   it('returns false when fields is not an array', function () {
-    expect(
-      isAutoEmbedIndex(
-        indexWithDefinition({ fields: {} } as SearchIndex['latestDefinition'])
-      )
-    ).to.be.false;
+    expect(isAutoEmbedIndex(indexWithDefinition({ fields: {} }))).to.be.false;
   });
 
   it('returns false when fields is empty', function () {

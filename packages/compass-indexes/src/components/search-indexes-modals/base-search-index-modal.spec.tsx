@@ -11,7 +11,6 @@ import type { SinonSpy } from 'sinon';
 import {
   render,
   screen,
-  cleanup,
   waitFor,
   userEvent,
   wait,
@@ -75,8 +74,6 @@ function renderBaseSearchIndexModal(
 }
 
 describe('Base Search Index Modal', function () {
-  afterEach(cleanup);
-
   describe('when rendered', function () {
     let onSubmitSpy: SinonSpy;
     let onCloseSpy: SinonSpy;
@@ -115,7 +112,6 @@ describe('Base Search Index Modal', function () {
       });
 
       it('does not show vector template dropdown when auto-embedding preview flag is off', function () {
-        cleanup();
         renderBaseSearchIndexModal(
           {
             onSubmit: onSubmitSpy,
@@ -135,8 +131,7 @@ describe('Base Search Index Modal', function () {
           .null;
       });
 
-      it.skip('shows vector template dropdown when auto-embedding preview flag is on', async function () {
-        cleanup();
+      it('shows vector template dropdown when auto-embedding preview flag is on', async function () {
         renderBaseSearchIndexModal(
           {
             onSubmit: onSubmitSpy,
@@ -144,6 +139,12 @@ describe('Base Search Index Modal', function () {
           },
           { preferences: { enableAutoEmbeddingPublicPreview: true } }
         );
+        await waitFor(() => {
+          // Wait for the editor to render the blank content.
+          expect(
+            getCodemirrorEditorValue('definition-of-search-index')
+          ).to.equal('{}');
+        });
         userEvent.click(
           screen.getByTestId('search-index-type-vectorSearch-button'),
           undefined,
@@ -457,7 +458,6 @@ describe('Base Search Index Modal', function () {
       });
 
       it('replaces the index editor with automated embedding when that vector template is selected', async function () {
-        cleanup();
         renderBaseSearchIndexModal(
           {
             onSubmit: onSubmitSpy,
@@ -544,7 +544,6 @@ describe('Base Search Index Modal', function () {
     });
 
     it('does not show the restriction banner in create mode', function () {
-      cleanup();
       renderBaseSearchIndexModal(
         {
           mode: 'create',
