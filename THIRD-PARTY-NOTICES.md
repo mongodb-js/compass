@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Apr 30 2026.
+This document was automatically generated on Fri May 01 2026.
 
 ## List of dependencies
 
@@ -34,7 +34,7 @@ This document was automatically generated on Thu Apr 30 2026.
 | **[@aws-sdk/xml-builder](#2612a059349f84a3ef8ea02c1005e3ae687b43fdcfb70a025ce7a2e1cb1c7050)**                               | 3.972.15     | Apache-2.0                          |
 | **[@aws/lambda-invoke-store](#0823bf4e042fb134d2b390f1b6e47caf3fbd9378dee1351ec2572f606669ccbe)**                           | 0.2.4        | Apache-2.0                          |
 | **[@babel/code-frame](#df34b02a4ece6e30a67e2ffa4233cbb922046a43542f75119725553e45a5a88a)**                                  | 7.29.0       | MIT                                 |
-| **[@babel/compat-data](#8f3889dc2e513df44b59740f2a7c70de8c1bb9bc516877aa24386fbde6b46198)**                                 | 7.29.0       | MIT                                 |
+| **[@babel/compat-data](#92785f0b195643925d348de8c299eaace0e31ac7806e8875408ba2bf94975f7e)**                                 | 7.29.3       | MIT                                 |
 | **[@babel/core](#bcd5e9470e2cfc1909a44520baf82a57fbc95a2017e495a97531b4150af49bec)**                                        | 7.29.0       | MIT                                 |
 | **[@babel/generator](#899e922ca79468a8fb94e3b9b45446720a7fa88d9faa798a2ef7ca710b2ab35d)**                                   | 7.29.1       | MIT                                 |
 | **[@babel/helper-annotate-as-pure](#150ffd15ed05d3b7ff1119a92e825d2d3bf1a2c72d2901ecf8e2efbd24a0b8e4)**                     | 7.27.3       | MIT                                 |
@@ -4798,9 +4798,9 @@ License files:
       OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
       WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="8f3889dc2e513df44b59740f2a7c70de8c1bb9bc516877aa24386fbde6b46198"></a>
+<a id="92785f0b195643925d348de8c299eaace0e31ac7806e8875408ba2bf94975f7e"></a>
 
-### [@babel/compat-data](https://www.npmjs.com/package/@babel/compat-data) (version 7.29.0)
+### [@babel/compat-data](https://www.npmjs.com/package/@babel/compat-data) (version 7.29.3)
 
 License tags: MIT
 
