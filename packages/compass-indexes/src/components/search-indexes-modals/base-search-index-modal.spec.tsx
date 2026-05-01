@@ -111,12 +111,22 @@ describe('Base Search Index Modal', function () {
         expect(screen.getByText('Vector Search')).to.be.visible;
       });
 
-      it('does not show vector template dropdown when auto-embedding preview flag is off', function () {
-        userEvent.click(
-          screen.getByTestId('search-index-type-vectorSearch-button'),
-          undefined,
-          { skipPointerEventsCheck: true }
-        );
+      it('does not show vector template dropdown when auto-embedding preview flag is off', async function () {
+        await waitFor(() => {
+          // Wait for the editor to render the blank content.
+          expect(
+            getCodemirrorEditorValue('definition-of-search-index')
+          ).to.equal('{}');
+        });
+        const button = screen.getByTestId(
+          'search-index-type-vectorSearch-button'
+        ).parentElement;
+        if (!button) {
+          throw new Error(
+            'Could not find radio button for vector search option'
+          );
+        }
+        userEvent.click(button);
         const modal = screen.getByTestId('search-index-modal');
         expect(within(modal).queryByTestId('vector-search-index-template')).to
           .be.null;
@@ -449,29 +459,24 @@ describe('Base Search Index Modal', function () {
   describe('when rendered with the auto-embedding preview flag on', function () {
     beforeEach(function () {
       renderBaseSearchIndexModal(
-        {
-          onSubmit: () => {
-            /* no-op */
-          },
-          onClose: () => {
-            /* no-op */
-          },
-        },
+        {},
         { preferences: { enableAutoEmbeddingPublicPreview: true } }
       );
     });
-    it('shows vector template dropdown ', async function () {
+    it('shows vector template dropdown', async function () {
       await waitFor(() => {
         // Wait for the editor to render the blank content.
         expect(getCodemirrorEditorValue('definition-of-search-index')).to.equal(
           '{}'
         );
       });
-      userEvent.click(
-        screen.getByTestId('search-index-type-vectorSearch-button'),
-        undefined,
-        { skipPointerEventsCheck: true }
-      );
+      const button = screen.getByTestId(
+        'search-index-type-vectorSearch-button'
+      ).parentElement;
+      if (!button) {
+        throw new Error('Could not find radio button for vector search option');
+      }
+      userEvent.click(button);
       const modal = screen.getByTestId('search-index-modal');
       expect(within(modal).getByTestId('vector-search-index-template')).to.be
         .visible;
