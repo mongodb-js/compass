@@ -1,7 +1,6 @@
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { Preferences, type PreferencesAccess } from './preferences';
-import type { UserPreferences } from './preferences-schema';
-import { type AllPreferences, type StoredPreferences } from './preferences-schema';
+import type { UserPreferences, AllPreferences } from './preferences-schema';
 import type { AtlasCloudFeatureFlags } from './feature-flags';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import { getActiveUser } from './utils';
@@ -33,7 +32,7 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
   }
 
   syncEmbedderProvidedPreferences(
-    userPreferenceOverrides: Partial<StoredPreferences>,
+    userPreferenceOverrides: Partial<AllPreferences>,
     atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags> = {}
   ) {
     return this._preferences.syncEmbedderProvidedPreferences(
