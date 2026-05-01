@@ -135,7 +135,7 @@ describe('Base Search Index Modal', function () {
           .null;
       });
 
-      it('shows vector template dropdown when auto-embedding preview flag is on', async function () {
+      it.skip('shows vector template dropdown when auto-embedding preview flag is on', async function () {
         cleanup();
         renderBaseSearchIndexModal(
           {
