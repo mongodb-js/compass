@@ -16,6 +16,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
+import RateLimitExceededBanner from '../rate-limit-exceeded-banner';
 import type { RootState } from '../../modules';
 import {
   type AggregationError,
@@ -218,21 +219,10 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   } else if (isError && error && rateLimitInfo) {
     results = (
       <ResultsContainer>
-        <Banner
-          data-testid="pipeline-results-error"
-          variant={BannerVariant.Danger}
-          className={errorBannerStyles}
-        >
-          <b>Rate limit exceeded</b>
-          <br />
-          <div className={rerankBannerContentStyles}>
-            <span>
-              Exceeded {rateLimitInfo.limit}{' '}
-              {rateLimitInfo.type === 'rpm' ? 'requests' : 'tokens'} per minute
-              rate limit for {rateLimitInfo.model}
-            </span>
-          </div>
-        </Banner>
+        <RateLimitExceededBanner
+          message={error.message}
+          dataTestId="pipeline-results-error"
+        />
       </ResultsContainer>
     );
   } else if (isError && error) {

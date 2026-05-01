@@ -54,11 +54,10 @@ export function isRerankNotEnabledError(errorMessage: string): boolean {
 export type VoyageRateLimitInfo = {
   type: 'rpm' | 'tpm';
   limit: string;
-  model: string;
 };
 
-const RPM_PATTERN = /of (\d[\d,]*) requests per minute for ([^\s.,]+)/;
-const TPM_PATTERN = /of (\d[\d,]*) tokens per minute for ([^\s.,]+)/;
+const RPM_PATTERN = /of (\d[\d,]*) requests per minute/;
+const TPM_PATTERN = /of (\d[\d,]*) tokens per minute/;
 
 export function getVoyageProjectRateLimitInfo(
   errorMessage: string
@@ -69,11 +68,25 @@ export function getVoyageProjectRateLimitInfo(
   // RPM checked first per design spec
   const rpm = RPM_PATTERN.exec(errorMessage);
   if (rpm) {
-    return { type: 'rpm', limit: rpm[1], model: rpm[2] };
+    return { type: 'rpm', limit: rpm[1] };
   }
   const tpm = TPM_PATTERN.exec(errorMessage);
   if (tpm) {
-    return { type: 'tpm', limit: tpm[1], model: tpm[2] };
+    return { type: 'tpm', limit: tpm[1] };
+  }
+  return null;
+}
+
+export type SearchExtensionType = 'rerank' | 'autoEmbedding';
+
+export function getSearchExtensionType(
+  errorMessage: string
+): SearchExtensionType | null {
+  if (/\brerank-/.test(errorMessage)) {
+    return 'rerank';
+  }
+  if (/\bvoyage-/.test(errorMessage)) {
+    return 'autoEmbedding';
   }
   return null;
 }

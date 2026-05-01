@@ -135,7 +135,7 @@ describe('search-stage-errors', function () {
         getVoyageProjectRateLimitInfo(
           `Executor error during aggregate command on namespace: sample_mflix.movies :: caused by :: Voyage API error: HttpError { status: 429, message: "{\\"detail\\":\\"You have exceeded your project's Requests Per Minute (RPM) rate limit of 1 requests per minute for rerank-2.5. See our documentation for ways to avoid this or to increase the project's rate limits on the dashboard: https://www.mongodb.com/docs/voyageai/management/rate-limits/#manage-rate-limits\\"}" }`
         )
-      ).to.deep.equal({ type: 'rpm', limit: '1', model: 'rerank-2.5' });
+      ).to.deep.equal({ type: 'rpm', limit: '1' });
     });
 
     it('returns tpm info for a project TPM rate limit error', function () {
@@ -143,7 +143,7 @@ describe('search-stage-errors', function () {
         getVoyageProjectRateLimitInfo(
           `Executor error during aggregate command on namespace: sample_mflix.movies :: caused by :: Voyage API error: HttpError { status: 429, message: "{\\"detail\\":\\"You have exceeded the project's Tokens Per Minute (TPM) rate limit of 100 tokens per minute for rerank-2.5. In the minute before this request, you used 0 tokens. See our documentation for ways to avoid or increase the project rate limits on the dashboard. https://www.mongodb.com/docs/voyageai/management/rate-limits/#manage-rate-limits\\"}" }`
         )
-      ).to.deep.equal({ type: 'tpm', limit: '100', model: 'rerank-2.5' });
+      ).to.deep.equal({ type: 'tpm', limit: '100' });
     });
 
     it('returns null for unrelated errors', function () {

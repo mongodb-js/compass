@@ -16,6 +16,7 @@ import {
   isRerankNotEnabledError,
   getVoyageProjectRateLimitInfo,
 } from '../utils/search-stage-errors';
+import RateLimitExceededBanner from './rate-limit-exceeded-banner';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const bannerStyles = css({
@@ -58,6 +59,12 @@ export default function ServerErrorBanner({
       ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
       : null;
 
+  if (rateLimitInfo) {
+    return (
+      <RateLimitExceededBanner message={message} dataTestId={dataTestId} />
+    );
+  }
+
   return (
     <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>
       {rerankNotEnabled ? (
@@ -77,16 +84,6 @@ export default function ServerErrorBanner({
               </Button>
             )}
           </div>
-        </>
-      ) : rateLimitInfo ? (
-        <>
-          <strong>Rate limit exceeded</strong>
-          <br />
-          <span>
-            Exceeded {rateLimitInfo.limit}{' '}
-            {rateLimitInfo.type === 'rpm' ? 'requests' : 'tokens'} per minute
-            rate limit for {rateLimitInfo.model}
-          </span>
         </>
       ) : (
         message
