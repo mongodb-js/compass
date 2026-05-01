@@ -446,6 +446,8 @@ functions:
             DEVELOPER_DIR,
           ]
         env:
+          <<: *compass-env
+          npm_config_loglevel: ${npm_loglevel}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
           SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
@@ -457,7 +459,7 @@ functions:
           KONDUKTO_BRANCH: ${branch_name}_${target_platform}
         script: |
           set -e
-
+          eval $(.evergreen/print-compass-env.sh)
           bash ".evergreen/retry-with-backoff.sh" .evergreen/create-sbom.sh
     - command: shell.exec
       retry_on_failure: true
