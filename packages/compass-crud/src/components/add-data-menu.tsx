@@ -33,20 +33,17 @@ type AddDataMenuProps = {
   instanceDescription: string;
   insertDataHandler: (openInsertKey: 'import-file' | 'insert-document') => void;
   isWritable: boolean;
-  isMockDataGeneratorEligibleWithSchemaAnalysisChecks?: boolean;
-  isMockDataGeneratorEligible?: boolean;
+  isMockDataGeneratorEligibleAndSchemaReady?: boolean;
 };
 
 function AddDataMenuButton({
   insertDataHandler,
   isDisabled = false,
-  isMockDataGeneratorEligibleWithSchemaAnalysisChecks = false,
-  isMockDataGeneratorEligible = false,
+  isMockDataGeneratorEligibleAndSchemaReady = false,
 }: {
   insertDataHandler: (openInsertKey: 'import-file' | 'insert-document') => void;
   isDisabled?: boolean;
-  isMockDataGeneratorEligibleWithSchemaAnalysisChecks?: boolean;
-  isMockDataGeneratorEligible?: boolean;
+  isMockDataGeneratorEligibleAndSchemaReady?: boolean;
 }) {
   const isImportExportEnabled = usePreference('enableImportExport');
   const localAppRegistry = useLocalAppRegistry();
@@ -62,16 +59,14 @@ function AddDataMenuButton({
 
   const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
 
-  // Fire experiment-viewed when the user opens the menu, is statically eligible
-  // (Atlas, writable, not view, not time-series), and is in the experiment.
-  // We don't gate on isMockDataGeneratorEligibleWithSchemaAnalysisChecks here
-  // because we only run schema analysis for treatment, so gating on it would
-  // prevent experiment viewed from firing for control
+  // Fire experiment-viewed when the user opens the menu and the Mock Data
+  // Generator feature is displayed or would be displayed if the user were in the
+  // treatment variant group.
   useFireExperimentViewed({
     testName: ExperimentTestNames.mockDataGenerator,
     shouldFire:
       hasOpenedMenu &&
-      isMockDataGeneratorEligible &&
+      isMockDataGeneratorEligibleAndSchemaReady &&
       !!mockDataGeneratorVariant,
   });
 
@@ -89,7 +84,7 @@ function AddDataMenuButton({
 
     // The menu item only renders for users in treatment variant group
     if (
-      isMockDataGeneratorEligibleWithSchemaAnalysisChecks &&
+      isMockDataGeneratorEligibleAndSchemaReady &&
       isInMockDataTreatmentVariant
     ) {
       actions.push({
@@ -101,7 +96,7 @@ function AddDataMenuButton({
     return actions;
   }, [
     isImportExportEnabled,
-    isMockDataGeneratorEligibleWithSchemaAnalysisChecks,
+    isMockDataGeneratorEligibleAndSchemaReady,
     isInMockDataTreatmentVariant,
   ]);
 
@@ -149,17 +144,15 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
   instanceDescription,
   insertDataHandler,
   isWritable,
-  isMockDataGeneratorEligibleWithSchemaAnalysisChecks,
-  isMockDataGeneratorEligible,
+  isMockDataGeneratorEligibleAndSchemaReady,
 }) => {
   if (isWritable) {
     return (
       <AddDataMenuButton
         insertDataHandler={insertDataHandler}
-        isMockDataGeneratorEligibleWithSchemaAnalysisChecks={
-          isMockDataGeneratorEligibleWithSchemaAnalysisChecks
+        isMockDataGeneratorEligibleAndSchemaReady={
+          isMockDataGeneratorEligibleAndSchemaReady
         }
-        isMockDataGeneratorEligible={isMockDataGeneratorEligible}
       />
     );
   }
@@ -176,10 +169,9 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
           <AddDataMenuButton
             insertDataHandler={insertDataHandler}
             isDisabled={true}
-            isMockDataGeneratorEligibleWithSchemaAnalysisChecks={
-              isMockDataGeneratorEligibleWithSchemaAnalysisChecks
+            isMockDataGeneratorEligibleAndSchemaReady={
+              isMockDataGeneratorEligibleAndSchemaReady
             }
-            isMockDataGeneratorEligible={isMockDataGeneratorEligible}
           />
           {tooltipChildren}
         </div>

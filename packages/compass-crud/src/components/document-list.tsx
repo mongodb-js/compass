@@ -131,8 +131,7 @@ export type DocumentListProps = {
     | 'insertDataHandler'
     | 'openExportFileDialog'
     | 'isWritable'
-    | 'isMockDataGeneratorEligibleWithSchemaAnalysisChecks'
-    | 'isMockDataGeneratorEligible'
+    | 'isMockDataGeneratorEligibleAndSchemaReady'
     | 'instanceDescription'
     | 'refreshDocuments'
     | 'resultId'
@@ -298,8 +297,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     openExportFileDialog,
     viewChanged,
     isWritable,
-    isMockDataGeneratorEligibleWithSchemaAnalysisChecks,
-    isMockDataGeneratorEligible,
+    isMockDataGeneratorEligibleAndSchemaReady,
     instanceDescription,
     refreshDocuments,
     resultId,
@@ -576,10 +574,9 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             error={error}
             count={count}
             isFetching={isFetching}
-            isMockDataGeneratorEligibleWithSchemaAnalysisChecks={
-              isMockDataGeneratorEligibleWithSchemaAnalysisChecks
+            isMockDataGeneratorEligibleAndSchemaReady={
+              isMockDataGeneratorEligibleAndSchemaReady
             }
-            isMockDataGeneratorEligible={isMockDataGeneratorEligible}
             lastCountRunMaxTimeMS={lastCountRunMaxTimeMS}
             loadingCount={loadingCount}
             start={start}
