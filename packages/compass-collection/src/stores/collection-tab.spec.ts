@@ -428,7 +428,7 @@ describe('Collection Tab Content store', function () {
       });
     });
 
-    it('should not start schema analysis in Atlas when user is in control variant', async function () {
+    it('should start schema analysis in Atlas when user is in control variant', async function () {
       const getAssignment = sandbox.spy(() =>
         Promise.resolve(
           createMockAssignment(ExperimentTestGroups.mockDataGeneratorControl)
@@ -448,9 +448,28 @@ describe('Collection Tab Content store', function () {
           ExperimentTestNames.mockDataGenerator,
           false
         );
+        expect(analyzeCollectionSchemaStub).to.have.been.calledOnce;
+      });
+    });
+
+    it('should not start schema analysis in Atlas when user is in the experiment', async function () {
+      const getAssignment = sandbox.spy(() => Promise.resolve(null));
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
+      await configureStore(
+        undefined,
+        undefined,
+        { getAssignment, assignExperiment },
+        mockAtlasConnectionInfo
+      );
+
+      await waitFor(() => {
+        expect(getAssignment).to.have.been.calledOnceWith(
+          ExperimentTestNames.mockDataGenerator,
+          false
+        );
       });
 
-      // Wait a bit to ensure schema analysis would not have been called
       await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
@@ -637,12 +656,8 @@ describe('Collection Tab Content store', function () {
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
 
-    it('should not re-trigger schema analysis when user is not in experiment variant', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorControl)
-        )
-      );
+    it('should not re-trigger schema analysis when user is not in the experiment', async function () {
+      const getAssignment = sandbox.spy(() => Promise.resolve(null));
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
 
       await configureStore(
@@ -660,7 +675,8 @@ describe('Collection Tab Content store', function () {
       // Schema analysis should not have been called initially
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
 
-      // Verify the schema analysis state is INITIAL (as expected for control variant)
+      // Verify the schema analysis state is INITIAL (as expected for users
+      // outside the experiment)
       const initialState = store.getState() as {
         schemaAnalysis: { status: string };
       };
@@ -828,49 +844,11 @@ describe('Collection Tab Content store', function () {
       expect(analyzeCollectionSchemaStub).to.not.have.been.called;
     });
 
-    it('should not re-trigger schema analysis when user is not in experiment variant', async function () {
-      const getAssignment = sandbox.spy(() =>
-        Promise.resolve(
-          createMockAssignment(ExperimentTestGroups.mockDataGeneratorControl)
-        )
-      );
-      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
-
-      await configureStore(
-        undefined,
-        undefined,
-        { getAssignment, assignExperiment },
-        mockAtlasConnectionInfo
-      );
-
-      // Wait for initial assignment check
-      await waitFor(() => {
-        expect(getAssignment).to.have.been.calledOnce;
-      });
-
-      // Schema analysis should not have been called initially
-      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
-
-      // Verify the schema analysis state is INITIAL (as expected for control variant)
-      const initialState = store.getState() as {
-        schemaAnalysis: { status: string };
-      };
-      expect(initialState.schemaAnalysis.status).to.equal('initial');
-
-      // Emit import-finished event
-      globalAppRegistry.emit(
-        'import-finished',
-        {
-          ns: defaultMetadata.namespace,
-          connectionId: mockAtlasConnectionInfo.current.id,
-        },
-        { connectionId: mockAtlasConnectionInfo.current.id }
-      );
-
-      // Wait a bit to ensure schema analysis is not called
-      await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
-      expect(analyzeCollectionSchemaStub).to.not.have.been.called;
-    });
+    // Note: the "user not in the experiment" gate is shared by the
+    // document-inserted listener via shouldRunSchemaAnalysis, and is covered
+    // by the equivalent test in that describe block plus the standalone
+    // "should not start schema analysis in Atlas when user is not bucketed
+    // into the experiment" test above.
   });
 
   describe('open-mock-data-generator-modal event listener', function () {
