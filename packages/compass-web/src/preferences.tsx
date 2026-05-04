@@ -1,4 +1,5 @@
-import { useLayoutEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { isEqual } from 'lodash';
 import type {
   StoredPreferences,
   AtlasCloudFeatureFlags,
@@ -57,7 +58,20 @@ export function useCompassWebPreferences(
     );
   }));
 
-  useLayoutEffect(() => {
+  const prevPrefsRef = useRef(initialPreferences);
+  const prevFlagsRef = useRef(atlasCloudFeatureFlags);
+
+  useEffect(() => {
+    const prefsChanged = !isEqual(prevPrefsRef.current, initialPreferences);
+    const flagsChanged = !isEqual(prevFlagsRef.current, atlasCloudFeatureFlags);
+
+    if (!prefsChanged && !flagsChanged) {
+      return;
+    }
+
+    prevPrefsRef.current = initialPreferences;
+    prevFlagsRef.current = atlasCloudFeatureFlags;
+
     void preferencesAccess.syncEmbedderProvidedPreferences(
       initialPreferences,
       atlasCloudFeatureFlags
