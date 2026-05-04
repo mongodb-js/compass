@@ -150,10 +150,10 @@ export function isOnScreen(bounds: {
   const MIN_VISIBLE = 100;
   return electronScreen.getAllDisplays().some(({ workArea }) => {
     return (
-      bounds.x + bounds.width > workArea.x + MIN_VISIBLE &&
-      bounds.x < workArea.x + workArea.width - MIN_VISIBLE &&
-      bounds.y + bounds.height > workArea.y + MIN_VISIBLE &&
-      bounds.y < workArea.y + workArea.height - MIN_VISIBLE
+      bounds.x + bounds.width >= workArea.x + MIN_VISIBLE &&
+      bounds.x <= workArea.x + workArea.width - MIN_VISIBLE &&
+      bounds.y + bounds.height >= workArea.y + MIN_VISIBLE &&
+      bounds.y <= workArea.y + workArea.height - MIN_VISIBLE
     );
   });
 }
