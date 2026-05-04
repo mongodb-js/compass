@@ -16,6 +16,7 @@ import {
   useLogger,
   type Logger,
 } from '@mongodb-js/compass-logging/provider';
+import ConnectionString from 'mongodb-connection-string-url';
 
 type ElectableSpecs = {
   instanceSize?: string;
@@ -138,6 +139,15 @@ export class AtlasCloudConnectionStorage
 
         const clusterName = connectionInfo.atlasMetadata.clusterName;
 
+        const cs = new ConnectionString(
+          connectionInfo.connectionOptions.connectionString
+        );
+        cs.searchParams.delete('compressors');
+        const compressor = process.env.COMPRESSION_ALGORITHM;
+        if (compressor && ['zlib', 'snappy'].includes(compressor)) {
+          cs.searchParams.append('compressors', compressor);
+        }
+        connectionInfo.connectionOptions.connectionString = cs.toString();
         return {
           ...connectionInfo,
           connectionOptions: {
@@ -214,3 +224,22 @@ export const AtlasCloudConnectionStorageProvider = createServiceProvider(
     );
   }
 );
+
+(window as any).runQuery = async function () {
+  const query = '[{$match: {bike_id: {$in: [4313, 1234]}}}]';
+  // @ts-expect-error docuemnt is not available
+  document.querySelector("[data-testid='Aggregations-tab-button']").click();
+  // @ts-expect-error docuemnt is not available
+  document
+    .querySelector("[data-testid='pipeline-builder-toggle-as-text'] > button")
+    .click();
+  // @ts-expect-error docuemnt is not available
+  document
+    .querySelector("[data-testid='pipeline-text-editor']")
+    ._cm.dispatch({ changes: { from: 0, insert: query, to: 2 } });
+  await new Promise((resolve) => setTimeout(resolve, 2000));
+  // @ts-expect-error docuemnt is not available
+  document
+    .querySelector("[data-testid='pipeline-text-editor']")
+    ._cm.dispatch({ changes: { from: 0, insert: '[]', to: query.length } });
+};
