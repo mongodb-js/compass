@@ -174,7 +174,8 @@ const ScriptScreen = ({
             Install{' '}
             <Link href="https://www.mongodb.com/docs/mongodb-shell/install/">
               mongosh
-            </Link>
+            </Link>{' '}
+            (2.5 or later)
           </li>
           <li>
             Install{' '}
@@ -255,7 +256,9 @@ const ScriptScreen = ({
             connectionInfo.atlasMetadata.projectId && (
               <li>
                 <Link
-                  href={`/v2/${connectionInfo.atlasMetadata.projectId}#/security/database/users`}
+                  href={`${window.location.origin}/v2/${connectionInfo.atlasMetadata.projectId}#/security/database/users`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
                   Access your Database Users
                 </Link>

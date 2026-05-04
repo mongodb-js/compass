@@ -819,7 +819,7 @@ describe('MockDataGeneratorModal', () => {
         name: 'Access your Database Users',
       });
       expect(databaseUsersLink.getAttribute('href')).to.equal(
-        '/v2/test-project-123#/security/database/users'
+        `${window.location.origin}/v2/test-project-123#/security/database/users`
       );
     });
 

@@ -16,6 +16,7 @@ import { dropSearchIndex } from '../../modules/search-indexes';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
+  setExpandedRows,
 } from '../../modules/indexes-drawer';
 import type { SearchIndexType } from '../../modules/indexes-drawer';
 import type { FetchStatus } from '../../utils/fetch-status';
@@ -165,7 +166,9 @@ type SearchIndexesDrawerTableProps = {
   onDropIndexClick: (name: string) => void;
   onEditIndexClick: (name: string) => void;
   onCreateSearchIndexClick: (indexType: SearchIndexType) => void;
+  onExpandedChange: (expandedRows: Record<string, boolean>) => void;
   searchTerm?: string;
+  expandedRows: Record<string, boolean>;
 };
 
 export const SearchIndexesDrawerTable: React.FunctionComponent<
@@ -174,9 +177,11 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
   indexes,
   status,
   searchTerm,
+  expandedRows,
   onEditIndexClick,
   onDropIndexClick,
   onCreateSearchIndexClick,
+  onExpandedChange,
 }) => {
   const track = useTelemetry();
 
@@ -220,6 +225,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
       return (
         <SearchIndexActions
           index={index}
+          context="Search Indexes Drawer Table"
           onDropIndex={onDropIndexClick}
           onEditIndex={onEditIndexClick}
         />
@@ -243,6 +249,16 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     }
     return allData.filter((item) => item.name.includes(searchTerm));
   }, [allData, searchTerm]);
+
+  const handleExpandedChange = useCallback(
+    (newExpanded: true | Record<string, boolean>) => {
+      if (newExpanded === true) {
+        return;
+      }
+      onExpandedChange(newExpanded);
+    },
+    [onExpandedChange]
+  );
 
   if (!isReadyStatus(status)) {
     return null;
@@ -268,6 +284,8 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
           : COLUMNS_FOR_DRAWER
       }
       data={data}
+      expanded={expandedRows}
+      onExpandedChange={handleExpandedChange}
       tableWrapperClassName={tableWrapperStyles}
       cellClassName={drawerCellStyles}
       showActionsOnHover={false}
@@ -275,15 +293,17 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
   );
 };
 
-const mapState = ({ searchIndexes }: RootState) => ({
+const mapState = ({ searchIndexes, indexesDrawer }: RootState) => ({
   status: searchIndexes.status,
   indexes: searchIndexes.indexes,
+  expandedRows: indexesDrawer.expandedRows,
 });
 
 const mapDispatch = {
   onDropIndexClick: dropSearchIndex,
   onEditIndexClick: openEditSearchIndexDrawerView,
   onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
+  onExpandedChange: setExpandedRows,
 };
 
 export default connect(mapState, mapDispatch)(SearchIndexesDrawerTable);

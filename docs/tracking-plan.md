@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Apr 27, 2026
+Generated on Sun, May 3, 2026
 
 ## Table of Contents
 
@@ -188,7 +188,10 @@ Generated on Mon, Apr 27, 2026
 - [Index Dropped](#event--IndexDroppedEvent)
 - [Index Edited](#event--IndexEditedEvent)
 - [Index Create Action Clicked](#event--IndexCreateActionClickedEvent)
+- [Index Edit Action Clicked](#event--IndexEditActionClickedEvent)
+- [Index Drop Action Clicked](#event--IndexDropActionClickedEvent)
 - [Index Refresh Clicked](#event--IndexRefreshClickedEvent)
+- [Manage Search Indexes Link Clicked](#event--ManageSearchIndexesLinkClickedEvent)
 
 ### Mock Data Generator
 
@@ -2244,6 +2247,34 @@ This event is fired when user clicks a create action in the indexes drawer
   - The type of index being created.
 - **is_compass_web** (optional): `true | undefined`
 
+<a name="event--IndexEditActionClickedEvent"></a>
+
+### Index Edit Action Clicked
+
+This event is fired when user clicks the edit action on a search index.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the action was clicked.
+- **index_type** (required): `string`
+  - The type of index being edited.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--IndexDropActionClickedEvent"></a>
+
+### Index Drop Action Clicked
+
+This event is fired when user clicks the drop action on a search index.
+
+**Properties**:
+
+- **context** (required): `SearchIndexesTelemetryContext`
+  - The context/screen from which the action was clicked.
+- **index_type** (required): `string`
+  - The type of index being dropped.
+- **is_compass_web** (optional): `true | undefined`
+
 <a name="event--IndexRefreshClickedEvent"></a>
 
 ### Index Refresh Clicked
@@ -2254,6 +2285,19 @@ This event is fired when user clicks the refresh button in the indexes drawer.
 
 - **context** (required): `SearchIndexesTelemetryContext`
   - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--ManageSearchIndexesLinkClickedEvent"></a>
+
+### Manage Search Indexes Link Clicked
+
+This event is fired when a user clicks the "Manage your search indexes" link
+in the Indexes toolbar to navigate to Atlas Search.
+
+**Properties**:
+
+- **context** (required): `"Indexes Tab"`
+  - The context/screen from which the link was clicked.
 - **is_compass_web** (optional): `true | undefined`
 
 ## Mock Data Generator

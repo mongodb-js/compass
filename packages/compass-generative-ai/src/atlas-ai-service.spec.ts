@@ -578,6 +578,43 @@ describe('AtlasAiService', function () {
             expect(capturedRequestBody).to.include(VALIDATION_RULE);
           });
 
+          it('forwards X-Assistant-Entrypoint and X-Client-Request-Id headers to the knowledge server', async function () {
+            const mockToolOutput = {
+              fields: [
+                {
+                  fieldPath: 'name',
+                  fakerMethod: 'person.fullName',
+                  fakerArgs: [],
+                },
+              ],
+            };
+            const fetchStub = sandbox
+              .stub()
+              .resolves(
+                createToolCallStreamResponse('mockDataSchema', mockToolOutput)
+              );
+            global.fetch = fetchStub;
+
+            await atlasAiService.getMockDataSchema(
+              mockSchemaInput,
+              mockConnectionInfo
+            );
+
+            expect(fetchStub).to.have.been.calledOnce;
+            const { args } = fetchStub.firstCall;
+            // Header keys may be normalised to lowercase by the SDK; compare
+            // case-insensitively via a Headers wrapper.
+            const headers = new Headers(
+              (args[1] as RequestInit).headers as HeadersInit
+            );
+            expect(headers.get('X-Assistant-Entrypoint')).to.equal(
+              'mock-data-generator'
+            );
+            expect(headers.get('X-Client-Request-Id')).to.equal(
+              mockSchemaInput.requestId
+            );
+          });
+
           it('throws AtlasAiServiceApiResponseParseError when no tool call returned', async function () {
             // Create a response with no tool calls (just text output)
             const responseId = `resp_${Date.now()}`;

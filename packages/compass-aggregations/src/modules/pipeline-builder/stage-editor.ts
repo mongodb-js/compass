@@ -9,7 +9,6 @@ import { isAction } from '../../utils/is-action';
 import type Stage from './stage';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
-import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
@@ -24,6 +23,7 @@ import type { PipelineModeToggledAction } from './pipeline-mode';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
+  stageOperatorsWithAutoEmbedPreview,
 } from '../../utils/stage';
 import { mapPipelineModeToEditorViewType } from './builder-helpers';
 import { getId } from './stage-ids';
@@ -539,21 +539,29 @@ const replaceOperatorSnippetTokens = (str: string): string => {
   });
 };
 
-const ESCAPED_STAGE_OPERATORS = STAGE_OPERATORS.map((stage) => {
-  return {
-    ...stage,
-    comment: replaceOperatorSnippetTokens(stage.comment),
-    snippet: replaceOperatorSnippetTokens(stage.snippet),
-  };
-}) as unknown as typeof STAGE_OPERATORS;
+function getEscapedStageOperators(enableAutoEmbeddingPublicPreview: boolean) {
+  return stageOperatorsWithAutoEmbedPreview(
+    enableAutoEmbeddingPublicPreview
+  ).map((stage) => {
+    return {
+      ...stage,
+      comment: replaceOperatorSnippetTokens(stage.comment),
+      snippet: replaceOperatorSnippetTokens(stage.snippet),
+    };
+  });
+}
 
 function getStageSnippet(
   stageOperator: string | null,
   env: ServerEnvironment,
   shouldAddComment: boolean,
-  escaped = false
+  escaped = false,
+  enableAutoEmbeddingPublicPreview = false
 ) {
-  const stages = (escaped ? ESCAPED_STAGE_OPERATORS : STAGE_OPERATORS).filter(
+  const operatorList = escaped
+    ? getEscapedStageOperators(enableAutoEmbeddingPublicPreview)
+    : stageOperatorsWithAutoEmbedPreview(enableAutoEmbeddingPublicPreview);
+  const stages = operatorList.filter(
     (stageOp) => stageOp.value === stageOperator
   );
 
@@ -581,7 +589,7 @@ export const changeStageOperator = (
   return (
     dispatch,
     getState,
-    { pipelineBuilder, track, connectionInfoRef }
+    { pipelineBuilder, track, connectionInfoRef, preferences }
   ) => {
     const {
       env,
@@ -602,6 +610,10 @@ export const changeStageOperator = (
       return;
     }
 
+    const enableAutoEmbeddingPublicPreview = Boolean(
+      preferences.getPreferences().enableAutoEmbeddingPublicPreview
+    );
+
     const currentSnippet = getStageSnippet(
       stageInStore.stageOperator,
       env,
@@ -610,7 +622,8 @@ export const changeStageOperator = (
       // will replace anchors with their names (i.e., `${anchor}` will be
       // `anchor` when snippet is applied to the editor) and that's what we want
       // to compare to here
-      true
+      true,
+      enableAutoEmbeddingPublicPreview
     ).trim();
 
     const currentValue = stageInStore.value?.trim();
@@ -638,7 +651,13 @@ export const changeStageOperator = (
     // can be applied to the editor (this will be picked up by the UI and passed
     // the the editor to start snippet completion)
     if (!currentValue || currentSnippet === currentValue) {
-      newSnippet = getStageSnippet(stage.operator, env, comments);
+      newSnippet = getStageSnippet(
+        stage.operator,
+        env,
+        comments,
+        false,
+        enableAutoEmbeddingPublicPreview
+      );
     }
 
     dispatch(loadPreviewForStagesFrom(id));

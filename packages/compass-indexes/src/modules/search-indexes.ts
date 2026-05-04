@@ -4,6 +4,7 @@ import {
   openToast,
   showConfirmation as showConfirmationModal,
 } from '@mongodb-js/compass-components';
+import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
 import type { Document } from 'mongodb';
 import type { SearchIndex } from 'mongodb-data-service';
 
@@ -18,6 +19,7 @@ import type { IndexesThunkAction } from '.';
 import { switchToSearchIndexes } from './index-view';
 import type { IndexViewChangedAction } from './index-view';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
+import { isAutoEmbedIndex } from '../utils/is-auto-embed-index';
 import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
@@ -726,23 +728,38 @@ export const pollSearchIndexes = (): IndexesThunkAction<
 // its value. This enables to test dropSearchIndex action.
 export const showConfirmation = showConfirmationModal;
 
+const AUTO_EMBED_DROP_CONFIRMATION_DESCRIPTION =
+  'Dropping this index will permanently remove all generated vector embeddings associated with it. All queries that use this index will stop working. If you create a new index later, embeddings will be generated again and will use additional tokens.';
+
+const DEFAULT_DROP_CONFIRMATION_DESCRIPTION =
+  'If you drop this index, all queries using it will no longer function.';
+
 export const dropSearchIndex = (
   name: string
 ): IndexesThunkAction<Promise<void>, FetchSearchIndexesActions> => {
   return async function (
     dispatch,
     getState,
-    { track, connectionInfoRef, dataService }
+    { track, connectionInfoRef, dataService, preferences }
   ) {
-    const { namespace } = getState();
+    const { namespace, searchIndexes } = getState();
+    const { enableAutoEmbeddingPublicPreview } = preferences.getPreferences();
 
+    const index = searchIndexes.indexes.find((i) => i.name === name);
+    const useAutoEmbedDropCopy =
+      Boolean(enableAutoEmbeddingPublicPreview) &&
+      index !== undefined &&
+      isAutoEmbedIndex(index);
+
+    const description = useAutoEmbedDropCopy
+      ? AUTO_EMBED_DROP_CONFIRMATION_DESCRIPTION
+      : DEFAULT_DROP_CONFIRMATION_DESCRIPTION;
     const isConfirmed = await showConfirmation({
       title: `Are you sure you want to drop "${name}" from Cluster?`,
       buttonText: 'Drop Index',
       variant: 'danger',
       requiredInputText: name,
-      description:
-        'If you drop this index, all queries using it will no longer function.',
+      description,
     });
     if (!isConfirmed) {
       return;
@@ -809,6 +826,54 @@ export function getInitialVectorSearchIndexPipelineText(name: string) {
       // number (not decimals), or string to use as a prefilter.
       "filter": {}
     },
+  },
+]`;
+}
+
+/**
+ * {@link VECTOR_SEARCH_AUTO_EMBED_STAGE} `.snippet` uses VS Code tab-stops
+ * (`${n:label}`). Aggregation text must be valid shell BSON, so each index is
+ * mapped to a literal. Indices follow the snippet shipped in
+ * `@mongodb-js/mongodb-constants`.
+ */
+function stripVectorSearchAutoEmbedSnippetPlaceholders(
+  snippet: string,
+  indexName: string
+): string {
+  return snippet.replace(/\$\{(\d+):[^}]*\}/g, (_match, id: string) => {
+    switch (id) {
+      case '1':
+        return '"string"';
+      case '2':
+        return '0';
+      case '3':
+        return '1';
+      case '4':
+        return JSON.stringify('<field-to-search>');
+      case '5':
+        return '50';
+      case '6':
+        return JSON.stringify(indexName);
+      case '7':
+        return '10';
+      case '8':
+        return '';
+      case '9':
+        return 'false';
+      default:
+        return 'null';
+    }
+  });
+}
+
+export function getInitialAutoEmbedSearchIndexPipelineText(name: string) {
+  const stageValue = stripVectorSearchAutoEmbedSnippetPlaceholders(
+    VECTOR_SEARCH_AUTO_EMBED_STAGE.snippet,
+    name
+  ).trim();
+  return `[
+  {
+    $vectorSearch: ${VECTOR_SEARCH_AUTO_EMBED_STAGE.comment} ${stageValue}
   },
 ]`;
 }

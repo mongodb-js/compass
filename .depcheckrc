@@ -1,14 +1,37 @@
 ignores:
   - '@mongodb-js/bump-monorepo-packages'
   - '@mongodb-js/sbom-tools'
+
   # TODO: We keep testing-library/dom at the root to work around weird npm
   # workspace hoising issues caused by outdated transient dependencies. This can
   # go away when we update all our usage of @testing-library packages to the
   # version matching what @leafygreen is using
   - '@testing-library/dom'
+
   # npm picks up the node-gyp installation in this repository rather than the
   # one it ships with, so we install one of our own to get the version right
   # (because we need one with vscode 2022 support for github actions CI)
   - 'node-gyp'
-  # lerna is used as a script
-  - 'lerna'
+
+  # npm@11 has issues with applying overrides to the dependencies installed in
+  # the workspaces: if a workspace dependency has a dependency on the package we
+  # are trying to override, the override will not be applied during install and
+  # incorrect version will end up in the dependency tree, indicated by the
+  # ELSPROBLEMS error. We can work around this by installing the dependency that
+  # is triggering the issue at the root of the monorepo, in that case the
+  # override will be correctly applied to the dependency
+  #
+  # IMPORTANT: It is not enough to install the dependency you are trying to
+  # override at root, it needs to be the dependencies (one or many) that is
+  # causing the ELSPROBLEMS issue itself
+  - '@mongodb-js/diagramming'
+  - '@mongodb-js/eslint-config-devtools'
+  - ag-grid-react
+  - braintrust
+  # TODO: we removed all enzyme tests, remove this from the shared mocha config
+  # so that it doesn't end up in our transitive deps at all
+  - chai-enzyme
+  - express
+  - react-leaflet
+  - react-leaflet-draw
+  - reflux
