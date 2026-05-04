@@ -14,6 +14,7 @@ import {
   dropSearchIndex,
   getInitialSearchIndexPipeline,
   getInitialVectorSearchIndexPipelineText,
+  getInitialAutoEmbedSearchIndexPipelineText,
   createSearchIndexOpened,
   updateSearchIndexOpened,
   startPollingSearchIndexes,
@@ -126,10 +127,16 @@ export const SearchIndexesTable: React.FunctionComponent<
 
   const tabId = useWorkspaceTabId();
 
-  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+  const {
+    readOnly,
+    readWrite,
+    enableAtlasSearchIndexes,
+    enableAutoEmbeddingPublicPreview,
+  } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
+    'enableAutoEmbeddingPublicPreview',
   ]);
 
   useEffect(() => {
@@ -163,8 +170,9 @@ export const SearchIndexesTable: React.FunctionComponent<
             newTab: true,
             ...(isVectorSearchIndex
               ? {
-                  initialPipelineText:
-                    getInitialVectorSearchIndexPipelineText(name),
+                  initialPipelineText: enableAutoEmbeddingPublicPreview
+                    ? getInitialAutoEmbedSearchIndexPipelineText(name)
+                    : getInitialVectorSearchIndexPipelineText(name),
                 }
               : {
                   initialPipeline: getInitialSearchIndexPipeline(name),
@@ -179,6 +187,7 @@ export const SearchIndexesTable: React.FunctionComponent<
       onDropIndexClick,
       onEditIndexClick,
       openCollectionWorkspace,
+      enableAutoEmbeddingPublicPreview,
     ]
   );
 

@@ -7,8 +7,8 @@ import {
 import Indexes from './components/indexes/indexes';
 import {
   connectionInfoRefLocator,
-  dataServiceLocator,
   type DataServiceLocator,
+  dataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import {
   collectionModelLocator,
@@ -32,6 +32,7 @@ export const CompassIndexesPluginProvider = registerCompassPlugin(
   },
   {
     dataService:
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       dataServiceLocator as DataServiceLocator<IndexesDataServiceProps>,
     connectionInfoRef: connectionInfoRefLocator,
     instance: mongoDBInstanceLocator,
