@@ -2,7 +2,6 @@ import type { Store } from 'redux';
 import { applyMiddleware, createStore } from 'redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import thunk from 'redux-thunk';
-import type { Document, Element } from 'hadron-document';
 import { toJSString } from 'mongodb-query-parser';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -48,7 +47,6 @@ import {
   type CrudStoreOptions,
   type EmittedAppRegistryEvents,
 } from './reducer';
-import type { BSONObject } from './insert';
 
 export type {
   CrudStoreOptions,
@@ -108,33 +106,6 @@ export type CrudReduxStore = Omit<
   dispatch: CrudDispatch;
   gridStore: GridStore;
 };
-
-/**
- * The set of dispatcher-shaped methods that connected components consume as
- * props. These are the bound thunk signatures (thunk -> Promise<void> | void)
- * that components used to receive as Reflux methods on the store object. Kept
- * as a flat interface so the existing `CrudActions['methodName']` lookups in
- * component prop types remain valid.
- */
-export interface CrudActions {
-  drillDown(
-    doc: Document,
-    element: Element,
-    editParams?: { colId: string; rowIndex: number }
-  ): void;
-  updateDocument(doc: Document): Promise<void>;
-  removeDocument(doc: Document): Promise<void>;
-  replaceDocument(doc: Document): Promise<void>;
-  openInsertDocumentDialog(doc: BSONObject, cloned: boolean): Promise<void>;
-  copyToClipboard(doc: Document): void;
-  openBulkDeleteDialog(): void;
-  runBulkUpdate(): Promise<void>;
-  closeBulkDeleteDialog(): void;
-  runBulkDelete(): Promise<void>;
-  openQueryExportToLanguageDialog(): void;
-  openDeleteQueryExportToLanguageDialog(): void;
-  saveUpdateQuery(name: string): Promise<void>;
-}
 
 export function activateDocumentsPlugin(
   options: CrudStoreOptions,

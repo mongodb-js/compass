@@ -7,7 +7,7 @@ import type Document from 'hadron-document';
 import type { CellEditorProps } from './cell-editor';
 import type { GridActions } from '../../stores/grid-store';
 import { DocumentEvents, type Element } from 'hadron-document';
-import type { BSONObject, CrudActions } from '../../stores/crud-store';
+import type { BSONObject } from '../../stores/crud-store';
 
 export type FullWidthCellRendererProps = Pick<
   CellEditorProps,
@@ -16,9 +16,9 @@ export type FullWidthCellRendererProps = Pick<
   data: CellEditorProps['node']['data'];
   cleanCols: GridActions['cleanCols'];
   replaceDoc: GridActions['replaceDoc'];
-  replaceDocument: CrudActions['replaceDocument'];
-  removeDocument: CrudActions['removeDocument'];
-  updateDocument: CrudActions['updateDocument'];
+  replaceDocument: (doc: Document) => Promise<void>;
+  removeDocument: (doc: Document) => Promise<void>;
+  updateDocument: (doc: Document) => Promise<void>;
   darkMode?: boolean;
 };
 

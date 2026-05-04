@@ -54,6 +54,7 @@ export type CrudStoreOptions = Pick<
   | 'isTimeSeries'
   | 'isSearchIndexesSupported'
   | 'sourceName'
+  | 'isMockDataGeneratorEnabled'
 > & {
   noRefreshOnConfigure?: boolean;
 };

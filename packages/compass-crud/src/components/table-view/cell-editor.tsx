@@ -26,7 +26,6 @@ import type {
 } from 'ag-grid-community';
 import type { ICellEditorReactComp } from 'ag-grid-react';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
-import type { CrudActions } from '../../stores/crud-store';
 import type { GridContext } from './document-table-view';
 
 /**
@@ -114,7 +113,11 @@ export type CellEditorProps = Omit<ICellEditorParams, 'node' | 'context'> & {
   elementRemoved: GridActions['elementRemoved'];
   elementTypeChanged: GridActions['elementTypeChanged'];
   elementMarkRemoved: GridActions['elementMarkRemoved'];
-  drillDown: CrudActions['drillDown'];
+  drillDown: (
+    doc: Document,
+    element: Element,
+    editParams?: { colId: string; rowIndex: number }
+  ) => void;
   tz: string;
   darkMode?: boolean;
   legacyUUIDDisplayEncoding?: string;
@@ -310,7 +313,7 @@ class CellEditor
        */
     }
     this.props.api.refreshCells({
-      rowNodes: [this.props.node as RowNode],
+      rowNodes: [this.props.node],
       force: true,
     });
     return false;

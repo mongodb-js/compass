@@ -15,12 +15,7 @@ import {
   connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
   dataServiceLocator,
-  type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
-import type {
-  OptionalDataServiceProps,
-  RequiredDataServiceProps,
-} from './utils/data-service';
 import {
   collectionModelLocator,
   mongoDBInstanceLocator,
@@ -55,10 +50,7 @@ const CompassDocumentsPluginProvider = registerCompassPlugin(
     activate: activateDocumentsPlugin,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<
-      RequiredDataServiceProps,
-      OptionalDataServiceProps
-    >,
+    dataService: dataServiceLocator,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-CRUD-UI'),

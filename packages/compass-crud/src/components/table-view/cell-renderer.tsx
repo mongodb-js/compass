@@ -14,7 +14,6 @@ import { Element } from 'hadron-document';
 import type { ICellRendererReactComp } from 'ag-grid-react';
 import type { ICellRendererParams } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
-import type { CrudActions } from '../../stores/crud-store';
 import type { GridContext } from './document-table-view';
 
 /**
@@ -88,7 +87,11 @@ export type CellRendererProps = Omit<ICellRendererParams, 'context'> & {
   elementAdded: GridActions['elementAdded'];
   elementRemoved: GridActions['elementRemoved'];
   elementTypeChanged: GridActions['elementTypeChanged'];
-  drillDown: CrudActions['drillDown'];
+  drillDown: (
+    doc: Document,
+    element: Element,
+    editParams?: { colId: string; rowIndex: number }
+  ) => void;
   tz: string;
   darkMode?: boolean;
   legacyUUIDDisplayEncoding?: DocumentListTypes.LegacyUUIDDisplay;

@@ -65,27 +65,6 @@ class MyComponent extends React.Component {
 }
 ```
 
-Listen to the various CRUD actions.
-
-```javascript
-const app = require('hadron-app');
-const CrudActions = app.appRegistry.getAction('CRUD.Actions');
-
-CrudActions.documentRemoved.listen((id) => {
-  console.log(`Document with _id ${id} removed.`);
-});
-
-CrudActions.openInsertDocumentDialog((doc, clone) => {
-  if (clone) {
-    console.log('Opening insert dialog with cloned document');
-  }
-});
-
-CrudActions.insertDocument((doc) => {
-  console.log('Inserting document into db');
-});
-```
-
 ### App Registry Events Emmitted
 
 Various actions within this plugin will emit events for other parts of the

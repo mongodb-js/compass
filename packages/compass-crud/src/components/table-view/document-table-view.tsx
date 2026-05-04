@@ -17,11 +17,7 @@ import CellEditor from './cell-editor';
 import './document-table-view.less';
 import './ag-grid-dist.css';
 import { cx, spacing, withDarkMode } from '@mongodb-js/compass-components';
-import type {
-  BSONObject,
-  CrudActions,
-  TableState,
-} from '../../stores/crud-store';
+import type { BSONObject, TableState } from '../../stores/crud-store';
 import type {
   GridActions,
   GridStore,
@@ -36,7 +32,6 @@ import type {
   GridApi,
   GridCellDef,
   GridReadyEvent,
-  RowNode,
   ValueGetterParams,
   ColumnResizedEvent,
 } from 'ag-grid-community';
@@ -47,7 +42,11 @@ export type DocumentTableViewProps = {
   addColumn: GridActions['addColumn'];
   cleanCols: GridActions['cleanCols'];
   docs: Document[];
-  drillDown: CrudActions['drillDown'];
+  drillDown: (
+    doc: Document,
+    element: Element,
+    editParams?: { colId: string; rowIndex: number }
+  ) => void;
   elementAdded: GridActions['elementAdded'];
   elementMarkRemoved: GridActions['elementMarkRemoved'];
   elementRemoved: GridActions['elementRemoved'];
@@ -56,16 +55,19 @@ export type DocumentTableViewProps = {
   isEditable: boolean;
   ns: string;
   version: string;
-  openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
+  openInsertDocumentDialog?: (
+    doc: BSONObject,
+    cloned: boolean
+  ) => Promise<void>;
   pathChanged: (path: (string | number)[], types: TableHeaderType[]) => void;
   removeColumn: GridActions['removeColumn'];
   copyToClipboard: (doc: Document) => void;
   renameColumn: GridActions['renameColumn'];
   replaceDoc: GridActions['replaceDoc'];
   resetColumns: GridActions['resetColumns'];
-  removeDocument: CrudActions['removeDocument'];
-  replaceDocument: CrudActions['replaceDocument'];
-  updateDocument: CrudActions['updateDocument'];
+  removeDocument: (doc: Document) => Promise<void>;
+  replaceDocument: (doc: Document) => Promise<void>;
+  updateDocument: (doc: Document) => Promise<void>;
   start: number;
   table: TableState;
   tz: string;
@@ -255,7 +257,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     node.data.hasFooter = true;
     node.data.state = state;
     this.gridApi?.refreshCells({
-      rowNodes: [node as RowNode],
+      rowNodes: [node],
       columns: ['$rowActions'],
       force: true,
     });

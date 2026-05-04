@@ -6,7 +6,7 @@ import { withPreferences } from 'compass-preferences-model/provider';
 
 import { documentStyles, documentContentStyles } from './readonly-document';
 import { getInsightsForDocument } from '../utils';
-import type { CrudActions } from '../stores/crud-store';
+import type { BSONObject } from '../stores/crud-store';
 
 const documentElementsContainerStyles = css({
   position: 'relative',
@@ -14,11 +14,14 @@ const documentElementsContainerStyles = css({
 
 export type EditableDocumentProps = {
   doc: Document;
-  removeDocument?: CrudActions['removeDocument'];
-  replaceDocument?: CrudActions['replaceDocument'];
-  updateDocument?: CrudActions['updateDocument'];
-  openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
-  copyToClipboard?: CrudActions['copyToClipboard'];
+  removeDocument?: (doc: Document) => Promise<void>;
+  replaceDocument?: (doc: Document) => Promise<void>;
+  updateDocument?: (doc: Document) => Promise<void>;
+  openInsertDocumentDialog?: (
+    doc: BSONObject,
+    cloned: boolean
+  ) => Promise<void>;
+  copyToClipboard?: (doc: Document) => void;
   showInsights?: boolean;
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;

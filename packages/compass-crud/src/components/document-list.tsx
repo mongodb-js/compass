@@ -31,7 +31,12 @@ import {
   DOCUMENTS_STATUS_FETCHED_INITIAL,
 } from '../constants/documents-statuses';
 import { connect } from 'react-redux';
-import type { BSONObject, CrudState, DocumentView } from '../stores/crud-store';
+import type {
+  BSONObject,
+  CrudState,
+  CrudStoreOptions,
+  DocumentView,
+} from '../stores/crud-store';
 import {
   refreshDocuments,
   cancelOperation,
@@ -722,10 +727,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
   );
 };
 
-type OwnProps = {
-  isMockDataGeneratorEnabled?: boolean;
-};
-
 export default connect(
   (state: CrudState) => ({
     isDataLake: state.collectionMeta.isDataLake,
@@ -791,4 +792,6 @@ export default connect(
     closeBulkDeleteDialog,
     runBulkDelete,
   }
-)(withDarkMode(DocumentList)) as unknown as React.ComponentType<OwnProps>;
+)(
+  withDarkMode(DocumentList)
+) as unknown as React.FunctionComponent<CrudStoreOptions>;
