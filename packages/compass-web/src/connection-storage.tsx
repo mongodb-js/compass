@@ -16,6 +16,7 @@ import {
   useLogger,
   type Logger,
 } from '@mongodb-js/compass-logging/provider';
+import ConnectionString from 'mongodb-connection-string-url';
 
 type ElectableSpecs = {
   instanceSize?: string;
@@ -137,6 +138,12 @@ export class AtlasCloudConnectionStorage
         }
 
         const clusterName = connectionInfo.atlasMetadata.clusterName;
+
+        const cs = new ConnectionString(
+          connectionInfo.connectionOptions.connectionString
+        );
+        cs.searchParams.append('compressors', 'zlib');
+        connectionInfo.connectionOptions.connectionString = cs.toString();
 
         return {
           ...connectionInfo,
