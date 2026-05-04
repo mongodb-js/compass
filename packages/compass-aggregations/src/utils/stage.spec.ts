@@ -5,6 +5,7 @@ import {
   getDestinationNamespaceFromStage,
   getSearchIndexNameFromSearchStage,
   getSearchStageInfoFromPipeline,
+  type FilteredStageOperators,
 } from './stage';
 import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
 import { expect } from 'chai';
@@ -510,16 +511,22 @@ describe('utils', function () {
   describe('#applyFeatureFlagChangesToFilteredOperators', function () {
     const legacyVectorSearchDescription = 'legacy dropdown description';
 
-    const operatorsFixture = [
+    const operatorsFixture: FilteredStageOperators = [
       {
         name: '$match',
+        value: '$match',
         description: 'Filters documents.',
         env: ['on-prem'],
+        meta: 'stage',
+        version: '2.2.0',
       },
       {
         name: '$vectorSearch',
+        value: '$vectorSearch',
         description: legacyVectorSearchDescription,
         env: ['atlas'],
+        meta: 'stage',
+        version: '>=6.0.10 <7.0.0 || >=7.0.2',
       },
     ];
 

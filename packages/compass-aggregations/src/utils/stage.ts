@@ -11,6 +11,7 @@ import {
   COLLECTION,
   getFilteredCompletions,
 } from '@mongodb-js/mongodb-constants';
+import type { Completion } from '@mongodb-js/mongodb-constants';
 import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
 import { STAGE_HELP_BASE_URL } from '../constants';
 import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
@@ -313,7 +314,11 @@ export function applyFeatureFlagChangesToFilteredOperators(
 
   return operators.map((op) =>
     op.name === '$vectorSearch'
-      ? (VECTOR_SEARCH_AUTO_EMBED_STAGE as unknown as (typeof operators)[number])
+      ? {
+          ...VECTOR_SEARCH_AUTO_EMBED_STAGE,
+          env: VECTOR_SEARCH_AUTO_EMBED_STAGE.env as ServerEnvironment[],
+          meta: VECTOR_SEARCH_AUTO_EMBED_STAGE.meta as Completion['meta'],
+        }
       : op
   ) as FilteredStageOperators;
 }
