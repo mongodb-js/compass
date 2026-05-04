@@ -194,7 +194,10 @@ export class Preferences {
       return;
     }
 
-    this._globalPreferences.atlasCloud = { ...atlasCloudFeatureFlags };
+    this._globalPreferences.atlasCloud = {
+      ...this._globalPreferences.atlasCloud,
+      ...atlasCloudFeatureFlags,
+    };
     const newPreferences = this.getPreferences();
     this._afterPreferencesUpdate(originalPreferences, newPreferences);
   }
