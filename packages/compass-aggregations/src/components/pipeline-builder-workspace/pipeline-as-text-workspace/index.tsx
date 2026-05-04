@@ -6,11 +6,19 @@ import { Resizable } from 're-resizable';
 import PipelineEditor from './pipeline-editor';
 import PipelinePreview from './pipeline-preview';
 import ResizeHandle from '../../resize-handle';
+import { RerankTokensBanner } from '../../rerank-tokens-banner';
+import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState } from '../../../modules';
 
-const containerStyles = css({
+const outerContainerStyles = css({
   display: 'flex',
+  flexDirection: 'column',
   height: '100%',
+});
+
+const rowStyles = css({
+  display: 'flex',
+  flex: 1,
 });
 
 const noPreviewEditorStyles = css({
@@ -31,19 +39,24 @@ const workspaceContainerStyles = css({
 
 type PipelineAsTextWorkspaceProps = {
   isAutoPreview: boolean;
+  pipelineText: string;
 };
 
 const containerDataTestId = 'pipeline-as-text-workspace';
 
 export const PipelineAsTextWorkspace: React.FunctionComponent<
   PipelineAsTextWorkspaceProps
-> = ({ isAutoPreview }) => {
+> = ({ isAutoPreview, pipelineText }) => {
+  const enableRerank = usePreference('enableRerank');
+  const showRerankTokensBanner =
+    enableRerank && pipelineText.includes('$rerank') && isAutoPreview;
+
   if (!isAutoPreview) {
     return (
       <div className={workspaceContainerStyles}>
         <KeylineCard
           data-testid={containerDataTestId}
-          className={containerStyles}
+          className={outerContainerStyles}
         >
           <div className={noPreviewEditorStyles}>
             <PipelineEditor />
@@ -56,34 +69,47 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
     <div className={workspaceContainerStyles}>
       <KeylineCard
         data-testid={containerDataTestId}
-        className={containerStyles}
+        className={outerContainerStyles}
       >
-        <Resizable
-          defaultSize={{
-            width: '50%',
-            height: '100%',
-          }}
-          minWidth="300px"
-          maxWidth="70%"
-          enable={{
-            right: true,
-          }}
-          handleComponent={{
-            right: <ResizeHandle />,
-          }}
-        >
-          <PipelineEditor />
-        </Resizable>
-        <div className={resultsStyles}>
-          <PipelinePreview />
+        {showRerankTokensBanner && (
+          <RerankTokensBanner data-testid="pipeline-editor-rerank-tokens-banner" />
+        )}
+        <div className={rowStyles}>
+          <Resizable
+            defaultSize={{
+              width: '50%',
+              height: '100%',
+            }}
+            minWidth="300px"
+            maxWidth="70%"
+            enable={{
+              right: true,
+            }}
+            handleComponent={{
+              right: <ResizeHandle />,
+            }}
+          >
+            <PipelineEditor />
+          </Resizable>
+          <div className={resultsStyles}>
+            <PipelinePreview />
+          </div>
         </div>
       </KeylineCard>
     </div>
   );
 };
 
-const mapState = ({ autoPreview }: RootState) => ({
+const mapState = ({
+  autoPreview,
+  pipelineBuilder: {
+    textEditor: {
+      pipeline: { pipelineText },
+    },
+  },
+}: RootState) => ({
   isAutoPreview: !!autoPreview,
+  pipelineText,
 });
 
 export default connect(mapState)(PipelineAsTextWorkspace);

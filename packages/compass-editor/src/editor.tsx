@@ -1183,10 +1183,21 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
     const controller = new AbortController();
 
+    // Annotations come from a parser that runs against `stage.value` in Redux,
+    // which can be temporarily out of sync with this editor's actual document
+    // (e.g. when multiple editors for the same stage are mounted and one has
+    // applied a different snippet shape). Filter positions to the current doc
+    // so a stale annotation can't crash @codemirror/lint with an out-of-bounds
+    // position.
+    const docLength = editorViewRef.current.state.doc.length;
+    const safeAnnotations = (annotations ?? []).filter(
+      (a) => a.from <= docLength && a.to <= docLength
+    );
+
     void scheduleDispatch(
       editorViewRef.current,
       {
-        effects: setDiagnosticsEffect.of(annotations ?? []),
+        effects: setDiagnosticsEffect.of(safeAnnotations),
       },
       controller.signal
     );

@@ -25,7 +25,6 @@ const renderPipelineEditor = (
       searchIndexName={null}
       searchStageOperator={null}
       showSearchIndexDoesNotExistBanner={false}
-      autoPreview={false}
       onChangePipelineText={() => {}}
       onViewSearchIndexesClick={() => {}}
       onCreateSearchIndexClick={() => {}}
@@ -279,46 +278,6 @@ describe('PipelineEditor', function () {
 
         expect(onEditSearchIndexClick.calledOnce).to.be.true;
         expect(onEditSearchIndexClick.calledWith('test-index')).to.be.true;
-      });
-    });
-
-    describe('$rerank tokens banner', function () {
-      afterEach(function () {
-        localStorage.removeItem(
-          'mongodb_compass_dismissed_rerank_tokens_banner'
-        );
-      });
-
-      it('shows tokens banner when pipeline has $rerank and autoPreview is true', async function () {
-        await renderPipelineEditor(
-          { pipelineText: '[{ $rerank: {} }]', autoPreview: true },
-          {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableRerank: true };
-              },
-            },
-          }
-        );
-        expect(screen.getByTestId('pipeline-editor-rerank-tokens-banner')).to
-          .exist;
-      });
-
-      it('does not show tokens banner when autoPreview is false', async function () {
-        await renderPipelineEditor(
-          { pipelineText: '[{ $rerank: {} }]', autoPreview: false },
-          {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableRerank: true };
-              },
-            },
-          }
-        );
-        expect(screen.queryByTestId('pipeline-editor-rerank-tokens-banner')).to
-          .not.exist;
       });
     });
 

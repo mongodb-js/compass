@@ -34,7 +34,6 @@ import {
 import ServerErrorBanner from '../../server-error-banner';
 import { isRerankVersionSupported } from '../../../utils/search-stage-errors';
 import { RerankVersionWarningBanner } from '../../rerank-version-warning-banner';
-import { RerankTokensBanner } from '../../rerank-tokens-banner';
 import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
 import type { SearchIndexType } from '../../../modules/search-indexes';
 
@@ -85,7 +84,6 @@ export type PipelineEditorProps = {
   searchIndexName: string | null;
   searchStageOperator: SearchStageOperator | null;
   showSearchIndexDoesNotExistBanner: boolean;
-  autoPreview: boolean;
   onChangePipelineText: (value: string) => void;
   onViewSearchIndexesClick: () => void;
   onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
@@ -102,7 +100,6 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   searchIndexName,
   searchStageOperator,
   showSearchIndexDoesNotExistBanner,
-  autoPreview,
   onChangePipelineText,
   onViewSearchIndexesClick,
   onCreateSearchIndexClick,
@@ -184,9 +181,6 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       className={cx(containerStyles, darkMode && containerDarkStyles)}
       data-testid="pipeline-as-text-editor"
     >
-      {pipelineText.includes('$rerank') && autoPreview && (
-        <RerankTokensBanner data-testid="pipeline-editor-rerank-tokens-banner" />
-      )}
       <div className={editorContainerStyles}>
         <CodemirrorMultilineEditor
           text={pipelineText}
@@ -235,7 +229,6 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
 const mapState = ({
   namespace,
-  autoPreview,
   pipelineBuilder: {
     textEditor: {
       pipeline: {
@@ -268,7 +261,6 @@ const mapState = ({
     searchIndexName,
     searchStageOperator,
     showSearchIndexDoesNotExistBanner,
-    autoPreview: autoPreview ?? false,
   };
 };
 
