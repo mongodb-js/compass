@@ -545,7 +545,7 @@ describe('utils', function () {
         operatorsFixture,
         true
       );
-      expect(result.find((o) => o.name === '$vectorSearch')).to.equal(
+      expect(result.find((o) => o.name === '$vectorSearch')).to.deep.equal(
         VECTOR_SEARCH_AUTO_EMBED_STAGE
       );
     });
