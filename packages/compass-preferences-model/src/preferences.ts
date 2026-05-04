@@ -6,11 +6,15 @@ import type {
   AllPreferences,
   PreferenceState,
   PreferenceStateInformation,
+  StoredPreferences,
   UserConfigurablePreferences,
   UserPreferences,
   DeriveValueFunction,
 } from './preferences-schema';
-import { allPreferencesProps } from './preferences-schema';
+import {
+  allPreferencesProps,
+  storedUserPreferencesProps,
+} from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import type { PreferencesStorage } from './preferences-storage';
 import type { AtlasCloudFeatureFlags } from './feature-flags';
@@ -164,13 +168,20 @@ export class Preferences {
    * listeners when computed values change.
    */
   async syncEmbedderProvidedPreferences(
-    userPreferenceOverrides: Partial<AllPreferences>,
+    userPreferenceOverrides: Partial<StoredPreferences>,
     atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags> = {}
   ): Promise<void> {
     const originalPreferences = this.getPreferences();
 
+    const validKeys = new Set(Object.keys(storedUserPreferencesProps));
+    const filtered = Object.fromEntries(
+      Object.entries(userPreferenceOverrides).filter(([key]) =>
+        validKeys.has(key)
+      )
+    ) as Partial<StoredPreferences>;
+
     try {
-      await this._preferencesStorage.updatePreferences(userPreferenceOverrides);
+      await this._preferencesStorage.updatePreferences(filtered);
     } catch (err) {
       this._logger.log.error(
         this._logger.mongoLogId(1_001_000_161),

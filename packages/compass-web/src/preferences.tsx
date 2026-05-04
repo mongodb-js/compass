@@ -1,6 +1,6 @@
 import { useLayoutEffect } from 'react';
 import type {
-  AllPreferences,
+  StoredPreferences,
   AtlasCloudFeatureFlags,
 } from 'compass-preferences-model/provider';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
@@ -39,7 +39,7 @@ const DEFAULT_COMPASS_WEB_PREFERENCES = {
 export let compassWebPreferences: CompassWebPreferencesAccess | null = null;
 
 export function useCompassWebPreferences(
-  initialPreferences: Partial<AllPreferences> = {},
+  initialPreferences: Partial<StoredPreferences> = {},
   atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags> = {}
 ): CompassWebPreferencesAccess {
   // We do want to keep a reference to current value of preferencesAccess in
