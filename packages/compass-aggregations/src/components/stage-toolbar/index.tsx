@@ -12,6 +12,7 @@ import {
   SignalPopover,
   Button,
   useDrawerActions,
+  PerformanceSignals,
 } from '@mongodb-js/compass-components';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
@@ -25,6 +26,7 @@ import {
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { addSearchStageBefore } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -33,6 +35,7 @@ import {
   createSearchIndex,
   openIndexesListDrawerView,
 } from '../../modules/search-indexes';
+import { useRerankInsightAction } from '../rerank-first-stage-banner';
 
 const toolbarStyles = css({
   width: '100%',
@@ -112,8 +115,11 @@ type StageToolbarProps = {
   stage: StoreStage;
   env: ServerEnvironment;
   isSearchIndexesSupported: boolean;
+  isRerankFirstStage: boolean;
+  hasSearchIndex: boolean;
   onCreateSearchIndex: () => void;
   onOpenFocusMode: (index: number) => void;
+  onAddSearchStageBefore: (storeIndex: number) => void;
   onStageOperatorChange?: (
     index: number,
     name: string | null,
@@ -131,20 +137,25 @@ export function StageToolbar({
   stage,
   env,
   isSearchIndexesSupported,
+  isRerankFirstStage,
+  hasSearchIndex,
   onCreateSearchIndex,
   onOpenFocusMode,
+  onAddSearchStageBefore,
   onStageOperatorChange,
   onClickViewSearchIndexes,
 }: StageToolbarProps) {
   const showInsights = usePreference('showInsights');
+  const enableRerank = usePreference('enableRerank');
   const enableSearchActivationProgramP1 = usePreference(
     'enableSearchActivationProgramP1'
   );
   const darkMode = useDarkMode();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
+  const onRerankInsightAction = useRerankInsightAction();
 
-  const insight = useMemo(
+  const performanceInsight = useMemo(
     () =>
       getInsightForStage(
         stage,
@@ -154,6 +165,27 @@ export function StageToolbar({
       ),
     [stage, env, isSearchIndexesSupported, onCreateSearchIndex]
   );
+
+  const rerankInsight =
+    enableRerank && isRerankFirstStage
+      ? {
+          ...PerformanceSignals.get('rerank-without-search'),
+          primaryActionButtonLabel: hasSearchIndex
+            ? 'Add $search stage'
+            : 'Learn more about search',
+          ...(hasSearchIndex
+            ? {
+                onPrimaryActionButtonClick: () => onAddSearchStageBefore(index),
+              }
+            : {
+                primaryActionButtonLink:
+                  'https://www.mongodb.com/docs/atlas/atlas-search/native-reranking/',
+              }),
+          onAssistantButtonClick: onRerankInsightAction,
+        }
+      : undefined;
+
+  const insight = rerankInsight ?? performanceInsight;
 
   return (
     <div
@@ -230,18 +262,26 @@ export default connect(
       pipelineBuilder: {
         stageEditor: { stages },
       },
-      searchIndexes: { isSearchIndexesSupported },
+      searchIndexes: { isSearchIndexesSupported, indexes },
     } = state;
     const stage = stages[ownProps.index] as StoreStage;
+    const firstActiveStageIndex = stages.findIndex(
+      (s): s is StoreStage => s.type === 'stage' && !s.disabled
+    );
     return {
       stage,
       env,
       isSearchIndexesSupported,
+      isRerankFirstStage:
+        stage.stageOperator === '$rerank' &&
+        ownProps.index === firstActiveStageIndex,
+      hasSearchIndex: indexes.length > 0,
     };
   },
   {
     onOpenFocusMode: enableFocusMode,
     onCreateSearchIndex: createSearchIndex,
     onClickViewSearchIndexes: openIndexesListDrawerView,
+    onAddSearchStageBefore: addSearchStageBefore,
   }
 )(StageToolbar);

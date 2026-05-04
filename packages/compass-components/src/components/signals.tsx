@@ -161,6 +161,14 @@ const SIGNALS: Pick<
     learnMoreLink:
       'https://www.mongodb.com/docs/atlas/schema-suggestions/avoid-unbounded-arrays/',
   },
+  {
+    id: 'rerank-without-search',
+    title: 'Using $rerank without $search',
+    description:
+      'Starting your pipeline with $rerank without a preceding search stage can process all documents in your collection, resulting in high token consumption and cost. Add a $search, $vectorSearch, $rankFusion, or $scoreFusion stage before $rerank.',
+    learnMoreLink:
+      'https://www.mongodb.com/docs/atlas/atlas-search/native-reranking/',
+  },
 ] as const;
 
 export const PerformanceSignals = new Map(

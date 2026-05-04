@@ -16,6 +16,7 @@ import type { RootState } from '../modules';
 import ResizeHandle from './resize-handle';
 import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
+import { RerankFirstStageBanner } from './rerank-first-stage-banner';
 import StagePreview from './stage-preview';
 import { hasSyntaxError } from '../utils/stage';
 import type { EditorRef } from '@mongodb-js/compass-editor';
@@ -129,6 +130,7 @@ export type StageProps = SortableProps & {
   hasSyntaxError: boolean;
   hasServerError: boolean;
   isAutoPreviewing?: boolean | undefined;
+  isRerankFirstStage: boolean;
 };
 
 function Stage({
@@ -138,6 +140,7 @@ function Stage({
   hasSyntaxError,
   hasServerError,
   isAutoPreviewing,
+  isRerankFirstStage,
   ...sortableProps
 }: StageProps) {
   const editorRef = useRef<EditorRef>(null);
@@ -181,6 +184,9 @@ function Stage({
             index={index}
           />
         </div>
+        {isRerankFirstStage && (
+          <RerankFirstStageBanner data-testid="stage-rerank-first-stage-banner" />
+        )}
         {isExpanded && (
           <div style={{ opacity }} className={stageContentStyles}>
             <ResizableEditor
@@ -205,9 +211,11 @@ type StageOwnProps = {
 };
 
 export default connect((state: RootState, ownProps: StageOwnProps) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[
-    ownProps.index
-  ] as StoreStage;
+  const { stages } = state.pipelineBuilder.stageEditor;
+  const stage = stages[ownProps.index] as StoreStage;
+  const firstActiveStageIndex = stages.findIndex(
+    (s): s is StoreStage => s.type === 'stage' && !s.disabled
+  );
 
   return {
     isEnabled: !stage.disabled,
@@ -215,5 +223,8 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
     hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
     isAutoPreviewing: state.autoPreview,
+    isRerankFirstStage:
+      stage.stageOperator === '$rerank' &&
+      ownProps.index === firstActiveStageIndex,
   };
 })(Stage);

@@ -30,8 +30,12 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { usePreference } from 'compass-preferences-model/provider';
-import { getSearchStageInfoFromPipeline } from '../../../utils/stage';
+import {
+  getSearchStageInfoFromPipeline,
+  getStageOperator,
+} from '../../../utils/stage';
 import type { SearchStageOperator } from '../../../utils/stage';
+import { RerankFirstStageBanner } from '../../rerank-first-stage-banner';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
@@ -99,6 +103,7 @@ export type PipelineEditorProps = {
   searchIndexName: string | null;
   searchStageOperator: SearchStageOperator | null;
   showSearchIndexDoesNotExistBanner: boolean;
+  isRerankFirstStage: boolean;
   onChangePipelineText: (value: string) => void;
   onViewSearchIndexesClick: (indexName?: string) => void;
   onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
@@ -115,6 +120,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   searchIndexName,
   searchStageOperator,
   showSearchIndexDoesNotExistBanner,
+  isRerankFirstStage,
   onChangePipelineText,
   onViewSearchIndexesClick,
   onCreateSearchIndexClick,
@@ -208,6 +214,9 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           className={codeEditorStyles}
         />
       </div>
+      {isRerankFirstStage && (
+        <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
+      )}
       {showRerankVersionWarning && (
         <div className={errorContainerStyles}>
           <Banner
@@ -289,6 +298,9 @@ const mapState = ({
     ['READY', 'POLLING'].includes(searchIndexesStatus) &&
     searchIndexes.every((x) => x.name !== searchIndexName);
 
+  const firstStageOperator =
+    pipeline.length > 0 ? getStageOperator(pipeline[0]) : null;
+
   return {
     namespace,
     num_stages: pipeline.length,
@@ -299,6 +311,7 @@ const mapState = ({
     searchIndexName,
     searchStageOperator,
     showSearchIndexDoesNotExistBanner,
+    isRerankFirstStage: firstStageOperator === '$rerank',
   };
 };
 

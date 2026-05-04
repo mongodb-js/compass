@@ -25,6 +25,7 @@ const renderPipelineEditor = (
       searchIndexName={null}
       searchStageOperator={null}
       showSearchIndexDoesNotExistBanner={false}
+      isRerankFirstStage={false}
       onChangePipelineText={() => {}}
       onViewSearchIndexesClick={() => {}}
       onCreateSearchIndexClick={() => {}}
