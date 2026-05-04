@@ -19,6 +19,7 @@ import {
   RadioBoxGroup,
   RadioBox,
   rafraf,
+  SpinLoader,
   useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
@@ -92,6 +93,12 @@ const footerStyles = css({
   gap: spacing[2],
 });
 
+const spinnerStyles = css({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+});
+
 export const DEFAULT_INDEX_DEFINITION = `{
   mappings: {
     dynamic: true,
@@ -141,6 +148,12 @@ type SearchIndexEditorState = {
   parsingError: ParsingError | undefined;
   vectorTemplateChoice: VectorIndexTemplateChoice;
 };
+
+const StyledSpinner = ({ title }: { title: string }) => (
+  <div className={spinnerStyles} title={title}>
+    <SpinLoader />
+  </div>
+);
 
 export const BaseSearchIndexModal: React.FunctionComponent<
   BaseSearchIndexModalProps
@@ -362,7 +375,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   }, [fields]);
 
   const showAutoEmbedEditRestrictedBanner = useMemo(() => {
-    if (mode !== 'update' || !enableAutoEmbeddingPublicPreview) {
+    if (!enableAutoEmbeddingPublicPreview) {
       return false;
     }
     try {
@@ -557,6 +570,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
           onClick={onSubmitIndex}
           disabled={isBusy || !!parsingError}
         >
+          {isBusy && <SpinLoader />}
           {mode === 'create' ? 'Create Search Index' : 'Save'}
         </Button>
       </ModalFooter>

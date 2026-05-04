@@ -297,6 +297,27 @@ export function stageOperatorsWithAutoEmbedPreview(
   );
 }
 
+/**
+ * Applies preference-driven stage metadata overrides to a filtered operator
+ * list (e.g. the stage combobox). When Automated Embedding public preview is
+ * enabled, the `$vectorSearch` entry is replaced with
+ * `VECTOR_SEARCH_AUTO_EMBED_STAGE`.
+ */
+export function applyFeatureFlagChangesToFilteredOperators(
+  operators: FilteredStageOperators,
+  enableAutoEmbeddingPublicPreview: boolean
+): FilteredStageOperators {
+  if (!enableAutoEmbeddingPublicPreview) {
+    return operators;
+  }
+
+  return operators.map((op) =>
+    op.name === '$vectorSearch'
+      ? (VECTOR_SEARCH_AUTO_EMBED_STAGE as unknown as (typeof operators)[number])
+      : op
+  ) as FilteredStageOperators;
+}
+
 const stageOperatorsMapByPreviewFlag = new Map<
   boolean,
   Map<string, StageOperatorEntry>
