@@ -93,12 +93,6 @@ const footerStyles = css({
   gap: spacing[2],
 });
 
-const spinnerStyles = css({
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-});
-
 export const DEFAULT_INDEX_DEFINITION = `{
   mappings: {
     dynamic: true,
@@ -148,12 +142,6 @@ type SearchIndexEditorState = {
   parsingError: ParsingError | undefined;
   vectorTemplateChoice: VectorIndexTemplateChoice;
 };
-
-const StyledSpinner = ({ title }: { title: string }) => (
-  <div className={spinnerStyles} title={title}>
-    <SpinLoader />
-  </div>
-);
 
 export const BaseSearchIndexModal: React.FunctionComponent<
   BaseSearchIndexModalProps
