@@ -79,7 +79,8 @@ export type EmittedAppRegistryEvents =
   | 'open-export'
   | 'document-deleted'
   | 'documents-deleted' //Added new type for handling bulk deletion
-  | 'document-inserted';
+  | 'document-inserted'
+  | 'documents-refreshed';
 
 export type CrudActions = {
   drillDown(
@@ -1824,6 +1825,10 @@ class CrudStoreImpl
       void this.fieldStoreService.updateFieldsFromDocuments(this.state.ns, [
         docs[0]?.generateObject(),
       ]);
+
+      // Notify the instance store to refresh collection stats so the tab
+      // header count stays in sync with the pagination count.
+      this.connectionScopedAppRegistry.emit('documents-refreshed', { ns });
     } catch (error) {
       this.logger.log.error(
         mongoLogId(1_001_000_074),
