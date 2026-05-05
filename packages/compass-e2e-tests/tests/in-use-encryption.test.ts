@@ -651,10 +651,8 @@ describe('CSFLE / QE', function () {
           }
 
           if (
-            ['prefixPreview', 'suffixPreview', 'substringPreview'].includes(
-              mode as string
-            ) &&
-            !serverSatisfies('>=9.0.0-alpha0', true)
+            ['prefixPreview', 'suffixPreview'].includes(mode as string) &&
+            serverSatisfies('>=9.0.0-alpha0', true)
           ) {
             // prefixPreview and suffixPreview are renamed in 9.0.0
             return this.skip();
