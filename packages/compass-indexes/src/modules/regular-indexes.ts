@@ -22,10 +22,6 @@ import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { AtlasIndexStats } from './rolling-indexes-service';
 import { connectionSupports } from '@mongodb-js/compass-connections';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
-import {
-  ExperimentTestGroups,
-  ExperimentTestNames,
-} from '@mongodb-js/compass-telemetry';
 
 export type RegularIndex = Partial<IndexDefinition> &
   Pick<
