@@ -18,7 +18,6 @@ import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
 } from '../utils/search-stage-errors';
-import { usePreference } from 'compass-preferences-model/provider';
 
 const bannerStyles = css({
   textAlign: 'left',

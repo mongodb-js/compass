@@ -24,7 +24,7 @@ import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-
 import {
   ExperimentTestGroups,
   ExperimentTestNames,
-} from '@mongodb-js/compass-telemetry';
+} from '@mongodb-js/compass-telemetry/provider';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',

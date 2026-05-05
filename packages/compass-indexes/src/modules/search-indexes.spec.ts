@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
-import type { FetchStatus } from '../utils/fetch-status';
 import { FetchStatuses } from '../utils/fetch-status';
 import {
   createSearchIndexClosed,

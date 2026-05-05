@@ -49,8 +49,7 @@ const Drawer = ({
   subTab,
   openIndexesListDrawerView,
 }: DrawerProps) => {
-  const { enableSearchActivationProgramP1: isIndexesDrawerEnabled } =
-    useSearchActivationProgramP1();
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
 
   const beforeSectionHide = useCallback(async () => {
     if (!isDirty) {
@@ -65,7 +64,7 @@ const Drawer = ({
     });
   }, [isDirty]);
 
-  if (!isIndexesDrawerEnabled) {
+  if (!enableSearchActivationProgramP1) {
     return null;
   }
 
