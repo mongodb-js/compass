@@ -92,7 +92,7 @@ function AddDataMenuButton({
     ) {
       actions.push({
         action: 'generate-mock-data' as const,
-        label: 'Generate Mock Data Script',
+        label: 'Generate mock data script',
       });
     }
 
