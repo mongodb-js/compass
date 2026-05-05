@@ -1,7 +1,6 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import {
-  cleanup,
   screen,
   renderWithActiveConnection,
 } from '@mongodb-js/testing-library-compass';
@@ -39,8 +38,6 @@ async function renderBanner(
 }
 
 describe('RateLimitExceededBanner', function () {
-  afterEach(cleanup);
-
   it('renders the banner', async function () {
     await renderBanner({ rateLimitInfo: RPM_INFO });
     expect(screen.getByTestId('test-banner')).to.exist;
