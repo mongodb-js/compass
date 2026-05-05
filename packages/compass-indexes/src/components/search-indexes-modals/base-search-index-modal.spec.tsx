@@ -513,7 +513,7 @@ describe('Base Search Index Modal', function () {
         .exist;
     });
 
-    it('does not show the restriction banner in create mode', function () {
+    it('shows the restriction banner in create mode', function () {
       renderBaseSearchIndexModal(
         {
           mode: 'create',
@@ -523,8 +523,11 @@ describe('Base Search Index Modal', function () {
         },
         { preferences: { enableAutoEmbeddingPublicPreview: true } }
       );
-      expect(screen.queryByTestId('auto-embed-edit-restricted-banner')).to.not
-        .exist;
+      const banner = screen.getByTestId('auto-embed-edit-restricted-banner');
+      expect(banner).to.be.visible;
+      expect(banner.textContent).to.include(
+        'You cannot edit an autoEmbed field'
+      );
     });
   });
 
