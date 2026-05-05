@@ -11,6 +11,7 @@ import {
   COLLECTION,
   getFilteredCompletions,
 } from '@mongodb-js/mongodb-constants';
+import type { Completion } from '@mongodb-js/mongodb-constants';
 import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
 import { STAGE_HELP_BASE_URL } from '../constants';
 import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
@@ -295,6 +296,31 @@ export function stageOperatorsWithAutoEmbedPreview(
       ? (VECTOR_SEARCH_AUTO_EMBED_STAGE as unknown as StageOperatorEntry)
       : op
   );
+}
+
+/**
+ * Applies preference-driven stage metadata overrides to a filtered operator
+ * list (e.g. the stage combobox). When Automated Embedding public preview is
+ * enabled, the `$vectorSearch` entry is replaced with
+ * `VECTOR_SEARCH_AUTO_EMBED_STAGE`.
+ */
+export function applyFeatureFlagChangesToFilteredOperators(
+  operators: FilteredStageOperators,
+  enableAutoEmbeddingPublicPreview: boolean
+): FilteredStageOperators {
+  if (!enableAutoEmbeddingPublicPreview) {
+    return operators;
+  }
+
+  return operators.map((op) =>
+    op.name === '$vectorSearch'
+      ? {
+          ...VECTOR_SEARCH_AUTO_EMBED_STAGE,
+          env: VECTOR_SEARCH_AUTO_EMBED_STAGE.env as ServerEnvironment[],
+          meta: VECTOR_SEARCH_AUTO_EMBED_STAGE.meta as Completion['meta'],
+        }
+      : op
+  ) as FilteredStageOperators;
 }
 
 const stageOperatorsMapByPreviewFlag = new Map<
