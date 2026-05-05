@@ -650,6 +650,16 @@ describe('CSFLE / QE', function () {
             return this.skip();
           }
 
+          if (
+            ['prefixPreview', 'suffixPreview', 'substringPreview'].includes(
+              mode as string
+            ) &&
+            !serverSatisfies('>=9.0.0-alpha0', true)
+          ) {
+            // prefixPreview and suffixPreview are renamed in 9.0.0
+            return this.skip();
+          }
+
           const [field, oldValue, newValue] = fieldOldNewByMode(mode);
           const oldValueJS = eval(oldValue);
           const newValueJS = eval(newValue);
