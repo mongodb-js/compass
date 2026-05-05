@@ -160,7 +160,7 @@ describe('search-stage-errors', function () {
         getVoyageProjectRateLimitInfo(
           `Executor error during aggregate command on namespace: sample_mflix.movies :: caused by :: com.xgen.mongot.embedding.exceptions.EmbeddingProviderRateLimitException: Rate limit exceeded (HTTP 429). Response body: {"detail":"You have not yet added your payment method in the billing page and will have reduced rate limits of 3 RPM and 10K TPM. To unlock our standard rate limits, please add a payment method in the billing page for the appropriate organization in the user dashboard."}`
         )
-      ).to.deep.equal({ type: 'billing' });
+      ).to.deep.equal({ type: 'billing', limits: '3 RPM and 10K TPM' });
     });
 
     it('returns null for unrelated errors', function () {

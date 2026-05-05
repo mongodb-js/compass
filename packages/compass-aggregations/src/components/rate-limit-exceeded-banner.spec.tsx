@@ -10,7 +10,10 @@ import RateLimitExceededBanner from './rate-limit-exceeded-banner';
 import type { VoyageRateLimitInfo } from '../utils/search-stage-errors';
 
 const RPM_INFO: VoyageRateLimitInfo = { type: 'rpm', limit: '10' };
-const BILLING_INFO: VoyageRateLimitInfo = { type: 'billing' };
+const BILLING_INFO: VoyageRateLimitInfo = {
+  type: 'billing',
+  limits: '3 RPM and 10K TPM',
+};
 
 const CONNECTION_NO_ATLAS: ConnectionInfo = {
   id: 'test-no-atlas',
@@ -49,7 +52,7 @@ describe('RateLimitExceededBanner', function () {
     it('shows billing message', async function () {
       await renderBanner({ rateLimitInfo: BILLING_INFO });
       expect(screen.getByTestId('test-banner').textContent).to.include(
-        'Query Tier 0'
+        'Tier 0'
       );
     });
 

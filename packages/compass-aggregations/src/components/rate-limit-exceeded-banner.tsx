@@ -50,8 +50,8 @@ export default function RateLimitExceededBanner({
       >
         <strong>Query rate limits exceeded</strong>
         <br />
-        You are currently on Query Tier 0 with reduced rate limits of 3 RPM and
-        10K TPM.{' '}
+        You are currently on Tier 0 with reduced rate limits of{' '}
+        {rateLimitInfo.limits}.{' '}
         {billingHref ? (
           <Link href={billingHref} target="_blank">
             Add a payment method
