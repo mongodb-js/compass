@@ -33,6 +33,8 @@ const renderIndexList = (
         onDropIndexClick={noop}
         onEditIndexClick={noop}
         onCreateSearchIndexClick={noop}
+        onExpandedChange={noop}
+        expandedRows={{}}
         {...props}
       />
     </Provider>
@@ -121,7 +123,22 @@ describe('SearchIndexesDrawerTable Component', function () {
 
   context('vector search index', function () {
     it('renders the vector search index details when expanded', function () {
-      renderIndexList({ indexes: vectorSearchIndexes });
+      renderIndexList({
+        indexes: vectorSearchIndexes,
+        expandedRows: { vectorSearching123: true },
+      });
+
+      expect(screen.getByText('Status:')).to.exist;
+      expect(screen.getByText('Index Fields:')).to.exist;
+      expect(screen.getByText('Queryable:')).to.exist;
+    });
+
+    it('calls onExpandedChange with index names when expand button is clicked', function () {
+      const onExpandedChangeSpy = sinon.spy();
+      renderIndexList({
+        indexes: vectorSearchIndexes,
+        onExpandedChange: onExpandedChangeSpy,
+      });
 
       // 'vectorSearching123' is >10 chars, so it gets truncated in the drawer
       const indexRow = screen
@@ -129,12 +146,12 @@ describe('SearchIndexesDrawerTable Component', function () {
         .closest('tr') as HTMLTableRowElement;
 
       const expandButton = within(indexRow).getByLabelText('Expand row');
-      expect(expandButton).to.exist;
       userEvent.click(expandButton);
 
-      expect(screen.getByText('Status:')).to.exist;
-      expect(screen.getByText('Index Fields:')).to.exist;
-      expect(screen.getByText('Queryable:')).to.exist;
+      expect(onExpandedChangeSpy.calledOnce).to.be.true;
+      expect(onExpandedChangeSpy.firstCall.args[0]).to.deep.equal({
+        vectorSearching123: true,
+      });
     });
   });
 
@@ -183,8 +200,47 @@ describe('SearchIndexesDrawerTable Component', function () {
   it('filters indexes based on searchTerm', function () {
     renderIndexList({ indexes, searchTerm: 'default' });
 
-    expect(screen.getByText('default').closest('tr') as HTMLTableRowElement).to
-      .exist;
+    expect(screen.getByText('default').closest('tr')).to.exist;
     expect(() => screen.getByText('another')).to.throw();
+  });
+
+  context('expanded rows', function () {
+    it('marks the expanded index row as expanded', function () {
+      renderIndexList({
+        expandedRows: { default: true },
+      });
+
+      const focusedRow = screen.getByTestId('search-indexes-row-default');
+      const otherRow = screen.getByTestId('search-indexes-row-another');
+
+      expect(focusedRow).to.have.attribute('data-expanded', 'true');
+      expect(otherRow).to.have.attribute('data-expanded', 'false');
+    });
+
+    it('does not mark any row as expanded when expandedRows is empty', function () {
+      renderIndexList({
+        expandedRows: {},
+      });
+
+      for (const index of indexes) {
+        const row = screen
+          .getByText(index.name)
+          .closest('tr') as HTMLTableRowElement;
+        expect(row).to.have.attribute('data-expanded', 'false');
+      }
+    });
+
+    it('does not mark any row as expanded when expandedRows contains a non-matching index', function () {
+      renderIndexList({
+        expandedRows: { nonexistent: true },
+      });
+
+      for (const index of indexes) {
+        const row = screen
+          .getByText(index.name)
+          .closest('tr') as HTMLTableRowElement;
+        expect(row).to.have.attribute('data-expanded', 'false');
+      }
+    });
   });
 });

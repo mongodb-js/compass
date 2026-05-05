@@ -18,7 +18,11 @@ import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
-import { hasSyntaxError, isSearchStage } from '../../utils/stage';
+import {
+  getSearchIndexNameFromSearchStage,
+  hasSyntaxError,
+  isSearchStage,
+} from '../../utils/stage';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
@@ -122,7 +126,7 @@ type StageToolbarProps = {
     name: string | null,
     snippet?: string
   ) => void;
-  onClickViewSearchIndexes: () => void;
+  onClickViewSearchIndexes: (indexName?: string) => void;
 };
 
 const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
@@ -206,7 +210,12 @@ export function StageToolbar({
                   context: 'Stage Toolbar',
                 });
                 openDrawer('compass-indexes-drawer');
-                onClickViewSearchIndexes();
+                onClickViewSearchIndexes(
+                  getSearchIndexNameFromSearchStage(
+                    stage.stageOperator,
+                    stage.value
+                  ) ?? undefined
+                );
               }}
               title="View Indexes"
             >

@@ -85,7 +85,7 @@ export type PipelineEditorProps = {
   searchStageOperator: SearchStageOperator | null;
   showSearchIndexDoesNotExistBanner: boolean;
   onChangePipelineText: (value: string) => void;
-  onViewSearchIndexesClick: () => void;
+  onViewSearchIndexesClick: (indexName?: string) => void;
   onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
   onEditSearchIndexClick: (indexName: string) => void;
 };

@@ -3435,6 +3435,22 @@ type AtlasSearchIndexesForViewLinkClickedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when a user clicks the "Manage your search indexes" link
+ * in the Indexes toolbar to navigate to Atlas Search.
+ *
+ * @category Indexes
+ */
+type ManageSearchIndexesLinkClickedEvent = CommonEvent<{
+  name: 'Manage Search Indexes Link Clicked';
+  payload: {
+    /**
+     * The context/screen from which the link was clicked.
+     */
+    context: 'Indexes Tab';
+  };
+}>;
+
+/**
  * This event is fired when a user clicks the button to create a search index for a view.
  *
  * @category Indexes
@@ -3457,7 +3473,8 @@ export type SearchIndexesTelemetryContext =
   | 'Indexes List Drawer View'
   | 'Create Search Index Drawer View'
   | 'Edit Search Index Drawer View'
-  | 'Search Indexes Drawer Table';
+  | 'Search Indexes Drawer Table'
+  | 'Indexes Tab';
 
 /**
  * This event is fired when user clicks the "Edit Search Index" link in the
@@ -3542,6 +3559,36 @@ type IndexCreateActionClickedEvent = CommonEvent<{
     /** The context/screen from which the action was clicked. */
     context: SearchIndexesTelemetryContext;
     /** The type of index being created. */
+    index_type: string;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the edit action on a search index.
+ *
+ * @category Indexes
+ */
+type IndexEditActionClickedEvent = CommonEvent<{
+  name: 'Index Edit Action Clicked';
+  payload: {
+    /** The context/screen from which the action was clicked. */
+    context: SearchIndexesTelemetryContext;
+    /** The type of index being edited. */
+    index_type: string;
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the drop action on a search index.
+ *
+ * @category Indexes
+ */
+type IndexDropActionClickedEvent = CommonEvent<{
+  name: 'Index Drop Action Clicked';
+  payload: {
+    /** The context/screen from which the action was clicked. */
+    context: SearchIndexesTelemetryContext;
+    /** The type of index being dropped. */
     index_type: string;
   };
 }>;
@@ -3819,9 +3866,12 @@ export type TelemetryEvent =
   | SearchIndexViewDefinitionLinkClickedEvent
   | SearchIndexViewIndexesButtonClickedEvent
   | IndexCreateActionClickedEvent
+  | IndexEditActionClickedEvent
+  | IndexDropActionClickedEvent
   | IndexRefreshClickedEvent
   | SearchIndexCreateSubmittedEvent
   | SearchIndexCreateCancelledEvent
   | SearchIndexEditSubmittedEvent
   | SearchIndexEditCancelledEvent
+  | ManageSearchIndexesLinkClickedEvent
   | SearchIndexStatusDetailsLinkClickedEvent;
