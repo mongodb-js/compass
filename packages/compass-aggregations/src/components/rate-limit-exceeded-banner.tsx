@@ -7,9 +7,9 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildSearchExtensionRateLimitsUrl } from '@mongodb-js/atlas-service/provider';
-import {
-  getVoyageProjectRateLimitInfo,
-  type SearchExtensionType,
+import type {
+  VoyageRateLimitInfo,
+  SearchExtensionType,
 } from '../utils/search-stage-errors';
 
 const SEARCH_EXTENSION_LABELS = {
@@ -23,21 +23,17 @@ const bannerStyles = css({
 });
 
 type RateLimitExceededBannerProps = {
-  message: string;
+  rateLimitInfo: VoyageRateLimitInfo;
   searchExtensionType?: SearchExtensionType | null;
   dataTestId?: string;
 };
 
 export default function RateLimitExceededBanner({
-  message,
+  rateLimitInfo,
   searchExtensionType,
   dataTestId = 'rate-limit-exceeded-banner',
 }: RateLimitExceededBannerProps) {
   const { atlasMetadata } = useConnectionInfo();
-  const rateLimitInfo = getVoyageProjectRateLimitInfo(message);
-  if (!rateLimitInfo) {
-    return null;
-  }
   const rateLimitsHref =
     searchExtensionType && atlasMetadata
       ? buildSearchExtensionRateLimitsUrl({

@@ -15,6 +15,7 @@ import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
   getVoyageProjectRateLimitInfo,
+  type SearchExtensionType,
 } from '../utils/search-stage-errors';
 import RateLimitExceededBanner from './rate-limit-exceeded-banner';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -34,6 +35,7 @@ type ServerErrorBannerProps = {
   message: string;
   searchIndexName: string | null;
   onEditSearchIndexClick?: (indexName: string) => void;
+  searchExtensionType?: SearchExtensionType | null;
   dataTestId?: string;
 };
 
@@ -41,6 +43,7 @@ export default function ServerErrorBanner({
   message,
   searchIndexName,
   onEditSearchIndexClick,
+  searchExtensionType,
   dataTestId = 'server-error-banner',
 }: ServerErrorBannerProps) {
   const enableSearchActivationProgramP1 = usePreference(
@@ -58,9 +61,14 @@ export default function ServerErrorBanner({
       ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
       : null;
 
-  if (getVoyageProjectRateLimitInfo(message)) {
+  const rateLimitInfo = getVoyageProjectRateLimitInfo(message);
+  if (rateLimitInfo) {
     return (
-      <RateLimitExceededBanner message={message} dataTestId={dataTestId} />
+      <RateLimitExceededBanner
+        rateLimitInfo={rateLimitInfo}
+        searchExtensionType={searchExtensionType}
+        dataTestId={dataTestId}
+      />
     );
   }
 

@@ -155,6 +155,22 @@ describe('search-stage-errors', function () {
       ).to.be.null;
     });
 
+    it('returns null for a non-429 Voyage API error', function () {
+      expect(
+        getVoyageProjectRateLimitInfo(
+          'Voyage API error: HttpError { status: 500, message: "Internal Server Error" }'
+        )
+      ).to.be.null;
+    });
+
+    it('returns null for a non-Voyage 429 error', function () {
+      expect(
+        getVoyageProjectRateLimitInfo(
+          'HttpError { status: 429, message: "(RPM) rate limit of 10" }'
+        )
+      ).to.be.null;
+    });
+
     it('returns null for empty string', function () {
       expect(getVoyageProjectRateLimitInfo('')).to.be.null;
     });

@@ -56,13 +56,19 @@ export type VoyageRateLimitInfo = {
   limit: string;
 };
 
-const RPM_PATTERN = /of (\d[\d,]*) requests per minute/i;
-const TPM_PATTERN = /of (\d[\d,]*) tokens per minute/i;
+const VOYAGE_API_ERROR = 'Voyage API error';
+const RATE_LIMIT_STATUS = 'status: 429';
+const RPM_PATTERN = /\(RPM\) rate limit of (\d[\d,]*)/i;
+const TPM_PATTERN = /\(TPM\) rate limit of (\d[\d,]*)/i;
 
 export function getVoyageProjectRateLimitInfo(
   errorMessage: string
 ): VoyageRateLimitInfo | null {
-  if (!errorMessage) {
+  if (
+    !errorMessage ||
+    !errorMessage.includes(VOYAGE_API_ERROR) ||
+    !errorMessage.includes(RATE_LIMIT_STATUS)
+  ) {
     return null;
   }
   const rpm = RPM_PATTERN.exec(errorMessage);

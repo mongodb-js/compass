@@ -224,7 +224,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
     results = (
       <ResultsContainer>
         <RateLimitExceededBanner
-          message={error.message}
+          rateLimitInfo={rateLimitInfo}
           searchExtensionType={searchExtensionType}
           dataTestId="pipeline-results-error"
         />
