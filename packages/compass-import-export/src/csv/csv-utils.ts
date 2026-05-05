@@ -316,7 +316,7 @@ export function placeValue(
   };
 
   if (lastPart.type === 'field') {
-    const parent = ensure({});
+    const parent = ensure(Object.create(null));
 
     // You could get here if a field is more than one of a) a simple value, b)
     // an array, c) an object all in the same CSV row. That's not possible in
@@ -368,7 +368,7 @@ export function makeDocFromCSV(
   included: IncludedFields,
   { ignoreEmptyStrings }: { ignoreEmptyStrings?: boolean }
 ): Document {
-  const doc: Document = {};
+  const doc: Document = Object.create(null);
 
   // in order of the header row
   for (const [index, name] of header.entries()) {
