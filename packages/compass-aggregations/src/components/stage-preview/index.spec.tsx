@@ -8,6 +8,7 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
 import { StagePreview } from './';
 import {
@@ -42,7 +43,10 @@ const renderStagePreview = (
     />
   );
   if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(ui, true);
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchActivationProgramP1Variant
+    );
   }
   return renderWithStore(ui, { pipeline, ...storeOptions });
 };

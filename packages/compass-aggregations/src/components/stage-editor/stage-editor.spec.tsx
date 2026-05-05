@@ -8,6 +8,7 @@ import type { MongoServerError } from 'mongodb';
 import { StageEditor } from './stage-editor';
 import { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 import { wrapWithExperimentProvider } from '../../../test/configure-store';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
 const renderStageEditor = (
   props: Partial<ComponentProps<typeof StageEditor>> = {},
@@ -38,7 +39,10 @@ const renderStageEditor = (
     />
   );
   if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(ui, true);
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchActivationProgramP1Variant
+    );
   }
   return render(ui, renderOptions);
 };

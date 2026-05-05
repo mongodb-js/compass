@@ -10,6 +10,7 @@ import type { PipelineProps } from './pipeline';
 import { CompassAggregationsPlugin } from '../../index';
 import { mockDataService } from '../../../test/mocks/data-service';
 import { wrapWithExperimentProvider } from '../../../test/configure-store';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
 class MockAtlasAiService {
   async getAggregationFromUserInput() {
@@ -158,7 +159,7 @@ describe('Pipeline search indexes polling', function () {
                 stopPollingSearchIndexes: stopPollingStub,
               })}
             />,
-            true
+            ExperimentTestGroups.searchActivationProgramP1Variant
           ),
           mockConnectionInfo,
           { connectFn: () => mockDataService() }
@@ -180,7 +181,7 @@ describe('Pipeline search indexes polling', function () {
                 stopPollingSearchIndexes: stopPollingStub,
               })}
             />,
-            true
+            ExperimentTestGroups.searchActivationProgramP1Variant
           ),
           mockConnectionInfo,
           { connectFn: () => mockDataService() }
@@ -251,7 +252,7 @@ describe('Pipeline search indexes polling', function () {
                 stopPollingSearchIndexes: stopPollingStub,
               })}
             />,
-            true
+            ExperimentTestGroups.searchActivationProgramP1Variant
           ),
           mockConnectionInfo,
           { connectFn: () => mockDataService() }
@@ -274,7 +275,7 @@ describe('Pipeline search indexes polling', function () {
                 stopPollingSearchIndexes: stopPollingStub,
               })}
             />,
-            true
+            ExperimentTestGroups.searchActivationProgramP1Variant
           ),
           mockConnectionInfo,
           { connectFn: () => mockDataService() }

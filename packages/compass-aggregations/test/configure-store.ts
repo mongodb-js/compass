@@ -11,7 +11,7 @@ import React from 'react';
 import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
 import {
   CompassExperimentationProvider,
-  ExperimentTestGroups,
+  type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
 
 const noopAsyncResult = {
@@ -22,18 +22,25 @@ const noopAsyncResult = {
   isSuccess: true,
 } as const;
 
+/**
+ * Wraps a React element with a mock experimentation provider.
+ *
+ * @param ui - The React element to wrap.
+ * @param variant - The experiment variant group to assign, or `null` to simulate
+ *   a user not assigned to any variant (control/default).
+ */
 export function wrapWithExperimentProvider(
   ui: React.ReactElement,
-  isInVariant: boolean
+  variant: ExperimentTestGroup | null
 ): React.ReactElement {
   return React.createElement(
     CompassExperimentationProvider,
     {
       useAssignment: () => ({
-        assignment: isInVariant
+        assignment: variant
           ? {
               assignmentData: {
-                variant: ExperimentTestGroups.searchActivationProgramP1Variant,
+                variant,
               },
             }
           : null,

@@ -6,6 +6,7 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import StageToolbar from './';
 import {
   changeStageCollapsed,
@@ -20,7 +21,10 @@ const renderStageToolbar = async (
 ) => {
   let ui = <StageToolbar index={0} />;
   if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(ui, true);
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchActivationProgramP1Variant
+    );
   }
   const result = await renderWithStore(ui, { pipeline });
   return result.plugin.store;

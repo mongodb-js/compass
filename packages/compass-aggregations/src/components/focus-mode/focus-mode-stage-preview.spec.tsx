@@ -17,6 +17,7 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
@@ -43,7 +44,10 @@ const renderFocusModePreview = (
     />
   );
   if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(ui, true);
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchActivationProgramP1Variant
+    );
   }
   return renderWithStore(ui, { pipeline, ...storeOptions });
 };

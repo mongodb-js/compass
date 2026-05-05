@@ -9,6 +9,7 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../../test/configure-store';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
 import { PipelineEditor } from './pipeline-editor';
 import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
@@ -39,7 +40,10 @@ const renderPipelineEditor = (
     />
   );
   if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(ui, true);
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchActivationProgramP1Variant
+    );
   }
   return renderWithStore(ui, storeOptions);
 };

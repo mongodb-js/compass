@@ -12,6 +12,7 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../../test/configure-store';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
 import { PipelinePreview } from './pipeline-preview';
 import HadronDocument from 'hadron-document';
@@ -41,7 +42,10 @@ const renderPipelineEditor = (
     />
   );
   if (enableSearchActivationExperiment) {
-    ui = wrapWithExperimentProvider(ui, true);
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchActivationProgramP1Variant
+    );
   }
   return renderWithStore(ui, storeOptions);
 };
