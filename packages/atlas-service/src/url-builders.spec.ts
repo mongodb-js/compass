@@ -9,6 +9,7 @@ import {
   buildMonitoringUrl,
   buildPerformanceMetricsUrl,
   buildProjectSettingsUrl,
+  buildSearchExtensionRateLimitsUrl,
 } from './url-builders';
 
 const TEST_ORIGIN = 'https://cloud.mongodb.com';
@@ -130,6 +131,32 @@ describe('url-builders', function () {
     it('does not include database param when namespace has no database', function () {
       expect(buildChartsUrl(baseMetadata, '')).to.equal(
         `${TEST_ORIGIN}/charts/proj123?sourceType=cluster&name=myCluster`
+      );
+    });
+  });
+
+  describe('buildSearchExtensionRateLimitsUrl', function () {
+    it('builds url for rerank extension type', function () {
+      expect(
+        buildSearchExtensionRateLimitsUrl({
+          projectId: 'proj123',
+          clusterName: 'myCluster',
+          extensionType: 'rerank',
+        })
+      ).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch/myCluster/rerank/rateLimits`
+      );
+    });
+
+    it('builds url for autoEmbedding extension type', function () {
+      expect(
+        buildSearchExtensionRateLimitsUrl({
+          projectId: 'proj123',
+          clusterName: 'myCluster',
+          extensionType: 'autoEmbedding',
+        })
+      ).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch/myCluster/autoEmbedding/rateLimits`
       );
     });
   });

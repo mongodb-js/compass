@@ -34,6 +34,8 @@ import { gotoOutResults } from '../../modules/out-results-fn';
 import {
   isRerankNotEnabledError,
   getVoyageProjectRateLimitInfo,
+  getSearchExtensionTypeFromStage,
+  type SearchExtensionType,
   isRerankVersionSupported,
   RERANK_MIN_SERVER_VERSION,
 } from '../../utils/search-stage-errors';
@@ -151,6 +153,7 @@ type PipelineResultsWorkspaceProps = {
   onRetry: () => void;
   serverVersion: string;
   pipelineText: string;
+  searchExtensionType?: SearchExtensionType | null;
 };
 
 export const PipelineResultsWorkspace: React.FunctionComponent<
@@ -170,6 +173,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   onCancel,
   serverVersion,
   pipelineText,
+  searchExtensionType,
 }) => {
   const { atlasMetadata } = useConnectionInfo();
   let results: React.ReactElement | null = null;
@@ -221,6 +225,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
       <ResultsContainer>
         <RateLimitExceededBanner
           message={error.message}
+          searchExtensionType={searchExtensionType}
           dataTestId="pipeline-results-error"
         />
       </ResultsContainer>
@@ -352,6 +357,11 @@ const mapState = (state: RootState) => {
   } = state;
   const lastStage = pipeline[pipeline.length - 1];
   const stageOperator = getStageOperator(lastStage) ?? '';
+  const searchExtensionType = pipeline.reduce<SearchExtensionType | null>(
+    (found, stage) =>
+      found ?? getSearchExtensionTypeFromStage(getStageOperator(stage)),
+    null
+  );
 
   return {
     namespace,
@@ -368,6 +378,7 @@ const mapState = (state: RootState) => {
     ),
     serverVersion,
     pipelineText,
+    searchExtensionType,
   };
 };
 

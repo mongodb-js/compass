@@ -56,8 +56,8 @@ export type VoyageRateLimitInfo = {
   limit: string;
 };
 
-const RPM_PATTERN = /of (\d[\d,]*) requests per minute/;
-const TPM_PATTERN = /of (\d[\d,]*) tokens per minute/;
+const RPM_PATTERN = /of (\d[\d,]*) requests per minute/i;
+const TPM_PATTERN = /of (\d[\d,]*) tokens per minute/i;
 
 export function getVoyageProjectRateLimitInfo(
   errorMessage: string
@@ -65,7 +65,6 @@ export function getVoyageProjectRateLimitInfo(
   if (!errorMessage) {
     return null;
   }
-  // RPM checked first per design spec
   const rpm = RPM_PATTERN.exec(errorMessage);
   if (rpm) {
     return { type: 'rpm', limit: rpm[1] };
@@ -79,14 +78,10 @@ export function getVoyageProjectRateLimitInfo(
 
 export type SearchExtensionType = 'rerank' | 'autoEmbedding';
 
-export function getSearchExtensionType(
-  errorMessage: string
+export function getSearchExtensionTypeFromStage(
+  stageOperator: string | null | undefined
 ): SearchExtensionType | null {
-  if (/\brerank-/.test(errorMessage)) {
-    return 'rerank';
-  }
-  if (/\bvoyage-/.test(errorMessage)) {
-    return 'autoEmbedding';
-  }
+  if (stageOperator === '$rerank') return 'rerank';
+  if (stageOperator === '$vectorSearch') return 'autoEmbedding';
   return null;
 }

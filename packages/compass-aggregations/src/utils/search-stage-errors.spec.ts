@@ -3,6 +3,7 @@ import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
   getVoyageProjectRateLimitInfo,
+  getSearchExtensionTypeFromStage,
 } from './search-stage-errors';
 
 describe('search-stage-errors', function () {
@@ -156,6 +157,22 @@ describe('search-stage-errors', function () {
 
     it('returns null for empty string', function () {
       expect(getVoyageProjectRateLimitInfo('')).to.be.null;
+    });
+  });
+
+  describe('getSearchExtensionTypeFromStage', function () {
+    it('returns rerank for $rerank operator', function () {
+      expect(getSearchExtensionTypeFromStage('$rerank')).to.equal('rerank');
+    });
+
+    it('returns autoEmbedding for $vectorSearch operator', function () {
+      expect(getSearchExtensionTypeFromStage('$vectorSearch')).to.equal(
+        'autoEmbedding'
+      );
+    });
+
+    it('returns null for unrelated operators', function () {
+      expect(getSearchExtensionTypeFromStage('$search')).to.be.null;
     });
   });
 });

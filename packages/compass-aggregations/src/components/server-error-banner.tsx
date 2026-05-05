@@ -50,7 +50,6 @@ export default function ServerErrorBanner({
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
   const rerankNotEnabled = isRerankNotEnabledError(message);
-  const rateLimitInfo = getVoyageProjectRateLimitInfo(message);
   const description = rerankNotEnabled
     ? 'Enable native reranking in project settings.'
     : message;
@@ -59,7 +58,7 @@ export default function ServerErrorBanner({
       ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
       : null;
 
-  if (rateLimitInfo) {
+  if (getVoyageProjectRateLimitInfo(message)) {
     return (
       <RateLimitExceededBanner message={message} dataTestId={dataTestId} />
     );

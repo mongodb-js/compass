@@ -9,7 +9,7 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildSearchExtensionRateLimitsUrl } from '@mongodb-js/atlas-service/provider';
 import {
   getVoyageProjectRateLimitInfo,
-  getSearchExtensionType,
+  type SearchExtensionType,
 } from '../utils/search-stage-errors';
 
 const SEARCH_EXTENSION_LABELS = {
@@ -24,11 +24,13 @@ const bannerStyles = css({
 
 type RateLimitExceededBannerProps = {
   message: string;
+  searchExtensionType?: SearchExtensionType | null;
   dataTestId?: string;
 };
 
 export default function RateLimitExceededBanner({
   message,
+  searchExtensionType,
   dataTestId = 'rate-limit-exceeded-banner',
 }: RateLimitExceededBannerProps) {
   const { atlasMetadata } = useConnectionInfo();
@@ -36,7 +38,6 @@ export default function RateLimitExceededBanner({
   if (!rateLimitInfo) {
     return null;
   }
-  const searchExtensionType = getSearchExtensionType(message);
   const rateLimitsHref =
     searchExtensionType && atlasMetadata
       ? buildSearchExtensionRateLimitsUrl({
@@ -65,9 +66,10 @@ export default function RateLimitExceededBanner({
         {searchExtensionType
           ? ` for ${SEARCH_EXTENSION_LABELS[searchExtensionType]}`
           : ''}
+        {'.'}
         {rateLimitsHref && (
           <>
-            {'. '}
+            {' '}
             <Link href={rateLimitsHref} target="_blank">
               View Rate Limit
             </Link>
