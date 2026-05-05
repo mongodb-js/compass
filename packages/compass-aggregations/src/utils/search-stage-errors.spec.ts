@@ -139,6 +139,14 @@ describe('search-stage-errors', function () {
       ).to.deep.equal({ type: 'rpm', limit: '1' });
     });
 
+    it('returns rpm info for an EmbeddingProvider RPM rate limit error', function () {
+      expect(
+        getVoyageProjectRateLimitInfo(
+          `Executor error during aggregate command on namespace: sample_mflix.movies :: caused by :: com.xgen.mongot.embedding.exceptions.EmbeddingProviderRateLimitException: Rate limit exceeded (HTTP 429). Response body: {"detail":"You have exceeded your project's Requests Per Minute (RPM) rate limit of 1 requests per minute for voyage-4. See our documentation for ways to avoid this or to increase the project's rate limits on the dashboard: https://www.mongodb.com/docs/voyageai/management/rate-limits/#manage-rate-limits"}`
+        )
+      ).to.deep.equal({ type: 'rpm', limit: '1' });
+    });
+
     it('returns tpm info for a project TPM rate limit error', function () {
       expect(
         getVoyageProjectRateLimitInfo(

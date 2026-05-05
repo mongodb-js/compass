@@ -57,18 +57,23 @@ export type VoyageRateLimitInfo = {
 };
 
 const VOYAGE_API_ERROR = 'Voyage API error';
+const EMBEDDING_PROVIDER_RATE_LIMIT = 'EmbeddingProviderRateLimitException';
 const RATE_LIMIT_STATUS = 'status: 429';
+const RATE_LIMIT_STATUS_HTTP = 'HTTP 429';
 const RPM_PATTERN = /\(RPM\) rate limit of (\d[\d,]*)/i;
 const TPM_PATTERN = /\(TPM\) rate limit of (\d[\d,]*)/i;
 
 export function getVoyageProjectRateLimitInfo(
   errorMessage: string
 ): VoyageRateLimitInfo | null {
-  if (
-    !errorMessage ||
-    !errorMessage.includes(VOYAGE_API_ERROR) ||
-    !errorMessage.includes(RATE_LIMIT_STATUS)
-  ) {
+  if (!errorMessage) return null;
+  const isVoyageError =
+    errorMessage.includes(VOYAGE_API_ERROR) ||
+    errorMessage.includes(EMBEDDING_PROVIDER_RATE_LIMIT);
+  const is429 =
+    errorMessage.includes(RATE_LIMIT_STATUS) ||
+    errorMessage.includes(RATE_LIMIT_STATUS_HTTP);
+  if (!isVoyageError || !is429) {
     return null;
   }
   const rpm = RPM_PATTERN.exec(errorMessage);
