@@ -282,10 +282,25 @@ function showConnectWindow(
   void window.loadURL(rendererUrl);
 
   /**
-   * Open all external links in the system's web browser.
+   * Open all external http links in the system's web browser.
    */
   window.webContents.setWindowOpenHandler((details) => {
-    void shell.openExternal(details.url);
+    try {
+      const { protocol } = new URL(details.url);
+      if (['http:', 'https:'].includes(protocol)) {
+        void shell.openExternal(details.url);
+      } else {
+        throw new Error('Trying to open a non-http url: ' + details.url);
+      }
+    } catch (err) {
+      log.warn(
+        mongoLogId(1_001_000_429),
+        'Window Manager',
+        'Failed to open external url',
+        { error: (err as Error).message }
+      );
+      // Do nothing if it's not a URL
+    }
     return { action: 'deny' };
   });
 
