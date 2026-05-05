@@ -17,10 +17,6 @@ import EditSearchIndexView from './components/drawer-views/edit-search-index-dra
 import { openIndexesListDrawerView } from './modules/indexes-drawer';
 import type { IndexesDrawerViewType } from './modules/indexes-drawer';
 import CreateIndexModal from './components/create-index-modal/create-index-modal';
-import {
-  ExperimentTestNames,
-  useAssignment,
-} from '@mongodb-js/compass-telemetry/provider';
 
 const indexesTitleLinkStyles = css({
   width: 'fit-content',

@@ -502,40 +502,44 @@ describe('regular-indexes module', function () {
 
       store.dispatch(startPollingRegularIndexes());
 
-      // poll (tickAsync processes microtasks/promises from experimentationServices)
-      await clock.tickAsync(pollInterval);
+      // poll
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
       expect(indexesStub.callCount).to.equal(2);
-      expect(store.getState().regularIndexes.status).to.equal('READY');
+      await waitForStatus('READY');
 
       // poll
-      await clock.tickAsync(pollInterval);
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
       expect(indexesStub.callCount).to.equal(3);
-      expect(store.getState().regularIndexes.status).to.equal('READY');
+      await waitForStatus('READY');
 
       // stop
       store.dispatch(stopPollingRegularIndexes());
 
       // no more polling
-      await clock.tickAsync(pollInterval);
+      clock.tick(pollInterval);
       expect(indexesStub.callCount).to.equal(3);
-      expect(store.getState().regularIndexes.status).to.equal('READY');
+      await waitForStatus('READY');
 
       // open again
       store.dispatch(startPollingRegularIndexes());
 
       // won't execute immediately
       expect(indexesStub.callCount).to.equal(3);
-      expect(store.getState().regularIndexes.status).to.equal('READY');
+      await waitForStatus('READY');
 
       // does poll after the interval
-      await clock.tickAsync(pollInterval);
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
       expect(indexesStub.callCount).to.equal(4);
-      expect(store.getState().regularIndexes.status).to.equal('READY');
+      await waitForStatus('READY');
 
       // and again
-      await clock.tickAsync(pollInterval);
+      clock.tick(pollInterval);
+      await waitForStatus('POLLING');
       expect(indexesStub.callCount).to.equal(5);
-      expect(store.getState().regularIndexes.status).to.equal('READY');
+      await waitForStatus('READY');
 
       // clean up
       store.dispatch(stopPollingRegularIndexes());

@@ -420,7 +420,6 @@ const fetchIndexes = (
       connectionInfoRef,
       rollingIndexesService,
       preferences,
-      experimentationServices,
     }
   ) => {
     const {
@@ -431,18 +430,11 @@ const fetchIndexes = (
 
     const { readOnly, readWrite, enableAtlasSearchIndexes } =
       preferences.getPreferences();
-    const assignment = await experimentationServices.getAssignment(
-      ExperimentTestNames.searchActivationProgramP1,
-      false
-    );
-    const isInVariant =
-      assignment?.assignmentData?.variant ===
-      ExperimentTestGroups.searchActivationProgramP1Variant;
     const { isRegularIndexesReadable } = selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1: isInVariant,
+      enableSearchActivationProgramP1: false, // regular indexes are not affected by the experiment
     })(getState());
 
     if (

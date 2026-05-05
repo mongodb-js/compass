@@ -2,7 +2,7 @@ import {
   ExperimentTestGroups,
   ExperimentTestNames,
 } from './growth-experiments';
-import { useAssignment, useTrackInSample } from './experimentation-provider';
+import { useAssignment } from './experimentation-provider';
 
 // @experiment Search Activation Program P1  | Jira Epic: CLOUDP-308952
 export const useSearchActivationProgramP1 = () => {

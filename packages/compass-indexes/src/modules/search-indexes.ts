@@ -659,14 +659,14 @@ const fetchIndexes = (
       ExperimentTestNames.searchActivationProgramP1,
       false
     );
-    const isInVariant =
+    const enableSearchActivationProgramP1 =
       assignment?.assignmentData?.variant ===
       ExperimentTestGroups.searchActivationProgramP1Variant;
     const { isSearchIndexesReadable } = selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1: isInVariant,
+      enableSearchActivationProgramP1,
     })(getState());
 
     if (
@@ -689,28 +689,21 @@ const fetchIndexes = (
       dispatch(fetchSearchIndexesSucceeded(indexes));
 
       // Show toasts for status changes (only on poll and refresh, not initial fetch)
-      if (reason !== FetchReasons.INITIAL_FETCH) {
-        const assignment = await experimentationServices.getAssignment(
-          ExperimentTestNames.searchActivationProgramP1,
-          false
+      if (
+        enableSearchActivationProgramP1 &&
+        reason !== FetchReasons.INITIAL_FETCH
+      ) {
+        showSearchIndexStatusChangeToasts(
+          previousIndexes,
+          indexes,
+          atlasMetadata,
+          namespace,
+          (index) => {
+            track('Search Index Status Details Link Clicked', {
+              index_type: index.type ?? 'search',
+            });
+          }
         );
-        const isInVariant =
-          assignment?.assignmentData?.variant ===
-          ExperimentTestGroups.searchActivationProgramP1Variant;
-
-        if (isInVariant) {
-          showSearchIndexStatusChangeToasts(
-            previousIndexes,
-            indexes,
-            atlasMetadata,
-            namespace,
-            (index) => {
-              track('Search Index Status Details Link Clicked', {
-                index_type: index.type ?? 'search',
-              });
-            }
-          );
-        }
       }
     } catch (err) {
       dispatch(fetchSearchIndexesFailed((err as Error).message));
