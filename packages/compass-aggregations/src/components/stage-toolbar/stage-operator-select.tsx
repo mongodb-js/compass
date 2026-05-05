@@ -14,7 +14,11 @@ import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
-import { filterStageOperators, isSearchStage } from '../../utils/stage';
+import {
+  applyFeatureFlagChangesToFilteredOperators,
+  filterStageOperators,
+  isSearchStage,
+} from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
 import type { CollectionStats } from '../../modules/collection-stats';
@@ -175,6 +179,7 @@ export default withPreferences(
       ownProps: {
         index: number;
         readOnly: boolean;
+        enableAutoEmbeddingPublicPreview?: boolean;
         onChange?: (
           index: number,
           name: string | null,
@@ -186,13 +191,16 @@ export default withPreferences(
         ownProps.index
       ] as StoreStage;
 
-      const stages = filterStageOperators({
-        serverVersion: state.serverVersion,
-        env: state.env,
-        isTimeSeries: state.isTimeSeries,
-        sourceName: state.sourceName,
-        preferencesReadOnly: ownProps.readOnly,
-      });
+      const stages = applyFeatureFlagChangesToFilteredOperators(
+        filterStageOperators({
+          serverVersion: state.serverVersion,
+          env: state.env,
+          isTimeSeries: state.isTimeSeries,
+          sourceName: state.sourceName,
+          preferencesReadOnly: ownProps.readOnly,
+        }),
+        Boolean(ownProps.enableAutoEmbeddingPublicPreview)
+      );
       return {
         selectedStage: stage.stageOperator,
         isDisabled: stage.disabled,
@@ -211,5 +219,5 @@ export default withPreferences(
       };
     }
   )(StageOperatorSelect),
-  ['readOnly']
+  ['readOnly', 'enableAutoEmbeddingPublicPreview']
 );

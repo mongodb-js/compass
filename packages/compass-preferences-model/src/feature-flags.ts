@@ -241,6 +241,18 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable multiplexing websocket on web',
     },
   },
+
+  /*
+   * Feature flag for auto embedding public preview UI changes.
+   */
+  {
+    name: 'enableAutoEmbeddingPublicPreview',
+    stage: 'preview',
+    atlasCloudFeatureFlagName: 'ATLAS_SEARCH_AUTO_EMBEDDING_PUBLIC_PREVIEW',
+    description: {
+      short: 'Adds UI for auto-embedded vector search indexes',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;

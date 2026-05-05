@@ -4,8 +4,7 @@ import type { MockDataSchemaToolOutput, RawSchema } from './schema';
 
 // Based on token output limits; provides safe buffer.
 export const FIELDS_PER_CHUNK = 30;
-// Supports up to 300 total fields
-export const MAX_CHUNKS = 10;
+export const MAX_CHUNKS = 15;
 
 /**
  * Splits a schema into smaller chunks for processing.
