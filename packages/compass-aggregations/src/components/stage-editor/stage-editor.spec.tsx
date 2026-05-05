@@ -7,12 +7,16 @@ import type { MongoServerError } from 'mongodb';
 
 import { StageEditor } from './stage-editor';
 import { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
+import { wrapWithExperimentProvider } from '../../../test/configure-store';
 
 const renderStageEditor = (
   props: Partial<ComponentProps<typeof StageEditor>> = {},
-  renderOptions: Partial<RenderConnectionsOptions> = {}
+  renderOptions: Partial<RenderConnectionsOptions> = {},
+  {
+    enableSearchActivationExperiment = false,
+  }: { enableSearchActivationExperiment?: boolean } = {}
 ) => {
-  return render(
+  let ui = (
     <StageEditor
       namespace="test.test"
       stageValue='{ name: "testing" }'
@@ -31,9 +35,12 @@ const renderStageEditor = (
       onCreateSearchIndexClick={() => {}}
       onEditSearchIndexClick={() => {}}
       {...props}
-    />,
-    renderOptions
+    />
   );
+  if (enableSearchActivationExperiment) {
+    ui = wrapWithExperimentProvider(ui, true);
+  }
+  return render(ui, renderOptions);
 };
 
 describe('StageEditor [Component]', function () {
@@ -81,9 +88,8 @@ describe('StageEditor [Component]', function () {
           searchIndexName: 'nonexistent',
           showSearchIndexDoesNotExistBanner: true,
         },
-        {
-          preferences: { enableSearchActivationProgramP1: true },
-        }
+        {},
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;
@@ -100,9 +106,8 @@ describe('StageEditor [Component]', function () {
           searchIndexName: 'nonexistent',
           showSearchIndexDoesNotExistBanner: true,
         },
-        {
-          preferences: { enableSearchActivationProgramP1: true },
-        }
+        {},
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('search-index-does-not-exist-banner')).to.exist;
@@ -122,9 +127,8 @@ describe('StageEditor [Component]', function () {
           searchIndexName: 'test',
           showSearchIndexDoesNotExistBanner: true,
         },
-        {
-          preferences: { enableSearchActivationProgramP1: true },
-        }
+        {},
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;
@@ -142,9 +146,8 @@ describe('StageEditor [Component]', function () {
           searchIndexName: 'test',
           showSearchIndexDoesNotExistBanner: true,
         },
-        {
-          preferences: { enableSearchActivationProgramP1: true },
-        }
+        {},
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('stage-editor-syntax-error')).to.exist;
@@ -162,9 +165,8 @@ describe('StageEditor [Component]', function () {
           searchIndexName: 'test',
           showSearchIndexDoesNotExistBanner: true,
         },
-        {
-          preferences: { enableSearchActivationProgramP1: true },
-        }
+        {},
+        { enableSearchActivationExperiment: true }
       );
 
       // Banner should show but without links
@@ -204,9 +206,8 @@ describe('StageEditor [Component]', function () {
           num_stages: 1,
           searchIndexName: 'test-index',
         },
-        {
-          preferences: { enableSearchActivationProgramP1: true },
-        }
+        {},
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('stage-editor-error-message')).to.exist;

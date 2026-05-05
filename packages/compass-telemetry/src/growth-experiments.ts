@@ -12,6 +12,8 @@ export const ExperimentTestGroups = {
   mockDataGeneratorControl: 'mockDataGeneratorControl',
   atlasSkillsVariant: 'atlasSkillsExperimentVariant',
   atlasSkillsControl: 'atlasSkillsExperimentControl',
+  searchActivationProgramP1Variant: 'searchActivationProgramP1Variant',
+  searchActivationProgramP1Control: 'searchActivationProgramP1Control',
 } as const;
 
 export type ExperimentTestGroup =

@@ -27,7 +27,10 @@ import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  useSearchActivationProgramP1,
+} from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import {
   openCreateSearchIndexDrawerView,
@@ -35,7 +38,7 @@ import {
   openIndexesListDrawerView,
 } from '../../modules/search-indexes';
 import type { SearchIndexType } from '../../modules/search-indexes';
-import { usePreference } from 'compass-preferences-model/provider';
+
 import {
   getSearchIndexNameFromSearchStage,
   isSearchStage,
@@ -131,9 +134,7 @@ export const StageEditor = ({
 
   const fields = useAutocompleteFields(namespace);
 
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 

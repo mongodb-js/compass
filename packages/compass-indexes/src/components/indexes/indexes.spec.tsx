@@ -328,7 +328,9 @@ describe('Indexes Component', function () {
       );
       fireEvent.click(refreshButton);
 
-      expect(getSearchIndexesStub.callCount).to.equal(2);
+      await waitFor(() => {
+        expect(getSearchIndexesStub.callCount).to.equal(2);
+      });
     });
 
     describe('when isReadonly view', function () {

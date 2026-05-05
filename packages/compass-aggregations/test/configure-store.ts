@@ -9,6 +9,43 @@ import { CompassAggregationsPlugin } from '../src/index';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import React from 'react';
 import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
+import {
+  CompassExperimentationProvider,
+  ExperimentTestGroups,
+} from '@mongodb-js/compass-telemetry';
+
+const noopAsyncResult = {
+  asyncStatus: null,
+  error: null,
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+} as const;
+
+export function wrapWithExperimentProvider(
+  ui: React.ReactElement,
+  isInVariant: boolean
+): React.ReactElement {
+  return React.createElement(
+    CompassExperimentationProvider,
+    {
+      useAssignment: () => ({
+        assignment: isInVariant
+          ? {
+              assignmentData: {
+                variant: ExperimentTestGroups.searchActivationProgramP1Variant,
+              },
+            }
+          : null,
+        ...noopAsyncResult,
+      }),
+      useTrackInSample: () => noopAsyncResult,
+      assignExperiment: () => Promise.resolve(null),
+      getAssignment: () => Promise.resolve(null),
+    } as any,
+    ui
+  );
+}
 
 export class MockAtlasAiService {
   async getAggregationFromUserInput() {

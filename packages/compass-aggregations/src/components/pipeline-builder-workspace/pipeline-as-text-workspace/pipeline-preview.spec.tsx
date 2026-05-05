@@ -8,7 +8,10 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
-import { renderWithStore } from '../../../../test/configure-store';
+import {
+  renderWithStore,
+  wrapWithExperimentProvider,
+} from '../../../../test/configure-store';
 
 import { PipelinePreview } from './pipeline-preview';
 import HadronDocument from 'hadron-document';
@@ -17,9 +20,11 @@ import type { ConfigureStoreOptions } from '../../../stores/store';
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelinePreview>> = {},
   storeOptions: Partial<ConfigureStoreOptions> = {},
-  services: any = {}
+  {
+    enableSearchActivationExperiment = false,
+  }: { enableSearchActivationExperiment?: boolean } = {}
 ) => {
-  return renderWithStore(
+  let ui = (
     <PipelinePreview
       isPreviewStale={false}
       isMergeStage={false}
@@ -33,11 +38,12 @@ const renderPipelineEditor = (
       onExpand={() => {}}
       onCollapse={() => {}}
       {...props}
-    />,
-    storeOptions,
-    undefined,
-    services
+    />
   );
+  if (enableSearchActivationExperiment) {
+    ui = wrapWithExperimentProvider(ui, true);
+  }
+  return renderWithStore(ui, storeOptions);
 };
 
 describe('PipelinePreview', function () {
@@ -232,13 +238,7 @@ describe('PipelinePreview', function () {
           searchIndexName: 'test-index',
         },
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -289,34 +289,18 @@ describe('PipelinePreview', function () {
           searchIndexName: 'vector-index',
         },
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
     });
 
-    it('should NOT show stale results banner when feature flag is disabled', async function () {
-      await renderPipelineEditor(
-        {
-          previewDocs: [new HadronDocument({ _id: 1 })],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: 'test-index',
-        },
-        {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: false };
-            },
-          },
-        }
-      );
+    it('should NOT show stale results banner when experiment is not in variant', async function () {
+      await renderPipelineEditor({
+        previewDocs: [new HadronDocument({ _id: 1 })],
+        showSearchIndexStaleResultsBanner: true,
+        searchIndexName: 'test-index',
+      });
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
         .exist;

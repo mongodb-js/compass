@@ -5,7 +5,10 @@ import { MongoServerError } from 'mongodb';
 import { expect } from 'chai';
 import sinon from 'sinon';
 
-import { renderWithStore } from '../../../../test/configure-store';
+import {
+  renderWithStore,
+  wrapWithExperimentProvider,
+} from '../../../../test/configure-store';
 
 import { PipelineEditor } from './pipeline-editor';
 import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
@@ -13,9 +16,11 @@ import { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-
 const renderPipelineEditor = (
   props: Partial<ComponentProps<typeof PipelineEditor>> = {},
   storeOptions: any = {},
-  services: any = {}
+  {
+    enableSearchActivationExperiment = false,
+  }: { enableSearchActivationExperiment?: boolean } = {}
 ) => {
-  return renderWithStore(
+  let ui = (
     <PipelineEditor
       namespace="test.test"
       pipelineText="[{$match: {}}]"
@@ -31,11 +36,12 @@ const renderPipelineEditor = (
       onEditSearchIndexClick={() => {}}
       num_stages={1}
       {...props}
-    />,
-    storeOptions,
-    undefined,
-    services
+    />
   );
+  if (enableSearchActivationExperiment) {
+    ui = wrapWithExperimentProvider(ui, true);
+  }
+  return renderWithStore(ui, storeOptions);
 };
 
 describe('PipelineEditor', function () {
@@ -78,13 +84,7 @@ describe('PipelineEditor', function () {
             showSearchIndexDoesNotExistBanner: true,
           },
           {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableSearchActivationProgramP1: true };
-              },
-            },
-          }
+          { enableSearchActivationExperiment: true }
         );
 
         expect(screen.getByTestId('search-index-does-not-exist-banner')).to
@@ -102,13 +102,7 @@ describe('PipelineEditor', function () {
             showSearchIndexDoesNotExistBanner: true,
           },
           {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableSearchActivationProgramP1: true };
-              },
-            },
-          }
+          { enableSearchActivationExperiment: true }
         );
 
         expect(screen.getByTestId('search-index-does-not-exist-banner')).to
@@ -151,13 +145,7 @@ describe('PipelineEditor', function () {
             serverError: new MongoServerError({ message: 'Server error' }),
           },
           {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableSearchActivationProgramP1: true };
-              },
-            },
-          }
+          { enableSearchActivationExperiment: true }
         );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
@@ -175,13 +163,7 @@ describe('PipelineEditor', function () {
             syntaxErrors: [new PipelineParserError('Syntax error')],
           },
           {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableSearchActivationProgramP1: true };
-              },
-            },
-          }
+          { enableSearchActivationExperiment: true }
         );
 
         expect(screen.getByTestId('pipeline-as-text-error-container')).to.exist;
@@ -205,13 +187,7 @@ describe('PipelineEditor', function () {
             }),
           },
           {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableSearchActivationProgramP1: true };
-              },
-            },
-          }
+          { enableSearchActivationExperiment: true }
         );
 
         expect(screen.getByTestId('pipeline-editor-error-message')).to.exist;
@@ -264,13 +240,7 @@ describe('PipelineEditor', function () {
             onEditSearchIndexClick,
           },
           {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableSearchActivationProgramP1: true };
-              },
-            },
-          }
+          { enableSearchActivationExperiment: true }
         );
 
         const editLink = screen.getByText('Edit Search Index');

@@ -4,7 +4,10 @@ import type { Document } from 'mongodb';
 import { screen, cleanup } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
-import { renderWithStore } from '../../../test/configure-store';
+import {
+  renderWithStore,
+  wrapWithExperimentProvider,
+} from '../../../test/configure-store';
 
 import { StagePreview } from './';
 import {
@@ -19,9 +22,11 @@ const renderStagePreview = (
   props: Partial<ComponentProps<typeof StagePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
-  services: any = {}
+  {
+    enableSearchActivationExperiment = false,
+  }: { enableSearchActivationExperiment?: boolean } = {}
 ) => {
-  return renderWithStore(
+  let ui = (
     <StagePreview
       documents={[]}
       index={Math.max(pipeline.length - 1, 0)}
@@ -34,11 +39,12 @@ const renderStagePreview = (
       searchIndexName={null}
       serverErrorStageIdx={null}
       {...props}
-    />,
-    { pipeline, ...storeOptions },
-    undefined,
-    services
+    />
   );
+  if (enableSearchActivationExperiment) {
+    ui = wrapWithExperimentProvider(ui, true);
+  }
+  return renderWithStore(ui, { pipeline, ...storeOptions });
 };
 
 describe('StagePreview', function () {
@@ -143,13 +149,7 @@ describe('StagePreview', function () {
         },
         [{ $search: { index: 'test-index' } }],
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -166,13 +166,7 @@ describe('StagePreview', function () {
         },
         [{ $vectorSearch: { index: 'vector-index' } }],
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -235,38 +229,21 @@ describe('StagePreview', function () {
         },
         [{ $match: { _id: 1 } }],
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationExperiment: true }
       );
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
         .exist;
     });
 
-    it('should NOT show stale results banner when feature flag is disabled', async function () {
-      await renderStagePreview(
-        {
-          shouldRenderStage: true,
-          stageOperator: '$search',
-          documents: [{ _id: 1 }],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: 'test-index',
-        },
-        [{ $search: { index: 'test-index' } }],
-        {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: false };
-            },
-          },
-        }
-      );
+    it('should NOT show stale results banner when experiment is not in variant', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [{ _id: 1 }],
+        showSearchIndexStaleResultsBanner: true,
+        searchIndexName: 'test-index',
+      });
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
         .exist;

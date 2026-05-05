@@ -22,6 +22,10 @@ import { hasColumnstoreIndex } from '../utils/columnstore-indexes';
 import type { AtlasIndexStats } from './rolling-indexes-service';
 import { connectionSupports } from '@mongodb-js/compass-connections';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry';
 
 export type RegularIndex = Partial<IndexDefinition> &
   Pick<
@@ -416,6 +420,7 @@ const fetchIndexes = (
       connectionInfoRef,
       rollingIndexesService,
       preferences,
+      experimentationServices,
     }
   ) => {
     const {
@@ -426,10 +431,18 @@ const fetchIndexes = (
 
     const { readOnly, readWrite, enableAtlasSearchIndexes } =
       preferences.getPreferences();
+    const assignment = await experimentationServices.getAssignment(
+      ExperimentTestNames.searchActivationProgramP1,
+      false
+    );
+    const isInVariant =
+      assignment?.assignmentData?.variant ===
+      ExperimentTestGroups.searchActivationProgramP1Variant;
     const { isRegularIndexesReadable } = selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1: isInVariant,
     })(getState());
 
     if (

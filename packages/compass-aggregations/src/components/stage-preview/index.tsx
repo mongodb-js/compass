@@ -29,7 +29,7 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getIndexOfFirstStageWithServerError } from '../../modules/pipeline-builder/stage-editor';
 
 import SearchNoResults from '../search-no-results';
-import { usePreference } from 'compass-preferences-model/provider';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 
 const centeredContent = css({
@@ -133,9 +133,7 @@ function StagePreviewBody({
   searchIndexName,
   serverErrorStageIdx,
 }: StagePreviewProps) {
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
 
   if (!shouldRenderStage) {
     return <NoPreviewDocuments />;

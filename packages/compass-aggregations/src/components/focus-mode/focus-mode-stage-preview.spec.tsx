@@ -13,7 +13,10 @@ import {
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
 
-import { renderWithStore } from '../../../test/configure-store';
+import {
+  renderWithStore,
+  wrapWithExperimentProvider,
+} from '../../../test/configure-store';
 import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
@@ -22,9 +25,11 @@ const renderFocusModePreview = (
   props: Partial<ComponentProps<typeof FocusModePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
-  services: any = {}
+  {
+    enableSearchActivationExperiment = false,
+  }: { enableSearchActivationExperiment?: boolean } = {}
 ) => {
-  return renderWithStore(
+  let ui = (
     <FocusModePreview
       title=""
       isLoading={false}
@@ -35,11 +40,12 @@ const renderFocusModePreview = (
       onExpand={() => {}}
       onCollapse={() => {}}
       {...props}
-    />,
-    { pipeline, ...storeOptions },
-    undefined,
-    services
+    />
   );
+  if (enableSearchActivationExperiment) {
+    ui = wrapWithExperimentProvider(ui, true);
+  }
+  return renderWithStore(ui, { pipeline, ...storeOptions });
 };
 
 describe('FocusModeStagePreview', function () {
@@ -167,13 +173,7 @@ describe('FocusModeStagePreview', function () {
           },
           [],
           {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableSearchActivationProgramP1: true };
-              },
-            },
-          }
+          { enableSearchActivationExperiment: true }
         );
 
         expect(
@@ -191,13 +191,7 @@ describe('FocusModeStagePreview', function () {
           },
           [],
           {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableSearchActivationProgramP1: true };
-              },
-            },
-          }
+          { enableSearchActivationExperiment: true }
         );
 
         expect(
@@ -241,13 +235,7 @@ describe('FocusModeStagePreview', function () {
           },
           [],
           {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableSearchActivationProgramP1: true };
-              },
-            },
-          }
+          { enableSearchActivationExperiment: true }
         );
 
         expect(
@@ -255,24 +243,13 @@ describe('FocusModeStagePreview', function () {
         ).to.not.exist;
       });
 
-      it('should NOT show stale results banner when feature flag is disabled', async function () {
-        await renderFocusModePreview(
-          {
-            stageOperator: '$search',
-            documents: [new HadronDocument({ _id: 1 })],
-            showSearchIndexStaleResultsBanner: true,
-            searchIndexName: 'test-index',
-          },
-          [],
-          {},
-          {
-            preferences: {
-              getPreferences() {
-                return { enableSearchActivationProgramP1: false };
-              },
-            },
-          }
-        );
+      it('should NOT show stale results banner when experiment is not in variant', async function () {
+        await renderFocusModePreview({
+          stageOperator: '$search',
+          documents: [new HadronDocument({ _id: 1 })],
+          showSearchIndexStaleResultsBanner: true,
+          searchIndexName: 'test-index',
+        });
 
         expect(
           screen.queryByTestId('search-index-stale-results-banner')
