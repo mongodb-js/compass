@@ -282,10 +282,17 @@ function showConnectWindow(
   void window.loadURL(rendererUrl);
 
   /**
-   * Open all external links in the system's web browser.
+   * Open all external http links in the system's web browser.
    */
   window.webContents.setWindowOpenHandler((details) => {
-    void shell.openExternal(details.url);
+    try {
+      const { protocol } = new URL(details.url);
+      if (['http:', 'https:'].includes(protocol)) {
+        void shell.openExternal(details.url);
+      }
+    } catch {
+      // Do nothing if it's not a URL
+    }
     return { action: 'deny' };
   });
 
