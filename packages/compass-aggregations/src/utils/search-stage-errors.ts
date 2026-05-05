@@ -51,10 +51,9 @@ export function isRerankNotEnabledError(errorMessage: string): boolean {
   );
 }
 
-export type VoyageRateLimitInfo = {
-  type: 'rpm' | 'tpm';
-  limit: string;
-};
+export type VoyageRateLimitInfo =
+  | { type: 'rpm' | 'tpm'; limit: string }
+  | { type: 'billing' };
 
 const VOYAGE_API_ERROR = 'Voyage API error';
 const EMBEDDING_PROVIDER_RATE_LIMIT = 'EmbeddingProviderRateLimitException';
@@ -75,6 +74,9 @@ export function getVoyageProjectRateLimitInfo(
     errorMessage.includes(RATE_LIMIT_STATUS_HTTP);
   if (!isVoyageError || !is429) {
     return null;
+  }
+  if (errorMessage.includes('reduced rate limits')) {
+    return { type: 'billing' };
   }
   const rpm = RPM_PATTERN.exec(errorMessage);
   if (rpm) {

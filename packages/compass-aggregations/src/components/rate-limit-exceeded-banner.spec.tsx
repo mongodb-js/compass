@@ -10,6 +10,7 @@ import RateLimitExceededBanner from './rate-limit-exceeded-banner';
 import type { VoyageRateLimitInfo } from '../utils/search-stage-errors';
 
 const RPM_INFO: VoyageRateLimitInfo = { type: 'rpm', limit: '10' };
+const BILLING_INFO: VoyageRateLimitInfo = { type: 'billing' };
 
 const CONNECTION_NO_ATLAS: ConnectionInfo = {
   id: 'test-no-atlas',
@@ -20,6 +21,7 @@ const CONNECTION_WITH_ATLAS: ConnectionInfo = {
   id: 'test-with-atlas',
   connectionOptions: { connectionString: 'mongodb://localhost:27020' },
   atlasMetadata: {
+    orgId: 'org123',
     projectId: 'proj123',
     clusterName: 'myCluster',
   } as ConnectionInfo['atlasMetadata'],
@@ -41,6 +43,24 @@ describe('RateLimitExceededBanner', function () {
   it('renders the banner', async function () {
     await renderBanner({ rateLimitInfo: RPM_INFO });
     expect(screen.getByTestId('test-banner')).to.exist;
+  });
+
+  describe('billing type', function () {
+    it('shows billing message', async function () {
+      await renderBanner({ rateLimitInfo: BILLING_INFO });
+      expect(screen.getByTestId('test-banner').textContent).to.include(
+        'Query Tier 0'
+      );
+    });
+
+    it('shows Add a payment method link when atlasMetadata is present', async function () {
+      await renderBanner(
+        { rateLimitInfo: BILLING_INFO },
+        CONNECTION_WITH_ATLAS
+      );
+      expect(screen.getByRole('link', { name: 'Add a payment method' })).to
+        .exist;
+    });
   });
 
   describe('View Rate Limit link', function () {

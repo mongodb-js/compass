@@ -84,6 +84,13 @@ export function buildSearchExtensionRateLimitsUrl({
   return `${url}#/clusters/atlasSearch/${clusterName}/${extensionType}/rateLimits`;
 }
 
+export function buildBillingUrl({
+  orgId,
+}: Pick<AtlasClusterMetadata, 'orgId'>): string {
+  const url = new URL(`/v2`, window.location.origin);
+  return `${url}#/org/${orgId}/checkout?type=editPayment`;
+}
+
 export function buildAtlasSearchLink({
   atlasMetadata,
   namespace,

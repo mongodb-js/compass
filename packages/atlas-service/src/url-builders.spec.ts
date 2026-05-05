@@ -10,6 +10,7 @@ import {
   buildPerformanceMetricsUrl,
   buildProjectSettingsUrl,
   buildSearchExtensionRateLimitsUrl,
+  buildBillingUrl,
 } from './url-builders';
 
 const TEST_ORIGIN = 'https://cloud.mongodb.com';
@@ -157,6 +158,14 @@ describe('url-builders', function () {
         })
       ).to.equal(
         `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch/myCluster/autoEmbedding/rateLimits`
+      );
+    });
+  });
+
+  describe('buildBillingUrl', function () {
+    it('builds billing url for an org', function () {
+      expect(buildBillingUrl({ orgId: 'org123' })).to.equal(
+        `${TEST_ORIGIN}/v2#/org/org123/checkout?type=editPayment`
       );
     });
   });

@@ -6,7 +6,10 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { buildSearchExtensionRateLimitsUrl } from '@mongodb-js/atlas-service/provider';
+import {
+  buildSearchExtensionRateLimitsUrl,
+  buildBillingUrl,
+} from '@mongodb-js/atlas-service/provider';
 import type {
   VoyageRateLimitInfo,
   SearchExtensionType,
@@ -34,6 +37,33 @@ export default function RateLimitExceededBanner({
   dataTestId = 'rate-limit-exceeded-banner',
 }: RateLimitExceededBannerProps) {
   const { atlasMetadata } = useConnectionInfo();
+
+  if (rateLimitInfo.type === 'billing') {
+    const billingHref = atlasMetadata
+      ? buildBillingUrl({ orgId: atlasMetadata.orgId })
+      : null;
+    return (
+      <Banner
+        variant={BannerVariant.Danger}
+        data-testid={dataTestId}
+        className={bannerStyles}
+      >
+        <strong>Query rate limits exceeded</strong>
+        <br />
+        You are currently on Query Tier 0 with reduced rate limits of 3 RPM and
+        10K TPM.{' '}
+        {billingHref ? (
+          <Link href={billingHref} target="_blank">
+            Add a payment method
+          </Link>
+        ) : (
+          'Add a payment method'
+        )}{' '}
+        for your organization to unlock the higher tier.
+      </Banner>
+    );
+  }
+
   const rateLimitsHref =
     searchExtensionType && atlasMetadata
       ? buildSearchExtensionRateLimitsUrl({
