@@ -91,7 +91,7 @@ export function getIsRerankFirstStage(state: RootState): boolean {
     const { syntaxErrors, pipelineText } =
       state.pipelineBuilder.textEditor.pipeline;
     return (
-      syntaxErrors.length > 0 && /^\s*\[\s*\{\s*\$rerank\b/.test(pipelineText)
+      syntaxErrors.length > 0 && /^\s*\[\s*\{[^}]*\$rerank\b/.test(pipelineText)
     );
   }
   return false;

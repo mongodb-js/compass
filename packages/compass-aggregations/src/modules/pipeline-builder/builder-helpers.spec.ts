@@ -1,7 +1,11 @@
 import { expect } from 'chai';
-import { getPipelineStageOperatorsFromBuilderState } from './builder-helpers';
+import {
+  getPipelineStageOperatorsFromBuilderState,
+  getIsRerankFirstStage,
+} from './builder-helpers';
 import { addStage } from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
+import { changeEditorValue } from './text-editor-pipeline';
 import configureStore from '../../../test/configure-store';
 import type { AggregationsStore } from '../../stores/store';
 
@@ -46,6 +50,34 @@ describe('builder-helpers', function () {
         expect(
           getPipelineStageOperatorsFromBuilderState(store.getState(), false)
         ).to.deep.equal(['$match', '$limit', null]);
+      });
+    });
+  });
+
+  describe('getIsRerankFirstStage', function () {
+    describe('in stage editor mode', function () {
+      it('returns true when $rerank is the first active stage', async function () {
+        const store = await createStore('[{ $rerank: {} }]');
+        expect(getIsRerankFirstStage(store.getState())).to.equal(true);
+      });
+
+      it('returns false when $rerank is not the first stage', async function () {
+        const store = await createStore('[{ $search: {} }, { $rerank: {} }]');
+        expect(getIsRerankFirstStage(store.getState())).to.equal(false);
+      });
+
+      it('returns false when first stage is not $rerank', async function () {
+        const store = await createStore('[{ $match: {} }]');
+        expect(getIsRerankFirstStage(store.getState())).to.equal(false);
+      });
+    });
+
+    describe('in text editor mode', function () {
+      it('returns true when text has syntax errors and $rerank is first', async function () {
+        const store = await createStore('[]');
+        store.dispatch(changePipelineMode('as-text'));
+        store.dispatch(changeEditorValue('[{ $rerank: '));
+        expect(getIsRerankFirstStage(store.getState())).to.equal(true);
       });
     });
   });

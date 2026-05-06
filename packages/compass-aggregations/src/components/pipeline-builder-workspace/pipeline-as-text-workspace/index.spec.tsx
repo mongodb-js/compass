@@ -2,7 +2,6 @@ import React from 'react';
 import type { ComponentProps } from 'react';
 import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-
 import { renderWithStore } from '../../../../test/configure-store';
 
 import { PipelineAsTextWorkspace } from '.';

@@ -185,7 +185,7 @@ const signalCardActionGroupStyles = css({
 });
 
 const signalCardActionButtonStyles = css({
-  flex: 1,
+  flex: 'none',
   whiteSpace: 'nowrap',
 });
 

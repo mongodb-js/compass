@@ -1,6 +1,7 @@
 import React from 'react';
 import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
 import {
   renderWithStore,
@@ -17,7 +18,11 @@ const renderStageToolbar = async (
   pipeline: any[] = [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
   {
     enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+    services = {} as Parameters<typeof renderWithStore>[3],
+  }: {
+    enableSearchActivationExperiment?: boolean;
+    services?: Parameters<typeof renderWithStore>[3];
+  } = {}
 ) => {
   let ui = <StageToolbar index={0} />;
   if (enableSearchActivationExperiment) {
@@ -26,7 +31,7 @@ const renderStageToolbar = async (
       ExperimentTestGroups.searchActivationProgramP1Variant
     );
   }
-  const result = await renderWithStore(ui, { pipeline });
+  const result = await renderWithStore(ui, { pipeline }, undefined, services);
   return result.plugin.store;
 };
 
@@ -104,6 +109,26 @@ describe('StageToolbar', function () {
       });
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
+    });
+  });
+
+  context('rerank insight signal', function () {
+    it('shows insight badge when $rerank is the first stage and enableRerank is true', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({ enableRerank: true });
+      await renderStageToolbar([{ $rerank: {} }], {
+        services: { preferences },
+      });
+      expect(screen.getByTestId('insight-badge-button')).to.exist;
+    });
+
+    it('does not show insight badge when $rerank is not the first stage', async function () {
+      const preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({ enableRerank: true });
+      await renderStageToolbar([{ $search: {} }, { $rerank: {} }], {
+        services: { preferences },
+      });
+      expect(screen.queryByTestId('insight-badge-button')).to.not.exist;
     });
   });
 });
