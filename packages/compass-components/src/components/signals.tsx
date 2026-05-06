@@ -163,9 +163,9 @@ const SIGNALS: Pick<
   },
   {
     id: 'rerank-without-search',
-    title: 'Using $rerank without $search',
+    title: 'Using $rerank without a search stage',
     description:
-      'Starting your pipeline with $rerank without a preceding search stage can process all documents in your collection, resulting in high token consumption and cost. Add a $search, $vectorSearch, $rankFusion, or $scoreFusion stage before $rerank.',
+      "You're attempting to run a query with $rerank as the only stage. This is expensive and increases strain. We recommend using $rerank as the second stage to $search, $vectorSearch, $rankFusion, or $scoreFusion.",
     learnMoreLink:
       'https://www.mongodb.com/docs/atlas/atlas-search/native-reranking/',
   },

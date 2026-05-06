@@ -31,10 +31,13 @@ import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
 import type { ServerEnvironment } from '../../modules/env';
 import {
   createSearchIndex,
   openIndexesListDrawerView,
+  refreshSearchIndexes,
 } from '../../modules/search-indexes';
 import { useRerankInsightAction } from '../rerank-first-stage-banner';
 
@@ -118,9 +121,11 @@ type StageToolbarProps = {
   isSearchIndexesSupported: boolean;
   isRerankFirstStage: boolean;
   hasSearchIndex: boolean;
+  isSearchIndexesLoading: boolean;
   onCreateSearchIndex: () => void;
   onOpenFocusMode: (index: number) => void;
   onAddSearchStageBefore: (storeIndex: number) => void;
+  onRefreshSearchIndexes: () => void;
   onStageOperatorChange?: (
     index: number,
     name: string | null,
@@ -140,9 +145,11 @@ export function StageToolbar({
   isSearchIndexesSupported,
   isRerankFirstStage,
   hasSearchIndex,
+  isSearchIndexesLoading,
   onCreateSearchIndex,
   onOpenFocusMode,
   onAddSearchStageBefore,
+  onRefreshSearchIndexes,
   onStageOperatorChange,
   onClickViewSearchIndexes,
 }: StageToolbarProps) {
@@ -153,6 +160,7 @@ export function StageToolbar({
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const onRerankInsightAction = useRerankInsightAction();
+  const { atlasMetadata } = useConnectionInfo();
 
   const performanceInsight = useMemo(
     () =>
@@ -169,17 +177,25 @@ export function StageToolbar({
     enableRerank && isRerankFirstStage
       ? {
           ...PerformanceSignals.get('rerank-without-search'),
-          primaryActionButtonLabel: hasSearchIndex
+          primaryActionButtonIsLoading: isSearchIndexesLoading,
+          primaryActionButtonLabel: isSearchIndexesLoading
+            ? undefined
+            : hasSearchIndex
             ? 'Add $search stage'
-            : 'Learn more about search',
-          ...(hasSearchIndex
+            : 'Learn about search',
+          ...(hasSearchIndex && !isSearchIndexesLoading
             ? {
                 onPrimaryActionButtonClick: () => onAddSearchStageBefore(index),
               }
-            : {
-                primaryActionButtonLink:
-                  'https://www.mongodb.com/docs/atlas/atlas-search/native-reranking/',
-              }),
+            : !isSearchIndexesLoading
+            ? {
+                primaryActionButtonLink: atlasMetadata
+                  ? buildAtlasSearchClustersUrl({
+                      projectId: atlasMetadata.projectId,
+                    })
+                  : 'https://dochub.mongodb.org/core/atlas-search',
+              }
+            : {}),
           onAssistantButtonClick: onRerankInsightAction,
         }
       : undefined;
@@ -227,7 +243,14 @@ export function StageToolbar({
               View Indexes
             </Button>
           )}
-        {showInsights && insight && <SignalPopover signals={insight} />}
+        {showInsights && insight && (
+          <SignalPopover
+            signals={insight}
+            onPopoverOpenChange={(open) => {
+              if (open && isRerankFirstStage) onRefreshSearchIndexes();
+            }}
+          />
+        )}
       </div>
       <div className={textStyles}>
         {stage.disabled
@@ -261,7 +284,11 @@ export default connect(
       pipelineBuilder: {
         stageEditor: { stages },
       },
-      searchIndexes: { isSearchIndexesSupported, indexes },
+      searchIndexes: {
+        isSearchIndexesSupported,
+        indexes,
+        status: searchIndexesStatus,
+      },
     } = state;
     const stage = stages[ownProps.index] as StoreStage;
     const firstActiveStageIndex = stages.findIndex(
@@ -275,6 +302,8 @@ export default connect(
         stage.stageOperator === '$rerank' &&
         ownProps.index === firstActiveStageIndex,
       hasSearchIndex: indexes.length > 0,
+      isSearchIndexesLoading:
+        searchIndexesStatus === 'INITIAL' || searchIndexesStatus === 'LOADING',
     };
   },
   {
@@ -282,5 +311,6 @@ export default connect(
     onCreateSearchIndex: createSearchIndex,
     onClickViewSearchIndexes: openIndexesListDrawerView,
     onAddSearchStageBefore: addSearchStageBefore,
+    onRefreshSearchIndexes: refreshSearchIndexes,
   }
 )(StageToolbar);

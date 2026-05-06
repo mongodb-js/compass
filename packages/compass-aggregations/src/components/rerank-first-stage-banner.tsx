@@ -2,6 +2,7 @@ import React from 'react';
 import {
   Banner,
   Button,
+  Icon,
   Link,
   css,
   spacing,
@@ -28,8 +29,8 @@ const bannerStyles = css({
 
 const bannerContentStyles = css({
   display: 'flex',
-  alignItems: 'flex-end',
-  gap: spacing[200],
+  justifyContent: 'space-between',
+  alignItems: 'center',
 });
 
 const bannerTextStyles = css({
@@ -40,6 +41,7 @@ const bannerTextStyles = css({
 const bannerButtonStyles = css({
   flexShrink: 0,
   whiteSpace: 'nowrap',
+  marginLeft: spacing[200],
 });
 
 export const RerankFirstStageBanner = ({
@@ -70,7 +72,9 @@ export const RerankFirstStageBanner = ({
         <div className={bannerTextStyles}>
           <strong>$rerank works better following a search stage</strong>
           <br />
-          {`If you're just trying out $rerank, there's a chance you may consume an excessive amount of tokens, and can be expensive. $rerank works best following a search stage like `}
+          {
+            'Optimize performance and cost by using $rerank after retrieving preliminary results from a stage like '
+          }
           <Link
             href={`${STAGE_HELP_BASE_URL}/search/`}
             target="_blank"
@@ -109,6 +113,7 @@ export const RerankFirstStageBanner = ({
             size="xsmall"
             className={bannerButtonStyles}
             onClick={onInsightAction}
+            leftGlyph={<Icon glyph="Sparkle" />}
             data-testid="rerank-first-stage-learn-more-button"
           >
             Learn more

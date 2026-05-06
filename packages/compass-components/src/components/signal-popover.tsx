@@ -110,6 +110,8 @@ export type Signal = {
    */
   primaryActionButtonLabel?: string;
 
+  primaryActionButtonIsLoading?: boolean;
+
   primaryActionButtonIcon?: string;
 
   primaryActionButtonVariant?: 'primaryOutline' | 'dangerOutline';
@@ -179,11 +181,12 @@ const signalCardDescriptionStyles = css({
 
 const signalCardActionGroupStyles = css({
   display: 'flex',
-  justifyContent: 'space-between',
+  gap: spacing[200],
 });
 
 const signalCardActionButtonStyles = css({
-  flex: 'none',
+  flex: 1,
+  whiteSpace: 'nowrap',
 });
 
 const signalCardLearnMoreLinkStyles = css({
@@ -204,6 +207,7 @@ const SignalCard: React.FunctionComponent<
   primaryActionButtonLabel,
   primaryActionButtonIcon,
   primaryActionButtonVariant,
+  primaryActionButtonIsLoading,
   primaryActionButtonLink,
   onAssistantButtonClick,
   darkMode: _darkMode,
@@ -249,7 +253,7 @@ const SignalCard: React.FunctionComponent<
         )}
       </Body>
       <div className={signalCardActionGroupStyles}>
-        {primaryActionButtonLabel && (
+        {(primaryActionButtonLabel || primaryActionButtonIsLoading) && (
           <Button
             size="small"
             as={primaryActionButtonLink ? 'a' : 'button'}
@@ -258,6 +262,7 @@ const SignalCard: React.FunctionComponent<
             data-testid="insight-signal-primary-action"
             variant={primaryActionButtonVariant ?? 'primaryOutline'}
             className={signalCardActionButtonStyles}
+            isLoading={primaryActionButtonIsLoading}
             leftGlyph={
               primaryActionButtonIcon ? (
                 <Icon glyph={primaryActionButtonIcon}></Icon>
@@ -277,6 +282,7 @@ const SignalCard: React.FunctionComponent<
           <Button
             size="small"
             variant="default"
+            className={signalCardActionButtonStyles}
             leftGlyph={
               // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
               <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
@@ -372,7 +378,7 @@ const MultiSignalHeader: React.FunctionComponent<{
 };
 
 const popoverStyles = css({
-  width: 315,
+  width: 360,
 });
 
 const popoverHiddenStyles = css({
