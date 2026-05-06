@@ -50,3 +50,53 @@ export function isRerankNotEnabledError(errorMessage: string): boolean {
     lower.includes('enable the $rerank project setting')
   );
 }
+
+export type VoyageRateLimitInfo =
+  | { type: 'rpm' | 'tpm'; limit: string }
+  | { type: 'billing'; limits: string };
+
+const VOYAGE_API_ERROR = 'Voyage API error';
+const EMBEDDING_PROVIDER_RATE_LIMIT = 'EmbeddingProviderRateLimitException';
+const RATE_LIMIT_STATUS = 'status: 429';
+const RATE_LIMIT_STATUS_HTTP = 'HTTP 429';
+const RPM_PATTERN = /\(RPM\) rate limit of (\d[\d,]*)/i;
+const TPM_PATTERN = /\(TPM\) rate limit of (\d[\d,]*)/i;
+const BILLING_LIMITS_PATTERN = /reduced rate limits of ([^.]+)/i;
+
+export function getVoyageProjectRateLimitInfo(
+  errorMessage: string
+): VoyageRateLimitInfo | null {
+  if (!errorMessage) return null;
+  const isVoyageError =
+    errorMessage.includes(VOYAGE_API_ERROR) ||
+    errorMessage.includes(EMBEDDING_PROVIDER_RATE_LIMIT);
+  const is429 =
+    errorMessage.includes(RATE_LIMIT_STATUS) ||
+    errorMessage.includes(RATE_LIMIT_STATUS_HTTP);
+  if (!isVoyageError || !is429) {
+    return null;
+  }
+  const billing = BILLING_LIMITS_PATTERN.exec(errorMessage);
+  if (billing) {
+    return { type: 'billing', limits: billing[1].trim() };
+  }
+  const rpm = RPM_PATTERN.exec(errorMessage);
+  if (rpm) {
+    return { type: 'rpm', limit: rpm[1] };
+  }
+  const tpm = TPM_PATTERN.exec(errorMessage);
+  if (tpm) {
+    return { type: 'tpm', limit: tpm[1] };
+  }
+  return null;
+}
+
+export type SearchExtensionType = 'rerank' | 'autoEmbedding';
+
+export function getSearchExtensionTypeFromStage(
+  stageOperator: string | null | undefined
+): SearchExtensionType | null {
+  if (stageOperator === '$rerank') return 'rerank';
+  if (stageOperator === '$vectorSearch') return 'autoEmbedding';
+  return null;
+}
