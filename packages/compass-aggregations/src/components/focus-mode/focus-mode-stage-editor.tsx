@@ -6,7 +6,6 @@ import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
-import { RerankFirstStageBanner } from '../rerank-first-stage-banner';
 import { PIPELINE_HELP_URI } from '../../constants';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
@@ -35,11 +34,9 @@ const editorStyles = css({
 export const FocusModeStageEditor = ({
   index,
   operator,
-  isRerankFirstStage,
 }: {
   index: number;
   operator: string | null;
-  isRerankFirstStage: boolean;
 }) => {
   const editorRef = useRef<EditorRef>(null);
   if (index === -1) {
@@ -66,9 +63,6 @@ export const FocusModeStageEditor = ({
           Open docs
         </Link>
       </div>
-      {isRerankFirstStage && (
-        <RerankFirstStageBanner data-testid="focus-mode-rerank-first-stage-banner" />
-      )}
       <div className={editorStyles}>
         <StageEditor editorRef={editorRef} index={index} />
       </div>
@@ -76,23 +70,14 @@ export const FocusModeStageEditor = ({
   );
 };
 
-const mapState = ({
-  focusMode: { stageIndex },
-  pipelineBuilder: {
-    stageEditor: { stages },
-  },
-  searchIndexes,
-}: RootState) => {
-  const currentStage = stages[stageIndex] as StoreStage;
-  const firstActiveStageIndex = stages.findIndex(
-    (s): s is StoreStage => s.type === 'stage' && !s.disabled
-  );
+const mapState = (state: RootState) => {
+  const { stageIndex } = state.focusMode;
+  const currentStage = state.pipelineBuilder.stageEditor.stages[
+    stageIndex
+  ] as StoreStage;
   return {
     index: stageIndex,
     operator: currentStage?.stageOperator,
-    isRerankFirstStage:
-      currentStage?.stageOperator === '$rerank' &&
-      stageIndex === firstActiveStageIndex,
   };
 };
 

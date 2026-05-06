@@ -98,7 +98,7 @@ export type Signal = {
 
   description: React.ReactNode;
 
-  learnMoreLink: string;
+  learnMoreLink?: string;
 
   /**
    * Optional, default is "Learn more"
@@ -235,7 +235,7 @@ const SignalCard: React.FunctionComponent<
       </strong>
       <Body as="div" baseFontSize={13} className={signalCardDescriptionStyles}>
         {description}
-        {onAssistantButtonClick && (
+        {onAssistantButtonClick && learnMoreLink && (
           <>
             {' '}
             <Link
@@ -292,7 +292,7 @@ const SignalCard: React.FunctionComponent<
           >
             Tell me more
           </Button>
-        ) : (
+        ) : learnMoreLink ? (
           <Link
             data-testid="insight-signal-link"
             className={signalCardLearnMoreLinkStyles}
@@ -304,7 +304,7 @@ const SignalCard: React.FunctionComponent<
           >
             {learnMoreLabel ?? 'Learn more'}
           </Link>
-        )}
+        ) : null}
       </div>
     </div>
   );

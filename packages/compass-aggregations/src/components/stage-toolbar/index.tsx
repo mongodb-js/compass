@@ -11,9 +11,11 @@ import {
   IconButton,
   SignalPopover,
   Button,
+  Link,
   useDrawerActions,
   PerformanceSignals,
 } from '@mongodb-js/compass-components';
+import { STAGE_HELP_BASE_URL } from '../../constants';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
@@ -27,6 +29,7 @@ import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { addSearchStageBefore } from '../../modules/pipeline-builder/stage-editor';
+import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
@@ -177,6 +180,45 @@ export function StageToolbar({
     enableRerank && isRerankFirstStage
       ? {
           ...PerformanceSignals.get('rerank-without-search'),
+          description: (
+            <>
+              {
+                "You're attempting to run a query with $rerank as the only stage. This is expensive and increases strain. We recommend using $rerank as the second stage to "
+              }
+              <Link
+                href={`${STAGE_HELP_BASE_URL}/search/`}
+                target="_blank"
+                hideExternalIcon
+              >
+                $search
+              </Link>
+              {', '}
+              <Link
+                href={`${STAGE_HELP_BASE_URL}/vectorSearch/`}
+                target="_blank"
+                hideExternalIcon
+              >
+                $vectorSearch
+              </Link>
+              {', '}
+              <Link
+                href={`${STAGE_HELP_BASE_URL}/rankFusion/`}
+                target="_blank"
+                hideExternalIcon
+              >
+                $rankFusion
+              </Link>
+              {', or '}
+              <Link
+                href={`${STAGE_HELP_BASE_URL}/scoreFusion/`}
+                target="_blank"
+                hideExternalIcon
+              >
+                $scoreFusion
+              </Link>
+              {'.'}
+            </>
+          ),
           primaryActionButtonIsLoading: isSearchIndexesLoading,
           primaryActionButtonLabel: isSearchIndexesLoading
             ? undefined
@@ -291,16 +333,12 @@ export default connect(
       },
     } = state;
     const stage = stages[ownProps.index] as StoreStage;
-    const firstActiveStageIndex = stages.findIndex(
-      (s): s is StoreStage => s.type === 'stage' && !s.disabled
-    );
     return {
       stage,
       env,
       isSearchIndexesSupported,
       isRerankFirstStage:
-        stage.stageOperator === '$rerank' &&
-        ownProps.index === firstActiveStageIndex,
+        stage.stageOperator === '$rerank' && getIsRerankFirstStage(state),
       hasSearchIndex: indexes.length > 0,
       isSearchIndexesLoading:
         searchIndexesStatus === 'INITIAL' || searchIndexesStatus === 'LOADING',

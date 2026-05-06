@@ -36,8 +36,8 @@ import {
   getSearchStageInfoFromPipeline,
   getStageOperator,
 } from '../../../utils/stage';
+import { getIsRerankFirstStage } from '../../../modules/pipeline-builder/builder-helpers';
 import type { SearchStageOperator } from '../../../utils/stage';
-import { RerankFirstStageBanner } from '../../rerank-first-stage-banner';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
@@ -107,7 +107,6 @@ export type PipelineEditorProps = {
   searchIndexName: string | null;
   searchStageOperator: SearchStageOperator | null;
   showSearchIndexDoesNotExistBanner: boolean;
-  isRerankFirstStage: boolean;
   searchExtensionType?: SearchExtensionType | null;
   onChangePipelineText: (value: string) => void;
   onViewSearchIndexesClick: (indexName?: string) => void;
@@ -125,7 +124,6 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   searchIndexName,
   searchStageOperator,
   showSearchIndexDoesNotExistBanner,
-  isRerankFirstStage,
   searchExtensionType,
   onChangePipelineText,
   onViewSearchIndexesClick,
@@ -218,9 +216,6 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           className={codeEditorStyles}
         />
       </div>
-      {isRerankFirstStage && (
-        <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
-      )}
       {showRerankVersionWarning && (
         <div className={errorContainerStyles}>
           <Banner
@@ -279,22 +274,23 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   );
 };
 
-const mapState = ({
-  namespace,
-  pipelineBuilder: {
-    textEditor: {
-      pipeline: {
-        pipeline,
-        pipelineText,
-        serverError: pipelineServerError,
-        syntaxErrors,
+const mapState = (state: RootState) => {
+  const {
+    namespace,
+    pipelineBuilder: {
+      textEditor: {
+        pipeline: {
+          pipeline,
+          pipelineText,
+          serverError: pipelineServerError,
+          syntaxErrors,
+        },
+        outputStage: { serverError: outputStageServerError },
       },
-      outputStage: { serverError: outputStageServerError },
     },
-  },
-  serverVersion,
-  searchIndexes: { indexes: searchIndexes, status: searchIndexesStatus },
-}: RootState) => {
+    serverVersion,
+    searchIndexes: { indexes: searchIndexes, status: searchIndexesStatus },
+  } = state;
   const { searchIndexName, searchStageOperator } =
     getSearchStageInfoFromPipeline(pipelineText);
   const showSearchIndexDoesNotExistBanner =
@@ -302,9 +298,6 @@ const mapState = ({
     !!searchStageOperator &&
     ['READY', 'POLLING'].includes(searchIndexesStatus) &&
     searchIndexes.every((x) => x.name !== searchIndexName);
-
-  const firstStageOperator =
-    pipeline.length > 0 ? getStageOperator(pipeline[0]) : null;
 
   const searchExtensionType = pipeline.reduce<SearchExtensionType | null>(
     (found, stage) =>
@@ -322,7 +315,6 @@ const mapState = ({
     searchIndexName,
     searchStageOperator,
     showSearchIndexDoesNotExistBanner,
-    isRerankFirstStage: firstStageOperator === '$rerank',
     searchExtensionType,
   };
 };

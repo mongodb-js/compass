@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext } from 'react';
 import {
   Banner,
   Button,
@@ -19,6 +19,25 @@ export const useRerankInsightAction = () => {
     : undefined;
 };
 
+const DISMISS_KEY = 'mongodb_compass_dismissed_rerank_first_stage_banner';
+
+type DismissContextValue = [boolean, (val: boolean) => void];
+const RerankBannerDismissContext = createContext<DismissContextValue>([
+  false,
+  () => {},
+]);
+
+export const RerankBannerDismissProvider: React.FunctionComponent<{
+  children: React.ReactNode;
+}> = ({ children }) => {
+  const value = usePersistedState(DISMISS_KEY, false);
+  return (
+    <RerankBannerDismissContext.Provider value={value}>
+      {children}
+    </RerankBannerDismissContext.Provider>
+  );
+};
+
 const bannerStyles = css({
   borderRadius: 0,
   border: 'none',
@@ -30,7 +49,7 @@ const bannerStyles = css({
 const bannerContentStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
-  alignItems: 'center',
+  alignItems: 'flex-end',
 });
 
 const bannerTextStyles = css({
@@ -50,10 +69,7 @@ export const RerankFirstStageBanner = ({
   'data-testid'?: string;
 }) => {
   const enableRerank = usePreference('enableRerank');
-  const [isDismissed, setIsDismissed] = usePersistedState(
-    'mongodb_compass_dismissed_rerank_first_stage_banner',
-    false
-  );
+  const [isDismissed, setIsDismissed] = useContext(RerankBannerDismissContext);
   const onInsightAction = useRerankInsightAction();
 
   if (!enableRerank || isDismissed) {
