@@ -66,7 +66,9 @@ const allowedConnectionStringOptions = [
   'ssl', // Only if value is `true` or target host is local.
   'timeoutMS',
   'tls', // Only if value is `true` or target host is local.
+  'tlsCertificateKeyFile',
   'tlsCertificateKeyFilePassword',
+  'tlsCRLFile',
   'useBigInt64',
   'w',
   'waitQueueTimeoutMS',
@@ -104,8 +106,6 @@ const disallowedConnectionStringOptions = [
   'tlsAllowInvalidCertificates',
   'tlsAllowInvalidHostnames',
   'tlsCAFile', // !
-  'tlsCertificateKeyFile',
-  'tlsCRLFile',
   'tlsInsecure',
 ] as const;
 
