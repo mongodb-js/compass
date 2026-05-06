@@ -15,7 +15,6 @@ import {
   CreateSearchIndexDrawerView,
   getNextAvailableIndexName,
 } from './create-search-index-drawer-view';
-import type { SearchIndexType } from '../../modules/indexes-drawer';
 import { setupStore } from '../../../test/setup-store';
 
 const noop = () => {};
@@ -30,7 +29,7 @@ function renderCreateSearchIndexDrawerView(
     {
       namespace: 'test.collection',
       searchIndexes: [],
-      currentIndexType: 'search' as SearchIndexType,
+      currentIndexType: 'search',
       isBusy: false,
       error: undefined,
       onClose: noop,
