@@ -16,8 +16,6 @@ import {
   useLogger,
   type Logger,
 } from '@mongodb-js/compass-logging/provider';
-import ConnectionString from 'mongodb-connection-string-url';
-import { preferencesLocator } from '../../compass-preferences-model/dist/react';
 
 type ElectableSpecs = {
   instanceSize?: string;
@@ -77,23 +75,18 @@ export class AtlasCloudConnectionStorage
 {
   private loadAllPromise: Promise<ConnectionInfo[]> | undefined;
   private atlasService: AtlasService;
-  private enableCompression: boolean;
+  private orgId: string;
   private projectId: string;
   private logger: Logger;
-  constructor({
-    atlasService,
-    enableCompression,
-    projectId,
-    logger,
-  }: {
-    atlasService: AtlasService;
-    enableCompression: boolean;
-    projectId: string;
-    logger: Logger;
-  }) {
+  constructor(
+    atlasService: AtlasService,
+    orgId: string,
+    projectId: string,
+    logger: Logger
+  ) {
     super();
     this.atlasService = atlasService;
-    this.enableCompression = enableCompression;
+    this.orgId = orgId;
     this.projectId = projectId;
     this.logger = logger;
   }
@@ -141,31 +134,6 @@ export class AtlasCloudConnectionStorage
             { connectionInfo }
           );
           return null;
-        }
-
-        if (connectionInfo.connectionOptions.connectionString) {
-          try {
-            const cs = new ConnectionString(
-              connectionInfo.connectionOptions.connectionString
-            );
-            // CompassWeb only supports zlib compression (using zlib polyfill) if the feature flag is enabled.
-            cs.searchParams.delete('compressors');
-            if (this.enableCompression) {
-              cs.searchParams.append('compressors', 'zlib');
-            }
-            connectionInfo.connectionOptions.connectionString = cs.toString();
-          } catch (err) {
-            this.logger.log.error(
-              mongoLogId(1_001_000_359),
-              'LoadAndNormalizeClusterDescriptionInfo',
-              'Failed to parse connection string',
-              {
-                error: (err as Error).message,
-                connectionInfo,
-              }
-            );
-            return null;
-          }
         }
 
         const clusterName = connectionInfo.atlasMetadata.clusterName;
@@ -224,23 +192,18 @@ export const SandboxConnectionStorageProvider = ({
 
 export const AtlasCloudConnectionStorageProvider = createServiceProvider(
   function AtlasCloudConnectionStorageProvider({
+    orgId,
     projectId,
     children,
   }: {
+    orgId: string;
     projectId: string;
     children: React.ReactChild;
   }) {
     const logger = useLogger('ATLAS-CLOUD-CONNECTION-STORAGE');
     const atlasService = atlasServiceLocator();
-    const preferences = preferencesLocator();
     const storage = useRef(
-      new AtlasCloudConnectionStorage({
-        atlasService,
-        enableCompression:
-          preferences.getPreferences().enableDriverCompressionOnWeb,
-        projectId,
-        logger,
-      })
+      new AtlasCloudConnectionStorage(atlasService, orgId, projectId, logger)
     );
     return (
       <ConnectionStorageProvider
