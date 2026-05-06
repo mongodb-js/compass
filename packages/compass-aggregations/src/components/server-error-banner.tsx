@@ -21,7 +21,6 @@ import {
   type SearchExtensionType,
 } from '../utils/search-stage-errors';
 import RateLimitExceededBanner from './rate-limit-exceeded-banner';
-import { usePreference } from 'compass-preferences-model/provider';
 
 const bannerStyles = css({
   textAlign: 'left',
