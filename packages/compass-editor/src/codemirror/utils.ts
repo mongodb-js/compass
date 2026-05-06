@@ -167,7 +167,13 @@ export function mapMongoDBCompletionToCodemirrorCompletion(
     detail: completion.meta?.startsWith('field') ? 'field' : completion.meta,
     type: completion.meta?.startsWith('field') ? 'field' : 'method',
     info() {
-      if (!completion.description) {
+      const description =
+        Object.hasOwn(completion, 'description') &&
+        typeof completion.description === 'string'
+          ? completion.description
+          : null;
+
+      if (!description) {
         return null;
       }
 
@@ -184,7 +190,7 @@ export function mapMongoDBCompletionToCodemirrorCompletion(
           evt.preventDefault();
         }
       });
-      infoNode.innerHTML = completion.description;
+      infoNode.innerHTML = description;
       return infoNode;
     },
   };

@@ -44,6 +44,7 @@ import {
   isSearchStage,
 } from '../../utils/stage';
 import ServerErrorBanner from '../server-error-banner';
+import { getSearchExtensionTypeFromStage } from '../../utils/search-stage-errors';
 import SearchIndexDoesNotExistBanner from '../search-index-does-not-exist-banner';
 
 const editorContainerStyles = css({
@@ -243,6 +244,7 @@ export const StageEditor = ({
             message={serverError.message}
             searchIndexName={searchIndexName}
             dataTestId="stage-editor-error-message"
+            searchExtensionType={getSearchExtensionTypeFromStage(stageOperator)}
             // Don't show link when in focus mode as modal covers the drawer
             onEditSearchIndexClick={
               editor_view_type !== 'focus' ? onEditSearchIndexClick : undefined

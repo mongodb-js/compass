@@ -73,6 +73,24 @@ export function buildChartsUrl(
   return `${url}`;
 }
 
+export function buildSearchExtensionRateLimitsUrl({
+  projectId,
+  clusterName,
+  extensionType,
+}: Pick<AtlasClusterMetadata, 'projectId' | 'clusterName'> & {
+  extensionType: 'rerank' | 'autoEmbedding';
+}): string {
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  return `${url}#/clusters/atlasSearch/${clusterName}/${extensionType}/rateLimits`;
+}
+
+export function buildBillingUrl({
+  orgId,
+}: Pick<AtlasClusterMetadata, 'orgId'>): string {
+  const url = new URL(`/v2`, window.location.origin);
+  return `${url}#/org/${orgId}/checkout?type=editPayment`;
+}
+
 export function buildAtlasSearchLink({
   atlasMetadata,
   namespace,
