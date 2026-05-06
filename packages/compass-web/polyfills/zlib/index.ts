@@ -12,10 +12,10 @@ async function pipeBufferThroughTransformStream(
   const readPromise = new Response(stream.readable).arrayBuffer();
 
   await writer.ready;
-  await writer.write(Buffer.from(buffer));
+  await writer.write(buffer);
   await writer.close();
-  const data = await readPromise;
-  return Buffer.from(data);
+  const data = new Uint8Array(await readPromise);
+  return Buffer.from(data.buffer, data.byteOffset, data.byteLength);
 }
 
 function getCallback(
@@ -30,13 +30,16 @@ function runStreamTransform(
   buffer: Uint8Array,
   callback: (err: Error | null, result?: Buffer) => void
 ): void {
-  try {
-    pipeBufferThroughTransformStream(createStream(), buffer)
-      .then((result) => callback(null, result))
-      .catch((error) => callback(error));
-  } catch (error) {
-    callback(error as Error);
-  }
+  void (async () => {
+    let result: Buffer;
+    try {
+      result = await pipeBufferThroughTransformStream(createStream(), buffer);
+    } catch (error) {
+      callback(error as Error);
+      return;
+    }
+    callback(null, result);
+  })();
 }
 
 export function inflate(
