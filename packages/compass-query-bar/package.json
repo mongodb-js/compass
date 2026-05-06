@@ -85,7 +85,7 @@
     "mongodb": "^7.1.1",
     "mongodb-collection-model": "^5.40.4",
     "mongodb-instance-model": "^12.70.1",
-    "mongodb-ns": "^3.1.0",
+    "mongodb-ns": "^3.2.0",
     "mongodb-query-parser": "^4.7.12",
     "mongodb-query-util": "^2.6.5",
     "mongodb-schema": "^12.6.3",

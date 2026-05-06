@@ -1513,14 +1513,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return collections;
   }
 
-  /**
-   * Whether a database name refers to an internal database that should be
-   * omitted from user-visible database lists (e.g. `__mdb_internal*` on Atlas).
-   */
-  static isHiddenDatabase(name: string): boolean {
-    return name.startsWith('__mdb_internal');
-  }
-
   @op(mongoLogId(1_001_000_033), ([options], dbs) => {
     return {
       nameOnly: options?.nameOnly ?? false,
@@ -1643,7 +1635,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       };
     });
 
-    return databases.filter((db) => !DataServiceImpl.isHiddenDatabase(db.name));
+    return databases;
   }
 
   addReauthenticationHandler(handler: ReauthenticationHandler): void {
