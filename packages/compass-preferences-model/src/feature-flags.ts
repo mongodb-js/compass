@@ -241,6 +241,14 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable multiplexing websocket on web',
     },
   },
+  {
+    name: 'enableDriverCompressionOnWeb',
+    stage: 'development',
+    atlasCloudFeatureFlagName: 'DATA_EXPLORER_ENABLE_DRIVER_COMPRESSION_ON_WEB',
+    description: {
+      short: 'Enable driver compression on web',
+    },
+  },
 
   /*
    * Feature flag for auto embedding public preview UI changes.

@@ -566,7 +566,6 @@ const CompassWeb = ({
                         projectId={projectId}
                       >
                         <AtlasCloudConnectionStorageProvider
-                          orgId={orgId}
                           projectId={projectId}
                         >
                           <ToolsControllerProvider>
