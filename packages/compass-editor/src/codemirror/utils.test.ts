@@ -1,7 +1,11 @@
 import { expect } from 'chai';
 import { languages } from '../editor';
 import { EditorView } from '@codemirror/view';
-import { getAncestryOfToken, resolveTokenAtCursor } from './utils';
+import {
+  getAncestryOfToken,
+  mapMongoDBCompletionToCodemirrorCompletion,
+  resolveTokenAtCursor,
+} from './utils';
 import { CompletionContext } from '@codemirror/autocomplete';
 
 const parseDocument = (_doc = '') => {
@@ -69,5 +73,37 @@ describe('codemirror utils', function () {
         expect(ancestry).to.deep.equal(expected);
       });
     }
+  });
+
+  describe('mapMongoDBCompletionToCodemirrorCompletion', function () {
+    it('creates a codemirror completion from mongodb constant description', function () {
+      const comp = mapMongoDBCompletionToCodemirrorCompletion({
+        value: '$comp',
+        version: '1.2.3',
+        meta: 'bson',
+      });
+      expect(comp).to.have.property('label', '$comp');
+      expect(comp).to.have.property('apply', '$comp');
+      expect(comp).to.have.property('detail', 'bson');
+    });
+    it('creates a description wrapper if mongodb constant description has one', function () {
+      const comp1 = mapMongoDBCompletionToCodemirrorCompletion({
+        value: '$comp1',
+        version: '1.2.3',
+        meta: 'bson',
+        description: 'This is a description 1',
+      });
+      expect(comp1).to.have.property('info');
+      expect((comp1.info as () => Element)?.().outerHTML).to.eq(
+        '<div class="completion-info">This is a description 1</div>'
+      );
+      const comp2 = mapMongoDBCompletionToCodemirrorCompletion({
+        value: '$comp2',
+        version: '1.2.3',
+        meta: 'bson',
+      });
+      expect(comp2).to.have.property('info');
+      expect((comp2.info as () => null)?.()).to.eq(null);
+    });
   });
 });
