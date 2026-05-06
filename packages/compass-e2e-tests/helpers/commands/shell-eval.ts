@@ -9,6 +9,28 @@ export async function getShellOutputText(
   });
 }
 
+const SHELL_ERROR_PATTERNS = [
+  /^Uncaught[:\s]/,
+  /^Mongo[A-Za-z]*Error:/,
+  /^(TypeError|ReferenceError|SyntaxError|RangeError|Error):/,
+];
+
+function throwIfOutputHasError(output: string | string[]) {
+  const outputArray = Array.isArray(output) ? output : [output];
+  for (const block of outputArray) {
+    for (const line of block.split('\n')) {
+      const trimmed = line.trim();
+      if (SHELL_ERROR_PATTERNS.some((pattern) => pattern.test(trimmed))) {
+        throw new Error(
+          `Shell command resulted in error:\n${block}\n\nFull output:\n${outputArray.join(
+            '\n---\n'
+          )}`
+        );
+      }
+    }
+  }
+}
+
 export async function shellEval(
   browser: CompassBrowser,
   connectionName: string,
@@ -51,6 +73,8 @@ export async function shellEval(
   }
 
   const output = await getShellOutputText(browser);
+
+  throwIfOutputHasError(output);
 
   let result = Array.isArray(output) ? output.pop() : output;
 

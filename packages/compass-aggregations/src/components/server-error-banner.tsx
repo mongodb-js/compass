@@ -14,7 +14,10 @@ import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
+  getVoyageProjectRateLimitInfo,
+  type SearchExtensionType,
 } from '../utils/search-stage-errors';
+import RateLimitExceededBanner from './rate-limit-exceeded-banner';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const bannerStyles = css({
@@ -32,6 +35,7 @@ type ServerErrorBannerProps = {
   message: string;
   searchIndexName: string | null;
   onEditSearchIndexClick?: (indexName: string) => void;
+  searchExtensionType?: SearchExtensionType | null;
   dataTestId?: string;
 };
 
@@ -39,6 +43,7 @@ export default function ServerErrorBanner({
   message,
   searchIndexName,
   onEditSearchIndexClick,
+  searchExtensionType,
   dataTestId = 'server-error-banner',
 }: ServerErrorBannerProps) {
   const enableSearchActivationProgramP1 = usePreference(
@@ -55,6 +60,17 @@ export default function ServerErrorBanner({
     rerankNotEnabled && atlasMetadata
       ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
       : null;
+
+  const rateLimitInfo = getVoyageProjectRateLimitInfo(message);
+  if (rateLimitInfo) {
+    return (
+      <RateLimitExceededBanner
+        rateLimitInfo={rateLimitInfo}
+        searchExtensionType={searchExtensionType}
+        dataTestId={dataTestId}
+      />
+    );
+  }
 
   return (
     <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>

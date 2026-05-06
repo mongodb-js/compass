@@ -30,7 +30,10 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { usePreference } from 'compass-preferences-model/provider';
-import { getSearchStageInfoFromPipeline } from '../../../utils/stage';
+import {
+  getSearchStageInfoFromPipeline,
+  getStageOperator,
+} from '../../../utils/stage';
 import type { SearchStageOperator } from '../../../utils/stage';
 import {
   openCreateSearchIndexDrawerView,
@@ -41,6 +44,8 @@ import ServerErrorBanner from '../../server-error-banner';
 import {
   isRerankVersionSupported,
   RERANK_MIN_SERVER_VERSION,
+  getSearchExtensionTypeFromStage,
+  type SearchExtensionType,
 } from '../../../utils/search-stage-errors';
 import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
 import type { SearchIndexType } from '../../../modules/search-indexes';
@@ -99,6 +104,7 @@ export type PipelineEditorProps = {
   searchIndexName: string | null;
   searchStageOperator: SearchStageOperator | null;
   showSearchIndexDoesNotExistBanner: boolean;
+  searchExtensionType?: SearchExtensionType | null;
   onChangePipelineText: (value: string) => void;
   onViewSearchIndexesClick: (indexName?: string) => void;
   onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
@@ -115,6 +121,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   searchIndexName,
   searchStageOperator,
   showSearchIndexDoesNotExistBanner,
+  searchExtensionType,
   onChangePipelineText,
   onViewSearchIndexesClick,
   onCreateSearchIndexClick,
@@ -247,6 +254,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
               message={serverError.message}
               searchIndexName={searchIndexName}
               dataTestId="pipeline-editor-error-message"
+              searchExtensionType={searchExtensionType}
               onEditSearchIndexClick={onEditSearchIndexClick}
             />
           ) : enableSearchActivationProgramP1 &&
@@ -289,6 +297,12 @@ const mapState = ({
     ['READY', 'POLLING'].includes(searchIndexesStatus) &&
     searchIndexes.every((x) => x.name !== searchIndexName);
 
+  const searchExtensionType = pipeline.reduce<SearchExtensionType | null>(
+    (found, stage) =>
+      found ?? getSearchExtensionTypeFromStage(getStageOperator(stage)),
+    null
+  );
+
   return {
     namespace,
     num_stages: pipeline.length,
@@ -299,6 +313,7 @@ const mapState = ({
     searchIndexName,
     searchStageOperator,
     showSearchIndexDoesNotExistBanner,
+    searchExtensionType,
   };
 };
 
