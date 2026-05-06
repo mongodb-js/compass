@@ -24,7 +24,10 @@ import { IndexesTable } from '../indexes-table';
 import SearchIndexActions from './search-index-actions';
 import type { RootState } from '../../modules';
 import { usePreferences } from 'compass-preferences-model/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useSearchActivationProgramP1,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import {
   getIndexFields,
@@ -190,12 +193,13 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
     'readWrite',
     'enableAtlasSearchIndexes',
   ]);
-
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isSearchIndexesWritable } = useSelector(
     selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1,
     }),
     shallowEqual
   );

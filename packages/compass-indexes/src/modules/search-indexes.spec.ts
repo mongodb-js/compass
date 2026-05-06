@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import { waitFor } from '@mongodb-js/testing-library-compass';
-import type { FetchStatus } from '../utils/fetch-status';
 import { FetchStatuses } from '../utils/fetch-status';
 import {
   createSearchIndexClosed,
@@ -106,7 +105,7 @@ describe('search-indexes module', function () {
       expect(store.getState().searchIndexes.status).to.equal('READY');
     });
 
-    it('sets the status to REFRESHING if the status is READY', function () {
+    it('sets the status to REFRESHING if the status is READY', async function () {
       expect(getSearchIndexesStub.callCount).to.equal(1);
       expect(store.getState().searchIndexes.status).to.equal('READY');
 
@@ -120,7 +119,9 @@ describe('search-indexes module', function () {
       // not awaiting because REFRESHING happens during the action
       void store.dispatch(refreshSearchIndexes());
 
-      expect(store.getState().searchIndexes.status).to.equal('REFRESHING');
+      await waitFor(() => {
+        expect(store.getState().searchIndexes.status).to.equal('REFRESHING');
+      });
     });
 
     it('loads the indexes', async function () {
@@ -406,12 +407,6 @@ describe('search-indexes module', function () {
 
       clock = sinon.useFakeTimers();
 
-      const waitForStatus = async (status: FetchStatus) => {
-        await waitFor(() => {
-          expect(store.getState().searchIndexes.status).to.eq(status);
-        });
-      };
-
       // before we start
       expect(store.getState().searchIndexes.status).to.equal('READY');
 
@@ -420,44 +415,40 @@ describe('search-indexes module', function () {
 
       store.dispatch(startPollingSearchIndexes());
 
-      // poll
-      clock.tick(pollInterval);
-      await waitForStatus('POLLING');
+      // poll (tickAsync processes microtasks/promises from experimentationServices)
+      await clock.tickAsync(pollInterval);
       expect(getSearchIndexesStub.callCount).to.equal(2);
-      await waitForStatus('READY');
+      expect(store.getState().searchIndexes.status).to.equal('READY');
 
       // poll
-      clock.tick(pollInterval);
-      await waitForStatus('POLLING');
+      await clock.tickAsync(pollInterval);
       expect(getSearchIndexesStub.callCount).to.equal(3);
-      await waitForStatus('READY');
+      expect(store.getState().searchIndexes.status).to.equal('READY');
 
       // stop
       store.dispatch(stopPollingSearchIndexes());
 
       // no more polling
-      clock.tick(pollInterval);
+      await clock.tickAsync(pollInterval);
       expect(getSearchIndexesStub.callCount).to.equal(3);
-      await waitForStatus('READY');
+      expect(store.getState().searchIndexes.status).to.equal('READY');
 
       // open again
       store.dispatch(startPollingSearchIndexes());
 
       // won't execute immediately
       expect(getSearchIndexesStub.callCount).to.equal(3);
-      await waitForStatus('READY');
+      expect(store.getState().searchIndexes.status).to.equal('READY');
 
       // does poll after the interval
-      clock.tick(pollInterval);
-      await waitForStatus('POLLING');
+      await clock.tickAsync(pollInterval);
       expect(getSearchIndexesStub.callCount).to.equal(4);
-      await waitForStatus('READY');
+      expect(store.getState().searchIndexes.status).to.equal('READY');
 
       // and again
-      clock.tick(pollInterval);
-      await waitForStatus('POLLING');
+      await clock.tickAsync(pollInterval);
       expect(getSearchIndexesStub.callCount).to.equal(5);
-      await waitForStatus('READY');
+      expect(store.getState().searchIndexes.status).to.equal('READY');
 
       // clean up
       store.dispatch(stopPollingSearchIndexes());

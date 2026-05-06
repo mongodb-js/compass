@@ -7,7 +7,7 @@ import {
   showConfirmation,
   spacing,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { connect } from 'react-redux';
 import type { RootState } from './modules';
 import IndexesListDrawerView from './components/drawer-views/indexes-list-drawer-view';
@@ -17,10 +17,6 @@ import EditSearchIndexView from './components/drawer-views/edit-search-index-dra
 import { openIndexesListDrawerView } from './modules/indexes-drawer';
 import type { IndexesDrawerViewType } from './modules/indexes-drawer';
 import CreateIndexModal from './components/create-index-modal/create-index-modal';
-import {
-  ExperimentTestNames,
-  useAssignment,
-} from '@mongodb-js/compass-telemetry/provider';
 
 const indexesTitleLinkStyles = css({
   width: 'fit-content',
@@ -53,15 +49,7 @@ const Drawer = ({
   subTab,
   openIndexesListDrawerView,
 }: DrawerProps) => {
-  const isIndexesDrawerEnabled = usePreference(
-    'enableSearchActivationProgramP1'
-  );
-
-  // @experiment Search Activation Program P1, only running for DE
-  // Before compass-web is initialized in mms, the user is assigned to the experiment
-  // The assignment determines whether the feature flag enableSearchActivationProgramP1 gets set
-  // This useAssignment is only used to track the experiment viewed event
-  useAssignment(ExperimentTestNames.searchActivationProgramP1, true);
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
 
   const beforeSectionHide = useCallback(async () => {
     if (!isDirty) {
@@ -76,7 +64,7 @@ const Drawer = ({
     });
   }, [isDirty]);
 
-  if (!isIndexesDrawerEnabled) {
+  if (!enableSearchActivationProgramP1) {
     return null;
   }
 
