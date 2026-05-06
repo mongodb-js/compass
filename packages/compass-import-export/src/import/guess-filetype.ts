@@ -266,10 +266,40 @@ export function guessFileType({
         reject(err);
       });
 
-      const jsStream = input.pipe(new PassThrough());
-      const csvStream = input
-        .pipe(new PassThrough())
-        .pipe(new FileSizeEnforcer());
+      // COMPASS-10565: forward data to each branch independently instead of
+      // using .pipe() for fan-out. When one branch destroys its stream (e.g.
+      // detectJSON rejecting CSV data), pipe-based fan-out can propagate
+      // destruction back to the shared source, starving the other branch.
+      const jsStream = new PassThrough();
+      const csvPassThrough = new PassThrough();
+      const csvStream = csvPassThrough.pipe(new FileSizeEnforcer());
+
+      input.on('data', (chunk: Buffer) => {
+        if (!jsStream.destroyed) {
+          jsStream.write(chunk);
+        }
+        if (!csvPassThrough.destroyed) {
+          csvPassThrough.write(chunk);
+        }
+      });
+
+      input.on('end', () => {
+        if (!jsStream.destroyed) {
+          jsStream.end();
+        }
+        if (!csvPassThrough.destroyed) {
+          csvPassThrough.end();
+        }
+      });
+
+      input.on('error', () => {
+        if (!jsStream.destroyed) {
+          jsStream.destroy();
+        }
+        if (!csvPassThrough.destroyed) {
+          csvPassThrough.destroy();
+        }
+      });
 
       const jsonPromise = detectJSON(jsStream);
 
