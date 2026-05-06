@@ -15,6 +15,7 @@ describe('indexes-read-write-access', function () {
         readOnly?: boolean;
         readWrite?: boolean;
         enableAtlasSearchIndexes?: boolean;
+        enableSearchActivationProgramP1?: boolean;
       } = {}
     ) {
       const store = setupStore(options, {}, {});
@@ -25,6 +26,8 @@ describe('indexes-read-write-access', function () {
       const readWrite = preferences.readWrite ?? false;
       const enableAtlasSearchIndexes =
         preferences.enableAtlasSearchIndexes ?? true;
+      const enableSearchActivationProgramP1 =
+        preferences.enableSearchActivationProgramP1 ?? false;
       const { result } = renderHook(
         () =>
           useSelector(
@@ -32,6 +35,7 @@ describe('indexes-read-write-access', function () {
               readOnly,
               readWrite,
               enableAtlasSearchIndexes,
+              enableSearchActivationProgramP1,
             })
           ),
         {

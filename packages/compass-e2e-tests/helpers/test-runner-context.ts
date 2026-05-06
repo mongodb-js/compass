@@ -282,7 +282,7 @@ if (context.browserVersion === undefined) {
 /**
  * Returns true if the tests are running against Compass desktop
  */
-export function isTestingDesktop(ctx = context): ctx is DesktopParsedArgs {
+export function isTestingDesktop(_ctx = context): _ctx is DesktopParsedArgs {
   return testEnv === 'desktop';
 }
 
@@ -302,7 +302,7 @@ export function assertTestingDesktop(
 /**
  * Returns true if tests are running against compass-web in either local sandbox or integrated in Atlas Cloud
  */
-export function isTestingWeb(ctx = context): ctx is WebParsedArgs {
+export function isTestingWeb(_ctx = context): _ctx is WebParsedArgs {
   return testEnv === 'web';
 }
 

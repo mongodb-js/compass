@@ -1,7 +1,9 @@
 import {
   ATLAS_SEARCH_TEMPLATES,
+  ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
+import type { AllPreferences } from 'compass-preferences-model';
 import { expect } from 'chai';
 import { BaseSearchIndexModal } from './base-search-index-modal';
 import sinon from 'sinon';
@@ -9,10 +11,10 @@ import type { SinonSpy } from 'sinon';
 import {
   render,
   screen,
-  cleanup,
   waitFor,
   userEvent,
   wait,
+  within,
 } from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
@@ -31,6 +33,10 @@ function normalizedTemplateNamed(name: string) {
   return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
 }
 
+function normalizeSnippetPlaceholders(snippet: string) {
+  return snippet.replace(/\${\d+:([^}]+)}/gm, '$1');
+}
+
 const VALID_ATLAS_SEARCH_INDEX_DEFINITION = {
   fields: [
     {
@@ -46,7 +52,8 @@ const VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING = JSON.stringify(
 );
 
 function renderBaseSearchIndexModal(
-  props?: Partial<React.ComponentProps<typeof BaseSearchIndexModal>>
+  props?: Partial<React.ComponentProps<typeof BaseSearchIndexModal>>,
+  renderOptions?: { preferences?: Partial<AllPreferences> }
 ) {
   return render(
     <BaseSearchIndexModal
@@ -61,13 +68,12 @@ function renderBaseSearchIndexModal(
       onClose={sinon.fake()}
       error={'Invalid index definition.'}
       {...props}
-    />
+    />,
+    renderOptions
   );
 }
 
 describe('Base Search Index Modal', function () {
-  afterEach(cleanup);
-
   describe('when rendered', function () {
     let onSubmitSpy: SinonSpy;
     let onCloseSpy: SinonSpy;
@@ -103,6 +109,29 @@ describe('Base Search Index Modal', function () {
 
       it('shows vector search radio option', function () {
         expect(screen.getByText('Vector Search')).to.be.visible;
+      });
+
+      it('does not show vector template dropdown when auto-embedding preview flag is off', async function () {
+        await waitFor(() => {
+          // Wait for the editor to render the blank content.
+          expect(
+            getCodemirrorEditorValue('definition-of-search-index')
+          ).to.equal('{}');
+        });
+        const button = screen.getByTestId(
+          'search-index-type-vectorSearch-button'
+        ).parentElement;
+        if (!button) {
+          throw new Error(
+            'Could not find radio button for vector search option'
+          );
+        }
+        userEvent.click(button);
+        const modal = screen.getByTestId('search-index-modal');
+        expect(within(modal).queryByTestId('vector-search-index-template')).to
+          .be.null;
+        expect(within(modal).queryByTestId('auto-embedding-cost-banner')).to.be
+          .null;
       });
     });
 
@@ -390,6 +419,133 @@ describe('Base Search Index Modal', function () {
           screen.queryByRole('option', { name: 'KNN Vector field mapping' })
         ).to.not.exist;
       });
+    });
+  });
+
+  describe('when rendered with the auto-embedding preview flag on', function () {
+    beforeEach(function () {
+      renderBaseSearchIndexModal(
+        {},
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+    });
+    it.skip('shows vector template dropdown', async function () {
+      await waitFor(() => {
+        // Wait for the editor to render the blank content.
+        expect(getCodemirrorEditorValue('definition-of-search-index')).to.equal(
+          '{}'
+        );
+      });
+      const button = screen.getByTestId(
+        'search-index-type-vectorSearch-button'
+      ).parentElement;
+      if (!button) {
+        throw new Error('Could not find radio button for vector search option');
+      }
+      userEvent.click(button);
+      const modal = screen.getByTestId('search-index-modal');
+      expect(within(modal).getByTestId('vector-search-index-template')).to.be
+        .visible;
+      await waitFor(() => {
+        expect(getCodemirrorEditorValue('definition-of-search-index')).to.equal(
+          normalizeSnippetPlaceholders(
+            ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE.snippet
+          )
+        );
+      });
+      const costBanner = within(modal).getByTestId(
+        'auto-embedding-cost-banner'
+      );
+      expect(costBanner).to.be.visible;
+      expect(costBanner.textContent).to.include(
+        'Automated Embedding uses embedding models, which incur usage-based costs'
+      );
+    });
+  });
+
+  describe('update mode auto-embed edit restriction banner', function () {
+    const autoEmbedDefinitionString = JSON.stringify({
+      fields: [{ type: 'autoEmbed', path: 'content' }],
+    });
+
+    it('shows the restriction banner when preview flag is on and index is auto-embed', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+      const banner = screen.getByTestId('auto-embed-edit-restricted-banner');
+      expect(banner).to.be.visible;
+      expect(banner.textContent).to.include(
+        'You cannot edit an autoEmbed field'
+      );
+    });
+
+    it('does not show the restriction banner when preview flag is off', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: false } }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-restricted-banner')).to.not
+        .exist;
+    });
+
+    it('does not show the restriction banner when index is not auto-embed', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-restricted-banner')).to.not
+        .exist;
+    });
+
+    it('shows the restriction banner in create mode', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'create',
+          initialIndexName: 'default',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+      const banner = screen.getByTestId('auto-embed-edit-restricted-banner');
+      expect(banner).to.be.visible;
+      expect(banner.textContent).to.include(
+        'You cannot edit an autoEmbed field'
+      );
+    });
+  });
+
+  describe('auto-embedding cost banner', function () {
+    it('does not show in update mode (only create mode shows it)', function () {
+      const autoEmbedDefinitionString = JSON.stringify({
+        fields: [{ type: 'autoEmbed', path: 'content' }],
+      });
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+      expect(screen.queryByTestId('auto-embedding-cost-banner')).to.not.exist;
     });
   });
 

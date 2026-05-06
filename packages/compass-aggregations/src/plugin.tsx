@@ -9,16 +9,12 @@ export const AggregationsPlugin: React.FunctionComponent<
 > = () => {
   const showRunButton = usePreference('enableAggregationBuilderRunPipeline');
   const showExplainButton = usePreference('enableExplainPlan');
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
 
   return (
     <ConfirmationModalArea>
       <Aggregations
         showRunButton={showRunButton}
         showExplainButton={showExplainButton}
-        enableSearchActivationProgramP1={enableSearchActivationProgramP1}
       />
     </ConfirmationModalArea>
   );

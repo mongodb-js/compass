@@ -17,6 +17,7 @@ import {
   LoremTextMethodCriterion,
   ShortPhraseStringCriterion,
   SecondaryAddressCriterion,
+  GeoCoordinateMethodCriterion,
   isEvalCriterion,
 } from './types';
 import type {
@@ -71,6 +72,7 @@ describe('EvalCriterion', function () {
       LoremTextMethodCriterion,
       ShortPhraseStringCriterion,
       SecondaryAddressCriterion,
+      GeoCoordinateMethodCriterion,
     ];
     for (const c of allCriteria) {
       expect(c.satisfiedBy(42), `${c.name} should reject numbers`).to.be.false;
@@ -161,6 +163,32 @@ describe('EvalCriterion', function () {
       expect(SecondaryAddressCriterion.satisfiedBy('location.streetAddress')).to
         .be.false;
       expect(SecondaryAddressCriterion.satisfiedBy('number.int')).to.be.false;
+    });
+  });
+
+  describe('GeoCoordinateMethodCriterion', function () {
+    it('accepts location.latitude (always within [-90, 90])', function () {
+      expect(GeoCoordinateMethodCriterion.satisfiedBy('location.latitude')).to
+        .be.true;
+    });
+
+    it('accepts number.float', function () {
+      expect(GeoCoordinateMethodCriterion.satisfiedBy('number.float')).to.be
+        .true;
+    });
+
+    it('rejects location.longitude — values can exceed the [-90, 90] latitude slot', function () {
+      expect(GeoCoordinateMethodCriterion.satisfiedBy('location.longitude')).to
+        .be.false;
+    });
+
+    it('rejects unrelated and non-numeric methods', function () {
+      expect(GeoCoordinateMethodCriterion.satisfiedBy('number.int')).to.be
+        .false;
+      expect(GeoCoordinateMethodCriterion.satisfiedBy('helpers.arrayElement'))
+        .to.be.false;
+      expect(GeoCoordinateMethodCriterion.satisfiedBy('string.alphanumeric')).to
+        .be.false;
     });
   });
 
@@ -264,6 +292,7 @@ describe('EvalCriterion', function () {
       expect(isEvalCriterion(IdlikeMethodCriterion)).to.be.true;
       expect(isEvalCriterion(NumericFieldMethodCriterion)).to.be.true;
       expect(isEvalCriterion(SecondaryAddressCriterion)).to.be.true;
+      expect(isEvalCriterion(GeoCoordinateMethodCriterion)).to.be.true;
     });
 
     it('returns false for strings and other values', function () {

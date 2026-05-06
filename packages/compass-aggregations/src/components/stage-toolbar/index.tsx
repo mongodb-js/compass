@@ -29,6 +29,7 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { addSearchStageBefore } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { ServerEnvironment } from '../../modules/env';
 import {
@@ -147,9 +148,7 @@ export function StageToolbar({
 }: StageToolbarProps) {
   const showInsights = usePreference('showInsights');
   const enableRerank = usePreference('enableRerank');
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const darkMode = useDarkMode();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();

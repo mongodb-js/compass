@@ -194,6 +194,7 @@ describe('Collection aggregations tab', function () {
       '$redact',
       '$replaceRoot',
       '$replaceWith',
+      '$rerank',
       '$sample',
       '$search',
       '$searchMeta',

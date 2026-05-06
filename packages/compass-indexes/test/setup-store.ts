@@ -169,6 +169,10 @@ export const setupStore = (
       connectionInfoRef,
       atlasService,
       workspaces,
+      experimentationServices: {
+        assignExperiment: () => Promise.resolve(null),
+        getAssignment: () => Promise.resolve(null),
+      },
       preferences: {
         getPreferences() {
           return {

@@ -13,7 +13,10 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { CrudToolbar } from './crud-toolbar';
 import { renderWithQueryBar } from '../../test/render-with-query-bar';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
   /* noop */
@@ -1031,76 +1034,217 @@ describe('CrudToolbar Component', function () {
   });
 
   describe('Mock Data Generator menu item', function () {
-    function renderCrudToolbarWithMockDataGenerator(
-      isMockDataGeneratorEnabled: boolean
-    ) {
+    function renderCrudToolbarWithMockDataGenerator({
+      isMockDataGeneratorEligibleAndSchemaReady = false,
+      isInTreatment = false,
+      isInExperiment = true,
+    }: {
+      isMockDataGeneratorEligibleAndSchemaReady?: boolean;
+      isInTreatment?: boolean;
+      isInExperiment?: boolean;
+    } = {}) {
+      const mockUseAssignment = sinon.stub().returns({
+        assignment: {
+          assignmentData: {
+            isInSample: isInExperiment,
+            variant: isInTreatment
+              ? ExperimentTestGroups.mockDataGeneratorVariant
+              : ExperimentTestGroups.mockDataGeneratorControl,
+          },
+        },
+        asyncStatus: null,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+      });
+      const mockUseTrackInSample = sinon.stub().returns({
+        asyncStatus: null,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+      });
+      const mockAssignExperiment = sinon.stub().returns(Promise.resolve(null));
+      const mockGetAssignment = sinon.stub().returns(Promise.resolve(null));
+
       return renderWithConnections(
-        <CrudToolbar
-          activeDocumentView="List"
-          count={55}
-          end={20}
-          getPage={noop}
-          insertDataHandler={noop}
-          loadingCount={false}
-          isFetching={false}
-          docsPerPage={25}
-          isWritable
-          lastCountRunMaxTimeMS={1234}
-          instanceDescription=""
-          onApplyClicked={noop}
-          onResetClicked={noop}
-          onUpdateButtonClicked={noop}
-          onDeleteButtonClicked={noop}
-          onExpandAllClicked={noop}
-          onCollapseAllClicked={noop}
-          openExportFileDialog={noop}
-          onOpenExportToLanguage={noop}
-          outdated={false}
-          page={0}
-          readonly={false}
-          refreshDocuments={noop}
-          resultId="123"
-          start={0}
-          viewSwitchHandler={noop}
-          updateMaxDocumentsPerPage={noop}
-          queryLimit={0}
-          querySkip={0}
-          isMockDataGeneratorEnabled={isMockDataGeneratorEnabled}
-        />
+        <CompassExperimentationProvider
+          useAssignment={mockUseAssignment}
+          useTrackInSample={mockUseTrackInSample}
+          assignExperiment={mockAssignExperiment}
+          getAssignment={mockGetAssignment}
+        >
+          <CrudToolbar
+            activeDocumentView="List"
+            count={55}
+            end={20}
+            getPage={noop}
+            insertDataHandler={noop}
+            loadingCount={false}
+            isFetching={false}
+            docsPerPage={25}
+            isWritable
+            lastCountRunMaxTimeMS={1234}
+            instanceDescription=""
+            onApplyClicked={noop}
+            onResetClicked={noop}
+            onUpdateButtonClicked={noop}
+            onDeleteButtonClicked={noop}
+            onExpandAllClicked={noop}
+            onCollapseAllClicked={noop}
+            openExportFileDialog={noop}
+            onOpenExportToLanguage={noop}
+            outdated={false}
+            page={0}
+            readonly={false}
+            refreshDocuments={noop}
+            resultId="123"
+            start={0}
+            viewSwitchHandler={noop}
+            updateMaxDocumentsPerPage={noop}
+            queryLimit={0}
+            querySkip={0}
+            isMockDataGeneratorEligibleAndSchemaReady={
+              isMockDataGeneratorEligibleAndSchemaReady
+            }
+          />
+        </CompassExperimentationProvider>
       );
     }
 
-    it('should show "Generate Mock Data Script" menu item when isMockDataGeneratorEnabled is true', function () {
-      renderCrudToolbarWithMockDataGenerator(true);
+    it('should show "Generate mock data script" menu item when enabled and user is in treatment', function () {
+      renderCrudToolbarWithMockDataGenerator({
+        isMockDataGeneratorEligibleAndSchemaReady: true,
+        isInTreatment: true,
+      });
 
       // Open the Add Data dropdown menu
       userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
 
-      expect(screen.getByText('Generate Mock Data Script')).to.be.visible;
+      expect(screen.getByText('Generate mock data script')).to.be.visible;
     });
 
-    it('should not show "Generate Mock Data Script" menu item when isMockDataGeneratorEnabled is false', function () {
-      renderCrudToolbarWithMockDataGenerator(false);
+    it('should not show "Generate mock data script" menu item when enabled but user is in control', function () {
+      renderCrudToolbarWithMockDataGenerator({
+        isMockDataGeneratorEligibleAndSchemaReady: true,
+        isInTreatment: false,
+      });
 
-      // Open the Add Data dropdown menu
       userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
 
-      expect(screen.queryByText('Generate Mock Data Script')).to.not.exist;
+      expect(screen.queryByText('Generate mock data script')).to.not.exist;
     });
 
-    it('should emit "open-mock-data-generator-modal" event when "Generate Mock Data Script" is clicked', function () {
-      const { localAppRegistry } = renderCrudToolbarWithMockDataGenerator(true);
+    it('should not show "Generate mock data script" menu item when not enabled', function () {
+      renderCrudToolbarWithMockDataGenerator({
+        isMockDataGeneratorEligibleAndSchemaReady: false,
+        isInTreatment: true,
+      });
+
+      userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+
+      expect(screen.queryByText('Generate mock data script')).to.not.exist;
+    });
+
+    it('should emit "open-mock-data-generator-modal" event when "Generate mock data script" is clicked', function () {
+      const { localAppRegistry } = renderCrudToolbarWithMockDataGenerator({
+        isMockDataGeneratorEligibleAndSchemaReady: true,
+        isInTreatment: true,
+      });
       const emitSpy = sinon.spy(localAppRegistry, 'emit');
 
-      // Open the Add Data dropdown menu
       userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
-
-      // Click the Generate Mock Data Script option
-      userEvent.click(screen.getByText('Generate Mock Data Script'));
+      userEvent.click(screen.getByText('Generate mock data script'));
 
       expect(emitSpy).to.have.been.calledOnceWith(
         'open-mock-data-generator-modal'
       );
+    });
+
+    describe('Experiment Viewed exposure firing', function () {
+      function experimentViewedCalls(track: sinon.SinonStub) {
+        return track
+          .getCalls()
+          .filter((call) => call.args[0] === 'Experiment Viewed');
+      }
+
+      it('does not fire "Experiment Viewed" if the menu has not been opened', async function () {
+        const { track } = renderCrudToolbarWithMockDataGenerator({
+          isMockDataGeneratorEligibleAndSchemaReady: true,
+          isInTreatment: true,
+        });
+
+        await Promise.resolve();
+        expect(experimentViewedCalls(track)).to.have.lengthOf(0);
+      });
+
+      it('does not fire "Experiment Viewed" if the menu opens and the user is in treatment but the feature is not displayed', async function () {
+        const { track } = renderCrudToolbarWithMockDataGenerator({
+          isMockDataGeneratorEligibleAndSchemaReady: false,
+          isInTreatment: true,
+        });
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+        await Promise.resolve();
+
+        expect(experimentViewedCalls(track)).to.have.lengthOf(0);
+      });
+
+      it('fires "Experiment Viewed" when the menu opens, user is in treatment variant group, and the feature is enabled', async function () {
+        const { track } = renderCrudToolbarWithMockDataGenerator({
+          isMockDataGeneratorEligibleAndSchemaReady: true,
+          isInTreatment: true,
+        });
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+
+        await waitFor(() => {
+          expect(experimentViewedCalls(track)).to.have.lengthOf(1);
+        });
+        const calls = experimentViewedCalls(track);
+        expect(calls[0].args[1]).to.deep.equal({
+          test_name: ExperimentTestNames.mockDataGenerator,
+        });
+      });
+
+      it('fires "Experiment Viewed" for control users in an eligible collection', async function () {
+        const { track } = renderCrudToolbarWithMockDataGenerator({
+          isMockDataGeneratorEligibleAndSchemaReady: true,
+          isInTreatment: false,
+        });
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+
+        await waitFor(() => {
+          expect(experimentViewedCalls(track)).to.have.lengthOf(1);
+        });
+        expect(screen.queryByText('Generate mock data script')).to.not.exist;
+      });
+
+      it('does not fire "Experiment Viewed" if the user is not in an eligible collection', async function () {
+        const { track } = renderCrudToolbarWithMockDataGenerator({
+          isMockDataGeneratorEligibleAndSchemaReady: false,
+          isInTreatment: true,
+        });
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(experimentViewedCalls(track)).to.have.lengthOf(0);
+      });
+
+      it('does not fire "Experiment Viewed" when the user is not in the experiment', async function () {
+        const { track } = renderCrudToolbarWithMockDataGenerator({
+          isMockDataGeneratorEligibleAndSchemaReady: true,
+          isInExperiment: false,
+        });
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(experimentViewedCalls(track)).to.have.lengthOf(0);
+      });
     });
   });
 });
