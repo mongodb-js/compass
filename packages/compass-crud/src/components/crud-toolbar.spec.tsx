@@ -1113,7 +1113,7 @@ describe('CrudToolbar Component', function () {
       );
     }
 
-    it('should show "Generate Mock Data Script" menu item when enabled and user is in treatment', function () {
+    it('should show "Generate mock data script" menu item when enabled and user is in treatment', function () {
       renderCrudToolbarWithMockDataGenerator({
         isMockDataGeneratorEligibleAndSchemaReady: true,
         isInTreatment: true,
@@ -1122,10 +1122,10 @@ describe('CrudToolbar Component', function () {
       // Open the Add Data dropdown menu
       userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
 
-      expect(screen.getByText('Generate Mock Data Script')).to.be.visible;
+      expect(screen.getByText('Generate mock data script')).to.be.visible;
     });
 
-    it('should not show "Generate Mock Data Script" menu item when enabled but user is in control', function () {
+    it('should not show "Generate mock data script" menu item when enabled but user is in control', function () {
       renderCrudToolbarWithMockDataGenerator({
         isMockDataGeneratorEligibleAndSchemaReady: true,
         isInTreatment: false,
@@ -1133,10 +1133,10 @@ describe('CrudToolbar Component', function () {
 
       userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
 
-      expect(screen.queryByText('Generate Mock Data Script')).to.not.exist;
+      expect(screen.queryByText('Generate mock data script')).to.not.exist;
     });
 
-    it('should not show "Generate Mock Data Script" menu item when not enabled', function () {
+    it('should not show "Generate mock data script" menu item when not enabled', function () {
       renderCrudToolbarWithMockDataGenerator({
         isMockDataGeneratorEligibleAndSchemaReady: false,
         isInTreatment: true,
@@ -1144,10 +1144,10 @@ describe('CrudToolbar Component', function () {
 
       userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
 
-      expect(screen.queryByText('Generate Mock Data Script')).to.not.exist;
+      expect(screen.queryByText('Generate mock data script')).to.not.exist;
     });
 
-    it('should emit "open-mock-data-generator-modal" event when "Generate Mock Data Script" is clicked', function () {
+    it('should emit "open-mock-data-generator-modal" event when "Generate mock data script" is clicked', function () {
       const { localAppRegistry } = renderCrudToolbarWithMockDataGenerator({
         isMockDataGeneratorEligibleAndSchemaReady: true,
         isInTreatment: true,
@@ -1155,7 +1155,7 @@ describe('CrudToolbar Component', function () {
       const emitSpy = sinon.spy(localAppRegistry, 'emit');
 
       userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
-      userEvent.click(screen.getByText('Generate Mock Data Script'));
+      userEvent.click(screen.getByText('Generate mock data script'));
 
       expect(emitSpy).to.have.been.calledOnceWith(
         'open-mock-data-generator-modal'
@@ -1219,7 +1219,7 @@ describe('CrudToolbar Component', function () {
         await waitFor(() => {
           expect(experimentViewedCalls(track)).to.have.lengthOf(1);
         });
-        expect(screen.queryByText('Generate Mock Data Script')).to.not.exist;
+        expect(screen.queryByText('Generate mock data script')).to.not.exist;
       });
 
       it('does not fire "Experiment Viewed" if the user is not in an eligible collection', async function () {

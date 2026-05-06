@@ -19,6 +19,7 @@ import {
   RadioBoxGroup,
   RadioBox,
   rafraf,
+  SpinLoader,
   useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
@@ -362,7 +363,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   }, [fields]);
 
   const showAutoEmbedEditRestrictedBanner = useMemo(() => {
-    if (mode !== 'update' || !enableAutoEmbeddingPublicPreview) {
+    if (!enableAutoEmbeddingPublicPreview) {
       return false;
     }
     try {
@@ -556,6 +557,8 @@ export const BaseSearchIndexModal: React.FunctionComponent<
           variant="primary"
           onClick={onSubmitIndex}
           disabled={isBusy || !!parsingError}
+          isLoading={isBusy}
+          loadingIndicator={<SpinLoader />}
         >
           {mode === 'create' ? 'Create Search Index' : 'Save'}
         </Button>
