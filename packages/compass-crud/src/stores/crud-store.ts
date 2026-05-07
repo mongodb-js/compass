@@ -1964,13 +1964,6 @@ class CrudStoreImpl
 
   async runBulkDelete() {
     const query = this.queryBar.getLastAppliedQuery('crud');
-    this.track(
-      'Bulk Delete Executed',
-      {
-        has_filter: Object.keys(query.filter ?? {}).length > 0,
-      },
-      this.connectionInfoRef.current
-    );
 
     const { affected } = this.state.bulkDelete;
     this.closeBulkDeleteDialog();
@@ -1993,6 +1986,13 @@ class CrudStoreImpl
       const { filter = {} } = query;
       try {
         await this.dataService.deleteMany(this.state.ns, filter);
+        this.track(
+          'Bulk Delete Executed',
+          {
+            has_filter: Object.keys(query.filter ?? {}).length > 0,
+          },
+          this.connectionInfoRef.current
+        );
         this.bulkDeleteSuccess();
         // Emit both events so all listeners update (fixes bulk delete document count not updating)
         const payload = { view: this.state.view, ns: this.state.ns };
