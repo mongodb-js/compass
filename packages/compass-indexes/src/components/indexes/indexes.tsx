@@ -15,6 +15,7 @@ import {
   useTelemetry,
   SkillsBannerContextEnum,
   useAtlasSkillsBanner,
+  useSearchActivationProgramP1,
 } from '@mongodb-js/compass-telemetry/provider';
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
@@ -53,8 +54,6 @@ const containerStyles = css({
   flexGrow: 1,
 });
 
-const linkTitle = 'Search and Vector Search.';
-
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
@@ -67,6 +66,7 @@ const AtlasIndexesBanner = ({
   dismissed: boolean;
   onDismissClick: () => void;
 }) => {
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
 
@@ -76,28 +76,29 @@ const AtlasIndexesBanner = ({
 
   return (
     <Banner variant="info" dismissible onClose={onDismissClick}>
-      <Body weight="medium">Looking for search indexes?</Body>
-      These indexes can be created and viewed under{' '}
-      {atlasMetadata ? (
-        <Link
-          target="_blank"
-          rel="noopener"
-          href={buildAtlasSearchLink({
-            atlasMetadata,
-            namespace,
-          })}
-          onClick={() => {
-            track('Atlas Search Indexes for View Link Clicked', {
-              context: 'Indexes Tab',
-            });
-          }}
-          hideExternalIcon
-        >
-          {linkTitle}
-        </Link>
-      ) : (
-        linkTitle
+      {!enableSearchActivationProgramP1 && (
+        <Body weight="medium">Looking for search indexes?</Body>
       )}
+      {enableSearchActivationProgramP1
+        ? 'View index sizes, queryability status, and per-node build progress in '
+        : 'These indexes can be created and viewed under '}
+      <Link
+        target="_blank"
+        rel="noopener"
+        href={buildAtlasSearchLink({
+          atlasMetadata,
+          namespace,
+        })}
+        onClick={() => {
+          track('Atlas Search Indexes for View Link Clicked', {
+            context: 'Indexes Tab',
+          });
+        }}
+        hideExternalIcon
+      >
+        Search and Vector Search
+      </Link>
+      {'.'}
     </Banner>
   );
 };
@@ -175,6 +176,7 @@ export function Indexes({
     'readWrite',
     'enableAtlasSearchIndexes',
   ]);
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
     useSelector(selectIsViewSearchCompatible, shallowEqual);
   const { isRegularIndexesReadable, isSearchIndexesReadable } = useSelector(
@@ -182,6 +184,7 @@ export function Indexes({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1,
     }),
     shallowEqual
   );
@@ -195,7 +198,10 @@ export function Indexes({
       }
     }
 
-    if (!isReadonlyView || !enableAtlasSearchIndexes) {
+    if (
+      !isReadonlyView ||
+      !(enableAtlasSearchIndexes || enableSearchActivationProgramP1)
+    ) {
       return (
         <AtlasIndexesBanner
           namespace={namespace}
@@ -220,7 +226,7 @@ export function Indexes({
             onRefreshIndexes={onRefreshIndexes}
             showAtlasSearchLink={
               !isReadonlyView &&
-              !enableAtlasSearchIndexes &&
+              !(enableAtlasSearchIndexes || enableSearchActivationProgramP1) &&
               atlasBannerDismissed
             }
           />

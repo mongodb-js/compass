@@ -137,17 +137,45 @@ async function saveWindowBounds(
 }
 
 /**
+ * Returns true if at least 100px of the window is visible on a connected display.
+ * When a secondary monitor is disconnected, saved coordinates can land entirely
+ * off-screen; this guard lets us fall back to Electron's default centering instead.
+ */
+export function isOnScreen(bounds: {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}): boolean {
+  const MIN_VISIBLE = 100;
+  return electronScreen.getAllDisplays().some(({ workArea }) => {
+    return (
+      bounds.x + bounds.width >= workArea.x + MIN_VISIBLE &&
+      bounds.x <= workArea.x + workArea.width - MIN_VISIBLE &&
+      bounds.y + bounds.height >= workArea.y + MIN_VISIBLE &&
+      bounds.y <= workArea.y + workArea.height - MIN_VISIBLE
+    );
+  });
+}
+
+/**
  * Get saved window bounds from preferences
  */
 function getSavedWindowBounds(compassApp: typeof CompassApplication) {
   const windowBounds =
     compassApp.preferences.getPreferences().windowBounds ?? {};
-  const { width, height, ...rest } = windowBounds;
-  return {
-    ...rest,
+  const { width, height, x, y, ...rest } = windowBounds;
+  const size = {
     width: width ?? DEFAULT_WIDTH,
     height: height ?? DEFAULT_HEIGHT,
   };
+
+  // Only restore position if the window would still be visible on a connected display.
+  if (x !== undefined && y !== undefined && isOnScreen({ x, y, ...size })) {
+    return { ...rest, ...size, x, y };
+  }
+
+  return { ...rest, ...size };
 }
 
 /**
@@ -282,10 +310,25 @@ function showConnectWindow(
   void window.loadURL(rendererUrl);
 
   /**
-   * Open all external links in the system's web browser.
+   * Open all external http links in the system's web browser.
    */
   window.webContents.setWindowOpenHandler((details) => {
-    void shell.openExternal(details.url);
+    try {
+      const { protocol } = new URL(details.url);
+      if (['http:', 'https:'].includes(protocol)) {
+        void shell.openExternal(details.url);
+      } else {
+        throw new Error('Trying to open a non-http url: ' + details.url);
+      }
+    } catch (err) {
+      log.warn(
+        mongoLogId(1_001_000_429),
+        'Window Manager',
+        'Failed to open external url',
+        { error: (err as Error).message }
+      );
+      // Do nothing if it's not a URL
+    }
     return { action: 'deny' };
   });
 

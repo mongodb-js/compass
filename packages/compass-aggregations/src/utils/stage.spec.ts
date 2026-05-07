@@ -1,10 +1,13 @@
 import {
+  applyFeatureFlagChangesToFilteredOperators,
   filterStageOperators,
   findAtlasOperator,
   getDestinationNamespaceFromStage,
   getSearchIndexNameFromSearchStage,
   getSearchStageInfoFromPipeline,
+  type FilteredStageOperators,
 } from './stage';
+import { VECTOR_SEARCH_AUTO_EMBED_STAGE } from '@mongodb-js/mongodb-constants';
 import { expect } from 'chai';
 
 describe('utils', function () {
@@ -502,6 +505,59 @@ describe('utils', function () {
         searchIndexName: null,
         searchStageOperator: '$search',
       });
+    });
+  });
+
+  describe('#applyFeatureFlagChangesToFilteredOperators', function () {
+    const legacyVectorSearchDescription = 'legacy dropdown description';
+
+    const operatorsFixture: FilteredStageOperators = [
+      {
+        name: '$match',
+        value: '$match',
+        description: 'Filters documents.',
+        env: ['on-prem'],
+        meta: 'stage',
+        version: '2.2.0',
+      },
+      {
+        name: '$vectorSearch',
+        value: '$vectorSearch',
+        description: legacyVectorSearchDescription,
+        env: ['atlas'],
+        meta: 'stage',
+        version: '>=6.0.10 <7.0.0 || >=7.0.2',
+      },
+    ];
+
+    it('leaves operators unchanged when preview is disabled', function () {
+      const result = applyFeatureFlagChangesToFilteredOperators(
+        operatorsFixture,
+        false
+      );
+      expect(
+        result.find((o) => o.name === '$vectorSearch')?.description
+      ).to.equal(legacyVectorSearchDescription);
+    });
+
+    it('replaces $vectorSearch with VECTOR_SEARCH_AUTO_EMBED_STAGE when preview is enabled', function () {
+      const result = applyFeatureFlagChangesToFilteredOperators(
+        operatorsFixture,
+        true
+      );
+      expect(result.find((o) => o.name === '$vectorSearch')).to.deep.equal(
+        VECTOR_SEARCH_AUTO_EMBED_STAGE
+      );
+    });
+
+    it('does not change other stage entries', function () {
+      const result = applyFeatureFlagChangesToFilteredOperators(
+        operatorsFixture,
+        true
+      );
+      expect(result.find((o) => o.name === '$match')?.description).to.equal(
+        'Filters documents.'
+      );
     });
   });
 });

@@ -7,7 +7,7 @@ import {
   showConfirmation,
   spacing,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { connect } from 'react-redux';
 import type { RootState } from './modules';
 import IndexesListDrawerView from './components/drawer-views/indexes-list-drawer-view';
@@ -49,9 +49,7 @@ const Drawer = ({
   subTab,
   openIndexesListDrawerView,
 }: DrawerProps) => {
-  const isIndexesDrawerEnabled = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
 
   const beforeSectionHide = useCallback(async () => {
     if (!isDirty) {
@@ -66,7 +64,7 @@ const Drawer = ({
     });
   }, [isDirty]);
 
-  if (!isIndexesDrawerEnabled) {
+  if (!enableSearchActivationProgramP1) {
     return null;
   }
 

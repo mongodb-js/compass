@@ -180,8 +180,7 @@ const GENERIC_STRING_METHODS = new Set<string>([
   'helpers.arrayElement',
   // Common semantic string methods the LLM reasonably picks when it can
   // read meaning from the field name (e.g. `customer` → person/company;
-  // `name` → product name; `category` → department). All of these return
-  // strings.
+  // `name` → product name). All of these return strings.
   'person.firstName',
   'person.lastName',
   'person.fullName',
@@ -192,13 +191,20 @@ const GENERIC_STRING_METHODS = new Set<string>([
   'commerce.productName',
   'commerce.department',
   'commerce.product',
-  'internet.userName',
+  'internet.username',
   'internet.displayName',
   'internet.domainName',
   'book.title',
   'music.songName',
   'food.dish',
   'hacker.phrase',
+  // Location string generators — reasonable for string fields whose name
+  // suggests a place (e.g. `forecastOffice`, `countries[]`, `region`, `area`).
+  'location.country',
+  'location.city',
+  'location.state',
+  'location.streetAddress',
+  'location.county',
 ]);
 
 export const GenericStringMethodCriterion: EvalCriterion = {
@@ -272,6 +278,33 @@ export const ShortPhraseStringCriterion: EvalCriterion = {
     return SHORT_PHRASE_METHODS.has(method);
   },
   methods: Array.from(SHORT_PHRASE_METHODS),
+};
+
+/**
+ * GeoCoordinateMethodCriterion for numeric fields inside a 2-element GeoJSON
+ * Point coordinate array (e.g. `address.location.coordinates[]`). The script
+ * generator emits `Array.from({length: 2}, () => fakerCall)`, so the same
+ * method runs for both the longitude and latitude positions and must produce
+ * values valid for BOTH `[-180, 180]` (lng) and `[-90, 90]` (lat) — otherwise
+ * MongoDB rejects the insert with "Longitude/latitude is out of bounds".
+ * Accepts `location.latitude` (always within `[-90, 90]`, valid for both
+ * slots) and `number.float` (the prompt instructs pairing this with
+ * `{min: -90, max: 90}` args.
+ */
+const GEO_COORDINATE_METHODS = new Set<string>([
+  'location.latitude',
+  'number.float',
+]);
+
+export const GeoCoordinateMethodCriterion: EvalCriterion = {
+  name: 'GeoCoordinateMethodCriterion',
+  satisfiedBy(method: unknown): boolean {
+    if (typeof method !== 'string') {
+      return false;
+    }
+    return GEO_COORDINATE_METHODS.has(method);
+  },
+  methods: Array.from(GEO_COORDINATE_METHODS),
 };
 
 /**

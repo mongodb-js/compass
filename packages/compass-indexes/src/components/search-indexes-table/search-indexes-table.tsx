@@ -14,6 +14,7 @@ import {
   dropSearchIndex,
   getInitialSearchIndexPipeline,
   getInitialVectorSearchIndexPipelineText,
+  getInitialAutoEmbedSearchIndexPipelineText,
   createSearchIndexOpened,
   updateSearchIndexOpened,
   startPollingSearchIndexes,
@@ -26,7 +27,10 @@ import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic
 import type { RootState } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useSearchActivationProgramP1,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
@@ -126,12 +130,19 @@ export const SearchIndexesTable: React.FunctionComponent<
 
   const tabId = useWorkspaceTabId();
 
-  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+  const {
+    readOnly,
+    readWrite,
+    enableAtlasSearchIndexes,
+    enableAutoEmbeddingPublicPreview,
+  } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
+    'enableAutoEmbeddingPublicPreview',
   ]);
 
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   useEffect(() => {
     onSearchIndexesOpened(tabId);
     return () => {
@@ -143,6 +154,7 @@ export const SearchIndexesTable: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1,
     }),
     shallowEqual
   );
@@ -155,6 +167,7 @@ export const SearchIndexesTable: React.FunctionComponent<
     (index: SearchIndex, isVectorSearchIndex: boolean) => (
       <SearchIndexActions
         index={index}
+        context="Indexes Tab"
         onDropIndex={onDropIndexClick}
         onEditIndex={onEditIndexClick}
         onRunAggregateIndex={(name: string) => {
@@ -162,8 +175,9 @@ export const SearchIndexesTable: React.FunctionComponent<
             newTab: true,
             ...(isVectorSearchIndex
               ? {
-                  initialPipelineText:
-                    getInitialVectorSearchIndexPipelineText(name),
+                  initialPipelineText: enableAutoEmbeddingPublicPreview
+                    ? getInitialAutoEmbedSearchIndexPipelineText(name)
+                    : getInitialVectorSearchIndexPipelineText(name),
                 }
               : {
                   initialPipeline: getInitialSearchIndexPipeline(name),
@@ -178,6 +192,7 @@ export const SearchIndexesTable: React.FunctionComponent<
       onDropIndexClick,
       onEditIndexClick,
       openCollectionWorkspace,
+      enableAutoEmbeddingPublicPreview,
     ]
   );
 

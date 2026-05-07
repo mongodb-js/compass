@@ -24,6 +24,7 @@ import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 
 import { useRegularIndexesTable } from './use-regular-indexes-table';
 import { COLUMNS, COLUMNS_WITH_ACTIONS } from './regular-indexes-columns';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 
 type RegularIndexesTableProps = {
   indexes: RegularIndex[];
@@ -60,11 +61,13 @@ export const RegularIndexesTable: React.FunctionComponent<
     'readWrite',
     'enableAtlasSearchIndexes',
   ]);
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isRegularIndexesWritable } = useSelector(
     selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1,
     }),
     shallowEqual
   );
@@ -92,7 +95,6 @@ export const RegularIndexesTable: React.FunctionComponent<
     // displaying it.
     return null;
   }
-
   return (
     <IndexesTable
       id="regular-indexes"

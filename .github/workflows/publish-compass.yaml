@@ -28,9 +28,9 @@ jobs:
           node-version: 22.21.1
           cache: 'npm'
 
-      - name: Install npm@10.2.4
+      - name: Install npm@11.13.0
         run: |
-          npm install -g npm@10.2.4
+          npm install -g npm@11.13.0
 
       - name: Install Dependencies
         run: |

@@ -20,7 +20,7 @@ ENV COMPASS_RUN_DOCKER_TESTS="true"
 COPY . /compass-monorepo-root
 WORKDIR /compass-monorepo-root
 
-RUN npm i -g npm@10.2.4
+RUN npm i -g npm@11.13.0
 RUN npm run bootstrap-ci
 
 CMD ["bash", ".evergreen/connectivity-tests/entrypoint.sh"]

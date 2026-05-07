@@ -576,6 +576,7 @@ export class AtlasAiService {
         collectionName,
         schema,
         input.validationRules,
+        input.requestId,
         signal
       );
     }
@@ -589,6 +590,7 @@ export class AtlasAiService {
           collectionName,
           chunk,
           input.validationRules,
+          input.requestId,
           signal
         )
       )
@@ -605,6 +607,7 @@ export class AtlasAiService {
     collectionName: string,
     schema: RawSchema,
     validationRules: Record<string, unknown> | null | undefined,
+    requestId: string,
     signal: AbortSignal
   ): Promise<MockDataSchemaToolOutput> {
     const userPrompt = formatSchemaForPrompt(
@@ -624,6 +627,10 @@ export class AtlasAiService {
           instructions: MOCK_DATA_SCHEMA_PROMPT,
           store: false,
         },
+      },
+      headers: {
+        'X-Client-Request-Id': requestId,
+        'X-Assistant-Entrypoint': 'mock-data-generator',
       },
       abortSignal: signal,
     });

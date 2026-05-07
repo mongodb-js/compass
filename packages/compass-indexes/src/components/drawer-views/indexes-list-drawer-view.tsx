@@ -6,6 +6,7 @@ import type { State as SearchIndexesState } from '../../modules/search-indexes';
 import {
   openCreateSearchIndexDrawerView,
   refreshAllIndexes,
+  setRegularIndexesAccordionOpen,
   startPollingAllIndexes,
   stopPollingAllIndexes,
 } from '../../modules/indexes-drawer';
@@ -59,6 +60,8 @@ type IndexesListDrawerViewProps = {
   isReadonlyView: boolean;
   regularIndexes: Pick<RegularIndexesState, 'indexes' | 'error' | 'status'>;
   searchIndexes: Pick<SearchIndexesState, 'indexes' | 'error' | 'status'>;
+  isRegularIndexesAccordionOpen: boolean;
+  onRegularIndexesAccordionOpen: (isOpen: boolean) => void;
   onRefreshClick: () => void;
   onCreateRegularIndexClick: () => void;
   onCreateSearchIndexClick: (currentIndexType: SearchIndexType) => void;
@@ -78,6 +81,8 @@ const IndexesListDrawerView: React.FunctionComponent<
   isReadonlyView,
   regularIndexes,
   searchIndexes,
+  isRegularIndexesAccordionOpen,
+  onRegularIndexesAccordionOpen,
   onRefreshClick,
   onCreateRegularIndexClick,
   onCreateSearchIndexClick,
@@ -86,6 +91,7 @@ const IndexesListDrawerView: React.FunctionComponent<
 }) => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const { openDrawer } = useDrawerActions();
+
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
 
@@ -110,6 +116,7 @@ const IndexesListDrawerView: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1: true, // This component is only rendered if the user is in the variant
     }),
     shallowEqual
   );
@@ -228,7 +235,11 @@ const IndexesListDrawerView: React.FunctionComponent<
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
-      <Accordion text="Standard" defaultOpen={true}>
+      <Accordion
+        text="Standard"
+        open={isRegularIndexesAccordionOpen}
+        setOpen={onRegularIndexesAccordionOpen}
+      >
         {isRegularIndexesReadable ? (
           <RegularIndexesDrawerTable searchTerm={searchTerm} />
         ) : (
@@ -251,16 +262,19 @@ const mapState = ({
   isReadonlyView,
   regularIndexes,
   searchIndexes,
+  indexesDrawer,
 }: RootState) => ({
   isReadonlyView,
   regularIndexes,
   searchIndexes,
+  isRegularIndexesAccordionOpen: indexesDrawer.isRegularIndexesAccordionOpen,
 });
 
 const mapDispatch = {
   onRefreshClick: refreshAllIndexes,
   onCreateRegularIndexClick: createIndexOpened,
   onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
+  onRegularIndexesAccordionOpen: setRegularIndexesAccordionOpen,
   startPolling: startPollingAllIndexes,
   stopPolling: stopPollingAllIndexes,
 };

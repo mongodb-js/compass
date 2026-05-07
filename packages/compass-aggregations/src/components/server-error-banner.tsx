@@ -8,14 +8,19 @@ import {
   css,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useSearchActivationProgramP1,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
+  getVoyageProjectRateLimitInfo,
+  type SearchExtensionType,
 } from '../utils/search-stage-errors';
-import { usePreference } from 'compass-preferences-model/provider';
+import RateLimitExceededBanner from './rate-limit-exceeded-banner';
 
 const bannerStyles = css({
   textAlign: 'left',
@@ -32,6 +37,7 @@ type ServerErrorBannerProps = {
   message: string;
   searchIndexName: string | null;
   onEditSearchIndexClick?: (indexName: string) => void;
+  searchExtensionType?: SearchExtensionType | null;
   dataTestId?: string;
 };
 
@@ -39,11 +45,10 @@ export default function ServerErrorBanner({
   message,
   searchIndexName,
   onEditSearchIndexClick,
+  searchExtensionType,
   dataTestId = 'server-error-banner',
 }: ServerErrorBannerProps) {
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
@@ -55,6 +60,17 @@ export default function ServerErrorBanner({
     rerankNotEnabled && atlasMetadata
       ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
       : null;
+
+  const rateLimitInfo = getVoyageProjectRateLimitInfo(message);
+  if (rateLimitInfo) {
+    return (
+      <RateLimitExceededBanner
+        rateLimitInfo={rateLimitInfo}
+        searchExtensionType={searchExtensionType}
+        dataTestId={dataTestId}
+      />
+    );
+  }
 
   return (
     <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>

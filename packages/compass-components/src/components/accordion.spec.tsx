@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { expect } from 'chai';
 
 import { userEvent, render, screen } from '@mongodb-js/testing-library-compass';
@@ -55,5 +55,39 @@ describe('Accordion Component', function () {
     });
 
     expect(screen.getByText('hint test')).to.be.visible;
+  });
+
+  it('should open with a single click after being programmatically closed', function () {
+    function ControlledAccordion() {
+      const [open, setOpen] = useState(true);
+      return (
+        <>
+          <button data-testid="close-button" onClick={() => setOpen(false)}>
+            Close
+          </button>
+          <Accordion
+            data-testid="my-test-id"
+            text="Accordion Test"
+            open={open}
+            setOpen={setOpen}
+          >
+            <h1>Hello World</h1>
+          </Accordion>
+        </>
+      );
+    }
+
+    render(<ControlledAccordion />);
+
+    // Initially open
+    expect(screen.getByText('Hello World')).to.be.visible;
+
+    // Programmatically close
+    userEvent.click(screen.getByTestId('close-button'));
+    expect(screen.queryByText('Hello World')).to.not.exist;
+
+    // Click once to re-open — should work on the first click
+    userEvent.click(screen.getByText('Accordion Test'));
+    expect(screen.getByText('Hello World')).to.be.visible;
   });
 });

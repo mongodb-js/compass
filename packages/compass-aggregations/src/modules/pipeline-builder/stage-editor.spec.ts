@@ -26,6 +26,7 @@ import Sinon from 'sinon';
 import type Stage from './stage';
 import { mockDataService } from '../../../test/mocks/data-service';
 import { getId } from './stage-ids';
+import type { PreferencesAccess } from 'compass-preferences-model';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
@@ -90,14 +91,30 @@ const PIPELINE_WITH_WIZARDS = [
   createWizard(),
 ];
 
+function createPreferencesWithAutoEmbedPreview(
+  enableAutoEmbeddingPublicPreview: boolean
+): PreferencesAccess {
+  const base = defaultPreferencesInstance;
+  return {
+    ...base,
+    getPreferences() {
+      return {
+        ...base.getPreferences(),
+        enableAutoEmbeddingPublicPreview,
+      };
+    },
+  } as PreferencesAccess;
+}
+
 function createStore({
   pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}, {$out: 'match-and-limit'}]`,
   stages = PIPELINE,
+  preferences = defaultPreferencesInstance,
 }: {
   pipelineSource?: string;
   stages?: StageEditorState['stages'];
+  preferences?: PreferencesAccess;
 }) {
-  const preferences = defaultPreferencesInstance;
   const pipelineBuilder = Sinon.spy(
     new PipelineBuilder({} as DataService, preferences, pipelineSource)
   ) as unknown as PipelineBuilder;
@@ -287,6 +304,31 @@ describe('stageEditor', function () {
         'value',
         '321'
       );
+    });
+
+    it('returns auto-embed $vectorSearch snippet when public preview is enabled', function () {
+      store = createStore({
+        preferences: createPreferencesWithAutoEmbedPreview(true),
+      });
+      store.dispatch(addStage());
+      const { stages } = store.getState();
+      const snippet = store.dispatch(
+        changeStageOperator(stages.length - 1, '$vectorSearch')
+      );
+      expect(snippet).to.include('// query:');
+    });
+
+    it('returns standard $vectorSearch snippet when public preview is disabled', function () {
+      store = createStore({
+        preferences: createPreferencesWithAutoEmbedPreview(false),
+      });
+      store.dispatch(addStage());
+      const { stages } = store.getState();
+      const snippet = store.dispatch(
+        changeStageOperator(stages.length - 1, '$vectorSearch')
+      );
+      expect(snippet).not.to.include('// query:');
+      expect(snippet).to.include('queryVector:');
     });
   });
 

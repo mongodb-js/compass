@@ -409,6 +409,26 @@ describe('ToolsController', function () {
         'disabled'
       );
     });
+
+    it('syncs maxTimeMS setting with runner userConfig', function () {
+      toolsController.setContext({
+        enableTelemetry: false,
+        maxTimeMS: 5000,
+        connections: [],
+      });
+      expect((toolsController as any).runner.userConfig.maxTimeMS).to.equal(
+        5000
+      );
+
+      toolsController.setContext({
+        enableTelemetry: false,
+        maxTimeMS: undefined,
+        connections: [],
+      });
+      expect((toolsController as any).runner.userConfig.maxTimeMS).to.equal(
+        undefined
+      );
+    });
   });
 
   describe('setConnectionIdForToolCall', function () {

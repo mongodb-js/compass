@@ -17,12 +17,17 @@ import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
 import StageOperatorSelect from './stage-operator-select';
-import { hasSyntaxError, isSearchStage } from '../../utils/stage';
+import {
+  getSearchIndexNameFromSearchStage,
+  hasSyntaxError,
+  isSearchStage,
+} from '../../utils/stage';
 import { enableFocusMode } from '../../modules/focus-mode';
 import OptionMenu from './option-menu';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import type { ServerEnvironment } from '../../modules/env';
 import {
@@ -115,7 +120,7 @@ type StageToolbarProps = {
     name: string | null,
     snippet?: string
   ) => void;
-  onClickViewSearchIndexes: () => void;
+  onClickViewSearchIndexes: (indexName?: string) => void;
 };
 
 const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
@@ -133,9 +138,7 @@ export function StageToolbar({
   onClickViewSearchIndexes,
 }: StageToolbarProps) {
   const showInsights = usePreference('showInsights');
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const darkMode = useDarkMode();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
@@ -180,7 +183,12 @@ export function StageToolbar({
                   context: 'Stage Toolbar',
                 });
                 openDrawer('compass-indexes-drawer');
-                onClickViewSearchIndexes();
+                onClickViewSearchIndexes(
+                  getSearchIndexNameFromSearchStage(
+                    stage.stageOperator,
+                    stage.value
+                  ) ?? undefined
+                );
               }}
               title="View Indexes"
             >

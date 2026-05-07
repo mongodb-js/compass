@@ -11,6 +11,7 @@ import {
   LoremTextMethodCriterion,
   ShortPhraseStringCriterion,
   SecondaryAddressCriterion,
+  GeoCoordinateMethodCriterion,
 } from '../types';
 
 function removeSampleValues(
@@ -342,10 +343,10 @@ const chargeCreditCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
         fakerArgs: [],
       },
       {
-        // Samples are Stripe-style prefixed alphanumeric IDs
-        // ("cus_QrvQguzkIK8zTj").
+        // Without sample values, `customer` is ambiguous —
+        // could be a Stripe-style ID, a person, a company, etc.
         fieldPath: 'customer',
-        fakerMethod: IdlikeMethodCriterion,
+        fakerMethod: GenericStringMethodCriterion,
         fakerArgs: [],
       },
       {
@@ -1831,12 +1832,8 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'cast[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [
-          {
-            json: '["Paul Muni", "Ann Dvorak", "Karen Morley", "Osgood Perkins"]',
-          },
-        ],
+        fakerMethod: 'person.fullName',
+        fakerArgs: [],
       },
       {
         fieldPath: 'num_mflix_comments',
@@ -1865,17 +1862,13 @@ export const mflixMovieCase: MockDataGeneratorCaseConfig = {
       },
       {
         fieldPath: 'directors[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [{ json: '["Howard Hawks", "Richard Rosson"]' }],
+        fakerMethod: 'person.fullName',
+        fakerArgs: [],
       },
       {
         fieldPath: 'writers[]',
-        fakerMethod: 'helpers.arrayElement',
-        fakerArgs: [
-          {
-            json: '["Armitage Trail (novel)", "Ben Hecht (screen story)", "Seton I. Miller (continuity)", "John Lee Mahin (continuity)", "W.R. Burnett (continuity)", "Seton I. Miller (dialogue)", "John Lee Mahin (dialogue)", "W.R. Burnett (dialogue)"]',
-          },
-        ],
+        fakerMethod: 'person.fullName',
+        fakerArgs: [],
       },
       {
         fieldPath: 'awards.wins',
@@ -2185,6 +2178,91 @@ const mflixMovieCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
   },
 };
 
+// --- GeoJSON Case ---
+// Focused on the GeoJSON Point coordinate array bug: MongoDB rejects
+// inserts when the latitude slot of `coordinates` is outside `[-90, 90]`.
+// Modeled on a slice of `sample_airbnb.listingsAndReviews`.
+
+const airbnbGeoJsonCase: MockDataGeneratorCaseConfig = {
+  metadata: {
+    name: 'Airbnb GeoJSON Example',
+    hasSampleValues: true,
+  },
+  providedSchema: {
+    name: {
+      type: 'String',
+      probability: 1,
+      sampleValues: [
+        'Ocean View Waikiki Marina w/prkg',
+        'Private Room in Bushwick',
+        'Charming One Bedroom - UWS',
+      ],
+    },
+    'address.country': {
+      type: 'String',
+      probability: 1,
+      sampleValues: ['Portugal', 'Australia', 'United States', 'Turkey'],
+    },
+    'address.country_code': {
+      type: 'String',
+      probability: 1,
+      sampleValues: ['PT', 'AU', 'US', 'TR'],
+    },
+    'address.location.type': {
+      type: 'String',
+      probability: 1,
+      sampleValues: ['Point'],
+    },
+    'address.location.coordinates[]': {
+      type: 'Number',
+      probability: 1,
+    },
+    'address.location.is_location_exact': {
+      type: 'Boolean',
+      probability: 1,
+      sampleValues: [false, true],
+    },
+  },
+  expectedResponse: {
+    fields: [
+      {
+        fieldPath: 'name',
+        fakerMethod: GenericStringMethodCriterion,
+        fakerArgs: [],
+      },
+      {
+        fieldPath: 'address.country',
+        fakerMethod: 'location.country',
+        fakerArgs: [],
+      },
+      {
+        fieldPath: 'address.country_code',
+        fakerMethod: 'location.countryCode',
+        fakerArgs: [],
+      },
+      {
+        fieldPath: 'address.location.type',
+        // Single-value enum — `helpers.arrayElement` with the sample is
+        // the natural pick.
+        fakerMethod: 'helpers.arrayElement',
+        fakerArgs: [{ json: '["Point"]' }],
+      },
+      {
+        // The bug under test: the LLM must NOT pick a method that can
+        // emit values outside [-90, 90] for the latitude slot.
+        fieldPath: 'address.location.coordinates[]',
+        fakerMethod: GeoCoordinateMethodCriterion,
+        fakerArgs: [],
+      },
+      {
+        fieldPath: 'address.location.is_location_exact',
+        fakerMethod: 'datatype.boolean',
+        fakerArgs: [],
+      },
+    ],
+  },
+};
+
 export const mockDataEvalCases: Array<MockDataGeneratorCaseConfig> = [
   simpleCase,
   chargeCreditCase,
@@ -2196,4 +2274,5 @@ export const mockDataEvalCases: Array<MockDataGeneratorCaseConfig> = [
   weatherGridpointCaseWithoutSampleValues,
   mflixMovieCase,
   mflixMovieCaseWithoutSampleValues,
+  airbnbGeoJsonCase,
 ];
