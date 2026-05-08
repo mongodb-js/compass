@@ -1385,9 +1385,15 @@ class CrudStoreImpl
    */
   async insertMany() {
     try {
+      const schemaTypes = this.fieldStoreService.getSchemaTypesForNamespace(
+        this.state.ns
+      );
       const docs = HadronDocument.FromEJSONArray(
         this.state.insert.jsonDoc ?? ''
-      ).map((doc) => doc.generateObject());
+      ).map((doc) => {
+        doc.preserveTypesFromSchema(schemaTypes);
+        return doc.generateObject();
+      });
       this.track(
         'Document Inserted',
         {
@@ -1453,12 +1459,24 @@ class CrudStoreImpl
     let doc: BSONObject;
 
     try {
+      const schemaTypes = this.fieldStoreService.getSchemaTypesForNamespace(
+        this.state.ns
+      );
       if (this.state.insert.jsonView) {
-        doc = HadronDocument.FromEJSON(
+        const hadronDoc = HadronDocument.FromEJSON(
           this.state.insert.jsonDoc ?? ''
-        ).generateObject();
+        );
+        hadronDoc.preserveTypesFromSchema(schemaTypes);
+        doc = hadronDoc.generateObject();
       } else {
-        doc = this.state.insert.doc!.generateObject();
+        // Create a fresh document from the current state to avoid mutating
+        // the insert dialog's document in place (which would be a side
+        // effect visible on retry if the insert fails).
+        const hadronDoc = new HadronDocument(
+          this.state.insert.doc!.generateObject()
+        );
+        hadronDoc.preserveTypesFromSchema(schemaTypes);
+        doc = hadronDoc.generateObject();
       }
       await this.dataService.insertOne(this.state.ns, doc);
 

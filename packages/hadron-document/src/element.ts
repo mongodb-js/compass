@@ -268,6 +268,55 @@ export class Element extends EventEmitter {
     }
   }
 
+  /**
+   * Adjust this element's type based on the collection's existing schema.
+   * Only converts Int32 → Double or Int32 → Int64 when the schema indicates
+   * the field should be one of those types. This prevents unintended type
+   * narrowing when inserting new documents (e.g. 5.0 becoming Int32 when
+   * the field is typically Double).
+   *
+   * @param schemaTypes - A map of dotted field paths to their schema type(s).
+   *   Type values use mongodb-schema naming: 'Double', 'Int32', 'Long'.
+   * @param parentPath - The dotted path prefix for nested elements.
+   */
+  preserveTypeFromSchema(
+    schemaTypes: Readonly<Record<string, string | string[]>>,
+    parentPath: string
+  ): void {
+    const fieldPath = parentPath
+      ? `${parentPath}.${String(this.currentKey)}`
+      : String(this.currentKey);
+
+    if (this.currentType === 'Object' && this.elements) {
+      for (const child of this.elements) {
+        child.preserveTypeFromSchema(schemaTypes, fieldPath);
+      }
+      return;
+    }
+
+    // NOTE: Purposefully leaving Array elements alone because deciding
+    // whether to turn an Int32 into a Double or Int64 or not is complex
+    // and error-prone. Also leaving every other non-Int32 type alone.
+    if (this.currentType !== 'Int32') {
+      return;
+    }
+
+    const schemaType = schemaTypes[fieldPath];
+    if (!schemaType) {
+      return;
+    }
+
+    const types = Array.isArray(schemaType) ? schemaType : [schemaType];
+
+    // Prefer Double over Long/Int64 when both are present in the schema,
+    // since Double is the more common floating-point representation.
+    if (types.includes('Double')) {
+      this.changeType('Double');
+    } else if (types.includes('Long') || types.includes('Int64')) {
+      this.changeType('Int64');
+    }
+  }
+
   changeType(newType: TypeCastTypes): void {
     if (newType === 'Object') {
       this._convertToEmptyObject();

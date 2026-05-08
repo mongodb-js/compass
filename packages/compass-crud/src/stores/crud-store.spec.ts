@@ -143,6 +143,9 @@ function onceDocumentEvent(
 const mockFieldStoreService = {
   updateFieldsFromDocuments() {},
   updateFieldsFromSchema() {},
+  getSchemaTypesForNamespace() {
+    return Object.create(null);
+  },
 } as unknown as FieldStoreService;
 
 const mockQueryBar = {
