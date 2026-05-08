@@ -24,8 +24,6 @@ describe('Multiplex WebSocket connection', function () {
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
 
-    await browser.setFeature('enableMultiplexWebSocketOnWeb', true);
-
     await browser.waitUntil(
       () => {
         return browser.execute(() => {

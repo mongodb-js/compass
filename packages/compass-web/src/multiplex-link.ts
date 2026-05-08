@@ -46,8 +46,8 @@ export type SuccessHeader = { v: 1 };
 export type Header = (SuccessHeader | ErrorHeader) & Routing;
 
 type LinkOptions = {
-  /** Base URL for the WebSocket server, e.g. "ws://localhost:1337". */
-  baseUrl?: string;
+  /** WebSocket server URLs. Multiple URLs race to connect; the first to open wins. */
+  baseUrls?: string[];
   /** Logger to use for debugging. */
   logger?: Logger;
 };
@@ -100,6 +100,12 @@ export function buildFrame(header: Header, payload?: Uint8Array): Uint8Array {
   return frame;
 }
 
+function closeEventErrorMessage({ code, reason }: CloseEvent): string {
+  return ['Connection failed', (code && `[${code}]`) || null, reason || null]
+    .filter(Boolean)
+    .join(' - ');
+}
+
 /** Generates a string on each call: "a", "b", ..., "z", "aa", "ab", etc. */
 const getNextHostname = (function* getNextHostname() {
   let i = 0;
@@ -150,8 +156,9 @@ export function addEventListener(
  */
 export class Link implements Disposable {
   private ws: WebSocket | null = null;
-  private readonly baseUrl: string;
-  /** Everytime we create a new WS (in connect), we create a new source address */
+  private readonly baseUrls: string[];
+  private connectedUrl: string | null = null;
+  /** Every time we create a new WS (in connect), we create a new source address */
   private sourceAddress!: string;
   private readonly logger?: Logger;
   private readonly sockets = new Map<number, MultiplexSocketCallbacks>();
@@ -163,21 +170,26 @@ export class Link implements Disposable {
   private connectResolve: (() => void) | null = null;
   private connectReject: ((err: Error) => void) | null = null;
 
-  constructor({ baseUrl, logger }: LinkOptions) {
-    this.baseUrl = _wsUrlOverride ?? baseUrl ?? 'ws://localhost:1337';
+  constructor({ baseUrls, logger }: LinkOptions) {
+    this.baseUrls = _wsUrlOverride
+      ? [_wsUrlOverride]
+      : baseUrls ?? ['ws://localhost:1337'];
     this.logger = logger;
     this.logger?.log.info(
       this.logger?.mongoLogId(1_001_000_420),
       'COMPASS-WEB-MULTIPLEXING',
       'Link created',
-      {
-        baseUrl: this.baseUrl,
-      }
+      { baseUrls: this.baseUrls }
     );
   }
 
-  get url(): string {
-    return this.baseUrl;
+  get urls(): string[] {
+    return this.baseUrls;
+  }
+
+  /** The URL of the WebSocket that won the connection race, or null if not yet connected. */
+  get url(): string | null {
+    return this.connectedUrl;
   }
 
   /** Open the shared WebSocket. Returns a promise that resolves when the connection is ready. */
@@ -203,24 +215,63 @@ export class Link implements Disposable {
   }
 
   private openWebSocket(): void {
-    const ws = new WebSocket(this.url);
-    ws.binaryType = 'arraybuffer';
-    this.ws = ws;
     this.sourceAddress = getNextHostname.next().value;
 
     this.logger?.log.info(
       this.logger?.mongoLogId(1_001_000_428),
       'COMPASS-WEB-MULTIPLEXING',
       'Link connecting to WS',
-      {
-        sa: this.sourceAddress,
-      }
+      { sa: this.sourceAddress }
     );
 
+    const raceStack = new DisposableStack();
+    const candidates = this.baseUrls.map((url) => {
+      const ws = new WebSocket(url);
+      ws.binaryType = 'arraybuffer';
+      const { promise, resolve, reject } = Promise.withResolvers<WebSocket>();
+      raceStack.use(
+        addEventListener(ws, 'open', () => resolve(ws), { once: true })
+      );
+      raceStack.use(
+        addEventListener(
+          ws,
+          'close',
+          (event: CloseEvent) =>
+            reject(new Error(closeEventErrorMessage(event))),
+          { once: true }
+        )
+      );
+      return { ws, promise };
+    });
+
+    void Promise.any(candidates.map((c) => c.promise))
+      .then(
+        (winner) => {
+          for (const { ws } of candidates) {
+            if (ws !== winner) ws.close(1000, 'Race lost');
+          }
+          this._activateWebSocket(winner);
+        },
+        (err: AggregateError) => {
+          const closeErr = err.errors[0] as Error;
+          this.connectReject?.(closeErr);
+          this.connectResolve = null;
+          this.connectReject = null;
+          this.connectPromise = null;
+          for (const callbacks of this.sockets.values()) {
+            callbacks.onError(closeErr);
+          }
+          this.sockets.clear();
+        }
+      )
+      .finally(() => raceStack.dispose());
+  }
+
+  private _activateWebSocket(ws: WebSocket): void {
+    this.ws = ws;
+    this.connectedUrl = ws.url;
+
     const disposableStack = new DisposableStack();
-    disposableStack.use(
-      addEventListener(ws, 'open', this.onOpen.bind(this), { once: true })
-    );
     disposableStack.use(
       addEventListener(ws, 'close', this.onClose.bind(this), { once: true })
     );
@@ -229,9 +280,7 @@ export class Link implements Disposable {
     );
     disposableStack.defer(this.close.bind(this, 'Link Disposed'));
     this.disposableStack = disposableStack;
-  }
 
-  private onOpen() {
     this.connectResolve?.();
     this.connectResolve = null;
     this.connectReject = null;
@@ -239,36 +288,12 @@ export class Link implements Disposable {
       this.logger?.mongoLogId(1_001_000_421),
       'COMPASS-WEB-MULTIPLEXING',
       'WebSocket connection established',
-      {
-        sourceAddress: this.sourceAddress,
-      }
+      { sourceAddress: this.sourceAddress }
     );
   }
 
-  private onClose({ code, reason }: CloseEvent) {
-    this.ws = null;
-    if (this.closed) return;
-
-    this.logger?.log.info(
-      this.logger?.mongoLogId(1_001_000_422),
-      'COMPASS-WEB-MULTIPLEXING',
-      'WebSocket closed',
-      {
-        code: code,
-        reason: reason,
-        sourceAddress: this.sourceAddress,
-      }
-    );
-
-    const errorMessage = [
-      'Connection failed',
-      (code && `[${code}]`) || null,
-      (reason && `${reason}`) || null,
-    ]
-      .filter(Boolean)
-      .join(' - ');
-
-    const err = new Error(errorMessage);
+  private _rejectWithCloseError(event: CloseEvent): void {
+    const err = new Error(closeEventErrorMessage(event));
     this.connectReject?.(err);
     this.connectResolve = null;
     this.connectReject = null;
@@ -277,6 +302,24 @@ export class Link implements Disposable {
       callbacks.onError(err);
     }
     this.sockets.clear();
+  }
+
+  private onClose(event: CloseEvent) {
+    this.ws = null;
+    if (this.closed) return;
+
+    this.logger?.log.info(
+      this.logger?.mongoLogId(1_001_000_422),
+      'COMPASS-WEB-MULTIPLEXING',
+      'WebSocket closed',
+      {
+        code: event.code,
+        reason: event.reason,
+        sourceAddress: this.sourceAddress,
+      }
+    );
+
+    this._rejectWithCloseError(event);
   }
 
   private onMessage({ data }: MessageEvent<ArrayBuffer>): void {

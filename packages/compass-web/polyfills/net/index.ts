@@ -79,60 +79,7 @@ class Socket extends Duplex {
   }
 
   connect({ lookup, ...options }: ConnectOptions): Socket {
-    if (getMultiplexLink()) {
-      return this.setupMultiplexedConnection(options);
-    }
-
-    const { wsURL, ...atlasOptions } =
-      lookup?.() ?? ({} as { wsURL?: string; clusterName?: string });
-    this._ws = new WebSocket(wsURL ?? 'http://localhost:1337');
-    this._ws.binaryType = 'arraybuffer';
-    this._ws.addEventListener(
-      'open',
-      () => {
-        const connectMsg = JSON.stringify({
-          port: options.port,
-          host: options.host,
-          tls: options.tls ?? false,
-          clusterName: atlasOptions.clusterName,
-          ok: 1,
-        });
-        setTimeout(() => {
-          this._ws?.send(this.encodeStringMessageWithTypeByte(connectMsg));
-        });
-      },
-      { once: true }
-    );
-    this._ws.addEventListener('close', () => {
-      this.emit('close');
-    });
-    this._ws.addEventListener('error', () => {
-      this.emit('error', 'WebSocket connection was closed due to an error');
-    });
-    this._ws.addEventListener(
-      'message',
-      ({ data }: MessageEvent<ArrayBuffer>) => {
-        const dataView = new Uint8Array(data);
-        if (dataView[0] === 0x01) {
-          try {
-            const res = this.decodeMessageWithTypeByte(dataView);
-            if (res.preMessageOk) {
-              setTimeout(() => {
-                this.emit(options.tls ? 'secureConnect' : 'connect');
-              });
-            }
-          } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error('error parsing proxy message "%s":', data, err);
-          }
-        } else {
-          setTimeout(() => {
-            this.emit('data', this.decodeMessageWithTypeByte(dataView));
-          });
-        }
-      }
-    );
-    return this;
+    return this.setupMultiplexedConnection(options);
   }
   _read() {
     // noop
@@ -251,7 +198,7 @@ export { isIPv4, isIPv6 } from 'is-ip';
 export const isIP = (input: string) => ipVersion(input) ?? 0;
 export const createConnection = (options: { host: string; port: number }) => {
   const socket = new Socket();
-  setTimeout(() => {
+  queueMicrotask(() => {
     socket.connect(options);
   });
   return socket;

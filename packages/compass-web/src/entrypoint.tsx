@@ -136,21 +136,15 @@ const WithMultiplexTransport = createServiceProvider(
     children: React.ReactNode;
   }) {
     const abortControllerRef = useRef(new AbortController());
-    const { enableMultiplexWebSocketOnWeb } = usePreferences([
-      'enableMultiplexWebSocketOnWeb',
-    ]);
     const logger = useLogger('COMPASS-WEB-MULTIPLEXING');
     const atlasService = atlasServiceLocator();
-    const ccsUrl = atlasService.multiplexWebsocketEndpoint(projectId);
+    const ccsUrls = atlasService.multiplexWebsocketEndpoint(projectId);
 
     useEffect(() => {
       const abortController = abortControllerRef.current;
-      if (!enableMultiplexWebSocketOnWeb) {
-        return;
-      }
 
       const link = new Link({
-        baseUrl: ccsUrl,
+        baseUrls: ccsUrls,
         logger,
       });
 
@@ -176,7 +170,7 @@ const WithMultiplexTransport = createServiceProvider(
         link.close('Compass Web Entrypoint Unmount');
         setMultiplexLink(null);
       };
-    }, [enableMultiplexWebSocketOnWeb, ccsUrl, logger]);
+    }, [ccsUrls, logger]);
 
     return <>{children}</>;
   }
