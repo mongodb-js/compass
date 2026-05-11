@@ -8,11 +8,7 @@ import { cleanup, screen } from '@mongodb-js/testing-library-compass';
 describe('Aggregations [Component]', function () {
   beforeEach(async function () {
     await renderWithStore(
-      <Aggregations
-        showRunButton={true}
-        showExplainButton={true}
-        enableSearchActivationProgramP1={false}
-      />
+      <Aggregations showRunButton={true} showExplainButton={true} />
     );
   });
 

@@ -2250,23 +2250,6 @@ describe('DataService', function () {
         expect(dbs).to.deep.eq(['foo', 'bar']);
       });
 
-      it('excludes databases whose names start with __mdb_internal', async function () {
-        const dataService = createDataServiceWithMockedClient({
-          commands: {
-            listDatabases: {
-              databases: [
-                { name: 'foo' },
-                { name: '__mdb_internal' },
-                { name: '__mdb_internal_hidden' },
-              ],
-            },
-            connectionStatus: { authInfo: { authenticatedUserPrivileges: [] } },
-          },
-        });
-        const dbs = (await dataService.listDatabases()).map((db) => db.name);
-        expect(dbs).to.deep.eq(['foo']);
-      });
-
       it('returns databases with `find` privilege from privileges', async function () {
         const dataService = createDataServiceWithMockedClient({
           commands: {

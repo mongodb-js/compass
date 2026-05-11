@@ -26,6 +26,7 @@ import type {
 } from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import {
   collectionStatsFetched,
@@ -72,6 +73,7 @@ export type IndexesPluginServices = {
   atlasService: AtlasService;
   preferences: PreferencesAccess;
   workspaces: WorkspacesService;
+  experimentationServices: ExperimentationServices;
 };
 
 export type IndexesPluginOptions = {
@@ -99,6 +101,7 @@ export function activateIndexesPlugin(
     atlasService,
     preferences,
     workspaces,
+    experimentationServices,
   }: IndexesPluginServices,
   { on, cleanup, addCleanup }: ActivateHelpers
 ) {
@@ -134,6 +137,7 @@ export function activateIndexesPlugin(
         ),
         pollingIntervalRef,
         preferences,
+        experimentationServices,
       })
     )
   );

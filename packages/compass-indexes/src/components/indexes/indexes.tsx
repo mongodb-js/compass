@@ -15,6 +15,7 @@ import {
   useTelemetry,
   SkillsBannerContextEnum,
   useAtlasSkillsBanner,
+  useSearchActivationProgramP1,
 } from '@mongodb-js/compass-telemetry/provider';
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
 import RegularIndexesTable from '../regular-indexes-table/regular-indexes-table';
@@ -65,9 +66,7 @@ const AtlasIndexesBanner = ({
   dismissed: boolean;
   onDismissClick: () => void;
 }) => {
-  const { enableSearchActivationProgramP1 } = usePreferences([
-    'enableSearchActivationProgramP1',
-  ]);
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
 
@@ -177,6 +176,7 @@ export function Indexes({
     'readWrite',
     'enableAtlasSearchIndexes',
   ]);
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
     useSelector(selectIsViewSearchCompatible, shallowEqual);
   const { isRegularIndexesReadable, isSearchIndexesReadable } = useSelector(
@@ -184,6 +184,7 @@ export function Indexes({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1,
     }),
     shallowEqual
   );
@@ -197,7 +198,10 @@ export function Indexes({
       }
     }
 
-    if (!isReadonlyView || !enableAtlasSearchIndexes) {
+    if (
+      !isReadonlyView ||
+      !(enableAtlasSearchIndexes || enableSearchActivationProgramP1)
+    ) {
       return (
         <AtlasIndexesBanner
           namespace={namespace}
@@ -222,7 +226,7 @@ export function Indexes({
             onRefreshIndexes={onRefreshIndexes}
             showAtlasSearchLink={
               !isReadonlyView &&
-              !enableAtlasSearchIndexes &&
+              !(enableAtlasSearchIndexes || enableSearchActivationProgramP1) &&
               atlasBannerDismissed
             }
           />

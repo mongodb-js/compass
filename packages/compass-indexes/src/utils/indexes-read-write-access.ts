@@ -10,10 +10,12 @@ export function selectReadWriteAccess({
   readOnly,
   readWrite,
   enableAtlasSearchIndexes,
+  enableSearchActivationProgramP1,
 }: {
   readOnly: boolean;
   readWrite: boolean;
   enableAtlasSearchIndexes: boolean;
+  enableSearchActivationProgramP1: boolean;
 }) {
   return (
     state: RootState
@@ -35,7 +37,7 @@ export function selectReadWriteAccess({
     // there is a case where a view was initially search queryable but then the view gets updated to be not search queryable
     // in this case the view should still be search indexes readable (but not writable)
     const isSearchIndexesReadable =
-      enableAtlasSearchIndexes &&
+      (enableAtlasSearchIndexes || enableSearchActivationProgramP1) &&
       (isReadonlyView
         ? isViewVersionSearchCompatible
         : isSearchIndexesSupported);

@@ -27,7 +27,10 @@ import { ZeroRegularIndexesGraphic } from '../icons/zero-regular-indexes-graphic
 import type { RootState } from '../../modules';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { useWorkspaceTabId } from '@mongodb-js/compass-workspaces/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useSearchActivationProgramP1,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
@@ -139,6 +142,7 @@ export const SearchIndexesTable: React.FunctionComponent<
     'enableAutoEmbeddingPublicPreview',
   ]);
 
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   useEffect(() => {
     onSearchIndexesOpened(tabId);
     return () => {
@@ -150,6 +154,7 @@ export const SearchIndexesTable: React.FunctionComponent<
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1,
     }),
     shallowEqual
   );

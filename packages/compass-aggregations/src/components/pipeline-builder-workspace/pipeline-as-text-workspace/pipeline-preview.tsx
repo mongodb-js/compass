@@ -27,7 +27,7 @@ import {
   collapsePreviewDocs,
 } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import SearchNoResults from '../../search-no-results';
-import { usePreference } from 'compass-preferences-model/provider';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../../search-index-stale-results-banner';
 
 const containerStyles = css({
@@ -107,9 +107,7 @@ const PreviewResults = ({
     void navigator.clipboard.writeText(str);
   }, []);
 
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
 
   if (isLoading) {
     return (

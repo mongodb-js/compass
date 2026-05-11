@@ -12,7 +12,7 @@ import {
   ExperimentTestGroups,
   ExperimentTestNames,
   useAssignment,
-  useFireExperimentViewed,
+  useTrackInSample,
 } from '@mongodb-js/compass-telemetry/provider';
 import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
 
@@ -63,15 +63,14 @@ function AddDataMenuButton({
   const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
 
   // Fire experiment-viewed when the user opens the menu and the Mock Data
-  // Generator feature is displayed or would be displayed if the user were in the
-  // treatment variant group.
-  useFireExperimentViewed({
-    testName: ExperimentTestNames.mockDataGenerator,
-    shouldFire:
-      hasOpenedMenu &&
+  // Generator feature is displayed or would be displayed if the user were in
+  // the treatment variant group.
+  useTrackInSample(
+    ExperimentTestNames.mockDataGenerator,
+    hasOpenedMenu &&
       isMockDataGeneratorEligibleAndSchemaReady &&
-      isInMockDataExperiment,
-  });
+      isInMockDataExperiment
+  );
 
   const addDataActions = useMemo(() => {
     const actions: MenuAction<AddDataOption>[] = [
