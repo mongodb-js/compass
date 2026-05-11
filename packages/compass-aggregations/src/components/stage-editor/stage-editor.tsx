@@ -317,12 +317,14 @@ export default connect(
       ['READY', 'POLLING'].includes(state.searchIndexes.status) &&
       state.searchIndexes.indexes.every((x) => x.name !== searchIndexName);
 
+    const shouldShowErrors = !stage.empty && !stage.fromSnippet;
+
     return {
       namespace: state.namespace,
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
-      syntaxError: !stage.empty ? stage.syntaxError ?? null : null,
-      serverError: !stage.empty ? stage.serverError ?? null : null,
+      syntaxError: shouldShowErrors ? stage.syntaxError ?? null : null,
+      serverError: shouldShowErrors ? stage.serverError ?? null : null,
       serverErrorStageIdx: getIndexOfFirstStageWithServerError(
         stages,
         ownProps.index

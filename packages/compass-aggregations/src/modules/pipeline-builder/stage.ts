@@ -89,9 +89,6 @@ export default class Stage {
       this.syntaxError = null;
     } catch (e) {
       this.syntaxError = e as PipelineParserError;
-      this.node = createStageNode(
-        this.operator ? { key: this.operator } : undefined
-      );
     }
     return this;
   }
