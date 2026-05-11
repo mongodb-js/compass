@@ -74,6 +74,29 @@ describe('Connection serialization', function () {
     expect(expected).to.deep.equal(CONNECTIONS);
   });
 
+  it('removes unknown properties during deserialization', async function () {
+    const connections = await deserializeConnections(
+      await serializeConnections([
+        {
+          id: 'id',
+          lastUsed: new Date('2022-09-07T15:12:55.253Z'),
+          favorite: { name: 'fave two' },
+          connectionOptions: {
+            connectionString: 'mongodb://user:pass@mongodb.net/',
+            sshTunnel: {
+              foo: 'bar',
+            },
+            buz: 'bla',
+          } as any,
+        },
+      ])
+    );
+    expect(connections[0]).to.not.have.nested.property(
+      'connectionOptions.sshTunnel.foo'
+    );
+    expect(connections[0]).to.not.have.nested.property('connectionOptions.buz');
+  });
+
   it('rejects invalid JSON input', async function () {
     try {
       await deserializeConnections('sakljdhf', {});
