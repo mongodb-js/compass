@@ -338,6 +338,25 @@ export function activatePlugin(
     }
   });
 
+  // Assign experiment for Search Activation Program P1
+  // Only assign when we're connected to Atlas
+  if (connectionInfoRef.current?.atlasMetadata?.clusterName) {
+    void experimentationServices
+      .assignExperiment(ExperimentTestNames.searchActivationProgramP1, {
+        team: 'Search Web Platform',
+      })
+      .catch((error) => {
+        logger.debug(
+          'Search Activation Program P1 experiment assignment failed',
+          {
+            experiment: ExperimentTestNames.searchActivationProgramP1,
+            namespace: namespace,
+            error: error instanceof Error ? error.message : String(error),
+          }
+        );
+      });
+  }
+
   // Cancel schema analysis when plugin is deactivated
   addCleanup(() => store.dispatch(cancelSchemaAnalysis()));
 
