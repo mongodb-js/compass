@@ -156,7 +156,7 @@ export function StageToolbar({
     enableRerank && stage.stageOperator === '$rerank'
       ? atlasMetadata
         ? buildRerankTokenUsageUrl(atlasMetadata)
-        : 'https://dochub.mongodb.org/core/$rerank'
+        : 'https://dochub.mongodb.org/core/$rerank#metrics'
       : null;
 
   const insight = useMemo(
