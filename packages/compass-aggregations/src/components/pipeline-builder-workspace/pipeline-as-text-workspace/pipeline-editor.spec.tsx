@@ -19,7 +19,8 @@ const renderPipelineEditor = (
   storeOptions: any = {},
   {
     enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+  }: { enableSearchActivationExperiment?: boolean } = {},
+  services: any = {}
 ) => {
   let ui = (
     <PipelineEditor
@@ -45,7 +46,7 @@ const renderPipelineEditor = (
       ExperimentTestGroups.searchActivationProgramP1Variant
     );
   }
-  return renderWithStore(ui, storeOptions);
+  return renderWithStore(ui, storeOptions, undefined, services);
 };
 
 describe('PipelineEditor', function () {
@@ -268,6 +269,7 @@ describe('PipelineEditor', function () {
         await renderPipelineEditor(
           { serverVersion: '8.0.0', pipelineText: '[{ $rerank: {} }]' },
           {},
+          {},
           rerankPreferences
         );
         expect(screen.getByTestId('pipeline-editor-rerank-version-warning')).to
@@ -277,6 +279,7 @@ describe('PipelineEditor', function () {
       it('should not show warning when server >= 8.3', async function () {
         await renderPipelineEditor(
           { serverVersion: '8.3.0', pipelineText: '[{ $rerank: {} }]' },
+          {},
           {},
           rerankPreferences
         );

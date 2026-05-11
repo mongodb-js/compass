@@ -29,6 +29,7 @@ import {
   useConnectionInfo,
 } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
+import { usePreference } from 'compass-preferences-model/provider';
 import {
   getSearchStageInfoFromPipeline,
   getStageOperator,

@@ -32,6 +32,7 @@ import {
   useSearchActivationProgramP1,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,

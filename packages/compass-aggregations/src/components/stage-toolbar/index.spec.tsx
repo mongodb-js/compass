@@ -6,6 +6,7 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
+import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import StageToolbar from './';
 import {
@@ -15,6 +16,7 @@ import {
 
 const renderStageToolbar = async (
   pipeline: any[] = [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
+  preferences?: InstanceType<typeof ReadOnlyPreferenceAccess>,
   {
     enableSearchActivationExperiment = false,
   }: { enableSearchActivationExperiment?: boolean } = {}
@@ -26,7 +28,8 @@ const renderStageToolbar = async (
       ExperimentTestGroups.searchActivationProgramP1Variant
     );
   }
-  const result = await renderWithStore(ui, { pipeline });
+  const services = preferences ? { preferences } : {};
+  const result = await renderWithStore(ui, { pipeline }, undefined, services);
   return result.plugin.store;
 };
 
@@ -107,7 +110,7 @@ describe('StageToolbar', function () {
       ).to.not.exist;
     });
     it('does not render when stage is not a search stage', async function () {
-      await renderStageToolbar([{ $match: { _id: 1 } }], {
+      await renderStageToolbar([{ $match: { _id: 1 } }], undefined, {
         enableSearchActivationExperiment: true,
       });
       expect(
@@ -115,23 +118,31 @@ describe('StageToolbar', function () {
       ).to.not.exist;
     });
     it('renders when experiment is in variant and stage is $search', async function () {
-      await renderStageToolbar([{ $search: { index: 'default' } }], {
+      await renderStageToolbar([{ $search: { index: 'default' } }], undefined, {
         enableSearchActivationExperiment: true,
       });
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
     it('renders when experiment is in variant and stage is $searchMeta', async function () {
-      await renderStageToolbar([{ $searchMeta: { index: 'default' } }], {
-        enableSearchActivationExperiment: true,
-      });
+      await renderStageToolbar(
+        [{ $searchMeta: { index: 'default' } }],
+        undefined,
+        {
+          enableSearchActivationExperiment: true,
+        }
+      );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
     it('renders when experiment is in variant and stage is $vectorSearch', async function () {
-      await renderStageToolbar([{ $vectorSearch: { index: 'default' } }], {
-        enableSearchActivationExperiment: true,
-      });
+      await renderStageToolbar(
+        [{ $vectorSearch: { index: 'default' } }],
+        undefined,
+        {
+          enableSearchActivationExperiment: true,
+        }
+      );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });

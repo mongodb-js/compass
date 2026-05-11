@@ -154,7 +154,6 @@ type PipelineResultsWorkspaceProps = {
   onRetry: () => void;
   serverVersion: string;
   hasRerankStage: boolean;
-  pipelineText: string;
   searchExtensionType?: SearchExtensionType | null;
 };
 
@@ -175,7 +174,6 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   onCancel,
   serverVersion,
   hasRerankStage,
-  pipelineText,
   searchExtensionType,
 }) => {
   const { atlasMetadata } = useConnectionInfo();
@@ -354,7 +352,6 @@ const mapState = (state: RootState) => {
     hasRerankStage: pipeline.some(
       (stage) => getStageOperator(stage) === '$rerank'
     ),
-    pipelineText,
     searchExtensionType,
   };
 };
