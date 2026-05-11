@@ -23,10 +23,12 @@
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/index.js",
+    "./stdio-bridge": "./dist/stdio-bridge.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.ts",
+    "./stdio-bridge": "./src/stdio-bridge.ts"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -50,6 +52,7 @@
     "@mongodb-js/compass-logging": "^1.14.1",
     "@mongosh/service-provider-node-driver": "^5.0.8",
     "compass-preferences-model": "^2.76.1",
+    "electron": "^37.10.3",
     "hadron-ipc": "^3.5.32",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.1",

@@ -8,49 +8,13 @@ import {
   type UserConfig,
   type MCPHttpServerConstructorArgs,
 } from 'mongodb-mcp-server';
-import {
-  AggregateTool,
-  CollectionIndexesTool,
-  CollectionSchemaTool,
-  CollectionStorageSizeTool,
-  CountTool,
-  DbStatsTool,
-  ExplainTool,
-  FindTool,
-  ListCollectionsTool,
-  ListDatabasesTool,
-} from 'mongodb-mcp-server/tools';
 import { CompassMcpHttpServer } from './compass-mcp-http-server';
 import {
   CompassConnectionManager,
   type CompassConnectionManagerOptions,
 } from './compass-connection-manager';
 import type { ListConnectionsContext } from './list-connections-tool';
-import { ListConnectionsTool } from './list-connections-tool';
-import { CompassConnectTool } from './compass-connect-tool';
-
-/**
- * Tools exposed to external AI clients. Strictly read-only MongoDB data-plane
- * operations — no writes, no DDL, no Atlas control plane, no Atlas Local
- * deployment management, no assistant/knowledge tools, no log access.
- *
- * `CompassConnectTool` replaces the upstream `connect` tool so the AI picks a
- * saved Compass connection by id instead of supplying a raw connection string.
- */
-const COMPASS_TOOLS = [
-  CompassConnectTool,
-  ListConnectionsTool,
-  ListDatabasesTool,
-  ListCollectionsTool,
-  CollectionSchemaTool,
-  CollectionIndexesTool,
-  CollectionStorageSizeTool,
-  FindTool,
-  CountTool,
-  AggregateTool,
-  DbStatsTool,
-  ExplainTool,
-];
+import { COMPASS_TOOLS } from './compass-tools';
 
 const DEFAULT_PORT = 27097;
 const DEFAULT_HOST = '127.0.0.1';

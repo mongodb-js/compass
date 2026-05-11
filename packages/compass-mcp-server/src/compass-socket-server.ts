@@ -1,0 +1,129 @@
+import fs from 'fs/promises';
+import net from 'net';
+import path from 'path';
+import {
+  TransportRunnerBase,
+  UserConfigSchema,
+  type UserConfig,
+} from 'mongodb-mcp-server';
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import {
+  CompassConnectionManager,
+  type CompassConnectionManagerOptions,
+} from './compass-connection-manager';
+import type { ListConnectionsContext } from './list-connections-tool';
+import { COMPASS_TOOLS } from './compass-tools';
+import { getMcpSocketPath } from './socket-path';
+
+export interface CompassSocketServerOptions
+  extends CompassConnectionManagerOptions {
+  /** Returns all stored Compass connections for the list-connections tool. */
+  getAllConnections: ListConnectionsContext['getAllConnections'];
+}
+
+/**
+ * Listens on a local Unix socket / Windows named pipe and speaks the MCP
+ * stdio protocol over each accepted connection. Same-user filesystem
+ * permissions are the only authentication — no bearer token is required.
+ *
+ * Each connection gets its own MCP Server with a fresh CompassConnectionManager,
+ * matching the per-session isolation we have on the HTTP transport.
+ */
+export class CompassSocketServer extends TransportRunnerBase<
+  UserConfig,
+  ListConnectionsContext
+> {
+  private socketServer?: net.Server;
+  private readonly socketPath: string;
+  private readonly opts: CompassSocketServerOptions;
+
+  constructor(opts: CompassSocketServerOptions) {
+    super({
+      userConfig: UserConfigSchema.parse({
+        transport: 'stdio',
+        readOnly: true,
+        loggers: ['mcp'],
+        telemetry: 'disabled',
+        disabledTools: ['switch-connection'],
+      }),
+    });
+    this.opts = opts;
+    this.socketPath = getMcpSocketPath();
+  }
+
+  async start(): Promise<void> {
+    await this.prepareSocketPath();
+
+    this.socketServer = net.createServer((socket) => {
+      void this.handleConnection(socket);
+    });
+
+    await new Promise<void>((resolve, reject) => {
+      this.socketServer!.once('error', reject);
+      this.socketServer!.listen(this.socketPath, () => {
+        this.socketServer!.off('error', reject);
+        resolve();
+      });
+    });
+  }
+
+  get path(): string {
+    return this.socketPath;
+  }
+
+  async closeTransport(): Promise<void> {
+    const server = this.socketServer;
+    this.socketServer = undefined;
+    if (!server) return;
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+    await this.cleanupSocketPath();
+  }
+
+  private async handleConnection(socket: net.Socket): Promise<void> {
+    const connectionManager = new CompassConnectionManager({
+      getConnectionInfo: this.opts.getConnectionInfo,
+      checkConsent: this.opts.checkConsent,
+      requestConsentFromUI: this.opts.requestConsentFromUI,
+      saveConsent: this.opts.saveConsent,
+    });
+
+    try {
+      const server = await this.createServer({
+        serverOptions: {
+          tools: COMPASS_TOOLS,
+          toolContext: {
+            getAllConnections: this.opts.getAllConnections,
+          },
+          telemetryProperties: { hosting_mode: 'compass' },
+        },
+        sessionOptions: { connectionManager },
+      });
+
+      // A net.Socket is both Readable and Writable, so we can hand it
+      // straight to StdioServerTransport in place of process.stdin/stdout.
+      const transport = new StdioServerTransport(socket, socket);
+      await server.connect(transport);
+
+      const cleanup = () => {
+        void server.close();
+      };
+      socket.once('close', cleanup);
+      socket.once('error', cleanup);
+    } catch (err) {
+      socket.destroy(err instanceof Error ? err : new Error(String(err)));
+    }
+  }
+
+  private async prepareSocketPath(): Promise<void> {
+    if (process.platform === 'win32') return; // Named pipes need no path setup.
+    const dir = path.dirname(this.socketPath);
+    await fs.mkdir(dir, { recursive: true });
+    // Remove any stale socket file from a previous (possibly crashed) run.
+    await fs.rm(this.socketPath, { force: true });
+  }
+
+  private async cleanupSocketPath(): Promise<void> {
+    if (process.platform === 'win32') return;
+    await fs.rm(this.socketPath, { force: true });
+  }
+}

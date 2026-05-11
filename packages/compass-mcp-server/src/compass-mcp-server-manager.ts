@@ -1,4 +1,7 @@
 import crypto from 'crypto';
+import os from 'os';
+import path from 'path';
+import { app, shell } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -6,6 +9,59 @@ import { startMcpServer } from './index';
 import type { CompassMcpServerHandle } from './index';
 
 const { log } = createLogger('COMPASS-MCP');
+
+/**
+ * Absolute paths to the user-level (not workspace) MCP config file for each
+ * supported AI client, on the current OS. Returned to the renderer so the
+ * settings UI can show a "reveal in Finder/Explorer" link per client.
+ */
+function resolveClientConfigPaths(): {
+  claude: string;
+  cursor: string;
+  vscode: string;
+  windsurf: string;
+} {
+  const home = os.homedir();
+  if (process.platform === 'win32') {
+    const appData =
+      process.env.APPDATA || path.join(home, 'AppData', 'Roaming');
+    return {
+      claude: path.join(appData, 'Claude', 'claude_desktop_config.json'),
+      cursor: path.join(home, '.cursor', 'mcp.json'),
+      vscode: path.join(appData, 'Code', 'User', 'mcp.json'),
+      windsurf: path.join(home, '.codeium', 'windsurf', 'mcp_config.json'),
+    };
+  }
+  if (process.platform === 'darwin') {
+    return {
+      claude: path.join(
+        home,
+        'Library',
+        'Application Support',
+        'Claude',
+        'claude_desktop_config.json'
+      ),
+      cursor: path.join(home, '.cursor', 'mcp.json'),
+      vscode: path.join(
+        home,
+        'Library',
+        'Application Support',
+        'Code',
+        'User',
+        'mcp.json'
+      ),
+      windsurf: path.join(home, '.codeium', 'windsurf', 'mcp_config.json'),
+    };
+  }
+  // linux / other unix
+  const configHome = process.env.XDG_CONFIG_HOME || path.join(home, '.config');
+  return {
+    claude: path.join(configHome, 'Claude', 'claude_desktop_config.json'),
+    cursor: path.join(home, '.cursor', 'mcp.json'),
+    vscode: path.join(configHome, 'Code', 'User', 'mcp.json'),
+    windsurf: path.join(home, '.codeium', 'windsurf', 'mcp_config.json'),
+  };
+}
 
 export interface McpConnectionStorage {
   loadAll(): Promise<
@@ -71,7 +127,7 @@ export class CompassMcpServerManager {
           }, 60_000);
 
           ipcMain.once(
-            `mcp:consent-response:${requestId}` as never,
+            `mcp:consent-response:${requestId}`,
             (
               _event: unknown,
               response: { decision: 'allowed' | 'denied'; remember: boolean }
@@ -148,6 +204,36 @@ export class CompassMcpServerManager {
       if (this.lastError) return { status: 'error', error: this.lastError };
       return { status: 'stopped' };
     });
+
+    ipcMain.respondTo('mcp:get-bridge-info', () => {
+      // In a packaged app, `process.execPath` is the user-facing Compass
+      // binary that already knows where its main script lives.
+      //
+      // In dev mode (`npm start`) `process.execPath` is the raw Electron
+      // framework binary, and Electron was launched with the path to the
+      // compiled main script as its first argv. `app.getAppPath()` is the
+      // directory of that script (e.g. `packages/compass/build`), which on
+      // its own does not contain a package.json, so passing it to a fresh
+      // Electron would fail — but `process.argv[1]` IS that exact script
+      // path, so we forward it verbatim.
+      const args = app.isPackaged
+        ? ['--mcp-stdio']
+        : [process.argv[1], '--mcp-stdio'];
+      return {
+        command: process.execPath,
+        args,
+        clientConfigPaths: resolveClientConfigPaths(),
+      };
+    });
+
+    ipcMain.respondTo(
+      'mcp:open-config-file',
+      (_event: unknown, filePath: string) => {
+        // Reveal the file (or its parent folder, if the file doesn't exist).
+        void shell.showItemInFolder(filePath);
+        return undefined;
+      }
+    );
 
     if (preferences.getPreferences().enableMcpServer) {
       await startServer();
