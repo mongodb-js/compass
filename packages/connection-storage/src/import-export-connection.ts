@@ -9,6 +9,57 @@ import { Decrypter, Encrypter } from './encrypt';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
+type ConfigurableOptionsSpec = {
+  [key: string]: true | ConfigurableOptionsSpec;
+};
+
+const configurableConnectionOptions = {
+  connectionString: true,
+  sshTunnel: {
+    password: true,
+    username: true,
+    host: true,
+    port: true,
+    identityKeyFile: true,
+    identityKeyPassphrase: true,
+  },
+  useApplicationLevelProxy: true,
+  fleOptions: {
+    storeCredentials: true,
+    autoEncryption: {
+      keyVaultNamespace: true,
+      kmsProviders: true,
+      schemaMap: true,
+      encryptedFieldsMap: true,
+    },
+  },
+  oidc: {
+    redirectURI: true,
+    enableUntrustedEndpoints: true,
+    passIdTokenAsAccessToken: true,
+    allowedFlows: true,
+    skipNonceInAuthCodeRequest: true,
+    shareProxyWithConnection: true,
+  },
+} satisfies ConfigurableOptionsSpec;
+
+function pickConfigurableConnectionOptions<T extends object>(
+  obj: T,
+  options: ConfigurableOptionsSpec = {}
+): T {
+  const result = Object.create(null);
+  for (const key of Object.keys(options)) {
+    if (Object.hasOwn(obj, key) && Object.hasOwn(options, key)) {
+      const val = (obj as Record<string, unknown>)[key];
+      result[key] =
+        typeof options[key] === 'boolean'
+          ? val
+          : pickConfigurableConnectionOptions(val as object, options[key]);
+    }
+  }
+  return result as T;
+}
+
 const { log, mongoLogId } = createLogger('COMPASS-CONNECTION-IMPORT-EXPORT');
 const track = createIpcTrack();
 
@@ -139,6 +190,7 @@ export async function deserializeConnections(
     connections = await Promise.all(
       (parsed.connections as any[]).map(async (originalEntry) => {
         const { connectionSecrets, ...entry } = originalEntry ?? {};
+        let connectionInfo: ConnectionInfo = entry;
         if (connectionSecrets) {
           if (!passphrase) {
             throw new CompassImportError(
@@ -154,9 +206,13 @@ export async function deserializeConnections(
               'Input file contained invalid encrypted data'
             );
           }
-          return mergeSecrets(entry, secrets as ConnectionSecrets);
+          connectionInfo = mergeSecrets(entry, secrets as ConnectionSecrets);
         }
-        return entry as ConnectionInfo;
+        connectionInfo.connectionOptions = pickConfigurableConnectionOptions(
+          connectionInfo.connectionOptions,
+          configurableConnectionOptions
+        );
+        return connectionInfo;
       })
     );
   } catch (err: any) {
