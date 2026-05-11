@@ -18,6 +18,16 @@ import { getConnectionStringUsername } from '../../../utils/connection-string-he
 import type { OIDCOptions } from '../../../utils/oidc-handler';
 import { useConnectionFormSetting } from '../../../hooks/use-connect-form-settings';
 
+type OIDCFormKeys = keyof Pick<
+  OIDCOptions,
+  | 'redirectURI'
+  | 'enableUntrustedEndpoints'
+  | 'passIdTokenAsAccessToken'
+  | 'allowedFlows'
+  | 'skipNonceInAuthCodeRequest'
+  | 'shareProxyWithConnection'
+>;
+
 type AuthFlowType = NonNullable<OIDCOptions['allowedFlows']>[number];
 
 function AuthenticationOIDC({
@@ -37,7 +47,7 @@ function AuthenticationOIDC({
   const usernameError = errorMessageByFieldName(errors, 'username');
 
   const handleFieldChanged = useCallback(
-    <K extends keyof OIDCOptions>(key: K, value?: OIDCOptions[K]) => {
+    <K extends OIDCFormKeys>(key: K, value?: OIDCOptions[K]) => {
       return updateConnectionFormField({
         type: 'update-oidc-param',
         key: key,
