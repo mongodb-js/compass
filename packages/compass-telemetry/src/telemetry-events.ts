@@ -812,6 +812,12 @@ type NewConnectionEvent = ConnectionScopedEvent<{
      * The number of inactive connections.
      */
     num_inactive_connections: number;
+
+    /**
+     * The user's preferred language, as reported by the browser or Electron
+     * runtime (e.g. "en-US", "fr", "zh-CN").
+     */
+    user_language: string;
   } & ExtraConnectionData;
 }>;
 
