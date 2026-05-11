@@ -6,6 +6,9 @@ import type {
 } from './compass-connection-manager';
 import type { ListConnectionsContext } from './list-connections-tool';
 
+export { CompassMcpServerManager } from './compass-mcp-server-manager';
+export type { McpConnectionStorage } from './compass-mcp-server-manager';
+
 export type { ResolvedConnection, ConsentDecision };
 
 export interface CompassMcpServerOptions

@@ -47,7 +47,10 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
+    "@mongodb-js/compass-logging": "^1.14.1",
     "@mongosh/service-provider-node-driver": "^5.0.8",
+    "compass-preferences-model": "^2.76.1",
+    "hadron-ipc": "^3.5.32",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.1",
     "mongodb-mcp-server": "^1.10.0"

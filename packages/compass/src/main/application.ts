@@ -40,9 +40,7 @@ import {
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
 import { handleSquirrelWindowsStartup } from './squirrel-startup';
-import crypto from 'crypto';
-import type { CompassMcpServerHandle } from '@mongodb-js/compass-mcp-server';
-import { startMcpServer } from '@mongodb-js/compass-mcp-server';
+import { CompassMcpServerManager } from '@mongodb-js/compass-mcp-server';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
@@ -89,7 +87,6 @@ class CompassApplication {
   private static mode: CompassApplicationMode | null = null;
   public static preferences: PreferencesAccess;
   public static httpClient: CompassProxyClient;
-  private static mcpServerHandle: CompassMcpServerHandle | null = null;
 
   private static async _init(
     mode: CompassApplicationMode,
@@ -205,148 +202,11 @@ class CompassApplication {
   }
 
   private static async setupMcpServer(): Promise<void> {
-    const storage = getCompassMainConnectionStorage();
-
-    // Generate the token immediately so it appears in Settings even before
-    // the server is first started.
-    let token = this.preferences.getPreferences().mcpServerToken;
-    if (!token) {
-      token = crypto.randomBytes(32).toString('base64url');
-      await this.preferences.savePreferences({ mcpServerToken: token });
-    }
-
-    const buildOpts = () => ({
-      token: token as string,
-      getAllConnections: async () => {
-        const connections = await storage.loadAll();
-        return connections.map((c) => ({
-          id: c.id,
-          name: c.favorite?.name ?? c.id,
-          mcpAccess: c.mcpAccess,
-        }));
-      },
-      getConnectionInfo: async (id: string) => {
-        const connections = await storage.loadAll();
-        const info = connections.find((c) => c.id === id);
-        if (!info) return undefined;
-        return {
-          connectionString: info.connectionOptions.connectionString,
-          displayName: info.favorite?.name ?? id,
-        };
-      },
-      checkConsent: async (id: string) => {
-        const connections = await storage.loadAll();
-        const info = connections.find((c) => c.id === id);
-        return info?.mcpAccess ?? 'ask';
-      },
-      requestConsentFromUI: (
-        connectionId: string,
-        connectionName: string
-      ): Promise<{ decision: 'allowed' | 'denied'; remember: boolean }> => {
-        const requestId = crypto.randomUUID();
-        return new Promise((resolve) => {
-          const timer = setTimeout(() => {
-            ipcMain.removeAllListeners(`mcp:consent-response:${requestId}`);
-            resolve({ decision: 'denied', remember: false });
-          }, 60_000);
-
-          ipcMain.once(
-            `mcp:consent-response:${requestId}` as never,
-            (
-              _event: unknown,
-              response: { decision: 'allowed' | 'denied'; remember: boolean }
-            ) => {
-              clearTimeout(timer);
-              resolve(response);
-            }
-          );
-
-          ipcMain.broadcast('mcp:consent-request', {
-            requestId,
-            connectionId,
-            connectionName,
-          });
-        });
-      },
-      saveConsent: async (id: string, decision: 'allowed' | 'denied') => {
-        const connections = await storage.loadAll();
-        const info = connections.find((c) => c.id === id);
-        if (info && storage.save) {
-          await storage.save({
-            connectionInfo: { ...info, mcpAccess: decision },
-          });
-        }
-      },
-    });
-
-    const startServer = async (): Promise<void> => {
-      if (this.mcpServerHandle) return;
-      try {
-        const opts = buildOpts();
-        this.mcpServerHandle = await startMcpServer(opts);
-        lastError = undefined;
-        log.info(
-          mongoLogId(1_001_000_450),
-          'MCP Server',
-          'MCP server started',
-          { url: this.mcpServerHandle.url }
-        );
-        ipcMain.broadcast('mcp:status-update', { status: 'running' });
-      } catch (err) {
-        log.error(
-          mongoLogId(1_001_000_451),
-          'MCP Server',
-          'Failed to start MCP server',
-          { error: (err as Error).message }
-        );
-        lastError = (err as Error).message;
-        ipcMain.broadcast('mcp:status-update', {
-          status: 'error',
-          error: lastError,
-        });
-      }
-    };
-
-    const stopServer = async (): Promise<void> => {
-      if (!this.mcpServerHandle) return;
-      try {
-        await this.mcpServerHandle.stop();
-        this.mcpServerHandle = null;
-        lastError = undefined;
-        ipcMain.broadcast('mcp:status-update', { status: 'stopped' });
-      } catch (err) {
-        log.error(
-          mongoLogId(1_001_000_452),
-          'MCP Server',
-          'Error stopping MCP server',
-          { error: (err as Error).message }
-        );
-      }
-    };
-
-    let lastError: string | undefined;
-    ipcMain.respondTo('mcp:get-status', () => {
-      if (this.mcpServerHandle) return { status: 'running' };
-      if (lastError) return { status: 'error', error: lastError };
-      return { status: 'stopped' };
-    });
-
-    if (this.preferences.getPreferences().enableMcpServer) {
-      await startServer();
-    }
-
-    this.preferences.onPreferenceValueChanged(
-      'enableMcpServer',
-      async (enabled) => {
-        if (enabled) {
-          await startServer();
-        } else {
-          await stopServer();
-        }
-      }
+    await CompassMcpServerManager.init(
+      this.preferences,
+      getCompassMainConnectionStorage()
     );
-
-    this.addExitHandler(stopServer);
+    this.addExitHandler(() => CompassMcpServerManager.onExit());
   }
 
   private static setupJavaScriptArguments(): void {
