@@ -68,6 +68,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
           .transform((x) => (x !== undefined ? new Date(x) : x)),
         favorite: z.any().optional(),
         savedConnectionType: z.enum(['favorite', 'recent']).optional(),
+        mcpAccess: z.enum(['allowed', 'denied']).optional(),
         connectionOptions: z.object({
           connectionString: z
             .string()

@@ -61,6 +61,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // User-facing preferences
     autoUpdates: boolean;
     enableGenAIFeatures: boolean;
+    enableMcpServer: boolean;
     enableMaps: boolean;
     trackUsageStatistics: boolean;
     enableFeedbackPanel: boolean;
@@ -141,6 +142,7 @@ export type InternalUserPreferences = {
     isFullScreen?: boolean;
   };
   enableGuideCues: boolean;
+  mcpServerToken?: string;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -503,6 +505,14 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(true),
     type: 'boolean',
   },
+  mcpServerToken: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.string().optional(),
+    type: 'string',
+  },
   /**
    * Enable/disable the AI services. This is currently set
    * in the atlas-service initialization where we make a request to the
@@ -622,6 +632,17 @@ export const storedUserPreferencesProps: Required<{
     },
     deriveValue: deriveNetworkTrafficOptionState('enableGenAIFeatures'),
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableMcpServer: {
+    ui: true,
+    cli: false,
+    global: false,
+    description: {
+      short: 'Enable MCP Server',
+      long: 'Start a local MCP HTTP server so external AI tools (e.g. Claude Desktop) can run read-only queries against your MongoDB connections.',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   /**

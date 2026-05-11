@@ -41,3 +41,4 @@ config/*/.npmrc
 # The update-dependencies workflow does a sparse checkout
 # and we don't want to include these files in the PRs it creates.
 existing-branch-checkout/
+.tmp

@@ -145,6 +145,12 @@ export interface ConnectionInfo {
    * The metadata for the Atlas cluster. Set from Atlas control plane when using compass-web.
    */
   atlasMetadata?: AtlasClusterMetadata;
+
+  /**
+   * Whether external MCP clients are allowed to access this connection.
+   * Set via the AI Tools consent dialog when an MCP client first requests access.
+   */
+  mcpAccess?: 'allowed' | 'denied';
 }
 
 export interface ConnectionFavoriteOptions {

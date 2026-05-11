@@ -196,6 +196,7 @@
     "@electron/rebuild": "^4.0.4",
     "@electron/remote": "^2.1.3",
     "@mongodb-js/atlas-service": "^0.85.1",
+    "@mongodb-js/compass-mcp-server": "^0.1.0",
     "@mongodb-js/compass-aggregations": "^9.106.1",
     "@mongodb-js/compass-app-registry": "^9.11.1",
     "@mongodb-js/compass-app-stores": "^7.88.1",
