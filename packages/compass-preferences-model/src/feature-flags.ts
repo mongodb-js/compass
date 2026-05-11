@@ -258,8 +258,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
     stage: 'preview',
     atlasCloudFeatureFlagName: 'ATLAS_SEARCH_AUTO_EMBEDDING_PUBLIC_PREVIEW',
     description: {
-      short:
-        'Enable auto embedding index template, updated $vectorSearch stage, and associated banners',
+      short: 'Adds UI for auto-embedded vector search indexes',
     },
   },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;

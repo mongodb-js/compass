@@ -151,11 +151,15 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
   );
 
   useEffect(() => {
-    if (
-      focusState === FocusStates.FocusVisible ||
-      focusState === FocusStates.Focus
-    ) {
-      setTabIndex(-1);
+    if (focusState === FocusStates.NoFocus) {
+      setTabIndex(0);
+      return;
+    }
+
+    setTabIndex(-1);
+
+    // Scroll to and focus the item on keyboard focus.
+    if (focusState === FocusStates.FocusVisible) {
       const item = findNext(-1, items, (item) => item.id === currentTabbable);
       if (item) {
         onFocusMove(item);
@@ -164,17 +168,6 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
         });
         return cancel;
       }
-    }
-
-    if (
-      focusState === FocusStates.FocusWithin ||
-      focusState === FocusStates.FocusWithinVisible
-    ) {
-      setTabIndex(-1);
-    }
-
-    if (focusState === FocusStates.NoFocus) {
-      setTabIndex(0);
     }
   }, [currentTabbable, focusItemById, focusState, items, onFocusMove]);
 

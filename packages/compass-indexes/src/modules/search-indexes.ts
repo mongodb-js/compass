@@ -21,6 +21,10 @@ import type { IndexViewChangedAction } from './index-view';
 import { selectReadWriteAccess } from '../utils/indexes-read-write-access';
 import { isAutoEmbedIndex } from '../utils/is-auto-embed-index';
 import { showSearchIndexStatusChangeToasts } from '../utils/search-index-status-toasts';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const ATLAS_SEARCH_SERVER_ERRORS: Record<string, string> = {
   InvalidIndexSpecificationOption: 'Invalid index definition.',
@@ -634,7 +638,13 @@ const fetchIndexes = (
   return async (
     dispatch,
     getState,
-    { dataService, preferences, connectionInfoRef, track }
+    {
+      dataService,
+      preferences,
+      connectionInfoRef,
+      experimentationServices,
+      track,
+    }
   ) => {
     const {
       isWritable,
@@ -642,17 +652,21 @@ const fetchIndexes = (
       searchIndexes: { status, indexes: previousIndexes },
     } = getState();
 
-    const {
-      readOnly,
-      readWrite,
-      enableAtlasSearchIndexes,
-      enableSearchActivationProgramP1,
-    } = preferences.getPreferences();
+    const { readOnly, readWrite, enableAtlasSearchIndexes } =
+      preferences.getPreferences();
     const { atlasMetadata } = connectionInfoRef.current;
+    const assignment = await experimentationServices.getAssignment(
+      ExperimentTestNames.searchActivationProgramP1,
+      false
+    );
+    const enableSearchActivationProgramP1 =
+      assignment?.assignmentData?.variant ===
+      ExperimentTestGroups.searchActivationProgramP1Variant;
     const { isSearchIndexesReadable } = selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
+      enableSearchActivationProgramP1,
     })(getState());
 
     if (

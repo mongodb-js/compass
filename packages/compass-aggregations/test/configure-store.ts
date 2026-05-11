@@ -9,6 +9,50 @@ import { CompassAggregationsPlugin } from '../src/index';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import React from 'react';
 import { PipelineStorageProvider } from '@mongodb-js/my-queries-storage/provider';
+import {
+  CompassExperimentationProvider,
+  type ExperimentTestGroup,
+} from '@mongodb-js/compass-telemetry';
+
+const noopAsyncResult = {
+  asyncStatus: null,
+  error: null,
+  isLoading: false,
+  isError: false,
+  isSuccess: true,
+} as const;
+
+/**
+ * Wraps a React element with a mock experimentation provider.
+ *
+ * @param ui - The React element to wrap.
+ * @param variant - The experiment variant group to assign, or `null` to simulate
+ *   a user not assigned to any variant (control/default).
+ */
+export function wrapWithExperimentProvider(
+  ui: React.ReactElement,
+  variant: ExperimentTestGroup | null
+): React.ReactElement {
+  return React.createElement(
+    CompassExperimentationProvider,
+    {
+      useAssignment: () => ({
+        assignment: variant
+          ? {
+              assignmentData: {
+                variant,
+              },
+            }
+          : null,
+        ...noopAsyncResult,
+      }),
+      useTrackInSample: () => noopAsyncResult,
+      assignExperiment: () => Promise.resolve(null),
+      getAssignment: () => Promise.resolve(null),
+    } as any,
+    ui
+  );
+}
 
 export class MockAtlasAiService {
   async getAggregationFromUserInput() {

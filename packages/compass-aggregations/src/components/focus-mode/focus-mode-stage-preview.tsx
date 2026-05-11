@@ -27,7 +27,7 @@ import {
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import SearchNoResults from '../search-no-results';
-import { usePreference } from 'compass-preferences-model/provider';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 
 const containerStyles = css({
@@ -120,9 +120,7 @@ export const FocusModePreview = ({
     [onExpand, onCollapse, stageIndex]
   );
 
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
 
   const docCount = documents?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';

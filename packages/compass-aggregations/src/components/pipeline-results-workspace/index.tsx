@@ -17,6 +17,7 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
+import RateLimitExceededBanner from '../rate-limit-exceeded-banner';
 import type { RootState } from '../../modules';
 import {
   type AggregationError,
@@ -33,6 +34,9 @@ import { getStageOperator } from '../../utils/stage';
 import { gotoOutResults } from '../../modules/out-results-fn';
 import {
   isRerankNotEnabledError,
+  getVoyageProjectRateLimitInfo,
+  getSearchExtensionTypeFromStage,
+  type SearchExtensionType,
   isRerankVersionSupported,
 } from '../../utils/search-stage-errors';
 import { RerankVersionWarningBanner } from '../rerank-version-warning-banner';
@@ -150,6 +154,8 @@ type PipelineResultsWorkspaceProps = {
   onRetry: () => void;
   serverVersion: string;
   hasRerankStage: boolean;
+  pipelineText: string;
+  searchExtensionType?: SearchExtensionType | null;
 };
 
 export const PipelineResultsWorkspace: React.FunctionComponent<
@@ -169,6 +175,8 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   onCancel,
   serverVersion,
   hasRerankStage,
+  pipelineText,
+  searchExtensionType,
 }) => {
   const { atlasMetadata } = useConnectionInfo();
   const enableRerank = usePreference('enableRerank');
@@ -179,6 +187,8 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
 
   const rerankNotEnabled =
     isError && error ? isRerankNotEnabledError(error.message) : false;
+  const rateLimitInfo =
+    isError && error ? getVoyageProjectRateLimitInfo(error.message) : null;
   const projectSettingsHref =
     rerankNotEnabled && atlasMetadata
       ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
@@ -208,6 +218,16 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
             )}
           </div>
         </Banner>
+      </ResultsContainer>
+    );
+  } else if (isError && error && rateLimitInfo) {
+    results = (
+      <ResultsContainer>
+        <RateLimitExceededBanner
+          rateLimitInfo={rateLimitInfo}
+          searchExtensionType={searchExtensionType}
+          dataTestId="pipeline-results-error"
+        />
       </ResultsContainer>
     );
   } else if (isError && error) {
@@ -311,6 +331,11 @@ const mapState = (state: RootState) => {
   } = state;
   const lastStage = pipeline[pipeline.length - 1];
   const stageOperator = getStageOperator(lastStage) ?? '';
+  const searchExtensionType = pipeline.reduce<SearchExtensionType | null>(
+    (found, stage) =>
+      found ?? getSearchExtensionTypeFromStage(getStageOperator(stage)),
+    null
+  );
 
   return {
     namespace,
@@ -329,6 +354,8 @@ const mapState = (state: RootState) => {
     hasRerankStage: pipeline.some(
       (stage) => getStageOperator(stage) === '$rerank'
     ),
+    pipelineText,
+    searchExtensionType,
   };
 };
 

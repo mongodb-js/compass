@@ -18,6 +18,7 @@ import type { SettingsProps } from '../settings/settings';
 import type { Workspace } from '../../modules/workspace';
 
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 
 const pipelineStyles = css({
   display: 'flex',
@@ -67,7 +68,6 @@ export type PipelineProps = Pick<
     limit?: number;
     maxTimeMS?: number | null;
     largeLimit?: number;
-    enableSearchActivationProgramP1: boolean;
     // Search indexes polling props
     hasSearchStage: boolean;
     isReadonlyView: boolean;
@@ -98,7 +98,6 @@ const Pipeline: React.FC<PipelineProps> = ({
   workspace,
   limit = DEFAULT_SAMPLE_SIZE,
   largeLimit = DEFAULT_LARGE_LIMIT,
-  enableSearchActivationProgramP1,
   hasSearchStage,
   isReadonlyView,
   serverVersion,
@@ -106,6 +105,7 @@ const Pipeline: React.FC<PipelineProps> = ({
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
 }) => {
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const isViewVersionSearchCompatible =
     VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(serverVersion);
   const isSearchIndexesReadable = isReadonlyView

@@ -64,23 +64,35 @@ describe('Rolling indexes', function () {
       { rollingIndex: true, indexName }
     );
 
-    // Special rolling index badge indicating that build has started (we got it
-    // listed by automation agent)
-    await browser
-      .$(Selectors.indexComponent(indexName))
-      .$('[data-testid="index-building"]')
-      .waitForDisplayed();
+    const buildingSelector = `${Selectors.indexComponent(
+      indexName
+    )} [data-testid="index-building"]`;
+    const readySelector = `${Selectors.indexComponent(
+      indexName
+    )} [data-testid="index-ready"]`;
+
+    // The rolling index build may complete before the poll has it
+    // in a building state.
+    await browser.waitUntil(
+      async () => {
+        return (
+          (await browser.$(buildingSelector).isExisting()) ||
+          (await browser.$(readySelector).isExisting())
+        );
+      },
+      {
+        timeout: extendedRollingIndexesTimeout,
+        interval: 2_000,
+      }
+    );
 
     // Now wait for index to finish building
-    await browser
-      .$(Selectors.indexComponent(indexName))
-      .$('[data-testid="index-ready"]')
-      .waitForDisplayed({
-        timeout: extendedRollingIndexesTimeout,
-        // Building a rolling index is a slow process, no need to check too
-        // often
-        interval: 2_000,
-      });
+    await browser.waitUntil(async () => browser.$(readySelector).isExisting(), {
+      timeout: extendedRollingIndexesTimeout,
+      // Building a rolling index is a slow process, no need to check too
+      // often
+      interval: 2_000,
+    });
 
     // Now that it's ready, delete it (it will also check that it's eventually
     // removed from the list)

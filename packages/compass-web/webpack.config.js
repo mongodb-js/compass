@@ -177,8 +177,6 @@ module.exports = (env, args) => {
         os: require.resolve('os-browserify/browser'),
         crypto: require.resolve('crypto-browserify'),
         dns: localPolyfill('dns'),
-        // Built-in Node.js modules imported by the driver directly and used in
-        // ways that requires us to provide a no-op polyfill
         zlib: localPolyfill('zlib'),
         // Built-in Node.js modules imported by the driver directly, but used in
         // a way that allows us to just provide an empty module alias
