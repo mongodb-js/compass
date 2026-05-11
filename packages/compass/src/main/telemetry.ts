@@ -138,8 +138,12 @@ class CompassTelemetry {
 
   private static async _init(app: typeof CompassApplication) {
     const { preferences } = app;
-    const { trackUsageStatistics, telemetryAnonymousId, telemetryAtlasUserId } =
-      preferences.getPreferences();
+    const {
+      trackUsageStatistics,
+      telemetryAnonymousId,
+      telemetryAtlasUserId,
+      telemetryDeviceId,
+    } = preferences.getPreferences();
     this.telemetryAnonymousId = telemetryAnonymousId ?? '';
     this.telemetryAtlasUserId = telemetryAtlasUserId;
     this.telemetryDeviceId = await getDeviceId({
@@ -152,6 +156,11 @@ class CompassTelemetry {
           { err: err.message, type }
         ),
     });
+    if (telemetryDeviceId !== this.telemetryDeviceId) {
+      await preferences.savePreferences({
+        telemetryDeviceId: this.telemetryDeviceId,
+      });
+    }
 
     try {
       this.osInfo = await getOsInfo();
