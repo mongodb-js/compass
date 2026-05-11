@@ -64,6 +64,15 @@ const McpServerSettings: React.FunctionComponent<{
   const copyTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
+    // Query current status on mount in case the server started before this
+    // component was rendered (e.g. setting was already enabled at startup).
+    void ipcRenderer
+      ?.call('mcp:get-status')
+      .then((update: { status: McpStatus; error?: string }) => {
+        setStatus(update.status);
+        if (update.error) setErrorMsg(update.error);
+      });
+
     const handler = (
       _event: unknown,
       update: { status: McpStatus; error?: string }

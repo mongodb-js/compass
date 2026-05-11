@@ -207,87 +207,84 @@ class CompassApplication {
   private static async setupMcpServer(): Promise<void> {
     const storage = getCompassMainConnectionStorage();
 
-    const getOrGenerateToken = async (): Promise<string> => {
-      let token = this.preferences.getPreferences().mcpServerToken;
-      if (!token) {
-        token = crypto.randomBytes(32).toString('base64url');
-        await this.preferences.savePreferences({ mcpServerToken: token });
-      }
-      return token;
-    };
+    // Generate the token immediately so it appears in Settings even before
+    // the server is first started.
+    let token = this.preferences.getPreferences().mcpServerToken;
+    if (!token) {
+      token = crypto.randomBytes(32).toString('base64url');
+      await this.preferences.savePreferences({ mcpServerToken: token });
+    }
 
-    const buildOpts = async () => {
-      const token = await getOrGenerateToken();
-      return {
-        token,
-        getAllConnections: async () => {
-          const connections = await storage.loadAll();
-          return connections.map((c) => ({
-            id: c.id,
-            name: c.favorite?.name ?? c.id,
-            mcpAccess: c.mcpAccess,
-          }));
-        },
-        getConnectionInfo: async (id: string) => {
-          const connections = await storage.loadAll();
-          const info = connections.find((c) => c.id === id);
-          if (!info) return undefined;
-          return {
-            connectionString: info.connectionOptions.connectionString,
-            displayName: info.favorite?.name ?? id,
-          };
-        },
-        checkConsent: async (id: string) => {
-          const connections = await storage.loadAll();
-          const info = connections.find((c) => c.id === id);
-          return info?.mcpAccess ?? 'ask';
-        },
-        requestConsentFromUI: (
-          connectionId: string,
-          connectionName: string
-        ): Promise<{ decision: 'allowed' | 'denied'; remember: boolean }> => {
-          const requestId = crypto.randomUUID();
-          return new Promise((resolve) => {
-            const timer = setTimeout(() => {
-              ipcMain.removeAllListeners(`mcp:consent-response:${requestId}`);
-              resolve({ decision: 'denied', remember: false });
-            }, 60_000);
+    const buildOpts = () => ({
+      token: token as string,
+      getAllConnections: async () => {
+        const connections = await storage.loadAll();
+        return connections.map((c) => ({
+          id: c.id,
+          name: c.favorite?.name ?? c.id,
+          mcpAccess: c.mcpAccess,
+        }));
+      },
+      getConnectionInfo: async (id: string) => {
+        const connections = await storage.loadAll();
+        const info = connections.find((c) => c.id === id);
+        if (!info) return undefined;
+        return {
+          connectionString: info.connectionOptions.connectionString,
+          displayName: info.favorite?.name ?? id,
+        };
+      },
+      checkConsent: async (id: string) => {
+        const connections = await storage.loadAll();
+        const info = connections.find((c) => c.id === id);
+        return info?.mcpAccess ?? 'ask';
+      },
+      requestConsentFromUI: (
+        connectionId: string,
+        connectionName: string
+      ): Promise<{ decision: 'allowed' | 'denied'; remember: boolean }> => {
+        const requestId = crypto.randomUUID();
+        return new Promise((resolve) => {
+          const timer = setTimeout(() => {
+            ipcMain.removeAllListeners(`mcp:consent-response:${requestId}`);
+            resolve({ decision: 'denied', remember: false });
+          }, 60_000);
 
-            ipcMain.once(
-              `mcp:consent-response:${requestId}` as never,
-              (
-                _event: unknown,
-                response: { decision: 'allowed' | 'denied'; remember: boolean }
-              ) => {
-                clearTimeout(timer);
-                resolve(response);
-              }
-            );
+          ipcMain.once(
+            `mcp:consent-response:${requestId}` as never,
+            (
+              _event: unknown,
+              response: { decision: 'allowed' | 'denied'; remember: boolean }
+            ) => {
+              clearTimeout(timer);
+              resolve(response);
+            }
+          );
 
-            ipcMain.broadcast('mcp:consent-request', {
-              requestId,
-              connectionId,
-              connectionName,
-            });
+          ipcMain.broadcast('mcp:consent-request', {
+            requestId,
+            connectionId,
+            connectionName,
           });
-        },
-        saveConsent: async (id: string, decision: 'allowed' | 'denied') => {
-          const connections = await storage.loadAll();
-          const info = connections.find((c) => c.id === id);
-          if (info && storage.save) {
-            await storage.save({
-              connectionInfo: { ...info, mcpAccess: decision },
-            });
-          }
-        },
-      };
-    };
+        });
+      },
+      saveConsent: async (id: string, decision: 'allowed' | 'denied') => {
+        const connections = await storage.loadAll();
+        const info = connections.find((c) => c.id === id);
+        if (info && storage.save) {
+          await storage.save({
+            connectionInfo: { ...info, mcpAccess: decision },
+          });
+        }
+      },
+    });
 
     const startServer = async (): Promise<void> => {
       if (this.mcpServerHandle) return;
       try {
-        const opts = await buildOpts();
+        const opts = buildOpts();
         this.mcpServerHandle = await startMcpServer(opts);
+        lastError = undefined;
         log.info(
           mongoLogId(1_001_000_450),
           'MCP Server',
@@ -302,9 +299,10 @@ class CompassApplication {
           'Failed to start MCP server',
           { error: (err as Error).message }
         );
+        lastError = (err as Error).message;
         ipcMain.broadcast('mcp:status-update', {
           status: 'error',
-          error: (err as Error).message,
+          error: lastError,
         });
       }
     };
@@ -314,6 +312,7 @@ class CompassApplication {
       try {
         await this.mcpServerHandle.stop();
         this.mcpServerHandle = null;
+        lastError = undefined;
         ipcMain.broadcast('mcp:status-update', { status: 'stopped' });
       } catch (err) {
         log.error(
@@ -324,6 +323,13 @@ class CompassApplication {
         );
       }
     };
+
+    let lastError: string | undefined;
+    ipcMain.respondTo('mcp:get-status', () => {
+      if (this.mcpServerHandle) return { status: 'running' };
+      if (lastError) return { status: 'error', error: lastError };
+      return { status: 'stopped' };
+    });
 
     if (this.preferences.getPreferences().enableMcpServer) {
       await startServer();
