@@ -39,14 +39,14 @@ const workspaceContainerStyles = css({
 
 type PipelineAsTextWorkspaceProps = {
   isAutoPreview: boolean;
-  pipelineText?: string;
+  pipelineText: string;
 };
 
 const containerDataTestId = 'pipeline-as-text-workspace';
 
 export const PipelineAsTextWorkspace: React.FunctionComponent<
   PipelineAsTextWorkspaceProps
-> = ({ isAutoPreview, pipelineText = '' }) => {
+> = ({ isAutoPreview, pipelineText }) => {
   const enableRerank = usePreference('enableRerank');
   const showRerankTokensBanner =
     enableRerank && pipelineText.includes('$rerank') && isAutoPreview;
