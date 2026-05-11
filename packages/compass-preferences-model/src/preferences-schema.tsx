@@ -49,6 +49,9 @@ export const LEGACY_UUID_ENCODINGS = [
 ] as const;
 export type LEGACY_UUID_ENCODINGS = (typeof LEGACY_UUID_ENCODINGS)[number];
 
+export const LANGUAGE_VALUES = ['en', 'ja'] as const;
+export type LANGUAGES = (typeof LANGUAGE_VALUES)[number];
+
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
   enableDebugUseCsfleSchemaMap?: boolean;
@@ -81,6 +84,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     installURLHandlers: boolean;
     protectConnectionStringsForNewConnections: boolean;
     legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS;
+    language: LANGUAGES;
     // This preference is not a great fit for user preferences, but everything
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
@@ -1165,6 +1169,28 @@ export const storedUserPreferencesProps: Required<{
       },
     },
     validator: z.enum(LEGACY_UUID_ENCODINGS).default(''),
+    type: 'string',
+  },
+
+  language: {
+    ui: true,
+    cli: false,
+    global: false,
+    description: {
+      short: 'Language',
+      long: 'The language used for the Compass interface. Requires a restart to take full effect.',
+      options: {
+        en: {
+          label: 'English',
+          description: 'English',
+        },
+        ja: {
+          label: '日本語',
+          description: 'Japanese',
+        },
+      },
+    },
+    validator: z.enum(LANGUAGE_VALUES).default('en'),
     type: 'string',
   },
 

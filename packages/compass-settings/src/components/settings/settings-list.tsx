@@ -7,6 +7,7 @@ import {
 import {
   SORT_ORDER_VALUES,
   LEGACY_UUID_ENCODINGS,
+  LANGUAGE_VALUES,
 } from 'compass-preferences-model/provider';
 import { settingStateLabels } from './state-labels';
 import {
@@ -28,6 +29,7 @@ import { connect } from 'react-redux';
 const ENUM_PREFERENCE_CONFIG = {
   defaultSortOrder: SORT_ORDER_VALUES,
   legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS,
+  language: LANGUAGE_VALUES,
 } as const;
 
 type KeysMatching<T, V> = keyof {

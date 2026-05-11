@@ -9,6 +9,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
+import { Trans, useTranslation } from 'react-i18next';
 import type { WelcomeModalState } from '../stores/welcome-modal-store';
 import { closeModal, openSettings } from '../stores/welcome-modal-store';
 import { WelcomeModalImage } from './welcome-image';
@@ -34,32 +35,36 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
 }) => {
   const networkTraffic = usePreference('networkTraffic');
   const darkMode = useDarkMode();
+  const { t } = useTranslation('compassWelcome');
 
   return (
     <MarketingModal
       data-testid="welcome-modal"
       open={isOpen}
       onClose={onClose}
-      buttonProps={{ onClick: onClose, children: 'Start' }}
-      title="Welcome to Compass"
+      buttonProps={{ onClick: onClose, children: t('modalStart') }}
+      title={t('modalTitle')}
       showBlob
       blobPosition="top right"
       disclaimer={
         networkTraffic ? (
           <div className={disclaimer}>
-            To help improve our products, anonymous usage data is collected and
-            sent to MongoDB in accordance with MongoDB&apos;s privacy policy.
+            {t('modalDisclaimerPrivacy')}
             <br />
-            Manage this behaviour on the Compass{' '}
-            <Link
-              data-testid="open-settings-link"
-              hideExternalIcon
-              className={link}
-              onClick={onOpenSettingsClick}
-            >
-              Settings
-            </Link>{' '}
-            page.
+            <Trans
+              i18nKey="modalDisclaimerSettings"
+              ns="compassWelcome"
+              components={{
+                settingsLink: (
+                  <Link
+                    data-testid="open-settings-link"
+                    hideExternalIcon
+                    className={link}
+                    onClick={onOpenSettingsClick}
+                  />
+                ),
+              }}
+            />
           </div>
         ) : undefined
       }
@@ -67,10 +72,7 @@ export const WelcomeModal: React.FunctionComponent<WelcomeModalProps> = ({
       linkText={''}
       darkMode={darkMode}
     >
-      <Body>
-        Build aggregation pipelines, optimize queries, analyze schemas,
-        and&nbsp;more. All with the GUI built by - and for - MongoDB.
-      </Body>
+      <Body>{t('modalBody')}</Body>
     </MarketingModal>
   );
 };

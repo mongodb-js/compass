@@ -15,6 +15,7 @@ export {
   getSettingDescription,
   SORT_ORDER_VALUES,
   LEGACY_UUID_ENCODINGS,
+  LANGUAGE_VALUES,
 } from './preferences-schema';
 export type * from './preferences-schema';
 export type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
