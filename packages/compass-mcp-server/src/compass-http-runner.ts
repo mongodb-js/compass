@@ -8,7 +8,18 @@ import {
   type UserConfig,
   type MCPHttpServerConstructorArgs,
 } from 'mongodb-mcp-server';
-import { AllTools } from 'mongodb-mcp-server/tools';
+import {
+  AggregateTool,
+  CollectionIndexesTool,
+  CollectionSchemaTool,
+  CollectionStorageSizeTool,
+  CountTool,
+  DbStatsTool,
+  ExplainTool,
+  FindTool,
+  ListCollectionsTool,
+  ListDatabasesTool,
+} from 'mongodb-mcp-server/tools';
 import { CompassMcpHttpServer } from './compass-mcp-http-server';
 import {
   CompassConnectionManager,
@@ -16,6 +27,30 @@ import {
 } from './compass-connection-manager';
 import type { ListConnectionsContext } from './list-connections-tool';
 import { ListConnectionsTool } from './list-connections-tool';
+import { CompassConnectTool } from './compass-connect-tool';
+
+/**
+ * Tools exposed to external AI clients. Strictly read-only MongoDB data-plane
+ * operations — no writes, no DDL, no Atlas control plane, no Atlas Local
+ * deployment management, no assistant/knowledge tools, no log access.
+ *
+ * `CompassConnectTool` replaces the upstream `connect` tool so the AI picks a
+ * saved Compass connection by id instead of supplying a raw connection string.
+ */
+const COMPASS_TOOLS = [
+  CompassConnectTool,
+  ListConnectionsTool,
+  ListDatabasesTool,
+  ListCollectionsTool,
+  CollectionSchemaTool,
+  CollectionIndexesTool,
+  CollectionStorageSizeTool,
+  FindTool,
+  CountTool,
+  AggregateTool,
+  DbStatsTool,
+  ExplainTool,
+];
 
 const DEFAULT_PORT = 27097;
 const DEFAULT_HOST = '127.0.0.1';
@@ -48,6 +83,9 @@ export class CompassHttpRunner extends StreamableHttpRunner<
       readOnly: true,
       loggers: ['mcp'],
       telemetry: 'disabled',
+      // We register an explicit allowlist of tools below, so disabledTools is
+      // not strictly necessary. Kept for defense-in-depth: even if one of
+      // these slipped into the allowlist by mistake it would still be off.
       disabledTools: ['switch-connection'],
     });
 
@@ -84,7 +122,7 @@ export class CompassHttpRunner extends StreamableHttpRunner<
       request,
       serverOptions: {
         ...serverOptions,
-        tools: [...AllTools, ListConnectionsTool],
+        tools: COMPASS_TOOLS,
         toolContext: {
           getAllConnections: this.compassOpts.getAllConnections,
         },
