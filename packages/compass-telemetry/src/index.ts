@@ -19,3 +19,6 @@ export {
   SkillsBannerContexts as SkillsBannerContextEnum,
   useAtlasSkillsBanner,
 } from './atlas-skills';
+
+// @experiment Search Activation Program P1  | Jira Epic: CLOUDP-308952
+export { useSearchActivationProgramP1 } from './search-activation-program-p1';

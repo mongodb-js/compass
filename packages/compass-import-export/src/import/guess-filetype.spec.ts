@@ -198,4 +198,33 @@ describe('guessFileType', function () {
     });
     expect(jsonlResult.type).to.equal('jsonl');
   });
+
+  // COMPASS-10565: CSV files with CRLF line endings and no trailing newline
+  // would cause guessFileType to hang indefinitely.
+  it('detects csv with CRLF line endings and no trailing newline', async function () {
+    const content = '"col1","col2"\r\n"val1","val2"';
+    const input = Readable.from(content);
+    const result = await guessFileType({ input });
+    expect(result.type).to.equal('csv');
+    if (result.type === 'csv') {
+      expect(result.csvDelimiter).to.equal(',');
+      expect(result.newline).to.equal('\r\n');
+    }
+  });
+
+  it('detects csv with CRLF line endings and no trailing newline from a file stream', async function () {
+    const os = await import('os');
+    const tmpFile = path.join(os.tmpdir(), `guess-filetype-${Date.now()}.csv`);
+    fs.writeFileSync(tmpFile, '"col1","col2"\r\n"val1","val2"');
+    try {
+      const input = fs.createReadStream(tmpFile);
+      const result = await guessFileType({ input });
+      expect(result.type).to.equal('csv');
+      if (result.type === 'csv') {
+        expect(result.csvDelimiter).to.equal(',');
+      }
+    } finally {
+      fs.unlinkSync(tmpFile);
+    }
+  });
 });

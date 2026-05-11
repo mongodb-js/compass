@@ -133,6 +133,7 @@ describe('Bulk Update', () => {
 
     expect(executedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
+      has_filter: true,
     });
 
     await browser.runFindOperation('Documents', '{ i: 5, foo: "bar" }');

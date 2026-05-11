@@ -102,7 +102,7 @@ describe('Bulk Delete', function () {
     // so we just check it exists for simplicity
     deleteCommonVariedProperties(executedEvent);
 
-    expect(executedEvent).to.deep.equal({});
+    expect(executedEvent).to.deep.equal({ has_filter: true });
 
     // The success toast is displayed
     await browser.$(Selectors.BulkDeleteSuccessToast).waitForDisplayed();

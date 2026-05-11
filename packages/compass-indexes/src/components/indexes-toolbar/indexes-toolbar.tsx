@@ -28,7 +28,10 @@ import { indexViewChanged } from '../../modules/index-view';
 import type { CollectionStats } from '../../modules/collection-stats';
 import type { Document } from 'mongodb';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useSearchActivationProgramP1,
+  useTelemetry,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const toolbarButtonsContainer = css({
   display: 'flex',
@@ -108,9 +111,12 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
 }) => {
   const {
     readWrite: preferencesReadWrite,
-    enableAtlasSearchIndexes: isSearchManagementActive,
+    enableAtlasSearchIndexes,
     showInsights: preferencesShowInsights,
   } = usePreferences(['readWrite', 'enableAtlasSearchIndexes', 'showInsights']);
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const isSearchManagementActive =
+    enableAtlasSearchIndexes || enableSearchActivationProgramP1;
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
   const showInsights = preferencesShowInsights && !errorMessage;

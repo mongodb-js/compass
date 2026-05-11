@@ -1201,10 +1201,12 @@ class CrudStoreImpl
   }
 
   async runBulkUpdate() {
+    const query = this.queryBar.getLastAppliedQuery('crud');
     this.track(
       'Bulk Update Executed',
       {
         isUpdatePreviewSupported: this.state.isUpdatePreviewSupported,
+        has_filter: Object.keys(query.filter ?? {}).length > 0,
       },
       this.connectionInfoRef.current
     );
@@ -1220,7 +1222,7 @@ class CrudStoreImpl
     });
 
     const { ns } = this.state;
-    const { filter = {} } = this.queryBar.getLastAppliedQuery('crud');
+    const { filter = {} } = query;
     let update;
     try {
       update = parseShellBSON(this.state.bulkUpdate.updateText);
@@ -1961,7 +1963,7 @@ class CrudStoreImpl
   }
 
   async runBulkDelete() {
-    this.track('Bulk Delete Executed', {}, this.connectionInfoRef.current);
+    const query = this.queryBar.getLastAppliedQuery('crud');
 
     const { affected } = this.state.bulkDelete;
     this.closeBulkDeleteDialog();
@@ -1981,9 +1983,16 @@ class CrudStoreImpl
 
     if (confirmation) {
       this.bulkDeleteInProgress();
-      const { filter = {} } = this.queryBar.getLastAppliedQuery('crud');
+      const { filter = {} } = query;
       try {
         await this.dataService.deleteMany(this.state.ns, filter);
+        this.track(
+          'Bulk Delete Executed',
+          {
+            has_filter: Object.keys(query.filter ?? {}).length > 0,
+          },
+          this.connectionInfoRef.current
+        );
         this.bulkDeleteSuccess();
         // Emit both events so all listeners update (fixes bulk delete document count not updating)
         const payload = { view: this.state.view, ns: this.state.ns };

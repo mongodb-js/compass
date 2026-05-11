@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed May 06 2026.
+This document was automatically generated on Sun May 10 2026.
 
 ## List of dependencies
 
@@ -421,7 +421,7 @@ This document was automatically generated on Wed May 06 2026.
 | **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**                      | 7.0.1        | Apache-2.0                          |
 | **[mongodb-log-writer](#41de265e46da14679ed02f56213dfeddc448522f56b1b3ebd39689c43af5d5f1)**                                 | 2.5.7        | Apache-2.0                          |
 | **[mongodb-mcp-server](#170d115701124029e823835d30b7a783037c72cd0f53bf99816bbbe444a3676d)**                                 | 1.10.0       | Apache-2.0                          |
-| **[mongodb-ns](#1681b02f7072ef576cc967fe600d4bc561bc1f5f8e0e451d2903288655650eaf)**                                         | 3.1.6        | Apache-2.0                          |
+| **[mongodb-ns](#3f1ced6a4a6bd87959cd71735e41b49339b332c67606c37ac7afdebd8561d484)**                                         | 3.2.0        | Apache-2.0                          |
 | **[mongodb-query-parser](#6433ba36b8912d9c4d45f6468891ce7330f153f6a10d69de4ed0fd3254a3d923)**                               | 4.7.12       | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6        | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0       | Apache-2.0                          |
@@ -515,7 +515,7 @@ This document was automatically generated on Wed May 06 2026.
 | **[scheduler](#950b09ca6f4766ded0bdde81e2697b5e184ed63925d74a8f512c978cab5bda6f)**                                          | 0.20.2       | MIT                                 |
 | **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**                                             | 1.1.2        | MIT                                 |
 | **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**                                             | 6.3.1        | ISC                                 |
-| **[semver](#861f32f827a4e6844082ca1ec7ddd5d22b3913d87af1640e745d7de96d6ad868)**                                             | 7.7.3        | ISC                                 |
+| **[semver](#d9c6b334356e58749b10fc9c55cfcd213136c1b0e6d57b2e9a61afd8ded48637)**                                             | 7.8.0        | ISC                                 |
 | **[send](#2519670ce9ac452c40f095ea0d317f224ac8cd684c920a1383a9b9d42f4c2d29)**                                               | 1.2.1        | MIT                                 |
 | **[serve-static](#aa686afa5272f44cbfeadf82857770f564b35953cf4f2a2d6d8a5802b312863b)**                                       | 2.2.1        | MIT                                 |
 | **[set-function-length](#88ee3e1c8e8c22ac3653a290c1cdc68787d064f17a743020a070b31290bb4eb9)**                                | 1.2.2        | MIT                                 |
@@ -28671,9 +28671,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="1681b02f7072ef576cc967fe600d4bc561bc1f5f8e0e451d2903288655650eaf"></a>
+<a id="3f1ced6a4a6bd87959cd71735e41b49339b332c67606c37ac7afdebd8561d484"></a>
 
-### [mongodb-ns](https://www.npmjs.com/package/mongodb-ns) (version 3.1.6)
+### [mongodb-ns](https://www.npmjs.com/package/mongodb-ns) (version 3.2.0)
 
 License tags: Apache-2.0
 
@@ -39050,9 +39050,9 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-<a id="861f32f827a4e6844082ca1ec7ddd5d22b3913d87af1640e745d7de96d6ad868"></a>
+<a id="d9c6b334356e58749b10fc9c55cfcd213136c1b0e6d57b2e9a61afd8ded48637"></a>
 
-### [semver](https://www.npmjs.com/package/semver) (version 7.7.3)
+### [semver](https://www.npmjs.com/package/semver) (version 7.8.0)
 
 License tags: ISC
 
