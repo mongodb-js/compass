@@ -5,19 +5,17 @@ import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { renderWithStore } from '../../../test/configure-store';
+import type { AggregationsPluginServices } from '../../stores/store';
 import { PipelineResultsWorkspace } from './index';
+import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 
 const rerankPreferences = {
-  preferences: {
-    getPreferences() {
-      return { enableRerank: true };
-    },
-  },
+  preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }),
 };
 
 const renderPipelineResultsWorkspace = (
   props: Partial<ComponentProps<typeof PipelineResultsWorkspace>> = {},
-  services: any = {}
+  services: Partial<AggregationsPluginServices> = {}
 ) => {
   return renderWithStore(
     <PipelineResultsWorkspace

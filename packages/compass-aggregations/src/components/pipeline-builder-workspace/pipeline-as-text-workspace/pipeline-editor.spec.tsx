@@ -9,6 +9,8 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../../test/configure-store';
+import type { AggregationsPluginServices } from '../../../stores/store';
+import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
 import { PipelineEditor } from './pipeline-editor';
@@ -20,7 +22,7 @@ const renderPipelineEditor = (
   {
     enableSearchActivationExperiment = false,
   }: { enableSearchActivationExperiment?: boolean } = {},
-  services: any = {}
+  services: Partial<AggregationsPluginServices> = {}
 ) => {
   let ui = (
     <PipelineEditor
@@ -258,11 +260,7 @@ describe('PipelineEditor', function () {
 
     describe('$rerank version warning', function () {
       const rerankPreferences = {
-        preferences: {
-          getPreferences() {
-            return { enableRerank: true };
-          },
-        },
+        preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }),
       };
 
       it('should show warning when server < 8.3 and pipeline has $rerank', async function () {

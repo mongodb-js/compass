@@ -4,11 +4,13 @@ import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import { renderWithStore } from '../../../test/configure-store';
+import type { AggregationsPluginServices } from '../../stores/store';
 import { FocusModeStageEditor } from './focus-mode-stage-editor';
+import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 
 const renderFocusModeStageEditor = (
   props: Partial<ComponentProps<typeof FocusModeStageEditor>> = {},
-  services: any = {}
+  services: Partial<AggregationsPluginServices> = {}
 ) => {
   return renderWithStore(
     <FocusModeStageEditor
@@ -86,13 +88,7 @@ describe('FocusMode', function () {
     it('shows the tokens banner when operator is $rerank and autoPreview is true', async function () {
       await renderFocusModeStageEditor(
         { index: 0, operator: '$rerank', autoPreview: true },
-        {
-          preferences: {
-            getPreferences() {
-              return { enableRerank: true };
-            },
-          },
-        }
+        { preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }) }
       );
       expect(screen.getByTestId('focus-mode-rerank-tokens-banner')).to.exist;
     });
@@ -100,13 +96,7 @@ describe('FocusMode', function () {
     it('does not show the tokens banner when autoPreview is false', async function () {
       await renderFocusModeStageEditor(
         { index: 0, operator: '$rerank', autoPreview: false },
-        {
-          preferences: {
-            getPreferences() {
-              return { enableRerank: true };
-            },
-          },
-        }
+        { preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }) }
       );
       expect(
         screen.queryByTestId('focus-mode-rerank-tokens-banner')
@@ -116,13 +106,7 @@ describe('FocusMode', function () {
     it('does not show the tokens banner for non-$rerank operators', async function () {
       await renderFocusModeStageEditor(
         { index: 0, operator: '$match', autoPreview: true },
-        {
-          preferences: {
-            getPreferences() {
-              return { enableRerank: true };
-            },
-          },
-        }
+        { preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }) }
       );
       expect(
         screen.queryByTestId('focus-mode-rerank-tokens-banner')

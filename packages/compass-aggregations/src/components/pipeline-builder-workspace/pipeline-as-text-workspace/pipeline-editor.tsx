@@ -24,10 +24,7 @@ import {
   useTelemetry,
   useSearchActivationProgramP1,
 } from '@mongodb-js/compass-telemetry/provider';
-import {
-  useConnectionInfoRef,
-  useConnectionInfo,
-} from '@mongodb-js/compass-connections/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { usePreference } from 'compass-preferences-model/provider';
 import {
@@ -43,7 +40,6 @@ import {
 import ServerErrorBanner from '../../server-error-banner';
 import {
   isRerankVersionSupported,
-  RERANK_MIN_SERVER_VERSION,
   getSearchExtensionTypeFromStage,
   type SearchExtensionType,
 } from '../../../utils/search-stage-errors';
