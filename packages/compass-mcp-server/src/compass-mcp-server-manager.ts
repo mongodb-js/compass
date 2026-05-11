@@ -1,66 +1,36 @@
 import crypto from 'crypto';
-import os from 'os';
-import path from 'path';
 import { app, shell } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { startMcpServer } from './index';
 import type { CompassMcpServerHandle } from './index';
+import {
+  detectInClient,
+  installInClient,
+  uninstallFromClient,
+} from './auto-setup';
+import { type AiClientId, getAllClientConfigPaths } from './client-paths';
 
 const { log } = createLogger('COMPASS-MCP');
 
 /**
- * Absolute paths to the user-level (not workspace) MCP config file for each
- * supported AI client, on the current OS. Returned to the renderer so the
- * settings UI can show a "reveal in Finder/Explorer" link per client.
+ * The Compass binary invocation used by AI client config snippets and by
+ * the auto-install / auto-detect handlers — kept here as a single source of
+ * truth so the UI and the on-disk config never diverge.
  */
-function resolveClientConfigPaths(): {
-  claude: string;
-  cursor: string;
-  vscode: string;
-  windsurf: string;
-} {
-  const home = os.homedir();
-  if (process.platform === 'win32') {
-    const appData =
-      process.env.APPDATA || path.join(home, 'AppData', 'Roaming');
-    return {
-      claude: path.join(appData, 'Claude', 'claude_desktop_config.json'),
-      cursor: path.join(home, '.cursor', 'mcp.json'),
-      vscode: path.join(appData, 'Code', 'User', 'mcp.json'),
-      windsurf: path.join(home, '.codeium', 'windsurf', 'mcp_config.json'),
-    };
-  }
-  if (process.platform === 'darwin') {
-    return {
-      claude: path.join(
-        home,
-        'Library',
-        'Application Support',
-        'Claude',
-        'claude_desktop_config.json'
-      ),
-      cursor: path.join(home, '.cursor', 'mcp.json'),
-      vscode: path.join(
-        home,
-        'Library',
-        'Application Support',
-        'Code',
-        'User',
-        'mcp.json'
-      ),
-      windsurf: path.join(home, '.codeium', 'windsurf', 'mcp_config.json'),
-    };
-  }
-  // linux / other unix
-  const configHome = process.env.XDG_CONFIG_HOME || path.join(home, '.config');
-  return {
-    claude: path.join(configHome, 'Claude', 'claude_desktop_config.json'),
-    cursor: path.join(home, '.cursor', 'mcp.json'),
-    vscode: path.join(configHome, 'Code', 'User', 'mcp.json'),
-    windsurf: path.join(home, '.codeium', 'windsurf', 'mcp_config.json'),
-  };
+function getBridgeInvocation(): { command: string; args: string[] } {
+  // In a packaged app, `process.execPath` is the user-facing Compass binary
+  // that already knows where its main script lives.
+  //
+  // In dev mode (`npm start`) `process.execPath` is the raw Electron
+  // framework binary; passing only `--mcp-stdio` opens an empty Electron,
+  // so we also forward `process.argv[1]` — the path the running Electron
+  // was launched with — which is the bundled main.js.
+  const args = app.isPackaged
+    ? ['--mcp-stdio']
+    : [process.argv[1], '--mcp-stdio'];
+  return { command: process.execPath, args };
 }
 
 export interface McpConnectionStorage {
@@ -206,23 +176,11 @@ export class CompassMcpServerManager {
     });
 
     ipcMain.respondTo('mcp:get-bridge-info', () => {
-      // In a packaged app, `process.execPath` is the user-facing Compass
-      // binary that already knows where its main script lives.
-      //
-      // In dev mode (`npm start`) `process.execPath` is the raw Electron
-      // framework binary, and Electron was launched with the path to the
-      // compiled main script as its first argv. `app.getAppPath()` is the
-      // directory of that script (e.g. `packages/compass/build`), which on
-      // its own does not contain a package.json, so passing it to a fresh
-      // Electron would fail — but `process.argv[1]` IS that exact script
-      // path, so we forward it verbatim.
-      const args = app.isPackaged
-        ? ['--mcp-stdio']
-        : [process.argv[1], '--mcp-stdio'];
+      const { command, args } = getBridgeInvocation();
       return {
-        command: process.execPath,
+        command,
         args,
-        clientConfigPaths: resolveClientConfigPaths(),
+        clientConfigPaths: getAllClientConfigPaths(),
       };
     });
 
@@ -232,6 +190,30 @@ export class CompassMcpServerManager {
         // Reveal the file (or its parent folder, if the file doesn't exist).
         void shell.showItemInFolder(filePath);
         return undefined;
+      }
+    );
+
+    ipcMain.respondTo(
+      'mcp:install-in-client',
+      async (_event: unknown, client: AiClientId) => {
+        const { command, args } = getBridgeInvocation();
+        return await installInClient(client, command, args);
+      }
+    );
+
+    ipcMain.respondTo(
+      'mcp:uninstall-from-client',
+      async (_event: unknown, client: AiClientId) => {
+        await uninstallFromClient(client);
+        return undefined;
+      }
+    );
+
+    ipcMain.respondTo(
+      'mcp:detect-in-client',
+      async (_event: unknown, client: AiClientId) => {
+        const { command, args } = getBridgeInvocation();
+        return await detectInClient(client, command, args);
       }
     );
 

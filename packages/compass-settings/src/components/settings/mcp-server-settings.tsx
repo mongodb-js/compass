@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ipcRenderer } from 'hadron-ipc';
 import {
+  Button,
   Code,
   css,
   cx,
@@ -122,12 +123,34 @@ const openConfigLinkStyles = css({
   wordBreak: 'break-all',
 });
 
+const installRowStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[2],
+  marginTop: spacing[2],
+  marginBottom: spacing[2],
+});
+
+const installErrorStyles = css({
+  color: palette.red.base,
+  fontSize: '12px',
+});
+
 // ─── component ───────────────────────────────────────────────────────────────
+
+type DetectedStatus = {
+  configPath: string;
+  configExists: boolean;
+  installed: boolean;
+};
 
 const McpServerSettings: React.FunctionComponent = () => {
   const { enableMcpServer } = usePreferences(['enableMcpServer']);
   const [bridge, setBridge] = useState<BridgeInfo | null>(null);
   const [activeClient, setActiveClient] = useState<ClientId>('claude');
+  const [detected, setDetected] = useState<DetectedStatus | null>(null);
+  const [installing, setInstalling] = useState(false);
+  const [installError, setInstallError] = useState<string | null>(null);
   const darkMode = useDarkMode();
 
   useEffect(() => {
@@ -135,6 +158,30 @@ const McpServerSettings: React.FunctionComponent = () => {
       ?.call('mcp:get-bridge-info')
       .then((info: BridgeInfo) => setBridge(info));
   }, []);
+
+  // Re-detect whenever the active tab changes (or after install/uninstall).
+  // `nonce` is bumped after install/uninstall to force a re-run of this
+  // effect even when `activeClient` is unchanged. We tag the result with the
+  // client it belongs to so a slow response from a previous tab doesn't
+  // override the current tab's detection.
+  const [detectNonce, setDetectNonce] = useState(0);
+  const [detectedFor, setDetectedFor] = useState<ClientId | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void ipcRenderer
+      ?.call('mcp:detect-in-client', activeClient)
+      .then((status: DetectedStatus) => {
+        if (cancelled) return;
+        setDetected(status);
+        setDetectedFor(activeClient);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeClient, detectNonce]);
+  const refreshDetection = useCallback(() => setDetectNonce((n) => n + 1), []);
+  // Only trust `detected` when it matches the currently selected client.
+  const currentDetected = detectedFor === activeClient ? detected : null;
 
   const client = CLIENTS.find((c) => c.id === activeClient) ?? CLIENTS[0];
   const configPath = bridge?.clientConfigPaths[client.id] ?? '';
@@ -148,6 +195,29 @@ const McpServerSettings: React.FunctionComponent = () => {
     },
     [configPath]
   );
+
+  // Install button label and behavior depend on the detection result:
+  //   - file missing OR no entry → "Install"
+  //   - entry exists but command/args differ → "Update"
+  //   - entry matches what we'd install today → "Installed ✓" (disabled)
+  const installLabel = (() => {
+    if (installing) return 'Installing…';
+    if (!currentDetected) return 'Install';
+    if (currentDetected.installed) return 'Installed ✓';
+    if (currentDetected.configExists) return 'Update';
+    return 'Install';
+  })();
+  const installDisabled = installing || currentDetected?.installed === true;
+
+  const handleInstall = useCallback(() => {
+    setInstalling(true);
+    setInstallError(null);
+    void ipcRenderer
+      ?.call('mcp:install-in-client', activeClient)
+      .then(() => refreshDetection())
+      .catch((err: Error) => setInstallError(err.message))
+      .finally(() => setInstalling(false));
+  }, [activeClient, refreshDetection]);
 
   return (
     <div data-testid="mcp-server-settings">
@@ -177,6 +247,19 @@ const McpServerSettings: React.FunctionComponent = () => {
             </div>
 
             <div className={contentStyles}>
+              <div className={installRowStyles}>
+                <Button
+                  size="small"
+                  variant={currentDetected?.installed ? 'default' : 'primary'}
+                  disabled={installDisabled}
+                  onClick={handleInstall}
+                >
+                  {installLabel}
+                </Button>
+                {installError && (
+                  <span className={installErrorStyles}>{installError}</span>
+                )}
+              </div>
               <div className={openConfigRowStyles}>
                 <span>Open config:</span>
                 <Link

@@ -54,6 +54,7 @@
     "compass-preferences-model": "^2.76.1",
     "electron": "^37.10.3",
     "hadron-ipc": "^3.5.32",
+    "jsonc-parser": "^3.2.0",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.1",
     "mongodb-mcp-server": "^1.10.0"
