@@ -12,7 +12,6 @@ import GeneralSettings from './settings/general';
 import { ProxySettings } from './settings/proxy-settings';
 import OIDCSettings from './settings/oidc-settings';
 import GenAISettings from './settings/gen-ai-settings';
-import McpServerSettings from './settings/mcp-server-settings';
 import PrivacySettings from './settings/privacy';
 import ThemeSettings from './settings/theme';
 import FeaturePreviewSettings, {
@@ -104,12 +103,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       component: GenAISettings,
     });
   }
-
-  settings.push({
-    tabId: 'mcp',
-    name: 'AI Tools',
-    component: McpServerSettings,
-  });
 
   if (useShouldShowFeaturePreviewSettings()) {
     settings.push({

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { connect } from 'react-redux';
 import { ipcRenderer } from 'hadron-ipc';
 import {
   Badge,
@@ -12,7 +11,7 @@ import {
   TextInput,
   Tooltip,
 } from '@mongodb-js/compass-components';
-import type { RootState } from '../../stores';
+import { usePreferences } from 'compass-preferences-model/provider';
 import SettingsList from './settings-list';
 
 const MCP_PORT = 27097;
@@ -53,10 +52,11 @@ function buildSnippet(token: string): string {
   );
 }
 
-const McpServerSettings: React.FunctionComponent<{
-  mcpServerToken: string | undefined;
-  enableMcpServer: boolean;
-}> = ({ mcpServerToken, enableMcpServer }) => {
+const McpServerSettings: React.FunctionComponent = () => {
+  const { enableMcpServer, mcpServerToken } = usePreferences([
+    'enableMcpServer',
+    'mcpServerToken',
+  ]);
   const [status, setStatus] = useState<McpStatus>('stopped');
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [tokenVisible, setTokenVisible] = useState(false);
@@ -64,8 +64,6 @@ const McpServerSettings: React.FunctionComponent<{
   const copyTimer = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
-    // Query current status on mount in case the server started before this
-    // component was rendered (e.g. setting was already enabled at startup).
     void ipcRenderer
       ?.call('mcp:get-status')
       .then((update: { status: McpStatus; error?: string }) => {
@@ -112,82 +110,68 @@ const McpServerSettings: React.FunctionComponent<{
 
       <SettingsList fields={['enableMcpServer']} />
 
-      {enableMcpServer && (
+      <div className={sectionStyles}>
+        <Body weight="medium">Server URL</Body>
+        <Code language="none">{MCP_URL}</Code>
+      </div>
+
+      {mcpServerToken && (
         <>
           <div className={sectionStyles}>
+            <Body weight="medium">Bearer Token</Body>
             <div className={rowStyles}>
-              <Body weight="medium">Server status:</Body>
-              {status === 'running' && <Badge variant="green">Running</Badge>}
-              {status === 'stopped' && (
-                <Badge variant="lightgray">Stopped</Badge>
-              )}
-              {status === 'error' && (
-                <Tooltip trigger={<Badge variant="red">Error</Badge>}>
-                  <Body>{errorMsg || 'Unknown error'}</Body>
-                </Tooltip>
-              )}
+              <TextInput
+                value={tokenVisible ? mcpServerToken : '••••••••••••••••'}
+                readOnly
+                type={tokenVisible ? 'text' : 'password'}
+                aria-label="MCP bearer token"
+                onChange={() => {
+                  /* read-only */
+                }}
+              />
+              <Button size="xsmall" onClick={() => setTokenVisible((v) => !v)}>
+                {tokenVisible ? 'Hide' : 'Show'}
+              </Button>
+              <Button size="xsmall" onClick={copyToken}>
+                {copied ? 'Copied!' : 'Copy'}
+              </Button>
             </div>
-
-            <Body weight="medium" className={css({ marginTop: spacing[3] })}>
-              Server URL
-            </Body>
-            <Code language="none">{MCP_URL}</Code>
           </div>
 
-          {mcpServerToken && (
-            <div className={sectionStyles}>
-              <Body weight="medium">Bearer Token</Body>
-              <div className={rowStyles}>
-                <TextInput
-                  value={tokenVisible ? mcpServerToken : '••••••••••••••••'}
-                  readOnly
-                  type={tokenVisible ? 'text' : 'password'}
-                  aria-label="MCP bearer token"
-                  onChange={() => {
-                    /* read-only */
-                  }}
-                />
-                <Button
-                  size="xsmall"
-                  onClick={() => setTokenVisible((v) => !v)}
-                >
-                  {tokenVisible ? 'Hide' : 'Show'}
-                </Button>
-                <Button size="xsmall" onClick={copyToken}>
-                  {copied ? 'Copied!' : 'Copy'}
-                </Button>
-              </div>
+          <div className={sectionStyles}>
+            <Body weight="medium">Claude Desktop snippet</Body>
+            <Body>
+              Paste this into your{' '}
+              <Code language="none">claude_desktop_config.json</Code>:
+            </Body>
+            <div className={codeBlockStyles}>
+              <Code language="json">{buildSnippet(mcpServerToken)}</Code>
             </div>
-          )}
-
-          {mcpServerToken && (
-            <div className={sectionStyles}>
-              <Body weight="medium">Claude Desktop snippet</Body>
-              <Body>
-                Paste this into your{' '}
-                <Code language="none">claude_desktop_config.json</Code>:
-              </Body>
-              <div className={codeBlockStyles}>
-                <Code language="json">{buildSnippet(mcpServerToken)}</Code>
-              </div>
-              <div className={rowStyles}>
-                <Button size="xsmall" onClick={copySnippet}>
-                  {copied ? 'Copied!' : 'Copy snippet'}
-                </Button>
-              </div>
+            <div className={rowStyles}>
+              <Button size="xsmall" onClick={copySnippet}>
+                {copied ? 'Copied!' : 'Copy snippet'}
+              </Button>
             </div>
-          )}
+          </div>
         </>
+      )}
+
+      {enableMcpServer && (
+        <div className={sectionStyles}>
+          <div className={rowStyles}>
+            <Body weight="medium">Server status:</Body>
+            {status === 'running' && <Badge variant="green">Running</Badge>}
+            {status === 'stopped' && <Badge variant="lightgray">Stopped</Badge>}
+            {status === 'error' && (
+              <Tooltip trigger={<Badge variant="red">Error</Badge>}>
+                <Body>{errorMsg || 'Unknown error'}</Body>
+              </Tooltip>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
 };
 
-const mapState = (state: RootState) => ({
-  mcpServerToken: state.settings.settings.mcpServerToken as string | undefined,
-  enableMcpServer: !!(state.settings.settings.enableMcpServer as
-    | boolean
-    | undefined),
-});
-
-export default connect(mapState, null)(McpServerSettings);
+export default McpServerSettings;
