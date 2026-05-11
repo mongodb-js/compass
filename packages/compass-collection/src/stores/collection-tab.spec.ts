@@ -188,7 +188,7 @@ describe('Collection Tab Content store', function () {
   });
 
   describe('experimentation integration', function () {
-    it('should assign experiment when Atlas metadata is available', async function () {
+    it('should assign mock data generator and search activation program p1 experiments when Atlas metadata is available', async function () {
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
 
       await configureStore(
