@@ -14,25 +14,45 @@
 // modules; their async-callback writes happen after this guard installs.
 if (process.argv.includes('--mcp-stdio')) {
   const realStdoutWrite = process.stdout.write.bind(process.stdout);
+  // Whether the next write begins a new MCP message (true after we just
+  // wrote a `\n`, or at process start). Large JSON-RPC responses from
+  // `socket.pipe(process.stdout)` arrive in multiple ~8KB chunks; only the
+  // first chunk starts with `{`. Subsequent chunks continue mid-string and
+  // would be misclassified as "noise" if we judged every chunk by its
+  // leading byte. Track state across writes and only check the leading
+  // byte when we're at a message boundary.
+  let atMessageStart = true;
+
   process.stdout.write = function (
     chunk: string | Uint8Array,
     encoding?: BufferEncoding | ((err?: Error) => void),
     cb?: (err?: Error) => void
   ): boolean {
-    const firstByte =
-      typeof chunk === 'string'
-        ? chunk.charCodeAt(0)
-        : chunk.length > 0
-        ? chunk[0]
-        : 0;
-    // 0x7B = '{', 0x0A = '\n'. JSON-RPC messages start with `{` (object);
-    // chunked writes that continue a previous JSON line may begin at any
-    // byte. We accept a leading newline as a trailing terminator for a
-    // previously sent JSON object.
-    if (firstByte === 0x7b || firstByte === 0x0a) {
+    if (chunk.length === 0) {
       return realStdoutWrite(chunk, encoding as never, cb as never);
     }
-    return process.stderr.write(chunk, encoding as never, cb as never);
+    const firstByte =
+      typeof chunk === 'string' ? chunk.charCodeAt(0) : chunk[0];
+    const lastByte =
+      typeof chunk === 'string'
+        ? chunk.charCodeAt(chunk.length - 1)
+        : chunk[chunk.length - 1];
+
+    if (atMessageStart) {
+      // 0x7B = '{' (JSON object start), 0x0A = '\n' (trailing newline).
+      const looksLikeJsonRpc = firstByte === 0x7b || firstByte === 0x0a;
+      if (!looksLikeJsonRpc) {
+        // Whole chunk is non-protocol noise (HMR / WDS / webpack logs).
+        // Route to stderr; do NOT advance state — we are still waiting for
+        // the next MCP message boundary.
+        return process.stderr.write(chunk, encoding as never, cb as never);
+      }
+    }
+    // We're inside an MCP message (either this chunk started one, or we
+    // are continuing one started by an earlier chunk). Forward verbatim.
+    // The next chunk is at a message boundary only if this one ends in \n.
+    atMessageStart = lastByte === 0x0a;
+    return realStdoutWrite(chunk, encoding as never, cb as never);
   };
 }
 
