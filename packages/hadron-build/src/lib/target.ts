@@ -5,6 +5,7 @@ import semver from 'semver';
 import path from 'path';
 import normalizePkg from 'normalize-package-data';
 import parseGitHubRepoURL from 'parse-github-repo-url';
+import type packager from 'electron-packager';
 import ffmpegPlugin from 'electron-packager-plugin-non-proprietary-codecs-ffmpeg';
 import { windowsInstallerVersion } from './windows-installer-version';
 import createDebug from 'debug';
@@ -37,6 +38,10 @@ export interface TargetAssets {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PackageJson = Record<string, any>;
+
+type PackagerOptions = Parameters<typeof packager>[0] & {
+  'version-string'?: Record<string, string>;
+};
 
 function _canBuildInstaller(ext: string): Promise<boolean> {
   let bin: string | null = null;
@@ -145,7 +150,7 @@ class Target {
   rebuild: Record<string, unknown>;
   macosEntitlements?: string;
   truncatedProductName?: string;
-  packagerOptions: Record<string, unknown>;
+  packagerOptions: PackagerOptions;
   assets!: Asset[];
   installerOptions!: Record<string, unknown>;
   appPath!: string;
@@ -302,12 +307,13 @@ class Target {
       // lerna hoisting / npm workpaces as some application dependencies can't
       // be resolved in app node_modules
       prune: false,
-      ignore: 'node_modules/|.cache/|dist/|test/|.user-data|.deps/',
+      ignore: /node_modules\/|\.cache\/|dist\/|test\/|\.user-data|\.deps\//,
       platform: this.platform,
       arch: this.arch,
       electronVersion: pkg.electronVersion,
-      sign: null,
-      afterExtract: [ffmpegAfterExtract],
+      afterExtract: [
+        ffmpegAfterExtract,
+      ] as unknown as PackagerOptions['afterExtract'],
     };
 
     validateBuildConfig(
@@ -426,9 +432,7 @@ class Target {
     });
 
     const packagerName = this.packagerOptions.name as string;
-    this.appPath = this.dest(
-      `${packagerName}-${this.platform}-${this.arch}`
-    );
+    this.appPath = this.dest(`${packagerName}-${this.platform}-${this.arch}`);
     this.resources = this.dest(
       `${packagerName}-${this.platform}-${this.arch}`,
       'resources'
@@ -628,8 +632,7 @@ class Target {
     });
 
     if (this.channel !== 'stable') {
-      (this.packagerOptions as Record<string, unknown>).appBundleId =
-        `${this.bundleId}.${this.channel}`;
+      this.packagerOptions.appBundleId = `${this.bundleId}.${this.channel}`;
     }
 
     this.osx_dmg_label =

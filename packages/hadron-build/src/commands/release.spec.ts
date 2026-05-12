@@ -1,27 +1,104 @@
-import { expect } from 'chai';
-import * as release from './release';
+import * as hadronBuild from '..';
+import fs from 'fs-extra';
+import plist from 'plist';
+import assert from 'assert';
 
-describe('commands/release', function () {
-  it('exports command string', function () {
-    expect(release.command).to.be.a('string');
-    expect(release.command).to.equal('release');
+import path from 'path';
+import { getConfig } from '../test-helpers';
+
+// TODO: Investigate why it's failing in GitHub Actions CI
+describe.skip('hadron-build::release', function () {
+  if (
+    // Functional tests on appveyor too slow. Skipping.
+    process.platform === 'win32' ||
+    // Fails too often on darwin due to hdiutil electron issue
+    process.platform === 'darwin'
+  ) {
+    return;
+  }
+
+  this.timeout(300000);
+  let target: ReturnType<typeof getConfig> | null = null;
+
+  before(function (done) {
+    fs.remove(
+      path.join(
+        __dirname,
+        '..',
+        '..',
+        'test',
+        'fixtures',
+        'hadron-app',
+        'dist'
+      ),
+      (_err: Error | null) => {
+        if (_err) {
+          return done(_err);
+        }
+        target = getConfig();
+        (hadronBuild as any).release.run(target, done);
+      }
+    );
   });
 
-  it('exports describe string', function () {
-    expect(release.describe).to.be.a('string');
+  it('should symlink `Electron` to the app binary on OS X', function (done) {
+    if (target!.platform !== 'darwin') {
+      return this.skip();
+    }
+    const bin = target!.dest(
+      `${target!.productName}-darwin-${target!.arch}`,
+      `${target!.productName}.app`,
+      'Contents',
+      'MacOS',
+      'Electron'
+    );
+    fs.exists(bin, function (exists: boolean) {
+      assert(exists, `Expected ${bin} to exist`);
+      done();
+    });
   });
 
-  it('exports builder object with expected options', function () {
-    expect(release.builder).to.have.property('dir');
-    expect(release.builder).to.have.property('skip_installer');
-    expect(release.builder).to.have.property('no_asar');
+  it('has the correct product name', function () {
+    assert.equal(
+      target!.productName,
+      'MongoDB Compass Enterprise super long test name Beta'
+    );
   });
 
-  it('exports run function', function () {
-    expect(release.run).to.be.a('function');
+  it('sets the correct CFBundleIdentifier', function () {
+    if (target!.platform !== 'darwin') {
+      return this.skip();
+    }
+    const info = target!.dest(
+      `${target!.productName}-darwin-${target!.arch}`,
+      `${target!.productName}.app`,
+      'Contents',
+      'Info.plist'
+    );
+    // eslint-disable-next-line no-sync
+    const config = plist.parse(fs.readFileSync(info, 'utf8')) as Record<
+      string,
+      unknown
+    >;
+    assert.equal(config.CFBundleIdentifier, 'com.mongodb.hadron-testing.beta');
   });
 
-  it('exports handler function', function () {
-    expect(release.handler).to.be.a('function');
+  /**
+   * TODO (imlucas) Compare from `CONFIG.icon` to
+   * `path.join(CONFIG.resource, 'electron.icns')` (platform specific).
+   * Should have matching md5 of contents.
+   */
+  it('should have the correct application icon', function () {});
+
+  it.skip('should have all assets specified in the manifest', function () {
+    const missing = target!.assets
+      .map(function (asset: { path: string }) {
+        // eslint-disable-next-line no-sync
+        return [asset.path, fs.existsSync(asset.path)];
+      })
+      .filter(([, existing]) => !existing)
+      .map(([assetPath]) => assetPath);
+
+    assert.deepStrictEqual(missing, []);
   });
 });

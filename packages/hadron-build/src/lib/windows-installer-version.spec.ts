@@ -1,13 +1,11 @@
-'use strict';
-const assert = require('assert');
-const windowsInstallerVersion =
-  require('../src/lib/windows-installer-version').windowsInstallerVersion;
+import assert from 'assert';
+import { windowsInstallerVersion } from './windows-installer-version';
 
 describe('windowsInstallerVersion', function () {
   it('returns 0.0.0.0 if version is not defined', function () {
-    assert.strictEqual(windowsInstallerVersion(), '0.0.0.0');
+    assert.strictEqual(windowsInstallerVersion(undefined as unknown as string), '0.0.0.0');
     assert.strictEqual(windowsInstallerVersion(''), '0.0.0.0');
-    assert.strictEqual(windowsInstallerVersion(null), '0.0.0.0');
+    assert.strictEqual(windowsInstallerVersion(null as unknown as string), '0.0.0.0');
   });
 
   it('returns version if version is already suitable', function () {

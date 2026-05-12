@@ -1,8 +1,8 @@
-'use strict';
-const chai = require('chai');
-const { spy } = require('sinon');
-const { sign, getSignedFilename } = require('../src/lib/signtool');
-const expect = chai.expect;
+import chai from 'chai';
+import { spy } from 'sinon';
+import { sign, getSignedFilename } from './signtool';
+
+const { expect } = chai;
 
 describe('hadron-build::signtool', function () {
   const CURRENT_SIGING_VARS = {
@@ -11,10 +11,10 @@ describe('hadron-build::signtool', function () {
     ARTIFACTORY_USERNAME: process.env.ARTIFACTORY_USERNAME,
     ARTIFACTORY_PASSWORD: process.env.ARTIFACTORY_PASSWORD,
   };
-  function setEnvVars(obj) {
+  function setEnvVars(obj: Record<string, string | undefined | false>) {
     Object.keys(obj).forEach((key) => {
       if (obj[key]) {
-        process.env[key] = obj[key];
+        process.env[key] = obj[key] as string;
       } else {
         delete process.env[key];
       }
@@ -22,7 +22,7 @@ describe('hadron-build::signtool', function () {
   }
 
   describe('sign', function () {
-    let garasign;
+    let garasign: ReturnType<typeof spy>;
     beforeEach(function () {
       garasign = spy();
     });

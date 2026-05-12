@@ -1,9 +1,9 @@
-'use strict';
 /* eslint no-unused-vars: 1 */
-const _ = require('lodash');
-const chai = require('chai');
-const getConfig = require('./helpers').getConfig;
-const expect = chai.expect;
+import _ from 'lodash';
+import chai from 'chai';
+import { getConfig } from '../test-helpers';
+
+const { expect } = chai;
 
 describe('hadron-build::config', function () {
   describe('Release channel support', function () {
@@ -57,7 +57,8 @@ describe('hadron-build::config', function () {
     });
 
     describe.skip('Alpha', function () {
-      process.env.CI = 1;
+      process.env.CI = '1';
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const moment = require('moment');
 
       const dev = getConfig({
@@ -112,12 +113,12 @@ describe('hadron-build::config', function () {
       arch: 'x64',
     };
 
-    let res;
+    let res: ReturnType<typeof getConfig>;
     before(function () {
       res = getConfig(windows);
     });
     it.skip('should have the platform specific packager options', function () {
-      let versionString = res.packagerOptions['version-string'];
+      const versionString = res.packagerOptions['version-string']!;
       expect(versionString).to.be.a('object');
       expect(versionString.CompanyName).to.equal('MongoDB Inc');
       expect(versionString.FileDescription).to.be.a('string');
@@ -140,7 +141,7 @@ describe('hadron-build::config', function () {
     });
 
     it('should have the platform specific installer options', function () {
-      let opts = res.installerOptions;
+      const opts = res.installerOptions;
       expect(opts).to.have.property('loadingGif');
       expect(opts).to.have.property('signWithParams');
       expect(opts).to.have.property('iconUrl');
@@ -157,7 +158,7 @@ describe('hadron-build::config', function () {
     });
 
     describe('For non-stable channel releases', function () {
-      let custom;
+      let custom: ReturnType<typeof getConfig>;
       before(function () {
         custom = getConfig({
           version: '1.2.0-custom.5',
@@ -170,7 +171,7 @@ describe('hadron-build::config', function () {
       });
 
       it('should append the channel name to the product name', function () {
-        let versionString = custom.packagerOptions['version-string'];
+        const versionString = custom.packagerOptions['version-string']!;
         expect(versionString.ProductName).to.equal(
           'MongoDB Compass Enterprise super long test name Custom'
         );

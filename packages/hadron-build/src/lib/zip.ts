@@ -1,6 +1,6 @@
 import createDebug from 'debug';
 import { execFileSync } from 'child_process';
-import fs from 'fs-extra';
+import fs from 'fs/promises';
 import path from 'path';
 import zipFolder from 'zip-folder';
 import { promisify } from 'util';
@@ -75,7 +75,7 @@ async function zip(
 
   try {
     await removeZipIfExists();
-    await fs.mkdirs(opts.out);
+    await fs.mkdir(opts.out, { recursive: true });
     await runZip();
     done(null, opts.outPath);
   } catch (err) {

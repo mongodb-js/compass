@@ -1,13 +1,14 @@
-'use strict';
-const hadronBuild = require('hadron-build');
-const commands = hadronBuild;
-const chai = require('chai');
-const expect = chai.expect;
-const _ = require('lodash');
+import * as hadronBuild from '.';
+import chai from 'chai';
+import _ from 'lodash';
+import debug from 'debug';
+import sinonChai from 'sinon-chai';
 
-const debug = require('debug')('hadron-build:test:test');
+const { expect } = chai;
 
-chai.use(require('sinon-chai'));
+const log = debug('hadron-build:test:test');
+
+chai.use(sinonChai);
 
 describe('hadron-build', function () {
   it('should export commands as named exports', function () {
@@ -34,7 +35,7 @@ describe('hadron-build', function () {
     const cwd = process.cwd();
 
     before(function () {
-      debug('before');
+      log('before');
       process.chdir('./test/fixtures/hadron-app');
     });
 
@@ -54,7 +55,7 @@ describe('hadron-build', function () {
           },
           DEFAULT_ARGS
         );
-        expect(commands.test.getSpawnJobs(argv)).to.deep.equal({
+        expect((hadronBuild as any).test.getSpawnJobs(argv)).to.deep.equal({
           unit: ['--sort', '--recursive', './test/unit'],
           enzyme: ['--sort', '--recursive', './test/enzyme'],
           main: ['--sort', '--recursive', './test/main'],
@@ -66,14 +67,14 @@ describe('hadron-build', function () {
     describe('::getMochaArgs', function () {
       context('when the arguments are default', function () {
         it.skip('should allow pass through of mocha cli options', function () {
-          var argv = _.defaults(
+          const argv = _.defaults(
             {
               grep: '#spectron',
             },
             DEFAULT_ARGS
           );
 
-          expect(commands.test.getMochaArgs(argv)).to.deep.equal([
+          expect((hadronBuild as any).test.getMochaArgs(argv)).to.deep.equal([
             '--sort',
             '--grep',
             '#spectron',

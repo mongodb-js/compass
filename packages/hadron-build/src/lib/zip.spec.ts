@@ -1,17 +1,15 @@
-'use strict';
-/* eslint-disable mocha/no-top-level-hooks */
-/* eslint-disable no-sync */
-const fsExtra = require('fs-extra');
-const path = require('path');
-const JSZip = require('jszip');
-const _ = require('lodash');
+import fs from 'fs/promises';
+import path from 'path';
+import JSZip from 'jszip';
+import _ from 'lodash';
 
-const zip = require('../src/lib/zip').default;
-const getTarget = require('./helpers').getConfig;
-const chai = require('chai');
-const expect = chai.expect;
+import zip from './zip';
+import { getConfig } from '../test-helpers';
+import chai from 'chai';
 
-function skipUnlessRunningOn(platform) {
+const { expect } = chai;
+
+function skipUnlessRunningOn(platform: string) {
   before(function () {
     if (process.platform !== platform) {
       this.skip();
@@ -19,29 +17,35 @@ function skipUnlessRunningOn(platform) {
   });
 }
 
-function getTargetZipPath(target) {
+function getTargetZipPath(target: ReturnType<typeof getConfig>) {
   return (target.getAssetWithExtension('.zip') || {}).path;
 }
 
-function setupAndZipFakeTarget(target) {
-  beforeEach(function (done) {
-    fsExtra.mkdirpSync(target.appPath);
-    fsExtra.writeFileSync(path.join(target.appPath, 'file'), '');
-    zip(target, done);
+function setupAndZipFakeTarget(target: ReturnType<typeof getConfig>) {
+  beforeEach(async function () {
+    await fs.mkdir(target.appPath, { recursive: true });
+    await fs.writeFile(path.join(target.appPath, 'file'), '');
+    zip(target, (err, result) => {
+      if (err) {
+        throw err;
+      }
+      expect(result).to.be.a('string');
+    });
   });
 
-  afterEach(function () {
+  afterEach(async function () {
     const expectedZipPath = getTargetZipPath(target);
-    fsExtra.removeSync(target.appPath);
-
-    if (fsExtra.existsSync(expectedZipPath)) {
-      fsExtra.removeSync(expectedZipPath);
+    await fs.rm(target.appPath, { recursive: true, force: true });
+    try {
+      await fs.rm(expectedZipPath as string, { force: true });
+    } catch {
+      // noop
     }
   });
 }
 
-async function getTargetZipEntries(target) {
-  const file = fsExtra.readFileSync(getTargetZipPath(target));
+async function getTargetZipEntries(target: ReturnType<typeof getConfig>) {
+  const file = await fs.readFile(getTargetZipPath(target) as string);
   const zipContent = await JSZip.loadAsync(file);
 
   return Object.values(zipContent.files).map((entry) =>
@@ -53,7 +57,7 @@ describe('zip', function () {
   context('on linux', function () {
     skipUnlessRunningOn('linux');
 
-    const target = getTarget({
+    const target = getConfig({
       version: '1.2.0',
       platform: 'linux',
     });
@@ -76,7 +80,7 @@ describe('zip', function () {
   context('on darwin', function () {
     skipUnlessRunningOn('darwin');
 
-    const target = getTarget({
+    const target = getConfig({
       version: '1.2.0',
       platform: 'darwin',
     });
@@ -101,7 +105,7 @@ describe('zip', function () {
   context('on win', function () {
     skipUnlessRunningOn('win32');
 
-    const target = getTarget({
+    const target = getConfig({
       version: '1.2.0',
       platform: 'win32',
     });

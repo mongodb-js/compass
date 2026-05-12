@@ -1,9 +1,8 @@
-'use strict';
-const { expect } = require('chai');
-const {
+import { expect } from 'chai';
+import {
   getKeyPrefix,
   requireEnvironmentVariables,
-} = require('../src/lib/download-center');
+} from './download-center';
 
 describe('download-center', function () {
   describe('getKeyPrefix', function () {
@@ -12,7 +11,7 @@ describe('download-center', function () {
     });
 
     it('should return compass when no channel is passed', function () {
-      expect(getKeyPrefix()).to.eq('compass');
+      expect(getKeyPrefix('')).to.eq('compass');
     });
 
     it('should return prefix with channel when channel is not stable', function () {

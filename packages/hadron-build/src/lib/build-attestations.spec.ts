@@ -1,18 +1,18 @@
 /* eslint-disable mocha/max-top-level-suites */
-'use strict';
-const chai = require('chai');
-const expect = chai.expect;
-const path = require('path');
-const {
+import chai from 'chai';
+import path from 'path';
+import {
   getBuildVersion,
   getBuildSpecificAttestations,
   getPlatformSpecificAttestations,
   buildVariants,
-} = require('../src/lib/build-attestations');
-const Target = require('../src/lib/target').default;
+} from './build-attestations';
+import Target from './target';
+
+const { expect } = chai;
 
 describe('build-attestations', function () {
-  let env;
+  let env: NodeJS.ProcessEnv;
   beforeEach(function () {
     env = { ...process.env };
   });
@@ -20,7 +20,7 @@ describe('build-attestations', function () {
   afterEach(function () {
     process.env = { ...env };
   });
-  const ROOT = path.resolve(__dirname, '..', '..');
+  const ROOT = path.resolve(__dirname, '..', '..', '..');
   const VERSION = '1.2.3';
   context('getBuildVersion', function () {
     it('should return version if its set', function () {

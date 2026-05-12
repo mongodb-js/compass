@@ -21,9 +21,7 @@ export const describe = ':shipit:';
 
 const createBrandedApplication = async (CONFIG: Target): Promise<void> => {
   cli.debug('running electron-packager');
-  const res = await packager(
-    CONFIG.packagerOptions as unknown as Parameters<typeof packager>[0]
-  );
+  const res = await packager(CONFIG.packagerOptions);
   cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
 
   if (CONFIG.platform !== 'darwin') {
@@ -121,7 +119,7 @@ const fixCompass5333 = async (CONFIG: Target): Promise<void> => {
 };
 
 const writeVersionFile = async (CONFIG: Target): Promise<void> => {
-  const version = CONFIG.packagerOptions.electronVersion as string;
+  const version = CONFIG.packagerOptions.electronVersion!;
   const dest = await CONFIG.write('version', version);
   cli.debug(format('version `%s` written to `%s`', version, dest));
 };
@@ -233,7 +231,7 @@ const installDependencies = async (CONFIG: Target): Promise<void> => {
 
   const sharedRebuildConfig = {
     arch: CONFIG.arch,
-    electronVersion: CONFIG.packagerOptions.electronVersion as string,
+    electronVersion: CONFIG.packagerOptions.electronVersion!,
     buildPath: appPackagePath,
     projectRootPath: appPackagePath,
     force: true,

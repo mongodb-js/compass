@@ -1,11 +1,11 @@
-'use strict';
-const path = require('path');
-const os = require('os');
-const { promises: fs } = require('fs');
-const { execFile: execFileCb } = require('child_process');
-const util = require('util');
+import path from 'path';
+import os from 'os';
+import { promises as fs } from 'fs';
+import { execFile as execFileCb } from 'child_process';
+import util from 'util';
+import tar from './tar-gz';
+
 const execFile = util.promisify(execFileCb);
-const tar = require('../src/lib/tar-gz').default;
 
 describe('tar', function () {
   before(function () {
@@ -14,7 +14,7 @@ describe('tar', function () {
     }
   });
 
-  let tmpdir;
+  let tmpdir: string;
   beforeEach(async function () {
     tmpdir = path.join(
       os.tmpdir(),
