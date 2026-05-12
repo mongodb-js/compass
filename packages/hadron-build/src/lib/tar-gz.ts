@@ -1,8 +1,10 @@
-'use strict';
-const tar = require('tar');
-const path = require('path');
+import tar from 'tar';
+import path from 'path';
 
-module.exports = async function tarGz(srcDirectory, dest) {
+export default async function tarGz(
+  srcDirectory: string,
+  dest: string
+): Promise<string> {
   await tar.create(
     {
       file: dest,
@@ -14,4 +16,4 @@ module.exports = async function tarGz(srcDirectory, dest) {
   );
 
   return dest;
-};
+}

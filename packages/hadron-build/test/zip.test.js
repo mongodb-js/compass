@@ -6,7 +6,7 @@ const path = require('path');
 const JSZip = require('jszip');
 const _ = require('lodash');
 
-const zip = require('../lib/zip');
+const zip = require('../src/lib/zip').default;
 const getTarget = require('./helpers').getConfig;
 const chai = require('chai');
 const expect = chai.expect;
@@ -24,13 +24,13 @@ function getTargetZipPath(target) {
 }
 
 function setupAndZipFakeTarget(target) {
-  beforeEach((done) => {
+  beforeEach(function (done) {
     fsExtra.mkdirpSync(target.appPath);
     fsExtra.writeFileSync(path.join(target.appPath, 'file'), '');
     zip(target, done);
   });
 
-  afterEach(() => {
+  afterEach(function () {
     const expectedZipPath = getTargetZipPath(target);
     fsExtra.removeSync(target.appPath);
 
@@ -50,7 +50,7 @@ async function getTargetZipEntries(target) {
 }
 
 describe('zip', function () {
-  context('on linux', () => {
+  context('on linux', function () {
     skipUnlessRunningOn('linux');
 
     const target = getTarget({
@@ -60,7 +60,7 @@ describe('zip', function () {
 
     setupAndZipFakeTarget(target);
 
-    it('would not throw', () => {
+    it('would not throw', function () {
       // if the zip function would have thrown would have happened in
       // setupAndZipFakeTarget which sets a beforeEach.
 
@@ -73,7 +73,7 @@ describe('zip', function () {
     });
   });
 
-  context('on darwin', () => {
+  context('on darwin', function () {
     skipUnlessRunningOn('darwin');
 
     const target = getTarget({
@@ -83,7 +83,7 @@ describe('zip', function () {
 
     setupAndZipFakeTarget(target);
 
-    it('creates a zip with the right entries', async () => {
+    it('creates a zip with the right entries', async function () {
       const entries = await getTargetZipEntries(target);
       expect(entries).to.deep.equal([
         {
@@ -98,7 +98,7 @@ describe('zip', function () {
     });
   });
 
-  context('on win', () => {
+  context('on win', function () {
     skipUnlessRunningOn('win32');
 
     const target = getTarget({
@@ -108,7 +108,7 @@ describe('zip', function () {
 
     setupAndZipFakeTarget(target);
 
-    it('creates a zip with the right entries', async () => {
+    it('creates a zip with the right entries', async function () {
       const entries = await getTargetZipEntries(target);
       expect(entries).to.deep.equal([
         {

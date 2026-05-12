@@ -1,6 +1,6 @@
 /* eslint-disable mocha/max-top-level-suites */
 'use strict';
-const hadronBuild = require('../');
+const hadronBuild = require('hadron-build');
 const commands = hadronBuild;
 const fs = require('fs-extra');
 const plist = require('plist');
@@ -53,7 +53,7 @@ describe.skip('hadron-build::release', function () {
     });
   });
 
-  it('has the correct product name', () => {
+  it('has the correct product name', function () {
     assert.equal(
       target.productName,
       'MongoDB Compass Enterprise super long test name Beta'
@@ -80,9 +80,9 @@ describe.skip('hadron-build::release', function () {
    * `path.join(CONFIG.resource, 'electron.icns')` (platform specific).
    * Should have matching md5 of contents.
    */
-  it('should have the correct application icon', () => {});
+  it('should have the correct application icon', function () {});
 
-  it.skip('should have all assets specified in the manifest', () => {
+  it.skip('should have all assets specified in the manifest', function () {
     const missing = target.assets
       .map(function (asset) {
         // eslint-disable-next-line no-sync

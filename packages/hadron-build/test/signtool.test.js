@@ -1,10 +1,10 @@
 'use strict';
 const chai = require('chai');
 const { spy } = require('sinon');
-const { sign, getSignedFilename } = require('../lib/signtool');
+const { sign, getSignedFilename } = require('../src/lib/signtool');
 const expect = chai.expect;
 
-describe('hadron-build::signtool', () => {
+describe('hadron-build::signtool', function () {
   const CURRENT_SIGING_VARS = {
     GARASIGN_USERNAME: process.env.GARASIGN_USERNAME,
     GARASIGN_PASSWORD: process.env.GARASIGN_PASSWORD,
@@ -21,7 +21,7 @@ describe('hadron-build::signtool', () => {
     });
   }
 
-  describe('sign', () => {
+  describe('sign', function () {
     let garasign;
     beforeEach(function () {
       garasign = spy();
@@ -37,7 +37,7 @@ describe('hadron-build::signtool', () => {
       afterEach(function () {
         setEnvVars(CURRENT_SIGING_VARS);
       });
-      it('does not sign when credentials are not set', async () => {
+      it('does not sign when credentials are not set', async function () {
         await sign('test/fixtures/foo', garasign);
         expect(garasign.called).to.be.false;
       });
@@ -56,7 +56,7 @@ describe('hadron-build::signtool', () => {
         setEnvVars(CURRENT_SIGING_VARS);
       });
 
-      it('signs windows exe remotely using jsign', async () => {
+      it('signs windows exe remotely using jsign', async function () {
         await sign('test/fixtures/foo.exe', garasign);
         expect(garasign.calledOnce).to.be.true;
         expect(garasign.firstCall.args).to.deep.equal([
@@ -73,7 +73,7 @@ describe('hadron-build::signtool', () => {
         ]);
       });
 
-      it('signs windows msi remotely using jsign', async () => {
+      it('signs windows msi remotely using jsign', async function () {
         await sign('test/fixtures/foo.msi', garasign);
 
         expect(garasign.calledOnce).to.be.true;
@@ -91,7 +91,7 @@ describe('hadron-build::signtool', () => {
         ]);
       });
 
-      it('signs everything remotely using gpg', async () => {
+      it('signs everything remotely using gpg', async function () {
         await sign('test/fixtures/foo', garasign);
 
         expect(garasign.calledOnce).to.be.true;

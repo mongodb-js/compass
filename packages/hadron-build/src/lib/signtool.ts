@@ -1,13 +1,19 @@
-'use strict';
-const path = require('path');
-const debug = require('debug')('hadron-build:target');
-const { sign: _garasign } = require('@mongodb-js/signing-utils');
+import path from 'path';
+import createDebug from 'debug';
+import { sign as _garasign } from '@mongodb-js/signing-utils';
 
-const canSign = () =>
-  process.env.GARASIGN_USERNAME &&
-  process.env.GARASIGN_PASSWORD &&
-  process.env.ARTIFACTORY_USERNAME &&
-  process.env.ARTIFACTORY_PASSWORD;
+type SigningMethod = 'gpg' | 'jsign' | 'rpm_gpg';
+
+const debug = createDebug('hadron-build:target');
+
+function canSign(): boolean {
+  return !!(
+    process.env.GARASIGN_USERNAME &&
+    process.env.GARASIGN_PASSWORD &&
+    process.env.ARTIFACTORY_USERNAME &&
+    process.env.ARTIFACTORY_PASSWORD
+  );
+}
 
 /**
  * When using gpg to sign a file, it creates a signature file
@@ -16,7 +22,7 @@ const canSign = () =>
  * @param {string} filename
  * @returns string
  */
-function getSignedFilename(filename) {
+export function getSignedFilename(filename: string): string {
   return `${filename}.sig`;
 }
 
@@ -27,19 +33,24 @@ function getSignedFilename(filename) {
  *
  * @param {import('./target')} target
  */
-function signArchive(target, cb) {
+export function signArchive(
+  target: { app_archive_name?: string; platform: string; dest: (...args: string[]) => string },
+  cb: (err?: Error | null) => void
+): void {
   const { app_archive_name, platform } = target;
   if (platform === 'linux') {
     debug('linux archive is signed when creating deb/rpm');
-    return cb();
+    return cb(null);
   }
-  sign(target.dest(app_archive_name)).then(cb).catch(cb);
+  sign(target.dest(app_archive_name as string))
+    .then(() => cb())
+    .catch(cb);
 }
 
 /**
  * @param {string} src
  */
-function getSigningMethod(src) {
+function getSigningMethod(src: string): SigningMethod {
   switch (path.extname(src)) {
     case '.exe':
     case '.msi':
@@ -59,7 +70,10 @@ function getSigningMethod(src) {
  * @param {string} src
  * @returns {Promise<void>}
  */
-async function sign(src, garasign = _garasign) {
+export async function sign(
+  src: string,
+  garasign: typeof _garasign = _garasign
+): Promise<void> {
   debug('Signing %s ...', src);
 
   if (!canSign()) {
@@ -68,15 +82,15 @@ async function sign(src, garasign = _garasign) {
   }
 
   const clientOptions = {
-    client: 'remote',
+    client: 'remote' as const,
     host: process.env.SIGNING_SERVER_HOSTNAME,
     username: process.env.SIGNING_SERVER_USERNAME,
-    port: process.env.SIGNING_SERVER_PORT,
+    port: process.env.SIGNING_SERVER_PORT
+      ? parseInt(process.env.SIGNING_SERVER_PORT, 10)
+      : undefined,
     privateKey: process.env.SIGNING_SERVER_PRIVATE_KEY,
     signingMethod: getSigningMethod(src),
   };
 
-  return await garasign(src, clientOptions);
+  await garasign(src, clientOptions);
 }
-
-module.exports = { sign, signArchive, getSignedFilename };

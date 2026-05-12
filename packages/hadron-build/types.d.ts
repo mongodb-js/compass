@@ -72,6 +72,24 @@ declare module 'parse-github-repo-url' {
   export = parseGitHubRepoURL;
 }
 
+declare module 'tar' {
+  interface CreateOptions {
+    file: string;
+    cwd?: string;
+    portable?: boolean;
+    gzip?: boolean;
+  }
+  function create(options: CreateOptions, paths: string[]): Promise<void>;
+  export { create };
+}
+
+declare module 'plist' {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export function parse(text: string): any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  export function build(data: any): string;
+}
+
 declare module 'json-diff' {
   export function diffString(
     obj1: unknown,

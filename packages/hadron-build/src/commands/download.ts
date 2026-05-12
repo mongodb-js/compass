@@ -1,7 +1,7 @@
 import path from 'path';
-import Target from '../../lib/target';
-import { downloadAssetFromEvergreen } from '../../lib/download-center';
-import { getBuildAttestations } from '../../lib/build-attestations';
+import Target from '../lib/target';
+import { downloadAssetFromEvergreen } from '../lib/download-center';
+import { getBuildAttestations } from '../lib/build-attestations';
 import createCLI from 'mongodb-js-cli';
 
 const cli = createCLI('hadron-build:download');
@@ -20,7 +20,8 @@ export const builder = {
   version: {
     description: 'Target version',
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    default: require(path.join(process.cwd(), 'package.json')).version as string,
+    default: require(path.join(process.cwd(), 'package.json'))
+      .version as string,
   },
 };
 

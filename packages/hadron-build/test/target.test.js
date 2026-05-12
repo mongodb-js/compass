@@ -1,20 +1,20 @@
 'use strict';
 const path = require('path');
 const { expect } = require('chai');
-const Target = require('../lib/target');
+const Target = require('../src/lib/target').default;
 
-describe('target', () => {
+describe('target', function () {
   let env;
 
-  beforeEach(() => {
+  beforeEach(function () {
     env = { ...process.env };
   });
 
-  afterEach(() => {
+  afterEach(function () {
     process.env = { ...env };
   });
 
-  it('should have autoupdate endpoint resolved from the package.json config', () => {
+  it('should have autoupdate endpoint resolved from the package.json config', function () {
     const target = new Target(path.join(__dirname, 'fixtures', 'hadron-app'));
 
     expect(target).to.have.property(
@@ -23,7 +23,7 @@ describe('target', () => {
     );
   });
 
-  it('defaults to package.json distribution config options', () => {
+  it('defaults to package.json distribution config options', function () {
     const target = new Target(path.join(__dirname, 'fixtures', 'hadron-app'));
 
     expect(target).to.have.property('distribution', 'compass');
@@ -37,7 +37,7 @@ describe('target', () => {
     expect(target).to.have.property('version', '1.2.0-beta');
   });
 
-  it('allows to override distribution config with env vars', () => {
+  it('allows to override distribution config with env vars', function () {
     Object.assign(process.env, {
       HADRON_DISTRIBUTION: 'compass-isolated',
       HADRON_PRODUCT: 'compass-compass',

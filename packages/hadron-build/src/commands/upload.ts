@@ -9,15 +9,15 @@ import { Octokit } from '@octokit/rest';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { diffString } from 'json-diff';
 import download from 'download';
-import type { Asset, TargetAssets } from '../../lib/target';
-import Target from '../../lib/target';
+import type { Asset, TargetAssets } from '../lib/target';
+import Target from '../lib/target';
 import {
   downloadManifest,
   uploadAsset,
   uploadAssetNew,
   uploadManifest,
-} from '../../lib/download-center';
-import { getBuildAttestations } from '../../lib/build-attestations';
+} from '../lib/download-center';
+import { getBuildAttestations } from '../lib/build-attestations';
 import createCLI from 'mongodb-js-cli';
 
 const cli = createCLI('hadron-build:upload');
@@ -55,7 +55,7 @@ const channelLabel = Object.create({
 });
 
 export function versionId(version: string, distribution = ''): string {
-  return [version, distribution.replace(/compass\-?/, '')]
+  return [version, distribution.replace(/compass-?/, '')]
     .filter(Boolean)
     .join('-');
 }
@@ -65,7 +65,10 @@ export function readableVersionName(
   channel?: string,
   distribution?: string
 ): string {
-  const desc = [distributionLabel[distribution ?? ''], channelLabel[channel ?? '']]
+  const desc = [
+    distributionLabel[distribution ?? ''],
+    channelLabel[channel ?? ''],
+  ]
     .filter(Boolean)
     .join(' ');
   return `${version} ${desc ? `(${desc})` : ''}`.trim();
@@ -266,7 +269,9 @@ export async function uploadAssetsToDownloadCenter(
   await Promise.all(uploads);
 }
 
-export async function getLatestRelease(channel = 'stable'): Promise<Record<string, unknown> | null> {
+export async function getLatestRelease(
+  channel = 'stable'
+): Promise<Record<string, unknown> | null> {
   const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
   });
@@ -296,7 +301,9 @@ export async function getLatestRelease(channel = 'stable'): Promise<Record<strin
       return null;
     }
 
-    const latestRelease = (releases as Array<{ tag_name: string; draft: boolean; assets: unknown[] }>)
+    const latestRelease = (
+      releases as Array<{ tag_name: string; draft: boolean; assets: unknown[] }>
+    )
       .sort((a, b) => {
         if (semver.lt(a.tag_name, b.tag_name)) {
           return 1;
@@ -323,12 +330,16 @@ export async function getLatestRelease(channel = 'stable'): Promise<Record<strin
   }
 }
 
-export async function getLatestReleaseVersions(channel = 'stable'): Promise<unknown> {
+export async function getLatestReleaseVersions(
+  channel = 'stable'
+): Promise<unknown> {
   const release = await getLatestRelease(channel);
   if (!release) {
     throw new Error(`Couldn't find latest release for ${channel} channel`);
   }
-  const manifest = (release.assets as Array<{ name: string; browser_download_url: string }>).find((asset) => {
+  const manifest = (
+    release.assets as Array<{ name: string; browser_download_url: string }>
+  ).find((asset) => {
     return asset.name === 'manifest.json';
   });
   if (!manifest) {
@@ -402,7 +413,8 @@ export const builder = {
   version: {
     description: 'Target version',
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    default: require(path.join(process.cwd(), 'package.json')).version as string,
+    default: require(path.join(process.cwd(), 'package.json'))
+      .version as string,
   },
   manifest: {
     description:

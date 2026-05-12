@@ -1,25 +1,30 @@
-// eslint-disable-next-line strict
-'use strict';
-const download = require('download');
-const path = require('path');
-const { promises: fs } = require('fs');
-const debug = require('debug')('hadron-build:macos-notarization');
-const { promisify, inspect } = require('util');
-const childProcess = require('child_process');
+import download from 'download';
+import path from 'path';
+import { promises as fs } from 'fs';
+import createDebug from 'debug';
+import { promisify, inspect } from 'util';
+import childProcess from 'child_process';
+
+const debug = createDebug('hadron-build:macos-notarization');
 const execFile = promisify(childProcess.execFile);
 
-async function setupMacosNotary() {
+async function setupMacosNotary(): Promise<void> {
   try {
     await fs.access('macnotary/macnotary');
     debug('macnotary already downloaded');
-  } catch (err) {
+  } catch {
     debug('downloading macnotary');
-    await download(process.env.MACOS_NOTARY_CLIENT_URL, 'macnotary', {
+    await download(process.env.MACOS_NOTARY_CLIENT_URL as string, 'macnotary', {
       extract: true,
       strip: 1, // remove leading platform + arch directory
     });
     await fs.chmod('macnotary/macnotary', 0o755); // ensure +x is set
   }
+}
+
+interface NotarizeOptions {
+  bundleId: string;
+  macosEntitlements?: string;
 }
 
 /**
@@ -38,7 +43,10 @@ async function setupMacosNotary() {
  * @param {string} notarizeOptions.bundleId
  * @param {string} [notarizeOptions.macosEntitlements]
  */
-async function notarize(src, notarizeOptions) {
+export async function notarize(
+  src: string,
+  notarizeOptions: NotarizeOptions
+): Promise<void> {
   debug(`Signing and notarizing "${src}"`);
 
   await setupMacosNotary();
@@ -49,7 +57,7 @@ async function notarize(src, notarizeOptions) {
 
   const execOpts = {
     cwd: path.dirname(src),
-    encoding: 'utf8',
+    encoding: 'utf8' as const,
   };
 
   // Step:1 - zip up the file/folder to unsignedArchive
@@ -69,7 +77,7 @@ async function notarize(src, notarizeOptions) {
         '-m',
         process.env.REQUESTER === 'github_pr' ? 'sign' : 'notarizeAndSign',
         '-u',
-        process.env.MACOS_NOTARY_API_URL,
+        process.env.MACOS_NOTARY_API_URL as string,
         '-b',
         notarizeOptions.bundleId,
         '-f',
@@ -104,14 +112,10 @@ async function notarize(src, notarizeOptions) {
     // cleanup - remove signedArchive and unsignedArchive
     debug('ls', (await execFile('ls', ['-lh'], execOpts)).stdout);
     debug(`removing ${signedArchive} and ${unsignedArchive}`);
-    await execFile(
-      'rm',
-      ['-r', signedArchive, unsignedArchive],
-      execOpts
-    ).catch((err) => {
-      debug('error cleaning up', err);
-    });
+    await execFile('rm', ['-r', signedArchive, unsignedArchive], execOpts).catch(
+      (err) => {
+        debug('error cleaning up', err);
+      }
+    );
   }
 }
-
-module.exports = { notarize };

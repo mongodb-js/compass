@@ -1,5 +1,5 @@
 'use strict';
-const hadronBuild = require('../');
+const hadronBuild = require('hadron-build');
 const commands = hadronBuild;
 const chai = require('chai');
 const expect = chai.expect;
@@ -9,8 +9,8 @@ const debug = require('debug')('hadron-build:test:test');
 
 chai.use(require('sinon-chai'));
 
-describe('hadron-build', () => {
-  it('should export commands as named exports', () => {
+describe('hadron-build', function () {
+  it('should export commands as named exports', function () {
     expect(hadronBuild).to.be.an('object');
     expect(hadronBuild).to.have.property('info');
     expect(hadronBuild).to.have.property('release');
@@ -18,7 +18,7 @@ describe('hadron-build', () => {
     expect(hadronBuild).to.have.property('download');
   });
 
-  describe('::test', () => {
+  describe('::test', function () {
     const DEFAULT_ARGS = {
       _: [],
       $0: 'hadron-build',
@@ -33,17 +33,17 @@ describe('hadron-build', () => {
 
     const cwd = process.cwd();
 
-    before(() => {
+    before(function () {
       debug('before');
       process.chdir('./test/fixtures/hadron-app');
     });
 
-    after(() => {
+    after(function () {
       process.chdir(cwd);
     });
 
-    describe('::getSpawnJobs', () => {
-      it.skip('should return arguments for requested suite jobs', () => {
+    describe('::getSpawnJobs', function () {
+      it.skip('should return arguments for requested suite jobs', function () {
         const argv = _.defaults(
           {
             unit: true,
@@ -63,9 +63,9 @@ describe('hadron-build', () => {
         });
       });
     });
-    describe('::getMochaArgs', () => {
-      context('when the arguments are default', () => {
-        it.skip('should allow pass through of mocha cli options', () => {
+    describe('::getMochaArgs', function () {
+      context('when the arguments are default', function () {
+        it.skip('should allow pass through of mocha cli options', function () {
           var argv = _.defaults(
             {
               grep: '#spectron',
@@ -82,7 +82,7 @@ describe('hadron-build', () => {
       });
     });
 
-    describe('::handler', () => {
+    describe('::handler', function () {
       it('should set `NODE_ENV` to testing');
       it(
         'should set the TEST_WITH_PREBUILT environment variable if --release specified'

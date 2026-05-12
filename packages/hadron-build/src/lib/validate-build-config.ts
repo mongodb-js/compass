@@ -1,10 +1,13 @@
-const platformRequiredKeys = {
+const platformRequiredKeys = Object.create({
   darwin: ['dmg_background', 'app_category_type', 'icon'],
   linux: ['deb_section', 'rpm_categories', 'icon'],
   win32: ['icon', 'favicon_url', 'loading_gif', 'background', 'banner'],
-};
+});
 
-const validateBuildConfig = (platform, config) => {
+export function validateBuildConfig(
+  platform: string,
+  config: Record<string, unknown>
+): void {
   const requiredKeys = platformRequiredKeys[platform];
   if (!requiredKeys) {
     throw new Error(`Unsupported platform: ${platform}`);
@@ -20,8 +23,4 @@ const validateBuildConfig = (platform, config) => {
   if (typeof config.icon !== 'object') {
     throw new Error(`Invalid \`icon\` in ${platform} config`);
   }
-};
-
-module.exports = {
-  validateBuildConfig,
-};
+}

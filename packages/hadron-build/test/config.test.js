@@ -5,8 +5,8 @@ const chai = require('chai');
 const getConfig = require('./helpers').getConfig;
 const expect = chai.expect;
 
-describe('hadron-build::config', () => {
-  describe('Release channel support', () => {
+describe('hadron-build::config', function () {
+  describe('Release channel support', function () {
     const channels = {
       stable: getConfig({
         version: '1.2.0',
@@ -19,30 +19,30 @@ describe('hadron-build::config', () => {
       }),
     };
 
-    it('should have the right versions', () => {
+    it('should have the right versions', function () {
       expect(channels.stable.version).to.equal('1.2.0');
       expect(channels.beta.version).to.equal('1.2.0-beta.1');
       expect(channels.custom.version).to.equal('1.2.0-custom.5');
     });
 
-    it('should detect the channel from the version', () => {
+    it('should detect the channel from the version', function () {
       expect(channels.stable.channel).to.equal('stable');
       expect(channels.beta.channel).to.equal('beta');
       expect(channels.custom.channel).to.equal('custom');
     });
 
-    it('should not include channel in the product name on stable', () => {
+    it('should not include channel in the product name on stable', function () {
       expect(channels.stable.productName).to.equal(
         'MongoDB Compass Enterprise super long test name'
       );
     });
 
-    it('should not include channel in the slug on stable', () => {
+    it('should not include channel in the slug on stable', function () {
       expect(channels.stable.slug).to.equal('compass');
     });
 
-    describe('For releases *not* on the stable channel', () => {
-      it('should add the channel as a suffix to the product name', () => {
+    describe('For releases *not* on the stable channel', function () {
+      it('should add the channel as a suffix to the product name', function () {
         expect(channels.beta.productName).to.equal(
           'MongoDB Compass Enterprise super long test name Beta'
         );
@@ -50,13 +50,13 @@ describe('hadron-build::config', () => {
           'MongoDB Compass Enterprise super long test name Custom'
         );
       });
-      it('should add the channel as a suffix to the slug', () => {
+      it('should add the channel as a suffix to the slug', function () {
         expect(channels.beta.slug).to.equal('compass-beta');
         expect(channels.custom.slug).to.equal('compass-custom');
       });
     });
 
-    describe.skip('Alpha', () => {
+    describe.skip('Alpha', function () {
       process.env.CI = 1;
       const moment = require('moment');
 
@@ -66,21 +66,21 @@ describe('hadron-build::config', () => {
 
       const version = `1.2.0-alpha.${moment().format('YYYYMMDDHHmm')}`;
 
-      it('should update version', () => {
+      it('should update version', function () {
         expect(dev.version).to.equal(version);
         expect(dev.pkg.version).to.equal(version);
       });
 
-      it('should update slug', () => {
+      it('should update slug', function () {
         expect(dev.slug).to.equal('hadron-app-alpha');
       });
 
-      it('should update channel', () => {
+      it('should update channel', function () {
         expect(dev.channel).to.equal('alpha');
       });
     });
   });
-  describe('Only on Linux', () => {
+  describe('Only on Linux', function () {
     const linux = {
       name: 'hadron-app',
       version: '1.2.0',
@@ -90,20 +90,20 @@ describe('hadron-build::config', () => {
 
     const c = getConfig(linux);
     const assetNames = _.map(c.assets, 'name');
-    it('should produce a tarball asset', () => {
+    it('should produce a tarball asset', function () {
       expect(assetNames).to.contain(c.linux_tar_filename);
     });
 
-    it('should produce a debian package asset', () => {
+    it('should produce a debian package asset', function () {
       expect(assetNames).to.contain(c.linux_deb_filename);
     });
 
-    it('should produce a redhat package manager asset', () => {
+    it('should produce a redhat package manager asset', function () {
       expect(assetNames).to.include(c.linux_rpm_filename);
     });
   });
 
-  describe('Only on Windows', () => {
+  describe('Only on Windows', function () {
     const windows = {
       version: '1.2.0',
       product_name: 'Hadron',
@@ -113,10 +113,10 @@ describe('hadron-build::config', () => {
     };
 
     let res;
-    before(() => {
+    before(function () {
       res = getConfig(windows);
     });
-    it.skip('should have the platform specific packager options', () => {
+    it.skip('should have the platform specific packager options', function () {
       let versionString = res.packagerOptions['version-string'];
       expect(versionString).to.be.a('object');
       expect(versionString.CompanyName).to.equal('MongoDB Inc');
@@ -125,7 +125,7 @@ describe('hadron-build::config', () => {
       expect(versionString.InternalName).to.be.a('string');
     });
 
-    it('should have the platform specific evergreen expansions', () => {
+    it('should have the platform specific evergreen expansions', function () {
       expect(res.windows_msi_filename).to.equal('compass-1.2.0-win32-x64.msi');
       expect(res.windows_setup_filename).to.equal(
         'compass-1.2.0-win32-x64.exe'
@@ -139,7 +139,7 @@ describe('hadron-build::config', () => {
       );
     });
 
-    it('should have the platform specific installer options', () => {
+    it('should have the platform specific installer options', function () {
       let opts = res.installerOptions;
       expect(opts).to.have.property('loadingGif');
       expect(opts).to.have.property('signWithParams');
@@ -156,9 +156,9 @@ describe('hadron-build::config', () => {
       expect(opts).to.have.property('name');
     });
 
-    describe('For non-stable channel releases', () => {
+    describe('For non-stable channel releases', function () {
       let custom;
-      before(() => {
+      before(function () {
         custom = getConfig({
           version: '1.2.0-custom.5',
           name: 'hadron',
@@ -169,14 +169,14 @@ describe('hadron-build::config', () => {
         });
       });
 
-      it('should append the channel name to the product name', () => {
+      it('should append the channel name to the product name', function () {
         let versionString = custom.packagerOptions['version-string'];
         expect(versionString.ProductName).to.equal(
           'MongoDB Compass Enterprise super long test name Custom'
         );
       });
 
-      it('should include the channel name in asset filenames', () => {
+      it('should include the channel name in asset filenames', function () {
         expect(custom.windows_msi_filename).to.equal(
           'compass-1.2.0-custom.5-win32-x64.msi'
         );

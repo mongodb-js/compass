@@ -1,26 +1,46 @@
-// eslint-disable-next-line strict
-'use strict';
-const chalk = require('chalk');
-const fs = require('fs');
-const _ = require('lodash');
-const semver = require('semver');
-const path = require('path');
-const normalizePkg = require('normalize-package-data');
-const parseGitHubRepoURL = require('parse-github-repo-url');
-const ffmpegAfterExtract =
-  require('electron-packager-plugin-non-proprietary-codecs-ffmpeg').default;
-const windowsInstallerVersion = require('./windows-installer-version');
-const debug = require('debug')('hadron-build:target');
-const which = require('which');
-const plist = require('plist');
-const { sign, getSignedFilename } = require('./signtool');
-const tarGz = require('./tar-gz');
-const { notarize } = require('./mac-notary-service');
-const { validateBuildConfig } = require('./validate-build-config');
+import chalk from 'chalk';
+import { readFileSync, promises as fsPromises } from 'fs';
+import _ from 'lodash';
+import semver from 'semver';
+import path from 'path';
+import normalizePkg from 'normalize-package-data';
+import parseGitHubRepoURL from 'parse-github-repo-url';
+import ffmpegPlugin from 'electron-packager-plugin-non-proprietary-codecs-ffmpeg';
+import { windowsInstallerVersion } from './windows-installer-version';
+import createDebug from 'debug';
+import which from 'which';
+import plist from 'plist';
+import { sign, getSignedFilename } from './signtool';
+import tarGz from './tar-gz';
+import { notarize } from './mac-notary-service';
+import { validateBuildConfig } from './validate-build-config';
 
-function _canBuildInstaller(ext) {
-  var bin = null;
-  var help = null;
+const ffmpegAfterExtract = ffmpegPlugin.default;
+const debug = createDebug('hadron-build:target');
+
+export interface Asset {
+  name: string;
+  path: string;
+  downloadCenter?: boolean;
+}
+
+export interface TargetAssets {
+  assets: Asset[];
+  config: {
+    distribution: string;
+    arch: string;
+    platform: string;
+    version: string;
+    channel: string;
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type PackageJson = Record<string, any>;
+
+function _canBuildInstaller(ext: string): Promise<boolean> {
+  let bin: string | null = null;
+  let help: string | null = null;
 
   if (ext === 'rpm') {
     bin = 'rpmbuild';
@@ -33,10 +53,10 @@ function _canBuildInstaller(ext) {
   }
 
   return new Promise((resolve) => {
-    which(bin, (err, res) => {
+    which(bin as string, (err, res) => {
       if (err) {
         debug(`which ${bin} error`, err);
-        /* eslint no-console: 0 */
+        /* eslint-disable-next-line no-console */
         console.warn(
           `Skipping ${ext} build. Please see ${help} for required setup.`
         );
@@ -48,7 +68,10 @@ function _canBuildInstaller(ext) {
   });
 }
 
-function ifEnvironmentCanBuild(ext, fn) {
+function ifEnvironmentCanBuild(
+  ext: string,
+  fn: () => Promise<unknown>
+): Promise<unknown> {
   debug('checking if environment can build installer for %s', ext);
   return _canBuildInstaller(ext).then(function (can) {
     debug('can build installer for %s?', ext, true);
@@ -57,10 +80,10 @@ function ifEnvironmentCanBuild(ext, fn) {
   });
 }
 
-function getPkg(directory) {
+function getPkg(directory: string): PackageJson {
   const _path = path.join(directory, 'package.json');
-  /* eslint no-sync: 0 */
-  const pkg = JSON.parse(fs.readFileSync(_path));
+  /* eslint-disable-next-line no-sync */
+  const pkg: PackageJson = JSON.parse(readFileSync(_path, 'utf8'));
   pkg._path = _path;
   normalizePkg(pkg);
 
@@ -73,6 +96,7 @@ function getPkg(directory) {
   _.defaults(pkg, {
     productName: pkg.name,
     author: pkg.authors,
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     electronVersion: require('electron/package.json').version,
   });
 
@@ -92,9 +116,78 @@ const supportedDistributions = [
   'compass-isolated',
 ];
 
+// eslint-disable-next-line complexity
 class Target {
-  // eslint-disable-next-line complexity
-  constructor(dir, opts = {}) {
+  dir: string;
+  out: string;
+  pkg: PackageJson;
+  distribution: string;
+  id: string;
+  name: string;
+  readonly: boolean;
+  isolated: boolean;
+  productName: string;
+  bundleId?: string;
+  upgradeCode?: string;
+  version: string;
+  installerVersion?: string;
+  platform: string;
+  arch: string;
+  description?: string;
+  author: string;
+  shortcutFolderName?: string;
+  programFilesFolderName?: string;
+  slug: string;
+  semver: semver.SemVer;
+  channel: string;
+  autoUpdateBaseUrl: string | null;
+  asar: { unpack?: string[] };
+  rebuild: Record<string, unknown>;
+  macosEntitlements?: string;
+  truncatedProductName?: string;
+  packagerOptions: Record<string, unknown>;
+  assets!: Asset[];
+  installerOptions!: Record<string, unknown>;
+  appPath!: string;
+  resources!: string;
+  resourcesAppDir!: string;
+  app_archive_name?: string;
+  createInstaller!: () => Promise<void>;
+
+  // Windows
+  windows_setup_filename?: string;
+  windows_setup_label?: string;
+  windows_msi_filename?: string;
+  windows_msi_label?: string;
+  windows_zip_filename?: string;
+  windows_zip_label?: string;
+  windows_releases_filename?: string;
+  windows_releases_label?: string;
+  windows_nupkg_full_filename?: string;
+  windows_nupkg_full_label?: string;
+  windows_zip_sign_filename?: string;
+  windows_zip_sign_label?: string;
+  windows_nupkg_full_sign_filename?: string;
+  windows_nupkg_full_sign_label?: string;
+
+  // Darwin
+  osx_dmg_filename?: string;
+  osx_dmg_label?: string;
+  osx_zip_filename?: string;
+  osx_zip_label?: string;
+  osx_zip_sign_filename?: string;
+  osx_zip_sign_label?: string;
+
+  // Linux
+  linux_deb_filename?: string;
+  linux_deb_sign_filename?: string;
+  linux_rpm_filename?: string;
+  linux_tar_filename?: string;
+  linux_tar_sign_filename?: string;
+  rhel_tar_filename?: string;
+  rhel_tar_sign_filename?: string;
+
+  constructor(dir: string, opts: Record<string, unknown> = {}) {
     this.dir = dir || process.cwd();
     this.out = path.join(this.dir, 'dist');
 
@@ -102,7 +195,8 @@ class Target {
     this.pkg = pkg;
 
     const distributions = pkg.config.hadron.distributions;
-    const distribution = opts.distribution ?? process.env.HADRON_DISTRIBUTION;
+    const distribution =
+      (opts.distribution as string) ?? process.env.HADRON_DISTRIBUTION;
 
     if (!distribution) {
       throw new Error(
@@ -125,7 +219,7 @@ class Target {
       distribution,
     });
 
-    this.distribution = opts.distribution;
+    this.distribution = opts.distribution as string;
 
     const distOpts = _.defaults(
       {
@@ -151,14 +245,16 @@ class Target {
     this.bundleId = distOpts.bundleId;
     this.upgradeCode = distOpts.upgradeCode;
 
-    this.version = opts.version;
-    this.installerVersion = opts.installerVersion;
-    this.platform = opts.platform;
-    this.arch = opts.arch;
-    this.description = opts.description;
-    this.author = _.get(opts, 'author.name', opts.author);
-    this.shortcutFolderName = opts.shortcutFolderName;
-    this.programFilesFolderName = opts.programFilesFolderName;
+    this.version = opts.version as string;
+    this.installerVersion = opts.installerVersion as string | undefined;
+    this.platform = opts.platform as string;
+    this.arch = opts.arch as string;
+    this.description = opts.description as string | undefined;
+    this.author = _.get(opts, 'author.name', opts.author) as string;
+    this.shortcutFolderName = opts.shortcutFolderName as string | undefined;
+    this.programFilesFolderName = opts.programFilesFolderName as
+      | string
+      | undefined;
 
     this.slug = this.name;
     this.semver = new semver.SemVer(this.version);
@@ -184,7 +280,6 @@ class Target {
       this.version = process.env.DEV_VERSION_IDENTIFIER;
       pkg.version = this.version;
       this.semver = new semver.SemVer(this.version);
-
       this.slug = [this.name, this.channel].join('-');
     }
 
@@ -210,7 +305,7 @@ class Target {
       ignore: 'node_modules/|.cache/|dist/|test/|.user-data|.deps/',
       platform: this.platform,
       arch: this.arch,
-      electronVersion: this.electronVersion,
+      electronVersion: pkg.electronVersion,
       sign: null,
       afterExtract: [ffmpegAfterExtract],
     };
@@ -248,7 +343,7 @@ class Target {
     );
   }
 
-  setArchiveName() {
+  setArchiveName(): void {
     this.app_archive_name =
       this.osx_zip_filename ||
       this.windows_zip_filename ||
@@ -261,45 +356,47 @@ class Target {
    * Get an absolute path to a source file.
    * @return {String}
    */
-  src(...args) {
+  src(...args: (string | undefined)[]): string | undefined {
     if (args[0] === undefined) return undefined;
-    return path.join(this.dir, ...args);
+    return path.join(this.dir, ...(args as string[]));
   }
 
   /**
    * Get an absolute path to a file in the output directory.
    * @return {String}
    */
-  dest(...args) {
-    if (args[0] === undefined) return undefined;
-    return path.join(this.out, ...args);
+  dest(...args: (string | undefined)[]): string {
+    if (args[0] === undefined) return undefined as unknown as string;
+    return path.join(this.out, ...(args as string[]));
   }
 
-  distRoot() {
+  distRoot(): string {
     if (this.platform === 'darwin') {
       return path.join(this.appPath, '..');
     }
-
     return path.join(this.appPath);
   }
 
-  async write(filename, contents) {
+  async write(filename: string, contents: string | Buffer): Promise<string> {
     let dest = '';
     if (this.platform === 'darwin') {
       dest = path.join(this.appPath, '..', filename);
     } else {
       dest = path.join(this.appPath, filename);
     }
-    debug(`Writing ${contents.length} bytes to ${dest}`);
-    await fs.promises.writeFile(dest, contents);
-
+    debug(
+      `Writing ${
+        Buffer.isBuffer(contents) ? contents.length : contents.length
+      } bytes to ${dest}`
+    );
+    await fsPromises.writeFile(dest, contents);
     return dest; // this is used by the caller
   }
 
   /**
    * Apply Windows specific configuration.
    */
-  configureForWin32() {
+  configureForWin32(): void {
     const platformSettings = this.pkg.config.hadron.build.win32;
     platformSettings.icon = platformSettings.icon[this.channel];
 
@@ -328,13 +425,15 @@ class Target {
       },
     });
 
+    const packagerName = this.packagerOptions.name as string;
     this.appPath = this.dest(
-      `${this.packagerOptions.name}-${this.platform}-${this.arch}`
+      `${packagerName}-${this.platform}-${this.arch}`
     );
     this.resources = this.dest(
-      `${this.packagerOptions.name}-${this.platform}-${this.arch}`,
+      `${packagerName}-${this.platform}-${this.arch}`,
       'resources'
     );
+
     /**
      * Remove `.` from version tags for NUGET version
      */
@@ -352,12 +451,12 @@ class Target {
     this.windows_releases_label =
       this.windows_releases_filename = `${this.slug}-RELEASES`;
     this.windows_nupkg_full_label =
-      this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
+      this.windows_nupkg_full_filename = `${packagerName}-${nuggetVersion}-full.nupkg`;
 
     this.windows_zip_sign_label = this.windows_zip_sign_filename =
-      getSignedFilename(this.windows_zip_filename);
+      getSignedFilename(this.windows_zip_filename as string);
     this.windows_nupkg_full_sign_label = this.windows_nupkg_full_sign_filename =
-      getSignedFilename(this.windows_nupkg_full_filename);
+      getSignedFilename(this.windows_nupkg_full_filename as string);
 
     this.assets = [
       {
@@ -404,9 +503,8 @@ class Target {
       // who knows what else will be affected.
       authors: this.author,
       version: this.version,
-      exe: `${this.packagerOptions.name}.exe`,
+      exe: `${packagerName}.exe`,
       setupExe: this.windows_setup_filename,
-
       // This setting will prompt winstaller to try to sign files
       // for the installer with signtool.exe
       //
@@ -423,7 +521,7 @@ class Target {
       title: this.productName,
       productName: this.productName,
       description: this.description,
-      name: this.packagerOptions.name,
+      name: packagerName,
       noMsi: true,
     };
 
@@ -441,30 +539,37 @@ class Target {
     this.createInstaller = async () => {
       // sign the main application .exe
       await sign(
-        path.join(this.installerOptions.appDirectory, this.installerOptions.exe)
+        path.join(
+          this.installerOptions.appDirectory as string,
+          this.installerOptions.exe as string
+        )
       );
 
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const electronWinstaller = require('electron-winstaller');
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
 
-      await fs.promises.rename(
+      await fsPromises.rename(
         this.dest('RELEASES'),
-        this.dest(this.windows_releases_label)
+        this.dest(this.windows_releases_label as string)
       );
 
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { MSICreator } = require('@mongodb-js/electron-wix-msi');
 
       const msiCreator = new MSICreator({
         appDirectory: this.appPath,
         outputDirectory: this.packagerOptions.out,
-        exe: this.packagerOptions.name,
+        exe: packagerName,
         name: this.productName,
         // NOTE: falling back to author would result in MongoDB Inc
         shortcutFolderName: this.shortcutFolderName || this.author,
         shortcutName: this.productName,
         description: this.description,
         manufacturer: this.author,
-        version: windowsInstallerVersion(this.installerVersion || this.version),
+        version: windowsInstallerVersion(
+          (this.installerVersion || this.version) as string
+        ),
         programFilesFolderName: this.programFilesFolderName || this.productName,
         appUserModelId: this.bundleId,
         upgradeCode: this.upgradeCode,
@@ -483,22 +588,22 @@ class Target {
       await msiCreator.compile();
 
       // sign the MSI
-      await sign(this.dest(this.packagerOptions.name + '.msi'));
+      await sign(this.dest(packagerName + '.msi'));
 
-      await fs.promises.rename(
-        this.dest(this.packagerOptions.name + '.msi'),
-        this.dest(this.windows_msi_label)
+      await fsPromises.rename(
+        this.dest(packagerName + '.msi'),
+        this.dest(this.windows_msi_label as string)
       );
 
       // sign the nupkg
-      await sign(this.dest(this.windows_nupkg_full_filename));
+      await sign(this.dest(this.windows_nupkg_full_filename as string));
     };
   }
 
   /**
    * Apply macOS specific configuration.
    */
-  configureForDarwin() {
+  configureForDarwin(): void {
     this.truncatedProductName = this.productName.substring(0, 25);
     const platformSettings = this.pkg.config.hadron.build.darwin;
     platformSettings.icon = platformSettings.icon[this.channel];
@@ -523,7 +628,8 @@ class Target {
     });
 
     if (this.channel !== 'stable') {
-      this.packagerOptions.appBundleId += `.${this.channel}`;
+      (this.packagerOptions as Record<string, unknown>).appBundleId =
+        `${this.bundleId}.${this.channel}`;
     }
 
     this.osx_dmg_label =
@@ -573,21 +679,11 @@ class Target {
         /**
          * Show a shortcut on the right to `Applications` folder.
          */
-        {
-          x: 322,
-          y: 243,
-          type: 'link',
-          path: '/Applications',
-        },
+        { x: 322, y: 243, type: 'link', path: '/Applications' },
         /**
          * Show a shortcut on the left for the application icon.
          */
-        {
-          x: 93,
-          y: 243,
-          type: 'file',
-          path: this.appPath,
-        },
+        { x: 93, y: 243, type: 'file', path: this.appPath },
       ],
     };
 
@@ -597,14 +693,14 @@ class Target {
       {
         const plistFilePath = path.join(appPath, 'Contents', 'Info.plist');
         const plistContents = plist.parse(
-          await fs.promises.readFile(plistFilePath, 'utf8')
-        );
+          await fsPromises.readFile(plistFilePath, 'utf8')
+        ) as Record<string, unknown>;
 
         plistContents.CFBundleURLTypes = _.get(
           this.pkg,
           'config.hadron.protocols',
           []
-        ).map((protocol) => ({
+        ).map((protocol: { name: string; schemes: string[] }) => ({
           CFBundleTypeRole: 'Editor',
           CFBundleURLIconFile: platformSettings.icon,
           CFBundleURLName: protocol.name,
@@ -619,12 +715,12 @@ class Target {
         if (extraPlistOptionsPath) {
           const extraPlistFilePath = this.src(extraPlistOptionsPath);
           const extraPlistContents = plist.parse(
-            await fs.promises.readFile(extraPlistFilePath, 'utf8')
-          );
+            await fsPromises.readFile(extraPlistFilePath as string, 'utf8')
+          ) as Record<string, unknown>;
           Object.assign(plistContents, extraPlistContents);
         }
 
-        await fs.promises.writeFile(plistFilePath, plist.build(plistContents));
+        await fsPromises.writeFile(plistFilePath, plist.build(plistContents));
       }
 
       const isNotarizationPossible =
@@ -634,13 +730,14 @@ class Target {
         process.env.MACOS_NOTARY_API_URL;
 
       const notarizationOptions = {
-        bundleId: this.bundleId,
+        bundleId: this.bundleId as string,
         macosEntitlements: this.macosEntitlements,
       };
 
       if (isNotarizationPossible) {
         await notarize(appPath, notarizationOptions);
       } else {
+        /* eslint-disable-next-line no-console */
         console.error(
           chalk.yellow.bold(
             'WARNING: macos notary service credentials not set -- skipping signing and notarization of .app!'
@@ -648,6 +745,7 @@ class Target {
         );
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const { createDMG } = require('electron-installer-dmg');
       // electron-installer-dmg rejects setting both .dmgPath and .out
       const installerOptions = { ...this.installerOptions };
@@ -655,8 +753,12 @@ class Target {
       await createDMG(installerOptions);
 
       if (isNotarizationPossible) {
-        await notarize(this.installerOptions.dmgPath, notarizationOptions);
+        await notarize(
+          this.installerOptions.dmgPath as string,
+          notarizationOptions
+        );
       } else {
+        /* eslint-disable-next-line no-console */
         console.error(
           chalk.yellow.bold(
             'WARNING: macos notary service credentials not set -- skipping signing and notarization of .dmg!'
@@ -669,7 +771,7 @@ class Target {
   /**
    * Apply Linux specific configuration.
    */
-  configureForLinux() {
+  configureForLinux(): void {
     const platformSettings = this.pkg.config.hadron.build.linux;
     platformSettings.icon = platformSettings.icon[this.channel];
 
@@ -678,9 +780,7 @@ class Target {
     );
     this.resources = path.join(this.appPath, 'resources');
 
-    Object.assign(this.packagerOptions, {
-      name: this.productName,
-    });
+    Object.assign(this.packagerOptions, { name: this.productName });
 
     const debianVersion = this.version;
     const debianArch = this.arch === 'x64' ? 'amd64' : 'i386';
@@ -700,7 +800,6 @@ class Target {
     const rhelCategories = _.get(platformSettings, 'rpm_categories');
     this.linux_rpm_filename = `${this.slug}-${this.version}.${rhelArch}.rpm`;
     this.rhel_tar_filename = `${this.slug}-${this.version}-rhel-${this.arch}.tar.gz`;
-
     this.rhel_tar_sign_filename = getSignedFilename(this.rhel_tar_filename);
 
     this.assets = [
@@ -726,17 +825,14 @@ class Target {
         name: this.linux_tar_sign_filename,
         path: this.dest(this.linux_tar_sign_filename),
       },
-      {
-        name: this.rhel_tar_filename,
-        path: this.dest(this.rhel_tar_filename),
-      },
+      { name: this.rhel_tar_filename, path: this.dest(this.rhel_tar_filename) },
       {
         name: this.rhel_tar_sign_filename,
         path: this.dest(this.rhel_tar_sign_filename),
       },
     ];
 
-    var license = this.pkg.license;
+    let license = this.pkg.license as string;
     if (license === 'UNLICENSED') {
       license = `Copyright © ${new Date().getFullYear()} ${
         this.author
@@ -744,8 +840,9 @@ class Target {
     }
 
     const mimeType = _.get(this.pkg, 'config.hadron.protocols', [])
-      .flatMap((protocol) => protocol.schemes)
-      .map((scheme) => `x-scheme-handler/${scheme}`);
+      .flatMap((protocol: { schemes: string[] }) => protocol.schemes)
+      .map((scheme: string) => `x-scheme-handler/${scheme}`);
+
     this.installerOptions = {
       deb: {
         src: this.appPath,
@@ -767,46 +864,50 @@ class Target {
         name: this.slug,
         version: rhelVersion,
         revision: rhelRevision,
-        rename: (dest) => {
-          return path.join(dest, this.linux_rpm_filename);
+        rename: (dest: string) => {
+          return path.join(dest, this.linux_rpm_filename as string);
         },
         bin: this.productName,
         requires: ['gnome-keyring', 'libsecret'],
         categories: rhelCategories,
-        license: license,
+        license,
         mimeType,
       },
     };
 
-    const createRpmInstaller = () => {
+    const createRpmInstaller = (): Promise<unknown> => {
       return ifEnvironmentCanBuild('rpm', () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const createRpm = require('electron-installer-redhat');
         debug('creating rpm...', this.installerOptions.rpm);
         return createRpm(this.installerOptions.rpm).then(() => {
-          return sign(this.dest(this.linux_rpm_filename));
+          return sign(this.dest(this.linux_rpm_filename as string));
         });
       });
     };
 
-    const createDebInstaller = () => {
+    const createDebInstaller = (): Promise<unknown> => {
       return ifEnvironmentCanBuild('deb', () => {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const createDeb = require('electron-installer-debian');
         debug('creating deb...', this.installerOptions.deb);
         return createDeb(this.installerOptions.deb).then(() => {
-          return sign(this.dest(this.linux_deb_filename));
+          return sign(this.dest(this.linux_deb_filename as string));
         });
       });
     };
 
-    const createTarball = () => {
+    const createTarball = (): Promise<void> => {
       debug(
         'creating tarball %s -> %s',
         this.appPath,
-        this.dest(this.app_archive_name)
+        this.dest(this.app_archive_name as string)
       );
-
-      return tarGz(this.appPath, this.dest(this.app_archive_name)).then(() => {
-        return sign(this.dest(this.app_archive_name));
+      return tarGz(
+        this.appPath,
+        this.dest(this.app_archive_name as string)
+      ).then(() => {
+        return sign(this.dest(this.app_archive_name as string));
       });
     };
 
@@ -815,7 +916,7 @@ class Target {
         createRpmInstaller(),
         createDebInstaller(),
         createTarball(),
-      ]);
+      ]).then(() => undefined);
     };
   }
 
@@ -829,34 +930,31 @@ class Target {
    * target.getAssetWithExtension('.k7z')
    * >>> null
    */
-  getAssetWithExtension(extname) {
+  getAssetWithExtension(extname: string): Asset | undefined {
     const res = this.assets.filter(function (asset) {
       return path.extname(asset.path) === extname;
     });
     debug('%s -> ', extname, res);
-
     return res[0];
   }
 
-  static getAssetsForVersion(dir, version) {
+  static getAssetsForVersion(dir: string, version: string): TargetAssets[] {
     const configs = supportedDistributions.flatMap((distribution) => {
       return supportedPlatforms.map((platformConfig) => {
         return { ...platformConfig, distribution };
       });
     });
 
-    const assets = configs.flatMap((config) => {
+    return configs.flatMap((config) => {
       const target = new Target(dir, { ...config, version });
       return {
         config: { ...config, version: target.version, channel: target.channel },
         assets: target.assets,
       };
     });
-
-    return assets;
   }
 
-  static getChannelFromVersion(version) {
+  static getChannelFromVersion(version: string): string {
     // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
     const match = version.match(/-([a-z]+)(\.\d+)?$/);
     if (match) {
@@ -865,16 +963,15 @@ class Target {
     return 'stable';
   }
 
-  static getDownloadLinkForAsset(version, asset) {
+  static getDownloadLinkForAsset(version: string, asset: Asset): string {
     const channel = Target.getChannelFromVersion(version);
     const prefix =
       channel && channel !== 'stable' ? `compass/${channel}` : 'compass';
     return `https://downloads.mongodb.com/${prefix}/${asset.name}`;
   }
+
+  static readonly supportedPlatforms = supportedPlatforms;
+  static readonly supportedDistributions = supportedDistributions;
 }
 
-Target.supportedPlatforms = supportedPlatforms;
-
-Target.supportedDistributions = supportedDistributions;
-
-module.exports = Target;
+export default Target;

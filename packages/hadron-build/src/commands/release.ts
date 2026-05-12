@@ -1,4 +1,4 @@
-import Target from '../../lib/target';
+import Target from '../lib/target';
 import createCLI from 'mongodb-js-cli';
 import util from 'util';
 import path from 'path';
@@ -7,10 +7,10 @@ import del from 'del';
 import _ from 'lodash';
 import asar from 'asar';
 import packager from 'electron-packager';
-import createApplicationZip from '../../lib/zip';
-import runCommand from '../../lib/run';
+import createApplicationZip from '../lib/zip';
+import runCommand from '../lib/run';
 import { rebuild } from '@electron/rebuild';
-import { signArchive } from '../../lib/signtool';
+import { signArchive } from '../lib/signtool';
 
 const format = util.format;
 const cli = createCLI('hadron-build:release');
@@ -22,7 +22,7 @@ export const describe = ':shipit:';
 const createBrandedApplication = async (CONFIG: Target): Promise<void> => {
   cli.debug('running electron-packager');
   const res = await packager(
-    CONFIG.packagerOptions as Parameters<typeof packager>[0]
+    CONFIG.packagerOptions as unknown as Parameters<typeof packager>[0]
   );
   cli.debug('Packager result is: ' + JSON.stringify(res, null, 2));
 
@@ -121,7 +121,7 @@ const fixCompass5333 = async (CONFIG: Target): Promise<void> => {
 };
 
 const writeVersionFile = async (CONFIG: Target): Promise<void> => {
-  const version = CONFIG.packagerOptions.electronVersion;
+  const version = CONFIG.packagerOptions.electronVersion as string;
   const dest = await CONFIG.write('version', version);
   cli.debug(format('version `%s` written to `%s`', version, dest));
 };
@@ -233,7 +233,7 @@ const installDependencies = async (CONFIG: Target): Promise<void> => {
 
   const sharedRebuildConfig = {
     arch: CONFIG.arch,
-    electronVersion: CONFIG.packagerOptions.electronVersion,
+    electronVersion: CONFIG.packagerOptions.electronVersion as string,
     buildPath: appPackagePath,
     projectRootPath: appPackagePath,
     force: true,
@@ -422,7 +422,7 @@ export const run = async (
       }),
       task('sign zip', async (config) => {
         await new Promise<void>((resolve, reject) => {
-          signArchive(config, (err: Error | null) => {
+          signArchive(config, (err?: Error | null) => {
             if (err) reject(err);
             else resolve();
           });

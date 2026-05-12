@@ -1,5 +1,5 @@
 'use strict';
-const Target = require('../lib/target');
+const Target = require('../src/lib/target').default;
 const path = require('path');
 
 exports.getConfig = (argv) => {

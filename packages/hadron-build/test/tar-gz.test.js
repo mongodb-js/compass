@@ -5,7 +5,7 @@ const { promises: fs } = require('fs');
 const { execFile: execFileCb } = require('child_process');
 const util = require('util');
 const execFile = util.promisify(execFileCb);
-const tar = require('../lib/tar-gz');
+const tar = require('../src/lib/tar-gz').default;
 
 describe('tar', function () {
   before(function () {

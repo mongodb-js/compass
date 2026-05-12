@@ -1,5 +1,4 @@
-'use strict';
-function windowsInstallerVersion(version) {
+export function windowsInstallerVersion(version: string): string {
   const versionComponents = (version || '').match(
     /^(\d+)\.(\d+)\.(\d+)(?:\.(\d+))?/
   );
@@ -11,5 +10,3 @@ function windowsInstallerVersion(version) {
 
   return '0.0.0.0';
 }
-
-module.exports = windowsInstallerVersion;

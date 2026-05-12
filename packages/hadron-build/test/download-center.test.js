@@ -3,7 +3,7 @@ const { expect } = require('chai');
 const {
   getKeyPrefix,
   requireEnvironmentVariables,
-} = require('../lib/download-center');
+} = require('../src/lib/download-center');
 
 describe('download-center', function () {
   describe('getKeyPrefix', function () {

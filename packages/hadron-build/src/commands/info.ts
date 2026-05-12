@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import Target from '../../lib/target';
+import Target from '../lib/target';
 import Table from 'cli-table';
 import * as yaml from 'js-yaml';
 import { inspect } from 'util';
@@ -50,7 +50,9 @@ export const builder = {
   },
 };
 
-export function serialize(target: Record<string, unknown>): Record<string, unknown> {
+export function serialize(
+  target: Record<string, unknown>
+): Record<string, unknown> {
   return _.omitBy(target, function (value) {
     return _.isFunction(value) || _.isRegExp(value) || _.isUndefined(value);
   });

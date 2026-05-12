@@ -8,16 +8,16 @@ const {
   getBuildSpecificAttestations,
   getPlatformSpecificAttestations,
   buildVariants,
-} = require('../lib/build-attestations');
-const Target = require('../lib/target');
+} = require('../src/lib/build-attestations');
+const Target = require('../src/lib/target').default;
 
 describe('build-attestations', function () {
   let env;
-  beforeEach(() => {
+  beforeEach(function () {
     env = { ...process.env };
   });
 
-  afterEach(() => {
+  afterEach(function () {
     process.env = { ...env };
   });
   const ROOT = path.resolve(__dirname, '..', '..');

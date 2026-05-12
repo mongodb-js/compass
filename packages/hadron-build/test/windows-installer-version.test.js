@@ -1,23 +1,24 @@
 'use strict';
 const assert = require('assert');
-const windowsInstallerVersion = require('../lib/windows-installer-version');
+const windowsInstallerVersion =
+  require('../src/lib/windows-installer-version').windowsInstallerVersion;
 
-describe('windowsInstallerVersion', () => {
-  it('returns 0.0.0.0 if version is not defined', () => {
+describe('windowsInstallerVersion', function () {
+  it('returns 0.0.0.0 if version is not defined', function () {
     assert.strictEqual(windowsInstallerVersion(), '0.0.0.0');
     assert.strictEqual(windowsInstallerVersion(''), '0.0.0.0');
     assert.strictEqual(windowsInstallerVersion(null), '0.0.0.0');
   });
 
-  it('returns version if version is already suitable', () => {
+  it('returns version if version is already suitable', function () {
     assert.strictEqual(windowsInstallerVersion('1.1.1.1'), '1.1.1.1');
   });
 
-  it('returns MAJOR.MINOR.PATCH.0 if version is a GA semver', () => {
+  it('returns MAJOR.MINOR.PATCH.0 if version is a GA semver', function () {
     assert.strictEqual(windowsInstallerVersion('1.1.1'), '1.1.1.0');
   });
 
-  it('returns MAJOR.MINOR.PATCH.0 if version is a prerelease semver', () => {
+  it('returns MAJOR.MINOR.PATCH.0 if version is a prerelease semver', function () {
     assert.strictEqual(windowsInstallerVersion('1.1.1-beta.0'), '1.1.1.0');
   });
 });

@@ -1,7 +1,13 @@
-const path = require('path');
-const Target = require('./target');
+import path from 'path';
+import Target from './target';
 
-const buildVariants = [
+export interface Attestation {
+  downloadKey: string;
+  uploadKey: string;
+  localPath: string;
+}
+
+export const buildVariants = [
   'package-ubuntu',
   'package-windows',
   'package-rhel',
@@ -9,7 +15,8 @@ const buildVariants = [
   'package-macos-arm',
 ];
 
-const getBuildVersion = (version) => {
+// Exported for tests
+export function getBuildVersion(version?: string): string {
   const newVersion = version || process.env.HADRON_APP_VERSION;
   if (!newVersion) {
     throw new Error('Version not specified');
@@ -19,7 +26,7 @@ const getBuildVersion = (version) => {
     return process.env.DEV_VERSION_IDENTIFIER;
   }
   return newVersion;
-};
+}
 
 const distroVariants = Target.supportedDistributions.flatMap((distro) => {
   return buildVariants.map((variant) => {
@@ -27,22 +34,25 @@ const distroVariants = Target.supportedDistributions.flatMap((distro) => {
   });
 });
 
-const getPlatformSpecificAttestations = (dir, version) => {
-  return [
-    'purls.txt',
-    'sbom-lite.json',
-    'sbom.json',
-    'first-party-deps.json',
-  ].flatMap((file) => {
-    return distroVariants.flatMap((variant) => ({
-      downloadKey: path.join(variant, file),
-      uploadKey: path.join(version, variant, file),
-      localPath: path.join(dir, 'dist', variant, file),
-    }));
-  });
-};
+export function getPlatformSpecificAttestations(
+  dir: string,
+  version: string
+): Attestation[] {
+  return ['purls.txt', 'sbom-lite.json', 'sbom.json', 'first-party-deps.json'].flatMap(
+    (file) => {
+      return distroVariants.flatMap((variant) => ({
+        downloadKey: path.join(variant, file),
+        uploadKey: path.join(version, variant, file),
+        localPath: path.join(dir, 'dist', variant, file),
+      }));
+    }
+  );
+}
 
-const getBuildSpecificAttestations = (dir, version) => {
+export function getBuildSpecificAttestations(
+  dir: string,
+  version: string
+): Attestation[] {
   return [
     'dependencies.json',
     'snyk-test-result.json',
@@ -53,21 +63,12 @@ const getBuildSpecificAttestations = (dir, version) => {
     uploadKey: path.join(version, file),
     localPath: path.join(dir, 'dist', file),
   }));
-};
+}
 
-const getBuildAttestations = (dir, version) => {
+export function getBuildAttestations(dir: string, version?: string): Attestation[] {
   const buildVersion = getBuildVersion(version);
   return [
     ...getPlatformSpecificAttestations(dir, buildVersion),
     ...getBuildSpecificAttestations(dir, buildVersion),
   ];
-};
-
-module.exports = {
-  getBuildAttestations,
-  // Exported for tests
-  getBuildVersion,
-  getBuildSpecificAttestations,
-  getPlatformSpecificAttestations,
-  buildVariants,
-};
+}
