@@ -6,7 +6,6 @@ import StageEditor from '../stage-editor/stage-editor';
 import { getStageHelpLink } from '../../utils/stage';
 import type { RootState } from '../../modules';
 import StageOperatorSelect from '../stage-toolbar/stage-operator-select';
-import { RerankTokensBanner } from '../rerank-tokens-banner';
 import { PIPELINE_HELP_URI } from '../../constants';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
@@ -35,11 +34,9 @@ const editorStyles = css({
 export const FocusModeStageEditor = ({
   index,
   operator,
-  autoPreview,
 }: {
   index: number;
   operator: string | null;
-  autoPreview: boolean;
 }) => {
   const editorRef = useRef<EditorRef>(null);
 
@@ -67,9 +64,6 @@ export const FocusModeStageEditor = ({
           Open docs
         </Link>
       </div>
-      {operator === '$rerank' && autoPreview && (
-        <RerankTokensBanner data-testid="focus-mode-rerank-tokens-banner" />
-      )}
       <div className={editorStyles}>
         <StageEditor editorRef={editorRef} index={index} />
       </div>
@@ -79,7 +73,6 @@ export const FocusModeStageEditor = ({
 
 const mapState = ({
   focusMode: { stageIndex },
-  autoPreview,
   pipelineBuilder: {
     stageEditor: { stages },
   },
@@ -88,7 +81,6 @@ const mapState = ({
   return {
     index: stageIndex,
     operator: currentStage?.stageOperator,
-    autoPreview: autoPreview ?? false,
   };
 };
 

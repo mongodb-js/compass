@@ -4,26 +4,16 @@ import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
 import { renderWithStore } from '../../../test/configure-store';
-import type { AggregationsPluginServices } from '../../stores/store';
 import { FocusModeStageEditor } from './focus-mode-stage-editor';
-import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 
 const renderFocusModeStageEditor = (
-  props: Partial<ComponentProps<typeof FocusModeStageEditor>> = {},
-  services: Partial<AggregationsPluginServices> = {}
+  props: Partial<ComponentProps<typeof FocusModeStageEditor>> = {}
 ) => {
   return renderWithStore(
-    <FocusModeStageEditor
-      index={-1}
-      operator={null}
-      autoPreview={false}
-      {...props}
-    />,
+    <FocusModeStageEditor index={-1} operator={null} {...props} />,
     {
       pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
-    },
-    undefined,
-    services
+    }
   );
 };
 
@@ -77,40 +67,6 @@ describe('FocusMode', function () {
         'href',
         'https://www.mongodb.com/docs/manual/reference/operator/aggregation/limit/'
       );
-    });
-  });
-
-  context('$rerank tokens banner', function () {
-    afterEach(function () {
-      localStorage.removeItem('mongodb_compass_dismissed_rerank_tokens_banner');
-    });
-
-    it('shows the tokens banner when operator is $rerank and autoPreview is true', async function () {
-      await renderFocusModeStageEditor(
-        { index: 0, operator: '$rerank', autoPreview: true },
-        { preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }) }
-      );
-      expect(screen.getByTestId('focus-mode-rerank-tokens-banner')).to.exist;
-    });
-
-    it('does not show the tokens banner when autoPreview is false', async function () {
-      await renderFocusModeStageEditor(
-        { index: 0, operator: '$rerank', autoPreview: false },
-        { preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }) }
-      );
-      expect(
-        screen.queryByTestId('focus-mode-rerank-tokens-banner')
-      ).to.not.exist;
-    });
-
-    it('does not show the tokens banner for non-$rerank operators', async function () {
-      await renderFocusModeStageEditor(
-        { index: 0, operator: '$match', autoPreview: true },
-        { preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }) }
-      );
-      expect(
-        screen.queryByTestId('focus-mode-rerank-tokens-banner')
-      ).to.not.exist;
     });
   });
 });

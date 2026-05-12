@@ -7,7 +7,6 @@ import PipelineEditor from './pipeline-editor';
 import PipelinePreview from './pipeline-preview';
 import ResizeHandle from '../../resize-handle';
 import { RerankTokensBanner } from '../../rerank-tokens-banner';
-import { usePreference } from 'compass-preferences-model/provider';
 import type { RootState } from '../../../modules';
 
 const outerContainerStyles = css({
@@ -47,9 +46,8 @@ const containerDataTestId = 'pipeline-as-text-workspace';
 export const PipelineAsTextWorkspace: React.FunctionComponent<
   PipelineAsTextWorkspaceProps
 > = ({ isAutoPreview, pipelineText }) => {
-  const enableRerank = usePreference('enableRerank');
   const showRerankTokensBanner =
-    enableRerank && pipelineText.includes('$rerank') && isAutoPreview;
+    pipelineText.includes('$rerank') && isAutoPreview;
 
   if (!isAutoPreview) {
     return (
