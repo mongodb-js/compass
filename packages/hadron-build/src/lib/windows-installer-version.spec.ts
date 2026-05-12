@@ -3,9 +3,15 @@ import { windowsInstallerVersion } from './windows-installer-version';
 
 describe('windowsInstallerVersion', function () {
   it('returns 0.0.0.0 if version is not defined', function () {
-    assert.strictEqual(windowsInstallerVersion(undefined as unknown as string), '0.0.0.0');
+    assert.strictEqual(
+      windowsInstallerVersion(undefined as unknown as string),
+      '0.0.0.0'
+    );
     assert.strictEqual(windowsInstallerVersion(''), '0.0.0.0');
-    assert.strictEqual(windowsInstallerVersion(null as unknown as string), '0.0.0.0');
+    assert.strictEqual(
+      windowsInstallerVersion(null as unknown as string),
+      '0.0.0.0'
+    );
   });
 
   it('returns version if version is already suitable', function () {

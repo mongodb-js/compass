@@ -14,7 +14,9 @@ describe('target', function () {
   });
 
   it('should have autoupdate endpoint resolved from the package.json config', function () {
-    const target = new Target(path.join(__dirname, '..', '..', 'test', 'fixtures', 'hadron-app'));
+    const target = new Target(
+      path.join(__dirname, '..', '..', 'test', 'fixtures', 'hadron-app')
+    );
 
     expect(target).to.have.property(
       'autoUpdateBaseUrl',
@@ -23,7 +25,9 @@ describe('target', function () {
   });
 
   it('defaults to package.json distribution config options', function () {
-    const target = new Target(path.join(__dirname, '..', '..', 'test', 'fixtures', 'hadron-app'));
+    const target = new Target(
+      path.join(__dirname, '..', '..', 'test', 'fixtures', 'hadron-app')
+    );
 
     expect(target).to.have.property('distribution', 'compass');
     expect(target).to.have.property('name', 'compass');
@@ -46,7 +50,9 @@ describe('target', function () {
       HADRON_APP_VERSION: '1.2.3',
     });
 
-    const target = new Target(path.join(__dirname, '..', '..', 'test', 'fixtures', 'hadron-app'));
+    const target = new Target(
+      path.join(__dirname, '..', '..', 'test', 'fixtures', 'hadron-app')
+    );
 
     expect(target).to.have.property('distribution', 'compass-isolated');
     expect(target).to.have.property('name', 'compass-compass');

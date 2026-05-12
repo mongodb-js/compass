@@ -14,7 +14,7 @@ describe('hadron-build::signtool', function () {
   function setEnvVars(obj: Record<string, string | undefined | false>) {
     Object.keys(obj).forEach((key) => {
       if (obj[key]) {
-        process.env[key] = obj[key] as string;
+        process.env[key] = obj[key];
       } else {
         delete process.env[key];
       }

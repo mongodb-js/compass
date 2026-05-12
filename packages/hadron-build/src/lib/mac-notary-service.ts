@@ -112,10 +112,12 @@ export async function notarize(
     // cleanup - remove signedArchive and unsignedArchive
     debug('ls', (await execFile('ls', ['-lh'], execOpts)).stdout);
     debug(`removing ${signedArchive} and ${unsignedArchive}`);
-    await execFile('rm', ['-r', signedArchive, unsignedArchive], execOpts).catch(
-      (err) => {
-        debug('error cleaning up', err);
-      }
-    );
+    await execFile(
+      'rm',
+      ['-r', signedArchive, unsignedArchive],
+      execOpts
+    ).catch((err) => {
+      debug('error cleaning up', err);
+    });
   }
 }

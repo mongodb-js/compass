@@ -38,15 +38,18 @@ export function getPlatformSpecificAttestations(
   dir: string,
   version: string
 ): Attestation[] {
-  return ['purls.txt', 'sbom-lite.json', 'sbom.json', 'first-party-deps.json'].flatMap(
-    (file) => {
-      return distroVariants.flatMap((variant) => ({
-        downloadKey: path.join(variant, file),
-        uploadKey: path.join(version, variant, file),
-        localPath: path.join(dir, 'dist', variant, file),
-      }));
-    }
-  );
+  return [
+    'purls.txt',
+    'sbom-lite.json',
+    'sbom.json',
+    'first-party-deps.json',
+  ].flatMap((file) => {
+    return distroVariants.flatMap((variant) => ({
+      downloadKey: path.join(variant, file),
+      uploadKey: path.join(version, variant, file),
+      localPath: path.join(dir, 'dist', variant, file),
+    }));
+  });
 }
 
 export function getBuildSpecificAttestations(
@@ -65,7 +68,10 @@ export function getBuildSpecificAttestations(
   }));
 }
 
-export function getBuildAttestations(dir: string, version?: string): Attestation[] {
+export function getBuildAttestations(
+  dir: string,
+  version?: string
+): Attestation[] {
   const buildVersion = getBuildVersion(version);
   return [
     ...getPlatformSpecificAttestations(dir, buildVersion),

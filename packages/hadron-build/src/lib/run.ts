@@ -45,8 +45,8 @@ function run(
     opts = {};
   }
 
-  const resolvedArgs = args as string[];
-  const resolvedOpts = (opts || {}) as Record<string, unknown>;
+  const resolvedArgs = args;
+  const resolvedOpts = opts || {};
   const callback = fn as RunCallback;
 
   debug('running', { cmd, args: resolvedArgs });

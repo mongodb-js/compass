@@ -58,7 +58,7 @@ function _canBuildInstaller(ext: string): Promise<boolean> {
   }
 
   return new Promise((resolve) => {
-    which(bin as string, (err, res) => {
+    which(bin, (err, res) => {
       if (err) {
         debug(`which ${bin} error`, err);
         /* eslint-disable-next-line no-console */
@@ -458,9 +458,9 @@ class Target {
       this.windows_nupkg_full_filename = `${packagerName}-${nuggetVersion}-full.nupkg`;
 
     this.windows_zip_sign_label = this.windows_zip_sign_filename =
-      getSignedFilename(this.windows_zip_filename as string);
+      getSignedFilename(this.windows_zip_filename);
     this.windows_nupkg_full_sign_label = this.windows_nupkg_full_sign_filename =
-      getSignedFilename(this.windows_nupkg_full_filename as string);
+      getSignedFilename(this.windows_nupkg_full_filename);
 
     this.assets = [
       {
@@ -555,7 +555,7 @@ class Target {
 
       await fsPromises.rename(
         this.dest('RELEASES'),
-        this.dest(this.windows_releases_label as string)
+        this.dest(this.windows_releases_label)
       );
 
       // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -571,9 +571,7 @@ class Target {
         shortcutName: this.productName,
         description: this.description,
         manufacturer: this.author,
-        version: windowsInstallerVersion(
-          (this.installerVersion || this.version) as string
-        ),
+        version: windowsInstallerVersion(this.installerVersion || this.version),
         programFilesFolderName: this.programFilesFolderName || this.productName,
         appUserModelId: this.bundleId,
         upgradeCode: this.upgradeCode,
@@ -596,11 +594,11 @@ class Target {
 
       await fsPromises.rename(
         this.dest(packagerName + '.msi'),
-        this.dest(this.windows_msi_label as string)
+        this.dest(this.windows_msi_label)
       );
 
       // sign the nupkg
-      await sign(this.dest(this.windows_nupkg_full_filename as string));
+      await sign(this.dest(this.windows_nupkg_full_filename));
     };
   }
 
@@ -884,7 +882,7 @@ class Target {
         const createRpm = require('electron-installer-redhat');
         debug('creating rpm...', this.installerOptions.rpm);
         return createRpm(this.installerOptions.rpm).then(() => {
-          return sign(this.dest(this.linux_rpm_filename as string));
+          return sign(this.dest(this.linux_rpm_filename));
         });
       });
     };
@@ -895,7 +893,7 @@ class Target {
         const createDeb = require('electron-installer-debian');
         debug('creating deb...', this.installerOptions.deb);
         return createDeb(this.installerOptions.deb).then(() => {
-          return sign(this.dest(this.linux_deb_filename as string));
+          return sign(this.dest(this.linux_deb_filename));
         });
       });
     };
@@ -904,13 +902,13 @@ class Target {
       debug(
         'creating tarball %s -> %s',
         this.appPath,
-        this.dest(this.app_archive_name as string)
+        this.dest(this.app_archive_name)
       );
       return tarGz(
         this.appPath,
         this.dest(this.app_archive_name as string)
       ).then(() => {
-        return sign(this.dest(this.app_archive_name as string));
+        return sign(this.dest(this.app_archive_name));
       });
     };
 

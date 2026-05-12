@@ -34,7 +34,11 @@ export function getSignedFilename(filename: string): string {
  * @param {import('./target')} target
  */
 export function signArchive(
-  target: { app_archive_name?: string; platform: string; dest: (...args: string[]) => string },
+  target: {
+    app_archive_name?: string;
+    platform: string;
+    dest: (...args: string[]) => string;
+  },
   cb: (err?: Error | null) => void
 ): void {
   const { app_archive_name, platform } = target;

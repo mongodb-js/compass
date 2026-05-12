@@ -1,8 +1,5 @@
 import { expect } from 'chai';
-import {
-  getKeyPrefix,
-  requireEnvironmentVariables,
-} from './download-center';
+import { getKeyPrefix, requireEnvironmentVariables } from './download-center';
 
 describe('download-center', function () {
   describe('getKeyPrefix', function () {
