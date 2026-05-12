@@ -6,7 +6,7 @@ const {
   readableVersionName,
   readablePlatformName,
   generateVersionsForAssets,
-} = require('../commands/upload');
+} = require('../src/commands/upload');
 const Target = require('../lib/target');
 
 describe('upload', function () {

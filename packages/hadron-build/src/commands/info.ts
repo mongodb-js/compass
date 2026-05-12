@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import Target from '../lib/target';
+import Target from '../../lib/target';
 import Table from 'cli-table';
 import * as yaml from 'js-yaml';
 import { inspect } from 'util';

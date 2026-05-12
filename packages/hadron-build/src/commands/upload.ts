@@ -9,15 +9,15 @@ import { Octokit } from '@octokit/rest';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { diffString } from 'json-diff';
 import download from 'download';
-import type { Asset, TargetAssets } from '../lib/target';
-import Target from '../lib/target';
+import type { Asset, TargetAssets } from '../../lib/target';
+import Target from '../../lib/target';
 import {
   downloadManifest,
   uploadAsset,
   uploadAssetNew,
   uploadManifest,
-} from '../lib/download-center';
-import { getBuildAttestations } from '../lib/build-attestations';
+} from '../../lib/download-center';
+import { getBuildAttestations } from '../../lib/build-attestations';
 import createCLI from 'mongodb-js-cli';
 
 const cli = createCLI('hadron-build:upload');

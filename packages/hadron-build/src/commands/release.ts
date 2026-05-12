@@ -1,4 +1,4 @@
-import Target from '../lib/target';
+import Target from '../../lib/target';
 import createCLI from 'mongodb-js-cli';
 import util from 'util';
 import path from 'path';
@@ -7,10 +7,10 @@ import del from 'del';
 import _ from 'lodash';
 import asar from 'asar';
 import packager from 'electron-packager';
-import createApplicationZip from '../lib/zip';
-import runCommand from '../lib/run';
+import createApplicationZip from '../../lib/zip';
+import runCommand from '../../lib/run';
 import { rebuild } from '@electron/rebuild';
-import { signArchive } from '../lib/signtool';
+import { signArchive } from '../../lib/signtool';
 
 const format = util.format;
 const cli = createCLI('hadron-build:release');
