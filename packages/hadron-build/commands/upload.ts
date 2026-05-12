@@ -1,34 +1,30 @@
 /* eslint-disable no-nested-ternary */
 /* eslint-disable complexity */
-/**
- * Upload release assets to GitHub and S3.
- */
-
-// eslint-disable-next-line strict
-'use strict';
-const path = require('path');
-const os = require('os');
-const { promises: fs } = require('fs');
-const { deepStrictEqual } = require('assert');
-const semver = require('semver');
-const { Octokit } = require('@octokit/rest');
-const { GithubRepo } = require('@mongodb-js/devtools-github-repo');
-const { diffString } = require('json-diff');
-const download = require('download');
-const Target = require('../lib/target');
-const {
+import path from 'path';
+import os from 'os';
+import { promises as fs } from 'fs';
+import { deepStrictEqual } from 'assert';
+import semver from 'semver';
+import { Octokit } from '@octokit/rest';
+import { GithubRepo } from '@mongodb-js/devtools-github-repo';
+import { diffString } from 'json-diff';
+import download from 'download';
+import type { Asset, TargetAssets } from '../lib/target';
+import Target from '../lib/target';
+import {
   downloadManifest,
   uploadAsset,
   uploadAssetNew,
   uploadManifest,
-} = require('../lib/download-center');
-const { getBuildAttestations } = require('../lib/build-attestations');
+} from '../lib/download-center';
+import { getBuildAttestations } from '../lib/build-attestations';
+import createCLI from 'mongodb-js-cli';
 
-const cli = require('mongodb-js-cli')('hadron-build:upload');
+const cli = createCLI('hadron-build:upload');
 const abortIfError = cli.abortIfError.bind(cli);
 const root = path.resolve(__dirname, '..', '..', '..');
 
-async function checkAssetsExist(paths) {
+async function checkAssetsExist(paths: string[]): Promise<true> {
   await Promise.all(
     paths.map(async (assetPath) => {
       const stats = await fs.stat(assetPath);
@@ -40,39 +36,47 @@ async function checkAssetsExist(paths) {
   return true;
 }
 
-function isBeta(id) {
+function isBeta(id: string): boolean {
   return /-beta.\d+/.test(id);
 }
 
-function isStable(id) {
+function isStable(id: string): boolean {
   return !isBeta(id);
 }
 
-const distributionLabel = {
+const distributionLabel = Object.create({
   'compass-readonly': 'Readonly Edition',
   'compass-isolated': 'Isolated Edition',
-};
+});
 
-const channelLabel = {
+const channelLabel = Object.create({
   stable: 'Stable',
   beta: 'Beta',
-};
+});
 
-function versionId(version, distribution = '') {
+export function versionId(version: string, distribution = ''): string {
   return [version, distribution.replace(/compass\-?/, '')]
     .filter(Boolean)
     .join('-');
 }
 
-function readableVersionName(version, channel, distribution) {
-  const desc = [distributionLabel[distribution], channelLabel[channel]]
+export function readableVersionName(
+  version: string,
+  channel?: string,
+  distribution?: string
+): string {
+  const desc = [distributionLabel[distribution ?? ''], channelLabel[channel ?? '']]
     .filter(Boolean)
     .join(' ');
   return `${version} ${desc ? `(${desc})` : ''}`.trim();
 }
 
-function readablePlatformName(arch, platform, fileName = '') {
-  let name = null;
+export function readablePlatformName(
+  arch: string,
+  platform: string,
+  fileName = ''
+): string {
+  let name: string | null = null;
 
   switch (`${platform}-${arch}`) {
     case 'darwin-x64':
@@ -106,7 +110,22 @@ function readablePlatformName(arch, platform, fileName = '') {
   return name;
 }
 
-function generateVersionsForAssets(assets, version, channel) {
+interface VersionEntry {
+  _id: string;
+  version: string;
+  platform: {
+    arch: string;
+    os: string;
+    name: string;
+    download_link: string;
+  }[];
+}
+
+export function generateVersionsForAssets(
+  assets: TargetAssets[],
+  version: string,
+  channel: string
+): VersionEntry[] {
   return Target.supportedDistributions.map((distribution) => {
     return {
       _id: versionId(version, distribution),
@@ -115,7 +134,6 @@ function generateVersionsForAssets(assets, version, channel) {
         .filter((asset) => {
           return asset.config.distribution === distribution;
         })
-        // eslint-disable-next-line no-shadow
         .flatMap(({ assets, config }) => {
           return assets
             .filter(({ downloadCenter }) => {
@@ -139,7 +157,12 @@ function generateVersionsForAssets(assets, version, channel) {
   });
 }
 
-async function publishGitHubRelease(assets, version, channel, dryRun) {
+export async function publishGitHubRelease(
+  assets: TargetAssets[],
+  version: string,
+  channel: string,
+  dryRun: boolean
+): Promise<void> {
   if (!dryRun && !process.env.GITHUB_TOKEN) {
     throw new Error(
       "Can't publish a release because process.env.GITHUB_TOKEN not set."
@@ -174,12 +197,10 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
     });
 
   if (!dryRun) {
-    // NOTE: This will correctly fail if not in draft, so it won't override
-    // already published releases.
     await repo.updateDraftRelease(release);
   }
 
-  const assetsToUpload = assets.flatMap((item) => {
+  const assetsToUpload: Asset[] = assets.flatMap((item) => {
     return item.assets;
   });
 
@@ -215,7 +236,11 @@ async function publishGitHubRelease(assets, version, channel, dryRun) {
   cli.info('Asset upload complete');
 }
 
-async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
+export async function uploadAssetsToDownloadCenter(
+  assets: Asset[],
+  channel: string,
+  dryRun: boolean
+): Promise<void> {
   cli.info('Uploading assets to download center…');
 
   await checkAssetsExist(
@@ -241,11 +266,7 @@ async function uploadAssetsToDownloadCenter(assets, channel, dryRun) {
   await Promise.all(uploads);
 }
 
-/**
- *
- * @param {'stable' | 'beta'} channel
- */
-async function getLatestRelease(channel = 'stable') {
+export async function getLatestRelease(channel = 'stable'): Promise<Record<string, unknown> | null> {
   const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
   });
@@ -254,7 +275,7 @@ async function getLatestRelease(channel = 'stable') {
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    let releases = [];
+    let releases: Record<string, unknown>[] = [];
 
     try {
       const { data } = await octokit.request(
@@ -268,15 +289,14 @@ async function getLatestRelease(channel = 'stable') {
       );
       releases = data;
     } catch (err) {
-      cli.warn(`Failed to fetch releases: ${err.message}`);
+      cli.warn(`Failed to fetch releases: ${(err as Error).message}`);
     }
 
-    // We ran out of releases or failed to fetch
     if (releases.length === 0) {
       return null;
     }
 
-    const latestRelease = releases
+    const latestRelease = (releases as Array<{ tag_name: string; draft: boolean; assets: unknown[] }>)
       .sort((a, b) => {
         if (semver.lt(a.tag_name, b.tag_name)) {
           return 1;
@@ -303,12 +323,12 @@ async function getLatestRelease(channel = 'stable') {
   }
 }
 
-async function getLatestReleaseVersions(channel = 'stable') {
+export async function getLatestReleaseVersions(channel = 'stable'): Promise<unknown> {
   const release = await getLatestRelease(channel);
   if (!release) {
     throw new Error(`Couldn't find latest release for ${channel} channel`);
   }
-  const manifest = release.assets.find((asset) => {
+  const manifest = (release.assets as Array<{ name: string; browser_download_url: string }>).find((asset) => {
     return asset.name === 'manifest.json';
   });
   if (!manifest) {
@@ -320,16 +340,16 @@ async function getLatestReleaseVersions(channel = 'stable') {
   return content;
 }
 
-function isDeepStrictEqual(a, b) {
+function isDeepStrictEqual(a: unknown, b: unknown): boolean {
   try {
     deepStrictEqual(a, b);
     return true;
-  } catch (_) {
+  } catch {
     return false;
   }
 }
 
-async function updateManifest(dryRun) {
+export async function updateManifest(dryRun: boolean): Promise<void> {
   cli.info('Downloading current manifest');
   const currentManifest = await downloadManifest();
 
@@ -366,24 +386,23 @@ async function updateManifest(dryRun) {
     });
 
   if (!dryRun) {
-    // NB: This will also validate the schema and that download_link assets
-    // exist before updating
     await uploadManifest(newManifest);
   }
 }
 
-const command = 'upload [options]';
+export const command = 'upload [options]';
 
-const describe = 'Upload assets from `release`.';
+export const describe = 'Upload assets from `release`.';
 
-const builder = {
+export const builder = {
   dir: {
     description: 'Project root directory',
     default: process.cwd(),
   },
   version: {
     description: 'Target version',
-    default: require(path.join(process.cwd(), 'package.json')).version,
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    default: require(path.join(process.cwd(), 'package.json')).version as string,
   },
   manifest: {
     description:
@@ -397,7 +416,14 @@ const builder = {
   },
 };
 
-const handler = function handler(argv) {
+interface UploadArgv {
+  dir: string;
+  version: string;
+  dryRun: boolean;
+  manifest: boolean;
+}
+
+export const handler = function handler(argv: UploadArgv): void {
   cli.argv = argv;
   argv.version = argv.version.replace(/^v/, '');
   const channel = Target.getChannelFromVersion(argv.version);
@@ -422,15 +448,13 @@ const handler = function handler(argv) {
     return;
   }
 
-  // Rest of the checks apply only for assets publishing
-
   if (!argv.dryRun && process.env.CI && !process.env.EVERGREEN_PROJECT) {
     cli.error('Trying to publish assets from non-Evergreen CI environment');
     return;
   }
 
   if (!argv.dryRun && process.env.EVERGREEN_PROJECT) {
-    const projectChannel = process.env.EVERGREEN_PROJECT.split('-').pop();
+    const projectChannel = process.env.EVERGREEN_PROJECT.split('-').pop() ?? '';
     if (!['stable', 'testing'].includes(projectChannel)) {
       cli.error(
         `Trying to publish assets from unsupported Evergreen project. Expected stable or testing, got ${projectChannel}`
@@ -439,7 +463,7 @@ const handler = function handler(argv) {
     }
     const channelToProjectMap = {
       testing: 'beta',
-    };
+    } as Record<string, string>;
     const mappedChannel = channelToProjectMap[projectChannel] || projectChannel;
     if (channel !== mappedChannel) {
       cli.error(
@@ -451,7 +475,6 @@ const handler = function handler(argv) {
 
   publishGitHubRelease(assets, argv.version, channel, argv.dryRun)
     .then(() => {
-      // Build attestations are only uploaded to the download center
       const attestations = getBuildAttestations(argv.dir, argv.version);
       const attestationsToUpload = attestations.map((attestation) => {
         return {
@@ -469,20 +492,4 @@ const handler = function handler(argv) {
       );
     })
     .catch(abortIfError);
-};
-
-module.exports = {
-  command,
-  describe,
-  builder,
-  handler,
-  versionId,
-  readableVersionName,
-  readablePlatformName,
-  generateVersionsForAssets,
-  publishGitHubRelease,
-  uploadAssetsToDownloadCenter,
-  getLatestRelease,
-  getLatestReleaseVersions,
-  updateManifest,
 };

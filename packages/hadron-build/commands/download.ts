@@ -1,35 +1,39 @@
-// eslint-disable-next-line strict
-'use strict';
-const path = require('path');
-const Target = require('../lib/target');
-const { downloadAssetFromEvergreen } = require('../lib/download-center');
-const { getBuildAttestations } = require('../lib/build-attestations');
+import path from 'path';
+import Target from '../lib/target';
+import { downloadAssetFromEvergreen } from '../lib/download-center';
+import { getBuildAttestations } from '../lib/build-attestations';
+import createCLI from 'mongodb-js-cli';
 
-const cli = require('mongodb-js-cli')('hadron-build:download');
+const cli = createCLI('hadron-build:download');
 const abortIfError = cli.abortIfError.bind(cli);
 const root = path.resolve(__dirname, '..', '..', '..');
 
-const command = 'download [options]';
+export const command = 'download [options]';
 
-const describe = 'Download all `release` assets from evergreen bucket';
+export const describe = 'Download all `release` assets from evergreen bucket';
 
-const builder = {
+export const builder = {
   dir: {
     description: 'Project root directory',
     default: process.cwd(),
   },
   version: {
     description: 'Target version',
-    default: require(path.join(process.cwd(), 'package.json')).version,
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    default: require(path.join(process.cwd(), 'package.json')).version as string,
   },
 };
 
-const run = async function run(argv) {
+interface DownloadArgv {
+  dir: string;
+  version: string;
+}
+
+export const run = async function run(argv: DownloadArgv): Promise<void> {
   argv.version = argv.version.replace(/^v/, '');
 
   const assets = Target.getAssetsForVersion(argv.dir, argv.version);
 
-  // eslint-disable-next-line no-shadow
   const assetsToDownload = assets.flatMap(({ assets }) => {
     return assets;
   });
@@ -51,18 +55,10 @@ const run = async function run(argv) {
     }
   );
 
-  return Promise.all(downloads);
+  return Promise.all(downloads).then(() => undefined);
 };
 
-const handler = function handler(argv) {
+export const handler = function handler(argv: DownloadArgv): void {
   cli.argv = argv;
   run(argv).catch(abortIfError);
-};
-
-module.exports = {
-  command,
-  describe,
-  builder,
-  run,
-  handler,
 };

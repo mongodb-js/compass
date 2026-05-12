@@ -1,18 +1,17 @@
-'use strict';
-const _ = require('lodash');
-const Target = require('../lib/target');
-const Table = require('cli-table');
-const yaml = require('js-yaml');
-const inspect = require('util').inspect;
-const flatten = require('flatnest').flatten;
-const fs = require('fs');
-const path = require('path');
+import _ from 'lodash';
+import Target from '../lib/target';
+import Table from 'cli-table';
+import * as yaml from 'js-yaml';
+import { inspect } from 'util';
+import { flatten } from 'flatnest';
+import fs from 'fs';
+import path from 'path';
 
-exports.command = 'info';
+export const command = 'info';
 
-exports.describe = 'Display project info.';
+export const describe = 'Display project info.';
 
-exports.builder = {
+export const builder = {
   verbose: {
     describe:
       'Confused or trying to track down a bug and want lots of debug output?',
@@ -51,17 +50,14 @@ exports.builder = {
   },
 };
 
-const serialize = (target) => {
+export function serialize(target: Record<string, unknown>): Record<string, unknown> {
   return _.omitBy(target, function (value) {
     return _.isFunction(value) || _.isRegExp(value) || _.isUndefined(value);
   });
-};
+}
 
-const toTable = (target) => {
-  /**
-   * Print the assembled `CONFIG` data as a nice table.
-   */
-  var configTable = new Table({
+export function toTable(target: Record<string, unknown>): string {
+  const configTable = new Table({
     head: ['Key', 'Value'],
   });
   _.forIn(target, function (value, key) {
@@ -74,20 +70,30 @@ const toTable = (target) => {
     ]);
   });
   return configTable.toString();
-};
+}
 
-exports.handler = (argv) => {
-  let target = new Target(argv.dir, {
+interface InfoArgv {
+  dir: string;
+  version?: string;
+  platform?: string;
+  arch?: string;
+  flatten?: boolean;
+  format: 'table' | 'yaml' | 'json';
+  out?: string;
+}
+
+export const handler = (argv: InfoArgv): void => {
+  let target: Record<string, unknown> = new Target(argv.dir, {
     version: argv.version,
     platform: argv.platform,
     arch: argv.arch,
-  });
+  }) as unknown as Record<string, unknown>;
 
   if (argv.flatten) {
     target = flatten(target);
   }
 
-  let output;
+  let output: string;
 
   /* eslint no-console: 0, no-sync: 0 */
   if (argv.format === 'json') {
