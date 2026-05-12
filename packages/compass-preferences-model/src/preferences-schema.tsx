@@ -12,6 +12,7 @@ import {
   proxyPreferenceToProxyOptions,
 } from './utils';
 import { Link } from '@mongodb-js/compass-components';
+import { SUPPORTED_LANGUAGES } from './supported-languages';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = (typeof THEMES_VALUES)[number];
@@ -49,8 +50,27 @@ export const LEGACY_UUID_ENCODINGS = [
 ] as const;
 export type LEGACY_UUID_ENCODINGS = (typeof LEGACY_UUID_ENCODINGS)[number];
 
-export const LANGUAGE_VALUES = ['en', 'ja'] as const;
-export type LANGUAGES = (typeof LANGUAGE_VALUES)[number];
+export type LANGUAGE_PREFERENCE = keyof typeof SUPPORTED_LANGUAGES;
+export const LANGUAGE_VALUES = Object.keys(SUPPORTED_LANGUAGES) as [
+  LANGUAGE_PREFERENCE
+];
+const FALLBACK_LANGUAGE = 'en';
+
+function getDefaultLanguage(): LANGUAGE_PREFERENCE {
+  const langs =
+    typeof navigator !== 'undefined'
+      ? navigator.languages?.length
+        ? [...navigator.languages]
+        : [navigator.language]
+      : [];
+  for (const lang of langs) {
+    const code = lang.split('-')[0];
+    if ((LANGUAGE_VALUES as readonly string[]).includes(code)) {
+      return code as LANGUAGE_PREFERENCE;
+    }
+  }
+  return FALLBACK_LANGUAGE;
+}
 
 export type PermanentFeatureFlags = {
   showDevFeatureFlags?: boolean;
@@ -84,7 +104,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     installURLHandlers: boolean;
     protectConnectionStringsForNewConnections: boolean;
     legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS;
-    language: LANGUAGES;
+    language: LANGUAGE_PREFERENCE;
     // This preference is not a great fit for user preferences, but everything
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
@@ -1177,20 +1197,11 @@ export const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: {
-      short: 'Language',
-      long: 'The language used for the Compass interface. Requires a restart to take full effect.',
-      options: {
-        en: {
-          label: 'English',
-          description: 'English',
-        },
-        ja: {
-          label: '日本語',
-          description: 'Japanese',
-        },
-      },
+      short: '🌐 Language',
+      long: 'The language used for the Compass interface. Some features make require a restart to take full effect.',
+      options: SUPPORTED_LANGUAGES,
     },
-    validator: z.enum(LANGUAGE_VALUES).default('en'),
+    validator: z.enum(LANGUAGE_VALUES).default(getDefaultLanguage),
     type: 'string',
   },
 
