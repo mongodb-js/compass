@@ -9,12 +9,9 @@ import {
   spacing,
   usePersistedState,
   Body,
-  AtlasSkillsBanner,
 } from '@mongodb-js/compass-components';
 import {
   useTelemetry,
-  SkillsBannerContextEnum,
-  useAtlasSkillsBanner,
   useSearchActivationProgramP1,
 } from '@mongodb-js/compass-telemetry/provider';
 import IndexesToolbar from '../indexes-toolbar/indexes-toolbar';
@@ -143,15 +140,6 @@ export function Indexes({
     false
   );
 
-  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
-  const [atlasSkillsBanner, setSkillDismissed] = usePersistedState(
-    'mongodb_compass_dismissedAtlasIndexSkillBanner',
-    false
-  );
-  const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
-    SkillsBannerContextEnum.Indexes
-  );
-
   const errorMessage =
     currentIndexesView === 'regular-indexes'
       ? regularIndexes.error
@@ -235,22 +223,6 @@ export function Indexes({
         <div className={indexesContainersStyles}>
           {getBanner()}
 
-          <AtlasSkillsBanner
-            ctaText="Learn how to design efficient indexes to speed up queries."
-            skillsUrl="https://learn.mongodb.com/courses/indexing-design-fundamentals?team=growth"
-            onCloseSkillsBanner={() => {
-              setSkillDismissed(true);
-              track('Atlas Skills CTA Dismissed', {
-                context: 'Indexes Tab',
-              });
-            }}
-            showBanner={shouldShowAtlasSkillsBanner && !atlasSkillsBanner}
-            onCtaClick={() => {
-              track('Atlas Skills CTA Clicked', {
-                context: 'Indexes Tab',
-              });
-            }}
-          />
           {isRegularIndexesReadable &&
             currentIndexesView === 'regular-indexes' && <RegularIndexesTable />}
           {isSearchIndexesReadable &&
