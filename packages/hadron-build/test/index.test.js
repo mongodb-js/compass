@@ -10,8 +10,12 @@ const debug = require('debug')('hadron-build:test:test');
 chai.use(require('sinon-chai'));
 
 describe('hadron-build', () => {
-  it('should export a default function', () => {
-    expect(hadronBuild).to.be.a('function');
+  it('should export commands as named exports', () => {
+    expect(hadronBuild).to.be.an('object');
+    expect(hadronBuild).to.have.property('info');
+    expect(hadronBuild).to.have.property('release');
+    expect(hadronBuild).to.have.property('upload');
+    expect(hadronBuild).to.have.property('download');
   });
 
   describe('::test', () => {
