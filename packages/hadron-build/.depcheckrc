@@ -1,8 +1,11 @@
-ignores: [
-  "electron-mocha",
-  "getos",
-  "got",
-  "in-publish",
-  "node-abi",
-  "xvfb-maybe"
-]
+ignores:
+  - "@mongodb-js/prettier-config-compass"
+  - "@mongodb-js/tsconfig-compass"
+  - "@types/chai"
+  - "@types/sinon-chai"
+  - "electron-mocha"
+  - "getos"
+  - "got"
+  - "in-publish"
+  - "node-abi"
+  - "xvfb-maybe"
