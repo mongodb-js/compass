@@ -14,6 +14,7 @@ import {
 import type { CompassToolContext } from './compass-tool-context';
 import { COMPASS_TOOLS } from './compass-tools';
 import { getMcpSocketPath } from './socket-path';
+import { buildToolContext } from './build-tool-context';
 
 export interface CompassSocketServerOptions
   extends CompassConnectionManagerOptions {
@@ -84,19 +85,16 @@ export class CompassSocketServer extends TransportRunnerBase<
   private async handleConnection(socket: net.Socket): Promise<void> {
     const connectionManager = new CompassConnectionManager({
       getConnectionInfo: this.opts.getConnectionInfo,
-      checkConsent: this.opts.checkConsent,
-      requestConsentFromUI: this.opts.requestConsentFromUI,
-      saveConsent: this.opts.saveConsent,
+      checkAccess: this.opts.checkAccess,
+      requestAccessFromUI: this.opts.requestAccessFromUI,
+      saveAccess: this.opts.saveAccess,
     });
 
     try {
       const server = await this.createServer({
         serverOptions: {
           tools: COMPASS_TOOLS,
-          toolContext: {
-            getAllConnections: this.opts.getAllConnections,
-            openCollection: this.opts.openCollection,
-          },
+          toolContext: buildToolContext(connectionManager, this.opts),
           telemetryProperties: { hosting_mode: 'compass' },
         },
         sessionOptions: { connectionManager },

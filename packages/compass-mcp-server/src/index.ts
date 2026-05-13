@@ -55,18 +55,18 @@ export async function startMcpServer(
     getAllConnections: opts.getAllConnections,
     openCollection: opts.openCollection,
     getConnectionInfo: opts.getConnectionInfo,
-    checkConsent: opts.checkConsent,
-    requestConsentFromUI: opts.requestConsentFromUI,
-    saveConsent: opts.saveConsent,
+    checkAccess: opts.checkAccess,
+    requestAccessFromUI: opts.requestAccessFromUI,
+    saveAccess: opts.saveAccess,
   });
 
   const socketServer = new CompassSocketServer({
     getAllConnections: opts.getAllConnections,
     openCollection: opts.openCollection,
     getConnectionInfo: opts.getConnectionInfo,
-    checkConsent: opts.checkConsent,
-    requestConsentFromUI: opts.requestConsentFromUI,
-    saveConsent: opts.saveConsent,
+    checkAccess: opts.checkAccess,
+    requestAccessFromUI: opts.requestAccessFromUI,
+    saveAccess: opts.saveAccess,
   });
 
   await httpRunner.start();

@@ -8,6 +8,7 @@ import {
 import { NodeDriverServiceProvider } from '@mongosh/service-provider-node-driver';
 import { isAtlasStream } from 'mongodb-build-info';
 import ConnectionString from 'mongodb-connection-string-url';
+import type { McpAccess, McpPreset } from '@mongodb-js/connection-info';
 
 /**
  * A resolved Compass connection — connection string with secrets already
@@ -21,6 +22,15 @@ export interface ResolvedConnection {
 export type ConsentDecision = 'allowed' | 'denied';
 export type ConsentState = ConsentDecision | 'ask';
 
+/**
+ * User's response from the consent dialog. `access` carries the full policy
+ * including preset when allowed.
+ */
+export type ConsentResult = {
+  access: { mode: 'allowed'; preset: McpPreset } | { mode: 'denied' };
+  remember: boolean;
+};
+
 export interface CompassConnectionManagerOptions {
   /**
    * Returns the decrypted connection string and display name for a given
@@ -29,40 +39,48 @@ export interface CompassConnectionManagerOptions {
   getConnectionInfo: (id: string) => Promise<ResolvedConnection | undefined>;
 
   /**
-   * Returns the current MCP access consent state for a connection.
-   * 'ask' means no decision has been stored yet.
+   * Returns the stored MCP access policy for a connection. `{ mode: 'ask' }`
+   * means no decision has been stored yet — the manager will prompt the user
+   * via `requestAccessFromUI`.
    */
-  checkConsent: (id: string) => Promise<ConsentState>;
+  checkAccess: (id: string) => Promise<McpAccess>;
 
   /**
-   * Called when consent state is 'ask'. Presents a UI prompt to the user.
+   * Called when `checkAccess` returns `{ mode: 'ask' }`. Presents the UI
+   * preset picker and returns the user's choice plus whether to remember it.
    */
-  requestConsentFromUI: (
-    id: string,
-    name: string
-  ) => Promise<{ decision: ConsentDecision; remember: boolean }>;
+  requestAccessFromUI: (id: string, name: string) => Promise<ConsentResult>;
 
   /**
-   * Persists a consent decision back to the connection's storage record.
+   * Persists an access policy back to the connection's storage record.
    */
-  saveConsent: (id: string, decision: ConsentDecision) => Promise<void>;
+  saveAccess: (id: string, access: McpAccess) => Promise<void>;
 }
 
 /**
  * ConnectionManager implementation that uses Compass's stored connections.
  *
  * The connect() method treats settings.connectionString as a Compass
- * connection ID (not a raw MongoDB URI). It resolves the real connection string
- * from Compass's connection storage and runs the per-connection consent flow
- * before establishing the MongoClient.
+ * connection ID (not a raw MongoDB URI). It resolves the real connection
+ * string from Compass's connection storage and runs the per-connection
+ * consent flow before establishing the MongoClient. The resolved preset is
+ * stored on the manager so the per-call enforcement gate can read it.
  */
 export class CompassConnectionManager extends ConnectionManager {
   private readonly opts: CompassConnectionManagerOptions;
   private provider: NodeDriverServiceProvider | null = null;
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  private activePreset: McpPreset | undefined;
 
   constructor(opts: CompassConnectionManagerOptions) {
     super();
     this.opts = opts;
+  }
+
+  /** Preset for the currently-active connection, or undefined if none. */
+  // eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
+  getActivePreset(): McpPreset | undefined {
+    return this.activePreset;
   }
 
   override async connect(
@@ -85,28 +103,32 @@ export class CompassConnectionManager extends ConnectionManager {
       });
     }
 
-    // Consent check — may show a Compass dialog if not yet decided.
-    const consent = await this.opts.checkConsent(connectionId);
-    let decision: ConsentDecision;
-    if (consent === 'ask') {
-      const result = await this.opts.requestConsentFromUI(
+    // Access check — may show a Compass dialog if not yet decided.
+    const stored = await this.opts.checkAccess(connectionId);
+    let effective: { mode: 'allowed'; preset: McpPreset } | { mode: 'denied' };
+    if (stored.mode === 'ask') {
+      const result = await this.opts.requestAccessFromUI(
         connectionId,
         resolved.displayName
       );
-      decision = result.decision;
+      effective = result.access;
       if (result.remember) {
-        await this.opts.saveConsent(connectionId, decision);
+        await this.opts.saveAccess(connectionId, result.access);
       }
+    } else if (stored.mode === 'denied') {
+      effective = { mode: 'denied' };
     } else {
-      decision = consent;
+      effective = { mode: 'allowed', preset: stored.preset };
     }
 
-    if (decision === 'denied') {
+    if (effective.mode === 'denied') {
       return this.changeState('connection-error', {
         tag: 'errored',
         errorReason: `Access to connection "${resolved.displayName}" was denied`,
       });
     }
+
+    this.activePreset = effective.preset;
 
     // Append a distinctive appName so MongoDB logs can identify MCP traffic.
     const uri = new ConnectionString(resolved.connectionString);
@@ -131,6 +153,7 @@ export class CompassConnectionManager extends ConnectionManager {
         new ConnectionStateConnected(this.provider)
       );
     } catch (err) {
+      this.activePreset = undefined;
       return this.changeState('connection-error', {
         tag: 'errored',
         errorReason: err instanceof Error ? err.message : String(err),
@@ -147,6 +170,7 @@ export class CompassConnectionManager extends ConnectionManager {
       }
       this.provider = null;
     }
+    this.activePreset = undefined;
     return this.changeState('connection-close', { tag: 'disconnected' });
   }
 

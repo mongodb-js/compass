@@ -15,6 +15,7 @@ import {
 } from './compass-connection-manager';
 import type { CompassToolContext } from './compass-tool-context';
 import { COMPASS_TOOLS } from './compass-tools';
+import { buildToolContext } from './build-tool-context';
 
 const DEFAULT_PORT = 27097;
 const DEFAULT_HOST = '127.0.0.1';
@@ -75,9 +76,9 @@ export class CompassHttpRunner extends StreamableHttpRunner<
   }): Promise<Server<UserConfig, CompassToolContext>> {
     const connectionManager = new CompassConnectionManager({
       getConnectionInfo: this.compassOpts.getConnectionInfo,
-      checkConsent: this.compassOpts.checkConsent,
-      requestConsentFromUI: this.compassOpts.requestConsentFromUI,
-      saveConsent: this.compassOpts.saveConsent,
+      checkAccess: this.compassOpts.checkAccess,
+      requestAccessFromUI: this.compassOpts.requestAccessFromUI,
+      saveAccess: this.compassOpts.saveAccess,
     });
 
     return super.createServerForRequest({
@@ -85,10 +86,7 @@ export class CompassHttpRunner extends StreamableHttpRunner<
       serverOptions: {
         ...serverOptions,
         tools: COMPASS_TOOLS,
-        toolContext: {
-          getAllConnections: this.compassOpts.getAllConnections,
-          openCollection: this.compassOpts.openCollection,
-        },
+        toolContext: buildToolContext(connectionManager, this.compassOpts),
         telemetryProperties: { hosting_mode: 'compass' },
       },
       sessionOptions: {

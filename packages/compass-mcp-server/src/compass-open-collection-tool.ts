@@ -120,6 +120,7 @@ export class CompassOpenCollectionTool extends ToolBase<
         ],
       });
     }
+    this.context.checkAccess('compass-open-collection');
 
     const {
       connectionId,

@@ -1,3 +1,5 @@
+import type { McpAccess } from '@mongodb-js/connection-info';
+
 export type CollectionSubtab =
   | 'Documents'
   | 'Aggregations'
@@ -18,6 +20,26 @@ export interface OpenCollectionOptions {
 }
 
 /**
+ * Thrown by `CompassToolContext.checkAccess` when the active connection's
+ * preset does not include the requested tool. Caught at the tool boundary
+ * and surfaced to the AI as a clear `isError` result.
+ */
+export class McpAccessDeniedError extends Error {
+  readonly toolName: string;
+  readonly preset: string;
+  constructor(toolName: string, preset: string) {
+    super(
+      `Access denied by Compass: this connection's access preset (${preset}) ` +
+        `does not include the '${toolName}' tool. Open Compass → connection ` +
+        `settings → AI access to change.`
+    );
+    this.name = 'McpAccessDeniedError';
+    this.toolName = toolName;
+    this.preset = preset;
+  }
+}
+
+/**
  * Per-session context that gets handed to every Compass MCP tool. Each tool
  * receives this object as `this.context` and uses it to talk back to Compass
  * (list saved connections, open a workspace tab in the renderer, etc.) without
@@ -27,9 +49,14 @@ export interface CompassToolContext {
   /**
    * Returns the list of MongoDB connections the user has saved in Compass.
    * The `id` field is what AI clients should pass to the `connect` tool.
+   * `access` reflects the configured per-connection MCP policy.
    */
   getAllConnections: () => Promise<
-    Array<{ id: string; name: string; mcpAccess?: 'allowed' | 'denied' }>
+    Array<{
+      id: string;
+      name: string;
+      access: McpAccess;
+    }>
   >;
 
   /**
@@ -43,4 +70,12 @@ export interface CompassToolContext {
     namespace: string,
     options?: OpenCollectionOptions
   ) => void;
+
+  /**
+   * Verify the active connection's preset allows this tool to run. Throws
+   * `McpAccessDeniedError` when it doesn't. No-op when no connection is
+   * active (e.g. tools like `list-connections` or `connect` that run before
+   * a connection exists).
+   */
+  checkAccess: (toolName: string) => void;
 }

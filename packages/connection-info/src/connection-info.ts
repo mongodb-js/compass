@@ -147,10 +147,56 @@ export interface ConnectionInfo {
   atlasMetadata?: AtlasClusterMetadata;
 
   /**
-   * Whether external MCP clients are allowed to access this connection.
-   * Set via the AI Tools consent dialog when an MCP client first requests access.
+   * Whether — and at what privilege level — external MCP clients can use this
+   * connection. Set via the consent dialog the first time an MCP client
+   * requests access, or via the connection's "AI access" tab.
    */
-  mcpAccess?: 'allowed' | 'denied';
+  mcpAccess?: McpAccess;
+}
+
+/** Preset that determines which MCP tools the AI can use against this
+ * connection. */
+export type McpPreset = 'metadata-only' | 'read-only' | 'full-access';
+
+/** Per-connection MCP access policy. */
+export type McpAccess =
+  | { mode: 'denied' }
+  | { mode: 'ask' }
+  | { mode: 'allowed'; preset: McpPreset };
+
+/**
+ * Normalize legacy and current `mcpAccess` shapes into the discriminated
+ * union. Returns `{ mode: 'ask' }` for undefined or unrecognized values so
+ * call sites can always rely on the new shape.
+ *
+ *   - undefined          -> { mode: 'ask' }
+ *   - 'allowed' (legacy) -> { mode: 'allowed', preset: 'read-only' }
+ *   - 'denied' (legacy)  -> { mode: 'denied' }
+ *   - already-new shape  -> returned as-is
+ */
+export function normalizeMcpAccess(value: unknown): McpAccess {
+  if (value === 'allowed') return { mode: 'allowed', preset: 'read-only' };
+  if (value === 'denied') return { mode: 'denied' };
+  if (
+    value &&
+    typeof value === 'object' &&
+    'mode' in value &&
+    typeof (value as { mode: unknown }).mode === 'string'
+  ) {
+    const v = value as { mode: string; preset?: unknown };
+    if (v.mode === 'denied') return { mode: 'denied' };
+    if (v.mode === 'ask') return { mode: 'ask' };
+    if (v.mode === 'allowed') {
+      const preset =
+        v.preset === 'metadata-only' ||
+        v.preset === 'read-only' ||
+        v.preset === 'full-access'
+          ? v.preset
+          : 'read-only';
+      return { mode: 'allowed', preset };
+    }
+  }
+  return { mode: 'ask' };
 }
 
 export interface ConnectionFavoriteOptions {

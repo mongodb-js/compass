@@ -31,6 +31,7 @@ export class ListConnectionsTool extends ToolBase<
     if (!this.context) {
       return { content: [{ type: 'text' as const, text: '[]' }] };
     }
+    this.context.checkAccess('list-connections');
     const connections = await this.context.getAllConnections();
     return {
       content: [

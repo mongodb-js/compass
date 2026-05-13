@@ -12,6 +12,11 @@ import {
 } from './auto-setup';
 import { type AiClientId, getAllClientConfigPaths } from './client-paths';
 import type { OpenCollectionOptions } from './compass-tool-context';
+import type { ConsentResult } from './compass-connection-manager';
+import {
+  normalizeMcpAccess,
+  type McpAccess,
+} from '@mongodb-js/connection-info';
 
 const { log } = createLogger('COMPASS-MCP');
 
@@ -40,7 +45,10 @@ export interface McpConnectionStorage {
       id: string;
       favorite?: { name?: string };
       connectionOptions: { connectionString: string };
-      mcpAccess?: 'allowed' | 'denied';
+      // Persisted as `McpAccess` (discriminated union) but we accept `unknown`
+      // here for backward compatibility with legacy strings — normalizeMcpAccess
+      // handles the conversion.
+      mcpAccess?: unknown;
     }>
   >;
   save(opts: { connectionInfo: Record<string, unknown> }): Promise<void>;
@@ -69,7 +77,7 @@ export class CompassMcpServerManager {
         return connections.map((c) => ({
           id: c.id,
           name: c.favorite?.name ?? c.id,
-          mcpAccess: c.mcpAccess,
+          access: normalizeMcpAccess(c.mcpAccess),
         }));
       },
       getConnectionInfo: async (id: string) => {
@@ -81,28 +89,25 @@ export class CompassMcpServerManager {
           displayName: info.favorite?.name ?? id,
         };
       },
-      checkConsent: async (id: string) => {
+      checkAccess: async (id: string) => {
         const connections = await connectionStorage.loadAll();
         const info = connections.find((c) => c.id === id);
-        return info?.mcpAccess ?? 'ask';
+        return normalizeMcpAccess(info?.mcpAccess);
       },
-      requestConsentFromUI: (
+      requestAccessFromUI: (
         connectionId: string,
         connectionName: string
-      ): Promise<{ decision: 'allowed' | 'denied'; remember: boolean }> => {
+      ): Promise<ConsentResult> => {
         const requestId = crypto.randomUUID();
         return new Promise((resolve) => {
           const timer = setTimeout(() => {
             ipcMain.removeAllListeners(`mcp:consent-response:${requestId}`);
-            resolve({ decision: 'denied', remember: false });
+            resolve({ access: { mode: 'denied' }, remember: false });
           }, 60_000);
 
           ipcMain.once(
             `mcp:consent-response:${requestId}`,
-            (
-              _event: unknown,
-              response: { decision: 'allowed' | 'denied'; remember: boolean }
-            ) => {
+            (_event: unknown, response: ConsentResult) => {
               clearTimeout(timer);
               resolve(response);
             }
@@ -115,12 +120,12 @@ export class CompassMcpServerManager {
           });
         });
       },
-      saveConsent: async (id: string, decision: 'allowed' | 'denied') => {
+      saveAccess: async (id: string, access: McpAccess) => {
         const connections = await connectionStorage.loadAll();
         const info = connections.find((c) => c.id === id);
         if (info) {
           await connectionStorage.save({
-            connectionInfo: { ...info, mcpAccess: decision },
+            connectionInfo: { ...info, mcpAccess: access },
           });
         }
       },

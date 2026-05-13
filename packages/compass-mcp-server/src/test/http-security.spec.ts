@@ -72,10 +72,13 @@ describe('CompassHttpRunner — HTTP security', function () {
     token: TEST_TOKEN,
     getAllConnections: () => Promise.resolve([]),
     getConnectionInfo: () => Promise.resolve(undefined),
-    checkConsent: () => Promise.resolve('ask' as const),
-    requestConsentFromUI: () =>
-      Promise.resolve({ decision: 'denied' as const, remember: false }),
-    saveConsent: () => Promise.resolve(),
+    checkAccess: () => Promise.resolve({ mode: 'ask' as const }),
+    requestAccessFromUI: () =>
+      Promise.resolve({
+        access: { mode: 'denied' as const },
+        remember: false,
+      }),
+    saveAccess: () => Promise.resolve(),
     openCollection: () => {
       /* no-op for security tests */
     },

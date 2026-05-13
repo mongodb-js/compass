@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@mongodb-js/compass-logging": "^1.14.1",
+    "@mongodb-js/connection-info": "^0.27.4",
     "@mongosh/service-provider-node-driver": "^5.0.8",
     "compass-preferences-model": "^2.76.1",
     "electron": "^37.10.3",
