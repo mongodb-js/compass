@@ -12,6 +12,7 @@ import {
 } from 'mongodb-mcp-server/tools';
 import { ListConnectionsTool } from './list-connections-tool';
 import { CompassConnectTool } from './compass-connect-tool';
+import { CompassOpenCollectionTool } from './compass-open-collection-tool';
 
 /**
  * Tools exposed to external AI clients. Strictly read-only MongoDB data-plane
@@ -34,4 +35,5 @@ export const COMPASS_TOOLS = [
   AggregateTool,
   DbStatsTool,
   ExplainTool,
+  CompassOpenCollectionTool,
 ];

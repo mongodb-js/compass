@@ -76,6 +76,9 @@ describe('CompassHttpRunner — HTTP security', function () {
     requestConsentFromUI: () =>
       Promise.resolve({ decision: 'denied' as const, remember: false }),
     saveConsent: () => Promise.resolve(),
+    openCollection: () => {
+      /* no-op for security tests */
+    },
   };
 
   beforeEach(async function () {

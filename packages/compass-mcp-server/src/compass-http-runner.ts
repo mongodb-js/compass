@@ -13,7 +13,7 @@ import {
   CompassConnectionManager,
   type CompassConnectionManagerOptions,
 } from './compass-connection-manager';
-import type { ListConnectionsContext } from './list-connections-tool';
+import type { CompassToolContext } from './compass-tool-context';
 import { COMPASS_TOOLS } from './compass-tools';
 
 const DEFAULT_PORT = 27097;
@@ -23,7 +23,8 @@ export interface CompassHttpRunnerOptions
   extends CompassConnectionManagerOptions {
   token: string;
   port?: number;
-  getAllConnections: ListConnectionsContext['getAllConnections'];
+  getAllConnections: CompassToolContext['getAllConnections'];
+  openCollection: CompassToolContext['openCollection'];
 }
 
 /**
@@ -35,7 +36,7 @@ export interface CompassHttpRunnerOptions
  */
 export class CompassHttpRunner extends StreamableHttpRunner<
   UserConfig,
-  ListConnectionsContext
+  CompassToolContext
 > {
   private readonly compassOpts: CompassHttpRunnerOptions;
 
@@ -56,7 +57,7 @@ export class CompassHttpRunner extends StreamableHttpRunner<
     super({
       userConfig,
       createMcpHttpServer: (
-        args: MCPHttpServerConstructorArgs<UserConfig, ListConnectionsContext>
+        args: MCPHttpServerConstructorArgs<UserConfig, CompassToolContext>
       ) => new CompassMcpHttpServer({ ...args, token: opts.token }),
     });
 
@@ -69,12 +70,9 @@ export class CompassHttpRunner extends StreamableHttpRunner<
     sessionOptions,
   }: {
     request: TransportRequestContext;
-    serverOptions?: CustomizableServerOptions<
-      UserConfig,
-      ListConnectionsContext
-    >;
+    serverOptions?: CustomizableServerOptions<UserConfig, CompassToolContext>;
     sessionOptions?: CustomizableSessionOptions<UserConfig>;
-  }): Promise<Server<UserConfig, ListConnectionsContext>> {
+  }): Promise<Server<UserConfig, CompassToolContext>> {
     const connectionManager = new CompassConnectionManager({
       getConnectionInfo: this.compassOpts.getConnectionInfo,
       checkConsent: this.compassOpts.checkConsent,
@@ -89,6 +87,7 @@ export class CompassHttpRunner extends StreamableHttpRunner<
         tools: COMPASS_TOOLS,
         toolContext: {
           getAllConnections: this.compassOpts.getAllConnections,
+          openCollection: this.compassOpts.openCollection,
         },
         telemetryProperties: { hosting_mode: 'compass' },
       },

@@ -5,7 +5,7 @@ import type {
   ConsentDecision,
   ResolvedConnection,
 } from './compass-connection-manager';
-import type { ListConnectionsContext } from './list-connections-tool';
+import type { CompassToolContext } from './compass-tool-context';
 
 export { CompassMcpServerManager } from './compass-mcp-server-manager';
 export type { McpConnectionStorage } from './compass-mcp-server-manager';
@@ -21,7 +21,9 @@ export interface CompassMcpServerOptions
   /** Port to listen on. Defaults to 27097. */
   port?: number;
   /** Returns all stored Compass connections for the list-connections tool. */
-  getAllConnections: ListConnectionsContext['getAllConnections'];
+  getAllConnections: CompassToolContext['getAllConnections'];
+  /** Asks the renderer to open a collection in a workspace tab. */
+  openCollection: CompassToolContext['openCollection'];
 }
 
 export interface CompassMcpServerHandle {
@@ -51,6 +53,7 @@ export async function startMcpServer(
     token: opts.token,
     port: opts.port,
     getAllConnections: opts.getAllConnections,
+    openCollection: opts.openCollection,
     getConnectionInfo: opts.getConnectionInfo,
     checkConsent: opts.checkConsent,
     requestConsentFromUI: opts.requestConsentFromUI,
@@ -59,6 +62,7 @@ export async function startMcpServer(
 
   const socketServer = new CompassSocketServer({
     getAllConnections: opts.getAllConnections,
+    openCollection: opts.openCollection,
     getConnectionInfo: opts.getConnectionInfo,
     checkConsent: opts.checkConsent,
     requestConsentFromUI: opts.requestConsentFromUI,

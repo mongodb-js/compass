@@ -4,12 +4,7 @@ import {
   type OperationType,
   type ToolExecutionContext,
 } from 'mongodb-mcp-server/tools';
-
-export interface ListConnectionsContext {
-  getAllConnections: () => Promise<
-    Array<{ id: string; name: string; mcpAccess?: 'allowed' | 'denied' }>
-  >;
-}
+import type { CompassToolContext } from './compass-tool-context';
 
 /**
  * MCP tool that lists all Compass connections, so external AI clients can
@@ -18,7 +13,7 @@ export interface ListConnectionsContext {
 export class ListConnectionsTool extends ToolBase<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   any,
-  ListConnectionsContext
+  CompassToolContext
 > {
   static toolName = 'list-connections';
   static category: ToolCategory = 'mongodb';

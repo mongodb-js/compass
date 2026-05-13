@@ -11,14 +11,16 @@ import {
   CompassConnectionManager,
   type CompassConnectionManagerOptions,
 } from './compass-connection-manager';
-import type { ListConnectionsContext } from './list-connections-tool';
+import type { CompassToolContext } from './compass-tool-context';
 import { COMPASS_TOOLS } from './compass-tools';
 import { getMcpSocketPath } from './socket-path';
 
 export interface CompassSocketServerOptions
   extends CompassConnectionManagerOptions {
   /** Returns all stored Compass connections for the list-connections tool. */
-  getAllConnections: ListConnectionsContext['getAllConnections'];
+  getAllConnections: CompassToolContext['getAllConnections'];
+  /** Asks the renderer to open a collection in a workspace tab. */
+  openCollection: CompassToolContext['openCollection'];
 }
 
 /**
@@ -31,7 +33,7 @@ export interface CompassSocketServerOptions
  */
 export class CompassSocketServer extends TransportRunnerBase<
   UserConfig,
-  ListConnectionsContext
+  CompassToolContext
 > {
   private socketServer?: net.Server;
   private readonly socketPath: string;
@@ -93,6 +95,7 @@ export class CompassSocketServer extends TransportRunnerBase<
           tools: COMPASS_TOOLS,
           toolContext: {
             getAllConnections: this.opts.getAllConnections,
+            openCollection: this.opts.openCollection,
           },
           telemetryProperties: { hosting_mode: 'compass' },
         },

@@ -123,6 +123,16 @@ export class CompassMcpServerManager {
           });
         }
       },
+      openCollection: (connectionId: string, namespace: string) => {
+        // Fire-and-forget: ask the focused Compass window to open the
+        // collection in a workspace tab. The compass-open-collection tool
+        // already acknowledged the call to the AI — we don't wait for the
+        // navigation to actually complete.
+        ipcMain.broadcastFocused('mcp:open-collection', {
+          connectionId,
+          namespace,
+        });
+      },
     });
 
     const startServer = async (): Promise<void> => {

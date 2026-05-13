@@ -41,6 +41,7 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { useConnectionsListRef } from '@mongodb-js/compass-connections/provider';
 import { DataModelingWorkspaceTab } from '@mongodb-js/compass-data-modeling';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
+import { McpNavigationListener } from './mcp-navigation-listener';
 
 export default function Workspace({
   appName,
@@ -113,6 +114,7 @@ export default function Workspace({
               <DropNamespacePlugin></DropNamespacePlugin>
               <RenameCollectionPlugin></RenameCollectionPlugin>
               <CompassAssistantDrawerWithConnections appName="Compass" />
+              <McpNavigationListener />
             </>
           )}
         ></WorkspacesPlugin>
