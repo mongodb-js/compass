@@ -17,6 +17,7 @@ export * as Selectors from './selectors.ts';
 export * as Commands from './commands/index.ts';
 import * as Commands from './commands/index.ts';
 import type { CompassBrowser } from './compass-browser.ts';
+import { buildPages, type Pages } from '../pages/index.ts';
 import type { LogEntry } from './telemetry.ts';
 import Debug from 'debug';
 import semver from 'semver';
@@ -149,6 +150,7 @@ export class Compass {
   needsCloseWelcomeModal: boolean;
   renderLogs: RenderLogEntry[];
   logs: { raw: Buffer; structured: LogEntry[] };
+  pages: Pages;
   logPath?: string;
   userDataPath?: string;
   appName?: string;
@@ -170,6 +172,7 @@ export class Compass {
     this.needsCloseWelcomeModal = needsCloseWelcomeModal;
     this.logs = { raw: Buffer.from(''), structured: [] };
     this.renderLogs = [];
+    this.pages = buildPages();
   }
 
   async prepare() {
