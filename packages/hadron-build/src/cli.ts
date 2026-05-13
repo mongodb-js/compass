@@ -11,6 +11,7 @@ const cli = createCLI('hadron-build');
 
 const yargsInstance = yargs(hideBin(process.argv))
   .wrap(120)
+  .version(false)
   .usage('$0 <command> [options]')
   .command(release as unknown as CommandModule)
   .command(info as unknown as CommandModule)

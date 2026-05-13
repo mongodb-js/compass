@@ -1,5 +1,3 @@
-/* eslint-disable no-nested-ternary */
-/* eslint-disable complexity */
 import path from 'path';
 import os from 'os';
 import { promises as fs } from 'fs';
