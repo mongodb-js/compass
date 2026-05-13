@@ -17,6 +17,7 @@ import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import { AutoUpdateManagerStates } from './auto-update-manager';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+import { i18n, initLanguage } from './menu-i18n';
 
 const track = createIpcTrack();
 
@@ -49,11 +50,13 @@ function quitItem(
       void dialog
         .showMessageBox({
           type: 'warning',
-          title: `Quit ${electronApp.getName()}`,
+          title: i18n.t('quitDialogTitle', {
+            appName: electronApp.getName(),
+          }),
           icon: COMPASS_ICON,
-          message: 'Are you sure you want to quit?',
-          buttons: ['Quit', 'Cancel'],
-          checkboxLabel: 'Do not ask me again',
+          message: i18n.t('quitDialogMessage'),
+          buttons: [i18n.t('quitConfirm'), i18n.t('cancel')],
+          checkboxLabel: i18n.t('doNotAskAgain'),
         })
         .then((result) => {
           if (result.response === 0) {
@@ -70,7 +73,7 @@ function quitItem(
 
 function settingsDialogItem(): MenuItemConstructorOptions {
   return {
-    label: '&Settings',
+    label: i18n.t('settings'),
     accelerator: 'CmdOrCtrl+,',
     click() {
       ipcMain?.broadcastFocused('window:show-settings');
@@ -84,18 +87,18 @@ function updateSubmenu(
 ): MenuItemConstructorOptions {
   return updateManagerState === 'idle'
     ? {
-        label: 'Check for updates…',
+        label: i18n.t('checkForUpdates'),
         click() {
           compassApp.emit('check-for-updates');
         },
       }
     : updateManagerState === 'installing updates'
     ? {
-        label: 'Installing updates…',
+        label: i18n.t('installingUpdates'),
         enabled: false,
       }
     : {
-        label: 'Restart to Update',
+        label: i18n.t('restartToUpdate'),
         click() {
           compassApp.emit('menu-request-restart');
         },
@@ -110,7 +113,7 @@ function darwinCompassSubMenu(
     label: electronApp.getName(),
     submenu: [
       {
-        label: `About ${electronApp.getName()}`,
+        label: i18n.t('aboutApp', { appName: electronApp.getName() }),
         role: 'about',
       },
       updateSubmenu(windowState, compassApp),
@@ -118,21 +121,21 @@ function darwinCompassSubMenu(
       settingsDialogItem(),
       separator(),
       {
-        label: 'Hide',
+        label: i18n.t('hide'),
         accelerator: 'Command+H',
         role: 'hide',
       },
       {
-        label: 'Hide Others',
+        label: i18n.t('hideOthers'),
         accelerator: 'Command+Shift+H',
         role: 'hideOthers',
       },
       {
-        label: 'Show All',
+        label: i18n.t('showAll'),
         role: 'unhide',
       },
       separator(),
-      quitItem('Quit', compassApp),
+      quitItem(i18n.t('quit'), compassApp),
     ],
   };
 }
@@ -143,13 +146,13 @@ function connectSubMenu(
 ): MenuItemConstructorOptions {
   const subMenu: MenuTemplate = [
     {
-      label: '&Import Saved Connections',
+      label: i18n.t('importConnections'),
       click() {
         ipcMain?.broadcastFocused('compass:open-import-connections');
       },
     },
     {
-      label: '&Export Saved Connections',
+      label: i18n.t('exportConnections'),
       click() {
         ipcMain?.broadcastFocused('compass:open-export-connections');
       },
@@ -158,53 +161,53 @@ function connectSubMenu(
 
   if (nonDarwin) {
     subMenu.push(separator());
-    subMenu.push(quitItem('E&xit', app));
+    subMenu.push(quitItem(i18n.t('exit'), app));
   }
 
   return {
-    label: '&Connections',
+    label: i18n.t('connections'),
     submenu: subMenu,
   };
 }
 
 function editSubMenu(): MenuItemConstructorOptions {
   return {
-    label: 'Edit',
+    label: i18n.t('edit'),
     submenu: [
       {
-        label: 'Undo',
+        label: i18n.t('undo'),
         accelerator: 'Command+Z',
         role: 'undo' as const,
       },
       {
-        label: 'Redo',
+        label: i18n.t('redo'),
         accelerator: 'Shift+Command+Z',
         role: 'redo' as const,
       },
       separator(),
       {
-        label: 'Cut',
+        label: i18n.t('cut'),
         accelerator: 'Command+X',
         role: 'cut' as const,
       },
       {
-        label: 'Copy',
+        label: i18n.t('copy'),
         accelerator: 'Command+C',
         role: 'copy' as const,
       },
       {
-        label: 'Paste',
+        label: i18n.t('paste'),
         accelerator: 'Command+V',
         role: 'paste' as const,
       },
       {
-        label: 'Select All',
+        label: i18n.t('selectAll'),
         accelerator: 'Command+A',
         role: 'selectAll' as const,
       },
       separator(),
       {
-        label: 'Find',
+        label: i18n.t('find'),
         accelerator: 'CmdOrCtrl+F',
         click() {
           ipcMain?.broadcastFocused('app:find');
@@ -219,15 +222,19 @@ function editSubMenu(): MenuItemConstructorOptions {
 
 function nonDarwinAboutItem(): MenuItemConstructorOptions {
   return {
-    label: `&About ${electronApp.getName()}`,
+    label: i18n.t('nonDarwinAboutItem', { appName: electronApp.getName() }),
     click() {
       void dialog.showMessageBox({
         type: 'info',
-        title: 'About ' + electronApp.getName(),
+        title: i18n.t('nonDarwinAboutDialogTitle', {
+          appName: electronApp.getName(),
+        }),
         icon: COMPASS_ICON,
         message: electronApp.getName(),
-        detail: 'Version ' + electronApp.getVersion(),
-        buttons: ['OK'],
+        detail: i18n.t('nonDarwinAboutVersion', {
+          version: electronApp.getVersion(),
+        }),
+        buttons: [i18n.t('ok')],
       });
     },
   };
@@ -235,7 +242,7 @@ function nonDarwinAboutItem(): MenuItemConstructorOptions {
 
 function helpWindowItem(): MenuItemConstructorOptions {
   return {
-    label: `&Online ${electronApp.getName()} Help`,
+    label: i18n.t('onlineHelp', { appName: electronApp.getName() }),
     accelerator: 'F1',
     click() {
       void shell.openExternal(COMPASS_HELP);
@@ -245,7 +252,7 @@ function helpWindowItem(): MenuItemConstructorOptions {
 
 function sourceCodeLink(): MenuItemConstructorOptions {
   return {
-    label: `&View Source Code on GitHub`,
+    label: i18n.t('viewSourceCode'),
     click() {
       void shell.openExternal('https://github.com/mongodb-js/compass');
     },
@@ -254,7 +261,7 @@ function sourceCodeLink(): MenuItemConstructorOptions {
 
 function feedbackForumLink(): MenuItemConstructorOptions {
   return {
-    label: `&Suggest a Feature`,
+    label: i18n.t('suggestFeature'),
     click() {
       void shell.openExternal('https://feedback.mongodb.com/');
     },
@@ -263,7 +270,7 @@ function feedbackForumLink(): MenuItemConstructorOptions {
 
 function bugReportLink(): MenuItemConstructorOptions {
   return {
-    label: `&Report a Bug`,
+    label: i18n.t('reportBug'),
     click() {
       void shell.openExternal(
         'https://jira.mongodb.org/projects/COMPASS/summary'
@@ -274,7 +281,7 @@ function bugReportLink(): MenuItemConstructorOptions {
 
 function license(): MenuItemConstructorOptions {
   return {
-    label: '&License',
+    label: i18n.t('license'),
     click() {
       void import('../../LICENSE').then(({ default: LICENSE }) => {
         const licenseTemp = path.join(electronApp.getPath('temp'), 'License');
@@ -290,7 +297,7 @@ function license(): MenuItemConstructorOptions {
 
 function logFile(app: typeof CompassApplication): MenuItemConstructorOptions {
   return {
-    label: '&Open Log File',
+    label: i18n.t('openLogFile'),
     click() {
       app.emit('show-log-file-dialog');
     },
@@ -318,7 +325,7 @@ function helpSubMenu(
   }
 
   return {
-    label: '&Help',
+    label: i18n.t('help'),
     submenu: subMenu,
   };
 }
@@ -328,14 +335,14 @@ function viewSubMenu(
 ): MenuItemConstructorOptions {
   const subMenu = [
     {
-      label: '&Reload',
+      label: i18n.t('reload'),
       accelerator: 'CmdOrCtrl+Shift+R',
       click() {
         BrowserWindow.getFocusedWindow()?.reload();
       },
     },
     {
-      label: '&Reload Data',
+      label: i18n.t('reloadData'),
       accelerator: 'CmdOrCtrl+R',
       click() {
         ipcMain?.broadcast('app:refresh-data');
@@ -343,21 +350,21 @@ function viewSubMenu(
     },
     separator(),
     {
-      label: 'Actual Size',
+      label: i18n.t('actualSize'),
       accelerator: 'CmdOrCtrl+0',
       click() {
         ipcMain?.broadcast('window:zoom-reset');
       },
     },
     {
-      label: 'Zoom In',
+      label: i18n.t('zoomIn'),
       accelerator: 'CmdOrCtrl+=',
       click() {
         ipcMain?.broadcast('window:zoom-in');
       },
     },
     {
-      label: 'Zoom Out',
+      label: i18n.t('zoomOut'),
       accelerator: 'CmdOrCtrl+-',
       click() {
         ipcMain?.broadcast('window:zoom-out');
@@ -368,7 +375,7 @@ function viewSubMenu(
   if (app.preferences.getPreferences().enableDevTools) {
     subMenu.push(separator());
     subMenu.push({
-      label: '&Toggle DevTools',
+      label: i18n.t('toggleDevTools'),
       accelerator: 'Alt+CmdOrCtrl+I',
       click() {
         BrowserWindow.getFocusedWindow()?.webContents.toggleDevTools();
@@ -377,7 +384,7 @@ function viewSubMenu(
   }
 
   return {
-    label: '&View',
+    label: i18n.t('view'),
     submenu: subMenu,
   };
 }
@@ -387,31 +394,31 @@ function windowSubMenu(
 ): MenuItemConstructorOptions {
   const submenu: MenuTemplate = [
     {
-      label: 'New &Window',
+      label: i18n.t('newWindow'),
       accelerator: 'CmdOrCtrl+N',
       click() {
         app.emit('show-connect-window');
       },
     },
     {
-      label: 'Minimize',
+      label: i18n.t('minimize'),
       accelerator: 'Command+M',
       role: 'minimize' as const,
     },
     {
-      label: 'Close',
+      label: i18n.t('close'),
       accelerator: 'Command+Shift+W',
       role: 'close' as const,
     },
     separator(),
     {
-      label: 'Bring All to Front',
+      label: i18n.t('bringAllToFront'),
       role: 'front',
     },
   ];
 
   return {
-    label: 'Window',
+    label: i18n.t('window'),
     submenu,
   };
 }
@@ -523,6 +530,12 @@ class CompassMenu {
       }
     );
 
+    initLanguage(preferences.getPreferences().language);
+    preferences.onPreferenceValueChanged('language', (language: string) => {
+      initLanguage(language);
+      this.refreshMenu();
+    });
+
     void this.setupDockMenu();
   }
 
@@ -558,7 +571,7 @@ class CompassMenu {
       electronApp.dock?.setMenu(
         Menu.buildFromTemplate([
           {
-            label: 'New Window',
+            label: i18n.t('newWindowDock'),
             click: () => {
               this.app.emit('show-connect-window');
             },
