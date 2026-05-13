@@ -82,7 +82,6 @@ Steps when migrating a feature:
 3. Convert the relevant `helpers/commands/*.ts` functions into action methods on the class — or, if they are generic UI primitives, into element commands in `helpers/element-commands/`.
 4. Add the page object as a slot on the `Pages` interface and instantiate it in `buildPages()` (both in `pages/index.ts`).
 5. Update every test that referenced the old selectors/commands to use the page object.
-6. Delete the now-unused entries from `helpers/selectors.ts` and `helpers/commands/`.
-7. Extend the cutover allowlist (introduced in PR 0.3) to forbid re-adding these.
+6. Delete the now-unused entries from `helpers/selectors.ts` and `helpers/commands/`. Their absence — combined with TypeScript errors at every former call site — is the cutover guard.
 
 PRs target ≤800 LoC. If a feature can't fit, split by sub-page (e.g., `DocumentsPage` and `QueryBarPage`) rather than by file type.
