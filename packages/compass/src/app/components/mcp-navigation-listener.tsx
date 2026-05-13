@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ipcRenderer } from 'hadron-ipc';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 
@@ -13,6 +13,14 @@ import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
  */
 export function McpNavigationListener(): null {
   const { openCollectionWorkspace } = useOpenWorkspace();
+  // `useOpenWorkspace` returns a new object on every render, so
+  // `openCollectionWorkspace` is a fresh reference each time. We park it on
+  // a ref and subscribe to the IPC channel exactly once on mount; otherwise
+  // a churning useEffect dep would attach + detach a listener per render.
+  const openRef = useRef(openCollectionWorkspace);
+  useEffect(() => {
+    openRef.current = openCollectionWorkspace;
+  }, [openCollectionWorkspace]);
 
   useEffect(() => {
     const handler = (
@@ -22,13 +30,20 @@ export function McpNavigationListener(): null {
       // eslint-disable-next-line no-console
       console.log('[mcp] received open-collection IPC', payload);
       if (!payload?.connectionId || !payload?.namespace) return;
-      openCollectionWorkspace(payload.connectionId, payload.namespace);
+      try {
+        openRef.current(payload.connectionId, payload.namespace, {
+          newTab: true,
+        });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error('[mcp] openCollectionWorkspace failed', err);
+      }
     };
     ipcRenderer?.on('mcp:open-collection', handler as never);
     return () => {
       ipcRenderer?.removeListener('mcp:open-collection', handler as never);
     };
-  }, [openCollectionWorkspace]);
+  }, []);
 
   return null;
 }
