@@ -61,10 +61,14 @@ declare module 'zip-folder' {
 }
 
 declare module 'electron-packager-plugin-non-proprietary-codecs-ffmpeg' {
-  const plugin: {
-    default: (context: unknown, callback: () => void) => void;
-  };
-  export = plugin;
+  const hook: (
+    buildPath: string,
+    electronVersion: string,
+    platform: TargetArch,
+    arch: TargetArch,
+    callback: (err?: Error | null) => void
+  ) => void;
+  export = hook;
 }
 
 declare module 'parse-github-repo-url' {

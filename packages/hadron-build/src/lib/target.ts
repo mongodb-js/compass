@@ -6,7 +6,7 @@ import path from 'path';
 import normalizePkg from 'normalize-package-data';
 import parseGitHubRepoURL from 'parse-github-repo-url';
 import type packager from 'electron-packager';
-import ffmpegPlugin from 'electron-packager-plugin-non-proprietary-codecs-ffmpeg';
+import safeFFMPEG from 'electron-packager-plugin-non-proprietary-codecs-ffmpeg';
 import { windowsInstallerVersion } from './windows-installer-version';
 import createDebug from 'debug';
 import which from 'which';
@@ -16,7 +16,6 @@ import tarGz from './tar-gz';
 import { notarize } from './mac-notary-service';
 import { validateBuildConfig } from './validate-build-config';
 
-const ffmpegAfterExtract = ffmpegPlugin.default;
 const debug = createDebug('hadron-build:target');
 
 export interface Asset {
@@ -311,9 +310,7 @@ class Target {
       platform: this.platform,
       arch: this.arch,
       electronVersion: pkg.electronVersion,
-      afterExtract: [
-        ffmpegAfterExtract,
-      ] as unknown as PackagerOptions['afterExtract'],
+      afterExtract: [safeFFMPEG],
     };
 
     validateBuildConfig(

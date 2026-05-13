@@ -18,7 +18,6 @@ const yargsInstance = yargs(hideBin(process.argv))
   .command(download as unknown as CommandModule)
   .demandCommand(1, 'Please specify a command.')
   .strict()
-  .env()
   .fail(function (msg: string, err: Error) {
     cli.abortIfError(err);
     cli.error(`${msg}\n\n`);
