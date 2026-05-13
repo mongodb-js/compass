@@ -16,6 +16,7 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 export * as Selectors from './selectors.ts';
 export * as Commands from './commands/index.ts';
 import * as Commands from './commands/index.ts';
+import * as ElementCommands from './element-commands/index.ts';
 import type { CompassBrowser } from './compass-browser.ts';
 import { buildPages, type Pages } from '../pages/index.ts';
 import type { LogEntry } from './telemetry.ts';
@@ -182,6 +183,18 @@ export class Compass {
         // typescript, but we know what we're doing
         return v(this.browser, ...args);
       });
+    }
+
+    for (const [k, v] of Object.entries(ElementCommands)) {
+      this.browser.addCommand(
+        k,
+        function (this: WebdriverIO.Element, ...args: unknown[]) {
+          // @ts-expect-error same as above; type system can't follow the
+          // dynamic mapping from index.ts back to addCommand's signature
+          return v(this, ...args);
+        },
+        true
+      );
     }
 
     // The waitUntil helper will continue running even if we started tests
