@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { readFileSync, promises as fsPromises } from 'fs';
+import { readFileSync, promises as fs } from 'fs';
 import _ from 'lodash';
 import semver from 'semver';
 import path from 'path';
@@ -72,16 +72,15 @@ function _canBuildInstaller(ext: string): Promise<boolean> {
   });
 }
 
-function ifEnvironmentCanBuild(
+async function ifEnvironmentCanBuild(
   ext: string,
   fn: () => Promise<unknown>
 ): Promise<unknown> {
   debug('checking if environment can build installer for %s', ext);
-  return _canBuildInstaller(ext).then(function (can) {
-    debug('can build installer for %s?', ext, true);
-    if (!can) return false;
-    return fn();
-  });
+  const can = await _canBuildInstaller(ext);
+  debug('can build installer for %s?', ext, true);
+  if (!can) return false;
+  return fn();
 }
 
 function getPkg(directory: string): PackageJson {
@@ -120,7 +119,6 @@ const supportedDistributions = [
   'compass-isolated',
 ];
 
-// eslint-disable-next-line complexity
 class Target {
   dir: string;
   out: string;
@@ -392,7 +390,7 @@ class Target {
         Buffer.isBuffer(contents) ? contents.length : contents.length
       } bytes to ${dest}`
     );
-    await fsPromises.writeFile(dest, contents);
+    await fs.writeFile(dest, contents);
     return dest; // this is used by the caller
   }
 
@@ -550,7 +548,7 @@ class Target {
       const electronWinstaller = require('electron-winstaller');
       await electronWinstaller.createWindowsInstaller(this.installerOptions);
 
-      await fsPromises.rename(
+      await fs.rename(
         this.dest('RELEASES'),
         this.dest(this.windows_releases_label)
       );
@@ -589,7 +587,7 @@ class Target {
       // sign the MSI
       await sign(this.dest(packagerName + '.msi'));
 
-      await fsPromises.rename(
+      await fs.rename(
         this.dest(packagerName + '.msi'),
         this.dest(this.windows_msi_label)
       );
@@ -691,7 +689,7 @@ class Target {
       {
         const plistFilePath = path.join(appPath, 'Contents', 'Info.plist');
         const plistContents = plist.parse(
-          await fsPromises.readFile(plistFilePath, 'utf8')
+          await fs.readFile(plistFilePath, 'utf8')
         ) as Record<string, unknown>;
 
         plistContents.CFBundleURLTypes = _.get(
@@ -713,12 +711,12 @@ class Target {
         if (extraPlistOptionsPath) {
           const extraPlistFilePath = this.src(extraPlistOptionsPath);
           const extraPlistContents = plist.parse(
-            await fsPromises.readFile(extraPlistFilePath as string, 'utf8')
+            await fs.readFile(extraPlistFilePath as string, 'utf8')
           ) as Record<string, unknown>;
           Object.assign(plistContents, extraPlistContents);
         }
 
-        await fsPromises.writeFile(plistFilePath, plist.build(plistContents));
+        await fs.writeFile(plistFilePath, plist.build(plistContents));
       }
 
       const isNotarizationPossible =
