@@ -78,9 +78,12 @@ describe('DesktopWelcomeTab', function () {
       const section = screen.getByTestId('welcome-tab-mcp-section');
       expect(section).to.exist;
       expect(section.getAttribute('data-mcp-enabled')).to.equal('true');
+      // On-state copy: title acknowledges the running server; button
+      // takes the user to manage installed clients.
+      expect(section.textContent).to.contain('MCP server is running');
       expect(
         screen.getByTestId('welcome-tab-mcp-setup-button').textContent
-      ).to.contain('MANAGE');
+      ).to.contain('MANAGE INSTALLED CLIENTS');
     });
 
     it('emits open-compass-settings with "mcp" on button click', function () {

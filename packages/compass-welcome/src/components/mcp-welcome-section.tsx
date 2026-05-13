@@ -79,12 +79,22 @@ export function McpWelcomeSection(): React.ReactElement {
     globalAppRegistry.emit('open-compass-settings', 'mcp');
   };
 
+  // Copy is split by state. The "off" variant is a CTA; the "on" variant
+  // accurately describes the posture (server listening on localhost,
+  // per-connection access policy) without the alarmist "exposing" framing
+  // that earlier copy used, and points users to the correct surfaces:
+  // per-connection access lives in each connection's AI access tab; the
+  // installed-clients management lives in Settings → MCP Server.
+  const title = enableMcpServer
+    ? 'MCP server is running'
+    : 'Connect AI tools to MongoDB Compass';
+
   const body = enableMcpServer
-    ? 'Compass is exposing your saved connections to AI tools. Manage which clients are installed and per-connection access in Settings → MCP Server.'
-    : 'Let Claude Desktop, Cursor, VS Code, and Windsurf run read-only queries against your saved connections via a local MCP server.';
+    ? 'AI clients can request access to specific connections on localhost. Each connection has its own access policy — deny, ask, or allow with a chosen privilege level. Configure per-connection access from each connection’s AI access tab; manage installed clients in Settings → MCP Server.'
+    : 'Run queries from Claude Desktop, Cursor, VS Code, and Windsurf against your saved connections — through a local MCP server, with per-connection access you control.';
 
   const buttonLabel = enableMcpServer
-    ? 'MANAGE MCP SETUP'
+    ? 'MANAGE INSTALLED CLIENTS'
     : 'SET UP MCP SERVER';
 
   return (
@@ -96,9 +106,7 @@ export function McpWelcomeSection(): React.ReactElement {
       data-testid="welcome-tab-mcp-section"
       data-mcp-enabled={enableMcpServer ? 'true' : 'false'}
     >
-      <Subtitle className={titleStyles}>
-        Connect AI tools to MongoDB Compass
-      </Subtitle>
+      <Subtitle className={titleStyles}>{title}</Subtitle>
       <Body className={descriptionStyles}>{body}</Body>
       <div className={ctaContainerStyles}>
         <Button
