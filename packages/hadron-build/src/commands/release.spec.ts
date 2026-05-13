@@ -4,7 +4,7 @@ import plist from 'plist';
 import assert from 'assert';
 
 import path from 'path';
-import { getConfig } from '../test-helpers';
+import { getConfig } from '../../test/test-helpers';
 
 // TODO: Investigate why it's failing in GitHub Actions CI
 describe.skip('hadron-build::release', function () {

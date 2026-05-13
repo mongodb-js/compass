@@ -4,7 +4,7 @@ import JSZip from 'jszip';
 import _ from 'lodash';
 
 import zip from './zip';
-import { getConfig } from '../test-helpers';
+import { getConfig } from '../../test/test-helpers';
 import chai from 'chai';
 
 const { expect } = chai;

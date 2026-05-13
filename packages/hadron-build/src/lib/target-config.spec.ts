@@ -1,7 +1,7 @@
 /* eslint no-unused-vars: 1 */
 import _ from 'lodash';
 import chai from 'chai';
-import { getConfig } from '../test-helpers';
+import { getConfig } from '../../test/test-helpers';
 
 const { expect } = chai;
 

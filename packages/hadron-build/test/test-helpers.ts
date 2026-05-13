@@ -1,4 +1,4 @@
-import Target from './lib/target';
+import Target from '../src/lib/target';
 import path from 'path';
 
 export const getConfig = (argv?: Record<string, unknown>) => {
