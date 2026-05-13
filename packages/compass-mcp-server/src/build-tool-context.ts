@@ -7,6 +7,15 @@ import {
 import { isToolAllowed } from './presets';
 
 /**
+ * Aggregate-stage operators that write data and must therefore be gated to
+ * the `full-access` preset only. Upstream's `userConfig.readOnly: true`
+ * normally filters these inside the aggregate tool — we now run with
+ * `readOnly: false` so the full-access preset works end-to-end, and enforce
+ * the same restriction ourselves per-call.
+ */
+const WRITE_STAGES = new Set(['$out', '$merge']);
+
+/**
  * Shape of the per-session, per-runner inputs that aren't tied to a specific
  * `CompassConnectionManager` instance. Both `CompassHttpRunner` and
  * `CompassSocketServer` build their tool context from these plus the
@@ -52,7 +61,23 @@ export function buildToolContext(
  * No-op for tools called before any connection has been established
  * (preset === undefined) — the gate engages once `connect` has run.
  */
-export function withAccessCheck<T extends AnyToolClass>(ToolClass: T): T {
+export function withAccessCheck<T extends AnyToolClass>(
+  ToolClass: T,
+  options: {
+    /**
+     * Optional argument-level validator. Receives the parsed tool args and
+     * runs AFTER the preset-allowlist check has passed. Throw
+     * `McpAccessDeniedError` (or any Error) to reject. Used by the
+     * aggregate wrapper to block `$out` / `$merge` pipeline stages when
+     * the preset isn't `full-access`.
+     */
+    validateArgs?: (
+      args: unknown,
+      ctx: { preset: string; toolName: string }
+    ) => void;
+  } = {}
+): T {
+  const { validateArgs } = options;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const wrapped = class extends (ToolClass as any) {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -62,6 +87,18 @@ export function withAccessCheck<T extends AnyToolClass>(ToolClass: T): T {
       ).context;
       const name = (this as unknown as { name: string }).name;
       ctx?.checkAccess(name);
+      if (validateArgs) {
+        const preset = ctx
+          ? (
+              this as unknown as {
+                session: { connectionManager: CompassConnectionManager };
+              }
+            ).session?.connectionManager?.getActivePreset?.()
+          : undefined;
+        if (preset) {
+          validateArgs(args[0], { preset, toolName: name });
+        }
+      }
       // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return super.execute(...args);
     }
@@ -74,4 +111,30 @@ export function withAccessCheck<T extends AnyToolClass>(ToolClass: T): T {
   // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
   (wrapped as any).operationType = (ToolClass as any).operationType;
   return wrapped as unknown as T;
+}
+
+/**
+ * `validateArgs` for the upstream `AggregateTool`. Rejects pipelines that
+ * contain `$out` or `$merge` stages unless the active preset is
+ * `full-access`. Inspects only the top-level stage operator keys — does not
+ * recursively descend, which matches the upstream `readOnly` behavior.
+ */
+export function aggregateStageGate(
+  args: unknown,
+  { preset, toolName }: { preset: string; toolName: string }
+): void {
+  if (preset === 'full-access') return;
+  const pipeline =
+    args && typeof args === 'object' && 'pipeline' in args
+      ? (args as { pipeline?: unknown[] }).pipeline
+      : undefined;
+  if (!Array.isArray(pipeline)) return;
+  for (const stage of pipeline) {
+    if (!stage || typeof stage !== 'object') continue;
+    for (const key of Object.keys(stage)) {
+      if (WRITE_STAGES.has(key)) {
+        throw new McpAccessDeniedError(`${toolName}+${key}`, preset);
+      }
+    }
+  }
 }

@@ -1,6 +1,8 @@
 import { expect } from 'chai';
 import { isToolAllowed, presetTools, ALL_PRESETS } from '../presets';
 import { normalizeMcpAccess } from '@mongodb-js/connection-info';
+import { aggregateStageGate } from '../build-tool-context';
+import { McpAccessDeniedError } from '../compass-tool-context';
 
 describe('presets', function () {
   describe('preset allowlists', function () {
@@ -85,10 +87,81 @@ describe('presets', function () {
       });
     });
 
-    it('falls back to read-only when the preset is invalid', function () {
+    it('returns ask when the preset is invalid (fail safe — no silent allow)', function () {
       expect(
         normalizeMcpAccess({ mode: 'allowed', preset: 'super-admin' })
-      ).to.deep.equal({ mode: 'allowed', preset: 'read-only' });
+      ).to.deep.equal({ mode: 'ask' });
+    });
+
+    it('returns ask when mode=allowed but preset is missing entirely', function () {
+      expect(normalizeMcpAccess({ mode: 'allowed' })).to.deep.equal({
+        mode: 'ask',
+      });
+    });
+  });
+
+  describe('aggregate stage gate', function () {
+    const ctx = (preset: string) => ({ preset, toolName: 'aggregate' });
+
+    it('allows $out under full-access', function () {
+      expect(() =>
+        aggregateStageGate(
+          { pipeline: [{ $match: {} }, { $out: 'backup' }] },
+          ctx('full-access')
+        )
+      ).to.not.throw();
+    });
+
+    it('allows $merge under full-access', function () {
+      expect(() =>
+        aggregateStageGate(
+          { pipeline: [{ $match: {} }, { $merge: { into: 'x' } }] },
+          ctx('full-access')
+        )
+      ).to.not.throw();
+    });
+
+    it('rejects $out under read-only', function () {
+      expect(() =>
+        aggregateStageGate(
+          { pipeline: [{ $match: {} }, { $out: 'backup' }] },
+          ctx('read-only')
+        )
+      ).to.throw(McpAccessDeniedError);
+    });
+
+    it('rejects $merge under metadata-only', function () {
+      expect(() =>
+        aggregateStageGate(
+          { pipeline: [{ $merge: { into: 'x' } }] },
+          ctx('metadata-only')
+        )
+      ).to.throw(McpAccessDeniedError);
+    });
+
+    it('passes plain read pipelines on any preset', function () {
+      for (const p of ALL_PRESETS) {
+        expect(() =>
+          aggregateStageGate(
+            {
+              pipeline: [
+                { $match: { x: 1 } },
+                { $group: { _id: '$x' } },
+                { $sort: { _id: 1 } },
+              ],
+            },
+            ctx(p)
+          )
+        ).to.not.throw();
+      }
+    });
+
+    it('no-ops on malformed args', function () {
+      expect(() => aggregateStageGate(null, ctx('read-only'))).to.not.throw();
+      expect(() => aggregateStageGate({}, ctx('read-only'))).to.not.throw();
+      expect(() =>
+        aggregateStageGate({ pipeline: 'oops' }, ctx('read-only'))
+      ).to.not.throw();
     });
   });
 });

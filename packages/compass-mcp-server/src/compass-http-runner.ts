@@ -46,12 +46,16 @@ export class CompassHttpRunner extends StreamableHttpRunner<
       transport: 'http',
       httpHost: DEFAULT_HOST,
       httpPort: opts.port ?? DEFAULT_PORT,
-      readOnly: true,
+      // We enforce read-only / metadata-only by registering an explicit tool
+      // allowlist (see compass-tools.ts) and gating per-call against the
+      // active connection's preset. Upstream `readOnly: true` would also
+      // strip `$out` / `$merge` from aggregate pipelines unconditionally —
+      // we want those stages available for the `full-access` preset, so we
+      // run with readOnly:false and apply the same restriction ourselves in
+      // `aggregateStageGate` for non-full-access presets.
+      readOnly: false,
       loggers: ['mcp'],
       telemetry: 'disabled',
-      // We register an explicit allowlist of tools below, so disabledTools is
-      // not strictly necessary. Kept for defense-in-depth: even if one of
-      // these slipped into the allowlist by mistake it would still be off.
       disabledTools: ['switch-connection'],
     });
 

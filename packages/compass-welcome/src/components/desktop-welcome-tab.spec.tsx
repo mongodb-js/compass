@@ -62,15 +62,25 @@ describe('DesktopWelcomeTab', function () {
         enableCreatingNewConnections: true,
         enableMcpServer: false,
       });
-      expect(screen.getByTestId('welcome-tab-mcp-section')).to.exist;
+      const section = screen.getByTestId('welcome-tab-mcp-section');
+      expect(section).to.exist;
+      expect(section.getAttribute('data-mcp-enabled')).to.equal('false');
+      expect(
+        screen.getByTestId('welcome-tab-mcp-setup-button').textContent
+      ).to.contain('SET UP');
     });
 
-    it('hides the MCP section when enableMcpServer is true', function () {
+    it('still renders the section when enableMcpServer is true, with manage copy', function () {
       renderDesktopWelcomeTab({
         enableCreatingNewConnections: true,
         enableMcpServer: true,
       });
-      expect(screen.queryByTestId('welcome-tab-mcp-section')).to.equal(null);
+      const section = screen.getByTestId('welcome-tab-mcp-section');
+      expect(section).to.exist;
+      expect(section.getAttribute('data-mcp-enabled')).to.equal('true');
+      expect(
+        screen.getByTestId('welcome-tab-mcp-setup-button').textContent
+      ).to.contain('MANAGE');
     });
 
     it('emits open-compass-settings with "mcp" on button click', function () {

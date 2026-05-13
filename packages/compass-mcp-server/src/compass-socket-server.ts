@@ -44,7 +44,11 @@ export class CompassSocketServer extends TransportRunnerBase<
     super({
       userConfig: UserConfigSchema.parse({
         transport: 'stdio',
-        readOnly: true,
+        // Per-call gate enforces the active connection's preset (see
+        // compass-tools.ts + aggregateStageGate). Running with
+        // readOnly:false here so the full-access preset works end-to-end;
+        // restrictive presets reject writes at our gate.
+        readOnly: false,
         loggers: ['mcp'],
         telemetry: 'disabled',
         disabledTools: ['switch-connection'],

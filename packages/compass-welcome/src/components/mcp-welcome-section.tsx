@@ -58,26 +58,34 @@ const ctaButtonLightStyles = css({
  * feature and deep-links into Settings → MCP Server so the user can hook
  * up Claude Desktop / Cursor / VS Code / Windsurf in a couple of clicks.
  *
- * Hidden once the MCP server is enabled — at that point the user has
- * already found their way to Settings.
+ * Adapts copy + CTA depending on whether MCP is already enabled so the
+ * entry point remains visible for users coming back to manage their setup
+ * (install in another AI client, copy a fresh snippet, etc.).
  */
-export function McpWelcomeSection(): React.ReactElement | null {
+export function McpWelcomeSection(): React.ReactElement {
   const darkMode = useDarkMode();
   const track = useTelemetry();
   const globalAppRegistry = useGlobalAppRegistry();
   const enableMcpServer = usePreference('enableMcpServer');
 
-  if (enableMcpServer) {
-    return null;
-  }
-
   const handleClick = () => {
-    track('MCP Setup Clicked', { screen: 'welcome' });
+    track('MCP Setup Clicked', {
+      screen: 'welcome',
+      already_enabled: !!enableMcpServer,
+    });
     // Open Settings directly on the MCP Server tab. Same pattern the
     // welcome modal already uses to deep-link Privacy, and the sidebar
     // header uses for other tab targets.
     globalAppRegistry.emit('open-compass-settings', 'mcp');
   };
+
+  const body = enableMcpServer
+    ? 'Compass is exposing your saved connections to AI tools. Manage which clients are installed and per-connection access in Settings → MCP Server.'
+    : 'Let Claude Desktop, Cursor, VS Code, and Windsurf run read-only queries against your saved connections via a local MCP server.';
+
+  const buttonLabel = enableMcpServer
+    ? 'MANAGE MCP SETUP'
+    : 'SET UP MCP SERVER';
 
   return (
     <div
@@ -86,14 +94,12 @@ export function McpWelcomeSection(): React.ReactElement | null {
         darkMode && sectionContainerDarkStyles
       )}
       data-testid="welcome-tab-mcp-section"
+      data-mcp-enabled={enableMcpServer ? 'true' : 'false'}
     >
       <Subtitle className={titleStyles}>
         Connect AI tools to MongoDB Compass
       </Subtitle>
-      <Body className={descriptionStyles}>
-        Let Claude Desktop, Cursor, VS Code, and Windsurf run read-only queries
-        against your saved connections via a local MCP server.
-      </Body>
+      <Body className={descriptionStyles}>{body}</Body>
       <div className={ctaContainerStyles}>
         <Button
           data-testid="welcome-tab-mcp-setup-button"
@@ -103,7 +109,7 @@ export function McpWelcomeSection(): React.ReactElement | null {
           leftGlyph={<Icon glyph="Sparkle" />}
           onClick={handleClick}
         >
-          SET UP MCP SERVER
+          {buttonLabel}
         </Button>
       </div>
     </div>

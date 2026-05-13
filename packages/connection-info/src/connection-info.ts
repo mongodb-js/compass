@@ -187,13 +187,18 @@ export function normalizeMcpAccess(value: unknown): McpAccess {
     if (v.mode === 'denied') return { mode: 'denied' };
     if (v.mode === 'ask') return { mode: 'ask' };
     if (v.mode === 'allowed') {
-      const preset =
+      // An unrecognized or missing `preset` here is ambiguous — could be a
+      // corrupted record, a downgrade from a future version, or tampering.
+      // Fail safe by treating it as "no decision", which prompts the user
+      // again rather than silently granting any level of access.
+      if (
         v.preset === 'metadata-only' ||
         v.preset === 'read-only' ||
         v.preset === 'full-access'
-          ? v.preset
-          : 'read-only';
-      return { mode: 'allowed', preset };
+      ) {
+        return { mode: 'allowed', preset: v.preset };
+      }
+      return { mode: 'ask' };
     }
   }
   return { mode: 'ask' };
