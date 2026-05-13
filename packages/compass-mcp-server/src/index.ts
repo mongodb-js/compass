@@ -1,5 +1,12 @@
 import { CompassHttpRunner } from './compass-http-runner';
 import { CompassSocketServer } from './compass-socket-server';
+import { installCompassMcpInstructions } from './instructions';
+
+// Replace upstream `TransportRunnerBase.getInstructions` with our
+// Compass-specific text — this is what AI clients see in the
+// `initialize` response and inject into the model's system prompt.
+// Idempotent; safe to import-load multiple times.
+installCompassMcpInstructions();
 import type {
   CompassConnectionManagerOptions,
   ConsentDecision,
