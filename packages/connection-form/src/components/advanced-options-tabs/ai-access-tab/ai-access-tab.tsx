@@ -159,16 +159,13 @@ export function AiAccessTab({
 
       <FormFieldContainer>
         <Label htmlFor="ai-access-mode">Access mode</Label>
-        <RadioGroup
-          id="ai-access-mode"
-          name="ai-access-mode"
-          value={mode}
-          onChange={(e) => onModeChange(e.target.value as AccessMode)}
-        >
+        <RadioGroup id="ai-access-mode" value={mode}>
           {MODE_OPTIONS.map((opt) => (
             <Radio
               key={opt.value}
               value={opt.value}
+              checked={mode === opt.value}
+              onClick={() => onModeChange(opt.value)}
               size="small"
               description={opt.description}
             >
@@ -182,16 +179,13 @@ export function AiAccessTab({
         <>
           <FormFieldContainer>
             <Label htmlFor="ai-access-preset">Tool preset</Label>
-            <RadioGroup
-              id="ai-access-preset"
-              name="ai-access-preset"
-              value={effectivePreset}
-              onChange={(e) => onPresetChange(e.target.value as McpPreset)}
-            >
+            <RadioGroup id="ai-access-preset" value={effectivePreset}>
               {PRESET_OPTIONS.map((opt) => (
                 <Radio
                   key={opt.value}
                   value={opt.value}
+                  checked={effectivePreset === opt.value}
+                  onClick={() => onPresetChange(opt.value)}
                   size="small"
                   description={opt.description}
                 >
