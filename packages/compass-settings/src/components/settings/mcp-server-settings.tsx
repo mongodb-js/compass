@@ -10,7 +10,6 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { usePreferences } from 'compass-preferences-model/provider';
 import SettingsList from './settings-list';
 
 // ─── client definitions ─────────────────────────────────────────────────────
@@ -145,7 +144,6 @@ type DetectedStatus = {
 };
 
 const McpServerSettings: React.FunctionComponent = () => {
-  const { enableMcpServer } = usePreferences(['enableMcpServer']);
   const [bridge, setBridge] = useState<BridgeInfo | null>(null);
   const [activeClient, setActiveClient] = useState<ClientId>('claude');
   const [detected, setDetected] = useState<DetectedStatus | null>(null);
@@ -223,7 +221,13 @@ const McpServerSettings: React.FunctionComponent = () => {
     <div data-testid="mcp-server-settings">
       <SettingsList fields={['enableMcpServer']} />
 
-      {enableMcpServer && bridge && (
+      {/* The install / snippet / config-path UI is always shown, regardless
+          of whether enableMcpServer is on. Installing an AI client's MCP
+          config entry while the server is off is a valid setup step —
+          users often want to wire everything up first, then flip the
+          toggle (or vice versa). The bridge command itself doesn't depend
+          on the server running. */}
+      {bridge && (
         <div className={sectionStyles}>
           <div className={tabsContainerStyles}>
             <div className={tabListStyles} role="tablist">
