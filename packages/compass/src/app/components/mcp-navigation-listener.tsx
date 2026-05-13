@@ -37,9 +37,23 @@ export function McpNavigationListener(): null {
   }, [openCollectionWorkspace, connect, connectionsRef]);
 
   useEffect(() => {
+    type OpenOptions = {
+      subtab?:
+        | 'Documents'
+        | 'Aggregations'
+        | 'Schema'
+        | 'Indexes'
+        | 'Validation';
+      initialQuery?: Record<string, unknown>;
+      initialPipeline?: Record<string, unknown>[];
+    };
     const handler = async (
       _event: unknown,
-      payload: { connectionId: string; namespace: string }
+      payload: {
+        connectionId: string;
+        namespace: string;
+        options?: OpenOptions;
+      }
     ) => {
       // eslint-disable-next-line no-console
       console.log('[mcp] received open-collection IPC', payload);
@@ -65,8 +79,15 @@ export function McpNavigationListener(): null {
         if (conn.status !== 'connected') {
           await connectRef.current(conn.info);
         }
+        // Use newTab:false so Compass de-dupes onto an existing tab for
+        // the same namespace and respects canReplaceTab() — matches the
+        // sidebar's "click a collection" behavior. Compass refuses to
+        // replace tabs that hold unsaved work, so user state is safe.
+        const o = payload.options ?? {};
         openRef.current(payload.connectionId, payload.namespace, {
-          newTab: true,
+          initialSubtab: o.subtab,
+          initialQuery: o.initialQuery,
+          initialPipeline: o.initialPipeline,
         });
       } catch (err) {
         // eslint-disable-next-line no-console

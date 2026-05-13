@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { app, shell } from 'electron';
+import { app, BrowserWindow, shell } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -11,6 +11,7 @@ import {
   uninstallFromClient,
 } from './auto-setup';
 import { type AiClientId, getAllClientConfigPaths } from './client-paths';
+import type { OpenCollectionOptions } from './compass-tool-context';
 
 const { log } = createLogger('COMPASS-MCP');
 
@@ -123,7 +124,11 @@ export class CompassMcpServerManager {
           });
         }
       },
-      openCollection: (connectionId: string, namespace: string) => {
+      openCollection: (
+        connectionId: string,
+        namespace: string,
+        options?: OpenCollectionOptions
+      ) => {
         // Fire-and-forget: ask the Compass renderer(s) to open the
         // collection in a workspace tab. We intentionally use `broadcast`
         // (every Compass window) rather than `broadcastFocused`, because
@@ -133,7 +138,23 @@ export class CompassMcpServerManager {
         ipcMain.broadcast('mcp:open-collection', {
           connectionId,
           namespace,
+          options: options ?? {},
         });
+        // Subtle attention nudge so the user notices that Compass has
+        // something new to show without us stealing focus from their IDE
+        // / chat client. On macOS this bounces the Dock icon once; on
+        // Linux/Windows it flashes the taskbar entry until focused.
+        try {
+          if (process.platform === 'darwin') {
+            app.dock?.bounce('informational');
+          } else {
+            for (const win of BrowserWindow.getAllWindows()) {
+              win.flashFrame(true);
+            }
+          }
+        } catch {
+          /* best-effort UX nudge; never let it crash the tool call */
+        }
       },
     });
 
