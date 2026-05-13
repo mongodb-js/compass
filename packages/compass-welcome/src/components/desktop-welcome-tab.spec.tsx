@@ -2,16 +2,19 @@ import React from 'react';
 import {
   screen,
   renderWithConnections,
+  userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import sinon from 'sinon';
 import DesktopWelcomeTab from './desktop-welcome-tab';
 
 const renderDesktopWelcomeTab = (
   preferences: {
     enableCreatingNewConnections?: boolean;
+    enableMcpServer?: boolean;
   } = {}
 ) => {
-  renderWithConnections(<DesktopWelcomeTab />, {
+  return renderWithConnections(<DesktopWelcomeTab />, {
     preferences,
   });
 };
@@ -50,6 +53,34 @@ describe('DesktopWelcomeTab', function () {
     it('renders atlas help section', function () {
       renderDesktopWelcomeTab({ enableCreatingNewConnections: true });
       expect(screen.getByTestId('welcome-tab-atlas-help-section')).to.exist;
+    });
+  });
+
+  context('MCP welcome section', function () {
+    it('renders the MCP section when enableMcpServer is false', function () {
+      renderDesktopWelcomeTab({
+        enableCreatingNewConnections: true,
+        enableMcpServer: false,
+      });
+      expect(screen.getByTestId('welcome-tab-mcp-section')).to.exist;
+    });
+
+    it('hides the MCP section when enableMcpServer is true', function () {
+      renderDesktopWelcomeTab({
+        enableCreatingNewConnections: true,
+        enableMcpServer: true,
+      });
+      expect(screen.queryByTestId('welcome-tab-mcp-section')).to.equal(null);
+    });
+
+    it('emits open-compass-settings with "mcp" on button click', function () {
+      const { globalAppRegistry } = renderDesktopWelcomeTab({
+        enableCreatingNewConnections: true,
+        enableMcpServer: false,
+      });
+      const emitSpy = sinon.spy(globalAppRegistry, 'emit');
+      userEvent.click(screen.getByTestId('welcome-tab-mcp-setup-button'));
+      expect(emitSpy).to.have.been.calledWith('open-compass-settings', 'mcp');
     });
   });
 });

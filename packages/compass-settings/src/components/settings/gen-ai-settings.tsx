@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 
 import type { RootState } from '../../stores';
 import SettingsList from './settings-list';
-import McpServerSettings from './mcp-server-settings';
 
 export const GenAISettings: React.FunctionComponent<{
   isAIFeatureEnabled: boolean;
@@ -22,8 +21,6 @@ export const GenAISettings: React.FunctionComponent<{
           )}
         </>
       )}
-
-      <McpServerSettings />
     </div>
   );
 };

@@ -11,6 +11,7 @@ export type SettingsTabId =
   | 'privacy'
   | 'oidc'
   | 'ai'
+  | 'mcp'
   | 'proxy'
   | 'preview';
 
