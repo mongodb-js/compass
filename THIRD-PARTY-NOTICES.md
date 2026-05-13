@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu May 07 2026.
+This document was automatically generated on Wed May 13 2026.
 
 ## List of dependencies
 
@@ -286,7 +286,7 @@ This document was automatically generated on Thu May 07 2026.
 | **[fast-deep-equal](#c3b1bc7fbf8bedbac237ffb2eb2aa967bc264fc393bb6451c52a831352540d09)**                                    | 2.0.1        | MIT                                 |
 | **[fast-deep-equal](#60db03f2d9496a0b9ae959899afa824927ba0b591f97c193aa8b0c67acc710e6)**                                    | 3.1.3        | MIT                                 |
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2        | MIT                                 |
-| **[fast-uri](#1ea5904acf2bbd97077988b465d770463c17bc14b33319b8d7a8ceb1e056b3fd)**                                           | 3.0.1        | MIT                                 |
+| **[fast-uri](#031832a888dd4174dc39688063507954f9052606684aa85af217b91c2b6e5ba1)**                                           | 3.1.2        | BSD-3-Clause                        |
 | **[fast-xml-builder](#37a0e599fe1e49e5394d7fe31c7de1a70e6530a300655305d76ec4b97141105a)**                                   | 1.1.4        | MIT                                 |
 | **[fast-xml-parser](#1edd68d10296c5e70396c4f2d95ef2070e6878a5ed751629bcb8d5e531e277f2)**                                    | 5.5.8        | MIT                                 |
 | **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**                                         | 3.2.0        | MIT                                 |
@@ -515,7 +515,7 @@ This document was automatically generated on Thu May 07 2026.
 | **[scheduler](#950b09ca6f4766ded0bdde81e2697b5e184ed63925d74a8f512c978cab5bda6f)**                                          | 0.20.2       | MIT                                 |
 | **[select](#12d30053a00882385c42a50004536696d477e8e694b047d6d39513947e5a39e9)**                                             | 1.1.2        | MIT                                 |
 | **[semver](#8b8f657069cf84b7ca932ab17eb24a0a55a8053ccd2a36c03185dadab64db3f8)**                                             | 6.3.1        | ISC                                 |
-| **[semver](#861f32f827a4e6844082ca1ec7ddd5d22b3913d87af1640e745d7de96d6ad868)**                                             | 7.7.3        | ISC                                 |
+| **[semver](#d9c6b334356e58749b10fc9c55cfcd213136c1b0e6d57b2e9a61afd8ded48637)**                                             | 7.8.0        | ISC                                 |
 | **[send](#2519670ce9ac452c40f095ea0d317f224ac8cd684c920a1383a9b9d42f4c2d29)**                                               | 1.2.1        | MIT                                 |
 | **[serve-static](#aa686afa5272f44cbfeadf82857770f564b35953cf4f2a2d6d8a5802b312863b)**                                       | 2.2.1        | MIT                                 |
 | **[set-function-length](#88ee3e1c8e8c22ac3653a290c1cdc68787d064f17a743020a070b31290bb4eb9)**                                | 1.2.2        | MIT                                 |
@@ -22688,18 +22688,18 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="1ea5904acf2bbd97077988b465d770463c17bc14b33319b8d7a8ceb1e056b3fd"></a>
+<a id="031832a888dd4174dc39688063507954f9052606684aa85af217b91c2b6e5ba1"></a>
 
-### [fast-uri](https://www.npmjs.com/package/fast-uri) (version 3.0.1)
+### [fast-uri](https://www.npmjs.com/package/fast-uri) (version 3.1.2)
 
-License tags: MIT
+License tags: BSD-3-Clause
 
 License files:
 
 - LICENSE:
 
-      Copyright (c) 2021 The Fastify Team
       Copyright (c) 2011-2021, Gary Court until https://github.com/garycourt/uri-js/commit/a1acf730b4bba3f1097c9f52e7d9d3aba8cdcaae
+      Copyright (c) 2021-present The Fastify team <https://github.com/fastify/fastify#team>
       All rights reserved.
 
       Redistribution and use in source and binary forms, with or without
@@ -39050,9 +39050,9 @@ License files:
       ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR
       IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-<a id="861f32f827a4e6844082ca1ec7ddd5d22b3913d87af1640e745d7de96d6ad868"></a>
+<a id="d9c6b334356e58749b10fc9c55cfcd213136c1b0e6d57b2e9a61afd8ded48637"></a>
 
-### [semver](https://www.npmjs.com/package/semver) (version 7.7.3)
+### [semver](https://www.npmjs.com/package/semver) (version 7.8.0)
 
 License tags: ISC
 

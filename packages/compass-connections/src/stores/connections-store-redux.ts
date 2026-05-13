@@ -1853,6 +1853,7 @@ const connectWithOptions = (
               topology_type: dataService.getCurrentTopologyType(),
               num_active_connections: activeConnectionsCount,
               num_inactive_connections: inactiveConnectionsCount,
+              user_language: globalThis.navigator?.language ?? 'unknown',
               ...extraInfo,
             };
           },

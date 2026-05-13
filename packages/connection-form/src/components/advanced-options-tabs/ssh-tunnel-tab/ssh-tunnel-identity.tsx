@@ -13,7 +13,10 @@ import {
 } from '../../../utils/validation';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-type IdentityFormKeys = keyof SSHConnectionOptions;
+type IdentityFormKeys = keyof Pick<
+  SSHConnectionOptions,
+  'host' | 'port' | 'username' | 'identityKeyFile' | 'identityKeyPassphrase'
+>;
 
 type FileInputField = {
   name: IdentityFormKeys;
