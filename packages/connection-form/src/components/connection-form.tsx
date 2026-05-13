@@ -678,6 +678,7 @@ const ConnectionFormWithSettings: React.FunctionComponent<
   showKerberosAuth,
   showCSFLE,
   showProxySettings,
+  showAiAccess,
   saveAndConnectLabel,
   ...rest
 }) => {
@@ -697,6 +698,7 @@ const ConnectionFormWithSettings: React.FunctionComponent<
       showKerberosAuth,
       showCSFLE,
       showProxySettings,
+      showAiAccess,
       saveAndConnectLabel,
     }),
     [
@@ -714,6 +716,7 @@ const ConnectionFormWithSettings: React.FunctionComponent<
       showKerberosAuth,
       showCSFLE,
       showProxySettings,
+      showAiAccess,
       saveAndConnectLabel,
     ]
   );
