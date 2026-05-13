@@ -15,6 +15,7 @@ import type { CompassToolContext } from './compass-tool-context';
 import { COMPASS_TOOLS } from './compass-tools';
 import { getMcpSocketPath } from './socket-path';
 import { buildToolContext } from './build-tool-context';
+import { compassConnectionErrorHandler } from './connection-error-handler';
 
 export interface CompassSocketServerOptions
   extends CompassConnectionManagerOptions {
@@ -101,7 +102,10 @@ export class CompassSocketServer extends TransportRunnerBase<
           toolContext: buildToolContext(connectionManager, this.opts),
           telemetryProperties: { hosting_mode: 'compass' },
         },
-        sessionOptions: { connectionManager },
+        sessionOptions: {
+          connectionManager,
+          connectionErrorHandler: compassConnectionErrorHandler,
+        },
       });
 
       // A net.Socket is both Readable and Writable, so we can hand it

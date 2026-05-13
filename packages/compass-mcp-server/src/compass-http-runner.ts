@@ -16,6 +16,7 @@ import {
 import type { CompassToolContext } from './compass-tool-context';
 import { COMPASS_TOOLS } from './compass-tools';
 import { buildToolContext } from './build-tool-context';
+import { compassConnectionErrorHandler } from './connection-error-handler';
 
 const DEFAULT_PORT = 27097;
 const DEFAULT_HOST = '127.0.0.1';
@@ -96,6 +97,7 @@ export class CompassHttpRunner extends StreamableHttpRunner<
       sessionOptions: {
         ...sessionOptions,
         connectionManager,
+        connectionErrorHandler: compassConnectionErrorHandler,
       },
     });
   }

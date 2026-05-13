@@ -18,8 +18,16 @@ export class CompassConnectTool extends MongoDBToolBase {
 
   description =
     'Connect to one of the MongoDB connections saved in Compass. ' +
-    'The connectionId argument must be the id field returned by the ' +
-    'list-connections tool — do NOT pass a connection string.';
+    'Required workflow before any data / metadata tool can be used:\n' +
+    '  1. Call `list-connections` to get the user’s saved Compass ' +
+    'connections (each has an `id` and `name`).\n' +
+    '  2. Call this `connect` tool with `connectionId` set to one of ' +
+    'those ids.\n' +
+    'This server does NOT accept connection strings. Never ask the user ' +
+    'for a connection string and never pass one to this tool — only ' +
+    'connectionId values from list-connections are valid. If you receive ' +
+    'a "not connected" error from another tool, follow steps 1 and 2 ' +
+    'above rather than asking the user for a connection string.';
 
   argsShape = {
     connectionId: z
