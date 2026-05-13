@@ -4,10 +4,10 @@ import {
   BannerVariant,
   Body,
   Checkbox,
+  FormFieldContainer,
   Label,
   Radio,
   RadioGroup,
-  Subtitle,
   css,
   palette,
   spacing,
@@ -15,34 +15,6 @@ import {
 import type { McpAccess, McpPreset } from '@mongodb-js/connection-info';
 import { presetTools, presetLabel } from '@mongodb-js/compass-mcp-server';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
-
-const containerStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[400],
-});
-
-const sectionStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[200],
-});
-
-const radioDescriptionStyles = css({
-  marginLeft: spacing[400],
-  marginTop: -spacing[100],
-  marginBottom: spacing[100],
-  fontSize: '12px',
-  color: palette.gray.dark1,
-});
-
-const radioDescriptionDarkStyles = css({
-  color: palette.gray.light1,
-});
-
-const presetGroupStyles = css({
-  marginTop: spacing[200],
-});
 
 const toolsListStyles = css({
   marginTop: spacing[200],
@@ -52,10 +24,6 @@ const toolsListStyles = css({
   fontSize: '12px',
   fontFamily: 'monospace',
   whiteSpace: 'pre-wrap',
-});
-
-const warningStyles = css({
-  marginTop: spacing[200],
 });
 
 type AccessMode = 'denied' | 'ask' | 'allowed';
@@ -116,8 +84,7 @@ export interface AiAccessTabProps {
  * preset's allowlist so users see exactly what they are authorizing.
  *
  * The tab is only mounted in hosts that opt in via the connection-form
- * `showAiAccess` setting (desktop Compass). See
- * `advanced-options-tabs.tsx`.
+ * `showAiAccess` setting (desktop Compass).
  */
 export function AiAccessTab({
   mcpAccess,
@@ -127,10 +94,8 @@ export function AiAccessTab({
   const preset = mcpAccess.mode === 'allowed' ? mcpAccess.preset : 'read-only';
 
   // When the user picks 'full-access' from the preset radio we require a
-  // local confirmation checkbox before propagating the change up. This is
-  // ephemeral form-only state: nothing is persisted until the parent form
-  // save runs, but we want to make the "this can write data" choice
-  // deliberate.
+  // local confirmation checkbox before propagating the change up. Local
+  // ephemeral state — nothing is persisted until the parent form save runs.
   const [pendingFullAccessConfirm, setPendingFullAccessConfirm] =
     useState(false);
 
@@ -148,8 +113,6 @@ export function AiAccessTab({
       } else if (newMode === 'ask') {
         dispatchAccess({ mode: 'ask' });
       } else {
-        // Moving to allowed — preserve the existing preset if any, else
-        // default to the safest one (metadata-only).
         const carry: McpPreset =
           mcpAccess.mode === 'allowed' ? mcpAccess.preset : 'metadata-only';
         dispatchAccess({ mode: 'allowed', preset: carry });
@@ -162,9 +125,6 @@ export function AiAccessTab({
   const onPresetChange = useCallback(
     (newPreset: McpPreset) => {
       if (newPreset === 'full-access') {
-        // Don't propagate until the user ticks the confirmation box. We
-        // visually reflect the radio selection locally via the
-        // `pendingFullAccessConfirm` flag.
         setPendingFullAccessConfirm(true);
         return;
       }
@@ -189,14 +149,15 @@ export function AiAccessTab({
   const toolNames = presetTools(effectivePreset);
 
   return (
-    <div className={containerStyles}>
-      <Subtitle>AI access for this connection</Subtitle>
-      <Body>
-        Controls whether external MCP clients (Claude Desktop, Cursor, VS Code,
-        Windsurf, ...) can use this connection — and what they can do.
-      </Body>
+    <>
+      <FormFieldContainer>
+        <Body>
+          Controls whether external MCP clients (Claude Desktop, Cursor, VS
+          Code, Windsurf, …) can use this connection — and what they can do.
+        </Body>
+      </FormFieldContainer>
 
-      <div className={sectionStyles}>
+      <FormFieldContainer>
         <Label htmlFor="ai-access-mode">Access mode</Label>
         <RadioGroup
           id="ai-access-mode"
@@ -205,68 +166,77 @@ export function AiAccessTab({
           onChange={(e) => onModeChange(e.target.value as AccessMode)}
         >
           {MODE_OPTIONS.map((opt) => (
-            <React.Fragment key={opt.value}>
-              <Radio value={opt.value}>{opt.label}</Radio>
-              <div className={radioDescriptionStyles}>{opt.description}</div>
-            </React.Fragment>
+            <Radio
+              key={opt.value}
+              value={opt.value}
+              size="small"
+              description={opt.description}
+            >
+              {opt.label}
+            </Radio>
           ))}
         </RadioGroup>
-      </div>
+      </FormFieldContainer>
 
       {mode === 'allowed' && (
-        <div className={presetGroupStyles}>
-          <Label htmlFor="ai-access-preset">Tool preset</Label>
-          <RadioGroup
-            id="ai-access-preset"
-            name="ai-access-preset"
-            value={effectivePreset}
-            onChange={(e) => onPresetChange(e.target.value as McpPreset)}
-          >
-            {PRESET_OPTIONS.map((opt) => (
-              <React.Fragment key={opt.value}>
-                <Radio value={opt.value}>
+        <>
+          <FormFieldContainer>
+            <Label htmlFor="ai-access-preset">Tool preset</Label>
+            <RadioGroup
+              id="ai-access-preset"
+              name="ai-access-preset"
+              value={effectivePreset}
+              onChange={(e) => onPresetChange(e.target.value as McpPreset)}
+            >
+              {PRESET_OPTIONS.map((opt) => (
+                <Radio
+                  key={opt.value}
+                  value={opt.value}
+                  size="small"
+                  description={opt.description}
+                >
                   {presetLabel(opt.value)}
                   {opt.value === 'full-access' ? ' ⚠' : ''}
                 </Radio>
-                <div className={radioDescriptionStyles}>{opt.description}</div>
-              </React.Fragment>
-            ))}
-          </RadioGroup>
+              ))}
+            </RadioGroup>
+          </FormFieldContainer>
 
           {pendingFullAccessConfirm && preset !== 'full-access' && (
-            <Banner variant={BannerVariant.Warning} className={warningStyles}>
-              <Body>
-                Full access lets the AI insert, update, and delete documents and
-                change schema on this connection.
-              </Body>
-              <Checkbox
-                id="ai-access-confirm-full"
-                checked={false}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  onConfirmFullAccess(e.target.checked)
-                }
-                label={
-                  <Label htmlFor="ai-access-confirm-full">
-                    I understand. Enable full access.
-                  </Label>
-                }
-              />
-            </Banner>
+            <FormFieldContainer>
+              <Banner variant={BannerVariant.Warning}>
+                <Body>
+                  Full access lets the AI insert, update, and delete documents
+                  and change schema on this connection.
+                </Body>
+                <Checkbox
+                  id="ai-access-confirm-full"
+                  checked={false}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    onConfirmFullAccess(e.target.checked)
+                  }
+                  label={
+                    <Label htmlFor="ai-access-confirm-full">
+                      I understand. Enable full access.
+                    </Label>
+                  }
+                />
+              </Banner>
+            </FormFieldContainer>
           )}
 
-          <Body weight="medium" style={{ marginTop: spacing[300] }}>
-            Tools the AI will be able to use ({toolNames.length})
-          </Body>
-          <div className={toolsListStyles}>
-            {toolNames.map((t) => `• ${t}`).join('\n')}
-          </div>
-        </div>
+          <FormFieldContainer>
+            <Label htmlFor="ai-access-tools-list">
+              Tools the AI will be able to use ({toolNames.length})
+            </Label>
+            <div id="ai-access-tools-list" className={toolsListStyles}>
+              {toolNames.map((t) => `• ${t}`).join('\n')}
+            </div>
+          </FormFieldContainer>
+        </>
       )}
-    </div>
+    </>
   );
 }
-
-// Silence "unused" warnings for the dark-mode style ref kept for future use.
-void radioDescriptionDarkStyles;
 
 export default AiAccessTab;
