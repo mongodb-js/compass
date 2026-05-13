@@ -124,11 +124,13 @@ export class CompassMcpServerManager {
         }
       },
       openCollection: (connectionId: string, namespace: string) => {
-        // Fire-and-forget: ask the focused Compass window to open the
-        // collection in a workspace tab. The compass-open-collection tool
-        // already acknowledged the call to the AI — we don't wait for the
-        // navigation to actually complete.
-        ipcMain.broadcastFocused('mcp:open-collection', {
+        // Fire-and-forget: ask the Compass renderer(s) to open the
+        // collection in a workspace tab. We intentionally use `broadcast`
+        // (every Compass window) rather than `broadcastFocused`, because
+        // when an AI client calls this tool the focused OS window is the
+        // AI client itself (Claude Desktop / Cursor / ...), not Compass —
+        // and `broadcastFocused` would silently drop the message.
+        ipcMain.broadcast('mcp:open-collection', {
           connectionId,
           namespace,
         });

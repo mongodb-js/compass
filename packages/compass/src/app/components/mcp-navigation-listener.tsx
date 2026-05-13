@@ -19,6 +19,8 @@ export function McpNavigationListener(): null {
       _event: unknown,
       payload: { connectionId: string; namespace: string }
     ) => {
+      // eslint-disable-next-line no-console
+      console.log('[mcp] received open-collection IPC', payload);
       if (!payload?.connectionId || !payload?.namespace) return;
       openCollectionWorkspace(payload.connectionId, payload.namespace);
     };
