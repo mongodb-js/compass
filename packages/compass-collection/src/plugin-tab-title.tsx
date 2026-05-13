@@ -1,6 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import toNS from 'mongodb-ns';
+import { useTranslation } from 'react-i18next';
 import {
   useConnectionInfo,
   useConnectionsListRef,
@@ -31,6 +32,7 @@ function PluginTitle({
   namespace,
   ...tabProps
 }: PluginTitleProps) {
+  const { t } = useTranslation('compassCollection');
   const { getConnectionById } = useConnectionsListRef();
   const { id: connectionId } = useConnectionInfo();
 
@@ -43,17 +45,17 @@ function PluginTitle({
     : 'collection';
   // Similar to what we have in the collection breadcrumbs.
   const tooltip: [string, string][] = [
-    ['Connection', connectionName || ''],
-    ['Database', database],
+    [t('tooltipConnection'), connectionName || ''],
+    [t('tooltipDatabase'), database],
   ];
   if (sourceName) {
-    tooltip.push(['View', collection]);
-    tooltip.push(['Derived from', toNS(sourceName).collection]);
+    tooltip.push([t('tooltipView'), collection]);
+    tooltip.push([t('tooltipDerivedFrom'), toNS(sourceName).collection]);
   } else if (editViewName) {
-    tooltip.push(['View', toNS(editViewName).collection]);
-    tooltip.push(['Derived from', collection]);
+    tooltip.push([t('tooltipView'), toNS(editViewName).collection]);
+    tooltip.push([t('tooltipDerivedFrom'), collection]);
   } else {
-    tooltip.push(['Collection', collection]);
+    tooltip.push([t('tooltipCollection'), collection]);
   }
 
   return (

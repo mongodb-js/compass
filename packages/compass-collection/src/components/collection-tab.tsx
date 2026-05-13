@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import { type CollectionState, selectTab } from '../modules/collection-tab';
 import { css, ErrorBoundary, TabNavBar } from '@mongodb-js/compass-components';
 import CollectionHeader from './collection-header';
@@ -258,6 +259,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     isMockDataGeneratorEligibleAndSchemaReady,
   };
 
+  const { t } = useTranslation('compassCollection');
   const tabs = useCollectionTabs(pluginProps);
   const activeTabIndex = tabs.findIndex((tab) => tab.name === currentTab);
 
@@ -273,7 +275,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
         ></CollectionHeader>
         <TabNavBar
           data-testid="collection-tabs"
-          aria-label="Collection Tabs"
+          aria-label={t('collectionTabsAriaLabel')}
           activeTabIndex={activeTabIndex}
           onTabClicked={(id) => {
             onTabClick(tabs[id].name);
@@ -297,6 +299,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
 function useCollectionTabApplicationMenu(
   collectionMetadata: CollectionMetadata | null
 ) {
+  const { t } = useTranslation('compassCollection');
   const localAppRegistry = useLocalAppRegistry();
   const globalAppRegistry = useGlobalAppRegistry();
   const connectionInfoRef = useConnectionInfoRef();
@@ -339,10 +342,10 @@ function useCollectionTabApplicationMenu(
   useApplicationMenu({
     menu: collectionMetadata
       ? {
-          label: '&Collection',
+          label: t('menuCollection'),
           submenu: [
             {
-              label: '&Share Schema as JSON (Legacy)',
+              label: t('menuShareSchema'),
               accelerator: 'Alt+CmdOrCtrl+S',
               click: shareSchemaClick,
             },
@@ -353,12 +356,12 @@ function useCollectionTabApplicationMenu(
               ? []
               : [
                   {
-                    label: '&Import Data',
+                    label: t('menuImportData'),
                     click: importClick,
                   },
                 ]),
             {
-              label: '&Export Collection',
+              label: t('menuExportCollection'),
               click: exportClick,
             },
           ],

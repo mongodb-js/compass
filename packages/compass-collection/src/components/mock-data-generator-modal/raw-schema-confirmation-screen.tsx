@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
+import { Trans, useTranslation } from 'react-i18next';
 
 import {
   css,
@@ -77,6 +78,7 @@ const RawSchemaConfirmationScreen = ({
   schemaAnalysis,
   fakerSchemaGenerationStatus,
 }: RawSchemaConfirmationScreenProps) => {
+  const { t } = useTranslation('compassCollection');
   const enableSampleDocumentPassing = usePreference(
     'enableGenAISampleDocumentPassing'
   );
@@ -105,7 +107,7 @@ const RawSchemaConfirmationScreen = ({
       >
         <SpinLoaderWithLabel
           data-testid="raw-schema-confirmation-loader"
-          progressText="Generating mock data mappings..."
+          progressText={t('generatingMappingsText')}
         />
       </div>
     );
@@ -116,13 +118,19 @@ const RawSchemaConfirmationScreen = ({
       {schemaAnalysis.status === 'complete' ? (
         <>
           <Body className={descriptionStyles}>
-            We&apos;ll use the identified schema to generate a mock data script
-            for your collection. You can customize the script and its{' '}
-            <Link href={FAKER_API_LINK} target="_blank" hideExternalIcon>
-              Faker functions
-            </Link>{' '}
-            before running it and/or reuse it for your other clusters and
-            collections.
+            <Trans
+              i18nKey="schemaDescriptionText"
+              ns="compassCollection"
+              components={{
+                fakerLink: (
+                  <Link
+                    href={FAKER_API_LINK}
+                    target="_blank"
+                    hideExternalIcon
+                  />
+                ),
+              }}
+            />
           </Body>
           <div
             className={cx(
@@ -152,14 +160,8 @@ const RawSchemaConfirmationScreen = ({
             >
               <div className={bannerContentStyles}>
                 <div className={bannerTextStyles}>
-                  <Body weight="medium">
-                    Enable Sending Sample Field Values
-                  </Body>
-                  <Body>
-                    To improve mock data quality, Project Owners can enable
-                    sending sample field values to the AI model. Refresh Data
-                    Explorer for changes to take effect.
-                  </Body>
+                  <Body weight="medium">{t('enableSampleValuesTitle')}</Body>
+                  <Body>{t('enableSampleValuesBody')}</Body>
                 </div>
                 <Button
                   size="xsmall"
@@ -174,7 +176,7 @@ const RawSchemaConfirmationScreen = ({
                   }}
                   data-testid="sample-values-banner-settings-button"
                 >
-                  Project Settings
+                  {t('projectSettingsButton')}
                 </Button>
               </div>
             </Banner>
@@ -185,13 +187,13 @@ const RawSchemaConfirmationScreen = ({
               className={bannerStyles}
               data-testid="error-banner"
             >
-              LLM Request failed. Please confirm again.
+              {t('llmRequestFailed')}
             </Banner>
           )}
         </>
       ) : (
         // Not reachable since schema analysis must be finished before the modal can be opened
-        <Body>We are analyzing your collection.</Body>
+        <Body>{t('analyzingCollection')}</Body>
       )}
     </div>
   );

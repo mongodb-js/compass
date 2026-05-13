@@ -3,25 +3,46 @@ import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 
 import GlobalWrites from './components';
 import { GlobalWritesTabTitle } from './plugin-title';
-import { activateGlobalWritesPlugin } from './store';
+import {
+  activateGlobalWritesPlugin,
+  type GlobalWritesPluginServices,
+} from './store';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { connectionInfoRefLocator } from '@mongodb-js/compass-connections/provider';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
+import {
+  preferencesLocator,
+  type PreferencesAccess,
+} from 'compass-preferences-model/provider';
+import { I18nProvider, initLanguage } from './i18n';
 
 const CompassGlobalWritesPluginProvider = registerCompassPlugin(
   {
     name: 'CompassGlobalWrites',
     component: function GlobalWritesProvider({ children }) {
-      return React.createElement(React.Fragment, null, children);
+      return React.createElement(I18nProvider, null, children);
     },
-    activate: activateGlobalWritesPlugin,
+    activate: (
+      props,
+      {
+        preferences,
+        ...services
+      }: GlobalWritesPluginServices & {
+        preferences: PreferencesAccess;
+      },
+      helpers
+    ) => {
+      initLanguage(preferences.getPreferences().language);
+      return activateGlobalWritesPlugin(props, services, helpers);
+    },
   },
   {
     logger: createLoggerLocator('COMPASS-GLOBAL-WRITES-UI'),
     track: telemetryLocator,
     connectionInfoRef: connectionInfoRefLocator,
     atlasService: atlasServiceLocator,
+    preferences: preferencesLocator,
   }
 );
 

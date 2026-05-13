@@ -19,6 +19,8 @@ import {
   spacing,
   useId,
 } from '@mongodb-js/compass-components';
+import { useTranslation } from 'react-i18next';
+import { I18nProvider } from './i18n';
 import { useConnectable } from '@mongodb-js/compass-connections/provider';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
 import { usePreferences } from 'compass-preferences-model/provider';
@@ -47,7 +49,7 @@ export interface ConnectionsNavigationTreeProps {
   onItemAction(item: SidebarActionableItem, action: Actions): void;
 }
 
-const ConnectionsNavigationTree: React.FunctionComponent<
+const ConnectionsNavigationTreeInner: React.FunctionComponent<
   ConnectionsNavigationTreeProps
 > = ({
   connections,
@@ -56,6 +58,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   onItemExpand,
   onItemAction,
 }) => {
+  const { t } = useTranslation();
   const {
     enableRenameCollectionModal,
     enableShell: preferencesShellEnabled,
@@ -209,6 +212,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               actions: notConnectedConnectionItemActions({
                 connectionInfo: item.connectionInfo,
                 connectionStatus: item.connectionStatus,
+                t,
               }),
               config: {
                 collapseAfter: 1,
@@ -239,6 +243,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       getCollapseAfterForConnectedItem,
       getConnectable,
       showDisabledConnections,
+      t,
     ]
   );
 
@@ -266,6 +271,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
               : notConnectedConnectionItemActions({
                   connectionInfo: item.connectionInfo,
                   connectionStatus: item.connectionStatus,
+                  t,
                 })
           );
         case 'database': {
@@ -316,7 +322,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, isRenameCollectionEnabled]
+    [onItemAction, isRenameCollectionEnabled, t]
   );
 
   const isTestEnv = process.env.NODE_ENV === 'test';
@@ -371,5 +377,15 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     </div>
   );
 };
+
+function ConnectionsNavigationTree(
+  props: ConnectionsNavigationTreeProps
+): React.ReactElement {
+  return (
+    <I18nProvider>
+      <ConnectionsNavigationTreeInner {...props} />
+    </I18nProvider>
+  );
+}
 
 export { ConnectionsNavigationTree };

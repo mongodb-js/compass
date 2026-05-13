@@ -1,4 +1,5 @@
 import React, { useCallback, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Label,
   TextInput,
@@ -124,6 +125,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   onApply,
   disabled = false,
 }) => {
+  const { t } = useTranslation('compassQueryBar');
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const darkMode = useDarkMode();
@@ -134,7 +136,8 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   const optionDefinition = OPTION_DEFINITION[name];
   const isDocumentEditor = optionDefinition.type === 'document';
 
-  placeholder ??= optionDefinition.placeholder;
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+  placeholder ??= t(`optionPlaceholder${cap(name)}` as any);
   value ??= '';
 
   const onValueChange = useCallback(
@@ -198,7 +201,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
                 : queryOptionLabelStyles
             }
           >
-            {optionDefinition.label ?? name}
+            {t(`optionLabel${cap(name)}` as any)}
           </Label>
         </div>
       )}
@@ -260,8 +263,7 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
                       </div>
                     )}
                   >
-                    Operations longer than 5 minutes are not supported in the
-                    web environment
+                    {t('maxTimeMSWebLimitTooltip')}
                   </Tooltip>
                 );
               }

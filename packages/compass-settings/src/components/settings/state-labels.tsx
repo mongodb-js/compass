@@ -1,28 +1,29 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Banner, BannerVariant } from '@mongodb-js/compass-components';
 
-export const settingStateLabels = {
-  'set-cli': (
-    <Banner variant={BannerVariant.Info} data-testid="set-cli-banner">
-      This setting cannot be modified as it has been set at Compass startup.
+type StateKey = 'set-cli' | 'set-global' | 'hardcoded' | 'derived' | '';
+
+const STATE_TRANSLATION_KEYS: Record<
+  Exclude<StateKey, ''>,
+  string
+> = Object.assign(Object.create(null) as object, {
+  'set-cli': 'stateSetCli',
+  'set-global': 'stateSetGlobal',
+  hardcoded: 'stateHardcoded',
+  derived: 'stateDerived',
+});
+
+export const SettingStateLabel: React.FunctionComponent<{
+  state: StateKey | undefined;
+}> = ({ state }) => {
+  const { t } = useTranslation('compassSettings');
+  if (!state) {
+    return null;
+  }
+  return (
+    <Banner variant={BannerVariant.Info} data-testid={`${state}-banner`}>
+      {t(STATE_TRANSLATION_KEYS[state])}
     </Banner>
-  ),
-  'set-global': (
-    <Banner variant={BannerVariant.Info} data-testid="set-global-banner">
-      This setting cannot be modified as it has been set in the global Compass
-      configuration file.
-    </Banner>
-  ),
-  hardcoded: (
-    <Banner variant={BannerVariant.Info} data-testid="hardcoded-banner">
-      This setting cannot be modified as it is disabled for this Compass
-      edition.
-    </Banner>
-  ),
-  derived: (
-    <Banner variant={BannerVariant.Info} data-testid="derived-banner">
-      This setting cannot be modified as its value is implied by another option.
-    </Banner>
-  ),
-  '': null,
+  );
 };

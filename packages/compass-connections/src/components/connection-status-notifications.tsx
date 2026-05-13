@@ -14,6 +14,7 @@ import {
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
+import { i18n } from '../i18n';
 
 export function isOIDCAuth(connectionString: string): boolean {
   const authMechanismString = (
@@ -28,8 +29,8 @@ export function getConnectingStatusText(connectionInfo: ConnectionInfo) {
   const connectionTitle = getConnectionTitle(connectionInfo);
   const isOIDC = isOIDCAuth(connectionInfo.connectionOptions.connectionString);
   return {
-    title: `Connecting to ${connectionTitle}`,
-    description: isOIDC ? 'Go to the browser to complete authentication' : '',
+    title: i18n.t('connectingToTitle', { connectionTitle }),
+    description: isOIDC ? i18n.t('completeAuthInBrowser') : '',
   };
 }
 
@@ -98,7 +99,7 @@ function ConnectionErrorToastBody({
           data-testid="connection-error-title"
           className={connectionErrorTitleStyles}
         >
-          {info ? getConnectionTitle(info) : 'Connection failed'}
+          {info ? getConnectionTitle(info) : i18n.t('connectionFailed')}
         </span>
         <span data-testid="connection-error-text">{error.message}</span>
       </span>
@@ -110,7 +111,7 @@ function ConnectionErrorToastBody({
               data-testid="connection-error-review"
               size="small"
             >
-              Review
+              {i18n.t('review')}
             </Button>
           </span>
         )}
@@ -122,7 +123,7 @@ function ConnectionErrorToastBody({
               onClick={onDebug}
               data-testid="connection-error-debug"
             >
-              Debug
+              {i18n.t('debug')}
             </Link>
           </span>
         )}
@@ -157,7 +158,7 @@ const openConnectionStartedToast = (
         }}
         data-testid="cancel-connection-button"
       >
-        CANCEL
+        {i18n.t('cancel')}
       </Link>
     ),
   });
@@ -165,7 +166,9 @@ const openConnectionStartedToast = (
 
 const openConnectionSucceededToast = (connectionInfo: ConnectionInfo) => {
   openToast(`connection-status--${connectionInfo.id}`, {
-    title: `Connected to ${getConnectionTitle(connectionInfo)}`,
+    title: i18n.t('connectedToTitle', {
+      connectionTitle: getConnectionTitle(connectionInfo),
+    }),
     variant: 'success',
     timeout: 3_000,
   });
@@ -220,13 +223,11 @@ const openConnectionFailedToast = ({
 const openMaximumConnectionsReachedToast = (
   maxConcurrentConnections: number
 ) => {
-  const message = `Only ${maxConcurrentConnections} connection${
-    maxConcurrentConnections > 1 ? 's' : ''
-  } can be connected to at the same time. First disconnect from another connection.`;
-
   openToast('max-connections-reached', {
-    title: 'Maximum concurrent connections limit reached',
-    description: message,
+    title: i18n.t('maxConnectionsTitle'),
+    description: i18n.t('maxConnectionsMessage', {
+      count: maxConcurrentConnections,
+    }),
     variant: 'warning',
     timeout: 5_000,
   });
@@ -240,12 +241,13 @@ const openNotifyDeviceAuthModal = (
   signal: AbortSignal
 ) => {
   void showConfirmation({
-    title: `Complete authentication in the browser`,
+    title: i18n.t('deviceAuthTitle'),
     description: (
       <div className={deviceAuthModalContentStyles}>
         <Body>
-          Visit the following URL to complete authentication for{' '}
-          <b>{getConnectionTitle(connectionInfo)}</b>:
+          {i18n.t('deviceAuthVisitUrl', {
+            connectionTitle: getConnectionTitle(connectionInfo),
+          })}
         </Body>
         <Body>
           <Link href={verificationUrl} target="_blank">
@@ -253,7 +255,7 @@ const openNotifyDeviceAuthModal = (
           </Link>
         </Body>
         <br></br>
-        <Body>Enter the following code on that page:</Body>
+        <Body>{i18n.t('deviceAuthEnterCode')}</Body>
         <Body as="div">
           <Code language="none">{userCode}</Code>
         </Body>

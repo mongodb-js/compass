@@ -171,9 +171,11 @@ export const connectedConnectionItemActions = ({
 export const notConnectedConnectionItemActions = ({
   connectionInfo,
   connectionStatus,
+  t,
 }: {
   connectionInfo: ConnectionInfo;
   connectionStatus: NotConnectedConnectionStatus;
+  t: (key: string) => string;
 }): NavigationItemActions => {
   const commonActions = commonConnectionItemActions({ connectionInfo });
   if (connectionStatus === 'connecting') {
@@ -182,7 +184,7 @@ export const notConnectedConnectionItemActions = ({
     return [
       {
         action: 'connection-connect',
-        label: 'Connect',
+        label: t('connect'),
         icon: 'Connect',
         expandedAs: ConnectButton,
       },

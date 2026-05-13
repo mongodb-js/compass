@@ -1,5 +1,7 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function SchemaValidationTabTitle() {
-  return <div data-testid="validation-tab-title">Validation</div>;
+  const { t } = useTranslation('compassSchemaValidation');
+  return <div data-testid="validation-tab-title">{t('tabName')}</div>;
 }

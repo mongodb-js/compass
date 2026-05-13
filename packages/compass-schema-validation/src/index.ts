@@ -12,6 +12,7 @@ import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { SchemaValidationTabTitle } from './plugin-title';
+import { I18nProvider, initLanguage } from './i18n';
 import { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { RequiredDataServiceProps } from './modules';
 
@@ -19,9 +20,12 @@ const CompassSchemaValidationPluginProvider = registerCompassPlugin(
   {
     name: 'CompassSchemaValidationPlugin',
     component: function SchemaValidationsProvider({ children }) {
-      return React.createElement(React.Fragment, null, children);
+      return React.createElement(I18nProvider, null, children);
     },
-    activate: onActivated,
+    activate: (...args: Parameters<typeof onActivated>) => {
+      initLanguage(args[1].preferences.getPreferences().language);
+      return onActivated(...args);
+    },
   },
   {
     dataService:

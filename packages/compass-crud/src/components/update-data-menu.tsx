@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Icon,
   Button,
@@ -24,17 +25,18 @@ const UpdateMenuButton: React.FunctionComponent<UpdateMenuButtonProps> = ({
   isWritable,
   onClick,
 }) => {
+  const { t } = useTranslation('compassCrud');
   return (
     <Button
       disabled={!isWritable}
-      value="Update"
+      value={t('updateButton')}
       size="xsmall"
       onClick={onClick}
       leftGlyph={<Icon glyph="Edit"></Icon>}
       data-testid="crud-update"
-      title="Update"
+      title={t('updateButton')}
     >
-      <span className={hiddenOnNarrowStyles}>Update</span>
+      <span className={hiddenOnNarrowStyles}>{t('updateButton')}</span>
     </Button>
   );
 };

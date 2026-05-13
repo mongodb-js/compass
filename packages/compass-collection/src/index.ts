@@ -19,6 +19,7 @@ import {
   CollectionWorkspaceTitle,
   CollectionPluginTitleComponent,
 } from './plugin-tab-title';
+import { I18nProvider, initLanguage } from './i18n';
 
 export const WorkspaceTab: WorkspacePlugin<typeof CollectionWorkspaceTitle> = {
   name: CollectionWorkspaceTitle,
@@ -26,9 +27,12 @@ export const WorkspaceTab: WorkspacePlugin<typeof CollectionWorkspaceTitle> = {
     {
       name: CollectionWorkspaceTitle,
       component: function CollectionProvider({ children }) {
-        return React.createElement(React.Fragment, null, children);
+        return React.createElement(I18nProvider, null, children);
       },
-      activate: activateCollectionTabPlugin,
+      activate(props, services, helpers) {
+        initLanguage(services.preferences.getPreferences().language);
+        return activateCollectionTabPlugin(props, services, helpers);
+      },
     },
     {
       dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,

@@ -1,5 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+
+// Ensure i18n is initialized when the settings UI is loaded (including in tests
+// that render components directly without going through the plugin entry point).
+import '../i18n';
 
 import {
   FormModal,
@@ -72,18 +77,19 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
 }) => {
   const aiFeatureHasCloudRolloutAccess = useHasAIFeatureCloudRolloutAccess();
   const onMountRef = useRef(onMount);
+  const { t } = useTranslation('compassSettings');
 
   useEffect(() => {
     onMountRef.current?.();
   }, []);
 
   const settings: Settings[] = [
-    { tabId: 'general', name: 'General', component: GeneralSettings },
-    { tabId: 'theme', name: 'Theme', component: ThemeSettings },
-    { tabId: 'privacy', name: 'Privacy', component: PrivacySettings },
+    { tabId: 'general', name: t('tabGeneral'), component: GeneralSettings },
+    { tabId: 'theme', name: t('tabTheme'), component: ThemeSettings },
+    { tabId: 'privacy', name: t('tabPrivacy'), component: PrivacySettings },
     {
       tabId: 'proxy',
-      name: 'Proxy Configuration',
+      name: t('tabProxy'),
       component: ProxySettings,
     },
   ];
@@ -91,7 +97,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   if (isOIDCEnabled) {
     settings.push({
       tabId: 'oidc',
-      name: 'OIDC',
+      name: t('tabOidc'),
       component: OIDCSettings,
     });
   }
@@ -99,7 +105,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   if (aiFeatureHasCloudRolloutAccess) {
     settings.push({
       tabId: 'ai',
-      name: 'Artificial Intelligence',
+      name: t('tabAi'),
       component: GenAISettings,
     });
   }
@@ -107,7 +113,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   if (useShouldShowFeaturePreviewSettings()) {
     settings.push({
       tabId: 'preview',
-      name: 'Feature Preview',
+      name: t('tabFeaturePreview'),
       component: FeaturePreviewSettings,
     });
   }
@@ -119,9 +125,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   return (
     <FormModal
       size="large"
-      title="Settings"
+      title={t('modalTitle')}
       open={isOpen}
-      submitButtonText="Save"
+      submitButtonText={t('submitButton')}
       onSubmit={onSave}
       submitDisabled={!hasChangedSettings}
       onCancel={onClose}

@@ -13,6 +13,7 @@ import {
   useConnectionInfoForId,
   useConnectionForId,
 } from '@mongodb-js/compass-connections/provider';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Returns a list of connection ids for connections that are in an active state
@@ -61,6 +62,7 @@ interface ConnectionStatusProps {
 }
 
 function ConnectionStatus({ connectionId }: ConnectionStatusProps) {
+  const { t } = useTranslation('compassWelcome');
   const connectionInfo = useConnectionInfoForId(connectionId);
   const connection = useConnectionForId(connectionId);
 
@@ -77,16 +79,16 @@ function ConnectionStatus({ connectionId }: ConnectionStatusProps) {
           icon: (
             <Icon glyph="Checkmark" size="small" color={palette.green.dark2} />
           ),
-          statusText: `Connected to ${connectionName}`,
+          statusText: t('connectedTo', { connectionName }),
         }
       : status === 'failed'
       ? {
           icon: <Icon glyph="X" size="small" color={palette.red.base} />,
-          statusText: `Failed to connect to ${connectionName}`,
+          statusText: t('failedToConnectTo', { connectionName }),
         }
       : {
           icon: <SpinLoader size={16} />,
-          statusText: `Connecting to ${connectionName}`,
+          statusText: t('connectingTo', { connectionName }),
         };
 
   return (

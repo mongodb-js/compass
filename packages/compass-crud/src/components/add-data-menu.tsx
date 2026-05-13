@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Icon,
   Tooltip,
@@ -45,6 +46,7 @@ function AddDataMenuButton({
   isDisabled?: boolean;
   isMockDataGeneratorEligibleAndSchemaReady?: boolean;
 }) {
+  const { t } = useTranslation('compassCrud');
   const isImportExportEnabled = usePreference('enableImportExport');
   const localAppRegistry = useLocalAppRegistry();
 
@@ -74,13 +76,13 @@ function AddDataMenuButton({
 
   const addDataActions = useMemo(() => {
     const actions: MenuAction<AddDataOption>[] = [
-      { action: 'insert-document' as const, label: 'Insert document' },
+      { action: 'insert-document' as const, label: t('addDataInsertDocument') },
     ];
 
     if (isImportExportEnabled) {
       actions.unshift({
         action: 'import-file' as const,
-        label: 'Import JSON or CSV file',
+        label: t('contextMenuImportFile'),
       });
     }
 
@@ -91,12 +93,13 @@ function AddDataMenuButton({
     ) {
       actions.push({
         action: 'generate-mock-data' as const,
-        label: 'Generate mock data script',
+        label: t('addDataGenerateMockData'),
       });
     }
 
     return actions;
   }, [
+    t,
     isImportExportEnabled,
     isMockDataGeneratorEligibleAndSchemaReady,
     isInMockDataTreatmentVariant,
@@ -126,7 +129,7 @@ function AddDataMenuButton({
         data-testid="crud-add-data"
         actions={addDataActions}
         onAction={handleAction}
-        buttonText="Add data"
+        buttonText={t('addDataButton')}
         buttonProps={{
           size: 'xsmall',
           variant: 'primary',

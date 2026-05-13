@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import { activatePlugin } from './stores/query-bar-store';
+import { I18nProvider, initLanguage } from './i18n';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
@@ -21,6 +22,14 @@ import {
 } from './components/hooks';
 import type { QueryBarService } from './components/hooks';
 import QueryBarComponent from './components/query-bar';
+
+const QueryBarComponentWithI18n: React.FunctionComponent<
+  React.ComponentProps<typeof QueryBarComponent>
+> = (props) => (
+  <I18nProvider>
+    <QueryBarComponent {...props} />
+  </I18nProvider>
+);
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
@@ -40,12 +49,15 @@ const QueryBarPlugin = registerCompassPlugin(
     // state between them
     component: function QueryBarStoreProvider({ children }) {
       return (
-        <QueryBarComponentProvider value={QueryBarComponent}>
+        <QueryBarComponentProvider value={QueryBarComponentWithI18n}>
           {children}
         </QueryBarComponentProvider>
       );
     },
-    activate: activatePlugin,
+    activate: (...args: Parameters<typeof activatePlugin>) => {
+      initLanguage(args[1].preferences.getPreferences().language);
+      return activatePlugin(...args);
+    },
   },
   {
     dataService: dataServiceLocator as DataServiceLocator<

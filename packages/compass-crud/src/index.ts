@@ -33,13 +33,14 @@ import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { CrudTabTitle } from './plugin-title';
+import { I18nProvider, initLanguage } from './i18n';
 
 const CompassDocumentsPluginProvider = registerCompassPlugin(
   {
     name: 'CompassDocuments',
     component: function CrudProvider({ children, ...props }) {
       return React.createElement(
-        React.Fragment,
+        I18nProvider,
         null,
         // Cloning children with props is a workaround for reflux store.
         React.isValidElement(children)
@@ -47,7 +48,10 @@ const CompassDocumentsPluginProvider = registerCompassPlugin(
           : null
       );
     },
-    activate: activateDocumentsPlugin,
+    activate: (...args: Parameters<typeof activateDocumentsPlugin>) => {
+      initLanguage(args[1].preferences.getPreferences().language);
+      return activateDocumentsPlugin(...args);
+    },
   },
   {
     dataService: dataServiceLocator as DataServiceLocator<

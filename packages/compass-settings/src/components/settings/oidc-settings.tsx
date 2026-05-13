@@ -1,16 +1,15 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import SettingsList from './settings-list';
 
 export const OIDCSettings: React.FunctionComponent = () => {
+  const { t } = useTranslation('compassSettings');
   return (
     <div data-testid="oidc-settings">
-      <div>
-        Change the behavior of the OIDC authentication mechanism for server
-        connection and Atlas Login in Compass.
-      </div>
+      <div>{t('oidcIntro')}</div>
       <SettingsList fields={['browserCommandForOIDCAuth']} />
       <div>
-        <strong>MongoDB server OIDC Authentication options</strong>
+        <strong>{t('oidcServerOptionsTitle')}</strong>
       </div>
       <SettingsList fields={['showOIDCDeviceAuthFlow', 'persistOIDCTokens']} />
     </div>

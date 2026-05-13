@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import SettingsList from './settings-list';
 
 const generalFields = [
@@ -20,12 +21,10 @@ const generalFields = [
 ] as const;
 
 export const GeneralSettings: React.FunctionComponent = () => {
+  const { t } = useTranslation('compassSettings');
   return (
     <div data-testid="general-settings">
-      <div>
-        To enhance the user experience, Compass can enable or disable particular
-        features. Please choose from the settings below:
-      </div>
+      <div>{t('generalIntro')}</div>
       <SettingsList fields={generalFields} />
     </div>
   );

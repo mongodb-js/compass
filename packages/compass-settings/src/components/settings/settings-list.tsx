@@ -9,7 +9,8 @@ import {
   LEGACY_UUID_ENCODINGS,
   LANGUAGE_VALUES,
 } from 'compass-preferences-model/provider';
-import { settingStateLabels } from './state-labels';
+import { SettingStateLabel } from './state-labels';
+import type { PreferenceState } from 'compass-preferences-model';
 import {
   Checkbox,
   Label,
@@ -276,7 +277,7 @@ type AnySetting = {
 };
 
 type SettingsInputProps = AnySetting & {
-  stateLabel?: React.ReactNode;
+  state?: PreferenceState;
   disabled?: boolean;
   required?: boolean;
 };
@@ -308,7 +309,7 @@ function isSupported(props: AnySetting): props is
 }
 
 function SettingsInput({
-  stateLabel = '',
+  state,
   disabled = false,
   required = false,
   ...props
@@ -369,7 +370,7 @@ function SettingsInput({
     <div data-testid={`setting-${name}`}>
       <FormFieldContainer className={fieldContainerStyles}>
         {input}
-        {stateLabel ?? ''}
+        <SettingStateLabel state={state} />
       </FormFieldContainer>
     </div>
   );
@@ -387,7 +388,7 @@ const ConnectedSettingsInput = connect(
       value: settings[name],
       type: type,
       disabled: !!preferenceStates[name],
-      stateLabel: settingStateLabels[preferenceStates[name] ?? ''],
+      state: preferenceStates[name],
     };
   },
   { onChange: changeFieldValue }

@@ -13,6 +13,7 @@ import {
 } from '@mongodb-js/compass-workspaces/provider';
 import { usePreference } from 'compass-preferences-model/provider';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const navigationItem = css({
   cursor: 'pointer',
@@ -98,6 +99,7 @@ export function Navigation({
 }: {
   currentLocation: string | null;
 }): React.ReactElement {
+  const { t } = useTranslation();
   const { hasWorkspacePlugin } = useWorkspacePlugins();
   const { openMyQueriesWorkspace, openDataModelingWorkspace } =
     useOpenWorkspace();
@@ -109,7 +111,7 @@ export function Navigation({
         <NavigationItem
           onClick={openMyQueriesWorkspace}
           glyph="CurlyBraces"
-          label="My Queries"
+          label={t('myQueries')}
           isActive={currentLocation === 'My Queries'}
         />
       )}
@@ -117,7 +119,7 @@ export function Navigation({
         <NavigationItem
           onClick={openDataModelingWorkspace}
           glyph="Diagram"
-          label="Data Modeling"
+          label={t('dataModeling')}
           isActive={currentLocation === 'Data Modeling'}
         />
       )}

@@ -11,6 +11,7 @@ import {
   proxyPreferenceToProxyOptions,
 } from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import {
   Description,
   FormFieldContainer,
@@ -19,7 +20,7 @@ import {
   RadioBoxGroup,
   TextInput,
 } from '@mongodb-js/compass-components';
-import { settingStateLabels } from './state-labels';
+import { SettingStateLabel } from './state-labels';
 import { ProxySettingsCustom } from './proxy-settings-custom';
 
 interface ProxySettingsProps {
@@ -35,6 +36,7 @@ const UnconnectedProxySettings: React.FunctionComponent<ProxySettingsProps> = ({
   proxy,
   proxySettingsState,
 }) => {
+  const { t } = useTranslation('compassSettings');
   const [proxyOptions] = useMemo(() => {
     const proxyOptions = proxyPreferenceToProxyOptions(proxy);
     return [proxyOptions];
@@ -48,7 +50,7 @@ const UnconnectedProxySettings: React.FunctionComponent<ProxySettingsProps> = ({
   );
 
   const disabled = !!proxySettingsState;
-  const stateLabel = settingStateLabels[proxySettingsState ?? ''];
+  const stateLabel = <SettingStateLabel state={proxySettingsState} />;
 
   const proxyType: ProxyType =
     typeof proxyOptions.proxy === 'string'
@@ -95,17 +97,17 @@ const UnconnectedProxySettings: React.FunctionComponent<ProxySettingsProps> = ({
             disabled={disabled}
             data-testid="no-proxy-radio"
           >
-            No Proxy
+            {t('proxyNone')}
           </RadioBox>
           <RadioBox value="env" disabled={disabled} data-testid="env-radio">
-            System Proxy
+            {t('proxySystem')}
           </RadioBox>
           <RadioBox
             value="custom"
             disabled={disabled}
             data-testid="custom-radio"
           >
-            Manual Configuration
+            {t('proxyCustom')}
           </RadioBox>
         </RadioBoxGroup>
       </FormFieldContainer>
@@ -119,12 +121,9 @@ const UnconnectedProxySettings: React.FunctionComponent<ProxySettingsProps> = ({
       {(proxyType === 'env' || proxyType === 'custom') && (
         <FormFieldContainer>
           <Label htmlFor="proxy-no-proxy-hosts" id="proxy-no-proxy-hosts-label">
-            Excluded hosts
+            {t('proxyExcludedHosts')}
           </Label>
-          <Description>
-            Comma-separated list of hostnames and IP addresses. Connections to
-            these hosts will not be forwarded through the proxy.
-          </Description>
+          <Description>{t('proxyExcludedHostsDescription')}</Description>
           <TextInput
             id="proxy-no-proxy-hosts"
             data-testid="proxy-no-proxy-hosts"

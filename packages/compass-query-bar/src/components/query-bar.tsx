@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Button,
   OptionsToggle,
@@ -19,10 +20,7 @@ import {
 } from 'compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
-import {
-  OPTION_DEFINITION,
-  type QueryOption,
-} from '../constants/query-option-definition';
+import type { QueryOption } from '../constants/query-option-definition';
 import QueryOptionComponent from './query-option';
 import QueryHistoryButtonPopover from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
@@ -106,7 +104,7 @@ const QueryOptionsToggle = connect(
 )(OptionsToggle);
 
 type QueryBarProps = {
-  buttonLabel?: string;
+  buttonLabel?: string | null;
   onApply: () => void;
   onReset: () => void;
   onOpenExportToLanguage: () => void;
@@ -131,7 +129,7 @@ type QueryBarProps = {
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
-  buttonLabel = 'Apply',
+  buttonLabel,
   onApply,
   onReset,
   // Used to specify which query options to show and where they are positioned.
@@ -155,6 +153,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   onShowAIInputClick,
   onHideAIInputClick,
 }) => {
+  const { t } = useTranslation('compassQueryBar');
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const track = useTelemetry();
@@ -176,8 +175,9 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             onShowAIInputClick();
           },
           darkMode,
-          placeholderText: OPTION_DEFINITION.filter.placeholder,
+          placeholderText: t('optionPlaceholderFilter'),
           track,
+          buttonText: t('generateQueryLabel'),
         })
       : placeholders?.filter;
   }, [
@@ -242,32 +242,33 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
                 data-testid="ai-experience-query-entry-button"
                 onClick={onShowAIInputClick}
                 type="query"
+                label={t('generateQueryLabel')}
               />
             </div>
           )}
         </div>
         {showExplainButton && (
           <Button
-            aria-label="Explain query"
-            title="View the execution plan for the current query"
+            aria-label={t('explainButtonAriaLabel')}
+            title={t('explainButtonTitle')}
             data-testid="query-bar-explain-button"
             onClick={onExplain}
             disabled={!isQueryValid || isAIFetching}
             size="small"
             type="button"
           >
-            Explain
+            {t('explainButton')}
           </Button>
         )}
         <Button
-          aria-label="Reset query"
+          aria-label={t('resetButtonAriaLabel')}
           data-testid="query-bar-reset-filter-button"
           onClick={onReset}
           disabled={!queryChanged || isAIFetching}
           size="small"
           type="button"
         >
-          Reset
+          {t('resetButton')}
         </Button>
         <Button
           data-testid="query-bar-apply-filter-button"
@@ -277,13 +278,19 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           type="submit"
           onClick={onFormSubmit}
         >
-          {buttonLabel}
+          {buttonLabel ?? t('applyButton')}
         </Button>
         {queryOptionsLayout && queryOptionsLayout.length > 0 && (
           <div>
             <QueryOptionsToggle
               aria-controls="additional-query-options-container"
               data-testid="query-bar-options-toggle"
+              label={() => t('optionsToggleLabel')}
+              aria-label={(expanded) =>
+                expanded
+                  ? t('optionsToggleLessAriaLabel')
+                  : t('optionsToggleMoreAriaLabel')
+              }
             />
           </div>
         )}

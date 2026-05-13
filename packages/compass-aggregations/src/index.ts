@@ -28,14 +28,18 @@ import { preferencesLocator } from 'compass-preferences-model/provider';
 import { atlasAiServiceLocator } from '@mongodb-js/compass-generative-ai/provider';
 import { pipelineStorageLocator } from '@mongodb-js/my-queries-storage/provider';
 import { AggregationsTabTitle } from './plugin-title';
+import { I18nProvider, initLanguage } from './i18n';
 
 const CompassAggregationsPluginProvider = registerCompassPlugin(
   {
     name: 'CompassAggregations',
     component: function AggregationsProvider({ children }) {
-      return React.createElement(React.Fragment, null, children);
+      return React.createElement(I18nProvider, null, children);
     },
-    activate: activateAggregationsPlugin,
+    activate: (...args: Parameters<typeof activateAggregationsPlugin>) => {
+      initLanguage(args[1].preferences.getPreferences().language);
+      return activateAggregationsPlugin(...args);
+    },
   },
   {
     dataService: dataServiceLocator as DataServiceLocator<

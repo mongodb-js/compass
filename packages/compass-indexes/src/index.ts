@@ -20,6 +20,7 @@ import {
   experimentationServiceLocator,
 } from '@mongodb-js/compass-telemetry/provider';
 import { IndexesTabTitle } from './plugin-title';
+import { I18nProvider, initLanguage } from './i18n';
 import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { IndexesDrawer } from './plugin-drawer';
@@ -29,9 +30,12 @@ export const CompassIndexesPluginProvider = registerCompassPlugin(
   {
     name: 'CompassIndexes',
     component: function IndexesProvider({ children }) {
-      return React.createElement(React.Fragment, null, children);
+      return React.createElement(I18nProvider, null, children);
     },
-    activate: activateIndexesPlugin,
+    activate: (...args: Parameters<typeof activateIndexesPlugin>) => {
+      initLanguage(args[1].preferences.getPreferences().language);
+      return activateIndexesPlugin(...args);
+    },
   },
   {
     dataService:

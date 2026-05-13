@@ -9,6 +9,7 @@ import { mergeProps } from '../utils/merge-props';
 
 const optionContainerStyles = css({
   textAlign: 'center',
+  whiteSpace: 'nowrap',
 });
 
 const optionsButtonStyles = css({
@@ -36,6 +37,25 @@ type OptionsToggleProps = {
   id?: string;
 };
 
+// Full-width CJK characters are ~2× the display width of ASCII chars in `ch` units
+function getLabelDisplayWidth(str: string): number {
+  let width = 0;
+  for (const char of str) {
+    const code = char.codePointAt(0) ?? 0;
+    const isFullWidth =
+      (code >= 0x1100 && code <= 0x115f) || // Hangul Jamo
+      (code >= 0x2e80 && code <= 0xa4cf) || // CJK Radicals through Yi
+      (code >= 0xac00 && code <= 0xd7af) || // Hangul Syllables
+      (code >= 0xf900 && code <= 0xfaff) || // CJK Compatibility Ideographs
+      (code >= 0xfe10 && code <= 0xfe1f) || // Vertical Forms
+      (code >= 0xfe30 && code <= 0xfe6f) || // CJK Compatibility Forms
+      (code >= 0xff01 && code <= 0xff60) || // Fullwidth Forms
+      (code >= 0xffe0 && code <= 0xffe6); // Fullwidth Signs
+    width += isFullWidth ? 2 : 1;
+  }
+  return width;
+}
+
 export const OptionsToggle: React.FunctionComponent<OptionsToggleProps> = ({
   'aria-controls': ariaControls,
   isExpanded,
@@ -53,7 +73,10 @@ export const OptionsToggle: React.FunctionComponent<OptionsToggleProps> = ({
   );
   const optionsLabel = label(isExpanded);
   const labelStyle = useMemo(() => {
-    const maxLabelLength = Math.max(label(true).length, label(false).length);
+    const maxLabelLength = Math.max(
+      getLabelDisplayWidth(label(true)),
+      getLabelDisplayWidth(label(false))
+    );
     return {
       // Maximum char length of the more / less label + icon size + button padding
       width: `calc(${maxLabelLength}ch + ${spacing[400]}px + ${spacing[200]}px)`,

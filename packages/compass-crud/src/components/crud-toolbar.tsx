@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useTelemetry,
   SkillsBannerContextEnum,
@@ -104,29 +105,10 @@ const countUnavailableTextStyles = css({
 });
 
 type ExportDataOption = 'export-query' | 'export-full-collection';
-const exportDataActions: MenuAction<ExportDataOption>[] = [
-  { action: 'export-query', label: 'Export query results' },
-  { action: 'export-full-collection', label: 'Export the full collection' },
-];
-
 type ExpandControlsOption = 'expand-all' | 'collapse-all';
-const expandControlsOptions: MenuAction<ExpandControlsOption>[] = [
-  { action: 'expand-all', label: 'Expand all documents' },
-  { action: 'collapse-all', label: 'Collapse all documents' },
-];
-
-const OUTDATED_WARNING = `The content is outdated and no longer in sync
-with the current query. Press "Find" again to see the results for
-the current query.`;
 
 // From https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml#L86
 const ERROR_CODE_OPERATION_TIMED_OUT = 50;
-
-const INCREASE_MAX_TIME_MS_HINT =
-  'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the expanded filter options.';
-
-const countUnavailableTooltipText = (maxTimeMS: number) =>
-  `The count is not available for this query. This can happen when the count operation fails or exceeds the maxTimeMS of ${maxTimeMS}.`;
 
 type ErrorWithPossibleCode = Error & {
   code?: {
@@ -210,8 +192,25 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   docsPerPage,
   updateMaxDocumentsPerPage,
 }) => {
+  const { t } = useTranslation('compassCrud');
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
+
+  const exportDataActions = useMemo<MenuAction<ExportDataOption>[]>(
+    () => [
+      { action: 'export-query', label: t('exportQueryResults') },
+      { action: 'export-full-collection', label: t('exportFullCollection') },
+    ],
+    [t]
+  );
+
+  const expandControlsOptions = useMemo<MenuAction<ExpandControlsOption>[]>(
+    () => [
+      { action: 'expand-all', label: t('expandAllDocuments') },
+      { action: 'collapse-all', label: t('collapseAllDocuments') },
+    ],
+    [t]
+  );
   const isImportExportEnabled = usePreference('enableImportExport');
   const [dismissed, setDismissed] = usePersistedState(
     'mongodb_compass_dismissedAtlasDocSkillBanner',
@@ -250,20 +249,20 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
         telemetryLabel: 'Expand all documents',
         items: [
           {
-            label: 'Expand all documents',
+            label: t('expandAllDocuments'),
             onAction: () => {
               onExpandAllClicked();
             },
           },
           {
-            label: 'Collapse all documents',
+            label: t('collapseAllDocuments'),
             onAction: () => {
               onCollapseAllClicked();
             },
           },
           isImportExportEnabled
             ? {
-                label: 'Import JSON or CSV file',
+                label: t('contextMenuImportFile'),
                 onAction: () => {
                   insertDataHandler('import-file');
                 },
@@ -271,7 +270,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             : undefined,
           !readonly
             ? {
-                label: 'Insert document...',
+                label: t('contextMenuInsertDocument'),
                 onAction: () => {
                   insertDataHandler('insert-document');
                 },
@@ -280,13 +279,13 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           ...(isImportExportEnabled
             ? [
                 {
-                  label: 'Export query results...',
+                  label: t('contextMenuExportQueryResults'),
                   onAction: () => {
                     openExportFileDialog(false);
                   },
                 },
                 {
-                  label: 'Export full collection...',
+                  label: t('contextMenuExportFullCollection'),
                   onAction: () => {
                     openExportFileDialog(true);
                   },
@@ -296,13 +295,13 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           ...(!readonly && isWritable && !shouldDisableBulkOp
             ? [
                 {
-                  label: 'Bulk update',
+                  label: t('contextMenuBulkUpdate'),
                   onAction: () => {
                     onUpdateButtonClicked();
                   },
                 },
                 {
-                  label: 'Bulk delete',
+                  label: t('contextMenuBulkDelete'),
                   onAction: () => {
                     onDeleteButtonClicked();
                   },
@@ -310,7 +309,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               ]
             : []),
           {
-            label: 'Refresh',
+            label: t('contextMenuRefresh'),
             onAction: () => {
               onClickRefreshDocuments();
             },
@@ -319,6 +318,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
       },
     ],
     [
+      t,
       isImportExportEnabled,
       readonly,
       isWritable,
@@ -339,7 +339,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
         <QueryBar
           source="crud"
           resultId={resultId}
-          buttonLabel="Find"
+          buttonLabel={t('queryBarFindButton')}
           onApply={onApplyClicked}
           onReset={onResetClicked}
           showExplainButton={enableExplainPlan}
@@ -347,7 +347,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
       </div>
 
       <AtlasSkillsBanner
-        ctaText="Practice creating, reading, updating, and deleting documents efficiently."
+        ctaText={t('atlasSkillsBannerCta')}
         skillsUrl="https://learn.mongodb.com/courses/crud-operations-in-mongodb?team=growth"
         onCloseSkillsBanner={() => {
           setDismissed(true);
@@ -380,7 +380,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               isWritable={isWritable && !shouldDisableBulkOp}
               disabledTooltip={
                 isWritable
-                  ? 'Remove limit and skip in your query to perform an update'
+                  ? t('updateMenuDisabledTooltip')
                   : instanceDescription
               }
               onClick={onUpdateButtonClicked}
@@ -391,7 +391,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               isWritable={isWritable && !shouldDisableBulkOp}
               disabledTooltip={
                 isWritable
-                  ? 'Remove limit and skip in your query to perform a delete'
+                  ? t('deleteMenuDisabledTooltip')
                   : instanceDescription
               }
               onClick={onDeleteButtonClicked}
@@ -404,7 +404,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
               onAction={(action: ExportDataOption) =>
                 openExportFileDialog(action === 'export-full-collection')
               }
-              buttonText="Export Data"
+              buttonText={t('exportDataButton')}
               buttonProps={{
                 className: exportCollectionButtonStyles,
                 size: 'xsmall',
@@ -415,14 +415,16 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           )}
           <Button
             onClick={onOpenExportToLanguage}
-            title="Export query to language"
-            aria-label="Export query to language"
+            title={t('exportToLanguageTitle')}
+            aria-label={t('exportToLanguageTitle')}
             data-testid="crud-export-to-language-button"
             className={exportCollectionButtonStyles}
             size="xsmall"
             leftGlyph={<Icon glyph="Code" />}
           >
-            <span className={exportCodeButtonTextStyles}>Export Code</span>
+            <span className={exportCodeButtonTextStyles}>
+              {t('exportCodeButton')}
+            </span>
           </Button>
           {insights && <SignalPopover signals={insights} />}
         </div>
@@ -433,7 +435,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             disabled={isFetching}
             allowDeselect={false}
             dropdownWidthBasis="option"
-            aria-label="Update number of documents per page"
+            aria-label={t('docsPerPageAriaLabel')}
             value={`${docsPerPage}`}
             onChange={(value: string) =>
               updateMaxDocumentsPerPage(parseInt(value))
@@ -453,7 +455,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             {start} – {end}{' '}
             {!loadingCount && (
               <span>
-                {'of '}
+                {t('countOf')}{' '}
                 {count ?? (
                   <Tooltip
                     trigger={
@@ -461,12 +463,14 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
                         data-testid="crud-document-count-unavailable"
                         className={countUnavailableTextStyles}
                       >
-                        N/A
+                        {t('countUnavailable')}
                       </span>
                     }
                   >
                     <Body>
-                      {countUnavailableTooltipText(lastCountRunMaxTimeMS)}
+                      {t('countUnavailableTooltip', {
+                        maxTimeMS: lastCountRunMaxTimeMS,
+                      })}
                     </Body>
                   </Tooltip>
                 )}
@@ -475,13 +479,13 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           </Body>
           {loadingCount && (
             <div className={loaderContainerStyles}>
-              <SpinLoader size="12px" title="Fetching document count…" />
+              <SpinLoader size="12px" title={t('fetchingDocumentCount')} />
             </div>
           )}
           {!loadingCount && !isFetching && (
             <IconButton
-              aria-label="Refresh documents"
-              title="Refresh documents"
+              aria-label={t('refreshDocumentsLabel')}
+              title={t('refreshDocumentsLabel')}
               data-testid="refresh-documents-button"
               onClick={onClickRefreshDocuments}
             >
@@ -492,8 +496,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           <div className={prevNextStyles}>
             <IconButton
               data-testid="docs-toolbar-prev-page-btn"
-              aria-label="Previous Page"
-              title="Previous Page"
+              aria-label={t('previousPageLabel')}
+              title={t('previousPageLabel')}
               onClick={() => getPage(page - 1)}
               disabled={prevButtonDisabled}
             >
@@ -501,8 +505,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             </IconButton>
             <IconButton
               data-testid="docs-toolbar-next-page-btn"
-              aria-label="Next Page"
-              title="Next Page"
+              aria-label={t('nextPageLabel')}
+              title={t('nextPageLabel')}
               onClick={() => getPage(page + 1)}
               disabled={nextButtonDisabled}
             >
@@ -522,8 +526,8 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             buttonProps={{
               className: outputOptionsButtonStyles,
               size: 'xsmall',
-              title: 'Output Options',
-              ['aria-label']: 'Output Options',
+              title: t('outputOptionsLabel'),
+              ['aria-label']: t('outputOptionsLabel'),
               disabled: activeDocumentView === 'Table',
             }}
           />
@@ -539,7 +543,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           data-testid="document-list-error-summary"
           errors={
             isOperationTimedOutError(error)
-              ? INCREASE_MAX_TIME_MS_HINT
+              ? t('operationTimedOutHint')
               : error.message
           }
         />
@@ -547,7 +551,7 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
       {outdated && !error && (
         <WarningSummary
           data-testid="crud-outdated-message-id"
-          warnings={[OUTDATED_WARNING]}
+          warnings={[t('outdatedWarning')]}
         />
       )}
     </div>

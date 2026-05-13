@@ -15,6 +15,7 @@ import {
   Tooltip,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import { useTranslation } from 'react-i18next';
 
 const containerStyles = css({
   display: 'flex',
@@ -43,10 +44,11 @@ const importantIconStylesDark = css({
 });
 
 const ErrorIcon = ({ darkMode }: { darkMode: boolean }) => {
+  const { t } = useTranslation('compassGlobalWrites');
   return (
     <Icon
       glyph="Warning"
-      aria-label="warning"
+      aria-label={t('warningIconLabel')}
       className={cx(
         warningIconStyles,
         warningIconStylesLight,
@@ -57,10 +59,11 @@ const ErrorIcon = ({ darkMode }: { darkMode: boolean }) => {
 };
 
 const WarningIcon = ({ darkMode }: { darkMode: boolean }) => {
+  const { t } = useTranslation('compassGlobalWrites');
   return (
     <Icon
       glyph="ImportantWithCircle"
-      aria-label="important"
+      aria-label={t('importantIconLabel')}
       className={cx(
         warningIconStyles,
         importantIconStylesLight,
@@ -77,10 +80,11 @@ export const PluginTitle = ({
   showError: boolean;
   showWarning: boolean;
 }) => {
+  const { t } = useTranslation('compassGlobalWrites');
   const darkMode = !!useDarkMode();
   return (
     <div data-testid="global-writes-tab-title" className={containerStyles}>
-      Global Writes{' '}
+      {t('tabName')}{' '}
       {(showError || showWarning) && (
         <Tooltip
           data-testid="collection-stats-tooltip"
@@ -102,12 +106,7 @@ export const PluginTitle = ({
             </span>
           }
         >
-          <Body>
-            Collections in Atlas Global Clusters with Atlas-managed sharding
-            must be configured with a compound shard key made up of both a
-            &apos;location&apos; field and an identifier field that you provide.
-            Please configure sharding here.
-          </Body>
+          <Body>{t('shardKeyTooltip')}</Body>
         </Tooltip>
       )}
     </div>

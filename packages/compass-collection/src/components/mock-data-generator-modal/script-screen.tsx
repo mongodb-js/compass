@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
+import { Trans, useTranslation } from 'react-i18next';
 import {
   Banner,
   Body,
@@ -100,6 +101,7 @@ const ScriptScreen = ({
   arrayLengthMap,
   documentCount,
 }: ScriptScreenProps) => {
+  const { t } = useTranslation('compassCollection');
   const isDarkMode = useDarkMode();
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
@@ -151,35 +153,42 @@ const ScriptScreen = ({
 
   return (
     <section className={outerSectionStyles}>
-      <Body>
-        We&apos;ve created the following script for your use. The script can be
-        edited to generate mock data for any collection you specify.
-      </Body>
+      <Body>{t('scriptIntroText')}</Body>
       {!scriptResult.success && (
         <Banner variant="danger">
-          <strong>Script Generation Failed:</strong> {scriptResult.error}
+          <strong>{t('scriptGenerationFailedTitle')}</strong>{' '}
+          {scriptResult.error}
           <br />
-          Please go back to the start screen to re-submit the collection schema.
+          {t('scriptGenerationFailedNote')}
         </Banner>
       )}
       <section>
         <Body as="h2" baseFontSize={16} weight="medium">
-          Prerequisites
+          {t('prerequisitesTitle')}
         </Body>
-        <Body className={instructionTextStyle}>
-          To run the generated script, you must:
-        </Body>
+        <Body className={instructionTextStyle}>{t('prerequisitesIntro')}</Body>
         <ul className={listStyles}>
           <li>
-            Install{' '}
-            <Link href="https://www.mongodb.com/docs/mongodb-shell/install/">
-              mongosh
-            </Link>{' '}
-            (2.5 or later)
+            <Trans
+              i18nKey="installMongosh"
+              ns="compassCollection"
+              components={{
+                mongoshLink: (
+                  <Link href="https://www.mongodb.com/docs/mongodb-shell/install/" />
+                ),
+              }}
+            />
           </li>
           <li>
-            Install{' '}
-            <Link href="https://fakerjs.dev/guide/#installation">faker.js</Link>
+            <Trans
+              i18nKey="installFakerjs"
+              ns="compassCollection"
+              components={{
+                fakerjsLink: (
+                  <Link href="https://fakerjs.dev/guide/#installation" />
+                ),
+              }}
+            />
             <Copyable
               className={copyableStyles}
               onCopy={() =>
@@ -193,13 +202,14 @@ const ScriptScreen = ({
       </section>
       <section>
         <Body as="h2" baseFontSize={16} weight="medium">
-          1. Create a .js file with the following script
+          {t('createJsFileTitle')}
         </Body>
         <Body className={sectionInstructionStyles}>
-          In the directory that you created, create a file named{' '}
-          <strong>mockdatascript.js</strong> (or any name you&apos;d like).
-          Change the DB_NAME and COLL_NAME in the below script to any database
-          or collection you&apos;d like to add mock data to.
+          <Trans
+            i18nKey="createJsFileDescription"
+            ns="compassCollection"
+            components={{ strong: <strong /> }}
+          />
         </Body>
         <Code
           copyButtonAppearance={scriptResult.success ? 'hover' : 'persist'}
@@ -211,21 +221,23 @@ const ScriptScreen = ({
         >
           {scriptResult.success
             ? scriptResult.script
-            : '// Script generation failed.'}
+            : t('scriptGenerationFailed')}
         </Code>
       </section>
       <section>
         <Body as="h2" baseFontSize={16} weight="medium">
-          2. Run the script with <InlineCode>mongosh</InlineCode>
+          <Trans
+            i18nKey="runScriptTitle"
+            ns="compassCollection"
+            components={{ mongosh: <InlineCode /> }}
+          />
         </Body>
         <Body className={sectionInstructionStyles}>
-          In the same working directory run the command below. Please{' '}
-          <strong>paste in your username and password</strong> where there are
-          placeholders.{' '}
-          <em>
-            Note that this will add data to your cluster and will not be
-            reversible.
-          </em>
+          <Trans
+            i18nKey="runScriptDescription"
+            ns="compassCollection"
+            components={{ strong: <strong />, em: <em /> }}
+          />
         </Body>
         <Code
           language={Language.Bash}
@@ -240,16 +252,18 @@ const ScriptScreen = ({
           isDarkMode ? resourceSectionDarkStyles : resourceSectionLightStyles
         )}
       >
-        <Overline className={resourceSectionHeader}>Resources</Overline>
+        <Overline className={resourceSectionHeader}>
+          {t('resourcesTitle')}
+        </Overline>
         <ul>
           <li>
             <Link href="https://www.mongodb.com/docs/atlas/synthetic-data/">
-              Generating Synthetic Data with MongoDB
+              {t('resourceSyntheticData')}
             </Link>
           </li>
           <li>
             <Link href="https://www.mongodb.com/docs/mongodb-shell/">
-              Learn About the MongoDB Shell
+              {t('resourceMongoShell')}
             </Link>
           </li>
           {connectionInfo.atlasMetadata &&
@@ -260,7 +274,7 @@ const ScriptScreen = ({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  Access your Database Users
+                  {t('resourceDatabaseUsers')}
                 </Link>
               </li>
             )}

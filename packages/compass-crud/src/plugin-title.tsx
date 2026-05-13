@@ -9,6 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 import type { CrudStore } from './stores/crud-store';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useTranslation } from 'react-i18next';
 
 const tooltipContentStyles = css({
   listStyleType: 'none',
@@ -84,6 +85,7 @@ export const CrudTabTitle = ({
 }: {
   store: CrudStore;
 }) => {
+  const { t } = useTranslation('compassCrud');
   const { documentCount, storageSize, avgDocumentSize } = useMemo(() => {
     const {
       document_count = NaN,
@@ -100,14 +102,14 @@ export const CrudTabTitle = ({
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
 
   const details = [
-    `Documents: ${documentCount}`,
-    `Storage Size: ${storageSize}`,
-    `Avg. Size: ${avgDocumentSize}`,
+    t('statsDocuments', { count: documentCount }),
+    t('statsStorageSize', { size: storageSize }),
+    t('statsAvgSize', { size: avgDocumentSize }),
   ];
 
   return (
     <div data-testid="documents-tab-title" className={containerStyles}>
-      Documents
+      {t('tabName')}
       {enableDbAndCollStats && (
         <CollectionStats text={documentCount} details={details} />
       )}

@@ -6,6 +6,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { useTranslation } from 'react-i18next';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import React from 'react';
 import { usePreferences } from 'compass-preferences-model/provider';
@@ -41,6 +42,7 @@ const CollectionHeaderActions: React.FunctionComponent<
   sourceName,
   sourcePipeline,
 }: CollectionHeaderActionsProps) => {
+  const { t } = useTranslation('compassCollection');
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
   const { openCollectionWorkspace, openEditViewWorkspace, openShellWorkspace } =
@@ -73,7 +75,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           }}
           leftGlyph={<Icon glyph="Shell"></Icon>}
         >
-          Open MongoDB shell
+          {t('openShellButton')}
         </Button>
       )}
 
@@ -86,7 +88,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           rel="noopener noreferrer"
           leftGlyph={<Icon glyph="TimeSeries" />}
         >
-          View monitoring
+          {t('viewMonitoringButton')}
         </Button>
       )}
       {atlasMetadata && (
@@ -98,7 +100,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           rel="noopener noreferrer"
           leftGlyph={<Icon glyph="Charts" />}
         >
-          Visualize Your Data
+          {t('visualizeDataButton')}
         </Button>
       )}
       {showViewEdit && (
@@ -115,7 +117,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           }}
         >
           <Icon glyph="Edit" />
-          Edit Pipeline
+          {t('editPipelineButton')}
         </Button>
       )}
       {editViewName && (
@@ -129,7 +131,7 @@ const CollectionHeaderActions: React.FunctionComponent<
           }}
         >
           <Icon glyph="ArrowLeft" />
-          Return to View
+          {t('returnToViewButton')}
         </Button>
       )}
     </div>

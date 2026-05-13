@@ -48,6 +48,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
+    "@mongodb-js/compass-i18n": "^0.0.1",
     "@mongodb-js/compass-components": "^1.66.1",
     "@mongodb-js/compass-connections": "^1.102.1",
     "@mongodb-js/compass-context-menu": "^0.3.12",

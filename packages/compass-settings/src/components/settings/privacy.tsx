@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from '@mongodb-js/compass-components';
 import SettingsList from './settings-list';
 
@@ -10,21 +11,17 @@ const privacyFields = [
 ] as const;
 
 export const PrivacySettings: React.FunctionComponent = () => {
+  const { t } = useTranslation('compassSettings');
   return (
     <div data-testid="privacy-settings">
-      <div>
-        To enhance the user experience, Compass can integrate with 3rd party
-        services, which requires external network requests. Please choose from
-        the settings below:
-      </div>
+      <div>{t('privacyIntro')}</div>
       <SettingsList fields={privacyFields} />
       <div>
-        With any of these options, none of your personal information or stored
-        data will be submitted.
+        {t('privacyOutro')}
         <br />
-        Learn more:&nbsp;
+        {t('privacyLearnMore')}&nbsp;
         <Link href="https://www.mongodb.com/legal/privacy-policy">
-          MongoDB Privacy Policy
+          {t('privacyPolicy')}
         </Link>
       </div>
     </div>

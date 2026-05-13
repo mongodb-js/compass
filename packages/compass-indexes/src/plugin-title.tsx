@@ -10,6 +10,7 @@ import {
   compactNumber,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useTranslation } from 'react-i18next';
 
 const containerStyles = css({
   display: 'flex',
@@ -90,6 +91,7 @@ const TabTitle = ({
 }: {
   collectionStats: RootState['collectionStats'];
 }) => {
+  const { t } = useTranslation('compassIndexes');
   const { indexCount, totalIndexSize, avgIndexSize } = useMemo(() => {
     const { index_count = NaN, index_size = NaN } = collectionStats ?? {};
     return {
@@ -102,14 +104,14 @@ const TabTitle = ({
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
 
   const details = [
-    `Indexes: ${indexCount}`,
-    `Total Size: ${totalIndexSize}`,
-    `Avg. Size: ${avgIndexSize}`,
+    t('statsIndexes', { count: indexCount }),
+    t('statsTotalSize', { size: totalIndexSize }),
+    t('statsAvgSize', { size: avgIndexSize }),
   ];
 
   return (
     <div data-testid="indexes-tab-title" className={containerStyles}>
-      Indexes
+      {t('tabName')}
       {enableDbAndCollStats && (
         <CollectionStats text={indexCount} details={details} />
       )}

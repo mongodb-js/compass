@@ -18,11 +18,22 @@ export { connectionSupports, connectable } from './utils/connection-supports';
 import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
 import { useInitialValue } from '@mongodb-js/compass-components';
 import ConnectionsComponent from './stores/connections';
+import { I18nProvider, initLanguage } from './i18n';
+
+function ConnectionsComponentWithI18n(
+  props: React.ComponentProps<typeof ConnectionsComponent>
+): React.ReactElement {
+  return React.createElement(
+    I18nProvider,
+    null,
+    React.createElement(ConnectionsComponent, props)
+  );
+}
 
 const CompassConnectionsPlugin = registerCompassPlugin(
   {
     name: 'CompassConnections',
-    component: ConnectionsComponent,
+    component: ConnectionsComponentWithI18n,
     activate(
       initialProps,
       {
@@ -35,6 +46,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
       },
       { addCleanup, cleanup }
     ) {
+      initLanguage(preferences.getPreferences().language);
       const store = configureStore(initialProps.preloadStorageConnectionInfos, {
         logger,
         preferences,

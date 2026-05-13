@@ -15,3 +15,4 @@ export {
   ConnectionsNavigationTree,
   type ConnectionsNavigationTreeProps,
 } from './connections-navigation-tree';
+export { I18nProvider, initLanguage } from './i18n';

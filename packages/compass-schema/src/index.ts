@@ -15,13 +15,14 @@ import { preferencesLocator } from 'compass-preferences-model/provider';
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { SchemaTabTitle } from './plugin-title';
+import { I18nProvider, initLanguage } from './i18n';
 
 const CompassSchemaPluginProvider = registerCompassPlugin(
   {
     name: 'CompassSchemaPlugin',
     component: function SchemaProvider({ children, ...props }) {
       return React.createElement(
-        React.Fragment,
+        I18nProvider,
         null,
         // Cloning children with props is a workaround for reflux store.
         React.isValidElement(children)
@@ -29,7 +30,10 @@ const CompassSchemaPluginProvider = registerCompassPlugin(
           : null
       );
     },
-    activate: activateSchemaPlugin,
+    activate: (...args: Parameters<typeof activateSchemaPlugin>) => {
+      initLanguage(args[1].preferences.getPreferences().language);
+      return activateSchemaPlugin(...args);
+    },
   },
   {
     dataService:

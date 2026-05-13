@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import {
   FormFieldContainer,
   Checkbox,
@@ -17,7 +18,7 @@ import type {
   PreferenceStateInformation,
   THEMES,
 } from 'compass-preferences-model';
-import { settingStateLabels } from './state-labels';
+import { SettingStateLabel } from './state-labels';
 
 type ThemeSettingsProps = {
   onChange: (field: 'theme', value: THEMES) => void;
@@ -90,6 +91,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
   preferenceStates,
   onChange,
 }) => {
+  const { t } = useTranslation('compassSettings');
   const handleOSCheckboxChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
       onChange('theme', event.target.checked ? 'OS_THEME' : 'LIGHT');
@@ -105,7 +107,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
 
   return (
     <div data-testid="theme-settings">
-      <div>Change the appearance of Compass.</div>
+      <div>{t('themeIntro')}</div>
 
       <FormFieldContainer>
         <Checkbox
@@ -115,18 +117,15 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
           data-testid="use-os-theme"
           label={
             <>
-              <Label htmlFor="use-os-theme">Sync with OS</Label>
-              <Description>
-                Automatically switch between light and dark themes based on your
-                OS settings
-              </Description>
+              <Label htmlFor="use-os-theme">{t('themeSyncWithOS')}</Label>
+              <Description>{t('themeSyncWithOSDescription')}</Description>
             </>
           }
           onChange={handleOSCheckboxChange}
           checked={themeValue === 'OS_THEME'}
           disabled={!!preferenceStates.theme}
         />
-        {settingStateLabels[preferenceStates.theme ?? '']}
+        <SettingStateLabel state={preferenceStates.theme} />
       </FormFieldContainer>
       <FormFieldContainer>
         <RadioBoxGroup
@@ -143,7 +142,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
             disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
           >
             <ThemeIcon theme="LIGHT" />
-            Light Theme
+            {t('themeLight')}
           </RadioBox>
           <RadioBox
             id="theme-selector-dark"
@@ -153,7 +152,7 @@ export const ThemeSettings: React.FunctionComponent<ThemeSettingsProps> = ({
             disabled={!!preferenceStates.theme || themeValue === 'OS_THEME'}
           >
             <ThemeIcon theme="DARK" />
-            Dark Theme
+            {t('themeDark')}
           </RadioBox>
         </RadioBoxGroup>
       </FormFieldContainer>

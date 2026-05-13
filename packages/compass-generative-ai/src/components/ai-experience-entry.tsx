@@ -93,10 +93,12 @@ function AIExperienceEntry({
   'data-testid': dataTestId = 'open-gen-ai-button',
   type,
   onClick,
+  label,
 }: {
   ['data-testid']?: string;
   type: 'aggregation' | 'query';
   onClick: () => void;
+  label?: string;
 }) {
   const darkMode = useDarkMode();
   const track = useTelemetry();
@@ -105,6 +107,8 @@ function AIExperienceEntry({
     track('AI Generate Query Clicked', { type });
     onClick();
   }, [track, onClick, type]);
+
+  const displayLabel = label ?? `Generate ${type}`;
 
   return (
     <button
@@ -115,9 +119,9 @@ function AIExperienceEntry({
       onClick={handleClick}
       data-testid={dataTestId}
       type="button"
-      title={`Generate ${type}`}
+      title={displayLabel}
     >
-      <span className={hiddenOnNarrowStyles}>Generate {type}</span>
+      <span className={hiddenOnNarrowStyles}>{displayLabel}</span>
       <AIEntrySVG darkMode={darkMode} />
     </button>
   );
@@ -130,11 +134,13 @@ function createAIPlaceholderHTMLPlaceholder({
   darkMode,
   placeholderText,
   track,
+  buttonText,
 }: {
   onClickAI: () => void;
   darkMode?: boolean;
   placeholderText: string;
   track: TrackFunction;
+  buttonText?: string;
 }): () => HTMLElement {
   const containerEl = document.createElement('div');
 
@@ -165,7 +171,7 @@ function createAIPlaceholderHTMLPlaceholder({
     darkMode ? aiEntryDarkModeStyles : aiEntryLightModeStyles
   );
 
-  const aiButtonContent = `<span>Generate query</span>
+  const aiButtonContent = `<span>${buttonText ?? 'Generate query'}</span>
 ${getAIEntrySVGString()}`;
   aiButtonEl.innerHTML = aiButtonContent;
 

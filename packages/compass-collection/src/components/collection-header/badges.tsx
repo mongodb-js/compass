@@ -1,5 +1,6 @@
 import { Badge, BadgeVariant, Icon, css } from '@mongodb-js/compass-components';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const collectionHeaderBadgeStyles = css({
   whiteSpace: 'nowrap',
@@ -12,47 +13,53 @@ export type CollectionBadgeType =
   | 'fle'
   | 'clustered';
 
-const badges: Readonly<
-  Record<
-    CollectionBadgeType,
-    { label: React.ReactNode; variant?: BadgeVariant }
-  >
-> = {
-  readonly: {
-    label: 'READ-ONLY',
-    variant: BadgeVariant.LightGray,
-  },
-  timeseries: {
-    label: (
-      <>
-        <Icon glyph="TimeSeries" title="Time-Series Collection" />
-        &nbsp;TIME-SERIES
-      </>
-    ),
-  },
-  view: {
-    label: (
-      <>
-        <Icon glyph="Visibility" title="View" />
-        &nbsp;VIEW
-      </>
-    ),
-  },
-  fle: {
-    label: (
-      <>
-        {/* Queryable Encryption is the user-facing name of FLE2 */}
-        <Icon glyph="Key" title="Queryable Encryption" size="small" />
-        &nbsp;Queryable Encryption
-      </>
-    ),
-  },
-  clustered: {
-    label: 'CLUSTERED',
-  },
-};
-
 export const CollectionBadge = ({ type }: { type: CollectionBadgeType }) => {
+  const { t } = useTranslation('compassCollection');
+
+  const badges: Readonly<
+    Record<
+      CollectionBadgeType,
+      { label: React.ReactNode; variant?: BadgeVariant }
+    >
+  > = {
+    readonly: {
+      label: t('badgeReadOnly'),
+      variant: BadgeVariant.LightGray,
+    },
+    timeseries: {
+      label: (
+        <>
+          <Icon glyph="TimeSeries" title={t('badgeTimeSeriesIconTitle')} />
+          &nbsp;{t('badgeTimeSeriesLabel')}
+        </>
+      ),
+    },
+    view: {
+      label: (
+        <>
+          <Icon glyph="Visibility" title={t('badgeViewIconTitle')} />
+          &nbsp;{t('badgeViewLabel')}
+        </>
+      ),
+    },
+    fle: {
+      label: (
+        <>
+          {/* Queryable Encryption is the user-facing name of FLE2 */}
+          <Icon
+            glyph="Key"
+            title={t('badgeQueryableEncryptionIconTitle')}
+            size="small"
+          />
+          &nbsp;{t('badgeQueryableEncryptionLabel')}
+        </>
+      ),
+    },
+    clustered: {
+      label: t('badgeClustered'),
+    },
+  };
+
   const { label, variant } = badges[type];
   return (
     <Badge

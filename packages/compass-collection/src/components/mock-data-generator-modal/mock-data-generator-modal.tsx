@@ -14,10 +14,7 @@ import {
 } from '@mongodb-js/compass-components';
 
 import { type MockDataGeneratorStep, MockDataGeneratorSteps } from './types';
-import {
-  MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
-  StepButtonLabelMap,
-} from './constants';
+import { MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP } from './constants';
 import { validateDocumentCount } from './utils';
 import type { CollectionState } from '../../modules/collection-tab';
 import {
@@ -38,6 +35,7 @@ import {
   useIsAIFeatureEnabled,
   usePreference,
 } from 'compass-preferences-model/provider';
+import { useTranslation } from 'react-i18next';
 
 const footerStyles = css`
   flex-direction: row;
@@ -78,6 +76,7 @@ const MockDataGeneratorModal = ({
   fakerSchemaGenerationStatus,
   documentCount,
 }: Props) => {
+  const { t } = useTranslation('compassCollection');
   const track = useTelemetry();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const isSampleDocumentPassingEnabled = usePreference(
@@ -157,7 +156,7 @@ const MockDataGeneratorModal = ({
       }}
       data-testid="generate-mock-data-modal"
     >
-      <ModalHeader title="Generate Mock Data Script" />
+      <ModalHeader title={t('modalTitle')} />
       <ModalBody>
         {shouldShowNamespace && (
           <Body className={namespaceStyles}>{namespace}</Body>
@@ -171,17 +170,21 @@ const MockDataGeneratorModal = ({
           onClick={onPreviousStep}
           disabled={currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION}
         >
-          Back
+          {t('backButton')}
         </Button>
         <div className={rightButtonsStyles}>
-          <Button onClick={onModalClose}>Cancel</Button>
+          <Button onClick={onModalClose}>{t('cancelButton')}</Button>
           <Button
             variant={ButtonVariant.Primary}
             onClick={handleNextClick}
             data-testid="next-step-button"
             disabled={isNextButtonDisabled}
           >
-            {StepButtonLabelMap[currentStep]}
+            {currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION
+              ? t('stepConfirmButton')
+              : currentStep === MockDataGeneratorSteps.PREVIEW_AND_DOC_COUNT
+              ? t('stepGenerateScriptButton')
+              : t('stepDoneButton')}
           </Button>
         </div>
       </ModalFooter>

@@ -7,42 +7,19 @@ import {
   WebWelcomeTab,
 } from './components';
 import { PluginTabTitleComponent, WorkspaceName } from './plugin-tab-title';
-import {
-  preferencesLocator,
-  usePreference,
-} from 'compass-preferences-model/provider';
-import { I18nextProvider } from 'react-i18next';
-import i18n from './i18n';
+import { preferencesLocator } from 'compass-preferences-model/provider';
+import { I18nProvider, initLanguage } from './i18n';
 import { applyMiddleware, createStore } from 'redux';
 import thunk from 'redux-thunk';
 import welcomeModalStore from './stores/welcome-modal-store';
 
-// Provides the i18n instance via context and keeps it in sync with the
-// language preference. Using I18nextProvider (rather than passing { i18n }
-// directly to useTranslation) is what makes react-i18next's event subscription
-// work so components re-render immediately when changeLanguage resolves.
-function I18nProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}): React.ReactElement {
-  const language = usePreference('language');
-  React.useEffect(() => {
-    void i18n.changeLanguage(language);
-  }, [language]);
-  return React.createElement(I18nextProvider, { i18n }, children);
-}
-
 const WorkspaceTabProvider = registerCompassPlugin(
   {
     name: WorkspaceName,
-    component: ({ children }) => {
-      return React.createElement(I18nProvider, null, children);
-    },
-    // Set language before the first render so the initial paint is correct.
+    component: ({ children }) =>
+      React.createElement(I18nProvider, null, children),
     activate(_initialProps, services) {
-      const { language } = services.preferences.getPreferences();
-      void i18n.changeLanguage(language);
+      initLanguage(services.preferences.getPreferences().language);
       return { store: {}, deactivate: () => undefined };
     },
   },
@@ -67,8 +44,8 @@ function WelcomeModalWithI18n(
   props: React.ComponentProps<typeof WelcomeModalComponent>
 ): React.ReactElement {
   return React.createElement(
-    I18nextProvider,
-    { i18n },
+    I18nProvider,
+    null,
     React.createElement(WelcomeModalComponent, props)
   );
 }
@@ -80,7 +57,7 @@ export const WelcomeModal = registerCompassPlugin(
     activate(_initialProps, services, { cleanup }) {
       const { showedNetworkOptIn, language } =
         services.preferences.getPreferences();
-      void i18n.changeLanguage(language);
+      initLanguage(language);
       const store = createStore(
         welcomeModalStore,
         { isOpen: !showedNetworkOptIn },

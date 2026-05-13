@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 
 import type { RootState } from '../../stores';
 import SettingsList from './settings-list';
@@ -8,9 +9,10 @@ export const GenAISettings: React.FunctionComponent<{
   isAIFeatureEnabled: boolean;
   isToolCallingEnabled: boolean;
 }> = ({ isAIFeatureEnabled, isToolCallingEnabled }) => {
+  const { t } = useTranslation('compassSettings');
   return (
     <div data-testid="gen-ai-settings">
-      <div>Provides access to advanced generative AI capabilities.</div>
+      <div>{t('genAiIntro')}</div>
       <SettingsList fields={['enableGenAIFeatures']} />
 
       {isAIFeatureEnabled && (

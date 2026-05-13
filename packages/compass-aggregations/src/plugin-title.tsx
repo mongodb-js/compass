@@ -1,5 +1,7 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function AggregationsTabTitle() {
-  return <div data-testid="aggregations-tab-title">Aggregations</div>;
+  const { t } = useTranslation('compassAggregations');
+  return <div data-testid="aggregations-tab-title">{t('tabName')}</div>;
 }

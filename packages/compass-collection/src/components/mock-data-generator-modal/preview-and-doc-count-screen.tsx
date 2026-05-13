@@ -1,6 +1,7 @@
 import React, { useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
 import HadronDocument from 'hadron-document';
+import { Trans, useTranslation } from 'react-i18next';
 
 import {
   css,
@@ -105,6 +106,7 @@ const PreviewAndDocCountScreen = ({
   arrayLengthMap,
   onDocumentCountChanged,
 }: PreviewAndDocCountScreenProps) => {
+  const { t } = useTranslation('compassCollection');
   const track = useTelemetry();
   const valueOnFocusRef = useRef(documentCount);
   const validationState = validateDocumentCount(documentCount);
@@ -115,7 +117,7 @@ const PreviewAndDocCountScreen = ({
       !avgDocumentSize ||
       !validationState.parsedValue
     ) {
-      return 'Not available';
+      return t('estimatedDiskSizeNotAvailable');
     }
     return formatBytes(avgDocumentSize * validationState.parsedValue);
   }, [validationState, avgDocumentSize]);
@@ -169,17 +171,15 @@ const PreviewAndDocCountScreen = ({
   return (
     <div className={containerStyles} data-testid="preview-and-doc-count-screen">
       <section className={docCountSectionStyles}>
-        <Body className={sectionTitleStyles}>
-          Specify Number of Documents to Generate
-        </Body>
+        <Body className={sectionTitleStyles}>{t('specifyDocCountTitle')}</Body>
         <Description className={docCountDescriptionStyles}>
-          Indicate the amount of documents you want to generate below.
+          {t('specifyDocCountDescription')}
         </Description>
         <div className={inputContainerStyles}>
           <TextInput
             id="document-count-input"
             className={documentCountInputStyles}
-            label="Documents to generate in current collection"
+            label={t('docCountLabel')}
             type="number"
             value={documentCount}
             onChange={handleDocumentCountChange}
@@ -194,7 +194,7 @@ const PreviewAndDocCountScreen = ({
             data-testid="document-count-input"
           />
           <div>
-            <Body weight="medium">Estimated Disk Size</Body>
+            <Body weight="medium">{t('estimatedDiskSizeLabel')}</Body>
             <Body
               className={estimatedDiskSizeValueStyles}
               data-testid="estimated-disk-size"
@@ -205,16 +205,15 @@ const PreviewAndDocCountScreen = ({
         </div>
       </section>
       <section className={previewSectionStyles}>
-        <Body className={sectionTitleStyles}>Preview Mock Data</Body>
+        <Body className={sectionTitleStyles}>{t('previewMockDataTitle')}</Body>
         <Body>
-          Below are examples of documents that will be generated when you run
-          your script. If you&apos;d like to make any changes to the script (for
-          ex. what{' '}
-          <Link href={FAKER_API_LINK} target="_blank">
-            faker functions
-          </Link>{' '}
-          are being used to generate the documents) you can do so in the next
-          step.
+          <Trans
+            i18nKey="previewDescription"
+            ns="compassCollection"
+            components={{
+              fakerLink: <Link href={FAKER_API_LINK} target="_blank" />,
+            }}
+          />
         </Body>
         {sampleDocuments.length > 0 ? (
           <div
@@ -229,7 +228,7 @@ const PreviewAndDocCountScreen = ({
           </div>
         ) : (
           <Banner variant={BannerVariant.Warning}>
-            No faker schema available. Please go back and confirm your schema.
+            {t('noFakerSchemaWarning')}
           </Banner>
         )}
       </section>

@@ -56,6 +56,7 @@
     "@mongodb-js/compass-telemetry": "^1.29.1",
     "compass-preferences-model": "^2.76.1",
     "@mongodb-js/compass-app-registry": "^9.11.1",
+    "@mongodb-js/compass-i18n": "^0.0.1",
     "hadron-ipc": "^3.5.32",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",

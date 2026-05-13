@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Icon,
   Button,
@@ -24,17 +25,18 @@ const DeleteMenuButton: React.FunctionComponent<DeleteMenuButtonProps> = ({
   isWritable,
   onClick,
 }) => {
+  const { t } = useTranslation('compassCrud');
   return (
     <Button
       disabled={!isWritable}
-      value={'Delete'}
+      value={t('deleteButton')}
       size="xsmall"
       onClick={onClick}
       leftGlyph={<Icon glyph="Trash"></Icon>}
       data-testid="crud-bulk-delete"
-      title="Delete"
+      title={t('deleteButton')}
     >
-      <span className={hiddenOnNarrowStyles}>Delete</span>
+      <span className={hiddenOnNarrowStyles}>{t('deleteButton')}</span>
     </Button>
   );
 };
