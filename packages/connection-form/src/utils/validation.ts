@@ -35,6 +35,7 @@ export type TabId =
   | 'tls'
   | 'proxy'
   | 'csfle'
+  | 'aiAccess'
   | 'advanced';
 
 type ConnectionFormErrorWithField = {

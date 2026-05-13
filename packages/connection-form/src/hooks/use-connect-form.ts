@@ -1,6 +1,7 @@
 import { useReducer, type Dispatch, useCallback, useEffect } from 'react';
 import type { ConnectionOptions } from 'mongodb-data-service';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import type { ConnectionInfo, McpAccess } from '@mongodb-js/connection-info';
+import { normalizeMcpAccess } from '@mongodb-js/connection-info';
 import type {
   MongoClientOptions,
   ProxyOptions,
@@ -89,6 +90,13 @@ export interface ConnectFormState {
   isDirty: boolean;
   allowEditingIfProtected: boolean;
   personalizationOptions: ConnectionPersonalizationOptions;
+  /**
+   * Per-connection MCP access policy. Lives on `ConnectionInfo` (not on
+   * `ConnectionOptions`) — mirrored here so the "AI access" tab can edit it
+   * and the parent's save flow can copy it back. Always normalized via
+   * `normalizeMcpAccess` on init; defaults to `{ mode: 'ask' }`.
+   */
+  mcpAccess: McpAccess;
 }
 
 type Action =
@@ -147,6 +155,11 @@ interface UpdateConnectionPersonalizationAction {
   color?: string;
   isFavorite: boolean;
   isNameDirty: boolean;
+}
+
+interface UpdateMcpAccessAction {
+  type: 'update-mcp-access';
+  mcpAccess: McpAccess;
 }
 
 type ConnectionFormFieldActions =
@@ -209,7 +222,8 @@ type ConnectionFormFieldActions =
   | UpdateCsfleKmsAction
   | UpdateCsfleKmsTlsAction
   | UpdateOIDCAction
-  | UpdateConnectionPersonalizationAction;
+  | UpdateConnectionPersonalizationAction
+  | UpdateMcpAccessAction;
 
 export type UpdateConnectionFormField = (
   action: ConnectionFormFieldActions
@@ -278,6 +292,7 @@ function buildStateFromConnectionInfo(
       isNameDirty: !!initialConnectionInfo.favorite?.name,
       isFavorite: initialConnectionInfo.savedConnectionType === 'favorite',
     },
+    mcpAccess: normalizeMcpAccess(initialConnectionInfo.mcpAccess),
   };
 }
 
@@ -381,8 +396,18 @@ export function handleConnectionFormFieldUpdate(
 ): {
   connectionOptions: ConnectionOptions;
   personalizationOptions?: ConnectionPersonalizationOptions;
+  mcpAccess?: McpAccess;
   errors?: ConnectionFormError[];
 } {
+  if (action.type === 'update-mcp-access') {
+    // mcpAccess lives on ConnectionInfo, not ConnectionOptions — no need to
+    // touch the connection string or re-parse anything.
+    return {
+      connectionOptions: currentConnectionOptions,
+      mcpAccess: action.mcpAccess,
+    };
+  }
+
   if (action.type === 'update-connection-string') {
     const [newParsedConnectionStringUrl, errors] = parseConnectionString(
       action.newConnectionStringValue
@@ -767,10 +792,14 @@ export function useConnectForm(
           warnings: updatedState.errors?.length
             ? []
             : validateConnectionOptionsWarnings(updatedState.connectionOptions),
-          isDirty: !isEqual(
-            updatedState.connectionOptions,
-            state.connectionOptions
-          ),
+          // Form is dirty when either the wire-level connectionOptions OR
+          // the side-channel mcpAccess struct changed. Without the
+          // mcpAccess check, edits in the AI access tab wouldn't enable
+          // Save.
+          isDirty:
+            !isEqual(updatedState.connectionOptions, state.connectionOptions) ||
+            (updatedState.mcpAccess !== undefined &&
+              !isEqual(updatedState.mcpAccess, state.mcpAccess)),
         },
       });
     },

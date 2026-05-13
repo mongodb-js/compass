@@ -11,6 +11,7 @@ export { CompassMcpServerManager } from './compass-mcp-server-manager';
 export type { McpConnectionStorage } from './compass-mcp-server-manager';
 export { runStdioBridge } from './stdio-bridge';
 export { getMcpSocketPath } from './socket-path';
+export { presetLabel, presetTools, ALL_PRESETS } from './presets';
 
 export type { ResolvedConnection, ConsentDecision };
 

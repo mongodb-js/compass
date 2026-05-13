@@ -376,6 +376,7 @@ function ConnectionForm({
       connectionOptions,
       allowEditingIfProtected,
       personalizationOptions,
+      mcpAccess,
     },
     { setEnableEditingConnectionString, updateConnectionFormField, setErrors },
   ] = useConnectForm(initialConnectionInfo, connectionErrorMessage);
@@ -419,8 +420,14 @@ function ConnectionForm({
         name: personalizationOptions.name,
         color: personalizationOptions.color,
       },
+      mcpAccess,
     }),
-    [initialConnectionInfo, connectionOptions, personalizationOptions]
+    [
+      initialConnectionInfo,
+      connectionOptions,
+      personalizationOptions,
+      mcpAccess,
+    ]
   );
 
   const callOnSaveConnectionClickedAndStoreErrors = useCallback(
@@ -605,6 +612,7 @@ function ConnectionForm({
                 }
                 updateConnectionFormField={updateConnectionFormField}
                 connectionOptions={connectionOptions}
+                mcpAccess={mcpAccess}
                 openSettingsModal={openSettingsModal}
               />
             )}
