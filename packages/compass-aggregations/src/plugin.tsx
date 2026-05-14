@@ -3,7 +3,6 @@ import Aggregations from './components/aggregations';
 import { ConfirmationModalArea } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { ConfigureStoreOptions } from './stores/store';
-import { RerankBannerDismissProvider } from './components/rerank-first-stage-banner';
 
 export const AggregationsPlugin: React.FunctionComponent<
   ConfigureStoreOptions
@@ -13,12 +12,10 @@ export const AggregationsPlugin: React.FunctionComponent<
 
   return (
     <ConfirmationModalArea>
-      <RerankBannerDismissProvider>
-        <Aggregations
-          showRunButton={showRunButton}
-          showExplainButton={showExplainButton}
-        />
-      </RerankBannerDismissProvider>
+      <Aggregations
+        showRunButton={showRunButton}
+        showExplainButton={showExplainButton}
+      />
     </ConfirmationModalArea>
   );
 };

@@ -217,7 +217,8 @@ const mapState = (state: RootState) => {
   return {
     isModalOpen: isEnabled,
     isAutoPreviewEnabled: autoPreview,
-    isRerankFirstStage: getIsRerankFirstStage(state),
+    isRerankFirstStage:
+      currentStage?.stageOperator === '$rerank' && getIsRerankFirstStage(state),
     isRerankStage: currentStage?.stageOperator === '$rerank',
   };
 };

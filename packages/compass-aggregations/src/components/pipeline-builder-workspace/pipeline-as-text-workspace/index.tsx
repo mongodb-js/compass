@@ -42,17 +42,14 @@ const workspaceContainerStyles = css({
 type PipelineAsTextWorkspaceProps = {
   isAutoPreview: boolean;
   isRerankFirstStage: boolean;
-  pipelineText: string;
+  showRerankTokensBanner: boolean;
 };
 
 const containerDataTestId = 'pipeline-as-text-workspace';
 
 export const PipelineAsTextWorkspace: React.FunctionComponent<
   PipelineAsTextWorkspaceProps
-> = ({ isAutoPreview, isRerankFirstStage, pipelineText }) => {
-  const showRerankTokensBanner =
-    pipelineText.includes('$rerank') && isAutoPreview;
-
+> = ({ isAutoPreview, isRerankFirstStage, showRerankTokensBanner }) => {
   if (!isAutoPreview) {
     return (
       <div className={workspaceContainerStyles}>
@@ -120,7 +117,7 @@ const mapState = (state: RootState) => {
   return {
     isAutoPreview: !!autoPreview,
     isRerankFirstStage: getIsRerankFirstStage(state),
-    pipelineText,
+    showRerankTokensBanner: pipelineText.includes('$rerank') && !!autoPreview,
   };
 };
 

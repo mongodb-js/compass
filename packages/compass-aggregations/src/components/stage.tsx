@@ -133,7 +133,7 @@ export type StageProps = SortableProps & {
   hasServerError: boolean;
   isAutoPreviewing?: boolean | undefined;
   isRerankFirstStage: boolean;
-  stageOperator: string | null;
+  showRerankTokensBanner: boolean;
 };
 
 function Stage({
@@ -144,7 +144,7 @@ function Stage({
   hasServerError,
   isAutoPreviewing,
   isRerankFirstStage,
-  stageOperator,
+  showRerankTokensBanner,
   ...sortableProps
 }: StageProps) {
   const editorRef = useRef<EditorRef>(null);
@@ -191,7 +191,7 @@ function Stage({
         {isRerankFirstStage && (
           <RerankFirstStageBanner data-testid="stage-rerank-first-stage-banner" />
         )}
-        {stageOperator === '$rerank' && isAutoPreviewing && (
+        {showRerankTokensBanner && (
           <RerankTokensBanner data-testid="stage-rerank-tokens-banner" />
         )}
         {isExpanded && (
@@ -229,6 +229,7 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
     isAutoPreviewing: state.autoPreview,
     isRerankFirstStage:
       stage.stageOperator === '$rerank' && getIsRerankFirstStage(state),
-    stageOperator: stage.stageOperator,
+    showRerankTokensBanner:
+      stage.stageOperator === '$rerank' && !!state.autoPreview,
   };
 })(Stage);

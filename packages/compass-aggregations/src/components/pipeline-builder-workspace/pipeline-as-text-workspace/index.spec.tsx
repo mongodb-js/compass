@@ -13,7 +13,7 @@ const renderPipelineAsTextWorkspace = (
     <PipelineAsTextWorkspace
       isAutoPreview={true}
       isRerankFirstStage={false}
-      pipelineText=""
+      showRerankTokensBanner={false}
       {...props}
     />
   );

@@ -56,28 +56,35 @@ describe('builder-helpers', function () {
 
   describe('getIsRerankFirstStage', function () {
     describe('in stage editor mode', function () {
-      it('returns true when $rerank is the first active stage', async function () {
+      it('returns true when $rerank is the only stage', async function () {
         const store = await createStore('[{ $rerank: {} }]');
         expect(getIsRerankFirstStage(store.getState())).to.equal(true);
       });
 
-      it('returns false when $rerank is not the first stage', async function () {
-        const store = await createStore('[{ $search: {} }, { $rerank: {} }]');
+      it('returns false when any stage precedes $rerank', async function () {
+        const store = await createStore('[{ $match: {} }, { $rerank: {} }]');
         expect(getIsRerankFirstStage(store.getState())).to.equal(false);
       });
 
-      it('returns false when first stage is not $rerank', async function () {
+      it('returns false when pipeline has no $rerank', async function () {
         const store = await createStore('[{ $match: {} }]');
         expect(getIsRerankFirstStage(store.getState())).to.equal(false);
       });
     });
 
     describe('in text editor mode', function () {
-      it('returns true when text has syntax errors and $rerank is first', async function () {
+      it('returns true when text has syntax errors and $rerank is the first operator', async function () {
         const store = await createStore('[]');
         store.dispatch(changePipelineMode('as-text'));
         store.dispatch(changeEditorValue('[{ $rerank: '));
         expect(getIsRerankFirstStage(store.getState())).to.equal(true);
+      });
+
+      it('returns false when text has syntax errors and any stage precedes $rerank', async function () {
+        const store = await createStore('[]');
+        store.dispatch(changePipelineMode('as-text'));
+        store.dispatch(changeEditorValue('[{ $match: {} }, { $rerank: '));
+        expect(getIsRerankFirstStage(store.getState())).to.equal(false);
       });
     });
   });

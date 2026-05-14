@@ -80,19 +80,19 @@ export function getPipelineStageOperatorsFromBuilderState(
 }
 
 export function getIsRerankFirstStage(state: RootState): boolean {
-  if (
-    getPipelineStageOperatorsFromBuilderState(state, false)[0] === '$rerank'
-  ) {
-    return true;
+  const operators = getPipelineStageOperatorsFromBuilderState(state, false);
+  const firstNonEmpty = operators.find((op) => op !== null);
+  if (firstNonEmpty !== undefined) {
+    return firstNonEmpty === '$rerank';
   }
-  // In text mode, a fresh pipeline with syntax errors retains an empty pipeline
-  // array (no prior valid parse to fall back to), so also check the raw text.
+  // Parsed pipeline is empty — only happens in text mode with syntax errors.
+  // Fall back to the raw text to find the first stage operator.
   if (state.pipelineBuilder.pipelineMode === 'as-text') {
     const { syntaxErrors, pipelineText } =
       state.pipelineBuilder.textEditor.pipeline;
-    return (
-      syntaxErrors.length > 0 && /^\s*\[\s*\{[^}]*\$rerank\b/.test(pipelineText)
-    );
+    if (syntaxErrors.length > 0) {
+      return pipelineText.match(/\$[a-zA-Z]+/)?.[0] === '$rerank';
+    }
   }
   return false;
 }

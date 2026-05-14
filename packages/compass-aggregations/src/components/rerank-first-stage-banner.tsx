@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React from 'react';
 import {
   Banner,
   Button,
@@ -17,28 +17,6 @@ export const useRerankInsightAction = () => {
   return tellMoreAboutInsight
     ? () => tellMoreAboutInsight({ id: 'rerank-first-stage' })
     : undefined;
-};
-
-const DISMISS_KEY = 'mongodb_compass_dismissed_rerank_first_stage_banner';
-
-type DismissContextValue = readonly [
-  boolean,
-  React.Dispatch<React.SetStateAction<boolean>>
-];
-const RerankBannerDismissContext = createContext<DismissContextValue>([
-  false,
-  () => {},
-] as DismissContextValue);
-
-export const RerankBannerDismissProvider: React.FunctionComponent<{
-  children: React.ReactNode;
-}> = ({ children }) => {
-  const value = usePersistedState(DISMISS_KEY, false);
-  return (
-    <RerankBannerDismissContext.Provider value={value}>
-      {children}
-    </RerankBannerDismissContext.Provider>
-  );
 };
 
 const bannerStyles = css({
@@ -72,7 +50,10 @@ export const RerankFirstStageBanner = ({
   'data-testid'?: string;
 }) => {
   const enableRerank = usePreference('enableRerank');
-  const [isDismissed, setIsDismissed] = useContext(RerankBannerDismissContext);
+  const [isDismissed, setIsDismissed] = usePersistedState(
+    'mongodb_compass_dismissed_rerank_first_stage_banner',
+    false
+  );
   const onInsightAction = useRerankInsightAction();
 
   if (!enableRerank || isDismissed) {
@@ -92,7 +73,7 @@ export const RerankFirstStageBanner = ({
           <strong>$rerank works better following a search stage</strong>
           <br />
           {
-            'Optimize performance and cost by using $rerank after retrieving preliminary results from a stage like '
+            "If you're just trying out $rerank, there's a chance you may consume an excessive amount of tokens, which can be expensive. $rerank works best following a search stage like "
           }
           <Link
             href={`${STAGE_HELP_BASE_URL}/search/`}
