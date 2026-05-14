@@ -84,7 +84,7 @@ type FocusModeProps = {
   isModalOpen: boolean;
   isAutoPreviewEnabled: boolean | undefined;
   isRerankFirstStage: boolean;
-  isRerankStage: boolean;
+  showRerankTokensBanner: boolean;
   onCloseModal: () => void;
 };
 
@@ -176,7 +176,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
   isAutoPreviewEnabled,
   isRerankFirstStage,
-  isRerankStage,
+  showRerankTokensBanner,
   onCloseModal,
 }) => {
   return (
@@ -195,7 +195,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
           {isRerankFirstStage && (
             <RerankFirstStageBanner data-testid="focus-mode-rerank-first-stage-banner" />
           )}
-          {isRerankStage && isAutoPreviewEnabled && (
+          {showRerankTokensBanner && (
             <RerankTokensBanner data-testid="focus-mode-rerank-tokens-banner" />
           )}
         </div>
@@ -219,7 +219,8 @@ const mapState = (state: RootState) => {
     isAutoPreviewEnabled: autoPreview,
     isRerankFirstStage:
       currentStage?.stageOperator === '$rerank' && getIsRerankFirstStage(state),
-    isRerankStage: currentStage?.stageOperator === '$rerank',
+    showRerankTokensBanner:
+      currentStage?.stageOperator === '$rerank' && !!autoPreview,
   };
 };
 
