@@ -3,11 +3,9 @@ import {
   Button,
   css,
   Icon,
-  Link,
   Menu,
   MenuItem,
   Option,
-  PerformanceSignals,
   Select,
   spacing,
   Toggle,
@@ -23,23 +21,12 @@ import {
   addStageInFocusMode,
   selectFocusModeStage,
 } from '../../modules/focus-mode';
-import {
-  changeStageDisabled,
-  addSearchStageBefore,
-} from '../../modules/pipeline-builder/stage-editor';
+import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model/provider';
-import {
-  createSearchIndex,
-  refreshSearchIndexes,
-} from '../../modules/search-indexes';
+import { createSearchIndex } from '../../modules/search-indexes';
 import type { ServerEnvironment } from '../../modules/env';
-import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
-import { useRerankInsightAction } from '../rerank-first-stage-banner';
-import { STAGE_HELP_BASE_URL } from '../../constants';
-import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 type Stage = {
   idxInStore: number;
@@ -53,15 +40,10 @@ type FocusModeModalHeaderProps = {
   stage?: StoreStage;
   env: ServerEnvironment;
   isSearchIndexesSupported: boolean;
-  isRerankFirstStage: boolean;
-  hasSearchIndex: boolean;
-  isSearchIndexesLoading: boolean;
   onCreateSearchIndex: () => void;
   onStageSelect: (index: number) => void;
   onStageDisabledToggleClick: (index: number, newVal: boolean) => void;
   onAddStageClick: (index: number) => void;
-  onAddSearchStageBefore: (storeIndex: number) => void;
-  onRefreshSearchIndexes: () => void;
 };
 
 const controlsContainerStyles = css({
@@ -111,24 +93,16 @@ export const FocusModeModalHeader: React.FunctionComponent<
   stages,
   env,
   isSearchIndexesSupported,
-  isRerankFirstStage,
-  hasSearchIndex,
-  isSearchIndexesLoading,
   stage,
   onCreateSearchIndex,
   onAddStageClick,
   onStageSelect,
   onStageDisabledToggleClick,
-  onAddSearchStageBefore,
-  onRefreshSearchIndexes,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const showInsights = usePreference('showInsights');
-  const enableRerank = usePreference('enableRerank');
-  const onRerankInsightAction = useRerankInsightAction();
-  const { atlasMetadata } = useConnectionInfo();
 
-  const performanceInsight = useMemo(() => {
+  const insight = useMemo(() => {
     if (stage) {
       return getInsightForStage(
         stage,
@@ -138,75 +112,6 @@ export const FocusModeModalHeader: React.FunctionComponent<
       );
     }
   }, [stage, env, isSearchIndexesSupported, onCreateSearchIndex]);
-
-  const rerankInsight =
-    enableRerank && isRerankFirstStage
-      ? {
-          ...PerformanceSignals.get('rerank-without-search'),
-          description: (
-            <>
-              {
-                "You're attempting to run a query with $rerank as the only stage. This is expensive and increases strain. We recommend using $rerank as the second stage to "
-              }
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/search/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $search
-              </Link>
-              {', '}
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/vectorSearch/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $vectorSearch
-              </Link>
-              {', '}
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/rankFusion/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $rankFusion
-              </Link>
-              {', or '}
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/scoreFusion/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $scoreFusion
-              </Link>
-              {'.'}
-            </>
-          ),
-          primaryActionButtonIsLoading: isSearchIndexesLoading,
-          primaryActionButtonLabel: isSearchIndexesLoading
-            ? undefined
-            : hasSearchIndex
-            ? 'Add $search stage'
-            : 'Learn about search',
-          ...(hasSearchIndex && !isSearchIndexesLoading
-            ? {
-                onPrimaryActionButtonClick: () =>
-                  onAddSearchStageBefore(stageIndex),
-              }
-            : !isSearchIndexesLoading
-            ? {
-                primaryActionButtonLink: atlasMetadata
-                  ? buildAtlasSearchClustersUrl({
-                      projectId: atlasMetadata.projectId,
-                    })
-                  : 'https://dochub.mongodb.org/core/atlas-search',
-              }
-            : {}),
-          onAssistantButtonClick: onRerankInsightAction,
-        }
-      : undefined;
-
-  const insight = rerankInsight ?? performanceInsight;
 
   const isFirst = stages[0].idxInStore === stageIndex;
   const isLast = stages[stages.length - 1].idxInStore === stageIndex;
@@ -411,14 +316,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
         </Menu>
       </div>
 
-      {showInsights && insight && (
-        <SignalPopover
-          signals={insight}
-          onPopoverOpenChange={(open) => {
-            if (open && isRerankFirstStage) onRefreshSearchIndexes();
-          }}
-        />
-      )}
+      {showInsights && insight && <SignalPopover signals={insight} />}
     </div>
   );
 };
@@ -431,11 +329,7 @@ export default connect(
       pipelineBuilder: {
         stageEditor: { stages },
       },
-      searchIndexes: {
-        isSearchIndexesSupported,
-        indexes,
-        status: searchIndexesStatus,
-      },
+      searchIndexes: { isSearchIndexesSupported },
     } = state;
     const stage = stages[stageIndex] as StoreStage;
 
@@ -445,11 +339,6 @@ export default connect(
       stage,
       env,
       isSearchIndexesSupported,
-      isRerankFirstStage:
-        stage?.stageOperator === '$rerank' && getIsRerankFirstStage(state),
-      hasSearchIndex: indexes.length > 0,
-      isSearchIndexesLoading:
-        searchIndexesStatus === 'INITIAL' || searchIndexesStatus === 'LOADING',
       stages: stages.reduce<Stage[]>((accumulator, stage, idxInStore) => {
         if (stage.type === 'stage') {
           accumulator.push({
@@ -466,7 +355,5 @@ export default connect(
     onStageDisabledToggleClick: changeStageDisabled,
     onAddStageClick: addStageInFocusMode,
     onCreateSearchIndex: createSearchIndex,
-    onAddSearchStageBefore: addSearchStageBefore,
-    onRefreshSearchIndexes: refreshSearchIndexes,
   }
 )(FocusModeModalHeader);
