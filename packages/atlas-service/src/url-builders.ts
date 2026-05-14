@@ -100,6 +100,13 @@ export function buildSearchExtensionRateLimitsUrl({
   return `${url}#/clusters/atlasSearch/${clusterName}/${extensionType}/rateLimits`;
 }
 
+export function buildAtlasSearchClustersUrl({
+  projectId,
+}: Pick<AtlasClusterMetadata, 'projectId'>): string {
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  return `${url}#/clusters/atlasSearch`;
+}
+
 export function buildBillingUrl({
   orgId,
 }: Pick<AtlasClusterMetadata, 'orgId'>): string {
