@@ -33,7 +33,10 @@ const renderStageToolbar = async (
       ExperimentTestGroups.searchActivationProgramP1Variant
     );
   }
-  const result = await renderWithStore(ui, { pipeline }, undefined, services);
+  const result = await renderWithStore(ui, { pipeline }, undefined, {
+    ...services,
+    ...(preferences ? { preferences } : {}),
+  });
   return result.plugin.store;
 };
 
