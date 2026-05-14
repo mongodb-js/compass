@@ -16,6 +16,7 @@ import type { RootState } from '../modules';
 import ResizeHandle from './resize-handle';
 import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
+import { RerankTokensBanner } from './rerank-tokens-banner';
 import StagePreview from './stage-preview';
 import { hasSyntaxError } from '../utils/stage';
 import type { EditorRef } from '@mongodb-js/compass-editor';
@@ -129,6 +130,7 @@ export type StageProps = SortableProps & {
   hasSyntaxError: boolean;
   hasServerError: boolean;
   isAutoPreviewing?: boolean | undefined;
+  stageOperator: string | null;
 };
 
 function Stage({
@@ -138,6 +140,7 @@ function Stage({
   hasSyntaxError,
   hasServerError,
   isAutoPreviewing,
+  stageOperator,
   ...sortableProps
 }: StageProps) {
   const editorRef = useRef<EditorRef>(null);
@@ -181,6 +184,9 @@ function Stage({
             index={index}
           />
         </div>
+        {stageOperator === '$rerank' && isAutoPreviewing && (
+          <RerankTokensBanner data-testid="stage-rerank-tokens-banner" />
+        )}
         {isExpanded && (
           <div style={{ opacity }} className={stageContentStyles}>
             <ResizableEditor
@@ -215,5 +221,6 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
     hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
     isAutoPreviewing: state.autoPreview,
+    stageOperator: stage.stageOperator,
   };
 })(Stage);

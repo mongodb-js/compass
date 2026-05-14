@@ -20,6 +20,8 @@ import {
 import FocusModeModalHeader from './focus-mode-modal-header';
 import ResizeHandle from '../resize-handle';
 import { Resizable } from 're-resizable';
+import { RerankTokensBanner } from '../rerank-tokens-banner';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
   display: 'grid',
@@ -79,6 +81,7 @@ const editorAreaExpanded = css({
 type FocusModeProps = {
   isModalOpen: boolean;
   isAutoPreviewEnabled: boolean | undefined;
+  isRerankStage: boolean;
   onCloseModal: () => void;
 };
 
@@ -169,6 +172,7 @@ const FocusModeContent = ({
 export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
   isAutoPreviewEnabled,
+  isRerankStage,
   onCloseModal,
 }) => {
   return (
@@ -184,6 +188,9 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
             <FocusModeModalHeader></FocusModeModalHeader>
           </div>
           <HorizontalRule />
+          {isRerankStage && isAutoPreviewEnabled && (
+            <RerankTokensBanner data-testid="focus-mode-rerank-tokens-banner" />
+          )}
         </div>
         <FocusModeContent isAutoPreviewEnabled={isAutoPreviewEnabled} />
       </div>
@@ -191,10 +198,20 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   );
 };
 
-const mapState = ({ focusMode: { isEnabled }, autoPreview }: RootState) => ({
-  isModalOpen: isEnabled,
-  isAutoPreviewEnabled: autoPreview,
-});
+const mapState = ({
+  focusMode: { isEnabled, stageIndex },
+  autoPreview,
+  pipelineBuilder: {
+    stageEditor: { stages },
+  },
+}: RootState) => {
+  const currentStage = stages[stageIndex] as StoreStage | undefined;
+  return {
+    isModalOpen: isEnabled,
+    isAutoPreviewEnabled: autoPreview,
+    isRerankStage: currentStage?.stageOperator === '$rerank',
+  };
+};
 
 const mapDispatch = {
   onCloseModal: disableFocusMode,
