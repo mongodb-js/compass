@@ -21,7 +21,9 @@ import FocusModeModalHeader from './focus-mode-modal-header';
 import ResizeHandle from '../resize-handle';
 import { Resizable } from 're-resizable';
 import { RerankFirstStageBanner } from '../rerank-first-stage-banner';
+import { RerankTokensBanner } from '../rerank-tokens-banner';
 import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
+import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
   display: 'grid',
@@ -82,6 +84,7 @@ type FocusModeProps = {
   isModalOpen: boolean;
   isAutoPreviewEnabled: boolean | undefined;
   isRerankFirstStage: boolean;
+  isRerankStage: boolean;
   onCloseModal: () => void;
 };
 
@@ -173,6 +176,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
   isAutoPreviewEnabled,
   isRerankFirstStage,
+  isRerankStage,
   onCloseModal,
 }) => {
   return (
@@ -191,6 +195,9 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
           {isRerankFirstStage && (
             <RerankFirstStageBanner data-testid="focus-mode-rerank-first-stage-banner" />
           )}
+          {isRerankStage && isAutoPreviewEnabled && (
+            <RerankTokensBanner data-testid="focus-mode-rerank-tokens-banner" />
+          )}
         </div>
         <FocusModeContent isAutoPreviewEnabled={isAutoPreviewEnabled} />
       </div>
@@ -198,11 +205,22 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   );
 };
 
-const mapState = (state: RootState) => ({
-  isModalOpen: state.focusMode.isEnabled,
-  isAutoPreviewEnabled: state.autoPreview,
-  isRerankFirstStage: getIsRerankFirstStage(state),
-});
+const mapState = (state: RootState) => {
+  const {
+    focusMode: { isEnabled, stageIndex },
+    autoPreview,
+    pipelineBuilder: {
+      stageEditor: { stages },
+    },
+  } = state;
+  const currentStage = stages[stageIndex] as StoreStage | undefined;
+  return {
+    isModalOpen: isEnabled,
+    isAutoPreviewEnabled: autoPreview,
+    isRerankFirstStage: getIsRerankFirstStage(state),
+    isRerankStage: currentStage?.stageOperator === '$rerank',
+  };
+};
 
 const mapDispatch = {
   onCloseModal: disableFocusMode,

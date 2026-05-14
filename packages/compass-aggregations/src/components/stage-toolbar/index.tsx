@@ -43,6 +43,7 @@ import {
   refreshSearchIndexes,
 } from '../../modules/search-indexes';
 import { useRerankInsightAction } from '../rerank-first-stage-banner';
+import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
 
 const toolbarStyles = css({
   width: '100%',
@@ -98,6 +99,10 @@ const shortSpacedStyles = css({
 });
 
 const viewIndexesButtonStyles = css({
+  whiteSpace: 'nowrap',
+});
+
+const viewTokenUsageLinkStyles = css({
   whiteSpace: 'nowrap',
 });
 
@@ -164,6 +169,13 @@ export function StageToolbar({
   const track = useTelemetry();
   const onRerankInsightAction = useRerankInsightAction();
   const { atlasMetadata } = useConnectionInfo();
+
+  const viewTokenUsageHref =
+    enableRerank && stage.stageOperator === '$rerank'
+      ? atlasMetadata
+        ? buildRerankTokenUsageUrl(atlasMetadata)
+        : 'https://dochub.mongodb.org/core/$rerank#metrics'
+      : null;
 
   const performanceInsight = useMemo(
     () =>
@@ -262,6 +274,16 @@ export function StageToolbar({
           <StageOperatorSelect onChange={onStageOperatorChange} index={index} />
         </div>
         <ToggleStage index={index} />
+        {viewTokenUsageHref && (
+          <Link
+            href={viewTokenUsageHref}
+            target="_blank"
+            className={viewTokenUsageLinkStyles}
+            data-testid="stage-toolbar-view-token-usage-link"
+          >
+            View token usage
+          </Link>
+        )}
         {enableSearchActivationProgramP1 &&
           isSearchStage(stage.stageOperator) && (
             <Button

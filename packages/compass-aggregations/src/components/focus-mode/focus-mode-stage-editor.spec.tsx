@@ -10,12 +10,7 @@ const renderFocusModeStageEditor = (
   props: Partial<ComponentProps<typeof FocusModeStageEditor>> = {}
 ) => {
   return renderWithStore(
-    <FocusModeStageEditor
-      index={-1}
-      operator={null}
-      isRerankFirstStage={false}
-      {...props}
-    />,
+    <FocusModeStageEditor index={-1} operator={null} {...props} />,
     {
       pipeline: [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
     }

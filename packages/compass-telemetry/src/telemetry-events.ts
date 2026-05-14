@@ -812,6 +812,12 @@ type NewConnectionEvent = ConnectionScopedEvent<{
      * The number of inactive connections.
      */
     num_inactive_connections: number;
+
+    /**
+     * The user's preferred language, as reported by the browser or Electron
+     * runtime (e.g. "en-US", "fr", "zh-CN").
+     */
+    user_language: string;
   } & ExtraConnectionData;
 }>;
 
@@ -998,6 +1004,8 @@ type BulkUpdateExecutedEvent = ConnectionScopedEvent<{
      * Specifies if update preview was supported (the update preview runs inside a transaction.)
      */
     isUpdatePreviewSupported: boolean;
+    /** Specifies if a filter was set in the query */
+    has_filter: boolean;
   };
 }>;
 
@@ -1018,7 +1026,10 @@ type BulkDeleteOpenedEvent = ConnectionScopedEvent<{
  */
 type BulkDeleteExecutedEvent = ConnectionScopedEvent<{
   name: 'Bulk Delete Executed';
-  payload: Record<string, never>;
+  payload: {
+    /** Specifies if a filter was set in the query */
+    has_filter: boolean;
+  };
 }>;
 
 /**

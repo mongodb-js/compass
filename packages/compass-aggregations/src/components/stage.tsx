@@ -17,6 +17,7 @@ import ResizeHandle from './resize-handle';
 import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
 import { RerankFirstStageBanner } from './rerank-first-stage-banner';
+import { RerankTokensBanner } from './rerank-tokens-banner';
 import StagePreview from './stage-preview';
 import { hasSyntaxError } from '../utils/stage';
 import type { EditorRef } from '@mongodb-js/compass-editor';
@@ -132,6 +133,7 @@ export type StageProps = SortableProps & {
   hasServerError: boolean;
   isAutoPreviewing?: boolean | undefined;
   isRerankFirstStage: boolean;
+  stageOperator: string | null;
 };
 
 function Stage({
@@ -142,6 +144,7 @@ function Stage({
   hasServerError,
   isAutoPreviewing,
   isRerankFirstStage,
+  stageOperator,
   ...sortableProps
 }: StageProps) {
   const editorRef = useRef<EditorRef>(null);
@@ -188,6 +191,9 @@ function Stage({
         {isRerankFirstStage && (
           <RerankFirstStageBanner data-testid="stage-rerank-first-stage-banner" />
         )}
+        {stageOperator === '$rerank' && isAutoPreviewing && (
+          <RerankTokensBanner data-testid="stage-rerank-tokens-banner" />
+        )}
         {isExpanded && (
           <div style={{ opacity }} className={stageContentStyles}>
             <ResizableEditor
@@ -223,5 +229,6 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
     isAutoPreviewing: state.autoPreview,
     isRerankFirstStage:
       stage.stageOperator === '$rerank' && getIsRerankFirstStage(state),
+    stageOperator: stage.stageOperator,
   };
 })(Stage);

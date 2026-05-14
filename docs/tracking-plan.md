@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Wed, May 6, 2026
+Generated on Thu, May 14, 2026
 
 ## Table of Contents
 
@@ -860,6 +860,14 @@ This event is fired when the auto-update feature is disabled.
 
 This event is fired when a user runs a bulk delete operation.
 
+**Properties**:
+
+- **has_filter** (required): `boolean`
+  - Specifies if a filter was set in the query
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
 <a name="event--BulkDeleteOpenedEvent"></a>
 
 ### Bulk Delete Opened
@@ -876,6 +884,8 @@ This event is fired when a user runs a bulk update operation.
 
 - **isUpdatePreviewSupported** (required): `boolean`
   - Specifies if update preview was supported (the update preview runs inside a transaction.)
+- **has_filter** (required): `boolean`
+  - Specifies if a filter was set in the query
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1113,6 +1123,9 @@ This event is fired when user successfully connects to a new server/cluster.
     Connection" button)
 - **num_inactive_connections** (required): `number`
   - The number of inactive connections.
+- **user_language** (required): `string`
+  - The user's preferred language, as reported by the browser or Electron
+    runtime (e.g. "en-US", "fr", "zh-CN").
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`

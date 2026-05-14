@@ -6,17 +6,18 @@ import { Resizable } from 're-resizable';
 import PipelineEditor from './pipeline-editor';
 import PipelinePreview from './pipeline-preview';
 import ResizeHandle from '../../resize-handle';
+import { RerankTokensBanner } from '../../rerank-tokens-banner';
 import type { RootState } from '../../../modules';
 import { RerankFirstStageBanner } from '../../rerank-first-stage-banner';
 import { getIsRerankFirstStage } from '../../../modules/pipeline-builder/builder-helpers';
 
-const cardStyles = css({
+const outerContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
 });
 
-const contentRowStyles = css({
+const rowStyles = css({
   display: 'flex',
   flex: 1,
   minHeight: 0,
@@ -41,24 +42,29 @@ const workspaceContainerStyles = css({
 type PipelineAsTextWorkspaceProps = {
   isAutoPreview: boolean;
   isRerankFirstStage: boolean;
+  pipelineText: string;
 };
 
 const containerDataTestId = 'pipeline-as-text-workspace';
 
 export const PipelineAsTextWorkspace: React.FunctionComponent<
   PipelineAsTextWorkspaceProps
-> = ({ isAutoPreview, isRerankFirstStage }) => {
+> = ({ isAutoPreview, isRerankFirstStage, pipelineText }) => {
+  const showRerankTokensBanner =
+    pipelineText.includes('$rerank') && isAutoPreview;
+
   if (!isAutoPreview) {
     return (
       <div className={workspaceContainerStyles}>
-        <KeylineCard data-testid={containerDataTestId} className={cardStyles}>
+        <KeylineCard
+          data-testid={containerDataTestId}
+          className={outerContainerStyles}
+        >
           {isRerankFirstStage && (
             <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
           )}
-          <div className={contentRowStyles}>
-            <div className={noPreviewEditorStyles}>
-              <PipelineEditor />
-            </div>
+          <div className={noPreviewEditorStyles}>
+            <PipelineEditor />
           </div>
         </KeylineCard>
       </div>
@@ -66,11 +72,17 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
   }
   return (
     <div className={workspaceContainerStyles}>
-      <KeylineCard data-testid={containerDataTestId} className={cardStyles}>
+      <KeylineCard
+        data-testid={containerDataTestId}
+        className={outerContainerStyles}
+      >
         {isRerankFirstStage && (
           <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
         )}
-        <div className={contentRowStyles}>
+        {showRerankTokensBanner && (
+          <RerankTokensBanner data-testid="pipeline-editor-rerank-tokens-banner" />
+        )}
+        <div className={rowStyles}>
           <Resizable
             defaultSize={{
               width: '50%',
@@ -96,9 +108,20 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
   );
 };
 
-const mapState = (state: RootState) => ({
-  isAutoPreview: !!state.autoPreview,
-  isRerankFirstStage: getIsRerankFirstStage(state),
-});
+const mapState = (state: RootState) => {
+  const {
+    autoPreview,
+    pipelineBuilder: {
+      textEditor: {
+        pipeline: { pipelineText },
+      },
+    },
+  } = state;
+  return {
+    isAutoPreview: !!autoPreview,
+    isRerankFirstStage: getIsRerankFirstStage(state),
+    pipelineText,
+  };
+};
 
 export default connect(mapState)(PipelineAsTextWorkspace);

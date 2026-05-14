@@ -7,6 +7,7 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
+import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import StageToolbar from './';
 import {
@@ -16,6 +17,7 @@ import {
 
 const renderStageToolbar = async (
   pipeline: any[] = [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
+  preferences?: InstanceType<typeof ReadOnlyPreferenceAccess>,
   {
     enableSearchActivationExperiment = false,
     services = {} as Parameters<typeof renderWithStore>[3],
@@ -74,6 +76,36 @@ describe('StageToolbar', function () {
     await renderStageToolbar();
     expect(screen.getByTestId('stage-option-menu-button')).to.exist;
   });
+  context('View token usage link', function () {
+    it('does not render when enableRerank is false', async function () {
+      await renderStageToolbar([{ $rerank: {} }]);
+      expect(
+        screen.queryByTestId('stage-toolbar-view-token-usage-link')
+      ).to.not.exist;
+    });
+
+    it('does not render when stage is not $rerank', async function () {
+      const preferences = new ReadOnlyPreferenceAccess({
+        enableRerank: true,
+      });
+      await renderStageToolbar([{ $match: { _id: 1 } }], preferences);
+      expect(
+        screen.queryByTestId('stage-toolbar-view-token-usage-link')
+      ).to.not.exist;
+    });
+
+    it('renders when enableRerank is true and stage is $rerank', async function () {
+      const preferences = new ReadOnlyPreferenceAccess({
+        enableRerank: true,
+      });
+      await renderStageToolbar([{ $rerank: {} }], preferences);
+      expect(
+        screen.getByTestId('stage-toolbar-view-token-usage-link')
+      ).to.exist;
+      expect(screen.getByText('View token usage')).to.exist;
+    });
+  });
+
   context('View Indexes button', function () {
     it('does not render when experiment is not in variant', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }]);
@@ -82,7 +114,7 @@ describe('StageToolbar', function () {
       ).to.not.exist;
     });
     it('does not render when stage is not a search stage', async function () {
-      await renderStageToolbar([{ $match: { _id: 1 } }], {
+      await renderStageToolbar([{ $match: { _id: 1 } }], undefined, {
         enableSearchActivationExperiment: true,
       });
       expect(
@@ -90,23 +122,31 @@ describe('StageToolbar', function () {
       ).to.not.exist;
     });
     it('renders when experiment is in variant and stage is $search', async function () {
-      await renderStageToolbar([{ $search: { index: 'default' } }], {
+      await renderStageToolbar([{ $search: { index: 'default' } }], undefined, {
         enableSearchActivationExperiment: true,
       });
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
     it('renders when experiment is in variant and stage is $searchMeta', async function () {
-      await renderStageToolbar([{ $searchMeta: { index: 'default' } }], {
-        enableSearchActivationExperiment: true,
-      });
+      await renderStageToolbar(
+        [{ $searchMeta: { index: 'default' } }],
+        undefined,
+        {
+          enableSearchActivationExperiment: true,
+        }
+      );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
     it('renders when experiment is in variant and stage is $vectorSearch', async function () {
-      await renderStageToolbar([{ $vectorSearch: { index: 'default' } }], {
-        enableSearchActivationExperiment: true,
-      });
+      await renderStageToolbar(
+        [{ $vectorSearch: { index: 'default' } }],
+        undefined,
+        {
+          enableSearchActivationExperiment: true,
+        }
+      );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
@@ -116,7 +156,7 @@ describe('StageToolbar', function () {
     it('shows insight badge when $rerank is the first stage and enableRerank is true', async function () {
       const preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({ enableRerank: true });
-      await renderStageToolbar([{ $rerank: {} }], {
+      await renderStageToolbar([{ $rerank: {} }], undefined, {
         services: { preferences },
       });
       expect(screen.getByTestId('insight-badge-button')).to.exist;
@@ -125,7 +165,7 @@ describe('StageToolbar', function () {
     it('does not show insight badge when $rerank is not the first stage', async function () {
       const preferences = await createSandboxFromDefaultPreferences();
       await preferences.savePreferences({ enableRerank: true });
-      await renderStageToolbar([{ $search: {} }, { $rerank: {} }], {
+      await renderStageToolbar([{ $search: {} }, { $rerank: {} }], undefined, {
         services: { preferences },
       });
       expect(screen.queryByTestId('insight-badge-button')).to.not.exist;

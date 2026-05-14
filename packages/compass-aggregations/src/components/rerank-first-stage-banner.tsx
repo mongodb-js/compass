@@ -21,11 +21,14 @@ export const useRerankInsightAction = () => {
 
 const DISMISS_KEY = 'mongodb_compass_dismissed_rerank_first_stage_banner';
 
-type DismissContextValue = [boolean, (val: boolean) => void];
+type DismissContextValue = readonly [
+  boolean,
+  React.Dispatch<React.SetStateAction<boolean>>
+];
 const RerankBannerDismissContext = createContext<DismissContextValue>([
   false,
   () => {},
-]);
+] as DismissContextValue);
 
 export const RerankBannerDismissProvider: React.FunctionComponent<{
   children: React.ReactNode;
