@@ -20,7 +20,9 @@ import {
 import FocusModeModalHeader from './focus-mode-modal-header';
 import ResizeHandle from '../resize-handle';
 import { Resizable } from 're-resizable';
+import { RerankFirstStageBanner } from '../rerank-first-stage-banner';
 import { RerankTokensBanner } from '../rerank-tokens-banner';
+import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
 const containerStyles = css({
@@ -81,7 +83,8 @@ const editorAreaExpanded = css({
 type FocusModeProps = {
   isModalOpen: boolean;
   isAutoPreviewEnabled: boolean | undefined;
-  isRerankStage: boolean;
+  showRerankFirstStageBanner: boolean;
+  showRerankTokensBanner: boolean;
   onCloseModal: () => void;
 };
 
@@ -172,7 +175,8 @@ const FocusModeContent = ({
 export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
   isAutoPreviewEnabled,
-  isRerankStage,
+  showRerankFirstStageBanner,
+  showRerankTokensBanner,
   onCloseModal,
 }) => {
   return (
@@ -188,7 +192,10 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
             <FocusModeModalHeader></FocusModeModalHeader>
           </div>
           <HorizontalRule />
-          {isRerankStage && isAutoPreviewEnabled && (
+          {showRerankFirstStageBanner && (
+            <RerankFirstStageBanner data-testid="focus-mode-rerank-first-stage-banner" />
+          )}
+          {showRerankTokensBanner && (
             <RerankTokensBanner data-testid="focus-mode-rerank-tokens-banner" />
           )}
         </div>
@@ -198,18 +205,21 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   );
 };
 
-const mapState = ({
-  focusMode: { isEnabled, stageIndex },
-  autoPreview,
-  pipelineBuilder: {
-    stageEditor: { stages },
-  },
-}: RootState) => {
+const mapState = (state: RootState) => {
+  const {
+    focusMode: { isEnabled, stageIndex },
+    autoPreview,
+    pipelineBuilder: {
+      stageEditor: { stages },
+    },
+  } = state;
   const currentStage = stages[stageIndex] as StoreStage | undefined;
   return {
     isModalOpen: isEnabled,
     isAutoPreviewEnabled: autoPreview,
-    isRerankStage: currentStage?.stageOperator === '$rerank',
+    showRerankFirstStageBanner: getIsRerankFirstStage(state, stageIndex),
+    showRerankTokensBanner:
+      currentStage?.stageOperator === '$rerank' && !!autoPreview,
   };
 };
 
