@@ -12,7 +12,7 @@ const renderPipelineAsTextWorkspace = (
   return renderWithStore(
     <PipelineAsTextWorkspace
       isAutoPreview={true}
-      isRerankFirstStage={false}
+      showRerankFirstStageBanner={false}
       showRerankTokensBanner={false}
       {...props}
     />

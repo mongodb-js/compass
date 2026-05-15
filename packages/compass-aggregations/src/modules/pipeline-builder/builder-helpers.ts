@@ -80,10 +80,9 @@ export function getPipelineStageOperatorsFromBuilderState(
 }
 
 export function getIsRerankFirstStage(state: RootState): boolean {
-  const operators = getPipelineStageOperatorsFromBuilderState(state, false);
-  const firstNonEmpty = operators.find((op) => op !== null);
-  if (firstNonEmpty !== undefined) {
-    return firstNonEmpty === '$rerank';
+  const operators = getPipelineStageOperatorsFromBuilderState(state);
+  if (operators.length > 0) {
+    return operators[0] === '$rerank';
   }
   // Parsed pipeline is empty — only happens in text mode with syntax errors.
   // Fall back to the raw text to find the first stage operator.

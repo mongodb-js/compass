@@ -41,7 +41,7 @@ const workspaceContainerStyles = css({
 
 type PipelineAsTextWorkspaceProps = {
   isAutoPreview: boolean;
-  isRerankFirstStage: boolean;
+  showRerankFirstStageBanner: boolean;
   showRerankTokensBanner: boolean;
 };
 
@@ -49,7 +49,7 @@ const containerDataTestId = 'pipeline-as-text-workspace';
 
 export const PipelineAsTextWorkspace: React.FunctionComponent<
   PipelineAsTextWorkspaceProps
-> = ({ isAutoPreview, isRerankFirstStage, showRerankTokensBanner }) => {
+> = ({ isAutoPreview, showRerankFirstStageBanner, showRerankTokensBanner }) => {
   if (!isAutoPreview) {
     return (
       <div className={workspaceContainerStyles}>
@@ -57,7 +57,7 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
           data-testid={containerDataTestId}
           className={outerContainerStyles}
         >
-          {isRerankFirstStage && (
+          {showRerankFirstStageBanner && (
             <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
           )}
           <div className={noPreviewEditorStyles}>
@@ -73,7 +73,7 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
         data-testid={containerDataTestId}
         className={outerContainerStyles}
       >
-        {isRerankFirstStage && (
+        {showRerankFirstStageBanner && (
           <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
         )}
         {showRerankTokensBanner && (
@@ -116,7 +116,7 @@ const mapState = (state: RootState) => {
   } = state;
   return {
     isAutoPreview: !!autoPreview,
-    isRerankFirstStage: getIsRerankFirstStage(state),
+    showRerankFirstStageBanner: getIsRerankFirstStage(state),
     showRerankTokensBanner: pipelineText.includes('$rerank') && !!autoPreview,
   };
 };
