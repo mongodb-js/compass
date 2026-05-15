@@ -79,19 +79,35 @@ export function getPipelineStageOperatorsFromBuilderState(
   return filterEmptyStageOperators ? stages.filter(Boolean) : stages;
 }
 
-export function getIsRerankFirstStage(state: RootState): boolean {
-  const operators = getPipelineStageOperatorsFromBuilderState(state);
-  if (operators.length > 0) {
-    return operators[0] === '$rerank';
+export function getIsRerankFirstStage(
+  state: RootState,
+  stageIndex?: number
+): boolean {
+  // $rerank with no enabled stage preceding it.
+  if (stageIndex !== undefined) {
+    const stages = state.pipelineBuilder.stageEditor.stages;
+    const stage = stages[stageIndex];
+
+    const isRerankStage =
+      stage?.type === 'stage' &&
+      !stage.disabled &&
+      stage.stageOperator === '$rerank';
+    const noEnabledStagePrecedes = !stages
+      .slice(0, stageIndex)
+      .some((s) => s.type === 'stage' && !s.disabled);
+
+    return isRerankStage && noEnabledStagePrecedes;
   }
-  // Parsed pipeline is empty — only happens in text mode with syntax errors.
-  // Fall back to the raw text to find the first stage operator.
-  if (state.pipelineBuilder.pipelineMode === 'as-text') {
-    const { syntaxErrors, pipelineText } =
-      state.pipelineBuilder.textEditor.pipeline;
-    if (syntaxErrors.length > 0) {
-      return pipelineText.match(/\$[a-zA-Z]+/)?.[0] === '$rerank';
-    }
+
+  // Pipeline-level check (text mode): the parsed pipeline starts with $rerank,
+  // or — when syntax errors prevent parsing — the raw text starts with it.
+  const { pipeline, syntaxErrors, pipelineText } =
+    state.pipelineBuilder.textEditor.pipeline;
+  if (pipeline.length > 0) {
+    return getStageOperator(pipeline[0]) === '$rerank';
+  }
+  if (syntaxErrors.length > 0) {
+    return pipelineText.match(/\$[a-zA-Z]+/)?.[0] === '$rerank';
   }
   return false;
 }

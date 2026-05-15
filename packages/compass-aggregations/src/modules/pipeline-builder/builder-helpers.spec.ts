@@ -3,7 +3,7 @@ import {
   getPipelineStageOperatorsFromBuilderState,
   getIsRerankFirstStage,
 } from './builder-helpers';
-import { addStage } from './stage-editor';
+import { addStage, changeStageDisabled } from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
 import { changeEditorValue } from './text-editor-pipeline';
 import configureStore from '../../../test/configure-store';
@@ -55,24 +55,43 @@ describe('builder-helpers', function () {
   });
 
   describe('getIsRerankFirstStage', function () {
-    describe('in stage editor mode', function () {
-      it('returns true when $rerank is the only stage', async function () {
+    describe('per-card (stage / focus mode)', function () {
+      it('returns true on the first enabled $rerank card', async function () {
         const store = await createStore('[{ $rerank: {} }]');
-        expect(getIsRerankFirstStage(store.getState())).to.equal(true);
+        expect(getIsRerankFirstStage(store.getState(), 0)).to.equal(true);
       });
 
-      it('returns false when any stage precedes $rerank', async function () {
+      it('returns false on later $rerank cards', async function () {
+        const store = await createStore('[{ $rerank: {} }, { $rerank: {} }]');
+        expect(getIsRerankFirstStage(store.getState(), 1)).to.equal(false);
+      });
+
+      it('skips disabled stages when locating the first enabled $rerank card', async function () {
         const store = await createStore('[{ $match: {} }, { $rerank: {} }]');
-        expect(getIsRerankFirstStage(store.getState())).to.equal(false);
-      });
-
-      it('returns false when pipeline has no $rerank', async function () {
-        const store = await createStore('[{ $match: {} }]');
-        expect(getIsRerankFirstStage(store.getState())).to.equal(false);
+        store.dispatch(changeStageDisabled(0, true));
+        expect(getIsRerankFirstStage(store.getState(), 1)).to.equal(true);
       });
     });
 
-    describe('in text editor mode', function () {
+    describe('text mode (no index)', function () {
+      it('returns true when $rerank is the first stage in the parsed pipeline', async function () {
+        const store = await createStore('[{ $rerank: {} }]');
+        store.dispatch(changePipelineMode('as-text'));
+        expect(getIsRerankFirstStage(store.getState())).to.equal(true);
+      });
+
+      it('returns false when any stage precedes $rerank in the parsed pipeline', async function () {
+        const store = await createStore('[{ $match: {} }, { $rerank: {} }]');
+        store.dispatch(changePipelineMode('as-text'));
+        expect(getIsRerankFirstStage(store.getState())).to.equal(false);
+      });
+
+      it('returns false when parsed pipeline has no $rerank', async function () {
+        const store = await createStore('[{ $match: {} }]');
+        store.dispatch(changePipelineMode('as-text'));
+        expect(getIsRerankFirstStage(store.getState())).to.equal(false);
+      });
+
       it('returns true when text has syntax errors and $rerank is the first operator', async function () {
         const store = await createStore('[]');
         store.dispatch(changePipelineMode('as-text'));
