@@ -71,11 +71,13 @@ export const FocusModeStageEditor = ({
   );
 };
 
-const mapState = (state: RootState) => {
-  const { stageIndex } = state.focusMode;
-  const currentStage = state.pipelineBuilder.stageEditor.stages[
-    stageIndex
-  ] as StoreStage;
+const mapState = ({
+  focusMode: { stageIndex },
+  pipelineBuilder: {
+    stageEditor: { stages },
+  },
+}: RootState) => {
+  const currentStage = stages[stageIndex] as StoreStage;
   return {
     index: stageIndex,
     operator: currentStage?.stageOperator,

@@ -31,7 +31,6 @@ import {
   getSearchStageInfoFromPipeline,
   getStageOperator,
 } from '../../../utils/stage';
-import { getIsRerankFirstStage } from '../../../modules/pipeline-builder/builder-helpers';
 import type { SearchStageOperator } from '../../../utils/stage';
 import {
   openCreateSearchIndexDrawerView,
@@ -239,23 +238,22 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   );
 };
 
-const mapState = (state: RootState) => {
-  const {
-    namespace,
-    pipelineBuilder: {
-      textEditor: {
-        pipeline: {
-          pipeline,
-          pipelineText,
-          serverError: pipelineServerError,
-          syntaxErrors,
-        },
-        outputStage: { serverError: outputStageServerError },
+const mapState = ({
+  namespace,
+  pipelineBuilder: {
+    textEditor: {
+      pipeline: {
+        pipeline,
+        pipelineText,
+        serverError: pipelineServerError,
+        syntaxErrors,
       },
+      outputStage: { serverError: outputStageServerError },
     },
-    serverVersion,
-    searchIndexes: { indexes: searchIndexes, status: searchIndexesStatus },
-  } = state;
+  },
+  serverVersion,
+  searchIndexes: { indexes: searchIndexes, status: searchIndexesStatus },
+}: RootState) => {
   const { searchIndexName, searchStageOperator } =
     getSearchStageInfoFromPipeline(pipelineText);
   const showSearchIndexDoesNotExistBanner =
