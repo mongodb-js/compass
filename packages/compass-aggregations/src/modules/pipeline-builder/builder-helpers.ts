@@ -107,7 +107,9 @@ export function getIsRerankFirstStage(
     return getStageOperator(pipeline[0]) === '$rerank';
   }
   if (syntaxErrors.length > 0) {
-    return pipelineText.match(/\$[a-zA-Z]+/)?.[0] === '$rerank';
+    // Anchored to the structural opening of the pipeline so we don't match
+    // $rerank inside string values or comments.
+    return /^\s*\[\s*\{\s*\$rerank\b/.test(pipelineText);
   }
   return false;
 }
