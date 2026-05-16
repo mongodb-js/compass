@@ -108,7 +108,7 @@
       "eslint-plugin-react-hooks": "^7.0.1"
     },
     "@mongodb-js/diagramming": {
-      "@leafygreen-ui/icon": "^14.8.0",
+      "@leafygreen-ui/icon": "^14.9.0",
       "@leafygreen-ui/leafygreen-provider": "^5.0.4",
       "@leafygreen-ui/palette": "^5.0.2",
       "@leafygreen-ui/select": "^17.0.3",
