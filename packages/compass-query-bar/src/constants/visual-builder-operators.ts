@@ -83,6 +83,20 @@ export const OPERATORS_BY_TYPE: Readonly<Record<string, OperatorTableEntry>> = {
     ],
     default: '$eq',
   },
+  Int64: {
+    operators: [
+      '$eq',
+      '$ne',
+      '$gt',
+      '$gte',
+      '$lt',
+      '$lte',
+      '$in',
+      '$nin',
+      '$exists',
+    ],
+    default: '$eq',
+  },
   Decimal128: {
     operators: [
       '$eq',

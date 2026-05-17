@@ -165,7 +165,11 @@ function VisualQueryBuilder({
         return;
       }
 
-      if (activeData?.kind === 'sort-entry' && active.id !== over.id) {
+      if (
+        activeData?.kind === 'sort-entry' &&
+        overData?.kind === 'sort-entry' &&
+        active.id !== over.id
+      ) {
         onReorderSort(String(active.id), String(over.id));
       }
     },

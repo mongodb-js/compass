@@ -34,6 +34,11 @@ describe('visual-builder-serialize', function () {
       expect(coerceScalar('abc', 'Number')).to.equal(undefined);
     });
 
+    it('coerces Int64 the same as other numerics', function () {
+      expect(coerceScalar('42', 'Int64')).to.equal(42);
+      expect(coerceScalar('nope', 'Int64')).to.equal(undefined);
+    });
+
     it('coerces booleans', function () {
       expect(coerceScalar('true', 'Boolean')).to.equal(true);
       expect(coerceScalar('false', 'Boolean')).to.equal(false);
@@ -146,6 +151,53 @@ describe('visual-builder-serialize', function () {
         '$and'
       );
       expect(out).to.equal("{name:{$regex:'^al',$options:'i'}}");
+    });
+
+    it('serializes $regex from the /pattern/flags literal-style form', function () {
+      const out = serializeFilter(
+        [
+          rule({
+            path: 'name',
+            bsonType: 'String',
+            operator: '$regex',
+            valueString: '/^al/i',
+          }),
+        ],
+        '$and'
+      );
+      expect(out).to.equal("{name:{$regex:'^al',$options:'i'}}");
+    });
+
+    it('keeps a slash inside the regex pattern when there are no flags', function () {
+      const out = serializeFilter(
+        [
+          rule({
+            path: 'path',
+            bsonType: 'String',
+            operator: '$regex',
+            valueString: 'foo/bar',
+          }),
+        ],
+        '$and'
+      );
+      // No trailing flags-looking suffix => everything is the pattern.
+      expect(out).to.equal("{path:{$regex:'foo/bar'}}");
+    });
+
+    it('drops $in rules whose tokens all fail to coerce', function () {
+      const out = serializeFilter(
+        [
+          rule({
+            path: 'age',
+            bsonType: 'Number',
+            operator: '$in',
+            valueString: 'abc, xyz',
+          }),
+        ],
+        '$and'
+      );
+      // All tokens coerce to undefined → rule is invalid → no clause emitted.
+      expect(out).to.equal('');
     });
 
     it('serializes $exists', function () {

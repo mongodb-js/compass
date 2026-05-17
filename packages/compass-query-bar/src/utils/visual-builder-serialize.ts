@@ -133,6 +133,7 @@ export function coerceScalar(raw: string, bsonType: string): unknown {
     case 'Number':
     case 'Double':
     case 'Int32':
+    case 'Int64':
     case 'Long':
     case 'Decimal128': {
       if (trimmed === '') return undefined;
@@ -156,6 +157,28 @@ export function coerceScalar(raw: string, bsonType: string): unknown {
   }
 }
 
+// Split a `pattern/flags` user input into its two parts. We accept both the
+// literal-looking form `/pat/i` (leading slash + trailing /flags) and a plain
+// `pat/flags`, and we anchor on the *last* slash so patterns containing `/`
+// survive untouched.
+function parseRegexInput(input: string): { pattern: string; flags: string } {
+  let body = input;
+  if (body.length >= 2 && body.startsWith('/')) {
+    body = body.slice(1);
+  }
+  const lastSlash = body.lastIndexOf('/');
+  if (lastSlash < 0) {
+    return { pattern: body, flags: '' };
+  }
+  const flags = body.slice(lastSlash + 1);
+  // Only treat the tail as flags if it actually looks like regex flags —
+  // otherwise the user typed a slash inside their pattern and meant it as such.
+  if (!/^[gimsuy]*$/.test(flags)) {
+    return { pattern: body, flags: '' };
+  }
+  return { pattern: body.slice(0, lastSlash), flags };
+}
+
 function ruleClauseValue(rule: FilterRule): unknown {
   if (rule.operator === '$exists') {
     return { $exists: rule.value === false ? false : true };
@@ -165,8 +188,8 @@ function ruleClauseValue(rule: FilterRule): unknown {
     return { $size: Number.isNaN(size) ? 0 : size };
   }
   if (rule.operator === '$regex') {
-    const [pattern, flags] = rule.valueString.split('/');
-    const out: Document = { $regex: pattern ?? rule.valueString };
+    const { pattern, flags } = parseRegexInput(rule.valueString);
+    const out: Document = { $regex: pattern };
     if (flags) {
       out.$options = flags;
     }
@@ -196,7 +219,14 @@ function isValidRule(rule: FilterRule): boolean {
     return rule.valueString.trim() !== '';
   }
   if (rule.operator === '$in' || rule.operator === '$nin') {
-    return rule.valueString.trim() !== '';
+    if (rule.valueString.trim() === '') return false;
+    // Reject rules where every token coerces to undefined — otherwise we
+    // silently emit `{ $in: [] }` which matches nothing.
+    const items = rule.valueString
+      .split(',')
+      .map((token) => coerceScalar(token, rule.bsonType))
+      .filter((v) => v !== undefined);
+    return items.length > 0;
   }
   return rule.valueString.trim() !== '';
 }
@@ -275,6 +305,20 @@ export function isFilterRepresentable(filter: unknown): boolean {
   return keys.every((k) => isRepresentableLeaf({ [k]: doc[k] }));
 }
 
+const REPRESENTABLE_LEAF_OPERATORS = new Set<string>([
+  '$eq',
+  '$ne',
+  '$gt',
+  '$gte',
+  '$lt',
+  '$lte',
+  '$in',
+  '$nin',
+  '$regex',
+  '$exists',
+  '$size',
+]);
+
 function isRepresentableLeaf(clause: unknown): boolean {
   if (clause === null || typeof clause !== 'object') return false;
   const keys = Object.keys(clause);
@@ -295,21 +339,7 @@ function isRepresentableLeaf(clause: unknown): boolean {
     return true;
   }
   if (opKeys.length > 1) return false;
-  const op = opKeys[0];
-  const allowed = new Set<string>([
-    '$eq',
-    '$ne',
-    '$gt',
-    '$gte',
-    '$lt',
-    '$lte',
-    '$in',
-    '$nin',
-    '$regex',
-    '$exists',
-    '$size',
-  ]);
-  return allowed.has(op);
+  return REPRESENTABLE_LEAF_OPERATORS.has(opKeys[0]);
 }
 
 export function isProjectionRepresentable(project: unknown): boolean {

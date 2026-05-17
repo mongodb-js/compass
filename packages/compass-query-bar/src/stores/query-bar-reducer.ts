@@ -355,7 +355,11 @@ export const addFilterRule = (options: {
   return (dispatch, getState) => {
     const normalized = normalizeBsonType(options.bsonType);
     const operators = getOperatorsForType(normalized);
-    const initialValueString = options.valueString ?? '';
+    // Boolean fields with no explicit value should default to 'true' so the
+    // matching <Select> in <ValueEditor> isn't visually configured while the
+    // underlying rule is still empty (and silently dropped by serializeFilter).
+    const initialValueString =
+      options.valueString ?? (normalized === 'Boolean' ? 'true' : '');
     const seedRule: FilterRule = {
       id: uniqueId(),
       path: options.path,
