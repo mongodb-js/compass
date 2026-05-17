@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, May 11, 2026
+Generated on Sun, May 17, 2026
 
 ## Table of Contents
 
@@ -153,6 +153,8 @@ Generated on Mon, May 11, 2026
 - [Query History Recent](#event--QueryHistoryRecentEvent)
 - [Query History Recent Used](#event--QueryHistoryRecentUsedEvent)
 - [Query Results Refreshed](#event--QueryResultsRefreshedEvent)
+- [Visual Query Builder Opened](#event--VisualQueryBuilderOpenedEvent)
+- [Visual Query Builder Applied](#event--VisualQueryBuilderAppliedEvent)
 
 ### Gen AI
 
@@ -1837,6 +1839,43 @@ This event is fired when user selects a recent query to put it in the query bar.
 
 This event is fired when user clicks the refresh button in the UI to refresh
 the query results.
+
+<a name="event--VisualQueryBuilderOpenedEvent"></a>
+
+### Visual Query Builder Opened
+
+This event is fired when the user opens the Visual Query Builder panel.
+
+**Properties**:
+
+- **has_existing_filter** (required): `boolean`
+  - True if the filter input had non-empty content when the panel opened.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--VisualQueryBuilderAppliedEvent"></a>
+
+### Visual Query Builder Applied
+
+This event is fired when the user applies a query built with the Visual Query
+Builder.
+
+**Properties**:
+
+- **rule_count** (required): `number`
+  - Number of filter rules at apply time.
+- **combinator** (required): `"$and" | "$or"`
+  - Top-level combinator.
+- **projection_count** (required): `number`
+  - Number of projection entries.
+- **sort_count** (required): `number`
+  - Number of sort entries.
+- **used_operators** (required): `{}`
+  - Distinct filter operators used (e.g. ['$eq', '$gt']).
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 ## Gen AI
 
