@@ -36,6 +36,8 @@ import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
 import type { QueryProperty } from '../constants/query-properties';
 import { QueryAI } from './query-ai';
+import VisualQueryBuilderToggle from './visual-query-builder/visual-query-builder-toggle';
+import VisualQueryBuilderPanel from './visual-query-builder/visual-query-builder';
 import type {
   QueryBarThunkDispatch,
   RootState,
@@ -128,6 +130,7 @@ type QueryBarProps = {
   isAIFetching?: boolean;
   onShowAIInputClick: () => void;
   onHideAIInputClick: () => void;
+  isVisualBuilderVisible?: boolean;
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
@@ -154,6 +157,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   isAIFetching = false,
   onShowAIInputClick,
   onHideAIInputClick,
+  isVisualBuilderVisible = false,
 }) => {
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
@@ -226,6 +230,9 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           show={isAIInputVisible}
         />
       )}
+      {isVisualBuilderVisible && (
+        <VisualQueryBuilderPanel onRunQuery={onApply} />
+      )}
       <div className={queryBarFirstRowStyles}>
         {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
         <div className={filterContainerStyles}>
@@ -259,6 +266,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             Explain
           </Button>
         )}
+        <VisualQueryBuilderToggle />
         <Button
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
@@ -317,7 +325,10 @@ type OwnProps = {
 };
 
 export default connect(
-  ({ queryBar: { expanded, fields, applyId }, aiQuery }: RootState) => {
+  ({
+    queryBar: { expanded, fields, applyId, visualBuilder },
+    aiQuery,
+  }: RootState) => {
     return {
       expanded: expanded,
       queryChanged: !isEqualDefaultQuery(fields),
@@ -326,6 +337,7 @@ export default connect(
       applyId: applyId,
       isAIInputVisible: aiQuery.isInputVisible,
       isAIFetching: aiQuery.status === 'fetching',
+      isVisualBuilderVisible: visualBuilder.isVisible,
     };
   },
   (dispatch: QueryBarThunkDispatch, ownProps: OwnProps) => {

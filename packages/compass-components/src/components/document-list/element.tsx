@@ -456,6 +456,69 @@ export const calculateShowMoreToggleOffset = ({
   return spacerWidth + editableOffset + expandIconSize;
 };
 
+// MIME type and tiny formatters duplicated (deliberately) from
+// `packages/compass-query-bar/src/utils/visual-builder-serialize.ts` so this
+// package does not need to depend on compass-query-bar (which depends on
+// compass-components — would create a cycle). Keep the two copies in sync;
+// the list of primitive types is short and stable.
+const VALUE_DRAG_MIME_TYPE = 'application/x-mongodb-value';
+
+const PRIMITIVE_BSON_TYPES_FOR_DRAG: ReadonlyArray<string> = [
+  'String',
+  'Number',
+  'Int32',
+  'Int64',
+  'Long',
+  'Double',
+  'Decimal128',
+  'Date',
+  'ObjectId',
+  'ObjectID',
+  'Boolean',
+];
+
+function isPrimitiveBsonTypeForDrag(bsonType: string): boolean {
+  return PRIMITIVE_BSON_TYPES_FOR_DRAG.includes(bsonType);
+}
+
+function formatValueForVisualBuilderDrag(
+  value: unknown,
+  bsonType: string
+): string {
+  if (value === null || value === undefined) return '';
+  switch (bsonType) {
+    case 'Date': {
+      if (value instanceof Date) {
+        return Number.isNaN(value.getTime()) ? '' : value.toISOString();
+      }
+      const d = new Date(value as string | number);
+      return Number.isNaN(d.getTime()) ? String(value) : d.toISOString();
+    }
+    case 'ObjectId':
+    case 'ObjectID': {
+      const v = value as { toHexString?: () => string };
+      return typeof v.toHexString === 'function'
+        ? v.toHexString()
+        : String(value);
+    }
+    case 'Boolean':
+      return String(Boolean(value));
+    case 'String':
+      return String(value);
+    case 'Number':
+    case 'Int32':
+    case 'Int64':
+    case 'Long':
+    case 'Double':
+    case 'Decimal128': {
+      const v = value as { toString?: () => string };
+      return typeof v?.toString === 'function' ? v.toString() : String(value);
+    }
+    default:
+      return '';
+  }
+}
+
 // Helper function to check if a string is a URL
 const isValidUrl = (str: string): boolean => {
   try {
@@ -799,6 +862,29 @@ export const HadronElement: React.FunctionComponent<{
         <div
           className={elementValue}
           data-testid="hadron-document-element-value"
+          draggable={!editingEnabled && isPrimitiveBsonTypeForDrag(type.value)}
+          onDragStart={(e) => {
+            if (editingEnabled) return;
+            if (!isPrimitiveBsonTypeForDrag(type.value)) return;
+            const formatted = formatValueForVisualBuilderDrag(
+              value.originalValue,
+              type.value
+            );
+            if (!formatted) return;
+            try {
+              e.dataTransfer.setData(
+                VALUE_DRAG_MIME_TYPE,
+                JSON.stringify({
+                  path: getNestedKeyPathForElement(element),
+                  bsonType: type.value,
+                  valueString: formatted,
+                })
+              );
+              e.dataTransfer.effectAllowed = 'copy';
+            } catch {
+              /* DataTransfer may be restricted (e.g. in headless test envs) */
+            }
+          }}
         >
           {value.editable ? (
             <ValueEditor

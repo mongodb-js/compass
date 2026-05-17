@@ -1911,6 +1911,45 @@ type QueryResultsRefreshedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when the user opens the Visual Query Builder panel.
+ *
+ * @category Find Queries
+ */
+type VisualQueryBuilderOpenedEvent = ConnectionScopedEvent<{
+  name: 'Visual Query Builder Opened';
+  payload: {
+    /** True if the filter input had non-empty content when the panel opened. */
+    has_existing_filter: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when the user applies a query built with the Visual Query
+ * Builder.
+ *
+ * @category Find Queries
+ */
+type VisualQueryBuilderAppliedEvent = ConnectionScopedEvent<{
+  name: 'Visual Query Builder Applied';
+  payload: {
+    /** Number of filter rules at apply time. */
+    rule_count: number;
+
+    /** Top-level combinator. */
+    combinator: '$and' | '$or';
+
+    /** Number of projection entries. */
+    projection_count: number;
+
+    /** Number of sort entries. */
+    sort_count: number;
+
+    /** Distinct filter operators used (e.g. ['$eq', '$gt']). */
+    used_operators: string[];
+  };
+}>;
+
+/**
  * This event is fired when user opens query history panel.
  *
  * @category Find Queries
@@ -3820,6 +3859,8 @@ export type TelemetryEvent =
   | QueryHistoryRecentEvent
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
+  | VisualQueryBuilderOpenedEvent
+  | VisualQueryBuilderAppliedEvent
   | SchemaAnalysisStartedEvent
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent

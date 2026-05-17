@@ -78,6 +78,77 @@ const cellContainerStyle = css({
   gap: spacing[100],
 });
 
+// MIME type and formatters duplicated (deliberately) from
+// `packages/compass-query-bar/src/utils/visual-builder-serialize.ts` so this
+// package does not need to add a deep import path. Keep the two copies in sync
+// — the list of primitive types is short and stable. Same duplication exists
+// in compass-components/element.tsx (the list-view drag source).
+const VALUE_DRAG_MIME_TYPE = 'application/x-mongodb-value';
+
+const PRIMITIVE_BSON_TYPES_FOR_DRAG: ReadonlyArray<string> = [
+  'String',
+  'Number',
+  'Int32',
+  'Int64',
+  'Long',
+  'Double',
+  'Decimal128',
+  'Date',
+  'ObjectId',
+  'ObjectID',
+  'Boolean',
+];
+
+function isPrimitiveBsonTypeForDrag(bsonType: string): boolean {
+  return PRIMITIVE_BSON_TYPES_FOR_DRAG.includes(bsonType);
+}
+
+function formatValueForVisualBuilderDrag(
+  value: unknown,
+  bsonType: string
+): string {
+  if (value === null || value === undefined) return '';
+  switch (bsonType) {
+    case 'Date': {
+      if (value instanceof Date) {
+        return Number.isNaN(value.getTime()) ? '' : value.toISOString();
+      }
+      const d = new Date(value as string | number);
+      return Number.isNaN(d.getTime()) ? String(value) : d.toISOString();
+    }
+    case 'ObjectId':
+    case 'ObjectID': {
+      const v = value as { toHexString?: () => string };
+      return typeof v.toHexString === 'function'
+        ? v.toHexString()
+        : String(value);
+    }
+    case 'Boolean':
+      return String(Boolean(value));
+    case 'String':
+      return String(value);
+    case 'Number':
+    case 'Int32':
+    case 'Int64':
+    case 'Long':
+    case 'Double':
+    case 'Decimal128': {
+      const v = value as { toString?: () => string };
+      return typeof v?.toString === 'function' ? v.toString() : String(value);
+    }
+    default:
+      return '';
+  }
+}
+
+const draggableValueStyle = css({
+  cursor: 'grab',
+  display: 'inline-flex',
+  ':active': {
+    cursor: 'grabbing',
+  },
+});
+
 const decrypdedIconStyles = css({
   display: 'flex',
 });
@@ -211,6 +282,40 @@ class CellRenderer
     }
   }
 
+  // Dotted path for the dragged value's field, joining drill-down parents with
+  // the column's leaf key. Skips array indices (purely numeric path segments)
+  // to match the path convention used by `getNestedKeyPathForElement` in the
+  // list view.
+  getDragPath(): string {
+    const segments = [
+      ...this.props.context.path,
+      this.props.column.getColId(),
+    ].map((s) => String(s));
+    return segments.filter((s) => !/^\d+$/.test(s)).join('.');
+  }
+
+  handleValueDragStart = (e: React.DragEvent) => {
+    if (!isPrimitiveBsonTypeForDrag(this.element.currentType)) return;
+    const valueString = formatValueForVisualBuilderDrag(
+      this.element.currentValue,
+      this.element.currentType
+    );
+    if (!valueString) return;
+    try {
+      e.dataTransfer.setData(
+        VALUE_DRAG_MIME_TYPE,
+        JSON.stringify({
+          path: this.getDragPath(),
+          bsonType: this.element.currentType,
+          valueString,
+        })
+      );
+      e.dataTransfer.effectAllowed = 'copy';
+    } catch {
+      /* DataTransfer may be restricted (e.g. in headless test envs) */
+    }
+  };
+
   refresh() {
     return true;
   }
@@ -246,6 +351,20 @@ class CellRenderer
       element = `{} ${this.getLength() as number} fields`;
     } else if (this.element.currentType === 'Array') {
       element = `[] ${this.getLength() as number} elements`;
+    } else if (isPrimitiveBsonTypeForDrag(this.element.currentType)) {
+      element = (
+        <span
+          className={draggableValueStyle}
+          draggable
+          onDragStart={this.handleValueDragStart}
+          data-testid="table-view-cell-draggable-value"
+        >
+          <BSONValue
+            type={this.props.value.currentType}
+            value={this.props.value.currentValue}
+          />
+        </span>
+      );
     } else {
       element = (
         <BSONValue
