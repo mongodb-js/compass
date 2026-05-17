@@ -21,12 +21,14 @@ const renderStageToolbar = async (
   {
     enableSearchActivationExperiment = false,
     services = {} as Parameters<typeof renderWithStore>[3],
+    stageIndex = 0,
   }: {
     enableSearchActivationExperiment?: boolean;
     services?: Parameters<typeof renderWithStore>[3];
+    stageIndex?: number;
   } = {}
 ) => {
-  let ui = <StageToolbar index={0} />;
+  let ui = <StageToolbar index={stageIndex} />;
   if (enableSearchActivationExperiment) {
     ui = wrapWithExperimentProvider(
       ui,
@@ -170,6 +172,7 @@ describe('StageToolbar', function () {
       await preferences.savePreferences({ enableRerank: true });
       await renderStageToolbar([{ $search: {} }, { $rerank: {} }], undefined, {
         services: { preferences },
+        stageIndex: 1,
       });
       expect(screen.queryByTestId('insight-badge-button')).to.not.exist;
     });

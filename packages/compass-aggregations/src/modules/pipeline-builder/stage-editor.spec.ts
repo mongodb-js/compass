@@ -9,6 +9,7 @@ import {
   changeStageCollapsed,
   changeStageDisabled,
   addStage,
+  addSearchStageBefore,
   moveStage,
   removeStage,
   loadStagePreview,
@@ -528,6 +529,29 @@ describe('stageEditor', function () {
           );
         });
       });
+    });
+  });
+
+  describe('addSearchStageBefore', function () {
+    it('inserts a $search stage before a first-stage $rerank (storeIndex 0)', function () {
+      const store = createStore({ pipelineSource: '[{$rerank: {}}]' });
+      store.dispatch(addSearchStageBefore(0));
+      const stages = store.getState().stages.filter((s) => s.type === 'stage');
+      expect(stages).to.have.lengthOf(2);
+      expect(stages[0]).to.have.property('stageOperator', '$search');
+      expect(stages[1]).to.have.property('stageOperator', '$rerank');
+    });
+
+    it('inserts a $search stage before $rerank at a non-zero index', function () {
+      const store = createStore({
+        pipelineSource: '[{$match: {}}, {$rerank: {}}]',
+      });
+      store.dispatch(addSearchStageBefore(1));
+      const stages = store.getState().stages.filter((s) => s.type === 'stage');
+      expect(stages).to.have.lengthOf(3);
+      expect(stages[0]).to.have.property('stageOperator', '$match');
+      expect(stages[1]).to.have.property('stageOperator', '$search');
+      expect(stages[2]).to.have.property('stageOperator', '$rerank');
     });
   });
 

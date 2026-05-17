@@ -4,12 +4,15 @@ import {
   Button,
   Icon,
   Link,
+  PerformanceSignals,
   css,
   spacing,
   usePersistedState,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
 import { STAGE_HELP_BASE_URL } from '../constants';
 
 export const useRerankInsightAction = () => {
@@ -17,6 +20,87 @@ export const useRerankInsightAction = () => {
   return tellMoreAboutInsight
     ? () => tellMoreAboutInsight({ id: 'rerank-first-stage' })
     : undefined;
+};
+
+const rerankInsightDescription = (
+  <>
+    {
+      '$rerank is the first stage with no preceding search stage. This is expensive and increases strain. We recommend using $rerank as the second stage to '
+    }
+    <Link
+      href={`${STAGE_HELP_BASE_URL}/search/`}
+      target="_blank"
+      hideExternalIcon
+    >
+      $search
+    </Link>
+    {', '}
+    <Link
+      href={`${STAGE_HELP_BASE_URL}/vectorSearch/`}
+      target="_blank"
+      hideExternalIcon
+    >
+      $vectorSearch
+    </Link>
+    {', '}
+    <Link
+      href={`${STAGE_HELP_BASE_URL}/rankFusion/`}
+      target="_blank"
+      hideExternalIcon
+    >
+      $rankFusion
+    </Link>
+    {', or '}
+    <Link
+      href={`${STAGE_HELP_BASE_URL}/scoreFusion/`}
+      target="_blank"
+      hideExternalIcon
+    >
+      $scoreFusion
+    </Link>
+    {'.'}
+  </>
+);
+
+export const useRerankInsight = ({
+  isRerankFirstStage,
+  hasSearchIndex,
+  isSearchIndexesLoading,
+  onAddSearchStageBefore,
+}: {
+  isRerankFirstStage: boolean;
+  hasSearchIndex: boolean;
+  isSearchIndexesLoading: boolean;
+  onAddSearchStageBefore: () => void;
+}) => {
+  const enableRerank = usePreference('enableRerank');
+  const onAssistantButtonClick = useRerankInsightAction();
+  const { atlasMetadata } = useConnectionInfo();
+
+  if (!enableRerank || !isRerankFirstStage) return undefined;
+
+  return {
+    ...PerformanceSignals.get('rerank-without-search'),
+    description: rerankInsightDescription,
+    primaryActionButtonIsLoading: isSearchIndexesLoading,
+    primaryActionButtonLabel: isSearchIndexesLoading
+      ? undefined
+      : hasSearchIndex
+      ? 'Add $search stage'
+      : 'Learn about search',
+    ...(hasSearchIndex && !isSearchIndexesLoading
+      ? { onPrimaryActionButtonClick: onAddSearchStageBefore }
+      : !isSearchIndexesLoading
+      ? {
+          primaryActionButtonLink: atlasMetadata
+            ? buildAtlasSearchClustersUrl({
+                projectId: atlasMetadata.projectId,
+              })
+            : 'https://dochub.mongodb.org/core/atlas-search',
+        }
+      : {}),
+    onAssistantButtonClick,
+  };
 };
 const bannerStyles = css({
   borderRadius: 0,

@@ -13,9 +13,7 @@ import {
   Button,
   Link,
   useDrawerActions,
-  PerformanceSignals,
 } from '@mongodb-js/compass-components';
-import { STAGE_HELP_BASE_URL } from '../../constants';
 import type { RootState } from '../../modules';
 import ToggleStage from './toggle-stage';
 import StageCollapser from './stage-collapser';
@@ -35,15 +33,14 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
+import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
 import type { ServerEnvironment } from '../../modules/env';
 import {
   createSearchIndex,
   openIndexesListDrawerView,
   refreshSearchIndexes,
 } from '../../modules/search-indexes';
-import { useRerankInsightAction } from '../rerank-first-stage-banner';
-import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
+import { useRerankInsight } from '../rerank-first-stage-banner';
 
 const toolbarStyles = css({
   width: '100%',
@@ -167,7 +164,6 @@ export function StageToolbar({
   const darkMode = useDarkMode();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
-  const onRerankInsightAction = useRerankInsightAction();
   const { atlasMetadata } = useConnectionInfo();
 
   const viewTokenUsageHref =
@@ -188,71 +184,12 @@ export function StageToolbar({
     [stage, env, isSearchIndexesSupported, onCreateSearchIndex]
   );
 
-  const rerankInsight =
-    enableRerank && isRerankFirstStage
-      ? {
-          ...PerformanceSignals.get('rerank-without-search'),
-          description: (
-            <>
-              {
-                "You're attempting to run a query with $rerank as the only stage. This is expensive and increases strain. We recommend using $rerank as the second stage to "
-              }
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/search/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $search
-              </Link>
-              {', '}
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/vectorSearch/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $vectorSearch
-              </Link>
-              {', '}
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/rankFusion/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $rankFusion
-              </Link>
-              {', or '}
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/scoreFusion/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $scoreFusion
-              </Link>
-              {'.'}
-            </>
-          ),
-          primaryActionButtonIsLoading: isSearchIndexesLoading,
-          primaryActionButtonLabel: isSearchIndexesLoading
-            ? undefined
-            : hasSearchIndex
-            ? 'Add $search stage'
-            : 'Learn about search',
-          ...(hasSearchIndex && !isSearchIndexesLoading
-            ? {
-                onPrimaryActionButtonClick: () => onAddSearchStageBefore(index),
-              }
-            : !isSearchIndexesLoading
-            ? {
-                primaryActionButtonLink: atlasMetadata
-                  ? buildAtlasSearchClustersUrl({
-                      projectId: atlasMetadata.projectId,
-                    })
-                  : 'https://dochub.mongodb.org/core/atlas-search',
-              }
-            : {}),
-          onAssistantButtonClick: onRerankInsightAction,
-        }
-      : undefined;
+  const rerankInsight = useRerankInsight({
+    isRerankFirstStage,
+    hasSearchIndex,
+    isSearchIndexesLoading,
+    onAddSearchStageBefore: () => onAddSearchStageBefore(index),
+  });
 
   const insight = rerankInsight ?? performanceInsight;
 
@@ -359,11 +296,12 @@ export default connect(
       stage,
       env,
       isSearchIndexesSupported,
-      isRerankFirstStage:
-        stage.stageOperator === '$rerank' && getIsRerankFirstStage(state),
+      isRerankFirstStage: getIsRerankFirstStage(state, ownProps.index),
       hasSearchIndex: indexes.length > 0,
       isSearchIndexesLoading:
-        searchIndexesStatus === 'INITIAL' || searchIndexesStatus === 'LOADING',
+        searchIndexesStatus === 'INITIAL' ||
+        searchIndexesStatus === 'LOADING' ||
+        searchIndexesStatus === 'POLLING',
     };
   },
   {

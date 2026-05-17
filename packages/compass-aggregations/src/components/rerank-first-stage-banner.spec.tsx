@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import Sinon from 'sinon';
+import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
 import { RerankFirstStageBanner } from './rerank-first-stage-banner';
 
 const DISMISSED_KEY = 'mongodb_compass_dismissed_rerank_first_stage_banner';
@@ -46,5 +48,20 @@ describe('RerankFirstStageBanner', function () {
       preferences: { enableRerank: true },
     });
     expect(screen.queryByTestId('rerank-first-stage-banner')).to.not.exist;
+  });
+
+  it('renders the Learn more button and calls tellMoreAboutInsight when clicked', function () {
+    const tellMoreAboutInsight = Sinon.spy();
+    render(
+      <AssistantActionsContext.Provider value={{ tellMoreAboutInsight }}>
+        <RerankFirstStageBanner data-testid="rerank-first-stage-banner" />
+      </AssistantActionsContext.Provider>,
+      { preferences: { enableRerank: true } }
+    );
+    const btn = screen.getByTestId('rerank-first-stage-learn-more-button');
+    expect(btn).to.exist;
+    userEvent.click(btn);
+    expect(tellMoreAboutInsight.calledOnceWith({ id: 'rerank-first-stage' })).to
+      .be.true;
   });
 });

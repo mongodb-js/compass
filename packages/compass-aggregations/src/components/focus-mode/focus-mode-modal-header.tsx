@@ -3,11 +3,9 @@ import {
   Button,
   css,
   Icon,
-  Link,
   Menu,
   MenuItem,
   Option,
-  PerformanceSignals,
   Select,
   spacing,
   Toggle,
@@ -36,10 +34,7 @@ import {
 } from '../../modules/search-indexes';
 import type { ServerEnvironment } from '../../modules/env';
 import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
-import { useRerankInsightAction } from '../rerank-first-stage-banner';
-import { STAGE_HELP_BASE_URL } from '../../constants';
-import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
-import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { useRerankInsight } from '../rerank-first-stage-banner';
 
 type Stage = {
   idxInStore: number;
@@ -124,9 +119,6 @@ export const FocusModeModalHeader: React.FunctionComponent<
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const showInsights = usePreference('showInsights');
-  const enableRerank = usePreference('enableRerank');
-  const onRerankInsightAction = useRerankInsightAction();
-  const { atlasMetadata } = useConnectionInfo();
 
   const performanceInsight = useMemo(() => {
     if (stage) {
@@ -139,72 +131,12 @@ export const FocusModeModalHeader: React.FunctionComponent<
     }
   }, [stage, env, isSearchIndexesSupported, onCreateSearchIndex]);
 
-  const rerankInsight =
-    enableRerank && isRerankFirstStage
-      ? {
-          ...PerformanceSignals.get('rerank-without-search'),
-          description: (
-            <>
-              {
-                "You're attempting to run a query with $rerank as the only stage. This is expensive and increases strain. We recommend using $rerank as the second stage to "
-              }
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/search/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $search
-              </Link>
-              {', '}
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/vectorSearch/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $vectorSearch
-              </Link>
-              {', '}
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/rankFusion/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $rankFusion
-              </Link>
-              {', or '}
-              <Link
-                href={`${STAGE_HELP_BASE_URL}/scoreFusion/`}
-                target="_blank"
-                hideExternalIcon
-              >
-                $scoreFusion
-              </Link>
-              {'.'}
-            </>
-          ),
-          primaryActionButtonIsLoading: isSearchIndexesLoading,
-          primaryActionButtonLabel: isSearchIndexesLoading
-            ? undefined
-            : hasSearchIndex
-            ? 'Add $search stage'
-            : 'Learn about search',
-          ...(hasSearchIndex && !isSearchIndexesLoading
-            ? {
-                onPrimaryActionButtonClick: () =>
-                  onAddSearchStageBefore(stageIndex),
-              }
-            : !isSearchIndexesLoading
-            ? {
-                primaryActionButtonLink: atlasMetadata
-                  ? buildAtlasSearchClustersUrl({
-                      projectId: atlasMetadata.projectId,
-                    })
-                  : 'https://dochub.mongodb.org/core/atlas-search',
-              }
-            : {}),
-          onAssistantButtonClick: onRerankInsightAction,
-        }
-      : undefined;
+  const rerankInsight = useRerankInsight({
+    isRerankFirstStage,
+    hasSearchIndex,
+    isSearchIndexesLoading,
+    onAddSearchStageBefore: () => onAddSearchStageBefore(stageIndex),
+  });
 
   const insight = rerankInsight ?? performanceInsight;
 
@@ -445,11 +377,12 @@ export default connect(
       stage,
       env,
       isSearchIndexesSupported,
-      isRerankFirstStage:
-        stage?.stageOperator === '$rerank' && getIsRerankFirstStage(state),
+      isRerankFirstStage: getIsRerankFirstStage(state, stageIndex),
       hasSearchIndex: indexes.length > 0,
       isSearchIndexesLoading:
-        searchIndexesStatus === 'INITIAL' || searchIndexesStatus === 'LOADING',
+        searchIndexesStatus === 'INITIAL' ||
+        searchIndexesStatus === 'LOADING' ||
+        searchIndexesStatus === 'POLLING',
       stages: stages.reduce<Stage[]>((accumulator, stage, idxInStore) => {
         if (stage.type === 'stage') {
           accumulator.push({

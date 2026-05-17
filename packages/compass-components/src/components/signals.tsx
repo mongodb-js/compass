@@ -165,7 +165,7 @@ const SIGNALS: Pick<
     id: 'rerank-without-search',
     title: 'Using $rerank without a search stage',
     description:
-      "You're attempting to run a query with $rerank as the only stage. This is expensive and increases strain. We recommend using $rerank as the second stage to $search, $vectorSearch, $rankFusion, or $scoreFusion.",
+      '$rerank is the first stage with no preceding search stage. This is expensive and increases strain. We recommend using $rerank as the second stage to $search, $vectorSearch, $rankFusion, or $scoreFusion.',
   },
 ] as const;
 
