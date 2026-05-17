@@ -10,6 +10,7 @@ import { RerankTokensBanner } from '../../rerank-tokens-banner';
 import type { RootState } from '../../../modules';
 import { RerankFirstStageBanner } from '../../rerank-first-stage-banner';
 import { getIsRerankFirstStage } from '../../../modules/pipeline-builder/builder-helpers';
+import { getStageOperator } from '../../../utils/stage';
 
 const outerContainerStyles = css({
   display: 'flex',
@@ -110,14 +111,15 @@ const mapState = (state: RootState) => {
     autoPreview,
     pipelineBuilder: {
       textEditor: {
-        pipeline: { pipelineText },
+        pipeline: { pipeline },
       },
     },
   } = state;
   return {
     isAutoPreview: !!autoPreview,
     showRerankFirstStageBanner: getIsRerankFirstStage(state),
-    showRerankTokensBanner: pipelineText.includes('$rerank') && !!autoPreview,
+    showRerankTokensBanner:
+      pipeline.some((s) => getStageOperator(s) === '$rerank') && !!autoPreview,
   };
 };
 

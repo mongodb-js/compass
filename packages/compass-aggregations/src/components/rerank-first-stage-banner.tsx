@@ -18,7 +18,6 @@ export const useRerankInsightAction = () => {
     ? () => tellMoreAboutInsight({ id: 'rerank-first-stage' })
     : undefined;
 };
-
 const bannerStyles = css({
   borderRadius: 0,
   border: 'none',
@@ -43,7 +42,6 @@ const bannerButtonStyles = css({
   whiteSpace: 'nowrap',
   marginLeft: spacing[200],
 });
-
 export const RerankFirstStageBanner = ({
   'data-testid': dataTestId,
 }: {
