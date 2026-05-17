@@ -11,7 +11,12 @@ const renderPipelineAsTextWorkspace = (
   props: Partial<ComponentProps<typeof PipelineAsTextWorkspace>> = {}
 ) => {
   return renderWithStore(
-    <PipelineAsTextWorkspace isAutoPreview={true} {...props} />
+    <PipelineAsTextWorkspace
+      isAutoPreview={true}
+      showRerankFirstStageBanner={false}
+      showRerankTokensBanner={false}
+      {...props}
+    />
   );
 };
 
