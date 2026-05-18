@@ -157,9 +157,18 @@ class CompassTelemetry {
         ),
     });
     if (telemetryDeviceId !== this.telemetryDeviceId) {
-      await preferences.savePreferences({
-        telemetryDeviceId: this.telemetryDeviceId,
-      });
+      try {
+        await preferences.savePreferences({
+          telemetryDeviceId: this.telemetryDeviceId,
+        });
+      } catch (err: any) {
+        log.error(
+          mongoLogId(1_001_000_430),
+          'Telemetry',
+          'Failed to save device ID to preferences',
+          { err: err.message }
+        );
+      }
     }
 
     try {
