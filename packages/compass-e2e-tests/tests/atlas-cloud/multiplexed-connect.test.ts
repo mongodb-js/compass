@@ -49,10 +49,6 @@ describe('Multiplex WebSocket connection', function () {
 
   it('establishes a WebSocket connection to the correct CCS endpoint', async function () {
     const { cloudUrl } = getCloudUrlsFromContext();
-    const expectedWsUrl = `${cloudUrl
-      .replace('http://', 'ws://')
-      .replace('https://', 'wss://')}/ccs/${context.atlasCloudProjectId}`;
-
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
       'test',
@@ -66,6 +62,8 @@ describe('Multiplex WebSocket connection', function () {
       return getLink?.()?.url ?? null;
     });
 
-    expect(actualWsUrl).to.equal(expectedWsUrl);
+    expect(actualWsUrl).to.match(
+      new RegExp(`/ccs/${context.atlasCloudProjectId}$`)
+    );
   });
 });

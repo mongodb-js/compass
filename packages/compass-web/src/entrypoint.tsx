@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
@@ -138,7 +138,10 @@ const WithMultiplexTransport = createServiceProvider(
     const abortControllerRef = useRef(new AbortController());
     const logger = useLogger('COMPASS-WEB-MULTIPLEXING');
     const atlasService = atlasServiceLocator();
-    const ccsUrls = atlasService.multiplexWebsocketEndpoint(projectId);
+    const ccsUrls = useMemo(
+      () => atlasService.multiplexWebsocketEndpoint(projectId),
+      [atlasService, projectId]
+    );
 
     useEffect(() => {
       const abortController = abortControllerRef.current;

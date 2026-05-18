@@ -1,9 +1,8 @@
 import { ipVersion } from 'is-ip';
-import type { ConnectionOptions } from 'mongodb-data-service';
 import { Duplex } from 'stream';
 import { getMultiplexLink } from '../../src/multiplex-link';
 
-type ConnectOptions = Pick<ConnectionOptions, 'lookup'> & {
+type ConnectOptions = {
   host: string;
   port: number;
   tls?: boolean;
@@ -33,7 +32,7 @@ class Socket extends Duplex {
     super();
   }
 
-  private setupMultiplexedConnection(options: Omit<ConnectOptions, 'lookup'>) {
+  connect(options: ConnectOptions) {
     const link = getMultiplexLink();
     if (!link) {
       throw new Error('Link is not available');
@@ -76,10 +75,6 @@ class Socket extends Duplex {
         );
       });
     return this;
-  }
-
-  connect({ lookup, ...options }: ConnectOptions): Socket {
-    return this.setupMultiplexedConnection(options);
   }
   _read() {
     // noop

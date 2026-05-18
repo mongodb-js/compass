@@ -174,6 +174,7 @@ export class Link implements Disposable {
     this.baseUrls = _wsUrlOverride
       ? [_wsUrlOverride]
       : baseUrls ?? ['ws://localhost:1337'];
+    if (!this.baseUrls.length) throw new Error('baseUrls must not be empty');
     this.logger = logger;
     this.logger?.log.info(
       this.logger?.mongoLogId(1_001_000_420),
@@ -306,6 +307,7 @@ export class Link implements Disposable {
 
   private onClose(event: CloseEvent) {
     this.ws = null;
+    this.connectedUrl = null;
     if (this.closed) return;
 
     this.logger?.log.info(
