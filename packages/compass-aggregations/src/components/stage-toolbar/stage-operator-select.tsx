@@ -158,6 +158,7 @@ export const StageOperatorSelect = ({
     [onChange, index]
   );
   const enableRerank = usePreference('enableRerank');
+  // TODO(COMPASS-10681): Remove $rerank top-of-list sort after marketing period.
   const visibleStages = enableRerank
     ? [...stages].sort((a, b) =>
         a.name === '$rerank' ? -1 : b.name === '$rerank' ? 1 : 0
