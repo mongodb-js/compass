@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   Banner,
   Button,
@@ -17,9 +17,10 @@ import { STAGE_HELP_BASE_URL } from '../constants';
 
 export const useRerankInsightAction = () => {
   const { tellMoreAboutInsight } = useAssistantActions();
-  return tellMoreAboutInsight
-    ? () => tellMoreAboutInsight({ id: 'rerank-first-stage' })
-    : undefined;
+  const action = useCallback(() => {
+    tellMoreAboutInsight?.({ id: 'rerank-first-stage' });
+  }, [tellMoreAboutInsight]);
+  return tellMoreAboutInsight ? action : undefined;
 };
 
 const rerankInsightDescription = (
@@ -77,31 +78,42 @@ export const useRerankInsight = ({
   const onAssistantButtonClick = useRerankInsightAction();
   const { atlasMetadata } = useConnectionInfo();
 
-  if (!enableRerank || !isRerankFirstStage) return undefined;
+  return useMemo(() => {
+    if (!enableRerank || !isRerankFirstStage) return undefined;
 
-  return {
-    ...PerformanceSignals.get('rerank-without-search'),
-    description: rerankInsightDescription,
-    primaryActionButtonIsLoading: isSearchIndexesLoading,
-    primaryActionButtonLabel: isSearchIndexesLoading
-      ? undefined
-      : hasSearchIndex
-      ? 'Add $search stage'
-      : 'Learn about search',
-    ...(hasSearchIndex && !isSearchIndexesLoading
-      ? { onPrimaryActionButtonClick: onAddSearchStageBefore }
-      : !isSearchIndexesLoading
-      ? {
-          primaryActionButtonLink: atlasMetadata
-            ? buildAtlasSearchClustersUrl({
-                projectId: atlasMetadata.projectId,
-              })
-            : 'https://dochub.mongodb.org/core/atlas-search',
-        }
-      : {}),
+    return {
+      ...PerformanceSignals.get('rerank-without-search'),
+      description: rerankInsightDescription,
+      primaryActionButtonIsLoading: isSearchIndexesLoading,
+      primaryActionButtonLabel: isSearchIndexesLoading
+        ? undefined
+        : hasSearchIndex
+        ? 'Add $search stage'
+        : 'Learn about search',
+      ...(hasSearchIndex && !isSearchIndexesLoading
+        ? { onPrimaryActionButtonClick: onAddSearchStageBefore }
+        : !isSearchIndexesLoading
+        ? {
+            primaryActionButtonLink: atlasMetadata
+              ? buildAtlasSearchClustersUrl({
+                  projectId: atlasMetadata.projectId,
+                })
+              : 'https://dochub.mongodb.org/core/atlas-search',
+          }
+        : {}),
+      onAssistantButtonClick,
+    };
+  }, [
+    enableRerank,
+    isRerankFirstStage,
+    hasSearchIndex,
+    isSearchIndexesLoading,
+    onAddSearchStageBefore,
+    atlasMetadata,
     onAssistantButtonClick,
-  };
+  ]);
 };
+
 const bannerStyles = css({
   borderRadius: 0,
   border: 'none',
@@ -126,6 +138,7 @@ const bannerButtonStyles = css({
   whiteSpace: 'nowrap',
   marginLeft: spacing[200],
 });
+
 export const RerankFirstStageBanner = ({
   'data-testid': dataTestId,
 }: {

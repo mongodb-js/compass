@@ -181,7 +181,7 @@ const signalCardDescriptionStyles = css({
 
 const signalCardActionGroupStyles = css({
   display: 'flex',
-  gap: spacing[200],
+  justifyContent: 'space-between',
 });
 
 const signalCardActionButtonStyles = css({
@@ -378,7 +378,7 @@ const MultiSignalHeader: React.FunctionComponent<{
 };
 
 const popoverStyles = css({
-  width: 360,
+  width: 315,
 });
 
 const popoverHiddenStyles = css({

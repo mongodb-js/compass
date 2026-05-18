@@ -5,6 +5,7 @@ export {
 export { CompassAssistantDrawer } from './compass-assistant-drawer';
 export {
   useAssistantActions,
+  AssistantActionsContext,
   compassAssistantServiceLocator,
 } from './compass-assistant-provider';
 export type { CompassAssistantService } from './compass-assistant-provider';

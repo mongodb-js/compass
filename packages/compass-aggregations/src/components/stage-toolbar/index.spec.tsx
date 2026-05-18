@@ -1,8 +1,6 @@
 import React from 'react';
 import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-
 import {
   renderWithStore,
   wrapWithExperimentProvider,
@@ -159,21 +157,20 @@ describe('StageToolbar', function () {
 
   context('rerank insight signal', function () {
     it('shows insight badge when $rerank is the first stage and enableRerank is true', async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({ enableRerank: true });
-      await renderStageToolbar([{ $rerank: {} }], undefined, {
-        services: { preferences },
-      });
+      const preferences = new ReadOnlyPreferenceAccess({ enableRerank: true });
+      await renderStageToolbar([{ $rerank: {} }], preferences);
       expect(screen.getByTestId('insight-badge-button')).to.exist;
     });
 
     it('does not show insight badge when $rerank is not the first stage', async function () {
-      const preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({ enableRerank: true });
-      await renderStageToolbar([{ $search: {} }, { $rerank: {} }], undefined, {
-        services: { preferences },
-        stageIndex: 1,
-      });
+      const preferences = new ReadOnlyPreferenceAccess({ enableRerank: true });
+      await renderStageToolbar(
+        [{ $search: {} }, { $rerank: {} }],
+        preferences,
+        {
+          stageIndex: 1,
+        }
+      );
       expect(screen.queryByTestId('insight-badge-button')).to.not.exist;
     });
   });

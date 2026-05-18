@@ -14,7 +14,7 @@ import {
   formatHotkey,
   SignalPopover,
 } from '@mongodb-js/compass-components';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
@@ -131,14 +131,25 @@ export const FocusModeModalHeader: React.FunctionComponent<
     }
   }, [stage, env, isSearchIndexesSupported, onCreateSearchIndex]);
 
+  const onAddSearchStageBeforeCurrentStage = useCallback(() => {
+    onAddSearchStageBefore(stageIndex);
+  }, [onAddSearchStageBefore, stageIndex]);
+
   const rerankInsight = useRerankInsight({
     isRerankFirstStage,
     hasSearchIndex,
     isSearchIndexesLoading,
-    onAddSearchStageBefore: () => onAddSearchStageBefore(stageIndex),
+    onAddSearchStageBefore: onAddSearchStageBeforeCurrentStage,
   });
 
   const insight = rerankInsight ?? performanceInsight;
+
+  const onPopoverOpenChange = useCallback(
+    (open: boolean) => {
+      if (open && isRerankFirstStage) onRefreshSearchIndexes();
+    },
+    [isRerankFirstStage, onRefreshSearchIndexes]
+  );
 
   const isFirst = stages[0].idxInStore === stageIndex;
   const isLast = stages[stages.length - 1].idxInStore === stageIndex;
@@ -346,9 +357,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
       {showInsights && insight && (
         <SignalPopover
           signals={insight}
-          onPopoverOpenChange={(open) => {
-            if (open && isRerankFirstStage) onRefreshSearchIndexes();
-          }}
+          onPopoverOpenChange={onPopoverOpenChange}
         />
       )}
     </div>

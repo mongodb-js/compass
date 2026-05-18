@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Icon,
@@ -184,14 +184,25 @@ export function StageToolbar({
     [stage, env, isSearchIndexesSupported, onCreateSearchIndex]
   );
 
+  const onAddSearchStageBeforeCurrentStage = useCallback(() => {
+    onAddSearchStageBefore(index);
+  }, [onAddSearchStageBefore, index]);
+
   const rerankInsight = useRerankInsight({
     isRerankFirstStage,
     hasSearchIndex,
     isSearchIndexesLoading,
-    onAddSearchStageBefore: () => onAddSearchStageBefore(index),
+    onAddSearchStageBefore: onAddSearchStageBeforeCurrentStage,
   });
 
   const insight = rerankInsight ?? performanceInsight;
+
+  const onPopoverOpenChange = useCallback(
+    (open: boolean) => {
+      if (open && isRerankFirstStage) onRefreshSearchIndexes();
+    },
+    [isRerankFirstStage, onRefreshSearchIndexes]
+  );
 
   return (
     <div
@@ -247,9 +258,7 @@ export function StageToolbar({
         {showInsights && insight && (
           <SignalPopover
             signals={insight}
-            onPopoverOpenChange={(open) => {
-              if (open && isRerankFirstStage) onRefreshSearchIndexes();
-            }}
+            onPopoverOpenChange={onPopoverOpenChange}
           />
         )}
       </div>

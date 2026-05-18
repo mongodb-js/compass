@@ -188,11 +188,11 @@ ${context.stages.join('\n')}
     }
     case 'query-executed-without-index':
       return {
-        prompt: `The given MongoDB query was executed without an index. Provide a concise human readable explanation that explains why it might degrade performance to not use an index.
+        prompt: `The given MongoDB query was executed without an index. Provide a concise human readable explanation that explains why it might degrade performance to not use an index. 
 
-Please suggest whether an existing index can be used to improve the performance of this query, or if a new index must be created, and describe how it can be accomplished in MongoDB Compass. Do not advise users to create indexes without weighing the pros and cons.
+Please suggest whether an existing index can be used to improve the performance of this query, or if a new index must be created, and describe how it can be accomplished in MongoDB Compass. Do not advise users to create indexes without weighing the pros and cons. 
 
-Respond with as much concision and clarity as possible.
+Respond with as much concision and clarity as possible. 
 
 <input>
 ${context.query}
@@ -204,9 +204,7 @@ ${context.query}
       };
     case 'rerank-first-stage':
       return {
-        prompt: `Why you should use $rerank after a search stage
-
-$rerank can be expensive because it consumes tokens for each document it reranks. For best results and cost efficiency, $rerank should receive pre-ranked results from a search stage. Without a preceding search stage, $rerank may process all documents in your collection, resulting in high token consumption and cost. Consider adding a $search, $vectorSearch, $rankFusion, or $scoreFusion stage before $rerank to reduce the number of documents being reranked and improve relevance.`,
+        prompt: `Why you should use $rerank after a search stage?`,
         metadata: {
           displayText: 'Why you should use $rerank after a search stage',
         },
