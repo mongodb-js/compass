@@ -73,6 +73,18 @@ const OUT_STAGE: StoreStage = mapBuilderStageToStoreStage(
   2
 );
 
+const RERANK_STAGE: StoreStage = mapBuilderStageToStoreStage(
+  {
+    id: 4,
+    operator: '$rerank',
+    value: '{}',
+    syntaxError: null,
+    disabled: false,
+    isEmpty: false,
+  } as Stage,
+  0
+);
+
 const createWizard = (): Wizard => ({
   id: getId(),
   type: 'wizard',
@@ -534,7 +546,10 @@ describe('stageEditor', function () {
 
   describe('addSearchStageBefore', function () {
     it('inserts a $search stage before a first-stage $rerank (storeIndex 0)', function () {
-      const store = createStore({ pipelineSource: '[{$rerank: {}}]' });
+      const store = createStore({
+        pipelineSource: '[{$rerank: {}}]',
+        stages: [RERANK_STAGE],
+      });
       store.dispatch(addSearchStageBefore(0));
       const stages = store.getState().stages.filter((s) => s.type === 'stage');
       expect(stages).to.have.lengthOf(2);
@@ -545,6 +560,7 @@ describe('stageEditor', function () {
     it('inserts a $search stage before $rerank at a non-zero index', function () {
       const store = createStore({
         pipelineSource: '[{$match: {}}, {$rerank: {}}]',
+        stages: [MATCH_STAGE, { ...RERANK_STAGE, idxInPipeline: 1 }],
       });
       store.dispatch(addSearchStageBefore(1));
       const stages = store.getState().stages.filter((s) => s.type === 'stage');

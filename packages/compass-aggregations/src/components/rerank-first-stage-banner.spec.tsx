@@ -56,7 +56,15 @@ describe('RerankFirstStageBanner', function () {
       <AssistantActionsContext.Provider value={{ tellMoreAboutInsight }}>
         <RerankFirstStageBanner data-testid="rerank-first-stage-banner" />
       </AssistantActionsContext.Provider>,
-      { preferences: { enableRerank: true } }
+      {
+        preferences: {
+          enableRerank: true,
+          enableAIAssistant: true,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
+          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+        },
+      }
     );
     const btn = screen.getByTestId('rerank-first-stage-learn-more-button');
     expect(btn).to.exist;
