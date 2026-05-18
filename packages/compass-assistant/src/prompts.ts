@@ -204,7 +204,7 @@ ${context.query}
       };
     case 'rerank-first-stage':
       return {
-        prompt: `Why you should use $rerank after a search stage?`,
+        prompt: `Why you should use $rerank after a search stage`,
         metadata: {
           displayText: 'Why you should use $rerank after a search stage',
         },

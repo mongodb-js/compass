@@ -182,6 +182,7 @@ const signalCardDescriptionStyles = css({
 const signalCardActionGroupStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
+  gap: spacing[200],
 });
 
 const signalCardActionButtonStyles = css({
