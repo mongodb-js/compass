@@ -170,6 +170,7 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports the right stages for the environment', async function () {
+    await browser.setFeature('enableRerank', false);
     const options = await browser.getStageOperators(0);
 
     const expectedAggregations = [
@@ -194,7 +195,6 @@ describe('Collection aggregations tab', function () {
       '$redact',
       '$replaceRoot',
       '$replaceWith',
-      '$rerank',
       '$sample',
       '$search',
       '$searchMeta',

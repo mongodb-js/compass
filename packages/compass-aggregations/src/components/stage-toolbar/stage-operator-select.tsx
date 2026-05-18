@@ -1,11 +1,17 @@
 import React, { useCallback } from 'react';
-import { withPreferences } from 'compass-preferences-model/provider';
+import {
+  withPreferences,
+  usePreference,
+} from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 import {
+  Badge,
+  BadgeVariant,
   Combobox,
   ComboboxOption,
+  Description,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -29,6 +35,30 @@ const inputWidth = spacing[1400] * 3;
 const comboxboxOptionsWidth = spacing[1200] * 14;
 // left position of options popover wrt input. this aligns it with the start of input
 const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
+
+const rerankStageOptionStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[100],
+  padding: `${spacing[100]}px 0`,
+});
+
+const rerankStageNameRowStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
+});
+
+const RerankStageOption = ({ description }: { description: string }) => (
+  <div className={rerankStageOptionStyles}>
+    <div className={rerankStageNameRowStyles}>
+      <span>$rerank</span>
+      <Badge variant={BadgeVariant.Blue}>Preview</Badge>
+      <Badge variant={BadgeVariant.Blue}>Start Free</Badge>
+    </div>
+    <Description>{description}</Description>
+  </div>
+);
 
 const comboboxStyles = css({
   width: inputWidth,
@@ -127,6 +157,14 @@ export const StageOperatorSelect = ({
     },
     [onChange, index]
   );
+  const enableRerank = usePreference('enableRerank');
+  // TODO(COMPASS-10681): Remove $rerank top-of-list sort after marketing period.
+  const visibleStages = enableRerank
+    ? [...stages].sort((a, b) =>
+        a.name === '$rerank' ? -1 : b.name === '$rerank' ? 1 : 0
+      )
+    : stages.filter((s) => s.name !== '$rerank');
+
   const versionIncompatibleCompass =
     !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
       serverVersion
@@ -153,21 +191,30 @@ export const StageOperatorSelect = ({
       data-testid="stage-operator-combobox"
       className={comboboxStyles}
     >
-      {stages.map((stage: Stage, index) => (
-        <ComboboxOption
-          data-testid={`combobox-option-stage-${stage.name}`}
-          key={`combobox-option-stage-${index}`}
-          value={stage.name}
-          disabled={isSearchStage(stage.name) && disableSearchStage}
-          description={getStageDescription(
-            stage,
-            sourceName,
-            serverVersion,
-            versionIncompatibleCompass,
-            pipelineIsSearchQueryable
-          )}
-        />
-      ))}
+      {visibleStages.map((stage: Stage) => {
+        const description = getStageDescription(
+          stage,
+          sourceName,
+          serverVersion,
+          versionIncompatibleCompass,
+          pipelineIsSearchQueryable
+        );
+        return (
+          <ComboboxOption
+            data-testid={`combobox-option-stage-${stage.name}`}
+            key={stage.name}
+            value={stage.name}
+            disabled={isSearchStage(stage.name) && disableSearchStage}
+            {...(stage.name === '$rerank'
+              ? {
+                  customContent: (
+                    <RerankStageOption description={description} />
+                  ),
+                }
+              : { description })}
+          />
+        );
+      })}
     </Combobox>
   );
 };

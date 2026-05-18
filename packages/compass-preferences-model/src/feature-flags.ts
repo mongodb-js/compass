@@ -241,6 +241,14 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable multiplexing websocket on web',
     },
   },
+  {
+    name: 'enableRerank',
+    stage: 'preview',
+    atlasCloudFeatureFlagName: 'ATLAS_SEARCH_NATIVE_RERANK_UI',
+    description: {
+      short: 'Enable $rerank stage UI in Aggregation Pipeline Builder',
+    },
+  },
 
   /*
    * Feature flag for auto embedding public preview UI changes.

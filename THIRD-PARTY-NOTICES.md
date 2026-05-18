@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon May 11 2026.
+This document was automatically generated on Sun May 17 2026.
 
 ## List of dependencies
 
@@ -286,7 +286,7 @@ This document was automatically generated on Mon May 11 2026.
 | **[fast-deep-equal](#c3b1bc7fbf8bedbac237ffb2eb2aa967bc264fc393bb6451c52a831352540d09)**                                    | 2.0.1        | MIT                                 |
 | **[fast-deep-equal](#60db03f2d9496a0b9ae959899afa824927ba0b591f97c193aa8b0c67acc710e6)**                                    | 3.1.3        | MIT                                 |
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2        | MIT                                 |
-| **[fast-uri](#1ea5904acf2bbd97077988b465d770463c17bc14b33319b8d7a8ceb1e056b3fd)**                                           | 3.0.1        | MIT                                 |
+| **[fast-uri](#031832a888dd4174dc39688063507954f9052606684aa85af217b91c2b6e5ba1)**                                           | 3.1.2        | BSD-3-Clause                        |
 | **[fast-xml-builder](#37a0e599fe1e49e5394d7fe31c7de1a70e6530a300655305d76ec4b97141105a)**                                   | 1.1.4        | MIT                                 |
 | **[fast-xml-parser](#1edd68d10296c5e70396c4f2d95ef2070e6878a5ed751629bcb8d5e531e277f2)**                                    | 5.5.8        | MIT                                 |
 | **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**                                         | 3.2.0        | MIT                                 |
@@ -22688,18 +22688,18 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="1ea5904acf2bbd97077988b465d770463c17bc14b33319b8d7a8ceb1e056b3fd"></a>
+<a id="031832a888dd4174dc39688063507954f9052606684aa85af217b91c2b6e5ba1"></a>
 
-### [fast-uri](https://www.npmjs.com/package/fast-uri) (version 3.0.1)
+### [fast-uri](https://www.npmjs.com/package/fast-uri) (version 3.1.2)
 
-License tags: MIT
+License tags: BSD-3-Clause
 
 License files:
 
 - LICENSE:
 
-      Copyright (c) 2021 The Fastify Team
       Copyright (c) 2011-2021, Gary Court until https://github.com/garycourt/uri-js/commit/a1acf730b4bba3f1097c9f52e7d9d3aba8cdcaae
+      Copyright (c) 2021-present The Fastify team <https://github.com/fastify/fastify#team>
       All rights reserved.
 
       Redistribution and use in source and binary forms, with or without
