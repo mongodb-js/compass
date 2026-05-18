@@ -1,4 +1,9 @@
 import type { McpAccess } from '@mongodb-js/connection-info';
+import type {
+  SaveAggregationInput,
+  SaveQueryInput,
+  SavedQueryItem,
+} from './mcp-saved-query-storage';
 
 export type CollectionSubtab =
   | 'Documents'
@@ -78,4 +83,23 @@ export interface CompassToolContext {
    * a connection exists).
    */
   checkAccess: (toolName: string) => void;
+
+  /**
+   * Returns saved queries + aggregations the AI catalog can see. Items
+   * without a `description` are filtered out by the underlying storage —
+   * the AI only sees items the user (or a previous AI session) annotated.
+   */
+  listSavedQueries: () => Promise<SavedQueryItem[]>;
+
+  /**
+   * Persist a new FavoriteQuery on behalf of the AI. The created entry is
+   * tagged `authoredBy: 'ai'` so users can audit / clean up AI-authored
+   * items from the Compass saved-queries UI.
+   */
+  saveSavedQuery: (input: SaveQueryInput) => Promise<{ id: string }>;
+
+  /** Persist a new SavedPipeline on behalf of the AI. Tagged similarly. */
+  saveSavedAggregation: (input: SaveAggregationInput) => Promise<{
+    id: string;
+  }>;
 }

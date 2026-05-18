@@ -22,6 +22,8 @@ import {
 import { ListConnectionsTool } from './list-connections-tool';
 import { CompassConnectTool } from './compass-connect-tool';
 import { CompassOpenCollectionTool } from './compass-open-collection-tool';
+import { ListSavedQueriesTool } from './list-saved-queries-tool';
+import { SaveSavedQueryTool } from './save-saved-query-tool';
 import { aggregateStageGate, withAccessCheck } from './build-tool-context';
 
 /**
@@ -40,6 +42,8 @@ export const COMPASS_TOOLS = [
   CompassConnectTool,
   ListConnectionsTool,
   CompassOpenCollectionTool,
+  ListSavedQueriesTool,
+  SaveSavedQueryTool,
 
   // Upstream read / metadata tools.
   withAccessCheck(ListDatabasesTool),

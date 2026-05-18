@@ -41,6 +41,7 @@ import {
 } from '@mongodb-js/devtools-proxy-support';
 import { handleSquirrelWindowsStartup } from './squirrel-startup';
 import { CompassMcpServerManager } from '@mongodb-js/compass-mcp-server';
+import { getCompassMainSavedQueryStorage } from './compass-main-saved-query-storage';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
@@ -204,7 +205,8 @@ class CompassApplication {
   private static async setupMcpServer(): Promise<void> {
     await CompassMcpServerManager.init(
       this.preferences,
-      getCompassMainConnectionStorage()
+      getCompassMainConnectionStorage(),
+      getCompassMainSavedQueryStorage()
     );
     this.addExitHandler(() => CompassMcpServerManager.onExit());
   }

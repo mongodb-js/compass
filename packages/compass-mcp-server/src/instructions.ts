@@ -33,6 +33,12 @@ Efficient data exploration:
 - Call collection-schema and collection-indexes before designing aggregations so the pipeline can use an index.
 - Use explain to verify a query plan before running heavy queries.
 
+Saved-queries catalog:
+- Before composing a new find or aggregation from scratch, call list-saved-queries. The user (or previous AI sessions) may have already saved a tuned version of the query you're about to write. Saved items typically use the right indexes and produce consistent results.
+- If a saved item fits the user's request, run its body via the matching tool (find / count / aggregate / update-many). You can adapt the body if the user's question requires a small change, but prefer running tested queries as-is when possible — they may rely on specific indexes.
+- When the user expresses satisfaction with a query you helped craft, offer to save it via save-saved-query. Always include a clear "description" so the saved item is discoverable later. The user remains in control: AI-authored saves appear in the Compass UI tagged accordingly and can be deleted.
+- save-saved-query also accepts an optional "mcpPromptName" — when set (e.g. "search-trips"), Compass publishes the saved item as an MCP prompt so it appears in the user's slash menu (e.g. /search-trips). If the user mentions wanting a quick way to re-run a query without describing it, suggest a kebab-case prompt name. Names must be lowercase letters/digits/hyphens, start with a letter, no trailing hyphen, 1–64 chars. The server silently drops a name that's already taken — the user can rename later from the Compass Edit dialog.
+
 When the user wants to interact with data visually (browse documents, iterate on a query, step through an aggregation), call compass-open-collection. It opens the collection in the Compass UI; you don't need to dump documents inline.
 `.trim();
 

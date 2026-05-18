@@ -17,8 +17,6 @@ function renderRecentList(
     <RecentList
       onApply={props?.onApply || Sinon.spy()}
       onDelete={props?.onDelete || Sinon.spy()}
-      onSaveFavorite={props?.onSaveFavorite || Sinon.spy()}
-      onFavorite={props?.onFavorite || Sinon.spy()}
       onUpdateRecentChoosen={props?.onUpdateRecentChoosen || Sinon.spy()}
       queries={props?.queries || []}
       isReadonly={props?.isReadonly || false}

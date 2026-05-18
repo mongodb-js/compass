@@ -7,6 +7,7 @@ import type { RootState } from '../../../modules';
 import { saveCurrentPipeline } from '../../../modules/saved-pipeline';
 import {
   openCreateView,
+  openSaveAsModalForCurrentPipeline,
   savingPipelineOpen,
 } from '../../../modules/saving-pipeline';
 
@@ -94,10 +95,15 @@ const mapSaveMenuDispatch = {
   onSave: (name: string) => {
     return name === '' ? savingPipelineOpen() : saveCurrentPipeline();
   },
+  // Save As: when there's no name yet, the pipeline was never saved —
+  // just open the empty modal. When there IS a name (we're saving over
+  // an existing pipeline), seed the modal from the currently-persisted
+  // description / mcpPromptName via the openSaveAsModalForCurrentPipeline
+  // thunk, so the user doesn't have to retype those each time.
   onSaveAs: (name: string) => {
     return name === ''
       ? savingPipelineOpen()
-      : savingPipelineOpen({ name, isSaveAs: true });
+      : openSaveAsModalForCurrentPipeline();
   },
   onCreateView: openCreateView,
 };

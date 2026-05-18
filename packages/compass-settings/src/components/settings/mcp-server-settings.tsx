@@ -10,6 +10,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
+import { MCP_IPC } from '@mongodb-js/compass-mcp-server';
 import SettingsList from './settings-list';
 
 // ─── client definitions ─────────────────────────────────────────────────────
@@ -153,7 +154,7 @@ const McpServerSettings: React.FunctionComponent = () => {
 
   useEffect(() => {
     void ipcRenderer
-      ?.call('mcp:get-bridge-info')
+      ?.call(MCP_IPC.GetBridgeInfo)
       .then((info: BridgeInfo) => setBridge(info));
   }, []);
 
@@ -167,7 +168,7 @@ const McpServerSettings: React.FunctionComponent = () => {
   useEffect(() => {
     let cancelled = false;
     void ipcRenderer
-      ?.call('mcp:detect-in-client', activeClient)
+      ?.call(MCP_IPC.DetectInClient, activeClient)
       .then((status: DetectedStatus) => {
         if (cancelled) return;
         setDetected(status);
@@ -189,7 +190,7 @@ const McpServerSettings: React.FunctionComponent = () => {
     (e: React.MouseEvent) => {
       e.preventDefault();
       if (!configPath) return;
-      void ipcRenderer?.call('mcp:open-config-file', configPath);
+      void ipcRenderer?.call(MCP_IPC.OpenConfigFile, configPath);
     },
     [configPath]
   );
@@ -211,7 +212,7 @@ const McpServerSettings: React.FunctionComponent = () => {
     setInstalling(true);
     setInstallError(null);
     void ipcRenderer
-      ?.call('mcp:install-in-client', activeClient)
+      ?.call(MCP_IPC.InstallInClient, activeClient)
       .then(() => refreshDetection())
       .catch((err: Error) => setInstallError(err.message))
       .finally(() => setInstalling(false));

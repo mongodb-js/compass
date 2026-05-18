@@ -1,5 +1,6 @@
 import { z } from '@mongodb-js/compass-user-data';
 import { prettify } from '@mongodb-js/compass-editor';
+import { isValidMcpPromptName } from './mcp-prompt-name';
 
 function stageToString(
   operator: string,
@@ -72,6 +73,32 @@ export const PipelineSchema = z.preprocess(
       .number()
       .default(0)
       .transform((x) => new Date(x)),
+    /**
+     * Human-readable description of what the aggregation does, used by
+     * AI agents (via the MCP server) to decide whether this pipeline fits
+     * a user's request. Optional — pipelines saved before this field
+     * existed (or without a description) are hidden from the AI catalog.
+     */
+    description: z.string().optional(),
+    /**
+     * Marks who authored the pipeline. `ai` indicates the pipeline was
+     * saved by an external AI agent through the MCP `save-saved-query`
+     * tool; surfaced in the saved-aggregations UI for audit. Absent on
+     * pipelines saved before this field existed.
+     */
+    authoredBy: z.enum(['ai', 'human']).optional(),
+    /**
+     * Optional slash-command name under which the MCP server publishes
+     * this saved pipeline as an MCP prompt. See the equivalent field on
+     * the FavoriteQuery schema for full context.
+     */
+    mcpPromptName: z
+      .string()
+      .refine(isValidMcpPromptName, {
+        message:
+          'Invalid MCP prompt name: must be lowercase kebab-case, 1–64 chars, starting with a letter.',
+      })
+      .optional(),
   })
 );
 

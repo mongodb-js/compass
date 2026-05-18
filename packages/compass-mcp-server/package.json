@@ -1,6 +1,6 @@
 {
   "name": "@mongodb-js/compass-mcp-server",
-  "description": "Hosts a local MCP HTTP server inside Compass so external AI clients can run read-only MongoDB queries",
+  "description": "Hosts a local MCP server inside Compass so external AI clients can query MongoDB via the user's saved connections",
   "author": {
     "name": "MongoDB Inc",
     "email": "compass@mongodb.com"
@@ -17,7 +17,8 @@
     "url": "https://github.com/mongodb-js/compass.git"
   },
   "files": [
-    "dist"
+    "dist",
+    "scripts"
   ],
   "license": "SSPL",
   "main": "dist/index.js",
@@ -49,6 +50,7 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@mongodb-js/compass-logging": "^1.14.1",
     "@mongodb-js/connection-info": "^0.27.4",
     "@mongosh/service-provider-node-driver": "^5.0.8",
@@ -58,7 +60,8 @@
     "jsonc-parser": "^3.2.0",
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.1",
-    "mongodb-mcp-server": "^1.10.0"
+    "mongodb-mcp-server": "^1.10.0",
+    "zod": "^4.0.0"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.22",
@@ -67,7 +70,6 @@
     "@mongodb-js/tsconfig-compass": "^1.3.0",
     "@types/chai": "^4.2.21",
     "@types/mocha": "^9.0.0",
-    "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0",

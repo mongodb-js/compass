@@ -19,9 +19,6 @@ export interface ResolvedConnection {
   displayName: string;
 }
 
-export type ConsentDecision = 'allowed' | 'denied';
-export type ConsentState = ConsentDecision | 'ask';
-
 /**
  * User's response from the consent dialog. `access` carries the full policy
  * including preset when allowed.
@@ -48,8 +45,15 @@ export interface CompassConnectionManagerOptions {
   /**
    * Called when `checkAccess` returns `{ mode: 'ask' }`. Presents the UI
    * preset picker and returns the user's choice plus whether to remember it.
+   * `clientName` is the MCP `clientInfo.name` reported during initialize
+   * (e.g. "claude-ai", "cursor-vscode") — shown in the dialog so the user
+   * knows which app is asking.
    */
-  requestAccessFromUI: (id: string, name: string) => Promise<ConsentResult>;
+  requestAccessFromUI: (args: {
+    connectionId: string;
+    connectionName: string;
+    clientName: string;
+  }) => Promise<ConsentResult>;
 
   /**
    * Persists an access policy back to the connection's storage record.
@@ -107,10 +111,19 @@ export class CompassConnectionManager extends ConnectionManager {
     const stored = await this.opts.checkAccess(connectionId);
     let effective: { mode: 'allowed'; preset: McpPreset } | { mode: 'denied' };
     if (stored.mode === 'ask') {
-      const result = await this.opts.requestAccessFromUI(
+      const result = await this.opts.requestAccessFromUI({
         connectionId,
-        resolved.displayName
-      );
+        connectionName: resolved.displayName,
+        // `clientName` is set by upstream Session.setMcpClient() after the
+        // MCP `initialize` handshake — well before `connect` is callable.
+        // Upstream defaults the field to the literal string "unknown" when
+        // the client didn't report `clientInfo.name`; swap that for a
+        // friendlier label that fits the dialog copy.
+        clientName:
+          !this.clientName || this.clientName === 'unknown'
+            ? 'Unknown AI client'
+            : this.clientName,
+      });
       effective = result.access;
       if (result.remember) {
         await this.opts.saveAccess(connectionId, result.access);

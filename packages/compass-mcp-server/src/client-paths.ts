@@ -1,6 +1,11 @@
 import os from 'os';
 import path from 'path';
 
+/**
+ * AI client desktop applications we know how to write MCP server config for.
+ * Each id corresponds to one entry in the auto-setup registry and one tab in
+ * the Settings → MCP Server panel.
+ */
 export type AiClientId = 'claude' | 'cursor' | 'vscode' | 'windsurf';
 
 /** Top-level JSON key under which each client lists its MCP servers. */

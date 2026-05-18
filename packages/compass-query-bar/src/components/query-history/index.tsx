@@ -61,10 +61,7 @@ const QueryHistory = ({
       <Toolbar tab={tab} onChange={setTab} namespace={namespace} />
       <div className={contentStyles}>
         {tab === 'recent' && (
-          <RecentList
-            onUpdateRecentChoosen={onUpdateRecentChoosen}
-            onSaveFavorite={() => setTab('favorite')}
-          />
+          <RecentList onUpdateRecentChoosen={onUpdateRecentChoosen} />
         )}
         {tab === 'favorite' && (
           <FavoriteList onUpdateFavoriteChoosen={onUpdateFavoriteChoosen} />

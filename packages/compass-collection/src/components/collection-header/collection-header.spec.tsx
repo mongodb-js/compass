@@ -2,11 +2,13 @@ import { expect } from 'chai';
 import type { ComponentProps } from 'react';
 import React from 'react';
 import {
+  act,
   renderWithConnections,
   screen,
   cleanup,
   within,
   userEvent,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux';
@@ -248,6 +250,61 @@ describe('CollectionHeader [Component]', function () {
         // For view: connection-db-sourceCollectionName-viewName
         assertBreadcrumbText(['db', 'coll3', 'coll1']);
       });
+    });
+
+    // Symbols of the loaded-favorite bridge — duplicated verbatim
+    // from `use-loaded-favorite.ts`. The bridge is wired so that
+    // anything emitting on the workspace tab's localAppRegistry under
+    // these keys ends up in the breadcrumb. We assert that contract
+    // here, on the rendered DOM, because both sides of the bridge are
+    // useless if the actual segment doesn't reach the user's screen.
+    const LOADED_FAVORITE_EVENT = 'query-bar:loaded-favorite-changed';
+
+    context('loaded-favorite chip', function () {
+      it('appears next to the breadcrumbs when the bridge emits a name', async function () {
+        const { localAppRegistry } = renderCollectionHeader({
+          namespace: 'db.coll1',
+        });
+        // Initially: no loaded favorite, no chip.
+        expect(
+          screen.queryByTestId('collection-header-loaded-favorite-chip')
+        ).to.equal(null);
+
+        act(() => {
+          localAppRegistry.emit(LOADED_FAVORITE_EVENT, {
+            name: 'Trips to station 470',
+            isDirty: false,
+          });
+        });
+
+        await waitFor(() => {
+          expect(
+            screen.getByTestId('collection-header-loaded-favorite-chip')
+              .textContent
+          ).to.contain('Trips to station 470');
+        });
+      });
+
+      it('shows a dirty dot when the bridge reports dirty', async function () {
+        const { localAppRegistry } = renderCollectionHeader({
+          namespace: 'db.coll1',
+        });
+        act(() => {
+          localAppRegistry.emit(LOADED_FAVORITE_EVENT, {
+            name: 'Active customers',
+            isDirty: true,
+          });
+        });
+        await waitFor(() => {
+          expect(
+            screen.getByTestId('collection-header-loaded-favorite-dirty-dot')
+          ).to.exist;
+        });
+      });
+
+      // The sticky-on-mount path is exercised in
+      // `use-loaded-favorite.spec.tsx`. Inline-rename behavior is
+      // exercised in `loaded-favorite-breadcrumb-chip.spec.tsx`.
     });
 
     context('calls onClick correclty', function () {

@@ -5,6 +5,7 @@ import {
   useConnectionActions,
   useConnectionsListRef,
 } from '@mongodb-js/compass-connections/provider';
+import { MCP_IPC } from '@mongodb-js/compass-mcp-server';
 
 /**
  * Listens for `mcp:open-collection` IPC events from the main process and
@@ -94,9 +95,9 @@ export function McpNavigationListener(): null {
         console.error('[mcp] open-collection failed', err);
       }
     };
-    ipcRenderer?.on('mcp:open-collection', handler as never);
+    ipcRenderer?.on(MCP_IPC.OpenCollection, handler);
     return () => {
-      ipcRenderer?.removeListener('mcp:open-collection', handler as never);
+      ipcRenderer?.removeListener(MCP_IPC.OpenCollection, handler);
     };
   }, []);
 

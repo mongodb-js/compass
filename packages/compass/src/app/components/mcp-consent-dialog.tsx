@@ -6,18 +6,19 @@ import {
   Body,
   Checkbox,
   ConfirmationModal,
+  FormFieldContainer,
   Label,
   Radio,
   RadioGroup,
-  css,
-  palette,
-  spacing,
 } from '@mongodb-js/compass-components';
+import { MCP_IPC } from '@mongodb-js/compass-mcp-server';
 
 interface ConsentRequest {
   requestId: string;
   connectionId: string;
   connectionName: string;
+  /** MCP `clientInfo.name` reported during initialize. */
+  clientName: string;
 }
 
 type McpPreset = 'metadata-only' | 'read-only' | 'full-access';
@@ -26,25 +27,6 @@ interface ConsentResponse {
   access: { mode: 'allowed'; preset: McpPreset } | { mode: 'denied' };
   remember: boolean;
 }
-
-const presetGroupStyles = css({
-  marginTop: spacing[3],
-});
-
-const presetDescriptionStyles = css({
-  marginLeft: spacing[4],
-  marginBottom: spacing[2],
-  fontSize: '12px',
-  color: palette.gray.base,
-});
-
-const warningStyles = css({
-  marginTop: spacing[2],
-});
-
-const checkboxContainerStyles = css({
-  marginTop: spacing[3],
-});
 
 const PRESET_OPTIONS: {
   value: McpPreset;
@@ -65,7 +47,7 @@ const PRESET_OPTIONS: {
   },
   {
     value: 'full-access',
-    label: 'Full access',
+    label: 'Full access ⚠',
     description:
       'Everything above, plus insert / update / delete and create / drop collections, indexes, and databases.',
   },
@@ -77,6 +59,10 @@ const PRESET_OPTIONS: {
  * data / Full access) and optionally remember the choice. Listens for
  * 'mcp:consent-request' IPC events from the main process and sends a
  * 'mcp:consent-response:<requestId>' back.
+ *
+ * Layout / radio wiring mirrors `ai-access-tab.tsx` — FormFieldContainer for
+ * spacing, explicit `checked` + `onClick` per Radio (RadioGroup's `value`
+ * alone does not auto-check children in our LeafyGreen version).
  */
 export function McpConsentDialog(): React.ReactElement | null {
   const [pending, setPending] = useState<ConsentRequest | null>(null);
@@ -92,16 +78,16 @@ export function McpConsentDialog(): React.ReactElement | null {
       setConfirmFullAccess(false);
       setRemember(false);
     };
-    ipcRenderer?.on('mcp:consent-request', handler as never);
+    ipcRenderer?.on(MCP_IPC.ConsentRequest, handler);
     return () => {
-      ipcRenderer?.removeListener('mcp:consent-request', handler as never);
+      ipcRenderer?.removeListener(MCP_IPC.ConsentRequest, handler);
     };
   }, []);
 
   const respond = useCallback(
     (response: ConsentResponse) => {
       if (!pending) return;
-      ipcRenderer?.send(`mcp:consent-response:${pending.requestId}`, response);
+      ipcRenderer?.send(MCP_IPC.consentResponse(pending.requestId), response);
       setPending(null);
     },
     [pending]
@@ -114,6 +100,11 @@ export function McpConsentDialog(): React.ReactElement | null {
   const onDeny = useCallback(() => {
     respond({ access: { mode: 'denied' }, remember });
   }, [remember, respond]);
+
+  const onPresetClick = useCallback((next: McpPreset) => {
+    setPreset(next);
+    setConfirmFullAccess(false);
+  }, []);
 
   if (!pending) return null;
 
@@ -129,38 +120,38 @@ export function McpConsentDialog(): React.ReactElement | null {
       onCancel={onDeny}
       data-testid="mcp-consent-dialog"
     >
-      <Body>
-        An external AI tool wants to use your{' '}
-        <strong>{pending.connectionName}</strong> MongoDB connection.
-      </Body>
+      <FormFieldContainer>
+        <Body>
+          <strong>{pending.clientName}</strong> wants to use your{' '}
+          <strong>{pending.connectionName}</strong> MongoDB connection.
+        </Body>
+      </FormFieldContainer>
 
-      <div className={presetGroupStyles}>
+      <FormFieldContainer>
         <Label htmlFor="mcp-consent-preset">What can it do?</Label>
-        <RadioGroup
-          id="mcp-consent-preset"
-          name="mcp-consent-preset"
-          value={preset}
-          onChange={(e) => {
-            setPreset(e.target.value as McpPreset);
-            setConfirmFullAccess(false);
-          }}
-        >
+        <RadioGroup id="mcp-consent-preset" value={preset}>
           {PRESET_OPTIONS.map((opt) => (
-            <React.Fragment key={opt.value}>
-              <Radio value={opt.value}>{opt.label}</Radio>
-              <div className={presetDescriptionStyles}>{opt.description}</div>
-            </React.Fragment>
+            <Radio
+              key={opt.value}
+              value={opt.value}
+              checked={preset === opt.value}
+              onClick={() => onPresetClick(opt.value)}
+              size="small"
+              description={opt.description}
+            >
+              {opt.label}
+            </Radio>
           ))}
         </RadioGroup>
-      </div>
+      </FormFieldContainer>
 
       {preset === 'full-access' && (
-        <Banner variant={BannerVariant.Warning} className={warningStyles}>
-          <Body>
-            Full access lets the AI insert, update, and delete documents and
-            change schema on this connection.
-          </Body>
-          <div className={checkboxContainerStyles}>
+        <FormFieldContainer>
+          <Banner variant={BannerVariant.Warning}>
+            <Body>
+              Full access lets the AI insert, update, and delete documents and
+              change schema on this connection.
+            </Body>
             <Checkbox
               id="mcp-consent-full-access-confirm"
               checked={confirmFullAccess}
@@ -173,11 +164,11 @@ export function McpConsentDialog(): React.ReactElement | null {
                 </Label>
               }
             />
-          </div>
-        </Banner>
+          </Banner>
+        </FormFieldContainer>
       )}
 
-      <div className={checkboxContainerStyles}>
+      <FormFieldContainer>
         <Checkbox
           id="mcp-consent-remember"
           checked={remember}
@@ -190,7 +181,7 @@ export function McpConsentDialog(): React.ReactElement | null {
             </Label>
           }
         />
-      </div>
+      </FormFieldContainer>
     </ConfirmationModal>
   );
 }

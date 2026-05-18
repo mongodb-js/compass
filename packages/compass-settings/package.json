@@ -53,6 +53,7 @@
     "@mongodb-js/compass-components": "^1.66.1",
     "@mongodb-js/compass-generative-ai": "^0.81.1",
     "@mongodb-js/compass-logging": "^1.14.1",
+    "@mongodb-js/compass-mcp-server": "^0.1.0",
     "@mongodb-js/compass-telemetry": "^1.29.1",
     "compass-preferences-model": "^2.76.1",
     "@mongodb-js/compass-app-registry": "^9.11.1",

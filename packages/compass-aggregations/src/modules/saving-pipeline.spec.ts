@@ -39,13 +39,45 @@ describe('saving-pipeline module', function () {
         dispatchSpy,
         () =>
           ({
-            savingPipeline: { name: 'test' },
+            // The thunk reads name + description + mcpPromptName from
+            // the saving-pipeline modal slice and dispatches all three.
+            savingPipeline: {
+              name: 'test',
+              description: '',
+              mcpPromptName: '',
+            },
           } as any),
         {} as any
       );
       expect(dispatchSpy).to.be.calledOnceWith({
         type: SAVING_PIPELINE_APPLY,
         name: 'test',
+        description: '',
+        mcpPromptName: '',
+      });
+    });
+
+    it('forwards description and mcpPromptName when present', function () {
+      const dispatchSpy = Sinon.spy();
+      savingPipelineApply()(
+        dispatchSpy,
+        () =>
+          ({
+            savingPipeline: {
+              name: 'monthly-revenue',
+              description: '  Q4 2025 revenue   ',
+              mcpPromptName: '  monthly-revenue  ',
+            },
+          } as any),
+        {} as any
+      );
+      // Whitespace is trimmed before dispatch (matches the query-bar
+      // dialog's behavior and prevents pad-only fields from saving).
+      expect(dispatchSpy).to.be.calledOnceWith({
+        type: SAVING_PIPELINE_APPLY,
+        name: 'monthly-revenue',
+        description: 'Q4 2025 revenue',
+        mcpPromptName: 'monthly-revenue',
       });
     });
     describe('#reducer', function () {
@@ -84,6 +116,8 @@ describe('saving-pipeline module', function () {
         type: SAVING_PIPELINE_OPEN,
         isSaveAs: false,
         name: '',
+        description: '',
+        mcpPromptName: '',
       });
     });
     describe('#reducer', function () {

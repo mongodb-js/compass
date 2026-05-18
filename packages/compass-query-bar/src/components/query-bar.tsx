@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Button,
   OptionsToggle,
@@ -26,6 +26,8 @@ import {
 import QueryOptionComponent from './query-option';
 import QueryHistoryButtonPopover from './query-history-button-popover';
 import { QueryBarRow } from './query-bar-row';
+import { SaveDraftAsFavoriteModal } from './save-draft-as-favorite-modal';
+import { SaveQueryMenu, type SaveModalMode } from './save-query-menu';
 import {
   applyQuery,
   openExportToLanguage,
@@ -209,104 +211,147 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const query = useQueryBarQuery();
   useSyncAssistantGlobalState('currentQuery', toJSString(query) || null);
 
+  // Local state for the "Save as favorite" dialog. The dialog itself
+  // reads the current query-bar fields from Redux on submit, so we just
+  // toggle visibility here. `saveDialogMode` tells the dialog whether
+  // the user picked Save (first save) or Save as (sibling of a loaded
+  // favorite); the dialog uses it only to pre-fill the name with
+  // `"<original> (copy)"` in the latter case.
+  const [isSaveFavoriteOpen, setIsSaveFavoriteOpen] = useState(false);
+  const [saveDialogMode, setSaveDialogMode] = useState<SaveModalMode>('save');
+
   return (
-    <form
-      className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
-      data-testid="query-bar"
-      onSubmit={onFormSubmit}
-      noValidate
-      data-result-id={resultId}
-      data-apply-id={applyId}
-    >
-      {isAIFeatureEnabled && (
-        <QueryAI
-          onClose={() => {
-            onHideAIInputClick?.();
-          }}
-          show={isAIInputVisible}
-        />
-      )}
-      <div className={queryBarFirstRowStyles}>
-        {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
-        <div className={filterContainerStyles}>
-          <QueryOptionComponent
-            name="filter"
-            id={filterQueryOptionId}
-            onApply={onApply}
-            placeholder={filterPlaceholder}
-            disabled={isAIFetching}
+    // The Save-as-favorite modal renders as a sibling of the `<form>`
+    // rather than a child. LG Modal portals its DOM to document.body,
+    // but React's synthetic event system still bubbles events through
+    // the React tree — so if the modal's submit button were a React
+    // descendant of this form, the form's onSubmit (Apply Query) would
+    // intercept the submit event and the modal's own handleSubmit would
+    // never run. Keeping the modal at the fragment root avoids that
+    // bubbling and lets the modal own its own submit.
+    <>
+      <form
+        className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
+        data-testid="query-bar"
+        onSubmit={onFormSubmit}
+        noValidate
+        data-result-id={resultId}
+        data-apply-id={applyId}
+      >
+        {isAIFeatureEnabled && (
+          <QueryAI
+            onClose={() => {
+              onHideAIInputClick?.();
+            }}
+            show={isAIInputVisible}
           />
-          {showAIEntryButton && (
-            <div className={aiEntryContainerStyles}>
-              <AIExperienceEntry
-                data-testid="ai-experience-query-entry-button"
-                onClick={onShowAIInputClick}
-                type="query"
+        )}
+        {/* Identity of the currently-loaded favorite is surfaced as a
+          trailing segment in the collection header's breadcrumb — see
+          `compass-collection`'s `useLoadedFavorite` hook, which
+          subscribes to the bridge emitted from this package's
+          activatePlugin. Nothing here in the query-bar UI itself. */}
+        <div className={queryBarFirstRowStyles}>
+          {enableSavedAggregationsQueries && <QueryHistoryButtonPopover />}
+          <div className={filterContainerStyles}>
+            <QueryOptionComponent
+              name="filter"
+              id={filterQueryOptionId}
+              onApply={onApply}
+              placeholder={filterPlaceholder}
+              disabled={isAIFetching}
+            />
+            {showAIEntryButton && (
+              <div className={aiEntryContainerStyles}>
+                <AIExperienceEntry
+                  data-testid="ai-experience-query-entry-button"
+                  onClick={onShowAIInputClick}
+                  type="query"
+                />
+              </div>
+            )}
+          </div>
+          {showExplainButton && (
+            <Button
+              aria-label="Explain query"
+              title="View the execution plan for the current query"
+              data-testid="query-bar-explain-button"
+              onClick={onExplain}
+              disabled={!isQueryValid || isAIFetching}
+              size="small"
+              type="button"
+            >
+              Explain
+            </Button>
+          )}
+          <Button
+            aria-label="Reset query"
+            data-testid="query-bar-reset-filter-button"
+            onClick={onReset}
+            disabled={!queryChanged || isAIFetching}
+            size="small"
+            type="button"
+          >
+            Reset
+          </Button>
+          {enableSavedAggregationsQueries && (
+            <SaveQueryMenu
+              disabled={!isQueryValid || !queryChanged || isAIFetching}
+              onOpenSaveModal={(mode) => {
+                setSaveDialogMode(mode);
+                setIsSaveFavoriteOpen(true);
+              }}
+            />
+          )}
+          <Button
+            data-testid="query-bar-apply-filter-button"
+            disabled={!isQueryValid || isAIFetching}
+            variant="primary"
+            size="small"
+            type="submit"
+            onClick={onFormSubmit}
+          >
+            {buttonLabel}
+          </Button>
+          {queryOptionsLayout && queryOptionsLayout.length > 0 && (
+            <div>
+              <QueryOptionsToggle
+                aria-controls="additional-query-options-container"
+                data-testid="query-bar-options-toggle"
               />
             </div>
           )}
         </div>
-        {showExplainButton && (
-          <Button
-            aria-label="Explain query"
-            title="View the execution plan for the current query"
-            data-testid="query-bar-explain-button"
-            onClick={onExplain}
-            disabled={!isQueryValid || isAIFetching}
-            size="small"
-            type="button"
-          >
-            Explain
-          </Button>
-        )}
-        <Button
-          aria-label="Reset query"
-          data-testid="query-bar-reset-filter-button"
-          onClick={onReset}
-          disabled={!queryChanged || isAIFetching}
-          size="small"
-          type="button"
-        >
-          Reset
-        </Button>
-        <Button
-          data-testid="query-bar-apply-filter-button"
-          disabled={!isQueryValid || isAIFetching}
-          variant="primary"
-          size="small"
-          type="submit"
-          onClick={onFormSubmit}
-        >
-          {buttonLabel}
-        </Button>
-        {queryOptionsLayout && queryOptionsLayout.length > 0 && (
-          <div>
-            <QueryOptionsToggle
-              aria-controls="additional-query-options-container"
-              data-testid="query-bar-options-toggle"
-            />
-          </div>
-        )}
-      </div>
-      {isQueryOptionsExpanded &&
-        queryOptionsLayout &&
-        queryOptionsLayout.length > 0 && (
-          <div
-            className={queryOptionsContainerStyles}
-            id="additional-query-options-container"
-          >
-            {queryOptionsLayout.map((queryOptionRowLayout, rowIndex) => (
-              <QueryBarRow
-                queryOptionsLayout={queryOptionRowLayout}
-                key={`query-bar-row-${rowIndex}`}
-                onApply={onApply}
-                disabled={isAIFetching}
-                placeholders={placeholders}
-              />
-            ))}
-          </div>
-        )}
-    </form>
+        {isQueryOptionsExpanded &&
+          queryOptionsLayout &&
+          queryOptionsLayout.length > 0 && (
+            <div
+              className={queryOptionsContainerStyles}
+              id="additional-query-options-container"
+            >
+              {queryOptionsLayout.map((queryOptionRowLayout, rowIndex) => (
+                <QueryBarRow
+                  queryOptionsLayout={queryOptionRowLayout}
+                  key={`query-bar-row-${rowIndex}`}
+                  onApply={onApply}
+                  disabled={isAIFetching}
+                  placeholders={placeholders}
+                />
+              ))}
+            </div>
+          )}
+      </form>
+      {/* Modal rendered outside the form (see fragment-comment above).
+        Mounted only while open so input state resets every time it
+        opens — avoids stale fields lingering from a previous save. */}
+      {isSaveFavoriteOpen && (
+        <SaveDraftAsFavoriteModal
+          open
+          mode={saveDialogMode}
+          onCancel={() => setIsSaveFavoriteOpen(false)}
+        />
+      )}
+    </>
   );
 };
 

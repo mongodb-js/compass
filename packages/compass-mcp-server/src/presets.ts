@@ -3,12 +3,16 @@ import type { McpPreset } from '@mongodb-js/connection-info';
 /**
  * Tools that are always available regardless of the access preset. These do
  * not touch user data — `connect` picks a connection, `list-connections`
- * enumerates them, `compass-open-collection` just navigates the UI.
+ * enumerates them, `compass-open-collection` just navigates the UI, and
+ * the saved-query catalog tools (`list-saved-queries` / `save-saved-query`)
+ * only read/write Compass's local saved-query store.
  */
 const ALWAYS_AVAILABLE = [
   'connect',
   'list-connections',
   'compass-open-collection',
+  'list-saved-queries',
+  'save-saved-query',
 ];
 
 /** Tools that don't read user documents — purely metadata about clusters. */

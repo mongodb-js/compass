@@ -142,7 +142,6 @@ export type InternalUserPreferences = {
     isFullScreen?: boolean;
   };
   enableGuideCues: boolean;
-  mcpServerToken?: string;
 };
 
 // UserPreferences contains all preferences stored to disk.
@@ -505,14 +504,6 @@ export const storedUserPreferencesProps: Required<{
     description: null,
     validator: z.boolean().default(true),
     type: 'boolean',
-  },
-  mcpServerToken: {
-    ui: false,
-    cli: false,
-    global: false,
-    description: null,
-    validator: z.string().optional(),
-    type: 'string',
   },
   /**
    * Enable/disable the AI services. This is currently set

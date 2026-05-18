@@ -16,6 +16,13 @@ import { COMPASS_TOOLS } from './compass-tools';
 import { getMcpSocketPath } from './socket-path';
 import { buildToolContext } from './build-tool-context';
 import { compassConnectionErrorHandler } from './connection-error-handler';
+import { installCompassMcpInstructions } from './instructions';
+import { SavedQueryPromptsRegistry } from './saved-query-prompts';
+
+// Patch upstream `TransportRunnerBase.getInstructions` so AI clients receive
+// our Compass-specific workflow guidance in the MCP `initialize` response.
+// Idempotent; runs once on module load.
+installCompassMcpInstructions();
 
 export interface CompassSocketServerOptions
   extends CompassConnectionManagerOptions {
@@ -23,6 +30,12 @@ export interface CompassSocketServerOptions
   getAllConnections: CompassToolContext['getAllConnections'];
   /** Asks the renderer to open a collection in a workspace tab. */
   openCollection: CompassToolContext['openCollection'];
+  /** Catalog of saved queries / aggregations, surfaced to the AI. */
+  listSavedQueries: CompassToolContext['listSavedQueries'];
+  /** Persist a new saved query (FavoriteQuery). */
+  saveSavedQuery: CompassToolContext['saveSavedQuery'];
+  /** Persist a new saved aggregation (SavedPipeline). */
+  saveSavedAggregation: CompassToolContext['saveSavedAggregation'];
 }
 
 /**
@@ -95,11 +108,41 @@ export class CompassSocketServer extends TransportRunnerBase<
       saveAccess: this.opts.saveAccess,
     });
 
+    // Forward-declared so the save-wrappers (built before createServer
+    // returns the mcpServer instance) can reach the registry by closure
+    // once it exists. Reads of `promptsRegistry` only happen inside async
+    // save handlers, which fire well after `await this.createServer(...)`
+    // assigns the variable.
+    let promptsRegistry: SavedQueryPromptsRegistry | undefined;
+
+    const refreshPromptsAfter = async <T>(p: Promise<T>): Promise<T> => {
+      const result = await p;
+      if (promptsRegistry) {
+        try {
+          await promptsRegistry.refresh();
+        } catch {
+          // Never let a prompt-refresh failure surface as a save failure.
+          // The next session will reconcile on initial refresh.
+        }
+      }
+      return result;
+    };
+
+    // Wrap the catalog-write methods so a successful save kicks the
+    // prompts registry. Reads (`listSavedQueries`) are unaffected.
+    const wrappedOpts: CompassSocketServerOptions = {
+      ...this.opts,
+      saveSavedQuery: (input) =>
+        refreshPromptsAfter(this.opts.saveSavedQuery(input)),
+      saveSavedAggregation: (input) =>
+        refreshPromptsAfter(this.opts.saveSavedAggregation(input)),
+    };
+
     try {
       const server = await this.createServer({
         serverOptions: {
           tools: COMPASS_TOOLS,
-          toolContext: buildToolContext(connectionManager, this.opts),
+          toolContext: buildToolContext(connectionManager, wrappedOpts),
           telemetryProperties: { hosting_mode: 'compass' },
         },
         sessionOptions: {
@@ -107,6 +150,17 @@ export class CompassSocketServer extends TransportRunnerBase<
           connectionErrorHandler: compassConnectionErrorHandler,
         },
       });
+
+      // Mirror the saved-queries catalog onto the MCP prompts surface so
+      // items with `mcpPromptName` show up as slash commands in AI
+      // clients. Initial refresh runs BEFORE we connect the transport so
+      // the prompts list is populated by the time the client sends
+      // `initialize`.
+      promptsRegistry = new SavedQueryPromptsRegistry(
+        server.mcpServer,
+        this.opts.listSavedQueries
+      );
+      await promptsRegistry.refresh();
 
       // A net.Socket is both Readable and Writable, so we can hand it
       // straight to StdioServerTransport in place of process.stdin/stdout.

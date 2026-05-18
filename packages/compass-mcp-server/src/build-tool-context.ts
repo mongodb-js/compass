@@ -16,14 +16,17 @@ import { isToolAllowed } from './presets';
 const WRITE_STAGES = new Set(['$out', '$merge']);
 
 /**
- * Shape of the per-session, per-runner inputs that aren't tied to a specific
- * `CompassConnectionManager` instance. Both `CompassHttpRunner` and
- * `CompassSocketServer` build their tool context from these plus the
- * connection manager they just instantiated for this session.
+ * Shape of the per-session inputs that aren't tied to a specific
+ * `CompassConnectionManager` instance. `CompassSocketServer` builds its
+ * tool context from these plus the connection manager it just instantiated
+ * for the accepted socket connection.
  */
-export interface SharedToolContextOpts {
+interface SharedToolContextOpts {
   getAllConnections: CompassToolContext['getAllConnections'];
   openCollection: CompassToolContext['openCollection'];
+  listSavedQueries: CompassToolContext['listSavedQueries'];
+  saveSavedQuery: CompassToolContext['saveSavedQuery'];
+  saveSavedAggregation: CompassToolContext['saveSavedAggregation'];
 }
 
 /**
@@ -38,6 +41,9 @@ export function buildToolContext(
   return {
     getAllConnections: shared.getAllConnections,
     openCollection: shared.openCollection,
+    listSavedQueries: shared.listSavedQueries,
+    saveSavedQuery: shared.saveSavedQuery,
+    saveSavedAggregation: shared.saveSavedAggregation,
     checkAccess: (toolName) => {
       const preset = connectionManager.getActivePreset();
       // Tools that legitimately run before a connection exists (e.g. the

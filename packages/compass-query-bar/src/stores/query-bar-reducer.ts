@@ -1,5 +1,6 @@
 import type { Action, Reducer } from 'redux';
 import { cloneDeep, isEmpty } from 'lodash';
+import { UUID } from 'bson';
 import type { Document } from 'mongodb';
 import {
   DEFAULT_FIELD_VALUES,
@@ -48,6 +49,15 @@ type QueryBarState = {
   host?: string;
   recentQueries: RecentQuery[];
   favoriteQueries: FavoriteQuery[];
+  /**
+   * Id of the currently loaded saved favorite, if the user opened one
+   * from the query history popover. Drives the Save dropdown's "Save"
+   * vs "Save as" behavior: when set, `Save` overwrites the loaded
+   * favorite in place; when null, `Save` opens the modal to create a
+   * new favorite. Cleared on Reset, on loading a Recent (not a
+   * Favorite), and not affected by manual field edits.
+   */
+  loadedFavoriteId: string | null;
 };
 
 export const INITIAL_STATE: QueryBarState = {
@@ -60,6 +70,7 @@ export const INITIAL_STATE: QueryBarState = {
   namespace: '',
   recentQueries: [],
   favoriteQueries: [],
+  loadedFavoriteId: null,
 };
 
 export const QueryBarActions = {
@@ -73,7 +84,19 @@ export const QueryBarActions = {
   ApplyFromHistory: 'compass-query-bar/ApplyFromHistory',
   RecentQueriesFetched: 'compass-query-bar/RecentQueriesFetched',
   FavoriteQueriesFetched: 'compass-query-bar/FavoriteQueriesFetched',
+  /**
+   * Fired after a successful save-as / save-draft so the resulting
+   * favorite immediately becomes the "loaded" favorite — clicking Save
+   * again will then overwrite it in place rather than create yet another
+   * duplicate.
+   */
+  LoadedFavoriteSet: 'compass-query-bar/LoadedFavoriteSet',
 } as const;
+
+type LoadedFavoriteSetAction = {
+  type: typeof QueryBarActions.LoadedFavoriteSet;
+  loadedFavoriteId: string | null;
+};
 
 type ChangeReadonlyConnectionStatusAction = {
   type: typeof QueryBarActions.ChangeReadonlyConnectionStatus;
@@ -220,11 +243,18 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
 type ApplyFromHistoryAction = {
   type: typeof QueryBarActions.ApplyFromHistory;
   fields: QueryFormFields;
+  /**
+   * Id of the saved favorite being loaded, or `null` when loading a
+   * recent. Tracked in `state.loadedFavoriteId` so the Save dropdown
+   * can offer in-place updates vs save-as-new.
+   */
+  loadedFavoriteId: string | null;
 };
 
 export const applyFromHistory = (
   query: BaseQuery & { update?: Document },
-  currentQueryFieldsToRetain: QueryProperty[] = []
+  currentQueryFieldsToRetain: QueryProperty[] = [],
+  options: { favoriteId?: string | null } = {}
 ): QueryBarThunkAction<void, ApplyFromHistoryAction> => {
   return (dispatch, getState, { localAppRegistry, preferences }) => {
     const currentFields = getState().queryBar.fields;
@@ -245,6 +275,7 @@ export const applyFromHistory = (
     dispatch({
       type: QueryBarActions.ApplyFromHistory,
       fields,
+      loadedFavoriteId: options.favoriteId ?? null,
     });
 
     if (query.update) {
@@ -354,6 +385,166 @@ export const explainQuery = (): QueryBarThunkAction<void> => {
     localAppRegistry?.emit('open-explain-plan-modal', {
       query: { ...query, projection: project },
     });
+  };
+};
+
+/**
+ * Persist the user's current query-bar draft as a Favorite, without
+ * requiring them to run it first (the previous flow only let you star a
+ * Recent query after execution, which made the metadata-entry step
+ * doubly opaque). Wired to the star IconButton in the query bar — that
+ * button opens the SaveDraftAsFavoriteModal, which dispatches this
+ * thunk on submit.
+ *
+ * Accepts an optional `description` + `mcpPromptName`; both feed the MCP
+ * saved-queries catalog. The renderer-side write does NOT itself
+ * enforce mcp-prompt-name uniqueness — the main-process storage adapter
+ * dedupes on read, so a silently-conflicting prompt name is harmless
+ * (the user can rename from the My Queries → Edit dialog).
+ */
+export const saveDraftAsFavorite = (input: {
+  name: string;
+  description?: string;
+  mcpPromptName?: string;
+}): QueryBarThunkAction<Promise<boolean>> => {
+  return async (
+    dispatch,
+    getState,
+    { favoriteQueryStorage, preferences, logger: { debug } }
+  ) => {
+    try {
+      const {
+        queryBar: { fields, host, namespace },
+      } = getState();
+      if (!isQueryFieldsValid(fields, preferences.getPreferences())) {
+        return false;
+      }
+      const query = mapFormFieldsToQuery(fields);
+      const queryAttributes = getQueryAttributes(query);
+      if (isEmpty(queryAttributes)) {
+        // Refuse to save a fully-default query — would surface as an
+        // empty favorite in the My Queries list, which is just clutter.
+        return false;
+      }
+      const now = new Date();
+      const trimmedDescription = input.description?.trim();
+      const trimmedPromptName = input.mcpPromptName?.trim();
+      // Generate the id up front so we can dispatch LoadedFavoriteSet
+      // with it after the write succeeds — that flips the bar's state
+      // into "this is the favorite I'm editing", so the next `Save`
+      // click updates this favorite in place instead of creating yet
+      // another duplicate.
+      const _id = new UUID().toString();
+      const favoriteQuery: Partial<FavoriteQuery> = {
+        ...queryAttributes,
+        _id,
+        _ns: namespace,
+        _host: host ?? '',
+        _name: input.name,
+        _dateSaved: now,
+        _dateModified: now,
+        _authoredBy: 'human',
+        ...(trimmedDescription ? { _description: trimmedDescription } : {}),
+        ...(trimmedPromptName ? { _mcpPromptName: trimmedPromptName } : {}),
+      };
+
+      await favoriteQueryStorage?.saveQuery(
+        favoriteQuery as Omit<FavoriteQuery, '_lastExecuted'>,
+        _id
+      );
+      void dispatch(fetchFavorites());
+      dispatch({
+        type: QueryBarActions.LoadedFavoriteSet,
+        loadedFavoriteId: _id,
+      });
+      return true;
+    } catch (e) {
+      debug('Failed to save draft as favorite', e);
+      return false;
+    }
+  };
+};
+
+/**
+ * Rename the loaded favorite in place. Drives the inline-edit
+ * affordance on the breadcrumb chip — the user clicks the name in the
+ * chip and retypes it without leaving the bar. Trims whitespace and
+ * refuses empty names (returning `false` so the chip can revert).
+ *
+ * Bumps `_dateModified` so the renamed item bubbles to the top of
+ * "Recent" — same convention every other in-place edit (description /
+ * MCP prompt name) follows.
+ */
+export const renameLoadedFavorite = (
+  newName: string
+): QueryBarThunkAction<Promise<boolean>> => {
+  return async (
+    dispatch,
+    getState,
+    { favoriteQueryStorage, logger: { debug } }
+  ) => {
+    try {
+      const {
+        queryBar: { loadedFavoriteId },
+      } = getState();
+      if (!loadedFavoriteId) return false;
+      const trimmed = newName.trim();
+      if (!trimmed) return false;
+      await favoriteQueryStorage?.updateAttributes(loadedFavoriteId, {
+        _name: trimmed,
+        _dateModified: new Date(),
+      });
+      void dispatch(fetchFavorites());
+      return true;
+    } catch (e) {
+      debug('Failed to rename loaded favorite', e);
+      return false;
+    }
+  };
+};
+
+/**
+ * Save the current draft on top of the favorite the user loaded from
+ * the query-history popover. Behaves like a file-style "Save" — same
+ * id, refreshed body, `_dateModified` bumped, description /
+ * `_mcpPromptName` left intact. Resolves `false` if there's no loaded
+ * favorite or the draft is invalid / empty.
+ */
+export const updateLoadedFavorite = (): QueryBarThunkAction<
+  Promise<boolean>
+> => {
+  return async (
+    dispatch,
+    getState,
+    { favoriteQueryStorage, preferences, logger: { debug } }
+  ) => {
+    try {
+      const {
+        queryBar: { fields, host, loadedFavoriteId },
+      } = getState();
+      if (!loadedFavoriteId) return false;
+      if (!isQueryFieldsValid(fields, preferences.getPreferences())) {
+        return false;
+      }
+      const query = mapFormFieldsToQuery(fields);
+      const queryAttributes = getQueryAttributes(query);
+      if (isEmpty(queryAttributes)) return false;
+
+      // Overwrite the body fields. We deliberately do NOT touch
+      // `_name`, `_description`, `_mcpPromptName`, `_dateSaved`,
+      // `_authoredBy` — those are user-curated metadata; only the body
+      // and `_dateModified` change under a Save (vs. Save as).
+      await favoriteQueryStorage?.updateAttributes(loadedFavoriteId, {
+        ...queryAttributes,
+        _host: host ?? '',
+        _dateModified: new Date(),
+      });
+      void dispatch(fetchFavorites());
+      return true;
+    } catch (e) {
+      debug('Failed to update loaded favorite', e);
+      return false;
+    }
   };
 };
 
@@ -586,6 +777,9 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
           [action.source]: null,
         },
       },
+      // Reset starts fresh — any previously-loaded favorite is no longer
+      // the "context" the bar is editing against.
+      loadedFavoriteId: null,
     };
   }
 
@@ -596,6 +790,18 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       ...state,
       expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
       fields: action.fields,
+      // Recents are not editable in place; only loading a saved favorite
+      // arms the "Save (update)" affordance.
+      loadedFavoriteId: action.loadedFavoriteId,
+    };
+  }
+
+  if (
+    isAction<LoadedFavoriteSetAction>(action, QueryBarActions.LoadedFavoriteSet)
+  ) {
+    return {
+      ...state,
+      loadedFavoriteId: action.loadedFavoriteId,
     };
   }
 
