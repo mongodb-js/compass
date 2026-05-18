@@ -820,10 +820,10 @@ type NewConnectionEvent = ConnectionScopedEvent<{
     user_language: string;
 
     /**
-     * The user's ordered language preferences as a comma-joined string, as
-     * reported by navigator.languages (e.g. "en-US,en,fr").
+     * The user's ordered language preferences, as
+     * reported by navigator.languages (e.g. ['en-US', 'en', 'fr']).
      */
-    user_languages: string;
+    user_languages: string[];
   } & ExtraConnectionData;
 }>;
 
