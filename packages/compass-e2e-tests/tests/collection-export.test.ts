@@ -590,14 +590,17 @@ describe('Collection export', function () {
       let unsubscribeAllowWarningsFilter: () => void;
 
       before(function () {
-        unsubscribeAllowWarningsFilter = allowServerWarnings((l: LogEntry) => {
-          return (
-            l.id === 23798 &&
-            ['QueryPlanKilled', 'ClientDisconnect'].includes(
-              l.attr?.error?.codeName
-            )
-          );
-        });
+        unsubscribeAllowWarningsFilter = allowServerWarnings(
+          23829, // allow "Set failpoint" warnings from configureFailPoint commands
+          (l: LogEntry) => {
+            return (
+              l.id === 23798 &&
+              ['QueryPlanKilled', 'ClientDisconnect'].includes(
+                l.attr?.error?.codeName
+              )
+            );
+          }
+        );
       });
 
       after(function () {
@@ -617,7 +620,7 @@ describe('Collection export', function () {
               failCommands: ['find'],
               blockConnection: true,
               blockTimeMS: 60_000,
-              appName: 'MongoDB Compass Dev',
+              appName: 'MongoDB Compass WebdriverIO',
             },
           });
         });
