@@ -13,8 +13,7 @@ import type {
 import { allPreferencesProps } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import type { PreferencesStorage } from './preferences-storage';
-import type { AtlasCloudFeatureFlags } from './feature-flags';
-import type { getActiveUser } from '.';
+import type { FeatureFlags, getActiveUser } from '.';
 
 export interface PreferencesAccess {
   savePreferences(
@@ -51,7 +50,7 @@ export class Preferences {
     cli: Partial<AllPreferences>;
     global: Partial<AllPreferences>;
     hardcoded: Partial<AllPreferences>;
-    atlasCloud: Partial<AtlasCloudFeatureFlags>;
+    atlasCloud: Partial<FeatureFlags>;
   };
 
   constructor({
@@ -207,12 +206,13 @@ export class Preferences {
       states[key] = 'set-cli';
     for (const key of Object.keys(this._globalPreferences.global))
       states[key] = 'set-global';
+    for (const key of Object.keys(this._globalPreferences.atlasCloud))
+      states[key] = 'set-cloud';
     for (const key of Object.keys(this._globalPreferences.hardcoded))
       states[key] = 'hardcoded';
 
     const originalValues = { ...values };
     const originalStates = { ...states };
-    const atlasCloudFeatureFlags = this._globalPreferences.atlasCloud;
 
     function deriveValue<K extends keyof AllPreferences>(
       key: K
@@ -229,8 +229,7 @@ export class Preferences {
         (k) =>
           (k as unknown) === key ? originalValues[k] : deriveValue(k).value,
         (k) =>
-          (k as unknown) === key ? originalStates[k] : deriveValue(k).state,
-        atlasCloudFeatureFlags
+          (k as unknown) === key ? originalStates[k] : deriveValue(k).state
       );
     }
 

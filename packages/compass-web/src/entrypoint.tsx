@@ -44,11 +44,8 @@ import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import type {
-  AllPreferences,
-  AtlasCloudFeatureFlags,
-} from 'compass-preferences-model/provider';
 import {
+  type CompassWebPreferencesAccess,
   PreferencesProvider,
   usePreferences,
 } from 'compass-preferences-model/provider';
@@ -298,18 +295,6 @@ export type CompassWebProps = {
   darkMode?: boolean;
 
   /**
-   * Set of initial preferences to override default values
-   */
-  initialPreferences?: Partial<AllPreferences>;
-
-  /**
-   * A subset of Atlas Cloud feature flags that maps to Compass feature flag
-   * preferences. These flags have any effect ONLY if they were defined as
-   * mapped for some Compass preferences feature flags
-   */
-  atlasCloudFeatureFlags?: Partial<AtlasCloudFeatureFlags>;
-
-  /**
    * Callback prop called every time any code inside Compass logs something
    */
   onLog?: LogFunction;
@@ -516,32 +501,28 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
   );
 };
 
-/** @public */
-const CompassWeb = ({
+const CompassWebAndPreferences = ({
   appName,
   orgId,
   projectId,
   darkMode,
-  initialPreferences,
-  atlasCloudFeatureFlags,
   onLog,
   onDebug,
   onTrack,
   onOpenConnectViaModal,
   history,
   historyRoutePrefix,
-}: CompassWebProps) => {
+  preferences,
+}: CompassWebProps & {
+  preferences: CompassWebPreferencesAccess;
+}) => {
   const appRegistry = useInitialValue(new AppRegistry());
-  const preferencesAccess = useCompassWebPreferences(
-    initialPreferences,
-    atlasCloudFeatureFlags
-  );
   const { logger, telemetry: telemetryOptions } =
     useCompassWebLoggerAndTelemetry({
       onLog,
       onDebug,
       onTrack,
-      preferences: preferencesAccess,
+      preferences,
     });
 
   const {
@@ -554,7 +535,7 @@ const CompassWeb = ({
   return (
     <GlobalAppRegistryProvider value={appRegistry}>
       <AppRegistryProvider scopeName="Compass Web Root">
-        <PreferencesProvider value={preferencesAccess}>
+        <PreferencesProvider value={preferences}>
           <LoggerProvider value={logger}>
             <TelemetryProvider options={telemetryOptions}>
               <CompassComponentsProviderWeb darkMode={darkMode}>
@@ -648,6 +629,26 @@ const CompassWeb = ({
         </PreferencesProvider>
       </AppRegistryProvider>
     </GlobalAppRegistryProvider>
+  );
+};
+
+/** @public */
+const CompassWeb = (props: CompassWebProps) => {
+  const { preferencesAccess, isLoading, error } = useCompassWebPreferences();
+  // TODO: How to show compass-components loader? Should we?
+  if (isLoading) {
+    return null;
+  }
+  // TODO: Show an error instead
+  if (error) {
+    throw error;
+  }
+  // This should not happen, but to make ts happy
+  if (!preferencesAccess) {
+    throw new Error('Failed to load preferences');
+  }
+  return (
+    <CompassWebAndPreferences {...props} preferences={preferencesAccess} />
   );
 };
 

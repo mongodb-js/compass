@@ -1,9 +1,6 @@
-import type {
-  AllPreferences,
-  AtlasCloudFeatureFlags,
-} from 'compass-preferences-model/provider';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
-import { useInitialValue } from '@mongodb-js/compass-components';
+import { useEffect, useState } from 'react';
+import { isCancelError } from '@mongodb-js/compass-utils';
 
 const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableExplainPlan: true,
@@ -31,30 +28,97 @@ const DEFAULT_COMPASS_WEB_PREFERENCES = {
   maxTimeMSEnvLimit: 300_000, // 5 minutes limit for Data Explorer}
 };
 
+// TODO: Replace with actual implementation
+async function getPreferencesFromCloudApi(_abortSignal?: AbortSignal) {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  const {
+    enableMultiplexWebSocketOnWeb,
+    enableAIAssistant,
+    ...restOfThePreferences
+  } = {
+    showDisabledConnections: true,
+    enableGenAIFeaturesAtlasProject: true,
+    enableGenAISampleDocumentPassing: false,
+    enableGenAIFeaturesAtlasOrg: true,
+    enableGlobalWrites: false,
+    optInGenAIFeatures: false,
+    telemetryAtlasUserId: 'some-user-id-from-cloud-api',
+    enableRollingIndexes: false,
+    enableAIAssistant: false,
+    enableGenAIToolCallingAtlasProject: false,
+    atlasServiceBackendPreset: 'atlas-dev' as const,
+    enableMyQueries: true,
+    enableMultiplexWebSocketOnWeb: false,
+  };
+
+  return {
+    initialPreferences: restOfThePreferences,
+    atlasCloudFeatureFlags: {
+      enableAIAssistant,
+      enableMultiplexWebSocketOnWeb,
+    },
+  };
+}
+
 /**
  * @internal
  * exported for the sandbox to be able to hook into these
  */
 export let compassWebPreferences: CompassWebPreferencesAccess | null = null;
 
-export function useCompassWebPreferences(
-  initialPreferences: Partial<AllPreferences> = {},
-  atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags> = {}
-): CompassWebPreferencesAccess {
-  // We do want to keep a reference to current value of preferencesAccess in
-  // compass-web so that in can be exposed in the sandbox. In real production
-  // build this value just never leaves the module scope, so there's no way to
-  // access it
-  // eslint-disable-next-line react-hooks/globals
-  const preferencesAccess = (compassWebPreferences = useInitialValue(() => {
-    return new CompassWebPreferencesAccess(
-      {
-        ...DEFAULT_COMPASS_WEB_PREFERENCES,
-        ...initialPreferences,
-      },
-      { atlasCloud: atlasCloudFeatureFlags }
-    );
-  }));
+export function useCompassWebPreferences(): {
+  preferencesAccess: CompassWebPreferencesAccess | null;
+  isLoading: boolean;
+  error: Error | null;
+} {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const [initialPreferences, setInitialPreferences] =
+    useState<CompassWebPreferencesAccess | null>(compassWebPreferences);
 
-  return preferencesAccess;
+  useEffect(() => {
+    if (compassWebPreferences) {
+      return;
+    }
+
+    async function setupPreferences(abortSignal?: AbortSignal) {
+      try {
+        setIsLoading(true);
+        const { initialPreferences, atlasCloudFeatureFlags } =
+          await getPreferencesFromCloudApi(abortSignal);
+        const prefs = new CompassWebPreferencesAccess(
+          {
+            ...DEFAULT_COMPASS_WEB_PREFERENCES,
+            ...initialPreferences,
+          },
+          { atlasCloud: atlasCloudFeatureFlags }
+        );
+        compassWebPreferences = prefs;
+        setInitialPreferences(prefs);
+        setIsLoading(false);
+      } catch (err) {
+        if (isCancelError(err)) {
+          return;
+        }
+        setError(err as Error);
+      }
+    }
+    const controller = new AbortController();
+    void setupPreferences(controller.signal);
+    return () => {
+      controller.abort();
+    };
+  }, []);
+
+  return {
+    preferencesAccess: initialPreferences,
+    isLoading,
+    error,
+  };
+}
+
+export function setCompassWebPreferencesAccess(
+  preferencesAccess: CompassWebPreferencesAccess
+) {
+  compassWebPreferences = preferencesAccess;
 }
