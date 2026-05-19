@@ -39,6 +39,7 @@ export const FocusModeStageEditor = ({
   operator: string | null;
 }) => {
   const editorRef = useRef<EditorRef>(null);
+
   if (index === -1) {
     return null;
   }

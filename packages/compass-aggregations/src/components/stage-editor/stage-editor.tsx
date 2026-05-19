@@ -32,6 +32,7 @@ import {
   useSearchActivationProgramP1,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
@@ -44,8 +45,12 @@ import {
   isSearchStage,
 } from '../../utils/stage';
 import ServerErrorBanner from '../server-error-banner';
-import { getSearchExtensionTypeFromStage } from '../../utils/search-stage-errors';
+import {
+  getSearchExtensionTypeFromStage,
+  isRerankVersionSupported,
+} from '../../utils/search-stage-errors';
 import SearchIndexDoesNotExistBanner from '../search-index-does-not-exist-banner';
+import { RerankVersionWarningBanner } from '../rerank-version-warning-banner';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -136,6 +141,7 @@ export const StageEditor = ({
   const fields = useAutocompleteFields(namespace);
 
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableRerank = usePreference('enableRerank');
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
@@ -224,6 +230,13 @@ export const StageEditor = ({
           onBlur={onBlurEditor}
         />
       </div>
+      {enableRerank &&
+        stageOperator === '$rerank' &&
+        !isRerankVersionSupported(serverVersion) && (
+          <div className={bannerStyles}>
+            <RerankVersionWarningBanner data-testid="stage-editor-rerank-version-warning" />
+          </div>
+        )}
       {syntaxError && (
         <Banner
           variant="warning"
@@ -305,12 +318,14 @@ export default connect(
       ['READY', 'POLLING'].includes(state.searchIndexes.status) &&
       state.searchIndexes.indexes.every((x) => x.name !== searchIndexName);
 
+    const shouldShowErrors = !stage.empty && !stage.fromSnippet;
+
     return {
       namespace: state.namespace,
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
-      syntaxError: !stage.empty ? stage.syntaxError ?? null : null,
-      serverError: !stage.empty ? stage.serverError ?? null : null,
+      syntaxError: shouldShowErrors ? stage.syntaxError ?? null : null,
+      serverError: shouldShowErrors ? stage.serverError ?? null : null,
       serverErrorStageIdx: getIndexOfFirstStageWithServerError(
         stages,
         ownProps.index

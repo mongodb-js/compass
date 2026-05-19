@@ -79,6 +79,41 @@ export function getPipelineStageOperatorsFromBuilderState(
   return filterEmptyStageOperators ? stages.filter(Boolean) : stages;
 }
 
+export function getIsRerankFirstStage(
+  state: RootState,
+  stageIndex?: number
+): boolean {
+  // $rerank with no enabled stage preceding it.
+  if (stageIndex !== undefined) {
+    const stages = state.pipelineBuilder.stageEditor.stages;
+    const stage = stages[stageIndex];
+
+    const isRerankStage =
+      stage?.type === 'stage' &&
+      !stage.disabled &&
+      stage.stageOperator === '$rerank';
+    const noEnabledStagePrecedes = !stages
+      .slice(0, stageIndex)
+      .some((s) => s.type === 'stage' && !s.disabled);
+
+    return isRerankStage && noEnabledStagePrecedes;
+  }
+
+  // Pipeline-level check (text mode): the parsed pipeline starts with $rerank,
+  // or — when syntax errors prevent parsing — the raw text starts with it.
+  const { pipeline, syntaxErrors, pipelineText } =
+    state.pipelineBuilder.textEditor.pipeline;
+  if (pipeline.length > 0) {
+    return getStageOperator(pipeline[0]) === '$rerank';
+  }
+  if (syntaxErrors.length > 0) {
+    // Anchored to the structural opening of the pipeline so we don't match
+    // $rerank inside string values or comments.
+    return /^\s*\[\s*\{\s*\$rerank\b/.test(pipelineText);
+  }
+  return false;
+}
+
 export function getIsPipelineInvalidFromBuilderState(
   state: RootState,
   includeServerErrors = true
