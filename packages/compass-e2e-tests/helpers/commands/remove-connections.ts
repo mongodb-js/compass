@@ -6,17 +6,16 @@ async function resetForRemove(browser: CompassBrowser) {
 
   // Collapse all the connections so that they will all hopefully fit on screen
   // and therefore be rendered.
-  await browser.clickVisible(Selectors.CollapseConnectionsButton);
+  await browser.clickVisible(browser.pages.sidebar.$connectionsTitle);
 
   if (
-    (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) &&
-    (await browser
-      .$(Selectors.SidebarFilterInput)
-      .getAttribute('aria-disabled')) !== 'true'
+    (await browser.pages.sidebar.$filterInput.isDisplayed()) &&
+    (await browser.pages.sidebar.$filterInput.getAttribute('aria-disabled')) !==
+      'true'
   ) {
     // Clear the filter to make sure every connection shows
-    await browser.clickVisible(Selectors.SidebarFilterInput);
-    await browser.setValueVisible(Selectors.SidebarFilterInput, '');
+    await browser.clickVisible(browser.pages.sidebar.$filterInput);
+    await browser.setValueVisible(browser.pages.sidebar.$filterInput, '');
   }
 }
 
@@ -34,7 +33,7 @@ export async function removeAllConnections(
   // The potential problem here is that the list is virtual, so it is possible
   // that not every connection is rendered. Collapsing them all helps a little
   // bit, though.
-  const connectionItems = browser.$$(Selectors.ConnectionItems);
+  const connectionItems = browser.pages.sidebar.$$connections;
   for await (const connectionItem of connectionItems) {
     console.log(connectionItem);
     const connectionName = await connectionItem.getAttribute(
@@ -55,12 +54,12 @@ export async function removeConnectionByName(
 ) {
   await resetForRemove(browser);
 
-  await browser.selectConnectionMenuItem(
+  await browser.pages.sidebar.selectConnectionMenuItem(
     connectionName,
     Selectors.RemoveConnectionItem
   );
 
-  await browser
-    .$(Selectors.connectionItemByName(connectionName))
+  await browser.pages.sidebar
+    .$connectionItem(connectionName)
     .waitForDisplayed({ reverse: true });
 }

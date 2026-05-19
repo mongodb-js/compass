@@ -1,5 +1,6 @@
 import type * as Commands from './commands/index.ts';
 import type * as ElementCommands from './element-commands/index.ts';
+import type { Pages } from '../pages/index.ts';
 
 type CommandsType = typeof Commands;
 type ElementCommandsType = typeof ElementCommands;
@@ -30,6 +31,8 @@ declare global {
 }
 
 export type CompassBrowser = WebdriverIO.Browser & {
+  pages: Pages;
+} & {
   [key in keyof CommandsType]: CommandsType[key] extends (
     browser: CompassBrowser,
     ...args: infer A

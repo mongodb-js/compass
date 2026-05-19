@@ -42,7 +42,7 @@ describe('forceConnectionOptions', function () {
 
   it('forces the value of a specific connection option', async function () {
     // open the connection modal because that's where the warnings will be displayed
-    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+    await browser.clickVisible(browser.pages.sidebar.$newConnectionButton);
 
     await browser.waitUntil(
       async () => {

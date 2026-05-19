@@ -68,13 +68,13 @@ export async function connectWithConnectionString(
   // if a connection with this name already exists, remove it otherwise we'll
   // add a duplicate and things will get complicated fast
   const connectionName = connectionNameFromString(connectionStringOrName);
-  if (await browser.removeConnection(connectionName)) {
+  if (await browser.pages.sidebar.removeConnection(connectionName)) {
     debug('Removing existing connection so we do not create a duplicate', {
       connectionName,
     });
   }
 
-  await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+  await browser.clickVisible(browser.pages.sidebar.$newConnectionButton);
   await browser.waitForOpenModal(Selectors.ConnectionModal);
 
   await browser.setValueVisible(
@@ -98,7 +98,7 @@ export async function connectWithConnectionForm(
   // name, make sure we don't add a duplicate so that tests can always address
   // this new connection.
   if (state.connectionName) {
-    if (await browser.removeConnection(state.connectionName)) {
+    if (await browser.pages.sidebar.removeConnection(state.connectionName)) {
       debug('Removing existing connection so we do not create a duplicate', {
         connectionName: state.connectionName,
       });
@@ -133,36 +133,32 @@ export async function waitForConnectionResult(
   const waitOptions = typeof timeout !== 'undefined' ? { timeout } : undefined;
 
   if (
-    (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) &&
-    (await browser
-      .$(Selectors.SidebarFilterInput)
-      .getAttribute('aria-disabled')) !== 'true'
+    (await browser.pages.sidebar.$filterInput.isDisplayed()) &&
+    (await browser.pages.sidebar.$filterInput.getAttribute('aria-disabled')) !==
+      'true'
   ) {
     // Clear the filter to make sure every connection shows
-    await browser.clickVisible(Selectors.SidebarFilterInput);
-    await browser.setValueVisible(Selectors.SidebarFilterInput, '');
+    await browser.clickVisible(browser.pages.sidebar.$filterInput);
+    await browser.setValueVisible(browser.pages.sidebar.$filterInput, '');
   }
 
   if (connectionStatus === 'either') {
     // For the very rare cases where we don't care whether it fails or succeeds.
     // Usually because the exact result is a race condition.
-    const successSelector = Selectors.connectionItemByName(connectionName, {
-      connected: true,
-    });
-    const failureSelector = Selectors.ConnectionToastErrorText;
-    await browser
-      .$(`${successSelector},${failureSelector}`)
-      .waitForDisplayed(waitOptions);
+    await Promise.race([
+      browser.pages.sidebar
+        .$connectionItem(connectionName, { connected: true })
+        .waitForDisplayed(waitOptions),
+      browser
+        .$(Selectors.ConnectionToastErrorText)
+        .waitForDisplayed(waitOptions),
+    ]);
   } else if (connectionStatus === 'success') {
     // Wait for the first meaningful thing on the screen after being connected
     // and assume that's a good enough indicator that we are connected to the
     // server
-    await browser
-      .$(
-        Selectors.connectionItemByName(connectionName, {
-          connected: true,
-        })
-      )
+    await browser.pages.sidebar
+      .$connectionItem(connectionName, { connected: true })
       .waitForDisplayed();
   } else if (connectionStatus === 'failure') {
     await browser
@@ -175,9 +171,9 @@ export async function waitForConnectionResult(
   }
 
   // make sure the placeholders for databases & collections that are loading are all gone
-  await browser
-    .$(Selectors.DatabaseCollectionPlaceholder)
-    .waitForDisplayed({ reverse: true });
+  await browser.pages.sidebar.$databaseCollectionPlaceholder.waitForDisplayed({
+    reverse: true,
+  });
 }
 
 export async function connectByName(
@@ -186,19 +182,19 @@ export async function connectByName(
   options: ConnectionResultOptions = {}
 ) {
   // make sure the connection shows up before we try and hover over it
-  await browser
-    .$(Selectors.sidebarConnection(connectionName))
-    .waitForDisplayed();
+  await browser.pages.sidebar.$connection(connectionName).waitForDisplayed();
 
   // focus the filter input so that we can be sure the window is focused and the
   // mouse pointer is away from the connection itself
-  await browser.clickVisible(Selectors.SidebarFilterInput);
+  await browser.clickVisible(browser.pages.sidebar.$filterInput);
 
   // hover over the connection and hope the connect button shows up
-  await browser.hover(Selectors.sidebarConnection(connectionName));
+  await browser.hover(browser.pages.sidebar.$connection(connectionName));
 
   // hopefully the connect button showed up on hover and we can click it
-  await browser.clickVisible(Selectors.sidebarConnectionButton(connectionName));
+  await browser.clickVisible(
+    browser.pages.sidebar.$connectButton(connectionName)
+  );
 
   await browser.waitForConnectionResult(connectionName, options);
 }

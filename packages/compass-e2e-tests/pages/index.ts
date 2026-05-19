@@ -1,10 +1,20 @@
-// Slots are added to this interface by migration PRs as page objects are
-// introduced. See pages/README.md.
-// TODO: Drop this lint disable as soon as the first page object slot is added
-// (planned PR 1.1, sidebar) — the interface will no longer be empty.
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface Pages {}
+import type { CompassBrowser } from '../helpers/compass-browser.ts';
+import type { CompassMode } from './base-page.ts';
+import { SidebarPage } from './shared/sidebar/sidebar.page.ts';
 
-export function buildPages(): Pages {
-  return {};
+export interface Pages {
+  sidebar: SidebarPage;
+  toJSON(): string;
+}
+
+export function buildPages(browser: CompassBrowser, mode: CompassMode): Pages {
+  return {
+    sidebar: new SidebarPage(browser, mode),
+    // We're assigning pages to browser and webdriver will sometimes try to
+    // serialize the browser object. To avoid this causing issues with circular
+    // references, we're just providing a simple replacement for the pages key
+    toJSON() {
+      return '[Pages]';
+    },
+  };
 }

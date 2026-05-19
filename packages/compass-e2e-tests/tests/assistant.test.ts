@@ -65,7 +65,7 @@ describe('MongoDB Assistant (with real backend)', function () {
 
       await browser.setupDefaultConnections();
       await browser.connectToDefaults();
-      await browser.selectConnectionMenuItem(
+      await browser.pages.sidebar.selectConnectionMenuItem(
         getDefaultConnectionNames(0),
         Selectors.CreateDatabaseButton,
         false

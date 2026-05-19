@@ -36,8 +36,6 @@ export * from './preferences.ts';
 export * from './set-env.ts';
 export * from './save-favorite.ts';
 export * from './save-connection-string-as-favorite.ts';
-export * from './sidebar-connection.ts';
-export * from './select-connections-menu-item.ts';
 export * from './open-settings-modal.ts';
 export * from './screenshot.ts';
 export * from './open-shell.ts';

@@ -119,7 +119,7 @@ describe('Shell', function () {
     await browser.connectToDefaults();
 
     expect(
-      await browser.hasConnectionMenuItem(
+      await browser.pages.sidebar.hasConnectionMenuItem(
         getDefaultConnectionNames(0),
         Selectors.OpenShellItem
       )
@@ -135,7 +135,7 @@ describe('Shell', function () {
     await browser.waitForOpenModal(Selectors.SettingsModal, { reverse: true });
 
     expect(
-      await browser.hasConnectionMenuItem(
+      await browser.pages.sidebar.hasConnectionMenuItem(
         getDefaultConnectionNames(0),
         Selectors.OpenShellItem
       )

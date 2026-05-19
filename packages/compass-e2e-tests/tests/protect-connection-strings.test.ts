@@ -18,7 +18,7 @@ async function expectCopyConnectionStringToClipboard(
   expected: string
 ): Promise<void> {
   if (!context.disableClipboardUsage) {
-    await browser.selectConnectionMenuItem(
+    await browser.pages.sidebar.selectConnectionMenuItem(
       favoriteName,
       Selectors.CopyConnectionStringItem
     );
@@ -79,7 +79,7 @@ describe('protectConnectionStrings', function () {
     };
     await browser.setConnectFormState(state);
     await browser.saveFavorite(favoriteName, 'Yellow');
-    await browser.selectConnection(favoriteName);
+    await browser.pages.sidebar.selectConnection(favoriteName);
 
     expect(await browser.getConnectFormConnectionString()).to.equal(
       'mongodb://foo:*****@localhost:12345/'
@@ -105,7 +105,7 @@ describe('protectConnectionStrings', function () {
       'mongodb://foo:bar@localhost:12345/'
     );
 
-    await browser.selectConnection(favoriteName);
+    await browser.pages.sidebar.selectConnection(favoriteName);
 
     await browser.setFeature('protectConnectionStrings', true);
 

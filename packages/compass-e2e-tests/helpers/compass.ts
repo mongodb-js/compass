@@ -173,7 +173,10 @@ export class Compass {
     this.needsCloseWelcomeModal = needsCloseWelcomeModal;
     this.logs = { raw: Buffer.from(''), structured: [] };
     this.renderLogs = [];
-    this.pages = buildPages();
+    this.pages = buildPages(this.browser, this.mode);
+    // Expose the pages tree on the browser so helper-command bodies (which
+    // receive `browser`, not `compass`) can reach into page objects.
+    this.browser.pages = this.pages;
   }
 
   async prepare() {

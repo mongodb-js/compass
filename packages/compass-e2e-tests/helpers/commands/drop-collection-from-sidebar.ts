@@ -14,7 +14,9 @@ export async function dropCollectionFromSidebar(
     'drop-collection'
   );
 
-  const connectionId = await browser.getConnectionIdByName(connectionName);
+  const connectionId = await browser.pages.sidebar.getConnectionIdByName(
+    connectionName
+  );
   const collectionSelector = Selectors.sidebarCollection(
     connectionId,
     databaseName,

@@ -33,7 +33,7 @@ async function openMenuForQueryItem(
     }
 
     // go hover somewhere else to give the next attempt a fighting chance
-    await browser.hover(Selectors.SidebarTitle);
+    await browser.hover(browser.pages.sidebar.$sidebarTitle);
     return false;
   });
 
@@ -256,7 +256,7 @@ describe('My Queries tab', function () {
           .db('test')
           .renameCollection('numbers', 'numbers-renamed');
 
-        await browser.selectConnectionMenuItem(
+        await browser.pages.sidebar.selectConnectionMenuItem(
           getDefaultConnectionNames(0),
           Selectors.RefreshDatabasesItem,
           false
@@ -390,7 +390,7 @@ describe('My Queries tab', function () {
           .db('test')
           .renameCollection('numbers', newCollectionName);
 
-        await browser.selectConnectionMenuItem(
+        await browser.pages.sidebar.selectConnectionMenuItem(
           getDefaultConnectionNames(0),
           Selectors.RefreshDatabasesItem,
           false
@@ -452,7 +452,7 @@ describe('My Queries tab', function () {
 
         await client_1.db('test').dropCollection('numbers');
 
-        await browser.selectConnectionMenuItem(
+        await browser.pages.sidebar.selectConnectionMenuItem(
           getDefaultConnectionNames(0),
           Selectors.RefreshDatabasesItem,
           false
@@ -499,12 +499,12 @@ describe('My Queries tab', function () {
           .db('test')
           .renameCollection('numbers', newCollectionName);
 
-        await browser.selectConnectionMenuItem(
+        await browser.pages.sidebar.selectConnectionMenuItem(
           getDefaultConnectionNames(0),
           Selectors.RefreshDatabasesItem,
           false
         );
-        await browser.selectConnectionMenuItem(
+        await browser.pages.sidebar.selectConnectionMenuItem(
           getDefaultConnectionNames(1),
           Selectors.RefreshDatabasesItem,
           false
@@ -564,12 +564,12 @@ describe('My Queries tab', function () {
           favoriteQueryName
         );
 
-        await browser.selectConnectionMenuItem(
+        await browser.pages.sidebar.selectConnectionMenuItem(
           getDefaultConnectionNames(0),
           Selectors.RefreshDatabasesItem,
           false
         );
-        await browser.selectConnectionMenuItem(
+        await browser.pages.sidebar.selectConnectionMenuItem(
           getDefaultConnectionNames(1),
           Selectors.RefreshDatabasesItem,
           false
@@ -583,7 +583,7 @@ describe('My Queries tab', function () {
         // the open item modal - select a new connection, database and collection
         await browser.waitForOpenModal(Selectors.SelectConnectionModal);
 
-        const connectionId = await browser.getConnectionIdByName(
+        const connectionId = await browser.pages.sidebar.getConnectionIdByName(
           getDefaultConnectionNames(1)
         );
         if (!connectionId) {

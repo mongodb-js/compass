@@ -618,7 +618,7 @@ describe('Connection form', function () {
 
     if (!context.disableClipboardUsage) {
       // copy the connection string
-      await browser.selectConnectionMenuItem(
+      await browser.pages.sidebar.selectConnectionMenuItem(
         favoriteName,
         Selectors.CopyConnectionStringItem
       );
@@ -633,7 +633,7 @@ describe('Connection form', function () {
     }
 
     // duplicate
-    await browser.selectConnectionMenuItem(
+    await browser.pages.sidebar.selectConnectionMenuItem(
       favoriteName,
       Selectors.DuplicateConnectionItem
     );
@@ -642,23 +642,21 @@ describe('Connection form', function () {
     await browser.clickVisible(Selectors.ConnectionModalSaveButton);
 
     // delete the duplicate
-    await browser.selectConnectionMenuItem(
+    await browser.pages.sidebar.selectConnectionMenuItem(
       `${favoriteName} (1)`,
       Selectors.RemoveConnectionItem
     );
 
     // edit the original
-    await browser.selectConnection(favoriteName);
+    await browser.pages.sidebar.selectConnection(favoriteName);
 
     await browser.saveFavorite(newFavoriteName, 'Pink');
 
     // it should now be updated in the sidebar
-    await browser
-      .$(Selectors.sidebarConnection(newFavoriteName))
-      .waitForDisplayed();
+    await browser.pages.sidebar.$connection(newFavoriteName).waitForDisplayed();
 
     // open the modal so we can perform some actions in there
-    await browser.selectConnection(newFavoriteName);
+    await browser.pages.sidebar.selectConnection(newFavoriteName);
 
     // the edit the connection string toggle should be on (because this is a new connection we just saved)
     const toggle = browser.$(Selectors.EditConnectionStringToggle);
