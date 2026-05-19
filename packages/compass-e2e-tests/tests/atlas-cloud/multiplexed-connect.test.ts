@@ -4,7 +4,6 @@ import { cleanup, init, screenshotIfFailed } from '../../helpers/compass.ts';
 import {
   context,
   getDefaultConnectionNames,
-  getCloudUrlsFromContext,
   isTestingWebAtlasCloud,
 } from '../../helpers/test-runner-context.ts';
 import type { CompassBrowser } from '../../helpers/compass-browser.ts';
@@ -48,7 +47,6 @@ describe('Multiplex WebSocket connection', function () {
   });
 
   it('establishes a WebSocket connection to the correct CCS endpoint', async function () {
-    const { cloudUrl } = getCloudUrlsFromContext();
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
       'test',
