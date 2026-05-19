@@ -23,11 +23,8 @@ export const useRerankInsightAction = () => {
   return tellMoreAboutInsight ? action : undefined;
 };
 
-const rerankInsightDescription = (
+const searchStageLinks = (
   <>
-    {
-      '$rerank is the first stage with no preceding search stage. This is expensive and increases strain. We recommend using $rerank as the second stage to '
-    }
     <Link
       href={`${STAGE_HELP_BASE_URL}/search/`}
       target="_blank"
@@ -59,6 +56,15 @@ const rerankInsightDescription = (
     >
       $scoreFusion
     </Link>
+  </>
+);
+
+const rerankInsightDescription = (
+  <>
+    {
+      '$rerank is the first stage with no preceding search stage. This is expensive and increases strain. We recommend using $rerank as the second stage to '
+    }
+    {searchStageLinks}
     {'.'}
   </>
 );
@@ -170,38 +176,8 @@ export const RerankFirstStageBanner = ({
           {
             "If you're just trying out $rerank, there's a chance you may consume an excessive amount of tokens, which can be expensive. $rerank works best following a search stage like "
           }
-          <Link
-            href={`${STAGE_HELP_BASE_URL}/search/`}
-            target="_blank"
-            hideExternalIcon
-          >
-            $search
-          </Link>
-          {', '}
-          <Link
-            href={`${STAGE_HELP_BASE_URL}/vectorSearch/`}
-            target="_blank"
-            hideExternalIcon
-          >
-            $vectorSearch
-          </Link>
-          {', '}
-          <Link
-            href={`${STAGE_HELP_BASE_URL}/rankFusion/`}
-            target="_blank"
-            hideExternalIcon
-          >
-            $rankFusion
-          </Link>
-          {', or '}
-          <Link
-            href={`${STAGE_HELP_BASE_URL}/scoreFusion/`}
-            target="_blank"
-            hideExternalIcon
-          >
-            $scoreFusion
-          </Link>
-          .
+          {searchStageLinks}
+          {'.'}
         </div>
         {onInsightAction && (
           <Button

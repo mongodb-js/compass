@@ -296,7 +296,7 @@ export default connect(
       },
       searchIndexes: {
         isSearchIndexesSupported,
-        indexes,
+        indexes: searchIndexes,
         status: searchIndexesStatus,
       },
     } = state;
@@ -306,7 +306,7 @@ export default connect(
       env,
       isSearchIndexesSupported,
       isRerankFirstStage: getIsRerankFirstStage(state, ownProps.index),
-      hasSearchIndex: indexes.length > 0,
+      hasSearchIndex: searchIndexes.length > 0,
       isSearchIndexesLoading:
         searchIndexesStatus === 'INITIAL' ||
         searchIndexesStatus === 'LOADING' ||
