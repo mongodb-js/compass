@@ -1385,13 +1385,15 @@ class CrudStoreImpl
    */
   async insertMany() {
     try {
-      const schemaTypes = this.fieldStoreService.getSchemaTypesForNamespace(
+      const schemaFields = this.fieldStoreService.getSchemaFieldsForNamespace(
         this.state.ns
       );
       const docs = HadronDocument.FromEJSONArray(
         this.state.insert.jsonDoc ?? ''
       ).map((doc) => {
-        doc.preserveTypesFromSchema(schemaTypes);
+        if (schemaFields) {
+          doc.preserveTypesFromSchema(schemaFields);
+        }
         return doc.generateObject();
       });
       this.track(
@@ -1459,14 +1461,16 @@ class CrudStoreImpl
     let doc: BSONObject;
 
     try {
-      const schemaTypes = this.fieldStoreService.getSchemaTypesForNamespace(
+      const schemaFields = this.fieldStoreService.getSchemaFieldsForNamespace(
         this.state.ns
       );
       if (this.state.insert.jsonView) {
         const hadronDoc = HadronDocument.FromEJSON(
           this.state.insert.jsonDoc ?? ''
         );
-        hadronDoc.preserveTypesFromSchema(schemaTypes);
+        if (schemaFields) {
+          hadronDoc.preserveTypesFromSchema(schemaFields);
+        }
         doc = hadronDoc.generateObject();
       } else {
         // Create a fresh document from the current state to avoid mutating
@@ -1475,7 +1479,9 @@ class CrudStoreImpl
         const hadronDoc = new HadronDocument(
           this.state.insert.doc!.generateObject()
         );
-        hadronDoc.preserveTypesFromSchema(schemaTypes);
+        if (schemaFields) {
+          hadronDoc.preserveTypesFromSchema(schemaFields);
+        }
         doc = hadronDoc.generateObject();
       }
       await this.dataService.insertOne(this.state.ns, doc);

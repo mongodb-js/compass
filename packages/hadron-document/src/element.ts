@@ -275,12 +275,13 @@ export class Element extends EventEmitter {
    * narrowing when inserting new documents (e.g. 5.0 becoming Int32 when
    * the field is typically Double).
    *
-   * @param schemaTypes - A map of dotted field paths to their schema type(s).
-   *   Type values use mongodb-schema naming: 'Double', 'Int32', 'Long'.
+   * @param schemaFields - A map of dotted field paths to objects containing
+   *   a `type` property with their schema type(s). Type values use
+   *   mongodb-schema naming: 'Double', 'Int32', 'Long'.
    * @param parentPath - The dotted path prefix for nested elements.
    */
   preserveTypeFromSchema(
-    schemaTypes: Readonly<Record<string, string | string[]>>,
+    schemaFields: Readonly<Record<string, { type: string | string[] }>>,
     parentPath: string
   ): void {
     const fieldPath = parentPath
@@ -289,7 +290,7 @@ export class Element extends EventEmitter {
 
     if (this.currentType === 'Object' && this.elements) {
       for (const child of this.elements) {
-        child.preserveTypeFromSchema(schemaTypes, fieldPath);
+        child.preserveTypeFromSchema(schemaFields, fieldPath);
       }
       return;
     }
@@ -301,7 +302,7 @@ export class Element extends EventEmitter {
       return;
     }
 
-    const schemaType = schemaTypes[fieldPath];
+    const schemaType = schemaFields[fieldPath]?.type;
     if (!schemaType) {
       return;
     }

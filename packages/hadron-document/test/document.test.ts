@@ -2462,31 +2462,31 @@ describe('Document', function () {
     describe('#preserveTypesFromSchema', function () {
       it('converts Int32 to Double when schema says Double', function () {
         const doc = new Document({ price: new Int32(5) });
-        doc.preserveTypesFromSchema({ price: 'Double' });
+        doc.preserveTypesFromSchema({ price: { type: 'Double' } });
         expect(doc.get('price')?.currentType).to.equal('Double');
       });
 
       it('converts Int32 to Int64 when schema says Long', function () {
         const doc = new Document({ count: new Int32(5) });
-        doc.preserveTypesFromSchema({ count: 'Long' });
+        doc.preserveTypesFromSchema({ count: { type: 'Long' } });
         expect(doc.get('count')?.currentType).to.equal('Int64');
       });
 
       it('converts Int32 to Int64 when schema says Int64', function () {
         const doc = new Document({ count: new Int32(5) });
-        doc.preserveTypesFromSchema({ count: 'Int64' });
+        doc.preserveTypesFromSchema({ count: { type: 'Int64' } });
         expect(doc.get('count')?.currentType).to.equal('Int64');
       });
 
       it('does not change type when schema matches (Int32 stays Int32)', function () {
         const doc = new Document({ count: new Int32(5) });
-        doc.preserveTypesFromSchema({ count: 'Int32' });
+        doc.preserveTypesFromSchema({ count: { type: 'Int32' } });
         expect(doc.get('count')?.currentType).to.equal('Int32');
       });
 
       it('does not change non-numeric types', function () {
         const doc = new Document({ name: 'hello' });
-        doc.preserveTypesFromSchema({ name: 'String' });
+        doc.preserveTypesFromSchema({ name: { type: 'String' } });
         expect(doc.get('name')?.currentType).to.equal('String');
       });
 
@@ -2498,19 +2498,19 @@ describe('Document', function () {
 
       it('handles schema with multiple types, prefers Double over Int32', function () {
         const doc = new Document({ value: new Int32(5) });
-        doc.preserveTypesFromSchema({ value: ['Int32', 'Double'] });
+        doc.preserveTypesFromSchema({ value: { type: ['Int32', 'Double'] } });
         expect(doc.get('value')?.currentType).to.equal('Double');
       });
 
       it('handles schema with multiple types, prefers Long over Int32', function () {
         const doc = new Document({ value: new Int32(5) });
-        doc.preserveTypesFromSchema({ value: ['Int32', 'Long'] });
+        doc.preserveTypesFromSchema({ value: { type: ['Int32', 'Long'] } });
         expect(doc.get('value')?.currentType).to.equal('Int64');
       });
 
       it('prefers Double when schema has both Double and Long', function () {
         const doc = new Document({ value: new Int32(5) });
-        doc.preserveTypesFromSchema({ value: ['Double', 'Long'] });
+        doc.preserveTypesFromSchema({ value: { type: ['Double', 'Long'] } });
         expect(doc.get('value')?.currentType).to.equal('Double');
       });
 
@@ -2518,19 +2518,19 @@ describe('Document', function () {
         const doc = new Document({
           meta: { score: new Int32(10) },
         });
-        doc.preserveTypesFromSchema({ 'meta.score': 'Double' });
+        doc.preserveTypesFromSchema({ 'meta.score': { type: 'Double' } });
         expect(doc.get('meta')?.get('score')?.currentType).to.equal('Double');
       });
 
       it('leaves Double values unchanged', function () {
         const doc = new Document({ price: new Double(5.5) });
-        doc.preserveTypesFromSchema({ price: 'Double' });
+        doc.preserveTypesFromSchema({ price: { type: 'Double' } });
         expect(doc.get('price')?.currentType).to.equal('Double');
       });
 
       it('leaves Int64 values unchanged when schema says Long', function () {
         const doc = new Document({ bigNum: new Long(99) });
-        doc.preserveTypesFromSchema({ bigNum: 'Long' });
+        doc.preserveTypesFromSchema({ bigNum: { type: 'Long' } });
         expect(doc.get('bigNum')?.currentType).to.equal('Int64');
       });
 
@@ -2541,9 +2541,9 @@ describe('Document', function () {
           name: 'widget',
         });
         doc.preserveTypesFromSchema({
-          price: 'Double',
-          quantity: 'Long',
-          name: 'String',
+          price: { type: 'Double' },
+          quantity: { type: 'Long' },
+          name: { type: 'String' },
         });
         expect(doc.get('price')?.currentType).to.equal('Double');
         expect(doc.get('quantity')?.currentType).to.equal('Int64');

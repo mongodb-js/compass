@@ -117,15 +117,16 @@ export class Document extends EventEmitter<
    * a field is typed as Double in the schema but the value 5.0 was parsed
    * as Int32, this will cast it back to Double.
    *
-   * @param schemaTypes - A map of dotted field paths to their observed
-   *   schema type(s). Uses mongodb-schema naming ('Double', 'Long', etc.).
-   *   Only fields present in this map are considered for type adjustment.
+   * @param schemaFields - A map of dotted field paths to objects containing
+   *   a `type` property with their observed schema type(s). Uses
+   *   mongodb-schema naming ('Double', 'Long', etc.). Only fields present
+   *   in this map are considered for type adjustment.
    */
   preserveTypesFromSchema(
-    schemaTypes: Readonly<Record<string, string | string[]>>
+    schemaFields: Readonly<Record<string, { type: string | string[] }>>
   ): void {
     for (const element of this.elements) {
-      element.preserveTypeFromSchema(schemaTypes, '');
+      element.preserveTypeFromSchema(schemaFields, '');
     }
   }
 
