@@ -1854,7 +1854,7 @@ const connectWithOptions = (
               num_active_connections: activeConnectionsCount,
               num_inactive_connections: inactiveConnectionsCount,
               user_language: globalThis.navigator?.language ?? 'unknown',
-              user_languages: globalThis.navigator?.languages ?? [],
+              user_languages: [...(globalThis.navigator?.languages ?? [])],
               ...extraInfo,
             };
           },
