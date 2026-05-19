@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import fs from 'fs';
 import path from 'path';
 import Sinon from 'sinon';
+import React from 'react';
 import type { DataService } from 'mongodb-data-service';
 import { connect } from 'mongodb-data-service';
 import {
@@ -20,7 +21,11 @@ import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
   createPluginTestHelpers,
   cleanup,
+  screen,
+  userEvent,
+  testingLibrary,
 } from '@mongodb-js/testing-library-compass';
+import { ToastBody } from '@mongodb-js/compass-components';
 import { ExportPlugin } from '../index';
 import type { ExportStore } from '../stores/export-store';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -286,6 +291,21 @@ describe('export [module]', function () {
           undefined
         );
       });
+    });
+  });
+
+  describe('export toast stop button', function () {
+    it('aborts the signal when the stop button is clicked', function () {
+      const abortController = new AbortController();
+      testingLibrary.render(
+        React.createElement(ToastBody, {
+          statusMessage: 'Starting...',
+          actionHandler: () => abortController.abort(),
+          actionText: 'stop',
+        })
+      );
+      userEvent.click(screen.getByTestId('toast-action-stop'));
+      expect(abortController.signal.aborted).to.equal(true);
     });
   });
 

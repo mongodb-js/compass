@@ -608,6 +608,12 @@ describe('Collection export', function () {
       });
 
       describe('when find commands are blocked by a failpoint', function () {
+        before(function () {
+          if (process.platform === 'darwin' && process.arch === 'arm64') {
+            this.skip();
+          }
+        });
+
         let adminClient: MongoClient;
 
         beforeEach(async function () {
