@@ -144,6 +144,8 @@ describe('Collection aggregations tab', function () {
       localStorage.setItem(key, 'true');
     }, STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY);
 
+    await browser.setFeature('enableRerank', true);
+
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -170,7 +172,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports the right stages for the environment', async function () {
-    await browser.setFeature('enableRerank', false);
     const options = await browser.getStageOperators(0);
 
     const expectedAggregations = [
@@ -193,6 +194,7 @@ describe('Collection aggregations tab', function () {
       '$out',
       '$project',
       '$redact',
+      '$rerank',
       '$replaceRoot',
       '$replaceWith',
       '$sample',
