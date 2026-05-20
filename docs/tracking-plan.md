@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, May 18, 2026
+Generated on Wed, May 20, 2026
 
 ## Table of Contents
 
@@ -1126,6 +1126,9 @@ This event is fired when user successfully connects to a new server/cluster.
 - **user_language** (required): `string`
   - The user's preferred language, as reported by the browser or Electron
     runtime (e.g. "en-US", "fr", "zh-CN").
+- **user_languages** (required): `{}`
+  - The user's ordered language preferences, as
+    reported by navigator.languages (e.g. ['en-US', 'en', 'fr']).
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`
