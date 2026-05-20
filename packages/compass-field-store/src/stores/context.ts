@@ -1,6 +1,10 @@
 import React from 'react';
 import type { ReactReduxContextValue, TypedUseSelectorHook } from 'react-redux';
-import { createSelectorHook, createDispatchHook } from 'react-redux';
+import {
+  createSelectorHook,
+  createDispatchHook,
+  createStoreHook,
+} from 'react-redux';
 import { type ConnectionNamespacesState } from '../modules';
 import type { activatePlugin } from './store';
 
@@ -12,6 +16,10 @@ export const FieldStoreContext = React.createContext<
 );
 
 type Dispatch = ReturnType<typeof activatePlugin>['store']['dispatch'];
+
+export const useStore = createStoreHook(FieldStoreContext) as () => ReturnType<
+  typeof activatePlugin
+>['store'];
 
 export const useDispatch = createDispatchHook(
   FieldStoreContext
