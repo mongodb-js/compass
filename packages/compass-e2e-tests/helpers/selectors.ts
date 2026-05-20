@@ -1391,6 +1391,9 @@ export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
 // Insights
 export const InsightIconButton = '[data-testid="insight-badge-button"]';
 export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
+export const InsightTellMeMoreButton = '[data-testid="tell-me-more-button"]';
+export const RerankFirstStageBannerLearnMoreButton =
+  '[data-testid="rerank-first-stage-learn-more-button"]';
 
 // Proxy settings
 export const ProxyUrl =

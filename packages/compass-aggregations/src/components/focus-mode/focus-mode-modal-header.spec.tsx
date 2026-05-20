@@ -48,6 +48,11 @@ describe('FocusModeModalHeader', function () {
             stageOperator: '$project',
           },
         ]}
+        isRerankFirstStage={false}
+        hasSearchIndex={false}
+        isSearchIndexesLoading={false}
+        onRefreshSearchIndexes={noop}
+        onAddSearchStageBefore={noop}
         onAddStageClick={noop}
         onStageSelect={noop}
         onStageDisabledToggleClick={noop}

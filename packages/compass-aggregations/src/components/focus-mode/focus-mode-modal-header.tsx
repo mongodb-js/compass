@@ -14,19 +14,27 @@ import {
   formatHotkey,
   SignalPopover,
 } from '@mongodb-js/compass-components';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
   addStageInFocusMode,
   selectFocusModeStage,
 } from '../../modules/focus-mode';
-import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
+import {
+  changeStageDisabled,
+  addSearchStageBefore,
+} from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model/provider';
-import { createSearchIndex } from '../../modules/search-indexes';
+import {
+  createSearchIndex,
+  refreshSearchIndexes,
+} from '../../modules/search-indexes';
 import type { ServerEnvironment } from '../../modules/env';
+import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
+import { useRerankInsight } from '../rerank-first-stage-banner';
 
 type Stage = {
   idxInStore: number;
@@ -40,10 +48,15 @@ type FocusModeModalHeaderProps = {
   stage?: StoreStage;
   env: ServerEnvironment;
   isSearchIndexesSupported: boolean;
+  isRerankFirstStage: boolean;
+  hasSearchIndex: boolean;
+  isSearchIndexesLoading: boolean;
   onCreateSearchIndex: () => void;
   onStageSelect: (index: number) => void;
   onStageDisabledToggleClick: (index: number, newVal: boolean) => void;
   onAddStageClick: (index: number) => void;
+  onAddSearchStageBefore: (storeIndex: number) => void;
+  onRefreshSearchIndexes: () => void;
 };
 
 const controlsContainerStyles = css({
@@ -93,16 +106,21 @@ export const FocusModeModalHeader: React.FunctionComponent<
   stages,
   env,
   isSearchIndexesSupported,
+  isRerankFirstStage,
+  hasSearchIndex,
+  isSearchIndexesLoading,
   stage,
   onCreateSearchIndex,
   onAddStageClick,
   onStageSelect,
   onStageDisabledToggleClick,
+  onAddSearchStageBefore,
+  onRefreshSearchIndexes,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const showInsights = usePreference('showInsights');
 
-  const insight = useMemo(() => {
+  const performanceInsight = useMemo(() => {
     if (stage) {
       return getInsightForStage(
         stage,
@@ -112,6 +130,26 @@ export const FocusModeModalHeader: React.FunctionComponent<
       );
     }
   }, [stage, env, isSearchIndexesSupported, onCreateSearchIndex]);
+
+  const onAddSearchStageBeforeCurrentStage = useCallback(() => {
+    onAddSearchStageBefore(stageIndex);
+  }, [onAddSearchStageBefore, stageIndex]);
+
+  const rerankInsight = useRerankInsight({
+    isRerankFirstStage,
+    hasSearchIndex,
+    isSearchIndexesLoading,
+    onAddSearchStageBefore: onAddSearchStageBeforeCurrentStage,
+  });
+
+  const insight = rerankInsight ?? performanceInsight;
+
+  const onPopoverOpenChange = useCallback(
+    (open: boolean) => {
+      if (open && isRerankFirstStage) onRefreshSearchIndexes();
+    },
+    [isRerankFirstStage, onRefreshSearchIndexes]
+  );
 
   const isFirst = stages[0].idxInStore === stageIndex;
   const isLast = stages[stages.length - 1].idxInStore === stageIndex;
@@ -316,7 +354,12 @@ export const FocusModeModalHeader: React.FunctionComponent<
         </Menu>
       </div>
 
-      {showInsights && insight && <SignalPopover signals={insight} />}
+      {showInsights && insight && (
+        <SignalPopover
+          signals={insight}
+          onPopoverOpenChange={onPopoverOpenChange}
+        />
+      )}
     </div>
   );
 };
@@ -329,7 +372,11 @@ export default connect(
       pipelineBuilder: {
         stageEditor: { stages },
       },
-      searchIndexes: { isSearchIndexesSupported },
+      searchIndexes: {
+        isSearchIndexesSupported,
+        indexes: searchIndexes,
+        status: searchIndexesStatus,
+      },
     } = state;
     const stage = stages[stageIndex] as StoreStage;
 
@@ -339,6 +386,12 @@ export default connect(
       stage,
       env,
       isSearchIndexesSupported,
+      isRerankFirstStage: getIsRerankFirstStage(state, stageIndex),
+      hasSearchIndex: searchIndexes.length > 0,
+      isSearchIndexesLoading:
+        searchIndexesStatus === 'INITIAL' ||
+        searchIndexesStatus === 'LOADING' ||
+        searchIndexesStatus === 'POLLING',
       stages: stages.reduce<Stage[]>((accumulator, stage, idxInStore) => {
         if (stage.type === 'stage') {
           accumulator.push({
@@ -355,5 +408,7 @@ export default connect(
     onStageDisabledToggleClick: changeStageDisabled,
     onAddStageClick: addStageInFocusMode,
     onCreateSearchIndex: createSearchIndex,
+    onAddSearchStageBefore: addSearchStageBefore,
+    onRefreshSearchIndexes: refreshSearchIndexes,
   }
 )(FocusModeModalHeader);
