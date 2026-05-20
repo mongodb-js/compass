@@ -92,6 +92,9 @@ jobs:
   create-mms-pr:
     name: Create MMS PR for feature flag(s)
     needs: detect-and-comment
+    # TODO: This needs to be created on the compass side and only devtools team will be allowed to approve it.
+    environment:
+      name: create-mms-pr
     if: needs.detect-and-comment.outputs.flags_count != '' && needs.detect-and-comment.outputs.flags_count != '0'
     runs-on: ubuntu-latest
     permissions:
