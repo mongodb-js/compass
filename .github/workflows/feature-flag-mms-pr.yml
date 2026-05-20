@@ -1,0 +1,127 @@
+name: Feature Flag MMS PR Creation
+
+on:
+  pull_request:
+    paths:
+      - 'packages/compass-preferences-model/src/feature-flags.ts'
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'PR number that introduced the feature flag(s)'
+        required: true
+        type: string
+
+jobs:
+  detect-and-comment:
+    name: Detect new feature flags and comment on PR
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    outputs:
+      flags_count: ${{ steps.detect.outputs.flags_count }}
+      new_flags: ${{ steps.detect.outputs.new_flags }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.21.1
+          cache: 'npm'
+
+      - name: Install ts-node and typescript
+        run: npm install --no-save --no-audit ts-node typescript
+
+      - name: Detect new feature flags
+        id: detect
+        run: npx ts-node scripts/detect-feature-flags.ts
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+
+      - name: Post comment on PR
+        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
+        uses: actions/github-script@v7
+        env:
+          NEW_FLAGS: ${{ steps.detect.outputs.new_flags }}
+        with:
+          script: |
+            const flags = JSON.parse(process.env.NEW_FLAGS || '[]');
+            if (!flags.length) return;
+
+            const { owner, repo } = context.repo;
+            const workflowUrl = `https://github.com/${owner}/${repo}/actions/runs/${context.runId}`
+
+            let body = '## New Feature Flag Definition(s) Detected\n\n';
+            body += 'The following new feature flag(s) were added to `FEATURE_FLAG_DEFINITIONS` in `feature-flags.ts`:\n\n';
+
+            for (const flag of flags) {
+              body += `### \`${flag.name}\`\n`;
+              if (flag.description) {
+                body += `- **Description:** ${flag.description}\n`;
+              } else {
+                body += `- **Description:** _Not set._ Please add a description object with at least a short property to the feature flag definition in \`feature-flags.ts\` so it can be used in the MMS feature flag definition.\n`;
+              }
+              if (flag.atlasCloudFeatureScope) {
+                body += `- **Atlas Cloud Scope:** \`${flag.atlasCloudFeatureScope}\`\n`;
+              } else {
+                body += `- **Atlas Cloud Scope:** _Not set._ If this flag needs an MMS feature flag entry, add \`atlasCloudFeatureScope\` to the definition in \`feature-flags.ts\`.\n`;
+              }
+              body += '\n';
+            }
+
+            body += '---\n\n';
+            body += `**To create the MMS feature flag definition(s):** [Click here to run the workflow](${workflowUrl}) `;
+            body += 'The workflow will open the required PR(s) in `10gen/mms`.';
+
+            body += '\n\n**Note:** The data extracted from the feature flag definition will be validated before creating the MMS PR(s). If the validation fails, the workflow will not proceed.';
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: prNumber,
+              body,
+            });
+
+  create-mms-pr:
+    name: Create MMS PR for feature flag(s)
+    needs: detect-and-comment
+    if: needs.detect-and-comment.outputs.flags_count != '' && needs.detect-and-comment.outputs.flags_count != '0'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.21.1
+          cache: 'npm'
+
+      - name: Install ts-node and typescript
+        run: npm install --no-save --no-audit ts-node typescript
+
+      - name: Create MMS PR(s)
+        env:
+          # TODO: This needs some work
+          GH_TOKEN: ${{ secrets.MMS_GITHUB_TOKEN }}
+          NEW_FLAGS: ${{ needs.detect-and-comment.outputs.new_flags }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          SOURCE_PR: ${{ inputs.pr_number }}
+          SOURCE_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          git clone "https://x-access-token:${GH_TOKEN}@github.com/10gen/mms.git" mms-repo
+          cd mms-repo
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          npx ts-node --transpile-only "$GITHUB_WORKSPACE/scripts/create-mms-feature-flag-pr.ts"
