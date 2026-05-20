@@ -15,9 +15,15 @@ import {
   geoLayerAdded,
   geoLayersDeleted,
   geoLayersEdited,
+  SchemaAnalysisActions,
+  setMaxDistinctFields,
   startAnalysis,
   stopAnalysis,
 } from './schema-analysis-reducer';
+import {
+  DEFAULT_DISTINCT_FIELDS_LIMIT,
+  MAX_DISTINCT_FIELDS_LIMIT,
+} from '../modules/schema-analysis';
 import Sinon from 'sinon';
 import {
   changeExportSchemaFormat,
@@ -311,6 +317,145 @@ describe('Schema Store', function () {
       await store.dispatch(startAnalysis());
       expect(sampleCursorStub.getCall(0).args[2]).not.to.have.property(
         'readPreference'
+      );
+    });
+  });
+
+  describe('setMaxDistinctFields', function () {
+    beforeEach(async function () {
+      await createStore();
+    });
+
+    afterEach(function () {
+      deactivate();
+      sandbox.reset();
+    });
+
+    it('defaults maxDistinctFields to DEFAULT_DISTINCT_FIELDS_LIMIT', function () {
+      expect(store.getState().schemaAnalysis.maxDistinctFields).to.equal(
+        DEFAULT_DISTINCT_FIELDS_LIMIT
+      );
+    });
+
+    it('updates maxDistinctFields to a valid value', function () {
+      store.dispatch(setMaxDistinctFields(5000));
+      expect(store.getState().schemaAnalysis.maxDistinctFields).to.equal(5000);
+    });
+
+    it('clamps values below DEFAULT_DISTINCT_FIELDS_LIMIT up to the minimum', function () {
+      store.dispatch(setMaxDistinctFields(500));
+      expect(store.getState().schemaAnalysis.maxDistinctFields).to.equal(
+        DEFAULT_DISTINCT_FIELDS_LIMIT
+      );
+    });
+
+    it('clamps values above MAX_DISTINCT_FIELDS_LIMIT down to the maximum', function () {
+      store.dispatch(setMaxDistinctFields(99999));
+      expect(store.getState().schemaAnalysis.maxDistinctFields).to.equal(
+        MAX_DISTINCT_FIELDS_LIMIT
+      );
+    });
+
+    it('does not clear an existing error when the limit is changed', function () {
+      store.dispatch({
+        type: SchemaAnalysisActions.analysisFailed,
+        error: Object.assign(
+          new Error('Schema analysis aborted: Fields count'),
+          { code: undefined }
+        ),
+      });
+      expect(store.getState().schemaAnalysis.error?.errorType).to.equal(
+        'highComplexity'
+      );
+
+      store.dispatch(setMaxDistinctFields(5000));
+      expect(store.getState().schemaAnalysis.error?.errorType).to.equal(
+        'highComplexity'
+      );
+    });
+
+    it('captures fieldThreshold from maxDistinctFields at the time of the highComplexity error', function () {
+      store.dispatch(setMaxDistinctFields(2000));
+      store.dispatch({
+        type: SchemaAnalysisActions.analysisFailed,
+        error: Object.assign(
+          new Error('Schema analysis aborted: Fields count'),
+          { code: undefined }
+        ),
+      });
+      expect(store.getState().schemaAnalysis.error?.fieldThreshold).to.equal(
+        2000
+      );
+
+      store.dispatch(setMaxDistinctFields(5000));
+      expect(store.getState().schemaAnalysis.error?.fieldThreshold).to.equal(
+        2000
+      );
+    });
+
+    it('defaults showLimitOverride to false', function () {
+      expect(store.getState().schemaAnalysis.showLimitOverride).to.be.false;
+    });
+
+    it('sets showLimitOverride to true on highComplexity error', function () {
+      store.dispatch({
+        type: SchemaAnalysisActions.analysisFailed,
+        error: Object.assign(
+          new Error('Schema analysis aborted: Fields count'),
+          { code: undefined }
+        ),
+      });
+      expect(store.getState().schemaAnalysis.showLimitOverride).to.be.true;
+    });
+
+    it('does not set showLimitOverride for non-highComplexity errors', function () {
+      store.dispatch({
+        type: SchemaAnalysisActions.analysisFailed,
+        error: Object.assign(new Error('some general error'), {
+          code: undefined,
+        }),
+      });
+      expect(store.getState().schemaAnalysis.showLimitOverride).to.be.false;
+    });
+  });
+
+  describe('startAnalysis respects maxDistinctFields', function () {
+    beforeEach(async function () {
+      await createStore();
+    });
+
+    afterEach(function () {
+      deactivate();
+      sandbox.reset();
+    });
+
+    it('produces highComplexity error when field count exceeds the default maxDistinctFields', async function () {
+      const doc: Record<string, number> = Object.create(null);
+      for (let i = 0; i < 1001; i++) {
+        doc[`field_${i}`] = i;
+      }
+      sampleCursorStub.returns(createMockCursor([doc]));
+
+      await store.dispatch(startAnalysis());
+
+      expect(store.getState().schemaAnalysis.error?.errorType).to.equal(
+        'highComplexity'
+      );
+    });
+
+    it('succeeds when maxDistinctFields is raised above the actual field count', async function () {
+      const doc: Record<string, number> = Object.create(null);
+      for (let i = 0; i < 1001; i++) {
+        doc[`field_${i}`] = i;
+      }
+      sampleCursorStub.returns(createMockCursor([doc]));
+
+      store.dispatch(setMaxDistinctFields(2000));
+      await store.dispatch(startAnalysis());
+
+      expect(store.getState().schemaAnalysis.error).to.be.undefined;
+      expect(store.getState().schemaAnalysis.analysisState).to.equal(
+        'complete'
       );
     });
   });

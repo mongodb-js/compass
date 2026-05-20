@@ -26,7 +26,10 @@ import {
   stopRulesGeneration,
   type RulesGenerationError,
 } from '../modules/rules-generation';
-import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '@mongodb-js/compass-schema';
+import {
+  DEFAULT_DISTINCT_FIELDS_LIMIT,
+  MAX_DISTINCT_FIELDS_LIMIT,
+} from '@mongodb-js/compass-schema';
 
 const validationStatesStyles = css({
   padding: spacing[400],
@@ -172,10 +175,11 @@ const RulesGenerationErrorBanner: React.FunctionComponent<{
         dismissible={true}
         onClose={onDismissError}
       >
-        The rules generation was aborted because the number of fields exceeds{' '}
-        {DISTINCT_FIELDS_ABORT_THRESHOLD}. Consider breaking up your data into
-        more collections with smaller documents, and using references to
-        consolidate the data you need.&nbsp;
+        Rules generation stopped — this collection has more than{' '}
+        {DEFAULT_DISTINCT_FIELDS_LIMIT} distinct fields (max supported:{' '}
+        {MAX_DISTINCT_FIELDS_LIMIT}). Consider breaking up your data into more
+        collections with smaller documents, and using references to consolidate
+        the data you need.&nbsp;
         <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
           Learn more
         </Link>

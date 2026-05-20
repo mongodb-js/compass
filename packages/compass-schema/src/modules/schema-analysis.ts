@@ -14,7 +14,8 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
-export const DISTINCT_FIELDS_ABORT_THRESHOLD = 1000;
+export const DEFAULT_DISTINCT_FIELDS_LIMIT = 1000;
+export const MAX_DISTINCT_FIELDS_LIMIT = 10000;
 
 // hack for driver 3.6 not promoting error codes and
 // attributes from ejson when promoteValue is false.
@@ -43,7 +44,8 @@ export const analyzeSchema = async (
     | undefined,
   aggregateOptions: AggregateOptions,
   { log, mongoLogId, debug }: Logger,
-  preferences: PreferencesAccess
+  preferences: PreferencesAccess,
+  maxDistinctFields: number = DEFAULT_DISTINCT_FIELDS_LIMIT
 ): Promise<SchemaAccessor | undefined> => {
   try {
     log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', {
@@ -67,7 +69,7 @@ export const analyzeSchema = async (
       ? {
           signal: abortSignal,
           storedValuesLengthLimit: 100,
-          distinctFieldsAbortThreshold: DISTINCT_FIELDS_ABORT_THRESHOLD,
+          distinctFieldsAbortThreshold: maxDistinctFields,
         }
       : {
           signal: abortSignal,

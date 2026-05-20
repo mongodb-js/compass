@@ -289,6 +289,62 @@ describe('schema-analysis', function () {
     });
   });
 
+  describe('#analyzeSchema maxDistinctFields', function () {
+    function makeDataService(doc: Record<string, number>) {
+      return {
+        sampleCursor: () =>
+          ({
+            async *[Symbol.asyncIterator]() {
+              await new Promise((resolve) => setTimeout(resolve, 0));
+              yield doc;
+            },
+          } as any),
+      };
+    }
+
+    it('aborts when distinct field count exceeds maxDistinctFields', async function () {
+      const doc: Record<string, number> = Object.create(null);
+      for (let i = 0; i < 6; i++) {
+        doc[`field_${i}`] = i;
+      }
+
+      try {
+        await analyzeSchema(
+          makeDataService(doc),
+          new AbortController().signal,
+          'db.coll',
+          {},
+          {},
+          dummyLogger,
+          preferences,
+          5
+        );
+        throw new Error('expected error to be thrown');
+      } catch (err: any) {
+        expect(err.message).to.include('Fields count above 5');
+      }
+    });
+
+    it('succeeds when distinct field count is at the limit', async function () {
+      const doc: Record<string, number> = Object.create(null);
+      for (let i = 0; i < 5; i++) {
+        doc[`field_${i}`] = i;
+      }
+
+      const result = await analyzeSchema(
+        makeDataService(doc),
+        new AbortController().signal,
+        'db.coll',
+        {},
+        {},
+        dummyLogger,
+        preferences,
+        5
+      );
+      expect(result).to.exist;
+    });
+  });
+
   describe('#calculateSchemaMetadata', function () {
     describe('schema_depth', function () {
       describe('with an empty schema', function () {

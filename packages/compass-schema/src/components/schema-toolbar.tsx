@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { connect } from 'react-redux';
 import {
   Banner,
@@ -7,7 +7,9 @@ import {
   Button,
   ErrorSummary,
   Icon,
+  Label,
   Link,
+  TextInput,
   Tooltip,
   WarningSummary,
   css,
@@ -20,8 +22,12 @@ import { QueryBar } from '@mongodb-js/compass-query-bar';
 import {
   type SchemaAnalysisError,
   analysisErrorDismissed,
+  setMaxDistinctFields,
 } from '../stores/schema-analysis-reducer';
-import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '../modules/schema-analysis';
+import {
+  DEFAULT_DISTINCT_FIELDS_LIMIT,
+  MAX_DISTINCT_FIELDS_LIMIT,
+} from '../modules/schema-analysis';
 import type { RootState } from '../stores/store';
 import { openExportSchema } from '../stores/schema-export-reducer';
 
@@ -54,6 +60,13 @@ const schemaToolbarActionBarRightStyles = css({
   paddingLeft: spacing[200],
 });
 
+const maxFieldsRowStyles = css({
+  width: '100%',
+  display: 'flex',
+  alignItems: 'flex-start',
+  gap: spacing[200],
+});
+
 const ERROR_WARNING = 'An error occurred during schema analysis';
 const INCREASE_MAX_TIME_MS_HINT_MESSAGE =
   'Operation exceeded time limit. Please try increasing the maxTimeMS for the query in the filter options.';
@@ -77,6 +90,9 @@ type SchemaToolbarProps = {
   schemaResultId: string;
   setShowLegacyExportTooltip: (show: boolean) => void;
   showLegacyExportTooltip: boolean;
+  maxDistinctFields: number;
+  onSetMaxDistinctFields: (value: number) => void;
+  showLimitOverride: boolean;
 };
 
 export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
@@ -91,6 +107,9 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   schemaResultId,
   setShowLegacyExportTooltip,
   showLegacyExportTooltip,
+  maxDistinctFields,
+  onSetMaxDistinctFields,
+  showLimitOverride,
 }) => {
   const documentsNoun = useMemo(
     () => (sampleSize === 1 ? 'document' : 'documents'),
@@ -98,6 +117,29 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   );
 
   const enableExportSchema = usePreference('enableExportSchema');
+
+  const isHighComplexityError = error?.errorType === 'highComplexity';
+
+  const maxFieldsInputRef = useRef<HTMLInputElement>(null);
+  const [rawInput, setRawInput] = useState(String(maxDistinctFields));
+
+  useEffect(() => {
+    setRawInput(String(maxDistinctFields));
+  }, [maxDistinctFields]);
+
+  useEffect(() => {
+    if (isHighComplexityError) {
+      maxFieldsInputRef.current?.focus();
+    }
+  }, [isHighComplexityError]);
+
+  const distinctFieldLimit = Number(rawInput);
+  const validationError =
+    !Number.isInteger(distinctFieldLimit) ||
+    distinctFieldLimit < DEFAULT_DISTINCT_FIELDS_LIMIT ||
+    distinctFieldLimit > MAX_DISTINCT_FIELDS_LIMIT
+      ? `Must be between ${DEFAULT_DISTINCT_FIELDS_LIMIT} and ${MAX_DISTINCT_FIELDS_LIMIT}`
+      : null;
 
   return (
     <div className={schemaToolbarStyles}>
@@ -110,6 +152,37 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           onReset={onResetClicked}
         />
       </div>
+      {(isHighComplexityError || showLimitOverride) && (
+        <div className={maxFieldsRowStyles}>
+          <Label id="schema-max-fields-label" htmlFor="schema-max-fields-input">
+            Max distinct fields
+          </Label>
+          <TextInput
+            id="schema-max-fields-input"
+            data-testid="schema-max-fields-input"
+            aria-labelledby="schema-max-fields-label"
+            ref={maxFieldsInputRef}
+            type="number"
+            sizeVariant="xsmall"
+            value={rawInput}
+            min={DEFAULT_DISTINCT_FIELDS_LIMIT}
+            max={MAX_DISTINCT_FIELDS_LIMIT}
+            state={validationError ? 'error' : 'none'}
+            errorMessage={validationError ?? undefined}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+              setRawInput(e.target.value);
+            }}
+            onBlur={() => {
+              if (
+                !validationError &&
+                distinctFieldLimit !== maxDistinctFields
+              ) {
+                onSetMaxDistinctFields(distinctFieldLimit);
+              }
+            }}
+          />
+        </div>
+      )}
       {analysisState === ANALYSIS_STATE_COMPLETE && !isOutdated && (
         <div className={schemaToolbarActionBarStyles}>
           {enableExportSchema && ANALYSIS_STATE_COMPLETE && (
@@ -170,17 +243,16 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           onClose={onDismissError}
         />
       )}
-      {error?.errorType === 'highComplexity' && (
+      {isHighComplexityError && (
         <Banner
           variant={BannerVariant.Danger}
           data-testid="schema-toolbar-complexity-abort-message"
           dismissible={true}
           onClose={onDismissError}
         >
-          The analysis was aborted because the number of fields exceeds{' '}
-          {DISTINCT_FIELDS_ABORT_THRESHOLD}. Consider breaking up your data into
-          more collections with smaller documents, and using references to
-          consolidate the data you need.&nbsp;
+          Schema analysis stopped — this collection has more than{' '}
+          {error.fieldThreshold} distinct fields. Increase the &quot;Max
+          distinct fields&quot; limit above and click Analyze to retry.&nbsp;
           <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
             Learn more
           </Link>
@@ -199,9 +271,12 @@ export default connect(
     error: state.schemaAnalysis.error,
     sampleSize: state.schemaAnalysis.schema?.count ?? 0,
     schemaResultId: state.schemaAnalysis.resultId ?? '',
+    maxDistinctFields: state.schemaAnalysis.maxDistinctFields,
+    showLimitOverride: state.schemaAnalysis.showLimitOverride,
   }),
   {
     onExportSchemaClicked: openExportSchema,
     onDismissError: analysisErrorDismissed,
+    onSetMaxDistinctFields: setMaxDistinctFields,
   }
 )(SchemaToolbar);

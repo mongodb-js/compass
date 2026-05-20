@@ -13,6 +13,8 @@ import { addLayer, generateGeoQuery } from '../modules/geo';
 import {
   analyzeSchema,
   calculateSchemaMetadata,
+  DEFAULT_DISTINCT_FIELDS_LIMIT,
+  MAX_DISTINCT_FIELDS_LIMIT,
 } from '../modules/schema-analysis';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Circle, Layer, LayerGroup, Polygon } from 'leaflet';
@@ -28,6 +30,7 @@ const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 export type SchemaAnalysisError = {
   errorMessage: string;
   errorType: 'timeout' | 'highComplexity' | 'general';
+  fieldThreshold?: number;
 };
 
 export type SchemaAnalysisState = {
@@ -36,6 +39,8 @@ export type SchemaAnalysisState = {
   error?: SchemaAnalysisError;
   schema: Schema | null;
   resultId: string;
+  maxDistinctFields: number;
+  showLimitOverride: boolean;
 };
 
 export const SchemaAnalysisActions = {
@@ -44,6 +49,7 @@ export const SchemaAnalysisActions = {
   analysisFailed: 'schema-service/schema-analysis/analysisFailed',
   analysisErrorDismissed:
     'schema-service/schema-analysis/analysisErrorDismissed',
+  setMaxDistinctFields: 'schema-service/schema-analysis/setMaxDistinctFields',
 } as const;
 
 export type AnalysisStartedAction = {
@@ -65,6 +71,11 @@ export type AnalysisErrorDismissedAction = {
   type: typeof SchemaAnalysisActions.analysisErrorDismissed;
 };
 
+export type SetMaxDistinctFieldsAction = {
+  type: typeof SchemaAnalysisActions.setMaxDistinctFields;
+  value: number;
+};
+
 export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   state = getInitialState(),
   action
@@ -81,6 +92,7 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
       analysisState: ANALYSIS_STATE_ANALYZING,
       error: undefined,
       schema: null,
+      showLimitOverride: false,
     };
   }
 
@@ -103,11 +115,16 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
   if (
     isAction<AnalysisFailedAction>(action, SchemaAnalysisActions.analysisFailed)
   ) {
+    const errorDetails = getErrorDetails(action.error);
     return {
       ...state,
-      error: getErrorDetails(action.error),
+      error:
+        errorDetails.errorType === 'highComplexity'
+          ? { ...errorDetails, fieldThreshold: state.maxDistinctFields }
+          : errorDetails,
       analysisState: ANALYSIS_STATE_INITIAL,
       resultId: resultId(),
+      showLimitOverride: errorDetails.errorType === 'highComplexity',
     };
   }
 
@@ -120,6 +137,25 @@ export const schemaAnalysisReducer: Reducer<SchemaAnalysisState, Action> = (
     return {
       ...state,
       error: undefined,
+    };
+  }
+
+  if (
+    isAction<SetMaxDistinctFieldsAction>(
+      action,
+      SchemaAnalysisActions.setMaxDistinctFields
+    )
+  ) {
+    const clampedValue = Math.min(
+      MAX_DISTINCT_FIELDS_LIMIT,
+      Math.max(DEFAULT_DISTINCT_FIELDS_LIMIT, action.value)
+    );
+    if (clampedValue === state.maxDistinctFields) {
+      return state;
+    }
+    return {
+      ...state,
+      maxDistinctFields: clampedValue,
     };
   }
 
@@ -150,6 +186,8 @@ const getInitialState = (): SchemaAnalysisState => ({
   analysisState: ANALYSIS_STATE_INITIAL,
   schema: null,
   resultId: resultId(),
+  maxDistinctFields: DEFAULT_DISTINCT_FIELDS_LIMIT,
+  showLimitOverride: false,
 });
 
 export const geoLayerAdded = (
@@ -172,6 +210,13 @@ export const analysisErrorDismissed =
     return (dispatch) =>
       dispatch({ type: SchemaAnalysisActions.analysisErrorDismissed });
   };
+
+export const setMaxDistinctFields = (
+  value: number
+): SetMaxDistinctFieldsAction => ({
+  type: SchemaAnalysisActions.setMaxDistinctFields,
+  value,
+});
 
 export const geoLayersEdited = (
   field: string,
@@ -295,7 +340,7 @@ export const startAnalysis = (): SchemaThunkAction<
     }
   ) => {
     const {
-      schemaAnalysis: { analysisState },
+      schemaAnalysis: { analysisState, maxDistinctFields },
     } = getState();
     if (analysisState === ANALYSIS_STATE_ANALYZING) {
       debug('analysis already in progress. ignoring subsequent start');
@@ -340,7 +385,8 @@ export const startAnalysis = (): SchemaThunkAction<
         samplingOptions,
         driverOptions,
         logger,
-        preferences
+        preferences,
+        maxDistinctFields
       );
       if (abortSignal?.aborted) {
         throw new Error(abortSignal?.reason || new Error('Operation aborted'));
