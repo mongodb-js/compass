@@ -756,6 +756,22 @@ export const addStage = (
   };
 };
 
+export const addSearchStageBefore = (
+  storeIndex: number
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    // addStage(after) inserts after position `after`; passing storeIndex - 1
+    // places the new stage at storeIndex. When storeIndex = 0, passing -1
+    // causes splice(0, 0, stage) which correctly inserts at the beginning.
+    dispatch(addStage(storeIndex - 1));
+    dispatch(changeStageOperator(storeIndex, '$search'));
+
+    const { env, comments } = getState();
+    const initialValue = getStageSnippet('$search', env, comments, true);
+    dispatch(changeStageValue(storeIndex, initialValue));
+  };
+};
+
 export const removeStage = (
   at: number
 ): PipelineBuilderThunkAction<void, StageRemoveAction> => {

@@ -3,6 +3,7 @@ import Sinon from 'sinon';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import {
   buildAtlasSearchLink,
+  buildAtlasSearchClustersUrl,
   buildChartsUrl,
   buildQueryInsightsUrl,
   buildClusterOverviewUrl,
@@ -166,6 +167,14 @@ describe('url-builders', function () {
     it('builds billing url for an org', function () {
       expect(buildBillingUrl({ orgId: 'org123' })).to.equal(
         `${TEST_ORIGIN}/v2#/org/org123/checkout?type=editPayment`
+      );
+    });
+  });
+
+  describe('buildAtlasSearchClustersUrl', function () {
+    it('builds atlas search clusters url for a project', function () {
+      expect(buildAtlasSearchClustersUrl({ projectId: 'proj123' })).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch`
       );
     });
   });
