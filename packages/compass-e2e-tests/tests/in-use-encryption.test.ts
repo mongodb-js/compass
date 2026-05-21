@@ -45,9 +45,11 @@ function fieldOldNewByMode(mode: string) {
       ];
 
     case 'prefixPreview':
+    case 'prefix':
       return ['encryptedText', '"prefixFoo"', '"prefixBar"'];
 
     case 'suffixPreview':
+    case 'suffix':
       return ['encryptedText', '"fooSuffix"', '"barSuffix"'];
 
     case 'substringPreview':
@@ -69,9 +71,11 @@ function filterByMode(
       return `{ _id: ${_id} }`;
 
     case 'prefixPreview':
+    case 'prefix':
       return `{ $expr: { $encStrStartsWith: { input: '$${field}', prefix: 'prefix' } } }`;
 
     case 'suffixPreview':
+    case 'suffix':
       return `{ $expr: { $encStrEndsWith: { input: '$${field}', suffix: 'Suffix' } } }`;
 
     case 'substringPreview':
@@ -339,6 +343,8 @@ describe('CSFLE / QE', function () {
       const collectionNamePrefixPreview = 'my-prefix-collection';
       const collectionNameSuffixPreview = 'my-suffix-collection';
       const collectionNameSubstringPreview = 'my-substring-collection';
+      const collectionNamePrefix = 'my-prefix-collection-v2';
+      const collectionNameSuffix = 'my-suffix-collection-v2';
 
       let compass: Compass;
       let browser: CompassBrowser;
@@ -426,6 +432,44 @@ describe('CSFLE / QE', function () {
                   queries: [
                     {
                       queryType: 'suffixPreview',
+                      contention: 0,
+                      strMinQueryLength: 3,
+                      strMaxQueryLength: 30,
+                      caseSensitive: true,
+                      diacriticSensitive: true,
+                    }
+                  ]
+                }
+              ]
+            },
+            '${databaseName}.${collectionNamePrefix}': {
+              fields: [
+                {
+                  path: 'encryptedText',
+                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                  bsonType: 'string',
+                  queries: [
+                    {
+                      queryType: 'prefix',
+                      contention: 0,
+                      strMinQueryLength: 3,
+                      strMaxQueryLength: 30,
+                      caseSensitive: true,
+                      diacriticSensitive: true,
+                    }
+                  ]
+                }
+              ]
+            },
+            '${databaseName}.${collectionNameSuffix}': {
+              fields: [
+                {
+                  path: 'encryptedText',
+                  keyId: UUID("28bbc608-524e-4717-9246-33633361788e"),
+                  bsonType: 'string',
+                  queries: [
+                    {
+                      queryType: 'suffix',
                       contention: 0,
                       strMinQueryLength: 3,
                       strMaxQueryLength: 30,
@@ -632,6 +676,8 @@ describe('CSFLE / QE', function () {
         ['prefixPreview', collectionNamePrefixPreview],
         ['suffixPreview', collectionNameSuffixPreview],
         ['substringPreview', collectionNameSubstringPreview],
+        ['prefix', collectionNamePrefix],
+        ['suffix', collectionNameSuffix],
       ] as const) {
         it(`can edit and query the ${mode} encrypted field in the CRUD view`, async function () {
           if (mode === 'range' && serverSatisfies('< 7.99.99', true)) {
@@ -654,7 +700,15 @@ describe('CSFLE / QE', function () {
             ['prefixPreview', 'suffixPreview'].includes(mode as string) &&
             serverSatisfies('>=9.0.0-alpha0', true)
           ) {
-            // prefixPreview and suffixPreview are renamed in 9.0.0
+            // prefixPreview and suffixPreview were renamed to prefix/suffix in 9.0.0
+            return this.skip();
+          }
+
+          if (
+            ['prefix', 'suffix'].includes(mode as string) &&
+            !serverSatisfies('>=9.0.0-alpha0', true)
+          ) {
+            // prefix and suffix query types are available from 9.0.0 (renamed).
             return this.skip();
           }
 
