@@ -419,7 +419,19 @@ class Target {
       // Here we just set any parameter so that signtool.exe is invoked.
       //
       // @see https://jira/mongodb.org/browse/BUILD-920
-      signWithParams: 'sign',
+      //
+      // Only request installer signing when signing credentials are actually
+      // present. Without this, electron-winstaller runs its bundled
+      // signtool.exe with no certificate and the whole installer build fails.
+      // Omitting signWithParams makes it produce an unsigned installer
+      // instead, which is the right outcome for local builds.
+      signWithParams:
+        process.env.GARASIGN_USERNAME &&
+        process.env.GARASIGN_PASSWORD &&
+        process.env.ARTIFACTORY_USERNAME &&
+        process.env.ARTIFACTORY_PASSWORD
+          ? 'sign'
+          : undefined,
       title: this.productName,
       productName: this.productName,
       description: this.description,
