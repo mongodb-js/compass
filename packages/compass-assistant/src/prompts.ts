@@ -163,6 +163,9 @@ export type ProactiveInsightsContext =
   | {
       id: 'query-executed-without-index';
       query: string;
+    }
+  | {
+      id: 'rerank-first-stage';
     };
 
 export const buildProactiveInsightsPrompt = (
@@ -197,6 +200,13 @@ ${context.query}
         metadata: {
           displayText:
             'Help me understand the performance impact of running queries without an index.',
+        },
+      };
+    case 'rerank-first-stage':
+      return {
+        prompt: `Why you should use $rerank after a search stage`,
+        metadata: {
+          displayText: 'Why you should use $rerank after a search stage',
         },
       };
   }
