@@ -3,6 +3,7 @@ import {
   Combobox,
   ComboboxOption,
   css,
+  cx,
   Icon,
   palette,
   spacing,
@@ -120,7 +121,7 @@ export const AssistantTab: React.FunctionComponent = () => {
 
   return (
     <div className={containerStyles} data-testid="assistant-tab">
-      <div className={darkMode ? headerStylesDark : headerStyles}>
+      <div className={cx(headerStyles, darkMode && headerStylesDark)}>
         <span className={titleStyles}>
           <Icon glyph="Sparkle" size="large" style={sparkleIconStyle} />
           MongoDB Assistant
