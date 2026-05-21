@@ -68,6 +68,12 @@ const comboboxStyles = css({
     // -4px to count for the input focus outline.
     marginLeft: `${comboboxOptionsLeft - 4}px`,
   },
+  // We want the user to be able to see multiple stages, so
+  // we override the max-height set in LG.
+  // Note, this is brittle as it relies on LG internals.
+  '> :popover-open [role="listbox"]': {
+    maxHeight: '450px',
+  },
 });
 
 type StageOperatorSelectProps = {
