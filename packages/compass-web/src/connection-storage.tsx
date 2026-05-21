@@ -136,23 +136,7 @@ export class AtlasCloudConnectionStorage
           return null;
         }
 
-        const clusterName = connectionInfo.atlasMetadata.clusterName;
-
-        return {
-          ...connectionInfo,
-          connectionOptions: {
-            ...connectionInfo.connectionOptions,
-            lookup: () => {
-              return {
-                wsURL: this.atlasService.driverProxyEndpoint(
-                  `/clusterConnection/${this.projectId}`
-                ),
-                projectId: this.projectId,
-                clusterName,
-              };
-            },
-          },
-        };
+        return connectionInfo;
       })
       .filter((connectionInfo): connectionInfo is ConnectionInfo => {
         return !!connectionInfo;
