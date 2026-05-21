@@ -500,6 +500,8 @@ functions:
     - command: github.generate_token
       params:
         expansion_name: github_generated_token
+        permissions:
+          security_events: read
     - command: shell.exec
       params:
         working_dir: src
