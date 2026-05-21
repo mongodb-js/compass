@@ -459,4 +459,82 @@ describe('Schema Store', function () {
       );
     });
   });
+
+  describe('Schema Analysis Failed telemetry', function () {
+    let trackStub: Sinon.SinonStub;
+
+    beforeEach(async function () {
+      trackStub = sandbox.stub();
+      await createStore({ track: trackStub as any });
+    });
+
+    afterEach(function () {
+      deactivate();
+      sandbox.reset();
+    });
+
+    function getFailedTrackCall() {
+      return trackStub
+        .getCalls()
+        .find((call) => call.args[0] === 'Schema Analysis Failed');
+    }
+
+    it('tracks highComplexity error with error_type and max_distinct_fields', async function () {
+      const doc: Record<string, number> = Object.create(null);
+      for (let i = 0; i < 1001; i++) {
+        doc[`field_${i}`] = i;
+      }
+      sampleCursorStub.returns(createMockCursor([doc]));
+
+      await store.dispatch(startAnalysis());
+
+      const call = getFailedTrackCall();
+      expect(call, 'Schema Analysis Failed was not tracked').to.exist;
+      expect(call!.args[1]).to.deep.equal({
+        error_type: 'highComplexity',
+        max_distinct_fields: DEFAULT_DISTINCT_FIELDS_LIMIT,
+      });
+    });
+
+    it('tracks highComplexity with the raised max_distinct_fields when limit was overridden', async function () {
+      const doc: Record<string, number> = Object.create(null);
+      for (let i = 0; i < 2001; i++) {
+        doc[`field_${i}`] = i;
+      }
+      sampleCursorStub.returns(createMockCursor([doc]));
+
+      store.dispatch(setMaxDistinctFields(2000));
+      await store.dispatch(startAnalysis());
+
+      const call = getFailedTrackCall();
+      expect(call, 'Schema Analysis Failed was not tracked').to.exist;
+      expect(call!.args[1]).to.deep.equal({
+        error_type: 'highComplexity',
+        max_distinct_fields: 2000,
+      });
+    });
+
+    it('tracks timeout error with error_type only', async function () {
+      const timeoutError = Object.assign(new Error('MaxTimeMSExpired'), {
+        code: 50,
+      });
+      sampleCursorStub.throws(timeoutError);
+
+      await store.dispatch(startAnalysis());
+
+      const call = getFailedTrackCall();
+      expect(call, 'Schema Analysis Failed was not tracked').to.exist;
+      expect(call!.args[1]).to.deep.equal({ error_type: 'timeout' });
+    });
+
+    it('tracks general error with error_type only', async function () {
+      sampleCursorStub.throws(new Error('unexpected failure'));
+
+      await store.dispatch(startAnalysis());
+
+      const call = getFailedTrackCall();
+      expect(call, 'Schema Analysis Failed was not tracked').to.exist;
+      expect(call!.args[1]).to.deep.equal({ error_type: 'general' });
+    });
+  });
 });

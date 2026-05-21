@@ -431,6 +431,17 @@ export const startAnalysis = (): SchemaThunkAction<
           error: err.stack,
         }
       );
+      const errorDetails = getErrorDetails(err);
+      track(
+        'Schema Analysis Failed',
+        {
+          error_type: errorDetails.errorType,
+          ...(errorDetails.errorType === 'highComplexity'
+            ? { max_distinct_fields: maxDistinctFields }
+            : {}),
+        },
+        connectionInfoRef.current
+      );
       dispatch({
         type: SchemaAnalysisActions.analysisFailed,
         error: err as Error,

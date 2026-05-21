@@ -2211,6 +2211,28 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when schema analysis fails due to high field complexity,
+ * a query timeout, or a general error.
+ *
+ * @category Schema
+ */
+type SchemaAnalysisFailedEvent = ConnectionScopedEvent<{
+  name: 'Schema Analysis Failed';
+  payload: {
+    /**
+     * The category of error that caused the failure.
+     */
+    error_type: 'highComplexity' | 'timeout' | 'general';
+
+    /**
+     * The distinct fields limit that was active when the highComplexity abort
+     * fired. Only present for highComplexity errors.
+     */
+    max_distinct_fields?: number;
+  };
+}>;
+
+/**
  * This event is fired when user cancels the schema analysis.
  *
  * @category Schema
@@ -3801,6 +3823,7 @@ export type TelemetryEvent =
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
   | SchemaAnalysisStartedEvent
+  | SchemaAnalysisFailedEvent
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent
