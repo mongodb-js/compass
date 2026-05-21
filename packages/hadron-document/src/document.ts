@@ -112,6 +112,25 @@ export class Document extends EventEmitter<
   }
 
   /**
+   * Adjust field types in this document based on the collection's existing
+   * schema to prevent unintended type narrowing on insert. For example, if
+   * a field is typed as Double in the schema but the value 5.0 was parsed
+   * as Int32, this will cast it back to Double.
+   *
+   * @param schemaFields - A map of dotted field paths to objects containing
+   *   a `type` property with their observed schema type(s). Uses
+   *   mongodb-schema naming ('Double', 'Long', etc.). Only fields present
+   *   in this map are considered for type adjustment.
+   */
+  preserveTypesFromSchema(
+    schemaFields: Readonly<Record<string, { type: string | string[] }>>
+  ): void {
+    for (const element of this.elements) {
+      element.preserveTypeFromSchema(schemaFields, '');
+    }
+  }
+
+  /**
    * Generate the javascript object for this document.
    *
    * @returns {Object} The javascript object.
