@@ -71,16 +71,25 @@ class Socket extends Duplex {
   _read() {
     // noop
   }
-  _write(chunk: Buffer, _encoding: BufferEncoding, cb: () => void) {
+  _write(
+    chunk: Buffer,
+    _encoding: BufferEncoding,
+    cb: (error?: Error) => void
+  ) {
     const link = getMultiplexLink();
-    if (link && this._localPort !== 0) {
-      link.sendData(
-        this._localPort,
-        this._remoteHost,
-        this._remotePort,
-        new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength)
-      );
+    if (!link || this._localPort === 0) {
+      queueMicrotask(() => {
+        cb(new Error('Socket not connected: link unavailable'));
+      });
+      return;
     }
+
+    link.sendData(
+      this._localPort,
+      this._remoteHost,
+      this._remotePort,
+      new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength)
+    );
     queueMicrotask(() => {
       cb();
     });
