@@ -14,8 +14,8 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
-export const DEFAULT_DISTINCT_FIELDS_LIMIT = 1000;
-export const MAX_DISTINCT_FIELDS_LIMIT = 10000;
+export const DEFAULT_DISTINCT_FIELDS_LIMIT = 5000;
+export const MAX_DISTINCT_FIELDS_LIMIT = 50000;
 
 // hack for driver 3.6 not promoting error codes and
 // attributes from ejson when promoteValue is false.

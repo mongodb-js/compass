@@ -56,10 +56,6 @@ const expandCollapseFieldButtonStyles = css({
   },
 });
 
-const fieldContainerStyles = css({
-  marginBottom: spacing[200],
-});
-
 const fieldStyles = css({
   overflow: 'hidden',
   paddingTop: spacing[400],
@@ -70,7 +66,7 @@ const fieldExpandedStyles = css({
   paddingBottom: 0,
 });
 
-const fieldListContainerStyles = css({
+const nestedFieldListContainerStyles = css({
   marginTop: spacing[400],
   position: 'relative',
 });
@@ -234,7 +230,7 @@ function Field({ name, path, types, enableMaps }: FieldProps) {
   const fieldName = path.join('.');
 
   return (
-    <KeylineCard className={fieldContainerStyles}>
+    <KeylineCard>
       <div
         className={cx(fieldStyles, isExpanded && fieldExpandedStyles)}
         data-testid="schema-field"
@@ -314,8 +310,8 @@ function Field({ name, path, types, enableMaps }: FieldProps) {
         {/* Render nested fields when it's a nested array / document. */}
         {isExpanded && (
           <div
-            className={fieldListContainerStyles}
-            data-testid="schema-field-list"
+            className={nestedFieldListContainerStyles}
+            data-testid="schema-nested-field-list"
             id={fieldListRegionId}
             role="region"
             aria-labelledby={fieldAccordionButtonId}

@@ -161,8 +161,6 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
 
   useHotkeys('Escape', onClose, { enabled: open }, [onClose]);
 
-  const closeButtonId = 'close-button-id';
-
   // This is an allowed "custom ref" case
   // eslint-disable-next-line react-hooks/refs
   return trigger({
@@ -184,8 +182,13 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
           active={open}
           focusTrapOptions={{
             clickOutsideDeactivates: true,
-            // Tests fail without a fallback. (https://github.com/focus-trap/focus-trap-react/issues/91)
-            fallbackFocus: customFocusTrapFallback || `#${closeButtonId}`,
+            // Ref-based fallback avoids querySelector('#id') collisions when
+            // multiple instances share the DOM; non-zero-area skips tabbability
+            // checks during portal CSS fade-in.
+            fallbackFocus:
+              customFocusTrapFallback ||
+              (() => closeButtonRef.current as HTMLElement),
+            tabbableOptions: { displayCheck: 'non-zero-area' },
           }}
         >
           <div
@@ -210,7 +213,6 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
                   onClose();
                 }}
                 aria-label="Close"
-                id={closeButtonId}
                 ref={closeButtonRef}
               >
                 <Icon glyph="X" />

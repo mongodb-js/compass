@@ -59,7 +59,7 @@ describe('SchemaToolbar', function () {
           setShowLegacyExportTooltip={() => {}}
           showLegacyExportTooltip={false}
           onDismissError={() => {}}
-          maxDistinctFields={1000}
+          maxDistinctFields={5000}
           onSetMaxDistinctFields={() => {}}
           showLimitOverride={false}
           {...props}
@@ -158,10 +158,10 @@ describe('SchemaToolbar', function () {
       const input = screen.getByTestId('schema-max-fields-input');
 
       userEvent.clear(input);
-      userEvent.type(input, '5000');
+      userEvent.type(input, '8000');
       userEvent.tab();
 
-      expect(onSetMaxDistinctFields).to.have.been.calledOnceWith(5000);
+      expect(onSetMaxDistinctFields).to.have.been.calledOnceWith(8000);
     });
 
     it('does not dispatch on blur for out-of-range values', function () {
@@ -189,7 +189,7 @@ describe('SchemaToolbar', function () {
       userEvent.type(input, '500');
 
       expect(input).to.have.attribute('aria-invalid', 'true');
-      expect(screen.getByText('Must be between 1000 and 10000')).to.be.visible;
+      expect(screen.getByText('Must be between 5000 and 50000')).to.be.visible;
     });
 
     it('shows an error message while the value exceeds the maximum', function () {
@@ -199,10 +199,10 @@ describe('SchemaToolbar', function () {
       const input = screen.getByTestId('schema-max-fields-input');
 
       userEvent.clear(input);
-      userEvent.type(input, '20000');
+      userEvent.type(input, '60000');
 
       expect(input).to.have.attribute('aria-invalid', 'true');
-      expect(screen.getByText('Must be between 1000 and 10000')).to.be.visible;
+      expect(screen.getByText('Must be between 5000 and 50000')).to.be.visible;
     });
 
     it('clears the error state when a valid value is entered', function () {

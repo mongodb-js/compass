@@ -375,7 +375,7 @@ describe('Schema Store', function () {
     });
 
     it('captures fieldThreshold from maxDistinctFields at the time of the highComplexity error', function () {
-      store.dispatch(setMaxDistinctFields(2000));
+      store.dispatch(setMaxDistinctFields(6000));
       store.dispatch({
         type: SchemaAnalysisActions.analysisFailed,
         error: Object.assign(
@@ -384,12 +384,12 @@ describe('Schema Store', function () {
         ),
       });
       expect(store.getState().schemaAnalysis.error?.fieldThreshold).to.equal(
-        2000
+        6000
       );
 
       store.dispatch(setMaxDistinctFields(5000));
       expect(store.getState().schemaAnalysis.error?.fieldThreshold).to.equal(
-        2000
+        6000
       );
     });
 
@@ -431,7 +431,7 @@ describe('Schema Store', function () {
 
     it('produces highComplexity error when field count exceeds the default maxDistinctFields', async function () {
       const doc: Record<string, number> = Object.create(null);
-      for (let i = 0; i < 1001; i++) {
+      for (let i = 0; i < 5001; i++) {
         doc[`field_${i}`] = i;
       }
       sampleCursorStub.returns(createMockCursor([doc]));
@@ -481,7 +481,7 @@ describe('Schema Store', function () {
 
     it('tracks highComplexity error with error_type and max_distinct_fields', async function () {
       const doc: Record<string, number> = Object.create(null);
-      for (let i = 0; i < 1001; i++) {
+      for (let i = 0; i < 5001; i++) {
         doc[`field_${i}`] = i;
       }
       sampleCursorStub.returns(createMockCursor([doc]));
@@ -498,19 +498,19 @@ describe('Schema Store', function () {
 
     it('tracks highComplexity with the raised max_distinct_fields when limit was overridden', async function () {
       const doc: Record<string, number> = Object.create(null);
-      for (let i = 0; i < 2001; i++) {
+      for (let i = 0; i < 6001; i++) {
         doc[`field_${i}`] = i;
       }
       sampleCursorStub.returns(createMockCursor([doc]));
 
-      store.dispatch(setMaxDistinctFields(2000));
+      store.dispatch(setMaxDistinctFields(6000));
       await store.dispatch(startAnalysis());
 
       const call = getFailedTrackCall();
       expect(call, 'Schema Analysis Failed was not tracked').to.exist;
       expect(call!.args[1]).to.deep.equal({
         error_type: 'highComplexity',
-        max_distinct_fields: 2000,
+        max_distinct_fields: 6000,
       });
     });
 

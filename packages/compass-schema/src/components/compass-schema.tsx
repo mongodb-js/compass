@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import type { Schema as MongodbSchema } from 'mongodb-schema';
+import type { Schema as MongodbSchema, SchemaField } from 'mongodb-schema';
 import { connect } from 'react-redux';
 import type { AnalysisState } from '../constants/analysis-states';
 import {
@@ -14,7 +14,6 @@ import {
   Button,
   CancelLoader,
   css,
-  cx,
   DocumentIcon,
   EmptyContent,
   Link,
@@ -28,6 +27,8 @@ import {
   Body,
   Badge,
   Icon,
+  VirtualList,
+  type VirtualListItemRenderer,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
@@ -56,10 +57,10 @@ const loaderStyles = css({
   justifyContent: 'center',
 });
 
-const schemaStyles = css({
+const fieldListContainerStyles = css({
   width: '100%',
   flexGrow: 1,
-  overflow: 'auto',
+  minHeight: 0,
 });
 
 const contentStyles = css({
@@ -302,15 +303,27 @@ const AnalyzingScreen: React.FunctionComponent<{
 const DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedSearchIndexesBanner' as const;
 
+// KeylineCard border (2px) + fieldStyles padding (32px) + minichart SVG (100px).
+const FIELD_COLLAPSED_HEIGHT_ESTIMATE = 134;
+
+function estimateFieldHeight(field: SchemaField): number {
+  const typeCount = field.types?.length ?? 1;
+  return FIELD_COLLAPSED_HEIGHT_ESTIMATE + Math.max(0, typeCount - 1) * 20;
+}
+
+const renderSchemaField: VirtualListItemRenderer<SchemaField> = (
+  field,
+  ref
+) => (
+  <div ref={ref}>
+    <Field {...field} />
+  </div>
+);
+
 const FieldList: React.FunctionComponent<{
   schema: MongodbSchema | null;
-  analysisState: AnalysisState;
-}> = ({ schema, analysisState }) => {
+}> = ({ schema }) => {
   const darkMode = useDarkMode();
-
-  if (analysisState !== ANALYSIS_STATE_COMPLETE) {
-    return null;
-  }
 
   const fields = schema?.fields ?? [];
 
@@ -325,17 +338,18 @@ const FieldList: React.FunctionComponent<{
   }
 
   return (
-    <div
-      className={cx(
-        schemaStyles,
-        darkMode ? minichartStylesDark : minichartStylesLight
-      )}
-    >
-      <div data-testid="schema-field-list">
-        {fields.map((field: any) => (
-          <Field key={field.name} {...field} />
-        ))}
-      </div>
+    <div className={fieldListContainerStyles}>
+      <VirtualList
+        items={fields}
+        dataTestId="schema-field-list"
+        listOuterContainerClassName={
+          darkMode ? minichartStylesDark : minichartStylesLight
+        }
+        estimateItemInitialHeight={estimateFieldHeight}
+        overScanCount={4}
+        rowGap={spacing[200]}
+        renderItem={renderSchemaField}
+      />
     </div>
   );
 };
@@ -435,7 +449,7 @@ const Schema: React.FunctionComponent<{
               <AnalyzingScreen onCancelClicked={onStopAnalysis} />
             )}
             {analysisState === ANALYSIS_STATE_COMPLETE && (
-              <FieldList schema={schema} analysisState={analysisState} />
+              <FieldList schema={schema} />
             )}
           </div>
         </WorkspaceContainer>
