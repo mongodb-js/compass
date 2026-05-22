@@ -529,12 +529,16 @@ functions:
     - command: ec2.assume_role
       params:
         role_arn: ${downloads_bucket_role_arn}
+    - command: github.generate_token
+      params:
+        expansion_name: github_generated_token
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         env:
           <<: *compass-env
+          GITHUB_TOKEN: ${github_generated_token}
         script: |
           set -e
           # Load environment variables
