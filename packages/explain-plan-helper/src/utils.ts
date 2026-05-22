@@ -7,7 +7,11 @@ export function getStageIndexFields(stage: Stage): Record<string, string> {
   ) {
     // For EXPRESS stages, the keyPattern is a string, which is not valid json.
     try {
-      const result = parse(stage.keyPattern, { mode: ParseMode.Loose });
+      const result = parse(stage.keyPattern, {
+        mode: ParseMode.Strict,
+        allowComments: true,
+        allowMethods: true,
+      });
       return typeof result === 'string' ? {} : result;
     } catch {
       return {};
