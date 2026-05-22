@@ -1,11 +1,5 @@
 import { without } from 'lodash';
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import type Document from 'hadron-document';
 import { Element } from 'hadron-document';
 import {
@@ -18,6 +12,7 @@ import {
   SegmentedControlOption,
   spacing,
   showErrorDetails,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import HadronDocument from 'hadron-document';
 
@@ -69,7 +64,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   updateJsonDoc: (value: string | null) => void;
   jsonDoc: string;
   jsonView: boolean;
-  doc: Document;
+  doc: Document | null;
   ns: string;
   isCommentNeeded: boolean;
   updateComment: (isCommentNeeded: boolean) => void;
@@ -207,53 +202,36 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     }
   }, [isOpen, track]);
 
-  const prevJsonView = useRef(jsonView);
-  useEffect(() => {
-    const viewHasChanged = prevJsonView.current !== jsonView;
-    prevJsonView.current = jsonView;
-    if (isOpen && !hasManyDocuments() && viewHasChanged) {
-      if (!jsonView) {
-        // When switching to Hadron Document View.
-        // Reset the invalid elements list, which contains the
-        // uuids of each element that has BSON type cast errors.
-        setInvalidElements([]);
-        // Subscribe to the validation errors for BSON types on the document.
-        doc.on(Element.Events.Invalid, handleInvalid);
-        doc.on(Element.Events.Valid, handleValid);
-        doc.on(Element.Events.Removed, handleValid);
-      } else {
-        // When switching to JSON View.
-        // Remove the listeners to the BSON type validation errors in order to clean up properly.
-        doc.removeListener(Element.Events.Invalid, handleInvalid);
-        doc.removeListener(Element.Events.Valid, handleValid);
-        doc.removeListener(Element.Events.Removed, handleValid);
-      }
+  useSyncStateOnPropChange(() => {
+    if (!jsonView) {
+      // When switching to Hadron Document View.
+      // Reset the invalid elements list, which contains the
+      // uuids of each element that has BSON type cast errors.
+      setInvalidElements([]);
     }
-  }, [isOpen, jsonView, doc, handleValid, handleInvalid, hasManyDocuments]);
+  }, [jsonView]);
 
   useEffect(() => {
-    if (insertInProgress) {
-      setInsertInProgress(false);
-    }
-  }, [insertInProgress]);
-
-  const docRef = useRef(doc);
-  useEffect(() => {
-    if (isOpen) {
-      docRef.current = doc;
+    if (!doc) {
       return;
     }
-    // When closing the modal.
-    if (!hasManyDocuments() && docRef.current) {
-      // Remove the listeners to the BSON type validation errors in order to clean up properly.
-      docRef.current.removeListener(Element.Events.Invalid, handleInvalid);
-      docRef.current.removeListener(Element.Events.Valid, handleValid);
-      docRef.current.removeListener(Element.Events.Removed, handleValid);
-    }
-  }, [isOpen, doc, handleInvalid, handleValid, hasManyDocuments]);
+    doc.addListener(Element.Events.Invalid, handleInvalid);
+    doc.addListener(Element.Events.Valid, handleValid);
+    doc.addListener(Element.Events.Removed, handleValid);
+    return () => {
+      doc.addListener(Element.Events.Invalid, handleInvalid);
+      doc.addListener(Element.Events.Valid, handleValid);
+      doc.addListener(Element.Events.Removed, handleValid);
+    };
+  }, [doc, handleInvalid, handleValid]);
 
   const handleInsert = useCallback(() => {
     setInsertInProgress(true);
+    // This is kinda silly: the banner shows up for just a blip and immediately
+    // disappears. There's probably a better way to deal with that state
+    setTimeout(() => {
+      setInsertInProgress(false);
+    }, 0);
     if (hasManyDocuments()) {
       insertMany();
     } else {
