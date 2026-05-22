@@ -219,9 +219,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     doc.addListener(Element.Events.Valid, handleValid);
     doc.addListener(Element.Events.Removed, handleValid);
     return () => {
-      doc.addListener(Element.Events.Invalid, handleInvalid);
-      doc.addListener(Element.Events.Valid, handleValid);
-      doc.addListener(Element.Events.Removed, handleValid);
+      doc.removeListener(Element.Events.Invalid, handleInvalid);
+      doc.removeListener(Element.Events.Valid, handleValid);
+      doc.removeListener(Element.Events.Removed, handleValid);
     };
   }, [doc, handleInvalid, handleValid]);
 
