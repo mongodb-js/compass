@@ -6,13 +6,17 @@ import type { DocumentProps } from './document';
 export type UseDocumentItemContextMenuProps = {
   doc: HadronDocument;
   isEditable: boolean;
-} & Pick<DocumentProps, 'copyToClipboard' | 'openInsertDocumentDialog'>;
+} & Pick<
+  DocumentProps,
+  'copyToClipboard' | 'openInsertDocumentDialog' | 'openUpdateDocumentModal'
+>;
 
 export function useDocumentItemContextMenu({
   doc,
   isEditable,
   copyToClipboard,
   openInsertDocumentDialog,
+  openUpdateDocumentModal,
 }: UseDocumentItemContextMenuProps) {
   const { expanded: isExpanded, editing: isEditing } = doc;
 
@@ -23,13 +27,11 @@ export function useDocumentItemContextMenu({
             telemetryLabel: 'Document Item Edit',
             items: [
               {
-                label: isEditing ? 'Cancel editing' : 'Edit document',
+                label: 'Update document',
                 onAction: () => {
-                  if (isEditing) {
-                    doc.finishEditing();
-                  } else {
-                    doc.startEditing();
-                  }
+                  // Editing is handled by a dedicated modal rather than an
+                  // inline editable state.
+                  openUpdateDocumentModal?.(doc);
                 },
               },
             ],
@@ -88,6 +90,7 @@ export function useDocumentItemContextMenu({
       isEditable,
       copyToClipboard,
       openInsertDocumentDialog,
+      openUpdateDocumentModal,
     ]
   );
 }

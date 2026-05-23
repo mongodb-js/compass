@@ -363,6 +363,10 @@ describe('store', function () {
           path: [],
           types: [],
         },
+        updateDocumentModal: {
+          isOpen: false,
+          doc: null,
+        },
         isCollectionScan: false,
         version: '6.0.0',
         view: 'List',

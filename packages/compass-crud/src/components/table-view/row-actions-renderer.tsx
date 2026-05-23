@@ -27,7 +27,7 @@ const RowActionsRenderer: React.FunctionComponent<RowActionsRendererProps> = ({
   const rowActions: ItemAction<RowAction>[] = useMemo(() => {
     const edit: ItemAction<RowAction> = {
       action: 'edit',
-      label: 'Edit Document',
+      label: 'Update Document',
       icon: 'Edit',
     };
 

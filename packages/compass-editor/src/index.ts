@@ -1,4 +1,8 @@
-export type { CompletionWithServerInfo, EditorRef } from './types';
+export type {
+  CompletionWithServerInfo,
+  EditorRef,
+  EditorSearchResult,
+} from './types';
 export { prettify } from './prettify';
 export type { FormatOptions } from './prettify';
 export {

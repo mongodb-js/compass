@@ -8,14 +8,12 @@ import {
   within,
   act,
   userEvent,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
+import sinon from 'sinon';
 import { type VirtualListRef } from '@mongodb-js/compass-components';
 
 import VirtualizedDocumentJsonView from './virtualized-document-json-view';
-import {
-  getCodemirrorEditorValue,
-  setCodemirrorEditorValue,
-} from '@mongodb-js/compass-editor';
 
 const createBigDocument = (variable: number) =>
   new HadronDocument({
@@ -80,7 +78,7 @@ describe('VirtualizedDocumentJsonView', function () {
     }
   });
 
-  it('preserves the state of document when a document goes out of visible viewport when scrolling', function () {
+  it('preserves the rendered document across virtualization scrolling', function () {
     const bigDocuments = Array.from({ length: 10 }, (_, idx) =>
       createBigDocument(idx)
     );
@@ -97,83 +95,57 @@ describe('VirtualizedDocumentJsonView', function () {
     );
 
     let [firstDocumentElement] = screen.getAllByTestId('editable-json');
-    // screen.debug(firstDocumentElement, Infinity);
-    // return;
     // Verify that we have our first element
     expect(within(firstDocumentElement).getByText('"Name0"')).to.be.visible;
-
-    // Start editing the document
-    userEvent.click(within(firstDocumentElement).getByLabelText('Edit'));
-
-    // Verify that we have an editing state
-    expect(within(firstDocumentElement).getByText('Cancel')).to.be.visible;
-    expect(within(firstDocumentElement).getByText('Replace')).to.be.visible;
 
     // Scroll all the way to the last item
     act(() => {
       listRef.current?.scrollToItem(9);
     });
     const editableDocuments = screen.getAllByTestId('editable-json');
-    firstDocumentElement = editableDocuments[0];
     const lastDocumentElement = editableDocuments[editableDocuments.length - 1];
     // Verify that we have our last element
     expect(within(lastDocumentElement).getByText('"Name9"')).to.be.visible;
 
     // Ensure that the first element is not even on screen
-    expect(() => within(firstDocumentElement).getByText('"Name0"')).to.throw();
+    expect(() => within(editableDocuments[0]).getByText('"Name0"')).to.throw();
 
     // Now scroll all the way back up
     act(() => {
       listRef.current?.scrollToItem(0);
     });
 
-    // Ensure that we have our first element and that it is editable
+    // Ensure that the first element is rendered again after recycling
     [firstDocumentElement] = screen.getAllByTestId('editable-json');
     expect(within(firstDocumentElement).getByText('"Name0"')).to.be.visible;
-
-    // Verify that we have an editing state
-    expect(within(firstDocumentElement).getByText('Cancel')).to.be.visible;
-    expect(within(firstDocumentElement).getByText('Replace')).to.be.visible;
   });
 
-  it('discards the state of document when the underlying document changes', function () {
-    const { rerender } = render(
+  it('opens the Update Document modal when a row is edited (no inline editing)', async function () {
+    const openUpdateDocumentModal = sinon.spy();
+    const docs = [createBigDocument(1)];
+    render(
       <VirtualizedDocumentJsonView
         namespace="x.y"
-        docs={[createBigDocument(1)]}
+        docs={docs}
         isEditable={true}
+        openUpdateDocumentModal={openUpdateDocumentModal}
         __TEST_LIST_HEIGHT={178}
       />
     );
 
-    let [documentElement] = screen.getAllByTestId('editable-json');
-
-    // Start editing the document
+    const [documentElement] = screen.getAllByTestId('editable-json');
     userEvent.click(within(documentElement).getByLabelText('Edit'));
 
-    // Verify that we have an editing state
-    expect(within(documentElement).getByText('Cancel')).to.be.visible;
-    expect(within(documentElement).getByText('Replace')).to.be.visible;
-
-    // Mimick a refresh which changes the underlying HadronDocument
-    rerender(
-      <VirtualizedDocumentJsonView
-        namespace="x.y"
-        docs={[createBigDocument(1)]}
-        isEditable={true}
-        __TEST_LIST_HEIGHT={178}
-      />
-    );
-
-    // Ensure that we have our first element and that it is editable
-    [documentElement] = screen.getAllByTestId('editable-json');
-
-    // Verify that we have an editing state
-    expect(() => within(documentElement).getByText('Cancel')).to.throw();
-    expect(() => within(documentElement).getByText('Replace')).to.throw();
+    // Editing routes through the modal rather than an inline editor.
+    expect(within(documentElement).queryByText('Cancel')).to.not.exist;
+    await waitFor(() => {
+      expect(openUpdateDocumentModal).to.have.been.calledOnce;
+    });
+    expect(openUpdateDocumentModal.firstCall.args[0]).to.equal(docs[0]);
   });
 
-  it('preserves the edit state of document when a document goes out of visible viewport when scrolling', async function () {
+  it('keeps rows interactive after virtualization recycle', async function () {
+    const openUpdateDocumentModal = sinon.spy();
     const bigDocuments = Array.from({ length: 20 }, (_, idx) =>
       createBigDocument(idx)
     );
@@ -183,22 +155,14 @@ describe('VirtualizedDocumentJsonView', function () {
         namespace="x.y"
         docs={bigDocuments}
         isEditable={true}
+        openUpdateDocumentModal={openUpdateDocumentModal}
         listRef={listRef}
         __TEST_OVERSCAN_COUNT={0}
         __TEST_LIST_HEIGHT={178}
       />
     );
 
-    let [firstDocumentElement] = screen.getAllByTestId('editable-json');
-    // Trigger the edit state (we only set the edited value if the document is being edited)
-    userEvent.click(within(firstDocumentElement).getByLabelText('Edit'));
-
-    let cmEditor = firstDocumentElement.querySelector(
-      '[data-codemirror="true"]'
-    );
-    await setCodemirrorEditorValue(cmEditor, '{value: "edited"}');
-
-    // Scroll down and then scroll back up
+    // Scroll the first row out of view and back so it is recycled.
     act(() => {
       listRef.current?.scrollToItem(15);
     });
@@ -206,10 +170,13 @@ describe('VirtualizedDocumentJsonView', function () {
       listRef.current?.scrollToItem(0);
     });
 
-    [firstDocumentElement] = screen.getAllByTestId('editable-json');
-    cmEditor = firstDocumentElement.querySelector('[data-codemirror="true"]');
+    const [firstDocumentElement] = screen.getAllByTestId('editable-json');
+    userEvent.click(within(firstDocumentElement).getByLabelText('Edit'));
 
-    const value = getCodemirrorEditorValue(cmEditor);
-    expect(value).to.equal('{value: "edited"}');
+    // The recycled row is still functional and routes editing to the modal.
+    await waitFor(() => {
+      expect(openUpdateDocumentModal).to.have.been.calledOnce;
+    });
+    expect(openUpdateDocumentModal.firstCall.args[0]).to.equal(bigDocuments[0]);
   });
 });

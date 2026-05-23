@@ -6,7 +6,9 @@ import {
   within,
   act,
   userEvent,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
+import sinon from 'sinon';
 import { type VirtualListRef } from '@mongodb-js/compass-components';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
@@ -94,7 +96,7 @@ describe('VirtualizedDocumentListView', function () {
     expect(screen.getAllByTestId('editable-document')).to.have.lengthOf(2);
   });
 
-  it('preserves the state of document when a document goes out of visible viewport when scrolling', function () {
+  it('preserves document identity across virtualization scrolling', function () {
     const bigDocuments = Array.from(
       { length: 10 },
       (_, idx) => new HadronDocument(createBigDocument(idx))
@@ -120,21 +122,11 @@ describe('VirtualizedDocumentListView', function () {
       within(firstDocumentElement).getByTestId('hadron-document')
     ).to.have.attribute('data-id', firstDocument.uuid);
 
-    // Start editing the document
-    userEvent.click(
-      within(firstDocumentElement).getByLabelText('Edit document')
-    );
-
-    // Verify that we have an editing state
-    expect(within(firstDocumentElement).getByText('Cancel')).to.be.visible;
-    expect(within(firstDocumentElement).getByText('Update')).to.be.visible;
-
     // Scroll all the way to the last item
     act(() => {
       listRef.current?.scrollToItem(9);
     });
     const editableDocuments = screen.getAllByTestId('editable-document');
-    firstDocumentElement = editableDocuments[0];
     const lastDocumentElement = editableDocuments[editableDocuments.length - 1];
     // Verify that we have our last element
     expect(
@@ -143,7 +135,7 @@ describe('VirtualizedDocumentListView', function () {
 
     // Ensure that the first element is not even on screen
     expect(
-      within(firstDocumentElement).getByTestId('hadron-document')
+      within(editableDocuments[0]).getByTestId('hadron-document')
     ).to.not.have.attribute('data-id', firstDocument.uuid);
 
     // Now scroll all the way back up
@@ -151,50 +143,53 @@ describe('VirtualizedDocumentListView', function () {
       listRef.current?.scrollToItem(0);
     });
 
-    // Ensure that we have our first element and that it is editable
+    // Ensure the first element maps back to the same document after recycling
     [firstDocumentElement] = screen.getAllByTestId('editable-document');
     expect(
       within(firstDocumentElement).getByTestId('hadron-document')
     ).to.have.attribute('data-id', firstDocument.uuid);
-
-    // Verify that we have an editing state
-    expect(within(firstDocumentElement).getByText('Cancel')).to.be.visible;
-    expect(within(firstDocumentElement).getByText('Update')).to.be.visible;
   });
 
-  it('discards the state of document when the underlying document changes', function () {
+  it('opens the Update Document modal when a row is edited and follows the underlying document', async function () {
+    const openUpdateDocumentModal = sinon.spy();
+    const doc = new HadronDocument(createBigDocument(1));
     const { rerender } = renderWithQueryBar(
       <VirtualizedDocumentListView
-        docs={[new HadronDocument(createBigDocument(1))]}
+        docs={[doc]}
         isEditable={true}
+        openUpdateDocumentModal={openUpdateDocumentModal}
         __TEST_LIST_HEIGHT={178}
       />,
       { preferences }
     );
 
     let [documentElement] = screen.getAllByTestId('editable-document');
+    userEvent.click(within(documentElement).getByLabelText('Update document'));
 
-    // Start editing the document
-    userEvent.click(within(documentElement).getByLabelText('Edit document'));
+    // Editing routes through the modal rather than an inline editor.
+    expect(within(documentElement).queryByText('Cancel')).to.not.exist;
+    await waitFor(() => {
+      expect(openUpdateDocumentModal).to.have.been.calledOnce;
+    });
+    expect(openUpdateDocumentModal.firstCall.args[0]).to.equal(doc);
 
-    // Verify that we have an editing state
-    expect(within(documentElement).getByText('Cancel')).to.be.visible;
-    expect(within(documentElement).getByText('Update')).to.be.visible;
-
-    // Mimick a refresh which changes the underlying HadronDocument
+    // After a refresh the row reflects the new underlying document and still
+    // routes editing through the modal.
+    const newDoc = new HadronDocument(createBigDocument(1));
     rerender(
       <VirtualizedDocumentListView
-        docs={[new HadronDocument(createBigDocument(1))]}
+        docs={[newDoc]}
         isEditable={true}
+        openUpdateDocumentModal={openUpdateDocumentModal}
         __TEST_LIST_HEIGHT={178}
       />
     );
 
-    // Ensure that we have our first element and that it is editable
     [documentElement] = screen.getAllByTestId('editable-document');
-
-    // Verify that we have an editing state
-    expect(() => within(documentElement).getByText('Cancel')).to.throw();
-    expect(() => within(documentElement).getByText('Update')).to.throw();
+    userEvent.click(within(documentElement).getByLabelText('Update document'));
+    await waitFor(() => {
+      expect(openUpdateDocumentModal).to.have.been.calledTwice;
+    });
+    expect(openUpdateDocumentModal.secondCall.args[0]).to.equal(newDoc);
   });
 });

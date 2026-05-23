@@ -193,11 +193,11 @@ const DocumentActionsGroup: React.FunctionComponent<
           tooltipEnabled={isActive}
           size="xsmall"
           rightGlyph={<Icon role="presentation" glyph="Edit"></Icon>}
-          aria-label="Edit document"
+          aria-label="Update document"
           data-testid="edit-document-button"
           onClick={onEdit}
           className={actionsGroupItem}
-          tooltipText="Edit document"
+          tooltipText="Update document"
         />
       )}
       {onCopy && (

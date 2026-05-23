@@ -39,6 +39,14 @@ import {
 } from '@codemirror/commands';
 import type { Diagnostic } from '@codemirror/lint';
 import { lintGutter, setDiagnosticsEffect } from '@codemirror/lint';
+import { search } from '@codemirror/search';
+import {
+  setSearchTerm,
+  goToNextMatch,
+  goToPreviousMatch,
+  clearSearchTerm,
+} from './codemirror/search-util';
+import type { EditorSearchResult } from './codemirror/search-util';
 import type { CompletionSource } from '@codemirror/autocomplete';
 import {
   acceptCompletion,
@@ -821,6 +829,30 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           }
           return startCompletion(editorViewRef.current);
         },
+        find(term: string): EditorSearchResult {
+          if (!editorViewRef.current) {
+            return { count: 0, current: 0 };
+          }
+          return setSearchTerm(editorViewRef.current, term);
+        },
+        findNext(): EditorSearchResult {
+          if (!editorViewRef.current) {
+            return { count: 0, current: 0 };
+          }
+          return goToNextMatch(editorViewRef.current);
+        },
+        findPrevious(): EditorSearchResult {
+          if (!editorViewRef.current) {
+            return { count: 0, current: 0 };
+          }
+          return goToPreviousMatch(editorViewRef.current);
+        },
+        clearSearch() {
+          if (!editorViewRef.current) {
+            return;
+          }
+          clearSearchTerm(editorViewRef.current);
+        },
         get editorContents() {
           if (!editorViewRef.current) {
             return null;
@@ -1010,6 +1042,11 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         indentOnInput(),
         bracketMatching(),
         closeBrackets(),
+        // Enables the search state and match highlighting used by the
+        // `find`/`findNext`/`findPrevious` editor ref methods. We intentionally
+        // do not register `searchKeymap`/the search panel so that Ctrl/Cmd+F
+        // remains available to consumers building their own find UI.
+        search(),
         autocompletionExtension,
         languageExtension,
         syntaxHighlighting(highlightStyles['light']),
@@ -1489,6 +1526,20 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
           },
           startCompletion() {
             return editorRef.current?.startCompletion() ?? false;
+          },
+          find(term: string): EditorSearchResult {
+            return editorRef.current?.find(term) ?? { count: 0, current: 0 };
+          },
+          findNext(): EditorSearchResult {
+            return editorRef.current?.findNext() ?? { count: 0, current: 0 };
+          },
+          findPrevious(): EditorSearchResult {
+            return (
+              editorRef.current?.findPrevious() ?? { count: 0, current: 0 }
+            );
+          },
+          clearSearch() {
+            editorRef.current?.clearSearch();
           },
           get editorContents() {
             return editorRef.current?.editorContents ?? null;

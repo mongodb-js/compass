@@ -35,7 +35,7 @@ describe('<RowActionsRenderer />', function () {
         />
       );
 
-      expect(screen.getByTitle('Edit Document')).to.exist;
+      expect(screen.getByTitle('Update Document')).to.exist;
       expect(screen.getByTitle('Copy Document')).to.exist;
       expect(screen.getByTitle('Clone Document')).to.exist;
       expect(screen.getByTitle('Delete Document')).to.exist;
@@ -57,7 +57,7 @@ describe('<RowActionsRenderer />', function () {
         />
       );
 
-      expect(screen.getByTitle('Edit Document')).to.exist;
+      expect(screen.getByTitle('Update Document')).to.exist;
       expect(screen.queryByTitle('Copy Document')).to.not.exist;
       expect(screen.queryByTitle('Clone Document')).to.not.exist;
       expect(screen.queryByTitle('Delete Document')).to.not.exist;
@@ -79,7 +79,7 @@ describe('<RowActionsRenderer />', function () {
         />
       );
 
-      expect(screen.queryByTitle('Edit Document')).to.not.exist;
+      expect(screen.queryByTitle('Update Document')).to.not.exist;
       expect(screen.queryByTitle('Copy Document')).to.not.exist;
       expect(screen.queryByTitle('Clone Document')).to.not.exist;
       expect(screen.queryByTitle('Delete Document')).to.not.exist;
@@ -105,7 +105,7 @@ describe('<RowActionsRenderer />', function () {
         />
       );
 
-      userEvent.click(screen.getByTitle('Edit Document'));
+      userEvent.click(screen.getByTitle('Update Document'));
 
       expect(context.addFooter.callCount).to.equal(1);
       expect(
@@ -184,7 +184,7 @@ describe('<RowActionsRenderer />', function () {
         />
       );
 
-      userEvent.click(screen.getByTitle('Edit Document'));
+      userEvent.click(screen.getByTitle('Update Document'));
 
       expect(context.addFooter.callCount).to.equal(1);
       expect(

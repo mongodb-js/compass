@@ -1,4 +1,7 @@
 import type { EditorView } from '@codemirror/view';
+import type { EditorSearchResult } from './codemirror/search-util';
+
+export type { EditorSearchResult };
 
 export type CompletionWithServerInfo = {
   name?: string;
@@ -26,6 +29,17 @@ export type EditorRef = {
   focus: () => boolean;
   cursorDocEnd: () => boolean;
   startCompletion: () => boolean;
+  /**
+   * Sets the active search term, selecting the first match. Returns the
+   * total match count and the 1-based index of the active match.
+   */
+  find: (term: string) => EditorSearchResult;
+  /** Moves the selection to the next match (wraps around). */
+  findNext: () => EditorSearchResult;
+  /** Moves the selection to the previous match (wraps around). */
+  findPrevious: () => EditorSearchResult;
+  /** Clears the active search term. */
+  clearSearch: () => void;
   readonly editorContents: string | null;
   readonly editor: EditorView | null;
 };

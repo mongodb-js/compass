@@ -18,6 +18,7 @@ export type EditableDocumentProps = {
   replaceDocument?: CrudActions['replaceDocument'];
   updateDocument?: CrudActions['updateDocument'];
   openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
+  openUpdateDocumentModal?: CrudActions['openUpdateDocumentModal'];
   copyToClipboard?: CrudActions['copyToClipboard'];
   showInsights?: boolean;
   onUpdateQuery?: (field: string, value: unknown) => void;
@@ -191,10 +192,11 @@ class EditableDocument extends React.Component<
   };
 
   /**
-   * Handle the edit click.
+   * Handle the edit click. Editing is now handled by a dedicated modal rather
+   * than inline-expanding edit controls within the document row.
    */
   handleStartEditing() {
-    this.props.doc.startEditing();
+    this.props.openUpdateDocumentModal?.(this.props.doc);
   }
 
   /**
