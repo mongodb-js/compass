@@ -645,6 +645,11 @@ export const UpdateDocumentModalFindInput =
 export const UpdateDocumentModalFindCounter =
   '[data-testid="update-document-find-counter"]';
 export const UpdateDocumentModalCopyButton = `${UpdateDocumentModal} [data-testid="editor-action-Copy"]`;
+// The combined Format + fold-toggle button's testid flips with state: when
+// the editor is expanded the button reads "Collapse all"; once folded it
+// reads "Expand all". Tests can assert which is present to verify state.
+export const UpdateDocumentModalCollapseAllButton = `${UpdateDocumentModal} [data-testid="editor-action-Collapse all"]`;
+export const UpdateDocumentModalExpandAllButton = `${UpdateDocumentModal} [data-testid="editor-action-Expand all"]`;
 export const UpdateDocumentModalEditorContainer =
   '[data-testid="update-document-editor-container"]';
 export const DocumentTableContainer = `.document-table-view-container`;

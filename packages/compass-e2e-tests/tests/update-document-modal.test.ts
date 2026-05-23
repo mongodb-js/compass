@@ -245,6 +245,63 @@ describe('Update Document modal', function () {
     });
   });
 
+  it('toggles fold state via the combined Format/Collapse button', async function () {
+    await openEditModalFor(browser, '{ i: 11 }');
+    await browser.$(Selectors.UpdateDocumentModalJSONEditor).waitForDisplayed();
+
+    // Editor action buttons are display:none until hovered (by design), so
+    // hover the editor first to reveal the action bar.
+    await browser.hover(Selectors.UpdateDocumentModalJSONEditor);
+
+    // Small docs open expanded — the toggle button starts in the
+    // "Collapse all" state (CaretDown), and the inverse testid must NOT be
+    // present.
+    await browser
+      .$(Selectors.UpdateDocumentModalCollapseAllButton)
+      .waitForDisplayed();
+    expect(
+      await browser.$(Selectors.UpdateDocumentModalExpandAllButton).isExisting()
+    ).to.equal(false);
+
+    // Capture the visible JSON before collapsing so we can verify the click
+    // actually changed the editor's content (folded view is shorter).
+    const expandedJson = await readModalJson(browser);
+
+    // Click collapses + re-formats. The button flips to "Expand all".
+    await browser.clickVisible(Selectors.UpdateDocumentModalCollapseAllButton);
+    await browser
+      .$(Selectors.UpdateDocumentModalExpandAllButton)
+      .waitForDisplayed();
+    expect(
+      await browser
+        .$(Selectors.UpdateDocumentModalCollapseAllButton)
+        .isExisting()
+    ).to.equal(false);
+
+    // Folded view collapses the document body to a placeholder, so the
+    // visible text shrinks. (Length-based check is robust to whitespace
+    // tweaks while still failing if the click does nothing.)
+    await browser.waitUntil(async () => {
+      const collapsedJson = await readModalJson(browser);
+      return collapsedJson.length < expandedJson.length;
+    });
+
+    // Click again expands + re-formats. Button flips back to "Collapse all".
+    await browser.hover(Selectors.UpdateDocumentModalJSONEditor);
+    await browser.clickVisible(Selectors.UpdateDocumentModalExpandAllButton);
+    await browser
+      .$(Selectors.UpdateDocumentModalCollapseAllButton)
+      .waitForDisplayed();
+    await browser.waitUntil(async () => {
+      return (await readModalJson(browser)).length >= expandedJson.length;
+    });
+
+    await browser.clickVisible(Selectors.UpdateDocumentModalCancelButton);
+    await browser
+      .$(Selectors.UpdateDocumentModal)
+      .waitForDisplayed({ reverse: true });
+  });
+
   it('opens the find bar with Ctrl/Cmd+F and reports a match count', async function () {
     await openEditModalFor(browser, '{ i: 8 }');
     await browser.$(Selectors.UpdateDocumentModalJSONEditor).waitForDisplayed();
