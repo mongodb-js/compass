@@ -20,8 +20,14 @@ import HadronDocument from 'hadron-document';
 import {
   createDocumentAutocompleter,
   CodemirrorMultilineEditor,
+  prettify as prettifyJson,
 } from '@mongodb-js/compass-editor';
-import type { EditorRef } from '@mongodb-js/compass-editor';
+import type { Action, EditorRef } from '@mongodb-js/compass-editor';
+
+// Documents whose formatted EJSON exceeds this many lines open with all
+// branches folded so the user sees a compact overview instead of a long
+// scroll. Smaller documents open fully expanded.
+const LARGE_DOC_LINE_THRESHOLD = 20;
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import type { CrudActions } from '../stores/crud-store';
 import UpdateDocumentFind from './update-document-find';
@@ -236,6 +242,15 @@ const UpdateDocumentModal: React.FunctionComponent<
   // user has opened it. Ignored in full-screen mode (find is always visible
   // there) and irrelevant in Tree mode (find is JSON-only).
   const [isSmallFindOpen, setIsSmallFindOpen] = useState(false);
+  // Tracks the JSON editor's logical expand/collapse state for the combined
+  // format-and-toggle button. Initialised when the modal opens to match the
+  // editor's initial fold pass (large docs open collapsed, small ones open
+  // expanded — see initiallyFolded).
+  const [isExpanded, setIsExpanded] = useState(true);
+  // Drives the editor's initialJSONFoldAll prop. Recomputed from the doc's
+  // formatted line count each time the modal opens; large docs default to
+  // collapsed so the user sees a compact overview.
+  const [initiallyFolded, setInitiallyFolded] = useState(false);
   // Bumped on every open so the editor and find bar fully remount, which
   // clears any prior search and editor state.
   const [renderKey, setRenderKey] = useState(0);
@@ -248,16 +263,40 @@ const UpdateDocumentModal: React.FunctionComponent<
   React.useEffect(() => {
     if (isOpen && !wasOpenRef.current && doc) {
       const ejson = doc.toEJSON();
+      // Use the same prettifier the editor uses so the line count we
+      // compare against matches what the user will actually see rendered.
+      // prettifyJson can throw on malformed input — fall back to the raw
+      // EJSON length so opening still works (doc.toEJSON() should always
+      // produce parseable output, but defending against this avoids
+      // blocking the modal on an edge case).
+      let formattedLineCount = 0;
+      try {
+        formattedLineCount = prettifyJson(ejson, 'json').split('\n').length;
+      } catch {
+        formattedLineCount = ejson.split('\n').length;
+      }
+      const shouldFold = formattedLineCount > LARGE_DOC_LINE_THRESHOLD;
       setJsonText(ejson);
       setInitialJson(ejson);
       setMode('JSON');
       setValidationError(null);
       setIsFullScreen(true);
       setIsSmallFindOpen(false);
+      setInitiallyFolded(shouldFold);
+      setIsExpanded(!shouldFold);
       setRenderKey((key) => key + 1);
     }
     wasOpenRef.current = isOpen;
   }, [isOpen, doc]);
+
+  // Tree -> JSON remounts the editor, which reapplies initialJSONFoldAll;
+  // resync the toggle state so the button label matches the editor's
+  // actual fold state on re-entry.
+  React.useEffect(() => {
+    if (mode === 'JSON') {
+      setIsExpanded(!initiallyFolded);
+    }
+  }, [mode, initiallyFolded]);
 
   // Find is JSON-only, and in full-screen mode it is always inline. Either
   // condition turning false means the small-mode collapsed-Find state has
@@ -352,6 +391,34 @@ const UpdateDocumentModal: React.FunctionComponent<
       }
     },
     [doc, replaceDocument, updateDocument]
+  );
+
+  // The combined format-and-toggle button (rendered next to Copy in the
+  // editor's overlay action bar via customActions). Every press prettifies
+  // and flips fold state. Icon + label follow the editor's built-in
+  // expand/collapse convention (Caret glyphs, "Expand all"/"Collapse all").
+  const editorCustomActions = useMemo<Action[]>(
+    () => [
+      {
+        icon: isExpanded ? 'CaretDown' : 'CaretRight',
+        label: isExpanded ? 'Collapse all' : 'Expand all',
+        action: () => {
+          const editor = editorRef.current;
+          if (!editor) {
+            return false;
+          }
+          editor.prettify();
+          if (isExpanded) {
+            editor.foldAll();
+          } else {
+            editor.unfoldAll();
+          }
+          setIsExpanded((value) => !value);
+          return true;
+        },
+      },
+    ],
+    [isExpanded]
   );
 
   const handleCancel = useCallback(() => {
@@ -529,10 +596,11 @@ const UpdateDocumentModal: React.FunctionComponent<
                   text={jsonText}
                   onChangeText={onChangeJson}
                   copyable
-                  formattable
+                  customActions={editorCustomActions}
                   showLineNumbers
                   minLines={10}
                   completer={completer}
+                  initialJSONFoldAll={initiallyFolded}
                 />
               ) : (
                 <div
