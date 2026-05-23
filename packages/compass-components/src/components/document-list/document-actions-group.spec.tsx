@@ -26,6 +26,20 @@ describe('DocumentActionsGroup', function () {
     expect(spy).to.be.calledOnce;
   });
 
+  it('should render Open-update-modal action', function () {
+    const spy = Sinon.spy();
+    render(
+      <DocumentActionsGroup onOpenUpdateModal={spy}></DocumentActionsGroup>
+    );
+    expect(screen.getByTestId('open-update-document-modal-button')).to.exist;
+    userEvent.click(
+      screen.getByTestId('open-update-document-modal-button'),
+      undefined,
+      { skipPointerEventsCheck: true }
+    );
+    expect(spy).to.be.calledOnce;
+  });
+
   it('should render Copy action', function () {
     const spy = Sinon.spy();
     render(<DocumentActionsGroup onCopy={spy}></DocumentActionsGroup>);

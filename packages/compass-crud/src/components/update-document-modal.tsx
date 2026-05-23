@@ -552,6 +552,7 @@ const UpdateDocumentModal: React.FunctionComponent<
                 editing
                 deleting={false}
                 alwaysForceUpdate={mode === 'JSON'}
+                primaryActionLabel="Update"
                 modified={
                   mode === 'JSON' ? jsonText !== initialJson : undefined
                 }

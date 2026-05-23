@@ -309,6 +309,7 @@ const EditActionsFooter: React.FunctionComponent<{
   modified?: boolean;
   validationError?: Error | null;
   alwaysForceUpdate?: boolean;
+  primaryActionLabel?: string;
   onUpdate(force: boolean): void;
   onDelete(): void;
   onCancel?: () => void;
@@ -319,6 +320,7 @@ const EditActionsFooter: React.FunctionComponent<{
   modified = false,
   validationError: initialError = null,
   alwaysForceUpdate = false,
+  primaryActionLabel,
   onUpdate,
   onDelete,
   onCancel,
@@ -402,9 +404,10 @@ const EditActionsFooter: React.FunctionComponent<{
           >
             {isDeleting(status)
               ? 'Delete'
-              : alwaysForceUpdate || status === 'UpdateBlocked'
-              ? 'Replace'
-              : 'Update'}
+              : primaryActionLabel ??
+                (alwaysForceUpdate || status === 'UpdateBlocked'
+                  ? 'Replace'
+                  : 'Update')}
           </Button>
         </div>
       )}

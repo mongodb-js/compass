@@ -40,10 +40,10 @@ describe('<EditableDocument />', function () {
   });
 
   describe('edit routing', function () {
-    it('opens the edit modal instead of entering an inline edit state', function () {
-      const doc = new HadronDocument({ a: 1 });
-      const openUpdateDocumentModal = sinon.spy();
-      const startEditing = sinon.spy(doc, 'startEditing');
+    function renderRow(
+      doc: HadronDocument,
+      openUpdateDocumentModal = sinon.spy()
+    ) {
       render(
         <EditableDocument
           doc={doc}
@@ -55,12 +55,45 @@ describe('<EditableDocument />', function () {
           openUpdateDocumentModal={openUpdateDocumentModal}
         />
       );
+      return { openUpdateDocumentModal };
+    }
+
+    it('pencil button enters the inline edit state without opening the modal', function () {
+      const doc = new HadronDocument({ a: 1 });
+      const startEditing = sinon.spy(doc, 'startEditing');
+      const { openUpdateDocumentModal } = renderRow(doc);
 
       userEvent.click(screen.getByTestId('edit-document-button'));
 
+      expect(startEditing).to.have.been.calledOnce;
+      expect(openUpdateDocumentModal).to.not.have.been.called;
+    });
+
+    it('wrench button opens the update modal without entering inline edit', function () {
+      const doc = new HadronDocument({ a: 1 });
+      const startEditing = sinon.spy(doc, 'startEditing');
+      const { openUpdateDocumentModal } = renderRow(doc);
+
+      userEvent.click(screen.getByTestId('open-update-document-modal-button'));
+
       expect(openUpdateDocumentModal).to.have.been.calledOnceWith(doc);
-      // The row does not enter an inline editing state
       expect(startEditing).to.not.have.been.called;
+    });
+
+    it('row stays in read-only display even though the modal action starts an editing session on the same doc', function () {
+      const doc = new HadronDocument({ a: 1 });
+      // Simulate what the real crud-store openUpdateDocumentModal does: it
+      // calls doc.startEditing() under the hood, which fires EditingStarted
+      // on the row's listener. The row should ignore that one event so it
+      // doesn't render the inline-edit footer behind the modal.
+      const openUpdateDocumentModal = sinon.spy((d: HadronDocument) => {
+        d.startEditing();
+      });
+      renderRow(doc, openUpdateDocumentModal);
+
+      userEvent.click(screen.getByTestId('open-update-document-modal-button'));
+
+      expect(openUpdateDocumentModal).to.have.been.calledOnceWith(doc);
       expect(screen.queryByTestId('document-footer')).to.not.exist;
     });
   });

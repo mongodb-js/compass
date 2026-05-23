@@ -192,10 +192,22 @@ class EditableDocument extends React.Component<
   };
 
   /**
-   * Handle the edit click. Editing is now handled by a dedicated modal rather
-   * than inline-expanding edit controls within the document row.
+   * Handle the edit click - enters inline editing in the row.
    */
   handleStartEditing() {
+    this.props.doc.startEditing();
+  }
+
+  // The Update Document modal also starts an editing session on the same
+  // HadronDocument (needed by its tree editor + cancel revert), which fires
+  // EditingStarted. The Reflux action dispatches async via nextTick, so we
+  // hold this flag set from the click until EditingFinished (modal close)
+  // and ignore any EditingStarted that fires in between - so the row stays
+  // in read-only display behind the modal.
+  private suppressEditingStartedNotice = false;
+
+  handleOpenUpdateModal() {
+    this.suppressEditingStartedNotice = true;
     this.props.openUpdateDocumentModal?.(this.props.doc);
   }
 
@@ -203,6 +215,7 @@ class EditableDocument extends React.Component<
    * Update state when editing starts
    */
   handleEditingStarted = () => {
+    if (this.suppressEditingStartedNotice) return;
     this.setState({ editing: true });
   };
 
@@ -210,6 +223,7 @@ class EditableDocument extends React.Component<
    * Update state when editing starts
    */
   handleEditingFinished = () => {
+    this.suppressEditingStartedNotice = false;
     this.setState({
       editing: false,
     });
@@ -225,6 +239,7 @@ class EditableDocument extends React.Component<
       return (
         <DocumentList.DocumentActionsGroup
           onEdit={this.handleStartEditing.bind(this)}
+          onOpenUpdateModal={this.handleOpenUpdateModal.bind(this)}
           onCopy={this.handleCopy.bind(this)}
           onRemove={this.handleDelete.bind(this)}
           onClone={this.handleClone.bind(this)}

@@ -114,6 +114,7 @@ function ActionButton<TAsProp extends PolymorphicAs = 'button'>({
 const DocumentActionsGroup: React.FunctionComponent<
   {
     onEdit?: () => void;
+    onOpenUpdateModal?: () => void;
     onCopy?: () => void;
     onClone?: () => void;
     onRemove?: () => void;
@@ -125,6 +126,7 @@ const DocumentActionsGroup: React.FunctionComponent<
   )
 > = ({
   onEdit,
+  onOpenUpdateModal,
   onCopy,
   onClone,
   onRemove,
@@ -193,9 +195,21 @@ const DocumentActionsGroup: React.FunctionComponent<
           tooltipEnabled={isActive}
           size="xsmall"
           rightGlyph={<Icon role="presentation" glyph="Edit"></Icon>}
-          aria-label="Update document"
+          aria-label="Edit document"
           data-testid="edit-document-button"
           onClick={onEdit}
+          className={actionsGroupItem}
+          tooltipText="Edit document"
+        />
+      )}
+      {onOpenUpdateModal && (
+        <ActionButton
+          tooltipEnabled={isActive}
+          size="xsmall"
+          rightGlyph={<Icon role="presentation" glyph="Wrench"></Icon>}
+          aria-label="Update document"
+          data-testid="open-update-document-modal-button"
+          onClick={onOpenUpdateModal}
           className={actionsGroupItem}
           tooltipText="Update document"
         />

@@ -132,12 +132,24 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   }, [doc, editing, deleting]);
 
   const onEdit = useCallback(() => {
-    // Editing is now handled by a dedicated modal rather than switching the
-    // JSON card into inline editing.
+    doc.startEditing();
+  }, [doc]);
+
+  // The Update Document modal also starts an editing session on the same
+  // HadronDocument, which fires EditingStarted. The Reflux action dispatches
+  // async via nextTick, so we hold this flag set from the click until
+  // EditingFinished (modal close) and ignore any EditingStarted that fires
+  // in between - so the JSON card stays in read-only display behind the
+  // modal.
+  const suppressEditingStartedNoticeRef = useRef(false);
+
+  const onOpenUpdateModal = useCallback(() => {
+    suppressEditingStartedNoticeRef.current = true;
     openUpdateDocumentModal?.(doc);
   }, [doc, openUpdateDocumentModal]);
 
   const onEditingStarted = useCallback(() => {
+    if (suppressEditingStartedNoticeRef.current) return;
     setEditing(true);
   }, []);
 
@@ -149,6 +161,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   }, [doc, replaceDocument, value]);
 
   const onEditingFinished = useCallback(() => {
+    suppressEditingStartedNoticeRef.current = false;
     setEditing(false);
   }, []);
 
@@ -201,6 +214,13 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
           onEdit();
         },
       },
+      isEditable && {
+        icon: 'Wrench',
+        label: 'Update document',
+        action() {
+          onOpenUpdateModal();
+        },
+      },
       {
         icon: 'Copy',
         label: 'Copy',
@@ -222,7 +242,15 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         },
       },
     ].filter(Boolean) as Action[];
-  }, [editing, onEdit, onMarkForDeletion, handleClone, handleCopy, isEditable]);
+  }, [
+    editing,
+    onEdit,
+    onOpenUpdateModal,
+    onMarkForDeletion,
+    handleClone,
+    handleCopy,
+    isEditable,
+  ]);
 
   useEffect(() => {
     doc.on(HadronDocument.Events.Cancel, onCancel);
