@@ -23,16 +23,17 @@ async function openEditModalFor(browser: CompassBrowser, query: string) {
   const docEntry = browser.$(Selectors.DocumentListEntry);
   await docEntry.waitForDisplayed();
   await docEntry.scrollIntoView();
-  // The contextual Edit button only renders while the row is hovered, and a
-  // single hover can be lost on a virtualized re-render. Re-hover and retry
-  // until the button is actually displayed, then click it.
+  // The row actions only render while the row is hovered, and a single hover
+  // can be lost on a virtualized re-render. Re-hover and retry until the
+  // wrench (modal-opening) button is actually displayed, then click it.
+  // The pencil (EditDocumentButton) is the inline editor — distinct action.
   await browser.waitUntil(async () => {
     await browser.hover(Selectors.DocumentListEntry);
-    const editButton = browser.$(Selectors.EditDocumentButton);
-    if (!(await editButton.isDisplayed())) {
+    const wrenchButton = browser.$(Selectors.OpenUpdateDocumentModalButton);
+    if (!(await wrenchButton.isDisplayed())) {
       return false;
     }
-    await editButton.click();
+    await wrenchButton.click();
     return true;
   });
   await browser.$(Selectors.UpdateDocumentModal).waitForDisplayed();

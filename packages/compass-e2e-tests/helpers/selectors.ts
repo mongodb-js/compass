@@ -596,6 +596,10 @@ export const DocumentListFetchingStopButton =
 export const DocumentListError = '[data-testid="document-list-error-summary"]';
 export const AddDataButton = '[data-testid="crud-add-data-show-actions"]';
 export const EditDocumentButton = '[data-testid="edit-document-button"]';
+// Wrench button on the row: opens the Update Document modal. Distinct from
+// the pencil (EditDocumentButton) which starts the inline editor.
+export const OpenUpdateDocumentModalButton =
+  '[data-testid="open-update-document-modal-button"]';
 export const InsertDocumentOption =
   '[data-testid="crud-add-data-insert-document-action"]';
 export const ImportFileOption =
