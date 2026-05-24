@@ -201,6 +201,8 @@ export async function publishGitHubRelease(
     });
 
   if (!dryRun) {
+    // NOTE: This will correctly fail if not in draft, so it won't override
+    // already published releases.
     await repo.updateDraftRelease(release);
   }
 
@@ -298,6 +300,7 @@ export async function getLatestRelease(
       cli.warn(`Failed to fetch releases: ${(err as Error).message}`);
     }
 
+    // We ran out of releases or failed to fetch
     if (releases.length === 0) {
       return null;
     }
@@ -457,6 +460,7 @@ export const handler = function handler(argv: UploadArgv): void {
     return;
   }
 
+  // Rest of the checks apply only for assets publishing
   if (!argv.dryRun && process.env.CI && !process.env.EVERGREEN_PROJECT) {
     cli.error('Trying to publish assets from non-Evergreen CI environment');
     return;
@@ -484,6 +488,7 @@ export const handler = function handler(argv: UploadArgv): void {
 
   publishGitHubRelease(assets, argv.version, channel, argv.dryRun)
     .then(() => {
+      // Build attestations are only uploaded to the download center
       const attestations = getBuildAttestations(argv.dir, argv.version);
       const attestationsToUpload = attestations.map((attestation) => {
         return {

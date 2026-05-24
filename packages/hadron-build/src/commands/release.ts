@@ -8,7 +8,7 @@ import _ from 'lodash';
 import asar from 'asar';
 import packager from 'electron-packager';
 import createApplicationZip from '../lib/zip';
-import runCommand from '../lib/run';
+import { runCommand } from '../lib/run';
 import { rebuild } from '@electron/rebuild';
 import { signArchive } from '../lib/signtool';
 
@@ -221,11 +221,7 @@ const installDependencies = async (CONFIG: Target): Promise<void> => {
     shell: true,
   };
 
-  await (
-    runCommand as unknown as {
-      async: (cmd: string, args: string[], opts: object) => Promise<void>;
-    }
-  ).async('npm', ['install', '--production'], opts);
+  await runCommand('npm', ['install', '--production'], opts);
 
   cli.debug('Production dependencies installed');
 

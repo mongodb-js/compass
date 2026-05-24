@@ -1,11 +1,8 @@
-import { promisify } from 'util';
 import { spawn } from 'child_process';
 import createDebug from 'debug';
 import { inspect } from 'util';
 
 const debug = createDebug('hadron-build:run');
-
-type RunCallback = (err: Error | null, output?: string) => void;
 
 /**
  * Use me when you want to run an external command instead
@@ -14,49 +11,19 @@ type RunCallback = (err: Error | null, output?: string) => void;
  * nice debugging output when things go wrong!
  *
  * @example
- *  var args = ['--verify', process.env.APP_PATH];
- *  run('codesign', args, function(err){
- *    if(err){
- *      console.error('codesign verification failed!');
- *      process.exit(1);
- *    }
- *    console.log('codesign verification succeeded!');
- *  });
- *
- * @param {String} cmd - The bin name of your command, e.g. `grep`.
- * @param {Array} [args] - Arguments to pass to the command [Default `[]`].
- * @param {Object} [opts] - Options to pass to `child_process.spawn` [Default `{}`].
- * @param {Function} fn - Callback which recieves `(err, output)`.
+ *  const args = ['--verify', process.env.APP_PATH];
+ *  await run('codesign', args);
  */
-function run(
+export function runCommand(
   cmd: string,
-  args: string[] | RunCallback,
-  opts?: Record<string, unknown> | RunCallback,
-  fn?: RunCallback
-): void {
-  if (typeof opts === 'function') {
-    fn = opts;
-    opts = {};
-  }
-
-  if (typeof args === 'function') {
-    fn = args;
-    args = [];
-    opts = {};
-  }
-
-  const resolvedArgs = args;
-  const resolvedOpts = opts || {};
-  const callback = fn as RunCallback;
-
-  debug('running', { cmd, args: resolvedArgs });
+  args: string[],
+  opts?: Record<string, unknown>
+): Promise<string> {
+  debug('running', { cmd, args });
+  const { promise, resolve, reject } = Promise.withResolvers<string>();
 
   const output: Buffer[] = [];
-  const proc = spawn(
-    cmd,
-    resolvedArgs,
-    resolvedOpts as Parameters<typeof spawn>[2]
-  );
+  const proc = spawn(cmd, args, opts);
 
   proc.stdout?.on('data', function (buf: Buffer) {
     buf
@@ -84,7 +51,7 @@ function run(
       debug('command failed!', { cmd, output: _output });
       const error = Object.assign(
         new Error(
-          `Command failed with exit code ${code}: ${cmd} ${resolvedArgs.join(
+          `Command failed with exit code ${code}: ${cmd} ${args.join(
             ' '
           )} [enable line-by-line output via 'DEBUG=hadron*']`
         ),
@@ -97,23 +64,11 @@ function run(
           },
         }
       );
-      callback(error);
+      reject(error);
       return;
     }
     debug('completed! %j', { cmd });
-    callback(null, _output);
+    resolve(_output);
   });
+  return promise;
 }
-
-type RunWithAsync = typeof run & {
-  async: (
-    cmd: string,
-    args: string[],
-    opts: Record<string, unknown>
-  ) => Promise<string>;
-};
-
-const runWithAsync = run as RunWithAsync;
-runWithAsync.async = promisify(run) as RunWithAsync['async'];
-
-export default runWithAsync;

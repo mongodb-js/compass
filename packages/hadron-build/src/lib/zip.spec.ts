@@ -4,7 +4,7 @@ import JSZip from 'jszip';
 import _ from 'lodash';
 
 import zip from './zip';
-import { getConfig } from '../../test/test-helpers';
+import { getConfig as getTarget } from '../../test/test-helpers';
 import chai from 'chai';
 
 const { expect } = chai;
@@ -17,11 +17,11 @@ function skipUnlessRunningOn(platform: string) {
   });
 }
 
-function getTargetZipPath(target: ReturnType<typeof getConfig>) {
+function getTargetZipPath(target: ReturnType<typeof getTarget>) {
   return (target.getAssetWithExtension('.zip') || {}).path;
 }
 
-function setupAndZipFakeTarget(target: ReturnType<typeof getConfig>) {
+function setupAndZipFakeTarget(target: ReturnType<typeof getTarget>) {
   beforeEach(async function () {
     await fs.mkdir(target.appPath, { recursive: true });
     await fs.writeFile(path.join(target.appPath, 'file'), '');
@@ -39,7 +39,7 @@ function setupAndZipFakeTarget(target: ReturnType<typeof getConfig>) {
   });
 }
 
-async function getTargetZipEntries(target: ReturnType<typeof getConfig>) {
+async function getTargetZipEntries(target: ReturnType<typeof getTarget>) {
   const file = await fs.readFile(getTargetZipPath(target) as string);
   const zipContent = await JSZip.loadAsync(file);
 
@@ -52,7 +52,7 @@ describe('zip', function () {
   context('on linux', function () {
     skipUnlessRunningOn('linux');
 
-    const target = getConfig({
+    const target = getTarget({
       version: '1.2.0',
       platform: 'linux',
     });
@@ -75,7 +75,7 @@ describe('zip', function () {
   context('on darwin', function () {
     skipUnlessRunningOn('darwin');
 
-    const target = getConfig({
+    const target = getTarget({
       version: '1.2.0',
       platform: 'darwin',
     });
@@ -100,7 +100,7 @@ describe('zip', function () {
   context('on win', function () {
     skipUnlessRunningOn('win32');
 
-    const target = getConfig({
+    const target = getTarget({
       version: '1.2.0',
       platform: 'win32',
     });
