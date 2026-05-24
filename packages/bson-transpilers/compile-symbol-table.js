@@ -5,7 +5,6 @@ const path = require('path');
 const fs = require('fs');
 
 const yaml = require('js-yaml');
-const schema = yaml.DEFAULT_SCHEMA.extend(require('js-yaml-js-types').all);
 
 /*
  * Symbols represent classes, variables, and functions. Each Symbol has:
@@ -54,7 +53,7 @@ const loadSymbolTable = (dir, inputLang, outputLang) => {
     }
     return str + fs.readFileSync(path.join('symbols', file));
   }, '');
-  yaml.load(contents, { schema }); // load contents so YAML errors are caught here
+  yaml.load(contents); // load contents so YAML errors are caught here
   fs.writeFileSync(outputFile, `module.exports=${JSON.stringify(contents)};\n`);
 };
 
