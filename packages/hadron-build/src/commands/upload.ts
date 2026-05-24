@@ -3,7 +3,7 @@ import os from 'os';
 import { promises as fs } from 'fs';
 import { deepStrictEqual } from 'assert';
 import semver from 'semver';
-import { Octokit } from '@octokit/rest';
+import { Octokit, type RestEndpointMethodTypes } from '@octokit/rest';
 import { GithubRepo } from '@mongodb-js/devtools-github-repo';
 import { diffString } from 'json-diff';
 import download from 'download';
@@ -17,6 +17,9 @@ import {
 } from '../lib/download-center';
 import { getBuildAttestations } from '../lib/build-attestations';
 import createCLI from 'mongodb-js-cli';
+
+type OctokitListReposResponseItem =
+  RestEndpointMethodTypes['repos']['listReleases']['response']['data'][number];
 
 const cli = createCLI('hadron-build:upload');
 const abortIfError = cli.abortIfError.bind(cli);
@@ -269,7 +272,7 @@ export async function uploadAssetsToDownloadCenter(
 
 export async function getLatestRelease(
   channel = 'stable'
-): Promise<Record<string, unknown> | null> {
+): Promise<OctokitListReposResponseItem | null> {
   const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
   });
@@ -278,7 +281,7 @@ export async function getLatestRelease(
 
   // eslint-disable-next-line no-constant-condition
   while (true) {
-    let releases: Record<string, unknown>[] = [];
+    let releases: OctokitListReposResponseItem[] = [];
 
     try {
       const { data } = await octokit.request(
@@ -299,9 +302,7 @@ export async function getLatestRelease(
       return null;
     }
 
-    const latestRelease = (
-      releases as Array<{ tag_name: string; draft: boolean; assets: unknown[] }>
-    )
+    const latestRelease = releases
       .sort((a, b) => {
         if (semver.lt(a.tag_name, b.tag_name)) {
           return 1;
@@ -335,9 +336,7 @@ export async function getLatestReleaseVersions(
   if (!release) {
     throw new Error(`Couldn't find latest release for ${channel} channel`);
   }
-  const manifest = (
-    release.assets as Array<{ name: string; browser_download_url: string }>
-  ).find((asset) => {
+  const manifest = release.assets.find((asset) => {
     return asset.name === 'manifest.json';
   });
   if (!manifest) {

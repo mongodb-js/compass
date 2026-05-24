@@ -11,30 +11,26 @@ const debug = createDebug('hadron-build:zip');
 interface ZipOptions {
   dir: string;
   out: string;
-  platform?: string;
-  outPath?: string;
+  platform: string;
 }
 
-async function zip(
-  _opts: ZipOptions,
-  done: (err: Error | null, result?: string) => void
-): Promise<void> {
+async function zip(_opts: ZipOptions): Promise<string> {
   const opts: ZipOptions = Object.assign({}, _opts);
   opts.dir = path.resolve(opts.dir);
   opts.out = path.resolve(opts.out);
-  opts.platform = opts.platform || process.platform;
 
+  let outputPath;
   if (path.extname(opts.out).toLowerCase() === '.zip') {
-    opts.outPath = opts.out;
+    outputPath = opts.out;
     opts.out = path.dirname(opts.out);
   } else {
-    opts.outPath =
+    outputPath =
       path.resolve(opts.out, path.basename(opts.dir, '.app')) + '.zip';
   }
 
   const runZip = async (): Promise<void> => {
     if (opts.platform !== 'darwin') {
-      await promisify(zipFolder)(opts.dir, opts.outPath as string);
+      await promisify(zipFolder)(opts.dir, outputPath);
     } else {
       const args = [
         '-V', // Print a line  for every file copied
@@ -42,7 +38,7 @@ async function zip(
         '-k', // PKZip archive
         '--sequesterRsrc', // Preserve resource forks and HFS meta-data in the subdirectory __MACOSX
         './',
-        opts.outPath as string,
+        outputPath,
       ];
       execFileSync('ditto', args, {
         env: process.env,
@@ -54,16 +50,16 @@ async function zip(
 
   const removeZipIfExists = async (): Promise<void> => {
     try {
-      const stats = await fs.stat(opts.outPath as string);
+      const stats = await fs.stat(outputPath);
       if (!stats.isFile()) {
         throw new Error(
           'Refusing to wipe path "' +
-            opts.outPath +
+            outputPath +
             '" as it is ' +
             (stats.isDirectory() ? 'a directory' : 'not a file')
         );
       }
-      await fs.unlink(opts.outPath as string);
+      await fs.unlink(outputPath);
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
         throw err;
@@ -73,40 +69,13 @@ async function zip(
 
   debug('creating zip', opts);
 
-  try {
-    await removeZipIfExists();
-    await fs.mkdir(opts.out, { recursive: true });
-    await runZip();
-    done(null, opts.outPath);
-  } catch (err) {
-    done(err as Error);
-  }
+  await removeZipIfExists();
+  await fs.mkdir(opts.out, { recursive: true });
+  await runZip();
+  return outputPath;
 }
 
-/**
- * Packages the app as a plain zip for auto-updates.
- *
- * NOTE (imlucas) This should be run after the installers have been
- * created.  The modules that generate the installers also
- * handle signinging the assets. If we zip unsigned assets
- * and publish them for the release, auto updates will be rejected.
- *
- * @param {Target} target
- * @param {Function} done
- * @return {void}
- */
-function createApplicationZip(
-  target: Target,
-  done: (err: Error | null, result?: string) => void
-): void {
-  if (target.platform === 'linux') {
-    debug('.zip releases assets for linux disabled');
-    return done(null);
-  }
-  void zip(createApplicationZip.getOptions(target) as ZipOptions, done);
-}
-
-createApplicationZip.getOptions = function (target: Target): ZipOptions | null {
+function getZipOptionsFromTarget(target: Target): ZipOptions | null {
   const asset = target.getAssetWithExtension('.zip');
   if (!asset) {
     debug('no asset w extension .zip!');
@@ -121,6 +90,28 @@ createApplicationZip.getOptions = function (target: Target): ZipOptions | null {
 
   debug('options', res);
   return res;
-};
+}
+
+/**
+ * Packages the app as a plain zip for auto-updates.
+ *
+ * NOTE (imlucas) This should be run after the installers have been
+ * created.  The modules that generate the installers also
+ * handle signinging the assets. If we zip unsigned assets
+ * and publish them for the release, auto updates will be rejected.
+ *
+ */
+async function createApplicationZip(target: Target): Promise<void> {
+  if (target.platform === 'linux') {
+    debug('.zip releases assets for linux disabled');
+    return;
+  }
+  const options = getZipOptionsFromTarget(target);
+  if (!options) {
+    debug('no options for zip, skipping');
+    return;
+  }
+  await zip(options);
+}
 
 export default createApplicationZip;

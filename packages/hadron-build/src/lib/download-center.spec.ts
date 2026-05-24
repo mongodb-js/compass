@@ -8,7 +8,7 @@ describe('download-center', function () {
     });
 
     it('should return compass when no channel is passed', function () {
-      expect(getKeyPrefix('')).to.eq('compass');
+      expect(getKeyPrefix()).to.eq('compass');
     });
 
     it('should return prefix with channel when channel is not stable', function () {

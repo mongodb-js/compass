@@ -1,8 +1,9 @@
 import path from 'path';
 import createDebug from 'debug';
 import { sign as _garasign } from '@mongodb-js/signing-utils';
+import type Target from './target';
 
-type SigningMethod = 'gpg' | 'jsign' | 'rpm_gpg';
+type SigningMethod = Parameters<typeof _garasign>[1]['signingMethod'];
 
 const debug = createDebug('hadron-build:target');
 
@@ -18,9 +19,6 @@ function canSign(): boolean {
 /**
  * When using gpg to sign a file, it creates a signature file
  * with same name as the original file and adds `.sig` to it.
- *
- * @param {string} filename
- * @returns string
  */
 export function getSignedFilename(filename: string): string {
   return `${filename}.sig`;
@@ -30,30 +28,16 @@ export function getSignedFilename(filename: string): string {
  * Currently, windows and macos zip are created from `zip` step
  * of the release process and we sign them here. For linux, we
  * create and sign the archive when creating corresponding deb/rpm file.
- *
- * @param {import('./target')} target
  */
-export function signArchive(
-  target: {
-    app_archive_name?: string;
-    platform: string;
-    dest: (...args: string[]) => string;
-  },
-  cb: (err?: Error | null) => void
-): void {
+export async function signArchive(target: Target): Promise<void> {
   const { app_archive_name, platform } = target;
   if (platform === 'linux') {
     debug('linux archive is signed when creating deb/rpm');
-    return cb(null);
+    return;
   }
-  sign(target.dest(app_archive_name as string))
-    .then(() => cb())
-    .catch(cb);
+  await sign(target.dest(app_archive_name));
 }
 
-/**
- * @param {string} src
- */
 function getSigningMethod(src: string): SigningMethod {
   switch (path.extname(src)) {
     case '.exe':
@@ -70,9 +54,6 @@ function getSigningMethod(src: string): SigningMethod {
  * We are signing the file using `gpg` or `jsign` depending on the
  * file extension. If the extension is `.exe` or `.msi`, we use `jsign`
  * otherwise we use `gpg`.
- *
- * @param {string} src
- * @returns {Promise<void>}
  */
 export async function sign(
   src: string,

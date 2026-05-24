@@ -51,7 +51,7 @@ function getDownloadCenterNew(
   } as unknown as ConstructorParameters<typeof DownloadCenter>[0]);
 }
 
-export function getKeyPrefix(channel: string): string {
+export function getKeyPrefix(channel = ''): string {
   return channel && channel !== 'stable' ? `compass/${channel}` : 'compass';
 }
 

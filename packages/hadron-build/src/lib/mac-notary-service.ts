@@ -38,12 +38,9 @@ interface NotarizeOptions {
  * 3. The orginal files are removed and the signed files are unzipped into
  *  their place.
  *
- * @param {string} src The path to the resource to notarize. It can be a directory or a file.
- * @param {object} notarizeOptions
- * @param {string} notarizeOptions.bundleId
- * @param {string} [notarizeOptions.macosEntitlements]
  */
 export async function notarize(
+  /** The path to the resource to notarize. It can be a directory or a file. */
   src: string,
   notarizeOptions: NotarizeOptions
 ): Promise<void> {

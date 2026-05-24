@@ -25,12 +25,7 @@ function setupAndZipFakeTarget(target: ReturnType<typeof getConfig>) {
   beforeEach(async function () {
     await fs.mkdir(target.appPath, { recursive: true });
     await fs.writeFile(path.join(target.appPath, 'file'), '');
-    zip(target, (err, result) => {
-      if (err) {
-        throw err;
-      }
-      expect(result).to.be.a('string');
-    });
+    await zip(target);
   });
 
   afterEach(async function () {
@@ -48,9 +43,9 @@ async function getTargetZipEntries(target: ReturnType<typeof getConfig>) {
   const file = await fs.readFile(getTargetZipPath(target) as string);
   const zipContent = await JSZip.loadAsync(file);
 
-  return Object.values(zipContent.files).map((entry) =>
-    _.pick(entry, ['name', 'dir'])
-  );
+  return Object.values(zipContent.files)
+    .filter((entry) => !entry.name.startsWith('__MACOSX'))
+    .map((entry) => _.pick(entry, ['name', 'dir']));
 }
 
 describe('zip', function () {

@@ -1,5 +1,5 @@
 import chai from 'chai';
-import { spy } from 'sinon';
+import { spy, type SinonSpy } from 'sinon';
 import { sign, getSignedFilename } from './signtool';
 
 const { expect } = chai;
@@ -22,7 +22,7 @@ describe('hadron-build::signtool', function () {
   }
 
   describe('sign', function () {
-    let garasign: ReturnType<typeof spy>;
+    let garasign: SinonSpy;
     beforeEach(function () {
       garasign = spy();
     });

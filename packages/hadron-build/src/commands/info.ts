@@ -85,6 +85,8 @@ interface InfoArgv {
 }
 
 export const handler = (argv: InfoArgv): void => {
+  // TODO: This info is only used for expansions.yml in evergreen.
+  // Only write what we need and use a better way to get this done.
   let target: Record<string, unknown> = new Target(argv.dir, {
     version: argv.version,
     platform: argv.platform,
@@ -97,7 +99,6 @@ export const handler = (argv: InfoArgv): void => {
 
   let output: string;
 
-  /* eslint no-console: 0, no-sync: 0 */
   if (argv.format === 'json') {
     output = JSON.stringify(serialize(target), null, 2);
   } else if (argv.format === 'yaml') {
@@ -109,6 +110,7 @@ export const handler = (argv: InfoArgv): void => {
   if (argv.out) {
     fs.writeFileSync(path.resolve(process.cwd(), argv.out), output);
   } else {
+    // eslint-disable-next-line no-console
     console.log(output);
   }
 };

@@ -426,10 +426,11 @@ class Target {
       },
     });
 
-    const packagerName = this.packagerOptions.name as string;
-    this.appPath = this.dest(`${packagerName}-${this.platform}-${this.arch}`);
+    this.appPath = this.dest(
+      `${this.packagerOptions.name}-${this.platform}-${this.arch}`
+    );
     this.resources = this.dest(
-      `${packagerName}-${this.platform}-${this.arch}`,
+      `${this.packagerOptions.name}-${this.platform}-${this.arch}`,
       'resources'
     );
 
@@ -450,7 +451,7 @@ class Target {
     this.windows_releases_label =
       this.windows_releases_filename = `${this.slug}-RELEASES`;
     this.windows_nupkg_full_label =
-      this.windows_nupkg_full_filename = `${packagerName}-${nuggetVersion}-full.nupkg`;
+      this.windows_nupkg_full_filename = `${this.packagerOptions.name}-${nuggetVersion}-full.nupkg`;
 
     this.windows_zip_sign_label = this.windows_zip_sign_filename =
       getSignedFilename(this.windows_zip_filename);
@@ -502,7 +503,7 @@ class Target {
       // who knows what else will be affected.
       authors: this.author,
       version: this.version,
-      exe: `${packagerName}.exe`,
+      exe: `${this.packagerOptions.name}.exe`,
       setupExe: this.windows_setup_filename,
       // This setting will prompt winstaller to try to sign files
       // for the installer with signtool.exe
@@ -520,7 +521,7 @@ class Target {
       title: this.productName,
       productName: this.productName,
       description: this.description,
-      name: packagerName,
+      name: this.packagerOptions.name,
       noMsi: true,
     };
 
@@ -559,7 +560,7 @@ class Target {
       const msiCreator = new MSICreator({
         appDirectory: this.appPath,
         outputDirectory: this.packagerOptions.out,
-        exe: packagerName,
+        exe: this.packagerOptions.name,
         name: this.productName,
         // NOTE: falling back to author would result in MongoDB Inc
         shortcutFolderName: this.shortcutFolderName || this.author,
@@ -585,10 +586,10 @@ class Target {
       await msiCreator.compile();
 
       // sign the MSI
-      await sign(this.dest(packagerName + '.msi'));
+      await sign(this.dest(this.packagerOptions.name + '.msi'));
 
       await fs.rename(
-        this.dest(packagerName + '.msi'),
+        this.dest(this.packagerOptions.name + '.msi'),
         this.dest(this.windows_msi_label)
       );
 
@@ -625,7 +626,7 @@ class Target {
     });
 
     if (this.channel !== 'stable') {
-      this.packagerOptions.appBundleId = `${this.bundleId}.${this.channel}`;
+      this.packagerOptions.appBundleId += `.${this.channel}`;
     }
 
     this.osx_dmg_label =
@@ -828,7 +829,7 @@ class Target {
       },
     ];
 
-    let license = this.pkg.license as string;
+    let license = this.pkg.license;
     if (license === 'UNLICENSED') {
       license = `Copyright © ${new Date().getFullYear()} ${
         this.author
@@ -907,12 +908,12 @@ class Target {
       });
     };
 
-    this.createInstaller = () => {
-      return Promise.all([
+    this.createInstaller = async () => {
+      await Promise.all([
         createRpmInstaller(),
         createDebInstaller(),
         createTarball(),
-      ]).then(() => undefined);
+      ]);
     };
   }
 

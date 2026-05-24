@@ -362,7 +362,7 @@ interface ReleaseArgv {
 
 type TaskFn = (config: Target) => Promise<void>;
 
-export const run = async (
+const run = async (
   argv: ReleaseArgv,
   done: (err?: Error | null, result?: Target) => void
 ): Promise<void> => {
@@ -410,22 +410,8 @@ export const run = async (
       !noAsar && task('create application asar', createApplicationAsar),
       !skipInstaller &&
         task('create branded installer', createBrandedInstaller),
-      task('create application zip', async (config) => {
-        await new Promise<void>((resolve, reject) => {
-          createApplicationZip(config, (err: Error | null) => {
-            if (err) reject(err);
-            else resolve();
-          });
-        });
-      }),
-      task('sign zip', async (config) => {
-        await new Promise<void>((resolve, reject) => {
-          signArchive(config, (err?: Error | null) => {
-            if (err) reject(err);
-            else resolve();
-          });
-        });
-      }),
+      task('create application zip', createApplicationZip),
+      task('sign zip', signArchive),
       task('store build configuration as json', writeConfigToJson),
     ].filter(Boolean)
   );
