@@ -16,10 +16,13 @@ import type { RootState } from '../modules';
 import ResizeHandle from './resize-handle';
 import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
+import { RerankFirstStageBanner } from './rerank-first-stage-banner';
+import { RerankTokensBanner } from './rerank-tokens-banner';
 import StagePreview from './stage-preview';
 import { hasSyntaxError } from '../utils/stage';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
+import { getIsRerankFirstStage } from '../modules/pipeline-builder/builder-helpers';
 import type { SortableProps } from './pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
 
 const stageStyles = css({
@@ -129,6 +132,8 @@ export type StageProps = SortableProps & {
   hasSyntaxError: boolean;
   hasServerError: boolean;
   isAutoPreviewing?: boolean | undefined;
+  showRerankFirstStageBanner: boolean;
+  showRerankTokensBanner: boolean;
 };
 
 function Stage({
@@ -138,6 +143,8 @@ function Stage({
   hasSyntaxError,
   hasServerError,
   isAutoPreviewing,
+  showRerankFirstStageBanner,
+  showRerankTokensBanner,
   ...sortableProps
 }: StageProps) {
   const editorRef = useRef<EditorRef>(null);
@@ -181,6 +188,12 @@ function Stage({
             index={index}
           />
         </div>
+        {showRerankFirstStageBanner && (
+          <RerankFirstStageBanner data-testid="stage-rerank-first-stage-banner" />
+        )}
+        {showRerankTokensBanner && (
+          <RerankTokensBanner data-testid="stage-rerank-tokens-banner" />
+        )}
         {isExpanded && (
           <div style={{ opacity }} className={stageContentStyles}>
             <ResizableEditor
@@ -205,9 +218,8 @@ type StageOwnProps = {
 };
 
 export default connect((state: RootState, ownProps: StageOwnProps) => {
-  const stage = state.pipelineBuilder.stageEditor.stages[
-    ownProps.index
-  ] as StoreStage;
+  const { stages } = state.pipelineBuilder.stageEditor;
+  const stage = stages[ownProps.index] as StoreStage;
 
   return {
     isEnabled: !stage.disabled,
@@ -215,5 +227,8 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
     hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
     isAutoPreviewing: state.autoPreview,
+    showRerankFirstStageBanner: getIsRerankFirstStage(state, ownProps.index),
+    showRerankTokensBanner:
+      stage.stageOperator === '$rerank' && !!state.autoPreview,
   };
 })(Stage);

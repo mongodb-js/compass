@@ -9,9 +9,9 @@ import {
 } from '../../../utils/validation';
 import type { UpdateConnectionFormField } from '../../../hooks/use-connect-form';
 
-type PasswordFormKeys = keyof Omit<
+type PasswordFormKeys = keyof Pick<
   SSHConnectionOptions,
-  'identityKeyFile' | 'identityKeyPassphrase'
+  'password' | 'username' | 'host' | 'port'
 >;
 
 function SshTunnelPassword({

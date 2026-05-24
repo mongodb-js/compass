@@ -119,6 +119,7 @@ export type ChangeStageOperatorAction = {
   type: typeof StageEditorActionTypes.StageOperatorChange;
   id: number;
   stage: Stage;
+  newSnippet: boolean;
 };
 
 export type ChangeStageCollapsedAction = {
@@ -533,7 +534,7 @@ export const changeStageValue = (
 };
 
 const replaceOperatorSnippetTokens = (str: string): string => {
-  const regex = /\${[0-9]+:?([a-z0-9.()]+)?}/gi;
+  const regex = /\${[0-9]+:?([a-z0-9.()-]+)?}/gi;
   return str.replace(regex, function (_match, replaceWith) {
     return replaceWith ?? '';
   });
@@ -642,8 +643,6 @@ export const changeStageOperator = (
       connectionInfoRef.current
     );
 
-    dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
-
     let newSnippet: string | undefined;
 
     // If there is no stage value or current stage value is identical to the
@@ -659,6 +658,13 @@ export const changeStageOperator = (
         enableAutoEmbeddingPublicPreview
       );
     }
+
+    dispatch({
+      type: StageEditorActionTypes.StageOperatorChange,
+      id,
+      stage,
+      newSnippet: !!newSnippet,
+    });
 
     dispatch(loadPreviewForStagesFrom(id));
     void dispatch(fetchExplainForPipeline());
@@ -747,6 +753,22 @@ export const addStage = (
       after: addAfter,
       stage: mapBuilderStageToStoreStage(stage, addAfterIdxInPipeline),
     });
+  };
+};
+
+export const addSearchStageBefore = (
+  storeIndex: number
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    // addStage(after) inserts after position `after`; passing storeIndex - 1
+    // places the new stage at storeIndex. When storeIndex = 0, passing -1
+    // causes splice(0, 0, stage) which correctly inserts at the beginning.
+    dispatch(addStage(storeIndex - 1));
+    dispatch(changeStageOperator(storeIndex, '$search'));
+
+    const { env, comments } = getState();
+    const initialValue = getStageSnippet('$search', env, comments, true);
+    dispatch(changeStageValue(storeIndex, initialValue));
   };
 };
 
@@ -1046,6 +1068,7 @@ export type StoreStage = {
   collapsed: boolean;
   disabled: boolean;
   empty: boolean;
+  fromSnippet: boolean;
 };
 
 export type Wizard = {
@@ -1081,6 +1104,7 @@ export function mapBuilderStageToStoreStage(
     previewDocs: null,
     collapsed: false,
     empty: stage.isEmpty,
+    fromSnippet: false,
   };
 }
 
@@ -1226,6 +1250,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           value: action.stage.value,
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,
+          fromSnippet: false,
         },
         ...state.stages.slice(action.id + 1),
       ],
@@ -1248,6 +1273,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           stageOperator: action.stage.operator,
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,
+          fromSnippet: action.newSnippet,
         } as StoreStage,
         ...state.stages.slice(action.id + 1),
       ],

@@ -96,7 +96,7 @@ export const Button = forwardRef(
     }, [href, utmSource, utmMedium]);
 
     return (
-      <LGButton href={hrefWithParams} {...rest} ref={ref}>
+      <LGButton {...rest} href={hrefWithParams} ref={ref}>
         {children}
       </LGButton>
     );

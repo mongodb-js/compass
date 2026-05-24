@@ -233,12 +233,11 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
   {
-    name: 'enableMultiplexWebSocketOnWeb',
-    stage: 'development',
-    atlasCloudFeatureFlagName:
-      'DATA_EXPLORER_ENABLE_MULTIPLEX_WEBSOCKET_ON_WEB',
+    name: 'enableRerank',
+    stage: 'preview',
+    atlasCloudFeatureFlagName: 'ATLAS_SEARCH_NATIVE_RERANK_UI',
     description: {
-      short: 'Enable multiplexing websocket on web',
+      short: 'Enable $rerank stage UI in Aggregation Pipeline Builder',
     },
   },
 

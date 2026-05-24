@@ -302,7 +302,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
           </div>
         </div>
       )}
-      {!!errorMessage && isSearchManagementActive && (
+      {!!errorMessage && (
         <ErrorSummary data-testid="indexes-error" errors={[errorMessage]} />
       )}
     </div>
