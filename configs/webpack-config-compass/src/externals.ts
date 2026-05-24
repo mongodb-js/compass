@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 export const sharedExternals: string[] = [
   // Electron should always stay external. For electron webpack target this
@@ -27,15 +27,19 @@ export const sharedExternals: string[] = [
   '@mongosh/node-runtime-worker-thread',
 ];
 
-const monorepoWorkspaces = (
-  JSON.parse(
-    execSync('npx lerna list --all --json', {
-      encoding: 'utf-8',
+let monorepoWorkspaces: string[];
 
-      stdio: ['ignore', 'pipe', 'ignore'],
-    })
-  ) as { name: string; location: string }[]
-).map((ws) => ws.name);
+try {
+  const lernaOutput = execFileSync('npx', ['lerna', 'list', '--all', '--json'], {
+    encoding: 'utf-8',
+    stdio: ['ignore', 'pipe', 'ignore'],
+  });
+  monorepoWorkspaces = (JSON.parse(lernaOutput) as { name: string; location: string }[]).map(
+    (ws) => ws.name
+  );
+} catch {
+  monorepoWorkspaces = [];
+}
 
 export const pluginExternals: string[] = [
   // All monorepo dependencies should be externalized
