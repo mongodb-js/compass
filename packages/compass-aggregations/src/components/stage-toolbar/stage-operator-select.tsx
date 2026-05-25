@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useLayoutEffect, useRef } from 'react';
 import {
   withPreferences,
   usePreference,
@@ -14,7 +14,6 @@ import {
   Description,
   css,
   spacing,
-  useId,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
@@ -61,22 +60,19 @@ const RerankStageOption = ({ description }: { description: string }) => (
 
 const comboboxStyles = css({
   width: inputWidth,
-  // Use anchors to position the options popover, so it opens below
-  // the respective select. We need an anchor in order to override
-  // the default positioning leafygreen applies to popovers which
-  // conflict with the max height override.
-  'anchor-name': 'var(--compass-stage-op-anchor)',
   '> :popover-open': {
     width: comboxboxOptionsWidth,
     whiteSpace: 'normal',
-    'position-anchor': 'var(--compass-stage-op-anchor)',
-    left: `anchor(left)`,
+    // LG centers the popover via floating-ui inline styles; we override to
+    // left-align with the select input using a var set in a useLayoutEffect.
+    left: 'var(--stage-op-popover-left, 0px) !important',
   },
   // We want the user to be able to see multiple stages, so
   // we override the max-height set in LG.
   // Note, this is brittle as it relies on LG internals.
   '> :popover-open [role="listbox"]': {
     maxHeight: '450px',
+    overflowY: 'auto',
   },
 });
 
@@ -161,15 +157,6 @@ export const StageOperatorSelect = ({
   collectionStats,
   stages,
 }: StageOperatorSelectProps) => {
-  const anchorName = `--compass-stage-op-${useId().replace(
-    /[^a-zA-Z0-9]/g,
-    ''
-  )}`;
-  const anchorStyle = useMemo(
-    () => ({ '--compass-stage-op-anchor': anchorName } as React.CSSProperties),
-    [anchorName]
-  );
-
   const onStageOperatorSelected = useCallback(
     (name: string | null) => {
       onChange(index, name);
@@ -199,43 +186,61 @@ export const StageOperatorSelect = ({
     isReadonlyView &&
     (!pipelineIsSearchQueryable || versionIncompatibleCompass);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const updatePopoverPositioning = () => {
+      // We use the left positioning of the container to position the
+      // popover, overriding leafygreen's default centering of options.
+      el.style.setProperty(
+        '--stage-op-popover-left',
+        `${el.getBoundingClientRect().left}px`
+      );
+    };
+    updatePopoverPositioning();
+    window.addEventListener('resize', updatePopoverPositioning);
+    return () => window.removeEventListener('resize', updatePopoverPositioning);
+  }, []);
+
   return (
-    <Combobox
-      value={selectedStage}
-      disabled={isDisabled}
-      aria-label="Select a stage operator"
-      onChange={onStageOperatorSelected}
-      size="xsmall"
-      clearable={false}
-      data-testid="stage-operator-combobox"
-      className={comboboxStyles}
-      style={anchorStyle}
-    >
-      {visibleStages.map((stage: Stage) => {
-        const description = getStageDescription(
-          stage,
-          sourceName,
-          serverVersion,
-          versionIncompatibleCompass,
-          pipelineIsSearchQueryable
-        );
-        return (
-          <ComboboxOption
-            data-testid={`combobox-option-stage-${stage.name}`}
-            key={stage.name}
-            value={stage.name}
-            disabled={isSearchStage(stage.name) && disableSearchStage}
-            {...(stage.name === '$rerank'
-              ? {
-                  customContent: (
-                    <RerankStageOption description={description} />
-                  ),
-                }
-              : { description })}
-          />
-        );
-      })}
-    </Combobox>
+    <div ref={containerRef}>
+      <Combobox
+        value={selectedStage}
+        disabled={isDisabled}
+        aria-label="Select a stage operator"
+        onChange={onStageOperatorSelected}
+        size="xsmall"
+        clearable={false}
+        data-testid="stage-operator-combobox"
+        className={comboboxStyles}
+      >
+        {visibleStages.map((stage: Stage) => {
+          const description = getStageDescription(
+            stage,
+            sourceName,
+            serverVersion,
+            versionIncompatibleCompass,
+            pipelineIsSearchQueryable
+          );
+          return (
+            <ComboboxOption
+              data-testid={`combobox-option-stage-${stage.name}`}
+              key={stage.name}
+              value={stage.name}
+              disabled={isSearchStage(stage.name) && disableSearchStage}
+              {...(stage.name === '$rerank'
+                ? {
+                    customContent: (
+                      <RerankStageOption description={description} />
+                    ),
+                  }
+                : { description })}
+            />
+          );
+        })}
+      </Combobox>
+    </div>
   );
 };
 
