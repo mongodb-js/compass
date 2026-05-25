@@ -251,8 +251,9 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           onClose={onDismissError}
         >
           Schema analysis stopped — this collection has more than{' '}
-          {error.fieldThreshold} distinct fields. Increase the &quot;Max
-          distinct fields&quot; limit above and click Analyze to retry.&nbsp;
+          {error.fieldThreshold ?? maxDistinctFields} distinct fields. Increase
+          the &quot;Max distinct fields&quot; limit above and click Analyze to
+          retry.&nbsp;
           <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
             Learn more
           </Link>

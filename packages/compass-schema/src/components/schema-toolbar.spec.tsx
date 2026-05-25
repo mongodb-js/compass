@@ -1,6 +1,11 @@
 import type { ComponentProps } from 'react';
 import React from 'react';
-import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  userEvent,
+  fireEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import type { AllPreferences } from 'compass-preferences-model';
@@ -129,6 +134,23 @@ describe('SchemaToolbar', function () {
         'https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/'
       );
     });
+
+    it('falls back to maxDistinctFields in the banner when fieldThreshold is absent', function () {
+      renderSchemaToolbar({
+        analysisState: 'initial',
+        error: {
+          errorType: 'highComplexity',
+          errorMessage: 'test',
+        },
+        maxDistinctFields: 7500,
+      });
+
+      const banner = screen.getByTestId(
+        'schema-toolbar-complexity-abort-message'
+      );
+      expect(banner).to.be.visible;
+      expect(banner.textContent).to.include('7500');
+    });
   });
 
   describe('max distinct fields input', function () {
@@ -159,7 +181,7 @@ describe('SchemaToolbar', function () {
 
       userEvent.clear(input);
       userEvent.type(input, '8000');
-      userEvent.tab();
+      fireEvent.blur(input);
 
       expect(onSetMaxDistinctFields).to.have.been.calledOnceWith(8000);
     });
@@ -174,7 +196,7 @@ describe('SchemaToolbar', function () {
 
       userEvent.clear(input);
       userEvent.type(input, '500');
-      userEvent.tab();
+      fireEvent.blur(input);
 
       expect(onSetMaxDistinctFields).not.to.have.been.called;
     });

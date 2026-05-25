@@ -536,5 +536,25 @@ describe('Schema Store', function () {
       expect(call, 'Schema Analysis Failed was not tracked').to.exist;
       expect(call!.args[1]).to.deep.equal({ error_type: 'general' });
     });
+
+    it('does not track Schema Analysis Failed when analysis is cancelled by the user', async function () {
+      sampleCursorStub.returns({
+        async *[Symbol.asyncIterator]() {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          yield { a: 1 };
+          await new Promise((resolve) => setTimeout(resolve, 500));
+          yield { b: 2 };
+        },
+      });
+
+      const analysisPromise = store.dispatch(startAnalysis());
+      store.dispatch(stopAnalysis());
+      await analysisPromise;
+
+      expect(
+        getFailedTrackCall(),
+        'Schema Analysis Failed must not fire on user cancel'
+      ).to.be.undefined;
+    });
   });
 });

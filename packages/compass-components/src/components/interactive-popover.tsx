@@ -187,7 +187,9 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
             // checks during portal CSS fade-in.
             fallbackFocus:
               customFocusTrapFallback ||
-              (() => closeButtonRef.current as HTMLElement),
+              (() =>
+                (closeButtonRef.current ??
+                  popoverContentContainerRef.current) as HTMLElement),
             tabbableOptions: { displayCheck: 'non-zero-area' },
           }}
         >

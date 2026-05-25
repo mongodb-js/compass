@@ -423,6 +423,13 @@ export const startAnalysis = (): SchemaThunkAction<
 
       geoLayersRef.current = {};
     } catch (err: any) {
+      if (abortSignal.aborted) {
+        dispatch({
+          type: SchemaAnalysisActions.analysisFinished,
+          schema: null,
+        });
+        return;
+      }
       log.error(
         mongoLogId(1_001_000_188),
         'Schema analysis',
