@@ -1684,12 +1684,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
     debug('connecting...');
     this._isConnecting = true;
 
-    const clusterName = this._connectionOptions.lookup?.().clusterName;
     this._logger.info(mongoLogId(1_001_000_014), 'Connecting Started', {
       connectionId: this._id,
       url: redactConnectionString(this._connectionOptions.connectionString),
       csfle: this._csfleLogInformation(this._connectionOptions.fleOptions),
-      ...(clusterName && { clusterName }),
     });
 
     try {
@@ -1710,7 +1708,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
         connectionId: this._id,
         isWritable: this.isWritable(),
         isMongos: this.isMongos(),
-        ...(clusterName && { clusterName }),
       };
 
       this._logger.info(
@@ -1747,7 +1744,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
           error && typeof error === 'object' && 'message' in error
             ? error?.message
             : 'unknown error',
-        ...(clusterName && { clusterName }),
       });
       throw error;
     } finally {

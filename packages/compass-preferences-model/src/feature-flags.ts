@@ -233,15 +233,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
   {
-    name: 'enableMultiplexWebSocketOnWeb',
-    stage: 'development',
-    atlasCloudFeatureFlagName:
-      'DATA_EXPLORER_ENABLE_MULTIPLEX_WEBSOCKET_ON_WEB',
-    description: {
-      short: 'Enable multiplexing websocket on web',
-    },
-  },
-  {
     name: 'enableRerank',
     stage: 'preview',
     atlasCloudFeatureFlagName: 'ATLAS_SEARCH_NATIVE_RERANK_UI',

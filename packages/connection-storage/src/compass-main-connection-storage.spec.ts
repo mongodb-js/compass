@@ -794,7 +794,6 @@ describe('ConnectionStorage', function () {
         useApplicationLevelProxy: true,
         oidc: {},
         fleOptions: { storeCredentials: false },
-        lookup: () => ({} as any),
       };
       await connectionStorage.save({
         connectionInfo: {
@@ -802,7 +801,6 @@ describe('ConnectionStorage', function () {
           connectionOptions,
         },
       });
-      delete (connectionOptions as any).lookup; // intentionally not stored
 
       const content = await fs.readFile(
         getConnectionFilePath(tmpDir, id),
