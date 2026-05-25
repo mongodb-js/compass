@@ -13,6 +13,7 @@
   ],
   "scripts": {
     "bootstrap": "npm run compile",
+    "prepare": "npm run compile",
     "compile": "tsc -p tsconfig-build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "eslint": "eslint-compass",
