@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   withPreferences,
   usePreference,
@@ -14,6 +14,7 @@ import {
   Description,
   css,
   spacing,
+  useId,
 } from '@mongodb-js/compass-components';
 
 import type { RootState } from '../../modules';
@@ -33,8 +34,6 @@ import semver from 'semver';
 const inputWidth = spacing[1400] * 3;
 // width of options popover
 const comboxboxOptionsWidth = spacing[1200] * 14;
-// left position of options popover wrt input. this aligns it with the start of input
-const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
 
 const rerankStageOptionStyles = css({
   display: 'flex',
@@ -62,11 +61,16 @@ const RerankStageOption = ({ description }: { description: string }) => (
 
 const comboboxStyles = css({
   width: inputWidth,
+  // Use anchors to position the options popover, so it opens below
+  // the respective select. We need an anchor in order to override
+  // the default positioning leafygreen applies to popovers which
+  // conflict with the max height override.
+  'anchor-name': 'var(--compass-stage-op-anchor)',
   '> :popover-open': {
     width: comboxboxOptionsWidth,
     whiteSpace: 'normal',
-    // -4px to count for the input focus outline.
-    marginLeft: `${comboboxOptionsLeft - 4}px`,
+    'position-anchor': 'var(--compass-stage-op-anchor)',
+    left: `anchor(left)`,
   },
   // We want the user to be able to see multiple stages, so
   // we override the max-height set in LG.
@@ -157,6 +161,15 @@ export const StageOperatorSelect = ({
   collectionStats,
   stages,
 }: StageOperatorSelectProps) => {
+  const anchorName = `--compass-stage-op-${useId().replace(
+    /[^a-zA-Z0-9]/g,
+    ''
+  )}`;
+  const anchorStyle = useMemo(
+    () => ({ '--compass-stage-op-anchor': anchorName } as React.CSSProperties),
+    [anchorName]
+  );
+
   const onStageOperatorSelected = useCallback(
     (name: string | null) => {
       onChange(index, name);
@@ -196,6 +209,7 @@ export const StageOperatorSelect = ({
       clearable={false}
       data-testid="stage-operator-combobox"
       className={comboboxStyles}
+      style={anchorStyle}
     >
       {visibleStages.map((stage: Stage) => {
         const description = getStageDescription(
