@@ -15,15 +15,7 @@ type ConnectOptions = {
  * 1. Multiplexed link: Uses a shared WebSocket with BSON framing
  * 2. Direct WebSocket proxy: Direct connection to local proxy server
  */
-const MESSAGE_TYPE = {
-  JSON: 0x01,
-  BINARY: 0x02,
-} as const;
-
 class Socket extends Duplex {
-  private _ws: WebSocket | null = null;
-
-  // Multiplex link state
   private _localPort = 0;
   private _remoteHost = '';
   private _remotePort = 0;
@@ -79,21 +71,26 @@ class Socket extends Duplex {
   _read() {
     // noop
   }
-  _write(chunk: Buffer, _encoding: BufferEncoding, cb: () => void) {
+  _write(
+    chunk: Buffer,
+    _encoding: BufferEncoding,
+    cb: (error?: Error) => void
+  ) {
     const link = getMultiplexLink();
-    if (link && this._localPort !== 0) {
-      link.sendData(
-        this._localPort,
-        this._remoteHost,
-        this._remotePort,
-        new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength)
-      );
-    } else {
-      this._ws?.send(
-        this.encodeBinaryMessageWithTypeByte(new Uint8Array(chunk))
-      );
+    if (!link || this._localPort === 0) {
+      queueMicrotask(() => {
+        cb(new Error('Socket not connected: link unavailable'));
+      });
+      return;
     }
-    setTimeout(() => {
+
+    link.sendData(
+      this._localPort,
+      this._remoteHost,
+      this._remotePort,
+      new Uint8Array(chunk.buffer, chunk.byteOffset, chunk.byteLength)
+    );
+    queueMicrotask(() => {
       cb();
     });
   }
@@ -114,8 +111,6 @@ class Socket extends Duplex {
   destroy() {
     if (this._localPort !== 0) {
       this._teardown('Stream destroyed by client');
-    } else {
-      this._ws?.close();
     }
     return this;
   }
@@ -127,20 +122,6 @@ class Socket extends Duplex {
       });
       return this;
     }
-    if (this._ws?.readyState === this._ws?.CLOSED) {
-      setTimeout(() => {
-        fn?.();
-      });
-      return this;
-    }
-    this._ws?.addEventListener(
-      'close',
-      () => {
-        fn?.();
-      },
-      { once: true }
-    );
-    this._ws?.close();
     return this;
   }
   setKeepAlive() {
@@ -151,41 +132,6 @@ class Socket extends Duplex {
   }
   setNoDelay() {
     return this;
-  }
-
-  encodeStringMessageWithTypeByte(message: string) {
-    const utf8Encoder = new TextEncoder();
-    const utf8Array = utf8Encoder.encode(message);
-    return this.encodeMessageWithTypeByte(utf8Array, MESSAGE_TYPE.JSON);
-  }
-
-  encodeBinaryMessageWithTypeByte(message: Uint8Array) {
-    return this.encodeMessageWithTypeByte(message, MESSAGE_TYPE.BINARY);
-  }
-
-  encodeMessageWithTypeByte(
-    message: Uint8Array,
-    type: (typeof MESSAGE_TYPE)[keyof typeof MESSAGE_TYPE]
-  ) {
-    const encoded = new Uint8Array(message.length + 1);
-    encoded[0] = type;
-    encoded.set(message, 1);
-    return encoded;
-  }
-
-  decodeMessageWithTypeByte(message: Uint8Array) {
-    const typeByte = message[0];
-    if (typeByte === Number(MESSAGE_TYPE.JSON)) {
-      const jsonBytes = message.subarray(1);
-      const textDecoder = new TextDecoder('utf-8');
-      const jsonStr = textDecoder.decode(jsonBytes);
-      return JSON.parse(jsonStr);
-    } else if (typeByte === Number(MESSAGE_TYPE.BINARY)) {
-      return message.subarray(1);
-    } else {
-      // eslint-disable-next-line no-console
-      console.error('message does not have valid type byte "%s"', message);
-    }
   }
 }
 

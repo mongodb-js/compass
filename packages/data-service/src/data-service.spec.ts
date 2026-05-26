@@ -168,10 +168,6 @@ describe('DataService', function () {
           {
             connectionString:
               'mongodb://iLoveJavascript?serverSelectionTimeoutMS=5',
-            lookup: () => ({
-              wsURL: 'ws://localhost:12345/mongodb/atlas/websocket',
-              clusterName: 'iLoveJavascript',
-            }),
           },
           logCollector
         );
