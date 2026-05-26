@@ -21,8 +21,6 @@ import {
   createNumbersCollection,
   createNumbersStringCollection,
 } from '../helpers/mongo-clients.ts';
-import { MongoClient } from 'mongodb';
-import { getDefaultConnectionStrings } from '../helpers/test-runner-context.ts';
 import { allowServerWarnings } from '../helpers/test-runner-global-fixtures.ts';
 import type { LogEntry } from '@mongodb-js/compass-test-server';
 
@@ -590,8 +588,12 @@ describe('Collection export', function () {
       let unsubscribeAllowWarningsFilter: () => void;
 
       before(function () {
+        if (process.platform === 'darwin' && process.arch === 'arm64') {
+          this.skip();
+        }
+
         unsubscribeAllowWarningsFilter = allowServerWarnings(
-          23829, // allow "Set failpoint" warnings from configureFailPoint commands
+          8996500, // allow "$where is deprecated" warnings
           (l: LogEntry) => {
             return (
               l.id === 23798 &&
@@ -607,287 +609,279 @@ describe('Collection export', function () {
         unsubscribeAllowWarningsFilter();
       });
 
-      describe('when find commands are blocked by a failpoint', function () {
-        before(function () {
-          if (process.platform === 'darwin' && process.arch === 'arm64') {
-            this.skip();
-          }
+      it('can abort an in progress CSV export', async function () {
+        const telemetryEntry = await browser.listenForTelemetryEvents(
+          telemetry
+        );
+
+        // Set a query that we'll use.
+        await browser.runFindOperation(
+          'Documents',
+          '{ $where: "function() { sleep(100); return true; }" }'
+        );
+
+        // Open the modal.
+        await browser.clickVisible(Selectors.ExportCollectionMenuButton);
+        await browser.clickVisible(Selectors.ExportCollectionQueryOption);
+        await browser.waitForOpenModal(Selectors.ExportModal);
+
+        // Choose to export select fields.
+        await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
+        await browser.clickVisible(Selectors.ExportNextStepButton);
+
+        // Click to export the `i` and `j` fields.
+        await toggleExportFieldCheckbox(browser, 'i');
+        await toggleExportFieldCheckbox(browser, 'j');
+
+        await browser.clickVisible(Selectors.ExportNextStepButton);
+
+        // Select CSV.
+        await selectExportFileTypeCSV(browser);
+
+        await browser.clickVisible(Selectors.ExportModalExportButton);
+
+        const filename = outputFilename('aborted-export-test.csv');
+        await browser.setExportFilename(filename);
+
+        // Wait for the modal to go away.
+        await browser.waitForOpenModal(Selectors.ExportModal, {
+          reverse: true,
         });
 
-        let adminClient: MongoClient;
+        // Wait for the export to start and then click stop.
+        const exportAbortButton = browser.$(Selectors.ExportToastAbort);
+        await exportAbortButton.waitForDisplayed();
+        await exportAbortButton.click();
 
-        beforeEach(async function () {
-          adminClient = new MongoClient(getDefaultConnectionStrings(0));
-          await adminClient.connect();
-          await adminClient.db('admin').command({
-            configureFailPoint: 'failCommand',
-            mode: 'alwaysOn',
-            data: {
-              failCommands: ['find'],
-              blockConnection: true,
-              blockTimeMS: 60_000,
-              appName: 'MongoDB Compass WebdriverIO',
-            },
-          });
-        });
+        // Wait for the aborted toast to appear.
+        const toastElement = browser.$(Selectors.ExportToast);
+        await toastElement.waitForDisplayed();
+        await browser
+          .$(Selectors.closeToastButton(Selectors.ExportToast))
+          .waitForDisplayed();
 
-        afterEach(async function () {
-          await adminClient.db('admin').command({
-            configureFailPoint: 'failCommand',
-            mode: 'off',
-            data: { failCommands: ['find'] },
-          });
-          await adminClient.close();
-        });
-
-        it('aborts an in progress CSV export', async function () {
-          const telemetryEntry = await browser.listenForTelemetryEvents(
-            telemetry
-          );
-
-          // Open the modal.
-          await browser.clickVisible(Selectors.ExportCollectionMenuButton);
-          await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-          await browser.waitForOpenModal(Selectors.ExportModal);
-
-          // Choose to export select fields.
-          await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
-          await browser.clickVisible(Selectors.ExportNextStepButton);
-
-          // Click to export the `i` and `j` fields.
-          await toggleExportFieldCheckbox(browser, 'i');
-          await toggleExportFieldCheckbox(browser, 'j');
-
-          await browser.clickVisible(Selectors.ExportNextStepButton);
-
-          // Select CSV.
-          await selectExportFileTypeCSV(browser);
-
-          await browser.clickVisible(Selectors.ExportModalExportButton);
-
-          const filename = outputFilename('aborted-export-test.csv');
-          await browser.setExportFilename(filename);
-
-          // Wait for the modal to go away.
-          await browser.waitForOpenModal(Selectors.ExportModal, {
-            reverse: true,
-          });
-
-          // Wait for the export to start and then click abort.
-          const exportAbortButton = browser.$(Selectors.ExportToastAbort);
-          await exportAbortButton.waitForDisplayed();
-          await exportAbortButton.click();
-
-          // Wait for the aborted toast to appear.
-          const toastElement = browser.$(Selectors.ExportToast);
-          await toastElement.waitForDisplayed();
-          await browser
-            .$(Selectors.closeToastButton(Selectors.ExportToast))
-            .waitForDisplayed();
-
-          // Check it displays that the export was aborted.
-          const toastText = await toastElement.getText();
+        // Check it displays that the export was aborted.
+        const toastText = await toastElement.getText();
+        try {
           expect(toastText).to.include('Export aborted');
+        } catch (err) {
+          console.log(toastText);
+          throw err;
+        }
 
-          // Close the toast.
-          await browser.clickVisible(
-            Selectors.closeToastButton(Selectors.ExportToast)
-          );
-          await toastElement.waitForDisplayed({ reverse: true });
+        // Close the toast.
+        await browser
+          .$(Selectors.closeToastButton(Selectors.ExportToast))
+          .waitForDisplayed();
+        await browser.clickVisible(
+          Selectors.closeToastButton(Selectors.ExportToast)
+        );
+        await toastElement.waitForDisplayed({ reverse: true });
 
-          // Confirm that we exported what we expected to export.
-          const text = await fs.readFile(filename, 'utf-8');
-          const lines = text.split(/\r?\n/);
-          expect(lines.length).to.equal(1);
-          // We abort before we add the columns to the file.
-          expect(lines[0]).to.equal('');
+        // Confirm that we exported what we expected to export.
+        const text = await fs.readFile(filename, 'utf-8');
+        const lines = text.split(/\r?\n/);
+        expect(lines.length).to.equal(1);
+        // We abort before we add the columns to the file.
+        expect(lines[0]).to.equal('');
 
-          const exportCompletedEvent = await telemetryEntry('Export Completed');
-          delete exportCompletedEvent.duration; // Duration varies.
-          deleteCommonVariedProperties(exportCompletedEvent);
-          expect(exportCompletedEvent).to.deep.equal({
-            all_docs: false,
-            file_type: 'csv',
-            field_count: 2,
-            field_option: 'select-fields',
-            number_of_docs: 0,
-            has_projection: false,
-            fields_added_count: 0,
-            fields_not_selected_count: 1,
-            success: true,
-            type: 'query',
-            stopped: true,
-          });
-          expect(telemetry.screens()).to.include('export_modal');
+        const exportCompletedEvent = await telemetryEntry('Export Completed');
+        delete exportCompletedEvent.duration; // Duration varies.
+        deleteCommonVariedProperties(exportCompletedEvent);
+        expect(exportCompletedEvent).to.deep.equal({
+          all_docs: false,
+          file_type: 'csv',
+          field_count: 2,
+          field_option: 'select-fields',
+          number_of_docs: 0,
+          has_projection: false,
+          fields_added_count: 0,
+          fields_not_selected_count: 1,
+          success: true,
+          type: 'query',
+          stopped: true,
+        });
+        expect(telemetry.screens()).to.include('export_modal');
+      });
+
+      it('can abort an in progress JSON export', async function () {
+        const telemetryEntry = await browser.listenForTelemetryEvents(
+          telemetry
+        );
+
+        // Set a query that we'll use.
+        await browser.runFindOperation(
+          'Documents',
+          '{ $where: "function() { sleep(100); return true; }" }'
+        );
+
+        // Open the modal.
+        await browser.clickVisible(Selectors.ExportCollectionMenuButton);
+        await browser.clickVisible(Selectors.ExportCollectionQueryOption);
+        await browser.waitForOpenModal(Selectors.ExportModal);
+
+        // Choose to export select fields.
+        await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
+        await browser.clickVisible(Selectors.ExportNextStepButton);
+
+        // Click to export the `i` and `j` fields.
+        await toggleExportFieldCheckbox(browser, 'i');
+        await toggleExportFieldCheckbox(browser, 'j');
+
+        await browser.clickVisible(Selectors.ExportNextStepButton);
+
+        // File type defaults to JSON export.
+        await browser.clickVisible(Selectors.ExportModalExportButton);
+
+        const filename = outputFilename('aborted-export-test.json');
+        await browser.setExportFilename(filename);
+
+        // Wait for the modal to go away.
+        await browser.waitForOpenModal(Selectors.ExportModal, {
+          reverse: true,
         });
 
-        it('can abort an in progress JSON export', async function () {
-          const telemetryEntry = await browser.listenForTelemetryEvents(
-            telemetry
-          );
+        // Wait for the export to start and then click stop.
+        const exportAbortButton = browser.$(Selectors.ExportToastAbort);
+        await exportAbortButton.waitForDisplayed();
+        await exportAbortButton.click();
 
-          // Open the modal.
-          await browser.clickVisible(Selectors.ExportCollectionMenuButton);
-          await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-          await browser.waitForOpenModal(Selectors.ExportModal);
+        // Wait for the aborted toast to appear.
+        const toastElement = browser.$(Selectors.ExportToast);
+        await toastElement.waitForDisplayed();
+        await browser
+          .$(Selectors.closeToastButton(Selectors.ExportToast))
+          .waitForDisplayed();
 
-          // Choose to export select fields.
-          await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
-          await browser.clickVisible(Selectors.ExportNextStepButton);
+        // Check it displays that the export was aborted.
+        const toastText = await toastElement.getText();
+        try {
+          expect(toastText).to.include('Export aborted');
+        } catch (err) {
+          console.log(toastText);
+          throw err;
+        }
 
-          // Click to export the `i` and `j` fields.
-          await toggleExportFieldCheckbox(browser, 'i');
-          await toggleExportFieldCheckbox(browser, 'j');
+        // Close the toast.
+        await browser
+          .$(Selectors.closeToastButton(Selectors.ExportToast))
+          .waitForDisplayed();
+        await browser.clickVisible(
+          Selectors.closeToastButton(Selectors.ExportToast)
+        );
+        await toastElement.waitForDisplayed({ reverse: true });
 
-          await browser.clickVisible(Selectors.ExportNextStepButton);
+        const exportCompletedEvent = await telemetryEntry('Export Completed');
+        delete exportCompletedEvent.duration; // Duration varies.
+        deleteCommonVariedProperties(exportCompletedEvent);
+        expect(exportCompletedEvent).to.deep.equal({
+          all_docs: false,
+          file_type: 'json',
+          json_format: 'default',
+          field_count: 2,
+          fields_added_count: 0,
+          fields_not_selected_count: 1,
+          field_option: 'select-fields',
+          number_of_docs: 0,
+          has_projection: false,
+          success: true,
+          type: 'query',
+          stopped: true,
+        });
+        expect(telemetry.screens()).to.include('export_modal');
+      });
 
-          // File type defaults to JSON export.
-          await browser.clickVisible(Selectors.ExportModalExportButton);
+      it('aborts an in progress CSV export when disconnected', async function () {
+        const telemetryEntry = await browser.listenForTelemetryEvents(
+          telemetry
+        );
 
-          const filename = outputFilename('aborted-export-test.json');
-          await browser.setExportFilename(filename);
+        // Set a query that we'll use.
+        await browser.runFindOperation(
+          'Documents',
+          '{ $where: "function() { sleep(100); return true; }" }'
+        );
 
-          // Wait for the modal to go away.
-          await browser.waitForOpenModal(Selectors.ExportModal, {
-            reverse: true,
-          });
+        // Open the modal.
+        await browser.clickVisible(Selectors.ExportCollectionMenuButton);
+        await browser.clickVisible(Selectors.ExportCollectionQueryOption);
+        await browser.waitForOpenModal(Selectors.ExportModal);
 
-          // Wait for the export to start and then click stop.
-          const exportAbortButton = browser.$(Selectors.ExportToastAbort);
-          await exportAbortButton.waitForDisplayed();
-          await exportAbortButton.click();
+        // Choose to export select fields.
+        await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
+        await browser.clickVisible(Selectors.ExportNextStepButton);
 
-          // Wait for the aborted toast to appear.
-          const toastElement = browser.$(Selectors.ExportToast);
-          await toastElement.waitForDisplayed();
-          await browser
-            .$(Selectors.closeToastButton(Selectors.ExportToast))
-            .waitForDisplayed();
+        // Click to export the `i` and `j` fields.
+        await toggleExportFieldCheckbox(browser, 'i');
+        await toggleExportFieldCheckbox(browser, 'j');
 
-          // Check it displays that the export was aborted.
-          const toastText = await toastElement.getText();
-          try {
-            expect(toastText).to.include('Export aborted');
-          } catch (err) {
-            console.log(toastText);
-            throw err;
-          }
+        await browser.clickVisible(Selectors.ExportNextStepButton);
 
-          // Close the toast.
-          await browser
-            .$(Selectors.closeToastButton(Selectors.ExportToast))
-            .waitForDisplayed();
-          await browser.clickVisible(
-            Selectors.closeToastButton(Selectors.ExportToast)
-          );
-          await toastElement.waitForDisplayed({ reverse: true });
+        // Select CSV.
+        await selectExportFileTypeCSV(browser);
 
-          const exportCompletedEvent = await telemetryEntry('Export Completed');
-          delete exportCompletedEvent.duration; // Duration varies.
-          deleteCommonVariedProperties(exportCompletedEvent);
-          expect(exportCompletedEvent).to.deep.equal({
-            all_docs: false,
-            file_type: 'json',
-            json_format: 'default',
-            field_count: 2,
-            fields_added_count: 0,
-            fields_not_selected_count: 1,
-            field_option: 'select-fields',
-            number_of_docs: 0,
-            has_projection: false,
-            success: true,
-            type: 'query',
-            stopped: true,
-          });
-          expect(telemetry.screens()).to.include('export_modal');
+        await browser.clickVisible(Selectors.ExportModalExportButton);
+
+        const filename = outputFilename('disconnected-export-test.csv');
+        await browser.setExportFilename(filename);
+
+        // Wait for the modal to go away.
+        await browser.waitForOpenModal(Selectors.ExportModal, {
+          reverse: true,
         });
 
-        it('aborts an in progress CSV export when disconnected', async function () {
-          const telemetryEntry = await browser.listenForTelemetryEvents(
-            telemetry
-          );
+        // Wait for the export to start.
+        const exportAbortButton = browser.$(Selectors.ExportToastAbort);
+        await exportAbortButton.waitForDisplayed();
 
-          // Open the modal.
-          await browser.clickVisible(Selectors.ExportCollectionMenuButton);
-          await browser.clickVisible(Selectors.ExportCollectionQueryOption);
-          await browser.waitForOpenModal(Selectors.ExportModal);
+        await browser.disconnectAll({ closeToasts: false });
 
-          // Choose to export select fields.
-          await browser.clickVisible(Selectors.ExportQuerySelectFieldsOption);
-          await browser.clickVisible(Selectors.ExportNextStepButton);
+        // Wait for the aborted toast to appear.
+        const toastElement = browser.$(Selectors.ExportToast);
+        await toastElement.waitForDisplayed();
+        await browser
+          .$(Selectors.closeToastButton(Selectors.ExportToast))
+          .waitForDisplayed();
 
-          // Click to export the `i` and `j` fields.
-          await toggleExportFieldCheckbox(browser, 'i');
-          await toggleExportFieldCheckbox(browser, 'j');
+        // Check it displays that the export was aborted.
+        const toastText = await toastElement.getText();
+        try {
+          expect(toastText).to.include('Export aborted');
+        } catch (err) {
+          console.log(toastText);
+          throw err;
+        }
 
-          await browser.clickVisible(Selectors.ExportNextStepButton);
+        // Close the toast.
+        await browser.clickVisible(
+          Selectors.closeToastButton(Selectors.ExportToast)
+        );
+        await toastElement.waitForDisplayed({ reverse: true });
 
-          // Select CSV.
-          await selectExportFileTypeCSV(browser);
+        // Confirm that we exported what we expected to export.
+        const text = await fs.readFile(filename, 'utf-8');
+        const lines = text.split(/\r?\n/);
+        expect(lines.length).to.equal(1);
+        // We abort before we add the columns to the file.
+        expect(lines[0]).to.equal('');
 
-          await browser.clickVisible(Selectors.ExportModalExportButton);
-
-          const filename = outputFilename('disconnected-export-test.csv');
-          await browser.setExportFilename(filename);
-
-          // Wait for the modal to go away.
-          await browser.waitForOpenModal(Selectors.ExportModal, {
-            reverse: true,
-          });
-
-          // Wait for the export to start.
-          const exportAbortButton = browser.$(Selectors.ExportToastAbort);
-          await exportAbortButton.waitForDisplayed();
-
-          await browser.disconnectAll({ closeToasts: false });
-
-          // Wait for the aborted toast to appear.
-          const toastElement = browser.$(Selectors.ExportToast);
-          await toastElement.waitForDisplayed();
-          await browser
-            .$(Selectors.closeToastButton(Selectors.ExportToast))
-            .waitForDisplayed();
-
-          // Check it displays that the export was aborted.
-          const toastText = await toastElement.getText();
-          try {
-            expect(toastText).to.include('Export aborted');
-          } catch (err) {
-            console.log(toastText);
-            throw err;
-          }
-
-          // Close the toast.
-          await browser.clickVisible(
-            Selectors.closeToastButton(Selectors.ExportToast)
-          );
-          await toastElement.waitForDisplayed({ reverse: true });
-
-          // Confirm that we exported what we expected to export.
-          const text = await fs.readFile(filename, 'utf-8');
-          const lines = text.split(/\r?\n/);
-          expect(lines.length).to.equal(1);
-          // We abort before we add the columns to the file.
-          expect(lines[0]).to.equal('');
-
-          const exportCompletedEvent = await telemetryEntry('Export Completed');
-          delete exportCompletedEvent.duration; // Duration varies.
-          deleteCommonVariedProperties(exportCompletedEvent);
-          expect(exportCompletedEvent).to.deep.equal({
-            all_docs: false,
-            file_type: 'csv',
-            field_count: 2,
-            fields_added_count: 0,
-            fields_not_selected_count: 1,
-            field_option: 'select-fields',
-            number_of_docs: 0,
-            has_projection: false,
-            success: true,
-            type: 'query',
-            stopped: true,
-          });
-          expect(telemetry.screens()).to.include('export_modal');
+        const exportCompletedEvent = await telemetryEntry('Export Completed');
+        delete exportCompletedEvent.duration; // Duration varies.
+        deleteCommonVariedProperties(exportCompletedEvent);
+        expect(exportCompletedEvent).to.deep.equal({
+          all_docs: false,
+          file_type: 'csv',
+          field_count: 2,
+          fields_added_count: 0,
+          fields_not_selected_count: 1,
+          field_option: 'select-fields',
+          number_of_docs: 0,
+          has_projection: false,
+          success: true,
+          type: 'query',
+          stopped: true,
         });
+        expect(telemetry.screens()).to.include('export_modal');
       });
     });
   });

@@ -377,7 +377,7 @@ export const DEFAULT_CONNECTIONS: TestConnectionInfo[] = isTestingWebAtlasCloud(
           version: testServerVersion,
           topology: 'replset',
           secondaries: 0,
-          args: ['--port', '27091', '--setParameter', 'enableTestCommands=1'],
+          args: ['--port', '27091'],
         },
       },
       {
@@ -393,7 +393,7 @@ export const DEFAULT_CONNECTIONS: TestConnectionInfo[] = isTestingWebAtlasCloud(
           version: testServerVersion,
           topology: 'replset',
           secondaries: 0,
-          args: ['--port', '27092', '--setParameter', 'enableTestCommands=1'],
+          args: ['--port', '27092'],
         },
       },
     ];
