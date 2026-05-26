@@ -21,9 +21,9 @@ import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
   createPluginTestHelpers,
   cleanup,
+  render,
   screen,
   userEvent,
-  testingLibrary,
 } from '@mongodb-js/testing-library-compass';
 import { ToastBody } from '@mongodb-js/compass-components';
 import { ExportPlugin } from '../index';
@@ -297,7 +297,7 @@ describe('export [module]', function () {
   describe('export toast stop button', function () {
     it('aborts the signal when the stop button is clicked', function () {
       const abortController = new AbortController();
-      testingLibrary.render(
+      render(
         React.createElement(ToastBody, {
           statusMessage: 'Starting...',
           actionHandler: () => abortController.abort(),
