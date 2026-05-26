@@ -585,7 +585,7 @@ describe('Collection export', function () {
     });
 
     describe('aborting exports', function () {
-      let unsubscribeAllowWarningsFilter: () => void;
+      let unsubscribeAllowWarningsFilter: () => void | undefined;
 
       before(function () {
         if (process.platform === 'darwin' && process.arch === 'arm64') {
@@ -606,7 +606,7 @@ describe('Collection export', function () {
       });
 
       after(function () {
-        unsubscribeAllowWarningsFilter();
+        unsubscribeAllowWarningsFilter?.();
       });
 
       it('can abort an in progress CSV export', async function () {
