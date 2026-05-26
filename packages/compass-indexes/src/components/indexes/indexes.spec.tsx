@@ -23,11 +23,13 @@ import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
+import type { AllPreferences } from 'compass-preferences-model';
 
 const renderIndexes = async (
   options: Partial<IndexesPluginOptions> = {},
   dataProvider: Partial<IndexesDataService> = {},
-  props?: Partial<RootState>
+  props?: Partial<RootState>,
+  preferences?: Partial<AllPreferences>
 ) => {
   const store = setupStore(
     { ...options, isSearchIndexesSupported: true },
@@ -56,7 +58,8 @@ const renderIndexes = async (
   render(
     <Provider store={store}>
       <Indexes />
-    </Provider>
+    </Provider>,
+    { preferences }
   );
 
   return store;
@@ -77,15 +80,22 @@ describe('Indexes Component', function () {
   });
 
   it('renders indexes toolbar when there is a regular indexes error', async function () {
-    await renderIndexes(undefined, undefined, {
-      indexView: 'regular-indexes',
-      regularIndexes: {
-        indexes: [],
-        error: 'Some random error',
-        status: 'ERROR',
-        inProgressIndexes: [],
+    await renderIndexes(
+      undefined,
+      undefined,
+      {
+        indexView: 'regular-indexes',
+        regularIndexes: {
+          indexes: [],
+          error: 'Some random error',
+          status: 'ERROR',
+          inProgressIndexes: [],
+        },
       },
-    });
+      {
+        enableAtlasSearchIndexes: false,
+      }
+    );
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
     expect(screen.getByTestId('indexes-error').textContent).to.equal(
       'Some random error'

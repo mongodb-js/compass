@@ -9,6 +9,8 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../../test/configure-store';
+import type { AggregationsPluginServices } from '../../../stores/store';
+import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
 import { PipelineEditor } from './pipeline-editor';
@@ -19,7 +21,8 @@ const renderPipelineEditor = (
   storeOptions: any = {},
   {
     enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+  }: { enableSearchActivationExperiment?: boolean } = {},
+  services: Partial<AggregationsPluginServices> = {}
 ) => {
   let ui = (
     <PipelineEditor
@@ -45,7 +48,7 @@ const renderPipelineEditor = (
       ExperimentTestGroups.searchActivationProgramP1Variant
     );
   }
-  return renderWithStore(ui, storeOptions);
+  return renderWithStore(ui, storeOptions, undefined, services);
 };
 
 describe('PipelineEditor', function () {
@@ -256,18 +259,35 @@ describe('PipelineEditor', function () {
     });
 
     describe('$rerank version warning', function () {
+      const rerankPreferences = {
+        preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }),
+      };
+
       it('should show warning when server < 8.3 and pipeline has $rerank', async function () {
-        await renderPipelineEditor({
-          serverVersion: '8.0.0',
-          pipelineText: '[{ $rerank: {} }]',
-        });
+        await renderPipelineEditor(
+          { serverVersion: '8.0.0', pipelineText: '[{ $rerank: {} }]' },
+          {},
+          {},
+          rerankPreferences
+        );
         expect(screen.getByTestId('pipeline-editor-rerank-version-warning')).to
           .exist;
       });
 
       it('should not show warning when server >= 8.3', async function () {
+        await renderPipelineEditor(
+          { serverVersion: '8.3.0', pipelineText: '[{ $rerank: {} }]' },
+          {},
+          {},
+          rerankPreferences
+        );
+        expect(screen.queryByTestId('pipeline-editor-rerank-version-warning'))
+          .to.not.exist;
+      });
+
+      it('should not show warning when enableRerank is false', async function () {
         await renderPipelineEditor({
-          serverVersion: '8.3.0',
+          serverVersion: '8.0.0',
           pipelineText: '[{ $rerank: {} }]',
         });
         expect(screen.queryByTestId('pipeline-editor-rerank-version-warning'))

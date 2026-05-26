@@ -128,6 +128,8 @@ describe('Logging and Telemetry integration', function () {
         expect(connectionAttempt.properties.count_kms_kmip).to.equal(0);
         expect(connectionAttempt.properties.count_kms_gcp).to.equal(0);
         expect(connectionAttempt.properties.count_kms_aws).to.equal(0);
+        expect(connectionAttempt.properties.user_language).to.be.a('string');
+        expect(connectionAttempt.properties.user_languages).to.be.an('array');
       });
 
       it('tracks an event for screens that were accessed', function () {

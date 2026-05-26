@@ -1385,9 +1385,17 @@ class CrudStoreImpl
    */
   async insertMany() {
     try {
+      const schemaFields = this.fieldStoreService.getSchemaFieldsForNamespace(
+        this.state.ns
+      );
       const docs = HadronDocument.FromEJSONArray(
         this.state.insert.jsonDoc ?? ''
-      ).map((doc) => doc.generateObject());
+      ).map((doc) => {
+        if (schemaFields) {
+          doc.preserveTypesFromSchema(schemaFields);
+        }
+        return doc.generateObject();
+      });
       this.track(
         'Document Inserted',
         {
@@ -1453,12 +1461,28 @@ class CrudStoreImpl
     let doc: BSONObject;
 
     try {
+      const schemaFields = this.fieldStoreService.getSchemaFieldsForNamespace(
+        this.state.ns
+      );
       if (this.state.insert.jsonView) {
-        doc = HadronDocument.FromEJSON(
+        const hadronDoc = HadronDocument.FromEJSON(
           this.state.insert.jsonDoc ?? ''
-        ).generateObject();
+        );
+        if (schemaFields) {
+          hadronDoc.preserveTypesFromSchema(schemaFields);
+        }
+        doc = hadronDoc.generateObject();
       } else {
-        doc = this.state.insert.doc!.generateObject();
+        // Create a fresh document from the current state to avoid mutating
+        // the insert dialog's document in place (which would be a side
+        // effect visible on retry if the insert fails).
+        const hadronDoc = new HadronDocument(
+          this.state.insert.doc!.generateObject()
+        );
+        if (schemaFields) {
+          hadronDoc.preserveTypesFromSchema(schemaFields);
+        }
+        doc = hadronDoc.generateObject();
       }
       await this.dataService.insertOne(this.state.ns, doc);
 
@@ -2273,7 +2297,11 @@ export async function findAndModifyWithFLEFallback(
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 export function parseShellBSON(source: string): BSONObject | BSONObject[] {
-  const parsed = _parseShellBSON(source, { mode: ParseMode.Loose });
+  const parsed = _parseShellBSON(source, {
+    mode: ParseMode.Strict,
+    allowComments: true,
+    allowMethods: true,
+  });
   if (!parsed || typeof parsed !== 'object') {
     // XXX(COMPASS-5689): We've hit the condition in
     // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36

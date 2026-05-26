@@ -98,7 +98,7 @@ export type Signal = {
 
   description: React.ReactNode;
 
-  learnMoreLink: string;
+  learnMoreLink?: string;
 
   /**
    * Optional, default is "Learn more"
@@ -109,6 +109,8 @@ export type Signal = {
    * Optional, will render a primary action button for a signal when provided
    */
   primaryActionButtonLabel?: string;
+
+  primaryActionButtonIsLoading?: boolean;
 
   primaryActionButtonIcon?: string;
 
@@ -180,10 +182,12 @@ const signalCardDescriptionStyles = css({
 const signalCardActionGroupStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
+  gap: spacing[200],
 });
 
 const signalCardActionButtonStyles = css({
   flex: 'none',
+  whiteSpace: 'nowrap',
 });
 
 const signalCardLearnMoreLinkStyles = css({
@@ -204,6 +208,7 @@ const SignalCard: React.FunctionComponent<
   primaryActionButtonLabel,
   primaryActionButtonIcon,
   primaryActionButtonVariant,
+  primaryActionButtonIsLoading,
   primaryActionButtonLink,
   onAssistantButtonClick,
   darkMode: _darkMode,
@@ -231,7 +236,7 @@ const SignalCard: React.FunctionComponent<
       </strong>
       <Body as="div" baseFontSize={13} className={signalCardDescriptionStyles}>
         {description}
-        {onAssistantButtonClick && (
+        {onAssistantButtonClick && learnMoreLink && (
           <>
             {' '}
             <Link
@@ -249,7 +254,7 @@ const SignalCard: React.FunctionComponent<
         )}
       </Body>
       <div className={signalCardActionGroupStyles}>
-        {primaryActionButtonLabel && (
+        {(primaryActionButtonLabel || primaryActionButtonIsLoading) && (
           <Button
             size="small"
             as={primaryActionButtonLink ? 'a' : 'button'}
@@ -258,6 +263,7 @@ const SignalCard: React.FunctionComponent<
             data-testid="insight-signal-primary-action"
             variant={primaryActionButtonVariant ?? 'primaryOutline'}
             className={signalCardActionButtonStyles}
+            isLoading={primaryActionButtonIsLoading}
             leftGlyph={
               primaryActionButtonIcon ? (
                 <Icon glyph={primaryActionButtonIcon}></Icon>
@@ -277,6 +283,7 @@ const SignalCard: React.FunctionComponent<
           <Button
             size="small"
             variant="default"
+            className={signalCardActionButtonStyles}
             leftGlyph={
               // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
               <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
@@ -286,7 +293,7 @@ const SignalCard: React.FunctionComponent<
           >
             Tell me more
           </Button>
-        ) : (
+        ) : learnMoreLink ? (
           <Link
             data-testid="insight-signal-link"
             className={signalCardLearnMoreLinkStyles}
@@ -298,7 +305,7 @@ const SignalCard: React.FunctionComponent<
           >
             {learnMoreLabel ?? 'Learn more'}
           </Link>
-        )}
+        ) : null}
       </div>
     </div>
   );

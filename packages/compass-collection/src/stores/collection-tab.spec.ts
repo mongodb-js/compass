@@ -188,7 +188,7 @@ describe('Collection Tab Content store', function () {
   });
 
   describe('experimentation integration', function () {
-    it('should assign experiment when Atlas metadata is available', async function () {
+    it('should assign mock data generator and search activation program p1 experiments when Atlas metadata is available', async function () {
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
 
       await configureStore(
@@ -199,10 +199,16 @@ describe('Collection Tab Content store', function () {
       );
 
       await waitFor(() => {
-        expect(assignExperiment).to.have.been.calledOnceWith(
+        expect(assignExperiment).to.have.been.calledWith(
           ExperimentTestNames.mockDataGenerator,
           {
             team: 'Atlas Growth',
+          }
+        );
+        expect(assignExperiment).to.have.been.calledWith(
+          ExperimentTestNames.searchActivationProgramP1,
+          {
+            team: 'Search Web Platform',
           }
         );
       });
@@ -233,7 +239,7 @@ describe('Collection Tab Content store', function () {
       expect(assignExperiment).to.not.have.been.called;
     });
 
-    it('should not assign experiment when AI features are disabled at the org level', async function () {
+    it('should not assign mock data generator experiment when AI features are disabled at the org level', async function () {
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
 
       const mockPreferences = new ReadOnlyPreferenceAccess({
@@ -253,7 +259,10 @@ describe('Collection Tab Content store', function () {
 
       // Wait a bit to ensure assignment would have happened if it was going to
       await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
-      expect(assignExperiment).to.not.have.been.called;
+      expect(assignExperiment).to.not.have.been.calledWith(
+        ExperimentTestNames.mockDataGenerator,
+        Sinon.match.any
+      );
 
       // Store should still be functional
       await waitFor(() => {
@@ -276,7 +285,7 @@ describe('Collection Tab Content store', function () {
       );
 
       await waitFor(() => {
-        expect(assignExperiment).to.have.been.calledOnce;
+        expect(assignExperiment).to.have.been.calledTwice;
       });
 
       // Store should still be functional despite assignment error
@@ -287,7 +296,7 @@ describe('Collection Tab Content store', function () {
       });
     });
 
-    it('should not assign experiment for readonly collections', async function () {
+    it('should not assign mock data generator experiment for readonly collections', async function () {
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
 
       await configureStore(
@@ -302,10 +311,13 @@ describe('Collection Tab Content store', function () {
 
       // Wait a bit to ensure assignment would have happened if it was going to
       await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
-      expect(assignExperiment).to.not.have.been.called;
+      expect(assignExperiment).to.not.have.been.calledWith(
+        ExperimentTestNames.mockDataGenerator,
+        Sinon.match.any
+      );
     });
 
-    it('should not assign experiment for time series collections', async function () {
+    it('should not assign mock data generator experiment for time series collections', async function () {
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
 
       await configureStore(
@@ -320,7 +332,10 @@ describe('Collection Tab Content store', function () {
 
       // Wait a bit to ensure assignment would have happened if it was going to
       await new Promise((resolve) => setTimeout(resolve, WAIT_TIME));
-      expect(assignExperiment).to.not.have.been.called;
+      expect(assignExperiment).to.not.have.been.calledWith(
+        ExperimentTestNames.mockDataGenerator,
+        Sinon.match.any
+      );
     });
   });
 
@@ -344,10 +359,12 @@ describe('Collection Tab Content store', function () {
     });
 
     it('should not start schema analysis if collection is read-only', async function () {
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
       await configureStore(
         undefined,
         undefined,
-        undefined,
+        { assignExperiment },
         undefined,
         undefined,
         undefined,
@@ -358,10 +375,12 @@ describe('Collection Tab Content store', function () {
     });
 
     it('should not start schema analysis if collection is time-series', async function () {
+      const assignExperiment = sandbox.spy(() => Promise.resolve(null));
+
       await configureStore(
         undefined,
         undefined,
-        undefined,
+        { assignExperiment },
         undefined,
         undefined,
         undefined,

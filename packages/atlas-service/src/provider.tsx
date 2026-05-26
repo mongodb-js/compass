@@ -9,6 +9,7 @@ import {
   createServiceLocator,
   createServiceProvider,
 } from '@mongodb-js/compass-app-registry';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 const AtlasAuthServiceContext = createContext<AtlasAuthService | null>(null);
 
@@ -38,10 +39,16 @@ export const AtlasServiceProvider: React.FC<{
   const logger = useLogger('ATLAS-SERVICE');
   const preferences = preferencesLocator();
   const authService = atlasAuthServiceLocator();
+  const initialValueOptions = useInitialValue(options);
 
   const atlasService = useMemo(() => {
-    return new AtlasService(authService, preferences, logger, options);
-  }, [authService, preferences, logger, options]);
+    return new AtlasService(
+      authService,
+      preferences,
+      logger,
+      initialValueOptions
+    );
+  }, [authService, preferences, logger, initialValueOptions]);
 
   return (
     <AtlasServiceContext.Provider value={atlasService}>

@@ -81,7 +81,6 @@ const App = () => {
             optInGenAIFeatures: false,
             enableDataModelingCollapse: true,
             enableMyQueries: false,
-            enableMultiplexWebSocketOnWeb: true,
           }}
           history={hashHistory}
         ></CompassWeb>
