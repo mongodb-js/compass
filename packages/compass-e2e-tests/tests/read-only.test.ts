@@ -270,8 +270,6 @@ describe('readOnly: true / Read-Only Edition', function () {
 
     await setReadOnlyFeatureViaSettingsModal(browser, true);
 
-    await browser.focusStageOperator(0);
-
     options = await browser.getStageOperators(0);
 
     expect(options).to.include('$match');

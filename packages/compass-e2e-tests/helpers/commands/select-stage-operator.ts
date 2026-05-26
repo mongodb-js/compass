@@ -1,6 +1,5 @@
 import type { CompassBrowser } from '../compass-browser.ts';
 import * as Selectors from '../selectors.ts';
-import { focusStageOperator } from './focus-stage-operator.ts';
 
 export async function selectStageOperator(
   browser: CompassBrowser,
@@ -10,11 +9,9 @@ export async function selectStageOperator(
   const comboboxSelector = Selectors.stagePickerComboboxInput(index);
   const editorSelector = Selectors.stageValueEditor(index);
 
-  await focusStageOperator(browser, index);
-
   await browser.setComboBoxValue(comboboxSelector, stageOperator);
 
-  // the "select" should now blur and the ace textarea become focused
+  // The "select" should now blur and the input becomes focused.
   await browser.waitUntil(async () => {
     const inputElement = browser.$(comboboxSelector);
     const isFocused = await inputElement.isFocused();
