@@ -1,6 +1,5 @@
 import type { CompassBrowser } from '../compass-browser.ts';
 import * as Selectors from '../selectors.ts';
-import { StageCardAtIndex } from '../selectors.ts';
 
 const STAGE_OPTION_TESTID_PREFIX = 'combobox-option-stage-';
 
