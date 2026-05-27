@@ -161,6 +161,8 @@ const TestComponent: React.FunctionComponent<{
                 hasNonGenuineConnections={hasNonGenuineConnections}
               />
             </DrawerAnchor>
+            {/* Test code, doesn't matter */}
+            {/* eslint-disable-next-line react-hooks/static-components */}
             <FakeStateSetterComponent />
           </MockedProvider>
         </ToolsControllerProvider>

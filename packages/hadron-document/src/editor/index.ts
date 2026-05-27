@@ -10,19 +10,20 @@ import UndefinedEditor from './undefined';
 import ObjectIdEditor from './objectid';
 import UUIDEditor from './uuid';
 import type { Element } from '../element';
+import { type TypeCastTypes } from 'hadron-type-checker';
 
-const init = (element: Element) => ({
-  Standard: new StandardEditor(element),
-  String: new StringEditor(element),
-  Decimal128: new Decimal128Editor(element),
-  Date: new DateEditor(element),
-  Double: new DoubleEditor(element),
-  Int32: new Int32Editor(element),
-  Int64: new Int64Editor(element),
-  Null: new NullEditor(element),
-  Undefined: new UndefinedEditor(element),
-  ObjectId: new ObjectIdEditor(element),
-  UUID: new UUIDEditor(element),
+const init = (element: Element, displayType?: TypeCastTypes) => ({
+  Standard: new StandardEditor(element, displayType),
+  String: new StringEditor(element, displayType),
+  Decimal128: new Decimal128Editor(element, displayType),
+  Date: new DateEditor(element, displayType),
+  Double: new DoubleEditor(element, displayType),
+  Int32: new Int32Editor(element, displayType),
+  Int64: new Int64Editor(element, displayType),
+  Null: new NullEditor(element, displayType),
+  Undefined: new UndefinedEditor(element, displayType),
+  ObjectId: new ObjectIdEditor(element, displayType),
+  UUID: new UUIDEditor(element, displayType),
 });
 
 export const ElementEditor = Object.assign(init, {
@@ -65,3 +66,30 @@ export {
   ObjectIdEditor,
   UUIDEditor,
 };
+
+export function getEditorNameByType(type: TypeCastTypes) {
+  switch (type) {
+    case 'Date':
+    case 'String':
+    case 'Decimal128':
+    case 'Double':
+    case 'Int32':
+    case 'Int64':
+    case 'Null':
+    case 'Undefined':
+    case 'ObjectId':
+      return type;
+    case 'UUID':
+    case 'LegacyJavaUUID':
+    case 'LegacyCSharpUUID':
+    case 'LegacyPythonUUID':
+      return 'UUID';
+    default:
+      return 'Standard';
+  }
+}
+
+export function getEditorByType(type: TypeCastTypes) {
+  const editorName = getEditorNameByType(type);
+  return ElementEditor[`${editorName}Editor`];
+}

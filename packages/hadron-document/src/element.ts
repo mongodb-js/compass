@@ -7,6 +7,7 @@ import ObjectGenerator from './object-generator';
 import TypeChecker, {
   convertBinaryUUID,
   getBsonType,
+  isUUIDType,
 } from 'hadron-type-checker';
 import { Binary, UUID } from 'bson';
 import DateEditor from './editor/date';
@@ -56,25 +57,6 @@ const UNEDITABLE_TYPES = [
 ];
 
 /**
- * UUID type names for Binary subtypes 3 and 4.
- */
-export const UUID_TYPES = [
-  'UUID',
-  'LegacyJavaUUID',
-  'LegacyCSharpUUID',
-  'LegacyPythonUUID',
-] as const;
-
-export type UUIDType = (typeof UUID_TYPES)[number];
-
-/**
- * Type guard to check if a type string is a UUID type.
- */
-export function isUUIDType(type: string): type is UUIDType {
-  return (UUID_TYPES as readonly string[]).includes(type);
-}
-
-/**
  * Type guard to check if a value is a BSON Binary.
  */
 function isBinary(value: unknown): value is Binary {
@@ -115,11 +97,6 @@ export class Element extends EventEmitter {
   decrypted: boolean;
   expanded = false;
   maxVisibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
-  // Display type for the element. This is used by editors to determine
-  // how to display and edit the value. For example, a Binary with subtype 3
-  // might have displayType set to 'LegacyJavaUUID' to indicate it should be
-  // displayed and edited as a Java legacy UUID.
-  displayType?: TypeCastTypes;
 
   /**
    * Cancel any modifications to the element.

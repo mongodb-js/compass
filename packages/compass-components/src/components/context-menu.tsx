@@ -11,6 +11,7 @@ import {
   type ContextMenuWrapperProps,
   contextMenuClassName,
 } from '@mongodb-js/compass-context-menu';
+import { useCurrentValueRef } from '../hooks/use-current-value-ref';
 
 export type {
   ContextMenuItem,
@@ -162,11 +163,12 @@ export function useContextMenuGroups(
       })
     | undefined
   )[],
-  dependencies: React.DependencyList | undefined
+  dependencies: React.DependencyList = []
 ): React.RefCallback<HTMLElement> {
+  const getGroupsCurrentRef = useCurrentValueRef(getGroups);
   const memoizedGroups: ContextMenuItemGroup[] = useMemo(
     () => {
-      const groups = getGroups();
+      const groups = getGroupsCurrentRef.current();
       // Cleanup all undefined fields across items and groups which is used
       // for conditional displaying of groups and items.
       return groups
@@ -181,8 +183,11 @@ export function useContextMenuGroups(
           telemetryLabel,
         }));
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    dependencies
+    // Breaking the rule on purpose here: we're building a hook that works as
+    // react useMemo, so deliberately spreading the `dependencies` (which is not
+    // recommended usually)
+    // eslint-disable-next-line react-hooks/use-memo
+    [getGroupsCurrentRef, ...dependencies]
   );
   const contextMenu = useContextMenu();
   return contextMenu.registerItemGroups(memoizedGroups);

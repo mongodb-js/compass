@@ -100,12 +100,12 @@
   ],
   "overrides": {
     "@mongodb-js/eslint-config-devtools": {
-      "@typescript-eslint/eslint-plugin": "^8.58.0",
-      "@typescript-eslint/parser": "^8.58.0",
+      "@typescript-eslint/eslint-plugin": "^8.59.4",
+      "@typescript-eslint/parser": "^8.59.4",
       "eslint": "^8.57.1",
       "eslint-plugin-jsx-a11y": "^6.10.2",
       "eslint-plugin-react": "^7.37.5",
-      "eslint-plugin-react-hooks": "^7.0.1"
+      "eslint-plugin-react-hooks": "^7.1.1"
     },
     "@mongodb-js/diagramming": {
       "@leafygreen-ui/icon": "^14.9.0",
