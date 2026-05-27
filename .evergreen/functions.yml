@@ -37,7 +37,6 @@ variables:
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
-    GITHUB_TOKEN: ${devtoolsbot_github_token}
     DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID: ${aws_key_evergreen_integrations}
     DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY: ${aws_secret_evergreen_integrations}
     DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
@@ -498,6 +497,11 @@ functions:
         local_file: src/.sbom/${filename}
         remote_file: compass-dev/${revision}_${revision_order_id}/${filename}
   create_static_analysis_report:
+    - command: github.generate_token
+      params:
+        expansion_name: github_generated_token
+        permissions:
+          security_events: read
     - command: shell.exec
       params:
         working_dir: src
@@ -506,7 +510,7 @@ functions:
           <<: *compass-env
           DEBUG: ${debug}
           npm_config_loglevel: ${npm_loglevel}
-          GITHUB_TOKEN: ${devtoolsbot_github_token}
+          GITHUB_TOKEN: ${github_generated_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
           FIRST_PARTY_DEPENDENCY_FILENAMES: ${first_party_dependency_filenames}
         script: |
@@ -525,12 +529,16 @@ functions:
     - command: ec2.assume_role
       params:
         role_arn: ${downloads_bucket_role_arn}
+    - command: github.generate_token
+      params:
+        expansion_name: github_generated_token
     - command: shell.exec
       params:
         working_dir: src
         shell: bash
         env:
           <<: *compass-env
+          GITHUB_TOKEN: ${github_generated_token}
         script: |
           set -e
           # Load environment variables
@@ -715,7 +723,7 @@ functions:
   smoketest-on-github-actions:
     - command: github.generate_token
       params:
-        expansion_name: generated_token
+        expansion_name: github_generated_token
         permissions: # optional
           actions: write
     - command: shell.exec
@@ -727,7 +735,7 @@ functions:
         env:
           <<: *compass-env
           DEBUG: ${debug|}
-          GITHUB_TOKEN: ${generated_token}
+          GITHUB_TOKEN: ${github_generated_token}
           GITHUB_PR_NUMBER: ${github_pr_number}
           EVERGREEN_TASK_URL: https://spruce.mongodb.com/task/${task_id}
         script: |
