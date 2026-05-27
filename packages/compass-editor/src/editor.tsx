@@ -58,6 +58,8 @@ import {
   useDarkMode,
   useEffectOnChange,
   codePalette,
+  useCurrentValueRef,
+  useInitialValue,
 } from '@mongodb-js/compass-components';
 import { javascriptLanguage, javascript } from '@codemirror/lang-javascript';
 import { json } from '@codemirror/lang-json';
@@ -667,16 +669,15 @@ function useCodemirrorExtensionCompartment<T>(
   value: T,
   editorViewRef: React.RefObject<EditorView | undefined>
 ): Extension {
-  const extensionCreatorRef = useRef(fn);
-  extensionCreatorRef.current = fn;
+  const extensionCreatorRef = useCurrentValueRef(fn);
 
-  const compartmentRef = useRef<Compartment>();
-  compartmentRef.current ??= new Compartment();
+  const compartment = useInitialValue<Compartment>(() => {
+    return new Compartment();
+  });
 
-  const initialExtensionRef = useRef<Extension>();
-  initialExtensionRef.current ??= compartmentRef.current.of(
-    extensionCreatorRef.current()
-  );
+  const extensionCompartment = useInitialValue<Extension>(() => {
+    return compartment.of(extensionCreatorRef.current());
+  });
 
   useEffectOnChange(() => {
     if (!editorViewRef.current) {
@@ -688,9 +689,7 @@ function useCodemirrorExtensionCompartment<T>(
     void scheduleDispatch(
       editorViewRef.current,
       {
-        effects: compartmentRef.current?.reconfigure(
-          extensionCreatorRef.current()
-        ),
+        effects: compartment.reconfigure(extensionCreatorRef.current()),
       },
       controller.signal
     );
@@ -699,7 +698,7 @@ function useCodemirrorExtensionCompartment<T>(
       controller.abort();
     };
   }, value);
-  return initialExtensionRef.current;
+  return extensionCompartment;
 }
 
 const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
@@ -744,11 +743,11 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   ref
 ) {
   const darkMode = useDarkMode(_darkMode);
-  const onChangeTextRef = useRef(onChangeText);
-  const onLoadRef = useRef(onLoad);
-  const onFocusRef = useRef(onFocus);
-  const onBlurRef = useRef(onBlur);
-  const onPasteRef = useRef(onPaste);
+  const onChangeTextRef = useCurrentValueRef(onChangeText);
+  const onLoadRef = useCurrentValueRef(onLoad);
+  const onFocusRef = useCurrentValueRef(onFocus);
+  const onBlurRef = useCurrentValueRef(onBlur);
+  const onPasteRef = useCurrentValueRef(onPaste);
   const initialTextProvided = useRef(!!_initialText);
   const initialText = useRef(_initialText ?? text);
   const initialLanguage = useRef(language);
@@ -760,13 +759,6 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     hasScroll: false,
   });
   const initialJSONFoldAll = useRef(_initialJSONFoldAll);
-
-  // Always keep the latest reference of the callbacks
-  onChangeTextRef.current = onChangeText;
-  onLoadRef.current = onLoad;
-  onFocusRef.current = onFocus;
-  onBlurRef.current = onBlur;
-  onPasteRef.current = onPaste;
 
   useImperativeHandle(
     ref,
@@ -1458,8 +1450,7 @@ const MultilineEditor = React.forwardRef<EditorRef, MultilineEditorProps>(
     const containerRef = useRef<HTMLDivElement>(null);
     const editorRef = useRef<EditorRef>(null);
 
-    const onCopyRef = useRef(onCopy);
-    onCopyRef.current = onCopy;
+    const onCopyRef = useCurrentValueRef(onCopy);
 
     useImperativeHandle(
       ref,

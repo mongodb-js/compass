@@ -131,10 +131,10 @@ function WithErrorBoundary({
 
 function useCollectionTabs(props: CollectionMetadata) {
   const pluginTabs = useCollectionSubTabs();
-  const connectionInfoRef = useConnectionInfoRef();
+  const connectionInfo = useConnectionInfo();
   const isGlobalWritesEnabled = usePreference('enableGlobalWrites');
   const isGlobalWritesSupported =
-    useConnectionSupports(connectionInfoRef.current.id, 'globalWrites') &&
+    useConnectionSupports(connectionInfo.id, 'globalWrites') &&
     !props.isReadonly &&
     !toNS(props.namespace).specialish;
   return pluginTabs

@@ -14,6 +14,7 @@ import type {
 import type { OpenWorkspaceOptions } from './stores/workspaces';
 import type { WorkspaceDestroyHandler } from './components/workspace-close-handler';
 import { useRegisterTabDestroyHandler } from './components/workspace-close-handler';
+import { useInitialValue } from '@mongodb-js/compass-components';
 
 function useWorkspacesStore() {
   try {
@@ -355,7 +356,7 @@ export function useOpenWorkspace() {
     openEditViewWorkspace,
   } = useWorkspacesService();
 
-  const openFns = useRef({
+  const openFns = useInitialValue({
     openShellWorkspace,
     openCollectionWorkspace,
     openCollectionsWorkspace,
@@ -366,7 +367,7 @@ export function useOpenWorkspace() {
     openEditViewWorkspace,
   });
 
-  return openFns.current;
+  return openFns;
 }
 
 export function useActiveWorkspace() {
