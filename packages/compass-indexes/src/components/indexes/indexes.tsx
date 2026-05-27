@@ -134,7 +134,6 @@ export function Indexes({
   refreshRegularIndexes,
   refreshSearchIndexes,
 }: IndexesProps) {
-  const track = useTelemetry();
   const [atlasBannerDismissed, setDismissed] = usePersistedState(
     DISMISSED_SEARCH_INDEXES_BANNER_LOCAL_STORAGE_KEY,
     false

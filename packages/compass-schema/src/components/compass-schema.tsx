@@ -394,7 +394,6 @@ const Schema: React.FunctionComponent<{
   onStartAnalysis,
   onStopAnalysis,
 }) => {
-  const track = useTelemetry();
   const onApplyClicked = useCallback(() => {
     void onStartAnalysis();
   }, [onStartAnalysis]);
