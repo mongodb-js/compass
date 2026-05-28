@@ -11,8 +11,8 @@ import {
   configureStore,
   disconnect,
   loadConnections,
-  watchAndPurgeOIDCTokens,
 } from './stores/connections-store-redux';
+import { cloneDeep } from 'lodash';
 import { ConnectionsStoreContext } from './stores/store-context';
 export type { ConnectionFeature } from './utils/connection-supports';
 export { connectionSupports, connectable } from './utils/connection-supports';
@@ -60,7 +60,31 @@ const CompassConnectionsPlugin = registerCompassPlugin(
         }
       });
 
-      addCleanup(store.dispatch(watchAndPurgeOIDCTokens()));
+      addCleanup(
+        preferences.onPreferenceValueChanged(
+          'persistOIDCTokens',
+          async (value) => {
+            if (value !== false) return;
+            let connections;
+            try {
+              connections = await connectionStorage.loadAll();
+            } catch {
+              return;
+            }
+            for (const connectionInfo of connections) {
+              if (!connectionInfo.connectionOptions.oidc?.serializedState)
+                continue;
+              try {
+                const cleaned = cloneDeep(connectionInfo);
+                delete cleaned.connectionOptions.oidc!.serializedState;
+                await connectionStorage.save?.({ connectionInfo: cleaned });
+              } catch {
+                // best-effort: skip connections that fail to save
+              }
+            }
+          }
+        )
+      );
 
       // Stop all connections on disconnect
       addCleanup(() => {

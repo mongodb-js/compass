@@ -693,7 +693,7 @@ describe('CompassConnections store', function () {
     });
   });
 
-  describe('#watchAndPurgeOIDCTokens', function () {
+  describe('OIDC token purge on persistOIDCTokens change', function () {
     it('clears oidcSerializedState from storage when persistOIDCTokens is disabled', async function () {
       const connectionWithOIDC = {
         id: 'oidc-conn',

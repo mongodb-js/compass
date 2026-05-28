@@ -2331,44 +2331,6 @@ export const openSettingsModal = (
   };
 };
 
-const purgeOIDCTokensFromStorage = (): ConnectionsThunkAction<
-  Promise<void>
-> => {
-  return async (_dispatch, _getState, { connectionStorage }) => {
-    let connections: ConnectionInfo[];
-    try {
-      connections = await connectionStorage.loadAll();
-    } catch {
-      return;
-    }
-    for (const connectionInfo of connections) {
-      if (!connectionInfo.connectionOptions.oidc?.serializedState) continue;
-      try {
-        const cleaned = cloneDeep(connectionInfo);
-        delete cleaned.connectionOptions.oidc!.serializedState;
-        await connectionStorage.save?.({ connectionInfo: cleaned });
-      } catch {
-        // best-effort: skip connections that fail to save
-      }
-    }
-  };
-};
-
-export const watchAndPurgeOIDCTokens = (): ConnectionsThunkAction<
-  () => void
-> => {
-  return (dispatch, _getState, { preferences }) => {
-    return preferences.onPreferenceValueChanged(
-      'persistOIDCTokens',
-      (value) => {
-        if (value === false) {
-          void dispatch(purgeOIDCTokensFromStorage());
-        }
-      }
-    );
-  };
-};
-
 export function configureStore(
   preloadConnectionInfos: ConnectionInfo[] | undefined,
   thunkArg: ThunkExtraArg
