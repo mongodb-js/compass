@@ -140,7 +140,7 @@
     "interruptor": true,
     "kerberos": true,
     "keytar": true,
-    "macos-alias": false,
+    "macos-alias": true,
     "macos-export-certificate-and-key": true,
     "mongodb-client-encryption": true,
     "native-machine-id": true,
