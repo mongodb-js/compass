@@ -1,3 +1,5 @@
+// NB: This is a .js file so that webpack can import it without compiling first
+
 module.exports = function (source) {
   if (/node_modules(\/|\\)d3(\1)/.test(this.resourcePath)) {
     // TODO(COMPASS-10644): Our version of d3 uses `this` as a reference to
@@ -10,7 +12,9 @@ module.exports = function (source) {
         /\bthis\.(document|Element|navigator|CSSStyleDeclaration|d3)/g,
         'window.$1'
       )
-      .replace(/\bthis(\[d3_vendorSymbol\()this/, 'window$1window');
+      .replace(/\bthis(\[d3_vendorSymbol\()this/, 'window$1window')
+      // Remove usage of prototype
+      .replace(/{}\.__proto__/, 'false');
   }
   return source;
 };
