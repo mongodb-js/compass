@@ -1,4 +1,4 @@
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   withPreferences,
   usePreference,
@@ -64,7 +64,7 @@ const comboboxStyles = css({
     width: comboxboxOptionsWidth,
     whiteSpace: 'normal',
     // LG centers the popover via floating-ui inline styles; we override to
-    // left-align with the select input using a var set in a useLayoutEffect.
+    // left-align with the select input using a var set in a useEffect.
     left: 'var(--stage-op-popover-left, 0px) !important',
   },
   // We want the user to be able to see multiple stages, so
@@ -72,7 +72,6 @@ const comboboxStyles = css({
   // Note, this is brittle as it relies on LG internals.
   '> :popover-open [role="listbox"]': {
     maxHeight: '450px',
-    overflowY: 'auto',
   },
 });
 
@@ -187,20 +186,15 @@ export const StageOperatorSelect = ({
     (!pipelineIsSearchQueryable || versionIncompatibleCompass);
 
   const containerRef = useRef<HTMLDivElement>(null);
-  useLayoutEffect(() => {
+  useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const updatePopoverPositioning = () => {
-      // We use the left positioning of the container to position the
-      // popover, overriding leafygreen's default centering of options.
-      el.style.setProperty(
-        '--stage-op-popover-left',
-        `${el.getBoundingClientRect().left}px`
-      );
-    };
-    updatePopoverPositioning();
-    window.addEventListener('resize', updatePopoverPositioning);
-    return () => window.removeEventListener('resize', updatePopoverPositioning);
+    // We use the left positioning of the container to position the
+    // popover, overriding leafygreen's default centering of options.
+    el.style.setProperty(
+      '--stage-op-popover-left',
+      `${el.getBoundingClientRect().left}px`
+    );
   }, []);
 
   return (

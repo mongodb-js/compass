@@ -8,16 +8,15 @@ export async function getStageOperators(
   index: number
 ) {
   await browser.focusStageOperator(index);
-  const testids = await browser
-    .$$(Selectors.stageOperatorOptions(index))
-    .map((element) => element.getAttribute('data-testid'));
 
-  const actualOptions = testids
-    .filter(
-      (testid): testid is string =>
-        testid !== null && testid.startsWith(STAGE_OPTION_TESTID_PREFIX)
-    )
-    .map((testid) => testid.slice(STAGE_OPTION_TESTID_PREFIX.length));
+  const options = await browser
+    .$$(`[data-testid^="${STAGE_OPTION_TESTID_PREFIX}"]`)
+    .map((el) => el.getAttribute('data-testid'));
+
+  const actualOptions = (options.filter(Boolean) as string[]).map((id) =>
+    id.slice(STAGE_OPTION_TESTID_PREFIX.length)
+  );
+
   actualOptions.sort();
 
   // Unfocus the stage select operator.
