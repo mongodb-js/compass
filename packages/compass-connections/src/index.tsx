@@ -61,10 +61,9 @@ const CompassConnectionsPlugin = registerCompassPlugin(
       });
 
       addCleanup(
-        preferences.onPreferenceValueChanged(
-          'persistOIDCTokens',
-          async (value) => {
-            if (value !== false) return;
+        preferences.onPreferenceValueChanged('persistOIDCTokens', (value) => {
+          if (value !== false) return;
+          void (async () => {
             let connections;
             try {
               connections = await connectionStorage.loadAll();
@@ -82,8 +81,8 @@ const CompassConnectionsPlugin = registerCompassPlugin(
                 // best-effort: skip connections that fail to save
               }
             }
-          }
-        )
+          })();
+        })
       );
 
       // Stop all connections on disconnect
