@@ -10,6 +10,7 @@ import { css, spacing } from '../..';
 const footerStyles = css({
   display: 'flex',
   justifyContent: 'flex-end',
+  alignItems: 'center',
   gap: spacing[200],
 });
 
@@ -29,6 +30,7 @@ type FormModalProps = React.ComponentProps<typeof Modal> & {
   submitDisabled?: boolean;
   scroll?: boolean;
   minBodyHeight?: number;
+  footerContent?: React.ReactNode;
   onSubmit: () => void;
   onCancel: () => void;
 };
@@ -42,6 +44,7 @@ function FormModal({
   variant = Variant.Default,
   scroll = true,
   minBodyHeight,
+  footerContent,
   onSubmit,
   onCancel,
   children,
@@ -60,6 +63,7 @@ function FormModal({
           {children}
         </ModalBody>
         <ModalFooter className={footerStyles}>
+          {footerContent}
           <Button
             data-testid="cancel-button"
             onClick={onCancel}

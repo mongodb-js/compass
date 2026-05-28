@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 
 import {
   FormModal,
+  Banner,
+  BannerVariant,
   css,
   spacing,
   focusRing,
@@ -19,7 +21,12 @@ import FeaturePreviewSettings, {
 } from './settings/feature-preview';
 import Sidebar from './sidebar';
 import type { SettingsTabId } from '../stores/settings';
-import { saveSettings, closeModal, selectTab } from '../stores/settings';
+import {
+  saveSettings,
+  closeModal,
+  selectTab,
+  selectWillPurgeOIDCTokens,
+} from '../stores/settings';
 import type { RootState } from '../stores';
 import { useHasAIFeatureCloudRolloutAccess } from 'compass-preferences-model/provider';
 
@@ -38,6 +45,7 @@ type SettingsModalProps = {
   onSave: () => void;
   onSelectTab: (tab: SettingsTabId) => void;
   hasChangedSettings: boolean;
+  willPurgeOIDCTokens?: boolean;
 };
 
 const contentStyles = css({
@@ -69,6 +77,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   onSelectTab,
   isOIDCEnabled,
   hasChangedSettings,
+  willPurgeOIDCTokens,
 }) => {
   const aiFeatureHasCloudRolloutAccess = useHasAIFeatureCloudRolloutAccess();
   const onMountRef = useRef(onMount);
@@ -127,6 +136,13 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       onCancel={onClose}
       data-testid="settings-modal"
       minBodyHeight={spacing[1600] * 2}
+      footerContent={
+        willPurgeOIDCTokens ? (
+          <Banner variant={BannerVariant.Info}>
+            Existing tokens will be purged after save.
+          </Banner>
+        ) : undefined
+      }
     >
       <div className={contentStyles}>
         <div className={sideNavStyles}>
@@ -159,6 +175,7 @@ export default connect(
       isOIDCEnabled: !!state.settings.settings.enableOidc,
       hasChangedSettings: state.settings.updatedFields.length > 0,
       selectedTab: state.settings.tab,
+      willPurgeOIDCTokens: selectWillPurgeOIDCTokens(state),
     };
   },
   {

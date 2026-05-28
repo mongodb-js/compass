@@ -11,6 +11,7 @@ import {
   configureStore,
   disconnect,
   loadConnections,
+  watchAndPurgeOIDCTokens,
 } from './stores/connections-store-redux';
 import { ConnectionsStoreContext } from './stores/store-context';
 export type { ConnectionFeature } from './utils/connection-supports';
@@ -58,6 +59,8 @@ const CompassConnectionsPlugin = registerCompassPlugin(
           );
         }
       });
+
+      addCleanup(store.dispatch(watchAndPurgeOIDCTokens()));
 
       // Stop all connections on disconnect
       addCleanup(() => {
