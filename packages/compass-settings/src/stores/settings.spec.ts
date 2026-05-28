@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { fetchSettings, changeFieldValue, saveSettings } from './settings';
+import {
+  fetchSettings,
+  changeFieldValue,
+  saveSettings,
+  selectWillPurgeOIDCTokens,
+} from './settings';
 import configureStore from '../../test/configure-store';
 
 describe('Settings store actions', function () {
@@ -87,6 +92,91 @@ describe('Settings store actions', function () {
       await store.dispatch(saveSettings() as any);
       expect(preferencesSandbox.applySandboxChangesToPreferences).to.have.been
         .calledOnce;
+    });
+  });
+
+  describe('selectWillPurgeOIDCTokens', function () {
+    it('returns false while settings are still loading', function () {
+      const store = configureStore({ preferencesSandbox });
+      expect(selectWillPurgeOIDCTokens(store.getState())).to.be.false;
+    });
+
+    it('returns false when persistOIDCTokens was already false when modal opened', async function () {
+      const sandbox = {
+        ...preferencesSandbox,
+        getSandboxState: sinonSandbox.stub().resolves({
+          userPreferences: { persistOIDCTokens: false },
+          preferenceStates: {},
+          updatedFields: [],
+        }),
+      };
+      const store = configureStore({ preferencesSandbox: sandbox });
+      await store.dispatch(fetchSettings() as any);
+      expect(selectWillPurgeOIDCTokens(store.getState())).to.be.false;
+    });
+
+    it('returns false when persistOIDCTokens is true and unchanged', async function () {
+      const sandbox = {
+        ...preferencesSandbox,
+        getSandboxState: sinonSandbox.stub().resolves({
+          userPreferences: { persistOIDCTokens: true },
+          preferenceStates: {},
+          updatedFields: [],
+        }),
+      };
+      const store = configureStore({ preferencesSandbox: sandbox });
+      await store.dispatch(fetchSettings() as any);
+      expect(selectWillPurgeOIDCTokens(store.getState())).to.be.false;
+    });
+
+    it('returns true immediately (synchronously) when user unchecks persistOIDCTokens', async function () {
+      const sandbox = {
+        ...preferencesSandbox,
+        getSandboxState: sinonSandbox.stub().resolves({
+          userPreferences: { persistOIDCTokens: true },
+          preferenceStates: {},
+          updatedFields: [],
+        }),
+      };
+      const store = configureStore({ preferencesSandbox: sandbox });
+      await store.dispatch(fetchSettings() as any);
+
+      // Do NOT await — ChangeFieldValue fires synchronously before the async sandbox call
+      void store.dispatch(changeFieldValue('persistOIDCTokens', false) as any);
+
+      expect(selectWillPurgeOIDCTokens(store.getState())).to.be.true;
+    });
+
+    it('returns false again if user re-checks persistOIDCTokens', async function () {
+      const sandbox = {
+        ...preferencesSandbox,
+        getSandboxState: sinonSandbox
+          .stub()
+          .onFirstCall()
+          .resolves({
+            userPreferences: { persistOIDCTokens: true },
+            preferenceStates: {},
+            updatedFields: [],
+          })
+          .resolves({
+            userPreferences: { persistOIDCTokens: false },
+            preferenceStates: {},
+            updatedFields: ['persistOIDCTokens'],
+          }),
+      };
+      const store = configureStore({ preferencesSandbox: sandbox });
+      await store.dispatch(fetchSettings() as any);
+      await store.dispatch(changeFieldValue('persistOIDCTokens', false) as any);
+      expect(selectWillPurgeOIDCTokens(store.getState())).to.be.true;
+
+      // Re-check the box — the sandbox now returns true again
+      sandbox.getSandboxState.resolves({
+        userPreferences: { persistOIDCTokens: true },
+        preferenceStates: {},
+        updatedFields: [],
+      });
+      await store.dispatch(changeFieldValue('persistOIDCTokens', true) as any);
+      expect(selectWillPurgeOIDCTokens(store.getState())).to.be.false;
     });
   });
 });

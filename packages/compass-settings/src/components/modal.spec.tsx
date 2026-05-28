@@ -73,6 +73,20 @@ describe('SettingsModal', function () {
     });
   });
 
+  it('shows purge warning banner when willPurgeOIDCTokens is true', async function () {
+    renderSettingsModal({ isOpen: true, willPurgeOIDCTokens: true });
+    await waitFor(() => {
+      expect(screen.getByText('Existing tokens will be purged after save.')).to
+        .exist;
+    });
+  });
+
+  it('does not show purge banner when willPurgeOIDCTokens is false', function () {
+    renderSettingsModal({ isOpen: true });
+    expect(screen.queryByText('Existing tokens will be purged after save.')).to
+      .not.exist;
+  });
+
   it('navigates between settings', async function () {
     renderSettingsModal({ isOpen: true });
 
