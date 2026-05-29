@@ -67,7 +67,13 @@ const CompassConnectionsPlugin = registerCompassPlugin(
             let connections;
             try {
               connections = await connectionStorage.loadAll();
-            } catch {
+            } catch (err) {
+              logger.log.warn(
+                logger.mongoLogId(1_001_000_357),
+                'Connection Storage',
+                'Failed to load connections when purging OIDC tokens',
+                { error: (err as Error).message }
+              );
               return;
             }
             for (const connectionInfo of connections) {
@@ -77,8 +83,16 @@ const CompassConnectionsPlugin = registerCompassPlugin(
                 const cleaned = cloneDeep(connectionInfo);
                 delete cleaned.connectionOptions.oidc!.serializedState;
                 await connectionStorage.save?.({ connectionInfo: cleaned });
-              } catch {
-                // best-effort: skip connections that fail to save
+              } catch (err) {
+                logger.log.warn(
+                  logger.mongoLogId(1_001_000_358),
+                  'Connection Storage',
+                  'Failed to purge OIDC tokens from connection',
+                  {
+                    connectionId: connectionInfo.id,
+                    error: (err as Error).message,
+                  }
+                );
               }
             }
           })();
