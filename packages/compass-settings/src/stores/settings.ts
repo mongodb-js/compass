@@ -1,5 +1,5 @@
 import type { Action, AnyAction, Reducer } from 'redux';
-import type { SettingsThunkAction, RootState } from '.';
+import type { SettingsThunkAction } from '.';
 import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
@@ -18,14 +18,12 @@ export type State = { isModalOpen: boolean; tab: undefined | SettingsTabId } & (
   | {
       loadingState: 'loading';
       settings: Record<string, never>;
-      savedSettings: Record<string, never>;
       preferenceStates: Record<string, never>;
       updatedFields: never[];
     }
   | {
       loadingState: 'ready';
       settings: UserConfigurablePreferences;
-      savedSettings: UserConfigurablePreferences;
       preferenceStates: PreferenceStateInformation;
       updatedFields: (keyof UserConfigurablePreferences)[];
     }
@@ -34,7 +32,6 @@ export type State = { isModalOpen: boolean; tab: undefined | SettingsTabId } & (
 export const INITIAL_STATE: State = {
   isModalOpen: false,
   settings: {},
-  savedSettings: {},
   preferenceStates: {},
   updatedFields: [],
   loadingState: 'loading',
@@ -154,14 +151,6 @@ export const reducer: Reducer<State, Action> = (
       ...state,
       loadingState: 'ready',
       settings: action.settings,
-      // Only capture savedSettings on the initial load (loading → ready).
-      // Subsequent syncs after field changes must not overwrite this snapshot,
-      // because the selector compares draft vs. saved to decide when to show
-      // the purge banner without depending on the async updatedFields update.
-      savedSettings:
-        state.loadingState === 'loading'
-          ? action.settings
-          : state.savedSettings,
       preferenceStates: action.preferenceStates,
       updatedFields: action.updatedFields,
     };
@@ -273,14 +262,6 @@ export const closeModal = (): SettingsThunkAction<
   return (dispatch) => {
     dispatch({ type: ActionTypes.CloseSettingsModal });
   };
-};
-
-export const selectWillPurgeOIDCTokens = (state: RootState): boolean => {
-  if (state.settings.loadingState !== 'ready') return false;
-  return (
-    state.settings.settings.persistOIDCTokens === false &&
-    state.settings.savedSettings.persistOIDCTokens === true
-  );
 };
 
 export const saveSettings = (): SettingsThunkAction<

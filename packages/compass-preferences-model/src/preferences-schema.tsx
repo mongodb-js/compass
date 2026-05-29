@@ -802,7 +802,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Stay logged in with OIDC',
-      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism for MongoDB server connection. Access tokens are encrypted using the system keychain before being stored.',
+      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism for MongoDB server connection. Access tokens are encrypted using the system keychain before being stored. Disabling this option will remove currently stored tokens.',
     },
     validator: z.boolean().default(true),
     type: 'boolean',
