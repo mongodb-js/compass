@@ -69,7 +69,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
               connections = await connectionStorage.loadAll();
             } catch (err) {
               logger.log.warn(
-                logger.mongoLogId(1_001_000_357),
+                logger.mongoLogId(1_001_000_431),
                 'Connection Storage',
                 'Failed to load connections when purging OIDC tokens',
                 { error: (err as Error).message }
@@ -85,7 +85,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
                 await connectionStorage.save?.({ connectionInfo: cleaned });
               } catch (err) {
                 logger.log.warn(
-                  logger.mongoLogId(1_001_000_358),
+                  logger.mongoLogId(1_001_000_432),
                   'Connection Storage',
                   'Failed to purge OIDC tokens from connection',
                   {
