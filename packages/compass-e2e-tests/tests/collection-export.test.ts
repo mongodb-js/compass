@@ -588,6 +588,9 @@ describe('Collection export', function () {
       let unsubscribeAllowWarningsFilter: () => void | undefined;
 
       before(function () {
+        // TODO(COMPASS-10717): On macos-arm the native file picker blocks selecting the DOM
+        // and pseudo element that is part of the abort toast is not selectable
+        // We can possibly make this work by manually dispatching MouseEvents
         if (process.platform === 'darwin' && process.arch === 'arm64') {
           this.skip();
         }
