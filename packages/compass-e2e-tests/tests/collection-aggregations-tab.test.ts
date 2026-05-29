@@ -603,7 +603,6 @@ describe('Collection aggregations tab', function () {
 
     await addStage(browser, 2);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -768,7 +767,6 @@ describe('Collection aggregations tab', function () {
 
     await addStage(browser, 2);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -818,7 +816,6 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.AddStageButton);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -882,7 +879,6 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.AddStageButton);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -973,7 +969,6 @@ describe('Collection aggregations tab', function () {
 
     // Add second $limit stage
     await browser.clickVisible(Selectors.AddStageButton);
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$limit');
     await browser.setCodemirrorEditorValue(Selectors.stageEditor(1), '25');
 
