@@ -135,7 +135,7 @@
     "esbuild": false,
     "es5-ext": false,
     "fsevents": false,
-    "fs-xattr": false,
+    "fs-xattr": true,
     "geckodriver": false,
     "interruptor": true,
     "kerberos": true,
