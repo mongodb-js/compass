@@ -37,7 +37,7 @@ jobs:
       - name: 'Use Node.js'
         uses: actions/setup-node@v4
         with:
-          node-version: 24.15.0
+          node-version: 24.16.0
 
       - name: Install npm@11.16.0
         run: npm install -g npm@11.16.0
