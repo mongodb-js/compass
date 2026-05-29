@@ -28,7 +28,9 @@ export async function setComboBoxValue(
     `[id="${controlledMenuId}"][role="listbox"]`
   );
   await comboboxListSelectorElement.waitForDisplayed();
-  await browser.setValueVisible(comboboxInputSelector, comboboxValue);
+  await browser.setValueVisible(comboboxInputSelector, comboboxValue, {
+    skipFocus: true,
+  });
   await browser.clickVisible(
     comboboxListSelectorElement.$(
       // Handle existing as well as new values

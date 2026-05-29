@@ -63,7 +63,7 @@
     "@mongodb-js/compass-telemetry": "^1.29.1",
     "@mongodb-js/connection-info": "^0.27.4",
     "@mongodb-js/workspace-info": "^1.8.1",
-    "@mongosh/service-provider-node-driver": "^5.0.8",
+    "@mongosh/service-provider-node-driver": "^5.0.11",
     "ai": "^6.0.3",
     "bson": "^7.2.0",
     "compass-preferences-model": "^2.76.1",

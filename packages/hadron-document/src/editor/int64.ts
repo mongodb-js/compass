@@ -1,22 +1,12 @@
 import TypeChecker from 'hadron-type-checker';
 import { ElementEvents } from '../element-events';
 import StandardEditor from './standard';
-import type { Element } from '../element';
 import type { BSONValue } from '../utils';
 
 /**
  * CRUD editor for int32 values.
  */
 export default class Int64Editor extends StandardEditor {
-  /**
-   * Create the editor with the element.
-   *
-   * @param {Element} element - The hadron document element.
-   */
-  constructor(element: Element) {
-    super(element);
-  }
-
   /**
    * Complete the int64 edit by converting the valid string to a int64
    * value or leaving as invalid.

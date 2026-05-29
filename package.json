@@ -87,7 +87,7 @@
   },
   "engines": {
     "node": ">=24.15.0",
-    "npm": ">=11.13.0"
+    "npm": ">=11.16.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
@@ -100,12 +100,12 @@
   ],
   "overrides": {
     "@mongodb-js/eslint-config-devtools": {
-      "@typescript-eslint/eslint-plugin": "^8.58.0",
-      "@typescript-eslint/parser": "^8.58.0",
+      "@typescript-eslint/eslint-plugin": "^8.60.0",
+      "@typescript-eslint/parser": "^8.60.0",
       "eslint": "^8.57.1",
       "eslint-plugin-jsx-a11y": "^6.10.2",
       "eslint-plugin-react": "^7.37.5",
-      "eslint-plugin-react-hooks": "^7.0.1"
+      "eslint-plugin-react-hooks": "^7.1.1"
     },
     "@mongodb-js/diagramming": {
       "@leafygreen-ui/icon": "^14.9.0",
@@ -124,5 +124,32 @@
     "qs": "^6.14.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
+  },
+  "allowScripts": {
+    "aws-sdk": false,
+    "core-js": false,
+    "cpu-features": true,
+    "electron": true,
+    "edgedriver": false,
+    "electron-winstaller": true,
+    "esbuild": false,
+    "es5-ext": false,
+    "fsevents": false,
+    "fs-xattr": true,
+    "geckodriver": false,
+    "interruptor": true,
+    "kerberos": true,
+    "keytar": true,
+    "macos-alias": true,
+    "macos-export-certificate-and-key": true,
+    "mongodb-client-encryption": true,
+    "native-machine-id": true,
+    "nx": false,
+    "os-dns-native": true,
+    "ssh2": true,
+    "tesseract.js": false,
+    "@modelcontextprotocol/ext-apps": false,
+    "@parcel/watcher": false,
+    "core-js-pure": false
   }
 }

@@ -1,7 +1,7 @@
 import browserslist from 'browserslist';
 import MiniCssExtractPlugin from 'mini-css-extract-plugin';
 import { execSync } from 'child_process';
-
+import path from 'path';
 import type { ConfigArgs } from './args';
 import { shouldEnableHotReload } from './args';
 import chalk from 'chalk';
@@ -50,6 +50,13 @@ npm i -S -w @mongodb-js/webpack-config-compass browserslist@latest`;
     return 'last 1 electron version';
   }
 })();
+
+export const patchesLoader = (_args: ConfigArgs) => ({
+  test: /\.(m?js|c?jsx?|tsx?)$/,
+  use: {
+    loader: path.join(__dirname, '..', 'loaders', 'patch-d3-loader.js'),
+  },
+});
 
 /**
  * "Cloud Manager can be accessed on your computer through Chrome, Firefox, Safari and Edge. We no longer support IE."

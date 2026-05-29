@@ -74,9 +74,9 @@ jobs:
           node-version: 24.15.0
           cache: 'npm'
 
-      - name: Install npm@11.13.0
+      - name: Install npm@11.16.0
         run: |
-          npm install -g npm@11.13.0
+          npm install -g npm@11.16.0
 
       - name: Install dependencies
         run: |
@@ -124,8 +124,9 @@ jobs:
             <p>This PR is automatically generated and updates the versions of
             the dependency group ${{ matrix.group_name }} to latest version.</p>
 
-            <p>If CI is green on this patch you should feel free to merge it at
-            your convenience.</p>
+            <p>If CI is green on this patch or you just see some known flaky
+            tasks failing, just leave it as-is: the bot will either trigger a
+            restart for the tasks or will automerge it later</p>
 
             <p>If CI is red and you think that failures are related to the
             version updates, you should raise an issue, so that it can be

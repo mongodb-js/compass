@@ -1,3 +1,4 @@
+import { useInitialValue } from '@mongodb-js/compass-components';
 import React, {
   useCallback,
   useContext,
@@ -169,17 +170,17 @@ export function useTabState<S>(
   key: string,
   initialState: S | (() => S)
 ): [S, SetState<S>] {
-  const keyRef = useRef(key);
-  const tabIdRef = useRef(useWorkspaceTabId());
-  const storeRef = useRef(
+  const initialKey = useInitialValue(key);
+  const initialTabId = useInitialValue(useWorkspaceTabId());
+  const initialStore = useInitialValue(
     (() => {
       try {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         return useStore();
       } catch (err) {
         // This will throw when Redux provider is not available in the React
-        // context. In that case, if we are in the test environment we'll create
-        // a new store instance to make sure that state changes are not actually
+        // context. In that case, if we are in the test environment we'll create a
+        // new store instance to make sure that state changes are not actually
         // persisted between test suites but the tests are still able to run
         if (
           process.env.NODE_ENV === 'test' &&
@@ -193,31 +194,40 @@ export function useTabState<S>(
       }
     })()
   );
-  const setState: SetState<S> = useCallback((newState) => {
-    const newVal =
-      typeof newState === 'function'
-        ? (newState as (prevState: S) => S)(
-            selectTabState<S>(
-              storeRef.current.getState(),
-              tabIdRef.current,
-              keyRef.current
+  const setState: SetState<S> = useCallback(
+    (newState) => {
+      const newVal =
+        typeof newState === 'function'
+          ? (newState as (prevState: S) => S)(
+              selectTabState<S>(
+                initialStore.getState(),
+                initialTabId,
+                initialKey
+              )
             )
-          )
-        : newState;
-    storeRef.current.dispatch({
-      type: SET_STATE,
-      tabId: tabIdRef.current,
-      stateId: keyRef.current,
-      value: newVal,
-    });
-  }, []);
+          : newState;
+      initialStore.dispatch({
+        type: SET_STATE,
+        tabId: initialTabId,
+        stateId: initialKey,
+        value: newVal,
+      });
+    },
+    [initialKey, initialStore, initialTabId]
+  );
   const handledInitialState = useRef(false);
+  // We're trying really hard to avoid doing extra re-rendering here, while in
+  // most cases using ref values in render directly is heavily discouraged due
+  // to the state might not be what is expected, in this particular case we know
+  // exactly what we're doing
+  /* eslint-disable react-hooks/refs */
   if (handledInitialState.current === false) {
     handledInitialState.current = true;
+    /* eslint-enable react-hooks/refs */
     if (
       !Object.prototype.hasOwnProperty.call(
-        storeRef.current.getState()[tabIdRef.current] ?? {},
-        keyRef.current
+        initialStore.getState()[initialTabId] ?? {},
+        initialKey
       )
     ) {
       // NB: This might look like it breaks the rules of hooks because we are
@@ -228,10 +238,6 @@ export function useTabState<S>(
       setState(initialState);
     }
   }
-  const state = useTabStateSelector<S>(
-    tabIdRef.current,
-    keyRef.current,
-    storeRef.current
-  );
+  const state = useTabStateSelector<S>(initialTabId, initialKey, initialStore);
   return [state, setState];
 }

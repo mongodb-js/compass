@@ -1,5 +1,4 @@
 import StandardEditor from './standard';
-import type { Element } from '../element';
 
 /**
  * Null is always 'null'
@@ -10,15 +9,6 @@ const VALUE = 'null';
  * CRUD editor for null values.
  */
 export default class NullEditor extends StandardEditor {
-  /**
-   * Create the editor with the element.
-   *
-   * @param {Element} element - The hadron document element.
-   */
-  constructor(element: Element) {
-    super(element);
-  }
-
   /**
    * Get the number of characters the value should display.
    *

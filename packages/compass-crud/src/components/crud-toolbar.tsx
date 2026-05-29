@@ -1,9 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import {
-  useTelemetry,
-  SkillsBannerContextEnum,
-  useAtlasSkillsBanner,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 import {
   Body,
@@ -20,8 +16,6 @@ import {
   Option,
   SignalPopover,
   useContextMenuGroups,
-  usePersistedState,
-  AtlasSkillsBanner,
   Tooltip,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
@@ -213,15 +207,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const isImportExportEnabled = usePreference('enableImportExport');
-  const [dismissed, setDismissed] = usePersistedState(
-    'mongodb_compass_dismissedAtlasDocSkillBanner',
-    false
-  );
-
-  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
-  const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
-    SkillsBannerContextEnum.Documents
-  );
 
   const onClickRefreshDocuments = useCallback(() => {
     track('Query Results Refreshed', {}, connectionInfoRef.current);
@@ -345,23 +330,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           showExplainButton={enableExplainPlan}
         />
       </div>
-
-      <AtlasSkillsBanner
-        ctaText="Practice creating, reading, updating, and deleting documents efficiently."
-        skillsUrl="https://learn.mongodb.com/courses/crud-operations-in-mongodb?team=growth"
-        onCloseSkillsBanner={() => {
-          setDismissed(true);
-          track('Atlas Skills CTA Dismissed', {
-            context: 'Documents Tab',
-          });
-        }}
-        showBanner={shouldShowAtlasSkillsBanner && !dismissed}
-        onCtaClick={() => {
-          track('Atlas Skills CTA Clicked', {
-            context: 'Documents Tab',
-          });
-        }}
-      />
 
       <div className={crudBarStyles}>
         <div className={toolbarLeftActionStyles}>

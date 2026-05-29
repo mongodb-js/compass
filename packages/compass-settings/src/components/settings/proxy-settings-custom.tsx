@@ -4,10 +4,11 @@ import {
   FormFieldContainer,
   Label,
   TextInput,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import type { DevtoolsProxyOptions } from 'compass-preferences-model';
 import type { ChangeEvent } from 'react';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 function errorToString(err: unknown): string {
   return err && typeof err === 'object' && 'message' in err
@@ -72,17 +73,21 @@ export const ProxySettingsCustom: React.FunctionComponent<
   // Sync between the external (settings) state containing just a URL
   // to represent these options, and the component-internal state
   // that uses different fields to represent the different part of the URL.
-  const [customProxyOptions, _setCustomProxyOptions] = useState(
-    customProxyOptionsForFullURL(proxyOptions.proxy)
-  );
-  useEffect(() => {
-    if (
-      !proxyOptions.proxy ||
-      fullURLForCustomProxyOptions(customProxyOptions) !== proxyOptions.proxy
-    ) {
-      _setCustomProxyOptions(customProxyOptionsForFullURL(proxyOptions.proxy));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  const [customProxyOptions, _setCustomProxyOptions] = useState(() => {
+    return customProxyOptionsForFullURL(proxyOptions.proxy);
+  });
+  useSyncStateOnPropChange(() => {
+    _setCustomProxyOptions((currentCustomOptions) => {
+      if (
+        !proxyOptions.proxy ||
+        fullURLForCustomProxyOptions(currentCustomOptions) !==
+          proxyOptions.proxy
+      ) {
+        return customProxyOptionsForFullURL(proxyOptions.proxy);
+      }
+
+      return currentCustomOptions;
+    });
   }, [proxyOptions.proxy]);
 
   const setCustomProxyOptions = useCallback(

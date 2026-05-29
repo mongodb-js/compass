@@ -48,7 +48,8 @@ export function createWorkerRuntime(
   dataService: DataService,
   log: MongoLogWriter,
   track: TrackFunction,
-  connectionInfo: ConnectionInfoRef
+  connectionInfo: ConnectionInfoRef,
+  deviceId: string
 ): (typeof WorkerRuntime)['prototype'] {
   const emitter = new EventEmitter();
 
@@ -73,6 +74,7 @@ export function createWorkerRuntime(
         return Promise.resolve(); // not needed
       },
     },
+    deviceId,
     userTraits: {
       platform: process.platform,
       arch: process.arch,
