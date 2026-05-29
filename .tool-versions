@@ -2,4 +2,4 @@
 # mms uses it as well.
 # This Node.js version matches the one required in
 # the "engines" in the package.json.
-nodejs 24.16.0
+nodejs 24.15.0
