@@ -397,6 +397,8 @@ export async function updateManifest(dryRun: boolean): Promise<void> {
     });
 
   if (!dryRun) {
+    // NB: This will also validate the schema and that download_link assets
+    // exist before updating
     await uploadManifest(newManifest);
   }
 }
