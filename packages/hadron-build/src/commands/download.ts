@@ -3,33 +3,31 @@ import Target from '../lib/target';
 import { downloadAssetFromEvergreen } from '../lib/download-center';
 import { getBuildAttestations } from '../lib/build-attestations';
 import createCLI from 'mongodb-js-cli';
+import type { Argv, CommandModule } from 'yargs';
+import type { BuilderCallbackParsedArgs } from './utils';
 
 const cli = createCLI('hadron-build:download');
 const root = path.resolve(__dirname, '..', '..', '..');
 
-export const command = 'download [options]';
-
-export const describe = 'Download all `release` assets from evergreen bucket';
-
-export const builder = {
-  dir: {
-    description: 'Project root directory',
-    default: process.cwd(),
-  },
-  version: {
-    description: 'Target version',
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    default: require(path.join(process.cwd(), 'package.json'))
-      .version as string,
-  },
-};
-
-interface DownloadArgv {
-  dir: string;
-  version: string;
+type DownloadArgv = BuilderCallbackParsedArgs<
+  typeof buildDownloadCommandOptions
+>;
+function buildDownloadCommandOptions(yargs: Argv) {
+  return yargs.options({
+    dir: {
+      description: 'Project root directory',
+      default: process.cwd(),
+    },
+    version: {
+      description: 'Target version',
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      default: require(path.join(process.cwd(), 'package.json'))
+        .version as string,
+    },
+  });
 }
 
-export const run = async function run(argv: DownloadArgv): Promise<void> {
+const handler = async (argv: DownloadArgv): Promise<void> => {
   argv.version = argv.version.replace(/^v/, '');
 
   const assets = Target.getAssetsForVersion(argv.dir, argv.version);
@@ -58,9 +56,9 @@ export const run = async function run(argv: DownloadArgv): Promise<void> {
   return Promise.all(downloads).then(() => undefined);
 };
 
-export const handler = async function handler(
-  argv: DownloadArgv
-): Promise<void> {
-  cli.argv = argv;
-  await run(argv);
+export const downloadCommand: CommandModule<unknown, DownloadArgv> = {
+  command: 'download [options]',
+  describe: 'Download all `release` assets from evergreen bucket',
+  builder: buildDownloadCommandOptions,
+  handler,
 };

@@ -1,4 +1,4 @@
-import { handler } from './release';
+import { releaseCommand } from './release';
 import fs from 'fs/promises';
 import plist from 'plist';
 import assert from 'assert';
@@ -25,7 +25,11 @@ describe.skip('hadron-build::release', function () {
     target = getConfig();
     // TODO: this is not correct here. When unskipping this suite, this
     // will be resolved!
-    await handler(target);
+    await releaseCommand.handler({
+      dir: target.dir,
+      version: target.version,
+      skip_installer: true,
+    } as never);
   });
 
   it('should symlink `Electron` to the app binary on OS X', async function () {

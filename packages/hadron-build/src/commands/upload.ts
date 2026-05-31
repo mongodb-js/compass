@@ -17,6 +17,35 @@ import {
 } from '../lib/download-center';
 import { getBuildAttestations } from '../lib/build-attestations';
 import createCLI from 'mongodb-js-cli';
+import type { Argv, CommandModule } from 'yargs';
+import type { BuilderCallbackParsedArgs } from './utils';
+
+type UploadArgv = BuilderCallbackParsedArgs<typeof buildUploadCommandOptions>;
+function buildUploadCommandOptions(yargs: Argv) {
+  return yargs.options({
+    dir: {
+      description: 'Project root directory',
+      default: process.cwd(),
+    },
+    version: {
+      description: 'Target version',
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      default: require(path.join(process.cwd(), 'package.json'))
+        .version as string,
+    },
+    manifest: {
+      description:
+        'Upload download center manifest update for the target version (NOTE: This will will replace existing version for the channel with the provided one for all existing and newly added assets)',
+      default: false,
+    },
+    dryRun: {
+      alias: 'dry-run',
+      description:
+        'Does everything the real script will do without actually publishing assets to GH / download center',
+      default: process.env.npm_config_dry_run === 'true',
+    },
+  });
+}
 
 type OctokitListReposResponseItem =
   RestEndpointMethodTypes['repos']['listReleases']['response']['data'][number];
@@ -403,45 +432,11 @@ export async function updateManifest(dryRun: boolean): Promise<void> {
   }
 }
 
-export const command = 'upload [options]';
-
-export const describe = 'Upload assets from `release`.';
-
-export const builder = {
-  dir: {
-    description: 'Project root directory',
-    default: process.cwd(),
-  },
-  version: {
-    description: 'Target version',
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    default: require(path.join(process.cwd(), 'package.json'))
-      .version as string,
-  },
-  manifest: {
-    description:
-      'Upload download center manifest update for the target version (NOTE: This will will replace existing version for the channel with the provided one for all existing and newly added assets)',
-    default: false,
-  },
-  ['dry-run']: {
-    description:
-      'Does everything the real script will do without actually publishing assets to GH / download center',
-    default: process.env.npm_config_dry_run === 'true',
-  },
-};
-
-interface UploadArgv {
-  dir: string;
-  version: string;
-  dryRun: boolean;
-  manifest: boolean;
-}
-
-export const handler = async function handler(argv: UploadArgv): Promise<void> {
+const handler = async function handler(argv: UploadArgv): Promise<void> {
   cli.argv = argv;
-  argv.version = argv.version.replace(/^v/, '');
-  const channel = Target.getChannelFromVersion(argv.version);
-  const assets = Target.getAssetsForVersion(argv.dir, argv.version);
+  const version = argv.version.replace(/^v/, '');
+  const channel = Target.getChannelFromVersion(version);
+  const assets = Target.getAssetsForVersion(argv.dir, version);
 
   if (argv.dryRun) {
     cli.warn('Running script in dry-run mode. Skipping checks and publishing');
@@ -488,10 +483,10 @@ export const handler = async function handler(argv: UploadArgv): Promise<void> {
     }
   }
 
-  await publishGitHubRelease(assets, argv.version, channel, argv.dryRun);
+  await publishGitHubRelease(assets, version, channel, argv.dryRun);
 
   // Build attestations are only uploaded to the download center
-  const attestations = getBuildAttestations(argv.dir, argv.version);
+  const attestations = getBuildAttestations(argv.dir, version);
   const attestationsToUpload = attestations.map((attestation) => {
     return {
       name: attestation.uploadKey,
@@ -501,9 +496,16 @@ export const handler = async function handler(argv: UploadArgv): Promise<void> {
   const assetsToUpload = assets.flatMap((item) => {
     return item.assets;
   });
-  return await uploadAssetsToDownloadCenter(
+  await uploadAssetsToDownloadCenter(
     [...assetsToUpload, ...attestationsToUpload],
     channel,
     argv.dryRun
   );
+};
+
+export const uploadCommand: CommandModule<unknown, UploadArgv> = {
+  command: 'upload [options]',
+  describe: 'Upload assets from `release`.',
+  builder: buildUploadCommandOptions,
+  handler,
 };

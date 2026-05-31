@@ -10,7 +10,7 @@ import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
-import { release as packageCompass } from 'hadron-build/commands';
+import { packageCompass } from 'hadron-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 export * as Selectors from './selectors.ts';
@@ -1030,7 +1030,7 @@ export async function buildCompass(
   }
 
   debug("No Compass build found, let's build it");
-  await packageCompass.handler({
+  await packageCompass({
     dir: compassPath,
     skip_installer: true,
   });

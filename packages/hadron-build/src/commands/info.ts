@@ -6,42 +6,51 @@ import { inspect } from 'util';
 import { flatten } from 'flatnest';
 import fs from 'fs/promises';
 import path from 'path';
+import type { CommandModule, Argv } from 'yargs';
+import type {
+  BuilderCallbackParsedArgs,
+  ExcludeYargsRequiredArgs,
+} from './utils';
 
-export const command = 'info';
-
-export const describe = 'Display project info.';
-
-export const builder = {
-  format: {
-    choices: ['table', 'yaml', 'json'] as const,
-    description: 'What output format would you like?',
-    default: 'table' as const,
-  },
-  flatten: {
-    description: 'Flatten the config object into dot notation',
-    default: false,
-  },
-  dir: {
-    description: 'Project root directory',
-    default: process.cwd(),
-  },
-  version: {
-    description: 'Target version',
-    default: undefined,
-  },
-  platform: {
-    description: 'Target platform',
-    default: undefined,
-  },
-  arch: {
-    description: 'Target arch',
-    default: undefined,
-  },
-  out: {
-    description: 'Output file path',
-    default: undefined,
-  },
-};
+type InfoArgv = BuilderCallbackParsedArgs<typeof buildInfoCommandOptions>;
+function buildInfoCommandOptions(yargs: Argv) {
+  return yargs.options({
+    format: {
+      choices: ['table', 'yaml', 'json'] as const,
+      description: 'What output format would you like?',
+      default: 'table' as const,
+    },
+    flatten: {
+      description: 'Flatten the config object into dot notation',
+      boolean: true,
+      default: false,
+    },
+    dir: {
+      description: 'Project root directory',
+      default: process.cwd(),
+    },
+    version: {
+      description: 'Target version',
+      type: 'string' as const,
+      default: undefined,
+    },
+    platform: {
+      description: 'Target platform',
+      type: 'string' as const,
+      default: undefined,
+    },
+    arch: {
+      description: 'Target arch',
+      type: 'string' as const,
+      default: undefined,
+    },
+    out: {
+      description: 'Output file path',
+      type: 'string' as const,
+      default: undefined,
+    },
+  });
+}
 
 export function serialize(
   target: Record<string, unknown>
@@ -51,7 +60,7 @@ export function serialize(
   });
 }
 
-export function toTable(target: Record<string, unknown>): string {
+function toTable(target: Record<string, unknown>): string {
   const configTable = new Table({
     head: ['Key', 'Value'],
   });
@@ -67,17 +76,9 @@ export function toTable(target: Record<string, unknown>): string {
   return configTable.toString();
 }
 
-interface InfoArgv {
-  dir: string;
-  version?: string;
-  platform?: string;
-  arch?: string;
-  flatten?: boolean;
-  format: 'table' | 'yaml' | 'json';
-  out?: string;
-}
-
-export const handler = async (argv: InfoArgv): Promise<void> => {
+export const runInfoCommand = async (
+  argv: ExcludeYargsRequiredArgs<InfoArgv>
+): Promise<void> => {
   // TODO: This info is only used for expansions.yml in evergreen.
   // Only write what we need and use a better way to get this done.
   let target: Record<string, unknown> = new Target(argv.dir, {
@@ -106,4 +107,13 @@ export const handler = async (argv: InfoArgv): Promise<void> => {
     // eslint-disable-next-line no-console
     console.log(output);
   }
+};
+
+export const infoCommand: CommandModule<unknown, InfoArgv> = {
+  command: 'info',
+  describe: 'Display project info.',
+  builder: buildInfoCommandOptions,
+  handler: async function handler(argv): Promise<void> {
+    await runInfoCommand(argv);
+  },
 };

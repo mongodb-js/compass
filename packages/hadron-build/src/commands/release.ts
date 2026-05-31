@@ -11,13 +11,32 @@ import createApplicationZip from '../lib/zip';
 import { runCommand } from '../lib/run';
 import { rebuild } from '@electron/rebuild';
 import { signArchive } from '../lib/signtool';
+import type { Argv, CommandModule } from 'yargs';
+import type {
+  BuilderCallbackParsedArgs,
+  ExcludeYargsRequiredArgs,
+} from './utils';
 
 const format = util.format;
 const cli = createCLI('hadron-build:release');
 
-export const command = 'release';
-
-export const describe = ':shipit:';
+type ReleaseArgv = BuilderCallbackParsedArgs<typeof buildReleaseCommandOptions>;
+function buildReleaseCommandOptions(yargs: Argv) {
+  return yargs.options({
+    dir: {
+      description: 'Project root directory',
+      default: process.cwd(),
+    },
+    skip_installer: {
+      description: 'Skip installer generation',
+      default: false,
+    },
+    no_asar: {
+      description: 'Do not package application source to .asar bundle',
+      default: false,
+    },
+  });
+}
 
 const createBrandedApplication = async (CONFIG: Target): Promise<void> => {
   cli.debug('running electron-packager');
@@ -335,30 +354,10 @@ const writeConfigToJson = async (CONFIG: Target): Promise<void> => {
   );
 };
 
-export const builder = {
-  dir: {
-    description: 'Project root directory',
-    default: process.cwd(),
-  },
-  skip_installer: {
-    description: 'Skip installer generation',
-    default: false,
-  },
-  no_asar: {
-    description: 'Do not package application source to .asar bundle',
-    default: false,
-  },
-};
-
-interface ReleaseArgv {
-  dir: string;
-  skip_installer?: boolean;
-  no_asar?: boolean;
-}
-
 type TaskFn = (config: Target) => Promise<void>;
-
-const run = async (argv: ReleaseArgv): Promise<Target> => {
+export const runReleaseCommand = async (
+  argv: ExcludeYargsRequiredArgs<ReleaseArgv>
+): Promise<Target> => {
   cli.argv = argv;
 
   const target = new Target(argv.dir);
@@ -423,10 +422,15 @@ const run = async (argv: ReleaseArgv): Promise<Target> => {
   }
 };
 
-export const handler = async (argv: ReleaseArgv): Promise<void> => {
-  const target = await run(argv);
-  cli.ok(`${target.assets.length} assets successfully built`);
-  target.assets.map(function (asset) {
-    cli.info(asset.path);
-  });
+export const releaseCommand: CommandModule<unknown, ReleaseArgv> = {
+  command: 'release [options]',
+  describe: 'Create a release build of Compass',
+  builder: buildReleaseCommandOptions,
+  handler: async function handler(argv): Promise<void> {
+    const target = await runReleaseCommand(argv);
+    cli.ok(`${target.assets.length} assets successfully built`);
+    target.assets.map(function (asset) {
+      cli.info(asset.path);
+    });
+  },
 };

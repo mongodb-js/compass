@@ -1,6 +1,6 @@
-import * as info from './info';
-import * as release from './release';
-import * as upload from './upload';
-import * as download from './download';
+import { infoCommand } from './info';
+import { releaseCommand } from './release';
+import { uploadCommand } from './upload';
+import { downloadCommand } from './download';
 
-export { info, release, upload, download };
+export { infoCommand, releaseCommand, uploadCommand, downloadCommand };

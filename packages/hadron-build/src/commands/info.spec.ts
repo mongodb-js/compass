@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { serialize, toTable } from './info';
+import { serialize } from './info';
 
 describe('commands/info', function () {
   describe('serialize', function () {
@@ -21,18 +21,6 @@ describe('commands/info', function () {
     it('keeps non-function, non-undefined values', function () {
       const result = serialize({ a: 1, b: 'str', c: true, d: [1, 2] });
       expect(result).to.deep.equal({ a: 1, b: 'str', c: true, d: [1, 2] });
-    });
-  });
-
-  describe('toTable', function () {
-    it('returns a string', function () {
-      const result = toTable({ key: 'value' });
-      expect(result).to.be.a('string');
-    });
-
-    it('includes keys and values from input', function () {
-      const result = toTable({ myKey: 'myValue' });
-      expect(result).to.include('myKey');
     });
   });
 });

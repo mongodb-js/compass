@@ -6,7 +6,6 @@
   "compass:main": "src/index.ts",
   "types": "./dist/index.d.ts",
   "exports": {
-    "./commands": "./dist/commands/index.js",
     ".": "./dist/index.js"
   },
   "files": [
