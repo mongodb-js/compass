@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import {
   withPreferences,
   usePreference,
@@ -33,8 +33,6 @@ import semver from 'semver';
 const inputWidth = spacing[1400] * 3;
 // width of options popover
 const comboxboxOptionsWidth = spacing[1200] * 14;
-// left position of options popover wrt input. this aligns it with the start of input
-const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
 
 const rerankStageOptionStyles = css({
   display: 'flex',
@@ -65,8 +63,15 @@ const comboboxStyles = css({
   '> :popover-open': {
     width: comboxboxOptionsWidth,
     whiteSpace: 'normal',
-    // -4px to count for the input focus outline.
-    marginLeft: `${comboboxOptionsLeft - 4}px`,
+    // LG centers the popover via floating-ui inline styles; we override to
+    // left-align with the select input using a var set in a useEffect.
+    left: 'var(--stage-op-popover-left, 0px) !important',
+  },
+  // We want the user to be able to see multiple stages, so
+  // we override the max-height set in LG.
+  // Note, this is brittle as it relies on LG internals.
+  '> :popover-open [role="listbox"]': {
+    maxHeight: '450px',
   },
 });
 
@@ -180,42 +185,56 @@ export const StageOperatorSelect = ({
     isReadonlyView &&
     (!pipelineIsSearchQueryable || versionIncompatibleCompass);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    // We use the left positioning of the container to position the
+    // popover, overriding leafygreen's default centering of options.
+    el.style.setProperty(
+      '--stage-op-popover-left',
+      `${el.getBoundingClientRect().left}px`
+    );
+  }, []);
+
   return (
-    <Combobox
-      value={selectedStage}
-      disabled={isDisabled}
-      aria-label="Select a stage operator"
-      onChange={onStageOperatorSelected}
-      size="xsmall"
-      clearable={false}
-      data-testid="stage-operator-combobox"
-      className={comboboxStyles}
-    >
-      {visibleStages.map((stage: Stage) => {
-        const description = getStageDescription(
-          stage,
-          sourceName,
-          serverVersion,
-          versionIncompatibleCompass,
-          pipelineIsSearchQueryable
-        );
-        return (
-          <ComboboxOption
-            data-testid={`combobox-option-stage-${stage.name}`}
-            key={stage.name}
-            value={stage.name}
-            disabled={isSearchStage(stage.name) && disableSearchStage}
-            {...(stage.name === '$rerank'
-              ? {
-                  customContent: (
-                    <RerankStageOption description={description} />
-                  ),
-                }
-              : { description })}
-          />
-        );
-      })}
-    </Combobox>
+    <div ref={containerRef}>
+      <Combobox
+        value={selectedStage}
+        disabled={isDisabled}
+        aria-label="Select a stage operator"
+        onChange={onStageOperatorSelected}
+        size="xsmall"
+        clearable={false}
+        data-testid="stage-operator-combobox"
+        className={comboboxStyles}
+      >
+        {visibleStages.map((stage: Stage) => {
+          const description = getStageDescription(
+            stage,
+            sourceName,
+            serverVersion,
+            versionIncompatibleCompass,
+            pipelineIsSearchQueryable
+          );
+          return (
+            <ComboboxOption
+              data-testid={`combobox-option-stage-${stage.name}`}
+              key={stage.name}
+              value={stage.name}
+              disabled={isSearchStage(stage.name) && disableSearchStage}
+              {...(stage.name === '$rerank'
+                ? {
+                    customContent: (
+                      <RerankStageOption description={description} />
+                    ),
+                  }
+                : { description })}
+            />
+          );
+        })}
+      </Combobox>
+    </div>
   );
 };
 

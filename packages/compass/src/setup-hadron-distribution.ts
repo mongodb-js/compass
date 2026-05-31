@@ -9,6 +9,10 @@ import { app, protocol, net } from 'electron';
  * particular it sets up paths for file system operations.
  */
 export function setupHadronDistribution() {
+  // Prevent a whole class of issues where prototype can be unexpectedly mutated
+  // by dynamic property access
+  delete (Object.prototype as any).__proto__;
+
   /**
    * All these variables below are used by Compass and its plugins in one way or
    * another. These process.env vars are inlined in the code durng the build

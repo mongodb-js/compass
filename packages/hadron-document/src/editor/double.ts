@@ -3,21 +3,11 @@ import { ElementEvents } from '../element-events';
 import type { BSONValue } from '../utils';
 import { fieldStringLen } from '../utils';
 import StandardEditor from './standard';
-import type { Element } from '../element';
 
 /**
  * CRUD editor for double values.
  */
 export default class DoubleEditor extends StandardEditor {
-  /**
-   * Create the editor with the element.
-   *
-   * @param {Element} element - The hadron document element.
-   */
-  constructor(element: Element) {
-    super(element);
-  }
-
   /**
    * Complete the double edit by converting the valid string to a double
    * value or leaving as invalid.
