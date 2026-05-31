@@ -358,10 +358,7 @@ interface ReleaseArgv {
 
 type TaskFn = (config: Target) => Promise<void>;
 
-const run = async (
-  argv: ReleaseArgv,
-  done: (err?: Error | null, result?: Target) => void
-): Promise<void> => {
+const run = async (argv: ReleaseArgv): Promise<Target> => {
   cli.argv = argv;
 
   const target = new Target(argv.dir);
@@ -410,15 +407,13 @@ const run = async (
       task('sign zip', signArchive),
       task('store build configuration as json', writeConfigToJson),
     ].filter(Boolean)
-  );
+  ) as Array<() => Promise<void>>;
 
   try {
     for (const t of tasks) {
-      await (t as () => Promise<void>)();
+      await t();
     }
-    done(null, target);
-  } catch (err) {
-    done(err as Error);
+    return target;
   } finally {
     void fs
       .rm(path.resolve(target.dir, '.npmrc'), { force: true })
@@ -428,14 +423,10 @@ const run = async (
   }
 };
 
-export const handler = (argv: ReleaseArgv): void => {
-  void run(argv, (_err, CONFIG) => {
-    cli.abortIfError(_err ?? null);
-    if (CONFIG) {
-      cli.ok(`${CONFIG.assets.length} assets successfully built`);
-      CONFIG.assets.map(function (asset) {
-        cli.info(asset.path);
-      });
-    }
+export const handler = async (argv: ReleaseArgv): Promise<void> => {
+  const target = await run(argv);
+  cli.ok(`${target.assets.length} assets successfully built`);
+  target.assets.map(function (asset) {
+    cli.info(asset.path);
   });
 };

@@ -1,11 +1,8 @@
 #!/usr/bin/env node
-import yargs, { type CommandModule } from 'yargs';
+import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
 import createCLI from 'mongodb-js-cli';
-import * as release from './commands/release';
-import * as info from './commands/info';
-import * as upload from './commands/upload';
-import * as download from './commands/download';
+import { info, release, upload, download } from './commands';
 
 const cli = createCLI('hadron-build');
 
@@ -13,10 +10,15 @@ const yargsInstance = yargs(hideBin(process.argv))
   .wrap(120)
   .version(false)
   .usage('$0 <command> [options]')
-  .command(release as unknown as CommandModule)
-  .command(info as unknown as CommandModule)
-  .command(upload as unknown as CommandModule)
-  .command(download as unknown as CommandModule)
+  .command(release.command, release.describe, release.builder, release.handler)
+  .command(info.command, info.describe, info.builder, info.handler)
+  .command(upload.command, upload.describe, upload.builder, upload.handler)
+  .command(
+    download.command,
+    download.describe,
+    download.builder,
+    download.handler
+  )
   .demandCommand(1, 'Please specify a command.')
   .strict()
   .fail(function (msg: string, err: Error) {

@@ -4,7 +4,7 @@ import Table from 'cli-table';
 import * as yaml from 'js-yaml';
 import { inspect } from 'util';
 import { flatten } from 'flatnest';
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 
 export const command = 'info';
@@ -12,20 +12,13 @@ export const command = 'info';
 export const describe = 'Display project info.';
 
 export const builder = {
-  verbose: {
-    describe:
-      'Confused or trying to track down a bug and want lots of debug output?',
-    type: 'boolean',
-    default: false,
-  },
   format: {
-    choices: ['table', 'yaml', 'json'],
+    choices: ['table', 'yaml', 'json'] as const,
     description: 'What output format would you like?',
-    default: 'table',
+    default: 'table' as const,
   },
   flatten: {
     description: 'Flatten the config object into dot notation',
-    type: 'boolean',
     default: false,
   },
   dir: {
@@ -84,7 +77,7 @@ interface InfoArgv {
   out?: string;
 }
 
-export const handler = (argv: InfoArgv): void => {
+export const handler = async (argv: InfoArgv): Promise<void> => {
   // TODO: This info is only used for expansions.yml in evergreen.
   // Only write what we need and use a better way to get this done.
   let target: Record<string, unknown> = new Target(argv.dir, {
@@ -108,7 +101,7 @@ export const handler = (argv: InfoArgv): void => {
   }
 
   if (argv.out) {
-    fs.writeFileSync(path.resolve(process.cwd(), argv.out), output);
+    await fs.writeFile(path.resolve(process.cwd(), argv.out), output);
   } else {
     // eslint-disable-next-line no-console
     console.log(output);

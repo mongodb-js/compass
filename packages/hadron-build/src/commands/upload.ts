@@ -437,7 +437,7 @@ interface UploadArgv {
   manifest: boolean;
 }
 
-export const handler = function handler(argv: UploadArgv): void {
+export const handler = async function handler(argv: UploadArgv): Promise<void> {
   cli.argv = argv;
   argv.version = argv.version.replace(/^v/, '');
   const channel = Target.getChannelFromVersion(argv.version);
@@ -488,24 +488,22 @@ export const handler = function handler(argv: UploadArgv): void {
     }
   }
 
-  publishGitHubRelease(assets, argv.version, channel, argv.dryRun)
-    .then(() => {
-      // Build attestations are only uploaded to the download center
-      const attestations = getBuildAttestations(argv.dir, argv.version);
-      const attestationsToUpload = attestations.map((attestation) => {
-        return {
-          name: attestation.uploadKey,
-          path: attestation.localPath,
-        };
-      });
-      const assetsToUpload = assets.flatMap((item) => {
-        return item.assets;
-      });
-      return uploadAssetsToDownloadCenter(
-        [...assetsToUpload, ...attestationsToUpload],
-        channel,
-        argv.dryRun
-      );
-    })
-    .catch(abortIfError);
+  await publishGitHubRelease(assets, argv.version, channel, argv.dryRun);
+
+  // Build attestations are only uploaded to the download center
+  const attestations = getBuildAttestations(argv.dir, argv.version);
+  const attestationsToUpload = attestations.map((attestation) => {
+    return {
+      name: attestation.uploadKey,
+      path: attestation.localPath,
+    };
+  });
+  const assetsToUpload = assets.flatMap((item) => {
+    return item.assets;
+  });
+  return await uploadAssetsToDownloadCenter(
+    [...assetsToUpload, ...attestationsToUpload],
+    channel,
+    argv.dryRun
+  );
 };

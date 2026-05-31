@@ -5,7 +5,6 @@ import { getBuildAttestations } from '../lib/build-attestations';
 import createCLI from 'mongodb-js-cli';
 
 const cli = createCLI('hadron-build:download');
-const abortIfError = cli.abortIfError.bind(cli);
 const root = path.resolve(__dirname, '..', '..', '..');
 
 export const command = 'download [options]';
@@ -59,7 +58,9 @@ export const run = async function run(argv: DownloadArgv): Promise<void> {
   return Promise.all(downloads).then(() => undefined);
 };
 
-export const handler = function handler(argv: DownloadArgv): void {
+export const handler = async function handler(
+  argv: DownloadArgv
+): Promise<void> {
   cli.argv = argv;
-  run(argv).catch(abortIfError);
+  await run(argv);
 };
