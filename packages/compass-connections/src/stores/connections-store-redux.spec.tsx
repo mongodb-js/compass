@@ -692,4 +692,70 @@ describe('CompassConnections store', function () {
       });
     });
   });
+
+  describe('OIDC token purge on persistOIDCTokens change', function () {
+    it('clears oidcSerializedState from storage when persistOIDCTokens is disabled', async function () {
+      const connectionWithOIDC = {
+        id: 'oidc-conn',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost',
+          oidc: { serializedState: 'token-data' },
+        },
+      };
+
+      const { connectionStorage, preferences } = renderCompassConnections({
+        connections: [connectionWithOIDC],
+        preferences: { persistOIDCTokens: true },
+      });
+
+      await preferences.savePreferences({ persistOIDCTokens: false });
+
+      await waitFor(async () => {
+        const stored = await connectionStorage.load({ id: 'oidc-conn' });
+        expect(stored?.connectionOptions.oidc?.serializedState).to.be.undefined;
+      });
+    });
+
+    it('does not modify connections that have no OIDC state', async function () {
+      const plainConnection = {
+        id: 'plain-conn',
+        connectionOptions: { connectionString: 'mongodb://localhost' },
+      };
+
+      const { connectionStorage, preferences } = renderCompassConnections({
+        connections: [plainConnection],
+        preferences: { persistOIDCTokens: true },
+      });
+
+      await preferences.savePreferences({ persistOIDCTokens: false });
+
+      await waitFor(async () => {
+        const stored = await connectionStorage.load({ id: 'plain-conn' });
+        expect(stored).to.exist;
+        expect(stored?.connectionOptions.oidc?.serializedState).to.be.undefined;
+      });
+    });
+
+    it('does not purge when persistOIDCTokens is enabled', async function () {
+      const connectionWithOIDC = {
+        id: 'oidc-conn-2',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost',
+          oidc: { serializedState: 'token-data' },
+        },
+      };
+
+      const { connectionStorage, preferences } = renderCompassConnections({
+        connections: [connectionWithOIDC],
+        preferences: { persistOIDCTokens: false },
+      });
+
+      await preferences.savePreferences({ persistOIDCTokens: true });
+
+      const stored = await connectionStorage.load({ id: 'oidc-conn-2' });
+      expect(stored?.connectionOptions.oidc?.serializedState).to.equal(
+        'token-data'
+      );
+    });
+  });
 });

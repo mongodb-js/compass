@@ -904,9 +904,6 @@ export const CreateViewNameInput = `${CreateViewModal} [data-testid="create-view
 export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
-export const stageOperatorOptions = (stageIndex: number): string => {
-  return `${StageCardAtIndex(stageIndex)} [role="option"]`;
-};
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
 };

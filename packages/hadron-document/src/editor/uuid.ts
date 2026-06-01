@@ -1,14 +1,15 @@
+import type { TypeCastTypes, UUIDType } from 'hadron-type-checker';
 import TypeChecker, {
   uuidHexToString,
   reverseJavaUUIDBytes,
   reverseCSharpUUIDBytes,
   getBsonType,
+  isUUIDType,
 } from 'hadron-type-checker';
 import type { Binary } from 'bson';
 import { ElementEvents } from '../element-events';
 import StandardEditor from './standard';
 import type { Element } from '../element';
-import { isUUIDType, type UUIDType } from '../element';
 import type { BSONValue } from '../utils';
 
 /**
@@ -63,11 +64,9 @@ export default class UUIDEditor extends StandardEditor {
    *
    * @param element - The hadron document element.
    */
-  constructor(element: Element) {
-    super(element);
-    // Use element.displayType if set and it's a UUID type, otherwise fall back to element.currentType
-    const effectiveType = element.displayType ?? element.currentType;
-    this.uuidType = isUUIDType(effectiveType) ? effectiveType : 'UUID';
+  constructor(element: Element, displayType?: TypeCastTypes) {
+    super(element, displayType);
+    this.uuidType = isUUIDType(this.displayType) ? this.displayType : 'UUID';
   }
 
   /**

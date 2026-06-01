@@ -127,6 +127,7 @@ export type InternalUserPreferences = {
   currentUserId?: string;
   telemetryAnonymousId?: string;
   telemetryAtlasUserId?: string;
+  telemetryDeviceId?: string;
   userCreatedAt: number;
   // TODO: Remove this as part of COMPASS-8970.
   enableConnectInNewWindow: boolean;
@@ -420,6 +421,17 @@ export const storedUserPreferencesProps: Required<{
    * Stores a unique telemetry atlas ID for the current user.
    */
   telemetryAtlasUserId: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.string().optional(),
+    type: 'string',
+  },
+  /**
+   * Stores the device ID used for telemetry.
+   */
+  telemetryDeviceId: {
     ui: false,
     cli: false,
     global: false,
@@ -790,7 +802,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Stay logged in with OIDC',
-      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism for MongoDB server connection. Access tokens are encrypted using the system keychain before being stored.',
+      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism for MongoDB server connection. Access tokens are encrypted using the system keychain before being stored. Disabling this option will remove currently stored tokens.',
     },
     validator: z.boolean().default(true),
     type: 'boolean',

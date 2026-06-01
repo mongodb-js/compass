@@ -1,5 +1,21 @@
 import { MongoClient } from 'mongodb';
 import type { Db, MongoServerError } from 'mongodb';
+import {
+  Binary,
+  BSONRegExp,
+  BSONSymbol,
+  Code,
+  DBRef,
+  Decimal128,
+  Double,
+  Int32,
+  Long,
+  MaxKey,
+  MinKey,
+  ObjectId,
+  Timestamp,
+  UUID,
+} from 'bson';
 import { getDefaultConnectionStrings } from './test-runner-context.ts';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { noServerWarningsCheckpoint } from './test-runner-global-fixtures.ts';
@@ -142,6 +158,53 @@ export async function createNestedDocumentsCollection(
   );
 }
 
+const allTypesDoc = {
+  double: new Double(1.2),
+  primitiveDouble: 1.2,
+  doubleThatIsAlsoAnInteger: new Double(1),
+  string: 'Hello, world!',
+  object: { key: 'value' },
+  array: [1, 2, 3],
+  binData: new Binary(Uint8Array.from([1, 2, 3])),
+  objectId: new ObjectId('642d766c7300158b1f22e975'),
+  boolean: true,
+  date: new Date('2023-04-05T13:25:08.445Z'),
+  null: null,
+  regex: new BSONRegExp('pattern', 'i'),
+  javascript: new Code('function() {}'),
+  symbol: new BSONSymbol('symbol'),
+  javascriptWithScope: new Code('function() {}', {
+    foo: 1,
+    bar: 'a',
+  }),
+  int: new Int32(12345),
+  primitiveInt: 12345,
+  timestamp: new Timestamp(new Long('7218556297505931265')),
+  long: new Long('123456789123456789'),
+  decimal: new Decimal128(
+    Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])
+  ),
+  minKey: new MinKey(),
+  maxKey: new MaxKey(),
+
+  binaries: {
+    generic: new Binary(Uint8Array.from([1, 2, 3]), 0),
+    functionData: Binary.createFromBase64('//8=', 1),
+    binaryOld: Binary.createFromBase64('//8=', 2),
+    uuidOld: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 3),
+    uuid: new UUID('AAAAAAAA-AAAA-4AAA-AAAA-AAAAAAAAAAAA'),
+    md5: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 5),
+    encrypted: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 6),
+    compressedTimeSeries: Binary.createFromBase64(
+      'CQCKW/8XjAEAAIfx//////////H/////////AQAAAAAAAABfAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAHAAAAAAAAAA4AAAAAAAAAAA==',
+      7
+    ),
+    custom: Binary.createFromBase64('//8=', 128),
+  },
+
+  dbRef: new DBRef('namespace', new ObjectId('642d76b4b7ebfab15d3c4a78')),
+};
+
 export async function createSidebarDatabase(): Promise<void> {
   const promises = [];
 
@@ -150,7 +213,12 @@ export async function createSidebarDatabase(): Promise<void> {
       client
         .db('my-sidebar-database')
         .collection('my-sidebar-collection')
-        .insertMany([...Array(5).keys()].map((i) => ({ docIndex: i })))
+        .insertMany(
+          [...Array(5).keys()].map((i) => ({
+            docIndex: i,
+            ...allTypesDoc,
+          }))
+        )
     );
   }
   await Promise.all(promises);

@@ -16,6 +16,7 @@ const ARRAY_OR_OBJECT = /^(\[|\{)(.+)(\]|\})$/;
 export default class StandardEditor {
   element: Element;
   type: TypeCastTypes;
+  displayType: TypeCastTypes;
   editing: boolean;
 
   /**
@@ -23,9 +24,10 @@ export default class StandardEditor {
    *
    * @param element - The hadron document element.
    */
-  constructor(element: Element) {
+  constructor(element: Element, displayType?: TypeCastTypes) {
     this.element = element;
     this.type = element.currentType;
+    this.displayType = displayType ?? element.currentType;
     this.editing = false;
   }
 

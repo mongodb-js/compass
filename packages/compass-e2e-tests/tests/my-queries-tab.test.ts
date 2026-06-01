@@ -121,7 +121,6 @@ async function saveAggregation(
   await browser.clickVisible(Selectors.AddStageButton);
   await browser.$(Selectors.stageEditor(0)).waitForDisplayed();
   // select $match
-  await browser.focusStageOperator(0);
   await browser.selectStageOperator(0, stageName);
   await browser.setCodemirrorEditorValue(Selectors.stageEditor(0), stageText);
 
