@@ -87,7 +87,7 @@
     "@lg-chat/message": "^12.0.0",
     "@lg-chat/message-prompts": "^4.2.2",
     "@mongodb-js/compass-context-menu": "^0.3.12",
-    "@mongodb-js/diagramming": "^2.3.3",
+    "@mongodb-js/diagramming": "^2.4.0",
     "@react-aria/interactions": "^3.9.1",
     "@react-aria/utils": "^3.13.1",
     "@react-aria/visually-hidden": "^3.3.1",
