@@ -440,8 +440,6 @@ const handler = async function handler(argv: UploadArgv): Promise<void> {
   const channel = Target.getChannelFromVersion(version);
   const assets = Target.getAssetsForVersion(argv.dir, version);
 
-  console.log(argv);
-
   if (argv.dryRun) {
     cli.warn('Running script in dry-run mode. Skipping checks and publishing');
   }
