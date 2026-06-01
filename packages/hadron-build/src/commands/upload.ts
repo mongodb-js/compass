@@ -324,7 +324,9 @@ export async function getLatestRelease(
           page,
         }
       );
-      releases = data;
+
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      releases = data as OctokitListReposResponseItem[];
     } catch (err) {
       cli.warn(`Failed to fetch releases: ${(err as Error).message}`);
     }
@@ -437,6 +439,8 @@ const handler = async function handler(argv: UploadArgv): Promise<void> {
   const version = argv.version.replace(/^v/, '');
   const channel = Target.getChannelFromVersion(version);
   const assets = Target.getAssetsForVersion(argv.dir, version);
+
+  console.log(argv);
 
   if (argv.dryRun) {
     cli.warn('Running script in dry-run mode. Skipping checks and publishing');
