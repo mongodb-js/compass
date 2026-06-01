@@ -7,7 +7,7 @@ import {
   getCurrentDiagramFromState,
   selectCurrentModel,
 } from './diagram';
-import { UUID } from 'bson';
+import { EJSON, UUID } from 'bson';
 import {
   type Relationship,
   type StaticModel,
@@ -21,7 +21,10 @@ import { inferForeignToLocalRelationshipsForCollection } from './relationships';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { extractFieldsFromFieldData } from '../utils/schema';
 import { isEqual } from 'lodash';
-import type { WasmDataService } from '../services/compass-data-service-adapter';
+import type {
+  process_collection,
+  SqlDataService,
+} from 'schema-builder-library';
 import { CompassDataServiceAdapter } from '../services/compass-data-service-adapter';
 
 // WASM module lazy initialization
@@ -37,11 +40,7 @@ type WasmBuilderOptionsInstance = {
 };
 
 type WasmModule = {
-  buildSchema: (
-    dataService: WasmDataService,
-    options: WasmBuilderOptionsInstance
-  ) => Promise<WasmSchemaResult[]>;
-  WasmBuilderOptions: new () => WasmBuilderOptionsInstance;
+  process_collection: typeof process_collection;
 };
 
 let wasmModulePromise: Promise<WasmModule> | null = null;
@@ -57,36 +56,6 @@ function getWasmModule(): Promise<WasmModule> {
 }
 
 /**
- * Type representing the serialized SchemaResult from the WASM module.
- * The Rust enum SchemaResult serializes with the variant name as a key.
- */
-export type WasmSchemaResult =
-  | { NamespaceOnly: WasmNamespaceInfo }
-  | { InitialSchema: WasmNamespaceInfoWithSchema }
-  | { FullSchema: WasmNamespaceInfoWithSchema };
-
-type WasmNamespaceInfo = {
-  db_name: string;
-  coll_or_view_name: string;
-  namespace_type: 'Collection' | 'View';
-};
-
-type WasmNamespaceInfoWithSchema = {
-  namespace_info: WasmNamespaceInfo;
-  namespace_schema: MongoDBJSONSchema;
-};
-
-/**
- * Options for building schemas.
- */
-export interface SchemaBuilderOptions {
-  /** Data service for accessing MongoDB */
-  dataService: WasmDataService;
-  /** List of namespaces to include (format: "database.collection") */
-  includeList: string[];
-}
-
-/**
  * Service interface for schema building.
  * This allows the WASM-based schema builder to be mocked in tests.
  */
@@ -96,28 +65,33 @@ export interface SchemaBuilderService {
    * @param options - Schema builder options
    * @returns Array of schema results
    */
-  buildSchemas(options: SchemaBuilderOptions): Promise<WasmSchemaResult[]>;
+  process_collection: (
+    service: SqlDataService,
+    ns: string
+  ) => Promise<MongoDBJSONSchema | null>;
 }
 
 /**
  * Default schema builder service using the WASM module.
  */
 export const defaultSchemaBuilderService: SchemaBuilderService = {
-  async buildSchemas(
-    options: SchemaBuilderOptions
-  ): Promise<WasmSchemaResult[]> {
+  async process_collection(service: SqlDataService, ns: string) {
     try {
       const wasmModule = await getWasmModule();
-      const { buildSchema, WasmBuilderOptions } = wasmModule;
+      const { process_collection } = wasmModule;
 
-      const wasmOptions = new WasmBuilderOptions();
-      wasmOptions.setIncludeList(options.includeList);
+      const [db, ...collParts] = ns.split('.');
+      const collection = collParts.join('.');
 
-      return await buildSchema(options.dataService, wasmOptions);
+      let result = await process_collection(service, db, collection);
+
+      // Note: the schema is returned as EJSON, which fails the serialization
+      // schema for the data provider, so we serialize it into regular JSON here
+      return EJSON.serialize(result);
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error('Failed to load WASM module', err);
-      return [];
+      return null;
     }
   },
 };
@@ -127,27 +101,12 @@ export const defaultSchemaBuilderService: SchemaBuilderService = {
  * Returns empty schemas for all requested collections.
  */
 export const mockSchemaBuilderService: SchemaBuilderService = {
-  buildSchemas(options: SchemaBuilderOptions): Promise<WasmSchemaResult[]> {
-    // Return FullSchema results with empty schemas for each namespace
-    return Promise.resolve(
-      options.includeList.map((ns) => {
-        const [database, ...collParts] = ns.split('.');
-        const collection = collParts.join('.');
-        return {
-          FullSchema: {
-            namespace_info: {
-              db_name: database,
-              coll_or_view_name: collection,
-              namespace_type: 'Collection' as const,
-            },
-            namespace_schema: {
-              bsonType: 'object' as const,
-              properties: {},
-            },
-          },
-        };
-      })
-    );
+  async process_collection(service: SqlDataService, ns: string) {
+    // Returns an empty schema for any provided namespace
+    return {
+      bsonType: 'object' as const,
+      properties: {},
+    };
   },
 };
 
@@ -597,22 +556,6 @@ export function redoAnalysis(
   };
 }
 
-/**
- * Extract schema from a WASM SchemaResult.
- * Returns the namespace info and schema if it's a FullSchema or InitialSchema variant.
- */
-function extractSchemaFromResult(
-  result: WasmSchemaResult
-): WasmNamespaceInfoWithSchema | null {
-  if ('FullSchema' in result) {
-    return result.FullSchema;
-  }
-  if ('InitialSchema' in result) {
-    return result.InitialSchema;
-  }
-  return null;
-}
-
 export function analyzeCollections({
   name,
   connectionId,
@@ -671,18 +614,13 @@ export function analyzeCollections({
 
     // Step 1: Build schemas using the schema builder service
     const adapter = new CompassDataServiceAdapter(dataService, abortSignal);
-    const schemaResults: WasmSchemaResult[] = await schemaBuilder.buildSchemas({
-      dataService: adapter,
-      includeList: selectedCollections.map((coll) => `${database}.${coll}`),
-    });
 
     // Create a map of namespace -> schema for quick lookup
     const schemaMap = new Map<string, MongoDBJSONSchema>();
-    for (const result of schemaResults) {
-      const schemaInfo = extractSchemaFromResult(result);
-      if (schemaInfo) {
-        const ns = `${schemaInfo.namespace_info.db_name}.${schemaInfo.namespace_info.coll_or_view_name}`;
-        schemaMap.set(ns, schemaInfo.namespace_schema);
+    for (const ns of namespaces) {
+      const schema = await schemaBuilder.process_collection(adapter, ns);
+      if (schema) {
+        schemaMap.set(ns, schema);
       }
     }
 

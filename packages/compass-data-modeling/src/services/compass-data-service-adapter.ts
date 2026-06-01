@@ -1,23 +1,23 @@
-import type { DataService } from 'mongodb-data-service';
 import { EJSON, type Document } from 'bson';
-
-/**
- * BSON Document type - a generic key-value object.
- * This mirrors the BsonDocument type from schema-builder-library to avoid ESM/CJS issues.
- * When crossing the WASM boundary, BSON types are represented in EJSON format
- * (e.g., ObjectId as { "$oid": "..." }).
- */
-export type BsonDocument = Record<string, unknown>;
+import { AggregationCursor, FindCursor } from 'mongodb';
+import type { DataService } from 'mongodb-data-service';
+import type {
+  AggregateOptions,
+  BsonDocument,
+  CollectionInfo,
+  SqlCursor,
+  SqlDataService,
+} from 'schema-builder-library';
 
 /**
  * Convert native BSON documents to EJSON format for WASM.
  * This ensures BSON types like ObjectId, Date, etc. are properly serialized
  * as EJSON objects that can be deserialized by Rust's bson crate.
  */
-function toEJSON(docs: Document[]): BsonDocument[] {
+function toEJSON(doc: Document): BsonDocument {
   // EJSON.serialize converts BSON types to their EJSON representation
   // e.g., ObjectId("...") -> { "$oid": "..." }
-  return docs.map((doc) => EJSON.serialize(doc) as BsonDocument);
+  return EJSON.serialize(doc, { relaxed: false }) as BsonDocument;
 }
 
 /**
@@ -25,33 +25,31 @@ function toEJSON(docs: Document[]): BsonDocument[] {
  * This ensures EJSON objects like { "$oid": "..." } are converted back
  * to native BSON types like ObjectId for the MongoDB driver.
  */
-function fromEJSON(docs: BsonDocument[]): Document[] {
+function fromEJSON(doc: BsonDocument): Document {
   // EJSON.deserialize converts EJSON representation back to BSON types
   // e.g., { "$oid": "..." } -> ObjectId("...")
-  return docs.map((doc) => EJSON.deserialize(doc as Document) as Document);
+  return EJSON.deserialize(doc as Document);
 }
 
 /**
- * Collection info type - mirrors CollectionInfo from schema-builder-library.
+ * A wrapper around the node driver cursor that automatically converts the
+ * native EJSON results to WASM-friendly ones.
  */
-export interface WasmCollectionInfo {
-  name: string;
-  type: string;
-  options?: {
-    viewOn?: string;
-    pipeline?: BsonDocument[];
-  };
-}
+class Cursor implements SqlCursor {
+  cursor: AggregationCursor | FindCursor;
 
-/**
- * DataService interface - mirrors DataService from schema-builder-library.
- * This interface is what the WASM module expects.
- */
-export interface WasmDataService {
-  listDatabases(): Promise<string[]>;
-  listCollections(dbName: string): Promise<WasmCollectionInfo[]>;
-  aggregate(ns: string, pipeline: BsonDocument[]): Promise<BsonDocument[]>;
-  find(ns: string, filter: BsonDocument): Promise<BsonDocument[]>;
+  constructor(cursor: AggregationCursor | FindCursor) {
+    this.cursor = cursor;
+  }
+
+  async next(): Promise<BsonDocument | null> {
+    let next = (await this.cursor.next()) as Document;
+    if (!next) {
+      return null;
+    }
+
+    return toEJSON(next);
+  }
 }
 
 /**
@@ -61,7 +59,7 @@ export interface WasmDataService {
  * This allows the Rust-based schema builder to use Compass's existing database connection
  * without needing direct access to the MongoDB driver.
  */
-export class CompassDataServiceAdapter implements WasmDataService {
+export class CompassDataServiceAdapter implements SqlDataService {
   private dataService: DataService;
   private abortSignal?: AbortSignal;
 
@@ -77,6 +75,7 @@ export class CompassDataServiceAdapter implements WasmDataService {
     const databases = await this.dataService.listDatabases({
       nameOnly: true,
     });
+
     return databases.map((db) => db.name);
   }
 
@@ -84,29 +83,21 @@ export class CompassDataServiceAdapter implements WasmDataService {
    * List all collections in a database, including views.
    * Returns collection info with name, type, and options (for views).
    */
-  async listCollections(dbName: string): Promise<WasmCollectionInfo[]> {
+  async listCollections(dbName: string): Promise<CollectionInfo[]> {
     const collections = await this.dataService.listCollections(dbName);
 
     return collections.map((coll) => {
-      const collInfo: WasmCollectionInfo = {
+      const collInfo: CollectionInfo = {
         name: coll.name,
         type: coll.type ?? 'collection',
       };
 
       // For views, include viewOn and pipeline in options
       if (coll.type === 'view') {
-        const collectionInfo = coll as unknown as {
-          options?: {
-            viewOn?: string;
-            pipeline?: Document[];
-          };
+        collInfo.options = {
+          viewOn: coll.view_on ?? undefined,
+          pipeline: coll.pipeline?.map(toEJSON),
         };
-        if (collectionInfo.options) {
-          collInfo.options = {
-            viewOn: collectionInfo.options.viewOn,
-            pipeline: collectionInfo.options.pipeline,
-          };
-        }
       }
 
       return collInfo;
@@ -121,23 +112,24 @@ export class CompassDataServiceAdapter implements WasmDataService {
    * Results are converted back to EJSON format for WASM.
    */
   async aggregate(
-    ns: string,
-    pipeline: BsonDocument[]
-  ): Promise<BsonDocument[]> {
+    db: string,
+    collection: string,
+    pipeline: BsonDocument[],
+    options: Partial<AggregateOptions>
+  ): Promise<SqlCursor> {
     // Convert EJSON pipeline from WASM to native BSON for DataService
-    const nativePipeline = fromEJSON(pipeline);
+    const nativePipeline = pipeline.map(fromEJSON);
 
-    const result = await this.dataService.aggregate(
-      ns,
+    const result = this.dataService.aggregateCursor(
+      `${db}.${collection}`,
       nativePipeline,
-      {},
       {
-        abortSignal: this.abortSignal,
+        signal: this.abortSignal,
+        hint: options.keyHint,
       }
     );
 
-    // Convert native BSON results to EJSON for WASM
-    return toEJSON(result);
+    return new Cursor(result);
   }
 
   /**
@@ -147,20 +139,20 @@ export class CompassDataServiceAdapter implements WasmDataService {
    * Filter comes from WASM in EJSON format and must be converted to native BSON.
    * Results are converted back to EJSON format for WASM.
    */
-  async find(ns: string, filter: BsonDocument): Promise<BsonDocument[]> {
+  async find(
+    db: string,
+    collection: string,
+    filter: BsonDocument
+  ): Promise<SqlCursor> {
     // Convert EJSON filter from WASM to native BSON for DataService
-    const nativeFilter = EJSON.deserialize(filter as Document) as Document;
+    const nativeFilter = fromEJSON(filter);
 
-    const documents = await this.dataService.find(
-      ns,
+    const documents = this.dataService.findCursor(
+      `${db}.${collection}`,
       nativeFilter,
-      {},
-      {
-        abortSignal: this.abortSignal,
-      }
+      {}
     );
 
-    // Convert native BSON results to EJSON for WASM
-    return toEJSON(documents);
+    return new Cursor(documents);
   }
 }
