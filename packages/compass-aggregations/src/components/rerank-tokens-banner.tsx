@@ -1,6 +1,16 @@
 import React from 'react';
-import { Banner, css, usePersistedState } from '@mongodb-js/compass-components';
+import {
+  Banner,
+  Button,
+  Icon,
+  css,
+  spacing,
+  usePersistedState,
+} from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
+import { bannerButtonStyles } from './banner-button-styles';
 
 const bannerStyles = css({
   borderRadius: 0,
@@ -10,12 +20,19 @@ const bannerStyles = css({
   },
 });
 
+const bannerContentStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
+});
+
 export const RerankTokensBanner = ({
   'data-testid': dataTestId,
 }: {
   'data-testid'?: string;
 }) => {
   const enableRerank = usePreference('enableRerank');
+  const { atlasMetadata } = useConnectionInfo();
   const [isDismissed, setIsDismissed] = usePersistedState(
     'mongodb_compass_dismissed_rerank_tokens_banner',
     false
@@ -24,6 +41,10 @@ export const RerankTokensBanner = ({
   if (!enableRerank || isDismissed) {
     return null;
   }
+
+  const viewTokenUsageHref = atlasMetadata
+    ? buildRerankTokenUsageUrl(atlasMetadata)
+    : 'https://dochub.mongodb.org/core/$rerank#metrics';
 
   return (
     <Banner
@@ -35,8 +56,21 @@ export const RerankTokensBanner = ({
     >
       <strong>$rerank consumes tokens</strong>
       <br />
-      Turn off the preview or disable the stage to avoid running $rerank while
-      editing.
+      <div className={bannerContentStyles}>
+        <span>
+          Turn off the preview or disable the stage to avoid running $rerank
+          while editing.
+        </span>
+        <Button
+          size="xsmall"
+          href={viewTokenUsageHref}
+          target="_blank"
+          rightGlyph={<Icon glyph="OpenNewTab" />}
+          className={bannerButtonStyles}
+        >
+          View token usage
+        </Button>
+      </div>
     </Banner>
   );
 };

@@ -3,6 +3,7 @@ import {
   Button,
   css,
   Icon,
+  Link,
   Menu,
   MenuItem,
   Option,
@@ -35,6 +36,8 @@ import {
 import type { ServerEnvironment } from '../../modules/env';
 import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
 import { useRerankInsight } from '../rerank-first-stage-banner';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
 
 type Stage = {
   idxInStore: number;
@@ -119,6 +122,15 @@ export const FocusModeModalHeader: React.FunctionComponent<
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const showInsights = usePreference('showInsights');
+  const enableRerank = usePreference('enableRerank');
+  const { atlasMetadata } = useConnectionInfo();
+
+  const viewTokenUsageHref =
+    enableRerank && stage?.stageOperator === '$rerank'
+      ? atlasMetadata
+        ? buildRerankTokenUsageUrl(atlasMetadata)
+        : 'https://dochub.mongodb.org/core/$rerank#metrics'
+      : null;
 
   const performanceInsight = useMemo(() => {
     if (stage) {
@@ -353,6 +365,16 @@ export const FocusModeModalHeader: React.FunctionComponent<
           </MenuItem>
         </Menu>
       </div>
+
+      {viewTokenUsageHref && (
+        <Link
+          href={viewTokenUsageHref}
+          target="_blank"
+          data-testid="focus-mode-view-token-usage-link"
+        >
+          View token usage
+        </Link>
+      )}
 
       {showInsights && insight && (
         <SignalPopover

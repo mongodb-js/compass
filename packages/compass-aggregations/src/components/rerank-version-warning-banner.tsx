@@ -9,6 +9,7 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildUpgradeClusterUrl } from '@mongodb-js/atlas-service/provider';
 import { RERANK_MIN_SERVER_VERSION } from '../utils/search-stage-errors';
+import { bannerButtonStyles } from './banner-button-styles';
 
 const bannerContentStyles = css({
   display: 'flex',
@@ -16,11 +17,6 @@ const bannerContentStyles = css({
   alignItems: 'center',
   gap: spacing[200],
   flexWrap: 'nowrap',
-});
-
-const bannerButtonStyles = css({
-  flexShrink: 0,
-  whiteSpace: 'nowrap',
 });
 
 export const RerankVersionWarningBanner = ({

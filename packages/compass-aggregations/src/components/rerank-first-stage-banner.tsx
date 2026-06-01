@@ -14,6 +14,7 @@ import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
 import { STAGE_HELP_BASE_URL } from '../constants';
+import { bannerButtonStyles } from './banner-button-styles';
 
 export const useRerankInsightAction = () => {
   const { tellMoreAboutInsight } = useAssistantActions();
@@ -132,17 +133,12 @@ const bannerContentStyles = css({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'flex-end',
+  gap: spacing[200],
 });
 
 const bannerTextStyles = css({
   flex: 1,
   minWidth: 0,
-});
-
-const bannerButtonStyles = css({
-  flexShrink: 0,
-  whiteSpace: 'nowrap',
-  marginLeft: spacing[200],
 });
 
 export const RerankFirstStageBanner = ({

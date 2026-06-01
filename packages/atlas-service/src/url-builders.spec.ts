@@ -73,6 +73,17 @@ describe('url-builders', function () {
         `${TEST_ORIGIN}/v2/proj123#/settings/groupSettings`
       );
     });
+
+    it('builds project settings url with highlight param', function () {
+      expect(
+        buildProjectSettingsUrl({
+          projectId: 'proj123',
+          highlight: 'nativeReranking',
+        })
+      ).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/settings/groupSettings?highlight=nativeReranking`
+      );
+    });
   });
 
   describe('buildMonitoringUrl', function () {

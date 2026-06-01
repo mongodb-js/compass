@@ -6,6 +6,7 @@ import {
   Icon,
   Link,
   css,
+  spacing,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
 import {
@@ -21,6 +22,10 @@ import {
   type SearchExtensionType,
 } from '../utils/search-stage-errors';
 import RateLimitExceededBanner from './rate-limit-exceeded-banner';
+import { bannerButtonStyles } from './banner-button-styles';
+
+const RERANK_DOCS_URL =
+  'https://www.mongodb.com/docs/vector-search/query/aggregation-stages/rerank/#navigate-to-the-project-settings-page';
 
 const bannerStyles = css({
   textAlign: 'left',
@@ -28,9 +33,8 @@ const bannerStyles = css({
 
 const bannerContentStyles = css({
   display: 'flex',
-  justifyContent: 'space-between',
   alignItems: 'center',
-  width: '100%',
+  gap: spacing[200],
 });
 
 type ServerErrorBannerProps = {
@@ -53,13 +57,14 @@ export default function ServerErrorBanner({
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
   const rerankNotEnabled = isRerankNotEnabledError(message);
-  const description = rerankNotEnabled
-    ? 'Enable native reranking in project settings.'
-    : message;
-  const projectSettingsHref =
-    rerankNotEnabled && atlasMetadata
-      ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
-      : null;
+  const projectSettingsHref = rerankNotEnabled
+    ? atlasMetadata
+      ? buildProjectSettingsUrl({
+          projectId: atlasMetadata.projectId,
+          highlight: 'nativeReranking',
+        })
+      : RERANK_DOCS_URL
+    : null;
 
   const rateLimitInfo = getVoyageProjectRateLimitInfo(message);
   if (rateLimitInfo) {
@@ -79,13 +84,14 @@ export default function ServerErrorBanner({
           <strong>Native reranking not enabled</strong>
           <br />
           <div className={bannerContentStyles}>
-            <span>{description}</span>
+            <span>Enable native reranking in project settings.</span>
             {projectSettingsHref && (
               <Button
                 size="xsmall"
                 href={projectSettingsHref}
                 target="_blank"
                 rightGlyph={<Icon glyph="OpenNewTab" />}
+                className={bannerButtonStyles}
               >
                 Project Settings
               </Button>
