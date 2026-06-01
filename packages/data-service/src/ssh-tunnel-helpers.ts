@@ -4,12 +4,27 @@ import type {
   Tunnel,
 } from '@mongodb-js/devtools-proxy-support';
 
-export async function waitForTunnelError(
-  tunnel: Tunnel | undefined
-): Promise<never> {
-  return new Promise((_, reject) => {
-    tunnel?.on('error', reject);
+export function waitForTunnelError(tunnel: Tunnel | undefined): {
+  promise: Promise<never>;
+  cancel: () => void;
+} {
+  let listener: ((err: Error) => void) | undefined;
+  const promise = new Promise<never>((_, reject) => {
+    listener = reject;
+    tunnel?.on('error', listener);
   });
+  return {
+    promise,
+    cancel: () => {
+      if (listener) {
+        (tunnel as NodeJS.EventEmitter | undefined)?.removeListener?.(
+          'error',
+          listener
+        );
+        listener = undefined;
+      }
+    },
+  };
 }
 
 export function getTunnelOptions(

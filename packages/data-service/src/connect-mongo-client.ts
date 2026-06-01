@@ -253,6 +253,8 @@ export async function connectMongoClientDataService({
   let metadataClient: CloneableMongoClient | undefined;
   let crudClient: CloneableMongoClient | undefined;
   let state: DevtoolsConnectionState;
+  const { promise: tunnelError, cancel: cancelTunnelError } =
+    waitForTunnelError(tunnel);
   try {
     debug('waiting for MongoClient to connect ...');
     // Create one or two clients, depending on whether CSFLE
@@ -301,8 +303,9 @@ export async function connectMongoClientDataService({
         // are passed to compass-shell.
         return [metadataClient, crudClient, state] as const;
       })(),
-      waitForTunnelError(tunnel),
-    ]); // waitForTunnel always throws, never resolves
+      tunnelError,
+    ]); // tunnelError always throws, never resolves
+    cancelTunnelError(); // connection succeeded — detach the error listener
 
     options.parentHandle = await state.getStateShareServer();
 
@@ -314,6 +317,7 @@ export async function connectMongoClientDataService({
       { url, options },
     ];
   } catch (err: any) {
+    cancelTunnelError();
     debug('connection error', err);
     debug('force shutting down ssh tunnel ...');
     await Promise.all([

@@ -188,6 +188,7 @@ export interface DataServiceEventMap {
   connectionInfoSecretsChanged: () => void;
   close: () => void;
   oidcAuthFailed: (error: string) => void;
+  sshTunnelError: (error: Error) => void;
 }
 
 export type UpdatePreviewChange = {
@@ -1731,6 +1732,22 @@ class DataServiceImpl extends WithLogContext implements DataService {
       this._metadataClient = metadataClient;
       this._crudClient = crudClient;
       this._tunnel = tunnel;
+      if (this._connectionOptions.sshTunnel) {
+        tunnel?.on('error', (err) => {
+          this._logger.error(mongoLogId(1_001_000_433), 'SSH tunnel error', {
+            error: err.message,
+          });
+          this._emitter.emit('sshTunnelError', err);
+        });
+        tunnel?.on('forwardingError', (err) => {
+          this._logger.warn(
+            mongoLogId(1_001_000_434),
+            'SSH tunnel forwarding error',
+            { error: err.message }
+          );
+          this._emitter.emit('sshTunnelError', err);
+        });
+      }
       this._state = state;
       this._mongoClientConnectionOptions = connectionOptions;
       this._csfleCollectionTracker = new CSFLECollectionTrackerImpl(
