@@ -121,11 +121,13 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   const isHighComplexityError = error?.errorType === 'highComplexity';
 
   const maxFieldsInputRef = useRef<HTMLInputElement>(null);
+  const [prevMaxDistinctFields, setPrevMaxDistinctFields] =
+    useState(maxDistinctFields);
   const [rawInput, setRawInput] = useState(String(maxDistinctFields));
-
-  useEffect(() => {
+  if (maxDistinctFields !== prevMaxDistinctFields) {
+    setPrevMaxDistinctFields(maxDistinctFields);
     setRawInput(String(maxDistinctFields));
-  }, [maxDistinctFields]);
+  }
 
   useEffect(() => {
     if (isHighComplexityError) {
