@@ -144,6 +144,8 @@ describe('Collection aggregations tab', function () {
       localStorage.setItem(key, 'true');
     }, STAGE_WIZARD_GUIDE_CUE_STORAGE_KEY);
 
+    await browser.setFeature('enableRerank', true);
+
     // Some tests navigate away from the numbers collection aggregations tab
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),
@@ -170,7 +172,6 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports the right stages for the environment', async function () {
-    await browser.setFeature('enableRerank', false);
     const options = await browser.getStageOperators(0);
 
     const expectedAggregations = [
@@ -193,6 +194,7 @@ describe('Collection aggregations tab', function () {
       '$out',
       '$project',
       '$redact',
+      '$rerank',
       '$replaceRoot',
       '$replaceWith',
       '$sample',
@@ -208,6 +210,9 @@ describe('Collection aggregations tab', function () {
       '$unwind',
     ];
 
+    if (serverSatisfies('>=7.0.0')) {
+      expectedAggregations.push('$listSearchIndexes');
+    }
     if (serverSatisfies('>=6.0.10 <7.0.0 || >=7.0.2')) {
       expectedAggregations.push('$vectorSearch');
     }
@@ -598,7 +603,6 @@ describe('Collection aggregations tab', function () {
 
     await addStage(browser, 2);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -763,7 +767,6 @@ describe('Collection aggregations tab', function () {
 
     await addStage(browser, 2);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -813,7 +816,6 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.AddStageButton);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -877,7 +879,6 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.AddStageButton);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -968,7 +969,6 @@ describe('Collection aggregations tab', function () {
 
     // Add second $limit stage
     await browser.clickVisible(Selectors.AddStageButton);
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$limit');
     await browser.setCodemirrorEditorValue(Selectors.stageEditor(1), '25');
 

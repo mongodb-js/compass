@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, May 17, 2026
+Generated on Tue, Jun 2, 2026
 
 ## Table of Contents
 
@@ -216,8 +216,6 @@ Generated on Sun, May 17, 2026
 
 - [Application Launched](#event--ApplicationLaunchedEvent)
 - [Atlas Link Clicked](#event--AtlasLinkClickedEvent)
-- [Atlas Skills CTA Clicked](#event--AtlasSkillsCtaClickedEvent)
-- [Atlas Skills CTA Dismissed](#event--AtlasSkillsCtaDismissedEvent)
 - [Error Fetching Attributes](#event--ErrorFetchingAttributesEvent)
 - [Keytar Secrets Migration Failed](#event--KeytarSecretsMigrationFailedEvent)
 - [Performance Advisor Clicked](#event--PerformanceAdvisorClickedEvent)
@@ -1128,6 +1126,9 @@ This event is fired when user successfully connects to a new server/cluster.
 - **user_language** (required): `string`
   - The user's preferred language, as reported by the browser or Electron
     runtime (e.g. "en-US", "fr", "zh-CN").
+- **user_languages** (required): `{}`
+  - The user's ordered language preferences, as
+    reported by navigator.languages (e.g. ['en-US', 'en', 'fr']).
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`
@@ -2529,30 +2530,6 @@ This event is fired when a user clicks on the Atlas CTA.
 
 - **screen** (optional): `"agg_builder" | "connect" | undefined`
   - The screen from which the Atlas CTA was clicked.
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--AtlasSkillsCtaClickedEvent"></a>
-
-### Atlas Skills CTA Clicked
-
-This event is fired when a user clicks the Atlas Skills CTA banner.
-
-**Properties**:
-
-- **context** (required): `"Indexes Tab" | "Documents Tab" | "Aggregation Tab" | "Schema Tab"`
-  - The context/screen from which the Atlas Skills CTA was dismissed.
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--AtlasSkillsCtaDismissedEvent"></a>
-
-### Atlas Skills CTA Dismissed
-
-This event is fired when a user dismisses the Atlas Skills CTA banner.
-
-**Properties**:
-
-- **context** (required): `"Indexes Tab" | "Documents Tab" | "Aggregation Tab" | "Schema Tab"`
-  - The context/screen from which the Atlas Skills CTA was dismissed.
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--ErrorFetchingAttributesEvent"></a>

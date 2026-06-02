@@ -9,6 +9,7 @@ import {
   changeStageCollapsed,
   changeStageDisabled,
   addStage,
+  addSearchStageBefore,
   moveStage,
   removeStage,
   loadStagePreview,
@@ -70,6 +71,18 @@ const OUT_STAGE: StoreStage = mapBuilderStageToStoreStage(
     isEmpty: false,
   } as Stage,
   2
+);
+
+const RERANK_STAGE: StoreStage = mapBuilderStageToStoreStage(
+  {
+    id: 4,
+    operator: '$rerank',
+    value: '{}',
+    syntaxError: null,
+    disabled: false,
+    isEmpty: false,
+  } as Stage,
+  0
 );
 
 const createWizard = (): Wizard => ({
@@ -528,6 +541,33 @@ describe('stageEditor', function () {
           );
         });
       });
+    });
+  });
+
+  describe('addSearchStageBefore', function () {
+    it('inserts a $search stage before a first-stage $rerank (storeIndex 0)', function () {
+      const store = createStore({
+        pipelineSource: '[{$rerank: {}}]',
+        stages: [RERANK_STAGE],
+      });
+      store.dispatch(addSearchStageBefore(0));
+      const stages = store.getState().stages.filter((s) => s.type === 'stage');
+      expect(stages).to.have.lengthOf(2);
+      expect(stages[0]).to.have.property('stageOperator', '$search');
+      expect(stages[1]).to.have.property('stageOperator', '$rerank');
+    });
+
+    it('inserts a $search stage before $rerank at a non-zero index', function () {
+      const store = createStore({
+        pipelineSource: '[{$match: {}}, {$rerank: {}}]',
+        stages: [MATCH_STAGE, { ...RERANK_STAGE, idxInPipeline: 1 }],
+      });
+      store.dispatch(addSearchStageBefore(1));
+      const stages = store.getState().stages.filter((s) => s.type === 'stage');
+      expect(stages).to.have.lengthOf(3);
+      expect(stages[0]).to.have.property('stageOperator', '$match');
+      expect(stages[1]).to.have.property('stageOperator', '$search');
+      expect(stages[2]).to.have.property('stageOperator', '$rerank');
     });
   });
 

@@ -172,6 +172,16 @@ export const pollSearchIndexes = (): PipelineBuilderThunkAction<
   };
 };
 
+// Fetch fresh index data on demand (e.g. user opens the insight popover).
+// Uses POLL reason so it always fetches even if a previous fetch already completed.
+export const refreshSearchIndexes = (): PipelineBuilderThunkAction<
+  Promise<void>
+> => {
+  return async (dispatch) => {
+    await dispatch(fetchIndexesInternal(FetchReasons.POLL));
+  };
+};
+
 export const startPollingSearchIndexes =
   (): PipelineBuilderThunkAction<void> => {
     return (dispatch, _getState, { pollingIntervalRef }) => {

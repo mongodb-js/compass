@@ -904,9 +904,6 @@ export const CreateViewNameInput = `${CreateViewModal} [data-testid="create-view
 export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
-export const stageOperatorOptions = (stageIndex: number): string => {
-  return `${StageCardAtIndex(stageIndex)} [role="option"]`;
-};
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
 };
@@ -1391,6 +1388,9 @@ export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
 // Insights
 export const InsightIconButton = '[data-testid="insight-badge-button"]';
 export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
+export const InsightTellMeMoreButton = '[data-testid="tell-me-more-button"]';
+export const RerankFirstStageBannerLearnMoreButton =
+  '[data-testid="rerank-first-stage-learn-more-button"]';
 
 // Proxy settings
 export const ProxyUrl =

@@ -7,6 +7,7 @@ import ObjectGenerator from './object-generator';
 import TypeChecker, {
   convertBinaryUUID,
   getBsonType,
+  isUUIDType,
 } from 'hadron-type-checker';
 import { Binary, UUID } from 'bson';
 import DateEditor from './editor/date';
@@ -56,25 +57,6 @@ const UNEDITABLE_TYPES = [
 ];
 
 /**
- * UUID type names for Binary subtypes 3 and 4.
- */
-export const UUID_TYPES = [
-  'UUID',
-  'LegacyJavaUUID',
-  'LegacyCSharpUUID',
-  'LegacyPythonUUID',
-] as const;
-
-export type UUIDType = (typeof UUID_TYPES)[number];
-
-/**
- * Type guard to check if a type string is a UUID type.
- */
-export function isUUIDType(type: string): type is UUIDType {
-  return (UUID_TYPES as readonly string[]).includes(type);
-}
-
-/**
  * Type guard to check if a value is a BSON Binary.
  */
 function isBinary(value: unknown): value is Binary {
@@ -115,11 +97,6 @@ export class Element extends EventEmitter {
   decrypted: boolean;
   expanded = false;
   maxVisibleElementsCount = DEFAULT_VISIBLE_ELEMENTS;
-  // Display type for the element. This is used by editors to determine
-  // how to display and edit the value. For example, a Binary with subtype 3
-  // might have displayType set to 'LegacyJavaUUID' to indicate it should be
-  // displayed and edited as a Java legacy UUID.
-  displayType?: TypeCastTypes;
 
   /**
    * Cancel any modifications to the element.
@@ -265,6 +242,56 @@ export class Element extends EventEmitter {
         // whether to turn on Int32 into a Double or Int64 or not is complex and
         // error-prone. Also leaving every other type alone.
         break;
+    }
+  }
+
+  /**
+   * Adjust this element's type based on the collection's existing schema.
+   * Only converts Int32 → Double or Int32 → Int64 when the schema indicates
+   * the field should be one of those types. This prevents unintended type
+   * narrowing when inserting new documents (e.g. 5.0 becoming Int32 when
+   * the field is typically Double).
+   *
+   * @param schemaFields - A map of dotted field paths to objects containing
+   *   a `type` property with their schema type(s). Type values use
+   *   mongodb-schema naming: 'Double', 'Int32', 'Long'.
+   * @param parentPath - The dotted path prefix for nested elements.
+   */
+  preserveTypeFromSchema(
+    schemaFields: Readonly<Record<string, { type: string | string[] }>>,
+    parentPath: string
+  ): void {
+    const fieldPath = parentPath
+      ? `${parentPath}.${String(this.currentKey)}`
+      : String(this.currentKey);
+
+    if (this.currentType === 'Object' && this.elements) {
+      for (const child of this.elements) {
+        child.preserveTypeFromSchema(schemaFields, fieldPath);
+      }
+      return;
+    }
+
+    // NOTE: Purposefully leaving Array elements alone because deciding
+    // whether to turn an Int32 into a Double or Int64 or not is complex
+    // and error-prone. Also leaving every other non-Int32 type alone.
+    if (this.currentType !== 'Int32') {
+      return;
+    }
+
+    const schemaType = schemaFields[fieldPath]?.type;
+    if (!schemaType) {
+      return;
+    }
+
+    const types = Array.isArray(schemaType) ? schemaType : [schemaType];
+
+    // Prefer Double over Long/Int64 when both are present in the schema,
+    // since Double is the more common floating-point representation.
+    if (types.includes('Double')) {
+      this.changeType('Double');
+    } else if (types.includes('Long') || types.includes('Int64')) {
+      this.changeType('Int64');
     }
   }
 

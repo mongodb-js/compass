@@ -7,7 +7,6 @@ import {
   within,
   fireEvent,
   waitFor,
-  userEvent,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -21,13 +20,13 @@ import { setupStore } from '../../../test/setup-store';
 import { searchIndexes } from '../../../test/fixtures/search-indexes';
 import type { RootState } from '../../modules';
 import type { Document } from 'mongodb';
-import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
+import type { AllPreferences } from 'compass-preferences-model';
 
 const renderIndexes = async (
   options: Partial<IndexesPluginOptions> = {},
   dataProvider: Partial<IndexesDataService> = {},
-  props?: Partial<RootState>
+  props?: Partial<RootState>,
+  preferences?: Partial<AllPreferences>
 ) => {
   const store = setupStore(
     { ...options, isSearchIndexesSupported: true },
@@ -56,7 +55,8 @@ const renderIndexes = async (
   render(
     <Provider store={store}>
       <Indexes />
-    </Provider>
+    </Provider>,
+    { preferences }
   );
 
   return store;
@@ -77,15 +77,22 @@ describe('Indexes Component', function () {
   });
 
   it('renders indexes toolbar when there is a regular indexes error', async function () {
-    await renderIndexes(undefined, undefined, {
-      indexView: 'regular-indexes',
-      regularIndexes: {
-        indexes: [],
-        error: 'Some random error',
-        status: 'ERROR',
-        inProgressIndexes: [],
+    await renderIndexes(
+      undefined,
+      undefined,
+      {
+        indexView: 'regular-indexes',
+        regularIndexes: {
+          indexes: [],
+          error: 'Some random error',
+          status: 'ERROR',
+          inProgressIndexes: [],
+        },
       },
-    });
+      {
+        enableAtlasSearchIndexes: false,
+      }
+    );
     expect(screen.getByTestId('indexes-toolbar')).to.exist;
     expect(screen.getByTestId('indexes-error').textContent).to.equal(
       'Some random error'
@@ -415,152 +422,6 @@ describe('Indexes Component', function () {
         expect(screen.queryByText('No standard indexes')).to.exist;
         expect(screen.queryByText('Create Atlas Search Index')).to.not.exist;
       });
-    });
-  });
-
-  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
-  describe('Atlas Skills Banner', function () {
-    const renderIndexesWithExperimentation = async (experimentationOptions?: {
-      isInExperiment?: boolean;
-      isInVariant?: boolean;
-    }) => {
-      const mockUseAssignment = sinon.stub();
-      const mockUseTrackInSample = sinon.stub();
-      const mockAssignExperiment = sinon.stub();
-      const mockGetAssignment = sinon.stub();
-
-      const commonAsyncStatus = {
-        asyncStatus: null,
-        error: null,
-        isLoading: false,
-        isError: false,
-        isSuccess: true,
-      };
-
-      if (experimentationOptions?.isInExperiment) {
-        if (experimentationOptions?.isInVariant) {
-          mockUseAssignment.returns({
-            assignment: {
-              assignmentData: {
-                variant: ExperimentTestGroups.atlasSkillsVariant,
-              },
-            },
-            ...commonAsyncStatus,
-          });
-        } else {
-          mockUseAssignment.returns({
-            assignment: {
-              assignmentData: {
-                variant: ExperimentTestGroups.atlasSkillsControl,
-              },
-            },
-            ...commonAsyncStatus,
-          });
-        }
-      } else {
-        mockUseAssignment.returns({
-          assignment: null,
-          ...commonAsyncStatus,
-        });
-      }
-
-      mockUseTrackInSample.returns(commonAsyncStatus);
-      mockAssignExperiment.returns(Promise.resolve(null));
-      mockGetAssignment.returns(Promise.resolve(null));
-
-      const store = setupStore({ isSearchIndexesSupported: true }, {});
-
-      await waitFor(() => {
-        expect(store.getState().regularIndexes.status).to.be.oneOf([
-          'READY',
-          'ERROR',
-        ]);
-        expect(store.getState().searchIndexes.status).to.be.oneOf([
-          'READY',
-          'ERROR',
-        ]);
-      });
-
-      render(
-        <CompassExperimentationProvider
-          useAssignment={mockUseAssignment}
-          useTrackInSample={mockUseTrackInSample}
-          assignExperiment={mockAssignExperiment}
-          getAssignment={mockGetAssignment}
-        >
-          <Provider store={store}>
-            <Indexes />
-          </Provider>
-        </CompassExperimentationProvider>
-      );
-
-      return store;
-    };
-
-    it('should show skills banner when user is in experiment and in variant', async function () {
-      await renderIndexesWithExperimentation({
-        isInExperiment: true,
-        isInVariant: true,
-      });
-
-      expect(
-        screen.getByText(
-          'Learn how to design efficient indexes to speed up queries.'
-        )
-      ).to.be.visible;
-
-      expect(screen.getByRole('link', { name: /go to skills/i })).to.be.visible;
-      expect(screen.getByLabelText('Award Icon')).to.be.visible;
-    });
-
-    it('should not show skills banner when user is in experiment but not in variant', async function () {
-      await renderIndexesWithExperimentation({
-        isInExperiment: true,
-        isInVariant: false,
-      });
-
-      expect(
-        screen.queryByText(
-          'Learn how to design efficient indexes to speed up queries.'
-        )
-      ).to.not.exist;
-      expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
-        .exist;
-    });
-
-    it('should not show skills banner by default when user is not in experiment', async function () {
-      await renderIndexesWithExperimentation({
-        isInExperiment: false,
-        isInVariant: false,
-      });
-
-      expect(
-        screen.queryByText(
-          'Learn how to design efficient indexes to speed up queries.'
-        )
-      ).to.not.exist;
-      expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
-        .exist;
-    });
-
-    it('should dismiss banner when close button is clicked', async function () {
-      await renderIndexesWithExperimentation({
-        isInExperiment: true,
-        isInVariant: true,
-      });
-
-      const closeButton = screen.getByRole('button', {
-        name: 'Dismiss Skills Banner',
-      });
-
-      expect(closeButton).to.be.visible;
-      userEvent.click(closeButton);
-
-      expect(
-        screen.queryByText(
-          'Learn how to design efficient indexes to speed up queries.'
-        )
-      ).to.not.exist;
     });
   });
 });
