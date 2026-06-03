@@ -514,12 +514,12 @@ describe('user-data', function () {
 describe('AtlasUserData', function () {
   let sandbox: sinon.SinonSandbox;
   let authenticatedFetchStub: sinon.SinonStub;
-  let getResourceUrlStub: sinon.SinonStub;
+  let atlasServiceStub: { userDataEndpoint: sinon.SinonStub };
 
   beforeEach(function () {
     sandbox = sinon.createSandbox();
     authenticatedFetchStub = sandbox.stub();
-    getResourceUrlStub = sandbox.stub();
+    atlasServiceStub = { userDataEndpoint: sandbox.stub() };
   });
 
   afterEach(function () {
@@ -535,7 +535,7 @@ describe('AtlasUserData', function () {
     return new AtlasUserData(getTestSchema(validatorOpts), type, {
       orgId,
       projectId,
-      getResourceUrl: getResourceUrlStub,
+      atlasService: atlasServiceStub as any,
       authenticatedFetch: authenticatedFetchStub,
     });
   };
@@ -552,7 +552,7 @@ describe('AtlasUserData', function () {
   context('AtlasUserData.write', function () {
     it('writes data successfully', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
@@ -583,7 +583,7 @@ describe('AtlasUserData', function () {
       authenticatedFetchStub.rejects(
         new Error('HTTP 500: Internal Server Error')
       );
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
@@ -595,7 +595,7 @@ describe('AtlasUserData', function () {
 
     it('validator removes unknown props', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
@@ -611,14 +611,14 @@ describe('AtlasUserData', function () {
 
     it('uses custom serializer when provided', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
         orgId: 'test-org',
         projectId: 'test-proj',
-        getResourceUrl: getResourceUrlStub,
+        atlasService: atlasServiceStub as any,
         authenticatedFetch: authenticatedFetchStub,
         serialize: (data) => `custom:${JSON.stringify(data)}`,
       });
@@ -635,7 +635,7 @@ describe('AtlasUserData', function () {
   context('AtlasUserData.delete', function () {
     it('deletes data successfully', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
       );
 
@@ -654,7 +654,7 @@ describe('AtlasUserData', function () {
 
     it('returns false when authenticatedFetch throws an error', async function () {
       authenticatedFetchStub.rejects(new Error('HTTP 404: Not Found'));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
@@ -672,7 +672,7 @@ describe('AtlasUserData', function () {
         { data: JSON.stringify({ name: 'Mongosh' }) },
       ];
       authenticatedFetchStub.resolves(mockResponse(responseData));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
@@ -708,7 +708,7 @@ describe('AtlasUserData', function () {
 
     it('handles empty response', async function () {
       authenticatedFetchStub.resolves(mockResponse([]));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
@@ -721,7 +721,7 @@ describe('AtlasUserData', function () {
 
     it('handles non-array response', async function () {
       authenticatedFetchStub.resolves(mockResponse({ notAnArray: true }));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
@@ -734,7 +734,7 @@ describe('AtlasUserData', function () {
 
     it('handles errors gracefully', async function () {
       authenticatedFetchStub.rejects(new Error('Unknown error'));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
@@ -750,7 +750,7 @@ describe('AtlasUserData', function () {
       authenticatedFetchStub.rejects(
         new Error('HTTP 500: Internal Server Error')
       );
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
@@ -767,14 +767,14 @@ describe('AtlasUserData', function () {
     it('uses custom deserializer when provided', async function () {
       const responseData = [{ data: 'custom:{"name":"Custom"}' }];
       authenticatedFetchStub.resolves(mockResponse(responseData));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
       const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
         orgId: 'test-org',
         projectId: 'test-proj',
-        getResourceUrl: getResourceUrlStub,
+        atlasService: atlasServiceStub as any,
         authenticatedFetch: authenticatedFetchStub,
         deserialize: (data) => {
           if (data.startsWith('custom:')) {
@@ -804,7 +804,7 @@ describe('AtlasUserData', function () {
         },
       ];
       authenticatedFetchStub.resolves(mockResponse(responseData));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj'
       );
 
@@ -834,7 +834,7 @@ describe('AtlasUserData', function () {
         .onSecondCall()
         .resolves(mockResponse(putResponse));
 
-      getResourceUrlStub
+      atlasServiceStub.userDataEndpoint
         .onFirstCall()
         .returns('cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id')
         .onSecondCall()
@@ -877,7 +877,7 @@ describe('AtlasUserData', function () {
         .onSecondCall()
         .rejects(new Error('HTTP 400: Bad Request'));
 
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/test-org/test-proj/test-id'
       );
 
@@ -900,7 +900,7 @@ describe('AtlasUserData', function () {
         .onSecondCall()
         .resolves(mockResponse(putResponse));
 
-      getResourceUrlStub
+      atlasServiceStub.userDataEndpoint
         .onFirstCall()
         .returns('cloud.mongodb.com/FavoriteQueries/test-org/test-proj')
         .onSecondCall()
@@ -911,7 +911,7 @@ describe('AtlasUserData', function () {
       const userData = new AtlasUserData(getTestSchema(), 'FavoriteQueries', {
         orgId: 'test-org',
         projectId: 'test-proj',
-        getResourceUrl: getResourceUrlStub,
+        atlasService: atlasServiceStub as any,
         authenticatedFetch: authenticatedFetchStub,
         serialize: (data) => `custom:${JSON.stringify(data)}`,
       });
@@ -930,7 +930,7 @@ describe('AtlasUserData', function () {
   context('AtlasUserData urls', function () {
     it('constructs URL correctly for write operation', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/custom-org/custom-proj/test-id'
       );
 
@@ -945,7 +945,7 @@ describe('AtlasUserData', function () {
 
     it('constructs URL correctly for delete operation', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/org123/proj456/item789'
       );
 
@@ -960,7 +960,7 @@ describe('AtlasUserData', function () {
 
     it('constructs URL correctly for read operation', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/FavoriteQueries/org456/proj123'
       );
 
@@ -984,7 +984,7 @@ describe('AtlasUserData', function () {
         .onSecondCall()
         .resolves(mockResponse(putResponse));
 
-      getResourceUrlStub
+      atlasServiceStub.userDataEndpoint
         .onFirstCall()
         .returns('cloud.mongodb.com/FavoriteQueries/org123/proj456')
         .onSecondCall()
@@ -1008,7 +1008,7 @@ describe('AtlasUserData', function () {
 
     it('constructs URL correctly for different types', async function () {
       authenticatedFetchStub.resolves(mockResponse({}));
-      getResourceUrlStub.returns(
+      atlasServiceStub.userDataEndpoint.returns(
         'cloud.mongodb.com/RecentQueries/org123/proj456'
       );
 

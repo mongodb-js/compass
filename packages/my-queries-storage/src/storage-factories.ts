@@ -1,5 +1,6 @@
 import { EJSON } from 'bson';
 import { AtlasUserData, FileUserData } from '@mongodb-js/compass-user-data';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { RecentQuerySchema, FavoriteQuerySchema } from './query-storage-schema';
 import { PipelineSchema } from './pipeline-storage-schema';
 import {
@@ -12,7 +13,7 @@ import { BaseCompassPipelineStorage } from './base-pipeline-storage';
 export type WebStorageOptions = {
   orgId: string;
   projectId: string;
-  getResourceUrl: (path?: string) => string;
+  atlasService: AtlasService;
   authenticatedFetch: (
     url: RequestInfo | URL,
     options?: RequestInit
@@ -23,7 +24,7 @@ export function createWebRecentQueryStorage(options: WebStorageOptions) {
   const userData = new AtlasUserData(RecentQuerySchema, 'RecentQueries', {
     orgId: options.orgId,
     projectId: options.projectId,
-    getResourceUrl: options.getResourceUrl,
+    atlasService: options.atlasService,
     authenticatedFetch: options.authenticatedFetch,
     serialize: (content) => EJSON.stringify(content),
     deserialize: (content: string) => EJSON.parse(content),
@@ -35,7 +36,7 @@ export function createWebFavoriteQueryStorage(options: WebStorageOptions) {
   const userData = new AtlasUserData(FavoriteQuerySchema, 'FavoriteQueries', {
     orgId: options.orgId,
     projectId: options.projectId,
-    getResourceUrl: options.getResourceUrl,
+    atlasService: options.atlasService,
     authenticatedFetch: options.authenticatedFetch,
     serialize: (content) => EJSON.stringify(content),
     deserialize: (content: string) => EJSON.parse(content),
@@ -47,7 +48,7 @@ export function createWebPipelineStorage(options: WebStorageOptions) {
   const userData = new AtlasUserData(PipelineSchema, 'SavedPipelines', {
     orgId: options.orgId,
     projectId: options.projectId,
-    getResourceUrl: options.getResourceUrl,
+    atlasService: options.atlasService,
     authenticatedFetch: options.authenticatedFetch,
     serialize: (content) => EJSON.stringify(content),
     deserialize: (content: string) => EJSON.parse(content),

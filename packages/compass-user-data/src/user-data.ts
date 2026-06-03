@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { z } from 'zod';
 import writeFile from 'write-file-atomic';
 import { Semaphore } from './semaphore';
@@ -33,7 +34,6 @@ export function assertsUserDataType(
 
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
-type GetResourceUrl = (path?: string) => string;
 type AuthenticatedFetch = (
   url: RequestInfo | URL,
   options?: RequestInit
@@ -48,7 +48,7 @@ export type FileUserDataOptions<Input> = {
 export type AtlasUserDataOptions<Input> = {
   orgId: string;
   projectId: string;
-  getResourceUrl: GetResourceUrl;
+  atlasService: AtlasService;
   authenticatedFetch: AuthenticatedFetch;
   serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
@@ -359,7 +359,7 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
 // TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
 export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly authenticatedFetch;
-  private readonly getResourceUrl;
+  private readonly atlasService: AtlasService;
   private orgId: string = '';
   private projectId: string = '';
   constructor(
@@ -368,17 +368,34 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     {
       orgId,
       projectId,
-      getResourceUrl,
+      atlasService,
       authenticatedFetch,
       serialize,
       deserialize,
     }: AtlasUserDataOptions<z.input<T>>
   ) {
     super(validator, dataType, { serialize, deserialize });
+    this.atlasService = atlasService;
     this.authenticatedFetch = authenticatedFetch;
-    this.getResourceUrl = getResourceUrl;
     this.orgId = orgId;
     this.projectId = projectId;
+  }
+
+  private getResourceUrl(path?: string) {
+    const [type, pathOrgId, pathProjectId, id] =
+      path?.split('/').filter(Boolean) || [];
+
+    if (!type || !pathOrgId || !pathProjectId) {
+      throw new Error(`Invalid path: ${path}`);
+    }
+    assertsUserDataType(type);
+
+    return this.atlasService.userDataEndpoint(
+      pathOrgId,
+      pathProjectId,
+      type,
+      id
+    );
   }
 
   async write(id: string, content: z.input<T>): Promise<boolean> {

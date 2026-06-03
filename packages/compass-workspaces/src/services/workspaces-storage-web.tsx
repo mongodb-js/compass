@@ -1,5 +1,6 @@
 import React from 'react';
 import { AtlasUserData, type IUserData } from '@mongodb-js/compass-user-data';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { WorkspacesStorageServiceContext } from './workspaces-storage';
 import { WorkspacesStateSchema } from '@mongodb-js/workspace-info';
 import { EJSON } from 'bson';
@@ -8,17 +9,17 @@ import { useInitialValue } from '@mongodb-js/compass-components';
 export const WorkspacesStorageServiceProviderWeb: React.FunctionComponent<{
   orgId: string;
   projectId: string;
-  getResourceUrl: (path?: string) => string;
+  atlasService: AtlasService;
   authenticatedFetch: (
     url: RequestInfo | URL,
     options?: RequestInit
   ) => Promise<Response>;
-}> = ({ orgId, projectId, getResourceUrl, authenticatedFetch, children }) => {
+}> = ({ orgId, projectId, atlasService, authenticatedFetch, children }) => {
   const storageRef = useInitialValue<IUserData<typeof WorkspacesStateSchema>>(
     new AtlasUserData(WorkspacesStateSchema, 'WorkspacesState', {
       orgId,
       projectId,
-      getResourceUrl,
+      atlasService,
       authenticatedFetch,
       serialize: (content) =>
         EJSON.stringify(content, {

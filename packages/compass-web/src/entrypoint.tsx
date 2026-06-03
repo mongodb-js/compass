@@ -100,7 +100,6 @@ import { createServiceProvider } from '@mongodb-js/compass-app-registry';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
-import { assertsUserDataType } from '@mongodb-js/compass-user-data';
 import { Link, setMultiplexLink } from './multiplex-link';
 import { useSyncHistory } from './use-sync-history';
 import type { History } from './use-sync-history';
@@ -192,32 +191,13 @@ const WithStorageProviders = createServiceProvider(
     const atlasService = atlasServiceLocator();
     const authenticatedFetch =
       atlasService.authenticatedFetch.bind(atlasService);
-    const getResourceUrl = (path?: string) => {
-      const pathParts = path?.split('/').filter(Boolean) || [];
-      const type = pathParts[0];
-      assertsUserDataType(type);
-      const pathOrgId = pathParts[1];
-      const pathProjectId = pathParts[2];
-      const id = pathParts[3];
-
-      // Use the path's orgId and projectId if provided, otherwise fall back to the context values
-      const finalOrgId = pathOrgId || orgId;
-      const finalProjectId = pathProjectId || projectId;
-
-      return atlasService.userDataEndpoint(
-        finalOrgId,
-        finalProjectId,
-        type,
-        id
-      );
-    };
 
     const pipelineStorage = useRef<PipelineStorageAccess>({
       getStorage() {
         return createWebPipelineStorage({
           orgId,
           projectId,
-          getResourceUrl,
+          atlasService,
           authenticatedFetch,
         });
       },
@@ -227,7 +207,7 @@ const WithStorageProviders = createServiceProvider(
         return createWebFavoriteQueryStorage({
           orgId,
           projectId,
-          getResourceUrl,
+          atlasService,
           authenticatedFetch,
         });
       },
@@ -237,7 +217,7 @@ const WithStorageProviders = createServiceProvider(
         return createWebRecentQueryStorage({
           orgId,
           projectId,
-          getResourceUrl,
+          atlasService,
           authenticatedFetch,
         });
       },
@@ -249,7 +229,7 @@ const WithStorageProviders = createServiceProvider(
             <WorkspacesStorageServiceProviderWeb
               orgId={orgId}
               projectId={projectId}
-              getResourceUrl={getResourceUrl}
+              atlasService={atlasService}
               authenticatedFetch={authenticatedFetch}
             >
               {children}
