@@ -7,6 +7,7 @@ import {
   palette,
 } from '@mongodb-js/compass-components';
 import type { ConnectionOptions } from 'mongodb-data-service';
+import type { McpAccess } from '@mongodb-js/connection-info';
 
 import AdvancedOptionsTabs from './advanced-options-tabs/advanced-options-tabs';
 import type { UpdateConnectionFormField } from '../hooks/use-connect-form';
@@ -36,12 +37,14 @@ function AdvancedConnectionOptions({
   open,
   setOpen,
   openSettingsModal,
+  mcpAccess,
 }: {
   errors: ConnectionFormError[];
   disabled: boolean;
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
   openSettingsModal?: (tab?: string) => void;
+  mcpAccess?: McpAccess;
 } & Pick<
   React.ComponentProps<typeof Accordion>,
   'open' | 'setOpen'
@@ -65,6 +68,7 @@ function AdvancedConnectionOptions({
           updateConnectionFormField={updateConnectionFormField}
           connectionOptions={connectionOptions}
           openSettingsModal={openSettingsModal}
+          mcpAccess={mcpAccess}
         />
       </div>
     </Accordion>

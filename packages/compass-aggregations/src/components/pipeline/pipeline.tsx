@@ -42,6 +42,8 @@ export type PipelineProps = Pick<
   SavingPipelineModalProps,
   | 'saveCurrentPipeline'
   | 'savingPipelineNameChanged'
+  | 'savingPipelineDescriptionChanged'
+  | 'savingPipelineMcpPromptNameChanged'
   | 'savingPipelineApply'
   | 'savingPipelineCancel'
   | 'clonePipeline'
@@ -59,7 +61,7 @@ export type PipelineProps = Pick<
   > & {
     savingPipeline: Pick<
       SavingPipelineModalProps,
-      'name' | 'isOpen' | 'isSaveAs'
+      'name' | 'description' | 'mcpPromptName' | 'isOpen' | 'isSaveAs'
     >;
     updateViewError?: string | null;
     dismissViewError: () => void;
@@ -80,6 +82,8 @@ export type PipelineProps = Pick<
 const Pipeline: React.FC<PipelineProps> = ({
   saveCurrentPipeline,
   savingPipelineNameChanged,
+  savingPipelineDescriptionChanged,
+  savingPipelineMcpPromptNameChanged,
   savingPipelineApply,
   savingPipelineCancel,
   clonePipeline,
@@ -151,10 +155,14 @@ const Pipeline: React.FC<PipelineProps> = ({
   const savingPipelineModal = (
     <SavingPipelineModal
       name={savingPipeline.name}
+      description={savingPipeline.description}
+      mcpPromptName={savingPipeline.mcpPromptName}
       isOpen={savingPipeline.isOpen}
       isSaveAs={savingPipeline.isSaveAs}
       saveCurrentPipeline={saveCurrentPipeline}
       savingPipelineNameChanged={savingPipelineNameChanged}
+      savingPipelineDescriptionChanged={savingPipelineDescriptionChanged}
+      savingPipelineMcpPromptNameChanged={savingPipelineMcpPromptNameChanged}
       savingPipelineApply={savingPipelineApply}
       savingPipelineCancel={savingPipelineCancel}
       clonePipeline={clonePipeline}

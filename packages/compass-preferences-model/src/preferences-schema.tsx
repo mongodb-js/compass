@@ -61,6 +61,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     // User-facing preferences
     autoUpdates: boolean;
     enableGenAIFeatures: boolean;
+    enableMcpServer: boolean;
     enableMaps: boolean;
     trackUsageStatistics: boolean;
     enableFeedbackPanel: boolean;
@@ -159,6 +160,7 @@ export type CliOnlyPreferences = {
   help?: boolean;
   showExampleConfig?: boolean;
   trustedConnectionString?: boolean;
+  mcpStdio?: boolean;
 };
 
 export type NonUserPreferences = {
@@ -634,6 +636,17 @@ export const storedUserPreferencesProps: Required<{
     },
     deriveValue: deriveNetworkTrafficOptionState('enableGenAIFeatures'),
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableMcpServer: {
+    ui: true,
+    cli: false,
+    global: false,
+    description: {
+      short: 'Enable MCP Server',
+      long: 'Run a local MCP server so external AI tools (e.g. Claude Desktop, Cursor) can run read-only queries against your MongoDB connections.',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   /**
@@ -1273,6 +1286,17 @@ const cliOnlyPreferencesProps: Required<{
       long: 'Allow automatic connection establishment when launching Compass, even if the provided connection string contains connection options that would not be accepted when coming from an untrusted source',
     },
     validator: z.boolean().default(false),
+    type: 'boolean',
+  },
+  mcpStdio: {
+    ui: false,
+    cli: true,
+    global: false,
+    description: {
+      short: 'Run as an MCP stdio bridge',
+      long: 'Run Compass headlessly as an MCP stdio bridge that forwards requests to a running Compass GUI instance via a local socket. Used by AI tools such as Claude Desktop, Cursor, and VS Code.',
+    },
+    validator: z.boolean().optional(),
     type: 'boolean',
   },
 };

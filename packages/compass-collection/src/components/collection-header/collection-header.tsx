@@ -19,6 +19,8 @@ import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import MockDataGeneratorModal from '../mock-data-generator-modal/mock-data-generator-modal';
+import { useLoadedFavorite } from './use-loaded-favorite';
+import { LoadedFavoriteBreadcrumbChip } from './loaded-favorite-breadcrumb-chip';
 
 const collectionHeaderStyles = css({
   padding: spacing[400],
@@ -105,6 +107,16 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   const connectionId = connectionInfo.id;
   const connectionName = getConnectionTitle(connectionInfo);
 
+  // Identity of the saved favorite currently loaded into the query
+  // bar (if any). Surfaced here as a chip rendered next to the
+  // breadcrumb trail so the user sees "<conn> > <db> > <coll> > [⭐
+  // saved query name *]" — same hierarchy idea, but the last element
+  // is a real chip (with the favorite icon + inline-editable name)
+  // instead of a plain breadcrumb item. LG's `Breadcrumbs` renders
+  // items as `<Body>` or `<Link>` only, which can't host an editable
+  // TextInput, so the chip lives as a sibling of `<Breadcrumbs>`.
+  const loadedFavorite = useLoadedFavorite();
+
   const breadcrumbItems = useMemo(() => {
     return [
       {
@@ -156,6 +168,7 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
       data-testid="collection-header"
     >
       <Breadcrumbs className={breadcrumbStyles} items={breadcrumbItems} />
+      <LoadedFavoriteBreadcrumbChip {...loadedFavorite} />
       {isReadonly && <CollectionBadge type="readonly" />}
       {isTimeSeries && <CollectionBadge type="timeseries" />}
       {isClustered && <CollectionBadge type="clustered" />}

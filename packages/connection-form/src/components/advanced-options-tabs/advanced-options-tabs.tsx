@@ -9,6 +9,7 @@ import {
 } from '@mongodb-js/compass-components';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
 import type { ConnectionOptions } from 'mongodb-data-service';
+import type { McpAccess } from '@mongodb-js/connection-info';
 
 import GeneralTab from './general-tab/general-tab';
 import AuthenticationTab from './authentication-tab/authentication-tab';
@@ -16,6 +17,7 @@ import ProxyAndSshTunnelTab from './ssh-tunnel-tab/proxy-and-ssh-tunnel-tab';
 import TLSTab from './tls-ssl-tab/tls-ssl-tab';
 import CSFLETab from './csfle-tab/csfle-tab';
 import AdvancedTab from './advanced-tab/advanced-tab';
+import AiAccessTab from './ai-access-tab/ai-access-tab';
 import type { UpdateConnectionFormField } from '../../hooks/use-connect-form';
 import type { ConnectionFormError, TabId } from '../../utils/validation';
 import { errorsByFieldTab } from '../../utils/validation';
@@ -48,16 +50,20 @@ const tabWithErrorIndicatorStyles = css({
   },
 });
 
+interface SharedTabProps {
+  errors: ConnectionFormError[];
+  connectionStringUrl: ConnectionStringUrl;
+  updateConnectionFormField: UpdateConnectionFormField;
+  connectionOptions: ConnectionOptions;
+  openSettingsModal?: (tab?: string) => void;
+  /** Only consumed by AiAccessTab; ignored by other tabs. */
+  mcpAccess?: McpAccess;
+}
+
 interface TabObject {
   name: string;
   id: TabId;
-  component: React.FunctionComponent<{
-    errors: ConnectionFormError[];
-    connectionStringUrl: ConnectionStringUrl;
-    updateConnectionFormField: UpdateConnectionFormField;
-    connectionOptions: ConnectionOptions;
-    openSettingsModal?: (tab?: string) => void;
-  }>;
+  component: React.FunctionComponent<SharedTabProps>;
 }
 
 function AdvancedOptionsTabs({
@@ -65,14 +71,17 @@ function AdvancedOptionsTabs({
   updateConnectionFormField,
   connectionOptions,
   openSettingsModal,
+  mcpAccess,
 }: {
   errors: ConnectionFormError[];
   updateConnectionFormField: UpdateConnectionFormField;
   connectionOptions: ConnectionOptions;
   openSettingsModal?: (tab?: string) => void;
+  mcpAccess?: McpAccess;
 }): React.ReactElement {
   const [activeTab, setActiveTab] = useState(0);
   const showCSFLE = useConnectionFormSetting('showCSFLE');
+  const showAiAccess = useConnectionFormSetting('showAiAccess');
 
   const tabs: TabObject[] = [
     { name: 'General', id: 'general', component: GeneralTab },
@@ -89,6 +98,19 @@ function AdvancedOptionsTabs({
             name: 'In-Use Encryption',
             id: 'csfle',
             component: CSFLETab,
+          } as const,
+        ]
+      : []),
+    ...(showAiAccess
+      ? [
+          {
+            name: 'AI access',
+            id: 'aiAccess',
+            // Cast: AiAccessTab consumes the extra `mcpAccess` prop that other
+            // tabs ignore. The shared SharedTabProps interface makes that
+            // optional so the union typechecks.
+            component:
+              AiAccessTab as unknown as React.FunctionComponent<SharedTabProps>,
           } as const,
         ]
       : []),
@@ -149,6 +171,7 @@ function AdvancedOptionsTabs({
                 updateConnectionFormField={updateConnectionFormField}
                 connectionOptions={connectionOptions}
                 openSettingsModal={openSettingsModal}
+                mcpAccess={mcpAccess}
               />
             </div>
           </Tab>

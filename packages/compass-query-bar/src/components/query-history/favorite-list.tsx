@@ -14,7 +14,6 @@ import {
   DeleteActionButton,
 } from './query-item';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
-import type { BaseQuery } from '../../constants/query-properties';
 import type { RootState } from '../../stores/query-bar-store';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -22,7 +21,12 @@ import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 export type FavoriteActions = {
-  onApply: (query: BaseQuery) => void;
+  /**
+   * Receives the full FavoriteQuery so the dispatch can forward the
+   * favorite's id into the reducer — that's what arms the query bar's
+   * `Save` button to update-in-place rather than save as a new copy.
+   */
+  onApply: (favorite: FavoriteQuery) => void;
   onDelete: (id: string) => void;
   onUpdateFavoriteChoosen: () => void;
 };
@@ -63,14 +67,13 @@ const FavoriteItem = ({
       onUpdateFavoriteChoosen();
     }
 
-    onApply(attributes);
+    onApply(query);
   }, [
     track,
-    query._id,
+    query,
     isUpdateQuery,
     isDisabled,
     onApply,
-    attributes,
     onUpdateFavoriteChoosen,
     connectionInfoRef,
   ]);
@@ -145,7 +148,14 @@ export default connect(
     isReadonly: isReadonlyConnection,
   }),
   {
-    onApply: applyFromHistory,
+    // Forward the favorite's id alongside the query body so the
+    // reducer can populate `loadedFavoriteId`. Saved queries opened via
+    // the slash-command surface (MCP prompts) and via this popover use
+    // the same code path.
+    onApply: (favorite: FavoriteQuery) =>
+      applyFromHistory(getQueryAttributes(favorite), [], {
+        favoriteId: favorite._id,
+      }),
     onDelete: deleteFavoriteQuery,
   }
 )(FavoriteList);

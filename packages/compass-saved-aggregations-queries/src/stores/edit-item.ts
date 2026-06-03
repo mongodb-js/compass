@@ -11,6 +11,19 @@ function isAction<A extends Action>(
 
 export type UpdateItemAttributes = {
   name: string;
+  /**
+   * Human-readable description of what the saved item does. Surfaced to
+   * AI agents via the MCP `list-saved-queries` tool — items without a
+   * description are hidden from that catalog.
+   */
+  description?: string;
+  /**
+   * Optional slash-command name under which the MCP server publishes the
+   * saved item as an MCP prompt (e.g. `search-trips` becomes
+   * `/search-trips` in Claude Desktop / Cursor). Validated in the UI;
+   * uniqueness across items is enforced by the MCP server.
+   */
+  mcpPromptName?: string;
 };
 
 export type State = {
@@ -90,15 +103,35 @@ export const updateItem =
       return;
     }
 
+    // Treat `''` as "clear the field" and `undefined` as "leave alone".
+    // The form always submits both fields, so empty string here means
+    // the user deleted the value.
+    const description = attributes.description?.trim();
+    const mcpPromptName = attributes.mcpPromptName?.trim();
+
     switch (item.type) {
       case 'aggregation':
-        await pipelineStorage?.updateAttributes(id, attributes);
+        await pipelineStorage?.updateAttributes(id, {
+          name: attributes.name,
+          description:
+            description === undefined ? undefined : description || undefined,
+          mcpPromptName:
+            mcpPromptName === undefined
+              ? undefined
+              : mcpPromptName || undefined,
+        });
         break;
       case 'query':
       case 'updatemany':
         await queryStorage?.updateAttributes(id, {
           _name: attributes.name,
           _dateModified: new Date(),
+          _description:
+            description === undefined ? undefined : description || undefined,
+          _mcpPromptName:
+            mcpPromptName === undefined
+              ? undefined
+              : mcpPromptName || undefined,
         });
         break;
     }

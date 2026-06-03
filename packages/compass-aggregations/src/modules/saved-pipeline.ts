@@ -176,6 +176,8 @@ export const saveCurrentPipeline =
     const {
       id,
       name,
+      description,
+      mcpPromptName,
       namespace,
       comments,
       autoPreview,
@@ -183,6 +185,11 @@ export const saveCurrentPipeline =
       dataService,
     } = getState();
 
+    // `description` and `mcpPromptName` come from the modal flow via
+    // the top-level reducers (mirror of how `name` is plumbed). They
+    // pass through verbatim — same fields the user enters when saving
+    // a FavoriteQuery from the query bar. Empty strings collapse to
+    // `undefined` so we don't persist meaningless empties.
     const savedPipeline = {
       id,
       name,
@@ -196,6 +203,8 @@ export const saveCurrentPipeline =
       ),
       host:
         dataService.dataService?.getConnectionString().hosts.join(',') ?? null,
+      ...(description ? { description } : {}),
+      ...(mcpPromptName ? { mcpPromptName } : {}),
     };
 
     await pipelineStorage?.createOrUpdate(savedPipeline.id, savedPipeline);

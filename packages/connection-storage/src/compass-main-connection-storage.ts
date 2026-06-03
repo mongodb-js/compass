@@ -68,6 +68,24 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
           .transform((x) => (x !== undefined ? new Date(x) : x)),
         favorite: z.any().optional(),
         savedConnectionType: z.enum(['favorite', 'recent']).optional(),
+        // mcpAccess accepts either the legacy string enum ('allowed' |
+        // 'denied') or the new discriminated-union shape. Both are
+        // normalized at read time via `normalizeMcpAccess` in
+        // `@mongodb-js/connection-info`, so the runtime always sees the
+        // new shape. Validation here is loose because we want existing
+        // connection records to load through unchanged.
+        mcpAccess: z
+          .union([
+            z.literal('allowed'),
+            z.literal('denied'),
+            z.object({ mode: z.literal('denied') }),
+            z.object({ mode: z.literal('ask') }),
+            z.object({
+              mode: z.literal('allowed'),
+              preset: z.enum(['metadata-only', 'read-only', 'full-access']),
+            }),
+          ])
+          .optional(),
         connectionOptions: z.object({
           connectionString: z
             .string()

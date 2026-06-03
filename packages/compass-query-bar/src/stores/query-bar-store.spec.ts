@@ -64,6 +64,7 @@ describe('createQueryWithHistoryAutocompleter', function () {
       {
         on: () => {},
         cleanup: () => {},
+        addCleanup: () => {},
       } as any
     );
     await waitFor(() => {

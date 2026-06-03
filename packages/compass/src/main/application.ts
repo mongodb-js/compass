@@ -40,6 +40,8 @@ import {
   translateToElectronProxyConfig,
 } from '@mongodb-js/devtools-proxy-support';
 import { handleSquirrelWindowsStartup } from './squirrel-startup';
+import { CompassMcpServerManager } from '@mongodb-js/compass-mcp-server';
+import { getCompassMainSavedQueryStorage } from './compass-main-saved-query-storage';
 
 const { debug, log, mongoLogId } = createLogger('COMPASS-MAIN');
 const track = createIpcTrack();
@@ -175,6 +177,7 @@ class CompassApplication {
 
     await this.setupCORSBypass();
     void this.setupCompassAuthService();
+    void this.setupMcpServer();
     await setupCSFLELibrary();
     setupTheme(this);
     this.setupJavaScriptArguments();
@@ -197,6 +200,15 @@ class CompassApplication {
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
     });
+  }
+
+  private static async setupMcpServer(): Promise<void> {
+    await CompassMcpServerManager.init(
+      this.preferences,
+      getCompassMainConnectionStorage(),
+      getCompassMainSavedQueryStorage()
+    );
+    this.addExitHandler(() => CompassMcpServerManager.onExit());
   }
 
   private static setupJavaScriptArguments(): void {

@@ -12,6 +12,8 @@ import {
 } from '../../modules/settings';
 import {
   savingPipelineNameChanged,
+  savingPipelineDescriptionChanged,
+  savingPipelineMcpPromptNameChanged,
   savingPipelineApply,
   savingPipelineCancel,
 } from '../../modules/saving-pipeline';
@@ -96,6 +98,8 @@ const MappedAggregations = connect(mapStateToProps, {
   clonePipeline,
   applySettings,
   savingPipelineNameChanged,
+  savingPipelineDescriptionChanged,
+  savingPipelineMcpPromptNameChanged,
   savingPipelineApply,
   savingPipelineCancel,
   dismissViewError,

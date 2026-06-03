@@ -12,15 +12,23 @@ import type {
   DataService,
 } from '@mongodb-js/compass-connections/provider';
 import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
-import { mapQueryToFormFields } from '../utils/query';
+import { mapFormFieldsToQuery, mapQueryToFormFields } from '../utils/query';
 import {
   queryBarReducer,
   INITIAL_STATE as INITIAL_QUERY_BAR_STATE,
   QueryBarActions,
   fetchSavedQueries,
+  renameLoadedFavorite,
 } from './query-bar-reducer';
 import { aiQueryReducer } from './ai-query-reducer';
-import { getQueryAttributes } from '../utils';
+import { getQueryAttributes, isQueryEqual } from '../utils';
+import {
+  LOADED_FAVORITE_EVENT,
+  LOADED_FAVORITE_RENAME_KEY,
+  LOADED_FAVORITE_STICKY_KEY,
+  type LoadedFavoritePayload,
+  type RenameLoadedFavorite,
+} from '../loaded-favorite-bridge';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { CollectionTabPluginMetadata } from '@mongodb-js/compass-collection';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -124,7 +132,7 @@ export function configureStore(
 export function activatePlugin(
   options: QueryBarStoreOptions,
   services: QueryBarServices & QueryBarExtraServices,
-  { on, cleanup }: ActivateHelpers
+  { on, cleanup, addCleanup }: ActivateHelpers
 ) {
   const { serverVersion, query, namespace } = options;
 
@@ -185,6 +193,95 @@ export function activatePlugin(
   });
 
   store.dispatch(fetchSavedQueries());
+
+  // ── Loaded-favorite bridge ────────────────────────────────────────
+  // Broadcast the current loaded-favorite identity + dirty state on
+  // every relevant store change, so consumers outside the query-bar
+  // package (e.g. the collection-header breadcrumb) can show
+  // "<connection> > <db> > <coll> > <saved query name> *" without
+  // taking a circular dep on @mongodb-js/compass-query-bar.
+  //
+  // We dedupe by shallow-comparing the previous payload — the store
+  // emits on every keystroke in the filter input, but the consumer
+  // only cares when the *name* or the *isDirty* flag flips.
+  //
+  // `lastBroadcast` starts as `null` (rather than the empty payload)
+  // so the very first call always populates the sticky slot and
+  // emits, even when there's no favorite loaded. Otherwise the
+  // sticky property never gets written until a favorite is actually
+  // loaded — and late-subscribing consumers read `undefined` and have
+  // to wait for the next state change.
+  let lastBroadcast: LoadedFavoritePayload | null = null;
+  const broadcastLoadedFavorite = () => {
+    const state = store.getState();
+    const loadedId = state.queryBar.loadedFavoriteId;
+    let payload: LoadedFavoritePayload = { name: null, isDirty: false };
+    if (loadedId) {
+      const fav = state.queryBar.favoriteQueries.find(
+        (f) => f._id === loadedId
+      );
+      if (fav) {
+        const currentQuery = mapFormFieldsToQuery(state.queryBar.fields);
+        payload = {
+          name: fav._name,
+          isDirty: !isQueryEqual(
+            getQueryAttributes(fav),
+            getQueryAttributes(currentQuery)
+          ),
+        };
+      }
+      // If `loadedId` is set but `fav` isn't in `favoriteQueries`
+      // yet — this happens during the brief window between
+      // `saveDraftAsFavorite` dispatching `LoadedFavoriteSet` and
+      // the follow-up `fetchFavorites` settling — keep the empty
+      // payload. The next subscription tick (when FavoriteQueriesFetched
+      // lands) will recompute with the real favorite.
+    }
+    if (
+      lastBroadcast !== null &&
+      payload.name === lastBroadcast.name &&
+      payload.isDirty === lastBroadcast.isDirty
+    ) {
+      return;
+    }
+    lastBroadcast = payload;
+    // Stash for late subscribers (the collection-header may mount
+    // after the first emission; reading the sticky value on mount
+    // means it doesn't have to wait for the next state change).
+    (localAppRegistry as unknown as Record<string, unknown>)[
+      LOADED_FAVORITE_STICKY_KEY
+    ] = payload;
+    localAppRegistry.emit(LOADED_FAVORITE_EVENT, payload);
+  };
+  const unsubscribeBroadcast = store.subscribe(broadcastLoadedFavorite);
+  // Initial emission so the consumer-side sticky value is populated
+  // before any listeners attach.
+  broadcastLoadedFavorite();
+
+  // Stash a dispatch-bound rename callback alongside the sticky
+  // payload. Consumers outside this package (e.g. the breadcrumb chip
+  // in compass-collection) can drive the rename through this without
+  // having to import the thunk directly. Closes over the store's
+  // dispatch so callers don't have to.
+  const renameCallback: RenameLoadedFavorite = (newName) =>
+    store.dispatch(renameLoadedFavorite(newName));
+  (localAppRegistry as unknown as Record<string, unknown>)[
+    LOADED_FAVORITE_RENAME_KEY
+  ] = renameCallback;
+
+  addCleanup(() => {
+    unsubscribeBroadcast();
+    // Clear the sticky value + callback so stale references don't leak
+    // across collection-tab tear-downs (e.g. switching to a different
+    // ns). Without this, a stale rename closure would still resolve
+    // against this (now-dead) store after navigation.
+    delete (localAppRegistry as unknown as Record<string, unknown>)[
+      LOADED_FAVORITE_STICKY_KEY
+    ];
+    delete (localAppRegistry as unknown as Record<string, unknown>)[
+      LOADED_FAVORITE_RENAME_KEY
+    ];
+  });
 
   return { store, deactivate: cleanup, context: QueryBarStoreContext };
 }

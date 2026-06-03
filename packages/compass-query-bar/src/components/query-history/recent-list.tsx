@@ -1,9 +1,8 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from '../../stores/context';
 import { useFormattedDate } from '@mongodb-js/compass-components';
 import {
   deleteRecentQuery,
-  saveRecentAsFavorite,
   applyFromHistory,
 } from '../../stores/query-bar-reducer';
 import type { RootState } from '../../stores/query-bar-store';
@@ -15,18 +14,22 @@ import {
   QueryItemHeading,
   CopyActionButton,
   DeleteActionButton,
-  FavoriteActionButton,
 } from './query-item';
 import { OpenBulkUpdateActionButton } from './query-item/query-item-action-buttons';
 import { usePreference } from 'compass-preferences-model/provider';
-import { SaveQueryForm } from './save-query-form';
 import { formatQuery, copyToClipboard, getQueryAttributes } from '../../utils';
 import type { BaseQuery } from '../../constants/query-properties';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
+// NOTE: the inline "favorite this recent" star was removed when the
+// query bar grew a dedicated Save-as-favorite IconButton (next to
+// Apply). The star inside the recents popover was buried — most users
+// never found it — and the dedicated dialog captures richer metadata
+// (description, MCP prompt name). To save a recent query as a favorite
+// now, click it to load the query into the bar, then click the star.
+
 type RecentActions = {
-  onFavorite: (query: RecentQuery, name: string) => Promise<boolean>;
   onDelete: (id: string) => void;
   onApply: (query: BaseQuery) => void;
   onUpdateRecentChoosen: () => void;
@@ -35,7 +38,6 @@ type RecentActions = {
 const RecentItem = ({
   query,
   isReadonly,
-  onFavorite,
   onDelete,
   onApply,
   onUpdateRecentChoosen,
@@ -49,8 +51,6 @@ const RecentItem = ({
   const isUpdateQuery = !!query.update;
   const isDisabled = isUpdateQuery && (isReadonly || readOnlyCompass);
 
-  const formRef = React.useRef<HTMLFormElement>(null);
-  const [isAddingFavorite, setIsAddingFavorite] = useState(false);
   const attributes = useMemo(() => getQueryAttributes(query), [query]);
   const title = useFormattedDate(query._lastExecuted.getTime());
 
@@ -81,48 +81,14 @@ const RecentItem = ({
     connectionInfoRef,
   ]);
 
-  const onCardClick = useCallback(
-    (event: React.MouseEvent<HTMLDivElement>) => {
-      // If the click event originates from the form, ignore.
-      if (formRef.current?.contains(event.target as HTMLElement)) {
-        return;
-      }
-
-      onClickRecent();
-    },
-    [onClickRecent]
-  );
-
-  const onSaveQuery = useCallback(
-    (name: string) => {
-      track(
-        'Query History Favorite Added',
-        { isUpdateQuery },
-        connectionInfoRef.current
-      );
-      void onFavorite(query, name);
-    },
-    [track, isUpdateQuery, onFavorite, query, connectionInfoRef]
-  );
-
   return (
     <QueryItemCard
-      onClick={onCardClick}
+      onClick={onClickRecent}
       disabled={isDisabled}
       data-testid="recent-query-list-item"
       header={(isHovered: boolean) => {
-        if (isAddingFavorite) {
-          return (
-            <SaveQueryForm
-              ref={formRef}
-              onSave={onSaveQuery}
-              onCancel={() => setIsAddingFavorite(false)}
-            />
-          );
-        }
         return (
           <QueryItemHeading title={title} isHovered={isHovered}>
-            <FavoriteActionButton onClick={() => setIsAddingFavorite(true)} />
             <CopyActionButton
               onClick={() => copyToClipboard(formatQuery(attributes))}
             />
@@ -142,27 +108,13 @@ const RecentItem = ({
 export const RecentList = ({
   queries,
   onDelete,
-  onFavorite: _onFavorite,
   onApply,
-  onSaveFavorite,
   onUpdateRecentChoosen,
   isReadonly,
 }: RecentActions & {
   queries: RecentQuery[];
-  onSaveFavorite: () => void;
   isReadonly: boolean;
 }) => {
-  const onFavorite = useCallback(
-    async (query: RecentQuery, name: string) => {
-      const saved = await _onFavorite(query, name);
-      if (saved) {
-        onSaveFavorite();
-      }
-      return saved;
-    },
-    [_onFavorite, onSaveFavorite]
-  );
-
   if (queries.length === 0) {
     return <ZeroGraphic text={'Your recent queries will appear here.'} />;
   }
@@ -171,7 +123,6 @@ export const RecentList = ({
       key={query._id}
       query={query}
       onApply={onApply}
-      onFavorite={onFavorite}
       onDelete={onDelete}
       onUpdateRecentChoosen={onUpdateRecentChoosen}
       isReadonly={isReadonly}
@@ -187,7 +138,6 @@ export default connect(
   }),
   {
     onDelete: deleteRecentQuery,
-    onFavorite: saveRecentAsFavorite,
     onApply: applyFromHistory,
   }
 )(RecentList);

@@ -254,47 +254,11 @@ describe('query-history', function () {
     });
   });
 
-  it('saves recent query as favorite', async function () {
-    const { store, recentQueryStorage, favoriteQueryStorage } =
-      await renderQueryHistory(tmpDir);
-    Sinon.stub(recentQueryStorage, 'loadAll').callsFake(() =>
-      Promise.resolve([RECENT_QUERY] as any)
-    );
-
-    const recentQueryDeleteSpy = Sinon.spy(recentQueryStorage, 'delete');
-    const favoriteQuerySaveSpy = Sinon.spy(favoriteQueryStorage, 'saveQuery');
-
-    await store.dispatch(fetchRecents());
-    userEvent.click(screen.getByText(/recents/i));
-
-    const queryCard = screen.getByTestId('recent-query-list-item');
-    userEvent.hover(queryCard);
-
-    const favoriteButton = within(queryCard).getByTestId(
-      'query-history-button-fav'
-    );
-    userEvent.click(favoriteButton);
-
-    const favoriteForm = screen.getByTestId('query-history-favorite-form');
-    expect(favoriteForm).to.exist;
-
-    userEvent.type(
-      within(favoriteForm).getByTestId('recent-query-save-favorite-name'),
-      'compass'
-    );
-    userEvent.click(
-      within(favoriteForm).getByTestId('recent-query-save-favorite-submit')
-    );
-
-    await waitForElementToBeRemoved(() =>
-      screen.getByTestId('recent-query-list-item')
-    );
-
-    expect(recentQueryDeleteSpy.calledOnce).to.be.true;
-    expect(recentQueryDeleteSpy.firstCall.firstArg).to.equal(RECENT_QUERY._id);
-
-    expect(favoriteQuerySaveSpy.calledOnce).to.be.true;
-    const savedQuery = favoriteQuerySaveSpy.firstCall.firstArg;
-    expect(savedQuery._name).to.equal('compass');
-  });
+  // NOTE: an earlier test "saves recent query as favorite" lived here.
+  // It exercised an inline star button inside each recent-query card
+  // that opened a tiny name-only form. That UI was removed in favor of
+  // a dedicated "Save as favorite" IconButton on the query bar itself,
+  // which captures name + description + optional MCP prompt name in a
+  // single modal. The save thunk (`saveDraftAsFavorite`) has its own
+  // unit coverage in `query-bar-reducer.spec.ts`.
 });

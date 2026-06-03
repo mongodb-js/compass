@@ -21,6 +21,7 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { WelcomeTabImage } from './welcome-image';
 import { ConnectionPlug } from './connection-plug';
 import ConnectionList, { useActiveConnectionIds } from './connection-list';
+import { McpWelcomeSection } from './mcp-welcome-section';
 
 const sectionContainerStyles = css({
   margin: 0,
@@ -148,9 +149,13 @@ export default function DesktopWelcomeTab() {
               Add new connection
             </Button>
             <AtlasHelpSection />
+            <McpWelcomeSection />
           </>
         ) : activeConnectionIds.length ? (
-          <ConnectionList />
+          <>
+            <ConnectionList />
+            <McpWelcomeSection />
+          </>
         ) : null}
       </div>
     </div>

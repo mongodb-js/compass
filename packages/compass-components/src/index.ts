@@ -107,6 +107,7 @@ export { default as FormFieldContainer } from './components/form-field-container
 export { Modal } from './components/modals/modal';
 export { ModalBody } from './components/modals/modal-body';
 export { ModalHeader } from './components/modals/modal-header';
+export { ModalFooter } from './components/leafygreen';
 export { FormModal } from './components/modals/form-modal';
 export { InfoModal } from './components/modals/info-modal';
 

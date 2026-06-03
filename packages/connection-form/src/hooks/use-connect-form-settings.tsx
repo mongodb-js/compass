@@ -15,6 +15,12 @@ export type ConnectionFormSettings = {
   showKerberosAuth: boolean;
   showCSFLE: boolean;
   showProxySettings: boolean;
+  /**
+   * Show the per-connection "AI access" tab — only relevant in hosts that
+   * embed the MCP server (desktop Compass). Off by default so compass-web
+   * and other consumers of connection-form get no behavior change.
+   */
+  showAiAccess: boolean;
   saveAndConnectLabel: string;
 };
 
@@ -33,6 +39,7 @@ const defaultSettings = {
   showKerberosAuth: true,
   showCSFLE: true,
   showProxySettings: true,
+  showAiAccess: false,
   saveAndConnectLabel: 'Save & Connect',
 };
 

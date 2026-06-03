@@ -11,8 +11,10 @@ import {
   changeField,
   explainQuery,
   resetQuery,
+  saveDraftAsFavorite,
   saveRecentAsFavorite,
   setQuery,
+  updateLoadedFavorite,
 } from './query-bar-reducer';
 import { configureStore } from './query-bar-store';
 import type { QueryBarExtraArgs, RootState } from './query-bar-store';
@@ -224,6 +226,262 @@ describe('queryBarReducer', function () {
       // updateAttributes is called in saveRecentAsFavorite and updateFavoriteQuery
       expect(updateAttributesStub).to.have.been.calledOnce;
       expect(saveQueriesStub).not.to.have.been.calledTwice;
+    });
+  });
+
+  describe('saveDraftAsFavorite', function () {
+    // The thunk drives the new "Save as favorite" IconButton on the
+    // query bar (next to Apply). It must:
+    //  1. Persist the current draft into FavoriteQuery storage with the
+    //     name + optional description + optional mcpPromptName that the
+    //     dialog captured.
+    //  2. Tag the entry `_authoredBy: 'human'` so it's distinguishable
+    //     from AI-authored saves.
+    //  3. Refuse to save an empty / default draft (no point cluttering
+    //     My Queries with a "find with no filter").
+    //  4. Surface failure as a falsy return rather than throwing.
+
+    async function setup() {
+      const saveQueryStub = Sinon.stub().resolves();
+      const loadAllStub = Sinon.stub().resolves([]);
+      preferences = await createSandboxFromDefaultPreferences();
+      const store = createStore({}, {
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        favoriteQueryStorage: {
+          saveQuery: saveQueryStub,
+          loadAll: loadAllStub,
+        },
+      } as unknown as QueryBarExtraArgs);
+      return { store, saveQueryStub };
+    }
+
+    it('persists the current draft with name + description + mcpPromptName', async function () {
+      const { store, saveQueryStub } = await setup();
+      store.dispatch(setQuery({ filter: { active: true }, limit: 50 }));
+      const ok = await store.dispatch(
+        saveDraftAsFavorite({
+          name: 'Active customers',
+          description: 'Currently-active customers, capped at 50.',
+          mcpPromptName: 'active-customers',
+        })
+      );
+      expect(ok).to.equal(true);
+      expect(saveQueryStub).to.have.been.calledOnce;
+      const payload = saveQueryStub.firstCall.firstArg;
+      expect(payload._name).to.equal('Active customers');
+      expect(payload._description).to.equal(
+        'Currently-active customers, capped at 50.'
+      );
+      expect(payload._mcpPromptName).to.equal('active-customers');
+      expect(payload._authoredBy).to.equal('human');
+      // Bag-of-fields check on the query body itself.
+      expect(payload.filter).to.deep.equal({ active: true });
+      expect(payload.limit).to.equal(50);
+    });
+
+    it('omits description / mcpPromptName when not provided', async function () {
+      const { store, saveQueryStub } = await setup();
+      store.dispatch(setQuery({ filter: { x: 1 } }));
+      const ok = await store.dispatch(
+        saveDraftAsFavorite({ name: 'Just a name' })
+      );
+      expect(ok).to.equal(true);
+      const payload = saveQueryStub.firstCall.firstArg;
+      expect(payload).to.not.have.property('_description');
+      expect(payload).to.not.have.property('_mcpPromptName');
+    });
+
+    it('refuses to save an empty / default draft', async function () {
+      const { store, saveQueryStub } = await setup();
+      const ok = await store.dispatch(saveDraftAsFavorite({ name: 'Empty' }));
+      expect(ok).to.equal(false);
+      expect(saveQueryStub).to.not.have.been.called;
+    });
+
+    it('trims whitespace from description and mcpPromptName', async function () {
+      const { store, saveQueryStub } = await setup();
+      store.dispatch(setQuery({ filter: { x: 1 } }));
+      const ok = await store.dispatch(
+        saveDraftAsFavorite({
+          name: 'Trimmed',
+          description: '   has surrounding whitespace   ',
+          mcpPromptName: '   active-customers   ',
+        })
+      );
+      expect(ok).to.equal(true);
+      const payload = saveQueryStub.firstCall.firstArg;
+      expect(payload._description).to.equal('has surrounding whitespace');
+      expect(payload._mcpPromptName).to.equal('active-customers');
+    });
+
+    it('returns false when the storage layer throws', async function () {
+      const saveQueryStub = Sinon.stub().rejects(new Error('disk full'));
+      preferences = await createSandboxFromDefaultPreferences();
+      const store = createStore({}, {
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        favoriteQueryStorage: {
+          saveQuery: saveQueryStub,
+          loadAll: Sinon.stub().resolves([]),
+        },
+      } as unknown as QueryBarExtraArgs);
+      store.dispatch(setQuery({ filter: { x: 1 } }));
+      const ok = await store.dispatch(
+        saveDraftAsFavorite({ name: 'Will fail' })
+      );
+      expect(ok).to.equal(false);
+    });
+  });
+
+  describe('loadedFavoriteId tracking', function () {
+    // Drives the Save dropdown's "Save" (in-place) vs "Save as" (new
+    // copy) split. Set when a Favorite is loaded via applyFromHistory;
+    // cleared on Reset or when a Recent is loaded; populated again by
+    // saveDraftAsFavorite so the newly-created favorite immediately
+    // becomes the bar's editing context.
+
+    async function setup() {
+      const saveQueryStub = Sinon.stub().resolves();
+      const updateAttributesStub = Sinon.stub().resolves();
+      const loadAllStub = Sinon.stub().resolves([]);
+      preferences = await createSandboxFromDefaultPreferences();
+      const store = createStore({}, {
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        favoriteQueryStorage: {
+          saveQuery: saveQueryStub,
+          loadAll: loadAllStub,
+          updateAttributes: updateAttributesStub,
+        },
+      } as unknown as QueryBarExtraArgs);
+      return { store, saveQueryStub, updateAttributesStub };
+    }
+
+    it('is null in the initial state', async function () {
+      const { store } = await setup();
+      expect(store.getState().queryBar.loadedFavoriteId).to.equal(null);
+    });
+
+    it('is set when applyFromHistory is called with a favoriteId', async function () {
+      const { store } = await setup();
+      store.dispatch(
+        applyFromHistory({ filter: { x: 1 } }, [], { favoriteId: 'fav-1' })
+      );
+      expect(store.getState().queryBar.loadedFavoriteId).to.equal('fav-1');
+    });
+
+    it('is cleared when applyFromHistory is called without a favoriteId (recent)', async function () {
+      const { store } = await setup();
+      store.dispatch(
+        applyFromHistory({ filter: { x: 1 } }, [], { favoriteId: 'fav-1' })
+      );
+      store.dispatch(applyFromHistory({ filter: { y: 2 } }));
+      expect(store.getState().queryBar.loadedFavoriteId).to.equal(null);
+    });
+
+    it('is cleared by resetQuery', async function () {
+      const { store } = await setup();
+      store.dispatch(
+        applyFromHistory({ filter: { x: 1 } }, [], { favoriteId: 'fav-1' })
+      );
+      store.dispatch(resetQuery('test'));
+      expect(store.getState().queryBar.loadedFavoriteId).to.equal(null);
+    });
+
+    it('is set to the new id after a successful saveDraftAsFavorite', async function () {
+      const { store } = await setup();
+      store.dispatch(setQuery({ filter: { x: 1 } }));
+      const ok = await store.dispatch(saveDraftAsFavorite({ name: 'New' }));
+      expect(ok).to.equal(true);
+      // The reducer should now hold the id of the just-saved favorite.
+      const id = store.getState().queryBar.loadedFavoriteId;
+      expect(id).to.be.a('string');
+      expect(id).to.have.length.greaterThan(0);
+    });
+
+    it('survives manual field edits (dirty != cleared)', async function () {
+      const { store } = await setup();
+      store.dispatch(
+        applyFromHistory({ filter: { x: 1 } }, [], { favoriteId: 'fav-1' })
+      );
+      // Edit the filter — loadedFavoriteId should stick because the
+      // user is still "editing the favorite", just with unsaved
+      // changes. Dirty-detection lives in the component layer.
+      store.dispatch(setQuery({ filter: { x: 2 } }));
+      expect(store.getState().queryBar.loadedFavoriteId).to.equal('fav-1');
+    });
+  });
+
+  describe('updateLoadedFavorite', function () {
+    // The "Save" action of the dropdown — overwrites the currently
+    // loaded favorite's body in place. Mirrors the aggregation
+    // builder's saveCurrentPipeline for parity.
+
+    async function setup() {
+      const updateAttributesStub = Sinon.stub().resolves();
+      const loadAllStub = Sinon.stub().resolves([]);
+      const saveQueryStub = Sinon.stub().resolves();
+      preferences = await createSandboxFromDefaultPreferences();
+      const store = createStore({}, {
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        favoriteQueryStorage: {
+          saveQuery: saveQueryStub,
+          loadAll: loadAllStub,
+          updateAttributes: updateAttributesStub,
+        },
+      } as unknown as QueryBarExtraArgs);
+      return { store, updateAttributesStub };
+    }
+
+    it('returns false when no favorite is loaded', async function () {
+      const { store, updateAttributesStub } = await setup();
+      store.dispatch(setQuery({ filter: { x: 1 } }));
+      const ok = await store.dispatch(updateLoadedFavorite());
+      expect(ok).to.equal(false);
+      expect(updateAttributesStub).to.not.have.been.called;
+    });
+
+    it('overwrites body fields and bumps _dateModified', async function () {
+      const { store, updateAttributesStub } = await setup();
+      store.dispatch(
+        applyFromHistory({ filter: { x: 1 } }, [], { favoriteId: 'fav-1' })
+      );
+      store.dispatch(setQuery({ filter: { x: 99 }, limit: 50 }));
+      const ok = await store.dispatch(updateLoadedFavorite());
+      expect(ok).to.equal(true);
+      expect(updateAttributesStub).to.have.been.calledOnce;
+      const [id, attrs] = updateAttributesStub.firstCall.args;
+      expect(id).to.equal('fav-1');
+      expect(attrs.filter).to.deep.equal({ x: 99 });
+      expect(attrs.limit).to.equal(50);
+      expect(attrs._dateModified).to.be.instanceOf(Date);
+      // We deliberately don't touch _name / _description / _mcpPromptName
+      // — they're preserved by NOT being in the update payload.
+      expect(attrs).to.not.have.property('_name');
+      expect(attrs).to.not.have.property('_description');
+      expect(attrs).to.not.have.property('_mcpPromptName');
+    });
+
+    it('returns false on an empty draft', async function () {
+      const { store, updateAttributesStub } = await setup();
+      store.dispatch(
+        applyFromHistory({ filter: { x: 1 } }, [], { favoriteId: 'fav-1' })
+      );
+      // Now clear the form back to defaults.
+      store.dispatch(resetQuery('test'));
+      // resetQuery clears loadedFavoriteId too, so technically this
+      // exercises the no-loaded branch. Re-arm the favorite and then
+      // explicitly empty the fields without resetting state.
+      store.dispatch(applyFromHistory({}, [], { favoriteId: 'fav-1' }));
+      const ok = await store.dispatch(updateLoadedFavorite());
+      expect(ok).to.equal(false);
+      expect(updateAttributesStub).to.not.have.been.called;
     });
   });
 

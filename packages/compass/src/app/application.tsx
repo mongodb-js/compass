@@ -1,4 +1,5 @@
 import { ipcRenderer } from 'hadron-ipc';
+import { McpConsentDialog } from './components/mcp-consent-dialog';
 import * as remote from '@electron/remote';
 import { webUtils, webFrame } from 'electron';
 import { globalAppRegistry } from '@mongodb-js/compass-app-registry';
@@ -171,6 +172,7 @@ class Application {
     ReactDOM.render(
       <React.StrictMode>
         <ApplicationMenuContextProvider provider={this.menuProvider}>
+          <McpConsentDialog />
           <CompassElectron
             appName={remote.app.getName()}
             createFileInputBackend={createElectronFileInputBackend(

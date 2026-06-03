@@ -11,6 +11,8 @@ import isTimeSeries from './is-time-series';
 import serverVersion from './server-version';
 import isModified from './is-modified';
 import name from './name';
+import description from './description';
+import mcpPromptName from './mcp-prompt-name';
 import limit from './limit';
 import largeLimit from './large-limit';
 import maxTimeMS from './max-time-ms';
@@ -67,6 +69,8 @@ const rootReducer = combineReducers({
   serverVersion,
   savedPipeline,
   name,
+  description,
+  mcpPromptName,
   collationString,
   id,
   isModified,

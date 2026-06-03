@@ -135,7 +135,12 @@ type SavedItemAction = 'copy' | 'rename' | 'delete' | 'open-in';
 
 const savedItemActions: MenuAction<SavedItemAction>[] = [
   { action: 'copy', label: 'Copy' },
-  { action: 'rename', label: 'Rename' },
+  // The 'rename' action now opens an Edit modal where users can also set
+  // a description and an MCP prompt name (which lights up the
+  // /<prompt-name> slash command in AI clients). Keeping the action key
+  // as 'rename' avoids touching the action dispatcher — only the label
+  // changes.
+  { action: 'rename', label: 'Edit' },
   { action: 'delete', label: 'Delete' },
   { action: 'open-in', label: 'Open in' },
 ];
