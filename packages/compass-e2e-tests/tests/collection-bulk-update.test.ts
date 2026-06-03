@@ -16,7 +16,7 @@ import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 
-describe.only('Bulk Update', () => {
+describe('Bulk Update', () => {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;

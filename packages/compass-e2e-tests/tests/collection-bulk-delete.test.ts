@@ -16,7 +16,7 @@ import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 import { context } from '../helpers/test-runner-context.ts';
 
-describe.only('Bulk Delete', function () {
+describe('Bulk Delete', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
