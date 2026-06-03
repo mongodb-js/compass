@@ -149,7 +149,6 @@ export type CrudToolbarProps = {
   lastCountRunMaxTimeMS: number;
   loadingCount: boolean;
   onApplyClicked: () => void;
-  onResetClicked: () => void;
   onUpdateButtonClicked: () => void;
   onDeleteButtonClicked: () => void;
   onExpandAllClicked: () => void;
@@ -184,7 +183,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   lastCountRunMaxTimeMS,
   loadingCount,
   onApplyClicked,
-  onResetClicked,
   onUpdateButtonClicked,
   onDeleteButtonClicked,
   onExpandAllClicked,
@@ -326,7 +324,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
           resultId={resultId}
           buttonLabel="Find"
           onApply={onApplyClicked}
-          onReset={onResetClicked}
           showExplainButton={enableExplainPlan}
         />
       </div>

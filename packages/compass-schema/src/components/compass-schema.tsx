@@ -415,7 +415,6 @@ const Schema: React.FunctionComponent<{
           toolbar={
             <SchemaToolbar
               onAnalyzeSchemaClicked={onApplyClicked}
-              onResetClicked={onApplyClicked}
               // Show the tooltip to indicate the new export button when
               // the export modal is closed.
               showLegacyExportTooltip={

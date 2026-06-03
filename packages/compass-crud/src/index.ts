@@ -50,6 +50,7 @@ const CompassDocumentsPluginProvider = registerCompassPlugin(
     activate: activateDocumentsPlugin,
   },
   {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     dataService: dataServiceLocator as DataServiceLocator<
       RequiredDataServiceProps,
       OptionalDataServiceProps

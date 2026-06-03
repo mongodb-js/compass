@@ -19,8 +19,8 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
     getConnectionString() {
       return { hosts: [] } as any;
     },
-  } as any,
-  instance: { on() {}, removeListener() {} } as any,
+  },
+  instance: { on() {}, removeListener() {} },
   favoriteQueryStorageAccess: {
     getStorage: () =>
       createElectronFavoriteQueryStorage({ basepath: '/tmp/test' }),
@@ -29,10 +29,10 @@ const MockQueryBarPlugin = QueryBarPlugin.withMockServices({
     getStorage: () =>
       createElectronRecentQueryStorage({ basepath: '/tmp/test' }),
   },
-  atlasAiService: {} as any,
+  atlasAiService: {},
   collection: {
     fetchMetadata: () => Promise.resolve({} as any),
-  } as any,
+  },
 });
 
 const testErrorMessage =
@@ -52,7 +52,6 @@ describe('SchemaToolbar', function () {
           error={undefined}
           isOutdated={false}
           onAnalyzeSchemaClicked={() => {}}
-          onResetClicked={() => {}}
           sampleSize={10}
           schemaResultId="123"
           onExportSchemaClicked={() => {}}

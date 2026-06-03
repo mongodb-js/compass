@@ -29,11 +29,10 @@ import { QueryBarRow } from './query-bar-row';
 import {
   applyQuery,
   openExportToLanguage,
-  resetQuery,
   explainQuery,
 } from '../stores/query-bar-reducer';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
-import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
+import { isQueryValid } from '../utils/query';
 import type { QueryProperty } from '../constants/query-properties';
 import { QueryAI } from './query-ai';
 import type {
@@ -108,10 +107,8 @@ const QueryOptionsToggle = connect(
 type QueryBarProps = {
   buttonLabel?: string;
   onApply: () => void;
-  onReset: () => void;
   onOpenExportToLanguage: () => void;
   queryOptionsLayout?: (QueryOption | QueryOption[])[];
-  queryChanged: boolean;
   resultId?: string | number;
   /**
    * For testing purposes only, allows to track whether or not apply button was
@@ -133,7 +130,6 @@ type QueryBarProps = {
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
   onApply,
-  onReset,
   // Used to specify which query options to show and where they are positioned.
   queryOptionsLayout = [
     'project',
@@ -141,7 +137,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
     ['collation', 'skip', 'limit'],
     'hint',
   ],
-  queryChanged,
   resultId,
   applyId,
   filterHasContent,
@@ -260,16 +255,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           </Button>
         )}
         <Button
-          aria-label="Reset query"
-          data-testid="query-bar-reset-filter-button"
-          onClick={onReset}
-          disabled={!queryChanged || isAIFetching}
-          size="small"
-          type="button"
-        >
-          Reset
-        </Button>
-        <Button
           data-testid="query-bar-apply-filter-button"
           disabled={!isQueryValid || isAIFetching}
           variant="primary"
@@ -312,7 +297,6 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
 
 type OwnProps = {
   onApply?(query: unknown): void;
-  onReset?(query: unknown): void;
   source: string;
 };
 
@@ -320,7 +304,6 @@ export default connect(
   ({ queryBar: { expanded, fields, applyId }, aiQuery }: RootState) => {
     return {
       expanded: expanded,
-      queryChanged: !isEqualDefaultQuery(fields),
       filterHasContent: fields.filter.string !== '',
       valid: isQueryValid(fields),
       applyId: applyId,
@@ -342,13 +325,6 @@ export default connect(
           return;
         }
         ownProps.onApply?.(applied);
-      },
-      onReset: () => {
-        const reset = dispatch(resetQuery(ownProps.source));
-        if (reset === false) {
-          return;
-        }
-        ownProps.onReset?.(reset);
       },
       onShowAIInputClick: () => {
         void dispatch(showInput());

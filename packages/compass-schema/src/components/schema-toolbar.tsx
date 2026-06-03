@@ -71,7 +71,6 @@ type SchemaToolbarProps = {
   isOutdated: boolean;
   onAnalyzeSchemaClicked: () => void;
   onExportSchemaClicked: () => void;
-  onResetClicked: () => void;
   onDismissError: () => void;
   sampleSize: number;
   schemaResultId: string;
@@ -86,7 +85,6 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
   isOutdated,
   onAnalyzeSchemaClicked,
   onExportSchemaClicked,
-  onResetClicked,
   sampleSize,
   schemaResultId,
   setShowLegacyExportTooltip,
@@ -107,7 +105,6 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           buttonLabel="Analyze"
           resultId={schemaResultId}
           onApply={onAnalyzeSchemaClicked}
-          onReset={onResetClicked}
         />
       </div>
       {analysisState === ANALYSIS_STATE_COMPLETE && !isOutdated && (

@@ -343,10 +343,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     void store.refreshDocuments(true);
   }, [store]);
 
-  const onResetClicked = useCallback(() => {
-    void store.refreshDocuments();
-  }, [store]);
-
   const onCancelClicked = useCallback(() => {
     void store.cancelOperation();
   }, [store]);
@@ -585,7 +581,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             getPage={getPage}
             insertDataHandler={onOpenInsert}
             onApplyClicked={onApplyClicked}
-            onResetClicked={onResetClicked}
             onUpdateButtonClicked={onUpdateButtonClicked}
             onDeleteButtonClicked={onDeleteButtonClicked}
             onExpandAllClicked={onExpandAllClicked}

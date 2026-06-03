@@ -18,14 +18,14 @@ export const MockQueryBarPlugin: typeof QueryBarPlugin =
       getConnectionString() {
         return { hosts: [] } as any;
       },
-    } as any,
-    instance: { on() {}, removeListener() {} } as any,
+    },
+    instance: { on() {}, removeListener() {} },
     favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
     recentQueryStorageAccess: compassRecentQueryStorageAccess,
-    atlasAiService: {} as any,
+    atlasAiService: {},
     collection: {
       fetchMetadata: () => Promise.resolve({} as any),
-    } as any,
+    },
   });
 
 export const renderWithQueryBar = (
