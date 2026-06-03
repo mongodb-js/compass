@@ -16,7 +16,7 @@ import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 
-describe('Bulk Update', () => {
+describe.only('Bulk Update', () => {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
@@ -56,6 +56,7 @@ describe('Bulk Update', () => {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Open the modal.
+    await browser.clickVisible(Selectors.BulkActionsButton);
     await browser.clickVisible(Selectors.OpenBulkUpdateButton);
     await browser.waitForOpenModal(Selectors.BulkUpdateModal);
 
@@ -152,6 +153,7 @@ describe('Bulk Update', () => {
     await browser.runFindOperation('Documents', '{ i: { $gt: 5 } }');
 
     // Open the modal.
+    await browser.clickVisible(Selectors.BulkActionsButton);
     await browser.clickVisible(Selectors.OpenBulkUpdateButton);
     await browser.waitForOpenModal(Selectors.BulkUpdateModal);
 

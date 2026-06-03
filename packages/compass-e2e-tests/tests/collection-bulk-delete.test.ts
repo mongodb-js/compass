@@ -16,7 +16,7 @@ import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 import { context } from '../helpers/test-runner-context.ts';
 
-describe('Bulk Delete', function () {
+describe.only('Bulk Delete', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
@@ -56,6 +56,7 @@ describe('Bulk Delete', function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Open the modal.
+    await browser.clickVisible(Selectors.BulkActionsButton);
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
     await browser.waitForOpenModal(Selectors.BulkDeleteModal);
 
@@ -133,6 +134,7 @@ describe('Bulk Delete', function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Open the modal.
+    await browser.clickVisible(Selectors.BulkActionsButton);
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
     await browser.waitForOpenModal(Selectors.BulkDeleteModal);
 
@@ -175,6 +177,7 @@ describe('Bulk Delete', function () {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Open the modal.
+    await browser.clickVisible(Selectors.BulkActionsButton);
     await browser.clickVisible(Selectors.OpenBulkDeleteButton);
     await browser.waitForOpenModal(Selectors.BulkDeleteModal);
 
