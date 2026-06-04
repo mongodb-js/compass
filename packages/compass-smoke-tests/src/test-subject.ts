@@ -25,9 +25,9 @@ export type TestSubject = TestSubjectDetails & {
 /**
  * Either uses the local package details or calculates it
  */
-export function getTestSubjectDetails(
+export async function getTestSubjectDetails(
   context: SmokeTestsContextWithSandbox
-): TestSubjectDetails {
+): Promise<TestSubjectDetails> {
   if (context.localPackage) {
     const compassDistPath = path.resolve(
       __dirname,
@@ -54,7 +54,7 @@ export function getTestSubjectDetails(
 export async function getTestSubject(
   context: SmokeTestsContextWithSandbox
 ): Promise<TestSubject> {
-  const subject = getTestSubjectDetails(context);
+  const subject = await getTestSubjectDetails(context);
   if (context.localPackage) {
     const compassDistPath = path.resolve(
       __dirname,
