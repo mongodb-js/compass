@@ -624,7 +624,7 @@ class Target {
       icon: this.src(platformSettings.icon),
       appBundleId: this.bundleId,
       appCategoryType: platformSettings.app_category_type,
-      protocols: _.get(this, 'config.hadron.protocols', []),
+      protocols: _.get(this.pkg, 'config.hadron.protocols', []),
     });
 
     if (this.channel !== 'stable') {
