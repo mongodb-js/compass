@@ -1741,20 +1741,6 @@ const connectWithOptions = (
           }
         );
 
-        let showedSshTunnelErrorToast = false;
-        dataService.on('sshTunnelError', (error) => {
-          if (!dataService.isConnected() || showedSshTunnelErrorToast) {
-            return;
-          }
-          showedSshTunnelErrorToast = true;
-          openToast(`ssh-tunnel-error--${connectionInfo.id}`, {
-            title: `SSH tunnel lost for ${getConnectionTitle(connectionInfo)}`,
-            description: `The SSH tunnel connection was interrupted (${error.message}). Disconnect and reconnect to restore your connection.`,
-            variant: 'warning',
-          });
-          dispatch(disconnect(connectionInfo.id));
-        });
-
         dataService.on('oidcAuthFailed', (error) => {
           openToast('oidc-auth-failed', {
             title: `Failed to authenticate for ${getConnectionTitle(

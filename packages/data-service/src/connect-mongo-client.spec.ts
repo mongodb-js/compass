@@ -50,7 +50,7 @@ describe('connectMongoClient', function () {
 
   describe('local', function () {
     it('should return connection config when connected successfully', async function () {
-      const [metadataClient, crudClient, tunnel, state, { url, options }] =
+      const [metadataClient, crudClient, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
             connectionString: cluster().connectionString,
@@ -58,7 +58,7 @@ describe('connectMongoClient', function () {
           setupListeners,
         });
 
-      for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
+      for (const closeLater of [metadataClient, crudClient, state]) {
         toBeClosed.add(closeLater);
       }
 
@@ -91,7 +91,7 @@ describe('connectMongoClient', function () {
         },
         bypassAutoEncryption: true,
       };
-      const [metadataClient, crudClient, tunnel, state, { url, options }] =
+      const [metadataClient, crudClient, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
             connectionString: cluster().connectionString,
@@ -103,7 +103,7 @@ describe('connectMongoClient', function () {
           setupListeners,
         });
 
-      for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
+      for (const closeLater of [metadataClient, crudClient, state]) {
         toBeClosed.add(closeLater);
       }
 
@@ -135,7 +135,7 @@ describe('connectMongoClient', function () {
       connectionString
         .typedSearchParams<MongoClientOptions>()
         .set('directConnection', 'false');
-      const [metadataClient, crudClient, tunnel, state, { url, options }] =
+      const [metadataClient, crudClient, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
             connectionString: connectionString.toString(),
@@ -143,7 +143,7 @@ describe('connectMongoClient', function () {
           setupListeners,
         });
 
-      for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
+      for (const closeLater of [metadataClient, crudClient, state]) {
         toBeClosed.add(closeLater);
       }
 

@@ -5,21 +5,14 @@ import type {
   DevtoolsConnectOptions,
   DevtoolsConnectionState,
 } from '@mongodb-js/devtools-connect';
-import {
-  createSocks5Tunnel,
-  hookLogger as hookProxyLogger,
-} from '@mongodb-js/devtools-proxy-support';
-import type {
-  DevtoolsProxyOptions,
-  Tunnel,
-} from '@mongodb-js/devtools-proxy-support';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
 import _ from 'lodash';
 
 import { redactConnectionOptions, redactConnectionString } from './redact';
 import type { ConnectionOptions } from './connection-options';
-import { getTunnelOptions, waitForTunnelError } from './ssh-tunnel-helpers';
+import { getTunnelOptions } from './ssh-tunnel-helpers';
 import type { UnboundDataServiceImplLogger } from './logger';
 import { debug as _debug } from './logger';
 
@@ -140,7 +133,6 @@ export async function connectMongoClientDataService({
   [
     metadataClient: CloneableMongoClient,
     crudClient: CloneableMongoClient,
-    tunnel: Tunnel | undefined,
     connectionState: DevtoolsConnectionState,
     options: { url: string; options: DevtoolsConnectOptions }
   ]
@@ -176,30 +168,10 @@ export async function connectMongoClientDataService({
     };
   }
 
-  // If connectionOptions.sshTunnel is defined, open an ssh tunnel.
-  //
-  // If connectionOptions.sshTunnel is not defined, the tunnel
-  // will also be undefined.
-  const tunnel = createSocks5Tunnel(
-    getTunnelOptions(connectionOptions, proxyOptions),
-    'generate-credentials',
-    'mongodb://'
-  );
-  // TODO: Not urgent, but it might be helpful to properly implement redaction
-  // and then actually log this to the log file, it's been helpful for debugging
-  // e2e tests for sure
-  // console.log({tunnel, tunnelOptions: getTunnelOptions(connectionOptions), connectionOptions, oidcOptions})
-  if (tunnel && logger)
-    hookProxyLogger(tunnel.logger, logger, 'compass-tunnel');
-  const tunnelForwardingErrors: Error[] = [];
-  tunnel?.on('forwardingError', (err: Error) =>
-    tunnelForwardingErrors.push(err)
-  );
-  await tunnel?.listen();
-
-  if (tunnel?.config) {
-    Object.assign(options, tunnel.config);
-  }
+  // Pass SSH tunnel / proxy options to devtools-connect, which owns the full
+  // tunnel lifecycle (creation, listen, config merge into MongoClient options,
+  // and cleanup on client close).
+  options.proxy = getTunnelOptions(connectionOptions, proxyOptions);
   class CompassMongoClient extends MongoClient {
     constructor(url: string, options?: MongoClientOptions) {
       super(url, options);
@@ -253,8 +225,6 @@ export async function connectMongoClientDataService({
   let metadataClient: CloneableMongoClient | undefined;
   let crudClient: CloneableMongoClient | undefined;
   let state: DevtoolsConnectionState;
-  const { promise: tunnelError, cancel: cancelTunnelError } =
-    waitForTunnelError(tunnel);
   try {
     debug('waiting for MongoClient to connect ...');
     // Create one or two clients, depending on whether CSFLE
@@ -303,37 +273,23 @@ export async function connectMongoClientDataService({
         // are passed to compass-shell.
         return [metadataClient, crudClient, state] as const;
       })(),
-      tunnelError,
-    ]); // tunnelError always throws, never resolves
-    cancelTunnelError(); // connection succeeded — detach the error listener
+    ]); // waitForTunnel always throws, never resolves (handled by devtools-connect)
 
     options.parentHandle = await state.getStateShareServer();
 
     return [
       metadataClient,
       crudClient ?? metadataClient,
-      tunnel,
       state,
       { url, options },
     ];
   } catch (err: any) {
-    cancelTunnelError();
     debug('connection error', err);
-    debug('force shutting down ssh tunnel ...');
-    await Promise.all([
-      tunnel?.close(),
-      crudClient?.close(),
-      metadataClient?.close(),
-    ]).catch(() => {
-      /* ignore errors */
-    });
-    if (tunnelForwardingErrors.length > 0) {
-      err.message = `${
-        err.message
-      } [SSH Tunnel errors: ${tunnelForwardingErrors.map(
-        (err) => err.message
-      )}]`;
-    }
+    await Promise.all([crudClient?.close(), metadataClient?.close()]).catch(
+      () => {
+        /* ignore errors */
+      }
+    );
     throw err;
   }
 }
