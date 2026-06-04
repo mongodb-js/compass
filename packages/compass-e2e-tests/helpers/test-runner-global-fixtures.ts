@@ -67,14 +67,17 @@ export function noServerWarningsCheckpoint() {
   }
 }
 
-export function allowServerWarnings(...filters: WarningFilter[]): () => void {
+export function allowServerWarnings(
+  ...filters: WarningFilter[]
+): () => Promise<void> {
   const unsubscribeFns: (() => void)[] = [];
   for (const filter of filters) {
     for (const checker of serverLogsCheckers) {
       unsubscribeFns.push(checker.allowWarning(filter));
     }
   }
-  return () => {
+  return async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
     for (const fn of unsubscribeFns) {
       fn();
     }

@@ -484,7 +484,7 @@ describe('Collection aggregations tab', function () {
 
   describe('maxTimeMS', function () {
     let maxTimeMSBefore: any;
-    let unsubscribeAllowWarnings: () => void;
+    let unsubscribeAllowWarnings: () => Promise<void>;
 
     before(function () {
       unsubscribeAllowWarnings = allowServerWarnings(
@@ -501,8 +501,8 @@ describe('Collection aggregations tab', function () {
       );
     });
 
-    after(function () {
-      unsubscribeAllowWarnings();
+    after(async function () {
+      await unsubscribeAllowWarnings();
     });
 
     beforeEach(async function () {
@@ -684,7 +684,7 @@ describe('Collection aggregations tab', function () {
       });
     });
 
-    let unsubscribeAllowWarnings: () => void;
+    let unsubscribeAllowWarnings: () => Promise<void>;
 
     before(function () {
       unsubscribeAllowWarnings = allowServerWarnings((l: LogEntry) => {
@@ -695,8 +695,8 @@ describe('Collection aggregations tab', function () {
       });
     });
 
-    after(function () {
-      unsubscribeAllowWarnings();
+    after(async function () {
+      await unsubscribeAllowWarnings();
     });
 
     it('Shows error info when inserting', async function () {
@@ -1036,7 +1036,7 @@ describe('Collection aggregations tab', function () {
       const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
       await emptyResultsBanner.waitForDisplayed();
     } finally {
-      unsubscribeAllowWarnings();
+      await unsubscribeAllowWarnings();
     }
   });
 

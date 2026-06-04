@@ -241,7 +241,7 @@ describe('Collection documents tab', function () {
   });
 
   context('cancel and maxTimeMS', function () {
-    let unsubscribeAllowWarningsFilter: () => void;
+    let unsubscribeAllowWarningsFilter: () => Promise<void>;
 
     before(function () {
       if (isTestingWebAtlasCloud()) {
@@ -260,6 +260,10 @@ describe('Collection documents tab', function () {
           );
         }
       );
+    });
+
+    after(async function () {
+      await unsubscribeAllowWarningsFilter?.();
     });
 
     it('supports cancelling a find and then running another query', async function () {
@@ -347,10 +351,6 @@ describe('Collection documents tab', function () {
         );
       });
     }
-
-    after(function () {
-      unsubscribeAllowWarningsFilter?.();
-    });
   });
 
   it('keeps the query when navigating to schema', async function () {
@@ -771,7 +771,7 @@ FindIterable<Document> result = collection.find(filter);`);
     });
 
     describe('Error info when editing', function () {
-      let unsubscribeAllowWarningsFilter: () => void;
+      let unsubscribeAllowWarningsFilter: () => Promise<void>;
 
       before(function () {
         unsubscribeAllowWarningsFilter = allowServerWarnings((l: LogEntry) => {
@@ -783,8 +783,8 @@ FindIterable<Document> result = collection.find(filter);`);
         });
       });
 
-      after(function () {
-        unsubscribeAllowWarningsFilter();
+      after(async function () {
+        await unsubscribeAllowWarningsFilter();
       });
 
       beforeEach(async function () {
