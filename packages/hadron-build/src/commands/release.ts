@@ -7,6 +7,7 @@ import del from 'del';
 import _ from 'lodash';
 import asar from 'asar';
 import packager from 'electron-packager';
+import Arborist from '@npmcli/arborist';
 import createApplicationZip from '../lib/zip';
 import { runCommand } from '../lib/run';
 import { rebuild } from '@electron/rebuild';
@@ -179,13 +180,16 @@ const transformPackageJson = async (CONFIG: Target): Promise<void> => {
     process.env.HADRON_METRICS_INTERCOM_APP_ID;
 
   const monorepoRoot = path.resolve(CONFIG.dir, '..', '..');
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const Arborist = require('@npmcli/arborist');
   const tree = new Arborist({ path: monorepoRoot });
   await tree.loadActual();
   const packageInventoryPath = path
     .relative(monorepoRoot, CONFIG.dir)
     .replaceAll(path.sep, path.posix.sep);
+  if (!tree.actualTree) {
+    throw new Error(
+      `Couldn't find package node in arborist tree for ${packageInventoryPath}`
+    );
+  }
   const packageNode = tree.actualTree.inventory.get(packageInventoryPath);
 
   if (!packageNode) {
@@ -201,6 +205,11 @@ const transformPackageJson = async (CONFIG: Target): Promise<void> => {
       (contents[depType] as Record<string, string>) || {}
     )) {
       const depEdge = packageNode.edgesOut.get(depName);
+      if (!depEdge) {
+        throw new Error(
+          `Couldn't find edge for package ${depName} in arborist tree`
+        );
+      }
       if (!depEdge.to && !depEdge.optional) {
         throw new Error(
           `Couldn't find node for package ${depName} in arborist tree`
@@ -336,6 +345,10 @@ const createApplicationAsar = async (CONFIG: Target): Promise<void> => {
     await asar.createPackageWithOptions(src, dest, opts);
     await del([src], { force: true });
   } catch (err) {
+    // We are currently not throwing here if we fail to create the asar.
+    // Not sure why we are doing that (@imlucas might know), but for now
+    // we're not going to change that logic. For now just logging the error
+    // so we can fix the issue in the future.)
     if (err) {
       cli.error(err as unknown as string);
     }

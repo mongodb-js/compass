@@ -85,6 +85,7 @@
     "@types/lodash": "^4.14.188",
     "@types/mocha": "^9.0.0",
     "@types/node": "^20.0.0",
+    "@types/npmcli__arborist": "^6.3.3",
     "@types/semver": "^7.3.13",
     "@types/which": "^2.0.2",
     "@types/yargs": "^17.0.33",
