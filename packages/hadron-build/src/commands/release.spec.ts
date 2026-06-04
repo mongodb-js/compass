@@ -2,13 +2,13 @@ import { releaseCommand } from './release';
 import fs from 'fs/promises';
 import plist from 'plist';
 import assert from 'assert';
-
 import path from 'path';
-import { getConfig } from '../../test/test-helpers';
+import type Target from '../lib/target';
+import { getTarget } from '../../test/test-helpers';
 
 // TODO: Investigate why it's failing in GitHub Actions CI
 describe.skip('hadron-build::release', function () {
-  let target: ReturnType<typeof getConfig>;
+  let target: Target;
   before(async function () {
     if (
       // Functional tests on appveyor too slow. Skipping.
@@ -22,7 +22,7 @@ describe.skip('hadron-build::release', function () {
       path.join(__dirname, '..', 'test', 'fixtures', 'hadron-app', 'dist'),
       { recursive: true, force: true }
     );
-    target = getConfig();
+    target = await getTarget();
     // TODO: this is not correct here. When unskipping this suite, this
     // will be resolved!
     await releaseCommand.handler({

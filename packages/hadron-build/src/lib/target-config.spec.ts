@@ -1,108 +1,265 @@
 /* eslint no-unused-vars: 1 */
 import _ from 'lodash';
 import chai from 'chai';
-import { getConfig } from '../../test/test-helpers';
+import Target from './target';
+import { getTarget } from '../../test/test-helpers';
 
 const { expect } = chai;
 
 describe('hadron-build::config', function () {
   describe('Release channel support', function () {
     const channels = {
-      stable: getConfig({
+      stable: {
         version: '1.2.0',
-      }),
-      beta: getConfig({
+      },
+      beta: {
         version: '1.2.0-beta.1',
-      }),
-      custom: getConfig({
-        version: '1.2.0-custom.5',
-      }),
-    };
+      },
+      dev: {
+        version: '1.2.0-dev.5',
+      },
+    } as const;
 
-    it('should have the right versions', function () {
-      expect(channels.stable.version).to.equal('1.2.0');
-      expect(channels.beta.version).to.equal('1.2.0-beta.1');
-      expect(channels.custom.version).to.equal('1.2.0-custom.5');
+    for (const channel in channels) {
+      const opts = channels[channel as keyof typeof channels];
+      describe(`for ${channel} channel`, function () {
+        it('should have the right version', async function () {
+          const target = await getTarget(opts);
+          expect(target.version).to.equal(opts.version);
+        });
+
+        it('should have the right channel name', async function () {
+          const target = await getTarget(opts);
+          expect(target.channel).to.equal(channel);
+        });
+
+        it('should have the right slug', async function () {
+          const target = await getTarget(opts);
+          if (channel === 'stable') {
+            // For stable, the slug is just 'mongodb-compass'
+            expect(target.slug).to.equal('mongodb-compass');
+          } else {
+            // For other channels, the slug is 'mongodb-compass-{channel}'
+            expect(target.slug).to.equal(`mongodb-compass-${channel}`);
+          }
+        });
+
+        it('should have the right product name', async function () {
+          const target = await getTarget(opts);
+          if (channel === 'stable') {
+            expect(target.productName).to.equal('MongoDB Compass');
+          } else {
+            expect(target.productName).to.equal(
+              `MongoDB Compass ${
+                channel.charAt(0).toUpperCase() + channel.slice(1)
+              }`
+            );
+          }
+        });
+      });
+    }
+
+    describe('for dev channel only', function () {
+      it('if `DEV_VERSION_IDENTIFIER` is set, it takes version from there', async function () {
+        const initialDevVersionIdentifier = process.env.DEV_VERSION_IDENTIFIER;
+        try {
+          process.env.DEV_VERSION_IDENTIFIER = '1.2.0-dev.10';
+          const target = await getTarget({
+            version: '1.2.0-dev.5',
+          });
+          expect(target.version).to.equal('1.2.0-dev.10');
+        } finally {
+          process.env.DEV_VERSION_IDENTIFIER = initialDevVersionIdentifier;
+        }
+      });
     });
 
-    it('should detect the channel from the version', function () {
-      expect(channels.stable.channel).to.equal('stable');
-      expect(channels.beta.channel).to.equal('beta');
-      expect(channels.custom.channel).to.equal('custom');
-    });
-
-    it('should not include channel in the product name on stable', function () {
-      expect(channels.stable.productName).to.equal(
-        'MongoDB Compass Enterprise super long test name'
-      );
-    });
-
-    it('should not include channel in the slug on stable', function () {
-      expect(channels.stable.slug).to.equal('compass');
-    });
-
-    describe('For releases *not* on the stable channel', function () {
-      it('should add the channel as a suffix to the product name', function () {
-        expect(channels.beta.productName).to.equal(
-          'MongoDB Compass Enterprise super long test name Beta'
-        );
-        expect(channels.custom.productName).to.equal(
-          'MongoDB Compass Enterprise super long test name Custom'
-        );
-      });
-      it('should add the channel as a suffix to the slug', function () {
-        expect(channels.beta.slug).to.equal('compass-beta');
-        expect(channels.custom.slug).to.equal('compass-custom');
-      });
-    });
-
-    describe.skip('Alpha', function () {
-      process.env.CI = '1';
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const moment = require('moment');
-
-      const dev = getConfig({
-        version: '1.2.0-dev',
+    describe('Target.getChannelFromVersion', function () {
+      it('should return the right channel', function () {
+        expect(Target.getChannelFromVersion('1.2.0')).to.equal('stable');
+        expect(Target.getChannelFromVersion('1.2.0-beta.1')).to.equal('beta');
+        expect(Target.getChannelFromVersion('1.2.0-BETA.1')).to.equal('beta');
+        expect(Target.getChannelFromVersion('1.2.0-dev.5')).to.equal('dev');
+        expect(Target.getChannelFromVersion('1.2.0-DEV.5')).to.equal('dev');
       });
 
-      const version = `1.2.0-alpha.${moment().format('YYYYMMDDHHmm')}`;
-
-      it('should update version', function () {
-        expect(dev.version).to.equal(version);
-        expect(dev.pkg.version).to.equal(version);
-      });
-
-      it('should update slug', function () {
-        expect(dev.slug).to.equal('hadron-app-alpha');
-      });
-
-      it('should update channel', function () {
-        expect(dev.channel).to.equal('alpha');
+      it('should throw if channel is not one of stable/beta/dev', function () {
+        try {
+          Target.getChannelFromVersion('1.2.0-rc.1');
+          expect.fail('Expected getChannelFromVersion to throw');
+        } catch (e) {
+          expect((e as Error).message).to.equal(
+            'Unsupported channel "rc" for version 1.2.0-rc.1'
+          );
+        }
       });
     });
   });
-  describe('Only on Linux', function () {
-    const linux = {
-      name: 'hadron-app',
-      version: '1.2.0',
-      product_name: 'Hadron',
-      platform: 'linux',
+
+  describe('Release assets', function () {
+    type BuildAssetOpts = {
+      version: string;
+      arch: string;
+      distribution: string;
+    };
+    // TODO: Support for channels
+    const platformAssets = {
+      darwin: (opts: BuildAssetOpts) => [
+        // mongodb-compass-readonly-1.2.0-darwin-x64.dmg
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-darwin-${opts.arch}.dmg`,
+          downloadCenter: true,
+        },
+        // mongodb-compass-readonly-1.2.0-darwin-x64.zip
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-darwin-${opts.arch}.zip`,
+        },
+        // mongodb-compass-readonly-1.2.0-darwin-x64.zip.sig
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-darwin-${opts.arch}.zip.sig`,
+        },
+      ],
+      linux: (opts: BuildAssetOpts) => [
+        // mongodb-compass-readonly_1.2.0_amd64.deb
+        {
+          name: `mongodb-${opts.distribution}_${opts.version}_${
+            opts.arch === 'x64' ? 'amd64' : 'i386'
+          }.deb`,
+          downloadCenter: true,
+        },
+        // mongodb-compass-readonly_1.2.0_amd64.deb.sig
+        {
+          name: `mongodb-${opts.distribution}_${opts.version}_${
+            opts.arch === 'x64' ? 'amd64' : 'i386'
+          }.deb.sig`,
+        },
+        // mongodb-compass-readonly-1.2.0.x86_64.rpm
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}.${
+            opts.arch === 'x64' ? 'x86_64' : 'i386'
+          }.rpm`,
+          downloadCenter: true,
+        },
+        // mongodb-compass-readonly-1.2.0-linux-x64.tar.gz
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-linux-${opts.arch}.tar.gz`,
+        },
+        // mongodb-compass-readonly-1.2.0-linux-x64.tar.gz.sig
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-linux-${opts.arch}.tar.gz.sig`,
+        },
+        // mongodb-compass-readonly-1.2.0-rhel-x64.tar.gz
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-rhel-${opts.arch}.tar.gz`,
+        },
+        // mongodb-compass-readonly-1.2.0-rhel-x64.tar.gz.sig
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-rhel-${opts.arch}.tar.gz.sig`,
+        },
+      ],
+      win32: (opts: BuildAssetOpts) => [
+        // mongodb-compass-readonly-1.2.0-win32-x64.exe
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-win32-x64.exe`,
+          downloadCenter: true,
+        },
+        // mongodb-compass-readonly-1.2.0-win32-x64.msi
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-win32-x64.msi`,
+          downloadCenter: true,
+        },
+        // mongodb-compass-readonly-1.2.0-win32-x64.zip
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-win32-x64.zip`,
+          downloadCenter: true,
+        },
+        // mongodb-compass-readonly-1.2.0-win32-x64.zip.sig
+        {
+          name: `mongodb-${opts.distribution}-${opts.version}-win32-x64.zip.sig`,
+        },
+        // mongodb-compass-readonly-RELEASES
+        { name: `mongodb-${opts.distribution}-RELEASES` },
+        // For Isolated, we are using config.hardon.distributions.isolated.productName which is 'MongoDB Compass Isolated Edition'
+        // MongoDBCompassReadonly-1.2.0-full.nupkg
+        {
+          name: `MongoDB${opts.distribution
+            .split('-')
+            .map(_.capitalize)
+            .join('')}${
+            opts.distribution === 'compass-isolated' ? 'Edition' : ''
+          }-${opts.version}-full.nupkg`,
+        },
+        // MongoDBCompassReadonly-1.2.0-full.nupkg.sig
+        {
+          name: `MongoDB${opts.distribution
+            .split('-')
+            .map(_.capitalize)
+            .join('')}${
+            opts.distribution === 'compass-isolated' ? 'Edition' : ''
+          }-${opts.version}-full.nupkg.sig`,
+        },
+      ],
     };
 
-    const c = getConfig(linux);
-    const assetNames = _.map(c.assets, 'name');
-    it('should produce a tarball asset', function () {
-      expect(assetNames).to.contain(c.linux_tar_filename);
-    });
+    const platformAndDistributionCombinations =
+      Target.supportedPlatforms.flatMap((platform) => {
+        return Target.supportedDistributions.map((distribution) => {
+          return {
+            platform: platform.platform,
+            arch: platform.arch,
+            distribution,
+          };
+        });
+      });
 
-    it('should produce a debian package asset', function () {
-      expect(assetNames).to.contain(c.linux_deb_filename);
-    });
-
-    it('should produce a redhat package manager asset', function () {
-      expect(assetNames).to.include(c.linux_rpm_filename);
-    });
+    for (const config of platformAndDistributionCombinations) {
+      describe(`${config.distribution}-${config.platform}-${config.arch}`, function () {
+        const getExpectedAssets =
+          platformAssets[config.platform as keyof typeof platformAssets];
+        it('should have the right assets', async function () {
+          const target = await getTarget({
+            platform: config.platform,
+            version: '1.2.0',
+            arch: config.arch,
+            distribution: config.distribution,
+          });
+          // eslint-disable-next-line no-unused-vars
+          const assets = target.assets.map(({ path, ...rest }) => rest);
+          expect(assets).to.deep.equal(
+            getExpectedAssets({
+              version: '1.2.0',
+              arch: config.arch,
+              distribution: config.distribution,
+            })
+          );
+        });
+      });
+    }
   });
+
+  // describe.only('Packager options', function () {
+  //   it.skip('has the right options for all platforms', async function () {
+  //     const target = await getTarget({
+  //       version: '1.2.0',
+  //       platform: 'linux',
+  //       arch: 'x64',
+  //       distribution: 'compass',
+  //     });
+  //     console.log(target.packagerOptions);
+  //   });
+  // });
+
+  // describe.only('Installer options', function () {
+  //   it.only('has the right options for all platforms', async function () {
+  //     const target = await getTarget({
+  //       version: '1.2.0',
+  //       platform: 'win32',
+  //       arch: 'x64',
+  //       distribution: 'compass',
+  //     });
+  //     console.log(target.installerOptions);
+  //   });
+  // });
 
   describe('Only on Windows', function () {
     const windows = {
@@ -113,9 +270,9 @@ describe('hadron-build::config', function () {
       arch: 'x64',
     };
 
-    let res: ReturnType<typeof getConfig>;
-    before(function () {
-      res = getConfig(windows);
+    let res: Target;
+    before(async function () {
+      res = await getTarget(windows);
     });
     it.skip('should have the platform specific packager options', function () {
       const versionString = res.packagerOptions['version-string']!;
@@ -124,20 +281,6 @@ describe('hadron-build::config', function () {
       expect(versionString.FileDescription).to.be.a('string');
       expect(versionString.ProductName).to.be.a('string');
       expect(versionString.InternalName).to.be.a('string');
-    });
-
-    it('should have the platform specific evergreen expansions', function () {
-      expect(res.windows_msi_filename).to.equal('compass-1.2.0-win32-x64.msi');
-      expect(res.windows_setup_filename).to.equal(
-        'compass-1.2.0-win32-x64.exe'
-      );
-      expect(res.windows_zip_filename).to.equal('compass-1.2.0-win32-x64.zip');
-      expect(res.windows_nupkg_full_filename).to.equal(
-        'MongoDBCompassEnterprisesuperlongtestname-1.2.0-full.nupkg'
-      );
-      expect(res.windows_nupkg_full_label).to.equal(
-        'MongoDBCompassEnterprisesuperlongtestname-1.2.0-full.nupkg'
-      );
     });
 
     it('should have the platform specific installer options', function () {
@@ -155,42 +298,6 @@ describe('hadron-build::config', function () {
       expect(opts).to.have.property('productName');
       expect(opts).to.have.property('description');
       expect(opts).to.have.property('name');
-    });
-
-    describe('For non-stable channel releases', function () {
-      let custom: ReturnType<typeof getConfig>;
-      before(function () {
-        custom = getConfig({
-          version: '1.2.0-custom.5',
-          name: 'hadron',
-          product_name: 'Hadron',
-          platform: 'win32',
-          author: 'MongoDB Inc',
-          arch: 'x64',
-        });
-      });
-
-      it('should append the channel name to the product name', function () {
-        const versionString = custom.packagerOptions['version-string']!;
-        expect(versionString.ProductName).to.equal(
-          'MongoDB Compass Enterprise super long test name Custom'
-        );
-      });
-
-      it('should include the channel name in asset filenames', function () {
-        expect(custom.windows_msi_filename).to.equal(
-          'compass-1.2.0-custom.5-win32-x64.msi'
-        );
-        expect(custom.windows_setup_filename).to.equal(
-          'compass-1.2.0-custom.5-win32-x64.exe'
-        );
-        expect(custom.windows_zip_filename).to.equal(
-          'compass-1.2.0-custom.5-win32-x64.zip'
-        );
-        expect(custom.windows_nupkg_full_filename).to.equal(
-          'MongoDBCompassEnterprisesuperlongtestnameCustom-1.2.0-custom5-full.nupkg'
-        );
-      });
     });
   });
 });
