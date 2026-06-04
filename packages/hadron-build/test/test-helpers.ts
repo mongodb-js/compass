@@ -12,8 +12,7 @@ import Target from '../src/lib/target';
  * tests, so that anything that changes on that side, our tests catch it.
  */
 
-export async function getTarget(argv?: Record<string, any>): Promise<Target> {
-  await Promise.resolve();
+export function getTarget(argv?: Record<string, any>): Target {
   const dir = path.dirname(require.resolve('mongodb-compass/package.json'));
   return new Target(dir, { distribution: 'compass', ...argv });
 }

@@ -37,7 +37,7 @@ function setupTargetForPlatform(platform: string): () => Target {
   });
 
   beforeEach(async function () {
-    target = await getTarget({
+    target = getTarget({
       version: '1.2.0',
       platform,
     });
@@ -94,7 +94,7 @@ describe('zip', function () {
       expect(zipPath).to.not.be.undefined;
       await fs.writeFile(zipPath as string, 'something');
       await zip(target);
-      const entries = await getTargetZipEntries(target);
+      const entries = getTargetZipEntries(target);
       expect(entries).to.deep.equal([
         {
           name: 'MongoDB Compass.app/',
@@ -110,7 +110,7 @@ describe('zip', function () {
     it('creates a zip with the right entries', async function () {
       const target = getTarget();
       await zip(target);
-      const entries = await getTargetZipEntries(target);
+      const entries = getTargetZipEntries(target);
       expect(entries).to.deep.equal([
         {
           name: 'MongoDB Compass.app/',
@@ -142,7 +142,7 @@ describe('zip', function () {
       expect(zipPath).to.not.be.undefined;
       await fs.writeFile(zipPath as string, 'something');
       await zip(target);
-      const entries = await getTargetZipEntries(target);
+      const entries = getTargetZipEntries(target);
       expect(entries).to.deep.equal([
         {
           name: 'file',
@@ -154,7 +154,7 @@ describe('zip', function () {
     it('creates a zip with the right entries', async function () {
       const target = getTarget();
       await zip(target);
-      const entries = await getTargetZipEntries(target);
+      const entries = getTargetZipEntries(target);
       expect(entries).to.deep.equal([
         {
           name: 'file',
@@ -166,8 +166,8 @@ describe('zip', function () {
 
   describe('getZipOptionsFromTarget', function () {
     let target: Target;
-    beforeEach(async function () {
-      target = await getTarget();
+    beforeEach(function () {
+      target = getTarget();
     });
     it('returns null if there is no .zip asset', function () {
       target.assets = [];

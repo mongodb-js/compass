@@ -22,7 +22,7 @@ describe.skip('hadron-build::release', function () {
       path.join(__dirname, '..', 'test', 'fixtures', 'hadron-app', 'dist'),
       { recursive: true, force: true }
     );
-    target = await getTarget();
+    target = getTarget();
     // TODO: this is not correct here. When unskipping this suite, this
     // will be resolved!
     await releaseCommand.handler({

@@ -12,8 +12,8 @@ describe('target', function () {
     process.env = { ...env };
   });
 
-  it('should have autoupdate endpoint resolved from the package.json config', async function () {
-    const target = await getTarget();
+  it('should have autoupdate endpoint resolved from the package.json config', function () {
+    const target = getTarget();
 
     expect(target).to.have.property(
       'autoUpdateBaseUrl',
@@ -21,8 +21,8 @@ describe('target', function () {
     );
   });
 
-  it('defaults to package.json distribution config options', async function () {
-    const target = await getTarget({
+  it('defaults to package.json distribution config options', function () {
+    const target = getTarget({
       version: '1.2.0',
     });
 
@@ -34,7 +34,7 @@ describe('target', function () {
     expect(target).to.have.property('version', '1.2.0');
   });
 
-  it('allows to override distribution config with env vars', async function () {
+  it('allows to override distribution config with env vars', function () {
     Object.assign(process.env, {
       HADRON_DISTRIBUTION: 'compass-isolated',
       HADRON_PRODUCT: 'compass-compass',
@@ -44,7 +44,7 @@ describe('target', function () {
       HADRON_APP_VERSION: '1.2.3',
     });
 
-    const target = await getTarget({
+    const target = getTarget({
       // getTarget will set distribution to 'compass' by default, so we need to undefined it here
       distribution: undefined,
     });

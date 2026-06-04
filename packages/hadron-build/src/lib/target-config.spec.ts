@@ -21,18 +21,18 @@ describe('hadron-build::config', function () {
         CHANNEL_VERSIONS[channel as keyof typeof CHANNEL_VERSIONS];
       const opts = { version };
       describe(`for ${channel} channel`, function () {
-        it('should have the right version', async function () {
-          const target = await getTarget(opts);
+        it('should have the right version', function () {
+          const target = getTarget(opts);
           expect(target.version).to.equal(version);
         });
 
-        it('should have the right channel name', async function () {
-          const target = await getTarget(opts);
+        it('should have the right channel name', function () {
+          const target = getTarget(opts);
           expect(target.channel).to.equal(channel);
         });
 
-        it('should have the right slug', async function () {
-          const target = await getTarget(opts);
+        it('should have the right slug', function () {
+          const target = getTarget(opts);
           if (channel === 'stable') {
             // For stable, the slug is just 'mongodb-compass'
             expect(target.slug).to.equal('mongodb-compass');
@@ -42,8 +42,8 @@ describe('hadron-build::config', function () {
           }
         });
 
-        it('should have the right product name', async function () {
-          const target = await getTarget(opts);
+        it('should have the right product name', function () {
+          const target = getTarget(opts);
           if (channel === 'stable') {
             expect(target.productName).to.equal('MongoDB Compass');
           } else {
@@ -58,11 +58,11 @@ describe('hadron-build::config', function () {
     }
 
     describe('for dev channel only', function () {
-      it('if `DEV_VERSION_IDENTIFIER` is set, it takes version from there', async function () {
+      it('if `DEV_VERSION_IDENTIFIER` is set, it takes version from there', function () {
         const initialDevVersionIdentifier = process.env.DEV_VERSION_IDENTIFIER;
         try {
           process.env.DEV_VERSION_IDENTIFIER = '1.2.0-dev.10';
-          const target = await getTarget({
+          const target = getTarget({
             version: '1.2.0-dev.5',
           });
           expect(target.version).to.equal('1.2.0-dev.10');
@@ -208,8 +208,8 @@ describe('hadron-build::config', function () {
       for (const version of ['1.2.0']) {
         const getExpectedAssets =
           platformAssets[config.platform as keyof typeof platformAssets];
-        it(`it should have right assets for ${config.distribution} on ${config.arch} using ${config.arch} running ${version}`, async function () {
-          const target = await getTarget({
+        it(`it should have right assets for ${config.distribution} on ${config.arch} using ${config.arch} running ${version}`, function () {
+          const target = getTarget({
             version,
             platform: config.platform,
             arch: config.arch,
@@ -233,8 +233,8 @@ describe('hadron-build::config', function () {
     for (const channel in CHANNEL_VERSIONS) {
       const version =
         CHANNEL_VERSIONS[channel as keyof typeof CHANNEL_VERSIONS];
-      it(`has the right options for win32 on ${channel} channel`, async function () {
-        const target = await getTarget({
+      it(`has the right options for win32 on ${channel} channel`, function () {
+        const target = getTarget({
           version,
           platform: 'win32',
           arch: 'x64',
@@ -277,8 +277,8 @@ describe('hadron-build::config', function () {
         });
       });
 
-      it(`has the right options for linux on ${channel} channel`, async function () {
-        const target = await getTarget({
+      it(`has the right options for linux on ${channel} channel`, function () {
+        const target = getTarget({
           version,
           platform: 'linux',
           arch: 'x64',
@@ -310,8 +310,8 @@ describe('hadron-build::config', function () {
         });
       });
 
-      it(`has the right options for darwin on ${channel} channel`, async function () {
-        const target = await getTarget({
+      it(`has the right options for darwin on ${channel} channel`, function () {
+        const target = getTarget({
           version,
           platform: 'darwin',
           arch: 'x64',
@@ -366,8 +366,8 @@ describe('hadron-build::config', function () {
     for (const channel in CHANNEL_VERSIONS) {
       const version =
         CHANNEL_VERSIONS[channel as keyof typeof CHANNEL_VERSIONS];
-      it(`has the correct options for win32 on ${channel} channel`, async function () {
-        const target = await getTarget({
+      it(`has the correct options for win32 on ${channel} channel`, function () {
+        const target = getTarget({
           version,
           platform: 'win32',
           arch: 'x64',
@@ -405,8 +405,8 @@ describe('hadron-build::config', function () {
         });
       });
 
-      it(`has the correct options for linux on ${channel} channel`, async function () {
-        const target = await getTarget({
+      it(`has the correct options for linux on ${channel} channel`, function () {
+        const target = getTarget({
           version,
           platform: 'linux',
           arch: 'x64',
@@ -477,8 +477,8 @@ describe('hadron-build::config', function () {
         });
       });
 
-      it(`has the correct options for darwin on ${channel} channel`, async function () {
-        const target = await getTarget({
+      it(`has the correct options for darwin on ${channel} channel`, function () {
+        const target = getTarget({
           version,
           platform: 'darwin',
           arch: 'x64',
