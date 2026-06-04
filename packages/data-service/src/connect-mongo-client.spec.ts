@@ -75,7 +75,7 @@ describe('connectMongoClient', function () {
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
-        applyProxyToOIDC: {},
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -122,7 +122,7 @@ describe('connectMongoClient', function () {
           signal: undefined,
         },
         parentHandle: options.parentHandle,
-        applyProxyToOIDC: {},
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -159,7 +159,7 @@ describe('connectMongoClient', function () {
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
-        applyProxyToOIDC: {},
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([

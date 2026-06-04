@@ -103,7 +103,11 @@ export function prepareOIDCOptions({
   if (connectionOptions.oidc?.shareProxyWithConnection) {
     options.applyProxyToOIDC = true;
   } else {
-    options.applyProxyToOIDC = proxyOptions;
+    // Explicitly disable OIDC proxy routing. Previously this was set to
+    // proxyOptions but that was harmless because devtools-connect didn't own
+    // the proxy. Now that it does, passing proxyOptions here would route OIDC
+    // traffic through the connection proxy even when the user opted out.
+    options.applyProxyToOIDC = false;
   }
 
   options.oidc.signal = signal;
