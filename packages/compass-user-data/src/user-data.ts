@@ -2,7 +2,6 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { getStoragePath } from '@mongodb-js/compass-utils';
-import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { z } from 'zod';
 import writeFile from 'write-file-atomic';
 import { Semaphore } from './semaphore';
@@ -48,8 +47,7 @@ export type FileUserDataOptions<Input> = {
 export type AtlasUserDataOptions<Input> = {
   orgId: string;
   projectId: string;
-  atlasService: AtlasService;
-  authenticatedFetch: AuthenticatedFetch;
+  atlasService: AtlasServiceLike;
   serialize?: SerializeContent<Input>;
   deserialize?: DeserializeContent;
 };
@@ -357,10 +355,20 @@ export class FileUserData<T extends z.Schema> extends IUserData<T> {
   }
 }
 
+// This type exists to avoid a circular dependency between user-data and atlas-service.
+type AtlasServiceLike = {
+  userDataEndpoint: (
+    orgId: string,
+    projectId: string,
+    dataType: UserDataType,
+    id?: string
+  ) => string;
+  authenticatedFetch: AuthenticatedFetch;
+};
+
 // TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
 export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
-  private readonly authenticatedFetch;
-  private readonly atlasService: AtlasService;
+  private readonly atlasService: AtlasServiceLike;
   private orgId: string = '';
   private projectId: string = '';
   constructor(
@@ -370,14 +378,12 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       orgId,
       projectId,
       atlasService,
-      authenticatedFetch,
       serialize,
       deserialize,
     }: AtlasUserDataOptions<z.input<T>>
   ) {
     super(validator, dataType, { serialize, deserialize });
     this.atlasService = atlasService;
-    this.authenticatedFetch = authenticatedFetch;
     this.orgId = orgId;
     this.projectId = projectId;
   }
@@ -385,7 +391,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   async write(id: string, content: z.input<T>): Promise<boolean> {
     try {
       this.validator.parse(content);
-      await this.authenticatedFetch(
+      await this.atlasService.authenticatedFetch.bind(this.atlasService)(
         this.atlasService.userDataEndpoint(
           this.orgId,
           this.projectId,
@@ -426,7 +432,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
   async delete(id: string): Promise<boolean> {
     try {
-      await this.authenticatedFetch(
+      await this.atlasService.authenticatedFetch.bind(this.atlasService)(
         this.atlasService.userDataEndpoint(
           this.orgId,
           this.projectId,
@@ -463,7 +469,9 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       errors: [],
     };
     try {
-      const response = await this.authenticatedFetch(
+      const response = await this.atlasService.authenticatedFetch.bind(
+        this.atlasService
+      )(
         this.atlasService.userDataEndpoint(
           this.orgId,
           this.projectId,
@@ -501,7 +509,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ...data,
       };
 
-      await this.authenticatedFetch(
+      await this.atlasService.authenticatedFetch.bind(this.atlasService)(
         this.atlasService.userDataEndpoint(
           this.orgId,
           this.projectId,
@@ -542,7 +550,9 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   // TODO: change this depending on whether or not updateAttributes can provide all current data
   async readOne(id: string): Promise<z.output<T> | undefined> {
     try {
-      const getResponse = await this.authenticatedFetch(
+      const getResponse = await this.atlasService.authenticatedFetch.bind(
+        this.atlasService
+      )(
         this.atlasService.userDataEndpoint(
           this.orgId,
           this.projectId,

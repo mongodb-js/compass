@@ -14,10 +14,6 @@ export type WebStorageOptions = {
   orgId: string;
   projectId: string;
   atlasService: AtlasService;
-  authenticatedFetch: (
-    url: RequestInfo | URL,
-    options?: RequestInit
-  ) => Promise<Response>;
 };
 
 export function createWebRecentQueryStorage(options: WebStorageOptions) {
@@ -25,7 +21,6 @@ export function createWebRecentQueryStorage(options: WebStorageOptions) {
     orgId: options.orgId,
     projectId: options.projectId,
     atlasService: options.atlasService,
-    authenticatedFetch: options.authenticatedFetch,
     serialize: (content) => EJSON.stringify(content),
     deserialize: (content: string) => EJSON.parse(content),
   });
@@ -37,7 +32,6 @@ export function createWebFavoriteQueryStorage(options: WebStorageOptions) {
     orgId: options.orgId,
     projectId: options.projectId,
     atlasService: options.atlasService,
-    authenticatedFetch: options.authenticatedFetch,
     serialize: (content) => EJSON.stringify(content),
     deserialize: (content: string) => EJSON.parse(content),
   });
@@ -49,7 +43,6 @@ export function createWebPipelineStorage(options: WebStorageOptions) {
     orgId: options.orgId,
     projectId: options.projectId,
     atlasService: options.atlasService,
-    authenticatedFetch: options.authenticatedFetch,
     serialize: (content) => EJSON.stringify(content),
     deserialize: (content: string) => EJSON.parse(content),
   });

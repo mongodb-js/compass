@@ -26,7 +26,6 @@ class DataModelStorageAtlas implements DataModelStorage {
         orgId,
         projectId,
         atlasService,
-        authenticatedFetch: atlasService.authenticatedFetch.bind(atlasService),
       }
     );
   }

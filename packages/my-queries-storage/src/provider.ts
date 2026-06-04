@@ -10,10 +10,6 @@ export type QueryStorageOptions = {
   orgId?: string;
   projectId?: string;
   atlasService?: AtlasService;
-  authenticatedFetch?: (
-    url: RequestInfo | URL,
-    options?: RequestInit
-  ) => Promise<Response>;
 };
 
 export type PipelineStorageOptions = {
@@ -21,10 +17,6 @@ export type PipelineStorageOptions = {
   orgId?: string;
   projectId?: string;
   atlasService?: AtlasService;
-  authenticatedFetch?: (
-    url: RequestInfo | URL,
-    options?: RequestInit
-  ) => Promise<Response>;
 };
 
 export type { PipelineStorage, FavoriteQueryStorage, RecentQueryStorage };

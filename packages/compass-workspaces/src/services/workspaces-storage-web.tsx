@@ -10,17 +10,12 @@ export const WorkspacesStorageServiceProviderWeb: React.FunctionComponent<{
   orgId: string;
   projectId: string;
   atlasService: AtlasService;
-  authenticatedFetch: (
-    url: RequestInfo | URL,
-    options?: RequestInit
-  ) => Promise<Response>;
-}> = ({ orgId, projectId, atlasService, authenticatedFetch, children }) => {
+}> = ({ orgId, projectId, atlasService, children }) => {
   const storageRef = useInitialValue<IUserData<typeof WorkspacesStateSchema>>(
     new AtlasUserData(WorkspacesStateSchema, 'WorkspacesState', {
       orgId,
       projectId,
       atlasService,
-      authenticatedFetch,
       serialize: (content) =>
         EJSON.stringify(content, {
           relaxed: false,

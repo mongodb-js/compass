@@ -189,8 +189,6 @@ const WithStorageProviders = createServiceProvider(
     children: React.ReactNode;
   }) {
     const atlasService = atlasServiceLocator();
-    const authenticatedFetch =
-      atlasService.authenticatedFetch.bind(atlasService);
 
     const pipelineStorage = useRef<PipelineStorageAccess>({
       getStorage() {
@@ -198,7 +196,6 @@ const WithStorageProviders = createServiceProvider(
           orgId,
           projectId,
           atlasService,
-          authenticatedFetch,
         });
       },
     });
@@ -208,7 +205,6 @@ const WithStorageProviders = createServiceProvider(
           orgId,
           projectId,
           atlasService,
-          authenticatedFetch,
         });
       },
     });
@@ -218,7 +214,6 @@ const WithStorageProviders = createServiceProvider(
           orgId,
           projectId,
           atlasService,
-          authenticatedFetch,
         });
       },
     });
@@ -230,7 +225,6 @@ const WithStorageProviders = createServiceProvider(
               orgId={orgId}
               projectId={projectId}
               atlasService={atlasService}
-              authenticatedFetch={authenticatedFetch}
             >
               {children}
             </WorkspacesStorageServiceProviderWeb>
