@@ -170,8 +170,12 @@ export async function connectMongoClientDataService({
 
   // Pass SSH tunnel / proxy options to devtools-connect, which owns the full
   // tunnel lifecycle (creation, listen, config merge into MongoClient options,
-  // and cleanup on client close).
-  options.proxy = getTunnelOptions(connectionOptions, proxyOptions);
+  // and cleanup on client close). Only set when non-empty to avoid injecting
+  // a no-op proxy config for plain connections.
+  const tunnelOptions = getTunnelOptions(connectionOptions, proxyOptions);
+  if (Object.keys(tunnelOptions).length > 0) {
+    options.proxy = tunnelOptions;
+  }
   class CompassMongoClient extends MongoClient {
     constructor(url: string, options?: MongoClientOptions) {
       super(url, options);
