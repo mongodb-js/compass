@@ -1,12 +1,18 @@
 import * as t from '@babel/types';
 import type { Document } from 'bson';
 import { PipelinePreviewManager } from './pipeline-preview-manager';
-import type { PreviewOptions } from './pipeline-preview-manager';
+import type {
+  PreviewOptions,
+  StagePreviewResult,
+} from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
 import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
-import { isLastStageOutputStage } from '../../utils/stage';
+import {
+  isLastStageOutputStage,
+  getLastStageOperator,
+} from '../../utils/stage';
 import type { DataService } from '../data-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
@@ -26,12 +32,14 @@ export class PipelineBuilder {
   private _stages: Stage[] = [];
   // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
+  private preferences: PreferencesAccess;
 
   constructor(
     dataService: DataService,
     preferences: PreferencesAccess,
     source = DEFAULT_PIPELINE
   ) {
+    this.preferences = preferences;
     this.previewManager = new PipelinePreviewManager(dataService, preferences);
     this.changeSource(source);
     this.sourceToStages();
@@ -275,13 +283,20 @@ export class PipelineBuilder {
     namespace: string,
     options: PreviewOptions,
     force = false
-  ): Promise<Document[]> {
+  ): Promise<StagePreviewResult> {
+    const pipeline = this.getPipelineFromStages(this.stages.slice(0, idx + 1));
+    const { enableSearchActivationProgramP2 } =
+      this.preferences.getPreferences();
+    const injectScoreDetails =
+      !!enableSearchActivationProgramP2 &&
+      getLastStageOperator(pipeline) === '$search';
     return this.previewManager.getPreviewForStage(
       idx,
       namespace,
-      this.getPipelineFromStages(this.stages.slice(0, idx + 1)),
+      pipeline,
       options,
-      force
+      force,
+      injectScoreDetails
     );
   }
 
@@ -301,7 +316,7 @@ export class PipelineBuilder {
   /**
    * Request preview for current pipeline source
    */
-  getPreviewForPipeline(
+  async getPreviewForPipeline(
     namespace: string,
     options: PreviewOptions,
     filterOutputStage = false
@@ -311,12 +326,14 @@ export class PipelineBuilder {
     if (filterOutputStage && isLastStageOutputStage(pipeline)) {
       pipeline.pop();
     }
-    return this.previewManager.getPreviewForStage(
+    const { documents } = await this.previewManager.getPreviewForStage(
       FULL_PIPELINE_PREVIEW_ID,
       namespace,
       pipeline,
       options
     );
+    // Text editor preview does not use score metadata — extract documents only.
+    return documents;
   }
 
   /**

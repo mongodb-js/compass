@@ -4,8 +4,15 @@ import { mockDataService } from '../../../test/mocks/data-service';
 import { DEFAULT_PIPELINE, PipelineBuilder } from './pipeline-builder';
 import Stage from './stage';
 
+const mockPreferences = {
+  getPreferences: () => ({ enableSearchActivationProgramP2: false }),
+} as any;
+
 describe('PipelineBuilder', function () {
-  const pipelineBuilder = new PipelineBuilder(mockDataService(), {} as any);
+  const pipelineBuilder = new PipelineBuilder(
+    mockDataService(),
+    mockPreferences
+  );
   const sandbox = sinon.createSandbox();
   beforeEach(function () {
     pipelineBuilder.reset();
@@ -111,9 +118,10 @@ describe('PipelineBuilder', function () {
         'airbnb.listings',
         [{ $match: {} }, { $unwind: 'users' }],
         {},
-        true
+        true,
+        false // injectScoreDetails — FF disabled in mock preferences
       )
-      .returns([{ _id: 1 }]);
+      .returns({ documents: [{ _id: 1 }], stageMetadata: null });
 
     const data = await pipelineBuilder.getPreviewForStage(
       1,
@@ -121,7 +129,10 @@ describe('PipelineBuilder', function () {
       {},
       true
     );
-    expect(data).to.deep.equal([{ _id: 1 }]);
+    expect(data).to.deep.equal({
+      documents: [{ _id: 1 }],
+      stageMetadata: null,
+    });
 
     mock.verify();
     mock.restore();
@@ -140,7 +151,7 @@ describe('PipelineBuilder', function () {
         [{ $match: {} }, { $unwind: 'users' }],
         {}
       )
-      .returns([{ _id: 1 }, { _id: 2 }]);
+      .returns({ documents: [{ _id: 1 }, { _id: 2 }], stageMetadata: null });
 
     const data = await pipelineBuilder.getPreviewForPipeline(
       'airbnb.listings',
@@ -165,7 +176,7 @@ describe('PipelineBuilder', function () {
         [{ $match: {} }, { $unwind: 'users' }],
         {}
       )
-      .returns([{ _id: 1 }, { _id: 2 }]);
+      .returns({ documents: [{ _id: 1 }, { _id: 2 }], stageMetadata: null });
 
     const data = await pipelineBuilder.getPreviewForPipeline(
       'airbnb.listings',

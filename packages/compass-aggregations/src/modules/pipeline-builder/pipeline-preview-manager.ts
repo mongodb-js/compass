@@ -13,6 +13,19 @@ import {
 import isEqual from 'lodash/isEqual';
 import type { DataService } from '../data-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import {
+  injectSearchScoreMetadata,
+  SEARCH_SCORE_DETAILS_FIELD,
+} from '../../utils/search-score-injection';
+import type {
+  SearchScoreDetails,
+  StagePreviewMetadata,
+} from '../../utils/search-score-injection';
+
+export type StagePreviewResult = {
+  documents: Document[];
+  stageMetadata: StagePreviewMetadata | null;
+};
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 
@@ -96,8 +109,9 @@ export class PipelinePreviewManager {
       totalDocumentCount,
       ...options
     }: PreviewOptions = {},
-    force = false
-  ): Promise<Document[]> {
+    force = false,
+    injectScoreDetails = false
+  ): Promise<StagePreviewResult> {
     this.queue.get(idx)?.abort();
     const controller = new AbortController();
     this.queue.set(idx, controller);
@@ -105,20 +119,46 @@ export class PipelinePreviewManager {
       await cancellableWait(options.debounceMs ?? 700, controller.signal);
     }
     this.lastPipeline.set(idx, pipeline);
-    const result = await aggregatePipeline({
+
+    const previewPipeline = createPreviewAggregation(pipeline, {
+      sampleSize,
+      previewSize,
+      totalDocumentCount,
+    });
+
+    const rawDocuments = await aggregatePipeline({
       dataService: this.dataService,
       preferences: this.preferences,
       signal: controller.signal,
       namespace,
-      pipeline: createPreviewAggregation(pipeline, {
-        sampleSize,
-        previewSize,
-        totalDocumentCount,
-      }),
+      pipeline: injectScoreDetails
+        ? injectSearchScoreMetadata(previewPipeline)
+        : previewPipeline,
       options,
     });
+
     this.queue.delete(idx);
-    return result;
+
+    if (!injectScoreDetails) {
+      return { documents: rawDocuments, stageMetadata: null };
+    }
+
+    // Index-aligned with rawDocuments — null where scoreDetails is absent.
+    const scores: (SearchScoreDetails | null)[] = rawDocuments.map(
+      (doc) => (doc[SEARCH_SCORE_DETAILS_FIELD] as SearchScoreDetails) ?? null
+    );
+    const stageMetadata: StagePreviewMetadata | null = scores.some(
+      (s) => s !== null
+    )
+      ? { type: '$search', scores }
+      : null;
+
+    // Always strip the injected field — it's internal plumbing, not user data.
+    const documents = rawDocuments.map(
+      ({ [SEARCH_SCORE_DETAILS_FIELD]: _, ...rest }) => rest
+    );
+
+    return { documents, stageMetadata };
   }
 
   isLastPipelineEqual(idx: number, pipeline: Document[]): boolean {

@@ -15,6 +15,7 @@ import {
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
+import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
@@ -84,6 +85,7 @@ export type StagePreviewFetchSuccessAction = {
   type: typeof StageEditorActionTypes.StagePreviewFetchSuccess;
   id: number;
   previewDocs: HadronDocument[];
+  stageMetadata: StagePreviewMetadata | null;
 };
 
 export type StagePreviewFetchErrorAction = {
@@ -329,15 +331,17 @@ export const loadStagePreview = (
         totalDocumentCount: collectionStats?.document_count,
       };
 
-      const previewDocs = await pipelineBuilder.getPreviewForStage(
-        idxInPipeline,
-        namespace,
-        options
-      );
+      const { documents, stageMetadata } =
+        await pipelineBuilder.getPreviewForStage(
+          idxInPipeline,
+          namespace,
+          options
+        );
       dispatch({
         type: StageEditorActionTypes.StagePreviewFetchSuccess,
         id: idx,
-        previewDocs: previewDocs.map((doc) => new HadronDocument(doc)),
+        previewDocs: documents.map((doc) => new HadronDocument(doc)),
+        stageMetadata,
       });
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
@@ -1065,6 +1069,7 @@ export type StoreStage = {
   serverError: MongoServerError | null;
   loading: boolean;
   previewDocs: HadronDocument[] | null;
+  stageMetadata: StagePreviewMetadata | null;
   collapsed: boolean;
   disabled: boolean;
   empty: boolean;
@@ -1102,6 +1107,7 @@ export function mapBuilderStageToStoreStage(
     serverError: null,
     loading: false,
     previewDocs: null,
+    stageMetadata: null,
     collapsed: false,
     empty: stage.isEmpty,
     fromSnippet: false,
@@ -1161,6 +1167,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           serverError: null,
           loading: true,
+          stageMetadata: null,
         },
         ...state.stages.slice(action.id + 1),
       ],
@@ -1181,6 +1188,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: null,
+          stageMetadata: null,
           serverError: null,
         },
         ...state.stages.slice(action.id + 1),
@@ -1192,7 +1200,25 @@ const reducer: Reducer<StageEditorState, Action> = (
     isAction<StagePreviewFetchSuccessAction>(
       action,
       StageEditorActionTypes.StagePreviewFetchSuccess
-    ) ||
+    )
+  ) {
+    return {
+      ...state,
+      stages: [
+        ...state.stages.slice(0, action.id),
+        {
+          ...state.stages[action.id],
+          loading: false,
+          previewDocs: action.previewDocs,
+          stageMetadata: action.stageMetadata,
+          serverError: null,
+        },
+        ...state.stages.slice(action.id + 1),
+      ],
+    };
+  }
+
+  if (
     isAction<StageRunSuccessAction>(
       action,
       StageEditorActionTypes.StageRunSuccess
@@ -1206,6 +1232,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: action.previewDocs,
+          stageMetadata: null,
           serverError: null,
         },
         ...state.stages.slice(action.id + 1),
