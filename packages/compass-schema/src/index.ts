@@ -33,6 +33,7 @@ const CompassSchemaPluginProvider = registerCompassPlugin(
   },
   {
     dataService:
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
       dataServiceLocator as DataServiceLocator<RequiredDataServiceProps>,
     logger: createLoggerLocator('COMPASS-SCHEMA-UI'),
     track: telemetryLocator,

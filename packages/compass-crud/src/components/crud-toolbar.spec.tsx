@@ -50,7 +50,6 @@ describe('CrudToolbar Component', function () {
         isWritable
         instanceDescription=""
         onApplyClicked={noop}
-        onResetClicked={noop}
         onUpdateButtonClicked={noop}
         onDeleteButtonClicked={noop}
         onExpandAllClicked={noop}
@@ -920,7 +919,6 @@ describe('CrudToolbar Component', function () {
             lastCountRunMaxTimeMS={1234}
             instanceDescription=""
             onApplyClicked={noop}
-            onResetClicked={noop}
             onUpdateButtonClicked={noop}
             onDeleteButtonClicked={noop}
             onExpandAllClicked={noop}

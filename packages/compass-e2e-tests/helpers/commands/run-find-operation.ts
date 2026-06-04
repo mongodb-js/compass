@@ -92,44 +92,10 @@ async function waitUntilCollapsed(browser: CompassBrowser, tabName: string) {
   });
 }
 
-async function maybeResetQuery(browser: CompassBrowser, tabName: string) {
-  // click reset if it is enabled to get us back to the empty state
-  const resetButton = browser.$(Selectors.queryBarResetFilterButton(tabName));
-  await resetButton.waitForDisplayed();
-
-  if (await resetButton.isEnabled()) {
-    // look up the current resultId
-    const initialResultId = await browser.getQueryId(tabName);
-
-    await browser.waitUntil(async () => {
-      // In some very rare cases on particularly slow machines in CI (looking at
-      // you macos hosts) clicking doesn't register on the first try, to work
-      // around that, we try to click with pause until the button is disabled
-      await browser.clickVisible(Selectors.queryBarResetFilterButton(tabName));
-      await browser.pause(50);
-      return !(await resetButton.isEnabled());
-    });
-    // now we can easily see if we get a new resultId
-    // (which we should because resetting re-runs the query)
-    await browser.waitUntil(async () => {
-      const resultId = await browser.getQueryId(tabName);
-      return resultId !== initialResultId;
-    });
-  }
-}
-
 async function collapseOptions(browser: CompassBrowser, tabName: string) {
   if (!(await isOptionsExpanded(browser, tabName))) {
     return;
   }
-
-  // Reset the query if there was one before. This helps to make the tests
-  // idempotent which is handy because you can work on them by focusing one it()
-  // at a time and expect it to find the same results as if you ran the whole
-  // suite. If we ever do want to test that all the options you had set before
-  // you collapsed the options are still in effect then we can make this
-  // behaviour opt-out through an option.
-  await maybeResetQuery(browser, tabName);
 
   await browser.clickVisible(Selectors.queryBarOptionsToggle(tabName));
   await waitUntilCollapsed(browser, tabName);

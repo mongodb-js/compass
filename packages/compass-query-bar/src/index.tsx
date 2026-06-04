@@ -48,6 +48,7 @@ const QueryBarPlugin = registerCompassPlugin(
     activate: activatePlugin,
   },
   {
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     dataService: dataServiceLocator as DataServiceLocator<
       | 'sample'
       | 'getConnectionString'

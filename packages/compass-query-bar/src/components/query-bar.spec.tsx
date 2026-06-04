@@ -50,7 +50,6 @@ function testIsEditorDisabled(editorTestId: string, isDisabled: boolean) {
 describe('QueryBar Component', function () {
   let preferences: PreferencesAccess;
   let onApplySpy: SinonSpy;
-  let onResetSpy: SinonSpy;
 
   const renderQueryBar = (
     {
@@ -84,7 +83,6 @@ describe('QueryBar Component', function () {
                 source="test"
                 buttonLabel="Apply"
                 onApply={noop}
-                onReset={noop}
                 resultId="123"
                 {...props}
               />
@@ -108,7 +106,6 @@ describe('QueryBar Component', function () {
   beforeEach(async function () {
     preferences = await createSandboxFromDefaultPreferences();
     onApplySpy = sinon.spy();
-    onResetSpy = sinon.spy();
   });
 
   afterEach(cleanup);
@@ -117,7 +114,6 @@ describe('QueryBar Component', function () {
     beforeEach(function () {
       renderQueryBar({
         onApply: onApplySpy,
-        onReset: onResetSpy,
       });
     });
 
@@ -149,7 +145,6 @@ describe('QueryBar Component', function () {
       renderQueryBar({
         expanded: true,
         onApply: onApplySpy,
-        onReset: onResetSpy,
       });
     });
 
@@ -163,7 +158,6 @@ describe('QueryBar Component', function () {
     beforeEach(function () {
       renderQueryBar({
         onApply: onApplySpy,
-        onReset: onResetSpy,
       });
     });
 
@@ -197,7 +191,6 @@ describe('QueryBar Component', function () {
           queryOptionsLayout: ['project'],
           expanded: true,
           onApply: onApplySpy,
-          onReset: onResetSpy,
         },
         {}
       );
@@ -224,7 +217,6 @@ describe('QueryBar Component', function () {
           queryOptionsLayout: ['project'],
           expanded: true,
           onApply: onApplySpy,
-          onReset: onResetSpy,
         },
         {}
       );
@@ -260,7 +252,6 @@ describe('QueryBar Component', function () {
             source="test"
             buttonLabel="Apply"
             onApply={noop}
-            onReset={noop}
             resultId="123"
           />
         </Provider>
@@ -325,7 +316,6 @@ describe('QueryBar Component', function () {
         queryOptionsLayout: ['project', 'sort'],
         expanded: true,
         onApply: onApplySpy,
-        onReset: onResetSpy,
       });
     });
 
@@ -341,7 +331,6 @@ describe('QueryBar Component', function () {
         queryOptionsLayout: ['project', 'sort', 'collation'],
         expanded: true,
         onApply: onApplySpy,
-        onReset: onResetSpy,
       });
     });
 
@@ -357,7 +346,6 @@ describe('QueryBar Component', function () {
         queryOptionsLayout: ['project', 'sort', ['collation', 'limit']],
         expanded: true,
         onApply: onApplySpy,
-        onReset: onResetSpy,
       });
     });
 

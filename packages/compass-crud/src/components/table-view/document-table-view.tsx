@@ -35,7 +35,6 @@ import type {
   GridApi,
   GridCellDef,
   GridReadyEvent,
-  RowNode,
   ValueGetterParams,
   ColumnResizedEvent,
 } from 'ag-grid-community';
@@ -256,7 +255,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     node.data.hasFooter = true;
     node.data.state = state;
     this.gridApi?.refreshCells({
-      rowNodes: [node as RowNode],
+      rowNodes: [node],
       columns: ['$rowActions'],
       force: true,
     });

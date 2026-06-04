@@ -10,7 +10,6 @@ import {
   applyQuery,
   changeField,
   explainQuery,
-  resetQuery,
   saveRecentAsFavorite,
   setQuery,
 } from './query-bar-reducer';
@@ -224,44 +223,6 @@ describe('queryBarReducer', function () {
       // updateAttributes is called in saveRecentAsFavorite and updateFavoriteQuery
       expect(updateAttributesStub).to.have.been.calledOnce;
       expect(saveQueriesStub).not.to.have.been.calledTwice;
-    });
-  });
-
-  describe('resetQuery', function () {
-    it('should reset query form if last applied query is different from the default query', function () {
-      const query = { filter: { _id: 1 } };
-      store.dispatch(setQuery(query));
-      store.dispatch(applyQuery('test'));
-      expect(store.getState().queryBar)
-        .to.have.nested.property('lastAppliedQuery.query.test')
-        .deep.eq({
-          ...DEFAULT_QUERY_VALUES,
-          ...query,
-        });
-      const wasReset = store.dispatch(resetQuery('test'));
-      expect(wasReset).to.deep.eq(DEFAULT_QUERY_VALUES);
-      expect(store.getState().queryBar).to.have.nested.property(
-        'lastAppliedQuery.query.test',
-        null
-      );
-    });
-
-    it('should not reset query if last applied query is default query', function () {
-      // Resetting without applying at all first
-      let wasReset = store.dispatch(resetQuery('test'));
-      expect(store.getState().queryBar).to.not.have.nested.property(
-        'lastAppliedQuery.query.test'
-      );
-      expect(wasReset).to.eq(false);
-      // Now apply default query and try to reset again
-      store.dispatch(applyQuery('test'));
-      wasReset = store.dispatch(resetQuery('test'));
-      expect(wasReset).to.eq(false);
-      expect(store.getState().queryBar)
-        .to.have.nested.property('lastAppliedQuery.query.test')
-        .deep.eq({
-          ...DEFAULT_QUERY_VALUES,
-        });
     });
   });
 

@@ -137,7 +137,7 @@ function onceDocumentEvent(
 ): Promise<unknown[]> {
   // The once function was not meant for strongly typed events, so we need to
   // do some additional type casting.
-  return once(doc as unknown as EventEmitter, event as string);
+  return once(doc as unknown as EventEmitter, event);
 }
 
 const mockFieldStoreService = {
@@ -2158,7 +2158,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'update'
       );
@@ -2188,7 +2188,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'replace'
       );
@@ -2219,7 +2219,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'update'
       );
@@ -2250,7 +2250,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'update'
       );
@@ -2297,7 +2297,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'update'
       );
@@ -2320,7 +2320,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'update'
       );
@@ -2347,7 +2347,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'replace'
       );

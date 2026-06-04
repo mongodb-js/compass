@@ -52,7 +52,6 @@ describe('SchemaToolbar', function () {
           error={undefined}
           isOutdated={false}
           onAnalyzeSchemaClicked={() => {}}
-          onResetClicked={() => {}}
           sampleSize={10}
           schemaResultId="123"
           onExportSchemaClicked={() => {}}

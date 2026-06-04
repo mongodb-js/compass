@@ -1226,10 +1226,6 @@ export const queryBarOptionsToggle = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="query-bar-options-toggle"]`;
 };
-export const queryBarResetFilterButton = (tabName: string): string => {
-  const tabSelector = collectionContent(tabName);
-  return `${tabSelector} [data-testid="query-bar-reset-filter-button"]`;
-};
 export const queryBarExportToLanguageButton = (tabName: string): string => {
   const tabSelector = collectionContent(tabName);
   return `${tabSelector} [data-testid="crud-export-to-language-button"]`;

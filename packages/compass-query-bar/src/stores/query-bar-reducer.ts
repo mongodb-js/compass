@@ -1,10 +1,7 @@
 import type { Action, Reducer } from 'redux';
-import { cloneDeep, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import type { Document } from 'mongodb';
-import {
-  DEFAULT_FIELD_VALUES,
-  DEFAULT_QUERY_VALUES,
-} from '../constants/query-bar-store';
+import { DEFAULT_FIELD_VALUES } from '../constants/query-bar-store';
 import type { QueryBarThunkAction } from './query-bar-store';
 import { AIQueryActionTypes } from './ai-query-reducer';
 import type { AIQuerySucceededAction } from './ai-query-reducer';
@@ -19,7 +16,6 @@ import {
   mapQueryToFormFields,
   isQueryFieldsValid,
   validateField,
-  isEqualDefaultQuery,
   doesQueryHaveExtraOptionsSet,
 } from '../utils/query';
 import type { ChangeFilterEvent } from '../modules/change-filter';
@@ -69,7 +65,6 @@ export const QueryBarActions = {
   ChangeField: 'compass-query-bar/ChangeField',
   SetQuery: 'compass-query-bar/SetQuery',
   ApplyQuery: 'compass-query-bar/ApplyQuery',
-  ResetQuery: 'compass-query-bar/ResetQuery',
   ApplyFromHistory: 'compass-query-bar/ApplyFromHistory',
   RecentQueriesFetched: 'compass-query-bar/RecentQueriesFetched',
   FavoriteQueriesFetched: 'compass-query-bar/FavoriteQueriesFetched',
@@ -147,28 +142,6 @@ export const applyQuery = (
       void dispatch(saveRecentQuery(query));
     }
     return query;
-  };
-};
-
-type ResetQueryAction = {
-  type: typeof QueryBarActions.ResetQuery;
-  fields: QueryFormFields;
-  source: string;
-};
-
-export const resetQuery = (
-  source: string
-): QueryBarThunkAction<false | Record<string, unknown>> => {
-  return (dispatch, getState, { preferences }) => {
-    if (isEqualDefaultQuery(getState().queryBar.fields)) {
-      return false;
-    }
-    const fields = mapQueryToFormFields(
-      preferences.getPreferences(),
-      DEFAULT_FIELD_VALUES
-    );
-    dispatch({ type: QueryBarActions.ResetQuery, fields, source });
-    return cloneDeep(DEFAULT_QUERY_VALUES);
   };
 };
 
@@ -572,20 +545,6 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
         },
       },
       applyId: (state.applyId + 1) % Number.MAX_SAFE_INTEGER,
-    };
-  }
-
-  if (isAction<ResetQueryAction>(action, QueryBarActions.ResetQuery)) {
-    return {
-      ...state,
-      fields: action.fields,
-      lastAppliedQuery: {
-        source: action.source,
-        query: {
-          ...state.lastAppliedQuery.query,
-          [action.source]: null,
-        },
-      },
     };
   }
 
