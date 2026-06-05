@@ -8,6 +8,6 @@ export function resolvePath(...args: string[]) {
   return path.resolve(ROOT_DIR, ...args);
 }
 
-export function getTarget(argv?: Record<string, any>): Target {
+export function getTarget(argv?: Record<string, unknown>): Target {
   return new Target(ROOT_DIR, { distribution: 'compass', ...argv });
 }

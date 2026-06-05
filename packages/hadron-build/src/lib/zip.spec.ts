@@ -142,7 +142,7 @@ describe('zip', function () {
       expect(zipPath).to.not.be.undefined;
       await fs.writeFile(zipPath as string, 'something');
       await zip(target);
-      const entries = getTargetZipEntries(target);
+      const entries = await getTargetZipEntries(target);
       expect(entries).to.deep.equal([
         {
           name: 'file',
@@ -154,7 +154,7 @@ describe('zip', function () {
     it('creates a zip with the right entries', async function () {
       const target = getTarget();
       await zip(target);
-      const entries = getTargetZipEntries(target);
+      const entries = await getTargetZipEntries(target);
       expect(entries).to.deep.equal([
         {
           name: 'file',
