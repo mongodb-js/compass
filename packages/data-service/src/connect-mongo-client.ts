@@ -101,12 +101,13 @@ export function prepareOIDCOptions({
   }
 
   if (connectionOptions.oidc?.shareProxyWithConnection) {
-    options.applyProxyToOIDC = true;
+    // Pass proxyOptions directly (not the boolean `true`) so devtools-connect's
+    // createFetch receives a DevtoolsProxyOptions object and routes OIDC HTTP
+    // requests through the HTTP proxy correctly. Using `true` would give
+    // createFetch a TCP-level socket agent which doesn't produce proper HTTP
+    // proxy forward requests.
+    options.applyProxyToOIDC = proxyOptions;
   } else {
-    // Explicitly disable OIDC proxy routing. Previously this was set to
-    // proxyOptions but that was harmless because devtools-connect didn't own
-    // the proxy. Now that it does, passing proxyOptions here would route OIDC
-    // traffic through the connection proxy even when the user opted out.
     options.applyProxyToOIDC = false;
   }
 

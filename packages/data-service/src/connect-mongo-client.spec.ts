@@ -342,4 +342,30 @@ describe('prepareOIDCOptions', function () {
 
     expect(options.oidc.signal).to.equal(signal);
   });
+
+  it('sets applyProxyToOIDC to proxyOptions when shareProxyWithConnection is true', function () {
+    const proxyOptions = { proxy: 'http://proxy.example.com:8080' };
+    const options = prepareOIDCOptions({
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017',
+        oidc: { shareProxyWithConnection: true },
+      },
+      proxyOptions,
+    });
+    // Must pass DevtoolsProxyOptions directly (not boolean true) so that
+    // devtools-connect's createFetch routes OIDC HTTP requests via the
+    // HTTP proxy correctly, not through a TCP-level socket agent.
+    expect(options.applyProxyToOIDC).to.equal(proxyOptions);
+  });
+
+  it('sets applyProxyToOIDC to false when shareProxyWithConnection is not set', function () {
+    const proxyOptions = { proxy: 'http://proxy.example.com:8080' };
+    const options = prepareOIDCOptions({
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017',
+      },
+      proxyOptions,
+    });
+    expect(options.applyProxyToOIDC).to.equal(false);
+  });
 });
