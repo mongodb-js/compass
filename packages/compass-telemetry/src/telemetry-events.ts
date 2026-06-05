@@ -2061,6 +2061,21 @@ type QueryEditedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when a user clicks reset button on a query.
+ *
+ * @category Find Queries
+ */
+type QueryResetClickedEvent = ConnectionScopedEvent<{
+  name: 'Query Reset Clicked';
+  payload: {
+    /**
+     * Where does the reset originated: CRUD or Schema view
+     */
+    source: string;
+  };
+}>;
+
+/**
  * This event is fired when user copied query to clipboard.
  *
  * @category Find Queries
@@ -3787,6 +3802,7 @@ export type TelemetryEvent =
   | PipelineAiFeedbackEvent
   | AssistantToolCallApprovalEvent
   | QueryEditedEvent
+  | QueryResetClickedEvent
   | QueryExecutedEvent
   | QueryExportedEvent
   | QueryExportOpenedEvent
