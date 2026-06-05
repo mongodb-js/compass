@@ -166,6 +166,12 @@ describe('zip', function () {
 
   describe('getZipOptionsFromTarget', function () {
     let target: Target;
+    before(function () {
+      // No zip assets for linux, it has tarballs instead.
+      if (process.platform === 'linux') {
+        this.skip();
+      }
+    });
     beforeEach(function () {
       target = getTarget();
     });

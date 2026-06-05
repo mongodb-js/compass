@@ -32,6 +32,17 @@ const platformFixtures = {
 } as const;
 
 describe('target', function () {
+  // On CI, we always set `DEV_VERSION_IDENTIFIER` and within Target it
+  // picks that verson over package.json version. So deleting this here.
+  let initialDevVersionIdentifier: string | undefined;
+  beforeEach(function () {
+    initialDevVersionIdentifier = process.env.DEV_VERSION_IDENTIFIER;
+    delete process.env.DEV_VERSION_IDENTIFIER;
+  });
+  afterEach(function () {
+    process.env.DEV_VERSION_IDENTIFIER = initialDevVersionIdentifier;
+  });
+
   describe('Release channel support', function () {
     for (const channel in CHANNEL_VERSIONS) {
       const version =
