@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Thu, Jun 4, 2026
+Generated on Fri, Jun 5, 2026
 
 ## Table of Contents
 
@@ -248,6 +248,7 @@ Generated on Thu, Jun 4, 2026
 ### Schema
 
 - [Schema Analysis Started](#event--SchemaAnalysisStartedEvent)
+- [Schema Analysis Failed](#event--SchemaAnalysisFailedEvent)
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
@@ -2744,6 +2745,21 @@ This event is fired when signal icon badge is rendered on the screen visible to 
 ### Schema Analysis Started
 
 This event is fired when the schema analysis is started
+
+<a name="event--SchemaAnalysisFailedEvent"></a>
+
+### Schema Analysis Failed
+
+This event is fired when schema analysis fails due to high field complexity,
+a query timeout, or a general error.
+
+**Properties**:
+
+- **error_type** (required): `"highComplexity" | "timeout" | "general"`
+  - The category of error that caused the failure.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
 
 <a name="event--SchemaAnalysisCancelledEvent"></a>
 

@@ -377,6 +377,22 @@ export const startAnalysis = (): SchemaThunkAction<
 
       geoLayersRef.current = {};
     } catch (err: any) {
+      if (abortSignal?.aborted) {
+        dispatch({
+          type: SchemaAnalysisActions.analysisFinished,
+          schema: null,
+        });
+        return;
+      }
+
+      const errorDetails = getErrorDetails(err as Error);
+      track(
+        'Schema Analysis Failed',
+        {
+          error_type: errorDetails.errorType,
+        },
+        connectionInfoRef.current
+      );
       log.error(
         mongoLogId(1_001_000_188),
         'Schema analysis',
