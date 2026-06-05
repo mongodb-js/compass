@@ -28,7 +28,7 @@ const bannerButtonStyles = css({
 });
 
 const RERANK_DOCS_URL =
-  'https://www.mongodb.com/docs/vector-search/query/aggregation-stages/rerank/#navigate-to-the-project-settings-page';
+  'https://www.mongodb.com/docs/vector-search/query/aggregation-stages/rerank/#enable-or-disable-native-reranking-for-a-project';
 
 const bannerStyles = css({
   textAlign: 'left',
