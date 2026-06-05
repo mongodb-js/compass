@@ -100,15 +100,27 @@ export function prepareOIDCOptions({
       matchingAllowedHosts(connectionOptions);
   }
 
+  // The "Use Application-Level Proxy Settings" OIDC checkbox is inverted
+  // relative to this flag: checking it (use the app-level proxy for the IdP)
+  // sets `shareProxyWithConnection = false`, unchecking it sets `true`.
+  //
+  // Now that devtools-connect owns the connection proxy via `options.proxy`,
+  // we must select `applyProxyToOIDC` carefully:
+  //
+  //  - shareProxyWithConnection === false ("use app-level proxy for OIDC"):
+  //    pass the app-level `proxyOptions` object so devtools-connect's
+  //    createFetch routes OIDC HTTP requests through that proxy.
+  //  - shareProxyWithConnection === true (checkbox unchecked): keep OIDC
+  //    traffic off the proxy. We deliberately use `false` rather than `true`
+  //    here: previously Compass owned the tunnel and never set
+  //    `options.proxy`, so `applyProxyToOIDC = true` resolved to no agent and
+  //    OIDC went direct. Now that `options.proxy` is set, `true` would route
+  //    OIDC through the connection proxy and change that behavior, so we use
+  //    `false` to preserve it.
   if (connectionOptions.oidc?.shareProxyWithConnection) {
-    // Pass proxyOptions directly (not the boolean `true`) so devtools-connect's
-    // createFetch receives a DevtoolsProxyOptions object and routes OIDC HTTP
-    // requests through the HTTP proxy correctly. Using `true` would give
-    // createFetch a TCP-level socket agent which doesn't produce proper HTTP
-    // proxy forward requests.
-    options.applyProxyToOIDC = proxyOptions;
-  } else {
     options.applyProxyToOIDC = false;
+  } else {
+    options.applyProxyToOIDC = proxyOptions;
   }
 
   options.oidc.signal = signal;

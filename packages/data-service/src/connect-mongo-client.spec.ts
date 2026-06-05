@@ -343,7 +343,7 @@ describe('prepareOIDCOptions', function () {
     expect(options.oidc.signal).to.equal(signal);
   });
 
-  it('sets applyProxyToOIDC to proxyOptions when shareProxyWithConnection is true', function () {
+  it('sets applyProxyToOIDC to false when shareProxyWithConnection is true', function () {
     const proxyOptions = { proxy: 'http://proxy.example.com:8080' };
     const options = prepareOIDCOptions({
       connectionOptions: {
@@ -352,13 +352,15 @@ describe('prepareOIDCOptions', function () {
       },
       proxyOptions,
     });
-    // Must pass DevtoolsProxyOptions directly (not boolean true) so that
-    // devtools-connect's createFetch routes OIDC HTTP requests via the
-    // HTTP proxy correctly, not through a TCP-level socket agent.
-    expect(options.applyProxyToOIDC).to.equal(proxyOptions);
+    // shareProxyWithConnection === true corresponds to the OIDC "Use
+    // Application-Level Proxy Settings" checkbox being unchecked, i.e. keep
+    // OIDC traffic off the app-level proxy. Now that devtools-connect owns
+    // `options.proxy`, we use `false` (not `true`) to preserve the historical
+    // behavior of OIDC going direct in that case.
+    expect(options.applyProxyToOIDC).to.equal(false);
   });
 
-  it('sets applyProxyToOIDC to false when shareProxyWithConnection is not set', function () {
+  it('sets applyProxyToOIDC to proxyOptions when shareProxyWithConnection is not set', function () {
     const proxyOptions = { proxy: 'http://proxy.example.com:8080' };
     const options = prepareOIDCOptions({
       connectionOptions: {
@@ -366,6 +368,10 @@ describe('prepareOIDCOptions', function () {
       },
       proxyOptions,
     });
-    expect(options.applyProxyToOIDC).to.equal(false);
+    // No shareProxyWithConnection corresponds to the checkbox being checked
+    // ("use the app-level proxy for the IdP"): pass the DevtoolsProxyOptions
+    // object so devtools-connect's createFetch routes OIDC HTTP requests
+    // through that proxy.
+    expect(options.applyProxyToOIDC).to.equal(proxyOptions);
   });
 });
