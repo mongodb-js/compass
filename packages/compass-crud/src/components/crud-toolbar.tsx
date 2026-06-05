@@ -24,8 +24,7 @@ import { ViewSwitcher } from './view-switcher';
 import { type DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model/provider';
-import UpdateMenu from './update-data-menu';
-import DeleteMenu from './delete-data-menu';
+import { BulkActionsMenu } from './bulk-actions-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
@@ -344,26 +343,16 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             />
           )}
           {!readonly && (
-            <UpdateMenu
+            <BulkActionsMenu
               isWritable={isWritable && !shouldDisableBulkOp}
               disabledTooltip={
                 isWritable
-                  ? 'Remove limit and skip in your query to perform an update'
+                  ? 'Remove limit and skip in your query to perform a bulk operation'
                   : instanceDescription
               }
-              onClick={onUpdateButtonClicked}
-            ></UpdateMenu>
-          )}
-          {!readonly && (
-            <DeleteMenu
-              isWritable={isWritable && !shouldDisableBulkOp}
-              disabledTooltip={
-                isWritable
-                  ? 'Remove limit and skip in your query to perform a delete'
-                  : instanceDescription
-              }
-              onClick={onDeleteButtonClicked}
-            ></DeleteMenu>
+              onUpdate={onUpdateButtonClicked}
+              onDelete={onDeleteButtonClicked}
+            ></BulkActionsMenu>
           )}
           {isImportExportEnabled && (
             <DropdownMenuButton<ExportDataOption>
