@@ -369,7 +369,6 @@ type AtlasServiceLike = {
 // TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
 export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly atlasService: AtlasServiceLike;
-  private readonly authenticatedFetch: AuthenticatedFetch;
   private orgId: string = '';
   private projectId: string = '';
   constructor(
@@ -385,8 +384,6 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   ) {
     super(validator, dataType, { serialize, deserialize });
     this.atlasService = atlasService;
-    this.authenticatedFetch =
-      atlasService.authenticatedFetch.bind(atlasService);
     this.orgId = orgId;
     this.projectId = projectId;
   }
@@ -400,7 +397,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     );
     try {
       this.validator.parse(content);
-      await this.authenticatedFetch(url, {
+      await this.atlasService.authenticatedFetch(url, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -434,7 +431,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       id
     );
     try {
-      await this.authenticatedFetch(url, {
+      await this.atlasService.authenticatedFetch(url, {
         method: 'DELETE',
       });
       return true;
@@ -458,7 +455,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       errors: [],
     };
     try {
-      const response = await this.authenticatedFetch(
+      const response = await this.atlasService.authenticatedFetch(
         this.atlasService.userDataEndpoint(
           this.orgId,
           this.projectId,
@@ -502,7 +499,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ...data,
       };
 
-      await this.authenticatedFetch(url, {
+      await this.atlasService.authenticatedFetch(url, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -536,7 +533,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       id
     );
     try {
-      const getResponse = await this.authenticatedFetch(url, {
+      const getResponse = await this.atlasService.authenticatedFetch(url, {
         method: 'GET',
       });
       const json = await getResponse.json();
