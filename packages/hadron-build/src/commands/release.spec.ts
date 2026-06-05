@@ -1,95 +1,107 @@
-import { releaseCommand } from './release';
 import fs from 'fs/promises';
-import plist from 'plist';
-import assert from 'assert';
 import path from 'path';
-import type Target from '../lib/target';
-import { getTarget } from '../../test/test-helpers';
+import os from 'os';
+import { ROOT_DIR } from '../../test/test-helpers';
+import Target from '../lib/target';
+import {
+  writeLicenseFile,
+  symlinkExecutable,
+  copy3rdPartyNoticesFile,
+  writeVersionFile,
+  createApplicationAsar,
+} from './release';
+import { expect } from 'chai';
 
-// TODO: Investigate why it's failing in GitHub Actions CI
-describe.skip('hadron-build::release', function () {
+async function copyCompassBuildAssetsToDir(tmpDir: string) {
+  await fs.copyFile(
+    path.join(ROOT_DIR, 'package.json'),
+    path.join(tmpDir, 'package.json')
+  );
+  await fs.copyFile(
+    // LICENSE is in the root of the monorepo
+    path.join(ROOT_DIR, '..', '..', 'LICENSE'),
+    path.join(tmpDir, 'LICENSE')
+  );
+  await fs.copyFile(
+    // THIRD-PARTY-NOTICES is in the root of the monorepo
+    path.join(ROOT_DIR, '..', '..', 'THIRD-PARTY-NOTICES.md'),
+    path.join(tmpDir, 'THIRD-PARTY-NOTICES.md')
+  );
+  await fs.mkdir(path.join(tmpDir, 'app-icons'), { recursive: true });
+  await fs.cp(
+    path.join(ROOT_DIR, 'app-icons'),
+    path.join(tmpDir, 'app-icons'),
+    { recursive: true }
+  );
+  await fs.mkdir(path.join(tmpDir, 'scripts'), { recursive: true });
+  await fs.cp(path.join(ROOT_DIR, 'scripts'), path.join(tmpDir, 'scripts'), {
+    recursive: true,
+  });
+}
+
+// release command is actually packaging task!
+describe('hadron-build::release', function () {
+  let tmpDir: string;
   let target: Target;
   before(async function () {
-    if (
-      // Functional tests on appveyor too slow. Skipping.
-      process.platform === 'win32' ||
-      // Fails too often on darwin due to hdiutil electron issue
-      process.platform === 'darwin'
-    ) {
-      return;
-    }
-    await fs.rm(
-      path.join(__dirname, '..', 'test', 'fixtures', 'hadron-app', 'dist'),
-      { recursive: true, force: true }
+    // create a tmp dir where final built will be
+    tmpDir = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'hadron-build-release-test')
     );
-    target = getTarget();
-    // TODO: this is not correct here. When unskipping this suite, this
-    // will be resolved!
-    await releaseCommand.handler({
-      dir: target.dir,
-      version: target.version,
-      skip_installer: true,
-    } as never);
+
+    await copyCompassBuildAssetsToDir(tmpDir);
+    target = new Target(tmpDir, {
+      distribution: 'compass',
+    });
+    // Create the target.appPath as we are not packaging the compass here
+    await fs.mkdir(target.resourcesAppDir, { recursive: true });
   });
 
-  it('should symlink `Electron` to the app binary on OS X', async function () {
+  after(async function () {
+    await fs.rm(tmpDir, { recursive: true, force: true });
+  });
+
+  function resolveTargetPath(...args: string[]): string {
+    return path.join(
+      target.appPath,
+      ...(target.platform === 'darwin' ? ['..'] : []),
+      ...args
+    );
+  }
+
+  it('writeLicenseFile', async function () {
+    await writeLicenseFile(target);
+    await fs.access(resolveTargetPath('LICENSE'));
+  });
+
+  it('copy3rdPartyNoticesFile', async function () {
+    await copy3rdPartyNoticesFile(target);
+    await fs.access(resolveTargetPath('THIRD-PARTY-NOTICES.md'));
+  });
+
+  it('writeVersionFile', async function () {
+    await writeVersionFile(target);
+    await fs.access(resolveTargetPath('version'));
+  });
+
+  it('symlinkExecutable', async function () {
     if (target.platform !== 'darwin') {
       return this.skip();
     }
-    const bin = target.dest(
-      `${target.productName}-darwin-${target.arch}`,
-      `${target.productName}.app`,
-      'Contents',
-      'MacOS',
-      'Electron'
-    );
-    try {
-      await fs.access(bin);
-    } catch {
-      assert.fail(`Expected ${bin} to exist`);
-    }
+    // Make Contents/MacOS dir, this is where we create this symlink
+    const macOSPath = path.join(target.appPath, 'Contents', 'MacOS');
+    await fs.mkdir(macOSPath, {
+      recursive: true,
+    });
+    await symlinkExecutable(target);
+
+    const link = await fs.lstat(path.join(macOSPath, 'Electron'));
+    expect(link.isSymbolicLink()).to.be.true;
   });
 
-  it('has the correct product name', function () {
-    assert.equal(
-      target.productName,
-      'MongoDB Compass Enterprise super long test name Beta'
-    );
-  });
-
-  it('sets the correct CFBundleIdentifier', async function () {
-    if (target.platform !== 'darwin') {
-      return this.skip();
-    }
-    const info = target.dest(
-      `${target.productName}-darwin-${target.arch}`,
-      `${target.productName}.app`,
-      'Contents',
-      'Info.plist'
-    );
-    const contents = await fs.readFile(info, 'utf8');
-    const config = plist.parse(contents);
-    assert.equal(config.CFBundleIdentifier, 'com.mongodb.hadron-testing.beta');
-  });
-
-  /**
-   * TODO (imlucas) Compare from `CONFIG.icon` to
-   * `path.join(CONFIG.resource, 'electron.icns')` (platform specific).
-   * Should have matching md5 of contents.
-   */
-  it('should have the correct application icon', function () {});
-
-  it.skip('should have all assets specified in the manifest', async function () {
-    const missingAssets = await Promise.all(
-      target.assets.map(async (asset) => {
-        try {
-          await fs.access(asset.path);
-          return false;
-        } catch {
-          return true;
-        }
-      })
-    );
-    assert.deepStrictEqual(missingAssets, []);
+  it('createApplicationAsar', async function () {
+    await createApplicationAsar(target);
+    const asar = path.resolve(path.dirname(target.resourcesAppDir), 'app.asar');
+    await fs.access(asar);
   });
 });

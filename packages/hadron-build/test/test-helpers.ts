@@ -2,7 +2,7 @@ import path from 'path';
 import Target from '../src/lib/target';
 
 // <monorepo>/packages/compass
-const ROOT_DIR = path.resolve(__dirname, '..', '..', 'compass');
+export const ROOT_DIR = path.resolve(__dirname, '..', '..', 'compass');
 
 export function resolvePath(...args: string[]) {
   return path.resolve(ROOT_DIR, ...args);
