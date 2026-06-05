@@ -957,25 +957,29 @@ describe('AtlasUserData', function () {
         .onFirstCall()
         .resolves(mockResponse(getResponse))
         .onSecondCall()
+        .resolves(mockResponse(getResponse))
+        .onThirdCall()
         .resolves(mockResponse(putResponse));
 
       atlasServiceStub.userDataEndpoint
-        .onFirstCall()
-        .returns('cloud.mongodb.com/FavoriteQueries/org123/proj456')
-        .onSecondCall()
+        .withArgs('org123', 'proj456', 'FavoriteQueries', undefined)
+        .returns('cloud.mongodb.com/FavoriteQueries/org123/proj456');
+      atlasServiceStub.userDataEndpoint
+        .withArgs('org123', 'proj456', 'FavoriteQueries', 'item789')
         .returns('cloud.mongodb.com/FavoriteQueries/org123/proj456/item789');
 
       const userData = getAtlasUserData({}, 'org123', 'proj456');
+      await userData.readAll();
       await userData.updateAttributes('item789', { name: 'Updated' });
 
-      expect(atlasServiceStub.authenticatedFetch).to.have.been.calledTwice;
+      expect(atlasServiceStub.authenticatedFetch).to.have.been.calledThrice;
 
       const [getUrl] = atlasServiceStub.authenticatedFetch.firstCall.args;
       expect(getUrl).to.equal(
         'cloud.mongodb.com/FavoriteQueries/org123/proj456'
       );
 
-      const [putUrl] = atlasServiceStub.authenticatedFetch.secondCall.args;
+      const [putUrl] = atlasServiceStub.authenticatedFetch.thirdCall.args;
       expect(putUrl).to.equal(
         'cloud.mongodb.com/FavoriteQueries/org123/proj456/item789'
       );
