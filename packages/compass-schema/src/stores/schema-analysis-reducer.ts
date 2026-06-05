@@ -377,14 +377,6 @@ export const startAnalysis = (): SchemaThunkAction<
 
       geoLayersRef.current = {};
     } catch (err: any) {
-      if (abortSignal?.aborted) {
-        dispatch({
-          type: SchemaAnalysisActions.analysisFinished,
-          schema: null,
-        });
-        return;
-      }
-
       const errorDetails = getErrorDetails(err as Error);
       track(
         'Schema Analysis Failed',
