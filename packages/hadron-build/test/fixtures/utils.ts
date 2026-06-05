@@ -29,6 +29,10 @@ export function getBundleId(distribution: string): string {
   return 'com.mongodb.compass';
 }
 
+export function getSlug(distribution: string, channel: string): string {
+  return `mongodb-${distribution}${channel !== 'stable' ? `-${channel}` : ''}`;
+}
+
 export function getNuggetVersion(version: string, channel: string): string {
   return version.replace(new RegExp(`-${channel}\\.(\\d+)`), `-${channel}$1`);
 }

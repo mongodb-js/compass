@@ -1,5 +1,5 @@
 import { resolvePath } from '../test-helpers';
-import { type FixtureOpts, getProductName } from './utils';
+import { type FixtureOpts, getProductName, getSlug } from './utils';
 
 export function getExpectedAssets({
   version,
@@ -9,9 +9,7 @@ export function getExpectedAssets({
 }: FixtureOpts) {
   const debArch = arch === 'x64' ? 'amd64' : 'i386';
   const rpmArch = arch === 'x64' ? 'x86_64' : 'i386';
-  const slug = `mongodb-${distribution}${
-    channel !== 'stable' ? `-${channel}` : ''
-  }`;
+  const slug = getSlug(distribution, channel);
 
   return [
     {
@@ -72,9 +70,7 @@ export function getExpectedInstallerOptions({
   channel,
 }: FixtureOpts) {
   const productName = getProductName(distribution, channel);
-  const slug = `mongodb-${distribution}${
-    channel !== 'stable' ? `-${channel}` : ''
-  }`;
+  const slug = getSlug(distribution, channel);
   const debArch = arch === 'x64' ? 'amd64' : 'i386';
   const rpmArch = arch === 'x64' ? 'x86_64' : 'i386';
   const appPath = resolvePath(`dist/${productName}-linux-${arch}`);

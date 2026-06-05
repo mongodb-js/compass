@@ -1,5 +1,10 @@
 import { resolvePath } from '../test-helpers';
-import { type FixtureOpts, getProductName, getNuggetVersion } from './utils';
+import {
+  type FixtureOpts,
+  getProductName,
+  getSlug,
+  getNuggetVersion,
+} from './utils';
 
 export function getExpectedAssets({
   version,
@@ -8,9 +13,7 @@ export function getExpectedAssets({
   channel,
 }: FixtureOpts) {
   const productName = getProductName(distribution, channel);
-  const slug = `mongodb-${distribution}${
-    channel !== 'stable' ? `-${channel}` : ''
-  }`;
+  const slug = getSlug(distribution, channel);
   const packagerName = productName.replace(/ /g, '');
   const nuggetVersion = getNuggetVersion(version, channel);
 

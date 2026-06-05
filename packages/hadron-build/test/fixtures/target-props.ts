@@ -1,5 +1,10 @@
 import { resolvePath } from '../test-helpers';
-import { type FixtureOpts, getBundleId, getProductName } from './utils';
+import {
+  type FixtureOpts,
+  getBundleId,
+  getProductName,
+  getSlug,
+} from './utils';
 
 type TargetPropsOpts = FixtureOpts & { platform: string };
 
@@ -12,9 +17,7 @@ export function getExpectedTargetProps({
 }: TargetPropsOpts) {
   const productName = getProductName(distribution, channel);
   const bundleId = getBundleId(distribution);
-  const slug = `mongodb-${distribution}${
-    channel !== 'stable' ? `-${channel}` : ''
-  }`;
+  const slug = getSlug(distribution, channel);
 
   return {
     dir: resolvePath('./'),
