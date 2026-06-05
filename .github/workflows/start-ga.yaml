@@ -33,7 +33,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.21.1
+          node-version: 24.15.0
           cache: 'npm'
 
       - name: Install npm@11.16.0

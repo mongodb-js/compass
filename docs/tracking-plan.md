@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, May 31, 2026
+Generated on Thu, Jun 4, 2026
 
 ## Table of Contents
 
@@ -140,6 +140,7 @@ Generated on Sun, May 31, 2026
 ### Find Queries
 
 - [Query Edited](#event--QueryEditedEvent)
+- [Query Reset Clicked](#event--QueryResetClickedEvent)
 - [Query Executed](#event--QueryExecutedEvent)
 - [Query Exported](#event--QueryExportedEvent)
 - [Query Export Opened](#event--QueryExportOpenedEvent)
@@ -1670,6 +1671,20 @@ This event is fired when a user edits a query.
 
 - **option_name** (required): `"maxTimeMS" | "filter" | "project" | "collation" | "sort" | "skip" | "limit" | "hint"`
   - The name of the edited field.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--QueryResetClickedEvent"></a>
+
+### Query Reset Clicked
+
+This event is fired when a user clicks reset button on a query.
+
+**Properties**:
+
+- **source** (required): `string`
+  - Where does the reset originated: CRUD or Schema view
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
