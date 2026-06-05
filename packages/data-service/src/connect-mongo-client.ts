@@ -109,7 +109,9 @@ export function prepareOIDCOptions({
   //
   //  - shareProxyWithConnection === false ("use app-level proxy for OIDC"):
   //    pass the app-level `proxyOptions` object so devtools-connect's
-  //    createFetch routes OIDC HTTP requests through that proxy.
+  //    createFetch routes OIDC HTTP requests through that proxy. When no proxy
+  //    is configured (`proxyOptions` is empty), use `false` so we don't hand
+  //    createFetch a truthy-but-empty options object.
   //  - shareProxyWithConnection === true (checkbox unchecked): keep OIDC
   //    traffic off the proxy. We deliberately use `false` rather than `true`
   //    here: previously Compass owned the tunnel and never set
@@ -120,7 +122,8 @@ export function prepareOIDCOptions({
   if (connectionOptions.oidc?.shareProxyWithConnection) {
     options.applyProxyToOIDC = false;
   } else {
-    options.applyProxyToOIDC = proxyOptions;
+    options.applyProxyToOIDC =
+      Object.keys(proxyOptions).length > 0 ? proxyOptions : false;
   }
 
   options.oidc.signal = signal;

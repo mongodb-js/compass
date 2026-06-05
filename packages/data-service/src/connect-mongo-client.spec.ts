@@ -374,4 +374,17 @@ describe('prepareOIDCOptions', function () {
     // through that proxy.
     expect(options.applyProxyToOIDC).to.equal(proxyOptions);
   });
+
+  it('sets applyProxyToOIDC to false when shareProxyWithConnection is not set but no proxy is configured', function () {
+    const options = prepareOIDCOptions({
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017',
+      },
+      // proxyOptions defaults to {} (no proxy)
+    });
+    // An empty proxyOptions object is truthy, so it must not be forwarded as
+    // applyProxyToOIDC; otherwise devtools-connect's createFetch would receive
+    // a truthy-but-empty config. Fall back to `false`.
+    expect(options.applyProxyToOIDC).to.equal(false);
+  });
 });
