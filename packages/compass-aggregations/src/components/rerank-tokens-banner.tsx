@@ -10,7 +10,10 @@ import {
 import { usePreference } from 'compass-preferences-model/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
-import { bannerButtonStyles } from './banner-button-styles';
+const bannerButtonStyles = css({
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+});
 
 const bannerStyles = css({
   borderRadius: 0,

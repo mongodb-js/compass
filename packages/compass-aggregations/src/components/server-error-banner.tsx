@@ -22,7 +22,10 @@ import {
   type SearchExtensionType,
 } from '../utils/search-stage-errors';
 import RateLimitExceededBanner from './rate-limit-exceeded-banner';
-import { bannerButtonStyles } from './banner-button-styles';
+const bannerButtonStyles = css({
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+});
 
 const RERANK_DOCS_URL =
   'https://www.mongodb.com/docs/vector-search/query/aggregation-stages/rerank/#navigate-to-the-project-settings-page';

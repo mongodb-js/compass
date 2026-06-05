@@ -14,7 +14,10 @@ import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
 import { STAGE_HELP_BASE_URL } from '../constants';
-import { bannerButtonStyles } from './banner-button-styles';
+const bannerButtonStyles = css({
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+});
 
 export const useRerankInsightAction = () => {
   const { tellMoreAboutInsight } = useAssistantActions();

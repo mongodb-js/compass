@@ -9,7 +9,10 @@ import {
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildUpgradeClusterUrl } from '@mongodb-js/atlas-service/provider';
 import { RERANK_MIN_SERVER_VERSION } from '../utils/search-stage-errors';
-import { bannerButtonStyles } from './banner-button-styles';
+const bannerButtonStyles = css({
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+});
 
 const bannerContentStyles = css({
   display: 'flex',
