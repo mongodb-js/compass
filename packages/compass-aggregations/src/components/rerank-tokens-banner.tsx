@@ -22,6 +22,7 @@ const bannerStyles = css({
 
 const bannerContentStyles = css({
   display: 'flex',
+  justifyContent: 'space-between',
   alignItems: 'center',
   gap: spacing[200],
 });
@@ -63,8 +64,9 @@ export const RerankTokensBanner = ({
         </span>
         <Button
           size="xsmall"
-          href={viewTokenUsageHref}
-          target="_blank"
+          onClick={() =>
+            window.open(viewTokenUsageHref, '_blank', 'noopener noreferrer')
+          }
           rightGlyph={<Icon glyph="OpenNewTab" />}
           className={bannerButtonStyles}
         >

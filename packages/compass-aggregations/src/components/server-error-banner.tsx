@@ -88,8 +88,13 @@ export default function ServerErrorBanner({
             {projectSettingsHref && (
               <Button
                 size="xsmall"
-                href={projectSettingsHref}
-                target="_blank"
+                onClick={() =>
+                  window.open(
+                    projectSettingsHref,
+                    '_blank',
+                    'noopener noreferrer'
+                  )
+                }
                 rightGlyph={<Icon glyph="OpenNewTab" />}
                 className={bannerButtonStyles}
               >

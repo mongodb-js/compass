@@ -1,9 +1,11 @@
 import React from 'react';
 import {
   screen,
+  userEvent,
   renderWithActiveConnection,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import sinon from 'sinon';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { RerankVersionWarningBanner } from './rerank-version-warning-banner';
 
@@ -22,6 +24,16 @@ const nonAtlasConnectionInfo: ConnectionInfo = {
 };
 
 describe('RerankVersionWarningBanner', function () {
+  let windowOpenStub: sinon.SinonStub;
+
+  beforeEach(function () {
+    windowOpenStub = sinon.stub(window, 'open');
+  });
+
+  afterEach(function () {
+    windowOpenStub.restore();
+  });
+
   it('renders the version warning message', async function () {
     await renderWithActiveConnection(
       <RerankVersionWarningBanner data-testid="rerank-version-warning" />,
@@ -31,27 +43,31 @@ describe('RerankVersionWarningBanner', function () {
     expect(screen.getByText(/Upgrade your cluster/)).to.exist;
   });
 
-  it('shows Atlas upgrade link when atlasMetadata is present', async function () {
+  it('opens the Atlas upgrade page when atlasMetadata is present', async function () {
     await renderWithActiveConnection(
       <RerankVersionWarningBanner data-testid="rerank-version-warning" />,
       atlasConnectionInfo
     );
-    const link = await screen.findByRole('link', { name: /Upgrade Cluster/i });
-    expect(link).to.be.visible;
-    expect(link)
-      .to.have.attribute('href')
-      .that.includes('/clusters/edit/myCluster');
+    const button = await screen.findByRole('button', {
+      name: /Upgrade Cluster/i,
+    });
+    userEvent.click(button);
+    expect(windowOpenStub).to.have.been.calledOnce;
+    expect(windowOpenStub.firstCall.args[0]).to.include(
+      '/clusters/edit/myCluster'
+    );
   });
 
-  it('shows docs link when atlasMetadata is not present', async function () {
+  it('opens the docs page when atlasMetadata is not present', async function () {
     await renderWithActiveConnection(
       <RerankVersionWarningBanner data-testid="rerank-version-warning" />,
       nonAtlasConnectionInfo
     );
-    const link = await screen.findByRole('link', { name: /Upgrade Cluster/i });
-    expect(link).to.be.visible;
-    expect(link).to.have.attribute(
-      'href',
+    const button = await screen.findByRole('button', {
+      name: /Upgrade Cluster/i,
+    });
+    userEvent.click(button);
+    expect(windowOpenStub).to.have.been.calledOnceWith(
       'https://www.mongodb.com/docs/atlas/tutorial/major-version-change/'
     );
   });
