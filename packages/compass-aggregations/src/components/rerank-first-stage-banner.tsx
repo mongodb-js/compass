@@ -11,6 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
 import { STAGE_HELP_BASE_URL } from '../constants';
@@ -81,8 +82,14 @@ export const useRerankInsight = ({
   onAddSearchStageBefore: () => void;
 }) => {
   const enableRerank = usePreference('enableRerank');
+  const track = useTelemetry();
   const onAssistantButtonClick = useRerankInsightAction();
   const { atlasMetadata } = useConnectionInfo();
+
+  const onAddSearchStageBeforeWithTracking = useCallback(() => {
+    track('Rerank Add Search Stage Clicked', {});
+    onAddSearchStageBefore();
+  }, [track, onAddSearchStageBefore]);
 
   return useMemo(() => {
     if (!enableRerank || !isRerankFirstStage) return undefined;
@@ -97,7 +104,7 @@ export const useRerankInsight = ({
         ? 'Add $search stage'
         : 'Learn about search',
       ...(hasSearchIndex && !isSearchIndexesLoading
-        ? { onPrimaryActionButtonClick: onAddSearchStageBefore }
+        ? { onPrimaryActionButtonClick: onAddSearchStageBeforeWithTracking }
         : !isSearchIndexesLoading
         ? {
             primaryActionButtonLink: atlasMetadata
@@ -114,7 +121,7 @@ export const useRerankInsight = ({
     isRerankFirstStage,
     hasSearchIndex,
     isSearchIndexesLoading,
-    onAddSearchStageBefore,
+    onAddSearchStageBeforeWithTracking,
     atlasMetadata,
     onAssistantButtonClick,
   ]);
@@ -153,6 +160,7 @@ export const RerankFirstStageBanner = ({
   onBeforeAssistantOpen?: () => void;
 }) => {
   const enableRerank = usePreference('enableRerank');
+  const track = useTelemetry();
   const [isDismissed, setIsDismissed] = usePersistedState(
     'mongodb_compass_dismissed_rerank_first_stage_banner',
     false
@@ -179,7 +187,10 @@ export const RerankFirstStageBanner = ({
       data-testid={dataTestId}
       className={bannerStyles}
       dismissible
-      onClose={() => setIsDismissed(true)}
+      onClose={() => {
+        track('Rerank First Stage Banner Dismissed', {});
+        setIsDismissed(true);
+      }}
     >
       <div className={bannerContentStyles}>
         <div className={bannerTextStyles}>
@@ -195,7 +206,10 @@ export const RerankFirstStageBanner = ({
           <Button
             size="xsmall"
             className={bannerButtonStyles}
-            onClick={onInsightAction}
+            onClick={() => {
+              track('Rerank First Stage Learn More Clicked', {});
+              onInsightAction?.();
+            }}
             leftGlyph={<Icon glyph="Sparkle" />}
             data-testid="rerank-first-stage-learn-more-button"
           >

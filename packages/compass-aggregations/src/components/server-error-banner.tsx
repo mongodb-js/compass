@@ -91,13 +91,16 @@ export default function ServerErrorBanner({
             {projectSettingsHref && (
               <Button
                 size="xsmall"
-                onClick={() =>
+                onClick={() => {
+                  track('Rerank Project Settings Link Clicked', {
+                    context: 'Server Error Banner',
+                  });
                   window.open(
                     projectSettingsHref,
                     '_blank',
                     'noopener noreferrer'
-                  )
-                }
+                  );
+                }}
                 rightGlyph={<Icon glyph="OpenNewTab" />}
                 className={bannerButtonStyles}
               >

@@ -6,6 +6,7 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   buildSearchExtensionRateLimitsUrl,
   buildBillingUrl,
@@ -37,6 +38,7 @@ export default function RateLimitExceededBanner({
   dataTestId = 'rate-limit-exceeded-banner',
 }: RateLimitExceededBannerProps) {
   const { atlasMetadata } = useConnectionInfo();
+  const track = useTelemetry();
 
   if (rateLimitInfo.type === 'billing') {
     const billingHref = atlasMetadata
@@ -53,7 +55,15 @@ export default function RateLimitExceededBanner({
         You are currently on Tier 0 with reduced rate limits of{' '}
         {rateLimitInfo.limits}.{' '}
         {billingHref ? (
-          <Link href={billingHref} target="_blank">
+          <Link
+            href={billingHref}
+            target="_blank"
+            onClick={() =>
+              track('Search Extension Rate Limit Billing Link Clicked', {
+                search_extension_type: searchExtensionType ?? null,
+              })
+            }
+          >
             Add a payment method
           </Link>
         ) : (
@@ -96,7 +106,16 @@ export default function RateLimitExceededBanner({
         {rateLimitsHref && (
           <>
             {' '}
-            <Link href={rateLimitsHref} target="_blank">
+            <Link
+              href={rateLimitsHref}
+              target="_blank"
+              onClick={() =>
+                track('Search Extension Rate Limit View Link Clicked', {
+                  search_extension_type: searchExtensionType ?? null,
+                  rate_limit_type: rateLimitInfo.type as 'rpm' | 'tpm',
+                })
+              }
+            >
               View Rate Limit
             </Link>
           </>

@@ -3743,6 +3743,73 @@ type SearchIndexStatusDetailsLinkClickedEvent = CommonEvent<{
   };
 }>;
 
+/**
+ * @category Aggregation Builder
+ */
+type RerankFirstStageBannerDismissedEvent = CommonEvent<{
+  name: 'Rerank First Stage Banner Dismissed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
+type RerankFirstStageLearnMoreClickedEvent = CommonEvent<{
+  name: 'Rerank First Stage Learn More Clicked';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
+type RerankAddSearchStageClickedEvent = CommonEvent<{
+  name: 'Rerank Add Search Stage Clicked';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
+type RerankUpgradeClusterLinkClickedEvent = CommonEvent<{
+  name: 'Rerank Upgrade Cluster Link Clicked';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
+type RerankProjectSettingsLinkClickedEvent = CommonEvent<{
+  name: 'Rerank Project Settings Link Clicked';
+  payload: {
+    /** The banner/component from which the link was clicked. */
+    context: string;
+  };
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
+type SearchExtensionRateLimitBillingLinkClickedEvent = CommonEvent<{
+  name: 'Search Extension Rate Limit Billing Link Clicked';
+  payload: {
+    /** The search extension type that triggered the rate limit. */
+    search_extension_type: string | null;
+  };
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
+type SearchExtensionRateLimitViewLinkClickedEvent = CommonEvent<{
+  name: 'Search Extension Rate Limit View Link Clicked';
+  payload: {
+    /** The search extension type that triggered the rate limit. */
+    search_extension_type: string | null;
+    /** Whether the rate limit is requests-per-minute or tokens-per-minute. */
+    rate_limit_type: 'rpm' | 'tpm';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3938,4 +4005,11 @@ export type TelemetryEvent =
   | SearchIndexEditCancelledEvent
   | ManageSearchIndexesLinkClickedEvent
   | RenderProcessGoneEvent
-  | SearchIndexStatusDetailsLinkClickedEvent;
+  | SearchIndexStatusDetailsLinkClickedEvent
+  | RerankFirstStageBannerDismissedEvent
+  | RerankFirstStageLearnMoreClickedEvent
+  | RerankAddSearchStageClickedEvent
+  | RerankUpgradeClusterLinkClickedEvent
+  | RerankProjectSettingsLinkClickedEvent
+  | SearchExtensionRateLimitBillingLinkClickedEvent
+  | SearchExtensionRateLimitViewLinkClickedEvent;
