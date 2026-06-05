@@ -25,7 +25,7 @@ describe('commands/info', function () {
     });
   });
 
-  describe.only('runInfoCommand', function () {
+  describe('runInfoCommand', function () {
     let initialHadronDistribution: string | undefined;
     before(function () {
       initialHadronDistribution = process.env.HADRON_DISTRIBUTION;
