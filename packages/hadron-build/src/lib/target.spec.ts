@@ -1,12 +1,12 @@
 import chai from 'chai';
 import Target from './target';
-import { getTarget, resolvePath } from '../../test/test-helpers';
+import { getTarget } from '../../test/test-helpers';
+import * as darwinFixture from '../../test/fixtures/darwin';
+import * as linuxFixture from '../../test/fixtures/linux';
+import * as win32Fixture from '../../test/fixtures/win32';
+import { getExpectedTargetProps } from '../../test/fixtures/target-props';
 
 const { expect } = chai;
-
-function ucFirst(str: string) {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
 const CHANNEL_VERSIONS = {
   stable: '1.2.0',
@@ -24,6 +24,12 @@ const PLATFORM_AND_DISTRIBUTION_COMBINATIONS =
       };
     });
   });
+
+const platformFixtures = {
+  darwin: darwinFixture,
+  linux: linuxFixture,
+  win32: win32Fixture,
+} as const;
 
 describe('target', function () {
   describe('Release channel support', function () {
@@ -106,108 +112,12 @@ describe('target', function () {
   });
 
   describe('Release assets', function () {
-    type BuildAssetOpts = {
-      version: string;
-      arch: string;
-      distribution: string;
-    };
-    const platformAssets = {
-      darwin: (opts: BuildAssetOpts) => [
-        // mongodb-compass-readonly-1.2.0-darwin-x64.dmg
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-darwin-${opts.arch}.dmg`,
-          downloadCenter: true,
-        },
-        // mongodb-compass-readonly-1.2.0-darwin-x64.zip
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-darwin-${opts.arch}.zip`,
-        },
-        // mongodb-compass-readonly-1.2.0-darwin-x64.zip.sig
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-darwin-${opts.arch}.zip.sig`,
-        },
-      ],
-      linux: (opts: BuildAssetOpts) => [
-        // mongodb-compass-readonly_1.2.0_amd64.deb
-        {
-          name: `mongodb-${opts.distribution}_${opts.version}_${
-            opts.arch === 'x64' ? 'amd64' : 'i386'
-          }.deb`,
-          downloadCenter: true,
-        },
-        // mongodb-compass-readonly_1.2.0_amd64.deb.sig
-        {
-          name: `mongodb-${opts.distribution}_${opts.version}_${
-            opts.arch === 'x64' ? 'amd64' : 'i386'
-          }.deb.sig`,
-        },
-        // mongodb-compass-readonly-1.2.0.x86_64.rpm
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}.${
-            opts.arch === 'x64' ? 'x86_64' : 'i386'
-          }.rpm`,
-          downloadCenter: true,
-        },
-        // mongodb-compass-readonly-1.2.0-linux-x64.tar.gz
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-linux-${opts.arch}.tar.gz`,
-        },
-        // mongodb-compass-readonly-1.2.0-linux-x64.tar.gz.sig
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-linux-${opts.arch}.tar.gz.sig`,
-        },
-        // mongodb-compass-readonly-1.2.0-rhel-x64.tar.gz
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-rhel-${opts.arch}.tar.gz`,
-        },
-        // mongodb-compass-readonly-1.2.0-rhel-x64.tar.gz.sig
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-rhel-${opts.arch}.tar.gz.sig`,
-        },
-      ],
-      win32: (opts: BuildAssetOpts) => [
-        // mongodb-compass-readonly-1.2.0-win32-x64.exe
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-win32-x64.exe`,
-          downloadCenter: true,
-        },
-        // mongodb-compass-readonly-1.2.0-win32-x64.msi
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-win32-x64.msi`,
-          downloadCenter: true,
-        },
-        // mongodb-compass-readonly-1.2.0-win32-x64.zip
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-win32-x64.zip`,
-          downloadCenter: true,
-        },
-        // mongodb-compass-readonly-1.2.0-win32-x64.zip.sig
-        {
-          name: `mongodb-${opts.distribution}-${opts.version}-win32-x64.zip.sig`,
-        },
-        // mongodb-compass-readonly-RELEASES
-        { name: `mongodb-${opts.distribution}-RELEASES` },
-        // For Isolated, we are using config.hardon.distributions.isolated.productName which is 'MongoDB Compass Isolated Edition'
-        // MongoDBCompassReadonly-1.2.0-full.nupkg
-        {
-          name: `MongoDB${opts.distribution.split('-').map(ucFirst).join('')}${
-            opts.distribution === 'compass-isolated' ? 'Edition' : ''
-          }-${opts.version}-full.nupkg`,
-        },
-        // MongoDBCompassReadonly-1.2.0-full.nupkg.sig
-        {
-          name: `MongoDB${opts.distribution.split('-').map(ucFirst).join('')}${
-            opts.distribution === 'compass-isolated' ? 'Edition' : ''
-          }-${opts.version}-full.nupkg.sig`,
-        },
-      ],
-    };
-
     for (const config of PLATFORM_AND_DISTRIBUTION_COMBINATIONS) {
-      // TODO: Add beta and dev versions
-      for (const version of ['1.2.0']) {
-        const getExpectedAssets =
-          platformAssets[config.platform as keyof typeof platformAssets];
+      for (const channel in CHANNEL_VERSIONS) {
+        const version =
+          CHANNEL_VERSIONS[channel as keyof typeof CHANNEL_VERSIONS];
+        const fixture =
+          platformFixtures[config.platform as keyof typeof platformFixtures];
         it(`it should have right assets for ${config.distribution} on ${config.arch} using ${config.arch} running ${version}`, function () {
           const target = getTarget({
             version,
@@ -218,10 +128,11 @@ describe('target', function () {
           // eslint-disable-next-line no-unused-vars
           const assets = target.assets.map(({ path, ...rest }) => rest);
           expect(assets).to.deep.equal(
-            getExpectedAssets({
+            fixture.getExpectedAssets({
               version,
               arch: config.arch,
               distribution: config.distribution,
+              channel,
             })
           );
         });
@@ -247,34 +158,14 @@ describe('target', function () {
         expect(afterExtract).to.be.an('array').of.length(1);
         expect(afterExtract![0]).to.be.a('function');
 
-        expect(actualPackagerOptions).to.deep.equal({
-          dir: resolvePath('./'),
-          out: resolvePath('dist'),
-          overwrite: true,
-          appCopyright: `${new Date().getFullYear()} MongoDB Inc`,
-          buildVersion: version,
-          appVersion: version,
-          prune: false,
-          ignore: /node_modules\/|\.cache\/|dist\/|test\/|\.user-data|\.deps\//,
-          platform: 'win32',
-          arch: 'x64',
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          electronVersion: require('electron/package.json').version,
-          name: `MongoDBCompass${
-            channel !== 'stable' ? `${ucFirst(channel)}` : ''
-          }`,
-          icon: resolvePath(
-            `app-icons/win32/mongodb-compass-logo-${channel}.ico`
-          ),
-          'version-string': {
-            CompanyName: 'MongoDB Inc',
-            FileDescription: 'The MongoDB GUI',
-            ProductName: `MongoDB Compass${
-              channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-            }`,
-            InternalName: 'mongodb-compass',
-          },
-        });
+        expect(actualPackagerOptions).to.deep.equal(
+          win32Fixture.getExpectedPackagerOptions({
+            version,
+            arch: 'x64',
+            distribution: 'compass',
+            channel,
+          })
+        );
       });
 
       it(`has the right options for linux on ${channel} channel`, function () {
@@ -291,23 +182,14 @@ describe('target', function () {
         expect(afterExtract).to.be.an('array').of.length(1);
         expect(afterExtract![0]).to.be.a('function');
 
-        expect(actualPackagerOptions).to.deep.equal({
-          dir: resolvePath('./'),
-          out: resolvePath('dist'),
-          overwrite: true,
-          appCopyright: `${new Date().getFullYear()} MongoDB Inc`,
-          buildVersion: version,
-          appVersion: version,
-          prune: false,
-          ignore: /node_modules\/|\.cache\/|dist\/|test\/|\.user-data|\.deps\//,
-          platform: 'linux',
-          arch: 'x64',
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          electronVersion: require('electron/package.json').version,
-          name: `MongoDB Compass${
-            channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-          }`,
-        });
+        expect(actualPackagerOptions).to.deep.equal(
+          linuxFixture.getExpectedPackagerOptions({
+            version,
+            arch: 'x64',
+            distribution: 'compass',
+            channel,
+          })
+        );
       });
 
       it(`has the right options for darwin on ${channel} channel`, function () {
@@ -324,40 +206,14 @@ describe('target', function () {
         expect(afterExtract).to.be.an('array').of.length(1);
         expect(afterExtract![0]).to.be.a('function');
 
-        expect(actualPackagerOptions).to.deep.equal({
-          dir: resolvePath('./'),
-          out: resolvePath('dist'),
-          overwrite: true,
-          appCopyright: `${new Date().getFullYear()} MongoDB Inc`,
-          buildVersion: version,
-          appVersion: version,
-          prune: false,
-          ignore: /node_modules\/|\.cache\/|dist\/|test\/|\.user-data|\.deps\//,
-          platform: 'darwin',
-          arch: 'x64',
-          // eslint-disable-next-line @typescript-eslint/no-require-imports
-          electronVersion: require('electron/package.json').version,
-          icon: resolvePath(
-            `app-icons/darwin/mongodb-compass-logo-${channel}.icns`
-          ),
-          name: `MongoDB Compass${
-            channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-          }`,
-          appBundleId: `com.mongodb.compass${
-            channel !== 'stable' ? `.${channel}` : ''
-          }`,
-          appCategoryType: 'public.app-category.productivity',
-          protocols: [
-            {
-              name: 'MongoDB Protocol',
-              schemes: ['mongodb'],
-            },
-            {
-              name: 'MongoDB+SRV Protocol',
-              schemes: ['mongodb+srv'],
-            },
-          ],
-        });
+        expect(actualPackagerOptions).to.deep.equal(
+          darwinFixture.getExpectedPackagerOptions({
+            version,
+            arch: 'x64',
+            distribution: 'compass',
+            channel,
+          })
+        );
       });
     }
   });
@@ -373,36 +229,14 @@ describe('target', function () {
           arch: 'x64',
           distribution: 'compass',
         });
-        expect(target.installerOptions).to.deep.equal({
-          loadingGif: resolvePath(
-            'app-icons/win32/mongodb-compass-installer-loading.gif'
-          ),
-          iconUrl: 'https://compass.mongodb.com/favicon.ico',
-          appDirectory: resolvePath(
-            `dist/MongoDBCompass${
-              channel !== 'stable' ? `${ucFirst(channel)}` : ''
-            }-win32-x64`
-          ),
-          outputDirectory: resolvePath('dist'),
-          authors: 'MongoDB Inc',
-          version,
-          exe: `MongoDBCompass${
-            channel !== 'stable' ? `${ucFirst(channel)}` : ''
-          }.exe`,
-          setupExe: `mongodb-compass-${version}-win32-x64.exe`,
-          signWithParams: 'sign',
-          title: `MongoDB Compass${
-            channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-          }`,
-          productName: `MongoDB Compass${
-            channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-          }`,
-          description: 'The MongoDB GUI',
-          name: `MongoDBCompass${
-            channel !== 'stable' ? `${ucFirst(channel)}` : ''
-          }`,
-          noMsi: true,
-        });
+        expect(target.installerOptions).to.deep.equal(
+          win32Fixture.getExpectedInstallerOptions({
+            version,
+            arch: 'x64',
+            distribution: 'compass',
+            channel,
+          })
+        );
       });
 
       it(`has the correct options for linux on ${channel} channel`, function () {
@@ -418,63 +252,14 @@ describe('target', function () {
         } = target.installerOptions as any;
         expect(rename).to.be.a('function');
 
-        expect(deb).to.deep.equal({
-          src: resolvePath(
-            `dist/MongoDB Compass${
-              channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-            }-linux-x64`
-          ),
-          dest: resolvePath('dist'),
-          arch: 'amd64',
-          icon: resolvePath(
-            `app-icons/linux/mongodb-compass-logo-${channel}.png`
-          ),
-          name: `mongodb-compass${channel !== 'stable' ? `-${channel}` : ''}`,
+        const expected = linuxFixture.getExpectedInstallerOptions({
           version,
-          bin: `MongoDB Compass${
-            channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-          }`,
-          section: 'Databases',
-          depends: ['libsecret-1-0', 'gnome-keyring'],
-          mimeType: [
-            'x-scheme-handler/mongodb',
-            'x-scheme-handler/mongodb+srv',
-          ],
+          arch: 'x64',
+          distribution: 'compass',
+          channel,
         });
-
-        expect(rpm).to.deep.equal({
-          src: resolvePath(
-            `dist/MongoDB Compass${
-              channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-            }-linux-x64`
-          ),
-          dest: resolvePath('dist'),
-          arch: 'x86_64',
-          icon: resolvePath(
-            `app-icons/linux/mongodb-compass-logo-${channel}.png`
-          ),
-          name: `mongodb-compass${channel !== 'stable' ? `-${channel}` : ''}`,
-          version: channel === 'stable' ? version : version.split('-')[0],
-          revision: channel === 'stable' ? '1' : version.split('-')[1],
-          bin: `MongoDB Compass${
-            channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-          }`,
-          requires: ['gnome-keyring', 'libsecret'],
-          categories: [
-            'Office',
-            'Database',
-            'Building',
-            'Debugger',
-            'IDE',
-            'GUIDesigner',
-            'Profiling',
-          ],
-          license: 'SSPL',
-          mimeType: [
-            'x-scheme-handler/mongodb',
-            'x-scheme-handler/mongodb+srv',
-          ],
-        });
+        expect(deb).to.deep.equal(expected.deb);
+        expect(rpm).to.deep.equal(expected.rpm);
       });
 
       it(`has the correct options for darwin on ${channel} channel`, function () {
@@ -484,40 +269,14 @@ describe('target', function () {
           arch: 'x64',
           distribution: 'compass',
         });
-        const folderName = `MongoDB Compass${
-          channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-        }-darwin-x64`;
-        const name = `MongoDB Compass${
-          channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-        }`;
-        expect(target.installerOptions).to.deep.equal({
-          dmgPath: resolvePath(
-            `dist/mongodb-compass-${version}-darwin-x64.dmg`
-          ),
-          title: name.substring(0, 25),
-          overwrite: true,
-          out: resolvePath('dist'),
-          icon: resolvePath(
-            `app-icons/darwin/mongodb-compass-logo-${channel}.icns`
-          ),
-          identity_display: undefined,
-          identity: undefined,
-          appPath: resolvePath(
-            `dist/${folderName}/MongoDB Compass${
-              channel !== 'stable' ? ` ${ucFirst(channel)}` : ''
-            }.app`
-          ),
-          background: resolvePath('app-icons/darwin/background.png'),
-          contents: [
-            { x: 322, y: 243, type: 'link', path: '/Applications' },
-            {
-              x: 93,
-              y: 243,
-              type: 'file',
-              path: resolvePath(`dist/${folderName}/${name}.app`),
-            },
-          ],
-        });
+        expect(target.installerOptions).to.deep.equal(
+          darwinFixture.getExpectedInstallerOptions({
+            version,
+            arch: 'x64',
+            distribution: 'compass',
+            channel,
+          })
+        );
       });
     }
   });
@@ -542,47 +301,9 @@ describe('target', function () {
 
           expect(target.createInstaller).to.be.a('function');
 
-          expect(target).to.deep.include({
-            dir: resolvePath('./'),
-            out: resolvePath('dist'),
-            distribution: config.distribution,
-            id: `mongodb-${config.distribution}`,
-            name: `mongodb-${config.distribution}`,
-            readonly: config.distribution === 'compass-readonly',
-            isolated: config.distribution === 'compass-isolated',
-            // MongoDB Compass
-            // MongoDB Compass Readonly
-            // MongoDB Compass Isolated Edition
-            productName: `MongoDB Compass${
-              config.distribution === 'compass-isolated'
-                ? ' Isolated Edition'
-                : config.distribution === 'compass-readonly'
-                ? ' Readonly'
-                : ''
-            }${channel !== 'stable' ? ` ${ucFirst(channel)}` : ''}`,
-            // Comes from package.json
-            bundleId: `com.mongodb.${
-              config.distribution === 'compass'
-                ? 'compass'
-                : config.distribution === 'compass-readonly'
-                ? 'compass.readonly'
-                : 'compass.isolated'
-            }`,
-            version,
-            installerVersion: undefined,
-            platform: config.platform,
-            arch: config.arch,
-            description: 'The MongoDB GUI',
-            author: 'MongoDB Inc',
-            shortcutFolderName: 'MongoDB',
-            programFilesFolderName: undefined,
-            slug: `mongodb-${config.distribution}${
-              channel !== 'stable' ? `-${channel}` : ''
-            }`,
-            channel,
-            autoUpdateBaseUrl: 'https://compass.mongodb.com',
-            macosEntitlements: resolvePath('scripts/macos-entitlements.xml'),
-          });
+          expect(target).to.deep.include(
+            getExpectedTargetProps({ ...config, version, channel })
+          );
         });
       }
     }
