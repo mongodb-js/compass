@@ -369,6 +369,7 @@ type AtlasServiceLike = {
 // TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
 export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   private readonly atlasService: AtlasServiceLike;
+  private readonly authenticatedFetch: AuthenticatedFetch;
   private orgId: string = '';
   private projectId: string = '';
   constructor(
@@ -384,31 +385,31 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   ) {
     super(validator, dataType, { serialize, deserialize });
     this.atlasService = atlasService;
+    this.authenticatedFetch =
+      atlasService.authenticatedFetch.bind(atlasService);
     this.orgId = orgId;
     this.projectId = projectId;
   }
 
   async write(id: string, content: z.input<T>): Promise<boolean> {
+    const url = this.atlasService.userDataEndpoint(
+      this.orgId,
+      this.projectId,
+      this.dataType,
+      id
+    );
     try {
       this.validator.parse(content);
-      await this.atlasService.authenticatedFetch.bind(this.atlasService)(
-        this.atlasService.userDataEndpoint(
-          this.orgId,
-          this.projectId,
-          this.dataType,
-          id
-        ),
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            data: this.serialize(content),
-            createdAt: new Date(),
-          }),
-        }
-      );
+      await this.authenticatedFetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: this.serialize(content),
+          createdAt: new Date(),
+        }),
+      });
 
       return true;
     } catch (error) {
@@ -417,12 +418,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error writing data',
         {
-          url: this.atlasService.userDataEndpoint(
-            this.orgId,
-            this.projectId,
-            this.dataType,
-            id
-          ),
+          url,
           error: (error as Error).message,
         }
       );
@@ -431,18 +427,16 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
   }
 
   async delete(id: string): Promise<boolean> {
+    const url = this.atlasService.userDataEndpoint(
+      this.orgId,
+      this.projectId,
+      this.dataType,
+      id
+    );
     try {
-      await this.atlasService.authenticatedFetch.bind(this.atlasService)(
-        this.atlasService.userDataEndpoint(
-          this.orgId,
-          this.projectId,
-          this.dataType,
-          id
-        ),
-        {
-          method: 'DELETE',
-        }
-      );
+      await this.authenticatedFetch(url, {
+        method: 'DELETE',
+      });
       return true;
     } catch (error) {
       log.error(
@@ -450,12 +444,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error deleting data',
         {
-          url: this.atlasService.userDataEndpoint(
-            this.orgId,
-            this.projectId,
-            this.dataType,
-            id
-          ),
+          url,
           error: (error as Error).message,
         }
       );
@@ -469,9 +458,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       errors: [],
     };
     try {
-      const response = await this.atlasService.authenticatedFetch.bind(
-        this.atlasService
-      )(
+      const response = await this.authenticatedFetch(
         this.atlasService.userDataEndpoint(
           this.orgId,
           this.projectId,
@@ -502,6 +489,12 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     id: string,
     data: Partial<z.input<T>>
   ): Promise<boolean> {
+    const url = this.atlasService.userDataEndpoint(
+      this.orgId,
+      this.projectId,
+      this.dataType,
+      id
+    );
     try {
       const prevData = await this.readOne(id);
       const newData: z.input<T> = {
@@ -509,24 +502,16 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ...data,
       };
 
-      await this.atlasService.authenticatedFetch.bind(this.atlasService)(
-        this.atlasService.userDataEndpoint(
-          this.orgId,
-          this.projectId,
-          this.dataType,
-          id
-        ),
-        {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            data: this.serialize(newData),
-            createdAt: new Date(),
-          }),
-        }
-      );
+      await this.authenticatedFetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          data: this.serialize(newData),
+          createdAt: new Date(),
+        }),
+      });
       return true;
     } catch (error) {
       log.error(
@@ -534,12 +519,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error updating data',
         {
-          url: this.atlasService.userDataEndpoint(
-            this.orgId,
-            this.projectId,
-            this.dataType,
-            id
-          ),
+          url,
           error: (error as Error).message,
         }
       );
@@ -549,20 +529,16 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
 
   // TODO: change this depending on whether or not updateAttributes can provide all current data
   async readOne(id: string): Promise<z.output<T> | undefined> {
+    const url = this.atlasService.userDataEndpoint(
+      this.orgId,
+      this.projectId,
+      this.dataType,
+      id
+    );
     try {
-      const getResponse = await this.atlasService.authenticatedFetch.bind(
-        this.atlasService
-      )(
-        this.atlasService.userDataEndpoint(
-          this.orgId,
-          this.projectId,
-          this.dataType,
-          id
-        ),
-        {
-          method: 'GET',
-        }
-      );
+      const getResponse = await this.authenticatedFetch(url, {
+        method: 'GET',
+      });
       const json = await getResponse.json();
       const data = this.validator.parse(this.deserialize(json.data as string));
       return data;
@@ -572,12 +548,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         'Atlas Backend',
         'Error reading data',
         {
-          url: this.atlasService.userDataEndpoint(
-            this.orgId,
-            this.projectId,
-            this.dataType,
-            id
-          ),
+          url,
           error: (error as Error).message,
         }
       );
