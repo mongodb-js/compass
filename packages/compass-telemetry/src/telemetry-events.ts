@@ -2226,8 +2226,7 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
- * This event is fired when schema analysis fails due to high field complexity,
- * a query timeout, or a general error.
+ * This event is fired when schema analysis fails due to a query timeout or a general error.
  *
  * @category Schema
  */
@@ -2237,7 +2236,7 @@ type SchemaAnalysisFailedEvent = ConnectionScopedEvent<{
     /**
      * The category of error that caused the failure.
      */
-    error_type: 'highComplexity' | 'timeout' | 'general';
+    error_type: 'timeout' | 'general';
   };
 }>;
 

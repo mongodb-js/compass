@@ -27,7 +27,7 @@ const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
 export type SchemaAnalysisError = {
   errorMessage: string;
-  errorType: 'timeout' | 'highComplexity' | 'general';
+  errorType: 'timeout' | 'general';
 };
 
 export type SchemaAnalysisState = {
@@ -132,8 +132,6 @@ function getErrorDetails(error: Error): SchemaAnalysisError {
   let errorType: SchemaAnalysisError['errorType'] = 'general';
   if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
     errorType = 'timeout';
-  } else if (error.message.includes('Schema analysis aborted: Fields count')) {
-    errorType = 'highComplexity';
   }
 
   return {

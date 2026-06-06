@@ -2750,12 +2750,11 @@ This event is fired when the schema analysis is started
 
 ### Schema Analysis Failed
 
-This event is fired when schema analysis fails due to high field complexity,
-a query timeout, or a general error.
+This event is fired when schema analysis fails due to a query timeout or a general error.
 
 **Properties**:
 
-- **error_type** (required): `"highComplexity" | "timeout" | "general"`
+- **error_type** (required): `"timeout" | "general"`
   - The category of error that caused the failure.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`

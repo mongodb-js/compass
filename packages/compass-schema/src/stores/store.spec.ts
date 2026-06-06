@@ -339,25 +339,6 @@ describe('Schema Store', function () {
         Sinon.match.object
       );
     });
-
-    it('fires with error_type highComplexity when field count is exceeded', async function () {
-      const complexityError = new Error(
-        'Schema analysis aborted: Fields count exceeded the limit of 1000'
-      );
-      sampleCursorStub.returns({
-        async *[Symbol.asyncIterator]() {
-          await new Promise((resolve) => setTimeout(resolve, 0));
-          yield {};
-          throw complexityError;
-        },
-      });
-      await store.dispatch(startAnalysis());
-      expect(trackStub).to.have.been.calledWith(
-        'Schema Analysis Failed',
-        { error_type: 'highComplexity' },
-        Sinon.match.object
-      );
-    });
   });
 
   describe('with a connection string with explicit read preference set', function () {

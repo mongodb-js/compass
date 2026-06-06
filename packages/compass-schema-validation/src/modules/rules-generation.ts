@@ -48,7 +48,7 @@ export type RulesGenerationFinished = {
 
 export type RulesGenerationError = {
   errorMessage: string;
-  errorType: 'timeout' | 'highComplexity' | 'general';
+  errorType: 'timeout' | 'general';
 };
 
 export interface RulesGenerationState {
@@ -71,8 +71,6 @@ function getErrorDetails(error: Error): RulesGenerationError {
   let errorType: RulesGenerationError['errorType'] = 'general';
   if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
     errorType = 'timeout';
-  } else if (error.message.includes('Schema analysis aborted: Fields count')) {
-    errorType = 'highComplexity';
   }
 
   return {
