@@ -182,6 +182,18 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /**
+   * Feature flag for CLOUDP-331931.
+   */
+  {
+    name: 'enableSearchActivationProgramP2',
+    stage: 'development',
+    atlasCloudFeatureFlagName: 'DATA_EXPLORER_ENABLE_SEARCH_AI_FEATURES',
+    description: {
+      short: 'Enable AI-powered features for pipeline and query results',
+    },
+  },
+
+  /**
    * Feature flag for AI Assistant.
    */
   {
