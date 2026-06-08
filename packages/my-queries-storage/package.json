@@ -73,6 +73,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@mongodb-js/atlas-service": "^0.85.1",
     "@mongodb-js/compass-app-registry": "^9.11.1",
     "@mongodb-js/compass-editor": "^0.68.1",
     "@mongodb-js/compass-user-data": "^0.19.1",
