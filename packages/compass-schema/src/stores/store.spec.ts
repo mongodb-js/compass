@@ -339,6 +339,23 @@ describe('Schema Store', function () {
         Sinon.match.object
       );
     });
+
+    it('does not fire when the user cancels analysis', async function () {
+      sampleCursorStub.returns({
+        async *[Symbol.asyncIterator]() {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          yield { a: 1 };
+        },
+      });
+      const analysisPromise = store.dispatch(startAnalysis());
+      store.dispatch(stopAnalysis());
+      await analysisPromise;
+      expect(trackStub).not.to.have.been.calledWith(
+        'Schema Analysis Failed',
+        Sinon.match.any,
+        Sinon.match.any
+      );
+    });
   });
 
   describe('with a connection string with explicit read preference set', function () {
