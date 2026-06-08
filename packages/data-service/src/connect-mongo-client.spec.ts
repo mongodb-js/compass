@@ -343,7 +343,7 @@ describe('prepareOIDCOptions', function () {
     expect(options.oidc.signal).to.equal(signal);
   });
 
-  it('sets applyProxyToOIDC to false when shareProxyWithConnection is true', function () {
+  it('sets applyProxyToOIDC to true when shareProxyWithConnection is true', function () {
     const proxyOptions = { proxy: 'http://proxy.example.com:8080' };
     const options = prepareOIDCOptions({
       connectionOptions: {
@@ -352,12 +352,10 @@ describe('prepareOIDCOptions', function () {
       },
       proxyOptions,
     });
-    // shareProxyWithConnection === true corresponds to the OIDC "Use
-    // Application-Level Proxy Settings" checkbox being unchecked, i.e. keep
-    // OIDC traffic off the app-level proxy. Now that devtools-connect owns
-    // `options.proxy`, we use `false` (not `true`) to preserve the historical
-    // behavior of OIDC going direct in that case.
-    expect(options.applyProxyToOIDC).to.equal(false);
+    // shareProxyWithConnection === true means "share the connection's proxy
+    // with the IdP": `true` tells devtools-connect to reuse the connection's
+    // proxy agent (options.proxy) for the OIDC fetch.
+    expect(options.applyProxyToOIDC).to.equal(true);
   });
 
   it('sets applyProxyToOIDC to proxyOptions when shareProxyWithConnection is not set', function () {

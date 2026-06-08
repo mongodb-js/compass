@@ -100,27 +100,22 @@ export function prepareOIDCOptions({
       matchingAllowedHosts(connectionOptions);
   }
 
-  // The "Use Application-Level Proxy Settings" OIDC checkbox is inverted
-  // relative to this flag: checking it (use the app-level proxy for the IdP)
-  // sets `shareProxyWithConnection = false`, unchecking it sets `true`.
+  // `shareProxyWithConnection` mirrors the OIDC "Use Application-Level Proxy
+  // Settings" checkbox (inverted): checking it sets the flag to `false`,
+  // unchecking it sets `true`. devtools-connect owns the connection proxy via
+  // `options.proxy`, so:
   //
-  // Now that devtools-connect owns the connection proxy via `options.proxy`,
-  // we must select `applyProxyToOIDC` carefully:
-  //
+  //  - shareProxyWithConnection === true: reuse the same proxy as the
+  //    connection for OIDC HTTP. `true` tells devtools-connect to share the
+  //    connection's proxy agent with the OIDC fetch.
   //  - shareProxyWithConnection === false ("use app-level proxy for OIDC"):
-  //    pass the app-level `proxyOptions` object so devtools-connect's
-  //    createFetch routes OIDC HTTP requests through that proxy. When no proxy
-  //    is configured (`proxyOptions` is empty), use `false` so we don't hand
-  //    createFetch a truthy-but-empty options object.
-  //  - shareProxyWithConnection === true (checkbox unchecked): keep OIDC
-  //    traffic off the proxy. We deliberately use `false` rather than `true`
-  //    here: previously Compass owned the tunnel and never set
-  //    `options.proxy`, so `applyProxyToOIDC = true` resolved to no agent and
-  //    OIDC went direct. Now that `options.proxy` is set, `true` would route
-  //    OIDC through the connection proxy and change that behavior, so we use
-  //    `false` to preserve it.
+  //    route OIDC HTTP through the dedicated application-level proxy. Pass the
+  //    `proxyOptions` object so devtools-connect's createFetch uses it. When no
+  //    proxy is configured (`proxyOptions` is empty) fall back to `false`, since
+  //    an empty object is truthy and would otherwise be handed to createFetch
+  //    as a no-op proxy config.
   if (connectionOptions.oidc?.shareProxyWithConnection) {
-    options.applyProxyToOIDC = false;
+    options.applyProxyToOIDC = true;
   } else {
     options.applyProxyToOIDC =
       Object.keys(proxyOptions).length > 0 ? proxyOptions : false;
@@ -256,48 +251,46 @@ export async function connectMongoClientDataService({
     // server metadata (e.g. build info, instance data, etc.)
     // and one for interacting with the actual CRUD data.
     // If CSFLE is disabled, use a single client for both cases.
-    [metadataClient, crudClient, state] = await Promise.race([
-      (async () => {
-        const { client: metadataClient, state } = await connectSingleClient({
-          autoEncryption: undefined,
-        });
-        const parentHandlePromise = state.getStateShareServer();
-        parentHandlePromise.catch(() => {
-          /* handled below */
-        });
-        let crudClient;
+    [metadataClient, crudClient, state] = await (async () => {
+      const { client: metadataClient, state } = await connectSingleClient({
+        autoEncryption: undefined,
+      });
+      const parentHandlePromise = state.getStateShareServer();
+      parentHandlePromise.catch(() => {
+        /* handled below */
+      });
+      let crudClient;
 
-        // This used to happen in parallel, but since the introduction of OIDC connection
-        // state needs to be shared and managed on the longest-lived client instance,
-        // so we need to use the DevtoolsConnectionState instance created for the metadata
-        // client here.
-        if (options.autoEncryption) {
-          try {
-            crudClient = (
-              await connectSingleClient({
-                parentState: state,
-              })
-            ).client;
-          } catch (err) {
-            await metadataClient.close();
-            throw err;
-          }
-        }
-
+      // This used to happen in parallel, but since the introduction of OIDC connection
+      // state needs to be shared and managed on the longest-lived client instance,
+      // so we need to use the DevtoolsConnectionState instance created for the metadata
+      // client here.
+      if (options.autoEncryption) {
         try {
-          // Make sure that if this failed, we clean up properly.
-          await parentHandlePromise;
+          crudClient = (
+            await connectSingleClient({
+              parentState: state,
+            })
+          ).client;
         } catch (err) {
           await metadataClient.close();
-          await crudClient?.close();
           throw err;
         }
+      }
 
-        // Return the parentHandle here so that it's included in the options that
-        // are passed to compass-shell.
-        return [metadataClient, crudClient, state] as const;
-      })(),
-    ]); // waitForTunnel always throws, never resolves (handled by devtools-connect)
+      try {
+        // Make sure that if this failed, we clean up properly.
+        await parentHandlePromise;
+      } catch (err) {
+        await metadataClient.close();
+        await crudClient?.close();
+        throw err;
+      }
+
+      // Return the parentHandle here so that it's included in the options that
+      // are passed to compass-shell.
+      return [metadataClient, crudClient, state] as const;
+    })();
 
     options.parentHandle = await state.getStateShareServer();
 
