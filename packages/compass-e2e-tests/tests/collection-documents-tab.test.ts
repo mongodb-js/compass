@@ -260,7 +260,7 @@ describe('Collection documents tab', function () {
   });
 
   context('cancel and maxTimeMS', function () {
-    let unsubscribeAllowWarningsFilter: () => Promise<void>;
+    let unsubscribeAllowWarningsFilter: () => Promise<void> | undefined;
 
     before(function () {
       if (isTestingWebAtlasCloud()) {

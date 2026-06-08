@@ -585,7 +585,7 @@ describe('Collection export', function () {
     });
 
     describe('aborting exports', function () {
-      let unsubscribeAllowWarningsFilter: () => Promise<void>;
+      let unsubscribeAllowWarningsFilter: () => Promise<void> | undefined;
 
       before(function () {
         // TODO(COMPASS-10717): On macos-arm the native file picker blocks selecting the DOM
