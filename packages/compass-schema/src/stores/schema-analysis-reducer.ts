@@ -247,6 +247,7 @@ const getSchemaAnalyzedEventPayload = ({
       optional_field_count,
       schema_depth,
       variable_type_count,
+      distinct_field_count,
     } = schema
       ? await calculateSchemaMetadata(schema)
       : {
@@ -255,6 +256,7 @@ const getSchemaAnalyzedEventPayload = ({
           optional_field_count: 0,
           schema_depth: 0,
           variable_type_count: 0,
+          distinct_field_count: 0,
         };
 
     return {
@@ -265,6 +267,7 @@ const getSchemaAnalyzedEventPayload = ({
       optional_field_count,
       schema_depth,
       geo_data,
+      distinct_field_count,
       analysis_time_ms: analysisTime,
     };
   };

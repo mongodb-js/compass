@@ -2219,6 +2219,12 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
     geo_data: boolean;
 
     /**
+     * The total count of distinct fields across all nesting levels in the schema,
+     * including fields nested within documents and arrays of documents.
+     */
+    distinct_field_count: number;
+
+    /**
      * The time taken to analyze the schema, in milliseconds.
      */
     analysis_time_ms: number;

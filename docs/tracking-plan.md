@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Fri, Jun 5, 2026
+Generated on Mon, Jun 8, 2026
 
 ## Table of Contents
 
@@ -2800,6 +2800,9 @@ This event is fired when user analyzes the schema.
   - The number of nested levels.
 - **geo_data** (required): `boolean`
   - Indicates whether the schema contains geospatial data.
+- **distinct_field_count** (required): `number`
+  - The total count of distinct fields across all nesting levels in the schema,
+    including fields nested within documents and arrays of documents.
 - **analysis_time_ms** (required): `number`
   - The time taken to analyze the schema, in milliseconds.
 - **is_compass_web** (optional): `true | undefined`

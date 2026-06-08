@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Banner,
-  BannerVariant,
   Button,
   ButtonVariant,
   CancelLoader,
