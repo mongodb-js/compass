@@ -122,12 +122,30 @@ describe('Collection documents tab', function () {
   let browser: CompassBrowser;
   let telemetry: Telemetry;
   let maxTimeMSBefore: string;
+  let unsubscribeAllowTimeoutWarningsFilter: () => Promise<void>;
 
   before(async function () {
     telemetry = await startTelemetryServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
     await browser.setupDefaultConnections();
+
+    // Relaxing error `23798` by having it on the root before/after hook for any query
+    // pattern that is expected to timeout or be canceled. This includes queries with
+    // sleep(), maxTimeMS expiration, and manual cancellation. By restricting this filter
+    // to nested context blocks, as `after` hook runs up, clean up of warning filters
+    // happens and sometimes logs can show up late and cause the tests to fail if they
+    // are not filtered out.
+    unsubscribeAllowTimeoutWarningsFilter = allowServerWarnings(
+      (l: LogEntry) => {
+        return (
+          l.id === 23798 &&
+          ['MaxTimeMSExpired', 'ClientDisconnect'].includes(
+            l.attr?.error?.codeName
+          )
+        );
+      }
+    );
   });
 
   beforeEach(async function () {
@@ -146,6 +164,7 @@ describe('Collection documents tab', function () {
   });
 
   after(async function () {
+    await unsubscribeAllowTimeoutWarningsFilter?.();
     await cleanup(compass);
     await telemetry.stop();
   });
@@ -250,15 +269,7 @@ describe('Collection documents tab', function () {
       }
 
       unsubscribeAllowWarningsFilter = allowServerWarnings(
-        8996500, // allow "$where is deprecated" warnings
-        (l: LogEntry) => {
-          return (
-            l.id === 23798 &&
-            ['MaxTimeMSExpired', 'ClientDisconnect'].includes(
-              l.attr?.error?.codeName
-            )
-          );
-        }
+        8996500 // allow "$where is deprecated" warnings
       );
     });
 

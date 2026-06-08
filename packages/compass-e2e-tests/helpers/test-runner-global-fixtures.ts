@@ -77,6 +77,9 @@ export function allowServerWarnings(
     }
   }
   return async () => {
+    // Wait a tick to allow any warnings that were triggered before this function
+    // was called to be processed by the log checkers and filtered out, otherwise
+    // we might miss some warnings.
     await new Promise((resolve) => setTimeout(resolve, 0));
     for (const fn of unsubscribeFns) {
       fn();
