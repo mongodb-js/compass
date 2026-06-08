@@ -9,10 +9,7 @@ import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
 import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
 import { prettify } from './pipeline-parser/utils';
-import {
-  isLastStageOutputStage,
-  getLastStageOperator,
-} from '../../utils/stage';
+import { isLastStageOutputStage } from '../../utils/stage';
 import type { DataService } from '../data-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
@@ -32,14 +29,12 @@ export class PipelineBuilder {
   private _stages: Stage[] = [];
   // todo: make private COMPASS-6167
   previewManager: PipelinePreviewManager;
-  private preferences: PreferencesAccess;
 
   constructor(
     dataService: DataService,
     preferences: PreferencesAccess,
     source = DEFAULT_PIPELINE
   ) {
-    this.preferences = preferences;
     this.previewManager = new PipelinePreviewManager(dataService, preferences);
     this.changeSource(source);
     this.sourceToStages();
@@ -282,14 +277,10 @@ export class PipelineBuilder {
     idx: number,
     namespace: string,
     options: PreviewOptions,
-    force = false
+    force = false,
+    injectScoreDetails = false
   ): Promise<StagePreviewResult> {
     const pipeline = this.getPipelineFromStages(this.stages.slice(0, idx + 1));
-    const { enableSearchActivationProgramP2 } =
-      this.preferences.getPreferences();
-    const injectScoreDetails =
-      !!enableSearchActivationProgramP2 &&
-      getLastStageOperator(pipeline) === '$search';
     return this.previewManager.getPreviewForStage(
       idx,
       namespace,

@@ -273,7 +273,7 @@ export const loadStagePreview = (
   | StagePreviewFetchErrorAction
   | StagePreviewFetchSkippedAction
 > => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -331,11 +331,17 @@ export const loadStagePreview = (
         totalDocumentCount: collectionStats?.document_count,
       };
 
+      const { enableSearchActivationProgramP2 } = preferences.getPreferences();
+      const injectScoreDetails =
+        !!enableSearchActivationProgramP2 && stage.stageOperator === '$search';
+
       const { documents, stageMetadata } =
         await pipelineBuilder.getPreviewForStage(
           idxInPipeline,
           namespace,
-          options
+          options,
+          false,
+          injectScoreDetails
         );
       dispatch({
         type: StageEditorActionTypes.StagePreviewFetchSuccess,
