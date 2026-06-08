@@ -183,10 +183,12 @@ export async function connectMongoClientDataService({
     };
   }
 
-  // Pass SSH tunnel / proxy options to devtools-connect, which owns the full
-  // tunnel lifecycle (creation, listen, config merge into MongoClient options,
-  // and cleanup on client close). Only set when non-empty to avoid injecting
-  // a no-op proxy config for plain connections.
+  // devtools-connect owns the full SSH tunnel / proxy lifecycle (creation,
+  // listen, config merge into MongoClient options, and cleanup on client
+  // close). getTunnelOptions returns {} when there's no tunnel or proxy to set
+  // up; that empty object is already a no-op for devtools-connect, so we only
+  // attach `proxy` when there's something to configure to keep the returned
+  // options object free of an empty `proxy` key.
   const tunnelOptions = getTunnelOptions(connectionOptions, proxyOptions);
   if (Object.keys(tunnelOptions).length > 0) {
     options.proxy = tunnelOptions;
