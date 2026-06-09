@@ -554,5 +554,30 @@ describe('OIDC integration', function () {
         `${oidcMockProvider.issuer}/.well-known/openid-configuration`
       );
     });
+
+    it('does not proxy MongoDB or OIDC traffic when the connection does not use the application-level proxy', async function () {
+      await browser.openSettingsModal('proxy');
+      await browser.clickParent(Selectors.ProxyCustomButton);
+      await browser.setValueVisible(
+        Selectors.ProxyUrl,
+        `http://localhost:${(httpServer.address() as AddressInfo).port}`
+      );
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      // An application-level proxy is configured, but the connection opts out
+      // (proxyMethod 'none') and OIDC shares the connection's (absent) proxy
+      // rather than the app-level one. Neither the MongoDB connection nor the
+      // IdP traffic should be routed through the proxy.
+      await browser.connectWithConnectionForm({
+        hosts: [hostport],
+        authMethod: 'MONGODB-OIDC',
+        connectionName,
+        oidcUseApplicationProxy: false,
+        proxyMethod: 'none',
+      });
+
+      expect(connectRequests.map((c) => c.url)).to.not.include(hostport);
+      expect(httpForwardRequests.map((c) => c.url)).to.be.empty;
+    });
   });
 });
