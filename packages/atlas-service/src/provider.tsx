@@ -70,6 +70,10 @@ export const atlasServiceLocator = createServiceLocator(
   'atlasServiceLocator'
 );
 
+// Exported for compass-web preferences fetching which is an
+// atlas request that happens outside of this package.
+export { throwIfNotOk } from './util';
+
 export { AtlasAuthService } from './atlas-auth-service';
 export type { AtlasService } from './atlas-service';
 export type { AtlasUserInfo } from './renderer';

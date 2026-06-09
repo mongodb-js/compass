@@ -14,6 +14,11 @@ import { ConnectFnProvider } from '@mongodb-js/compass-connections';
 import { MockDataService as TestHelpersMockDataService } from '@mongodb-js/testing-library-compass';
 import { sandboxConnectionStorage } from './connection-storage';
 import { SandboxConnectionStorage } from '../sandbox/sandbox-connection-storage';
+import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
+import {
+  DEFAULT_COMPASS_WEB_PREFERENCES,
+  setCompassWebPreferencesAccess,
+} from './preferences';
 
 function mockDb(name: string) {
   return { _id: name, name };
@@ -56,6 +61,17 @@ describe('CompassWeb', function () {
 
   const onTrackSpy = Sinon.spy();
 
+  beforeEach(function () {
+    // Compass-web fetches its preferences from the cloud API on mount; pre-seed
+    // them so rendering doesn't depend on a network request.
+    setCompassWebPreferencesAccess(
+      new CompassWebPreferencesAccess({
+        ...DEFAULT_COMPASS_WEB_PREFERENCES,
+        enableCreatingNewConnections: true,
+      })
+    );
+  });
+
   afterEach(function () {
     Sinon.resetHistory();
   });
@@ -71,10 +87,6 @@ describe('CompassWeb', function () {
           projectId=""
           onTrack={onTrackSpy}
           {...props}
-          initialPreferences={{
-            enableCreatingNewConnections: true,
-            ...props.initialPreferences,
-          }}
         ></CompassWeb>
       </ConnectFnProvider>
     );
