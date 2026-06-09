@@ -104,10 +104,8 @@ export async function getPreferencesFromCloudApi(projectId: string) {
   const atlasCloudProjectFeatureFlags: Partial<FeatureFlags> = {};
   const atlasCloudOrgFeatureFlags: Partial<FeatureFlags> = {};
 
-  // Cloud feature flags arrive keyed by their Compass preference name. We use
-  // the value as a preference override and additionally bucket the ones that
-  // are Compass feature flags so they resolve to the cloud value instead of
-  // their hardcoded default.
+  // Cloud feature flags arrive keyed by their Compass preference name. We
+  // override Compass' value to resolve to the cloud value.
   for (const [name, enabled] of Object.entries(featureFlags)) {
     (preferences as Record<string, unknown>)[name] = enabled;
     if (FEATURE_FLAG_BY_NAME.has(name)) {

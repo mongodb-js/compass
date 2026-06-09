@@ -13,12 +13,15 @@ const PROJECT_ID = '0123456789abcdef01234567';
 
 const apiResponse = {
   featureFlags: {
-    // Released Compass feature flags - bucketed so the cloud value wins.
+    // Released Compass feature flags, cloud should override.
     enableGlobalWrites: false,
     enableRollingIndexes: true,
-    // Regular preferences - applied as plain overrides.
+
+    // Regular preferences applied as plain overrides.
     enableGenAIFeaturesAtlasProject: true,
     enableMyQueries: true,
+
+    nonExistantFlag: true,
   },
   userAuid: 'auid-123',
   appUser: { isOptedIntoDataExplorerGenAIFeatures: true },
@@ -122,7 +125,7 @@ describe('compass-web preferences', function () {
         enableMyQueries: true,
       });
 
-      // Only Compass feature flags get bucketed (by project scope).
+      // Only Compass feature flags are pulled into the cloud overrides (by project scope).
       expect(atlasCloudProjectFeatureFlags).to.deep.equal({
         enableGlobalWrites: false,
         enableRollingIndexes: true,
@@ -155,6 +158,8 @@ describe('compass-web preferences', function () {
       expect(preferences.enableRollingIndexes).to.equal(true);
       // A released flag not present in the response stays hardcoded `true`.
       expect(preferences.enableDataModeling).to.equal(true);
+      // Populates a non-existant flag.
+      expect((preferences as any).nonExistantFlag).to.equal(true);
     });
 
     it('throws when the request is not ok', async function () {
