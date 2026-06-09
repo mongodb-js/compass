@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Mon, Jun 8, 2026
+Generated on Tue, Jun 9, 2026
 
 ## Table of Contents
 
@@ -2756,6 +2756,10 @@ This event is fired when schema analysis fails due to a query timeout or a gener
 
 - **error_type** (required): `"timeout" | "general"`
   - The category of error that caused the failure.
+- **with_filter** (required): `boolean`
+  - Indicates whether a filter was applied during the schema analysis.
+- **analysis_time_ms** (required): `number`
+  - The time taken when analyzing the schema, before it failed, in milliseconds.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.

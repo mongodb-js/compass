@@ -387,10 +387,13 @@ export const startAnalysis = (): SchemaThunkAction<
       }
 
       const errorDetails = getErrorDetails(err as Error);
+      const analysisTime = Date.now() - analysisStartTime;
       track(
         'Schema Analysis Failed',
         {
           error_type: errorDetails.errorType,
+          with_filter: Object.entries(query.filter ?? {}).length > 0,
+          analysis_time_ms: analysisTime,
         },
         connectionInfoRef.current
       );

@@ -2243,6 +2243,16 @@ type SchemaAnalysisFailedEvent = ConnectionScopedEvent<{
      * The category of error that caused the failure.
      */
     error_type: 'timeout' | 'general';
+
+    /**
+     * Indicates whether a filter was applied during the schema analysis.
+     */
+    with_filter: boolean;
+
+    /**
+     * The time taken when analyzing the schema, before it failed, in milliseconds.
+     */
+    analysis_time_ms: number;
   };
 }>;
 

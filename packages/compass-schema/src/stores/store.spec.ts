@@ -304,7 +304,7 @@ describe('Schema Store', function () {
       sandbox.reset();
     });
 
-    it('fires with error_type general for a generic error', async function () {
+    it('fires with error_type general and timing/filter metadata for a generic error', async function () {
       sampleCursorStub.returns({
         async *[Symbol.asyncIterator]() {
           await new Promise((resolve) => setTimeout(resolve, 0));
@@ -315,7 +315,11 @@ describe('Schema Store', function () {
       await store.dispatch(startAnalysis());
       expect(trackStub).to.have.been.calledWith(
         'Schema Analysis Failed',
-        { error_type: 'general' },
+        Sinon.match({
+          error_type: 'general',
+          with_filter: false,
+          analysis_time_ms: Sinon.match.number,
+        }),
         Sinon.match.object
       );
     });
@@ -335,7 +339,7 @@ describe('Schema Store', function () {
       await store.dispatch(startAnalysis());
       expect(trackStub).to.have.been.calledWith(
         'Schema Analysis Failed',
-        { error_type: 'timeout' },
+        Sinon.match({ error_type: 'timeout' }),
         Sinon.match.object
       );
     });
