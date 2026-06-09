@@ -28,10 +28,10 @@ const renderFocusModePreview = (
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
     enableSearchActivationExperiment = false,
-    enableSearchContextualAiAssistantEntryExperiment = false,
+    enableSearchActivationProgramP2Experiment = false,
   }: {
     enableSearchActivationExperiment?: boolean;
-    enableSearchContextualAiAssistantEntryExperiment?: boolean;
+    enableSearchActivationProgramP2Experiment?: boolean;
   } = {}
 ) => {
   let ui = (
@@ -53,10 +53,10 @@ const renderFocusModePreview = (
       ExperimentTestGroups.searchActivationProgramP1Variant
     );
   }
-  if (enableSearchContextualAiAssistantEntryExperiment) {
+  if (enableSearchActivationProgramP2Experiment) {
     ui = wrapWithExperimentProvider(
       ui,
-      ExperimentTestGroups.searchContextualAiAssistantEntryVariant
+      ExperimentTestGroups.searchActivationProgramP2Variant
     );
   }
   return renderWithStore(ui, { pipeline, ...storeOptions });
@@ -146,7 +146,7 @@ describe('FocusModeStagePreview', function () {
         { stageOperator: '$search', documents: [] },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchContextualAiAssistantEntryExperiment: true }
+        { enableSearchActivationProgramP2Experiment: true }
       );
       expect(screen.getByTestId('focus-mode-diagnose-search-button')).to.exist;
     });
@@ -155,7 +155,7 @@ describe('FocusModeStagePreview', function () {
         { stageOperator: '$vectorSearch', documents: [] },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchContextualAiAssistantEntryExperiment: true }
+        { enableSearchActivationProgramP2Experiment: true }
       );
       expect(
         screen.queryByTestId('focus-mode-diagnose-search-button')

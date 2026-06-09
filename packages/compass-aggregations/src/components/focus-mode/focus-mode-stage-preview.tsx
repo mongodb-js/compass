@@ -30,7 +30,7 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import SearchNoResults from '../search-no-results';
 import {
   useSearchActivationProgramP1,
-  useSearchContextualAiAssistantEntry,
+  useSearchActivationProgramP2,
 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
@@ -134,13 +134,12 @@ export const FocusModePreview = ({
   );
 
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
-  const { enableSearchContextualAiAssistantEntry } =
-    useSearchContextualAiAssistantEntry();
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
   const { diagnoseSearchStage } = useAssistantActions();
   const track = useTelemetry();
 
   const isNoResultsSearchStage =
-    enableSearchContextualAiAssistantEntry &&
+    enableSearchActivationProgramP2 &&
     stageOperator === '$search' &&
     documents?.length === 0;
 
@@ -216,7 +215,7 @@ export const FocusModePreview = ({
     );
   } else if (
     !enableSearchActivationProgramP1 &&
-    !enableSearchContextualAiAssistantEntry &&
+    !enableSearchActivationProgramP2 &&
     isSearchStage(stageOperator)
   ) {
     content = <SearchNoResults />;

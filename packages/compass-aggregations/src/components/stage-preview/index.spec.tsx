@@ -25,10 +25,10 @@ const renderStagePreview = (
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
     enableSearchActivationExperiment = false,
-    enableSearchContextualAiAssistantEntryExperiment = false,
+    enableSearchActivationProgramP2Experiment = false,
   }: {
     enableSearchActivationExperiment?: boolean;
-    enableSearchContextualAiAssistantEntryExperiment?: boolean;
+    enableSearchActivationProgramP2Experiment?: boolean;
   } = {}
 ) => {
   let ui = (
@@ -52,10 +52,10 @@ const renderStagePreview = (
       ExperimentTestGroups.searchActivationProgramP1Variant
     );
   }
-  if (enableSearchContextualAiAssistantEntryExperiment) {
+  if (enableSearchActivationProgramP2Experiment) {
     ui = wrapWithExperimentProvider(
       ui,
-      ExperimentTestGroups.searchContextualAiAssistantEntryVariant
+      ExperimentTestGroups.searchActivationProgramP2Variant
     );
   }
   return renderWithStore(ui, { pipeline, ...storeOptions });
@@ -150,7 +150,7 @@ describe('StagePreview', function () {
       },
       DEFAULT_PIPELINE,
       {},
-      { enableSearchContextualAiAssistantEntryExperiment: true }
+      { enableSearchActivationProgramP2Experiment: true }
     );
     expect(screen.getByTestId('stage-preview-empty')).to.exist;
     expect(screen.getByTestId('stage-preview-diagnose-search-button')).to.exist;
@@ -173,7 +173,7 @@ describe('StagePreview', function () {
       },
       DEFAULT_PIPELINE,
       {},
-      { enableSearchContextualAiAssistantEntryExperiment: true }
+      { enableSearchActivationProgramP2Experiment: true }
     );
     expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
       .exist;

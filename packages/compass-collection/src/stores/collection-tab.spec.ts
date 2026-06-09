@@ -188,7 +188,7 @@ describe('Collection Tab Content store', function () {
   });
 
   describe('experimentation integration', function () {
-    it('should assign mock data generator, search activation program p1, and search contextual ai assistant entry experiments when Atlas metadata is available', async function () {
+    it('should assign mock data generator, search activation program p1, and search activation program p2 experiments when Atlas metadata is available', async function () {
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
 
       await configureStore(
@@ -212,7 +212,7 @@ describe('Collection Tab Content store', function () {
           }
         );
         expect(assignExperiment).to.have.been.calledWith(
-          ExperimentTestNames.searchContextualAiAssistantEntry,
+          ExperimentTestNames.searchActivationProgramP2,
           {
             team: 'Search Web Platform',
           }

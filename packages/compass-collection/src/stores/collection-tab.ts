@@ -357,14 +357,14 @@ export function activatePlugin(
       });
 
     void experimentationServices
-      .assignExperiment(ExperimentTestNames.searchContextualAiAssistantEntry, {
+      .assignExperiment(ExperimentTestNames.searchActivationProgramP2, {
         team: 'Search Web Platform',
       })
       .catch((error) => {
         logger.debug(
           'Search Contextual AI Assistant Entry experiment assignment failed',
           {
-            experiment: ExperimentTestNames.searchContextualAiAssistantEntry,
+            experiment: ExperimentTestNames.searchActivationProgramP2,
             namespace: namespace,
             error: error instanceof Error ? error.message : String(error),
           }
