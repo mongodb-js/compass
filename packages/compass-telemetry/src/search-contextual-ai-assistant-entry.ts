@@ -15,7 +15,8 @@ export const useSearchContextualAiAssistantEntry = () => {
     assignment?.assignment?.assignmentData?.variant ===
     ExperimentTestGroups.searchContextualAiAssistantEntryVariant;
 
+  // TODO: remove hardcode before merging
   return {
-    enableSearchContextualAiAssistantEntry: isInVariant,
+    enableSearchContextualAiAssistantEntry: true,
   };
 };

@@ -4,6 +4,7 @@ import {
   css,
   SpinLoader,
   spacing,
+  palette,
   Overline,
 } from '@mongodb-js/compass-components';
 import type HadronDocument from 'hadron-document';
@@ -147,8 +148,11 @@ export const FocusModePreview = ({
     <div className={focusDiagnoseButtonStyles}>
       <Button
         data-testid="focus-mode-diagnose-search-button"
-        size="xsmall"
-        leftGlyph={<Icon glyph="Sparkle" />}
+        size="small"
+        // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
+        leftGlyph={
+          <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
+        }
         onClick={() => {
           track('Search Stage AI Button Clicked', {
             type: 'diagnose',
@@ -210,13 +214,12 @@ export const FocusModePreview = ({
           )}
       </>
     );
-  } else if (!enableSearchActivationProgramP1 && isSearchStage(stageOperator)) {
-    content = (
-      <>
-        <SearchNoResults />
-        {diagnoseButton}
-      </>
-    );
+  } else if (
+    !enableSearchActivationProgramP1 &&
+    !enableSearchContextualAiAssistantEntry &&
+    isSearchStage(stageOperator)
+  ) {
+    content = <SearchNoResults />;
   } else if (isNoResultsSearchStage) {
     content = (
       <div className={centerStyles}>

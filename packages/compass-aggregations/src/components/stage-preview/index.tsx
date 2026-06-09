@@ -161,8 +161,11 @@ function StagePreviewBody({
     <div className={diagnoseButtonStyles}>
       <Button
         data-testid="stage-preview-diagnose-search-button"
-        size="xsmall"
-        leftGlyph={<Icon glyph="Sparkle" />}
+        size="small"
+        // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
+        leftGlyph={
+          <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
+        }
         onClick={() => {
           track('Search Stage AI Button Clicked', {
             type: 'diagnose',
@@ -234,13 +237,13 @@ function StagePreviewBody({
 
   if (
     !enableSearchActivationProgramP1 &&
+    !enableSearchContextualAiAssistantEntry &&
     isSearchStage(stageOperator) &&
     documents?.length === 0
   ) {
     return (
       <div className={centeredContent}>
         <SearchNoResults />
-        {diagnoseButton}
       </div>
     );
   }
@@ -269,7 +272,9 @@ function StagePreviewBody({
   if (isNoResultsSearchStage) {
     return (
       <div className={centeredContent}>
-        <NoPreviewDocuments />
+        <Body>
+          <span data-testid="stage-preview-empty">No Preview Documents</span>
+        </Body>
         {diagnoseButton}
       </div>
     );
