@@ -1,6 +1,7 @@
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
 import {
   compassWebPreferences,
+  DEFAULT_COMPASS_WEB_PREFERENCES,
   setCompassWebPreferencesAccess,
 } from '../src/preferences';
 
@@ -22,6 +23,7 @@ Object.defineProperty(globalThis, kSandboxPreferencesAccess, {
 if (Object.hasOwn(globalThis, '__compassWebEnableSandboxPreferencesOverride')) {
   setCompassWebPreferencesAccess(
     new CompassWebPreferencesAccess({
+      ...DEFAULT_COMPASS_WEB_PREFERENCES,
       enableExportSchema: true,
       enablePerformanceAdvisorBanner: false,
       enableAtlasSearchIndexes: true,
