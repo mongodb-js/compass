@@ -5,6 +5,14 @@ import chaiAsPromised from 'chai-as-promised';
 
 chai.use(chaiAsPromised);
 
+/**
+ * When calling this function, it sets the export filename within `export-modal.tsx`
+ * and also triggers the export process. This is a workaround to avoid the triggering
+ * of native file picker dialog:
+ * - Which can not be accessed by wdio and prevents picking the file
+ * - Which blocks DOM interaction and prevents clicking the abort toast
+ * button (COMPASS-10717, on darwin).
+ */
 export async function setExportFilename(
   browser: CompassBrowser,
   filename: string

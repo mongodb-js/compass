@@ -121,8 +121,6 @@ describe('Collection export', function () {
       // Select CSV.
       await selectExportFileTypeCSV(browser);
 
-      await browser.clickVisible(Selectors.ExportModalExportButton);
-
       const filename = outputFilename('filtered-numbers-subset.csv');
       await browser.setExportFilename(filename);
 
@@ -192,7 +190,7 @@ describe('Collection export', function () {
 
       // Select export CSV.
       await selectExportFileTypeCSV(browser);
-      await browser.clickVisible(Selectors.ExportModalExportButton);
+
       const filename = outputFilename('all-fields-filtered.csv');
       await browser.setExportFilename(filename);
 
@@ -253,8 +251,6 @@ describe('Collection export', function () {
       // Select CSV.
       await selectExportFileTypeCSV(browser);
 
-      await browser.clickVisible(Selectors.ExportModalExportButton);
-
       const filename = outputFilename('filtered-numbers-projection.csv');
       await browser.setExportFilename(filename);
 
@@ -307,7 +303,6 @@ describe('Collection export', function () {
 
       // Export the entire collection.
       await selectExportFileTypeCSV(browser);
-      await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('full-collection.csv');
       await browser.setExportFilename(filename);
@@ -378,7 +373,6 @@ describe('Collection export', function () {
 );`);
 
       // Leave the file type on the default (JSON).
-      await browser.clickVisible(Selectors.ExportModalExportButton);
       const filename = outputFilename('filtered-numbers-subset.json');
       await browser.setExportFilename(filename);
 
@@ -447,8 +441,6 @@ describe('Collection export', function () {
       );
 
       // Go with the default file type (JSON).
-      await browser.clickVisible(Selectors.ExportModalExportButton);
-
       const filename = outputFilename('all-fields-filtered.json');
       await browser.setExportFilename(filename);
 
@@ -494,8 +486,6 @@ describe('Collection export', function () {
         Selectors.ExportCollectionFullCollectionOption
       );
       await browser.waitForOpenModal(Selectors.ExportModal);
-
-      await browser.clickVisible(Selectors.ExportModalExportButton);
 
       // Go with the default file type (JSON).
       const filename = outputFilename('full-collection.json');
@@ -548,8 +538,6 @@ describe('Collection export', function () {
       await browser.clickVisible(Selectors.ExportJSONFormatAccordion);
       await browser.clickParent(Selectors.ExportJSONFormatCanonical);
 
-      await browser.clickVisible(Selectors.ExportModalExportButton);
-
       // Go with the default file type (JSON).
       const filename = outputFilename('full-collection-canonical.json');
       await browser.setExportFilename(filename);
@@ -588,13 +576,6 @@ describe('Collection export', function () {
       let unsubscribeAllowWarningsFilter: () => void | undefined;
 
       before(function () {
-        // TODO(COMPASS-10717): On macos-arm the native file picker blocks selecting the DOM
-        // and pseudo element that is part of the abort toast is not selectable
-        // We can possibly make this work by manually dispatching MouseEvents
-        if (process.platform === 'darwin' && process.arch === 'arm64') {
-          this.skip();
-        }
-
         unsubscribeAllowWarningsFilter = allowServerWarnings(
           8996500, // allow "$where is deprecated" warnings
           (l: LogEntry) => {
@@ -640,8 +621,6 @@ describe('Collection export', function () {
 
         // Select CSV.
         await selectExportFileTypeCSV(browser);
-
-        await browser.clickVisible(Selectors.ExportModalExportButton);
 
         const filename = outputFilename('aborted-export-test.csv');
         await browser.setExportFilename(filename);
@@ -734,8 +713,6 @@ describe('Collection export', function () {
         await browser.clickVisible(Selectors.ExportNextStepButton);
 
         // File type defaults to JSON export.
-        await browser.clickVisible(Selectors.ExportModalExportButton);
-
         const filename = outputFilename('aborted-export-test.json');
         await browser.setExportFilename(filename);
 
@@ -822,8 +799,6 @@ describe('Collection export', function () {
 
         // Select CSV.
         await selectExportFileTypeCSV(browser);
-
-        await browser.clickVisible(Selectors.ExportModalExportButton);
 
         const filename = outputFilename('disconnected-export-test.csv');
         await browser.setExportFilename(filename);
@@ -957,8 +932,6 @@ describe('Collection export', function () {
       // Select CSV.
       await selectExportFileTypeCSV(browser);
 
-      await browser.clickVisible(Selectors.ExportModalExportButton);
-
       const filename = outputFilename('complex-query-numbers.csv');
       await browser.setExportFilename(filename);
 
@@ -1053,8 +1026,6 @@ describe('Collection export', function () {
 
       // Select JSON.
       await selectExportFileTypeJSON(browser);
-
-      await browser.clickVisible(Selectors.ExportModalExportButton);
 
       const filename = outputFilename('complex-query-numbers.json');
       await browser.setExportFilename(filename);
