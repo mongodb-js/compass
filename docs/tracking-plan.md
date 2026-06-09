@@ -36,6 +36,10 @@ Generated on Tue, Jun 9, 2026
 - [Focus Mode Opened](#event--FocusModeOpenedEvent)
 - [View Updated](#event--ViewUpdatedEvent)
 
+### Application
+
+- [Render Process Gone](#event--RenderProcessGoneEvent)
+
 ### Assistant
 
 - [Assistant Prompt Submitted](#event--AssistantPromptSubmittedEvent)
@@ -664,6 +668,25 @@ builder.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
+
+## Application
+
+<a name="event--RenderProcessGoneEvent"></a>
+
+### Render Process Gone
+
+This event is fired from the main process when a renderer process
+terminates unexpectedly (crash, OOM, killed, etc.).
+Normal clean exits are excluded.
+
+**Properties**:
+
+- **reason** (required): `"abnormal-exit" | "killed" | "crashed" | "oom" | "launch-failed" | "integrity-failure" | "memory-eviction"`
+  - The reason the renderer process terminated.
+- **exit_code** (required): `number`
+  - The exit code of the process, or a platform-specific launch failure
+    error code if reason is 'launch-failed'.
+- **is_compass_web** (optional): `true | undefined`
 
 ## Assistant
 
