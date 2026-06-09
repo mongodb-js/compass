@@ -29,6 +29,9 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import SearchNoResults from '../search-no-results';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { Button, Icon } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   display: 'flex',
@@ -85,6 +88,7 @@ type FocusModePreviewProps = {
   documents?: HadronDocument[] | null;
   stageIndex?: number;
   stageOperator?: string | null;
+  stageValue?: string | null;
   isMissingAtlasOnlyStageSupport?: boolean;
   showSearchIndexStaleResultsBanner?: boolean;
   searchIndexName?: string | null;
@@ -92,12 +96,17 @@ type FocusModePreviewProps = {
   onCollapse: (stageIdx: number) => void;
 };
 
+const focusDiagnoseButtonStyles = css({
+  marginTop: spacing[200],
+});
+
 export const FocusModePreview = ({
   title,
   isLoading = false,
   documents = null,
   stageIndex = -1,
   stageOperator = '',
+  stageValue = null,
   isMissingAtlasOnlyStageSupport = false,
   showSearchIndexStaleResultsBanner = false,
   searchIndexName = null,
@@ -121,6 +130,34 @@ export const FocusModePreview = ({
   );
 
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const { diagnoseSearchStage } = useAssistantActions();
+  const track = useTelemetry();
+
+  const isNoResultsSearchStage =
+    isSearchStage(stageOperator) && documents?.length === 0;
+
+  const diagnoseButton = isNoResultsSearchStage ? (
+    <div className={focusDiagnoseButtonStyles}>
+      <Button
+        data-testid="focus-mode-diagnose-search-button"
+        size="xsmall"
+        leftGlyph={<Icon glyph="Sparkle" />}
+        onClick={() => {
+          track('Search Stage AI Button Clicked', {
+            type: 'diagnose',
+            context: 'Focus Mode',
+          });
+          diagnoseSearchStage?.({
+            stageOperator: stageOperator ?? '',
+            indexName: searchIndexName ?? null,
+            stageValue: stageValue ?? '',
+          });
+        }}
+      >
+        Diagnose this issue
+      </Button>
+    </div>
+  ) : null;
 
   const docCount = documents?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
@@ -167,7 +204,19 @@ export const FocusModePreview = ({
       </>
     );
   } else if (!enableSearchActivationProgramP1 && isSearchStage(stageOperator)) {
-    content = <SearchNoResults />;
+    content = (
+      <>
+        <SearchNoResults />
+        {diagnoseButton}
+      </>
+    );
+  } else if (isNoResultsSearchStage) {
+    content = (
+      <div className={centerStyles}>
+        <Body className={messageStyles}>No preview documents</Body>
+        {diagnoseButton}
+      </div>
+    );
   } else {
     content = (
       <div className={centerStyles}>
@@ -317,6 +366,7 @@ export const FocusModeStageOutput = connect(
       documents: stage.previewDocs,
       stageIndex,
       stageOperator: stage.stageOperator,
+      stageValue: stage.value,
       isMissingAtlasOnlyStageSupport,
       showSearchIndexStaleResultsBanner,
       searchIndexName,

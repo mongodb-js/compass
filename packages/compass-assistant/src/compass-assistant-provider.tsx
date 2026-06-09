@@ -21,8 +21,10 @@ import {
 import {
   buildConnectionErrorPrompt,
   buildContextPrompt,
+  buildDiagnoseSearchStagePrompt,
   buildExplainPlanPrompt,
   buildProactiveInsightsPrompt,
+  type DiagnoseSearchStageContext,
   type EntryPointMessage,
   type ProactiveInsightsContext,
 } from './prompts';
@@ -101,7 +103,11 @@ export type AssistantMessage = UIMessage & {
      */
     isPermanent?: boolean;
     /** The source of the message (i.e. the entry point used) */
-    source?: 'explain plan' | 'performance insights' | 'connection error';
+    source?:
+      | 'explain plan'
+      | 'performance insights'
+      | 'connection error'
+      | 'search stage diagnose';
     /** Information for confirmation messages. */
     confirmation?: {
       description: string;
@@ -165,6 +171,7 @@ type AssistantActionsContextType = {
     error: Error;
   }) => void;
   tellMoreAboutInsight?: (context: ProactiveInsightsContext) => void;
+  diagnoseSearchStage?: (context: DiagnoseSearchStageContext) => void;
   ensureOptInAndSend?: (
     message: SendMessage,
     options: SendOptions,
@@ -187,6 +194,7 @@ export const AssistantActionsContext =
     interpretExplainPlan: () => {},
     interpretConnectionError: () => {},
     tellMoreAboutInsight: () => {},
+    diagnoseSearchStage: () => {},
     ensureOptInAndSend: async () => {},
   });
 
@@ -205,12 +213,14 @@ export function useAssistantActions(): AssistantActionsType {
     interpretExplainPlan,
     interpretConnectionError,
     tellMoreAboutInsight,
+    diagnoseSearchStage,
   } = actions;
 
   return {
     interpretExplainPlan,
     interpretConnectionError,
     tellMoreAboutInsight,
+    diagnoseSearchStage,
     getIsAssistantEnabled: () => true,
   };
 }
@@ -466,7 +476,11 @@ export function ensureOptInAndSendThunk(
 
 // Thunk action for entry point handlers
 function handleEntryPoint<T>(
-  entryPointName: 'explain plan' | 'performance insights' | 'connection error',
+  entryPointName:
+    | 'explain plan'
+    | 'performance insights'
+    | 'connection error'
+    | 'search stage diagnose',
   builder: (props: T) => EntryPointMessage,
   props: T,
   globalState: GlobalState,
@@ -547,6 +561,20 @@ function tellMoreAboutInsightThunk(
   return handleEntryPoint(
     'performance insights',
     buildProactiveInsightsPrompt,
+    props,
+    globalState,
+    openDrawer
+  );
+}
+
+function diagnoseSearchStageThunk(
+  props: DiagnoseSearchStageContext,
+  globalState: GlobalState,
+  openDrawer: (id: string) => void
+): AssistantThunkAction<void> {
+  return handleEntryPoint(
+    'search stage diagnose',
+    buildDiagnoseSearchStagePrompt,
     props,
     globalState,
     openDrawer
@@ -655,6 +683,11 @@ const AssistantProviderInner: React.FunctionComponent<
       globalState: GlobalState,
       openDrawer: (id: string) => void
     ) => void;
+    diagnoseSearchStage: (
+      props: DiagnoseSearchStageContext,
+      globalState: GlobalState,
+      openDrawer: (id: string) => void
+    ) => void;
   }>
 > = ({
   projectId,
@@ -663,6 +696,7 @@ const AssistantProviderInner: React.FunctionComponent<
   interpretExplainPlan,
   interpretConnectionError,
   tellMoreAboutInsight,
+  diagnoseSearchStage,
   children,
 }) => {
   // chat is stable — created once in activate, never changes
@@ -689,6 +723,13 @@ const AssistantProviderInner: React.FunctionComponent<
     },
     tellMoreAboutInsight: (props) => {
       tellMoreAboutInsight(
+        props,
+        assistantGlobalStateRef.current,
+        openDrawerRef.current
+      );
+    },
+    diagnoseSearchStage: (props) => {
+      diagnoseSearchStage(
         props,
         assistantGlobalStateRef.current,
         openDrawerRef.current
@@ -721,6 +762,7 @@ const ConnectedAssistantProvider = connect(null, {
   interpretExplainPlan: interpretExplainPlanThunk,
   interpretConnectionError: interpretConnectionErrorThunk,
   tellMoreAboutInsight: tellMoreAboutInsightThunk,
+  diagnoseSearchStage: diagnoseSearchStageThunk,
 })(AssistantProviderInner);
 
 export const CompassAssistantProvider = registerCompassPlugin(

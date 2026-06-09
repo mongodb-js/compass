@@ -1525,7 +1525,11 @@ type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
 type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
   name: 'Assistant Entry Point Used';
   payload: {
-    source: 'explain plan' | 'performance insights' | 'connection error';
+    source:
+      | 'explain plan'
+      | 'performance insights'
+      | 'connection error'
+      | 'search stage diagnose';
     request_id?: string;
   };
 }>;
@@ -3743,6 +3747,17 @@ type SearchIndexStatusDetailsLinkClickedEvent = CommonEvent<{
   };
 }>;
 
+/**
+ * @category Search Stages AI
+ */
+type SearchStageAiButtonClickedEvent = CommonEvent<{
+  name: 'Search Stage AI Button Clicked';
+  payload: {
+    type: 'diagnose' | 'refine' | 'debug';
+    context: 'Stage Preview' | 'Focus Mode';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3938,4 +3953,5 @@ export type TelemetryEvent =
   | SearchIndexEditCancelledEvent
   | ManageSearchIndexesLinkClickedEvent
   | RenderProcessGoneEvent
-  | SearchIndexStatusDetailsLinkClickedEvent;
+  | SearchIndexStatusDetailsLinkClickedEvent
+  | SearchStageAiButtonClickedEvent;

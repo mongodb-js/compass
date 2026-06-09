@@ -31,6 +31,9 @@ import { getIndexOfFirstStageWithServerError } from '../../modules/pipeline-buil
 import SearchNoResults from '../search-no-results';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { Button, Icon } from '@mongodb-js/compass-components';
 
 const centeredContent = css({
   display: 'flex',
@@ -115,6 +118,7 @@ type StagePreviewProps = {
   isDisabled: boolean;
   isMissingAtlasOnlyStageSupport: boolean;
   stageOperator: string | null;
+  stageValue?: string | null;
   documents: DocumentType[] | null;
   shouldRenderStage: boolean;
   showSearchIndexStaleResultsBanner: boolean;
@@ -122,9 +126,14 @@ type StagePreviewProps = {
   serverErrorStageIdx: number | null;
 };
 
+const diagnoseButtonStyles = css({
+  marginTop: spacing[200],
+});
+
 function StagePreviewBody({
   index,
   stageOperator,
+  stageValue,
   documents,
   isMissingAtlasOnlyStageSupport,
   shouldRenderStage,
@@ -134,6 +143,36 @@ function StagePreviewBody({
   serverErrorStageIdx,
 }: StagePreviewProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const { diagnoseSearchStage } = useAssistantActions();
+  const track = useTelemetry();
+
+  const isNoResultsSearchStage =
+    isSearchStage(stageOperator) &&
+    documents?.length === 0 &&
+    serverErrorStageIdx === null;
+
+  const diagnoseButton = isNoResultsSearchStage ? (
+    <div className={diagnoseButtonStyles}>
+      <Button
+        data-testid="stage-preview-diagnose-search-button"
+        size="xsmall"
+        leftGlyph={<Icon glyph="Sparkle" />}
+        onClick={() => {
+          track('Search Stage AI Button Clicked', {
+            type: 'diagnose',
+            context: 'Stage Preview',
+          });
+          diagnoseSearchStage?.({
+            stageOperator: stageOperator ?? '',
+            indexName: searchIndexName,
+            stageValue: stageValue ?? '',
+          });
+        }}
+      >
+        Diagnose this issue
+      </Button>
+    </div>
+  ) : null;
 
   if (!shouldRenderStage) {
     return <NoPreviewDocuments />;
@@ -192,7 +231,12 @@ function StagePreviewBody({
     isSearchStage(stageOperator) &&
     documents?.length === 0
   ) {
-    return <SearchNoResults />;
+    return (
+      <div className={centeredContent}>
+        <SearchNoResults />
+        {diagnoseButton}
+      </div>
+    );
   }
 
   if (documents && documents.length > 0) {
@@ -212,6 +256,15 @@ function StagePreviewBody({
           showSearchIndexStaleResultsBanner && (
             <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
           )}
+      </div>
+    );
+  }
+
+  if (isNoResultsSearchStage) {
+    return (
+      <div className={centeredContent}>
+        <NoPreviewDocuments />
+        {diagnoseButton}
       </div>
     );
   }
@@ -283,6 +336,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     isLoading: stage.loading,
     isDisabled: stage.disabled,
     stageOperator: stage.stageOperator,
+    stageValue: stage.value,
     shouldRenderStage,
     documents: stage.previewDocs,
     isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
