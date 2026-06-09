@@ -355,6 +355,21 @@ export function activatePlugin(
           }
         );
       });
+
+    void experimentationServices
+      .assignExperiment(ExperimentTestNames.searchContextualAiAssistantEntry, {
+        team: 'Search Web Platform',
+      })
+      .catch((error) => {
+        logger.debug(
+          'Search Contextual AI Assistant Entry experiment assignment failed',
+          {
+            experiment: ExperimentTestNames.searchContextualAiAssistantEntry,
+            namespace: namespace,
+            error: error instanceof Error ? error.message : String(error),
+          }
+        );
+      });
   }
 
   // Cancel schema analysis when plugin is deactivated
