@@ -2512,6 +2512,36 @@ type ApplicationRestartAcceptedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired from the main process when a renderer process
+ * terminates unexpectedly (crash, OOM, killed, etc.).
+ * Normal clean exits are excluded.
+ *
+ * @category Application
+ */
+type RenderProcessGoneEvent = CommonEvent<{
+  name: 'Render Process Gone';
+  payload: {
+    /**
+     * The reason the renderer process terminated.
+     */
+    reason:
+      | 'abnormal-exit'
+      | 'killed'
+      | 'crashed'
+      | 'oom'
+      | 'launch-failed'
+      | 'integrity-failure'
+      | 'memory-eviction';
+
+    /**
+     * The exit code of the process, or a platform-specific launch failure
+     * error code if reason is 'launch-failed'.
+     */
+    exit_code: number;
+  };
+}>;
+
+/**
  * This event is fired when the auto-update feature is enabled.
  *
  * @category Auto-updates
@@ -3875,4 +3905,5 @@ export type TelemetryEvent =
   | SearchIndexEditSubmittedEvent
   | SearchIndexEditCancelledEvent
   | ManageSearchIndexesLinkClickedEvent
+  | RenderProcessGoneEvent
   | SearchIndexStatusDetailsLinkClickedEvent;
