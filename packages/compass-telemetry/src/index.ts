@@ -16,6 +16,3 @@ export {
 
 // @experiment Search Activation Program P1  | Jira Epic: CLOUDP-308952
 export { useSearchActivationProgramP1 } from './search-activation-program-p1';
-
-// @experiment Search Contextual AI Assistant Entry | Jira Epic: CLOUDP-411692
-export { useSearchContextualAiAssistantEntry } from './search-contextual-ai-assistant-entry';
