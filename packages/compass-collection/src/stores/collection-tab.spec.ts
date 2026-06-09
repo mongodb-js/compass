@@ -212,7 +212,7 @@ describe('Collection Tab Content store', function () {
           }
         );
         expect(assignExperiment).to.have.been.calledWith(
-          ExperimentTestNames.searchContextualAiAssistantEntry,
+          ExperimentTestNames.searchActivationProgramP2,
           {
             team: 'Search Web Platform',
           }
