@@ -20,6 +20,7 @@ import {
 import { enable } from '@electron/remote/main';
 
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
+import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import COMPASS_ICON from './icon';
 import type { CompassApplication } from './application';
 import {
@@ -29,6 +30,7 @@ import {
 } from './auto-connect';
 
 const { debug, log } = createLogger('COMPASS-WINDOW-MANAGER');
+const track = createIpcTrack();
 
 const earlyOpenUrls: string[] = [];
 function earlyOpenUrlListener(
@@ -337,6 +339,27 @@ function showConnectWindow(
     debug(
       `Blocked navigation to url ${url} in main window. Make sure links are opened in a different window with _target="blank".`
     );
+  });
+
+  window.webContents.on('render-process-gone', (_e, details) => {
+    if (details.reason === 'clean-exit') {
+      return;
+    }
+
+    log.error(
+      mongoLogId(1_001_000_433),
+      'Window Manager',
+      'Render process gone',
+      {
+        reason: details.reason,
+        exitCode: details.exitCode,
+      }
+    );
+
+    track('Render Process Gone', {
+      reason: details.reason,
+      exit_code: details.exitCode,
+    });
   });
 
   return window;

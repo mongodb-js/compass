@@ -620,8 +620,12 @@ export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="dele
 export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
-export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
-export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
+export const BulkActionsButton =
+  '[data-testid="crud-bulk-actions-show-actions"]';
+export const OpenBulkUpdateButton =
+  '[data-testid="crud-bulk-actions-bulk-update-action"]';
+export const OpenBulkDeleteButton =
+  '[data-testid="crud-bulk-actions-bulk-delete-action"]';
 export const ErrorDetailsJson = '[data-testid="error-details-json"]';
 export const DocumentTableContainer = `.document-table-view-container`;
 

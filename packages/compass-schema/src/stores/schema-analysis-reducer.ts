@@ -27,7 +27,7 @@ const ERROR_CODE_MAX_TIME_MS_EXPIRED = 50;
 
 export type SchemaAnalysisError = {
   errorMessage: string;
-  errorType: 'timeout' | 'highComplexity' | 'general';
+  errorType: 'timeout' | 'general';
 };
 
 export type SchemaAnalysisState = {
@@ -132,8 +132,6 @@ function getErrorDetails(error: Error): SchemaAnalysisError {
   let errorType: SchemaAnalysisError['errorType'] = 'general';
   if (errorCode === ERROR_CODE_MAX_TIME_MS_EXPIRED) {
     errorType = 'timeout';
-  } else if (error.message.includes('Schema analysis aborted: Fields count')) {
-    errorType = 'highComplexity';
   }
 
   return {
@@ -249,6 +247,7 @@ const getSchemaAnalyzedEventPayload = ({
       optional_field_count,
       schema_depth,
       variable_type_count,
+      distinct_field_count,
     } = schema
       ? await calculateSchemaMetadata(schema)
       : {
@@ -257,6 +256,7 @@ const getSchemaAnalyzedEventPayload = ({
           optional_field_count: 0,
           schema_depth: 0,
           variable_type_count: 0,
+          distinct_field_count: 0,
         };
 
     return {
@@ -267,6 +267,7 @@ const getSchemaAnalyzedEventPayload = ({
       optional_field_count,
       schema_depth,
       geo_data,
+      distinct_field_count,
       analysis_time_ms: analysisTime,
     };
   };
@@ -377,6 +378,25 @@ export const startAnalysis = (): SchemaThunkAction<
 
       geoLayersRef.current = {};
     } catch (err: any) {
+      if (abortSignal?.aborted) {
+        dispatch({
+          type: SchemaAnalysisActions.analysisFailed,
+          error: err as Error,
+        });
+        return;
+      }
+
+      const errorDetails = getErrorDetails(err as Error);
+      const analysisTime = Date.now() - analysisStartTime;
+      track(
+        'Schema Analysis Failed',
+        {
+          error_type: errorDetails.errorType,
+          with_filter: Object.entries(query.filter ?? {}).length > 0,
+          analysis_time_ms: analysisTime,
+        },
+        connectionInfoRef.current
+      );
       log.error(
         mongoLogId(1_001_000_188),
         'Schema analysis',
