@@ -122,7 +122,7 @@ describe('Collection documents tab', function () {
   let browser: CompassBrowser;
   let telemetry: Telemetry;
   let maxTimeMSBefore: string;
-  let unsubscribeAllowTimeoutWarningsFilter: () => Promise<void>;
+  let unsubscribeAllowTimeoutWarningsFilter: () => void;
 
   before(async function () {
     telemetry = await startTelemetryServer();
@@ -164,7 +164,7 @@ describe('Collection documents tab', function () {
   });
 
   after(async function () {
-    await unsubscribeAllowTimeoutWarningsFilter?.();
+    unsubscribeAllowTimeoutWarningsFilter?.();
     await cleanup(compass);
     await telemetry.stop();
   });
@@ -260,7 +260,7 @@ describe('Collection documents tab', function () {
   });
 
   context('cancel and maxTimeMS', function () {
-    let unsubscribeAllowWarningsFilter: () => Promise<void> | undefined;
+    let unsubscribeAllowWarningsFilter: () => void | undefined;
 
     before(function () {
       if (isTestingWebAtlasCloud()) {
@@ -273,8 +273,8 @@ describe('Collection documents tab', function () {
       );
     });
 
-    after(async function () {
-      await unsubscribeAllowWarningsFilter?.();
+    after(function () {
+      unsubscribeAllowWarningsFilter?.();
     });
 
     it('supports cancelling a find and then running another query', async function () {

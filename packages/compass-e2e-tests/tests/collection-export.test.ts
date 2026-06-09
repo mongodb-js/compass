@@ -585,7 +585,7 @@ describe('Collection export', function () {
     });
 
     describe('aborting exports', function () {
-      let unsubscribeAllowWarningsFilter: () => Promise<void> | undefined;
+      let unsubscribeAllowWarningsFilter: () => void | undefined;
 
       before(function () {
         // TODO(COMPASS-10717): On macos-arm the native file picker blocks selecting the DOM
@@ -608,8 +608,8 @@ describe('Collection export', function () {
         );
       });
 
-      after(async function () {
-        await unsubscribeAllowWarningsFilter?.();
+      after(function () {
+        unsubscribeAllowWarningsFilter?.();
       });
 
       it('can abort an in progress CSV export', async function () {
