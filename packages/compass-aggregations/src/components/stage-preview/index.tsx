@@ -29,7 +29,10 @@ import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getIndexOfFirstStageWithServerError } from '../../modules/pipeline-builder/stage-editor';
 
 import SearchNoResults from '../search-no-results';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useSearchActivationProgramP1,
+  useSearchContextualAiAssistantEntry,
+} from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -143,10 +146,13 @@ function StagePreviewBody({
   serverErrorStageIdx,
 }: StagePreviewProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const { enableSearchContextualAiAssistantEntry } =
+    useSearchContextualAiAssistantEntry();
   const { diagnoseSearchStage } = useAssistantActions();
   const track = useTelemetry();
 
   const isNoResultsSearchStage =
+    enableSearchContextualAiAssistantEntry &&
     isSearchStage(stageOperator) &&
     documents?.length === 0 &&
     serverErrorStageIdx === null;

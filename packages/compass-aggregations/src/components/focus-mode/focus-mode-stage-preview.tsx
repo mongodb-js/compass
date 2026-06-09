@@ -27,7 +27,10 @@ import {
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import SearchNoResults from '../search-no-results';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useSearchActivationProgramP1,
+  useSearchContextualAiAssistantEntry,
+} from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -130,11 +133,15 @@ export const FocusModePreview = ({
   );
 
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const { enableSearchContextualAiAssistantEntry } =
+    useSearchContextualAiAssistantEntry();
   const { diagnoseSearchStage } = useAssistantActions();
   const track = useTelemetry();
 
   const isNoResultsSearchStage =
-    isSearchStage(stageOperator) && documents?.length === 0;
+    enableSearchContextualAiAssistantEntry &&
+    isSearchStage(stageOperator) &&
+    documents?.length === 0;
 
   const diagnoseButton = isNoResultsSearchStage ? (
     <div className={focusDiagnoseButtonStyles}>
