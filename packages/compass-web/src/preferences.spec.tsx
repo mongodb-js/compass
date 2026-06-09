@@ -21,7 +21,7 @@ const apiResponse = {
     enableGenAIFeaturesAtlasProject: true,
     enableMyQueries: true,
 
-    nonExistantFlag: true,
+    nonExistentFlag: true,
   },
   userAuid: 'auid-123',
   appUser: { isOptedIntoDataExplorerGenAIFeatures: true },
@@ -159,7 +159,7 @@ describe('compass-web preferences', function () {
       // A released flag not present in the response stays hardcoded `true`.
       expect(preferences.enableDataModeling).to.equal(true);
       // Populates a non-existant flag.
-      expect((preferences as any).nonExistantFlag).to.equal(true);
+      expect((preferences as any).nonExistentFlag).to.equal(true);
     });
 
     it('throws when the request is not ok', async function () {

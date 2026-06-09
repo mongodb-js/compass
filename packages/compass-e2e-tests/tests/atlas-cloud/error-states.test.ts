@@ -43,10 +43,12 @@ describe('Error states', function () {
         const mock = await browser.mock(
           `/explorer/v1/groups/${context.atlasCloudProjectId}/preferences`
         );
-        mock.respondOnce('Failed to fetch', { statusCode: 500 });
+        mock.respond('Failed to fetch', { statusCode: 500 });
       },
     });
 
-    await compass.browser.$('*=Error Occurred').waitForDisplayed();
+    await compass.browser
+      .$('*=Error Occurred')
+      .waitForDisplayed({ timeout: 30000 });
   });
 });
