@@ -153,7 +153,7 @@ function StagePreviewBody({
 
   const isNoResultsSearchStage =
     enableSearchContextualAiAssistantEntry &&
-    isSearchStage(stageOperator) &&
+    stageOperator === '$search' &&
     documents?.length === 0 &&
     serverErrorStageIdx === null;
 

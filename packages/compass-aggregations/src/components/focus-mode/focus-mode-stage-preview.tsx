@@ -141,7 +141,7 @@ export const FocusModePreview = ({
 
   const isNoResultsSearchStage =
     enableSearchContextualAiAssistantEntry &&
-    isSearchStage(stageOperator) &&
+    stageOperator === '$search' &&
     documents?.length === 0;
 
   const diagnoseButton = isNoResultsSearchStage ? (

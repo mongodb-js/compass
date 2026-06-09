@@ -25,7 +25,11 @@ const renderStagePreview = (
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
     enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+    enableSearchContextualAiAssistantEntryExperiment = false,
+  }: {
+    enableSearchActivationExperiment?: boolean;
+    enableSearchContextualAiAssistantEntryExperiment?: boolean;
+  } = {}
 ) => {
   let ui = (
     <StagePreview
@@ -46,6 +50,12 @@ const renderStagePreview = (
     ui = wrapWithExperimentProvider(
       ui,
       ExperimentTestGroups.searchActivationProgramP1Variant
+    );
+  }
+  if (enableSearchContextualAiAssistantEntryExperiment) {
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchContextualAiAssistantEntryVariant
     );
   }
   return renderWithStore(ui, { pipeline, ...storeOptions });
@@ -130,6 +140,43 @@ describe('StagePreview', function () {
         'This may be because your search has no results or your search index does not exist.'
       )
     ).to.exist;
+  });
+  it('renders diagnose button for $search with no results when contextual AI experiment is active', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      { enableSearchContextualAiAssistantEntryExperiment: true }
+    );
+    expect(screen.getByTestId('stage-preview-empty')).to.exist;
+    expect(screen.getByTestId('stage-preview-diagnose-search-button')).to.exist;
+  });
+  it('does not render diagnose button when contextual AI experiment is not active', async function () {
+    await renderStagePreview({
+      shouldRenderStage: true,
+      stageOperator: '$search',
+      documents: [],
+    });
+    expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
+      .exist;
+  });
+  it('does not render diagnose button for $vectorSearch even when contextual AI experiment is active', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$vectorSearch',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      { enableSearchContextualAiAssistantEntryExperiment: true }
+    );
+    expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
+      .exist;
   });
   it('renders $search preview docs', async function () {
     await renderStagePreview({

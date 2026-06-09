@@ -28,7 +28,11 @@ const renderFocusModePreview = (
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
     enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+    enableSearchContextualAiAssistantEntryExperiment = false,
+  }: {
+    enableSearchActivationExperiment?: boolean;
+    enableSearchContextualAiAssistantEntryExperiment?: boolean;
+  } = {}
 ) => {
   let ui = (
     <FocusModePreview
@@ -47,6 +51,12 @@ const renderFocusModePreview = (
     ui = wrapWithExperimentProvider(
       ui,
       ExperimentTestGroups.searchActivationProgramP1Variant
+    );
+  }
+  if (enableSearchContextualAiAssistantEntryExperiment) {
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchContextualAiAssistantEntryVariant
     );
   }
   return renderWithStore(ui, { pipeline, ...storeOptions });
@@ -131,6 +141,26 @@ describe('FocusModeStagePreview', function () {
         ).to.not.exist;
       });
     }
+    it('renders diagnose button for $search with no results when contextual AI experiment is active', async function () {
+      await renderFocusModePreview(
+        { stageOperator: '$search', documents: [] },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchContextualAiAssistantEntryExperiment: true }
+      );
+      expect(screen.getByTestId('focus-mode-diagnose-search-button')).to.exist;
+    });
+    it('does not render diagnose button for $vectorSearch even when contextual AI experiment is active', async function () {
+      await renderFocusModePreview(
+        { stageOperator: '$vectorSearch', documents: [] },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchContextualAiAssistantEntryExperiment: true }
+      );
+      expect(
+        screen.queryByTestId('focus-mode-diagnose-search-button')
+      ).to.not.exist;
+    });
     it('renders $out stage preview', async function () {
       await renderFocusModePreview(
         {
