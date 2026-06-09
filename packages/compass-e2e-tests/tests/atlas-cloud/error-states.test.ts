@@ -35,4 +35,18 @@ describe('Error states', function () {
       .$('*=An error occurred while querying your MongoDB deployment')
       .waitForDisplayed();
   });
+
+  it('should show error state if fetching preferences failed initially', async function () {
+    compass = await init(this.test?.fullTitle(), {
+      async onBeforeNavigate(browser) {
+        assertTestingWebAtlasCloud(context);
+        const mock = await browser.mock(
+          `/explorer/v1/groups/${context.atlasCloudProjectId}/preferences`
+        );
+        mock.respondOnce('Failed to fetch', { statusCode: 500 });
+      },
+    });
+
+    await compass.browser.$('*=Error Occurred').waitForDisplayed();
+  });
 });

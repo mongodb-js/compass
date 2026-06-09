@@ -18,9 +18,8 @@ export type FeatureFlagDefinition = {
    */
   stage: 'development' | 'preview' | 'released';
   /**
-   * Optional field to specify the scope of the feature flag for Atlas Cloud. This is automatically picked up
-   * by an automation to create mms PR with the feature flag name and description.short. If this field is not
-   * provided, the task to create the PR will fail.
+   * Optional field that will be (COMPASS-10691) used to specify the scope
+   * of the feature flag for Atlas Cloud.
    */
   atlasCloudFeatureScope?: 'group' | 'organization';
   description: {
