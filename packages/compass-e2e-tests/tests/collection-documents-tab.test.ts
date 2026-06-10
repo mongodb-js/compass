@@ -782,7 +782,7 @@ FindIterable<Document> result = collection.find(filter);`);
     });
 
     describe('Error info when editing', function () {
-      let unsubscribeAllowWarningsFilter: () => Promise<void>;
+      let unsubscribeAllowWarningsFilter: () => void;
 
       before(function () {
         unsubscribeAllowWarningsFilter = allowServerWarnings((l: LogEntry) => {
@@ -794,8 +794,8 @@ FindIterable<Document> result = collection.find(filter);`);
         });
       });
 
-      after(async function () {
-        await unsubscribeAllowWarningsFilter();
+      after(function () {
+        unsubscribeAllowWarningsFilter();
       });
 
       beforeEach(async function () {
