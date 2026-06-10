@@ -14,7 +14,7 @@ import plist from 'plist';
 import { sign, getSignedFilename } from './signtool';
 import tarGz from './tar-gz';
 import { notarize } from './mac-notary-service';
-import { validateBuildConfig } from './validate-build-config';
+import { parseHadronConfig, type HadronConfig } from './validate-build-config';
 
 const debug = createDebug('hadron-build:target');
 
@@ -147,6 +147,7 @@ class Target {
   autoUpdateBaseUrl: string | null;
   asar: { unpack?: string[] };
   rebuild: Record<string, unknown>;
+  hadronConfig: HadronConfig;
   macosEntitlements?: string;
   truncatedProductName?: string;
   packagerOptions: PackagerOptions;
@@ -197,8 +198,9 @@ class Target {
 
     const pkg = getPkg(dir);
     this.pkg = pkg;
+    this.hadronConfig = parseHadronConfig(pkg.config?.hadron, this.dir);
 
-    const distributions = pkg.config.hadron.distributions;
+    const distributions = this.hadronConfig.distributions;
     const distribution =
       (opts.distribution as string) ?? process.env.HADRON_DISTRIBUTION;
 
@@ -267,11 +269,11 @@ class Target {
       this.slug += `-${this.channel}`;
     }
 
-    this.autoUpdateBaseUrl = _.get(pkg, 'config.hadron.endpoint', null);
+    this.autoUpdateBaseUrl = this.hadronConfig.endpoint ?? null;
 
-    this.asar = { unpack: [], ...pkg.config.hadron.asar };
-    this.rebuild = { ...pkg.config.hadron.rebuild };
-    this.macosEntitlements = this.src(pkg.config.hadron.macosEntitlements);
+    this.asar = { unpack: [], ...this.hadronConfig.asar };
+    this.rebuild = { ...this.hadronConfig.rebuild };
+    this.macosEntitlements = this.src(this.hadronConfig.macosEntitlements);
 
     // For building a dev building from main. In order to have a consistent version ID
     // based on datetime, we pick it from the evergreen when it was triggered so that
@@ -312,11 +314,6 @@ class Target {
       electronVersion: pkg.electronVersion,
       afterExtract: [safeFFMPEG],
     };
-
-    validateBuildConfig(
-      this.platform,
-      this.pkg.config.hadron.build[this.platform]
-    );
 
     if (this.platform === 'win32') {
       this.configureForWin32();
@@ -400,8 +397,9 @@ class Target {
    * Apply Windows specific configuration.
    */
   configureForWin32(): void {
-    const platformSettings = this.pkg.config.hadron.build.win32;
-    platformSettings.icon = platformSettings.icon[this.channel];
+    const platformSettings = this.hadronConfig.build.win32;
+    const icon =
+      platformSettings.icon[this.channel as keyof typeof platformSettings.icon];
 
     /**
      * TODO (imlucas) Delta support for Windows auto-update.
@@ -419,7 +417,7 @@ class Target {
       // spaces. So basically the .exe we build is not allowed to contain
       // spaces and it is out of our control.
       name: this.productName.replace(/ /g, ''),
-      icon: this.src(platformSettings.icon),
+      icon: this.src(icon),
       'version-string': {
         CompanyName: this.author,
         FileDescription: this.description,

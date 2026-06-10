@@ -71,7 +71,8 @@
     "which": "^2.0.2",
     "xvfb-maybe": "^0.2.1",
     "yargs": "^17.7.2",
-    "zip-folder": "^1.0.0"
+    "zip-folder": "^1.0.0",
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.22",
