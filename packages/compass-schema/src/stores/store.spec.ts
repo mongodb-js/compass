@@ -291,6 +291,77 @@ describe('Schema Store', function () {
     });
   });
 
+  describe('Schema Analysis Failed telemetry', function () {
+    let trackStub: Sinon.SinonStub;
+
+    beforeEach(async function () {
+      trackStub = sandbox.stub();
+      await createStore({ track: trackStub });
+    });
+
+    afterEach(function () {
+      deactivate();
+      sandbox.reset();
+    });
+
+    it('fires with error_type general and timing/filter metadata for a generic error', async function () {
+      sampleCursorStub.returns({
+        async *[Symbol.asyncIterator]() {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          yield {};
+          throw new Error('something went wrong');
+        },
+      });
+      await store.dispatch(startAnalysis());
+      expect(trackStub).to.have.been.calledWith(
+        'Schema Analysis Failed',
+        Sinon.match({
+          error_type: 'general',
+          with_filter: false,
+          analysis_time_ms: Sinon.match.number,
+        }),
+        Sinon.match.object
+      );
+    });
+
+    it('fires with error_type timeout for a maxTimeMS exceeded error', async function () {
+      const timeoutError = Object.assign(
+        new Error('operation exceeded time limit'),
+        { code: 50 }
+      );
+      sampleCursorStub.returns({
+        async *[Symbol.asyncIterator]() {
+          await new Promise((resolve) => setTimeout(resolve, 0));
+          yield {};
+          throw timeoutError;
+        },
+      });
+      await store.dispatch(startAnalysis());
+      expect(trackStub).to.have.been.calledWith(
+        'Schema Analysis Failed',
+        Sinon.match({ error_type: 'timeout' }),
+        Sinon.match.object
+      );
+    });
+
+    it('does not fire when the user cancels analysis', async function () {
+      sampleCursorStub.returns({
+        async *[Symbol.asyncIterator]() {
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          yield { a: 1 };
+        },
+      });
+      const analysisPromise = store.dispatch(startAnalysis());
+      store.dispatch(stopAnalysis());
+      await analysisPromise;
+      expect(trackStub).not.to.have.been.calledWith(
+        'Schema Analysis Failed',
+        Sinon.match.any,
+        Sinon.match.any
+      );
+    });
+  });
+
   describe('with a connection string with explicit read preference set', function () {
     beforeEach(async function () {
       await createStore({

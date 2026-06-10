@@ -36,6 +36,10 @@ Generated on Tue, Jun 9, 2026
 - [Focus Mode Opened](#event--FocusModeOpenedEvent)
 - [View Updated](#event--ViewUpdatedEvent)
 
+### Application
+
+- [Render Process Gone](#event--RenderProcessGoneEvent)
+
 ### Assistant
 
 - [Assistant Prompt Submitted](#event--AssistantPromptSubmittedEvent)
@@ -248,6 +252,7 @@ Generated on Tue, Jun 9, 2026
 ### Schema
 
 - [Schema Analysis Started](#event--SchemaAnalysisStartedEvent)
+- [Schema Analysis Failed](#event--SchemaAnalysisFailedEvent)
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
@@ -664,6 +669,25 @@ builder.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
+
+## Application
+
+<a name="event--RenderProcessGoneEvent"></a>
+
+### Render Process Gone
+
+This event is fired from the main process when a renderer process
+terminates unexpectedly (crash, OOM, killed, etc.).
+Normal clean exits are excluded.
+
+**Properties**:
+
+- **reason** (required): `"abnormal-exit" | "killed" | "crashed" | "oom" | "launch-failed" | "integrity-failure" | "memory-eviction"`
+  - The reason the renderer process terminated.
+- **exit_code** (required): `number`
+  - The exit code of the process, or a platform-specific launch failure
+    error code if reason is 'launch-failed'.
+- **is_compass_web** (optional): `true | undefined`
 
 ## Assistant
 
@@ -2745,6 +2769,24 @@ This event is fired when signal icon badge is rendered on the screen visible to 
 
 This event is fired when the schema analysis is started
 
+<a name="event--SchemaAnalysisFailedEvent"></a>
+
+### Schema Analysis Failed
+
+This event is fired when schema analysis fails due to a query timeout or a general error.
+
+**Properties**:
+
+- **error_type** (required): `"timeout" | "general"`
+  - The category of error that caused the failure.
+- **with_filter** (required): `boolean`
+  - Indicates whether a filter was applied during the schema analysis.
+- **analysis_time_ms** (required): `number`
+  - The time taken when analyzing the schema, before it failed, in milliseconds.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
 <a name="event--SchemaAnalysisCancelledEvent"></a>
 
 ### Schema Analysis Cancelled
@@ -2785,6 +2827,9 @@ This event is fired when user analyzes the schema.
   - The number of nested levels.
 - **geo_data** (required): `boolean`
   - Indicates whether the schema contains geospatial data.
+- **distinct_field_count** (required): `number`
+  - The total count of distinct fields across all nesting levels in the schema,
+    including fields nested within documents and arrays of documents.
 - **analysis_time_ms** (required): `number`
   - The time taken to analyze the schema, in milliseconds.
 - **is_compass_web** (optional): `true | undefined`
