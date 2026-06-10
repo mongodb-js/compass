@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import React, { useCallback } from 'react';
+import React from 'react';
 import {
   Button,
   SpinLoaderWithLabel,

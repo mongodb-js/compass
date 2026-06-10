@@ -200,9 +200,7 @@ type ExplainFetchResult = {
   namespace: string;
 } | null;
 
-// Shared fetch helper — runs the explain query and returns the result without
-// touching modal state. Callers decide what to do with the data.
-// Throws on error (including cancellation) so callers can handle appropriately.
+// Shared explain fetch helper; does not update modal state.
 const fetchExplainPlanData = (
   event: OpenExplainPlanModalEvent | OpenExplainPlanForInterpretEvent,
   signal: AbortSignal
@@ -357,6 +355,8 @@ export const openExplainPlanModal = (
           err instanceof ExplainFetchError ? err.rawExplainPlan : null,
       });
     } finally {
+      // Remove AbortController from the Map as we either finished waiting for
+      // the fetch or cancelled at this point
       cleanupAbortSignal(fetchId);
     }
   };

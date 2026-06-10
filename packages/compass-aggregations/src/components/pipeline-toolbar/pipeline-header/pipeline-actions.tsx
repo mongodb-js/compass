@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
   Button,
   DropdownMenuButton,
+  type MenuAction,
   OptionsToggle,
   PerformanceSignals,
   SignalPopover,
@@ -103,26 +104,27 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   type ExplainAction = 'interpret' | 'visual-tree' | 'raw-output';
 
   const explainActions = useMemo(
-    (): {
-      action: ExplainAction;
-      label: string;
-      isDisabled?: boolean;
-      disabledDescription?: string;
-    }[] => [
+    (): MenuAction<ExplainAction>[] => [
       {
         action: 'interpret',
         label: 'Interpret',
+        icon: 'Sparkle',
         isDisabled: !isAssistantEnabled,
       },
       {
         action: 'visual-tree',
         label: 'Visual tree',
+        icon: 'Diagram',
         isDisabled: hasSearchStage,
         disabledDescription: hasSearchStage
           ? 'Not supported for this query'
           : undefined,
       },
-      { action: 'raw-output', label: 'Raw output' },
+      {
+        action: 'raw-output',
+        label: 'Raw output',
+        icon: 'CurlyBraces',
+      },
     ],
     [isAssistantEnabled, hasSearchStage]
   );

@@ -2,6 +2,7 @@ import React, { useCallback, useMemo } from 'react';
 import {
   Button,
   DropdownMenuButton,
+  type MenuAction,
   OptionsToggle,
   css,
   cx,
@@ -180,14 +181,23 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   type ExplainAction = 'interpret' | 'visual-tree' | 'raw-output';
 
   const explainActions = useMemo(
-    (): { action: ExplainAction; label: string; isDisabled?: boolean }[] => [
+    (): MenuAction<ExplainAction>[] => [
       {
         action: 'interpret',
         label: 'Interpret',
+        icon: 'Sparkle',
         isDisabled: !isAssistantEnabled,
       },
-      { action: 'visual-tree', label: 'Visual tree' },
-      { action: 'raw-output', label: 'Raw output' },
+      {
+        action: 'visual-tree',
+        label: 'Visual tree',
+        icon: 'Diagram',
+      },
+      {
+        action: 'raw-output',
+        label: 'Raw output',
+        icon: 'CurlyBraces',
+      },
     ],
     [isAssistantEnabled]
   );
