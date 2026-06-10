@@ -355,6 +355,21 @@ export function activatePlugin(
           }
         );
       });
+
+    void experimentationServices
+      .assignExperiment(ExperimentTestNames.searchActivationProgramP2, {
+        team: 'Search Web Platform',
+      })
+      .catch((error) => {
+        logger.debug(
+          'Search Activation Program P2 experiment assignment failed',
+          {
+            experiment: ExperimentTestNames.searchActivationProgramP2,
+            namespace: namespace,
+            error: error instanceof Error ? error.message : String(error),
+          }
+        );
+      });
   }
 
   // Cancel schema analysis when plugin is deactivated
