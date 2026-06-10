@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import {
   Button,
+  DropdownMenuButton,
   OptionsToggle,
   css,
   cx,
@@ -32,6 +33,8 @@ import {
   openExportToLanguage,
   resetQuery,
   explainQuery,
+  explainQueryRawOutput,
+  explainQueryInterpret,
 } from '../stores/query-bar-reducer';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
@@ -47,7 +50,10 @@ import {
   useRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage/provider';
 import { useQueryBarQuery } from './hooks';
-import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
+import {
+  useSyncAssistantGlobalState,
+  useAssistantActions,
+} from '@mongodb-js/compass-assistant';
 import { toJSString } from 'mongodb-query-parser';
 
 const queryBarFormStyles = css({
@@ -125,6 +131,8 @@ type QueryBarProps = {
   expanded: boolean;
   placeholders?: Record<QueryProperty, string>;
   onExplain?: () => void;
+  onExplainRawOutput?: () => void;
+  onExplainInterpret?: () => void;
   isAIInputVisible?: boolean;
   isAIFetching?: boolean;
   onShowAIInputClick: () => void;
@@ -152,6 +160,8 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   expanded: isQueryOptionsExpanded,
   placeholders,
   onExplain,
+  onExplainRawOutput,
+  onExplainInterpret,
   isAIInputVisible = false,
   isAIFetching = false,
   onShowAIInputClick,
@@ -161,6 +171,39 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const track = useTelemetry();
+  const enableSearchActivationProgramP2 = usePreference(
+    'enableSearchActivationProgramP2'
+  );
+  const { getIsAssistantEnabled } = useAssistantActions();
+  const isAssistantEnabled = getIsAssistantEnabled();
+
+  type ExplainAction = 'interpret' | 'visual-tree' | 'raw-output';
+
+  const explainActions = useMemo(
+    (): { action: ExplainAction; label: string; isDisabled?: boolean }[] => [
+      {
+        action: 'interpret',
+        label: 'Interpret',
+        isDisabled: !isAssistantEnabled,
+      },
+      { action: 'visual-tree', label: 'Visual tree' },
+      { action: 'raw-output', label: 'Raw output' },
+    ],
+    [isAssistantEnabled]
+  );
+
+  const onExplainAction = useCallback(
+    (action: ExplainAction) => {
+      if (action === 'interpret') {
+        onExplainInterpret?.();
+      } else if (action === 'visual-tree') {
+        onExplain?.();
+      } else {
+        onExplainRawOutput?.();
+      }
+    },
+    [onExplain, onExplainRawOutput, onExplainInterpret]
+  );
 
   const onFormSubmit = useCallback(
     (evt: React.FormEvent) => {
@@ -255,19 +298,32 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
             </div>
           )}
         </div>
-        {showExplainButton && (
-          <Button
-            aria-label="Explain query"
-            title="View the execution plan for the current query"
-            data-testid="query-bar-explain-button"
-            onClick={onExplain}
-            disabled={!isQueryValid || isAIFetching}
-            size="small"
-            type="button"
-          >
-            Explain
-          </Button>
-        )}
+        {showExplainButton &&
+          (enableSearchActivationProgramP2 ? (
+            <DropdownMenuButton
+              data-testid="query-bar-explain-button"
+              buttonText="Explain"
+              buttonProps={{
+                size: 'small',
+                disabled: !isQueryValid || isAIFetching,
+              }}
+              actions={explainActions}
+              onAction={onExplainAction}
+              hideOnNarrow={false}
+            />
+          ) : (
+            <Button
+              aria-label="Explain query"
+              title="View the execution plan for the current query"
+              data-testid="query-bar-explain-button"
+              onClick={onExplain}
+              disabled={!isQueryValid || isAIFetching}
+              size="small"
+              type="button"
+            >
+              Explain
+            </Button>
+          ))}
         <Button
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
@@ -341,6 +397,12 @@ export default connect(
     return {
       onExplain: () => {
         dispatch(explainQuery());
+      },
+      onExplainRawOutput: () => {
+        dispatch(explainQueryRawOutput());
+      },
+      onExplainInterpret: () => {
+        dispatch(explainQueryInterpret());
       },
       onOpenExportToLanguage: () => {
         dispatch(openExportToLanguage());

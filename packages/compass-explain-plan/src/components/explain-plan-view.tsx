@@ -103,15 +103,18 @@ const summaryStyles = css({
 
 type ExplainPlanViewProps = Partial<
   Pick<ExplainPlanModalState, 'explainPlan' | 'rawExplainPlan' | 'error'>
->;
+> & {
+  initialViewType?: 'tree' | 'json';
+};
 
 export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
   explainPlan,
   rawExplainPlan,
   error,
+  initialViewType,
 }) => {
   const [viewType, setViewType] = useState<'tree' | 'json'>(
-    error ? 'json' : 'tree'
+    initialViewType ?? (error ? 'json' : 'tree')
   );
 
   const rawExplainPlanText = useMemo(() => {

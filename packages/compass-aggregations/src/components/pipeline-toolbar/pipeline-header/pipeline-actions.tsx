@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
+  DropdownMenuButton,
   OptionsToggle,
   PerformanceSignals,
   SignalPopover,
@@ -12,7 +13,11 @@ import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai/provider';
 import type { RootState } from '../../../modules';
 import { runAggregation } from '../../../modules/aggregation';
 import { updateView } from '../../../modules/update-view';
-import { explainAggregation } from '../../../modules/explain';
+import {
+  explainAggregationVisualTree,
+  explainAggregationRawOutput,
+  explainAggregationInterpret,
+} from '../../../modules/explain';
 import {
   getIsPipelineInvalidFromBuilderState,
   getPipelineStageOperatorsFromBuilderState,
@@ -42,7 +47,9 @@ type PipelineActionsProps = {
 
   showExplainButton?: boolean;
   isExplainButtonDisabled?: boolean;
-  onExplainAggregation: () => void;
+  onExplainAggregationVisualTree: () => void;
+  onExplainAggregationRawOutput: () => void;
+  onExplainAggregationInterpret: () => void;
 
   isOptionsVisible?: boolean;
   onToggleOptions: () => void;
@@ -69,7 +76,9 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onUpdateView,
   onRunAggregation,
   onToggleOptions,
-  onExplainAggregation,
+  onExplainAggregationVisualTree,
+  onExplainAggregationRawOutput,
+  onExplainAggregationInterpret,
   showCollectionScanInsight,
   onCollectionScanInsightActionButtonClick,
   stages,
@@ -78,13 +87,62 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
     readWrite: preferencesReadWrite,
     enableAggregationBuilderExtraOptions,
     showInsights,
+    enableSearchActivationProgramP2,
   } = usePreferences([
     'readWrite',
     'enableAggregationBuilderExtraOptions',
     'showInsights',
+    'enableSearchActivationProgramP2',
   ]);
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
-  const { tellMoreAboutInsight } = useAssistantActions();
+  const { tellMoreAboutInsight, getIsAssistantEnabled } = useAssistantActions();
+  const isAssistantEnabled = getIsAssistantEnabled();
+
+  const hasSearchStage = stages.includes('$search');
+
+  type ExplainAction = 'interpret' | 'visual-tree' | 'raw-output';
+
+  const explainActions = useMemo(
+    (): {
+      action: ExplainAction;
+      label: string;
+      isDisabled?: boolean;
+      disabledDescription?: string;
+    }[] => [
+      {
+        action: 'interpret',
+        label: 'Interpret',
+        isDisabled: !isAssistantEnabled,
+      },
+      {
+        action: 'visual-tree',
+        label: 'Visual tree',
+        isDisabled: hasSearchStage,
+        disabledDescription: hasSearchStage
+          ? 'Not supported for this query'
+          : undefined,
+      },
+      { action: 'raw-output', label: 'Raw output' },
+    ],
+    [isAssistantEnabled, hasSearchStage]
+  );
+
+  const onExplainAction = useCallback(
+    (action: ExplainAction) => {
+      if (action === 'interpret') {
+        onExplainAggregationInterpret();
+      } else if (action === 'visual-tree') {
+        onExplainAggregationVisualTree();
+      } else {
+        onExplainAggregationRawOutput();
+      }
+    },
+    [
+      onExplainAggregationVisualTree,
+      onExplainAggregationRawOutput,
+      onExplainAggregationInterpret,
+    ]
+  );
 
   return (
     <div className={containerStyles}>
@@ -129,18 +187,32 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           Update view
         </Button>
       )}
-      {showExplainButton && (
-        <Button
-          aria-label="Explain aggregation"
-          data-testid="pipeline-toolbar-explain-aggregation-button"
-          variant="default"
-          size="small"
-          onClick={onExplainAggregation}
-          disabled={isExplainButtonDisabled}
-        >
-          Explain
-        </Button>
-      )}
+      {showExplainButton &&
+        (enableSearchActivationProgramP2 ? (
+          <DropdownMenuButton
+            data-testid="pipeline-toolbar-explain-aggregation-button"
+            buttonText="Explain"
+            buttonProps={{
+              size: 'small',
+              variant: 'default',
+              disabled: isExplainButtonDisabled,
+            }}
+            actions={explainActions}
+            onAction={onExplainAction}
+            hideOnNarrow={false}
+          />
+        ) : (
+          <Button
+            aria-label="Explain aggregation"
+            data-testid="pipeline-toolbar-explain-aggregation-button"
+            variant="default"
+            size="small"
+            onClick={onExplainAggregationVisualTree}
+            disabled={isExplainButtonDisabled}
+          >
+            Explain
+          </Button>
+        ))}
       {!showUpdateViewButton && showRunButton && (
         <Button
           aria-label="Run aggregation"
@@ -190,7 +262,9 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
   onUpdateView: updateView,
   onRunAggregation: runAggregation,
-  onExplainAggregation: explainAggregation,
+  onExplainAggregationVisualTree: explainAggregationVisualTree,
+  onExplainAggregationRawOutput: explainAggregationRawOutput,
+  onExplainAggregationInterpret: explainAggregationInterpret,
   onCollectionScanInsightActionButtonClick: openCreateIndexModal,
   onShowAIInputClick: showAIInput,
 };

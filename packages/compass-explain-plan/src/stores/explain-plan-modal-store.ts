@@ -3,7 +3,11 @@ import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import type { ExplainPlanModalServices, OpenExplainPlanModalEvent } from '.';
+import type {
+  ExplainPlanModalServices,
+  OpenExplainPlanModalEvent,
+  OpenExplainPlanForInterpretEvent,
+} from '.';
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -32,6 +36,7 @@ type FetchExplainPlanModalLoadingAction = {
   type: typeof ExplainPlanModalActionTypes.FetchExplainPlanModalLoading;
   id: number;
   operationType: 'query' | 'aggregation';
+  initialViewType: 'tree' | 'json';
 };
 
 type FetchExplainPlanModalSuccessAction = {
@@ -56,6 +61,7 @@ export type ExplainPlanModalState = {
   rawExplainPlan: unknown;
   explainPlanFetchId: number;
   operationType: 'query' | 'aggregation' | null;
+  initialViewType: 'tree' | 'json';
 };
 
 type ExplainPlanModalThunkAction<R, A extends Action = AnyAction> = ThunkAction<
@@ -75,6 +81,7 @@ export const INITIAL_STATE: ExplainPlanModalState = {
   rawExplainPlan: null,
   explainPlanFetchId: -1,
   operationType: null,
+  initialViewType: 'tree',
 };
 
 export const reducer: Reducer<ExplainPlanModalState, Action> = (
@@ -96,6 +103,7 @@ export const reducer: Reducer<ExplainPlanModalState, Action> = (
       rawExplainPlan: null,
       explainPlanFetchId: action.id,
       operationType: action.operationType,
+      initialViewType: action.initialViewType,
     };
   }
 
@@ -177,11 +185,30 @@ const isOutputStage = (stage: unknown): boolean => {
 
 const DEFAULT_MAX_TIME_MS = 60_000;
 
-export const openExplainPlanModal = (
-  event: OpenExplainPlanModalEvent
-): ExplainPlanModalThunkAction<Promise<void>> => {
+class ExplainFetchError extends Error {
+  rawExplainPlan: unknown;
+  constructor(message: string, rawExplainPlan: unknown) {
+    super(message);
+    this.rawExplainPlan = rawExplainPlan;
+  }
+}
+
+type ExplainFetchResult = {
+  explainPlan: SerializedExplainPlan;
+  rawExplainPlan: unknown;
+  operationType: 'query' | 'aggregation';
+  namespace: string;
+} | null;
+
+// Shared fetch helper — runs the explain query and returns the result without
+// touching modal state. Callers decide what to do with the data.
+// Throws on error (including cancellation) so callers can handle appropriately.
+const fetchExplainPlanData = (
+  event: OpenExplainPlanModalEvent | OpenExplainPlanForInterpretEvent,
+  signal: AbortSignal
+): ExplainPlanModalThunkAction<Promise<ExplainFetchResult>> => {
   return async (
-    dispatch,
+    _dispatch,
     getState,
     {
       dataService,
@@ -191,119 +218,133 @@ export const openExplainPlanModal = (
       logger: { log, mongoLogId },
     }
   ) => {
-    const { id: fetchId, signal } = getAbortSignal();
-
     const connectionInfo = connectionInfoRef.current;
+    const { isDataLake, namespace } = getState();
+    const operationType = event.query ? 'query' : 'aggregation';
+    const explainVerbosity = isDataLake
+      ? 'queryPlannerExtended'
+      : 'executionStats';
 
-    let rawExplainPlan = null;
-    let explainPlan = null;
+    let rawExplainPlan: unknown = null;
+    let explainPlan: SerializedExplainPlan | null = null;
+
+    if (event.aggregation) {
+      const { collation, maxTimeMS } = event.aggregation;
+      const pipeline = event.aggregation.pipeline.filter((stage) => {
+        // Getting explain plan for a pipeline with an out / merge stage can
+        // cause data corruption issues in non-genuine MongoDB servers, for
+        // example CosmosDB actually executes pipeline and persists data, even
+        // when the stage is not at the end of the pipeline. To avoid
+        // introducing branching logic based on MongoDB genuineness, we just
+        // filter out all output stages here instead
+        return !isOutputStage(stage);
+      });
+
+      const maxTimeMSValue = capMaxTimeMSAtPreferenceLimit(
+        preferences,
+        maxTimeMS ?? DEFAULT_MAX_TIME_MS
+      );
+
+      rawExplainPlan = await dataService.explainAggregate(
+        namespace,
+        pipeline,
+        { collation, maxTimeMS: maxTimeMSValue },
+        { explainVerbosity, maxTimeMS: maxTimeMSValue, abortSignal: signal }
+      );
+
+      try {
+        explainPlan = new ExplainPlan(rawExplainPlan as Stage).serialize();
+      } catch (err) {
+        log.warn(
+          mongoLogId(1_001_000_137),
+          'Explain',
+          'Failed to parse aggregation explain',
+          { message: (err as Error).message }
+        );
+        throw new ExplainFetchError((err as Error).message, rawExplainPlan);
+      }
+
+      track(
+        'Aggregation Explained',
+        {
+          num_stages: pipeline.length,
+          index_used: explainPlan.usedIndexes.length > 0,
+        },
+        connectionInfo
+      );
+    }
+
+    if (event.query) {
+      const { filter, maxTimeMS: queryMaxTimeMS, ...options } = event.query;
+
+      const maxTimeMSValue = capMaxTimeMSAtPreferenceLimit(
+        preferences,
+        queryMaxTimeMS ?? DEFAULT_MAX_TIME_MS
+      );
+
+      rawExplainPlan = await dataService.explainFind(
+        namespace,
+        filter,
+        { ...options, maxTimeMS: maxTimeMSValue },
+        { explainVerbosity, maxTimeMS: maxTimeMSValue, abortSignal: signal }
+      );
+
+      try {
+        explainPlan = new ExplainPlan(rawExplainPlan as Stage).serialize();
+      } catch (err) {
+        log.warn(
+          mongoLogId(1_001_000_192),
+          'Explain',
+          'Failed to parse find explain',
+          { message: (err as Error).message }
+        );
+        throw new ExplainFetchError((err as Error).message, rawExplainPlan);
+      }
+
+      track(
+        'Explain Plan Executed',
+        {
+          with_filter: Object.entries(filter).length > 0,
+          index_used: explainPlan.usedIndexes.length > 0,
+        },
+        connectionInfo
+      );
+    }
+
+    return explainPlan
+      ? { explainPlan, rawExplainPlan, operationType, namespace }
+      : null;
+  };
+};
+
+export const openExplainPlanModal = (
+  event: OpenExplainPlanModalEvent
+): ExplainPlanModalThunkAction<Promise<void>> => {
+  return async (
+    dispatch,
+    _getState,
+    { dataService, logger: { log, mongoLogId } }
+  ) => {
+    const { id: fetchId, signal } = getAbortSignal();
     const operationType = event.query ? 'query' : 'aggregation';
 
     dispatch({
       type: ExplainPlanModalActionTypes.FetchExplainPlanModalLoading,
       id: fetchId,
       operationType,
+      initialViewType: event.initialViewType ?? 'tree',
     });
 
-    const { isDataLake, namespace } = getState();
-
-    const explainVerbosity = isDataLake
-      ? 'queryPlannerExtended'
-      : 'executionStats';
-
     try {
-      if (event.aggregation) {
-        const { collation, maxTimeMS } = event.aggregation;
-        const pipeline = event.aggregation.pipeline.filter((stage) => {
-          // Getting explain plan for a pipeline with an out / merge stage can
-          // cause data corruption issues in non-genuine MongoDB servers, for
-          // example CosmosDB actually executes pipeline and persists data, even
-          // when the stage is not at the end of the pipeline. To avoid
-          // introducing branching logic based on MongoDB genuineness, we just
-          // filter out all output stages here instead
-          return !isOutputStage(stage);
-        });
-
-        const maxTimeMSValue = capMaxTimeMSAtPreferenceLimit(
-          preferences,
-          maxTimeMS ?? DEFAULT_MAX_TIME_MS
-        );
-
-        rawExplainPlan = await dataService.explainAggregate(
-          namespace,
-          pipeline,
-          { collation, maxTimeMS: maxTimeMSValue },
-          { explainVerbosity, maxTimeMS: maxTimeMSValue, abortSignal: signal }
-        );
-
-        try {
-          explainPlan = new ExplainPlan(rawExplainPlan as Stage).serialize();
-        } catch (err) {
-          log.warn(
-            mongoLogId(1_001_000_137),
-            'Explain',
-            'Failed to parse aggregation explain',
-            { message: (err as Error).message }
-          );
-          throw err;
-        }
-
-        track(
-          'Aggregation Explained',
-          {
-            num_stages: pipeline.length,
-            index_used: explainPlan.usedIndexes.length > 0,
-          },
-          connectionInfo
-        );
-      }
-
-      if (event.query) {
-        const { filter, maxTimeMS: queryMaxTimeMS, ...options } = event.query;
-
-        const maxTimeMSValue = capMaxTimeMSAtPreferenceLimit(
-          preferences,
-          queryMaxTimeMS ?? DEFAULT_MAX_TIME_MS
-        );
-
-        rawExplainPlan = await dataService.explainFind(
-          namespace,
-          filter,
-          { ...options, maxTimeMS: maxTimeMSValue },
-          { explainVerbosity, maxTimeMS: maxTimeMSValue, abortSignal: signal }
-        );
-
-        try {
-          explainPlan = new ExplainPlan(rawExplainPlan as Stage).serialize();
-        } catch (err) {
-          log.warn(
-            mongoLogId(1_001_000_192),
-            'Explain',
-            'Failed to parse find explain',
-            { message: (err as Error).message }
-          );
-          throw err;
-        }
-
-        track(
-          'Explain Plan Executed',
-          {
-            with_filter: Object.entries(filter).length > 0,
-            index_used: explainPlan.usedIndexes.length > 0,
-          },
-          connectionInfo
-        );
-      }
-
+      const result = await dispatch(fetchExplainPlanData(event, signal));
       dispatch({
         type: ExplainPlanModalActionTypes.FetchExplainPlanModalSuccess,
-        explainPlan,
-        rawExplainPlan,
+        explainPlan: result?.explainPlan ?? null,
+        rawExplainPlan: result?.rawExplainPlan ?? null,
       });
     } catch (err) {
       if (dataService.isCancelError(err)) {
-        // Cancellation can be caused only by close modal action and handled
-        // there
+        // Cancellation is caused by close modal action — handled there
         return;
       }
       log.error(mongoLogId(1_001_000_138), 'Explain', 'Failed to run explain', {
@@ -312,11 +353,41 @@ export const openExplainPlanModal = (
       dispatch({
         type: ExplainPlanModalActionTypes.FetchExplainPlanModalError,
         error: (err as Error).message,
-        rawExplainPlan,
+        rawExplainPlan:
+          err instanceof ExplainFetchError ? err.rawExplainPlan : null,
       });
     } finally {
-      // Remove AbortController from the Map as we either finished waiting for
-      // the fetch or cancelled at this point
+      cleanupAbortSignal(fetchId);
+    }
+  };
+};
+
+export const openExplainPlanForInterpret = (
+  event: OpenExplainPlanForInterpretEvent
+): ExplainPlanModalThunkAction<Promise<void>> => {
+  return async (dispatch, _getState, services) => {
+    const { id: fetchId, signal } = getAbortSignal();
+
+    try {
+      const result = await dispatch(fetchExplainPlanData(event, signal));
+      if (result) {
+        services.compassAssistant.interpretExplainPlan?.({
+          namespace: result.namespace,
+          explainPlan: JSON.stringify(result.explainPlan),
+          operationType: result.operationType,
+        });
+      }
+    } catch (err) {
+      if (services.dataService.isCancelError(err)) {
+        return;
+      }
+      services.logger.log.error(
+        services.logger.mongoLogId(1_001_000_138),
+        'Explain',
+        'Failed to run explain for interpret',
+        { message: (err as Error).message }
+      );
+    } finally {
       cleanupAbortSignal(fetchId);
     }
   };

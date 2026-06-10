@@ -218,6 +218,9 @@ export function useAssistantActions(): AssistantActionsType {
 export const compassAssistantServiceLocator = createServiceLocator(() => {
   const actions = useAssistantActions();
 
+  const interpretExplainPlanRef = useRef(actions.interpretExplainPlan);
+  interpretExplainPlanRef.current = actions.interpretExplainPlan;
+
   const interpretConnectionErrorRef = useRef(actions.interpretConnectionError);
   interpretConnectionErrorRef.current = actions.interpretConnectionError;
 
@@ -225,6 +228,11 @@ export const compassAssistantServiceLocator = createServiceLocator(() => {
   getIsAssistantEnabledRef.current = actions.getIsAssistantEnabled;
 
   return {
+    interpretExplainPlan: (options: {
+      namespace: string;
+      explainPlan: string;
+      operationType: 'query' | 'aggregation';
+    }) => interpretExplainPlanRef.current?.(options),
     interpretConnectionError: (options: {
       connectionInfo: ConnectionInfo;
       error: Error;
@@ -236,6 +244,11 @@ export const compassAssistantServiceLocator = createServiceLocator(() => {
 }, 'compassAssistantLocator');
 
 export type CompassAssistantService = {
+  interpretExplainPlan: (options: {
+    namespace: string;
+    explainPlan: string;
+    operationType: 'query' | 'aggregation';
+  }) => void;
   interpretConnectionError: (options: {
     connectionInfo: ConnectionInfo;
     error: Error;
