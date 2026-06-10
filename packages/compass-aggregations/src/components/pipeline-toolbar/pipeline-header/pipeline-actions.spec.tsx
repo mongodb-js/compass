@@ -12,6 +12,7 @@ import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
 import { renderWithStore } from '../../../../test/configure-store';
+import { mockDataService } from '../../../../test/mocks/data-service';
 import {
   type PreferencesAccess,
   createSandboxFromDefaultPreferences,
@@ -300,7 +301,7 @@ describe('PipelineActions', function () {
           onToggleOptions={() => {}}
         ></ConnectedPipelineActions>,
         options,
-        {},
+        mockDataService(),
         { preferences }
       );
       return {
