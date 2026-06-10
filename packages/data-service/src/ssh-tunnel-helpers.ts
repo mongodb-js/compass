@@ -1,16 +1,5 @@
 import type { ConnectionOptions } from './connection-options';
-import type {
-  DevtoolsProxyOptions,
-  Tunnel,
-} from '@mongodb-js/devtools-proxy-support';
-
-export async function waitForTunnelError(
-  tunnel: Tunnel | undefined
-): Promise<never> {
-  return new Promise((_, reject) => {
-    tunnel?.on('error', reject);
-  });
-}
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 
 export function getTunnelOptions(
   connectionOptions: ConnectionOptions,
