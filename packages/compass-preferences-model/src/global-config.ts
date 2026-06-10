@@ -193,7 +193,7 @@ export interface ParsedGlobalPreferencesResult {
   cli: Partial<AllPreferences>;
   global: Partial<AllPreferences>;
   hardcoded?: Partial<AllPreferences>;
-  atlasCloudUser?: Partial<FeatureFlags>;
+  atlasCloudUser?: Partial<AllPreferences>;
   atlasCloudProject?: Partial<FeatureFlags>;
   atlasCloudOrg?: Partial<FeatureFlags>;
   preferenceParseErrors: string[];

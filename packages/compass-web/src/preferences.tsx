@@ -94,7 +94,7 @@ export async function getPreferencesFromCloudApi(projectId: string) {
   const { featureFlags, userAuid, appUser, currentOrganization } =
     await _fetchPreferencesFromCloudApi(projectId);
 
-  const preferences: Partial<AllPreferences> = {
+  const atlasCloudUserPreferences: Partial<AllPreferences> = {
     atlasServiceBackendPreset: getAtlasServiceBackendPreset(),
     telemetryAtlasUserId: userAuid,
     optInGenAIFeatures: appUser.isOptedIntoDataExplorerGenAIFeatures,
@@ -107,7 +107,7 @@ export async function getPreferencesFromCloudApi(projectId: string) {
   // Cloud feature flags arrive keyed by their Compass preference name. We
   // override Compass' value to resolve to the cloud value.
   for (const [name, enabled] of Object.entries(featureFlags)) {
-    (preferences as Record<string, unknown>)[name] = enabled;
+    (atlasCloudUserPreferences as Record<string, unknown>)[name] = enabled;
     if (FEATURE_FLAG_BY_NAME.has(name)) {
       const scope = FEATURE_FLAG_BY_NAME.get(name)?.atlasCloudFeatureScope;
       if (scope === 'organization') {
@@ -119,10 +119,7 @@ export async function getPreferencesFromCloudApi(projectId: string) {
   }
 
   return {
-    preferences,
-    atlasCloudUserFeatureFlags: {
-      /* There aren't any user scope feature flags in Atlas. */
-    },
+    atlasCloudUserPreferences,
     atlasCloudProjectFeatureFlags,
     atlasCloudOrgFeatureFlags,
   };
@@ -133,18 +130,17 @@ async function fetchAndCachePreferences(
 ): Promise<CompassWebPreferencesAccess> {
   try {
     const {
-      preferences,
-      atlasCloudUserFeatureFlags,
+      atlasCloudUserPreferences,
       atlasCloudProjectFeatureFlags,
       atlasCloudOrgFeatureFlags,
     } = await getPreferencesFromCloudApi(projectId);
     compassWebPreferences = new CompassWebPreferencesAccess(
       {
         ...DEFAULT_COMPASS_WEB_PREFERENCES,
-        ...preferences,
+        ...atlasCloudUserPreferences,
       },
       {
-        atlasCloudUser: atlasCloudUserFeatureFlags,
+        atlasCloudUser: atlasCloudUserPreferences,
         atlasCloudProject: atlasCloudProjectFeatureFlags,
         atlasCloudOrg: atlasCloudOrgFeatureFlags,
       }

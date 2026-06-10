@@ -8,7 +8,6 @@ export {
   type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
 export type { CollectionTabInfo } from '@mongodb-js/workspace-info';
-export type { AllPreferences } from 'compass-preferences-model/provider';
 export type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 export type {
   LogFunction,

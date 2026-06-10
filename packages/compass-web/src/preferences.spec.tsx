@@ -105,13 +105,12 @@ describe('compass-web preferences', function () {
       fetchStub.resolves(fakeResponse(apiResponse));
 
       const {
-        preferences,
-        atlasCloudUserFeatureFlags,
+        atlasCloudUserPreferences,
         atlasCloudProjectFeatureFlags,
         atlasCloudOrgFeatureFlags,
       } = await getPreferencesFromCloudApi(PROJECT_ID);
 
-      expect(preferences).to.include({
+      expect(atlasCloudUserPreferences).to.include({
         telemetryAtlasUserId: 'auid-123',
         optInGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
@@ -130,7 +129,6 @@ describe('compass-web preferences', function () {
         enableGlobalWrites: false,
         enableRollingIndexes: true,
       });
-      expect(atlasCloudUserFeatureFlags).to.deep.equal({});
       expect(atlasCloudOrgFeatureFlags).to.deep.equal({});
     });
 
@@ -138,16 +136,15 @@ describe('compass-web preferences', function () {
       fetchStub.resolves(fakeResponse(apiResponse));
 
       const {
-        preferences: preferencesFromApi,
-        atlasCloudUserFeatureFlags,
+        atlasCloudUserPreferences,
         atlasCloudProjectFeatureFlags,
         atlasCloudOrgFeatureFlags,
       } = await getPreferencesFromCloudApi(PROJECT_ID);
 
       const preferences = new CompassWebPreferencesAccess(
-        { ...DEFAULT_COMPASS_WEB_PREFERENCES, ...preferencesFromApi },
+        { ...DEFAULT_COMPASS_WEB_PREFERENCES, ...atlasCloudUserPreferences },
         {
-          atlasCloudUser: atlasCloudUserFeatureFlags,
+          atlasCloudUser: atlasCloudUserPreferences,
           atlasCloudProject: atlasCloudProjectFeatureFlags,
           atlasCloudOrg: atlasCloudOrgFeatureFlags,
         }
@@ -158,6 +155,8 @@ describe('compass-web preferences', function () {
       expect(preferences.enableRollingIndexes).to.equal(true);
       // A released flag not present in the response stays hardcoded `true`.
       expect(preferences.enableDataModeling).to.equal(true);
+      // The project preference.
+      expect(preferences.enableGenAIFeaturesAtlasProject).to.equal(true);
       // Populates a non-existant flag.
       expect((preferences as any).nonExistentFlag).to.equal(true);
     });
