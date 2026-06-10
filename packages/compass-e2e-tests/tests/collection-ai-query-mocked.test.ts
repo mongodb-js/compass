@@ -32,6 +32,9 @@ async function setup(
   await browser.setFeature('enableGenAISampleDocumentPassing', true);
   await browser.setFeature('enableGenAIFeaturesAtlasOrg', true);
   await browser.setFeature('optInGenAIFeatures', true);
+  await browser.setFeature('cloudFeatureRolloutAccess', {
+    GEN_AI_COMPASS: true,
+  });
 }
 
 describe('Collection ai query (with mocked backend)', function () {
