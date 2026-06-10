@@ -93,6 +93,9 @@ export async function setFeature<K extends keyof UserPreferences>(
     a,
     b
   ) => {
+    if (a && b) {
+      return JSON.stringify(a) === JSON.stringify(b);
+    }
     // `null` and `undefined` should be treated the same way to account
     // for JSON transformation when passing values through
     // `browser.execute`, we don't really care in e2e if those are coming
