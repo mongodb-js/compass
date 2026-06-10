@@ -419,7 +419,7 @@ This document was automatically generated on Wed Jun 10 2026.
 | **[mongodb-client-encryption](#f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e)**                          | 7.0.0        | Apache-2.0                          |
 | **[mongodb-cloud-info](#8747b9a4e760c3875383a2d529a933d60eec6c9d985a88fb1a90259472a98fb1)**                                 | 2.3.14       | Apache-2.0                          |
 | **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**                      | 7.0.1        | Apache-2.0                          |
-| **[mongodb-log-writer](#41de265e46da14679ed02f56213dfeddc448522f56b1b3ebd39689c43af5d5f1)**                                 | 2.5.7        | Apache-2.0                          |
+| **[mongodb-log-writer](#0788567a51c952a5640e64bd3cb5ef4a5e445f340b3bc971f286caa80334a932)**                                 | 2.5.13       | Apache-2.0                          |
 | **[mongodb-mcp-server](#170d115701124029e823835d30b7a783037c72cd0f53bf99816bbbe444a3676d)**                                 | 1.10.0       | Apache-2.0                          |
 | **[mongodb-ns](#3f1ced6a4a6bd87959cd71735e41b49339b332c67606c37ac7afdebd8561d484)**                                         | 3.2.0        | Apache-2.0                          |
 | **[mongodb-query-parser](#6433ba36b8912d9c4d45f6468891ce7330f153f6a10d69de4ed0fd3254a3d923)**                               | 4.7.12       | Apache-2.0                          |
@@ -28247,9 +28247,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="41de265e46da14679ed02f56213dfeddc448522f56b1b3ebd39689c43af5d5f1"></a>
+<a id="0788567a51c952a5640e64bd3cb5ef4a5e445f340b3bc971f286caa80334a932"></a>
 
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.7)
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.13)
 
 License tags: Apache-2.0
 
