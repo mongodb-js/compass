@@ -362,7 +362,7 @@ export function activatePlugin(
       })
       .catch((error) => {
         logger.debug(
-          'Search Contextual AI Assistant Entry experiment assignment failed',
+          'Search Activation Program P2 experiment assignment failed',
           {
             experiment: ExperimentTestNames.searchActivationProgramP2,
             namespace: namespace,
