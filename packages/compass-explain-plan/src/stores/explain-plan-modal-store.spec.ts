@@ -83,7 +83,7 @@ describe('explain plan modal store', function () {
       },
     };
 
-    interpretExplainPlanSpy = sandbox.spy();
+    interpretExplainPlanSpy = sandbox.spy() as typeof interpretExplainPlanSpy;
 
     const { store, deactivate } = activatePlugin(
       { namespace: 'test.test', isDataLake: false },

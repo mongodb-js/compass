@@ -163,6 +163,8 @@ describe('PipelineActions', function () {
             onToggleOptions={onToggleOptionsSpy}
             onUpdateView={() => {}}
             onExplainAggregationVisualTree={() => {}}
+            onExplainAggregationRawOutput={() => {}}
+            onExplainAggregationInterpret={() => {}}
             onCollectionScanInsightActionButtonClick={() => {}}
             onShowAIInputClick={() => {}}
             stages={[]}
