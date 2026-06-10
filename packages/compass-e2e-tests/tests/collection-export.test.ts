@@ -633,7 +633,15 @@ describe('Collection export', function () {
         // Wait for the export to start and then click stop.
         const exportAbortButton = browser.$(Selectors.ExportToastAbort);
         await exportAbortButton.waitForDisplayed();
-        await exportAbortButton.click();
+
+        // Use browser.execute instead of element.click() because WebDriver's
+        // CDP ClickElement can succeed (clickable=true) yet not fire React's
+        // onClick when the element is mid-CSS-animation.
+        await browser.execute(function (sel) {
+          // eslint-disable-next-line no-restricted-globals
+          const el = document.querySelector(sel);
+          if (el) (el as HTMLElement).click();
+        }, Selectors.ExportToastAbort);
 
         // Wait for the aborted toast to appear.
         const toastElement = browser.$(Selectors.ExportToast);
@@ -724,7 +732,13 @@ describe('Collection export', function () {
         // Wait for the export to start and then click stop.
         const exportAbortButton = browser.$(Selectors.ExportToastAbort);
         await exportAbortButton.waitForDisplayed();
-        await exportAbortButton.click();
+
+        // Use browser.execute for the same reason as the CSV abort test above.
+        await browser.execute(function (sel) {
+          // eslint-disable-next-line no-restricted-globals
+          const el = document.querySelector(sel);
+          if (el) (el as HTMLElement).click();
+        }, Selectors.ExportToastAbort);
 
         // Wait for the aborted toast to appear.
         const toastElement = browser.$(Selectors.ExportToast);
