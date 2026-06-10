@@ -27,8 +27,7 @@ const testErrorMessageId = 'document-list-error-summary';
 const testDocumentsPerPageId = 'crud-document-per-page-selector';
 
 const addDataText = 'Add Data';
-const updateDataText = 'Update';
-const deleteDataText = 'Delete';
+const bulkActionsText = 'Bulk';
 
 describe('CrudToolbar Component', function () {
   let preferences: PreferencesAccess;
@@ -256,14 +255,13 @@ describe('CrudToolbar Component', function () {
     );
   });
 
-  it('should not render the add data, update and delete buttons when it is readonly', function () {
+  it('should not render the add data and bulk actions buttons when it is readonly', function () {
     renderCrudToolbar({
       readonly: true,
     });
 
     expect(screen.queryByText(addDataText)).to.not.exist;
-    expect(screen.queryByText(updateDataText)).to.not.exist;
-    expect(screen.queryByText(deleteDataText)).to.not.exist;
+    expect(screen.queryByText(bulkActionsText)).to.not.exist;
   });
 
   it('should call to open the export dialog when export is clicked', function () {
@@ -280,15 +278,17 @@ describe('CrudToolbar Component', function () {
     expect(exportSpy.firstCall.args[0]).to.be.true;
   });
 
-  describe('update button', function () {
+  describe('bulk actions menu', function () {
     it('should render disabled when the query has a skip', function () {
       renderCrudToolbar({
         querySkip: 10,
       });
 
-      expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
-        'aria-disabled'
-      );
+      expect(
+        screen
+          .getByTestId('crud-bulk-actions-show-actions')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
     });
 
     it('should render disabled when the query has a limit', function () {
@@ -296,54 +296,30 @@ describe('CrudToolbar Component', function () {
         queryLimit: 10,
       });
 
-      expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
-        'aria-disabled'
-      );
+      expect(
+        screen
+          .getByTestId('crud-bulk-actions-show-actions')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
     });
 
-    it('should propagate click events', function () {
+    it('should propagate bulk update click events', function () {
       const onUpdateButtonClickedSpy = sinon.spy();
 
       renderCrudToolbar({ onUpdateButtonClicked: onUpdateButtonClickedSpy });
 
-      userEvent.click(screen.getByText(updateDataText).closest('button')!);
+      userEvent.click(screen.getByTestId('crud-bulk-actions-show-actions'));
+      userEvent.click(screen.getByText('Bulk update documents'));
       expect(onUpdateButtonClickedSpy).to.have.been.called;
     });
-  });
 
-  describe('delete button', function () {
-    it('should render disabled when the query has a skip', function () {
-      renderCrudToolbar({
-        querySkip: 10,
-      });
-
-      expect(
-        screen
-          .getByText(deleteDataText)
-          .closest('button')
-          ?.getAttribute('aria-disabled')
-      ).to.equal('true');
-    });
-
-    it('should render disabled when the query has a limit', function () {
-      renderCrudToolbar({
-        queryLimit: 10,
-      });
-
-      expect(
-        screen
-          .getByText(deleteDataText)
-          .closest('button')
-          ?.getAttribute('aria-disabled')
-      ).to.equal('true');
-    });
-
-    it('should propagate click events', function () {
+    it('should propagate bulk delete click events', function () {
       const onDeleteButtonClickedSpy = sinon.spy();
 
       renderCrudToolbar({ onDeleteButtonClicked: onDeleteButtonClickedSpy });
 
-      userEvent.click(screen.getByText(deleteDataText).closest('button')!);
+      userEvent.click(screen.getByTestId('crud-bulk-actions-show-actions'));
+      userEvent.click(screen.getByText('Bulk delete documents'));
       expect(onDeleteButtonClickedSpy).to.have.been.called;
     });
   });

@@ -2,7 +2,7 @@
 // @ts-check
 const path = require('path');
 // @ts-ignore
-const HadronBuildTarget = require('hadron-build/lib/target');
+const { Target: HadronBuildTarget } = require('hadron-build');
 const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
 
 const {

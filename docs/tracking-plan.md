@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, May 31, 2026
+Generated on Wed, Jun 10, 2026
 
 ## Table of Contents
 
@@ -35,6 +35,10 @@ Generated on Sun, May 31, 2026
 - [Focus Mode Closed](#event--FocusModeClosedEvent)
 - [Focus Mode Opened](#event--FocusModeOpenedEvent)
 - [View Updated](#event--ViewUpdatedEvent)
+
+### Application
+
+- [Render Process Gone](#event--RenderProcessGoneEvent)
 
 ### Assistant
 
@@ -140,6 +144,7 @@ Generated on Sun, May 31, 2026
 ### Find Queries
 
 - [Query Edited](#event--QueryEditedEvent)
+- [Query Reset Clicked](#event--QueryResetClickedEvent)
 - [Query Executed](#event--QueryExecutedEvent)
 - [Query Exported](#event--QueryExportedEvent)
 - [Query Export Opened](#event--QueryExportOpenedEvent)
@@ -247,6 +252,7 @@ Generated on Sun, May 31, 2026
 ### Schema
 
 - [Schema Analysis Started](#event--SchemaAnalysisStartedEvent)
+- [Schema Analysis Failed](#event--SchemaAnalysisFailedEvent)
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
@@ -663,6 +669,25 @@ builder.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
+
+## Application
+
+<a name="event--RenderProcessGoneEvent"></a>
+
+### Render Process Gone
+
+This event is fired from the main process when a renderer process
+terminates unexpectedly (crash, OOM, killed, etc.).
+Normal clean exits are excluded.
+
+**Properties**:
+
+- **reason** (required): `"abnormal-exit" | "killed" | "crashed" | "oom" | "launch-failed" | "integrity-failure" | "memory-eviction"`
+  - The reason the renderer process terminated.
+- **exit_code** (required): `number`
+  - The exit code of the process, or a platform-specific launch failure
+    error code if reason is 'launch-failed'.
+- **is_compass_web** (optional): `true | undefined`
 
 ## Assistant
 
@@ -1670,6 +1695,20 @@ This event is fired when a user edits a query.
 
 - **option_name** (required): `"maxTimeMS" | "filter" | "project" | "collation" | "sort" | "skip" | "limit" | "hint"`
   - The name of the edited field.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--QueryResetClickedEvent"></a>
+
+### Query Reset Clicked
+
+This event is fired when a user clicks reset button on a query.
+
+**Properties**:
+
+- **source** (required): `string`
+  - Where does the reset originated: CRUD or Schema view
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -2730,6 +2769,24 @@ This event is fired when signal icon badge is rendered on the screen visible to 
 
 This event is fired when the schema analysis is started
 
+<a name="event--SchemaAnalysisFailedEvent"></a>
+
+### Schema Analysis Failed
+
+This event is fired when schema analysis fails due to a query timeout or a general error.
+
+**Properties**:
+
+- **error_type** (required): `"timeout" | "general"`
+  - The category of error that caused the failure.
+- **with_filter** (required): `boolean`
+  - Indicates whether a filter was applied during the schema analysis.
+- **analysis_time_ms** (required): `number`
+  - The time taken when analyzing the schema, before it failed, in milliseconds.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
 <a name="event--SchemaAnalysisCancelledEvent"></a>
 
 ### Schema Analysis Cancelled
@@ -2770,6 +2827,9 @@ This event is fired when user analyzes the schema.
   - The number of nested levels.
 - **geo_data** (required): `boolean`
   - Indicates whether the schema contains geospatial data.
+- **distinct_field_count** (required): `number`
+  - The total count of distinct fields across all nesting levels in the schema,
+    including fields nested within documents and arrays of documents.
 - **analysis_time_ms** (required): `number`
   - The time taken to analyze the schema, in milliseconds.
 - **is_compass_web** (optional): `true | undefined`

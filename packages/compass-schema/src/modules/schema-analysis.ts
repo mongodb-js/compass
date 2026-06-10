@@ -14,8 +14,6 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
-export const DISTINCT_FIELDS_ABORT_THRESHOLD = 1000;
-
 // hack for driver 3.6 not promoting error codes and
 // attributes from ejson when promoteValue is false.
 function promoteMongoErrorCode(err?: Error & { code?: unknown }) {
@@ -67,7 +65,6 @@ export const analyzeSchema = async (
       ? {
           signal: abortSignal,
           storedValuesLengthLimit: 100,
-          distinctFieldsAbortThreshold: DISTINCT_FIELDS_ABORT_THRESHOLD,
         }
       : {
           signal: abortSignal,
@@ -153,6 +150,12 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
    * Indicates whether the schema contains geospatial data.
    */
   geo_data: boolean;
+
+  /**
+   * The total count of distinct fields across all nesting levels in the schema,
+   * including fields nested within documents and arrays of documents.
+   */
+  distinct_field_count: number;
 }> {
   let hasGeoData = false;
   const fieldTypes: {
@@ -162,6 +165,7 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
   let optionalFieldCount = 0;
   let unblockThreadCounter = 0;
   let deepestPath = 0;
+  let distinctFieldCount = 0;
 
   async function traverseSchemaTree(
     fieldsOrTypes: SchemaField[] | SchemaType[],
@@ -228,6 +232,10 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
           depth + increment // Increment by one when we go a level deeper.
         );
       }
+
+      if (!isSchemaType(fieldOrType)) {
+        distinctFieldCount++;
+      }
     }
   }
 
@@ -239,5 +247,6 @@ export async function calculateSchemaMetadata(schema: Schema): Promise<{
     optional_field_count: optionalFieldCount,
     schema_depth: deepestPath,
     variable_type_count: variableTypeCount,
+    distinct_field_count: distinctFieldCount,
   };
 }
