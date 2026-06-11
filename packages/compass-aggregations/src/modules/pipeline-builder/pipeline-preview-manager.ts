@@ -49,6 +49,7 @@ export interface PreviewOptions extends AggregateOptions {
   totalDocumentCount?: number;
   sampleSize?: number;
   previewSize?: number;
+  injectScoreDetails?: boolean;
 }
 
 export function createPreviewAggregation(
@@ -86,6 +87,23 @@ export function createPreviewAggregation(
   return stages;
 }
 
+function buildPreviewResultWithStageMetadata(
+  rawDocuments: Document[]
+): StagePreviewResult {
+  const scores: (SearchScoreDetails | null)[] = rawDocuments.map(
+    (doc) => (doc[SEARCH_SCORE_DETAILS_FIELD] as SearchScoreDetails) ?? null
+  );
+  const stageMetadata: StagePreviewMetadata | null = scores.some(
+    (s) => s !== null
+  )
+    ? { type: '$search', scores }
+    : null;
+  const documents = rawDocuments.map(
+    ({ [SEARCH_SCORE_DETAILS_FIELD]: _, ...rest }) => rest
+  );
+  return { documents, stageMetadata };
+}
+
 export class PipelinePreviewManager {
   private queue = new Map<number, AbortController>();
   private lastPipeline = new Map<number, Document[]>();
@@ -107,10 +125,10 @@ export class PipelinePreviewManager {
       sampleSize,
       previewSize,
       totalDocumentCount,
+      injectScoreDetails = false,
       ...options
     }: PreviewOptions = {},
-    force = false,
-    injectScoreDetails = false
+    force = false
   ): Promise<StagePreviewResult> {
     this.queue.get(idx)?.abort();
     const controller = new AbortController();
@@ -139,26 +157,10 @@ export class PipelinePreviewManager {
 
     this.queue.delete(idx);
 
-    if (!injectScoreDetails) {
-      return { documents: rawDocuments, stageMetadata: null };
+    if (injectScoreDetails) {
+      return buildPreviewResultWithStageMetadata(rawDocuments);
     }
-
-    // Index-aligned with rawDocuments — null where scoreDetails is absent.
-    const scores: (SearchScoreDetails | null)[] = rawDocuments.map(
-      (doc) => (doc[SEARCH_SCORE_DETAILS_FIELD] as SearchScoreDetails) ?? null
-    );
-    const stageMetadata: StagePreviewMetadata | null = scores.some(
-      (s) => s !== null
-    )
-      ? { type: '$search', scores }
-      : null;
-
-    // Always strip the injected field — it's internal plumbing, not user data.
-    const documents = rawDocuments.map(
-      ({ [SEARCH_SCORE_DETAILS_FIELD]: _, ...rest }) => rest
-    );
-
-    return { documents, stageMetadata };
+    return { documents: rawDocuments, stageMetadata: null };
   }
 
   isLastPipelineEqual(idx: number, pipeline: Document[]): boolean {

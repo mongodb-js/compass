@@ -53,22 +53,6 @@ describe('injectSearchScoreMetadata', function () {
     });
   });
 
-  it('appends injected stage at the end, after existing stages', function () {
-    const pipeline = [
-      { $search: { text: { query: 'foo', path: 'title' } } },
-      { $limit: 10 },
-    ];
-    const result = injectSearchScoreMetadata(pipeline);
-
-    expect(result).to.have.lengthOf(3);
-    expect(result[1]).to.deep.equal({ $limit: 10 });
-    expect(result[2]).to.deep.equal({
-      $addFields: {
-        [SEARCH_SCORE_DETAILS_FIELD]: { $meta: 'searchScoreDetails' },
-      },
-    });
-  });
-
   it('overrides scoreDetails: false if already set on $search stage', function () {
     const pipeline = [
       {

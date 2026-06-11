@@ -103,6 +103,7 @@ export type StageRunSuccessAction = {
   type: typeof StageEditorActionTypes.StageRunSuccess;
   id: number;
   previewDocs: HadronDocument[];
+  stageMetadata: StagePreviewMetadata | null;
 };
 
 export type StageRunErrorAction = {
@@ -291,14 +292,13 @@ export const loadStagePreview = (
     // Ignoring the state of the stage, always try to stop current preview fetch
     pipelineBuilder.cancelPreviewForStage(idxInPipeline);
 
+    const stagesForPreview = pipelineFromStore(stages.slice(0, idx + 1));
     const canFetchPreviewForStage =
       autoPreview &&
       !stage.disabled &&
       // Only run stage if all previous ones are valid (otherwise it will fail
       // anyway)
-      pipelineFromStore(stages.slice(0, idx + 1)).every((stage) =>
-        canRunStage(stage)
-      );
+      stagesForPreview.every((stage) => canRunStage(stage));
 
     if (!canFetchPreviewForStage) {
       dispatch({
@@ -323,25 +323,26 @@ export const loadStagePreview = (
         collectionStats,
       } = getState();
 
+      const { enableSearchActivationProgramP2 } = preferences.getPreferences();
       const options: PreviewOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
         totalDocumentCount: collectionStats?.document_count,
+        // $search must be first stage, so for per-stage preview scoreDetails is
+        // only injected for a single-stage $search pipeline.
+        injectScoreDetails:
+          !!enableSearchActivationProgramP2 &&
+          stagesForPreview.length === 1 &&
+          stagesForPreview[0].stageOperator === '$search',
       };
-
-      const { enableSearchActivationProgramP2 } = preferences.getPreferences();
-      const injectScoreDetails =
-        !!enableSearchActivationProgramP2 && stage.stageOperator === '$search';
 
       const { documents, stageMetadata } =
         await pipelineBuilder.getPreviewForStage(
           idxInPipeline,
           namespace,
-          options,
-          false,
-          injectScoreDetails
+          options
         );
       dispatch({
         type: StageEditorActionTypes.StagePreviewFetchSuccess,
@@ -496,6 +497,7 @@ export const runStage = (
         type: StageEditorActionTypes.StageRunSuccess,
         id: idx,
         previewDocs: result.map((doc) => new HadronDocument(doc)),
+        stageMetadata: null,
       });
       connectionScopedAppRegistry.emit(
         'agg-pipeline-out-executed',
@@ -1206,25 +1208,7 @@ const reducer: Reducer<StageEditorState, Action> = (
     isAction<StagePreviewFetchSuccessAction>(
       action,
       StageEditorActionTypes.StagePreviewFetchSuccess
-    )
-  ) {
-    return {
-      ...state,
-      stages: [
-        ...state.stages.slice(0, action.id),
-        {
-          ...state.stages[action.id],
-          loading: false,
-          previewDocs: action.previewDocs,
-          stageMetadata: action.stageMetadata,
-          serverError: null,
-        },
-        ...state.stages.slice(action.id + 1),
-      ],
-    };
-  }
-
-  if (
+    ) ||
     isAction<StageRunSuccessAction>(
       action,
       StageEditorActionTypes.StageRunSuccess
@@ -1238,7 +1222,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: action.previewDocs,
-          stageMetadata: null,
+          stageMetadata: action.stageMetadata,
           serverError: null,
         },
         ...state.stages.slice(action.id + 1),

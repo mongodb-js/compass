@@ -45,9 +45,7 @@ describe('PipelinePreviewManager', function () {
           0,
           'test.test',
           [{ $search: { text: { query: 'foo', path: 'title' } } }],
-          { debounceMs: 10 },
-          false,
-          true // injectScoreDetails
+          { debounceMs: 10, injectScoreDetails: true }
         );
 
       // Injected field stripped from displayed documents
@@ -71,9 +69,7 @@ describe('PipelinePreviewManager', function () {
           0,
           'test.test',
           [{ $search: { text: { query: 'foo', path: 'title' } } }],
-          { debounceMs: 10 },
-          false,
-          true
+          { debounceMs: 10, injectScoreDetails: true }
         );
 
       expect(documents).to.deep.eq([{ title: 'foo' }]);
@@ -98,9 +94,7 @@ describe('PipelinePreviewManager', function () {
           0,
           'test.test',
           [{ $search: { text: { query: 'foo', path: 'title' } } }],
-          { debounceMs: 10 },
-          false,
-          true
+          { debounceMs: 10, injectScoreDetails: true }
         );
 
       // scores is index-aligned with documents

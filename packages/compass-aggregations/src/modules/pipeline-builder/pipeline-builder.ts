@@ -277,8 +277,7 @@ export class PipelineBuilder {
     idx: number,
     namespace: string,
     options: PreviewOptions,
-    force = false,
-    injectScoreDetails = false
+    force = false
   ): Promise<StagePreviewResult> {
     const pipeline = this.getPipelineFromStages(this.stages.slice(0, idx + 1));
     return this.previewManager.getPreviewForStage(
@@ -286,8 +285,7 @@ export class PipelineBuilder {
       namespace,
       pipeline,
       options,
-      force,
-      injectScoreDetails
+      force
     );
   }
 
@@ -323,7 +321,6 @@ export class PipelineBuilder {
       pipeline,
       options
     );
-    // Text editor preview does not use score metadata — extract documents only.
     return documents;
   }
 

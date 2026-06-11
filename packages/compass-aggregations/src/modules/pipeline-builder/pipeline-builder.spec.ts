@@ -111,8 +111,7 @@ describe('PipelineBuilder', function () {
         'airbnb.listings',
         [{ $match: {} }, { $unwind: 'users' }],
         {},
-        true,
-        false // injectScoreDetails — defaults to false
+        true
       )
       .returns({ documents: [{ _id: 1 }], stageMetadata: null });
 

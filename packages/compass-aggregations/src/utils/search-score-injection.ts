@@ -16,23 +16,18 @@ export type StagePreviewMetadata = {
 };
 
 /**
- * Transparently injects scoreDetails into a $search pipeline for the
- * per-stage preview. Called only when the last stage is $search and
- * enableSearchActivationP2 is enabled.
+ * Transparently injects scoreDetails into a $search stage for per-stage
+ * preview. Called when the stage being previewed is $search. Since $search
+ * must always be the first stage, it is also the only stage in the preview slice.
  */
 export function injectSearchScoreMetadata(pipeline: Document[]): Document[] {
-  const searchStageIndex = pipeline.findIndex(
-    (stage) => Object.keys(stage)[0] === '$search'
-  );
-  if (searchStageIndex === -1) {
+  const searchStage = pipeline[0];
+  if (!searchStage?.['$search']) {
     return pipeline;
   }
 
   return [
-    ...pipeline.map((stage, index) => {
-      if (index !== searchStageIndex) return stage;
-      return { $search: { ...stage['$search'], scoreDetails: true } };
-    }),
+    { $search: { ...searchStage['$search'], scoreDetails: true } },
     {
       $addFields: {
         [SEARCH_SCORE_DETAILS_FIELD]: { $meta: 'searchScoreDetails' },
