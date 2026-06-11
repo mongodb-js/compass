@@ -620,7 +620,9 @@ const CompassWebWithPreferences = ({
 
 /** @public */
 const CompassWeb = (props: CompassWebProps) => {
-  const { preferencesAccess, isLoading, error } = useCompassWebPreferences();
+  const { preferencesAccess, isLoading, error } = useCompassWebPreferences(
+    props.projectId
+  );
 
   if (isLoading) {
     return (
