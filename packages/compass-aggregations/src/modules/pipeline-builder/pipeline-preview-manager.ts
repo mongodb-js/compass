@@ -138,11 +138,11 @@ export class PipelinePreviewManager {
     }
     this.lastPipeline.set(idx, pipeline);
 
-    const pipelineWithScoreMetadata = injectScoreDetails
+    const pipelineForPreviewAggregation = injectScoreDetails
       ? injectSearchScoreMetadata(pipeline)
       : pipeline;
     const previewPipeline = createPreviewAggregation(
-      pipelineWithScoreMetadata,
+      pipelineForPreviewAggregation,
       {
         sampleSize,
         previewSize,
