@@ -1297,8 +1297,6 @@ export const ExportJSONFormatAccordion =
   '[data-testid="export-modal"] [data-testid="export-advanced-json-format"]';
 export const ExportJSONFormatCanonical =
   '[data-testid="export-modal"] [data-testid="export-json-format-canonical"]';
-export const ExportModalExportButton =
-  '[data-testid="export-modal"] [data-testid="export-button"]';
 export const ExportToast = '[data-testid="toast-export-toast"]';
 export const ExportToastAbort =
   '[data-testid="toast-export-toast"] [data-testid="toast-action-stop"]';

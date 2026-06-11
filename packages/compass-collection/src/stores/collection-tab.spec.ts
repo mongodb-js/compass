@@ -188,7 +188,7 @@ describe('Collection Tab Content store', function () {
   });
 
   describe('experimentation integration', function () {
-    it('should assign mock data generator and search activation program p1 experiments when Atlas metadata is available', async function () {
+    it('should assign mock data generator, search activation program p1, and search activation program p2 experiments when Atlas metadata is available', async function () {
       const assignExperiment = sandbox.spy(() => Promise.resolve(null));
 
       await configureStore(
@@ -207,6 +207,12 @@ describe('Collection Tab Content store', function () {
         );
         expect(assignExperiment).to.have.been.calledWith(
           ExperimentTestNames.searchActivationProgramP1,
+          {
+            team: 'Search Web Platform',
+          }
+        );
+        expect(assignExperiment).to.have.been.calledWith(
+          ExperimentTestNames.searchActivationProgramP2,
           {
             team: 'Search Web Platform',
           }
@@ -285,7 +291,7 @@ describe('Collection Tab Content store', function () {
       );
 
       await waitFor(() => {
-        expect(assignExperiment).to.have.been.calledTwice;
+        expect(assignExperiment).to.have.been.calledThrice;
       });
 
       // Store should still be functional despite assignment error
