@@ -117,7 +117,8 @@ describe('PipelinePreviewManager', function () {
         { debounceMs: 10, previewSize: 5, injectScoreDetails: true }
       );
 
-      const aggregatePipelineArg = dataService.aggregate.firstCall.args[1];
+      const aggregatePipelineArg = (dataService.aggregate as any).firstCall
+        .args[1];
       expect(aggregatePipelineArg).to.deep.equal([
         {
           $search: {
