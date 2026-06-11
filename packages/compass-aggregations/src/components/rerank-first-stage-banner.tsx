@@ -146,15 +146,27 @@ const bannerTextStyles = css({
 
 export const RerankFirstStageBanner = ({
   'data-testid': dataTestId,
+  onBeforeAssistantOpen,
 }: {
   'data-testid'?: string;
+  onBeforeAssistantOpen?: () => void;
 }) => {
   const enableRerank = usePreference('enableRerank');
   const [isDismissed, setIsDismissed] = usePersistedState(
     'mongodb_compass_dismissed_rerank_first_stage_banner',
     false
   );
-  const onInsightAction = useRerankInsightAction();
+  const insightAction = useRerankInsightAction();
+  const onInsightAction = useMemo(
+    () =>
+      insightAction
+        ? () => {
+            onBeforeAssistantOpen?.();
+            insightAction();
+          }
+        : undefined,
+    [insightAction, onBeforeAssistantOpen]
+  );
 
   if (!enableRerank || isDismissed) {
     return null;
