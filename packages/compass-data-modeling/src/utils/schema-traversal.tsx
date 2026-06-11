@@ -448,7 +448,7 @@ export function bulkUpdateSchema({
         fieldName,
         bulkUpdateSchema({
           jsonSchema: updateParameters.updateFn({
-            fieldSchema: fieldSchema as FieldData,
+            fieldSchema: fieldSchema,
             fieldPath: [...parentPath, fieldName],
           }),
           parentPath: [...parentPath, fieldName],

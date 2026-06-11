@@ -4,7 +4,6 @@ import { isAction } from './util';
 import type {
   DataModelCollection,
   EditAction,
-  FieldData,
   FieldPath,
   Relationship,
 } from '../services/data-model-storage';
@@ -958,7 +957,7 @@ export function addCollection(
     if (!position) {
       position = getPositionForNewCollection(existingCollections, {
         ns,
-        fieldData: {} as FieldData,
+        fieldData: {},
         indexes: [],
       });
     }
