@@ -14,23 +14,16 @@ import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
 import { renderWithStore } from '../../../../test/configure-store';
 import { mockDataService } from '../../../../test/mocks/data-service';
 import {
-  type PreferencesAccess,
   createSandboxFromDefaultPreferences,
+  type PreferencesAccess,
 } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import { AIPipelineActionTypes } from '../../../modules/pipeline-builder/pipeline-ai';
 
 function renderPipelineActions(
   props: React.ComponentProps<typeof PipelineActions>,
-  preferences?: PreferencesAccess
+  renderOptions?: Parameters<typeof render>[1]
 ) {
-  const component = <PipelineActions {...props} />;
-  if (preferences) {
-    return render(
-      <PreferencesProvider value={preferences}>{component}</PreferencesProvider>
-    );
-  }
-  return render(component);
+  return render(<PipelineActions {...props} />, renderOptions);
 }
 
 describe('PipelineActions', function () {
@@ -40,16 +33,11 @@ describe('PipelineActions', function () {
     let onRunAggregationSpy: SinonSpy;
     let onToggleOptionsSpy: SinonSpy;
     let onExplainAggregationSpy: SinonSpy;
-    let preferences: PreferencesAccess;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
       onExplainAggregationSpy = spy();
-      preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableSearchActivationProgramP2: true,
-      });
 
       renderPipelineActions(
         {
@@ -68,7 +56,7 @@ describe('PipelineActions', function () {
           onShowAIInputClick: () => {},
           stages: [],
         },
-        preferences
+        { preferences: { enableSearchActivationProgramP2: true } }
       );
     });
 
@@ -142,35 +130,29 @@ describe('PipelineActions', function () {
   });
 
   describe('extra options disabled', function () {
-    let preferences: PreferencesAccess;
     let onRunAggregationSpy: SinonSpy;
     let onToggleOptionsSpy: SinonSpy;
 
-    beforeEach(async function () {
-      preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableAggregationBuilderExtraOptions: false,
-      });
+    beforeEach(function () {
       onRunAggregationSpy = spy();
       onToggleOptionsSpy = spy();
-      render(
-        <PreferencesProvider value={preferences}>
-          <PipelineActions
-            isOptionsVisible={false}
-            showAIEntry={false}
-            showRunButton={true}
-            showExplainButton={true}
-            onRunAggregation={onRunAggregationSpy}
-            onToggleOptions={onToggleOptionsSpy}
-            onUpdateView={() => {}}
-            onExplainAggregationVisualTree={() => {}}
-            onExplainAggregationRawOutput={() => {}}
-            onExplainAggregationInterpret={() => {}}
-            onCollectionScanInsightActionButtonClick={() => {}}
-            onShowAIInputClick={() => {}}
-            stages={[]}
-          />
-        </PreferencesProvider>
+      renderPipelineActions(
+        {
+          isOptionsVisible: false,
+          showAIEntry: false,
+          showRunButton: true,
+          showExplainButton: true,
+          onRunAggregation: onRunAggregationSpy,
+          onToggleOptions: onToggleOptionsSpy,
+          onUpdateView: () => {},
+          onExplainAggregationVisualTree: () => {},
+          onExplainAggregationRawOutput: () => {},
+          onExplainAggregationInterpret: () => {},
+          onCollectionScanInsightActionButtonClick: () => {},
+          onShowAIInputClick: () => {},
+          stages: [],
+        },
+        { preferences: { enableAggregationBuilderExtraOptions: false } }
       );
     });
 
@@ -182,14 +164,9 @@ describe('PipelineActions', function () {
 
   describe('when enableSearchActivationProgramP2 is false', function () {
     let onExplainAggregationSpy: SinonSpy;
-    let preferences: PreferencesAccess;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       onExplainAggregationSpy = spy();
-      preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableSearchActivationProgramP2: false,
-      });
 
       renderPipelineActions(
         {
@@ -208,7 +185,7 @@ describe('PipelineActions', function () {
           onShowAIInputClick: () => {},
           stages: [],
         },
-        preferences
+        { preferences: { enableSearchActivationProgramP2: false } }
       );
     });
 
@@ -225,15 +202,10 @@ describe('PipelineActions', function () {
   describe('disables actions when pipeline is invalid', function () {
     let onRunAggregationSpy: SinonSpy;
     let onExplainAggregationSpy: SinonSpy;
-    let preferences: PreferencesAccess;
 
-    beforeEach(async function () {
+    beforeEach(function () {
       onRunAggregationSpy = spy();
       onExplainAggregationSpy = spy();
-      preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableSearchActivationProgramP2: true,
-      });
 
       renderPipelineActions(
         {
@@ -253,7 +225,7 @@ describe('PipelineActions', function () {
           onShowAIInputClick: () => {},
           stages: [],
         },
-        preferences
+        { preferences: { enableSearchActivationProgramP2: true } }
       );
     });
 
