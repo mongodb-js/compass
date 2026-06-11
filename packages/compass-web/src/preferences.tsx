@@ -6,7 +6,6 @@ import {
   type FeatureFlags,
 } from 'compass-preferences-model/provider';
 import { useEffect, useState } from 'react';
-import { throwIfNotOk } from '@mongodb-js/atlas-service/provider';
 import { defaultHeaders } from './url-builder';
 
 export const DEFAULT_COMPASS_WEB_PREFERENCES = {
@@ -88,7 +87,11 @@ async function _fetchPreferencesFromCloudApi(
     headers: defaultHeaders,
     credentials: 'include',
   });
-  await throwIfNotOk(res);
+  if (!res.ok) {
+    throw new Error(
+      `Failed to fetch preferences: ${res.status} ${res.statusText}`
+    );
+  }
   return res.json();
 }
 
