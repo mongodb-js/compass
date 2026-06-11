@@ -64,7 +64,7 @@ export default function ServerErrorBanner({
     ? atlasMetadata
       ? buildProjectSettingsUrl({
           projectId: atlasMetadata.projectId,
-          highlight: 'nativeReranking',
+          params: { highlight: 'nativeReranking' },
         })
       : RERANK_DOCS_URL
     : null;

@@ -16,13 +16,13 @@ export function buildPerformanceMetricsUrl({
 
 export function buildProjectSettingsUrl({
   projectId,
-  highlight,
-}: Pick<AtlasClusterMetadata, 'projectId'> & { highlight?: string }): string {
+  params,
+}: Pick<AtlasClusterMetadata, 'projectId'> & {
+  params?: Record<string, string>;
+}): string {
   const url = new URL(`/v2/${projectId}`, window.location.origin);
-  const hash = highlight
-    ? `/settings/groupSettings?highlight=${encodeURIComponent(highlight)}`
-    : `/settings/groupSettings`;
-  return `${url}#${hash}`;
+  const query = params ? `?${new URLSearchParams(params)}` : '';
+  return `${url}#/settings/groupSettings${query}`;
 }
 
 export function buildMonitoringUrl({

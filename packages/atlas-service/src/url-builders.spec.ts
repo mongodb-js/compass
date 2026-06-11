@@ -74,11 +74,11 @@ describe('url-builders', function () {
       );
     });
 
-    it('builds project settings url with highlight param', function () {
+    it('builds project settings url with params', function () {
       expect(
         buildProjectSettingsUrl({
           projectId: 'proj123',
-          highlight: 'nativeReranking',
+          params: { highlight: 'nativeReranking' },
         })
       ).to.equal(
         `${TEST_ORIGIN}/v2/proj123#/settings/groupSettings?highlight=nativeReranking`
