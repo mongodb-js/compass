@@ -138,20 +138,24 @@ export class PipelinePreviewManager {
     }
     this.lastPipeline.set(idx, pipeline);
 
-    const previewPipeline = createPreviewAggregation(pipeline, {
-      sampleSize,
-      previewSize,
-      totalDocumentCount,
-    });
+    const pipelineWithScoreMetadata = injectScoreDetails
+      ? injectSearchScoreMetadata(pipeline)
+      : pipeline;
+    const previewPipeline = createPreviewAggregation(
+      pipelineWithScoreMetadata,
+      {
+        sampleSize,
+        previewSize,
+        totalDocumentCount,
+      }
+    );
 
     const rawDocuments = await aggregatePipeline({
       dataService: this.dataService,
       preferences: this.preferences,
       signal: controller.signal,
       namespace,
-      pipeline: injectScoreDetails
-        ? injectSearchScoreMetadata(previewPipeline)
-        : previewPipeline,
+      pipeline: previewPipeline,
       options,
     });
 

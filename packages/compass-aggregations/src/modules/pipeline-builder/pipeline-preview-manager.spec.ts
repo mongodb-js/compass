@@ -102,6 +102,37 @@ describe('PipelinePreviewManager', function () {
       expect(stageMetadata?.scores[0]).to.deep.eq(scoreDetails); // foo
       expect(stageMetadata?.scores[1]).to.be.null; // bar — no score
     });
+
+    it('keeps preview $limit after score metadata injection', async function () {
+      const dataService = mockDataService({ data: [{ _id: 1 }] });
+      const previewManager = new PipelinePreviewManager(
+        dataService,
+        preferences
+      );
+
+      await previewManager.getPreviewForStage(
+        0,
+        'test.test',
+        [{ $search: { text: { query: 'foo', path: 'title' } } }],
+        { debounceMs: 10, previewSize: 5, injectScoreDetails: true }
+      );
+
+      const aggregatePipelineArg = dataService.aggregate.firstCall.args[1];
+      expect(aggregatePipelineArg).to.deep.equal([
+        {
+          $search: {
+            text: { query: 'foo', path: 'title' },
+            scoreDetails: true,
+          },
+        },
+        {
+          $addFields: {
+            [SEARCH_SCORE_DETAILS_FIELD]: { $meta: 'searchScoreDetails' },
+          },
+        },
+        { $limit: 5 },
+      ]);
+    });
   });
 
   it('should throw a cancelled error if preview request was cancelled', async function () {
