@@ -17,8 +17,8 @@ export type StagePreviewMetadata = {
 
 /**
  * Transparently injects scoreDetails into a $search stage for per-stage
- * preview. Called when the stage being previewed is $search. Since $search
- * must always be the first stage, it is also the only stage in the preview slice.
+ * preview. Called when the stage being previewed is $search, which must be
+ * the first stage in a pipeline.
  */
 export function injectSearchScoreMetadata(pipeline: Document[]): Document[] {
   const searchStage = pipeline[0];
@@ -28,6 +28,7 @@ export function injectSearchScoreMetadata(pipeline: Document[]): Document[] {
 
   return [
     { $search: { ...searchStage['$search'], scoreDetails: true } },
+    ...pipeline.slice(1),
     {
       $addFields: {
         [SEARCH_SCORE_DETAILS_FIELD]: { $meta: 'searchScoreDetails' },
