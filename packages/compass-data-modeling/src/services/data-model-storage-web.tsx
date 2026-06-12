@@ -25,33 +25,7 @@ class DataModelStorageAtlas implements DataModelStorage {
       {
         orgId,
         projectId,
-        getResourceUrl(path) {
-          // TODO(COMPASS-9960): this is copied from compass-web entrypoint for
-          // brevity, but shouldn't be defined outside of AtlasUserData, this
-          // logic is literally the same between all user data instances and can
-          // be encapsulated inside of the AtlasUserData class implementation
-          const [type, pathOrgId, pathProjectId, id] =
-            path?.split('/').filter(Boolean) || [];
-
-          if (
-            !type ||
-            !pathOrgId ||
-            !pathProjectId ||
-            type !== 'DataModelDescriptions'
-          ) {
-            throw new Error(
-              'DataModelStorageAtlas is used outside of Atlas Cloud context'
-            );
-          }
-
-          return atlasService.userDataEndpoint(
-            pathOrgId,
-            pathProjectId,
-            type,
-            id
-          );
-        },
-        authenticatedFetch: atlasService.authenticatedFetch.bind(atlasService),
+        atlasService,
       }
     );
   }

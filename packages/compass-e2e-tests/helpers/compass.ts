@@ -10,7 +10,7 @@ import zlib from 'zlib';
 import { remote } from 'webdriverio';
 import { rebuild } from '@electron/rebuild';
 import type { RebuildOptions } from '@electron/rebuild';
-import { run as packageCompass } from 'hadron-build/commands/release.js';
+import { packageCompass } from 'hadron-build';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 export * as Selectors from './selectors.ts';
@@ -71,8 +71,6 @@ const debug = Debug('compass-e2e-tests');
 
 const { gunzip } = zlib;
 const { Z_SYNC_FLUSH } = zlib.constants;
-
-const packageCompassAsync = promisify(packageCompass);
 
 /**
  * should we test compass-web (true) or compass electron (false)?
@@ -1032,7 +1030,7 @@ export async function buildCompass(
   }
 
   debug("No Compass build found, let's build it");
-  await packageCompassAsync({
+  await packageCompass({
     dir: compassPath,
     skip_installer: true,
   });

@@ -5,21 +5,14 @@ import type {
   DevtoolsConnectOptions,
   DevtoolsConnectionState,
 } from '@mongodb-js/devtools-connect';
-import {
-  createSocks5Tunnel,
-  hookLogger as hookProxyLogger,
-} from '@mongodb-js/devtools-proxy-support';
-import type {
-  DevtoolsProxyOptions,
-  Tunnel,
-} from '@mongodb-js/devtools-proxy-support';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import EventEmitter from 'events';
 import ConnectionString from 'mongodb-connection-string-url';
 import _ from 'lodash';
 
 import { redactConnectionOptions, redactConnectionString } from './redact';
 import type { ConnectionOptions } from './connection-options';
-import { getTunnelOptions, waitForTunnelError } from './ssh-tunnel-helpers';
+import { getTunnelOptions } from './ssh-tunnel-helpers';
 import type { UnboundDataServiceImplLogger } from './logger';
 import { debug as _debug } from './logger';
 
@@ -107,10 +100,25 @@ export function prepareOIDCOptions({
       matchingAllowedHosts(connectionOptions);
   }
 
+  // `shareProxyWithConnection` mirrors the OIDC "Use Application-Level Proxy
+  // Settings" checkbox (inverted): checking it sets the flag to `false`,
+  // unchecking it sets `true`. devtools-connect owns the connection proxy via
+  // `options.proxy`, so:
+  //
+  //  - shareProxyWithConnection === true: reuse the same proxy as the
+  //    connection for OIDC HTTP. `true` tells devtools-connect to share the
+  //    connection's proxy agent with the OIDC fetch.
+  //  - shareProxyWithConnection === false ("use app-level proxy for OIDC"):
+  //    route OIDC HTTP through the dedicated application-level proxy. Pass the
+  //    `proxyOptions` object so devtools-connect's createFetch uses it. When no
+  //    proxy is configured (`proxyOptions` is empty) fall back to `false`, since
+  //    an empty object is truthy and would otherwise be handed to createFetch
+  //    as a no-op proxy config.
   if (connectionOptions.oidc?.shareProxyWithConnection) {
     options.applyProxyToOIDC = true;
   } else {
-    options.applyProxyToOIDC = proxyOptions;
+    options.applyProxyToOIDC =
+      Object.keys(proxyOptions).length > 0 ? proxyOptions : false;
   }
 
   options.oidc.signal = signal;
@@ -140,7 +148,6 @@ export async function connectMongoClientDataService({
   [
     metadataClient: CloneableMongoClient,
     crudClient: CloneableMongoClient,
-    tunnel: Tunnel | undefined,
     connectionState: DevtoolsConnectionState,
     options: { url: string; options: DevtoolsConnectOptions }
   ]
@@ -176,29 +183,15 @@ export async function connectMongoClientDataService({
     };
   }
 
-  // If connectionOptions.sshTunnel is defined, open an ssh tunnel.
-  //
-  // If connectionOptions.sshTunnel is not defined, the tunnel
-  // will also be undefined.
-  const tunnel = createSocks5Tunnel(
-    getTunnelOptions(connectionOptions, proxyOptions),
-    'generate-credentials',
-    'mongodb://'
-  );
-  // TODO: Not urgent, but it might be helpful to properly implement redaction
-  // and then actually log this to the log file, it's been helpful for debugging
-  // e2e tests for sure
-  // console.log({tunnel, tunnelOptions: getTunnelOptions(connectionOptions), connectionOptions, oidcOptions})
-  if (tunnel && logger)
-    hookProxyLogger(tunnel.logger, logger, 'compass-tunnel');
-  const tunnelForwardingErrors: Error[] = [];
-  tunnel?.on('forwardingError', (err: Error) =>
-    tunnelForwardingErrors.push(err)
-  );
-  await tunnel?.listen();
-
-  if (tunnel?.config) {
-    Object.assign(options, tunnel.config);
+  // devtools-connect owns the full SSH tunnel / proxy lifecycle (creation,
+  // listen, config merge into MongoClient options, and cleanup on client
+  // close). getTunnelOptions returns {} when there's no tunnel or proxy to set
+  // up; that empty object is already a no-op for devtools-connect, so we only
+  // attach `proxy` when there's something to configure to keep the returned
+  // options object free of an empty `proxy` key.
+  const tunnelOptions = getTunnelOptions(connectionOptions, proxyOptions);
+  if (Object.keys(tunnelOptions).length > 0) {
+    options.proxy = tunnelOptions;
   }
   class CompassMongoClient extends MongoClient {
     constructor(url: string, options?: MongoClientOptions) {
@@ -260,76 +253,62 @@ export async function connectMongoClientDataService({
     // server metadata (e.g. build info, instance data, etc.)
     // and one for interacting with the actual CRUD data.
     // If CSFLE is disabled, use a single client for both cases.
-    [metadataClient, crudClient, state] = await Promise.race([
-      (async () => {
-        const { client: metadataClient, state } = await connectSingleClient({
-          autoEncryption: undefined,
-        });
-        const parentHandlePromise = state.getStateShareServer();
-        parentHandlePromise.catch(() => {
-          /* handled below */
-        });
-        let crudClient;
+    [metadataClient, crudClient, state] = await (async () => {
+      const { client: metadataClient, state } = await connectSingleClient({
+        autoEncryption: undefined,
+      });
+      const parentHandlePromise = state.getStateShareServer();
+      parentHandlePromise.catch(() => {
+        /* handled below */
+      });
+      let crudClient;
 
-        // This used to happen in parallel, but since the introduction of OIDC connection
-        // state needs to be shared and managed on the longest-lived client instance,
-        // so we need to use the DevtoolsConnectionState instance created for the metadata
-        // client here.
-        if (options.autoEncryption) {
-          try {
-            crudClient = (
-              await connectSingleClient({
-                parentState: state,
-              })
-            ).client;
-          } catch (err) {
-            await metadataClient.close();
-            throw err;
-          }
-        }
-
+      // This used to happen in parallel, but since the introduction of OIDC connection
+      // state needs to be shared and managed on the longest-lived client instance,
+      // so we need to use the DevtoolsConnectionState instance created for the metadata
+      // client here.
+      if (options.autoEncryption) {
         try {
-          // Make sure that if this failed, we clean up properly.
-          await parentHandlePromise;
+          crudClient = (
+            await connectSingleClient({
+              parentState: state,
+            })
+          ).client;
         } catch (err) {
           await metadataClient.close();
-          await crudClient?.close();
           throw err;
         }
+      }
 
-        // Return the parentHandle here so that it's included in the options that
-        // are passed to compass-shell.
-        return [metadataClient, crudClient, state] as const;
-      })(),
-      waitForTunnelError(tunnel),
-    ]); // waitForTunnel always throws, never resolves
+      try {
+        // Make sure that if this failed, we clean up properly.
+        await parentHandlePromise;
+      } catch (err) {
+        await metadataClient.close();
+        await crudClient?.close();
+        throw err;
+      }
+
+      // Return the parentHandle here so that it's included in the options that
+      // are passed to compass-shell.
+      return [metadataClient, crudClient, state] as const;
+    })();
 
     options.parentHandle = await state.getStateShareServer();
 
     return [
       metadataClient,
       crudClient ?? metadataClient,
-      tunnel,
       state,
       { url, options },
     ];
   } catch (err: any) {
     debug('connection error', err);
-    debug('force shutting down ssh tunnel ...');
-    await Promise.all([
-      tunnel?.close(),
-      crudClient?.close(),
-      metadataClient?.close(),
-    ]).catch(() => {
-      /* ignore errors */
-    });
-    if (tunnelForwardingErrors.length > 0) {
-      err.message = `${
-        err.message
-      } [SSH Tunnel errors: ${tunnelForwardingErrors.map(
-        (err) => err.message
-      )}]`;
-    }
+    await Promise.all([crudClient?.close(), metadataClient?.close()]).catch(
+      () => {
+        /* ignore errors */
+      }
+    );
     throw err;
   }
 }

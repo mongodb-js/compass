@@ -1131,8 +1131,6 @@ describe('Collection aggregations tab', function () {
   { maxTimeMS: 60000, allowDiskUse: true }
 );`);
 
-    await browser.clickVisible(Selectors.ExportModalExportButton);
-
     // Set the filename.
     const filename = outputFilename('aggregated-numbers.json');
     await browser.setExportFilename(filename);

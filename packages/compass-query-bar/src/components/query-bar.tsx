@@ -18,6 +18,7 @@ import {
   usePreference,
 } from 'compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 import {
   OPTION_DEFINITION,
@@ -128,6 +129,7 @@ type QueryBarProps = {
   isAIFetching?: boolean;
   onShowAIInputClick: () => void;
   onHideAIInputClick: () => void;
+  source: string;
 };
 
 export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
@@ -154,6 +156,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   isAIFetching = false,
   onShowAIInputClick,
   onHideAIInputClick,
+  source,
 }) => {
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
@@ -209,6 +212,12 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const query = useQueryBarQuery();
   useSyncAssistantGlobalState('currentQuery', toJSString(query) || null);
 
+  const connectionInfoRef = useConnectionInfoRef();
+  const handleReset = useCallback(() => {
+    track('Query Reset Clicked', { source }, connectionInfoRef.current);
+    onReset();
+  }, [connectionInfoRef, onReset, source, track]);
+
   return (
     <form
       className={cx(queryBarFormStyles, darkMode && queryBarFormDarkStyles)}
@@ -262,7 +271,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         <Button
           aria-label="Reset query"
           data-testid="query-bar-reset-filter-button"
-          onClick={onReset}
+          onClick={handleReset}
           disabled={!queryChanged || isAIFetching}
           size="small"
           type="button"
