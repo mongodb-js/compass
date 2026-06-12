@@ -9,8 +9,15 @@ type CreateIndexOptions = {
   wildcardProjection?: string;
   customCollation?: string;
   sparseIndex?: boolean;
-  rollingIndex?: boolean;
-};
+} & (
+  | {
+      rollingIndex?: true;
+      rollingIndexTimeout: number;
+    }
+  | {
+      rollingIndex?: false;
+    }
+);
 
 type IndexType = '1' | '-1' | '2dsphere' | 'text';
 
@@ -121,11 +128,40 @@ export async function createIndex(
   const indexComponent = browser.$(indexComponentSelector);
   await indexComponent.waitForDisplayed();
 
-  // Wait for index to get ready before proceeding
-  await browser
-    .$(indexComponentSelector)
-    .$(Selectors.IndexPropertyInProgress)
-    .waitForDisplayed({ reverse: true });
+  const readySelector = Selectors.indexWithStatus(indexName, 'ready');
+  const buildingSelector = Selectors.indexWithStatus(indexName, 'building');
+
+  // Regular index should become ready relatively quicker than rolling indexes.
+  if (!extraOptions?.rollingIndex) {
+    await browser
+      // We do not wait for the index to be in-progress state, because sometimes it really quick
+      // and it does not show in the status, leading to flaky tests.
+      .$(readySelector)
+      .waitForDisplayed();
+  } else {
+    // The rolling index build may complete before the poll has it
+    // in a building state.
+    await browser.waitUntil(
+      async () => {
+        return (
+          (await browser.$(buildingSelector).isExisting()) ||
+          (await browser.$(readySelector).isExisting())
+        );
+      },
+      {
+        timeout: extraOptions.rollingIndexTimeout,
+        interval: 2_000,
+      }
+    );
+
+    // Now wait for index to finish building
+    await browser.waitUntil(async () => browser.$(readySelector).isExisting(), {
+      timeout: extraOptions.rollingIndexTimeout,
+      // Building a rolling index is a slow process, no need to check too
+      // often
+      interval: 2_000,
+    });
+  }
 
   return indexName;
 }
