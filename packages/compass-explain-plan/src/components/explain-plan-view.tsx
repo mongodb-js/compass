@@ -110,11 +110,11 @@ type ExplainPlanViewProps = Partial<
 export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
   explainPlan,
   rawExplainPlan,
-  error,
   initialViewType,
+  error,
 }) => {
   const [viewType, setViewType] = useState<'tree' | 'json'>(
-    initialViewType ?? (error ? 'json' : 'tree')
+    initialViewType ?? 'tree'
   );
 
   const rawExplainPlanText = useMemo(() => {

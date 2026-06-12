@@ -98,6 +98,7 @@ describe('ExplainPlanView', function () {
     render({
       rawExplainPlan: simpleExplain.originalExplainData,
       error: "Can't parse explain plan",
+      initialViewType: 'json',
     });
     expect(
       screen.getByText(

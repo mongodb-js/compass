@@ -48,9 +48,9 @@ describe('PipelineActions', function () {
           onRunAggregation: onRunAggregationSpy,
           onToggleOptions: onToggleOptionsSpy,
           isExplainButtonDisabled: false,
-          onExplainAggregationVisualTree: onExplainAggregationSpy,
-          onExplainAggregationRawOutput: () => {},
-          onExplainAggregationInterpret: () => {},
+          onExplainAggregation: () => {
+            onExplainAggregationSpy();
+          },
           onUpdateView: () => {},
           onCollectionScanInsightActionButtonClick: () => {},
           onShowAIInputClick: () => {},
@@ -71,7 +71,7 @@ describe('PipelineActions', function () {
 
     it('calls onExplainAggregation when Visual tree is selected', async function () {
       const trigger = screen.getByTestId(
-        'pipeline-toolbar-explain-aggregation-button-show-actions'
+        'pipeline-toolbar-explain-aggregation-dropdown-button-show-actions'
       );
       expect(trigger).to.exist;
       userEvent.click(trigger);
@@ -107,9 +107,7 @@ describe('PipelineActions', function () {
           onRunAggregation={onRunAggregationSpy}
           onToggleOptions={onToggleOptionsSpy}
           onUpdateView={() => {}}
-          onExplainAggregationVisualTree={() => {}}
-          onExplainAggregationRawOutput={() => {}}
-          onExplainAggregationInterpret={() => {}}
+          onExplainAggregation={() => {}}
           onCollectionScanInsightActionButtonClick={() => {}}
           onShowAIInputClick={() => {}}
           stages={[]}
@@ -145,9 +143,7 @@ describe('PipelineActions', function () {
           onRunAggregation: onRunAggregationSpy,
           onToggleOptions: onToggleOptionsSpy,
           onUpdateView: () => {},
-          onExplainAggregationVisualTree: () => {},
-          onExplainAggregationRawOutput: () => {},
-          onExplainAggregationInterpret: () => {},
+          onExplainAggregation: () => {},
           onCollectionScanInsightActionButtonClick: () => {},
           onShowAIInputClick: () => {},
           stages: [],
@@ -177,9 +173,9 @@ describe('PipelineActions', function () {
           onRunAggregation: () => {},
           onToggleOptions: () => {},
           isExplainButtonDisabled: false,
-          onExplainAggregationVisualTree: onExplainAggregationSpy,
-          onExplainAggregationRawOutput: () => {},
-          onExplainAggregationInterpret: () => {},
+          onExplainAggregation: () => {
+            onExplainAggregationSpy();
+          },
           onUpdateView: () => {},
           onCollectionScanInsightActionButtonClick: () => {},
           onShowAIInputClick: () => {},
@@ -217,9 +213,9 @@ describe('PipelineActions', function () {
           showExplainButton: true,
           onRunAggregation: onRunAggregationSpy,
           onToggleOptions: () => {},
-          onExplainAggregationVisualTree: onExplainAggregationSpy,
-          onExplainAggregationRawOutput: () => {},
-          onExplainAggregationInterpret: () => {},
+          onExplainAggregation: () => {
+            onExplainAggregationSpy();
+          },
           onUpdateView: () => {},
           onCollectionScanInsightActionButtonClick: () => {},
           onShowAIInputClick: () => {},
@@ -241,7 +237,7 @@ describe('PipelineActions', function () {
 
     it('explain action disabled', function () {
       const button = screen.getByTestId(
-        'pipeline-toolbar-explain-aggregation-button-show-actions'
+        'pipeline-toolbar-explain-aggregation-dropdown-button-show-actions'
       );
       expect(
         button.getAttribute('disabled') !== null ||
@@ -288,7 +284,7 @@ describe('PipelineActions', function () {
       expect(
         screen
           .getByTestId(
-            'pipeline-toolbar-explain-aggregation-button-show-actions'
+            'pipeline-toolbar-explain-aggregation-dropdown-button-show-actions'
           )
           .getAttribute('aria-disabled')
       ).to.equal('true');
@@ -314,7 +310,7 @@ describe('PipelineActions', function () {
         expect(
           screen
             .getByTestId(
-              'pipeline-toolbar-explain-aggregation-button-show-actions'
+              'pipeline-toolbar-explain-aggregation-dropdown-button-show-actions'
             )
             .getAttribute('aria-disabled')
         ).to.equal('true');

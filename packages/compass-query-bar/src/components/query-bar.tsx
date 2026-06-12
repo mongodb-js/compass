@@ -36,6 +36,7 @@ import {
   explainQuery,
   explainQueryRawOutput,
   explainQueryInterpret,
+  type ExplainMode,
 } from '../stores/query-bar-reducer';
 import { toggleQueryOptions } from '../stores/query-bar-reducer';
 import { isEqualDefaultQuery, isQueryValid } from '../utils/query';
@@ -178,10 +179,8 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const { getIsAssistantEnabled } = useAssistantActions();
   const isAssistantEnabled = getIsAssistantEnabled();
 
-  type ExplainAction = 'interpret' | 'visual-tree' | 'raw-output';
-
   const explainActions = useMemo(
-    (): MenuAction<ExplainAction>[] => [
+    (): MenuAction<ExplainMode>[] => [
       {
         action: 'interpret',
         label: 'Interpret',
@@ -203,7 +202,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   );
 
   const onExplainAction = useCallback(
-    (action: ExplainAction) => {
+    (action: ExplainMode) => {
       if (action === 'interpret') {
         onExplainInterpret?.();
       } else if (action === 'visual-tree') {
@@ -311,7 +310,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         {showExplainButton &&
           (enableSearchActivationProgramP2 ? (
             <DropdownMenuButton
-              data-testid="query-bar-explain-button"
+              data-testid="query-bar-explain-dropdown-button"
               buttonText="Explain"
               buttonProps={{
                 size: 'small',

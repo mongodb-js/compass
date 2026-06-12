@@ -381,6 +381,7 @@ export const openExplainPlanForInterpret = (
       if (services.dataService.isCancelError(err)) {
         return;
       }
+      // TODO(COMPASS-10751): Add user-facing error handling for interpret failures.
       services.logger.log.error(
         services.logger.mongoLogId(1_001_000_434),
         'Explain',

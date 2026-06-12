@@ -14,11 +14,7 @@ import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai/provider';
 import type { RootState } from '../../../modules';
 import { runAggregation } from '../../../modules/aggregation';
 import { updateView } from '../../../modules/update-view';
-import {
-  explainAggregationVisualTree,
-  explainAggregationRawOutput,
-  explainAggregationInterpret,
-} from '../../../modules/explain';
+import { explainAggregation, type ExplainMode } from '../../../modules/explain';
 import {
   getIsPipelineInvalidFromBuilderState,
   getPipelineStageOperatorsFromBuilderState,
@@ -48,9 +44,7 @@ type PipelineActionsProps = {
 
   showExplainButton?: boolean;
   isExplainButtonDisabled?: boolean;
-  onExplainAggregationVisualTree: () => void;
-  onExplainAggregationRawOutput: () => void;
-  onExplainAggregationInterpret: () => void;
+  onExplainAggregation: (mode: ExplainMode) => void;
 
   isOptionsVisible?: boolean;
   onToggleOptions: () => void;
@@ -77,9 +71,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onUpdateView,
   onRunAggregation,
   onToggleOptions,
-  onExplainAggregationVisualTree,
-  onExplainAggregationRawOutput,
-  onExplainAggregationInterpret,
+  onExplainAggregation,
   showCollectionScanInsight,
   onCollectionScanInsightActionButtonClick,
   stages,
@@ -101,10 +93,8 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
 
   const hasSearchStage = stages.includes('$search');
 
-  type ExplainAction = 'interpret' | 'visual-tree' | 'raw-output';
-
   const explainActions = useMemo(
-    (): MenuAction<ExplainAction>[] => [
+    (): MenuAction<ExplainMode>[] => [
       {
         action: 'interpret',
         label: 'Interpret',
@@ -130,20 +120,10 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   );
 
   const onExplainAction = useCallback(
-    (action: ExplainAction) => {
-      if (action === 'interpret') {
-        onExplainAggregationInterpret();
-      } else if (action === 'visual-tree') {
-        onExplainAggregationVisualTree();
-      } else {
-        onExplainAggregationRawOutput();
-      }
+    (action: ExplainMode) => {
+      onExplainAggregation(action);
     },
-    [
-      onExplainAggregationVisualTree,
-      onExplainAggregationRawOutput,
-      onExplainAggregationInterpret,
-    ]
+    [onExplainAggregation]
   );
 
   return (
@@ -192,7 +172,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
       {showExplainButton &&
         (enableSearchActivationProgramP2 ? (
           <DropdownMenuButton
-            data-testid="pipeline-toolbar-explain-aggregation-button"
+            data-testid="pipeline-toolbar-explain-aggregation-dropdown-button"
             buttonText="Explain"
             buttonProps={{
               size: 'small',
@@ -209,7 +189,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
             data-testid="pipeline-toolbar-explain-aggregation-button"
             variant="default"
             size="small"
-            onClick={onExplainAggregationVisualTree}
+            onClick={() => onExplainAggregation('visual-tree')}
             disabled={isExplainButtonDisabled}
           >
             Explain
@@ -264,9 +244,7 @@ const mapState = (state: RootState) => {
 const mapDispatch = {
   onUpdateView: updateView,
   onRunAggregation: runAggregation,
-  onExplainAggregationVisualTree: explainAggregationVisualTree,
-  onExplainAggregationRawOutput: explainAggregationRawOutput,
-  onExplainAggregationInterpret: explainAggregationInterpret,
+  onExplainAggregation: explainAggregation,
   onCollectionScanInsightActionButtonClick: openCreateIndexModal,
   onShowAIInputClick: showAIInput,
 };
