@@ -8,6 +8,7 @@ import {
   spacing,
   palette,
   useDarkMode,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import { connect } from '../stores/context';
 import OptionEditor from './option-editor';
@@ -127,9 +128,8 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const darkMode = useDarkMode();
-  const editorInitialValueRef = useRef<string | undefined>(value);
-  const editorCurrentValueRef = useRef<string | undefined>(value);
-  editorCurrentValueRef.current = value;
+  const editorPreviousValueRef = useRef<string | undefined>(value);
+  const editorCurrentValueRef = useCurrentValueRef<string | undefined>(value);
 
   const optionDefinition = OPTION_DEFINITION[name];
   const isDocumentEditor = optionDefinition.type === 'document';
@@ -147,13 +147,13 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   const onBlurEditor = useCallback(() => {
     if (
       !!editorCurrentValueRef.current &&
-      editorCurrentValueRef.current !== editorInitialValueRef.current &&
-      (editorInitialValueRef.current || editorCurrentValueRef.current !== '{}')
+      editorCurrentValueRef.current !== editorPreviousValueRef.current &&
+      (editorPreviousValueRef.current || editorCurrentValueRef.current !== '{}')
     ) {
       track('Query Edited', { option_name: name }, connectionInfoRef.current);
-      editorInitialValueRef.current = editorCurrentValueRef.current;
+      editorPreviousValueRef.current = editorCurrentValueRef.current;
     }
-  }, [track, name, connectionInfoRef]);
+  }, [editorCurrentValueRef, track, name, connectionInfoRef]);
 
   // MaxTimeMS warning tooltip logic
   const maxTimeMSEnvLimit = usePreference('maxTimeMSEnvLimit');

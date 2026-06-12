@@ -174,11 +174,8 @@ export type {
 } from './growth-experiments';
 export { useAssignment, useTrackInSample } from './experimentation-provider';
 
-// @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
-export {
-  SkillsBannerContexts as SkillsBannerContextEnum,
-  useAtlasSkillsBanner,
-} from './atlas-skills';
-
 // @experiment Search Activation Program P1  | Jira Epic: CLOUDP-308952
 export { useSearchActivationProgramP1 } from './search-activation-program-p1';
+
+// @experiment Search Activation Program P2 | Jira Epic: CLOUDP-331931
+export { useSearchActivationProgramP2 } from './search-activation-program-p2';

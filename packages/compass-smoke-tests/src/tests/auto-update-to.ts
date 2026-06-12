@@ -17,13 +17,13 @@ export async function testAutoUpdateTo(context: SmokeTestsContext) {
   );
 
   const sandboxPath = createSandbox();
-  const subject = getTestSubjectDetails({ ...context, sandboxPath });
+  const subject = await getTestSubjectDetails({ ...context, sandboxPath });
   const {
     buildInfo: { channel, version },
   } = subject;
 
   // Derive the kind of package needed to install the latest release
-  const latestApp = getTestSubjectDetails({
+  const latestApp = await getTestSubjectDetails({
     ...context,
     sandboxPath,
     package: getLatestReleaseKindByKind(subject.kind),

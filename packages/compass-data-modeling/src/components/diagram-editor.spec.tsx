@@ -16,7 +16,6 @@ import { DataModelingWorkspaceTab } from '..';
 import { openDiagram } from '../store/diagram';
 import { DrawerAnchor, DiagramProvider } from '@mongodb-js/compass-components';
 import { type AnalysisOptions, startAnalysis } from '../store/analysis-process';
-import type { DataService } from '@mongodb-js/compass-connections/provider';
 
 const mockConnections = [
   { ...createDefaultConnectionInfo(), id: 'connection1' },
@@ -185,7 +184,7 @@ const renderDiagramEditor = async ({
                 _id: 'doc2',
               },
             ]),
-        } as unknown as DataService;
+        };
       },
     }
   );

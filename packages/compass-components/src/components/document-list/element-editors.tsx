@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import type { Element as HadronElementType } from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
-import TypeChecker from 'hadron-type-checker';
+import TypeChecker, { isUUIDType } from 'hadron-type-checker';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
@@ -10,13 +10,6 @@ import { mergeProps } from '../../utils/merge-props';
 import { documentTypography } from './typography';
 import { Icon, Tooltip } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
-
-const UUID_TYPES = [
-  'UUID',
-  'LegacyJavaUUID',
-  'LegacyCSharpUUID',
-  'LegacyPythonUUID',
-] as const;
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -187,11 +180,6 @@ const uuidEditorLabel = css({
   userSelect: 'none',
   whiteSpace: 'nowrap',
 });
-
-type UUIDType = (typeof UUID_TYPES)[number];
-export function isUUIDType(type: string): type is UUIDType {
-  return (UUID_TYPES as readonly string[]).includes(type);
-}
 
 export const ValueEditor: React.FunctionComponent<{
   editing?: boolean;

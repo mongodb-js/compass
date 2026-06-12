@@ -1,8 +1,6 @@
 import React, { useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
-  Banner,
-  BannerVariant,
   Body,
   Button,
   ErrorSummary,
@@ -21,7 +19,6 @@ import {
   type SchemaAnalysisError,
   analysisErrorDismissed,
 } from '../stores/schema-analysis-reducer';
-import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '../modules/schema-analysis';
 import type { RootState } from '../stores/store';
 import { openExportSchema } from '../stores/schema-export-reducer';
 
@@ -169,22 +166,6 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
           dismissible={true}
           onClose={onDismissError}
         />
-      )}
-      {error?.errorType === 'highComplexity' && (
-        <Banner
-          variant={BannerVariant.Danger}
-          data-testid="schema-toolbar-complexity-abort-message"
-          dismissible={true}
-          onClose={onDismissError}
-        >
-          The analysis was aborted because the number of fields exceeds{' '}
-          {DISTINCT_FIELDS_ABORT_THRESHOLD}. Consider breaking up your data into
-          more collections with smaller documents, and using references to
-          consolidate the data you need.&nbsp;
-          <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
-            Learn more
-          </Link>
-        </Banner>
       )}
       {analysisState === ANALYSIS_STATE_COMPLETE && isOutdated && (
         <WarningSummary warnings={[OUTDATED_WARNING_MESSAGE]} />

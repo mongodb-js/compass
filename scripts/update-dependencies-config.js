@@ -8,9 +8,7 @@ module.exports = {
     // breaking changes, but those rarely affect us. If it becomes a problem, we
     // can always change this code to lock it to whatever major version of
     // electron compass is currently at
-    // TODO(COMPASS-9852): have to keep it on 37 for now so that the app can
-    // work on macos 11
-    'electron@37',
+    'electron',
     'electron-to-chromium',
     'node-abi',
   ],

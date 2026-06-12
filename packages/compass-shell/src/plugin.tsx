@@ -45,6 +45,7 @@ export type ShellPluginServices = {
 
 export type ShellPluginExtraArgs = ShellPluginServices & {
   historyStorage: HistoryStorage;
+  deviceId: string;
 };
 
 export function onActivated(
@@ -53,13 +54,20 @@ export function onActivated(
   { addCleanup, cleanup }: ActivateHelpers
 ) {
   const { preferences, dataService, logger, track, connectionInfo } = services;
+  const deviceId = preferences.getPreferences().telemetryDeviceId ?? 'unknown';
 
   const store = createStore(
     reducer,
     {
       runtimeId: preferences.getPreferences().enableShell
         ? initialProps.runtimeId ??
-          createAndStoreRuntime(dataService, logger, track, connectionInfo).id
+          createAndStoreRuntime(
+            dataService,
+            logger,
+            track,
+            connectionInfo,
+            deviceId
+          ).id
         : null,
       history: null,
     },
@@ -67,6 +75,7 @@ export function onActivated(
       thunk.withExtraArgument({
         ...services,
         historyStorage: new HistoryStorage(),
+        deviceId,
       })
     )
   );

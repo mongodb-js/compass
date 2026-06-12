@@ -13,10 +13,16 @@ export {
 } from './element';
 export { ElementEvents, type ElementEventsType } from './element-events';
 
-export { ElementEditor, type Editor } from './editor';
+export {
+  ElementEditor,
+  type Editor,
+  getEditorNameByType,
+  getEditorByType,
+} from './editor';
 
 export {
   getDefaultValueForType,
   objectToIdiomaticEJSON,
   type BSONValue,
+  getDisplayType,
 } from './utils';

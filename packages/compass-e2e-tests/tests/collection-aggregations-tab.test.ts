@@ -210,6 +210,9 @@ describe('Collection aggregations tab', function () {
       '$unwind',
     ];
 
+    if (serverSatisfies('>=7.0.0')) {
+      expectedAggregations.push('$listSearchIndexes');
+    }
     if (serverSatisfies('>=6.0.10 <7.0.0 || >=7.0.2')) {
       expectedAggregations.push('$vectorSearch');
     }
@@ -600,7 +603,6 @@ describe('Collection aggregations tab', function () {
 
     await addStage(browser, 2);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -765,7 +767,6 @@ describe('Collection aggregations tab', function () {
 
     await addStage(browser, 2);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -815,7 +816,6 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.AddStageButton);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -879,7 +879,6 @@ describe('Collection aggregations tab', function () {
 
     await browser.clickVisible(Selectors.AddStageButton);
 
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$match');
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(1),
@@ -970,7 +969,6 @@ describe('Collection aggregations tab', function () {
 
     // Add second $limit stage
     await browser.clickVisible(Selectors.AddStageButton);
-    await browser.focusStageOperator(1);
     await browser.selectStageOperator(1, '$limit');
     await browser.setCodemirrorEditorValue(Selectors.stageEditor(1), '25');
 
@@ -1132,8 +1130,6 @@ describe('Collection aggregations tab', function () {
   [{ $match: { i: 5 } }],
   { maxTimeMS: 60000, allowDiskUse: true }
 );`);
-
-    await browser.clickVisible(Selectors.ExportModalExportButton);
 
     // Set the filename.
     const filename = outputFilename('aggregated-numbers.json');

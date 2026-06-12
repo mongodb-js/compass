@@ -2061,6 +2061,21 @@ type QueryEditedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when a user clicks reset button on a query.
+ *
+ * @category Find Queries
+ */
+type QueryResetClickedEvent = ConnectionScopedEvent<{
+  name: 'Query Reset Clicked';
+  payload: {
+    /**
+     * Where does the reset originated: CRUD or Schema view
+     */
+    source: string;
+  };
+}>;
+
+/**
  * This event is fired when user copied query to clipboard.
  *
  * @category Find Queries
@@ -2204,7 +2219,38 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
     geo_data: boolean;
 
     /**
+     * The total count of distinct fields across all nesting levels in the schema,
+     * including fields nested within documents and arrays of documents.
+     */
+    distinct_field_count: number;
+
+    /**
      * The time taken to analyze the schema, in milliseconds.
+     */
+    analysis_time_ms: number;
+  };
+}>;
+
+/**
+ * This event is fired when schema analysis fails due to a query timeout or a general error.
+ *
+ * @category Schema
+ */
+type SchemaAnalysisFailedEvent = ConnectionScopedEvent<{
+  name: 'Schema Analysis Failed';
+  payload: {
+    /**
+     * The category of error that caused the failure.
+     */
+    error_type: 'timeout' | 'general';
+
+    /**
+     * Indicates whether a filter was applied during the schema analysis.
+     */
+    with_filter: boolean;
+
+    /**
+     * The time taken when analyzing the schema, before it failed, in milliseconds.
      */
     analysis_time_ms: number;
   };
@@ -2497,6 +2543,36 @@ type ApplicationRestartAcceptedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired from the main process when a renderer process
+ * terminates unexpectedly (crash, OOM, killed, etc.).
+ * Normal clean exits are excluded.
+ *
+ * @category Application
+ */
+type RenderProcessGoneEvent = CommonEvent<{
+  name: 'Render Process Gone';
+  payload: {
+    /**
+     * The reason the renderer process terminated.
+     */
+    reason:
+      | 'abnormal-exit'
+      | 'killed'
+      | 'crashed'
+      | 'oom'
+      | 'launch-failed'
+      | 'integrity-failure'
+      | 'memory-eviction';
+
+    /**
+     * The exit code of the process, or a platform-specific launch failure
+     * error code if reason is 'launch-failed'.
+     */
+    exit_code: number;
+  };
+}>;
+
+/**
  * This event is fired when the auto-update feature is enabled.
  *
  * @category Auto-updates
@@ -2742,36 +2818,6 @@ type AtlasLinkClickedEvent = CommonEvent<{
      * The screen from which the Atlas CTA was clicked.
      */
     screen?: 'agg_builder' | 'connect';
-  };
-}>;
-
-/**
- * This event is fired when a user clicks the Atlas Skills CTA banner.
- *
- * @category Other
- */
-type AtlasSkillsCtaClickedEvent = CommonEvent<{
-  name: 'Atlas Skills CTA Clicked';
-  payload: {
-    /**
-     * The context/screen from which the Atlas Skills CTA was dismissed.
-     */
-    context: 'Documents Tab' | 'Aggregation Tab' | 'Indexes Tab' | 'Schema Tab';
-  };
-}>;
-
-/**
- * This event is fired when a user dismisses the Atlas Skills CTA banner.
- *
- * @category Other
- */
-type AtlasSkillsCtaDismissedEvent = CommonEvent<{
-  name: 'Atlas Skills CTA Dismissed';
-  payload: {
-    /**
-     * The context/screen from which the Atlas Skills CTA was dismissed.
-     */
-    context: 'Documents Tab' | 'Aggregation Tab' | 'Indexes Tab' | 'Schema Tab';
   };
 }>;
 
@@ -3730,8 +3776,6 @@ export type TelemetryEvent =
   | ApplicationLaunchedEvent
   | AtlasLinkClickedEvent
   | AtlasSearchIndexesForViewLinkClickedEvent
-  | AtlasSkillsCtaClickedEvent
-  | AtlasSkillsCtaDismissedEvent
   | AtlasSignInErrorEvent
   | AtlasSignInSuccessEvent
   | AtlasSignOutEvent
@@ -3819,6 +3863,7 @@ export type TelemetryEvent =
   | PipelineAiFeedbackEvent
   | AssistantToolCallApprovalEvent
   | QueryEditedEvent
+  | QueryResetClickedEvent
   | QueryExecutedEvent
   | QueryExportedEvent
   | QueryExportOpenedEvent
@@ -3833,6 +3878,7 @@ export type TelemetryEvent =
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
   | SchemaAnalysisStartedEvent
+  | SchemaAnalysisFailedEvent
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent
@@ -3891,4 +3937,5 @@ export type TelemetryEvent =
   | SearchIndexEditSubmittedEvent
   | SearchIndexEditCancelledEvent
   | ManageSearchIndexesLinkClickedEvent
+  | RenderProcessGoneEvent
   | SearchIndexStatusDetailsLinkClickedEvent;

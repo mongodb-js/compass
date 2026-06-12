@@ -620,8 +620,12 @@ export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="dele
 export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
-export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
-export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
+export const BulkActionsButton =
+  '[data-testid="crud-bulk-actions-show-actions"]';
+export const OpenBulkUpdateButton =
+  '[data-testid="crud-bulk-actions-bulk-update-action"]';
+export const OpenBulkDeleteButton =
+  '[data-testid="crud-bulk-actions-bulk-delete-action"]';
 export const ErrorDetailsJson = '[data-testid="error-details-json"]';
 export const DocumentTableContainer = `.document-table-view-container`;
 
@@ -904,9 +908,6 @@ export const CreateViewNameInput = `${CreateViewModal} [data-testid="create-view
 export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
-export const stageOperatorOptions = (stageIndex: number): string => {
-  return `${StageCardAtIndex(stageIndex)} [role="option"]`;
-};
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
 };
@@ -1296,8 +1297,6 @@ export const ExportJSONFormatAccordion =
   '[data-testid="export-modal"] [data-testid="export-advanced-json-format"]';
 export const ExportJSONFormatCanonical =
   '[data-testid="export-modal"] [data-testid="export-json-format-canonical"]';
-export const ExportModalExportButton =
-  '[data-testid="export-modal"] [data-testid="export-button"]';
 export const ExportToast = '[data-testid="toast-export-toast"]';
 export const ExportToastAbort =
   '[data-testid="toast-export-toast"] [data-testid="toast-action-stop"]';

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type {
   FieldPath,
@@ -8,6 +8,7 @@ import {
   Combobox,
   ComboboxOption,
   TextInput,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import {
   changeFieldType,
@@ -131,7 +132,7 @@ const FieldDrawerContent: React.FunctionComponent<FieldDrawerContentProps> = ({
     string | undefined
   >();
   const [fieldTypes, setFieldTypes] = useState<string[]>(types);
-  useEffect(() => {
+  useSyncStateOnPropChange(() => {
     setFieldTypes(types);
   }, [types]);
 

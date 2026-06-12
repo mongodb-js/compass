@@ -1,12 +1,13 @@
 import React from 'react';
-import { getBsonType, type TypeCastTypes } from 'hadron-type-checker';
+import { type TypeCastTypes } from 'hadron-type-checker';
 import type { Editor, Element } from 'hadron-document';
 import type Document from 'hadron-document';
 import {
   ElementEditor as initEditors,
+  getEditorNameByType,
   getDefaultValueForType,
+  getDisplayType,
 } from 'hadron-document';
-import { Binary } from 'bson';
 import TypesDropdown from './types-dropdown';
 import AddFieldButton from './add-field-button';
 import {
@@ -58,47 +59,6 @@ export interface DocumentTableRowNode extends RowNode {
     hasFooter?: boolean;
     rowNumber: number;
   };
-}
-
-/**
- * Gets the display type for an element, considering legacy UUID encoding preference.
- * For Binary subtype 3 (legacy UUID), returns the appropriate legacy UUID type based on encoding.
- * For Binary subtype 4 (UUID), returns 'UUID'.
- * For all other types, returns the element's currentType.
- */
-function getDisplayType(
-  element: Element,
-  legacyUUIDEncoding?: string
-): TypeCastTypes {
-  // If the element already has a specific UUID type, use it
-  if (
-    element.currentType === 'UUID' ||
-    element.currentType === 'LegacyJavaUUID' ||
-    element.currentType === 'LegacyCSharpUUID' ||
-    element.currentType === 'LegacyPythonUUID'
-  ) {
-    return element.currentType;
-  }
-
-  // Check if this is a Binary that should be displayed as a UUID type
-  if (
-    element.currentType === 'Binary' &&
-    getBsonType(element.currentValue) === 'Binary'
-  ) {
-    const binary = element.currentValue as Binary;
-    if (binary.sub_type === Binary.SUBTYPE_UUID) {
-      return 'UUID';
-    }
-    if (
-      binary.sub_type === Binary.SUBTYPE_UUID_OLD &&
-      binary.buffer.length === 16 &&
-      legacyUUIDEncoding
-    ) {
-      return legacyUUIDEncoding as TypeCastTypes;
-    }
-  }
-
-  return element.currentType;
 }
 
 export type CellEditorProps = Omit<ICellEditorParams, 'node' | 'context'> & {
@@ -189,14 +149,13 @@ class CellEditor
       this.newField = value.currentKey === '$new';
     }
 
-    // Set the displayType on the element so editors can read it
-    this.element.displayType = getDisplayType(
+    const displayType = getDisplayType(
       this.element,
       props.legacyUUIDDisplayEncoding
     );
 
     this.oldType = this.element.currentType;
-    this._editors = initEditors(this.element /*, props.tz*/);
+    this._editors = initEditors(this.element, displayType);
     this.editor().start();
   }
 
@@ -419,19 +378,11 @@ class CellEditor
    * @returns {Editor} The editor.
    */
   editor(): Editor {
-    // Use displayType if available (for UUID types), otherwise use currentType
-    const editorType = this.element!.displayType ?? this.element!.currentType;
-    // Map legacy UUID types to the UUID editor
-    const editorKey =
-      editorType === 'LegacyJavaUUID' ||
-      editorType === 'LegacyCSharpUUID' ||
-      editorType === 'LegacyPythonUUID'
-        ? 'UUID'
-        : editorType;
-    return (
-      this._editors![editorKey as keyof typeof this._editors] ??
-      this._editors!.Standard
+    const editorType = getDisplayType(
+      this.element!,
+      this.props.legacyUUIDDisplayEncoding
     );
+    return this._editors![getEditorNameByType(editorType)];
   }
 
   /**

@@ -1,6 +1,7 @@
-import { EJSON } from 'bson';
-import TypeChecker from 'hadron-type-checker';
+import { Binary, EJSON } from 'bson';
+import TypeChecker, { getBsonType, isUUIDType } from 'hadron-type-checker';
 import type { TypeCastMap, TypeCastTypes } from 'hadron-type-checker';
+import type { Element } from './element';
 
 const UNCASTED_EMPTY_TYPE_VALUE: {
   [T in TypeCastTypes]: unknown;
@@ -152,4 +153,43 @@ function makeEJSONIdiomatic(value: any): void {
  */
 export function getDefaultValueForType(type: keyof TypeCastMap) {
   return TypeChecker.cast(UNCASTED_EMPTY_TYPE_VALUE[type], type);
+}
+
+/**
+ * Gets the display type for an element, considering legacy UUID encoding
+ * preference.
+ *
+ *  - For Binary subtype 3 (legacy UUID), returns the appropriate legacy UUID
+ *    type based on context.
+ *  - For Binary subtype 4 (UUID), returns 'UUID'.
+ *  - For all other types, returns the element's currentType.
+ */
+export function getDisplayType(
+  el: Element,
+  legacyUUIDEncoding?: string
+): Element['type'] {
+  // If the element already has a specific UUID type, use it
+  if (isUUIDType(el.currentType)) {
+    return el.currentType;
+  }
+
+  // Check if this is a Binary that should be displayed as a UUID type
+  if (
+    el.currentType === 'Binary' &&
+    getBsonType(el.currentValue) === 'Binary'
+  ) {
+    const binary = el.currentValue as Binary;
+    if (binary.sub_type === Binary.SUBTYPE_UUID) {
+      return 'UUID';
+    }
+    if (
+      binary.sub_type === Binary.SUBTYPE_UUID_OLD &&
+      binary.buffer.length === 16 &&
+      legacyUUIDEncoding
+    ) {
+      return legacyUUIDEncoding as Element['type'];
+    }
+  }
+
+  return el.currentType;
 }

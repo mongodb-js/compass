@@ -32,8 +32,8 @@ variables:
     EVERGREEN_VERSION_ID: ${version_id}
     EVERGREEN_WORKDIR: ${workdir}
     EVERGREEN_CREATED_AT: ${created_at}
-    NODE_JS_VERSION: '22.21.1'
-    NPM_VERSION: '11.13.0'
+    NODE_JS_VERSION: '24.15.0'
+    NPM_VERSION: '11.16.0'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
@@ -412,6 +412,7 @@ functions:
       params:
         working_dir: src
         shell: bash
+        include_expansions_in_env: [DEVELOPER_DIR]
         env:
           <<: *compass-env
           DEBUG: ${debug}
@@ -437,8 +438,15 @@ functions:
         working_dir: src
         shell: bash
         include_expansions_in_env:
-          [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
+          [
+            AWS_ACCESS_KEY_ID,
+            AWS_SECRET_ACCESS_KEY,
+            AWS_SESSION_TOKEN,
+            DEVELOPER_DIR,
+          ]
         env:
+          <<: *compass-env
+          npm_config_loglevel: ${npm_loglevel}
           ARTIFACTORY_USERNAME: ${artifactory_username}
           ARTIFACTORY_PASSWORD: ${artifactory_password}
           SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
@@ -450,13 +458,14 @@ functions:
           KONDUKTO_BRANCH: ${branch_name}_${target_platform}
         script: |
           set -e
-
+          eval $(.evergreen/print-compass-env.sh)
           bash ".evergreen/retry-with-backoff.sh" .evergreen/create-sbom.sh
     - command: shell.exec
       retry_on_failure: true
       params:
         working_dir: src
         shell: bash
+        include_expansions_in_env: [DEVELOPER_DIR]
         env:
           <<: *compass-env
           DEBUG: ${debug}
@@ -601,7 +610,7 @@ functions:
           # Deploy to dev on every commit to main, do nothing for release branches
           if [[ "$EVERGREEN_PROJECT" == '10gen-compass-main' && "$EVERGREEN_IS_PATCH" != "true" ]]; then
             npm run --workspace @mongodb-js/compass-web upload-entrypoint
-          else 
+          else
             echo "Skipping publish: wrong project ($EVERGREEN_PROJECT) or patch ($EVERGREEN_IS_PATCH)"
           fi
 

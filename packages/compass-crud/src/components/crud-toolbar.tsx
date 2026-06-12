@@ -1,9 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import {
-  useTelemetry,
-  SkillsBannerContextEnum,
-  useAtlasSkillsBanner,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 import {
   Body,
@@ -20,8 +16,6 @@ import {
   Option,
   SignalPopover,
   useContextMenuGroups,
-  usePersistedState,
-  AtlasSkillsBanner,
   Tooltip,
   WorkspaceContainer,
 } from '@mongodb-js/compass-components';
@@ -30,8 +24,7 @@ import { ViewSwitcher } from './view-switcher';
 import { type DocumentView } from '../stores/crud-store';
 import { AddDataMenu } from './add-data-menu';
 import { usePreference } from 'compass-preferences-model/provider';
-import UpdateMenu from './update-data-menu';
-import DeleteMenu from './delete-data-menu';
+import { BulkActionsMenu } from './bulk-actions-menu';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
@@ -213,15 +206,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const isImportExportEnabled = usePreference('enableImportExport');
-  const [dismissed, setDismissed] = usePersistedState(
-    'mongodb_compass_dismissedAtlasDocSkillBanner',
-    false
-  );
-
-  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
-  const { shouldShowAtlasSkillsBanner } = useAtlasSkillsBanner(
-    SkillsBannerContextEnum.Documents
-  );
 
   const onClickRefreshDocuments = useCallback(() => {
     track('Query Results Refreshed', {}, connectionInfoRef.current);
@@ -346,23 +330,6 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
         />
       </div>
 
-      <AtlasSkillsBanner
-        ctaText="Practice creating, reading, updating, and deleting documents efficiently."
-        skillsUrl="https://learn.mongodb.com/courses/crud-operations-in-mongodb?team=growth"
-        onCloseSkillsBanner={() => {
-          setDismissed(true);
-          track('Atlas Skills CTA Dismissed', {
-            context: 'Documents Tab',
-          });
-        }}
-        showBanner={shouldShowAtlasSkillsBanner && !dismissed}
-        onCtaClick={() => {
-          track('Atlas Skills CTA Clicked', {
-            context: 'Documents Tab',
-          });
-        }}
-      />
-
       <div className={crudBarStyles}>
         <div className={toolbarLeftActionStyles}>
           {!readonly && (
@@ -376,26 +343,16 @@ const CrudToolbar: React.FunctionComponent<CrudToolbarProps> = ({
             />
           )}
           {!readonly && (
-            <UpdateMenu
+            <BulkActionsMenu
               isWritable={isWritable && !shouldDisableBulkOp}
               disabledTooltip={
                 isWritable
-                  ? 'Remove limit and skip in your query to perform an update'
+                  ? 'Remove limit and skip in your query to perform a bulk operation'
                   : instanceDescription
               }
-              onClick={onUpdateButtonClicked}
-            ></UpdateMenu>
-          )}
-          {!readonly && (
-            <DeleteMenu
-              isWritable={isWritable && !shouldDisableBulkOp}
-              disabledTooltip={
-                isWritable
-                  ? 'Remove limit and skip in your query to perform a delete'
-                  : instanceDescription
-              }
-              onClick={onDeleteButtonClicked}
-            ></DeleteMenu>
+              onUpdate={onUpdateButtonClicked}
+              onDelete={onDeleteButtonClicked}
+            ></BulkActionsMenu>
           )}
           {isImportExportEnabled && (
             <DropdownMenuButton<ExportDataOption>
