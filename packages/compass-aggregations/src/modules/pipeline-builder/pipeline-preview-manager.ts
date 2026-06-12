@@ -105,24 +105,20 @@ export class PipelinePreviewManager {
       await cancellableWait(options.debounceMs ?? 700, controller.signal);
     }
     this.lastPipeline.set(idx, pipeline);
-
-    const previewPipeline = createPreviewAggregation(pipeline, {
-      sampleSize,
-      previewSize,
-      totalDocumentCount,
-    });
-
-    const documents = await aggregatePipeline({
+    const result = await aggregatePipeline({
       dataService: this.dataService,
       preferences: this.preferences,
       signal: controller.signal,
       namespace,
-      pipeline: previewPipeline,
+      pipeline: createPreviewAggregation(pipeline, {
+        sampleSize,
+        previewSize,
+        totalDocumentCount,
+      }),
       options,
     });
-
     this.queue.delete(idx);
-    return documents;
+    return result;
   }
 
   isLastPipelineEqual(idx: number, pipeline: Document[]): boolean {

@@ -276,11 +276,10 @@ export class PipelineBuilder {
     options: PreviewOptions,
     force = false
   ): Promise<Document[]> {
-    const pipeline = this.getPipelineFromStages(this.stages.slice(0, idx + 1));
     return this.previewManager.getPreviewForStage(
       idx,
       namespace,
-      pipeline,
+      this.getPipelineFromStages(this.stages.slice(0, idx + 1)),
       options,
       force
     );
@@ -302,7 +301,7 @@ export class PipelineBuilder {
   /**
    * Request preview for current pipeline source
    */
-  async getPreviewForPipeline(
+  getPreviewForPipeline(
     namespace: string,
     options: PreviewOptions,
     filterOutputStage = false
@@ -312,13 +311,12 @@ export class PipelineBuilder {
     if (filterOutputStage && isLastStageOutputStage(pipeline)) {
       pipeline.pop();
     }
-    const documents = await this.previewManager.getPreviewForStage(
+    return this.previewManager.getPreviewForStage(
       FULL_PIPELINE_PREVIEW_ID,
       namespace,
       pipeline,
       options
     );
-    return documents;
   }
 
   /**

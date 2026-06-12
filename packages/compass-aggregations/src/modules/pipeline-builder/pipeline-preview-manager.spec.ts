@@ -18,15 +18,11 @@ describe('PipelinePreviewManager', function () {
   it('should return pipeline results', async function () {
     const dataService = mockDataService({ data: [{ foo: 'bar' }] });
     const previewManager = new PipelinePreviewManager(dataService, preferences);
-    const documents = await previewManager.getPreviewForStage(
-      0,
-      'test.test',
-      [],
-      {
+    expect(
+      await previewManager.getPreviewForStage(0, 'test.test', [], {
         debounceMs: 10,
-      }
-    );
-    expect(documents).to.deep.eq([{ foo: 'bar' }]);
+      })
+    ).to.deep.eq([{ foo: 'bar' }]);
   });
 
   it('should throw a cancelled error if preview request was cancelled', async function () {
