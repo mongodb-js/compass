@@ -113,7 +113,7 @@ describe('PipelineBuilder', function () {
         {},
         true
       )
-      .returns({ documents: [{ _id: 1 }], stageMetadata: null });
+      .returns([{ _id: 1 }]);
 
     const data = await pipelineBuilder.getPreviewForStage(
       1,
@@ -121,10 +121,7 @@ describe('PipelineBuilder', function () {
       {},
       true
     );
-    expect(data).to.deep.equal({
-      documents: [{ _id: 1 }],
-      stageMetadata: null,
-    });
+    expect(data).to.deep.equal([{ _id: 1 }]);
 
     mock.verify();
     mock.restore();
@@ -143,7 +140,7 @@ describe('PipelineBuilder', function () {
         [{ $match: {} }, { $unwind: 'users' }],
         {}
       )
-      .returns({ documents: [{ _id: 1 }, { _id: 2 }], stageMetadata: null });
+      .returns([{ _id: 1 }, { _id: 2 }]);
 
     const data = await pipelineBuilder.getPreviewForPipeline(
       'airbnb.listings',
@@ -168,7 +165,7 @@ describe('PipelineBuilder', function () {
         [{ $match: {} }, { $unwind: 'users' }],
         {}
       )
-      .returns({ documents: [{ _id: 1 }, { _id: 2 }], stageMetadata: null });
+      .returns([{ _id: 1 }, { _id: 2 }]);
 
     const data = await pipelineBuilder.getPreviewForPipeline(
       'airbnb.listings',

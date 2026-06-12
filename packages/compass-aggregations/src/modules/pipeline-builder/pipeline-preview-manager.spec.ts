@@ -6,7 +6,6 @@ import {
   DEFAULT_SAMPLE_SIZE,
   PipelinePreviewManager,
 } from './pipeline-preview-manager';
-import { SEARCH_SCORE_DETAILS_FIELD } from '../../utils/search-score-injection';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 
@@ -19,121 +18,15 @@ describe('PipelinePreviewManager', function () {
   it('should return pipeline results', async function () {
     const dataService = mockDataService({ data: [{ foo: 'bar' }] });
     const previewManager = new PipelinePreviewManager(dataService, preferences);
-    const { documents, stageMetadata } =
-      await previewManager.getPreviewForStage(0, 'test.test', [], {
+    const documents = await previewManager.getPreviewForStage(
+      0,
+      'test.test',
+      [],
+      {
         debounceMs: 10,
-      });
+      }
+    );
     expect(documents).to.deep.eq([{ foo: 'bar' }]);
-    expect(stageMetadata).to.be.null;
-  });
-
-  describe('injectScoreDetails=true', function () {
-    it('extracts stageMetadata and strips injected field from documents', async function () {
-      const scoreDetails = { value: 0.95, description: 'score', details: [] };
-      const rawDoc = {
-        title: 'foo',
-        [SEARCH_SCORE_DETAILS_FIELD]: scoreDetails,
-      };
-      const dataService = mockDataService({ data: [rawDoc] });
-      const previewManager = new PipelinePreviewManager(
-        dataService,
-        preferences
-      );
-
-      const { documents, stageMetadata } =
-        await previewManager.getPreviewForStage(
-          0,
-          'test.test',
-          [{ $search: { text: { query: 'foo', path: 'title' } } }],
-          { debounceMs: 10, injectScoreDetails: true }
-        );
-
-      // Injected field stripped from displayed documents
-      expect(documents).to.deep.eq([{ title: 'foo' }]);
-      // Score metadata extracted into stageMetadata
-      expect(stageMetadata).to.deep.eq({
-        type: '$search',
-        scores: [scoreDetails],
-      });
-    });
-
-    it('returns stageMetadata: null when scoreDetails field is absent from results', async function () {
-      const dataService = mockDataService({ data: [{ title: 'foo' }] });
-      const previewManager = new PipelinePreviewManager(
-        dataService,
-        preferences
-      );
-
-      const { documents, stageMetadata } =
-        await previewManager.getPreviewForStage(
-          0,
-          'test.test',
-          [{ $search: { text: { query: 'foo', path: 'title' } } }],
-          { debounceMs: 10, injectScoreDetails: true }
-        );
-
-      expect(documents).to.deep.eq([{ title: 'foo' }]);
-      expect(stageMetadata).to.be.null;
-    });
-
-    it('preserves index alignment — null for documents missing scoreDetails', async function () {
-      const scoreDetails = { value: 0.95, description: 'score', details: [] };
-      const dataService = mockDataService({
-        data: [
-          { title: 'foo', [SEARCH_SCORE_DETAILS_FIELD]: scoreDetails },
-          { title: 'bar' }, // missing scoreDetails
-        ],
-      });
-      const previewManager = new PipelinePreviewManager(
-        dataService,
-        preferences
-      );
-
-      const { documents, stageMetadata } =
-        await previewManager.getPreviewForStage(
-          0,
-          'test.test',
-          [{ $search: { text: { query: 'foo', path: 'title' } } }],
-          { debounceMs: 10, injectScoreDetails: true }
-        );
-
-      // scores is index-aligned with documents
-      expect(stageMetadata?.scores).to.have.lengthOf(documents.length);
-      expect(stageMetadata?.scores[0]).to.deep.eq(scoreDetails); // foo
-      expect(stageMetadata?.scores[1]).to.be.null; // bar — no score
-    });
-
-    it('keeps preview $limit after score metadata injection', async function () {
-      const dataService = mockDataService({ data: [{ _id: 1 }] });
-      const previewManager = new PipelinePreviewManager(
-        dataService,
-        preferences
-      );
-
-      await previewManager.getPreviewForStage(
-        0,
-        'test.test',
-        [{ $search: { text: { query: 'foo', path: 'title' } } }],
-        { debounceMs: 10, previewSize: 5, injectScoreDetails: true }
-      );
-
-      const aggregatePipelineArg = (dataService.aggregate as any).firstCall
-        .args[1];
-      expect(aggregatePipelineArg).to.deep.equal([
-        {
-          $search: {
-            text: { query: 'foo', path: 'title' },
-            scoreDetails: true,
-          },
-        },
-        {
-          $addFields: {
-            [SEARCH_SCORE_DETAILS_FIELD]: { $meta: 'searchScoreDetails' },
-          },
-        },
-        { $limit: 5 },
-      ]);
-    });
   });
 
   it('should throw a cancelled error if preview request was cancelled', async function () {

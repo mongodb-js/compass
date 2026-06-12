@@ -1,6 +1,6 @@
 import type { Action, Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
-import type { AggregateOptions, MongoServerError } from 'mongodb';
+import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
@@ -12,10 +12,18 @@ import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-con
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
+  createPreviewAggregation,
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
-import type { StagePreviewMetadata } from '../../utils/search-score-injection';
+import {
+  injectSearchScoreMetadata,
+  SEARCH_SCORE_DETAILS_FIELD,
+} from '../../utils/search-score-injection';
+import type {
+  SearchScoreDetails,
+  StagePreviewMetadata,
+} from '../../utils/search-score-injection';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
@@ -265,6 +273,24 @@ function canRunStage(stage?: StoreStage, allowOut = false): boolean {
   );
 }
 
+function createSearchStageMetadata(
+  previewDocs: Document[],
+  metadataDocs: Document[] | null
+): StagePreviewMetadata | null {
+  if (!metadataDocs) {
+    return null;
+  }
+  const scores: (SearchScoreDetails | null)[] = previewDocs.map((_, idx) => {
+    return (
+      (metadataDocs[idx]?.[SEARCH_SCORE_DETAILS_FIELD] as SearchScoreDetails) ??
+      null
+    );
+  });
+  return scores.some((score) => score !== null)
+    ? { type: '$search', scores }
+    : null;
+}
+
 export const loadStagePreview = (
   idx: number
 ): PipelineBuilderThunkAction<
@@ -323,33 +349,63 @@ export const loadStagePreview = (
         collectionStats,
       } = getState();
 
+      const activeDataService = dataService.dataService;
       const { enableSearchActivationProgramP2 } = preferences.getPreferences();
-      const options: PreviewOptions = {
+      const shouldFetchSearchStageMetadata =
+        !!enableSearchActivationProgramP2 &&
+        !!activeDataService &&
+        stagesForPreview.length === 1 &&
+        stagesForPreview[0].stageOperator === '$search';
+      const aggregateOptions: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
+      };
+      const options: PreviewOptions = {
+        ...aggregateOptions,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
         totalDocumentCount: collectionStats?.document_count,
-        // $search must be first stage, so for per-stage preview scoreDetails is
-        // only injected for a single-stage $search pipeline.
-        injectScoreDetails:
-          !!enableSearchActivationProgramP2 &&
-          stagesForPreview.length === 1 &&
-          stagesForPreview[0].stageOperator === '$search',
       };
 
-      const { documents, stageMetadata } =
-        await pipelineBuilder.getPreviewForStage(
-          idxInPipeline,
-          namespace,
-          options
+      const metadataAbortController = new AbortController();
+      const metadataPromise =
+        shouldFetchSearchStageMetadata && activeDataService
+          ? aggregatePipeline({
+              dataService: activeDataService,
+              preferences,
+              signal: metadataAbortController.signal,
+              namespace,
+              pipeline: createPreviewAggregation(
+                injectSearchScoreMetadata(
+                  pipelineBuilder.getPipelineFromStages(
+                    pipelineBuilder.stages.slice(0, idxInPipeline + 1)
+                  )
+                ),
+                options
+              ),
+              options: aggregateOptions,
+            }).catch(() => null)
+          : Promise.resolve(null);
+
+      try {
+        const [documents, metadataDocs] = await Promise.all([
+          pipelineBuilder.getPreviewForStage(idxInPipeline, namespace, options),
+          metadataPromise,
+        ]);
+        const stageMetadata = createSearchStageMetadata(
+          documents,
+          metadataDocs
         );
-      dispatch({
-        type: StageEditorActionTypes.StagePreviewFetchSuccess,
-        id: idx,
-        previewDocs: documents.map((doc) => new HadronDocument(doc)),
-        stageMetadata,
-      });
+        dispatch({
+          type: StageEditorActionTypes.StagePreviewFetchSuccess,
+          id: idx,
+          previewDocs: documents.map((doc) => new HadronDocument(doc)),
+          stageMetadata,
+        });
+      } finally {
+        // Cancel the metadata aggregation if it's still in flight.
+        metadataAbortController.abort();
+      }
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
         return;

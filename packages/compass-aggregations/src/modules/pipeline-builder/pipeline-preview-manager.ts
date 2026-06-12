@@ -13,19 +13,6 @@ import {
 import isEqual from 'lodash/isEqual';
 import type { DataService } from '../data-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import {
-  injectSearchScoreMetadata,
-  SEARCH_SCORE_DETAILS_FIELD,
-} from '../../utils/search-score-injection';
-import type {
-  SearchScoreDetails,
-  StagePreviewMetadata,
-} from '../../utils/search-score-injection';
-
-export type StagePreviewResult = {
-  documents: Document[];
-  stageMetadata: StagePreviewMetadata | null;
-};
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 
@@ -49,7 +36,6 @@ export interface PreviewOptions extends AggregateOptions {
   totalDocumentCount?: number;
   sampleSize?: number;
   previewSize?: number;
-  injectScoreDetails?: boolean;
 }
 
 export function createPreviewAggregation(
@@ -87,23 +73,6 @@ export function createPreviewAggregation(
   return stages;
 }
 
-function buildPreviewResultWithStageMetadata(
-  rawDocuments: Document[]
-): StagePreviewResult {
-  const scores: (SearchScoreDetails | null)[] = rawDocuments.map(
-    (doc) => (doc[SEARCH_SCORE_DETAILS_FIELD] as SearchScoreDetails) ?? null
-  );
-  const stageMetadata: StagePreviewMetadata | null = scores.some(
-    (s) => s !== null
-  )
-    ? { type: '$search', scores }
-    : null;
-  const documents = rawDocuments.map(
-    ({ [SEARCH_SCORE_DETAILS_FIELD]: _, ...rest }) => rest
-  );
-  return { documents, stageMetadata };
-}
-
 export class PipelinePreviewManager {
   private queue = new Map<number, AbortController>();
   private lastPipeline = new Map<number, Document[]>();
@@ -125,11 +94,10 @@ export class PipelinePreviewManager {
       sampleSize,
       previewSize,
       totalDocumentCount,
-      injectScoreDetails = false,
       ...options
     }: PreviewOptions = {},
     force = false
-  ): Promise<StagePreviewResult> {
+  ): Promise<Document[]> {
     this.queue.get(idx)?.abort();
     const controller = new AbortController();
     this.queue.set(idx, controller);
@@ -138,19 +106,13 @@ export class PipelinePreviewManager {
     }
     this.lastPipeline.set(idx, pipeline);
 
-    const pipelineForPreviewAggregation = injectScoreDetails
-      ? injectSearchScoreMetadata(pipeline)
-      : pipeline;
-    const previewPipeline = createPreviewAggregation(
-      pipelineForPreviewAggregation,
-      {
-        sampleSize,
-        previewSize,
-        totalDocumentCount,
-      }
-    );
+    const previewPipeline = createPreviewAggregation(pipeline, {
+      sampleSize,
+      previewSize,
+      totalDocumentCount,
+    });
 
-    const rawDocuments = await aggregatePipeline({
+    const documents = await aggregatePipeline({
       dataService: this.dataService,
       preferences: this.preferences,
       signal: controller.signal,
@@ -160,11 +122,7 @@ export class PipelinePreviewManager {
     });
 
     this.queue.delete(idx);
-
-    if (injectScoreDetails) {
-      return buildPreviewResultWithStageMetadata(rawDocuments);
-    }
-    return { documents: rawDocuments, stageMetadata: null };
+    return documents;
   }
 
   isLastPipelineEqual(idx: number, pipeline: Document[]): boolean {

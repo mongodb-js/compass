@@ -1,10 +1,7 @@
 import * as t from '@babel/types';
 import type { Document } from 'bson';
 import { PipelinePreviewManager } from './pipeline-preview-manager';
-import type {
-  PreviewOptions,
-  StagePreviewResult,
-} from './pipeline-preview-manager';
+import type { PreviewOptions } from './pipeline-preview-manager';
 import { PipelineParser } from './pipeline-parser';
 import Stage from './stage';
 import { parseShellBSON, PipelineParserError } from './pipeline-parser/utils';
@@ -278,7 +275,7 @@ export class PipelineBuilder {
     namespace: string,
     options: PreviewOptions,
     force = false
-  ): Promise<StagePreviewResult> {
+  ): Promise<Document[]> {
     const pipeline = this.getPipelineFromStages(this.stages.slice(0, idx + 1));
     return this.previewManager.getPreviewForStage(
       idx,
@@ -315,7 +312,7 @@ export class PipelineBuilder {
     if (filterOutputStage && isLastStageOutputStage(pipeline)) {
       pipeline.pop();
     }
-    const { documents } = await this.previewManager.getPreviewForStage(
+    const documents = await this.previewManager.getPreviewForStage(
       FULL_PIPELINE_PREVIEW_ID,
       namespace,
       pipeline,

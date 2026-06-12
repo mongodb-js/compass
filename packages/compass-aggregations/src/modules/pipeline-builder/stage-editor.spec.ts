@@ -97,18 +97,6 @@ const SEARCH_STAGE: StoreStage = mapBuilderStageToStoreStage(
   0
 );
 
-const SEARCH_STAGE_AT_INDEX_1: StoreStage = mapBuilderStageToStoreStage(
-  {
-    id: 6,
-    operator: '$search',
-    value: '{ text: { query: "foo", path: "title" } }',
-    syntaxError: null,
-    disabled: false,
-    isEmpty: false,
-  } as Stage,
-  1
-);
-
 const createWizard = (): Wizard => ({
   id: getId(),
   type: 'wizard',
@@ -932,7 +920,7 @@ describe('stageEditor', function () {
       });
     });
 
-    it('sets injectScoreDetails for a single-stage $search preview when enabled', async function () {
+    it('does not pass search-specific options to preview manager when search activation is enabled', async function () {
       const store = createStore({
         stages: [SEARCH_STAGE],
         pipelineSource: `[{$search: {text: {query: "foo", path: "title"}}}]`,
@@ -947,26 +935,9 @@ describe('stageEditor', function () {
       ).to.have.been.calledWithMatch(
         0,
         Sinon.match.string,
-        Sinon.match.has('injectScoreDetails', true)
-      );
-    });
-
-    it('does not set injectScoreDetails when $search is not the only stage', async function () {
-      const store = createStore({
-        stages: [MATCH_STAGE, SEARCH_STAGE_AT_INDEX_1],
-        pipelineSource: `[{$match: {_id: 1}}, {$search: {text: {query: "foo", path: "title"}}}]`,
-        preferences: createPreferencesWithSearchActivationProgramP2(true),
-      });
-
-      await store.dispatch(loadStagePreview(1));
-
-      expect(
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        store.pipelineBuilder.getPreviewForStage
-      ).to.have.been.calledWithMatch(
-        1,
-        Sinon.match.string,
-        Sinon.match.has('injectScoreDetails', false)
+        Sinon.match((options: Record<string, unknown>) => {
+          return !('injectScoreDetails' in options);
+        })
       );
     });
   });
