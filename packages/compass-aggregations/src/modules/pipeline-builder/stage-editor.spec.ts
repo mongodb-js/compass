@@ -1031,27 +1031,22 @@ describe('stageEditor', function () {
         };
         let metadataCallCount = 0;
         const dataService = mockDataService();
-        replaceAggregate(
-          dataService,
-          (
-            _namespace,
-            _pipeline,
-            _options,
-            { abortSignal }: { abortSignal?: AbortSignal } = {}
-          ) => {
-            metadataCallCount += 1;
-            if (metadataCallCount === 1) {
-              return new Promise((_resolve, reject) => {
-                abortSignal?.addEventListener('abort', () => {
-                  const err = new Error('Aborted');
-                  err.name = 'AbortError';
-                  reject(err);
-                });
+        replaceAggregate(dataService, (...args: unknown[]) => {
+          const abortSignal = (
+            args[3] as { abortSignal?: AbortSignal } | undefined
+          )?.abortSignal;
+          metadataCallCount += 1;
+          if (metadataCallCount === 1) {
+            return new Promise((_resolve, reject) => {
+              abortSignal?.addEventListener('abort', () => {
+                const err = new Error('Aborted');
+                err.name = 'AbortError';
+                reject(err);
               });
-            }
-            return Promise.resolve([{ type: '$search', scores: latestScore }]);
+            });
           }
-        );
+          return Promise.resolve([{ type: '$search', scores: latestScore }]);
+        });
         const searchStore = createSearchPreviewStore({ dataService });
         stubPreviewDocs(searchStore);
 
