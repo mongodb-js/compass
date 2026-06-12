@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import type { Document } from 'mongodb';
 import type { DataService } from 'mongodb-data-service';
 import { applyMiddleware, createStore as createReduxStore } from 'redux';
 import thunk from 'redux-thunk';
@@ -34,6 +35,7 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/provider';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
+import { SEARCH_SCORE_DETAILS_FIELD } from '../../utils/search-score-injection';
 
 const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 
@@ -150,13 +152,15 @@ function createStore({
   pipelineSource = `[{$match: {_id: 1}}, {$limit: 10}, {$out: 'match-and-limit'}]`,
   stages = PIPELINE,
   preferences = defaultPreferencesInstance,
+  dataService = mockDataService(),
 }: {
   pipelineSource?: string;
   stages?: StageEditorState['stages'];
   preferences?: PreferencesAccess;
+  dataService?: DataService;
 }) {
   const pipelineBuilder = Sinon.spy(
-    new PipelineBuilder({} as DataService, preferences, pipelineSource)
+    new PipelineBuilder(dataService, preferences, pipelineSource)
   ) as unknown as PipelineBuilder;
 
   const globalAppRegistry = new AppRegistry();
@@ -172,7 +176,7 @@ function createStore({
     reducer,
     {
       dataService: {
-        dataService: mockDataService(),
+        dataService,
       },
       pipelineBuilder: {
         stageEditor: {
@@ -215,6 +219,7 @@ function createStore({
       return store.getState().pipelineBuilder.stageEditor;
     },
     pipelineBuilder,
+    dataService,
   };
 }
 
@@ -920,25 +925,184 @@ describe('stageEditor', function () {
       });
     });
 
-    it('does not pass search-specific options to preview manager when search activation is enabled', async function () {
-      const store = createStore({
-        stages: [SEARCH_STAGE],
-        pipelineSource: `[{$search: {text: {query: "foo", path: "title"}}}]`,
-        preferences: createPreferencesWithSearchActivationProgramP2(true),
+    describe('when fetching $search stage metadata', function () {
+      const scoreDetails = {
+        value: 0.9,
+        description: 'text score',
+        details: [],
+      };
+      const previewDocs: Document[] = [{ _id: 1, title: 'foo' }];
+      const SEARCH_PIPELINE_SOURCE = `[{$search: {text: {query: "foo", path: "title"}}}]`;
+
+      afterEach(function () {
+        Sinon.restore();
       });
 
-      await store.dispatch(loadStagePreview(0));
+      function createSearchPreviewStore({
+        enableSearchActivationProgramP2 = true,
+        stages = [SEARCH_STAGE],
+        pipelineSource = SEARCH_PIPELINE_SOURCE,
+        dataService = mockDataService(),
+      }: {
+        enableSearchActivationProgramP2?: boolean;
+        stages?: StageEditorState['stages'];
+        pipelineSource?: string;
+        dataService?: DataService;
+      } = {}) {
+        return createStore({
+          stages,
+          pipelineSource,
+          preferences: createPreferencesWithSearchActivationProgramP2(
+            enableSearchActivationProgramP2
+          ),
+          dataService,
+        });
+      }
 
-      expect(
-        // eslint-disable-next-line @typescript-eslint/unbound-method
-        store.pipelineBuilder.getPreviewForStage
-      ).to.have.been.calledWithMatch(
-        0,
-        Sinon.match.string,
-        Sinon.match((options: Record<string, unknown>) => {
-          return !('injectScoreDetails' in options);
-        })
-      );
+      function getStoreStage(
+        searchStore: ReturnType<typeof createSearchPreviewStore>,
+        idx: number
+      ): StoreStage {
+        return searchStore.getState().stages[idx] as StoreStage;
+      }
+
+      function stubPreviewDocs(
+        searchStore: ReturnType<typeof createSearchPreviewStore>,
+        docs: Document[] = previewDocs
+      ) {
+        Sinon.replace(
+          searchStore.pipelineBuilder,
+          'getPreviewForStage',
+          Sinon.fake.resolves(docs)
+        );
+      }
+
+      function replaceAggregate(
+        dataService: DataService,
+        implementation: (...args: unknown[]) => Promise<unknown[]>
+      ) {
+        const aggregate = Sinon.fake(implementation);
+        Sinon.replace(dataService, 'aggregate', aggregate);
+        return aggregate;
+      }
+
+      it('fetches metadata in parallel and stores scores when flag is enabled', async function () {
+        const dataService = mockDataService();
+        const aggregate = replaceAggregate(dataService, () =>
+          Promise.resolve([
+            { _id: 1, [SEARCH_SCORE_DETAILS_FIELD]: scoreDetails },
+          ])
+        );
+        const searchStore = createSearchPreviewStore({ dataService });
+        stubPreviewDocs(searchStore);
+
+        await searchStore.dispatch(loadStagePreview(0));
+
+        expect(aggregate).to.have.been.calledOnce;
+        expect(getStoreStage(searchStore, 0).stageMetadata).to.deep.equal({
+          type: '$search',
+          scores: [scoreDetails],
+        });
+        expect(getStoreStage(searchStore, 0).previewDocs).to.have.lengthOf(1);
+      });
+
+      it('does not fetch metadata when search activation flag is disabled', async function () {
+        const dataService = mockDataService();
+        const aggregate = replaceAggregate(dataService, () =>
+          Promise.resolve([])
+        );
+        const searchStore = createSearchPreviewStore({
+          enableSearchActivationProgramP2: false,
+          dataService,
+        });
+        stubPreviewDocs(searchStore);
+
+        await searchStore.dispatch(loadStagePreview(0));
+
+        expect(aggregate).not.to.have.been.called;
+        expect(getStoreStage(searchStore, 0).stageMetadata).to.be.null;
+      });
+
+      it('does not fetch metadata when $search is not the only stage in preview', async function () {
+        const searchAsSecondStage = mapBuilderStageToStoreStage(
+          {
+            id: 6,
+            operator: '$search',
+            value: '{ text: { query: "foo", path: "title" } }',
+            syntaxError: null,
+            disabled: false,
+            isEmpty: false,
+          } as Stage,
+          1
+        );
+        const dataService = mockDataService();
+        const aggregate = replaceAggregate(dataService, () =>
+          Promise.resolve([])
+        );
+        const searchStore = createSearchPreviewStore({
+          stages: [MATCH_STAGE, searchAsSecondStage],
+          pipelineSource:
+            '[{$match: {_id: 1}}, {$search: {text: {query: "foo", path: "title"}}}]',
+          dataService,
+        });
+        stubPreviewDocs(searchStore);
+
+        await searchStore.dispatch(loadStagePreview(1));
+
+        expect(aggregate).not.to.have.been.called;
+        expect(getStoreStage(searchStore, 1).stageMetadata).to.be.null;
+      });
+
+      it('completes preview with null metadata when metadata aggregate fails', async function () {
+        const dataService = mockDataService();
+        replaceAggregate(dataService, () =>
+          Promise.reject(new Error('metadata failed'))
+        );
+        const searchStore = createSearchPreviewStore({ dataService });
+        stubPreviewDocs(searchStore);
+
+        await searchStore.dispatch(loadStagePreview(0));
+
+        expect(getStoreStage(searchStore, 0).stageMetadata).to.be.null;
+        expect(getStoreStage(searchStore, 0).previewDocs).to.have.lengthOf(1);
+      });
+
+      it('stores null metadata when metadata documents have no score details', async function () {
+        const dataService = mockDataService();
+        replaceAggregate(dataService, () => Promise.resolve([{ _id: 1 }]));
+        const searchStore = createSearchPreviewStore({ dataService });
+        stubPreviewDocs(searchStore);
+
+        await searchStore.dispatch(loadStagePreview(0));
+
+        expect(getStoreStage(searchStore, 0).stageMetadata).to.be.null;
+      });
+
+      it('aligns scores with preview documents by index', async function () {
+        const docs: Document[] = [{ _id: 1 }, { _id: 2 }, { _id: 3 }];
+        const middleScore = {
+          value: 0.5,
+          description: 'middle',
+          details: [],
+        };
+        const dataService = mockDataService();
+        replaceAggregate(dataService, () =>
+          Promise.resolve([
+            {},
+            { [SEARCH_SCORE_DETAILS_FIELD]: middleScore },
+            {},
+          ])
+        );
+        const searchStore = createSearchPreviewStore({ dataService });
+        stubPreviewDocs(searchStore, docs);
+
+        await searchStore.dispatch(loadStagePreview(0));
+
+        expect(getStoreStage(searchStore, 0).stageMetadata).to.deep.equal({
+          type: '$search',
+          scores: [null, middleScore, null],
+        });
+      });
     });
   });
 
