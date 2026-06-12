@@ -363,6 +363,7 @@ export const loadStagePreview = (
       // Metadata runs after preview, so it inherits preview debounce/cancellation.
       let metadataDocs: Document[] | null = null;
       if (shouldFetchSearchStageMetadata) {
+        cancelSearchStageMetadataFetch(idxInPipeline);
         const metadataAbortController = new AbortController();
         searchStageMetadataAbortControllers.set(
           idxInPipeline,

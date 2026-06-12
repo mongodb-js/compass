@@ -1023,6 +1023,49 @@ describe('stageEditor', function () {
         expect(aggregate).to.have.been.calledTwice;
       });
 
+      it('does not dispatch stale metadata when a newer preview load cancels it', async function () {
+        const latestScore = {
+          value: 0.9,
+          description: 'latest',
+          details: [],
+        };
+        let metadataCallCount = 0;
+        const dataService = mockDataService();
+        replaceAggregate(
+          dataService,
+          (
+            _namespace,
+            _pipeline,
+            _options,
+            { abortSignal }: { abortSignal?: AbortSignal } = {}
+          ) => {
+            metadataCallCount += 1;
+            if (metadataCallCount === 1) {
+              return new Promise((_resolve, reject) => {
+                abortSignal?.addEventListener('abort', () => {
+                  const err = new Error('Aborted');
+                  err.name = 'AbortError';
+                  reject(err);
+                });
+              });
+            }
+            return Promise.resolve([{ type: '$search', scores: latestScore }]);
+          }
+        );
+        const searchStore = createSearchPreviewStore({ dataService });
+        stubPreviewDocs(searchStore);
+
+        const first = searchStore.dispatch(loadStagePreview(0));
+        const second = searchStore.dispatch(loadStagePreview(0));
+        await Promise.allSettled([first, second]);
+
+        expect(metadataCallCount).to.equal(2);
+        expect(getStoreStage(searchStore, 0).stageMetadata).to.deep.equal({
+          type: '$search',
+          scores: [latestScore],
+        });
+      });
+
       it('does not fetch metadata when search activation flag is disabled', async function () {
         const dataService = mockDataService();
         const aggregate = replaceAggregate(dataService, () =>
