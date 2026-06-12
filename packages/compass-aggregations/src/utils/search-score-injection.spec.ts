@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import {
+  createSearchStageMetadata,
   injectSearchScoreMetadata,
-  SEARCH_SCORE_DETAILS_FIELD,
 } from './search-score-injection';
 
 describe('injectSearchScoreMetadata', function () {
@@ -19,14 +19,16 @@ describe('injectSearchScoreMetadata', function () {
     });
   });
 
-  it('appends _searchAIFeaturesScoreDetails $addFields stage at the end', function () {
+  it('appends a $project stage at the end to surface searchScoreDetails', function () {
     const pipeline = [{ $search: { text: { query: 'foo', path: 'title' } } }];
     const result = injectSearchScoreMetadata(pipeline);
 
     expect(result).to.have.lengthOf(2);
     expect(result[1]).to.deep.equal({
-      $addFields: {
-        [SEARCH_SCORE_DETAILS_FIELD]: { $meta: 'searchScoreDetails' },
+      $project: {
+        _id: 0,
+        type: { $literal: '$search' },
+        scores: { $meta: 'searchScoreDetails' },
       },
     });
   });
@@ -44,8 +46,10 @@ describe('injectSearchScoreMetadata', function () {
       },
       { $limit: 5 },
       {
-        $addFields: {
-          [SEARCH_SCORE_DETAILS_FIELD]: { $meta: 'searchScoreDetails' },
+        $project: {
+          _id: 0,
+          type: { $literal: '$search' },
+          scores: { $meta: 'searchScoreDetails' },
         },
       },
     ]);
@@ -99,5 +103,33 @@ describe('injectSearchScoreMetadata', function () {
       { $sort: { score: -1 } },
     ];
     expect(injectSearchScoreMetadata(pipeline)).to.deep.equal(pipeline);
+  });
+});
+
+describe('createSearchStageMetadata', function () {
+  const scoreDetails = {
+    value: 1,
+    description: 'test',
+    details: [],
+  };
+
+  it('returns null when metadata docs are null', function () {
+    expect(createSearchStageMetadata(null)).to.be.null;
+  });
+
+  it('returns null when no metadata documents contain scores', function () {
+    expect(createSearchStageMetadata([{}, { type: '$search' }])).to.be.null;
+  });
+
+  it('builds stage metadata from metadata document scores', function () {
+    expect(
+      createSearchStageMetadata([
+        { type: '$search', scores: scoreDetails },
+        { type: '$search' },
+      ])
+    ).to.deep.equal({
+      type: '$search',
+      scores: [scoreDetails, null],
+    });
   });
 });

@@ -17,13 +17,10 @@ import {
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
 import {
+  createSearchStageMetadata,
   injectSearchScoreMetadata,
-  SEARCH_SCORE_DETAILS_FIELD,
 } from '../../utils/search-score-injection';
-import type {
-  SearchScoreDetails,
-  StagePreviewMetadata,
-} from '../../utils/search-score-injection';
+import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
@@ -273,22 +270,11 @@ function canRunStage(stage?: StoreStage, allowOut = false): boolean {
   );
 }
 
-function createSearchStageMetadata(
-  previewDocs: Document[],
-  metadataDocs: Document[] | null
-): StagePreviewMetadata | null {
-  if (!metadataDocs) {
-    return null;
-  }
-  const scores: (SearchScoreDetails | null)[] = previewDocs.map((_, idx) => {
-    return (
-      (metadataDocs[idx]?.[SEARCH_SCORE_DETAILS_FIELD] as SearchScoreDetails) ??
-      null
-    );
-  });
-  return scores.some((score) => score !== null)
-    ? { type: '$search', scores }
-    : null;
+const searchStageMetadataAbortControllers = new Map<number, AbortController>();
+
+function cancelSearchStageMetadataFetch(idx: number): void {
+  searchStageMetadataAbortControllers.get(idx)?.abort();
+  searchStageMetadataAbortControllers.delete(idx);
 }
 
 export const loadStagePreview = (
@@ -317,6 +303,7 @@ export const loadStagePreview = (
     const { idxInPipeline } = stage;
     // Ignoring the state of the stage, always try to stop current preview fetch
     pipelineBuilder.cancelPreviewForStage(idxInPipeline);
+    cancelSearchStageMetadataFetch(idxInPipeline);
 
     const stagesForPreview = pipelineFromStore(stages.slice(0, idx + 1));
     const canFetchPreviewForStage =
@@ -367,45 +354,58 @@ export const loadStagePreview = (
         totalDocumentCount: collectionStats?.document_count,
       };
 
-      const metadataAbortController = new AbortController();
-      const metadataPromise =
-        shouldFetchSearchStageMetadata && activeDataService
-          ? aggregatePipeline({
-              dataService: activeDataService,
-              preferences,
-              signal: metadataAbortController.signal,
-              namespace,
-              pipeline: createPreviewAggregation(
-                injectSearchScoreMetadata(
-                  pipelineBuilder.getPipelineFromStages(
-                    pipelineBuilder.stages.slice(0, idxInPipeline + 1)
-                  )
-                ),
-                options
-              ),
-              options: aggregateOptions,
-            }).catch(() => null)
-          : Promise.resolve(null);
+      const documents = await pipelineBuilder.getPreviewForStage(
+        idxInPipeline,
+        namespace,
+        options
+      );
 
-      try {
-        const [documents, metadataDocs] = await Promise.all([
-          pipelineBuilder.getPreviewForStage(idxInPipeline, namespace, options),
-          metadataPromise,
-        ]);
-        const stageMetadata = createSearchStageMetadata(
-          documents,
-          metadataDocs
+      // Metadata runs after preview, so it inherits preview debounce/cancellation.
+      let metadataDocs: Document[] | null = null;
+      if (shouldFetchSearchStageMetadata) {
+        const metadataAbortController = new AbortController();
+        searchStageMetadataAbortControllers.set(
+          idxInPipeline,
+          metadataAbortController
         );
-        dispatch({
-          type: StageEditorActionTypes.StagePreviewFetchSuccess,
-          id: idx,
-          previewDocs: documents.map((doc) => new HadronDocument(doc)),
-          stageMetadata,
-        });
-      } finally {
-        // Cancel the metadata aggregation if it's still in flight.
-        metadataAbortController.abort();
+        try {
+          metadataDocs = await aggregatePipeline({
+            dataService: activeDataService!,
+            preferences,
+            signal: metadataAbortController.signal,
+            namespace,
+            pipeline: createPreviewAggregation(
+              injectSearchScoreMetadata(
+                pipelineBuilder.getPipelineFromStages(
+                  pipelineBuilder.stages.slice(0, idxInPipeline + 1)
+                )
+              ),
+              options
+            ),
+            options: aggregateOptions,
+          });
+        } catch (err) {
+          if (activeDataService!.isCancelError(err)) {
+            return;
+          }
+          metadataDocs = null;
+        } finally {
+          if (
+            searchStageMetadataAbortControllers.get(idxInPipeline) ===
+            metadataAbortController
+          ) {
+            searchStageMetadataAbortControllers.delete(idxInPipeline);
+          }
+        }
       }
+
+      const stageMetadata = createSearchStageMetadata(metadataDocs);
+      dispatch({
+        type: StageEditorActionTypes.StagePreviewFetchSuccess,
+        id: idx,
+        previewDocs: documents.map((doc) => new HadronDocument(doc)),
+        stageMetadata,
+      });
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
         return;

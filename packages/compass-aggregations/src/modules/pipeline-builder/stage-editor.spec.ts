@@ -35,7 +35,6 @@ import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/provider';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
-import { SEARCH_SCORE_DETAILS_FIELD } from '../../utils/search-score-injection';
 
 const TEST_CONNECTION_INFO = createDefaultConnectionInfo();
 
@@ -926,6 +925,7 @@ describe('stageEditor', function () {
     });
 
     describe('when fetching $search stage metadata', function () {
+      const PREVIEW_DEBOUNCE_MS = 700;
       const scoreDetails = {
         value: 0.9,
         description: 'text score',
@@ -986,12 +986,10 @@ describe('stageEditor', function () {
         return aggregate;
       }
 
-      it('fetches metadata in parallel and stores scores when flag is enabled', async function () {
+      it('fetches metadata after preview and stores scores when flag is enabled', async function () {
         const dataService = mockDataService();
         const aggregate = replaceAggregate(dataService, () =>
-          Promise.resolve([
-            { _id: 1, [SEARCH_SCORE_DETAILS_FIELD]: scoreDetails },
-          ])
+          Promise.resolve([{ type: '$search', scores: scoreDetails }])
         );
         const searchStore = createSearchPreviewStore({ dataService });
         stubPreviewDocs(searchStore);
@@ -1004,6 +1002,25 @@ describe('stageEditor', function () {
           scores: [scoreDetails],
         });
         expect(getStoreStage(searchStore, 0).previewDocs).to.have.lengthOf(1);
+      });
+
+      it('fetches metadata only after preview debounce settles', async function () {
+        const clock = Sinon.useFakeTimers();
+        const dataService = mockDataService();
+        const aggregate = replaceAggregate(dataService, () =>
+          Promise.resolve([{ type: '$search', scores: scoreDetails }])
+        );
+        const searchStore = createSearchPreviewStore({ dataService });
+
+        const first = searchStore.dispatch(loadStagePreview(0));
+        await clock.tickAsync(200);
+        const second = searchStore.dispatch(loadStagePreview(0));
+        await clock.tickAsync(PREVIEW_DEBOUNCE_MS);
+        await Promise.allSettled([first, second]);
+        clock.restore();
+
+        // One preview aggregate and one metadata aggregate for the last request.
+        expect(aggregate).to.have.been.calledTwice;
       });
 
       it('does not fetch metadata when search activation flag is disabled', async function () {
@@ -1078,8 +1095,7 @@ describe('stageEditor', function () {
         expect(getStoreStage(searchStore, 0).stageMetadata).to.be.null;
       });
 
-      it('aligns scores with preview documents by index', async function () {
-        const docs: Document[] = [{ _id: 1 }, { _id: 2 }, { _id: 3 }];
+      it('builds scores from metadata documents', async function () {
         const middleScore = {
           value: 0.5,
           description: 'middle',
@@ -1088,13 +1104,13 @@ describe('stageEditor', function () {
         const dataService = mockDataService();
         replaceAggregate(dataService, () =>
           Promise.resolve([
-            {},
-            { [SEARCH_SCORE_DETAILS_FIELD]: middleScore },
-            {},
+            { type: '$search' },
+            { type: '$search', scores: middleScore },
+            { type: '$search' },
           ])
         );
         const searchStore = createSearchPreviewStore({ dataService });
-        stubPreviewDocs(searchStore, docs);
+        stubPreviewDocs(searchStore, [{ _id: 1 }, { _id: 2 }, { _id: 3 }]);
 
         await searchStore.dispatch(loadStagePreview(0));
 

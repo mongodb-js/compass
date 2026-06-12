@@ -1,9 +1,5 @@
 import type { Document } from 'mongodb';
 
-// Internal field name used to surface scoreDetails on preview documents.
-// Intentionally long and feature-namespaced to reduce collision risk with user fields.
-export const SEARCH_SCORE_DETAILS_FIELD = '_searchAIFeaturesScoreDetails';
-
 export type SearchScoreDetails = {
   value: number;
   description: string;
@@ -30,9 +26,25 @@ export function injectSearchScoreMetadata(pipeline: Document[]): Document[] {
     { $search: { ...searchStage['$search'], scoreDetails: true } },
     ...pipeline.slice(1),
     {
-      $addFields: {
-        [SEARCH_SCORE_DETAILS_FIELD]: { $meta: 'searchScoreDetails' },
+      $project: {
+        _id: 0,
+        type: { $literal: '$search' },
+        scores: { $meta: 'searchScoreDetails' },
       },
     },
   ];
+}
+
+export function createSearchStageMetadata(
+  metadataDocs: Document[] | null
+): StagePreviewMetadata | null {
+  if (!metadataDocs) {
+    return null;
+  }
+  const scores: (SearchScoreDetails | null)[] = metadataDocs.map((doc) => {
+    return (doc.scores as SearchScoreDetails) ?? null;
+  });
+  return scores.some((score) => score !== null)
+    ? { type: '$search', scores }
+    : null;
 }
