@@ -1778,13 +1778,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
   ): Promise<number> {
     return this._cancellableOperation(
-      async (session) => {
+      async (session, signal) => {
         return this._collection(ns, 'CRUD').countDocuments(filter, {
           ...this._getOptionsWithFallbackReadPreference(
             options,
             executionOptions
           ),
           session,
+          signal,
         });
       },
       (session) => session.endSession(),
@@ -1999,10 +2000,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
   ): Promise<T[]> {
     let cursor: AggregationCursor;
     return this._cancellableOperation(
-      async (session?: ClientSession) => {
+      async (session?: ClientSession, signal?: AbortSignal) => {
         cursor = this._collection(ns, 'CRUD').aggregate(pipeline, {
           ...options,
           session,
+          signal,
         });
         const results = await cursor.toArray();
         void cursor.close();
@@ -2026,13 +2028,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
   ): Promise<Document[]> {
     let cursor: FindCursor;
     return this._cancellableOperation(
-      async (session?: ClientSession) => {
+      async (session?: ClientSession, signal?: AbortSignal) => {
         cursor = this._collection(ns, 'CRUD').find(
           filter,
           this._getOptionsWithFallbackReadPreference(
             {
               ...options,
               session,
+              signal,
             },
             executionOptions
           )
@@ -2117,10 +2120,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     let cursor: FindCursor;
     return this._cancellableOperation(
-      async (session?: ClientSession) => {
+      async (session?: ClientSession, signal?: AbortSignal) => {
         cursor = this._collection(ns, 'CRUD').find(filter, {
           ...options,
           session,
+          signal,
         });
         const results = await cursor.explain({
           verbosity,
@@ -2152,10 +2156,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     let cursor: AggregationCursor;
     return this._cancellableOperation(
-      async (session) => {
+      async (session, signal) => {
         cursor = this._collection(ns, 'CRUD').aggregate(pipeline, {
           ...options,
           session,
+          signal,
         });
         const results = await cursor.explain({
           verbosity,
@@ -2680,7 +2685,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   private async _cancellableOperation<T>(
-    start: (session?: ClientSession) => Promise<T>,
+    start: (session?: ClientSession, signal?: AbortSignal) => Promise<T>,
     stop: (session: ClientSession) => Promise<void> = () => Promise.resolve(),
     abortSignal?: AbortSignal
   ): Promise<T> {
@@ -2709,7 +2714,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     };
 
     try {
-      result = await raceWithAbort(start(session), abortSignal);
+      result = await raceWithAbort(start(session, abortSignal), abortSignal);
     } catch (err) {
       if (isCancelError(err)) {
         await abort();
@@ -2979,7 +2984,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const remainingTimeoutMS = () =>
       Math.max(1, timeout - (Date.now() - startTimeMS));
     return await this._cancellableOperation(
-      async (session) => {
+      async (session, signal) => {
         if (!session) {
           throw new Error('Could not open session.');
         }
@@ -2991,6 +2996,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
               const docsToPreview = await coll
                 .find(filter, {
                   session,
+                  signal,
                   maxTimeMS: remainingTimeoutMS(),
                   // by using promoteValues: false we can spot BSON type changes
                   // when diffing. ie. new Double(1) -> new Int32(1)
@@ -3010,6 +3016,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
                   { _id: { $in: idsToPreview } },
                   {
                     session,
+                    signal,
                     maxTimeMS: remainingTimeoutMS(),
                     promoteValues: false,
                   }
