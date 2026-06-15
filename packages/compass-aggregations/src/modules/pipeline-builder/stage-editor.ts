@@ -1,6 +1,6 @@
 import type { Action, Reducer } from 'redux';
 import HadronDocument from 'hadron-document';
-import type { AggregateOptions, Document, MongoServerError } from 'mongodb';
+import type { AggregateOptions, MongoServerError } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { RestorePipelineAction } from '../saved-pipeline';
 import { RESTORE_PIPELINE } from '../saved-pipeline';
@@ -40,6 +40,7 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
+import { cancellableWait } from '@mongodb-js/compass-utils';
 
 export const StageEditorActionTypes = {
   StagePreviewFetch:
@@ -270,13 +271,6 @@ function canRunStage(stage?: StoreStage, allowOut = false): boolean {
   );
 }
 
-const searchStageMetadataAbortControllers = new Map<number, AbortController>();
-
-function cancelSearchStageMetadataFetch(idx: number): void {
-  searchStageMetadataAbortControllers.get(idx)?.abort();
-  searchStageMetadataAbortControllers.delete(idx);
-}
-
 export const loadStagePreview = (
   idx: number
 ): PipelineBuilderThunkAction<
@@ -303,7 +297,6 @@ export const loadStagePreview = (
     const { idxInPipeline } = stage;
     // Ignoring the state of the stage, always try to stop current preview fetch
     pipelineBuilder.cancelPreviewForStage(idxInPipeline);
-    cancelSearchStageMetadataFetch(idxInPipeline);
 
     const stagesForPreview = pipelineFromStore(stages.slice(0, idx + 1));
     const canFetchPreviewForStage =
@@ -354,59 +347,50 @@ export const loadStagePreview = (
         totalDocumentCount: collectionStats?.document_count,
       };
 
-      const documents = await pipelineBuilder.getPreviewForStage(
-        idxInPipeline,
-        namespace,
-        options
-      );
+      const metadataAbortController = new AbortController();
+      const metadataPromise =
+        shouldFetchSearchStageMetadata && activeDataService
+          ? (async () => {
+              try {
+                await cancellableWait(700, metadataAbortController.signal);
 
-      // Metadata runs after preview, so it inherits preview debounce/cancellation.
-      let metadataDocs: Document[] | null = null;
-      if (shouldFetchSearchStageMetadata) {
-        cancelSearchStageMetadataFetch(idxInPipeline);
-        const metadataAbortController = new AbortController();
-        searchStageMetadataAbortControllers.set(
-          idxInPipeline,
-          metadataAbortController
-        );
-        try {
-          metadataDocs = await aggregatePipeline({
-            dataService: activeDataService!,
-            preferences,
-            signal: metadataAbortController.signal,
-            namespace,
-            pipeline: createPreviewAggregation(
-              injectSearchScoreMetadata(
-                pipelineBuilder.getPipelineFromStages(
-                  pipelineBuilder.stages.slice(0, idxInPipeline + 1)
-                )
-              ),
-              options
-            ),
-            options: aggregateOptions,
-          });
-        } catch (err) {
-          if (activeDataService!.isCancelError(err)) {
-            return;
-          }
-          metadataDocs = null;
-        } finally {
-          if (
-            searchStageMetadataAbortControllers.get(idxInPipeline) ===
-            metadataAbortController
-          ) {
-            searchStageMetadataAbortControllers.delete(idxInPipeline);
-          }
-        }
+                return await aggregatePipeline({
+                  dataService: activeDataService,
+                  preferences,
+                  signal: metadataAbortController.signal,
+                  namespace,
+                  pipeline: createPreviewAggregation(
+                    injectSearchScoreMetadata(
+                      pipelineBuilder.getPipelineFromStages(
+                        pipelineBuilder.stages.slice(0, idxInPipeline + 1)
+                      )
+                    ),
+                    options
+                  ),
+                  options: aggregateOptions,
+                });
+              } catch {
+                return null;
+              }
+            })()
+          : Promise.resolve(null);
+
+      try {
+        const [documents, metadataDocs] = await Promise.all([
+          pipelineBuilder.getPreviewForStage(idxInPipeline, namespace, options),
+          metadataPromise,
+        ]);
+        const stageMetadata = createSearchStageMetadata(metadataDocs);
+        dispatch({
+          type: StageEditorActionTypes.StagePreviewFetchSuccess,
+          id: idx,
+          previewDocs: documents.map((doc) => new HadronDocument(doc)),
+          stageMetadata,
+        });
+      } finally {
+        // Cancel the metadata aggregation if it's still in flight.
+        metadataAbortController.abort();
       }
-
-      const stageMetadata = createSearchStageMetadata(metadataDocs);
-      dispatch({
-        type: StageEditorActionTypes.StagePreviewFetchSuccess,
-        id: idx,
-        previewDocs: documents.map((doc) => new HadronDocument(doc)),
-        stageMetadata,
-      });
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
         return;

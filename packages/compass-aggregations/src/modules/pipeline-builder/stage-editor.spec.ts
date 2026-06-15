@@ -1024,6 +1024,7 @@ describe('stageEditor', function () {
       });
 
       it('does not dispatch stale metadata when a newer preview load cancels it', async function () {
+        const clock = Sinon.useFakeTimers();
         const latestScore = {
           value: 0.9,
           description: 'latest',
@@ -1031,29 +1032,20 @@ describe('stageEditor', function () {
         };
         let metadataCallCount = 0;
         const dataService = mockDataService();
-        replaceAggregate(dataService, (...args: unknown[]) => {
-          const abortSignal = (
-            args[3] as { abortSignal?: AbortSignal } | undefined
-          )?.abortSignal;
+        replaceAggregate(dataService, () => {
           metadataCallCount += 1;
-          if (metadataCallCount === 1) {
-            return new Promise((_resolve, reject) => {
-              abortSignal?.addEventListener('abort', () => {
-                const err = new Error('Aborted');
-                err.name = 'AbortError';
-                reject(err);
-              });
-            });
-          }
           return Promise.resolve([{ type: '$search', scores: latestScore }]);
         });
         const searchStore = createSearchPreviewStore({ dataService });
-        stubPreviewDocs(searchStore);
 
         const first = searchStore.dispatch(loadStagePreview(0));
+        await clock.tickAsync(200);
         const second = searchStore.dispatch(loadStagePreview(0));
+        await clock.tickAsync(PREVIEW_DEBOUNCE_MS);
         await Promise.allSettled([first, second]);
+        clock.restore();
 
+        // One preview aggregate and one metadata aggregate for the last request.
         expect(metadataCallCount).to.equal(2);
         expect(getStoreStage(searchStore, 0).stageMetadata).to.deep.equal({
           type: '$search',
