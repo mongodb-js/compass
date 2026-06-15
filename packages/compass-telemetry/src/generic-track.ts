@@ -5,7 +5,7 @@ export interface TelemetryPreferences {
   getPreferences(): { trackUsageStatistics: boolean };
 }
 
-export type TelemetryConnectionInfoHook = () => { id: string };
+type TelemetryConnectionInfoHook = () => { id: string };
 
 export interface TelemetryServiceOptions {
   sendTrack: (event: string, props: Record<string, unknown>) => void;

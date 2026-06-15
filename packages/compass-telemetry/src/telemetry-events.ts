@@ -83,7 +83,7 @@ export type IdentifyTraits = {
   os_linux_release?: string;
 };
 
-export type CommonProperties = {
+type CommonProperties = {
   is_compass_web?: true;
 };
 
@@ -2993,7 +2993,7 @@ type ExperimentViewedEvent = CommonEvent<{
   payload: { test_name: string };
 }>;
 
-export type CreateIndexModalContext = 'Create Index Modal';
+type CreateIndexModalContext = 'Create Index Modal';
 
 type CreateIndexButtonClickedEvent = CommonEvent<{
   name: 'Create Index Button Clicked';
@@ -3528,7 +3528,7 @@ type CreateSearchIndexForViewClickedEvent = CommonEvent<{
   };
 }>;
 
-export type SearchIndexesTelemetryContext =
+type SearchIndexesTelemetryContext =
   | 'Server Error Banner'
   | 'Search Index Does Not Exist Banner'
   | 'Search Index Stale Results Banner'

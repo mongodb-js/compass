@@ -12,7 +12,7 @@ type TelemetryConnectionInfo = {
   id: string;
 };
 
-export type TrackFunctionPayload<TPayload extends TelemetryEvent['payload']> =
+type TrackFunctionPayload<TPayload extends TelemetryEvent['payload']> =
   | Omit<TPayload, 'connection_id'>
   | (() => Omit<TPayload, 'connection_id'>)
   | (() => Promise<Omit<TPayload, 'connection_id'>>);
