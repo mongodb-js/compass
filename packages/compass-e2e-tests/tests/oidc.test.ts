@@ -527,7 +527,7 @@ describe('OIDC integration', function () {
       );
     });
 
-    it('can choose not to forward OIDC HTTP traffic', async function () {
+    it('shares the connection proxy for OIDC HTTP traffic when not using the application-level proxy', async function () {
       await browser.openSettingsModal('proxy');
       await browser.clickParent(Selectors.ProxyCustomButton);
       await browser.setValueVisible(
@@ -536,6 +536,11 @@ describe('OIDC integration', function () {
       );
       await browser.clickVisible(Selectors.SaveSettingsButton);
 
+      // Unchecking "Use Application-Level Proxy Settings" for OIDC sets
+      // shareProxyWithConnection=true, so the IdP traffic goes through the same
+      // proxy as the connection rather than the dedicated app-level proxy. Here
+      // the connection itself uses the app proxy, so OIDC is still forwarded
+      // through it.
       await browser.connectWithConnectionForm({
         hosts: [hostport],
         authMethod: 'MONGODB-OIDC',
@@ -545,6 +550,33 @@ describe('OIDC integration', function () {
       });
 
       expect(connectRequests.map((c) => c.url)).to.include(hostport);
+      expect(httpForwardRequests.map((c) => c.url)).to.include(
+        `${oidcMockProvider.issuer}/.well-known/openid-configuration`
+      );
+    });
+
+    it('does not proxy MongoDB or OIDC traffic when the connection does not use the application-level proxy', async function () {
+      await browser.openSettingsModal('proxy');
+      await browser.clickParent(Selectors.ProxyCustomButton);
+      await browser.setValueVisible(
+        Selectors.ProxyUrl,
+        `http://localhost:${(httpServer.address() as AddressInfo).port}`
+      );
+      await browser.clickVisible(Selectors.SaveSettingsButton);
+
+      // An application-level proxy is configured, but the connection opts out
+      // (proxyMethod 'none') and OIDC shares the connection's (absent) proxy
+      // rather than the app-level one. Neither the MongoDB connection nor the
+      // IdP traffic should be routed through the proxy.
+      await browser.connectWithConnectionForm({
+        hosts: [hostport],
+        authMethod: 'MONGODB-OIDC',
+        connectionName,
+        oidcUseApplicationProxy: false,
+        proxyMethod: 'none',
+      });
+
+      expect(connectRequests.map((c) => c.url)).to.not.include(hostport);
       expect(httpForwardRequests.map((c) => c.url)).to.be.empty;
     });
   });

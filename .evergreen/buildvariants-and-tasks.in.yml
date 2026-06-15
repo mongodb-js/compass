@@ -109,21 +109,21 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
 ];
 
 const EOL_SERVER_VERSIONS = [
-  { name: '60x-community', version: '6.0.x' },
-  { name: '60x-enterprise', version: '6.0.x-enterprise' },
+  { name: '60x-community', version: '6.0.x', requiredForPublish: true },
+  { name: '60x-enterprise', version: '6.0.x-enterprise', requiredForPublish: true },
 ];
 
 const MAINTAINED_SERVER_VERSIONS = [
-  { name: '70x-community', version: '7.0.x' },
-  { name: '70x-enterprise', version: '7.0.x-enterprise' },
-  { name: '80x-community', version: '8.0.x' },
-  { name: '80x-enterprise', version: '8.0.x-enterprise' },
+  { name: '70x-community', version: '7.0.x', requiredForPublish: true },
+  { name: '70x-enterprise', version: '7.0.x-enterprise', requiredForPublish: true },
+  { name: '80x-community', version: '8.0.x', requiredForPublish: true },
+  { name: '80x-enterprise', version: '8.0.x-enterprise', requiredForPublish: true },
 ];
 
 const LATEST_MAINTAINED_SERVER_VERSION =
   MAINTAINED_SERVER_VERSIONS[MAINTAINED_SERVER_VERSIONS.length - 1];
 
-const TEST_LATEST_ALPHA_SERVER_VERSION = { name: 'latest-alpha', version: 'latest-alpha-enterprise' };
+const TEST_LATEST_ALPHA_SERVER_VERSION = { name: 'latest-alpha', version: 'latest-alpha-enterprise', requiredForPublish: false };
 
 const SERVER_VERSIONS = [
  ...EOL_SERVER_VERSIONS,
@@ -512,8 +512,10 @@ tasks:
 <% for (const serverVersion of SERVER_VERSIONS) { %>
   <% for(const group of E2E_TEST_GROUPS) { %>
   - name: test-server-<%= serverVersion.name %>-<%= group.number %>
+  <% if (serverVersion.requiredForPublish) { %>
     tags:
       - required-for-publish-desktop
+  <% } %>
     commands:
       - func: prepare
       - func: install

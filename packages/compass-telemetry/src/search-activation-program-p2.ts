@@ -15,5 +15,7 @@ export const useSearchActivationProgramP2 = () => {
     assignment?.assignment?.assignmentData?.variant ===
     ExperimentTestGroups.searchActivationProgramP2Variant;
 
-  return { enableSearchActivationProgramP2: isInVariant };
+  return {
+    enableSearchActivationProgramP2: isInVariant,
+  };
 };

@@ -4,6 +4,7 @@ import AppRegistry, {
 import {
   closeExplainPlanModal,
   openExplainPlanModal,
+  openExplainPlanForInterpret,
 } from './explain-plan-modal-store';
 import type { ExplainPlanModalServices } from './';
 import { activatePlugin } from './';
@@ -56,6 +57,15 @@ describe('explain plan modal store', function () {
   const sandbox = Sinon.createSandbox();
   let deactivatePlugin: () => void;
   let dataService: ExplainPlanModalServices['dataService'];
+  let interpretExplainPlanSpy: Sinon.SinonSpy<
+    [
+      {
+        namespace: string;
+        explainPlan: string;
+        operationType: 'query' | 'aggregation';
+      }
+    ]
+  >;
 
   function configureStore(explainPlan: Document | Error = simplePlan) {
     const explain = sandbox.stub().callsFake(() => {
@@ -72,6 +82,8 @@ describe('explain plan modal store', function () {
         return false;
       },
     };
+
+    interpretExplainPlanSpy = sandbox.spy() as typeof interpretExplainPlanSpy;
 
     const { store, deactivate } = activatePlugin(
       { namespace: 'test.test', isDataLake: false },
@@ -93,6 +105,11 @@ describe('explain plan modal store', function () {
             return { maxTimeMS: 0 };
           },
         } as any,
+        compassAssistant: {
+          interpretExplainPlan: interpretExplainPlanSpy,
+          interpretConnectionError: () => {},
+          getIsAssistantEnabled: () => true,
+        },
       },
       createActivateHelpers()
     );
@@ -201,5 +218,25 @@ describe('explain plan modal store', function () {
       })
     );
     expect(store.getState()).to.have.property('operationType', 'aggregation');
+  });
+
+  it('should call interpretExplainPlan when explain is opened for interpret', async function () {
+    const store = configureStore();
+    await store.dispatch(
+      openExplainPlanForInterpret({ query: { filter: { foo: 1 } } })
+    );
+    expect(interpretExplainPlanSpy).to.have.been.calledOnce;
+    expect(interpretExplainPlanSpy.firstCall.args[0]).to.have.property(
+      'operationType',
+      'query'
+    );
+    expect(interpretExplainPlanSpy.firstCall.args[0]).to.have.property(
+      'namespace',
+      'test.test'
+    );
+    expect(interpretExplainPlanSpy.firstCall.args[0].explainPlan).to.be.a(
+      'string'
+    );
+    expect(store.getState()).to.have.property('isModalOpen', false);
   });
 });

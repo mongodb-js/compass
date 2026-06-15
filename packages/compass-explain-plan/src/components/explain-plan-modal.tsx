@@ -28,6 +28,7 @@ export type ExplainPlanModalProps = Partial<
     | 'rawExplainPlan'
     | 'error'
     | 'operationType'
+    | 'initialViewType'
   >
 > &
   Pick<CollectionTabPluginMetadata, 'namespace' | 'isDataLake'> & {
@@ -108,6 +109,7 @@ export const ExplainPlanModal: React.FunctionComponent<
   rawExplainPlan,
   error,
   operationType,
+  initialViewType = 'tree',
   onModalClose,
 }) => {
   const { interpretExplainPlan } = useAssistantActions();
@@ -187,6 +189,7 @@ export const ExplainPlanModal: React.FunctionComponent<
             explainPlan={explainPlan}
             rawExplainPlan={rawExplainPlan}
             error={error}
+            initialViewType={initialViewType}
           ></ExplainPlanView>
         )}
       </div>
@@ -209,6 +212,7 @@ const ConnectedExplainPlanModal = connect(
       rawExplainPlan: state.rawExplainPlan,
       error: state.error,
       operationType: state.operationType,
+      initialViewType: state.initialViewType,
     };
   },
   {
