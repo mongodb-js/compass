@@ -15,7 +15,7 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
 
-export function isOIDCAuth(connectionString: string): boolean {
+function isOIDCAuth(connectionString: string): boolean {
   const authMechanismString = (
     new ConnectionString(connectionString).searchParams.get('authMechanism') ||
     ''
@@ -24,7 +24,7 @@ export function isOIDCAuth(connectionString: string): boolean {
   return authMechanismString === 'MONGODB-OIDC';
 }
 
-export function getConnectingStatusText(connectionInfo: ConnectionInfo) {
+function getConnectingStatusText(connectionInfo: ConnectionInfo) {
   const connectionTitle = getConnectionTitle(connectionInfo);
   const isOIDC = isOIDCAuth(connectionInfo.connectionOptions.connectionString);
   return {
@@ -291,6 +291,6 @@ export function getNotificationTriggers() {
  * supposed to be displayed every time connection flow is happening in the
  * application.
  */
-export function useConnectionStatusNotifications() {
+function useConnectionStatusNotifications() {
   return getNotificationTriggers();
 }

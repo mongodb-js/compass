@@ -43,7 +43,7 @@ import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/pro
 import { getErrorCodeCauseChain } from '../utils/telemetry';
 import type { CompassAssistantService } from '@mongodb-js/compass-assistant';
 
-export type ConnectionsEventMap = {
+type ConnectionsEventMap = {
   connected: (
     connectionId: ConnectionId,
     connectionInfo: ConnectionInfo,
@@ -60,7 +60,7 @@ export type ConnectionsEventMap = {
  * the session. If connection was ever disconnected, this value will be used to
  * not connect again
  */
-export function getSessionConnectionStatus(connectionId = '-1') {
+function getSessionConnectionStatus(connectionId = '-1') {
   try {
     return window.sessionStorage.getItem(`CONNECTION_STATUS:${connectionId}`);
   } catch {
@@ -74,7 +74,7 @@ export function getSessionConnectionStatus(connectionId = '-1') {
  * connection state between page reloads. Currently only used by Compass desktop
  * to prevent autoconnecting to trigger on hard page refresh.
  */
-export function setSessionConnectionStatus(
+function setSessionConnectionStatus(
   connectionId: string,
   status: 'disconnected'
 ) {
@@ -220,7 +220,7 @@ export type ConnectionsThunkAction<
   A extends AnyAction = AnyAction
 > = ThunkAction<R, State, ThunkExtraArg, A>;
 
-export const ActionTypes = {
+const ActionTypes = {
   // Actions related to getting connections from the persistent store (like disk
   // or cloud backend)
   ConnectionsLoadStart: 'ConnectionsLoadStart',
@@ -458,7 +458,7 @@ export function createDefaultConnectionInfo() {
   };
 }
 
-export function createDefaultConnectionState(
+function createDefaultConnectionState(
   connectionInfo: ConnectionInfo = createDefaultConnectionInfo()
 ): ConnectionState {
   return {
@@ -479,7 +479,7 @@ const INITIAL_STATE: State = {
   isEditingConnectionInfoModalOpen: false,
 };
 
-export function getInitialConnectionsStateForConnectionInfos(
+function getInitialConnectionsStateForConnectionInfos(
   connectionInfos?: ConnectionInfo[]
 ): State['connections'] {
   if (!connectionInfos) {
@@ -616,7 +616,7 @@ function mergeConnections(
   };
 }
 
-export type RecursivePartial<T> = {
+type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
     ? RecursivePartial<U>[]
     : T[P] extends object | undefined
@@ -2265,7 +2265,7 @@ async function shouldShowEndOfLifeWarning(
   }
 }
 
-export const showEndOfLifeMongoDBWarningModal = (
+const showEndOfLifeMongoDBWarningModal = (
   connectionId: string,
   version: string
 ): ConnectionsThunkAction<void> => {

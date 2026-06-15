@@ -139,7 +139,7 @@ const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
   );
 };
 
-export const ConnectedConnectionModal = reduxConnect(
+const ConnectedConnectionModal = reduxConnect(
   mapState,
   mapDispatch
 )(ConnectionModal);

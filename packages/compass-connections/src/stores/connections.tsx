@@ -14,7 +14,7 @@ import {
 } from './store-context';
 import { ClusterLoadError } from './cluster-load-error';
 
-export const ConnectionsComponent: React.FunctionComponent<{
+const ConnectionsComponent: React.FunctionComponent<{
   /**
    * Application name, will be passed to the driver during connection
    */

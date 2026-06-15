@@ -67,7 +67,7 @@ export const useStore = createStoreHook(
 /**
  * @internal should not be directly exported from this package
  */
-export const useDispatch = createDispatchHook(
+const useDispatch = createDispatchHook(
   ConnectionsStoreContext
 ) as () => ConnectionsStore['dispatch'];
 

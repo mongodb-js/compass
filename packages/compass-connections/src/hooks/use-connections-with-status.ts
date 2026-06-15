@@ -14,7 +14,7 @@ type ConnectionInfoWithStatus = {
 /**
  * @deprecated use connections-store hooks instead
  */
-export function useConnectionInfoStatus(
+function useConnectionInfoStatus(
   connectionId: string
 ): ConnectionInfoWithStatus['connectionStatus'] | null {
   const connection = useConnectionForId(connectionId);
