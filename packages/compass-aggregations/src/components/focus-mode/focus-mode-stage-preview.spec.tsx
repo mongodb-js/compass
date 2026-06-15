@@ -1,9 +1,8 @@
 import React, { type ComponentProps } from 'react';
 import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
-import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
+import { screen, within } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-import sinon from 'sinon';
 import {
   FocusModePreview,
   InputPreview,
@@ -19,32 +18,17 @@ import {
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
-const AI_ASSISTANT_PREFERENCES = {
-  enableAIAssistant: true,
-  enableGenAIFeatures: true,
-  enableGenAIFeaturesAtlasOrg: true,
-  cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-};
-
-const renderFocusModePreview = async (
+const renderFocusModePreview = (
   props: Partial<ComponentProps<typeof FocusModePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
     enableSearchActivationExperiment = false,
-    enableSearchActivationProgramP2Experiment = false,
-    enableAIAssistant = false,
-  }: {
-    enableSearchActivationExperiment?: boolean;
-    enableSearchActivationProgramP2Experiment?: boolean;
-    enableAIAssistant?: boolean;
-  } = {}
+  }: { enableSearchActivationExperiment?: boolean } = {}
 ) => {
   let ui = (
     <FocusModePreview
@@ -59,21 +43,10 @@ const renderFocusModePreview = async (
       {...props}
     />
   );
-  if (enableAIAssistant) {
-    const preferences = await createSandboxFromDefaultPreferences();
-    await preferences.savePreferences(AI_ASSISTANT_PREFERENCES);
-    ui = <PreferencesProvider value={preferences}>{ui}</PreferencesProvider>;
-  }
   if (enableSearchActivationExperiment) {
     ui = wrapWithExperimentProvider(
       ui,
       ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
-  if (enableSearchActivationProgramP2Experiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP2Variant
     );
   }
   return renderWithStore(ui, { pipeline, ...storeOptions });
@@ -158,56 +131,21 @@ describe('FocusModeStagePreview', function () {
         ).to.not.exist;
       });
     }
-    it('renders diagnose button for $search with no results when contextual AI experiment is active', async function () {
-      await renderFocusModePreview(
-        { stageOperator: '$search', documents: [] },
-        DEFAULT_PIPELINE,
-        {},
-        {
-          enableSearchActivationProgramP2Experiment: true,
-          enableAIAssistant: true,
-        }
-      );
-      expect(screen.getByTestId('focus-mode-diagnose-search-button')).to.exist;
+    it('renders the empty-state action (e.g. the diagnose button) when there are no documents', async function () {
+      await renderFocusModePreview({
+        stageOperator: '$match',
+        documents: [],
+        emptyStateAction: <div data-testid="empty-state-action" />,
+      });
+      expect(screen.getByTestId('empty-state-action')).to.exist;
     });
-    it('closes focus mode when the diagnose button is clicked', async function () {
-      const onCloseFocusMode = sinon.spy();
-      await renderFocusModePreview(
-        { stageOperator: '$search', documents: [], onCloseFocusMode },
-        DEFAULT_PIPELINE,
-        {},
-        {
-          enableSearchActivationProgramP2Experiment: true,
-          enableAIAssistant: true,
-        }
-      );
-      userEvent.click(screen.getByTestId('focus-mode-diagnose-search-button'));
-      expect(onCloseFocusMode.calledOnce).to.equal(true);
-    });
-    it('does not render diagnose button when the assistant is disabled', async function () {
-      await renderFocusModePreview(
-        { stageOperator: '$search', documents: [] },
-        DEFAULT_PIPELINE,
-        {},
-        { enableSearchActivationProgramP2Experiment: true }
-      );
-      expect(
-        screen.queryByTestId('focus-mode-diagnose-search-button')
-      ).to.not.exist;
-    });
-    it('does not render diagnose button for $vectorSearch even when contextual AI experiment is active', async function () {
-      await renderFocusModePreview(
-        { stageOperator: '$vectorSearch', documents: [] },
-        DEFAULT_PIPELINE,
-        {},
-        {
-          enableSearchActivationProgramP2Experiment: true,
-          enableAIAssistant: true,
-        }
-      );
-      expect(
-        screen.queryByTestId('focus-mode-diagnose-search-button')
-      ).to.not.exist;
+    it('does not render the empty-state action when there are documents', async function () {
+      await renderFocusModePreview({
+        stageOperator: '$match',
+        documents: [new HadronDocument({ _id: 1 })],
+        emptyStateAction: <div data-testid="empty-state-action" />,
+      });
+      expect(screen.queryByTestId('empty-state-action')).to.not.exist;
     });
     it('renders $out stage preview', async function () {
       await renderFocusModePreview(

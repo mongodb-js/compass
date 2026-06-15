@@ -7,8 +7,6 @@ import {
   spacing,
   palette,
   Body,
-  Button,
-  Icon,
   KeylineCard,
   Link,
   useDarkMode,
@@ -34,10 +32,9 @@ import SearchNoResults from '../search-no-results';
 import {
   useSearchActivationProgramP1,
   useSearchActivationProgramP2,
-  useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
-import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { SearchStageDiagnoseButton } from '../search-stage-diagnose-button';
 
 const centeredContent = css({
   display: 'flex',
@@ -130,10 +127,6 @@ type StagePreviewProps = {
   serverErrorStageIdx: number | null;
 };
 
-const diagnoseButtonStyles = css({
-  marginTop: spacing[200],
-});
-
 function StagePreviewBody({
   index,
   stageOperator,
@@ -148,41 +141,12 @@ function StagePreviewBody({
 }: StagePreviewProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
-  const { diagnoseSearchStage } = useAssistantActions();
-  const track = useTelemetry();
 
   const isNoResultsSearchStage =
     enableSearchActivationProgramP2 &&
-    !!diagnoseSearchStage &&
     stageOperator === '$search' &&
     documents?.length === 0 &&
     serverErrorStageIdx === null;
-
-  const diagnoseButton = isNoResultsSearchStage ? (
-    <div className={diagnoseButtonStyles}>
-      <Button
-        data-testid="stage-preview-diagnose-search-button"
-        size="small"
-        // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
-        leftGlyph={
-          <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
-        }
-        onClick={() => {
-          track('Search Stage AI Button Clicked', {
-            type: 'diagnose',
-            context: 'Stage Preview',
-          });
-          diagnoseSearchStage?.({
-            stageOperator: stageOperator ?? '',
-            indexName: searchIndexName,
-            stageValue: stageValue ?? '',
-          });
-        }}
-      >
-        Diagnose this issue
-      </Button>
-    </div>
-  ) : null;
 
   if (!shouldRenderStage) {
     return <NoPreviewDocuments />;
@@ -276,7 +240,13 @@ function StagePreviewBody({
         <Body>
           <span data-testid="stage-preview-empty">No Preview Documents</span>
         </Body>
-        {diagnoseButton}
+        <SearchStageDiagnoseButton
+          stageOperator={stageOperator}
+          stageValue={stageValue ?? null}
+          searchIndexName={searchIndexName}
+          context="Stage Preview"
+          data-testid="stage-preview-diagnose-search-button"
+        />
       </div>
     );
   }

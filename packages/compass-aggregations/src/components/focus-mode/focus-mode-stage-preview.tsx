@@ -1,12 +1,9 @@
 import React, { useCallback } from 'react';
 import {
   Body,
-  Button,
   css,
-  Icon,
   SpinLoader,
   spacing,
-  palette,
   Overline,
 } from '@mongodb-js/compass-components';
 import type HadronDocument from 'hadron-document';
@@ -34,10 +31,9 @@ import SearchNoResults from '../search-no-results';
 import {
   useSearchActivationProgramP1,
   useSearchActivationProgramP2,
-  useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
-import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { SearchStageDiagnoseButton } from '../search-stage-diagnose-button';
 
 const containerStyles = css({
   display: 'flex',
@@ -101,11 +97,10 @@ type FocusModePreviewProps = {
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
   onCloseFocusMode?: () => void;
+  // Rendered in the empty-results state. The output preview supplies the
+  // $search diagnose button here; the input preview supplies nothing.
+  emptyStateAction?: React.ReactNode;
 };
-
-const focusDiagnoseButtonStyles = css({
-  marginTop: spacing[200],
-});
 
 export const FocusModePreview = ({
   title,
@@ -113,13 +108,12 @@ export const FocusModePreview = ({
   documents = null,
   stageIndex = -1,
   stageOperator = '',
-  stageValue = null,
   isMissingAtlasOnlyStageSupport = false,
   showSearchIndexStaleResultsBanner = false,
   searchIndexName = null,
   onExpand,
   onCollapse,
-  onCloseFocusMode,
+  emptyStateAction,
 }: FocusModePreviewProps) => {
   const copyToClipboard = useCallback((doc: HadronDocument) => {
     const str = doc.toEJSON();
@@ -139,42 +133,6 @@ export const FocusModePreview = ({
 
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
-  const { diagnoseSearchStage } = useAssistantActions();
-  const track = useTelemetry();
-
-  const isNoResultsSearchStage =
-    enableSearchActivationProgramP2 &&
-    !!diagnoseSearchStage &&
-    stageOperator === '$search' &&
-    documents?.length === 0;
-
-  const diagnoseButton = isNoResultsSearchStage ? (
-    <div className={focusDiagnoseButtonStyles}>
-      <Button
-        data-testid="focus-mode-diagnose-search-button"
-        size="small"
-        // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
-        leftGlyph={
-          <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
-        }
-        onClick={() => {
-          track('Search Stage AI Button Clicked', {
-            type: 'diagnose',
-            context: 'Focus Mode',
-          });
-          // Close focus mode so the assistant drawer isn't obscured by the modal.
-          onCloseFocusMode?.();
-          diagnoseSearchStage?.({
-            stageOperator: stageOperator ?? '',
-            indexName: searchIndexName ?? null,
-            stageValue: stageValue ?? '',
-          });
-        }}
-      >
-        Diagnose this issue
-      </Button>
-    </div>
-  ) : null;
 
   const docCount = documents?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
@@ -226,17 +184,11 @@ export const FocusModePreview = ({
     isSearchStage(stageOperator)
   ) {
     content = <SearchNoResults />;
-  } else if (isNoResultsSearchStage) {
-    content = (
-      <div className={centerStyles}>
-        <Body className={messageStyles}>No preview documents</Body>
-        {diagnoseButton}
-      </div>
-    );
   } else {
     content = (
       <div className={centerStyles}>
         <Body className={messageStyles}>No preview documents</Body>
+        {emptyStateAction}
       </div>
     );
   }
@@ -271,7 +223,22 @@ export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
 };
 
 export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
-  return <FocusModePreview {...props} title="Stage Output" />;
+  return (
+    <FocusModePreview
+      {...props}
+      title="Stage Output"
+      emptyStateAction={
+        <SearchStageDiagnoseButton
+          stageOperator={props.stageOperator ?? null}
+          stageValue={props.stageValue ?? null}
+          searchIndexName={props.searchIndexName ?? null}
+          context="Focus Mode"
+          data-testid="focus-mode-diagnose-search-button"
+          onCloseFocusMode={props.onCloseFocusMode}
+        />
+      }
+    />
+  );
 };
 
 export const FocusModeStageInput = connect(
@@ -344,7 +311,6 @@ export const FocusModeStageInput = connect(
   {
     onExpand: expandPreviewDocsForStage,
     onCollapse: collapsePreviewDocsForStage,
-    onCloseFocusMode: disableFocusMode,
   }
 )(InputPreview);
 
