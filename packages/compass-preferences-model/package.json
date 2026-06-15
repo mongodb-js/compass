@@ -47,6 +47,7 @@
     "test": "mocha",
     "test-ci": "npm run test",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "knip": "knip --config knip.js --no-config-hints",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
@@ -71,6 +72,7 @@
     "@types/yargs-parser": "21.0.0",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
+    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "sinon": "^9.2.3"
   },
