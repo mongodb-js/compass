@@ -33,7 +33,7 @@ const DEFAULT_ZOOM_STEP = 0.1;
 
 const MIN_SCALE_VALUE = 0.2;
 
-export const ZoomControl: React.FunctionComponent<{
+const ZoomControl: React.FunctionComponent<{
   value: number;
   step?: number;
   minValue?: number;
@@ -68,4 +68,4 @@ export const ZoomControl: React.FunctionComponent<{
   );
 };
 
-export default ZoomControl;
+export { ZoomControl };

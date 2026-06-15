@@ -2,8 +2,8 @@ import type { Stage } from '@mongodb-js/explain-plan-helper';
 import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { omit } from 'lodash';
 
-export type ExplainStageHighlights = Record<string, any>;
-export type ExplainStageDetails = Record<string, any>;
+type ExplainStageHighlights = Record<string, any>;
+type ExplainStageDetails = Record<string, any>;
 export type ExplainTreeNodeData = {
   id: string;
   name: string;

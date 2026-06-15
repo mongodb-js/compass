@@ -200,7 +200,7 @@ function drawClockFace({
   });
 }
 
-export type ClockProps = {
+type ClockProps = {
   totalExecTimeMS: number;
   curStageExecTimeMS: number;
   prevStageExecTimeMS: number;

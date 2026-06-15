@@ -1,7 +1,7 @@
 import React from 'react';
 import { Banner, BannerVariant } from '@mongodb-js/compass-components';
 
-export function ExplainCannotVisualizeBanner() {
+function ExplainCannotVisualizeBanner() {
   return (
     <Banner variant={BannerVariant.Warning}>
       Visual explain plan is not supported with this query on this collection in

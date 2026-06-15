@@ -198,9 +198,7 @@ const IndexDetails = ({
   );
 };
 
-export const ExplainPlanSummary: React.FunctionComponent<
-  ExplainPlanSummaryProps
-> = ({
+const ExplainPlanSummary: React.FunctionComponent<ExplainPlanSummaryProps> = ({
   docsReturned,
   docsExamined,
   executionTimeMs,
