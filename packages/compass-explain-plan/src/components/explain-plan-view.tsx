@@ -114,7 +114,7 @@ export const ExplainPlanView: React.FunctionComponent<ExplainPlanViewProps> = ({
   error,
 }) => {
   const [viewType, setViewType] = useState<'tree' | 'json'>(
-    initialViewType ?? 'tree'
+    error ? 'json' : initialViewType ?? 'tree'
   );
 
   const rawExplainPlanText = useMemo(() => {
