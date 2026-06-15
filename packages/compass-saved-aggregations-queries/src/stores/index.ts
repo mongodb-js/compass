@@ -31,7 +31,7 @@ type MyQueriesServices = {
   favoriteQueryStorageAccess?: FavoriteQueryStorageAccess;
 };
 
-export function configureStore({
+function configureStore({
   globalAppRegistry,
   connections,
   instancesManager,

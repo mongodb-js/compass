@@ -13,7 +13,7 @@ export type UpdateItemAttributes = {
   name: string;
 };
 
-export type State = {
+type State = {
   id: string | undefined;
 };
 
@@ -21,7 +21,7 @@ const INITIAL_STATE: State = {
   id: undefined,
 };
 
-export const ActionTypes = {
+const ActionTypes = {
   EditItemClicked:
     'compass-saved-aggregations-queries/edit-item/editItemClicked',
   EditItemCancelled:

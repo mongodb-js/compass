@@ -1,4 +1,4 @@
-export const DATE = new Date('01/01/2020');
+const DATE = new Date('01/01/2020');
 
 export const queries = [
   {

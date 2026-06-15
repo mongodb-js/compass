@@ -184,7 +184,7 @@ function filterItemByConditions(item: Item, conditions: SelectState): boolean {
   return shouldReturnItem;
 }
 
-export function filterByText(items: Item[], text: string): FilterItem[] {
+function filterByText(items: Item[], text: string): FilterItem[] {
   if (!text || text.length === 1) {
     return items.map((item) => ({ item, score: 1 }));
   }

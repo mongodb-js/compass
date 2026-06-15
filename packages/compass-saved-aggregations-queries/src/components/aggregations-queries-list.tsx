@@ -82,7 +82,7 @@ const GridControls = () => {
   );
 };
 
-export type AggregationsQueriesListProps = {
+type AggregationsQueriesListProps = {
   loading: boolean;
   items: Item[];
   onMount(): void;
@@ -96,7 +96,7 @@ export type AggregationsQueriesListProps = {
   onCopyToClipboard(id: string): void;
 };
 
-export const AggregationsQueriesList = ({
+const AggregationsQueriesList = ({
   loading,
   items,
   onMount,

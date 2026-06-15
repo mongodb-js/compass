@@ -11,15 +11,15 @@ function isAction<A extends AnyAction>(
   return action.type === type;
 }
 
-export type Status = 'initial' | 'fetching' | 'error' | 'ready';
+type Status = 'initial' | 'fetching' | 'error' | 'ready';
 
-export type OpenedModal =
+type OpenedModal =
   | 'select-connection-and-namespace-modal'
   | 'namespace-not-found-modal'
   | 'select-connection-modal'
   | 'no-active-connections-modal';
 
-export type State = {
+type State = {
   openedModal: OpenedModal | null;
   selectedItem: Item | null;
   connections: { id: string; name: string; color?: string }[];
@@ -47,7 +47,7 @@ const INITIAL_STATE: State = {
   updateItemNamespace: false,
 };
 
-export const ActionTypes = {
+const ActionTypes = {
   OpenModal: 'compass-saved-aggregations-queries/openModal',
   CloseModal: 'compass-saved-aggregations-queries/closeModal',
   ConnectionSelected: 'compass-saved-aggregations-queries/connectionSelected',
@@ -135,7 +135,7 @@ type UpdateNamespaceCheckedAction = {
   updateItemNamespace: boolean;
 };
 
-export type Actions =
+type Actions =
   | OpenModalAction
   | CloseModalAction
   | ConnectionSelectedAction
