@@ -50,7 +50,7 @@ const createIndexFieldsTypeStyles = css({
   whiteSpace: 'nowrap',
 });
 
-export type CreateIndexFieldsProps = {
+type CreateIndexFieldsProps = {
   fields: Field[];
   schemaFields: string[];
   serverVersion: string;

@@ -38,7 +38,7 @@ export const getPropertyTooltip = (
 const HIDDEN_INDEX_TEXT = 'HIDDEN';
 const SHARD_KEY_INDEX_TEXT = 'SHARD KEY';
 
-export const getPropertyText = (
+const getPropertyText = (
   property: RegularIndex['properties'][number]
 ): string => {
   if (property === 'shardKey') {

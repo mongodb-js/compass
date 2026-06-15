@@ -9,7 +9,7 @@ import { ActionTypes as SearchIndexActionTypes } from './search-indexes';
 
 export type IndexView = 'regular-indexes' | 'search-indexes';
 
-export const ActionTypes = {
+const ActionTypes = {
   IndexViewChanged: 'compass-indexes/index-list/index-view-changed',
 } as const;
 

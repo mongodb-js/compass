@@ -1,12 +1,12 @@
 import type { AnyAction } from 'redux';
 
-export const IS_SEARCH_INDEXES_SUPPORTED_CHANGED =
+const IS_SEARCH_INDEXES_SUPPORTED_CHANGED =
   'indexes/is-search-indexes-supported/is-search-indexes-supported-changed';
 
 /**
  * The initial state of the is readonly view attribute.
  */
-export const INITIAL_STATE = false;
+const INITIAL_STATE = false;
 
 /**
  * Reducer function for is readonly view state.
@@ -32,7 +32,7 @@ export default function reducer(
  *
  * @returns {import('redux').AnyAction} The readonly view changed action.
  */
-export const isSearchIndexesSupportedChanged = (
+const isSearchIndexesSupportedChanged = (
   isSearchIndexesSupported: boolean
 ) => ({
   type: IS_SEARCH_INDEXES_SUPPORTED_CHANGED,

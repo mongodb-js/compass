@@ -322,9 +322,7 @@ type CreateIndexButtonProps = {
 
 type CreateIndexActions = 'createRegularIndex' | 'createSearchIndex';
 
-export const CreateIndexButton: React.FunctionComponent<
-  CreateIndexButtonProps
-> = ({
+const CreateIndexButton: React.FunctionComponent<CreateIndexButtonProps> = ({
   isSearchManagementActive,
   isSearchIndexesSupported,
   isWritable,

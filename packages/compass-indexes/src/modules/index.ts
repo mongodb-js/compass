@@ -66,10 +66,10 @@ const reducer = combineReducers({
   indexesDrawer,
 });
 
-export type SortDirection = 'asc' | 'desc';
+type SortDirection = 'asc' | 'desc';
 
 export type RootState = ReturnType<typeof reducer>;
-export type IndexesExtraArgs = {
+type IndexesExtraArgs = {
   globalAppRegistry: AppRegistry;
   localAppRegistry: AppRegistry;
   logger: Logger;

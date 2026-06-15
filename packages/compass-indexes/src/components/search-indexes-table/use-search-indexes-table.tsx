@@ -53,18 +53,14 @@ const searchIndexFieldStyles = css({
   gap: spacing[100],
 });
 
-export const searchIndexDetailsStyles = css({
+const searchIndexDetailsStyles = css({
   display: 'inline-flex',
   gap: spacing[100],
   marginBottom: spacing[200],
   padding: `0px ${spacing[1600]}px`,
 });
 
-export function VectorSearchIndexDetails({
-  definition,
-}: {
-  definition: Document;
-}) {
+function VectorSearchIndexDetails({ definition }: { definition: Document }) {
   return (
     <>
       {!definition.fields || definition.fields.length === 0 ? (
@@ -93,7 +89,7 @@ export function VectorSearchIndexDetails({
   );
 }
 
-export function SearchIndexDetails({ definition }: { definition: Document }) {
+function SearchIndexDetails({ definition }: { definition: Document }) {
   const badges: { name: string; className?: string }[] = [];
 
   if (definition.mappings?.dynamic) {

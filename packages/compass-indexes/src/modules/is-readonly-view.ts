@@ -9,7 +9,7 @@ export const READONLY_VIEW_CHANGED =
 /**
  * The initial state of the is readonly view attribute.
  */
-export const INITIAL_STATE = false;
+const INITIAL_STATE = false;
 
 /**
  * Reducer function for is readonly view state.

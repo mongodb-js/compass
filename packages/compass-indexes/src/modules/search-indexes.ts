@@ -145,7 +145,7 @@ export type State = {
   indexes: SearchIndex[];
 };
 
-export const INITIAL_STATE: State = {
+const INITIAL_STATE: State = {
   status: FetchStatuses.NOT_READY,
   createIndex: {
     isModalOpen: false,
@@ -454,7 +454,7 @@ const updateSearchIndexSucceeded = (): UpdateSearchIndexSucceededAction => ({
   type: ActionTypes.UpdateSearchIndexSucceeded,
 });
 
-export const POLLING_INTERVAL = 5000;
+const POLLING_INTERVAL = 5000;
 
 export const startPollingSearchIndexes = (): IndexesThunkAction<
   void,
@@ -729,7 +729,7 @@ export const refreshSearchIndexes = (): IndexesThunkAction<
   };
 };
 
-export const pollSearchIndexes = (): IndexesThunkAction<
+const pollSearchIndexes = (): IndexesThunkAction<
   Promise<void>,
   FetchSearchIndexesActions
 > => {

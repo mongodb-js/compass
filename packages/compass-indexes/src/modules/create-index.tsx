@@ -265,9 +265,9 @@ const INITIAL_OPTIONS_STATE = Object.fromEntries(
   })
 ) as Options;
 
-export type IndexSuggestionState = 'initial' | 'fetching' | 'success' | 'error';
+type IndexSuggestionState = 'initial' | 'fetching' | 'success' | 'error';
 
-export type State = {
+type State = {
   // A unique id assigned to the create index modal on open, will be used when
   // creating an instance of in-progress index and can be used to map the index
   // to the form if needed
@@ -286,7 +286,7 @@ export type State = {
   options: Options;
 };
 
-export const INITIAL_STATE: State = {
+const INITIAL_STATE: State = {
   indexId: new ObjectId().toHexString(),
   isVisible: false,
   error: null,
@@ -318,7 +318,7 @@ export const createIndexClosed = () => ({
   type: ActionTypes.CreateIndexClosed,
 });
 
-export const errorEncountered = (error: string): ErrorEncounteredAction => ({
+const errorEncountered = (error: string): ErrorEncounteredAction => ({
   type: ActionTypes.ErrorEncountered,
   error,
 });

@@ -24,9 +24,7 @@ type CollapsibleInputProps = {
   onToggled(name: string, newVal: boolean): void;
 };
 
-export const CollapsibleInput: React.FunctionComponent<
-  CollapsibleInputProps
-> = ({
+const CollapsibleInput: React.FunctionComponent<CollapsibleInputProps> = ({
   name,
   type,
   label,

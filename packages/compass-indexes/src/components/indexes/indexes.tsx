@@ -125,7 +125,7 @@ const indexesContainersStyles = css({
   gap: spacing[200],
 });
 
-export function Indexes({
+function Indexes({
   namespace,
   isReadonlyView,
   regularIndexes,

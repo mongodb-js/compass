@@ -153,7 +153,7 @@ export const defaultSortedIndexes: IndexDefinition[] = [
   },
 ];
 
-export const usageSortedIndexes: IndexDefinition[] = [
+const usageSortedIndexes: IndexDefinition[] = [
   {
     name: 'AAAA',
     usageCount: 4,

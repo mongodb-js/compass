@@ -28,7 +28,7 @@ export const FetchStatuses = {
 export type FetchStatus = (typeof FetchStatuses)[keyof typeof FetchStatuses];
 
 // Any the status which means we're busy fetching the list one way or another
-export type FetchingStatus = 'REFRESHING' | 'POLLING' | 'FETCHING';
+type FetchingStatus = 'REFRESHING' | 'POLLING' | 'FETCHING';
 
 // List of fetch statuses when the server should not be called to avoid multiple
 // requests.

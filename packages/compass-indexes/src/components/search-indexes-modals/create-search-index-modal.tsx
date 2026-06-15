@@ -26,7 +26,7 @@ type CreateSearchIndexModalProps = {
   onCloseModalClick: () => void;
 };
 
-export const CreateSearchIndexModal: React.FunctionComponent<
+const CreateSearchIndexModal: React.FunctionComponent<
   CreateSearchIndexModalProps
 > = ({
   namespace,

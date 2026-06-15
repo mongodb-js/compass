@@ -13,7 +13,7 @@ export const NAMESPACE_CHANGED = `${PREFIX}/NAMESPACE_CHANGED`;
 /**
  * The initial state.
  */
-export const INITIAL_STATE = '';
+const INITIAL_STATE = '';
 
 /**
  * Reducer function for handle state changes to namespace.

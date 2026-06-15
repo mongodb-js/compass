@@ -8,7 +8,7 @@ const PREFIX = 'indexes';
 /**
  * The isWritable action type.
  */
-export const WRITE_STATE_CHANGED = `${PREFIX}/is-writable/WRITE_STATE_CHANGED`;
+const WRITE_STATE_CHANGED = `${PREFIX}/is-writable/WRITE_STATE_CHANGED`;
 
 /**
  * The initial state.

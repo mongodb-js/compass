@@ -6,7 +6,7 @@ const PREFIX = 'compass-indexes';
 /**
  * Server version changed action.
  */
-export const SERVER_VERSION_CHANGED = `${PREFIX}/server-version/SERVER_VERSION_CHANGED`;
+const SERVER_VERSION_CHANGED = `${PREFIX}/server-version/SERVER_VERSION_CHANGED`;
 
 type ServerVersion = string;
 
@@ -18,7 +18,7 @@ type ServerVersionChangedAction = {
 /**
  * The initial state.
  */
-export const INITIAL_STATE: ServerVersion = '4.0.0';
+const INITIAL_STATE: ServerVersion = '4.0.0';
 
 /**
  * Reducer function for handle state changes to server version.
@@ -45,7 +45,7 @@ export default function reducer(
  *
  * @returns {Object} The server version changed action.
  */
-export const serverVersionChanged = (
+const serverVersionChanged = (
   version: ServerVersion
 ): ServerVersionChangedAction => ({
   type: SERVER_VERSION_CHANGED,

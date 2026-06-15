@@ -18,7 +18,7 @@ type CheckboxInputProps = {
   onChange(name: CheckboxOptions, newVal: boolean): void;
 };
 
-export const CheckboxInput: React.FunctionComponent<CheckboxInputProps> = ({
+const CheckboxInput: React.FunctionComponent<CheckboxInputProps> = ({
   name,
   label,
   description,

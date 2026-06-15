@@ -25,7 +25,7 @@ const createIndexModalOptionStyles = css({
   paddingLeft: spacing[100] + 2,
 });
 
-export type CreateIndexFormProps = {
+type CreateIndexFormProps = {
   namespace: string;
   fields: Field[];
   serverVersion: string;
