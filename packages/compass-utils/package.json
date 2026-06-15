@@ -47,7 +47,8 @@
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "knip": "knip --config knip.js --no-config-hints"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.22",
@@ -60,6 +61,7 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "gen-esm-wrapper": "^1.1.0",
+    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "sinon": "^9.2.3",
