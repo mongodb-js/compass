@@ -50,7 +50,8 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "knip": "knip --config knip.js --no-config-hints"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.22",
@@ -64,6 +65,7 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
+    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "sinon": "^9.2.3",
@@ -71,15 +73,15 @@
     "xvfb-maybe": "^0.2.1"
   },
   "dependencies": {
+    "@mongodb-js/compass-app-registry": "^9.11.1",
     "@mongodb-js/compass-components": "^1.66.1",
     "@mongodb-js/compass-connections": "^1.102.1",
     "@mongodb-js/compass-logging": "^1.14.1",
     "@mongodb-js/connection-info": "^0.27.4",
-    "@mongodb-js/compass-app-registry": "^9.11.1",
+    "compass-preferences-model": "^2.76.1",
     "mongodb-collection-model": "^5.40.4",
     "mongodb-database-model": "^2.40.4",
     "mongodb-instance-model": "^12.70.1",
-    "compass-preferences-model": "^2.76.1",
     "mongodb-ns": "^3.2.0",
     "react": "^17.0.2"
   },
