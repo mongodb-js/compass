@@ -2,7 +2,7 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { RootAction } from '.';
 const HOST_STRING_LENGTH = 25;
 
-export const CHANGE_CONNECTION_OPTIONS =
+const CHANGE_CONNECTION_OPTIONS =
   'sidebar/connection-options/CHANGE_CONNECTION_OPTIONS' as const;
 interface ChangeConnectionOptionsAction {
   type: typeof CHANGE_CONNECTION_OPTIONS;

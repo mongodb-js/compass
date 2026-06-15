@@ -5,14 +5,14 @@ import { type ConnectionInfo } from '@mongodb-js/connection-info';
 /**
  * Databases actions.
  */
-export const CHANGE_DATABASES = 'sidebar/databases/CHANGE_DATABASES' as const;
+const CHANGE_DATABASES = 'sidebar/databases/CHANGE_DATABASES' as const;
 interface ChangeDatabasesAction {
   type: typeof CHANGE_DATABASES;
   connectionId: ConnectionInfo['id'];
   databases: Database[];
 }
 
-export const TOGGLE_DATABASE = 'sidebar/databases/TOGGLE_DATABASE' as const;
+const TOGGLE_DATABASE = 'sidebar/databases/TOGGLE_DATABASE' as const;
 interface ToggleDatabaseAction {
   type: typeof TOGGLE_DATABASE;
   connectionId: ConnectionInfo['id'];
@@ -20,13 +20,12 @@ interface ToggleDatabaseAction {
   expanded: boolean;
 }
 
-export const FETCH_ALL_COLLECTIONS =
-  'sidebar/instance/FETCH_ALL_COLLECTIONS' as const;
+const FETCH_ALL_COLLECTIONS = 'sidebar/instance/FETCH_ALL_COLLECTIONS' as const;
 interface FetchAllCollectionsAction {
   type: typeof FETCH_ALL_COLLECTIONS;
 }
 
-export const EXPAND_DATABASE = 'sidebar/instance/EXPAND_DATABASE' as const;
+const EXPAND_DATABASE = 'sidebar/instance/EXPAND_DATABASE' as const;
 interface ExpandDatabaseAction {
   type: typeof EXPAND_DATABASE;
   connectionId: ConnectionInfo['id'];
@@ -59,7 +58,7 @@ export type AllDatabasesState = Record<
   ConnectionInfo['id'],
   ConnectionDatabasesState
 >;
-export interface ConnectionDatabasesState {
+interface ConnectionDatabasesState {
   databases: Database[];
   expandedDbList: Record<string, boolean>;
 }

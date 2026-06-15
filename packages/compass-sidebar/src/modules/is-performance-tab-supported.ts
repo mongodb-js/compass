@@ -21,7 +21,7 @@ export function setIsPerformanceTabSupported(
   };
 }
 
-export type IsPerformanceTabSupportedSingleState = boolean | null;
+type IsPerformanceTabSupportedSingleState = boolean | null;
 export type IsPerformanceTabSupportedState = Record<
   ConnectionInfo['id'],
   IsPerformanceTabSupportedSingleState

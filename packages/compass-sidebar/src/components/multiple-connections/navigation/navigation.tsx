@@ -57,7 +57,7 @@ const navigationItemLabel = css({
   textOverflow: 'ellipsis',
 });
 
-export function NavigationItem({
+function NavigationItem({
   onClick: onButtonClick,
   glyph,
   label,

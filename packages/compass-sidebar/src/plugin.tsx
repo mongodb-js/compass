@@ -13,7 +13,7 @@ const errorBoundaryStyles = css({
   width: defaultSidebarWidth,
 });
 
-export interface SidebarPluginProps {
+interface SidebarPluginProps {
   onOpenConnectViaModal?: (
     atlasMetadata: ConnectionInfo['atlasMetadata']
   ) => void;

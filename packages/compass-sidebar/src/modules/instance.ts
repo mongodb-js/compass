@@ -10,8 +10,8 @@ import type { MongoServerError } from 'mongodb';
 /**
  * Instance action.
  */
-export const SETUP_INSTANCE = 'sidebar/instance/SETUP_INSTANCE' as const;
-export interface SetupInstanceAction {
+const SETUP_INSTANCE = 'sidebar/instance/SETUP_INSTANCE' as const;
+interface SetupInstanceAction {
   type: typeof SETUP_INSTANCE;
   connectionId: ConnectionInfo['id'];
   instance: SingleInstanceState;
@@ -20,8 +20,8 @@ export interface SetupInstanceAction {
 /**
  * Instance action.
  */
-export const CLOSE_INSTANCE = 'sidebar/instance/CLOSE_INSTANCE' as const;
-export interface CloseInstanceAction {
+const CLOSE_INSTANCE = 'sidebar/instance/CLOSE_INSTANCE' as const;
+interface CloseInstanceAction {
   type: typeof CLOSE_INSTANCE;
   connectionId: ConnectionInfo['id'];
 }
@@ -29,7 +29,7 @@ export interface CloseInstanceAction {
 /**
  * The initial state of the sidebar instance.
  */
-export const INITIAL_STATE: InstanceState = {};
+const INITIAL_STATE: InstanceState = {};
 export type InstanceState = Record<ConnectionInfo['id'], SingleInstanceState>;
 export type SingleInstanceState = null | Pick<
   MongoDBInstance,

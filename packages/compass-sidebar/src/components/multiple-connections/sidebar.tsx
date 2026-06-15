@@ -88,7 +88,7 @@ async function copyConnectionString(connectionString: string) {
   }
 }
 
-export function MultipleConnectionSidebar({
+function MultipleConnectionSidebar({
   activeWorkspace,
   onSidebarAction,
   onConnectionCsfleModeChanged,

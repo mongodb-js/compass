@@ -43,7 +43,7 @@ function Info({
   );
 }
 
-export function ConnectionInfoModal({
+function ConnectionInfoModal({
   isVisible,
   close,
   infos = [],
