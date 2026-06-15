@@ -129,7 +129,7 @@ export type CollectionState = {
   fakerSchemaGeneration: MockDataGeneratorState;
 };
 
-export const CollectionActions = {
+const CollectionActions = {
   CollectionMetadataFetched: 'compass-collection/CollectionMetadataFetched',
   SchemaAnalysisStarted: 'compass-collection/SchemaAnalysisStarted',
   SchemaAnalysisFinished: 'compass-collection/SchemaAnalysisFinished',
@@ -209,18 +209,18 @@ interface MockDataGeneratorDocumentCountChangedAction {
   documentCount: string;
 }
 
-export interface FakerMappingGenerationStartedAction {
+interface FakerMappingGenerationStartedAction {
   type: typeof CollectionActions.FakerMappingGenerationStarted;
   requestId: string;
 }
 
-export interface FakerMappingGenerationCompletedAction {
+interface FakerMappingGenerationCompletedAction {
   type: typeof CollectionActions.FakerMappingGenerationCompleted;
   fakerSchema: FakerSchema;
   requestId: string;
 }
 
-export interface FakerMappingGenerationFailedAction {
+interface FakerMappingGenerationFailedAction {
   type: typeof CollectionActions.FakerMappingGenerationFailed;
   error: string;
   requestId: string;
@@ -533,10 +533,9 @@ export const collectionMetadataFetched = (
   return { type: CollectionActions.CollectionMetadataFetched, metadata };
 };
 
-export const mockDataGeneratorModalOpened =
-  (): MockDataGeneratorModalOpenedAction => {
-    return { type: CollectionActions.MockDataGeneratorModalOpened };
-  };
+const mockDataGeneratorModalOpened = (): MockDataGeneratorModalOpenedAction => {
+  return { type: CollectionActions.MockDataGeneratorModalOpened };
+};
 
 export const mockDataGeneratorModalClosed = (): CollectionThunkAction<
   void,

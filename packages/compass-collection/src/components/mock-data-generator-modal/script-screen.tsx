@@ -295,4 +295,3 @@ const mapStateToProps = (state: CollectionState) => {
 const ConnectedScriptScreen = connect(mapStateToProps)(ScriptScreen);
 
 export default ConnectedScriptScreen;
-export type { ScriptScreenProps };

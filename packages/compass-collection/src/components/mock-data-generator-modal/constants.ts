@@ -25,7 +25,7 @@ export const FAKER_API_LINK = 'https://v10.fakerjs.dev/api/';
 export const DEFAULT_DOCUMENT_COUNT = 1000;
 export const MAX_DOCUMENT_COUNT = 100000;
 
-export const MongoDBFieldTypeValues: MongoDBFieldType[] = [
+const MongoDBFieldTypeValues: MongoDBFieldType[] = [
   'String',
   'Number',
   'Boolean',
@@ -49,7 +49,7 @@ export const MongoDBFieldTypeValues: MongoDBFieldType[] = [
  * Not all Faker methods are included here.
  * More can be found in the Faker.js API: https://v10.fakerjs.dev/api/
  */
-export const MONGO_TYPE_TO_FAKER_METHODS: Readonly<
+const MONGO_TYPE_TO_FAKER_METHODS: Readonly<
   Record<MongoDBFieldType, Array<{ method: string; description?: string }>>
 > = {
   String: [

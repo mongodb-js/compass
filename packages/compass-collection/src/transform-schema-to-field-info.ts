@@ -92,7 +92,7 @@ export class ProcessSchemaUnsupportedStateError extends Error {
   }
 }
 
-export class ProcessSchemaValidationError extends Error {
+class ProcessSchemaValidationError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'ProcessSchemaValidationError';

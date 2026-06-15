@@ -6,17 +6,17 @@ export const SCHEMA_ANALYSIS_STATE_ANALYZING = 'analyzing';
 export const SCHEMA_ANALYSIS_STATE_COMPLETE = 'complete';
 export const SCHEMA_ANALYSIS_STATE_ERROR = 'error';
 
-export type SchemaAnalysisStatus =
+type SchemaAnalysisStatus =
   | typeof SCHEMA_ANALYSIS_STATE_INITIAL
   | typeof SCHEMA_ANALYSIS_STATE_ANALYZING
   | typeof SCHEMA_ANALYSIS_STATE_COMPLETE
   | typeof SCHEMA_ANALYSIS_STATE_ERROR;
 
-export type SchemaAnalysisInitialState = {
+type SchemaAnalysisInitialState = {
   status: typeof SCHEMA_ANALYSIS_STATE_INITIAL;
 };
 
-export type SchemaAnalysisStartedState = {
+type SchemaAnalysisStartedState = {
   status: typeof SCHEMA_ANALYSIS_STATE_ANALYZING;
 };
 
@@ -25,7 +25,7 @@ export type SchemaAnalysisError = {
   errorType: 'timeout' | 'general' | 'unsupportedState' | 'empty';
 };
 
-export type SchemaAnalysisErrorState = {
+type SchemaAnalysisErrorState = {
   status: typeof SCHEMA_ANALYSIS_STATE_ERROR;
   error: SchemaAnalysisError;
 };
@@ -53,7 +53,7 @@ export interface FieldInfo {
   probability?: number; // 0.0 - 1.0 field frequency
 }
 
-export type SchemaAnalysisCompletedState = {
+type SchemaAnalysisCompletedState = {
   status: typeof SCHEMA_ANALYSIS_STATE_COMPLETE;
   processedSchema: Record<string, FieldInfo>;
   arrayLengthMap: Record<string, number>;

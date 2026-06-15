@@ -49,9 +49,7 @@ export function selectHasSchemaAnalysisData(state: CollectionState): boolean {
  * Determines if schema analysis error is of 'unsupportedState' type.
  * Used for showing specific error messages and disabling certain features.
  */
-export function selectHasUnsupportedStateError(
-  state: CollectionState
-): boolean {
+function selectHasUnsupportedStateError(state: CollectionState): boolean {
   return (
     state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_ERROR &&
     state.schemaAnalysis?.error?.errorType === 'unsupportedState'
@@ -62,7 +60,7 @@ export function selectHasUnsupportedStateError(
  * Determines if collection appears empty (no schema data and not analyzing).
  * Used for UI states and button enabling/disabling.
  */
-export function selectIsCollectionEmpty(state: CollectionState): boolean {
+function selectIsCollectionEmpty(state: CollectionState): boolean {
   return (
     state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_ERROR &&
     state.schemaAnalysis?.error?.errorType === 'empty'
@@ -74,9 +72,7 @@ export function selectIsCollectionEmpty(state: CollectionState): boolean {
  * Re-triggers when collection has no valid schema analysis data (error states,
  * initial state, and completed analysis with empty schema).
  */
-export function selectShouldRetriggerSchemaAnalysis(
-  state: CollectionState
-): boolean {
+function selectShouldRetriggerSchemaAnalysis(state: CollectionState): boolean {
   // Don't retrigger if already analyzing
   if (state.schemaAnalysis?.status === SCHEMA_ANALYSIS_STATE_ANALYZING) {
     return false;

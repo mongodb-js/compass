@@ -4,7 +4,7 @@ import type { CompassPluginComponent } from '@mongodb-js/compass-app-registry';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
 import { useInitialValue } from '@mongodb-js/compass-components';
 
-export interface CollectionTabPlugin {
+interface CollectionTabPlugin {
   name: CollectionSubtab;
   provider: CompassPluginComponent<CollectionTabPluginMetadata, any, any>;
   content: React.FunctionComponent<CollectionTabPluginMetadata>;
