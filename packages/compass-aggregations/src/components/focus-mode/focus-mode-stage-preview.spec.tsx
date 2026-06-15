@@ -18,20 +18,31 @@ import {
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
-const renderFocusModePreview = (
+const AI_ASSISTANT_PREFERENCES = {
+  enableAIAssistant: true,
+  enableGenAIFeatures: true,
+  enableGenAIFeaturesAtlasOrg: true,
+  cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+};
+
+const renderFocusModePreview = async (
   props: Partial<ComponentProps<typeof FocusModePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
     enableSearchActivationExperiment = false,
     enableSearchActivationProgramP2Experiment = false,
+    enableAIAssistant = false,
   }: {
     enableSearchActivationExperiment?: boolean;
     enableSearchActivationProgramP2Experiment?: boolean;
+    enableAIAssistant?: boolean;
   } = {}
 ) => {
   let ui = (
@@ -47,6 +58,11 @@ const renderFocusModePreview = (
       {...props}
     />
   );
+  if (enableAIAssistant) {
+    const preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences(AI_ASSISTANT_PREFERENCES);
+    ui = <PreferencesProvider value={preferences}>{ui}</PreferencesProvider>;
+  }
   if (enableSearchActivationExperiment) {
     ui = wrapWithExperimentProvider(
       ui,
@@ -146,16 +162,33 @@ describe('FocusModeStagePreview', function () {
         { stageOperator: '$search', documents: [] },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchActivationProgramP2Experiment: true }
+        {
+          enableSearchActivationProgramP2Experiment: true,
+          enableAIAssistant: true,
+        }
       );
       expect(screen.getByTestId('focus-mode-diagnose-search-button')).to.exist;
+    });
+    it('does not render diagnose button when the assistant is disabled', async function () {
+      await renderFocusModePreview(
+        { stageOperator: '$search', documents: [] },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationProgramP2Experiment: true }
+      );
+      expect(
+        screen.queryByTestId('focus-mode-diagnose-search-button')
+      ).to.not.exist;
     });
     it('does not render diagnose button for $vectorSearch even when contextual AI experiment is active', async function () {
       await renderFocusModePreview(
         { stageOperator: '$vectorSearch', documents: [] },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchActivationProgramP2Experiment: true }
+        {
+          enableSearchActivationProgramP2Experiment: true,
+          enableAIAssistant: true,
+        }
       );
       expect(
         screen.queryByTestId('focus-mode-diagnose-search-button')

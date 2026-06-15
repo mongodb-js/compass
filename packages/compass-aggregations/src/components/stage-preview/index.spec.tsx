@@ -9,6 +9,8 @@ import {
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 import { StagePreview } from './';
 import {
@@ -19,16 +21,25 @@ import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
-const renderStagePreview = (
+const AI_ASSISTANT_PREFERENCES = {
+  enableAIAssistant: true,
+  enableGenAIFeatures: true,
+  enableGenAIFeaturesAtlasOrg: true,
+  cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+};
+
+const renderStagePreview = async (
   props: Partial<ComponentProps<typeof StagePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
     enableSearchActivationExperiment = false,
     enableSearchActivationProgramP2Experiment = false,
+    enableAIAssistant = false,
   }: {
     enableSearchActivationExperiment?: boolean;
     enableSearchActivationProgramP2Experiment?: boolean;
+    enableAIAssistant?: boolean;
   } = {}
 ) => {
   let ui = (
@@ -46,6 +57,11 @@ const renderStagePreview = (
       {...props}
     />
   );
+  if (enableAIAssistant) {
+    const preferences = await createSandboxFromDefaultPreferences();
+    await preferences.savePreferences(AI_ASSISTANT_PREFERENCES);
+    ui = <PreferencesProvider value={preferences}>{ui}</PreferencesProvider>;
+  }
   if (enableSearchActivationExperiment) {
     ui = wrapWithExperimentProvider(
       ui,
@@ -150,17 +166,39 @@ describe('StagePreview', function () {
       },
       DEFAULT_PIPELINE,
       {},
-      { enableSearchActivationProgramP2Experiment: true }
+      {
+        enableSearchActivationProgramP2Experiment: true,
+        enableAIAssistant: true,
+      }
     );
     expect(screen.getByTestId('stage-preview-empty')).to.exist;
     expect(screen.getByTestId('stage-preview-diagnose-search-button')).to.exist;
   });
   it('does not render diagnose button when contextual AI experiment is not active', async function () {
-    await renderStagePreview({
-      shouldRenderStage: true,
-      stageOperator: '$search',
-      documents: [],
-    });
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      { enableAIAssistant: true }
+    );
+    expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
+      .exist;
+  });
+  it('does not render diagnose button when the assistant is disabled', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      { enableSearchActivationProgramP2Experiment: true }
+    );
     expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
       .exist;
   });
@@ -173,7 +211,10 @@ describe('StagePreview', function () {
       },
       DEFAULT_PIPELINE,
       {},
-      { enableSearchActivationProgramP2Experiment: true }
+      {
+        enableSearchActivationProgramP2Experiment: true,
+        enableAIAssistant: true,
+      }
     );
     expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
       .exist;

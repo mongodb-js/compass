@@ -1,7 +1,9 @@
 import React, { useCallback } from 'react';
 import {
   Body,
+  Button,
   css,
+  Icon,
   SpinLoader,
   spacing,
   palette,
@@ -31,11 +33,10 @@ import SearchNoResults from '../search-no-results';
 import {
   useSearchActivationProgramP1,
   useSearchActivationProgramP2,
+  useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { Button, Icon } from '@mongodb-js/compass-components';
 
 const containerStyles = css({
   display: 'flex',
@@ -140,6 +141,7 @@ export const FocusModePreview = ({
 
   const isNoResultsSearchStage =
     enableSearchActivationProgramP2 &&
+    !!diagnoseSearchStage &&
     stageOperator === '$search' &&
     documents?.length === 0;
 
