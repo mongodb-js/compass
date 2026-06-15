@@ -29,6 +29,7 @@ import {
   expandPreviewDocsForStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { disableFocusMode } from '../../modules/focus-mode';
 import SearchNoResults from '../search-no-results';
 import {
   useSearchActivationProgramP1,
@@ -99,6 +100,7 @@ type FocusModePreviewProps = {
   searchIndexName?: string | null;
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
+  onCloseFocusMode?: () => void;
 };
 
 const focusDiagnoseButtonStyles = css({
@@ -117,6 +119,7 @@ export const FocusModePreview = ({
   searchIndexName = null,
   onExpand,
   onCollapse,
+  onCloseFocusMode,
 }: FocusModePreviewProps) => {
   const copyToClipboard = useCallback((doc: HadronDocument) => {
     const str = doc.toEJSON();
@@ -159,6 +162,8 @@ export const FocusModePreview = ({
             type: 'diagnose',
             context: 'Focus Mode',
           });
+          // Close focus mode so the assistant drawer isn't obscured by the modal.
+          onCloseFocusMode?.();
           diagnoseSearchStage?.({
             stageOperator: stageOperator ?? '',
             indexName: searchIndexName ?? null,
@@ -339,6 +344,7 @@ export const FocusModeStageInput = connect(
   {
     onExpand: expandPreviewDocsForStage,
     onCollapse: collapsePreviewDocsForStage,
+    onCloseFocusMode: disableFocusMode,
   }
 )(InputPreview);
 
@@ -386,5 +392,6 @@ export const FocusModeStageOutput = connect(
   {
     onExpand: expandPreviewDocsForStage,
     onCollapse: collapsePreviewDocsForStage,
+    onCloseFocusMode: disableFocusMode,
   }
 )(OutputPreview);

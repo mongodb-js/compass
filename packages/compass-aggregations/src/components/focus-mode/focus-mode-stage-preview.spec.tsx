@@ -1,8 +1,9 @@
 import React, { type ComponentProps } from 'react';
 import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
-import { screen, within } from '@mongodb-js/testing-library-compass';
+import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import sinon from 'sinon';
 import {
   FocusModePreview,
   InputPreview,
@@ -168,6 +169,20 @@ describe('FocusModeStagePreview', function () {
         }
       );
       expect(screen.getByTestId('focus-mode-diagnose-search-button')).to.exist;
+    });
+    it('closes focus mode when the diagnose button is clicked', async function () {
+      const onCloseFocusMode = sinon.spy();
+      await renderFocusModePreview(
+        { stageOperator: '$search', documents: [], onCloseFocusMode },
+        DEFAULT_PIPELINE,
+        {},
+        {
+          enableSearchActivationProgramP2Experiment: true,
+          enableAIAssistant: true,
+        }
+      );
+      userEvent.click(screen.getByTestId('focus-mode-diagnose-search-button'));
+      expect(onCloseFocusMode.calledOnce).to.equal(true);
     });
     it('does not render diagnose button when the assistant is disabled', async function () {
       await renderFocusModePreview(
