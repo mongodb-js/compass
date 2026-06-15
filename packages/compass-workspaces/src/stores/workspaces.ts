@@ -54,7 +54,7 @@ export const cleanupLocalAppRegistries = () => {
   LocalAppRegistryMap.clear();
 };
 
-export const WorkspacesActions = {
+const WorkspacesActions = {
   OpenWorkspace: 'compass-workspaces/OpenWorkspace',
   OpenFallbackWorkspace: 'compass-workspace/OpenFallbackWorkspace',
   SelectTab: 'compass-workspaces/SelectTab',
@@ -624,7 +624,7 @@ const reducer: Reducer<WorkspacesState, Action> = (
   return state;
 };
 
-export const getActiveTabIndex = (state: WorkspacesState) => {
+const getActiveTabIndex = (state: WorkspacesState) => {
   const { activeTabId, tabs } = state;
   return tabs.findIndex((tab) => tab.id === activeTabId);
 };

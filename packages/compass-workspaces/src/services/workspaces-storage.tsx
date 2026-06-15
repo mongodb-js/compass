@@ -13,7 +13,7 @@ const throwIfNotTestEnv = () => {
   }
 };
 
-export class noopUserData<T extends z.Schema> extends IUserData<T> {
+class noopUserData<T extends z.Schema> extends IUserData<T> {
   write(): Promise<boolean> {
     throwIfNotTestEnv();
     return Promise.resolve(true);
@@ -36,9 +36,8 @@ export class noopUserData<T extends z.Schema> extends IUserData<T> {
   }
 }
 
-export const noopWorkspacesStorageService: IUserData<
-  typeof WorkspacesStateSchema
-> = new noopUserData(WorkspacesStateSchema, 'WorkspacesState');
+const noopWorkspacesStorageService: IUserData<typeof WorkspacesStateSchema> =
+  new noopUserData(WorkspacesStateSchema, 'WorkspacesState');
 
 export const WorkspacesStorageServiceContext = React.createContext<
   IUserData<typeof WorkspacesStateSchema>

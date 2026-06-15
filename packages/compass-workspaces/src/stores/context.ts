@@ -32,7 +32,7 @@ export const useStore = createStoreHook(
   WorkspacesStoreContext
 ) as () => ReturnType<typeof configureStore>;
 
-export const useDispatch = createDispatchHook(
+const useDispatch = createDispatchHook(
   WorkspacesStoreContext
 ) as () => WorkspacesStore['dispatch'];
 

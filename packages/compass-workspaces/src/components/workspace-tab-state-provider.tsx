@@ -60,7 +60,7 @@ export function reset() {
   tabStateStore.dispatch({ type: RESET });
 }
 
-export const TabStateStoreContext = React.createContext<
+const TabStateStoreContext = React.createContext<
   ReactReduxContextValue<TabState>
 >(
   // @ts-expect-error react-redux types are a mess
