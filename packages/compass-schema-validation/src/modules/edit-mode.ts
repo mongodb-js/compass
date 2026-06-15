@@ -12,10 +12,8 @@ import {
  */
 export const EDIT_MODE_CHANGED =
   'validation/edit-mode/EDIT_MODE_CHANGED' as const;
-export const ENABLE_EDIT_RULES =
-  'validation/edit-mode/ENABLE_EDIT_RULES' as const;
-export const DISABLE_EDIT_RULES =
-  'validation/edit-mode/DISABLE_EDIT_RULES' as const;
+const ENABLE_EDIT_RULES = 'validation/edit-mode/ENABLE_EDIT_RULES' as const;
+const DISABLE_EDIT_RULES = 'validation/edit-mode/DISABLE_EDIT_RULES' as const;
 
 type EditModeChangedAction = {
   type: typeof EDIT_MODE_CHANGED;

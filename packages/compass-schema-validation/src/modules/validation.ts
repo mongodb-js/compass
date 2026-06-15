@@ -405,7 +405,7 @@ export const validationFetched = ({
   validationAction,
 });
 
-export const emptyValidationFetched = ({
+const emptyValidationFetched = ({
   validationTemplate,
 }: {
   validationTemplate: string;
@@ -414,15 +414,15 @@ export const emptyValidationFetched = ({
   validationTemplate,
 });
 
-export const validationSaveStarted = (): ValidationSaveStartedAction => ({
+const validationSaveStarted = (): ValidationSaveStartedAction => ({
   type: ValidationActions.ValidationSaveStarted,
 });
 
-export const validationSaveEnded = (): ValidationSaveEndedAction => ({
+const validationSaveEnded = (): ValidationSaveEndedAction => ({
   type: ValidationActions.ValidationSaveEnded,
 });
 
-export const validationCanceled = (): ValidationCanceledAction => ({
+const validationCanceled = (): ValidationCanceledAction => ({
   type: ValidationActions.ValidationCanceled,
 });
 
@@ -433,7 +433,7 @@ export const validationSaveFailed = (error: {
   error,
 });
 
-export const fetchValidation = (namespace: {
+const fetchValidation = (namespace: {
   database: string;
   collection: string;
 }): SchemaValidationThunkAction<Promise<void>> => {

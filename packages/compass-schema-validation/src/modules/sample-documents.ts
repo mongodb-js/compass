@@ -8,12 +8,12 @@ import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { RootAction, SchemaValidationThunkAction } from '.';
 import { isAction } from '../util';
 
-export const SAMPLE_SIZE = 10000;
+const SAMPLE_SIZE = 10000;
 
 /**
  * Initial state
  */
-export type DOCUMENT_LOADING_STATES = 'loading' | 'success' | 'error';
+type DOCUMENT_LOADING_STATES = 'loading' | 'success' | 'error';
 
 type InitialState = {
   validDocumentState: 'initial';
@@ -130,9 +130,9 @@ export const fetchingInvalidDocumentFailed =
  * State reducers
  */
 
-export const clearingSampleDocuments = (): SampleDocumentState => INITIAL_STATE;
+const clearingSampleDocuments = (): SampleDocumentState => INITIAL_STATE;
 
-export const startFetchingSampleDocuments = (
+const startFetchingSampleDocuments = (
   state: SampleDocumentState
 ): SampleDocumentState => ({
   ...state,
@@ -140,7 +140,7 @@ export const startFetchingSampleDocuments = (
   invalidDocumentState: 'loading',
 });
 
-export const updateStateWithFetchedValidDocument = (
+const updateStateWithFetchedValidDocument = (
   state: SampleDocumentState & LoadingState,
   action: FetchedValidDocumentAction
 ): SampleDocumentState => ({
@@ -149,7 +149,7 @@ export const updateStateWithFetchedValidDocument = (
   validDocument: action.document,
 });
 
-export const updateStateWithFetchedInvalidDocument = (
+const updateStateWithFetchedInvalidDocument = (
   state: SampleDocumentState & LoadingState,
   action: FetchedInvalidDocumentAction
 ): SampleDocumentState => ({
@@ -158,7 +158,7 @@ export const updateStateWithFetchedInvalidDocument = (
   invalidDocument: action.document,
 });
 
-export const validDocumentFetchErrored = (
+const validDocumentFetchErrored = (
   state: SampleDocumentState & LoadingState
 ): SampleDocumentState => ({
   ...state,
@@ -166,7 +166,7 @@ export const validDocumentFetchErrored = (
   validDocument: undefined,
 });
 
-export const invalidDocumentFetchErrored = (
+const invalidDocumentFetchErrored = (
   state: SampleDocumentState & LoadingState
 ): SampleDocumentState => ({
   ...state,

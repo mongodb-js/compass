@@ -41,7 +41,7 @@ import type { analyzeSchema } from '@mongodb-js/compass-schema';
 /**
  * Reset action constant.
  */
-export const RESET = 'validation/reset' as const;
+const RESET = 'validation/reset' as const;
 interface ResetAction {
   type: typeof RESET;
 }
@@ -75,7 +75,7 @@ export type RequiredDataServiceProps =
   | 'isCancelError';
 export type DataService = Pick<OriginalDataService, RequiredDataServiceProps>;
 
-export type SchemaValidationExtraArgs = {
+type SchemaValidationExtraArgs = {
   dataService: DataService;
   connectionInfoRef: ConnectionInfoRef;
   preferences: PreferencesAccess;
@@ -128,7 +128,7 @@ const doReset = (): RootState => ({ ...INITIAL_STATE });
 /**
  * Reset the entire state.
  */
-export const reset = (): ResetAction => ({ type: RESET });
+const reset = (): ResetAction => ({ type: RESET });
 
 const rootReducer = (
   state: RootState | undefined,
