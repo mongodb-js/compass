@@ -10,7 +10,7 @@ export type State = {
   searchTerm: string;
   enabled: boolean;
 };
-export const INITIAL_STATE: State = {
+const INITIAL_STATE: State = {
   searching: false,
   searchTerm: '',
   enabled: false,
