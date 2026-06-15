@@ -119,4 +119,6 @@ function ValueBubble({
   );
 }
 
-export { ValueBubble };
+{
+  ValueBubble;
+}

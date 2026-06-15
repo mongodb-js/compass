@@ -19,5 +19,3 @@ function DocumentMinichart({
 
   return <Body>{docFieldsMessage}</Body>;
 }
-
-export default DocumentMinichart;

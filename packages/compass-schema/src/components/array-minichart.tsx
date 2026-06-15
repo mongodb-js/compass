@@ -45,5 +45,3 @@ function ArrayMinichart({
     </>
   );
 }
-
-export default ArrayMinichart;

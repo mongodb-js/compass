@@ -518,7 +518,7 @@ export const schemaExportReducer: Reducer<SchemaExportState, Action> = (
 };
 
 // TODO(COMPASS-8692): clean out when phase out is confirmed.
-export type openLegacyModalAction = {
+type openLegacyModalAction = {
   type: typeof SchemaExportActions.openLegacyModal;
 };
 
@@ -546,11 +546,11 @@ export const openLegacyModal = (): SchemaThunkAction<void> => {
   };
 };
 
-export type closeLegacyModalAction = {
+type closeLegacyModalAction = {
   type: typeof SchemaExportActions.closeLegacyModal;
 };
 
-export type setLegacyModalChoiceAction = {
+type setLegacyModalChoiceAction = {
   type: typeof SchemaExportActions.setLegacyModalChoice;
   choice: 'legacy' | 'export';
 };

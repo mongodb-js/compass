@@ -31,7 +31,7 @@ import {
 import type { InternalLayer } from '../modules/geo';
 
 export type RequiredDataServiceProps = 'sampleCursor';
-export type DataService = Pick<OriginalDataService, RequiredDataServiceProps>;
+type DataService = Pick<OriginalDataService, RequiredDataServiceProps>;
 export type SchemaPluginServices = {
   dataService: DataService;
   connectionInfoRef: ConnectionInfoRef;
@@ -44,13 +44,13 @@ export type SchemaPluginServices = {
   queryBar: QueryBarService;
 };
 
-export const rootReducer = combineReducers({
+const rootReducer = combineReducers({
   schemaAnalysis: schemaAnalysisReducer,
   schemaExport: schemaExportReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
-export type SchemaExtraArgs = SchemaPluginServices & {
+type SchemaExtraArgs = SchemaPluginServices & {
   analysisAbortControllerRef: { current?: AbortController };
   exportAbortControllerRef: { current?: AbortController };
   schemaAccessorRef: { current?: SchemaAccessor };
@@ -103,10 +103,7 @@ export function activateSchemaPlugin(
   };
 }
 
-export function configureStore(
-  services: SchemaPluginServices,
-  namespace: string
-) {
+function configureStore(services: SchemaPluginServices, namespace: string) {
   const analysisAbortControllerRef = {
     current: undefined,
   };

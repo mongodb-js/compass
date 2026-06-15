@@ -38,7 +38,7 @@ export type SchemaAnalysisState = {
   resultId: string;
 };
 
-export const SchemaAnalysisActions = {
+const SchemaAnalysisActions = {
   analysisStarted: 'schema-service/schema-analysis/analysisStarted',
   analysisFinished: 'schema-service/schema-analysis/analysisFinished',
   analysisFailed: 'schema-service/schema-analysis/analysisFailed',
