@@ -66,7 +66,7 @@ const getBaseNodeField = (
 /**
  * Create the base field list to be used for positioning and measuring in node layouts.
  */
-export const getBaseFieldsFromSchema = ({
+const getBaseFieldsFromSchema = ({
   fieldData,
 }: {
   fieldData: FieldData;

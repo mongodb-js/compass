@@ -65,7 +65,7 @@ function getProgressPropsFromStatus({
   };
 }
 
-export type AnalysisProgressStatusProps = {
+type AnalysisProgressStatusProps = {
   step: AnalysisStep;
   sampledCollections: number;
   analyzedCollections: number;
@@ -74,7 +74,7 @@ export type AnalysisProgressStatusProps = {
   onCancelClick: () => void;
 };
 
-export const AnalysisProgressStatus: React.FC<AnalysisProgressStatusProps> = ({
+const AnalysisProgressStatus: React.FC<AnalysisProgressStatusProps> = ({
   step,
   sampledCollections,
   analyzedCollections,

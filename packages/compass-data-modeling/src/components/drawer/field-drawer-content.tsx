@@ -74,7 +74,7 @@ type FieldDrawerContentProps = {
   }) => void;
 };
 
-export function getIsFieldNameValid(
+function getIsFieldNameValid(
   currentFieldPath: FieldPath,
   existingFields: FieldPath[],
   newName: string

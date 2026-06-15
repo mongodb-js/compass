@@ -58,11 +58,11 @@ export type ShowReselectCollectionWizardAction = {
   error?: Error;
 };
 
-export type HideReselectCollectionWizardAction = {
+type HideReselectCollectionWizardAction = {
   type: typeof ReselectCollectionsWizardActionTypes.HIDE_WIZARD;
 };
 
-export type ConnectionSelectedAction = {
+type ConnectionSelectedAction = {
   type: typeof ReselectCollectionsWizardActionTypes.CONNECTION_SELECTED;
   connectionId: string;
 };

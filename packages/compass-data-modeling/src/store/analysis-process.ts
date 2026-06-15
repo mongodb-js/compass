@@ -585,7 +585,7 @@ export function redoAnalysis(
   };
 }
 
-export class RelationshipInferenceError extends Error {
+class RelationshipInferenceError extends Error {
   public relationshipInferencePhaseMs?: number;
 
   constructor(cause: Error, relationshipInferencePhaseMs?: number) {
@@ -717,7 +717,7 @@ async function getSampleForNamespace({
   );
 }
 
-export function analyzeCollections({
+function analyzeCollections({
   name,
   connectionId,
   database,

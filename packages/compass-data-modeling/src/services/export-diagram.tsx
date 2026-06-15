@@ -74,7 +74,7 @@ export function getDiagramNodesAndEdges(
   return { nodes, edges };
 }
 
-export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
+function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
   return new Promise<string>((resolve, reject) => {
     const bounds = getNodesBounds(diagram.getNodes());
 

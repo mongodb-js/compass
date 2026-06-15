@@ -180,7 +180,7 @@ const DiagramListEmptyContent: React.FunctionComponent<{
   );
 };
 
-export const SavedDiagramsList: React.FunctionComponent<{
+const SavedDiagramsList: React.FunctionComponent<{
   onCreateDiagramClick: () => void;
   onOpenDiagramClick: (diagram: MongoDBDataModelDescription) => void;
   onDiagramDeleteClick: (id: string) => void;

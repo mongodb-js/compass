@@ -2,7 +2,7 @@ import { z } from '@mongodb-js/compass-user-data';
 import toNS from 'mongodb-ns';
 import type { MongoDBJSONSchema } from 'mongodb-schema';
 
-export const FieldPathSchema = z.array(z.string());
+const FieldPathSchema = z.array(z.string());
 
 export type FieldPath = z.output<typeof FieldPathSchema>;
 
@@ -23,9 +23,9 @@ export const RelationshipSideSchema = z.object({
   fields: z.array(z.string()).nullable(),
 });
 
-export type RelationshipSide = z.output<typeof RelationshipSideSchema>;
+type RelationshipSide = z.output<typeof RelationshipSideSchema>;
 
-export const RelationshipSchema = z.object({
+const RelationshipSchema = z.object({
   id: z.string().uuid(),
   relationship: z.tuple([RelationshipSideSchema, RelationshipSideSchema]),
   isInferred: z.boolean(),
@@ -74,7 +74,7 @@ const CollectionSchema = z.preprocess(
 
 export type DataModelCollection = z.output<typeof CollectionSchema>;
 
-export const StaticModelSchema = z.object({
+const StaticModelSchema = z.object({
   collections: z.array(CollectionSchema),
   relationships: z.array(RelationshipSchema),
 });
@@ -182,7 +182,7 @@ const EditSchemaVariants = z.discriminatedUnion('type', [
   }),
 ]);
 
-export const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
+const EditSchema = z.intersection(EditSchemaBase, EditSchemaVariants);
 
 export const EditListSchema = z
   .array(EditSchema)
