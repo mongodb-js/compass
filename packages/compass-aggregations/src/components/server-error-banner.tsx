@@ -58,7 +58,10 @@ export default function ServerErrorBanner({
     : message;
   const projectSettingsHref =
     rerankNotEnabled && atlasMetadata
-      ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
+      ? buildProjectSettingsUrl({
+          projectId: atlasMetadata.projectId,
+          params: { highlight: 'nativeReranking' },
+        })
       : null;
 
   const rateLimitInfo = getVoyageProjectRateLimitInfo(message);

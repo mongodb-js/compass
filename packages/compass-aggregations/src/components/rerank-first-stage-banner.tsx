@@ -1,8 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import {
   Banner,
-  Button,
-  Icon,
   Link,
   PerformanceSignals,
   css,
@@ -10,17 +8,18 @@ import {
   usePersistedState,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
-import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import {
+  useAssistantAction,
+  AssistantButton,
+} from '@mongodb-js/compass-assistant';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
 import { STAGE_HELP_BASE_URL } from '../constants';
 
-export const useRerankInsightAction = () => {
-  const { tellMoreAboutInsight } = useAssistantActions();
-  const action = useCallback(() => {
-    tellMoreAboutInsight?.({ id: 'rerank-first-stage' });
-  }, [tellMoreAboutInsight]);
-  return tellMoreAboutInsight ? action : undefined;
+const rerankFirstStageInsightContext = { id: 'rerank-first-stage' } as const;
+
+const useRerankInsightAction = () => {
+  return useAssistantAction(rerankFirstStageInsightContext);
 };
 
 const searchStageLinks = (
@@ -147,15 +146,16 @@ const bannerButtonStyles = css({
 
 export const RerankFirstStageBanner = ({
   'data-testid': dataTestId,
+  onBeforeAssistantOpen,
 }: {
   'data-testid'?: string;
+  onBeforeAssistantOpen?: () => void;
 }) => {
   const enableRerank = usePreference('enableRerank');
   const [isDismissed, setIsDismissed] = usePersistedState(
     'mongodb_compass_dismissed_rerank_first_stage_banner',
     false
   );
-  const onInsightAction = useRerankInsightAction();
 
   if (!enableRerank || isDismissed) {
     return null;
@@ -179,17 +179,15 @@ export const RerankFirstStageBanner = ({
           {searchStageLinks}
           {'.'}
         </div>
-        {onInsightAction && (
-          <Button
-            size="xsmall"
-            className={bannerButtonStyles}
-            onClick={onInsightAction}
-            leftGlyph={<Icon glyph="Sparkle" />}
-            data-testid="rerank-first-stage-learn-more-button"
-          >
-            Learn more
-          </Button>
-        )}
+        <AssistantButton
+          size="xsmall"
+          className={bannerButtonStyles}
+          insightContext={rerankFirstStageInsightContext}
+          onBeforeAssistantOpen={onBeforeAssistantOpen}
+          data-testid="rerank-first-stage-learn-more-button"
+        >
+          Learn more
+        </AssistantButton>
       </div>
     </Banner>
   );

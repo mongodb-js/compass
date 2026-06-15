@@ -254,7 +254,7 @@ describe('useAssistantActions', function () {
     expect(Object.keys(result.current)).to.have.length.greaterThan(0);
     expect(result.current.interpretExplainPlan).to.be.a('function');
     expect(result.current.interpretConnectionError).to.be.a('function');
-    expect(result.current.tellMoreAboutInsight).to.be.a('function');
+    expect(result.current.openAssistant).to.be.a('function');
   });
 });
 

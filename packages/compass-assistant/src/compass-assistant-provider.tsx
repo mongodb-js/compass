@@ -164,7 +164,7 @@ type AssistantActionsContextType = {
     connectionInfo: ConnectionInfo;
     error: Error;
   }) => void;
-  tellMoreAboutInsight?: (context: ProactiveInsightsContext) => void;
+  openAssistant?: (context: ProactiveInsightsContext) => void;
   ensureOptInAndSend?: (
     message: SendMessage,
     options: SendOptions,
@@ -186,7 +186,7 @@ export const AssistantActionsContext =
   createContext<AssistantActionsContextType>({
     interpretExplainPlan: () => {},
     interpretConnectionError: () => {},
-    tellMoreAboutInsight: () => {},
+    openAssistant: () => {},
     ensureOptInAndSend: async () => {},
   });
 
@@ -201,16 +201,13 @@ export function useAssistantActions(): AssistantActionsType {
     };
   }
 
-  const {
-    interpretExplainPlan,
-    interpretConnectionError,
-    tellMoreAboutInsight,
-  } = actions;
+  const { interpretExplainPlan, interpretConnectionError, openAssistant } =
+    actions;
 
   return {
     interpretExplainPlan,
     interpretConnectionError,
-    tellMoreAboutInsight,
+    openAssistant,
     getIsAssistantEnabled: () => true,
   };
 }
@@ -552,7 +549,7 @@ function interpretConnectionErrorThunk(
   );
 }
 
-function tellMoreAboutInsightThunk(
+function openAssistantThunk(
   props: ProactiveInsightsContext,
   globalState: GlobalState,
   openDrawer: (id: string) => void
@@ -663,7 +660,7 @@ const AssistantProviderInner: React.FunctionComponent<
       globalState: GlobalState,
       openDrawer: (id: string) => void
     ) => void;
-    tellMoreAboutInsight: (
+    openAssistant: (
       props: ProactiveInsightsContext,
       globalState: GlobalState,
       openDrawer: (id: string) => void
@@ -675,7 +672,7 @@ const AssistantProviderInner: React.FunctionComponent<
   ensureOptInAndSend,
   interpretExplainPlan,
   interpretConnectionError,
-  tellMoreAboutInsight,
+  openAssistant,
   children,
 }) => {
   // chat is stable — created once in activate, never changes
@@ -700,8 +697,8 @@ const AssistantProviderInner: React.FunctionComponent<
         openDrawerRef.current
       );
     },
-    tellMoreAboutInsight: (props) => {
-      tellMoreAboutInsight(
+    openAssistant: (props) => {
+      openAssistant(
         props,
         assistantGlobalStateRef.current,
         openDrawerRef.current
@@ -733,7 +730,7 @@ const ConnectedAssistantProvider = connect(null, {
   ensureOptInAndSend: ensureOptInAndSendThunk,
   interpretExplainPlan: interpretExplainPlanThunk,
   interpretConnectionError: interpretConnectionErrorThunk,
-  tellMoreAboutInsight: tellMoreAboutInsightThunk,
+  openAssistant: openAssistantThunk,
 })(AssistantProviderInner);
 
 export const CompassAssistantProvider = registerCompassPlugin(

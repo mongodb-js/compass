@@ -25,7 +25,7 @@ import {
   usePreferences,
 } from 'compass-preferences-model/provider';
 import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
-import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useAssistantAction } from '@mongodb-js/compass-assistant';
 
 const containerStyles = css({
   display: 'flex',
@@ -88,8 +88,10 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
     'enableSearchActivationProgramP2',
   ]);
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
-  const { tellMoreAboutInsight, getIsAssistantEnabled } = useAssistantActions();
-  const isAssistantEnabled = getIsAssistantEnabled();
+  const onAssistantButtonClick = useAssistantAction({
+    id: 'aggregation-executed-without-index',
+    stages,
+  });
 
   const hasSearchStage = stages.includes('$search');
 
@@ -99,7 +101,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         action: 'interpret',
         label: 'Interpret',
         icon: 'Sparkle',
-        isDisabled: !isAssistantEnabled,
+        isDisabled: !onAssistantButtonClick,
       },
       {
         action: 'visual-tree',
@@ -116,7 +118,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         icon: 'CurlyBraces',
       },
     ],
-    [isAssistantEnabled, hasSearchStage]
+    [onAssistantButtonClick, hasSearchStage]
   );
 
   const onExplainAction = useCallback(
@@ -145,14 +147,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
                     onPrimaryActionButtonClick:
                       onCollectionScanInsightActionButtonClick,
                   }),
-              onAssistantButtonClick:
-                tellMoreAboutInsight &&
-                (() => {
-                  tellMoreAboutInsight({
-                    id: 'aggregation-executed-without-index',
-                    stages,
-                  });
-                }),
+              onAssistantButtonClick,
             }}
           ></SignalPopover>
         </div>

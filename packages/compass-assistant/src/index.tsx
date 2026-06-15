@@ -11,3 +11,5 @@ export type { CompassAssistantService } from './compass-assistant-provider';
 export type { ProactiveInsightsContext, EntryPointMessage } from './prompts';
 export { APP_NAMES_FOR_PROMPT } from './prompts';
 export { useSyncAssistantGlobalState } from './assistant-global-state';
+export { useAssistantAction } from './hooks/use-assistant-action';
+export { AssistantButton } from './components/assistant-button';

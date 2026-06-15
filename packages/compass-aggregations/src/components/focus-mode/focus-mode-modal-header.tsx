@@ -19,6 +19,7 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
   addStageInFocusMode,
+  disableFocusMode,
   selectFocusModeStage,
 } from '../../modules/focus-mode';
 import {
@@ -57,6 +58,7 @@ type FocusModeModalHeaderProps = {
   onAddStageClick: (index: number) => void;
   onAddSearchStageBefore: (storeIndex: number) => void;
   onRefreshSearchIndexes: () => void;
+  onCloseFocusMode: () => void;
 };
 
 const controlsContainerStyles = css({
@@ -116,6 +118,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
   onStageDisabledToggleClick,
   onAddSearchStageBefore,
   onRefreshSearchIndexes,
+  onCloseFocusMode,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const showInsights = usePreference('showInsights');
@@ -142,7 +145,17 @@ export const FocusModeModalHeader: React.FunctionComponent<
     onAddSearchStageBefore: onAddSearchStageBeforeCurrentStage,
   });
 
-  const insight = rerankInsight ?? performanceInsight;
+  const rawInsight = rerankInsight ?? performanceInsight;
+  const insight = useMemo(() => {
+    if (!rawInsight?.onAssistantButtonClick) return rawInsight;
+    return {
+      ...rawInsight,
+      onAssistantButtonClick: (e: React.MouseEvent) => {
+        onCloseFocusMode();
+        rawInsight.onAssistantButtonClick!(e);
+      },
+    };
+  }, [rawInsight, onCloseFocusMode]);
 
   const onPopoverOpenChange = useCallback(
     (open: boolean) => {
@@ -410,5 +423,6 @@ export default connect(
     onCreateSearchIndex: createSearchIndex,
     onAddSearchStageBefore: addSearchStageBefore,
     onRefreshSearchIndexes: refreshSearchIndexes,
+    onCloseFocusMode: disableFocusMode,
   }
 )(FocusModeModalHeader);
