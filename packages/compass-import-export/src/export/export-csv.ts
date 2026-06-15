@@ -45,7 +45,7 @@ const generateTempFilename = (suffix: string) => {
 // progress counts up from 1 to however many documents are being exported twice.
 export type CSVExportPhase = 'DOWNLOAD' | 'WRITE';
 
-export type ProgressCallback = (index: number, phase: CSVExportPhase) => void;
+type ProgressCallback = (index: number, phase: CSVExportPhase) => void;
 
 type ExportCSVOptions = {
   input: Readable;

@@ -80,7 +80,7 @@ export type ExportState = {
   exportFileError: string | undefined;
 } & ExportOptions;
 
-export const initialState: ExportState = {
+const initialState: ExportState = {
   isOpen: false,
   connectionId: '',
   isInProgressMessageOpen: false,

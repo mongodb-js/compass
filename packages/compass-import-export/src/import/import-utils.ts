@@ -11,7 +11,7 @@ import stripBomStream from 'strip-bom-stream';
 
 const debug = createDebug('import');
 
-export function makeImportResult(
+function makeImportResult(
   importWriter: ImportWriter,
   numProcessed: number,
   numParseErrors: number,
@@ -34,7 +34,7 @@ export function makeImportResult(
   return result;
 }
 
-export function errorToJSON(error: any): ErrorJSON {
+function errorToJSON(error: any): ErrorJSON {
   const obj: ErrorJSON = {
     name: error.name,
     message: error.message,
@@ -49,7 +49,7 @@ export function errorToJSON(error: any): ErrorJSON {
   return obj;
 }
 
-export function writeErrorToLog(output: Writable, error: any): Promise<void> {
+function writeErrorToLog(output: Writable, error: any): Promise<void> {
   return new Promise(function (resolve) {
     output.write(JSON.stringify(error) + os.EOL, 'utf8', (err: unknown) => {
       if (err) {

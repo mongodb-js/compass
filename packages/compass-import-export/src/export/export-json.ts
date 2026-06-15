@@ -41,7 +41,7 @@ function getEJSONOptionsForVariant(variant: ExportJSONFormat) {
     : undefined; // default
 }
 
-export async function exportJSON({
+async function exportJSON({
   output,
   abortSignal,
   input,

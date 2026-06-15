@@ -384,7 +384,4 @@ const ConnectedExportModal = connect(
   }
 )(ExportModal);
 
-export {
-  ConnectedExportModal as ExportModal,
-  ExportModal as UnconnectedExportModal,
-};
+export { ConnectedExportModal as ExportModal };

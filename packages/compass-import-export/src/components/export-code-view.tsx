@@ -11,7 +11,7 @@ import {
   queryAsShellJSString,
 } from '../utils/get-shell-js-string';
 
-export const codeElementId = 'export-collection-code-preview-wrapper';
+const codeElementId = 'export-collection-code-preview-wrapper';
 
 const containerStyles = css({
   marginBottom: spacing[400],

@@ -44,31 +44,31 @@ const getFileStats = promisify(fs.stat);
  * ## Action names
  */
 const PREFIX = 'import-export/import';
-export const STARTED = `${PREFIX}/STARTED`;
-export const CANCELED = `${PREFIX}/CANCELED`;
-export const FINISHED = `${PREFIX}/FINISHED`;
-export const FAILED = `${PREFIX}/FAILED`;
-export const ERROR_DETAILS_OPENED = `${PREFIX}/ERROR_DETAILS_OPENED`;
-export const ERROR_DETAILS_CLOSED = `${PREFIX}/ERROR_DETAILS_CLOSED`;
-export const FILE_TYPE_SELECTED = `${PREFIX}/FILE_TYPE_SELECTED`;
-export const FILE_SELECTED = `${PREFIX}/FILE_SELECTED`;
-export const FILE_SELECT_ERROR = `${PREFIX}/FILE_SELECT_ERROR`;
-export const OPEN = `${PREFIX}/OPEN`;
-export const CLOSE = `${PREFIX}/CLOSE`;
-export const OPEN_IN_PROGRESS_MESSAGE = `${PREFIX}/OPEN_IN_PROGRESS_MESSAGE`;
-export const CLOSE_IN_PROGRESS_MESSAGE = `${PREFIX}/CLOSE_IN_PROGRESS_MESSAGE`;
-export const SET_PREVIEW = `${PREFIX}/SET_PREVIEW`;
-export const SET_DELIMITER = `${PREFIX}/SET_DELIMITER`;
-export const SET_GUESSTIMATED_TOTAL = `${PREFIX}/SET_GUESSTIMATED_TOTAL`;
-export const SET_STOP_ON_ERRORS = `${PREFIX}/SET_STOP_ON_ERRORS`;
-export const SET_IGNORE_BLANKS = `${PREFIX}/SET_IGNORE_BLANKS`;
-export const TOGGLE_INCLUDE_FIELD = `${PREFIX}/TOGGLE_INCLUDE_FIELD`;
-export const SET_FIELD_TYPE = `${PREFIX}/SET_FIELD_TYPE`;
-export const ANALYZE_STARTED = `${PREFIX}/ANALYZE_STARTED`;
-export const ANALYZE_FINISHED = `${PREFIX}/ANALYZE_FINISHED`;
-export const ANALYZE_FAILED = `${PREFIX}/ANALYZE_FAILED`;
-export const ANALYZE_CANCELLED = `${PREFIX}/ANALYZE_CANCELLED`;
-export const ANALYZE_PROGRESS = `${PREFIX}/ANALYZE_PROGRESS`;
+const STARTED = `${PREFIX}/STARTED`;
+const CANCELED = `${PREFIX}/CANCELED`;
+const FINISHED = `${PREFIX}/FINISHED`;
+const FAILED = `${PREFIX}/FAILED`;
+const ERROR_DETAILS_OPENED = `${PREFIX}/ERROR_DETAILS_OPENED`;
+const ERROR_DETAILS_CLOSED = `${PREFIX}/ERROR_DETAILS_CLOSED`;
+const FILE_TYPE_SELECTED = `${PREFIX}/FILE_TYPE_SELECTED`;
+const FILE_SELECTED = `${PREFIX}/FILE_SELECTED`;
+const FILE_SELECT_ERROR = `${PREFIX}/FILE_SELECT_ERROR`;
+const OPEN = `${PREFIX}/OPEN`;
+const CLOSE = `${PREFIX}/CLOSE`;
+const OPEN_IN_PROGRESS_MESSAGE = `${PREFIX}/OPEN_IN_PROGRESS_MESSAGE`;
+const CLOSE_IN_PROGRESS_MESSAGE = `${PREFIX}/CLOSE_IN_PROGRESS_MESSAGE`;
+const SET_PREVIEW = `${PREFIX}/SET_PREVIEW`;
+const SET_DELIMITER = `${PREFIX}/SET_DELIMITER`;
+const SET_GUESSTIMATED_TOTAL = `${PREFIX}/SET_GUESSTIMATED_TOTAL`;
+const SET_STOP_ON_ERRORS = `${PREFIX}/SET_STOP_ON_ERRORS`;
+const SET_IGNORE_BLANKS = `${PREFIX}/SET_IGNORE_BLANKS`;
+const TOGGLE_INCLUDE_FIELD = `${PREFIX}/TOGGLE_INCLUDE_FIELD`;
+const SET_FIELD_TYPE = `${PREFIX}/SET_FIELD_TYPE`;
+const ANALYZE_STARTED = `${PREFIX}/ANALYZE_STARTED`;
+const ANALYZE_FINISHED = `${PREFIX}/ANALYZE_FINISHED`;
+const ANALYZE_FAILED = `${PREFIX}/ANALYZE_FAILED`;
+const ANALYZE_CANCELLED = `${PREFIX}/ANALYZE_CANCELLED`;
+const ANALYZE_PROGRESS = `${PREFIX}/ANALYZE_PROGRESS`;
 
 export type FieldFromCSV = {
   isArray: boolean;
@@ -119,7 +119,7 @@ type ImportState = {
   namespace: string;
 };
 
-export const INITIAL_STATE: ImportState = {
+const INITIAL_STATE: ImportState = {
   isOpen: false,
   isInProgressMessageOpen: false,
   firstErrors: [],
@@ -177,7 +177,7 @@ const onFileSelectError = (error: Error) => ({
   error,
 });
 
-export function getUserDataFolderPath() {
+function getUserDataFolderPath() {
   const basepath = getStoragePath();
   if (basepath === undefined) {
     throw new Error('cannot access user data folder path');

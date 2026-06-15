@@ -23,7 +23,7 @@ export type ImportPluginServices = {
   connections: ConnectionsService;
 };
 
-export function configureStore(services: ImportPluginServices) {
+function configureStore(services: ImportPluginServices) {
   return createStore(
     combineReducers({
       import: importReducer,

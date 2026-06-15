@@ -32,7 +32,7 @@ export type ErrorJSON = {
   numErrors?: number;
 };
 
-export type ImportProgress = {
+type ImportProgress = {
   bytesProcessed: number;
   docsProcessed: number;
   docsWritten: number;

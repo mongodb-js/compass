@@ -44,7 +44,7 @@ const analyzeStylesLight = css({
   backgroundColor: palette.gray.light3,
 });
 
-export function ImportPreviewLoader({
+function ImportPreviewLoader({
   analyzeBytesTotal,
   analyzeBytesProcessed,
   skipCSVAnalyze,

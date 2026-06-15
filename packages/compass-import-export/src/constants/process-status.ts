@@ -1,9 +1,9 @@
 export const STARTED = 'STARTED' as const;
-export const CANCELED = 'CANCELED' as const;
-export const COMPLETED = 'COMPLETED' as const;
-export const COMPLETED_WITH_ERRORS = 'COMPLETED_WITH_ERRORS' as const;
-export const FAILED = 'FAILED' as const;
-export const UNSPECIFIED = 'UNSPECIFIED' as const;
+const CANCELED = 'CANCELED' as const;
+const COMPLETED = 'COMPLETED' as const;
+const COMPLETED_WITH_ERRORS = 'COMPLETED_WITH_ERRORS' as const;
+const FAILED = 'FAILED' as const;
+const UNSPECIFIED = 'UNSPECIFIED' as const;
 
 export type ProcessStatus =
   | typeof STARTED
@@ -16,7 +16,7 @@ export type ProcessStatus =
 /**
  * Process status constants.
  */
-export const PROCESS_STATUS = {
+const PROCESS_STATUS = {
   STARTED,
   CANCELED,
   COMPLETED,
@@ -35,9 +35,6 @@ export const FINISHED_STATUSES: ProcessStatus[] = [
   FAILED,
 ];
 
-export const COMPLETED_STATUSES: ProcessStatus[] = [
-  COMPLETED,
-  COMPLETED_WITH_ERRORS,
-];
+const COMPLETED_STATUSES: ProcessStatus[] = [COMPLETED, COMPLETED_WITH_ERRORS];
 
 export default PROCESS_STATUS;
