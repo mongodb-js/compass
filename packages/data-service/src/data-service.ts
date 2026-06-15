@@ -1755,6 +1755,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
     executionOptions?: ExecutionOptions
   ): Promise<number> {
     const maxTimeMS = options.maxTimeMS ?? 500;
+    // signal is intentionally not forwarded here: EstimatedDocumentCountOptions
+    // does not extend Abortable in the driver, so the operation is cancelled
+    // via session-killing only. Revisit if the driver adds Abortable support.
     return this._cancellableOperation(
       async (session) => {
         return this._collection(ns, 'CRUD').estimatedDocumentCount({
@@ -2195,11 +2198,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
     );
   }
 
-  private async _indexSizes(ns: string): Promise<Record<string, number>> {
+  private async _indexSizes(
+    ns: string,
+    executionOptions?: ExecutionOptions
+  ): Promise<Record<string, number>> {
     try {
-      const coll = this._collection(ns, 'CRUD');
-      const aggResult = (await coll
-        .aggregate([
+      const aggResult = await this.aggregate<{ _id: string; size: number }>(
+        ns,
+        [
           { $collStats: { storageStats: {} } },
           {
             $project: {
@@ -2213,8 +2219,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
               size: { $sum: { $toDouble: '$indexSizes.v' } },
             },
           },
-        ])
-        .toArray()) as { _id: string; size: number }[];
+        ],
+        {},
+        executionOptions
+      );
       return Object.fromEntries(aggResult.map(({ _id, size }) => [_id, size]));
     } catch (err) {
       if (isNotAuthorized(err) || isNotSupportedPipelineStage(err)) {
@@ -2355,7 +2363,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
   @op(mongoLogId(1_001_000_047))
   async indexes(
     ns: string,
-    options?: IndexInformationOptions
+    options?: IndexInformationOptions,
+    executionOptions?: ExecutionOptions
   ): Promise<IndexDefinition[]> {
     if (options?.full === false) {
       const indexes = Object.entries(
@@ -2377,7 +2386,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       shardKey,
     ] = await Promise.all([
       this._collection(ns, 'CRUD').indexes({ ...options, full: true }),
-      this._indexSizes(ns),
+      this._indexSizes(ns, executionOptions),
       Promise.allSettled([this._indexStats(ns), this._indexProgress(ns)]),
       this._fetchShardKeyWithSilentFail(ns),
     ]);
