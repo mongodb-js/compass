@@ -9,7 +9,7 @@ export function deleteSandboxesDirectory() {
   fs.rmSync(SANDBOXES_PATH, { recursive: true, force: true });
 }
 
-export function sandboxesDirectoryExists() {
+function sandboxesDirectoryExists() {
   return fs.existsSync(SANDBOXES_PATH);
 }
 

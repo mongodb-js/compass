@@ -29,7 +29,7 @@ function getPackageName(filepath: string) {
 /**
  * Check if a package is installed (by name)
  */
-export function isInstalled(packageName: string) {
+function isInstalled(packageName: string) {
   const result = cp.spawnSync('dnf', ['list', 'installed', packageName], {
     stdio: 'inherit',
   });

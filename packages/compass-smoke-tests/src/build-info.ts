@@ -14,7 +14,7 @@ const COMPASS_PATH = path.resolve(__dirname, '../../compass');
 
 const SUPPORTED_CHANNELS = ['dev', 'beta', 'stable'] as const;
 
-export type Channel = (typeof SUPPORTED_CHANNELS)[number];
+type Channel = (typeof SUPPORTED_CHANNELS)[number];
 
 function assertObjectHasKeys<
   Keys extends readonly string[],
@@ -32,12 +32,12 @@ function assertObjectHasKeys<
 
 // subsets of the hadron-build info result
 
-export const commonKeys = ['productName', 'version', 'channel'] as const;
-export type CommonBuildInfo = Record<(typeof commonKeys)[number], string> & {
+const commonKeys = ['productName', 'version', 'channel'] as const;
+type CommonBuildInfo = Record<(typeof commonKeys)[number], string> & {
   channel: Channel;
 };
 
-export function assertCommonBuildInfo(
+function assertCommonBuildInfo(
   buildInfo: unknown
 ): asserts buildInfo is CommonBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
@@ -49,20 +49,20 @@ export function assertCommonBuildInfo(
   );
 }
 
-export const windowsFilenameKeys = [
+const windowsFilenameKeys = [
   'windows_setup_filename',
   'windows_msi_filename',
   'windows_zip_filename',
   'windows_nupkg_full_filename',
 ] as const;
-export type WindowsBuildInfo = CommonBuildInfo &
+type WindowsBuildInfo = CommonBuildInfo &
   Record<(typeof windowsFilenameKeys)[number], string> & {
     installerOptions: {
       name: string;
     };
   };
 
-export function assertBuildInfoIsWindows(
+function assertBuildInfoIsWindows(
   buildInfo: unknown
 ): asserts buildInfo is WindowsBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
@@ -84,18 +84,15 @@ export function assertBuildInfoIsWindows(
   );
 }
 
-export const osxFilenameKeys = [
-  'osx_dmg_filename',
-  'osx_zip_filename',
-] as const;
-export type OSXBuildInfo = CommonBuildInfo &
+const osxFilenameKeys = ['osx_dmg_filename', 'osx_zip_filename'] as const;
+type OSXBuildInfo = CommonBuildInfo &
   Record<(typeof osxFilenameKeys)[number], string> & {
     installerOptions: {
       title: string;
     };
   };
 
-export function assertBuildInfoIsOSX(
+function assertBuildInfoIsOSX(
   buildInfo: unknown
 ): asserts buildInfo is OSXBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
@@ -117,14 +114,14 @@ export function assertBuildInfoIsOSX(
   );
 }
 
-export const ubuntuFilenameKeys = [
+const ubuntuFilenameKeys = [
   'linux_deb_filename',
   'linux_tar_filename',
 ] as const;
-export type UbuntuBuildInfo = CommonBuildInfo &
+type UbuntuBuildInfo = CommonBuildInfo &
   Record<(typeof ubuntuFilenameKeys)[number], string>;
 
-export function assertBuildInfoIsUbuntu(
+function assertBuildInfoIsUbuntu(
   buildInfo: unknown
 ): asserts buildInfo is UbuntuBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
@@ -132,10 +129,10 @@ export function assertBuildInfoIsUbuntu(
 }
 
 const rhelFilenameKeys = ['linux_rpm_filename', 'rhel_tar_filename'] as const;
-export type RHELBuildInfo = CommonBuildInfo &
+type RHELBuildInfo = CommonBuildInfo &
   Record<(typeof rhelFilenameKeys)[number], string>;
 
-export function assertBuildInfoIsRHEL(
+function assertBuildInfoIsRHEL(
   buildInfo: unknown
 ): asserts buildInfo is RHELBuildInfo {
   assertObjectHasKeys(buildInfo, 'buildInfo', commonKeys);
@@ -168,7 +165,7 @@ export type PackageDetails = {
 /**
  * Extracts the filename of the packaged app from the build info, specific to a kind of package.
  */
-export function getPackageDetails(
+function getPackageDetails(
   kind: PackageKind,
   buildInfo: unknown
 ): PackageDetails {

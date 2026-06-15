@@ -1,8 +1,8 @@
 import type { TestSubject } from '../test-subject';
 
-export type Installer = (pkg: InstallablePackage) => Promise<InstalledAppInfo>;
+type Installer = (pkg: InstallablePackage) => Promise<InstalledAppInfo>;
 
-export type Package = {
+type Package = {
   appName: string;
   packageFilepath: string;
   // TODO: once we can download the most recent release

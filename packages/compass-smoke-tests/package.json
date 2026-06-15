@@ -27,7 +27,8 @@
     "depcheck": "compass-scripts check-peer-deps && depcheck",
     "check": "npm run typecheck && npm run lint && npm run depcheck",
     "check-ci": "npm run check",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "knip": "knip --config knip.js --no-config-hints"
   },
   "devDependencies": {
     "@actions/github": "^6.0.0",
@@ -39,6 +40,7 @@
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
     "hadron-build": "^25.9.6",
+    "knip": "^6.16.1",
     "lodash": "^4.18.1",
     "typescript": "^5.9.3",
     "yargs": "^17.7.2"
