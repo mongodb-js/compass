@@ -1,6 +1,7 @@
 import ExplainPlanModal from './components/explain-plan-modal';
 import { activatePlugin } from './stores';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
+import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
@@ -24,6 +25,7 @@ const ExplainPlanModalPlugin = registerCompassPlugin(
       'explainAggregate' | 'explainFind' | 'isCancelError'
     >,
     preferences: preferencesLocator,
+    compassAssistant: compassAssistantServiceLocator,
   }
 );
 
