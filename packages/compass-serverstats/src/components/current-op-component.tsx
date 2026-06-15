@@ -135,5 +135,4 @@ const CurrentOpComponent: React.FunctionComponent<{
   );
 };
 
-export default CurrentOpComponent;
 export { CurrentOpComponent };
