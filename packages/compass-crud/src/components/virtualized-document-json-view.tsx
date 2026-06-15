@@ -30,7 +30,7 @@ const estimateDocumentInitialHeight = (doc: HadronDocument) => {
   );
 };
 
-export type VirtualizedDocumentJsonViewProps = {
+type VirtualizedDocumentJsonViewProps = {
   namespace: string;
   docs: HadronDocument[];
   isEditable: boolean;

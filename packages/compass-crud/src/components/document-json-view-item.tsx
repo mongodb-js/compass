@@ -9,7 +9,7 @@ const keylineCardStyles = css({
   position: 'relative',
 });
 
-export type DocumentJsonViewItemProps = {
+type DocumentJsonViewItemProps = {
   doc: HadronDocument;
   docRef: React.Ref<HTMLDivElement>;
   docIndex: number;

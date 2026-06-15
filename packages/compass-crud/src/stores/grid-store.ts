@@ -30,7 +30,7 @@ export interface GridActions {
   replaceDoc(oldOid: string, newOid: string, newDoc: BSONObject): void;
 }
 
-export type GridStoreOptions = {
+type GridStoreOptions = {
   actions: {
     [key in keyof GridActions]: Listenable;
   };

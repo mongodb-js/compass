@@ -9,7 +9,7 @@ import type { GridActions } from '../../stores/grid-store';
 import { DocumentEvents, type Element } from 'hadron-document';
 import type { BSONObject, CrudActions } from '../../stores/crud-store';
 
-export type FullWidthCellRendererProps = Pick<
+type FullWidthCellRendererProps = Pick<
   CellEditorProps,
   'context' | 'api' | 'node'
 > & {

@@ -9,7 +9,7 @@ import {
   compassRecentQueryStorageAccess,
 } from '@mongodb-js/my-queries-storage';
 
-export const MockQueryBarPlugin: typeof QueryBarPlugin =
+const MockQueryBarPlugin: typeof QueryBarPlugin =
   QueryBarPlugin.withMockServices({
     dataService: {
       sample() {

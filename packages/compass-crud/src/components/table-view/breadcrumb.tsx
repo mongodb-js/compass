@@ -8,7 +8,7 @@ const ICON_TYPE: Partial<Record<TableHeaderType, string>> = {
   Object: '{ }',
 };
 
-export type BreadcrumbComponentProps = {
+type BreadcrumbComponentProps = {
   collection: string;
   pathChanged: (path: (string | number)[], types: TableHeaderType[]) => void;
   path: (string | number)[];

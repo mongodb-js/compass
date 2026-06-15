@@ -5,7 +5,7 @@ export const DOCUMENTS_STATUS_FETCHED_INITIAL = 'fetchedInitial' as const;
 export const DOCUMENTS_STATUS_FETCHED_CUSTOM = 'fetchedCustom' as const;
 export const DOCUMENTS_STATUS_FETCHED_PAGINATION = 'fetchedPagination' as const;
 
-export const DOCUMENTS_STATUSES_ALL = [
+const DOCUMENTS_STATUSES_ALL = [
   DOCUMENTS_STATUS_INITIAL,
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_ERROR,

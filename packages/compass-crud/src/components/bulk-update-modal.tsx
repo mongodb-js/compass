@@ -258,7 +258,7 @@ const previewZeroStateDescriptionStyles = css({
   margin: 0,
 });
 
-export type BulkUpdatePreviewProps = {
+type BulkUpdatePreviewProps = {
   count?: number;
   preview: UpdatePreview;
 };

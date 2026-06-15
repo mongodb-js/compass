@@ -13,7 +13,7 @@ export { countDocuments, fetchShardingKeys } from './cancellable-queries';
  *
  * @return {Number} The size.
  */
-export const fieldStringLen = (value: unknown) => {
+const fieldStringLen = (value: unknown) => {
   const length = String(value).length;
   return length === 0 ? 1 : length;
 };

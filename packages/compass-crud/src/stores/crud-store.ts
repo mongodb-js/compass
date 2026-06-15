@@ -256,7 +256,7 @@ const DEFAULT_INITIAL_MAX_TIME_MS = 60000;
  * We want to make sure `count` does not hold back the query results for too
  * long after docs are returned.
  */
-export const COUNT_MAX_TIME_MS_CAP = 5000;
+const COUNT_MAX_TIME_MS_CAP = 5000;
 
 /**
  * The key we use to persist the user selected maximum documents per page for
@@ -323,7 +323,7 @@ export type TableState = {
   };
 };
 
-export type BulkDeleteState = {
+type BulkDeleteState = {
   previews: Document[];
   status: 'open' | 'closed' | 'in-progress';
   affected?: number;
@@ -2296,7 +2296,7 @@ export async function findAndModifyWithFLEFallback(
 }
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
-export function parseShellBSON(source: string): BSONObject | BSONObject[] {
+function parseShellBSON(source: string): BSONObject | BSONObject[] {
   const parsed = _parseShellBSON(source, {
     mode: ParseMode.Strict,
     allowComments: true,

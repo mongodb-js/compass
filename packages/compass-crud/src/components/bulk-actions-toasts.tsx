@@ -81,7 +81,7 @@ type BulkOperationFailureToastProps = {
 
 const isNetworkError = (error: Error) => error instanceof MongoNetworkError;
 
-export function openBulkOperationFailureToast({
+function openBulkOperationFailureToast({
   affectedDocuments,
   error,
   type,

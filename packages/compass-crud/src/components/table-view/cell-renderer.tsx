@@ -82,7 +82,7 @@ const decrypdedIconStyles = css({
   display: 'flex',
 });
 
-export type CellRendererProps = Omit<ICellRendererParams, 'context'> & {
+type CellRendererProps = Omit<ICellRendererParams, 'context'> & {
   context: GridContext;
   parentType: TableHeaderType;
   elementAdded: GridActions['elementAdded'];

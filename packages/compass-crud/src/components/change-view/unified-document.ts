@@ -100,7 +100,7 @@ export type Branch = {
   value: any;
 };
 
-export type BranchesWithChanges = {
+type BranchesWithChanges = {
   delta: Delta | null; // delta is null for unchanged branches
   implicitChangeType: ChangeType;
 } & (

@@ -3,8 +3,8 @@ import sinon from 'sinon';
 import { expect } from 'chai';
 import { ObjectId } from 'bson';
 
-export const NUM_DOCS = 20;
-export const expectedDocs: any[] = [];
+const NUM_DOCS = 20;
+const expectedDocs: any[] = [];
 for (let i = 0; i < 60; i++) {
   expectedDocs.push({ _id: new ObjectId(), x: i.toString() });
 }
@@ -40,7 +40,7 @@ export const getActions = function () {
   };
 };
 
-export const getRowNode = function (doc: any, id?: any) {
+const getRowNode = function (doc: any, id?: any) {
   if (!id) {
     id = '1';
   }
@@ -92,7 +92,7 @@ export const getContext = function (path) {
   };
 };
 
-export const checkPageRange = function (
+const checkPageRange = function (
   error: any,
   documents: any[],
   start: number,
@@ -143,16 +143,3 @@ export const notCalledExcept = function (spies, except) {
     }
   }
 };
-
-export default {
-  getNode: getRowNode,
-  getApi: getApi,
-  getColumn: getColumn,
-  getActions: getActions,
-  getColumnApi: getColumnApi,
-  getContext: getContext,
-  notCalledExcept: notCalledExcept,
-  NUM_DOCS: NUM_DOCS,
-  expectedDocs: expectedDocs,
-  checkPageRange: checkPageRange,
-} as any;

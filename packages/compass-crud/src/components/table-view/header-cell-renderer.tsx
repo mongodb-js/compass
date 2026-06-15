@@ -2,7 +2,7 @@ import React from 'react';
 import { cx } from '@mongodb-js/compass-components';
 import type { TableHeaderType } from '../../stores/grid-store';
 
-export type HeaderCellRendererProps = {
+type HeaderCellRendererProps = {
   displayName: string;
   bsonType: TableHeaderType;
   hide?: boolean;

@@ -9,7 +9,7 @@ import {
   useQueryBarQuery,
 } from '@mongodb-js/compass-query-bar';
 
-export type DocumentListViewItemProps = {
+type DocumentListViewItemProps = {
   doc: HadronDocument;
   docRef: React.Ref<HTMLDivElement>;
   docIndex: number;

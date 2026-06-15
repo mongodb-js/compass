@@ -40,7 +40,7 @@ const ADD_CHILD_ICON = 'Relationship';
  */
 const ADD_FIELD_ICON = 'PlusWithCircle';
 
-export type AddFieldButtonProps = Pick<
+type AddFieldButtonProps = Pick<
   CellEditorProps,
   | 'value'
   | 'addColumn'

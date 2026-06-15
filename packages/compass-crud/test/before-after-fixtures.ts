@@ -20,7 +20,7 @@ import {
 
 import type { Document } from 'bson';
 
-export type Fixture = {
+type Fixture = {
   name: string;
   before: Document;
   after: Document;
