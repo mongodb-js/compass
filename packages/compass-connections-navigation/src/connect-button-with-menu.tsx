@@ -27,21 +27,20 @@ type ConnectMenuItemProps = {
   'glyph' | 'as'
 >;
 
-export const ConnectMenuItem = forwardRef<
-  HTMLButtonElement,
-  ConnectMenuItemProps
->(function ConnectMenuItem({ action, glyph, ...rest }, ref) {
-  return (
-    <MenuItem
-      as="button"
-      data-action={action}
-      className={menuItemStyles}
-      glyph={<Icon glyph={glyph} />}
-      {...rest}
-      ref={ref}
-    />
-  );
-});
+const ConnectMenuItem = forwardRef<HTMLButtonElement, ConnectMenuItemProps>(
+  function ConnectMenuItem({ action, glyph, ...rest }, ref) {
+    return (
+      <MenuItem
+        as="button"
+        data-action={action}
+        className={menuItemStyles}
+        glyph={<Icon glyph={glyph} />}
+        {...rest}
+        ref={ref}
+      />
+    );
+  }
+);
 
 // Hack to make SplitButton consider this as a MenuItem
 ConnectMenuItem.displayName = 'MenuItem';

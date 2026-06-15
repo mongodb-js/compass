@@ -6,7 +6,7 @@ import {
 } from '@mongodb-js/compass-components';
 import React from 'react';
 
-export type StatusMarker =
+type StatusMarker =
   | 'initial'
   | 'connected'
   | 'disconnected'
@@ -41,7 +41,7 @@ const connectingIconAnimation = keyframes`
   }
 `;
 
-export const connectingIconStyle = css`
+const connectingIconStyle = css`
   animation: ${connectingIconAnimation} 1.5s linear infinite;
 `;
 

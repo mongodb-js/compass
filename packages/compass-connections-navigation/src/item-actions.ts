@@ -5,9 +5,9 @@ import { type NotConnectedConnectionStatus } from './tree-data';
 import { ConnectButton } from './connect-button';
 import type { Actions } from './constants';
 
-export type NavigationItemAction = ItemAction<Actions> | ItemSeparator;
+type NavigationItemAction = ItemAction<Actions> | ItemSeparator;
 export type NavigationItemActions = NavigationItemAction[];
-export type NullableNavigationItemActions = (NavigationItemAction | null)[];
+type NullableNavigationItemActions = (NavigationItemAction | null)[];
 
 function stripNullActions(
   actions: NullableNavigationItemActions
@@ -17,7 +17,7 @@ function stripNullActions(
   );
 }
 
-export const commonConnectionItemActions = ({
+const commonConnectionItemActions = ({
   connectionInfo,
 }: {
   connectionInfo: ConnectionInfo;

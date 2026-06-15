@@ -29,7 +29,7 @@ const enabledStyles = css({
   cursor: 'pointer',
 });
 
-export type VirtualListItemProps = {
+type VirtualListItemProps = {
   style?: CSSProperties;
 };
 
