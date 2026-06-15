@@ -35,7 +35,7 @@ const DEFAULT_COMPASS_WEB_PREFERENCES = {
  * @internal
  * exported for the sandbox to be able to hook into these
  */
-export let compassWebPreferences: CompassWebPreferencesAccess | null = null;
+let compassWebPreferences: CompassWebPreferencesAccess | null = null;
 
 export function useCompassWebPreferences(
   initialPreferences: Partial<AllPreferences> = {},

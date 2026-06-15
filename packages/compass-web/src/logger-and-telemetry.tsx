@@ -67,7 +67,7 @@ function createCompassWebDebugger(
  * @internal
  * exported for the sandbox to be able to hook into these
  */
-export const compassWebLoggingAndTrackingEvents: {
+const compassWebLoggingAndTrackingEvents: {
   logging: unknown[] | null;
   tracking: unknown[] | null;
 } = {

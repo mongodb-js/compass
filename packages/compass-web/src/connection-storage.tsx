@@ -48,7 +48,7 @@ type ClusterDescription = {
   };
 };
 
-export type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
+type ClusterDescriptionWithDataProcessingRegion = ClusterDescription & {
   dataProcessingRegion: { regionalUrl: string };
 };
 
@@ -160,7 +160,7 @@ const SandboxConnectionStorageContext =
  * non-Atlas deployment
  * @internal
  */
-export const SandboxConnectionStorageProvider = ({
+const SandboxConnectionStorageProvider = ({
   value,
   children,
 }: {

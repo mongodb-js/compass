@@ -34,15 +34,15 @@ import { type Logger } from '@mongodb-js/compass-logging/provider';
  */
 const MIN_BSON_DOCUMENT_SIZE = 5;
 
-export type Routing = {
+type Routing = {
   sz: number;
   sa: string;
   sp: number;
   da: string;
   dp: number;
 };
-export type ErrorHeader = { v: -1; er: string };
-export type SuccessHeader = { v: 1 };
+type ErrorHeader = { v: -1; er: string };
+type SuccessHeader = { v: 1 };
 export type Header = (SuccessHeader | ErrorHeader) & Routing;
 
 type LinkOptions = {
@@ -124,19 +124,19 @@ const getNextHostname = (function* getNextHostname() {
 })();
 
 /** Helper to add an event listener that can be easily disposed. */
-export function addEventListener<K extends keyof WebSocketEventMap>(
+function addEventListener<K extends keyof WebSocketEventMap>(
   eventTarget: WebSocket,
   eventType: K,
   eventListener: (event: WebSocketEventMap[K]) => void,
   options?: boolean | AddEventListenerOptions
 ): { [Symbol.dispose](): void };
-export function addEventListener<K extends keyof AbortSignalEventMap>(
+function addEventListener<K extends keyof AbortSignalEventMap>(
   eventTarget: AbortSignal | undefined,
   eventType: K,
   eventListener: (event: AbortSignalEventMap[K]) => void,
   options?: boolean | AddEventListenerOptions
 ): { [Symbol.dispose](): void };
-export function addEventListener(
+function addEventListener(
   eventTarget: EventTarget | undefined,
   eventType: string,
   eventListener: (event: Event) => void,
@@ -482,6 +482,6 @@ export function getMultiplexLink(): Link | null {
 }
 
 let _wsUrlOverride: string | null = null;
-export function setWebSocketUrlOverride(url: string | null): void {
+function setWebSocketUrlOverride(url: string | null): void {
   _wsUrlOverride = url;
 }
