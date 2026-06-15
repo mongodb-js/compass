@@ -11,7 +11,7 @@ export const IntercomTrackingEvents = {
   submittedNlPrompt: 'submitted-nl-prompt',
 } as const;
 
-export type IntercomTrackingEvent =
+type IntercomTrackingEvent =
   (typeof IntercomTrackingEvents)[keyof typeof IntercomTrackingEvents];
 
 export function intercomTrack(
