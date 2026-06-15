@@ -96,4 +96,4 @@ export const OPTION_DEFINITION: {
 };
 
 export type QueryBarRowLayout = QueryOption | QueryOption[];
-export type QueryBarLayout = QueryBarRowLayout[];
+type QueryBarLayout = QueryBarRowLayout[];

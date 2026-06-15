@@ -73,7 +73,7 @@ type QueryBarExtraServices = {
 
 export type QueryBarStoreOptions = CollectionTabPluginMetadata;
 
-export const rootQueryBarReducer = combineReducers({
+const rootQueryBarReducer = combineReducers({
   queryBar: queryBarReducer,
   aiQuery: aiQueryReducer,
 });

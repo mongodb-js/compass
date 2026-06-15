@@ -75,7 +75,7 @@ const queryOptionLabelContainerStyles = css({
   alignItems: 'center',
 });
 
-export const documentEditorLabelContainerStyles = css(
+const documentEditorLabelContainerStyles = css(
   queryOptionLabelContainerStyles,
   {
     minWidth: spacing[800] * 2,

@@ -20,7 +20,7 @@ import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 type AIQueryStatus = 'ready' | 'fetching' | 'success';
 
-export type AIQueryState = {
+type AIQueryState = {
   errorMessage: string | undefined;
   errorCode: string | undefined;
   isInputVisible: boolean;
@@ -30,7 +30,7 @@ export type AIQueryState = {
   lastAIQueryRequestId: string | null; // We store the last request id so we can pass it when a user provides feedback.
 };
 
-export const initialState: AIQueryState = {
+const initialState: AIQueryState = {
   status: 'ready',
   aiPromptText: '',
   errorMessage: undefined,

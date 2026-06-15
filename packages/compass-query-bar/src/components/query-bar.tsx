@@ -132,7 +132,7 @@ type QueryBarProps = {
   source: string;
 };
 
-export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
+const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   buttonLabel = 'Apply',
   onApply,
   onReset,

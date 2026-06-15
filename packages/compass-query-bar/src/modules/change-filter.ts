@@ -101,7 +101,7 @@ type ToggleDistinctValueArgs = {
 /**
  * clears a field from the filter
  */
-export function clearValue(input: unknown, args: ClearValueArgs): unknown {
+function clearValue(input: unknown, args: ClearValueArgs): unknown {
   const result = clone(input) as any;
   delete result[args.field];
   return result;
@@ -110,7 +110,7 @@ export function clearValue(input: unknown, args: ClearValueArgs): unknown {
 /**
  * Sets the value for the given field on the filter.
  */
-export function setValue(input: unknown, args: SetValueArgs): unknown {
+function setValue(input: unknown, args: SetValueArgs): unknown {
   const filter = clone(input) as any;
   if (
     args.unsetIfSet &&
@@ -127,7 +127,7 @@ export function setValue(input: unknown, args: SetValueArgs): unknown {
  * Takes either a single value or an array of values, and sets the value on the
  * filter correctly as equality or $in depending on the number of values.
  */
-export function setDistinctValues(
+function setDistinctValues(
   input: unknown,
   args: SetDistinctValueArgs
 ): unknown {
@@ -150,7 +150,7 @@ export function setDistinctValues(
  * Adds a discrete value to a field on the filter, converting primitive
  * values to $in lists as required.
  */
-export function addDistinctValue(
+function addDistinctValue(
   input: unknown,
   args: ToggleDistinctValueArgs
 ): unknown {
@@ -185,7 +185,7 @@ export function addDistinctValue(
  * removes a distinct value from a field on the filter, converting primitive
  * values to $in lists as required.
  */
-export function removeDistinctValue(
+function removeDistinctValue(
   input: unknown,
   args: ToggleDistinctValueArgs
 ): unknown {
@@ -225,7 +225,7 @@ export function removeDistinctValue(
  * adds distinct value (equality or $in) from filter if not yet present,
  * otherwise removes it.
  */
-export function toggleDistinctValue(
+function toggleDistinctValue(
   input: unknown,
   args: ToggleDistinctValueArgs
 ): unknown {
@@ -241,10 +241,7 @@ export function toggleDistinctValue(
  * upper and lower bounds. If neither `min` nor `max` are set, clears the field
  * on the filter.
  */
-export function setRangeValues(
-  input: unknown,
-  args: SetRangeValueArgs
-): unknown {
+function setRangeValues(input: unknown, args: SetRangeValueArgs): unknown {
   let filter = clone(input) as any;
   const value: any = {};
   let op;
@@ -279,10 +276,7 @@ export function setRangeValues(
  * Like `setQuery()`, but merge an existing query into the current one instead
  * of overwriting it.
  */
-export function mergeGeoQuery(
-  input: unknown,
-  args: MergeGeoQueryArgs
-): unknown {
+function mergeGeoQuery(input: unknown, args: MergeGeoQueryArgs): unknown {
   const filter = clone(input) as any;
   return mergeGeoFilter(filter, args);
 }
@@ -293,7 +287,7 @@ export function mergeGeoQuery(
  *
  * @see https://docs.mongodb.com/manual/tutorial/calculate-distances-using-spherical-geometry-with-2d-geospatial-indexes/
  */
-export function setGeoWithinValue(
+function setGeoWithinValue(
   input: unknown,
   args: SetGeoWithinValueArgs
 ): unknown {

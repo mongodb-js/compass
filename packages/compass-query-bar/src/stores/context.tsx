@@ -39,7 +39,7 @@ export const useStore = createStoreHook(
   QueryBarStoreContext
 ) as () => QueryBarStore;
 
-export const useDispatch = createDispatchHook(
+const useDispatch = createDispatchHook(
   QueryBarStoreContext
 ) as () => QueryBarStore['dispatch'];
 
