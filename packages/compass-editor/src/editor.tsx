@@ -157,7 +157,7 @@ const tabKeymap: KeyBinding[] = [
 
 export type CodemirrorThemeType = 'light' | 'dark';
 
-export const editorPalette = {
+const editorPalette = {
   light: {
     color: codePalette.light[3],
     backgroundColor: codePalette.light[0],
@@ -1588,7 +1588,6 @@ function getCodemirrorEditorValue(element: Element | string | null): string {
   return getEditorContents(editorView);
 }
 
-export { BaseEditor };
 export { InlineEditor as CodemirrorInlineEditor };
 export { MultilineEditor as CodemirrorMultilineEditor };
 export { setCodemirrorEditorValue };

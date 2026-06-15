@@ -45,7 +45,7 @@ export function* parents(token: Token) {
   }
 }
 
-export function removeQuotes(str: string) {
+function removeQuotes(str: string) {
   return str.replace(/(^('|")|('|")$)/g, '');
 }
 
@@ -65,7 +65,7 @@ export function getPropertyNameFromPropertyToken(
   return removeQuotes(getTokenText(editorState, propertyToken.firstChild));
 }
 
-export function getTokenText(editorState: EditorState, token: Token) {
+function getTokenText(editorState: EditorState, token: Token) {
   return editorState.sliceDoc(token.from, token.to);
 }
 
