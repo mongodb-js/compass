@@ -44,7 +44,7 @@ export function useShouldShowFeaturePreviewSettings(): boolean {
   return showPreviewFeatures || showDevFeatures;
 }
 
-export const FeaturePreviewSettings: React.FunctionComponent = () => {
+const FeaturePreviewSettings: React.FunctionComponent = () => {
   const showPreviewFeatures = useShouldShowPreviewFeatures();
   const showDevFeatures = useShouldShowDevFeatures();
 

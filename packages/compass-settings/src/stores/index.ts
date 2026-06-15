@@ -14,7 +14,7 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
-export type Public<T> = { [K in keyof T]: T[K] };
+type Public<T> = { [K in keyof T]: T[K] };
 
 export type SettingsThunkExtraArgs = {
   preferencesSandbox: Public<PreferencesSandbox>;

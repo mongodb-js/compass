@@ -29,7 +29,7 @@ export type State = { isModalOpen: boolean; tab: undefined | SettingsTabId } & (
     }
 );
 
-export const INITIAL_STATE: State = {
+const INITIAL_STATE: State = {
   isModalOpen: false,
   settings: {},
   preferenceStates: {},
@@ -38,7 +38,7 @@ export const INITIAL_STATE: State = {
   tab: undefined,
 };
 
-export const ActionTypes = {
+const ActionTypes = {
   // TODO(COMPASS-7098): based on usage, `fetched` and `synced` should be two
   // different groups of actions, not one
   SettingsFetchedStart: 'compass-settings/SettingsFetchedStart',
@@ -86,7 +86,7 @@ type ChangeFieldValueAction<K extends keyof UserConfigurablePreferences> = {
   value: UserConfigurablePreferences[K];
 };
 
-export function isAction<A extends AnyAction>(
+function isAction<A extends AnyAction>(
   action: AnyAction,
   type: A['type']
 ): action is A {

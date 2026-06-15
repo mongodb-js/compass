@@ -18,7 +18,7 @@ const generalFields = [
   'legacyUUIDDisplayEncoding',
 ] as const;
 
-export const GeneralSettings: React.FunctionComponent = () => {
+const GeneralSettings: React.FunctionComponent = () => {
   return (
     <div data-testid="general-settings">
       <div>

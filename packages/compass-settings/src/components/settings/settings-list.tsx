@@ -75,7 +75,7 @@ type HandleChange<PreferenceName extends SupportedPreferences> = <
   value: UserConfigurablePreferences[N]
 ) => void;
 
-export type SettingsListProps<PreferenceName extends SupportedPreferences> = {
+type SettingsListProps<PreferenceName extends SupportedPreferences> = {
   fields: readonly PreferenceName[];
 };
 
@@ -391,7 +391,7 @@ const ConnectedSettingsInput = connect(
   { onChange: changeFieldValue }
 )(SettingsInput);
 
-export function SettingsList<PreferenceName extends SupportedPreferences>({
+function SettingsList<PreferenceName extends SupportedPreferences>({
   fields,
 }: SettingsListProps<PreferenceName>) {
   return (

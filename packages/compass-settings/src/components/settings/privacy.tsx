@@ -9,7 +9,7 @@ const privacyFields = [
   'enableFeedbackPanel',
 ] as const;
 
-export const PrivacySettings: React.FunctionComponent = () => {
+const PrivacySettings: React.FunctionComponent = () => {
   return (
     <div data-testid="privacy-settings">
       <div>
