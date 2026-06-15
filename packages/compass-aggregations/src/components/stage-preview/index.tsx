@@ -7,6 +7,7 @@ import {
   spacing,
   palette,
   Body,
+  Chip,
   KeylineCard,
   Link,
   useDarkMode,
@@ -27,9 +28,13 @@ import OutputStagePreivew from './output-stage-preview';
 import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getIndexOfFirstStageWithServerError } from '../../modules/pipeline-builder/stage-editor';
+import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 
 import SearchNoResults from '../search-no-results';
-import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useSearchActivationProgramP1,
+  useSearchActivationProgramP2,
+} from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
 
 const centeredContent = css({
@@ -109,6 +114,13 @@ const documentStyles = css({
   padding: 0,
 });
 
+const scoreChipStyles = css({
+  alignSelf: 'flex-end',
+  marginBlock: spacing[100],
+  marginInline: spacing[200],
+  fontWeight: 'bold',
+});
+
 type StagePreviewProps = {
   index: number;
   isLoading: boolean;
@@ -116,6 +128,7 @@ type StagePreviewProps = {
   isMissingAtlasOnlyStageSupport: boolean;
   stageOperator: string | null;
   documents: DocumentType[] | null;
+  stageMetadata: StagePreviewMetadata | null;
   shouldRenderStage: boolean;
   showSearchIndexStaleResultsBanner: boolean;
   searchIndexName: string | null;
@@ -126,6 +139,7 @@ function StagePreviewBody({
   index,
   stageOperator,
   documents,
+  stageMetadata,
   isMissingAtlasOnlyStageSupport,
   shouldRenderStage,
   isLoading,
@@ -134,6 +148,7 @@ function StagePreviewBody({
   serverErrorStageIdx,
 }: StagePreviewProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
 
   if (!shouldRenderStage) {
     return <NoPreviewDocuments />;
@@ -196,9 +211,20 @@ function StagePreviewBody({
   }
 
   if (documents && documents.length > 0) {
+    const showScoreChips =
+      enableSearchActivationProgramP2 && stageMetadata?.type === '$search';
     const docs = documents.map((doc, i) => {
+      const score = showScoreChips ? stageMetadata?.scores[i] ?? null : null;
       return (
         <KeylineCard key={i} className={documentContainerStyles}>
+          {score !== null && (
+            <Chip
+              className={scoreChipStyles}
+              variant="green"
+              label={`Score: ${Number(score.value)}`}
+              data-testid="stage-preview-search-score-chip"
+            />
+          )}
           <div className={documentStyles}>
             <Document doc={doc} editable={false} />
           </div>
@@ -285,6 +311,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     stageOperator: stage.stageOperator,
     shouldRenderStage,
     documents: stage.previewDocs,
+    stageMetadata: stage.stageMetadata,
     isMissingAtlasOnlyStageSupport: !!isMissingAtlasOnlyStageSupport,
     showSearchIndexStaleResultsBanner,
     searchIndexName,
