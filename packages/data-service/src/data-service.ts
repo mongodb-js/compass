@@ -1,7 +1,4 @@
-import type {
-  DevtoolsProxyOptions,
-  Tunnel,
-} from '@mongodb-js/devtools-proxy-support';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import { EventEmitter } from 'events';
 import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
@@ -1039,7 +1036,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _useCRUDClient = true;
   private _csfleCollectionTracker?: CSFLECollectionTracker;
 
-  private _tunnel?: Tunnel;
   private _state?: DevtoolsConnectionState;
   private _reauthenticationHandlers = new Set<ReauthenticationHandler>();
 
@@ -1691,7 +1687,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     });
 
     try {
-      const [metadataClient, crudClient, tunnel, state, connectionOptions] =
+      const [metadataClient, crudClient, state, connectionOptions] =
         await connectMongoClient({
           connectionOptions: this._connectionOptions,
           proxyOptions: this._proxyOptions,
@@ -1730,7 +1726,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
       this._metadataClient = metadataClient;
       this._crudClient = crudClient;
-      this._tunnel = tunnel;
       this._state = state;
       this._mongoClientConnectionOptions = connectionOptions;
       this._csfleCollectionTracker = new CSFLECollectionTrackerImpl(
@@ -1867,9 +1862,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
           this._crudClient
             ?.close(true)
             .catch((err) => debug('failed to close MongoClient', err)),
-        this._tunnel
-          ?.close()
-          .catch((err) => debug('failed to close tunnel', err)),
         this._state
           ?.destroy()
           .catch((err) =>
@@ -3153,7 +3145,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     this._crudClient?.removeAllListeners?.();
     this._metadataClient = undefined;
     this._crudClient = undefined;
-    this._tunnel = undefined;
     this._state = undefined;
     this._mongoClientConnectionOptions = undefined;
     this._isWritable = false;
