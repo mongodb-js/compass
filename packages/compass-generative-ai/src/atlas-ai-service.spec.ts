@@ -604,9 +604,7 @@ describe('AtlasAiService', function () {
             const { args } = fetchStub.firstCall;
             // Header keys may be normalised to lowercase by the SDK; compare
             // case-insensitively via a Headers wrapper.
-            const headers = new Headers(
-              (args[1] as RequestInit).headers as HeadersInit
-            );
+            const headers = new Headers((args[1] as RequestInit).headers);
             expect(headers.get('X-Assistant-Entrypoint')).to.equal(
               'mock-data-generator'
             );

@@ -7,7 +7,7 @@ const fakerArgItemSchema = z.union([
   z.boolean(),
 ]);
 
-export const fakerFieldSchema = z.object({
+const fakerFieldSchema = z.object({
   fieldPath: z
     .string()
     .describe(

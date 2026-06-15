@@ -7,7 +7,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasAiPluginProps } from '../components/plugin';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
-export let store: CompassGenerativeAIServiceStore;
+let store: CompassGenerativeAIServiceStore;
 
 export function getStore() {
   if (!store) {
@@ -50,4 +50,4 @@ export function configureStore({
   return store;
 }
 
-export type CompassGenerativeAIServiceStore = ReturnType<typeof configureStore>;
+type CompassGenerativeAIServiceStore = ReturnType<typeof configureStore>;

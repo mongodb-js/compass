@@ -121,9 +121,7 @@ function hasExtraneousKeys(obj: any, expectedKeys: string[]) {
   return Object.keys(obj).some((key) => !expectedKeys.includes(key));
 }
 
-export function validateAIQueryResponse(
-  response: any
-): asserts response is AIQuery {
+function validateAIQueryResponse(response: any): asserts response is AIQuery {
   const { content } = response ?? {};
 
   if (typeof content !== 'object' || content === null) {
@@ -193,7 +191,7 @@ export function validateAIQueryResponse(
   }
 }
 
-export function validateAIAggregationResponse(
+function validateAIAggregationResponse(
   response: any
 ): asserts response is AIAggregation {
   const { content } = response;

@@ -6,7 +6,7 @@ export function allText(messages: Message[]): string {
   return messages.map((m) => m.content).join('\n');
 }
 
-export function sampleItems<T>(arr: T[], k: number): T[] {
+function sampleItems<T>(arr: T[], k: number): T[] {
   if (k > arr.length) {
     throw new Error('Sample size cannot be greater than array length');
   }

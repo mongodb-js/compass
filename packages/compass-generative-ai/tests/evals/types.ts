@@ -344,9 +344,9 @@ export interface MockDataInputFieldSchema {
   };
 }
 
-export type FakerArgument = string | number | boolean | { json: string };
+type FakerArgument = string | number | boolean | { json: string };
 
-export interface LlmCompletedField {
+interface LlmCompletedField {
   fakerArgs: Array<FakerArgument>;
   fakerMethod: string;
   fieldPath: string;

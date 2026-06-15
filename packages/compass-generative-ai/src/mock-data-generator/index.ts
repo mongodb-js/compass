@@ -1,6 +1,5 @@
 export {
   mockDataSchemaToolSchema,
-  fakerFieldSchema,
   type MockDataSchemaToolOutput,
   type MockDataSchemaRawField,
   type RawSchema,
@@ -15,6 +14,4 @@ export {
   mergeChunkResponses,
   validateSchemaSize,
   needsBatching,
-  FIELDS_PER_CHUNK,
-  MAX_CHUNKS,
 } from './schema-batching';

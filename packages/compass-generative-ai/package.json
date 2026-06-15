@@ -50,7 +50,8 @@
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "eval": "braintrust eval tests/evals"
+    "eval": "braintrust eval tests/evals",
+    "knip": "knip --config knip.js"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.1",
@@ -97,6 +98,7 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
+    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "mongodb-ns": "^3.2.0",
     "nyc": "^15.1.0",

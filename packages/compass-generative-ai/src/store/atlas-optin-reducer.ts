@@ -14,7 +14,7 @@ type AttemptState = {
   reject: (reason?: any) => void;
 };
 
-export type AtlasOptInState = {
+type AtlasOptInState = {
   error: string | null;
   isCloudOptIn: boolean;
   isModalOpen: boolean;
@@ -32,7 +32,7 @@ export type GenAIAtlasOptInThunkAction<
   A
 >;
 
-export const AtlasOptInActions = {
+const AtlasOptInActions = {
   OpenOptInModal: 'compass-generative-ai/atlas-optin/OpenOptInModal',
   CloseOptInModal: 'compass-generative-ai/atlas-optin/CloseOptInModal',
   AttemptStart: 'compass-generative-ai/atlas-optin/AttemptStart',
@@ -43,39 +43,39 @@ export const AtlasOptInActions = {
   Cancel: 'compass-generative-ai/atlas-optin/AtlasOptInCancel',
 } as const;
 
-export type AtlasOptInOpenModalAction = {
+type AtlasOptInOpenModalAction = {
   type: typeof AtlasOptInActions.OpenOptInModal;
 };
 
-export type AtlasOptInCloseModalAction = {
+type AtlasOptInCloseModalAction = {
   type: typeof AtlasOptInActions.CloseOptInModal;
 };
 
-export type AtlasOptInAttemptStartAction = {
+type AtlasOptInAttemptStartAction = {
   type: typeof AtlasOptInActions.AttemptStart;
   attemptId: number;
 };
 
-export type AtlasOptInAttemptEndAction = {
+type AtlasOptInAttemptEndAction = {
   type: typeof AtlasOptInActions.AttemptEnd;
   attemptId: number;
 };
 
-export type AtlasOptInStartAction = {
+type AtlasOptInStartAction = {
   type: typeof AtlasOptInActions.Start;
   isCloudOptIn: boolean;
 };
 
-export type AtlasOptInSuccessAction = {
+type AtlasOptInSuccessAction = {
   type: typeof AtlasOptInActions.OptInSuccess;
 };
 
-export type AtlasOptInErrorAction = {
+type AtlasOptInErrorAction = {
   type: typeof AtlasOptInActions.Error;
   error: string;
 };
 
-export type AtlasOptInCancelAction = { type: typeof AtlasOptInActions.Cancel };
+type AtlasOptInCancelAction = { type: typeof AtlasOptInActions.Cancel };
 
 const INITIAL_STATE = {
   state: 'initial' as const,
@@ -90,7 +90,7 @@ export const AttemptStateMap = new Map<number, AttemptState>();
 
 export let attemptId = 0;
 
-export function getAttempt(id?: number | null): AttemptState {
+function getAttempt(id?: number | null): AttemptState {
   if (!id) {
     id = ++attemptId;
     const controller = new AbortController();
@@ -292,7 +292,7 @@ export const optIn = (): GenAIAtlasOptInThunkAction<Promise<void>> => {
   };
 };
 
-export const openOptInModal = ({ isCloudOptIn }: { isCloudOptIn: boolean }) => {
+const openOptInModal = ({ isCloudOptIn }: { isCloudOptIn: boolean }) => {
   return { type: AtlasOptInActions.OpenOptInModal, isCloudOptIn };
 };
 

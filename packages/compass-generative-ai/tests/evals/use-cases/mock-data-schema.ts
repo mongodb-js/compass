@@ -95,7 +95,7 @@ const simpleCase: MockDataGeneratorCaseConfig = {
 
 // --- Charge Credit Case ---
 
-export const chargeCreditCase: MockDataGeneratorCaseConfig = {
+const chargeCreditCase: MockDataGeneratorCaseConfig = {
   metadata: {
     name: 'Charge Credit Example',
     hasSampleValues: true,
@@ -993,7 +993,7 @@ const ecommerceCase: MockDataGeneratorCaseConfig = {
 
 // --- Funding Event Case ---
 
-export const fundingEventCase: MockDataGeneratorCaseConfig = {
+const fundingEventCase: MockDataGeneratorCaseConfig = {
   metadata: {
     name: 'Funding Event Example',
     hasSampleValues: true,
@@ -1155,7 +1155,7 @@ const fundingEventCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
 
 // --- Weather Gridpoint Case ---
 
-export const weatherGridpointCase: MockDataGeneratorCaseConfig = {
+const weatherGridpointCase: MockDataGeneratorCaseConfig = {
   metadata: {
     name: 'Weather Gridpoint Example',
     hasSampleValues: true,
@@ -1606,7 +1606,7 @@ const weatherGridpointCaseWithoutSampleValues: MockDataGeneratorCaseConfig = {
 
 // --- Mflix Movie Case ---
 
-export const mflixMovieCase: MockDataGeneratorCaseConfig = {
+const mflixMovieCase: MockDataGeneratorCaseConfig = {
   metadata: {
     name: 'Mflix Movie Example',
     hasSampleValues: true,

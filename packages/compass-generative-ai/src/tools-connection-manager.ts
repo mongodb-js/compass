@@ -19,7 +19,7 @@ export interface ToolsConnectParams {
   connectOptions: DevtoolsConnectOptions;
 }
 
-export const DATABASE_TOOLS_TELEMETRY_APP_NAME = 'Database Tools';
+const DATABASE_TOOLS_TELEMETRY_APP_NAME = 'Database Tools';
 const DEFAULT_TELEMETRY_APP_NAME = 'MongoDB Compass';
 
 type ToolsConnectionManagerConfig = {
