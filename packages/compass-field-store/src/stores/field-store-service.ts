@@ -9,7 +9,7 @@ import { documentsUpdated, schemaUpdated } from '../modules';
 import type { ConnectionNamespacesState } from '../modules';
 import type { SchemaFieldSubset } from '../modules/fields';
 
-export type SchemaFields = Readonly<Record<string, SchemaFieldSubset>>;
+type SchemaFields = Readonly<Record<string, SchemaFieldSubset>>;
 
 export type FieldStoreService = {
   updateFieldsFromDocuments(

@@ -15,14 +15,13 @@ function isAction<A extends Action>(
   return action.type === type;
 }
 
-export const CONNECTION_DISCONNECTED =
-  'field-store/CONNECTION_DISCONNECTED' as const;
-export const DOCUMENTS_UPDATED = 'field-store/DOCUMENTS_UPDATED' as const;
-export const SCHEMA_UPDATED = 'field-store/SCHEMA_UPDATED' as const;
+const CONNECTION_DISCONNECTED = 'field-store/CONNECTION_DISCONNECTED' as const;
+const DOCUMENTS_UPDATED = 'field-store/DOCUMENTS_UPDATED' as const;
+const SCHEMA_UPDATED = 'field-store/SCHEMA_UPDATED' as const;
 
 type Namespace = string;
 
-export type NamespacesFieldsState = Record<
+type NamespacesFieldsState = Record<
   Namespace,
   { fields: Record<string, SchemaFieldSubset>; topLevelFields: string[] }
 >;

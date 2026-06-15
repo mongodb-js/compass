@@ -31,7 +31,7 @@ function getFlattenedPathIdString(path: string[]) {
   return path.join('.');
 }
 
-export function mergeFields(
+function mergeFields(
   existingField: SchemaFieldSubset,
   newField: SchemaFieldSubset
 ) {
@@ -65,7 +65,7 @@ export function mergeFields(
   );
 }
 
-export function flattenArray(
+function flattenArray(
   fields: Record<string, SchemaFieldSubset>,
   nestedTypes: SchemaType[]
 ) {
@@ -82,7 +82,7 @@ export function flattenArray(
   }
 }
 
-export function flattenFields(
+function flattenFields(
   fields: Record<string, SchemaFieldSubset>,
   nestedFields: SchemaField[]
 ) {
