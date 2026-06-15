@@ -25,19 +25,19 @@ type DocumentsFetchFinishedAction = {
   error: Error | null;
 };
 
-export type InputDocumentsAction =
+type InputDocumentsAction =
   | CollapseToggledAction
   | DocumentsFetchFinishedAction
   | DocumentsFetchStartedAction;
 
-export type InputDocumentsState = {
+type InputDocumentsState = {
   documents: HadronDocument[];
   error: Error | null;
   isExpanded: boolean;
   isLoading: boolean;
 };
 
-export const INITIAL_STATE: InputDocumentsState = {
+const INITIAL_STATE: InputDocumentsState = {
   documents: [],
   error: null,
   isExpanded: true,

@@ -143,7 +143,7 @@ const DISABLED_TEXT = 'Stage disabled. Results not passed in the pipeline.';
 const COLLAPSED_TEXT =
   'A sample of the aggregated results from this stage will be shown below.';
 
-export function StageToolbar({
+function StageToolbar({
   index,
   stage,
   env,

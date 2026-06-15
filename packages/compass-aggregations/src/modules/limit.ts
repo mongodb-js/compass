@@ -7,7 +7,7 @@ import type { ApplySettingsAction } from './settings';
 import { APPLY_SETTINGS } from './settings';
 
 export type LimitState = number;
-export const INITIAL_STATE: LimitState = DEFAULT_SAMPLE_SIZE;
+const INITIAL_STATE: LimitState = DEFAULT_SAMPLE_SIZE;
 
 export default function reducer(
   state: LimitState = INITIAL_STATE,

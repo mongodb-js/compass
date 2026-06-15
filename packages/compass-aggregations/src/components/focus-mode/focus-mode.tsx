@@ -172,7 +172,7 @@ const FocusModeContent = ({
   );
 };
 
-export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
+const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
   isAutoPreviewEnabled,
   showRerankFirstStageBanner,

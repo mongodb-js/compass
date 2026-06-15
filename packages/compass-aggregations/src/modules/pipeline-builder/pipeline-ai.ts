@@ -21,7 +21,7 @@ const emptyPipelineError =
 
 type AIPipelineStatus = 'ready' | 'fetching' | 'success';
 
-export type AIPipelineState = {
+type AIPipelineState = {
   errorMessage: string | undefined;
   errorCode: string | undefined;
   isInputVisible: boolean;
@@ -32,7 +32,7 @@ export type AIPipelineState = {
   isAggregationGeneratedFromQuery: boolean;
 };
 
-export const initialState: AIPipelineState = {
+const initialState: AIPipelineState = {
   status: 'ready',
   aiPromptText: '',
   errorMessage: undefined,
@@ -485,7 +485,7 @@ export const hideInput = (): PipelineBuilderThunkAction<
   };
 };
 
-export type AIPipelineAction =
+type AIPipelineAction =
   | AIPipelineStartedAction
   | AIPipelineFailedAction
   | LoadGeneratedPipelineAction

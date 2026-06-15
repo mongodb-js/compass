@@ -32,7 +32,7 @@ export type DataServiceState = {
 /**
  * The initial state.
  */
-export const INITIAL_STATE: DataServiceState = {
+const INITIAL_STATE: DataServiceState = {
   dataService: null,
 };
 

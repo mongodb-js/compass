@@ -25,16 +25,14 @@ export interface SavedPipelineAddAction {
   pipelines: SavedPipeline[];
 }
 export type RestorePipelineAction = ReturnType<typeof restorePipeline>;
-export type SavedPipelineAction =
-  | SavedPipelineAddAction
-  | RestorePipelineAction;
+type SavedPipelineAction = SavedPipelineAddAction | RestorePipelineAction;
 
 export type SavedPipelineState = {
   pipelines: SavedPipeline[];
   isLoaded: boolean;
 };
 
-export const INITIAL_STATE: SavedPipelineState = {
+const INITIAL_STATE: SavedPipelineState = {
   pipelines: [],
   isLoaded: false,
 };
@@ -85,7 +83,7 @@ export const getSavedPipelines =
 /**
  * Update the pipeline list.
  */
-export const updatePipelineList =
+const updatePipelineList =
   (): PipelineBuilderThunkAction<void> =>
   (
     dispatch,

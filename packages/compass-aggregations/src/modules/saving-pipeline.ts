@@ -32,7 +32,7 @@ export interface SavingPipelineOpenAction {
   name: string;
   isSaveAs: boolean;
 }
-export type SavingPipelineAction =
+type SavingPipelineAction =
   | SavingPipelineNameChangedAction
   | SavingPipelineApplyAction
   | SavingPipelineCancelAction

@@ -63,7 +63,7 @@ export function isNotEmptyGroup({
   );
 }
 
-export function isMatchConditionExpression(
+function isMatchConditionExpression(
   expression: MatchGroupExpression | MatchConditionExpression
 ): boolean {
   return !('$and' in expression) && !('$or' in expression);
@@ -146,7 +146,7 @@ export function makeCompactGroupExpression(
   return compactExpression;
 }
 
-export function mapMatchFormStateToMatchStage(matchGroup: MatchGroup) {
+function mapMatchFormStateToMatchStage(matchGroup: MatchGroup) {
   const verboseGroupClause = toMatchGroupExpression(matchGroup);
   return makeCompactGroupExpression(verboseGroupClause);
 }

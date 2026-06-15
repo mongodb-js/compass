@@ -28,7 +28,8 @@
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
     "prettier": "prettier-compass",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "knip": "knip --config knip.js --no-config-hints"
   },
   "license": "SSPL",
   "devDependencies": {
@@ -43,6 +44,7 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
+    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",

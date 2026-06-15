@@ -7,18 +7,18 @@ import type { RestorePipelineAction } from './saved-pipeline';
 import { RESTORE_PIPELINE } from './saved-pipeline';
 import { isAction } from '../utils/is-action';
 
-export const ActionTypes = {
+const ActionTypes = {
   AutoPreviewToggled: 'compass-aggregations/autoPreviewToggled',
 } as const;
 
-export type AutoPreviewToggledAction = {
+type AutoPreviewToggledAction = {
   type: typeof ActionTypes.AutoPreviewToggled;
   value: boolean;
 };
-export type AutoPreviewAction = AutoPreviewToggledAction;
+type AutoPreviewAction = AutoPreviewToggledAction;
 export type AutoPreviewState = boolean | undefined;
 
-export const INITIAL_STATE: AutoPreviewState = true;
+const INITIAL_STATE: AutoPreviewState = true;
 
 export default function reducer(
   state: AutoPreviewState = INITIAL_STATE,

@@ -17,7 +17,7 @@ const linkContainerStyles = css({
   position: 'relative',
 });
 
-export type AddStageProps = {
+type AddStageProps = {
   variant: 'button' | 'icon';
   onAddStage: () => void;
 };

@@ -72,7 +72,7 @@ type PipelineAIProps = {
   onResetIsAggregationGeneratedFromQuery(): void;
 };
 
-export const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
+const PipelineAI: React.FunctionComponent<PipelineAIProps> = ({
   isAIInputVisible,
   onHideAIInputClick,
   aiPromptText,

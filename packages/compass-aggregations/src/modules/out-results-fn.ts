@@ -8,7 +8,7 @@ export type OutResultsFnState = null | ((namespace: string) => void);
 /**
  * The initial state.
  */
-export const INITIAL_STATE: OutResultsFnState = null;
+const INITIAL_STATE: OutResultsFnState = null;
 
 /**
  * Reducer function for handle state changes to the out results fn.

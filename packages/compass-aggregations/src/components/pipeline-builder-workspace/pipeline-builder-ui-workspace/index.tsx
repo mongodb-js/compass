@@ -49,7 +49,7 @@ export type PipelineBuilderUIWorkspaceProps = {
   ) => void;
 };
 
-export const PipelineBuilderUIWorkspace: React.FunctionComponent<
+const PipelineBuilderUIWorkspace: React.FunctionComponent<
   PipelineBuilderUIWorkspaceProps
 > = ({
   stagesIdAndType,

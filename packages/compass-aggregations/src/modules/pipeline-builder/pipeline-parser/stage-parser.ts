@@ -18,7 +18,7 @@ export function setNodeDisabled(node: t.Node, value: boolean) {
   (node as any)[kDisabled] = value;
 }
 
-export function isValidStageNode(node?: t.ObjectExpression): boolean {
+function isValidStageNode(node?: t.ObjectExpression): boolean {
   if (node) {
     try {
       // TODO: either export ejson-shell-parser logic that validates the AST or

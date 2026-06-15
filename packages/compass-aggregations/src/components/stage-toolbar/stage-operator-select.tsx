@@ -103,7 +103,7 @@ const sourceCollectionSupportsViewIndex = (serverVersion: string) => {
   }
 };
 
-export const getStageDescription = (
+const getStageDescription = (
   stage: Stage,
   sourceName: string | null,
   serverVersion: string,

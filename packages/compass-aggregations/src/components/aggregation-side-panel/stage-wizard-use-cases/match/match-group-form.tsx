@@ -58,7 +58,7 @@ export type CreateGroupFn = (group?: Partial<MatchGroup>) => MatchGroup;
 
 // Helpers
 const MAX_ALLOWED_NESTING = 3;
-export const LABELS = {
+const LABELS = {
   operatorSelect: 'Select a group operator',
 };
 

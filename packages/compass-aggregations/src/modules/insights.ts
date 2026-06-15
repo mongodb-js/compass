@@ -22,7 +22,7 @@ interface FetchExplainPlanSuccessAction {
   type: typeof FETCH_EXPLAIN_PLAN_SUCCESS;
   explainPlan: ExplainPlan;
 }
-export type InsightsAction = FetchExplainPlanSuccessAction;
+type InsightsAction = FetchExplainPlanSuccessAction;
 
 const INITIAL_STATE = { isCollectionScan: false };
 

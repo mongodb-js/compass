@@ -13,9 +13,9 @@ import type { SavingPipelineApplyAction } from './saving-pipeline';
 import { SAVING_PIPELINE_APPLY } from './saving-pipeline';
 import { isAction } from '../utils/is-action';
 
-export type NameState = string;
+type NameState = string;
 
-export const INITIAL_STATE: NameState = '';
+const INITIAL_STATE: NameState = '';
 
 /**
  * Reducer function for handle state changes to name.

@@ -10,7 +10,7 @@ type UseCaseDroppableAreaProps = {
 
 // Helpers
 export const isValidDroppableId = (id: string) => id.startsWith('droppable-');
-export const droppableIdFromIndex = (index: number) => `droppable-${index}`;
+const droppableIdFromIndex = (index: number) => `droppable-${index}`;
 export const indexFromDroppableId = (id: string) => {
   if (isValidDroppableId(id)) {
     return +id.replace(/^droppable-/, '');

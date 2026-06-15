@@ -19,7 +19,7 @@ type CreateViewServices = {
   workspaces: WorkspacesService;
 };
 
-export function configureStore(services: CreateViewServices) {
+function configureStore(services: CreateViewServices) {
   return createStore(
     reducer,
     applyMiddleware(thunk.withExtraArgument(services))

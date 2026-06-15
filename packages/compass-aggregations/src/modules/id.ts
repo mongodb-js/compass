@@ -20,13 +20,13 @@ export const CREATE_ID = 'aggregations/id/CREATE_ID' as const;
 interface CreateIdAction {
   type: typeof CREATE_ID;
 }
-export type IdAction = CreateIdAction;
+type IdAction = CreateIdAction;
 export type IdState = string;
 
 /**
  * The initial state.
  */
-export const INITIAL_STATE: IdState = '';
+const INITIAL_STATE: IdState = '';
 
 /**
  * Reducer function for handle state changes to id.

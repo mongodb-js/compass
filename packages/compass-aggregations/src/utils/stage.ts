@@ -328,7 +328,7 @@ const stageOperatorsMapByPreviewFlag = new Map<
   Map<string, StageOperatorEntry>
 >();
 
-export function getStageOperatorsMap(
+function getStageOperatorsMap(
   enableAutoEmbeddingPublicPreview: boolean
 ): Map<string, StageOperatorEntry> {
   let cached = stageOperatorsMapByPreviewFlag.get(

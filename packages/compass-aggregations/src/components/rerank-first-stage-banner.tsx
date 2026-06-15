@@ -15,7 +15,7 @@ import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
 import { STAGE_HELP_BASE_URL } from '../constants';
 
-export const useRerankInsightAction = () => {
+const useRerankInsightAction = () => {
   const { tellMoreAboutInsight } = useAssistantActions();
   const action = useCallback(() => {
     tellMoreAboutInsight?.({ id: 'rerank-first-stage' });

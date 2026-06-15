@@ -47,7 +47,7 @@ const ZeroGraphic: React.FunctionComponent = () => {
   );
 };
 
-export const PipelineEmptyResults: React.FunctionComponent = () => {
+const PipelineEmptyResults: React.FunctionComponent = () => {
   return (
     <div data-testid="pipeline-empty-results">
       <EmptyContent

@@ -7,7 +7,7 @@ export type CollectionStats = {
   pipeline?: unknown[];
 };
 
-export const INITIAL_STATE: CollectionStats = {
+const INITIAL_STATE: CollectionStats = {
   document_count: undefined,
   pipeline: undefined,
 };

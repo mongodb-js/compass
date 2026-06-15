@@ -35,7 +35,7 @@ const WRITE_STAGE_LINK = {
   $out: 'https://www.mongodb.com/docs/manual/reference/operator/aggregation/out/',
 };
 
-export const WriteOperation = {
+const WriteOperation = {
   Alter: 'altering',
   Create: 'creating',
   Overwrite: 'overwriting',
@@ -62,12 +62,12 @@ export type RunAggregation = {
   pipeline: Document[];
 };
 
-export type AggregationStartedAction = {
+type AggregationStartedAction = {
   type: typeof ActionTypes.AggregationStarted;
   abortController: AbortController;
 };
 
-export type AggregationFinishedAction = {
+type AggregationFinishedAction = {
   type: typeof ActionTypes.AggregationFinished;
   documents: HadronDocument[];
   page: number;
@@ -79,22 +79,22 @@ export type AggregationError = {
   info?: Record<string, unknown>;
 };
 
-export type AggregationFailedAction = {
+type AggregationFailedAction = {
   type: typeof ActionTypes.AggregationFailed;
   error: AggregationError;
   page: number;
 };
 
-export type AggregationCancelledAction = {
+type AggregationCancelledAction = {
   type: typeof ActionTypes.AggregationCancelledByUser;
 };
 
-export type LastPageReachedAction = {
+type LastPageReachedAction = {
   type: typeof ActionTypes.LastPageReached;
   page: number;
 };
 
-export type ResultViewTypeChangedAction = {
+type ResultViewTypeChangedAction = {
   type: typeof ActionTypes.ResultViewTypeChanged;
   viewType: 'document' | 'json';
 };
@@ -121,7 +121,7 @@ export type State = {
   resultsViewType: 'document' | 'json';
 };
 
-export const INITIAL_STATE: State = {
+const INITIAL_STATE: State = {
   pipeline: [],
   documents: [],
   page: 1,

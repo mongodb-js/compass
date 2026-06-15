@@ -42,12 +42,12 @@ type OutputStageFetchFailedAction = {
   serverError: MongoServerError;
 };
 
-export type OutputStageAction =
+type OutputStageAction =
   | OutputStageFetchStartedAction
   | OutputStageFetchSuccededAction
   | OutputStageFetchFailedAction;
 
-export type OutputStageState = {
+type OutputStageState = {
   isLoading: boolean;
   serverError: MongoServerError | null;
   isComplete: boolean;

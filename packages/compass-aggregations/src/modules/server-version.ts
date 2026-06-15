@@ -1,7 +1,7 @@
 /**
  * The initial state.
  */
-export const INITIAL_STATE = '4.0.0';
+const INITIAL_STATE = '4.0.0';
 
 /**
  * Reducer function for handle state changes to server version.

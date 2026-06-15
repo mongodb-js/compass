@@ -7,7 +7,7 @@ import { APPLY_SETTINGS } from './settings';
 import { isAction } from '../utils/is-action';
 
 export type LargeLimitState = number;
-export const INITIAL_STATE = DEFAULT_LARGE_LIMIT;
+const INITIAL_STATE = DEFAULT_LARGE_LIMIT;
 
 export default function reducer(
   state: LargeLimitState = INITIAL_STATE,

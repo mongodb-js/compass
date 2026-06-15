@@ -104,4 +104,3 @@ const MappedCreateViewModal = connect(mapStateToProps, {
 })(CreateViewModal);
 
 export default MappedCreateViewModal;
-export { CreateViewModal };

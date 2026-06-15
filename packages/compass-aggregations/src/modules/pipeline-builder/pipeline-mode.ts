@@ -32,10 +32,10 @@ export type PipelineModeToggledAction = {
   stages: Stage[];
 };
 
-export type PipelineModeState = PipelineMode;
-export type PipelineModeAction = PipelineModeToggledAction;
+type PipelineModeState = PipelineMode;
+type PipelineModeAction = PipelineModeToggledAction;
 
-export const INITIAL_STATE: PipelineModeState = 'builder-ui';
+const INITIAL_STATE: PipelineModeState = 'builder-ui';
 
 const reducer: Reducer<PipelineModeState, Action> = (
   state = INITIAL_STATE,

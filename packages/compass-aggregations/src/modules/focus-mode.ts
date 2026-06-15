@@ -23,7 +23,7 @@ type SelectFocusModeStageAction = {
   index: number;
 };
 
-export type FocusModeAction =
+type FocusModeAction =
   | FocusModeEnabledAction
   | FocusModeDisabledAction
   | SelectFocusModeStageAction;
@@ -33,7 +33,7 @@ export type FocusModeState = {
   openedAt: number | null;
 };
 
-export const INITIAL_STATE: FocusModeState = {
+const INITIAL_STATE: FocusModeState = {
   isEnabled: false,
   stageIndex: -1,
   openedAt: null,

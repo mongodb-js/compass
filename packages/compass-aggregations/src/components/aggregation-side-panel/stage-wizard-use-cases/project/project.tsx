@@ -13,8 +13,8 @@ type ProjectFormState = {
 };
 
 // Helpers
-export const SELECT_PLACEHOLDER_TEXT = 'Select projection type';
-export const COMBOBOX_PLACEHOLDER_TEXT = 'Select field names';
+const SELECT_PLACEHOLDER_TEXT = 'Select projection type';
+const COMBOBOX_PLACEHOLDER_TEXT = 'Select field names';
 
 export const mapProjectFormStateToStageValue = ({
   projectionFields,

@@ -62,14 +62,14 @@ type EditorPreviewFetchErrorAction = {
   serverError: MongoServerError;
 };
 
-export type TextEditorAction =
+type TextEditorAction =
   | EditorPreviewFetchAction
   | EditorPreviewFetchErrorAction
   | EditorPreviewFetchSuccessAction
   | EditorPreviewFetchSkippedAction
   | EditorValueChangeAction;
 
-export type TextEditorState = {
+type TextEditorState = {
   pipelineText: string;
   pipeline: Document[];
   syntaxErrors: PipelineParserError[];

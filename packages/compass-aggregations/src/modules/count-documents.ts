@@ -10,7 +10,7 @@ import { ActionTypes as ConfirmNewPipelineActions } from './is-new-pipeline-conf
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
 import { isAction } from '../utils/is-action';
 
-export const ActionTypes = {
+const ActionTypes = {
   CountStarted: 'compass-aggregations/countStarted',
   CountFinished: 'compass-aggregations/countFinished',
   CountFailed: 'compass-aggregations/countFailed',
@@ -30,18 +30,15 @@ type CountFailedAction = {
   type: typeof ActionTypes.CountFailed;
 };
 
-export type Actions =
-  | CountStartedAction
-  | CountFinishedAction
-  | CountFailedAction;
+type Actions = CountStartedAction | CountFinishedAction | CountFailedAction;
 
-export type State = {
+type State = {
   count?: number;
   loading: boolean;
   abortController?: AbortController;
 };
 
-export const INITIAL_STATE: State = {
+const INITIAL_STATE: State = {
   loading: false,
 };
 

@@ -95,7 +95,7 @@ const rootReducer = combineReducers({
 
 export type RootState = ReturnType<typeof rootReducer>;
 
-export type PipelineBuilderExtraArgs = {
+type PipelineBuilderExtraArgs = {
   globalAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;
   pipelineBuilder: PipelineBuilder;

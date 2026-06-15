@@ -31,7 +31,7 @@ const OperatorLink: React.FunctionComponent<{
   );
 };
 
-export type StagePreviewHeaderProps = {
+type StagePreviewHeaderProps = {
   index: number;
   stageOperator?: string | null;
   previewSize?: number;

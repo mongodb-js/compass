@@ -17,7 +17,7 @@ export type CommentsState = boolean;
 /**
  * The initial state.
  */
-export const INITIAL_STATE: CommentsState = true;
+const INITIAL_STATE: CommentsState = true;
 
 /**
  * Reducer function for handle state changes to comments.

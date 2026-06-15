@@ -5,16 +5,16 @@ import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provide
 import { isAction } from '../utils/is-action';
 import type { PipelineBuilderThunkAction } from '.';
 
-export const MAX_TIME_MS_CHANGED =
+const MAX_TIME_MS_CHANGED =
   'aggregations/max-time-ms/MAX_TIME_MS_CHANGED' as const;
-export interface MaxTimeMSChangedAction {
+interface MaxTimeMSChangedAction {
   type: typeof MAX_TIME_MS_CHANGED;
   maxTimeMS: number;
 }
 
 type State = number | null;
 
-export const INITIAL_STATE: State = null;
+const INITIAL_STATE: State = null;
 
 const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (isAction<MaxTimeMSChangedAction>(action, MAX_TIME_MS_CHANGED)) {

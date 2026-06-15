@@ -21,10 +21,10 @@ export type WorkspaceChangedAction = {
   view: Workspace;
 };
 
-export type Actions = WorkspaceChangedAction;
-export type State = Workspace;
+type Actions = WorkspaceChangedAction;
+type State = Workspace;
 
-export const INITIAL_STATE: State = 'builder';
+const INITIAL_STATE: State = 'builder';
 
 const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
   if (isAction<WorkspaceChangedAction>(action, ActionTypes.WorkspaceChanged)) {

@@ -18,7 +18,7 @@ export type CollationStringChangedAction = {
   value: string;
 };
 
-export type CollationStringAction = CollationStringChangedAction;
+type CollationStringAction = CollationStringChangedAction;
 
 export type CollationStringState = {
   text: string;
@@ -29,13 +29,13 @@ export type CollationStringState = {
 /**
  * The collation string initial state.
  */
-export const INITIAL_STATE: CollationStringState = {
+const INITIAL_STATE: CollationStringState = {
   text: '',
   value: null,
   isValid: true,
 };
 
-export function getCollationStateFromString(
+function getCollationStateFromString(
   collationString: string
 ): CollationStringState {
   const collation = isCollationValid(collationString);

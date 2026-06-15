@@ -36,7 +36,7 @@ export interface ApplySettingsAction {
   type: typeof APPLY_SETTINGS;
   settings: SettingsState;
 }
-export type SettingsAction =
+type SettingsAction =
   | ToggleIsExpandedAction
   | ToggleCommentModeAction
   | SetSampleSizeAction

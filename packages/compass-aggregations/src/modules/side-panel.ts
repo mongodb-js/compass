@@ -10,7 +10,7 @@ const ActionTypes = {
 type SidePanelToggledAction = {
   type: typeof ActionTypes.SidePanelToggled;
 };
-export type SidePanelAction = SidePanelToggledAction;
+type SidePanelAction = SidePanelToggledAction;
 
 export type SidePanelState = {
   isPanelOpen: boolean;

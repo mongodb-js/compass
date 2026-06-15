@@ -36,7 +36,7 @@ type CollectionDataUpdatedAction = {
   data: CollectionData;
 };
 
-export type CollectionFieldsAction =
+type CollectionFieldsAction =
   | CollectionsFetchedAction
   | CollectionFieldsFetchedAction
   | CollectionDataUpdatedAction;
@@ -50,7 +50,7 @@ export type CollectionData = {
 
 type State = Record<string, CollectionData>;
 
-export const INITIAL_STATE: State = {};
+const INITIAL_STATE: State = {};
 
 export default function reducer(
   state = INITIAL_STATE,

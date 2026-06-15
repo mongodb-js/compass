@@ -92,18 +92,18 @@ export type StagePreviewFetchErrorAction = {
   error: MongoServerError;
 };
 
-export type StageRunAction = {
+type StageRunAction = {
   type: typeof StageEditorActionTypes.StageRun;
   id: number;
 };
 
-export type StageRunSuccessAction = {
+type StageRunSuccessAction = {
   type: typeof StageEditorActionTypes.StageRunSuccess;
   id: number;
   previewDocs: HadronDocument[];
 };
 
-export type StageRunErrorAction = {
+type StageRunErrorAction = {
   type: typeof StageEditorActionTypes.StageRunError;
   id: number;
   error: MongoServerError;
@@ -175,7 +175,7 @@ type WizardToStageAction = {
   stage: StoreStage;
 };
 
-export type StageEditorAction =
+type StageEditorAction =
   | StagePreviewFetchAction
   | StagePreviewFetchSkippedAction
   | StagePreviewFetchSuccessAction
@@ -195,7 +195,7 @@ export type StageEditorAction =
   | WizardChangeAction
   | WizardToStageAction;
 
-export function storeIndexToPipelineIndex(
+function storeIndexToPipelineIndex(
   stages: StageEditorState['stages'],
   indexInStore: number,
   { includeIndex } = { includeIndex: false }
@@ -212,7 +212,7 @@ export function pipelineFromStore(
   return stages.filter((stage): stage is StoreStage => stage.type === 'stage');
 }
 
-export function wizardsFromStore(stages: StageEditorState['stages']): Wizard[] {
+function wizardsFromStore(stages: StageEditorState['stages']): Wizard[] {
   return stages.filter((stage): stage is Wizard => stage.type === 'wizard');
 }
 
@@ -875,7 +875,7 @@ export const moveStage = (
   };
 };
 
-export type AddWizardParams = {
+type AddWizardParams = {
   usecaseId: number;
   formValues: unknown;
   after?: number;

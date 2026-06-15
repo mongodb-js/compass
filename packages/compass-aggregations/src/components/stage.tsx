@@ -125,7 +125,7 @@ function ResizableEditor({
 
 const DEFAULT_OPACITY = 0.6;
 
-export type StageProps = SortableProps & {
+type StageProps = SortableProps & {
   index: number;
   isEnabled: boolean;
   isExpanded: boolean;
