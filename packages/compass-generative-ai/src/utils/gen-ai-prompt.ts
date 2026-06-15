@@ -51,6 +51,9 @@ function buildInstructionsForAggregateQuery() {
     'Additional instructions:',
     '- If specifying latitude and longitude coordinates, list the longitude first, and then latitude.',
     '- Only pass the contents of the aggregation, no surrounding syntax.',
+    '- Do not use database-level aggregation stages ' +
+      'such as $documents, $changeStream, $changeStreamSplitLargeEvent, $currentOp, $listLocalSessions, or $queryStats. ' +
+      'This aggregation runs against a collection, not a database.',
     `- The current date is ${getCurrentTimeString()}`,
   ].join('\n');
 }
