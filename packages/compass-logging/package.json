@@ -49,11 +49,12 @@
     "test-cov": "nyc --compact=false --produce-source-map=false -x \"**/*.spec.*\" --reporter=lcov --reporter=text --reporter=html npm run test",
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "knip": "knip --config knip.js --no-config-hints"
   },
   "dependencies": {
-    "debug": "^4.3.4",
     "@mongodb-js/compass-app-registry": "^9.11.1",
+    "debug": "^4.3.4",
     "hadron-ipc": "^3.5.32",
     "is-electron-renderer": "^2.0.1",
     "mongodb-log-writer": "^2.4.4",
@@ -70,6 +71,7 @@
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
+    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "sinon": "^9.2.3",
