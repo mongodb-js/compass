@@ -9,7 +9,6 @@ import type { AllPreferences } from './preferences-schema';
 import { allPreferencesProps } from './preferences-schema';
 import type { z } from '@mongodb-js/compass-user-data';
 import { createLogger } from '@mongodb-js/compass-logging';
-import type { FeatureFlags } from './feature-flags';
 
 const { log, mongoLogId } = createLogger('COMPASS-PREFERENCES');
 
@@ -194,8 +193,8 @@ export interface ParsedGlobalPreferencesResult {
   global: Partial<AllPreferences>;
   hardcoded?: Partial<AllPreferences>;
   atlasCloudUser?: Partial<AllPreferences>;
-  atlasCloudProject?: Partial<FeatureFlags>;
-  atlasCloudOrg?: Partial<FeatureFlags>;
+  atlasCloudProject?: Partial<AllPreferences>;
+  atlasCloudOrg?: Partial<AllPreferences>;
   preferenceParseErrors: string[];
 }
 

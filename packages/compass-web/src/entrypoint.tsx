@@ -630,7 +630,7 @@ const CompassWeb = (props: CompassWebProps) => {
         <SpinLoaderWithLabel
           darkMode={props.darkMode}
           data-testid="compass-web-preferences-loader"
-          progressText="Loading preferences…"
+          progressText="Loading Data Explorer…"
         />
       </div>
     );

@@ -123,7 +123,7 @@ describe('CompassWeb', function () {
     const projectIdB = 'watermelon';
 
     const preferencesApiResponse = {
-      // Disabled in the compass-web defaults; enabling it through the cloud
+      // is disabled in the compass-web defaults; enabling it through the cloud
       // response is what makes the "Add new connection" button show up.
       featureFlags: { enableCreatingNewConnections: true },
       userAuid: 'test-user-auid',

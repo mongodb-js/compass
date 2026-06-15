@@ -2,6 +2,7 @@ import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider'
 import {
   DEFAULT_COMPASS_WEB_PREFERENCES,
   setCompassWebPreferencesAccess,
+  getAnyCompassWebPreferencesAccess,
 } from '../src/preferences';
 
 const kSandboxPreferencesAccess = Symbol.for(
@@ -17,7 +18,9 @@ let sandboxPreferencesAccess: CompassWebPreferencesAccess | null = null;
 
 Object.defineProperty(globalThis, kSandboxPreferencesAccess, {
   get() {
-    return sandboxPreferencesAccess;
+    // In Atlas Cloud mode sandboxPreferencesAccess is null; fall back to
+    // whatever the API has loaded so that getFeature/setFeature work in e2e.
+    return sandboxPreferencesAccess ?? getAnyCompassWebPreferencesAccess();
   },
 });
 

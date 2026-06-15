@@ -26,6 +26,7 @@ const apiResponse = {
   userAuid: 'auid-123',
   appUser: { isOptedIntoDataExplorerGenAIFeatures: true },
   currentOrganization: { genAIFeaturesEnabled: true },
+  userRoles: { isDataAccessAdmin: true },
 };
 
 function fakeResponse(body: unknown, ok = true) {
@@ -106,14 +107,13 @@ describe('compass-web preferences', function () {
 
       const {
         atlasCloudUserPreferences,
-        atlasCloudProjectFeatureFlags,
-        atlasCloudOrgFeatureFlags,
+        atlasCloudProjectPreferences,
+        atlasCloudOrgPreferences,
       } = await getPreferencesFromCloudApi(PROJECT_ID);
 
       expect(atlasCloudUserPreferences).to.include({
         telemetryAtlasUserId: 'auid-123',
         optInGenAIFeatures: true,
-        enableGenAIFeaturesAtlasOrg: true,
         // host is localhost:3000 in the test environment
         atlasServiceBackendPreset: 'atlas-local',
         // feature flag values are also kept as overrides
@@ -123,13 +123,41 @@ describe('compass-web preferences', function () {
         enableGenAIFeaturesAtlasProject: true,
         enableMyQueries: true,
       });
+      expect(atlasCloudUserPreferences).to.not.have.property('readOnly');
+      expect(atlasCloudUserPreferences).to.not.have.property('readWrite');
 
       // Only Compass feature flags are pulled into the cloud overrides (by project scope).
-      expect(atlasCloudProjectFeatureFlags).to.deep.equal({
+      expect(atlasCloudProjectPreferences).to.deep.equal({
         enableGlobalWrites: false,
         enableRollingIndexes: true,
       });
-      expect(atlasCloudOrgFeatureFlags).to.deep.equal({});
+      expect(atlasCloudOrgPreferences).to.deep.equal({
+        enableGenAIFeaturesAtlasOrg: true,
+      });
+    });
+
+    it('sets readWrite when userRoles.isDataAccessWrite is true', async function () {
+      fetchStub.resolves(
+        fakeResponse({ ...apiResponse, userRoles: { isDataAccessWrite: true } })
+      );
+
+      const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
+        PROJECT_ID
+      );
+
+      expect(atlasCloudUserPreferences).to.include({ readWrite: true });
+      expect(atlasCloudUserPreferences).to.not.have.property('readOnly');
+    });
+
+    it('sets readOnly when the user has no elevated role', async function () {
+      fetchStub.resolves(fakeResponse({ ...apiResponse, userRoles: {} }));
+
+      const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
+        PROJECT_ID
+      );
+
+      expect(atlasCloudUserPreferences).to.include({ readOnly: true });
+      expect(atlasCloudUserPreferences).to.not.have.property('readWrite');
     });
 
     it('makes cloud feature flags resolve to the cloud value instead of the hardcoded released default', async function () {
@@ -137,16 +165,16 @@ describe('compass-web preferences', function () {
 
       const {
         atlasCloudUserPreferences,
-        atlasCloudProjectFeatureFlags,
-        atlasCloudOrgFeatureFlags,
+        atlasCloudProjectPreferences,
+        atlasCloudOrgPreferences,
       } = await getPreferencesFromCloudApi(PROJECT_ID);
 
       const preferences = new CompassWebPreferencesAccess(
         { ...DEFAULT_COMPASS_WEB_PREFERENCES, ...atlasCloudUserPreferences },
         {
           atlasCloudUser: atlasCloudUserPreferences,
-          atlasCloudProject: atlasCloudProjectFeatureFlags,
-          atlasCloudOrg: atlasCloudOrgFeatureFlags,
+          atlasCloudProject: atlasCloudProjectPreferences,
+          atlasCloudOrg: atlasCloudOrgPreferences,
         }
       ).getPreferences();
 

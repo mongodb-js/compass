@@ -56,6 +56,10 @@ type CloudPreferencesApiResponse = {
   appUser: {
     isOptedIntoDataExplorerGenAIFeatures: boolean;
   };
+  userRoles: {
+    isDataAccessAdmin?: boolean;
+    isDataAccessWrite?: boolean;
+  };
   currentOrganization: {
     genAIFeaturesEnabled: boolean | null;
   };
@@ -99,22 +103,40 @@ const FEATURE_FLAG_BY_NAME = new Map<string, FeatureFlagDefinition>(
   FEATURE_FLAG_DEFINITIONS.map((f) => [f.name, f])
 );
 
+const getPermissionsFromUserRoles = (userRoles: {
+  isDataAccessAdmin?: boolean;
+  isDataAccessWrite?: boolean;
+}): {
+  readOnly?: boolean;
+  readWrite?: boolean;
+} => {
+  if (userRoles?.isDataAccessAdmin) {
+    return {};
+  }
+  if (userRoles?.isDataAccessWrite) {
+    return { readWrite: true };
+  }
+  return { readOnly: true };
+};
+
 /**
  * @internal Exported for testing.
  */
 export async function getPreferencesFromCloudApi(projectId: string) {
-  const { featureFlags, userAuid, appUser, currentOrganization } =
+  const { featureFlags, userAuid, appUser, currentOrganization, userRoles } =
     await _fetchPreferencesFromCloudApi(projectId);
 
   const atlasCloudUserPreferences: Partial<AllPreferences> = {
     atlasServiceBackendPreset: getAtlasServiceBackendPreset(),
     telemetryAtlasUserId: userAuid,
     optInGenAIFeatures: appUser.isOptedIntoDataExplorerGenAIFeatures,
+    ...getPermissionsFromUserRoles(userRoles),
+  };
+  const atlasCloudProjectPreferences: Partial<AllPreferences> = {};
+  const atlasCloudOrgPreferences: Partial<AllPreferences> = {
     enableGenAIFeaturesAtlasOrg:
       currentOrganization.genAIFeaturesEnabled ?? false,
   };
-  const atlasCloudProjectFeatureFlags: Partial<FeatureFlags> = {};
-  const atlasCloudOrgFeatureFlags: Partial<FeatureFlags> = {};
 
   // Cloud feature flags arrive keyed by their Compass preference name. We
   // override Compass' value to resolve to the cloud value.
@@ -123,17 +145,17 @@ export async function getPreferencesFromCloudApi(projectId: string) {
     if (FEATURE_FLAG_BY_NAME.has(name)) {
       const scope = FEATURE_FLAG_BY_NAME.get(name)?.atlasCloudFeatureScope;
       if (scope === 'organization') {
-        atlasCloudOrgFeatureFlags[name as keyof FeatureFlags] = enabled;
+        atlasCloudOrgPreferences[name as keyof FeatureFlags] = enabled;
       } else {
-        atlasCloudProjectFeatureFlags[name as keyof FeatureFlags] = enabled;
+        atlasCloudProjectPreferences[name as keyof FeatureFlags] = enabled;
       }
     }
   }
 
   return {
     atlasCloudUserPreferences,
-    atlasCloudProjectFeatureFlags,
-    atlasCloudOrgFeatureFlags,
+    atlasCloudProjectPreferences,
+    atlasCloudOrgPreferences,
   };
 }
 
@@ -143,8 +165,8 @@ async function _fetchAndCachePreferences(
   try {
     const {
       atlasCloudUserPreferences,
-      atlasCloudProjectFeatureFlags,
-      atlasCloudOrgFeatureFlags,
+      atlasCloudProjectPreferences,
+      atlasCloudOrgPreferences,
     } = await getPreferencesFromCloudApi(projectId);
     const preferencesAccess = new CompassWebPreferencesAccess(
       {
@@ -153,8 +175,8 @@ async function _fetchAndCachePreferences(
       },
       {
         atlasCloudUser: atlasCloudUserPreferences,
-        atlasCloudProject: atlasCloudProjectFeatureFlags,
-        atlasCloudOrg: atlasCloudOrgFeatureFlags,
+        atlasCloudProject: atlasCloudProjectPreferences,
+        atlasCloudOrg: atlasCloudOrgPreferences,
       }
     );
     // Replace the pending promise with the resolved access so a remount can
@@ -236,4 +258,17 @@ export function setCompassWebPreferencesAccess(
   projectId = ''
 ) {
   compassWebPreferencesCache.set(projectId, preferencesAccess);
+}
+
+/**
+ * @internal Exported for the sandbox to expose preferences in Atlas Cloud mode.
+ * Returns the first resolved CompassWebPreferencesAccess from any cached entry.
+ */
+export function getAnyCompassWebPreferencesAccess(): CompassWebPreferencesAccess | null {
+  for (const cached of compassWebPreferencesCache.values()) {
+    if (cached instanceof CompassWebPreferencesAccess) {
+      return cached;
+    }
+  }
+  return null;
 }
