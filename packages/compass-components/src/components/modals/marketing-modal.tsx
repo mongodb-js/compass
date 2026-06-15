@@ -5,7 +5,7 @@ import {
 } from '../leafygreen';
 import { withStackedComponentStyles } from '../../hooks/use-stacked-component';
 
-export type MarketingModalProps = Omit<
+type MarketingModalProps = Omit<
   React.ComponentProps<typeof LeafyGreenMarketingModal>,
   'backdropClassName'
 >;

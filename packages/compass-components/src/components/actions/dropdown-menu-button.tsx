@@ -19,7 +19,7 @@ const getHiddenOnNarrowStyles = (narrowBreakpoint: string) =>
       },
   });
 
-export type DropdownMenuButtonProps<Action extends string> = {
+type DropdownMenuButtonProps<Action extends string> = {
   actions: MenuAction<Action>[];
   onAction(actionName: Action): void;
   renderMode?: RenderMode;

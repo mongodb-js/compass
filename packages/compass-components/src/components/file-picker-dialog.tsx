@@ -166,9 +166,9 @@ export type FileInputBackend = {
   getPathForFile: (file: File) => string | undefined;
 };
 
-export const FileInputBackendContext = createContext<
-  (() => FileInputBackend) | null
->(null);
+const FileInputBackendContext = createContext<(() => FileInputBackend) | null>(
+  null
+);
 
 // This hook is to create a new instance of the file input
 // backend provided by the context.

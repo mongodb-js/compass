@@ -4,12 +4,12 @@ import { fontFamilies, spacing } from '@leafygreen-ui/tokens';
 import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 import { useDarkMode } from '../../hooks/use-theme';
 
-export const Variant = {
+const Variant = {
   Default: ButtonVariant.Primary,
   Danger: ButtonVariant.Danger,
 } as const;
 
-export type Variant = (typeof Variant)[keyof typeof Variant];
+type Variant = (typeof Variant)[keyof typeof Variant];
 
 const contentStyle = css({
   padding: `0 ${spacing[800]}px`,

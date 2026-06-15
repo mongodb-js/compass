@@ -6,7 +6,7 @@ import {
 } from '../leafygreen';
 import { withStackedComponentStyles } from '../../hooks/use-stacked-component';
 
-export type ConfirmationModalProps = Omit<
+type ConfirmationModalProps = Omit<
   React.ComponentProps<typeof LeafyGreenConfirmationModal>,
   'backdropClassName'
 >;

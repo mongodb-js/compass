@@ -180,7 +180,7 @@ const workspaceTabTooltipStyles = css({
 
 // The plugins provide these essential props use to render the tab.
 // The workspace-tabs component provides the other parts of TabProps.
-export type WorkspaceTabPluginProps = {
+type WorkspaceTabPluginProps = {
   connectionName?: string;
   type: string;
   title: React.ReactNode;

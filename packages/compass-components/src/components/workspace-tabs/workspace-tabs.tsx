@@ -32,8 +32,8 @@ import type { Tab } from './tab';
 import type { WorkspaceTabCoreProps } from './tab';
 import { useHotkeys } from '../../hooks/use-hotkeys';
 
-export const scrollbarThumbLightTheme = rgba(palette.gray.base, 0.65);
-export const scrollbarThumbDarkTheme = rgba(palette.gray.base, 0.65);
+const scrollbarThumbLightTheme = rgba(palette.gray.base, 0.65);
+const scrollbarThumbDarkTheme = rgba(palette.gray.base, 0.65);
 
 const tabsContainerStyles = css({
   margin: 0,
@@ -180,7 +180,7 @@ type WorkspaceTabsProps = {
   selectedTabIndex: number;
 };
 
-export function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
+function useRovingTabIndex<T extends HTMLElement = HTMLElement>({
   currentTabbable,
 }: {
   currentTabbable: number;

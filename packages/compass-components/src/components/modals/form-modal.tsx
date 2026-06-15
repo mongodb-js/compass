@@ -13,12 +13,12 @@ const footerStyles = css({
   gap: spacing[200],
 });
 
-export const Variant = {
+const Variant = {
   Default: ButtonVariant.Primary,
   Danger: ButtonVariant.Danger,
 } as const;
 
-export type Variant = (typeof Variant)[keyof typeof Variant];
+type Variant = (typeof Variant)[keyof typeof Variant];
 
 type FormModalProps = React.ComponentProps<typeof Modal> & {
   variant?: Variant;

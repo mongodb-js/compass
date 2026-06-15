@@ -7,12 +7,12 @@ import { Variant as ButtonVariant } from '@leafygreen-ui/button';
 import { useDarkMode } from '../../hooks/use-theme';
 import { Body, Icon } from '../leafygreen';
 
-export const Variant = {
+const Variant = {
   Default: ButtonVariant.Primary,
   Danger: ButtonVariant.Danger,
 } as const;
 
-export type Variant = (typeof Variant)[keyof typeof Variant];
+type Variant = (typeof Variant)[keyof typeof Variant];
 
 const headerStyle = css({
   padding: spacing[800],

@@ -75,7 +75,7 @@ const getSelectionState = () => {
   };
 };
 
-export function useCopyPasteContextMenu() {
+function useCopyPasteContextMenu() {
   const [editCapabilities, setEditCapabilities] = useState({
     canCut: false,
     canCopy: false,

@@ -115,9 +115,7 @@ interface WithPortalClassName {
 
 // Used to wrap LeafyGreen components that use portals with Compass'
 // scrollbar styles. These are not applied in web environments (cloud).
-export const withPortalScrollbars = <
-  ComponentProps extends WithPortalClassName
->(
+const withPortalScrollbars = <ComponentProps extends WithPortalClassName>(
   WrappedComponent: React.ComponentType<ComponentProps>
 ) => {
   const ComponentWithScrollbars = (props: ComponentProps) => {
