@@ -46,7 +46,8 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "test-ci-electron": "echo \"TODO(COMPASS-6779): These tests are broken and disabled for now\"",
-    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
+    "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "knip": "knip --config knip.js --no-config-hints"
   },
   "dependencies": {
     "@mongodb-js/compass-app-registry": "^9.11.1",
@@ -79,6 +80,7 @@
     "depcheck": "^1.4.1",
     "electron": "^41.1.1",
     "electron-mocha": "^12.2.0",
+    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",

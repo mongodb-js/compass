@@ -48,7 +48,7 @@ type HistorySavedAction = {
   history: string[];
 };
 
-export function isAction<A extends AnyAction>(
+function isAction<A extends AnyAction>(
   action: AnyAction,
   type: A['type']
 ): action is A {

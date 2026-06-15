@@ -78,7 +78,7 @@ function useInitialEval(
 
 let _mongoshVersion: string | null = null;
 
-export const CompassShell: React.FC<CompassShellProps> = ({
+const CompassShell: React.FC<CompassShellProps> = ({
   runtime,
   initialHistory,
   onHistoryChange,
