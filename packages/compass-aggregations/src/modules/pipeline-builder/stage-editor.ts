@@ -43,6 +43,7 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
+import { cancellableWait } from '@mongodb-js/compass-utils';
 
 export const StageEditorActionTypes = {
   StagePreviewFetch:
@@ -370,21 +371,29 @@ export const loadStagePreview = (
       const metadataAbortController = new AbortController();
       const metadataPromise =
         shouldFetchSearchStageMetadata && activeDataService
-          ? aggregatePipeline({
-              dataService: activeDataService,
-              preferences,
-              signal: metadataAbortController.signal,
-              namespace,
-              pipeline: createPreviewAggregation(
-                injectSearchScoreMetadata(
-                  pipelineBuilder.getPipelineFromStages(
-                    pipelineBuilder.stages.slice(0, idxInPipeline + 1)
-                  )
-                ),
-                options
-              ),
-              options: aggregateOptions,
-            }).catch(() => null)
+          ? (async () => {
+              try {
+                await cancellableWait(700, metadataAbortController.signal);
+
+                return aggregatePipeline({
+                  dataService: activeDataService,
+                  preferences,
+                  signal: metadataAbortController.signal,
+                  namespace,
+                  pipeline: createPreviewAggregation(
+                    injectSearchScoreMetadata(
+                      pipelineBuilder.getPipelineFromStages(
+                        pipelineBuilder.stages.slice(0, idxInPipeline + 1)
+                      )
+                    ),
+                    options
+                  ),
+                  options: aggregateOptions,
+                });
+              } catch {
+                return null;
+              }
+            })()
           : Promise.resolve(null);
 
       try {
