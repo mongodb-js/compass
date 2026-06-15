@@ -15,7 +15,7 @@ interface ShardKeyMarkupProps {
   type?: 'requested' | 'existing';
 }
 
-export function ShardKeyMarkup({
+function ShardKeyMarkup({
   namespace,
   shardKey,
   showMetaData,

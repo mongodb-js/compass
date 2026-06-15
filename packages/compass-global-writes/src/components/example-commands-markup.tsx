@@ -10,6 +10,7 @@ import {
 import React, { useMemo } from 'react';
 import type { ShardKey } from '../store/reducer';
 import toNS from 'mongodb-ns';
+import { paragraphStyles } from './common-styles';
 
 const codeBlockContainerStyles = css({
   display: 'flex',
@@ -24,13 +25,7 @@ export interface ExampleCommandsMarkupProps {
   type?: 'requested' | 'existing';
 }
 
-const paragraphStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[100],
-});
-
-export function ExampleCommandsMarkup({
+function ExampleCommandsMarkup({
   namespace,
   shardKey,
 }: ExampleCommandsMarkupProps) {

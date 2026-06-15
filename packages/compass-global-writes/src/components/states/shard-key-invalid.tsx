@@ -1,20 +1,13 @@
-import {
-  Banner,
-  BannerVariant,
-  spacing,
-  css,
-} from '@mongodb-js/compass-components';
+import { Banner, BannerVariant } from '@mongodb-js/compass-components';
 import React from 'react';
 import ShardKeyMarkup from '../shard-key-markup';
 import type { RootState, ShardKey } from '../../store/reducer';
 import { connect } from 'react-redux';
-import { containerStyles, bannerStyles } from '../common-styles';
-
-const paragraphStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[100],
-});
+import {
+  containerStyles,
+  bannerStyles,
+  paragraphStyles,
+} from '../common-styles';
 
 export interface ShardKeyInvalidProps {
   shardKey: ShardKey;

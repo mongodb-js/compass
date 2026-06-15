@@ -31,8 +31,11 @@ export type GlobalWritesThunkAction<R, A extends Action> = ThunkAction<
   GlobalWritesExtraArgs,
   A
 >;
-export type GlobalWritesThunkDispatch<A extends Action = Action> =
-  ThunkDispatch<RootState, GlobalWritesExtraArgs, A>;
+type GlobalWritesThunkDispatch<A extends Action = Action> = ThunkDispatch<
+  RootState,
+  GlobalWritesExtraArgs,
+  A
+>;
 
 export type GlobalWritesPluginOptions = Pick<
   CollectionTabPluginMetadata,

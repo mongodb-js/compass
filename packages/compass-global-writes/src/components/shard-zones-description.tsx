@@ -1,18 +1,7 @@
-import {
-  Body,
-  css,
-  Link,
-  spacing,
-  Subtitle,
-} from '@mongodb-js/compass-components';
+import { Body, Link, Subtitle } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import React from 'react';
-
-const paragraphStyles = css({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacing[100],
-});
+import { paragraphStyles } from './common-styles';
 
 export function ShardZonesDescription() {
   const { atlasMetadata } = useConnectionInfo();
