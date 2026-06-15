@@ -17,7 +17,7 @@ const EXPORT_MODES: ExportMode[] = [
   'Update Query',
 ];
 
-export type AggregationExpression = {
+type AggregationExpression = {
   exportMode: 'Pipeline';
   aggregation: string;
 };

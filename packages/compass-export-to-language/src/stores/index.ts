@@ -34,7 +34,7 @@ interface OpenModalAction {
   inputExpression: InputExpression;
 }
 
-export function openModal(inputExpression: InputExpression): OpenModalAction {
+function openModal(inputExpression: InputExpression): OpenModalAction {
   return { type: OPEN_MODAL, inputExpression };
 }
 
@@ -168,5 +168,3 @@ export function activatePlugin(
 
   return { store, deactivate: cleanup };
 }
-
-export default reducer;
