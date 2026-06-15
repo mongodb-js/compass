@@ -4,12 +4,12 @@ import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
  * Types for seed data used in tool call evaluations.
  */
 
-export interface SeedCollectionIndex {
+interface SeedCollectionIndex {
   key: Record<string, IndexDirection>;
   options?: CreateIndexesOptions;
 }
 
-export interface SeedCollectionConfig {
+interface SeedCollectionConfig {
   collectionName: string;
   documents: Record<string, unknown>[];
   indexes?: SeedCollectionIndex[];

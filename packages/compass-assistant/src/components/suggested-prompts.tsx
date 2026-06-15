@@ -12,7 +12,7 @@ import type { SendMessageOptions } from './assistant-chat';
 
 const { MessagePrompts, MessagePrompt } = LgChatMessagePrompts;
 
-export type SuggestedPromptConfig = {
+type SuggestedPromptConfig = {
   text: string;
   metadata?: AssistantMessage['metadata'];
 };

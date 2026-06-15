@@ -102,7 +102,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
   );
 };
 
-export const ClearChatButton: React.FunctionComponent<{
+const ClearChatButton: React.FunctionComponent<{
   chat: Chat<AssistantMessage>;
 }> = ({ chat }) => {
   const { clearError } = useChat({ chat });

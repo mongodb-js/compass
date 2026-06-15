@@ -212,7 +212,7 @@ ${context.query}
   }
 };
 
-export type ConnectionErrorContext = {
+type ConnectionErrorContext = {
   connectionString: string;
   connectionError: string;
 };

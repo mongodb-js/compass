@@ -12,8 +12,6 @@ import type {
 } from 'mongodb-assistant-eval/schema';
 import { EVAL_CLUSTER_UID } from '../eval-config';
 
-export type { ExpectedOutputMessage };
-
 export interface CompassAssistantCustomInput {
   [key: string]: unknown;
   clusterUid: string;

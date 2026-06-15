@@ -89,7 +89,7 @@ export type BasicConnectionInfo = {
   name: string;
 };
 
-export type ActiveTabType = CollectionSubtab | WorkspaceTab['type'] | null;
+type ActiveTabType = CollectionSubtab | WorkspaceTab['type'] | null;
 
 export type AssistantMessage = UIMessage & {
   role?: 'user' | 'assistant' | 'system';
@@ -255,7 +255,7 @@ function hasConnectionId(obj: unknown): obj is { connectionId: string } {
 
 // Redux store types
 
-export type AssistantState = Record<string, never>;
+type AssistantState = Record<string, never>;
 
 type AssistantExtraArgs = {
   chat: Chat<AssistantMessage>;
@@ -267,7 +267,7 @@ type AssistantExtraArgs = {
   lastContextPromptRef: { current: string | null };
 };
 
-export type AssistantThunkAction<R, A extends Action = AnyAction> = ThunkAction<
+type AssistantThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   R,
   AssistantState,
   AssistantExtraArgs,
@@ -279,7 +279,7 @@ const reducer = (
 ): AssistantState => state;
 
 // Thunk action for the core send logic
-export function ensureOptInAndSendThunk(
+function ensureOptInAndSendThunk(
   _message: SendMessage,
   options: SendOptions,
   callback: (options: {
@@ -833,7 +833,7 @@ export function createDefaultChat({
   });
 }
 
-export function setToolsContext(
+function setToolsContext(
   toolsController: ToolsController,
   {
     enableTelemetry,

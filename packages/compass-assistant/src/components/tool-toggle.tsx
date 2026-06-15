@@ -240,7 +240,7 @@ const iconStyles = css({
   height: '16px',
 });
 
-export const ActiveBoltIcon = () => {
+const ActiveBoltIcon = () => {
   return (
     <svg
       fill="none"
@@ -256,7 +256,7 @@ export const ActiveBoltIcon = () => {
   );
 };
 
-export const DisabledBoltIcon = () => {
+const DisabledBoltIcon = () => {
   return (
     <svg
       fill="none"

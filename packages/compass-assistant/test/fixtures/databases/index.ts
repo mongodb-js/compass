@@ -5,14 +5,6 @@ import { sampleRestaurants } from './sample-restaurants';
 import { sampleSupplies } from './sample-supplies';
 import { sampleWeatherData } from './sample-weatherdata';
 
-export {
-  sampleMflix,
-  sampleAirbnb,
-  sampleRestaurants,
-  sampleSupplies,
-  sampleWeatherData,
-};
-
 export const seedDatabases: SeedDatabase[] = [
   sampleMflix,
   sampleAirbnb,

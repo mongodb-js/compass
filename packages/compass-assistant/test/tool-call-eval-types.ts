@@ -7,7 +7,7 @@ export type ConnectionConfig = {
   };
 };
 
-export type AssistantApiConfig = {
+type AssistantApiConfig = {
   baseURL: string;
   apiKey: string;
   requestOrigin: string;

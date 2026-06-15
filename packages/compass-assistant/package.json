@@ -49,6 +49,7 @@
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
+    "knip": "knip --config knip.js --no-config-hints",
     "convert-eval-cases": "ts-node scripts/convert-csv-to-eval-cases.ts && npm run reformat",
     "eval": "npx tsx test/assistant.eval.ts",
     "eval:tool-calls": "npx tsx test/tool-calls.eval.ts"
@@ -95,6 +96,7 @@
     "braintrust": "^2.2.2",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
+    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "mongodb": "^7.1.1",
     "mongodb-assistant-eval": "^0.0.8",

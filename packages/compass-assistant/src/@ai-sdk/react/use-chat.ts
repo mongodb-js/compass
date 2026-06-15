@@ -11,12 +11,12 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import type { AbstractChat, ChatInit, CreateUIMessage, UIMessage } from 'ai';
+import type { AbstractChat, ChatInit, UIMessage } from 'ai';
 import { useCallback, useEffect, useRef } from 'react';
 import { useSyncExternalStore } from 'use-sync-external-store/shim';
 import { Chat } from './chat-react';
 
-export type { CreateUIMessage, UIMessage };
+export type { UIMessage };
 
 export type UseChatHelpers<UI_MESSAGE extends UIMessage> = {
   /**
