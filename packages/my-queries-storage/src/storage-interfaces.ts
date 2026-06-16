@@ -3,7 +3,7 @@ import type { RecentQuery, FavoriteQuery } from './query-storage-schema';
 import type { SavedPipeline } from './pipeline-storage-schema';
 
 // Shared interfaces for query storage
-export interface QueryStorageInterface<TSchema extends z.Schema> {
+interface QueryStorageInterface<TSchema extends z.Schema> {
   loadAll(namespace?: string): Promise<z.output<TSchema>[]>;
   write(id: string, content: z.input<TSchema>): Promise<boolean>;
   delete(id: string): Promise<boolean>;

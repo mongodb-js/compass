@@ -8,13 +8,13 @@ import type {
 } from './storage-interfaces';
 
 // Generic storage options that can be extended by platform-specific implementations
-export type BaseStorageOptions = {
+type BaseStorageOptions = {
   serialize?: (content: unknown) => string;
   deserialize?: (content: string) => unknown;
 };
 
 // Generic base class that works with any IUserData implementation
-export abstract class BaseCompassQueryStorage<TSchema extends z.Schema> {
+abstract class BaseCompassQueryStorage<TSchema extends z.Schema> {
   protected readonly userData: IUserData<TSchema>;
   protected readonly dataType: string;
   constructor(
