@@ -530,6 +530,9 @@ interface StartCompassOptions {
   wrapBinary?: (binary: string) => Promise<string> | string;
   dangerouslySkipSharedConfigWaitFor?: boolean;
   onBeforeNavigate?: (browser: CompassBrowser) => Promise<void> | void;
+  // Skips the shared config setup, which sets preferences. Used for tests that
+  // intentionally leave the app in a state where preferences never load.
+  skipSharedConfigOnStart?: boolean;
 }
 
 let defaultUserDataDir: string | undefined;
@@ -1170,10 +1173,12 @@ export async function init(
     }
   }
 
-  await setSharedConfigOnStart(
-    browser,
-    opts.dangerouslySkipSharedConfigWaitFor
-  );
+  if (!opts.skipSharedConfigOnStart) {
+    await setSharedConfigOnStart(
+      browser,
+      opts.dangerouslySkipSharedConfigWaitFor
+    );
+  }
 
   // Matches Compass desktop defaults
   const defaultWindowWidth = 1432;

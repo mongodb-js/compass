@@ -5,6 +5,7 @@ import {
   assertTestingWebAtlasCloud,
   isTestingWebAtlasCloud,
 } from '../../helpers/test-runner-context.ts';
+import { blockNetworkRequest } from '../../helpers/commands/atlas-cloud/utils.ts';
 
 describe('Error states', function () {
   let compass: Compass;
@@ -38,12 +39,13 @@ describe('Error states', function () {
 
   it('should show error state if fetching preferences failed initially', async function () {
     compass = await init(this.test?.fullTitle(), {
+      skipSharedConfigOnStart: true,
       async onBeforeNavigate(browser) {
         assertTestingWebAtlasCloud(context);
-        const mock = await browser.mock(
-          `/explorer/v1/groups/${context.atlasCloudProjectId}/preferences`
+        await blockNetworkRequest(
+          browser,
+          `*/explorer/v1/groups/${context.atlasCloudProjectId}/preferences`
         );
-        mock.respond('Failed to fetch', { statusCode: 500 });
       },
     });
 

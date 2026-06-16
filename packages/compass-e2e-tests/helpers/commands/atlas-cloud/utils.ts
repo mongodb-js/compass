@@ -81,3 +81,15 @@ export async function doCloudFetch<T = any>(
     body
   );
 }
+
+export async function blockNetworkRequest(
+  browser: CompassBrowser,
+  urlPattern: string
+) {
+  const puppeteer = await browser.getPuppeteer();
+  const pages = await puppeteer.pages();
+  const page = pages.find((p) => p.url().includes('mongodb.com')) ?? pages[0];
+  const cdp = await page.target().createCDPSession();
+  await cdp.send('Network.enable');
+  await cdp.send('Network.setBlockedURLs', { urls: [urlPattern] });
+}
