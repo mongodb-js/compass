@@ -321,7 +321,7 @@ function validateCSFLEErrors(
   return errors;
 }
 
-export function isSecure(connectionString: ConnectionString): boolean {
+function isSecure(connectionString: ConnectionString): boolean {
   const sslParam = connectionString.searchParams.get('ssl');
   const tlsParam = connectionString.searchParams.get('tls');
   if (!sslParam && !tlsParam) {

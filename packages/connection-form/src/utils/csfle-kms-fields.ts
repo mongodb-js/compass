@@ -1,11 +1,7 @@
 import type { KMSProviders } from 'mongodb';
 import type { ConnectionFormError } from './validation';
 import { errorMessageByFieldName, fieldNameHasError } from './validation';
-export type {
-  ClientEncryptionTlsOptions,
-  KMSProviders,
-  LocalKMSProviderConfiguration,
-} from 'mongodb';
+export type { LocalKMSProviderConfiguration } from 'mongodb';
 type KeysOfUnion<T> = T extends T ? keyof T : never;
 export type KMSOption<KMSProvider extends KMSProviderType> = KeysOfUnion<
   NonNullable<KMSProviders[KMSProvider]>

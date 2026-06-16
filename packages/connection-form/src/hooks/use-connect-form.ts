@@ -338,7 +338,7 @@ function isConnectionUpdatePersonalizationAction(
   return action.type === 'update-connection-personalization';
 }
 
-export function handleConnectionFormUpdateForPersonalization(
+function handleConnectionFormUpdateForPersonalization(
   action: ConnectionFormFieldActions,
   personalization: ConnectionPersonalizationOptions,
   connectionString?: string
