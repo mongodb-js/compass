@@ -27,7 +27,7 @@ import {
   type BSONTypeTag,
 } from 'bson';
 
-export { bsonType, type BSONTypeTag };
+export { type BSONTypeTag };
 export function getBsonType(value: any): BSONTypeTag | undefined {
   return value?.[bsonType];
 }
