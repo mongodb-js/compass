@@ -2,6 +2,9 @@
 
 /** @type {import('knip').KnipConfig} */
 const baseConfig = {
+  // Default patterns for TypeScript packages; override or extend per-package as needed
+  entry: ['src/**/*.spec.{ts,tsx}'],
+  project: ['src/**/*.{ts,tsx}'],
   ignoreDependencies: [
     // Hoisted transitive deps from @mongodb-js/mocha-config-compass; not declared directly
     'react-16-node-hanging-test-fix',

@@ -3,7 +3,7 @@ const base = require('@mongodb-js/knip-config-compass');
 module.exports = {
   ...base,
   entry: [
-    'src/**/*.spec.{ts,tsx}',
+    ...base.entry,
     'src/**/*.test.{ts,tsx}',
     'src/main/index.ts',
     'src/main/application.ts',
@@ -11,7 +11,7 @@ module.exports = {
     '.mocharc.js',
     '.mocharc.renderer.js',
   ],
-  project: ['src/**/*.{ts,tsx}', 'scripts/**/*.{ts,js}'],
+  project: [...base.project, 'scripts/**/*.{ts,js}'],
   ignoreUnresolved: [/mongo_crypt_v1/],
   ignoreDependencies: [
     ...base.ignoreDependencies,

@@ -3,6 +3,6 @@ const base = require('@mongodb-js/knip-config-compass');
 module.exports = {
   ...base,
   entry: ['test/**/*.test.{ts,tsx}'],
-  project: ['src/**/*.{ts,tsx}', 'test/**/*.{ts,tsx}'],
+  project: [...base.project, 'test/**/*.{ts,tsx}'],
   ignoreBinaries: [...base.ignoreBinaries, 'depcheck', 'nyc', 'tsc'],
 };

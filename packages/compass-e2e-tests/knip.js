@@ -3,11 +3,11 @@ const base = require('@mongodb-js/knip-config-compass');
 module.exports = {
   ...base,
   entry: [
-    'src/**/*.spec.{ts,tsx}',
+    ...base.entry,
     'tests/**/*.spec.{ts,tsx}',
     'tests/**/*.test.{ts,tsx}',
   ],
-  project: ['src/**/*.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
+  project: [...base.project, 'tests/**/*.{ts,tsx}'],
   ignoreDependencies: [
     ...base.ignoreDependencies,
     'electron',

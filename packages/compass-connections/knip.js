@@ -3,11 +3,10 @@ const base = require('@mongodb-js/knip-config-compass');
 module.exports = {
   ...base,
   entry: [
-    'src/**/*.spec.{ts,tsx}',
+    ...base.entry,
     'src/connection-info-provider.tsx',
     'src/stores/connections-store-redux.ts',
   ],
-  project: ['src/**/*.{ts,tsx}'],
   ignoreDependencies: [...base.ignoreDependencies, '@types/react-dom'],
   ignoreBinaries: [...base.ignoreBinaries, 'tsc'],
 };
