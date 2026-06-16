@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { connect } from 'react-redux';
 import {
   Button,
+  DropdownMenuButton,
+  type MenuAction,
   OptionsToggle,
   PerformanceSignals,
   SignalPopover,
@@ -12,7 +14,7 @@ import { AIExperienceEntry } from '@mongodb-js/compass-generative-ai/provider';
 import type { RootState } from '../../../modules';
 import { runAggregation } from '../../../modules/aggregation';
 import { updateView } from '../../../modules/update-view';
-import { explainAggregation } from '../../../modules/explain';
+import { explainAggregation, type ExplainMode } from '../../../modules/explain';
 import {
   getIsPipelineInvalidFromBuilderState,
   getPipelineStageOperatorsFromBuilderState,
@@ -42,7 +44,7 @@ type PipelineActionsProps = {
 
   showExplainButton?: boolean;
   isExplainButtonDisabled?: boolean;
-  onExplainAggregation: () => void;
+  onExplainAggregation: (mode: ExplainMode) => void;
 
   isOptionsVisible?: boolean;
   onToggleOptions: () => void;
@@ -78,13 +80,51 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
     readWrite: preferencesReadWrite,
     enableAggregationBuilderExtraOptions,
     showInsights,
+    enableSearchActivationProgramP2,
   } = usePreferences([
     'readWrite',
     'enableAggregationBuilderExtraOptions',
     'showInsights',
+    'enableSearchActivationProgramP2',
   ]);
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
-  const { tellMoreAboutInsight } = useAssistantActions();
+  const { tellMoreAboutInsight, getIsAssistantEnabled } = useAssistantActions();
+  const isAssistantEnabled = getIsAssistantEnabled();
+
+  const hasSearchStage = stages.includes('$search');
+
+  const explainActions = useMemo(
+    (): MenuAction<ExplainMode>[] => [
+      {
+        action: 'interpret',
+        label: 'Interpret',
+        icon: 'Sparkle',
+        isDisabled: !isAssistantEnabled,
+      },
+      {
+        action: 'visual-tree',
+        label: 'Visual tree',
+        icon: 'Diagram',
+        isDisabled: hasSearchStage,
+        disabledDescription: hasSearchStage
+          ? 'Not supported for this query'
+          : undefined,
+      },
+      {
+        action: 'raw-output',
+        label: 'Raw output',
+        icon: 'CurlyBraces',
+      },
+    ],
+    [isAssistantEnabled, hasSearchStage]
+  );
+
+  const onExplainAction = useCallback(
+    (action: ExplainMode) => {
+      onExplainAggregation(action);
+    },
+    [onExplainAggregation]
+  );
 
   return (
     <div className={containerStyles}>
@@ -129,18 +169,32 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
           Update view
         </Button>
       )}
-      {showExplainButton && (
-        <Button
-          aria-label="Explain aggregation"
-          data-testid="pipeline-toolbar-explain-aggregation-button"
-          variant="default"
-          size="small"
-          onClick={onExplainAggregation}
-          disabled={isExplainButtonDisabled}
-        >
-          Explain
-        </Button>
-      )}
+      {showExplainButton &&
+        (enableSearchActivationProgramP2 ? (
+          <DropdownMenuButton
+            data-testid="pipeline-toolbar-explain-aggregation-dropdown-button"
+            buttonText="Explain"
+            buttonProps={{
+              size: 'small',
+              variant: 'default',
+              disabled: isExplainButtonDisabled,
+            }}
+            actions={explainActions}
+            onAction={onExplainAction}
+            hideOnNarrow={false}
+          />
+        ) : (
+          <Button
+            aria-label="Explain aggregation"
+            data-testid="pipeline-toolbar-explain-aggregation-button"
+            variant="default"
+            size="small"
+            onClick={() => onExplainAggregation('visual-tree')}
+            disabled={isExplainButtonDisabled}
+          >
+            Explain
+          </Button>
+        ))}
       {!showUpdateViewButton && showRunButton && (
         <Button
           aria-label="Run aggregation"
