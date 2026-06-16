@@ -84,7 +84,7 @@ export function registerConnectionIdForBrowserWindow(
   browserWindowStates.set(bw.id, { connectionId });
 }
 
-export const getConnectionStringFromArgs = (args?: string[]) => args?.[0];
+const getConnectionStringFromArgs = (args?: string[]) => args?.[0];
 
 const shouldPreventAutoConnect = async ({
   connectionString,

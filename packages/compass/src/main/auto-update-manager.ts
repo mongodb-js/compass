@@ -642,7 +642,7 @@ const API_PRODUCT: Readonly<Record<string, string>> = {
   'mongodb-compass-readonly': 'compass-readonly',
 };
 
-export type AutoUpdateManagerOptions = {
+type AutoUpdateManagerOptions = {
   endpoint: string;
   platform: string;
   arch: string;

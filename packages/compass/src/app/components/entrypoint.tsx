@@ -74,7 +74,7 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
   );
 };
 
-export const WithStorageProviders: React.FC = ({ children }) => {
+const WithStorageProviders: React.FC = ({ children }) => {
   const pipelineStorage = useInitialValue<PipelineStorageAccess>({
     getStorage(options) {
       return createElectronPipelineStorage({ basepath: options?.basePath });

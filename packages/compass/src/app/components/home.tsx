@@ -54,7 +54,7 @@ const globalDarkThemeStyles = css({
   color: palette.white,
 });
 
-export type HomeProps = {
+type HomeProps = {
   appName: string;
 };
 

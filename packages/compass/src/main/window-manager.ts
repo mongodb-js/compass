@@ -44,7 +44,7 @@ export function installEarlyOpenUrlListener(): void {
   electronApp.on('open-url', earlyOpenUrlListener);
 }
 
-export function uninstallEarlyOpenUrlListener(): void {
+function uninstallEarlyOpenUrlListener(): void {
   electronApp.off('open-url', earlyOpenUrlListener);
 }
 

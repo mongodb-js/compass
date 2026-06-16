@@ -20,4 +20,3 @@ const COMPASS_ICON = path.join(__dirname, compassIconPath);
 const image = nativeImage.createFromPath(COMPASS_ICON);
 
 export default image;
-export { COMPASS_ICON as path };
