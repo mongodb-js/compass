@@ -53,7 +53,7 @@ type Item = {
   inferred_from_privileges?: boolean;
 };
 
-export const createButtonStyles = css({
+const createButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
