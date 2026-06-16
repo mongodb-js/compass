@@ -190,7 +190,7 @@ export function generateVersionsForAssets(
   });
 }
 
-export async function publishGitHubRelease(
+async function publishGitHubRelease(
   assets: TargetAssets[],
   version: string,
   channel: string,
@@ -271,7 +271,7 @@ export async function publishGitHubRelease(
   cli.info('Asset upload complete');
 }
 
-export async function uploadAssetsToDownloadCenter(
+async function uploadAssetsToDownloadCenter(
   assets: Asset[],
   channel: string,
   dryRun: boolean
@@ -301,7 +301,7 @@ export async function uploadAssetsToDownloadCenter(
   await Promise.all(uploads);
 }
 
-export async function getLatestRelease(
+async function getLatestRelease(
   channel = 'stable'
 ): Promise<OctokitListReposResponseItem | null> {
   const octokit = new Octokit({
@@ -363,9 +363,7 @@ export async function getLatestRelease(
   }
 }
 
-export async function getLatestReleaseVersions(
-  channel = 'stable'
-): Promise<unknown> {
+async function getLatestReleaseVersions(channel = 'stable'): Promise<unknown> {
   const release = await getLatestRelease(channel);
   if (!release) {
     throw new Error(`Couldn't find latest release for ${channel} channel`);
@@ -391,7 +389,7 @@ function isDeepStrictEqual(a: unknown, b: unknown): boolean {
   }
 }
 
-export async function updateManifest(dryRun: boolean): Promise<void> {
+async function updateManifest(dryRun: boolean): Promise<void> {
   cli.info('Downloading current manifest');
   const currentManifest = await downloadManifest();
 

@@ -19,7 +19,7 @@ export function requireEnvironmentVariables(keys: string[]): true {
   return true;
 }
 
-export function getDownloadCenter(
+function getDownloadCenter(
   bucketConfig: Record<string, unknown>
 ): DownloadCenter {
   requireEnvironmentVariables([
