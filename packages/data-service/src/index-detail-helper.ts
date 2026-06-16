@@ -2,7 +2,7 @@ import { isDeepStrictEqual } from 'util';
 import { EJSON } from 'bson';
 import type { IndexDescriptionInfo } from 'mongodb';
 
-export type IndexInfo = {
+type IndexInfo = {
   ns?: string;
   name: string;
   key: Record<string, string | number>;
@@ -90,7 +90,7 @@ export type IndexDefinition = {
   buildProgress: IndexBuildProgress;
 } & IndexStats;
 
-export function getIndexCardinality(
+function getIndexCardinality(
   index: Pick<IndexDefinition, 'key' | 'fields' | 'extra'>
 ): IndexDefinition['cardinality'] {
   const isSingleTextIndex =
@@ -105,7 +105,7 @@ export function getIndexCardinality(
   return index.fields.length === 1 ? 'single' : 'compound';
 }
 
-export function getIndexProperties(
+function getIndexProperties(
   index: Pick<IndexDefinition, 'name' | 'key' | 'fields' | 'extra'>,
   collectionShardKey: unknown
 ): IndexDefinition['properties'] {
@@ -144,7 +144,7 @@ export function getIndexProperties(
   return properties;
 }
 
-export function getIndexType(
+function getIndexType(
   index: Pick<IndexDefinition, 'extra' | 'key'>
 ): IndexDefinition['type'] {
   const keyNames = Object.keys(index.key);

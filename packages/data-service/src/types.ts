@@ -14,7 +14,7 @@ export interface CollectionStats {
   avg_bucket_size?: number;
 }
 
-export interface CollStatsIndexDetails {
+interface CollStatsIndexDetails {
   metadata: {
     formatVersion: number;
     infoObj: string;
@@ -34,11 +34,11 @@ export interface CollStatsIndexDetails {
   transations?: Record<string, number>;
 }
 
-export interface IndexDetails {
+interface IndexDetails {
   name: string;
 }
 
-export interface CollectionDetails extends CollectionStats {
+interface CollectionDetails extends CollectionStats {
   _id: string;
   name: string;
   database: string;

@@ -29,7 +29,7 @@ type FieldPath = string[];
  * Equality-searchable fields are handled separately since they require
  * special treatments in some cases.
  */
-export interface CSFLEEncryptedFieldsSet {
+interface CSFLEEncryptedFieldsSet {
   readonly encryptedFields: FieldPath[];
   readonly equalityQueryableEncryptedFields: FieldPath[];
 }

@@ -164,7 +164,7 @@ interface CompassClientSession extends ClientSession {
   [kSessionClientType]: ClientType;
 }
 
-export type ExecutionOptions = {
+type ExecutionOptions = {
   abortSignal?: AbortSignal;
 };
 
@@ -173,13 +173,13 @@ export type ExplainExecuteOptions = ExecutionOptions & {
   maxTimeMS?: number;
 };
 
-export type SampleOptions = {
+type SampleOptions = {
   size?: number;
   query?: Filter<Document>;
   fields?: Document;
 };
 
-export interface DataServiceEventMap {
+interface DataServiceEventMap {
   topologyDescriptionChanged: (evt: TopologyDescriptionChangedEvent) => void;
   serverHeartbeatFailed: (evt: ServerHeartbeatFailedEvent) => void;
   connectionInfoSecretsChanged: () => void;
@@ -192,7 +192,7 @@ export type UpdatePreviewChange = {
   after: Document;
 };
 
-export type UpdatePreviewExecutionOptions = ExecutionOptions & {
+type UpdatePreviewExecutionOptions = ExecutionOptions & {
   sample?: number;
   timeout?: number;
 };
@@ -201,7 +201,7 @@ export type UpdatePreview = {
   changes: UpdatePreviewChange[];
 };
 
-export type StreamProcessor = {
+type StreamProcessor = {
   id: string;
   name: string;
   state:
@@ -3292,4 +3292,3 @@ function isTransactionAbortError(err: any) {
 }
 
 export { DataServiceImpl };
-export default DataService;

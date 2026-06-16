@@ -2,7 +2,7 @@ import type { AutoEncryptionOptions } from 'mongodb';
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 
 type ExtractArrayEntryType<T> = T extends (infer U)[] ? U : never;
-export type OIDCOptions = Omit<
+type OIDCOptions = Omit<
   NonNullable<DevtoolsConnectOptions['oidc']>,
   'notifyDeviceFlow' | 'signal' | 'allowedFlows'
 > & {

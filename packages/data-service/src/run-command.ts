@@ -2,7 +2,7 @@ import type { Document, Db, RunCommandOptions, ServerSessionId } from 'mongodb';
 import { ReadPreference } from 'mongodb';
 import type { Binary } from 'bson';
 
-export type ConnectionStatus = {
+type ConnectionStatus = {
   authInfo: {
     authenticatedUsers: { user: string; db: string }[];
     authenticatedUserRoles: { role: string; db: string }[];
@@ -31,7 +31,7 @@ export type ConnectionStatusWithPrivileges = ConnectionStatus & {
   };
 };
 
-export type CmdLineOpts = {
+type CmdLineOpts = {
   argv: string[];
   parsed: unknown;
 };
@@ -154,7 +154,7 @@ interface RunDiagnosticsCommand {
   }>;
 }
 
-export type ListDatabasesOptions = {
+type ListDatabasesOptions = {
   nameOnly?: never;
   filter?: {
     name: unknown;
@@ -166,24 +166,20 @@ export type ListDatabasesOptions = {
   comment?: string;
 };
 
-export type ListDatabasesOptionsNamesOnly = Omit<
-  ListDatabasesOptions,
-  'nameOnly'
-> & {
+type ListDatabasesOptionsNamesOnly = Omit<ListDatabasesOptions, 'nameOnly'> & {
   nameOnly: true;
 };
 
-export type DatabaseInfoNameOnly = { name: string };
+type DatabaseInfoNameOnly = { name: string };
 
 export type DatabaseInfo = DatabaseInfoNameOnly & {
   sizeOnDisk: number;
   empty: boolean;
 };
 
-export type ListDatabasesResult<DatabaseType> =
-  DatabaseType extends DatabaseInfo
-    ? { databases: DatabaseType[]; totalSize: number; totalSizeMb: number }
-    : { databases: DatabaseType[] };
+type ListDatabasesResult<DatabaseType> = DatabaseType extends DatabaseInfo
+  ? { databases: DatabaseType[]; totalSize: number; totalSizeMb: number }
+  : { databases: DatabaseType[] };
 
 export type CollectionInfoNameOnly = {
   name: string;
@@ -207,23 +203,23 @@ export type ListCollectionsOptions = {
   comment?: string;
 };
 
-export type ListCollectionsOptionsNamesOnly = Omit<
+type ListCollectionsOptionsNamesOnly = Omit<
   ListCollectionsOptions,
   'nameOnly'
 > & {
   nameOnly: true;
 };
 
-export type AtlasVersionInfo = {
+type AtlasVersionInfo = {
   atlasVersion: string;
   gitVersion: string;
 };
 
-export type ListCollectionsResult<CollectionType> = {
+type ListCollectionsResult<CollectionType> = {
   cursor: { firstBatch: CollectionType };
 };
 
-export type ListStreamProcessorsOptions = {
+type ListStreamProcessorsOptions = {
   filter?: Document;
 };
 

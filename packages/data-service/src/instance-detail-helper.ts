@@ -379,9 +379,7 @@ function adaptHostInfo(rawHostInfo: Partial<HostInfo>): HostInfoDetails {
   };
 }
 
-export function adaptBuildInfo(
-  rawBuildInfo: Partial<BuildInfo>
-): BuildInfoDetails {
+function adaptBuildInfo(rawBuildInfo: Partial<BuildInfo>): BuildInfoDetails {
   return {
     version: rawBuildInfo.version ?? '',
     // Cover both cases of detecting enterprise module, see SERVER-18099.
