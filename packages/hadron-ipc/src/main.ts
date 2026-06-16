@@ -74,7 +74,7 @@ export function respondTo(
 /**
  * Broadcast an event to all the renderer processes
  */
-export function broadcast(channel: string, ...args: any[]) {
+function broadcast(channel: string, ...args: any[]) {
   // We might not be in electron environment
   electron.BrowserWindow?.getAllWindows().forEach((browserWindow) => {
     browserWindow.webContents?.send(channel, ...args);
@@ -84,7 +84,7 @@ export function broadcast(channel: string, ...args: any[]) {
 /**
  * Broadcast an event to currently focused window
  */
-export function broadcastFocused(channel: string, ...args: any[]) {
+function broadcastFocused(channel: string, ...args: any[]) {
   // We might not be in electron environment
   electron.BrowserWindow?.getFocusedWindow()?.webContents?.send(
     channel,
@@ -95,7 +95,7 @@ export function broadcastFocused(channel: string, ...args: any[]) {
 /**
  * Remove listener for a channel
  */
-export function remove(
+function remove(
   ipcMain: Pick<IpcMain, 'removeListener'> | undefined,
   channel: string,
   listener: (...args: unknown[]) => void
@@ -158,7 +158,7 @@ export const ControllerMap = new Map<string, AbortController>();
 
 let setup = false;
 
-export function setupSignalHandler(
+function setupSignalHandler(
   _ipcMain: Pick<IpcMain, 'handle'> | undefined = ipcMain,
   forceSetup = false
 ) {
