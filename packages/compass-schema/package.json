@@ -46,10 +46,11 @@
     "test-ci": "npm run test-cov",
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "knip": "knip --config knip.js --no-config-hints"
+    "knip": "knip-compass"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.22",
+    "@mongodb-js/knip-config-compass": "^0.1.0",
     "@mongodb-js/mocha-config-compass": "^1.8.0",
     "@mongodb-js/my-queries-storage": "^0.58.1",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
@@ -64,7 +65,6 @@
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
-    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",

@@ -1,0 +1,22 @@
+{
+  "name": "@mongodb-js/knip-config-compass",
+  "version": "0.1.0",
+  "private": true,
+  "license": "SSPL",
+  "description": "Shared knip configuration and binary for Compass packages",
+  "main": "index.js",
+  "bin": {
+    "knip-compass": "./bin/knip-compass.js"
+  },
+  "files": [
+    "index.js",
+    "bin",
+    "package.json"
+  ],
+  "scripts": {
+    "check": "echo ok"
+  },
+  "dependencies": {
+    "knip": "^6.16.1"
+  }
+}

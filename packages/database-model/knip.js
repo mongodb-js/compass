@@ -1,19 +1,8 @@
+const base = require('@mongodb-js/knip-config-compass');
 /** @type {import('knip').KnipConfig} */
 module.exports = {
+  ...base,
   entry: ['test/**/*.test.js'],
-
   project: ['lib/**/*.js', 'index.js', 'test/**/*.js'],
-
-  ignoreDependencies: [
-    // Config tools, not imported directly
-    '@mongodb-js/eslint-config-compass',
-    '@mongodb-js/prettier-config-compass',
-  ],
-
-  ignoreBinaries: [
-    // Monorepo-level CLI from configs/compass-scripts; not declared as a dep here
-    'compass-scripts',
-    // CLI tools used in scripts
-    'depcheck',
-  ],
+  ignoreBinaries: [...base.ignoreBinaries, 'depcheck'],
 };

@@ -34,7 +34,8 @@
     "depcheck": "compass-scripts check-peer-deps && depcheck",
     "bootstrap": "npm run compile",
     "check": "npm run lint && npm run depcheck",
-    "check-ci": "npm run check"
+    "check-ci": "npm run check",
+    "knip": "knip-compass"
   },
   "homepage": "https://github.com/mongodb-js/compass",
   "repository": {
@@ -48,6 +49,7 @@
   "license": "SSPL",
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.22",
+    "@mongodb-js/knip-config-compass": "^0.1.0",
     "gen-esm-wrapper": "^1.1.0",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0"

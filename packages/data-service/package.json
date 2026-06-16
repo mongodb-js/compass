@@ -49,7 +49,8 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov -- -- --include \"./**/*.{spec,test}.*\"  --exclude \"./src/connect.spec.ts\" --exclude \"./src/csfle-collection-tracker.spec.ts\"",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "knip": "knip-compass"
   },
   "dependencies": {
     "@mongodb-js/compass-utils": "^0.9.33",
@@ -68,6 +69,7 @@
     "@mongodb-js/compass-test-server": "^0.4.6",
     "@mongodb-js/devtools-docker-test-envs": "^1.3.3",
     "@mongodb-js/eslint-config-compass": "^1.4.22",
+    "@mongodb-js/knip-config-compass": "^0.1.0",
     "@mongodb-js/mocha-config-compass": "^1.8.0",
     "@mongodb-js/oidc-plugin": "^2.0.4",
     "@mongodb-js/prettier-config-compass": "^1.2.9",

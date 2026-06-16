@@ -171,7 +171,8 @@
     "test-ci-electron": "npm run test-electron",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "verify-package-contents": "ts-node ./scripts/verify-package-contents.ts"
+    "verify-package-contents": "ts-node ./scripts/verify-package-contents.ts",
+    "knip": "knip-compass"
   },
   "repository": {
     "type": "git",
@@ -234,6 +235,7 @@
     "@mongodb-js/devtools-proxy-support": "^0.7.15",
     "@mongodb-js/eslint-config-compass": "^1.4.22",
     "@mongodb-js/get-os-info": "^0.6.11",
+    "@mongodb-js/knip-config-compass": "^0.1.0",
     "@mongodb-js/mocha-config-compass": "^1.8.0",
     "@mongodb-js/mongodb-downloader": "^1.1.15",
     "@mongodb-js/my-queries-storage": "^0.58.1",

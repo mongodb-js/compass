@@ -1,36 +1,8 @@
+const base = require('@mongodb-js/knip-config-compass');
 /** @type {import('knip').KnipConfig} */
 module.exports = {
-  // src/index.ts is inferred from compass:exports in package.json.
-  entry: [
-    // Spec patterns from .mocharc.js / @mongodb-js/mocha-config-compass — listed
-    // explicitly because knip's mocha plugin can't evaluate the dynamic require
-    // chain in .mocharc.js when --config is passed.
-    'src/**/*.spec.{ts,tsx}',
-    'test/**/*.test.{ts,tsx,jsx}',
-  ],
-
+  ...base,
+  entry: ['src/**/*.spec.{ts,tsx}', 'test/**/*.test.{ts,tsx,jsx}'],
   project: ['src/**/*.{ts,tsx,jsx}', 'test/**/*.{ts,tsx,jsx}'],
-
-  ignoreDependencies: [
-    // Hoisted mocha deps — available via @mongodb-js/mocha-config-compass, not declared here
-    'react-16-node-hanging-test-fix',
-    '@mongodb-js/mocha-config-devtools',
-    // Type-only packages included via tsconfig, not via import statements
-    '@types/chai-dom',
-    '@types/mocha',
-    '@types/sinon-chai',
-    // CLI used in test-electron script; not a direct import
-    'electron-mocha',
-
-    '@mongodb-js/prettier-config-compass',
-    '@mongodb-js/tsconfig-compass',
-    'react-dom',
-  ],
-
-  ignoreBinaries: [
-    // Monorepo-level CLI from configs/compass-scripts; not declared as a dep here
-    'compass-scripts',
-    // xvfb-maybe is hoisted from root; not declared as a dep here
-    'xvfb-maybe',
-  ],
+  ignoreDependencies: [...base.ignoreDependencies, 'react-dom'],
 };

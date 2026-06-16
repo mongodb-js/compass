@@ -51,7 +51,7 @@
     "test-ci-electron": "npm run test-electron",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
     "eval": "braintrust eval tests/evals",
-    "knip": "knip --config knip.js"
+    "knip": "knip-compass"
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.1",
@@ -84,6 +84,7 @@
   "devDependencies": {
     "@faker-js/faker": "^10.4.0",
     "@mongodb-js/eslint-config-compass": "^1.4.22",
+    "@mongodb-js/knip-config-compass": "^0.1.0",
     "@mongodb-js/mocha-config-compass": "^1.8.0",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
     "@mongodb-js/testing-library-compass": "^1.5.6",
@@ -98,7 +99,6 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
-    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "mongodb-ns": "^3.2.0",
     "nyc": "^15.1.0",

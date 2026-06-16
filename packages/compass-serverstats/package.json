@@ -27,7 +27,7 @@
     "test-ci-electron": "npm run test-electron",
     "bootstrap": "npm run compile",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "knip": "knip --config knip.js --no-config-hints"
+    "knip": "knip-compass"
   },
   "license": "SSPL",
   "dependencies": {
@@ -44,13 +44,13 @@
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.22",
+    "@mongodb-js/knip-config-compass": "^0.1.0",
     "@mongodb-js/mocha-config-compass": "^1.8.0",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
     "@mongodb-js/tsconfig-compass": "^1.3.0",
     "@types/d3": "^3.5.x",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",
-    "knip": "^6.16.1",
     "mocha": "^10.2.0",
     "react-dom": "^17.0.2",
     "typescript": "^5.9.3",

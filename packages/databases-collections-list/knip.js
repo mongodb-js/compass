@@ -1,22 +1,8 @@
+const base = require('@mongodb-js/knip-config-compass');
 /** @type {import('knip').KnipConfig} */
 module.exports = {
-  // src/index.ts is inferred from compass:exports in package.json.
+  ...base,
   entry: ['src/**/*.spec.{ts,tsx}'],
   project: ['src/**/*.{ts,tsx}'],
-  ignoreDependencies: [
-    // hoisted mocha deps
-    'react-16-node-hanging-test-fix',
-    '@mongodb-js/mocha-config-devtools',
-    // mocha config, not imported
-    '@mongodb-js/mocha-config-compass',
-    // config tools, not imported
-    '@mongodb-js/prettier-config-compass',
-    '@mongodb-js/tsconfig-compass',
-    // type-only
-    '@types/chai',
-    '@types/chai-dom',
-    '@types/mocha',
-    '@types/sinon-chai',
-  ],
-  ignoreBinaries: ['compass-scripts', 'depcheck', 'nyc'],
+  ignoreBinaries: [...base.ignoreBinaries, 'depcheck', 'nyc'],
 };
