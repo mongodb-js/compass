@@ -180,4 +180,3 @@ const MappedCreateDatabaseModal = connect(mapStateToProps, {
 })(CreateDatabaseModal);
 
 export default MappedCreateDatabaseModal;
-export { CreateDatabaseModal };

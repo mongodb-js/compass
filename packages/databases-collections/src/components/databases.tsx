@@ -223,4 +223,3 @@ const ConnectedDatabases = connect(
 )(Databases) as React.FunctionComponent<Record<string, never>>;
 
 export default ConnectedDatabases;
-export { Databases };

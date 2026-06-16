@@ -40,7 +40,7 @@ export const open = ({
   areSavedQueriesAndAggregationsImpacted,
 });
 
-export const close = () => ({
+const close = () => ({
   type: CLOSE,
 });
 
@@ -48,7 +48,7 @@ export const renameRequestInProgress = () => ({
   type: RENAME_REQUEST_IN_PROGRESS,
 });
 
-export const confirmationRequired = () => ({
+const confirmationRequired = () => ({
   type: CONFIRMATION_REQUIRED,
 });
 

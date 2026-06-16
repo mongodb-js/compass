@@ -8,7 +8,7 @@ import toNS from 'mongodb-ns';
 /**
  * No dots in DB name error message.
  */
-export const NO_DOT = 'Database names may not contain a "."';
+const NO_DOT = 'Database names may not contain a "."';
 
 type CreateNamespaceState = {
   isRunning: boolean;
@@ -35,7 +35,7 @@ export const INITIAL_STATE: CreateNamespaceState = {
   connectionMetaData: {},
 };
 
-export const CreateNamespaceActionTypes = {
+const CreateNamespaceActionTypes = {
   Reset: 'databases-collections/Reset',
   Open: 'databases-collections/create-collection/Open',
   Close: 'databases-collections/create-collection/Close',

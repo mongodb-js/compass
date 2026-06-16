@@ -22,7 +22,7 @@ import {
   type TrackFunction,
 } from '@mongodb-js/compass-telemetry/provider';
 
-export interface RenameCollectionModalProps {
+interface RenameCollectionModalProps {
   modalState: 'input-form' | 'confirmation-screen' | 'hidden';
   error: Error | null;
   initialCollectionName: string;

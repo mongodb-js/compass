@@ -133,4 +133,3 @@ const ConnectedCollections = connect(
 )(Collections);
 
 export default ConnectedCollections;
-export { Collections };
