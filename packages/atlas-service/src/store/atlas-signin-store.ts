@@ -49,4 +49,4 @@ export function configureStore({ atlasAuthService }: AtlasAuthPluginServices) {
   return store;
 }
 
-export type AtlasServiceStore = ReturnType<typeof configureStore>;
+type AtlasServiceStore = ReturnType<typeof configureStore>;

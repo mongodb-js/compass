@@ -5,14 +5,14 @@ import type { AtlasUserInfo } from '../util';
 import type { AtlasAuthService } from '../provider';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 
-export function isAction<A extends AnyAction>(
+function isAction<A extends AnyAction>(
   action: AnyAction,
   type: A['type']
 ): action is A {
   return action.type === type;
 }
 
-export type AtlasSignInState = {
+type AtlasSignInState = {
   error: string | null;
   // For managing attempt state that doesn't belong in the store
   currentAttemptId: number | null;
@@ -36,7 +36,7 @@ export type AtlasSignInThunkAction<
 > = ThunkAction<R, AtlasSignInState, { atlasAuthService: AtlasAuthService }, A>;
 
 // @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
-export const enum AtlasSignInActions {
+const enum AtlasSignInActions {
   RestoringStart = 'atlas-service/atlas-signin/StartRestoring',
   RestoringFailed = 'atlas-service/atlas-signin/RestoringFailed',
   RestoringSuccess = 'atlas-service/atlas-signin/RestoringSuccess',
@@ -50,52 +50,52 @@ export const enum AtlasSignInActions {
   SignedOut = 'atlas-service/atlas-signin/SignedOut',
 }
 
-export type AtlasSignInRestoringStartAction = {
+type AtlasSignInRestoringStartAction = {
   type: AtlasSignInActions.RestoringStart;
 };
 
-export type AtlasSignInRestoringFailedAction = {
+type AtlasSignInRestoringFailedAction = {
   type: AtlasSignInActions.RestoringFailed;
 };
 
-export type AtlasSignInRestoringSuccessAction = {
+type AtlasSignInRestoringSuccessAction = {
   type: AtlasSignInActions.RestoringSuccess;
   userInfo: AtlasUserInfo;
 };
 
-export type AtlasSignInAttemptStartAction = {
+type AtlasSignInAttemptStartAction = {
   type: AtlasSignInActions.AttemptStart;
   id: number;
 };
 
-export type AtlasSignInAttemptEndAction = {
+type AtlasSignInAttemptEndAction = {
   type: AtlasSignInActions.AttemptEnd;
   id: number;
 };
 
-export type AtlasSignInStartAction = {
+type AtlasSignInStartAction = {
   type: AtlasSignInActions.Start;
 };
 
-export type AtlasSignInSuccessAction = {
+type AtlasSignInSuccessAction = {
   type: AtlasSignInActions.Success;
   userInfo: AtlasUserInfo;
 };
 
-export type AtlasSignInErrorAction = {
+type AtlasSignInErrorAction = {
   type: AtlasSignInActions.Error;
   error: string;
 };
 
-export type AtlasSignInTokenRefreshFailedAction = {
+type AtlasSignInTokenRefreshFailedAction = {
   type: AtlasSignInActions.TokenRefreshFailed;
 };
 
-export type AtlasSignInSignedOutAction = {
+type AtlasSignInSignedOutAction = {
   type: AtlasSignInActions.SignedOut;
 };
 
-export type AtlasSignInCancelAction = { type: AtlasSignInActions.Cancel };
+type AtlasSignInCancelAction = { type: AtlasSignInActions.Cancel };
 
 const INITIAL_STATE = {
   state: 'initial' as const,

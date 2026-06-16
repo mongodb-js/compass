@@ -12,7 +12,6 @@ export const AtlasAuthPlugin = registerCompassPlugin(
     atlasAuthService: atlasAuthServiceLocator,
   }
 );
-export default AtlasAuthPlugin;
 export { AtlasServiceError } from './util';
 export type { AtlasUserInfo } from './util';
 export { CompassAtlasAuthService } from './compass-atlas-auth-service';
