@@ -58,6 +58,5 @@ const removeQuotes = function (str) {
 
 module.exports = {
   doubleQuoteStringify,
-  singleQuoteStringify,
   removeQuotes,
 };
