@@ -7,7 +7,7 @@ import type {
   KeyInclusionOptions,
   ObjectGeneratorOptions,
 } from './object-generator';
-import ObjectGenerator from './object-generator';
+import { ObjectGenerator } from './object-generator';
 import type { BSONArray, BSONObject, BSONValue } from './utils';
 import { objectToIdiomaticEJSON } from './utils';
 import type { HadronEJSONOptions } from './utils';

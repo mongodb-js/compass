@@ -582,5 +582,3 @@ export class ObjectGenerator {
     }
   }
 }
-
-export default ObjectGenerator;

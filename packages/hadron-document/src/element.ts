@@ -3,7 +3,7 @@
 import EventEmitter from 'eventemitter3';
 import { isPlainObject, isArray, isEqual, isString } from 'lodash';
 import type { ObjectGeneratorOptions } from './object-generator';
-import ObjectGenerator from './object-generator';
+import { ObjectGenerator } from './object-generator';
 import TypeChecker, {
   convertBinaryUUID,
   getBsonType,
