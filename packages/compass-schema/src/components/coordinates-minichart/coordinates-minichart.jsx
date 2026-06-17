@@ -350,3 +350,4 @@ const ConnectedCoordinatesMinichart = connect(undefined, {
 })(CoordinatesMinichart);
 
 export default ConnectedCoordinatesMinichart;
+export { UnthemedCoordinatesMinichart };
