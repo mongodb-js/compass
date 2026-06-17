@@ -50,7 +50,7 @@ describe('connectMongoClient', function () {
 
   describe('local', function () {
     it('should return connection config when connected successfully', async function () {
-      const [metadataClient, crudClient, tunnel, state, { url, options }] =
+      const [metadataClient, crudClient, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
             connectionString: cluster().connectionString,
@@ -58,7 +58,7 @@ describe('connectMongoClient', function () {
           setupListeners,
         });
 
-      for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
+      for (const closeLater of [metadataClient, crudClient, state]) {
         toBeClosed.add(closeLater);
       }
 
@@ -75,7 +75,7 @@ describe('connectMongoClient', function () {
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
-        applyProxyToOIDC: {},
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -91,7 +91,7 @@ describe('connectMongoClient', function () {
         },
         bypassAutoEncryption: true,
       };
-      const [metadataClient, crudClient, tunnel, state, { url, options }] =
+      const [metadataClient, crudClient, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
             connectionString: cluster().connectionString,
@@ -103,7 +103,7 @@ describe('connectMongoClient', function () {
           setupListeners,
         });
 
-      for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
+      for (const closeLater of [metadataClient, crudClient, state]) {
         toBeClosed.add(closeLater);
       }
 
@@ -122,7 +122,7 @@ describe('connectMongoClient', function () {
           signal: undefined,
         },
         parentHandle: options.parentHandle,
-        applyProxyToOIDC: {},
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -135,7 +135,7 @@ describe('connectMongoClient', function () {
       connectionString
         .typedSearchParams<MongoClientOptions>()
         .set('directConnection', 'false');
-      const [metadataClient, crudClient, tunnel, state, { url, options }] =
+      const [metadataClient, crudClient, state, { url, options }] =
         await connectMongoClient({
           connectionOptions: {
             connectionString: connectionString.toString(),
@@ -143,7 +143,7 @@ describe('connectMongoClient', function () {
           setupListeners,
         });
 
-      for (const closeLater of [metadataClient, crudClient, tunnel, state]) {
+      for (const closeLater of [metadataClient, crudClient, state]) {
         toBeClosed.add(closeLater);
       }
 
@@ -159,7 +159,7 @@ describe('connectMongoClient', function () {
         },
         autoEncryption: undefined,
         parentHandle: options.parentHandle,
-        applyProxyToOIDC: {},
+        applyProxyToOIDC: false,
         ...defaultOptions,
       });
       expect(await (options.oidc?.allowedFlows as any)()).to.deep.equal([
@@ -341,5 +341,48 @@ describe('prepareOIDCOptions', function () {
     });
 
     expect(options.oidc.signal).to.equal(signal);
+  });
+
+  it('sets applyProxyToOIDC to true when shareProxyWithConnection is true', function () {
+    const proxyOptions = { proxy: 'http://proxy.example.com:8080' };
+    const options = prepareOIDCOptions({
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017',
+        oidc: { shareProxyWithConnection: true },
+      },
+      proxyOptions,
+    });
+    // shareProxyWithConnection === true means "share the connection's proxy
+    // with the IdP": `true` tells devtools-connect to reuse the connection's
+    // proxy agent (options.proxy) for the OIDC fetch.
+    expect(options.applyProxyToOIDC).to.equal(true);
+  });
+
+  it('sets applyProxyToOIDC to proxyOptions when shareProxyWithConnection is not set', function () {
+    const proxyOptions = { proxy: 'http://proxy.example.com:8080' };
+    const options = prepareOIDCOptions({
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017',
+      },
+      proxyOptions,
+    });
+    // No shareProxyWithConnection corresponds to the checkbox being checked
+    // ("use the app-level proxy for the IdP"): pass the DevtoolsProxyOptions
+    // object so devtools-connect's createFetch routes OIDC HTTP requests
+    // through that proxy.
+    expect(options.applyProxyToOIDC).to.equal(proxyOptions);
+  });
+
+  it('sets applyProxyToOIDC to false when shareProxyWithConnection is not set but no proxy is configured', function () {
+    const options = prepareOIDCOptions({
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:27017',
+      },
+      // proxyOptions defaults to {} (no proxy)
+    });
+    // An empty proxyOptions object is truthy, so it must not be forwarded as
+    // applyProxyToOIDC; otherwise devtools-connect's createFetch would receive
+    // a truthy-but-empty config. Fall back to `false`.
+    expect(options.applyProxyToOIDC).to.equal(false);
   });
 });

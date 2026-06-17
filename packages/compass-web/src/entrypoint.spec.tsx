@@ -2,7 +2,6 @@ import React from 'react';
 import {
   screen,
   render,
-  cleanup,
   waitFor,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
@@ -14,6 +13,11 @@ import { ConnectFnProvider } from '@mongodb-js/compass-connections';
 import { MockDataService as TestHelpersMockDataService } from '@mongodb-js/testing-library-compass';
 import { sandboxConnectionStorage } from './connection-storage';
 import { SandboxConnectionStorage } from '../sandbox/sandbox-connection-storage';
+import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
+import {
+  DEFAULT_COMPASS_WEB_PREFERENCES,
+  setCompassWebPreferencesAccess,
+} from './preferences';
 
 function mockDb(name: string) {
   return { _id: name, name };
@@ -56,6 +60,17 @@ describe('CompassWeb', function () {
 
   const onTrackSpy = Sinon.spy();
 
+  beforeEach(function () {
+    // Compass-web fetches its preferences from the cloud API on mount; pre-seed
+    // them so rendering doesn't depend on a network request.
+    setCompassWebPreferencesAccess(
+      new CompassWebPreferencesAccess({
+        ...DEFAULT_COMPASS_WEB_PREFERENCES,
+        enableCreatingNewConnections: true,
+      })
+    );
+  });
+
   afterEach(function () {
     Sinon.resetHistory();
   });
@@ -71,10 +86,6 @@ describe('CompassWeb', function () {
           projectId=""
           onTrack={onTrackSpy}
           {...props}
-          initialPreferences={{
-            enableCreatingNewConnections: true,
-            ...props.initialPreferences,
-          }}
         ></CompassWeb>
       </ConnectFnProvider>
     );
@@ -87,8 +98,6 @@ describe('CompassWeb', function () {
     userEvent.click(screen.getByRole('button', { name: 'Save & Connect' }));
     return result;
   }
-
-  afterEach(cleanup);
 
   it('should render CompassWeb and connect using provided connection string', async function () {
     await renderCompassWebAndConnect();
@@ -107,5 +116,91 @@ describe('CompassWeb', function () {
     });
 
     expect(onTrackSpy).to.have.been.calledWith('New Connection');
+  });
+
+  describe('preferences loading', function () {
+    const projectIdA = 'pineapple';
+    const projectIdB = 'watermelon';
+
+    const preferencesApiResponse = {
+      // is disabled in the compass-web defaults; enabling it through the cloud
+      // response is what makes the "Add new connection" button show up.
+      featureFlags: { enableCreatingNewConnections: true },
+      userAuid: 'test-user-auid',
+      appUser: { isOptedIntoDataExplorerGenAIFeatures: false },
+      currentOrganization: { genAIFeaturesEnabled: false },
+    };
+
+    let fetchStub: Sinon.SinonStub;
+
+    beforeEach(function () {
+      fetchStub = Sinon.stub(globalThis, 'fetch').callsFake((input) => {
+        const url =
+          typeof input === 'string'
+            ? input
+            : input instanceof URL
+            ? input.href
+            : input.url;
+        const isPreferencesRequest = url.includes('/preferences');
+        return Promise.resolve({
+          ok: isPreferencesRequest,
+          status: isPreferencesRequest ? 200 : 404,
+          statusText: isPreferencesRequest ? 'OK' : 'Not Found',
+          json: () =>
+            Promise.resolve(isPreferencesRequest ? preferencesApiResponse : {}),
+        } as unknown as Response);
+      });
+    });
+
+    afterEach(function () {
+      fetchStub.restore();
+    });
+
+    function preferencesFetchCalls() {
+      return fetchStub
+        .getCalls()
+        .filter((call) => String(call.args[0]).includes('/preferences'));
+    }
+
+    function renderCompassWebForProject(projectId: string) {
+      return render(
+        <CompassWeb
+          orgId=""
+          projectId={projectId}
+          onTrack={onTrackSpy}
+        ></CompassWeb>
+      );
+    }
+
+    it('fetches preferences from the cloud API once per project and caches them across mounts', async function () {
+      const first = renderCompassWebForProject(projectIdA);
+      expect(screen.getByTestId('compass-web-preferences-loader')).to.exist;
+      await waitFor(() => {
+        screen.getAllByRole('button', { name: 'Add new connection' });
+      });
+      expect(preferencesFetchCalls()).to.have.lengthOf(1);
+      expect(preferencesFetchCalls()[0].args[0]).to.equal(
+        `/explorer/v1/groups/${projectIdA}/preferences`
+      );
+      first.unmount();
+
+      const second = renderCompassWebForProject(projectIdA);
+      expect(screen.queryByTestId('compass-web-preferences-loader')).to.not
+        .exist;
+      screen.getAllByRole('button', { name: 'Add new connection' });
+      expect(preferencesFetchCalls()).to.have.lengthOf(1);
+      second.unmount();
+
+      // Rendering a a different project triggers a new fetch.
+      renderCompassWebForProject(projectIdB);
+      expect(screen.getByTestId('compass-web-preferences-loader')).to.exist;
+      await waitFor(() => {
+        screen.getAllByRole('button', { name: 'Add new connection' });
+      });
+      expect(preferencesFetchCalls()).to.have.lengthOf(2);
+      expect(preferencesFetchCalls()[1].args[0]).to.equal(
+        `/explorer/v1/groups/${projectIdB}/preferences`
+      );
+    });
   });
 });

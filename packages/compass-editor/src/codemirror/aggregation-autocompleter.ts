@@ -42,7 +42,7 @@ export function createAggregationAutocompleter({
   ...options
 }: Pick<
   CompletionOptions,
-  'fields' | 'serverVersion' | 'utmSource' | 'utmMedium'
+  'fields' | 'serverVersion' | 'stage' | 'utmSource' | 'utmMedium'
 > = {}) {
   const stageAutocompletions = completer('', { ...options, meta: ['stage'] });
 

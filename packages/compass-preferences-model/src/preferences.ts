@@ -13,7 +13,7 @@ import type {
 import { allPreferencesProps } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import type { PreferencesStorage } from './preferences-storage';
-import type { AtlasCloudFeatureFlags } from './feature-flags';
+import type { FeatureFlags } from './feature-flags';
 import type { getActiveUser } from '.';
 
 export interface PreferencesAccess {
@@ -51,7 +51,9 @@ export class Preferences {
     cli: Partial<AllPreferences>;
     global: Partial<AllPreferences>;
     hardcoded: Partial<AllPreferences>;
-    atlasCloud: Partial<AtlasCloudFeatureFlags>;
+    atlasCloudUser: Partial<AllPreferences>;
+    atlasCloudProject: Partial<FeatureFlags>;
+    atlasCloudOrg: Partial<FeatureFlags>;
   };
 
   constructor({
@@ -71,7 +73,9 @@ export class Preferences {
       cli: {},
       global: {},
       hardcoded: {},
-      atlasCloud: {},
+      atlasCloudUser: {},
+      atlasCloudProject: {},
+      atlasCloudOrg: {},
       ...globalPreferences,
     };
 
@@ -207,12 +211,17 @@ export class Preferences {
       states[key] = 'set-cli';
     for (const key of Object.keys(this._globalPreferences.global))
       states[key] = 'set-global';
+    for (const key of Object.keys(this._globalPreferences.atlasCloudUser))
+      states[key] = 'set-cloud-user';
+    for (const key of Object.keys(this._globalPreferences.atlasCloudProject))
+      states[key] = 'set-cloud-project';
+    for (const key of Object.keys(this._globalPreferences.atlasCloudOrg))
+      states[key] = 'set-cloud-org';
     for (const key of Object.keys(this._globalPreferences.hardcoded))
       states[key] = 'hardcoded';
 
     const originalValues = { ...values };
     const originalStates = { ...states };
-    const atlasCloudFeatureFlags = this._globalPreferences.atlasCloud;
 
     function deriveValue<K extends keyof AllPreferences>(
       key: K
@@ -229,8 +238,7 @@ export class Preferences {
         (k) =>
           (k as unknown) === key ? originalValues[k] : deriveValue(k).value,
         (k) =>
-          (k as unknown) === key ? originalStates[k] : deriveValue(k).state,
-        atlasCloudFeatureFlags
+          (k as unknown) === key ? originalStates[k] : deriveValue(k).state
       );
     }
 

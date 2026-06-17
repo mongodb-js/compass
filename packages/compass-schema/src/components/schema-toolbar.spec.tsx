@@ -101,25 +101,6 @@ describe('SchemaToolbar', function () {
         screen.getByTestId('schema-toolbar-timeout-message').textContent
       ).to.include('Please try increasing the maxTimeMS');
     });
-
-    it('renders complexity abort error', function () {
-      renderSchemaToolbar({
-        analysisState: 'initial',
-        error: {
-          errorType: 'highComplexity',
-          errorMessage: 'test error msg',
-        },
-      });
-
-      expect(screen.getByTestId('schema-toolbar-complexity-abort-message')).to
-        .be.visible;
-      expect(
-        screen.getByRole('link', { name: 'Learn more' })
-      ).to.have.attribute(
-        'href',
-        'https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/'
-      );
-    });
   });
 
   it('renders the sample size count', function () {

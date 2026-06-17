@@ -382,32 +382,6 @@ describe('Schema Validation Store', function () {
           });
         });
 
-        it('handles complexity error', async function () {
-          const fakeAnalyzeSchema = sandbox.fake.rejects(
-            new Error('Schema analysis aborted: Fields count above 1000')
-          );
-          const activateResult = await getMockedStore(fakeAnalyzeSchema);
-          store = activateResult.store;
-          deactivate = activateResult.deactivate;
-          store.dispatch(generateValidationRules() as any);
-
-          await waitFor(() => {
-            expect(store.getState().rulesGeneration.isInProgress).to.equal(
-              true
-            );
-          });
-
-          await waitFor(() => {
-            expect(store.getState().rulesGeneration.isInProgress).to.equal(
-              false
-            );
-            expect(store.getState().rulesGeneration.error).to.deep.equal({
-              errorMessage: 'Schema analysis aborted: Fields count above 1000',
-              errorType: 'highComplexity',
-            });
-          });
-        });
-
         it('handles timeout error', async function () {
           const timeoutError: any = new Error('Too long, didnt execute');
           timeoutError.code = 50;

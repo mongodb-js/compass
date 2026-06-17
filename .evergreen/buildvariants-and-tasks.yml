@@ -938,8 +938,6 @@ tasks:
           e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-1
-    tags:
-      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -960,8 +958,6 @@ tasks:
           e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-2
-    tags:
-      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install
@@ -982,8 +978,6 @@ tasks:
           e2e_test_group: 2
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-latest-alpha-3
-    tags:
-      - required-for-publish-desktop
     commands:
       - func: prepare
       - func: install

@@ -429,7 +429,7 @@ export class Link implements Disposable {
     // In order to be able to send the data, we SHOULD have connected
     // to the server and ws should be in `OPEN` state.
     if (this.isConnected()) {
-      this.ws?.send(frame.buffer as ArrayBuffer);
+      this.ws?.send(frame.buffer);
     } else {
       this.logger?.log.error(
         this.logger?.mongoLogId(1_001_000_425),

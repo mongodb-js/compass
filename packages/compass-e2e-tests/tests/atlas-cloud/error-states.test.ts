@@ -5,6 +5,7 @@ import {
   assertTestingWebAtlasCloud,
   isTestingWebAtlasCloud,
 } from '../../helpers/test-runner-context.ts';
+import { blockNetworkRequest } from '../../helpers/commands/atlas-cloud/utils.ts';
 
 describe('Error states', function () {
   let compass: Compass;
@@ -34,5 +35,22 @@ describe('Error states', function () {
     await compass.browser
       .$('*=An error occurred while querying your MongoDB deployment')
       .waitForDisplayed();
+  });
+
+  it('should show error state if fetching preferences failed initially', async function () {
+    compass = await init(this.test?.fullTitle(), {
+      skipSharedConfigOnStart: true,
+      async onBeforeNavigate(browser) {
+        assertTestingWebAtlasCloud(context);
+        await blockNetworkRequest(
+          browser,
+          `*/explorer/v1/groups/${context.atlasCloudProjectId}/preferences`
+        );
+      },
+    });
+
+    await compass.browser
+      .$('*=Error Occurred')
+      .waitForDisplayed({ timeout: 30000 });
   });
 });

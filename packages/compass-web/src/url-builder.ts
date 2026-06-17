@@ -5,6 +5,10 @@ import type {
 import type { OpenWorkspaceOptions } from '@mongodb-js/compass-workspaces';
 import toNS from 'mongodb-ns';
 
+export const defaultHeaders = {
+  'X-Request-Origin': 'atlas-data-explorer',
+};
+
 /**
  * This is specifically mapping from existing data explorer route params to
  * compass types, hence some routes not exactly matching the tab names
