@@ -1,122 +1,94 @@
 import { Double } from 'bson';
+import { expect } from 'chai';
+import Sinon from 'sinon';
+
+import { UnthemedCoordinatesMinichart } from './coordinates-minichart';
 
 const VALUES = [
   [-68.673123, 44.159235],
   [-68.6731339, 44.1592408],
   [-68.671159, 44.305953],
-  [-68.6646152, 44.1561619],
-  [-68.6628684, 44.1561432],
-  [-68.6606818, 44.1546851],
-  [-68.6319351, 44.2080961],
-  [-68.6590683, 44.1631218],
-  [-68.6556063, 44.1560046],
-  [-68.7121141, 44.172655],
-  [-68.7171572, 44.1564011],
-  [-68.6840132, 44.2003412],
 ].map((v) => [new Double(v[0]), new Double(v[1])]);
 
-const EXPECTED_BOUNDS = {
-  _southWest: { lat: 44.1546851, lng: -68.7171572 },
-  _northEast: { lat: 44.305953, lng: -68.6319351 },
-};
+const baseProps = () => ({
+  type: {
+    name: 'Coordinates',
+    count: VALUES.length,
+    probability: 1,
+    values: VALUES,
+  },
+  fieldName: 'loc',
+  onGeoQueryChanged: () => {},
+  geoLayerAdded: () => {},
+  geoLayersEdited: () => {},
+  geoLayersDeleted: () => {},
+});
 
-const EXPECTED_GEOPOINTS = [
-  {
-    type: 'Point',
-    coordinates: [44.159235, -68.673123],
-    center: [44.159235, -68.673123],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.159235,-68.673123]' }],
-    key: '44.159235,-68.673123 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.1592408, -68.6731339],
-    center: [44.1592408, -68.6731339],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.1592408,-68.6731339]' }],
-    key: '44.1592408,-68.6731339 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.305953, -68.671159],
-    center: [44.305953, -68.671159],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.305953,-68.671159]' }],
-    key: '44.305953,-68.671159 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.1561619, -68.6646152],
-    center: [44.1561619, -68.6646152],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.1561619,-68.6646152]' }],
-    key: '44.1561619,-68.6646152 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.1561432, -68.6628684],
-    center: [44.1561432, -68.6628684],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.1561432,-68.6628684]' }],
-    key: '44.1561432,-68.6628684 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.1546851, -68.6606818],
-    center: [44.1546851, -68.6606818],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.1546851,-68.6606818]' }],
-    key: '44.1546851,-68.6606818 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.2080961, -68.6319351],
-    center: [44.2080961, -68.6319351],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.2080961,-68.6319351]' }],
-    key: '44.2080961,-68.6319351 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.1631218, -68.6590683],
-    center: [44.1631218, -68.6590683],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.1631218,-68.6590683]' }],
-    key: '44.1631218,-68.6590683 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.1560046, -68.6556063],
-    center: [44.1560046, -68.6556063],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.1560046,-68.6556063]' }],
-    key: '44.1560046,-68.6556063 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.172655, -68.7121141],
-    center: [44.172655, -68.7121141],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.172655,-68.7121141]' }],
-    key: '44.172655,-68.7121141 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.1564011, -68.7171572],
-    center: [44.1564011, -68.7171572],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.1564011,-68.7171572]' }],
-    key: '44.1564011,-68.7171572 - #43B1E5',
-  },
-  {
-    type: 'Point',
-    coordinates: [44.2003412, -68.6840132],
-    center: [44.2003412, -68.6840132],
-    color: '#43B1E5',
-    fields: [{ key: 'latlong', value: '[44.2003412,-68.6840132]' }],
-    key: '44.2003412,-68.6840132 - #43B1E5',
-  },
-];
+describe('CoordinatesMinichart — lifecycle', function () {
+  describe('componentDidUpdate', function () {
+    let instance;
+    let fitMapBoundsStub;
+    let invalidateMapSizeStub;
 
-export { EXPECTED_BOUNDS, VALUES, EXPECTED_GEOPOINTS };
+    beforeEach(function () {
+      instance = new UnthemedCoordinatesMinichart(baseProps());
+      fitMapBoundsStub = Sinon.stub(instance, 'fitMapBounds');
+      invalidateMapSizeStub = Sinon.stub(instance, 'invalidateMapSize');
+    });
+
+    afterEach(function () {
+      Sinon.restore();
+    });
+
+    it('does not re-fit bounds when type.values reference is unchanged', function () {
+      const prevProps = { ...instance.props, type: { ...instance.props.type } };
+      instance.componentDidUpdate(prevProps, {}, undefined);
+      expect(fitMapBoundsStub).to.not.have.been.called;
+    });
+
+    it('re-fits bounds when type.values reference changes', function () {
+      const prevProps = {
+        ...instance.props,
+        type: { ...instance.props.type, values: [] },
+      };
+      instance.componentDidUpdate(prevProps, {}, undefined);
+      expect(fitMapBoundsStub).to.have.been.calledOnce;
+    });
+
+    it('invalidates map size on every update', function () {
+      const prevProps = { ...instance.props, type: { ...instance.props.type } };
+      instance.componentDidUpdate(prevProps, {}, undefined);
+      expect(invalidateMapSizeStub).to.have.been.calledOnce;
+    });
+  });
+
+  describe('whenMapReady', function () {
+    it('invalidates map size before fitting bounds on initial mount', function () {
+      const instance = new UnthemedCoordinatesMinichart(baseProps());
+      const callOrder = [];
+
+      Sinon.stub(instance, 'invalidateMapSize').callsFake(() =>
+        callOrder.push('invalidateMapSize')
+      );
+      Sinon.stub(instance, 'fitMapBounds').callsFake(() =>
+        callOrder.push('fitMapBounds')
+      );
+      Sinon.stub(instance, 'disableAttributionPrefix');
+      Sinon.stub(instance, 'getTileAttribution');
+      // Outside React, run the setState callback synchronously so we can
+      // observe the post-commit order.
+      instance.setState = (next, cb) => {
+        instance.state = { ...instance.state, ...next };
+        if (cb) {
+          cb();
+        }
+      };
+
+      instance.whenMapReady();
+
+      expect(callOrder).to.deep.equal(['invalidateMapSize', 'fitMapBounds']);
+
+      Sinon.restore();
+    });
+  });
+});
