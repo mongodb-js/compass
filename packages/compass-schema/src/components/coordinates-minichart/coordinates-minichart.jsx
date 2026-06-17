@@ -179,8 +179,7 @@ class UnthemedCoordinatesMinichart extends PureComponent {
     leaflet.fitBounds(bounds);
   }
 
-  // eslint-disable-next-line no-unused-vars
-  componentDidUpdate(prevProps, _prevState, _snapshot) {
+  componentDidUpdate(prevProps) {
     // Only re-fit bounds when the underlying coordinate values change.
     if (prevProps.type?.values !== this.props.type?.values) {
       this.fitMapBounds();
