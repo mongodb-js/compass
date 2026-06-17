@@ -30,6 +30,9 @@ import {
 const UNSELECTED_COLOR = palette.blue.light1;
 // const CONTROL_COLOR = palette.red.base;
 
+// Stable reference for viewport
+const INITIAL_VIEWPORT = { center: [0, 0], zoom: 1 };
+
 /**
  * Fetches the tiles from the compass maps-proxy
  * and attaches the attribution message to the
@@ -176,8 +179,12 @@ class UnthemedCoordinatesMinichart extends PureComponent {
     leaflet.fitBounds(bounds);
   }
 
-  componentDidUpdate() {
-    this.fitMapBounds();
+  // eslint-disable-next-line no-unused-vars
+  componentDidUpdate(prevProps, _prevState, _snapshot) {
+    // Only re-fit bounds when the underlying coordinate values change.
+    if (prevProps.type?.values !== this.props.type?.values) {
+      this.fitMapBounds();
+    }
     this.invalidateMapSize();
   }
 
@@ -188,7 +195,10 @@ class UnthemedCoordinatesMinichart extends PureComponent {
 
     this.disableAttributionPrefix();
     this.getTileAttribution();
-    this.setState({ ready: true }, this.invalidateMapSize);
+    this.setState({ ready: true }, () => {
+      this.invalidateMapSize();
+      this.fitMapBounds();
+    });
   };
 
   disableAttributionPrefix() {
@@ -277,7 +287,7 @@ class UnthemedCoordinatesMinichart extends PureComponent {
       <div style={{ background: palette.gray.dark3 }}>
         <Map
           minZoom={1}
-          viewport={{ center: [0, 0], zoom: 1 }}
+          viewport={INITIAL_VIEWPORT}
           whenReady={this.whenMapReady}
           ref={(ref) => {
             this.mapRef = ref;
