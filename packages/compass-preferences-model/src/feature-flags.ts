@@ -18,8 +18,9 @@ export type FeatureFlagDefinition = {
    */
   stage: 'development' | 'preview' | 'released';
   /**
-   * Optional field that will be (COMPASS-10691) used to specify the scope
-   * of the feature flag for Atlas Cloud.
+   * Optional field that is used to specify the scope of the
+   * feature flag for Atlas Cloud. Supply this when the feature flag is intended
+   * to be set in Atlas and not scoped to Compass.
    */
   atlasCloudFeatureScope?: 'group' | 'organization';
   description: {
