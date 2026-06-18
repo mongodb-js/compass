@@ -44,6 +44,9 @@ const toolbarButtonsContainer = css({
 const indexesToolbarContainerStyles = css({
   padding: spacing[400],
   paddingBottom: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[200],
 });
 
 const alignSelfEndStyles = css({
@@ -87,6 +90,7 @@ type IndexesToolbarProps = {
   onCreateSearchIndexClick: () => void;
   writeStateDescription?: string;
   isSearchIndexesSupported: boolean;
+  hasSearchIndexes: boolean;
   // via withPreferences:
   collectionStats: CollectionStats;
 };
@@ -108,6 +112,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onIndexViewChanged,
   serverVersion,
   collectionStats,
+  hasSearchIndexes,
 }) => {
   const {
     readWrite: preferencesReadWrite,
@@ -134,12 +139,22 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   ) : (
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
+  const isAtlas = !!atlasMetadata;
   const isViewPipelineSearchQueryable =
     isReadonlyView && collectionStats?.pipeline
       ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
           collectionStats.pipeline as Document[]
         )
       : true;
+  // For Compass: show toolbar when compatible, or when incompatible but has existing (failed) indexes.
+  // For DE: never show toolbar for an incompatible view, regardless of existing indexes.
+  const showToolbarButtons =
+    !isReadonlyView ||
+    (VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
+      serverVersion
+    ) &&
+      isSearchManagementActive &&
+      (isViewPipelineSearchQueryable || (!isAtlas && hasSearchIndexes)));
   const pipelineNotSearchQueryableDescription =
     'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set';
   return (
@@ -147,11 +162,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
       className={indexesToolbarContainerStyles}
       data-testid="indexes-toolbar-container"
     >
-      {(!isReadonlyView ||
-        (VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-          serverVersion
-        ) &&
-          isSearchManagementActive)) && (
+      {showToolbarButtons && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
             {showCreateIndexButton && (
@@ -420,7 +431,7 @@ const mapState = ({
   writeStateDescription: description,
   indexView,
   serverVersion,
-  searchIndexes,
+  hasSearchIndexes: searchIndexes.indexes.length > 0,
   collectionStats,
 });
 
