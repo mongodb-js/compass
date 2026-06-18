@@ -24,8 +24,8 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22.21.1
-
+          node-version: 24.15.0
+          cache: 'npm'
       - name: Upgrade npm
         run: npm install --global npm@11.13.0
       - name: Install ts-node and typescript
