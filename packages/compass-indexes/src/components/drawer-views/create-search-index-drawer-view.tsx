@@ -45,7 +45,6 @@ import {
   ATLAS_VECTOR_SEARCH_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
 import type { SearchIndex } from 'mongodb-data-service';
-import type { JSONSchema7 } from 'json-schema';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import {
   useConnectionInfo,
