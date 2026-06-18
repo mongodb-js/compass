@@ -34,16 +34,36 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
-      - name: Post comment on PR
+      - name: Post or update comment on PR
         if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         uses: actions/github-script@v7
         env:
           COMMENT_BODY: ${{ steps.detect.outputs.comment_body }}
         with:
           script: |
-            await github.rest.issues.createComment({
+            const marker = '<!-- feature-flag-mms-comment -->';
+            const body = marker + '\n' + process.env.COMMENT_BODY;
+
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: process.env.COMMENT_BODY,
             });
+
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
