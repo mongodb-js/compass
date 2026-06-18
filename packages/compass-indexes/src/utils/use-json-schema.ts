@@ -3,7 +3,7 @@ import type { JSONSchema7 } from 'json-schema';
 import { getSchema } from '@mongodb-js/search-index-schema';
 import type { FeatureFlag } from '@mongodb-js/search-index-schema';
 import { usePreferences } from 'compass-preferences-model/provider';
-import { SearchIndexType } from '../modules/indexes-drawer';
+import type { SearchIndexType } from '../modules/indexes-drawer';
 
 export function useJSONSchema(indexType: SearchIndexType): JSONSchema7 {
   const {
@@ -21,10 +21,16 @@ export function useJSONSchema(indexType: SearchIndexType): JSONSchema7 {
       getSchema(
         indexType,
         [
-          enableSortedSearchIndexes && 'sortedIndex',
-          enableAutoEmbeddingPrivatePreview && 'autoEmbeddingPrivatePreview',
-          enableAutoEmbeddingPublicPreview && 'autoEmbeddingPublicPreview',
-        ].filter((f): f is FeatureFlag => f !== false)
+          enableSortedSearchIndexes
+            ? ('sortedIndex' satisfies FeatureFlag)
+            : undefined,
+          enableAutoEmbeddingPrivatePreview
+            ? ('autoEmbeddingPrivatePreview' satisfies FeatureFlag)
+            : undefined,
+          enableAutoEmbeddingPublicPreview
+            ? ('autoEmbeddingPublicPreview' satisfies FeatureFlag)
+            : undefined,
+        ].filter((f): f is FeatureFlag => Boolean(f))
       ) as JSONSchema7,
     [
       indexType,
