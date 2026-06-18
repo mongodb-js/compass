@@ -1,4 +1,4 @@
-#!/usr/bin/env ts-node
+#!/usr/bin/env node
 import ts from 'typescript';
 import { spawnSync } from 'child_process';
 import { appendFileSync } from 'fs';
@@ -106,6 +106,58 @@ function resolveRef(ref: string): string | null {
   return r.status === 0 ? r.stdout.trim() : null;
 }
 
+function buildCommentBody(flags: FlagInfo[]): string {
+  const flagSummaries = flags
+    .map(
+      (flag) => `### \`${flag.name}\`
+- **Description:** ${flag.description ?? '_Not set._ Please add a description object with at least a short property to the feature flag definition in \`feature-flags.ts\` so it can be used in the MMS feature flag definition.'}
+- **Atlas Cloud Scope:** \`${flag.scope}\``
+    )
+    .join('\n\n');
+
+  const flagDefinitions = flags
+    .map(
+      (flag) => `\tFile: [feature-flags/definitions/developer-tools](https://github.com/10gen/mms/tree/master/feature-flags/definitions/developer-tools)/data-explorer-compass-web-${flag.name}.yml
+\tContents:
+
+\`\`\`yml
+name: mms.featureFlag.dataExplorerCompassWeb.${flag.name}
+namespace: global
+scope: ${flag.scope}
+description: ${flag.description}
+phases:
+  local: enabled
+  local-gov: disabled
+  test: controlled
+  test-gov: disabled
+  dev: controlled
+  dev-gov: disabled
+  qa: controlled
+  qa-gov: disabled
+  stage: controlled
+  prod: controlled
+  prod-gov: disabled
+  internal: disabled
+\`\`\``
+    )
+    .join('\n\n');
+
+  return `## New Feature Flag Definition(s) Detected
+
+The following new feature flag(s) were added to \`FEATURE_FLAG_DEFINITIONS\` in \`feature-flags.ts\`:
+
+${flagSummaries}
+
+---
+
+**As a follow up, create MMS feature flag PR for each new feature flag**. Steps:
+\t1. Create a new file in the directory [feature-flags/definitions/developer-tools](https://github.com/10gen/mms/tree/master/feature-flags/definitions/developer-tools)
+\t2. Add the contents of the feature flag definition to it. Here is the title and contents for the new flag(s):
+
+${flagDefinitions}
+`;
+}
+
 function main(): void {
   const { BASE_SHA, HEAD_SHA, GITHUB_OUTPUT: githubOutput = '' } = process.env;
 
@@ -151,8 +203,15 @@ function main(): void {
   );
 
   if (githubOutput) {
-    appendFileSync(githubOutput, `new_flags=${JSON.stringify(newFlags)}\n`);
     appendFileSync(githubOutput, `flags_count=${newFlags.length}\n`);
+    if (newFlags.length > 0) {
+      const delimiter = `ghadelimiter_${Math.random().toString(36).slice(2)}`;
+      const body = buildCommentBody(newFlags);
+      appendFileSync(
+        githubOutput,
+        `comment_body<<${delimiter}\n${body}\n${delimiter}\n`
+      );
+    }
   } else {
     console.log(newFlags);
   }
