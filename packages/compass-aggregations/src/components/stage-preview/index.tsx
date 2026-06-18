@@ -221,7 +221,7 @@ function StagePreviewBody({
             <Chip
               className={scoreChipStyles}
               variant="green"
-              label={`Score: ${Number(score.value)}`}
+              label={`Score: ${score.value}`}
               data-testid="stage-preview-search-score-chip"
             />
           )}
