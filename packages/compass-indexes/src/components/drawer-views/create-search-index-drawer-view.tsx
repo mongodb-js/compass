@@ -52,7 +52,7 @@ import {
 } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
-import { useJSONSchema } from '../../utils/use-json-schema';
+import { useJsonSchema } from '../../utils/use-json-schema';
 
 /**
  * Strips snippet tab-stop placeholders (e.g. `${1:default}` → `default`)
@@ -152,7 +152,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   );
 
   // Use the JSON schema autocomplete hook for validation and autocomplete
-  const jsonSchema = useJSONSchema(currentIndexType);
+  const jsonSchema = useJsonSchema(currentIndexType);
   const { completer, extensions, annotations, hasErrors } =
     useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
 

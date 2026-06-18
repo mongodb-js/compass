@@ -56,7 +56,7 @@ import {
   useConnectionInfoRef,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
-import { useJSONSchema } from '../../utils/use-json-schema';
+import { useJsonSchema } from '../../utils/use-json-schema';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const scrollContainerStyles = css({
@@ -127,7 +127,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   );
 
   // Use the JSON schema autocomplete hook for validation and autocomplete
-  const jsonSchema = useJSONSchema(
+  const jsonSchema = useJsonSchema(
     searchIndex.type === 'vectorSearch' ? 'vectorSearch' : 'search'
   );
   const { completer, extensions, annotations, hasErrors } =

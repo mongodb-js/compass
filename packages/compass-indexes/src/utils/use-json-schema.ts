@@ -5,7 +5,7 @@ import type { FeatureFlag } from '@mongodb-js/search-index-schema';
 import { usePreferences } from 'compass-preferences-model/provider';
 import type { SearchIndexType } from '../modules/indexes-drawer';
 
-export function useJSONSchema(indexType: SearchIndexType): JSONSchema7 {
+export function useJsonSchema(indexType: SearchIndexType): JSONSchema7 {
   const {
     enableAutoEmbeddingPublicPreview,
     enableAutoEmbeddingPrivatePreview,
