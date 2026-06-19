@@ -22,6 +22,7 @@ Object.assign(globalThis, {
   // activate this otherwise
   __compassWebEnableSandboxStorage: true,
   __compassWebEnableSandboxMultiplexWsOverride: true,
+  __compassWebEnableSandboxPreferencesOverride: true,
   // For testing purposes to programmatically trigger navigation
   hashHistory,
 });
@@ -61,29 +62,7 @@ const App = () => {
   return (
     <CompassComponentsProvider>
       <Body as="div" className={sandboxContainerStyles}>
-        <CompassWeb
-          orgId=""
-          projectId=""
-          // Some overrides for the default compass-web preferences to enable
-          // the features that would be disabled by default otherwise
-          initialPreferences={{
-            enableExportSchema: true,
-            enablePerformanceAdvisorBanner: false,
-            enableAtlasSearchIndexes: true,
-            maximumNumberOfActiveConnections: undefined,
-            enableCreatingNewConnections: true,
-            enableGlobalWrites: false,
-            enableRollingIndexes: false,
-            enableGenAIFeaturesAtlasOrg: true,
-            enableGenAIFeaturesAtlasProject: true,
-            enableGenAISampleDocumentPassing: false,
-            enableGenAIToolCallingAtlasProject: true,
-            optInGenAIFeatures: false,
-            enableDataModelingCollapse: true,
-            enableMyQueries: false,
-          }}
-          history={hashHistory}
-        ></CompassWeb>
+        <CompassWeb orgId="" projectId="" history={hashHistory}></CompassWeb>
         <OpenInAtlasToast></OpenInAtlasToast>
       </Body>
     </CompassComponentsProvider>

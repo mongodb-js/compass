@@ -200,7 +200,7 @@ describe('Data Modeling store', function () {
         applyEdit({
           type: 'AddRelationship',
           relationship: newRelationship,
-        } as Edit)
+        })
       );
 
       const state = store.getState();

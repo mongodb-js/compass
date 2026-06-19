@@ -27,6 +27,8 @@ const renderPipelineEditor = (
   let ui = (
     <PipelineEditor
       namespace="test.test"
+      isTimeSeries={false}
+      sourceName={null}
       pipelineText="[{$match: {}}]"
       syntaxErrors={[]}
       serverError={null}

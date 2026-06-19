@@ -1,7 +1,4 @@
-import type {
-  DevtoolsProxyOptions,
-  Tunnel,
-} from '@mongodb-js/devtools-proxy-support';
+import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import { EventEmitter } from 'events';
 import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
@@ -1039,7 +1036,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private _useCRUDClient = true;
   private _csfleCollectionTracker?: CSFLECollectionTracker;
 
-  private _tunnel?: Tunnel;
   private _state?: DevtoolsConnectionState;
   private _reauthenticationHandlers = new Set<ReauthenticationHandler>();
 
@@ -1691,7 +1687,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     });
 
     try {
-      const [metadataClient, crudClient, tunnel, state, connectionOptions] =
+      const [metadataClient, crudClient, state, connectionOptions] =
         await connectMongoClient({
           connectionOptions: this._connectionOptions,
           proxyOptions: this._proxyOptions,
@@ -1730,7 +1726,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
       this._metadataClient = metadataClient;
       this._crudClient = crudClient;
-      this._tunnel = tunnel;
       this._state = state;
       this._mongoClientConnectionOptions = connectionOptions;
       this._csfleCollectionTracker = new CSFLECollectionTrackerImpl(
@@ -1760,6 +1755,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
     executionOptions?: ExecutionOptions
   ): Promise<number> {
     const maxTimeMS = options.maxTimeMS ?? 500;
+    // signal is intentionally not forwarded here: EstimatedDocumentCountOptions
+    // does not extend Abortable in the driver, so the operation is cancelled
+    // via session-killing only. Revisit if the driver adds Abortable support.
     return this._cancellableOperation(
       async (session) => {
         return this._collection(ns, 'CRUD').estimatedDocumentCount({
@@ -1783,13 +1781,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
   ): Promise<number> {
     return this._cancellableOperation(
-      async (session) => {
+      async (session, signal) => {
         return this._collection(ns, 'CRUD').countDocuments(filter, {
           ...this._getOptionsWithFallbackReadPreference(
             options,
             executionOptions
           ),
           session,
+          signal,
         });
       },
       (session) => session.endSession(),
@@ -1867,9 +1866,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
           this._crudClient
             ?.close(true)
             .catch((err) => debug('failed to close MongoClient', err)),
-        this._tunnel
-          ?.close()
-          .catch((err) => debug('failed to close tunnel', err)),
         this._state
           ?.destroy()
           .catch((err) =>
@@ -2007,10 +2003,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
   ): Promise<T[]> {
     let cursor: AggregationCursor;
     return this._cancellableOperation(
-      async (session?: ClientSession) => {
+      async (session?: ClientSession, signal?: AbortSignal) => {
         cursor = this._collection(ns, 'CRUD').aggregate(pipeline, {
           ...options,
           session,
+          signal,
         });
         const results = await cursor.toArray();
         void cursor.close();
@@ -2034,13 +2031,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
   ): Promise<Document[]> {
     let cursor: FindCursor;
     return this._cancellableOperation(
-      async (session?: ClientSession) => {
+      async (session?: ClientSession, signal?: AbortSignal) => {
         cursor = this._collection(ns, 'CRUD').find(
           filter,
           this._getOptionsWithFallbackReadPreference(
             {
               ...options,
               session,
+              signal,
             },
             executionOptions
           )
@@ -2125,10 +2123,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     let cursor: FindCursor;
     return this._cancellableOperation(
-      async (session?: ClientSession) => {
+      async (session?: ClientSession, signal?: AbortSignal) => {
         cursor = this._collection(ns, 'CRUD').find(filter, {
           ...options,
           session,
+          signal,
         });
         const results = await cursor.explain({
           verbosity,
@@ -2160,10 +2159,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
 
     let cursor: AggregationCursor;
     return this._cancellableOperation(
-      async (session) => {
+      async (session, signal) => {
         cursor = this._collection(ns, 'CRUD').aggregate(pipeline, {
           ...options,
           session,
+          signal,
         });
         const results = await cursor.explain({
           verbosity,
@@ -2198,11 +2198,14 @@ class DataServiceImpl extends WithLogContext implements DataService {
     );
   }
 
-  private async _indexSizes(ns: string): Promise<Record<string, number>> {
+  private async _indexSizes(
+    ns: string,
+    executionOptions?: ExecutionOptions
+  ): Promise<Record<string, number>> {
     try {
-      const coll = this._collection(ns, 'CRUD');
-      const aggResult = (await coll
-        .aggregate([
+      const aggResult = await this.aggregate<{ _id: string; size: number }>(
+        ns,
+        [
           { $collStats: { storageStats: {} } },
           {
             $project: {
@@ -2216,8 +2219,10 @@ class DataServiceImpl extends WithLogContext implements DataService {
               size: { $sum: { $toDouble: '$indexSizes.v' } },
             },
           },
-        ])
-        .toArray()) as { _id: string; size: number }[];
+        ],
+        {},
+        executionOptions
+      );
       return Object.fromEntries(aggResult.map(({ _id, size }) => [_id, size]));
     } catch (err) {
       if (isNotAuthorized(err) || isNotSupportedPipelineStage(err)) {
@@ -2358,7 +2363,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
   @op(mongoLogId(1_001_000_047))
   async indexes(
     ns: string,
-    options?: IndexInformationOptions
+    options?: IndexInformationOptions,
+    executionOptions?: ExecutionOptions
   ): Promise<IndexDefinition[]> {
     if (options?.full === false) {
       const indexes = Object.entries(
@@ -2380,7 +2386,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       shardKey,
     ] = await Promise.all([
       this._collection(ns, 'CRUD').indexes({ ...options, full: true }),
-      this._indexSizes(ns),
+      this._indexSizes(ns, executionOptions),
       Promise.allSettled([this._indexStats(ns), this._indexProgress(ns)]),
       this._fetchShardKeyWithSilentFail(ns),
     ]);
@@ -2688,7 +2694,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   private async _cancellableOperation<T>(
-    start: (session?: ClientSession) => Promise<T>,
+    start: (session?: ClientSession, signal?: AbortSignal) => Promise<T>,
     stop: (session: ClientSession) => Promise<void> = () => Promise.resolve(),
     abortSignal?: AbortSignal
   ): Promise<T> {
@@ -2717,7 +2723,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     };
 
     try {
-      result = await raceWithAbort(start(session), abortSignal);
+      result = await raceWithAbort(start(session, abortSignal), abortSignal);
     } catch (err) {
       if (isCancelError(err)) {
         await abort();
@@ -2987,7 +2993,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     const remainingTimeoutMS = () =>
       Math.max(1, timeout - (Date.now() - startTimeMS));
     return await this._cancellableOperation(
-      async (session) => {
+      async (session, signal) => {
         if (!session) {
           throw new Error('Could not open session.');
         }
@@ -2999,6 +3005,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
               const docsToPreview = await coll
                 .find(filter, {
                   session,
+                  signal,
                   maxTimeMS: remainingTimeoutMS(),
                   // by using promoteValues: false we can spot BSON type changes
                   // when diffing. ie. new Double(1) -> new Int32(1)
@@ -3018,6 +3025,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
                   { _id: { $in: idsToPreview } },
                   {
                     session,
+                    signal,
                     maxTimeMS: remainingTimeoutMS(),
                     promoteValues: false,
                   }
@@ -3153,7 +3161,6 @@ class DataServiceImpl extends WithLogContext implements DataService {
     this._crudClient?.removeAllListeners?.();
     this._metadataClient = undefined;
     this._crudClient = undefined;
-    this._tunnel = undefined;
     this._state = undefined;
     this._mongoClientConnectionOptions = undefined;
     this._isWritable = false;

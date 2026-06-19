@@ -345,17 +345,35 @@ export const fetchFavorites = (): QueryBarThunkAction<
   };
 };
 
-export const explainQuery = (): QueryBarThunkAction<void> => {
-  return (dispatch, getState, { localAppRegistry }) => {
+export type ExplainMode = 'visual-tree' | 'raw-output' | 'interpret';
+
+export const explainQuery = (
+  mode: ExplainMode = 'visual-tree'
+): QueryBarThunkAction<void> => {
+  return (_dispatch, getState, { localAppRegistry }) => {
     const {
       queryBar: { fields },
     } = getState();
     const { project, ...query } = mapFormFieldsToQuery(fields);
+    const payload = { query: { ...query, projection: project } };
+
+    if (mode === 'interpret') {
+      localAppRegistry?.emit('open-explain-plan-for-interpret', payload);
+      return;
+    }
+
     localAppRegistry?.emit('open-explain-plan-modal', {
-      query: { ...query, projection: project },
+      ...payload,
+      ...(mode === 'raw-output' ? { initialViewType: 'json' as const } : {}),
     });
   };
 };
+
+export const explainQueryRawOutput = (): QueryBarThunkAction<void> =>
+  explainQuery('raw-output');
+
+export const explainQueryInterpret = (): QueryBarThunkAction<void> =>
+  explainQuery('interpret');
 
 export const saveRecentAsFavorite = (
   recentQuery: RecentQuery,
