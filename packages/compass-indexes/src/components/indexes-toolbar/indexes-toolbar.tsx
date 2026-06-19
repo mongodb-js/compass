@@ -90,7 +90,7 @@ type IndexesToolbarProps = {
   onCreateSearchIndexClick: () => void;
   writeStateDescription?: string;
   isSearchIndexesSupported: boolean;
-  hasSearchIndexes: boolean;
+  hasSearchIndexes?: boolean;
   // via withPreferences:
   collectionStats: CollectionStats;
 };
@@ -112,7 +112,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onIndexViewChanged,
   serverVersion,
   collectionStats,
-  hasSearchIndexes,
+  hasSearchIndexes = false,
 }) => {
   const {
     readWrite: preferencesReadWrite,
