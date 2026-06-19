@@ -101,7 +101,11 @@ export type AssistantMessage = UIMessage & {
      */
     isPermanent?: boolean;
     /** The source of the message (i.e. the entry point used) */
-    source?: 'explain plan' | 'performance insights' | 'connection error';
+    source?:
+      | 'explain plan'
+      | 'performance insights'
+      | 'connection error'
+      | 'follow-up prompt';
     /** Information for confirmation messages. */
     confirmation?: {
       description: string;
