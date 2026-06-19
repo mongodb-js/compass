@@ -180,7 +180,7 @@ describe('SearchIndexesTable Component', function () {
     expect(openCreateSpy.callCount).to.equal(1);
   });
 
-  it('renders the zero state with button disabled if there are no indexes and isReadOnlyView with non searchable pipeline', function () {
+  it('renders the standard indexes incompatible empty state if there are no indexes and isReadOnlyView with non searchable pipeline', function () {
     const pipelineMock: Document[] = [{ $project: { newField: 'testValue' } }];
     const mockCollectionStats = {
       index_count: 0,
@@ -199,11 +199,12 @@ describe('SearchIndexesTable Component', function () {
       screen.getByTestId('search-indexes-list');
     }).to.throw();
 
-    const button = screen.getByTestId('create-atlas-search-index-button');
-    expect(button).to.exist;
-    expect(button.closest('button')?.getAttribute('aria-disabled')).to.equal(
-      'true'
-    );
+    // The create button zero state is not shown for an incompatible view.
+    expect(() => {
+      screen.getByTestId('create-atlas-search-index-button');
+    }).to.throw();
+
+    expect(screen.getByText('No standard indexes')).to.exist;
   });
 
   context('renders list with action', function () {

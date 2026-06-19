@@ -144,21 +144,35 @@ describe('IndexesToolbar Component', function () {
     });
 
     describe('and pipeline is not queryable', function () {
-      it('should disable the create search index button', function () {
-        const pipelineMock: Document[] = [
-          { $project: { newField: 'testValue' } },
-        ];
-        const mockCollectionStats = {
-          index_count: 0,
-          index_size: 0,
-          pipeline: pipelineMock,
-        };
+      const pipelineMock: Document[] = [
+        { $project: { newField: 'testValue' } },
+      ];
+      const mockCollectionStats = {
+        index_count: 0,
+        index_size: 0,
+        pipeline: pipelineMock,
+      };
 
+      it('should hide the toolbar when there are no search indexes', function () {
         renderIndexesToolbar({
           isReadonlyView: true,
           serverVersion: '8.1.0',
           indexView: 'search-indexes',
           collectionStats: mockCollectionStats,
+          hasSearchIndexes: false,
+        });
+
+        expect(screen.queryByTestId('indexes-toolbar')).to.not.exist;
+        expect(screen.queryByText('Create Search Index')).to.not.exist;
+      });
+
+      it('should render the create search index button disabled when there are existing search indexes', function () {
+        renderIndexesToolbar({
+          isReadonlyView: true,
+          serverVersion: '8.1.0',
+          indexView: 'search-indexes',
+          collectionStats: mockCollectionStats,
+          hasSearchIndexes: true,
         });
 
         expect(screen.getByText('Create Search Index')).to.be.visible;
