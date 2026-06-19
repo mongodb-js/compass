@@ -23,6 +23,20 @@ const actionsGroupContainer = css({
   pointerEvents: 'none',
 });
 
+/** Stacked actions in a fixed left column (e.g. aggregation preview); document scrolls alongside. */
+const actionsGroupGutterLayout = css({
+  position: 'relative',
+  top: 0,
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  width: 'auto',
+  minWidth: spacing[800],
+  paddingTop: spacing[400],
+  paddingLeft: spacing[200],
+  paddingRight: spacing[200],
+  paddingBottom: spacing[200],
+});
+
 const actionsGroupItem = css({
   flex: 'none',
   pointerEvents: 'all',
@@ -119,6 +133,8 @@ const DocumentActionsGroup: React.FunctionComponent<
     onRemove?: () => void;
     onlyShowOnHover?: boolean;
     insights?: Signal | Signal[];
+    /** When set, actions render in a vertical strip for use beside a scrolling document. */
+    layout?: 'overlay' | 'gutter';
   } & (
     | { onExpand?: never; expanded?: never }
     | { onExpand: () => void; expanded: boolean }
@@ -132,6 +148,7 @@ const DocumentActionsGroup: React.FunctionComponent<
   expanded,
   onlyShowOnHover = true,
   insights,
+  layout = 'overlay',
 }) => {
   const [signalOpened, setSignalOpened] = useState(false);
   const conatinerRef = useRef<HTMLDivElement | null>(null);
@@ -155,6 +172,7 @@ const DocumentActionsGroup: React.FunctionComponent<
       ref={conatinerRef}
       className={cx(
         actionsGroupContainer,
+        layout === 'gutter' && actionsGroupGutterLayout,
         onlyShowOnHover && (isActive ? actionsGroupHovered : actionsGroupIdle)
       )}
     >
@@ -176,7 +194,7 @@ const DocumentActionsGroup: React.FunctionComponent<
           tooltipText={expanded ? 'Collapse all' : 'Expand all'}
         />
       )}
-      <span className={actionsGroupItemSeparator}></span>
+      {layout === 'overlay' && <span className={actionsGroupItemSeparator}></span>}
       {insights && (
         <div
           className={cx(actionsGroupItem, actionsGroupSignalPopover)}

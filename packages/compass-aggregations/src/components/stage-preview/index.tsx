@@ -83,6 +83,7 @@ const previewBodyStyles = css({
   gap: spacing[400],
   width: '100%',
   height: '100%',
+  minHeight: 0,
 });
 
 const documentsStyles = css({
@@ -90,6 +91,8 @@ const documentsStyles = css({
   display: 'flex',
   alignItems: 'stretch',
   overflowX: 'auto',
+  minHeight: 0,
+  flex: 1,
 });
 
 const documentContainerStyles = css({
@@ -99,14 +102,30 @@ const documentContainerStyles = css({
   flexShrink: 0,
   width: '384px',
   marginBottom: spacing[200],
+  // Without a cap the card grows with the full document, so no inner element
+  // gets a bounded height and the stage preview column scrolls the whole card
+  // (header scrolls away). Limit height so the document body scroller engages.
+  maxHeight: 'min(85vh, 900px)',
+  minHeight: 0,
+  overflow: 'hidden',
+  alignSelf: 'stretch',
 });
 
 const documentStyles = css({
   flexBasis: '164px',
   flexGrow: 1,
-  flexShrink: 0,
-  overflow: 'auto',
+  // Must shrink inside max-height card; flex-shrink: 0 keeps intrinsic content
+  // height and blocks the inner document scroller from ever activating.
+  flexShrink: 1,
+  minHeight: 0,
+  maxHeight: '100%',
+  // Clip overflow here so only the document body scrolls inside ReadonlyDocument;
+  // otherwise this outer div becomes the scrollport and the whole preview (including
+  // the intended fixed header) scrolls away together.
+  overflow: 'hidden',
   padding: 0,
+  display: 'flex',
+  flexDirection: 'column',
 });
 
 type StagePreviewProps = {
@@ -200,7 +219,11 @@ function StagePreviewBody({
       return (
         <KeylineCard key={i} className={documentContainerStyles}>
           <div className={documentStyles}>
-            <Document doc={doc} editable={false} />
+            <Document
+              doc={doc}
+              editable={false}
+              stickyDocumentHeaderInScrollContainer
+            />
           </div>
         </KeylineCard>
       );
@@ -231,6 +254,9 @@ const stagePreviewStyles = css({
   alignItems: 'stretch',
   position: 'relative',
   flexGrow: 1,
+  minHeight: 0,
+  display: 'flex',
+  flexDirection: 'column',
 });
 
 // exported for tests

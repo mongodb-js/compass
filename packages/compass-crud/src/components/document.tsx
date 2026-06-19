@@ -12,6 +12,7 @@ export type DocumentProps = {
   isTimeSeries?: boolean;
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: BSONObject;
+  stickyDocumentHeaderInScrollContainer?: boolean;
 } & Omit<EditableDocumentProps, 'doc' | 'expandAll'> &
   Pick<ReadonlyDocumentProps, 'copyToClipboard' | 'openInsertDocumentDialog'>;
 
@@ -24,6 +25,7 @@ const Document = (props: DocumentProps) => {
     doc: _doc,
     onUpdateQuery,
     query,
+    stickyDocumentHeaderInScrollContainer,
   } = props;
 
   const doc = useMemo(() => {
@@ -45,6 +47,9 @@ const Document = (props: DocumentProps) => {
         }}
         onUpdateQuery={onUpdateQuery}
         query={query}
+        stickyDocumentHeaderInScrollContainer={
+          stickyDocumentHeaderInScrollContainer
+        }
       />
     );
   }
@@ -66,6 +71,9 @@ const Document = (props: DocumentProps) => {
       copyToClipboard={copyToClipboard}
       onUpdateQuery={onUpdateQuery}
       query={query}
+      stickyDocumentHeaderInScrollContainer={
+        stickyDocumentHeaderInScrollContainer
+      }
     />
   );
 };

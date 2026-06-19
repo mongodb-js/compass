@@ -325,4 +325,37 @@ describe('Document', function () {
     });
     expect(screen.getByText('Show 2 more fields in nested')).to.exist;
   });
+
+  it('should render only a slice of root visible elements when visibleRootElementSlice is set', function () {
+    const hadronDoc = new HadronDocument({
+      prop1: 'prop1',
+      prop2: 'prop2',
+      prop3: 'prop3',
+    });
+    render(
+      <Document value={hadronDoc} visibleRootElementSlice={[1, 3]}></Document>
+    );
+    expect(() => screen.getByText('prop1')).to.throw();
+    expect(screen.getByText('prop2')).to.exist;
+    expect(screen.getByText('prop3')).to.exist;
+  });
+
+  it('should omit root visible-fields toggle when showVisibleFieldsToggle is false', function () {
+    const hadronDoc = new HadronDocument({
+      prop1: 'prop1',
+      prop2: 'prop2',
+      prop3: 'prop3',
+      prop4: 'prop4',
+    });
+    hadronDoc.setMaxVisibleElementsCount(2);
+    render(
+      <Document
+        value={hadronDoc}
+        visibleRootElementSlice={[0, 1]}
+        showVisibleFieldsToggle={false}
+      ></Document>
+    );
+    expect(screen.getByText('prop1')).to.exist;
+    expect(() => screen.getByText('Show 2 more fields')).to.throw();
+  });
 });
