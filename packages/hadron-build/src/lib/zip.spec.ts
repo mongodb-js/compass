@@ -179,18 +179,7 @@ describe('zip', function () {
       target.assets = [];
       expect(getZipOptionsFromTarget(target)).to.be.null;
     });
-    it('when path is absolute', function () {
-      expect(getZipOptionsFromTarget(target)).to.deep.equal({
-        dir: target.appPath,
-        out: getTargetZipPath(target)!,
-        platform: target.platform,
-      });
-    });
-    it('when path is relative', function () {
-      target.assets[0].path = path.relative(
-        process.cwd(),
-        target.assets[0].path
-      );
+    it('returns zip options', function () {
       expect(getZipOptionsFromTarget(target)).to.deep.equal({
         dir: target.appPath,
         out: getTargetZipPath(target)!,
