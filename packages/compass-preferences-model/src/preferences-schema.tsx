@@ -81,6 +81,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     installURLHandlers: boolean;
     protectConnectionStringsForNewConnections: boolean;
     legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS;
+    longValuesInDataDisplay: boolean;
     // This preference is not a great fit for user preferences, but everything
     // except for user preferences doesn't allow required preferences to be
     // defined, so we are sticking it here
@@ -609,6 +610,22 @@ export const storedUserPreferencesProps: Required<{
       longReact: enableDbAndCollStatsDescription,
     },
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  /**
+   * Custom "Tuning" tweak. When enabled, long document values in the List view
+   * are shown in full (wrapping to the row width) instead of being truncated
+   * with an ellipsis.
+   */
+  longValuesInDataDisplay: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Long values in data display',
+      long: 'When enabled, long string and binary values in the documents List view are shown in full and wrap to the row width instead of being truncated with an ellipsis.',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   /**

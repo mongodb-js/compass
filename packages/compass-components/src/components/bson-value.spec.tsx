@@ -19,6 +19,7 @@ import BSONValue from './bson-value';
 import { expect } from 'chai';
 import { render, cleanup, screen } from '@mongodb-js/testing-library-compass';
 import { LegacyUUIDDisplayContext } from './document-list/legacy-uuid-format-context';
+import { ExpandedValueDisplayContext } from './document-list/value-truncation-context';
 
 describe('BSONValue', function () {
   afterEach(cleanup);
@@ -164,6 +165,53 @@ describe('BSONValue', function () {
 
     expect(await screen.findByTestId('bson-value-in-use-encryption-docs-link'))
       .to.be.visible;
+  });
+
+  describe('Long values in data display (ExpandedValueDisplayContext)', function () {
+    const longString =
+      'this is a string of test that is less than is more than 70 symbols for the purpose of showing truncated text';
+
+    it('truncates a long string by default (no provider)', function () {
+      const { container } = render(
+        <BSONValue type="String" value={longString} />
+      );
+      const text = container.querySelector('.element-value')?.textContent ?? '';
+      expect(text).to.contain('…');
+      expect(text).to.not.eq(`"${longString}"`);
+    });
+
+    it('renders the full string when the context is enabled', function () {
+      const { container } = render(
+        <ExpandedValueDisplayContext.Provider value={true}>
+          <BSONValue type="String" value={longString} />
+        </ExpandedValueDisplayContext.Provider>
+      );
+      const text = container.querySelector('.element-value')?.textContent ?? '';
+      expect(text).to.eq(`"${longString}"`);
+      expect(text).to.not.contain('…');
+    });
+
+    it('does not truncate long binary values when the context is enabled', function () {
+      const longBinary = Binary.createFromBase64(
+        'a'.repeat(200),
+        Binary.SUBTYPE_DEFAULT
+      );
+      const truncated =
+        render(
+          <BSONValue type="Binary" value={longBinary} />
+        ).container.querySelector('.element-value')?.textContent ?? '';
+      cleanup();
+      const expanded =
+        render(
+          <ExpandedValueDisplayContext.Provider value={true}>
+            <BSONValue type="Binary" value={longBinary} />
+          </ExpandedValueDisplayContext.Provider>
+        ).container.querySelector('.element-value')?.textContent ?? '';
+
+      expect(truncated).to.contain('…');
+      expect(expanded).to.not.contain('…');
+      expect(expanded.length).to.be.greaterThan(truncated.length);
+    });
   });
 
   describe('Legacy UUID display formats', function () {

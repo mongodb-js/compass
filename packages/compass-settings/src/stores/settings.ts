@@ -12,7 +12,8 @@ export type SettingsTabId =
   | 'oidc'
   | 'ai'
   | 'proxy'
-  | 'preview';
+  | 'preview'
+  | 'tuning';
 
 export type State = { isModalOpen: boolean; tab: undefined | SettingsTabId } & (
   | {

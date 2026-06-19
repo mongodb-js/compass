@@ -6,3 +6,7 @@ export {
   LegacyUUIDDisplayContext,
   type LegacyUUIDDisplay,
 } from './legacy-uuid-format-context';
+export {
+  ExpandedValueDisplayContext,
+  useExpandedValueDisplay,
+} from './value-truncation-context';

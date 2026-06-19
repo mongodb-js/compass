@@ -15,6 +15,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import type { Theme } from '../hooks/use-theme';
 import { Themes, useDarkMode } from '../hooks/use-theme';
 import { useLegacyUUIDDisplayContext } from './document-list/legacy-uuid-format-context';
+import { useExpandedValueDisplay } from './document-list/value-truncation-context';
 
 type ValueProps =
   | {
@@ -22,7 +23,10 @@ type ValueProps =
     }[keyof TypeCastMap]
   | { type: 'DBRef'; value: DBRef };
 
-function truncate(str: string, length = 70): string {
+function truncate(str: string, length = 70, shouldTruncate = true): string {
+  if (!shouldTruncate) {
+    return str;
+  }
   const truncated = str.slice(0, length);
   return length < str.length ? `${truncated}…` : str;
 }
@@ -68,6 +72,16 @@ const bsonValuePrewrap = css({
   whiteSpace: 'pre-wrap',
 });
 
+// Applied (in place of `bsonValue`) when the "Long values in data display"
+// tweak is on: render the full value, wrapping to the available row width
+// instead of clipping it with an ellipsis.
+const bsonValueExpanded = css({
+  whiteSpace: 'pre-wrap',
+  overflow: 'visible',
+  textOverflow: 'clip',
+  wordBreak: 'break-word',
+});
+
 export const BSONValueContainer: React.FunctionComponent<
   React.HTMLProps<HTMLDivElement> & {
     type?: ValueTypes;
@@ -75,6 +89,7 @@ export const BSONValueContainer: React.FunctionComponent<
   }
 > = ({ type, children, className, ...props }) => {
   const darkMode = useDarkMode();
+  const expanded = useExpandedValueDisplay();
   const colorStyle = useMemo(() => {
     if (!type) {
       return;
@@ -92,8 +107,8 @@ export const BSONValueContainer: React.FunctionComponent<
       {...props}
       className={cx(
         className,
-        bsonValue,
-        type === 'String' && bsonValuePrewrap,
+        expanded ? bsonValueExpanded : bsonValue,
+        !expanded && type === 'String' && bsonValuePrewrap,
         `element-value element-value-is-${
           type ? type.toLowerCase() : 'unknown'
         }`
@@ -152,6 +167,7 @@ const LegacyUUIDValue: React.FunctionComponent<PropsByValueType<'Binary'>> = (
   bsonValue
 ) => {
   const legacyUUIDDisplayEncoding = useLegacyUUIDDisplayContext();
+  const expanded = useExpandedValueDisplay();
 
   const stringifiedValue = useMemo(() => {
     // UUID must be exactly 16 bytes.
@@ -173,9 +189,10 @@ const LegacyUUIDValue: React.FunctionComponent<PropsByValueType<'Binary'>> = (
     // Raw, no encoding.
     return `Binary.createFromBase64('${truncate(
       bsonValue.value.toString('base64'),
-      100
+      100,
+      !expanded
     )}', ${bsonValue.value.sub_type})`;
-  }, [legacyUUIDDisplayEncoding, bsonValue]);
+  }, [legacyUUIDDisplayEncoding, bsonValue, expanded]);
 
   return (
     <BSONValueContainer type="Binary" title={stringifiedValue}>
@@ -285,6 +302,7 @@ const LegacyPythonUUIDValue: React.FunctionComponent<
 const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
   value,
 }) => {
+  const expanded = useExpandedValueDisplay();
   const { stringifiedValue, title, additionalHints } = useMemo(() => {
     if (value.sub_type === Binary.SUBTYPE_ENCRYPTED) {
       return {
@@ -323,7 +341,8 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
       if (vectorType === Binary.VECTOR_TYPE.Int8) {
         const truncatedSerializedBuffer = truncate(
           value.toInt8Array().slice(0, 100).join(', '),
-          100
+          100,
+          !expanded
         );
         return {
           stringifiedValue: `Binary.fromInt8Array(new Int8Array([${truncatedSerializedBuffer}]))`,
@@ -334,7 +353,8 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
             // Using a limited precision and removing trailing zeros for better displaying
             .map((num) => num.toPrecision(8).replace(/\.?0+$/, ''))
             .join(', '),
-          100
+          100,
+          !expanded
         );
         return {
           stringifiedValue: `Binary.fromFloat32Array(new Float32Array([${truncatedSerializedBuffer}]))`,
@@ -342,7 +362,8 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
       } else if (vectorType === Binary.VECTOR_TYPE.PackedBit) {
         const truncatedSerializedBuffer = truncate(
           value.toPackedBits().slice(0, 100).join(', '),
-          100
+          100,
+          !expanded
         );
         return {
           stringifiedValue: `Binary.fromPackedBits(new Uint8Array([${truncatedSerializedBuffer}]))`,
@@ -352,10 +373,11 @@ const BinaryValue: React.FunctionComponent<PropsByValueType<'Binary'>> = ({
     return {
       stringifiedValue: `Binary.createFromBase64('${truncate(
         value.toString('base64'),
-        100
+        100,
+        !expanded
       )}', ${value.sub_type})`,
     };
-  }, [value]);
+  }, [value, expanded]);
 
   return (
     <BSONValueContainer type="Binary" title={title ?? stringifiedValue}>
@@ -418,9 +440,10 @@ const NumberValue: React.FunctionComponent<
 const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
   value,
 }) => {
+  const expanded = useExpandedValueDisplay();
   const truncatedValue = useMemo(() => {
-    return truncate(value, 70);
-  }, [value]);
+    return truncate(value, 70, !expanded);
+  }, [value, expanded]);
 
   return (
     <BSONValueContainer type="String" title={value}>

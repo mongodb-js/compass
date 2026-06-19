@@ -3,10 +3,12 @@ import HadronDocument from 'hadron-document';
 import {
   css,
   spacing,
+  DocumentList,
   VirtualList,
   type VirtualListItemRenderer,
   type VirtualListRef,
 } from '@mongodb-js/compass-components';
+import { usePreference } from 'compass-preferences-model/provider';
 
 import { type BSONObject } from '../stores/crud-store';
 import type { DocumentProps } from './document';
@@ -123,21 +125,27 @@ const VirtualizedDocumentListView: React.FC<
     ]
   );
 
+  const longValuesInDataDisplay = usePreference('longValuesInDataDisplay');
+
   return (
-    <VirtualList
-      items={docs}
-      renderItem={renderItem}
-      estimateItemInitialHeight={estimateDocumentInitialHeight}
-      rowGap={spacing[200]}
-      dataTestId="document-list"
-      itemDataTestId="document-list-item"
-      listOuterContainerClassName={spacingStyles}
-      initialScrollTop={initialScrollTop}
-      scrollableContainerRef={scrollableContainerRef}
-      listRef={listRef}
-      overScanCount={__TEST_OVERSCAN_COUNT}
-      __TEST_LIST_HEIGHT={__TEST_LIST_HEIGHT}
-    ></VirtualList>
+    <DocumentList.ExpandedValueDisplayContext.Provider
+      value={longValuesInDataDisplay}
+    >
+      <VirtualList
+        items={docs}
+        renderItem={renderItem}
+        estimateItemInitialHeight={estimateDocumentInitialHeight}
+        rowGap={spacing[200]}
+        dataTestId="document-list"
+        itemDataTestId="document-list-item"
+        listOuterContainerClassName={spacingStyles}
+        initialScrollTop={initialScrollTop}
+        scrollableContainerRef={scrollableContainerRef}
+        listRef={listRef}
+        overScanCount={__TEST_OVERSCAN_COUNT}
+        __TEST_LIST_HEIGHT={__TEST_LIST_HEIGHT}
+      ></VirtualList>
+    </DocumentList.ExpandedValueDisplayContext.Provider>
   );
 };
 

@@ -14,6 +14,7 @@ import OIDCSettings from './settings/oidc-settings';
 import GenAISettings from './settings/gen-ai-settings';
 import PrivacySettings from './settings/privacy';
 import ThemeSettings from './settings/theme';
+import TuningSettings from './settings/tuning';
 import FeaturePreviewSettings, {
   useShouldShowFeaturePreviewSettings,
 } from './settings/feature-preview';
@@ -86,6 +87,7 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       name: 'Proxy Configuration',
       component: ProxySettings,
     },
+    { tabId: 'tuning', name: 'Tuning', component: TuningSettings },
   ];
 
   if (isOIDCEnabled) {
