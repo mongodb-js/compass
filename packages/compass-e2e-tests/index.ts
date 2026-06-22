@@ -68,7 +68,9 @@ async function main() {
     ? context.testFilter
     : [context.testFilter];
 
-  const includeFilters = e2eTestFilter.filter((f) => !f.startsWith('!'));
+  const rawIncludeFilters = e2eTestFilter.filter((f) => !f.startsWith('!'));
+  const includeFilters =
+    rawIncludeFilters.length > 0 ? rawIncludeFilters : ['*'];
   const ignorePatterns = e2eTestFilter
     .filter((f) => f.startsWith('!'))
     .map((f) => `tests/**/${f.slice(1)}.{test,spec}.ts`);
