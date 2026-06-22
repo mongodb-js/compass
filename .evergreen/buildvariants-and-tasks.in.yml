@@ -620,7 +620,7 @@ tasks:
         vars:
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-          atlas_cloud_test_args: '--test-filter="!atlas-cloud/dedicated-cluster/*"'
+          atlas_cloud_test_args: '--test-filter="!atlas-cloud/dedicated-cluster/**/*"'
 
   # We run the global writes and rolling indexes tests separately from test-web-sandbox-atlas-cloud
   # as they require a GeoSharded cluster which is expensive to provision (M30+)

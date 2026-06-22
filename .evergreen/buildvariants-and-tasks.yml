@@ -1226,13 +1226,7 @@ tasks:
         vars:
           compass_distribution: compass
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
-          atlas_cloud_test_args: >-
-            --test-filter="time-to-first-query" --test-filter="routing"
-            --test-filter="collection-heading"
-            --test-filter="collection-documents-tab"
-            --test-filter="collection-aggregations-tab"
-            --test-filter="collection-indexes-tab"
-            --test-filter="collection-schema-tab" --test-filter="atlas-cloud/*"
+          atlas_cloud_test_args: '--test-filter="!atlas-cloud/dedicated-cluster/**/*"'
   - name: test-web-sandbox-atlas-cloud-geo-sharded
     tags:
       - assigned_to_jira_team_compass_compass
