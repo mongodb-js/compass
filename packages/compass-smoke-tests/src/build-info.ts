@@ -244,6 +244,7 @@ export async function writeAndReadPackageDetails({
     out: path.resolve(sandboxPath, 'target.json'),
     flatten: false,
     version: undefined,
+    print: false,
   };
   debug({ infoArgs });
 

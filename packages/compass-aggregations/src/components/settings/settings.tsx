@@ -76,6 +76,7 @@ const inputGroupStyles = css({
   backgroundColor: palette.white,
   display: 'flex',
   alignItems: 'center',
+  gap: spacing[200],
 });
 
 const inputGroupDarkStyles = css({
@@ -83,12 +84,17 @@ const inputGroupDarkStyles = css({
 });
 
 const inputControlStyles = css({
-  minWidth: spacing[7],
-  input: { textAlign: 'right', cssFloat: 'right' },
-  'input[type="text"], input[type="number"]': { width: spacing[7] },
+  flex: 'none',
+  width: spacing[1400] * 2,
+  marginLeft: 'auto',
+
+  display: 'flex',
+  justifyContent: 'flex-end',
 });
 
-const inputMetaStyles = css({ flexGrow: 1, p: { marginTop: spacing[200] } });
+const descriptionStyles = css({
+  marginTop: spacing[200],
+});
 
 export type SettingsProps = {
   isCommenting: boolean;
@@ -186,14 +192,17 @@ function Settings({
         </div>
       </div>
       <div className={cx(inputGroupStyles, darkMode && inputGroupDarkStyles)}>
-        <div className={inputMetaStyles}>
+        <div>
           <Label
             htmlFor={aggregationCommentModeId}
             id={aggregationCommentModeLabelId}
           >
             Comment Mode
           </Label>
-          <Description id={aggregationCommentModeDescriptionId}>
+          <Description
+            className={descriptionStyles}
+            id={aggregationCommentModeDescriptionId}
+          >
             When enabled, adds helper comments to each stage. Only applies to
             new stages.
           </Description>
@@ -210,14 +219,17 @@ function Settings({
         </div>
       </div>
       <div className={cx(inputGroupStyles, darkMode && inputGroupDarkStyles)}>
-        <div className={inputMetaStyles}>
+        <div>
           <Label
             htmlFor={aggregationSampleSizeId}
             id={aggregationSampleSizeLabelId}
           >
             Number of Preview Documents
           </Label>
-          <Description id={aggregationSampleSizeDescriptionId}>
+          <Description
+            className={descriptionStyles}
+            id={aggregationSampleSizeDescriptionId}
+          >
             Specify the number of documents to show in the preview.
           </Description>
         </div>
@@ -236,16 +248,16 @@ function Settings({
       </div>
       {enableAggregationBuilderExtraOptions && (
         <div className={cx(inputGroupStyles, darkMode && inputGroupDarkStyles)}>
-          <div className={inputMetaStyles}>
+          <div>
             <Label htmlFor={aggregationLimitId} id={aggregationLimitLabelId}>
               Limit
             </Label>
             <div id={aggregationLimitDescriptionId}>
-              <Description>
+              <Description className={descriptionStyles}>
                 Limits input documents before $group, $bucket, and $bucketAuto
                 stages. Set a limit to make the preview run faster.
               </Description>
-              <Description>
+              <Description className={descriptionStyles}>
                 Note: this setting is only applied for the document previews, it
                 is not applied when the pipeline is run.
               </Description>
