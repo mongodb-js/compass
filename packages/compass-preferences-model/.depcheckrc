@@ -1,3 +1,4 @@
 ignores:
 ignore-patterns:
   - 'dist'
+  - 'scripts'

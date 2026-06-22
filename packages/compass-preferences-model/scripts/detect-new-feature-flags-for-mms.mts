@@ -110,14 +110,19 @@ function buildCommentBody(flags: FlagInfo[]): string {
   const flagSummaries = flags
     .map(
       (flag) => `### \`${flag.name}\`
-- **Description:** ${flag.description ?? '_Not set._ Please add a description object with at least a short property to the feature flag definition in \`feature-flags.ts\` so it can be used in the MMS feature flag definition.'}
+- **Description:** ${
+        flag.description ??
+        '_Not set._ Please add a description object with at least a short property to the feature flag definition in `feature-flags.ts` so it can be used in the MMS feature flag definition.'
+      }
 - **Atlas Cloud Scope:** \`${flag.scope}\``
     )
     .join('\n\n');
 
   const flagDefinitions = flags
     .map(
-      (flag) => `\tFile: [feature-flags/definitions/developer-tools](https://github.com/10gen/mms/tree/master/feature-flags/definitions/developer-tools)/data-explorer-compass-web-${flag.name}.yml
+      (
+        flag
+      ) => `\tFile: [feature-flags/definitions/developer-tools](https://github.com/10gen/mms/tree/master/feature-flags/definitions/developer-tools)/data-explorer-compass-web-${flag.name}.yml
 \tContents:
 
 \`\`\`yml
