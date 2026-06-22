@@ -21,7 +21,10 @@ import {
 import type { Compass } from '../helpers/compass.ts';
 import type { ConnectFormState } from '../helpers/connect-form-state.ts';
 import * as Selectors from '../helpers/selectors.ts';
-import { isTestingWeb } from '../helpers/test-runner-context.ts';
+import {
+  isTestingWeb,
+  isTestingWebAtlasCloud,
+} from '../helpers/test-runner-context.ts';
 import { tryToInsertDocument } from '../helpers/commands/try-to-insert-document.ts';
 
 async function disconnect(browser: CompassBrowser) {
@@ -269,6 +272,11 @@ describe('Connection string', function () {
   let browser: CompassBrowser;
 
   before(async function () {
+    if (isTestingWebAtlasCloud()) {
+      // There is no connecting via connection string in atlas cloud.
+      return;
+    }
+
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
   });
@@ -278,6 +286,11 @@ describe('Connection string', function () {
   });
 
   after(function () {
+    if (isTestingWebAtlasCloud()) {
+      // There is no connecting via connection string in atlas cloud.
+      return;
+    }
+
     return cleanup(compass);
   });
 

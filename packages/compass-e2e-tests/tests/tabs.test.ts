@@ -10,6 +10,7 @@ import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 import { expect } from 'chai';
+import { isTestingWebAtlasCloud } from '../helpers/test-runner-context.ts';
 
 describe('Global Tabs', function () {
   let compass: Compass;
@@ -146,6 +147,12 @@ describe('Global Tabs', function () {
   });
 
   it("should close a connection's tabs when disconnecting", async function () {
+    if (isTestingWebAtlasCloud()) {
+      // We only have one available connection when testing Atlas Cloud
+      // at the moment, so we skip this test.
+      this.skip();
+    }
+
     // workspace 1: connection 1, Documents tab
     await browser.navigateToCollectionTab(
       getDefaultConnectionNames(0),

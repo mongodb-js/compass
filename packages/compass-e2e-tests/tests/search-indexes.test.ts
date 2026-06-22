@@ -12,6 +12,7 @@ import {
 import type { Compass } from '../helpers/compass.ts';
 import { expect } from 'chai';
 import { type Db, MongoClient } from 'mongodb';
+import { isTestingWebAtlasCloud } from '../helpers/test-runner-context.ts';
 
 type Connection = {
   name: string;
@@ -21,7 +22,9 @@ type Connection = {
 const connectionsWithNoSearchSupport: Connection[] = [
   {
     name: 'Local Connection',
-    connectionString: getDefaultConnectionStrings(0),
+    connectionString: isTestingWebAtlasCloud()
+      ? undefined
+      : getDefaultConnectionStrings(0),
   },
   {
     name: 'Atlas Free Cluster',
