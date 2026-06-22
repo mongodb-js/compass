@@ -9,7 +9,6 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 
 import { IndexesToolbar } from './indexes-toolbar';
-import type { Document } from 'mongodb';
 
 describe('IndexesToolbar Component', function () {
   const renderIndexesToolbar = (
@@ -27,7 +26,6 @@ describe('IndexesToolbar Component', function () {
         onRefreshIndexes={() => {}}
         isSearchIndexesSupported={false}
         isRefreshing={false}
-        collectionStats={{ index_count: 0, index_size: 0, pipeline: [] }}
         onIndexViewChanged={() => {}}
         onCreateRegularIndexClick={() => {}}
         onCreateSearchIndexClick={() => {}}
@@ -144,21 +142,12 @@ describe('IndexesToolbar Component', function () {
     });
 
     describe('and pipeline is not queryable', function () {
-      const pipelineMock: Document[] = [
-        { $project: { newField: 'testValue' } },
-      ];
-      const mockCollectionStats = {
-        index_count: 0,
-        index_size: 0,
-        pipeline: pipelineMock,
-      };
-
       it('should hide the toolbar when there are no search indexes', function () {
         renderIndexesToolbar({
           isReadonlyView: true,
           serverVersion: '8.1.0',
           indexView: 'search-indexes',
-          collectionStats: mockCollectionStats,
+          isViewPipelineSearchQueryable: false,
           hasSearchIndexes: false,
         });
 
@@ -171,7 +160,7 @@ describe('IndexesToolbar Component', function () {
           isReadonlyView: true,
           serverVersion: '8.1.0',
           indexView: 'search-indexes',
-          collectionStats: mockCollectionStats,
+          isViewPipelineSearchQueryable: false,
           hasSearchIndexes: true,
         });
 

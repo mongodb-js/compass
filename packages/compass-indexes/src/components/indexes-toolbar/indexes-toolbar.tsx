@@ -25,9 +25,8 @@ import { createSearchIndexOpened } from '../../modules/search-indexes';
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
-import type { CollectionStats } from '../../modules/collection-stats';
-import type { Document } from 'mongodb';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
 import {
   useSearchActivationProgramP1,
   useTelemetry,
@@ -91,8 +90,7 @@ type IndexesToolbarProps = {
   writeStateDescription?: string;
   isSearchIndexesSupported: boolean;
   hasSearchIndexes?: boolean;
-  // via withPreferences:
-  collectionStats: CollectionStats;
+  isViewPipelineSearchQueryable?: boolean;
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
@@ -111,8 +109,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onRefreshIndexes,
   onIndexViewChanged,
   serverVersion,
-  collectionStats,
   hasSearchIndexes = false,
+  isViewPipelineSearchQueryable = true,
 }) => {
   const {
     readWrite: preferencesReadWrite,
@@ -140,12 +138,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
   const isAtlas = !!atlasMetadata;
-  const isViewPipelineSearchQueryable =
-    isReadonlyView && collectionStats?.pipeline
-      ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
-          collectionStats.pipeline as Document[]
-        )
-      : true;
   // For Compass: show toolbar when compatible, or when incompatible but has existing (failed) indexes.
   // For DE: never show toolbar for an incompatible view, regardless of existing indexes.
   const showToolbarButtons =
@@ -413,27 +405,30 @@ export const CreateIndexButton: React.FunctionComponent<
   );
 };
 
-const mapState = ({
-  namespace,
-  isWritable,
-  isReadonlyView,
-  isSearchIndexesSupported,
-  description,
-  serverVersion,
-  searchIndexes,
-  indexView,
-  collectionStats,
-}: RootState) => ({
-  namespace,
-  isWritable,
-  isReadonlyView,
-  isSearchIndexesSupported,
-  writeStateDescription: description,
-  indexView,
-  serverVersion,
-  hasSearchIndexes: searchIndexes.indexes.length > 0,
-  collectionStats,
-});
+const mapState = (state: RootState) => {
+  const { isViewPipelineSearchQueryable } = selectIsViewSearchCompatible(state);
+  const {
+    namespace,
+    isWritable,
+    isReadonlyView,
+    isSearchIndexesSupported,
+    description,
+    serverVersion,
+    searchIndexes,
+    indexView,
+  } = state;
+  return {
+    namespace,
+    isWritable,
+    isReadonlyView,
+    isSearchIndexesSupported,
+    writeStateDescription: description,
+    indexView,
+    serverVersion,
+    hasSearchIndexes: searchIndexes.indexes.length > 0,
+    isViewPipelineSearchQueryable,
+  };
+};
 
 const mapDispatch = {
   onCreateRegularIndexClick: () => createIndexOpened(),

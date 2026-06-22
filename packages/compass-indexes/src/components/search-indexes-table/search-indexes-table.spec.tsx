@@ -195,15 +195,9 @@ describe('SearchIndexesTable Component', function () {
       { collectionStats: mockCollectionStats }
     );
 
-    expect(() => {
-      screen.getByTestId('search-indexes-list');
-    }).to.throw();
-
-    // The create button zero state is not shown for an incompatible view.
-    expect(() => {
-      screen.getByTestId('create-atlas-search-index-button');
-    }).to.throw();
-
+    expect(screen.queryByTestId('search-indexes-list')).to.not.exist;
+    expect(screen.queryByTestId('create-atlas-search-index-button')).to.not
+      .exist;
     expect(screen.getByText('No standard indexes')).to.exist;
   });
 
