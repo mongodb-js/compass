@@ -1,3 +1,6 @@
+# When making a change to this file, remember to run
+# `npm run update-evergreen-config` to update the generated config file.
+
 <%
 const UNIT_TESTS_BUILD_VARIANTS = [
   {
