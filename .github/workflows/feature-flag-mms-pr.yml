@@ -27,6 +27,10 @@ jobs:
           npm install --global npm@11.16.0
           npm -v
 
+      - name: Install script dependencies
+        run: npm install
+        working-directory: packages/compass-preferences-model
+
       - name: Detect new feature flags
         id: detect
         run: node packages/compass-preferences-model/scripts/detect-new-feature-flags-for-mms.mts
