@@ -138,15 +138,15 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
   const isAtlas = !!atlasMetadata;
-  // For Compass: show toolbar when compatible, or when incompatible but has existing (failed) indexes.
-  // For DE: never show toolbar for an incompatible view, regardless of existing indexes.
-  const showToolbarButtons =
-    !isReadonlyView ||
-    (VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-      serverVersion
-    ) &&
-      isSearchManagementActive &&
-      (isViewPipelineSearchQueryable || (!isAtlas && hasSearchIndexes)));
+  const isVersionCompatible =
+    VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(serverVersion);
+  const isIncompatibleViewWithExistingIndexes =
+    !isViewPipelineSearchQueryable && !isAtlas && hasSearchIndexes;
+  const canManageSearchIndexesOnView =
+    isVersionCompatible &&
+    isSearchManagementActive &&
+    (isViewPipelineSearchQueryable || isIncompatibleViewWithExistingIndexes);
+  const showToolbarButtons = !isReadonlyView || canManageSearchIndexesOnView;
   const pipelineNotSearchQueryableDescription =
     'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set';
   return (
