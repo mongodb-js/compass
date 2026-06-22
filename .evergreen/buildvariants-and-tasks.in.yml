@@ -620,10 +620,7 @@ tasks:
         vars:
           compass_distribution: compass
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
-          # We're only running a special subset of tests as provisioning atlas
-          # clusters in CI is both pricey and flakey, so we want to limit the
-          # coverage to reduce those factors (at least for now)
-          atlas_cloud_test_args: '--test-filter="time-to-first-query" --test-filter="routing" --test-filter="collection-heading" --test-filter="collection-documents-tab" --test-filter="collection-aggregations-tab" --test-filter="collection-indexes-tab" --test-filter="collection-schema-tab" --test-filter="atlas-cloud/*"'
+          atlas_cloud_test_args: '--test-filter="*" --test-filter="!atlas-cloud/dedicated-cluster/*"'
 
   # We run the global writes and rolling indexes tests separately from test-web-sandbox-atlas-cloud
   # as they require a GeoSharded cluster which is expensive to provision (M30+)
