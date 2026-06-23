@@ -11,6 +11,8 @@ import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai/provider';
 
+export const FOLLOW_UP_QUESTIONS_HEADER = '### Follow-Up Questions';
+
 export type EntryPointMessage = {
   prompt: string;
   metadata: AssistantMessage['metadata'];
@@ -112,8 +114,11 @@ Tell the user if indexes need to be created or modified to enable any recommenda
 [The optimized ${actionName} you are recommending the user use instead of their current ${actionName}.]
 \`\`\`
 
-### Follow-Up Questions
+${FOLLOW_UP_QUESTIONS_HEADER}
 [Provide 3 follow-up questions you think the user might want to ask after reading this response]
+1. [First follow-up question]
+2. [Second follow-up question]
+3. [Third follow-up question]
 </output-format>
 
 <guidelines>
