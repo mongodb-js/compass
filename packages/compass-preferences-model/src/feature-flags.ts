@@ -96,6 +96,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableRollingIndexes',
     stage: 'released',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable creating indexes with the rolling build in Atlas Cloud',
     },
@@ -104,6 +105,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableGlobalWrites',
     stage: 'released',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable Global Writes tab in Atlas Cloud',
     },
@@ -186,6 +188,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableAIAssistant',
     stage: 'released',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable AI Assistant',
     },
@@ -197,6 +200,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableToolCalling',
     stage: 'released',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable tool calling in the AI Assistant',
     },

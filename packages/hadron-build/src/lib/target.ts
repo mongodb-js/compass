@@ -119,6 +119,8 @@ const supportedDistributions = [
   'compass-isolated',
 ];
 
+const supportedChannels = ['stable', 'beta', 'dev'];
+
 class Target {
   dir: string;
   out: string;
@@ -622,7 +624,7 @@ class Target {
       icon: this.src(platformSettings.icon),
       appBundleId: this.bundleId,
       appCategoryType: platformSettings.app_category_type,
-      protocols: _.get(this, 'config.hadron.protocols', []),
+      protocols: _.get(this.pkg, 'config.hadron.protocols', []),
     });
 
     if (this.channel !== 'stable') {
@@ -953,11 +955,14 @@ class Target {
 
   static getChannelFromVersion(version: string): string {
     // extract channel from version string, e.g. `beta` for `1.3.5-beta.1`
-    const match = version.match(/-([a-z]+)(\.\d+)?$/);
-    if (match) {
-      return match[1].toLowerCase();
+    const match = version.match(/-([a-z]+)(\.\d+)?$/i);
+    const channel = (match?.[1] ?? 'stable').toLowerCase();
+    if (!supportedChannels.includes(channel)) {
+      throw new Error(
+        `Unsupported channel "${channel}" for version ${version}`
+      );
     }
-    return 'stable';
+    return channel;
   }
 
   static getDownloadLinkForAsset(version: string, asset: Asset): string {

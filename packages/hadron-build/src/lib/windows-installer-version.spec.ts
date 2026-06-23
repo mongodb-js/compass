@@ -1,28 +1,28 @@
-import assert from 'assert';
+import chai from 'chai';
 import { windowsInstallerVersion } from './windows-installer-version';
+
+const { expect } = chai;
 
 describe('windowsInstallerVersion', function () {
   it('returns 0.0.0.0 if version is not defined', function () {
-    assert.strictEqual(
-      windowsInstallerVersion(undefined as unknown as string),
+    expect(windowsInstallerVersion(undefined as unknown as string)).to.equal(
       '0.0.0.0'
     );
-    assert.strictEqual(windowsInstallerVersion(''), '0.0.0.0');
-    assert.strictEqual(
-      windowsInstallerVersion(null as unknown as string),
+    expect(windowsInstallerVersion('')).to.equal('0.0.0.0');
+    expect(windowsInstallerVersion(null as unknown as string)).to.equal(
       '0.0.0.0'
     );
   });
 
   it('returns version if version is already suitable', function () {
-    assert.strictEqual(windowsInstallerVersion('1.1.1.1'), '1.1.1.1');
+    expect(windowsInstallerVersion('1.1.1.1')).to.equal('1.1.1.1');
   });
 
   it('returns MAJOR.MINOR.PATCH.0 if version is a GA semver', function () {
-    assert.strictEqual(windowsInstallerVersion('1.1.1'), '1.1.1.0');
+    expect(windowsInstallerVersion('1.1.1')).to.equal('1.1.1.0');
   });
 
   it('returns MAJOR.MINOR.PATCH.0 if version is a prerelease semver', function () {
-    assert.strictEqual(windowsInstallerVersion('1.1.1-beta.0'), '1.1.1.0');
+    expect(windowsInstallerVersion('1.1.1-beta.0')).to.equal('1.1.1.0');
   });
 });

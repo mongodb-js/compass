@@ -1,6 +1,7 @@
 import {
   CompassWebPreferencesAccess,
   featureFlags as FEATURE_FLAG_DEFINITIONS,
+  isPreferenceNameValid,
   type AllPreferences,
   type FeatureFlagDefinition,
   type FeatureFlags,
@@ -150,6 +151,10 @@ export async function getPreferencesFromCloudApi(projectId: string) {
   // for users of that project are feature flags in mms. As a result, the properties in
   // this `featureFlags` object are a mix of feature flags and preferences from Compass' perspective.
   for (const [name, enabled] of Object.entries(featureFlagsAndPreferences)) {
+    // Filter the feature flags that are not defined in Compass' preferences schema.
+    if (!isPreferenceNameValid(name)) {
+      continue;
+    }
     (atlasCloudUserPreferences as Record<string, unknown>)[name] = enabled;
     if (FEATURE_FLAG_BY_NAME.has(name)) {
       const scope = FEATURE_FLAG_BY_NAME.get(name)?.atlasCloudFeatureScope;
