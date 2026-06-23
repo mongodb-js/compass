@@ -1761,6 +1761,17 @@ describe('store', function () {
       await listener;
     });
 
+    it('initializes the view from localStorage on store creation', function () {
+      fakeSetItem(DOCUMENT_VIEW_STORAGE_KEY, 'JSON');
+      deactivate?.();
+
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+
+      expect(store.state.view).to.equal('JSON');
+    });
+
     it('sets the view and stores it in localStorage', async function () {
       let listener = waitForState(store, (state) => {
         expect(state.view).to.equal('Table');
