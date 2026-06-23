@@ -530,6 +530,24 @@ const ArrayValue: React.FunctionComponent<PropsByValueType<'Array'>> = ({
   );
 };
 
+const ObjectValue: React.FunctionComponent<PropsByValueType<'Object'>> = ({
+  value,
+}) => {
+  const lengthString = useMemo(() => {
+    const keys = Object.keys(value ?? {});
+    if (keys.length === 0) {
+      return '(empty)';
+    }
+    return `(${keys.length} elements)`;
+  }, [value]);
+
+  return (
+    <BSONValueContainer title={`Object ${lengthString}`}>
+      Object {lengthString}
+    </BSONValueContainer>
+  );
+};
+
 const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
   switch (props.type) {
     case 'ObjectId':
@@ -574,7 +592,7 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
     case 'Array':
       return <ArrayValue value={props.value}></ArrayValue>;
     case 'Object':
-      return <UnknownValue type={props.type} value={props.type}></UnknownValue>;
+      return <ObjectValue value={props.value}></ObjectValue>;
     default:
       return (
         <UnknownValue type={props.type} value={props.value}></UnknownValue>
