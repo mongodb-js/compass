@@ -538,10 +538,7 @@ const ObjectValue: React.FunctionComponent<PropsByValueType<'Object'>> = ({
     if (keys.length === 0) {
       return '(empty)';
     }
-    if (keys.length === 1) {
-      return '(1 element)';
-    }
-    return `(${keys.length} elements)`;
+    return `(${keys.length} element${keys.length === 1 ? '' : 's'})`;
   }, [value]);
 
   return (
