@@ -22,14 +22,15 @@ jobs:
         with:
           node-version: 24.15.0
           cache: 'npm'
-      - name: Upgrade npm
-        run: |
-          npm install --global npm@11.16.0
-          npm -v
 
-      - name: Install script dependencies
-        run: npm install
-        working-directory: packages/compass-preferences-model
+      - name: Install npm@11.16.0
+        run: |
+          npm install -g npm@11.16.0
+
+      - name: Install Dependencies
+        run: |
+          npm -v
+          npm ci
 
       - name: Detect new feature flags
         id: detect
