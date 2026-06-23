@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Jun 10 2026.
+This document was automatically generated on Mon Jun 22 2026.
 
 ## List of dependencies
 
@@ -422,7 +422,7 @@ This document was automatically generated on Wed Jun 10 2026.
 | **[mongodb-log-writer](#0788567a51c952a5640e64bd3cb5ef4a5e445f340b3bc971f286caa80334a932)**                                 | 2.5.13       | Apache-2.0                          |
 | **[mongodb-mcp-server](#170d115701124029e823835d30b7a783037c72cd0f53bf99816bbbe444a3676d)**                                 | 1.10.0       | Apache-2.0                          |
 | **[mongodb-ns](#3f1ced6a4a6bd87959cd71735e41b49339b332c67606c37ac7afdebd8561d484)**                                         | 3.2.0        | Apache-2.0                          |
-| **[mongodb-query-parser](#6433ba36b8912d9c4d45f6468891ce7330f153f6a10d69de4ed0fd3254a3d923)**                               | 4.7.12       | Apache-2.0                          |
+| **[mongodb-query-parser](#c9c15c9f55bc107256fa7a45a6aa7b0a7031a631231384b7fd0c19adace4e1f9)**                               | 4.7.13       | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6        | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0       | Apache-2.0                          |
 | **[mongodb](#71db4d6739a9dc892a0fa23a6b9beef3b83bd28ced0c57b39bc667538a270708)**                                            | 7.1.1        | Apache-2.0                          |
@@ -28883,9 +28883,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="6433ba36b8912d9c4d45f6468891ce7330f153f6a10d69de4ed0fd3254a3d923"></a>
+<a id="c9c15c9f55bc107256fa7a45a6aa7b0a7031a631231384b7fd0c19adace4e1f9"></a>
 
-### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.7.12)
+### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.7.13)
 
 License tags: Apache-2.0
 

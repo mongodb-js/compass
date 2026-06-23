@@ -61,7 +61,7 @@ const createBrandedApplication = async (CONFIG: Target): Promise<void> => {
   await fs.rename(atomIcns, electronIcns);
 };
 
-const symlinkExecutable = async (CONFIG: Target): Promise<void> => {
+export const symlinkExecutable = async (CONFIG: Target): Promise<void> => {
   if (CONFIG.platform !== 'darwin') {
     return;
   }
@@ -92,13 +92,15 @@ const cleanupBrandedApplicationScaffold = async (
   cli.debug(format('%d extraneous files removed', paths.length));
 };
 
-const writeLicenseFile = async (CONFIG: Target): Promise<void> => {
+export const writeLicenseFile = async (CONFIG: Target): Promise<void> => {
   const contents = await fs.readFile(path.join(CONFIG.dir, 'LICENSE'));
   await CONFIG.write('LICENSE', contents);
   cli.debug(format('LICENSE written'));
 };
 
-const copy3rdPartyNoticesFile = async (CONFIG: Target): Promise<void> => {
+export const copy3rdPartyNoticesFile = async (
+  CONFIG: Target
+): Promise<void> => {
   const noticesPath = path.join(CONFIG.dir, 'THIRD-PARTY-NOTICES.md');
   const contents = await fs.readFile(noticesPath);
   await CONFIG.write('THIRD-PARTY-NOTICES.md', contents);
@@ -138,7 +140,7 @@ const fixCompass5333 = async (CONFIG: Target): Promise<void> => {
   );
 };
 
-const writeVersionFile = async (CONFIG: Target): Promise<void> => {
+export const writeVersionFile = async (CONFIG: Target): Promise<void> => {
   const version = CONFIG.packagerOptions.electronVersion!;
   const dest = await CONFIG.write('version', version);
   cli.debug(format('version `%s` written to `%s`', version, dest));
@@ -330,7 +332,7 @@ const removeDevelopmentFiles = async (CONFIG: Target): Promise<void> => {
   }
 };
 
-const createApplicationAsar = async (CONFIG: Target): Promise<void> => {
+export const createApplicationAsar = async (CONFIG: Target): Promise<void> => {
   const opts = {
     ...CONFIG.asar,
     unpack: `{${['*.node', '**/vendor/**']

@@ -1,6 +1,6 @@
 import React from 'react';
 import { z } from '@mongodb-js/compass-user-data';
-import type { AtlasCloudFeatureFlags, FeatureFlags } from './feature-flags';
+import type { FeatureFlags } from './feature-flags';
 import { FEATURE_FLAG_PREFERENCES } from './feature-flags';
 import { parseRecord } from './parse-record';
 import {
@@ -208,14 +208,16 @@ export type PreferenceState =
   | 'set-global' // Can be set directly or derived from a preference set via global config.
   | 'hardcoded'
   | 'derived' // Derived from a preference set by a user via setting UI.
+  | 'set-cloud-org' // Set by the mms backend for the user's Atlas organization.
+  | 'set-cloud-project' // Set by the mms backend for the user's Atlas project.
+  | 'set-cloud-user' // Set by the mms backend for the user's Atlas user.
   | undefined;
 
 export type DeriveValueFunction<T> = (
   /** Get a preference's value from the current set of preferences */
   getValue: <K extends keyof AllPreferences>(key: K) => AllPreferences[K],
   /** Get a preference's state from the current set of preferences */
-  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState,
-  atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags>
+  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState
 ) => { value: T; state: PreferenceState };
 
 type SecretsConfiguration<T> = {
