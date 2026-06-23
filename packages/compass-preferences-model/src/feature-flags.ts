@@ -246,6 +246,29 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Adds UI for auto-embedded vector search indexes',
     },
   },
+
+  /*
+   * Feature flag for auto embedding private preview UI changes.
+   */
+  {
+    name: 'enableAutoEmbeddingPrivatePreview',
+    stage: 'preview',
+    description: {
+      short:
+        'Adds UI for auto-embedded vector search indexes (private preview)',
+    },
+  },
+
+  /*
+   * Feature flag for sorted search indexes.
+   */
+  {
+    name: 'enableSortedSearchIndexes',
+    stage: 'preview',
+    description: {
+      short: 'Enable sorted syntax for search indexes schema',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;
