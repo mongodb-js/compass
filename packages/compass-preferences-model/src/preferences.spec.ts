@@ -33,6 +33,15 @@ const setupPreferences = async (
   return preferences;
 };
 
+const GLOBAL_PREFERENCES_SOURCES = [
+  'cli',
+  'global',
+  'hardcoded',
+  'atlasCloudUser',
+  'atlasCloudProject',
+  'atlasCloudOrg',
+] as const;
+
 describe('Preferences class', function () {
   let tmpdir: string;
   let i = 0;
@@ -301,4 +310,18 @@ describe('Preferences class', function () {
       ...expectedReleasedFeatureFlagsStates,
     });
   });
+
+  for (const source of GLOBAL_PREFERENCES_SOURCES) {
+    it(`default value is overridden by ${source} global preferences`, async function () {
+      const preferences = await setupPreferences(tmpdir, {
+        [source]: {
+          // Default value for this prop is 'atlas'
+          atlasServiceBackendPreset: 'atlas-dev',
+        },
+      });
+      expect(preferences.getPreferences().atlasServiceBackendPreset).to.equal(
+        'atlas-dev'
+      );
+    });
+  }
 });

@@ -1,6 +1,7 @@
 import {
   CompassWebPreferencesAccess,
   featureFlags as FEATURE_FLAG_DEFINITIONS,
+  isPreferenceNameValid,
   type AllPreferences,
   type FeatureFlagDefinition,
   type FeatureFlags,
@@ -141,6 +142,10 @@ export async function getPreferencesFromCloudApi(projectId: string) {
   // Cloud feature flags arrive keyed by their Compass preference name. We
   // override Compass' value to resolve to the cloud value.
   for (const [name, enabled] of Object.entries(featureFlags)) {
+    // Filter the feature flags that are not defined in Compass' preferences schema.
+    if (!isPreferenceNameValid(name)) {
+      continue;
+    }
     (atlasCloudUserPreferences as Record<string, unknown>)[name] = enabled;
     if (FEATURE_FLAG_BY_NAME.has(name)) {
       const scope = FEATURE_FLAG_BY_NAME.get(name)?.atlasCloudFeatureScope;

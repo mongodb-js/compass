@@ -24,8 +24,12 @@ const renderStagePreview = (
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
-    enableSearchActivationExperiment = false,
-  }: { enableSearchActivationExperiment?: boolean } = {}
+    enableSearchActivationP1Experiment = false,
+    enableSearchActivationP2Experiment = false,
+  }: {
+    enableSearchActivationP1Experiment?: boolean;
+    enableSearchActivationP2Experiment?: boolean;
+  } = {}
 ) => {
   let ui = (
     <StagePreview
@@ -35,6 +39,7 @@ const renderStagePreview = (
       isDisabled={false}
       isMissingAtlasOnlyStageSupport={false}
       stageOperator=""
+      stageMetadata={null}
       shouldRenderStage={false}
       showSearchIndexStaleResultsBanner={false}
       searchIndexName={null}
@@ -42,10 +47,16 @@ const renderStagePreview = (
       {...props}
     />
   );
-  if (enableSearchActivationExperiment) {
+  if (enableSearchActivationP1Experiment) {
     ui = wrapWithExperimentProvider(
       ui,
       ExperimentTestGroups.searchActivationProgramP1Variant
+    );
+  }
+  if (enableSearchActivationP2Experiment) {
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchActivationProgramP2Variant
     );
   }
   return renderWithStore(ui, { pipeline, ...storeOptions });
@@ -153,7 +164,7 @@ describe('StagePreview', function () {
         },
         [{ $search: { index: 'test-index' } }],
         {},
-        { enableSearchActivationExperiment: true }
+        { enableSearchActivationP1Experiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -170,7 +181,7 @@ describe('StagePreview', function () {
         },
         [{ $vectorSearch: { index: 'vector-index' } }],
         {},
-        { enableSearchActivationExperiment: true }
+        { enableSearchActivationP1Experiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -233,7 +244,7 @@ describe('StagePreview', function () {
         },
         [{ $match: { _id: 1 } }],
         {},
-        { enableSearchActivationExperiment: true }
+        { enableSearchActivationP1Experiment: true }
       );
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
@@ -250,6 +261,80 @@ describe('StagePreview', function () {
       });
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
+    });
+  });
+
+  describe('search score chips', function () {
+    const searchMetadata = {
+      type: '$search' as const,
+      scores: [
+        { value: 1.5, description: 'sum of:', details: [] },
+        { value: 0.8, description: 'sum of:', details: [] },
+      ],
+    };
+
+    it('renders score chips when stageMetadata has $search scores', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }, { _id: 2 }],
+          stageMetadata: searchMetadata,
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true }
+      );
+
+      const chips = screen.getAllByTestId('stage-preview-search-score-chip');
+      expect(chips).to.have.length(2);
+      expect(chips[0].textContent).to.include('1.5');
+      expect(chips[1].textContent).to.include('0.8');
+    });
+
+    it('does not render score chips when stageMetadata is null', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [{ _id: 1 }],
+        stageMetadata: null,
+      });
+
+      expect(screen.queryByTestId('stage-preview-search-score-chip')).to.not
+        .exist;
+    });
+
+    it('does not render a chip for null score entries', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }, { _id: 2 }],
+          stageMetadata: {
+            type: '$search',
+            scores: [{ value: 1.5, description: 'sum of:', details: [] }, null],
+          },
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true }
+      );
+
+      const chips = screen.getAllByTestId('stage-preview-search-score-chip');
+      expect(chips).to.have.length(1);
+      expect(chips[0].textContent).to.include('1.5');
+    });
+
+    it('does not render score chips when not in the P2 experiment variant', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [{ _id: 1 }, { _id: 2 }],
+        stageMetadata: searchMetadata,
+      });
+
+      expect(screen.queryByTestId('stage-preview-search-score-chip')).to.not
         .exist;
     });
   });

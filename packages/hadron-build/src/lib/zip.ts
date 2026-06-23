@@ -8,17 +8,18 @@ import type Target from './target';
 
 const debug = createDebug('hadron-build:zip');
 
+type CreateZipOptions = Pick<
+  Target,
+  'platform' | 'getAssetWithExtension' | 'appPath'
+>;
+
 interface ZipOptions {
   dir: string;
   out: string;
   platform: string;
 }
 
-async function zip(_opts: ZipOptions): Promise<string> {
-  const opts: ZipOptions = Object.assign({}, _opts);
-  opts.dir = path.resolve(opts.dir);
-  opts.out = path.resolve(opts.out);
-
+async function zip(opts: ZipOptions): Promise<string> {
   let outputPath;
   if (path.extname(opts.out).toLowerCase() === '.zip') {
     outputPath = opts.out;
@@ -75,7 +76,13 @@ async function zip(_opts: ZipOptions): Promise<string> {
   return outputPath;
 }
 
-function getZipOptionsFromTarget(target: Target): ZipOptions | null {
+/**
+ * Exported for tests
+ * @internal
+ */
+export function getZipOptionsFromTarget(
+  target: CreateZipOptions
+): ZipOptions | null {
   const asset = target.getAssetWithExtension('.zip');
   if (!asset) {
     debug('no asset w extension .zip!');
@@ -83,8 +90,8 @@ function getZipOptionsFromTarget(target: Target): ZipOptions | null {
   }
 
   const res: ZipOptions = {
-    dir: target.appPath,
-    out: asset.path,
+    dir: path.resolve(target.appPath),
+    out: path.resolve(asset.path),
     platform: target.platform,
   };
 
@@ -101,7 +108,7 @@ function getZipOptionsFromTarget(target: Target): ZipOptions | null {
  * and publish them for the release, auto updates will be rejected.
  *
  */
-async function createApplicationZip(target: Target): Promise<void> {
+async function createApplicationZip(target: CreateZipOptions): Promise<void> {
   if (target.platform === 'linux') {
     debug('.zip releases assets for linux disabled');
     return;

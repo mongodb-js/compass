@@ -1,8 +1,13 @@
-import Target from '../src/lib/target';
 import path from 'path';
+import Target from '../src/lib/target';
 
-export const getConfig = (argv?: Record<string, unknown>) => {
-  const src = path.join(__dirname, '..', 'test', 'fixtures', 'hadron-app');
-  process.env.HADRON_DISTRIBUTION = 'compass';
-  return new Target(src, argv);
-};
+// <monorepo>/packages/compass
+export const ROOT_DIR = path.resolve(__dirname, '..', '..', 'compass');
+
+export function resolvePath(...args: string[]) {
+  return path.resolve(ROOT_DIR, ...args);
+}
+
+export function getTarget(argv?: Record<string, unknown>): Target {
+  return new Target(ROOT_DIR, { distribution: 'compass', ...argv });
+}
