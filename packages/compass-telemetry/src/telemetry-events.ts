@@ -3746,6 +3746,17 @@ type SearchIndexStatusDetailsLinkClickedEvent = CommonEvent<{
 /**
  * @category Aggregation Builder
  */
+type RerankStageSelectedEvent = ConnectionScopedEvent<{
+  name: 'Rerank Stage Selected';
+  payload: {
+    /** The version of the connected server. */
+    server_version: string;
+  };
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
 type RerankFirstStageBannerDismissedEvent = CommonEvent<{
   name: 'Rerank First Stage Banner Dismissed';
   payload: Record<string, never>;
@@ -4006,6 +4017,7 @@ export type TelemetryEvent =
   | ManageSearchIndexesLinkClickedEvent
   | RenderProcessGoneEvent
   | SearchIndexStatusDetailsLinkClickedEvent
+  | RerankStageSelectedEvent
   | RerankFirstStageBannerDismissedEvent
   | RerankFirstStageLearnMoreClickedEvent
   | RerankAddSearchStageClickedEvent

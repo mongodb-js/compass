@@ -696,6 +696,14 @@ export const changeStageOperator = (
       connectionInfoRef.current
     );
 
+    if (stage.operator === '$rerank') {
+      track(
+        'Rerank Stage Selected',
+        { server_version: getState().serverVersion },
+        connectionInfoRef.current
+      );
+    }
+
     let newSnippet: string | undefined;
 
     // If there is no stage value or current stage value is identical to the
