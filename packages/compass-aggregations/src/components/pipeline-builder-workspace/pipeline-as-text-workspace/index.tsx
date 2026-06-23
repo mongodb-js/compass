@@ -16,6 +16,7 @@ const outerContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
+  overflow: 'hidden',
 });
 
 const rowStyles = css({
@@ -110,13 +111,16 @@ const mapState = (state: RootState) => {
     autoPreview,
     pipelineBuilder: {
       textEditor: {
-        pipeline: { pipeline },
+        pipeline: { pipeline, previewDocs },
       },
     },
   } = state;
   return {
     isAutoPreview: !!autoPreview,
-    showRerankFirstStageBanner: getIsRerankFirstStage(state),
+    showRerankFirstStageBanner:
+      getIsRerankFirstStage(state) &&
+      previewDocs !== null &&
+      previewDocs.length > 0,
     showRerankTokensBanner:
       pipeline.some((s) => getStageOperator(s) === '$rerank') && !!autoPreview,
   };

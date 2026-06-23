@@ -227,7 +227,8 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
     hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
     isAutoPreviewing: state.autoPreview,
-    showRerankFirstStageBanner: getIsRerankFirstStage(state, ownProps.index),
+    showRerankFirstStageBanner:
+      getIsRerankFirstStage(state, ownProps.index) && stage.hasReturnedDocs,
     showRerankTokensBanner:
       stage.stageOperator === '$rerank' && !!state.autoPreview,
   };

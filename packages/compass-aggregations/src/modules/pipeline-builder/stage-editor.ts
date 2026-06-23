@@ -1118,6 +1118,7 @@ export type StoreStage = {
   serverError: MongoServerError | null;
   loading: boolean;
   previewDocs: HadronDocument[] | null;
+  hasReturnedDocs: boolean;
   stageMetadata: StagePreviewMetadata | null;
   collapsed: boolean;
   disabled: boolean;
@@ -1156,6 +1157,7 @@ export function mapBuilderStageToStoreStage(
     serverError: null,
     loading: false,
     previewDocs: null,
+    hasReturnedDocs: false,
     stageMetadata: null,
     collapsed: false,
     empty: stage.isEmpty,
@@ -1263,6 +1265,9 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: action.previewDocs,
+          hasReturnedDocs:
+            action.previewDocs.length > 0 ||
+            !!(state.stages[action.id] as StoreStage).hasReturnedDocs,
           stageMetadata: action.stageMetadata,
           serverError: null,
         },
@@ -1328,6 +1333,7 @@ const reducer: Reducer<StageEditorState, Action> = (
         {
           ...state.stages[action.id],
           previewDocs: null,
+          hasReturnedDocs: false,
           stageOperator: action.stage.operator,
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,
