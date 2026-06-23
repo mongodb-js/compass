@@ -110,17 +110,14 @@ function useHadronElement(el: HadronElementType) {
 
   const isValid = el.isCurrentTypeValid();
 
-  const originalValue = useMemo(() => {
-    if (el.currentType === 'Array') {
-      return [...(el.elements || [])];
-    }
-    if (el.currentType === 'Object') {
-      return Object.fromEntries(
-        Array.from(el.elements || []).map((e) => [e.currentKey, e.currentValue])
-      );
-    }
-    return el.currentValue;
-  }, [el.currentType, el.currentValue, el.elements]);
+  const originalValue =
+    el.currentType === 'Array'
+      ? [...(el.elements || [])]
+      : el.currentType === 'Object'
+      ? Object.fromEntries(
+          Array.from(el.elements || []).map((e) => [e.currentKey, e.currentValue])
+        )
+      : el.currentValue;
 
   return {
     id: el.uuid,
