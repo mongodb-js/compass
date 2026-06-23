@@ -14,7 +14,10 @@ import {
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
-import { context } from '../helpers/test-runner-context.ts';
+import {
+  context,
+  isTestingWebAtlasCloud,
+} from '../helpers/test-runner-context.ts';
 
 describe('Bulk Delete', function () {
   let compass: Compass;
@@ -169,6 +172,12 @@ describe('Bulk Delete', function () {
   it('can export a delete query', async function () {
     if (context.disableClipboardUsage) {
       this.skip();
+    }
+
+    if (isTestingWebAtlasCloud()) {
+      // Skipping as we driver syntax has will have a variable connection string.
+      // TODO: This should be an easy string substitution.
+      return this.skip();
     }
 
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);

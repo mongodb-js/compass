@@ -12,6 +12,7 @@ import {
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
+import { isTestingWebAtlasCloud } from '../helpers/test-runner-context.ts';
 
 const { expect } = chai;
 
@@ -110,8 +111,8 @@ describe('Instance sidebar', function () {
     await browser.waitUntil(async () => {
       const numTreeItems = await browser.$$(Selectors.SidebarTreeItems).length;
       // connection, database, collection (twice because there are two
-      // connections)
-      return numTreeItems === 6;
+      // connections for non-cloud tests)
+      return numTreeItems === (isTestingWebAtlasCloud() ? 6 : 3);
     });
 
     const dbElement = browser.$(

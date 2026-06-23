@@ -274,7 +274,7 @@ describe('Connection string', function () {
   before(async function () {
     if (isTestingWebAtlasCloud()) {
       // There is no connecting via connection string in atlas cloud.
-      return;
+      return this.skip();
     }
 
     compass = await init(this.test?.fullTitle());

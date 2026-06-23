@@ -392,6 +392,8 @@ describe('Collection documents tab', function () {
 
   it('can export to language', async function () {
     if (isTestingWebAtlasCloud()) {
+      // Skipping as we driver syntax has will have a variable connection string.
+      // TODO: This should be an easy string substitution.
       return this.skip();
     }
 
