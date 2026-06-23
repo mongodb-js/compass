@@ -312,7 +312,7 @@ describe('Preferences class', function () {
   });
 
   for (const source of GLOBAL_PREFERENCES_SOURCES) {
-    it(`default value is overriden by ${source} global preferences`, async function () {
+    it(`default value is overridden by ${source} global preferences`, async function () {
       const preferences = await setupPreferences(tmpdir, {
         [source]: {
           // Default value for this prop is 'atlas'

@@ -7,7 +7,7 @@ import { allPreferencesProps } from './preferences-schema';
  * Checks if a given preference name is valid (exists in the preferences schema).
  */
 export function isPreferenceNameValid(name: string): boolean {
-  return allPreferencesProps[name as keyof AllPreferences] !== undefined;
+  return Object.hasOwn(allPreferencesProps, name);
 }
 
 export function getActiveUserId(
