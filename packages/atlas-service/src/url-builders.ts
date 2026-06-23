@@ -16,9 +16,13 @@ export function buildPerformanceMetricsUrl({
 
 export function buildProjectSettingsUrl({
   projectId,
-}: Pick<AtlasClusterMetadata, 'projectId'>): string {
+  params,
+}: Pick<AtlasClusterMetadata, 'projectId'> & {
+  params?: Record<string, string>;
+}): string {
   const url = new URL(`/v2/${projectId}`, window.location.origin);
-  return `${url}#/settings/groupSettings`;
+  const query = params ? `?${new URLSearchParams(params)}` : '';
+  return `${url}#/settings/groupSettings${query}`;
 }
 
 export function buildMonitoringUrl({

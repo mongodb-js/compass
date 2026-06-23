@@ -209,9 +209,17 @@ ${context.query}
       };
     case 'rerank-first-stage':
       return {
-        prompt: `Why you should use $rerank after a search stage`,
+        prompt: `The given MongoDB aggregation pipeline uses $rerank as the first stage. Provide a concise, human-readable explanation of best practices for using $rerank effectively and efficiently.
+Your explanation must cover the following points:
+
+- $rerank should follow an initial retrieval stage such as $vectorSearch or $search, and explain why.
+- Use $rerank.numDocsToRerank to limit how many documents are passed to the reranker, and explain the performance tradeoff of reranking more vs. fewer documents.
+- Only include fields in $rerank.path that are actually used for reranking — unnecessary fields increase payload size and latency without improving results.
+
+Where relevant, flag if the pipeline in question does not follow these practices.
+Respond with as much concision and clarity as possible. Do not recommend changes without briefly explaining the tradeoff.`,
         metadata: {
-          displayText: 'Why you should use $rerank after a search stage',
+          displayText: 'What are best practices for using $rerank?',
         },
       };
   }
