@@ -137,11 +137,11 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   ) : (
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
-  const isAtlas = !!atlasMetadata;
+
   const isVersionCompatible =
     VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(serverVersion);
   const isIncompatibleViewWithExistingIndexes =
-    !isViewPipelineSearchQueryable && !isAtlas && hasSearchIndexes;
+    !isViewPipelineSearchQueryable && !!atlasMetadata && hasSearchIndexes;
   const canManageSearchIndexesOnView =
     isVersionCompatible &&
     isSearchManagementActive &&
@@ -149,6 +149,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const showToolbarButtons = !isReadonlyView || canManageSearchIndexesOnView;
   const pipelineNotSearchQueryableDescription =
     'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set';
+
   return (
     <div
       className={indexesToolbarContainerStyles}
