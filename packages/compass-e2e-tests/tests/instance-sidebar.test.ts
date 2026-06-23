@@ -112,7 +112,7 @@ describe('Instance sidebar', function () {
       const numTreeItems = await browser.$$(Selectors.SidebarTreeItems).length;
       // connection, database, collection (twice because there are two
       // connections for non-cloud tests)
-      return numTreeItems === (isTestingWebAtlasCloud() ? 6 : 3);
+      return numTreeItems === (isTestingWebAtlasCloud() ? 3 : 6);
     });
 
     const dbElement = browser.$(
