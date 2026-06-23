@@ -196,6 +196,9 @@ export class Preferences {
       ...this._globalPreferences.cli,
       ...this._globalPreferences.global,
       ...this._globalPreferences.hardcoded,
+      ...this._globalPreferences.atlasCloudUser,
+      ...this._globalPreferences.atlasCloudProject,
+      ...this._globalPreferences.atlasCloudOrg,
     };
   }
 
