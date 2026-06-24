@@ -177,6 +177,8 @@ async function _fetchAndCachePreferences(
       {
         ...DEFAULT_COMPASS_WEB_PREFERENCES,
         ...atlasCloudUserPreferences,
+        ...atlasCloudProjectPreferences,
+        ...atlasCloudOrgPreferences,
       },
       {
         atlasCloudUser: atlasCloudUserPreferences,

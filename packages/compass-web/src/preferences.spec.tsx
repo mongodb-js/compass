@@ -170,7 +170,12 @@ describe('compass-web preferences', function () {
       } = await getPreferencesFromCloudApi(PROJECT_ID);
 
       const preferences = new CompassWebPreferencesAccess(
-        { ...DEFAULT_COMPASS_WEB_PREFERENCES, ...atlasCloudUserPreferences },
+        {
+          ...DEFAULT_COMPASS_WEB_PREFERENCES,
+          ...atlasCloudUserPreferences,
+          ...atlasCloudProjectPreferences,
+          ...atlasCloudOrgPreferences,
+        },
         {
           atlasCloudUser: atlasCloudUserPreferences,
           atlasCloudProject: atlasCloudProjectPreferences,
@@ -202,35 +207,6 @@ describe('compass-web preferences', function () {
         'nonExistentFlag'
       );
       expect(atlasCloudOrgPreferences).to.not.have.property('nonExistentFlag');
-    });
-
-    it('if default value differs from cloud value, it should be overridden by cloud value', async function () {
-      fetchStub.resolves(
-        fakeResponse({
-          ...apiResponse,
-          featureFlags: {
-            ...apiResponse.featureFlags,
-            enableGenAIFeaturesAtlasProject: true,
-          },
-        })
-      );
-      const {
-        atlasCloudProjectPreferences,
-        atlasCloudUserPreferences,
-        atlasCloudOrgPreferences,
-      } = await getPreferencesFromCloudApi(PROJECT_ID);
-
-      const preferences = new CompassWebPreferencesAccess(
-        {
-          enableGenAIFeaturesAtlasProject: false, // Default
-        },
-        {
-          atlasCloudProject: atlasCloudProjectPreferences,
-          atlasCloudUser: atlasCloudUserPreferences,
-          atlasCloudOrg: atlasCloudOrgPreferences,
-        }
-      ).getPreferences();
-      expect(preferences.enableGenAIFeaturesAtlasProject).to.equal(true);
     });
 
     it('throws when the request is not ok', async function () {
