@@ -14,7 +14,6 @@ const renderPipelineAsTextWorkspace = (
     <PipelineAsTextWorkspace
       isAutoPreview={true}
       showRerankFirstStageBanner={false}
-      showRerankTokensBanner={false}
       {...props}
     />
   );

@@ -42,8 +42,9 @@ export const RerankVersionWarningBanner = ({
         </span>
         <Button
           size="xsmall"
-          href={upgradeClusterHref}
-          target="_blank"
+          onClick={() =>
+            window.open(upgradeClusterHref, '_blank', 'noopener noreferrer')
+          }
           rightGlyph={<Icon glyph="OpenNewTab" />}
           className={bannerButtonStyles}
         >

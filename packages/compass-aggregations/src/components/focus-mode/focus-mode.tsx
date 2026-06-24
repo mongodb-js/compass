@@ -21,7 +21,6 @@ import FocusModeModalHeader from './focus-mode-modal-header';
 import ResizeHandle from '../resize-handle';
 import { Resizable } from 're-resizable';
 import { RerankFirstStageBanner } from '../rerank-first-stage-banner';
-import { RerankTokensBanner } from '../rerank-tokens-banner';
 import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
@@ -84,7 +83,6 @@ type FocusModeProps = {
   isModalOpen: boolean;
   isAutoPreviewEnabled: boolean | undefined;
   showRerankFirstStageBanner: boolean;
-  showRerankTokensBanner: boolean;
   onCloseModal: () => void;
 };
 
@@ -176,7 +174,6 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
   isAutoPreviewEnabled,
   showRerankFirstStageBanner,
-  showRerankTokensBanner,
   onCloseModal,
 }) => {
   return (
@@ -193,10 +190,10 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
           </div>
           <HorizontalRule />
           {showRerankFirstStageBanner && (
-            <RerankFirstStageBanner data-testid="focus-mode-rerank-first-stage-banner" />
-          )}
-          {showRerankTokensBanner && (
-            <RerankTokensBanner data-testid="focus-mode-rerank-tokens-banner" />
+            <RerankFirstStageBanner
+              data-testid="focus-mode-rerank-first-stage-banner"
+              onBeforeAssistantOpen={onCloseModal}
+            />
           )}
         </div>
         <FocusModeContent isAutoPreviewEnabled={isAutoPreviewEnabled} />
@@ -220,8 +217,6 @@ const mapState = (state: RootState) => {
     showRerankFirstStageBanner:
       getIsRerankFirstStage(state, stageIndex) &&
       !!currentStage?.hasReturnedDocs,
-    showRerankTokensBanner:
-      currentStage?.stageOperator === '$rerank' && !!autoPreview,
   };
 };
 

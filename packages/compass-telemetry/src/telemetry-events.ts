@@ -1525,7 +1525,11 @@ type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
 type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
   name: 'Assistant Entry Point Used';
   payload: {
-    source: 'explain plan' | 'performance insights' | 'connection error';
+    source:
+      | 'explain plan'
+      | 'performance insights'
+      | 'connection error'
+      | 'follow-up prompt';
     request_id?: string;
   };
 }>;

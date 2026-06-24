@@ -567,7 +567,7 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
           await browser.waitForMessages([
             {
-              text: 'Why you should use $rerank after a search stage',
+              text: 'What are best practices for using $rerank?',
               role: 'user',
             },
             {
@@ -589,7 +589,7 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
           await browser.waitForMessages([
             {
-              text: 'Why you should use $rerank after a search stage',
+              text: 'What are best practices for using $rerank?',
               role: 'user',
             },
             {

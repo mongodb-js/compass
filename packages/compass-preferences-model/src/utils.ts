@@ -1,6 +1,14 @@
 import { usePreference } from './react';
 import type { AllPreferences, PreferencesAccess, User } from '.';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
+import { allPreferencesProps } from './preferences-schema';
+
+/**
+ * Checks if a given preference name is valid (exists in the preferences schema).
+ */
+export function isPreferenceNameValid(name: string): boolean {
+  return Object.hasOwn(allPreferencesProps, name);
+}
 
 export function getActiveUserId(
   preferences: Pick<PreferencesAccess, 'getPreferences'>
