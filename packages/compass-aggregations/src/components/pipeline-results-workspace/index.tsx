@@ -209,13 +209,16 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
             {projectSettingsHref && (
               <Button
                 size="xsmall"
-                href={projectSettingsHref}
-                target="_blank"
-                onClick={() =>
+                onClick={() => {
                   track('Rerank Project Settings Button Clicked', {
                     context: 'Rerank Not Enabled Banner',
-                  })
-                }
+                  });
+                  window.open(
+                    projectSettingsHref,
+                    '_blank',
+                    'noopener noreferrer'
+                  );
+                }}
                 rightGlyph={<Icon glyph="OpenNewTab" />}
               >
                 Project Settings
