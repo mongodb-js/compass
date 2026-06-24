@@ -17,7 +17,6 @@ import {
   getStageOperator,
   isOutputStage,
 } from '../utils/stage';
-import { isRerankVersionSupported } from '../utils/search-stage-errors';
 import { fetchExplainForPipeline } from './insights';
 import { isAction } from '../utils/is-action';
 import {
@@ -319,18 +318,6 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
     }
   ) => {
     const pipeline = getPipelineFromBuilderState(getState(), pipelineBuilder);
-
-    const { enableRerank } = preferences.getPreferences();
-    const hasRerankStage = pipeline.some(
-      (stage) => getStageOperator(stage) === '$rerank'
-    );
-    if (
-      enableRerank &&
-      hasRerankStage &&
-      !isRerankVersionSupported(getState().serverVersion)
-    ) {
-      return;
-    }
 
     if (
       !(await confirmWriteOperationIfNeeded({
