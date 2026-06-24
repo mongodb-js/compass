@@ -83,13 +83,33 @@ export const useRerankInsight = ({
 }) => {
   const enableRerank = usePreference('enableRerank');
   const track = useTelemetry();
-  const onAssistantButtonClick = useRerankInsightAction();
+  const rawOnAssistantButtonClick = useRerankInsightAction();
   const { atlasMetadata } = useConnectionInfo();
 
+  const learnAboutSearchUrl = atlasMetadata
+    ? buildAtlasSearchClustersUrl({ projectId: atlasMetadata.projectId })
+    : 'https://dochub.mongodb.org/core/atlas-search';
+
   const onAddSearchStageBeforeWithTracking = useCallback(() => {
-    track('Rerank Add Search Stage Clicked', {});
+    track('Rerank Add Search Stage Button Clicked', {
+      context: 'Rerank Insight',
+    });
     onAddSearchStageBefore();
   }, [track, onAddSearchStageBefore]);
+
+  const onLearnAboutSearchWithTracking = useCallback(() => {
+    track('Rerank Learn About Search Button Clicked', {
+      context: 'Rerank Insight',
+    });
+    window.open(learnAboutSearchUrl, '_blank', 'noopener noreferrer');
+  }, [track, learnAboutSearchUrl]);
+
+  const onAssistantButtonClickWithTracking = useCallback(() => {
+    track('Rerank Tell Me More Button Clicked', {
+      context: 'Rerank Insight',
+    });
+    rawOnAssistantButtonClick?.();
+  }, [track, rawOnAssistantButtonClick]);
 
   return useMemo(() => {
     if (!enableRerank || !isRerankFirstStage) return undefined;
@@ -106,15 +126,11 @@ export const useRerankInsight = ({
       ...(hasSearchIndex && !isSearchIndexesLoading
         ? { onPrimaryActionButtonClick: onAddSearchStageBeforeWithTracking }
         : !isSearchIndexesLoading
-        ? {
-            primaryActionButtonLink: atlasMetadata
-              ? buildAtlasSearchClustersUrl({
-                  projectId: atlasMetadata.projectId,
-                })
-              : 'https://dochub.mongodb.org/core/atlas-search',
-          }
+        ? { onPrimaryActionButtonClick: onLearnAboutSearchWithTracking }
         : {}),
-      onAssistantButtonClick,
+      onAssistantButtonClick: rawOnAssistantButtonClick
+        ? onAssistantButtonClickWithTracking
+        : undefined,
     };
   }, [
     enableRerank,
@@ -122,8 +138,9 @@ export const useRerankInsight = ({
     hasSearchIndex,
     isSearchIndexesLoading,
     onAddSearchStageBeforeWithTracking,
-    atlasMetadata,
-    onAssistantButtonClick,
+    onLearnAboutSearchWithTracking,
+    rawOnAssistantButtonClick,
+    onAssistantButtonClickWithTracking,
   ]);
 };
 
@@ -188,7 +205,9 @@ export const RerankFirstStageBanner = ({
       className={bannerStyles}
       dismissible
       onClose={() => {
-        track('Rerank First Stage Banner Dismissed', {});
+        track('Rerank First Stage Banner Dismissed', {
+          context: 'Rerank First Stage Banner',
+        });
         setIsDismissed(true);
       }}
     >
@@ -207,7 +226,9 @@ export const RerankFirstStageBanner = ({
             size="xsmall"
             className={bannerButtonStyles}
             onClick={() => {
-              track('Rerank First Stage Learn More Clicked', {});
+              track('Rerank First Stage Banner Learn More Clicked', {
+                context: 'Rerank First Stage Banner',
+              });
               onInsightAction?.();
             }}
             leftGlyph={<Icon glyph="Sparkle" />}

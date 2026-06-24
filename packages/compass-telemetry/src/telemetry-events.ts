@@ -3750,12 +3750,17 @@ type SearchIndexStatusDetailsLinkClickedEvent = CommonEvent<{
 /**
  * @category Aggregation Builder
  */
-type RerankStageSelectedEvent = ConnectionScopedEvent<{
-  name: 'Rerank Stage Selected';
-  payload: {
-    /** The version of the connected server. */
-    server_version: string;
-  };
+type RerankNotEnabledBannerShownEvent = CommonEvent<{
+  name: 'Rerank Not Enabled Banner Shown';
+  payload: { context: 'Rerank Not Enabled Banner' };
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
+type RerankVersionWarningBannerShownEvent = CommonEvent<{
+  name: 'Rerank Version Warning Banner Shown';
+  payload: { context: 'Rerank Version Warning Banner' };
 }>;
 
 /**
@@ -3763,41 +3768,68 @@ type RerankStageSelectedEvent = ConnectionScopedEvent<{
  */
 type RerankFirstStageBannerDismissedEvent = CommonEvent<{
   name: 'Rerank First Stage Banner Dismissed';
-  payload: Record<string, never>;
+  payload: { context: 'Rerank First Stage Banner' };
 }>;
 
 /**
  * @category Aggregation Builder
  */
-type RerankFirstStageLearnMoreClickedEvent = CommonEvent<{
-  name: 'Rerank First Stage Learn More Clicked';
-  payload: Record<string, never>;
+type RerankFirstStageBannerLearnMoreClickedEvent = CommonEvent<{
+  name: 'Rerank First Stage Banner Learn More Clicked';
+  payload: { context: 'Rerank First Stage Banner' };
 }>;
 
 /**
  * @category Aggregation Builder
  */
-type RerankAddSearchStageClickedEvent = CommonEvent<{
-  name: 'Rerank Add Search Stage Clicked';
-  payload: Record<string, never>;
+type RerankAddSearchStageButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Add Search Stage Button Clicked';
+  payload: { context: 'Rerank Insight' };
 }>;
 
 /**
  * @category Aggregation Builder
  */
-type RerankUpgradeClusterLinkClickedEvent = CommonEvent<{
-  name: 'Rerank Upgrade Cluster Link Clicked';
-  payload: Record<string, never>;
+type RerankLearnAboutSearchButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Learn About Search Button Clicked';
+  payload: { context: 'Rerank Insight' };
 }>;
 
 /**
  * @category Aggregation Builder
  */
-type RerankProjectSettingsLinkClickedEvent = CommonEvent<{
-  name: 'Rerank Project Settings Link Clicked';
+type RerankTellMeMoreButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Tell Me More Button Clicked';
+  payload: { context: 'Rerank Insight' };
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
+type RerankUpgradeClusterButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Upgrade Cluster Button Clicked';
+  payload: { context: 'Rerank Version Warning Banner' };
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
+type RerankProjectSettingsButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Project Settings Button Clicked';
+  payload: { context: 'Rerank Not Enabled Banner' };
+}>;
+
+/**
+ * @category Aggregation Builder
+ */
+type SearchExtensionRateLimitBannerShownEvent = CommonEvent<{
+  name: 'Search Extension Rate Limit Banner Shown';
   payload: {
-    /** The banner/component from which the link was clicked. */
-    context: string;
+    context: 'Search Extension Rate Limit Banner';
+    /** The search extension type that triggered the rate limit. */
+    search_extension_type: string | null;
+    /** The type of rate limit that was exceeded. */
+    rate_limit_type: 'billing' | 'rpm' | 'tpm';
   };
 }>;
 
@@ -3807,6 +3839,7 @@ type RerankProjectSettingsLinkClickedEvent = CommonEvent<{
 type SearchExtensionRateLimitBillingLinkClickedEvent = CommonEvent<{
   name: 'Search Extension Rate Limit Billing Link Clicked';
   payload: {
+    context: 'Search Extension Rate Limit Banner';
     /** The search extension type that triggered the rate limit. */
     search_extension_type: string | null;
   };
@@ -3815,9 +3848,10 @@ type SearchExtensionRateLimitBillingLinkClickedEvent = CommonEvent<{
 /**
  * @category Aggregation Builder
  */
-type SearchExtensionRateLimitViewLinkClickedEvent = CommonEvent<{
-  name: 'Search Extension Rate Limit View Link Clicked';
+type SearchExtensionRateLimitPageLinkClickedEvent = CommonEvent<{
+  name: 'Search Extension Rate Limit Page Link Clicked';
   payload: {
+    context: 'Search Extension Rate Limit Banner';
     /** The search extension type that triggered the rate limit. */
     search_extension_type: string | null;
     /** Whether the rate limit is requests-per-minute or tokens-per-minute. */
@@ -4021,11 +4055,15 @@ export type TelemetryEvent =
   | ManageSearchIndexesLinkClickedEvent
   | RenderProcessGoneEvent
   | SearchIndexStatusDetailsLinkClickedEvent
-  | RerankStageSelectedEvent
+  | RerankNotEnabledBannerShownEvent
+  | RerankVersionWarningBannerShownEvent
   | RerankFirstStageBannerDismissedEvent
-  | RerankFirstStageLearnMoreClickedEvent
-  | RerankAddSearchStageClickedEvent
-  | RerankUpgradeClusterLinkClickedEvent
-  | RerankProjectSettingsLinkClickedEvent
+  | RerankFirstStageBannerLearnMoreClickedEvent
+  | RerankAddSearchStageButtonClickedEvent
+  | RerankLearnAboutSearchButtonClickedEvent
+  | RerankTellMeMoreButtonClickedEvent
+  | RerankUpgradeClusterButtonClickedEvent
+  | RerankProjectSettingsButtonClickedEvent
+  | SearchExtensionRateLimitBannerShownEvent
   | SearchExtensionRateLimitBillingLinkClickedEvent
-  | SearchExtensionRateLimitViewLinkClickedEvent;
+  | SearchExtensionRateLimitPageLinkClickedEvent;

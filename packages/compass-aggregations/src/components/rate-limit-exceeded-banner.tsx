@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Banner,
   BannerVariant,
@@ -40,6 +40,14 @@ export default function RateLimitExceededBanner({
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
 
+  useEffect(() => {
+    track('Search Extension Rate Limit Banner Shown', {
+      context: 'Search Extension Rate Limit Banner',
+      search_extension_type: searchExtensionType ?? null,
+      rate_limit_type: rateLimitInfo.type,
+    });
+  }, [track, searchExtensionType, rateLimitInfo.type]);
+
   if (rateLimitInfo.type === 'billing') {
     const billingHref = atlasMetadata
       ? buildBillingUrl({ orgId: atlasMetadata.orgId })
@@ -60,6 +68,7 @@ export default function RateLimitExceededBanner({
             target="_blank"
             onClick={() =>
               track('Search Extension Rate Limit Billing Link Clicked', {
+                context: 'Search Extension Rate Limit Banner',
                 search_extension_type: searchExtensionType ?? null,
               })
             }
@@ -110,7 +119,8 @@ export default function RateLimitExceededBanner({
               href={rateLimitsHref}
               target="_blank"
               onClick={() =>
-                track('Search Extension Rate Limit View Link Clicked', {
+                track('Search Extension Rate Limit Page Link Clicked', {
+                  context: 'Search Extension Rate Limit Banner',
                   search_extension_type: searchExtensionType ?? null,
                   rate_limit_type: rateLimitInfo.type as 'rpm' | 'tpm',
                 })

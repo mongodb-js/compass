@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Banner,
   Button,
@@ -31,6 +31,13 @@ export const RerankVersionWarningBanner = ({
 }) => {
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
+
+  useEffect(() => {
+    track('Rerank Version Warning Banner Shown', {
+      context: 'Rerank Version Warning Banner',
+    });
+  }, [track]);
+
   const upgradeClusterHref = atlasMetadata
     ? buildUpgradeClusterUrl(atlasMetadata)
     : 'https://www.mongodb.com/docs/atlas/tutorial/major-version-change/';
@@ -45,7 +52,9 @@ export const RerankVersionWarningBanner = ({
         <Button
           size="xsmall"
           onClick={() => {
-            track('Rerank Upgrade Cluster Link Clicked', {});
+            track('Rerank Upgrade Cluster Button Clicked', {
+              context: 'Rerank Version Warning Banner',
+            });
             window.open(upgradeClusterHref, '_blank', 'noopener noreferrer');
           }}
           rightGlyph={<Icon glyph="OpenNewTab" />}

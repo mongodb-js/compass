@@ -212,8 +212,8 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
                 href={projectSettingsHref}
                 target="_blank"
                 onClick={() =>
-                  track('Rerank Project Settings Link Clicked', {
-                    context: 'Pipeline Results Workspace',
+                  track('Rerank Project Settings Button Clicked', {
+                    context: 'Rerank Not Enabled Banner',
                   })
                 }
                 rightGlyph={<Icon glyph="OpenNewTab" />}
