@@ -162,6 +162,34 @@ export class Preferences {
     return newPreferences;
   }
 
+  /**
+   * @private
+   * Update the Atlas Cloud preference buckets so a cloud-controlled
+   * preference can be changed (`savePreferences` writes to user storage, which
+   * cloud buckets override). Used for testing purposes.
+   * This does *not* allow a user to override hardcoded or CLI/global prefs.
+   */
+  overrideAtlasCloudPreferences(
+    attributes: Partial<AllPreferences> = {}
+  ): AllPreferences {
+    const originalPreferences = this.getPreferences();
+    const buckets = [
+      this._globalPreferences.atlasCloudUser,
+      this._globalPreferences.atlasCloudProject,
+      this._globalPreferences.atlasCloudOrg,
+    ];
+    for (const [key, value] of Object.entries(attributes)) {
+      for (const bucket of buckets) {
+        if (key in bucket) {
+          (bucket as Record<string, unknown>)[key] = value;
+        }
+      }
+    }
+    const newPreferences = this.getPreferences();
+    this._afterPreferencesUpdate(originalPreferences, newPreferences);
+    return newPreferences;
+  }
+
   _afterPreferencesUpdate(
     originalPreferences: AllPreferences,
     newPreferences: AllPreferences

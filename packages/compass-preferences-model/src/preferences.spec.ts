@@ -2,6 +2,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
 import { Preferences } from './preferences';
+import type { AllPreferences } from './preferences-schema';
 import { expect } from 'chai';
 import { FEATURE_FLAG_DEFINITIONS } from './feature-flags';
 import { PersistentStorage } from './preferences-persistent-storage';
@@ -324,4 +325,54 @@ describe('Preferences class', function () {
       );
     });
   }
+
+  describe('overrideAtlasCloudPreferences', function () {
+    for (const source of [
+      'atlasCloudUser',
+      'atlasCloudProject',
+      'atlasCloudOrg',
+    ] as const) {
+      it(`overrides a value controlled by the ${source} bucket`, async function () {
+        const preferences = await setupPreferences(tmpdir, {
+          [source]: { enableGenAISampleDocumentPassing: false },
+        });
+        await preferences.savePreferences({
+          enableGenAISampleDocumentPassing: true,
+        });
+        // savePreferences alone cannot change a cloud-controlled value
+        expect(
+          preferences.getPreferences().enableGenAISampleDocumentPassing
+        ).to.equal(false);
+
+        preferences.overrideAtlasCloudPreferences({
+          enableGenAISampleDocumentPassing: true,
+        });
+        expect(
+          preferences.getPreferences().enableGenAISampleDocumentPassing
+        ).to.equal(true);
+      });
+    }
+
+    it('leaves preferences not present in any cloud bucket untouched', async function () {
+      const preferences = await setupPreferences(tmpdir);
+      const result = preferences.overrideAtlasCloudPreferences({
+        enableMaps: false,
+      });
+      expect(result.enableMaps).to.equal(true);
+    });
+
+    it('notifies change listeners', async function () {
+      const preferences = await setupPreferences(tmpdir, {
+        atlasCloudUser: { enableGenAISampleDocumentPassing: false },
+      });
+      const changes: Partial<AllPreferences>[] = [];
+      preferences.onPreferencesChanged((c) => changes.push(c));
+      preferences.overrideAtlasCloudPreferences({
+        enableGenAISampleDocumentPassing: true,
+      });
+      expect(changes).to.deep.equal([
+        { enableGenAISampleDocumentPassing: true },
+      ]);
+    });
+  });
 });

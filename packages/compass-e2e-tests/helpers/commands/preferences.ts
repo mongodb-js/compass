@@ -52,13 +52,16 @@ function _setFeatureWeb<K extends keyof UserPreferences>(
   return browser.execute(
     // @ts-expect-error generics in the browser.execute definition mess up with
     // the multiple args we're passing here, so we have to just ignore the issue
-    (_name: K, _value: UserPreferences[K]): AllPreferences => {
+    async (_name: K, _value: UserPreferences[K]): AllPreferences => {
       const kSandboxPreferencesAccess = Symbol.for(
         '@compass-web-sandbox-preferences-access'
       );
-      return (globalThis as any)[kSandboxPreferencesAccess].savePreferences({
-        [_name]: _value === null ? undefined : _value,
-      });
+      const access = (globalThis as any)[kSandboxPreferencesAccess];
+      const attributes = { [_name]: _value === null ? undefined : _value };
+      await access.savePreferences(attributes);
+      // Cloud-controlled preferences override user storage, so also override
+      // the cloud buckets to force the value when running against Atlas Cloud.
+      return access.overridePreferencesForTesting(attributes);
     },
     name,
     value
@@ -120,7 +123,7 @@ export async function setFeature<K extends keyof UserPreferences>(
         latestValue = newPreferences[name];
         return doesPreferenceExists ? isEqual(latestValue, value) : true;
       },
-      { interval: 1000 }
+      { interval: 1000, timeout: 30_000 }
     );
   } catch (err) {
     const expected = inspect(value);

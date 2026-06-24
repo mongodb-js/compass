@@ -23,6 +23,14 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
     return this._preferences.savePreferences(_attributes);
   }
 
+  /**
+   * @private
+   * Exposed for testing purposes.
+   */
+  overridePreferencesForTesting(attributes: Partial<AllPreferences>) {
+    return this._preferences.overrideAtlasCloudPreferences(attributes);
+  }
+
   refreshPreferences() {
     return Promise.resolve(this._preferences.getPreferences());
   }
