@@ -180,7 +180,7 @@ export class Preferences {
     ];
     for (const [key, value] of Object.entries(attributes)) {
       for (const bucket of buckets) {
-        if (key in bucket) {
+        if (Object.prototype.hasOwnProperty.call(bucket, key)) {
           (bucket as Record<string, unknown>)[key] = value;
         }
       }
