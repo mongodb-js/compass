@@ -269,6 +269,14 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable sorted syntax for search indexes schema',
     },
   },
+  {
+    name: 'enableAutocompleteV2',
+    stage: 'development',
+    description: {
+      short: 'Enable autocomplete V2',
+    },
+    atlasCloudFeatureScope: 'group',
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;
