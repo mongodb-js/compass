@@ -122,7 +122,7 @@ export default function RateLimitExceededBanner({
                 track('Search Extension Rate Limit Page Link Clicked', {
                   context: 'Search Extension Rate Limit Banner',
                   search_extension_type: searchExtensionType ?? null,
-                  rate_limit_type: rateLimitInfo.type as 'rpm' | 'tpm',
+                  rate_limit_type: rateLimitInfo.type,
                 })
               }
             >
