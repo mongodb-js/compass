@@ -124,8 +124,13 @@ const getPermissionsFromUserRoles = (userRoles: {
  * @internal Exported for testing.
  */
 export async function getPreferencesFromCloudApi(projectId: string) {
-  const { featureFlags, userAuid, appUser, currentOrganization, userRoles } =
-    await _fetchPreferencesFromCloudApi(projectId);
+  const {
+    featureFlags: featureFlagsAndPreferences,
+    userAuid,
+    appUser,
+    currentOrganization,
+    userRoles,
+  } = await _fetchPreferencesFromCloudApi(projectId);
 
   const atlasCloudUserPreferences: Partial<AllPreferences> = {
     atlasServiceBackendPreset: getAtlasServiceBackendPreset(),
@@ -141,7 +146,11 @@ export async function getPreferencesFromCloudApi(projectId: string) {
 
   // Cloud feature flags arrive keyed by their Compass preference name. We
   // override Compass' value to resolve to the cloud value.
-  for (const [name, enabled] of Object.entries(featureFlags)) {
+  // Note: Things we would consider preferences in Compass are feature flags in
+  // mms. For instance, settings on the project that enable or disable features
+  // for users of that project are feature flags in mms. As a result, the properties in
+  // this `featureFlags` object are a mix of feature flags and preferences from Compass' perspective.
+  for (const [name, enabled] of Object.entries(featureFlagsAndPreferences)) {
     // Filter the feature flags that are not defined in Compass' preferences schema.
     if (!isPreferenceNameValid(name)) {
       continue;
