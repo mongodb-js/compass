@@ -104,20 +104,14 @@ jobs:
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
-
-      - name: Create MMS Github App Token
-        uses: actions/create-github-app-token@v1
-        id: mms-app-token
-        with:
-          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
-          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
           owner: 10gen
           repositories: mms
+
       - name: Checkout MMS
         uses: actions/checkout@v4
         with:
           repository: 10gen/mms
-          token: ${{ steps.mms-app-token.outputs.token }}
+          token: ${{ steps.app-token.outputs.token }}
           path: mms
           show-progress: false
       - name: Setup PR info
@@ -156,7 +150,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
-          token: ${{ steps.mms-app-token.outputs.token }}
+          token: ${{ steps.app-token.outputs.token }}
           path: mms
           sign-commits: true
           add-paths: feature-flags/definitions/developer-tools
