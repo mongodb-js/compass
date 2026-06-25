@@ -270,6 +270,15 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable sorted syntax for search indexes schema',
     },
   },
+
+  {
+    name: 'enableDatetimePickerOnCrudView',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Enable datetime picker on CRUD view',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;
