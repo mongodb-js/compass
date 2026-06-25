@@ -15,6 +15,8 @@ jobs:
   detect-flags:
     name: Detect new feature flags
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     outputs:
       flags_count: ${{ steps.detect.outputs.flags_count }}
       comment_body: ${{ steps.detect.outputs.comment_body }}
@@ -33,12 +35,13 @@ jobs:
         run: npm install -g npm@11.16.0 typescript@5.9.3
 
       - name: Install Dependencies
-        run: npm install typescript@5.9.3
+        run: npm install typescript@5.9.3 --ignore-scripts
 
       - name: Detect new feature flags
         id: detect
         run: node packages/compass-preferences-model/scripts/detect-new-feature-flags-for-mms.mts
         env:
+          # Different commit hashes are used depending on whether the workflow is triggered by a pull request or a push event (main).
           BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.after }}
 
