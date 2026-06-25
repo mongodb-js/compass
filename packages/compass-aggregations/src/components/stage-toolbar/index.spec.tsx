@@ -105,7 +105,7 @@ describe('StageToolbar', function () {
       expect(
         screen.getByTestId('stage-toolbar-view-token-usage-link')
       ).to.exist;
-      expect(screen.getByText('View token usage')).to.exist;
+      expect(screen.getByText('View $rerank Usage and Rate Limits')).to.exist;
     });
   });
 
