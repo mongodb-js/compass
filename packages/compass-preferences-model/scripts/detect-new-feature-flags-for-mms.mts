@@ -252,7 +252,6 @@ function main(): void {
         githubOutput,
         `comment_body<<${delimiter}\n${body}\n${delimiter}\n`
       );
-      // TODO: Separate these two outputs into different steps so that the MMS PR body can be generated in a separate step.
       const mmsPullRequestContent = newFlags.map(getFeatureFlagConfigForMMS);
       appendFileSync(
         githubOutput,
