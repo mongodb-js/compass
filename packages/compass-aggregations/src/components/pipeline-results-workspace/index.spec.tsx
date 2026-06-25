@@ -102,7 +102,7 @@ describe('PipelineResultsWorkspace', function () {
           'MMS API error: MmsApiError(HttpError { status: 400, message: "{\\"error\\":\\"$rerank is not enabled for demo. Enable the $rerank Project Setting to run this pipeline.\\"}" })',
       },
     });
-    expect(screen.getByText('Native reranking not enabled')).to.exist;
+    expect(screen.getByText('$rerank not enabled')).to.exist;
     expect(screen.getByText('Enable native reranking in project settings.')).to
       .exist;
     expect(screen.queryByText('RETRY')).to.not.exist;
