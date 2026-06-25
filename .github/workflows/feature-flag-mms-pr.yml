@@ -106,12 +106,6 @@ jobs:
           # BASE_SHA: ${{ github.event.before }}
           # HEAD_SHA: ${{ github.event.after }}
 
-      - name: Check if new flags detected
-        if: steps.detect.outputs.flags_count == '' || steps.detect.outputs.flags_count == '0'
-        run: |
-          echo "No new feature flags detected, skipping MMS PR creation"
-          exit 0
-
       - name: Create Github App Token
         if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
@@ -136,12 +130,12 @@ jobs:
         with:
           repository: 10gen/mms
           token: ${{ steps.mms-app-token.outputs.token }}
-          path: ../mms
+          path: mms
 
       - name: Add new feature flags to MMS
         if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         run: |
-          cd ../mms
+          cd mms
           echo "${{ steps.detect.outputs.mms_pull_request_body }}" | jq -c '.[]' | while read -r flag; do
             filePath=$(echo "$flag" | jq -r '.filePath')
             config=$(echo "$flag" | jq -r '.config')
@@ -168,7 +162,8 @@ jobs:
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
           token: ${{ steps.mms-app-token.outputs.token }}
-          path: ../mms
+          path: mms
+          add-paths: .
           commit-message: 'chore: sync feature flags from ${{ github.repository }}@${{ github.sha }}'
           branch: ${{ steps.branch.outputs.name }}
           title: 'chore: sync feature flags from ${{ github.repository }}@${{ github.sha }}'
