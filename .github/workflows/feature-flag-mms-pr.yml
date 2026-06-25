@@ -79,7 +79,7 @@ jobs:
   create-mms-pr:
     name: Create MMS PR
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
         with:
