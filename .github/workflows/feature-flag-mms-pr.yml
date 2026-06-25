@@ -29,8 +29,11 @@ jobs:
           node-version: 24.15.0
           cache: 'npm'
 
-      - name: Install Dependencies
+      - name: Install npm
         run: npm install -g npm@11.16.0 typescript@5.9.3
+
+      - name: Install Dependencies
+        run: npm install typescript@5.9.3
 
       - name: Detect new feature flags
         id: detect
