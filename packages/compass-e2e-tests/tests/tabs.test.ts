@@ -150,7 +150,7 @@ describe('Global Tabs', function () {
     if (isTestingWebAtlasCloud()) {
       // We only have one available connection when testing Atlas Cloud
       // at the moment, so we skip this test.
-      this.skip();
+      return this.skip();
     }
 
     // workspace 1: connection 1, Documents tab

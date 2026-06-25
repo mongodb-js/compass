@@ -14,7 +14,7 @@ describe('routing', function () {
 
   before(async function () {
     if (isTestingDesktop()) {
-      this.skip();
+      return this.skip();
     }
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;

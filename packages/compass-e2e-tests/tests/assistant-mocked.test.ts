@@ -17,7 +17,10 @@ import { startMockAtlasServiceServer } from '../helpers/mock-atlas-service.ts';
 import { startMockAssistantServer } from '../helpers/assistant-service.ts';
 import type { MockAssistantResponse } from '../helpers/assistant-service.ts';
 
-import { context } from '../helpers/test-runner-context.ts';
+import {
+  context,
+  isTestingWebAtlasCloud,
+} from '../helpers/test-runner-context.ts';
 
 describe('MongoDB Assistant (with mocked backend)', function () {
   let compass: Compass;
@@ -498,6 +501,11 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
       describe('error message entry point', function () {
         before(function () {
+          if (isTestingWebAtlasCloud()) {
+            // We don't show connection debugging on Atlas web.
+            return this.skip();
+          }
+
           mockAssistantServer.setResponse({
             status: 200,
             body: 'You should review the connection string.',
