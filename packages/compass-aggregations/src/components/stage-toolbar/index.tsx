@@ -170,7 +170,7 @@ export function StageToolbar({
     enableRerank && stage.stageOperator === '$rerank'
       ? atlasMetadata
         ? buildRerankTokenUsageUrl(atlasMetadata)
-        : 'https://dochub.mongodb.org/core/$rerank#metrics'
+        : 'https://dochub.mongodb.org/core/$rerank#navigate-to-the-search--vector-search-page-1'
       : null;
 
   const performanceInsight = useMemo(
@@ -229,7 +229,7 @@ export function StageToolbar({
             className={viewTokenUsageLinkStyles}
             data-testid="stage-toolbar-view-token-usage-link"
           >
-            View token usage
+            View $rerank Usage and Rate Limits
           </Link>
         )}
         {enableSearchActivationProgramP1 &&

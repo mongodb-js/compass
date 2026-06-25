@@ -93,7 +93,7 @@ export default function ServerErrorBanner({
     <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>
       {rerankNotEnabled ? (
         <>
-          <strong>Native reranking not enabled</strong>
+          <strong>$rerank not enabled</strong>
           <br />
           <div className={bannerContentStyles}>
             <span>Enable native reranking in project settings.</span>
