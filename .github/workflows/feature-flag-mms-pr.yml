@@ -12,13 +12,13 @@ on:
       - main
 
 jobs:
-  add-comment-to-pr:
-    name: Detect new feature flags and comment on PR
+  detect-flags:
+    name: Detect new feature flags
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    permissions:
-      pull-requests: write
-      contents: read
+    outputs:
+      flags_count: ${{ steps.detect.outputs.flags_count }}
+      comment_body: ${{ steps.detect.outputs.comment_body }}
+      mms_pull_request_content: ${{ steps.detect.outputs.mms_pull_request_content }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -29,24 +29,28 @@ jobs:
           node-version: 24.15.0
           cache: 'npm'
 
-      - name: Install npm@11.16.0
-        run: npm install -g npm@11.16.0
-
       - name: Install Dependencies
-        run: npm ci
+        run: npm install -g npm@11.16.0 typescript@5.9.3
 
       - name: Detect new feature flags
         id: detect
         run: node packages/compass-preferences-model/scripts/detect-new-feature-flags-for-mms.mts
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.after }}
 
+  add-comment-to-pr:
+    name: Comment on PR with new feature flags
+    needs: detect-flags
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && needs.detect-flags.outputs.flags_count != '' && needs.detect-flags.outputs.flags_count != '0'
+    permissions:
+      pull-requests: write
+    steps:
       - name: Post or update comment on PR
-        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         uses: actions/github-script@v7
         env:
-          COMMENT_BODY: ${{ steps.detect.outputs.comment_body }}
+          COMMENT_BODY: ${{ needs.detect-flags.outputs.comment_body }}
         with:
           script: |
             const marker = '<!-- feature-flag-mms-comment -->';
@@ -78,36 +82,13 @@ jobs:
 
   create-mms-pr:
     name: Create MMS PR
+    needs: detect-flags
     runs-on: ubuntu-latest
-    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    # Only run it on push to main and if there are new feature flags detected
+    # if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-flags.outputs.flags_count != '' && needs.detect-flags.outputs.flags_count != '0'
+    if: needs.detect-flags.outputs.flags_count != '' && needs.detect-flags.outputs.flags_count != '0'
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24.15.0
-          cache: 'npm'
-
-      - name: Install npm@11.16.0
-        run: npm install -g npm@11.16.0
-
-      - name: Install Dependencies
-        run: npm ci
-
-      - name: Detect new feature flags
-        id: detect
-        run: node packages/compass-preferences-model/scripts/detect-new-feature-flags-for-mms.mts
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          # TODO: clear this switch
-          # BASE_SHA: ${{ github.event.before }}
-          # HEAD_SHA: ${{ github.event.after }}
-
       - name: Create Github App Token
-        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
         id: app-token
         with:
@@ -115,10 +96,9 @@ jobs:
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
 
       # TODO: Extend devtools-shared/actions/setup-bot-token to support
-      # creating a token for a namespace (org/repo) so that we can direclty
+      # creating a token for a namespace (org/repo) so that we can directly
       # use it.
       - name: Create MMS Github App Token
-        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         uses: actions/create-github-app-token@v1
         id: mms-app-token
         with:
@@ -126,31 +106,27 @@ jobs:
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
           owner: 10gen
           repositories: mms
-
       - name: Checkout MMS
-        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         uses: actions/checkout@v4
         with:
           repository: 10gen/mms
           token: ${{ steps.mms-app-token.outputs.token }}
           path: mms
       - name: Set branch name
-        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         id: branch
         run: |
-          # Replace slashes with dashes for branch name
           REPO_SANITIZED="${{ github.repository }}"
           REPO_SANITIZED="${REPO_SANITIZED//\//-}"
           BRANCH_NAME="sync/from-${REPO_SANITIZED}-${{ github.sha }}"
           echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
       - name: Add new feature flags to MMS
-        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         env:
-          MMS_FLAGS: ${{ steps.detect.outputs.mms_pull_request_body }}
+          MMS_FLAGS: ${{ needs.detect-flags.outputs.mms_pull_request_content }}
+          BRANCH_NAME: ${{ steps.branch.outputs.name }}
         run: |
           cd mms
-          git checkout -b ${{ steps.branch.outputs.name }}
+          git checkout -b "${BRANCH_NAME}"
 
           # Disable git hooks to avoid running pre-commit hooks
           git config core.hooksPath /dev/null
@@ -161,11 +137,10 @@ jobs:
             printf '%s' "$config" > "$filePath"
             git add "$filePath"
           done
-          git commit --no-verify -m 'chore: sync feature flags from ${{ github.repository }}@${{ github.sha }}'
-          git push origin ${{ steps.branch.outputs.name }}
+          git commit --no-verify -m "chore: sync feature flags from ${{ github.repository }}@${{ github.sha }}"
+          git push origin "${BRANCH_NAME}"
 
       - name: Create Pull Request
-        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         env:
           GH_TOKEN: ${{ steps.mms-app-token.outputs.token }}
           PR_TITLE: 'chore: sync feature flags from ${{ github.repository }}@${{ github.sha }}'
@@ -179,7 +154,7 @@ jobs:
 
             ## Feature Flags Added
 
-            This PR adds ${{ steps.detect.outputs.flags_count }} new feature flag configuration(s) to MMS.
+            This PR adds ${{ needs.detect-flags.outputs.flags_count }} new feature flag configuration(s) to MMS.
         run: |
           gh pr create \
             --repo 10gen/mms \
