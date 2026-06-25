@@ -241,6 +241,11 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
     describe('entry points', function () {
       it('should display opt-in modal for connection error entry point', async function () {
+        if (isTestingWebAtlasCloud()) {
+          // We don't show connection debugging on Atlas web.
+          return this.skip();
+        }
+
         await browser.connectWithConnectionString(
           'mongodb-invalid://localhost:27017',
           { connectionStatus: 'failure' }
