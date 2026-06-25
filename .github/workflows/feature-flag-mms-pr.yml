@@ -134,17 +134,15 @@ jobs:
 
       - name: Add new feature flags to MMS
         if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
+        env:
+          MMS_FLAGS: ${{ steps.detect.outputs.mms_pull_request_body }}
         run: |
           cd mms
-          echo "${{ steps.detect.outputs.mms_pull_request_body }}" | jq -c '.[]' | while read -r flag; do
+          echo "$MMS_FLAGS" | jq -c '.[]' | while read -r flag; do
             filePath=$(echo "$flag" | jq -r '.filePath')
             config=$(echo "$flag" | jq -r '.config')
 
-            # Create parent directory if it doesn't exist
-            mkdir -p "$(dirname "$filePath")"
-
-            # Write config to file
-            echo "$config" > "$filePath"
+            printf '%s' "$config" > "$filePath"
           done
 
       - name: Set branch name
