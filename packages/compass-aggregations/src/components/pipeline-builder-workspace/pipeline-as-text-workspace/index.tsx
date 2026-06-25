@@ -14,7 +14,6 @@ const outerContainerStyles = css({
   display: 'flex',
   flexDirection: 'column',
   height: '100%',
-  overflow: 'hidden',
 });
 
 const rowStyles = css({
@@ -36,6 +35,7 @@ const workspaceContainerStyles = css({
   paddingBottom: spacing[400],
   width: '100%',
   overflow: 'auto',
+  scrollbarGutter: 'stable',
 });
 
 type PipelineAsTextWorkspaceProps = {
