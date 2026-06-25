@@ -138,7 +138,7 @@ jobs:
 
           REPO_SANITIZED="${{ github.repository }}"
           REPO_SANITIZED="${REPO_SANITIZED//\//-}"
-          BRANCH_NAME="sync/${TICKET}/from-${REPO_SANITIZED}-${{ github.sha }}"
+          BRANCH_NAME="sync/${TICKET}/${REPO_SANITIZED}-${{ github.sha }}"
           echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
 
       - name: Add new feature flags to MMS
