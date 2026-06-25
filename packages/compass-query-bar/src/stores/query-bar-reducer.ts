@@ -48,6 +48,7 @@ type QueryBarState = {
   host?: string;
   recentQueries: RecentQuery[];
   favoriteQueries: FavoriteQuery[];
+  isInterpretLoading: boolean;
 };
 
 export const INITIAL_STATE: QueryBarState = {
@@ -60,6 +61,7 @@ export const INITIAL_STATE: QueryBarState = {
   namespace: '',
   recentQueries: [],
   favoriteQueries: [],
+  isInterpretLoading: false,
 };
 
 export const QueryBarActions = {
@@ -73,6 +75,8 @@ export const QueryBarActions = {
   ApplyFromHistory: 'compass-query-bar/ApplyFromHistory',
   RecentQueriesFetched: 'compass-query-bar/RecentQueriesFetched',
   FavoriteQueriesFetched: 'compass-query-bar/FavoriteQueriesFetched',
+  InterpretLoading: 'compass-query-bar/InterpretLoading',
+  InterpretDone: 'compass-query-bar/InterpretDone',
 } as const;
 
 type ChangeReadonlyConnectionStatusAction = {
@@ -652,6 +656,14 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       ...state,
       favoriteQueries: action.favorites,
     };
+  }
+
+  if (isAction<Action>(action, QueryBarActions.InterpretLoading)) {
+    return { ...state, isInterpretLoading: true };
+  }
+
+  if (isAction<Action>(action, QueryBarActions.InterpretDone)) {
+    return { ...state, isInterpretLoading: false };
   }
 
   return state;

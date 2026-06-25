@@ -357,4 +357,17 @@ describe('queryBarReducer', function () {
       );
     });
   });
+
+  describe('isInterpretLoading', function () {
+    it('sets isInterpretLoading to true on InterpretLoading action', function () {
+      store.dispatch({ type: QueryBarActions.InterpretLoading });
+      expect(store.getState().queryBar.isInterpretLoading).to.be.true;
+    });
+
+    it('sets isInterpretLoading to false on InterpretDone action', function () {
+      store.dispatch({ type: QueryBarActions.InterpretLoading });
+      store.dispatch({ type: QueryBarActions.InterpretDone });
+      expect(store.getState().queryBar.isInterpretLoading).to.be.false;
+    });
+  });
 });

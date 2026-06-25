@@ -12,6 +12,7 @@ import { expect } from 'chai';
 import type { Document } from 'mongodb';
 import Sinon from 'sinon';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import * as compassComponents from '@mongodb-js/compass-components';
 
 const localAppRegistry = new AppRegistry();
 
@@ -67,7 +68,10 @@ describe('explain plan modal store', function () {
     ]
   >;
 
-  function configureStore(explainPlan: Document | Error = simplePlan) {
+  function configureStore(
+    explainPlan: Document | Error = simplePlan,
+    { isCancelError = false }: { isCancelError?: boolean } = {}
+  ) {
     const explain = sandbox.stub().callsFake(() => {
       if ((explainPlan as Error).name) {
         return Promise.reject(explainPlan);
@@ -79,7 +83,7 @@ describe('explain plan modal store', function () {
       explainAggregate: explain,
       explainFind: explain,
       isCancelError() {
-        return false;
+        return isCancelError;
       },
     };
 
@@ -238,5 +242,57 @@ describe('explain plan modal store', function () {
       'string'
     );
     expect(store.getState()).to.have.property('isModalOpen', false);
+  });
+
+  describe('openExplainPlanForInterpret loading events', function () {
+    let emitSpy: Sinon.SinonSpy;
+    let openToastStub: Sinon.SinonStub;
+
+    beforeEach(function () {
+      emitSpy = sandbox.spy(localAppRegistry, 'emit');
+      openToastStub = sandbox.stub();
+      sandbox.replaceGetter(
+        compassComponents,
+        'openToast',
+        () => openToastStub
+      );
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    it('emits loading and done events on success', async function () {
+      configureStore();
+      localAppRegistry.emit('open-explain-plan-for-interpret', {
+        query: { filter: {} },
+      });
+      // give the async thunk time to resolve
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(emitSpy.calledWith('explain-plan-interpret-loading')).to.be.true;
+      expect(emitSpy.calledWith('explain-plan-interpret-done')).to.be.true;
+    });
+
+    it('emits done and shows toast when fetch fails', async function () {
+      configureStore(new Error('network error'));
+      localAppRegistry.emit('open-explain-plan-for-interpret', {
+        query: { filter: {} },
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(emitSpy.calledWith('explain-plan-interpret-done')).to.be.true;
+      expect(openToastStub.calledOnce).to.be.true;
+      expect(openToastStub.firstCall.args[0]).to.equal(
+        'explain-interpret-error'
+      );
+    });
+
+    it('emits done but shows no toast on cancellation', async function () {
+      configureStore(new Error('cancel'), { isCancelError: true });
+      localAppRegistry.emit('open-explain-plan-for-interpret', {
+        query: { filter: {} },
+      });
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(openToastStub.called).to.be.false;
+    });
   });
 });

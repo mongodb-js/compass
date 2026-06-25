@@ -7,6 +7,7 @@ import {
   OptionsToggle,
   PerformanceSignals,
   SignalPopover,
+  SpinLoader,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -55,6 +56,7 @@ type PipelineActionsProps = {
   showCollectionScanInsight?: boolean;
   onCollectionScanInsightActionButtonClick: () => void;
 
+  isInterpretLoading?: boolean;
   stages: string[];
 };
 
@@ -74,6 +76,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onExplainAggregation,
   showCollectionScanInsight,
   onCollectionScanInsightActionButtonClick,
+  isInterpretLoading = false,
   stages,
 }) => {
   const {
@@ -98,8 +101,19 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
       {
         action: 'interpret',
         label: 'Interpret',
-        icon: 'Sparkle',
-        isDisabled: !isAssistantEnabled,
+        icon: isInterpretLoading ? (
+          <SpinLoader title="Loading interpret" />
+        ) : (
+          'Sparkle'
+        ),
+        isDisabled: !isAssistantEnabled || hasSearchStage || isInterpretLoading,
+        disabledDescription: isInterpretLoading
+          ? 'Interpret in progress'
+          : hasSearchStage
+          ? 'Not supported for this query'
+          : !isAssistantEnabled
+          ? 'Assistant is not available'
+          : undefined,
       },
       {
         action: 'visual-tree',
@@ -116,7 +130,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         icon: 'CurlyBraces',
       },
     ],
-    [isAssistantEnabled, hasSearchStage]
+    [isAssistantEnabled, hasSearchStage, isInterpretLoading]
   );
 
   const onExplainAction = useCallback(
@@ -178,6 +192,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
               size: 'small',
               variant: 'default',
               disabled: isExplainButtonDisabled,
+              leftGlyph: isInterpretLoading ? <SpinLoader /> : undefined,
             }}
             actions={explainActions}
             onAction={onExplainAction}
@@ -237,6 +252,7 @@ const mapState = (state: RootState) => {
     isUpdateViewButtonDisabled:
       !state.isModified || hasSyntaxErrors || isAIFetching,
     showCollectionScanInsight: state.insights.isCollectionScan,
+    isInterpretLoading: state.isInterpretLoading,
     stages: resultPipeline,
   };
 };

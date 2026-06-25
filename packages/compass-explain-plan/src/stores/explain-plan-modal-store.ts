@@ -3,6 +3,7 @@ import { ExplainPlan } from '@mongodb-js/explain-plan-helper';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
+import { openToast } from '@mongodb-js/compass-components';
 import type {
   ExplainPlanModalServices,
   OpenExplainPlanModalEvent,
@@ -368,6 +369,8 @@ export const openExplainPlanForInterpret = (
   return async (dispatch, _getState, services) => {
     const { id: fetchId, signal } = getAbortSignal();
 
+    services.localAppRegistry.emit('explain-plan-interpret-loading');
+
     try {
       const result = await dispatch(fetchExplainPlanData(event, signal));
       if (result) {
@@ -376,20 +379,38 @@ export const openExplainPlanForInterpret = (
           explainPlan: JSON.stringify(result.explainPlan),
           operationType: result.operationType,
         });
+      } else {
+        services.logger.log.warn(
+          services.logger.mongoLogId(1_001_000_435),
+          'Explain',
+          'Explain for interpret returned no plan'
+        );
+        openToast('explain-interpret-error', {
+          variant: 'warning',
+          title: "Couldn't interpret explain plan",
+          description: 'Failed to fetch the explain plan. Please try again.',
+          timeout: 8000,
+        });
       }
     } catch (err) {
       if (services.dataService.isCancelError(err)) {
         return;
       }
-      // TODO(COMPASS-10751): Add user-facing error handling for interpret failures.
       services.logger.log.error(
         services.logger.mongoLogId(1_001_000_434),
         'Explain',
         'Failed to run explain for interpret',
         { message: (err as Error).message }
       );
+      openToast('explain-interpret-error', {
+        variant: 'warning',
+        title: "Couldn't interpret explain plan",
+        description: 'Failed to fetch the explain plan. Please try again.',
+        timeout: 8000,
+      });
     } finally {
       cleanupAbortSignal(fetchId);
+      services.localAppRegistry.emit('explain-plan-interpret-done');
     }
   };
 };

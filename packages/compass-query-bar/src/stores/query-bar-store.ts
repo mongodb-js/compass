@@ -184,6 +184,14 @@ export function activatePlugin(
     });
   });
 
+  on(localAppRegistry, 'explain-plan-interpret-loading', () => {
+    store.dispatch({ type: QueryBarActions.InterpretLoading });
+  });
+
+  on(localAppRegistry, 'explain-plan-interpret-done', () => {
+    store.dispatch({ type: QueryBarActions.InterpretDone });
+  });
+
   store.dispatch(fetchSavedQueries());
 
   return { store, deactivate: cleanup, context: QueryBarStoreContext };
