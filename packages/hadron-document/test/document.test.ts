@@ -2615,6 +2615,30 @@ describe('Document', function () {
     });
   });
 
+  describe('#insertAfter visibility', function () {
+    let document: Document;
+
+    beforeEach(function () {
+      document = new Document({ a: 'va', b: 'vb', c: 'vc' });
+      document.setMaxVisibleElementsCount(2);
+    });
+
+    it('makes the new element visible when inserted after the last visible element', function () {
+      const b = document.get('b')!;
+      document.insertAfter(b, 'd', 'vd');
+      expect(document.maxVisibleElementsCount).to.equal(3);
+      expect(
+        document.getVisibleElements().map((el) => el.currentKey)
+      ).to.include('d');
+    });
+
+    it('does not change visibility when inserted before the last visible element', function () {
+      const a = document.get('a')!;
+      document.insertAfter(a, 'd', 'vd');
+      expect(document.maxVisibleElementsCount).to.equal(2);
+    });
+  });
+
   describe('#setVisibleElementsCount', function () {
     it('should update the visible count and emit an event', function () {
       const spy = Sinon.spy();
