@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import {
   Banner,
@@ -60,6 +60,15 @@ export default function ServerErrorBanner({
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
   const rerankNotEnabled = isRerankNotEnabledError(message);
+
+  useEffect(() => {
+    if (rerankNotEnabled) {
+      track('Rerank Not Enabled Banner Shown', {
+        context: 'Rerank Not Enabled Banner',
+      });
+    }
+  }, [rerankNotEnabled, track]);
+
   const projectSettingsHref = rerankNotEnabled
     ? atlasMetadata
       ? buildProjectSettingsUrl({
@@ -91,13 +100,16 @@ export default function ServerErrorBanner({
             {projectSettingsHref && (
               <Button
                 size="xsmall"
-                onClick={() =>
+                onClick={() => {
+                  track('Rerank Project Settings Button Clicked', {
+                    context: 'Rerank Not Enabled Banner',
+                  });
                   window.open(
                     projectSettingsHref,
                     '_blank',
                     'noopener noreferrer'
-                  )
-                }
+                  );
+                }}
                 rightGlyph={<Icon glyph="OpenNewTab" />}
                 className={bannerButtonStyles}
               >
