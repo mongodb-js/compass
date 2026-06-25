@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Banner,
   Button,
@@ -8,6 +8,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildUpgradeClusterUrl } from '@mongodb-js/atlas-service/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { RERANK_MIN_SERVER_VERSION } from '../utils/search-stage-errors';
 
 const bannerContentStyles = css({
@@ -29,6 +30,14 @@ export const RerankVersionWarningBanner = ({
   'data-testid'?: string;
 }) => {
   const { atlasMetadata } = useConnectionInfo();
+  const track = useTelemetry();
+
+  useEffect(() => {
+    track('Rerank Version Warning Banner Shown', {
+      context: 'Rerank Version Warning Banner',
+    });
+  }, [track]);
+
   const upgradeClusterHref = atlasMetadata
     ? buildUpgradeClusterUrl(atlasMetadata)
     : 'https://www.mongodb.com/docs/atlas/tutorial/major-version-change/';
@@ -42,9 +51,12 @@ export const RerankVersionWarningBanner = ({
         </span>
         <Button
           size="xsmall"
-          onClick={() =>
-            window.open(upgradeClusterHref, '_blank', 'noopener noreferrer')
-          }
+          onClick={() => {
+            track('Rerank Upgrade Cluster Button Clicked', {
+              context: 'Rerank Version Warning Banner',
+            });
+            window.open(upgradeClusterHref, '_blank', 'noopener noreferrer');
+          }}
           rightGlyph={<Icon glyph="OpenNewTab" />}
           className={bannerButtonStyles}
         >

@@ -19,6 +19,7 @@ const outerContainerStyles = css({
 const rowStyles = css({
   display: 'flex',
   flex: 1,
+  height: '100%',
 });
 
 const noPreviewEditorStyles = css({

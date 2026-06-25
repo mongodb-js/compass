@@ -11,6 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
 import { STAGE_HELP_BASE_URL } from '../constants';
@@ -81,8 +82,34 @@ export const useRerankInsight = ({
   onAddSearchStageBefore: () => void;
 }) => {
   const enableRerank = usePreference('enableRerank');
-  const onAssistantButtonClick = useRerankInsightAction();
+  const track = useTelemetry();
+  const rawOnAssistantButtonClick = useRerankInsightAction();
   const { atlasMetadata } = useConnectionInfo();
+
+  const learnAboutSearchUrl = atlasMetadata
+    ? buildAtlasSearchClustersUrl({ projectId: atlasMetadata.projectId })
+    : 'https://dochub.mongodb.org/core/atlas-search';
+
+  const onAddSearchStageBeforeWithTracking = useCallback(() => {
+    track('Rerank Add Search Stage Button Clicked', {
+      context: 'Rerank Insight',
+    });
+    onAddSearchStageBefore();
+  }, [track, onAddSearchStageBefore]);
+
+  const onLearnAboutSearchWithTracking = useCallback(() => {
+    track('Rerank Learn About Search Button Clicked', {
+      context: 'Rerank Insight',
+    });
+    window.open(learnAboutSearchUrl, '_blank', 'noopener noreferrer');
+  }, [track, learnAboutSearchUrl]);
+
+  const onAssistantButtonClickWithTracking = useCallback(() => {
+    track('Rerank Tell Me More Button Clicked', {
+      context: 'Rerank Insight',
+    });
+    rawOnAssistantButtonClick?.();
+  }, [track, rawOnAssistantButtonClick]);
 
   return useMemo(() => {
     if (!enableRerank || !isRerankFirstStage) return undefined;
@@ -97,26 +124,23 @@ export const useRerankInsight = ({
         ? 'Add $search stage'
         : 'Learn about search',
       ...(hasSearchIndex && !isSearchIndexesLoading
-        ? { onPrimaryActionButtonClick: onAddSearchStageBefore }
+        ? { onPrimaryActionButtonClick: onAddSearchStageBeforeWithTracking }
         : !isSearchIndexesLoading
-        ? {
-            primaryActionButtonLink: atlasMetadata
-              ? buildAtlasSearchClustersUrl({
-                  projectId: atlasMetadata.projectId,
-                })
-              : 'https://dochub.mongodb.org/core/atlas-search',
-          }
+        ? { onPrimaryActionButtonClick: onLearnAboutSearchWithTracking }
         : {}),
-      onAssistantButtonClick,
+      onAssistantButtonClick: rawOnAssistantButtonClick
+        ? onAssistantButtonClickWithTracking
+        : undefined,
     };
   }, [
     enableRerank,
     isRerankFirstStage,
     hasSearchIndex,
     isSearchIndexesLoading,
-    onAddSearchStageBefore,
-    atlasMetadata,
-    onAssistantButtonClick,
+    onAddSearchStageBeforeWithTracking,
+    onLearnAboutSearchWithTracking,
+    rawOnAssistantButtonClick,
+    onAssistantButtonClickWithTracking,
   ]);
 };
 
@@ -153,6 +177,7 @@ export const RerankFirstStageBanner = ({
   onBeforeAssistantOpen?: () => void;
 }) => {
   const enableRerank = usePreference('enableRerank');
+  const track = useTelemetry();
   const [isDismissed, setIsDismissed] = usePersistedState(
     'mongodb_compass_dismissed_rerank_first_stage_banner',
     false
@@ -179,7 +204,12 @@ export const RerankFirstStageBanner = ({
       data-testid={dataTestId}
       className={bannerStyles}
       dismissible
-      onClose={() => setIsDismissed(true)}
+      onClose={() => {
+        track('Rerank First Stage Banner Dismissed', {
+          context: 'Rerank First Stage Banner',
+        });
+        setIsDismissed(true);
+      }}
     >
       <div className={bannerContentStyles}>
         <div className={bannerTextStyles}>
@@ -195,7 +225,12 @@ export const RerankFirstStageBanner = ({
           <Button
             size="xsmall"
             className={bannerButtonStyles}
-            onClick={onInsightAction}
+            onClick={() => {
+              track('Rerank First Stage Banner Learn More Clicked', {
+                context: 'Rerank First Stage Banner',
+              });
+              onInsightAction?.();
+            }}
             leftGlyph={<Icon glyph="Sparkle" />}
             data-testid="rerank-first-stage-learn-more-button"
           >
