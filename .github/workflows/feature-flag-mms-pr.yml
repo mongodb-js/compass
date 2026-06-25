@@ -147,11 +147,7 @@ jobs:
           BRANCH_NAME: ${{ steps.branch.outputs.name }}
         run: |
           cd mms
-          git checkout -b "${BRANCH_NAME}"
-
-          # Disable git hooks to avoid running pre-commit hooks
-          git config core.hooksPath /dev/null
-
+          git checkout -b "$BRANCH_NAME"
           echo "$MMS_FLAGS" | jq -c '.[]' | while read -r flag; do
             filePath=$(echo "$flag" | jq -r '.filePath')
             config=$(echo "$flag" | jq -r '.config')
@@ -159,7 +155,7 @@ jobs:
             git add "$filePath"
           done
           git commit --no-verify -m "chore: sync feature flags from ${{ github.repository }}@${{ github.sha }}"
-          git push origin "${BRANCH_NAME}"
+          git push origin "$BRANCH_NAME"
 
       - name: Create Pull Request
         env:
