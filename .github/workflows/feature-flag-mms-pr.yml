@@ -12,9 +12,13 @@ on:
       - main
 
 jobs:
-  setup:
-    name: Setup Node.js
+  add-comment-to-pr:
+    name: Detect new feature flags and comment on PR
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    permissions:
+      pull-requests: write
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,22 +30,11 @@ jobs:
           cache: 'npm'
 
       - name: Install npm@11.16.0
-        run: |
-          npm install -g npm@11.16.0
+        run: npm install -g npm@11.16.0
 
       - name: Install Dependencies
-        run: |
-          npm -v
-          npm ci
-  add-comment-to-pr:
-    name: Detect new feature flags and comment on PR
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
-    needs: setup
-    permissions:
-      pull-requests: write
-      contents: read
-    steps:
+        run: npm ci
+
       - name: Detect new feature flags
         id: detect
         run: node packages/compass-preferences-model/scripts/detect-new-feature-flags-for-mms.mts
@@ -86,56 +79,97 @@ jobs:
   create-mms-pr:
     name: Create MMS PR
     runs-on: ubuntu-latest
-    # TODO: Uncomment this after testing
-    # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: setup
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.15.0
+          cache: 'npm'
+
+      - name: Install npm@11.16.0
+        run: npm install -g npm@11.16.0
+
+      - name: Install Dependencies
+        run: npm ci
+
       - name: Detect new feature flags
         id: detect
         run: node packages/compass-preferences-model/scripts/detect-new-feature-flags-for-mms.mts
         env:
           BASE_SHA: ${{ github.event.before }}
           HEAD_SHA: ${{ github.event.after }}
+
+      - name: Check if new flags detected
+        if: steps.detect.outputs.flags_count == '' || steps.detect.outputs.flags_count == '0'
+        run: |
+          echo "No new feature flags detected, skipping MMS PR creation"
+          exit 0
+
       - name: Create Github App Token
+        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
         id: app-token
         with:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+
       - name: Checkout MMS
+        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         uses: actions/checkout@v4
         with:
           repository: 10gen/mms
           token: ${{ steps.app-token.outputs.token }}
           path: mms
+
       - name: Add new feature flags to MMS
+        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         run: |
           cd mms
-          # sync/mongodb-js-compass-a2c4e6f
-          BRANCH="sync/from-${SOURCE_REPO//\//-}-${SOURCE_SHA::7}"
-          git checkout -b "$BRANCH"
           echo "${{ steps.detect.outputs.mms_pull_request_body }}" | jq -c '.[]' | while read -r flag; do
             filePath=$(echo "$flag" | jq -r '.filePath')
             config=$(echo "$flag" | jq -r '.config')
+
+            # Create parent directory if it doesn't exist
+            mkdir -p "$(dirname "$filePath")"
+
+            # Write config to file
             echo "$config" > "$filePath"
-            git add "$filePath"
           done
+
+      - name: Set branch name
+        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
+        id: branch
+        run: |
+          # Replace slashes with dashes for branch name
+          REPO_SANITIZED="${{ github.repository }}"
+          REPO_SANITIZED="${REPO_SANITIZED//\//-}"
+          BRANCH_NAME="sync/from-${REPO_SANITIZED}-${{ github.sha }}"
+          echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+
       - name: Create Pull Request
+        if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
         with:
           token: ${{ steps.app-token.outputs.token }}
-          commit-message: 'chore: sync from ${SOURCE_REPO}@${SOURCE_SHA::7}'
-          branch: ci/bump-packages
-          # TODO: MMS styled PR title
-          title: 'chore: sync from ${SOURCE_REPO}@${SOURCE_SHA::7}'
+          path: mms
+          commit-message: 'chore: sync feature flags from ${{ github.repository }}@${{ github.sha }}'
+          branch: ${{ steps.branch.outputs.name }}
+          title: 'chore: sync feature flags from ${{ github.repository }}@${{ github.sha }}'
           labels: |
             bot
-          author: '${{ steps.app-token.outputs.app-slug}}[bot] <${{ steps.app-token.outputs.app-email }}>'
+          author: '${{ steps.app-token.outputs.app-slug }}[bot] <${{ steps.app-token.outputs.app-email }}>'
           body: >-
-            # Ticket
-
-            // TODO: Extract ticket number from the main commit message and add it here
-
             # Description
-            <p>This PR is autogenerated by <a href="https://github.com/mongodb-js/compass/actions/workflows/feature-flag-mms-pr.yml">
-            feature-flag-mms-pr.yml</a> workflow when a feature flag is added to Compass.</p>
+
+            This PR is autogenerated by the [feature-flag-mms-pr.yml](https://github.com/${{ github.repository }}/actions/workflows/feature-flag-mms-pr.yml)
+            workflow when feature flags are added to Compass.
+
+            **Source:** [${{ github.repository }}@${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})
+
+            ## Feature Flags Added
+
+            This PR adds ${{ steps.detect.outputs.flags_count }} new feature flag configuration(s) to MMS.
