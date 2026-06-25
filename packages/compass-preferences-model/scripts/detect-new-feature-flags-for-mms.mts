@@ -31,7 +31,7 @@ function getFeatureFlagConfigForMMS(flag: FlagInfo): {
   config: string;
 } {
   const fileName = `data-explorer-compass-web-${toKebabCase(flag.name)}.yml`;
-  const config = `# This feature flag config was added from the Compass, https://github.com/mongodb-js/compass. If the
+  const config = `# This feature flag config was added from Compass, https://github.com/mongodb-js/compass. If the
 # usage of this does not appear within mms codebase, it should not be removed before verifying if its
 # being used in Compass. \`/explorer/v1/groups/:id/preferences\` API exposes this feature flag value
 # to Compass dynamically, without being added to \`FeatureFlag.java\` enum. You can also reach out to
