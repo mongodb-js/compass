@@ -132,7 +132,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
     enableRerank && stage?.stageOperator === '$rerank'
       ? atlasMetadata
         ? buildRerankTokenUsageUrl(atlasMetadata)
-        : 'https://dochub.mongodb.org/core/$rerank#navigate-to-the-search--vector-search-page-1'
+        : 'https://dochub.mongodb.org/core/$rerank#metrics'
       : null;
 
   const performanceInsight = useMemo(() => {
@@ -385,7 +385,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
           target="_blank"
           data-testid="focus-mode-view-token-usage-link"
         >
-          View $rerank Usage and Rate Limits
+          View token usage
         </Link>
       )}
 

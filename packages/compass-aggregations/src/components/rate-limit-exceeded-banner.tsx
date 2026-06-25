@@ -105,17 +105,12 @@ export default function RateLimitExceededBanner({
       </strong>
       <br />
       <span>
-        {rateLimitInfo.type === 'rpm'
-          ? `Exceeded ${rateLimitInfo.limit}${
-              searchExtensionType
-                ? ` ${SEARCH_EXTENSION_LABELS[searchExtensionType]}`
-                : ''
-            } requests per minute rate limit`
-          : `Exceeded ${rateLimitInfo.limit} tokens per minute rate limit${
-              searchExtensionType
-                ? ` for ${SEARCH_EXTENSION_LABELS[searchExtensionType]}`
-                : ''
-            }`}
+        Exceeded {rateLimitInfo.limit}{' '}
+        {rateLimitInfo.type === 'rpm' ? 'requests' : 'tokens'} per minute rate
+        limit
+        {searchExtensionType
+          ? ` for ${SEARCH_EXTENSION_LABELS[searchExtensionType]}`
+          : ''}
         {'.'}
         {rateLimitsHref && (
           <>

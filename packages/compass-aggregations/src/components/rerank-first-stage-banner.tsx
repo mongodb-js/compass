@@ -63,7 +63,7 @@ const searchStageLinks = (
 const rerankInsightDescription = (
   <>
     {
-      "You're attempting to run a query with $rerank as the only stage. This is expensive and increases strain. We recommend using $rerank as the second stage to "
+      '$rerank is the first stage with no preceding search stage. This is expensive and increases strain. We recommend using $rerank as the second stage to '
     }
     {searchStageLinks}
     {'.'}
@@ -216,7 +216,7 @@ export const RerankFirstStageBanner = ({
           <strong>$rerank works better following a search stage</strong>
           <br />
           {
-            'Optimize performance and cost by using $rerank after retrieving preliminary results from a stage like '
+            "If you're just trying out $rerank, there's a chance you may consume an excessive amount of tokens, which can be expensive. $rerank works best following a search stage like "
           }
           {searchStageLinks}
           {'.'}

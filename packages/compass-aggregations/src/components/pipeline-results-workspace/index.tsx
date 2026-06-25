@@ -202,7 +202,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
           variant={BannerVariant.Danger}
           className={errorBannerStyles}
         >
-          <b>$rerank not enabled</b>
+          <b>Native reranking not enabled</b>
           <br />
           <div className={rerankBannerContentStyles}>
             <span>Enable native reranking in project settings.</span>
