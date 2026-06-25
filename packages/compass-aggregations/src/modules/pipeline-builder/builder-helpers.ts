@@ -114,6 +114,21 @@ export function getIsRerankFirstStage(
   return false;
 }
 
+export function getIsRerankFirstStageBannerVisible(
+  state: RootState,
+  stageIndex?: number
+): boolean {
+  if (!getIsRerankFirstStage(state, stageIndex)) {
+    return false;
+  }
+  if (stageIndex !== undefined) {
+    const stage = state.pipelineBuilder.stageEditor.stages[stageIndex];
+    return stage?.type === 'stage' && stage.hasReturnedDocs;
+  }
+  const { previewDocs } = state.pipelineBuilder.textEditor.pipeline;
+  return previewDocs !== null && previewDocs.length > 0;
+}
+
 export function getIsPipelineInvalidFromBuilderState(
   state: RootState,
   includeServerErrors = true

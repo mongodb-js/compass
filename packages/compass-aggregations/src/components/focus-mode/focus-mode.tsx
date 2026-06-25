@@ -21,8 +21,7 @@ import FocusModeModalHeader from './focus-mode-modal-header';
 import ResizeHandle from '../resize-handle';
 import { Resizable } from 're-resizable';
 import { RerankFirstStageBanner } from '../rerank-first-stage-banner';
-import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
-import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { getIsRerankFirstStageBannerVisible } from '../../modules/pipeline-builder/builder-helpers';
 
 const containerStyles = css({
   display: 'grid',
@@ -206,17 +205,14 @@ const mapState = (state: RootState) => {
   const {
     focusMode: { isEnabled, stageIndex },
     autoPreview,
-    pipelineBuilder: {
-      stageEditor: { stages },
-    },
   } = state;
-  const currentStage = stages[stageIndex] as StoreStage | undefined;
   return {
     isModalOpen: isEnabled,
     isAutoPreviewEnabled: autoPreview,
-    showRerankFirstStageBanner:
-      getIsRerankFirstStage(state, stageIndex) &&
-      !!currentStage?.hasReturnedDocs,
+    showRerankFirstStageBanner: getIsRerankFirstStageBannerVisible(
+      state,
+      stageIndex
+    ),
   };
 };
 

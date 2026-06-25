@@ -8,7 +8,7 @@ import PipelinePreview from './pipeline-preview';
 import ResizeHandle from '../../resize-handle';
 import type { RootState } from '../../../modules';
 import { RerankFirstStageBanner } from '../../rerank-first-stage-banner';
-import { getIsRerankFirstStage } from '../../../modules/pipeline-builder/builder-helpers';
+import { getIsRerankFirstStageBannerVisible } from '../../../modules/pipeline-builder/builder-helpers';
 
 const outerContainerStyles = css({
   display: 'flex',
@@ -102,20 +102,9 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
 };
 
 const mapState = (state: RootState) => {
-  const {
-    autoPreview,
-    pipelineBuilder: {
-      textEditor: {
-        pipeline: { previewDocs },
-      },
-    },
-  } = state;
   return {
-    isAutoPreview: !!autoPreview,
-    showRerankFirstStageBanner:
-      getIsRerankFirstStage(state) &&
-      previewDocs !== null &&
-      previewDocs.length > 0,
+    isAutoPreview: !!state.autoPreview,
+    showRerankFirstStageBanner: getIsRerankFirstStageBannerVisible(state),
   };
 };
 
