@@ -293,7 +293,6 @@ describe('Data Modeling tab', function () {
     }
     await createNumbersStringCollection('testCollection-flat');
     await createNestedDocumentsCollection('testCollection-nested');
-    await browser.closeWorkspaceTabs();
     await browser.disconnectAll();
     await browser.connectToDefaults();
   });
