@@ -188,7 +188,7 @@ ${flagSummaries}
     flags.length
   } new feature flag config${
     flags.length === 1 ? '' : 's'
-  } to MMS and will be assgined to the author of this PR. If that fails for some reason, follow the steps listed below instead**
+  } to MMS and will be assigned to the author of this PR. If that fails for some reason, follow the steps listed below instead**
 <details><summary>Steps to create MMS feature flag manually</summary>
 
 For each feature flag, create a new file in the [feature-flags/definitions/developer-tools](https://github.com/10gen/mms/tree/master/feature-flags/definitions/developer-tools) directory with contents corresponding to that feature flag definition.
