@@ -307,7 +307,7 @@ describe('PipelineEditor', function () {
           }),
         });
 
-        expect(screen.getByText('Native reranking not enabled')).to.exist;
+        expect(screen.getByText('$rerank not enabled')).to.exist;
         expect(screen.getByText('Enable native reranking in project settings.'))
           .to.exist;
       });
