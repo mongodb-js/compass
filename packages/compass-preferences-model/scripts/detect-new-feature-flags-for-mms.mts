@@ -33,8 +33,8 @@ function getFeatureFlagConfigForMMS(flag: FlagInfo): {
   const fileName = `data-explorer-compass-web-${toKebabCase(flag.name)}.yml`;
   const config = `# This feature flag config was added from the Compass, https://github.com/mongodb-js/compass. If the
 # usage of this does not appear within mms codebase, it should not be removed before verifying if its
-# being used in Compass. /explorer/v1/groups/:id/preferences API exposes this feature flag value
-# to Compass dynamically, without being added to FeatureFlag.java enum. You can also reach out to
+# being used in Compass. \`/explorer/v1/groups/:id/preferences\` API exposes this feature flag value
+# to Compass dynamically, without being added to \`FeatureFlag.java\` enum. You can also reach out to
 # the compass team on #compass slack channel for more information.
 name: mms.featureFlag.dataExplorerCompassWeb.${flag.name}
 namespace: global
@@ -190,7 +190,7 @@ ${flagSummaries}
   } to MMS. If that fails for some reason, follow the steps listed below instead**
 <details><summary>Steps to create MMS feature flag manually</summary>
 
-For each feature flag, create a new file in the [feature-flags/definitions/developer-tools](https://github.com/10gen/mms/tree/master/feature-flags/definitions/developer-tools){:target="_blank"} directory with contents corresponding to that feature flag definition.
+For each feature flag, create a new file in the [feature-flags/definitions/developer-tools](https://github.com/10gen/mms/tree/master/feature-flags/definitions/developer-tools) directory with contents corresponding to that feature flag definition.
 
 ---
 

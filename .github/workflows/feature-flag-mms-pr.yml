@@ -114,6 +114,9 @@ jobs:
           app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
           private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
 
+      # TODO: Extend devtools-shared/actions/setup-bot-token to support
+      # creating a token for a namespace (org/repo) so that we can direclty
+      # use it.
       - name: Create MMS Github App Token
         if: steps.detect.outputs.flags_count != '' && steps.detect.outputs.flags_count != '0'
         uses: actions/create-github-app-token@v1
@@ -138,10 +141,13 @@ jobs:
           MMS_FLAGS: ${{ steps.detect.outputs.mms_pull_request_body }}
         run: |
           cd mms
+          # Disable git hooks to avoid running pre-commit hooks
+          git config core.hooksPath /dev/null
           echo "$MMS_FLAGS" | jq -c '.[]' | while read -r flag; do
             filePath=$(echo "$flag" | jq -r '.filePath')
             config=$(echo "$flag" | jq -r '.config')
 
+            mkdir -p "$(dirname "$filePath")"
             printf '%s' "$config" > "$filePath"
           done
 
