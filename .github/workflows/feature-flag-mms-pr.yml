@@ -100,8 +100,11 @@ jobs:
         id: detect
         run: node packages/compass-preferences-model/scripts/detect-new-feature-flags-for-mms.mts
         env:
-          BASE_SHA: ${{ github.event.before }}
-          HEAD_SHA: ${{ github.event.after }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          # TODO: clear this switch
+          # BASE_SHA: ${{ github.event.before }}
+          # HEAD_SHA: ${{ github.event.after }}
 
       - name: Check if new flags detected
         if: steps.detect.outputs.flags_count == '' || steps.detect.outputs.flags_count == '0'
