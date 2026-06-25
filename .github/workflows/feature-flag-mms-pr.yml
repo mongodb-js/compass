@@ -144,24 +144,26 @@ jobs:
       - name: Add new feature flags to MMS
         env:
           MMS_FLAGS: ${{ needs.detect-flags.outputs.mms_pull_request_content }}
-          BRANCH_NAME: ${{ steps.branch.outputs.name }}
         run: |
-          cd mms
-          git checkout -b "$BRANCH_NAME"
           echo "$MMS_FLAGS" | jq -c '.[]' | while read -r flag; do
             filePath=$(echo "$flag" | jq -r '.filePath')
             config=$(echo "$flag" | jq -r '.config')
-            printf '%s' "$config" > "$filePath"
-            git add "$filePath"
+            printf '%s' "$config" > "mms/$filePath"
           done
-          git commit --no-verify -m "chore: sync feature flags from ${{ github.repository }}@${{ github.sha }}"
-          git push origin "$BRANCH_NAME"
 
       - name: Create Pull Request
-        env:
-          GH_TOKEN: ${{ steps.mms-app-token.outputs.token }}
-          PR_TITLE: '${{ steps.branch.outputs.ticket }}: Add feature flag config from Compass'
-          PR_BODY: |
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
+        with:
+          token: ${{ steps.mms-app-token.outputs.token }}
+          path: mms
+          sign-commits: true
+          add-paths: feature-flags/definitions/developer-tools
+          branch: ${{ steps.branch.outputs.name }}
+          commit-message: 'chore: sync feature flags from ${{ github.repository }}@${{ github.sha }}'
+          title: '${{ steps.branch.outputs.ticket }}: Add feature flag config from Compass'
+          labels: bot
+          author: '${{ steps.app-token.outputs.app-slug }}[bot] <${{ steps.app-token.outputs.app-email }}>'
+          body: |
             # Ticket
             [${{ steps.branch.outputs.ticket }}](https://jira.mongodb.org/browse/${{ steps.branch.outputs.ticket }})
 
@@ -175,10 +177,3 @@ jobs:
             ## Feature Flags Added
 
             This PR adds ${{ needs.detect-flags.outputs.flags_count }} new feature flag configuration(s) to MMS.
-        run: |
-          gh pr create \
-            --repo 10gen/mms \
-            --head "${{ steps.branch.outputs.name }}" \
-            --title "$PR_TITLE" \
-            --label bot \
-            --body "$PR_BODY"
