@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Banner,
   BannerVariant,
@@ -6,6 +6,7 @@ import {
   css,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   buildSearchExtensionRateLimitsUrl,
   buildBillingUrl,
@@ -37,6 +38,15 @@ export default function RateLimitExceededBanner({
   dataTestId = 'rate-limit-exceeded-banner',
 }: RateLimitExceededBannerProps) {
   const { atlasMetadata } = useConnectionInfo();
+  const track = useTelemetry();
+
+  useEffect(() => {
+    track('Search Extension Rate Limit Banner Shown', {
+      context: 'Search Extension Rate Limit Banner',
+      search_extension_type: searchExtensionType ?? null,
+      rate_limit_type: rateLimitInfo.type,
+    });
+  }, [track, searchExtensionType, rateLimitInfo.type]);
 
   if (rateLimitInfo.type === 'billing') {
     const billingHref = atlasMetadata
@@ -53,7 +63,16 @@ export default function RateLimitExceededBanner({
         You are currently on Tier 0 with reduced rate limits of{' '}
         {rateLimitInfo.limits}.{' '}
         {billingHref ? (
-          <Link href={billingHref} target="_blank">
+          <Link
+            href={billingHref}
+            target="_blank"
+            onClick={() =>
+              track('Search Extension Rate Limit Billing Link Clicked', {
+                context: 'Search Extension Rate Limit Banner',
+                search_extension_type: searchExtensionType ?? null,
+              })
+            }
+          >
             Add a payment method
           </Link>
         ) : (
@@ -86,17 +105,32 @@ export default function RateLimitExceededBanner({
       </strong>
       <br />
       <span>
-        Exceeded {rateLimitInfo.limit}{' '}
-        {rateLimitInfo.type === 'rpm' ? 'requests' : 'tokens'} per minute rate
-        limit
-        {searchExtensionType
-          ? ` for ${SEARCH_EXTENSION_LABELS[searchExtensionType]}`
-          : ''}
+        {rateLimitInfo.type === 'rpm'
+          ? `Exceeded ${rateLimitInfo.limit}${
+              searchExtensionType
+                ? ` ${SEARCH_EXTENSION_LABELS[searchExtensionType]}`
+                : ''
+            } requests per minute rate limit`
+          : `Exceeded ${rateLimitInfo.limit} tokens per minute rate limit${
+              searchExtensionType
+                ? ` for ${SEARCH_EXTENSION_LABELS[searchExtensionType]}`
+                : ''
+            }`}
         {'.'}
         {rateLimitsHref && (
           <>
             {' '}
-            <Link href={rateLimitsHref} target="_blank">
+            <Link
+              href={rateLimitsHref}
+              target="_blank"
+              onClick={() =>
+                track('Search Extension Rate Limit Page Link Clicked', {
+                  context: 'Search Extension Rate Limit Banner',
+                  search_extension_type: searchExtensionType ?? null,
+                  rate_limit_type: rateLimitInfo.type,
+                })
+              }
+            >
               View Rate Limit
             </Link>
           </>

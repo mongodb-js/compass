@@ -16,6 +16,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { usePreference } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 import RateLimitExceededBanner from '../rate-limit-exceeded-banner';
 import type { RootState } from '../../modules';
@@ -178,6 +179,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
 }) => {
   const { atlasMetadata } = useConnectionInfo();
   const enableRerank = usePreference('enableRerank');
+  const track = useTelemetry();
   let results: React.ReactElement | null = null;
 
   const showRerankVersionWarning =
@@ -200,15 +202,23 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
           variant={BannerVariant.Danger}
           className={errorBannerStyles}
         >
-          <b>Native reranking not enabled</b>
+          <b>$rerank not enabled</b>
           <br />
           <div className={rerankBannerContentStyles}>
             <span>Enable native reranking in project settings.</span>
             {projectSettingsHref && (
               <Button
                 size="xsmall"
-                href={projectSettingsHref}
-                target="_blank"
+                onClick={() => {
+                  track('Rerank Project Settings Button Clicked', {
+                    context: 'Rerank Not Enabled Banner',
+                  });
+                  window.open(
+                    projectSettingsHref,
+                    '_blank',
+                    'noopener noreferrer'
+                  );
+                }}
                 rightGlyph={<Icon glyph="OpenNewTab" />}
               >
                 Project Settings

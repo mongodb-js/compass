@@ -3,6 +3,7 @@ import {
   Button,
   css,
   Icon,
+  Link,
   Menu,
   MenuItem,
   Option,
@@ -19,6 +20,7 @@ import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
   addStageInFocusMode,
+  disableFocusMode,
   selectFocusModeStage,
 } from '../../modules/focus-mode';
 import {
@@ -35,6 +37,8 @@ import {
 import type { ServerEnvironment } from '../../modules/env';
 import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
 import { useRerankInsight } from '../rerank-first-stage-banner';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
 
 type Stage = {
   idxInStore: number;
@@ -57,6 +61,7 @@ type FocusModeModalHeaderProps = {
   onAddStageClick: (index: number) => void;
   onAddSearchStageBefore: (storeIndex: number) => void;
   onRefreshSearchIndexes: () => void;
+  onCloseFocusMode: () => void;
 };
 
 const controlsContainerStyles = css({
@@ -116,9 +121,19 @@ export const FocusModeModalHeader: React.FunctionComponent<
   onStageDisabledToggleClick,
   onAddSearchStageBefore,
   onRefreshSearchIndexes,
+  onCloseFocusMode,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const showInsights = usePreference('showInsights');
+  const enableRerank = usePreference('enableRerank');
+  const { atlasMetadata } = useConnectionInfo();
+
+  const viewTokenUsageHref =
+    enableRerank && stage?.stageOperator === '$rerank'
+      ? atlasMetadata
+        ? buildRerankTokenUsageUrl(atlasMetadata)
+        : 'https://dochub.mongodb.org/core/$rerank#navigate-to-the-search--vector-search-page-1'
+      : null;
 
   const performanceInsight = useMemo(() => {
     if (stage) {
@@ -142,7 +157,17 @@ export const FocusModeModalHeader: React.FunctionComponent<
     onAddSearchStageBefore: onAddSearchStageBeforeCurrentStage,
   });
 
-  const insight = rerankInsight ?? performanceInsight;
+  const rawInsight = rerankInsight ?? performanceInsight;
+  const insight = useMemo(() => {
+    if (!rawInsight?.onAssistantButtonClick) return rawInsight;
+    return {
+      ...rawInsight,
+      onAssistantButtonClick: (e: React.MouseEvent) => {
+        onCloseFocusMode();
+        rawInsight.onAssistantButtonClick!(e);
+      },
+    };
+  }, [rawInsight, onCloseFocusMode]);
 
   const onPopoverOpenChange = useCallback(
     (open: boolean) => {
@@ -354,6 +379,16 @@ export const FocusModeModalHeader: React.FunctionComponent<
         </Menu>
       </div>
 
+      {viewTokenUsageHref && (
+        <Link
+          href={viewTokenUsageHref}
+          target="_blank"
+          data-testid="focus-mode-view-token-usage-link"
+        >
+          View $rerank Usage and Rate Limits
+        </Link>
+      )}
+
       {showInsights && insight && (
         <SignalPopover
           signals={insight}
@@ -410,5 +445,6 @@ export default connect(
     onCreateSearchIndex: createSearchIndex,
     onAddSearchStageBefore: addSearchStageBefore,
     onRefreshSearchIndexes: refreshSearchIndexes,
+    onCloseFocusMode: disableFocusMode,
   }
 )(FocusModeModalHeader);
