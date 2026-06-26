@@ -535,10 +535,7 @@ const ObjectValue: React.FunctionComponent<PropsByValueType<'Object'>> = ({
 }) => {
   const lengthString = useMemo(() => {
     const keys = Object.keys(value ?? {});
-    if (keys.length === 0) {
-      return '(empty)';
-    }
-    return `(${keys.length} element${keys.length === 1 ? '' : 's'})`;
+    return `(${keys.length === 0 ? 'empty' : keys.length})`;
   }, [value]);
 
   return (
