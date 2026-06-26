@@ -115,7 +115,10 @@ function useHadronElement(el: HadronElementType) {
       ? [...(el.elements || [])]
       : el.currentType === 'Object'
       ? Object.fromEntries(
-          Array.from(el.elements || []).map((e) => [e.currentKey, e.currentValue])
+          Array.from(el.elements || []).map((e) => [
+            e.currentKey,
+            e.currentValue,
+          ])
         )
       : el.currentValue;
 
