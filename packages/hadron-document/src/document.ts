@@ -334,6 +334,12 @@ export class Document extends EventEmitter<
   ): Element | undefined {
     const newElement = this.elements.insertAfter(element, key, value);
     newElement?._bubbleUp(ElementEvents.Added, newElement, this);
+    if (
+      newElement &&
+      this.elements.at(this.maxVisibleElementsCount - 1) === element
+    ) {
+      this.maxVisibleElementsCount++;
+    }
     this.emit(DocumentEvents.VisibleElementsChanged, this);
     return newElement;
   }

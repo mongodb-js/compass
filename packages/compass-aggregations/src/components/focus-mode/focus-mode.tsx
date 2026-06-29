@@ -21,9 +21,7 @@ import FocusModeModalHeader from './focus-mode-modal-header';
 import ResizeHandle from '../resize-handle';
 import { Resizable } from 're-resizable';
 import { RerankFirstStageBanner } from '../rerank-first-stage-banner';
-import { RerankTokensBanner } from '../rerank-tokens-banner';
-import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
-import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { getIsRerankFirstStageBannerVisible } from '../../modules/pipeline-builder/builder-helpers';
 
 const containerStyles = css({
   display: 'grid',
@@ -84,7 +82,6 @@ type FocusModeProps = {
   isModalOpen: boolean;
   isAutoPreviewEnabled: boolean | undefined;
   showRerankFirstStageBanner: boolean;
-  showRerankTokensBanner: boolean;
   onCloseModal: () => void;
 };
 
@@ -176,7 +173,6 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
   isModalOpen,
   isAutoPreviewEnabled,
   showRerankFirstStageBanner,
-  showRerankTokensBanner,
   onCloseModal,
 }) => {
   return (
@@ -193,10 +189,10 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
           </div>
           <HorizontalRule />
           {showRerankFirstStageBanner && (
-            <RerankFirstStageBanner data-testid="focus-mode-rerank-first-stage-banner" />
-          )}
-          {showRerankTokensBanner && (
-            <RerankTokensBanner data-testid="focus-mode-rerank-tokens-banner" />
+            <RerankFirstStageBanner
+              data-testid="focus-mode-rerank-first-stage-banner"
+              onBeforeAssistantOpen={onCloseModal}
+            />
           )}
         </div>
         <FocusModeContent isAutoPreviewEnabled={isAutoPreviewEnabled} />
@@ -209,17 +205,14 @@ const mapState = (state: RootState) => {
   const {
     focusMode: { isEnabled, stageIndex },
     autoPreview,
-    pipelineBuilder: {
-      stageEditor: { stages },
-    },
   } = state;
-  const currentStage = stages[stageIndex] as StoreStage | undefined;
   return {
     isModalOpen: isEnabled,
     isAutoPreviewEnabled: autoPreview,
-    showRerankFirstStageBanner: getIsRerankFirstStage(state, stageIndex),
-    showRerankTokensBanner:
-      currentStage?.stageOperator === '$rerank' && !!autoPreview,
+    showRerankFirstStageBanner: getIsRerankFirstStageBannerVisible(
+      state,
+      stageIndex
+    ),
   };
 };
 

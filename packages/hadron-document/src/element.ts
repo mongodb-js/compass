@@ -452,6 +452,12 @@ export class Element extends EventEmitter {
     }
     const newElement = this.elements.insertAfter(element, key, value);
     newElement!._bubbleUp(ElementEvents.Added, newElement, this);
+    if (
+      newElement &&
+      this.elements.at(this.maxVisibleElementsCount - 1) === element
+    ) {
+      this.maxVisibleElementsCount++;
+    }
     this.emitVisibleElementsChanged();
     return newElement!;
   }

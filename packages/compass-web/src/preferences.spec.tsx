@@ -68,9 +68,9 @@ describe('compass-web preferences', function () {
       expect(getAtlasServiceBackendPreset('cloud-stage.mongodb.com')).to.equal(
         'atlas-staging'
       );
-      expect(getAtlasServiceBackendPreset('cloud-local.mongodb.com')).to.equal(
-        'atlas-local'
-      );
+      expect(
+        getAtlasServiceBackendPreset('cloud-local.mmscloudteam.com')
+      ).to.equal('atlas-local');
       expect(getAtlasServiceBackendPreset('localhost:3000')).to.equal(
         'atlas-local'
       );
@@ -170,7 +170,12 @@ describe('compass-web preferences', function () {
       } = await getPreferencesFromCloudApi(PROJECT_ID);
 
       const preferences = new CompassWebPreferencesAccess(
-        { ...DEFAULT_COMPASS_WEB_PREFERENCES, ...atlasCloudUserPreferences },
+        {
+          ...DEFAULT_COMPASS_WEB_PREFERENCES,
+          ...atlasCloudUserPreferences,
+          ...atlasCloudProjectPreferences,
+          ...atlasCloudOrgPreferences,
+        },
         {
           atlasCloudUser: atlasCloudUserPreferences,
           atlasCloudProject: atlasCloudProjectPreferences,
@@ -185,8 +190,23 @@ describe('compass-web preferences', function () {
       expect(preferences.enableDataModeling).to.equal(true);
       // The project preference.
       expect(preferences.enableGenAIFeaturesAtlasProject).to.equal(true);
-      // Populates a non-existant flag.
-      expect((preferences as any).nonExistentFlag).to.equal(true);
+      expect(preferences.enableGenAIFeaturesAtlasOrg).to.equal(true);
+    });
+
+    it('ignores unknown feature flags', async function () {
+      fetchStub.resolves(fakeResponse(apiResponse));
+
+      const {
+        atlasCloudUserPreferences,
+        atlasCloudProjectPreferences,
+        atlasCloudOrgPreferences,
+      } = await getPreferencesFromCloudApi(PROJECT_ID);
+
+      expect(atlasCloudUserPreferences).to.not.have.property('nonExistentFlag');
+      expect(atlasCloudProjectPreferences).to.not.have.property(
+        'nonExistentFlag'
+      );
+      expect(atlasCloudOrgPreferences).to.not.have.property('nonExistentFlag');
     });
 
     it('throws when the request is not ok', async function () {
