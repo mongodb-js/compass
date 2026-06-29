@@ -82,7 +82,7 @@ export async function doCloudFetch<T = any>(
   );
 }
 
-export async function clearBrowserCache(browser: CompassBrowser) {
+export async function disableBrowserCache(browser: CompassBrowser) {
   const puppeteer = await browser.getPuppeteer();
   const pages = await puppeteer.pages();
   const page =
@@ -94,7 +94,7 @@ export async function clearBrowserCache(browser: CompassBrowser) {
         return false;
       }
     }) ?? pages[0];
-  const cdp = await page.createCDPSession();
-  await cdp.send('Network.enable');
-  await cdp.send('Network.clearBrowserCache');
+  // Uses the page's existing internal CDP session — avoids creating a second
+  // session that conflicts with WebdriverIO's session during navigation.
+  await page.setCacheEnabled(false);
 }

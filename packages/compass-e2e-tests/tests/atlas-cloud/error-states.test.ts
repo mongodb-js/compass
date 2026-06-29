@@ -5,7 +5,7 @@ import {
   assertTestingWebAtlasCloud,
   isTestingWebAtlasCloud,
 } from '../../helpers/test-runner-context.ts';
-import { clearBrowserCache } from '../../helpers/commands/atlas-cloud/utils.ts';
+import { disableBrowserCache } from '../../helpers/commands/atlas-cloud/utils.ts';
 
 describe('Error states', function () {
   let compass: Compass;
@@ -44,7 +44,7 @@ describe('Error states', function () {
         assertTestingWebAtlasCloud(context);
         // Preferences API has a cache-control header that allows caching for 30sec currently,
         // so ensuring that the cache is cleared.
-        await clearBrowserCache(browser);
+        await disableBrowserCache(browser);
         const mock = await browser.mock(
           `/explorer/v1/groups/${context.atlasCloudProjectId}/preferences`
         );
