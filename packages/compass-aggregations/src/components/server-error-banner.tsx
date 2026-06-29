@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import {
   Banner,
@@ -28,7 +28,7 @@ const bannerButtonStyles = css({
 });
 
 const RERANK_DOCS_URL =
-  'https://dochub.mongodb.org/core/$rerank#navigate-to-the-project-settings-page';
+  'https://dochub.mongodb.org/core/manage-native-reranking';
 
 const bannerStyles = css({
   textAlign: 'left',
@@ -60,6 +60,15 @@ export default function ServerErrorBanner({
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
   const rerankNotEnabled = isRerankNotEnabledError(message);
+
+  useEffect(() => {
+    if (rerankNotEnabled) {
+      track('Rerank Not Enabled Banner Shown', {
+        context: 'Rerank Not Enabled Banner',
+      });
+    }
+  }, [rerankNotEnabled, track]);
+
   const projectSettingsHref = rerankNotEnabled
     ? atlasMetadata
       ? buildProjectSettingsUrl({
@@ -84,20 +93,23 @@ export default function ServerErrorBanner({
     <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>
       {rerankNotEnabled ? (
         <>
-          <strong>Native reranking not enabled</strong>
+          <strong>$rerank not enabled</strong>
           <br />
           <div className={bannerContentStyles}>
             <span>Enable native reranking in project settings.</span>
             {projectSettingsHref && (
               <Button
                 size="xsmall"
-                onClick={() =>
+                onClick={() => {
+                  track('Rerank Project Settings Button Clicked', {
+                    context: 'Rerank Not Enabled Banner',
+                  });
                   window.open(
                     projectSettingsHref,
                     '_blank',
                     'noopener noreferrer'
-                  )
-                }
+                  );
+                }}
                 rightGlyph={<Icon glyph="OpenNewTab" />}
                 className={bannerButtonStyles}
               >

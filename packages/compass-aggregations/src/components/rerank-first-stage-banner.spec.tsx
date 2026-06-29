@@ -11,14 +11,14 @@ describe('RerankFirstStageBanner', function () {
   });
 
   it('does not render when enableRerank is false', function () {
-    render(<RerankFirstStageBanner data-testid="rerank-first-stage-banner" />, {
+    render(<RerankFirstStageBanner />, {
       preferences: { enableRerank: false },
     });
     expect(screen.queryByTestId('rerank-first-stage-banner')).to.not.exist;
   });
 
   it('renders when enableRerank is true', function () {
-    render(<RerankFirstStageBanner data-testid="rerank-first-stage-banner" />, {
+    render(<RerankFirstStageBanner />, {
       preferences: { enableRerank: true },
     });
     expect(screen.getByTestId('rerank-first-stage-banner')).to.exist;
@@ -30,7 +30,7 @@ describe('RerankFirstStageBanner', function () {
   });
 
   it('dismisses when the close button is clicked', function () {
-    render(<RerankFirstStageBanner data-testid="rerank-first-stage-banner" />, {
+    render(<RerankFirstStageBanner />, {
       preferences: { enableRerank: true },
     });
     expect(screen.getByTestId('rerank-first-stage-banner')).to.exist;
@@ -42,7 +42,7 @@ describe('RerankFirstStageBanner', function () {
 
   it('does not render when already dismissed via localStorage', function () {
     localStorage.setItem(DISMISSED_KEY, 'true');
-    render(<RerankFirstStageBanner data-testid="rerank-first-stage-banner" />, {
+    render(<RerankFirstStageBanner />, {
       preferences: { enableRerank: true },
     });
     expect(screen.queryByTestId('rerank-first-stage-banner')).to.not.exist;

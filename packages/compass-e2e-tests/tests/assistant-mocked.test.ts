@@ -10,6 +10,7 @@ import {
   screenshotIfFailed,
   getDefaultConnectionNames,
   screenshotPathName,
+  serverSatisfies,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
@@ -543,6 +544,10 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
       describe('rerank insight entry point', function () {
         before(async function () {
+          // For server versions below 7.0.0, the $rerank stage is not available, so we skip this test.
+          if (!serverSatisfies('>=7.0.0')) {
+            this.skip();
+          }
           try {
             await setAIOptIn(true);
             await setAIFeatures(true);
@@ -577,28 +582,6 @@ describe('MongoDB Assistant (with mocked backend)', function () {
           await browser.clickVisible(Selectors.InsightIconButton);
           await browser.waitForAnimations(Selectors.InsightPopoverCard);
           await browser.clickVisible(Selectors.InsightTellMeMoreButton);
-
-          await browser.waitForMessages([
-            {
-              text: 'What are best practices for using $rerank?',
-              role: 'user',
-            },
-            {
-              text: 'You should add a search stage before $rerank.',
-              role: 'assistant',
-            },
-          ]);
-
-          expect(mockAssistantServer.getRequests()).to.have.lengthOf(1);
-        });
-
-        it('opens assistant when clicking "Learn more" on the rerank banner', async function () {
-          await browser
-            .$(Selectors.RerankFirstStageBannerLearnMoreButton)
-            .waitForDisplayed();
-          await browser.clickVisible(
-            Selectors.RerankFirstStageBannerLearnMoreButton
-          );
 
           await browser.waitForMessages([
             {

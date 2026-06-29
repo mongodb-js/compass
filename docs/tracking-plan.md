@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Wed, Jun 24, 2026
+Generated on Mon, Jun 29, 2026
 
 ## Table of Contents
 
@@ -35,6 +35,19 @@ Generated on Wed, Jun 24, 2026
 - [Focus Mode Closed](#event--FocusModeClosedEvent)
 - [Focus Mode Opened](#event--FocusModeOpenedEvent)
 - [View Updated](#event--ViewUpdatedEvent)
+- [Rerank Not Enabled Banner Shown](#event--RerankNotEnabledBannerShownEvent)
+- [Rerank Version Warning Banner Shown](#event--RerankVersionWarningBannerShownEvent)
+- [Rerank First Stage Banner Dismissed](#event--RerankFirstStageBannerDismissedEvent)
+- [Rerank First Stage Banner Learn More Clicked](#event--RerankFirstStageBannerLearnMoreClickedEvent)
+- [Rerank Add Search Stage Button Clicked](#event--RerankAddSearchStageButtonClickedEvent)
+- [Rerank Learn About Search Button Clicked](#event--RerankLearnAboutSearchButtonClickedEvent)
+- [Rerank Tell Me More Button Clicked](#event--RerankTellMeMoreButtonClickedEvent)
+- [Rerank Upgrade Cluster Button Clicked](#event--RerankUpgradeClusterButtonClickedEvent)
+- [Rerank Project Settings Button Clicked](#event--RerankProjectSettingsButtonClickedEvent)
+- [Rerank View Usage And Rate Limits Link Clicked](#event--RerankViewUsageAndRateLimitsLinkClickedEvent)
+- [Search Extension Rate Limit Banner Shown](#event--SearchExtensionRateLimitBannerShownEvent)
+- [Search Extension Rate Limit Billing Link Clicked](#event--SearchExtensionRateLimitBillingLinkClickedEvent)
+- [Search Extension Rate Limit Page Link Clicked](#event--SearchExtensionRateLimitPageLinkClickedEvent)
 
 ### Application
 
@@ -669,6 +682,184 @@ builder.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
+
+<a name="event--RerankNotEnabledBannerShownEvent"></a>
+
+### Rerank Not Enabled Banner Shown
+
+This event is fired when the "rerank not enabled" server error banner is
+shown to the user in the pipeline results workspace.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the banner was shown.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankVersionWarningBannerShownEvent"></a>
+
+### Rerank Version Warning Banner Shown
+
+This event is fired when the rerank server version warning banner is shown
+to the user, indicating the cluster must be upgraded to use $rerank.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the banner was shown.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankFirstStageBannerDismissedEvent"></a>
+
+### Rerank First Stage Banner Dismissed
+
+This event is fired when the user dismisses the $rerank first-stage
+insight banner.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the banner was dismissed.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankFirstStageBannerLearnMoreClickedEvent"></a>
+
+### Rerank First Stage Banner Learn More Clicked
+
+This event is fired when the user clicks the "Learn more" button in the
+$rerank first-stage insight banner.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankAddSearchStageButtonClickedEvent"></a>
+
+### Rerank Add Search Stage Button Clicked
+
+This event is fired when the user clicks the "Add $search stage" button
+in the $rerank insight popover.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankLearnAboutSearchButtonClickedEvent"></a>
+
+### Rerank Learn About Search Button Clicked
+
+This event is fired when the user clicks the "Learn about search" button
+in the $rerank insight popover.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankTellMeMoreButtonClickedEvent"></a>
+
+### Rerank Tell Me More Button Clicked
+
+This event is fired when the user clicks the "Tell me more" assistant
+button in the $rerank insight popover.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankUpgradeClusterButtonClickedEvent"></a>
+
+### Rerank Upgrade Cluster Button Clicked
+
+This event is fired when the user clicks the "Upgrade Cluster" button in
+the rerank version warning banner.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankProjectSettingsButtonClickedEvent"></a>
+
+### Rerank Project Settings Button Clicked
+
+This event is fired when the user clicks the "Project Settings" button in
+the rerank not enabled banner.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankViewUsageAndRateLimitsLinkClickedEvent"></a>
+
+### Rerank View Usage And Rate Limits Link Clicked
+
+This event is fired when the user clicks the "View $rerank Usage and Rate
+Limits" link in the stage toolbar or focus mode header.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchExtensionRateLimitBannerShownEvent"></a>
+
+### Search Extension Rate Limit Banner Shown
+
+This event is fired when the search extension rate limit exceeded banner
+is shown to the user.
+
+**Properties**:
+
+- **context** (required): `"Search Extension Rate Limit Banner"`
+  - The context/screen from which the banner was shown.
+- **search_extension_type** (required): `string | null`
+  - The search extension type that triggered the rate limit.
+- **rate_limit_type** (required): `"billing" | "rpm" | "tpm"`
+  - The type of rate limit that was exceeded.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchExtensionRateLimitBillingLinkClickedEvent"></a>
+
+### Search Extension Rate Limit Billing Link Clicked
+
+This event is fired when the user clicks the billing link in the search
+extension rate limit banner.
+
+**Properties**:
+
+- **context** (required): `"Search Extension Rate Limit Banner"`
+  - The context/screen from which the link was clicked.
+- **search_extension_type** (required): `string | null`
+  - The search extension type that triggered the rate limit.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchExtensionRateLimitPageLinkClickedEvent"></a>
+
+### Search Extension Rate Limit Page Link Clicked
+
+This event is fired when the user clicks the "View Rate Limit" link in the
+search extension rate limit banner.
+
+**Properties**:
+
+- **context** (required): `"Search Extension Rate Limit Banner"`
+  - The context/screen from which the link was clicked.
+- **search_extension_type** (required): `string | null`
+  - The search extension type that triggered the rate limit.
+- **rate_limit_type** (required): `"rpm" | "tpm"`
+  - Whether the rate limit is requests-per-minute or tokens-per-minute.
+- **is_compass_web** (optional): `true | undefined`
 
 ## Application
 

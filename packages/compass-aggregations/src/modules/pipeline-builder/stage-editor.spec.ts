@@ -20,8 +20,10 @@ import {
   addWizard,
   updateWizardValue,
   convertWizardToStage,
+  StageEditorActionTypes,
 } from './stage-editor';
 import type { StageEditorState, StoreStage, Wizard } from './stage-editor';
+import HadronDocument from 'hadron-document';
 import reducer from '../';
 import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
 import Sinon from 'sinon';
@@ -1148,6 +1150,58 @@ describe('stageEditor', function () {
           type: '$search',
           scores: [null, middleScore, null],
         });
+      });
+    });
+
+    describe('didReturnDocs gating for $rerank first-stage banner', function () {
+      const RERANK_PIPELINE_SOURCE = `[{$rerank: {}}]`;
+
+      function createRerankStore() {
+        return createStore({
+          stages: [RERANK_STAGE],
+          pipelineSource: RERANK_PIPELINE_SOURCE,
+        });
+      }
+
+      function dispatchPreviewSuccess(
+        s: ReturnType<typeof createStore>,
+        docs: Document[] = []
+      ) {
+        s.dispatch({
+          type: StageEditorActionTypes.StagePreviewFetchSuccess,
+          id: 0,
+          previewDocs: docs.map((doc) => new HadronDocument(doc)),
+          stageMetadata: null,
+        });
+      }
+
+      it('is false before any preview runs', function () {
+        const store = createRerankStore();
+        expect((store.getState().stages[0] as StoreStage).didReturnDocs).to.be
+          .false;
+      });
+
+      it('becomes true after StagePreviewFetchSuccess with docs', function () {
+        const store = createRerankStore();
+        dispatchPreviewSuccess(store, [{ _id: 1 }]);
+        expect((store.getState().stages[0] as StoreStage).didReturnDocs).to.be
+          .true;
+      });
+
+      it('stays true when a subsequent preview returns empty docs', function () {
+        const store = createRerankStore();
+        dispatchPreviewSuccess(store, [{ _id: 1 }]);
+        dispatchPreviewSuccess(store, []);
+        expect((store.getState().stages[0] as StoreStage).didReturnDocs).to.be
+          .true;
+      });
+
+      it('resets to false when stage operator changes', function () {
+        const store = createRerankStore();
+        dispatchPreviewSuccess(store, [{ _id: 1 }]);
+        store.dispatch(changeStageOperator(0, '$match'));
+        expect((store.getState().stages[0] as StoreStage).didReturnDocs).to.be
+          .false;
       });
     });
   });

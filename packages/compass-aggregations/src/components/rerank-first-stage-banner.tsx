@@ -6,11 +6,13 @@ import {
   Link,
   PerformanceSignals,
   css,
+  cx,
   spacing,
   usePersistedState,
 } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildAtlasSearchClustersUrl } from '@mongodb-js/atlas-service/provider';
 import { STAGE_HELP_BASE_URL } from '../constants';
@@ -62,7 +64,7 @@ const searchStageLinks = (
 const rerankInsightDescription = (
   <>
     {
-      '$rerank is the first stage with no preceding search stage. This is expensive and increases strain. We recommend using $rerank as the second stage to '
+      "You're attempting to run a query with $rerank as the first stage. This is expensive and increases strain. We recommend using $rerank as the second stage to "
     }
     {searchStageLinks}
     {'.'}
@@ -81,8 +83,34 @@ export const useRerankInsight = ({
   onAddSearchStageBefore: () => void;
 }) => {
   const enableRerank = usePreference('enableRerank');
-  const onAssistantButtonClick = useRerankInsightAction();
+  const track = useTelemetry();
+  const rawOnAssistantButtonClick = useRerankInsightAction();
   const { atlasMetadata } = useConnectionInfo();
+
+  const learnAboutSearchUrl = atlasMetadata
+    ? buildAtlasSearchClustersUrl({ projectId: atlasMetadata.projectId })
+    : 'https://dochub.mongodb.org/core/atlas-search';
+
+  const onAddSearchStageBeforeWithTracking = useCallback(() => {
+    track('Rerank Add Search Stage Button Clicked', {
+      context: 'Rerank Insight',
+    });
+    onAddSearchStageBefore();
+  }, [track, onAddSearchStageBefore]);
+
+  const onLearnAboutSearchWithTracking = useCallback(() => {
+    track('Rerank Learn About Search Button Clicked', {
+      context: 'Rerank Insight',
+    });
+    window.open(learnAboutSearchUrl, '_blank', 'noopener noreferrer');
+  }, [track, learnAboutSearchUrl]);
+
+  const onAssistantButtonClickWithTracking = useCallback(() => {
+    track('Rerank Tell Me More Button Clicked', {
+      context: 'Rerank Insight',
+    });
+    rawOnAssistantButtonClick?.();
+  }, [track, rawOnAssistantButtonClick]);
 
   return useMemo(() => {
     if (!enableRerank || !isRerankFirstStage) return undefined;
@@ -97,26 +125,23 @@ export const useRerankInsight = ({
         ? 'Add $search stage'
         : 'Learn about search',
       ...(hasSearchIndex && !isSearchIndexesLoading
-        ? { onPrimaryActionButtonClick: onAddSearchStageBefore }
+        ? { onPrimaryActionButtonClick: onAddSearchStageBeforeWithTracking }
         : !isSearchIndexesLoading
-        ? {
-            primaryActionButtonLink: atlasMetadata
-              ? buildAtlasSearchClustersUrl({
-                  projectId: atlasMetadata.projectId,
-                })
-              : 'https://dochub.mongodb.org/core/atlas-search',
-          }
+        ? { onPrimaryActionButtonClick: onLearnAboutSearchWithTracking }
         : {}),
-      onAssistantButtonClick,
+      onAssistantButtonClick: rawOnAssistantButtonClick
+        ? onAssistantButtonClickWithTracking
+        : undefined,
     };
   }, [
     enableRerank,
     isRerankFirstStage,
     hasSearchIndex,
     isSearchIndexesLoading,
-    onAddSearchStageBefore,
-    atlasMetadata,
-    onAssistantButtonClick,
+    onAddSearchStageBeforeWithTracking,
+    onLearnAboutSearchWithTracking,
+    rawOnAssistantButtonClick,
+    onAssistantButtonClickWithTracking,
   ]);
 };
 
@@ -146,13 +171,14 @@ const bannerButtonStyles = css({
 });
 
 export const RerankFirstStageBanner = ({
-  'data-testid': dataTestId,
+  className,
   onBeforeAssistantOpen,
 }: {
-  'data-testid'?: string;
+  className?: string;
   onBeforeAssistantOpen?: () => void;
 }) => {
   const enableRerank = usePreference('enableRerank');
+  const track = useTelemetry();
   const [isDismissed, setIsDismissed] = usePersistedState(
     'mongodb_compass_dismissed_rerank_first_stage_banner',
     false
@@ -176,17 +202,22 @@ export const RerankFirstStageBanner = ({
   return (
     <Banner
       variant="warning"
-      data-testid={dataTestId}
-      className={bannerStyles}
+      data-testid="rerank-first-stage-banner"
+      className={cx(bannerStyles, className)}
       dismissible
-      onClose={() => setIsDismissed(true)}
+      onClose={() => {
+        track('Rerank First Stage Banner Dismissed', {
+          context: 'Rerank First Stage Banner',
+        });
+        setIsDismissed(true);
+      }}
     >
       <div className={bannerContentStyles}>
         <div className={bannerTextStyles}>
           <strong>$rerank works better following a search stage</strong>
           <br />
           {
-            "If you're just trying out $rerank, there's a chance you may consume an excessive amount of tokens, which can be expensive. $rerank works best following a search stage like "
+            'Optimize performance and cost by using $rerank after retrieving preliminary results from a stage like '
           }
           {searchStageLinks}
           {'.'}
@@ -195,7 +226,12 @@ export const RerankFirstStageBanner = ({
           <Button
             size="xsmall"
             className={bannerButtonStyles}
-            onClick={onInsightAction}
+            onClick={() => {
+              track('Rerank First Stage Banner Learn More Clicked', {
+                context: 'Rerank First Stage Banner',
+              });
+              onInsightAction?.();
+            }}
             leftGlyph={<Icon glyph="Sparkle" />}
             data-testid="rerank-first-stage-learn-more-button"
           >

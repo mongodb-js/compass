@@ -8,7 +8,7 @@ import PipelinePreview from './pipeline-preview';
 import ResizeHandle from '../../resize-handle';
 import type { RootState } from '../../../modules';
 import { RerankFirstStageBanner } from '../../rerank-first-stage-banner';
-import { getIsRerankFirstStage } from '../../../modules/pipeline-builder/builder-helpers';
+import { getIsRerankFirstStageBannerVisible } from '../../../modules/pipeline-builder/builder-helpers';
 
 const outerContainerStyles = css({
   display: 'flex',
@@ -19,6 +19,7 @@ const outerContainerStyles = css({
 const rowStyles = css({
   display: 'flex',
   flex: 1,
+  height: '100%',
 });
 
 const noPreviewEditorStyles = css({
@@ -35,6 +36,13 @@ const workspaceContainerStyles = css({
   paddingBottom: spacing[400],
   width: '100%',
   overflow: 'auto',
+  scrollbarGutter: 'stable',
+});
+
+// To match with keycard border styles.
+const rerankBannerStyles = css({
+  borderTopLeftRadius: spacing[200],
+  borderTopRightRadius: spacing[200],
 });
 
 type PipelineAsTextWorkspaceProps = {
@@ -55,7 +63,7 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
           className={outerContainerStyles}
         >
           {showRerankFirstStageBanner && (
-            <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
+            <RerankFirstStageBanner className={rerankBannerStyles} />
           )}
           <div className={noPreviewEditorStyles}>
             <PipelineEditor />
@@ -71,7 +79,7 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
         className={outerContainerStyles}
       >
         {showRerankFirstStageBanner && (
-          <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
+          <RerankFirstStageBanner className={rerankBannerStyles} />
         )}
         <div className={rowStyles}>
           <Resizable
@@ -103,7 +111,7 @@ const mapState = (state: RootState) => {
   const { autoPreview } = state;
   return {
     isAutoPreview: !!autoPreview,
-    showRerankFirstStageBanner: getIsRerankFirstStage(state),
+    showRerankFirstStageBanner: getIsRerankFirstStageBannerVisible(state),
   };
 };
 

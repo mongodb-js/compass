@@ -39,6 +39,7 @@ import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-he
 import { useRerankInsight } from '../rerank-first-stage-banner';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type Stage = {
   idxInStore: number;
@@ -127,12 +128,13 @@ export const FocusModeModalHeader: React.FunctionComponent<
   const showInsights = usePreference('showInsights');
   const enableRerank = usePreference('enableRerank');
   const { atlasMetadata } = useConnectionInfo();
+  const track = useTelemetry();
 
   const viewTokenUsageHref =
     enableRerank && stage?.stageOperator === '$rerank'
       ? atlasMetadata
         ? buildRerankTokenUsageUrl(atlasMetadata)
-        : 'https://dochub.mongodb.org/core/$rerank#metrics'
+        : 'https://dochub.mongodb.org/core/manage-native-reranking'
       : null;
 
   const performanceInsight = useMemo(() => {
@@ -384,8 +386,13 @@ export const FocusModeModalHeader: React.FunctionComponent<
           href={viewTokenUsageHref}
           target="_blank"
           data-testid="focus-mode-view-token-usage-link"
+          onClick={() => {
+            track('Rerank View Usage And Rate Limits Link Clicked', {
+              context: 'Focus Mode',
+            });
+          }}
         >
-          View token usage
+          View $rerank Usage and Rate Limits
         </Link>
       )}
 

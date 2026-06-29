@@ -98,6 +98,16 @@ describe('BSONValue', function () {
       value: new DBRef('foo', new ObjectId('5d505646cf6d4fe581014ab2'), 'buz'),
       expected: "DBRef('foo', '5d505646cf6d4fe581014ab2', 'buz')",
     },
+    {
+      type: 'DBRef',
+      value: new DBRef('foo', 'some-string-id' as any),
+      expected: "DBRef('foo', 'some-string-id')",
+    },
+    {
+      type: 'DBRef',
+      value: new DBRef('a', { x: '5f16b8bebe434dc98cdfc9cb' } as any),
+      expected: `DBRef('a', {"x":"5f16b8bebe434dc98cdfc9cb"})`,
+    },
     { type: 'MaxKey', value: new MaxKey(), expected: 'MaxKey()' },
     { type: 'MinKey', value: new MinKey(), expected: 'MinKey()' },
     {
