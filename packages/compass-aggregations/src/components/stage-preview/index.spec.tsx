@@ -9,6 +9,10 @@ import {
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
+import {
+  createSandboxFromDefaultPreferences,
+  type PreferencesAccess,
+} from 'compass-preferences-model';
 
 import { StagePreview } from './';
 import {
@@ -26,12 +30,14 @@ const renderStagePreview = (
   {
     enableSearchActivationP1Experiment = false,
     enableSearchActivationP2Experiment = false,
+    preferences,
   }: {
     enableSearchActivationP1Experiment?: boolean;
     enableSearchActivationP2Experiment?: boolean;
+    preferences?: PreferencesAccess;
   } = {}
 ) => {
-  let ui = (
+  let ui: React.ReactElement = (
     <StagePreview
       documents={[]}
       index={Math.max(pipeline.length - 1, 0)}
@@ -44,6 +50,7 @@ const renderStagePreview = (
       showSearchIndexStaleResultsBanner={false}
       searchIndexName={null}
       serverErrorStageIdx={null}
+      pipeline={null}
       {...props}
     />
   );
@@ -59,7 +66,12 @@ const renderStagePreview = (
       ExperimentTestGroups.searchActivationProgramP2Variant
     );
   }
-  return renderWithStore(ui, { pipeline, ...storeOptions });
+  return renderWithStore(
+    ui,
+    { pipeline, ...storeOptions },
+    undefined,
+    preferences ? { preferences } : {}
+  );
 };
 
 describe('StagePreview', function () {
@@ -336,6 +348,95 @@ describe('StagePreview', function () {
 
       expect(screen.queryByTestId('stage-preview-search-score-chip')).to.not
         .exist;
+    });
+  });
+
+  describe('analyze output button', function () {
+    let preferences: PreferencesAccess;
+
+    beforeEach(async function () {
+      preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      });
+    });
+
+    it('renders the button for $search stage with documents and score metadata when P2 experiment is enabled', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+          stageMetadata: {
+            type: '$search',
+            scores: [{ value: 1.5, description: 'sum of:', details: [] }],
+          },
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true, preferences }
+      );
+      expect(screen.getByTestId('analyze-search-output-button')).to.exist;
+    });
+
+    it('does not render the button when score metadata is absent', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+          stageMetadata: null,
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true, preferences }
+      );
+      expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
+    });
+
+    it('does not render the button for non-$search stages', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$match',
+          documents: [{ _id: 1 }],
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true, preferences }
+      );
+      expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
+    });
+
+    it('does not render the button when there are no documents', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [],
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true, preferences }
+      );
+      expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
+    });
+
+    it('does not render the button when P2 experiment is not enabled', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { preferences }
+      );
+      expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
     });
   });
 

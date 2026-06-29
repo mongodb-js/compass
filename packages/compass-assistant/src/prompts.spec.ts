@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import {
   buildConversationInstructionsPrompt,
   buildExplainPlanPrompt,
+  buildAnalyzeOutputPrompt,
   buildContextPrompt,
 } from './prompts';
 
@@ -70,6 +71,72 @@ describe('prompts', function () {
       expect(aggregationPrompt.metadata?.instructions).to.not.include(
         'MongoDB Query'
       );
+    });
+  });
+
+  describe('buildAnalyzeOutputPrompt', function () {
+    const mockPipeline = '[{ $search: { index: "default" } }]';
+    const mockOutput = 'Document 1:\n{"_id":1}';
+
+    it('uses singular displayText for 1 document', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 1,
+      });
+      expect(result.metadata?.displayText).to.equal(
+        'Analyze this result after $search stage.'
+      );
+    });
+
+    it('uses plural displayText for 2 documents', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 2,
+      });
+      expect(result.metadata?.displayText).to.equal(
+        'Analyze these 2 results after $search stage.'
+      );
+    });
+
+    it('uses top-3 displayText for 3 or more documents', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 5,
+      });
+      expect(result.metadata?.displayText).to.equal(
+        'Analyze the top 3 results after $search stage.'
+      );
+    });
+
+    it('includes the pipeline in the prompt', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 1,
+      });
+      expect(result.prompt).to.include(mockPipeline);
+    });
+
+    it('includes the output in the prompt', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 1,
+      });
+      expect(result.prompt).to.include(mockOutput);
+    });
+
+    it('includes a confirmation with pending state', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 1,
+      });
+      expect(result.metadata?.confirmation?.state).to.equal('pending');
+      expect(result.metadata?.confirmation?.description).to.be.a('string');
     });
   });
 
