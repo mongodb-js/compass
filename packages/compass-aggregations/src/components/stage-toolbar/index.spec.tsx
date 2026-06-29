@@ -5,7 +5,7 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
-import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
+import type { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import StageToolbar from './';
 import {
