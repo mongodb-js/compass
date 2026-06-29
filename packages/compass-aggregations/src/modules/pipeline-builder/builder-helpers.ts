@@ -123,7 +123,7 @@ export function getIsRerankFirstStageBannerVisible(
   }
   if (stageIndex !== undefined) {
     const stage = state.pipelineBuilder.stageEditor.stages[stageIndex];
-    return stage?.type === 'stage' && stage.hasReturnedDocs;
+    return stage?.type === 'stage' && stage.didReturnDocs;
   }
   const { previewDocs } = state.pipelineBuilder.textEditor.pipeline;
   return previewDocs !== null && previewDocs.length > 0;

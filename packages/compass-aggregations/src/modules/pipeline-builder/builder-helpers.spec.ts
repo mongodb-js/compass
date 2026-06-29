@@ -2,12 +2,18 @@ import { expect } from 'chai';
 import {
   getPipelineStageOperatorsFromBuilderState,
   getIsRerankFirstStage,
+  getIsRerankFirstStageBannerVisible,
 } from './builder-helpers';
-import { addStage, changeStageDisabled } from './stage-editor';
+import {
+  addStage,
+  changeStageDisabled,
+  StageEditorActionTypes,
+} from './stage-editor';
 import { changePipelineMode } from './pipeline-mode';
-import { changeEditorValue } from './text-editor-pipeline';
+import { changeEditorValue, EditorActionTypes } from './text-editor-pipeline';
 import configureStore from '../../../test/configure-store';
 import type { AggregationsStore } from '../../stores/store';
+import HadronDocument from 'hadron-document';
 
 async function createStore(
   pipelineText = `[{$match: {_id: 1}}, {$limit: 10}]`
@@ -104,6 +110,59 @@ describe('builder-helpers', function () {
         store.dispatch(changePipelineMode('as-text'));
         store.dispatch(changeEditorValue('[{ $match: {} }, { $rerank: '));
         expect(getIsRerankFirstStage(store.getState())).to.equal(false);
+      });
+    });
+  });
+
+  describe('getIsRerankFirstStageBannerVisible', function () {
+    describe('per-card (stage mode)', function () {
+      it('returns false when $rerank is not the first enabled stage', async function () {
+        const store = await createStore('[{ $match: {} }, { $rerank: {} }]');
+        expect(
+          getIsRerankFirstStageBannerVisible(store.getState(), 1)
+        ).to.equal(false);
+      });
+
+      it('returns false when $rerank is first but no docs have been returned yet', async function () {
+        const store = await createStore('[{ $rerank: {} }]');
+        expect(
+          getIsRerankFirstStageBannerVisible(store.getState(), 0)
+        ).to.equal(false);
+      });
+
+      it('returns true when $rerank is first and preview has returned docs', async function () {
+        const store = await createStore('[{ $rerank: {} }]');
+        store.dispatch({
+          type: StageEditorActionTypes.StagePreviewFetchSuccess,
+          id: 0,
+          previewDocs: [new HadronDocument({ _id: 1 })],
+          stageMetadata: null,
+        });
+        expect(
+          getIsRerankFirstStageBannerVisible(store.getState(), 0)
+        ).to.equal(true);
+      });
+    });
+
+    describe('text mode', function () {
+      it('returns false when $rerank is first but previewDocs is null', async function () {
+        const store = await createStore('[{ $rerank: {} }]');
+        store.dispatch(changePipelineMode('as-text'));
+        expect(getIsRerankFirstStageBannerVisible(store.getState())).to.equal(
+          false
+        );
+      });
+
+      it('returns true when $rerank is first and previewDocs has results', async function () {
+        const store = await createStore('[{ $rerank: {} }]');
+        store.dispatch(changePipelineMode('as-text'));
+        store.dispatch({
+          type: EditorActionTypes.EditorPreviewFetchSuccess,
+          previewDocs: [new HadronDocument({ _id: 1 })],
+        });
+        expect(getIsRerankFirstStageBannerVisible(store.getState())).to.equal(
+          true
+        );
       });
     });
   });

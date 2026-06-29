@@ -1153,7 +1153,7 @@ describe('stageEditor', function () {
       });
     });
 
-    describe('hasReturnedDocs gating for $rerank first-stage banner', function () {
+    describe('didReturnDocs gating for $rerank first-stage banner', function () {
       const RERANK_PIPELINE_SOURCE = `[{$rerank: {}}]`;
 
       function createRerankStore() {
@@ -1177,30 +1177,28 @@ describe('stageEditor', function () {
 
       it('is false before any preview runs', function () {
         const s = createRerankStore();
-        expect((s.getState().stages[0] as StoreStage).hasReturnedDocs).to.be
+        expect((s.getState().stages[0] as StoreStage).didReturnDocs).to.be
           .false;
       });
 
       it('becomes true after StagePreviewFetchSuccess with docs', function () {
         const s = createRerankStore();
         dispatchPreviewSuccess(s, [{ _id: 1 }]);
-        expect((s.getState().stages[0] as StoreStage).hasReturnedDocs).to.be
-          .true;
+        expect((s.getState().stages[0] as StoreStage).didReturnDocs).to.be.true;
       });
 
       it('stays true when a subsequent preview returns empty docs', function () {
         const s = createRerankStore();
         dispatchPreviewSuccess(s, [{ _id: 1 }]);
         dispatchPreviewSuccess(s, []);
-        expect((s.getState().stages[0] as StoreStage).hasReturnedDocs).to.be
-          .true;
+        expect((s.getState().stages[0] as StoreStage).didReturnDocs).to.be.true;
       });
 
       it('resets to false when stage operator changes', function () {
         const s = createRerankStore();
         dispatchPreviewSuccess(s, [{ _id: 1 }]);
         s.dispatch(changeStageOperator(0, '$match'));
-        expect((s.getState().stages[0] as StoreStage).hasReturnedDocs).to.be
+        expect((s.getState().stages[0] as StoreStage).didReturnDocs).to.be
           .false;
       });
     });
