@@ -10,6 +10,7 @@ import {
   screenshotIfFailed,
   getDefaultConnectionNames,
   screenshotPathName,
+  serverSatisfies,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
@@ -530,6 +531,10 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
       describe('rerank insight entry point', function () {
         before(async function () {
+          // For server versions below 7.0.0, the $rerank stage is not available, so we skip this test.
+          if (!serverSatisfies('>=7.0.0')) {
+            this.skip();
+          }
           try {
             await setAIOptIn(true);
             await setAIFeatures(true);
