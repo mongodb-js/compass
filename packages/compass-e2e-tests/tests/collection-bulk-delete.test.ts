@@ -174,12 +174,6 @@ describe('Bulk Delete', function () {
       this.skip();
     }
 
-    if (isTestingWebAtlasCloud()) {
-      // Skipping as we driver syntax has will have a variable connection string.
-      // TODO: This should be an easy string substitution.
-      return this.skip();
-    }
-
     const telemetryEntry = await browser.listenForTelemetryEvents(telemetry);
 
     // Set a query that we'll use.
@@ -205,10 +199,19 @@ describe('Bulk Delete', function () {
       includeDriverSyntax: true,
       useBuilders: false,
     });
-    expect(text).to.equal(`from pymongo import MongoClient
+
+    // In logged in Atlas tests the connection string changes each run.
+    const onAtlasCloud = isTestingWebAtlasCloud();
+    const connectionString = onAtlasCloud
+      ? '<connectionString>'
+      : 'mongodb://127.0.0.1:27091/test';
+    const normalizedText = onAtlasCloud
+      ? text.replace(/'mongodb(?:\+srv)?:\/\/[^']*'/, `'${connectionString}'`)
+      : text;
+    expect(normalizedText).to.equal(`from pymongo import MongoClient
 # Requires the PyMongo package.
 # https://api.mongodb.com/python/current
-client = MongoClient('mongodb://127.0.0.1:27091/test')
+client = MongoClient('${connectionString}')
 filter={
     'i': 5
 }

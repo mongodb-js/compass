@@ -391,12 +391,6 @@ describe('Collection documents tab', function () {
   });
 
   it('can export to language', async function () {
-    if (isTestingWebAtlasCloud()) {
-      // Skipping as we driver syntax has will have a variable connection string.
-      // TODO: This should be an easy string substitution.
-      return this.skip();
-    }
-
     await navigateToTab(browser, 'Documents'); // just in case the previous test failed before it could clean up
 
     await browser.runFindOperation('Documents', '{ i: 5 }');
@@ -411,7 +405,17 @@ describe('Collection documents tab', function () {
       useBuilders: true,
     });
 
-    expect(text).to.equal(`import static com.mongodb.client.model.Filters.eq;
+    // In logged in Atlas tests the connection string changes each run.
+    const onAtlasCloud = isTestingWebAtlasCloud();
+    const connectionString = onAtlasCloud
+      ? '<connectionString>'
+      : 'mongodb://127.0.0.1:27091/test';
+    const normalizedText = onAtlasCloud
+      ? text.replace(/"mongodb(?:\+srv)?:\/\/[^"]*"/, `"${connectionString}"`)
+      : text;
+
+    expect(normalizedText).to
+      .equal(`import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
@@ -427,7 +431,7 @@ import com.mongodb.client.FindIterable;
 Bson filter = eq("i", 5L);
 MongoClient mongoClient = new MongoClient(
     new MongoClientURI(
-        "mongodb://127.0.0.1:27091/test"
+        "${connectionString}"
     )
 );
 MongoDatabase database = mongoClient.getDatabase("test");
