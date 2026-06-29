@@ -189,10 +189,11 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
     isError && error ? isRerankNotEnabledError(error.message) : false;
   const rateLimitInfo =
     isError && error ? getVoyageProjectRateLimitInfo(error.message) : null;
-  const projectSettingsHref =
-    rerankNotEnabled && atlasMetadata
+  const projectSettingsHref = rerankNotEnabled
+    ? atlasMetadata
       ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
-      : null;
+      : 'https://dochub.mongodb.org/core/manage-native-reranking'
+    : null;
 
   if (isError && error && rerankNotEnabled) {
     results = (
