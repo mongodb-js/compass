@@ -1541,17 +1541,6 @@ const connectWithOptions = (
       return inflightConnection;
     }
 
-    if (
-      getCurrentConnectionStatus(getState(), connectionInfo.id) === 'connected'
-    ) {
-      // No need to connect if we're already connected.
-      return;
-    }
-
-    if (!connectable(connectionInfo)) {
-      return;
-    }
-
     {
       const { maximumNumberOfActiveConnections } = preferences.getPreferences();
       if (
@@ -1570,6 +1559,17 @@ const connectWithOptions = (
       const deviceAuthAbortController = new AbortController();
 
       try {
+        if (
+          getCurrentConnectionStatus(getState(), connectionInfo.id) ===
+          'connected'
+        ) {
+          return;
+        }
+
+        if (!connectable(connectionInfo)) {
+          return;
+        }
+
         const isAutoconnectAttempt = isAutoconnectInfo(
           getState(),
           connectionInfo.id
@@ -1580,10 +1580,22 @@ const connectWithOptions = (
         const {
           forceConnectionOptions,
           browserCommandForOIDCAuth,
+          maximumNumberOfActiveConnections,
           telemetryAnonymousId,
         } = preferences.getPreferences();
 
         const connectionProgress = getNotificationTriggers();
+
+        if (
+          typeof maximumNumberOfActiveConnections !== 'undefined' &&
+          getActiveConnectionsCount(getState().connections) >=
+            maximumNumberOfActiveConnections
+        ) {
+          connectionProgress.openMaximumConnectionsReachedToast(
+            maximumNumberOfActiveConnections
+          );
+          return;
+        }
 
         dispatch({
           type: ActionTypes.ConnectionAttemptStart,
