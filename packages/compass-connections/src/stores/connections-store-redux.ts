@@ -1541,20 +1541,6 @@ const connectWithOptions = (
       return inflightConnection;
     }
 
-    {
-      const { maximumNumberOfActiveConnections } = preferences.getPreferences();
-      if (
-        typeof maximumNumberOfActiveConnections !== 'undefined' &&
-        getActiveConnectionsCount(getState().connections) >=
-          maximumNumberOfActiveConnections
-      ) {
-        getNotificationTriggers().openMaximumConnectionsReachedToast(
-          maximumNumberOfActiveConnections
-        );
-        return;
-      }
-    }
-
     inflightConnection = (async () => {
       const deviceAuthAbortController = new AbortController();
 
