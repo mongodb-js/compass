@@ -115,7 +115,7 @@ describe('builder-helpers', function () {
   });
 
   describe('getIsRerankFirstStageBannerVisible', function () {
-    describe('per-card (stage mode)', function () {
+    describe('per-card (stage / focus mode)', function () {
       it('returns false when $rerank is not the first enabled stage', async function () {
         const store = await createStore('[{ $match: {} }, { $rerank: {} }]');
         expect(

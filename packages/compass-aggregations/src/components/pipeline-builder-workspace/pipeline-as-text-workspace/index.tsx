@@ -102,8 +102,9 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
 };
 
 const mapState = (state: RootState) => {
+  const { autoPreview } = state;
   return {
-    isAutoPreview: !!state.autoPreview,
+    isAutoPreview: !!autoPreview,
     showRerankFirstStageBanner: getIsRerankFirstStageBannerVisible(state),
   };
 };

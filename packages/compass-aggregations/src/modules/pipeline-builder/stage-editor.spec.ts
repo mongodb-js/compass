@@ -1176,29 +1176,31 @@ describe('stageEditor', function () {
       }
 
       it('is false before any preview runs', function () {
-        const s = createRerankStore();
-        expect((s.getState().stages[0] as StoreStage).didReturnDocs).to.be
+        const store = createRerankStore();
+        expect((store.getState().stages[0] as StoreStage).didReturnDocs).to.be
           .false;
       });
 
       it('becomes true after StagePreviewFetchSuccess with docs', function () {
-        const s = createRerankStore();
-        dispatchPreviewSuccess(s, [{ _id: 1 }]);
-        expect((s.getState().stages[0] as StoreStage).didReturnDocs).to.be.true;
+        const store = createRerankStore();
+        dispatchPreviewSuccess(store, [{ _id: 1 }]);
+        expect((store.getState().stages[0] as StoreStage).didReturnDocs).to.be
+          .true;
       });
 
       it('stays true when a subsequent preview returns empty docs', function () {
-        const s = createRerankStore();
-        dispatchPreviewSuccess(s, [{ _id: 1 }]);
-        dispatchPreviewSuccess(s, []);
-        expect((s.getState().stages[0] as StoreStage).didReturnDocs).to.be.true;
+        const store = createRerankStore();
+        dispatchPreviewSuccess(store, [{ _id: 1 }]);
+        dispatchPreviewSuccess(store, []);
+        expect((store.getState().stages[0] as StoreStage).didReturnDocs).to.be
+          .true;
       });
 
       it('resets to false when stage operator changes', function () {
-        const s = createRerankStore();
-        dispatchPreviewSuccess(s, [{ _id: 1 }]);
-        s.dispatch(changeStageOperator(0, '$match'));
-        expect((s.getState().stages[0] as StoreStage).didReturnDocs).to.be
+        const store = createRerankStore();
+        dispatchPreviewSuccess(store, [{ _id: 1 }]);
+        store.dispatch(changeStageOperator(0, '$match'));
+        expect((store.getState().stages[0] as StoreStage).didReturnDocs).to.be
           .false;
       });
     });
