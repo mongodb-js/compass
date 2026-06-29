@@ -10,6 +10,7 @@ import {
   screenshotIfFailed,
   getDefaultConnectionNames,
   screenshotPathName,
+  serverSatisfies,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
@@ -17,7 +18,10 @@ import { startMockAtlasServiceServer } from '../helpers/mock-atlas-service.ts';
 import { startMockAssistantServer } from '../helpers/assistant-service.ts';
 import type { MockAssistantResponse } from '../helpers/assistant-service.ts';
 
-import { context } from '../helpers/test-runner-context.ts';
+import {
+  context,
+  isTestingWebAtlasCloud,
+} from '../helpers/test-runner-context.ts';
 
 describe('MongoDB Assistant (with mocked backend)', function () {
   let compass: Compass;
@@ -520,6 +524,56 @@ describe('MongoDB Assistant (with mocked backend)', function () {
             },
             {
               text: 'You should review the connection string.',
+              role: 'assistant',
+            },
+          ]);
+
+          expect(mockAssistantServer.getRequests()).to.have.lengthOf(1);
+        });
+      });
+
+      describe('rerank insight entry point', function () {
+        before(async function () {
+          if (!serverSatisfies('>=7.0.0') || !isTestingWebAtlasCloud()) {
+            this.skip();
+          }
+          try {
+            await setAIOptIn(true);
+            await setAIFeatures(true);
+            mockAssistantServer.setResponse({
+              status: 200,
+              body: 'You should add a search stage before $rerank.',
+            });
+            await browser.navigateToCollectionTab(
+              getDefaultConnectionNames(0),
+              dbName,
+              collectionName,
+              'Aggregations'
+            );
+            await browser.clickVisible(Selectors.CreateNewPipelineButton);
+            await browser.clickVisible(Selectors.AddStageButton);
+            await browser.selectStageOperator(0, '$rerank');
+          } catch (err) {
+            await browser.screenshot(
+              screenshotPathName('before-rerank-insight-entry-point')
+            );
+            throw err;
+          }
+        });
+
+        it('opens assistant when clicking "Tell me more" on the rerank insight', async function () {
+          await browser.$(Selectors.InsightIconButton).waitForDisplayed();
+          await browser.clickVisible(Selectors.InsightIconButton);
+          await browser.waitForAnimations(Selectors.InsightPopoverCard);
+          await browser.clickVisible(Selectors.InsightTellMeMoreButton);
+
+          await browser.waitForMessages([
+            {
+              text: 'What are best practices for using $rerank?',
+              role: 'user',
+            },
+            {
+              text: 'You should add a search stage before $rerank.',
               role: 'assistant',
             },
           ]);
