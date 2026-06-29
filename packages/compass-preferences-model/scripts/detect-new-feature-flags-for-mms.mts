@@ -7,8 +7,8 @@ const FILEPATH = 'packages/compass-preferences-model/src/feature-flags.ts';
 
 interface FlagInfo {
   name: string;
-  scope: string | null;
-  description: string | null;
+  scope: string;
+  description: string;
 }
 
 function getFileAt(sha: string): string | null {
@@ -16,6 +16,49 @@ function getFileAt(sha: string): string | null {
     encoding: 'utf8',
   });
   return r.status === 0 ? r.stdout : null;
+}
+
+function toKebabCase(str: string): string {
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase();
+}
+
+function getFeatureFlagConfigForMMS(flag: FlagInfo): {
+  filePath: string;
+  fileName: string;
+  config: string;
+} {
+  const fileName = `data-explorer-compass-web-${toKebabCase(flag.name)}.yml`;
+  const config = `# This feature flag config was added from Compass, https://github.com/mongodb-js/compass. If the
+# usage of this does not appear within mms codebase, it should not be removed before verifying if its
+# being used in Compass. \`/explorer/v1/groups/:id/preferences\` API exposes this feature flag value
+# to Compass dynamically, without being added to \`FeatureFlag.java\` enum. You can also reach out to
+# the compass team on #compass slack channel for more information.
+name: mms.featureFlag.dataExplorerCompassWeb.${flag.name}
+namespace: global
+scope: ${JSON.stringify(flag.scope)}
+description: ${JSON.stringify(flag.description)}
+phases:
+  local: enabled
+  local-gov: disabled
+  test: controlled
+  test-gov: disabled
+  dev: controlled
+  dev-gov: disabled
+  qa: controlled
+  qa-gov: disabled
+  stage: controlled
+  prod: controlled
+  prod-gov: disabled
+  internal: disabled
+`;
+  return {
+    filePath: `feature-flags/definitions/developer-tools/${fileName}`,
+    fileName,
+    config,
+  };
 }
 
 function getStringProp(
@@ -88,7 +131,7 @@ function extractFlags(source: string): Map<string, FlagInfo> {
           flags.set(name, {
             name,
             scope,
-            description: descObj ? getStringProp(descObj, 'short') : null,
+            description: descObj ? getStringProp(descObj, 'short') ?? '' : '',
           });
         }
         return;
@@ -106,12 +149,16 @@ function resolveRef(ref: string): string | null {
   return r.status === 0 ? r.stdout.trim() : null;
 }
 
+function withCodeFence(code: string): string {
+  return ['', '```yml', code, '```'].join('\n');
+}
+
 function buildCommentBody(flags: FlagInfo[]): string {
   const flagSummaries = flags
     .map(
       (flag) => `### \`${flag.name}\`
 - **Description:** ${
-        flag.description ??
+        flag.description ||
         '_Not set._ Please add a description object with at least a short property to the feature flag definition in `feature-flags.ts` so it can be used in the MMS feature flag definition.'
       }
 - **Atlas Cloud Scope:** \`${flag.scope}\``
@@ -119,47 +166,37 @@ function buildCommentBody(flags: FlagInfo[]): string {
     .join('\n\n');
 
   const flagDefinitions = flags
-    .map(
-      (
-        flag
-      ) => `\tFile: [feature-flags/definitions/developer-tools](https://github.com/10gen/mms/tree/master/feature-flags/definitions/developer-tools)/data-explorer-compass-web-${flag.name}.yml
-\tContents:
+    .map(getFeatureFlagConfigForMMS)
+    .map((c) => {
+      return `\`${c.fileName}\`\n${withCodeFence(c.config)}`;
+    })
+    .join('\n---\n');
 
-\`\`\`yml
-name: mms.featureFlag.dataExplorerCompassWeb.${flag.name}
-namespace: global
-scope: ${flag.scope}
-description: ${flag.description}
-phases:
-  local: enabled
-  local-gov: disabled
-  test: controlled
-  test-gov: disabled
-  dev: controlled
-  dev-gov: disabled
-  qa: controlled
-  qa-gov: disabled
-  stage: controlled
-  prod: controlled
-  prod-gov: disabled
-  internal: disabled
-\`\`\``
-    )
-    .join('\n\n');
+  return `## New Feature Flag${
+    flags.length === 1 ? '' : 's'
+  } Definition Detected
 
-  return `## New Feature Flag Definition(s) Detected
-
-The following new feature flag(s) were added to \`FEATURE_FLAG_DEFINITIONS\` in \`feature-flags.ts\`:
+The following new feature flag${
+    flags.length === 1 ? ' was' : 's were'
+  } added to \`FEATURE_FLAG_DEFINITIONS\` in \`feature-flags.ts\`:
 
 ${flagSummaries}
 
 ---
 
-**As a follow up, create MMS feature flag PR for each new feature flag**. Steps:
-\t1. Create a new file in the directory [feature-flags/definitions/developer-tools](https://github.com/10gen/mms/tree/master/feature-flags/definitions/developer-tools)
-\t2. Add the contents of the feature flag definition to it. Here is the title and contents for the new flag(s):
+**Once this PR is merged, mms PR will be created automatically. It will add ${
+    flags.length
+  } new feature flag config${
+    flags.length === 1 ? '' : 's'
+  } to MMS and will be assigned to the author of this PR. If that fails for some reason, follow the steps listed below instead**
+<details><summary>Steps to create MMS feature flag manually</summary>
+
+For each feature flag, create a new file in the [feature-flags/definitions/developer-tools](https://github.com/10gen/mms/tree/master/feature-flags/definitions/developer-tools) directory with contents corresponding to that feature flag definition.
+
+---
 
 ${flagDefinitions}
+</details>
 `;
 }
 
@@ -215,6 +252,13 @@ function main(): void {
       appendFileSync(
         githubOutput,
         `comment_body<<${delimiter}\n${body}\n${delimiter}\n`
+      );
+      const mmsPullRequestContent = newFlags.map(getFeatureFlagConfigForMMS);
+      appendFileSync(
+        githubOutput,
+        `mms_pull_request_content<<${delimiter}\n${JSON.stringify(
+          mmsPullRequestContent
+        )}\n${delimiter}\n`
       );
     }
   } else {

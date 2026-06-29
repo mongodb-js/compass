@@ -189,10 +189,7 @@ export const FocusMode: React.FunctionComponent<FocusModeProps> = ({
           </div>
           <HorizontalRule />
           {showRerankFirstStageBanner && (
-            <RerankFirstStageBanner
-              data-testid="focus-mode-rerank-first-stage-banner"
-              onBeforeAssistantOpen={onCloseModal}
-            />
+            <RerankFirstStageBanner onBeforeAssistantOpen={onCloseModal} />
           )}
         </div>
         <FocusModeContent isAutoPreviewEnabled={isAutoPreviewEnabled} />

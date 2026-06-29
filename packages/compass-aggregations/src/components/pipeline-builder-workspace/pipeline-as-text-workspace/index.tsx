@@ -39,6 +39,12 @@ const workspaceContainerStyles = css({
   scrollbarGutter: 'stable',
 });
 
+// To match with keycard border styles.
+const rerankBannerStyles = css({
+  borderTopLeftRadius: spacing[200],
+  borderTopRightRadius: spacing[200],
+});
+
 type PipelineAsTextWorkspaceProps = {
   isAutoPreview: boolean;
   showRerankFirstStageBanner: boolean;
@@ -57,7 +63,7 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
           className={outerContainerStyles}
         >
           {showRerankFirstStageBanner && (
-            <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
+            <RerankFirstStageBanner className={rerankBannerStyles} />
           )}
           <div className={noPreviewEditorStyles}>
             <PipelineEditor />
@@ -73,7 +79,7 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
         className={outerContainerStyles}
       >
         {showRerankFirstStageBanner && (
-          <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
+          <RerankFirstStageBanner className={rerankBannerStyles} />
         )}
         <div className={rowStyles}>
           <Resizable

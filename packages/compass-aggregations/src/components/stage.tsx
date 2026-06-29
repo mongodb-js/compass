@@ -40,8 +40,14 @@ const stageErrorStyles = css({
   borderColor: palette.red.base,
 });
 
+const stageContentWithBannerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
 const stageContentStyles = css({
   display: 'flex',
+  flexDirection: 'row',
 });
 
 const stageEditorNoPreviewStyles = css({
@@ -185,21 +191,21 @@ function Stage({
             index={index}
           />
         </div>
-        {showRerankFirstStageBanner && (
-          <RerankFirstStageBanner data-testid="stage-rerank-first-stage-banner" />
-        )}
         {isExpanded && (
-          <div style={{ opacity }} className={stageContentStyles}>
-            <ResizableEditor
-              index={index}
-              isAutoPreviewing={isAutoPreviewing}
-              editorRef={editorRef}
-            />
-            {isAutoPreviewing && (
-              <div className={stagePreviewContainerStyles}>
-                <StagePreview index={index} />
-              </div>
-            )}
+          <div style={{ opacity }} className={stageContentWithBannerStyles}>
+            {showRerankFirstStageBanner && <RerankFirstStageBanner />}
+            <div className={stageContentStyles}>
+              <ResizableEditor
+                index={index}
+                isAutoPreviewing={isAutoPreviewing}
+                editorRef={editorRef}
+              />
+              {isAutoPreviewing && (
+                <div className={stagePreviewContainerStyles}>
+                  <StagePreview index={index} />
+                </div>
+              )}
+            </div>
           </div>
         )}
       </KeylineCard>
