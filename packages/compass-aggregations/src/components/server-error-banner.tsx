@@ -28,7 +28,7 @@ const bannerButtonStyles = css({
 });
 
 const RERANK_DOCS_URL =
-  'https://dochub.mongodb.org/core/$rerank#navigate-to-the-project-settings-page';
+  'https://dochub.mongodb.org/core/manage-native-reranking';
 
 const bannerStyles = css({
   textAlign: 'left',

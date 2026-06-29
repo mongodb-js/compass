@@ -8,7 +8,7 @@ import PipelinePreview from './pipeline-preview';
 import ResizeHandle from '../../resize-handle';
 import type { RootState } from '../../../modules';
 import { RerankFirstStageBanner } from '../../rerank-first-stage-banner';
-import { getIsRerankFirstStage } from '../../../modules/pipeline-builder/builder-helpers';
+import { getIsRerankFirstStageBannerVisible } from '../../../modules/pipeline-builder/builder-helpers';
 
 const outerContainerStyles = css({
   display: 'flex',
@@ -36,6 +36,7 @@ const workspaceContainerStyles = css({
   paddingBottom: spacing[400],
   width: '100%',
   overflow: 'auto',
+  scrollbarGutter: 'stable',
 });
 
 type PipelineAsTextWorkspaceProps = {
@@ -104,7 +105,7 @@ const mapState = (state: RootState) => {
   const { autoPreview } = state;
   return {
     isAutoPreview: !!autoPreview,
-    showRerankFirstStageBanner: getIsRerankFirstStage(state),
+    showRerankFirstStageBanner: getIsRerankFirstStageBannerVisible(state),
   };
 };
 

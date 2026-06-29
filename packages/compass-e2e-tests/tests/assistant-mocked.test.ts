@@ -578,28 +578,6 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
           expect(mockAssistantServer.getRequests()).to.have.lengthOf(1);
         });
-
-        it('opens assistant when clicking "Learn more" on the rerank banner', async function () {
-          await browser
-            .$(Selectors.RerankFirstStageBannerLearnMoreButton)
-            .waitForDisplayed();
-          await browser.clickVisible(
-            Selectors.RerankFirstStageBannerLearnMoreButton
-          );
-
-          await browser.waitForMessages([
-            {
-              text: 'What are best practices for using $rerank?',
-              role: 'user',
-            },
-            {
-              text: 'You should add a search stage before $rerank.',
-              role: 'assistant',
-            },
-          ]);
-
-          expect(mockAssistantServer.getRequests()).to.have.lengthOf(1);
-        });
       });
     });
   });

@@ -3751,7 +3751,9 @@ export type RerankTelemetryContext =
   | 'Rerank Not Enabled Banner'
   | 'Rerank Version Warning Banner'
   | 'Rerank First Stage Banner'
-  | 'Rerank Insight';
+  | 'Rerank Insight'
+  | 'Stage Toolbar'
+  | 'Focus Mode';
 
 /**
  * This event is fired when the "rerank not enabled" server error banner is
@@ -3875,6 +3877,19 @@ type RerankProjectSettingsButtonClickedEvent = CommonEvent<{
   name: 'Rerank Project Settings Button Clicked';
   payload: {
     /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "View $rerank Usage and Rate
+ * Limits" link in the stage toolbar or focus mode header.
+ *
+ * @category Aggregation Builder
+ */
+type RerankViewUsageAndRateLimitsLinkClickedEvent = CommonEvent<{
+  name: 'Rerank View Usage And Rate Limits Link Clicked';
+  payload: {
     context: RerankTelemetryContext;
   };
 }>;
@@ -4136,6 +4151,7 @@ export type TelemetryEvent =
   | RerankTellMeMoreButtonClickedEvent
   | RerankUpgradeClusterButtonClickedEvent
   | RerankProjectSettingsButtonClickedEvent
+  | RerankViewUsageAndRateLimitsLinkClickedEvent
   | SearchExtensionRateLimitBannerShownEvent
   | SearchExtensionRateLimitBillingLinkClickedEvent
   | SearchExtensionRateLimitPageLinkClickedEvent;
