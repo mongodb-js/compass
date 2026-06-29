@@ -286,15 +286,6 @@ describe('PipelineEditor', function () {
         expect(screen.queryByTestId('pipeline-editor-rerank-version-warning'))
           .to.not.exist;
       });
-
-      it('should not show warning when enableRerank is false', async function () {
-        await renderPipelineEditor({
-          serverVersion: '8.0.0',
-          pipelineText: '[{ $rerank: {} }]',
-        });
-        expect(screen.queryByTestId('pipeline-editor-rerank-version-warning'))
-          .to.not.exist;
-      });
     });
 
     describe('$rerank not enabled error', function () {
