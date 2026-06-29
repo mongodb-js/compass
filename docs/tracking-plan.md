@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Sun, Jun 28, 2026
+Generated on Mon, Jun 29, 2026
 
 ## Table of Contents
 
@@ -44,6 +44,7 @@ Generated on Sun, Jun 28, 2026
 - [Rerank Tell Me More Button Clicked](#event--RerankTellMeMoreButtonClickedEvent)
 - [Rerank Upgrade Cluster Button Clicked](#event--RerankUpgradeClusterButtonClickedEvent)
 - [Rerank Project Settings Button Clicked](#event--RerankProjectSettingsButtonClickedEvent)
+- [Rerank View Usage And Rate Limits Link Clicked](#event--RerankViewUsageAndRateLimitsLinkClickedEvent)
 - [Search Extension Rate Limit Banner Shown](#event--SearchExtensionRateLimitBannerShownEvent)
 - [Search Extension Rate Limit Billing Link Clicked](#event--SearchExtensionRateLimitBillingLinkClickedEvent)
 - [Search Extension Rate Limit Page Link Clicked](#event--SearchExtensionRateLimitPageLinkClickedEvent)
@@ -797,6 +798,18 @@ the rerank not enabled banner.
 
 - **context** (required): `RerankTelemetryContext`
   - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankViewUsageAndRateLimitsLinkClickedEvent"></a>
+
+### Rerank View Usage And Rate Limits Link Clicked
+
+This event is fired when the user clicks the "View $rerank Usage and Rate
+Limits" link in the stage toolbar or focus mode header.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--SearchExtensionRateLimitBannerShownEvent"></a>
