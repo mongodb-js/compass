@@ -34,7 +34,7 @@ function disallowOutputStagesOnCompassReadonly(
 }
 
 function disallowRerankOnNonAtlas(
-  operator: ReturnType<typeof getFilteredCompletions>[number],
+  operator: FilteredStageOperators[number],
   env: ServerEnvironment
 ): boolean {
   if (operator?.name === '$rerank') {
@@ -85,24 +85,25 @@ export const filterStageOperators = ({
     return FilteredStagesCache.get(cacheKey);
   }
 
-  const filteredStages = getFilteredCompletions({
-    serverVersion,
-    meta: ['stage'],
-    stage: {
-      namespace: namespaceType,
-      env:
-        env === ON_PREM
-          ? // we want to display Atlas-only stages
-            // also when connected to on-prem / localhost
-            // in order to improve their discoverability:
-            [env, ATLAS]
-          : env,
-    },
-  }).filter((op) => {
-    return (
-      disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly) &&
-      disallowRerankOnNonAtlas(op, env)
-    );
+  const filteredStages = (
+    getFilteredCompletions({
+      serverVersion,
+      meta: ['stage'],
+      stage: {
+        namespace: namespaceType,
+        env:
+          env === ON_PREM
+            ? // we want to display Atlas-only stages
+              // also when connected to on-prem / localhost
+              // in order to improve their discoverability:
+              [env, ATLAS]
+            : env,
+      },
+    }).filter((op) => {
+      return disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly);
+    }) as FilteredStageOperators
+  ).filter((op) => {
+    return disallowRerankOnNonAtlas(op, env);
   });
 
   FilteredStagesCache.set(cacheKey, filteredStages);
