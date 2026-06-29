@@ -37,36 +37,48 @@ export const explainAggregationRawOutput =
 export const explainAggregationInterpret =
   (): PipelineBuilderThunkAction<void> => explainAggregation('interpret');
 
-export const ExplainInterpretActionTypes = {
-  Loading: 'compass-aggregations/InterpretLoading',
-  Done: 'compass-aggregations/InterpretDone',
+const ExplainInterpretActionTypes = {
+  Started: 'compass-aggregations/InterpretStarted',
+  Finished: 'compass-aggregations/InterpretFinished',
 } as const;
 
-type ExplainInterpretLoadingAction = {
-  type: typeof ExplainInterpretActionTypes.Loading;
+type ExplainInterpretStartedAction = {
+  type: typeof ExplainInterpretActionTypes.Started;
 };
 
-type ExplainInterpretDoneAction = {
-  type: typeof ExplainInterpretActionTypes.Done;
+type ExplainInterpretFinishedAction = {
+  type: typeof ExplainInterpretActionTypes.Finished;
 };
 
-export default function isInterpretLoading(
-  state = false,
+export type ExplainState = { isLoading: boolean };
+
+export const interpretExplainStarted = (): ExplainInterpretStartedAction => ({
+  type: ExplainInterpretActionTypes.Started,
+});
+
+export const interpretExplainFinished = (): ExplainInterpretFinishedAction => ({
+  type: ExplainInterpretActionTypes.Finished,
+});
+
+export default function explainReducer(
+  state: ExplainState = { isLoading: false },
   action: AnyAction
-): boolean {
+): ExplainState {
   if (
-    isAction<ExplainInterpretLoadingAction>(
+    isAction<ExplainInterpretStartedAction>(
       action,
-      ExplainInterpretActionTypes.Loading
+      ExplainInterpretActionTypes.Started
     )
-  )
-    return true;
+  ) {
+    return { isLoading: true };
+  }
   if (
-    isAction<ExplainInterpretDoneAction>(
+    isAction<ExplainInterpretFinishedAction>(
       action,
-      ExplainInterpretActionTypes.Done
+      ExplainInterpretActionTypes.Finished
     )
-  )
-    return false;
+  ) {
+    return { isLoading: false };
+  }
   return state;
 }

@@ -13,6 +13,7 @@ import type { Document } from 'mongodb';
 import Sinon from 'sinon';
 import type { ConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import * as compassComponents from '@mongodb-js/compass-components';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 
 const localAppRegistry = new AppRegistry();
 
@@ -267,10 +268,11 @@ describe('explain plan modal store', function () {
       localAppRegistry.emit('open-explain-plan-for-interpret', {
         query: { filter: {} },
       });
-      // give the async thunk time to resolve
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      expect(emitSpy.calledWith('explain-plan-interpret-loading')).to.be.true;
-      expect(emitSpy.calledWith('explain-plan-interpret-done')).to.be.true;
+      await waitFor(() => {
+        expect(emitSpy.calledWith('explain-plan-interpret-started')).to.be.true;
+        expect(emitSpy.calledWith('explain-plan-interpret-finished')).to.be
+          .true;
+      });
     });
 
     it('emits done and shows toast when fetch fails', async function () {
@@ -278,12 +280,14 @@ describe('explain plan modal store', function () {
       localAppRegistry.emit('open-explain-plan-for-interpret', {
         query: { filter: {} },
       });
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      expect(emitSpy.calledWith('explain-plan-interpret-done')).to.be.true;
-      expect(openToastStub.calledOnce).to.be.true;
-      expect(openToastStub.firstCall.args[0]).to.equal(
-        'explain-interpret-error'
-      );
+      await waitFor(() => {
+        expect(emitSpy.calledWith('explain-plan-interpret-finished')).to.be
+          .true;
+        expect(openToastStub.calledOnce).to.be.true;
+        expect(openToastStub.firstCall.args[0]).to.equal(
+          'explain-interpret-error'
+        );
+      });
     });
 
     it('emits done but shows no toast on cancellation', async function () {
@@ -291,8 +295,9 @@ describe('explain plan modal store', function () {
       localAppRegistry.emit('open-explain-plan-for-interpret', {
         query: { filter: {} },
       });
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      expect(openToastStub.called).to.be.false;
+      await waitFor(() => {
+        expect(openToastStub.called).to.be.false;
+      });
     });
   });
 });

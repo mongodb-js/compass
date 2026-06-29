@@ -252,7 +252,7 @@ const mapState = (state: RootState) => {
     isUpdateViewButtonDisabled:
       !state.isModified || hasSyntaxErrors || isAIFetching,
     showCollectionScanInsight: state.insights.isCollectionScan,
-    isInterpretLoading: state.isInterpretLoading,
+    isInterpretLoading: state.explain.isLoading,
     stages: resultPipeline,
   };
 };

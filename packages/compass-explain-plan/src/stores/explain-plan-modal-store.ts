@@ -369,7 +369,7 @@ export const openExplainPlanForInterpret = (
   return async (dispatch, _getState, services) => {
     const { id: fetchId, signal } = getAbortSignal();
 
-    services.localAppRegistry.emit('explain-plan-interpret-loading');
+    services.localAppRegistry.emit('explain-plan-interpret-started');
 
     try {
       const result = await dispatch(fetchExplainPlanData(event, signal));
@@ -410,7 +410,7 @@ export const openExplainPlanForInterpret = (
       });
     } finally {
       cleanupAbortSignal(fetchId);
-      services.localAppRegistry.emit('explain-plan-interpret-done');
+      services.localAppRegistry.emit('explain-plan-interpret-finished');
     }
   };
 };

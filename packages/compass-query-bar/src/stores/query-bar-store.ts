@@ -184,11 +184,11 @@ export function activatePlugin(
     });
   });
 
-  on(localAppRegistry, 'explain-plan-interpret-loading', () => {
+  on(localAppRegistry, 'explain-plan-interpret-started', () => {
     store.dispatch({ type: QueryBarActions.InterpretLoading });
   });
 
-  on(localAppRegistry, 'explain-plan-interpret-done', () => {
+  on(localAppRegistry, 'explain-plan-interpret-finished', () => {
     store.dispatch({ type: QueryBarActions.InterpretDone });
   });
 
