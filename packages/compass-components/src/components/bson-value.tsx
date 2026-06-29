@@ -5,7 +5,7 @@ import {
   reverseJavaUUIDBytes,
   reverseCSharpUUIDBytes,
 } from 'hadron-type-checker';
-import { Binary } from 'bson';
+import { Binary, ObjectId, EJSON } from 'bson';
 import type { DBRef } from 'bson';
 import { variantColors } from '@leafygreen-ui/code';
 
@@ -475,7 +475,11 @@ const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
-    return `DBRef('${value.collection}', '${String(value.oid)}'${
+    const oid =
+      value.oid instanceof ObjectId || typeof value.oid === 'string'
+        ? `'${String(value.oid)}'`
+        : EJSON.stringify(value.oid);
+    return `DBRef('${value.collection}', ${oid}${
       value?.db ? `, '${value.db}'` : ''
     })`;
   }, [value.collection, value.oid, value.db]);
