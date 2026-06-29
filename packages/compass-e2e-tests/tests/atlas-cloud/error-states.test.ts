@@ -37,7 +37,8 @@ describe('Error states', function () {
       .waitForDisplayed();
   });
 
-  it('should show error state if fetching preferences failed initially', async function () {
+  // TODO (COMPASS-10785): Reenable this test as $rereank GA is started.
+  it.skip('should show error state if fetching preferences failed initially', async function () {
     compass = await init(this.test?.fullTitle(), {
       skipSharedConfigOnStart: true,
       async onBeforeNavigate(browser) {
