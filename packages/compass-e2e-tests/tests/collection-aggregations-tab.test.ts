@@ -211,7 +211,6 @@ describe('Collection aggregations tab', function () {
 
     if (serverSatisfies('>=7.0.0')) {
       expectedAggregations.push('$listSearchIndexes');
-      expectedAggregations.push('$rerank');
     }
     if (serverSatisfies('>=6.0.10 <7.0.0 || >=7.0.2')) {
       expectedAggregations.push('$vectorSearch');
