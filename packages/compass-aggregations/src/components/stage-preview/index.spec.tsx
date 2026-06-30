@@ -1,8 +1,15 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import type { Document } from 'mongodb';
-import { screen, cleanup } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import Sinon from 'sinon';
+import HadronDocument from 'hadron-document';
+import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
 
 import {
   renderWithStore,
@@ -31,10 +38,12 @@ const renderStagePreview = (
     enableSearchActivationP1Experiment = false,
     enableSearchActivationP2Experiment = false,
     preferences,
+    interpretAnalyzeOutput,
   }: {
     enableSearchActivationP1Experiment?: boolean;
     enableSearchActivationP2Experiment?: boolean;
     preferences?: PreferencesAccess;
+    interpretAnalyzeOutput?: Sinon.SinonSpy;
   } = {}
 ) => {
   let ui: React.ReactElement = (
@@ -54,6 +63,13 @@ const renderStagePreview = (
       {...props}
     />
   );
+  if (interpretAnalyzeOutput) {
+    ui = (
+      <AssistantActionsContext.Provider value={{ interpretAnalyzeOutput }}>
+        {ui}
+      </AssistantActionsContext.Provider>
+    );
+  }
   if (enableSearchActivationP1Experiment) {
     ui = wrapWithExperimentProvider(
       ui,
@@ -437,6 +453,41 @@ describe('StagePreview', function () {
         { preferences }
       );
       expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
+    });
+
+    it('calls interpretAnalyzeOutput with the correct args when clicked', async function () {
+      const interpretAnalyzeOutputSpy = Sinon.spy();
+      const doc = new HadronDocument({ _id: 1, title: 'Espresso Basics' });
+      const score = { value: 1.5, description: 'sum of:', details: [] };
+      const pipeline =
+        '[{ $search: { index: "default", text: { query: "espresso", path: "title" } } }]';
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [doc],
+          stageMetadata: { type: '$search', scores: [score] },
+          pipeline,
+        },
+        DEFAULT_PIPELINE,
+        {},
+        {
+          enableSearchActivationP2Experiment: true,
+          preferences,
+          interpretAnalyzeOutput: interpretAnalyzeOutputSpy,
+        }
+      );
+
+      userEvent.click(screen.getByTestId('analyze-search-output-button'));
+
+      expect(interpretAnalyzeOutputSpy).to.have.been.calledOnce;
+      const args = interpretAnalyzeOutputSpy.firstCall.args[0];
+      expect(args).to.have.property('pipeline', pipeline);
+      expect(args).to.have.property('documentCount', 1);
+      expect(args.output).to.include('Document 1:');
+      expect(args.output).to.include('"_id":1');
+      expect(args.output).to.include('"title":"Espresso Basics"');
+      expect(args.output).to.include(`scoreDetails: ${JSON.stringify(score)}`);
     });
   });
 

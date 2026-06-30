@@ -184,7 +184,9 @@ function StagePreviewBody({
     const topDocs = (documents ?? []).slice(0, 3);
     const output = topDocs
       .flatMap((doc, i) => {
-        const plainDoc = (doc as HadronDocument).generateObject();
+        const plainDoc = (doc as HadronDocument).generateObject({
+          excludeInternalFields: true,
+        });
         const scoreDetails = stageMetadata!.scores[i]!;
         return [
           `Document ${i + 1}:`,

@@ -246,12 +246,8 @@ export const buildAnalyzeOutputPrompt = ({
 
   return {
     prompt: `<goal>
-Analyze the context below,
-which contains both a MongoDB Aggregation Pipeline and the output of that Aggregation Pipeline, including document fields and scoreDetails.
-Provide a comprehensible explanation of the scoreDetails
-such that a junior developer could understand
-why the documents in the context below were ranked the way they were
-and any significant contributions to the scores.
+Analyze the context below, which contains both a MongoDB Aggregation Pipeline and the output of that Aggregation Pipeline, including document fields and scoreDetails.
+Provide a comprehensible explanation of the scoreDetails such that a junior developer could understand why the documents in the context below were ranked the way they were and any significant contributions to the scores.
 </goal>
 
 <context>
@@ -263,10 +259,10 @@ ${output}
 </context>
 
 <output-format>
-#Summary
+# Summary
 [1-3 sentence summary of your full analysis.]
 
-#Document Ranking Analysis
+# Document Ranking Analysis
 Here's a breakdown of why the top documents were ranked in this order:
 [For each document, from highest score to lowest score:
 1. #\`ID\` (Score):# Explanation.
