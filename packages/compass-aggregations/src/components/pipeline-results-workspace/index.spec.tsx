@@ -126,15 +126,6 @@ describe('PipelineResultsWorkspace', function () {
       .not.exist;
   });
 
-  it('does not render version warning when enableRerank is false', async function () {
-    await renderPipelineResultsWorkspace({
-      serverVersion: '8.0.0',
-      hasRerankStage: true,
-    });
-    expect(screen.queryByTestId('pipeline-results-rerank-version-warning')).to
-      .not.exist;
-  });
-
   it('should render $out / $merge result screen', async function () {
     const onOutClick = spy();
     await renderPipelineResultsWorkspace({

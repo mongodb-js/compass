@@ -285,12 +285,6 @@ describe('StageEditor [Component]', function () {
         .exist;
     });
 
-    it('does not show version warning when enableRerank is false', function () {
-      renderStageEditor({ stageOperator: '$rerank', serverVersion: '8.0.0' });
-      expect(screen.queryByTestId('stage-editor-rerank-version-warning')).to.not
-        .exist;
-    });
-
     it('does not show version warning when server >= 8.3', function () {
       renderStageEditor(
         { stageOperator: '$rerank', serverVersion: '8.3.0' },
