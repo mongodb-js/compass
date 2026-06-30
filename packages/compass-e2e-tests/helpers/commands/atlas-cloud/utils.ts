@@ -81,20 +81,3 @@ export async function doCloudFetch<T = any>(
     body
   );
 }
-
-export async function disableBrowserCache(browser: CompassBrowser) {
-  const puppeteer = await browser.getPuppeteer();
-  const pages = await puppeteer.pages();
-  const page =
-    pages.find((p) => {
-      try {
-        const { hostname } = new URL(p.url());
-        return hostname === 'mongodb.com' || hostname.endsWith('.mongodb.com');
-      } catch {
-        return false;
-      }
-    }) ?? pages[0];
-  // Uses the page's existing internal CDP session — avoids creating a second
-  // session that conflicts with WebdriverIO's session during navigation.
-  await page.setCacheEnabled(false);
-}

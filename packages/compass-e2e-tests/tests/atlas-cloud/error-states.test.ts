@@ -5,7 +5,6 @@ import {
   assertTestingWebAtlasCloud,
   isTestingWebAtlasCloud,
 } from '../../helpers/test-runner-context.ts';
-import { disableBrowserCache } from '../../helpers/commands/atlas-cloud/utils.ts';
 
 describe('Error states', function () {
   let compass: Compass;
@@ -37,24 +36,22 @@ describe('Error states', function () {
       .waitForDisplayed();
   });
 
-  // TODO (COMPASS-10785): Reenable this test as $rereank GA is started.
-  it.skip('should show error state if fetching preferences failed initially', async function () {
+  it('should show error state if fetching preferences failed initially', async function () {
     compass = await init(this.test?.fullTitle(), {
       skipSharedConfigOnStart: true,
       async onBeforeNavigate(browser) {
         assertTestingWebAtlasCloud(context);
-        // Preferences API has a cache-control header that allows caching for 30sec currently,
-        // so ensuring that the cache is cleared.
-        await disableBrowserCache(browser);
         const mock = await browser.mock(
           `/explorer/v1/groups/${context.atlasCloudProjectId}/preferences`
         );
-        mock.respond('Failed to fetch preferences', { statusCode: 500 });
+        // Abort all the requests. More reliable here than mock.respond due to prefetch
+        // on cloud and compass side.
+        mock.abort();
       },
     });
 
     await compass.browser
-      .$('*=Error Occurred')
+      .$("*=If you're experiencing a critical issue, please email support.")
       .waitForDisplayed({ timeout: 30000 });
   });
 });
