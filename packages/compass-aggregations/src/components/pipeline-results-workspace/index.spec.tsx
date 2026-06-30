@@ -102,7 +102,7 @@ describe('PipelineResultsWorkspace', function () {
           'MMS API error: MmsApiError(HttpError { status: 400, message: "{\\"error\\":\\"$rerank is not enabled for demo. Enable the $rerank Project Setting to run this pipeline.\\"}" })',
       },
     });
-    expect(screen.getByText('Native reranking not enabled')).to.exist;
+    expect(screen.getByText('$rerank not enabled')).to.exist;
     expect(screen.getByText('Enable native reranking in project settings.')).to
       .exist;
     expect(screen.queryByText('RETRY')).to.not.exist;
@@ -122,15 +122,6 @@ describe('PipelineResultsWorkspace', function () {
       { serverVersion: '8.3.0', hasRerankStage: true },
       rerankPreferences
     );
-    expect(screen.queryByTestId('pipeline-results-rerank-version-warning')).to
-      .not.exist;
-  });
-
-  it('does not render version warning when enableRerank is false', async function () {
-    await renderPipelineResultsWorkspace({
-      serverVersion: '8.0.0',
-      hasRerankStage: true,
-    });
     expect(screen.queryByTestId('pipeline-results-rerank-version-warning')).to
       .not.exist;
   });

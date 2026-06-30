@@ -304,7 +304,7 @@ function collectionColumns({
       header: 'Storage size',
       enableSorting: true,
       sortUndefined: 'last',
-      maxSize: 80,
+      maxSize: 110,
       cell: (info) => {
         const collection = info.row.original;
         if (!isReady(collection.status)) {
@@ -377,7 +377,7 @@ function collectionColumns({
       header: 'Documents',
       enableSorting: true,
       sortUndefined: 'last',
-      maxSize: 80,
+      maxSize: 110,
       cell: (info) => {
         const collection = info.row.original;
         if (!isReady(collection.status)) {
@@ -399,7 +399,7 @@ function collectionColumns({
       header: 'Avg. document size',
       enableSorting: true,
       sortUndefined: 'last',
-      maxSize: 110,
+      maxSize: 140,
       cell: (info) => {
         const collection = info.row.original;
         if (!isReady(collection.status)) {
@@ -422,7 +422,7 @@ function collectionColumns({
       header: 'Indexes',
       enableSorting: true,
       sortUndefined: 'last',
-      maxSize: 60,
+      maxSize: 90,
       cell: (info) => {
         const collection = info.row.original;
         if (!isReady(collection.status)) {
@@ -444,7 +444,7 @@ function collectionColumns({
       header: 'Total index size',
       enableSorting: true,
       sortUndefined: 'last',
-      maxSize: 100,
+      maxSize: 120,
       cell: (info) => {
         const collection = info.row.original;
         if (!isReady(collection.status)) {

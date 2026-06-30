@@ -33,6 +33,8 @@ const setupPreferences = async (
   return preferences;
 };
 
+const GLOBAL_PREFERENCES_SOURCES = ['cli', 'global', 'hardcoded'] as const;
+
 describe('Preferences class', function () {
   let tmpdir: string;
   let i = 0;
@@ -300,5 +302,58 @@ describe('Preferences class', function () {
       readWrite: 'derived',
       ...expectedReleasedFeatureFlagsStates,
     });
+  });
+
+  for (const source of GLOBAL_PREFERENCES_SOURCES) {
+    it(`default value is overridden by ${source} global preferences`, async function () {
+      const preferences = await setupPreferences(tmpdir, {
+        [source]: {
+          // Default value for this prop is 'atlas'
+          atlasServiceBackendPreset: 'atlas-dev',
+        },
+      });
+      expect(preferences.getPreferences().atlasServiceBackendPreset).to.equal(
+        'atlas-dev'
+      );
+    });
+  }
+
+  it('sets preferences source correctly', async function () {
+    const preferences = await setupPreferences(tmpdir, {
+      cli: {
+        enableMaps: true,
+      },
+      global: {
+        trackUsageStatistics: true,
+      },
+      hardcoded: {
+        networkTraffic: false,
+        enableGenAIFeatures: false,
+      },
+      atlasCloudOrg: {
+        enableGenAIFeaturesAtlasOrg: true,
+      },
+      atlasCloudProject: {
+        enableRollingIndexes: true,
+      },
+      atlasCloudUser: {
+        readOnly: true,
+      },
+    });
+    const states = preferences.getPreferenceStates();
+
+    expect(states).to.have.a.property('enableMaps', 'set-cli');
+    expect(states).to.have.a.property('trackUsageStatistics', 'set-global');
+    expect(states).to.have.a.property('networkTraffic', 'hardcoded');
+    expect(states).to.have.a.property('enableGenAIFeatures', 'hardcoded');
+    expect(states).to.have.a.property(
+      'enableGenAIFeaturesAtlasOrg',
+      'set-cloud-org'
+    );
+    expect(states).to.have.a.property(
+      'enableRollingIndexes',
+      'set-cloud-project'
+    );
+    expect(states).to.have.a.property('readOnly', 'set-cloud-user');
   });
 });

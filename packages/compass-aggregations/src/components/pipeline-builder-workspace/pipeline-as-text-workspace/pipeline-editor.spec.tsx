@@ -27,6 +27,8 @@ const renderPipelineEditor = (
   let ui = (
     <PipelineEditor
       namespace="test.test"
+      isTimeSeries={false}
+      sourceName={null}
       pipelineText="[{$match: {}}]"
       syntaxErrors={[]}
       serverError={null}
@@ -284,15 +286,6 @@ describe('PipelineEditor', function () {
         expect(screen.queryByTestId('pipeline-editor-rerank-version-warning'))
           .to.not.exist;
       });
-
-      it('should not show warning when enableRerank is false', async function () {
-        await renderPipelineEditor({
-          serverVersion: '8.0.0',
-          pipelineText: '[{ $rerank: {} }]',
-        });
-        expect(screen.queryByTestId('pipeline-editor-rerank-version-warning'))
-          .to.not.exist;
-      });
     });
 
     describe('$rerank not enabled error', function () {
@@ -305,7 +298,7 @@ describe('PipelineEditor', function () {
           }),
         });
 
-        expect(screen.getByText('Native reranking not enabled')).to.exist;
+        expect(screen.getByText('$rerank not enabled')).to.exist;
         expect(screen.getByText('Enable native reranking in project settings.'))
           .to.exist;
       });

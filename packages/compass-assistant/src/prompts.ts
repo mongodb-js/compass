@@ -11,6 +11,8 @@ import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai/provider';
 
+export const FOLLOW_UP_QUESTIONS_HEADER = '### Follow-Up Questions';
+
 export type EntryPointMessage = {
   prompt: string;
   metadata: AssistantMessage['metadata'];
@@ -112,8 +114,11 @@ Tell the user if indexes need to be created or modified to enable any recommenda
 [The optimized ${actionName} you are recommending the user use instead of their current ${actionName}.]
 \`\`\`
 
-### Follow-Up Questions
+${FOLLOW_UP_QUESTIONS_HEADER}
 [Provide 3 follow-up questions you think the user might want to ask after reading this response]
+1. [First follow-up question]
+2. [Second follow-up question]
+3. [Third follow-up question]
 </output-format>
 
 <guidelines>
@@ -204,9 +209,17 @@ ${context.query}
       };
     case 'rerank-first-stage':
       return {
-        prompt: `Why you should use $rerank after a search stage`,
+        prompt: `The given MongoDB aggregation pipeline uses $rerank as the first stage. Provide a concise, human-readable explanation of best practices for using $rerank effectively and efficiently.
+Your explanation must cover the following points:
+
+- $rerank should follow an initial retrieval stage such as $vectorSearch or $search, and explain why.
+- Use $rerank.numDocsToRerank to limit how many documents are passed to the reranker, and explain the performance tradeoff of reranking more vs. fewer documents.
+- Only include fields in $rerank.path that are actually used for reranking — unnecessary fields increase payload size and latency without improving results.
+
+Where relevant, flag if the pipeline in question does not follow these practices.
+Respond with as much concision and clarity as possible. Do not recommend changes without briefly explaining the tradeoff.`,
         metadata: {
-          displayText: 'Why you should use $rerank after a search stage',
+          displayText: 'What are best practices for using $rerank?',
         },
       };
   }

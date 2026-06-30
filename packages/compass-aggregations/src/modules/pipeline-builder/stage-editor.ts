@@ -12,9 +12,15 @@ import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-con
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
+  createPreviewAggregation,
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
+import {
+  createSearchStageMetadata,
+  injectSearchScoreMetadata,
+} from '../../utils/search-score-injection';
+import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
@@ -34,6 +40,7 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
+import { cancellableWait } from '@mongodb-js/compass-utils';
 
 export const StageEditorActionTypes = {
   StagePreviewFetch:
@@ -84,6 +91,7 @@ export type StagePreviewFetchSuccessAction = {
   type: typeof StageEditorActionTypes.StagePreviewFetchSuccess;
   id: number;
   previewDocs: HadronDocument[];
+  stageMetadata: StagePreviewMetadata | null;
 };
 
 export type StagePreviewFetchErrorAction = {
@@ -101,6 +109,7 @@ export type StageRunSuccessAction = {
   type: typeof StageEditorActionTypes.StageRunSuccess;
   id: number;
   previewDocs: HadronDocument[];
+  stageMetadata: StagePreviewMetadata | null;
 };
 
 export type StageRunErrorAction = {
@@ -271,7 +280,7 @@ export const loadStagePreview = (
   | StagePreviewFetchErrorAction
   | StagePreviewFetchSkippedAction
 > => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -289,14 +298,13 @@ export const loadStagePreview = (
     // Ignoring the state of the stage, always try to stop current preview fetch
     pipelineBuilder.cancelPreviewForStage(idxInPipeline);
 
+    const stagesForPreview = pipelineFromStore(stages.slice(0, idx + 1));
     const canFetchPreviewForStage =
       autoPreview &&
       !stage.disabled &&
       // Only run stage if all previous ones are valid (otherwise it will fail
       // anyway)
-      pipelineFromStore(stages.slice(0, idx + 1)).every((stage) =>
-        canRunStage(stage)
-      );
+      stagesForPreview.every((stage) => canRunStage(stage));
 
     if (!canFetchPreviewForStage) {
       dispatch({
@@ -321,24 +329,68 @@ export const loadStagePreview = (
         collectionStats,
       } = getState();
 
-      const options: PreviewOptions = {
+      const activeDataService = dataService.dataService;
+      const { enableSearchActivationProgramP2 } = preferences.getPreferences();
+      const shouldFetchSearchStageMetadata =
+        !!enableSearchActivationProgramP2 &&
+        !!activeDataService &&
+        stagesForPreview.length === 1 &&
+        stagesForPreview[0].stageOperator === '$search';
+      const aggregateOptions: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
+      };
+      const options: PreviewOptions = {
+        ...aggregateOptions,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
         totalDocumentCount: collectionStats?.document_count,
       };
 
-      const previewDocs = await pipelineBuilder.getPreviewForStage(
-        idxInPipeline,
-        namespace,
-        options
-      );
-      dispatch({
-        type: StageEditorActionTypes.StagePreviewFetchSuccess,
-        id: idx,
-        previewDocs: previewDocs.map((doc) => new HadronDocument(doc)),
-      });
+      const metadataAbortController = new AbortController();
+      const metadataPromise =
+        shouldFetchSearchStageMetadata && activeDataService
+          ? (async () => {
+              try {
+                await cancellableWait(700, metadataAbortController.signal);
+
+                return await aggregatePipeline({
+                  dataService: activeDataService,
+                  preferences,
+                  signal: metadataAbortController.signal,
+                  namespace,
+                  pipeline: createPreviewAggregation(
+                    injectSearchScoreMetadata(
+                      pipelineBuilder.getPipelineFromStages(
+                        pipelineBuilder.stages.slice(0, idxInPipeline + 1)
+                      )
+                    ),
+                    options
+                  ),
+                  options: aggregateOptions,
+                });
+              } catch {
+                return null;
+              }
+            })()
+          : Promise.resolve(null);
+
+      try {
+        const [documents, metadataDocs] = await Promise.all([
+          pipelineBuilder.getPreviewForStage(idxInPipeline, namespace, options),
+          metadataPromise,
+        ]);
+        const stageMetadata = createSearchStageMetadata(metadataDocs);
+        dispatch({
+          type: StageEditorActionTypes.StagePreviewFetchSuccess,
+          id: idx,
+          previewDocs: documents.map((doc) => new HadronDocument(doc)),
+          stageMetadata,
+        });
+      } finally {
+        // Cancel the metadata aggregation if it's still in flight.
+        metadataAbortController.abort();
+      }
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
         return;
@@ -486,6 +538,7 @@ export const runStage = (
         type: StageEditorActionTypes.StageRunSuccess,
         id: idx,
         previewDocs: result.map((doc) => new HadronDocument(doc)),
+        stageMetadata: null,
       });
       connectionScopedAppRegistry.emit(
         'agg-pipeline-out-executed',
@@ -1065,6 +1118,10 @@ export type StoreStage = {
   serverError: MongoServerError | null;
   loading: boolean;
   previewDocs: HadronDocument[] | null;
+  // Sticky flag: true once a successful preview has returned at least one
+  // document. Resets only when the stage operator changes.
+  didReturnDocs: boolean;
+  stageMetadata: StagePreviewMetadata | null;
   collapsed: boolean;
   disabled: boolean;
   empty: boolean;
@@ -1102,6 +1159,8 @@ export function mapBuilderStageToStoreStage(
     serverError: null,
     loading: false,
     previewDocs: null,
+    didReturnDocs: false,
+    stageMetadata: null,
     collapsed: false,
     empty: stage.isEmpty,
     fromSnippet: false,
@@ -1161,6 +1220,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           serverError: null,
           loading: true,
+          stageMetadata: null,
         },
         ...state.stages.slice(action.id + 1),
       ],
@@ -1181,6 +1241,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: null,
+          stageMetadata: null,
           serverError: null,
         },
         ...state.stages.slice(action.id + 1),
@@ -1206,6 +1267,10 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: action.previewDocs,
+          didReturnDocs:
+            action.previewDocs.length > 0 ||
+            !!(state.stages[action.id] as StoreStage).didReturnDocs,
+          stageMetadata: action.stageMetadata,
           serverError: null,
         },
         ...state.stages.slice(action.id + 1),
@@ -1270,6 +1335,7 @@ const reducer: Reducer<StageEditorState, Action> = (
         {
           ...state.stages[action.id],
           previewDocs: null,
+          didReturnDocs: false,
           stageOperator: action.stage.operator,
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,

@@ -32,6 +32,7 @@ import {
   getStageOperator,
 } from '../../../utils/stage';
 import type { SearchStageOperator } from '../../../utils/stage';
+import { COLLECTION, VIEW, TIME_SERIES } from '@mongodb-js/mongodb-constants';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
@@ -78,14 +79,19 @@ const codeEditorStyles = css({
 });
 
 const errorContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
   flex: 'none',
   marginTop: 'auto',
   marginLeft: spacing[400],
   marginRight: spacing[400],
+  gap: spacing[400],
 });
 
 export type PipelineEditorProps = {
   namespace: string;
+  isTimeSeries: boolean;
+  sourceName: string | null;
   num_stages: number;
   pipelineText: string;
   syntaxErrors: PipelineParserError[];
@@ -103,6 +109,8 @@ export type PipelineEditorProps = {
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   namespace,
+  isTimeSeries,
+  sourceName,
   num_stages,
   pipelineText,
   serverError,
@@ -117,6 +125,11 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   onCreateSearchIndexClick,
   onEditSearchIndexClick,
 }) => {
+  const namespaceType = isTimeSeries
+    ? TIME_SERIES
+    : sourceName
+    ? VIEW
+    : COLLECTION;
   const fields = useAutocompleteFields(namespace);
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
@@ -131,10 +144,11 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     return createAggregationAutocompleter({
       serverVersion,
       fields: fields.filter((field) => !!field.name),
+      stage: { namespace: namespaceType },
       utmSource,
       utmMedium,
     });
-  }, [serverVersion, fields, utmSource, utmMedium]);
+  }, [serverVersion, fields, namespaceType, utmSource, utmMedium]);
 
   const onBlurEditor = useCallback(() => {
     if (
@@ -204,14 +218,14 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           className={codeEditorStyles}
         />
       </div>
-      {showRerankVersionWarning && (
-        <RerankVersionWarningBanner data-testid="pipeline-editor-rerank-version-warning" />
-      )}
-      {showErrorContainer && (
+      {(showErrorContainer || showRerankVersionWarning) && (
         <div
           className={errorContainerStyles}
           data-testid="pipeline-as-text-error-container"
         >
+          {showRerankVersionWarning && (
+            <RerankVersionWarningBanner data-testid="pipeline-editor-rerank-version-warning" />
+          )}
           {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
           ) : serverError ? (
@@ -240,6 +254,8 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
 const mapState = ({
   namespace,
+  isTimeSeries,
+  sourceName,
   pipelineBuilder: {
     textEditor: {
       pipeline: {
@@ -270,6 +286,8 @@ const mapState = ({
 
   return {
     namespace,
+    isTimeSeries,
+    sourceName,
     num_stages: pipeline.length,
     pipelineText,
     serverError: pipelineServerError ?? outputStageServerError,
