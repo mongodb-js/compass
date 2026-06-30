@@ -296,6 +296,8 @@ describe('explain plan modal store', function () {
         query: { filter: {} },
       });
       await waitFor(() => {
+        expect(emitSpy.calledWith('explain-plan-interpret-finished')).to.be
+          .true;
         expect(openToastStub.called).to.be.false;
       });
     });
