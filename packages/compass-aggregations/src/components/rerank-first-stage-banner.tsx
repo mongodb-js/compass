@@ -6,6 +6,7 @@ import {
   Link,
   PerformanceSignals,
   css,
+  cx,
   spacing,
   usePersistedState,
 } from '@mongodb-js/compass-components';
@@ -170,10 +171,10 @@ const bannerButtonStyles = css({
 });
 
 export const RerankFirstStageBanner = ({
-  'data-testid': dataTestId,
+  className,
   onBeforeAssistantOpen,
 }: {
-  'data-testid'?: string;
+  className?: string;
   onBeforeAssistantOpen?: () => void;
 }) => {
   const enableRerank = usePreference('enableRerank');
@@ -201,8 +202,8 @@ export const RerankFirstStageBanner = ({
   return (
     <Banner
       variant="warning"
-      data-testid={dataTestId}
-      className={bannerStyles}
+      data-testid="rerank-first-stage-banner"
+      className={cx(bannerStyles, className)}
       dismissible
       onClose={() => {
         track('Rerank First Stage Banner Dismissed', {

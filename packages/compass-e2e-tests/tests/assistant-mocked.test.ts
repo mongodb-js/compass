@@ -10,6 +10,7 @@ import {
   screenshotIfFailed,
   getDefaultConnectionNames,
   screenshotPathName,
+  serverSatisfies,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
@@ -17,7 +18,10 @@ import { startMockAtlasServiceServer } from '../helpers/mock-atlas-service.ts';
 import { startMockAssistantServer } from '../helpers/assistant-service.ts';
 import type { MockAssistantResponse } from '../helpers/assistant-service.ts';
 
-import { context } from '../helpers/test-runner-context.ts';
+import {
+  context,
+  isTestingWebAtlasCloud,
+} from '../helpers/test-runner-context.ts';
 
 describe('MongoDB Assistant (with mocked backend)', function () {
   let compass: Compass;
@@ -530,10 +534,12 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
       describe('rerank insight entry point', function () {
         before(async function () {
+          if (!serverSatisfies('>=7.0.0') || !isTestingWebAtlasCloud()) {
+            this.skip();
+          }
           try {
             await setAIOptIn(true);
             await setAIFeatures(true);
-            await browser.setFeature('enableRerank', true);
             mockAssistantServer.setResponse({
               status: 200,
               body: 'You should add a search stage before $rerank.',
@@ -553,10 +559,6 @@ describe('MongoDB Assistant (with mocked backend)', function () {
             );
             throw err;
           }
-        });
-
-        after(async function () {
-          await browser.setFeature('enableRerank', false);
         });
 
         it('opens assistant when clicking "Tell me more" on the rerank insight', async function () {

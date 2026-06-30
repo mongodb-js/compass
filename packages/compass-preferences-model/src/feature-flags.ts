@@ -231,7 +231,8 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
   {
     name: 'enableRerank',
-    stage: 'preview',
+    stage: 'released',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable $rerank stage UI in Aggregation Pipeline Builder',
     },

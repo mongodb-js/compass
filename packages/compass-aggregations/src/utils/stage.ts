@@ -33,6 +33,17 @@ function disallowOutputStagesOnCompassReadonly(
   return true;
 }
 
+function disallowRerankOnNonAtlas(
+  operator: ReturnType<typeof getFilteredCompletions>[number],
+  env: ServerEnvironment
+): boolean {
+  if ((operator as FilteredStageOperators[number])?.name === '$rerank') {
+    return env === ATLAS;
+  }
+
+  return true;
+}
+
 const FilteredStagesCache = new Map();
 
 // XXX: `name` is actually already part of the return type, getFilteredCompletions is just under-typed
@@ -87,9 +98,13 @@ export const filterStageOperators = ({
             [env, ATLAS]
           : env,
     },
-  }).filter((op) => {
-    return disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly);
-  });
+  })
+    .filter((op) =>
+      disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly)
+    )
+    .filter((op) =>
+      disallowRerankOnNonAtlas(op, env)
+    ) as FilteredStageOperators;
 
   FilteredStagesCache.set(cacheKey, filteredStages);
 
