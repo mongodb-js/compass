@@ -16,6 +16,7 @@ describe('Error states', function () {
   });
 
   afterEach(async function () {
+    await compass.browser.mockRestoreAll();
     await screenshotIfFailed(compass, this.currentTest);
     await cleanup(compass);
   });
