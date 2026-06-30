@@ -124,23 +124,8 @@ describe('StageOperatorSelect', function () {
   });
 
   context('$rerank stage', function () {
-    it('does not show $rerank when enableRerank is false', function () {
-      renderCombobox(
-        { stages: [...mockStages, rerankStage] },
-        { preferences: { enableRerank: false } }
-      );
-      fireEvent.click(screen.getByRole('combobox'));
-      const listbox = screen.getByRole('listbox');
-      expect(
-        within(listbox).queryByTestId('combobox-option-stage-$rerank')
-      ).to.not.exist;
-    });
-
-    it('shows $rerank when enableRerank is true', function () {
-      renderCombobox(
-        { stages: [...mockStages, rerankStage] },
-        { preferences: { enableRerank: true } }
-      );
+    it('shows $rerank', function () {
+      renderCombobox({ stages: [...mockStages, rerankStage] });
       fireEvent.click(screen.getByRole('combobox'));
       const listbox = screen.getByRole('listbox');
       expect(
@@ -148,11 +133,8 @@ describe('StageOperatorSelect', function () {
       ).to.exist;
     });
 
-    it('sorts $rerank to the top when enableRerank is true', function () {
-      renderCombobox(
-        { stages: [...mockStages, rerankStage] },
-        { preferences: { enableRerank: true } }
-      );
+    it('sorts $rerank to the top', function () {
+      renderCombobox({ stages: [...mockStages, rerankStage] });
       fireEvent.click(screen.getByRole('combobox'));
       const options = screen
         .getByRole('listbox')
@@ -163,10 +145,7 @@ describe('StageOperatorSelect', function () {
     });
 
     it('shows Preview and Start Free badges for $rerank', function () {
-      renderCombobox(
-        { stages: [...mockStages, rerankStage] },
-        { preferences: { enableRerank: true } }
-      );
+      renderCombobox({ stages: [...mockStages, rerankStage] });
       fireEvent.click(screen.getByRole('combobox'));
       expect(screen.getByText('Preview')).to.exist;
       expect(screen.getByText('Start Free')).to.exist;

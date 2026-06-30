@@ -5,7 +5,7 @@ import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
-import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
+import type { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import StageToolbar from './';
 import {
@@ -80,28 +80,15 @@ describe('StageToolbar', function () {
     expect(screen.getByTestId('stage-option-menu-button')).to.exist;
   });
   context('View token usage link', function () {
-    it('does not render when enableRerank is false', async function () {
-      await renderStageToolbar([{ $rerank: {} }]);
-      expect(
-        screen.queryByTestId('stage-toolbar-view-token-usage-link')
-      ).to.not.exist;
-    });
-
     it('does not render when stage is not $rerank', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({
-        enableRerank: true,
-      });
-      await renderStageToolbar([{ $match: { _id: 1 } }], preferences);
+      await renderStageToolbar([{ $match: { _id: 1 } }]);
       expect(
         screen.queryByTestId('stage-toolbar-view-token-usage-link')
       ).to.not.exist;
     });
 
-    it('renders when enableRerank is true and stage is $rerank', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({
-        enableRerank: true,
-      });
-      await renderStageToolbar([{ $rerank: {} }], preferences);
+    it('renders when stage is $rerank', async function () {
+      await renderStageToolbar([{ $rerank: {} }]);
       expect(
         screen.getByTestId('stage-toolbar-view-token-usage-link')
       ).to.exist;
@@ -156,21 +143,15 @@ describe('StageToolbar', function () {
   });
 
   context('rerank insight signal', function () {
-    it('shows insight badge when $rerank is the first stage and enableRerank is true', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({ enableRerank: true });
-      await renderStageToolbar([{ $rerank: {} }], preferences);
+    it('shows insight badge when $rerank is the first stage', async function () {
+      await renderStageToolbar([{ $rerank: {} }]);
       expect(screen.getByTestId('insight-badge-button')).to.exist;
     });
 
     it('does not show insight badge when $rerank is not the first stage', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({ enableRerank: true });
-      await renderStageToolbar(
-        [{ $search: {} }, { $rerank: {} }],
-        preferences,
-        {
-          stageIndex: 1,
-        }
-      );
+      await renderStageToolbar([{ $search: {} }, { $rerank: {} }], undefined, {
+        stageIndex: 1,
+      });
       expect(screen.queryByTestId('insight-badge-button')).to.not.exist;
     });
   });
