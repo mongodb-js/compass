@@ -133,7 +133,7 @@ const analyzeButtonGradientWrapperStyles = css({
   borderRadius: '6px',
 });
 
-const analyzeButtonStyles = css({
+const analyzeButtonLightStyles = css({
   '&&': {
     borderColor: 'transparent',
     borderRadius: '5px',
@@ -143,6 +143,22 @@ const analyzeButtonStyles = css({
       color: palette.green.dark2,
       borderColor: 'transparent',
       '& svg': { color: palette.green.dark2 },
+    },
+  },
+});
+
+const analyzeButtonDarkStyles = css({
+  '&&': {
+    borderColor: 'transparent',
+    borderRadius: '5px',
+    backgroundColor: palette.black,
+    color: palette.white,
+    '& svg': { color: palette.green.dark1 },
+    '&:hover': {
+      backgroundColor: palette.gray.dark4,
+      color: palette.white,
+      borderColor: 'transparent',
+      '& svg': { color: palette.green.dark1 },
     },
   },
 });
@@ -178,6 +194,7 @@ function StagePreviewBody({
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
   const { interpretAnalyzeOutput } = useAssistantActions();
+  const darkMode = useDarkMode();
 
   const handleAnalyzeOutput = useCallback(() => {
     if (!interpretAnalyzeOutput) return;
@@ -301,7 +318,9 @@ function StagePreviewBody({
           <div className={analyzeButtonGradientWrapperStyles}>
             <Button
               size="xsmall"
-              className={analyzeButtonStyles}
+              className={
+                darkMode ? analyzeButtonDarkStyles : analyzeButtonLightStyles
+              }
               onClick={handleAnalyzeOutput}
               leftGlyph={<Icon glyph="Sparkle" />}
               data-testid="analyze-search-output-button"
