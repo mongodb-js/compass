@@ -1,13 +1,13 @@
 import React, { useMemo } from 'react';
 import type { TypeCastMap } from 'hadron-type-checker';
 import {
-  getBsonType,
   uuidHexToString,
   reverseJavaUUIDBytes,
   reverseCSharpUUIDBytes,
 } from 'hadron-type-checker';
-import { Binary, EJSON } from 'bson';
+import { Binary } from 'bson';
 import type { DBRef } from 'bson';
+import { stringify } from 'mongodb-query-parser';
 import { variantColors } from '@leafygreen-ui/code';
 
 import { Icon, Link } from './leafygreen';
@@ -476,11 +476,7 @@ const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
-    const oid =
-      getBsonType(value.oid) === 'ObjectId' || typeof value.oid === 'string'
-        ? `'${String(value.oid)}'`
-        : EJSON.stringify(value.oid);
-    return `DBRef('${value.collection}', ${oid}${
+    return `DBRef('${value.collection}', ${stringify(value.oid)}${
       value?.db ? `, '${value.db}'` : ''
     })`;
   }, [value.collection, value.oid, value.db]);
