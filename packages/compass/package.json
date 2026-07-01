@@ -182,7 +182,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
-    "@mongodb-js/device-id": "^0.4.11",
+    "@mongodb-js/device-id": "^0.4.13",
     "@mongosh/node-runtime-worker-thread": "^5.2.7",
     "clipboard": "^2.0.6",
     "kerberos": "^7.0.0",
@@ -234,7 +234,7 @@
     "@mongodb-js/connection-storage": "^1.1.0",
     "@mongodb-js/devtools-proxy-support": "^0.7.15",
     "@mongodb-js/eslint-config-compass": "^1.4.24",
-    "@mongodb-js/get-os-info": "^0.6.11",
+    "@mongodb-js/get-os-info": "^0.6.12",
     "@mongodb-js/mocha-config-compass": "^1.8.0",
     "@mongodb-js/mongodb-downloader": "^1.1.16",
     "@mongodb-js/my-queries-storage": "^1.1.0",
@@ -267,7 +267,7 @@
     "minimatch": "^10.0.1",
     "mongodb": "^7.1.1",
     "mongodb-build-info": "^1.8.1",
-    "mongodb-cloud-info": "^2.3.14",
+    "mongodb-cloud-info": "^2.3.15",
     "mongodb-connection-string-url": "^7.0.1",
     "mongodb-data-service": "^22.40.1",
     "mongodb-log-writer": "^2.4.4",
