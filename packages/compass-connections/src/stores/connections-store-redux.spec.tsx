@@ -113,6 +113,35 @@ describe('CompassConnections store', function () {
       });
     });
 
+    it('can reconnect after connecting an already-connected connection and disconnecting', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        connectFn: async () => {
+          await wait(1);
+          return {};
+        },
+      });
+
+      const connectionInfo = createDefaultConnectionInfo();
+      const getStatus = () =>
+        connectionsStore.getState().connections.byId[connectionInfo.id]?.status;
+
+      await connectionsStore.actions.connect(connectionInfo);
+      expect(getStatus()).to.eq('connected');
+
+      // Connecting again while already connected is a no-op but must not leave
+      // the connection in a state where it can no longer be connected.
+      await connectionsStore.actions.connect(connectionInfo);
+      expect(getStatus()).to.eq('connected');
+
+      connectionsStore.actions.disconnect(connectionInfo.id);
+      await waitFor(() => {
+        expect(getStatus()).to.eq('disconnected');
+      });
+
+      await connectionsStore.actions.connect(connectionInfo);
+      expect(getStatus()).to.eq('connected');
+    });
+
     it('should show error toast if connection failed', async function () {
       const { connectionsStore } = renderCompassConnections({
         connectFn: sinon
@@ -690,6 +719,72 @@ describe('CompassConnections store', function () {
           )
         ).to.exist;
       });
+    });
+  });
+
+  describe('OIDC token purge on persistOIDCTokens change', function () {
+    it('clears oidcSerializedState from storage when persistOIDCTokens is disabled', async function () {
+      const connectionWithOIDC = {
+        id: 'oidc-conn',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost',
+          oidc: { serializedState: 'token-data' },
+        },
+      };
+
+      const { connectionStorage, preferences } = renderCompassConnections({
+        connections: [connectionWithOIDC],
+        preferences: { persistOIDCTokens: true },
+      });
+
+      await preferences.savePreferences({ persistOIDCTokens: false });
+
+      await waitFor(async () => {
+        const stored = await connectionStorage.load({ id: 'oidc-conn' });
+        expect(stored?.connectionOptions.oidc?.serializedState).to.be.undefined;
+      });
+    });
+
+    it('does not modify connections that have no OIDC state', async function () {
+      const plainConnection = {
+        id: 'plain-conn',
+        connectionOptions: { connectionString: 'mongodb://localhost' },
+      };
+
+      const { connectionStorage, preferences } = renderCompassConnections({
+        connections: [plainConnection],
+        preferences: { persistOIDCTokens: true },
+      });
+
+      await preferences.savePreferences({ persistOIDCTokens: false });
+
+      await waitFor(async () => {
+        const stored = await connectionStorage.load({ id: 'plain-conn' });
+        expect(stored).to.exist;
+        expect(stored?.connectionOptions.oidc?.serializedState).to.be.undefined;
+      });
+    });
+
+    it('does not purge when persistOIDCTokens is enabled', async function () {
+      const connectionWithOIDC = {
+        id: 'oidc-conn-2',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost',
+          oidc: { serializedState: 'token-data' },
+        },
+      };
+
+      const { connectionStorage, preferences } = renderCompassConnections({
+        connections: [connectionWithOIDC],
+        preferences: { persistOIDCTokens: false },
+      });
+
+      await preferences.savePreferences({ persistOIDCTokens: true });
+
+      const stored = await connectionStorage.load({ id: 'oidc-conn-2' });
+      expect(stored?.connectionOptions.oidc?.serializedState).to.equal(
+        'token-data'
+      );
     });
   });
 });

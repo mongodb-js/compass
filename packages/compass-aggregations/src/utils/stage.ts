@@ -4,12 +4,14 @@ import {
   ATLAS,
   ON_PREM,
   STAGE_OPERATORS,
+  VECTOR_SEARCH_AUTO_EMBED_STAGE,
   OUT_STAGES,
   TIME_SERIES,
   VIEW,
   COLLECTION,
   getFilteredCompletions,
 } from '@mongodb-js/mongodb-constants';
+import type { Completion } from '@mongodb-js/mongodb-constants';
 import { parseShellBSON } from '../modules/pipeline-builder/pipeline-parser/utils';
 import { STAGE_HELP_BASE_URL } from '../constants';
 import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
@@ -26,6 +28,17 @@ function disallowOutputStagesOnCompassReadonly(
 ): boolean {
   if (operator?.outputStage) {
     return !preferencesReadOnly;
+  }
+
+  return true;
+}
+
+function disallowRerankOnNonAtlas(
+  operator: ReturnType<typeof getFilteredCompletions>[number],
+  env: ServerEnvironment
+): boolean {
+  if ((operator as FilteredStageOperators[number])?.name === '$rerank') {
+    return env === ATLAS;
   }
 
   return true;
@@ -85,9 +98,13 @@ export const filterStageOperators = ({
             [env, ATLAS]
           : env,
     },
-  }).filter((op) => {
-    return disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly);
-  });
+  })
+    .filter((op) =>
+      disallowOutputStagesOnCompassReadonly(op, preferencesReadOnly)
+    )
+    .filter((op) =>
+      disallowRerankOnNonAtlas(op, env)
+    ) as FilteredStageOperators;
 
   FilteredStagesCache.set(cacheKey, filteredStages);
 
@@ -280,9 +297,71 @@ export function getSearchStageInfoFromPipeline(pipelineText: string): {
   }
 }
 
-const STAGE_OPERATORS_MAP = new Map(
-  STAGE_OPERATORS.map((stage) => [stage.value, stage])
-);
+type StageOperatorEntry = (typeof STAGE_OPERATORS)[number];
+
+/**
+ * Stage operator list with optional replacement of `$vectorSearch` metadata
+ * when Automated Embedding public preview is enabled.
+ */
+export function stageOperatorsWithAutoEmbedPreview(
+  enableAutoEmbeddingPublicPreview: boolean
+): readonly StageOperatorEntry[] {
+  return STAGE_OPERATORS.map((op) =>
+    op.name === '$vectorSearch' && enableAutoEmbeddingPublicPreview
+      ? (VECTOR_SEARCH_AUTO_EMBED_STAGE as unknown as StageOperatorEntry)
+      : op
+  );
+}
+
+/**
+ * Applies preference-driven stage metadata overrides to a filtered operator
+ * list (e.g. the stage combobox). When Automated Embedding public preview is
+ * enabled, the `$vectorSearch` entry is replaced with
+ * `VECTOR_SEARCH_AUTO_EMBED_STAGE`.
+ */
+export function applyFeatureFlagChangesToFilteredOperators(
+  operators: FilteredStageOperators,
+  enableAutoEmbeddingPublicPreview: boolean
+): FilteredStageOperators {
+  if (!enableAutoEmbeddingPublicPreview) {
+    return operators;
+  }
+
+  return operators.map((op) =>
+    op.name === '$vectorSearch'
+      ? {
+          ...VECTOR_SEARCH_AUTO_EMBED_STAGE,
+          env: VECTOR_SEARCH_AUTO_EMBED_STAGE.env as ServerEnvironment[],
+          meta: VECTOR_SEARCH_AUTO_EMBED_STAGE.meta as Completion['meta'],
+        }
+      : op
+  ) as FilteredStageOperators;
+}
+
+const stageOperatorsMapByPreviewFlag = new Map<
+  boolean,
+  Map<string, StageOperatorEntry>
+>();
+
+export function getStageOperatorsMap(
+  enableAutoEmbeddingPublicPreview: boolean
+): Map<string, StageOperatorEntry> {
+  let cached = stageOperatorsMapByPreviewFlag.get(
+    enableAutoEmbeddingPublicPreview
+  );
+  if (!cached) {
+    cached = new Map(
+      stageOperatorsWithAutoEmbedPreview(enableAutoEmbeddingPublicPreview).map(
+        (stage) => [stage.value, stage]
+      )
+    );
+    stageOperatorsMapByPreviewFlag.set(
+      enableAutoEmbeddingPublicPreview,
+      cached
+    );
+  }
+  return cached;
+}
 
 export const getStageHelpLink = (
   stageOperator: string | null | undefined
@@ -296,9 +375,12 @@ export const getStageHelpLink = (
 export function getStageInfo(
   namespace: string,
   stageOperator: string | null,
-  stageValue: string | undefined | null
+  stageValue: string | undefined | null,
+  enableAutoEmbeddingPublicPreview = false
 ): { description?: string; link: string | null; destination: string | null } {
-  const stage = STAGE_OPERATORS_MAP.get(stageOperator as any);
+  const stage = stageOperator
+    ? getStageOperatorsMap(enableAutoEmbeddingPublicPreview).get(stageOperator)
+    : undefined;
   return {
     description: stage?.description,
     link: getStageHelpLink(stageOperator),

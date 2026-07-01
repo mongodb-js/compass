@@ -4,6 +4,7 @@ const AmpersandCollection = require('ampersand-collection');
 const {
   Collection: MongoDbCollectionCollection,
 } = require('mongodb-collection-model');
+const toNS = require('mongodb-ns');
 
 function mergeInit(...init) {
   return {
@@ -262,11 +263,13 @@ const DatabaseCollection = AmpersandCollection.extend(
       });
 
       this.set(
-        dbs.map(({ _id, name, inferred_from_privileges }) => ({
-          _id,
-          name,
-          inferred_from_privileges,
-        }))
+        dbs
+          .filter((db) => !toNS(db._id).internal)
+          .map(({ _id, name, inferred_from_privileges }) => ({
+            _id,
+            name,
+            inferred_from_privileges,
+          }))
       );
     },
 

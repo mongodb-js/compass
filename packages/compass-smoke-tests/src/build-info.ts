@@ -4,7 +4,7 @@ import path from 'node:path';
 import createDebug from 'debug';
 import { pick } from 'lodash';
 
-import { handler as writeBuildInfo } from 'hadron-build/commands/info';
+import { generateBuildInfo } from 'hadron-build';
 
 import { type PackageKind } from './packages';
 import { type SmokeTestsContextWithSandbox } from './context';
@@ -230,18 +230,21 @@ export function readPackageDetails(
   return getPackageDetails(kind, result);
 }
 
-export function writeAndReadPackageDetails({
+export async function writeAndReadPackageDetails({
   package: packageKind,
   platform,
   arch,
   sandboxPath,
-}: SmokeTestsContextWithSandbox): PackageDetails {
+}: SmokeTestsContextWithSandbox): Promise<PackageDetails> {
   const infoArgs = {
-    format: 'json',
+    format: 'json' as const,
     dir: COMPASS_PATH,
     platform,
     arch,
     out: path.resolve(sandboxPath, 'target.json'),
+    flatten: false,
+    version: undefined,
+    print: false,
   };
   debug({ infoArgs });
 
@@ -266,6 +269,6 @@ export function writeAndReadPackageDetails({
       'IS_RHEL',
     ])
   );
-  writeBuildInfo(infoArgs);
+  await generateBuildInfo(infoArgs);
   return readPackageDetails(packageKind, infoArgs.out);
 }

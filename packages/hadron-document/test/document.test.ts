@@ -2458,6 +2458,108 @@ describe('Document', function () {
         );
       });
     });
+
+    describe('#preserveTypesFromSchema', function () {
+      it('converts Int32 to Double when schema says Double', function () {
+        const doc = new Document({ price: new Int32(5) });
+        doc.preserveTypesFromSchema({ price: { type: 'Double' } });
+        expect(doc.get('price')?.currentType).to.equal('Double');
+      });
+
+      it('converts Int32 to Int64 when schema says Long', function () {
+        const doc = new Document({ count: new Int32(5) });
+        doc.preserveTypesFromSchema({ count: { type: 'Long' } });
+        expect(doc.get('count')?.currentType).to.equal('Int64');
+      });
+
+      it('converts Int32 to Int64 when schema says Int64', function () {
+        const doc = new Document({ count: new Int32(5) });
+        doc.preserveTypesFromSchema({ count: { type: 'Int64' } });
+        expect(doc.get('count')?.currentType).to.equal('Int64');
+      });
+
+      it('does not change type when schema matches (Int32 stays Int32)', function () {
+        const doc = new Document({ count: new Int32(5) });
+        doc.preserveTypesFromSchema({ count: { type: 'Int32' } });
+        expect(doc.get('count')?.currentType).to.equal('Int32');
+      });
+
+      it('does not change non-numeric types', function () {
+        const doc = new Document({ name: 'hello' });
+        doc.preserveTypesFromSchema({ name: { type: 'String' } });
+        expect(doc.get('name')?.currentType).to.equal('String');
+      });
+
+      it('does not change type for fields not in the schema', function () {
+        const doc = new Document({ newField: new Int32(5) });
+        doc.preserveTypesFromSchema({});
+        expect(doc.get('newField')?.currentType).to.equal('Int32');
+      });
+
+      it('handles schema with multiple types, prefers Double over Int32', function () {
+        const doc = new Document({ value: new Int32(5) });
+        doc.preserveTypesFromSchema({ value: { type: ['Int32', 'Double'] } });
+        expect(doc.get('value')?.currentType).to.equal('Double');
+      });
+
+      it('handles schema with multiple types, prefers Long over Int32', function () {
+        const doc = new Document({ value: new Int32(5) });
+        doc.preserveTypesFromSchema({ value: { type: ['Int32', 'Long'] } });
+        expect(doc.get('value')?.currentType).to.equal('Int64');
+      });
+
+      it('prefers Double when schema has both Double and Long', function () {
+        const doc = new Document({ value: new Int32(5) });
+        doc.preserveTypesFromSchema({ value: { type: ['Double', 'Long'] } });
+        expect(doc.get('value')?.currentType).to.equal('Double');
+      });
+
+      it('handles nested objects', function () {
+        const doc = new Document({
+          meta: { score: new Int32(10) },
+        });
+        doc.preserveTypesFromSchema({ 'meta.score': { type: 'Double' } });
+        expect(doc.get('meta')?.get('score')?.currentType).to.equal('Double');
+      });
+
+      it('leaves Double values unchanged', function () {
+        const doc = new Document({ price: new Double(5.5) });
+        doc.preserveTypesFromSchema({ price: { type: 'Double' } });
+        expect(doc.get('price')?.currentType).to.equal('Double');
+      });
+
+      it('leaves Int64 values unchanged when schema says Long', function () {
+        const doc = new Document({ bigNum: new Long(99) });
+        doc.preserveTypesFromSchema({ bigNum: { type: 'Long' } });
+        expect(doc.get('bigNum')?.currentType).to.equal('Int64');
+      });
+
+      it('handles multiple fields in one call', function () {
+        const doc = new Document({
+          price: new Int32(10),
+          quantity: new Int32(3),
+          name: 'widget',
+        });
+        doc.preserveTypesFromSchema({
+          price: { type: 'Double' },
+          quantity: { type: 'Long' },
+          name: { type: 'String' },
+        });
+        expect(doc.get('price')?.currentType).to.equal('Double');
+        expect(doc.get('quantity')?.currentType).to.equal('Int64');
+        expect(doc.get('name')?.currentType).to.equal('String');
+      });
+
+      it('does nothing when schema is empty', function () {
+        const doc = new Document({
+          a: new Int32(1),
+          b: new Double(2),
+        });
+        doc.preserveTypesFromSchema({});
+        expect(doc.get('a')?.currentType).to.equal('Int32');
+        expect(doc.get('b')?.currentType).to.equal('Double');
+      });
+    });
   });
 
   context('when a document is expanded/collapsed', function () {
@@ -2510,6 +2612,30 @@ describe('Document', function () {
 
       document.setMaxVisibleElementsCount(10);
       expect(document.getVisibleElements()).to.have.lengthOf(2);
+    });
+  });
+
+  describe('#insertAfter visibility', function () {
+    let document: Document;
+
+    beforeEach(function () {
+      document = new Document({ a: 'va', b: 'vb', c: 'vc' });
+      document.setMaxVisibleElementsCount(2);
+    });
+
+    it('makes the new element visible when inserted after the last visible element', function () {
+      const b = document.get('b')!;
+      document.insertAfter(b, 'd', 'vd');
+      expect(document.maxVisibleElementsCount).to.equal(3);
+      expect(
+        document.getVisibleElements().map((el) => el.currentKey)
+      ).to.include('d');
+    });
+
+    it('does not change visibility when inserted before the last visible element', function () {
+      const a = document.get('a')!;
+      document.insertAfter(a, 'd', 'vd');
+      expect(document.maxVisibleElementsCount).to.equal(2);
     });
   });
 

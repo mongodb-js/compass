@@ -101,7 +101,11 @@ export type AssistantMessage = UIMessage & {
      */
     isPermanent?: boolean;
     /** The source of the message (i.e. the entry point used) */
-    source?: 'explain plan' | 'performance insights' | 'connection error';
+    source?:
+      | 'explain plan'
+      | 'performance insights'
+      | 'connection error'
+      | 'follow-up prompt';
     /** Information for confirmation messages. */
     confirmation?: {
       description: string;
@@ -218,6 +222,9 @@ export function useAssistantActions(): AssistantActionsType {
 export const compassAssistantServiceLocator = createServiceLocator(() => {
   const actions = useAssistantActions();
 
+  const interpretExplainPlanRef = useRef(actions.interpretExplainPlan);
+  interpretExplainPlanRef.current = actions.interpretExplainPlan;
+
   const interpretConnectionErrorRef = useRef(actions.interpretConnectionError);
   interpretConnectionErrorRef.current = actions.interpretConnectionError;
 
@@ -225,6 +232,11 @@ export const compassAssistantServiceLocator = createServiceLocator(() => {
   getIsAssistantEnabledRef.current = actions.getIsAssistantEnabled;
 
   return {
+    interpretExplainPlan: (options: {
+      namespace: string;
+      explainPlan: string;
+      operationType: 'query' | 'aggregation';
+    }) => interpretExplainPlanRef.current?.(options),
     interpretConnectionError: (options: {
       connectionInfo: ConnectionInfo;
       error: Error;
@@ -236,6 +248,11 @@ export const compassAssistantServiceLocator = createServiceLocator(() => {
 }, 'compassAssistantLocator');
 
 export type CompassAssistantService = {
+  interpretExplainPlan: (options: {
+    namespace: string;
+    explainPlan: string;
+    operationType: 'query' | 'aggregation';
+  }) => void;
   interpretConnectionError: (options: {
     connectionInfo: ConnectionInfo;
     error: Error;

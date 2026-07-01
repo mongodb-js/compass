@@ -260,11 +260,13 @@ export function runBulkUpdate(): CrudThunkAction<
       connectionInfoRef,
     }
   ) => {
+    const query = queryBar.getLastAppliedQuery('crud');
     track(
       'Bulk Update Executed',
       {
         isUpdatePreviewSupported:
           getState().collectionMeta.isUpdatePreviewSupported,
+        has_filter: Object.keys(query.filter ?? {}).length > 0,
       },
       connectionInfoRef.current
     );
@@ -279,7 +281,7 @@ export function runBulkUpdate(): CrudThunkAction<
     });
 
     const ns = getState().documents.ns;
-    const { filter = {} } = queryBar.getLastAppliedQuery('crud');
+    const { filter = {} } = query;
     let update;
     try {
       update = parseShellBSON(getState().bulkUpdate.updateText);

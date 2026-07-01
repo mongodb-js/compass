@@ -14,6 +14,7 @@ import { GridStoreContext } from './stores/grid-store-context';
 import {
   connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
+  type DataServiceLocator,
   dataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import {
@@ -31,12 +32,13 @@ import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { CrudTabTitle } from './plugin-title';
+import type { RequiredDataServiceProps } from './utils/data-service';
 
 const CompassDocumentsPluginProvider = registerCompassPlugin(
   {
     name: 'CompassDocuments',
     // The redux store carries a side-channel reference to the still-Reflux
-    // grid store; surface it via a dedicated React context so components can
+    // grid store, we surface it via a dedicated React context so components can
     // subscribe to grid events without holding a reference to the store
     // object itself.
     component: function CrudProvider({ children }) {
@@ -50,7 +52,9 @@ const CompassDocumentsPluginProvider = registerCompassPlugin(
     activate: activateDocumentsPlugin,
   },
   {
-    dataService: dataServiceLocator,
+    dataService:
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+      dataServiceLocator as DataServiceLocator<RequiredDataServiceProps>,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-CRUD-UI'),

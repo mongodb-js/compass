@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   Banner,
-  BannerVariant,
   Button,
   ButtonVariant,
   CancelLoader,
@@ -26,7 +25,6 @@ import {
   stopRulesGeneration,
   type RulesGenerationError,
 } from '../modules/rules-generation';
-import { DISTINCT_FIELDS_ABORT_THRESHOLD } from '@mongodb-js/compass-schema';
 
 const validationStatesStyles = css({
   padding: spacing[400],
@@ -164,25 +162,6 @@ const RulesGenerationErrorBanner: React.FunctionComponent<{
       />
     );
   }
-  if (error?.errorType === 'highComplexity') {
-    return (
-      <Banner
-        variant={BannerVariant.Danger}
-        data-testid="rules-generation-complexity-abort-message"
-        dismissible={true}
-        onClose={onDismissError}
-      >
-        The rules generation was aborted because the number of fields exceeds{' '}
-        {DISTINCT_FIELDS_ABORT_THRESHOLD}. Consider breaking up your data into
-        more collections with smaller documents, and using references to
-        consolidate the data you need.&nbsp;
-        <Link href="https://www.mongodb.com/docs/manual/data-modeling/design-antipatterns/bloated-documents/">
-          Learn more
-        </Link>
-      </Banner>
-    );
-  }
-
   return (
     <ErrorSummary
       data-testid="rules-generation-error-message"

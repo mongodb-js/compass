@@ -4,7 +4,7 @@ import {
   Button,
   css,
 } from '@mongodb-js/compass-components';
-import { getAtlasUpgradeClusterLink } from '../../utils/atlas-upgrade-cluster-link';
+import { buildUpgradeClusterUrl } from '@mongodb-js/atlas-service/provider';
 import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
@@ -47,9 +47,7 @@ const ViewVersionIncompatibleBanner = ({
         {isAtlas && (
           <Button
             size="xsmall"
-            href={getAtlasUpgradeClusterLink({
-              clusterName: atlasMetadata.clusterName,
-            })}
+            href={buildUpgradeClusterUrl(atlasMetadata)}
             target="_blank"
           >
             Upgrade&nbsp;Cluster

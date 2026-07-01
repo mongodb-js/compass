@@ -333,15 +333,21 @@ export function insertMany(): CrudThunkAction<Promise<void>, InsertActions> {
     const state = getState();
     const ns = state.documents.ns;
     const view = state.view.view;
-    const insert = state.insert;
+    const insertState = state.insert;
     try {
-      const docs = HadronDocument.FromEJSONArray(insert.jsonDoc ?? '').map(
-        (doc) => doc.generateObject()
+      const schemaFields = fieldStoreService.getSchemaFieldsForNamespace(ns);
+      const docs = HadronDocument.FromEJSONArray(insertState.jsonDoc ?? '').map(
+        (doc) => {
+          if (schemaFields) {
+            doc.preserveTypesFromSchema(schemaFields);
+          }
+          return doc.generateObject();
+        }
       );
       track(
         'Document Inserted',
         {
-          mode: insert.jsonView ? 'json' : 'field-by-field',
+          mode: insertState.jsonView ? 'json' : 'field-by-field',
           multiple: docs.length > 1,
         },
         connectionInfoRef.current
@@ -349,9 +355,9 @@ export function insertMany(): CrudThunkAction<Promise<void>, InsertActions> {
 
       await dataService.insertMany(ns, docs);
       const payload = {
-        ns,
-        view,
-        mode: insert.jsonView ? 'json' : 'default',
+        ns: ns,
+        view: view,
+        mode: insertState.jsonView ? 'json' : 'default',
         multiple: true,
         docs,
       };
@@ -365,12 +371,14 @@ export function insertMany(): CrudThunkAction<Promise<void>, InsertActions> {
         type: InsertActionTypes.INSERT_DOCUMENT_ERROR,
         error: getWriteError(error as Error),
         doc: new Document({}),
-        jsonDoc: insert.jsonDoc,
+        jsonDoc: insertState.jsonDoc,
         jsonView: true,
       });
     }
 
-    // Refresh after insert.
+    // Since we are inserting a bunch of documents and we need to rerun all
+    // the queries and counts for them, let's just refresh the whole set of
+    // documents.
     await dispatch(refreshDocuments());
   };
 }
@@ -393,12 +401,12 @@ export function insertDocument(): CrudThunkAction<
     const state = getState();
     const ns = state.documents.ns;
     const view = state.view.view;
-    const insert = state.insert;
+    const insertState = state.insert;
 
     track(
       'Document Inserted',
       {
-        mode: insert.jsonView ? 'json' : 'field-by-field',
+        mode: insertState.jsonView ? 'json' : 'field-by-field',
         multiple: false,
       },
       connectionInfoRef.current
@@ -406,17 +414,29 @@ export function insertDocument(): CrudThunkAction<
 
     let doc: BSONObject;
     try {
-      if (insert.jsonView) {
-        doc = HadronDocument.FromEJSON(insert.jsonDoc ?? '').generateObject();
+      const schemaFields = fieldStoreService.getSchemaFieldsForNamespace(ns);
+      if (insertState.jsonView) {
+        const hadronDoc = HadronDocument.FromEJSON(insertState.jsonDoc ?? '');
+        if (schemaFields) {
+          hadronDoc.preserveTypesFromSchema(schemaFields);
+        }
+        doc = hadronDoc.generateObject();
       } else {
-        doc = insert.doc!.generateObject();
+        // Create a fresh document from the current state to avoid mutating
+        // the insert dialog's document in place (which would be a side
+        // effect visible on retry if the insert fails).
+        const hadronDoc = new HadronDocument(insertState.doc!.generateObject());
+        if (schemaFields) {
+          hadronDoc.preserveTypesFromSchema(schemaFields);
+        }
+        doc = hadronDoc.generateObject();
       }
       await dataService.insertOne(ns, doc);
 
       const payload = {
         ns,
         view,
-        mode: insert.jsonView ? 'json' : 'default',
+        mode: insertState.jsonView ? 'json' : 'default',
         multiple: false,
         docs: [doc],
       };

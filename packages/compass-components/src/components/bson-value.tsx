@@ -7,6 +7,7 @@ import {
 } from 'hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
+import { stringify } from 'mongodb-query-parser';
 import { variantColors } from '@leafygreen-ui/code';
 
 import { Icon, Link } from './leafygreen';
@@ -475,7 +476,7 @@ const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
-    return `DBRef('${value.collection}', '${String(value.oid)}'${
+    return `DBRef('${value.collection}', ${stringify(value.oid)}${
       value?.db ? `, '${value.db}'` : ''
     })`;
   }, [value.collection, value.oid, value.db]);

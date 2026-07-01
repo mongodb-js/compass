@@ -13,7 +13,10 @@ import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { CrudToolbar } from './crud-toolbar';
 import { renderWithQueryBar } from '../../test/render-with-query-bar';
 import { CompassExperimentationProvider } from '@mongodb-js/compass-telemetry';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry/provider';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry/provider';
 
 const noop = () => {
   /* noop */
@@ -24,8 +27,7 @@ const testErrorMessageId = 'document-list-error-summary';
 const testDocumentsPerPageId = 'crud-document-per-page-selector';
 
 const addDataText = 'Add Data';
-const updateDataText = 'Update';
-const deleteDataText = 'Delete';
+const bulkActionsText = 'Bulk';
 
 describe('CrudToolbar Component', function () {
   let preferences: PreferencesAccess;
@@ -253,14 +255,13 @@ describe('CrudToolbar Component', function () {
     );
   });
 
-  it('should not render the add data, update and delete buttons when it is readonly', function () {
+  it('should not render the add data and bulk actions buttons when it is readonly', function () {
     renderCrudToolbar({
       readonly: true,
     });
 
     expect(screen.queryByText(addDataText)).to.not.exist;
-    expect(screen.queryByText(updateDataText)).to.not.exist;
-    expect(screen.queryByText(deleteDataText)).to.not.exist;
+    expect(screen.queryByText(bulkActionsText)).to.not.exist;
   });
 
   it('should call to open the export dialog when export is clicked', function () {
@@ -277,15 +278,17 @@ describe('CrudToolbar Component', function () {
     expect(exportSpy.firstCall.args[0]).to.be.true;
   });
 
-  describe('update button', function () {
+  describe('bulk actions menu', function () {
     it('should render disabled when the query has a skip', function () {
       renderCrudToolbar({
         querySkip: 10,
       });
 
-      expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
-        'aria-disabled'
-      );
+      expect(
+        screen
+          .getByTestId('crud-bulk-actions-show-actions')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
     });
 
     it('should render disabled when the query has a limit', function () {
@@ -293,54 +296,30 @@ describe('CrudToolbar Component', function () {
         queryLimit: 10,
       });
 
-      expect(screen.getByText(updateDataText).closest('button')).to.have.attr(
-        'aria-disabled'
-      );
+      expect(
+        screen
+          .getByTestId('crud-bulk-actions-show-actions')
+          .getAttribute('aria-disabled')
+      ).to.equal('true');
     });
 
-    it('should propagate click events', function () {
+    it('should propagate bulk update click events', function () {
       const onUpdateButtonClickedSpy = sinon.spy();
 
       renderCrudToolbar({ onUpdateButtonClicked: onUpdateButtonClickedSpy });
 
-      userEvent.click(screen.getByText(updateDataText).closest('button')!);
+      userEvent.click(screen.getByTestId('crud-bulk-actions-show-actions'));
+      userEvent.click(screen.getByText('Bulk update documents'));
       expect(onUpdateButtonClickedSpy).to.have.been.called;
     });
-  });
 
-  describe('delete button', function () {
-    it('should render disabled when the query has a skip', function () {
-      renderCrudToolbar({
-        querySkip: 10,
-      });
-
-      expect(
-        screen
-          .getByText(deleteDataText)
-          .closest('button')
-          ?.getAttribute('aria-disabled')
-      ).to.equal('true');
-    });
-
-    it('should render disabled when the query has a limit', function () {
-      renderCrudToolbar({
-        queryLimit: 10,
-      });
-
-      expect(
-        screen
-          .getByText(deleteDataText)
-          .closest('button')
-          ?.getAttribute('aria-disabled')
-      ).to.equal('true');
-    });
-
-    it('should propagate click events', function () {
+    it('should propagate bulk delete click events', function () {
       const onDeleteButtonClickedSpy = sinon.spy();
 
       renderCrudToolbar({ onDeleteButtonClicked: onDeleteButtonClickedSpy });
 
-      userEvent.click(screen.getByText(deleteDataText).closest('button')!);
+      userEvent.click(screen.getByTestId('crud-bulk-actions-show-actions'));
+      userEvent.click(screen.getByText('Bulk delete documents'));
       expect(onDeleteButtonClickedSpy).to.have.been.called;
     });
   });
@@ -862,56 +841,40 @@ describe('CrudToolbar Component', function () {
     });
   });
 
-  // @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
-  describe('Atlas Skills Banner', function () {
-    function renderCrudToolbarWithExperimentation(experimentationOptions?: {
+  describe('Mock Data Generator menu item', function () {
+    function renderCrudToolbarWithMockDataGenerator({
+      isMockDataGeneratorEligibleAndSchemaReady = false,
+      isInTreatment = false,
+      isInExperiment = true,
+    }: {
+      isMockDataGeneratorEligibleAndSchemaReady?: boolean;
+      isInTreatment?: boolean;
       isInExperiment?: boolean;
-      isInVariant?: boolean;
-    }) {
-      const mockUseAssignment = sinon.stub();
-      const mockUseTrackInSample = sinon.stub();
-      const mockAssignExperiment = sinon.stub();
-      const mockGetAssignment = sinon.stub();
-
-      const commonAsyncStatus = {
+    } = {}) {
+      const mockUseAssignment = sinon.stub().returns({
+        assignment: {
+          assignmentData: {
+            isInSample: isInExperiment,
+            variant: isInTreatment
+              ? ExperimentTestGroups.mockDataGeneratorVariant
+              : ExperimentTestGroups.mockDataGeneratorControl,
+          },
+        },
         asyncStatus: null,
         error: null,
         isLoading: false,
         isError: false,
         isSuccess: true,
-      };
-
-      // Configure the mock based on experiment options
-      if (experimentationOptions?.isInExperiment) {
-        if (experimentationOptions?.isInVariant) {
-          mockUseAssignment.returns({
-            assignment: {
-              assignmentData: {
-                variant: ExperimentTestGroups.atlasSkillsVariant,
-              },
-            },
-            ...commonAsyncStatus,
-          });
-        } else {
-          mockUseAssignment.returns({
-            assignment: {
-              assignmentData: {
-                variant: ExperimentTestGroups.atlasSkillsControl,
-              },
-            },
-            ...commonAsyncStatus,
-          });
-        }
-      } else {
-        mockUseAssignment.returns({
-          assignment: null,
-          ...commonAsyncStatus,
-        });
-      }
-
-      mockUseTrackInSample.returns(commonAsyncStatus);
-      mockAssignExperiment.returns(Promise.resolve(null));
-      mockGetAssignment.returns(Promise.resolve(null));
+      });
+      const mockUseTrackInSample = sinon.stub().returns({
+        asyncStatus: null,
+        error: null,
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+      });
+      const mockAssignExperiment = sinon.stub().returns(Promise.resolve(null));
+      const mockGetAssignment = sinon.stub().returns(Promise.resolve(null));
 
       const renderResult = renderWithConnections(
         <CompassExperimentationProvider
@@ -950,157 +913,171 @@ describe('CrudToolbar Component', function () {
             updateMaxDocumentsPerPage={noop}
             queryLimit={0}
             querySkip={0}
+            isMockDataGeneratorEligibleAndSchemaReady={
+              isMockDataGeneratorEligibleAndSchemaReady
+            }
           />
-        </CompassExperimentationProvider>,
-        { preferences: preferences.getPreferences() }
+        </CompassExperimentationProvider>
       );
-      return renderResult;
+      return { ...renderResult, mockUseTrackInSample };
     }
 
-    it('should show skills banner when user is in experiment and in variant', function () {
-      renderCrudToolbarWithExperimentation({
-        isInExperiment: true,
-        isInVariant: true,
+    it('should show "Generate mock data script" menu item when enabled and user is in treatment', function () {
+      renderCrudToolbarWithMockDataGenerator({
+        isMockDataGeneratorEligibleAndSchemaReady: true,
+        isInTreatment: true,
       });
-
-      expect(
-        screen.getByText(
-          'Practice creating, reading, updating, and deleting documents efficiently.'
-        )
-      ).to.be.visible;
-      const goToSkillsButton = screen.getByRole('link', {
-        name: /go to skills/i,
-      });
-      expect(goToSkillsButton).to.be.visible;
-      expect(screen.getByLabelText('Award Icon')).to.be.visible;
-
-      expect(goToSkillsButton.getAttribute('href')).to.equal(
-        'https://learn.mongodb.com/courses/crud-operations-in-mongodb?team=growth'
-      );
-    });
-
-    it('should not show skills banner when user is in experiment but not in variant', function () {
-      renderCrudToolbarWithExperimentation({
-        isInExperiment: true,
-        isInVariant: false,
-      });
-
-      expect(
-        screen.queryByText(
-          'Practice creating, reading, updating, and deleting documents efficiently.'
-        )
-      ).to.not.exist;
-      expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
-        .exist;
-    });
-
-    it('should not show skills banner by default when user is not in experiment', function () {
-      renderCrudToolbarWithExperimentation({
-        isInExperiment: false,
-        isInVariant: false,
-      });
-
-      expect(
-        screen.queryByText(
-          'Practice creating, reading, updating, and deleting documents efficiently.'
-        )
-      ).to.not.exist;
-      expect(screen.queryByRole('link', { name: /go to skills/i })).to.not
-        .exist;
-    });
-
-    it('should dismiss banner when close button is clicked', function () {
-      renderCrudToolbarWithExperimentation({
-        isInExperiment: true,
-        isInVariant: true,
-      });
-
-      const closeButton = screen.getByRole('button', {
-        name: 'Dismiss Skills Banner',
-      });
-
-      expect(closeButton).to.be.visible;
-      userEvent.click(closeButton);
-
-      expect(
-        screen.queryByText(
-          'Practice creating, reading, updating, and deleting documents efficiently.'
-        )
-      ).to.not.exist;
-    });
-  });
-
-  describe('Mock Data Generator menu item', function () {
-    function renderCrudToolbarWithMockDataGenerator(
-      isMockDataGeneratorEnabled: boolean
-    ) {
-      return renderWithConnections(
-        <CrudToolbar
-          activeDocumentView="List"
-          count={55}
-          end={20}
-          getPage={noop}
-          insertDataHandler={noop}
-          loadingCount={false}
-          isFetching={false}
-          docsPerPage={25}
-          isWritable
-          lastCountRunMaxTimeMS={1234}
-          instanceDescription=""
-          onApplyClicked={noop}
-          onResetClicked={noop}
-          onUpdateButtonClicked={noop}
-          onDeleteButtonClicked={noop}
-          onExpandAllClicked={noop}
-          onCollapseAllClicked={noop}
-          openExportFileDialog={noop}
-          onOpenExportToLanguage={noop}
-          outdated={false}
-          page={0}
-          readonly={false}
-          refreshDocuments={noop}
-          resultId="123"
-          start={0}
-          viewSwitchHandler={noop}
-          updateMaxDocumentsPerPage={noop}
-          queryLimit={0}
-          querySkip={0}
-          isMockDataGeneratorEnabled={isMockDataGeneratorEnabled}
-        />
-      );
-    }
-
-    it('should show "Generate Mock Data Script" menu item when isMockDataGeneratorEnabled is true', function () {
-      renderCrudToolbarWithMockDataGenerator(true);
 
       // Open the Add Data dropdown menu
       userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
 
-      expect(screen.getByText('Generate Mock Data Script')).to.be.visible;
+      expect(screen.getByText('Generate mock data script')).to.be.visible;
     });
 
-    it('should not show "Generate Mock Data Script" menu item when isMockDataGeneratorEnabled is false', function () {
-      renderCrudToolbarWithMockDataGenerator(false);
+    it('should not show "Generate mock data script" menu item when enabled but user is in control', function () {
+      renderCrudToolbarWithMockDataGenerator({
+        isMockDataGeneratorEligibleAndSchemaReady: true,
+        isInTreatment: false,
+      });
 
-      // Open the Add Data dropdown menu
       userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
 
-      expect(screen.queryByText('Generate Mock Data Script')).to.not.exist;
+      expect(screen.queryByText('Generate mock data script')).to.not.exist;
     });
 
-    it('should emit "open-mock-data-generator-modal" event when "Generate Mock Data Script" is clicked', function () {
-      const { localAppRegistry } = renderCrudToolbarWithMockDataGenerator(true);
+    it('should not show "Generate mock data script" menu item when not enabled', function () {
+      renderCrudToolbarWithMockDataGenerator({
+        isMockDataGeneratorEligibleAndSchemaReady: false,
+        isInTreatment: true,
+      });
+
+      userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+
+      expect(screen.queryByText('Generate mock data script')).to.not.exist;
+    });
+
+    it('should emit "open-mock-data-generator-modal" event when "Generate mock data script" is clicked', function () {
+      const { localAppRegistry } = renderCrudToolbarWithMockDataGenerator({
+        isMockDataGeneratorEligibleAndSchemaReady: true,
+        isInTreatment: true,
+      });
       const emitSpy = sinon.spy(localAppRegistry, 'emit');
 
-      // Open the Add Data dropdown menu
       userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
-
-      // Click the Generate Mock Data Script option
-      userEvent.click(screen.getByText('Generate Mock Data Script'));
+      userEvent.click(screen.getByText('Generate mock data script'));
 
       expect(emitSpy).to.have.been.calledOnceWith(
         'open-mock-data-generator-modal'
       );
+    });
+
+    describe('Experiment Viewed exposure firing', function () {
+      function trackInSampleFireCalls(stub: sinon.SinonStub) {
+        return stub
+          .getCalls()
+          .filter(
+            (call) =>
+              call.args[0] === ExperimentTestNames.mockDataGenerator &&
+              call.args[1] === true
+          );
+      }
+
+      it('does not fire "Experiment Viewed" if the menu has not been opened', async function () {
+        const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
+          {
+            isMockDataGeneratorEligibleAndSchemaReady: true,
+            isInTreatment: true,
+          }
+        );
+
+        await Promise.resolve();
+        expect(trackInSampleFireCalls(mockUseTrackInSample)).to.have.lengthOf(
+          0
+        );
+      });
+
+      it('does not fire "Experiment Viewed" if the menu opens and the user is in treatment but the feature is not displayed', async function () {
+        const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
+          {
+            isMockDataGeneratorEligibleAndSchemaReady: false,
+            isInTreatment: true,
+          }
+        );
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+        await Promise.resolve();
+
+        expect(trackInSampleFireCalls(mockUseTrackInSample)).to.have.lengthOf(
+          0
+        );
+      });
+
+      it('fires "Experiment Viewed" when the menu opens, user is in treatment variant group, and the feature is enabled', async function () {
+        const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
+          {
+            isMockDataGeneratorEligibleAndSchemaReady: true,
+            isInTreatment: true,
+          }
+        );
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+
+        await waitFor(() => {
+          expect(
+            trackInSampleFireCalls(mockUseTrackInSample)
+          ).to.have.lengthOf.at.least(1);
+        });
+      });
+
+      it('fires "Experiment Viewed" for control users in an eligible collection', async function () {
+        const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
+          {
+            isMockDataGeneratorEligibleAndSchemaReady: true,
+            isInTreatment: false,
+          }
+        );
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+
+        await waitFor(() => {
+          expect(
+            trackInSampleFireCalls(mockUseTrackInSample)
+          ).to.have.lengthOf.at.least(1);
+        });
+        expect(screen.queryByText('Generate mock data script')).to.not.exist;
+      });
+
+      it('does not fire "Experiment Viewed" if the user is not in an eligible collection', async function () {
+        const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
+          {
+            isMockDataGeneratorEligibleAndSchemaReady: false,
+            isInTreatment: true,
+          }
+        );
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(trackInSampleFireCalls(mockUseTrackInSample)).to.have.lengthOf(
+          0
+        );
+      });
+
+      it('does not fire "Experiment Viewed" when the user is not in the experiment', async function () {
+        const { mockUseTrackInSample } = renderCrudToolbarWithMockDataGenerator(
+          {
+            isMockDataGeneratorEligibleAndSchemaReady: true,
+            isInExperiment: false,
+          }
+        );
+
+        userEvent.click(screen.getByTestId('crud-add-data-show-actions'));
+        await new Promise((resolve) => setTimeout(resolve, 20));
+
+        expect(trackInSampleFireCalls(mockUseTrackInSample)).to.have.lengthOf(
+          0
+        );
+      });
     });
   });
 });

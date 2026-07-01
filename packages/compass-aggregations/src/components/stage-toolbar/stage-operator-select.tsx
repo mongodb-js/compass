@@ -1,11 +1,17 @@
-import React, { useCallback } from 'react';
-import { withPreferences } from 'compass-preferences-model/provider';
+import React, { useCallback, useEffect, useRef } from 'react';
+import {
+  withPreferences,
+  usePreference,
+} from 'compass-preferences-model/provider';
 import { connect } from 'react-redux';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 
 import {
+  Badge,
+  BadgeVariant,
   Combobox,
   ComboboxOption,
+  Description,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -14,7 +20,11 @@ import type { RootState } from '../../modules';
 import { changeStageOperator } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 
-import { filterStageOperators, isSearchStage } from '../../utils/stage';
+import {
+  applyFeatureFlagChangesToFilteredOperators,
+  filterStageOperators,
+  isSearchStage,
+} from '../../utils/stage';
 import { isAtlasOnly } from '../../utils/stage';
 import type { ServerEnvironment } from '../../modules/env';
 import type { CollectionStats } from '../../modules/collection-stats';
@@ -23,16 +33,45 @@ import semver from 'semver';
 const inputWidth = spacing[1400] * 3;
 // width of options popover
 const comboxboxOptionsWidth = spacing[1200] * 14;
-// left position of options popover wrt input. this aligns it with the start of input
-const comboboxOptionsLeft = (comboxboxOptionsWidth - inputWidth) / 2;
+
+const rerankStageOptionStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[100],
+  padding: `${spacing[100]}px 0`,
+});
+
+const rerankStageNameRowStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
+});
+
+const RerankStageOption = ({ description }: { description: string }) => (
+  <div className={rerankStageOptionStyles}>
+    <div className={rerankStageNameRowStyles}>
+      <span>$rerank</span>
+      <Badge variant={BadgeVariant.Blue}>Preview</Badge>
+      <Badge variant={BadgeVariant.Blue}>Start Free</Badge>
+    </div>
+    <Description>{description}</Description>
+  </div>
+);
 
 const comboboxStyles = css({
   width: inputWidth,
   '> :popover-open': {
     width: comboxboxOptionsWidth,
     whiteSpace: 'normal',
-    // -4px to count for the input focus outline.
-    marginLeft: `${comboboxOptionsLeft - 4}px`,
+    // LG centers the popover via floating-ui inline styles; we override to
+    // left-align with the select input using a var set in a useEffect.
+    left: 'var(--stage-op-popover-left, 0px) !important',
+  },
+  // We want the user to be able to see multiple stages, so
+  // we override the max-height set in LG.
+  // Note, this is brittle as it relies on LG internals.
+  '> :popover-open [role="listbox"]': {
+    maxHeight: '450px',
   },
 });
 
@@ -123,6 +162,14 @@ export const StageOperatorSelect = ({
     },
     [onChange, index]
   );
+  const enableRerank = usePreference('enableRerank');
+  // TODO(COMPASS-10681): Remove $rerank top-of-list sort after marketing period.
+  const visibleStages = enableRerank
+    ? [...stages].sort((a, b) =>
+        a.name === '$rerank' ? -1 : b.name === '$rerank' ? 1 : 0
+      )
+    : stages.filter((s) => s.name !== '$rerank');
+
   const versionIncompatibleCompass =
     !VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
       serverVersion
@@ -138,33 +185,56 @@ export const StageOperatorSelect = ({
     isReadonlyView &&
     (!pipelineIsSearchQueryable || versionIncompatibleCompass);
 
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    // We use the left positioning of the container to position the
+    // popover, overriding leafygreen's default centering of options.
+    el.style.setProperty(
+      '--stage-op-popover-left',
+      `${el.getBoundingClientRect().left}px`
+    );
+  }, []);
+
   return (
-    <Combobox
-      value={selectedStage}
-      disabled={isDisabled}
-      aria-label="Select a stage operator"
-      onChange={onStageOperatorSelected}
-      size="xsmall"
-      clearable={false}
-      data-testid="stage-operator-combobox"
-      className={comboboxStyles}
-    >
-      {stages.map((stage: Stage, index) => (
-        <ComboboxOption
-          data-testid={`combobox-option-stage-${stage.name}`}
-          key={`combobox-option-stage-${index}`}
-          value={stage.name}
-          disabled={isSearchStage(stage.name) && disableSearchStage}
-          description={getStageDescription(
+    <div ref={containerRef}>
+      <Combobox
+        value={selectedStage}
+        disabled={isDisabled}
+        aria-label="Select a stage operator"
+        onChange={onStageOperatorSelected}
+        size="xsmall"
+        clearable={false}
+        data-testid="stage-operator-combobox"
+        className={comboboxStyles}
+      >
+        {visibleStages.map((stage: Stage) => {
+          const description = getStageDescription(
             stage,
             sourceName,
             serverVersion,
             versionIncompatibleCompass,
             pipelineIsSearchQueryable
-          )}
-        />
-      ))}
-    </Combobox>
+          );
+          return (
+            <ComboboxOption
+              data-testid={`combobox-option-stage-${stage.name}`}
+              key={stage.name}
+              value={stage.name}
+              disabled={isSearchStage(stage.name) && disableSearchStage}
+              {...(stage.name === '$rerank'
+                ? {
+                    customContent: (
+                      <RerankStageOption description={description} />
+                    ),
+                  }
+                : { description })}
+            />
+          );
+        })}
+      </Combobox>
+    </div>
   );
 };
 
@@ -175,6 +245,7 @@ export default withPreferences(
       ownProps: {
         index: number;
         readOnly: boolean;
+        enableAutoEmbeddingPublicPreview?: boolean;
         onChange?: (
           index: number,
           name: string | null,
@@ -186,13 +257,16 @@ export default withPreferences(
         ownProps.index
       ] as StoreStage;
 
-      const stages = filterStageOperators({
-        serverVersion: state.serverVersion,
-        env: state.env,
-        isTimeSeries: state.isTimeSeries,
-        sourceName: state.sourceName,
-        preferencesReadOnly: ownProps.readOnly,
-      });
+      const stages = applyFeatureFlagChangesToFilteredOperators(
+        filterStageOperators({
+          serverVersion: state.serverVersion,
+          env: state.env,
+          isTimeSeries: state.isTimeSeries,
+          sourceName: state.sourceName,
+          preferencesReadOnly: ownProps.readOnly,
+        }),
+        Boolean(ownProps.enableAutoEmbeddingPublicPreview)
+      );
       return {
         selectedStage: stage.stageOperator,
         isDisabled: stage.disabled,
@@ -211,5 +285,5 @@ export default withPreferences(
       };
     }
   )(StageOperatorSelect),
-  ['readOnly']
+  ['readOnly', 'enableAutoEmbeddingPublicPreview']
 );

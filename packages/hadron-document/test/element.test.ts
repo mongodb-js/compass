@@ -453,6 +453,32 @@ describe('Element', function () {
         expect(element.elements?.at(1)?.isAdded()).to.equal(true);
       });
     });
+
+    context('when inserting beyond maxVisibleElementsCount', function () {
+      let element: Element;
+
+      beforeEach(function () {
+        const doc = new Document({});
+        element = new Element('obj', { a: 'va', b: 'vb', c: 'vc' }, doc);
+        element.expand();
+        element.setMaxVisibleElementsCount(2);
+      });
+
+      it('makes the new element visible when inserted after the last visible element', function () {
+        const b = element.get('b')!;
+        element.insertAfter(b, 'd', 'vd');
+        expect(element.maxVisibleElementsCount).to.equal(3);
+        expect(
+          element.getVisibleElements().map((el) => el.currentKey)
+        ).to.include('d');
+      });
+
+      it('does not change visibility when inserted before the last visible element', function () {
+        const a = element.get('a')!;
+        element.insertAfter(a, 'd', 'vd');
+        expect(element.maxVisibleElementsCount).to.equal(2);
+      });
+    });
     /* Testing embedded arrays is in 'modifying arrays' */
   });
 

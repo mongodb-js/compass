@@ -168,7 +168,7 @@ describe('MultiplexLink', function () {
   describe('#connect()', function () {
     it('opens a WebSocket and resolves when the connection is accepted', async function () {
       const link = new Link({
-        baseUrl: 'wss://test.example.com/ccs',
+        baseUrls: ['wss://test.example.com/ccs'],
       });
       const connecting = link.connect();
       expect(FakeWebSocket.instances).to.have.length(1);
@@ -179,7 +179,7 @@ describe('MultiplexLink', function () {
 
     it('rejects if the link was already closed', async function () {
       const link = new Link({
-        baseUrl: 'wss://test.example.com/ccs',
+        baseUrls: ['wss://test.example.com/ccs'],
       });
       link.close('Test close');
 
@@ -199,7 +199,7 @@ describe('MultiplexLink', function () {
 
     beforeEach(async function () {
       link = new Link({
-        baseUrl: 'wss://test.example.com/ccs',
+        baseUrls: ['wss://test.example.com/ccs'],
       });
       ws = await connectLink(link);
     });
@@ -268,7 +268,7 @@ describe('MultiplexLink', function () {
   describe('#sendData()', function () {
     it('sends a frame whose payload matches the provided data', async function () {
       const link = new Link({
-        baseUrl: 'wss://test.example.com/ccs',
+        baseUrls: ['wss://test.example.com/ccs'],
       });
       const ws = await connectLink(link);
 
@@ -285,7 +285,7 @@ describe('MultiplexLink', function () {
   describe('#sendError()', function () {
     it('sends a frame with v=-1', async function () {
       const link = new Link({
-        baseUrl: 'wss://test.example.com/ccs',
+        baseUrls: ['wss://test.example.com/ccs'],
       });
       const ws = await connectLink(link);
 
@@ -301,7 +301,7 @@ describe('MultiplexLink', function () {
   describe('#close()', function () {
     it('calls onClose on every registered socket', async function () {
       const link = new Link({
-        baseUrl: 'wss://test.example.com/ccs',
+        baseUrls: ['wss://test.example.com/ccs'],
       });
       await connectLink(link);
 
@@ -324,12 +324,63 @@ describe('MultiplexLink', function () {
 
     it('setMultiplexLink / getMultiplexLink', function () {
       const link = new Link({
-        baseUrl: 'wss://test.example.com/ccs',
+        baseUrls: ['wss://test.example.com/ccs'],
       });
       setMultiplexLink(link);
       expect(getMultiplexLink()).to.equal(link);
       setMultiplexLink(null);
       expect(getMultiplexLink()).to.be.null;
+    });
+  });
+
+  describe('multi-URL racing', function () {
+    it('uses the first URL to open and closes the losers', async function () {
+      const link = new Link({
+        baseUrls: ['wss://a.example.com', 'wss://b.example.com'],
+      });
+      const connecting = link.connect();
+
+      const [wsA, wsB] = FakeWebSocket.instances;
+      expect(FakeWebSocket.instances).to.have.length(2);
+
+      wsB.open();
+      await connecting;
+
+      expect(link.url).to.equal('wss://b.example.com');
+      expect(wsA.readyState).to.equal(FakeWebSocket.CLOSED);
+    });
+
+    it('succeeds if the first URL fails but a later URL opens', async function () {
+      const link = new Link({
+        baseUrls: ['wss://a.example.com', 'wss://b.example.com'],
+      });
+      const connecting = link.connect();
+
+      const [wsA, wsB] = FakeWebSocket.instances;
+      wsA.serverClose(1006);
+      wsB.open();
+      await connecting;
+
+      expect(link.url).to.equal('wss://b.example.com');
+    });
+
+    it('rejects when all URLs fail', async function () {
+      const link = new Link({
+        baseUrls: ['wss://a.example.com', 'wss://b.example.com'],
+      });
+      const connecting = link.connect();
+
+      const [wsA, wsB] = FakeWebSocket.instances;
+      wsA.serverClose(1006, 'gone');
+      wsB.serverClose(1006, 'also gone');
+
+      let err: Error | undefined;
+      try {
+        await connecting;
+      } catch (e) {
+        err = e as Error;
+      }
+      expect(err?.message).to.match(/Connection failed/);
     });
   });
 

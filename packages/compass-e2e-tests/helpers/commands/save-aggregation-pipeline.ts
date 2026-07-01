@@ -20,7 +20,6 @@ export async function saveAggregationPipeline(
     await browser.clickVisible(Selectors.AddStageButton);
     await browser.$(Selectors.stageEditor(index)).waitForDisplayed();
 
-    await browser.focusStageOperator(index);
     await browser.selectStageOperator(index, stageOperator);
     await browser.setCodemirrorEditorValue(
       Selectors.stageEditor(index),

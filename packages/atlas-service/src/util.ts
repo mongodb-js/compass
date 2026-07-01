@@ -132,7 +132,7 @@ export type AtlasServiceConfig = {
 
 /**
  * Atlas service backend configurations.
- *  - atlas-local:             local mms backend         (cloud-local.mongodb.com)
+ *  - atlas-local:             local mms backend         (cloud-local.mmscloudteam.com)
  *  - atlas-dev:               dev mms backend           (cloud-dev.mongodb.com)
  *  - atlas-qa:                qa mms backend            (cloud-qa.mongodb.com)
  *  - atlas-staging:           staging mms backend       (cloud-stage.mongodb.com)
@@ -141,20 +141,23 @@ export type AtlasServiceConfig = {
 const config = Object.create({
   'atlas-local': {
     ccsBaseUrl: 'ws://localhost:61001/ws',
-    multiplexedWsBaseUrls: ['ws://cloud-local.mongodb.com/ccs'],
+    multiplexedWsBaseUrls: ['ws://cloud-local.mmscloudteam.com/ccs'],
     cloudBaseUrl: '',
-    atlasApiBaseUrl: 'http://cloud-local.mongodb.com/api/private',
+    atlasApiBaseUrl: 'http://cloud-local.mmscloudteam.com/api/private',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-local.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
-    userDataBaseUrl: 'https://cloud-local.mongodb.com/ui/userData',
+    userDataBaseUrl: 'https://cloud-local.mmscloudteam.com/ui/userData',
   },
   'atlas-dev': {
     ccsBaseUrl: '',
-    multiplexedWsBaseUrls: ['wss://cloud-dev.mongodb.com/ccs'],
+    multiplexedWsBaseUrls: [
+      'wss://cloud-dev.mongodb.com/ccs',
+      'wss://cluster-connection.cloud-dev.mongodb.com/ccs',
+    ],
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
     atlasLogin: {
@@ -167,7 +170,10 @@ const config = Object.create({
   },
   'atlas-qa': {
     ccsBaseUrl: '',
-    multiplexedWsBaseUrls: ['wss://cloud-qa.mongodb.com/ccs'],
+    multiplexedWsBaseUrls: [
+      'wss://cloud-qa.mongodb.com/ccs',
+      'wss://cluster-connection.cloud-qa.mongodb.com/ccs',
+    ],
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud-qa.mongodb.com/api/private',
     atlasLogin: {
@@ -180,7 +186,10 @@ const config = Object.create({
   },
   'atlas-staging': {
     ccsBaseUrl: '',
-    multiplexedWsBaseUrls: ['wss://cloud-stage.mongodb.com/ccs'],
+    multiplexedWsBaseUrls: [
+      'wss://cloud-stage.mongodb.com/ccs',
+      'wss://cluster-connection.cloud-stage.mongodb.com/ccs',
+    ],
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud-stage.mongodb.com/api/private',
     atlasLogin: {
@@ -193,7 +202,10 @@ const config = Object.create({
   },
   atlas: {
     ccsBaseUrl: '',
-    multiplexedWsBaseUrls: ['wss://cloud.mongodb.com/ccs'],
+    multiplexedWsBaseUrls: [
+      'wss://cloud.mongodb.com/ccs',
+      'wss://cluster-connection.cloud.mongodb.com/ccs',
+    ],
     cloudBaseUrl: '',
     atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
     atlasLogin: {

@@ -4,6 +4,7 @@ import {
   FocusStates,
   rafraf,
   useFocusState,
+  useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 
 export type VirtualTreeItem = {
@@ -150,12 +151,24 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
     [rootRef]
   );
 
-  useEffect(() => {
-    if (
-      focusState === FocusStates.FocusVisible ||
-      focusState === FocusStates.Focus
-    ) {
+  // In case active id is changed by parent, sync it back to local state
+  useSyncStateOnPropChange(() => {
+    setCurrentTabbable(activeId);
+  }, [activeId]);
+
+  // As soon as container looses focus, make it focusable by setting tab index
+  // to 0
+  useSyncStateOnPropChange(() => {
+    if (focusState === FocusStates.NoFocus) {
+      setTabIndex(0);
+    } else {
       setTabIndex(-1);
+    }
+  }, [focusState]);
+
+  useEffect(() => {
+    // Scroll to and focus the item on keyboard focus.
+    if (focusState === FocusStates.FocusVisible) {
       const item = findNext(-1, items, (item) => item.id === currentTabbable);
       if (item) {
         onFocusMove(item);
@@ -165,22 +178,7 @@ export function useVirtualNavigationTree<T extends HTMLElement = HTMLElement>({
         return cancel;
       }
     }
-
-    if (
-      focusState === FocusStates.FocusWithin ||
-      focusState === FocusStates.FocusWithinVisible
-    ) {
-      setTabIndex(-1);
-    }
-
-    if (focusState === FocusStates.NoFocus) {
-      setTabIndex(0);
-    }
   }, [currentTabbable, focusItemById, focusState, items, onFocusMove]);
-
-  useEffect(() => {
-    setCurrentTabbable(activeId);
-  }, [activeId]);
 
   const onKeyDown = useCallback(
     (evt: React.KeyboardEvent<T>) => {

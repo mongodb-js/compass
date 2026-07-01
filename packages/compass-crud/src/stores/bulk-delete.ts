@@ -114,7 +114,7 @@ export function runBulkDelete(): CrudThunkAction<
       connectionInfoRef,
     }
   ) => {
-    track('Bulk Delete Executed', {}, connectionInfoRef.current);
+    const query = queryBar.getLastAppliedQuery('crud');
 
     const { affected } = getState().bulkDelete;
     dispatch(closeBulkDeleteDialog());
@@ -143,9 +143,16 @@ export function runBulkDelete(): CrudThunkAction<
 
     const ns = getState().documents.ns;
     const view = getState().view.view;
-    const { filter = {} } = queryBar.getLastAppliedQuery('crud');
+    const { filter = {} } = query;
     try {
       await dataService.deleteMany(ns, filter);
+      track(
+        'Bulk Delete Executed',
+        {
+          has_filter: Object.keys(query.filter ?? {}).length > 0,
+        },
+        connectionInfoRef.current
+      );
       openBulkDeleteSuccessToast({
         affectedDocuments: affected,
         onRefresh: () => void dispatch(refreshDocuments()),

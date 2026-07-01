@@ -256,6 +256,19 @@ const toBinary = (object: unknown): Binary => {
   return new Binary(buffer, Binary.SUBTYPE_DEFAULT);
 };
 
+export const UUID_TYPES = [
+  'UUID',
+  'LegacyJavaUUID',
+  'LegacyCSharpUUID',
+  'LegacyPythonUUID',
+] satisfies TypeCastTypes[];
+
+export type UUIDType = (typeof UUID_TYPES)[number];
+
+export function isUUIDType(type: string): type is UUIDType {
+  return (UUID_TYPES as readonly string[]).includes(type);
+}
+
 /**
  * UUID regex pattern for validation (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).
  */

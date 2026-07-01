@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import {
   Icon,
   Tooltip,
@@ -8,6 +8,12 @@ import {
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useLocalAppRegistry } from '@mongodb-js/compass-app-registry';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+  useAssignment,
+  useTrackInSample,
+} from '@mongodb-js/compass-telemetry/provider';
 import { DOCUMENT_NARROW_ICON_BREAKPOINT } from '../constants/document-narrow-icon-breakpoint';
 
 const tooltipContainerStyles = css({
@@ -19,24 +25,52 @@ const addDataMenuButtonStyles = css({
   whiteSpace: 'nowrap',
 });
 
+const addDataMenuWrapperStyles = css({
+  display: 'contents',
+});
+
 type AddDataMenuProps = {
   instanceDescription: string;
   insertDataHandler: (openInsertKey: 'import-file' | 'insert-document') => void;
   isWritable: boolean;
-  isMockDataGeneratorEnabled?: boolean;
+  isMockDataGeneratorEligibleAndSchemaReady?: boolean;
 };
 
 function AddDataMenuButton({
   insertDataHandler,
   isDisabled = false,
-  isMockDataGeneratorEnabled = false,
+  isMockDataGeneratorEligibleAndSchemaReady = false,
 }: {
   insertDataHandler: (openInsertKey: 'import-file' | 'insert-document') => void;
   isDisabled?: boolean;
-  isMockDataGeneratorEnabled?: boolean;
+  isMockDataGeneratorEligibleAndSchemaReady?: boolean;
 }) {
   const isImportExportEnabled = usePreference('enableImportExport');
   const localAppRegistry = useLocalAppRegistry();
+
+  const mockDataGeneratorAssignment = useAssignment(
+    ExperimentTestNames.mockDataGenerator,
+    false // "Experiment Viewed" is fired below on menu open
+  );
+  const mockDataGeneratorAssignmentData =
+    mockDataGeneratorAssignment?.assignment?.assignmentData;
+  const isInMockDataExperiment =
+    mockDataGeneratorAssignmentData?.isInSample === true;
+  const isInMockDataTreatmentVariant =
+    mockDataGeneratorAssignmentData?.variant ===
+    ExperimentTestGroups.mockDataGeneratorVariant;
+
+  const [hasOpenedMenu, setHasOpenedMenu] = useState(false);
+
+  // Fire experiment-viewed when the user opens the menu and the Mock Data
+  // Generator feature is displayed or would be displayed if the user were in
+  // the treatment variant group.
+  useTrackInSample(
+    ExperimentTestNames.mockDataGenerator,
+    hasOpenedMenu &&
+      isMockDataGeneratorEligibleAndSchemaReady &&
+      isInMockDataExperiment
+  );
 
   const addDataActions = useMemo(() => {
     const actions: MenuAction<AddDataOption>[] = [
@@ -50,15 +84,23 @@ function AddDataMenuButton({
       });
     }
 
-    if (isMockDataGeneratorEnabled) {
+    // The menu item only renders for users in treatment variant group
+    if (
+      isMockDataGeneratorEligibleAndSchemaReady &&
+      isInMockDataTreatmentVariant
+    ) {
       actions.push({
         action: 'generate-mock-data' as const,
-        label: 'Generate Mock Data Script',
+        label: 'Generate mock data script',
       });
     }
 
     return actions;
-  }, [isImportExportEnabled, isMockDataGeneratorEnabled]);
+  }, [
+    isImportExportEnabled,
+    isMockDataGeneratorEligibleAndSchemaReady,
+    isInMockDataTreatmentVariant,
+  ]);
 
   const handleAction = useCallback(
     (action: AddDataOption) => {
@@ -71,21 +113,30 @@ function AddDataMenuButton({
     [localAppRegistry, insertDataHandler]
   );
 
+  const handleClickCapture = useCallback(() => {
+    setHasOpenedMenu(true);
+  }, []);
+
   return (
-    <DropdownMenuButton<AddDataOption>
-      data-testid="crud-add-data"
-      actions={addDataActions}
-      onAction={handleAction}
-      buttonText="Add data"
-      buttonProps={{
-        size: 'xsmall',
-        variant: 'primary',
-        leftGlyph: <Icon glyph="PlusWithCircle" />,
-        disabled: isDisabled,
-        className: addDataMenuButtonStyles,
-      }}
-      narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
-    ></DropdownMenuButton>
+    <span
+      onClickCapture={handleClickCapture}
+      className={addDataMenuWrapperStyles}
+    >
+      <DropdownMenuButton<AddDataOption>
+        data-testid="crud-add-data"
+        actions={addDataActions}
+        onAction={handleAction}
+        buttonText="Add data"
+        buttonProps={{
+          size: 'xsmall',
+          variant: 'primary',
+          leftGlyph: <Icon glyph="PlusWithCircle" />,
+          disabled: isDisabled,
+          className: addDataMenuButtonStyles,
+        }}
+        narrowBreakpoint={DOCUMENT_NARROW_ICON_BREAKPOINT}
+      ></DropdownMenuButton>
+    </span>
   );
 }
 
@@ -95,13 +146,15 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
   instanceDescription,
   insertDataHandler,
   isWritable,
-  isMockDataGeneratorEnabled,
+  isMockDataGeneratorEligibleAndSchemaReady,
 }) => {
   if (isWritable) {
     return (
       <AddDataMenuButton
         insertDataHandler={insertDataHandler}
-        isMockDataGeneratorEnabled={isMockDataGeneratorEnabled}
+        isMockDataGeneratorEligibleAndSchemaReady={
+          isMockDataGeneratorEligibleAndSchemaReady
+        }
       />
     );
   }
@@ -118,7 +171,9 @@ const AddDataMenu: React.FunctionComponent<AddDataMenuProps> = ({
           <AddDataMenuButton
             insertDataHandler={insertDataHandler}
             isDisabled={true}
-            isMockDataGeneratorEnabled={isMockDataGeneratorEnabled}
+            isMockDataGeneratorEligibleAndSchemaReady={
+              isMockDataGeneratorEligibleAndSchemaReady
+            }
           />
           {tooltipChildren}
         </div>

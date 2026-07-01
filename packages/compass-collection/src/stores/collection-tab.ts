@@ -24,10 +24,7 @@ import {
   isAIFeatureEnabled,
   type PreferencesAccess,
 } from 'compass-preferences-model/provider';
-import {
-  ExperimentTestNames,
-  ExperimentTestGroups,
-} from '@mongodb-js/compass-telemetry/provider';
+import { ExperimentTestNames } from '@mongodb-js/compass-telemetry/provider';
 import {
   SCHEMA_ANALYSIS_STATE_INITIAL,
   SCHEMA_ANALYSIS_STATE_ERROR,
@@ -90,7 +87,10 @@ export function selectShouldRetriggerSchemaAnalysis(
 }
 
 /**
- * Checks if user is in Mock Data Generator experiment variant.
+ * Checks if user is in the Mock Data Generator experiment (either
+ * control or treatment). Schema analysis runs for both arms so that the
+ * "Experiment Viewed" exposure event can fire for control and treatment
+ * under the same conditions.
  * Returns false on error to default to not running schema analysis.
  */
 async function shouldRunSchemaAnalysis(
@@ -103,10 +103,7 @@ async function shouldRunSchemaAnalysis(
       ExperimentTestNames.mockDataGenerator,
       false // Don't track "Experiment Viewed" event here
     );
-    return (
-      assignment?.assignmentData?.variant ===
-      ExperimentTestGroups.mockDataGeneratorVariant
-    );
+    return !!assignment?.assignmentData?.variant;
   } catch (error) {
     // On error, default to not running schema analysis
     logger.debug('Failed to get Mock Data Generator experiment assignment', {
@@ -238,7 +235,7 @@ export function activatePlugin(
   const handleSchemaAnalysisRetrigger = (eventType: string) => {
     const currentState = store.getState();
     if (selectShouldRetriggerSchemaAnalysis(currentState)) {
-      // Check if user is in Mock Data Generator experiment variant before re-triggering
+      // Re-trigger schema analysis only for users in the Mock Data Generator experiment
       shouldRunSchemaAnalysis(experimentationServices, logger, namespace)
         .then((shouldRun) => {
           if (shouldRun) {
@@ -328,8 +325,7 @@ export function activatePlugin(
     }
 
     if (!metadata.isReadonly && !metadata.isTimeSeries) {
-      // Check experiment variant before running schema analysis
-      // Only run schema analysis if user is in treatment variant
+      // Run schema analysis for users in the Mock Data Generator experiment
       void shouldRunSchemaAnalysis(
         experimentationServices,
         logger,
@@ -341,6 +337,40 @@ export function activatePlugin(
       });
     }
   });
+
+  // Assign experiment for Search Activation Program P1
+  // Only assign when we're connected to Atlas
+  if (connectionInfoRef.current?.atlasMetadata?.clusterName) {
+    void experimentationServices
+      .assignExperiment(ExperimentTestNames.searchActivationProgramP1, {
+        team: 'Search Web Platform',
+      })
+      .catch((error) => {
+        logger.debug(
+          'Search Activation Program P1 experiment assignment failed',
+          {
+            experiment: ExperimentTestNames.searchActivationProgramP1,
+            namespace: namespace,
+            error: error instanceof Error ? error.message : String(error),
+          }
+        );
+      });
+
+    void experimentationServices
+      .assignExperiment(ExperimentTestNames.searchActivationProgramP2, {
+        team: 'Search Web Platform',
+      })
+      .catch((error) => {
+        logger.debug(
+          'Search Activation Program P2 experiment assignment failed',
+          {
+            experiment: ExperimentTestNames.searchActivationProgramP2,
+            namespace: namespace,
+            error: error instanceof Error ? error.message : String(error),
+          }
+        );
+      });
+  }
 
   // Cancel schema analysis when plugin is deactivated
   addCleanup(() => store.dispatch(cancelSchemaAnalysis()));

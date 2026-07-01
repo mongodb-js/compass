@@ -7,9 +7,7 @@ import { preferencesLocator } from 'compass-preferences-model/provider';
 import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
 import {
   dataServiceLocator,
-  type DataService,
   connectionInfoRefLocator,
-  type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { WorkspaceName, ShellPluginTitleComponent } from './plugin-tab-title';
 
@@ -26,7 +24,7 @@ export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
     {
       logger: createLoggerLocator('COMPASS-SHELL'),
       track: telemetryLocator,
-      dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+      dataService: dataServiceLocator,
       connectionInfo: connectionInfoRefLocator,
       preferences: preferencesLocator,
     }

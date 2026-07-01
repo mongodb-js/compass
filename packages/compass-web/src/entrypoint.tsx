@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import AppRegistry, {
   AppRegistryProvider,
   GlobalAppRegistryProvider,
@@ -22,6 +22,7 @@ import {
   css,
   useInitialValue,
   openToast,
+  SpinLoaderWithLabel,
 } from '@mongodb-js/compass-components';
 import {
   CollectionTabsProvider,
@@ -44,11 +45,8 @@ import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
-import type {
-  AllPreferences,
-  AtlasCloudFeatureFlags,
-} from 'compass-preferences-model/provider';
 import {
+  type CompassWebPreferencesAccess,
   PreferencesProvider,
   usePreferences,
 } from 'compass-preferences-model/provider';
@@ -80,7 +78,10 @@ import type {
 import { useCompassWebLoggerAndTelemetry } from './logger-and-telemetry';
 import { WebWorkspaceTab as WelcomeWorkspaceTab } from '@mongodb-js/compass-welcome';
 import { WorkspaceTab as MyQueriesWorkspace } from '@mongodb-js/compass-saved-aggregations-queries';
-import { useCompassWebPreferences } from './preferences';
+import {
+  prefetchCompassWebPreferences,
+  useCompassWebPreferences,
+} from './preferences';
 import { DataModelingWorkspaceTab as DataModelingWorkspace } from '@mongodb-js/compass-data-modeling';
 import { DataModelStorageServiceProviderWeb } from '@mongodb-js/compass-data-modeling/web';
 import {
@@ -100,10 +101,22 @@ import { createServiceProvider } from '@mongodb-js/compass-app-registry';
 import { CompassAssistantProvider } from '@mongodb-js/compass-assistant';
 import { CompassAssistantDrawerWithConnections } from './compass-assistant-drawer';
 import { APP_NAMES_FOR_PROMPT } from '@mongodb-js/compass-assistant';
-import { assertsUserDataType } from '@mongodb-js/compass-user-data';
 import { Link, setMultiplexLink } from './multiplex-link';
 import { useSyncHistory } from './use-sync-history';
 import type { History } from './use-sync-history';
+import { defaultHeaders } from './url-builder';
+
+// Kick off the preferences request as the entrypoint loads, before React
+// renders, so the data is ready by the time Compass mounts.
+setTimeout(prefetchCompassWebPreferences);
+
+const preferencesLoadingContainerStyles = css({
+  width: '100%',
+  height: '100%',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
 
 const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -113,9 +126,7 @@ const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
       <AtlasClusterConnectionsOnlyProvider value={true}>
         <AtlasServiceProvider
           options={{
-            defaultHeaders: {
-              'X-Request-Origin': 'atlas-data-explorer',
-            },
+            defaultHeaders,
           }}
         >
           <AtlasAiServiceProvider apiURLPreset="cloud">
@@ -136,21 +147,18 @@ const WithMultiplexTransport = createServiceProvider(
     children: React.ReactNode;
   }) {
     const abortControllerRef = useRef(new AbortController());
-    const { enableMultiplexWebSocketOnWeb } = usePreferences([
-      'enableMultiplexWebSocketOnWeb',
-    ]);
     const logger = useLogger('COMPASS-WEB-MULTIPLEXING');
     const atlasService = atlasServiceLocator();
-    const ccsUrl = atlasService.multiplexWebsocketEndpoint(projectId);
+    const ccsUrls = useMemo(
+      () => atlasService.multiplexWebsocketEndpoint(projectId),
+      [atlasService, projectId]
+    );
 
     useEffect(() => {
       const abortController = abortControllerRef.current;
-      if (!enableMultiplexWebSocketOnWeb) {
-        return;
-      }
 
       const link = new Link({
-        baseUrl: ccsUrl,
+        baseUrls: ccsUrls,
         logger,
       });
 
@@ -176,7 +184,7 @@ const WithMultiplexTransport = createServiceProvider(
         link.close('Compass Web Entrypoint Unmount');
         setMultiplexLink(null);
       };
-    }, [enableMultiplexWebSocketOnWeb, ccsUrl, logger]);
+    }, [ccsUrls, logger]);
 
     return <>{children}</>;
   }
@@ -193,35 +201,13 @@ const WithStorageProviders = createServiceProvider(
     children: React.ReactNode;
   }) {
     const atlasService = atlasServiceLocator();
-    const authenticatedFetch =
-      atlasService.authenticatedFetch.bind(atlasService);
-    const getResourceUrl = (path?: string) => {
-      const pathParts = path?.split('/').filter(Boolean) || [];
-      const type = pathParts[0];
-      assertsUserDataType(type);
-      const pathOrgId = pathParts[1];
-      const pathProjectId = pathParts[2];
-      const id = pathParts[3];
-
-      // Use the path's orgId and projectId if provided, otherwise fall back to the context values
-      const finalOrgId = pathOrgId || orgId;
-      const finalProjectId = pathProjectId || projectId;
-
-      return atlasService.userDataEndpoint(
-        finalOrgId,
-        finalProjectId,
-        type,
-        id
-      );
-    };
 
     const pipelineStorage = useRef<PipelineStorageAccess>({
       getStorage() {
         return createWebPipelineStorage({
           orgId,
           projectId,
-          getResourceUrl,
-          authenticatedFetch,
+          atlasService,
         });
       },
     });
@@ -230,8 +216,7 @@ const WithStorageProviders = createServiceProvider(
         return createWebFavoriteQueryStorage({
           orgId,
           projectId,
-          getResourceUrl,
-          authenticatedFetch,
+          atlasService,
         });
       },
     });
@@ -240,8 +225,7 @@ const WithStorageProviders = createServiceProvider(
         return createWebRecentQueryStorage({
           orgId,
           projectId,
-          getResourceUrl,
-          authenticatedFetch,
+          atlasService,
         });
       },
     });
@@ -252,8 +236,7 @@ const WithStorageProviders = createServiceProvider(
             <WorkspacesStorageServiceProviderWeb
               orgId={orgId}
               projectId={projectId}
-              getResourceUrl={getResourceUrl}
-              authenticatedFetch={authenticatedFetch}
+              atlasService={atlasService}
             >
               {children}
             </WorkspacesStorageServiceProviderWeb>
@@ -296,18 +279,6 @@ export type CompassWebProps = {
    * Whether or not darkMode should be active for the app
    */
   darkMode?: boolean;
-
-  /**
-   * Set of initial preferences to override default values
-   */
-  initialPreferences?: Partial<AllPreferences>;
-
-  /**
-   * A subset of Atlas Cloud feature flags that maps to Compass feature flag
-   * preferences. These flags have any effect ONLY if they were defined as
-   * mapped for some Compass preferences feature flags
-   */
-  atlasCloudFeatureFlags?: Partial<AtlasCloudFeatureFlags>;
 
   /**
    * Callback prop called every time any code inside Compass logs something
@@ -516,32 +487,28 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
   );
 };
 
-/** @public */
-const CompassWeb = ({
+const CompassWebWithPreferences = ({
   appName,
   orgId,
+  preferences,
   projectId,
   darkMode,
-  initialPreferences,
-  atlasCloudFeatureFlags,
   onLog,
   onDebug,
   onTrack,
   onOpenConnectViaModal,
   history,
   historyRoutePrefix,
-}: CompassWebProps) => {
+}: CompassWebProps & {
+  preferences: CompassWebPreferencesAccess;
+}) => {
   const appRegistry = useInitialValue(new AppRegistry());
-  const preferencesAccess = useCompassWebPreferences(
-    initialPreferences,
-    atlasCloudFeatureFlags
-  );
   const { logger, telemetry: telemetryOptions } =
     useCompassWebLoggerAndTelemetry({
       onLog,
       onDebug,
       onTrack,
-      preferences: preferencesAccess,
+      preferences,
     });
 
   const {
@@ -554,7 +521,7 @@ const CompassWeb = ({
   return (
     <GlobalAppRegistryProvider value={appRegistry}>
       <AppRegistryProvider scopeName="Compass Web Root">
-        <PreferencesProvider value={preferencesAccess}>
+        <PreferencesProvider value={preferences}>
           <LoggerProvider value={logger}>
             <TelemetryProvider options={telemetryOptions}>
               <CompassComponentsProviderWeb darkMode={darkMode}>
@@ -648,6 +615,38 @@ const CompassWeb = ({
         </PreferencesProvider>
       </AppRegistryProvider>
     </GlobalAppRegistryProvider>
+  );
+};
+
+/** @public */
+const CompassWeb = (props: CompassWebProps) => {
+  const { preferencesAccess, isLoading, error } = useCompassWebPreferences(
+    props.projectId
+  );
+
+  if (isLoading) {
+    return (
+      <div className={preferencesLoadingContainerStyles}>
+        <SpinLoaderWithLabel
+          darkMode={props.darkMode}
+          data-testid="compass-web-preferences-loader"
+          progressText="Loading Data Explorer…"
+        />
+      </div>
+    );
+  }
+
+  if (error) {
+    // When we can't fetch the preferences, we let mms handle the error state.
+    throw error;
+  }
+
+  if (!preferencesAccess) {
+    throw new Error('Failed to load data explorer preferences');
+  }
+
+  return (
+    <CompassWebWithPreferences {...props} preferences={preferencesAccess} />
   );
 };
 

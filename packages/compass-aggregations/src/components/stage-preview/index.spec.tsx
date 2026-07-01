@@ -4,7 +4,11 @@ import type { Document } from 'mongodb';
 import { screen, cleanup } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 
-import { renderWithStore } from '../../../test/configure-store';
+import {
+  renderWithStore,
+  wrapWithExperimentProvider,
+} from '../../../test/configure-store';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 
 import { StagePreview } from './';
 import {
@@ -19,9 +23,15 @@ const renderStagePreview = (
   props: Partial<ComponentProps<typeof StagePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
-  services: any = {}
+  {
+    enableSearchActivationP1Experiment = false,
+    enableSearchActivationP2Experiment = false,
+  }: {
+    enableSearchActivationP1Experiment?: boolean;
+    enableSearchActivationP2Experiment?: boolean;
+  } = {}
 ) => {
-  return renderWithStore(
+  let ui = (
     <StagePreview
       documents={[]}
       index={Math.max(pipeline.length - 1, 0)}
@@ -29,16 +39,27 @@ const renderStagePreview = (
       isDisabled={false}
       isMissingAtlasOnlyStageSupport={false}
       stageOperator=""
+      stageMetadata={null}
       shouldRenderStage={false}
       showSearchIndexStaleResultsBanner={false}
       searchIndexName={null}
       serverErrorStageIdx={null}
       {...props}
-    />,
-    { pipeline, ...storeOptions },
-    undefined,
-    services
+    />
   );
+  if (enableSearchActivationP1Experiment) {
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchActivationProgramP1Variant
+    );
+  }
+  if (enableSearchActivationP2Experiment) {
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchActivationProgramP2Variant
+    );
+  }
+  return renderWithStore(ui, { pipeline, ...storeOptions });
 };
 
 describe('StagePreview', function () {
@@ -143,13 +164,7 @@ describe('StagePreview', function () {
         },
         [{ $search: { index: 'test-index' } }],
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationP1Experiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -166,13 +181,7 @@ describe('StagePreview', function () {
         },
         [{ $vectorSearch: { index: 'vector-index' } }],
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationP1Experiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -235,40 +244,97 @@ describe('StagePreview', function () {
         },
         [{ $match: { _id: 1 } }],
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: true };
-            },
-          },
-        }
+        { enableSearchActivationP1Experiment: true }
       );
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
         .exist;
     });
 
-    it('should NOT show stale results banner when feature flag is disabled', async function () {
+    it('should NOT show stale results banner when experiment is not in variant', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [{ _id: 1 }],
+        showSearchIndexStaleResultsBanner: true,
+        searchIndexName: 'test-index',
+      });
+
+      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+        .exist;
+    });
+  });
+
+  describe('search score chips', function () {
+    const searchMetadata = {
+      type: '$search' as const,
+      scores: [
+        { value: 1.5, description: 'sum of:', details: [] },
+        { value: 0.8, description: 'sum of:', details: [] },
+      ],
+    };
+
+    it('renders score chips when stageMetadata has $search scores', async function () {
       await renderStagePreview(
         {
           shouldRenderStage: true,
           stageOperator: '$search',
-          documents: [{ _id: 1 }],
-          showSearchIndexStaleResultsBanner: true,
-          searchIndexName: 'test-index',
+          documents: [{ _id: 1 }, { _id: 2 }],
+          stageMetadata: searchMetadata,
         },
-        [{ $search: { index: 'test-index' } }],
+        DEFAULT_PIPELINE,
         {},
-        {
-          preferences: {
-            getPreferences() {
-              return { enableSearchActivationProgramP1: false };
-            },
-          },
-        }
+        { enableSearchActivationP2Experiment: true }
       );
 
-      expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
+      const chips = screen.getAllByTestId('stage-preview-search-score-chip');
+      expect(chips).to.have.length(2);
+      expect(chips[0].textContent).to.include('1.5');
+      expect(chips[1].textContent).to.include('0.8');
+    });
+
+    it('does not render score chips when stageMetadata is null', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [{ _id: 1 }],
+        stageMetadata: null,
+      });
+
+      expect(screen.queryByTestId('stage-preview-search-score-chip')).to.not
+        .exist;
+    });
+
+    it('does not render a chip for null score entries', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }, { _id: 2 }],
+          stageMetadata: {
+            type: '$search',
+            scores: [{ value: 1.5, description: 'sum of:', details: [] }, null],
+          },
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true }
+      );
+
+      const chips = screen.getAllByTestId('stage-preview-search-score-chip');
+      expect(chips).to.have.length(1);
+      expect(chips[0].textContent).to.include('1.5');
+    });
+
+    it('does not render score chips when not in the P2 experiment variant', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [{ _id: 1 }, { _id: 2 }],
+        stageMetadata: searchMetadata,
+      });
+
+      expect(screen.queryByTestId('stage-preview-search-score-chip')).to.not
         .exist;
     });
   });

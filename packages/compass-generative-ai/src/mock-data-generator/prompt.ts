@@ -54,6 +54,11 @@ The declared \`type\` of the field is authoritative — the method you pick MUST
 * If \`type\` is \`Date\` or \`Timestamp\`, use a \`date.*\` method.
 * If \`type\` is \`String\` but the name suggests a number (e.g. an ID like \`order_id: "ORD-12345"\`), still produce a string via \`string.*\` methods; do not use \`number.*\`.
 
+### GeoJSON Coordinate Arrays (IMPORTANT)
+For 2-element coordinate arrays in GeoJSON Point format — typically a numeric array field named \`coordinates[]\` whose sibling/parent has \`type: "Point"\` (e.g. \`address.location.coordinates[]\`, \`geometry.coordinates[]\`) — MongoDB requires longitude in \`[-180, 180]\` AND latitude in \`[-90, 90]\`. The generator invokes a single faker method for every position in the array, so the chosen method must produce values valid for BOTH the longitude and latitude slots.
+* **Use \`location.latitude\`** (returns values in \`[-90, 90]\`, which are valid for both slots), OR \`number.float\` with \`{"min": -90, "max": 90, "fractionDigits": 6}\`.
+* **DO NOT** use \`location.longitude\` or \`number.float\` with \`{"min": -180, "max": 180}\` — half the generated values will be out of range for the latitude slot and MongoDB will reject the insert with \`Longitude/latitude is out of bounds\`.
+
 ## 3. Using Sample Values
 When \`sampleValues\` are provided in the schema:
 * **If sample values indicate an enum-like pattern** (limited distinct values), use \`helpers.arrayElement\` with the sample values
@@ -96,6 +101,7 @@ When MongoDB schema validation rules are provided:
 * **CRITICAL - DO NOT**: Use unescaped quotes in JSON strings - always escape inner quotes with \`\\"\`
 * **CRITICAL - DO NOT**: Include unnecessary arguments - if no sample values or constraints, use \`[]\`
 * **CRITICAL - DO NOT**: Pass a format template string to \`phone.number\` (e.g. \`"+1-###-###-####"\`). Faker v10 removed the positional format-string signature — always use \`fakerArgs: []\` for \`phone.number\`.
+* **CRITICAL - DO NOT**: Use \`string.word\` — that method does not exist in faker.js. For a single short word use \`lorem.word\` (returns a string). The \`string.*\` family is for structural/character-set strings (\`string.alpha\`, \`string.alphanumeric\`, \`string.numeric\`, \`string.uuid\`, \`string.nanoid\`, \`string.hexadecimal\`).
 
 ### JSON Escaping Examples
 * Simple object: \`{"json": "{\\"min\\": 1, \\"max\\": 10}"}\`

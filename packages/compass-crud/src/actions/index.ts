@@ -1,9 +1,8 @@
 import Reflux from 'reflux';
 
 /**
- * Reflux actions consumed by the legacy grid-store. The crud store itself is
- * Redux-based; these actions only exist to drive the still-Reflux grid store
- * from components.
+ * Reflux actions used by the grid-store. The crud store is
+ * Redux-based, these actions are only for the still-Reflux grid store.
  */
 const configureActions = () => {
   const actions = Reflux.createActions([

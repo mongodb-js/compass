@@ -183,6 +183,9 @@ function onceDocumentEvent(
 const mockFieldStoreService = {
   updateFieldsFromDocuments() {},
   updateFieldsFromSchema() {},
+  getSchemaFieldsForNamespace() {
+    return undefined;
+  },
 } as unknown as FieldStoreService;
 
 const mockQueryBar = {
@@ -1889,6 +1892,32 @@ describe('store', function () {
           void store.dispatch(refreshDocuments());
 
           await listener;
+        });
+
+        it('emits documents-refreshed event on the global app registry', async function () {
+          let emittedPayload: any = null;
+          let emittedExtra: any = null;
+          globalAppRegistry.on(
+            'documents-refreshed',
+            (payload: any, extra: any) => {
+              emittedPayload = payload;
+              emittedExtra = extra;
+            }
+          );
+
+          const listener = waitForState(store, (state) => {
+            expect(state.documents.docs).to.have.length(2);
+            expect(state.documents.count).to.equal(2);
+          });
+
+          void store.dispatch(refreshDocuments());
+
+          await listener;
+
+          expect(emittedPayload).to.deep.include({
+            ns: 'compass-crud.test',
+          });
+          expect(emittedExtra).to.have.property('connectionId');
         });
       });
 

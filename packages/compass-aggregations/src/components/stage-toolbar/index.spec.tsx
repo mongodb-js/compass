@@ -1,27 +1,42 @@
 import React from 'react';
 import { screen } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
-
-import { renderWithStore } from '../../../test/configure-store';
+import {
+  renderWithStore,
+  wrapWithExperimentProvider,
+} from '../../../test/configure-store';
+import type { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
+import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import StageToolbar from './';
 import {
   changeStageCollapsed,
   changeStageDisabled,
 } from '../../modules/pipeline-builder/stage-editor';
-import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
 
 const renderStageToolbar = async (
   pipeline: any[] = [{ $match: { _id: 1 } }, { $limit: 10 }, { $out: 'out' }],
-  preferences?: ReadOnlyPreferenceAccess
+  preferences?: InstanceType<typeof ReadOnlyPreferenceAccess>,
+  {
+    enableSearchActivationExperiment = false,
+    services = {} as Parameters<typeof renderWithStore>[3],
+    stageIndex = 0,
+  }: {
+    enableSearchActivationExperiment?: boolean;
+    services?: Parameters<typeof renderWithStore>[3];
+    stageIndex?: number;
+  } = {}
 ) => {
-  const result = await renderWithStore(
-    <StageToolbar index={0} />,
-    {
-      pipeline,
-    },
-    undefined,
-    preferences ? { preferences } : undefined
-  );
+  let ui = <StageToolbar index={stageIndex} />;
+  if (enableSearchActivationExperiment) {
+    ui = wrapWithExperimentProvider(
+      ui,
+      ExperimentTestGroups.searchActivationProgramP1Variant
+    );
+  }
+  const result = await renderWithStore(ui, { pipeline }, undefined, {
+    ...services,
+    ...(preferences ? { preferences } : {}),
+  });
   return result.plugin.store;
 };
 
@@ -64,54 +79,80 @@ describe('StageToolbar', function () {
     await renderStageToolbar();
     expect(screen.getByTestId('stage-option-menu-button')).to.exist;
   });
+  context('View token usage link', function () {
+    it('does not render when stage is not $rerank', async function () {
+      await renderStageToolbar([{ $match: { _id: 1 } }]);
+      expect(
+        screen.queryByTestId('stage-toolbar-view-token-usage-link')
+      ).to.not.exist;
+    });
+
+    it('renders when stage is $rerank', async function () {
+      await renderStageToolbar([{ $rerank: {} }]);
+      expect(
+        screen.getByTestId('stage-toolbar-view-token-usage-link')
+      ).to.exist;
+      expect(screen.getByText('View $rerank Usage and Rate Limits')).to.exist;
+    });
+  });
+
   context('View Indexes button', function () {
-    it('does not render when enableSearchActivationProgramP1 is disabled', async function () {
+    it('does not render when experiment is not in variant', async function () {
       await renderStageToolbar([{ $search: { index: 'default' } }]);
       expect(
         screen.queryByTestId('stage-toolbar-view-indexes-button')
       ).to.not.exist;
     });
     it('does not render when stage is not a search stage', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({
-        enableSearchActivationProgramP1: true,
+      await renderStageToolbar([{ $match: { _id: 1 } }], undefined, {
+        enableSearchActivationExperiment: true,
       });
-      await renderStageToolbar([{ $match: { _id: 1 } }], preferences);
       expect(
         screen.queryByTestId('stage-toolbar-view-indexes-button')
       ).to.not.exist;
     });
-    it('renders when enableSearchActivationProgramP1 is enabled and stage is $search', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({
-        enableSearchActivationProgramP1: true,
+    it('renders when experiment is in variant and stage is $search', async function () {
+      await renderStageToolbar([{ $search: { index: 'default' } }], undefined, {
+        enableSearchActivationExperiment: true,
       });
-      await renderStageToolbar(
-        [{ $search: { index: 'default' } }],
-        preferences
-      );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
-    it('renders when enableSearchActivationProgramP1 is enabled and stage is $searchMeta', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({
-        enableSearchActivationProgramP1: true,
-      });
+    it('renders when experiment is in variant and stage is $searchMeta', async function () {
       await renderStageToolbar(
         [{ $searchMeta: { index: 'default' } }],
-        preferences
+        undefined,
+        {
+          enableSearchActivationExperiment: true,
+        }
       );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
     });
-    it('renders when enableSearchActivationProgramP1 is enabled and stage is $vectorSearch', async function () {
-      const preferences = new ReadOnlyPreferenceAccess({
-        enableSearchActivationProgramP1: true,
-      });
+    it('renders when experiment is in variant and stage is $vectorSearch', async function () {
       await renderStageToolbar(
         [{ $vectorSearch: { index: 'default' } }],
-        preferences
+        undefined,
+        {
+          enableSearchActivationExperiment: true,
+        }
       );
       expect(screen.getByTestId('stage-toolbar-view-indexes-button')).to.exist;
       expect(screen.getByText('View Indexes')).to.exist;
+    });
+  });
+
+  context('rerank insight signal', function () {
+    it('shows insight badge when $rerank is the first stage', async function () {
+      await renderStageToolbar([{ $rerank: {} }]);
+      expect(screen.getByTestId('insight-badge-button')).to.exist;
+    });
+
+    it('does not show insight badge when $rerank is not the first stage', async function () {
+      await renderStageToolbar([{ $search: {} }, { $rerank: {} }], undefined, {
+        stageIndex: 1,
+      });
+      expect(screen.queryByTestId('insight-badge-button')).to.not.exist;
     });
   });
 });

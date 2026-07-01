@@ -67,10 +67,10 @@
   },
   "//": "See depcheck for why we have some of these dependencies at the root of the monorepo",
   "devDependencies": {
-    "@mongodb-js/diagramming": "^2.3.3",
+    "@mongodb-js/diagramming": "^2.4.1",
     "@mongodb-js/eslint-config-devtools": "^0.11.5",
-    "@mongodb-js/monorepo-tools": "^1.4.8",
-    "@mongodb-js/sbom-tools": "^0.10.11",
+    "@mongodb-js/monorepo-tools": "^1.5.7",
+    "@mongodb-js/sbom-tools": "^0.10.18",
     "@testing-library/dom": "^8.20.1",
     "ag-grid-react": "^20.2.0",
     "braintrust": "^2.2.2",
@@ -80,14 +80,14 @@
     "js-yaml": "^4.1.1",
     "lerna": "^7.1.5",
     "lodash": "^4.18.1",
-    "node-gyp": "^10.2.0",
+    "node-gyp": "^12.2.0",
     "react-leaflet": "^2.4.0",
     "react-leaflet-draw": "^0.19.0",
     "reflux": "^0.4.1"
   },
   "engines": {
-    "node": ">=22.21.1",
-    "npm": ">=11.13.0"
+    "node": ">=24.15.0",
+    "npm": ">=11.16.0"
   },
   "bugs": {
     "url": "https://docs.mongodb.com/compass/current/#contact",
@@ -100,15 +100,15 @@
   ],
   "overrides": {
     "@mongodb-js/eslint-config-devtools": {
-      "@typescript-eslint/eslint-plugin": "^8.58.0",
-      "@typescript-eslint/parser": "^8.58.0",
+      "@typescript-eslint/eslint-plugin": "^8.62.1",
+      "@typescript-eslint/parser": "^8.62.1",
       "eslint": "^8.57.1",
       "eslint-plugin-jsx-a11y": "^6.10.2",
       "eslint-plugin-react": "^7.37.5",
-      "eslint-plugin-react-hooks": "^7.0.1"
+      "eslint-plugin-react-hooks": "^7.1.1"
     },
     "@mongodb-js/diagramming": {
-      "@leafygreen-ui/icon": "^14.8.0",
+      "@leafygreen-ui/icon": "^14.9.0",
       "@leafygreen-ui/leafygreen-provider": "^5.0.4",
       "@leafygreen-ui/palette": "^5.0.2",
       "@leafygreen-ui/select": "^17.0.3",
@@ -124,5 +124,32 @@
     "qs": "^6.14.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
+  },
+  "allowScripts": {
+    "aws-sdk": false,
+    "core-js": false,
+    "cpu-features": true,
+    "electron": true,
+    "edgedriver": false,
+    "electron-winstaller": true,
+    "esbuild": false,
+    "es5-ext": false,
+    "fsevents": false,
+    "fs-xattr": true,
+    "geckodriver": false,
+    "interruptor": true,
+    "kerberos": true,
+    "keytar": true,
+    "macos-alias": true,
+    "macos-export-certificate-and-key": true,
+    "mongodb-client-encryption": true,
+    "native-machine-id": true,
+    "nx": false,
+    "os-dns-native": true,
+    "ssh2": true,
+    "tesseract.js": false,
+    "@modelcontextprotocol/ext-apps": false,
+    "@parcel/watcher": false,
+    "core-js-pure": false
   }
 }

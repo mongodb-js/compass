@@ -19,6 +19,7 @@ import {
   RadioBoxGroup,
   RadioBox,
   rafraf,
+  SpinLoader,
   useSyncStateOnPropChange,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
@@ -30,10 +31,16 @@ import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { SearchIndexTemplateDropdown } from '../search-index-template-dropdown';
 import {
+  VectorSearchIndexTemplateDropdown,
+  type VectorIndexTemplateChoice,
+} from '../search-index-template-dropdown/vector-search-index-template-dropdown';
+import {
   ATLAS_SEARCH_TEMPLATES,
+  ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
   type SearchTemplate,
 } from '@mongodb-js/mongodb-constants';
+import { usePreferences } from 'compass-preferences-model/provider';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import {
   useTrackOnChange,
@@ -41,6 +48,7 @@ import {
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
+import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
 
 const bodyStyles = css({
   display: 'flex',
@@ -132,6 +140,7 @@ type SearchIndexEditorState = {
   indexName: string;
   indexDefinition: string;
   parsingError: ParsingError | undefined;
+  vectorTemplateChoice: VectorIndexTemplateChoice;
 };
 
 export const BaseSearchIndexModal: React.FunctionComponent<
@@ -155,8 +164,19 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       : 'search';
   const editorRef = useRef<EditorRef>(null);
   const connectionInfoRef = useConnectionInfoRef();
+  const { enableAutoEmbeddingPublicPreview } = usePreferences([
+    'enableAutoEmbeddingPublicPreview',
+  ]);
+  const defaultVectorTemplateChoice: VectorIndexTemplateChoice =
+    enableAutoEmbeddingPublicPreview ? 'autoEmbed' : 'bringYourOwn';
   const [
-    { indexType: searchIndexType, indexName, indexDefinition, parsingError },
+    {
+      indexType: searchIndexType,
+      indexName,
+      indexDefinition,
+      parsingError,
+      vectorTemplateChoice,
+    },
     setSearchIndexEditorState,
   ] = useState<SearchIndexEditorState>(() => {
     return {
@@ -164,6 +184,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       indexName: initialIndexName,
       indexDefinition: initialIndexDefinition,
       parsingError: undefined,
+      vectorTemplateChoice: defaultVectorTemplateChoice,
     };
   });
 
@@ -221,6 +242,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         indexName: initialIndexName,
         indexDefinition: initialIndexDefinition,
         parsingError: undefined,
+        vectorTemplateChoice: defaultVectorTemplateChoice,
       });
     }
   }, [isModalOpen]);
@@ -279,17 +301,37 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     [editorRef]
   );
 
+  const onVectorTemplateChoice = useCallback(
+    (_choice: VectorIndexTemplateChoice, template: SearchTemplate) => {
+      setSearchIndexEditorState((prevState) => {
+        return {
+          ...prevState,
+          vectorTemplateChoice: _choice,
+          parsingError: undefined,
+        };
+      });
+      onChangeTemplate(template);
+    },
+    [onChangeTemplate]
+  );
+
   const onChangeSearchIndexType = useCallback(
     ({ target: { value: newType } }: React.ChangeEvent<HTMLInputElement>) => {
       const newDefinitionTemplate =
         newType === 'vectorSearch'
-          ? ATLAS_VECTOR_SEARCH_TEMPLATE
+          ? enableAutoEmbeddingPublicPreview
+            ? ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE
+            : ATLAS_VECTOR_SEARCH_TEMPLATE
           : ATLAS_SEARCH_TEMPLATES[0];
 
       setSearchIndexEditorState((prevState) => {
         return {
           ...prevState,
           parsingError: undefined,
+          vectorTemplateChoice:
+            newType === 'vectorSearch'
+              ? defaultVectorTemplateChoice
+              : 'bringYourOwn',
           // Reset index name, but only if it's still a default one for the
           // previous index type
           indexName:
@@ -307,7 +349,11 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       // value
       onChangeTemplate(newDefinitionTemplate);
     },
-    [onChangeTemplate]
+    [
+      onChangeTemplate,
+      enableAutoEmbeddingPublicPreview,
+      defaultVectorTemplateChoice,
+    ]
   );
 
   const fields = useAutocompleteFields(namespace);
@@ -315,6 +361,18 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const completer = useMemo(() => {
     return createSearchIndexAutocompleter({ fields });
   }, [fields]);
+
+  const showAutoEmbedEditRestrictedBanner = useMemo(() => {
+    if (!enableAutoEmbeddingPublicPreview) {
+      return false;
+    }
+    try {
+      const latestDefinition = parseShellBSON(initialIndexDefinition);
+      return isAutoEmbedIndex({ latestDefinition });
+    } catch {
+      return false;
+    }
+  }, [mode, enableAutoEmbeddingPublicPreview, initialIndexDefinition]);
 
   const isEditingVectorSearchIndex =
     mode === 'update' && initialIndexType === 'vectorSearch';
@@ -406,12 +464,12 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                 <br />
                 {mode === 'create' && (
                   <Body>
-                    By default,{' '}
+                    By default, your{' '}
                     {searchIndexType === 'vectorSearch'
                       ? 'vector search'
                       : 'search'}{' '}
-                    indexes will have the following search configurations. You
-                    can refine this later.
+                    index will have the following configurations. We recommend
+                    starting with this and refining it later if you need to.
                   </Body>
                 )}
                 <Link
@@ -439,6 +497,17 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                   />
                 </div>
               )}
+              {searchIndexType === 'vectorSearch' &&
+                !isEditingVectorSearchIndex &&
+                enableAutoEmbeddingPublicPreview && (
+                  <div className={templateToolbarDropdownStyles}>
+                    <VectorSearchIndexTemplateDropdown
+                      value={vectorTemplateChoice}
+                      tooltip="Selecting a new template will replace your existing index definition in the code editor."
+                      onTemplateChoice={onVectorTemplateChoice}
+                    />
+                  </div>
+                )}
             </section>
             <CodemirrorMultilineEditor
               key={searchIndexType}
@@ -451,6 +520,14 @@ export const BaseSearchIndexModal: React.FunctionComponent<
               minLines={16}
               completer={completer}
             />
+            {searchIndexType === 'vectorSearch' &&
+              enableAutoEmbeddingPublicPreview &&
+              vectorTemplateChoice === 'autoEmbed' &&
+              mode === 'create' && (
+                <Banner data-testid="auto-embedding-cost-banner">
+                  {`Automated Embedding uses embedding models, which incur usage-based costs. The generated vector embeddings are stored in your MongoDB cluster. The model inference platform runs on MongoDB's infrastructure in GCP cloud in a US region.`}
+                </Banner>
+              )}
           </div>
         </div>
         {parsingError && <WarningSummary warnings={parsingError.message} />}
@@ -460,6 +537,14 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             Note: Updating the index may slow down your device temporarily due
             to resource usage. Save indexes only with changes to avoid
             reindexing.
+          </Banner>
+        )}
+        {showAutoEmbedEditRestrictedBanner && (
+          <Banner data-testid="auto-embed-edit-restricted-banner">
+            You cannot edit an autoEmbed field (updating path, model,
+            quantization, etc.) in an existing index during Public Preview. This
+            includes adding, removing, or modifying fields. To use a different
+            autoEmbed configuration, create a new index.
           </Banner>
         )}
       </ModalBody>
@@ -472,6 +557,8 @@ export const BaseSearchIndexModal: React.FunctionComponent<
           variant="primary"
           onClick={onSubmitIndex}
           disabled={isBusy || !!parsingError}
+          isLoading={isBusy}
+          loadingIndicator={<SpinLoader />}
         >
           {mode === 'create' ? 'Create Search Index' : 'Save'}
         </Button>

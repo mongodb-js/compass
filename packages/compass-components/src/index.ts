@@ -251,6 +251,4 @@ export type {
 } from '@mongodb-js/diagramming';
 export { useInitialValue } from './hooks/use-initial-value';
 export { useCurrentValueRef } from './hooks/use-current-value-ref';
-// @experiment Skills in Atlas  | Jira Epic: CLOUDP-346311
-export { AtlasSkillsBanner } from './components/atlas-skills-banner';
 export { useSyncStateOnPropChange } from './hooks/use-sync-state-on-prop-change';

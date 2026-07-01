@@ -812,6 +812,18 @@ type NewConnectionEvent = ConnectionScopedEvent<{
      * The number of inactive connections.
      */
     num_inactive_connections: number;
+
+    /**
+     * The user's preferred language, as reported by the browser or Electron
+     * runtime (e.g. "en-US", "fr", "zh-CN").
+     */
+    user_language: string;
+
+    /**
+     * The user's ordered language preferences, as
+     * reported by navigator.languages (e.g. ['en-US', 'en', 'fr']).
+     */
+    user_languages: string[];
   } & ExtraConnectionData;
 }>;
 
@@ -998,6 +1010,8 @@ type BulkUpdateExecutedEvent = ConnectionScopedEvent<{
      * Specifies if update preview was supported (the update preview runs inside a transaction.)
      */
     isUpdatePreviewSupported: boolean;
+    /** Specifies if a filter was set in the query */
+    has_filter: boolean;
   };
 }>;
 
@@ -1018,7 +1032,10 @@ type BulkDeleteOpenedEvent = ConnectionScopedEvent<{
  */
 type BulkDeleteExecutedEvent = ConnectionScopedEvent<{
   name: 'Bulk Delete Executed';
-  payload: Record<string, never>;
+  payload: {
+    /** Specifies if a filter was set in the query */
+    has_filter: boolean;
+  };
 }>;
 
 /**
@@ -1508,7 +1525,11 @@ type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
 type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
   name: 'Assistant Entry Point Used';
   payload: {
-    source: 'explain plan' | 'performance insights' | 'connection error';
+    source:
+      | 'explain plan'
+      | 'performance insights'
+      | 'connection error'
+      | 'follow-up prompt';
     request_id?: string;
   };
 }>;
@@ -2044,6 +2065,21 @@ type QueryEditedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when a user clicks reset button on a query.
+ *
+ * @category Find Queries
+ */
+type QueryResetClickedEvent = ConnectionScopedEvent<{
+  name: 'Query Reset Clicked';
+  payload: {
+    /**
+     * Where does the reset originated: CRUD or Schema view
+     */
+    source: string;
+  };
+}>;
+
+/**
  * This event is fired when user copied query to clipboard.
  *
  * @category Find Queries
@@ -2187,7 +2223,38 @@ type SchemaAnalyzedEvent = ConnectionScopedEvent<{
     geo_data: boolean;
 
     /**
+     * The total count of distinct fields across all nesting levels in the schema,
+     * including fields nested within documents and arrays of documents.
+     */
+    distinct_field_count: number;
+
+    /**
      * The time taken to analyze the schema, in milliseconds.
+     */
+    analysis_time_ms: number;
+  };
+}>;
+
+/**
+ * This event is fired when schema analysis fails due to a query timeout or a general error.
+ *
+ * @category Schema
+ */
+type SchemaAnalysisFailedEvent = ConnectionScopedEvent<{
+  name: 'Schema Analysis Failed';
+  payload: {
+    /**
+     * The category of error that caused the failure.
+     */
+    error_type: 'timeout' | 'general';
+
+    /**
+     * Indicates whether a filter was applied during the schema analysis.
+     */
+    with_filter: boolean;
+
+    /**
+     * The time taken when analyzing the schema, before it failed, in milliseconds.
      */
     analysis_time_ms: number;
   };
@@ -2480,6 +2547,36 @@ type ApplicationRestartAcceptedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired from the main process when a renderer process
+ * terminates unexpectedly (crash, OOM, killed, etc.).
+ * Normal clean exits are excluded.
+ *
+ * @category Application
+ */
+type RenderProcessGoneEvent = CommonEvent<{
+  name: 'Render Process Gone';
+  payload: {
+    /**
+     * The reason the renderer process terminated.
+     */
+    reason:
+      | 'abnormal-exit'
+      | 'killed'
+      | 'crashed'
+      | 'oom'
+      | 'launch-failed'
+      | 'integrity-failure'
+      | 'memory-eviction';
+
+    /**
+     * The exit code of the process, or a platform-specific launch failure
+     * error code if reason is 'launch-failed'.
+     */
+    exit_code: number;
+  };
+}>;
+
+/**
  * This event is fired when the auto-update feature is enabled.
  *
  * @category Auto-updates
@@ -2725,36 +2822,6 @@ type AtlasLinkClickedEvent = CommonEvent<{
      * The screen from which the Atlas CTA was clicked.
      */
     screen?: 'agg_builder' | 'connect';
-  };
-}>;
-
-/**
- * This event is fired when a user clicks the Atlas Skills CTA banner.
- *
- * @category Other
- */
-type AtlasSkillsCtaClickedEvent = CommonEvent<{
-  name: 'Atlas Skills CTA Clicked';
-  payload: {
-    /**
-     * The context/screen from which the Atlas Skills CTA was dismissed.
-     */
-    context: 'Documents Tab' | 'Aggregation Tab' | 'Indexes Tab' | 'Schema Tab';
-  };
-}>;
-
-/**
- * This event is fired when a user dismisses the Atlas Skills CTA banner.
- *
- * @category Other
- */
-type AtlasSkillsCtaDismissedEvent = CommonEvent<{
-  name: 'Atlas Skills CTA Dismissed';
-  payload: {
-    /**
-     * The context/screen from which the Atlas Skills CTA was dismissed.
-     */
-    context: 'Documents Tab' | 'Aggregation Tab' | 'Indexes Tab' | 'Schema Tab';
   };
 }>;
 
@@ -3680,6 +3747,205 @@ type SearchIndexStatusDetailsLinkClickedEvent = CommonEvent<{
   };
 }>;
 
+export type RerankTelemetryContext =
+  | 'Rerank Not Enabled Banner'
+  | 'Rerank Version Warning Banner'
+  | 'Rerank First Stage Banner'
+  | 'Rerank Insight'
+  | 'Stage Toolbar'
+  | 'Focus Mode';
+
+/**
+ * This event is fired when the "rerank not enabled" server error banner is
+ * shown to the user in the pipeline results workspace.
+ *
+ * @category Aggregation Builder
+ */
+type RerankNotEnabledBannerShownEvent = CommonEvent<{
+  name: 'Rerank Not Enabled Banner Shown';
+  payload: {
+    /** The context/screen from which the banner was shown. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the rerank server version warning banner is shown
+ * to the user, indicating the cluster must be upgraded to use $rerank.
+ *
+ * @category Aggregation Builder
+ */
+type RerankVersionWarningBannerShownEvent = CommonEvent<{
+  name: 'Rerank Version Warning Banner Shown';
+  payload: {
+    /** The context/screen from which the banner was shown. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user dismisses the $rerank first-stage
+ * insight banner.
+ *
+ * @category Aggregation Builder
+ */
+type RerankFirstStageBannerDismissedEvent = CommonEvent<{
+  name: 'Rerank First Stage Banner Dismissed';
+  payload: {
+    /** The context/screen from which the banner was dismissed. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Learn more" button in the
+ * $rerank first-stage insight banner.
+ *
+ * @category Aggregation Builder
+ */
+type RerankFirstStageBannerLearnMoreClickedEvent = CommonEvent<{
+  name: 'Rerank First Stage Banner Learn More Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Add $search stage" button
+ * in the $rerank insight popover.
+ *
+ * @category Aggregation Builder
+ */
+type RerankAddSearchStageButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Add Search Stage Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Learn about search" button
+ * in the $rerank insight popover.
+ *
+ * @category Aggregation Builder
+ */
+type RerankLearnAboutSearchButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Learn About Search Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Tell me more" assistant
+ * button in the $rerank insight popover.
+ *
+ * @category Aggregation Builder
+ */
+type RerankTellMeMoreButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Tell Me More Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Upgrade Cluster" button in
+ * the rerank version warning banner.
+ *
+ * @category Aggregation Builder
+ */
+type RerankUpgradeClusterButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Upgrade Cluster Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Project Settings" button in
+ * the rerank not enabled banner.
+ *
+ * @category Aggregation Builder
+ */
+type RerankProjectSettingsButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Project Settings Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "View $rerank Usage and Rate
+ * Limits" link in the stage toolbar or focus mode header.
+ *
+ * @category Aggregation Builder
+ */
+type RerankViewUsageAndRateLimitsLinkClickedEvent = CommonEvent<{
+  name: 'Rerank View Usage And Rate Limits Link Clicked';
+  payload: {
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the search extension rate limit exceeded banner
+ * is shown to the user.
+ *
+ * @category Aggregation Builder
+ */
+type SearchExtensionRateLimitBannerShownEvent = CommonEvent<{
+  name: 'Search Extension Rate Limit Banner Shown';
+  payload: {
+    /** The context/screen from which the banner was shown. */
+    context: 'Search Extension Rate Limit Banner';
+    /** The search extension type that triggered the rate limit. */
+    search_extension_type: string | null;
+    /** The type of rate limit that was exceeded. */
+    rate_limit_type: 'billing' | 'rpm' | 'tpm';
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the billing link in the search
+ * extension rate limit banner.
+ *
+ * @category Aggregation Builder
+ */
+type SearchExtensionRateLimitBillingLinkClickedEvent = CommonEvent<{
+  name: 'Search Extension Rate Limit Billing Link Clicked';
+  payload: {
+    /** The context/screen from which the link was clicked. */
+    context: 'Search Extension Rate Limit Banner';
+    /** The search extension type that triggered the rate limit. */
+    search_extension_type: string | null;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "View Rate Limit" link in the
+ * search extension rate limit banner.
+ *
+ * @category Aggregation Builder
+ */
+type SearchExtensionRateLimitPageLinkClickedEvent = CommonEvent<{
+  name: 'Search Extension Rate Limit Page Link Clicked';
+  payload: {
+    /** The context/screen from which the link was clicked. */
+    context: 'Search Extension Rate Limit Banner';
+    /** The search extension type that triggered the rate limit. */
+    search_extension_type: string | null;
+    /** Whether the rate limit is requests-per-minute or tokens-per-minute. */
+    rate_limit_type: 'rpm' | 'tpm';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3713,8 +3979,6 @@ export type TelemetryEvent =
   | ApplicationLaunchedEvent
   | AtlasLinkClickedEvent
   | AtlasSearchIndexesForViewLinkClickedEvent
-  | AtlasSkillsCtaClickedEvent
-  | AtlasSkillsCtaDismissedEvent
   | AtlasSignInErrorEvent
   | AtlasSignInSuccessEvent
   | AtlasSignOutEvent
@@ -3802,6 +4066,7 @@ export type TelemetryEvent =
   | PipelineAiFeedbackEvent
   | AssistantToolCallApprovalEvent
   | QueryEditedEvent
+  | QueryResetClickedEvent
   | QueryExecutedEvent
   | QueryExportedEvent
   | QueryExportOpenedEvent
@@ -3816,6 +4081,7 @@ export type TelemetryEvent =
   | QueryHistoryRecentUsedEvent
   | QueryResultsRefreshedEvent
   | SchemaAnalysisStartedEvent
+  | SchemaAnalysisFailedEvent
   | SchemaAnalysisCancelledEvent
   | SchemaAnalyzedEvent
   | SchemaExportedEvent
@@ -3874,4 +4140,18 @@ export type TelemetryEvent =
   | SearchIndexEditSubmittedEvent
   | SearchIndexEditCancelledEvent
   | ManageSearchIndexesLinkClickedEvent
-  | SearchIndexStatusDetailsLinkClickedEvent;
+  | RenderProcessGoneEvent
+  | SearchIndexStatusDetailsLinkClickedEvent
+  | RerankNotEnabledBannerShownEvent
+  | RerankVersionWarningBannerShownEvent
+  | RerankFirstStageBannerDismissedEvent
+  | RerankFirstStageBannerLearnMoreClickedEvent
+  | RerankAddSearchStageButtonClickedEvent
+  | RerankLearnAboutSearchButtonClickedEvent
+  | RerankTellMeMoreButtonClickedEvent
+  | RerankUpgradeClusterButtonClickedEvent
+  | RerankProjectSettingsButtonClickedEvent
+  | RerankViewUsageAndRateLimitsLinkClickedEvent
+  | SearchExtensionRateLimitBannerShownEvent
+  | SearchExtensionRateLimitBillingLinkClickedEvent
+  | SearchExtensionRateLimitPageLinkClickedEvent;

@@ -30,6 +30,7 @@ import {
   imageLoader,
   resourceLoader,
   sharedObjectLoader,
+  patchesLoader,
 } from './loaders';
 import {
   entriesToNamedEntries,
@@ -166,6 +167,7 @@ export function createElectronMainConfig(
     module: {
       rules: [
         sourceMapLoader(opts),
+        patchesLoader(opts),
         javascriptLoader(opts),
         nodeLoader(opts),
         resourceLoader(opts),
@@ -246,6 +248,7 @@ export function createElectronRendererConfig(
     module: {
       rules: [
         sourceMapLoader(opts),
+        patchesLoader(opts),
         javascriptLoader(opts),
         nodeLoader(opts),
         cssLoader(opts),
@@ -394,6 +397,7 @@ export function createWebConfig(args: Partial<ConfigArgs>): WebpackConfig {
     module: {
       rules: [
         sourceMapLoader(opts),
+        patchesLoader(opts),
         javascriptLoader(opts, true),
         nodeLoader(opts),
         cssLoader(opts, true),

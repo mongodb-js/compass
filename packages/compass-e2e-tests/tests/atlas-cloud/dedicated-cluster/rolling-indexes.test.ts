@@ -61,28 +61,14 @@ describe('Rolling indexes', function () {
 
     await browser.createIndex(
       { fieldName: 'i', indexType: '1' },
-      { rollingIndex: true, indexName }
+      {
+        rollingIndex: true,
+        indexName,
+        rollingIndexTimeout: extendedRollingIndexesTimeout,
+      }
     );
 
-    // Special rolling index badge indicating that build has started (we got it
-    // listed by automation agent)
-    await browser
-      .$(Selectors.indexComponent(indexName))
-      .$('[data-testid="index-building"]')
-      .waitForDisplayed();
-
-    // Now wait for index to finish building
-    await browser
-      .$(Selectors.indexComponent(indexName))
-      .$('[data-testid="index-ready"]')
-      .waitForDisplayed({
-        timeout: extendedRollingIndexesTimeout,
-        // Building a rolling index is a slow process, no need to check too
-        // often
-        interval: 2_000,
-      });
-
-    // Now that it's ready, delete it (it will also check that it's eventually
+    // Now that it's created, delete it (it will also check that it's eventually
     // removed from the list)
     await browser.dropIndex(indexName);
   });

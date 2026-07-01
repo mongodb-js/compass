@@ -1,0 +1,5 @@
+{
+  "permissions": {
+    "allow": ["Bash(npx mocha *)", "Bash(npx npm *)"]
+  }
+}

@@ -64,7 +64,7 @@ describe('Shell', function () {
       );
     });
 
-    it('uses the database and collection it is opened from', async function () {
+    it('uses the database and collection it is opened from and renders all types', async function () {
       await browser.openShellFromCollectionHeader(getDefaultConnectionNames(0));
 
       await browser.waitUntil(async () => {
@@ -97,7 +97,55 @@ describe('Shell', function () {
         'switched to db my-sidebar-database',
         'db["my-sidebar-collection"].find()',
       ]);
-      expect(output[3]).to.include('docIndex');
+
+      expect(output[3]).to.include(`'),
+  docIndex: 0,
+  double: 1.2,
+  primitiveDouble: 1.2,
+  doubleThatIsAlsoAnInteger: 1,
+  string: 'Hello, world!',
+  object: {
+    key: 'value'
+  },
+  array: [
+    1,
+    2,
+    3
+  ],
+  binData: Binary.createFromBase64('AQID', 0),
+  objectId: ObjectId('642d766c7300158b1f22e975'),
+  boolean: true,
+  date: 2023-04-05T13:25:08.445Z,
+  null: null,
+  regex: BSONRegExp('pattern', 'i'),
+  javascript: Code('function() {}'),
+  symbol: 'symbol',
+  javascriptWithScope: Code('function() {}', {
+    foo: Int32(1),
+    bar: 'a'
+  }),
+  int: 12345,
+  primitiveInt: 12345,
+  timestamp: Timestamp({ t: 1680701109, i: 1 }),
+  long: Long('123456789123456789'),
+  decimal: Decimal128('5.477284286264328586719275128128001E-4088'),
+  minKey: MinKey(),
+  maxKey: MaxKey(),`);
+
+      expect(output[3]).to.include(`
+  binaries: {
+    generic: Binary.createFromBase64('AQID', 0),
+    functionData: Binary.createFromBase64('//8=', 1),
+    binaryOld: Binary.createFromBase64('//8=', 2),
+    uuidOld: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 3),
+    uuid: UUID('aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa'),
+    md5: MD5('73ffd26444b34c6990e8e7d1dfc035d4'),
+    encrypted: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 6),
+    compressedTimeSeries: Binary.createFromBase64('CQCKW/8XjAEAAIfx//////////H/////////AQAAAAAAAABfAAAAAAAAAAEAAAAAAAAAAgAAAAAAAAAHAAAAAAAAAA4AAAAAAAAAAA==', 7),
+    custom: Binary.createFromBase64('//8=', 128)
+  },
+  dbRef: DBRef('namespace', ObjectId('642d76b4b7ebfab15d3c4a78'))
+}`);
     });
   });
 

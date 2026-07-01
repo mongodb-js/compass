@@ -3,12 +3,15 @@ import Sinon from 'sinon';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import {
   buildAtlasSearchLink,
+  buildAtlasSearchClustersUrl,
   buildChartsUrl,
   buildQueryInsightsUrl,
   buildClusterOverviewUrl,
   buildMonitoringUrl,
   buildPerformanceMetricsUrl,
   buildProjectSettingsUrl,
+  buildSearchExtensionRateLimitsUrl,
+  buildBillingUrl,
 } from './url-builders';
 
 const TEST_ORIGIN = 'https://cloud.mongodb.com';
@@ -68,6 +71,17 @@ describe('url-builders', function () {
     it('builds project settings url', function () {
       expect(buildProjectSettingsUrl({ projectId: 'proj123' })).to.equal(
         `${TEST_ORIGIN}/v2/proj123#/settings/groupSettings`
+      );
+    });
+
+    it('builds project settings url with params', function () {
+      expect(
+        buildProjectSettingsUrl({
+          projectId: 'proj123',
+          params: { highlight: 'nativeReranking' },
+        })
+      ).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/settings/groupSettings?highlight=nativeReranking`
       );
     });
   });
@@ -130,6 +144,48 @@ describe('url-builders', function () {
     it('does not include database param when namespace has no database', function () {
       expect(buildChartsUrl(baseMetadata, '')).to.equal(
         `${TEST_ORIGIN}/charts/proj123?sourceType=cluster&name=myCluster`
+      );
+    });
+  });
+
+  describe('buildSearchExtensionRateLimitsUrl', function () {
+    it('builds url for rerank extension type', function () {
+      expect(
+        buildSearchExtensionRateLimitsUrl({
+          projectId: 'proj123',
+          clusterName: 'myCluster',
+          extensionType: 'rerank',
+        })
+      ).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch/myCluster/rerank/rateLimits`
+      );
+    });
+
+    it('builds url for autoEmbedding extension type', function () {
+      expect(
+        buildSearchExtensionRateLimitsUrl({
+          projectId: 'proj123',
+          clusterName: 'myCluster',
+          extensionType: 'autoEmbedding',
+        })
+      ).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch/myCluster/autoEmbedding/rateLimits`
+      );
+    });
+  });
+
+  describe('buildBillingUrl', function () {
+    it('builds billing url for an org', function () {
+      expect(buildBillingUrl({ orgId: 'org123' })).to.equal(
+        `${TEST_ORIGIN}/v2#/org/org123/checkout?type=editPayment`
+      );
+    });
+  });
+
+  describe('buildAtlasSearchClustersUrl', function () {
+    it('builds atlas search clusters url for a project', function () {
+      expect(buildAtlasSearchClustersUrl({ projectId: 'proj123' })).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/clusters/atlasSearch`
       );
     });
   });

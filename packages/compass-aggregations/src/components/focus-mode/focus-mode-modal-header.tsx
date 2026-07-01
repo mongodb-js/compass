@@ -3,6 +3,7 @@ import {
   Button,
   css,
   Icon,
+  Link,
   Menu,
   MenuItem,
   Option,
@@ -14,19 +15,31 @@ import {
   formatHotkey,
   SignalPopover,
 } from '@mongodb-js/compass-components';
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
 import {
   addStageInFocusMode,
+  disableFocusMode,
   selectFocusModeStage,
 } from '../../modules/focus-mode';
-import { changeStageDisabled } from '../../modules/pipeline-builder/stage-editor';
+import {
+  changeStageDisabled,
+  addSearchStageBefore,
+} from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { getInsightForStage } from '../../utils/insights';
 import { usePreference } from 'compass-preferences-model/provider';
-import { createSearchIndex } from '../../modules/search-indexes';
+import {
+  createSearchIndex,
+  refreshSearchIndexes,
+} from '../../modules/search-indexes';
 import type { ServerEnvironment } from '../../modules/env';
+import { getIsRerankFirstStage } from '../../modules/pipeline-builder/builder-helpers';
+import { useRerankInsight } from '../rerank-first-stage-banner';
+import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { buildRerankTokenUsageUrl } from '@mongodb-js/atlas-service/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type Stage = {
   idxInStore: number;
@@ -40,10 +53,16 @@ type FocusModeModalHeaderProps = {
   stage?: StoreStage;
   env: ServerEnvironment;
   isSearchIndexesSupported: boolean;
+  isRerankFirstStage: boolean;
+  hasSearchIndex: boolean;
+  isSearchIndexesLoading: boolean;
   onCreateSearchIndex: () => void;
   onStageSelect: (index: number) => void;
   onStageDisabledToggleClick: (index: number, newVal: boolean) => void;
   onAddStageClick: (index: number) => void;
+  onAddSearchStageBefore: (storeIndex: number) => void;
+  onRefreshSearchIndexes: () => void;
+  onCloseFocusMode: () => void;
 };
 
 const controlsContainerStyles = css({
@@ -93,16 +112,32 @@ export const FocusModeModalHeader: React.FunctionComponent<
   stages,
   env,
   isSearchIndexesSupported,
+  isRerankFirstStage,
+  hasSearchIndex,
+  isSearchIndexesLoading,
   stage,
   onCreateSearchIndex,
   onAddStageClick,
   onStageSelect,
   onStageDisabledToggleClick,
+  onAddSearchStageBefore,
+  onRefreshSearchIndexes,
+  onCloseFocusMode,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
   const showInsights = usePreference('showInsights');
+  const enableRerank = usePreference('enableRerank');
+  const { atlasMetadata } = useConnectionInfo();
+  const track = useTelemetry();
 
-  const insight = useMemo(() => {
+  const viewTokenUsageHref =
+    enableRerank && stage?.stageOperator === '$rerank'
+      ? atlasMetadata
+        ? buildRerankTokenUsageUrl(atlasMetadata)
+        : 'https://dochub.mongodb.org/core/manage-native-reranking'
+      : null;
+
+  const performanceInsight = useMemo(() => {
     if (stage) {
       return getInsightForStage(
         stage,
@@ -112,6 +147,36 @@ export const FocusModeModalHeader: React.FunctionComponent<
       );
     }
   }, [stage, env, isSearchIndexesSupported, onCreateSearchIndex]);
+
+  const onAddSearchStageBeforeCurrentStage = useCallback(() => {
+    onAddSearchStageBefore(stageIndex);
+  }, [onAddSearchStageBefore, stageIndex]);
+
+  const rerankInsight = useRerankInsight({
+    isRerankFirstStage,
+    hasSearchIndex,
+    isSearchIndexesLoading,
+    onAddSearchStageBefore: onAddSearchStageBeforeCurrentStage,
+  });
+
+  const rawInsight = rerankInsight ?? performanceInsight;
+  const insight = useMemo(() => {
+    if (!rawInsight?.onAssistantButtonClick) return rawInsight;
+    return {
+      ...rawInsight,
+      onAssistantButtonClick: (e: React.MouseEvent) => {
+        onCloseFocusMode();
+        rawInsight.onAssistantButtonClick!(e);
+      },
+    };
+  }, [rawInsight, onCloseFocusMode]);
+
+  const onPopoverOpenChange = useCallback(
+    (open: boolean) => {
+      if (open && isRerankFirstStage) onRefreshSearchIndexes();
+    },
+    [isRerankFirstStage, onRefreshSearchIndexes]
+  );
 
   const isFirst = stages[0].idxInStore === stageIndex;
   const isLast = stages[stages.length - 1].idxInStore === stageIndex;
@@ -316,7 +381,27 @@ export const FocusModeModalHeader: React.FunctionComponent<
         </Menu>
       </div>
 
-      {showInsights && insight && <SignalPopover signals={insight} />}
+      {viewTokenUsageHref && (
+        <Link
+          href={viewTokenUsageHref}
+          target="_blank"
+          data-testid="focus-mode-view-token-usage-link"
+          onClick={() => {
+            track('Rerank View Usage And Rate Limits Link Clicked', {
+              context: 'Focus Mode',
+            });
+          }}
+        >
+          View $rerank Usage and Rate Limits
+        </Link>
+      )}
+
+      {showInsights && insight && (
+        <SignalPopover
+          signals={insight}
+          onPopoverOpenChange={onPopoverOpenChange}
+        />
+      )}
     </div>
   );
 };
@@ -329,7 +414,11 @@ export default connect(
       pipelineBuilder: {
         stageEditor: { stages },
       },
-      searchIndexes: { isSearchIndexesSupported },
+      searchIndexes: {
+        isSearchIndexesSupported,
+        indexes: searchIndexes,
+        status: searchIndexesStatus,
+      },
     } = state;
     const stage = stages[stageIndex] as StoreStage;
 
@@ -339,6 +428,12 @@ export default connect(
       stage,
       env,
       isSearchIndexesSupported,
+      isRerankFirstStage: getIsRerankFirstStage(state, stageIndex),
+      hasSearchIndex: searchIndexes.length > 0,
+      isSearchIndexesLoading:
+        searchIndexesStatus === 'INITIAL' ||
+        searchIndexesStatus === 'LOADING' ||
+        searchIndexesStatus === 'POLLING',
       stages: stages.reduce<Stage[]>((accumulator, stage, idxInStore) => {
         if (stage.type === 'stage') {
           accumulator.push({
@@ -355,5 +450,8 @@ export default connect(
     onStageDisabledToggleClick: changeStageDisabled,
     onAddStageClick: addStageInFocusMode,
     onCreateSearchIndex: createSearchIndex,
+    onAddSearchStageBefore: addSearchStageBefore,
+    onRefreshSearchIndexes: refreshSearchIndexes,
+    onCloseFocusMode: disableFocusMode,
   }
 )(FocusModeModalHeader);

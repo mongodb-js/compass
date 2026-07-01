@@ -1,4 +1,5 @@
 import React from 'react';
+import type { RenderConnectionsOptions } from '@mongodb-js/testing-library-compass';
 import {
   fireEvent,
   render,
@@ -10,7 +11,7 @@ import type { Stage } from './stage-operator-select';
 import { StageOperatorSelect } from './stage-operator-select';
 import Sinon from 'sinon';
 
-describe('StageOperatorSelect', () => {
+describe('StageOperatorSelect', function () {
   const mockStages: Stage[] = [
     {
       name: 'basicStage',
@@ -43,9 +44,19 @@ describe('StageOperatorSelect', () => {
   };
 
   const renderCombobox = (
-    props: Partial<React.ComponentProps<typeof StageOperatorSelect>> = {}
+    props: Partial<React.ComponentProps<typeof StageOperatorSelect>> = {},
+    renderOptions: Partial<RenderConnectionsOptions> = {}
   ) => {
-    return render(<StageOperatorSelect {...defaultMockProps} {...props} />);
+    return render(
+      <StageOperatorSelect {...defaultMockProps} {...props} />,
+      renderOptions
+    );
+  };
+
+  const rerankStage: Stage = {
+    name: '$rerank',
+    env: ['atlas'],
+    description: '$rerank description.',
   };
 
   it('renders the correct descriptions if not in readonly view', () => {
@@ -110,5 +121,34 @@ describe('StageOperatorSelect', () => {
         'Atlas only. Requires MongoDB 8.1+ to run on a view. searchStage description.'
       )
     ).to.exist;
+  });
+
+  context('$rerank stage', function () {
+    it('shows $rerank', function () {
+      renderCombobox({ stages: [...mockStages, rerankStage] });
+      fireEvent.click(screen.getByRole('combobox'));
+      const listbox = screen.getByRole('listbox');
+      expect(
+        within(listbox).getByTestId('combobox-option-stage-$rerank')
+      ).to.exist;
+    });
+
+    it('sorts $rerank to the top', function () {
+      renderCombobox({ stages: [...mockStages, rerankStage] });
+      fireEvent.click(screen.getByRole('combobox'));
+      const options = screen
+        .getByRole('listbox')
+        .querySelectorAll('[role="option"]');
+      expect(options[0].getAttribute('data-testid')).to.equal(
+        'combobox-option-stage-$rerank'
+      );
+    });
+
+    it('shows Preview and Start Free badges for $rerank', function () {
+      renderCombobox({ stages: [...mockStages, rerankStage] });
+      fireEvent.click(screen.getByRole('combobox'));
+      expect(screen.getByText('Preview')).to.exist;
+      expect(screen.getByText('Start Free')).to.exist;
+    });
   });
 });

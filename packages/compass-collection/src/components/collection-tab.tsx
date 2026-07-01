@@ -14,12 +14,7 @@ import type { CollectionTabOptions } from '../stores/collection-tab';
 import { selectHasSchemaAnalysisData } from '../stores/collection-tab';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import type { CollectionSubtab } from '@mongodb-js/workspace-info';
-import {
-  useTelemetry,
-  useAssignment,
-  ExperimentTestNames,
-  ExperimentTestGroups,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   useConnectionInfo,
   useConnectionInfoRef,
@@ -136,10 +131,10 @@ function WithErrorBoundary({
 
 function useCollectionTabs(props: CollectionMetadata) {
   const pluginTabs = useCollectionSubTabs();
-  const connectionInfoRef = useConnectionInfoRef();
+  const connectionInfo = useConnectionInfo();
   const isGlobalWritesEnabled = usePreference('enableGlobalWrites');
   const isGlobalWritesSupported =
-    useConnectionSupports(connectionInfoRef.current.id, 'globalWrites') &&
+    useConnectionSupports(connectionInfo.id, 'globalWrites') &&
     !props.isReadonly &&
     !toNS(props.namespace).specialish;
   return pluginTabs
@@ -234,28 +229,19 @@ const CollectionTabWithMetadata: React.FunctionComponent<
       !sourceName // sourceName indicates it's a view
   );
 
-  const mockDataGeneratorAssignment = useAssignment(
-    ExperimentTestNames.mockDataGenerator,
-    isMockDataGeneratorEligible // Only track eligible collections
-  );
-
-  const isInMockDataTreatmentVariant =
-    mockDataGeneratorAssignment?.assignment?.assignmentData?.variant ===
-    ExperimentTestGroups.mockDataGeneratorVariant;
-
   const exceedsMaxNestingDepth =
     analyzedSchemaDepth > MAX_COLLECTION_NESTING_DEPTH;
 
-  const isMockDataGeneratorEnabled = useMemo(() => {
+  // True when prerequisites for the Mock Data Generator menu item are met
+  // Independent of experiment variant assignment
+  const isMockDataGeneratorEligibleAndSchemaReady = useMemo(() => {
     return (
       isMockDataGeneratorEligible &&
-      isInMockDataTreatmentVariant &&
       hasSchemaAnalysisData &&
       !exceedsMaxNestingDepth
     );
   }, [
     isMockDataGeneratorEligible,
-    isInMockDataTreatmentVariant,
     hasSchemaAnalysisData,
     exceedsMaxNestingDepth,
   ]);
@@ -269,7 +255,7 @@ const CollectionTabWithMetadata: React.FunctionComponent<
     query: initialQuery,
     editViewName: editViewName,
     subTab: currentTab,
-    isMockDataGeneratorEnabled,
+    isMockDataGeneratorEligibleAndSchemaReady,
   };
 
   const tabs = useCollectionTabs(pluginProps);

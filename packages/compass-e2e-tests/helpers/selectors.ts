@@ -620,8 +620,12 @@ export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="dele
 export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
-export const OpenBulkUpdateButton = '[data-testid="crud-update"]';
-export const OpenBulkDeleteButton = '[data-testid="crud-bulk-delete"]';
+export const BulkActionsButton =
+  '[data-testid="crud-bulk-actions-show-actions"]';
+export const OpenBulkUpdateButton =
+  '[data-testid="crud-bulk-actions-bulk-update-action"]';
+export const OpenBulkDeleteButton =
+  '[data-testid="crud-bulk-actions-bulk-delete-action"]';
 export const ErrorDetailsJson = '[data-testid="error-details-json"]';
 export const DocumentTableContainer = `.document-table-view-container`;
 
@@ -888,8 +892,11 @@ export const AggregationSavedPipelineCardDeleteButton = (
   )} [data-testid="saved-pipeline-card-delete-action"]`;
 };
 
-export const AggregationExplainButton =
+export const AggregationExplainLegacyButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
+export const AggregationExplainDropdownButton =
+  '[data-testid="pipeline-toolbar-explain-aggregation-dropdown-button"]';
+export const AggregationExplainButton = `${AggregationExplainLegacyButton}, ${AggregationExplainDropdownButton}`;
 export const AggregationExplainModal = '[data-testid="explain-plan-modal"]';
 export const ExplainPlanInterpretButton =
   '[data-testid="interpret-for-me-button"]';
@@ -904,9 +911,6 @@ export const CreateViewNameInput = `${CreateViewModal} [data-testid="create-view
 export const SavePipelineModal = '[data-testid="save-pipeline-modal"]';
 export const SavePipelineNameInput = '#save-pipeline-name';
 
-export const stageOperatorOptions = (stageIndex: number): string => {
-  return `${StageCardAtIndex(stageIndex)} [role="option"]`;
-};
 export const stageEditor = (stageIndex: number): string => {
   return `#aggregations-stage-editor-${stageIndex}`;
 };
@@ -1061,7 +1065,11 @@ export const SchemaFieldName = '[data-testid="schema-field-name"]';
 export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 
 // Explain Plan modal
-export const ExecuteExplainButton = '[data-testid="query-bar-explain-button"]';
+export const ExecuteExplainLegacyButton =
+  '[data-testid="query-bar-explain-button"]';
+export const ExecuteExplainDropdownButton =
+  '[data-testid="query-bar-explain-dropdown-button"]';
+export const ExecuteExplainButton = `${ExecuteExplainLegacyButton}, ${ExecuteExplainDropdownButton}`;
 export const ExplainLoader = '[data-testid="explain-plan-loading"]';
 export const ExplainSummary = '[data-testid="explain-plan-summary"]';
 export const ExplainStage = '[data-testid="explain-stage"]';
@@ -1083,9 +1091,11 @@ export const IndexList = '[data-testid="indexes-list"]';
 export const indexComponent = (name: string): string => {
   return `[data-testid="indexes-row-${name}"]`;
 };
+export const indexWithStatus = (name: string, status: 'building' | 'ready') => {
+  return `${indexComponent(name)} [data-testid="index-${status}"]`;
+};
 export const IndexFieldName = '[data-testid="indexes-name-field"]';
 export const IndexFieldType = '[data-testid="indexes-type-field"]';
-export const IndexPropertyInProgress = '[data-testid="index-in-progress"]';
 export const IndexToggleOptions =
   '[data-testid="create-index-modal-toggle-options"]';
 export const indexToggleOption = (fieldName: string) => {
@@ -1296,8 +1306,6 @@ export const ExportJSONFormatAccordion =
   '[data-testid="export-modal"] [data-testid="export-advanced-json-format"]';
 export const ExportJSONFormatCanonical =
   '[data-testid="export-modal"] [data-testid="export-json-format-canonical"]';
-export const ExportModalExportButton =
-  '[data-testid="export-modal"] [data-testid="export-button"]';
 export const ExportToast = '[data-testid="toast-export-toast"]';
 export const ExportToastAbort =
   '[data-testid="toast-export-toast"] [data-testid="toast-action-stop"]';
@@ -1391,6 +1399,9 @@ export const ModifySourceBanner = '[data-testid="modify-source-banner"]';
 // Insights
 export const InsightIconButton = '[data-testid="insight-badge-button"]';
 export const InsightPopoverCard = '[data-testid="insight-signal-card"]';
+export const InsightTellMeMoreButton = '[data-testid="tell-me-more-button"]';
+export const RerankFirstStageBannerLearnMoreButton =
+  '[data-testid="rerank-first-stage-learn-more-button"]';
 
 // Proxy settings
 export const ProxyUrl =

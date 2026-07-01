@@ -15,7 +15,10 @@ import {
   showErrorDetails,
 } from '@mongodb-js/compass-components';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
+import RateLimitExceededBanner from '../rate-limit-exceeded-banner';
 import type { RootState } from '../../modules';
 import {
   type AggregationError,
@@ -32,9 +35,12 @@ import { getStageOperator } from '../../utils/stage';
 import { gotoOutResults } from '../../modules/out-results-fn';
 import {
   isRerankNotEnabledError,
+  getVoyageProjectRateLimitInfo,
+  getSearchExtensionTypeFromStage,
+  type SearchExtensionType,
   isRerankVersionSupported,
-  RERANK_MIN_SERVER_VERSION,
 } from '../../utils/search-stage-errors';
+import { RerankVersionWarningBanner } from '../rerank-version-warning-banner';
 
 const containerStyles = css({
   overflow: 'hidden',
@@ -148,7 +154,8 @@ type PipelineResultsWorkspaceProps = {
   onCancel: () => void;
   onRetry: () => void;
   serverVersion: string;
-  pipelineText: string;
+  hasRerankStage: boolean;
+  searchExtensionType?: SearchExtensionType | null;
 };
 
 export const PipelineResultsWorkspace: React.FunctionComponent<
@@ -167,23 +174,25 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
   onRetry,
   onCancel,
   serverVersion,
-  pipelineText,
+  hasRerankStage,
+  searchExtensionType,
 }) => {
   const { atlasMetadata } = useConnectionInfo();
+  const enableRerank = usePreference('enableRerank');
+  const track = useTelemetry();
   let results: React.ReactElement | null = null;
 
   const showRerankVersionWarning =
-    pipelineText.includes('$rerank') &&
-    !isRerankVersionSupported(serverVersion);
+    enableRerank && hasRerankStage && !isRerankVersionSupported(serverVersion);
 
   const rerankNotEnabled =
     isError && error ? isRerankNotEnabledError(error.message) : false;
-  const projectSettingsHref =
-    rerankNotEnabled && atlasMetadata
+  const rateLimitInfo =
+    isError && error ? getVoyageProjectRateLimitInfo(error.message) : null;
+  const projectSettingsHref = rerankNotEnabled
+    ? atlasMetadata
       ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
-      : null;
-  const upgradeClusterHref = atlasMetadata
-    ? `#/clusters/edit/${encodeURIComponent(atlasMetadata.clusterName)}`
+      : 'https://dochub.mongodb.org/core/manage-native-reranking'
     : null;
 
   if (isError && error && rerankNotEnabled) {
@@ -194,15 +203,23 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
           variant={BannerVariant.Danger}
           className={errorBannerStyles}
         >
-          <b>Native reranking not enabled</b>
+          <b>$rerank not enabled</b>
           <br />
           <div className={rerankBannerContentStyles}>
             <span>Enable native reranking in project settings.</span>
             {projectSettingsHref && (
               <Button
                 size="xsmall"
-                href={projectSettingsHref}
-                target="_blank"
+                onClick={() => {
+                  track('Rerank Project Settings Button Clicked', {
+                    context: 'Rerank Not Enabled Banner',
+                  });
+                  window.open(
+                    projectSettingsHref,
+                    '_blank',
+                    'noopener noreferrer'
+                  );
+                }}
                 rightGlyph={<Icon glyph="OpenNewTab" />}
               >
                 Project Settings
@@ -210,6 +227,16 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
             )}
           </div>
         </Banner>
+      </ResultsContainer>
+    );
+  } else if (isError && error && rateLimitInfo) {
+    results = (
+      <ResultsContainer>
+        <RateLimitExceededBanner
+          rateLimitInfo={rateLimitInfo}
+          searchExtensionType={searchExtensionType}
+          dataTestId="pipeline-results-error"
+        />
       </ResultsContainer>
     );
   } else if (isError && error) {
@@ -297,28 +324,7 @@ export const PipelineResultsWorkspace: React.FunctionComponent<
     <div data-testid="pipeline-results-workspace" className={containerStyles}>
       {showRerankVersionWarning && (
         <ResultsContainer>
-          <Banner
-            variant={BannerVariant.Danger}
-            data-testid="pipeline-results-rerank-version-warning"
-            className={errorBannerStyles}
-          >
-            <div className={rerankBannerContentStyles}>
-              <span>
-                Upgrade your cluster to MongoDB {RERANK_MIN_SERVER_VERSION}+ to
-                use $rerank.
-              </span>
-              {upgradeClusterHref && (
-                <Button
-                  size="xsmall"
-                  href={upgradeClusterHref}
-                  target="_blank"
-                  rightGlyph={<Icon glyph="OpenNewTab" />}
-                >
-                  Upgrade Cluster
-                </Button>
-              )}
-            </div>
-          </Banner>
+          <RerankVersionWarningBanner data-testid="pipeline-results-rerank-version-warning" />
         </ResultsContainer>
       )}
       <div className={resultsStyles}>{results}</div>
@@ -331,14 +337,14 @@ const mapState = (state: RootState) => {
     namespace,
     serverVersion,
     aggregation: { documents, loading, error, resultsViewType, pipeline },
-    pipelineBuilder: {
-      textEditor: {
-        pipeline: { pipelineText },
-      },
-    },
   } = state;
   const lastStage = pipeline[pipeline.length - 1];
   const stageOperator = getStageOperator(lastStage) ?? '';
+  const searchExtensionType = pipeline.reduce<SearchExtensionType | null>(
+    (found, stage) =>
+      found ?? getSearchExtensionTypeFromStage(getStageOperator(stage)),
+    null
+  );
 
   return {
     namespace,
@@ -354,7 +360,10 @@ const mapState = (state: RootState) => {
       lastStage
     ),
     serverVersion,
-    pipelineText,
+    hasRerankStage: pipeline.some(
+      (stage) => getStageOperator(stage) === '$rerank'
+    ),
+    searchExtensionType,
   };
 };
 

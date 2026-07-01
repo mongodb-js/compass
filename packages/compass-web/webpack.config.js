@@ -80,19 +80,6 @@ module.exports = (env, args) => {
       },
       clean: true,
     },
-    module: {
-      rules: [
-        {
-          test: /\.(m|c)?(js|ts)x?$/,
-          use: {
-            // Our d3 version is out of date, so it's easier to patch it to be
-            // "strict mode" compatible instead of trying to update across the
-            // whole repo. See the file for details
-            loader: path.join(__dirname, 'scripts', 'patch-d3-for-esm.js'),
-          },
-        },
-      ],
-    },
     resolve: {
       alias: {
         // Dependencies for the unsupported connection types in data-service
@@ -177,8 +164,6 @@ module.exports = (env, args) => {
         os: require.resolve('os-browserify/browser'),
         crypto: require.resolve('crypto-browserify'),
         dns: localPolyfill('dns'),
-        // Built-in Node.js modules imported by the driver directly and used in
-        // ways that requires us to provide a no-op polyfill
         zlib: localPolyfill('zlib'),
         // Built-in Node.js modules imported by the driver directly, but used in
         // a way that allows us to just provide an empty module alias

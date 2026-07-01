@@ -136,6 +136,11 @@ const ZOOM_OPTIONS = {
   minZoom: 0.25,
 };
 
+const MINIMAP_PROPS = {
+  zoomable: true,
+  pannable: true,
+};
+
 type SelectedItems = NonNullable<DiagramState>['selectedItems'];
 
 const DiagramContent: React.FunctionComponent<{
@@ -477,6 +482,9 @@ const DiagramContent: React.FunctionComponent<{
         title: diagramLabel,
         edges,
         nodes,
+        zoomOnScroll: false,
+        zoomOnPinch: true,
+        panOnScroll: true,
         onAddFieldToNodeClick: onClickAddFieldToCollection,
         onAddFieldToObjectFieldClick: onClickAddFieldToObjectField,
         onNodeClick,
@@ -531,6 +539,7 @@ const DiagramContent: React.FunctionComponent<{
           // With threshold too low clicking sometimes gets confused with
           // dragging.
           nodeDragThreshold={5}
+          minimapProps={MINIMAP_PROPS}
           fitViewOptions={ZOOM_OPTIONS}
           className={diagramStyles}
         />

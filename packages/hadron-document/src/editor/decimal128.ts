@@ -1,22 +1,12 @@
 import TypeChecker from 'hadron-type-checker';
 import { ElementEvents } from '../element-events';
 import StandardEditor from './standard';
-import type { Element } from '../element';
 import type { BSONValue } from '../utils';
 
 /**
  * CRUD editor for decimal128 values.
  */
 export default class Decimal128Editor extends StandardEditor {
-  /**
-   * Create the editor with the element.
-   *
-   * @param {Element} element - The hadron document element.
-   */
-  constructor(element: Element) {
-    super(element);
-  }
-
   /**
    * Complete the decimal128 edit by converting the valid string to a decimal128
    * value or leaving as invalid.

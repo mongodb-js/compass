@@ -5,10 +5,17 @@ import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { spy } from 'sinon';
 import { renderWithStore } from '../../../test/configure-store';
+import type { AggregationsPluginServices } from '../../stores/store';
 import { PipelineResultsWorkspace } from './index';
+import { ReadOnlyPreferenceAccess } from 'compass-preferences-model/provider';
+
+const rerankPreferences = {
+  preferences: new ReadOnlyPreferenceAccess({ enableRerank: true }),
+};
 
 const renderPipelineResultsWorkspace = (
-  props: Partial<ComponentProps<typeof PipelineResultsWorkspace>> = {}
+  props: Partial<ComponentProps<typeof PipelineResultsWorkspace>> = {},
+  services: Partial<AggregationsPluginServices> = {}
 ) => {
   return renderWithStore(
     <PipelineResultsWorkspace
@@ -22,9 +29,12 @@ const renderPipelineResultsWorkspace = (
       onCancel={() => {}}
       resultsViewType={'document'}
       serverVersion="8.0.0"
-      pipelineText="[{$match: {}}]"
+      hasRerankStage={false}
       {...props}
-    />
+    />,
+    undefined,
+    undefined,
+    services
   );
 };
 
@@ -92,26 +102,26 @@ describe('PipelineResultsWorkspace', function () {
           'MMS API error: MmsApiError(HttpError { status: 400, message: "{\\"error\\":\\"$rerank is not enabled for demo. Enable the $rerank Project Setting to run this pipeline.\\"}" })',
       },
     });
-    expect(screen.getByText('Native reranking not enabled')).to.exist;
+    expect(screen.getByText('$rerank not enabled')).to.exist;
     expect(screen.getByText('Enable native reranking in project settings.')).to
       .exist;
     expect(screen.queryByText('RETRY')).to.not.exist;
   });
 
   it('renders version warning when server < 8.3 and pipeline has $rerank', async function () {
-    await renderPipelineResultsWorkspace({
-      serverVersion: '8.0.0',
-      pipelineText: '[{ $rerank: {} }]',
-    });
+    await renderPipelineResultsWorkspace(
+      { serverVersion: '8.0.0', hasRerankStage: true },
+      rerankPreferences
+    );
     expect(screen.getByTestId('pipeline-results-rerank-version-warning')).to
       .exist;
   });
 
   it('does not render version warning when server >= 8.3', async function () {
-    await renderPipelineResultsWorkspace({
-      serverVersion: '8.3.0',
-      pipelineText: '[{ $rerank: {} }]',
-    });
+    await renderPipelineResultsWorkspace(
+      { serverVersion: '8.3.0', hasRerankStage: true },
+      rerankPreferences
+    );
     expect(screen.queryByTestId('pipeline-results-rerank-version-warning')).to
       .not.exist;
   });

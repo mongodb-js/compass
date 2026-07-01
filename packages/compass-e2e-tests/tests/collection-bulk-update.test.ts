@@ -56,6 +56,7 @@ describe('Bulk Update', () => {
     await browser.runFindOperation('Documents', '{ i: 5 }');
 
     // Open the modal.
+    await browser.clickVisible(Selectors.BulkActionsButton);
     await browser.clickVisible(Selectors.OpenBulkUpdateButton);
     await browser.waitForOpenModal(Selectors.BulkUpdateModal);
 
@@ -133,6 +134,7 @@ describe('Bulk Update', () => {
 
     expect(executedEvent).to.deep.equal({
       isUpdatePreviewSupported: true,
+      has_filter: true,
     });
 
     await browser.runFindOperation('Documents', '{ i: 5, foo: "bar" }');
@@ -151,6 +153,7 @@ describe('Bulk Update', () => {
     await browser.runFindOperation('Documents', '{ i: { $gt: 5 } }');
 
     // Open the modal.
+    await browser.clickVisible(Selectors.BulkActionsButton);
     await browser.clickVisible(Selectors.OpenBulkUpdateButton);
     await browser.waitForOpenModal(Selectors.BulkUpdateModal);
 

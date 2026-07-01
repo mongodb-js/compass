@@ -27,21 +27,30 @@ import { mapPipelineModeToEditorViewType } from '../../modules/pipeline-builder/
 import type { RootState } from '../../modules';
 import type { PipelineParserError } from '../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  useSearchActivationProgramP1,
+} from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { usePreference } from 'compass-preferences-model/provider';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
   openIndexesListDrawerView,
 } from '../../modules/search-indexes';
 import type { SearchIndexType } from '../../modules/search-indexes';
-import { usePreference } from 'compass-preferences-model/provider';
+
 import {
   getSearchIndexNameFromSearchStage,
   isSearchStage,
 } from '../../utils/stage';
 import ServerErrorBanner from '../server-error-banner';
+import {
+  getSearchExtensionTypeFromStage,
+  isRerankVersionSupported,
+} from '../../utils/search-stage-errors';
 import SearchIndexDoesNotExistBanner from '../search-index-does-not-exist-banner';
+import { RerankVersionWarningBanner } from '../rerank-version-warning-banner';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -131,9 +140,8 @@ export const StageEditor = ({
 
   const fields = useAutocompleteFields(namespace);
 
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableRerank = usePreference('enableRerank');
 
   const { utmSource, utmMedium } = useRequiredURLSearchParams();
 
@@ -222,6 +230,13 @@ export const StageEditor = ({
           onBlur={onBlurEditor}
         />
       </div>
+      {enableRerank &&
+        stageOperator === '$rerank' &&
+        !isRerankVersionSupported(serverVersion) && (
+          <div className={bannerStyles}>
+            <RerankVersionWarningBanner data-testid="stage-editor-rerank-version-warning" />
+          </div>
+        )}
       {syntaxError && (
         <Banner
           variant="warning"
@@ -242,6 +257,7 @@ export const StageEditor = ({
             message={serverError.message}
             searchIndexName={searchIndexName}
             dataTestId="stage-editor-error-message"
+            searchExtensionType={getSearchExtensionTypeFromStage(stageOperator)}
             // Don't show link when in focus mode as modal covers the drawer
             onEditSearchIndexClick={
               editor_view_type !== 'focus' ? onEditSearchIndexClick : undefined
@@ -302,12 +318,14 @@ export default connect(
       ['READY', 'POLLING'].includes(state.searchIndexes.status) &&
       state.searchIndexes.indexes.every((x) => x.name !== searchIndexName);
 
+    const shouldShowErrors = !stage.empty && !stage.fromSnippet;
+
     return {
       namespace: state.namespace,
       stageValue: stage.value,
       stageOperator: stage.stageOperator,
-      syntaxError: !stage.empty ? stage.syntaxError ?? null : null,
-      serverError: !stage.empty ? stage.serverError ?? null : null,
+      syntaxError: shouldShowErrors ? stage.syntaxError ?? null : null,
+      serverError: shouldShowErrors ? stage.serverError ?? null : null,
       serverErrorStageIdx: getIndexOfFirstStageWithServerError(
         stages,
         ownProps.index

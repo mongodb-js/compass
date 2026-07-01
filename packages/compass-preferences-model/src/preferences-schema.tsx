@@ -1,6 +1,6 @@
 import React from 'react';
 import { z } from '@mongodb-js/compass-user-data';
-import type { AtlasCloudFeatureFlags, FeatureFlags } from './feature-flags';
+import type { FeatureFlags } from './feature-flags';
 import { FEATURE_FLAG_PREFERENCES } from './feature-flags';
 import { parseRecord } from './parse-record';
 import {
@@ -127,6 +127,7 @@ export type InternalUserPreferences = {
   currentUserId?: string;
   telemetryAnonymousId?: string;
   telemetryAtlasUserId?: string;
+  telemetryDeviceId?: string;
   userCreatedAt: number;
   // TODO: Remove this as part of COMPASS-8970.
   enableConnectInNewWindow: boolean;
@@ -207,14 +208,16 @@ export type PreferenceState =
   | 'set-global' // Can be set directly or derived from a preference set via global config.
   | 'hardcoded'
   | 'derived' // Derived from a preference set by a user via setting UI.
+  | 'set-cloud-org' // Set by the mms backend for the user's Atlas organization.
+  | 'set-cloud-project' // Set by the mms backend for the user's Atlas project.
+  | 'set-cloud-user' // Set by the mms backend for the user's Atlas user.
   | undefined;
 
 export type DeriveValueFunction<T> = (
   /** Get a preference's value from the current set of preferences */
   getValue: <K extends keyof AllPreferences>(key: K) => AllPreferences[K],
   /** Get a preference's state from the current set of preferences */
-  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState,
-  atlasCloudFeatureFlags: Partial<AtlasCloudFeatureFlags>
+  getState: <K extends keyof AllPreferences>(key: K) => PreferenceState
 ) => { value: T; state: PreferenceState };
 
 type SecretsConfiguration<T> = {
@@ -420,6 +423,17 @@ export const storedUserPreferencesProps: Required<{
    * Stores a unique telemetry atlas ID for the current user.
    */
   telemetryAtlasUserId: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.string().optional(),
+    type: 'string',
+  },
+  /**
+   * Stores the device ID used for telemetry.
+   */
+  telemetryDeviceId: {
     ui: false,
     cli: false,
     global: false,
@@ -790,7 +804,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Stay logged in with OIDC',
-      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism for MongoDB server connection. Access tokens are encrypted using the system keychain before being stored.',
+      long: 'Remain logged in when using the MONGODB-OIDC authentication mechanism for MongoDB server connection. Access tokens are encrypted using the system keychain before being stored. Disabling this option will remove currently stored tokens.',
     },
     validator: z.boolean().default(true),
     type: 'boolean',

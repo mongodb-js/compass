@@ -10,7 +10,11 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
+import type { SinonSpy } from 'sinon';
 import type { Document } from 'mongodb';
+import type { AllPreferences } from 'compass-preferences-model';
+import type { WorkspacesService } from '@mongodb-js/compass-workspaces/provider';
+import { WorkspacesServiceProvider } from '@mongodb-js/compass-workspaces/provider';
 import { SearchIndexesTable } from './search-indexes-table';
 import { FetchStatuses } from '../../utils/fetch-status';
 import {
@@ -21,9 +25,28 @@ import { mockSearchIndex } from '../../../test/helpers';
 import { setupStore } from '../../../test/setup-store';
 import type { RootState } from '../../modules';
 
+function createTestWorkspacesService(
+  openCollectionWorkspace: SinonSpy
+): WorkspacesService {
+  const noop = () => {};
+  return {
+    getActiveWorkspace: () => null,
+    openMyQueriesWorkspace: noop,
+    openDataModelingWorkspace: noop,
+    openShellWorkspace: noop,
+    openDatabasesWorkspace: noop,
+    openPerformanceWorkspace: noop,
+    openCollectionsWorkspace: noop,
+    openCollectionWorkspace,
+    openCollectionWorkspaceSubtab: noop,
+    openEditViewWorkspace: noop,
+  };
+}
+
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof SearchIndexesTable>> = {},
-  state?: Partial<RootState>
+  state?: Partial<RootState>,
+  options: { preferences?: Partial<AllPreferences> } = {}
 ) => {
   const noop = () => {};
   const store = setupStore({
@@ -35,22 +58,37 @@ const renderIndexList = (
     Object.assign(store.getState(), newState);
   }
 
+  const openCollectionWorkspace = sinon.spy();
+  const workspaces = createTestWorkspacesService(openCollectionWorkspace);
+
   render(
     <Provider store={store}>
-      <SearchIndexesTable
-        namespace="foo.bar"
-        indexes={indexes}
-        status="READY"
-        isReadonlyView={false}
-        onDropIndexClick={noop}
-        onEditIndexClick={noop}
-        onOpenCreateModalClick={noop}
-        onSearchIndexesOpened={noop}
-        onSearchIndexesClosed={noop}
-        {...props}
-      />
-    </Provider>
+      <WorkspacesServiceProvider value={workspaces}>
+        <SearchIndexesTable
+          namespace="foo.bar"
+          indexes={indexes}
+          status="READY"
+          isReadonlyView={false}
+          onDropIndexClick={noop}
+          onEditIndexClick={noop}
+          onOpenCreateModalClick={noop}
+          onSearchIndexesOpened={noop}
+          onSearchIndexesClosed={noop}
+          {...props}
+        />
+      </WorkspacesServiceProvider>
+    </Provider>,
+    {
+      preferences: {
+        enableAtlasSearchIndexes: true,
+        readOnly: false,
+        readWrite: false,
+        ...options.preferences,
+      },
+    }
   );
+
+  return { store, openCollectionWorkspace };
 };
 
 describe('SearchIndexesTable Component', function () {
@@ -218,6 +256,56 @@ describe('SearchIndexesTable Component', function () {
       for (const path of ['plot_embedding', 'genres']) {
         expect(within(details).getAllByText(path)).to.exist;
       }
+    });
+
+    it('passes auto-embed pipeline text when opening aggregate and enableAutoEmbeddingPublicPreview is on', function () {
+      const { openCollectionWorkspace } = renderIndexList(
+        { indexes: vectorSearchIndexes },
+        undefined,
+        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+      );
+
+      const indexRow = screen
+        .getByText('vectorSearching123')
+        .closest('tr') as HTMLElement;
+      userEvent.click(
+        within(indexRow).getByTestId('search-index-actions-aggregate-action')
+      );
+
+      expect(openCollectionWorkspace.callCount).to.equal(1);
+      const workspaceOpts = openCollectionWorkspace.firstCall.args[2] as {
+        initialPipelineText?: string;
+      };
+      expect(workspaceOpts?.initialPipelineText).to.include('exact: false');
+      expect(workspaceOpts?.initialPipelineText).to.include(
+        'index: "vectorSearching123"'
+      );
+    });
+
+    it('passes standard vector pipeline text when opening aggregate and enableAutoEmbeddingPublicPreview is off', function () {
+      const { openCollectionWorkspace } = renderIndexList(
+        { indexes: vectorSearchIndexes },
+        undefined,
+        { preferences: { enableAutoEmbeddingPublicPreview: false } }
+      );
+
+      const indexRow = screen
+        .getByText('vectorSearching123')
+        .closest('tr') as HTMLElement;
+      userEvent.click(
+        within(indexRow).getByTestId('search-index-actions-aggregate-action')
+      );
+
+      expect(openCollectionWorkspace.callCount).to.equal(1);
+      const workspaceOpts = openCollectionWorkspace.firstCall.args[2] as {
+        initialPipelineText?: string;
+      };
+      expect(workspaceOpts?.initialPipelineText).to.include(
+        '"queryVector": []'
+      );
+      expect(workspaceOpts?.initialPipelineText).to.include(
+        'index: "vectorSearching123"'
+      );
     });
   });
 

@@ -44,7 +44,8 @@ export type EmittedAppRegistryEvents =
   | 'open-export'
   | 'document-deleted'
   | 'documents-deleted'
-  | 'document-inserted';
+  | 'document-inserted'
+  | 'documents-refreshed';
 
 export type CrudStoreOptions = Pick<
   CollectionTabPluginMetadata,

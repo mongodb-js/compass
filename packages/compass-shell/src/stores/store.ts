@@ -90,14 +90,16 @@ export function createAndStoreRuntime(
   dataService: ShellPluginExtraArgs['dataService'],
   { log }: ShellPluginExtraArgs['logger'],
   track: ShellPluginExtraArgs['track'],
-  connectionInfo: ShellPluginExtraArgs['connectionInfo']
+  connectionInfo: ShellPluginExtraArgs['connectionInfo'],
+  deviceId: string
 ) {
   const id = new ObjectId().toString();
   const runtime = createWorkerRuntime(
     dataService,
     log.unbound,
     track,
-    connectionInfo
+    connectionInfo,
+    deviceId
   );
   RuntimeMap.set(id, runtime);
   return { id, runtime };
@@ -110,7 +112,7 @@ export function createRuntime(): ShellPluginThunkAction<
   return (
     dispatch,
     getState,
-    { dataService, logger, track, connectionInfo }
+    { dataService, logger, track, connectionInfo, deviceId }
   ) => {
     // Do not allow to re-create runtime multiple times if it already exists
     if (RuntimeMap.get(getState().runtimeId ?? '')) {
@@ -120,7 +122,8 @@ export function createRuntime(): ShellPluginThunkAction<
       dataService,
       logger,
       track,
-      connectionInfo
+      connectionInfo,
+      deviceId
     );
     dispatch({ type: ActionTypes.RuntimeCreated, id });
   };

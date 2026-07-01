@@ -6,15 +6,22 @@ import { resolveElement } from '../utils.ts';
 export async function setValueVisible(
   browser: CompassBrowser,
   selector: string | ChainablePromiseElement,
-  value: string
+  value: string,
+  {
+    skipFocus = false,
+  }: {
+    skipFocus?: boolean;
+  } = {}
 ): Promise<void> {
   const element = resolveElement(browser, selector);
 
   await browser.waitForAnimations(element);
 
   await browser.waitUntil(async () => {
-    await element.waitForDisplayed();
-    await element.click(); // focus
+    if (!skipFocus) {
+      await element.waitForDisplayed();
+      await element.click(); // focus
+    }
     await browser.keys([Key.Ctrl, 'a']);
     await browser.keys('Delete');
 

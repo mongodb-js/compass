@@ -9,13 +9,18 @@ import { isAction } from '../../utils/is-action';
 import type Stage from './stage';
 import type { NewPipelineConfirmedAction } from '../is-new-pipeline-confirm';
 import { ActionTypes as ConfirmNewPipelineActions } from '../is-new-pipeline-confirm';
-import { STAGE_OPERATORS } from '@mongodb-js/mongodb-constants';
 import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
+  createPreviewAggregation,
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
+import {
+  createSearchStageMetadata,
+  injectSearchScoreMetadata,
+} from '../../utils/search-score-injection';
+import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 import { aggregatePipeline } from '../../utils/cancellable-aggregation';
 import type { PipelineParserError } from './pipeline-parser/utils';
 import { parseShellBSON } from './pipeline-parser/utils';
@@ -24,6 +29,7 @@ import type { PipelineModeToggledAction } from './pipeline-mode';
 import {
   getDestinationNamespaceFromStage,
   isOutputStage,
+  stageOperatorsWithAutoEmbedPreview,
 } from '../../utils/stage';
 import { mapPipelineModeToEditorViewType } from './builder-helpers';
 import { getId } from './stage-ids';
@@ -34,6 +40,7 @@ import type {
   LoadGeneratedPipelineAction,
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
+import { cancellableWait } from '@mongodb-js/compass-utils';
 
 export const StageEditorActionTypes = {
   StagePreviewFetch:
@@ -84,6 +91,7 @@ export type StagePreviewFetchSuccessAction = {
   type: typeof StageEditorActionTypes.StagePreviewFetchSuccess;
   id: number;
   previewDocs: HadronDocument[];
+  stageMetadata: StagePreviewMetadata | null;
 };
 
 export type StagePreviewFetchErrorAction = {
@@ -101,6 +109,7 @@ export type StageRunSuccessAction = {
   type: typeof StageEditorActionTypes.StageRunSuccess;
   id: number;
   previewDocs: HadronDocument[];
+  stageMetadata: StagePreviewMetadata | null;
 };
 
 export type StageRunErrorAction = {
@@ -119,6 +128,7 @@ export type ChangeStageOperatorAction = {
   type: typeof StageEditorActionTypes.StageOperatorChange;
   id: number;
   stage: Stage;
+  newSnippet: boolean;
 };
 
 export type ChangeStageCollapsedAction = {
@@ -270,7 +280,7 @@ export const loadStagePreview = (
   | StagePreviewFetchErrorAction
   | StagePreviewFetchSkippedAction
 > => {
-  return async (dispatch, getState, { pipelineBuilder }) => {
+  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -288,14 +298,13 @@ export const loadStagePreview = (
     // Ignoring the state of the stage, always try to stop current preview fetch
     pipelineBuilder.cancelPreviewForStage(idxInPipeline);
 
+    const stagesForPreview = pipelineFromStore(stages.slice(0, idx + 1));
     const canFetchPreviewForStage =
       autoPreview &&
       !stage.disabled &&
       // Only run stage if all previous ones are valid (otherwise it will fail
       // anyway)
-      pipelineFromStore(stages.slice(0, idx + 1)).every((stage) =>
-        canRunStage(stage)
-      );
+      stagesForPreview.every((stage) => canRunStage(stage));
 
     if (!canFetchPreviewForStage) {
       dispatch({
@@ -320,24 +329,68 @@ export const loadStagePreview = (
         collectionStats,
       } = getState();
 
-      const options: PreviewOptions = {
+      const activeDataService = dataService.dataService;
+      const { enableSearchActivationProgramP2 } = preferences.getPreferences();
+      const shouldFetchSearchStageMetadata =
+        !!enableSearchActivationProgramP2 &&
+        !!activeDataService &&
+        stagesForPreview.length === 1 &&
+        stagesForPreview[0].stageOperator === '$search';
+      const aggregateOptions: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
+      };
+      const options: PreviewOptions = {
+        ...aggregateOptions,
         sampleSize: largeLimit ?? DEFAULT_SAMPLE_SIZE,
         previewSize: limit ?? DEFAULT_PREVIEW_LIMIT,
         totalDocumentCount: collectionStats?.document_count,
       };
 
-      const previewDocs = await pipelineBuilder.getPreviewForStage(
-        idxInPipeline,
-        namespace,
-        options
-      );
-      dispatch({
-        type: StageEditorActionTypes.StagePreviewFetchSuccess,
-        id: idx,
-        previewDocs: previewDocs.map((doc) => new HadronDocument(doc)),
-      });
+      const metadataAbortController = new AbortController();
+      const metadataPromise =
+        shouldFetchSearchStageMetadata && activeDataService
+          ? (async () => {
+              try {
+                await cancellableWait(700, metadataAbortController.signal);
+
+                return await aggregatePipeline({
+                  dataService: activeDataService,
+                  preferences,
+                  signal: metadataAbortController.signal,
+                  namespace,
+                  pipeline: createPreviewAggregation(
+                    injectSearchScoreMetadata(
+                      pipelineBuilder.getPipelineFromStages(
+                        pipelineBuilder.stages.slice(0, idxInPipeline + 1)
+                      )
+                    ),
+                    options
+                  ),
+                  options: aggregateOptions,
+                });
+              } catch {
+                return null;
+              }
+            })()
+          : Promise.resolve(null);
+
+      try {
+        const [documents, metadataDocs] = await Promise.all([
+          pipelineBuilder.getPreviewForStage(idxInPipeline, namespace, options),
+          metadataPromise,
+        ]);
+        const stageMetadata = createSearchStageMetadata(metadataDocs);
+        dispatch({
+          type: StageEditorActionTypes.StagePreviewFetchSuccess,
+          id: idx,
+          previewDocs: documents.map((doc) => new HadronDocument(doc)),
+          stageMetadata,
+        });
+      } finally {
+        // Cancel the metadata aggregation if it's still in flight.
+        metadataAbortController.abort();
+      }
     } catch (err) {
       if (dataService.dataService?.isCancelError(err)) {
         return;
@@ -485,6 +538,7 @@ export const runStage = (
         type: StageEditorActionTypes.StageRunSuccess,
         id: idx,
         previewDocs: result.map((doc) => new HadronDocument(doc)),
+        stageMetadata: null,
       });
       connectionScopedAppRegistry.emit(
         'agg-pipeline-out-executed',
@@ -533,27 +587,35 @@ export const changeStageValue = (
 };
 
 const replaceOperatorSnippetTokens = (str: string): string => {
-  const regex = /\${[0-9]+:?([a-z0-9.()]+)?}/gi;
+  const regex = /\${[0-9]+:?([a-z0-9.()-]+)?}/gi;
   return str.replace(regex, function (_match, replaceWith) {
     return replaceWith ?? '';
   });
 };
 
-const ESCAPED_STAGE_OPERATORS = STAGE_OPERATORS.map((stage) => {
-  return {
-    ...stage,
-    comment: replaceOperatorSnippetTokens(stage.comment),
-    snippet: replaceOperatorSnippetTokens(stage.snippet),
-  };
-}) as unknown as typeof STAGE_OPERATORS;
+function getEscapedStageOperators(enableAutoEmbeddingPublicPreview: boolean) {
+  return stageOperatorsWithAutoEmbedPreview(
+    enableAutoEmbeddingPublicPreview
+  ).map((stage) => {
+    return {
+      ...stage,
+      comment: replaceOperatorSnippetTokens(stage.comment),
+      snippet: replaceOperatorSnippetTokens(stage.snippet),
+    };
+  });
+}
 
 function getStageSnippet(
   stageOperator: string | null,
   env: ServerEnvironment,
   shouldAddComment: boolean,
-  escaped = false
+  escaped = false,
+  enableAutoEmbeddingPublicPreview = false
 ) {
-  const stages = (escaped ? ESCAPED_STAGE_OPERATORS : STAGE_OPERATORS).filter(
+  const operatorList = escaped
+    ? getEscapedStageOperators(enableAutoEmbeddingPublicPreview)
+    : stageOperatorsWithAutoEmbedPreview(enableAutoEmbeddingPublicPreview);
+  const stages = operatorList.filter(
     (stageOp) => stageOp.value === stageOperator
   );
 
@@ -581,7 +643,7 @@ export const changeStageOperator = (
   return (
     dispatch,
     getState,
-    { pipelineBuilder, track, connectionInfoRef }
+    { pipelineBuilder, track, connectionInfoRef, preferences }
   ) => {
     const {
       env,
@@ -602,6 +664,10 @@ export const changeStageOperator = (
       return;
     }
 
+    const enableAutoEmbeddingPublicPreview = Boolean(
+      preferences.getPreferences().enableAutoEmbeddingPublicPreview
+    );
+
     const currentSnippet = getStageSnippet(
       stageInStore.stageOperator,
       env,
@@ -610,7 +676,8 @@ export const changeStageOperator = (
       // will replace anchors with their names (i.e., `${anchor}` will be
       // `anchor` when snippet is applied to the editor) and that's what we want
       // to compare to here
-      true
+      true,
+      enableAutoEmbeddingPublicPreview
     ).trim();
 
     const currentValue = stageInStore.value?.trim();
@@ -629,8 +696,6 @@ export const changeStageOperator = (
       connectionInfoRef.current
     );
 
-    dispatch({ type: StageEditorActionTypes.StageOperatorChange, id, stage });
-
     let newSnippet: string | undefined;
 
     // If there is no stage value or current stage value is identical to the
@@ -638,8 +703,21 @@ export const changeStageOperator = (
     // can be applied to the editor (this will be picked up by the UI and passed
     // the the editor to start snippet completion)
     if (!currentValue || currentSnippet === currentValue) {
-      newSnippet = getStageSnippet(stage.operator, env, comments);
+      newSnippet = getStageSnippet(
+        stage.operator,
+        env,
+        comments,
+        false,
+        enableAutoEmbeddingPublicPreview
+      );
     }
+
+    dispatch({
+      type: StageEditorActionTypes.StageOperatorChange,
+      id,
+      stage,
+      newSnippet: !!newSnippet,
+    });
 
     dispatch(loadPreviewForStagesFrom(id));
     void dispatch(fetchExplainForPipeline());
@@ -728,6 +806,22 @@ export const addStage = (
       after: addAfter,
       stage: mapBuilderStageToStoreStage(stage, addAfterIdxInPipeline),
     });
+  };
+};
+
+export const addSearchStageBefore = (
+  storeIndex: number
+): PipelineBuilderThunkAction<void> => {
+  return (dispatch, getState) => {
+    // addStage(after) inserts after position `after`; passing storeIndex - 1
+    // places the new stage at storeIndex. When storeIndex = 0, passing -1
+    // causes splice(0, 0, stage) which correctly inserts at the beginning.
+    dispatch(addStage(storeIndex - 1));
+    dispatch(changeStageOperator(storeIndex, '$search'));
+
+    const { env, comments } = getState();
+    const initialValue = getStageSnippet('$search', env, comments, true);
+    dispatch(changeStageValue(storeIndex, initialValue));
   };
 };
 
@@ -1024,9 +1118,14 @@ export type StoreStage = {
   serverError: MongoServerError | null;
   loading: boolean;
   previewDocs: HadronDocument[] | null;
+  // Sticky flag: true once a successful preview has returned at least one
+  // document. Resets only when the stage operator changes.
+  didReturnDocs: boolean;
+  stageMetadata: StagePreviewMetadata | null;
   collapsed: boolean;
   disabled: boolean;
   empty: boolean;
+  fromSnippet: boolean;
 };
 
 export type Wizard = {
@@ -1060,8 +1159,11 @@ export function mapBuilderStageToStoreStage(
     serverError: null,
     loading: false,
     previewDocs: null,
+    didReturnDocs: false,
+    stageMetadata: null,
     collapsed: false,
     empty: stage.isEmpty,
+    fromSnippet: false,
   };
 }
 
@@ -1118,6 +1220,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           serverError: null,
           loading: true,
+          stageMetadata: null,
         },
         ...state.stages.slice(action.id + 1),
       ],
@@ -1138,6 +1241,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: null,
+          stageMetadata: null,
           serverError: null,
         },
         ...state.stages.slice(action.id + 1),
@@ -1163,6 +1267,10 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: action.previewDocs,
+          didReturnDocs:
+            action.previewDocs.length > 0 ||
+            !!(state.stages[action.id] as StoreStage).didReturnDocs,
+          stageMetadata: action.stageMetadata,
           serverError: null,
         },
         ...state.stages.slice(action.id + 1),
@@ -1207,6 +1315,7 @@ const reducer: Reducer<StageEditorState, Action> = (
           value: action.stage.value,
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,
+          fromSnippet: false,
         },
         ...state.stages.slice(action.id + 1),
       ],
@@ -1226,9 +1335,11 @@ const reducer: Reducer<StageEditorState, Action> = (
         {
           ...state.stages[action.id],
           previewDocs: null,
+          didReturnDocs: false,
           stageOperator: action.stage.operator,
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,
+          fromSnippet: action.newSnippet,
         } as StoreStage,
         ...state.stages.slice(action.id + 1),
       ],

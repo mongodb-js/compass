@@ -6,7 +6,7 @@
 > the tracking plan for the specific Compass version you can use the following
 > URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
 
-Generated on Thu, Apr 30, 2026
+Generated on Wed, Jul 1, 2026
 
 ## Table of Contents
 
@@ -35,6 +35,23 @@ Generated on Thu, Apr 30, 2026
 - [Focus Mode Closed](#event--FocusModeClosedEvent)
 - [Focus Mode Opened](#event--FocusModeOpenedEvent)
 - [View Updated](#event--ViewUpdatedEvent)
+- [Rerank Not Enabled Banner Shown](#event--RerankNotEnabledBannerShownEvent)
+- [Rerank Version Warning Banner Shown](#event--RerankVersionWarningBannerShownEvent)
+- [Rerank First Stage Banner Dismissed](#event--RerankFirstStageBannerDismissedEvent)
+- [Rerank First Stage Banner Learn More Clicked](#event--RerankFirstStageBannerLearnMoreClickedEvent)
+- [Rerank Add Search Stage Button Clicked](#event--RerankAddSearchStageButtonClickedEvent)
+- [Rerank Learn About Search Button Clicked](#event--RerankLearnAboutSearchButtonClickedEvent)
+- [Rerank Tell Me More Button Clicked](#event--RerankTellMeMoreButtonClickedEvent)
+- [Rerank Upgrade Cluster Button Clicked](#event--RerankUpgradeClusterButtonClickedEvent)
+- [Rerank Project Settings Button Clicked](#event--RerankProjectSettingsButtonClickedEvent)
+- [Rerank View Usage And Rate Limits Link Clicked](#event--RerankViewUsageAndRateLimitsLinkClickedEvent)
+- [Search Extension Rate Limit Banner Shown](#event--SearchExtensionRateLimitBannerShownEvent)
+- [Search Extension Rate Limit Billing Link Clicked](#event--SearchExtensionRateLimitBillingLinkClickedEvent)
+- [Search Extension Rate Limit Page Link Clicked](#event--SearchExtensionRateLimitPageLinkClickedEvent)
+
+### Application
+
+- [Render Process Gone](#event--RenderProcessGoneEvent)
 
 ### Assistant
 
@@ -140,6 +157,7 @@ Generated on Thu, Apr 30, 2026
 ### Find Queries
 
 - [Query Edited](#event--QueryEditedEvent)
+- [Query Reset Clicked](#event--QueryResetClickedEvent)
 - [Query Executed](#event--QueryExecutedEvent)
 - [Query Exported](#event--QueryExportedEvent)
 - [Query Export Opened](#event--QueryExportOpenedEvent)
@@ -214,8 +232,6 @@ Generated on Thu, Apr 30, 2026
 
 - [Application Launched](#event--ApplicationLaunchedEvent)
 - [Atlas Link Clicked](#event--AtlasLinkClickedEvent)
-- [Atlas Skills CTA Clicked](#event--AtlasSkillsCtaClickedEvent)
-- [Atlas Skills CTA Dismissed](#event--AtlasSkillsCtaDismissedEvent)
 - [Error Fetching Attributes](#event--ErrorFetchingAttributesEvent)
 - [Keytar Secrets Migration Failed](#event--KeytarSecretsMigrationFailedEvent)
 - [Performance Advisor Clicked](#event--PerformanceAdvisorClickedEvent)
@@ -249,6 +265,7 @@ Generated on Thu, Apr 30, 2026
 ### Schema
 
 - [Schema Analysis Started](#event--SchemaAnalysisStartedEvent)
+- [Schema Analysis Failed](#event--SchemaAnalysisFailedEvent)
 - [Schema Analysis Cancelled](#event--SchemaAnalysisCancelledEvent)
 - [Schema Analyzed](#event--SchemaAnalyzedEvent)
 - [Schema Exported](#event--SchemaExportedEvent)
@@ -666,6 +683,203 @@ builder.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
+<a name="event--RerankNotEnabledBannerShownEvent"></a>
+
+### Rerank Not Enabled Banner Shown
+
+This event is fired when the "rerank not enabled" server error banner is
+shown to the user in the pipeline results workspace.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the banner was shown.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankVersionWarningBannerShownEvent"></a>
+
+### Rerank Version Warning Banner Shown
+
+This event is fired when the rerank server version warning banner is shown
+to the user, indicating the cluster must be upgraded to use $rerank.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the banner was shown.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankFirstStageBannerDismissedEvent"></a>
+
+### Rerank First Stage Banner Dismissed
+
+This event is fired when the user dismisses the $rerank first-stage
+insight banner.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the banner was dismissed.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankFirstStageBannerLearnMoreClickedEvent"></a>
+
+### Rerank First Stage Banner Learn More Clicked
+
+This event is fired when the user clicks the "Learn more" button in the
+$rerank first-stage insight banner.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankAddSearchStageButtonClickedEvent"></a>
+
+### Rerank Add Search Stage Button Clicked
+
+This event is fired when the user clicks the "Add $search stage" button
+in the $rerank insight popover.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankLearnAboutSearchButtonClickedEvent"></a>
+
+### Rerank Learn About Search Button Clicked
+
+This event is fired when the user clicks the "Learn about search" button
+in the $rerank insight popover.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankTellMeMoreButtonClickedEvent"></a>
+
+### Rerank Tell Me More Button Clicked
+
+This event is fired when the user clicks the "Tell me more" assistant
+button in the $rerank insight popover.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankUpgradeClusterButtonClickedEvent"></a>
+
+### Rerank Upgrade Cluster Button Clicked
+
+This event is fired when the user clicks the "Upgrade Cluster" button in
+the rerank version warning banner.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankProjectSettingsButtonClickedEvent"></a>
+
+### Rerank Project Settings Button Clicked
+
+This event is fired when the user clicks the "Project Settings" button in
+the rerank not enabled banner.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+  - The context/screen from which the button was clicked.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--RerankViewUsageAndRateLimitsLinkClickedEvent"></a>
+
+### Rerank View Usage And Rate Limits Link Clicked
+
+This event is fired when the user clicks the "View $rerank Usage and Rate
+Limits" link in the stage toolbar or focus mode header.
+
+**Properties**:
+
+- **context** (required): `RerankTelemetryContext`
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchExtensionRateLimitBannerShownEvent"></a>
+
+### Search Extension Rate Limit Banner Shown
+
+This event is fired when the search extension rate limit exceeded banner
+is shown to the user.
+
+**Properties**:
+
+- **context** (required): `"Search Extension Rate Limit Banner"`
+  - The context/screen from which the banner was shown.
+- **search_extension_type** (required): `string | null`
+  - The search extension type that triggered the rate limit.
+- **rate_limit_type** (required): `"billing" | "rpm" | "tpm"`
+  - The type of rate limit that was exceeded.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchExtensionRateLimitBillingLinkClickedEvent"></a>
+
+### Search Extension Rate Limit Billing Link Clicked
+
+This event is fired when the user clicks the billing link in the search
+extension rate limit banner.
+
+**Properties**:
+
+- **context** (required): `"Search Extension Rate Limit Banner"`
+  - The context/screen from which the link was clicked.
+- **search_extension_type** (required): `string | null`
+  - The search extension type that triggered the rate limit.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--SearchExtensionRateLimitPageLinkClickedEvent"></a>
+
+### Search Extension Rate Limit Page Link Clicked
+
+This event is fired when the user clicks the "View Rate Limit" link in the
+search extension rate limit banner.
+
+**Properties**:
+
+- **context** (required): `"Search Extension Rate Limit Banner"`
+  - The context/screen from which the link was clicked.
+- **search_extension_type** (required): `string | null`
+  - The search extension type that triggered the rate limit.
+- **rate_limit_type** (required): `"rpm" | "tpm"`
+  - Whether the rate limit is requests-per-minute or tokens-per-minute.
+- **is_compass_web** (optional): `true | undefined`
+
+## Application
+
+<a name="event--RenderProcessGoneEvent"></a>
+
+### Render Process Gone
+
+This event is fired from the main process when a renderer process
+terminates unexpectedly (crash, OOM, killed, etc.).
+Normal clean exits are excluded.
+
+**Properties**:
+
+- **reason** (required): `"abnormal-exit" | "killed" | "crashed" | "oom" | "launch-failed" | "integrity-failure" | "memory-eviction"`
+  - The reason the renderer process terminated.
+- **exit_code** (required): `number`
+  - The exit code of the process, or a platform-specific launch failure
+    error code if reason is 'launch-failed'.
+- **is_compass_web** (optional): `true | undefined`
+
 ## Assistant
 
 <a name="event--AssistantPromptSubmittedEvent"></a>
@@ -719,7 +933,7 @@ This event is fired when a user submits feedback for the assistant.
 - **feedback** (required): `"positive" | "negative"`
 - **text** (optional): `string | undefined`
 - **request_id** (optional): `string | undefined`
-- **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "follow-up prompt" | "chat response"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -732,7 +946,7 @@ This event is fired when a user uses an assistant entry point.
 
 **Properties**:
 
-- **source** (required): `"explain plan" | "performance insights" | "connection error"`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "follow-up prompt"`
 - **request_id** (optional): `string | undefined`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -747,7 +961,7 @@ This event is fired when a user confirms a confirmation message in the assistant
 **Properties**:
 
 - **status** (required): `"confirmed" | "rejected"`
-- **source** (required): `"explain plan" | "performance insights" | "connection error" | "chat response"`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "follow-up prompt" | "chat response"`
 - **request_id** (optional): `string | undefined`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -860,6 +1074,14 @@ This event is fired when the auto-update feature is disabled.
 
 This event is fired when a user runs a bulk delete operation.
 
+**Properties**:
+
+- **has_filter** (required): `boolean`
+  - Specifies if a filter was set in the query
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
 <a name="event--BulkDeleteOpenedEvent"></a>
 
 ### Bulk Delete Opened
@@ -876,6 +1098,8 @@ This event is fired when a user runs a bulk update operation.
 
 - **isUpdatePreviewSupported** (required): `boolean`
   - Specifies if update preview was supported (the update preview runs inside a transaction.)
+- **has_filter** (required): `boolean`
+  - Specifies if a filter was set in the query
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -1113,6 +1337,12 @@ This event is fired when user successfully connects to a new server/cluster.
     Connection" button)
 - **num_inactive_connections** (required): `number`
   - The number of inactive connections.
+- **user_language** (required): `string`
+  - The user's preferred language, as reported by the browser or Electron
+    runtime (e.g. "en-US", "fr", "zh-CN").
+- **user_languages** (required): `{}`
+  - The user's ordered language preferences, as
+    reported by navigator.languages (e.g. ['en-US', 'en', 'fr']).
 - **auth_type** (optional): `string | undefined`
   - Desktop only. The authentication type used in the connection.
 - **tunnel** (optional): `string | undefined`
@@ -1656,6 +1886,20 @@ This event is fired when a user edits a query.
 
 - **option_name** (required): `"maxTimeMS" | "filter" | "project" | "collation" | "sort" | "skip" | "limit" | "hint"`
   - The name of the edited field.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--QueryResetClickedEvent"></a>
+
+### Query Reset Clicked
+
+This event is fired when a user clicks reset button on a query.
+
+**Properties**:
+
+- **source** (required): `string`
+  - Where does the reset originated: CRUD or Schema view
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -2479,30 +2723,6 @@ This event is fired when a user clicks on the Atlas CTA.
   - The screen from which the Atlas CTA was clicked.
 - **is_compass_web** (optional): `true | undefined`
 
-<a name="event--AtlasSkillsCtaClickedEvent"></a>
-
-### Atlas Skills CTA Clicked
-
-This event is fired when a user clicks the Atlas Skills CTA banner.
-
-**Properties**:
-
-- **context** (required): `"Indexes Tab" | "Documents Tab" | "Aggregation Tab" | "Schema Tab"`
-  - The context/screen from which the Atlas Skills CTA was dismissed.
-- **is_compass_web** (optional): `true | undefined`
-
-<a name="event--AtlasSkillsCtaDismissedEvent"></a>
-
-### Atlas Skills CTA Dismissed
-
-This event is fired when a user dismisses the Atlas Skills CTA banner.
-
-**Properties**:
-
-- **context** (required): `"Indexes Tab" | "Documents Tab" | "Aggregation Tab" | "Schema Tab"`
-  - The context/screen from which the Atlas Skills CTA was dismissed.
-- **is_compass_web** (optional): `true | undefined`
-
 <a name="event--ErrorFetchingAttributesEvent"></a>
 
 ### Error Fetching Attributes
@@ -2740,6 +2960,24 @@ This event is fired when signal icon badge is rendered on the screen visible to 
 
 This event is fired when the schema analysis is started
 
+<a name="event--SchemaAnalysisFailedEvent"></a>
+
+### Schema Analysis Failed
+
+This event is fired when schema analysis fails due to a query timeout or a general error.
+
+**Properties**:
+
+- **error_type** (required): `"timeout" | "general"`
+  - The category of error that caused the failure.
+- **with_filter** (required): `boolean`
+  - Indicates whether a filter was applied during the schema analysis.
+- **analysis_time_ms** (required): `number`
+  - The time taken when analyzing the schema, before it failed, in milliseconds.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
 <a name="event--SchemaAnalysisCancelledEvent"></a>
 
 ### Schema Analysis Cancelled
@@ -2780,6 +3018,9 @@ This event is fired when user analyzes the schema.
   - The number of nested levels.
 - **geo_data** (required): `boolean`
   - Indicates whether the schema contains geospatial data.
+- **distinct_field_count** (required): `number`
+  - The total count of distinct fields across all nesting levels in the schema,
+    including fields nested within documents and arrays of documents.
 - **analysis_time_ms** (required): `number`
   - The time taken to analyze the schema, in milliseconds.
 - **is_compass_web** (optional): `true | undefined`

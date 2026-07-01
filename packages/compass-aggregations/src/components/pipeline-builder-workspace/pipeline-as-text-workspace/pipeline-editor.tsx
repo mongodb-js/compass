@@ -3,9 +3,6 @@ import { connect } from 'react-redux';
 import {
   css,
   WarningSummary,
-  Banner,
-  Button,
-  Icon,
   spacing,
   palette,
   useDarkMode,
@@ -23,15 +20,19 @@ import type { MongoServerError } from 'mongodb';
 import { changeEditorValue } from '../../../modules/pipeline-builder/text-editor-pipeline';
 import type { PipelineParserError } from '../../../modules/pipeline-builder/pipeline-parser/utils';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
-  useConnectionInfoRef,
-  useConnectionInfo,
-} from '@mongodb-js/compass-connections/provider';
+  useTelemetry,
+  useSearchActivationProgramP1,
+} from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { useSyncAssistantGlobalState } from '@mongodb-js/compass-assistant';
 import { usePreference } from 'compass-preferences-model/provider';
-import { getSearchStageInfoFromPipeline } from '../../../utils/stage';
+import {
+  getSearchStageInfoFromPipeline,
+  getStageOperator,
+} from '../../../utils/stage';
 import type { SearchStageOperator } from '../../../utils/stage';
+import { COLLECTION, VIEW, TIME_SERIES } from '@mongodb-js/mongodb-constants';
 import {
   openCreateSearchIndexDrawerView,
   openEditSearchIndexDrawerView,
@@ -40,8 +41,10 @@ import {
 import ServerErrorBanner from '../../server-error-banner';
 import {
   isRerankVersionSupported,
-  RERANK_MIN_SERVER_VERSION,
+  getSearchExtensionTypeFromStage,
+  type SearchExtensionType,
 } from '../../../utils/search-stage-errors';
+import { RerankVersionWarningBanner } from '../../rerank-version-warning-banner';
 import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
 import type { SearchIndexType } from '../../../modules/search-indexes';
 
@@ -76,21 +79,19 @@ const codeEditorStyles = css({
 });
 
 const errorContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
   flex: 'none',
   marginTop: 'auto',
   marginLeft: spacing[400],
   marginRight: spacing[400],
-});
-
-const rerankBannerContentStyles = css({
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  width: '100%',
+  gap: spacing[400],
 });
 
 export type PipelineEditorProps = {
   namespace: string;
+  isTimeSeries: boolean;
+  sourceName: string | null;
   num_stages: number;
   pipelineText: string;
   syntaxErrors: PipelineParserError[];
@@ -99,6 +100,7 @@ export type PipelineEditorProps = {
   searchIndexName: string | null;
   searchStageOperator: SearchStageOperator | null;
   showSearchIndexDoesNotExistBanner: boolean;
+  searchExtensionType?: SearchExtensionType | null;
   onChangePipelineText: (value: string) => void;
   onViewSearchIndexesClick: (indexName?: string) => void;
   onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
@@ -107,6 +109,8 @@ export type PipelineEditorProps = {
 
 export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   namespace,
+  isTimeSeries,
+  sourceName,
   num_stages,
   pipelineText,
   serverError,
@@ -115,15 +119,20 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   searchIndexName,
   searchStageOperator,
   showSearchIndexDoesNotExistBanner,
+  searchExtensionType,
   onChangePipelineText,
   onViewSearchIndexesClick,
   onCreateSearchIndexClick,
   onEditSearchIndexClick,
 }) => {
+  const namespaceType = isTimeSeries
+    ? TIME_SERIES
+    : sourceName
+    ? VIEW
+    : COLLECTION;
   const fields = useAutocompleteFields(namespace);
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
-  const { atlasMetadata } = useConnectionInfo();
   const editorInitialValueRef = useRef<string>(pipelineText);
   const editorCurrentValueRef = useCurrentValueRef<string>(pipelineText);
 
@@ -135,10 +144,11 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     return createAggregationAutocompleter({
       serverVersion,
       fields: fields.filter((field) => !!field.name),
+      stage: { namespace: namespaceType },
       utmSource,
       utmMedium,
     });
-  }, [serverVersion, fields, utmSource, utmMedium]);
+  }, [serverVersion, fields, namespaceType, utmSource, utmMedium]);
 
   const onBlurEditor = useCallback(() => {
     if (
@@ -177,11 +187,11 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
   const darkMode = useDarkMode();
 
-  const enableSearchActivationProgramP1 = usePreference(
-    'enableSearchActivationProgramP1'
-  );
+  const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const enableRerank = usePreference('enableRerank');
 
   const showRerankVersionWarning =
+    enableRerank &&
     pipelineText.includes('$rerank') &&
     !isRerankVersionSupported(serverVersion);
 
@@ -208,38 +218,14 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           className={codeEditorStyles}
         />
       </div>
-      {showRerankVersionWarning && (
-        <div className={errorContainerStyles}>
-          <Banner
-            variant="danger"
-            data-testid="pipeline-editor-rerank-version-warning"
-          >
-            <div className={rerankBannerContentStyles}>
-              <span>
-                Upgrade your cluster to MongoDB {RERANK_MIN_SERVER_VERSION}+ to
-                use $rerank.
-              </span>
-              {atlasMetadata && (
-                <Button
-                  size="xsmall"
-                  href={`#/clusters/edit/${encodeURIComponent(
-                    atlasMetadata.clusterName
-                  )}`}
-                  target="_blank"
-                  rightGlyph={<Icon glyph="OpenNewTab" />}
-                >
-                  Upgrade Cluster
-                </Button>
-              )}
-            </div>
-          </Banner>
-        </div>
-      )}
-      {showErrorContainer && (
+      {(showErrorContainer || showRerankVersionWarning) && (
         <div
           className={errorContainerStyles}
           data-testid="pipeline-as-text-error-container"
         >
+          {showRerankVersionWarning && (
+            <RerankVersionWarningBanner data-testid="pipeline-editor-rerank-version-warning" />
+          )}
           {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
           ) : serverError ? (
@@ -247,6 +233,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
               message={serverError.message}
               searchIndexName={searchIndexName}
               dataTestId="pipeline-editor-error-message"
+              searchExtensionType={searchExtensionType}
               onEditSearchIndexClick={onEditSearchIndexClick}
             />
           ) : enableSearchActivationProgramP1 &&
@@ -267,6 +254,8 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
 
 const mapState = ({
   namespace,
+  isTimeSeries,
+  sourceName,
   pipelineBuilder: {
     textEditor: {
       pipeline: {
@@ -289,8 +278,16 @@ const mapState = ({
     ['READY', 'POLLING'].includes(searchIndexesStatus) &&
     searchIndexes.every((x) => x.name !== searchIndexName);
 
+  const searchExtensionType = pipeline.reduce<SearchExtensionType | null>(
+    (found, stage) =>
+      found ?? getSearchExtensionTypeFromStage(getStageOperator(stage)),
+    null
+  );
+
   return {
     namespace,
+    isTimeSeries,
+    sourceName,
     num_stages: pipeline.length,
     pipelineText,
     serverError: pipelineServerError ?? outputStageServerError,
@@ -299,6 +296,7 @@ const mapState = ({
     searchIndexName,
     searchStageOperator,
     showSearchIndexDoesNotExistBanner,
+    searchExtensionType,
   };
 };
 

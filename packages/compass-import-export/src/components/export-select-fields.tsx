@@ -157,7 +157,6 @@ function ExportSelectFields({
   // Track the fields length so we know when to auto-focus
   // the add field input when a new field is added.
   const lastRenderedFieldsLength = useRef(0);
-  const [autoScrollNewFieldInput, setAutoScrollNewFieldInput] = useState(false);
 
   const fieldKeys = useMemo(() => Object.keys(fields), [fields]);
 
@@ -192,25 +191,14 @@ function ExportSelectFields({
   );
 
   useEffect(() => {
-    if (!autoScrollNewFieldInput) {
-      return;
-    }
-
-    if (newFieldRef.current) {
+    if (
+      lastRenderedFieldsLength.current !== 0 &&
+      fieldKeys.length > lastRenderedFieldsLength.current &&
+      newFieldRef.current
+    ) {
       // Focus and scroll to the add new field input.
       newFieldRef.current.scrollIntoView();
       newFieldRef.current.focus();
-    }
-
-    setAutoScrollNewFieldInput(false);
-  }, [autoScrollNewFieldInput]);
-
-  useEffect(() => {
-    if (
-      lastRenderedFieldsLength.current !== 0 &&
-      fieldKeys.length > lastRenderedFieldsLength.current
-    ) {
-      setAutoScrollNewFieldInput(true);
     }
 
     lastRenderedFieldsLength.current = fieldKeys.length;

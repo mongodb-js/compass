@@ -470,6 +470,7 @@ export function refreshDocuments(
       logger,
       track,
       connectionInfoRef,
+      connectionScopedAppRegistry,
       fieldStoreService,
       queryBar,
       crudOptions,
@@ -710,6 +711,10 @@ export function refreshDocuments(
       void fieldStoreService.updateFieldsFromDocuments(ns, [
         docs[0]?.generateObject(),
       ]);
+
+      // Notify the instance store to refresh collection stats so the tab
+      // header count stays in sync with the pagination count.
+      connectionScopedAppRegistry.emit('documents-refreshed', { ns });
     } catch (error) {
       logger.log.error(
         mongoLogId(1_001_000_074),
