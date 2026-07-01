@@ -11,7 +11,7 @@ export function buildPerformanceMetricsUrl({
   if (metricsType === 'flex') {
     return `${url}#/flex/realtime/${clusterName}`;
   }
-  return `${url}#/host/${metricsType}/${metricsId}/realtime/panel`;
+  return `${url}#/metrics/${metricsType}/${metricsId}/realtime/panel`;
 }
 
 export function buildProjectSettingsUrl({
