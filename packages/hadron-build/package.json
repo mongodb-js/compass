@@ -40,9 +40,9 @@
   "dependencies": {
     "@electron/rebuild": "^4.0.4",
     "@mongodb-js/devtools-github-repo": "^1.4.1",
-    "@mongodb-js/dl-center": "^1.6.12",
+    "@mongodb-js/dl-center": "^1.6.13",
     "@mongodb-js/electron-wix-msi": "^3.0.0",
-    "@mongodb-js/signing-utils": "^0.5.11",
+    "@mongodb-js/signing-utils": "^0.5.12",
     "@npmcli/arborist": "^6.2.0",
     "@octokit/rest": "^18.6.2",
     "asar": "^3.0.3",
