@@ -31,7 +31,7 @@ import {
 import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-import { CrudTabTitle } from './plugin-title';
+import CrudTabTitle from './plugin-title';
 import type { RequiredDataServiceProps } from './utils/data-service';
 
 const CompassDocumentsPluginProvider = registerCompassPlugin(

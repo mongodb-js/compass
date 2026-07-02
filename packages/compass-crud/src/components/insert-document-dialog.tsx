@@ -24,6 +24,17 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { WriteError } from '../stores/crud-store';
+import { connect } from 'react-redux';
+import type { CrudState } from '../stores/crud-store';
+import {
+  insertDocument,
+  insertMany,
+  toggleInsertDocument,
+  toggleInsertDocumentView,
+  closeInsertDocumentDialog,
+  updateJsonDoc,
+  updateComment,
+} from '../stores/insert';
 
 /**
  * The insert invalid message.
@@ -51,7 +62,7 @@ const errorDetailsBtnStyles = css({
   float: 'right',
 });
 
-export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
+type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   closeInsertDocumentDialog: () => void;
   toggleInsertDocumentView: (view: 'JSON' | 'List') => void;
   toggleInsertDocument: (view: 'JSON' | 'List') => void;
@@ -59,8 +70,6 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   insertMany: () => void;
   isOpen: boolean;
   error?: WriteError;
-  mode: 'modifying' | 'error';
-  version: string;
   updateJsonDoc: (value: string | null) => void;
   jsonDoc: string;
   jsonView: boolean;
@@ -367,4 +376,24 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   );
 };
 
-export default withLogger(InsertDocumentDialog, 'COMPASS-CRUD-UI');
+export default connect(
+  (state: CrudState) => ({
+    isOpen: state.insert.isOpen,
+    error: state.insert.error,
+    jsonDoc: state.insert.jsonDoc ?? '',
+    jsonView: state.insert.jsonView,
+    doc: state.insert.doc,
+    ns: state.documents.ns,
+    isCommentNeeded: state.insert.isCommentNeeded,
+    csfleState: state.insert.csfleState,
+  }),
+  {
+    insertDocument,
+    insertMany,
+    toggleInsertDocument,
+    toggleInsertDocumentView,
+    closeInsertDocumentDialog,
+    updateJsonDoc,
+    updateComment,
+  }
+)(withLogger(InsertDocumentDialog, 'COMPASS-CRUD-UI'));

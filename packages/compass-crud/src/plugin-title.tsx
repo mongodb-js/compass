@@ -83,7 +83,7 @@ type CrudTabTitleProps = {
   collectionStats: CollectionStats | null;
 };
 
-const UnconnectedCrudTabTitle: React.FunctionComponent<CrudTabTitleProps> = ({
+const CrudTabTitle: React.FunctionComponent<CrudTabTitleProps> = ({
   collectionStats,
 }) => {
   const { documentCount, storageSize, avgDocumentSize } = useMemo(() => {
@@ -117,6 +117,6 @@ const UnconnectedCrudTabTitle: React.FunctionComponent<CrudTabTitleProps> = ({
   );
 };
 
-export const CrudTabTitle = connect((state: CrudState) => ({
+export default connect((state: CrudState) => ({
   collectionStats: state.collectionMeta.collectionStats,
-}))(UnconnectedCrudTabTitle);
+}))(CrudTabTitle);

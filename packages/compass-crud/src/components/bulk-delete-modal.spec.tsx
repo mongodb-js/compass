@@ -7,7 +7,7 @@ import {
   cleanup,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import BulkDeleteModal from './bulk-delete-modal';
+import { BulkDeleteModal } from './bulk-delete-modal';
 
 function renderBulkDeleteModal(
   props?: Partial<React.ComponentProps<typeof BulkDeleteModal>>

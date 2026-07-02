@@ -43,8 +43,8 @@ import {
   insertDocument,
   insertMany,
   openInsertDocumentDialog,
-  seedInsertTestState,
   toggleInsertDocument,
+  updateJsonDoc,
 } from './insert';
 import {
   closeBulkUpdateModal,
@@ -1226,8 +1226,6 @@ describe('store', function () {
       });
 
       context('when the document matches the filter', function () {
-        const doc = new HadronDocument({ name: 'testing' });
-
         it('inserts the document', async function () {
           const listener = waitForState(store, (state) => {
             expect(state.documents.docs.length).to.equal(1);
@@ -1240,7 +1238,7 @@ describe('store', function () {
             expect(state.insert.error).to.equal(undefined);
           });
 
-          store.dispatch(seedInsertTestState({ doc: doc }));
+          await store.dispatch(openInsertDocumentDialog({ name: 'testing' }));
           void store.dispatch(insertDocument());
 
           await listener;
@@ -1248,10 +1246,8 @@ describe('store', function () {
       });
 
       context('when the document does not match the filter', function () {
-        const doc = new HadronDocument({ name: 'testing' });
-
-        beforeEach(function () {
-          store.dispatch(seedInsertTestState({ doc: doc }));
+        beforeEach(async function () {
+          await store.dispatch(openInsertDocumentDialog({ name: 'testing' }));
           mockQueryBar.getLastAppliedQuery.returns({
             filter: { name: 'something' },
           });
@@ -1277,16 +1273,10 @@ describe('store', function () {
       context('when the document has invalid bson', function () {
         // this is invalid ObjectId
         const jsonDoc = '{"_id": {"$oid": ""}}';
-        const hadronDoc = new HadronDocument({});
 
-        beforeEach(function () {
-          store.dispatch(
-            seedInsertTestState({
-              jsonView: true,
-              doc: hadronDoc,
-              jsonDoc: jsonDoc,
-            })
-          );
+        beforeEach(async function () {
+          await store.dispatch(openInsertDocumentDialog({}));
+          store.dispatch(updateJsonDoc(jsonDoc));
           store.dispatch(seedDocumentsTestState({ count: 0 }));
         });
 
@@ -1294,7 +1284,7 @@ describe('store', function () {
           const listener = waitForState(store, (state) => {
             expect(state.documents.docs.length).to.equal(0);
             expect(state.documents.count).to.equal(0);
-            expect(state.insert.doc).to.deep.equal(hadronDoc);
+            expect(state.insert.doc?.generateObject()).to.deep.equal({});
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(true);
@@ -1312,18 +1302,12 @@ describe('store', function () {
 
     context('when there is an error', function () {
       context('when it is a json mode', function () {
-        const hadronDoc = new HadronDocument({});
         // this should be invalid according to the validation rules
         const jsonDoc = '{ "status": "testing" }';
 
-        beforeEach(function () {
-          store.dispatch(
-            seedInsertTestState({
-              jsonView: true,
-              doc: hadronDoc,
-              jsonDoc: jsonDoc,
-            })
-          );
+        beforeEach(async function () {
+          await store.dispatch(openInsertDocumentDialog({}));
+          store.dispatch(updateJsonDoc(jsonDoc));
           store.dispatch(seedDocumentsTestState({ count: 0 }));
         });
 
@@ -1335,7 +1319,7 @@ describe('store', function () {
           const listener = waitForState(store, (state) => {
             expect(state.documents.docs.length).to.equal(0);
             expect(state.documents.count).to.equal(0);
-            expect(state.insert.doc).to.deep.equal(hadronDoc);
+            expect(state.insert.doc?.generateObject()).to.deep.equal({});
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(true);
@@ -1350,16 +1334,9 @@ describe('store', function () {
       });
 
       context('when it is not a json mode', function () {
-        const doc = new HadronDocument({ status: 'testing' });
-        const jsonDoc = '';
-
-        beforeEach(function () {
-          store.dispatch(
-            seedInsertTestState({
-              doc: doc,
-              jsonDoc: jsonDoc,
-            })
-          );
+        beforeEach(async function () {
+          await store.dispatch(openInsertDocumentDialog({ status: 'testing' }));
+          store.dispatch(toggleInsertDocument('List'));
           store.dispatch(seedDocumentsTestState({ count: 0 }));
         });
 
@@ -1368,6 +1345,8 @@ describe('store', function () {
         });
 
         it('does not insert the document', async function () {
+          const { doc, jsonDoc } = store.getState().insert;
+
           const listener = waitForState(store, (state) => {
             expect(state.documents.docs.length).to.equal(0);
             expect(state.documents.count).to.equal(0);
@@ -1379,7 +1358,6 @@ describe('store', function () {
             expect(state.insert.error.message).to.not.be.empty;
           });
 
-          store.dispatch(seedInsertTestState({ doc: doc }));
           void store.dispatch(insertDocument());
 
           await listener;
@@ -1387,18 +1365,12 @@ describe('store', function () {
       });
 
       context('when it is a validation error', function () {
-        const hadronDoc = new HadronDocument({});
         // this should be invalid according to the validation rules
         const jsonDoc = '{ "status": "testing" }';
 
-        beforeEach(function () {
-          store.dispatch(
-            seedInsertTestState({
-              jsonView: true,
-              doc: hadronDoc,
-              jsonDoc: jsonDoc,
-            })
-          );
+        beforeEach(async function () {
+          await store.dispatch(openInsertDocumentDialog({}));
+          store.dispatch(updateJsonDoc(jsonDoc));
           store.dispatch(seedDocumentsTestState({ count: 0 }));
         });
 
@@ -1410,7 +1382,7 @@ describe('store', function () {
           const listener = waitForState(store, (state) => {
             expect(state.documents.docs.length).to.equal(0);
             expect(state.documents.count).to.equal(0);
-            expect(state.insert.doc).to.deep.equal(hadronDoc);
+            expect(state.insert.doc?.generateObject()).to.deep.equal({});
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.jsonView).to.equal(true);
@@ -1490,7 +1462,8 @@ describe('store', function () {
             },
           ]);
 
-          store.dispatch(seedInsertTestState({ jsonDoc: docs }));
+          await store.dispatch(openInsertDocumentDialog({}));
+          store.dispatch(updateJsonDoc(docs));
           void store.dispatch(insertMany());
 
           await listener;
@@ -1519,7 +1492,8 @@ describe('store', function () {
             expect(state.insert.error).to.equal(undefined);
           });
 
-          store.dispatch(seedInsertTestState({ jsonDoc: docs }));
+          await store.dispatch(openInsertDocumentDialog({}));
+          store.dispatch(updateJsonDoc(docs));
           void store.dispatch(insertMany());
 
           await listener;
@@ -1544,7 +1518,8 @@ describe('store', function () {
             expect(state.documents.end).to.equal(1);
           });
 
-          store.dispatch(seedInsertTestState({ jsonDoc: docs }));
+          await store.dispatch(openInsertDocumentDialog({}));
+          store.dispatch(updateJsonDoc(docs));
           void store.dispatch(insertMany());
 
           await listener;
@@ -1557,7 +1532,6 @@ describe('store', function () {
         '[ { "name": "Chashu", "type": "Norwegian Forest", "status": "invalid" }, { "name": "Rey", "type": "Viszla" } ]';
 
       beforeEach(function () {
-        store.dispatch(seedInsertTestState({ jsonDoc: JSON.stringify(docs) }));
         store.dispatch(seedDocumentsTestState({ count: 0 }));
       });
 
@@ -1579,7 +1553,8 @@ describe('store', function () {
           );
         });
 
-        store.dispatch(seedInsertTestState({ jsonDoc: docs }));
+        await store.dispatch(openInsertDocumentDialog({}));
+        store.dispatch(updateJsonDoc(docs));
         void store.dispatch(insertMany());
 
         await listener;

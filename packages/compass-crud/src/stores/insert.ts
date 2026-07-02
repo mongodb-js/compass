@@ -57,8 +57,6 @@ export const InsertActionTypes = {
   UPDATE_JSON_DOC: 'crud/insert/UPDATE_JSON_DOC',
   UPDATE_COMMENT: 'crud/insert/UPDATE_COMMENT',
   INSERT_DOCUMENT_ERROR: 'crud/insert/INSERT_DOCUMENT_ERROR',
-  /** @internal Test-only — seed partial state for unit tests. */
-  SEED_INSERT_TEST_STATE: 'crud/insert/SEED_INSERT_TEST_STATE',
 } as const;
 
 export type OpenInsertDocumentDialogAction = {
@@ -101,11 +99,6 @@ export type InsertDocumentErrorAction = {
   jsonView?: boolean;
 };
 
-export type SeedInsertTestStateAction = {
-  type: typeof InsertActionTypes.SEED_INSERT_TEST_STATE;
-  state: Partial<InsertState>;
-};
-
 export type InsertActions =
   | OpenInsertDocumentDialogAction
   | CloseInsertDocumentDialogAction
@@ -113,15 +106,7 @@ export type InsertActions =
   | ToggleInsertDocumentViewAction
   | UpdateJsonDocAction
   | UpdateCommentAction
-  | InsertDocumentErrorAction
-  | SeedInsertTestStateAction;
-
-/** @internal Test-only — see {@link seedDocumentsTestState}. */
-export function seedInsertTestState(
-  state: Partial<InsertState>
-): SeedInsertTestStateAction {
-  return { type: InsertActionTypes.SEED_INSERT_TEST_STATE, state };
-}
+  | InsertDocumentErrorAction;
 
 export const insertReducer: Reducer<InsertState> = (
   state = INITIAL_INSERT_STATE,
@@ -199,9 +184,6 @@ export const insertReducer: Reducer<InsertState> = (
   }
   if (isAction(action, InsertActionTypes.UPDATE_COMMENT)) {
     return { ...state, isCommentNeeded: action.isCommentNeeded };
-  }
-  if (isAction(action, InsertActionTypes.SEED_INSERT_TEST_STATE)) {
-    return { ...state, ...action.state };
   }
   if (isAction(action, InsertActionTypes.INSERT_DOCUMENT_ERROR)) {
     return {

@@ -166,13 +166,12 @@ export function activateDocumentsPlugin(
     applyMiddleware(thunk.withExtraArgument(extraArgs))
   ) as unknown as CrudReduxStore;
 
-  // The grid store is still Reflux-based; attach it as a side-channel property
-  // on the redux store so components can subscribe to it via context.
+  // The grid store is still Reflux-based, we attach it as a property
+  // on the redux store so components can subscribe to it.
   const actions = configureActions();
   const gridStore = configureGridStore({ actions });
   store.gridStore = gridStore;
 
-  // Wire side-effect subscriptions.
   on(
     localAppRegistry,
     'favorites-open-bulk-update-favorite',
