@@ -75,8 +75,8 @@ export const QueryBarActions = {
   ApplyFromHistory: 'compass-query-bar/ApplyFromHistory',
   RecentQueriesFetched: 'compass-query-bar/RecentQueriesFetched',
   FavoriteQueriesFetched: 'compass-query-bar/FavoriteQueriesFetched',
-  InterpretLoading: 'compass-query-bar/InterpretLoading',
-  InterpretDone: 'compass-query-bar/InterpretDone',
+  InterpretStarted: 'compass-query-bar/InterpretStarted',
+  InterpretFinished: 'compass-query-bar/InterpretFinished',
 } as const;
 
 type ChangeReadonlyConnectionStatusAction = {
@@ -658,11 +658,11 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
     };
   }
 
-  if (isAction<Action>(action, QueryBarActions.InterpretLoading)) {
+  if (isAction<Action>(action, QueryBarActions.InterpretStarted)) {
     return { ...state, isInterpretLoading: true };
   }
 
-  if (isAction<Action>(action, QueryBarActions.InterpretDone)) {
+  if (isAction<Action>(action, QueryBarActions.InterpretFinished)) {
     return { ...state, isInterpretLoading: false };
   }
 
