@@ -6,15 +6,18 @@ import {
   Icon,
   Link,
   css,
+  palette,
   spacing,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
 import {
   useSearchActivationProgramP1,
+  useSearchActivationProgramP2,
   useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
@@ -46,6 +49,9 @@ type ServerErrorBannerProps = {
   onEditSearchIndexClick?: (indexName: string) => void;
   searchExtensionType?: SearchExtensionType | null;
   dataTestId?: string;
+  stageOperator?: string | null;
+  stageValue?: string | null;
+  onCloseFocusMode?: () => void;
 };
 
 export default function ServerErrorBanner({
@@ -54,11 +60,17 @@ export default function ServerErrorBanner({
   onEditSearchIndexClick,
   searchExtensionType,
   dataTestId = 'server-error-banner',
+  stageOperator,
+  stageValue,
+  onCloseFocusMode,
 }: ServerErrorBannerProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
+  const { tellMoreAboutInsight, getIsAssistantEnabled } = useAssistantActions();
+  const isAssistantEnabled = getIsAssistantEnabled();
   const rerankNotEnabled = isRerankNotEnabledError(message);
 
   useEffect(() => {
@@ -88,6 +100,30 @@ export default function ServerErrorBanner({
       />
     );
   }
+
+  const showEditSearchIndexLink =
+    enableSearchActivationProgramP1 &&
+    !!searchIndexName &&
+    isSearchIndexDefinitionError(message) &&
+    !!onEditSearchIndexClick;
+
+  const onDebugClick =
+    !showEditSearchIndexLink &&
+    enableSearchActivationProgramP2 &&
+    isAssistantEnabled &&
+    tellMoreAboutInsight &&
+    stageOperator === '$search' &&
+    stageValue
+      ? () => {
+          onCloseFocusMode?.();
+          tellMoreAboutInsight({
+            id: 'aggregation-pipeline-error',
+            stageOperator,
+            errorMessage: message,
+            stageValue,
+          });
+        }
+      : undefined;
 
   return (
     <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>
@@ -119,27 +155,40 @@ export default function ServerErrorBanner({
           </div>
         </>
       ) : (
-        message
-      )}
-      {enableSearchActivationProgramP1 &&
-        searchIndexName &&
-        isSearchIndexDefinitionError(message) &&
-        onEditSearchIndexClick && (
-          <>
-            {' '}
-            <Link
-              onClick={() => {
-                track('Search Index Edit Link Clicked', {
-                  context: 'Server Error Banner',
-                });
-                openDrawer('compass-indexes-drawer');
-                onEditSearchIndexClick(searchIndexName);
-              }}
+        <div className={bannerContentStyles}>
+          <span>
+            {message}
+            {showEditSearchIndexLink && (
+              <>
+                {' '}
+                <Link
+                  onClick={() => {
+                    track('Search Index Edit Link Clicked', {
+                      context: 'Server Error Banner',
+                    });
+                    openDrawer('compass-indexes-drawer');
+                    onEditSearchIndexClick?.(searchIndexName ?? '');
+                  }}
+                >
+                  Edit Search Index
+                </Link>
+              </>
+            )}
+          </span>
+          {onDebugClick && (
+            <Button
+              size="xsmall"
+              onClick={onDebugClick}
+              leftGlyph={
+                <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
+              }
+              data-testid="server-error-banner-debug-button"
             >
-              Edit Search Index
-            </Link>
-          </>
-        )}
+              Debug
+            </Button>
+          )}
+        </div>
+      )}
     </Banner>
   );
 }
