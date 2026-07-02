@@ -171,12 +171,6 @@ export type ProactiveInsightsContext =
     }
   | {
       id: 'rerank-first-stage';
-    }
-  | {
-      id: 'aggregation-pipeline-error';
-      stageOperator: string;
-      errorMessage: string;
-      stageValue: string;
     };
 
 export const buildProactiveInsightsPrompt = (
@@ -228,26 +222,36 @@ Respond with as much concision and clarity as possible. Do not recommend changes
           displayText: 'What are best practices for using $rerank?',
         },
       };
-    case 'aggregation-pipeline-error':
-      return {
-        prompt: `The user's ${context.stageOperator} stage failed with the following error:
+  }
+};
+
+export type SearchStageDiagnosisContext = {
+  stageOperator: string;
+  stageValue: string;
+  errorMessage: string;
+};
+
+export const buildSearchStageDiagnosisPrompt = ({
+  stageOperator,
+  stageValue,
+  errorMessage,
+}: SearchStageDiagnosisContext): EntryPointMessage => ({
+  prompt: `The user's ${stageOperator} stage failed with the following error:
 
 <error>
-${context.errorMessage}
+${errorMessage}
 </error>
 
 <input>
-${context.stageValue}
+${stageValue}
 </input>
 
 Diagnose why the aggregation pipeline is failing and provide step-by-step guidance to fix it.`,
-        metadata: {
-          displayText:
-            'Diagnose why my aggregation pipeline is failing and help me debug it.',
-        },
-      };
-  }
-};
+  metadata: {
+    displayText:
+      'Diagnose why my aggregation pipeline is failing and help me debug it.',
+  },
+});
 
 export type AnalyzeOutputContext = {
   pipeline: string;

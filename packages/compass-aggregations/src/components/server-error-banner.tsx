@@ -40,6 +40,7 @@ const bannerStyles = css({
 const bannerContentStyles = css({
   display: 'flex',
   alignItems: 'center',
+  justifyContent: 'space-between',
   gap: spacing[200],
 });
 
@@ -69,7 +70,7 @@ export default function ServerErrorBanner({
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
-  const { tellMoreAboutInsight, getIsAssistantEnabled } = useAssistantActions();
+  const { diagnoseSearchStage, getIsAssistantEnabled } = useAssistantActions();
   const isAssistantEnabled = getIsAssistantEnabled();
   const rerankNotEnabled = isRerankNotEnabledError(message);
 
@@ -111,13 +112,12 @@ export default function ServerErrorBanner({
     !showEditSearchIndexLink &&
     enableSearchActivationProgramP2 &&
     isAssistantEnabled &&
-    tellMoreAboutInsight &&
+    diagnoseSearchStage &&
     stageOperator === '$search' &&
     stageValue
       ? () => {
           onCloseFocusMode?.();
-          tellMoreAboutInsight({
-            id: 'aggregation-pipeline-error',
+          diagnoseSearchStage({
             stageOperator,
             errorMessage: message,
             stageValue,

@@ -29,18 +29,18 @@ const ERROR_MESSAGE =
 
 function renderBanner(
   props: Partial<React.ComponentProps<typeof ServerErrorBanner>> & {
-    tellMoreAboutInsight?: sinon.SinonStub;
+    diagnoseSearchStage?: sinon.SinonStub;
     withP2Experiment?: boolean;
   } = {},
   preferences: Record<string, unknown> = {}
 ) {
   const {
-    tellMoreAboutInsight,
+    diagnoseSearchStage,
     withP2Experiment = false,
     ...bannerProps
   } = props;
   const actionsContext = {
-    tellMoreAboutInsight: tellMoreAboutInsight ?? sinon.stub(),
+    diagnoseSearchStage: diagnoseSearchStage ?? sinon.stub(),
   };
 
   const element = (
@@ -69,9 +69,9 @@ function renderBanner(
 describe('ServerErrorBanner', function () {
   describe('Debug button', function () {
     it('shows the Debug button when assistant is enabled, P2 experiment is active, and stage context is provided', async function () {
-      const tellMoreAboutInsight = sinon.stub();
+      const diagnoseSearchStage = sinon.stub();
       await renderBanner({
-        tellMoreAboutInsight,
+        diagnoseSearchStage,
         stageOperator: '$search',
         stageValue: '{ "index": "default" }',
         withP2Experiment: true,
@@ -80,9 +80,9 @@ describe('ServerErrorBanner', function () {
     });
 
     it('does not show the Debug button when not in P2 experiment variant', async function () {
-      const tellMoreAboutInsight = sinon.stub();
+      const diagnoseSearchStage = sinon.stub();
       await renderBanner({
-        tellMoreAboutInsight,
+        diagnoseSearchStage,
         stageOperator: '$search',
         stageValue: '{ "index": "default" }',
         withP2Experiment: false,
@@ -92,10 +92,10 @@ describe('ServerErrorBanner', function () {
     });
 
     it('does not show the Debug button for non-$search stages', async function () {
-      const tellMoreAboutInsight = sinon.stub();
+      const diagnoseSearchStage = sinon.stub();
       for (const stageOperator of ['$match', '$vectorSearch', '$searchMeta']) {
         await renderBanner({
-          tellMoreAboutInsight,
+          diagnoseSearchStage,
           stageOperator,
           stageValue: '{ "field": "value" }',
           withP2Experiment: true,
@@ -120,21 +120,20 @@ describe('ServerErrorBanner', function () {
         .exist;
     });
 
-    it('calls tellMoreAboutInsight with stage context when Debug is clicked', async function () {
-      const tellMoreAboutInsight = sinon.stub();
+    it('calls diagnoseSearchStage with stage context when Debug is clicked', async function () {
+      const diagnoseSearchStage = sinon.stub();
       const stageOperator = '$search';
       const stageValue = '{ "index": "default" }';
 
       await renderBanner({
-        tellMoreAboutInsight,
+        diagnoseSearchStage,
         stageOperator,
         stageValue,
         withP2Experiment: true,
       });
       userEvent.click(screen.getByTestId('server-error-banner-debug-button'));
 
-      expect(tellMoreAboutInsight).to.have.been.calledOnceWith({
-        id: 'aggregation-pipeline-error',
+      expect(diagnoseSearchStage).to.have.been.calledOnceWith({
         stageOperator,
         errorMessage: ERROR_MESSAGE,
         stageValue,
