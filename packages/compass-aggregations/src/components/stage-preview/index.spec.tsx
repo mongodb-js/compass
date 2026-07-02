@@ -9,6 +9,7 @@ import {
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import HadronDocument from 'hadron-document';
+import { ObjectId } from 'bson';
 import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
 
 import {
@@ -485,9 +486,38 @@ describe('StagePreview', function () {
       expect(args).to.have.property('pipeline', pipeline);
       expect(args).to.have.property('documentCount', 1);
       expect(args.output).to.include('Document 1:');
-      expect(args.output).to.include('"_id":1');
-      expect(args.output).to.include('"title":"Espresso Basics"');
+      expect(args.output).to.include('_id:');
+      expect(args.output).to.include('Espresso Basics');
       expect(args.output).to.include(`scoreDetails: ${JSON.stringify(score)}`);
+    });
+
+    it('preserves BSON types using shell syntax in the output', async function () {
+      const interpretAnalyzeOutputSpy = Sinon.spy();
+      const oid = new ObjectId('000000000000000000000001');
+      const doc = new HadronDocument({ _id: oid, title: 'Espresso Basics' });
+      const score = { value: 1.5, description: 'sum of:', details: [] };
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [doc],
+          stageMetadata: { type: '$search', scores: [score] },
+          pipeline:
+            '[{ $search: { index: "default", text: { query: "espresso", path: "title" } } }]',
+        },
+        DEFAULT_PIPELINE,
+        {},
+        {
+          enableSearchActivationP2Experiment: true,
+          preferences,
+          interpretAnalyzeOutput: interpretAnalyzeOutputSpy,
+        }
+      );
+
+      userEvent.click(screen.getByTestId('analyze-search-output-button'));
+
+      const args = interpretAnalyzeOutputSpy.firstCall.args[0];
+      expect(args.output).to.include("ObjectId('000000000000000000000001')");
     });
   });
 

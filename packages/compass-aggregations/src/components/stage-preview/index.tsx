@@ -17,6 +17,7 @@ import {
 import { Document } from '@mongodb-js/compass-crud';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import type HadronDocument from 'hadron-document';
+import { toJSString } from 'mongodb-query-parser';
 
 import type { RootState } from '../../modules';
 import {
@@ -204,10 +205,11 @@ function StagePreviewBody({
         const plainDoc = (doc as HadronDocument).generateObject({
           excludeInternalFields: true,
         });
+        const docStr = toJSString(plainDoc);
         const scoreDetails = stageMetadata!.scores[i]!;
         return [
           `Document ${i + 1}:`,
-          JSON.stringify(plainDoc),
+          docStr,
           `scoreDetails: ${JSON.stringify(scoreDetails)}`,
         ];
       })
