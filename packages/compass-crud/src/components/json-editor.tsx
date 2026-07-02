@@ -21,8 +21,8 @@ import {
   CodemirrorMultilineEditor,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
-import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import type { BSONObject } from '../stores/insert';
 
 const editorStyles = css({
   minHeight: spacing[800] + spacing[400],
@@ -54,11 +54,14 @@ export type JSONEditorProps = {
   doc: Document;
   editable: boolean;
   isTimeSeries?: boolean;
-  removeDocument?: CrudActions['removeDocument'];
-  replaceDocument?: CrudActions['replaceDocument'];
-  updateDocument?: CrudActions['updateDocument'];
-  copyToClipboard?: CrudActions['copyToClipboard'];
-  openInsertDocumentDialog?: CrudActions['openInsertDocumentDialog'];
+  removeDocument?: (doc: Document) => Promise<void>;
+  replaceDocument?: (doc: Document) => Promise<void>;
+  updateDocument?: (doc: Document) => Promise<void>;
+  copyToClipboard?: (doc: Document) => void;
+  openInsertDocumentDialog?: (
+    doc: BSONObject,
+    cloned: boolean
+  ) => Promise<void>;
 };
 
 const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({

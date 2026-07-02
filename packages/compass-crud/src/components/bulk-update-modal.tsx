@@ -29,9 +29,18 @@ import {
 import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
+import { connect } from 'react-redux';
+import type { CrudState } from '../stores/crud-store';
 import type { BSONObject } from '../stores/crud-store';
 import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
+import { useLastAppliedQuery } from '@mongodb-js/compass-query-bar';
+import {
+  closeBulkUpdateModal,
+  updateBulkUpdatePreview,
+  runBulkUpdate,
+  saveUpdateQuery,
+} from '../stores/bulk-update';
 
 import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
 
@@ -334,7 +343,7 @@ export type BulkUpdateModalProps = {
   saveUpdateQuery: (name: string) => void;
 };
 
-export default function BulkUpdateModal({
+export function BulkUpdateModal({
   isOpen,
   ns,
   filter,
@@ -498,6 +507,30 @@ export default function BulkUpdateModal({
     </Modal>
   );
 }
+
+function ConnectedBulkUpdateModal(props: Omit<BulkUpdateModalProps, 'filter'>) {
+  const { filter } = useLastAppliedQuery('crud');
+  return <BulkUpdateModal filter={filter ?? {}} {...props} />;
+}
+
+export default connect(
+  (state: CrudState) => ({
+    isOpen: state.bulkUpdate.isOpen,
+    ns: state.documents.ns,
+    count: state.documents.count ?? undefined,
+    updateText: state.bulkUpdate.updateText,
+    preview: state.bulkUpdate.preview,
+    syntaxError: state.bulkUpdate.syntaxError,
+    serverError: state.bulkUpdate.serverError,
+    enablePreview: state.collectionMeta.isUpdatePreviewSupported,
+  }),
+  {
+    closeBulkUpdateModal,
+    updateBulkUpdatePreview,
+    runBulkUpdate,
+    saveUpdateQuery,
+  }
+)(ConnectedBulkUpdateModal);
 
 const previewCardStyles = css({
   padding: spacing[400],

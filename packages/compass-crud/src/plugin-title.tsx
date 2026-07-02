@@ -7,7 +7,9 @@ import {
   compactBytes,
   compactNumber,
 } from '@mongodb-js/compass-components';
-import type { CrudStore } from './stores/crud-store';
+import { connect } from 'react-redux';
+import type { CrudState } from './stores/crud-store';
+import type { CollectionStats } from './stores/collection-meta';
 import { usePreference } from 'compass-preferences-model/provider';
 
 const tooltipContentStyles = css({
@@ -77,12 +79,12 @@ const CollectionStats: React.FunctionComponent<CollectionStatsProps> = ({
   );
 };
 
-export const CrudTabTitle = ({
-  store: {
-    state: { collectionStats },
-  },
-}: {
-  store: CrudStore;
+type CrudTabTitleProps = {
+  collectionStats: CollectionStats | null;
+};
+
+const CrudTabTitle: React.FunctionComponent<CrudTabTitleProps> = ({
+  collectionStats,
 }) => {
   const { documentCount, storageSize, avgDocumentSize } = useMemo(() => {
     const {
@@ -114,3 +116,7 @@ export const CrudTabTitle = ({
     </div>
   );
 };
+
+export default connect((state: CrudState) => ({
+  collectionStats: state.collectionMeta.collectionStats,
+}))(CrudTabTitle);

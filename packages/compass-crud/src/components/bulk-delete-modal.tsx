@@ -12,11 +12,15 @@ import {
   spacing,
   useId,
 } from '@mongodb-js/compass-components';
-import type { BSONObject } from '../stores/crud-store';
+import { connect } from 'react-redux';
+import type { BSONObject, CrudState } from '../stores/crud-store';
 import { toJSString } from 'mongodb-query-parser';
 import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
 import type { Document } from 'bson';
+import { useLastAppliedQuery } from '@mongodb-js/compass-query-bar';
+import { closeBulkDeleteDialog, runBulkDelete } from '../stores/bulk-delete';
+import { openDeleteQueryExportToLanguageDialog } from '../stores/documents';
 
 const footerStyles = css({
   display: 'flex',
@@ -61,7 +65,7 @@ const exportToLanguageButtonStyles = css({
   alignSelf: 'end',
 });
 
-type BulkDeleteModalProps = {
+export type BulkDeleteModalProps = {
   open: boolean;
   documentCount?: number;
   filter: BSONObject;
@@ -72,7 +76,7 @@ type BulkDeleteModalProps = {
   onExportToLanguage: () => void;
 };
 
-const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
+export const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   open,
   documentCount,
   filter,
@@ -155,4 +159,21 @@ const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   );
 };
 
-export default BulkDeleteModal;
+function ConnectedBulkDeleteModal(props: Omit<BulkDeleteModalProps, 'filter'>) {
+  const { filter } = useLastAppliedQuery('crud');
+  return <BulkDeleteModal filter={filter ?? {}} {...props} />;
+}
+
+export default connect(
+  (state: CrudState) => ({
+    open: state.bulkDelete.status === 'open',
+    documentCount: state.bulkDelete.affected,
+    namespace: state.documents.ns,
+    sampleDocuments: state.bulkDelete.previews,
+  }),
+  {
+    onCancel: closeBulkDeleteDialog,
+    onConfirmDeletion: runBulkDelete,
+    onExportToLanguage: openDeleteQueryExportToLanguageDialog,
+  }
+)(ConnectedBulkDeleteModal);

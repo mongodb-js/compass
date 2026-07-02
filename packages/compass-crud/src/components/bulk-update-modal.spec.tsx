@@ -8,7 +8,7 @@ import {
   waitFor,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import BulkUpdateModal from './bulk-update-modal';
+import { BulkUpdateModal } from './bulk-update-modal';
 
 import { FavoriteQueryStorageProvider } from '@mongodb-js/my-queries-storage/provider';
 import { createElectronFavoriteQueryStorage } from '@mongodb-js/my-queries-storage';
