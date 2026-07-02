@@ -1,7 +1,19 @@
 # Compass Tracking Plan
 
+<<<<<<< HEAD
+
 > Auto-generated on 2026-06-30. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
+> =======
+> [!NOTE]
+> This plan represents the tracking plan for the current branch / commit that
+> you have selected (`main` by default), it might not be released yet. To find
+> the tracking plan for the specific Compass version you can use the following
+> URL: `https://github.com/mongodb-js/compass/blob/<compass version>/docs/tracking-plan.md`
+
+Generated on Wed, Jul 1, 2026
+
+> > > > > > > origin/main
 
 ## Table of Contents
 

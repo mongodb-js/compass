@@ -651,10 +651,12 @@ describe('CSFLE / QE', function () {
           }
 
           if (
-            ['prefixPreview', 'suffixPreview'].includes(mode) &&
+            ['prefixPreview', 'suffixPreview', 'substringPreview'].includes(
+              mode
+            ) &&
             serverSatisfies('>=9.0.0-alpha0', true)
           ) {
-            // prefixPreview and suffixPreview are renamed in 9.0.0
+            // TODO(COMPASS-10665): prefixPreview, suffixPreview and substringPreview are renamed in 9.0.0
             return this.skip();
           }
 

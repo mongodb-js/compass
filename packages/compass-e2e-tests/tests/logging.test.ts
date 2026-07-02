@@ -75,6 +75,12 @@ describe('Logging and Telemetry integration', function () {
           .find((entry) => entry.type === 'identify');
         expect(identify.traits.platform).to.equal(process.platform);
         expect(identify.traits.arch).to.match(/^(x64|arm64)$/);
+        expect(identify.traits.device_id).to.match(/^[a-f0-9]{64}$/);
+        expect(identify.traits.compass_version).to.be.a('string');
+        expect(identify.traits.compass_full_version).to.be.a('string');
+        expect(identify.traits.compass_distribution).to.be.a('string');
+        expect(identify.traits.compass_channel).to.be.a('string');
+        expect(identify.traits.os_type).to.be.a('string');
       });
 
       it('tracks an event for shell use', function () {
