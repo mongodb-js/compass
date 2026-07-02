@@ -24,6 +24,17 @@ describe('CompassAuthServiceMain', function () {
 
   const mockFetch = sandbox.stub().callsFake((url: string) => {
     return {
+      'http://example.com/.well-known/oauth-authorization-server': {
+        ok: true,
+        json() {
+          return {
+            issuer: 'http://example.com',
+            userinfo_endpoint: 'http://example.com/v1/userinfo',
+            introspection_endpoint: 'http://example.com/v1/introspect',
+            revocation_endpoint: 'http://example.com/v1/revoke',
+          };
+        },
+      },
       'http://example.com/v1/userinfo': {
         ok: true,
         json() {
@@ -109,6 +120,7 @@ describe('CompassAuthServiceMain', function () {
     CompassAuthService['signInPromise'] = null;
     CompassAuthService['currentUser'] = null;
     CompassAuthService['config'] = authConfig;
+    CompassAuthService['serverMetadataPromise'] = undefined;
 
     sandbox.resetHistory();
   });
@@ -152,12 +164,26 @@ describe('CompassAuthServiceMain', function () {
     });
 
     it('should fail with oidc-plugin error first if auth failed', async function () {
-      CompassAuthService['fetch'] = sandbox.stub().resolves({
-        ok: false,
-        json: sandbox.stub().rejects(),
-        status: 401,
-        statusText: 'Unauthorized',
-      });
+      CompassAuthService['fetch'] = sandbox.stub().callsFake((url: string) => {
+        if (url.endsWith('/.well-known/oauth-authorization-server')) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                issuer: 'http://example.com',
+                userinfo_endpoint: 'http://example.com/v1/userinfo',
+                introspection_endpoint: 'http://example.com/v1/introspect',
+                revocation_endpoint: 'http://example.com/v1/revoke',
+              }),
+          });
+        }
+        return Promise.resolve({
+          ok: false,
+          json: sandbox.stub().rejects(),
+          status: 401,
+          statusText: 'Unauthorized',
+        });
+      }) as any;
       CompassAuthService['plugin'] = {
         mongoClientOptions: {
           authMechanismProperties: {
@@ -186,22 +212,42 @@ describe('CompassAuthServiceMain', function () {
 
   describe('isAuthenticated', function () {
     it('should return true if token is active', async function () {
-      CompassAuthService['fetch'] = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({ active: true });
-        },
+      CompassAuthService['fetch'] = sandbox.stub().callsFake((url: string) => {
+        if (url.endsWith('/.well-known/oauth-authorization-server')) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                issuer: 'http://example.com',
+                introspection_endpoint: 'http://example.com/v1/introspect',
+              }),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ active: true }),
+        });
       }) as any;
 
       expect(await CompassAuthService.isAuthenticated()).to.eq(true);
     });
 
     it('should return false if token is inactive', async function () {
-      CompassAuthService['fetch'] = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({ active: false });
-        },
+      CompassAuthService['fetch'] = sandbox.stub().callsFake((url: string) => {
+        if (url.endsWith('/.well-known/oauth-authorization-server')) {
+          return Promise.resolve({
+            ok: true,
+            json: () =>
+              Promise.resolve({
+                issuer: 'http://example.com',
+                introspection_endpoint: 'http://example.com/v1/introspect',
+              }),
+          });
+        }
+        return Promise.resolve({
+          ok: true,
+          json: () => Promise.resolve({ active: false }),
+        });
       }) as any;
 
       expect(await CompassAuthService.isAuthenticated()).to.eq(false);
@@ -340,7 +386,7 @@ describe('CompassAuthServiceMain', function () {
       expect(getListenerCount(logger)).to.eq(0);
       expect(logger).to.not.eq(CompassAuthService['oidcPluginLogger']);
       expect(mockOidcPlugin.destroy).to.have.been.calledOnce;
-      expect(CompassAuthService['fetch']).to.have.been.calledOnceWith(
+      expect(CompassAuthService['fetch']).to.have.been.calledWith(
         'http://example.com/v1/revoke?client_id=1234abcd'
       );
       expect(CompassAuthService['openExternal']).to.have.been.calledOnce;

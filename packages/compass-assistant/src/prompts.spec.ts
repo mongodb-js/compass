@@ -90,6 +90,7 @@ Database tool calls require a focused connection. Tell the user to navigate to a
 - mongodb-logs: Returns the most recent logged mongod events.
 - get-current-query: Get the current query from the querybar.
 - get-current-pipeline: Get the current pipeline from the aggregation builder.
+- atlas-connection-error-debugger: Use when the user reports a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).
 </instructions>
     `.trim();
 
@@ -117,6 +118,7 @@ You SHOULD:
 - mongodb-logs: Returns the most recent logged mongod events.
 - get-current-query: Get the current query from the querybar.
 - get-current-pipeline: Get the current pipeline from the aggregation builder.
+- atlas-connection-error-debugger: Use when the user reports a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).
 </instructions>
 `.trim();
 
@@ -614,7 +616,9 @@ You SHOULD:
         expect(result.role).to.equal('system');
         expect(result.parts).to.have.lengthOf(1);
         const text = hasText(result.parts[0]) ? result.parts[0].text : '';
-        expect(text).equal(testCase.expected);
+        const isLoggedInToAtlas = testCase.context.isLoggedInToAtlas ?? false;
+        const expectedWithAuth = `The user is signed in to Atlas: ${isLoggedInToAtlas}.\n\n${testCase.expected}`;
+        expect(text).equal(expectedWithAuth);
       });
     }
   });

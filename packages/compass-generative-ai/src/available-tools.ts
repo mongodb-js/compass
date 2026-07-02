@@ -58,4 +58,9 @@ export const AVAILABLE_TOOLS = [
     name: 'get-current-pipeline',
     description: 'Get the current pipeline from the aggregation builder.',
   },
+  {
+    name: 'atlas-connection-error-debugger',
+    description:
+      'Use when the user reports a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
+  },
 ];

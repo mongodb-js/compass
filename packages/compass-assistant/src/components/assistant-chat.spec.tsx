@@ -27,6 +27,28 @@ import {
   ToolsControllerProvider,
   ToolsController,
 } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  AtlasAuthServiceProvider,
+  AtlasServiceProvider,
+} from '@mongodb-js/atlas-service/provider';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+
+const fakeAtlasAuthService = {
+  isAuthenticated: () => Promise.resolve(false),
+  signIn: () => Promise.resolve({}),
+  signOut: () => Promise.resolve(),
+  getAuthHeaders: () => Promise.resolve({}),
+  getUserInfo: () => Promise.resolve({}),
+  on: () => {},
+  off: () => {},
+  emit: () => {},
+} as unknown as AtlasAuthService;
+
+const withAtlasProviders = (children: React.ReactNode) => (
+  <AtlasAuthServiceProvider value={fakeAtlasAuthService}>
+    <AtlasServiceProvider>{children}</AtlasServiceProvider>
+  </AtlasAuthServiceProvider>
+);
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -97,14 +119,28 @@ describe('AssistantChat', function () {
     const assistantActionsContext = {
       ensureOptInAndSend: ensureOptInAndSendStub,
     };
+    const mockAuthService = {
+      isAuthenticated: () => Promise.resolve(false),
+      signIn: () => Promise.resolve({}),
+      signOut: () => Promise.resolve(),
+      getAuthHeaders: () => Promise.resolve({}),
+      getUserInfo: () => Promise.resolve({}),
+      on: () => {},
+      off: () => {},
+      emit: () => {},
+    } as unknown as AtlasAuthService;
     const result = render(
-      <ToolsControllerProvider>
-        <AssistantActionsContext.Provider
-          value={assistantActionsContext as any}
-        >
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </AssistantActionsContext.Provider>
-      </ToolsControllerProvider>,
+      <AtlasAuthServiceProvider value={mockAuthService}>
+        <AtlasServiceProvider>
+          <ToolsControllerProvider>
+            <AssistantActionsContext.Provider
+              value={assistantActionsContext as any}
+            >
+              <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+            </AssistantActionsContext.Provider>
+          </ToolsControllerProvider>
+        </AtlasServiceProvider>
+      </AtlasAuthServiceProvider>,
       {
         connections,
         preferences,
@@ -226,9 +262,11 @@ describe('AssistantChat', function () {
     it('shows warning message in chat when connected to non-genuine MongoDB', function () {
       const chat = createMockChat({ messages: [] });
       render(
-        <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
-        </ToolsControllerProvider>
+        withAtlasProviders(
+          <ToolsControllerProvider>
+            <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          </ToolsControllerProvider>
+        )
       );
 
       expect(chat.messages).to.have.length(1);
@@ -243,9 +281,11 @@ describe('AssistantChat', function () {
     it('does not show warning message when all connections are genuine', function () {
       const chat = createMockChat({ messages: [] });
       render(
-        <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </ToolsControllerProvider>,
+        withAtlasProviders(
+          <ToolsControllerProvider>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </ToolsControllerProvider>
+        ),
         {
           connections: [],
         }
@@ -260,9 +300,11 @@ describe('AssistantChat', function () {
     it('warning message is removed when all active connections are changed to genuine', async function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
-        <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
-        </ToolsControllerProvider>,
+        withAtlasProviders(
+          <ToolsControllerProvider>
+            <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          </ToolsControllerProvider>
+        ),
         {}
       );
 
@@ -273,9 +315,11 @@ describe('AssistantChat', function () {
       ).to.exist;
 
       rerender(
-        <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </ToolsControllerProvider>
+        withAtlasProviders(
+          <ToolsControllerProvider>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </ToolsControllerProvider>
+        )
       );
 
       await waitFor(() => {

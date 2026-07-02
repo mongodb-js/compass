@@ -146,7 +146,7 @@ const config = Object.create({
     atlasApiBaseUrl: 'http://cloud-local.mongodb.com/api/private',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+      issuer: 'https://cloud-dev.mongodb.com/oauth/authorize',
     },
     authPortalUrl: 'https://account-local.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
@@ -162,7 +162,7 @@ const config = Object.create({
     atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+      issuer: 'https://cloud-dev.mongodb.com/oauth/authorize',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
@@ -178,7 +178,7 @@ const config = Object.create({
     atlasApiBaseUrl: 'https://cloud-qa.mongodb.com/api/private',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+      issuer: 'https://cloud-dev.mongodb.com/oauth/authorize',
     },
     authPortalUrl: 'https://account-qa.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
@@ -194,7 +194,7 @@ const config = Object.create({
     atlasApiBaseUrl: 'https://cloud-stage.mongodb.com/api/private',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+      issuer: 'https://cloud-dev.mongodb.com/oauth/authorize',
     },
     authPortalUrl: 'https://account-stage.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-staging.mongodb.com/api/v1',
@@ -207,10 +207,10 @@ const config = Object.create({
       'wss://cluster-connection.cloud.mongodb.com/ccs',
     ],
     cloudBaseUrl: '',
-    atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
+    atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
     atlasLogin: {
       clientId: '0oajzdcznmE8GEyio297',
-      issuer: 'https://auth.mongodb.com/oauth2/default',
+      issuer: 'https://cloud-dev.mongodb.com/oauth/authorize',
     },
     authPortalUrl: 'https://account.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',

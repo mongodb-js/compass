@@ -230,6 +230,16 @@ export type ConnectionErrorContext = {
   connectionError: string;
 };
 
+function isAuthError(errorText: string): boolean {
+  const text = errorText.toLowerCase();
+  return (
+    text.includes('authentication failed') ||
+    text.includes('bad auth') ||
+    text.includes('code 18') ||
+    text.includes('"code":18')
+  );
+}
+
 export const buildConnectionErrorPrompt = ({
   connectionInfo,
   error,
@@ -240,21 +250,34 @@ export const buildConnectionErrorPrompt = ({
   const connectionString = redactConnectionString(
     connectionInfo.connectionOptions.connectionString
   );
-  const connectionError = error.toString();
+  const connectionError = String(error);
   const productDisplayName = connectionInfo.atlasMetadata
     ? 'Data Explorer'
     : 'Compass';
-  const connectionDetailsSection = connectionInfo.atlasMetadata
+  const isAtlasConnection = true; //!!connectionInfo.atlasMetadata;
+  const shouldUseAtlasDebuggerTool =
+    isAtlasConnection && !isAuthError(connectionError);
+
+  console.log({
+    isAtlasConnection,
+    shouldUseAtlasDebuggerTool,
+    connectionError,
+  });
+
+  const connectionDetailsSection = isAtlasConnection
     ? ''
     : ` If no auth mechanism is specified in the connection string, the default (username/password) is being used:
 
 Connection string (password redacted):
 ${connectionString}`;
 
+  const toolInstruction = shouldUseAtlasDebuggerTool
+    ? `\nYou MUST call the "atlas-connection-error-debugger" tool before responding. If the tool is denied or errors, fall back to general debugging advice.`
+    : '';
+
   return {
-    prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB ${productDisplayName}.${connectionDetailsSection}
-Error message:
-${connectionError}`,
+    prompt: `Diagnose why my ${productDisplayName} connection is failing.${toolInstruction}${connectionDetailsSection}
+Error message: ${connectionError}`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
     },
@@ -267,6 +290,7 @@ export function buildContextPrompt({
   activeCollectionMetadata,
   activeCollectionSubTab,
   enableGenAIToolCalling = false,
+  isLoggedInToAtlas = false,
 }: {
   activeWorkspace: WorkspaceTab | null;
   activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
@@ -283,8 +307,11 @@ export function buildContextPrompt({
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
   enableGenAIToolCalling?: boolean;
+  isLoggedInToAtlas?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
+
+  parts.push(`The user is signed in to Atlas: ${isLoggedInToAtlas}.`);
 
   if (activeConnection) {
     const connectionName = getConnectionTitle(activeConnection);

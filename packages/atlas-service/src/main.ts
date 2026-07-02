@@ -85,6 +85,13 @@ export class CompassAuthService {
           'User-Agent': `${app.getName()}/${app.getVersion()}`,
         },
       });
+
+      console.log(
+        res.status,
+        res.statusText,
+        res.url,
+        await res.text().catch(() => '')
+      );
       await throwIfNotOk(res);
       return res;
     } catch (err) {
@@ -138,27 +145,25 @@ export class CompassAuthService {
 
   private static setupPlugin(serializedState?: string) {
     this.plugin = this.createMongoDBOIDCPlugin({
-      redirectServerRequestHandler: (data) => {
-        if (data.result === 'redirecting') {
-          const { res, status, location } = data;
-          res.statusCode = status;
-          const redirectUrl = new URL(this.config.authPortalUrl);
-          redirectUrl.searchParams.set('fromURI', location);
-          res.setHeader('Location', redirectUrl.toString());
-          res.end();
-          return;
-        }
-
-        redirectRequestHandler(data);
-      },
+      scope: [],
       openBrowser: async ({ url }) => {
         await this.openExternal(url);
       },
-      allowedFlows: this.getAllowedAuthFlows.bind(this),
-      logger: this.oidcPluginLogger,
-      serializedState,
-      customFetch: this.httpClient
-        .fetch as unknown as MongoDBOIDCPluginOptions['customFetch'],
+      discoveryAlgorithm: 'oauth2',
+      redirectURI: 'http://127.0.0.1:0/compass/oauth/callback',
+      customFetch: async (url, init) => {
+        const res = await fetch(url, init as RequestInit);
+        console.log(
+          '[oidc-fetch]',
+          String(url),
+          '→',
+          res.status,
+          res.headers.get('content-type'),
+          'location=',
+          res.headers.get('location')
+        );
+        return res;
+      },
     });
     oidcPluginHookLoggerToMongoLogWriter(
       this.oidcPluginLogger,
@@ -201,7 +206,9 @@ export class CompassAuthService {
     throwIfNetworkTrafficDisabled(this.preferences);
   }
 
-  private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
+  private static async requestOAuthToken({
+    signal,
+  }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
 
@@ -214,8 +221,8 @@ export class CompassAuthService {
     return this.plugin.mongoClientOptions.authMechanismProperties.OIDC_HUMAN_CALLBACK(
       {
         idpInfo: {
-          clientId: this.config.atlasLogin.clientId,
-          issuer: this.config.atlasLogin.issuer,
+          clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
+          issuer: 'https://authorize-dev.mongodb.com',
         },
         // Required driver specific stuff
         version: 1,
@@ -312,6 +319,7 @@ export class CompassAuthService {
     this.attachOidcPluginLoggerEvents();
     // Destroy old plugin and setup new one
     await this.plugin?.destroy();
+    this.serverMetadataPromise = undefined;
     this.setupPlugin();
     // Revoke tokens. Revoking refresh token will also revoke associated access
     // tokens
@@ -365,17 +373,18 @@ export class CompassAuthService {
 
     this.currentUser ??= await (async () => {
       const token = await this.maybeGetToken({ signal });
+      const { userinfo_endpoint } = await this.getServerMetadata(signal);
+      if (!userinfo_endpoint) {
+        throw new Error('OAuth server metadata is missing userinfo_endpoint');
+      }
 
-      const res = await this.fetch(
-        `${this.config.atlasLogin.issuer}/v1/userinfo`,
-        {
-          headers: {
-            Authorization: `Bearer ${token ?? ''}`,
-            Accept: 'application/json',
-          },
-          signal: signal,
-        }
-      );
+      const res = await this.fetch(userinfo_endpoint, {
+        headers: {
+          Authorization: `Bearer ${token ?? ''}`,
+          Accept: 'application/json',
+        },
+        signal: signal,
+      });
 
       await throwIfNotOk(res);
 
@@ -394,7 +403,13 @@ export class CompassAuthService {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
 
-    const url = new URL(`${this.config.atlasLogin.issuer}/v1/introspect`);
+    const { introspection_endpoint } = await this.getServerMetadata(signal);
+    if (!introspection_endpoint) {
+      throw new Error(
+        'OAuth server metadata is missing introspection_endpoint'
+      );
+    }
+    const url = new URL(introspection_endpoint);
     url.searchParams.set('client_id', this.config.atlasLogin.clientId);
 
     tokenType ??= 'accessToken';
@@ -429,7 +444,11 @@ export class CompassAuthService {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
 
-    const url = new URL(`${this.config.atlasLogin.issuer}/v1/revoke`);
+    const { revocation_endpoint } = await this.getServerMetadata(signal);
+    if (!revocation_endpoint) {
+      throw new Error('OAuth server metadata is missing revocation_endpoint');
+    }
+    const url = new URL(revocation_endpoint);
     url.searchParams.set('client_id', this.config.atlasLogin.clientId);
 
     tokenType ??= 'accessToken';

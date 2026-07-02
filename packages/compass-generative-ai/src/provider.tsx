@@ -61,6 +61,7 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
     const logger = useLogger('TOOLS-CONTROLLER');
 
     const telemetryAnonymousId = usePreference('telemetryAnonymousId');
+    const atlasService = atlasServiceLocator();
 
     const toolsController = useMemo(() => {
       return new ToolsController({
@@ -68,8 +69,9 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
         getTelemetryAnonymousId: () => telemetryAnonymousId ?? '',
         // we will set this later through setContext()
         enableTelemetry: false,
+        atlasService,
       });
-    }, [logger, telemetryAnonymousId]);
+    }, [logger, telemetryAnonymousId, atlasService]);
 
     useEffect(() => {
       return () => {

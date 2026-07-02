@@ -9,6 +9,7 @@ import {
 } from '@mongodb-js/compass-app-registry';
 import {
   atlasAuthServiceLocator,
+  type AtlasAuthService,
   type AtlasService,
   atlasServiceLocator,
 } from '@mongodb-js/atlas-service/provider';
@@ -277,6 +278,7 @@ export type AssistantState = Record<string, never>;
 type AssistantExtraArgs = {
   chat: Chat<AssistantMessage>;
   atlasAiService: AtlasAiService;
+  atlasAuthService: AtlasAuthService;
   toolsController: ToolsController;
   preferences: PreferencesAccess;
   logger: Logger;
@@ -315,6 +317,7 @@ export function ensureOptInAndSendThunk(
     const {
       chat,
       atlasAiService,
+      atlasAuthService,
       toolsController,
       preferences,
       logger,
@@ -394,12 +397,15 @@ export function ensureOptInAndSendThunk(
       await stopChat(chat);
     }
 
+    const isLoggedInToAtlas = await atlasAuthService.isAuthenticated();
+
     const contextPrompt = buildContextPrompt({
       activeWorkspace,
       activeConnection,
       activeCollectionMetadata,
       activeCollectionSubTab,
       enableGenAIToolCalling: enableToolCalling && enableGenAIToolCalling,
+      isLoggedInToAtlas,
     });
 
     // use just the text so we have a stable reference to compare against
@@ -585,6 +591,7 @@ function activateAssistantPlugin(
   {
     atlasService,
     atlasAiService,
+    atlasAuthService,
     toolsController,
     preferences,
     logger,
@@ -592,6 +599,7 @@ function activateAssistantPlugin(
   }: {
     atlasService: AtlasService;
     atlasAiService: AtlasAiService;
+    atlasAuthService: AtlasAuthService;
     toolsController: ToolsController;
     preferences: PreferencesAccess;
     logger: Logger;
@@ -619,6 +627,7 @@ function activateAssistantPlugin(
       thunk.withExtraArgument({
         chat,
         atlasAiService,
+        atlasAuthService,
         toolsController,
         preferences,
         logger,

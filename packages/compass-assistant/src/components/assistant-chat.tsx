@@ -20,6 +20,8 @@ import {
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
+import { AtlasToolCallMessage } from './atlas-tool-call-message';
+import { AtlasConnectionErrorDebuggerResult } from './atlas-connection-error-debugger-result';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
@@ -32,6 +34,7 @@ import { ToolToggle } from './tool-toggle';
 import { ToolsIntroCard } from './tools-intro-card';
 import { usePreference } from 'compass-preferences-model/provider';
 import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
+import { useAtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import {
   isAssistantThinking,
   partIsApprovalRequest,
@@ -235,6 +238,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
+  const atlasAuthService = useAtlasAuthService();
   const isToolCallingEnabled = usePreference('enableToolCalling');
   const enableSearchActivationProgramP2 = usePreference(
     'enableSearchActivationProgramP2'
@@ -668,27 +672,55 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                       const toolCallId =
                         toolCall.toolCallId || `${id}-${toolCall.type}`;
 
+                      const onApprove = (approvalId: string) =>
+                        handleToolApproval({
+                          message,
+                          type: toolCall.type,
+                          approvalId,
+                          approved: true,
+                        });
+                      const onDeny = (approvalId: string) =>
+                        handleToolApproval({
+                          message,
+                          type: toolCall.type,
+                          approvalId,
+                          approved: false,
+                        });
+
+                      if (
+                        toolCall.type === 'tool-atlas-connection-error-debugger'
+                      ) {
+                        if (toolCall.state === 'output-available') {
+                          return (
+                            <AtlasConnectionErrorDebuggerResult
+                              key={`${toolCallId}-${index}`}
+                              toolCall={toolCall}
+                            />
+                          );
+                        }
+                        if (toolCall.state === 'approval-requested') {
+                          return (
+                            <AtlasToolCallMessage
+                              key={`${toolCallId}-${index}`}
+                              toolCall={toolCall}
+                              title="Debug your connection with Atlas?"
+                              confirmLabel="Debug with Atlas"
+                              cancelLabel="Debug without Atlas"
+                              atlasAuthService={atlasAuthService}
+                              onApprove={onApprove}
+                              onDeny={onDeny}
+                            />
+                          );
+                        }
+                      }
+
                       return (
                         <ToolCallMessage
                           connection={messageConnection}
                           key={`${toolCallId}-${index}`}
                           toolCall={toolCall}
-                          onApprove={(approvalId) =>
-                            handleToolApproval({
-                              message,
-                              type: toolCall.type,
-                              approvalId,
-                              approved: true,
-                            })
-                          }
-                          onDeny={(approvalId) =>
-                            handleToolApproval({
-                              message,
-                              type: toolCall.type,
-                              approvalId,
-                              approved: false,
-                            })
-                          }
+                          onApprove={onApprove}
+                          onDeny={onDeny}
                         />
                       );
                     })}

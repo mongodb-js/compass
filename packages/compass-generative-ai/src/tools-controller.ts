@@ -14,6 +14,7 @@ import type {
   TransportRunnerConfig,
   UserConfig,
 } from 'mongodb-mcp-server';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { createConnectionErrorHandler } from './tools-connection-error-handler';
 import { ToolsLogger } from './tools-logger';
 import { ToolsConnectionManager } from './tools-connection-manager';
@@ -77,6 +78,7 @@ type ToolsControllerConfig = {
   getTelemetryAnonymousId: () => string;
   enableTelemetry: boolean;
   maxTimeMS?: number;
+  atlasService: AtlasService;
 };
 
 export class ToolsController {
@@ -87,14 +89,17 @@ export class ToolsController {
   private connectionManager: ToolsConnectionManager;
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
+  private readonly atlasService: AtlasService;
 
   constructor({
     logger,
     getTelemetryAnonymousId,
     enableTelemetry,
     maxTimeMS,
+    atlasService,
   }: ToolsControllerConfig) {
     this.logger = logger;
+    this.atlasService = atlasService;
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
       loggers: ['mcp'],
@@ -180,6 +185,28 @@ export class ToolsController {
         },
       };
     }
+
+    tools['atlas-connection-error-debugger'] = {
+      description:
+        'Use when the user reports a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
+      inputSchema: z.object({
+        connectionString: z.string(),
+        errorMessage: z.string(),
+      }),
+      needsApproval: true,
+      strict: false,
+      execute: async (args: {
+        connectionString: string;
+        errorMessage: string;
+      }) => {
+        this.logger.log.info(
+          this.logger.mongoLogId(1_001_000_417),
+          'ToolsController',
+          'Executing atlas-connection-error-debugger tool'
+        );
+        return await this.atlasService.debugConnection(args.connectionString);
+      },
+    };
 
     if (this.toolGroups.has('db-read') && this.runner.server) {
       const readonlyDatabaseToolNames = READ_ONLY_DATABASE_TOOLS.map(

@@ -6,6 +6,15 @@ import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+
+const fakeAtlasService = {
+  debugConnection: () =>
+    Promise.resolve({
+      clusterState: 'IDLE' as const,
+      ipAccessListed: true,
+    }),
+} as unknown as AtlasService;
 
 describe('ToolsController', function () {
   let sandbox: sinon.SinonSandbox;
@@ -22,6 +31,7 @@ describe('ToolsController', function () {
       enableTelemetry: false,
       logger,
       getTelemetryAnonymousId,
+      atlasService: fakeAtlasService,
     });
   });
 
@@ -35,9 +45,11 @@ describe('ToolsController', function () {
       expect(toolsController).to.be.instanceOf(ToolsController);
     });
 
-    it('initializes with empty tool groups', function () {
+    it('initializes with only the Atlas-gated tools', function () {
       const tools = toolsController.getActiveTools();
-      expect(Object.keys(tools)).to.have.lengthOf(0);
+      expect(Object.keys(tools)).to.deep.equal([
+        'atlas-connection-error-debugger',
+      ]);
     });
 
     it('server is initially undefined', function () {
@@ -83,7 +95,7 @@ describe('ToolsController', function () {
       expect(tools).to.have.property('get-current-query');
       toolsController.setActiveTools(new Set([]));
       tools = toolsController.getActiveTools();
-      expect(tools).to.be.empty;
+      expect(tools).to.not.have.property('get-current-query');
     });
   });
 
@@ -209,10 +221,14 @@ describe('ToolsController', function () {
           enableTelemetry: false,
           logger,
           getTelemetryAnonymousId,
+          atlasService: fakeAtlasService,
         });
         newController.setActiveTools(new Set(['db-read']));
 
-        expect(newController.getActiveTools()).to.be.empty;
+        const tools = newController.getActiveTools();
+        expect(Object.keys(tools)).to.deep.equal([
+          'atlas-connection-error-debugger',
+        ]);
       });
 
       it('includes readonly database tools', function () {
@@ -308,9 +324,11 @@ describe('ToolsController', function () {
     });
 
     describe('no active tools', function () {
-      it('returns empty object when no tool groups are set', function () {
+      it('returns only the Atlas-gated tools when no tool groups are set', function () {
         const tools = toolsController.getActiveTools();
-        expect(Object.keys(tools)).to.have.lengthOf(0);
+        expect(Object.keys(tools)).to.deep.equal([
+          'atlas-connection-error-debugger',
+        ]);
       });
     });
   });
@@ -508,6 +526,7 @@ describe('ToolsController', function () {
           getTelemetryAnonymousId: () => {
             throw new Error('Telemetry error');
           },
+          atlasService: fakeAtlasService,
         });
 
         // Should not throw even if there's an error

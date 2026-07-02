@@ -15,6 +15,12 @@ export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;
 };
 
+export type AtlasConnectionDebugResult = {
+  clusterState: 'IDLE' | 'CREATING' | 'UPDATING' | 'DELETING' | 'UNKNOWN';
+  ipAccessListed: boolean;
+  message?: string;
+};
+
 function normalizePath(path?: string) {
   path = path ? (path.startsWith('/') ? path : `/${path}`) : '';
   return encodeURI(path);
@@ -221,6 +227,17 @@ export class AtlasService {
     });
     assertAutomationAgentAwaitResponse<T>(json, opType);
     return json;
+  }
+  // eslint-disable-next-line @typescript-eslint/require-await
+  async debugConnection(
+    _connectionString: string
+  ): Promise<AtlasConnectionDebugResult> {
+    // Stub: returns canned data shaped like the eventual Atlas admin API response.
+    // The real implementation will use authenticatedFetch against the admin API.
+    return {
+      clusterState: 'IDLE',
+      ipAccessListed: true,
+    };
   }
 }
 
