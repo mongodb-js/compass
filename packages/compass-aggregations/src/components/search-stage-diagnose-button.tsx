@@ -9,11 +9,6 @@ import {
 import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
-/**
- * Whether the "Diagnose this issue" button should be shown for a stage: the P2
- * experiment is on, the assistant is available, and it's a $search stage with
- * no results. Callers own the render decision so the button itself stays dumb.
- */
 export function useShouldShowSearchStageDiagnose(
   stageOperator: string | null | undefined,
   documents: unknown[] | null | undefined
@@ -41,15 +36,9 @@ type SearchStageDiagnoseButtonProps = {
   stageValue: string | null;
   searchIndexName: string | null;
   'data-testid': string;
-  // Provided in focus mode so the assistant drawer isn't obscured by the modal.
   onCloseFocusMode?: () => void;
 };
 
-/**
- * "Diagnose this issue" button shown when a $search stage returns no results.
- * Callers are responsible for only rendering it when it should appear (P2
- * experiment on, assistant available, $search stage with no results).
- */
 export const SearchStageDiagnoseButton: React.FunctionComponent<
   SearchStageDiagnoseButtonProps
 > = ({
