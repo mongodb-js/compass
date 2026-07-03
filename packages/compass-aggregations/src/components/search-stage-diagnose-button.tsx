@@ -13,7 +13,7 @@ export function useShouldShowSearchStageDiagnose(
     enableSearchActivationProgramP2 &&
     !!diagnoseSearchStage &&
     stageOperator === '$search' &&
-    (documents?.length ?? 0) === 0
+    documents?.length === 0
   );
 }
 

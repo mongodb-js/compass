@@ -237,11 +237,10 @@ function StagePreviewBody({
     });
   }, [interpretAnalyzeOutput, documents, stageMetadata, pipeline]);
 
-  // When the diagnose button isn't shown we still want the search-specific
-  // SearchNoResults messaging rather than the generic "No preview documents".
-  const isNoResultsSearchStage =
-    useShouldShowSearchStageDiagnose(stageOperator, documents) &&
-    serverErrorStageIdx === null;
+  const isNoResultsSearchStage = useShouldShowSearchStageDiagnose(
+    stageOperator,
+    documents
+  );
 
   if (!shouldRenderStage) {
     return <NoPreviewDocuments />;
