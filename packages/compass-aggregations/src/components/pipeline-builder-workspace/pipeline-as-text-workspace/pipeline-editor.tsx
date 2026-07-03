@@ -79,10 +79,13 @@ const codeEditorStyles = css({
 });
 
 const errorContainerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
   flex: 'none',
   marginTop: 'auto',
   marginLeft: spacing[400],
   marginRight: spacing[400],
+  gap: spacing[400],
 });
 
 export type PipelineEditorProps = {
@@ -215,14 +218,14 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
           className={codeEditorStyles}
         />
       </div>
-      {showRerankVersionWarning && (
-        <RerankVersionWarningBanner data-testid="pipeline-editor-rerank-version-warning" />
-      )}
-      {showErrorContainer && (
+      {(showErrorContainer || showRerankVersionWarning) && (
         <div
           className={errorContainerStyles}
           data-testid="pipeline-as-text-error-container"
         >
+          {showRerankVersionWarning && (
+            <RerankVersionWarningBanner data-testid="pipeline-editor-rerank-version-warning" />
+          )}
           {syntaxErrors.length > 0 ? (
             <WarningSummary warnings={syntaxErrors.map((x) => x.message)} />
           ) : serverError ? (

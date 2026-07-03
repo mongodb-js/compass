@@ -464,12 +464,12 @@ export const BaseSearchIndexModal: React.FunctionComponent<
                 <br />
                 {mode === 'create' && (
                   <Body>
-                    By default,{' '}
+                    By default, your{' '}
                     {searchIndexType === 'vectorSearch'
                       ? 'vector search'
                       : 'search'}{' '}
-                    indexes will have the following search configurations. You
-                    can refine this later.
+                    index will have the following configurations. We recommend
+                    starting with this and refining it later if you need to.
                   </Body>
                 )}
                 <Link

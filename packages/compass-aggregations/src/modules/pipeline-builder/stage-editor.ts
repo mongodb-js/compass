@@ -1118,6 +1118,9 @@ export type StoreStage = {
   serverError: MongoServerError | null;
   loading: boolean;
   previewDocs: HadronDocument[] | null;
+  // Sticky flag: true once a successful preview has returned at least one
+  // document. Resets only when the stage operator changes.
+  didReturnDocs: boolean;
   stageMetadata: StagePreviewMetadata | null;
   collapsed: boolean;
   disabled: boolean;
@@ -1156,6 +1159,7 @@ export function mapBuilderStageToStoreStage(
     serverError: null,
     loading: false,
     previewDocs: null,
+    didReturnDocs: false,
     stageMetadata: null,
     collapsed: false,
     empty: stage.isEmpty,
@@ -1263,6 +1267,9 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: action.previewDocs,
+          didReturnDocs:
+            action.previewDocs.length > 0 ||
+            !!(state.stages[action.id] as StoreStage).didReturnDocs,
           stageMetadata: action.stageMetadata,
           serverError: null,
         },
@@ -1328,6 +1335,7 @@ const reducer: Reducer<StageEditorState, Action> = (
         {
           ...state.stages[action.id],
           previewDocs: null,
+          didReturnDocs: false,
           stageOperator: action.stage.operator,
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,

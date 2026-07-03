@@ -1,15 +1,26 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import type { Document } from 'mongodb';
-import { screen, cleanup } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  cleanup,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import Sinon from 'sinon';
+import HadronDocument from 'hadron-document';
+import { ObjectId } from 'bson';
+import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
 
 import {
   renderWithStore,
   wrapWithExperimentProvider,
 } from '../../../test/configure-store';
 import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
-import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import {
+  createSandboxFromDefaultPreferences,
+  type PreferencesAccess,
+} from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 import { StagePreview } from './';
@@ -33,16 +44,22 @@ const renderStagePreview = async (
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
-    enableSearchActivationExperiment = false,
-    enableSearchActivationProgramP2Experiment = false,
+    enableSearchActivationP1Experiment = false,
+    enableSearchActivationP2Experiment = false,
     enableAIAssistant = false,
+    preferences,
+    interpretAnalyzeOutput,
+    diagnoseSearchStage,
   }: {
-    enableSearchActivationExperiment?: boolean;
-    enableSearchActivationProgramP2Experiment?: boolean;
+    enableSearchActivationP1Experiment?: boolean;
+    enableSearchActivationP2Experiment?: boolean;
     enableAIAssistant?: boolean;
+    preferences?: PreferencesAccess;
+    interpretAnalyzeOutput?: Sinon.SinonSpy;
+    diagnoseSearchStage?: Sinon.SinonSpy;
   } = {}
 ) => {
-  let ui = (
+  let ui: React.ReactElement = (
     <StagePreview
       documents={[]}
       index={Math.max(pipeline.length - 1, 0)}
@@ -50,31 +67,47 @@ const renderStagePreview = async (
       isDisabled={false}
       isMissingAtlasOnlyStageSupport={false}
       stageOperator=""
+      stageMetadata={null}
       shouldRenderStage={false}
       showSearchIndexStaleResultsBanner={false}
       searchIndexName={null}
       serverErrorStageIdx={null}
+      pipeline={null}
       {...props}
     />
   );
   if (enableAIAssistant) {
-    const preferences = await createSandboxFromDefaultPreferences();
-    await preferences.savePreferences(AI_ASSISTANT_PREFERENCES);
-    ui = <PreferencesProvider value={preferences}>{ui}</PreferencesProvider>;
+    const aiPreferences = await createSandboxFromDefaultPreferences();
+    await aiPreferences.savePreferences(AI_ASSISTANT_PREFERENCES);
+    ui = <PreferencesProvider value={aiPreferences}>{ui}</PreferencesProvider>;
   }
-  if (enableSearchActivationExperiment) {
+  if (interpretAnalyzeOutput || diagnoseSearchStage) {
+    ui = (
+      <AssistantActionsContext.Provider
+        value={{ interpretAnalyzeOutput, diagnoseSearchStage }}
+      >
+        {ui}
+      </AssistantActionsContext.Provider>
+    );
+  }
+  if (enableSearchActivationP1Experiment) {
     ui = wrapWithExperimentProvider(
       ui,
       ExperimentTestGroups.searchActivationProgramP1Variant
     );
   }
-  if (enableSearchActivationProgramP2Experiment) {
+  if (enableSearchActivationP2Experiment) {
     ui = wrapWithExperimentProvider(
       ui,
       ExperimentTestGroups.searchActivationProgramP2Variant
     );
   }
-  return renderWithStore(ui, { pipeline, ...storeOptions });
+  return renderWithStore(
+    ui,
+    { pipeline, ...storeOptions },
+    undefined,
+    preferences ? { preferences } : {}
+  );
 };
 
 describe('StagePreview', function () {
@@ -167,7 +200,7 @@ describe('StagePreview', function () {
       DEFAULT_PIPELINE,
       {},
       {
-        enableSearchActivationProgramP2Experiment: true,
+        enableSearchActivationP2Experiment: true,
         enableAIAssistant: true,
       }
     );
@@ -197,7 +230,7 @@ describe('StagePreview', function () {
       },
       DEFAULT_PIPELINE,
       {},
-      { enableSearchActivationProgramP2Experiment: true }
+      { enableSearchActivationP2Experiment: true }
     );
     expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
       .exist;
@@ -212,7 +245,7 @@ describe('StagePreview', function () {
       DEFAULT_PIPELINE,
       {},
       {
-        enableSearchActivationProgramP2Experiment: true,
+        enableSearchActivationP2Experiment: true,
         enableAIAssistant: true,
       }
     );
@@ -241,7 +274,7 @@ describe('StagePreview', function () {
         },
         [{ $search: { index: 'test-index' } }],
         {},
-        { enableSearchActivationExperiment: true }
+        { enableSearchActivationP1Experiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -258,7 +291,7 @@ describe('StagePreview', function () {
         },
         [{ $vectorSearch: { index: 'vector-index' } }],
         {},
-        { enableSearchActivationExperiment: true }
+        { enableSearchActivationP1Experiment: true }
       );
 
       expect(screen.getByTestId('search-index-stale-results-banner')).to.exist;
@@ -321,7 +354,7 @@ describe('StagePreview', function () {
         },
         [{ $match: { _id: 1 } }],
         {},
-        { enableSearchActivationExperiment: true }
+        { enableSearchActivationP1Experiment: true }
       );
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
@@ -339,6 +372,233 @@ describe('StagePreview', function () {
 
       expect(screen.queryByTestId('search-index-stale-results-banner')).to.not
         .exist;
+    });
+  });
+
+  describe('search score chips', function () {
+    const searchMetadata = {
+      type: '$search' as const,
+      scores: [
+        { value: 1.5, description: 'sum of:', details: [] },
+        { value: 0.8, description: 'sum of:', details: [] },
+      ],
+    };
+
+    it('renders score chips when stageMetadata has $search scores', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }, { _id: 2 }],
+          stageMetadata: searchMetadata,
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true }
+      );
+
+      const chips = screen.getAllByTestId('stage-preview-search-score-chip');
+      expect(chips).to.have.length(2);
+      expect(chips[0].textContent).to.include('1.5');
+      expect(chips[1].textContent).to.include('0.8');
+    });
+
+    it('does not render score chips when stageMetadata is null', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [{ _id: 1 }],
+        stageMetadata: null,
+      });
+
+      expect(screen.queryByTestId('stage-preview-search-score-chip')).to.not
+        .exist;
+    });
+
+    it('does not render a chip for null score entries', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }, { _id: 2 }],
+          stageMetadata: {
+            type: '$search',
+            scores: [{ value: 1.5, description: 'sum of:', details: [] }, null],
+          },
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true }
+      );
+
+      const chips = screen.getAllByTestId('stage-preview-search-score-chip');
+      expect(chips).to.have.length(1);
+      expect(chips[0].textContent).to.include('1.5');
+    });
+
+    it('does not render score chips when not in the P2 experiment variant', async function () {
+      await renderStagePreview({
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [{ _id: 1 }, { _id: 2 }],
+        stageMetadata: searchMetadata,
+      });
+
+      expect(screen.queryByTestId('stage-preview-search-score-chip')).to.not
+        .exist;
+    });
+  });
+
+  describe('analyze output button', function () {
+    let preferences: PreferencesAccess;
+
+    beforeEach(async function () {
+      preferences = await createSandboxFromDefaultPreferences();
+      await preferences.savePreferences({
+        enableAIAssistant: true,
+        enableGenAIFeatures: true,
+        enableGenAIFeaturesAtlasOrg: true,
+        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+      });
+    });
+
+    it('renders the button for $search stage with documents and score metadata when P2 experiment is enabled', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+          stageMetadata: {
+            type: '$search',
+            scores: [{ value: 1.5, description: 'sum of:', details: [] }],
+          },
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true, preferences }
+      );
+      expect(screen.getByTestId('analyze-search-output-button')).to.exist;
+    });
+
+    it('does not render the button when score metadata is absent', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+          stageMetadata: null,
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true, preferences }
+      );
+      expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
+    });
+
+    it('does not render the button for non-$search stages', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$match',
+          documents: [{ _id: 1 }],
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true, preferences }
+      );
+      expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
+    });
+
+    it('does not render the button when there are no documents', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [],
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { enableSearchActivationP2Experiment: true, preferences }
+      );
+      expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
+    });
+
+    it('does not render the button when P2 experiment is not enabled', async function () {
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [{ _id: 1 }],
+        },
+        DEFAULT_PIPELINE,
+        {},
+        { preferences }
+      );
+      expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
+    });
+
+    it('calls interpretAnalyzeOutput with the correct args when clicked', async function () {
+      const interpretAnalyzeOutputSpy = Sinon.spy();
+      const doc = new HadronDocument({ _id: 1, title: 'Espresso Basics' });
+      const score = { value: 1.5, description: 'sum of:', details: [] };
+      const pipeline =
+        '[{ $search: { index: "default", text: { query: "espresso", path: "title" } } }]';
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [doc],
+          stageMetadata: { type: '$search', scores: [score] },
+          pipeline,
+        },
+        DEFAULT_PIPELINE,
+        {},
+        {
+          enableSearchActivationP2Experiment: true,
+          preferences,
+          interpretAnalyzeOutput: interpretAnalyzeOutputSpy,
+        }
+      );
+
+      userEvent.click(screen.getByTestId('analyze-search-output-button'));
+
+      expect(interpretAnalyzeOutputSpy).to.have.been.calledOnce;
+      const args = interpretAnalyzeOutputSpy.firstCall.args[0];
+      expect(args).to.have.property('pipeline', pipeline);
+      expect(args).to.have.property('documentCount', 1);
+      expect(args.output).to.include('Document 1:');
+      expect(args.output).to.include('_id:');
+      expect(args.output).to.include('Espresso Basics');
+      expect(args.output).to.include(`scoreDetails: ${JSON.stringify(score)}`);
+    });
+
+    it('preserves BSON types using shell syntax in the output', async function () {
+      const interpretAnalyzeOutputSpy = Sinon.spy();
+      const oid = new ObjectId('000000000000000000000001');
+      const doc = new HadronDocument({ _id: oid, title: 'Espresso Basics' });
+      const score = { value: 1.5, description: 'sum of:', details: [] };
+      await renderStagePreview(
+        {
+          shouldRenderStage: true,
+          stageOperator: '$search',
+          documents: [doc],
+          stageMetadata: { type: '$search', scores: [score] },
+          pipeline:
+            '[{ $search: { index: "default", text: { query: "espresso", path: "title" } } }]',
+        },
+        DEFAULT_PIPELINE,
+        {},
+        {
+          enableSearchActivationP2Experiment: true,
+          preferences,
+          interpretAnalyzeOutput: interpretAnalyzeOutputSpy,
+        }
+      );
+
+      userEvent.click(screen.getByTestId('analyze-search-output-button'));
+
+      const args = interpretAnalyzeOutputSpy.firstCall.args[0];
+      expect(args.output).to.include("ObjectId('000000000000000000000001')");
     });
   });
 

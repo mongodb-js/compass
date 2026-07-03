@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 
 import {
   Banner,
@@ -6,6 +6,7 @@ import {
   Icon,
   Link,
   css,
+  spacing,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
 import {
@@ -21,6 +22,13 @@ import {
   type SearchExtensionType,
 } from '../utils/search-stage-errors';
 import RateLimitExceededBanner from './rate-limit-exceeded-banner';
+const bannerButtonStyles = css({
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
+});
+
+const RERANK_DOCS_URL =
+  'https://dochub.mongodb.org/core/manage-native-reranking';
 
 const bannerStyles = css({
   textAlign: 'left',
@@ -28,9 +36,8 @@ const bannerStyles = css({
 
 const bannerContentStyles = css({
   display: 'flex',
-  justifyContent: 'space-between',
   alignItems: 'center',
-  width: '100%',
+  gap: spacing[200],
 });
 
 type ServerErrorBannerProps = {
@@ -53,13 +60,23 @@ export default function ServerErrorBanner({
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
   const rerankNotEnabled = isRerankNotEnabledError(message);
-  const description = rerankNotEnabled
-    ? 'Enable native reranking in project settings.'
-    : message;
-  const projectSettingsHref =
-    rerankNotEnabled && atlasMetadata
-      ? buildProjectSettingsUrl({ projectId: atlasMetadata.projectId })
-      : null;
+
+  useEffect(() => {
+    if (rerankNotEnabled) {
+      track('Rerank Not Enabled Banner Shown', {
+        context: 'Rerank Not Enabled Banner',
+      });
+    }
+  }, [rerankNotEnabled, track]);
+
+  const projectSettingsHref = rerankNotEnabled
+    ? atlasMetadata
+      ? buildProjectSettingsUrl({
+          projectId: atlasMetadata.projectId,
+          params: { highlight: 'nativeReranking' },
+        })
+      : RERANK_DOCS_URL
+    : null;
 
   const rateLimitInfo = getVoyageProjectRateLimitInfo(message);
   if (rateLimitInfo) {
@@ -76,16 +93,25 @@ export default function ServerErrorBanner({
     <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>
       {rerankNotEnabled ? (
         <>
-          <strong>Native reranking not enabled</strong>
+          <strong>$rerank not enabled</strong>
           <br />
           <div className={bannerContentStyles}>
-            <span>{description}</span>
+            <span>Enable native reranking in project settings.</span>
             {projectSettingsHref && (
               <Button
                 size="xsmall"
-                href={projectSettingsHref}
-                target="_blank"
+                onClick={() => {
+                  track('Rerank Project Settings Button Clicked', {
+                    context: 'Rerank Not Enabled Banner',
+                  });
+                  window.open(
+                    projectSettingsHref,
+                    '_blank',
+                    'noopener noreferrer'
+                  );
+                }}
                 rightGlyph={<Icon glyph="OpenNewTab" />}
+                className={bannerButtonStyles}
               >
                 Project Settings
               </Button>

@@ -63,6 +63,7 @@ export const CollapsibleInput: React.FunctionComponent<
           id={inputId}
           aria-labelledby={id}
           readOnly={disabled}
+          language="json"
         />
       ) : (
         // @ts-expect-error leafygreen confused with labels

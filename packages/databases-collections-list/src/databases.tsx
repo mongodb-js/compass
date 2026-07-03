@@ -122,7 +122,7 @@ function databaseColumns({
       header: 'Storage size',
       enableSorting: true,
       sortUndefined: 'last',
-      maxSize: 80,
+      maxSize: 110,
       cell: (info) => {
         const database = info.row.original;
         if (!isReady(database.status)) {
@@ -158,7 +158,7 @@ function databaseColumns({
       header: 'Collections',
       enableSorting: true,
       sortUndefined: 'last',
-      maxSize: 80,
+      maxSize: 110,
       cell: (info) => {
         const database = info.row.original;
         if (!isReady(database.status)) {
@@ -188,7 +188,7 @@ function databaseColumns({
       header: 'Indexes',
       enableSorting: true,
       sortUndefined: 'last',
-      maxSize: 80,
+      maxSize: 110,
       cell: (info) => {
         const database = info.row.original;
         if (!isReady(database.status)) {

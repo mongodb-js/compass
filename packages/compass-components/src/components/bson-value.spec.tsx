@@ -91,12 +91,32 @@ describe('BSONValue', function () {
     {
       type: 'DBRef',
       value: new DBRef('foo', new ObjectId('5d505646cf6d4fe581014ab2')),
-      expected: "DBRef('foo', '5d505646cf6d4fe581014ab2')",
+      expected: "DBRef('foo', ObjectId('5d505646cf6d4fe581014ab2'))",
     },
     {
       type: 'DBRef',
       value: new DBRef('foo', new ObjectId('5d505646cf6d4fe581014ab2'), 'buz'),
-      expected: "DBRef('foo', '5d505646cf6d4fe581014ab2', 'buz')",
+      expected: "DBRef('foo', ObjectId('5d505646cf6d4fe581014ab2'), 'buz')",
+    },
+    {
+      type: 'DBRef',
+      value: new DBRef('foo', 'some-string-id' as any),
+      expected: "DBRef('foo', 'some-string-id')",
+    },
+    {
+      type: 'DBRef',
+      value: new DBRef('a', { x: '5f16b8bebe434dc98cdfc9cb' } as any),
+      expected: `DBRef('a', {x: '5f16b8bebe434dc98cdfc9cb'})`,
+    },
+    {
+      type: 'DBRef',
+      value: new DBRef('coll', new Timestamp({ t: 1, i: 2 }) as any),
+      expected: "DBRef('coll', Timestamp({ t: 1, i: 2 }))",
+    },
+    {
+      type: 'DBRef',
+      value: new DBRef('coll', null as any),
+      expected: "DBRef('coll', null)",
     },
     { type: 'MaxKey', value: new MaxKey(), expected: 'MaxKey()' },
     { type: 'MinKey', value: new MinKey(), expected: 'MinKey()' },

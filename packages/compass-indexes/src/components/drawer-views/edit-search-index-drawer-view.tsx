@@ -50,15 +50,13 @@ import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { Document } from 'mongodb';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import type { SearchIndex } from 'mongodb-data-service';
-import searchIndexSchema from '@mongodb-js/search-index-schema/output/search/index_jsonEditor.json';
-import vectorSearchIndexSchema from '@mongodb-js/search-index-schema/output/vectorSearch/index_jsonEditor.json';
-import type { JSONSchema7 } from 'json-schema';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import {
   useConnectionInfo,
   useConnectionInfoRef,
 } from '@mongodb-js/compass-connections/provider';
 import { usePreferences } from 'compass-preferences-model/provider';
+import { useJsonSchema } from '../../utils/use-json-schema';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const scrollContainerStyles = css({
@@ -129,11 +127,9 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   );
 
   // Use the JSON schema autocomplete hook for validation and autocomplete
-  const jsonSchema = (
-    searchIndex.type === 'vectorSearch'
-      ? vectorSearchIndexSchema
-      : searchIndexSchema
-  ) as JSONSchema7;
+  const jsonSchema = useJsonSchema(
+    searchIndex.type === 'vectorSearch' ? 'vectorSearch' : 'search'
+  );
   const { completer, extensions, annotations, hasErrors } =
     useJsonSchemaAutocompleter(jsonSchema, indexDefinition);
 

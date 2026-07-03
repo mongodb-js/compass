@@ -16,6 +16,7 @@ describe('Error states', function () {
   });
 
   afterEach(async function () {
+    await compass.browser.mockRestoreAll();
     await screenshotIfFailed(compass, this.currentTest);
     await cleanup(compass);
   });
@@ -34,5 +35,24 @@ describe('Error states', function () {
     await compass.browser
       .$('*=An error occurred while querying your MongoDB deployment')
       .waitForDisplayed();
+  });
+
+  it('should show error state if fetching preferences failed initially', async function () {
+    compass = await init(this.test?.fullTitle(), {
+      skipSharedConfigOnStart: true,
+      async onBeforeNavigate(browser) {
+        assertTestingWebAtlasCloud(context);
+        const mock = await browser.mock(
+          `/explorer/v1/groups/${context.atlasCloudProjectId}/preferences`
+        );
+        // Abort all the requests. More reliable here than mock.respond due to prefetch
+        // on cloud and compass side.
+        mock.abort();
+      },
+    });
+
+    await compass.browser
+      .$("*=If you're experiencing a critical issue, please email support.")
+      .waitForDisplayed({ timeout: 30000 });
   });
 });
