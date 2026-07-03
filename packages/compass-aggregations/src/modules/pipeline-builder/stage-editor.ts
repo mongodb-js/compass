@@ -41,6 +41,10 @@ import type {
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
 import { cancellableWait } from '@mongodb-js/compass-utils';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry/provider';
 
 export const StageEditorActionTypes = {
   StagePreviewFetch:
@@ -280,7 +284,11 @@ export const loadStagePreview = (
   | StagePreviewFetchErrorAction
   | StagePreviewFetchSkippedAction
 > => {
-  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
+  return async (
+    dispatch,
+    getState,
+    { pipelineBuilder, preferences, experimentationServices }
+  ) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -330,12 +338,20 @@ export const loadStagePreview = (
       } = getState();
 
       const activeDataService = dataService.dataService;
-      const { enableSearchActivationProgramP2 } = preferences.getPreferences();
-      const shouldFetchSearchStageMetadata =
-        !!enableSearchActivationProgramP2 &&
+      const isSingleSearchStagePreview =
         !!activeDataService &&
         stagesForPreview.length === 1 &&
         stagesForPreview[0].stageOperator === '$search';
+      let shouldFetchSearchStageMetadata = false;
+      if (isSingleSearchStagePreview) {
+        const assignment = await experimentationServices.getAssignment(
+          ExperimentTestNames.searchActivationProgramP2,
+          false
+        );
+        shouldFetchSearchStageMetadata =
+          assignment?.assignmentData?.variant ===
+          ExperimentTestGroups.searchActivationProgramP2Variant;
+      }
       const aggregateOptions: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,

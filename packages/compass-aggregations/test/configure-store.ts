@@ -45,6 +45,7 @@ export function wrapWithExperimentProvider(
             }
           : null,
         ...noopAsyncResult,
+        asyncStatus: 'SUCCESS',
       }),
       useTrackInSample: () => noopAsyncResult,
       assignExperiment: () => Promise.resolve(null),

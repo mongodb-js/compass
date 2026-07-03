@@ -52,6 +52,7 @@ import {
   collectionStatsFetched,
 } from '../modules/collection-stats';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -86,6 +87,7 @@ export type AggregationsPluginServices = {
   preferences: PreferencesAccess;
   logger: Logger;
   track: TrackFunction;
+  experimentationServices: ExperimentationServices;
   atlasAiService: AtlasAiService;
   pipelineStorage?: PipelineStorageAccess;
   connectionInfoRef: ConnectionInfoRef;
@@ -104,6 +106,7 @@ export function activateAggregationsPlugin(
     preferences,
     logger,
     track,
+    experimentationServices,
     atlasAiService,
     pipelineStorage,
     connectionInfoRef,
@@ -195,6 +198,7 @@ export function activateAggregationsPlugin(
         preferences,
         logger,
         track,
+        experimentationServices,
         atlasAiService,
         connectionInfoRef,
         connectionScopedAppRegistry,
