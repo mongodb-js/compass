@@ -6,11 +6,27 @@ import {
   palette,
   spacing,
 } from '@mongodb-js/compass-components';
-import {
-  useSearchActivationProgramP2,
-  useTelemetry,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+
+/**
+ * Whether the "Diagnose this issue" button should be shown for a stage: the P2
+ * experiment is on, the assistant is available, and it's a $search stage with
+ * no results. Callers own the render decision so the button itself stays dumb.
+ */
+export function useShouldShowSearchStageDiagnose(
+  stageOperator: string | null | undefined,
+  documents: unknown[] | null | undefined
+): boolean {
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
+  const { diagnoseSearchStage } = useAssistantActions();
+  return (
+    enableSearchActivationProgramP2 &&
+    !!diagnoseSearchStage &&
+    stageOperator === '$search' &&
+    (documents?.length ?? 0) === 0
+  );
+}
 
 const containerStyles = css({
   marginTop: spacing[200],
@@ -24,7 +40,6 @@ type SearchStageDiagnoseButtonProps = {
   stageOperator: string | null;
   stageValue: string | null;
   searchIndexName: string | null;
-  context: 'Stage Preview' | 'Focus Mode';
   'data-testid': string;
   // Provided in focus mode so the assistant drawer isn't obscured by the modal.
   onCloseFocusMode?: () => void;
@@ -32,9 +47,8 @@ type SearchStageDiagnoseButtonProps = {
 
 /**
  * "Diagnose this issue" button shown when a $search stage returns no results.
- * Self-gates on the Search Activation Program P2 experiment, the $search
- * operator, and the assistant being enabled — renders nothing otherwise — so
- * callers can render it unconditionally in their empty-results state.
+ * Callers are responsible for only rendering it when it should appear (P2
+ * experiment on, assistant available, $search stage with no results).
  */
 export const SearchStageDiagnoseButton: React.FunctionComponent<
   SearchStageDiagnoseButtonProps
@@ -42,37 +56,21 @@ export const SearchStageDiagnoseButton: React.FunctionComponent<
   stageOperator,
   stageValue,
   searchIndexName,
-  context,
   onCloseFocusMode,
   'data-testid': dataTestId,
 }) => {
-  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
   const { diagnoseSearchStage } = useAssistantActions();
-  const track = useTelemetry();
-
-  if (
-    !enableSearchActivationProgramP2 ||
-    !diagnoseSearchStage ||
-    stageOperator !== '$search'
-  ) {
-    return null;
-  }
 
   return (
     <div className={containerStyles}>
       <Button
         data-testid={dataTestId}
         size="small"
-        // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
         leftGlyph={<Icon glyph="Sparkle" className={sparkleIconStyles} />}
         onClick={() => {
-          track('Search Stage AI Button Clicked', {
-            type: 'diagnose',
-            context,
-          });
           onCloseFocusMode?.();
-          diagnoseSearchStage({
-            stageOperator,
+          diagnoseSearchStage?.({
+            stageOperator: stageOperator ?? '',
             indexName: searchIndexName,
             stageValue: stageValue ?? '',
           });

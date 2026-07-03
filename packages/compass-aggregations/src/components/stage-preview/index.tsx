@@ -41,7 +41,10 @@ import {
   useSearchActivationProgramP2,
 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
-import { SearchStageDiagnoseButton } from '../search-stage-diagnose-button';
+import {
+  SearchStageDiagnoseButton,
+  useShouldShowSearchStageDiagnose,
+} from '../search-stage-diagnose-button';
 
 const centeredContent = css({
   display: 'flex',
@@ -69,7 +72,7 @@ const emptyStylesLight = css({
   stroke: palette.gray.base,
 });
 
-function NoPreviewDocuments() {
+function NoPreviewDocuments({ children }: { children?: React.ReactNode }) {
   const darkMode = useDarkMode();
 
   return (
@@ -84,6 +87,7 @@ function NoPreviewDocuments() {
           <span data-testid="stage-preview-empty">No Preview Documents</span>
         </Body>
       </div>
+      {children}
     </div>
   );
 }
@@ -224,10 +228,10 @@ function StagePreviewBody({
     });
   }, [interpretAnalyzeOutput, documents, stageMetadata, pipeline]);
 
+  // When the diagnose button isn't shown we still want the search-specific
+  // SearchNoResults messaging rather than the generic "No preview documents".
   const isNoResultsSearchStage =
-    enableSearchActivationProgramP2 &&
-    stageOperator === '$search' &&
-    documents?.length === 0 &&
+    useShouldShowSearchStageDiagnose(stageOperator, documents) &&
     serverErrorStageIdx === null;
 
   if (!shouldRenderStage) {
@@ -284,15 +288,11 @@ function StagePreviewBody({
 
   if (
     !enableSearchActivationProgramP1 &&
-    !enableSearchActivationProgramP2 &&
     isSearchStage(stageOperator) &&
-    documents?.length === 0
+    documents?.length === 0 &&
+    !isNoResultsSearchStage
   ) {
-    return (
-      <div className={centeredContent}>
-        <SearchNoResults />
-      </div>
-    );
+    return <SearchNoResults />;
   }
 
   if (documents && documents.length > 0) {
@@ -350,23 +350,18 @@ function StagePreviewBody({
     );
   }
 
-  if (isNoResultsSearchStage) {
-    return (
-      <div className={centeredContent}>
-        <Body>
-          <span data-testid="stage-preview-empty">No Preview Documents</span>
-        </Body>
+  return (
+    <NoPreviewDocuments>
+      {isNoResultsSearchStage && (
         <SearchStageDiagnoseButton
           stageOperator={stageOperator}
           stageValue={stageValue ?? null}
           searchIndexName={searchIndexName}
           data-testid="stage-preview-diagnose-search-button"
         />
-      </div>
-    );
-  }
-
-  return <NoPreviewDocuments />;
+      )}
+    </NoPreviewDocuments>
+  );
 }
 
 const containerStyles = css({

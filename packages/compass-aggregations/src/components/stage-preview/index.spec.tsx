@@ -190,7 +190,7 @@ describe('StagePreview', function () {
       )
     ).to.exist;
   });
-  it('renders diagnose button for $search with no results when contextual AI experiment is active', async function () {
+  it('renders diagnose button for $search with no results when in search activation p2', async function () {
     await renderStagePreview(
       {
         shouldRenderStage: true,
@@ -207,7 +207,7 @@ describe('StagePreview', function () {
     expect(screen.getByTestId('stage-preview-empty')).to.exist;
     expect(screen.getByTestId('stage-preview-diagnose-search-button')).to.exist;
   });
-  it('does not render diagnose button when contextual AI experiment is not active', async function () {
+  it('does not render diagnose button when not in search activation p2', async function () {
     await renderStagePreview(
       {
         shouldRenderStage: true,
@@ -234,8 +234,15 @@ describe('StagePreview', function () {
     );
     expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
       .exist;
+    // Falls back to the search-specific no-results messaging rather than the
+    // generic "No preview documents".
+    expect(
+      screen.getByText(
+        'This may be because your search has no results or your search index does not exist.'
+      )
+    ).to.exist;
   });
-  it('does not render diagnose button for $vectorSearch even when contextual AI experiment is active', async function () {
+  it('does not render diagnose button for $vectorSearch even when in search activation p2', async function () {
     await renderStagePreview(
       {
         shouldRenderStage: true,
@@ -251,6 +258,12 @@ describe('StagePreview', function () {
     );
     expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
       .exist;
+    // Non-$search search stages keep the SearchNoResults messaging under P2.
+    expect(
+      screen.getByText(
+        'This may be because your search has no results or your search index does not exist.'
+      )
+    ).to.exist;
   });
   it('renders $search preview docs', async function () {
     await renderStagePreview({

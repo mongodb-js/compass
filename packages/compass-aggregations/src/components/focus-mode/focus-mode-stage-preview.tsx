@@ -28,12 +28,12 @@ import {
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { disableFocusMode } from '../../modules/focus-mode';
 import SearchNoResults from '../search-no-results';
-import {
-  useSearchActivationProgramP1,
-  useSearchActivationProgramP2,
-} from '@mongodb-js/compass-telemetry/provider';
+import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
-import { SearchStageDiagnoseButton } from '../search-stage-diagnose-button';
+import {
+  SearchStageDiagnoseButton,
+  useShouldShowSearchStageDiagnose,
+} from '../search-stage-diagnose-button';
 
 const containerStyles = css({
   display: 'flex',
@@ -97,8 +97,6 @@ type FocusModePreviewProps = {
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
   onCloseFocusMode?: () => void;
-  // Rendered in the empty-results state. The output preview supplies the
-  // $search diagnose button here; the input preview supplies nothing.
   emptyStateAction?: React.ReactNode;
 };
 
@@ -132,7 +130,6 @@ export const FocusModePreview = ({
   );
 
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
-  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
 
   const docCount = documents?.length ?? 0;
   const docText = docCount === 1 ? 'document' : 'documents';
@@ -180,8 +177,8 @@ export const FocusModePreview = ({
     );
   } else if (
     !enableSearchActivationProgramP1 &&
-    !enableSearchActivationProgramP2 &&
-    isSearchStage(stageOperator)
+    isSearchStage(stageOperator) &&
+    !emptyStateAction
   ) {
     content = <SearchNoResults />;
   } else {
@@ -223,19 +220,25 @@ export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
 };
 
 export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
+  const showDiagnoseSearchStage = useShouldShowSearchStageDiagnose(
+    props.stageOperator,
+    props.documents
+  );
+
   return (
     <FocusModePreview
       {...props}
       title="Stage Output"
       emptyStateAction={
-        <SearchStageDiagnoseButton
-          stageOperator={props.stageOperator ?? null}
-          stageValue={props.stageValue ?? null}
-          searchIndexName={props.searchIndexName ?? null}
-          context="Focus Mode"
-          data-testid="focus-mode-diagnose-search-button"
-          onCloseFocusMode={props.onCloseFocusMode}
-        />
+        showDiagnoseSearchStage ? (
+          <SearchStageDiagnoseButton
+            stageOperator={props.stageOperator ?? null}
+            stageValue={props.stageValue ?? null}
+            searchIndexName={props.searchIndexName ?? null}
+            data-testid="focus-mode-diagnose-search-button"
+            onCloseFocusMode={props.onCloseFocusMode}
+          />
+        ) : undefined
       }
     />
   );

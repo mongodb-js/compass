@@ -933,7 +933,7 @@ This event is fired when a user submits feedback for the assistant.
 - **feedback** (required): `"positive" | "negative"`
 - **text** (optional): `string | undefined`
 - **request_id** (optional): `string | undefined`
-- **source** (required): `"explain plan" | "performance insights" | "connection error" | "follow-up prompt" | "analyze output" | "chat response"`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "follow-up prompt" | "analyze output" | "search stage diagnose" | "chat response"`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -946,7 +946,7 @@ This event is fired when a user uses an assistant entry point.
 
 **Properties**:
 
-- **source** (required): `"explain plan" | "performance insights" | "connection error" | "follow-up prompt" | "analyze output"`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "follow-up prompt" | "analyze output" | "search stage diagnose"`
 - **request_id** (optional): `string | undefined`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
@@ -961,7 +961,7 @@ This event is fired when a user confirms a confirmation message in the assistant
 **Properties**:
 
 - **status** (required): `"confirmed" | "rejected"`
-- **source** (required): `"explain plan" | "performance insights" | "connection error" | "follow-up prompt" | "analyze output" | "chat response"`
+- **source** (required): `"explain plan" | "performance insights" | "connection error" | "follow-up prompt" | "analyze output" | "search stage diagnose" | "chat response"`
 - **request_id** (optional): `string | undefined`
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
