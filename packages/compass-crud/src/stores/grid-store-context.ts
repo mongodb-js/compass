@@ -1,5 +1,5 @@
 import { createContext, useContext } from 'react';
-import type { GridStore } from './grid-store';
+import type { GridActions, GridStore } from './grid-store';
 
 /**
  * The grid store is still backed by Reflux, separately from the redux store.
@@ -16,4 +16,10 @@ export function useGridStore(): GridStore {
     );
   }
   return store;
+}
+
+export function useGridActions(): GridActions {
+  // Reflux actions are callable and match the GridActions signatures, but are
+  // typed as `Listenable` on the store options, hence the cast.
+  return useGridStore().options.actions as unknown as GridActions;
 }

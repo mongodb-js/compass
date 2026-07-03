@@ -70,7 +70,7 @@ export type DocumentTableViewProps = {
   updateDocument: (doc: Document) => Promise<void>;
   start: number;
   table: TableState;
-  tz: string;
+  tz?: string;
   className?: string;
   darkMode?: boolean;
   legacyUUIDDisplayEncoding?: string;

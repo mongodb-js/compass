@@ -49,6 +49,8 @@ import { drillDown, pathChanged, viewChanged } from '../stores/view';
 import { openInsertDocumentDialog } from '../stores/insert';
 import { openBulkUpdateModal } from '../stores/bulk-update';
 import { openBulkDeleteDialog } from '../stores/bulk-delete';
+import type { GridActions } from '../stores/grid-store';
+import { useGridActions } from '../stores/grid-store-context';
 import { getToolbarSignal } from '../utils/toolbar-signal';
 import BulkDeleteModal from './bulk-delete-modal';
 import { useTabState } from '@mongodb-js/compass-workspaces/provider';
@@ -100,12 +102,20 @@ export type DocumentListProps = {
   viewChanged: CrudToolbarProps['viewSwitchHandler'];
   darkMode?: boolean;
   isCollectionScan?: boolean;
+  isTimeSeries: boolean;
   isSearchIndexesSupported: boolean;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   openImportFileDialog?: (origin: 'empty-state' | 'crud-toolbar') => void;
-} & Omit<DocumentListViewProps, 'className'> &
-  Omit<DocumentTableViewProps, 'className'> &
-  Omit<DocumentJsonViewProps, 'className'> &
+} & Omit<DocumentListViewProps, 'className' | 'isTimeSeries' | 'isEditable'> &
+  Omit<
+    DocumentTableViewProps,
+    | 'className'
+    | 'isEditable'
+    | 'columnWidths'
+    | 'onColumnWidthChange'
+    | keyof GridActions
+  > &
+  Omit<DocumentJsonViewProps, 'className' | 'isEditable'> &
   Pick<
     CrudToolbarProps,
     | 'error'
@@ -116,7 +126,6 @@ export type DocumentListProps = {
     | 'end'
     | 'page'
     | 'getPage'
-    | 'insertDataHandler'
     | 'openExportFileDialog'
     | 'isWritable'
     | 'isMockDataGeneratorEligibleAndSchemaReady'
@@ -127,16 +136,17 @@ export type DocumentListProps = {
   >;
 
 const DocumentViewComponent: React.FunctionComponent<
-  DocumentListProps & {
-    isEditable: boolean;
-    outdated: boolean;
-    query: unknown;
-    initialScrollTop?: number;
-    scrollTriggerRef?: React.Ref<HTMLDivElement>;
-    scrollableContainerRef?: React.Ref<HTMLDivElement>;
-    columnWidths: Record<string, number>;
-    onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
-  }
+  DocumentListProps &
+    GridActions & {
+      isEditable: boolean;
+      outdated: boolean;
+      query: unknown;
+      initialScrollTop?: number;
+      scrollTriggerRef?: React.Ref<HTMLDivElement>;
+      scrollableContainerRef?: React.Ref<HTMLDivElement>;
+      columnWidths: Record<string, number>;
+      onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
+    }
 > = ({
   initialScrollTop,
   scrollTriggerRef,
@@ -306,6 +316,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     updateMaxDocumentsPerPage,
   } = props;
 
+  const gridActions = useGridActions();
+
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
       if (key === 'insert-document') {
@@ -467,6 +479,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
           content = (
             <DocumentViewComponent
               {...props}
+              {...gridActions}
               isEditable={isEditable}
               outdated={outdated}
               query={query}
@@ -492,6 +505,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
       isEditable,
       openImportFileDialog,
       props,
+      gridActions,
       outdated,
       query,
       scrollRef,
@@ -601,8 +615,10 @@ export default connect(
     isWritable: state.collectionMeta.isWritable,
     instanceDescription: state.collectionMeta.instanceDescription,
     isSearchIndexesSupported: state.collectionMeta.isSearchIndexesSupported,
+    version: state.collectionMeta.version,
     view: state.view.view,
     table: state.view.table,
+    ns: state.documents.ns,
     docs: state.documents.docs ?? [],
     start: state.documents.start,
     end: state.documents.end,
