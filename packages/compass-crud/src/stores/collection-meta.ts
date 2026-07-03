@@ -1,6 +1,6 @@
 import type { Reducer } from 'redux';
 import type { Collection } from '@mongodb-js/compass-app-stores/provider';
-import { isAction } from './util';
+import { isAction } from '../utils/is-action';
 
 export type CollectionStats = Pick<
   Collection,

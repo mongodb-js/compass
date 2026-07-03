@@ -2,7 +2,7 @@ import type { Reducer } from 'redux';
 import HadronDocument, { Document } from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import type { MongoServerError } from 'mongodb';
-import { isAction } from './util';
+import { isAction } from '../utils/is-action';
 import type { CrudThunkAction } from './reducer';
 import { refreshDocuments } from './documents';
 import type { DocumentView } from './view';

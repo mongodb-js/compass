@@ -1,5 +1,5 @@
 import type { AnyAction } from 'redux';
-import type { CrudActionTypes, CrudReduxActions } from './reducer';
+import type { CrudActionTypes, CrudReduxActions } from '../stores/reducer';
 
 export function isAction<T extends CrudActionTypes>(
   action: AnyAction,

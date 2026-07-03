@@ -12,13 +12,13 @@ import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Query } from '@mongodb-js/compass-query-bar';
 
-import { isAction } from './util';
+import { isAction } from '../utils/is-action';
 import type { CrudThunkAction } from './reducer';
 import type { BSONObject } from './insert';
 import {
   fetchDocuments,
   findAndModifyWithFLEFallback,
-} from './fetch-documents';
+} from '../utils/fetch-documents';
 import {
   countDocuments,
   fetchShardingKeys,

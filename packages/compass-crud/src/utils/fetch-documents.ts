@@ -2,8 +2,8 @@ import semver from 'semver';
 import { isEmpty } from 'lodash';
 import HadronDocument from 'hadron-document';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { DataService } from '../utils/data-service';
-import type { BSONArray, BSONObject } from './insert';
+import type { DataService } from './data-service';
+import type { BSONArray, BSONObject } from '../stores/insert';
 
 export const fetchDocuments: (
   dataService: DataService,

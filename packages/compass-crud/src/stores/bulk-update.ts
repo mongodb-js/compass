@@ -2,9 +2,9 @@ import type { Reducer } from 'redux';
 import type { UpdatePreview } from 'mongodb-data-service';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { openToast } from '@mongodb-js/compass-components';
-import { isAction } from './util';
+import { isAction } from '../utils/is-action';
 import type { CrudThunkAction } from './reducer';
-import { parseShellBSON } from './parse-shell-bson';
+import { parseShellBSON } from '../utils/parse-shell-bson';
 import {
   openBulkUpdateFailureToast,
   openBulkUpdateProgressToast,

@@ -69,8 +69,8 @@ export type { BulkDeleteState } from './bulk-delete';
 export {
   fetchDocuments,
   findAndModifyWithFLEFallback,
-} from './fetch-documents';
-export { parseShellBSON } from './parse-shell-bson';
+} from '../utils/fetch-documents';
+export { parseShellBSON } from '../utils/parse-shell-bson';
 export {
   MAX_DOCS_PER_PAGE_STORAGE_KEY,
   COUNT_MAX_TIME_MS_CAP,

@@ -2,7 +2,7 @@ import type { Reducer } from 'redux';
 import type { Document } from 'hadron-document';
 import type { Element } from 'hadron-document';
 import type { TableHeaderType } from './grid-store';
-import { isAction } from './util';
+import { isAction } from '../utils/is-action';
 import { DocumentsActionTypes } from './documents';
 
 export type DocumentView = 'List' | 'JSON' | 'Table';

@@ -1,5 +1,5 @@
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
-import type { BSONObject } from './insert';
+import type { BSONObject } from '../stores/insert';
 
 // Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
 export function parseShellBSON(source: string): BSONObject | BSONObject[] {

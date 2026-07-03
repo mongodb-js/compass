@@ -2,7 +2,7 @@ import type { Reducer } from 'redux';
 import { Document } from 'hadron-document';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { showConfirmation } from '@mongodb-js/compass-components';
-import { isAction } from './util';
+import { isAction } from '../utils/is-action';
 import type { CrudThunkAction } from './reducer';
 import {
   openBulkDeleteFailureToast,
