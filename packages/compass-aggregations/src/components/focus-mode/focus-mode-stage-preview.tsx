@@ -63,6 +63,7 @@ const centerStyles = css({
   justifyContent: 'center',
   height: '100%',
   textAlign: 'center',
+  gap: spacing[200],
 });
 
 const messageStyles = css({ marginTop: spacing[400] });

@@ -55,8 +55,15 @@ const centeredContent = css({
   flexDirection: 'column',
 });
 
-const emptyStyles = css({
+const emptyContentStyles = css({
   margin: 'auto',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: spacing[200],
+});
+
+const emptyStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
@@ -77,17 +84,19 @@ function NoPreviewDocuments({ children }: { children?: React.ReactNode }) {
 
   return (
     <div className={centeredContent}>
-      <div
-        className={cx(
-          emptyStyles,
-          darkMode ? emptyStylesDark : emptyStylesLight
-        )}
-      >
-        <Body>
-          <span data-testid="stage-preview-empty">No Preview Documents</span>
-        </Body>
+      <div className={emptyContentStyles}>
+        <div
+          className={cx(
+            emptyStyles,
+            darkMode ? emptyStylesDark : emptyStylesLight
+          )}
+        >
+          <Body>
+            <span data-testid="stage-preview-empty">No Preview Documents</span>
+          </Body>
+        </div>
+        {children}
       </div>
-      {children}
     </div>
   );
 }

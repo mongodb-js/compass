@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  Button,
-  Icon,
-  css,
-  palette,
-  spacing,
-} from '@mongodb-js/compass-components';
+import { Button, Icon, css, palette } from '@mongodb-js/compass-components';
 import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
@@ -22,10 +16,6 @@ export function useShouldShowSearchStageDiagnose(
     (documents?.length ?? 0) === 0
   );
 }
-
-const containerStyles = css({
-  marginTop: spacing[200],
-});
 
 const sparkleIconStyles = css({
   color: palette.green.dark1,
@@ -51,22 +41,21 @@ export const SearchStageDiagnoseButton: React.FunctionComponent<
   const { diagnoseSearchStage } = useAssistantActions();
 
   return (
-    <div className={containerStyles}>
-      <Button
-        data-testid={dataTestId}
-        size="small"
-        leftGlyph={<Icon glyph="Sparkle" className={sparkleIconStyles} />}
-        onClick={() => {
-          onCloseFocusMode?.();
-          diagnoseSearchStage?.({
-            stageOperator: stageOperator ?? '',
-            indexName: searchIndexName,
-            stageValue: stageValue ?? '',
-          });
-        }}
-      >
-        Diagnose this issue
-      </Button>
-    </div>
+    <Button
+      data-testid={dataTestId}
+      size="small"
+      variant="primaryOutline"
+      leftGlyph={<Icon glyph="Sparkle" className={sparkleIconStyles} />}
+      onClick={() => {
+        onCloseFocusMode?.();
+        diagnoseSearchStage?.({
+          stageOperator: stageOperator ?? '',
+          indexName: searchIndexName,
+          stageValue: stageValue ?? '',
+        });
+      }}
+    >
+      Diagnose this issue
+    </Button>
   );
 };
