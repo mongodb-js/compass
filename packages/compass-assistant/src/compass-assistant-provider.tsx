@@ -24,11 +24,11 @@ import {
   buildExplainPlanPrompt,
   buildProactiveInsightsPrompt,
   buildAnalyzeOutputPrompt,
-  buildSearchStageDiagnosisPrompt,
+  buildDebugSearchErrorPrompt,
   type EntryPointMessage,
   type ProactiveInsightsContext,
   type AnalyzeOutputContext,
-  type SearchStageDiagnosisContext,
+  type DebugSearchErrorContext,
 } from './prompts';
 import {
   type PreferencesAccess,
@@ -111,7 +111,7 @@ export type AssistantMessage = UIMessage & {
       | 'connection error'
       | 'follow-up prompt'
       | 'analyze output'
-      | 'search stage diagnosis';
+      | 'search stage error';
     /** Information for confirmation messages. */
     confirmation?: {
       description: string;
@@ -176,7 +176,7 @@ type AssistantActionsContextType = {
   }) => void;
   tellMoreAboutInsight?: (context: ProactiveInsightsContext) => void;
   interpretAnalyzeOutput?: (context: AnalyzeOutputContext) => void;
-  diagnoseSearchStage?: (context: SearchStageDiagnosisContext) => void;
+  debugSearchError?: (context: DebugSearchErrorContext) => void;
   ensureOptInAndSend?: (
     message: SendMessage,
     options: SendOptions,
@@ -200,7 +200,7 @@ export const AssistantActionsContext =
     interpretConnectionError: () => {},
     tellMoreAboutInsight: () => {},
     interpretAnalyzeOutput: () => {},
-    diagnoseSearchStage: () => {},
+    debugSearchError: () => {},
     ensureOptInAndSend: async () => {},
   });
 
@@ -220,7 +220,7 @@ export function useAssistantActions(): AssistantActionsType {
     interpretConnectionError,
     tellMoreAboutInsight,
     interpretAnalyzeOutput,
-    diagnoseSearchStage,
+    debugSearchError,
   } = actions;
 
   return {
@@ -228,7 +228,7 @@ export function useAssistantActions(): AssistantActionsType {
     interpretConnectionError,
     tellMoreAboutInsight,
     interpretAnalyzeOutput,
-    diagnoseSearchStage,
+    debugSearchError,
     getIsAssistantEnabled: () => true,
   };
 }
@@ -502,7 +502,7 @@ function handleEntryPoint<T>(
     | 'performance insights'
     | 'connection error'
     | 'analyze output'
-    | 'search stage diagnosis',
+    | 'search stage error',
   builder: (props: T) => EntryPointMessage,
   props: T,
   globalState: GlobalState,
@@ -603,14 +603,14 @@ function interpretAnalyzeOutputThunk(
   );
 }
 
-function diagnoseSearchStageThunk(
-  props: SearchStageDiagnosisContext,
+function debugSearchErrorThunk(
+  props: DebugSearchErrorContext,
   globalState: GlobalState,
   openDrawer: (id: string) => void
 ): AssistantThunkAction<void> {
   return handleEntryPoint(
-    'search stage diagnosis',
-    buildSearchStageDiagnosisPrompt,
+    'search stage error',
+    buildDebugSearchErrorPrompt,
     props,
     globalState,
     openDrawer
@@ -724,8 +724,8 @@ const AssistantProviderInner: React.FunctionComponent<
       globalState: GlobalState,
       openDrawer: (id: string) => void
     ) => void;
-    diagnoseSearchStage: (
-      props: SearchStageDiagnosisContext,
+    debugSearchError: (
+      props: DebugSearchErrorContext,
       globalState: GlobalState,
       openDrawer: (id: string) => void
     ) => void;
@@ -738,7 +738,7 @@ const AssistantProviderInner: React.FunctionComponent<
   interpretConnectionError,
   tellMoreAboutInsight,
   interpretAnalyzeOutput,
-  diagnoseSearchStage,
+  debugSearchError,
   children,
 }) => {
   // chat is stable — created once in activate, never changes
@@ -777,8 +777,8 @@ const AssistantProviderInner: React.FunctionComponent<
         openDrawerRef.current
       );
     },
-    diagnoseSearchStage: (props) => {
-      diagnoseSearchStage(
+    debugSearchError: (props) => {
+      debugSearchError(
         props,
         assistantGlobalStateRef.current,
         openDrawerRef.current
@@ -812,7 +812,7 @@ const ConnectedAssistantProvider = connect(null, {
   interpretConnectionError: interpretConnectionErrorThunk,
   tellMoreAboutInsight: tellMoreAboutInsightThunk,
   interpretAnalyzeOutput: interpretAnalyzeOutputThunk,
-  diagnoseSearchStage: diagnoseSearchStageThunk,
+  debugSearchError: debugSearchErrorThunk,
 })(AssistantProviderInner);
 
 export const CompassAssistantProvider = registerCompassPlugin(

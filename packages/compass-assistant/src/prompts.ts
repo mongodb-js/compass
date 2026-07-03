@@ -225,17 +225,17 @@ Respond with as much concision and clarity as possible. Do not recommend changes
   }
 };
 
-export type SearchStageDiagnosisContext = {
+export type DebugSearchErrorContext = {
   stageOperator: string;
   stageValue: string;
   errorMessage: string;
 };
 
-export const buildSearchStageDiagnosisPrompt = ({
+export const buildDebugSearchErrorPrompt = ({
   stageOperator,
   stageValue,
   errorMessage,
-}: SearchStageDiagnosisContext): EntryPointMessage => ({
+}: DebugSearchErrorContext): EntryPointMessage => ({
   prompt: `The user's ${stageOperator} stage failed with the following error:
 
 <error>

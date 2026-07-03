@@ -1531,7 +1531,7 @@ type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
       | 'connection error'
       | 'follow-up prompt'
       | 'analyze output'
-      | 'search stage diagnosis';
+      | 'search stage error';
     request_id?: string;
   };
 }>;

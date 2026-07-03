@@ -70,8 +70,7 @@ export default function ServerErrorBanner({
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
-  const { diagnoseSearchStage, getIsAssistantEnabled } = useAssistantActions();
-  const isAssistantEnabled = getIsAssistantEnabled();
+  const { debugSearchError } = useAssistantActions();
   const rerankNotEnabled = isRerankNotEnabledError(message);
 
   useEffect(() => {
@@ -111,13 +110,12 @@ export default function ServerErrorBanner({
   const onDebugClick =
     !showEditSearchIndexLink &&
     enableSearchActivationProgramP2 &&
-    isAssistantEnabled &&
-    diagnoseSearchStage &&
+    debugSearchError &&
     stageOperator === '$search' &&
     stageValue
       ? () => {
           onCloseFocusMode?.();
-          diagnoseSearchStage({
+          debugSearchError({
             stageOperator,
             errorMessage: message,
             stageValue,
