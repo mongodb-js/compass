@@ -126,6 +126,7 @@ const connections: Connection[] = [
 const props: React.ComponentProps<typeof ConnectionsNavigationTree> = {
   connections,
   expanded: { turtles: { bar: true } },
+  expandedGroups: {},
   activeWorkspace: {
     connectionId: 'connection_ready',
     namespace: 'db_ready.meow',
@@ -160,6 +161,155 @@ describe('ConnectionsNavigationTree', function () {
   }
 
   afterEach(cleanup);
+
+  context('with connection groups enabled', function () {
+    const groupedConnections: Connection[] = [
+      {
+        ...connections[0],
+        connectionInfo: {
+          ...connections[0].connectionInfo,
+          favorite: { name: 'turtles', groupId: 'prod' },
+        },
+      },
+      connections[2], // disconnected, no group
+    ];
+
+    it('renders a group header and indents grouped connections', async function () {
+      await renderConnectionsNavigationTree(
+        { connections: groupedConnections, expandedGroups: {} },
+        { enableConnectionGroups: true }
+      );
+      const group = screen.getByTestId('group:prod');
+      expect(group).to.exist;
+      expect(within(group).getByText('prod')).to.exist;
+      expect(screen.getByText('turtles')).to.exist;
+    });
+
+    it('does not render group headers when the flag is disabled', async function () {
+      await renderConnectionsNavigationTree({
+        connections: groupedConnections,
+        expandedGroups: {},
+      });
+      expect(screen.queryByTestId('group:prod')).to.be.null;
+    });
+
+    it('resolves the group header name and color from the groupsById prop', async function () {
+      await renderConnectionsNavigationTree(
+        {
+          connections: groupedConnections,
+          expandedGroups: {},
+          groupsById: {
+            prod: { id: 'prod', name: 'Production', color: 'color1' },
+          },
+        },
+        { enableConnectionGroups: true }
+      );
+      const group = screen.getByTestId('group:prod');
+      expect(within(group).getByText('Production')).to.exist;
+      expect(within(group).queryByText('prod')).to.be.null;
+    });
+
+    it('notifies on group expand toggle', async function () {
+      const spy = Sinon.spy();
+      await renderConnectionsNavigationTree(
+        {
+          connections: groupedConnections,
+          expandedGroups: {},
+          onItemExpand: spy,
+        },
+        { enableConnectionGroups: true }
+      );
+      const group = screen.getByTestId('group:prod');
+      userEvent.click(within(group).getByLabelText('Collapse'));
+      expect(spy).to.be.calledOnce;
+      const [[item, isExpanded]] = spy.args;
+      expect(item.type).to.equal('group');
+      expect(item.groupName).to.equal('prod');
+      expect(isExpanded).to.equal(false);
+    });
+
+    it('toggles the group from its row default action', async function () {
+      const spy = Sinon.spy();
+      await renderConnectionsNavigationTree(
+        {
+          connections: groupedConnections,
+          expandedGroups: {},
+          onItemExpand: spy,
+        },
+        { enableConnectionGroups: true }
+      );
+      const group = screen.getByTestId('group:prod');
+
+      // Clicking the row (not the Collapse chevron) routes through
+      // onDefaultAction, which must not be blocked by the disabled-connection
+      // guard for group items.
+      userEvent.click(within(group).getByText('prod'));
+
+      expect(spy).to.be.calledOnce;
+      const [[item, isExpanded]] = spy.args;
+      expect(item.type).to.equal('group');
+      expect(item.groupName).to.equal('prod');
+      expect(isExpanded).to.equal(false);
+    });
+
+    it('hides connections of a collapsed group', async function () {
+      await renderConnectionsNavigationTree(
+        {
+          connections: groupedConnections,
+          expandedGroups: { prod: false },
+        },
+        { enableConnectionGroups: true }
+      );
+      expect(screen.getByTestId('group:prod')).to.exist;
+      expect(screen.queryByText('turtles')).to.be.null;
+    });
+
+    it('fires edit-group from the group actions', async function () {
+      const spy = Sinon.spy();
+      await renderConnectionsNavigationTree(
+        {
+          connections: groupedConnections,
+          expandedGroups: {},
+          onItemAction: spy,
+        },
+        { enableConnectionGroups: true }
+      );
+      const group = screen.getByTestId('group:prod');
+
+      userEvent.hover(within(group).getByText('prod'));
+      userEvent.click(within(group).getByTitle('Show actions'));
+      userEvent.click(screen.getByText('Edit group'));
+
+      expect(spy).to.be.calledOnce;
+      const [[item, action]] = spy.args;
+      expect(item.type).to.equal('group');
+      expect(item.groupName).to.equal('prod');
+      expect(action).to.equal('edit-group');
+    });
+
+    it('fires delete-group from the group actions', async function () {
+      const spy = Sinon.spy();
+      await renderConnectionsNavigationTree(
+        {
+          connections: groupedConnections,
+          expandedGroups: {},
+          onItemAction: spy,
+        },
+        { enableConnectionGroups: true }
+      );
+      const group = screen.getByTestId('group:prod');
+
+      userEvent.hover(within(group).getByText('prod'));
+      userEvent.click(within(group).getByTitle('Show actions'));
+      userEvent.click(screen.getByText('Delete group'));
+
+      expect(spy).to.be.calledOnce;
+      const [[item, action]] = spy.args;
+      expect(item.type).to.equal('group');
+      expect(item.groupName).to.equal('prod');
+      expect(action).to.equal('delete-group');
+    });
+  });
 
   context('when the rename collection feature flag is enabled', () => {
     it('shows the Rename Collection action', async function () {

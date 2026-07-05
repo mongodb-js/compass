@@ -152,6 +152,11 @@ export function NavigationItem({
     if (item.type === 'placeholder') {
       return {};
     }
+    if (item.type === 'group') {
+      return {
+        'data-group-name': item.groupName,
+      };
+    }
     if (item.type === 'connection') {
       return {
         'data-is-active': isActive.toString(),

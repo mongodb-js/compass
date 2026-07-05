@@ -399,6 +399,37 @@ export const databaseContextMenuActions = ({
   ]);
 };
 
+export const groupItemActions = (): NavigationItemActions =>
+  stripNullActions([
+    {
+      action: 'edit-group',
+      label: 'Edit group',
+      icon: 'Edit',
+    },
+    {
+      action: 'delete-group',
+      label: 'Delete group',
+      icon: 'Trash',
+      variant: 'destructive',
+    },
+  ]);
+
+export const groupContextMenuActions = (): NavigationItemActions =>
+  stripNullActions([
+    {
+      action: 'edit-group',
+      label: 'Edit group',
+      icon: 'Edit',
+    },
+    { separator: true },
+    {
+      action: 'delete-group',
+      label: 'Delete group',
+      icon: 'Trash',
+      variant: 'destructive',
+    },
+  ]);
+
 export const collectionContextMenuActions = ({
   hasWriteActionsDisabled,
   canEditCollection,

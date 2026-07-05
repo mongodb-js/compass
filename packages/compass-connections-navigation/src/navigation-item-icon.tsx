@@ -34,6 +34,9 @@ const IconWithTooltip = ({
 };
 
 export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
+  if (item.type === 'group') {
+    return <Icon glyph="Folder" />;
+  }
   if (item.type === 'database') {
     if (item.inferredFromPrivileges) {
       return (

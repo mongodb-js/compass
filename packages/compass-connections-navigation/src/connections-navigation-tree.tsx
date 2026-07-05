@@ -31,6 +31,8 @@ import {
   databaseContextMenuActions,
   notConnectedConnectionItemActions,
   connectionContextMenuActions,
+  groupItemActions,
+  groupContextMenuActions,
 } from './item-actions';
 import { itemActionsToContextMenuGroups } from './context-menus';
 
@@ -43,6 +45,8 @@ export interface ConnectionsNavigationTreeProps {
   connections: Connection[];
   activeWorkspace: WorkspaceTab | null;
   expanded: Record<string, false | Record<string, boolean>>;
+  expandedGroups: Record<string, boolean>;
+  groupsById?: Record<string, { id: string; name: string; color?: string }>;
   onItemExpand(item: SidebarActionableItem, isExpanded: boolean): void;
   onItemAction(item: SidebarActionableItem, action: Actions): void;
 }
@@ -53,6 +57,8 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   connections,
   activeWorkspace,
   expanded,
+  expandedGroups,
+  groupsById = {},
   onItemExpand,
   onItemAction,
 }) => {
@@ -62,12 +68,14 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
     showDisabledConnections,
+    enableConnectionGroups,
   } = usePreferences([
     'enableShell',
     'readOnly',
     'readWrite',
     'enableRenameCollectionModal',
     'showDisabledConnections',
+    'enableConnectionGroups',
   ]);
   const isRenameCollectionEnabled =
     enableRenameCollectionModal && !preferencesReadWrite;
@@ -78,14 +86,20 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   const treeData = useMemo(() => {
     return getVirtualTreeItems({
       connections,
+      groupsById,
       expandedItems: expanded,
+      expandedGroups,
+      enableConnectionGroups,
       preferencesReadOnly,
       preferencesReadWrite,
       preferencesShellEnabled,
     });
   }, [
     connections,
+    groupsById,
     expanded,
+    expandedGroups,
+    enableConnectionGroups,
     preferencesReadOnly,
     preferencesReadWrite,
     preferencesShellEnabled,
@@ -93,11 +107,20 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
-      if (showDisabledConnections) {
+      // A group is a container, not a connection, so the disabled-connection
+      // guard below must not short-circuit its default (row) action. Note that
+      // onDefaultAction never receives placeholder items (they are not
+      // actionable), so no placeholder check is needed here.
+      if (showDisabledConnections && item.type !== 'group') {
         const connectionId = getConnectionId(item);
         if (!getConnectable(connectionId)) {
           return;
         }
+      }
+
+      if (item.type === 'group') {
+        onItemExpand(item, !item.isExpanded);
+        return;
       }
 
       if (item.type === 'connection') {
@@ -114,7 +137,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, getConnectable, showDisabledConnections]
+    [onItemAction, onItemExpand, getConnectable, showDisabledConnections]
   );
 
   const activeItemId = useMemo(() => {
@@ -176,7 +199,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getItemActionsAndConfig = useCallback(
     (item: SidebarTreeItem) => {
-      if (showDisabledConnections) {
+      if (
+        showDisabledConnections &&
+        item.type !== 'placeholder' &&
+        item.type !== 'group'
+      ) {
         const connectionId = getConnectionId(item);
         if (!getConnectable(connectionId)) {
           return {
@@ -188,6 +215,10 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         case 'placeholder':
           return {
             actions: [],
+          };
+        case 'group':
+          return {
+            actions: groupItemActions(),
           };
         case 'connection': {
           if (item.connectionStatus === 'connected') {
@@ -249,6 +280,13 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       switch (item.type) {
         case 'placeholder':
           return [];
+        case 'group':
+          return itemActionsToContextMenuGroups(
+            'Group Tree Item',
+            item,
+            onItemAction,
+            groupContextMenuActions()
+          );
         case 'connection':
           return itemActionsToContextMenuGroups(
             'Connection Tree Item',

@@ -27,7 +27,7 @@ export default function StyledNavigationItem({
   const isDarkMode = useDarkMode();
   const { connectionColorToHex, connectionColorToHexActive } =
     useConnectionColor();
-  const { colorCode } = item;
+  const colorCode = item.colorCode;
   const inactiveColor = useMemo(
     () => (isDarkMode ? palette.gray.light1 : palette.gray.dark1),
     [isDarkMode]

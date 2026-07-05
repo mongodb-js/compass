@@ -120,7 +120,17 @@ export type CollectionTreeItem = VirtualTreeItem & {
   inferredFromPrivileges: boolean;
 };
 
+export type ConnectionGroupTreeItem = VirtualTreeItem & {
+  name: string;
+  type: 'group';
+  groupId: string;
+  groupName: string;
+  colorCode?: string;
+  isExpanded: boolean;
+};
+
 export type SidebarActionableItem =
+  | ConnectionGroupTreeItem
   | NotConnectedConnectionTreeItem
   | ConnectedConnectionTreeItem
   | DatabaseTreeItem
@@ -129,7 +139,7 @@ export type SidebarActionableItem =
 export type SidebarTreeItem = PlaceholderTreeItem | SidebarActionableItem;
 
 export function getConnectionId(item: SidebarTreeItem): string {
-  if (item.type === 'placeholder') {
+  if (item.type === 'placeholder' || item.type === 'group') {
     return '';
   } else if (item.type === 'connection') {
     return item.connectionInfo.id;
@@ -142,15 +152,17 @@ const notConnectedConnectionToItems = ({
   connection: { name, connectionInfo, connectionStatus },
   connectionIndex,
   connectionsLength,
+  level,
 }: {
   connection: NotConnectedConnection;
   connectionIndex: number;
   connectionsLength: number;
+  level: number;
 }): SidebarTreeItem[] => {
   return [
     {
       id: connectionInfo.id,
-      level: 1,
+      level,
       name,
       type: 'connection' as const,
       setSize: connectionsLength,
@@ -180,6 +192,7 @@ const connectedConnectionToItems = ({
   },
   connectionIndex,
   connectionsLength,
+  level,
   expandedItems = {},
   preferencesReadOnly,
   preferencesReadWrite,
@@ -188,6 +201,7 @@ const connectedConnectionToItems = ({
   connection: ConnectedConnection;
   connectionIndex: number;
   connectionsLength: number;
+  level: number;
   expandedItems: Record<string, false | Record<string, boolean>>;
   preferencesReadOnly: boolean;
   preferencesReadWrite: boolean;
@@ -199,7 +213,7 @@ const connectedConnectionToItems = ({
     preferencesReadOnly || isDataLake || !isWritable;
   const connectionTI: ConnectedConnectionTreeItem = {
     id: connectionInfo.id,
-    level: 1,
+    level,
     name,
     type: 'connection' as const,
     setSize: connectionsLength,
@@ -234,7 +248,7 @@ const connectedConnectionToItems = ({
   if (!areDatabasesReady) {
     return sidebarData.concat(
       Array.from({ length: placeholdersLength }, (_, index) => ({
-        level: 2,
+        level: level + 1,
         type: 'placeholder' as const,
         colorCode,
         id: `${connectionInfo.id}.placeholder.${index}`,
@@ -249,7 +263,7 @@ const connectedConnectionToItems = ({
         connectionItem: connectionTI,
         database,
         expandedItems: expandedItems[connectionInfo.id] || {},
-        level: 2,
+        level: level + 1,
         colorCode,
         databasesLength,
         databaseIndex,
@@ -369,24 +383,36 @@ const databaseToItems = ({
  */
 export function getVirtualTreeItems({
   connections,
+  groupsById = {},
   expandedItems = {},
+  expandedGroups = {},
+  enableConnectionGroups = false,
   preferencesReadOnly,
   preferencesReadWrite,
   preferencesShellEnabled,
 }: {
   connections: (NotConnectedConnection | ConnectedConnection)[];
+  groupsById?: Record<string, { id: string; name: string; color?: string }>;
   expandedItems: Record<string, false | Record<string, boolean>>;
+  expandedGroups?: Record<string, boolean>;
+  enableConnectionGroups?: boolean;
   preferencesReadOnly: boolean;
   preferencesReadWrite: boolean;
   preferencesShellEnabled: boolean;
 }): SidebarTreeItem[] {
-  return connections.flatMap((connection, connectionIndex) => {
+  const connectionToItems = (
+    connection: NotConnectedConnection | ConnectedConnection,
+    connectionIndex: number,
+    connectionsLength: number,
+    level: number
+  ): SidebarTreeItem[] => {
     if (connection.connectionStatus === ConnectionStatus.Connected) {
       return connectedConnectionToItems({
         connection,
         expandedItems,
         connectionIndex,
-        connectionsLength: connections.length,
+        connectionsLength,
+        level,
         preferencesReadOnly,
         preferencesReadWrite,
         preferencesShellEnabled,
@@ -394,9 +420,93 @@ export function getVirtualTreeItems({
     } else {
       return notConnectedConnectionToItems({
         connection,
-        connectionsLength: connections.length,
+        connectionsLength,
         connectionIndex,
+        level,
+      });
+    }
+  };
+
+  if (!enableConnectionGroups) {
+    return connections.flatMap((connection, connectionIndex) =>
+      connectionToItems(connection, connectionIndex, connections.length, 1)
+    );
+  }
+
+  // Group connections by their groupId preserving the incoming connection
+  // order inside each group. Grouped connections are rendered first (groups
+  // sorted by resolved name), ungrouped ones keep the root level below them.
+  const grouped = new Map<
+    string,
+    (NotConnectedConnection | ConnectedConnection)[]
+  >();
+  const ungrouped: (NotConnectedConnection | ConnectedConnection)[] = [];
+  for (const connection of connections) {
+    const groupId = connection.connectionInfo.favorite?.groupId;
+    if (groupId) {
+      const list = grouped.get(groupId) ?? [];
+      list.push(connection);
+      grouped.set(groupId, list);
+    } else {
+      ungrouped.push(connection);
+    }
+  }
+
+  const resolvedGroupName = (groupId: string) =>
+    groupsById[groupId]?.name ?? groupId;
+
+  const groupIds = [...grouped.keys()].sort((a, b) =>
+    resolvedGroupName(a).localeCompare(resolvedGroupName(b))
+  );
+  const rootSetSize = groupIds.length + ungrouped.length;
+  const items: SidebarTreeItem[] = [];
+
+  groupIds.forEach((groupId, groupIndex) => {
+    const groupConnections = grouped.get(groupId) as (
+      | NotConnectedConnection
+      | ConnectedConnection
+    )[];
+    const group = groupsById[groupId];
+    const groupName = group?.name ?? groupId;
+    // Groups are expanded by default: only an explicit `false` collapses.
+    const isExpanded = expandedGroups[groupId] !== false;
+    items.push({
+      id: `group:${groupId}`,
+      name: groupName,
+      type: 'group' as const,
+      groupId,
+      groupName,
+      colorCode: group?.color,
+      level: 1,
+      setSize: rootSetSize,
+      posInSet: groupIndex + 1,
+      isExpandable: true,
+      isExpanded,
+    });
+    if (isExpanded) {
+      groupConnections.forEach((connection, connectionIndex) => {
+        items.push(
+          ...connectionToItems(
+            connection,
+            connectionIndex,
+            groupConnections.length,
+            2
+          )
+        );
       });
     }
   });
+
+  ungrouped.forEach((connection, connectionIndex) => {
+    items.push(
+      ...connectionToItems(
+        connection,
+        groupIds.length + connectionIndex,
+        rootSetSize,
+        1
+      )
+    );
+  });
+
+  return items;
 }

@@ -39,4 +39,7 @@ export type Actions =
   | 'open-in-new-tab'
   | 'duplicate-view'
   | 'modify-view'
-  | 'rename-collection';
+  | 'rename-collection'
+  // group item related actions
+  | 'edit-group'
+  | 'delete-group';

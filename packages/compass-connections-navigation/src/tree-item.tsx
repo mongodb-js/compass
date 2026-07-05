@@ -47,6 +47,7 @@ export const ExpandButton: React.FunctionComponent<{
       // collapse it using keyboard, so the button is only valuable when
       // using a mouse
       tabIndex={-1}
+      aria-label={isExpanded ? 'Collapse' : 'Expand'}
       onClick={onClick}
       className={cx(buttonReset, expandButton, {
         [expandedStyles]: isExpanded,
