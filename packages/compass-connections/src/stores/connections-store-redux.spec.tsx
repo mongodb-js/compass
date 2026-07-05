@@ -21,6 +21,7 @@ import type { ThunkExtraArg } from './connections-store-redux';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 
@@ -809,7 +810,7 @@ describe('groups slice', function () {
       appName: 'TEST',
       preferences: await createSandboxFromDefaultPreferences(),
       connectionStorage,
-      track: sinon.stub(),
+      track: createNoopTrack(),
       logger: createNoopLogger(),
       getExtraConnectionData: () => Promise.resolve([{}, null] as any),
       globalAppRegistry: new AppRegistry(),

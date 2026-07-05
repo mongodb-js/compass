@@ -17,7 +17,7 @@ export function useConnectionFormPreferences() {
   );
   const enableConnectionGroups = usePreference('enableConnectionGroups');
   const connectionGroups = useConnectionGroups();
-  const { createGroup } = useConnectionActions();
+  const { createGroup, updateGroup } = useConnectionActions();
 
   return useMemo(
     () => ({
@@ -35,6 +35,13 @@ export function useConnectionFormPreferences() {
         await createGroup(group);
         return group;
       },
+      onUpdateGroup: async (group: {
+        id: string;
+        name: string;
+        color?: string;
+      }) => {
+        await updateGroup(group);
+      },
     }),
     [
       protectConnectionStrings,
@@ -47,6 +54,7 @@ export function useConnectionFormPreferences() {
       enableConnectionGroups,
       connectionGroups,
       createGroup,
+      updateGroup,
     ]
   );
 }
