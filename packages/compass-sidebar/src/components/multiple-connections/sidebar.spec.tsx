@@ -22,6 +22,7 @@ import {
 } from '../../index';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type AppRegistry from '@mongodb-js/compass-app-registry';
+import type { AllPreferences } from 'compass-preferences-model';
 
 const savedFavoriteConnection: ConnectionInfo = {
   id: '12345',
@@ -94,7 +95,8 @@ describe('Multiple Connections Sidebar Component', function () {
   function doRender(
     activeWorkspace: WorkspaceTab | null = null,
     connections: ConnectionInfo[] | 'no-preload' = [savedFavoriteConnection],
-    atlasClusterConnectionsOnly: boolean | undefined = undefined
+    atlasClusterConnectionsOnly: boolean | undefined = undefined,
+    preferences: Partial<AllPreferences> | undefined = undefined
   ) {
     workspace = sinon.spy({
       openMyQueriesWorkspace: () => undefined,
@@ -141,6 +143,7 @@ describe('Multiple Connections Sidebar Component', function () {
 
     const result = renderWithConnections(component, {
       connections,
+      preferences,
       connectFn() {
         return {
           currentOp() {
@@ -716,6 +719,86 @@ describe('Multiple Connections Sidebar Component', function () {
           });
         });
       });
+    });
+  });
+
+  describe('connection groups', function () {
+    const groupedFavoriteConnection: ConnectionInfo = {
+      id: 'grouped-connection',
+      connectionOptions: {
+        connectionString: 'mongodb://localhost:22222/',
+      },
+      favorite: {
+        name: 'grouped-connection',
+        groupId: 'g1',
+      },
+      savedConnectionType: 'favorite',
+    };
+
+    // This exercises the full onItemExpand -> onGroupToggle(item.groupId) ->
+    // useFilteredConnections -> re-render pipeline with a real ConnectionInfo
+    // that only has a favorite.groupId (no ConnectionGroup entities are
+    // seeded here, since `useConnectionGroups()` reads from a store slice
+    // that this test harness has no seeding hook for). The group header
+    // therefore falls back to displaying the raw groupId as its name, which
+    // means this test cannot distinguish "keyed by groupId" from "keyed by
+    // the resolved group name" (they coincide when unresolved). That more
+    // specific distinction is covered at the unit level in
+    // tree-data.spec.ts and connections-navigation-tree.spec.tsx, which do
+    // seed groupsById with a name that differs from the id.
+    it('collapses the group and hides its connections when its groupId is toggled off', async function () {
+      doRender(undefined, [groupedFavoriteConnection], undefined, {
+        enableConnectionGroups: true,
+      });
+
+      const group = await waitFor(() => screen.getByTestId('group:g1'));
+      expect(screen.getByText('grouped-connection')).to.be.visible;
+
+      userEvent.click(within(group).getByLabelText('Collapse'));
+
+      await waitFor(() => {
+        expect(screen.queryByText('grouped-connection')).to.be.null;
+      });
+    });
+
+    it('opens the edit group modal from the group actions menu', async function () {
+      doRender(undefined, [groupedFavoriteConnection], undefined, {
+        enableConnectionGroups: true,
+      });
+
+      const group = await waitFor(() => screen.getByTestId('group:g1'));
+      userEvent.hover(within(group).getByText('g1'));
+      userEvent.click(within(group).getByLabelText('Show actions'));
+      userEvent.click(screen.getByText('Edit group'));
+
+      expect(screen.getByTestId('edit-group-modal')).to.be.visible;
+    });
+
+    it('asks for confirmation and ungroups the connection when the group is deleted', async function () {
+      doRender(undefined, [groupedFavoriteConnection], undefined, {
+        enableConnectionGroups: true,
+      });
+
+      const group = await waitFor(() => screen.getByTestId('group:g1'));
+      userEvent.hover(within(group).getByText('g1'));
+      userEvent.click(within(group).getByLabelText('Show actions'));
+      userEvent.click(screen.getByText('Delete group'));
+
+      const confirmationModal = await screen.findByTestId('confirmation-modal');
+      expect(confirmationModal.textContent).to.contain('Delete group "g1"?');
+
+      userEvent.click(
+        within(confirmationModal).getByRole('button', {
+          name: 'Delete group',
+        })
+      );
+
+      // The group is gone and its connection is no longer grouped, but it's
+      // still in the connections list (deleteGroup only ungroups members).
+      await waitFor(() => {
+        expect(screen.queryByTestId('group:g1')).to.be.null;
+      });
+      expect(screen.getByText('grouped-connection')).to.be.visible;
     });
   });
 });

@@ -5,6 +5,7 @@ import React, {
   useContext,
   useEffect,
   useMemo,
+  useState,
 } from 'react';
 import { connect } from 'react-redux';
 import {
@@ -21,6 +22,7 @@ import {
   cx,
   Placeholder,
   useContextMenuGroups,
+  showConfirmation,
 } from '@mongodb-js/compass-components';
 import { ConnectionsNavigationTree } from '@mongodb-js/compass-connections-navigation';
 import type { MapDispatchToProps, MapStateToProps } from 'react-redux';
@@ -40,6 +42,8 @@ import {
   type useConnectionsWithStatus,
   ConnectionStatus,
   useConnectionsListLoadingStatus,
+  useConnectionGroups,
+  useConnectionActions,
 } from '@mongodb-js/compass-connections/provider';
 import {
   useOpenWorkspace,
@@ -55,6 +59,7 @@ import {
   useFilteredConnections,
 } from '../use-filtered-connections';
 import NavigationItemsFilter from '../navigation-items-filter';
+import EditGroupModal from './edit-group-modal';
 import {
   type ConnectionImportExportAction,
   useOpenConnectionImportExportModal,
@@ -218,6 +223,18 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   } = useOpenWorkspace();
   const { hasWorkspacePlugin } = useWorkspacePlugins();
   const track = useTelemetry();
+  const connectionGroups = useConnectionGroups();
+  const { updateGroup, deleteGroup } = useConnectionActions();
+  const [editingGroup, setEditingGroup] = useState<{
+    id: string;
+    name: string;
+    color?: string;
+  } | null>(null);
+  const groupsById = useMemo(
+    () =>
+      Object.fromEntries(connectionGroups.map((group) => [group.id, group])),
+    [connectionGroups]
+  );
   const connections = useMemo(() => {
     const connections: SidebarConnection[] = [];
 
@@ -282,9 +299,11 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
   const {
     filtered,
     expanded,
+    expandedGroups,
     onCollapseAll,
     onConnectionToggle,
     onDatabaseToggle,
+    onGroupToggle,
   } = useFilteredConnections({
     connections,
     filter,
@@ -330,6 +349,35 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
 
   const onItemAction = useCallback(
     (item: SidebarItem, action: Actions) => {
+      if (item.type === 'group') {
+        switch (action) {
+          case 'edit-group':
+            setEditingGroup({
+              id: item.groupId,
+              name: item.groupName,
+              color: item.colorCode,
+            });
+            return;
+          case 'delete-group':
+            void showConfirmation({
+              title: `Delete group "${item.groupName}"?`,
+              description:
+                'Connections in this group will be ungrouped. The connections themselves are not deleted.',
+              buttonText: 'Delete group',
+              variant: 'danger',
+            }).then((confirmed) => {
+              if (confirmed) {
+                void deleteGroup(item.groupId);
+              }
+            });
+            return;
+          default:
+            // A group has no connection info or namespace, and no other
+            // action is associated with it.
+            return;
+        }
+      }
+
       const getConnectionInfo = (item: SidebarItem) => {
         switch (item.type) {
           case 'connection':
@@ -348,7 +396,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       };
 
       const getNamespace = (item: SidebarItem) => {
-        if (item.type === 'connection') {
+        if (item.type === 'connection' || item.type === 'group') {
           throw new Error(
             `Item type ${item.type} does not have a namespace for action ${action}`
           );
@@ -514,18 +562,22 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
       openCollectionWorkspace,
       openEditViewWorkspace,
       _onNamespaceAction,
+      deleteGroup,
+      setEditingGroup,
     ]
   );
 
   const onItemExpand = useCallback(
     (item: SidebarItem, isExpanded: boolean) => {
-      if (item.type === 'connection') {
+      if (item.type === 'group') {
+        onGroupToggle(item.groupId, isExpanded);
+      } else if (item.type === 'connection') {
         onConnectionToggle(item.connectionInfo.id, isExpanded);
       } else if (item.type === 'database') {
         onDatabaseToggle(item.connectionId, item.dbName, isExpanded);
       }
     },
-    [onConnectionToggle, onDatabaseToggle]
+    [onGroupToggle, onConnectionToggle, onDatabaseToggle]
   );
 
   const onConnectionListTitleAction = useCallback(
@@ -633,6 +685,8 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
             onItemAction={onItemAction}
             onItemExpand={onItemExpand}
             expanded={expanded}
+            expandedGroups={expandedGroups}
+            groupsById={groupsById}
           />
         )
       ) : connections.length === 0 ? (
@@ -652,6 +706,17 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           )}
         </div>
       ) : null}
+      <EditGroupModal
+        isOpen={!!editingGroup}
+        group={editingGroup}
+        onClose={() => setEditingGroup(null)}
+        onSubmit={({ name, color }) => {
+          if (editingGroup) {
+            void updateGroup({ id: editingGroup.id, name, color });
+          }
+          setEditingGroup(null);
+        }}
+      />
     </div>
   );
 };

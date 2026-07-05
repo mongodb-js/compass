@@ -22,6 +22,7 @@ type ExpandedConnections = Record<
     databases: ExpandedDatabases;
   }
 >;
+type ExpandedGroups = Record<string, 'collapsed' | 'tempExpanded' | undefined>;
 
 interface Match {
   isMatch?: boolean;
@@ -194,6 +195,20 @@ const revertTemporaryExpanded = (
   return cleared;
 };
 
+/**
+ * Reverts 'temporarilyExpand' for groups, bringing them back to collapsed state
+ */
+const revertTemporaryExpandedGroups = (
+  expandedGroups: ExpandedGroups
+): ExpandedGroups => {
+  return Object.fromEntries(
+    Object.entries(expandedGroups).map(([groupId, state]) => [
+      groupId,
+      state === 'tempExpanded' ? 'collapsed' : state,
+    ])
+  );
+};
+
 const collapseAll = (
   activeConnections: ConnectionInfo[]
 ): ExpandedConnections => {
@@ -209,6 +224,7 @@ const collapseAll = (
 
 interface ConnectionsState {
   expanded: ExpandedConnections;
+  expandedGroups: ExpandedGroups;
   filtered: SidebarConnection[] | undefined;
 }
 
@@ -234,6 +250,13 @@ interface ToggleConnectionAction {
   expand: boolean;
 }
 
+const GROUP_TOGGLE = 'sidebar/active-connections/GROUP_TOGGLE' as const;
+interface ToggleGroupAction {
+  type: typeof GROUP_TOGGLE;
+  groupId: string;
+  expand: boolean;
+}
+
 const DATABASE_TOGGLE = 'sidebar/active-connections/DATABASE_TOGGLE' as const;
 interface ToggleDatabaseAction {
   type: typeof DATABASE_TOGGLE;
@@ -254,6 +277,7 @@ const COLLAPSE_ALL = 'sidebar/active-connections/COLLAPSE_ALL' as const;
 interface CollapseAllAction {
   type: typeof COLLAPSE_ALL;
   connections: ConnectionInfo[];
+  groupIds: string[];
 }
 
 type ConnectionsAction =
@@ -261,6 +285,7 @@ type ConnectionsAction =
   | ClearConnectionsFilterAction
   | ToggleConnectionAction
   | ToggleDatabaseAction
+  | ToggleGroupAction
   | ConnectionsChangedAction
   | CollapseAllAction;
 
@@ -273,6 +298,9 @@ const connectionsReducer = (
       return {
         ...state,
         expanded: collapseAll(action.connections),
+        expandedGroups: Object.fromEntries(
+          action.groupIds.map((id) => [id, 'collapsed' as const])
+        ),
       };
     }
     case FILTER_CONNECTIONS: {
@@ -282,10 +310,20 @@ const connectionsReducer = (
         action.excludeInactive
       );
       const persistingExpanded = revertTemporaryExpanded(state.expanded);
+      const expandedGroups = {
+        ...revertTemporaryExpandedGroups(state.expandedGroups),
+      };
+      for (const connection of filtered) {
+        const groupId = connection.connectionInfo.favorite?.groupId;
+        if (groupId && expandedGroups[groupId] === 'collapsed') {
+          expandedGroups[groupId] = 'tempExpanded';
+        }
+      }
       return {
         ...state,
         filtered,
         expanded: temporarilyExpand(persistingExpanded, filtered),
+        expandedGroups,
       };
     }
     case CLEAR_FILTER:
@@ -293,7 +331,18 @@ const connectionsReducer = (
         ...state,
         filtered: undefined,
         expanded: revertTemporaryExpanded(state.expanded),
+        expandedGroups: revertTemporaryExpandedGroups(state.expandedGroups),
       };
+    case GROUP_TOGGLE: {
+      const { groupId, expand } = action;
+      return {
+        ...state,
+        expandedGroups: {
+          ...state.expandedGroups,
+          [groupId]: expand ? undefined : 'collapsed',
+        },
+      };
+    }
     case CONNECTION_TOGGLE: {
       const { connectionId, expand } = action;
       const currentState = state.expanded[connectionId]?.state;
@@ -352,6 +401,7 @@ const connectionsReducer = (
 type UseFilteredConnectionsHookResult = {
   filtered: SidebarConnection[] | undefined;
   expanded: ConnectionsNavigationTreeProps['expanded'];
+  expandedGroups: Record<string, boolean>;
   onCollapseAll(this: void): void;
   onConnectionToggle(
     this: void,
@@ -364,6 +414,7 @@ type UseFilteredConnectionsHookResult = {
     databaseId: string,
     isExpanded: boolean
   ): void;
+  onGroupToggle(this: void, groupId: string, isExpanded: boolean): void;
 };
 
 function filteredConnectionsToSidebarConnection(
@@ -408,10 +459,14 @@ export const useFilteredConnections = ({
   fetchAllCollections: () => void;
   onDatabaseExpand: (connectionId: string, databaseId: string) => void;
 }): UseFilteredConnectionsHookResult => {
-  const [{ filtered, expanded }, dispatch] = useReducer(connectionsReducer, {
-    filtered: undefined,
-    expanded: {},
-  });
+  const [{ filtered, expanded, expandedGroups }, dispatch] = useReducer(
+    connectionsReducer,
+    {
+      filtered: undefined,
+      expanded: {},
+      expandedGroups: {},
+    }
+  );
 
   const activeConnections = useMemo(() => {
     return connections
@@ -419,6 +474,15 @@ export const useFilteredConnections = ({
         return connectionStatus === 'connected';
       })
       .map(({ connectionInfo }) => connectionInfo);
+  }, [connections]);
+
+  const groupIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const { connectionInfo } of connections) {
+      const groupId = connectionInfo.favorite?.groupId;
+      if (groupId) ids.add(groupId);
+    }
+    return [...ids];
   }, [connections]);
 
   // get rid of stale connection related metadata in the state
@@ -462,6 +526,12 @@ export const useFilteredConnections = ({
     []
   );
 
+  const onGroupToggle = useCallback(
+    (groupId: string, expand: boolean) =>
+      dispatch({ type: GROUP_TOGGLE, groupId, expand }),
+    []
+  );
+
   // We are creating a ref for expanded and onDatabaseExpand because we would
   // like to keep a stable reference of onDatabaseToggle
   const expandedRef = useRef(expanded);
@@ -485,8 +555,12 @@ export const useFilteredConnections = ({
   );
 
   const onCollapseAll = useCallback(() => {
-    dispatch({ type: COLLAPSE_ALL, connections: activeConnections });
-  }, [activeConnections]);
+    dispatch({
+      type: COLLAPSE_ALL,
+      connections: activeConnections,
+      groupIds,
+    });
+  }, [activeConnections, groupIds]);
 
   const expandedMemo: ConnectionsNavigationTreeProps['expanded'] =
     useMemo(() => {
@@ -514,6 +588,14 @@ export const useFilteredConnections = ({
       return result;
     }, [expanded, connections]);
 
+  const expandedGroupsMemo: Record<string, boolean> = useMemo(() => {
+    const result: Record<string, boolean> = Object.create(null);
+    for (const [groupId, state] of Object.entries(expandedGroups)) {
+      result[groupId] = state !== 'collapsed';
+    }
+    return result;
+  }, [expandedGroups]);
+
   // This is done to strip the isMatch that we attach on filtered items
   const filteredMemo = useMemo(() => {
     if (!filtered) {
@@ -525,8 +607,10 @@ export const useFilteredConnections = ({
   return {
     filtered: filteredMemo,
     expanded: expandedMemo,
+    expandedGroups: expandedGroupsMemo,
     onCollapseAll,
     onConnectionToggle,
     onDatabaseToggle,
+    onGroupToggle,
   };
 };

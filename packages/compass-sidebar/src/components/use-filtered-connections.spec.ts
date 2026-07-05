@@ -930,4 +930,123 @@ describe('useFilteredConnections', function () {
       });
     });
   });
+
+  describe('connection groups expand state', function () {
+    const groupedConnection = {
+      id: 'grouped_connection_1',
+      connectionOptions: {
+        connectionString: 'mongodb://grouped_connection_1',
+      },
+      favorite: {
+        name: 'grouped_connection_1',
+        groupId: 'g1',
+      },
+    };
+
+    const groupedSidebarConnections: SidebarConnection[] = [
+      {
+        name: 'grouped_connection_1',
+        connectionInfo: groupedConnection,
+        connectionStatus: 'connected',
+        isReady: true,
+        isWritable: true,
+        isPerformanceTabAvailable: true,
+        isPerformanceTabSupported: true,
+        isGenuineMongoDB: true,
+        isDataLake: false,
+        databases: [],
+        databasesStatus: 'ready',
+        databasesLength: 0,
+      },
+    ];
+
+    let mockGroupedSidebarConnections: SidebarConnection[];
+    beforeEach(function () {
+      mockGroupedSidebarConnections = _.cloneDeep(groupedSidebarConnections);
+    });
+
+    it('reports groups as expanded by default and toggles them', async function () {
+      const { result } = renderHookWithContext(useFilteredConnections, {
+        initialProps: {
+          connections: mockGroupedSidebarConnections,
+          filter: { regex: null, excludeInactive: false },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        },
+      });
+
+      // no explicit collapse => expanded by default (absent from the map)
+      await waitFor(() => {
+        expect(result.current.expandedGroups).to.deep.equal({});
+      });
+
+      result.current.onGroupToggle('g1', false);
+      await waitFor(() => {
+        expect(result.current.expandedGroups.g1).to.equal(false);
+      });
+
+      result.current.onGroupToggle('g1', true);
+      await waitFor(() => {
+        expect(result.current.expandedGroups.g1).to.equal(true);
+      });
+    });
+
+    it('collapses groups on collapse all', async function () {
+      const { result } = renderHookWithContext(useFilteredConnections, {
+        initialProps: {
+          connections: mockGroupedSidebarConnections,
+          filter: { regex: null, excludeInactive: false },
+          fetchAllCollections: fetchAllCollectionsStub,
+          onDatabaseExpand: onDatabaseExpandStub,
+        },
+      });
+
+      result.current.onCollapseAll();
+      await waitFor(() => {
+        expect(result.current.expandedGroups.g1).to.equal(false);
+      });
+    });
+
+    it('re-expands a collapsed group while its connections match the filter', async function () {
+      const { result, rerender } = renderHookWithContext(
+        useFilteredConnections,
+        {
+          initialProps: {
+            connections: mockGroupedSidebarConnections,
+            filter: { regex: null as RegExp | null, excludeInactive: false },
+            fetchAllCollections: fetchAllCollectionsStub,
+            onDatabaseExpand: onDatabaseExpandStub,
+          },
+        }
+      );
+
+      result.current.onGroupToggle('g1', false);
+      await waitFor(() => {
+        expect(result.current.expandedGroups.g1).to.equal(false);
+      });
+
+      rerender({
+        connections: mockGroupedSidebarConnections,
+        filter: {
+          regex: new RegExp('grouped_connection_1', 'i'),
+          excludeInactive: false,
+        },
+        fetchAllCollections: fetchAllCollectionsStub,
+        onDatabaseExpand: onDatabaseExpandStub,
+      });
+      await waitFor(() => {
+        expect(result.current.expandedGroups.g1).to.equal(true);
+      });
+
+      rerender({
+        connections: mockGroupedSidebarConnections,
+        filter: { regex: null, excludeInactive: false },
+        fetchAllCollections: fetchAllCollectionsStub,
+        onDatabaseExpand: onDatabaseExpandStub,
+      });
+      await waitFor(() => {
+        expect(result.current.expandedGroups.g1).to.equal(false);
+      });
+    });
+  });
 });
