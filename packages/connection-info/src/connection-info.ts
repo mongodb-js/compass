@@ -157,4 +157,9 @@ export interface ConnectionFavoriteOptions {
    * Hex-code of the user-defined color.
    */
   color?: string;
+
+  /**
+   * Id of the ConnectionGroup this connection belongs to.
+   */
+  groupId?: string;
 }
