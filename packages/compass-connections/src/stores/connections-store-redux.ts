@@ -8,7 +8,10 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
-import type { ConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import type {
+  ConnectionStorage,
+  ConnectionGroup,
+} from '@mongodb-js/connection-storage/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import type {
@@ -182,6 +185,18 @@ type NormalizedConnectionsList = {
   byId: Record<ConnectionId, ConnectionState>;
 };
 
+/**
+ * Connection groups list stored following Redux data normalization
+ * guidelines
+ * @see {@link https://redux.js.org/usage/structuring-reducers/normalizing-state-shape#designing-a-normalized-state}
+ */
+type NormalizedGroupsList = {
+  ids: string[];
+  byId: Record<string, ConnectionGroup>;
+  status: 'initial' | 'loading' | 'ready' | 'error';
+  error: Error | null;
+};
+
 export type State = {
   // State of all connections currently known to the application state.
   // Populated from the connection storage initially, but also keeps reference
@@ -197,11 +212,15 @@ export type State = {
       | { status: 'refreshing-error' | 'loading-error'; error: Error }
     );
 
+  // State of all connection groups currently known to the application,
+  // populated from the connection storage
+  groups: NormalizedGroupsList;
+
   editingConnectionInfoId: ConnectionId | null;
   isEditingConnectionInfoModalOpen: boolean;
 };
 
-type ThunkExtraArg = {
+export type ThunkExtraArg = {
   appName: string;
   preferences: PreferencesAccess;
   connectionStorage: ConnectionStorage;
@@ -230,6 +249,16 @@ export const ActionTypes = {
   ConnectionsRefreshStart: 'ConnectionsRefreshStart',
   ConnectionsRefreshSuccess: 'ConnectionsRefreshSuccess',
   ConnectionsRefreshError: 'ConnectionsRefreshError',
+
+  // Actions related to getting connection groups from the persistent store
+  GroupsLoadStart: 'GroupsLoadStart',
+  GroupsLoadSuccess: 'GroupsLoadSuccess',
+  GroupsLoadError: 'GroupsLoadError',
+
+  // Actions related to creating, updating, and deleting connection groups
+  CreateGroup: 'CreateGroup',
+  UpdateGroup: 'UpdateGroup',
+  DeleteGroup: 'DeleteGroup',
 
   // Desktop-only connections import feature
   ConnectionsImportParsingStart: 'ConnectionsImportParsingStart',
@@ -289,6 +318,35 @@ type ConnectionsLoadSuccessAction = {
 type ConnectionsLoadErrorAction = {
   type: typeof ActionTypes.ConnectionsLoadError;
   error: Error;
+};
+
+type GroupsLoadStartAction = {
+  type: typeof ActionTypes.GroupsLoadStart;
+};
+
+type GroupsLoadSuccessAction = {
+  type: typeof ActionTypes.GroupsLoadSuccess;
+  groups: ConnectionGroup[];
+};
+
+type GroupsLoadErrorAction = {
+  type: typeof ActionTypes.GroupsLoadError;
+  error: Error;
+};
+
+type CreateGroupAction = {
+  type: typeof ActionTypes.CreateGroup;
+  group: ConnectionGroup;
+};
+
+type UpdateGroupAction = {
+  type: typeof ActionTypes.UpdateGroup;
+  group: ConnectionGroup;
+};
+
+type DeleteGroupAction = {
+  type: typeof ActionTypes.DeleteGroup;
+  groupId: string;
 };
 
 type ConnectionsRefreshStartAction = {
@@ -470,6 +528,12 @@ export function createDefaultConnectionState(
 
 const INITIAL_STATE: State = {
   connections: {
+    ids: [],
+    byId: {},
+    status: 'initial',
+    error: null,
+  },
+  groups: {
     ids: [],
     byId: {},
     status: 'initial',
@@ -758,6 +822,68 @@ const reducer: Reducer<State, Action> = (state = INITIAL_STATE, action) => {
         ...state.connections,
         status: 'loading-error',
         error: action.error,
+      },
+    };
+  }
+  if (isAction<GroupsLoadStartAction>(action, ActionTypes.GroupsLoadStart)) {
+    return {
+      ...state,
+      groups: {
+        ...state.groups,
+        status: 'loading',
+        error: null,
+      },
+    };
+  }
+  if (
+    isAction<GroupsLoadSuccessAction>(action, ActionTypes.GroupsLoadSuccess)
+  ) {
+    return {
+      ...state,
+      groups: {
+        status: 'ready',
+        error: null,
+        ids: action.groups.map((g) => g.id),
+        byId: Object.fromEntries(action.groups.map((g) => [g.id, g])),
+      },
+    };
+  }
+  if (isAction<GroupsLoadErrorAction>(action, ActionTypes.GroupsLoadError)) {
+    return {
+      ...state,
+      groups: {
+        ...state.groups,
+        status: 'error',
+        error: action.error,
+      },
+    };
+  }
+  if (
+    isAction<CreateGroupAction>(action, ActionTypes.CreateGroup) ||
+    isAction<UpdateGroupAction>(action, ActionTypes.UpdateGroup)
+  ) {
+    const { group } = action;
+    const ids = state.groups.ids.includes(group.id)
+      ? state.groups.ids
+      : [...state.groups.ids, group.id];
+    return {
+      ...state,
+      groups: {
+        ...state.groups,
+        ids,
+        byId: { ...state.groups.byId, [group.id]: group },
+      },
+    };
+  }
+  if (isAction<DeleteGroupAction>(action, ActionTypes.DeleteGroup)) {
+    const { groupId } = action;
+    const { [groupId]: _removed, ...byId } = state.groups.byId;
+    return {
+      ...state,
+      groups: {
+        ...state.groups,
+        ids: state.groups.ids.filter((id) => id !== groupId),
+        byId,
       },
     };
   }
@@ -1232,6 +1358,101 @@ export const loadConnections = (): ConnectionsThunkAction<
         variant: 'warning',
       });
       dispatch({ type: ActionTypes.ConnectionsLoadError, error: err as any });
+    }
+  };
+};
+
+export const loadGroups = (): ConnectionsThunkAction<
+  Promise<void>,
+  GroupsLoadStartAction | GroupsLoadSuccessAction | GroupsLoadErrorAction
+> => {
+  return async (dispatch, getState, { connectionStorage }) => {
+    if (getState().groups.status !== 'initial') {
+      return;
+    }
+    dispatch({ type: ActionTypes.GroupsLoadStart });
+    try {
+      const groups = (await connectionStorage.loadGroups?.()) ?? [];
+      dispatch({ type: ActionTypes.GroupsLoadSuccess, groups });
+    } catch (error) {
+      dispatch({ type: ActionTypes.GroupsLoadError, error: error as Error });
+    }
+  };
+};
+
+export const createGroup = (
+  group: ConnectionGroup
+): ConnectionsThunkAction<
+  Promise<ConnectionGroup | null>,
+  CreateGroupAction
+> => {
+  return async (
+    dispatch,
+    _getState,
+    { connectionStorage, logger: { debug } }
+  ) => {
+    try {
+      await connectionStorage.saveGroup?.({ group });
+      dispatch({ type: ActionTypes.CreateGroup, group });
+      return group;
+    } catch (err) {
+      debug('error creating group', err);
+      return null;
+    }
+  };
+};
+
+export const updateGroup = (
+  group: ConnectionGroup
+): ConnectionsThunkAction<Promise<void>, UpdateGroupAction> => {
+  return async (
+    dispatch,
+    _getState,
+    { connectionStorage, logger: { debug } }
+  ) => {
+    try {
+      await connectionStorage.saveGroup?.({ group });
+      dispatch({ type: ActionTypes.UpdateGroup, group });
+    } catch (err) {
+      debug('error updating group', err);
+    }
+  };
+};
+
+export const deleteGroup = (
+  groupId: string
+): ConnectionsThunkAction<Promise<void>> => {
+  return async (
+    dispatch,
+    getState,
+    { connectionStorage, logger: { debug } }
+  ) => {
+    // Best-effort cascade: if persisting a member fails partway, earlier members
+    // stay cleared and the group is not deleted (recoverable on retry). No rollback.
+    try {
+      // Cascade: unset groupId on member connections and persist them.
+      const members = Object.values(getState().connections.byId)
+        .map((c) => c.info)
+        .filter((info) => info.favorite?.groupId === groupId);
+      for (const info of members) {
+        const next: ConnectionInfo = {
+          ...info,
+          favorite: {
+            ...info.favorite,
+            name: info.favorite?.name ?? '',
+            groupId: undefined,
+          },
+        };
+        await connectionStorage.save?.({ connectionInfo: next });
+        dispatch({
+          type: ActionTypes.SaveConnectionInfo,
+          connectionInfo: next,
+        });
+      }
+      await connectionStorage.deleteGroup?.({ id: groupId });
+      dispatch({ type: ActionTypes.DeleteGroup, groupId });
+    } catch (err) {
+      debug('error deleting group', err);
     }
   };
 };
@@ -2332,6 +2553,10 @@ export const openSettingsModal = (
   return (_dispatch, _getState, { globalAppRegistry }) => {
     globalAppRegistry.emit('open-compass-settings', tab);
   };
+};
+
+export const selectGroups = (state: State): ConnectionGroup[] => {
+  return state.groups.ids.map((id) => state.groups.byId[id]);
 };
 
 export function configureStore(

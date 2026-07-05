@@ -1,5 +1,7 @@
 import { usePreference } from 'compass-preferences-model/provider';
 import { useMemo } from 'react';
+import { UUID } from 'bson';
+import { useConnectionGroups, useConnectionActions } from '../provider';
 
 export function useConnectionFormPreferences() {
   const protectConnectionStrings = usePreference('protectConnectionStrings');
@@ -13,6 +15,9 @@ export function useConnectionFormPreferences() {
   const protectConnectionStringsForNewConnections = usePreference(
     'protectConnectionStringsForNewConnections'
   );
+  const enableConnectionGroups = usePreference('enableConnectionGroups');
+  const connectionGroups = useConnectionGroups();
+  const { createGroup } = useConnectionActions();
 
   return useMemo(
     () => ({
@@ -23,6 +28,13 @@ export function useConnectionFormPreferences() {
       enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
+      showConnectionGroups: enableConnectionGroups,
+      connectionGroups,
+      onCreateGroup: async (name: string, color?: string) => {
+        const group = { id: new UUID().toString(), name, color };
+        await createGroup(group);
+        return group;
+      },
     }),
     [
       protectConnectionStrings,
@@ -32,6 +44,9 @@ export function useConnectionFormPreferences() {
       enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
+      enableConnectionGroups,
+      connectionGroups,
+      createGroup,
     ]
   );
 }

@@ -34,6 +34,10 @@ import {
   toggleConnectionFavoritedStatus,
   importConnections,
   refreshConnections,
+  selectGroups,
+  createGroup,
+  updateGroup,
+  deleteGroup,
 } from './connections-store-redux';
 import type { Store } from 'redux';
 import {
@@ -42,7 +46,10 @@ import {
 } from '@mongodb-js/connection-info';
 import { createServiceLocator } from '@mongodb-js/compass-app-registry';
 import { isEqual, memoize } from 'lodash';
-import type { ImportConnectionOptions } from '@mongodb-js/connection-storage/provider';
+import type {
+  ImportConnectionOptions,
+  ConnectionGroup,
+} from '@mongodb-js/connection-storage/provider';
 import { useInitialValue } from '@mongodb-js/compass-components';
 
 type ConnectionsStore = ReturnType<typeof configureStore> extends Store<
@@ -142,6 +149,15 @@ function getConnectionsActions(dispatch: ConnectionsStore['dispatch']) {
     },
     refreshConnections: () => {
       return dispatch(refreshConnections());
+    },
+    createGroup: (group: ConnectionGroup) => {
+      return dispatch(createGroup(group));
+    },
+    updateGroup: (group: ConnectionGroup) => {
+      return dispatch(updateGroup(group));
+    },
+    deleteGroup: (groupId: string) => {
+      return dispatch(deleteGroup(groupId));
     },
   };
 }
@@ -378,6 +394,13 @@ export function useConnectionsColorList(): {
       };
     });
   }, isEqual);
+}
+
+/**
+ * Returns the list of connection groups and subscribes to changes
+ */
+export function useConnectionGroups(): ConnectionGroup[] {
+  return useSelector(selectGroups, (a, b) => isEqual(a, b));
 }
 
 export function useConnectionsListLoadingStatus() {

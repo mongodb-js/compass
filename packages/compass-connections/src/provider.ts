@@ -63,6 +63,7 @@ export {
   useConnectionsListRef,
   connectionsLocator,
   useConnectionsListLoadingStatus,
+  useConnectionGroups,
 } from './stores/store-context';
 
 export type { ConnectionsService } from './stores/store-context';

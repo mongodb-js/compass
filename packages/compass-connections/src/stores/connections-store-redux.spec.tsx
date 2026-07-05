@@ -9,8 +9,20 @@ import {
   render,
 } from '@mongodb-js/testing-library-compass';
 import React from 'react';
-import { getDataServiceForConnection } from './connections-store-redux';
+import {
+  getDataServiceForConnection,
+  configureStore,
+  loadGroups,
+  selectGroups,
+  createGroup,
+  deleteGroup,
+} from './connections-store-redux';
+import type { ThunkExtraArg } from './connections-store-redux';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
+import { InMemoryConnectionStorage } from '@mongodb-js/connection-storage/provider';
+import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import AppRegistry from '@mongodb-js/compass-app-registry';
 
 const mockConnections = [
   {
@@ -786,5 +798,67 @@ describe('CompassConnections store', function () {
         'token-data'
       );
     });
+  });
+});
+
+describe('groups slice', function () {
+  async function createThunkArg(
+    connectionStorage = new InMemoryConnectionStorage([])
+  ): Promise<ThunkExtraArg> {
+    return {
+      appName: 'TEST',
+      preferences: await createSandboxFromDefaultPreferences(),
+      connectionStorage,
+      track: sinon.stub(),
+      logger: createNoopLogger(),
+      getExtraConnectionData: () => Promise.resolve([{}, null] as any),
+      globalAppRegistry: new AppRegistry(),
+      compassAssistant: {} as ThunkExtraArg['compassAssistant'],
+    };
+  }
+
+  it('loads groups from storage on loadGroups', async function () {
+    const groups = [{ id: 'g1', name: 'prod', color: 'color1' }];
+    const connectionStorage = new InMemoryConnectionStorage([]);
+    for (const g of groups) await connectionStorage.saveGroup({ group: g });
+    const store = configureStore(
+      undefined,
+      await createThunkArg(connectionStorage)
+    );
+    await store.dispatch(loadGroups());
+    expect(selectGroups(store.getState())).to.deep.equal(groups);
+  });
+
+  it('creates and persists a group', async function () {
+    const connectionStorage = new InMemoryConnectionStorage([]);
+    const store = configureStore(
+      undefined,
+      await createThunkArg(connectionStorage)
+    );
+    const group = { id: 'g1', name: 'prod', color: 'color1' };
+    await store.dispatch(createGroup(group));
+    expect(selectGroups(store.getState())).to.deep.include(group);
+    expect(await connectionStorage.loadGroups()).to.deep.include(group);
+  });
+
+  it('deleting a group unsets groupId on its member connections', async function () {
+    const conn = {
+      id: 'c1',
+      connectionOptions: { connectionString: 'mongodb://x' },
+      favorite: { name: 'x', color: 'color5', groupId: 'g1' },
+      savedConnectionType: 'favorite' as const,
+    };
+    const connectionStorage = new InMemoryConnectionStorage([conn]);
+    await connectionStorage.saveGroup({ group: { id: 'g1', name: 'prod' } });
+    const store = configureStore(
+      [conn],
+      await createThunkArg(connectionStorage)
+    );
+    await store.dispatch(loadGroups());
+    await store.dispatch(deleteGroup('g1'));
+    expect(selectGroups(store.getState())).to.have.lengthOf(0);
+    const saved = await connectionStorage.load({ id: 'c1' });
+    expect(saved?.favorite?.groupId).to.be.undefined;
+    expect(saved?.favorite?.color).to.equal('color5');
   });
 });

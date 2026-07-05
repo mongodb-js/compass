@@ -11,6 +11,7 @@ import {
   configureStore,
   disconnect,
   loadConnections,
+  loadGroups,
 } from './stores/connections-store-redux';
 import { cloneDeep } from 'lodash';
 import { ConnectionsStoreContext } from './stores/store-context';
@@ -50,6 +51,7 @@ const CompassConnectionsPlugin = registerCompassPlugin(
 
       setTimeout(() => {
         void store.dispatch(loadConnections());
+        void store.dispatch(loadGroups());
         if (initialProps.onAutoconnectInfoRequest) {
           void store.dispatch(
             autoconnectCheck(
