@@ -77,6 +77,7 @@ import { isAtlas } from 'mongodb-build-info';
 export type ConnectionPersonalizationOptions = {
   name: string;
   color?: string;
+  groupId?: string;
   isFavorite: boolean;
   isNameDirty: boolean;
 };
@@ -145,6 +146,7 @@ interface UpdateConnectionPersonalizationAction {
   type: 'update-connection-personalization';
   name: string;
   color?: string;
+  groupId?: string;
   isFavorite: boolean;
   isNameDirty: boolean;
 }
@@ -274,6 +276,7 @@ function buildStateFromConnectionInfo(
     isDirty: false,
     personalizationOptions: {
       color: initialConnectionInfo.favorite?.color || undefined,
+      groupId: initialConnectionInfo.favorite?.groupId || undefined,
       name: initialConnectionInfo.favorite?.name || '',
       isNameDirty: !!initialConnectionInfo.favorite?.name,
       isFavorite: initialConnectionInfo.savedConnectionType === 'favorite',
@@ -363,11 +366,18 @@ export function handleConnectionFormUpdateForPersonalization(
   const isNameDirty = action.isNameDirty || personalization.isNameDirty;
   const name = action.name !== undefined ? action.name : personalization.name;
   const color = action.color || personalization.color;
+  // A personalization action always carries the full intended personalization
+  // (the form spreads the current options before overriding a field), so the
+  // action's groupId is authoritative. Take it directly rather than falling
+  // back to the previous value, otherwise an explicit clear (groupId set to
+  // undefined) would be ignored.
+  const groupId = action.groupId;
   const isFavorite = action.isFavorite;
 
   return {
     name,
     color,
+    groupId,
     isFavorite,
     isNameDirty,
   };

@@ -516,6 +516,187 @@ describe('ConnectionForm Component', function () {
       expect(onCancel).to.have.been.called;
     });
 
+    describe('connection group combobox', function () {
+      const groups = [{ id: 'g1', name: 'prod', color: 'color1' }];
+
+      function getGroupCombobox() {
+        return within(
+          screen.getByTestId('personalization-group-input')
+        ).getByRole('combobox');
+      }
+
+      it('does not show the group combobox by default', function () {
+        expect(screen.queryByTestId('personalization-group-input')).to.be.null;
+      });
+
+      it('lists existing groups as options when enabled', function () {
+        renderForm({ showConnectionGroups: true, connectionGroups: groups });
+        userEvent.click(getGroupCombobox());
+        expect(screen.getByText('prod')).to.exist;
+      });
+
+      it('selecting an existing group saves its id', async function () {
+        const onSaveClicked = Sinon.stub().resolves();
+        renderForm({
+          showConnectionGroups: true,
+          connectionGroups: groups,
+          onSaveClicked,
+          initialConnectionInfo: {
+            id: 't',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            favorite: { name: 'c' },
+            savedConnectionType: 'favorite',
+          },
+        });
+        userEvent.click(getGroupCombobox());
+        userEvent.click(screen.getByText('prod'));
+        userEvent.click(screen.getByRole('button', { name: 'Save' }));
+        await waitFor(() => expect(onSaveClicked).to.have.been.calledOnce);
+        expect(onSaveClicked.firstCall.args[0].favorite.groupId).to.equal('g1');
+      });
+
+      it('creating a new group calls onCreateGroup and assigns the new id', async function () {
+        const created = { id: 'g2', name: 'staging', color: 'color3' };
+        const onCreateGroup = Sinon.stub().resolves(created);
+        const onSaveClicked = Sinon.stub().resolves();
+        renderForm({
+          showConnectionGroups: true,
+          connectionGroups: groups,
+          onCreateGroup,
+          onSaveClicked,
+          initialConnectionInfo: {
+            id: 't',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            favorite: { name: 'c' },
+            savedConnectionType: 'favorite',
+          },
+        });
+        userEvent.click(getGroupCombobox());
+        userEvent.type(
+          within(screen.getByTestId('personalization-group-input')).getByRole(
+            'textbox'
+          ),
+          'staging'
+        );
+        // select the "create" custom option that appears for the typed value
+        userEvent.click(
+          screen.getByRole('option', { name: 'Create "staging"' })
+        );
+        // Wait for the async group creation to resolve and the form state to
+        // pick up the new group id before saving, mirroring how a user would
+        // only click Save once the combobox reflects the created group.
+        await waitFor(() => expect(onCreateGroup).to.have.been.called);
+        await waitFor(
+          () => expect(screen.getByDisplayValue('staging')).to.exist
+        );
+
+        userEvent.click(screen.getByRole('button', { name: 'Save' }));
+        await waitFor(() => expect(onSaveClicked).to.have.been.calledOnce);
+        expect(onCreateGroup.firstCall.args[0]).to.equal('staging');
+        expect(onSaveClicked.firstCall.args[0].favorite.groupId).to.equal('g2');
+        // The combobox re-fires onChange from its onBlur with the typed value;
+        // the create branch must be idempotent so the group is created only once.
+        expect(onCreateGroup.callCount).to.equal(1);
+      });
+
+      it('creates a new group exactly once even after re-opening the combobox', async function () {
+        const created = { id: 'g2', name: 'staging', color: 'color3' };
+        const onCreateGroup = Sinon.stub().resolves(created);
+        renderForm({
+          showConnectionGroups: true,
+          connectionGroups: groups,
+          onCreateGroup,
+          initialConnectionInfo: {
+            id: 't',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            favorite: { name: 'c' },
+            savedConnectionType: 'favorite',
+          },
+        });
+        userEvent.click(getGroupCombobox());
+        userEvent.type(
+          within(screen.getByTestId('personalization-group-input')).getByRole(
+            'textbox'
+          ),
+          'staging'
+        );
+        userEvent.click(
+          screen.getByRole('option', { name: 'Create "staging"' })
+        );
+        await waitFor(() => expect(onCreateGroup).to.have.been.calledOnce);
+        await waitFor(
+          () => expect(screen.getByDisplayValue('staging')).to.exist
+        );
+
+        // Re-open the combobox: the new group must show up exactly once, and
+        // no further onCreateGroup calls may happen from blur re-fires.
+        userEvent.click(getGroupCombobox());
+        expect(screen.getAllByText('staging')).to.have.lengthOf(1);
+        expect(onCreateGroup.callCount).to.equal(1);
+      });
+
+      it('prefills the group from the connection groupId', function () {
+        renderForm({
+          showConnectionGroups: true,
+          connectionGroups: groups,
+          initialConnectionInfo: {
+            id: 't',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            favorite: { name: 'c', groupId: 'g1' },
+            savedConnectionType: 'favorite',
+          },
+        });
+        // the combobox shows the selected group's name
+        expect(screen.getByTestId('personalization-group-input')).to.exist;
+        expect(screen.getByDisplayValue('prod')).to.exist;
+      });
+
+      it('clears an existing group and saves an undefined groupId', async function () {
+        const onSaveClicked = Sinon.stub().resolves();
+        renderForm({
+          showConnectionGroups: true,
+          connectionGroups: groups,
+          onSaveClicked,
+          initialConnectionInfo: {
+            id: 't',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            favorite: { name: 'c', groupId: 'g1' },
+            savedConnectionType: 'favorite',
+          },
+        });
+        const groupInput = within(
+          screen.getByTestId('personalization-group-input')
+        ).getByRole<HTMLInputElement>('textbox');
+        expect(groupInput.value).to.equal('prod');
+
+        // The clearable combobox exposes a "Clear selection" button while a
+        // group is selected; clicking it fires onChange(null), which clears
+        // the groupId in the form state.
+        userEvent.click(
+          within(screen.getByTestId('personalization-group-input')).getByRole(
+            'button',
+            { name: /clear selection/i }
+          )
+        );
+        await waitFor(() => expect(groupInput.value).to.equal(''));
+
+        userEvent.click(screen.getByRole('button', { name: 'Save' }));
+        await waitFor(() => expect(onSaveClicked).to.have.been.called);
+        // The save issued after the group was cleared must carry no groupId.
+        expect(onSaveClicked.lastCall.args[0].favorite.groupId).to.be.undefined;
+      });
+    });
+
     describe('name input', function () {
       it('should sync with the href of the connection string unless it has been edited', async function () {
         const connectionString =

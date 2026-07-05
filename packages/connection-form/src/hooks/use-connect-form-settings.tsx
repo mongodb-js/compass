@@ -16,6 +16,12 @@ export type ConnectionFormSettings = {
   showCSFLE: boolean;
   showProxySettings: boolean;
   saveAndConnectLabel: string;
+  showConnectionGroups: boolean;
+  connectionGroups: { id: string; name: string; color?: string }[];
+  onCreateGroup: (
+    name: string,
+    color?: string
+  ) => Promise<{ id: string; name: string; color?: string }>;
 };
 
 const defaultSettings = {
@@ -34,6 +40,10 @@ const defaultSettings = {
   showCSFLE: true,
   showProxySettings: true,
   saveAndConnectLabel: 'Save & Connect',
+  showConnectionGroups: false,
+  connectionGroups: [],
+  onCreateGroup: (name: string, color?: string) =>
+    Promise.resolve({ id: name, name, color }),
 };
 
 export const ConnectionFormSettingsContext = createContext<

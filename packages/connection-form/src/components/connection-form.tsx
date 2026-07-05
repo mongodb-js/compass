@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import type {
   ConnectionInfo,
   ConnectionFavoriteOptions,
@@ -21,6 +21,8 @@ import {
   useDarkMode,
   Button,
   Icon,
+  ComboboxWithCustomOption,
+  ComboboxOption,
 } from '@mongodb-js/compass-components';
 import { cloneDeep } from 'lodash';
 import ConnectionStringInput from './connection-string-input';
@@ -204,12 +206,28 @@ const personalizationSectionLayoutStyles = css({
   marginBottom: spacing[600],
 });
 
+const personalizationSectionLayoutWithGroupStyles = css({
+  gridTemplateAreas: `
+    'name-input color-input'
+    'group-input group-color-input'
+    'favorite-marker favorite-marker'
+  `,
+});
+
 const personalizationNameInputStyles = css({
   gridArea: 'name-input',
 });
 
 const personalizationColorInputStyles = css({
   gridArea: 'color-input',
+});
+
+const personalizationGroupInputStyles = css({
+  gridArea: 'group-input',
+});
+
+const personalizationGroupColorInputStyles = css({
+  gridArea: 'group-color-input',
 });
 
 const personalizationFavoriteMarkerStyles = css({
@@ -250,6 +268,128 @@ function ConnectionPersonalizationForm({
     [updateConnectionFormField, personalizationOptions]
   );
 
+  const showConnectionGroups = useConnectionFormSetting('showConnectionGroups');
+  const connectionGroups = useConnectionFormSetting('connectionGroups');
+  const onCreateGroup = useConnectionFormSetting('onCreateGroup');
+
+  const { connectionColorToHex, connectionColorToName, connectionColorCodes } =
+    useConnectionColor();
+
+  const [newGroupColor, setNewGroupColor] = useState<string | undefined>(
+    connectionColorCodes()[0]
+  );
+
+  // Groups created from this form during the current session. The parent's
+  // connectionGroups list is expected to eventually include newly created
+  // groups too (e.g. once the backing store refreshes); until then we track
+  // them here so the combobox can display the new group and so a re-selection
+  // resolves to the created id instead of creating the group again.
+  const [locallyCreatedGroups, setLocallyCreatedGroups] = useState<
+    { id: string; name: string; color?: string }[]
+  >([]);
+
+  // Names of groups whose creation is currently in-flight. The shared combobox
+  // re-fires onChange from its own onBlur using the typed string, so without
+  // this guard a blur that happens before onCreateGroup resolves would create
+  // the same group again.
+  const creatingGroupNamesRef = useRef<Set<string>>(new Set());
+
+  // Only the persisted groups are exposed as options here. A just-created group
+  // is displayed by the shared combobox's own internal custom option (keyed by
+  // the typed name); re-adding it here would render it a second time. Options
+  // are keyed by group id so a normal selection yields the id directly.
+  const groupComboboxOptions = useMemo(
+    () =>
+      connectionGroups.map((group) => ({
+        value: group.id,
+        name: group.name,
+        color: group.color,
+      })),
+    [connectionGroups]
+  );
+
+  // The value the combobox should show as selected. Persisted groups are keyed
+  // by id; a locally-created group not yet reflected in connectionGroups is
+  // only represented by the combobox's internal option (keyed by name), so
+  // surface its name so that option stays selected/displayed.
+  const selectedGroupComboboxValue = useMemo(() => {
+    const { groupId } = personalizationOptions;
+    if (!groupId) {
+      return null;
+    }
+    if (connectionGroups.some((group) => group.id === groupId)) {
+      return groupId;
+    }
+    const localGroup = locallyCreatedGroups.find(
+      (group) => group.id === groupId
+    );
+    return localGroup ? localGroup.name : groupId;
+  }, [personalizationOptions, connectionGroups, locallyCreatedGroups]);
+
+  const onClearGroup = useCallback(() => {
+    updateConnectionFormField({
+      type: 'update-connection-personalization',
+      ...personalizationOptions,
+      groupId: undefined,
+    });
+  }, [updateConnectionFormField, personalizationOptions]);
+
+  const onChangeGroup = useCallback(
+    (value: string | null) => {
+      if (!value) {
+        onClearGroup();
+        return;
+      }
+
+      // Resolve against existing groups as well as ones just created in this
+      // session, by id AND name. The combobox re-fires onChange from onBlur
+      // with the typed name (not the resolved id), so matching by name here
+      // makes that re-fire reuse the created group instead of creating another.
+      const existingGroup =
+        connectionGroups.find((group) => group.id === value) ??
+        locallyCreatedGroups.find(
+          (group) => group.id === value || group.name === value
+        );
+      if (existingGroup) {
+        updateConnectionFormField({
+          type: 'update-connection-personalization',
+          ...personalizationOptions,
+          groupId: existingGroup.id,
+        });
+        return;
+      }
+
+      // Guard the in-flight window: a second blur re-fire before the first
+      // create resolves must not start a duplicate creation.
+      if (creatingGroupNamesRef.current.has(value)) {
+        return;
+      }
+      creatingGroupNamesRef.current.add(value);
+
+      void onCreateGroup(value, newGroupColor)
+        .then((createdGroup) => {
+          setLocallyCreatedGroups((groups) => [...groups, createdGroup]);
+          updateConnectionFormField({
+            type: 'update-connection-personalization',
+            ...personalizationOptions,
+            groupId: createdGroup.id,
+          });
+        })
+        .finally(() => {
+          creatingGroupNamesRef.current.delete(value);
+        });
+    },
+    [
+      onClearGroup,
+      updateConnectionFormField,
+      personalizationOptions,
+      connectionGroups,
+      locallyCreatedGroups,
+      onCreateGroup,
+      newGroupColor,
+    ]
+  );
+
   const onChangeFavorite = useCallback(
     (ev: React.ChangeEvent<HTMLInputElement>) => {
       updateConnectionFormField({
@@ -261,11 +401,13 @@ function ConnectionPersonalizationForm({
     [updateConnectionFormField, personalizationOptions]
   );
 
-  const { connectionColorToHex, connectionColorToName, connectionColorCodes } =
-    useConnectionColor();
-
   return (
-    <div className={personalizationSectionLayoutStyles}>
+    <div
+      className={cx(
+        personalizationSectionLayoutStyles,
+        showConnectionGroups && personalizationSectionLayoutWithGroupStyles
+      )}
+    >
       <TextInput
         className={personalizationNameInputStyles}
         value={personalizationOptions.name}
@@ -299,6 +441,72 @@ function ConnectionPersonalizationForm({
           </Option>
         ))}
       </Select>
+      {showConnectionGroups && (
+        <>
+          <ComboboxWithCustomOption
+            className={personalizationGroupInputStyles}
+            data-testid="personalization-group-input"
+            aria-label="Group"
+            label="Group"
+            placeholder="Select or create a group"
+            value={selectedGroupComboboxValue}
+            onChange={onChangeGroup}
+            // ComboboxWithCustomOption swallows an onChange(null), so the
+            // clear button is wired through onClear to actually reset groupId.
+            onClear={onClearGroup}
+            clearable
+            multiselect={false}
+            options={groupComboboxOptions}
+            renderOption={(option, index, isCustom) => (
+              <ComboboxOption
+                key={`group-option-${index}`}
+                value={option.value}
+                displayName={
+                  isCustom ? `Create "${option.value}"` : option.name
+                }
+                glyph={
+                  isCustom ? undefined : (
+                    <ColorCircleGlyph
+                      hexColor={connectionColorToHex(option.color)}
+                    />
+                  )
+                }
+              />
+            )}
+          />
+          <Select
+            className={personalizationGroupColorInputStyles}
+            data-testid="personalization-new-group-color-input"
+            label="New group color"
+            description="Color used if a new group is created"
+            defaultValue={newGroupColor || 'no-color'}
+            allowDeselect={false}
+            onChange={(value) =>
+              setNewGroupColor(value === 'no-color' ? undefined : value)
+            }
+          >
+            <Option
+              glyph={<ColorCircleGlyph hexColor="transparent" />}
+              value={'no-color'}
+            >
+              No Color
+            </Option>
+            {connectionColorCodes().map((colorCode) => (
+              <Option
+                key={colorCode}
+                glyph={
+                  <ColorCircleGlyph
+                    hexColor={connectionColorToHex(colorCode)}
+                  />
+                }
+                value={colorCode}
+              >
+                {connectionColorToName(colorCode)}
+              </Option>
+            ))}
+          </Select>
+        </>
+      )}
       {showFavoriteActions && (
         <Checkbox
           className={personalizationFavoriteMarkerStyles}
@@ -418,6 +626,7 @@ function ConnectionForm({
         ...(favoriteInfo || {}),
         name: personalizationOptions.name,
         color: personalizationOptions.color,
+        groupId: personalizationOptions.groupId || undefined,
       },
     }),
     [initialConnectionInfo, connectionOptions, personalizationOptions]
@@ -671,6 +880,9 @@ const ConnectionFormWithSettings: React.FunctionComponent<
   showCSFLE,
   showProxySettings,
   saveAndConnectLabel,
+  showConnectionGroups,
+  connectionGroups,
+  onCreateGroup,
   ...rest
 }) => {
   const value = useMemo(
@@ -690,6 +902,9 @@ const ConnectionFormWithSettings: React.FunctionComponent<
       showCSFLE,
       showProxySettings,
       saveAndConnectLabel,
+      showConnectionGroups,
+      connectionGroups,
+      onCreateGroup,
     }),
     [
       showFavoriteActions,
@@ -707,6 +922,9 @@ const ConnectionFormWithSettings: React.FunctionComponent<
       showCSFLE,
       showProxySettings,
       saveAndConnectLabel,
+      showConnectionGroups,
+      connectionGroups,
+      onCreateGroup,
     ]
   );
 
