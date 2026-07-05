@@ -10,6 +10,8 @@ import { InMemoryConnectionStorage } from './in-memory-connection-storage';
 export { InMemoryConnectionStorage };
 
 export type { ConnectionStorage, ConnectionInfo, AtlasClusterMetadata };
+export type { ConnectionGroup } from './connection-group';
+export { ConnectionGroupSchema } from './connection-group';
 
 export const ConnectionStorageContext = createContext<ConnectionStorage | null>(
   null

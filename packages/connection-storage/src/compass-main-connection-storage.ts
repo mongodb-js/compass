@@ -29,6 +29,8 @@ import type {
   ConnectionStorage,
   AutoConnectPreferences,
 } from './connection-storage';
+import { ConnectionGroupSchema } from './connection-group';
+import type { ConnectionGroup } from './connection-group';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const { log, mongoLogId } = createLogger('CONNECTION-STORAGE');
@@ -87,6 +89,7 @@ const ConnectionSchema: z.Schema<ConnectionWithLegacyProps> = z
 
 class CompassMainConnectionStorage implements ConnectionStorage {
   private readonly userData: FileUserData<typeof ConnectionSchema>;
+  private readonly groupsData: FileUserData<typeof ConnectionGroupSchema>;
 
   private readonly version = 1;
   private readonly maxAllowedRecentConnections = 10;
@@ -96,6 +99,11 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     this.userData = new FileUserData(ConnectionSchema, 'Connections', {
       basePath,
     });
+    this.groupsData = new FileUserData(
+      ConnectionGroupSchema,
+      'ConnectionGroups',
+      { basePath }
+    );
     this.ipcMain.createHandle<ConnectionStorageIPCInterface>(
       'ConnectionStorage',
       this,
@@ -109,6 +117,9 @@ class CompassMainConnectionStorage implements ConnectionStorage {
         'deserializeConnections',
         'exportConnections',
         'importConnections',
+        'loadGroups',
+        'saveGroup',
+        'deleteGroup',
       ]
     );
   }
@@ -424,6 +435,19 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       : connections.filter((x) => x.favorite?.name);
 
     return serializeConnections(exportConnections, restOfOptions);
+  }
+
+  async loadGroups(): Promise<ConnectionGroup[]> {
+    const { data } = await this.groupsData.readAll();
+    return data;
+  }
+
+  async saveGroup({ group }: { group: ConnectionGroup }): Promise<void> {
+    await this.groupsData.write(group.id, group);
+  }
+
+  async deleteGroup({ id }: { id: string }): Promise<void> {
+    await this.groupsData.delete(id);
   }
 
   async migrateToSafeStorage(): Promise<void> {

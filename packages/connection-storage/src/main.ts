@@ -7,3 +7,5 @@ export type {
   ExportConnectionOptions,
   ImportConnectionOptions,
 } from './import-export-connection';
+export type { ConnectionGroup } from './connection-group';
+export { ConnectionGroupSchema } from './connection-group';

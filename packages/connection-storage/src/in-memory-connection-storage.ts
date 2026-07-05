@@ -1,8 +1,10 @@
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
 import { type ConnectionStorage } from './connection-storage';
+import { type ConnectionGroup } from './connection-group';
 
 export class InMemoryConnectionStorage implements ConnectionStorage {
   private connections: ConnectionInfo[];
+  private groups: ConnectionGroup[] = [];
   constructor(connections: ConnectionInfo[] = []) {
     this.connections = [...connections];
   }
@@ -68,5 +70,21 @@ export class InMemoryConnectionStorage implements ConnectionStorage {
 
   deserializeConnections() {
     return Promise.resolve([]);
+  }
+
+  async loadGroups(): Promise<ConnectionGroup[]> {
+    return Promise.resolve([...this.groups]);
+  }
+
+  async saveGroup({ group }: { group: ConnectionGroup }): Promise<void> {
+    const i = this.groups.findIndex((g) => g.id === group.id);
+    if (i !== -1) this.groups.splice(i, 1, group);
+    else this.groups.push(group);
+    return Promise.resolve();
+  }
+
+  async deleteGroup({ id }: { id: string }): Promise<void> {
+    this.groups = this.groups.filter((g) => g.id !== id);
+    return Promise.resolve();
   }
 }

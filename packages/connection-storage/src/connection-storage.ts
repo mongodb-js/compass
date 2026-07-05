@@ -7,6 +7,7 @@ import {
   type ImportConnectionOptions,
 } from './import-export-connection';
 import type { AllPreferences } from 'compass-preferences-model';
+import type { ConnectionGroup } from './connection-group';
 
 export type { ConnectionInfo, AtlasClusterMetadata };
 
@@ -61,4 +62,13 @@ export interface ConnectionStorage {
     options?: ImportConnectionOptions;
     signal?: AbortSignal;
   }): Promise<void>;
+
+  loadGroups?(options?: { signal?: AbortSignal }): Promise<ConnectionGroup[]>;
+
+  saveGroup?(options: {
+    group: ConnectionGroup;
+    signal?: AbortSignal;
+  }): Promise<void>;
+
+  deleteGroup?(options: { id: string; signal?: AbortSignal }): Promise<void>;
 }

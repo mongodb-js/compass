@@ -1419,4 +1419,20 @@ describe('ConnectionStorage', function () {
       });
     });
   });
+
+  describe('connection groups storage', function () {
+    it('saves, loads and deletes groups', async function () {
+      const group = {
+        id: new UUID().toString(),
+        name: 'prod',
+        color: 'color1',
+      };
+      await connectionStorage.saveGroup!({ group });
+      const loaded = await connectionStorage.loadGroups!();
+      expect(loaded).to.deep.include(group);
+      await connectionStorage.deleteGroup!({ id: group.id });
+      const after = await connectionStorage.loadGroups!();
+      expect(after.find((g) => g.id === group.id)).to.be.undefined;
+    });
+  });
 });

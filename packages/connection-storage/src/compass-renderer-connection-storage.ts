@@ -8,6 +8,7 @@ import type {
   ExportConnectionOptions,
   ImportConnectionOptions,
 } from './import-export-connection';
+import type { ConnectionGroup } from './connection-group';
 
 export type ConnectionStorageIPCInterface = Required<
   Omit<ConnectionStorage, 'on' | 'off' | 'emit'>
@@ -39,6 +40,9 @@ class CompassRendererConnectionStorage implements ConnectionStorage {
         | 'deserializeConnections'
         | 'exportConnections'
         | 'importConnections'
+        | 'loadGroups'
+        | 'saveGroup'
+        | 'deleteGroup'
       >('ConnectionStorage', [
         'loadAll',
         'load',
@@ -49,6 +53,9 @@ class CompassRendererConnectionStorage implements ConnectionStorage {
         'deserializeConnections',
         'exportConnections',
         'importConnections',
+        'loadGroups',
+        'saveGroup',
+        'deleteGroup',
       ]));
     if (!ipc) {
       throw new Error('IPC not available');
@@ -116,6 +123,26 @@ class CompassRendererConnectionStorage implements ConnectionStorage {
     signal?: AbortSignal | undefined;
   }): Promise<void> {
     await this.ipc.importConnections(args);
+  }
+
+  loadGroups(options?: {
+    signal?: AbortSignal | undefined;
+  }): Promise<ConnectionGroup[]> {
+    return this.ipc.loadGroups(options);
+  }
+
+  async saveGroup(options: {
+    group: ConnectionGroup;
+    signal?: AbortSignal | undefined;
+  }): Promise<void> {
+    await this.ipc.saveGroup(options);
+  }
+
+  async deleteGroup(options: {
+    id: string;
+    signal?: AbortSignal | undefined;
+  }): Promise<void> {
+    await this.ipc.deleteGroup(options);
   }
 }
 
