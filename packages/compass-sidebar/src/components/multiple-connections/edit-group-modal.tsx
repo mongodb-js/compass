@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import {
+  FormFieldContainer,
   FormModal,
   TextInput,
   Select,
@@ -55,41 +56,45 @@ const EditGroupModal: React.FunctionComponent<EditGroupModalProps> = ({
       title="Edit group"
       data-testid="edit-group-modal"
     >
-      <TextInput
-        label="Name"
-        data-testid="edit-group-name-input"
-        value={name}
-        onChange={(event) => {
-          setName(event.target.value);
-        }}
-      />
-      <Select
-        label="Color"
-        data-testid="edit-group-color-input"
-        value={color ?? NO_COLOR_VALUE}
-        allowDeselect={false}
-        onChange={(value) => {
-          setColor(value === NO_COLOR_VALUE ? undefined : value);
-        }}
-      >
-        <Option
-          glyph={<ColorCircleGlyph hexColor="transparent" />}
-          value={NO_COLOR_VALUE}
+      <FormFieldContainer>
+        <TextInput
+          label="Name"
+          data-testid="edit-group-name-input"
+          value={name}
+          onChange={(event) => {
+            setName(event.target.value);
+          }}
+        />
+      </FormFieldContainer>
+      <FormFieldContainer>
+        <Select
+          label="Color"
+          data-testid="edit-group-color-input"
+          value={color ?? NO_COLOR_VALUE}
+          allowDeselect={false}
+          onChange={(value) => {
+            setColor(value === NO_COLOR_VALUE ? undefined : value);
+          }}
         >
-          No Color
-        </Option>
-        {connectionColorCodes().map((colorCode) => (
           <Option
-            key={colorCode}
-            glyph={
-              <ColorCircleGlyph hexColor={connectionColorToHex(colorCode)} />
-            }
-            value={colorCode}
+            glyph={<ColorCircleGlyph hexColor="transparent" />}
+            value={NO_COLOR_VALUE}
           >
-            {connectionColorToName(colorCode)}
+            No Color
           </Option>
-        ))}
-      </Select>
+          {connectionColorCodes().map((colorCode) => (
+            <Option
+              key={colorCode}
+              glyph={
+                <ColorCircleGlyph hexColor={connectionColorToHex(colorCode)} />
+              }
+              value={colorCode}
+            >
+              {connectionColorToName(colorCode)}
+            </Option>
+          ))}
+        </Select>
+      </FormFieldContainer>
     </FormModal>
   );
 };
