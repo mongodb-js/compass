@@ -271,6 +271,18 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable sorted syntax for search indexes schema',
     },
   },
+
+  /**
+   * Feature flag for grouping connections in the sidebar.
+   */
+  {
+    name: 'enableConnectionGroups',
+    stage: 'development',
+    description: {
+      short: 'Group connections in the sidebar',
+      long: 'Allows organizing saved connections into named groups rendered as collapsible sections in the sidebar.',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;
