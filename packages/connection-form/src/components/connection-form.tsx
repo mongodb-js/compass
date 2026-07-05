@@ -271,12 +271,13 @@ function ConnectionPersonalizationForm({
   const showConnectionGroups = useConnectionFormSetting('showConnectionGroups');
   const connectionGroups = useConnectionFormSetting('connectionGroups');
   const onCreateGroup = useConnectionFormSetting('onCreateGroup');
+  const onUpdateGroup = useConnectionFormSetting('onUpdateGroup');
 
   const { connectionColorToHex, connectionColorToName, connectionColorCodes } =
     useConnectionColor();
 
   const [newGroupColor, setNewGroupColor] = useState<string | undefined>(
-    connectionColorCodes()[0]
+    undefined
   );
 
   // Groups created from this form during the current session. The parent's
@@ -343,10 +344,13 @@ function ConnectionPersonalizationForm({
 
       // Resolve against existing groups as well as ones just created in this
       // session, by id AND name. The combobox re-fires onChange from onBlur
-      // with the typed name (not the resolved id), so matching by name here
-      // makes that re-fire reuse the created group instead of creating another.
+      // with the displayed name (not the resolved id), so matching by name
+      // here makes that re-fire resolve to the already existing group instead
+      // of creating a duplicate.
       const existingGroup =
-        connectionGroups.find((group) => group.id === value) ??
+        connectionGroups.find(
+          (group) => group.id === value || group.name === value
+        ) ??
         locallyCreatedGroups.find(
           (group) => group.id === value || group.name === value
         );
@@ -388,6 +392,50 @@ function ConnectionPersonalizationForm({
       onCreateGroup,
       newGroupColor,
     ]
+  );
+
+  // The color select mirrors the selected group. A pre-existing group's color
+  // is only editable from the sidebar's "Edit group", so the select is
+  // disabled for it; a group created from this form stays editable; with no
+  // group selected the select holds the color for a group about to be created.
+  const selectedLocalGroup = personalizationOptions.groupId
+    ? locallyCreatedGroups.find(
+        (group) => group.id === personalizationOptions.groupId
+      )
+    : undefined;
+  const selectedPersistedGroup = personalizationOptions.groupId
+    ? connectionGroups.find(
+        (group) => group.id === personalizationOptions.groupId
+      )
+    : undefined;
+  const selectedGroup = selectedLocalGroup ?? selectedPersistedGroup;
+  const groupColorValue = selectedGroup
+    ? selectedGroup.color ?? 'no-color'
+    : newGroupColor ?? 'no-color';
+  const isGroupColorDisabled = !!selectedPersistedGroup && !selectedLocalGroup;
+
+  // Changing the color after the group was already created (creation happens
+  // as soon as the name is confirmed in the combobox) must recolor that group,
+  // otherwise the selection would only affect future group creations. Only
+  // groups created from this form are recolored; existing groups are edited
+  // from the sidebar instead.
+  const onChangeNewGroupColor = useCallback(
+    (value: string) => {
+      const color = value === 'no-color' ? undefined : value;
+      setNewGroupColor(color);
+      const { groupId } = personalizationOptions;
+      const localGroup =
+        groupId && locallyCreatedGroups.find((group) => group.id === groupId);
+      if (!localGroup) {
+        return;
+      }
+      const updatedGroup = { ...localGroup, color };
+      setLocallyCreatedGroups((groups) =>
+        groups.map((group) => (group.id === groupId ? updatedGroup : group))
+      );
+      void onUpdateGroup(updatedGroup);
+    },
+    [personalizationOptions, locallyCreatedGroups, onUpdateGroup]
   );
 
   const onChangeFavorite = useCallback(
@@ -476,14 +524,12 @@ function ConnectionPersonalizationForm({
           />
           <Select
             className={personalizationGroupColorInputStyles}
-            data-testid="personalization-new-group-color-input"
-            label="New group color"
-            description="Color used if a new group is created"
-            defaultValue={newGroupColor || 'no-color'}
+            data-testid="personalization-group-color-input"
+            label="Group color"
+            value={groupColorValue}
+            disabled={isGroupColorDisabled}
             allowDeselect={false}
-            onChange={(value) =>
-              setNewGroupColor(value === 'no-color' ? undefined : value)
-            }
+            onChange={onChangeNewGroupColor}
           >
             <Option
               glyph={<ColorCircleGlyph hexColor="transparent" />}
@@ -883,6 +929,7 @@ const ConnectionFormWithSettings: React.FunctionComponent<
   showConnectionGroups,
   connectionGroups,
   onCreateGroup,
+  onUpdateGroup,
   ...rest
 }) => {
   const value = useMemo(
@@ -905,6 +952,7 @@ const ConnectionFormWithSettings: React.FunctionComponent<
       showConnectionGroups,
       connectionGroups,
       onCreateGroup,
+      onUpdateGroup,
     }),
     [
       showFavoriteActions,
@@ -925,6 +973,7 @@ const ConnectionFormWithSettings: React.FunctionComponent<
       showConnectionGroups,
       connectionGroups,
       onCreateGroup,
+      onUpdateGroup,
     ]
   );
 

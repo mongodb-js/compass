@@ -22,6 +22,11 @@ export type ConnectionFormSettings = {
     name: string,
     color?: string
   ) => Promise<{ id: string; name: string; color?: string }>;
+  onUpdateGroup: (group: {
+    id: string;
+    name: string;
+    color?: string;
+  }) => Promise<void>;
 };
 
 const defaultSettings = {
@@ -44,6 +49,7 @@ const defaultSettings = {
   connectionGroups: [],
   onCreateGroup: (name: string, color?: string) =>
     Promise.resolve({ id: name, name, color }),
+  onUpdateGroup: () => Promise.resolve(),
 };
 
 export const ConnectionFormSettingsContext = createContext<

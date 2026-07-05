@@ -557,6 +557,75 @@ describe('ConnectionForm Component', function () {
         expect(onSaveClicked.firstCall.args[0].favorite.groupId).to.equal('g1');
       });
 
+      it('does not create a duplicate group when an existing group is selected and the combobox blurs', async function () {
+        const onCreateGroup = Sinon.stub().resolves({
+          id: 'dup',
+          name: 'prod',
+        });
+        const onSaveClicked = Sinon.stub().resolves();
+        renderForm({
+          showConnectionGroups: true,
+          connectionGroups: groups,
+          onCreateGroup,
+          onSaveClicked,
+          initialConnectionInfo: {
+            id: 't',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            favorite: { name: 'c' },
+            savedConnectionType: 'favorite',
+          },
+        });
+        userEvent.click(getGroupCombobox());
+        userEvent.click(screen.getByText('prod'));
+        // Clicking Save blurs the combobox; the shared combobox re-fires
+        // onChange with the displayed group *name*, which must resolve to the
+        // already selected persisted group instead of creating a duplicate.
+        userEvent.click(screen.getByRole('button', { name: 'Save' }));
+        await waitFor(() => expect(onSaveClicked).to.have.been.calledOnce);
+        expect(onSaveClicked.firstCall.args[0].favorite.groupId).to.equal('g1');
+        expect(onCreateGroup).to.not.have.been.called;
+      });
+
+      it('resolves a typed name of an existing group without creating a duplicate', async function () {
+        const onCreateGroup = Sinon.stub().resolves({
+          id: 'dup',
+          name: 'prod',
+        });
+        const onSaveClicked = Sinon.stub().resolves();
+        renderForm({
+          showConnectionGroups: true,
+          connectionGroups: groups,
+          onCreateGroup,
+          onSaveClicked,
+          initialConnectionInfo: {
+            id: 't',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            favorite: { name: 'c' },
+            savedConnectionType: 'favorite',
+          },
+        });
+        userEvent.click(getGroupCombobox());
+        userEvent.type(
+          within(screen.getByTestId('personalization-group-input')).getByRole(
+            'textbox'
+          ),
+          'prod'
+        );
+        // Blur with the full name of an existing group typed in: it must be
+        // treated as selecting that group, not as creating a new one. Tab
+        // first so the blur happens with the options menu closed — otherwise
+        // the menu swallows the first click on Save.
+        userEvent.tab();
+        userEvent.click(screen.getByRole('button', { name: 'Save' }));
+        await waitFor(() => expect(onSaveClicked).to.have.been.calledOnce);
+        expect(onSaveClicked.lastCall.args[0].favorite.groupId).to.equal('g1');
+        expect(onCreateGroup).to.not.have.been.called;
+      });
+
       it('creating a new group calls onCreateGroup and assigns the new id', async function () {
         const created = { id: 'g2', name: 'staging', color: 'color3' };
         const onCreateGroup = Sinon.stub().resolves(created);
@@ -639,6 +708,126 @@ describe('ConnectionForm Component', function () {
         userEvent.click(getGroupCombobox());
         expect(screen.getAllByText('staging')).to.have.lengthOf(1);
         expect(onCreateGroup.callCount).to.equal(1);
+      });
+
+      it('does not render a description under the new group color select', function () {
+        renderForm({ showConnectionGroups: true, connectionGroups: groups });
+        expect(
+          screen.queryByText('Color used if a new group is created')
+        ).to.be.null;
+      });
+
+      it('creates a group without a color when the color select is untouched', async function () {
+        const created = { id: 'g2', name: 'staging' };
+        const onCreateGroup = Sinon.stub().resolves(created);
+        renderForm({
+          showConnectionGroups: true,
+          connectionGroups: groups,
+          onCreateGroup,
+          initialConnectionInfo: {
+            id: 't',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            favorite: { name: 'c' },
+            savedConnectionType: 'favorite',
+          },
+        });
+        userEvent.click(getGroupCombobox());
+        userEvent.type(
+          within(screen.getByTestId('personalization-group-input')).getByRole(
+            'textbox'
+          ),
+          'staging'
+        );
+        userEvent.click(
+          screen.getByRole('option', { name: 'Create "staging"' })
+        );
+        await waitFor(() => expect(onCreateGroup).to.have.been.calledOnce);
+        expect(onCreateGroup.firstCall.args[1]).to.be.undefined;
+      });
+
+      it('recolors the just-created group when the color select changes', async function () {
+        const created = { id: 'g2', name: 'staging' };
+        const onCreateGroup = Sinon.stub().resolves(created);
+        const onUpdateGroup = Sinon.stub().resolves();
+        renderForm({
+          showConnectionGroups: true,
+          connectionGroups: groups,
+          onCreateGroup,
+          onUpdateGroup,
+          initialConnectionInfo: {
+            id: 't',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            favorite: { name: 'c' },
+            savedConnectionType: 'favorite',
+          },
+        });
+        userEvent.click(getGroupCombobox());
+        userEvent.type(
+          within(screen.getByTestId('personalization-group-input')).getByRole(
+            'textbox'
+          ),
+          'staging'
+        );
+        userEvent.click(
+          screen.getByRole('option', { name: 'Create "staging"' })
+        );
+        await waitFor(() => expect(onCreateGroup).to.have.been.calledOnce);
+        await waitFor(
+          () => expect(screen.getByDisplayValue('staging')).to.exist
+        );
+
+        // Picking a color after the group was already created must recolor
+        // that group instead of only affecting future group creations.
+        const colorSelectButton = screen.getByTestId(
+          'personalization-group-color-input'
+        );
+        userEvent.click(colorSelectButton);
+        const menuId = colorSelectButton.getAttribute('aria-controls');
+        const listbox = document.querySelector(
+          `[id="${menuId}"][role="listbox"]`
+        ) as HTMLElement;
+        userEvent.click(within(listbox).getByText('Blue'));
+
+        await waitFor(() => expect(onUpdateGroup).to.have.been.calledOnce);
+        expect(onUpdateGroup.firstCall.args[0]).to.deep.equal({
+          id: 'g2',
+          name: 'staging',
+          color: 'color3',
+        });
+      });
+
+      it('labels the group color select "Group color"', function () {
+        renderForm({ showConnectionGroups: true, connectionGroups: groups });
+        expect(screen.getByText('Group color')).to.exist;
+        expect(screen.queryByText('New group color')).to.be.null;
+      });
+
+      it('prefills the color of the selected existing group and disables editing it', function () {
+        renderForm({
+          showConnectionGroups: true,
+          connectionGroups: groups,
+          initialConnectionInfo: {
+            id: 't',
+            connectionOptions: {
+              connectionString: 'mongodb://localhost:27017',
+            },
+            favorite: { name: 'c', groupId: 'g1' },
+            savedConnectionType: 'favorite',
+          },
+        });
+        const colorSelectButton = screen.getByTestId(
+          'personalization-group-color-input'
+        );
+        // g1 is 'color1' → Green; an existing group's color is only
+        // editable from the sidebar's "Edit group", so the select is disabled.
+        expect(within(colorSelectButton).getByText('Green')).to.exist;
+        expect(colorSelectButton.getAttribute('aria-disabled')).to.equal(
+          'true'
+        );
       });
 
       it('prefills the group from the connection groupId', function () {
