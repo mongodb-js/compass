@@ -207,6 +207,31 @@ describe('StagePreview', function () {
     expect(screen.getByTestId('stage-preview-empty')).to.exist;
     expect(screen.getByTestId('stage-preview-diagnose-search-button')).to.exist;
   });
+  it('calls diagnoseSearchStage with the stage context when the diagnose button is clicked', async function () {
+    const diagnoseSearchStageSpy = Sinon.spy();
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+        stageValue: '{ "index": "movies" }',
+        searchIndexName: 'movies',
+      },
+      DEFAULT_PIPELINE,
+      {},
+      {
+        enableSearchActivationP2Experiment: true,
+        enableAIAssistant: true,
+        diagnoseSearchStage: diagnoseSearchStageSpy,
+      }
+    );
+    userEvent.click(screen.getByTestId('stage-preview-diagnose-search-button'));
+    expect(diagnoseSearchStageSpy).to.have.been.calledOnceWith({
+      stageOperator: '$search',
+      indexName: 'movies',
+      stageValue: '{ "index": "movies" }',
+    });
+  });
   it('does not render diagnose button when not in search activation p2', async function () {
     await renderStagePreview(
       {
