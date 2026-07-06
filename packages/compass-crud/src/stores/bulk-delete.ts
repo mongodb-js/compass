@@ -24,23 +24,23 @@ export const INITIAL_BULK_DELETE_STATE: BulkDeleteState = {
 };
 
 export const BulkDeleteActionTypes = {
-  OPEN_DIALOG: 'crud/bulk-delete/OPEN_DIALOG',
-  CLOSE_DIALOG: 'crud/bulk-delete/CLOSE_DIALOG',
-  IN_PROGRESS: 'crud/bulk-delete/IN_PROGRESS',
+  OPEN_BULK_DELETE: 'crud/bulk-delete/OPEN_BULK_DELETE',
+  CLOSE_BULK_DELETE: 'crud/bulk-delete/CLOSE_BULK_DELETE',
+  BULK_DELETE_STARTED: 'crud/bulk-delete/BULK_DELETE_STARTED',
 } as const;
 
 export type OpenBulkDeleteDialogAction = {
-  type: typeof BulkDeleteActionTypes.OPEN_DIALOG;
+  type: typeof BulkDeleteActionTypes.OPEN_BULK_DELETE;
   previews: Document[];
   affected: number | undefined;
 };
 
 export type CloseBulkDeleteDialogAction = {
-  type: typeof BulkDeleteActionTypes.CLOSE_DIALOG;
+  type: typeof BulkDeleteActionTypes.CLOSE_BULK_DELETE;
 };
 
 export type BulkDeleteInProgressAction = {
-  type: typeof BulkDeleteActionTypes.IN_PROGRESS;
+  type: typeof BulkDeleteActionTypes.BULK_DELETE_STARTED;
 };
 
 export type BulkDeleteActions =
@@ -52,17 +52,17 @@ export const bulkDeleteReducer: Reducer<BulkDeleteState> = (
   state = INITIAL_BULK_DELETE_STATE,
   action
 ) => {
-  if (isAction(action, BulkDeleteActionTypes.OPEN_DIALOG)) {
+  if (isAction(action, BulkDeleteActionTypes.OPEN_BULK_DELETE)) {
     return {
       previews: action.previews,
       status: 'open',
       affected: action.affected,
     };
   }
-  if (isAction(action, BulkDeleteActionTypes.CLOSE_DIALOG)) {
+  if (isAction(action, BulkDeleteActionTypes.CLOSE_BULK_DELETE)) {
     return { ...state, status: 'closed' };
   }
-  if (isAction(action, BulkDeleteActionTypes.IN_PROGRESS)) {
+  if (isAction(action, BulkDeleteActionTypes.BULK_DELETE_STARTED)) {
     return { ...state, status: 'in-progress' };
   }
   return state;
@@ -86,7 +86,7 @@ export function openBulkDeleteDialog(): CrudThunkAction<
       }
     );
     dispatch({
-      type: BulkDeleteActionTypes.OPEN_DIALOG,
+      type: BulkDeleteActionTypes.OPEN_BULK_DELETE,
       previews,
       affected: state.documents.count ?? undefined,
     });
@@ -94,7 +94,7 @@ export function openBulkDeleteDialog(): CrudThunkAction<
 }
 
 export function closeBulkDeleteDialog(): CloseBulkDeleteDialogAction {
-  return { type: BulkDeleteActionTypes.CLOSE_DIALOG };
+  return { type: BulkDeleteActionTypes.CLOSE_BULK_DELETE };
 }
 
 export function runBulkDelete(): CrudThunkAction<
@@ -108,7 +108,6 @@ export function runBulkDelete(): CrudThunkAction<
       dataService,
       queryBar,
       logger,
-      localAppRegistry,
       connectionScopedAppRegistry,
       track,
       connectionInfoRef,
@@ -124,8 +123,8 @@ export function runBulkDelete(): CrudThunkAction<
       buttonText: `Delete ${affected ? `${affected} ` : ''} document${
         affected !== 1 ? 's' : ''
       }`,
-      description: `This action can not be undone. This will permanently delete ${
-        affected ?? 'an unknown number of'
+      description: `This action cannot be undone. This will permanently delete ${
+        affected ?? 'an unknown nudocuments-deletember of'
       } document${affected !== 1 ? 's' : ''}.`,
       warning:
         'The document list and count may not always reflect the latest updates in real time. This action will apply to all relevant documents, including those not currently visible, so please ensure they are handled safely.',
@@ -136,7 +135,7 @@ export function runBulkDelete(): CrudThunkAction<
       return;
     }
 
-    dispatch({ type: BulkDeleteActionTypes.IN_PROGRESS });
+    dispatch({ type: BulkDeleteActionTypes.BULK_DELETE_STARTED });
     openBulkDeleteProgressToast({
       affectedDocuments: affected,
     });
@@ -157,9 +156,7 @@ export function runBulkDelete(): CrudThunkAction<
         affectedDocuments: affected,
         onRefresh: () => void dispatch(refreshDocuments()),
       });
-      // Emit both events so all listeners update (fixes bulk delete document count not updating)
       const payload = { view, ns };
-      localAppRegistry.emit('documents-deleted', payload);
       connectionScopedAppRegistry.emit('documents-deleted', payload);
     } catch (ex) {
       openBulkDeleteFailureToast({

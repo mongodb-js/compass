@@ -40,74 +40,67 @@ export const INITIAL_BULK_UPDATE_STATE: BulkUpdateState = {
 };
 
 export const BulkUpdateActionTypes = {
-  OPEN_MODAL: 'crud/bulk-update/OPEN_MODAL',
-  CLOSE_MODAL: 'crud/bulk-update/CLOSE_MODAL',
-  PREVIEW_STARTED: 'crud/bulk-update/PREVIEW_STARTED',
-  PREVIEW_UPDATED: 'crud/bulk-update/PREVIEW_UPDATED',
-  PREVIEW_SYNTAX_ERROR: 'crud/bulk-update/PREVIEW_SYNTAX_ERROR',
-  PREVIEW_SERVER_ERROR: 'crud/bulk-update/PREVIEW_SERVER_ERROR',
-  RUN_AFFECTED_LATCHED: 'crud/bulk-update/RUN_AFFECTED_LATCHED',
+  OPEN_BULK_UPDATE: 'crud/bulk-update/OPEN_BULK_UPDATE',
+  CLOSE_BULK_UPDATE: 'crud/bulk-update/CLOSE_BULK_UPDATE',
+  FETCH_PREVIEW_STARTED: 'crud/bulk-update/FETCH_PREVIEW_STARTED',
+  FETCH_PREVIEW_FINISHED: 'crud/bulk-update/FETCH_PREVIEW_FINISHED',
+  FETCH_PREVIEW_SYNTAX_ERRORED: 'crud/bulk-update/FETCH_PREVIEW_SYNTAX_ERRORED',
+  FETCH_PREVIEW_SERVER_ERRORED: 'crud/bulk-update/FETCH_PREVIEW_SERVER_ERRORED',
 } as const;
 
-export type OpenBulkUpdateModalAction = {
-  type: typeof BulkUpdateActionTypes.OPEN_MODAL;
+export type OpenBulkUpdateAction = {
+  type: typeof BulkUpdateActionTypes.OPEN_BULK_UPDATE;
 };
 
-export type CloseBulkUpdateModalAction = {
-  type: typeof BulkUpdateActionTypes.CLOSE_MODAL;
+export type CloseBulkUpdateAction = {
+  type: typeof BulkUpdateActionTypes.CLOSE_BULK_UPDATE;
 };
 
 export type PreviewStartedAction = {
-  type: typeof BulkUpdateActionTypes.PREVIEW_STARTED;
+  type: typeof BulkUpdateActionTypes.FETCH_PREVIEW_STARTED;
   abortController: AbortController;
 };
 
 export type PreviewUpdatedAction = {
-  type: typeof BulkUpdateActionTypes.PREVIEW_UPDATED;
+  type: typeof BulkUpdateActionTypes.FETCH_PREVIEW_FINISHED;
   updateText: string;
   preview: UpdatePreview;
 };
 
 export type PreviewSyntaxErrorAction = {
-  type: typeof BulkUpdateActionTypes.PREVIEW_SYNTAX_ERROR;
+  type: typeof BulkUpdateActionTypes.FETCH_PREVIEW_SYNTAX_ERRORED;
   updateText: string;
   syntaxError: Error;
 };
 
 export type PreviewServerErrorAction = {
-  type: typeof BulkUpdateActionTypes.PREVIEW_SERVER_ERROR;
+  type: typeof BulkUpdateActionTypes.FETCH_PREVIEW_SERVER_ERRORED;
   updateText: string;
   serverError: Error;
 };
 
-export type RunAffectedLatchedAction = {
-  type: typeof BulkUpdateActionTypes.RUN_AFFECTED_LATCHED;
-  affected: number | undefined;
-};
-
 export type BulkUpdateActions =
-  | OpenBulkUpdateModalAction
-  | CloseBulkUpdateModalAction
+  | OpenBulkUpdateAction
+  | CloseBulkUpdateAction
   | PreviewStartedAction
   | PreviewUpdatedAction
   | PreviewSyntaxErrorAction
-  | PreviewServerErrorAction
-  | RunAffectedLatchedAction;
+  | PreviewServerErrorAction;
 
 export const bulkUpdateReducer: Reducer<BulkUpdateState> = (
   state = INITIAL_BULK_UPDATE_STATE,
   action
 ) => {
-  if (isAction(action, BulkUpdateActionTypes.OPEN_MODAL)) {
+  if (isAction(action, BulkUpdateActionTypes.OPEN_BULK_UPDATE)) {
     return { ...state, isOpen: true };
   }
-  if (isAction(action, BulkUpdateActionTypes.CLOSE_MODAL)) {
+  if (isAction(action, BulkUpdateActionTypes.CLOSE_BULK_UPDATE)) {
     return { ...state, isOpen: false };
   }
-  if (isAction(action, BulkUpdateActionTypes.PREVIEW_STARTED)) {
+  if (isAction(action, BulkUpdateActionTypes.FETCH_PREVIEW_STARTED)) {
     return { ...state, previewAbortController: action.abortController };
   }
-  if (isAction(action, BulkUpdateActionTypes.PREVIEW_UPDATED)) {
+  if (isAction(action, BulkUpdateActionTypes.FETCH_PREVIEW_FINISHED)) {
     return {
       ...state,
       updateText: action.updateText,
@@ -117,7 +110,7 @@ export const bulkUpdateReducer: Reducer<BulkUpdateState> = (
       previewAbortController: undefined,
     };
   }
-  if (isAction(action, BulkUpdateActionTypes.PREVIEW_SYNTAX_ERROR)) {
+  if (isAction(action, BulkUpdateActionTypes.FETCH_PREVIEW_SYNTAX_ERRORED)) {
     return {
       ...state,
       updateText: action.updateText,
@@ -127,7 +120,7 @@ export const bulkUpdateReducer: Reducer<BulkUpdateState> = (
       previewAbortController: undefined,
     };
   }
-  if (isAction(action, BulkUpdateActionTypes.PREVIEW_SERVER_ERROR)) {
+  if (isAction(action, BulkUpdateActionTypes.FETCH_PREVIEW_SERVER_ERRORED)) {
     return {
       ...state,
       updateText: action.updateText,
@@ -137,14 +130,11 @@ export const bulkUpdateReducer: Reducer<BulkUpdateState> = (
       previewAbortController: undefined,
     };
   }
-  if (isAction(action, BulkUpdateActionTypes.RUN_AFFECTED_LATCHED)) {
-    return { ...state, affected: action.affected };
-  }
   return state;
 };
 
-export function closeBulkUpdateModal(): CloseBulkUpdateModalAction {
-  return { type: BulkUpdateActionTypes.CLOSE_MODAL };
+export function closeBulkUpdateModal(): CloseBulkUpdateAction {
+  return { type: BulkUpdateActionTypes.CLOSE_BULK_UPDATE };
 }
 
 export function updateBulkUpdatePreview(
@@ -160,14 +150,14 @@ export function updateBulkUpdatePreview(
         parseShellBSON(updateText);
       } catch (err: any) {
         dispatch({
-          type: BulkUpdateActionTypes.PREVIEW_SYNTAX_ERROR,
+          type: BulkUpdateActionTypes.FETCH_PREVIEW_SYNTAX_ERRORED,
           updateText,
           syntaxError: err,
         });
         return;
       }
       dispatch({
-        type: BulkUpdateActionTypes.PREVIEW_UPDATED,
+        type: BulkUpdateActionTypes.FETCH_PREVIEW_FINISHED,
         updateText,
         preview: { changes: [] },
       });
@@ -176,7 +166,7 @@ export function updateBulkUpdatePreview(
 
     const abortController = new AbortController();
     dispatch({
-      type: BulkUpdateActionTypes.PREVIEW_STARTED,
+      type: BulkUpdateActionTypes.FETCH_PREVIEW_STARTED,
       abortController,
     });
 
@@ -186,7 +176,7 @@ export function updateBulkUpdatePreview(
     } catch (err: any) {
       if (abortController.signal.aborted) return;
       dispatch({
-        type: BulkUpdateActionTypes.PREVIEW_SYNTAX_ERROR,
+        type: BulkUpdateActionTypes.FETCH_PREVIEW_SYNTAX_ERRORED,
         updateText,
         syntaxError: err,
       });
@@ -207,7 +197,7 @@ export function updateBulkUpdatePreview(
     } catch (err: any) {
       if (abortController.signal.aborted) return;
       dispatch({
-        type: BulkUpdateActionTypes.PREVIEW_SERVER_ERROR,
+        type: BulkUpdateActionTypes.FETCH_PREVIEW_SERVER_ERRORED,
         updateText,
         serverError: err,
       });
@@ -217,7 +207,7 @@ export function updateBulkUpdatePreview(
     if (abortController.signal.aborted) return;
 
     dispatch({
-      type: BulkUpdateActionTypes.PREVIEW_UPDATED,
+      type: BulkUpdateActionTypes.FETCH_PREVIEW_FINISHED,
       updateText,
       preview,
     });
@@ -240,7 +230,7 @@ export function openBulkUpdateModal(
     await dispatch(
       updateBulkUpdatePreview(updateText ?? INITIAL_BULK_UPDATE_TEXT)
     );
-    dispatch({ type: BulkUpdateActionTypes.OPEN_MODAL });
+    dispatch({ type: BulkUpdateActionTypes.OPEN_BULK_UPDATE });
   };
 }
 
@@ -275,10 +265,6 @@ export function runBulkUpdate(): CrudThunkAction<
 
     // Latch the affected count for the duration of the toast.
     const affected = getState().documents.count ?? undefined;
-    dispatch({
-      type: BulkUpdateActionTypes.RUN_AFFECTED_LATCHED,
-      affected,
-    });
 
     const ns = getState().documents.ns;
     const { filter = {} } = query;

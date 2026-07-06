@@ -993,10 +993,6 @@ export type CollectionTabPluginMetadata = CollectionMetadata & {
    * Subtab that is currently open
    */
   subTab?: CollectionSubtab;
-  /**
-   * Mock data generator feature enablement.
-   */
-  isMockDataGeneratorEnabled?: boolean;
 };
 
 export default reducer;

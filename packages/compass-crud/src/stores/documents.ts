@@ -944,7 +944,7 @@ export function updateDocument(
     } catch (err: any) {
       doc.onUpdateError(
         new Error(
-          `An error occured when attempting to update the document: ${String(
+          `An error occurred when attempting to update the document: ${String(
             err.message
           )}`
         )
@@ -1041,7 +1041,7 @@ export function replaceDocument(
     } catch (err: any) {
       doc.onUpdateError(
         new Error(
-          `An error occured when attempting to update the document: ${String(
+          `An error occurred when attempting to update the document: ${String(
             err.message
           )}`
         )

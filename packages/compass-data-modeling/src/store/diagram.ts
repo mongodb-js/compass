@@ -692,7 +692,7 @@ export function deleteDiagram(
   return async (dispatch, getState, { dataModelStorage }) => {
     const confirmed = await showConfirmation({
       title: 'Are you sure you want to delete this diagram?',
-      description: 'This action can not be undone.',
+      description: 'This action cannot be undone.',
       variant: 'danger',
     });
     if (!confirmed) {

@@ -36,7 +36,7 @@ export const confirmDeleteItem = (
     }?`;
     const confirmed = await showConfirmation({
       title,
-      description: 'This action can not be undone.',
+      description: 'This action cannot be undone.',
       variant: ConfirmationModalVariant.Danger,
       buttonText: 'Delete',
     });

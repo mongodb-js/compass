@@ -22,7 +22,7 @@ describe('use-confirmation', function () {
             onClick={() => {
               response = showConfirmation({
                 title: 'Are you sure?',
-                description: 'This action can not be undone.',
+                description: 'This action cannot be undone.',
                 buttonText: 'Yes',
               });
             }}
@@ -39,9 +39,7 @@ describe('use-confirmation', function () {
 
     it('renders modal contents', function () {
       expect(within(modal).getByText('Are you sure?')).to.exist;
-      expect(
-        within(modal).getByText('This action can not be undone.')
-      ).to.exist;
+      expect(within(modal).getByText('This action cannot be undone.')).to.exist;
       expect(within(modal).getByText('Yes')).to.exist;
       const cancelElement = within(modal).getByText('Cancel');
       expect(cancelElement).to.exist;
