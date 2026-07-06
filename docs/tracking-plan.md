@@ -142,8 +142,16 @@ Generated on Thu, Jul 2, 2026
 - [Document Cloned](#event--DocumentClonedEvent)
 - [Document Copied](#event--DocumentCopiedEvent)
 - [Document Deleted](#event--DocumentDeletedEvent)
+- [Document Field Added](#event--DocumentFieldAddedEvent)
+- [Document Field Edited](#event--DocumentFieldEditedEvent)
+- [Document Field Removed](#event--DocumentFieldRemovedEvent)
+- [Document Field Type Changed](#event--DocumentFieldTypeChangedEvent)
+- [Document Insert Cancelled](#event--DocumentInsertCancelledEvent)
 - [Document Inserted](#event--DocumentInsertedEvent)
+- [Document Show More Fields Clicked](#event--DocumentShowMoreFieldsClickedEvent)
+- [Document Update Cancelled](#event--DocumentUpdateCancelledEvent)
 - [Document Updated](#event--DocumentUpdatedEvent)
+- [Document View Changed](#event--DocumentViewChangedEvent)
 
 ### Drawer
 
@@ -177,6 +185,7 @@ Generated on Thu, Jul 2, 2026
 - [AI Opt In Modal Shown](#event--AiOptInModalShownEvent)
 - [AI Opt In Modal Dismissed](#event--AiOptInModalDismissedEvent)
 - [AI Generate Query Clicked](#event--AiGenerateQueryClickedEvent)
+- [AI Generate Query Closed](#event--AiGenerateQueryClosedEvent)
 - [AI Prompt Submitted](#event--AiPromptSubmittedEvent)
 - [AI Query Feedback](#event--AiQueryFeedbackEvent)
 - [AI Response Failed](#event--AiResponseFailedEvent)
@@ -1798,6 +1807,89 @@ This event is fired when user deletes a document.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
+<a name="event--DocumentFieldAddedEvent"></a>
+
+### Document Field Added
+
+This event is fired when user adds a field to a document, either at the
+top level or nested inside an array/object.
+
+**Properties**:
+
+- **level** (required): `"top" | "nested"`
+  - Whether the field was added to the top level of the document or
+    nested inside an array/object.
+- **mode** (required): `"list" | "table" | "insert"`
+  - The view in which the field was added.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DocumentFieldEditedEvent"></a>
+
+### Document Field Edited
+
+This event is fired when a field's value is edited and then the field
+loses focus, in the default document view or the table view.
+
+**Properties**:
+
+- **type** (required): `string`
+  - The BSON type of the edited field.
+- **mode** (required): `"list" | "table"`
+  - The view in which the field was edited.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DocumentFieldRemovedEvent"></a>
+
+### Document Field Removed
+
+This event is fired when user removes a field from a document.
+
+**Properties**:
+
+- **mode** (required): `"list" | "table" | "insert"`
+  - The view in which the field was removed.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DocumentFieldTypeChangedEvent"></a>
+
+### Document Field Type Changed
+
+This event is fired when a field's BSON type is changed, either in the
+default document view, the table view, or the insert document dialog.
+
+**Properties**:
+
+- **from_type** (required): `string`
+  - The BSON type the field was changed from.
+- **to_type** (required): `string`
+  - The BSON type the field was changed to.
+- **mode** (required): `"list" | "table" | "insert"`
+  - The view in which the field type was changed.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DocumentInsertCancelledEvent"></a>
+
+### Document Insert Cancelled
+
+This event is fired when user cancels the insert document dialog without
+inserting.
+
+**Properties**:
+
+- **mode** (required): `"json" | "field-by-field"`
+  - The view used in the insert document dialog.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
 <a name="event--DocumentInsertedEvent"></a>
 
 ### Document Inserted
@@ -1814,6 +1906,27 @@ This event is fired when user inserts documents.
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
 
+<a name="event--DocumentShowMoreFieldsClickedEvent"></a>
+
+### Document Show More Fields Clicked
+
+This event is fired when user clicks the "Show more fields" button in the
+default document view.
+
+<a name="event--DocumentUpdateCancelledEvent"></a>
+
+### Document Update Cancelled
+
+This event is fired when user cancels editing of a document.
+
+**Properties**:
+
+- **mode** (required): `"json" | "list" | "table"`
+  - The view used to edit the document.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
 <a name="event--DocumentUpdatedEvent"></a>
 
 ### Document Updated
@@ -1824,6 +1937,21 @@ This event is fired when user updates a document
 
 - **mode** (required): `"json" | "list" | "table"`
   - The view used to delete the document.
+- **is_compass_web** (optional): `true | undefined`
+- **connection_id** (optional): `string | undefined`
+  - The id of the connection associated to this event.
+
+<a name="event--DocumentViewChangedEvent"></a>
+
+### Document View Changed
+
+This event is fired when user switches between the List, JSON, and Table
+document views in the CRUD toolbar.
+
+**Properties**:
+
+- **view** (required): `"json" | "list" | "table"`
+  - The view that was switched to.
 - **is_compass_web** (optional): `true | undefined`
 - **connection_id** (optional): `string | undefined`
   - The id of the connection associated to this event.
@@ -2096,6 +2224,19 @@ This event is fired when a user clicks the Generate Query / Aggregation entry po
 
 - **type** (required): `"aggregation" | "query"`
   - The type of query being generated.
+- **is_compass_web** (optional): `true | undefined`
+
+<a name="event--AiGenerateQueryClosedEvent"></a>
+
+### AI Generate Query Closed
+
+This event is fired when a user closes the Generate Query / Aggregation
+panel, whether via the close button, Escape, or by cancelling a request.
+
+**Properties**:
+
+- **type** (required): `"aggregation" | "query"`
+  - The type of query that was being generated.
 - **is_compass_web** (optional): `true | undefined`
 
 <a name="event--AiPromptSubmittedEvent"></a>

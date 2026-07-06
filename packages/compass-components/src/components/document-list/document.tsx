@@ -86,6 +86,11 @@ const HadronDocument: React.FunctionComponent<{
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
   className?: string;
+  onFieldTypeChanged?: (fromType: string, toType: string) => void;
+  onFieldEdited?: (type: string) => void;
+  onFieldAdded?: (level: 'top' | 'nested') => void;
+  onFieldRemoved?: () => void;
+  onShowMoreFieldsClicked?: () => void;
 }> = ({
   value: document,
   editable = false,
@@ -95,6 +100,11 @@ const HadronDocument: React.FunctionComponent<{
   onUpdateQuery,
   query,
   className = '',
+  onFieldTypeChanged,
+  onFieldEdited,
+  onFieldAdded,
+  onFieldRemoved,
+  onShowMoreFieldsClicked,
 }) => {
   const { elements, visibleElements } = useHadronDocument(document);
   const [autoFocus, setAutoFocus] = useState<{
@@ -104,9 +114,12 @@ const HadronDocument: React.FunctionComponent<{
 
   const handleVisibleFieldsChanged = useCallback(
     (totalVisibleFields: number) => {
+      if (totalVisibleFields > document.maxVisibleElementsCount) {
+        onShowMoreFieldsClicked?.();
+      }
       document.setMaxVisibleElementsCount(totalVisibleFields);
     },
-    [document]
+    [document, onShowMoreFieldsClicked]
   );
 
   // To render the "Show more" toggle for the document we need to calculate a
@@ -155,6 +168,11 @@ const HadronDocument: React.FunctionComponent<{
                 extraGutterWidth={extraGutterWidth}
                 onUpdateQuery={onUpdateQuery}
                 query={query}
+                onFieldTypeChanged={onFieldTypeChanged}
+                onFieldEdited={onFieldEdited}
+                onFieldAdded={onFieldAdded}
+                onFieldRemoved={onFieldRemoved}
+                onShowMoreFieldsClicked={onShowMoreFieldsClicked}
               ></HadronElement>
             );
           })}

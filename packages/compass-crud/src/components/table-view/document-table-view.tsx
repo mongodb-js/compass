@@ -39,6 +39,7 @@ import type {
   ValueGetterParams,
   ColumnResizedEvent,
 } from 'ag-grid-community';
+import type { FieldTrackingProps } from '../field-tracking';
 
 const MIXED = 'Mixed' as const;
 
@@ -74,7 +75,7 @@ export type DocumentTableViewProps = {
   legacyUUIDDisplayEncoding?: string;
   columnWidths: Record<string, number>;
   onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
-};
+} & FieldTrackingProps;
 
 export type GridContext = {
   path: (string | number)[];
@@ -147,6 +148,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         replaceDocument: this.props.replaceDocument,
         updateDocument: this.props.updateDocument,
         darkMode: this.props.darkMode,
+        trackDocumentUpdateCancelled: this.props.trackDocumentUpdateCancelled,
       },
       getRowNodeId: function (data) {
         const fid = data.isFooter ? '1' : '0';
@@ -869,6 +871,10 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         tz: this.props.tz,
         darkMode: this.props.darkMode,
         legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
+        trackFieldTypeChanged: this.props.trackFieldTypeChanged,
+        trackFieldEdited: this.props.trackFieldEdited,
+        trackFieldAdded: this.props.trackFieldAdded,
+        trackFieldRemoved: this.props.trackFieldRemoved,
       },
       resizable: true,
       width: this.props.columnWidths[String(path[path.length - 1])],

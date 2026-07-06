@@ -24,6 +24,7 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { WriteError } from '../stores/crud-store';
+import type { FieldTrackingProps } from './field-tracking';
 
 /**
  * The insert invalid message.
@@ -70,17 +71,25 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   updateComment: (isCommentNeeded: boolean) => void;
   logger?: Logger;
   track?: TrackFunction;
-};
+} & Pick<
+    FieldTrackingProps,
+    'trackFieldTypeChanged' | 'trackFieldAdded' | 'trackFieldRemoved'
+  >;
 
-const DocumentOrJsonView: React.FC<{
-  jsonView: InsertDocumentDialogProps['jsonView'];
-  doc: InsertDocumentDialogProps['doc'];
-  hasManyDocuments: () => boolean;
-  updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
-  jsonDoc: InsertDocumentDialogProps['jsonDoc'];
-  isCommentNeeded: InsertDocumentDialogProps['isCommentNeeded'];
-  updateComment: InsertDocumentDialogProps['updateComment'];
-}> = ({
+const DocumentOrJsonView: React.FC<
+  {
+    jsonView: InsertDocumentDialogProps['jsonView'];
+    doc: InsertDocumentDialogProps['doc'];
+    hasManyDocuments: () => boolean;
+    updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
+    jsonDoc: InsertDocumentDialogProps['jsonDoc'];
+    isCommentNeeded: InsertDocumentDialogProps['isCommentNeeded'];
+    updateComment: InsertDocumentDialogProps['updateComment'];
+  } & Pick<
+    FieldTrackingProps,
+    'trackFieldTypeChanged' | 'trackFieldAdded' | 'trackFieldRemoved'
+  >
+> = ({
   jsonView,
   doc,
   hasManyDocuments,
@@ -88,6 +97,9 @@ const DocumentOrJsonView: React.FC<{
   jsonDoc,
   isCommentNeeded,
   updateComment,
+  trackFieldTypeChanged,
+  trackFieldAdded,
+  trackFieldRemoved,
 }) => {
   if (jsonView) {
     return (
@@ -114,7 +126,14 @@ const DocumentOrJsonView: React.FC<{
     return null;
   }
 
-  return <InsertDocument doc={doc} />;
+  return (
+    <InsertDocument
+      doc={doc}
+      trackFieldTypeChanged={trackFieldTypeChanged}
+      trackFieldAdded={trackFieldAdded}
+      trackFieldRemoved={trackFieldRemoved}
+    />
+  );
 };
 
 /**
@@ -137,6 +156,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   updateJsonDoc,
   updateComment,
   closeInsertDocumentDialog,
+  trackFieldTypeChanged,
+  trackFieldAdded,
+  trackFieldRemoved,
 }) => {
   const [invalidElements, setInvalidElements] = useState<Document['uuid'][]>(
     []
@@ -335,6 +357,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           jsonDoc={jsonDoc}
           isCommentNeeded={isCommentNeeded}
           updateComment={updateComment}
+          trackFieldTypeChanged={trackFieldTypeChanged}
+          trackFieldAdded={trackFieldAdded}
+          trackFieldRemoved={trackFieldRemoved}
         />
       </div>
       {banner && (

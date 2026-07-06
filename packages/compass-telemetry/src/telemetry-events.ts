@@ -964,6 +964,148 @@ type DocumentInsertedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when a field's BSON type is changed, either in the
+ * default document view, the table view, or the insert document dialog.
+ *
+ * @category Documents
+ */
+type DocumentFieldTypeChangedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Type Changed';
+  payload: {
+    /**
+     * The BSON type the field was changed from.
+     */
+    from_type: string;
+
+    /**
+     * The BSON type the field was changed to.
+     */
+    to_type: string;
+
+    /**
+     * The view in which the field type was changed.
+     */
+    mode: 'list' | 'table' | 'insert';
+  };
+}>;
+
+/**
+ * This event is fired when a field's value is edited and then the field
+ * loses focus, in the default document view or the table view.
+ *
+ * @category Documents
+ */
+type DocumentFieldEditedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Edited';
+  payload: {
+    /**
+     * The BSON type of the edited field.
+     */
+    type: string;
+
+    /**
+     * The view in which the field was edited.
+     */
+    mode: 'list' | 'table';
+  };
+}>;
+
+/**
+ * This event is fired when user adds a field to a document, either at the
+ * top level or nested inside an array/object.
+ *
+ * @category Documents
+ */
+type DocumentFieldAddedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Added';
+  payload: {
+    /**
+     * Whether the field was added to the top level of the document or
+     * nested inside an array/object.
+     */
+    level: 'top' | 'nested';
+
+    /**
+     * The view in which the field was added.
+     */
+    mode: 'list' | 'table' | 'insert';
+  };
+}>;
+
+/**
+ * This event is fired when user removes a field from a document.
+ *
+ * @category Documents
+ */
+type DocumentFieldRemovedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Removed';
+  payload: {
+    /**
+     * The view in which the field was removed.
+     */
+    mode: 'list' | 'table' | 'insert';
+  };
+}>;
+
+/**
+ * This event is fired when user clicks the "Show more fields" button in the
+ * default document view.
+ *
+ * @category Documents
+ */
+type DocumentShowMoreFieldsClickedEvent = ConnectionScopedEvent<{
+  name: 'Document Show More Fields Clicked';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when user cancels editing of a document.
+ *
+ * @category Documents
+ */
+type DocumentUpdateCancelledEvent = ConnectionScopedEvent<{
+  name: 'Document Update Cancelled';
+  payload: {
+    /**
+     * The view used to edit the document.
+     */
+    mode: 'list' | 'json' | 'table';
+  };
+}>;
+
+/**
+ * This event is fired when user cancels the insert document dialog without
+ * inserting.
+ *
+ * @category Documents
+ */
+type DocumentInsertCancelledEvent = ConnectionScopedEvent<{
+  name: 'Document Insert Cancelled';
+  payload: {
+    /**
+     * The view used in the insert document dialog.
+     */
+    mode: 'json' | 'field-by-field';
+  };
+}>;
+
+/**
+ * This event is fired when user switches between the List, JSON, and Table
+ * document views in the CRUD toolbar.
+ *
+ * @category Documents
+ */
+type DocumentViewChangedEvent = ConnectionScopedEvent<{
+  name: 'Document View Changed';
+  payload: {
+    /**
+     * The view that was switched to.
+     */
+    view: 'list' | 'json' | 'table';
+  };
+}>;
+
+/**
  * This event is fired when user explains a query.
  *
  * @category Explain
@@ -1717,6 +1859,22 @@ type AiGenerateQueryClickedEvent = CommonEvent<{
   payload: {
     /**
      * The type of query being generated.
+     */
+    type: 'aggregation' | 'query';
+  };
+}>;
+
+/**
+ * This event is fired when a user closes the Generate Query / Aggregation
+ * panel, whether via the close button, Escape, or by cancelling a request.
+ *
+ * @category Gen AI
+ */
+type AiGenerateQueryClosedEvent = CommonEvent<{
+  name: 'AI Generate Query Closed';
+  payload: {
+    /**
+     * The type of query that was being generated.
      */
     type: 'aggregation' | 'query';
   };
@@ -3972,6 +4130,7 @@ export type TelemetryEvent =
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
   | AiGenerateQueryClickedEvent
+  | AiGenerateQueryClosedEvent
   | AiPromptSubmittedEvent
   | AiQueryFeedbackEvent
   | AiResponseFailedEvent
@@ -4033,8 +4192,16 @@ export type TelemetryEvent =
   | DocumentClonedEvent
   | DocumentCopiedEvent
   | DocumentDeletedEvent
+  | DocumentFieldAddedEvent
+  | DocumentFieldEditedEvent
+  | DocumentFieldRemovedEvent
+  | DocumentFieldTypeChangedEvent
+  | DocumentInsertCancelledEvent
   | DocumentInsertedEvent
+  | DocumentShowMoreFieldsClickedEvent
+  | DocumentUpdateCancelledEvent
   | DocumentUpdatedEvent
+  | DocumentViewChangedEvent
   | DrawerSectionOpenedEvent
   | DrawerSectionClosedEvent
   | EditorTypeChangedEvent

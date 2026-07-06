@@ -7,6 +7,7 @@ import { withPreferences } from 'compass-preferences-model/provider';
 import { documentStyles, documentContentStyles } from './readonly-document';
 import { getInsightsForDocument } from '../utils';
 import type { CrudActions } from '../stores/crud-store';
+import type { FieldTrackingProps } from './field-tracking';
 
 const documentElementsContainerStyles = css({
   position: 'relative',
@@ -22,7 +23,7 @@ export type EditableDocumentProps = {
   showInsights?: boolean;
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
-};
+} & FieldTrackingProps;
 
 type EditableDocumentState = {
   editing: boolean;
@@ -145,6 +146,7 @@ class EditableDocument extends React.Component<
   handleCancel = () => {
     if (this.state.editing) {
       this.props.doc.finishEditing();
+      this.props.trackDocumentUpdateCancelled?.('list');
     } else if (this.state.deleting) {
       this.props.doc.finishDeletion();
     }
@@ -253,6 +255,13 @@ class EditableDocument extends React.Component<
         onEditStart={this.handleStartEditing.bind(this)}
         onUpdateQuery={this.props.onUpdateQuery}
         query={this.props.query}
+        onFieldTypeChanged={(fromType, toType) =>
+          this.props.trackFieldTypeChanged?.(fromType, toType, 'list')
+        }
+        onFieldEdited={(type) => this.props.trackFieldEdited?.(type, 'list')}
+        onFieldAdded={(level) => this.props.trackFieldAdded?.(level, 'list')}
+        onFieldRemoved={() => this.props.trackFieldRemoved?.('list')}
+        onShowMoreFieldsClicked={this.props.trackShowMoreFieldsClicked}
       />
     );
   }

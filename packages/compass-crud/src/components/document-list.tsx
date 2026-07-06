@@ -40,6 +40,9 @@ import {
 } from '@mongodb-js/compass-query-bar';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import type { FieldTrackingProps } from './field-tracking';
 
 // Table has its own scrollable container.
 const tableStyles = css({
@@ -140,16 +143,17 @@ export type DocumentListProps = {
   >;
 
 const DocumentViewComponent: React.FunctionComponent<
-  DocumentListProps & {
-    isEditable: boolean;
-    outdated: boolean;
-    query: unknown;
-    initialScrollTop?: number;
-    scrollTriggerRef?: React.Ref<HTMLDivElement>;
-    scrollableContainerRef?: React.Ref<HTMLDivElement>;
-    columnWidths: Record<string, number>;
-    onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
-  }
+  DocumentListProps &
+    FieldTrackingProps & {
+      isEditable: boolean;
+      outdated: boolean;
+      query: unknown;
+      initialScrollTop?: number;
+      scrollTriggerRef?: React.Ref<HTMLDivElement>;
+      scrollableContainerRef?: React.Ref<HTMLDivElement>;
+      columnWidths: Record<string, number>;
+      onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
+    }
 > = ({
   initialScrollTop,
   scrollTriggerRef,
@@ -327,6 +331,64 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     docsPerPage,
     updateMaxDocumentsPerPage,
   } = props;
+
+  const track = useTelemetry();
+  const connectionInfoRef = useConnectionInfoRef();
+
+  const trackFieldTypeChanged = useCallback<
+    NonNullable<FieldTrackingProps['trackFieldTypeChanged']>
+  >(
+    (fromType, toType, mode) => {
+      track(
+        'Document Field Type Changed',
+        { from_type: fromType, to_type: toType, mode },
+        connectionInfoRef.current
+      );
+    },
+    [track, connectionInfoRef]
+  );
+
+  const trackFieldEdited = useCallback<
+    NonNullable<FieldTrackingProps['trackFieldEdited']>
+  >(
+    (type, mode) => {
+      track('Document Field Edited', { type, mode }, connectionInfoRef.current);
+    },
+    [track, connectionInfoRef]
+  );
+
+  const trackFieldAdded = useCallback<
+    NonNullable<FieldTrackingProps['trackFieldAdded']>
+  >(
+    (level, mode) => {
+      track('Document Field Added', { level, mode }, connectionInfoRef.current);
+    },
+    [track, connectionInfoRef]
+  );
+
+  const trackFieldRemoved = useCallback<
+    NonNullable<FieldTrackingProps['trackFieldRemoved']>
+  >(
+    (mode) => {
+      track('Document Field Removed', { mode }, connectionInfoRef.current);
+    },
+    [track, connectionInfoRef]
+  );
+
+  const trackShowMoreFieldsClicked = useCallback<
+    NonNullable<FieldTrackingProps['trackShowMoreFieldsClicked']>
+  >(() => {
+    track('Document Show More Fields Clicked', {}, connectionInfoRef.current);
+  }, [track, connectionInfoRef]);
+
+  const trackDocumentUpdateCancelled = useCallback<
+    NonNullable<FieldTrackingProps['trackDocumentUpdateCancelled']>
+  >(
+    (mode) => {
+      track('Document Update Cancelled', { mode }, connectionInfoRef.current);
+    },
+    [track, connectionInfoRef]
+  );
 
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
@@ -517,6 +579,12 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               columnWidths={columnWidths}
               onColumnWidthChange={onColumnWidthChange}
               legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
+              trackFieldTypeChanged={trackFieldTypeChanged}
+              trackFieldEdited={trackFieldEdited}
+              trackFieldAdded={trackFieldAdded}
+              trackFieldRemoved={trackFieldRemoved}
+              trackShowMoreFieldsClicked={trackShowMoreFieldsClicked}
+              trackDocumentUpdateCancelled={trackDocumentUpdateCancelled}
             />
           );
         }
@@ -534,6 +602,12 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
       openImportFileDialog,
       props,
       outdated,
+      trackFieldTypeChanged,
+      trackFieldEdited,
+      trackFieldAdded,
+      trackFieldRemoved,
+      trackShowMoreFieldsClicked,
+      trackDocumentUpdateCancelled,
       query,
       scrollRef,
       currentViewInitialScrollTop,
@@ -639,6 +713,9 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             version={version}
             ns={ns}
             updateComment={updateComment}
+            trackFieldTypeChanged={trackFieldTypeChanged}
+            trackFieldAdded={trackFieldAdded}
+            trackFieldRemoved={trackFieldRemoved}
             {...insert}
           />
           <BulkUpdateModal

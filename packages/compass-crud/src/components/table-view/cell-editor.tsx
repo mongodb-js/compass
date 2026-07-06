@@ -29,6 +29,7 @@ import type { ICellEditorReactComp } from 'ag-grid-react';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
 import type { GridContext } from './document-table-view';
+import type { FieldTrackingProps } from '../field-tracking';
 
 /**
  * BEM BASE
@@ -78,7 +79,13 @@ export type CellEditorProps = Omit<ICellEditorParams, 'node' | 'context'> & {
   tz: string;
   darkMode?: boolean;
   legacyUUIDDisplayEncoding?: string;
-};
+} & Pick<
+    FieldTrackingProps,
+    | 'trackFieldTypeChanged'
+    | 'trackFieldEdited'
+    | 'trackFieldAdded'
+    | 'trackFieldRemoved'
+  >;
 
 type CellEditorState = {
   fieldName: string;
@@ -243,17 +250,22 @@ class CellEditor
         element.revert();
         return false;
       }
-    } else if (
-      !element.isAdded() &&
-      !element.isRemoved() &&
-      element.currentType !== this.oldType
-    ) {
-      /* Update the grid store since the element has changed type */
-      this.props.elementTypeChanged(
-        String(element.currentKey),
-        element.currentType,
-        id
-      );
+    } else if (!element.isAdded() && !element.isRemoved()) {
+      if (element.currentType !== this.oldType) {
+        /* Update the grid store since the element has changed type */
+        this.props.elementTypeChanged(
+          String(element.currentKey),
+          element.currentType,
+          id
+        );
+        this.props.trackFieldTypeChanged?.(
+          this.oldType as string,
+          element.currentType,
+          'table'
+        );
+      } else if (this.changed) {
+        this.props.trackFieldEdited?.(element.currentType, 'table');
+      }
     }
     if (!element.isRemoved() && element.isAdded()) {
       /* Update the grid store so we know what type this element is */
@@ -267,6 +279,10 @@ class CellEditor
         if somewhere internally they don't do that, will have outdated values.
         Docs: https://www.ag-grid.com/javascript-grid-column-definitions
        */
+      this.props.trackFieldAdded?.(
+        this.props.context.path.length === 0 ? 'top' : 'nested',
+        'table'
+      );
     }
     this.props.api.refreshCells({
       rowNodes: [this.props.node as RowNode],
@@ -317,6 +333,7 @@ class CellEditor
       } else {
         this.props.elementMarkRemoved(String(this.element.currentKey), oid);
       }
+      this.props.trackFieldRemoved?.('table');
       this.element.remove();
     }
     this.props.api.stopEditing();

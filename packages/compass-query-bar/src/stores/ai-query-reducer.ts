@@ -428,10 +428,11 @@ export const showInput = (): QueryBarThunkAction<Promise<void>> => {
 };
 
 export const hideInput = (): QueryBarThunkAction<void, HideInputAction> => {
-  return (dispatch) => {
+  return (dispatch, _getState, { track }) => {
     // Cancel any ongoing op when we hide.
     dispatch(cancelAIQuery());
     dispatch({ type: AIQueryActionTypes.HideInput });
+    track('AI Generate Query Closed', { type: 'query' });
   };
 };
 

@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
 import type {
   default as HadronDocumentType,
@@ -425,6 +431,11 @@ export const HadronElement: React.FunctionComponent<{
   extraGutterWidth?: number;
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
+  onFieldTypeChanged?: (fromType: string, toType: string) => void;
+  onFieldEdited?: (type: string) => void;
+  onFieldAdded?: (level: 'top' | 'nested') => void;
+  onFieldRemoved?: () => void;
+  onShowMoreFieldsClicked?: () => void;
 }> = ({
   value: element,
   editable,
@@ -435,9 +446,15 @@ export const HadronElement: React.FunctionComponent<{
   extraGutterWidth = 0,
   onUpdateQuery,
   query,
+  onFieldTypeChanged,
+  onFieldEdited,
+  onFieldAdded,
+  onFieldRemoved,
+  onShowMoreFieldsClicked,
 }) => {
   const darkMode = useDarkMode();
   const autoFocus = useAutoFocusContext();
+  const valueBeforeEditRef = useRef<string | undefined>(undefined);
 
   const {
     id,
@@ -593,9 +610,12 @@ export const HadronElement: React.FunctionComponent<{
 
   const handleVisibleElementsChanged = useCallback(
     (totalVisibleFields: number) => {
+      if (totalVisibleFields > element.maxVisibleElementsCount) {
+        onShowMoreFieldsClicked?.();
+      }
       element.setMaxVisibleElementsCount(totalVisibleFields);
     },
-    [element]
+    [element, onShowMoreFieldsClicked]
   );
 
   return (
@@ -612,7 +632,14 @@ export const HadronElement: React.FunctionComponent<{
             <div className={cx(actions, shouldShowActions && actionsVisible)}>
               <EditActions
                 onRevert={revert}
-                onRemove={remove}
+                onRemove={
+                  remove
+                    ? () => {
+                        onFieldRemoved?.();
+                        remove();
+                      }
+                    : remove
+                }
                 editing={editingEnabled}
               ></EditActions>
             </div>
@@ -649,6 +676,7 @@ export const HadronElement: React.FunctionComponent<{
                 onAddFieldAfterElement={() => {
                   const el = element.insertSiblingPlaceholder();
                   onAddElement(el);
+                  onFieldAdded?.(level === 0 ? 'top' : 'nested');
                 }}
                 onAddFieldToElement={
                   type.value === 'Object' || type.value === 'Array'
@@ -656,6 +684,7 @@ export const HadronElement: React.FunctionComponent<{
                         const el = element.insertPlaceholder();
                         onAddElement(el);
                         expand();
+                        onFieldAdded?.('nested');
                       }
                     : undefined
                 }
@@ -745,10 +774,14 @@ export const HadronElement: React.FunctionComponent<{
                 onEditStart?.(element.uuid, 'value');
               }}
               onFocus={() => {
+                valueBeforeEditRef.current = value.value;
                 value.startEdit();
               }}
               onBlur={() => {
                 value.completeEdit();
+                if (value.value !== valueBeforeEditRef.current) {
+                  onFieldEdited?.(type.value);
+                }
               }}
             ></ValueEditor>
           ) : (
@@ -783,6 +816,10 @@ export const HadronElement: React.FunctionComponent<{
               // eslint-disable-next-line jsx-a11y/no-autofocus
               autoFocus={autoFocus?.id === id && autoFocus?.type === 'type'}
               onChange={(newType) => {
+                if (!element.isAdded() && newType !== type.value) {
+                  onFieldTypeChanged?.(type.value, newType);
+                }
+
                 type.change(newType);
 
                 // When we change the type to an object or array we auto
@@ -810,6 +847,11 @@ export const HadronElement: React.FunctionComponent<{
                 extraGutterWidth={extraGutterWidth}
                 onUpdateQuery={onUpdateQuery}
                 query={query}
+                onFieldTypeChanged={onFieldTypeChanged}
+                onFieldEdited={onFieldEdited}
+                onFieldAdded={onFieldAdded}
+                onFieldRemoved={onFieldRemoved}
+                onShowMoreFieldsClicked={onShowMoreFieldsClicked}
               ></HadronElement>
             );
           })}

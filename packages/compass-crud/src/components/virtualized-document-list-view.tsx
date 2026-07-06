@@ -11,6 +11,7 @@ import {
 import { type BSONObject } from '../stores/crud-store';
 import type { DocumentProps } from './document';
 import { DocumentListViewItem } from './document-list-view-item';
+import type { FieldTrackingProps } from './field-tracking';
 
 const spacingStyles = css({
   padding: spacing[400],
@@ -58,7 +59,8 @@ type VirtualizedDocumentListViewProps = {
   | 'replaceDocument'
   | 'updateDocument'
   | 'openInsertDocumentDialog'
->;
+> &
+  FieldTrackingProps;
 
 const VirtualizedDocumentListView: React.FC<
   VirtualizedDocumentListViewProps
@@ -77,6 +79,12 @@ const VirtualizedDocumentListView: React.FC<
   listRef,
   __TEST_OVERSCAN_COUNT,
   __TEST_LIST_HEIGHT,
+  trackFieldTypeChanged,
+  trackFieldEdited,
+  trackFieldAdded,
+  trackFieldRemoved,
+  trackShowMoreFieldsClicked,
+  trackDocumentUpdateCancelled,
 }) => {
   const docs = useMemo(() => {
     return _docs.map((_doc) => {
@@ -108,6 +116,12 @@ const VirtualizedDocumentListView: React.FC<
           replaceDocument={replaceDocument}
           updateDocument={updateDocument}
           openInsertDocumentDialog={openInsertDocumentDialog}
+          trackFieldTypeChanged={trackFieldTypeChanged}
+          trackFieldEdited={trackFieldEdited}
+          trackFieldAdded={trackFieldAdded}
+          trackFieldRemoved={trackFieldRemoved}
+          trackShowMoreFieldsClicked={trackShowMoreFieldsClicked}
+          trackDocumentUpdateCancelled={trackDocumentUpdateCancelled}
         />
       );
     },
@@ -120,6 +134,12 @@ const VirtualizedDocumentListView: React.FC<
       removeDocument,
       replaceDocument,
       updateDocument,
+      trackFieldTypeChanged,
+      trackFieldEdited,
+      trackFieldAdded,
+      trackFieldRemoved,
+      trackShowMoreFieldsClicked,
+      trackDocumentUpdateCancelled,
     ]
   );
 

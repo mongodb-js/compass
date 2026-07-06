@@ -8,6 +8,7 @@ import {
   useChangeQueryBarQuery,
   useQueryBarQuery,
 } from '@mongodb-js/compass-query-bar';
+import type { FieldTrackingProps } from './field-tracking';
 
 export type DocumentListViewItemProps = {
   doc: HadronDocument;
@@ -23,7 +24,8 @@ export type DocumentListViewItemProps = {
   | 'replaceDocument'
   | 'updateDocument'
   | 'openInsertDocumentDialog'
->;
+> &
+  FieldTrackingProps;
 
 const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
   doc,
@@ -37,6 +39,12 @@ const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
   replaceDocument,
   updateDocument,
   openInsertDocumentDialog,
+  trackFieldTypeChanged,
+  trackFieldEdited,
+  trackFieldAdded,
+  trackFieldRemoved,
+  trackShowMoreFieldsClicked,
+  trackDocumentUpdateCancelled,
 }) => {
   const contextMenuRef = useDocumentItemContextMenu({
     doc,
@@ -75,6 +83,12 @@ const DocumentListViewItem: React.FC<DocumentListViewItemProps> = ({
         replaceDocument={replaceDocument}
         updateDocument={updateDocument}
         openInsertDocumentDialog={openInsertDocumentDialog}
+        trackFieldTypeChanged={trackFieldTypeChanged}
+        trackFieldEdited={trackFieldEdited}
+        trackFieldAdded={trackFieldAdded}
+        trackFieldRemoved={trackFieldRemoved}
+        trackShowMoreFieldsClicked={trackShowMoreFieldsClicked}
+        trackDocumentUpdateCancelled={trackDocumentUpdateCancelled}
       />
     </KeylineCard>
   );

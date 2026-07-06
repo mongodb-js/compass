@@ -478,10 +478,11 @@ export const hideInput = (): PipelineBuilderThunkAction<
   void,
   HideInputAction
 > => {
-  return (dispatch) => {
+  return (dispatch, _getState, { track }) => {
     // Cancel any ongoing op when we hide.
     dispatch(cancelAIPipelineGeneration());
     dispatch({ type: AIPipelineActionTypes.HideInput });
+    track('AI Generate Query Closed', { type: 'aggregation' });
   };
 };
 

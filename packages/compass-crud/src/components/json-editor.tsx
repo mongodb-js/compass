@@ -23,6 +23,8 @@ import {
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 const editorStyles = css({
   minHeight: spacing[800] + spacing[400],
@@ -72,6 +74,8 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   openInsertDocumentDialog,
 }) => {
   const darkMode = useDarkMode();
+  const track = useTelemetry();
+  const connectionInfoRef = useConnectionInfoRef();
   const editorRef = useRef<EditorRef>(null);
   const [expanded, setExpanded] = useState<boolean>(doc.expanded);
   const [editing, setEditing] = useState<boolean>(doc.editing);
@@ -123,11 +127,16 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   const onCancel = useCallback(() => {
     if (editing) {
       doc.finishEditing();
+      track(
+        'Document Update Cancelled',
+        { mode: 'json' },
+        connectionInfoRef.current
+      );
     } else if (deleting) {
       doc.finishDeletion();
     }
     setValue(doc.toEJSON());
-  }, [doc, editing, deleting]);
+  }, [doc, editing, deleting, track, connectionInfoRef]);
 
   const onEdit = useCallback(() => {
     doc.startEditing();

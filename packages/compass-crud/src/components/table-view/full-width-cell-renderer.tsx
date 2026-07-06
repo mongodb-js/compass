@@ -8,6 +8,7 @@ import type { CellEditorProps } from './cell-editor';
 import type { GridActions } from '../../stores/grid-store';
 import { DocumentEvents, type Element } from 'hadron-document';
 import type { BSONObject, CrudActions } from '../../stores/crud-store';
+import type { FieldTrackingProps } from '../field-tracking';
 
 export type FullWidthCellRendererProps = Pick<
   CellEditorProps,
@@ -20,6 +21,7 @@ export type FullWidthCellRendererProps = Pick<
   removeDocument: CrudActions['removeDocument'];
   updateDocument: CrudActions['updateDocument'];
   darkMode?: boolean;
+  trackDocumentUpdateCancelled?: FieldTrackingProps['trackDocumentUpdateCancelled'];
 };
 
 type FullWidthCellRendererState = {
@@ -111,6 +113,7 @@ class FullWidthCellRenderer extends React.Component<
     }
 
     this.doc.cancel();
+    this.props.trackDocumentUpdateCancelled?.('table');
     this.props.context.removeFooter(this.props.node);
 
     if (parent) {

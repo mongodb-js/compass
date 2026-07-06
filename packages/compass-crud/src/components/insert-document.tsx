@@ -1,6 +1,7 @@
 import React from 'react';
 import { css, DocumentList, spacing } from '@mongodb-js/compass-components';
 import type HadronDocumentType from 'hadron-document';
+import type { FieldTrackingProps } from './field-tracking';
 
 const insertDocumentStyles = css({
   // We give it a good amount of spacing for dropdown menus.
@@ -11,12 +12,29 @@ const insertDocumentStyles = css({
 
 type InsertDocumentProps = {
   doc: HadronDocumentType;
-};
+} & Pick<
+  FieldTrackingProps,
+  'trackFieldTypeChanged' | 'trackFieldAdded' | 'trackFieldRemoved'
+>;
 
-function InsertDocument({ doc }: InsertDocumentProps) {
+function InsertDocument({
+  doc,
+  trackFieldTypeChanged,
+  trackFieldAdded,
+  trackFieldRemoved,
+}: InsertDocumentProps) {
   return (
     <div className={insertDocumentStyles} data-testid="insert-document-modal">
-      <DocumentList.Document value={doc} editable editing />
+      <DocumentList.Document
+        value={doc}
+        editable
+        editing
+        onFieldTypeChanged={(fromType, toType) =>
+          trackFieldTypeChanged?.(fromType, toType, 'insert')
+        }
+        onFieldAdded={(level) => trackFieldAdded?.(level, 'insert')}
+        onFieldRemoved={() => trackFieldRemoved?.('insert')}
+      />
     </div>
   );
 }

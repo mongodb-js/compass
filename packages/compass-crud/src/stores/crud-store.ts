@@ -961,6 +961,11 @@ class CrudStoreImpl
    * Closing the insert document dialog just resets the state to the default.
    */
   closeInsertDocumentDialog() {
+    this.track(
+      'Document Insert Cancelled',
+      { mode: this.state.insert.jsonView ? 'json' : 'field-by-field' },
+      this.connectionInfoRef.current
+    );
     this.setState({
       insert: this.getInitialInsertState(),
     });
@@ -1564,6 +1569,13 @@ class CrudStoreImpl
    * @param {String} view - The new view.
    */
   viewChanged(view: CrudState['view']) {
+    if (view !== this.state.view) {
+      this.track(
+        'Document View Changed',
+        { view: view.toLowerCase() as Lowercase<DocumentView> },
+        this.connectionInfoRef.current
+      );
+    }
     this.setState({ view: view });
   }
 
