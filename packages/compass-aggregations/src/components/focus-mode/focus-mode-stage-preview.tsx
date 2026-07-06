@@ -98,6 +98,7 @@ type FocusModePreviewProps = {
   searchIndexName?: string | null;
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
+  onCloseFocusMode?: () => void;
   emptyStateAction?: React.ReactNode;
 };
 
@@ -220,31 +221,28 @@ export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
   return <FocusModePreview {...props} title="Stage Input" />;
 };
 
-export const OutputPreview = ({
-  onCloseFocusMode,
-  ...props
-}: Omit<FocusModePreviewProps, 'title'> & {
-  onCloseFocusMode?: () => void;
-}) => {
+export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
+  const { onCloseFocusMode, stageOperator, searchIndexName, stageValue } =
+    props;
   const { diagnoseSearchStage } = useAssistantActions();
   const showDiagnoseSearchStage = useShouldShowSearchStageDiagnose(
-    props.stageOperator,
+    stageOperator,
     props.documents
   );
 
   const handleDiagnoseSearchStage = useCallback(() => {
     onCloseFocusMode?.();
     diagnoseSearchStage?.({
-      stageOperator: props.stageOperator ?? '',
-      indexName: props.searchIndexName ?? null,
-      stageValue: props.stageValue ?? '',
+      stageOperator: stageOperator ?? '',
+      indexName: searchIndexName ?? null,
+      stageValue: stageValue ?? '',
     });
   }, [
     onCloseFocusMode,
     diagnoseSearchStage,
-    props.stageOperator,
-    props.searchIndexName,
-    props.stageValue,
+    stageOperator,
+    searchIndexName,
+    stageValue,
   ]);
 
   return (
