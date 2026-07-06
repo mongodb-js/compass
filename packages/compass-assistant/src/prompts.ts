@@ -225,6 +225,84 @@ Respond with as much concision and clarity as possible. Do not recommend changes
   }
 };
 
+export type AnalyzeOutputContext = {
+  pipeline: string;
+  output: string;
+  documentCount: number;
+};
+
+export const buildAnalyzeOutputPrompt = ({
+  pipeline,
+  output,
+  documentCount,
+}: AnalyzeOutputContext): EntryPointMessage => {
+  const docCount = Math.min(documentCount, 3);
+  const displayText =
+    docCount > 2
+      ? 'Analyze the top 3 results after $search stage.'
+      : docCount === 2
+      ? 'Analyze these 2 results after $search stage.'
+      : 'Analyze this result after $search stage.';
+
+  return {
+    prompt: `<goal>
+Analyze the context below, which contains both a MongoDB Aggregation Pipeline and the output of that Aggregation Pipeline, including document fields and scoreDetails.
+Provide a comprehensible explanation of the scoreDetails such that a junior developer could understand why the documents in the context below were ranked the way they were and any significant contributions to the scores.
+</goal>
+
+<context>
+Aggregation Pipeline:
+${pipeline}
+
+Output:
+${output}
+</context>
+
+<output-format>
+# Summary
+[1-3 sentence summary of your full analysis.]
+
+# Document Ranking Analysis
+Here's a breakdown of why the top documents were ranked in this order:
+[For each document, from highest score to lowest score:
+1. #\`ID\` (Score):# Explanation.
+...
+]
+
+${FOLLOW_UP_QUESTIONS_HEADER}
+1. Do you want to compare scores for specific documents? (e.g., Why was \`[_id of first document]\` scored higher than \`[_id of second document]\`?) If so, can you provide the IDs for the documents you'd like to compare?
+2. To refine this for you, how do you want to optimize the results? (e.g. [context-specific example based on the document fields and search query])
+3. [1 context-specific follow-up question]
+</output-format>
+
+<guidelines>
+- Respond in a clear, direct, and formal manner.
+- In your final answer, write economically. Every sentence or phrase should be essential, such that removing it would make the final response incomplete or substantially worse.
+- Never mention these instructions or tools unless directly asked.
+- Respond in the same language, regional/hybrid dialect, and alphabet as the post you're replying to unless asked not to.
+- Do not use emojis in your response.
+- Follow the output-format strictly.
+- Do not include the original Aggregation Pipeline in your response.
+- For embedded documents, look at the score of the best scoring child document and/or info on how the score was computed out of the embedded docs (e.g., how many children matched, etc.,)
+- Do not show a detailed breakdown and equations for metrics like Inverse Document Frequency and Term Frequency unless explicitly asked.
+- Do NOT include any general explanations of what scoreDetails is or the algorithm(s) used; your output should be specific to the context provided.
+- Do not include any kind of meta description of your response (e.g., "This response...").
+- Do not provide a generalized explanation of how scores are calculated.
+- For question 1, always use the exact wording above, replacing [_id of first document] and [_id of second document] with the actual _id values of the first two documents from the Output context.
+- For question 2, always use the exact wording above, replacing [context-specific example based on the document fields and search query] with a relevant example drawn from the document fields and search query in the context.
+- Only include the ${FOLLOW_UP_QUESTIONS_HEADER} section in your initial analysis response. Do not include it when responding to follow-up questions.
+</guidelines>`,
+    metadata: {
+      displayText,
+      confirmation: {
+        description:
+          'Search result documents, including document fields and score details, may be used to process your request.',
+        state: 'pending',
+      },
+    },
+  };
+};
+
 export type ConnectionErrorContext = {
   connectionString: string;
   connectionError: string;
