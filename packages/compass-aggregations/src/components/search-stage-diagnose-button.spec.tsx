@@ -7,7 +7,6 @@ import {
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { SearchStageDiagnoseButton } from './search-stage-diagnose-button';
-import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 
 const CONNECTION: ConnectionInfo = {
@@ -15,34 +14,17 @@ const CONNECTION: ConnectionInfo = {
   connectionOptions: { connectionString: 'mongodb://localhost:27017' },
 };
 
-const AI_PREFERENCES = {
-  enableAIAssistant: true,
-  enableGenAIFeatures: true,
-  enableGenAIFeaturesAtlasOrg: true,
-  cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-};
-
 function renderButton(
-  props: Partial<React.ComponentProps<typeof SearchStageDiagnoseButton>> = {},
-  {
-    diagnoseSearchStage = sinon.stub(),
-  }: { diagnoseSearchStage?: sinon.SinonStub } = {}
+  props: Partial<React.ComponentProps<typeof SearchStageDiagnoseButton>> = {}
 ) {
-  const element = (
-    <AssistantActionsContext.Provider value={{ diagnoseSearchStage }}>
-      <SearchStageDiagnoseButton
-        stageOperator="$search"
-        stageValue={'{ "index": "default" }'}
-        searchIndexName="default"
-        data-testid="diagnose-button"
-        {...props}
-      />
-    </AssistantActionsContext.Provider>
+  return renderWithActiveConnection(
+    <SearchStageDiagnoseButton
+      onClick={() => {}}
+      data-testid="diagnose-button"
+      {...props}
+    />,
+    CONNECTION
   );
-
-  return renderWithActiveConnection(element, CONNECTION, {
-    preferences: AI_PREFERENCES,
-  });
 }
 
 describe('SearchStageDiagnoseButton', function () {
@@ -51,28 +33,10 @@ describe('SearchStageDiagnoseButton', function () {
     expect(screen.getByTestId('diagnose-button')).to.exist;
   });
 
-  it('calls diagnoseSearchStage with the stage context on click', async function () {
-    const diagnoseSearchStage = sinon.stub();
-    await renderButton(
-      {
-        stageOperator: '$search',
-        stageValue: '{ "index": "movies" }',
-        searchIndexName: 'movies',
-      },
-      { diagnoseSearchStage }
-    );
+  it('calls onClick when clicked', async function () {
+    const onClick = sinon.stub();
+    await renderButton({ onClick });
     userEvent.click(screen.getByTestId('diagnose-button'));
-    expect(diagnoseSearchStage).to.have.been.calledOnceWith({
-      stageOperator: '$search',
-      indexName: 'movies',
-      stageValue: '{ "index": "movies" }',
-    });
-  });
-
-  it('closes focus mode before diagnosing when onCloseFocusMode is provided', async function () {
-    const onCloseFocusMode = sinon.stub();
-    await renderButton({ onCloseFocusMode });
-    userEvent.click(screen.getByTestId('diagnose-button'));
-    expect(onCloseFocusMode).to.have.been.calledOnce;
+    expect(onClick).to.have.been.calledOnce;
   });
 });

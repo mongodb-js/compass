@@ -34,6 +34,7 @@ import {
   SearchStageDiagnoseButton,
   useShouldShowSearchStageDiagnose,
 } from '../search-stage-diagnose-button';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
 const containerStyles = css({
   display: 'flex',
@@ -97,7 +98,6 @@ type FocusModePreviewProps = {
   searchIndexName?: string | null;
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
-  onCloseFocusMode?: () => void;
   emptyStateAction?: React.ReactNode;
 };
 
@@ -220,11 +220,32 @@ export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
   return <FocusModePreview {...props} title="Stage Input" />;
 };
 
-export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
+export const OutputPreview = ({
+  onCloseFocusMode,
+  ...props
+}: Omit<FocusModePreviewProps, 'title'> & {
+  onCloseFocusMode?: () => void;
+}) => {
+  const { diagnoseSearchStage } = useAssistantActions();
   const showDiagnoseSearchStage = useShouldShowSearchStageDiagnose(
     props.stageOperator,
     props.documents
   );
+
+  const handleDiagnoseSearchStage = useCallback(() => {
+    onCloseFocusMode?.();
+    diagnoseSearchStage?.({
+      stageOperator: props.stageOperator ?? '',
+      indexName: props.searchIndexName ?? null,
+      stageValue: props.stageValue ?? '',
+    });
+  }, [
+    onCloseFocusMode,
+    diagnoseSearchStage,
+    props.stageOperator,
+    props.searchIndexName,
+    props.stageValue,
+  ]);
 
   return (
     <FocusModePreview
@@ -233,11 +254,8 @@ export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
       emptyStateAction={
         showDiagnoseSearchStage ? (
           <SearchStageDiagnoseButton
-            stageOperator={props.stageOperator ?? null}
-            stageValue={props.stageValue ?? null}
-            searchIndexName={props.searchIndexName ?? null}
+            onClick={handleDiagnoseSearchStage}
             data-testid="focus-mode-diagnose-search-button"
-            onCloseFocusMode={props.onCloseFocusMode}
           />
         ) : undefined
       }

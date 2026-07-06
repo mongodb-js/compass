@@ -210,7 +210,7 @@ function StagePreviewBody({
 }: StagePreviewProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
-  const { interpretAnalyzeOutput } = useAssistantActions();
+  const { interpretAnalyzeOutput, diagnoseSearchStage } = useAssistantActions();
   const darkMode = useDarkMode();
 
   const handleAnalyzeOutput = useCallback(() => {
@@ -236,6 +236,14 @@ function StagePreviewBody({
       documentCount: (documents ?? []).length,
     });
   }, [interpretAnalyzeOutput, documents, stageMetadata, pipeline]);
+
+  const handleDiagnoseSearchStage = useCallback(() => {
+    diagnoseSearchStage?.({
+      stageOperator: stageOperator ?? '',
+      indexName: searchIndexName,
+      stageValue: stageValue ?? '',
+    });
+  }, [diagnoseSearchStage, stageOperator, searchIndexName, stageValue]);
 
   const isNoResultsSearchStage = useShouldShowSearchStageDiagnose(
     stageOperator,
@@ -362,9 +370,7 @@ function StagePreviewBody({
     <NoPreviewDocuments>
       {isNoResultsSearchStage && (
         <SearchStageDiagnoseButton
-          stageOperator={stageOperator}
-          stageValue={stageValue ?? null}
-          searchIndexName={searchIndexName}
+          onClick={handleDiagnoseSearchStage}
           data-testid="stage-preview-diagnose-search-button"
         />
       )}
