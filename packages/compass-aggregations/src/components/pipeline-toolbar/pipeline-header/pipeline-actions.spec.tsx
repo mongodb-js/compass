@@ -251,6 +251,59 @@ describe('PipelineActions', function () {
     });
   });
 
+  describe('interpret dropdown item', function () {
+    function renderWithInterpretProps(
+      overrides: Partial<React.ComponentProps<typeof PipelineActions>> = {}
+    ) {
+      return renderPipelineActions(
+        {
+          isOptionsVisible: true,
+          showAIEntry: false,
+          showRunButton: true,
+          showExplainButton: true,
+          onRunAggregation: () => {},
+          onToggleOptions: () => {},
+          isExplainButtonDisabled: false,
+          onExplainAggregation: () => {},
+          onUpdateView: () => {},
+          onCollectionScanInsightActionButtonClick: () => {},
+          onShowAIInputClick: () => {},
+          stages: [],
+          ...overrides,
+        },
+        { preferences: { enableSearchActivationProgramP2: true } }
+      );
+    }
+
+    async function openDropdown() {
+      userEvent.click(
+        screen.getByTestId(
+          'pipeline-toolbar-explain-aggregation-dropdown-button-show-actions'
+        )
+      );
+      return screen.findByTestId(
+        'pipeline-toolbar-explain-aggregation-dropdown-button-interpret-action'
+      );
+    }
+
+    it('shows a spinner and disables Interpret when isInterpretLoading is true', async function () {
+      renderWithInterpretProps({ isInterpretLoading: true });
+      const item = await openDropdown();
+      expect(item.getAttribute('aria-disabled')).to.equal('true');
+      expect(screen.getByTitle('Loading interpret')).to.exist;
+    });
+
+    it('disables Interpret with description when pipeline has a $search stage', async function () {
+      renderWithInterpretProps({ stages: ['$search'] });
+      const item = await openDropdown();
+      expect(item.getAttribute('aria-disabled')).to.equal('true');
+      // Both Interpret and Visual Tree show this description for $search
+      expect(
+        screen.getAllByText('Not supported for this query').length
+      ).to.be.at.least(1);
+    });
+  });
+
   describe('with store', function () {
     let preferences: PreferencesAccess;
 

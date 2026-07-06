@@ -1534,7 +1534,8 @@ type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
       | 'explain plan'
       | 'performance insights'
       | 'connection error'
-      | 'follow-up prompt';
+      | 'follow-up prompt'
+      | 'analyze output';
     request_id?: string;
   };
 }>;

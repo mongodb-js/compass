@@ -7,6 +7,10 @@ import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
+import {
+  interpretExplainStarted,
+  interpretExplainFinished,
+} from '../modules/explain';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { generateAggregationFromQuery } from '../modules/pipeline-builder/pipeline-ai';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
@@ -207,6 +211,14 @@ export function activateAggregationsPlugin(
 
   on(localAppRegistry, 'generate-aggregation-from-query', (data) => {
     store.dispatch(generateAggregationFromQuery(data));
+  });
+
+  on(localAppRegistry, 'explain-plan-interpret-started', () => {
+    store.dispatch(interpretExplainStarted());
+  });
+
+  on(localAppRegistry, 'explain-plan-interpret-finished', () => {
+    store.dispatch(interpretExplainFinished());
   });
 
   /**
