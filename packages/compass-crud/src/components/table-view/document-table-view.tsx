@@ -20,7 +20,6 @@ import { cx, spacing, withDarkMode } from '@mongodb-js/compass-components';
 import type { BSONObject, TableState } from '../../stores/crud-store';
 import type {
   GridActions,
-  GridStore,
   GridStoreTriggerParams,
   TableHeaderType,
 } from '../../stores/grid-store';
@@ -96,7 +95,7 @@ export type GridContext = {
  */
 export class DocumentTableView extends React.Component<DocumentTableViewProps> {
   static contextType = GridStoreContext;
-  declare context: GridStore | null;
+  declare context: React.ContextType<typeof GridStoreContext>;
   AGGrid: React.ReactElement;
   collection: string;
   topLevel: boolean;
@@ -166,7 +165,12 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
   }
 
   componentDidMount() {
-    this.unsubscribeGridStore = this.context?.listen(this.modifyColumns, this);
+    if (!this.context) {
+      throw new Error(
+        'GridStoreContext is missing — make sure the component is rendered inside the CompassDocuments plugin.'
+      );
+    }
+    this.unsubscribeGridStore = this.context.listen(this.modifyColumns, this);
   }
 
   componentWillUnmount() {

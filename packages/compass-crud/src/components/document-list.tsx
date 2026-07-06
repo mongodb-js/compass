@@ -643,8 +643,7 @@ export default connect(
     replaceDocument,
     pathChanged,
     viewChanged,
-    openImportFileDialog: (_origin: 'empty-state' | 'crud-toolbar') =>
-      openImportFileDialog(),
+    openImportFileDialog,
     openExportFileDialog,
     openCreateIndexModal,
     openCreateSearchIndexModal,

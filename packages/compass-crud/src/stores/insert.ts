@@ -129,11 +129,10 @@ export const insertReducer: Reducer<InsertState> = (
   }
   if (isAction(action, InsertActionTypes.TOGGLE_INSERT_DOCUMENT)) {
     if (action.view === 'JSON') {
-      const jsonDoc = state.doc?.toEJSON();
       return {
         doc: state.doc,
         jsonView: true,
-        jsonDoc: jsonDoc ?? null,
+        jsonDoc: state.doc?.toEJSON() ?? null,
         error: undefined,
         csfleState: state.csfleState,
         mode: MODIFYING,

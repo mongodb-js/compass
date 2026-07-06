@@ -1105,11 +1105,13 @@ export function openCreateSearchIndexModal(): CrudThunkAction<void, never> {
   };
 }
 
-export function openImportFileDialog(): CrudThunkAction<void, never> {
+export function openImportFileDialog(
+  origin: 'empty-state' | 'crud-toolbar'
+): CrudThunkAction<void, never> {
   return (dispatch, getState, { connectionScopedAppRegistry }) => {
     connectionScopedAppRegistry.emit('open-import', {
       namespace: getState().documents.ns,
-      origin: 'empty-state',
+      origin: origin,
     });
   };
 }
