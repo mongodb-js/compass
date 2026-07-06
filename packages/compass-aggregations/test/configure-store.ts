@@ -49,7 +49,8 @@ export function wrapWithExperimentProvider(
       }),
       useTrackInSample: () => noopAsyncResult,
       assignExperiment: () => Promise.resolve(null),
-      getAssignment: () => Promise.resolve(null),
+      getAssignment: () =>
+        Promise.resolve(variant ? { assignmentData: { variant } } : null),
     } as any,
     ui
   );

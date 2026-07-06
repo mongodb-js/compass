@@ -110,14 +110,12 @@ type TestConnectionsOptions = {
   connectionStorage?: ConnectionStorage;
   /**
    * Simulates the entity being assigned to a given experiment variant (or
-   * `null` for not being in any variant, the default). Affects
-   * `useAssignment`/`useSearchActivation*` and any `experimentationServices`
-   * consumers.
+   * `null` for not being in any variant, the default).
    */
   experimentAssignment?: ExperimentTestGroup | null;
   /**
-   * Simulates the experiment assignment still being in flight (asyncStatus
-   * not yet resolved). `false` by default.
+   * Simulates the experiment assignment still being in flight. `false` by
+   * default.
    */
   experimentAssignmentLoading?: boolean;
 } & Partial<
@@ -398,7 +396,12 @@ function createWrapper(
           },
     useTrackInSample: () => noopAsyncResult,
     assignExperiment: () => Promise.resolve(null),
-    getAssignment: () => Promise.resolve(null),
+    getAssignment: () =>
+      Promise.resolve(
+        experimentAssignment
+          ? { assignmentData: { variant: experimentAssignment } }
+          : null
+      ),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any;
   const _CompassComponentsProvider = skipUIWrappers
