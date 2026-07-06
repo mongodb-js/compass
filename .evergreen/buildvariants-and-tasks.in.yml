@@ -334,7 +334,9 @@ buildvariants:
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
     run_on: ubuntu2204-large
     tasks:
-      - name: test-web-sandbox-atlas-cloud
+    <% for(const group of E2E_TEST_GROUPS) { %>
+    - name: test-web-sandbox-atlas-cloud-<%= group.number %>
+    <% } %>
 
   - name: test-web-sandbox-atlas-cloud-geo-sharded
     display_name: Test Web Sandbox Geo Sharded (w/ Atlas Cloud login)
@@ -610,7 +612,8 @@ tasks:
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
 
-  - name: test-web-sandbox-atlas-cloud
+<% for(const group of E2E_TEST_GROUPS) { %>
+  - name: test-web-sandbox-atlas-cloud-<%= group.number %>
     tags:
       - required-for-publish-web
       - assigned_to_jira_team_compass_compass
@@ -622,8 +625,11 @@ tasks:
       - func: test-web-sandbox-atlas-cloud
         vars:
           compass_distribution: compass
+          e2e_test_groups: <%= E2E_TEST_GROUPS.length %>
+          e2e_test_group: <%= group.number %>
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
           atlas_cloud_test_args: '--test-filter="!atlas-cloud/dedicated-cluster/**/*"'
+<% } %>
 
   # We run the global writes and rolling indexes tests separately from test-web-sandbox-atlas-cloud
   # as they require a GeoSharded cluster which is expensive to provision (M30+)
