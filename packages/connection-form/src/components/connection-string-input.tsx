@@ -61,10 +61,14 @@ const connectionStringLabelId = 'connectionStringLabel';
 export function hidePasswordInConnectionString(
   connectionString: string
 ): string {
-  return redactConnectionString(connectionString, {
-    redactUsernames: false,
-    replacementString: '*****',
-  });
+  try {
+    return redactConnectionString(connectionString, {
+      redactUsernames: false,
+      replacementString: '*****',
+    });
+  } catch {
+    return connectionString;
+  }
 }
 
 function ConnectionStringInput({

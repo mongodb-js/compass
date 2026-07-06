@@ -34,12 +34,18 @@ export function resetForTesting(): void {
 async function hasUserConfirmedConnectionAttempt(
   connectionString: string
 ): Promise<boolean> {
+  let redactedConnectionString;
+  try {
+    redactedConnectionString = redactConnectionString(connectionString);
+  } catch {
+    redactedConnectionString = '<invalid connection string>';
+  }
   log.info(
     mongoLogId(1_001_000_292),
     'validation',
     'Asking for confirmation on whether to automatically connect with connection string',
     {
-      connectionString: redactConnectionString(connectionString),
+      connectionString: redactedConnectionString,
     }
   );
   const answer = await dialog.showMessageBox({
@@ -57,7 +63,7 @@ async function hasUserConfirmedConnectionAttempt(
     'validation',
     'Received confirmation on whether to automatically connect with connection string',
     {
-      connectionString: redactConnectionString(connectionString),
+      connectionString: redactedConnectionString,
       positive,
     }
   );

@@ -236,11 +236,18 @@ export function hasDisallowedConnectionStringOptions(
     return false;
   }
 
+  let redactedConnectionString: string;
+  try {
+    redactedConnectionString = redactConnectionString(connectionString);
+  } catch {
+    redactedConnectionString = '<invalid connection string>';
+  }
+
   log.warn(
     mongoLogId(1_001_000_291),
     'ValidateConnectionStringUtil',
     'Connection string contains disallowed options',
-    { options, connectionString: redactConnectionString(connectionString) }
+    { options, connectionString: redactedConnectionString }
   );
   return true;
 }
