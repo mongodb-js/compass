@@ -23,8 +23,10 @@ import {
   buildContextPrompt,
   buildExplainPlanPrompt,
   buildProactiveInsightsPrompt,
+  buildAnalyzeOutputPrompt,
   type EntryPointMessage,
   type ProactiveInsightsContext,
+  type AnalyzeOutputContext,
 } from './prompts';
 import {
   type PreferencesAccess,
@@ -105,7 +107,8 @@ export type AssistantMessage = UIMessage & {
       | 'explain plan'
       | 'performance insights'
       | 'connection error'
-      | 'follow-up prompt';
+      | 'follow-up prompt'
+      | 'analyze output';
     /** Information for confirmation messages. */
     confirmation?: {
       description: string;
@@ -169,6 +172,7 @@ type AssistantActionsContextType = {
     error: Error;
   }) => void;
   tellMoreAboutInsight?: (context: ProactiveInsightsContext) => void;
+  interpretAnalyzeOutput?: (context: AnalyzeOutputContext) => void;
   ensureOptInAndSend?: (
     message: SendMessage,
     options: SendOptions,
@@ -191,6 +195,7 @@ export const AssistantActionsContext =
     interpretExplainPlan: () => {},
     interpretConnectionError: () => {},
     tellMoreAboutInsight: () => {},
+    interpretAnalyzeOutput: () => {},
     ensureOptInAndSend: async () => {},
   });
 
@@ -209,12 +214,14 @@ export function useAssistantActions(): AssistantActionsType {
     interpretExplainPlan,
     interpretConnectionError,
     tellMoreAboutInsight,
+    interpretAnalyzeOutput,
   } = actions;
 
   return {
     interpretExplainPlan,
     interpretConnectionError,
     tellMoreAboutInsight,
+    interpretAnalyzeOutput,
     getIsAssistantEnabled: () => true,
   };
 }
@@ -483,7 +490,11 @@ export function ensureOptInAndSendThunk(
 
 // Thunk action for entry point handlers
 function handleEntryPoint<T>(
-  entryPointName: 'explain plan' | 'performance insights' | 'connection error',
+  entryPointName:
+    | 'explain plan'
+    | 'performance insights'
+    | 'connection error'
+    | 'analyze output',
   builder: (props: T) => EntryPointMessage,
   props: T,
   globalState: GlobalState,
@@ -564,6 +575,20 @@ function tellMoreAboutInsightThunk(
   return handleEntryPoint(
     'performance insights',
     buildProactiveInsightsPrompt,
+    props,
+    globalState,
+    openDrawer
+  );
+}
+
+function interpretAnalyzeOutputThunk(
+  props: AnalyzeOutputContext,
+  globalState: GlobalState,
+  openDrawer: (id: string) => void
+): AssistantThunkAction<void> {
+  return handleEntryPoint(
+    'analyze output',
+    buildAnalyzeOutputPrompt,
     props,
     globalState,
     openDrawer
@@ -672,6 +697,11 @@ const AssistantProviderInner: React.FunctionComponent<
       globalState: GlobalState,
       openDrawer: (id: string) => void
     ) => void;
+    interpretAnalyzeOutput: (
+      props: AnalyzeOutputContext,
+      globalState: GlobalState,
+      openDrawer: (id: string) => void
+    ) => void;
   }>
 > = ({
   projectId,
@@ -680,6 +710,7 @@ const AssistantProviderInner: React.FunctionComponent<
   interpretExplainPlan,
   interpretConnectionError,
   tellMoreAboutInsight,
+  interpretAnalyzeOutput,
   children,
 }) => {
   // chat is stable — created once in activate, never changes
@@ -706,6 +737,13 @@ const AssistantProviderInner: React.FunctionComponent<
     },
     tellMoreAboutInsight: (props) => {
       tellMoreAboutInsight(
+        props,
+        assistantGlobalStateRef.current,
+        openDrawerRef.current
+      );
+    },
+    interpretAnalyzeOutput: (props) => {
+      interpretAnalyzeOutput(
         props,
         assistantGlobalStateRef.current,
         openDrawerRef.current
@@ -738,6 +776,7 @@ const ConnectedAssistantProvider = connect(null, {
   interpretExplainPlan: interpretExplainPlanThunk,
   interpretConnectionError: interpretConnectionErrorThunk,
   tellMoreAboutInsight: tellMoreAboutInsightThunk,
+  interpretAnalyzeOutput: interpretAnalyzeOutputThunk,
 })(AssistantProviderInner);
 
 export const CompassAssistantProvider = registerCompassPlugin(
