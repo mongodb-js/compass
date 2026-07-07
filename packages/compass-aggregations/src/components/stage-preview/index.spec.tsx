@@ -21,6 +21,7 @@ import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 import { StagePreview } from './';
 import {
@@ -31,20 +32,31 @@ import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
-const renderStagePreview = (
+const AI_ASSISTANT_PREFERENCES = {
+  enableAIAssistant: true,
+  enableGenAIFeatures: true,
+  enableGenAIFeaturesAtlasOrg: true,
+  cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
+};
+
+const renderStagePreview = async (
   props: Partial<ComponentProps<typeof StagePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
     enableSearchActivationP1Experiment = false,
     enableSearchActivationP2Experiment = false,
+    enableAIAssistant = false,
     preferences,
     interpretAnalyzeOutput,
+    diagnoseSearchStage,
   }: {
     enableSearchActivationP1Experiment?: boolean;
     enableSearchActivationP2Experiment?: boolean;
+    enableAIAssistant?: boolean;
     preferences?: PreferencesAccess;
     interpretAnalyzeOutput?: Sinon.SinonSpy;
+    diagnoseSearchStage?: Sinon.SinonSpy;
   } = {}
 ) => {
   let ui: React.ReactElement = (
@@ -64,9 +76,16 @@ const renderStagePreview = (
       {...props}
     />
   );
-  if (interpretAnalyzeOutput) {
+  if (enableAIAssistant) {
+    const aiPreferences = await createSandboxFromDefaultPreferences();
+    await aiPreferences.savePreferences(AI_ASSISTANT_PREFERENCES);
+    ui = <PreferencesProvider value={aiPreferences}>{ui}</PreferencesProvider>;
+  }
+  if (interpretAnalyzeOutput || diagnoseSearchStage) {
     ui = (
-      <AssistantActionsContext.Provider value={{ interpretAnalyzeOutput }}>
+      <AssistantActionsContext.Provider
+        value={{ interpretAnalyzeOutput, diagnoseSearchStage }}
+      >
         {ui}
       </AssistantActionsContext.Provider>
     );
@@ -165,6 +184,106 @@ describe('StagePreview', function () {
       documents: [],
     });
     expect(screen.getByText('No preview documents')).to.exist;
+    expect(
+      screen.getByText(
+        'This may be because your search has no results or your search index does not exist.'
+      )
+    ).to.exist;
+  });
+  it('renders diagnose button for $search with no results when in search activation p2', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      {
+        enableSearchActivationP2Experiment: true,
+        enableAIAssistant: true,
+      }
+    );
+    expect(screen.getByTestId('stage-preview-empty')).to.exist;
+    expect(screen.getByTestId('stage-preview-diagnose-search-button')).to.exist;
+  });
+  it('calls diagnoseSearchStage with the stage context when the diagnose button is clicked', async function () {
+    const diagnoseSearchStageSpy = Sinon.spy();
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+        stageValue: '{ "index": "movies" }',
+        searchIndexName: 'movies',
+      },
+      DEFAULT_PIPELINE,
+      {},
+      {
+        enableSearchActivationP2Experiment: true,
+        enableAIAssistant: true,
+        diagnoseSearchStage: diagnoseSearchStageSpy,
+      }
+    );
+    userEvent.click(screen.getByTestId('stage-preview-diagnose-search-button'));
+    expect(diagnoseSearchStageSpy).to.have.been.calledOnceWith({
+      stageOperator: '$search',
+      indexName: 'movies',
+      stageValue: '{ "index": "movies" }',
+    });
+  });
+  it('does not render diagnose button when not in search activation p2', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      { enableAIAssistant: true }
+    );
+    expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
+      .exist;
+  });
+  it('does not render diagnose button when the assistant is disabled', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      { enableSearchActivationP2Experiment: true }
+    );
+    expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
+      .exist;
+    // Falls back to the search-specific no-results messaging rather than the
+    // generic "No preview documents".
+    expect(
+      screen.getByText(
+        'This may be because your search has no results or your search index does not exist.'
+      )
+    ).to.exist;
+  });
+  it('does not render diagnose button for $vectorSearch even when in search activation p2', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$vectorSearch',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      {
+        enableSearchActivationP2Experiment: true,
+        enableAIAssistant: true,
+      }
+    );
+    expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
+      .exist;
+    // Non-$search search stages keep the SearchNoResults messaging under P2.
     expect(
       screen.getByText(
         'This may be because your search has no results or your search index does not exist.'

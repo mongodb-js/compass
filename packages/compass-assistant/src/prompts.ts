@@ -339,6 +339,37 @@ ${connectionError}`,
   };
 };
 
+export type DiagnoseSearchStageContext = {
+  stageOperator: string;
+  indexName: string | null;
+  stageValue: string;
+};
+
+export const buildDiagnoseSearchStagePrompt = ({
+  stageOperator,
+  indexName,
+  stageValue,
+}: DiagnoseSearchStageContext): EntryPointMessage => {
+  const indexClause = indexName ? ` with index "${indexName}"` : '';
+  return {
+    prompt: `The user's ${stageOperator} stage${indexClause} returned no results.
+
+<input>
+${stageValue}
+</input>
+
+If tools are available, use the \`get-current-pipeline\` tool to inspect the full pipeline and the \`collection-indexes\` tool to check what search indexes exist on this collection.
+
+Respond with two sections:
+**Diagnosis:** explain concisely why the ${stageOperator} stage returned no results.
+**Solution:** provide the specific actionable steps to fix it.`,
+    metadata: {
+      displayText:
+        'Diagnose why my aggregation pipeline is not returning results.',
+    },
+  };
+};
+
 export function buildContextPrompt({
   activeWorkspace,
   activeConnection,

@@ -1530,7 +1530,8 @@ type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
       | 'performance insights'
       | 'connection error'
       | 'follow-up prompt'
-      | 'analyze output';
+      | 'analyze output'
+      | 'search stage diagnose';
     request_id?: string;
   };
 }>;

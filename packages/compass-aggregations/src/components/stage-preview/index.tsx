@@ -41,6 +41,10 @@ import {
   useSearchActivationProgramP2,
 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
+import {
+  SearchStageDiagnoseButton,
+  useShouldShowSearchStageDiagnose,
+} from '../search-stage-diagnose-button';
 
 const centeredContent = css({
   display: 'flex',
@@ -51,8 +55,15 @@ const centeredContent = css({
   flexDirection: 'column',
 });
 
-const emptyStyles = css({
+const emptyContentStyles = css({
   margin: 'auto',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: spacing[200],
+});
+
+const emptyStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
@@ -68,20 +79,23 @@ const emptyStylesLight = css({
   stroke: palette.gray.base,
 });
 
-function NoPreviewDocuments() {
+function NoPreviewDocuments({ children }: { children?: React.ReactNode }) {
   const darkMode = useDarkMode();
 
   return (
     <div className={centeredContent}>
-      <div
-        className={cx(
-          emptyStyles,
-          darkMode ? emptyStylesDark : emptyStylesLight
-        )}
-      >
-        <Body>
-          <span data-testid="stage-preview-empty">No Preview Documents</span>
-        </Body>
+      <div className={emptyContentStyles}>
+        <div
+          className={cx(
+            emptyStyles,
+            darkMode ? emptyStylesDark : emptyStylesLight
+          )}
+        >
+          <Body>
+            <span data-testid="stage-preview-empty">No Preview Documents</span>
+          </Body>
+        </div>
+        {children}
       </div>
     </div>
   );
@@ -170,6 +184,7 @@ type StagePreviewProps = {
   isDisabled: boolean;
   isMissingAtlasOnlyStageSupport: boolean;
   stageOperator: string | null;
+  stageValue?: string | null;
   documents: DocumentType[] | null;
   stageMetadata: StagePreviewMetadata | null;
   shouldRenderStage: boolean;
@@ -182,6 +197,7 @@ type StagePreviewProps = {
 function StagePreviewBody({
   index,
   stageOperator,
+  stageValue,
   documents,
   stageMetadata,
   isMissingAtlasOnlyStageSupport,
@@ -194,7 +210,7 @@ function StagePreviewBody({
 }: StagePreviewProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
-  const { interpretAnalyzeOutput } = useAssistantActions();
+  const { interpretAnalyzeOutput, diagnoseSearchStage } = useAssistantActions();
   const darkMode = useDarkMode();
 
   const handleAnalyzeOutput = useCallback(() => {
@@ -220,6 +236,19 @@ function StagePreviewBody({
       documentCount: (documents ?? []).length,
     });
   }, [interpretAnalyzeOutput, documents, stageMetadata, pipeline]);
+
+  const handleDiagnoseSearchStage = useCallback(() => {
+    diagnoseSearchStage?.({
+      stageOperator: stageOperator ?? '',
+      indexName: searchIndexName,
+      stageValue: stageValue ?? '',
+    });
+  }, [diagnoseSearchStage, stageOperator, searchIndexName, stageValue]);
+
+  const isNoResultsSearchStage = useShouldShowSearchStageDiagnose(
+    stageOperator,
+    documents
+  );
 
   if (!shouldRenderStage) {
     return <NoPreviewDocuments />;
@@ -276,7 +305,8 @@ function StagePreviewBody({
   if (
     !enableSearchActivationProgramP1 &&
     isSearchStage(stageOperator) &&
-    documents?.length === 0
+    documents?.length === 0 &&
+    !isNoResultsSearchStage
   ) {
     return <SearchNoResults />;
   }
@@ -336,7 +366,16 @@ function StagePreviewBody({
     );
   }
 
-  return <NoPreviewDocuments />;
+  return (
+    <NoPreviewDocuments>
+      {isNoResultsSearchStage && (
+        <SearchStageDiagnoseButton
+          onClick={handleDiagnoseSearchStage}
+          data-testid="stage-preview-diagnose-search-button"
+        />
+      )}
+    </NoPreviewDocuments>
+  );
 }
 
 const containerStyles = css({
@@ -412,6 +451,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
     isLoading: stage.loading,
     isDisabled: stage.disabled,
     stageOperator: stage.stageOperator,
+    stageValue: stage.value,
     shouldRenderStage,
     documents: stage.previewDocs,
     stageMetadata: stage.stageMetadata,

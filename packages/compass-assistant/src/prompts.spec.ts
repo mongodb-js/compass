@@ -3,6 +3,7 @@ import {
   buildConversationInstructionsPrompt,
   buildExplainPlanPrompt,
   buildAnalyzeOutputPrompt,
+  buildDiagnoseSearchStagePrompt,
   buildContextPrompt,
 } from './prompts';
 
@@ -137,6 +138,40 @@ describe('prompts', function () {
       });
       expect(result.metadata?.confirmation?.state).to.equal('pending');
       expect(result.metadata?.confirmation?.description).to.be.a('string');
+    });
+  });
+
+  describe('buildDiagnoseSearchStagePrompt', function () {
+    const mockContext = {
+      stageOperator: '$search',
+      indexName: 'movies',
+      stageValue: '{ "index": "movies" }',
+    };
+
+    it('includes the stage operator and stage value in the prompt', function () {
+      const result = buildDiagnoseSearchStagePrompt(mockContext);
+      expect(result.prompt).to.include('$search');
+      expect(result.prompt).to.include('{ "index": "movies" }');
+    });
+
+    it('includes the index name when provided', function () {
+      const result = buildDiagnoseSearchStagePrompt(mockContext);
+      expect(result.prompt).to.include('with index "movies"');
+    });
+
+    it('omits the index clause when indexName is null', function () {
+      const result = buildDiagnoseSearchStagePrompt({
+        ...mockContext,
+        indexName: null,
+      });
+      expect(result.prompt).to.not.include('with index');
+    });
+
+    it('uses a static displayText', function () {
+      const result = buildDiagnoseSearchStagePrompt(mockContext);
+      expect(result.metadata?.displayText).to.equal(
+        'Diagnose why my aggregation pipeline is not returning results.'
+      );
     });
   });
 
