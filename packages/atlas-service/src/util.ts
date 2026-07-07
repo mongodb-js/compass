@@ -5,10 +5,6 @@ import { createHash } from 'crypto';
 
 export type AtlasUserInfo = {
   sub: string;
-  firstName: string;
-  lastName: string;
-  primaryEmail: string;
-  login: string;
 };
 
 export type IntrospectInfo = { active: boolean };
@@ -150,8 +146,8 @@ const config = Object.create({
     atlasPrivateApiBaseUrl: 'http://cloud-local.mmscloudteam.com/api/private',
     atlasAdminApiBaseUrl: 'https://cloud-local.mmscloudteam.com/api/atlas',
     atlasLogin: {
-      clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+      clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
+      issuer: 'https://authorize-dev.mongodb.com',
     },
     authPortalUrl: 'https://account-local.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
@@ -167,8 +163,8 @@ const config = Object.create({
     atlasPrivateApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
     atlasAdminApiBaseUrl: 'https://cloud-dev.mongodb.com/api/atlas',
     atlasLogin: {
-      clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+      clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
+      issuer: 'https://authorize-dev.mongodb.com',
     },
     authPortalUrl: 'https://account-dev.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
@@ -184,8 +180,8 @@ const config = Object.create({
     atlasPrivateApiBaseUrl: 'https://cloud-qa.mongodb.com/api/private',
     atlasAdminApiBaseUrl: 'https://cloud-qa.mongodb.com/api/atlas',
     atlasLogin: {
-      clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+      clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
+      issuer: 'https://authorize-qa.mongodb.com',
     },
     authPortalUrl: 'https://account-qa.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
@@ -201,8 +197,8 @@ const config = Object.create({
     atlasPrivateApiBaseUrl: 'https://cloud-stage.mongodb.com/api/private',
     atlasAdminApiBaseUrl: 'https://cloud-stage.mongodb.com/api/atlas',
     atlasLogin: {
-      clientId: '0oaq1le5jlzxCuTbu357',
-      issuer: 'https://auth-qa.mongodb.com/oauth2/default',
+      clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
+      issuer: 'https://authorize-stage.mongodb.com',
     },
     authPortalUrl: 'https://account-stage.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-staging.mongodb.com/api/v1',
@@ -218,8 +214,8 @@ const config = Object.create({
     atlasPrivateApiBaseUrl: 'https://cloud.mongodb.com/api/private',
     atlasAdminApiBaseUrl: 'https://cloud.mongodb.com/api/atlas',
     atlasLogin: {
-      clientId: '0oajzdcznmE8GEyio297',
-      issuer: 'https://auth.mongodb.com/oauth2/default',
+      clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
+      issuer: 'https://authorize.mongodb.com',
     },
     authPortalUrl: 'https://account.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
@@ -245,7 +241,10 @@ export function getAtlasConfig(
   };
   return defaultsDeep(
     envConfig,
-    config[atlasServiceBackendPreset]
+    config[
+      process.env.COMPASS_ATLAS_SERVICE_BACKEND_PRESET ??
+        atlasServiceBackendPreset
+    ]
   ) as AtlasServiceConfig;
 }
 
