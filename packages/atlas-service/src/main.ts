@@ -380,7 +380,6 @@ export class CompassAuthService {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
 
-    console.log('Config', this.config);
     const url = new URL(`${this.config.atlasLogin.issuer}/v1/introspect`);
     url.searchParams.set('client_id', this.config.atlasLogin.clientId);
 
