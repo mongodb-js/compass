@@ -7,7 +7,9 @@ export function useShouldShowSearchStageDiagnose(
   stageOperator: string | null | undefined,
   documents: unknown[] | null | undefined
 ): boolean {
-  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
+    trackIsInSample: false,
+  });
   const { diagnoseSearchStage } = useAssistantActions();
   return (
     enableSearchActivationProgramP2 &&
