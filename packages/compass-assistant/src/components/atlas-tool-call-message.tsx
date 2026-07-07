@@ -70,7 +70,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
       setIsSigningIn(true);
       try {
         console.log('Signing in to Atlas...');
-        // await atlasAuthService.signIn();
+        await atlasAuthService.signIn();
       } catch {
         setIsSigningIn(false);
         onDeny?.(approvalId);

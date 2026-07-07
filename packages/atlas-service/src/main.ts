@@ -1,10 +1,6 @@
 import { shell, app } from 'electron';
 import { URL, URLSearchParams } from 'url';
-import type {
-  AuthFlowType,
-  MongoDBOIDCPlugin,
-  MongoDBOIDCPluginOptions,
-} from '@mongodb-js/oidc-plugin';
+import type { AuthFlowType, MongoDBOIDCPlugin } from '@mongodb-js/oidc-plugin';
 import {
   throwIfNotOk,
   throwIfNetworkTrafficDisabled,
@@ -145,23 +141,17 @@ export class CompassAuthService {
 
   private static setupPlugin(serializedState?: string) {
     this.plugin = this.createMongoDBOIDCPlugin({
-      scope: [],
+      skipNonceInAuthCodeRequest: true,
+      defaultScopes: ['offline_access'],
       openBrowser: async ({ url }) => {
         await this.openExternal(url);
       },
       discoveryAlgorithm: 'oauth2',
       redirectURI: 'http://127.0.0.1:0/compass/oauth/callback',
       customFetch: async (url, init) => {
+        console.log('[oidc-fetch]', String(url), init?.method ?? 'GET');
         const res = await fetch(url, init as RequestInit);
-        console.log(
-          '[oidc-fetch]',
-          String(url),
-          '→',
-          res.status,
-          res.headers.get('content-type'),
-          'location=',
-          res.headers.get('location')
-        );
+        console.log('[oidc-fetch]', String(url), '→', res.status);
         return res;
       },
     });
@@ -277,22 +267,24 @@ export class CompassAuthService {
           // from oidc-plugin. If we only run getUserInfo, the only thing users
           // will see is "401 unauthorized" as the reason for sign in failure
           await this.requestOAuthToken({ signal });
-          const userInfo = await this.getUserInfo({ signal });
-          log.info(
-            mongoLogId(1_001_000_219),
-            'AtlasService',
-            'Signed in successfully'
-          );
-          const { auid } = getTrackingUserInfo(userInfo);
-          track('Atlas Sign In Success', { auid });
-          await this.preferences.savePreferences({
-            telemetryAtlasUserId: auid,
-          });
-          return userInfo;
+          // const userInfo = await this.getUserInfo({ signal });
+          // log.info(
+          //   mongoLogId(1_001_000_219),
+          //   'AtlasService',
+          //   'Signed in successfully'
+          // );
+          // const { auid } = getTrackingUserInfo(userInfo);
+          // track('Atlas Sign In Success', { auid });
+          // await this.preferences.savePreferences({
+          //   telemetryAtlasUserId: auid,
+          // });
+          // return userInfo;
+          return;
         } catch (err) {
           track('Atlas Sign In Error', {
             error: (err as Error).message,
           });
+          console.log('Atlas sign in failed', (err as Error).stack);
           log.error(
             mongoLogId(1_001_000_220),
             'AtlasService',

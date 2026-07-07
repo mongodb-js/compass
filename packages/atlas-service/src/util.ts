@@ -5,10 +5,6 @@ import { createHash } from 'crypto';
 
 export type AtlasUserInfo = {
   sub: string;
-  firstName: string;
-  lastName: string;
-  primaryEmail: string;
-  login: string;
 };
 
 export type IntrospectInfo = { active: boolean };

@@ -2,6 +2,7 @@ import type { MongoClientOptions, AuthMechanismProperties } from 'mongodb';
 import {
   ConnectionString as ConnectionStringUrl,
   CommaAndColonSeparatedRecord,
+  redactConnectionString,
 } from 'mongodb-connection-string-url';
 
 export function parseAuthMechanismProperties(
@@ -27,6 +28,9 @@ export function tryToParseConnectionString(
     const connectionStringUrl = new ConnectionStringUrl(connectionString, {
       looseValidation: true,
     });
+    // This is a workaround for a bug in the `mongodb-connection-string-url`
+    // https://github.com/mongodb-js/mongodb-connection-string-url/pull/125
+    redactConnectionString(connectionString);
     return [connectionStringUrl, undefined];
   } catch (err) {
     return [undefined, err as Error];
