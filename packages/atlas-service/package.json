@@ -78,7 +78,7 @@
     "@mongodb-js/connection-info": "^0.28.2",
     "@mongodb-js/devtools-connect": "^3.17.0",
     "@mongodb-js/devtools-proxy-support": "^0.7.17",
-    "@mongodb-js/oidc-plugin": "^2.0.4",
+    "@mongodb-js/oidc-plugin": "^2.2.0",
     "compass-preferences-model": "^3.2.0",
     "electron": "^41.1.1",
     "hadron-ipc": "^3.6.2",
