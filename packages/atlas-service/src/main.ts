@@ -66,6 +66,8 @@ export class CompassAuthService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
+  private static userInfo: AtlasUserInfo | null = null;
+
   private static fetch = async (
     url: string,
     init: RequestInit = {}
@@ -140,19 +142,23 @@ export class CompassAuthService {
 
   private static setupPlugin(serializedState?: string) {
     this.plugin = this.createMongoDBOIDCPlugin({
-      redirectServerRequestHandler: (data) => {
-        if (data.result === 'redirecting') {
-          const { res, status, location } = data;
-          res.statusCode = status;
-          const redirectUrl = new URL(this.config.authPortalUrl);
-          redirectUrl.searchParams.set('fromURI', location);
-          res.setHeader('Location', redirectUrl.toString());
-          res.end();
-          return;
-        }
+      skipNonceInAuthCodeRequest: true,
+      defaultScopes: ['offline_access'],
+      discoveryAlgorithm: 'oauth2',
+      redirectURI: 'http://127.0.0.1:0/compass/oauth/callback',
+      // redirectServerRequestHandler: (data) => {
+      //   if (data.result === 'redirecting') {
+      //     const { res, status, location } = data;
+      //     res.statusCode = status;
+      //     const redirectUrl = new URL(this.config.authPortalUrl);
+      //     redirectUrl.searchParams.set('fromURI', location);
+      //     res.setHeader('Location', redirectUrl.toString());
+      //     res.end();
+      //     return;
+      //   }
 
-        redirectRequestHandler(data);
-      },
+      //   redirectRequestHandler(data);
+      // },
       openBrowser: async ({ url }) => {
         await this.openExternal(url);
       },
@@ -267,22 +273,19 @@ export class CompassAuthService {
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
         try {
-          // We first request oauth token just so we can get a proper auth error
-          // from oidc-plugin. If we only run getUserInfo, the only thing users
-          // will see is "401 unauthorized" as the reason for sign in failure
-          await this.requestOAuthToken({ signal });
-          const userInfo = await this.getUserInfo({ signal });
+          const tokens = await this.requestOAuthToken({ signal });
+          this.userInfo = this.getUserInfoFromAccessToken(tokens.accessToken);
           log.info(
             mongoLogId(1_001_000_219),
             'AtlasService',
             'Signed in successfully'
           );
-          const { auid } = getTrackingUserInfo(userInfo);
+          const { auid } = getTrackingUserInfo(this.userInfo);
           track('Atlas Sign In Success', { auid });
           await this.preferences.savePreferences({
             telemetryAtlasUserId: auid,
           });
-          return userInfo;
+          return this.userInfo;
         } catch (err) {
           track('Atlas Sign In Error', {
             error: (err as Error).message,
@@ -358,31 +361,25 @@ export class CompassAuthService {
     }
   }
 
-  static async getUserInfo({
-    signal,
+  static getUserInfo({
+    signal: _signal,
   }: { signal?: AbortSignal } = {}): Promise<AtlasUserInfo> {
-    throwIfAborted(signal);
-    this.throwIfNetworkTrafficDisabled();
+    if (!this.currentUser) {
+      throw new Error('User info is not available, user is not signed in');
+    }
+    return Promise.resolve(this.currentUser);
+  }
 
-    this.currentUser ??= await (async () => {
-      const token = await this.maybeGetToken({ signal });
-
-      const res = await this.fetch(
-        `${this.config.atlasLogin.issuer}/v1/userinfo`,
-        {
-          headers: {
-            Authorization: `Bearer ${token ?? ''}`,
-            Accept: 'application/json',
-          },
-          signal: signal,
-        }
-      );
-
-      await throwIfNotOk(res);
-
-      return (await res.json()) as AtlasUserInfo;
-    })();
-    return this.currentUser;
+  private static getUserInfoFromAccessToken(
+    accessToken: string
+  ): AtlasUserInfo {
+    const base64Url = accessToken.split('.')[1];
+    const decodedToken = JSON.parse(
+      Buffer.from(base64Url, 'base64url').toString('utf8')
+    );
+    return {
+      sub: decodedToken.sub,
+    };
   }
 
   static async introspect({
@@ -395,6 +392,7 @@ export class CompassAuthService {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
 
+    console.log('Config', this.config);
     const url = new URL(`${this.config.atlasLogin.issuer}/v1/introspect`);
     url.searchParams.set('client_id', this.config.atlasLogin.clientId);
 
