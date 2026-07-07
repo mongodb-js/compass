@@ -23,6 +23,7 @@ import {
   StageEditorActionTypes,
 } from './stage-editor';
 import type { StageEditorState, StoreStage, Wizard } from './stage-editor';
+import { DEFAULT_PREVIEW_DEBOUNCE_MS } from './pipeline-preview-manager';
 import HadronDocument from 'hadron-document';
 import reducer from '../';
 import { createElectronPipelineStorage } from '@mongodb-js/my-queries-storage/electron';
@@ -927,7 +928,6 @@ describe('stageEditor', function () {
     });
 
     describe('when fetching $search stage metadata', function () {
-      const PREVIEW_DEBOUNCE_MS = 700;
       const scoreDetails = {
         value: 0.9,
         description: 'text score',
@@ -991,7 +991,7 @@ describe('stageEditor', function () {
       it('fetches metadata after preview and stores scores when flag is enabled', async function () {
         const dataService = mockDataService();
         const aggregate = replaceAggregate(dataService, () =>
-          Promise.resolve([{ type: '$search', scores: scoreDetails }])
+          Promise.resolve([{ type: '$search', scores: [scoreDetails] }])
         );
         const searchStore = createSearchPreviewStore({ dataService });
         stubPreviewDocs(searchStore);
@@ -1010,14 +1010,14 @@ describe('stageEditor', function () {
         const clock = Sinon.useFakeTimers();
         const dataService = mockDataService();
         const aggregate = replaceAggregate(dataService, () =>
-          Promise.resolve([{ type: '$search', scores: scoreDetails }])
+          Promise.resolve([{ type: '$search', scores: [scoreDetails] }])
         );
         const searchStore = createSearchPreviewStore({ dataService });
 
         const first = searchStore.dispatch(loadStagePreview(0));
         await clock.tickAsync(200);
         const second = searchStore.dispatch(loadStagePreview(0));
-        await clock.tickAsync(PREVIEW_DEBOUNCE_MS);
+        await clock.tickAsync(DEFAULT_PREVIEW_DEBOUNCE_MS);
         await Promise.allSettled([first, second]);
         clock.restore();
 
@@ -1036,14 +1036,14 @@ describe('stageEditor', function () {
         const dataService = mockDataService();
         replaceAggregate(dataService, () => {
           metadataCallCount += 1;
-          return Promise.resolve([{ type: '$search', scores: latestScore }]);
+          return Promise.resolve([{ type: '$search', scores: [latestScore] }]);
         });
         const searchStore = createSearchPreviewStore({ dataService });
 
         const first = searchStore.dispatch(loadStagePreview(0));
         await clock.tickAsync(200);
         const second = searchStore.dispatch(loadStagePreview(0));
-        await clock.tickAsync(PREVIEW_DEBOUNCE_MS);
+        await clock.tickAsync(DEFAULT_PREVIEW_DEBOUNCE_MS);
         await Promise.allSettled([first, second]);
         clock.restore();
 
@@ -1127,29 +1127,40 @@ describe('stageEditor', function () {
         expect(getStoreStage(searchStore, 0).stageMetadata).to.be.null;
       });
 
-      it('builds scores from metadata documents', async function () {
-        const middleScore = {
+      it('stores the scores array from the grouped metadata document', async function () {
+        const secondScore = {
           value: 0.5,
-          description: 'middle',
+          description: 'second',
           details: [],
         };
         const dataService = mockDataService();
         replaceAggregate(dataService, () =>
           Promise.resolve([
-            { type: '$search' },
-            { type: '$search', scores: middleScore },
-            { type: '$search' },
+            { type: '$search', scores: [scoreDetails, secondScore] },
           ])
         );
         const searchStore = createSearchPreviewStore({ dataService });
-        stubPreviewDocs(searchStore, [{ _id: 1 }, { _id: 2 }, { _id: 3 }]);
+        stubPreviewDocs(searchStore, [{ _id: 1 }, { _id: 2 }]);
 
         await searchStore.dispatch(loadStagePreview(0));
 
         expect(getStoreStage(searchStore, 0).stageMetadata).to.deep.equal({
           type: '$search',
-          scores: [null, middleScore, null],
+          scores: [scoreDetails, secondScore],
         });
+      });
+
+      it('stores null metadata when the scores count does not match the preview document count', async function () {
+        const dataService = mockDataService();
+        replaceAggregate(dataService, () =>
+          Promise.resolve([{ type: '$search', scores: [scoreDetails] }])
+        );
+        const searchStore = createSearchPreviewStore({ dataService });
+        stubPreviewDocs(searchStore, [{ _id: 1 }, { _id: 2 }]);
+
+        await searchStore.dispatch(loadStagePreview(0));
+
+        expect(getStoreStage(searchStore, 0).stageMetadata).to.be.null;
       });
     });
 
