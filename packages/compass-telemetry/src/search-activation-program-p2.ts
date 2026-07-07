@@ -5,10 +5,12 @@ import {
 import { useAssignment } from './experimentation-provider';
 
 // @experiment Search Activation Program P2 | Jira Epic: CLOUDP-331931
-export const useSearchActivationProgramP2 = () => {
+export const useSearchActivationProgramP2 = ({
+  trackIsInSample = true,
+}: { trackIsInSample?: boolean } = {}) => {
   const assignment = useAssignment(
     ExperimentTestNames.searchActivationProgramP2,
-    true
+    trackIsInSample
   );
 
   const isInVariant =

@@ -65,7 +65,9 @@ export default function ServerErrorBanner({
   onCloseFocusMode,
 }: ServerErrorBannerProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
-  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
+    trackIsInSample: false,
+  });
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
