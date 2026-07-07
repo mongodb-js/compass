@@ -6,7 +6,6 @@ import {
   Icon,
   Link,
   css,
-  palette,
   spacing,
   useDrawerActions,
 } from '@mongodb-js/compass-components';
@@ -176,10 +175,10 @@ export default function ServerErrorBanner({
           {onDebugClick && (
             <Button
               size="xsmall"
+              variant="primaryOutline"
               onClick={onDebugClick}
-              leftGlyph={
-                <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
-              }
+              // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
+              leftGlyph={<Icon glyph="Sparkle" />}
               data-testid="server-error-banner-debug-button"
             >
               Debug
