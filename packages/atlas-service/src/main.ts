@@ -146,19 +146,7 @@ export class CompassAuthService {
       defaultScopes: ['offline_access'],
       discoveryAlgorithm: 'oauth2',
       redirectURI: 'http://127.0.0.1:0/compass/oauth/callback',
-      // redirectServerRequestHandler: (data) => {
-      //   if (data.result === 'redirecting') {
-      //     const { res, status, location } = data;
-      //     res.statusCode = status;
-      //     const redirectUrl = new URL(this.config.authPortalUrl);
-      //     redirectUrl.searchParams.set('fromURI', location);
-      //     res.setHeader('Location', redirectUrl.toString());
-      //     res.end();
-      //     return;
-      //   }
-
-      //   redirectRequestHandler(data);
-      // },
+      redirectServerRequestHandler: redirectRequestHandler,
       openBrowser: async ({ url }) => {
         await this.openExternal(url);
       },
