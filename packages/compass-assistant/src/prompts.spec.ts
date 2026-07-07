@@ -3,6 +3,7 @@ import {
   buildConversationInstructionsPrompt,
   buildExplainPlanPrompt,
   buildAnalyzeOutputPrompt,
+  buildDebugSearchErrorPrompt,
   buildDiagnoseSearchStagePrompt,
   buildContextPrompt,
 } from './prompts';
@@ -138,6 +139,32 @@ describe('prompts', function () {
       });
       expect(result.metadata?.confirmation?.state).to.equal('pending');
       expect(result.metadata?.confirmation?.description).to.be.a('string');
+    });
+  });
+
+  describe('buildDebugSearchErrorPrompt', function () {
+    const mockContext = {
+      stageOperator: '$search',
+      stageValue: '{ "index": "movies" }',
+      errorMessage: 'index "movies" not found',
+    };
+
+    it('includes the stage operator and stage value in the prompt', function () {
+      const result = buildDebugSearchErrorPrompt(mockContext);
+      expect(result.prompt).to.include('$search');
+      expect(result.prompt).to.include('{ "index": "movies" }');
+    });
+
+    it('includes the error message in the prompt', function () {
+      const result = buildDebugSearchErrorPrompt(mockContext);
+      expect(result.prompt).to.include('index "movies" not found');
+    });
+
+    it('uses a static displayText', function () {
+      const result = buildDebugSearchErrorPrompt(mockContext);
+      expect(result.metadata?.displayText).to.equal(
+        'Diagnose why my aggregation pipeline is failing and help me debug it.'
+      );
     });
   });
 
