@@ -66,8 +66,6 @@ export class CompassAuthService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
-  private static userInfo: AtlasUserInfo | null = null;
-
   private static fetch = async (
     url: string,
     init: RequestInit = {}
@@ -153,7 +151,7 @@ export class CompassAuthService {
       allowedFlows: this.getAllowedAuthFlows.bind(this),
       logger: this.oidcPluginLogger,
       serializedState,
-      customFetch: this.httpClient
+      customFetch: this
         .fetch as unknown as MongoDBOIDCPluginOptions['customFetch'],
     });
     oidcPluginHookLoggerToMongoLogWriter(
@@ -262,18 +260,20 @@ export class CompassAuthService {
 
         try {
           const tokens = await this.requestOAuthToken({ signal });
-          this.userInfo = this.getUserInfoFromAccessToken(tokens.accessToken);
+          this.currentUser = this.getUserInfoFromAccessToken(
+            tokens.accessToken
+          );
           log.info(
             mongoLogId(1_001_000_219),
             'AtlasService',
             'Signed in successfully'
           );
-          const { auid } = getTrackingUserInfo(this.userInfo);
+          const { auid } = getTrackingUserInfo(this.currentUser);
           track('Atlas Sign In Success', { auid });
           await this.preferences.savePreferences({
             telemetryAtlasUserId: auid,
           });
-          return this.userInfo;
+          return this.currentUser;
         } catch (err) {
           track('Atlas Sign In Error', {
             error: (err as Error).message,
@@ -297,17 +297,10 @@ export class CompassAuthService {
     if (!this.currentUser) {
       throw new Error("Can't sign out if not signed in yet");
     }
-    // Reset and recreate event emitter first so that we don't accidentally
-    // react on any old plugin instance events
-    this.oidcPluginLogger.removeAllListeners();
-    this.oidcPluginLogger = new OidcPluginLogger();
-    this.attachOidcPluginLoggerEvents();
-    // Destroy old plugin and setup new one
-    await this.plugin?.destroy();
-    this.setupPlugin();
-    // Revoke tokens. Revoking refresh token will also revoke associated access
-    // tokens
-    // https://developer.okta.com/docs/guides/revoke-tokens/main/#revoke-an-access-token-or-a-refresh-token
+    // Revoke tokens BEFORE destroying the plugin — otherwise maybeGetToken
+    // reads from a fresh, empty plugin and posts an empty token, which the
+    // revocation endpoint rejects with 400. Revoking the refresh token also
+    // invalidates the associated access token (RFC 7009 §2.1).
     try {
       await this.revoke({ tokenType: 'refreshToken' });
     } catch (err) {
@@ -318,15 +311,20 @@ export class CompassAuthService {
       // this is not a failed state for the app, we already cleaned up token
       // from everywhere, so we just ignore this
     }
+    // Reset and recreate event emitter so that we don't accidentally react on
+    // any old plugin instance events
+    this.oidcPluginLogger.removeAllListeners();
+    this.oidcPluginLogger = new OidcPluginLogger();
+    this.attachOidcPluginLoggerEvents();
+    // Destroy old plugin and setup new one
+    await this.plugin?.destroy();
+    this.setupPlugin();
     // Keep a copy of current user info for tracking
     const userInfo = this.currentUser;
     // Reset service state
     this.currentUser = null;
     this.oidcPluginLogger.emit('atlas-service-signed-out');
-    // Open Atlas sign out page to end the browser session created for sign in
-    const signOutUrl = new URL(this.config.authPortalUrl);
-    signOutUrl.searchParams.set('signedOut', 'true');
-    void this.openExternal(signOutUrl.toString());
+
     track('Atlas Sign Out', getTrackingUserInfo(userInfo));
   }
 
@@ -387,7 +385,7 @@ export class CompassAuthService {
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const res = await this.fetch(url.toString(), {
+    const res = await this.httpClient.fetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
         ['token', token ?? ''],
@@ -415,18 +413,20 @@ export class CompassAuthService {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
 
-    const url = new URL(`${this.config.atlasLogin.issuer}/v1/revoke`);
-    url.searchParams.set('client_id', this.config.atlasLogin.clientId);
+    // TODO: check if we should use the discovery endpoint instead of hardcoding this
+    const url = new URL(`${this.config.atlasLogin.issuer}/tokens/revoke`);
 
     tokenType ??= 'accessToken';
 
+    console.log('[sign out] revoking token', tokenType);
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const res = await this.fetch(url.toString(), {
+    const res = await this.httpClient.fetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
         ['token', token ?? ''],
         ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
+        ['client_id', this.config.atlasLogin.clientId],
       ]),
       headers: {
         Accept: 'application/json',
@@ -434,6 +434,16 @@ export class CompassAuthService {
       },
       signal: signal,
     });
+
+    if (!res.ok) {
+      const body = await res.text().catch(() => '<unreadable>');
+      console.log(
+        '[sign out] revocation failed',
+        res.status,
+        res.statusText,
+        body
+      );
+    }
 
     await throwIfNotOk(res);
   }

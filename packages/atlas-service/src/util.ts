@@ -117,10 +117,6 @@ export type AtlasServiceConfig = {
     issuer: string;
   };
   /**
-   * Atlas Account Portal UI base url
-   */
-  authPortalUrl: string;
-  /**
    * Assistant API base url
    */
   assistantApiBaseUrl: string;
@@ -149,7 +145,6 @@ const config = Object.create({
       clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
       issuer: 'https://authorize-dev.mongodb.com',
     },
-    authPortalUrl: 'https://account-local.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud-local.mmscloudteam.com/ui/userData',
   },
@@ -166,7 +161,6 @@ const config = Object.create({
       clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
       issuer: 'https://authorize-dev.mongodb.com',
     },
-    authPortalUrl: 'https://account-dev.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud-dev.mongodb.com/ui/userData',
   },
@@ -183,7 +177,6 @@ const config = Object.create({
       clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
       issuer: 'https://authorize-qa.mongodb.com',
     },
-    authPortalUrl: 'https://account-qa.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud-qa.mongodb.com/ui/userData',
   },
@@ -200,7 +193,6 @@ const config = Object.create({
       clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
       issuer: 'https://authorize-stage.mongodb.com',
     },
-    authPortalUrl: 'https://account-stage.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge-staging.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud-stage.mongodb.com/ui/userData',
   },
@@ -217,7 +209,6 @@ const config = Object.create({
       clientId: '124d5a79-2063-4f76-8655-8133e98e25c9',
       issuer: 'https://authorize.mongodb.com',
     },
-    authPortalUrl: 'https://account.mongodb.com/account/login',
     assistantApiBaseUrl: 'https://knowledge.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud.mongodb.com/ui/userData',
   },
@@ -235,14 +226,13 @@ export function getAtlasConfig(
       clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
       issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,
     },
-    authPortalUrl: process.env.COMPASS_ATLAS_AUTH_PORTAL_URL_OVERRIDE,
     assistantApiBaseUrl: process.env.COMPASS_ASSISTANT_BASE_URL_OVERRIDE,
     userDataBaseUrl: process.env.COMPASS_USER_DATA_BASE_URL_OVERRIDE,
   };
   return defaultsDeep(
     envConfig,
     config[
-      process.env.COMPASS_ATLAS_SERVICE_BACKEND_PRESET ??
+      process.env.COMPASS_ATLAS_SERVICE_BACKEND_PRESET_OVERRIDE ??
         atlasServiceBackendPreset
     ]
   ) as AtlasServiceConfig;
