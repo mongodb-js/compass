@@ -1,6 +1,6 @@
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useRef, useState } from 'react';
 import type { TypeCastTypes } from 'hadron-type-checker';
-import { Menu, MenuItem } from '@leafygreen-ui/menu';
+import { Menu, MenuItem } from '../leafygreen';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { spacing } from '@leafygreen-ui/tokens';
 import { Icon } from '../leafygreen';
@@ -128,6 +128,7 @@ export const AddFieldActions: React.FunctionComponent<{
   onAddFieldAfterElement,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const menuTriggerRef = useRef<HTMLButtonElement | null>(null);
 
   if (!editing) {
     return null;
@@ -144,17 +145,14 @@ export const AddFieldActions: React.FunctionComponent<{
       align="bottom"
       justify="start"
       className={menu}
+      refEl={menuTriggerRef}
       trigger={({
         children,
-        onClick,
-        ref,
         ...props
-      }: Omit<React.HTMLProps<HTMLButtonElement>, 'type'> & {
-        ref?: React.Ref<HTMLButtonElement>;
-      }) => {
+      }: Omit<React.HTMLProps<HTMLButtonElement>, 'type'>) => {
         return (
           <>
-            <AddFieldButton onClick={onClick} ref={ref} {...props} />
+            <AddFieldButton {...props} ref={menuTriggerRef} />
             {children}
           </>
         );
