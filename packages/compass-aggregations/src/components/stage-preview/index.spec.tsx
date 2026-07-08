@@ -453,7 +453,7 @@ describe('StagePreview', function () {
         .exist;
     });
 
-    it('does not render a chip for null score entries', async function () {
+    it('does not render a chip for documents without a matching score entry', async function () {
       await renderStagePreview(
         {
           shouldRenderStage: true,
@@ -461,7 +461,7 @@ describe('StagePreview', function () {
           documents: [{ _id: 1 }, { _id: 2 }],
           stageMetadata: {
             type: '$search',
-            scores: [{ value: 1.5, description: 'sum of:', details: [] }, null],
+            scores: [{ value: 1.5, description: 'sum of:', details: [] }],
           },
         },
         DEFAULT_PIPELINE,

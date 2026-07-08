@@ -13,6 +13,7 @@ import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
   createPreviewAggregation,
+  DEFAULT_PREVIEW_DEBOUNCE_MS,
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
@@ -368,7 +369,10 @@ export const loadStagePreview = (
         shouldFetchSearchStageMetadata && activeDataService
           ? (async () => {
               try {
-                await cancellableWait(700, metadataAbortController.signal);
+                await cancellableWait(
+                  DEFAULT_PREVIEW_DEBOUNCE_MS,
+                  metadataAbortController.signal
+                );
 
                 return await aggregatePipeline({
                   dataService: activeDataService,
@@ -379,7 +383,8 @@ export const loadStagePreview = (
                     injectSearchScoreMetadata(
                       pipelineBuilder.getPipelineFromStages(
                         pipelineBuilder.stages.slice(0, idxInPipeline + 1)
-                      )
+                      ),
+                      options.previewSize ?? DEFAULT_PREVIEW_LIMIT
                     ),
                     options
                   ),
@@ -396,7 +401,10 @@ export const loadStagePreview = (
           pipelineBuilder.getPreviewForStage(idxInPipeline, namespace, options),
           metadataPromise,
         ]);
-        const stageMetadata = createSearchStageMetadata(metadataDocs);
+        const stageMetadata = createSearchStageMetadata(
+          metadataDocs,
+          documents.length
+        );
         dispatch({
           type: StageEditorActionTypes.StagePreviewFetchSuccess,
           id: idx,

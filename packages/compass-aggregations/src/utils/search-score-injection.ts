@@ -8,7 +8,7 @@ export type SearchScoreDetails = {
 
 export type StagePreviewMetadata = {
   type: '$search';
-  scores: (SearchScoreDetails | null)[];
+  scores: SearchScoreDetails[];
 };
 
 /**
@@ -16,7 +16,10 @@ export type StagePreviewMetadata = {
  * preview. Called when the stage being previewed is $search, which must be
  * the first stage in a pipeline.
  */
-export function injectSearchScoreMetadata(pipeline: Document[]): Document[] {
+export function injectSearchScoreMetadata(
+  pipeline: Document[],
+  previewSize: number
+): Document[] {
   const searchStage = pipeline[0];
   if (!searchStage?.['$search']) {
     return pipeline;
@@ -25,26 +28,28 @@ export function injectSearchScoreMetadata(pipeline: Document[]): Document[] {
   return [
     { $search: { ...searchStage['$search'], scoreDetails: true } },
     ...pipeline.slice(1),
+    { $limit: previewSize },
     {
-      $project: {
+      $replaceRoot: {
+        newRoot: { $meta: 'searchScoreDetails' },
+      },
+    },
+    {
+      $group: {
         _id: 0,
-        type: { $literal: '$search' },
-        scores: { $meta: 'searchScoreDetails' },
+        type: { $first: { $literal: '$search' } },
+        scores: { $push: '$$ROOT' },
       },
     },
   ];
 }
 
 export function createSearchStageMetadata(
-  metadataDocs: Document[] | null
+  metadataDocs: Document[] | null,
+  documentCount: number
 ): StagePreviewMetadata | null {
-  if (!metadataDocs) {
-    return null;
-  }
-  const scores: (SearchScoreDetails | null)[] = metadataDocs.map((doc) => {
-    return (doc.scores as SearchScoreDetails) ?? null;
-  });
-  return scores.some((score) => score !== null)
-    ? { type: '$search', scores }
+  const metadata = metadataDocs?.[0] as StagePreviewMetadata | undefined;
+  return metadata?.scores?.length && metadata.scores.length === documentCount
+    ? metadata
     : null;
 }
