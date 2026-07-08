@@ -209,7 +209,9 @@ function StagePreviewBody({
   pipeline,
 }: StagePreviewProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
-  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
+    trackIsInSample: false,
+  });
   const { interpretAnalyzeOutput, diagnoseSearchStage } = useAssistantActions();
   const darkMode = useDarkMode();
 
@@ -332,13 +334,11 @@ function StagePreviewBody({
         </KeylineCard>
       );
     });
-    const hasScoreMetadata =
-      stageMetadata !== null && stageMetadata.scores.every((s) => s !== null);
     const showAnalyzeButton =
       enableSearchActivationProgramP2 &&
       isSearchStage(stageOperator) &&
       interpretAnalyzeOutput &&
-      hasScoreMetadata;
+      stageMetadata !== null;
     return (
       <div className={previewBodyStyles}>
         <div className={documentsStyles}>{docs}</div>

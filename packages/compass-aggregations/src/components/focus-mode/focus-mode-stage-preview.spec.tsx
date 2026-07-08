@@ -30,7 +30,6 @@ const AI_ASSISTANT_PREFERENCES = {
   enableAIAssistant: true,
   enableGenAIFeatures: true,
   enableGenAIFeaturesAtlasOrg: true,
-  cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
 };
 
 const renderOutputPreview = async (
@@ -45,34 +44,29 @@ const renderOutputPreview = async (
     diagnoseSearchStage?: Sinon.SinonSpy;
   } = {}
 ) => {
-  let ui: React.ReactElement = (
-    <OutputPreview
-      stageIndex={0}
-      stageOperator="$search"
-      documents={[]}
-      onExpand={() => {}}
-      onCollapse={() => {}}
-      {...props}
-    />
-  );
+  const preferences = await createSandboxFromDefaultPreferences();
+  const experimentVariant = enableSearchActivationP2Experiment
+    ? ExperimentTestGroups.searchActivationProgramP2Variant
+    : null;
   if (enableAIAssistant) {
-    const preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences(AI_ASSISTANT_PREFERENCES);
-    ui = <PreferencesProvider value={preferences}>{ui}</PreferencesProvider>;
   }
-  if (diagnoseSearchStage) {
-    ui = (
-      <AssistantActionsContext.Provider value={{ diagnoseSearchStage }}>
-        {ui}
-      </AssistantActionsContext.Provider>
-    );
-  }
-  if (enableSearchActivationP2Experiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP2Variant
-    );
-  }
+
+  const ui = wrapWithExperimentProvider(
+    <AssistantActionsContext.Provider value={{ diagnoseSearchStage }}>
+      <PreferencesProvider value={preferences}>
+        <OutputPreview
+          stageIndex={0}
+          stageOperator="$search"
+          documents={[]}
+          onExpand={() => {}}
+          onCollapse={() => {}}
+          {...props}
+        />
+      </PreferencesProvider>
+    </AssistantActionsContext.Provider>,
+    experimentVariant
+  );
   return renderWithStore(ui, { pipeline: DEFAULT_PIPELINE });
 };
 
@@ -336,7 +330,11 @@ describe('FocusModeStagePreview', function () {
     it('renders the diagnose button for a no-results $search stage under P2 with the assistant enabled', async function () {
       await renderOutputPreview(
         { stageOperator: '$search', documents: [] },
-        { enableSearchActivationP2Experiment: true, enableAIAssistant: true }
+        {
+          enableSearchActivationP2Experiment: true,
+          enableAIAssistant: true,
+          diagnoseSearchStage: Sinon.spy(),
+        }
       );
       expect(screen.getByTestId('focus-mode-diagnose-search-button')).to.exist;
     });

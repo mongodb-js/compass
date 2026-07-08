@@ -39,7 +39,7 @@ const initialContext: CompassExperimentationProviderContextValue = {
   useAssignment() {
     return {
       assignment: null,
-      asyncStatus: null,
+      asyncStatus: 'SUCCESS' as typesReact.HookAsyncStatus,
       error: null,
       isLoading: false,
       isError: false,
