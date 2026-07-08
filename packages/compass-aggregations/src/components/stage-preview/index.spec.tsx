@@ -36,7 +36,6 @@ const AI_ASSISTANT_PREFERENCES = {
   enableAIAssistant: true,
   enableGenAIFeatures: true,
   enableGenAIFeaturesAtlasOrg: true,
-  cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
 };
 
 const renderStagePreview = async (
@@ -496,7 +495,6 @@ describe('StagePreview', function () {
         enableAIAssistant: true,
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
       });
     });
 

@@ -274,9 +274,6 @@ describe('QueryBar Component', function () {
     beforeEach(async function () {
       await preferences.savePreferences({
         enableGenAIFeatures: true,
-        cloudFeatureRolloutAccess: {
-          GEN_AI_COMPASS: true,
-        },
       });
     });
 
