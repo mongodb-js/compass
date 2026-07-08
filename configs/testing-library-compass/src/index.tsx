@@ -386,7 +386,13 @@ function createWrapper(
   const experimentationProviderProps = {
     useAssignment: () =>
       experimentAssignmentLoading
-        ? { assignment: null, ...noopAsyncResult, asyncStatus: 'LOADING' }
+        ? {
+            assignment: null,
+            ...noopAsyncResult,
+            asyncStatus: 'LOADING',
+            isLoading: true,
+            isSuccess: false,
+          }
         : {
             assignment: experimentAssignment
               ? { assignmentData: { variant: experimentAssignment } }
