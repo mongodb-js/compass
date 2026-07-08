@@ -57,7 +57,8 @@ describe('QueryBar Component', function () {
       expanded = false,
       ...props
     }: Partial<ComponentProps<typeof QueryBar>> & { expanded?: boolean } = {},
-    storeOptions: Partial<RootState['queryBar']> = {}
+    storeOptions: Partial<RootState['queryBar']> = {},
+    renderOptions?: Parameters<typeof render>[1]
   ) => {
     const store = configureStore(storeOptions, {
       preferences,
@@ -94,7 +95,7 @@ describe('QueryBar Component', function () {
       </PreferencesProvider>
     );
 
-    const result = render(component);
+    const result = render(component, renderOptions);
 
     return {
       ...result,
@@ -398,6 +399,27 @@ describe('QueryBar Component', function () {
       expect(
         applyButton.ownerDocument.activeElement === screen.getByRole('textbox')
       ).to.equal(true);
+    });
+  });
+
+  describe('explain button while the experiment assignment is loading', function () {
+    beforeEach(function () {
+      renderQueryBar(
+        { showExplainButton: true },
+        {},
+        { experimentAssignmentLoading: true }
+      );
+    });
+
+    it('shows a disabled loading Explain button instead of either variant', function () {
+      const loadingButton = screen.getByTestId(
+        'query-bar-explain-button-loading'
+      );
+      expect(loadingButton).to.exist;
+      expect(loadingButton.getAttribute('aria-disabled')).to.equal('true');
+      expect(screen.queryByTestId('query-bar-explain-dropdown-button')).to.not
+        .exist;
+      expect(screen.queryByTestId('query-bar-explain-button')).to.not.exist;
     });
   });
 });

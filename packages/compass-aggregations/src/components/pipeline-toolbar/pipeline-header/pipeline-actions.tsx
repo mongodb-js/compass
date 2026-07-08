@@ -27,6 +27,7 @@ import {
 } from 'compass-preferences-model/provider';
 import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -83,13 +84,15 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
     readWrite: preferencesReadWrite,
     enableAggregationBuilderExtraOptions,
     showInsights,
-    enableSearchActivationProgramP2,
   } = usePreferences([
     'readWrite',
     'enableAggregationBuilderExtraOptions',
     'showInsights',
-    'enableSearchActivationProgramP2',
   ]);
+  const {
+    enableSearchActivationProgramP2,
+    isSearchActivationProgramP2Loading,
+  } = useSearchActivationProgramP2({ trackIsInSample: true });
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const { tellMoreAboutInsight, getIsAssistantEnabled } = useAssistantActions();
   const isAssistantEnabled = getIsAssistantEnabled();
@@ -184,7 +187,18 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         </Button>
       )}
       {showExplainButton &&
-        (enableSearchActivationProgramP2 ? (
+        (isSearchActivationProgramP2Loading ? (
+          <Button
+            aria-label="Explain aggregation"
+            data-testid="pipeline-toolbar-explain-aggregation-button-loading"
+            variant="default"
+            size="small"
+            disabled
+            leftGlyph={<SpinLoader />}
+          >
+            Explain
+          </Button>
+        ) : enableSearchActivationProgramP2 ? (
           <DropdownMenuButton
             data-testid="pipeline-toolbar-explain-aggregation-dropdown-button"
             buttonText="Explain"

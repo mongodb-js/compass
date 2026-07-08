@@ -20,7 +20,10 @@ import {
   useIsAIFeatureEnabled,
   usePreference,
 } from 'compass-preferences-model/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  useSearchActivationProgramP2,
+} from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 import {
@@ -176,9 +179,10 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const track = useTelemetry();
-  const enableSearchActivationProgramP2 = usePreference(
-    'enableSearchActivationProgramP2'
-  );
+  const {
+    enableSearchActivationProgramP2,
+    isSearchActivationProgramP2Loading,
+  } = useSearchActivationProgramP2({ trackIsInSample: true });
   const { getIsAssistantEnabled } = useAssistantActions();
   const isAssistantEnabled = getIsAssistantEnabled();
 
@@ -320,7 +324,19 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           )}
         </div>
         {showExplainButton &&
-          (enableSearchActivationProgramP2 ? (
+          (isSearchActivationProgramP2Loading ? (
+            <Button
+              aria-label="Explain query"
+              title="View the execution plan for the current query"
+              data-testid="query-bar-explain-button-loading"
+              disabled
+              size="small"
+              type="button"
+              leftGlyph={<SpinLoader />}
+            >
+              Explain
+            </Button>
+          ) : enableSearchActivationProgramP2 ? (
             <DropdownMenuButton
               data-testid="query-bar-explain-dropdown-button"
               buttonText="Explain"

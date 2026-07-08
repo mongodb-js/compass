@@ -33,7 +33,11 @@ import { getId } from './stage-ids';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
+import {
+  createNoopTrack,
+  ExperimentTestGroups,
+} from '@mongodb-js/compass-telemetry/provider';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import AppRegistry from '@mongodb-js/compass-app-registry';
 import { ConnectionScopedAppRegistryImpl } from '@mongodb-js/compass-connections/provider';
 import { createDefaultConnectionInfo } from '@mongodb-js/testing-library-compass';
@@ -134,19 +138,22 @@ function createPreferencesWithAutoEmbedPreview(
   } as PreferencesAccess;
 }
 
-function createPreferencesWithSearchActivationProgramP2(
+function createExperimentationServicesWithSearchActivationProgramP2(
   enableSearchActivationProgramP2: boolean
-): PreferencesAccess {
-  const base = defaultPreferencesInstance;
+): ExperimentationServices {
   return {
-    ...base,
-    getPreferences() {
-      return {
-        ...base.getPreferences(),
-        enableSearchActivationProgramP2,
-      };
-    },
-  } as PreferencesAccess;
+    assignExperiment: () => Promise.resolve(null),
+    getAssignment: () =>
+      Promise.resolve(
+        enableSearchActivationProgramP2
+          ? ({
+              assignmentData: {
+                variant: ExperimentTestGroups.searchActivationProgramP2Variant,
+              },
+            } as any)
+          : null
+      ),
+  };
 }
 
 function createStore({
@@ -154,11 +161,15 @@ function createStore({
   stages = PIPELINE,
   preferences = defaultPreferencesInstance,
   dataService = mockDataService(),
+  experimentationServices = createExperimentationServicesWithSearchActivationProgramP2(
+    false
+  ),
 }: {
   pipelineSource?: string;
   stages?: StageEditorState['stages'];
   preferences?: PreferencesAccess;
   dataService?: DataService;
+  experimentationServices?: ExperimentationServices;
 }) {
   const pipelineBuilder = Sinon.spy(
     new PipelineBuilder(dataService, preferences, pipelineSource)
@@ -198,6 +209,7 @@ function createStore({
         instance: {} as any,
         workspaces: {} as any,
         preferences,
+        experimentationServices,
         logger: createNoopLogger(),
         track: createNoopTrack(),
         dataService: {} as any,
@@ -954,9 +966,10 @@ describe('stageEditor', function () {
         return createStore({
           stages,
           pipelineSource,
-          preferences: createPreferencesWithSearchActivationProgramP2(
-            enableSearchActivationProgramP2
-          ),
+          experimentationServices:
+            createExperimentationServicesWithSearchActivationProgramP2(
+              enableSearchActivationProgramP2
+            ),
           dataService,
         });
       }
