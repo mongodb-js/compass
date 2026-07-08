@@ -124,13 +124,15 @@ const TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS = [
     task: 'test-packaged-app-min-version',
   },
   {
-    name: 'test-packaged-app-min-macos-arm',
-    display_name: 'MacOS arm64 13 (min version)',
-    run_on: 'macos-13-arm64',
-    depends_on: 'package-macos-arm',
-    // The latest 8.0.x server is built for macOS 14+ and won't launch on
-    // macOS 13, so pin a version that still supports it (see COMPASS-9087,
-    // same constraint previously handled in #6821).
+    // Non-gating: the only macOS 13 GUI distro is Intel and dev-tier
+    // (there is no arm64 GUI host at macOS 13), and the packaged Electron
+    // app needs a GUI host to start a webdriver session, so this can't run
+    // on the non-GUI arm64 packaging distro. Runs off-PR only. (COMPASS-9087)
+    name: 'test-packaged-app-min-macos-x64',
+    display_name: 'MacOS x64 13 (min version)',
+    run_on: 'macos-13-amd64-gui-dev',
+    run_on_prs: false,
+    depends_on: 'package-macos-x64',
     task: 'test-packaged-app-min-version-macos13',
   }
 ];
@@ -291,8 +293,10 @@ buildvariants:
   # oldest OS versions we support and build on.
 <% for (const buildVariant of TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
+  <% if (buildVariant.run_on_prs ?? true) { %>
     tags:
       - run-on-pr
+  <% } %>
     display_name: Test Packaged App <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     depends_on:
@@ -617,14 +621,17 @@ tasks:
   # macOS 14+ and won't launch on macOS 13.
 <%
   const MIN_VERSION_TASKS = [
-    { name: 'test-packaged-app-min-version', mongodb_version: LATEST_MAINTAINED_SERVER_VERSION.version },
-    { name: 'test-packaged-app-min-version-macos13', mongodb_version: '8.0.5' },
+    { name: 'test-packaged-app-min-version', mongodb_version: LATEST_MAINTAINED_SERVER_VERSION.version, required_for_publish: true },
+    // macOS 13 only runs on a dev-tier GUI distro, so keep it non-gating.
+    { name: 'test-packaged-app-min-version-macos13', mongodb_version: '8.0.5', required_for_publish: false },
   ];
 %>
 <% for (const task of MIN_VERSION_TASKS) { %>
   - name: <%= task.name %>
     tags:
+      <% if (task.required_for_publish) { %>
       - required-for-publish-desktop
+      <% } %>
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:
