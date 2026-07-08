@@ -345,11 +345,6 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         backgroundColor:
           editorPalette[theme].autocompleteSelectedBackgroundColor,
       },
-      '& .cm-tooltip-autocomplete ul li:hover': {
-        color: editorPalette[theme].autocompleteColor,
-        backgroundColor:
-          editorPalette[theme].autocompleteSelectedBackgroundColor,
-      },
       '& .cm-completionIcon-query-history': {
         marginRight: `${spacing[200]}px`,
         '&:after': {
