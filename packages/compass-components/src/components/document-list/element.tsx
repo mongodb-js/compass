@@ -334,6 +334,15 @@ const actionsVisible = css({
     {
       display: 'block',
     },
+  // Keep the actions visible while a menu opened from them is expanded. The
+  // add-field menu's trigger sets `aria-expanded="true"` while open; otherwise
+  // the gutter is hidden as soon as the row loses `:hover` (and the menu's focus
+  // is not `:focus-within` the row), which collapses the trigger to 0x0 and
+  // makes leafygreen's popover positioning lose its reference — throwing the
+  // open menu offscreen so clicks on its items miss.
+  '&:has([aria-expanded="true"])': {
+    display: 'block',
+  },
 });
 
 const lineNumberCountHidden = css({

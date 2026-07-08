@@ -4,6 +4,7 @@ import {
   DropdownMenuButton,
   type MenuAction,
   OptionsToggle,
+  SpinLoader,
   css,
   cx,
   spacing,
@@ -137,6 +138,7 @@ type QueryBarProps = {
   onExplainInterpret?: () => void;
   isAIInputVisible?: boolean;
   isAIFetching?: boolean;
+  isInterpretLoading?: boolean;
   onShowAIInputClick: () => void;
   onHideAIInputClick: () => void;
   source: string;
@@ -166,6 +168,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   onExplainInterpret,
   isAIInputVisible = false,
   isAIFetching = false,
+  isInterpretLoading = false,
   onShowAIInputClick,
   onHideAIInputClick,
   source,
@@ -184,8 +187,17 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       {
         action: 'interpret',
         label: 'Interpret',
-        icon: 'Sparkle',
-        isDisabled: !isAssistantEnabled,
+        icon: isInterpretLoading ? (
+          <SpinLoader title="Loading interpret" />
+        ) : (
+          'Sparkle'
+        ),
+        isDisabled: !isAssistantEnabled || isInterpretLoading,
+        disabledDescription: isInterpretLoading
+          ? 'Interpret in progress'
+          : !isAssistantEnabled
+          ? 'Assistant is not available'
+          : undefined,
       },
       {
         action: 'visual-tree',
@@ -198,7 +210,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         icon: 'CurlyBraces',
       },
     ],
-    [isAssistantEnabled]
+    [isAssistantEnabled, isInterpretLoading]
   );
 
   const onExplainAction = useCallback(
@@ -315,6 +327,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
               buttonProps={{
                 size: 'small',
                 disabled: !isQueryValid || isAIFetching,
+                leftGlyph: isInterpretLoading ? <SpinLoader /> : undefined,
               }}
               actions={explainActions}
               onAction={onExplainAction}
@@ -391,7 +404,10 @@ type OwnProps = {
 };
 
 export default connect(
-  ({ queryBar: { expanded, fields, applyId }, aiQuery }: RootState) => {
+  ({
+    queryBar: { expanded, fields, applyId, isInterpretLoading },
+    aiQuery,
+  }: RootState) => {
     return {
       expanded: expanded,
       queryChanged: !isEqualDefaultQuery(fields),
@@ -400,6 +416,7 @@ export default connect(
       applyId: applyId,
       isAIInputVisible: aiQuery.isInputVisible,
       isAIFetching: aiQuery.status === 'fetching',
+      isInterpretLoading,
     };
   },
   (dispatch: QueryBarThunkDispatch, ownProps: OwnProps) => {
