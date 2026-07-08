@@ -1,11 +1,7 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import type { Document } from 'mongodb';
-import {
-  screen,
-  cleanup,
-  userEvent,
-} from '@mongodb-js/testing-library-compass';
+import { screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import HadronDocument from 'hadron-document';
@@ -58,49 +54,39 @@ const renderStagePreview = async (
     diagnoseSearchStage?: Sinon.SinonSpy;
   } = {}
 ) => {
-  let ui: React.ReactElement = (
-    <StagePreview
-      documents={[]}
-      index={Math.max(pipeline.length - 1, 0)}
-      isLoading={false}
-      isDisabled={false}
-      isMissingAtlasOnlyStageSupport={false}
-      stageOperator=""
-      stageMetadata={null}
-      shouldRenderStage={false}
-      showSearchIndexStaleResultsBanner={false}
-      searchIndexName={null}
-      serverErrorStageIdx={null}
-      pipeline={null}
-      {...props}
-    />
-  );
+  const experimentVariant = enableSearchActivationP1Experiment
+    ? ExperimentTestGroups.searchActivationProgramP1Variant
+    : enableSearchActivationP2Experiment
+    ? ExperimentTestGroups.searchActivationProgramP2Variant
+    : null;
+  const preferencesAccess = await createSandboxFromDefaultPreferences();
   if (enableAIAssistant) {
-    const aiPreferences = await createSandboxFromDefaultPreferences();
-    await aiPreferences.savePreferences(AI_ASSISTANT_PREFERENCES);
-    ui = <PreferencesProvider value={aiPreferences}>{ui}</PreferencesProvider>;
+    await preferencesAccess.savePreferences(AI_ASSISTANT_PREFERENCES);
   }
-  if (interpretAnalyzeOutput || diagnoseSearchStage) {
-    ui = (
-      <AssistantActionsContext.Provider
-        value={{ interpretAnalyzeOutput, diagnoseSearchStage }}
-      >
-        {ui}
-      </AssistantActionsContext.Provider>
-    );
-  }
-  if (enableSearchActivationP1Experiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
-  if (enableSearchActivationP2Experiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP2Variant
-    );
-  }
+  const ui = wrapWithExperimentProvider(
+    <AssistantActionsContext.Provider
+      value={{ interpretAnalyzeOutput, diagnoseSearchStage }}
+    >
+      <PreferencesProvider value={preferencesAccess}>
+        <StagePreview
+          documents={[]}
+          index={Math.max(pipeline.length - 1, 0)}
+          isLoading={false}
+          isDisabled={false}
+          isMissingAtlasOnlyStageSupport={false}
+          stageOperator=""
+          stageMetadata={null}
+          shouldRenderStage={false}
+          showSearchIndexStaleResultsBanner={false}
+          searchIndexName={null}
+          serverErrorStageIdx={null}
+          pipeline={null}
+          {...props}
+        />
+      </PreferencesProvider>
+    </AssistantActionsContext.Provider>,
+    experimentVariant
+  );
   return renderWithStore(
     ui,
     { pipeline, ...storeOptions },
@@ -110,7 +96,6 @@ const renderStagePreview = async (
 };
 
 describe('StagePreview', function () {
-  afterEach(cleanup);
   it('renders empty content when stage is disabled', async function () {
     await renderStagePreview({
       isDisabled: true,
@@ -201,6 +186,7 @@ describe('StagePreview', function () {
       {
         enableSearchActivationP2Experiment: true,
         enableAIAssistant: true,
+        diagnoseSearchStage: Sinon.spy(),
       }
     );
     expect(screen.getByTestId('stage-preview-empty')).to.exist;
@@ -487,17 +473,6 @@ describe('StagePreview', function () {
   });
 
   describe('analyze output button', function () {
-    let preferences: PreferencesAccess;
-
-    beforeEach(async function () {
-      preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableAIAssistant: true,
-        enableGenAIFeatures: true,
-        enableGenAIFeaturesAtlasOrg: true,
-      });
-    });
-
     it('renders the button for $search stage with documents and score metadata when P2 experiment is enabled', async function () {
       await renderStagePreview(
         {
@@ -511,7 +486,11 @@ describe('StagePreview', function () {
         },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchActivationP2Experiment: true, preferences }
+        {
+          enableSearchActivationP2Experiment: true,
+          enableAIAssistant: true,
+          interpretAnalyzeOutput: Sinon.spy(),
+        }
       );
       expect(screen.getByTestId('analyze-search-output-button')).to.exist;
     });
@@ -526,7 +505,7 @@ describe('StagePreview', function () {
         },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchActivationP2Experiment: true, preferences }
+        { enableSearchActivationP2Experiment: true, enableAIAssistant: true }
       );
       expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
     });
@@ -540,7 +519,7 @@ describe('StagePreview', function () {
         },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchActivationP2Experiment: true, preferences }
+        { enableSearchActivationP2Experiment: true, enableAIAssistant: true }
       );
       expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
     });
@@ -554,7 +533,7 @@ describe('StagePreview', function () {
         },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchActivationP2Experiment: true, preferences }
+        { enableSearchActivationP2Experiment: true, enableAIAssistant: true }
       );
       expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
     });
@@ -568,7 +547,7 @@ describe('StagePreview', function () {
         },
         DEFAULT_PIPELINE,
         {},
-        { preferences }
+        { enableSearchActivationP2Experiment: false, enableAIAssistant: true }
       );
       expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
     });
@@ -591,7 +570,7 @@ describe('StagePreview', function () {
         {},
         {
           enableSearchActivationP2Experiment: true,
-          preferences,
+          enableAIAssistant: true,
           interpretAnalyzeOutput: interpretAnalyzeOutputSpy,
         }
       );
@@ -626,7 +605,7 @@ describe('StagePreview', function () {
         {},
         {
           enableSearchActivationP2Experiment: true,
-          preferences,
+          enableAIAssistant: true,
           interpretAnalyzeOutput: interpretAnalyzeOutputSpy,
         }
       );
