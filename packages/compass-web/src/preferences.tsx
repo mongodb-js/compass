@@ -22,9 +22,6 @@ export const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableGenAIToolCallingAtlasProject: true,
   enablePerformanceAdvisorBanner: true,
   enableMyQueries: false,
-  cloudFeatureRolloutAccess: {
-    GEN_AI_COMPASS: false,
-  },
   maximumNumberOfActiveConnections: 10,
   trackUsageStatistics: true,
   enableShell: false,

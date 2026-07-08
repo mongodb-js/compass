@@ -92,11 +92,6 @@ describe('CompassAuthServiceMain', function () {
 
     preferences = await createSandboxFromDefaultPreferences();
     CompassAuthService['preferences'] = preferences;
-    await preferences.savePreferences({
-      cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: true,
-      },
-    });
   });
 
   // eslint-disable-next-line @typescript-eslint/require-await
