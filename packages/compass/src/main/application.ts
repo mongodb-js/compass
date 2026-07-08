@@ -184,11 +184,15 @@ class CompassApplication {
       return CompassAuthService.onExit();
     });
 
-    protocol.handle('https', (req) => {
-      const authHeaders = CompassAuthService.maybeGetAuthHeaders(req);
+    protocol.handle('https', async (req) => {
+      const authHeaders =
+        req.headers.get('X-Compass-Auth') === 'true'
+          ? await CompassAuthService.maybeGetAuthHeaders(req)
+          : {};
       return net.fetch(req, {
         headers: {
           ...req.headers,
+          ['X-Compass-Auth']: undefined,
           ...authHeaders,
         },
         bypassCustomProtocolHandlers: true,
@@ -267,6 +271,7 @@ class CompassApplication {
         // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
         // https://github.com/electron/electron/issues/33640
         await app.whenReady();
+        return false;
         return safeStorage.isEncryptionAvailable();
       },
     });
