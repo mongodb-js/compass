@@ -7,10 +7,8 @@ import { useAssignment } from './experimentation-provider';
 // @experiment Search Activation Program P2 | Jira Epic: CLOUDP-331931
 // trackIsInSample controls whether this call fires an "Experiment Viewed" tracking event.
 export const useSearchActivationProgramP2 = ({
-  trackIsInSample,
-}: {
-  trackIsInSample: boolean;
-}) => {
+  trackIsInSample = true,
+}: { trackIsInSample?: boolean } = {}) => {
   const assignment = useAssignment(
     ExperimentTestNames.searchActivationProgramP2,
     trackIsInSample
