@@ -28,6 +28,7 @@ import { spawn } from 'child_process';
 import { getAtlasConfig } from './util';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
+import { ATLAS_ADMIN_API_AUTH_ENDPOINTS } from './atlas-admin-api-auth-endpoints';
 
 const { log } = createLogger('COMPASS-ATLAS-SERVICE');
 const track = createIpcTrack();
@@ -182,7 +183,6 @@ export class CompassAuthService {
           'isAuthenticated',
           'signIn',
           'signOut',
-          'maybeGetToken',
         ]);
       }
       this.attachOidcPluginLoggerEvents();
@@ -464,8 +464,33 @@ export class CompassAuthService {
         mongoLogId(1_001_000_221),
         'AtlasService',
         'Failed to save auth state',
-        { erroe: (err as Error).stack }
+        { error: (err as Error).stack }
       );
+    }
+  }
+
+  static isAuthenticatedAtlasAdminAPIRequest(req: Request): boolean {
+    const url = new URL(req.url);
+    return (
+      url.origin === this.config.atlasLogin.issuer &&
+      ATLAS_ADMIN_API_AUTH_ENDPOINTS.some((endpoint) => {
+        if (typeof endpoint === 'string') {
+          return url.pathname === endpoint;
+        }
+        return endpoint.test(url.pathname);
+      })
+    );
+  }
+
+  static async maybeGetAuthHeaders(
+    req: Request
+  ): Promise<Record<string, string> | undefined> {
+    if (this.isAuthenticatedAtlasAdminAPIRequest(req)) {
+      return {
+        Authorization: `Bearer ${await this.maybeGetToken({
+          tokenType: 'accessToken',
+        })}`,
+      };
     }
   }
 }

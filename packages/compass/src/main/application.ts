@@ -2,6 +2,7 @@ import './disable-node-deprecations'; // Separate module so it runs first
 import path from 'path';
 import { EventEmitter } from 'events';
 import type { BrowserWindow, Event, ProxyConfig } from 'electron';
+import { protocol, net } from 'electron';
 import { app, safeStorage, session } from 'electron';
 import { ipcMain } from 'hadron-ipc';
 import type { AutoUpdateManagerState } from './auto-update-manager';
@@ -181,6 +182,17 @@ class CompassApplication {
     await CompassAuthService.init(this.preferences, this.httpClient);
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
+    });
+
+    protocol.handle('https', (req) => {
+      const authHeaders = CompassAuthService.maybeGetAuthHeaders(req);
+      return net.fetch(req, {
+        headers: {
+          ...req.headers,
+          ...authHeaders,
+        },
+        bypassCustomProtocolHandlers: true,
+      });
     });
   }
 
