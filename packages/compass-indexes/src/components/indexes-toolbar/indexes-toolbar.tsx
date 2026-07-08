@@ -141,7 +141,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   const isVersionCompatible =
     VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(serverVersion);
   const isIncompatibleViewWithExistingIndexes =
-    !isViewPipelineSearchQueryable && !!atlasMetadata && hasSearchIndexes;
+    !isViewPipelineSearchQueryable && !atlasMetadata && hasSearchIndexes;
   const canManageSearchIndexesOnView =
     isVersionCompatible &&
     isSearchManagementActive &&
