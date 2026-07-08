@@ -118,7 +118,7 @@ export class AtlasGlobalWritesService {
     const uri = this.atlasService.cloudEndpoint(
       `nds/clusters/${projectId}/${clusterName}`
     );
-    const response = await this.atlasService.authenticatedFetch(uri);
+    const response = await this.atlasService.fetch(uri);
     const clusterDetails = await response.json();
     assertDataIsClusterDetailsApiResponse(clusterDetails);
     return clusterDetails;
@@ -157,7 +157,7 @@ export class AtlasGlobalWritesService {
       `nds/clusters/${projectId}/${clusterName}/geoSharding`
     );
 
-    const response = await this.atlasService.authenticatedFetch(uri, {
+    const response = await this.atlasService.fetch(uri, {
       method: 'PATCH',
       body: JSON.stringify(requestData),
       headers: {
@@ -182,7 +182,7 @@ export class AtlasGlobalWritesService {
     const uri = this.atlasService.cloudEndpoint(
       `/automation/deploymentStatus/${projectId}`
     );
-    const response = await this.atlasService.authenticatedFetch(uri);
+    const response = await this.atlasService.fetch(uri);
     const data = await response.json();
     assertDataIsAutomationAgentDeploymentStatusApiResponse(data);
     const namespaceShardingError = data.automationStatus.processes.find(
@@ -250,7 +250,7 @@ export class AtlasGlobalWritesService {
     const uri = this.atlasService.cloudEndpoint(
       `/nds/geoSharding/${projectId}/newFormLocationMapping`
     );
-    const response = await this.atlasService.authenticatedFetch(uri, {
+    const response = await this.atlasService.fetch(uri, {
       method: 'POST',
       body: JSON.stringify({
         replicationSpecs,
@@ -285,7 +285,7 @@ export class AtlasGlobalWritesService {
       `nds/clusters/${projectId}/${clusterName}/geoSharding`
     );
 
-    await this.atlasService.authenticatedFetch(uri, {
+    await this.atlasService.fetch(uri, {
       method: 'PATCH',
       body: JSON.stringify(requestData),
       headers: {

@@ -19,7 +19,7 @@ export class RollingIndexesService {
     AtlasService,
     | 'automationAgentRequest'
     | 'automationAgentAwait'
-    | 'authenticatedFetch'
+    | 'fetch'
     | 'cloudEndpoint'
   >;
   private connectionInfo: ConnectionInfoRef;
@@ -28,7 +28,7 @@ export class RollingIndexesService {
       AtlasService,
       | 'automationAgentRequest'
       | 'automationAgentAwait'
-      | 'authenticatedFetch'
+      | 'fetch'
       | 'cloudEndpoint'
     >,
     connectionInfo: ConnectionInfoRef
@@ -110,10 +110,10 @@ export class RollingIndexesService {
 
     // Requesting a rolling index build doesn't return anything that we can
     // await on similar to other index creation processes (but
-    // authenticatedFetch will make sure it fails if server responded with an
+    // fetch will make sure it fails if server responded with an
     // error) or automation agent jobs, this is why we're just submitting
     // without doing anything with a response
-    await this.atlasService.authenticatedFetch(requestUrl, {
+    await this.atlasService.fetch(requestUrl, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',

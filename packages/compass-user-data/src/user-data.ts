@@ -33,7 +33,7 @@ export function assertsUserDataType(
 
 type SerializeContent<I> = (content: I) => string;
 type DeserializeContent = (content: string) => unknown;
-type AuthenticatedFetch = (
+type fetch = (
   url: RequestInfo | URL,
   options?: RequestInit
 ) => Promise<Response>;
@@ -363,7 +363,7 @@ type AtlasServiceLike = {
     dataType: UserDataType,
     id?: string
   ) => string;
-  authenticatedFetch: AuthenticatedFetch;
+  fetch: fetch;
 };
 
 // TODO: update endpoints to reflect the merged api endpoints https://jira.mongodb.org/browse/CLOUDP-329716
@@ -397,7 +397,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
     );
     try {
       this.validator.parse(content);
-      await this.atlasService.authenticatedFetch(url, {
+      await this.atlasService.fetch(url, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -431,7 +431,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       id
     );
     try {
-      await this.atlasService.authenticatedFetch(url, {
+      await this.atlasService.fetch(url, {
         method: 'DELETE',
       });
       return true;
@@ -455,7 +455,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       errors: [],
     };
     try {
-      const response = await this.atlasService.authenticatedFetch(
+      const response = await this.atlasService.fetch(
         this.atlasService.userDataEndpoint(
           this.orgId,
           this.projectId,
@@ -499,7 +499,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
         ...data,
       };
 
-      await this.atlasService.authenticatedFetch(url, {
+      await this.atlasService.fetch(url, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -533,7 +533,7 @@ export class AtlasUserData<T extends z.Schema> extends IUserData<T> {
       id
     );
     try {
-      const getResponse = await this.atlasService.authenticatedFetch(url, {
+      const getResponse = await this.atlasService.fetch(url, {
         method: 'GET',
       });
       const json = await getResponse.json();

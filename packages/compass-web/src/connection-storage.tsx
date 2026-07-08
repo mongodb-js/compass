@@ -102,7 +102,7 @@ export class AtlasCloudConnectionStorage
     let connectionInfoList: ConnectionInfo[] = [];
 
     try {
-      const res = await this.atlasService.authenticatedFetch(
+      const res = await this.atlasService.fetch(
         this.atlasService.cloudEndpoint(
           `/explorer/v1/groups/${this.projectId}/clusters/connectionInfo`
         )

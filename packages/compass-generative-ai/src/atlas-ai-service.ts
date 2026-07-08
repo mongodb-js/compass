@@ -326,7 +326,7 @@ export class AtlasAiService {
           PLACEHOLDER_BASE_URL,
           this.atlasService.assistantApiEndpoint()
         );
-        return this.atlasService.authenticatedFetch(uri, init);
+        return this.atlasService.fetch(uri, init);
       },
     }).responses(AI_MODEL_SLIM_VERSION);
 
@@ -338,7 +338,7 @@ export class AtlasAiService {
           PLACEHOLDER_BASE_URL,
           this.atlasService.assistantApiEndpoint()
         );
-        return this.atlasService.authenticatedFetch(uri, init);
+        return this.atlasService.fetch(uri, init);
       },
     }).responses(AI_MODEL_SLIM_VERSION);
   }
@@ -416,7 +416,7 @@ export class AtlasAiService {
       }
     );
 
-    const res = await this.atlasService.authenticatedFetch(url, {
+    const res = await this.atlasService.fetch(url, {
       signal,
       method: 'POST',
       body: msgBody,
@@ -656,7 +656,7 @@ export class AtlasAiService {
   async optIntoGenAIFeatures() {
     if (this.apiURLPreset === 'cloud') {
       // Performs a post request to Atlas to set the user opt in preference to true.
-      await this.atlasService.authenticatedFetch(
+      await this.atlasService.fetch(
         this.atlasService.cloudEndpoint(
           'settings/optInDataExplorerGenAIFeatures'
         ),
