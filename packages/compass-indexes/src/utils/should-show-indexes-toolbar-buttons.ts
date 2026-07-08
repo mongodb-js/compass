@@ -10,14 +10,12 @@ export function shouldShowIndexesToolbarButtons({
   isSearchManagementActive,
   isViewPipelineSearchQueryable,
   hasSearchIndexes,
-  isAtlas,
 }: {
   isReadonlyView: boolean;
   serverVersion: string;
   isSearchManagementActive: boolean;
   isViewPipelineSearchQueryable: boolean;
   hasSearchIndexes: boolean;
-  isAtlas: boolean;
 }): boolean {
   // Non-views always show the toolbar.
   if (!isReadonlyView) {
@@ -35,6 +33,6 @@ export function shouldShowIndexesToolbarButtons({
   }
 
   // Search-queryable views, or incompatible views that still have existing
-  // indexes (desktop Compass only - atlasMetadata is only set in Data Explorer).
-  return isViewPipelineSearchQueryable || (!isAtlas && hasSearchIndexes);
+  // indexes show toolbar.
+  return isViewPipelineSearchQueryable || hasSearchIndexes;
 }

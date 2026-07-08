@@ -8,7 +8,6 @@ const baseParams = {
   isSearchManagementActive: true,
   isViewPipelineSearchQueryable: true,
   hasSearchIndexes: false,
-  isAtlas: false,
 };
 
 describe('shouldShowIndexesToolbarButtons', function () {
@@ -69,24 +68,13 @@ describe('shouldShowIndexesToolbarButtons', function () {
         ).to.be.false;
       });
 
-      it('shows the toolbar in desktop Compass when there are existing search indexes', function () {
+      it('shows the toolbar when there are existing search indexes', function () {
         expect(
           shouldShowIndexesToolbarButtons({
             ...incompatibleViewParams,
             hasSearchIndexes: true,
-            isAtlas: false,
           })
         ).to.be.true;
-      });
-
-      it('hides the toolbar in Data Explorer even when there are existing search indexes', function () {
-        expect(
-          shouldShowIndexesToolbarButtons({
-            ...incompatibleViewParams,
-            hasSearchIndexes: true,
-            isAtlas: true,
-          })
-        ).to.be.false;
       });
     });
   });

@@ -145,7 +145,6 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     isSearchManagementActive,
     isViewPipelineSearchQueryable,
     hasSearchIndexes,
-    isAtlas: !!atlasMetadata,
   });
   const pipelineNotSearchQueryableDescription =
     'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set';
