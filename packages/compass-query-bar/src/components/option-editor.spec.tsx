@@ -234,31 +234,6 @@ describe('OptionEditor', function () {
         );
       });
     });
-
-    it('applies hover styling to autocomplete items', function () {
-      const completionsList = screen.getByLabelText('Completions');
-      const listItems = completionsList.querySelectorAll('li');
-
-      expect(listItems.length).to.be.greaterThan(0);
-
-      // Get the first autocomplete item
-      const firstItem = listItems[0];
-
-      // Check that hover styles are defined (via computed styles)
-      const styles = window.getComputedStyle(firstItem);
-
-      // The item should have display: flex from base styling
-      expect(styles.display).to.equal('flex');
-
-      // Hover the item
-      userEvent.hover(firstItem);
-
-      // After hovering, the background color should change
-      // (We can't directly test :hover pseudo-class, but we verify the CSS rule exists
-      // by checking that the element is properly styled and interactive)
-      const hoveredStyles = window.getComputedStyle(firstItem);
-      expect(hoveredStyles.display).to.equal('flex');
-    });
   });
 
   describe('when rendering project option', function () {

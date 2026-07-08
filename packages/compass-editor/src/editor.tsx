@@ -479,6 +479,18 @@ const themeStyles = {
   dark: getStylesForTheme('dark'),
 } as const;
 
+// Base theme for autocomplete hover - applies to document root for tooltips
+const autocompleteHoverStyles = EditorView.baseTheme({
+  '&light .cm-tooltip.cm-tooltip-autocomplete ul li:hover': {
+    color: editorPalette.light.autocompleteColor,
+    backgroundColor: editorPalette.light.autocompleteSelectedBackgroundColor,
+  },
+  '&dark .cm-tooltip.cm-tooltip-autocomplete ul li:hover': {
+    color: editorPalette.dark.autocompleteColor,
+    backgroundColor: editorPalette.dark.autocompleteSelectedBackgroundColor,
+  },
+});
+
 function getHighlightStyleForTheme(theme: CodemirrorThemeType) {
   // For the full list of tags parsed by lezer for javascript / json see:
   //   https://github.com/lezer-parser/javascript/blob/main/src/highlight.js
@@ -1014,6 +1026,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         activeLineExtension,
         lineHeightExtension,
         themeConfigExtension,
+        autocompleteHoverStyles,
         placeholderExtension,
         // User provided commands should take precedence over default keybindings.
         commandsExtension,
