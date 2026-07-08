@@ -27,6 +27,7 @@ import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
 import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
+import { shouldShowIndexesToolbarButtons } from '../../utils/should-show-indexes-toolbar-buttons';
 import {
   useSearchActivationProgramP1,
   useTelemetry,
@@ -138,15 +139,14 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
 
-  const isVersionCompatible =
-    VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(serverVersion);
-  const isIncompatibleViewWithExistingIndexes =
-    !isViewPipelineSearchQueryable && !atlasMetadata && hasSearchIndexes;
-  const canManageSearchIndexesOnView =
-    isVersionCompatible &&
-    isSearchManagementActive &&
-    (isViewPipelineSearchQueryable || isIncompatibleViewWithExistingIndexes);
-  const showToolbarButtons = !isReadonlyView || canManageSearchIndexesOnView;
+  const showToolbarButtons = shouldShowIndexesToolbarButtons({
+    isReadonlyView,
+    serverVersion,
+    isSearchManagementActive,
+    isViewPipelineSearchQueryable,
+    hasSearchIndexes,
+    isAtlas: !!atlasMetadata,
+  });
   const pipelineNotSearchQueryableDescription =
     'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set';
 
