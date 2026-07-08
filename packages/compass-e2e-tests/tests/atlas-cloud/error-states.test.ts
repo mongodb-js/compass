@@ -5,7 +5,6 @@ import {
   assertTestingWebAtlasCloud,
   isTestingWebAtlasCloud,
 } from '../../helpers/test-runner-context.ts';
-import { blockNetworkRequest } from '../../helpers/commands/atlas-cloud/utils.ts';
 
 describe('Error states', function () {
   let compass: Compass;
@@ -17,6 +16,7 @@ describe('Error states', function () {
   });
 
   afterEach(async function () {
+    await compass.browser.mockRestoreAll();
     await screenshotIfFailed(compass, this.currentTest);
     await cleanup(compass);
   });
@@ -42,15 +42,17 @@ describe('Error states', function () {
       skipSharedConfigOnStart: true,
       async onBeforeNavigate(browser) {
         assertTestingWebAtlasCloud(context);
-        await blockNetworkRequest(
-          browser,
-          `*/explorer/v1/groups/${context.atlasCloudProjectId}/preferences`
+        const mock = await browser.mock(
+          `/explorer/v1/groups/${context.atlasCloudProjectId}/preferences`
         );
+        // Abort all the requests. More reliable here than mock.respond due to prefetch
+        // on cloud and compass side.
+        mock.abort();
       },
     });
 
     await compass.browser
-      .$('*=Error Occurred')
+      .$("*=If you're experiencing a critical issue, please email support.")
       .waitForDisplayed({ timeout: 30000 });
   });
 });

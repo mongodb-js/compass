@@ -2,6 +2,9 @@ import { expect } from 'chai';
 import {
   buildConversationInstructionsPrompt,
   buildExplainPlanPrompt,
+  buildAnalyzeOutputPrompt,
+  buildDebugSearchErrorPrompt,
+  buildDiagnoseSearchStagePrompt,
   buildContextPrompt,
 } from './prompts';
 
@@ -69,6 +72,132 @@ describe('prompts', function () {
       );
       expect(aggregationPrompt.metadata?.instructions).to.not.include(
         'MongoDB Query'
+      );
+    });
+  });
+
+  describe('buildAnalyzeOutputPrompt', function () {
+    const mockPipeline = '[{ $search: { index: "default" } }]';
+    const mockOutput = 'Document 1:\n{"_id":1}';
+
+    it('uses singular displayText for 1 document', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 1,
+      });
+      expect(result.metadata?.displayText).to.equal(
+        'Analyze this result after $search stage.'
+      );
+    });
+
+    it('uses plural displayText for 2 documents', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 2,
+      });
+      expect(result.metadata?.displayText).to.equal(
+        'Analyze these 2 results after $search stage.'
+      );
+    });
+
+    it('uses top-3 displayText for 3 or more documents', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 5,
+      });
+      expect(result.metadata?.displayText).to.equal(
+        'Analyze the top 3 results after $search stage.'
+      );
+    });
+
+    it('includes the pipeline in the prompt', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 1,
+      });
+      expect(result.prompt).to.include(mockPipeline);
+    });
+
+    it('includes the output in the prompt', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 1,
+      });
+      expect(result.prompt).to.include(mockOutput);
+    });
+
+    it('includes a confirmation with pending state', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 1,
+      });
+      expect(result.metadata?.confirmation?.state).to.equal('pending');
+      expect(result.metadata?.confirmation?.description).to.be.a('string');
+    });
+  });
+
+  describe('buildDebugSearchErrorPrompt', function () {
+    const mockContext = {
+      stageOperator: '$search',
+      stageValue: '{ "index": "movies" }',
+      errorMessage: 'index "movies" not found',
+    };
+
+    it('includes the stage operator and stage value in the prompt', function () {
+      const result = buildDebugSearchErrorPrompt(mockContext);
+      expect(result.prompt).to.include('$search');
+      expect(result.prompt).to.include('{ "index": "movies" }');
+    });
+
+    it('includes the error message in the prompt', function () {
+      const result = buildDebugSearchErrorPrompt(mockContext);
+      expect(result.prompt).to.include('index "movies" not found');
+    });
+
+    it('uses a static displayText', function () {
+      const result = buildDebugSearchErrorPrompt(mockContext);
+      expect(result.metadata?.displayText).to.equal(
+        'Diagnose why my aggregation pipeline is failing and help me debug it.'
+      );
+    });
+  });
+
+  describe('buildDiagnoseSearchStagePrompt', function () {
+    const mockContext = {
+      stageOperator: '$search',
+      indexName: 'movies',
+      stageValue: '{ "index": "movies" }',
+    };
+
+    it('includes the stage operator and stage value in the prompt', function () {
+      const result = buildDiagnoseSearchStagePrompt(mockContext);
+      expect(result.prompt).to.include('$search');
+      expect(result.prompt).to.include('{ "index": "movies" }');
+    });
+
+    it('includes the index name when provided', function () {
+      const result = buildDiagnoseSearchStagePrompt(mockContext);
+      expect(result.prompt).to.include('with index "movies"');
+    });
+
+    it('omits the index clause when indexName is null', function () {
+      const result = buildDiagnoseSearchStagePrompt({
+        ...mockContext,
+        indexName: null,
+      });
+      expect(result.prompt).to.not.include('with index');
+    });
+
+    it('uses a static displayText', function () {
+      const result = buildDiagnoseSearchStagePrompt(mockContext);
+      expect(result.metadata?.displayText).to.equal(
+        'Diagnose why my aggregation pipeline is not returning results.'
       );
     });
   });

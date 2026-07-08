@@ -123,6 +123,16 @@ describe('utils', function () {
     });
 
     context('when on-prem', function () {
+      it('does not return $rerank', function () {
+        const rerankStages = filterStageOperators({
+          ...defaultFilter,
+          env: 'on-prem',
+          serverVersion: '8.3.0',
+        }).filter((o) => o.name === '$rerank');
+
+        expect(rerankStages.length).to.be.equal(0);
+      });
+
       it('returns "atlas only" stages', function () {
         const searchStages = filterStageOperators({
           ...defaultFilter,
@@ -151,6 +161,18 @@ describe('utils', function () {
         }).filter((o) => ['$out', '$merge'].includes(o.name));
 
         expect(searchStages.length).to.be.equal(2);
+      });
+    });
+
+    context('when on atlas', function () {
+      it('returns $rerank', function () {
+        const rerankStages = filterStageOperators({
+          ...defaultFilter,
+          env: 'atlas',
+          serverVersion: '8.3.0',
+        }).filter((o) => o.name === '$rerank');
+
+        expect(rerankStages.length).to.be.equal(1);
       });
     });
 

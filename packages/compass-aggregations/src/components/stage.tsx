@@ -17,12 +17,11 @@ import ResizeHandle from './resize-handle';
 import StageToolbar from './stage-toolbar';
 import StageEditor from './stage-editor';
 import { RerankFirstStageBanner } from './rerank-first-stage-banner';
-import { RerankTokensBanner } from './rerank-tokens-banner';
 import StagePreview from './stage-preview';
 import { hasSyntaxError } from '../utils/stage';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import type { StoreStage } from '../modules/pipeline-builder/stage-editor';
-import { getIsRerankFirstStage } from '../modules/pipeline-builder/builder-helpers';
+import { getIsRerankFirstStageBannerVisible } from '../modules/pipeline-builder/builder-helpers';
 import type { SortableProps } from './pipeline-builder-workspace/pipeline-builder-ui-workspace/sortable-list';
 
 const stageStyles = css({
@@ -41,8 +40,14 @@ const stageErrorStyles = css({
   borderColor: palette.red.base,
 });
 
+const stageContentWithBannerStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+});
+
 const stageContentStyles = css({
   display: 'flex',
+  flexDirection: 'row',
 });
 
 const stageEditorNoPreviewStyles = css({
@@ -133,7 +138,6 @@ export type StageProps = SortableProps & {
   hasServerError: boolean;
   isAutoPreviewing?: boolean | undefined;
   showRerankFirstStageBanner: boolean;
-  showRerankTokensBanner: boolean;
 };
 
 function Stage({
@@ -144,7 +148,6 @@ function Stage({
   hasServerError,
   isAutoPreviewing,
   showRerankFirstStageBanner,
-  showRerankTokensBanner,
   ...sortableProps
 }: StageProps) {
   const editorRef = useRef<EditorRef>(null);
@@ -188,24 +191,21 @@ function Stage({
             index={index}
           />
         </div>
-        {showRerankFirstStageBanner && (
-          <RerankFirstStageBanner data-testid="stage-rerank-first-stage-banner" />
-        )}
-        {showRerankTokensBanner && (
-          <RerankTokensBanner data-testid="stage-rerank-tokens-banner" />
-        )}
         {isExpanded && (
-          <div style={{ opacity }} className={stageContentStyles}>
-            <ResizableEditor
-              index={index}
-              isAutoPreviewing={isAutoPreviewing}
-              editorRef={editorRef}
-            />
-            {isAutoPreviewing && (
-              <div className={stagePreviewContainerStyles}>
-                <StagePreview index={index} />
-              </div>
-            )}
+          <div style={{ opacity }} className={stageContentWithBannerStyles}>
+            {showRerankFirstStageBanner && <RerankFirstStageBanner />}
+            <div className={stageContentStyles}>
+              <ResizableEditor
+                index={index}
+                isAutoPreviewing={isAutoPreviewing}
+                editorRef={editorRef}
+              />
+              {isAutoPreviewing && (
+                <div className={stagePreviewContainerStyles}>
+                  <StagePreview index={index} />
+                </div>
+              )}
+            </div>
           </div>
         )}
       </KeylineCard>
@@ -227,8 +227,9 @@ export default connect((state: RootState, ownProps: StageOwnProps) => {
     hasSyntaxError: hasSyntaxError(stage),
     hasServerError: !!stage.serverError,
     isAutoPreviewing: state.autoPreview,
-    showRerankFirstStageBanner: getIsRerankFirstStage(state, ownProps.index),
-    showRerankTokensBanner:
-      stage.stageOperator === '$rerank' && !!state.autoPreview,
+    showRerankFirstStageBanner: getIsRerankFirstStageBannerVisible(
+      state,
+      ownProps.index
+    ),
   };
 })(Stage);

@@ -1417,4 +1417,67 @@ describe('AssistantChat', function () {
       });
     });
   });
+
+  describe('follow-up question chips', function () {
+    const assistantMessageWithFollowUps: AssistantMessage = {
+      id: 'assistant',
+      role: 'assistant',
+      parts: [
+        {
+          type: 'text',
+          text: 'Here is the analysis.\n\n### Follow-Up Questions\n1. How can I optimize this query?\n2. What indexes would help?\n3. Can you explain the score?',
+        },
+      ],
+    };
+
+    it('renders follow-up chips when the experiment is enabled and the response is complete', function () {
+      renderWithChat(
+        createMockChat({ messages: [assistantMessageWithFollowUps] }),
+        { preferences: { enableSearchActivationProgramP2: true } }
+      );
+
+      expect(screen.getByTestId('follow-up-prompt-0')).to.exist;
+      expect(screen.getByTestId('follow-up-prompt-1')).to.exist;
+      expect(screen.getByTestId('follow-up-prompt-2')).to.exist;
+      expect(screen.getByText('How can I optimize this query?')).to.exist;
+    });
+
+    it('does not render follow-up chips when the experiment is disabled', function () {
+      renderWithChat(
+        createMockChat({ messages: [assistantMessageWithFollowUps] }),
+        { preferences: { enableSearchActivationProgramP2: false } }
+      );
+
+      expect(screen.queryByTestId('follow-up-prompt-0')).to.not.exist;
+    });
+
+    it('strips the follow-up section from the displayed message text', function () {
+      renderWithChat(
+        createMockChat({ messages: [assistantMessageWithFollowUps] }),
+        { preferences: { enableSearchActivationProgramP2: true } }
+      );
+
+      expect(screen.getByText('Here is the analysis.')).to.exist;
+      expect(screen.queryByText(/Follow-Up Questions/)).to.not.exist;
+    });
+
+    it('sends the question text when a chip is clicked', async function () {
+      const { ensureOptInAndSendStub } = renderWithChat(
+        createMockChat({ messages: [assistantMessageWithFollowUps] }),
+        { preferences: { enableSearchActivationProgramP2: true } }
+      );
+
+      userEvent.click(screen.getByTestId('follow-up-prompt-0'));
+
+      await waitFor(() => {
+        expect(ensureOptInAndSendStub.calledOnce).to.be.true;
+        expect(ensureOptInAndSendStub.firstCall.args[0].text).to.equal(
+          'How can I optimize this query?'
+        );
+        expect(
+          ensureOptInAndSendStub.firstCall.args[0].metadata.source
+        ).to.equal('follow-up prompt');
+      });
+    });
+  });
 });
