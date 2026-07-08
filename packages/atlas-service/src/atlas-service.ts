@@ -158,6 +158,19 @@ export class AtlasService {
       throw err;
     }
   }
+  async authenticatedFetch(
+    url: RequestInfo | URL,
+    init?: RequestInit
+  ): Promise<Response> {
+    return this.fetch(url, {
+      ...init,
+      headers: {
+        ...init?.headers,
+        ['X-Compass-Auth']: 'true',
+      },
+      credentials: 'include',
+    });
+  }
   async automationAgentRequest(
     atlasMetadata: AtlasClusterMetadata,
     opType: string,
@@ -168,7 +181,7 @@ export class AtlasService {
       atlasMetadata,
       `/explorer/v1/groups/${atlasMetadata.projectId}/requests/${opType}`
     );
-    const json = await this.fetch(requestUrl, {
+    const json = await this.authenticatedFetch(requestUrl, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -200,7 +213,7 @@ export class AtlasService {
       atlasMetadata,
       `/explorer/v1/groups/${atlasMetadata.projectId}/requests/${requestId}/types/${opType}/await`
     );
-    const json = await this.fetch(requestUrl, {
+    const json = await this.authenticatedFetch(requestUrl, {
       method: 'GET',
     }).then((res) => {
       return res.json();

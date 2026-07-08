@@ -30,7 +30,7 @@ const atlasService = {
   cloudEndpoint: (p: string) => {
     return `https://example.com/${p}`;
   },
-  fetch: (url: RequestInfo | URL) => {
+  authenticatedFetch: (url: RequestInfo | URL) => {
     if (url.toString().endsWith('nds/clusters/Project0/Cluster0')) {
       return Promise.resolve({
         status: 200,
