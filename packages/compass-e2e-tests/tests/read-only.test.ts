@@ -288,20 +288,14 @@ describe('readOnly: true / Read-Only Edition', function () {
     );
 
     let createIndexButton = browser.$(Selectors.CreateIndexButton);
-    let isCreateIndexButtonExisting = await createIndexButton.isExisting();
-    expect(isCreateIndexButtonExisting).to.be.equal(
-      true,
-      'Expected "Create Index" button in the Indexes view to exist'
-    );
+    // Wait for the Create Index button to exist.
+    await createIndexButton.waitForExist({ timeout: 30_000 });
 
     await setReadOnlyFeatureViaSettingsModal(browser, true);
 
     createIndexButton = browser.$(Selectors.CreateIndexButton);
-    isCreateIndexButtonExisting = await createIndexButton.isExisting();
-    expect(isCreateIndexButtonExisting).to.be.equal(
-      false,
-      'Expected "Create Index" button in the Indexes view to NOT exist'
-    );
+    // Wait for the Create Index button to not exist.
+    await createIndexButton.waitForExist({ reverse: true, timeout: 30_000 });
 
     const indexList = browser.$(Selectors.IndexList);
     const isIndexListExisting = await indexList.isExisting();
