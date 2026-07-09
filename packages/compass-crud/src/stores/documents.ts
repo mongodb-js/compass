@@ -140,7 +140,8 @@ export const DocumentsActionTypes = {
   GET_PAGE_SUCCESS: 'crud/documents/GET_PAGE_SUCCESS',
   GET_PAGE_ERROR: 'crud/documents/GET_PAGE_ERROR',
   CANCEL_OPERATION: 'crud/documents/CANCEL_OPERATION',
-  DEBOUNCING_LOAD_CHANGED: 'crud/documents/DEBOUNCING_LOAD_CHANGED',
+  LOAD_DEBOUNCE_STARTED: 'crud/documents/LOAD_DEBOUNCE_STARTED',
+  LOAD_DEBOUNCE_FINISHED: 'crud/documents/LOAD_DEBOUNCE_FINISHED',
   DOCUMENT_REMOVED: 'crud/documents/DOCUMENT_REMOVED',
   DOCUMENT_REPLACED: 'crud/documents/DOCUMENT_REPLACED',
   DOCS_PER_PAGE_CHANGED: 'crud/documents/DOCS_PER_PAGE_CHANGED',
@@ -205,9 +206,12 @@ export type CancelOperationAction = {
   type: typeof DocumentsActionTypes.CANCEL_OPERATION;
 };
 
-export type DebouncingLoadChangedAction = {
-  type: typeof DocumentsActionTypes.DEBOUNCING_LOAD_CHANGED;
-  debouncingLoad: boolean;
+export type LoadDebounceStartedAction = {
+  type: typeof DocumentsActionTypes.LOAD_DEBOUNCE_STARTED;
+};
+
+export type LoadDebounceFinishedAction = {
+  type: typeof DocumentsActionTypes.LOAD_DEBOUNCE_FINISHED;
 };
 
 export type DocumentRemovedAction = {
@@ -242,7 +246,8 @@ export type DocumentsActions =
   | GetPageSuccessAction
   | GetPageErrorAction
   | CancelOperationAction
-  | DebouncingLoadChangedAction
+  | LoadDebounceStartedAction
+  | LoadDebounceFinishedAction
   | DocumentRemovedAction
   | DocumentReplacedAction
   | DocsPerPageChangedAction
@@ -343,8 +348,11 @@ export function createDocumentsReducer(
     if (isAction(action, DocumentsActionTypes.CANCEL_OPERATION)) {
       return { ...state, abortController: null };
     }
-    if (isAction(action, DocumentsActionTypes.DEBOUNCING_LOAD_CHANGED)) {
-      return { ...state, debouncingLoad: action.debouncingLoad };
+    if (isAction(action, DocumentsActionTypes.LOAD_DEBOUNCE_STARTED)) {
+      return { ...state, debouncingLoad: true };
+    }
+    if (isAction(action, DocumentsActionTypes.LOAD_DEBOUNCE_FINISHED)) {
+      return { ...state, debouncingLoad: false };
     }
     if (isAction(action, DocumentsActionTypes.DOCUMENT_REMOVED)) {
       const newDocs = state.docs ? [...state.docs] : state.docs;
@@ -408,12 +416,11 @@ function isInitialQuery(query: Query = {}): boolean {
 }
 
 function debounceLoading(
-  dispatch: (action: DebouncingLoadChangedAction) => void
+  dispatch: (
+    action: LoadDebounceStartedAction | LoadDebounceFinishedAction
+  ) => void
 ) {
-  dispatch({
-    type: DocumentsActionTypes.DEBOUNCING_LOAD_CHANGED,
-    debouncingLoad: true,
-  });
+  dispatch({ type: DocumentsActionTypes.LOAD_DEBOUNCE_STARTED });
   const debouncePromise = new Promise((resolve) => {
     setTimeout(resolve, 200); // 200ms should feel about instant
   });
@@ -424,10 +431,7 @@ function debounceLoading(
   });
 
   void Promise.race([debouncePromise, loadPromise]).then(() => {
-    dispatch({
-      type: DocumentsActionTypes.DEBOUNCING_LOAD_CHANGED,
-      debouncingLoad: false,
-    });
+    dispatch({ type: DocumentsActionTypes.LOAD_DEBOUNCE_FINISHED });
   });
 
   return cancelDebounceLoad;

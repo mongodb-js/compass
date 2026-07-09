@@ -55,7 +55,7 @@ describe('insertReducer', function () {
     });
   });
 
-  describe('TOGGLE_INSERT_DOCUMENT', function () {
+  describe('INSERT_DOCUMENT_VIEW_TOGGLED', function () {
     it('switching to List parses the current jsonDoc into a doc', function () {
       const state: InsertState = {
         ...INITIAL_INSERT_STATE,
@@ -65,7 +65,7 @@ describe('insertReducer', function () {
       };
 
       const nextState = insertReducer(state, {
-        type: InsertActionTypes.TOGGLE_INSERT_DOCUMENT,
+        type: InsertActionTypes.INSERT_DOCUMENT_VIEW_TOGGLED,
         view: 'List',
       });
 
@@ -86,7 +86,7 @@ describe('insertReducer', function () {
       };
 
       const nextState = insertReducer(state, {
-        type: InsertActionTypes.TOGGLE_INSERT_DOCUMENT,
+        type: InsertActionTypes.INSERT_DOCUMENT_VIEW_TOGGLED,
         view: 'List',
       });
 
@@ -104,7 +104,7 @@ describe('insertReducer', function () {
       };
 
       const nextState = insertReducer(state, {
-        type: InsertActionTypes.TOGGLE_INSERT_DOCUMENT,
+        type: InsertActionTypes.INSERT_DOCUMENT_VIEW_TOGGLED,
         view: 'JSON',
       });
 
@@ -113,7 +113,7 @@ describe('insertReducer', function () {
     });
   });
 
-  describe('UPDATE_JSON_DOC', function () {
+  describe('JSON_DOC_EDITED', function () {
     it('sets the jsonDoc and resets doc to an empty document', function () {
       const state: InsertState = {
         ...INITIAL_INSERT_STATE,
@@ -123,7 +123,7 @@ describe('insertReducer', function () {
       };
 
       const nextState = insertReducer(state, {
-        type: InsertActionTypes.UPDATE_JSON_DOC,
+        type: InsertActionTypes.JSON_DOC_EDITED,
         jsonDoc: '{"foo":"bar"}',
       });
 

@@ -52,9 +52,10 @@ export const INITIAL_INSERT_STATE: InsertState = {
 export const InsertActionTypes = {
   OPEN_INSERT_DOCUMENT_DIALOG: 'crud/insert/OPEN_INSERT_DOCUMENT_DIALOG',
   CLOSE_INSERT_DOCUMENT_DIALOG: 'crud/insert/CLOSE_INSERT_DOCUMENT_DIALOG',
-  TOGGLE_INSERT_DOCUMENT: 'crud/insert/TOGGLE_INSERT_DOCUMENT',
-  TOGGLE_INSERT_DOCUMENT_VIEW: 'crud/insert/TOGGLE_INSERT_DOCUMENT_VIEW',
-  UPDATE_JSON_DOC: 'crud/insert/UPDATE_JSON_DOC',
+  INSERT_DOCUMENT_VIEW_TOGGLED: 'crud/insert/INSERT_DOCUMENT_VIEW_TOGGLED',
+  INSERT_MANY_DOCUMENTS_VIEW_TOGGLED:
+    'crud/insert/INSERT_MANY_DOCUMENTS_VIEW_TOGGLED',
+  JSON_DOC_EDITED: 'crud/insert/JSON_DOC_EDITED',
   UPDATE_COMMENT: 'crud/insert/UPDATE_COMMENT',
   INSERT_DOCUMENT_ERROR: 'crud/insert/INSERT_DOCUMENT_ERROR',
 } as const;
@@ -70,18 +71,18 @@ export type CloseInsertDocumentDialogAction = {
   type: typeof InsertActionTypes.CLOSE_INSERT_DOCUMENT_DIALOG;
 };
 
-export type ToggleInsertDocumentAction = {
-  type: typeof InsertActionTypes.TOGGLE_INSERT_DOCUMENT;
+export type InsertDocumentViewToggledAction = {
+  type: typeof InsertActionTypes.INSERT_DOCUMENT_VIEW_TOGGLED;
   view: DocumentView;
 };
 
-export type ToggleInsertDocumentViewAction = {
-  type: typeof InsertActionTypes.TOGGLE_INSERT_DOCUMENT_VIEW;
+export type InsertManyDocumentsViewToggledAction = {
+  type: typeof InsertActionTypes.INSERT_MANY_DOCUMENTS_VIEW_TOGGLED;
   jsonView: boolean;
 };
 
-export type UpdateJsonDocAction = {
-  type: typeof InsertActionTypes.UPDATE_JSON_DOC;
+export type JsonDocEditedAction = {
+  type: typeof InsertActionTypes.JSON_DOC_EDITED;
   jsonDoc: string | null;
 };
 
@@ -102,9 +103,9 @@ export type InsertDocumentErrorAction = {
 export type InsertActions =
   | OpenInsertDocumentDialogAction
   | CloseInsertDocumentDialogAction
-  | ToggleInsertDocumentAction
-  | ToggleInsertDocumentViewAction
-  | UpdateJsonDocAction
+  | InsertDocumentViewToggledAction
+  | InsertManyDocumentsViewToggledAction
+  | JsonDocEditedAction
   | UpdateCommentAction
   | InsertDocumentErrorAction;
 
@@ -127,58 +128,45 @@ export const insertReducer: Reducer<InsertState> = (
   if (isAction(action, InsertActionTypes.CLOSE_INSERT_DOCUMENT_DIALOG)) {
     return INITIAL_INSERT_STATE;
   }
-  if (isAction(action, InsertActionTypes.TOGGLE_INSERT_DOCUMENT)) {
+  if (isAction(action, InsertActionTypes.INSERT_DOCUMENT_VIEW_TOGGLED)) {
     if (action.view === 'JSON') {
       return {
-        doc: state.doc,
+        ...state,
         jsonView: true,
         jsonDoc: state.doc?.toEJSON() ?? null,
         error: undefined,
-        csfleState: state.csfleState,
         mode: MODIFYING,
-        isOpen: true,
-        isCommentNeeded: state.isCommentNeeded,
       };
     }
-    let hadronDoc;
-    if (state.jsonDoc === '') {
-      hadronDoc = state.doc;
-    } else {
-      hadronDoc = HadronDocument.FromEJSON(state.jsonDoc ?? '');
-    }
+    const hadronDoc =
+      state.jsonDoc === ''
+        ? state.doc
+        : HadronDocument.FromEJSON(state.jsonDoc ?? '');
     return {
+      ...state,
       doc: hadronDoc,
       jsonView: false,
-      jsonDoc: state.jsonDoc,
       error: undefined,
-      csfleState: state.csfleState,
       mode: MODIFYING,
-      isOpen: true,
-      isCommentNeeded: state.isCommentNeeded,
     };
   }
-  if (isAction(action, InsertActionTypes.TOGGLE_INSERT_DOCUMENT_VIEW)) {
+  if (isAction(action, InsertActionTypes.INSERT_MANY_DOCUMENTS_VIEW_TOGGLED)) {
     return {
+      ...state,
       doc: new Document({}),
-      jsonDoc: state.jsonDoc,
       jsonView: action.jsonView,
       error: undefined,
-      csfleState: state.csfleState,
       mode: MODIFYING,
-      isOpen: true,
-      isCommentNeeded: state.isCommentNeeded,
     };
   }
-  if (isAction(action, InsertActionTypes.UPDATE_JSON_DOC)) {
+  if (isAction(action, InsertActionTypes.JSON_DOC_EDITED)) {
     return {
+      ...state,
       doc: new Document({}),
       jsonDoc: action.jsonDoc,
       jsonView: true,
       error: undefined,
-      csfleState: state.csfleState,
       mode: MODIFYING,
-      isOpen: true,
-      isCommentNeeded: state.isCommentNeeded,
     };
   }
   if (isAction(action, InsertActionTypes.UPDATE_COMMENT)) {
@@ -205,21 +193,21 @@ export function closeInsertDocumentDialog(): CloseInsertDocumentDialogAction {
 
 export function toggleInsertDocument(
   view: DocumentView
-): ToggleInsertDocumentAction {
-  return { type: InsertActionTypes.TOGGLE_INSERT_DOCUMENT, view };
+): InsertDocumentViewToggledAction {
+  return { type: InsertActionTypes.INSERT_DOCUMENT_VIEW_TOGGLED, view };
 }
 
 export function toggleInsertDocumentView(
   view: DocumentView
-): ToggleInsertDocumentViewAction {
+): InsertManyDocumentsViewToggledAction {
   return {
-    type: InsertActionTypes.TOGGLE_INSERT_DOCUMENT_VIEW,
+    type: InsertActionTypes.INSERT_MANY_DOCUMENTS_VIEW_TOGGLED,
     jsonView: view === 'JSON',
   };
 }
 
-export function updateJsonDoc(jsonDoc: string | null): UpdateJsonDocAction {
-  return { type: InsertActionTypes.UPDATE_JSON_DOC, jsonDoc };
+export function updateJsonDoc(jsonDoc: string | null): JsonDocEditedAction {
+  return { type: InsertActionTypes.JSON_DOC_EDITED, jsonDoc };
 }
 
 export function updateComment(isCommentNeeded: boolean): UpdateCommentAction {

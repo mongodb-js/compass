@@ -2,12 +2,7 @@ import React from 'react';
 import HadronDocument from 'hadron-document';
 import { expect } from 'chai';
 import sinon from 'sinon';
-import {
-  render,
-  cleanup,
-  screen,
-  waitFor,
-} from '@mongodb-js/testing-library-compass';
+import { render, screen, waitFor } from '@mongodb-js/testing-library-compass';
 
 import DocumentTableView from './document-table-view';
 import { GridStoreContext } from '../../stores/grid-store-context';
@@ -62,8 +57,6 @@ function renderDocumentTableView({
 }
 
 describe('<DocumentTableView />', function () {
-  afterEach(cleanup);
-
   describe('#render', function () {
     context('when the documents have objects for ids', function () {
       it('renders the document table view with AG-Grid', async function () {
