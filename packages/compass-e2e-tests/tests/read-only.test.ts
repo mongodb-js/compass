@@ -288,18 +288,26 @@ describe('readOnly: true / Read-Only Edition', function () {
     );
 
     let createIndexButton = browser.$(Selectors.CreateIndexButton);
-    // Wait for the Create Index button to exist.
-    await createIndexButton.waitForExist({ timeout: 30_000 });
+    await createIndexButton.waitForDisplayed({
+      timeout: 30_000,
+      timeoutMsg:
+        'Expected "Create Index" button in the Indexes view to be displayed',
+    });
 
     await setReadOnlyFeatureViaSettingsModal(browser, true);
 
     createIndexButton = browser.$(Selectors.CreateIndexButton);
-    // Wait for the Create Index button to not exist.
-    await createIndexButton.waitForExist({ reverse: true, timeout: 30_000 });
+    await createIndexButton.waitForDisplayed({
+      reverse: true,
+      timeout: 30_000,
+      timeoutMsg:
+        'Expected "Create Index" button in the Indexes view to NOT be displayed',
+    });
 
-    const indexList = browser.$(Selectors.IndexList);
-    const isIndexListExisting = await indexList.isExisting();
-    expect(isIndexListExisting).to.be.equal(true);
+    await browser.$(Selectors.IndexList).waitForDisplayed({
+      timeout: 30_000,
+      timeoutMsg: 'Expected index list in the Indexes view to be displayed',
+    });
   });
 
   it('enables and disables validation actions', async function () {
