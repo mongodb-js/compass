@@ -1,5 +1,11 @@
 import React from 'react';
-import { Button, Icon, css, palette } from '@mongodb-js/compass-components';
+import {
+  Button,
+  Icon,
+  css,
+  palette,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
 import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
@@ -94,13 +100,13 @@ const analyzeButtonDarkStyles = css({
 
 type AnalyzeAndRefineResultsButtonProps = {
   onClick: () => void;
-  darkMode?: boolean;
   'data-testid': string;
 };
 
 export const AnalyzeAndRefineResultsButton: React.FunctionComponent<
   AnalyzeAndRefineResultsButtonProps
-> = ({ onClick, darkMode, 'data-testid': dataTestId }) => {
+> = ({ onClick, 'data-testid': dataTestId }) => {
+  const darkMode = useDarkMode();
   return (
     <div className={analyzeButtonGradientWrapperStyles}>
       <Button

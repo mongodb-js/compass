@@ -5,7 +5,6 @@ import {
   SpinLoader,
   spacing,
   Overline,
-  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type HadronDocument from 'hadron-document';
 import { DocumentListView } from '@mongodb-js/compass-crud';
@@ -25,6 +24,7 @@ import {
 import {
   collapsePreviewDocsForStage,
   expandPreviewDocsForStage,
+  buildPipelineStringUpToStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { disableFocusMode } from '../../modules/focus-mode';
@@ -251,7 +251,6 @@ export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
     documents,
   } = props;
   const { diagnoseSearchStage, interpretAnalyzeOutput } = useAssistantActions();
-  const darkMode = useDarkMode();
   const showDiagnoseSearchStage = useShouldShowSearchStageDiagnose(
     stageOperator,
     documents
@@ -312,7 +311,6 @@ export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
         showAnalyzeButton ? (
           <AnalyzeAndRefineResultsButton
             onClick={handleAnalyzeOutput}
-            darkMode={darkMode}
             data-testid="focus-mode-analyze-search-output-button"
           />
         ) : undefined
@@ -424,14 +422,7 @@ export const FocusModeStageOutput = connect(
         (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
       );
 
-    const pipeline = `[${stages
-      .slice(0, stageIndex + 1)
-      .filter(
-        (s): s is StoreStage =>
-          s.type === 'stage' && !!s.stageOperator && !!s.value && !s.disabled
-      )
-      .map((s) => `{ ${s.stageOperator}: ${s.value} }`)
-      .join(', ')}]`;
+    const pipeline = buildPipelineStringUpToStage(stages, stageIndex);
 
     return {
       isLoading: stage.loading,

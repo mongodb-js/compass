@@ -28,7 +28,10 @@ import { AtlasStagePreview } from './atlas-stage-preview';
 import OutputStagePreivew from './output-stage-preview';
 import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
-import { getIndexOfFirstStageWithServerError } from '../../modules/pipeline-builder/stage-editor';
+import {
+  getIndexOfFirstStageWithServerError,
+  buildPipelineStringUpToStage,
+} from '../../modules/pipeline-builder/stage-editor';
 import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 
 import SearchNoResults from '../search-no-results';
@@ -177,7 +180,6 @@ function StagePreviewBody({
     trackIsInSample: false,
   });
   const { interpretAnalyzeOutput, diagnoseSearchStage } = useAssistantActions();
-  const darkMode = useDarkMode();
 
   const handleAnalyzeOutput = useCallback(() => {
     if (!interpretAnalyzeOutput || !stageMetadata) return;
@@ -302,7 +304,6 @@ function StagePreviewBody({
         {showAnalyzeButton && (
           <AnalyzeAndRefineResultsButton
             onClick={handleAnalyzeOutput}
-            darkMode={darkMode}
             data-testid="analyze-search-output-button"
           />
         )}
@@ -382,14 +383,10 @@ export default connect((state: RootState, ownProps: { index: number }) => {
       (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
     );
 
-  const pipeline = `[${state.pipelineBuilder.stageEditor.stages
-    .slice(0, ownProps.index + 1)
-    .filter(
-      (s): s is StoreStage =>
-        s.type === 'stage' && !!s.stageOperator && !!s.value && !s.disabled
-    )
-    .map((s) => `{ ${s.stageOperator}: ${s.value} }`)
-    .join(', ')}]`;
+  const pipeline = buildPipelineStringUpToStage(
+    state.pipelineBuilder.stageEditor.stages,
+    ownProps.index
+  );
 
   return {
     isLoading: stage.loading,
