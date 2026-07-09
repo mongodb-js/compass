@@ -267,7 +267,7 @@ export function getIndexOfFirstStageWithServerError(
 
 /** Builds the pipeline string (up to and including `toIndex`) used as
  *  context for the Assistant's Analyze Output entry point. */
-export function buildPipelineStringUpToStage(
+export function getPipelineStringForStage(
   stages: StageEditorState['stages'],
   toIndex: number
 ): string {

@@ -30,7 +30,7 @@ import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import {
   getIndexOfFirstStageWithServerError,
-  buildPipelineStringUpToStage,
+  getPipelineStringForStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 
@@ -383,7 +383,7 @@ export default connect((state: RootState, ownProps: { index: number }) => {
       (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
     );
 
-  const pipeline = buildPipelineStringUpToStage(
+  const pipeline = getPipelineStringForStage(
     state.pipelineBuilder.stageEditor.stages,
     ownProps.index
   );

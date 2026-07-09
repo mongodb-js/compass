@@ -24,7 +24,7 @@ import {
 import {
   collapsePreviewDocsForStage,
   expandPreviewDocsForStage,
-  buildPipelineStringUpToStage,
+  getPipelineStringForStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { disableFocusMode } from '../../modules/focus-mode';
@@ -422,7 +422,7 @@ export const FocusModeStageOutput = connect(
         (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
       );
 
-    const pipeline = buildPipelineStringUpToStage(stages, stageIndex);
+    const pipeline = getPipelineStringForStage(stages, stageIndex);
 
     return {
       isLoading: stage.loading,
