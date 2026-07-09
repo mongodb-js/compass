@@ -185,18 +185,17 @@ class CompassApplication {
     });
 
     protocol.handle('https', async (req) => {
-      const authHeaders =
-        req.headers.get('X-Compass-Auth') === 'true'
-          ? await CompassAuthService.maybeGetAuthHeaders(req)
-          : {};
-      return net.fetch(req, {
-        headers: {
-          ...req.headers,
-          ['X-Compass-Auth']: undefined,
-          ...authHeaders,
-        },
-        bypassCustomProtocolHandlers: true,
-      });
+      if (req.headers.get('X-Compass-Auth') !== 'true') return net.fetch(req);
+
+      const authHeaders = await CompassAuthService.maybeGetAuthHeaders(req);
+      req.headers.delete('X-Compass-Auth');
+      if (authHeaders) {
+        for (const [key, value] of Object.entries(authHeaders)) {
+          req.headers.set(key, value);
+        }
+      }
+
+      return net.fetch(req);
     });
   }
 
@@ -271,7 +270,6 @@ class CompassApplication {
         // Accessing isEncryptionAvailable is not allowed when app is not ready on Windows
         // https://github.com/electron/electron/issues/33640
         await app.whenReady();
-        return false;
         return safeStorage.isEncryptionAvailable();
       },
     });

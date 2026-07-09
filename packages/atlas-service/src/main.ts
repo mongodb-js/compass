@@ -472,7 +472,7 @@ export class CompassAuthService {
   static isAuthenticatedAtlasAdminAPIRequest(req: Request): boolean {
     const url = new URL(req.url);
     return (
-      url.origin === this.config.atlasLogin.issuer &&
+      url.origin === this.config.atlasAdminApiBaseUrl &&
       ATLAS_ADMIN_API_AUTH_ENDPOINTS.some((endpoint) => {
         if (typeof endpoint === 'string') {
           return url.pathname === endpoint;
