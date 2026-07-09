@@ -531,6 +531,87 @@ describe('Base Search Index Modal', function () {
     });
   });
 
+  describe('update mode Save button', function () {
+    const indexDefinitionString = JSON.stringify(
+      VALID_ATLAS_SEARCH_INDEX_DEFINITION
+    );
+
+    function renderUpdateModal(onSubmitSpy: SinonSpy) {
+      renderBaseSearchIndexModal({
+        mode: 'update',
+        initialIndexName: 'idx',
+        initialIndexDefinition: indexDefinitionString,
+        initialIndexType: 'search',
+        onSubmit: onSubmitSpy,
+      });
+    }
+
+    it('disables the Save button until the index definition is modified', async function () {
+      renderUpdateModal(sinon.spy());
+      const submitButton = screen.getByTestId('search-index-submit-button');
+
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
+
+      await setCodemirrorEditorValue(
+        'definition-of-search-index',
+        JSON.stringify({
+          fields: [
+            {
+              type: 'vector',
+              path: 'pineapple',
+              numDimensions: 500,
+              similarity: 'cosine',
+            },
+          ],
+        })
+      );
+
+      await waitFor(() => {
+        expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
+      });
+    });
+
+    it('submits the modified definition when Save is clicked', async function () {
+      const onSubmitSpy = sinon.spy();
+      renderUpdateModal(onSubmitSpy);
+
+      const newDefinition = {
+        fields: [
+          {
+            type: 'vector',
+            path: 'pineapple',
+            numDimensions: 500,
+            similarity: 'cosine',
+          },
+        ],
+      };
+      await setCodemirrorEditorValue(
+        'definition-of-search-index',
+        JSON.stringify(newDefinition)
+      );
+
+      const submitButton = screen.getByTestId('search-index-submit-button');
+      await waitFor(() => {
+        expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
+      });
+      userEvent.click(submitButton);
+      expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
+        name: 'idx',
+        definition: newDefinition,
+        type: 'search',
+      });
+    });
+
+    it('shows the updated resource-usage note copy', function () {
+      renderUpdateModal(sinon.spy());
+      expect(
+        screen.getByText(
+          'Note: Updating the index definition will consume additional resources on your cluster.'
+        )
+      ).to.be.visible;
+    });
+  });
+
   describe('auto-embedding cost banner', function () {
     it('does not show in update mode (only create mode shows it)', function () {
       const autoEmbedDefinitionString = JSON.stringify({

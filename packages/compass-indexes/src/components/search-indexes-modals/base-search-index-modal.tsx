@@ -377,6 +377,12 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   const isEditingVectorSearchIndex =
     mode === 'update' && initialIndexType === 'vectorSearch';
 
+  // When editing an existing index, the definition is the only editable field,
+  // so we keep the Save button disabled until it is actually modified. This
+  // avoids unnecessary index rebuilds when nothing changed.
+  const isIndexDefinitionUnchanged =
+    mode === 'update' && indexDefinition === initialIndexDefinition;
+
   return (
     <Modal
       open={isModalOpen}
@@ -534,9 +540,8 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         {!parsingError && error && <ErrorSummary errors={error} />}
         {mode === 'update' && (
           <Banner>
-            Note: Updating the index may slow down your device temporarily due
-            to resource usage. Save indexes only with changes to avoid
-            reindexing.
+            Note: Updating the index definition will consume additional
+            resources on your cluster.
           </Banner>
         )}
         {showAutoEmbedEditRestrictedBanner && (
@@ -556,7 +561,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
           data-testid="search-index-submit-button"
           variant="primary"
           onClick={onSubmitIndex}
-          disabled={isBusy || !!parsingError}
+          disabled={isBusy || !!parsingError || isIndexDefinitionUnchanged}
           isLoading={isBusy}
           loadingIndicator={<SpinLoader />}
         >
