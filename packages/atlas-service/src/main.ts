@@ -472,7 +472,7 @@ export class CompassAuthService {
   static isAuthenticatedAtlasAdminAPIRequest(req: Request): boolean {
     const url = new URL(req.url);
     return (
-      url.origin === this.config.atlasAdminApiBaseUrl &&
+      url.origin === new URL(this.config.atlasAdminApiBaseUrl).origin &&
       ATLAS_ADMIN_API_AUTH_ENDPOINTS.some((endpoint) => {
         if (typeof endpoint === 'string') {
           return url.pathname === endpoint;
@@ -485,11 +485,15 @@ export class CompassAuthService {
   static async maybeGetAuthHeaders(
     req: Request
   ): Promise<Record<string, string> | undefined> {
-    if (this.isAuthenticatedAtlasAdminAPIRequest(req)) {
+    if (!this.isAuthenticatedAtlasAdminAPIRequest(req)) return;
+
+    const token = await this.maybeGetToken({
+      tokenType: 'accessToken',
+    });
+
+    if (token) {
       return {
-        Authorization: `Bearer ${await this.maybeGetToken({
-          tokenType: 'accessToken',
-        })}`,
+        Authorization: `Bearer ${token}`,
       };
     }
   }

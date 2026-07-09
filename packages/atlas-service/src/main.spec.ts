@@ -51,7 +51,8 @@ describe('CompassAuthServiceMain', function () {
     ccsBaseUrl: 'ws://example.com',
     multiplexedWsBaseUrls: ['ws://example.com/multiplex'],
     cloudBaseUrl: 'ws://example.com/cloud',
-    atlasApiBaseUrl: 'http://example.com/api',
+    atlasPrivateApiBaseUrl: 'http://example.com/api/private',
+    atlasAdminApiBaseUrl: 'http://example.com/api/atlas',
     atlasLogin: {
       issuer: 'http://example.com',
       clientId: '1234abcd',
@@ -351,6 +352,91 @@ describe('CompassAuthServiceMain', function () {
           "Can't sign out if not signed in yet"
         );
       }
+    });
+  });
+
+  describe('maybeGetAuthHeaders', function () {
+    context('user is signed in', function () {
+      const accessToken = 'abcd1234';
+      beforeEach(function () {
+        CompassAuthService['currentUser'] = {
+          sub: '1234',
+        } as any;
+
+        CompassAuthService['plugin'] = {
+          mongoClientOptions: {
+            authMechanismProperties: {
+              OIDC_HUMAN_CALLBACK: sandbox
+                .stub()
+                .resolves({ accessToken: accessToken }),
+            },
+          },
+        } as any;
+      });
+
+      it('should return auth headers for an Atlas Admin API request', async function () {
+        const req = new Request(
+          `${defaultConfig.atlasAdminApiBaseUrl}/v2/clusters`
+        );
+        const authHeaders = await CompassAuthService.maybeGetAuthHeaders(req);
+        expect(authHeaders).to.have.property(
+          'Authorization',
+          `Bearer ${accessToken}`
+        );
+      });
+
+      it('should return undefined for a non-Atlas Admin API request', async function () {
+        const req = new Request('http://example.com/something-else');
+        expect(
+          await CompassAuthService.maybeGetAuthHeaders(req)
+        ).to.be.undefined;
+      });
+
+      describe('prevents token exfiltration', function () {
+        const attackerUrls = [
+          // Lookalike host (suffix attack).
+          'http://example.com.attacker.tld/api/atlas/v2/clusters',
+          // Lookalike host (prefix attack).
+          'http://attacker-example.com/api/atlas/v2/clusters',
+          // Correct origin, path not on the allowlist.
+          'http://example.com/api/atlas/v2/clusters/extra',
+          // Correct origin, private API (should use cookie auth, not Bearer).
+          'http://example.com/api/private/unauth/clusters',
+          // Different protocol on the same host.
+          'https://example.com/api/atlas/v2/clusters',
+          // URL userinfo spoofing (should be treated as attacker-controlled).
+          'http://example.com@attacker.tld/api/atlas/v2/clusters',
+        ];
+
+        for (const url of attackerUrls) {
+          it(`returns undefined for ${url}`, async function () {
+            const req = { url } as Request;
+            expect(await CompassAuthService.maybeGetAuthHeaders(req)).to.be
+              .undefined;
+          });
+        }
+      });
+    });
+
+    context('is not signed in', function () {
+      beforeEach(function () {
+        CompassAuthService['plugin'] = {
+          mongoClientOptions: {
+            authMechanismProperties: {
+              OIDC_HUMAN_CALLBACK: sandbox.stub().resolves({}),
+            },
+          },
+        } as any;
+      });
+
+      it('returns undefined for an allowlisted URL when no token is available', async function () {
+        const req = {
+          url: `${defaultConfig.atlasAdminApiBaseUrl}/v2/clusters`,
+        } as Request;
+        expect(
+          await CompassAuthService.maybeGetAuthHeaders(req)
+        ).to.be.undefined;
+      });
     });
   });
 });
