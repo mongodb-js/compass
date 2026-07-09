@@ -23,10 +23,7 @@ import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
-import {
-  initCompassMainConnectionStorage,
-  getCompassMainConnectionStorage,
-} from '@mongodb-js/connection-storage/main';
+import { initCompassMainConnectionStorage } from '@mongodb-js/connection-storage/main';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type {
   AgentWithInitialize,
@@ -155,19 +152,7 @@ class CompassApplication {
       }
     );
 
-    // ConnectionStorage offers import/export which is used via CLI as well.
-    const connectionStorage = initCompassMainConnectionStorage();
-
-    try {
-      await connectionStorage.migrateToSafeStorage();
-    } catch (e) {
-      log.error(
-        mongoLogId(1_001_000_275),
-        'SafeStorage Migration',
-        'Failed to migrate connections',
-        { message: (e as Error).message }
-      );
-    }
+    initCompassMainConnectionStorage();
 
     if (mode === 'CLI') {
       return;
@@ -236,16 +221,7 @@ class CompassApplication {
     } = this.preferences.getPreferences();
 
     debug('application launched');
-    track('Application Launched', async () => {
-      let hasLegacyConnections: boolean;
-      try {
-        hasLegacyConnections =
-          (await getCompassMainConnectionStorage().getLegacyConnections())
-            .length > 0;
-      } catch (e) {
-        debug('Failed to check legacy connections', e);
-        hasLegacyConnections = false;
-      }
+    track('Application Launched', () => {
       return {
         context: getContext(),
         launch_connection: getLaunchConnectionSource(file, positionalArguments),
@@ -254,7 +230,6 @@ class CompassApplication {
         maxTimeMS,
         global_config: hasConfig('global', globalPreferences),
         cli_args: hasConfig('cli', globalPreferences),
-        legacy_connections: hasLegacyConnections,
       };
     });
   }

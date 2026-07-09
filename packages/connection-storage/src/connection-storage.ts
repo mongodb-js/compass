@@ -41,10 +41,6 @@ export interface ConnectionStorage {
     autoConnectPreferences: AutoConnectPreferences
   ): Promise<ConnectionInfo | undefined>;
 
-  getLegacyConnections?(options?: {
-    signal?: AbortSignal;
-  }): Promise<{ name: string }[]>;
-
   deserializeConnections?(args: {
     content: string;
     options: ImportConnectionOptions;
