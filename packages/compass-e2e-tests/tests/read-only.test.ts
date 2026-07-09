@@ -287,22 +287,25 @@ describe('readOnly: true / Read-Only Edition', function () {
       'Indexes'
     );
 
-    let createIndexButton = browser.$(Selectors.CreateIndexButton);
-    await createIndexButton.waitForDisplayed({
-      timeout: 30_000,
-      timeoutMsg:
-        'Expected "Create Index" button in the Indexes view to be displayed',
-    });
+    await browser
+      .$(
+        // It's a plain button on non-Atlas, and a "Create" dropdown on Atlas.
+        `${Selectors.CreateIndexButton}, ${Selectors.CreateIndexDropdownButton}`
+      )
+      .waitForDisplayed({
+        timeout: 30_000,
+        timeoutMsg:
+          'Expected "Create Index" button in the Indexes view to be displayed',
+      });
 
     await setReadOnlyFeatureViaSettingsModal(browser, true);
 
-    createIndexButton = browser.$(Selectors.CreateIndexButton);
-    await createIndexButton.waitForDisplayed({
-      reverse: true,
-      timeout: 30_000,
-      timeoutMsg:
-        'Expected "Create Index" button in the Indexes view to NOT be displayed',
-    });
+    await browser
+      .$(Selectors.CreateIndexButton)
+      .waitForExist({ reverse: true });
+    await browser
+      .$(Selectors.CreateIndexDropdownButton)
+      .waitForExist({ reverse: true });
 
     await browser.$(Selectors.IndexList).waitForDisplayed({
       timeout: 30_000,
