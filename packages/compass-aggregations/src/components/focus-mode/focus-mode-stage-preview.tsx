@@ -24,6 +24,7 @@ import {
 import {
   collapsePreviewDocsForStage,
   expandPreviewDocsForStage,
+  getPipelineStringForStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
 import { disableFocusMode } from '../../modules/focus-mode';
@@ -34,7 +35,13 @@ import {
   SearchStageDiagnoseButton,
   useShouldShowSearchStageDiagnose,
 } from '../search-stage-diagnose-button';
+import {
+  AnalyzeAndRefineResultsButton,
+  buildAnalyzeOutputContext,
+  useShouldShowAnalyzeOutput,
+} from '../search-analyze-output-button';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 
 const containerStyles = css({
   display: 'flex',
@@ -80,6 +87,11 @@ const pipelineOutputMenuStyles = css({
   marginLeft: 'auto',
 });
 
+const resultsActionRowStyles = css({
+  display: 'flex',
+  justifyContent: 'flex-end',
+});
+
 const loaderStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -93,6 +105,8 @@ type FocusModePreviewProps = {
   stageIndex?: number;
   stageOperator?: string | null;
   stageValue?: string | null;
+  stageMetadata?: StagePreviewMetadata | null;
+  pipeline?: string | null;
   isMissingAtlasOnlyStageSupport?: boolean;
   showSearchIndexStaleResultsBanner?: boolean;
   searchIndexName?: string | null;
@@ -100,6 +114,7 @@ type FocusModePreviewProps = {
   onCollapse: (stageIdx: number) => void;
   onCloseFocusMode?: () => void;
   emptyStateAction?: React.ReactNode;
+  resultsAction?: React.ReactNode;
 };
 
 export const FocusModePreview = ({
@@ -114,6 +129,7 @@ export const FocusModePreview = ({
   onExpand,
   onCollapse,
   emptyStateAction,
+  resultsAction,
 }: FocusModePreviewProps) => {
   const copyToClipboard = useCallback((doc: HadronDocument) => {
     const str = doc.toEJSON();
@@ -137,7 +153,7 @@ export const FocusModePreview = ({
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
 
-  const isPipelineOptionsMenuVisible = documents && documents.length > 0;
+  const hasDocuments = documents && documents.length > 0;
 
   let content = null;
 
@@ -204,7 +220,7 @@ export const FocusModePreview = ({
           )}
         </div>
         <div className={pipelineOutputMenuStyles}>
-          {isPipelineOptionsMenuVisible && (
+          {hasDocuments && (
             <PipelineOutputOptionsMenu
               buttonText="Options"
               onChangeOption={handlePipelineOutputOptionChanged}
@@ -212,6 +228,9 @@ export const FocusModePreview = ({
           )}
         </div>
       </div>
+      {hasDocuments && resultsAction && (
+        <div className={resultsActionRowStyles}>{resultsAction}</div>
+      )}
       {content}
     </div>
   );
@@ -222,12 +241,23 @@ export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
 };
 
 export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
-  const { onCloseFocusMode, stageOperator, searchIndexName, stageValue } =
-    props;
-  const { diagnoseSearchStage } = useAssistantActions();
+  const {
+    onCloseFocusMode,
+    stageOperator,
+    searchIndexName,
+    stageValue,
+    stageMetadata = null,
+    pipeline = null,
+    documents,
+  } = props;
+  const { diagnoseSearchStage, interpretAnalyzeOutput } = useAssistantActions();
   const showDiagnoseSearchStage = useShouldShowSearchStageDiagnose(
     stageOperator,
-    props.documents
+    documents
+  );
+  const showAnalyzeButton = useShouldShowAnalyzeOutput(
+    stageOperator,
+    stageMetadata
   );
 
   const handleDiagnoseSearchStage = useCallback(() => {
@@ -245,6 +275,26 @@ export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
     stageValue,
   ]);
 
+  const handleAnalyzeOutput = useCallback(() => {
+    if (!interpretAnalyzeOutput || !stageMetadata) return;
+    const { output, documentCount } = buildAnalyzeOutputContext(
+      documents ?? [],
+      stageMetadata
+    );
+    onCloseFocusMode?.();
+    interpretAnalyzeOutput({
+      pipeline: pipeline ?? '',
+      output,
+      documentCount,
+    });
+  }, [
+    interpretAnalyzeOutput,
+    documents,
+    stageMetadata,
+    pipeline,
+    onCloseFocusMode,
+  ]);
+
   return (
     <FocusModePreview
       {...props}
@@ -254,6 +304,14 @@ export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
           <SearchStageDiagnoseButton
             onClick={handleDiagnoseSearchStage}
             data-testid="focus-mode-diagnose-search-button"
+          />
+        ) : undefined
+      }
+      resultsAction={
+        showAnalyzeButton ? (
+          <AnalyzeAndRefineResultsButton
+            onClick={handleAnalyzeOutput}
+            data-testid="focus-mode-analyze-search-output-button"
           />
         ) : undefined
       }
@@ -364,12 +422,16 @@ export const FocusModeStageOutput = connect(
         (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
       );
 
+    const pipeline = getPipelineStringForStage(stages, stageIndex);
+
     return {
       isLoading: stage.loading,
       documents: stage.previewDocs,
       stageIndex,
       stageOperator: stage.stageOperator,
       stageValue: stage.value,
+      stageMetadata: stage.stageMetadata,
+      pipeline,
       isMissingAtlasOnlyStageSupport,
       showSearchIndexStaleResultsBanner,
       searchIndexName,

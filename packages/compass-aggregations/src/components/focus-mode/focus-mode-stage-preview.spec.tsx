@@ -38,10 +38,12 @@ const renderOutputPreview = async (
     enableSearchActivationP2Experiment = false,
     enableAIAssistant = false,
     diagnoseSearchStage,
+    interpretAnalyzeOutput,
   }: {
     enableSearchActivationP2Experiment?: boolean;
     enableAIAssistant?: boolean;
     diagnoseSearchStage?: Sinon.SinonSpy;
+    interpretAnalyzeOutput?: Sinon.SinonSpy;
   } = {}
 ) => {
   const preferences = await createSandboxFromDefaultPreferences();
@@ -53,7 +55,9 @@ const renderOutputPreview = async (
   }
 
   const ui = wrapWithExperimentProvider(
-    <AssistantActionsContext.Provider value={{ diagnoseSearchStage }}>
+    <AssistantActionsContext.Provider
+      value={{ diagnoseSearchStage, interpretAnalyzeOutput }}
+    >
       <PreferencesProvider value={preferences}>
         <OutputPreview
           stageIndex={0}
@@ -377,6 +381,96 @@ describe('FocusModeStagePreview', function () {
         indexName: 'movies',
         stageValue: '{ "index": "movies" }',
       });
+    });
+  });
+
+  describe('OutputPreview analyze output button', function () {
+    const score = { value: 1.5, description: 'sum of:', details: [] };
+
+    it('renders the button for $search stage with documents and score metadata when P2 experiment is enabled', async function () {
+      await renderOutputPreview(
+        {
+          documents: [new HadronDocument({ _id: 1 })],
+          stageMetadata: { type: '$search', scores: [score] },
+        },
+        {
+          enableSearchActivationP2Experiment: true,
+          enableAIAssistant: true,
+          interpretAnalyzeOutput: Sinon.spy(),
+        }
+      );
+      expect(screen.getByTestId('focus-mode-analyze-search-output-button')).to
+        .exist;
+    });
+
+    it('does not render the button when the assistant is disabled', async function () {
+      await renderOutputPreview(
+        {
+          documents: [new HadronDocument({ _id: 1 })],
+          stageMetadata: { type: '$search', scores: [score] },
+        },
+        { enableSearchActivationP2Experiment: true }
+      );
+      expect(screen.queryByTestId('focus-mode-analyze-search-output-button')).to
+        .not.exist;
+    });
+
+    it('does not render the button when score metadata is absent', async function () {
+      await renderOutputPreview(
+        {
+          documents: [new HadronDocument({ _id: 1 })],
+          stageMetadata: null,
+        },
+        { enableSearchActivationP2Experiment: true, enableAIAssistant: true }
+      );
+      expect(screen.queryByTestId('focus-mode-analyze-search-output-button')).to
+        .not.exist;
+    });
+
+    it('does not render the button when P2 experiment is not enabled', async function () {
+      await renderOutputPreview(
+        {
+          documents: [new HadronDocument({ _id: 1 })],
+          stageMetadata: { type: '$search', scores: [score] },
+        },
+        { enableAIAssistant: true }
+      );
+      expect(screen.queryByTestId('focus-mode-analyze-search-output-button')).to
+        .not.exist;
+    });
+
+    it('closes focus mode and calls interpretAnalyzeOutput with the correct args when clicked', async function () {
+      const interpretAnalyzeOutputSpy = Sinon.spy();
+      const onCloseFocusMode = Sinon.spy();
+      const doc = new HadronDocument({ _id: 1, title: 'Espresso Basics' });
+      const pipeline =
+        '[{ $search: { index: "default", text: { query: "espresso", path: "title" } } }]';
+      await renderOutputPreview(
+        {
+          documents: [doc],
+          stageMetadata: { type: '$search', scores: [score] },
+          pipeline,
+          onCloseFocusMode,
+        },
+        {
+          enableSearchActivationP2Experiment: true,
+          enableAIAssistant: true,
+          interpretAnalyzeOutput: interpretAnalyzeOutputSpy,
+        }
+      );
+
+      userEvent.click(
+        screen.getByTestId('focus-mode-analyze-search-output-button')
+      );
+
+      expect(onCloseFocusMode).to.have.been.calledOnce;
+      expect(interpretAnalyzeOutputSpy).to.have.been.calledOnce;
+      const args = interpretAnalyzeOutputSpy.firstCall.args[0];
+      expect(args).to.have.property('pipeline', pipeline);
+      expect(args).to.have.property('documentCount', 1);
+      expect(args.output).to.include('Document 1:');
+      expect(args.output).to.include('Espresso Basics');
+      expect(args.output).to.include(`scoreDetails: ${JSON.stringify(score)}`);
     });
   });
 });
