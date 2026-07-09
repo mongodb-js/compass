@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-07-06. Do not edit manually.
+> Auto-generated on 2026-07-09. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -651,37 +651,37 @@ This event is fired when the AI fails due to any error.
 
 This event is fired when a user submits feedback for the assistant.
 
-| Property         | Type                                                                                                                          | Required | Description                                        |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
-| `feedback`       | `"positive" \| "negative"`                                                                                                    | Yes      |                                                    |
-| `text`           | `string \| undefined`                                                                                                         | No       |                                                    |
-| `request_id`     | `string \| undefined`                                                                                                         | No       |                                                    |
-| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "chat response"` | Yes      |                                                    |
-| `is_compass_web` | `true \| undefined`                                                                                                           | No       |                                                    |
-| `connection_id`  | `string \| undefined`                                                                                                         | No       | The id of the connection associated to this event. |
+| Property         | Type                                                                                                                                                                             | Required | Description                                        |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
+| `feedback`       | `"positive" \| "negative"`                                                                                                                                                       | Yes      |                                                    |
+| `text`           | `string \| undefined`                                                                                                                                                            | No       |                                                    |
+| `request_id`     | `string \| undefined`                                                                                                                                                            | No       |                                                    |
+| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "search stage error" \| "search stage diagnose" \| "chat response"` | Yes      |                                                    |
+| `is_compass_web` | `true \| undefined`                                                                                                                                                              | No       |                                                    |
+| `connection_id`  | `string \| undefined`                                                                                                                                                            | No       | The id of the connection associated to this event. |
 
 ### Assistant Entry Point Used
 
 This event is fired when a user uses an assistant entry point.
 
-| Property         | Type                                                                                                       | Required | Description                                        |
-| ---------------- | ---------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
-| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output"` | Yes      |                                                    |
-| `request_id`     | `string \| undefined`                                                                                      | No       |                                                    |
-| `is_compass_web` | `true \| undefined`                                                                                        | No       |                                                    |
-| `connection_id`  | `string \| undefined`                                                                                      | No       | The id of the connection associated to this event. |
+| Property         | Type                                                                                                                                                          | Required | Description                                        |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
+| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "search stage error" \| "search stage diagnose"` | Yes      |                                                    |
+| `request_id`     | `string \| undefined`                                                                                                                                         | No       |                                                    |
+| `is_compass_web` | `true \| undefined`                                                                                                                                           | No       |                                                    |
+| `connection_id`  | `string \| undefined`                                                                                                                                         | No       | The id of the connection associated to this event. |
 
 ### Assistant Confirmation Submitted
 
 This event is fired when a user confirms a confirmation message in the assistant chat.
 
-| Property         | Type                                                                                                                          | Required | Description                                        |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
-| `status`         | `"confirmed" \| "rejected"`                                                                                                   | Yes      |                                                    |
-| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "chat response"` | Yes      |                                                    |
-| `request_id`     | `string \| undefined`                                                                                                         | No       |                                                    |
-| `is_compass_web` | `true \| undefined`                                                                                                           | No       |                                                    |
-| `connection_id`  | `string \| undefined`                                                                                                         | No       | The id of the connection associated to this event. |
+| Property         | Type                                                                                                                                                                             | Required | Description                                        |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------------------------------------------- |
+| `status`         | `"confirmed" \| "rejected"`                                                                                                                                                      | Yes      |                                                    |
+| `source`         | `"explain plan" \| "performance insights" \| "connection error" \| "follow-up prompt" \| "analyze output" \| "search stage error" \| "search stage diagnose" \| "chat response"` | Yes      |                                                    |
+| `request_id`     | `string \| undefined`                                                                                                                                                            | No       |                                                    |
+| `is_compass_web` | `true \| undefined`                                                                                                                                                              | No       |                                                    |
+| `connection_id`  | `string \| undefined`                                                                                                                                                            | No       | The id of the connection associated to this event. |
 
 ### Assistant Response Generated
 

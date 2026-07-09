@@ -364,10 +364,12 @@ export const runExport = ({
   filePath,
   fileType,
   jsonFormatVariant,
+  escapeFormulae = true,
 }: {
   filePath: string;
   fileType: 'csv' | 'json';
   jsonFormatVariant: ExportJSONFormat;
+  escapeFormulae?: boolean;
 }): ExportThunkAction<Promise<void>> => {
   return async (
     dispatch,
@@ -488,6 +490,7 @@ export const runExport = ({
         if (fileType === 'csv') {
           exportResult = await exportCSVFromAggregation({
             ...baseExportOptions,
+            escapeFormulae,
             aggregation,
           });
         } else {
@@ -501,6 +504,7 @@ export const runExport = ({
         if (fileType === 'csv') {
           exportResult = await exportCSVFromQuery({
             ...baseExportOptions,
+            escapeFormulae,
             query,
           });
         } else {

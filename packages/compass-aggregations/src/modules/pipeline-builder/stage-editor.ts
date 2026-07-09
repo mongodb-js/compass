@@ -13,6 +13,7 @@ import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
   createPreviewAggregation,
+  DEFAULT_PREVIEW_DEBOUNCE_MS,
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
@@ -41,6 +42,10 @@ import type {
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
 import { cancellableWait } from '@mongodb-js/compass-utils';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry/provider';
 
 export const StageEditorActionTypes = {
   StagePreviewFetch:
@@ -280,7 +285,11 @@ export const loadStagePreview = (
   | StagePreviewFetchErrorAction
   | StagePreviewFetchSkippedAction
 > => {
-  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
+  return async (
+    dispatch,
+    getState,
+    { pipelineBuilder, preferences, experimentationServices }
+  ) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -330,12 +339,20 @@ export const loadStagePreview = (
       } = getState();
 
       const activeDataService = dataService.dataService;
-      const { enableSearchActivationProgramP2 } = preferences.getPreferences();
-      const shouldFetchSearchStageMetadata =
-        !!enableSearchActivationProgramP2 &&
+      const isSingleSearchStagePreview =
         !!activeDataService &&
         stagesForPreview.length === 1 &&
         stagesForPreview[0].stageOperator === '$search';
+      let shouldFetchSearchStageMetadata = false;
+      if (isSingleSearchStagePreview) {
+        const assignment = await experimentationServices.getAssignment(
+          ExperimentTestNames.searchActivationProgramP2,
+          false
+        );
+        shouldFetchSearchStageMetadata =
+          assignment?.assignmentData?.variant ===
+          ExperimentTestGroups.searchActivationProgramP2Variant;
+      }
       const aggregateOptions: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
@@ -352,7 +369,10 @@ export const loadStagePreview = (
         shouldFetchSearchStageMetadata && activeDataService
           ? (async () => {
               try {
-                await cancellableWait(700, metadataAbortController.signal);
+                await cancellableWait(
+                  DEFAULT_PREVIEW_DEBOUNCE_MS,
+                  metadataAbortController.signal
+                );
 
                 return await aggregatePipeline({
                   dataService: activeDataService,
@@ -363,7 +383,8 @@ export const loadStagePreview = (
                     injectSearchScoreMetadata(
                       pipelineBuilder.getPipelineFromStages(
                         pipelineBuilder.stages.slice(0, idxInPipeline + 1)
-                      )
+                      ),
+                      options.previewSize ?? DEFAULT_PREVIEW_LIMIT
                     ),
                     options
                   ),
@@ -380,7 +401,10 @@ export const loadStagePreview = (
           pipelineBuilder.getPreviewForStage(idxInPipeline, namespace, options),
           metadataPromise,
         ]);
-        const stageMetadata = createSearchStageMetadata(metadataDocs);
+        const stageMetadata = createSearchStageMetadata(
+          metadataDocs,
+          documents.length
+        );
         dispatch({
           type: StageEditorActionTypes.StagePreviewFetchSuccess,
           id: idx,

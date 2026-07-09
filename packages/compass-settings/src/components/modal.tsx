@@ -21,7 +21,6 @@ import Sidebar from './sidebar';
 import type { SettingsTabId } from '../stores/settings';
 import { saveSettings, closeModal, selectTab } from '../stores/settings';
 import type { RootState } from '../stores';
-import { useHasAIFeatureCloudRolloutAccess } from 'compass-preferences-model/provider';
 
 type Settings = {
   tabId: SettingsTabId;
@@ -70,7 +69,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOIDCEnabled,
   hasChangedSettings,
 }) => {
-  const aiFeatureHasCloudRolloutAccess = useHasAIFeatureCloudRolloutAccess();
   const onMountRef = useRef(onMount);
 
   useEffect(() => {
@@ -96,13 +94,11 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
     });
   }
 
-  if (aiFeatureHasCloudRolloutAccess) {
-    settings.push({
-      tabId: 'ai',
-      name: 'Artificial Intelligence',
-      component: GenAISettings,
-    });
-  }
+  settings.push({
+    tabId: 'ai',
+    name: 'Artificial Intelligence',
+    component: GenAISettings,
+  });
 
   if (useShouldShowFeaturePreviewSettings()) {
     settings.push({

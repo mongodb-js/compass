@@ -117,6 +117,26 @@ async function getFormattedDocument(browser: CompassBrowser) {
     .replace(/\s+/g, ' ');
 }
 
+async function addItemFromField(
+  browser: CompassBrowser,
+  field: string,
+  childTypeSelector: string
+) {
+  const addFieldMenuButton = browser.$(
+    Selectors.hadronDocumentAddFieldButton(field)
+  );
+
+  await browser.hover(Selectors.hadronDocumentFieldRow(field));
+  await addFieldMenuButton.waitForDisplayed();
+  await addFieldMenuButton.click();
+
+  const addChildButton = browser.$(childTypeSelector);
+  await addChildButton.waitForDisplayed();
+  await addChildButton.click();
+  const footer = browser.$(Selectors.DocumentFooterMessage);
+  expect(await footer.getText()).to.equal('Document modified.');
+}
+
 describe('Collection documents tab', function () {
   let compass: Compass;
   let browser: CompassBrowser;
@@ -391,10 +411,6 @@ describe('Collection documents tab', function () {
   });
 
   it('can export to language', async function () {
-    if (isTestingWebAtlasCloud()) {
-      return this.skip();
-    }
-
     await navigateToTab(browser, 'Documents'); // just in case the previous test failed before it could clean up
 
     await browser.runFindOperation('Documents', '{ i: 5 }');
@@ -409,7 +425,17 @@ describe('Collection documents tab', function () {
       useBuilders: true,
     });
 
-    expect(text).to.equal(`import static com.mongodb.client.model.Filters.eq;
+    // In logged in Atlas tests the connection string changes each run.
+    const onAtlasCloud = isTestingWebAtlasCloud();
+    const connectionString = onAtlasCloud
+      ? '<connectionString>'
+      : 'mongodb://127.0.0.1:27091/test';
+    const normalizedText = onAtlasCloud
+      ? text.replace(/"mongodb(?:\+srv)?:\/\/[^"]*"/, `"${connectionString}"`)
+      : text;
+
+    expect(normalizedText).to
+      .equal(`import static com.mongodb.client.model.Filters.eq;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
@@ -425,7 +451,7 @@ import com.mongodb.client.FindIterable;
 Bson filter = eq("i", 5L);
 MongoClient mongoClient = new MongoClient(
     new MongoClientURI(
-        "mongodb://127.0.0.1:27091/test"
+        "${connectionString}"
     )
 );
 MongoDatabase database = mongoClient.getDatabase("test");
@@ -947,6 +973,179 @@ FindIterable<Document> result = collection.find(filter);`);
           reverse: true,
         });
       });
+    });
+  });
+
+  context('supports editing document in list view', function () {
+    beforeEach(async function () {
+      await browser.navigateToCollectionTab(
+        getDefaultConnectionNames(0),
+        'test',
+        'nestedDocs',
+        'Documents'
+      );
+      await browser.runFindOperation(
+        'Documents',
+        '{ "names.firstName": "1-firstName" }'
+      );
+      const document = browser.$(Selectors.DocumentListEntry);
+      await document.waitForDisplayed();
+
+      await browser.hover(Selectors.DocumentListEntry);
+      await browser.clickVisible(Selectors.EditDocumentButton);
+    });
+
+    it('adds an item within an array', async function () {
+      await addItemFromField(
+        browser,
+        'addresses',
+        Selectors.HadronDocumentAddChildButton
+      );
+
+      // Addresses is a string array with 2 items
+      const newValueInput = browser.$(
+        `${Selectors.hadronDocumentFieldRow('2')} ${
+          Selectors.HadronDocumentValueEditor
+        }`
+      );
+      await newValueInput.waitForDisplayed();
+      await browser.setValueVisible(newValueInput, 'berlin');
+
+      const footer = browser.$(Selectors.DocumentFooterMessage);
+      const button = browser.$(Selectors.UpdateDocumentButton);
+      await button.click();
+      await footer.waitForDisplayed({ reverse: true });
+
+      await browser.runFindOperation(
+        'Documents',
+        '{ "names.firstName": "1-firstName" }'
+      );
+
+      const expandButton = browser.$(
+        Selectors.hadronDocumentExpandRowButton('addresses')
+      );
+      await expandButton.waitForDisplayed();
+      await browser.clickVisible(expandButton);
+      await browser.$(Selectors.hadronDocumentFieldRow('2')).waitForDisplayed();
+    });
+
+    it('adds a field after an array', async function () {
+      await addItemFromField(
+        browser,
+        'addresses',
+        Selectors.HadronDocumentAddSibling
+      );
+
+      const newFieldInput = browser.$(
+        `${Selectors.hadronDocumentFieldRow('')} ${
+          Selectors.HadronDocumentKeyEditor
+        }`
+      );
+      await newFieldInput.waitForDisplayed();
+      await browser.setValueVisible(newFieldInput, 'newFieldAfterArray');
+
+      const newValueInput = browser.$(
+        `${Selectors.hadronDocumentFieldRow('newFieldAfterArray')} ${
+          Selectors.HadronDocumentValueEditor
+        }`
+      );
+      await newValueInput.waitForDisplayed();
+      await browser.setValueVisible(newValueInput, 'newValue');
+
+      const footer = browser.$(Selectors.DocumentFooterMessage);
+      const button = browser.$(Selectors.UpdateDocumentButton);
+      await button.click();
+      await footer.waitForDisplayed({ reverse: true });
+
+      await browser.runFindOperation(
+        'Documents',
+        '{ "names.firstName": "1-firstName" }'
+      );
+
+      await browser
+        .$(Selectors.hadronDocumentFieldRow('newFieldAfterArray'))
+        .waitForDisplayed();
+    });
+
+    it('adds a field in an object', async function () {
+      await addItemFromField(
+        browser,
+        'names',
+        Selectors.HadronDocumentAddChildButton
+      );
+
+      const newFieldInput = browser.$(
+        `${Selectors.hadronDocumentFieldRow('')} ${
+          Selectors.HadronDocumentKeyEditor
+        }`
+      );
+      await newFieldInput.waitForDisplayed();
+      await browser.setValueVisible(newFieldInput, 'newField');
+
+      const newValueInput = browser.$(
+        `${Selectors.hadronDocumentFieldRow('newField')} ${
+          Selectors.HadronDocumentValueEditor
+        }`
+      );
+      await newValueInput.waitForDisplayed();
+      await browser.setValueVisible(newValueInput, 'newValue');
+
+      const footer = browser.$(Selectors.DocumentFooterMessage);
+      const button = browser.$(Selectors.UpdateDocumentButton);
+      await button.click();
+      await footer.waitForDisplayed({ reverse: true });
+
+      await browser.runFindOperation(
+        'Documents',
+        '{ "names.firstName": "1-firstName" }'
+      );
+
+      const expandButton = browser.$(
+        Selectors.hadronDocumentExpandRowButton('names')
+      );
+      await expandButton.waitForDisplayed();
+      await browser.clickVisible(expandButton);
+      await browser
+        .$(Selectors.hadronDocumentFieldRow('newField'))
+        .waitForDisplayed();
+    });
+
+    it('adds a field after an object', async function () {
+      await addItemFromField(
+        browser,
+        'names',
+        Selectors.HadronDocumentAddSibling
+      );
+
+      const newFieldInput = browser.$(
+        `${Selectors.hadronDocumentFieldRow('')} ${
+          Selectors.HadronDocumentKeyEditor
+        }`
+      );
+      await newFieldInput.waitForDisplayed();
+      await browser.setValueVisible(newFieldInput, 'newFieldFromObject');
+
+      const newValueInput = browser.$(
+        `${Selectors.hadronDocumentFieldRow('newFieldFromObject')} ${
+          Selectors.HadronDocumentValueEditor
+        }`
+      );
+      await newValueInput.waitForDisplayed();
+      await browser.setValueVisible(newValueInput, 'newValue');
+
+      const footer = browser.$(Selectors.DocumentFooterMessage);
+      const button = browser.$(Selectors.UpdateDocumentButton);
+      await button.click();
+      await footer.waitForDisplayed({ reverse: true });
+
+      await browser.runFindOperation(
+        'Documents',
+        '{ "names.firstName": "1-firstName" }'
+      );
+
+      await browser
+        .$(Selectors.hadronDocumentFieldRow('newFieldFromObject'))
+        .waitForDisplayed();
     });
   });
 });

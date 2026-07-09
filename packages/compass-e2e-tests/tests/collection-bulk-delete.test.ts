@@ -14,7 +14,10 @@ import {
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
-import { context } from '../helpers/test-runner-context.ts';
+import {
+  context,
+  isTestingWebAtlasCloud,
+} from '../helpers/test-runner-context.ts';
 
 describe('Bulk Delete', function () {
   let compass: Compass;
@@ -196,10 +199,19 @@ describe('Bulk Delete', function () {
       includeDriverSyntax: true,
       useBuilders: false,
     });
-    expect(text).to.equal(`from pymongo import MongoClient
+
+    // In logged in Atlas tests the connection string changes each run.
+    const onAtlasCloud = isTestingWebAtlasCloud();
+    const connectionString = onAtlasCloud
+      ? '<connectionString>'
+      : 'mongodb://127.0.0.1:27091/test';
+    const normalizedText = onAtlasCloud
+      ? text.replace(/'mongodb(?:\+srv)?:\/\/[^']*'/, `'${connectionString}'`)
+      : text;
+    expect(normalizedText).to.equal(`from pymongo import MongoClient
 # Requires the PyMongo package.
 # https://api.mongodb.com/python/current
-client = MongoClient('mongodb://127.0.0.1:27091/test')
+client = MongoClient('${connectionString}')
 filter={
     'i': 5
 }

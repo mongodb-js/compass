@@ -23,9 +23,6 @@ describe('AIPipelineReducer', function () {
     preferences = await createSandboxFromDefaultPreferences();
     await preferences.savePreferences({
       enableGenAIFeatures: true,
-      cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: true,
-      },
     });
   });
 

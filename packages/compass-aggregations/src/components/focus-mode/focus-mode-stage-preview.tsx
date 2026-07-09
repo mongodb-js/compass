@@ -26,9 +26,15 @@ import {
   expandPreviewDocsForStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { disableFocusMode } from '../../modules/focus-mode';
 import SearchNoResults from '../search-no-results';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
+import {
+  SearchStageDiagnoseButton,
+  useShouldShowSearchStageDiagnose,
+} from '../search-stage-diagnose-button';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
 const containerStyles = css({
   display: 'flex',
@@ -58,6 +64,7 @@ const centerStyles = css({
   justifyContent: 'center',
   height: '100%',
   textAlign: 'center',
+  gap: spacing[200],
 });
 
 const messageStyles = css({ marginTop: spacing[400] });
@@ -85,11 +92,14 @@ type FocusModePreviewProps = {
   documents?: HadronDocument[] | null;
   stageIndex?: number;
   stageOperator?: string | null;
+  stageValue?: string | null;
   isMissingAtlasOnlyStageSupport?: boolean;
   showSearchIndexStaleResultsBanner?: boolean;
   searchIndexName?: string | null;
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
+  onCloseFocusMode?: () => void;
+  emptyStateAction?: React.ReactNode;
 };
 
 export const FocusModePreview = ({
@@ -103,6 +113,7 @@ export const FocusModePreview = ({
   searchIndexName = null,
   onExpand,
   onCollapse,
+  emptyStateAction,
 }: FocusModePreviewProps) => {
   const copyToClipboard = useCallback((doc: HadronDocument) => {
     const str = doc.toEJSON();
@@ -166,12 +177,17 @@ export const FocusModePreview = ({
           )}
       </>
     );
-  } else if (!enableSearchActivationProgramP1 && isSearchStage(stageOperator)) {
+  } else if (
+    !enableSearchActivationProgramP1 &&
+    isSearchStage(stageOperator) &&
+    !emptyStateAction
+  ) {
     content = <SearchNoResults />;
   } else {
     content = (
       <div className={centerStyles}>
         <Body className={messageStyles}>No preview documents</Body>
+        {emptyStateAction}
       </div>
     );
   }
@@ -206,7 +222,43 @@ export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
 };
 
 export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
-  return <FocusModePreview {...props} title="Stage Output" />;
+  const { onCloseFocusMode, stageOperator, searchIndexName, stageValue } =
+    props;
+  const { diagnoseSearchStage } = useAssistantActions();
+  const showDiagnoseSearchStage = useShouldShowSearchStageDiagnose(
+    stageOperator,
+    props.documents
+  );
+
+  const handleDiagnoseSearchStage = useCallback(() => {
+    onCloseFocusMode?.();
+    diagnoseSearchStage?.({
+      stageOperator: stageOperator ?? '',
+      indexName: searchIndexName ?? null,
+      stageValue: stageValue ?? '',
+    });
+  }, [
+    onCloseFocusMode,
+    diagnoseSearchStage,
+    stageOperator,
+    searchIndexName,
+    stageValue,
+  ]);
+
+  return (
+    <FocusModePreview
+      {...props}
+      title="Stage Output"
+      emptyStateAction={
+        showDiagnoseSearchStage ? (
+          <SearchStageDiagnoseButton
+            onClick={handleDiagnoseSearchStage}
+            data-testid="focus-mode-diagnose-search-button"
+          />
+        ) : undefined
+      }
+    />
+  );
 };
 
 export const FocusModeStageInput = connect(
@@ -317,6 +369,7 @@ export const FocusModeStageOutput = connect(
       documents: stage.previewDocs,
       stageIndex,
       stageOperator: stage.stageOperator,
+      stageValue: stage.value,
       isMissingAtlasOnlyStageSupport,
       showSearchIndexStaleResultsBanner,
       searchIndexName,
@@ -325,5 +378,6 @@ export const FocusModeStageOutput = connect(
   {
     onExpand: expandPreviewDocsForStage,
     onCollapse: collapsePreviewDocsForStage,
+    onCloseFocusMode: disableFocusMode,
   }
 )(OutputPreview);
