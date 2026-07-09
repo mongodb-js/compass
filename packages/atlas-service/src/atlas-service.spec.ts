@@ -21,12 +21,8 @@ const ATLAS_CONFIG: AtlasServiceConfig = {
   userDataBaseUrl: 'http://example.com/ui/userData',
 };
 
-function getAtlasService(
-  preferences: PreferencesAccess,
-  getAuthHeadersFn?: () => Promise<Record<string, string>>
-) {
+function getAtlasService(preferences: PreferencesAccess) {
   const authService = new CompassAtlasAuthService();
-  authService['getAuthHeaders'] = getAuthHeadersFn as any;
 
   const atlasService = new AtlasService(
     authService,
@@ -119,10 +115,7 @@ describe('AtlasService', function () {
       json: () => Promise.resolve(expectedData),
     });
     global.fetch = fetchStub;
-    const getAuthHeadersFn = sandbox.stub().resolves({
-      Authorization: 'Bearer super-secret',
-    });
-    const atlasService = getAtlasService(preferences, getAuthHeadersFn);
+    const atlasService = getAtlasService(preferences);
     const response = await atlasService.authenticatedFetch(
       'https://example.com'
     );
@@ -135,7 +128,10 @@ describe('AtlasService', function () {
       'Authorization',
       'Bearer super-secret'
     );
-    expect(getAuthHeadersFn.calledOnce).to.be.true;
+    expect(fetchStub.firstCall.args[1].headers).to.have.property(
+      'X-Compass-Auth',
+      'true'
+    );
   });
 
   it('should set CSRF headers when available', async function () {
