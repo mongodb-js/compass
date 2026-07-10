@@ -6,7 +6,7 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { ToolToggle } from './tool-toggle';
-import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai';
+import { getAvailableTools } from '@mongodb-js/compass-generative-ai';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { renderWithProvider } from '../../test/utils';
@@ -101,8 +101,11 @@ describe('ToolToggle', function () {
       userEvent.click(button);
 
       await waitFor(() => {
-        // Check that all tools from AVAILABLE_TOOLS are displayed
-        for (const tool of AVAILABLE_TOOLS) {
+        // Check that all tools from getAvailableTools are displayed
+        const availableTools = getAvailableTools({
+          enableAtlasConnectionErrorDebugger: true,
+        });
+        for (const tool of availableTools) {
           expect(screen.getByText(tool.name)).to.exist;
           expect(screen.getByText(tool.description)).to.exist;
         }
@@ -119,7 +122,10 @@ describe('ToolToggle', function () {
       userEvent.click(button);
 
       await waitFor(() => {
-        const countText = screen.getByText(`(${AVAILABLE_TOOLS.length})`, {
+        const availableTools = getAvailableTools({
+          enableAtlasConnectionErrorDebugger: true,
+        });
+        const countText = screen.getByText(`(${availableTools.length})`, {
           exact: false,
         });
         expect(countText).to.exist;

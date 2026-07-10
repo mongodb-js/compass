@@ -9,7 +9,7 @@ import type {
 import type { CollectionMetadata } from 'mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
-import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai/provider';
+import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
 
 export const FOLLOW_UP_QUESTIONS_HEADER = '### Follow-Up Questions';
 
@@ -407,6 +407,7 @@ export function buildContextPrompt({
   activeCollectionMetadata,
   activeCollectionSubTab,
   enableGenAIToolCalling = false,
+  enableAtlasConnectionErrorDebugger = false,
 }: {
   activeWorkspace: WorkspaceTab | null;
   activeConnection: Pick<ConnectionInfo, 'connectionOptions'> | null;
@@ -423,8 +424,13 @@ export function buildContextPrompt({
   > | null;
   activeCollectionSubTab: CollectionSubtab | null;
   enableGenAIToolCalling?: boolean;
+  enableAtlasConnectionErrorDebugger?: boolean;
 }): AssistantMessage {
   const parts: string[] = [];
+
+  const availableTools = getAvailableTools({
+    enableAtlasConnectionErrorDebugger,
+  });
 
   if (activeConnection) {
     const connectionName = getConnectionTitle(activeConnection);
@@ -441,7 +447,7 @@ export function buildContextPrompt({
     lines.push(
       `Database tool calls require a focused connection. Tell the user to navigate to a connection if they try to use any of these tools:`
     );
-    for (const tool of AVAILABLE_TOOLS) {
+    for (const tool of availableTools) {
       lines.push(`- ${tool.name}: ${tool.description}`);
     }
     lines.push('</instructions>');
@@ -557,7 +563,7 @@ export function buildContextPrompt({
     instructions.push(
       `${instructionNum++}. Explain to the user that if they enable read-only tool access they will get access to these tools:`
     );
-    for (const tool of AVAILABLE_TOOLS) {
+    for (const tool of availableTools) {
       instructions.push(`- ${tool.name}: ${tool.description}`);
     }
     instructions.push('</instructions>');

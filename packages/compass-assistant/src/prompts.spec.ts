@@ -263,6 +263,7 @@ You SHOULD:
 - mongodb-logs: Returns the most recent logged mongod events.
 - get-current-query: Get the current query from the querybar.
 - get-current-pipeline: Get the current pipeline from the aggregation builder.
+- atlas-connection-error-debugger: Returns Atlas-side diagnostics (cluster state, IP access list). Use to debug a Compass connection failure to an Atlas cluster.
 </instructions>
 `.trim();
 

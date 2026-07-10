@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useState, useMemo } from 'react';
 import {
   spacing,
   css,
@@ -18,7 +18,7 @@ import {
   usePreferencesContext,
 } from 'compass-preferences-model/provider';
 import { useAssistantProjectId } from '../compass-assistant-provider';
-import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai/provider';
+import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
 
 const popoverContentStyles = css({
@@ -126,6 +126,9 @@ export const ToolToggle: React.FunctionComponent = () => {
     ? 'https://www.mongodb.com/docs/atlas/atlas-ui/query-with-natural-language/data-explorer-ai-assistant/'
     : 'https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/';
   const enableGenAIToolCalling = usePreference('enableGenAIToolCalling');
+  const enableAtlasConnectionErrorDebugger = usePreference(
+    'enableAtlasConnectionErrorDebugger'
+  );
 
   const areToolCallsEnabled =
     !!enableGenAIToolCallingAtlasProject && enableGenAIToolCalling;
@@ -142,6 +145,11 @@ export const ToolToggle: React.FunctionComponent = () => {
       });
     },
     [preferences]
+  );
+
+  const availableTools = useMemo(
+    () => getAvailableTools({ enableAtlasConnectionErrorDebugger }),
+    [enableAtlasConnectionErrorDebugger]
   );
 
   return (
@@ -213,12 +221,12 @@ export const ToolToggle: React.FunctionComponent = () => {
                 <div className={toolsHeaderTextStyles}>
                   Available tools{' '}
                   <span className={toolsHeaderTextCountStyles}>
-                    ({AVAILABLE_TOOLS.length})
+                    ({availableTools.length})
                   </span>
                 </div>
               </div>
               <div className={`${toolListStyles}`}>
-                {AVAILABLE_TOOLS.map((tool) => (
+                {availableTools.map((tool) => (
                   <div key={tool.name} className={toolItemStyles}>
                     <div className={toolNameStyles}>{tool.name}</div>
                     <div className={toolDescriptionStyles}>
