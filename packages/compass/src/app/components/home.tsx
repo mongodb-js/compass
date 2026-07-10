@@ -9,9 +9,7 @@ import {
   palette,
   resetGlobalCSS,
 } from '@mongodb-js/compass-components';
-import CompassConnections, {
-  LegacyConnectionsModal,
-} from '@mongodb-js/compass-connections';
+import CompassConnections from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
@@ -86,7 +84,6 @@ function Home({ appName }: HomeProps): React.ReactElement | null {
           <CompassGenerativeAIPlugin
             isCloudOptIn={false}
           ></CompassGenerativeAIPlugin>
-          <LegacyConnectionsModal />
         </FieldStorePlugin>
       </CompassInstanceStorePlugin>
     </ConnectionImportExportProvider>

@@ -2880,35 +2880,6 @@ type ApplicationLaunchedEvent = CommonEvent<{
      * Whether any preferences were specified using CLI arguments.
      */
     cli_args: boolean;
-
-    /**
-     * Whether Compass discovered any connections in the legacy connection format
-     * (prior to COMPASS-5490 'Remove storage-mixin' from summer 2023).
-     */
-    legacy_connections: boolean;
-  };
-}>;
-
-/**
- * This event is fired when the keytar migration fails for a user.
- * See: https://jira.mongodb.org/browse/COMPASS-6856.
- *
- * NOTE: Should be removed as part of https://jira.mongodb.org/browse/COMPASS-7948.
- *
- * @category Other
- */
-type KeytarSecretsMigrationFailedEvent = CommonEvent<{
-  name: 'Keytar Secrets Migration Failed';
-  payload: {
-    /**
-     * The number of connections that were successfully saved.
-     */
-    num_saved_connections: number;
-
-    /**
-     * The number of connections that failed to save during the migration.
-     */
-    num_failed_connections: number;
   };
 }>;
 
@@ -4063,7 +4034,6 @@ export type TelemetryEvent =
   | IndexCreateOpenedEvent
   | IndexDroppedEvent
   | IndexEditedEvent
-  | KeytarSecretsMigrationFailedEvent
   | MyQueriesFilterEvent
   | MyQueriesSearchEvent
   | MyQueriesSortEvent
