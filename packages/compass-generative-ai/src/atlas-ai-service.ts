@@ -288,8 +288,6 @@ async function getHashedActiveUserId(
 type AIResourceType = 'query' | 'aggregation';
 
 export class AtlasAiService {
-  private initPromise: Promise<void> | null = null;
-
   private apiURLPreset: 'admin-api' | 'cloud';
   private atlasService: AtlasService;
   private preferences: PreferencesAccess;
@@ -313,7 +311,6 @@ export class AtlasAiService {
     this.atlasService = atlasService;
     this.preferences = preferences;
     this.logger = logger;
-    this.initPromise = this.setupAIAccess();
 
     const PLACEHOLDER_BASE_URL =
       'http://PLACEHOLDER_BASE_URL_TO_BE_REPLACED.invalid';
@@ -374,16 +371,6 @@ export class AtlasAiService {
     }
   }
 
-  async setupAIAccess(): Promise<void> {
-    // We default GEN_AI_ACCESS on for everyone. Down the line if/when
-    // we add more features with partial rollout, we'll fetch access here.
-    await this.preferences.savePreferences({
-      cloudFeatureRolloutAccess: {
-        GEN_AI_COMPASS: true,
-      },
-    });
-  }
-
   async ensureAiFeatureAccess({ signal }: { signal?: AbortSignal } = {}) {
     return getStore().dispatch(
       optIntoGenAIWithModalPrompt({
@@ -405,7 +392,6 @@ export class AtlasAiService {
     },
     validationFn: (res: any) => asserts res is T
   ): Promise<T> => {
-    await this.initPromise;
     this.throwIfAINotEnabled();
 
     const { signal, requestId, ...rest } = input;
@@ -527,7 +513,6 @@ export class AtlasAiService {
     input: MockDataSchemaRequest,
     connectionInfo: ConnectionInfo
   ): Promise<MockDataSchemaToolOutput> {
-    await this.initPromise;
     this.throwIfAINotEnabled();
 
     // Mock data schema generation requires cloud API (atlas metadata)

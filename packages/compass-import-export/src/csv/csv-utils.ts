@@ -33,12 +33,18 @@ export function formatCSVValue(
   {
     delimiter,
     escapeLinebreaks = false,
+    escapeFormulae = true,
   }: {
     delimiter: Delimiter;
     escapeLinebreaks?: boolean;
+    escapeFormulae?: boolean;
   }
 ) {
   value = value.replace(/"/g, '""');
+
+  if (escapeFormulae) {
+    value = value.replace(/^([=+\-@].+)$/, "'$1");
+  }
 
   if (escapeLinebreaks) {
     // This should only really be necessary for values that started out as
@@ -76,8 +82,11 @@ export function stringifyCSVValue(
   value: any,
   {
     delimiter,
+    escapeFormulae = true,
   }: {
     delimiter: Delimiter;
+
+    escapeFormulae?: boolean;
   }
 ): string {
   if ([null, undefined].includes(value as null | undefined)) {
@@ -92,6 +101,7 @@ export function stringifyCSVValue(
       return formatCSVValue(value, {
         delimiter,
         escapeLinebreaks: true,
+        escapeFormulae,
       });
     }
 
@@ -108,6 +118,7 @@ export function stringifyCSVValue(
     if (['number', 'boolean'].includes(typeof value)) {
       return formatCSVValue(value.toString() as string, {
         delimiter,
+        escapeFormulae,
       });
     }
 
@@ -115,6 +126,7 @@ export function stringifyCSVValue(
     // that don't have a bson type tag.
     return formatCSVValue(EJSON.stringify(value, { relaxed: false }), {
       delimiter,
+      escapeFormulae,
     });
   }
 
@@ -137,6 +149,7 @@ export function stringifyCSVValue(
     const bsonregex = value as BSONRegExp;
     return formatCSVValue(`/${bsonregex.pattern}/${bsonregex.options}`, {
       delimiter,
+      escapeFormulae,
     });
   }
 
@@ -163,6 +176,7 @@ export function stringifyCSVValue(
   // BSONSymbol, Code, DBRef and whatever new types get added
   return formatCSVValue(EJSON.stringify(value, { relaxed: false }), {
     delimiter,
+    escapeFormulae,
   });
 }
 

@@ -61,7 +61,6 @@ import {
 } from '@mongodb-js/compass-connection-import-export';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { usePreference } from 'compass-preferences-model/provider';
-import { wrapField } from '@mongodb-js/mongodb-constants';
 import {
   buildPerformanceMetricsUrl,
   buildClusterOverviewUrl,
@@ -374,12 +373,14 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           let initialInput: string | undefined = undefined;
 
           if (item.type === 'database') {
-            initialEvaluate = `use ${item.dbName};`;
+            initialEvaluate = `use(${JSON.stringify(item.dbName)});`;
           }
 
           if (item.type === 'collection') {
-            initialEvaluate = `use ${item.databaseItem.dbName};`;
-            initialInput = `db[${wrapField(item.name, true)}].find()`;
+            initialEvaluate = `use(${JSON.stringify(
+              item.databaseItem.dbName
+            )});`;
+            initialInput = `db[${JSON.stringify(item.name)}].find()`;
           }
 
           openShellWorkspace(connectionId, {

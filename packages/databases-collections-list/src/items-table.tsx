@@ -178,7 +178,7 @@ const TableControls: React.FunctionComponent<{
                 openShellWorkspace(
                   connectionInfo.id,
                   namespace
-                    ? { initialEvaluate: `use ${namespace}` }
+                    ? { initialEvaluate: `use(${JSON.stringify(namespace)})` }
                     : undefined
                 );
                 track(

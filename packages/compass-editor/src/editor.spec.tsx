@@ -75,5 +75,24 @@ describe('Editor', function () {
         editorRef.current?.editor?.contentDOM
       );
     });
+
+    it('configures autocomplete hover styles', function () {
+      const editorRef = React.createRef<EditorRef>();
+      render(<CodemirrorMultilineEditor text={'{}'} ref={editorRef} />);
+
+      // Verify the editor has been initialized with extensions
+      expect(editorRef.current?.editor).to.exist;
+
+      // Check that autocomplete hover styles are present in the document
+      // The baseTheme extension adds a <style> tag to the document
+      const styleTags = document.querySelectorAll('style');
+      const hasAutocompleteHoverStyle = Array.from(styleTags).some(
+        (style) =>
+          style.textContent?.includes('.cm-tooltip-autocomplete') &&
+          style.textContent?.includes(':hover')
+      );
+
+      expect(hasAutocompleteHoverStyle).to.be.true;
+    });
   });
 });
