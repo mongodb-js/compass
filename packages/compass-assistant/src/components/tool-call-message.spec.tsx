@@ -65,7 +65,7 @@ describe('ToolCallMessage', function () {
       expect(toolName).to.exist;
 
       // InlineDefinition is used for tools with descriptions
-      // list-databases should have a description from AVAILABLE_TOOLS
+      // list-databases should have a description from getAvailableTools
       userEvent.hover(toolName);
       await waitFor(() => {
         const description = screen.getByText(

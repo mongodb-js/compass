@@ -1,3 +1,5 @@
+import type { AllPreferences } from 'compass-preferences-model';
+
 export const READ_ONLY_DATABASE_TOOLS = [
   {
     name: 'find',
@@ -48,14 +50,28 @@ export const READ_ONLY_DATABASE_TOOLS = [
   },
 ];
 
-export const AVAILABLE_TOOLS = [
-  ...READ_ONLY_DATABASE_TOOLS,
-  {
-    name: 'get-current-query',
-    description: 'Get the current query from the querybar.',
-  },
-  {
-    name: 'get-current-pipeline',
-    description: 'Get the current pipeline from the aggregation builder.',
-  },
-];
+export const getAvailableTools = ({
+  enableAtlasConnectionErrorDebugger,
+}: Pick<AllPreferences, 'enableAtlasConnectionErrorDebugger'>) => {
+  const tools = [
+    ...READ_ONLY_DATABASE_TOOLS,
+    {
+      name: 'get-current-query',
+      description: 'Get the current query from the querybar.',
+    },
+    {
+      name: 'get-current-pipeline',
+      description: 'Get the current pipeline from the aggregation builder.',
+    },
+    ...(enableAtlasConnectionErrorDebugger
+      ? [
+          {
+            name: 'atlas-connection-error-debugger',
+            description:
+              'Returns Atlas-side diagnostics (cluster state, IP access list). Use to debug a Compass connection failure to an Atlas cluster.',
+          },
+        ]
+      : []),
+  ];
+  return tools;
+};

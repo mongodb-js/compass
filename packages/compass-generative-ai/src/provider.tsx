@@ -59,6 +59,8 @@ const ToolsControllerContext = createContext<ToolsController | null>(null);
 export const ToolsControllerProvider: React.FC = createServiceProvider(
   function ToolsControllerProvider({ children }) {
     const logger = useLogger('TOOLS-CONTROLLER');
+    const preferences = preferencesLocator();
+    const atlasService = atlasServiceLocator();
 
     const telemetryAnonymousId = usePreference('telemetryAnonymousId');
 
@@ -68,8 +70,10 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
         getTelemetryAnonymousId: () => telemetryAnonymousId ?? '',
         // we will set this later through setContext()
         enableTelemetry: false,
+        preferences,
+        atlasService,
       });
-    }, [logger, telemetryAnonymousId]);
+    }, [logger, telemetryAnonymousId, preferences, atlasService]);
 
     useEffect(() => {
       return () => {
@@ -104,7 +108,7 @@ export type { ToolGroup } from './tools-controller';
 // Export the hook for direct use in components
 export const useToolsController = useToolsControllerContext;
 
-export { AVAILABLE_TOOLS, READ_ONLY_DATABASE_TOOLS } from './available-tools';
+export { getAvailableTools, READ_ONLY_DATABASE_TOOLS } from './available-tools';
 export { AI_MODEL_CHAT_VERSION, AI_MODEL_SLIM_VERSION } from './model-version';
 
 export {
