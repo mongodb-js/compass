@@ -277,12 +277,14 @@ buildvariants:
         variant: package-rhel
     tasks:
       - name: test-packaged-app-min-version
-  - name: test-packaged-app-min-macos-x64
-    display_name: Test Packaged App MacOS x64 13 (min version)
-    run_on: macos-13-amd64-gui-dev
+  - name: test-packaged-app-min-macos-arm
+    tags:
+      - run-on-pr
+    display_name: Test Packaged App MacOS arm64 13 (min version)
+    run_on: macos-13-arm64-gui
     depends_on:
       - name: package-compass
-        variant: package-macos-x64
+        variant: package-macos-arm
     tasks:
       - name: test-packaged-app-min-version-macos13
   - name: publish
@@ -1124,6 +1126,7 @@ tasks:
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-packaged-app-min-version-macos13
     tags:
+      - required-for-publish-desktop
       - assigned_to_jira_team_compass_compass
       - foliage_check_task_only
     commands:

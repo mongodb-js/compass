@@ -124,15 +124,13 @@ const TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS = [
     task: 'test-packaged-app-min-version',
   },
   {
-    // Non-gating: the only macOS 13 GUI distro is Intel and dev-tier
-    // (there is no arm64 GUI host at macOS 13), and the packaged Electron
-    // app needs a GUI host to start a webdriver session, so this can't run
-    // on the non-GUI arm64 packaging distro. Runs off-PR only. (COMPASS-9087)
-    name: 'test-packaged-app-min-macos-x64',
-    display_name: 'MacOS x64 13 (min version)',
-    run_on: 'macos-13-amd64-gui-dev',
-    run_on_prs: false,
-    depends_on: 'package-macos-x64',
+    // The packaged Electron app needs a GUI host to start a webdriver
+    // session, so this must run on a macOS GUI distro (not the non-GUI
+    // arm64 packaging distro).
+    name: 'test-packaged-app-min-macos-arm',
+    display_name: 'MacOS arm64 13 (min version)',
+    run_on: 'macos-13-arm64-gui',
+    depends_on: 'package-macos-arm',
     task: 'test-packaged-app-min-version-macos13',
   }
 ];
@@ -622,8 +620,9 @@ tasks:
 <%
   const MIN_VERSION_TASKS = [
     { name: 'test-packaged-app-min-version', mongodb_version: LATEST_MAINTAINED_SERVER_VERSION.version, required_for_publish: true },
-    // macOS 13 only runs on a dev-tier GUI distro, so keep it non-gating.
-    { name: 'test-packaged-app-min-version-macos13', mongodb_version: '8.0.5', required_for_publish: false },
+    // Same as above but pins an older server: the latest 8.0.x mongod is
+    // built for macOS 14+ and won't launch on macOS 13.
+    { name: 'test-packaged-app-min-version-macos13', mongodb_version: '8.0.5', required_for_publish: true },
   ];
 %>
 <% for (const task of MIN_VERSION_TASKS) { %>
