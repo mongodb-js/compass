@@ -1,9 +1,11 @@
 {
   "extends": "./tsconfig.common.json",
   "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "removeComments": false,
     // Disable "common" options that wouldn't allow us to compile
     "allowImportingTsExtensions": false,
-    "noEmit": false,
-    "skipLibCheck": true
+    "noEmit": false
   }
 }

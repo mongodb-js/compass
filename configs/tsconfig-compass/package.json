@@ -13,9 +13,6 @@
   "devDependencies": {
     "@mongodb-js/prettier-config-compass": "^1.2.9"
   },
-  "dependencies": {
-    "@mongodb-js/tsconfig-devtools": "^1.1.1"
-  },
   "scripts": {
     "check": "npm run lint",
     "lint": "prettier --check .",
