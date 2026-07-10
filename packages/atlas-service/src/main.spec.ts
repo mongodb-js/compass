@@ -386,7 +386,7 @@ describe('CompassAuthServiceMain', function () {
       });
 
       it('should return undefined for a non-Atlas Admin API request', async function () {
-        const req = new Request('http://example.com/private/');
+        const req = new Request('http://example.com/api/private/some-endpoint');
         expect(
           await CompassAuthService.maybeGetAuthHeaders(req)
         ).to.be.undefined;
@@ -421,7 +421,9 @@ describe('CompassAuthServiceMain', function () {
         CompassAuthService['plugin'] = {
           mongoClientOptions: {
             authMechanismProperties: {
-              OIDC_HUMAN_CALLBACK: sandbox.stub().resolves({}),
+              OIDC_HUMAN_CALLBACK: sandbox
+                .stub()
+                .rejects(new Error('Failed to request token')),
             },
           },
         } as any;

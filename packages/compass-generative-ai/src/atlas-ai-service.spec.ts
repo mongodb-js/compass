@@ -309,14 +309,14 @@ describe('AtlasAiService', function () {
         }
 
         if (apiURLPreset === 'private-api') {
-          it('throws AtlasAiServiceInvalidInputError for admin-api preset', async function () {
+          it('throws AtlasAiServiceInvalidInputError for private-api preset', async function () {
             try {
               await atlasAiService.getMockDataSchema(
                 mockSchemaInput,
                 mockConnectionInfo
               );
               expect.fail(
-                'Expected getMockDataSchema to throw for admin-api preset'
+                'Expected getMockDataSchema to throw for private-api preset'
               );
             } catch (err) {
               expect(err).to.be.instanceOf(AtlasAiServiceInvalidInputError);
