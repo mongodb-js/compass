@@ -172,7 +172,6 @@ describe('CompassConnections store', function () {
           enableAIAssistant: true,
           enableGenAIFeatures: true,
           enableGenAIFeaturesAtlasOrg: true,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
         },
         connectFn: sinon
           .stub()
@@ -198,7 +197,6 @@ describe('CompassConnections store', function () {
           enableAIAssistant: false,
           enableGenAIFeatures: false,
           enableGenAIFeaturesAtlasOrg: false,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
         },
         connectFn: sinon
           .stub()

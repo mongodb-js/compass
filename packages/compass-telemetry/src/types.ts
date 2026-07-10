@@ -2,11 +2,7 @@ import type {
   ConnectionScopedProperties,
   TelemetryEvent,
 } from './telemetry-events';
-export type {
-  TelemetryEvent,
-  IdentifyTraits,
-  ExtraConnectionData,
-} from './telemetry-events';
+export type { TelemetryEvent, ExtraConnectionData } from './telemetry-events';
 
 type TelemetryConnectionInfo = {
   id: string;

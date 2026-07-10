@@ -283,10 +283,10 @@ describe('Data Modeling tab', function () {
       `compass-data-modeling-${Date.now().toString(32)}`
     );
     await fs.mkdir(tmpdir, { recursive: true });
+    await browser.setupDefaultConnections();
   });
 
   beforeEach(async function () {
-    await browser.setupDefaultConnections();
     await browser.setFeature('enableDataModelingCollapse', true);
     if (exportFileName) {
       cleanUpDownloadedFile(exportFileName);

@@ -7,6 +7,10 @@ import type { PipelineBuilderThunkDispatch, RootState } from '../modules';
 import reducer from '../modules';
 import { refreshInputDocuments } from '../modules/input-documents';
 import { openStoredPipeline } from '../modules/saved-pipeline';
+import {
+  interpretExplainStarted,
+  interpretExplainFinished,
+} from '../modules/explain';
 import { PipelineBuilder } from '../modules/pipeline-builder/pipeline-builder';
 import { generateAggregationFromQuery } from '../modules/pipeline-builder/pipeline-ai';
 import type { SavedPipeline } from '@mongodb-js/my-queries-storage';
@@ -48,6 +52,7 @@ import {
   collectionStatsFetched,
 } from '../modules/collection-stats';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 
 export type ConfigureStoreOptions = CollectionTabPluginMetadata &
   Partial<{
@@ -82,6 +87,7 @@ export type AggregationsPluginServices = {
   preferences: PreferencesAccess;
   logger: Logger;
   track: TrackFunction;
+  experimentationServices: ExperimentationServices;
   atlasAiService: AtlasAiService;
   pipelineStorage?: PipelineStorageAccess;
   connectionInfoRef: ConnectionInfoRef;
@@ -100,6 +106,7 @@ export function activateAggregationsPlugin(
     preferences,
     logger,
     track,
+    experimentationServices,
     atlasAiService,
     pipelineStorage,
     connectionInfoRef,
@@ -191,6 +198,7 @@ export function activateAggregationsPlugin(
         preferences,
         logger,
         track,
+        experimentationServices,
         atlasAiService,
         connectionInfoRef,
         connectionScopedAppRegistry,
@@ -207,6 +215,14 @@ export function activateAggregationsPlugin(
 
   on(localAppRegistry, 'generate-aggregation-from-query', (data) => {
     store.dispatch(generateAggregationFromQuery(data));
+  });
+
+  on(localAppRegistry, 'explain-plan-interpret-started', () => {
+    store.dispatch(interpretExplainStarted());
+  });
+
+  on(localAppRegistry, 'explain-plan-interpret-finished', () => {
+    store.dispatch(interpretExplainFinished());
   });
 
   /**

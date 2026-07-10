@@ -1,5 +1,7 @@
+import type { AnyAction } from 'redux';
 import type { PipelineBuilderThunkAction } from '.';
 import { getPipelineFromBuilderState } from './pipeline-builder/builder-helpers';
+import { isAction } from '../utils/is-action';
 
 export type ExplainMode = 'visual-tree' | 'raw-output' | 'interpret';
 
@@ -34,3 +36,49 @@ export const explainAggregationRawOutput =
 
 export const explainAggregationInterpret =
   (): PipelineBuilderThunkAction<void> => explainAggregation('interpret');
+
+const ExplainInterpretActionTypes = {
+  Started: 'compass-aggregations/InterpretStarted',
+  Finished: 'compass-aggregations/InterpretFinished',
+} as const;
+
+type ExplainInterpretStartedAction = {
+  type: typeof ExplainInterpretActionTypes.Started;
+};
+
+type ExplainInterpretFinishedAction = {
+  type: typeof ExplainInterpretActionTypes.Finished;
+};
+
+export type ExplainState = { isLoading: boolean };
+
+export const interpretExplainStarted = (): ExplainInterpretStartedAction => ({
+  type: ExplainInterpretActionTypes.Started,
+});
+
+export const interpretExplainFinished = (): ExplainInterpretFinishedAction => ({
+  type: ExplainInterpretActionTypes.Finished,
+});
+
+export default function explainReducer(
+  state: ExplainState = { isLoading: false },
+  action: AnyAction
+): ExplainState {
+  if (
+    isAction<ExplainInterpretStartedAction>(
+      action,
+      ExplainInterpretActionTypes.Started
+    )
+  ) {
+    return { isLoading: true };
+  }
+  if (
+    isAction<ExplainInterpretFinishedAction>(
+      action,
+      ExplainInterpretActionTypes.Finished
+    )
+  ) {
+    return { isLoading: false };
+  }
+  return state;
+}

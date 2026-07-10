@@ -201,7 +201,6 @@ describe('useAssistantActions', function () {
         // These control isAIFeatureEnabled
         enableGenAIFeatures: false,
         enableGenAIFeaturesAtlasOrg: true,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
         enableToolCalling: true,
       },
     });
@@ -216,22 +215,6 @@ describe('useAssistantActions', function () {
         enableAIAssistant: true,
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: false,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-        enableToolCalling: true,
-      },
-    });
-
-    expect(result.current).to.have.keys(['getIsAssistantEnabled']);
-  });
-
-  it('returns mostly empty object when cloudFeatureRolloutAccess is disabled', function () {
-    const { result } = renderHook(() => useAssistantActions(), {
-      wrapper: createWrapper(createMockChat({ messages: [] })),
-      preferences: {
-        enableAIAssistant: true,
-        enableGenAIFeatures: true,
-        enableGenAIFeaturesAtlasOrg: true,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
         enableToolCalling: true,
       },
     });
@@ -246,7 +229,6 @@ describe('useAssistantActions', function () {
         enableAIAssistant: true,
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
         enableToolCalling: true,
       },
     });
@@ -255,6 +237,9 @@ describe('useAssistantActions', function () {
     expect(result.current.interpretExplainPlan).to.be.a('function');
     expect(result.current.interpretConnectionError).to.be.a('function');
     expect(result.current.tellMoreAboutInsight).to.be.a('function');
+    expect(result.current.interpretAnalyzeOutput).to.be.a('function');
+    expect(result.current.debugSearchError).to.be.a('function');
+    expect(result.current.diagnoseSearchStage).to.be.a('function');
   });
 });
 
@@ -278,7 +263,6 @@ describe('CompassAssistantProvider', function () {
         enableAIAssistant: true,
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
         enableToolCalling: true,
       },
     });
@@ -294,7 +278,6 @@ describe('CompassAssistantProvider', function () {
           // These control isAIFeatureEnabled
           enableGenAIFeatures: false,
           enableGenAIFeaturesAtlasOrg: true,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
           enableToolCalling: true,
         },
       });
@@ -310,29 +293,12 @@ describe('CompassAssistantProvider', function () {
           enableAIAssistant: true,
           enableGenAIFeatures: true,
           enableGenAIFeaturesAtlasOrg: false,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
           enableToolCalling: true,
         },
       });
 
       expect(screen.getByTestId('provider-children')).to.exist;
       // The drawer toolbar button should not exist when Atlas org AI features are disabled
-      expect(screen.queryByLabelText('MongoDB Assistant')).to.not.exist;
-    });
-
-    it('does not render assistant drawer when cloud feature rollout access is disabled', function () {
-      render(<TestComponent chat={createMockChat({ messages: [] })} />, {
-        preferences: {
-          enableAIAssistant: true,
-          enableGenAIFeatures: true,
-          enableGenAIFeaturesAtlasOrg: true,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
-          enableToolCalling: true,
-        },
-      });
-
-      expect(screen.getByTestId('provider-children')).to.exist;
-      // The drawer toolbar button should not exist when cloud feature rollout access is disabled
       expect(screen.queryByLabelText('MongoDB Assistant')).to.not.exist;
     });
   });
@@ -343,7 +309,6 @@ describe('CompassAssistantProvider', function () {
         enableAIAssistant: true,
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: true,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
         enableToolCalling: true,
       },
     });
@@ -412,7 +377,6 @@ describe('CompassAssistantProvider', function () {
             enableAIAssistant: true,
             enableGenAIFeatures: true,
             enableGenAIFeaturesAtlasOrg: true,
-            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
             enableToolCalling,
             enableGenAIToolCallingAtlasProject,
             enableGenAIToolCalling,

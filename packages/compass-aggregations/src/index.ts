@@ -14,7 +14,10 @@ import {
   type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import {
+  telemetryLocator,
+  experimentationServiceLocator,
+} from '@mongodb-js/compass-telemetry/provider';
 import type {
   OptionalDataServiceProps,
   RequiredDataServiceProps,
@@ -47,6 +50,7 @@ const CompassAggregationsPluginProvider = registerCompassPlugin(
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-AGGREGATIONS-UI'),
     track: telemetryLocator,
+    experimentationServices: experimentationServiceLocator,
     atlasAiService: atlasAiServiceLocator,
     pipelineStorage: pipelineStorageLocator,
     connectionInfoRef: connectionInfoRefLocator,
