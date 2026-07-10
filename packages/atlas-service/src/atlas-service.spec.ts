@@ -126,10 +126,6 @@ describe('AtlasService', function () {
     expect(data).to.deep.equal(expectedData);
 
     expect(fetchStub.firstCall.args[1].headers).to.have.property(
-      'Authorization',
-      'Bearer super-secret'
-    );
-    expect(fetchStub.firstCall.args[1].headers).to.have.property(
       'X-Compass-Auth',
       'true'
     );

@@ -76,7 +76,7 @@ export class AtlasService {
   get config(): AtlasServiceConfig {
     return this.defaultConfigOverride ?? getAtlasConfig(this.preferences);
   }
-  adminApiEndpoint(path?: string): string {
+  privateApiEndpoint(path?: string): string {
     return `${this.config.atlasPrivateApiBaseUrl}${normalizePath(path)}`;
   }
   cloudEndpoint(path?: string): string {

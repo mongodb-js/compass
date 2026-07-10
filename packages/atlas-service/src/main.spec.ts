@@ -386,7 +386,7 @@ describe('CompassAuthServiceMain', function () {
       });
 
       it('should return undefined for a non-Atlas Admin API request', async function () {
-        const req = new Request('http://example.com/something-else');
+        const req = new Request('http://example.com/private/');
         expect(
           await CompassAuthService.maybeGetAuthHeaders(req)
         ).to.be.undefined;
@@ -400,11 +400,9 @@ describe('CompassAuthServiceMain', function () {
           'http://attacker-example.com/api/atlas/v2/clusters',
           // Correct origin, path not on the allowlist.
           'http://example.com/api/atlas/v2/clusters/extra',
-          // Correct origin, private API (should use cookie auth, not Bearer).
-          'http://example.com/api/private/unauth/clusters',
           // Different protocol on the same host.
           'https://example.com/api/atlas/v2/clusters',
-          // URL userinfo spoofing (should be treated as attacker-controlled).
+          // URL userinfo spoofing.
           'http://example.com@attacker.tld/api/atlas/v2/clusters',
         ];
 

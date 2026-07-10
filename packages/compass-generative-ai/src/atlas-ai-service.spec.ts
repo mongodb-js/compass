@@ -51,7 +51,7 @@ const getMockConnectionInfo = (): ConnectionInfo => {
 class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
   cloudEndpoint = (url: string) => `${['/cloud', url].join('/')}`;
-  adminApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
+  privateApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
   assistantApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
   authenticatedFetch = (url: string, init: RequestInit) => {
     return fetch(url, init);
@@ -87,11 +87,11 @@ describe('AtlasAiService', function () {
     global.fetch = initialFetch;
   });
 
-  const endpointBasepathTests = ['admin-api', 'cloud'] as const;
+  const endpointBasepathTests = ['private-api', 'cloud'] as const;
 
   for (const apiURLPreset of endpointBasepathTests) {
     const describeName =
-      apiURLPreset === 'admin-api'
+      apiURLPreset === 'private-api'
         ? 'connection WITHOUT atlas metadata'
         : 'connection WITH atlas metadata';
     describe(describeName, function () {
@@ -99,7 +99,7 @@ describe('AtlasAiService', function () {
 
       const mockConnectionInfo = getMockConnectionInfo();
 
-      if (apiURLPreset === 'admin-api') {
+      if (apiURLPreset === 'private-api') {
         delete mockConnectionInfo.atlasMetadata;
       }
 
@@ -308,7 +308,7 @@ describe('AtlasAiService', function () {
           });
         }
 
-        if (apiURLPreset === 'admin-api') {
+        if (apiURLPreset === 'private-api') {
           it('throws AtlasAiServiceInvalidInputError for admin-api preset', async function () {
             try {
               await atlasAiService.getMockDataSchema(
@@ -559,9 +559,7 @@ describe('AtlasAiService', function () {
             const { args } = fetchStub.firstCall;
             // Header keys may be normalised to lowercase by the SDK; compare
             // case-insensitively via a Headers wrapper.
-            const headers = new Headers(
-              (args[1] as RequestInit).headers as HeadersInit
-            );
+            const headers = new Headers((args[1] as RequestInit).headers);
             expect(headers.get('X-Assistant-Entrypoint')).to.equal(
               'mock-data-generator'
             );

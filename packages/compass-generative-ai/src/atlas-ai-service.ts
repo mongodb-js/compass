@@ -224,7 +224,7 @@ const aiURLConfig = {
   // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
   // NOTE: The unauthenticated endpoints are also rate limited by IP address
   // rather than by logged in user.
-  'admin-api': {
+  'private-api': {
     aggregation: 'unauth/ai/api/v1/mql-aggregation',
     query: 'unauth/ai/api/v1/mql-query',
   },
@@ -288,7 +288,7 @@ async function getHashedActiveUserId(
 type AIResourceType = 'query' | 'aggregation';
 
 export class AtlasAiService {
-  private apiURLPreset: 'admin-api' | 'cloud';
+  private apiURLPreset: 'private-api' | 'cloud';
   private atlasService: AtlasService;
   private preferences: PreferencesAccess;
   private logger: Logger;
@@ -302,7 +302,7 @@ export class AtlasAiService {
     preferences,
     logger,
   }: {
-    apiURLPreset: 'admin-api' | 'cloud';
+    apiURLPreset: 'private-api' | 'cloud';
     atlasService: AtlasService;
     preferences: PreferencesAccess;
     logger: Logger;
@@ -356,8 +356,8 @@ export class AtlasAiService {
       );
     }
 
-    const urlPath = aiURLConfig['admin-api'][resourceType];
-    return this.atlasService.adminApiEndpoint(urlPath);
+    const urlPath = aiURLConfig['private-api'][resourceType];
+    return this.atlasService.privateApiEndpoint(urlPath);
   }
 
   private throwIfAINotEnabled() {
