@@ -663,8 +663,7 @@ functions:
         working_dir: src
         shell: bash
         env:
-          <<: *compass-env
-          <<: *compass-e2e-secrets
+          <<: [*compass-env, *compass-e2e-secrets]
           DEBUG: ${debug|}
           MONGODB_VERSION: ${mongodb_version|}
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
@@ -693,8 +692,7 @@ functions:
         working_dir: src
         shell: bash
         env:
-          <<: *compass-env
-          <<: *compass-e2e-secrets
+          <<: [*compass-env, *compass-e2e-secrets]
           COMPASS_APP_PATH_ORIGINAL: ${appPath}
           COMPASS_APP_NAME: ${packagerOptions.name}
           DEBUG: ${debug|}
@@ -775,8 +773,7 @@ functions:
         working_dir: src
         shell: bash
         env:
-          <<: *compass-env
-          <<: *compass-e2e-secrets
+          <<: [*compass-env, *compass-e2e-secrets]
           COMPASS_APP_PATH_ORIGINAL: ${appPath}
           COMPASS_APP_NAME: ${packagerOptions.name}
           DEBUG: ${debug|}
@@ -799,8 +796,7 @@ functions:
         working_dir: src
         shell: bash
         env:
-          <<: *compass-env
-          <<: *compass-e2e-secrets
+          <<: [*compass-env, *compass-e2e-secrets]
           DEBUG: ${debug|}
           COMPASS_E2E_ATLAS_CLOUD_ENVIRONMENT: '${compass_web_publish_environment}'
           # CCS connection / op running time is slower than default timeouts
@@ -826,8 +822,7 @@ functions:
         working_dir: src
         shell: bash
         env:
-          <<: *compass-env
-          <<: *compass-e2e-secrets
+          <<: [*compass-env, *compass-e2e-secrets]
           COMPASS_SKIP_KERBEROS_TESTS: 'true'
           COMPASS_RUN_DOCKER_TESTS: 'true'
           DEBUG: ${debug}
