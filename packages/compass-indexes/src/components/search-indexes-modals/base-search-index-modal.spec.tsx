@@ -536,6 +536,17 @@ describe('Base Search Index Modal', function () {
       VALID_ATLAS_SEARCH_INDEX_DEFINITION
     );
 
+    const modifiedIndexDefinition = {
+      fields: [
+        {
+          type: 'vector',
+          path: 'pineapple',
+          numDimensions: 500,
+          similarity: 'cosine',
+        },
+      ],
+    };
+
     function renderUpdateModal(onSubmitSpy: SinonSpy) {
       renderBaseSearchIndexModal({
         mode: 'update',
@@ -543,6 +554,8 @@ describe('Base Search Index Modal', function () {
         initialIndexDefinition: indexDefinitionString,
         initialIndexType: 'search',
         onSubmit: onSubmitSpy,
+        // Exercise the button behaviour without an inherited server error.
+        error: undefined,
       });
     }
 
@@ -600,6 +613,57 @@ describe('Base Search Index Modal', function () {
         definition: newDefinition,
         type: 'search',
       });
+    });
+
+    it('re-disables the Save button when the definition is reverted to its original value', async function () {
+      renderUpdateModal(sinon.spy());
+      const submitButton = screen.getByTestId('search-index-submit-button');
+
+      await setCodemirrorEditorValue(
+        'definition-of-search-index',
+        JSON.stringify(modifiedIndexDefinition)
+      );
+      await waitFor(() => {
+        expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
+      });
+
+      await setCodemirrorEditorValue(
+        'definition-of-search-index',
+        indexDefinitionString
+      );
+      await waitFor(() => {
+        expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
+      });
+    });
+
+    it('keeps the Save button disabled for a formatting-only edit', async function () {
+      renderUpdateModal(sinon.spy());
+      const submitButton = screen.getByTestId('search-index-submit-button');
+
+      // Same definition, different formatting (pretty-printed instead of compact).
+      const reformatted = JSON.stringify(
+        VALID_ATLAS_SEARCH_INDEX_DEFINITION,
+        null,
+        2
+      );
+      await setCodemirrorEditorValue('definition-of-search-index', reformatted);
+
+      await waitFor(() => {
+        expect(getCodemirrorEditorValue('definition-of-search-index')).to.equal(
+          reformatted
+        );
+      });
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
+    });
+
+    it('does not submit when the disabled Save button is clicked', function () {
+      const onSubmitSpy = sinon.spy();
+      renderUpdateModal(onSubmitSpy);
+      const submitButton = screen.getByTestId('search-index-submit-button');
+
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
+      userEvent.click(submitButton);
+      expect(onSubmitSpy).to.not.have.been.called;
     });
 
     it('shows the updated resource-usage note copy', function () {
