@@ -27,6 +27,10 @@ import {
   ToolsControllerProvider,
   ToolsController,
 } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  ExperimentTestGroups,
+  type ExperimentTestGroup,
+} from '@mongodb-js/compass-telemetry';
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -75,12 +79,14 @@ describe('AssistantChat', function () {
       connections,
       preferences,
       trackingOptions = {},
+      experimentVariant = null,
     }: {
       connections?: ConnectionInfo[];
       preferences?: Partial<AllPreferences>;
       trackingOptions?: {
         requestId?: string;
       };
+      experimentVariant?: ExperimentTestGroup | null;
     } = {}
   ) {
     // The chat component does not use chat.sendMessage() directly, it uses
@@ -108,6 +114,7 @@ describe('AssistantChat', function () {
       {
         connections,
         preferences,
+        experimentAssignment: experimentVariant,
       }
     );
     return {
@@ -1433,7 +1440,10 @@ describe('AssistantChat', function () {
     it('renders follow-up chips when the experiment is enabled and the response is complete', function () {
       renderWithChat(
         createMockChat({ messages: [assistantMessageWithFollowUps] }),
-        { preferences: { enableSearchActivationProgramP2: true } }
+        {
+          experimentVariant:
+            ExperimentTestGroups.searchActivationProgramP2Variant,
+        }
       );
 
       expect(screen.getByTestId('follow-up-prompt-0')).to.exist;
@@ -1444,8 +1454,7 @@ describe('AssistantChat', function () {
 
     it('does not render follow-up chips when the experiment is disabled', function () {
       renderWithChat(
-        createMockChat({ messages: [assistantMessageWithFollowUps] }),
-        { preferences: { enableSearchActivationProgramP2: false } }
+        createMockChat({ messages: [assistantMessageWithFollowUps] })
       );
 
       expect(screen.queryByTestId('follow-up-prompt-0')).to.not.exist;
@@ -1454,7 +1463,10 @@ describe('AssistantChat', function () {
     it('strips the follow-up section from the displayed message text', function () {
       renderWithChat(
         createMockChat({ messages: [assistantMessageWithFollowUps] }),
-        { preferences: { enableSearchActivationProgramP2: true } }
+        {
+          experimentVariant:
+            ExperimentTestGroups.searchActivationProgramP2Variant,
+        }
       );
 
       expect(screen.getByText('Here is the analysis.')).to.exist;
@@ -1464,7 +1476,10 @@ describe('AssistantChat', function () {
     it('sends the question text when a chip is clicked', async function () {
       const { ensureOptInAndSendStub } = renderWithChat(
         createMockChat({ messages: [assistantMessageWithFollowUps] }),
-        { preferences: { enableSearchActivationProgramP2: true } }
+        {
+          experimentVariant:
+            ExperimentTestGroups.searchActivationProgramP2Variant,
+        }
       );
 
       userEvent.click(screen.getByTestId('follow-up-prompt-0'));

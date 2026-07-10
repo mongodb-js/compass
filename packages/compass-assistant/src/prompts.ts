@@ -284,8 +284,12 @@ ${pipeline}
 
 Output:
 ${output}
-</context>
-
+</context>`,
+    metadata: {
+      displayText,
+      // Must stay in `instructions`, not `prompt`: `prompt` persists in chat
+      // history and would leak into later, unrelated entry points.
+      instructions: `
 <output-format>
 # Summary
 [1-3 sentence summary of your full analysis.]
@@ -319,9 +323,8 @@ ${FOLLOW_UP_QUESTIONS_HEADER}
 - For question 1, always use the exact wording above, replacing [_id of first document] and [_id of second document] with the actual _id values of the first two documents from the Output context.
 - For question 2, always use the exact wording above, replacing [context-specific example based on the document fields and search query] with a relevant example drawn from the document fields and search query in the context.
 - Only include the ${FOLLOW_UP_QUESTIONS_HEADER} section in your initial analysis response. Do not include it when responding to follow-up questions.
-</guidelines>`,
-    metadata: {
-      displayText,
+</guidelines>
+`,
       confirmation: {
         description:
           'Search result documents, including document fields and score details, may be used to process your request.',

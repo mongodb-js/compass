@@ -120,7 +120,7 @@ export async function setFeature<K extends keyof UserPreferences>(
         latestValue = newPreferences[name];
         return doesPreferenceExists ? isEqual(latestValue, value) : true;
       },
-      { interval: 1000 }
+      { interval: 1000, timeout: 30_000 }
     );
   } catch (err) {
     const expected = inspect(value);

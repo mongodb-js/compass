@@ -7,17 +7,13 @@ import {
   spacing,
   palette,
   Body,
-  Button,
   Chip,
-  Icon,
   KeylineCard,
   Link,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { Document } from '@mongodb-js/compass-crud';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
-import type HadronDocument from 'hadron-document';
-import { toJSString } from 'mongodb-query-parser';
 
 import type { RootState } from '../../modules';
 import {
@@ -32,7 +28,10 @@ import { AtlasStagePreview } from './atlas-stage-preview';
 import OutputStagePreivew from './output-stage-preview';
 import StagePreviewHeader from './stage-preview-header';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
-import { getIndexOfFirstStageWithServerError } from '../../modules/pipeline-builder/stage-editor';
+import {
+  getIndexOfFirstStageWithServerError,
+  getPipelineStringForStage,
+} from '../../modules/pipeline-builder/stage-editor';
 import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 
 import SearchNoResults from '../search-no-results';
@@ -45,6 +44,12 @@ import {
   SearchStageDiagnoseButton,
   useShouldShowSearchStageDiagnose,
 } from '../search-stage-diagnose-button';
+import {
+  AnalyzeAndRefineResultsButton,
+  buildAnalyzeOutputContext,
+  useShouldShowAnalyzeOutput,
+  type AnalyzableDocument,
+} from '../search-analyze-output-button';
 
 const centeredContent = css({
   display: 'flex',
@@ -140,44 +145,6 @@ const scoreChipStyles = css({
   fontWeight: 'bold',
 });
 
-const analyzeButtonGradientWrapperStyles = css({
-  display: 'inline-flex',
-  alignSelf: 'flex-start',
-  background: `linear-gradient(135deg, ${palette.green.dark1}, ${palette.blue.base})`,
-  padding: '1px',
-  borderRadius: '6px',
-});
-
-const analyzeButtonLightStyles = css({
-  '&&': {
-    borderColor: 'transparent',
-    borderRadius: '5px',
-    color: palette.green.dark1,
-    '& svg': { color: palette.green.dark1 },
-    '&:hover': {
-      color: palette.green.dark2,
-      borderColor: 'transparent',
-      '& svg': { color: palette.green.dark2 },
-    },
-  },
-});
-
-const analyzeButtonDarkStyles = css({
-  '&&': {
-    borderColor: 'transparent',
-    borderRadius: '5px',
-    backgroundColor: palette.black,
-    color: palette.white,
-    '& svg': { color: palette.green.dark1 },
-    '&:hover': {
-      backgroundColor: palette.gray.dark4,
-      color: palette.white,
-      borderColor: 'transparent',
-      '& svg': { color: palette.green.dark1 },
-    },
-  },
-});
-
 type StagePreviewProps = {
   index: number;
   isLoading: boolean;
@@ -209,31 +176,21 @@ function StagePreviewBody({
   pipeline,
 }: StagePreviewProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
-  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2();
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
+    trackIsInSample: false,
+  });
   const { interpretAnalyzeOutput, diagnoseSearchStage } = useAssistantActions();
-  const darkMode = useDarkMode();
 
   const handleAnalyzeOutput = useCallback(() => {
-    if (!interpretAnalyzeOutput) return;
-    const topDocs = (documents ?? []).slice(0, 3);
-    const output = topDocs
-      .flatMap((doc, i) => {
-        const plainDoc = (doc as HadronDocument).generateObject({
-          excludeInternalFields: true,
-        });
-        const docStr = toJSString(plainDoc);
-        const scoreDetails = stageMetadata!.scores[i]!;
-        return [
-          `Document ${i + 1}:`,
-          docStr,
-          `scoreDetails: ${JSON.stringify(scoreDetails)}`,
-        ];
-      })
-      .join('\n');
+    if (!interpretAnalyzeOutput || !stageMetadata) return;
+    const { output, documentCount } = buildAnalyzeOutputContext(
+      (documents ?? []) as AnalyzableDocument[],
+      stageMetadata
+    );
     interpretAnalyzeOutput({
       pipeline: pipeline ?? '',
       output,
-      documentCount: (documents ?? []).length,
+      documentCount,
     });
   }, [interpretAnalyzeOutput, documents, stageMetadata, pipeline]);
 
@@ -248,6 +205,11 @@ function StagePreviewBody({
   const isNoResultsSearchStage = useShouldShowSearchStageDiagnose(
     stageOperator,
     documents
+  );
+
+  const showAnalyzeButton = useShouldShowAnalyzeOutput(
+    stageOperator,
+    stageMetadata
   );
 
   if (!shouldRenderStage) {
@@ -332,13 +294,6 @@ function StagePreviewBody({
         </KeylineCard>
       );
     });
-    const hasScoreMetadata =
-      stageMetadata !== null && stageMetadata.scores.every((s) => s !== null);
-    const showAnalyzeButton =
-      enableSearchActivationProgramP2 &&
-      isSearchStage(stageOperator) &&
-      interpretAnalyzeOutput &&
-      hasScoreMetadata;
     return (
       <div className={previewBodyStyles}>
         <div className={documentsStyles}>{docs}</div>
@@ -347,20 +302,10 @@ function StagePreviewBody({
             <SearchIndexStaleResultsBanner searchIndexName={searchIndexName} />
           )}
         {showAnalyzeButton && (
-          <div className={analyzeButtonGradientWrapperStyles}>
-            <Button
-              size="xsmall"
-              className={
-                darkMode ? analyzeButtonDarkStyles : analyzeButtonLightStyles
-              }
-              onClick={handleAnalyzeOutput}
-              // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
-              leftGlyph={<Icon glyph="Sparkle" />}
-              data-testid="analyze-search-output-button"
-            >
-              Analyze &amp; Refine Results
-            </Button>
-          </div>
+          <AnalyzeAndRefineResultsButton
+            onClick={handleAnalyzeOutput}
+            data-testid="analyze-search-output-button"
+          />
         )}
       </div>
     );
@@ -438,14 +383,10 @@ export default connect((state: RootState, ownProps: { index: number }) => {
       (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
     );
 
-  const pipeline = `[${state.pipelineBuilder.stageEditor.stages
-    .slice(0, ownProps.index + 1)
-    .filter(
-      (s): s is StoreStage =>
-        s.type === 'stage' && !!s.stageOperator && !!s.value && !s.disabled
-    )
-    .map((s) => `{ ${s.stageOperator}: ${s.value} }`)
-    .join(', ')}]`;
+  const pipeline = getPipelineStringForStage(
+    state.pipelineBuilder.stageEditor.stages,
+    ownProps.index
+  );
 
   return {
     isLoading: stage.loading,

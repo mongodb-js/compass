@@ -21,7 +21,6 @@ const AI_PREFERENCES = {
   enableAIAssistant: true,
   enableGenAIFeatures: true,
   enableGenAIFeaturesAtlasOrg: true,
-  cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
 };
 
 const ERROR_MESSAGE =
