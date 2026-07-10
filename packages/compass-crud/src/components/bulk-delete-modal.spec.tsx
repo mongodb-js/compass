@@ -18,7 +18,7 @@ function renderBulkDeleteModal(
       documentCount={0}
       filter={{ a: 1 }}
       namespace="mydb.mycoll"
-      sampleDocuments={[]}
+      sampleDocumentsEJSON={[]}
       onCancel={() => {}}
       onConfirmDeletion={() => {}}
       onExportToLanguage={() => {}}

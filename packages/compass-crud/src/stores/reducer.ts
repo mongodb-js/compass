@@ -73,6 +73,9 @@ export type CrudExtraArgs = {
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
   crudOptions: CrudStoreOptions;
+  bulkUpdatePreviewAbortControllerRef: {
+    current: AbortController | undefined;
+  };
 };
 
 export type CrudReduxActions =

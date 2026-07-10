@@ -1,5 +1,4 @@
 import type { Reducer } from 'redux';
-import { Document } from 'hadron-document';
 import { mongoLogId } from '@mongodb-js/compass-logging/provider';
 import { showConfirmation } from '@mongodb-js/compass-components';
 import { isAction } from '../utils/is-action';
@@ -12,14 +11,14 @@ import {
 import { refreshDocuments } from './documents';
 
 export type BulkDeleteState = {
-  previews: Document[];
-  status: 'open' | 'closed' | 'in-progress';
+  previewDocumentsEJSON: string[];
+  isOpen: boolean;
   affected?: number;
 };
 
 export const INITIAL_BULK_DELETE_STATE: BulkDeleteState = {
-  previews: [],
-  status: 'closed',
+  previewDocumentsEJSON: [],
+  isOpen: false,
   affected: 0,
 };
 
@@ -31,7 +30,7 @@ export const BulkDeleteActionTypes = {
 
 export type OpenBulkDeleteDialogAction = {
   type: typeof BulkDeleteActionTypes.OPEN_BULK_DELETE;
-  previews: Document[];
+  previewDocumentsEJSON: string[];
   affected: number | undefined;
 };
 
@@ -39,14 +38,14 @@ export type CloseBulkDeleteDialogAction = {
   type: typeof BulkDeleteActionTypes.CLOSE_BULK_DELETE;
 };
 
-export type BulkDeleteInProgressAction = {
+export type BulkDeleteStartedAction = {
   type: typeof BulkDeleteActionTypes.BULK_DELETE_STARTED;
 };
 
 export type BulkDeleteActions =
   | OpenBulkDeleteDialogAction
   | CloseBulkDeleteDialogAction
-  | BulkDeleteInProgressAction;
+  | BulkDeleteStartedAction;
 
 export const bulkDeleteReducer: Reducer<BulkDeleteState> = (
   state = INITIAL_BULK_DELETE_STATE,
@@ -54,16 +53,16 @@ export const bulkDeleteReducer: Reducer<BulkDeleteState> = (
 ) => {
   if (isAction(action, BulkDeleteActionTypes.OPEN_BULK_DELETE)) {
     return {
-      previews: action.previews,
-      status: 'open',
+      previewDocumentsEJSON: action.previewDocumentsEJSON,
+      isOpen: true,
       affected: action.affected,
     };
   }
   if (isAction(action, BulkDeleteActionTypes.CLOSE_BULK_DELETE)) {
-    return { ...state, status: 'closed' };
+    return { ...state, isOpen: false };
   }
   if (isAction(action, BulkDeleteActionTypes.BULK_DELETE_STARTED)) {
-    return { ...state, status: 'in-progress' };
+    return { ...state, isOpen: false };
   }
   return state;
 };
@@ -78,16 +77,15 @@ export function openBulkDeleteDialog(): CrudThunkAction<
     track('Bulk Delete Opened', {}, connectionInfoRef.current);
 
     const state = getState();
-    const previews = (state.documents.docs?.slice(0, PREVIEW_DOCS) ?? []).map(
-      (doc) => {
-        // Break the link with the docs in the list so that expanding/collapsing
-        // docs in the modal doesn't modify the ones in the list.
-        return Document.FromEJSON(doc.toEJSON());
-      }
-    );
+    // Store the serialized EJSON rather than Document instances so that the
+    // state stays serializable and expanding/collapsing docs in the modal
+    // doesn't modify the ones in the list.
+    const previewDocumentsEJSON = (
+      state.documents.docs?.slice(0, PREVIEW_DOCS) ?? []
+    ).map((doc) => doc.toEJSON());
     dispatch({
       type: BulkDeleteActionTypes.OPEN_BULK_DELETE,
-      previews,
+      previewDocumentsEJSON,
       affected: state.documents.count ?? undefined,
     });
   };

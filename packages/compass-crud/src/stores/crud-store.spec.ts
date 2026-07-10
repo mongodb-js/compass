@@ -416,8 +416,8 @@ describe('store', function () {
       });
       expect(state.bulkDelete).to.deep.equal({
         affected: 0,
-        previews: [],
-        status: 'closed',
+        previewDocumentsEJSON: [],
+        isOpen: false,
       });
     });
   });
@@ -898,7 +898,7 @@ describe('store', function () {
       void store.dispatch(openBulkUpdateModal());
 
       await waitForState(store, (state) => {
-        expect(state.bulkUpdate.previewAbortController).to.not.exist;
+        expect(state.bulkUpdate.preview.changes.length).to.equal(1);
       });
 
       const bulkUpdate = store.getState().bulkUpdate;
@@ -920,7 +920,6 @@ describe('store', function () {
             },
           ],
         },
-        previewAbortController: undefined,
         serverError: undefined,
         syntaxError: undefined,
         updateText: '{\n  $set: {\n\n  },\n}',
@@ -932,7 +931,7 @@ describe('store', function () {
       void store.dispatch(openBulkUpdateModal());
 
       await waitForState(store, (state) => {
-        expect(state.bulkUpdate.previewAbortController).to.not.exist;
+        expect(state.bulkUpdate.preview.changes.length).to.equal(1);
       });
 
       store.dispatch(closeBulkUpdateModal());
@@ -956,7 +955,6 @@ describe('store', function () {
             },
           ],
         },
-        previewAbortController: undefined,
         serverError: undefined,
         syntaxError: undefined,
         updateText: '{\n  $set: {\n\n  },\n}',
@@ -1013,15 +1011,16 @@ describe('store', function () {
 
       store.dispatch(openBulkDeleteDialog());
 
-      const previews = store.getState().bulkDelete.previews;
+      const previewDocumentsEJSON =
+        store.getState().bulkDelete.previewDocumentsEJSON;
 
-      // because we make a copy of the previews what comes out will not be the
-      // same as what goes in so just check the previews separately
-      expect(previews[0].doc.a).to.deep.equal(new Int32(1));
+      expect(
+        HadronDocument.FromEJSON(previewDocumentsEJSON[0]).get('a')?.value
+      ).to.deep.equal(new Int32(1));
 
       expect(store.getState().bulkDelete).to.deep.equal({
-        previews,
-        status: 'open',
+        previewDocumentsEJSON,
+        isOpen: true,
         affected: 1,
       });
     });
@@ -1038,14 +1037,16 @@ describe('store', function () {
       store.dispatch(openBulkDeleteDialog());
       store.dispatch(closeBulkDeleteDialog());
 
-      const previews = store.getState().bulkDelete.previews;
+      const previewDocumentsEJSON =
+        store.getState().bulkDelete.previewDocumentsEJSON;
 
-      // same comment as above
-      expect(previews[0].doc.a).to.deep.equal(new Int32(1));
+      expect(
+        HadronDocument.FromEJSON(previewDocumentsEJSON[0]).get('a')?.value
+      ).to.deep.equal(new Int32(1));
 
       expect(store.getState().bulkDelete).to.deep.equal({
-        previews,
-        status: 'closed',
+        previewDocumentsEJSON,
+        isOpen: false,
         affected: 1,
       });
     });
@@ -2684,7 +2685,6 @@ describe('store', function () {
           preview: {
             changes: [],
           },
-          previewAbortController: undefined,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',
@@ -2718,7 +2718,6 @@ describe('store', function () {
           preview: {
             changes: [],
           },
-          previewAbortController: undefined,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',
@@ -2766,7 +2765,6 @@ describe('store', function () {
               },
             ],
           },
-          previewAbortController: undefined,
           serverError: undefined,
           syntaxError: undefined,
           updateText: '{ $set: { anotherField: 2 } }',

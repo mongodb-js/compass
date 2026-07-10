@@ -25,7 +25,6 @@ export type BulkUpdateState = {
   preview: UpdatePreview;
   syntaxError?: Error;
   serverError?: Error;
-  previewAbortController?: AbortController;
   affected?: number;
 };
 
@@ -42,7 +41,7 @@ export const INITIAL_BULK_UPDATE_STATE: BulkUpdateState = {
 export const BulkUpdateActionTypes = {
   OPEN_BULK_UPDATE: 'crud/bulk-update/OPEN_BULK_UPDATE',
   CLOSE_BULK_UPDATE: 'crud/bulk-update/CLOSE_BULK_UPDATE',
-  FETCH_PREVIEW_STARTED: 'crud/bulk-update/FETCH_PREVIEW_STARTED',
+  BULK_UPDATE_STARTED: 'crud/bulk-update/BULK_UPDATE_STARTED',
   FETCH_PREVIEW_FINISHED: 'crud/bulk-update/FETCH_PREVIEW_FINISHED',
   FETCH_PREVIEW_SYNTAX_ERRORED: 'crud/bulk-update/FETCH_PREVIEW_SYNTAX_ERRORED',
   FETCH_PREVIEW_SERVER_ERRORED: 'crud/bulk-update/FETCH_PREVIEW_SERVER_ERRORED',
@@ -56,9 +55,8 @@ export type CloseBulkUpdateAction = {
   type: typeof BulkUpdateActionTypes.CLOSE_BULK_UPDATE;
 };
 
-export type PreviewStartedAction = {
-  type: typeof BulkUpdateActionTypes.FETCH_PREVIEW_STARTED;
-  abortController: AbortController;
+export type BulkUpdateStartedAction = {
+  type: typeof BulkUpdateActionTypes.BULK_UPDATE_STARTED;
 };
 
 export type PreviewUpdatedAction = {
@@ -82,7 +80,7 @@ export type PreviewServerErrorAction = {
 export type BulkUpdateActions =
   | OpenBulkUpdateAction
   | CloseBulkUpdateAction
-  | PreviewStartedAction
+  | BulkUpdateStartedAction
   | PreviewUpdatedAction
   | PreviewSyntaxErrorAction
   | PreviewServerErrorAction;
@@ -97,8 +95,8 @@ export const bulkUpdateReducer: Reducer<BulkUpdateState> = (
   if (isAction(action, BulkUpdateActionTypes.CLOSE_BULK_UPDATE)) {
     return { ...state, isOpen: false };
   }
-  if (isAction(action, BulkUpdateActionTypes.FETCH_PREVIEW_STARTED)) {
-    return { ...state, previewAbortController: action.abortController };
+  if (isAction(action, BulkUpdateActionTypes.BULK_UPDATE_STARTED)) {
+    return { ...state, isOpen: false };
   }
   if (isAction(action, BulkUpdateActionTypes.FETCH_PREVIEW_FINISHED)) {
     return {
@@ -107,7 +105,6 @@ export const bulkUpdateReducer: Reducer<BulkUpdateState> = (
       preview: action.preview,
       serverError: undefined,
       syntaxError: undefined,
-      previewAbortController: undefined,
     };
   }
   if (isAction(action, BulkUpdateActionTypes.FETCH_PREVIEW_SYNTAX_ERRORED)) {
@@ -117,7 +114,6 @@ export const bulkUpdateReducer: Reducer<BulkUpdateState> = (
       preview: { changes: [] },
       serverError: undefined,
       syntaxError: action.syntaxError,
-      previewAbortController: undefined,
     };
   }
   if (isAction(action, BulkUpdateActionTypes.FETCH_PREVIEW_SERVER_ERRORED)) {
@@ -127,7 +123,6 @@ export const bulkUpdateReducer: Reducer<BulkUpdateState> = (
       preview: { changes: [] },
       serverError: action.serverError,
       syntaxError: undefined,
-      previewAbortController: undefined,
     };
   }
   return state;
@@ -140,9 +135,13 @@ export function closeBulkUpdateModal(): CloseBulkUpdateAction {
 export function updateBulkUpdatePreview(
   updateText: string
 ): CrudThunkAction<Promise<void>, BulkUpdateActions> {
-  return async (dispatch, getState, { dataService, queryBar }) => {
+  return async (
+    dispatch,
+    getState,
+    { dataService, queryBar, bulkUpdatePreviewAbortControllerRef }
+  ) => {
     const state = getState();
-    state.bulkUpdate.previewAbortController?.abort();
+    bulkUpdatePreviewAbortControllerRef.current?.abort();
 
     // If preview is not supported, just verify the update parses.
     if (!state.collectionMeta.isUpdatePreviewSupported) {
@@ -165,16 +164,14 @@ export function updateBulkUpdatePreview(
     }
 
     const abortController = new AbortController();
-    dispatch({
-      type: BulkUpdateActionTypes.FETCH_PREVIEW_STARTED,
-      abortController,
-    });
+    bulkUpdatePreviewAbortControllerRef.current = abortController;
 
     let update: BSONObject | BSONObject[];
     try {
       update = parseShellBSON(updateText);
     } catch (err: any) {
       if (abortController.signal.aborted) return;
+      bulkUpdatePreviewAbortControllerRef.current = undefined;
       dispatch({
         type: BulkUpdateActionTypes.FETCH_PREVIEW_SYNTAX_ERRORED,
         updateText,
@@ -196,6 +193,7 @@ export function updateBulkUpdatePreview(
       });
     } catch (err: any) {
       if (abortController.signal.aborted) return;
+      bulkUpdatePreviewAbortControllerRef.current = undefined;
       dispatch({
         type: BulkUpdateActionTypes.FETCH_PREVIEW_SERVER_ERRORED,
         updateText,
@@ -206,6 +204,7 @@ export function updateBulkUpdatePreview(
 
     if (abortController.signal.aborted) return;
 
+    bulkUpdatePreviewAbortControllerRef.current = undefined;
     dispatch({
       type: BulkUpdateActionTypes.FETCH_PREVIEW_FINISHED,
       updateText,
@@ -261,7 +260,7 @@ export function runBulkUpdate(): CrudThunkAction<
       connectionInfoRef.current
     );
 
-    dispatch(closeBulkUpdateModal());
+    dispatch({ type: BulkUpdateActionTypes.BULK_UPDATE_STARTED });
 
     // Latch the affected count for the duration of the toast.
     const affected = getState().documents.count ?? undefined;

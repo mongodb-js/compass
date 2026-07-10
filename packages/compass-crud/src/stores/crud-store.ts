@@ -159,6 +159,7 @@ export function activateDocumentsPlugin(
     connectionScopedAppRegistry,
     queryBar,
     crudOptions: options,
+    bulkUpdatePreviewAbortControllerRef: { current: undefined },
   };
 
   const store = createStore(

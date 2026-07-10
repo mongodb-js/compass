@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useMemo } from 'react';
+import { Document as HadronDocument } from 'hadron-document';
 import {
   Modal,
   ModalHeader,
@@ -17,7 +18,6 @@ import type { BSONObject, CrudState } from '../stores/crud-store';
 import { toJSString } from 'mongodb-query-parser';
 import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';
-import type { Document } from 'bson';
 import { useLastAppliedQuery } from '@mongodb-js/compass-query-bar';
 import { closeBulkDeleteDialog, runBulkDelete } from '../stores/bulk-delete';
 import { openDeleteQueryExportToLanguageDialog } from '../stores/documents';
@@ -70,7 +70,7 @@ export type BulkDeleteModalProps = {
   documentCount?: number;
   filter: BSONObject;
   namespace: string;
-  sampleDocuments: Document[];
+  sampleDocumentsEJSON: string[];
   onCancel: () => void;
   onConfirmDeletion: () => void;
   onExportToLanguage: () => void;
@@ -81,17 +81,21 @@ export const BulkDeleteModal: React.FunctionComponent<BulkDeleteModalProps> = ({
   documentCount,
   filter,
   namespace,
-  sampleDocuments,
+  sampleDocumentsEJSON,
   onCancel,
   onConfirmDeletion,
   onExportToLanguage,
 }) => {
+  const sampleDocuments = useMemo(
+    () => sampleDocumentsEJSON.map((ejson) => HadronDocument.FromEJSON(ejson)),
+    [sampleDocumentsEJSON]
+  );
   const preview = (
     <div className={documentListWrapper}>
       {sampleDocuments.map((doc, i) => {
         return (
           <KeylineCard key={i} className={cx(documentContainerStyles)}>
-            <ReadonlyDocument doc={doc as any} />
+            <ReadonlyDocument doc={doc} />
           </KeylineCard>
         );
       })}
@@ -166,10 +170,10 @@ function ConnectedBulkDeleteModal(props: Omit<BulkDeleteModalProps, 'filter'>) {
 
 export default connect(
   (state: CrudState) => ({
-    open: state.bulkDelete.status === 'open',
+    open: state.bulkDelete.isOpen,
     documentCount: state.bulkDelete.affected,
     namespace: state.documents.ns,
-    sampleDocuments: state.bulkDelete.previews,
+    sampleDocumentsEJSON: state.bulkDelete.previewDocumentsEJSON,
   }),
   {
     onCancel: closeBulkDeleteDialog,
