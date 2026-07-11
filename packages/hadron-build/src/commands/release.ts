@@ -27,14 +27,17 @@ function buildReleaseCommandOptions(yargs: Argv) {
     dir: {
       description: 'Project root directory',
       default: process.cwd(),
+      type: 'string' as const,
     },
     skip_installer: {
       description: 'Skip installer generation',
       default: false,
+      type: 'boolean' as const,
     },
     no_asar: {
       description: 'Do not package application source to .asar bundle',
       default: false,
+      type: 'boolean' as const,
     },
   });
 }
