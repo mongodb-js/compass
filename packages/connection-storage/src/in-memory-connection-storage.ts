@@ -54,10 +54,6 @@ export class InMemoryConnectionStorage implements ConnectionStorage {
     return Promise.resolve();
   }
 
-  getLegacyConnections(): Promise<{ name: string }[]> {
-    return Promise.resolve([]);
-  }
-
   importConnections(): Promise<void> {
     return Promise.resolve();
   }

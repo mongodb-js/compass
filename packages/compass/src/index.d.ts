@@ -8,6 +8,14 @@ declare module '*LICENSE' {
   export default src;
 }
 
+declare module '*.less' {
+  export default undefined;
+}
+
+declare module '*.css' {
+  export default undefined;
+}
+
 declare module 'process' {
   declare global {
     namespace NodeJS {

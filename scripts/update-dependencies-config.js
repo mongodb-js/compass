@@ -21,7 +21,11 @@ module.exports = {
     'eslint-plugin-react',
     'eslint-plugin-react-hooks',
   ],
-  typescript: ['@microsoft/api-extractor', 'typescript', 'ts-node'],
+  typescript: [
+    '@microsoft/api-extractor',
+    'typescript@6', // TODO: update to 7+ (latest) when its more stable and feature complete
+    'ts-node',
+  ],
   leafygreen: [
     '@emotion/*',
     '@leafygreen-ui/*',

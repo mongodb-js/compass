@@ -1,5 +1,4 @@
 import { type HadronIpcMain, ipcMain } from 'hadron-ipc';
-import keytar from 'keytar';
 import { safeStorage } from 'electron';
 import fsPromises from 'fs/promises';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -10,11 +9,7 @@ import type {
 } from '@mongodb-js/connection-info';
 import { createLogger } from '@mongodb-js/compass-logging';
 import { mergeSecrets, extractSecrets } from '@mongodb-js/connection-info';
-import {
-  deleteCompassAppNameParam,
-  getKeytarServiceName,
-  parseStoredPassword,
-} from './utils';
+import { deleteCompassAppNameParam } from './utils';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import {
   serializeConnections,
@@ -29,10 +24,8 @@ import type {
   ConnectionStorage,
   AutoConnectPreferences,
 } from './connection-storage';
-import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 
 const { log, mongoLogId } = createLogger('CONNECTION-STORAGE');
-const track = createIpcTrack();
 
 export type ConnectionStorageIPCMain = Pick<HadronIpcMain, 'createHandle'>;
 
@@ -105,7 +98,6 @@ class CompassMainConnectionStorage implements ConnectionStorage {
         'save',
         'delete',
         'getAutoConnectInfo',
-        'getLegacyConnections',
         'deserializeConnections',
         'exportConnections',
         'importConnections',
@@ -163,11 +155,6 @@ class CompassMainConnectionStorage implements ConnectionStorage {
   }): Promise<void> {
     throwIfAborted(signal);
     try {
-      // While saving connections, we also save `_id` property
-      // in order to support the downgrade of Compass to a version
-      // where we use storage-mixin. storage-mixin uses this prop
-      // to map keytar credentials to the stored connection.
-
       const { secrets, connectionInfo: connectionInfoWithoutSecrets } =
         extractSecrets(connectionInfo);
 
@@ -322,31 +309,6 @@ class CompassMainConnectionStorage implements ConnectionStorage {
     }
   }
 
-  /**
-   * We only consider favorite legacy connections and ignore
-   * recent legacy connections.
-   *
-   * connection.connectionInfo  -> new connection
-   * connection.isFavorite      -> legacy favorite connection
-   */
-  async getLegacyConnections({
-    signal,
-  }: {
-    signal?: AbortSignal;
-  } = {}): Promise<{ name: string }[]> {
-    throwIfAborted(signal);
-    try {
-      const legacyConnections = (await this.getConnections()).filter(
-        (x) => !x.connectionInfo && x.isFavorite
-      );
-      return legacyConnections.map((x) => ({
-        name: x.name!,
-      }));
-    } catch {
-      return [];
-    }
-  }
-
   async deserializeConnections({
     content,
     options = {},
@@ -424,120 +386,6 @@ class CompassMainConnectionStorage implements ConnectionStorage {
       : connections.filter((x) => x.favorite?.name);
 
     return serializeConnections(exportConnections, restOfOptions);
-  }
-
-  async migrateToSafeStorage(): Promise<void> {
-    // If user lands on this version of Compass with legacy connections (using storage mixin),
-    // we will ignore those and only migrate connections that have connectionInfo.
-    const connections = (await this.getConnections()).filter(
-      (
-        x
-      ): x is ConnectionWithLegacyProps &
-        Required<Pick<ConnectionProps, 'connectionInfo'>> => !!x.connectionInfo
-    );
-    if (connections.length === 0) {
-      log.info(
-        mongoLogId(1_001_000_270),
-        'Connection Storage',
-        'No connections to migrate'
-      );
-      return;
-    }
-
-    if (
-      connections.filter((x) => 'version' in x && x.version === this.version)
-        .length === connections.length
-    ) {
-      log.info(
-        mongoLogId(1_001_000_271),
-        'Connection Storage',
-        'Connections already migrated'
-      );
-      return;
-    }
-
-    // Get the secrets from keychain. If there're no secrets, we still want to
-    // migrate the connects to a new version.
-    const secrets = await this.getKeytarCredentials();
-
-    // Connections that are not migrated yet or that failed to migrate,
-    // are not expected to have a version property.
-    const unmigratedConnections = connections.filter((x) => !('version' in x));
-    log.info(
-      mongoLogId(1_001_000_272),
-      'Connection Storage',
-      'Migrating connections',
-      {
-        num_connections: unmigratedConnections.length,
-        num_secrets: Object.keys(secrets).length,
-      }
-    );
-
-    let numFailedToMigrate = 0;
-
-    for (const { connectionInfo } of unmigratedConnections) {
-      const _id = connectionInfo.id;
-      const connectionSecrets = secrets[_id];
-
-      try {
-        await this.userData.write(_id, {
-          _id,
-          connectionInfo, // connectionInfo is without secrets as its direclty read from storage
-          connectionSecrets: this.encryptSecrets(connectionSecrets),
-          version: this.version,
-        });
-      } catch (e) {
-        numFailedToMigrate++;
-        log.error(
-          mongoLogId(1_001_000_273),
-          'Connection Storage',
-          'Failed to migrate connection',
-          { message: (e as Error).message, connectionId: _id }
-        );
-      }
-    }
-
-    log.info(
-      mongoLogId(1_001_000_274),
-      'Connection Storage',
-      'Migration complete',
-      {
-        num_saved_connections:
-          unmigratedConnections.length - numFailedToMigrate,
-        num_failed_connections: numFailedToMigrate,
-      }
-    );
-
-    if (numFailedToMigrate > 0) {
-      track('Keytar Secrets Migration Failed', {
-        num_saved_connections:
-          unmigratedConnections.length - numFailedToMigrate,
-        num_failed_connections: numFailedToMigrate,
-      });
-    }
-  }
-
-  // This method is only called when compass tries to migrate connections to a new version.
-  // In e2e-tests we do not migrate any connections as all the connections are created
-  // in the new format, so keychain is not triggered (using keytar) and hence test is not blocked.
-  private async getKeytarCredentials() {
-    try {
-      const credentials = await keytar.findCredentials(getKeytarServiceName());
-      return Object.fromEntries(
-        credentials.map(({ account, password }) => [
-          account,
-          parseStoredPassword(password),
-        ])
-      ) as Record<string, ConnectionSecrets>;
-    } catch (e) {
-      log.error(
-        mongoLogId(1_001_000_201),
-        'Connection Storage',
-        'Failed to load secrets from keychain',
-        { message: (e as Error).message }
-      );
-      return {};
-    }
   }
 
   private async getConnections(): Promise<ConnectionWithLegacyProps[]> {
