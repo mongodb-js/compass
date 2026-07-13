@@ -6,7 +6,7 @@ import { expect } from 'chai';
 describe('DoubleEditor', function () {
   describe('#start', function () {
     const doubleValue = new Double(12.2);
-    const element = new Element('field', doubleValue, false);
+    const element = new Element('field', doubleValue);
 
     context('when the current type is not edited and is valid', function () {
       const doubleEditor = new DoubleEditor(element);
@@ -56,7 +56,7 @@ describe('DoubleEditor', function () {
 
   describe('#edit', function () {
     const doubleValue = new Double(12.2);
-    const element = new Element('field', doubleValue, false);
+    const element = new Element('field', doubleValue);
 
     context('when the current value is edited to a valid double', function () {
       const doubleEditor = new DoubleEditor(element);
@@ -114,7 +114,7 @@ describe('DoubleEditor', function () {
 
   describe('#complete', function () {
     const doubleValue = new Double(12.2);
-    const element = new Element('field', doubleValue, false);
+    const element = new Element('field', doubleValue);
 
     context('when the current value is edited to a valid double', function () {
       const doubleEditor = new DoubleEditor(element);

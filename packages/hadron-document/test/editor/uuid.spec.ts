@@ -10,7 +10,7 @@ describe('UUIDEditor', function () {
   describe('#value', function () {
     context('when the element is a UUID (subtype 4)', function () {
       const binary = Binary.createFromHexString(uuidHex, Binary.SUBTYPE_UUID);
-      const element = new Element('uuid', binary, false);
+      const element = new Element('uuid', binary);
       element.currentType = 'UUID';
       const uuidEditor = new UUIDEditor(element);
 
@@ -24,7 +24,7 @@ describe('UUIDEditor', function () {
         uuidHex,
         Binary.SUBTYPE_UUID_OLD
       );
-      const element = new Element('uuid', binary, false);
+      const element = new Element('uuid', binary);
       element.currentType = 'LegacyPythonUUID';
       const uuidEditor = new UUIDEditor(element);
 
@@ -34,7 +34,7 @@ describe('UUIDEditor', function () {
     });
 
     context('when the value is already a string', function () {
-      const element = new Element('uuid', uuidString, false);
+      const element = new Element('uuid', uuidString);
       element.currentType = 'UUID';
       const uuidEditor = new UUIDEditor(element);
 
@@ -47,7 +47,7 @@ describe('UUIDEditor', function () {
   describe('#edit', function () {
     context('when the UUID string is valid', function () {
       const binary = Binary.createFromHexString(uuidHex, Binary.SUBTYPE_UUID);
-      const element = new Element('uuid', binary, false);
+      const element = new Element('uuid', binary);
       element.currentType = 'UUID';
       const uuidEditor = new UUIDEditor(element);
       const newValidString = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
@@ -68,7 +68,7 @@ describe('UUIDEditor', function () {
 
     context('when the UUID string is invalid', function () {
       const binary = Binary.createFromHexString(uuidHex, Binary.SUBTYPE_UUID);
-      const element = new Element('uuid', binary, false);
+      const element = new Element('uuid', binary);
       element.currentType = 'UUID';
       const uuidEditor = new UUIDEditor(element);
       const invalidString = 'not-a-valid-uuid';
@@ -95,7 +95,7 @@ describe('UUIDEditor', function () {
   describe('#complete', function () {
     context('when the UUID string is valid', function () {
       const binary = Binary.createFromHexString(uuidHex, Binary.SUBTYPE_UUID);
-      const element = new Element('uuid', binary, false);
+      const element = new Element('uuid', binary);
       element.currentType = 'UUID';
       const uuidEditor = new UUIDEditor(element);
       const newValidString = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
@@ -120,7 +120,7 @@ describe('UUIDEditor', function () {
 
     context('when the UUID string is invalid', function () {
       const binary = Binary.createFromHexString(uuidHex, Binary.SUBTYPE_UUID);
-      const element = new Element('uuid', binary, false);
+      const element = new Element('uuid', binary);
       element.currentType = 'UUID';
       const uuidEditor = new UUIDEditor(element);
       const invalidString = 'nope';
@@ -144,7 +144,7 @@ describe('UUIDEditor', function () {
   describe('#start', function () {
     context('when the current type is valid', function () {
       const binary = Binary.createFromHexString(uuidHex, Binary.SUBTYPE_UUID);
-      const element = new Element('uuid', binary, false);
+      const element = new Element('uuid', binary);
       element.currentType = 'UUID';
       const uuidEditor = new UUIDEditor(element);
 

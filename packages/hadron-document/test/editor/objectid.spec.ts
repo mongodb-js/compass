@@ -7,7 +7,7 @@ describe('ObjectIdEditor', function () {
   describe('#start', function () {
     const objectIdString = '598398b16a636b7637f475c0';
     const objectId = new ObjectId(objectIdString);
-    const element = new Element('objectId', objectId, false);
+    const element = new Element('objectId', objectId);
 
     context('when the current type is valid (not yet edited)', function () {
       const objectIdEditor = new ObjectIdEditor(element);
@@ -57,7 +57,7 @@ describe('ObjectIdEditor', function () {
   describe('#edit', function () {
     const objectIdString = '598398b16a636b7637f475c0';
     const objectId = new ObjectId(objectIdString);
-    const element = new Element('objectId', objectId, false);
+    const element = new Element('objectId', objectId);
 
     context('when the objectId string is valid', function () {
       const objectIdEditor = new ObjectIdEditor(element);
@@ -105,7 +105,7 @@ describe('ObjectIdEditor', function () {
   describe('#complete', function () {
     const objectIdString = '598398b16a636b7637f475c0';
     const objectId = new ObjectId(objectIdString);
-    const element = new Element('objectId', objectId, false);
+    const element = new Element('objectId', objectId);
 
     context('when the objectId string is valid', function () {
       const objectIdEditor = new ObjectIdEditor(element);
@@ -158,7 +158,7 @@ describe('ObjectIdEditor', function () {
     context('when the objectId is valid', function () {
       const objectIdString = '598398b16a636b7637f475c0';
       const objectId = new ObjectId(objectIdString);
-      const element = new Element('objectId', objectId, false);
+      const element = new Element('objectId', objectId);
       const objectIdEditor = new ObjectIdEditor(element);
 
       it('returns the number of chars in the hex string', function () {
@@ -169,7 +169,7 @@ describe('ObjectIdEditor', function () {
     context('when the objectId is not valid', function () {
       const objectIdString = '598398b16a636b7637f475c0';
       const objectId = new ObjectId(objectIdString);
-      const element = new Element('objectId', objectId, false);
+      const element = new Element('objectId', objectId);
       const objectIdEditor = new ObjectIdEditor(element);
 
       before(function () {
@@ -186,7 +186,7 @@ describe('ObjectIdEditor', function () {
     context('when the objectId is valid', function () {
       const objectIdString = '598398b16a636b7637f475c0';
       const objectId = new ObjectId(objectIdString);
-      const element = new Element('objectId', objectId, false);
+      const element = new Element('objectId', objectId);
       const objectIdEditor = new ObjectIdEditor(element);
 
       it('returns the value', function () {
@@ -197,7 +197,7 @@ describe('ObjectIdEditor', function () {
     context('when the objectId is not valid', function () {
       const objectIdString = '598398b16a636b7637f475c0';
       const objectId = new ObjectId(objectIdString);
-      const element = new Element('objectId', objectId, false);
+      const element = new Element('objectId', objectId);
       const objectIdEditor = new ObjectIdEditor(element);
 
       before(function () {
