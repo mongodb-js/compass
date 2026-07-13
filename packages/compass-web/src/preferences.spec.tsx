@@ -68,9 +68,9 @@ describe('compass-web preferences', function () {
       expect(getAtlasServiceBackendPreset('cloud-stage.mongodb.com')).to.equal(
         'atlas-staging'
       );
-      expect(getAtlasServiceBackendPreset('cloud-local.mongodb.com')).to.equal(
-        'atlas-local'
-      );
+      expect(
+        getAtlasServiceBackendPreset('cloud-local.mmscloudteam.com')
+      ).to.equal('atlas-local');
       expect(getAtlasServiceBackendPreset('localhost:3000')).to.equal(
         'atlas-local'
       );

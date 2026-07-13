@@ -35,7 +35,6 @@ class CompassRendererConnectionStorage implements ConnectionStorage {
         | 'save'
         | 'delete'
         | 'getAutoConnectInfo'
-        | 'getLegacyConnections'
         | 'deserializeConnections'
         | 'exportConnections'
         | 'importConnections'
@@ -45,7 +44,6 @@ class CompassRendererConnectionStorage implements ConnectionStorage {
         'save',
         'delete',
         'getAutoConnectInfo',
-        'getLegacyConnections',
         'deserializeConnections',
         'exportConnections',
         'importConnections',
@@ -87,12 +85,6 @@ class CompassRendererConnectionStorage implements ConnectionStorage {
     autoConnectPreferences: AutoConnectPreferences
   ): Promise<ConnectionInfo | undefined> {
     return await this.ipc.getAutoConnectInfo(autoConnectPreferences);
-  }
-
-  getLegacyConnections(options?: {
-    signal?: AbortSignal | undefined;
-  }): Promise<{ name: string }[]> {
-    return this.ipc.getLegacyConnections(options);
   }
 
   deserializeConnections(args: {

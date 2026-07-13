@@ -26,6 +26,7 @@ import updateViewError from './update-view';
 import aggregation from './aggregation';
 import countDocuments from './count-documents';
 import isDataLake from './is-datalake';
+import explain from './explain';
 import workspace from './workspace';
 import aggregationWorkspaceId from './aggregation-workspace-id';
 import collectionStats from './collection-stats';
@@ -49,6 +50,7 @@ import type {
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import type Collection from 'mongodb-collection-model';
 /**
  * The main application reducer.
@@ -84,6 +86,7 @@ const rootReducer = combineReducers({
   countDocuments,
   aggregationWorkspaceId,
   isDataLake,
+  explain,
   pipelineBuilder,
   focusMode,
   sidePanel,
@@ -104,6 +107,7 @@ export type PipelineBuilderExtraArgs = {
   preferences: PreferencesAccess;
   logger: Logger;
   track: TrackFunction;
+  experimentationServices: ExperimentationServices;
   atlasAiService: AtlasAiService;
   instance: MongoDBInstance;
   dataService: DataService;

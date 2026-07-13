@@ -20,7 +20,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  useSearchActivationProgramP2,
+} from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
 import { FollowUpPrompts, parseFollowUpQuestions } from './follow-up-prompts';
@@ -236,9 +239,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const track = useTelemetry();
   const darkMode = useDarkMode();
   const isToolCallingEnabled = usePreference('enableToolCalling');
-  const enableSearchActivationProgramP2 = usePreference(
-    'enableSearchActivationProgramP2'
-  );
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
+    trackIsInSample: false,
+  });
   const enableGenAIToolCallingAtlasProject = usePreference(
     'enableGenAIToolCallingAtlasProject'
   );

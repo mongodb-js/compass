@@ -11,10 +11,12 @@ import {
 } from '@mongodb-js/compass-components';
 import {
   useSearchActivationProgramP1,
+  useSearchActivationProgramP2,
   useTelemetry,
 } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import { buildProjectSettingsUrl } from '@mongodb-js/atlas-service/provider';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
 import {
   isSearchIndexDefinitionError,
   isRerankNotEnabledError,
@@ -28,7 +30,7 @@ const bannerButtonStyles = css({
 });
 
 const RERANK_DOCS_URL =
-  'https://dochub.mongodb.org/core/$rerank#navigate-to-the-project-settings-page';
+  'https://dochub.mongodb.org/core/manage-native-reranking';
 
 const bannerStyles = css({
   textAlign: 'left',
@@ -37,6 +39,7 @@ const bannerStyles = css({
 const bannerContentStyles = css({
   display: 'flex',
   alignItems: 'center',
+  justifyContent: 'space-between',
   gap: spacing[200],
 });
 
@@ -46,6 +49,9 @@ type ServerErrorBannerProps = {
   onEditSearchIndexClick?: (indexName: string) => void;
   searchExtensionType?: SearchExtensionType | null;
   dataTestId?: string;
+  stageOperator?: string | null;
+  stageValue?: string | null;
+  onCloseFocusMode?: () => void;
 };
 
 export default function ServerErrorBanner({
@@ -54,11 +60,18 @@ export default function ServerErrorBanner({
   onEditSearchIndexClick,
   searchExtensionType,
   dataTestId = 'server-error-banner',
+  stageOperator,
+  stageValue,
+  onCloseFocusMode,
 }: ServerErrorBannerProps) {
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
+    trackIsInSample: false,
+  });
   const { openDrawer } = useDrawerActions();
   const track = useTelemetry();
   const { atlasMetadata } = useConnectionInfo();
+  const { debugSearchError } = useAssistantActions();
   const rerankNotEnabled = isRerankNotEnabledError(message);
 
   useEffect(() => {
@@ -88,6 +101,28 @@ export default function ServerErrorBanner({
       />
     );
   }
+
+  const showEditSearchIndexLink =
+    enableSearchActivationProgramP1 &&
+    !!searchIndexName &&
+    isSearchIndexDefinitionError(message) &&
+    !!onEditSearchIndexClick;
+
+  const onDebugClick =
+    !showEditSearchIndexLink &&
+    enableSearchActivationProgramP2 &&
+    debugSearchError &&
+    stageOperator === '$search' &&
+    stageValue
+      ? () => {
+          onCloseFocusMode?.();
+          debugSearchError({
+            stageOperator,
+            errorMessage: message,
+            stageValue,
+          });
+        }
+      : undefined;
 
   return (
     <Banner variant="danger" data-testid={dataTestId} className={bannerStyles}>
@@ -119,27 +154,40 @@ export default function ServerErrorBanner({
           </div>
         </>
       ) : (
-        message
-      )}
-      {enableSearchActivationProgramP1 &&
-        searchIndexName &&
-        isSearchIndexDefinitionError(message) &&
-        onEditSearchIndexClick && (
-          <>
-            {' '}
-            <Link
-              onClick={() => {
-                track('Search Index Edit Link Clicked', {
-                  context: 'Server Error Banner',
-                });
-                openDrawer('compass-indexes-drawer');
-                onEditSearchIndexClick(searchIndexName);
-              }}
+        <div className={bannerContentStyles}>
+          <span>
+            {message}
+            {showEditSearchIndexLink && (
+              <>
+                {' '}
+                <Link
+                  onClick={() => {
+                    track('Search Index Edit Link Clicked', {
+                      context: 'Server Error Banner',
+                    });
+                    openDrawer('compass-indexes-drawer');
+                    onEditSearchIndexClick?.(searchIndexName ?? '');
+                  }}
+                >
+                  Edit Search Index
+                </Link>
+              </>
+            )}
+          </span>
+          {onDebugClick && (
+            <Button
+              size="xsmall"
+              variant="primaryOutline"
+              onClick={onDebugClick}
+              // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
+              leftGlyph={<Icon glyph="Sparkle" />}
+              data-testid="server-error-banner-debug-button"
             >
-              Edit Search Index
-            </Link>
-          </>
-        )}
+              Debug
+            </Button>
+          )}
+        </div>
+      )}
     </Banner>
   );
 }

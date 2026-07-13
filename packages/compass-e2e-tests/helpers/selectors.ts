@@ -761,6 +761,17 @@ export const HadronDocumentRemoveElement =
   '[data-testid="hadron-document-remove"]';
 export const HadronDocumentElementDecryptedIcon =
   '[data-testid="hadron-document-element-decrypted-icon"]';
+export const hadronDocumentFieldRow = (name: string) => {
+  return `[data-field="${name}"]${HadronDocumentElement}`;
+};
+export const hadronDocumentAddFieldButton = (name: string) => {
+  return `${hadronDocumentFieldRow(
+    name
+  )} ${HadronDocumentAddElementMenuButton}`;
+};
+export const hadronDocumentExpandRowButton = (name: string) => {
+  return `${hadronDocumentFieldRow(name)} [aria-label="Expand field items"]`;
+};
 
 // Document list view
 

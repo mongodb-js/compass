@@ -9,10 +9,6 @@ import {
   createPluginTestHelpers,
   cleanup,
 } from '@mongodb-js/testing-library-compass';
-import {
-  createSandboxFromDefaultPreferences,
-  type PreferencesAccess,
-} from 'compass-preferences-model';
 
 const mockConnections = [
   createDefaultConnectionInfo(),
@@ -43,7 +39,6 @@ describe('InstanceStore [Store]', function () {
   let sandbox: sinon.SinonSandbox;
   let getDataService: any;
   let connectionsStore: any;
-  let preferences: PreferencesAccess;
 
   function waitForInstanceRefresh(instance: MongoDBInstance): Promise<void> {
     return new Promise((resolve) => {
@@ -62,12 +57,9 @@ describe('InstanceStore [Store]', function () {
     CompassInstanceStorePlugin
   );
 
-  beforeEach(async function () {
-    preferences = await createSandboxFromDefaultPreferences();
+  beforeEach(function () {
     const result = activatePluginWithConnections(
-      {
-        preferences,
-      },
+      {},
       {
         connectFn() {
           return createDataService();
@@ -77,7 +69,6 @@ describe('InstanceStore [Store]', function () {
     connectionsStore = result.connectionsStore;
     getDataService = result.getDataServiceForConnection;
     globalAppRegistry = result.globalAppRegistry;
-    preferences = result.preferences;
     sandbox = sinon.createSandbox();
     instancesManager = result.plugin.store.getState().instancesManager;
   });

@@ -4,6 +4,7 @@ import {
   DropdownMenuButton,
   type MenuAction,
   OptionsToggle,
+  SpinLoader,
   css,
   cx,
   spacing,
@@ -19,7 +20,10 @@ import {
   useIsAIFeatureEnabled,
   usePreference,
 } from 'compass-preferences-model/provider';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  useSearchActivationProgramP2,
+} from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 import {
@@ -137,6 +141,7 @@ type QueryBarProps = {
   onExplainInterpret?: () => void;
   isAIInputVisible?: boolean;
   isAIFetching?: boolean;
+  isInterpretLoading?: boolean;
   onShowAIInputClick: () => void;
   onHideAIInputClick: () => void;
   source: string;
@@ -166,6 +171,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   onExplainInterpret,
   isAIInputVisible = false,
   isAIFetching = false,
+  isInterpretLoading = false,
   onShowAIInputClick,
   onHideAIInputClick,
   source,
@@ -173,9 +179,10 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
   const darkMode = useDarkMode();
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const track = useTelemetry();
-  const enableSearchActivationProgramP2 = usePreference(
-    'enableSearchActivationProgramP2'
-  );
+  const {
+    enableSearchActivationProgramP2,
+    isSearchActivationProgramP2Loading,
+  } = useSearchActivationProgramP2({ trackIsInSample: true });
   const { getIsAssistantEnabled } = useAssistantActions();
   const isAssistantEnabled = getIsAssistantEnabled();
 
@@ -184,8 +191,17 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
       {
         action: 'interpret',
         label: 'Interpret',
-        icon: 'Sparkle',
-        isDisabled: !isAssistantEnabled,
+        icon: isInterpretLoading ? (
+          <SpinLoader title="Loading interpret" />
+        ) : (
+          'Sparkle'
+        ),
+        isDisabled: !isAssistantEnabled || isInterpretLoading,
+        disabledDescription: isInterpretLoading
+          ? 'Interpret in progress'
+          : !isAssistantEnabled
+          ? 'Assistant is not available'
+          : undefined,
       },
       {
         action: 'visual-tree',
@@ -198,7 +214,7 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
         icon: 'CurlyBraces',
       },
     ],
-    [isAssistantEnabled]
+    [isAssistantEnabled, isInterpretLoading]
   );
 
   const onExplainAction = useCallback(
@@ -308,13 +324,26 @@ export const QueryBar: React.FunctionComponent<QueryBarProps> = ({
           )}
         </div>
         {showExplainButton &&
-          (enableSearchActivationProgramP2 ? (
+          (isSearchActivationProgramP2Loading ? (
+            <Button
+              aria-label="Explain query"
+              title="View the execution plan for the current query"
+              data-testid="query-bar-explain-button-loading"
+              disabled
+              size="small"
+              type="button"
+              leftGlyph={<SpinLoader />}
+            >
+              Explain
+            </Button>
+          ) : enableSearchActivationProgramP2 ? (
             <DropdownMenuButton
               data-testid="query-bar-explain-dropdown-button"
               buttonText="Explain"
               buttonProps={{
                 size: 'small',
                 disabled: !isQueryValid || isAIFetching,
+                leftGlyph: isInterpretLoading ? <SpinLoader /> : undefined,
               }}
               actions={explainActions}
               onAction={onExplainAction}
@@ -391,7 +420,10 @@ type OwnProps = {
 };
 
 export default connect(
-  ({ queryBar: { expanded, fields, applyId }, aiQuery }: RootState) => {
+  ({
+    queryBar: { expanded, fields, applyId, isInterpretLoading },
+    aiQuery,
+  }: RootState) => {
     return {
       expanded: expanded,
       queryChanged: !isEqualDefaultQuery(fields),
@@ -400,6 +432,7 @@ export default connect(
       applyId: applyId,
       isAIInputVisible: aiQuery.isInputVisible,
       isAIFetching: aiQuery.status === 'fetching',
+      isInterpretLoading,
     };
   },
   (dispatch: QueryBarThunkDispatch, ownProps: OwnProps) => {

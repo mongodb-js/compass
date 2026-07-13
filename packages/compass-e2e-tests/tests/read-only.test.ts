@@ -287,25 +287,30 @@ describe('readOnly: true / Read-Only Edition', function () {
       'Indexes'
     );
 
-    let createIndexButton = browser.$(Selectors.CreateIndexButton);
-    let isCreateIndexButtonExisting = await createIndexButton.isExisting();
-    expect(isCreateIndexButtonExisting).to.be.equal(
-      true,
-      'Expected "Create Index" button in the Indexes view to exist'
-    );
+    await browser
+      .$(
+        // It's a plain button on non-Atlas, and a "Create" dropdown on Atlas.
+        `${Selectors.CreateIndexButton}, ${Selectors.CreateIndexDropdownButton}`
+      )
+      .waitForDisplayed({
+        timeout: 30_000,
+        timeoutMsg:
+          'Expected "Create Index" button in the Indexes view to be displayed',
+      });
 
     await setReadOnlyFeatureViaSettingsModal(browser, true);
 
-    createIndexButton = browser.$(Selectors.CreateIndexButton);
-    isCreateIndexButtonExisting = await createIndexButton.isExisting();
-    expect(isCreateIndexButtonExisting).to.be.equal(
-      false,
-      'Expected "Create Index" button in the Indexes view to NOT exist'
-    );
+    await browser
+      .$(Selectors.CreateIndexButton)
+      .waitForExist({ reverse: true });
+    await browser
+      .$(Selectors.CreateIndexDropdownButton)
+      .waitForExist({ reverse: true });
 
-    const indexList = browser.$(Selectors.IndexList);
-    const isIndexListExisting = await indexList.isExisting();
-    expect(isIndexListExisting).to.be.equal(true);
+    await browser.$(Selectors.IndexList).waitForDisplayed({
+      timeout: 30_000,
+      timeoutMsg: 'Expected index list in the Indexes view to be displayed',
+    });
   });
 
   it('enables and disables validation actions', async function () {

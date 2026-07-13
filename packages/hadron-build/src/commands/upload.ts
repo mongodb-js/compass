@@ -37,9 +37,11 @@ function buildUploadCommandOptions(yargs: Argv) {
       description:
         'Upload download center manifest update for the target version (NOTE: This will will replace existing version for the channel with the provided one for all existing and newly added assets)',
       default: false,
+      type: 'boolean' as const,
     },
     dryRun: {
       alias: 'dry-run',
+      type: 'boolean' as const,
       description:
         'Does everything the real script will do without actually publishing assets to GH / download center',
       default: process.env.npm_config_dry_run === 'true',

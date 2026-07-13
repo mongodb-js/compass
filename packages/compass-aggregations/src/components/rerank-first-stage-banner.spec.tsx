@@ -10,17 +10,8 @@ describe('RerankFirstStageBanner', function () {
     localStorage.removeItem(DISMISSED_KEY);
   });
 
-  it('does not render when enableRerank is false', function () {
-    render(<RerankFirstStageBanner data-testid="rerank-first-stage-banner" />, {
-      preferences: { enableRerank: false },
-    });
-    expect(screen.queryByTestId('rerank-first-stage-banner')).to.not.exist;
-  });
-
-  it('renders when enableRerank is true', function () {
-    render(<RerankFirstStageBanner data-testid="rerank-first-stage-banner" />, {
-      preferences: { enableRerank: true },
-    });
+  it('renders', function () {
+    render(<RerankFirstStageBanner />);
     expect(screen.getByTestId('rerank-first-stage-banner')).to.exist;
     expect(
       screen.getByText('$rerank works better following a search stage', {
@@ -30,9 +21,7 @@ describe('RerankFirstStageBanner', function () {
   });
 
   it('dismisses when the close button is clicked', function () {
-    render(<RerankFirstStageBanner data-testid="rerank-first-stage-banner" />, {
-      preferences: { enableRerank: true },
-    });
+    render(<RerankFirstStageBanner />);
     expect(screen.getByTestId('rerank-first-stage-banner')).to.exist;
 
     userEvent.click(screen.getByRole('button', { name: /close/i }));
@@ -42,9 +31,7 @@ describe('RerankFirstStageBanner', function () {
 
   it('does not render when already dismissed via localStorage', function () {
     localStorage.setItem(DISMISSED_KEY, 'true');
-    render(<RerankFirstStageBanner data-testid="rerank-first-stage-banner" />, {
-      preferences: { enableRerank: true },
-    });
+    render(<RerankFirstStageBanner />);
     expect(screen.queryByTestId('rerank-first-stage-banner')).to.not.exist;
   });
 });

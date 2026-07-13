@@ -10,6 +10,7 @@ import {
   screenshotIfFailed,
   getDefaultConnectionNames,
   screenshotPathName,
+  serverSatisfies,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
@@ -17,7 +18,10 @@ import { startMockAtlasServiceServer } from '../helpers/mock-atlas-service.ts';
 import { startMockAssistantServer } from '../helpers/assistant-service.ts';
 import type { MockAssistantResponse } from '../helpers/assistant-service.ts';
 
-import { context } from '../helpers/test-runner-context.ts';
+import {
+  context,
+  isTestingWebAtlasCloud,
+} from '../helpers/test-runner-context.ts';
 
 describe('MongoDB Assistant (with mocked backend)', function () {
   let compass: Compass;
@@ -238,6 +242,11 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
     describe('entry points', function () {
       it('should display opt-in modal for connection error entry point', async function () {
+        if (isTestingWebAtlasCloud()) {
+          // We don't show connection debugging on Atlas web.
+          return this.skip();
+        }
+
         await browser.connectWithConnectionString(
           'mongodb-invalid://localhost:27017',
           { connectionStatus: 'failure' }
@@ -498,6 +507,11 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
       describe('error message entry point', function () {
         before(function () {
+          if (isTestingWebAtlasCloud()) {
+            // We don't show connection debugging on Atlas web.
+            return this.skip();
+          }
+
           mockAssistantServer.setResponse({
             status: 200,
             body: 'You should review the connection string.',
@@ -530,10 +544,12 @@ describe('MongoDB Assistant (with mocked backend)', function () {
 
       describe('rerank insight entry point', function () {
         before(async function () {
+          if (!serverSatisfies('>=7.0.0') || !isTestingWebAtlasCloud()) {
+            this.skip();
+          }
           try {
             await setAIOptIn(true);
             await setAIFeatures(true);
-            await browser.setFeature('enableRerank', true);
             mockAssistantServer.setResponse({
               status: 200,
               body: 'You should add a search stage before $rerank.',
@@ -555,37 +571,11 @@ describe('MongoDB Assistant (with mocked backend)', function () {
           }
         });
 
-        after(async function () {
-          await browser.setFeature('enableRerank', false);
-        });
-
         it('opens assistant when clicking "Tell me more" on the rerank insight', async function () {
           await browser.$(Selectors.InsightIconButton).waitForDisplayed();
           await browser.clickVisible(Selectors.InsightIconButton);
           await browser.waitForAnimations(Selectors.InsightPopoverCard);
           await browser.clickVisible(Selectors.InsightTellMeMoreButton);
-
-          await browser.waitForMessages([
-            {
-              text: 'What are best practices for using $rerank?',
-              role: 'user',
-            },
-            {
-              text: 'You should add a search stage before $rerank.',
-              role: 'assistant',
-            },
-          ]);
-
-          expect(mockAssistantServer.getRequests()).to.have.lengthOf(1);
-        });
-
-        it('opens assistant when clicking "Learn more" on the rerank banner', async function () {
-          await browser
-            .$(Selectors.RerankFirstStageBannerLearnMoreButton)
-            .waitForDisplayed();
-          await browser.clickVisible(
-            Selectors.RerankFirstStageBannerLearnMoreButton
-          );
 
           await browser.waitForMessages([
             {
