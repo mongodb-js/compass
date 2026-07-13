@@ -15,6 +15,7 @@ import {
   userEvent,
   wait,
   within,
+  cleanup,
 } from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
@@ -66,6 +67,7 @@ function renderBaseSearchIndexModal(
       isBusy={false}
       onSubmit={sinon.fake()}
       onClose={sinon.fake()}
+      onClearError={sinon.fake()}
       error={'Invalid index definition.'}
       {...props}
     />,
@@ -418,6 +420,31 @@ describe('Base Search Index Modal', function () {
         expect(
           screen.queryByRole('option', { name: 'KNN Vector field mapping' })
         ).to.not.exist;
+      });
+    });
+  });
+
+  describe('server error clearing', function () {
+    afterEach(function () {
+      cleanup();
+    });
+
+    it('clears the server error when the definition is edited', async function () {
+      const onClearErrorSpy = sinon.spy();
+      renderBaseSearchIndexModal({
+        error: 'Invalid index definition.',
+        onClearError: onClearErrorSpy,
+      });
+
+      expect(await screen.findByText('Invalid index definition.')).to.exist;
+
+      await setCodemirrorEditorValue(
+        'definition-of-search-index',
+        VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING
+      );
+
+      await waitFor(() => {
+        expect(onClearErrorSpy).to.have.been.called;
       });
     });
   });

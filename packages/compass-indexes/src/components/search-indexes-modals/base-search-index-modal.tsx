@@ -134,6 +134,7 @@ type BaseSearchIndexModalProps = {
     definition: Document;
   }) => void;
   onClose: () => void;
+  onClearError: () => void;
 };
 
 type SearchIndexType = 'search' | 'vectorSearch';
@@ -159,9 +160,6 @@ type SearchIndexEditorState = {
   // is open), this stays fixed for the lifetime of an open modal.
   initialIndexDefinitionSnapshot: string;
   parsingError: ParsingError | undefined;
-  // Whether the user has edited the definition since the last submit, in which
-  // case a stale server error is hidden.
-  isServerErrorDismissed: boolean;
   vectorTemplateChoice: VectorIndexTemplateChoice;
 };
 
@@ -179,6 +177,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
   error,
   onSubmit,
   onClose,
+  onClearError,
 }) => {
   const initialIndexType =
     _initialIndexType === 'search' || _initialIndexType === 'vectorSearch'
@@ -198,7 +197,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       indexDefinition,
       initialIndexDefinitionSnapshot,
       parsingError,
-      isServerErrorDismissed,
       vectorTemplateChoice,
     },
     setSearchIndexEditorState,
@@ -209,7 +207,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       indexDefinition: initialIndexDefinition,
       initialIndexDefinitionSnapshot: initialIndexDefinition,
       parsingError: undefined,
-      isServerErrorDismissed: false,
       vectorTemplateChoice: defaultVectorTemplateChoice,
     };
   });
@@ -269,7 +266,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         indexDefinition: initialIndexDefinition,
         initialIndexDefinitionSnapshot: initialIndexDefinition,
         parsingError: undefined,
-        isServerErrorDismissed: false,
         vectorTemplateChoice: defaultVectorTemplateChoice,
       });
     }
@@ -284,17 +280,21 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       } catch (ex) {
         parsingError = ex as ParsingError;
       }
+
+      // Editing the definition invalidates any error from a previous submit.
+      if (error) {
+        onClearError();
+      }
+
       setSearchIndexEditorState((prevState) => {
         return {
           ...prevState,
           indexDefinition: newDefinition,
           parsingError,
-          // Editing the definition invalidates any error from a previous submit.
-          isServerErrorDismissed: true,
         };
       });
     },
-    []
+    [error, onClearError]
   );
 
   const onSubmitIndex = useCallback(() => {
@@ -303,11 +303,6 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     }
 
     const indexDefinitionDoc = parseShellBSON(indexDefinition);
-    // Surface any error from this fresh submit attempt.
-    setSearchIndexEditorState((prevState) => ({
-      ...prevState,
-      isServerErrorDismissed: false,
-    }));
     onSubmit({
       name: indexName,
       definition: indexDefinitionDoc,
@@ -579,9 +574,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
           </div>
         </div>
         {parsingError && <WarningSummary warnings={parsingError.message} />}
-        {!parsingError && error && !isServerErrorDismissed && (
-          <ErrorSummary errors={error} />
-        )}
+        {!parsingError && error && <ErrorSummary errors={error} />}
         {mode === 'update' && (
           <Banner>
             Note: Updating the index definition will consume additional
