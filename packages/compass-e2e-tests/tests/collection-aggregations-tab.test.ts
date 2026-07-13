@@ -1160,7 +1160,20 @@ describe('Collection aggregations tab', function () {
       '{ i: 5 }'
     );
 
-    await browser.clickVisible(Selectors.AggregationExplainButton);
+    await browser.$(Selectors.AggregationExplainButton).waitForDisplayed();
+    const isDropdownVariant = await browser
+      .$(Selectors.AggregationExplainDropdownButton)
+      .isExisting();
+
+    if (isDropdownVariant) {
+      await browser.clickVisible(Selectors.AggregationExplainDropdownButton);
+      await browser.clickVisible(
+        Selectors.AggregationExplainDropdownVisualTreeAction
+      );
+    } else {
+      await browser.clickVisible(Selectors.AggregationExplainLegacyButton);
+    }
+
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
     await browser.waitForOpenModal(Selectors.AggregationExplainModal);
 
