@@ -15,7 +15,7 @@ const ViewPipelineIncompatibleBanner = ({
       variant={hasNoSearchIndexes ? 'warning' : 'danger'}
       data-testid="view-not-search-compatible-banner"
     >
-      {!hasNoSearchIndexes && (
+      {hasNoSearchIndexes && (
         <>
           <b>Looking for search indexes?</b> <br />
         </>
