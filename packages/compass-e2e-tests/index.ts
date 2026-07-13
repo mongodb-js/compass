@@ -68,11 +68,19 @@ async function main() {
     ? context.testFilter
     : [context.testFilter];
 
+  const rawIncludeFilters = e2eTestFilter.filter((f) => !f.startsWith('!'));
+  const includeFilters =
+    rawIncludeFilters.length > 0 ? rawIncludeFilters : ['*'];
+  const ignorePatterns = e2eTestFilter
+    .filter((f) => f.startsWith('!'))
+    .map((f) => `tests/**/${f.slice(1)}.{test,spec}.ts`);
+
   const tests = (
     await Promise.all(
-      e2eTestFilter.map((filter) => {
+      includeFilters.map((filter) => {
         return glob(`tests/**/${filter}.{test,spec}.ts`, {
           cwd: E2E_WORKSPACE_PATH,
+          ignore: ignorePatterns,
         });
       })
     )

@@ -16,6 +16,9 @@ import {
   css,
   spacing,
   createElectronFileInputBackend,
+  FormFieldContainer,
+  Checkbox,
+  Accordion,
 } from '@mongodb-js/compass-components';
 
 import {
@@ -43,11 +46,32 @@ import {
 
 type ExportFileTypes = 'json' | 'csv';
 
+const AdvancedCSVFormat: React.FunctionComponent<{
+  escapeFormulae: boolean;
+  onEscapeFormulaeChange: (newVal: boolean) => void;
+}> = ({ escapeFormulae, onEscapeFormulaeChange }) => {
+  return (
+    <Accordion text="Advanced CSV Format">
+      <FormFieldContainer>
+        <Checkbox
+          checked={escapeFormulae}
+          onChange={(event) => {
+            onEscapeFormulaeChange(event.target.checked);
+          }}
+          label="Escape formulae in data"
+          description="Recommended for datasets containing user provided data"
+        ></Checkbox>
+      </FormFieldContainer>
+    </Accordion>
+  );
+};
+
 function useExport(): [
   {
     fileType: ExportFileTypes;
     fieldsToExportOption: FieldsToExportOption;
     jsonFormatVariant: ExportJSONFormat;
+    escapeFormulae: boolean;
   },
   {
     setFileType: (fileType: ExportFileTypes) => void;
@@ -55,6 +79,7 @@ function useExport(): [
       fieldsToExportOption: FieldsToExportOption
     ) => void;
     setJSONFormatVariant: (jsonFormatVariant: ExportJSONFormat) => void;
+    setEscapeFormulae: (newVal: boolean) => void;
     resetExportFormState: () => void;
   }
 ] {
@@ -63,11 +88,13 @@ function useExport(): [
     useState<FieldsToExportOption>('all-fields');
   const [jsonFormatVariant, setJSONFormatVariant] =
     useState<ExportJSONFormat>('default');
+  const [escapeFormulae, setEscapeFormulae] = useState<boolean>(true);
 
   const resetExportFormState = useCallback(() => {
     setFileType('json');
     setFieldsToExportOption('all-fields');
     setJSONFormatVariant('default');
+    setEscapeFormulae(true);
   }, []);
 
   return [
@@ -75,11 +102,13 @@ function useExport(): [
       fileType,
       fieldsToExportOption,
       jsonFormatVariant,
+      escapeFormulae,
     },
     {
       setFileType,
       setFieldsToExportOption,
       setJSONFormatVariant,
+      setEscapeFormulae,
       resetExportFormState,
     },
   ];
@@ -113,6 +142,7 @@ type ExportModalProps = {
     filePath: string;
     fileType: 'csv' | 'json';
     jsonFormatVariant: ExportJSONFormat;
+    escapeFormulae: boolean;
   }) => void;
   backToSelectFieldOptions: () => void;
   backToSelectFieldsToExport: () => void;
@@ -141,11 +171,12 @@ function ExportModal({
   // TODO: this state depends on redux store too much and should be part of
   // redux store and not UI
   const [
-    { fileType, jsonFormatVariant, fieldsToExportOption },
+    { fileType, jsonFormatVariant, fieldsToExportOption, escapeFormulae },
     {
       setFileType,
       setJSONFormatVariant,
       setFieldsToExportOption,
+      setEscapeFormulae,
       resetExportFormState,
     },
   ] = useExport();
@@ -187,9 +218,10 @@ function ExportModal({
         filePath,
         fileType,
         jsonFormatVariant,
+        escapeFormulae,
       });
     },
-    [runExport, fileType, jsonFormatVariant]
+    [runExport, fileType, jsonFormatVariant, escapeFormulae]
   );
 
   const onClickExport = useCallback(() => {
@@ -283,16 +315,23 @@ function ExportModal({
               onSelected={setFileType}
             />
             {fileType === 'csv' && (
-              <Banner className={messageBannerStyles}>
-                Exporting with CSV may lose type information and is not suitable
-                for backing up your data.{' '}
-                <Link
-                  href="https://www.mongodb.com/docs/compass/current/import-export/#export-data-from-a-collection"
-                  target="_blank"
-                >
-                  Learn more
-                </Link>
-              </Banner>
+              <>
+                <AdvancedCSVFormat
+                  escapeFormulae={escapeFormulae}
+                  onEscapeFormulaeChange={setEscapeFormulae}
+                ></AdvancedCSVFormat>
+
+                <Banner className={messageBannerStyles}>
+                  Exporting with CSV may lose type information and is not
+                  suitable for backing up your data.{' '}
+                  <Link
+                    href="https://www.mongodb.com/docs/compass/current/import-export/#export-data-from-a-collection"
+                    target="_blank"
+                  >
+                    Learn more
+                  </Link>
+                </Banner>
+              </>
             )}
             {fileType === 'json' && (
               <JSONFileTypeOptions

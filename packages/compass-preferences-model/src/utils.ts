@@ -33,14 +33,11 @@ export function getActiveUser(
  * feature is considered enabled if:
  *  - AI feature flag is enabled
  *  - config preference that controls AI is enabled
- *  - mms backend rollout enabled feature for the compass user
  */
 export function isAIFeatureEnabled(
   preferences: Pick<
     AllPreferences,
-    | 'enableGenAIFeatures'
-    | 'cloudFeatureRolloutAccess'
-    | 'enableGenAIFeaturesAtlasOrg'
+    'enableGenAIFeatures' | 'enableGenAIFeaturesAtlasOrg'
   >
 ) {
   const {
@@ -48,14 +45,8 @@ export function isAIFeatureEnabled(
     // feature in global config
     enableGenAIFeatures,
     enableGenAIFeaturesAtlasOrg,
-    // based on mms backend rollout response
-    cloudFeatureRolloutAccess,
   } = preferences;
-  return (
-    enableGenAIFeatures &&
-    enableGenAIFeaturesAtlasOrg &&
-    !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS
-  );
+  return enableGenAIFeatures && enableGenAIFeaturesAtlasOrg;
 }
 
 export function useIsAIFeatureEnabled() {
@@ -63,18 +54,10 @@ export function useIsAIFeatureEnabled() {
   const enableGenAIFeaturesAtlasOrg = usePreference(
     'enableGenAIFeaturesAtlasOrg'
   );
-  const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
-
   return isAIFeatureEnabled({
     enableGenAIFeatures,
     enableGenAIFeaturesAtlasOrg,
-    cloudFeatureRolloutAccess,
   });
-}
-
-export function useHasAIFeatureCloudRolloutAccess() {
-  const cloudFeatureRolloutAccess = usePreference('cloudFeatureRolloutAccess');
-  return !!cloudFeatureRolloutAccess?.GEN_AI_COMPASS;
 }
 
 export function proxyPreferenceToProxyOptions(

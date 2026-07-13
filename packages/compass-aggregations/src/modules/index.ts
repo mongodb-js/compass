@@ -50,6 +50,7 @@ import type {
   ConnectionScopedAppRegistry,
 } from '@mongodb-js/compass-connections/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import type { ExperimentationServices } from '@mongodb-js/compass-telemetry/provider';
 import type Collection from 'mongodb-collection-model';
 /**
  * The main application reducer.
@@ -106,6 +107,7 @@ export type PipelineBuilderExtraArgs = {
   preferences: PreferencesAccess;
   logger: Logger;
   track: TrackFunction;
+  experimentationServices: ExperimentationServices;
   atlasAiService: AtlasAiService;
   instance: MongoDBInstance;
   dataService: DataService;

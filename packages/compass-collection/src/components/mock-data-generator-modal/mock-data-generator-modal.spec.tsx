@@ -100,6 +100,8 @@ describe('MockDataGeneratorModal', () => {
       {
         preferences: {
           enableGenAISampleDocumentPassing,
+          enableGenAIFeatures: true,
+          enableGenAIFeaturesAtlasOrg: true,
         },
       }
     );
@@ -170,7 +172,7 @@ describe('MockDataGeneratorModal', () => {
           'Mock Data Generator Dismissed',
           {
             screen: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
-            gen_ai_features_enabled: false,
+            gen_ai_features_enabled: true,
             send_sample_values_enabled: false,
           }
         );
@@ -196,7 +198,7 @@ describe('MockDataGeneratorModal', () => {
           'Mock Data Generator Dismissed',
           {
             screen: MockDataGeneratorSteps.SCHEMA_CONFIRMATION,
-            gen_ai_features_enabled: false,
+            gen_ai_features_enabled: true,
             send_sample_values_enabled: false,
           }
         );

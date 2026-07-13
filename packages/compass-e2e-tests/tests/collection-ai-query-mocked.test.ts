@@ -19,7 +19,7 @@ async function setup(
   collName: string
 ) {
   await createNumbersCollection(collName);
-  await browser.setupDefaultConnections();
+  await browser.disconnectAll();
   await browser.connectToDefaults();
   await browser.navigateToCollectionTab(
     getDefaultConnectionNames(0),
@@ -32,9 +32,6 @@ async function setup(
   await browser.setFeature('enableGenAISampleDocumentPassing', true);
   await browser.setFeature('enableGenAIFeaturesAtlasOrg', true);
   await browser.setFeature('optInGenAIFeatures', true);
-  await browser.setFeature('cloudFeatureRolloutAccess', {
-    GEN_AI_COMPASS: true,
-  });
 }
 
 describe('Collection ai query (with mocked backend)', function () {
@@ -49,6 +46,7 @@ describe('Collection ai query (with mocked backend)', function () {
     mockAssistantServer = await startMockAssistantServer();
     compass = await init(this.test?.fullTitle());
     browser = compass.browser;
+    await browser.setupDefaultConnections();
 
     await browser.setEnv(
       'COMPASS_ASSISTANT_BASE_URL_OVERRIDE',

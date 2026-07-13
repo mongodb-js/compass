@@ -1168,6 +1168,20 @@ export async function init(
       await browser.navigateTo(
         `${urls.cloudUrl}/v2/${context.atlasCloudProjectId}#/explorer`
       );
+
+      // Hide the Intercom widget so its iframes can't intercept clicks.
+      await browser.execute(() => {
+        const style = globalThis.document.createElement('style');
+        style.textContent = `
+          [class*="intercom"],
+          iframe[name*="intercom"],
+          iframe[data-intercom-frame] {
+            display: none !important;
+            pointer-events: none !important;
+          }
+        `;
+        globalThis.document.head.appendChild(style);
+      });
     } else {
       await browser.navigateTo(context.sandboxUrl);
     }

@@ -55,6 +55,7 @@ type ExportCSVOptions = {
   progressCallback?: ProgressCallback;
   delimiter?: Delimiter;
   linebreak?: Linebreak;
+  escapeFormulae?: boolean;
 };
 
 class CSVRowStream extends Transform {
@@ -63,17 +64,20 @@ class CSVRowStream extends Transform {
   linebreak: Linebreak;
   delimiter: Delimiter;
   progressCallback?: ProgressCallback;
+  escapeFormulae: boolean;
 
   constructor({
     columns,
     delimiter,
     linebreak,
     progressCallback,
+    escapeFormulae = true,
   }: {
     columns: PathPart[][];
     delimiter: Delimiter;
     linebreak: Linebreak;
     progressCallback?: ProgressCallback;
+    escapeFormulae?: boolean;
   }) {
     super({ objectMode: true });
     this.docsWritten = 0;
@@ -81,6 +85,7 @@ class CSVRowStream extends Transform {
     this.progressCallback = progressCallback;
     this.delimiter = delimiter;
     this.linebreak = linebreak;
+    this.escapeFormulae = escapeFormulae;
   }
 
   _transform(
@@ -97,6 +102,7 @@ class CSVRowStream extends Transform {
       const values = row.map((value) =>
         stringifyCSVValue(value, {
           delimiter: this.delimiter,
+          escapeFormulae: this.escapeFormulae,
         })
       );
 
@@ -127,11 +133,14 @@ async function _exportCSV({
   progressCallback,
   delimiter = ',',
   linebreak = '\n',
+  escapeFormulae = true,
 }: ExportCSVOptions): Promise<ExportResult> {
   const headers = columns.map((path) => formatCSVHeaderName(path));
   output.write(
     formatCSVLine(
-      headers.map((header) => formatCSVValue(header, { delimiter })),
+      headers.map((header) =>
+        formatCSVValue(header, { delimiter, escapeFormulae })
+      ),
       { delimiter, linebreak }
     )
   );
@@ -141,6 +150,7 @@ async function _exportCSV({
     delimiter,
     linebreak,
     progressCallback,
+    escapeFormulae,
   });
 
   try {

@@ -5,7 +5,6 @@ export {
   isPreferenceNameValid,
   useIsAIFeatureEnabled,
   isAIFeatureEnabled,
-  useHasAIFeatureCloudRolloutAccess,
   proxyPreferenceToProxyOptions,
   proxyOptionsToProxyPreference,
 } from './utils';

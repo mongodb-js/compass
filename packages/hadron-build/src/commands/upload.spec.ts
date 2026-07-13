@@ -1,12 +1,28 @@
 import path from 'path';
 import { expect } from 'chai';
+import sinon from 'sinon';
+import yargs from 'yargs';
+import createCLI from 'mongodb-js-cli';
 import {
   versionId,
   readableVersionName,
   readablePlatformName,
   generateVersionsForAssets,
+  uploadCommand,
 } from './upload';
 import Target from '../lib/target';
+import { ROOT_DIR } from '../../test/test-helpers';
+
+async function runUpload(...args: string[]): Promise<void> {
+  await yargs(['upload', ...args])
+    .command(uploadCommand)
+    .version(false)
+    .exitProcess(false)
+    .fail((msg, err) => {
+      throw err ?? new Error(msg);
+    })
+    .parseAsync();
+}
 
 describe('upload', function () {
   describe('versionId', function () {
@@ -227,6 +243,124 @@ describe('upload', function () {
           version: '1.0.0 (Isolated Edition Stable)',
         },
       ]);
+    });
+  });
+
+  describe('command handler', function () {
+    let sandbox: sinon.SinonSandbox;
+    let originalEnv: NodeJS.ProcessEnv;
+
+    let loggerStub: sinon.SinonStub;
+
+    beforeEach(function () {
+      sandbox = sinon.createSandbox();
+      originalEnv = { ...process.env };
+
+      delete process.env.CI;
+      delete process.env.EVERGREEN_PROJECT;
+
+      const cli = Object.getPrototypeOf(createCLI('test'));
+      loggerStub = sandbox.stub(cli, 'error');
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+      process.env = originalEnv;
+    });
+
+    describe('option parsing', function () {
+      it('parses `--manifest` as a boolean `true`', async function () {
+        let parsed: any;
+        await yargs(['upload', '--manifest'])
+          .command({
+            ...uploadCommand,
+            handler: (argv) => {
+              parsed = argv;
+            },
+          })
+          .version(false)
+          .exitProcess(false)
+          .parseAsync();
+        expect(parsed.manifest).to.equal(true);
+      });
+
+      it('defaults `manifest` to boolean `false`', async function () {
+        let parsed: any;
+        await yargs(['upload'])
+          .command({
+            ...uploadCommand,
+            handler: (argv) => {
+              parsed = argv;
+            },
+          })
+          .version(false)
+          .exitProcess(false)
+          .parseAsync();
+        expect(parsed.manifest).to.equal(false);
+      });
+
+      it('parses a bare `--dry-run` flag as boolean `true`', async function () {
+        let parsed: any;
+        await yargs(['upload', '--dry-run'])
+          .command({
+            ...uploadCommand,
+            handler: (argv) => {
+              parsed = argv;
+            },
+          })
+          .version(false)
+          .exitProcess(false)
+          .parseAsync();
+        expect(parsed.dryRun).to.equal(true);
+      });
+    });
+
+    describe('environment guards', function () {
+      it('errors when publishing a release from a non-CI environment', async function () {
+        await runUpload('--dir', ROOT_DIR, '--version', '1.2.3');
+        expect(
+          loggerStub.calledWithMatch(
+            'Trying to publish a release from non-CI environment'
+          )
+        ).to.equal(true);
+      });
+
+      it('errors when publishing assets from a non-Evergreen CI environment', async function () {
+        process.env.CI = 'true';
+        // CI set, EVERGREEN_PROJECT unset, not a dry run, not a manifest run.
+        await runUpload('--dir', ROOT_DIR, '--version', '1.2.3');
+        expect(
+          loggerStub.calledWithMatch(
+            'Trying to publish assets from non-Evergreen CI environment'
+          )
+        ).to.equal(true);
+      });
+
+      it('errors for an unsupported publish channel', async function () {
+        process.env.CI = 'true';
+        process.env.EVERGREEN_PROJECT = 'compass-stable';
+        await runUpload('--dir', ROOT_DIR, '--version', '1.2.3-dev.0');
+        expect(
+          loggerStub.calledWithMatch('Skipping publish release for dev channel')
+        ).to.equal(true);
+      });
+
+      it('errors when the Evergreen project channel is unsupported', async function () {
+        process.env.CI = 'true';
+        process.env.EVERGREEN_PROJECT = 'compass-nightly';
+        await runUpload('--dir', ROOT_DIR, '--version', '1.2.3');
+        expect(
+          loggerStub.calledWithMatch('unsupported Evergreen project')
+        ).to.equal(true);
+      });
+
+      it('errors when the release channel mismatches the Evergreen project', async function () {
+        process.env.CI = 'true';
+        // `testing` project maps to `beta`, but version is stable.
+        process.env.EVERGREEN_PROJECT = 'compass-testing';
+        await runUpload('--dir', ROOT_DIR, '--version', '1.2.3');
+        expect(loggerStub.calledWithMatch('mismatched channel')).to.equal(true);
+      });
     });
   });
 });

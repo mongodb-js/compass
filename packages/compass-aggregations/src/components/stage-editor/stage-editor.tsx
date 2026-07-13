@@ -38,6 +38,7 @@ import {
   openEditSearchIndexDrawerView,
   openIndexesListDrawerView,
 } from '../../modules/search-indexes';
+import { disableFocusMode } from '../../modules/focus-mode';
 import type { SearchIndexType } from '../../modules/search-indexes';
 
 import {
@@ -109,6 +110,7 @@ type StageEditorProps = {
   onViewSearchIndexesClick: (indexName?: string) => void;
   onCreateSearchIndexClick: (searchIndexType: SearchIndexType) => void;
   onEditSearchIndexClick: (indexName: string) => void;
+  onCloseFocusMode?: () => void;
   editorRef?: React.Ref<EditorRef>;
 };
 
@@ -121,6 +123,7 @@ export const StageEditor = ({
   onViewSearchIndexesClick,
   onCreateSearchIndexClick,
   onEditSearchIndexClick,
+  onCloseFocusMode,
   serverError,
   serverErrorStageIdx,
   syntaxError,
@@ -262,6 +265,11 @@ export const StageEditor = ({
             onEditSearchIndexClick={
               editor_view_type !== 'focus' ? onEditSearchIndexClick : undefined
             }
+            stageOperator={stageOperator}
+            stageValue={stageValue}
+            onCloseFocusMode={
+              editor_view_type === 'focus' ? onCloseFocusMode : undefined
+            }
           />
         </div>
       )}
@@ -342,5 +350,6 @@ export default connect(
     onViewSearchIndexesClick: openIndexesListDrawerView,
     onCreateSearchIndexClick: openCreateSearchIndexDrawerView,
     onEditSearchIndexClick: openEditSearchIndexDrawerView,
+    onCloseFocusMode: disableFocusMode,
   }
 )(StageEditor);
