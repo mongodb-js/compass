@@ -57,7 +57,7 @@
     "electron-mocha": "^12.2.0",
     "mocha": "^10.2.0",
     "react-dom": "^17.0.2",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.3",
     "xvfb-maybe": "^0.2.1"
   },
   "homepage": "https://github.com/mongodb-js/compass",
