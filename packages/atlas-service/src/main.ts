@@ -469,23 +469,29 @@ export class CompassAuthService {
     }
   }
 
-  static isAuthenticatedAtlasAdminAPIRequest(req: Request): boolean {
-    const url = new URL(req.url);
+  static isAuthenticatedAtlasAdminApiRequest({
+    url,
+  }: {
+    url: string;
+  }): boolean {
+    const parsedUrl = new URL(url);
     return (
-      url.origin === new URL(this.config.atlasAdminApiBaseUrl).origin &&
+      parsedUrl.origin === new URL(this.config.atlasAdminApiBaseUrl).origin &&
       ATLAS_ADMIN_API_AUTH_ENDPOINTS.some((endpoint) => {
         if (typeof endpoint === 'string') {
-          return url.pathname === endpoint;
+          return parsedUrl.pathname === endpoint;
         }
-        return endpoint.test(url.pathname);
+        return endpoint.test(parsedUrl.pathname);
       })
     );
   }
 
-  static async maybeGetAuthHeaders(
-    req: Request
-  ): Promise<Record<string, string> | undefined> {
-    if (!this.isAuthenticatedAtlasAdminAPIRequest(req)) return;
+  static async maybeGetAuthHeaders({
+    url,
+  }: {
+    url: string;
+  }): Promise<Record<string, string> | undefined> {
+    if (!this.isAuthenticatedAtlasAdminApiRequest({ url })) return;
 
     const token = await this.maybeGetToken({
       tokenType: 'accessToken',

@@ -159,8 +159,8 @@ class CompassApplication {
       return;
     }
 
-    await this.setupCORSBypass();
     void this.setupCompassAuthService();
+    await this.setupCloudRequestHeaders();
     await setupCSFLELibrary();
     setupTheme(this);
     this.setupJavaScriptArguments();
@@ -182,20 +182,6 @@ class CompassApplication {
     await CompassAuthService.init(this.preferences, this.httpClient);
     this.addExitHandler(() => {
       return CompassAuthService.onExit();
-    });
-
-    protocol.handle('https', async (req) => {
-      if (req.headers.get('X-Compass-Auth') !== 'true') return net.fetch(req);
-
-      const authHeaders = await CompassAuthService.maybeGetAuthHeaders(req);
-      req.headers.delete('X-Compass-Auth');
-      if (authHeaders) {
-        for (const [key, value] of Object.entries(authHeaders)) {
-          req.headers.set(key, value);
-        }
-      }
-
-      return net.fetch(req);
     });
   }
 
@@ -441,7 +427,7 @@ class CompassApplication {
     return this;
   }
 
-  private static async setupCORSBypass() {
+  private static async setupCloudRequestHeaders() {
     const allowedCloudEndpoints = {
       urls: [
         '*://cloud.mongodb.com/*',
@@ -507,12 +493,21 @@ class CompassApplication {
 
     session.defaultSession.webRequest.onBeforeSendHeaders(
       allowedCloudEndpoints,
-      (details, callback) => {
+      async (details, callback) => {
         const filteredHeaders = Object.fromEntries(
           Object.entries(details.requestHeaders).filter(([name]) => {
             return !REQUEST_CORS_HEADERS.includes(name.toLowerCase());
           })
         );
+
+        if (details.requestHeaders['X-Compass-Auth'] === 'true') {
+          const authHeaders = await CompassAuthService.maybeGetAuthHeaders({
+            url: details.url,
+          });
+          Object.assign(filteredHeaders, authHeaders);
+          delete filteredHeaders['X-Compass-Auth'];
+        }
+
         callback({ requestHeaders: filteredHeaders });
       }
     );

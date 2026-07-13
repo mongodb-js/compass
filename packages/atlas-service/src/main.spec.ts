@@ -375,10 +375,10 @@ describe('CompassAuthServiceMain', function () {
       });
 
       it('should return auth headers for an Atlas Admin API request', async function () {
-        const req = new Request(
-          `${defaultConfig.atlasAdminApiBaseUrl}/v2/clusters`
-        );
-        const authHeaders = await CompassAuthService.maybeGetAuthHeaders(req);
+        const url = `${defaultConfig.atlasAdminApiBaseUrl}/v2/clusters`;
+        const authHeaders = await CompassAuthService.maybeGetAuthHeaders({
+          url,
+        });
         expect(authHeaders).to.have.property(
           'Authorization',
           `Bearer ${accessToken}`
@@ -386,9 +386,9 @@ describe('CompassAuthServiceMain', function () {
       });
 
       it('should return undefined for a non-Atlas Admin API request', async function () {
-        const req = new Request('http://example.com/api/private/some-endpoint');
+        const url = 'http://example.com/api/private/some-endpoint';
         expect(
-          await CompassAuthService.maybeGetAuthHeaders(req)
+          await CompassAuthService.maybeGetAuthHeaders({ url })
         ).to.be.undefined;
       });
 
@@ -408,8 +408,7 @@ describe('CompassAuthServiceMain', function () {
 
         for (const url of attackerUrls) {
           it(`returns undefined for ${url}`, async function () {
-            const req = { url } as Request;
-            expect(await CompassAuthService.maybeGetAuthHeaders(req)).to.be
+            expect(await CompassAuthService.maybeGetAuthHeaders({ url })).to.be
               .undefined;
           });
         }
