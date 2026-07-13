@@ -47,7 +47,7 @@
     "test-watch": "npm run test -- --watch",
     "test-ci": "npm run test-cov",
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write .",
-    "typecheck": "echo \"TODO(COMPASS-9897): typecheck is failing in test files\" && tsc -p tsconfig-build.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "bson": "^7.2.0",
