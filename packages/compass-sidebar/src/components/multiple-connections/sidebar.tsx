@@ -99,7 +99,7 @@ export function MultipleConnectionSidebar({
     string | undefined
   >(undefined);
   const [connectionsFilter, setConnectionsFilter] = useState<ConnectionsFilter>(
-    { regex: null, excludeInactive: false }
+    { regex: null, searchText: '', excludeInactive: false }
   );
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();

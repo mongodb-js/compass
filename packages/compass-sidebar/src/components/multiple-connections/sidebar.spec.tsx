@@ -490,6 +490,19 @@ describe('Multiple Connections Sidebar Component', function () {
           expect(screen.queryByText('No results found.')).to.be.null;
         });
 
+        it('should show "No results found." when the search pattern is invalid', async function () {
+          await renderAndWaitForNavigationTree();
+
+          const searchInput = screen.getByRole('searchbox', { name: 'Search' });
+          userEvent.type(searchInput, '(');
+
+          await waitFor(() => {
+            expect(screen.getByTestId('no-search-results')).to.be.visible;
+            expect(screen.getByText('No results found.')).to.be.visible;
+          });
+          expect(screen.queryByRole('tree')).to.be.null;
+        });
+
         context('and performing actions', function () {
           beforeEach(async function () {
             await renderAndWaitForNavigationTree({
