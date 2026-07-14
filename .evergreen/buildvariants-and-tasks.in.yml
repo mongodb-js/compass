@@ -111,6 +111,33 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   }
 ];
 
+const TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS = [
+  {
+    name: 'test-packaged-app-min-ubuntu',
+    display_name: 'Ubuntu 20.04 (min version)',
+    run_on: 'ubuntu2004-large',
+    depends_on: 'package-ubuntu',
+    task: 'test-packaged-app-min-version',
+  },
+  {
+    name: 'test-packaged-app-min-rhel',
+    display_name: 'RHEL 8.0 (min version)',
+    run_on: 'rhel80-large',
+    depends_on: 'package-rhel',
+    task: 'test-packaged-app-min-version',
+  },
+  {
+    // The packaged Electron app needs a GUI host to start a webdriver
+    // session, so this must run on a macOS GUI distro (not the non-GUI
+    // arm64 packaging distro).
+    name: 'test-packaged-app-min-macos-arm',
+    display_name: 'MacOS arm64 13 (min version)',
+    run_on: 'macos-13-arm64-gui',
+    depends_on: 'package-macos-arm',
+    task: 'test-packaged-app-min-version-macos13',
+  }
+];
+
 const EOL_SERVER_VERSIONS = [
   { name: '60x-community', version: '6.0.x', requiredForPublish: true },
   { name: '60x-enterprise', version: '6.0.x-enterprise', requiredForPublish: true },
@@ -260,6 +287,22 @@ buildvariants:
     <% for (const group of E2E_TEST_GROUPS) { %>
     - name: test-packaged-app-<%= group.number %>
     <% } %>
+<% } %>
+
+  # test-packaged-app on minimum supported platform versions: a small smoke
+  # (time-to-first-query only) against the packaged app on the oldest OS
+  # versions we support and build on. Not run on PRs (main pipeline only), same
+  # as test-eol-servers, to keep PR runs lean and avoid contending for the
+  # limited macOS GUI host fleet.
+<% for (const buildVariant of TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS) { %>
+  - name: <%= buildVariant.name %>
+    display_name: Test Packaged App <%= buildVariant.display_name %>
+    run_on: <%= buildVariant.run_on %>
+    depends_on:
+      - name: package-compass
+        variant: <%= buildVariant.depends_on %>
+    tasks:
+      - name: <%= buildVariant.task %>
 <% } %>
 
   - name: publish
@@ -570,6 +613,49 @@ tasks:
           debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 
 
+<% } %>
+
+  # Single, non-sharded smoke that runs only the time-to-first-query test
+  # against the packaged app. Used by the minimum-supported-version variants
+  # (COMPASS-9087). Two flavors: the default one, and a macOS-13 one that pins
+  # an older server version because the latest 8.0.x mongod is built for
+  # macOS 14+ and won't launch on macOS 13.
+<%
+  const MIN_VERSION_TASKS = [
+    { name: 'test-packaged-app-min-version', mongodb_version: LATEST_MAINTAINED_SERVER_VERSION.version, required_for_publish: true },
+    // Same as above but pins an older server: the latest 8.0.x mongod is
+    // built for macOS 14+ and won't launch on macOS 13.
+    { name: 'test-packaged-app-min-version-macos13', mongodb_version: '8.0.5', required_for_publish: true },
+  ];
+%>
+<% for (const task of MIN_VERSION_TASKS) { %>
+  - name: <%= task.name %>
+    tags:
+      <% if (task.required_for_publish) { %>
+      - required-for-publish-desktop
+      <% } %>
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: 'compass-e2e-tests'
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-packaged-app
+        vars:
+          mongodb_version: <%= task.mongodb_version %>
+          compass_distribution: compass
+          e2e_test_groups: 1
+          e2e_test_group: 1
+          packaged_app_test_args: '--test-filter="time-to-first-query"'
+          debug: 'compass-e2e-tests*,electron*,hadron*,mongo*'
 <% } %>
 
 <% for (const browser of BROWSERS) { %>
