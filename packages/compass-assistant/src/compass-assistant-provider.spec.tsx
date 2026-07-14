@@ -21,7 +21,6 @@ import {
   DrawerAnchor,
   DrawerContentProvider,
 } from '@mongodb-js/compass-components';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
 import { createBrokenTransport, createMockChat } from '../test/utils';
@@ -30,7 +29,6 @@ import {
   type AtlasAiService,
   type ToolsController,
 } from '@mongodb-js/compass-generative-ai/provider';
-import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { ActiveConnectionInfo } from './assistant-global-state';
 import {
@@ -84,10 +82,10 @@ function createMockProvider({
   }
 
   return CompassAssistantProvider.withMockServices({
-    atlasService: mockAtlasService as unknown as AtlasService,
-    atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
-    atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
-    toolsController: mockToolsController as unknown as ToolsController,
+    atlasService: mockAtlasService,
+    atlasAiService: mockAtlasAiService,
+    atlasAuthService: mockAtlasAuthService,
+    toolsController: mockToolsController,
   });
 }
 
@@ -122,10 +120,10 @@ const TestComponent: React.FunctionComponent<{
   currentTab,
 }) => {
   const MockedProvider = createMockProvider({
-    mockAtlasService: mockAtlasService as unknown as AtlasService,
-    mockAtlasAiService: mockAtlasAiService as unknown as AtlasAiService,
-    mockAtlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
-    mockToolsController: mockToolsController as unknown as ToolsController,
+    mockAtlasService: mockAtlasService,
+    mockAtlasAiService: mockAtlasAiService,
+    mockAtlasAuthService: mockAtlasAuthService,
+    mockToolsController: mockToolsController,
   });
 
   const FakeStateSetterComponent = () => {
@@ -982,7 +980,7 @@ describe('CompassAssistantProvider', function () {
               .returns('https://localhost:3000'),
           } as unknown as AtlasService,
           logger: createNoopLogger(),
-          track: track as unknown as TrackFunction,
+          track: track,
         });
         await renderOpenAssistantDrawer({
           chat,

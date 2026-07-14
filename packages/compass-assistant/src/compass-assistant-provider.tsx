@@ -313,9 +313,7 @@ export type AssistantThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   A
 >;
 
-const reducer = (
-  state: AssistantState = {} as AssistantState
-): AssistantState => state;
+const reducer = (state: AssistantState = {}): AssistantState => state;
 
 // Thunk action for the core send logic
 export function ensureOptInAndSendThunk(

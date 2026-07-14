@@ -223,7 +223,7 @@ describe('prompts', function () {
     const atlasDebuggerLine =
       '- atlas-connection-error-debugger: Returns Atlas-side diagnostics (cluster state, IP access list). Use to debug a Compass connection failure to an Atlas cluster.';
 
-    const noConnectionInstructions = (enableAtlasDebugger: boolean) =>
+    const noConnectionInstructions = (enableAtlasDebugger: boolean = false) =>
       `
 <instructions>
 Database tool calls require a focused connection. Tell the user to navigate to a connection if they try to use any of these tools:
@@ -245,7 +245,7 @@ Database tool calls require a focused connection. Tell the user to navigate to a
 </instructions>
     `.trim();
 
-    const toolCallingOffInabilities = (enableAtlasDebugger: boolean) =>
+    const toolCallingOffInabilities = (enableAtlasDebugger: boolean = false) =>
       `
 <inabilities>
 You CANNOT:
@@ -303,9 +303,7 @@ You SHOULD:
           activeCollectionSubTab: null,
           enableGenAIToolCalling: false,
         },
-        expected: `The user does not have any tabs open.\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The user does not have any tabs open.\n\n${toolCallingOffInabilities()}`,
       },
       // No active tab (tools enabled)
       {
@@ -316,9 +314,7 @@ You SHOULD:
           activeCollectionSubTab: null,
           enableGenAIToolCalling: true,
         },
-        expected: `${noConnectionInstructions(
-          false
-        )}\n\nThe user does not have any tabs open.\n\n${toolCallingOnAbilities}`,
+        expected: `${noConnectionInstructions()}\n\nThe user does not have any tabs open.\n\n${toolCallingOnAbilities}`,
       },
       // No active tab (tools enabled, atlas debugger enabled)
       {
@@ -360,9 +356,7 @@ You SHOULD:
           activeCollectionSubTab: null,
           enableGenAIToolCalling: false,
         },
-        expected: `The user is on the "Welcome" tab.\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The user is on the "Welcome" tab.\n\n${toolCallingOffInabilities()}`,
       },
       // My Queries
       {
@@ -376,9 +370,7 @@ You SHOULD:
           activeCollectionSubTab: null,
           enableGenAIToolCalling: false,
         },
-        expected: `The user is on the "My Queries" tab.\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The user is on the "My Queries" tab.\n\n${toolCallingOffInabilities()}`,
       },
       // Data Modeling
       {
@@ -392,9 +384,7 @@ You SHOULD:
           activeCollectionSubTab: null,
           enableGenAIToolCalling: false,
         },
-        expected: `The user is on the "Data Modeling" tab.\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The user is on the "Data Modeling" tab.\n\n${toolCallingOffInabilities()}`,
       },
       // Databases
       {
@@ -413,9 +403,7 @@ You SHOULD:
           activeCollectionSubTab: null,
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Databases" tab.\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Databases" tab.\n\n${toolCallingOffInabilities()}`,
       },
       // Performance
       {
@@ -434,9 +422,7 @@ You SHOULD:
           activeCollectionSubTab: null,
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Performance" tab.\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Performance" tab.\n\n${toolCallingOffInabilities()}`,
       },
       // Shell
       {
@@ -455,9 +441,7 @@ You SHOULD:
           activeCollectionSubTab: null,
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Shell" tab.\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Shell" tab.\n\n${toolCallingOffInabilities()}`,
       },
       // Collections
       {
@@ -477,9 +461,7 @@ You SHOULD:
           activeCollectionSubTab: null,
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Collections" tab for the "test" namespace.\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Collections" tab for the "test" namespace.\n\n${toolCallingOffInabilities()}`,
       },
       // Normal Collection
       {
@@ -508,9 +490,7 @@ You SHOULD:
           activeCollectionSubTab: 'Schema',
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Schema" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Schema" tab for the "test.normal" namespace. "test.normal" does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOffInabilities()}`,
       },
       // Collection, Aggregations tab with enableGenAIToolCalling=true
       {
@@ -568,9 +548,7 @@ You SHOULD:
           activeCollectionSubTab: 'Aggregations',
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Aggregations" tab for the "test.timeseries" namespace. "test.timeseries" is a time-series collection, does not support Atlas Search indexes. Server version: \n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Aggregations" tab for the "test.timeseries" namespace. "test.timeseries" is a time-series collection, does not support Atlas Search indexes. Server version: \n\n${toolCallingOffInabilities()}`,
       },
       // View Collection
       {
@@ -600,9 +578,7 @@ You SHOULD:
           activeCollectionSubTab: 'Documents',
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Documents" tab for the "test.view" namespace. "test.view" is a view on the "test.normal" collection, does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Documents" tab for the "test.view" namespace. "test.view" is a view on the "test.normal" collection, does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOffInabilities()}`,
       },
       // Clustered Collection
       {
@@ -631,9 +607,7 @@ You SHOULD:
           activeCollectionSubTab: 'Schema',
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Schema" tab for the "test.clustered" namespace. "test.clustered" is a clustered collection, does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Schema" tab for the "test.clustered" namespace. "test.clustered" is a clustered collection, does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOffInabilities()}`,
       },
       // FLE Collection
       {
@@ -662,9 +636,7 @@ You SHOULD:
           activeCollectionSubTab: 'Documents',
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Documents" tab for the "test.encrypted" namespace. "test.encrypted" has encrypted fields, does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Documents" tab for the "test.encrypted" namespace. "test.encrypted" has encrypted fields, does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOffInabilities()}`,
       },
       // Collection with Search Indexes Support
       {
@@ -693,9 +665,7 @@ You SHOULD:
           activeCollectionSubTab: 'Indexes',
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "cluster.mongodb.net". The redacted connection string is "mongodb+srv://cluster.mongodb.net/". Database tool calls will be made against this connection.\n\nThe user is on the "Indexes" tab for the "test.searchable" namespace. "test.searchable" supports Atlas Search indexes. The instance is Atlas. Server version: 7.0.0\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "cluster.mongodb.net". The redacted connection string is "mongodb+srv://cluster.mongodb.net/". Database tool calls will be made against this connection.\n\nThe user is on the "Indexes" tab for the "test.searchable" namespace. "test.searchable" supports Atlas Search indexes. The instance is Atlas. Server version: 7.0.0\n\n${toolCallingOffInabilities()}`,
       },
       // Data Lake Collection
       {
@@ -724,9 +694,7 @@ You SHOULD:
           activeCollectionSubTab: 'Documents',
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "datalake.mongodb.net". The redacted connection string is "mongodb+srv://datalake.mongodb.net/". Database tool calls will be made against this connection.\n\nThe user is on the "Documents" tab for the "test.datalake" namespace. "test.datalake" does not support Atlas Search indexes. The instance is Data Lake and Atlas. Server version: 6.0.0\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "datalake.mongodb.net". The redacted connection string is "mongodb+srv://datalake.mongodb.net/". Database tool calls will be made against this connection.\n\nThe user is on the "Documents" tab for the "test.datalake" namespace. "test.datalake" does not support Atlas Search indexes. The instance is Data Lake and Atlas. Server version: 6.0.0\n\n${toolCallingOffInabilities()}`,
       },
       // Collection with multiple features
       {
@@ -755,9 +723,7 @@ You SHOULD:
           activeCollectionSubTab: 'Aggregations',
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "cluster.mongodb.net". The redacted connection string is "mongodb+srv://cluster.mongodb.net/". Database tool calls will be made against this connection.\n\nThe user is on the "Aggregations" tab for the "test.multifeature" namespace. "test.multifeature" is a time-series collection, is a clustered collection, has encrypted fields, supports Atlas Search indexes. The instance is Atlas. Server version: 8.0.0\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "cluster.mongodb.net". The redacted connection string is "mongodb+srv://cluster.mongodb.net/". Database tool calls will be made against this connection.\n\nThe user is on the "Aggregations" tab for the "test.multifeature" namespace. "test.multifeature" is a time-series collection, is a clustered collection, has encrypted fields, supports Atlas Search indexes. The instance is Atlas. Server version: 8.0.0\n\n${toolCallingOffInabilities()}`,
       },
       // Collection without server version
       {
@@ -786,9 +752,7 @@ You SHOULD:
           activeCollectionSubTab: 'Documents',
           enableGenAIToolCalling: false,
         },
-        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Documents" tab for the "test.noversion" namespace. "test.noversion" does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOffInabilities(
-          false
-        )}`,
+        expected: `The focused connection is named "localhost:27017". The redacted connection string is "mongodb://localhost:27017/". Database tool calls will be made against this connection.\n\nThe user is on the "Documents" tab for the "test.noversion" namespace. "test.noversion" does not support Atlas Search indexes. Server version: 7.0.0\n\n${toolCallingOffInabilities()}`,
       },
     ];
 
