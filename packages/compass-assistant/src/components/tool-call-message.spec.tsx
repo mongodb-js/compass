@@ -122,6 +122,19 @@ describe('ToolCallMessage', function () {
 
       expect(screen.queryByText(defaultConnection.name)).to.not.exist;
     });
+
+    it('does not display connection chip for atlas-connection-error-debugger', function () {
+      const toolCall: ToolUIPart = {
+        ...baseToolCall,
+        type: 'tool-atlas-connection-error-debugger',
+      };
+
+      render(
+        <ToolCallMessage connection={defaultConnection} toolCall={toolCall} />
+      );
+
+      expect(screen.queryByText(defaultConnection.name)).to.not.exist;
+    });
   });
 
   describe('tool call states', function () {

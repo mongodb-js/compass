@@ -303,9 +303,7 @@ export class ToolsController {
             'Executing atlas-connection-error-debugger tool'
           );
 
-          return await this.atlasService.debugConnection(
-            args.connectionStringå
-          );
+          return await this.atlasService.debugConnection(args.connectionString);
         },
       };
     }
