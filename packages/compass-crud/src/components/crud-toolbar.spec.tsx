@@ -407,6 +407,41 @@ describe('CrudToolbar Component', function () {
     });
   });
 
+  describe('when there is only a single add data action', function () {
+    beforeEach(async function () {
+      await preferences.savePreferences({ enableImportExport: false });
+    });
+
+    it('renders the add data control as a button instead of a dropdown', function () {
+      renderCrudToolbar();
+
+      expect(screen.getByTestId('crud-add-data')).to.be.visible;
+      expect(screen.queryByTestId('crud-add-data-show-actions')).to.not.exist;
+      expect(screen.getByTestId('crud-add-data')).to.have.text(
+        'Insert document'
+      );
+    });
+
+    it('calls insertDataHandler with "insert-document" when clicked', function () {
+      const insertDataHandler = sinon.spy();
+      renderCrudToolbar({ insertDataHandler });
+
+      userEvent.click(screen.getByTestId('crud-add-data'));
+
+      expect(insertDataHandler).to.have.been.calledOnceWithExactly(
+        'insert-document'
+      );
+    });
+
+    it('disables the button when the instance is not writable', function () {
+      renderCrudToolbar({ isWritable: false });
+
+      expect(
+        screen.getByTestId('crud-add-data').getAttribute('aria-disabled')
+      ).to.equal('true');
+    });
+  });
+
   describe('when the documents are outdated', function () {
     beforeEach(function () {
       renderCrudToolbar({

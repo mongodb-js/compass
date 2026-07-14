@@ -8,6 +8,7 @@ import {
 } from '../helpers/compass.ts';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import { isTestingWebAtlasCloud } from '../helpers/test-runner-context.ts';
+import { openInsertDocumentModal } from '../helpers/commands/try-to-insert-document.ts';
 
 const DATABASE_NAME = 'collections_db';
 const TEST_COLLECTION_NAME = 'test_collection_1';
@@ -105,10 +106,7 @@ describe('Atlas: Database with large number of collections', function () {
     const uniqueValue = `test_${Date.now()}`;
 
     // Open the insert document modal
-    await browser.clickVisible(Selectors.AddDataButton);
-    const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
-    await insertDocumentOption.waitForDisplayed();
-    await browser.clickVisible(Selectors.InsertDocumentOption);
+    await openInsertDocumentModal(browser);
 
     // Wait for the modal to appear
     await browser.waitForOpenModal(Selectors.InsertDialog);

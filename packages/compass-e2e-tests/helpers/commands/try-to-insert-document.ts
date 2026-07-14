@@ -1,16 +1,24 @@
 import type { CompassBrowser } from '../compass-browser.ts';
 import * as Selectors from '../selectors.ts';
+import { isTestingWeb } from '../test-runner-context.ts';
 import { expect } from 'chai';
+
+// In compass-web import/export is disabled so we only show
+// an insert document button.
+export async function openInsertDocumentModal(browser: CompassBrowser) {
+  if (isTestingWeb()) {
+    await browser.clickVisible(Selectors.InsertDocumentButton);
+  } else {
+    await browser.clickVisible(Selectors.AddDataButton);
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+  }
+}
 
 export async function tryToInsertDocument(
   browser: CompassBrowser,
   document?: string
 ) {
-  // browse to the "Insert to Collection" modal
-  await browser.clickVisible(Selectors.AddDataButton);
-  const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
-  await insertDocumentOption.waitForDisplayed();
-  await browser.clickVisible(Selectors.InsertDocumentOption);
+  await openInsertDocumentModal(browser);
 
   // wait for the modal to appear
   await browser.waitForOpenModal(Selectors.InsertDialog);

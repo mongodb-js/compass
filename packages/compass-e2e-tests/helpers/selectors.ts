@@ -595,6 +595,7 @@ export const DocumentListFetchingStopButton =
   '[data-testid="documents-content"] [data-testid="fetching-documents"] button';
 export const DocumentListError = '[data-testid="document-list-error-summary"]';
 export const AddDataButton = '[data-testid="crud-add-data-show-actions"]';
+export const InsertDocumentButton = '[data-testid="crud-add-data"]';
 export const EditDocumentButton = '[data-testid="edit-document-button"]';
 export const InsertDocumentOption =
   '[data-testid="crud-add-data-insert-document-action"]';

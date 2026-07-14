@@ -1,9 +1,11 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import {
+  Button,
   Icon,
   Tooltip,
   DropdownMenuButton,
   css,
+  isSeparatorMenuAction,
 } from '@mongodb-js/compass-components';
 import type { MenuAction } from '@mongodb-js/compass-components';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -116,6 +118,25 @@ function AddDataMenuButton({
   const handleClickCapture = useCallback(() => {
     setHasOpenedMenu(true);
   }, []);
+
+  if (
+    addDataActions.length === 1 &&
+    !isSeparatorMenuAction(addDataActions[0])
+  ) {
+    return (
+      <Button
+        data-testid="crud-add-data"
+        onClick={() => handleAction(addDataActions[0].action)}
+        size="xsmall"
+        variant="primary"
+        leftGlyph={<Icon glyph="PlusWithCircle" />}
+        disabled={isDisabled}
+        className={addDataMenuButtonStyles}
+      >
+        {addDataActions[0].label}
+      </Button>
+    );
+  }
 
   return (
     <span
