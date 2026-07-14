@@ -21,7 +21,7 @@ import {
   type AssistantMessage,
 } from '../compass-assistant-provider';
 import sinon from 'sinon';
-import type { ChatTransport, SourceUrlUIPart, TextPart } from 'ai';
+import type { SourceUrlUIPart, TextPart } from 'ai';
 import { Chat } from '../@ai-sdk/react/chat-react';
 import {
   ToolsControllerProvider,
@@ -105,9 +105,7 @@ describe('AssistantChat', function () {
     };
     const result = render(
       <ToolsControllerProvider>
-        <AssistantActionsContext.Provider
-          value={assistantActionsContext as any}
-        >
+        <AssistantActionsContext.Provider value={assistantActionsContext}>
           <AssistantChat chat={chat} hasNonGenuineConnections={false} />
         </AssistantActionsContext.Provider>
       </ToolsControllerProvider>,
@@ -395,7 +393,7 @@ describe('AssistantChat', function () {
       // Create a chat with the mock transport
       const chat = new Chat<AssistantMessage>({
         messages: [],
-        transport: mockTransport as ChatTransport<AssistantMessage>,
+        transport: mockTransport,
       });
 
       // Create messages with a tool call in progress
