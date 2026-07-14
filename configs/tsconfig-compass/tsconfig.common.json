@@ -1,12 +1,9 @@
 {
-  "extends": "@mongodb-js/tsconfig-devtools/tsconfig.common.json",
   "compilerOptions": {
+    // Copy of https://www.npmjs.com/package/@tsconfig/node24 + DOM as we're a
+    // mixed runtime environment
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    // Defaults would do, but tsconfig-devtools overrides it to less preferable
-    // values
-    //
-    // https://www.npmjs.com/package/@tsconfig/node22 + DOM
     "lib": [
       "es2024",
       "ESNext.Array",
@@ -17,8 +14,15 @@
       "DOM.AsyncIterable",
       "ESNext.Disposable"
     ],
-    "target": "es2022",
-    "removeComments": false,
+    "target": "es2024",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    // ------
+
+    // Compass-specific config
+    "outDir": "${configDir}/dist",
+    "forceConsistentCasingInFileNames": true,
     "erasableSyntaxOnly": true,
     // Most of our code uses React / jsx
     "jsx": "react",
@@ -26,6 +30,17 @@
     "allowJs": true,
     // Allows to run TypeScript code directly with node
     "allowImportingTsExtensions": true,
-    "noEmit": true
+    // "Common" config is not meant for building the distribution assets
+    "noEmit": true,
+    // ------
+
+    // TS6+ requires explicit rootDir to be set, for common config it's just the
+    // root of the package
+    "rootDir": "${configDir}/.",
+    // TS6+ doesn't autoresolve @types packages unless explicitly asked to do
+    // so. Autoresolution makes the builds slower, but is convenient. We might
+    // want to revisit this and set up an explicit list, for the initial update
+    // we're restoring old behavior
+    "types": ["*"]
   }
 }

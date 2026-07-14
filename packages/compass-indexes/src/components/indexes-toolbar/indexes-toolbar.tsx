@@ -25,9 +25,9 @@ import { createSearchIndexOpened } from '../../modules/search-indexes';
 import { createIndexOpened } from '../../modules/create-index';
 import type { IndexView } from '../../modules/index-view';
 import { indexViewChanged } from '../../modules/index-view';
-import type { CollectionStats } from '../../modules/collection-stats';
-import type { Document } from 'mongodb';
 import { VIEW_PIPELINE_UTILS } from '@mongodb-js/mongodb-constants';
+import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compatible';
+import { shouldShowIndexesToolbarButtons } from '../../utils/should-show-indexes-toolbar-buttons';
 import {
   useSearchActivationProgramP1,
   useTelemetry,
@@ -44,6 +44,9 @@ const toolbarButtonsContainer = css({
 const indexesToolbarContainerStyles = css({
   padding: spacing[400],
   paddingBottom: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[200],
 });
 
 const alignSelfEndStyles = css({
@@ -87,8 +90,8 @@ type IndexesToolbarProps = {
   onCreateSearchIndexClick: () => void;
   writeStateDescription?: string;
   isSearchIndexesSupported: boolean;
-  // via withPreferences:
-  collectionStats: CollectionStats;
+  hasSearchIndexes?: boolean;
+  isViewPipelineSearchQueryable?: boolean;
 };
 
 export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
@@ -107,7 +110,8 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   onRefreshIndexes,
   onIndexViewChanged,
   serverVersion,
-  collectionStats,
+  hasSearchIndexes = false,
+  isViewPipelineSearchQueryable = true,
 }) => {
   const {
     readWrite: preferencesReadWrite,
@@ -134,24 +138,23 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   ) : (
     <Icon glyph="Refresh" title="Refresh Indexes" />
   );
-  const isViewPipelineSearchQueryable =
-    isReadonlyView && collectionStats?.pipeline
-      ? VIEW_PIPELINE_UTILS.isPipelineSearchQueryable(
-          collectionStats.pipeline as Document[]
-        )
-      : true;
+
+  const showToolbarButtons = shouldShowIndexesToolbarButtons({
+    isReadonlyView,
+    serverVersion,
+    isSearchManagementActive,
+    isViewPipelineSearchQueryable,
+    hasSearchIndexes,
+  });
   const pipelineNotSearchQueryableDescription =
     'Search indexes can only be created on views containing $match stages with the $expr operator, $addFields, or $set';
+
   return (
     <div
       className={indexesToolbarContainerStyles}
       data-testid="indexes-toolbar-container"
     >
-      {(!isReadonlyView ||
-        (VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
-          serverVersion
-        ) &&
-          isSearchManagementActive)) && (
+      {showToolbarButtons && (
         <div data-testid="indexes-toolbar">
           <div className={toolbarButtonsContainer}>
             {showCreateIndexButton && (
@@ -402,27 +405,30 @@ export const CreateIndexButton: React.FunctionComponent<
   );
 };
 
-const mapState = ({
-  namespace,
-  isWritable,
-  isReadonlyView,
-  isSearchIndexesSupported,
-  description,
-  serverVersion,
-  searchIndexes,
-  indexView,
-  collectionStats,
-}: RootState) => ({
-  namespace,
-  isWritable,
-  isReadonlyView,
-  isSearchIndexesSupported,
-  writeStateDescription: description,
-  indexView,
-  serverVersion,
-  searchIndexes,
-  collectionStats,
-});
+const mapState = (state: RootState) => {
+  const { isViewPipelineSearchQueryable } = selectIsViewSearchCompatible(state);
+  const {
+    namespace,
+    isWritable,
+    isReadonlyView,
+    isSearchIndexesSupported,
+    description,
+    serverVersion,
+    searchIndexes,
+    indexView,
+  } = state;
+  return {
+    namespace,
+    isWritable,
+    isReadonlyView,
+    isSearchIndexesSupported,
+    writeStateDescription: description,
+    indexView,
+    serverVersion,
+    hasSearchIndexes: searchIndexes.indexes.length > 0,
+    isViewPipelineSearchQueryable,
+  };
+};
 
 const mapDispatch = {
   onCreateRegularIndexClick: () => createIndexOpened(),

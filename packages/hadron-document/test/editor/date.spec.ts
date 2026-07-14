@@ -62,7 +62,7 @@ describe('DateEditor', function () {
   describe('#edit', function () {
     const dateString = '2017-01-01 00:00:00.000';
     const date = new Date(dateString);
-    const element = new Element('date', date, false);
+    const element = new Element('date', date);
 
     context('when the date string is valid', function () {
       const dateEditor = new DateEditor(element);
@@ -110,7 +110,7 @@ describe('DateEditor', function () {
   describe('#complete', function () {
     const dateString = '2017-01-01 00:00:00.000';
     const date = new Date(dateString);
-    const element = new Element('date', date, false);
+    const element = new Element('date', date);
     context('when the date string is valid', function () {
       const dateEditor = new DateEditor(element);
       const newValidString = '2017-01-01 12:00:00.000';
@@ -160,7 +160,7 @@ describe('DateEditor', function () {
     context('when the ui is in edit mode', function () {
       const dateString = '2017-01-01 00:00:00.000';
       const date = new Date(dateString);
-      const element = new Element('date', date, false);
+      const element = new Element('date', date);
 
       const dateEditor = new DateEditor(element);
 
@@ -177,7 +177,7 @@ describe('DateEditor', function () {
       context('when the date is valid', function () {
         const dateString = '2017-01-01 00:00:00.000';
         const date = new Date(dateString);
-        const element = new Element('date', date, false);
+        const element = new Element('date', date);
 
         const dateEditor = new DateEditor(element);
 
@@ -189,7 +189,7 @@ describe('DateEditor', function () {
       context('when the date is not valid', function () {
         const dateString = '2017-01-01 00:00:00.000';
         const date = new Date(dateString);
-        const element = new Element('date', date, false);
+        const element = new Element('date', date);
 
         const dateEditor = new DateEditor(element);
 
@@ -208,7 +208,7 @@ describe('DateEditor', function () {
     context('when the ui is in edit mode', function () {
       const dateString = '2017-01-01 00:00:00.000';
       const date = new Date(dateString);
-      const element = new Element('date', date, false);
+      const element = new Element('date', date);
 
       const dateEditor = new DateEditor(element);
 
@@ -226,7 +226,7 @@ describe('DateEditor', function () {
       context('when the date is valid', function () {
         const formattedDateString = '2017-01-01T00:00:00.000+00:00';
         const date = new Date(formattedDateString);
-        const element = new Element('date', date, false);
+        const element = new Element('date', date);
 
         const dateEditor = new DateEditor(element);
 
@@ -238,7 +238,7 @@ describe('DateEditor', function () {
       context('when the date is not valid', function () {
         const dateString = '2017-01-01 00:00:00.000';
         const date = new Date(dateString);
-        const element = new Element('date', date, false);
+        const element = new Element('date', date);
 
         const dateEditor = new DateEditor(element);
 

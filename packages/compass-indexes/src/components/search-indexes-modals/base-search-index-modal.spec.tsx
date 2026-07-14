@@ -15,6 +15,7 @@ import {
   userEvent,
   wait,
   within,
+  cleanup,
 } from '@mongodb-js/testing-library-compass';
 
 import React from 'react';
@@ -66,6 +67,7 @@ function renderBaseSearchIndexModal(
       isBusy={false}
       onSubmit={sinon.fake()}
       onClose={sinon.fake()}
+      onClearError={sinon.fake()}
       error={'Invalid index definition.'}
       {...props}
     />,
@@ -422,6 +424,31 @@ describe('Base Search Index Modal', function () {
     });
   });
 
+  describe('server error clearing', function () {
+    afterEach(function () {
+      cleanup();
+    });
+
+    it('clears the server error when the definition is edited', async function () {
+      const onClearErrorSpy = sinon.spy();
+      renderBaseSearchIndexModal({
+        error: 'Invalid index definition.',
+        onClearError: onClearErrorSpy,
+      });
+
+      expect(await screen.findByText('Invalid index definition.')).to.exist;
+
+      await setCodemirrorEditorValue(
+        'definition-of-search-index',
+        VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING
+      );
+
+      await waitFor(() => {
+        expect(onClearErrorSpy).to.have.been.called;
+      });
+    });
+  });
+
   describe('when rendered with the auto-embedding preview flag on', function () {
     beforeEach(function () {
       renderBaseSearchIndexModal(
@@ -528,6 +555,151 @@ describe('Base Search Index Modal', function () {
       expect(banner.textContent).to.include(
         'You cannot edit an autoEmbed field'
       );
+    });
+  });
+
+  describe('update mode Save button', function () {
+    const indexDefinitionString = JSON.stringify(
+      VALID_ATLAS_SEARCH_INDEX_DEFINITION
+    );
+
+    const modifiedIndexDefinition = {
+      fields: [
+        {
+          type: 'vector',
+          path: 'pineapple',
+          numDimensions: 500,
+          similarity: 'cosine',
+        },
+      ],
+    };
+
+    function renderUpdateModal(onSubmitSpy: SinonSpy) {
+      renderBaseSearchIndexModal({
+        mode: 'update',
+        initialIndexName: 'idx',
+        initialIndexDefinition: indexDefinitionString,
+        initialIndexType: 'search',
+        onSubmit: onSubmitSpy,
+        // Exercise the button behaviour without an inherited server error.
+        error: undefined,
+      });
+    }
+
+    it('disables the Save button until the index definition is modified', async function () {
+      renderUpdateModal(sinon.spy());
+      const submitButton = screen.getByTestId('search-index-submit-button');
+
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
+
+      await setCodemirrorEditorValue(
+        'definition-of-search-index',
+        JSON.stringify({
+          fields: [
+            {
+              type: 'vector',
+              path: 'pineapple',
+              numDimensions: 500,
+              similarity: 'cosine',
+            },
+          ],
+        })
+      );
+
+      await waitFor(() => {
+        expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
+      });
+    });
+
+    it('submits the modified definition when Save is clicked', async function () {
+      const onSubmitSpy = sinon.spy();
+      renderUpdateModal(onSubmitSpy);
+
+      const newDefinition = {
+        fields: [
+          {
+            type: 'vector',
+            path: 'pineapple',
+            numDimensions: 500,
+            similarity: 'cosine',
+          },
+        ],
+      };
+      await setCodemirrorEditorValue(
+        'definition-of-search-index',
+        JSON.stringify(newDefinition)
+      );
+
+      const submitButton = screen.getByTestId('search-index-submit-button');
+      await waitFor(() => {
+        expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
+      });
+      userEvent.click(submitButton);
+      expect(onSubmitSpy).to.have.been.calledOnceWithExactly({
+        name: 'idx',
+        definition: newDefinition,
+        type: 'search',
+      });
+    });
+
+    it('re-disables the Save button when the definition is reverted to its original value', async function () {
+      renderUpdateModal(sinon.spy());
+      const submitButton = screen.getByTestId('search-index-submit-button');
+
+      await setCodemirrorEditorValue(
+        'definition-of-search-index',
+        JSON.stringify(modifiedIndexDefinition)
+      );
+      await waitFor(() => {
+        expect(submitButton.getAttribute('aria-disabled')).to.equal('false');
+      });
+
+      await setCodemirrorEditorValue(
+        'definition-of-search-index',
+        indexDefinitionString
+      );
+      await waitFor(() => {
+        expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
+      });
+    });
+
+    it('keeps the Save button disabled for a formatting-only edit', async function () {
+      renderUpdateModal(sinon.spy());
+      const submitButton = screen.getByTestId('search-index-submit-button');
+
+      // Same definition, different formatting (pretty-printed instead of compact).
+      const reformatted = JSON.stringify(
+        VALID_ATLAS_SEARCH_INDEX_DEFINITION,
+        null,
+        2
+      );
+      await setCodemirrorEditorValue('definition-of-search-index', reformatted);
+
+      await waitFor(() => {
+        expect(getCodemirrorEditorValue('definition-of-search-index')).to.equal(
+          reformatted
+        );
+      });
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
+    });
+
+    it('does not submit when the disabled Save button is clicked', function () {
+      const onSubmitSpy = sinon.spy();
+      renderUpdateModal(onSubmitSpy);
+      const submitButton = screen.getByTestId('search-index-submit-button');
+
+      expect(submitButton.getAttribute('aria-disabled')).to.equal('true');
+      userEvent.click(submitButton);
+      expect(onSubmitSpy).to.not.have.been.called;
+    });
+
+    it('shows the updated resource-usage note copy', function () {
+      renderUpdateModal(sinon.spy());
+      expect(
+        screen.getByText(
+          'Note: Updating the index definition will consume additional resources on your cluster.'
+        )
+      ).to.be.visible;
     });
   });
 

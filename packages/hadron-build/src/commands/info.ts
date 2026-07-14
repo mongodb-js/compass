@@ -22,12 +22,13 @@ function buildInfoCommandOptions(yargs: Argv) {
     },
     flatten: {
       description: 'Flatten the config object into dot notation',
-      boolean: true,
+      type: 'boolean' as const,
       default: false,
     },
     dir: {
       description: 'Project root directory',
       default: process.cwd(),
+      type: 'string' as const,
     },
     version: {
       description: 'Target version',

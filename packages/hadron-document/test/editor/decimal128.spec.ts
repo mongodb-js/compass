@@ -6,7 +6,7 @@ import { expect } from 'chai';
 describe('Decimal128Editor', function () {
   describe('#start', function () {
     const decimal128Value = Decimal128.fromString('-7.50E+3');
-    const element = new Element('field', decimal128Value, false);
+    const element = new Element('field', decimal128Value);
 
     context('when the current type is not edited and is valid', function () {
       const decimal128Editor = new Decimal128Editor(element);
@@ -56,7 +56,7 @@ describe('Decimal128Editor', function () {
 
   describe('#edit', function () {
     const decimal128Value = Decimal128.fromString('12.2');
-    const element = new Element('field', decimal128Value, false);
+    const element = new Element('field', decimal128Value);
 
     context(
       'when the current value is edited to a valid decimal128',
@@ -116,7 +116,7 @@ describe('Decimal128Editor', function () {
 
   describe('#complete', function () {
     const decimal128Value = Decimal128.fromString('-1.23');
-    const element = new Element('field', decimal128Value, false);
+    const element = new Element('field', decimal128Value);
 
     context(
       'when the current value is edited to a valid decimal128',
