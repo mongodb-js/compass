@@ -93,7 +93,7 @@ describe('Shell', function () {
 
       const output = await getShellOutputText(browser);
       expect(output.slice(0, 3)).to.deep.equal([
-        'use my-sidebar-database',
+        'use("my-sidebar-database")',
         'switched to db my-sidebar-database',
         'db["my-sidebar-collection"].find()',
       ]);

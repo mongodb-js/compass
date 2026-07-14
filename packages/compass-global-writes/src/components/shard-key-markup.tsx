@@ -24,7 +24,7 @@ export function ShardKeyMarkup({
   let markup = shardKey.fields
     .map(
       (field) =>
-        `"${field.name}"` +
+        `${JSON.stringify(field.name)}` +
         (showMetaData ? ` (${field.type.toLowerCase()})` : '')
     )
     .join(', ');

@@ -225,6 +225,34 @@ Respond with as much concision and clarity as possible. Do not recommend changes
   }
 };
 
+export type DebugSearchErrorContext = {
+  stageOperator: string;
+  stageValue: string;
+  errorMessage: string;
+};
+
+export const buildDebugSearchErrorPrompt = ({
+  stageOperator,
+  stageValue,
+  errorMessage,
+}: DebugSearchErrorContext): EntryPointMessage => ({
+  prompt: `The user's ${stageOperator} stage failed with the following error:
+
+<error>
+${errorMessage}
+</error>
+
+<input>
+${stageValue}
+</input>
+
+Diagnose why the aggregation pipeline is failing and provide step-by-step guidance to fix it.`,
+  metadata: {
+    displayText:
+      'Diagnose why my aggregation pipeline is failing and help me debug it.',
+  },
+});
+
 export type AnalyzeOutputContext = {
   pipeline: string;
   output: string;
@@ -256,8 +284,12 @@ ${pipeline}
 
 Output:
 ${output}
-</context>
-
+</context>`,
+    metadata: {
+      displayText,
+      // Must stay in `instructions`, not `prompt`: `prompt` persists in chat
+      // history and would leak into later, unrelated entry points.
+      instructions: `
 <output-format>
 # Summary
 [1-3 sentence summary of your full analysis.]
@@ -291,9 +323,8 @@ ${FOLLOW_UP_QUESTIONS_HEADER}
 - For question 1, always use the exact wording above, replacing [_id of first document] and [_id of second document] with the actual _id values of the first two documents from the Output context.
 - For question 2, always use the exact wording above, replacing [context-specific example based on the document fields and search query] with a relevant example drawn from the document fields and search query in the context.
 - Only include the ${FOLLOW_UP_QUESTIONS_HEADER} section in your initial analysis response. Do not include it when responding to follow-up questions.
-</guidelines>`,
-    metadata: {
-      displayText,
+</guidelines>
+`,
       confirmation: {
         description:
           'Search result documents, including document fields and score details, may be used to process your request.',
@@ -335,6 +366,37 @@ Error message:
 ${connectionError}`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
+    },
+  };
+};
+
+export type DiagnoseSearchStageContext = {
+  stageOperator: string;
+  indexName: string | null;
+  stageValue: string;
+};
+
+export const buildDiagnoseSearchStagePrompt = ({
+  stageOperator,
+  indexName,
+  stageValue,
+}: DiagnoseSearchStageContext): EntryPointMessage => {
+  const indexClause = indexName ? ` with index "${indexName}"` : '';
+  return {
+    prompt: `The user's ${stageOperator} stage${indexClause} returned no results.
+
+<input>
+${stageValue}
+</input>
+
+If tools are available, use the \`get-current-pipeline\` tool to inspect the full pipeline and the \`collection-indexes\` tool to check what search indexes exist on this collection.
+
+Respond with two sections:
+**Diagnosis:** explain concisely why the ${stageOperator} stage returned no results.
+**Solution:** provide the specific actionable steps to fix it.`,
+    metadata: {
+      displayText:
+        'Diagnose why my aggregation pipeline is not returning results.',
     },
   };
 };

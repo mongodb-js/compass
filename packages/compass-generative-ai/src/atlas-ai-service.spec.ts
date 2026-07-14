@@ -113,39 +113,6 @@ describe('AtlasAiService', function () {
         });
       });
 
-      describe('setupAIAccess', function () {
-        beforeEach(async function () {
-          await preferences.savePreferences({
-            cloudFeatureRolloutAccess: undefined,
-          });
-        });
-
-        it('should set the cloudFeatureRolloutAccess true', async function () {
-          const fetchStub = sandbox.stub().resolves(
-            makeResponse({
-              features: {
-                GEN_AI_COMPASS: {
-                  enabled: true,
-                },
-              },
-            })
-          );
-          global.fetch = fetchStub;
-
-          let currentCloudFeatureRolloutAccess =
-            preferences.getPreferences().cloudFeatureRolloutAccess;
-          expect(currentCloudFeatureRolloutAccess).to.equal(undefined);
-
-          await atlasAiService['setupAIAccess']();
-
-          currentCloudFeatureRolloutAccess =
-            preferences.getPreferences().cloudFeatureRolloutAccess;
-          expect(currentCloudFeatureRolloutAccess).to.deep.equal({
-            GEN_AI_COMPASS: true,
-          });
-        });
-      });
-
       describe('optIntoGenAIFeatures', function () {
         beforeEach(async function () {
           // Reset preferences
@@ -188,19 +155,7 @@ describe('AtlasAiService', function () {
       });
 
       describe('getMockDataSchema', function () {
-        beforeEach(async function () {
-          // Enable the AI feature
-          const fetchStub = sandbox.stub().resolves(
-            makeResponse({
-              features: {
-                GEN_AI_COMPASS: {
-                  enabled: true,
-                },
-              },
-            })
-          );
-          global.fetch = fetchStub;
-          await atlasAiService['setupAIAccess']();
+        beforeEach(function () {
           global.fetch = initialFetch;
         });
 
@@ -888,7 +843,7 @@ describe('AtlasAiService', function () {
       });
     }
 
-    beforeEach(async function () {
+    beforeEach(function () {
       const mockAtlasService = new MockAtlasService();
       atlasAiService = new AtlasAiService({
         apiURLPreset: 'cloud',
@@ -896,22 +851,6 @@ describe('AtlasAiService', function () {
         preferences,
         logger: createNoopLogger(),
       });
-      // Enable the AI feature
-      const fetchStub = sandbox.stub().resolves(
-        makeResponse({
-          features: {
-            GEN_AI_COMPASS: {
-              enabled: true,
-            },
-          },
-        })
-      );
-      global.fetch = fetchStub;
-      await atlasAiService['setupAIAccess']();
-    });
-
-    after(function () {
-      global.fetch = initialFetch;
     });
 
     const testCases = [

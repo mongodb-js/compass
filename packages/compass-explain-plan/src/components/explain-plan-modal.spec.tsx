@@ -80,9 +80,6 @@ describe('ExplainPlanModal', function () {
           enableAIAssistant: true,
           enableGenAIFeatures: true,
           enableGenAIFeaturesAtlasOrg: true,
-          cloudFeatureRolloutAccess: {
-            GEN_AI_COMPASS: true,
-          },
         },
       }
     );
@@ -106,7 +103,6 @@ describe('ExplainPlanModal', function () {
           enableAIAssistant: true,
           enableGenAIFeatures: true,
           enableGenAIFeaturesAtlasOrg: true,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
         },
       }
     );

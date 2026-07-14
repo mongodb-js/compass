@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Jul 07 2026.
+This document was automatically generated on Mon Jul 13 2026.
 
 ## List of dependencies
 
@@ -358,7 +358,7 @@ This document was automatically generated on Tue Jul 07 2026.
 | **[jose](#9bf013b12d5fa87804279a368fe71609a841374b58c2dd067d0ebf14a989b98b)**                                               | 6.1.3        | MIT                                 |
 | **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**                                          | 4.0.0        | MIT                                 |
 | **[js-yaml-js-types](#94fe5e72af8a132923f015d2da5fc0d6cc8d214f0b2b3eca7f42fbf67f09cbf5)**                                   | 1.0.1        | MIT                                 |
-| **[js-yaml](#af705ed1eb31f1af61a3698569d8e0370c173e67024075b4f306d8c9010f1298)**                                            | 4.1.1        | MIT                                 |
+| **[js-yaml](#4f38198b2bf4c5ff18c053030b97639d00ee388d640c87b5adef64dacd5da317)**                                            | 4.3.0        | MIT                                 |
 | **[jsbn](#936d5c89291f7b505f688e45ff8261d3f225f96e0e981fd0366a9efda9e0e7f2)**                                               | 1.1.0        | MIT                                 |
 | **[jsesc](#ea0becb009dc00e5116c19296121a196c13ad07e74e6a35b68220ae5e3aac71c)**                                              | 3.1.0        | MIT                                 |
 | **[json-bigint](#88c834751617826d41739bc9c4eda53c24014d5a030f6265ec4ea569c58cf995)**                                        | 1.0.0        | MIT                                 |
@@ -369,7 +369,6 @@ This document was automatically generated on Tue Jul 07 2026.
 | **[jsonfile](#1504ddbe5031429f6d90bb02373b4629ff5da9ef4e869d5015ff42f685817e74)**                                           | 6.1.0        | MIT                                 |
 | **[kerberos](#118e57a43325eba33fbd06ce570305305296ff20b64f9c885d90306d4abce40e)**                                           | 7.0.0        | Apache-2.0                          |
 | **[key-tree-store](#63e3bcb8e06ac6b9f7c153030ce57fad6e985a0cc7f0109d3fc6073192a932f8)**                                     | 1.3.0        | MIT                                 |
-| **[keytar](#752f1130bbd6c5dc941bdb20fb39579c1d350252a112c58f2558b7c5f536d6f7)**                                             | 7.9.0        | MIT                                 |
 | **[leaflet-defaulticon-compatibility](#7fba582082c899d764d8e4214d2f6f06cd043b2dce51598ec24ce299f5640a6e)**                  | 0.1.1        | BSD-2-Clause                        |
 | **[leaflet-draw](#d3f67d0a666ece9171dffece3f3db67430e7055b1e8b857d806555d65b720d0e)**                                       | 1.0.4        | MIT                                 |
 | **[leaflet](#0c77955158defdd249f5abf69232ca350038122d4fc768826d9d79ce402761f4)**                                            | 1.5.1        | BSD-2-Clause                        |
@@ -432,7 +431,6 @@ This document was automatically generated on Tue Jul 07 2026.
 | **[negotiator](#617fa350c7c0fe851efe2301be0dfe1e0a38808562f7dbd2e655d30b17730ccc)**                                         | 1.0.0        | MIT                                 |
 | **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**                                            | 2.0.2        | MIT                                 |
 | **[node-abi](#60b91071d5bcb34e939a0d91e2292df844057f90bff2eaa84de9da328f6792ba)**                                           | 3.75.0       | MIT                                 |
-| **[node-addon-api](#af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8)**                                     | 4.3.0        | MIT                                 |
 | **[node-addon-api](#e7486763beec09dbdc97b04188281671ab43bf57761b71a087741fe5db541d00)**                                     | 8.5.0        | MIT                                 |
 | **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**                                         | 5.1.2        | MIT                                 |
 | **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**                                  | 1.0.0        | MIT                                 |
@@ -25646,9 +25644,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="af705ed1eb31f1af61a3698569d8e0370c173e67024075b4f306d8c9010f1298"></a>
+<a id="4f38198b2bf4c5ff18c053030b97639d00ee388d640c87b5adef64dacd5da317"></a>
 
-### [js-yaml](https://www.npmjs.com/package/js-yaml) (version 4.1.1)
+### [js-yaml](https://www.npmjs.com/package/js-yaml) (version 4.3.0)
 
 License tags: MIT
 
@@ -26158,37 +26156,6 @@ License files:
 ### [key-tree-store](https://www.npmjs.com/package/key-tree-store) (version 1.3.0)
 
 License tags: MIT
-
-<a id="752f1130bbd6c5dc941bdb20fb39579c1d350252a112c58f2558b7c5f536d6f7"></a>
-
-### [keytar](https://www.npmjs.com/package/keytar) (version 7.9.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE.md:
-
-      Copyright (c) 2013 GitHub Inc.
-
-      Permission is hereby granted, free of charge, to any person obtaining
-      a copy of this software and associated documentation files (the
-      "Software"), to deal in the Software without restriction, including
-      without limitation the rights to use, copy, modify, merge, publish,
-      distribute, sublicense, and/or sell copies of the Software, and to
-      permit persons to whom the Software is furnished to do so, subject to
-      the following conditions:
-
-      The above copyright notice and this permission notice shall be
-      included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-      EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-      NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-      LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-      OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-      WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <a id="7fba582082c899d764d8e4214d2f6f06cd043b2dce51598ec24ce299f5640a6e"></a>
 
@@ -30068,30 +30035,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
-
-<a id="af9f7588524ca4e68f4efe7b24aea46d9c8004263b1d7cf3b558f86d87a163e8"></a>
-
-### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 4.3.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE.md:
-
-      The MIT License (MIT)
-      =====================
-
-      Copyright (c) 2017 Node.js API collaborators
-      -----------------------------------
-
-      *Node.js API collaborators listed at <https://github.com/nodejs/node-addon-api#collaborators>*
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 <a id="e7486763beec09dbdc97b04188281671ab43bf57761b71a087741fe5db541d00"></a>
 

@@ -1,9 +1,14 @@
 {
   "extends": "./tsconfig.common.json",
   "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "removeComments": false,
     // Disable "common" options that wouldn't allow us to compile
     "allowImportingTsExtensions": false,
     "noEmit": false,
-    "skipLibCheck": true
+    // TS6+ requires explicit rootDir to be set, for build config it's always
+    // the ./src dir
+    "rootDir": "${configDir}/src"
   }
 }

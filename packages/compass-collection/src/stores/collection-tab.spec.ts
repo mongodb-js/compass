@@ -119,7 +119,6 @@ describe('Collection Tab Content store', function () {
     preferences = new ReadOnlyPreferenceAccess({
       enableGenAIFeatures: true,
       enableGenAIFeaturesAtlasOrg: true,
-      cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
     }),
     collectionMetadata: Partial<CollectionMetadata> = defaultMetadata
   ) => {
@@ -251,7 +250,6 @@ describe('Collection Tab Content store', function () {
       const mockPreferences = new ReadOnlyPreferenceAccess({
         enableGenAIFeatures: true,
         enableGenAIFeaturesAtlasOrg: false, // Disabled at org level
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
       });
 
       const store = await configureStore(
@@ -916,7 +914,6 @@ describe('Collection Tab Content store', function () {
           preferences: new ReadOnlyPreferenceAccess({
             enableGenAIFeatures: true,
             enableGenAIFeaturesAtlasOrg: true,
-            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
           }),
         },
         mockActivateHelpers
@@ -988,7 +985,6 @@ describe('Collection Tab Content store', function () {
           preferences: new ReadOnlyPreferenceAccess({
             enableGenAIFeatures: true,
             enableGenAIFeaturesAtlasOrg: true,
-            cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
           }),
         },
         mockActivateHelpers

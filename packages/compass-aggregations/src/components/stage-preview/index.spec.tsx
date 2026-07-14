@@ -1,11 +1,7 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
 import type { Document } from 'mongodb';
-import {
-  screen,
-  cleanup,
-  userEvent,
-} from '@mongodb-js/testing-library-compass';
+import { screen, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import HadronDocument from 'hadron-document';
@@ -21,6 +17,7 @@ import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 import { StagePreview } from './';
 import {
@@ -31,58 +28,65 @@ import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
 
-const renderStagePreview = (
+const AI_ASSISTANT_PREFERENCES = {
+  enableAIAssistant: true,
+  enableGenAIFeatures: true,
+  enableGenAIFeaturesAtlasOrg: true,
+};
+
+const renderStagePreview = async (
   props: Partial<ComponentProps<typeof StagePreview>> = {},
   pipeline = DEFAULT_PIPELINE,
   storeOptions: Partial<ConfigureStoreOptions> = {},
   {
     enableSearchActivationP1Experiment = false,
     enableSearchActivationP2Experiment = false,
+    enableAIAssistant = false,
     preferences,
     interpretAnalyzeOutput,
+    diagnoseSearchStage,
   }: {
     enableSearchActivationP1Experiment?: boolean;
     enableSearchActivationP2Experiment?: boolean;
+    enableAIAssistant?: boolean;
     preferences?: PreferencesAccess;
     interpretAnalyzeOutput?: Sinon.SinonSpy;
+    diagnoseSearchStage?: Sinon.SinonSpy;
   } = {}
 ) => {
-  let ui: React.ReactElement = (
-    <StagePreview
-      documents={[]}
-      index={Math.max(pipeline.length - 1, 0)}
-      isLoading={false}
-      isDisabled={false}
-      isMissingAtlasOnlyStageSupport={false}
-      stageOperator=""
-      stageMetadata={null}
-      shouldRenderStage={false}
-      showSearchIndexStaleResultsBanner={false}
-      searchIndexName={null}
-      serverErrorStageIdx={null}
-      pipeline={null}
-      {...props}
-    />
+  const experimentVariant = enableSearchActivationP1Experiment
+    ? ExperimentTestGroups.searchActivationProgramP1Variant
+    : enableSearchActivationP2Experiment
+    ? ExperimentTestGroups.searchActivationProgramP2Variant
+    : null;
+  const preferencesAccess = await createSandboxFromDefaultPreferences();
+  if (enableAIAssistant) {
+    await preferencesAccess.savePreferences(AI_ASSISTANT_PREFERENCES);
+  }
+  const ui = wrapWithExperimentProvider(
+    <AssistantActionsContext.Provider
+      value={{ interpretAnalyzeOutput, diagnoseSearchStage }}
+    >
+      <PreferencesProvider value={preferencesAccess}>
+        <StagePreview
+          documents={[]}
+          index={Math.max(pipeline.length - 1, 0)}
+          isLoading={false}
+          isDisabled={false}
+          isMissingAtlasOnlyStageSupport={false}
+          stageOperator=""
+          stageMetadata={null}
+          shouldRenderStage={false}
+          showSearchIndexStaleResultsBanner={false}
+          searchIndexName={null}
+          serverErrorStageIdx={null}
+          pipeline={null}
+          {...props}
+        />
+      </PreferencesProvider>
+    </AssistantActionsContext.Provider>,
+    experimentVariant
   );
-  if (interpretAnalyzeOutput) {
-    ui = (
-      <AssistantActionsContext.Provider value={{ interpretAnalyzeOutput }}>
-        {ui}
-      </AssistantActionsContext.Provider>
-    );
-  }
-  if (enableSearchActivationP1Experiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP1Variant
-    );
-  }
-  if (enableSearchActivationP2Experiment) {
-    ui = wrapWithExperimentProvider(
-      ui,
-      ExperimentTestGroups.searchActivationProgramP2Variant
-    );
-  }
   return renderWithStore(
     ui,
     { pipeline, ...storeOptions },
@@ -92,7 +96,6 @@ const renderStagePreview = (
 };
 
 describe('StagePreview', function () {
-  afterEach(cleanup);
   it('renders empty content when stage is disabled', async function () {
     await renderStagePreview({
       isDisabled: true,
@@ -165,6 +168,107 @@ describe('StagePreview', function () {
       documents: [],
     });
     expect(screen.getByText('No preview documents')).to.exist;
+    expect(
+      screen.getByText(
+        'This may be because your search has no results or your search index does not exist.'
+      )
+    ).to.exist;
+  });
+  it('renders diagnose button for $search with no results when in search activation p2', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      {
+        enableSearchActivationP2Experiment: true,
+        enableAIAssistant: true,
+        diagnoseSearchStage: Sinon.spy(),
+      }
+    );
+    expect(screen.getByTestId('stage-preview-empty')).to.exist;
+    expect(screen.getByTestId('stage-preview-diagnose-search-button')).to.exist;
+  });
+  it('calls diagnoseSearchStage with the stage context when the diagnose button is clicked', async function () {
+    const diagnoseSearchStageSpy = Sinon.spy();
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+        stageValue: '{ "index": "movies" }',
+        searchIndexName: 'movies',
+      },
+      DEFAULT_PIPELINE,
+      {},
+      {
+        enableSearchActivationP2Experiment: true,
+        enableAIAssistant: true,
+        diagnoseSearchStage: diagnoseSearchStageSpy,
+      }
+    );
+    userEvent.click(screen.getByTestId('stage-preview-diagnose-search-button'));
+    expect(diagnoseSearchStageSpy).to.have.been.calledOnceWith({
+      stageOperator: '$search',
+      indexName: 'movies',
+      stageValue: '{ "index": "movies" }',
+    });
+  });
+  it('does not render diagnose button when not in search activation p2', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      { enableAIAssistant: true }
+    );
+    expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
+      .exist;
+  });
+  it('does not render diagnose button when the assistant is disabled', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$search',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      { enableSearchActivationP2Experiment: true }
+    );
+    expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
+      .exist;
+    // Falls back to the search-specific no-results messaging rather than the
+    // generic "No preview documents".
+    expect(
+      screen.getByText(
+        'This may be because your search has no results or your search index does not exist.'
+      )
+    ).to.exist;
+  });
+  it('does not render diagnose button for $vectorSearch even when in search activation p2', async function () {
+    await renderStagePreview(
+      {
+        shouldRenderStage: true,
+        stageOperator: '$vectorSearch',
+        documents: [],
+      },
+      DEFAULT_PIPELINE,
+      {},
+      {
+        enableSearchActivationP2Experiment: true,
+        enableAIAssistant: true,
+      }
+    );
+    expect(screen.queryByTestId('stage-preview-diagnose-search-button')).to.not
+      .exist;
+    // Non-$search search stages keep the SearchNoResults messaging under P2.
     expect(
       screen.getByText(
         'This may be because your search has no results or your search index does not exist.'
@@ -334,7 +438,7 @@ describe('StagePreview', function () {
         .exist;
     });
 
-    it('does not render a chip for null score entries', async function () {
+    it('does not render a chip for documents without a matching score entry', async function () {
       await renderStagePreview(
         {
           shouldRenderStage: true,
@@ -342,7 +446,7 @@ describe('StagePreview', function () {
           documents: [{ _id: 1 }, { _id: 2 }],
           stageMetadata: {
             type: '$search',
-            scores: [{ value: 1.5, description: 'sum of:', details: [] }, null],
+            scores: [{ value: 1.5, description: 'sum of:', details: [] }],
           },
         },
         DEFAULT_PIPELINE,
@@ -369,18 +473,6 @@ describe('StagePreview', function () {
   });
 
   describe('analyze output button', function () {
-    let preferences: PreferencesAccess;
-
-    beforeEach(async function () {
-      preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableAIAssistant: true,
-        enableGenAIFeatures: true,
-        enableGenAIFeaturesAtlasOrg: true,
-        cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
-      });
-    });
-
     it('renders the button for $search stage with documents and score metadata when P2 experiment is enabled', async function () {
       await renderStagePreview(
         {
@@ -394,7 +486,11 @@ describe('StagePreview', function () {
         },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchActivationP2Experiment: true, preferences }
+        {
+          enableSearchActivationP2Experiment: true,
+          enableAIAssistant: true,
+          interpretAnalyzeOutput: Sinon.spy(),
+        }
       );
       expect(screen.getByTestId('analyze-search-output-button')).to.exist;
     });
@@ -409,7 +505,7 @@ describe('StagePreview', function () {
         },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchActivationP2Experiment: true, preferences }
+        { enableSearchActivationP2Experiment: true, enableAIAssistant: true }
       );
       expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
     });
@@ -423,7 +519,7 @@ describe('StagePreview', function () {
         },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchActivationP2Experiment: true, preferences }
+        { enableSearchActivationP2Experiment: true, enableAIAssistant: true }
       );
       expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
     });
@@ -437,7 +533,7 @@ describe('StagePreview', function () {
         },
         DEFAULT_PIPELINE,
         {},
-        { enableSearchActivationP2Experiment: true, preferences }
+        { enableSearchActivationP2Experiment: true, enableAIAssistant: true }
       );
       expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
     });
@@ -451,7 +547,7 @@ describe('StagePreview', function () {
         },
         DEFAULT_PIPELINE,
         {},
-        { preferences }
+        { enableSearchActivationP2Experiment: false, enableAIAssistant: true }
       );
       expect(screen.queryByTestId('analyze-search-output-button')).to.not.exist;
     });
@@ -474,7 +570,7 @@ describe('StagePreview', function () {
         {},
         {
           enableSearchActivationP2Experiment: true,
-          preferences,
+          enableAIAssistant: true,
           interpretAnalyzeOutput: interpretAnalyzeOutputSpy,
         }
       );
@@ -509,7 +605,7 @@ describe('StagePreview', function () {
         {},
         {
           enableSearchActivationP2Experiment: true,
-          preferences,
+          enableAIAssistant: true,
           interpretAnalyzeOutput: interpretAnalyzeOutputSpy,
         }
       );

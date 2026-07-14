@@ -63,7 +63,7 @@
     "nyc": "^15.1.0",
     "react-dom": "^17.0.2",
     "sinon": "^8.1.1",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "dependencies": {
     "@mongodb-js/compass-app-registry": "^9.12.1",
@@ -78,7 +78,7 @@
     "@mongodb-js/compass-schema": "^7.1.0",
     "@mongodb-js/compass-telemetry": "^1.31.0",
     "@mongodb-js/compass-workspaces": "^1.1.0",
-    "@mongodb-js/mongodb-constants": "^0.32.1",
+    "@mongodb-js/mongodb-constants": "^0.33.0",
     "bson": "^7.2.0",
     "compass-preferences-model": "^3.1.0",
     "javascript-stringify": "^2.0.1",

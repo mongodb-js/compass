@@ -4,7 +4,7 @@
   "productName": "MongoDB Compass",
   "description": "The MongoDB GUI",
   "homepage": "https://www.mongodb.com/products/compass",
-  "version": "1.49.11",
+  "version": "1.49.12-beta.0",
   "apiVersion": "3.0.0",
   "main": "build/main.js",
   "author": {
@@ -129,7 +129,6 @@
       "rebuild": {
         "onlyModules": [
           "interruptor",
-          "keytar",
           "kerberos",
           "os-dns-native",
           "native-machine-id",
@@ -186,7 +185,6 @@
     "@mongosh/node-runtime-worker-thread": "^5.2.7",
     "clipboard": "^2.0.6",
     "kerberos": "^7.0.0",
-    "keytar": "^7.9.0",
     "mongodb-client-encryption": "^7.0.0",
     "native-machine-id": "^0.3.6",
     "os-dns-native": "^2.0.1",
@@ -286,5 +284,5 @@
     "macos-export-certificate-and-key": "^2.0.1",
     "win-export-certificate-and-key": "^3.0.2"
   },
-  "releasePublisher": "Basit Chonka <basit.chonka@mongodb.com>"
+  "releasePublisher": "Sergey Petushkov <sergey.petushkov@mongodb.com>"
 }
