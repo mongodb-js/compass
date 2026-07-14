@@ -201,6 +201,7 @@ export function renderWithProvider(
   preferences?: Partial<{
     enableGenAIToolCallingAtlasProject: boolean;
     enableGenAIToolCalling: boolean;
+    enableAtlasConnectionErrorDebugger: boolean;
   }>,
   { projectId }: { projectId?: string } = {}
 ) {
