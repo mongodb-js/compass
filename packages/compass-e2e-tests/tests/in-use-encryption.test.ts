@@ -24,7 +24,7 @@ async function refresh(browser: CompassBrowser, connectionName: string) {
   // hit refresh, then wait for a transition to occur that will correlate to the
   // data actually being refreshed and arriving.
 
-  await browser.selectConnectionMenuItem(
+  await browser.pages.sidebar.selectConnectionMenuItem(
     connectionName,
     Selectors.RefreshDatabasesItem,
     false
@@ -199,7 +199,7 @@ describe('CSFLE / QE', function () {
       // in the multiple connections world, if we clicked the connection it
       // would connect and that's not what we want in this case. So we select
       // edit from the menu.
-      await browser.selectConnectionMenuItem(
+      await browser.pages.sidebar.selectConnectionMenuItem(
         connectionName,
         Selectors.EditConnectionItem
       );
@@ -1004,10 +1004,7 @@ describe('CSFLE / QE', function () {
         });
 
         await browser.clickVisible(
-          Selectors.sidebarConnectionActionButton(
-            connectionName,
-            Selectors.InUseEncryptionMarker
-          )
+          browser.pages.sidebar.$inUseEncryptionMarker(connectionName)
         );
 
         await browser.waitForOpenModal(Selectors.CSFLEConnectionModal);
@@ -1030,10 +1027,7 @@ describe('CSFLE / QE', function () {
         });
 
         await browser.clickVisible(
-          Selectors.sidebarConnectionActionButton(
-            connectionName,
-            Selectors.InUseEncryptionMarker
-          )
+          browser.pages.sidebar.$inUseEncryptionMarker(connectionName)
         );
 
         await browser.waitForOpenModal(Selectors.CSFLEConnectionModal);

@@ -22,7 +22,9 @@ describe('readWrite: true', function () {
     await browser.setupDefaultConnections();
     await createNumbersCollection('numbers', 1000, true);
     await browser.connectToDefaults();
-    connId = await browser.getConnectionIdByName(getDefaultConnectionNames(0));
+    connId = await browser.pages.sidebar.getConnectionIdByName(
+      getDefaultConnectionNames(0)
+    );
   });
 
   afterEach(async function () {

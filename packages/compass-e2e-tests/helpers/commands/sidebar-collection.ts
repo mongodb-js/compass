@@ -8,12 +8,14 @@ export async function selectCollectionMenuItem(
   collectionName: string,
   actionName: string
 ) {
-  const connectionId = await browser.getConnectionIdByName(connectionName);
+  const connectionId = await browser.pages.sidebar.getConnectionIdByName(
+    connectionName
+  );
 
   // search for the view in the sidebar
-  await browser.clickVisible(Selectors.SidebarFilterInput);
+  await browser.clickVisible(browser.pages.sidebar.$filterInput);
   await browser.setValueVisible(
-    Selectors.SidebarFilterInput,
+    browser.pages.sidebar.$filterInput,
     `${databaseName}.${collectionName}`
   );
 
@@ -24,10 +26,10 @@ export async function selectCollectionMenuItem(
   );
 
   // scroll to the collection if necessary
-  await browser.scrollToVirtualItem(
-    Selectors.SidebarNavigationTree,
-    collectionSelector,
-    'tree'
+  await browser.pages.sidebar.scrollToCollection(
+    connectionId,
+    databaseName,
+    collectionName
   );
 
   const collectionElement = browser.$(collectionSelector);

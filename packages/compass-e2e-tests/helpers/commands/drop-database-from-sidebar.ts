@@ -6,11 +6,13 @@ export async function dropDatabaseFromSidebar(
   connectionName: string,
   dbName: string
 ): Promise<void> {
-  const connectionId = await browser.getConnectionIdByName(connectionName);
+  const connectionId = await browser.pages.sidebar.getConnectionIdByName(
+    connectionName
+  );
 
   // search for the database in the sidebar filter
-  await browser.clickVisible(Selectors.SidebarFilterInput);
-  await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
+  await browser.clickVisible(browser.pages.sidebar.$filterInput);
+  await browser.setValueVisible(browser.pages.sidebar.$filterInput, dbName);
   await browser
     .$(Selectors.sidebarDatabase(connectionId, dbName))
     .waitForDisplayed();

@@ -21,7 +21,9 @@ async function navigateToCollection(
   // state of Schema, and Validation tabs without re-connecting.
   closeExistingTabs = true
 ): Promise<void> {
-  const connectionId = await browser.getConnectionIdByName(connectionName);
+  const connectionId = await browser.pages.sidebar.getConnectionIdByName(
+    connectionName
+  );
 
   const collectionSelector = Selectors.sidebarCollection(
     connectionId,
@@ -34,9 +36,9 @@ async function navigateToCollection(
   }
 
   // search for the collection and wait for the collection to be there and visible
-  await browser.clickVisible(Selectors.SidebarFilterInput);
+  await browser.clickVisible(browser.pages.sidebar.$filterInput);
   await browser.setValueVisible(
-    Selectors.SidebarFilterInput,
+    browser.pages.sidebar.$filterInput,
     `${dbName}.${collectionName}`
   );
   const collectionElement = browser.$(collectionSelector);
@@ -71,7 +73,7 @@ export async function navigateToCollectionTab(
   );
 
   // wait for the tooltip to be gone
-  await browser.clickVisible(Selectors.SidebarFilterInput);
+  await browser.clickVisible(browser.pages.sidebar.$filterInput);
   await browser
     .$(Selectors.WorkspaceTabTooltip)
     .waitForDisplayed({ reverse: true });
@@ -79,7 +81,7 @@ export async function navigateToCollectionTab(
   await navigateWithinCurrentCollectionTabs(browser, tabName);
 
   // I don't know why, but sometimes the tooltip is shown at this point again
-  await browser.clickVisible(Selectors.SidebarFilterInput);
+  await browser.clickVisible(browser.pages.sidebar.$filterInput);
   await browser
     .$(Selectors.WorkspaceTabTooltip)
     .waitForDisplayed({ reverse: true });

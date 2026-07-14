@@ -31,7 +31,7 @@ describe('Instance sidebar', function () {
     await createNumbersCollection();
     await browser.disconnectAll();
     await browser.connectToDefaults();
-    connectionId = await browser.getConnectionIdByName(
+    connectionId = await browser.pages.sidebar.getConnectionIdByName(
       getDefaultConnectionNames(0)
     );
   });
@@ -47,7 +47,7 @@ describe('Instance sidebar', function () {
   it('has a connection info modal with connection info', async function () {
     skipForWeb(this, "these actions don't exist in compass-web");
 
-    await browser.selectConnectionMenuItem(
+    await browser.pages.sidebar.selectConnectionMenuItem(
       getDefaultConnectionNames(0),
       Selectors.ClusterInfoItem
     );
@@ -71,45 +71,45 @@ describe('Instance sidebar', function () {
       Selectors.sidebarDatabaseToggle(connectionId, dbName)
     );
 
-    const collectionSelector = Selectors.sidebarCollection(
+    await browser.pages.sidebar.scrollToCollection(
       connectionId,
       dbName,
       collectionName
     );
-    await browser.scrollToVirtualItem(
-      Selectors.SidebarNavigationTree,
-      collectionSelector,
-      'tree'
+    const collectionElement = browser.$(
+      Selectors.sidebarCollection(connectionId, dbName, collectionName)
     );
-    const collectionElement = browser.$(collectionSelector);
     await collectionElement.waitForDisplayed();
   });
 
   it('can search for a collection', async function () {
     // wait for something to appear so we can be sure that things went away vs just not appearing yet
     await browser.waitUntil(async () => {
-      const numTreeItems = await browser.$$(Selectors.SidebarTreeItems).length;
+      const numTreeItems = await browser.pages.sidebar.$$treeItems.length;
       return numTreeItems > 0;
     });
 
     // search for something that cannot be found to get the results to a known empty state
-    await browser.clickVisible(Selectors.SidebarFilterInput);
+    await browser.clickVisible(browser.pages.sidebar.$filterInput);
     await browser.setValueVisible(
-      Selectors.SidebarFilterInput,
+      browser.pages.sidebar.$filterInput,
       'this does not exist'
     );
 
     // make sure there's nothing visible
     await browser.waitUntil(async () => {
-      const numTreeItems = await browser.$$(Selectors.SidebarTreeItems).length;
+      const numTreeItems = await browser.pages.sidebar.$$treeItems.length;
       return numTreeItems === 0;
     });
 
     // now search for something specific
-    await browser.setValueVisible(Selectors.SidebarFilterInput, 'numbers');
+    await browser.setValueVisible(
+      browser.pages.sidebar.$filterInput,
+      'numbers'
+    );
 
     await browser.waitUntil(async () => {
-      const numTreeItems = await browser.$$(Selectors.SidebarTreeItems).length;
+      const numTreeItems = await browser.pages.sidebar.$$treeItems.length;
       // connection, database, collection (twice because there are two
       // connections for non-cloud tests)
       return numTreeItems === (isTestingWebAtlasCloud() ? 3 : 6);
@@ -120,21 +120,18 @@ describe('Instance sidebar', function () {
     );
     expect(await dbElement.isDisplayed()).to.be.true;
 
-    const collectionSelector = Selectors.sidebarCollection(
+    await browser.pages.sidebar.scrollToCollection(
       connectionId,
       'test',
       'numbers'
     );
-    await browser.scrollToVirtualItem(
-      Selectors.SidebarNavigationTree,
-      collectionSelector,
-      'tree'
-    );
 
-    const collectionElement = browser.$(collectionSelector);
+    const collectionElement = browser.$(
+      Selectors.sidebarCollection(connectionId, 'test', 'numbers')
+    );
     expect(await collectionElement.isDisplayed()).to.be.true;
 
-    await browser.setValueVisible(Selectors.SidebarFilterInput, '*');
+    await browser.setValueVisible(browser.pages.sidebar.$filterInput, '*');
 
     // wait for something that didn't match the previous search to show up to make sure that it reset
     // (otherwise future tests will fail because the new dbs/collections won't match the filter)
@@ -160,7 +157,7 @@ describe('Instance sidebar', function () {
     );
 
     // open the create database modal from the sidebar
-    await browser.selectConnectionMenuItem(
+    await browser.pages.sidebar.selectConnectionMenuItem(
       getDefaultConnectionNames(0),
       Selectors.CreateDatabaseButton,
       false
@@ -190,8 +187,8 @@ describe('Instance sidebar', function () {
     const dbName = 'test'; // existing db
     const collectionName = 'my-sidebar-collection';
 
-    await browser.clickVisible(Selectors.SidebarFilterInput);
-    await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
+    await browser.clickVisible(browser.pages.sidebar.$filterInput);
+    await browser.setValueVisible(browser.pages.sidebar.$filterInput, dbName);
 
     const dbElement = browser.$(
       Selectors.sidebarDatabase(connectionId, dbName)
@@ -239,7 +236,7 @@ describe('Instance sidebar', function () {
       await mongoClient.close();
     }
 
-    await browser.selectConnectionMenuItem(
+    await browser.pages.sidebar.selectConnectionMenuItem(
       getDefaultConnectionNames(0),
       Selectors.RefreshDatabasesItem,
       false

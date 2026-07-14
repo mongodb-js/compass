@@ -1,8 +1,10 @@
+import type { ChainablePromiseElement } from 'webdriverio';
 import type { CompassBrowser } from '../compass-browser.ts';
+import { resolveElement } from '../utils.ts';
 
 export async function hover(
   browser: CompassBrowser,
-  selector: string
+  selector: string | ChainablePromiseElement
 ): Promise<void> {
-  await browser.$(selector).moveTo();
+  await resolveElement(browser, selector).moveTo();
 }

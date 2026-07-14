@@ -11,5 +11,5 @@
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true
   },
-  "include": ["helpers", "installers", "tests", "*.ts", "index.ts"]
+  "include": ["helpers", "installers", "pages", "tests", "*.ts", "index.ts"]
 }

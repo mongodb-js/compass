@@ -94,7 +94,7 @@ describe('Collection Rename Modal', () => {
     await browser.disconnectAll();
     await browser.connectToDefaults();
 
-    connectionId = await browser.getConnectionIdByName(
+    connectionId = await browser.pages.sidebar.getConnectionIdByName(
       getDefaultConnectionNames(0)
     );
   });
@@ -134,9 +134,9 @@ describe('Collection Rename Modal', () => {
       await renameCollectionSuccessFlow(browser, newCollectionName);
 
       // confirm that the new collection name is shown in the sidebar
-      await browser.clickVisible(Selectors.SidebarFilterInput);
+      await browser.clickVisible(browser.pages.sidebar.$filterInput);
       await browser.setValueVisible(
-        Selectors.SidebarFilterInput,
+        browser.pages.sidebar.$filterInput,
         `${databaseName}.${newCollectionName}`
       );
       await browser

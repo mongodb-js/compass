@@ -82,7 +82,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     );
 
     expect(
-      await browser.hasConnectionMenuItem(
+      await browser.pages.sidebar.hasConnectionMenuItem(
         getDefaultConnectionNames(0),
         Selectors.CreateDatabaseButton,
         false
@@ -102,7 +102,7 @@ describe('readOnly: true / Read-Only Edition', function () {
     );
 
     expect(
-      await browser.hasConnectionMenuItem(
+      await browser.pages.sidebar.hasConnectionMenuItem(
         getDefaultConnectionNames(0),
         Selectors.CreateDatabaseButton,
         false
@@ -119,13 +119,13 @@ describe('readOnly: true / Read-Only Edition', function () {
     await createNumbersCollection();
     await browser.connectToDefaults();
 
-    const connectionId = await browser.getConnectionIdByName(
+    const connectionId = await browser.pages.sidebar.getConnectionIdByName(
       getDefaultConnectionNames(0)
     );
 
     const dbName = 'test'; // existing db
-    await browser.clickVisible(Selectors.SidebarFilterInput);
-    await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
+    await browser.clickVisible(browser.pages.sidebar.$filterInput);
+    await browser.setValueVisible(browser.pages.sidebar.$filterInput, dbName);
     const dbElement = browser.$(
       Selectors.sidebarDatabase(connectionId, dbName)
     );
