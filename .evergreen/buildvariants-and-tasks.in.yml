@@ -289,15 +289,13 @@ buildvariants:
     <% } %>
 <% } %>
 
-  # test-packaged-app on minimum supported platform versions (COMPASS-9087):
-  # a small smoke (time-to-first-query only) against the packaged app on the
-  # oldest OS versions we support and build on.
+  # test-packaged-app on minimum supported platform versions: a small smoke
+  # (time-to-first-query only) against the packaged app on the oldest OS
+  # versions we support and build on. Not run on PRs (main pipeline only), same
+  # as test-eol-servers, to keep PR runs lean and avoid contending for the
+  # limited macOS GUI host fleet.
 <% for (const buildVariant of TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS) { %>
   - name: <%= buildVariant.name %>
-  <% if (buildVariant.run_on_prs ?? true) { %>
-    tags:
-      - run-on-pr
-  <% } %>
     display_name: Test Packaged App <%= buildVariant.display_name %>
     run_on: <%= buildVariant.run_on %>
     depends_on:

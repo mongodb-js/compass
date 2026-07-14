@@ -258,8 +258,6 @@ buildvariants:
       - name: test-packaged-app-2
       - name: test-packaged-app-3
   - name: test-packaged-app-min-ubuntu
-    tags:
-      - run-on-pr
     display_name: Test Packaged App Ubuntu 20.04 (min version)
     run_on: ubuntu2004-large
     depends_on:
@@ -268,8 +266,6 @@ buildvariants:
     tasks:
       - name: test-packaged-app-min-version
   - name: test-packaged-app-min-rhel
-    tags:
-      - run-on-pr
     display_name: Test Packaged App RHEL 8.0 (min version)
     run_on: rhel80-large
     depends_on:
@@ -278,8 +274,6 @@ buildvariants:
     tasks:
       - name: test-packaged-app-min-version
   - name: test-packaged-app-min-macos-arm
-    tags:
-      - run-on-pr
     display_name: Test Packaged App MacOS arm64 13 (min version)
     run_on: macos-13-arm64-gui
     depends_on:
