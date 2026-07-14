@@ -86,6 +86,7 @@ type FieldType = FieldFromJSON | FieldFromCSV;
 type ImportState = {
   isOpen: boolean;
   isInProgressMessageOpen: boolean;
+  openId: number;
   firstErrors: Error[];
   fileType: AcceptedFileType | '';
   fileName: string;
@@ -122,6 +123,7 @@ type ImportState = {
 export const INITIAL_STATE: ImportState = {
   isOpen: false,
   isInProgressMessageOpen: false,
+  openId: 0,
   firstErrors: [],
   fileName: '',
   errorLogFilePath: '',
@@ -1117,6 +1119,7 @@ export const importReducer: Reducer<ImportState> = (
   if (action.type === OPEN) {
     return {
       ...INITIAL_STATE,
+      openId: state.openId + 1,
       namespace: action.namespace,
       connectionId: action.connectionId,
       isOpen: true,
