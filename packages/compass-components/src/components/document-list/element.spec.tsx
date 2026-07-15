@@ -97,6 +97,27 @@ describe('HadronElement', function () {
       );
     });
 
+    it('copies value when "Copy value" is clicked', function () {
+      render(
+        <HadronElement
+          value={element}
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+
+      // Open context menu and click the copy option
+      const elementNode = screen.getByTestId('hadron-document-element');
+      userEvent.click(elementNode, { button: 2 });
+      userEvent.click(screen.getByText('Copy value'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      expect(clipboardWriteTextStub).to.have.been.calledWith('"value"');
+    });
+
     it('copies field and value when "Copy field & value" is clicked', function () {
       render(
         <HadronElement

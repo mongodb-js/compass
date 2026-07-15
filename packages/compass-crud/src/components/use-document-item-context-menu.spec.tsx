@@ -81,7 +81,7 @@ describe('useDocumentItemContextMenu', function () {
       // Should show all operations
       expect(screen.getByText('Expand all fields')).to.exist;
       expect(screen.getByText('Edit document')).to.exist;
-      expect(screen.getByText('Copy document')).to.exist;
+      expect(screen.getByText('Copy document as EJSON')).to.exist;
       expect(screen.getByText('Clone document...')).to.exist;
       expect(screen.getByText('Delete document')).to.exist;
     });
@@ -109,7 +109,7 @@ describe('useDocumentItemContextMenu', function () {
       expect(screen.queryByText('Delete document')).to.not.exist;
       // But show other operations
       expect(screen.getByText('Expand all fields')).to.exist;
-      expect(screen.getByText('Copy document')).to.exist;
+      expect(screen.getByText('Copy document as EJSON')).to.exist;
       expect(screen.getByText('Clone document...')).to.exist;
     });
   });
@@ -133,7 +133,7 @@ describe('useDocumentItemContextMenu', function () {
 
       // Should show non-mutating operations
       expect(screen.getByText('Expand all fields')).to.exist;
-      expect(screen.getByText('Copy document')).to.exist;
+      expect(screen.getByText('Copy document as EJSON')).to.exist;
 
       // Should hide mutating operations
       expect(screen.queryByText('Edit document')).to.not.exist;
@@ -249,7 +249,7 @@ describe('useDocumentItemContextMenu', function () {
       userEvent.click(screen.getByTestId('test-container'), { button: 2 });
 
       // Click copy
-      userEvent.click(screen.getByText('Copy document'), undefined, {
+      userEvent.click(screen.getByText('Copy document as EJSON'), undefined, {
         skipPointerEventsCheck: true,
       });
 

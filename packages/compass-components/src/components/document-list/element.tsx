@@ -513,6 +513,12 @@ export const HadronElement: React.FunctionComponent<{
               }
             : undefined,
           {
+            label: 'Copy value',
+            onAction: () => {
+              void navigator.clipboard.writeText(element.toEJSON());
+            },
+          },
+          {
             label: 'Copy field & value',
             onAction: () => {
               void navigator.clipboard.writeText(

@@ -18,25 +18,8 @@ export function useDocumentItemContextMenu({
 
   return useContextMenuGroups(
     () => [
-      isEditable
-        ? {
-            telemetryLabel: 'Document Item Edit',
-            items: [
-              {
-                label: isEditing ? 'Cancel editing' : 'Edit document',
-                onAction: () => {
-                  if (isEditing) {
-                    doc.finishEditing();
-                  } else {
-                    doc.startEditing();
-                  }
-                },
-              },
-            ],
-          }
-        : undefined,
       {
-        telemetryLabel: 'Document Item',
+        telemetryLabel: 'Document Expand Collapse',
         items: [
           {
             label: isExpanded ? 'Collapse all fields' : 'Expand all fields',
@@ -48,8 +31,27 @@ export function useDocumentItemContextMenu({
               }
             },
           },
+        ],
+      },
+      {
+        telemetryLabel: 'Document Item',
+        items: [
+          ...(isEditable
+            ? [
+                {
+                  label: isEditing ? 'Cancel editing' : 'Edit document',
+                  onAction: () => {
+                    if (isEditing) {
+                      doc.finishEditing();
+                    } else {
+                      doc.startEditing();
+                    }
+                  },
+                },
+              ]
+            : []),
           {
-            label: 'Copy document',
+            label: 'Copy document as EJSON',
             onAction: () => {
               copyToClipboard?.(doc);
             },
