@@ -1004,7 +1004,10 @@ describe('Collection aggregations tab', function () {
       8996503, // Allow "$function is deprecated" warning
       (l: LogEntry) => {
         return (
-          l.id === 23799 && ['Interrupted'].includes(l.attr?.error?.codeName)
+          l.id === 23799 &&
+          ['Interrupted', 'ClientDisconnect'].includes(
+            l.attr?.error?.codeName as string
+          )
         );
       }
     );
