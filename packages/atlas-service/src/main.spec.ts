@@ -1,11 +1,15 @@
 import Sinon from 'sinon';
-import { expect } from 'chai';
+import chai from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import { CompassAuthService } from './main';
 import { throwIfNotOk } from './util';
 import { EventEmitter } from 'events';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import * as util from './util';
+
+const { expect } = chai;
+chai.use(chaiAsPromised);
 
 function getListenerCount(emitter: EventEmitter) {
   return emitter.eventNames().reduce((acc, name) => {
@@ -355,7 +359,7 @@ describe('CompassAuthServiceMain', function () {
     });
   });
 
-  describe('maybeGetAuthHeaders', function () {
+  describe('handleAuthHeaders', function () {
     context('user is signed in', function () {
       const accessToken = 'abcd1234';
       beforeEach(function () {
@@ -374,22 +378,34 @@ describe('CompassAuthServiceMain', function () {
         } as any;
       });
 
-      it('should return auth headers for an Atlas Admin API request', async function () {
+      it('should add auth headers for an Atlas Admin API request', async function () {
         const url = `${defaultConfig.atlasAdminApiBaseUrl}/v2/clusters`;
-        const authHeaders = await CompassAuthService.maybeGetAuthHeaders({
+        const authHeaders = await CompassAuthService.handleAuthHeaders({
+          requestHeaders: {
+            'X-Some-Header': 'value',
+            'X-Compass-Auth': 'true',
+          },
           url,
         });
         expect(authHeaders).to.have.property(
           'Authorization',
           `Bearer ${accessToken}`
         );
+        expect(authHeaders).to.have.property('X-Some-Header', 'value');
+        expect(authHeaders).to.not.have.property('X-Compass-Auth');
       });
 
-      it('should return undefined for a non-Atlas Admin API request', async function () {
+      it('should not add auth headers if they werent asked for', async function () {
         const url = 'http://example.com/api/private/some-endpoint';
+        const oldHeaders = {
+          'X-Some-Header': 'value',
+        };
         expect(
-          await CompassAuthService.maybeGetAuthHeaders({ url })
-        ).to.be.undefined;
+          await CompassAuthService.handleAuthHeaders({
+            requestHeaders: oldHeaders,
+            url,
+          })
+        ).to.deep.equal(oldHeaders);
       });
 
       describe('prevents token exfiltration', function () {
@@ -407,9 +423,15 @@ describe('CompassAuthServiceMain', function () {
         ];
 
         for (const url of attackerUrls) {
-          it(`returns undefined for ${url}`, async function () {
-            expect(await CompassAuthService.maybeGetAuthHeaders({ url })).to.be
-              .undefined;
+          it(`throws when asked to add auth headers for ${url}`, async function () {
+            await expect(
+              CompassAuthService.handleAuthHeaders({
+                requestHeaders: {
+                  'X-Compass-Auth': 'true',
+                },
+                url,
+              })
+            ).to.be.rejectedWith(Error, 'Invalid authenticated request URL.');
           });
         }
       });
@@ -428,13 +450,20 @@ describe('CompassAuthServiceMain', function () {
         } as any;
       });
 
-      it('returns undefined for an allowlisted URL when no token is available', async function () {
+      it('does not throw when asked to add auth headers when not signed in', async function () {
         const req = {
           url: `${defaultConfig.atlasAdminApiBaseUrl}/v2/clusters`,
         } as Request;
-        expect(
-          await CompassAuthService.maybeGetAuthHeaders(req)
-        ).to.be.undefined;
+        const headers = await CompassAuthService.handleAuthHeaders({
+          requestHeaders: {
+            'X-Compass-Auth': 'true',
+            'X-Some-Header': 'value',
+          },
+          url: req.url,
+        });
+        expect(headers).to.not.have.property('Authorization');
+        expect(headers).to.not.have.property('X-Compass-Auth');
+        expect(headers).to.have.property('X-Some-Header', 'value');
       });
     });
   });

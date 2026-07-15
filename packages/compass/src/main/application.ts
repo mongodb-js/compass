@@ -499,15 +499,12 @@ class CompassApplication {
           })
         );
 
-        if (details.requestHeaders['X-Compass-Auth'] === 'true') {
-          const authHeaders = await CompassAuthService.maybeGetAuthHeaders({
-            url: details.url,
-          });
-          Object.assign(filteredHeaders, authHeaders);
-          delete filteredHeaders['X-Compass-Auth'];
-        }
+        const headers = await CompassAuthService.handleAuthHeaders({
+          headers: filteredHeaders,
+          url: details.url,
+        });
 
-        callback({ requestHeaders: filteredHeaders });
+        callback({ requestHeaders: headers });
       }
     );
 

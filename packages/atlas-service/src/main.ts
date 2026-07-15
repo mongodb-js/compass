@@ -486,21 +486,33 @@ export class CompassAuthService {
     );
   }
 
-  static async maybeGetAuthHeaders({
+  static async handleAuthHeaders({
+    requestHeaders,
     url,
-  }: {
-    url: string;
-  }): Promise<Record<string, string> | undefined> {
-    if (!this.isAuthenticatedAtlasAdminApiRequest({ url })) return;
+  }: Pick<
+    Electron.OnBeforeSendHeadersListenerDetails,
+    'requestHeaders' | 'url'
+  >): Promise<Electron.OnBeforeSendHeadersListenerDetails['requestHeaders']> {
+    if (requestHeaders['X-Compass-Auth'] !== 'true') {
+      return requestHeaders;
+    }
 
+    if (!this.isAuthenticatedAtlasAdminApiRequest({ url }))
+      throw new Error('Invalid authenticated request URL.');
+
+    const newHeaders = { ...requestHeaders };
     const token = await this.maybeGetToken({
       tokenType: 'accessToken',
     });
-
     if (token) {
-      return {
-        Authorization: `Bearer ${token}`,
-      };
+      newHeaders.Authorization = `Bearer ${token}`;
     }
+
+    delete newHeaders['X-Compass-Auth'];
+    log.info(mongoLogId(1_001_000_248), 'AtlasService', 'Added auth headers', {
+      url,
+    });
+
+    return newHeaders;
   }
 }
