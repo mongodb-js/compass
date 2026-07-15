@@ -298,7 +298,7 @@ export class ToolsController {
           errorMessage: string;
         }) => {
           this.logger.log.info(
-            this.logger.mongoLogId(1_001_000_417),
+            this.logger.mongoLogId(1_001_000_436),
             'ToolsController',
             'Executing atlas-connection-error-debugger tool'
           );

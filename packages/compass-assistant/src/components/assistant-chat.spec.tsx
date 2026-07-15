@@ -28,9 +28,22 @@ import {
   ToolsController,
 } from '@mongodb-js/compass-generative-ai/provider';
 import {
+  AtlasAuthServiceProvider,
+  AtlasServiceProvider,
+  type AtlasAuthService,
+} from '@mongodb-js/atlas-service/provider';
+import {
   ExperimentTestGroups,
   type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
+
+function WithAtlasProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <AtlasAuthServiceProvider value={{} as AtlasAuthService}>
+      <AtlasServiceProvider>{children}</AtlasServiceProvider>
+    </AtlasAuthServiceProvider>
+  );
+}
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -104,11 +117,13 @@ describe('AssistantChat', function () {
       ensureOptInAndSend: ensureOptInAndSendStub,
     };
     const result = render(
-      <ToolsControllerProvider>
-        <AssistantActionsContext.Provider value={assistantActionsContext}>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </AssistantActionsContext.Provider>
-      </ToolsControllerProvider>,
+      <WithAtlasProviders>
+        <ToolsControllerProvider>
+          <AssistantActionsContext.Provider value={assistantActionsContext}>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </AssistantActionsContext.Provider>
+        </ToolsControllerProvider>
+      </WithAtlasProviders>,
       {
         connections,
         preferences,
@@ -231,9 +246,11 @@ describe('AssistantChat', function () {
     it('shows warning message in chat when connected to non-genuine MongoDB', function () {
       const chat = createMockChat({ messages: [] });
       render(
-        <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
-        </ToolsControllerProvider>
+        <WithAtlasProviders>
+          <ToolsControllerProvider>
+            <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          </ToolsControllerProvider>
+        </WithAtlasProviders>
       );
 
       expect(chat.messages).to.have.length(1);
@@ -248,9 +265,11 @@ describe('AssistantChat', function () {
     it('does not show warning message when all connections are genuine', function () {
       const chat = createMockChat({ messages: [] });
       render(
-        <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </ToolsControllerProvider>,
+        <WithAtlasProviders>
+          <ToolsControllerProvider>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </ToolsControllerProvider>
+        </WithAtlasProviders>,
         {
           connections: [],
         }
@@ -265,9 +284,11 @@ describe('AssistantChat', function () {
     it('warning message is removed when all active connections are changed to genuine', async function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
-        <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
-        </ToolsControllerProvider>,
+        <WithAtlasProviders>
+          <ToolsControllerProvider>
+            <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          </ToolsControllerProvider>
+        </WithAtlasProviders>,
         {}
       );
 
@@ -278,9 +299,11 @@ describe('AssistantChat', function () {
       ).to.exist;
 
       rerender(
-        <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </ToolsControllerProvider>
+        <WithAtlasProviders>
+          <ToolsControllerProvider>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </ToolsControllerProvider>
+        </WithAtlasProviders>
       );
 
       await waitFor(() => {
