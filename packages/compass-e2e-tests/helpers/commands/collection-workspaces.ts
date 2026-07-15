@@ -88,12 +88,14 @@ export async function navigateToCollectionTab(
   // in the local storage. Always ensure that we have the list view selected once we
   // navigate to a collection tab.
   // If the current view is not list view, then click the list view button to switch to list view.
-  const isListViewChecked = await browser
-    .$(Selectors.SelectListView)
-    .$('..')
-    .getAttribute('data-lg-checked');
-  if (tabName === 'Documents' && isListViewChecked !== 'true') {
-    await browser.clickVisible(Selectors.SelectListView);
+  if (tabName === 'Documents') {
+    const isListViewChecked = await browser
+      .$(Selectors.SelectListView)
+      .$('..')
+      .getAttribute('data-lg-checked');
+    if (isListViewChecked !== 'true') {
+      await browser.clickVisible(Selectors.SelectListView);
+    }
   }
 }
 
