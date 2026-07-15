@@ -12,6 +12,8 @@ import {
   updateIndex,
   startPollingSearchIndexes,
   stopPollingSearchIndexes,
+  createSearchIndexErrorCleared,
+  updateSearchIndexErrorCleared,
 } from './search-indexes';
 import { setupStoreAndWait } from '../../test/setup-store';
 import { searchIndexes } from '../../test/fixtures/search-indexes';
@@ -196,6 +198,17 @@ describe('search-indexes module', function () {
       );
       expect(store.getState().indexView).to.eq('search-indexes');
     });
+
+    it('clears the create index error on createSearchIndexErrorCleared', async function () {
+      await store.dispatch(createIndex({ name: '', definition: {} }));
+      expect(store.getState().searchIndexes.createIndex.error).to.equal(
+        'Please enter the name of the index.'
+      );
+
+      store.dispatch(createSearchIndexErrorCleared());
+
+      expect(store.getState().searchIndexes.createIndex.error).to.be.undefined;
+    });
   });
 
   context('update search index', function () {
@@ -250,6 +263,25 @@ describe('search-indexes module', function () {
       expect(
         (dataProvider.updateSearchIndex as sinon.SinonSpy).callCount
       ).to.equal(0);
+    });
+
+    it('clears the update index error on updateSearchIndexErrorCleared', async function () {
+      updateSearchIndexStub.rejects(new Error('this is an error'));
+
+      await store.dispatch(
+        updateIndex({
+          name: UPDATE_INDEX.name,
+          definition: { something: 'else' },
+          type: 'search',
+        })
+      );
+      expect(store.getState().searchIndexes.updateIndex.error).to.equal(
+        'this is an error'
+      );
+
+      store.dispatch(updateSearchIndexErrorCleared());
+
+      expect(store.getState().searchIndexes.updateIndex.error).to.be.undefined;
     });
   });
 

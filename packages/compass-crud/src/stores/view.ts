@@ -5,7 +5,8 @@ import type { TableHeaderType } from './grid-store';
 import { isAction } from '../utils/is-action';
 import { DocumentsActionTypes } from './documents';
 
-export type DocumentView = 'List' | 'JSON' | 'Table';
+const DOCUMENT_VIEWS = ['List', 'JSON', 'Table'] as const;
+export type DocumentView = (typeof DOCUMENT_VIEWS)[number];
 
 export type TableState = {
   doc: Document | null;
@@ -16,6 +17,21 @@ export type TableState = {
     rowIndex: number;
   };
 };
+
+/**
+ * The key we use to persist the user selected document view for other tabs or
+ * for the next application start.
+ * Exported only for test purpose
+ */
+export const DOCUMENT_VIEW_STORAGE_KEY = 'compass_crud-document_view';
+
+function getInitialDocumentView(): DocumentView {
+  const view = localStorage.getItem(DOCUMENT_VIEW_STORAGE_KEY);
+  if (DOCUMENT_VIEWS.includes(view as DocumentView)) {
+    return view as DocumentView;
+  }
+  return 'List';
+}
 
 export type ViewState = {
   view: DocumentView;
@@ -29,9 +45,11 @@ export const INITIAL_TABLE_STATE: TableState = {
   editParams: null,
 };
 
-export const INITIAL_VIEW_STATE: ViewState = {
-  view: 'List',
-  table: INITIAL_TABLE_STATE,
+export const getInitialViewState = (): ViewState => {
+  return {
+    view: getInitialDocumentView(),
+    table: INITIAL_TABLE_STATE,
+  };
 };
 
 export const ViewActionTypes = {
@@ -64,7 +82,7 @@ export type ViewActions =
   | PathChangedAction;
 
 export const viewReducer: Reducer<ViewState> = (
-  state = INITIAL_VIEW_STATE,
+  state = getInitialViewState(),
   action
 ) => {
   if (isAction(action, ViewActionTypes.VIEW_CHANGED)) {
@@ -103,6 +121,7 @@ export const viewReducer: Reducer<ViewState> = (
 };
 
 export function viewChanged(view: DocumentView): ViewChangedAction {
+  localStorage.setItem(DOCUMENT_VIEW_STORAGE_KEY, view);
   return { type: ViewActionTypes.VIEW_CHANGED, view };
 }
 

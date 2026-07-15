@@ -2,7 +2,16 @@ import { expect } from 'chai';
 import Document, { DocumentEvents } from '../src/';
 import SharedExamples from './shared-examples';
 import { ObjectId, Long, Int32, Double } from 'bson';
+import type { BSONValue } from '../src/';
 import Sinon from 'sinon';
+
+function updateDocOf(doc: Document) {
+  const { updateDoc } = doc.generateUpdateUnlessChangedInBackgroundQuery();
+  return updateDoc as {
+    $set?: Record<string, unknown>;
+    $unset?: Record<string, unknown>;
+  };
+}
 
 describe('Document', function () {
   describe('#get', function () {
@@ -1129,9 +1138,7 @@ describe('Document', function () {
       });
 
       it('does not include the element in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
-        ).to.equal(undefined);
+        expect(updateDocOf(doc).$set).to.equal(undefined);
       });
     });
 
@@ -1140,9 +1147,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       it('returns an empty object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
-        ).to.equal(undefined);
+        expect(updateDocOf(doc).$set).to.equal(undefined);
       });
     });
 
@@ -1155,9 +1160,7 @@ describe('Document', function () {
       });
 
       it('does not include the element in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
-        ).to.equal(undefined);
+        expect(updateDocOf(doc).$set).to.equal(undefined);
       });
     });
 
@@ -1170,9 +1173,7 @@ describe('Document', function () {
       });
 
       it('includes the element in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
-        ).to.deep.equal({
+        expect(updateDocOf(doc).$set).to.deep.equal({
           aa: 'test',
         });
       });
@@ -1192,9 +1193,7 @@ describe('Document', function () {
       });
 
       it('includes the element in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
-        ).to.deep.equal({
+        expect(updateDocOf(doc).$set).to.deep.equal({
           'name.last': 'aa',
         });
       });
@@ -1306,9 +1305,7 @@ describe('Document', function () {
       });
 
       it('does not include the change in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
-        ).to.equal(undefined);
+        expect(updateDocOf(doc).$set).to.equal(undefined);
       });
     });
 
@@ -1322,9 +1319,7 @@ describe('Document', function () {
       });
 
       it('does not include the change in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
-        ).to.equal(undefined);
+        expect(updateDocOf(doc).$set).to.equal(undefined);
       });
     });
 
@@ -1337,9 +1332,7 @@ describe('Document', function () {
       });
 
       it('includes the change in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
-        ).to.deep.equal({
+        expect(updateDocOf(doc).$set).to.deep.equal({
           pineapple: 'hat',
         });
       });
@@ -1359,15 +1352,11 @@ describe('Document', function () {
       });
 
       it('does includes the top level element in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$set
-        ).to.equal(undefined);
+        expect(updateDocOf(doc).$set).to.equal(undefined);
       });
 
       it('includes it in the unset part of the query', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
-        ).to.deep.equal({
+        expect(updateDocOf(doc).$unset).to.deep.equal({
           'name.last': true,
         });
       });
@@ -1384,9 +1373,7 @@ describe('Document', function () {
       });
 
       it('includes the key in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
-        ).to.deep.equal({
+        expect(updateDocOf(doc).$unset).to.deep.equal({
           name: true,
         });
       });
@@ -1397,9 +1384,7 @@ describe('Document', function () {
       const doc = new Document(object);
 
       it('returns undefined', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
-        ).to.equal(undefined);
+        expect(updateDocOf(doc).$unset).to.equal(undefined);
       });
     });
 
@@ -1412,9 +1397,7 @@ describe('Document', function () {
       });
 
       it('has the original key in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
-        ).to.deep.equal({
+        expect(updateDocOf(doc).$unset).to.deep.equal({
           name: true,
         });
       });
@@ -1430,9 +1413,7 @@ describe('Document', function () {
       });
 
       it('does not include the change in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
-        ).to.equal(undefined);
+        expect(updateDocOf(doc).$unset).to.equal(undefined);
       });
     });
 
@@ -1445,9 +1426,7 @@ describe('Document', function () {
       });
 
       it('does not have any change in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
-        ).to.equal(undefined);
+        expect(updateDocOf(doc).$unset).to.equal(undefined);
       });
     });
 
@@ -1460,9 +1439,7 @@ describe('Document', function () {
       });
 
       it('includes the original key in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
-        ).to.deep.equal({
+        expect(updateDocOf(doc).$unset).to.deep.equal({
           name: true,
         });
       });
@@ -1529,9 +1506,7 @@ describe('Document', function () {
       });
 
       it('returns undefined', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
-        ).to.equal(undefined);
+        expect(updateDocOf(doc).$unset).to.equal(undefined);
       });
     });
 
@@ -1549,9 +1524,7 @@ describe('Document', function () {
       });
 
       it('does not include the element in the object', function () {
-        expect(
-          doc.generateUpdateUnlessChangedInBackgroundQuery().updateDoc.$unset
-        ).to.deep.equal({
+        expect(updateDocOf(doc).$unset).to.deep.equal({
           'name.last': true,
         });
       });
@@ -2150,7 +2123,7 @@ describe('Document', function () {
     const label = doc.elements.at(4);
 
     it('sets the postal code edit', function () {
-      postalCode?.edit(72550);
+      postalCode?.edit(72550 as unknown as BSONValue);
       expect(postalCode?.value).to.equal('72550');
       expect(postalCode?.currentValue).to.equal(72550);
       expect(postalCode?.isEdited()).to.equal(true);
@@ -2355,7 +2328,7 @@ describe('Document', function () {
           b: 1.5,
           c: Long.fromNumber(2),
         });
-        doc.get('a')?.edit(2);
+        doc.get('a')?.edit(2 as unknown as BSONValue);
         expect(doc.toEJSON('current', { indent: undefined })).to.equal(
           '{"a":2,"b":1.5,"c":{"$numberLong":"2"}}'
         );

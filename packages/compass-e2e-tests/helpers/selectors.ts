@@ -906,7 +906,11 @@ export const AggregationSavedPipelineCardDeleteButton = (
 export const AggregationExplainLegacyButton =
   '[data-testid="pipeline-toolbar-explain-aggregation-button"]';
 export const AggregationExplainDropdownButton =
-  '[data-testid="pipeline-toolbar-explain-aggregation-dropdown-button"]';
+  '[data-testid="pipeline-toolbar-explain-aggregation-dropdown-button-show-actions"]';
+export const AggregationExplainDropdownVisualTreeAction =
+  '[data-testid="pipeline-toolbar-explain-aggregation-dropdown-button-visual-tree-action"]';
+export const AggregationExplainDropdownInterpretAction =
+  '[data-testid="pipeline-toolbar-explain-aggregation-dropdown-button-interpret-action"]';
 export const AggregationExplainButton = `${AggregationExplainLegacyButton}, ${AggregationExplainDropdownButton}`;
 export const AggregationExplainModal = '[data-testid="explain-plan-modal"]';
 export const ExplainPlanInterpretButton =
@@ -1079,7 +1083,11 @@ export const SchemaFieldTypeList = '[data-testid="schema-field-type-list"]';
 export const ExecuteExplainLegacyButton =
   '[data-testid="query-bar-explain-button"]';
 export const ExecuteExplainDropdownButton =
-  '[data-testid="query-bar-explain-dropdown-button"]';
+  '[data-testid="query-bar-explain-dropdown-button-show-actions"]';
+export const ExecuteExplainDropdownVisualTreeAction =
+  '[data-testid="query-bar-explain-dropdown-button-visual-tree-action"]';
+export const ExecuteExplainDropdownInterpretAction =
+  '[data-testid="query-bar-explain-dropdown-button-interpret-action"]';
 export const ExecuteExplainButton = `${ExecuteExplainLegacyButton}, ${ExecuteExplainDropdownButton}`;
 export const ExplainLoader = '[data-testid="explain-plan-loading"]';
 export const ExplainSummary = '[data-testid="explain-plan-summary"]';

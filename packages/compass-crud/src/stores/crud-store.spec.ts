@@ -26,6 +26,7 @@ import {
   fetchDocuments,
   activateDocumentsPlugin as _activate,
   MAX_DOCS_PER_PAGE_STORAGE_KEY,
+  DOCUMENT_VIEW_STORAGE_KEY,
 } from './crud-store';
 import {
   cancelOperation,
@@ -1786,11 +1787,30 @@ describe('store', function () {
 
   describe('#viewChanged', function () {
     let store: CrudReduxStore;
+    let fakeLocalStorage: sinon.SinonStub;
+    let fakeGetItem: (key: string) => string | null;
+    let fakeSetItem: (key: string, value: string) => void;
 
     beforeEach(function () {
+      const localStorageValues: Record<string, string> = Object.create(null);
+      fakeGetItem = sinon.fake((key: string) => {
+        return localStorageValues[key];
+      });
+      fakeSetItem = sinon.fake((key: string, value: any) => {
+        localStorageValues[key] = value.toString();
+      });
+
+      fakeLocalStorage = sinon.stub(global, 'localStorage').value({
+        getItem: fakeGetItem,
+        setItem: fakeSetItem,
+      });
       const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
+    });
+
+    afterEach(function () {
+      fakeLocalStorage.restore();
     });
 
     it('sets the view', async function () {
@@ -1799,6 +1819,37 @@ describe('store', function () {
       });
 
       store.dispatch(viewChanged('Table'));
+
+      await listener;
+    });
+
+    it('initializes the view from localStorage on store creation', function () {
+      fakeSetItem(DOCUMENT_VIEW_STORAGE_KEY, 'JSON');
+      deactivate?.();
+
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+
+      expect(store.getState().view.view).to.equal('JSON');
+    });
+
+    it('sets the view and stores it in localStorage', async function () {
+      let listener = waitForState(store, (state) => {
+        expect(state.view.view).to.equal('Table');
+        expect(fakeGetItem(DOCUMENT_VIEW_STORAGE_KEY)).to.equal('Table');
+      });
+
+      store.dispatch(viewChanged('Table'));
+
+      await listener;
+
+      listener = waitForState(store, (state) => {
+        expect(state.view.view).to.equal('JSON');
+        expect(fakeGetItem(DOCUMENT_VIEW_STORAGE_KEY)).to.equal('JSON');
+      });
+
+      store.dispatch(viewChanged('JSON'));
 
       await listener;
     });

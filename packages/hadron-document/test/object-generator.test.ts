@@ -1,6 +1,6 @@
 import { Binary } from 'bson';
 import { expect } from 'chai';
-import { Document } from '../src/';
+import { Document, type Element } from '../src/';
 import { ObjectGenerator } from '../src/object-generator';
 
 describe('ObjectGenerator', function () {
@@ -10,7 +10,7 @@ describe('ObjectGenerator', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).remove();
+        doc.elements.at(0)?.remove();
       });
 
       it('does not include the element in the object', function () {
@@ -23,7 +23,7 @@ describe('ObjectGenerator', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('');
+        doc.elements.at(0)?.rename('');
       });
 
       it('does not include the element in the object', function () {
@@ -33,13 +33,17 @@ describe('ObjectGenerator', function () {
 
     context('when the element is null', function () {
       it('returns null', function () {
-        expect(ObjectGenerator.generate(null)).to.equal(null);
+        expect(
+          ObjectGenerator.generate(null as unknown as Iterable<Element>)
+        ).to.equal(null);
       });
     });
 
     context('when the element is undefined', function () {
       it('returns undefined', function () {
-        expect(ObjectGenerator.generate(undefined)).to.equal(undefined);
+        expect(
+          ObjectGenerator.generate(undefined as unknown as Iterable<Element>)
+        ).to.equal(undefined);
       });
     });
   });
@@ -50,7 +54,7 @@ describe('ObjectGenerator', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).remove();
+        doc.elements.at(0)?.remove();
       });
 
       it('includes the original element in the object', function () {
@@ -65,7 +69,7 @@ describe('ObjectGenerator', function () {
       const doc = new Document(object);
 
       before(function () {
-        doc.elements.at(0).rename('');
+        doc.elements.at(0)?.rename('');
       });
 
       it('includes the original element in the object', function () {
@@ -77,13 +81,19 @@ describe('ObjectGenerator', function () {
 
     context('when the element is null', function () {
       it('returns null', function () {
-        expect(ObjectGenerator.generateOriginal(null)).to.equal(null);
+        expect(
+          ObjectGenerator.generateOriginal(null as unknown as Iterable<Element>)
+        ).to.equal(null);
       });
     });
 
     context('when the element is undefined', function () {
       it('returns undefined', function () {
-        expect(ObjectGenerator.generateOriginal(undefined)).to.equal(undefined);
+        expect(
+          ObjectGenerator.generateOriginal(
+            undefined as unknown as Iterable<Element>
+          )
+        ).to.equal(undefined);
       });
     });
   });
@@ -94,25 +104,33 @@ describe('ObjectGenerator', function () {
 
     context('when an element is removed', function () {
       before(function () {
-        doc.elements.at(0).elements.at(1).remove();
+        doc.elements.at(0)?.elements?.at(1)?.remove();
       });
 
       it('does not include the element in the object', function () {
         expect(
-          ObjectGenerator.generateArray(doc.elements.at(0).elements)
+          ObjectGenerator.generateArray(
+            doc.elements.at(0)?.elements as Iterable<Element>
+          )
         ).to.deep.equal(['a', 'c']);
       });
     });
 
     context('when the element is null', function () {
       it('returns null', function () {
-        expect(ObjectGenerator.generateArray(null)).to.equal(null);
+        expect(
+          ObjectGenerator.generateArray(null as unknown as Iterable<Element>)
+        ).to.equal(null);
       });
     });
 
     context('when the element is undefined', function () {
       it('returns undefined', function () {
-        expect(ObjectGenerator.generateArray(undefined)).to.equal(undefined);
+        expect(
+          ObjectGenerator.generateArray(
+            undefined as unknown as Iterable<Element>
+          )
+        ).to.equal(undefined);
       });
     });
   });
@@ -123,27 +141,35 @@ describe('ObjectGenerator', function () {
 
     context('when an element is removed', function () {
       before(function () {
-        doc.elements.at(0).elements.at(1).remove();
+        doc.elements.at(0)?.elements?.at(1)?.remove();
       });
 
       it('includes the original element in the object', function () {
         expect(
-          ObjectGenerator.generateOriginalArray(doc.elements.at(0).elements)
+          ObjectGenerator.generateOriginalArray(
+            doc.elements.at(0)?.elements as Iterable<Element>
+          )
         ).to.deep.equal(['a', 'b', 'c']);
       });
     });
 
     context('when the element is null', function () {
       it('returns null', function () {
-        expect(ObjectGenerator.generateOriginalArray(null)).to.equal(null);
+        expect(
+          ObjectGenerator.generateOriginalArray(
+            null as unknown as Iterable<Element>
+          )
+        ).to.equal(null);
       });
     });
 
     context('when the element is undefined', function () {
       it('returns undefined', function () {
-        expect(ObjectGenerator.generateOriginalArray(undefined)).to.equal(
-          undefined
-        );
+        expect(
+          ObjectGenerator.generateOriginalArray(
+            undefined as unknown as Iterable<Element>
+          )
+        ).to.equal(undefined);
       });
     });
   });
