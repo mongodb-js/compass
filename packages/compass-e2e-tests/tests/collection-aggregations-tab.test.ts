@@ -1005,9 +1005,7 @@ describe('Collection aggregations tab', function () {
       (l: LogEntry) => {
         return (
           l.id === 23799 &&
-          ['Interrupted', 'ClientDisconnect'].includes(
-            l.attr?.error?.codeName as string
-          )
+          ['Interrupted', 'ClientDisconnect'].includes(l.attr?.error?.codeName)
         );
       }
     );
