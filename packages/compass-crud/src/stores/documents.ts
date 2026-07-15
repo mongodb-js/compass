@@ -77,7 +77,6 @@ type Mutable<T> = { -readonly [P in keyof T]: T[P] };
 export type DocumentsState = {
   ns: string;
   collection: string;
-  abortController: AbortController | null;
   error: Error | null;
   docs: Document[] | null;
   start: number;
@@ -112,7 +111,6 @@ export function getInitialDocumentsState(namespace: string): DocumentsState {
   return {
     ns: namespace,
     collection: toNS(namespace).collection,
-    abortController: null,
     error: null,
     docs: [],
     start: 0,
@@ -150,7 +148,6 @@ export const DocumentsActionTypes = {
 
 export type RefreshStartedAction = {
   type: typeof DocumentsActionTypes.REFRESH_STARTED;
-  abortController: AbortController;
   lastCountRunMaxTimeMS: number;
 };
 
@@ -182,7 +179,6 @@ export type CollectionScanResultAction = {
 
 export type GetPageStartedAction = {
   type: typeof DocumentsActionTypes.GET_PAGE_STARTED;
-  abortController: AbortController;
 };
 
 export type GetPageSuccessAction = {
@@ -254,7 +250,6 @@ export function createDocumentsReducer(
       return {
         ...state,
         status: DOCUMENTS_STATUS_FETCHING,
-        abortController: action.abortController,
         error: null,
         count: null,
         loadingCount: true,
@@ -271,7 +266,6 @@ export function createDocumentsReducer(
         start: action.docs.length > 0 ? 1 : 0,
         end: action.docs.length,
         shardKeys: action.shardKeys,
-        abortController: null,
         resultId: resultId(),
       };
     }
@@ -280,7 +274,6 @@ export function createDocumentsReducer(
         ...state,
         status: DOCUMENTS_STATUS_ERROR,
         error: action.error,
-        abortController: null,
         resultId: resultId(),
       };
     }
@@ -297,7 +290,6 @@ export function createDocumentsReducer(
       return {
         ...state,
         status: DOCUMENTS_STATUS_FETCHING,
-        abortController: action.abortController,
         error: null,
       };
     }
@@ -311,7 +303,6 @@ export function createDocumentsReducer(
         end: action.end,
         page: action.page,
         resultId: resultId(),
-        abortController: null,
       };
     }
     if (isAction(action, DocumentsActionTypes.GET_PAGE_ERROR)) {
@@ -324,11 +315,10 @@ export function createDocumentsReducer(
         end: action.end,
         page: action.page,
         resultId: resultId(),
-        abortController: null,
       };
     }
     if (isAction(action, DocumentsActionTypes.CANCEL_OPERATION)) {
-      return { ...state, abortController: null };
+      return state;
     }
     if (isAction(action, DocumentsActionTypes.LOAD_DEBOUNCE_STARTED)) {
       return { ...state, debouncingLoad: true };
@@ -370,7 +360,7 @@ function findDocumentIndex(docs: Document[] | null, doc: Document) {
  * Detect if it is safe to perform the count query optimisation where we
  * specify the _id_ index as the hint.
  */
-function isCountHintSafe(
+export function isCountHintSafe(
   query: { filter?: unknown },
   isTimeSeries: boolean
 ): boolean {
@@ -388,7 +378,7 @@ function isCountHintSafe(
 /**
  * Checks if the initial query was not modified.
  */
-function isInitialQuery(query: Query = {}): boolean {
+export function isInitialQuery(query: Query = {}): boolean {
   return (
     isEmpty(query.filter) && isEmpty(query.project) && isEmpty(query.collation)
   );
@@ -457,6 +447,7 @@ export function refreshDocuments(
       fieldStoreService,
       queryBar,
       crudOptions,
+      documentsAbortControllerRef,
     }
   ) => {
     if (dataService && !dataService.isConnected()) {
@@ -510,6 +501,7 @@ export function refreshDocuments(
     // pass the signal so that the queries can close their own cursors and
     // reject their promises
     const abortController = new AbortController();
+    documentsAbortControllerRef.current = abortController;
     const signal = abortController.signal;
 
     const fetchShardingKeysOptions = {
@@ -673,7 +665,6 @@ export function refreshDocuments(
 
     dispatch({
       type: DocumentsActionTypes.REFRESH_STARTED,
-      abortController,
       lastCountRunMaxTimeMS: countOptions.maxTimeMS!,
     });
 
@@ -682,6 +673,7 @@ export function refreshDocuments(
 
     try {
       const [shardKeys, docs] = await Promise.all(promises);
+      documentsAbortControllerRef.current = undefined;
       dispatch({
         type: DocumentsActionTypes.REFRESH_SUCCESS,
         docs,
@@ -705,6 +697,7 @@ export function refreshDocuments(
         'Failed to refresh documents',
         error
       );
+      documentsAbortControllerRef.current = undefined;
       dispatch({
         type: DocumentsActionTypes.REFRESH_ERROR,
         error: error as Error,
@@ -721,7 +714,14 @@ export function getPage(
   return async (
     dispatch,
     getState,
-    { dataService, preferences, track, fieldStoreService, queryBar }
+    {
+      dataService,
+      preferences,
+      track,
+      fieldStoreService,
+      queryBar,
+      documentsAbortControllerRef,
+    }
   ) => {
     const state = getState();
     const { ns, status, docsPerPage } = state.documents;
@@ -750,6 +750,7 @@ export function getPage(
     }
 
     const abortController = new AbortController();
+    documentsAbortControllerRef.current = abortController;
     const signal = abortController.signal;
 
     const opts = {
@@ -766,7 +767,6 @@ export function getPage(
 
     dispatch({
       type: DocumentsActionTypes.GET_PAGE_STARTED,
-      abortController,
     });
 
     const cancelDebounceLoad = debounceLoading(dispatch);
@@ -784,6 +784,7 @@ export function getPage(
         { abortSignal: signal }
       );
     } catch (error) {
+      documentsAbortControllerRef.current = undefined;
       dispatch({
         type: DocumentsActionTypes.GET_PAGE_ERROR,
         error: error as Error,
@@ -796,6 +797,7 @@ export function getPage(
     }
 
     const length = documents.length;
+    documentsAbortControllerRef.current = undefined;
     dispatch({
       type: DocumentsActionTypes.GET_PAGE_SUCCESS,
       docs: documents,
@@ -816,10 +818,11 @@ export function cancelOperation(): CrudThunkAction<
   void,
   CancelOperationAction
 > {
-  return (dispatch, getState) => {
-    getState().documents.abortController?.abort(
+  return (dispatch, getState, { documentsAbortControllerRef }) => {
+    documentsAbortControllerRef.current?.abort(
       new Error('This operation was aborted')
     );
+    documentsAbortControllerRef.current = undefined;
     dispatch({ type: DocumentsActionTypes.CANCEL_OPERATION });
   };
 }
@@ -1033,7 +1036,7 @@ export function replaceDocument(
   };
 }
 
-function isEqualSafeContent(a: unknown, b: unknown): boolean {
+export function isEqualSafeContent(a: unknown, b: unknown): boolean {
   // Lightweight reference + JSON equality is enough for the safeContent
   // comparison used by replaceDocument. Avoids dragging in lodash isEqual
   // for that single call site.

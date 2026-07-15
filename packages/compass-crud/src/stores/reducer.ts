@@ -76,6 +76,9 @@ export type CrudExtraArgs = {
   bulkUpdatePreviewAbortControllerRef: {
     current: AbortController | undefined;
   };
+  documentsAbortControllerRef: {
+    current: AbortController | undefined;
+  };
 };
 
 export type CrudReduxActions =

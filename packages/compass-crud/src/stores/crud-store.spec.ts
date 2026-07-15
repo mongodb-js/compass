@@ -405,7 +405,6 @@ describe('store', function () {
       delete documents.resultId; // always different
 
       expect(documents).to.deep.equal({
-        abortController: null,
         debouncingLoad: false,
         lastCountRunMaxTimeMS: 5000,
         loadingCount: false,
@@ -1472,7 +1471,6 @@ describe('store', function () {
               expect(state.insert.error).to.equal(undefined);
 
               expect(state.documents.status).to.equal('fetching');
-              expect(state.documents.abortController).to.not.be.null;
               expect(state.documents.error).to.be.null;
             },
             (state) => {
@@ -1497,8 +1495,6 @@ describe('store', function () {
                 types: [],
               });
               expect(state.documents.shardKeys).to.deep.equal({});
-
-              expect(state.documents.abortController).to.be.null;
               expect(state.documents.resultId).to.not.equal(resultId);
             },
           ]);
@@ -2094,35 +2090,25 @@ describe('store', function () {
       it('aborts the queries', async function () {
         const spy = sinon.spy(dataService, 'aggregate');
 
-        const listener = waitForStates(store, [
-          (state) => {
-            // cancel the operation as soon as the query starts
-            expect(state.documents.status).to.equal('fetching');
-            expect(state.documents.count).to.be.null;
-            expect(state.documents.loadingCount).to.be.true; // initially count is still loading
-            expect(state.documents.error).to.be.null;
-            expect(state.documents.abortController).to.not.be.null;
-
-            store.dispatch(cancelOperation());
-          },
-
-          (state) => {
-            // cancelOperation cleans up abortController
-            expect(state.documents.abortController).to.be.null;
-          },
-
-          (state) => {
-            // the operation should fail
-            expect(state.documents.status).to.equal('error');
-            expect(state.documents.error.message).to.equal(
-              'This operation was aborted'
-            );
-            expect(state.documents.abortController).to.be.null;
-            expect(state.documents.loadingCount).to.be.false; // eventually count loads
-          },
-        ]);
+        const listener = waitForState(store, (state) => {
+          // the operation should fail
+          expect(state.documents.status).to.equal('error');
+          expect(state.documents.error.message).to.equal(
+            'This operation was aborted'
+          );
+          expect(state.documents.loadingCount).to.be.false; // eventually count loads
+        });
 
         void store.dispatch(refreshDocuments());
+
+        // cancel the operation as soon as the query starts
+        const state = store.getState();
+        expect(state.documents.status).to.equal('fetching');
+        expect(state.documents.count).to.be.null;
+        expect(state.documents.loadingCount).to.be.true; // initially count is still loading
+        expect(state.documents.error).to.be.null;
+
+        store.dispatch(cancelOperation());
 
         await listener;
 
@@ -2206,10 +2192,8 @@ describe('store', function () {
         .stub(dataService, 'find')
         .rejects(new Error('This is a fake error.'));
 
-      expect(store.getState().documents.abortController).to.be.null;
-
       const promise = store.dispatch(getPage(1));
-      expect(store.getState().documents.abortController).to.not.be.null;
+      expect(store.getState().documents.status).to.equal('fetching');
 
       await promise;
       expect(store.getState().documents.error).to.have.property(
@@ -2221,13 +2205,10 @@ describe('store', function () {
     });
 
     it('allows the operation to be cancelled', async function () {
-      expect(store.getState().documents.abortController).to.be.null;
-
       const promise = store.dispatch(getPage(1));
-      expect(store.getState().documents.abortController).to.not.be.null;
+      expect(store.getState().documents.status).to.equal('fetching');
 
       store.dispatch(cancelOperation());
-      expect(store.getState().documents.abortController).to.be.null;
       expect(store.getState().documents.error).to.be.null;
 
       await promise;

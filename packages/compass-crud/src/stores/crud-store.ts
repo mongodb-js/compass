@@ -132,6 +132,7 @@ export function activateDocumentsPlugin(
     queryBar,
     crudOptions: options,
     bulkUpdatePreviewAbortControllerRef: { current: undefined },
+    documentsAbortControllerRef: { current: undefined },
   };
 
   const store = createStore(
