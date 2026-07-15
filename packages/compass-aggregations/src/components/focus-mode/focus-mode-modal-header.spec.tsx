@@ -56,6 +56,7 @@ describe('FocusModeModalHeader', function () {
         onAddStageClick={noop}
         onStageSelect={noop}
         onStageDisabledToggleClick={noop}
+        onCloseFocusMode={noop}
         {...props}
       ></FocusModeModalHeader>
     );

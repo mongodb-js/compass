@@ -46,7 +46,7 @@ describe('url-builders', function () {
       location: {
         origin: TEST_ORIGIN,
       },
-    } as unknown as Window);
+    });
   });
 
   after(function () {
@@ -56,7 +56,7 @@ describe('url-builders', function () {
   describe('buildPerformanceMetricsUrl', function () {
     it('builds url for a non-flex cluster', function () {
       expect(buildPerformanceMetricsUrl(baseMetadata)).to.equal(
-        `${TEST_ORIGIN}/v2/proj123#/host/replicaSet/metrics123/realtime/panel`
+        `${TEST_ORIGIN}/v2/proj123#/metrics/replicaSet/metrics123/realtime/panel`
       );
     });
 
@@ -71,6 +71,17 @@ describe('url-builders', function () {
     it('builds project settings url', function () {
       expect(buildProjectSettingsUrl({ projectId: 'proj123' })).to.equal(
         `${TEST_ORIGIN}/v2/proj123#/settings/groupSettings`
+      );
+    });
+
+    it('builds project settings url with params', function () {
+      expect(
+        buildProjectSettingsUrl({
+          projectId: 'proj123',
+          params: { highlight: 'nativeReranking' },
+        })
+      ).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/settings/groupSettings?highlight=nativeReranking`
       );
     });
   });

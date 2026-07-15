@@ -4,7 +4,7 @@ import { expect } from 'chai';
 
 describe('StandardEditor', function () {
   describe('#start', function () {
-    const element = new Element('name', 'test', false);
+    const element = new Element('name', 'test');
     const standardEditor = new StandardEditor(element);
 
     it('has no behaviour', function () {
@@ -14,7 +14,7 @@ describe('StandardEditor', function () {
 
   describe('#edit', function () {
     context('when the value is valid for the type', function () {
-      const element = new Element('name', 'test', false);
+      const element = new Element('name', 'test');
       const standardEditor = new StandardEditor(element);
 
       before(function () {
@@ -32,7 +32,7 @@ describe('StandardEditor', function () {
 
     context('when editing boolean strings', function () {
       const bool = true;
-      const element = new Element('boolean', bool, false);
+      const element = new Element('boolean', bool);
 
       context('when the boolean string is valid', function () {
         const standardEditor = new StandardEditor(element);
@@ -79,7 +79,7 @@ describe('StandardEditor', function () {
 
   describe('#paste', function () {
     context('when the string is an object', function () {
-      const element = new Element('name', {}, false);
+      const element = new Element('name', {});
       const standardEditor = new StandardEditor(element);
 
       before(function () {
@@ -87,8 +87,8 @@ describe('StandardEditor', function () {
       });
 
       it('converts the element to an object', function () {
-        expect(element.elements.at(0).currentKey).to.equal('name');
-        expect(element.elements.at(0).currentValue).to.equal('test');
+        expect(element.elements?.at(0)?.currentKey).to.equal('name');
+        expect(element.elements?.at(0)?.currentValue).to.equal('test');
       });
 
       it('sets the current type as valid', function () {
@@ -97,7 +97,7 @@ describe('StandardEditor', function () {
     });
 
     context('when the string is not an array or object', function () {
-      const element = new Element('name', 'test', false);
+      const element = new Element('name', 'test');
       const standardEditor = new StandardEditor(element);
 
       before(function () {
@@ -115,7 +115,7 @@ describe('StandardEditor', function () {
   });
 
   describe('#complete', function () {
-    const element = new Element('name', 'test', false);
+    const element = new Element('name', 'test');
     const standardEditor = new StandardEditor(element);
 
     it('has no behaviour', function () {
@@ -124,7 +124,7 @@ describe('StandardEditor', function () {
   });
 
   describe('#size', function () {
-    const element = new Element('name', 'test', false);
+    const element = new Element('name', 'test');
     const standardEditor = new StandardEditor(element);
 
     it('returns the number of characters', function () {
@@ -133,7 +133,7 @@ describe('StandardEditor', function () {
   });
 
   describe('#value', function () {
-    const element = new Element('name', 'test', false);
+    const element = new Element('name', 'test');
     const standardEditor = new StandardEditor(element);
 
     it('returns the current value', function () {

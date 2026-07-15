@@ -257,6 +257,30 @@ buildvariants:
       - name: test-packaged-app-1
       - name: test-packaged-app-2
       - name: test-packaged-app-3
+  - name: test-packaged-app-min-ubuntu
+    display_name: Test Packaged App Ubuntu 20.04 (min version)
+    run_on: ubuntu2004-large
+    depends_on:
+      - name: package-compass
+        variant: package-ubuntu
+    tasks:
+      - name: test-packaged-app-min-version
+  - name: test-packaged-app-min-rhel
+    display_name: Test Packaged App RHEL 8.0 (min version)
+    run_on: rhel80-large
+    depends_on:
+      - name: package-compass
+        variant: package-rhel
+    tasks:
+      - name: test-packaged-app-min-version
+  - name: test-packaged-app-min-macos-arm
+    display_name: Test Packaged App MacOS arm64 13 (min version)
+    run_on: macos-13-arm64-gui
+    depends_on:
+      - name: package-compass
+        variant: package-macos-arm
+    tasks:
+      - name: test-packaged-app-min-version-macos13
   - name: publish
     tags:
       - run-on-pr
@@ -318,7 +342,9 @@ buildvariants:
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
     run_on: ubuntu2204-large
     tasks:
-      - name: test-web-sandbox-atlas-cloud
+      - name: test-web-sandbox-atlas-cloud-1
+      - name: test-web-sandbox-atlas-cloud-2
+      - name: test-web-sandbox-atlas-cloud-3
   - name: test-web-sandbox-atlas-cloud-geo-sharded
     display_name: Test Web Sandbox Geo Sharded (w/ Atlas Cloud login)
     run_on: ubuntu2204-large
@@ -1069,6 +1095,56 @@ tasks:
           e2e_test_groups: 3
           e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
+  - name: test-packaged-app-min-version
+    tags:
+      - required-for-publish-desktop
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: compass-e2e-tests
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-packaged-app
+        vars:
+          mongodb_version: 8.0.x-enterprise
+          compass_distribution: compass
+          e2e_test_groups: 1
+          e2e_test_group: 1
+          packaged_app_test_args: '--test-filter="time-to-first-query"'
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
+  - name: test-packaged-app-min-version-macos13
+    tags:
+      - required-for-publish-desktop
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+        vars:
+          scope: compass-e2e-tests
+      - func: apply-compass-target-expansion
+        vars:
+          compass_distribution: compass
+      - func: get-packaged-app
+        vars:
+          compass_distribution: compass
+      - func: test-packaged-app
+        vars:
+          mongodb_version: 8.0.5
+          compass_distribution: compass
+          e2e_test_groups: 1
+          e2e_test_group: 1
+          packaged_app_test_args: '--test-filter="time-to-first-query"'
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-web-sandbox-chrome-1
     tags:
       - required-for-publish-web
@@ -1213,7 +1289,7 @@ tasks:
       - func: compile-compass-web
         vars:
           debug: compass*,electron*,hadron*,mongo*
-  - name: test-web-sandbox-atlas-cloud
+  - name: test-web-sandbox-atlas-cloud-1
     tags:
       - required-for-publish-web
       - assigned_to_jira_team_compass_compass
@@ -1225,14 +1301,42 @@ tasks:
       - func: test-web-sandbox-atlas-cloud
         vars:
           compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 1
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
-          atlas_cloud_test_args: >-
-            --test-filter="time-to-first-query" --test-filter="routing"
-            --test-filter="collection-heading"
-            --test-filter="collection-documents-tab"
-            --test-filter="collection-aggregations-tab"
-            --test-filter="collection-indexes-tab"
-            --test-filter="collection-schema-tab" --test-filter="atlas-cloud/*"
+          atlas_cloud_test_args: '--test-filter="!atlas-cloud/dedicated-cluster/**/*"'
+  - name: test-web-sandbox-atlas-cloud-2
+    tags:
+      - required-for-publish-web
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-web-sandbox-atlas-cloud
+        vars:
+          compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 2
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
+          atlas_cloud_test_args: '--test-filter="!atlas-cloud/dedicated-cluster/**/*"'
+  - name: test-web-sandbox-atlas-cloud-3
+    tags:
+      - required-for-publish-web
+      - assigned_to_jira_team_compass_compass
+      - foliage_check_task_only
+    commands:
+      - func: prepare
+      - func: install
+      - func: bootstrap
+      - func: test-web-sandbox-atlas-cloud
+        vars:
+          compass_distribution: compass
+          e2e_test_groups: 3
+          e2e_test_group: 3
+          debug: compass-e2e-tests*,electron*,hadron*,mongo*
+          atlas_cloud_test_args: '--test-filter="!atlas-cloud/dedicated-cluster/**/*"'
   - name: test-web-sandbox-atlas-cloud-geo-sharded
     tags:
       - assigned_to_jira_team_compass_compass

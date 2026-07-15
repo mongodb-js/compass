@@ -43,6 +43,7 @@ const minicharts_d3fns_shared = {
   },
 
   tooltip: function (label, count) {
+    label = label.replaceAll(/</g, '&lt;').replaceAll(/>/g, '&gt;');
     return `
       <div class="tooltip-wrapper">
         <div class="tooltip-label">${label}</div>

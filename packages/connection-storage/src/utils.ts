@@ -1,15 +1,6 @@
 import ConnectionString from 'mongodb-connection-string-url';
-import { getAppName } from '@mongodb-js/compass-utils';
 
-import type {
-  ConnectionInfo,
-  ConnectionSecrets,
-} from '@mongodb-js/connection-info';
-
-export function getKeytarServiceName() {
-  const namespace = 'Connections';
-  return `${getAppName()}/${namespace}`;
-}
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 export function deleteCompassAppNameParam(
   connectionInfo: ConnectionInfo
@@ -40,13 +31,3 @@ export function deleteCompassAppNameParam(
     },
   };
 }
-
-export const parseStoredPassword = (
-  password: string
-): ConnectionSecrets | undefined => {
-  try {
-    return JSON.parse(password).secrets;
-  } catch {
-    return undefined;
-  }
-};

@@ -11,19 +11,30 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import type { SinonSpy } from 'sinon';
 import ConnectedPipelineActions, { PipelineActions } from './pipeline-actions';
-import { renderWithStore } from '../../../../test/configure-store';
+import {
+  renderWithStore,
+  wrapWithExperimentProvider,
+} from '../../../../test/configure-store';
 import { mockDataService } from '../../../../test/mocks/data-service';
 import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from 'compass-preferences-model';
 import { AIPipelineActionTypes } from '../../../modules/pipeline-builder/pipeline-ai';
+import {
+  ExperimentTestGroups,
+  type ExperimentTestGroup,
+} from '@mongodb-js/compass-telemetry';
 
 function renderPipelineActions(
   props: React.ComponentProps<typeof PipelineActions>,
-  renderOptions?: Parameters<typeof render>[1]
+  renderOptions?: Parameters<typeof render>[1],
+  experimentVariant: ExperimentTestGroup | null = ExperimentTestGroups.searchActivationProgramP2Variant
 ) {
-  return render(<PipelineActions {...props} />, renderOptions);
+  return render(<PipelineActions {...props} />, {
+    ...renderOptions,
+    experimentAssignment: experimentVariant,
+  });
 }
 
 describe('PipelineActions', function () {
@@ -39,25 +50,22 @@ describe('PipelineActions', function () {
       onToggleOptionsSpy = spy();
       onExplainAggregationSpy = spy();
 
-      renderPipelineActions(
-        {
-          isOptionsVisible: true,
-          showAIEntry: false,
-          showRunButton: true,
-          showExplainButton: true,
-          onRunAggregation: onRunAggregationSpy,
-          onToggleOptions: onToggleOptionsSpy,
-          isExplainButtonDisabled: false,
-          onExplainAggregation: () => {
-            onExplainAggregationSpy();
-          },
-          onUpdateView: () => {},
-          onCollectionScanInsightActionButtonClick: () => {},
-          onShowAIInputClick: () => {},
-          stages: [],
+      renderPipelineActions({
+        isOptionsVisible: true,
+        showAIEntry: false,
+        showRunButton: true,
+        showExplainButton: true,
+        onRunAggregation: onRunAggregationSpy,
+        onToggleOptions: onToggleOptionsSpy,
+        isExplainButtonDisabled: false,
+        onExplainAggregation: () => {
+          onExplainAggregationSpy();
         },
-        { preferences: { enableSearchActivationProgramP2: true } }
-      );
+        onUpdateView: () => {},
+        onCollectionScanInsightActionButtonClick: () => {},
+        onShowAIInputClick: () => {},
+        stages: [],
+      });
     });
 
     it('calls onRunAggregation callback on click', function () {
@@ -158,7 +166,7 @@ describe('PipelineActions', function () {
     });
   });
 
-  describe('when enableSearchActivationProgramP2 is false', function () {
+  describe('when not in the experiment variant', function () {
     let onExplainAggregationSpy: SinonSpy;
 
     beforeEach(function () {
@@ -181,7 +189,8 @@ describe('PipelineActions', function () {
           onShowAIInputClick: () => {},
           stages: [],
         },
-        { preferences: { enableSearchActivationProgramP2: false } }
+        undefined,
+        null
       );
     });
 
@@ -195,6 +204,43 @@ describe('PipelineActions', function () {
     });
   });
 
+  describe('while the experiment assignment is loading', function () {
+    beforeEach(function () {
+      render(
+        <PipelineActions
+          isOptionsVisible={true}
+          showAIEntry={false}
+          showRunButton={true}
+          showExplainButton={true}
+          onRunAggregation={() => {}}
+          onToggleOptions={() => {}}
+          onExplainAggregation={() => {}}
+          onUpdateView={() => {}}
+          onCollectionScanInsightActionButtonClick={() => {}}
+          onShowAIInputClick={() => {}}
+          stages={[]}
+        />,
+        { experimentAssignmentLoading: true }
+      );
+    });
+
+    it('shows a disabled loading Explain button instead of either variant', function () {
+      const loadingButton = screen.getByTestId(
+        'pipeline-toolbar-explain-aggregation-button-loading'
+      );
+      expect(loadingButton).to.exist;
+      expect(loadingButton.getAttribute('aria-disabled')).to.equal('true');
+      expect(
+        screen.queryByTestId(
+          'pipeline-toolbar-explain-aggregation-dropdown-button-show-actions'
+        )
+      ).to.not.exist;
+      expect(
+        screen.queryByTestId('pipeline-toolbar-explain-aggregation-button')
+      ).to.not.exist;
+    });
+  });
+
   describe('disables actions when pipeline is invalid', function () {
     let onRunAggregationSpy: SinonSpy;
     let onExplainAggregationSpy: SinonSpy;
@@ -203,26 +249,23 @@ describe('PipelineActions', function () {
       onRunAggregationSpy = spy();
       onExplainAggregationSpy = spy();
 
-      renderPipelineActions(
-        {
-          isExplainButtonDisabled: true,
-          isRunButtonDisabled: true,
-          isOptionsVisible: true,
-          showAIEntry: false,
-          showRunButton: true,
-          showExplainButton: true,
-          onRunAggregation: onRunAggregationSpy,
-          onToggleOptions: () => {},
-          onExplainAggregation: () => {
-            onExplainAggregationSpy();
-          },
-          onUpdateView: () => {},
-          onCollectionScanInsightActionButtonClick: () => {},
-          onShowAIInputClick: () => {},
-          stages: [],
+      renderPipelineActions({
+        isExplainButtonDisabled: true,
+        isRunButtonDisabled: true,
+        isOptionsVisible: true,
+        showAIEntry: false,
+        showRunButton: true,
+        showExplainButton: true,
+        onRunAggregation: onRunAggregationSpy,
+        onToggleOptions: () => {},
+        onExplainAggregation: () => {
+          onExplainAggregationSpy();
         },
-        { preferences: { enableSearchActivationProgramP2: true } }
-      );
+        onUpdateView: () => {},
+        onCollectionScanInsightActionButtonClick: () => {},
+        onShowAIInputClick: () => {},
+        stages: [],
+      });
     });
 
     it('run action disabled', function () {
@@ -251,23 +294,73 @@ describe('PipelineActions', function () {
     });
   });
 
+  describe('interpret dropdown item', function () {
+    function renderWithInterpretProps(
+      overrides: Partial<React.ComponentProps<typeof PipelineActions>> = {}
+    ) {
+      return renderPipelineActions({
+        isOptionsVisible: true,
+        showAIEntry: false,
+        showRunButton: true,
+        showExplainButton: true,
+        onRunAggregation: () => {},
+        onToggleOptions: () => {},
+        isExplainButtonDisabled: false,
+        onExplainAggregation: () => {},
+        onUpdateView: () => {},
+        onCollectionScanInsightActionButtonClick: () => {},
+        onShowAIInputClick: () => {},
+        stages: [],
+        ...overrides,
+      });
+    }
+
+    async function openDropdown() {
+      userEvent.click(
+        screen.getByTestId(
+          'pipeline-toolbar-explain-aggregation-dropdown-button-show-actions'
+        )
+      );
+      return screen.findByTestId(
+        'pipeline-toolbar-explain-aggregation-dropdown-button-interpret-action'
+      );
+    }
+
+    it('shows a spinner and disables Interpret when isInterpretLoading is true', async function () {
+      renderWithInterpretProps({ isInterpretLoading: true });
+      const item = await openDropdown();
+      expect(item.getAttribute('aria-disabled')).to.equal('true');
+      expect(screen.getByTitle('Loading interpret')).to.exist;
+    });
+
+    it('disables Interpret with description when pipeline has a $search stage', async function () {
+      renderWithInterpretProps({ stages: ['$search'] });
+      const item = await openDropdown();
+      expect(item.getAttribute('aria-disabled')).to.equal('true');
+      // Both Interpret and Visual Tree show this description for $search
+      expect(
+        screen.getAllByText('Not supported for this query').length
+      ).to.be.at.least(1);
+    });
+  });
+
   describe('with store', function () {
     let preferences: PreferencesAccess;
 
     beforeEach(async function () {
       preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableSearchActivationProgramP2: true,
-      });
     });
 
     async function renderPipelineActionsWithStore(options = {}) {
       const result = await renderWithStore(
-        <ConnectedPipelineActions
-          showExplainButton={true}
-          showRunButton={true}
-          onToggleOptions={() => {}}
-        ></ConnectedPipelineActions>,
+        wrapWithExperimentProvider(
+          <ConnectedPipelineActions
+            showExplainButton={true}
+            showRunButton={true}
+            onToggleOptions={() => {}}
+          ></ConnectedPipelineActions>,
+          ExperimentTestGroups.searchActivationProgramP2Variant
+        ),
         options,
         mockDataService(),
         { preferences }

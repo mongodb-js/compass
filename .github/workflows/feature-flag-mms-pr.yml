@@ -1,0 +1,178 @@
+name: Feature Flag MMS PR Creation
+
+on:
+  pull_request:
+    paths:
+      - 'packages/compass-preferences-model/src/feature-flags.ts'
+    types: [opened, synchronize, reopened]
+  push:
+    paths:
+      - 'packages/compass-preferences-model/src/feature-flags.ts'
+    branches:
+      - main
+
+jobs:
+  detect-flags:
+    name: Detect new feature flags
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      flags_count: ${{ steps.detect.outputs.flags_count }}
+      comment_body: ${{ steps.detect.outputs.comment_body }}
+      mms_pull_request_content: ${{ steps.detect.outputs.mms_pull_request_content }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          show-progress: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.15.0
+          cache: 'npm'
+
+      - name: Install npm@11.16.0
+        run: |
+          npm install -g npm@11.16.0
+
+      - name: Install Dependencies
+        run: |
+          npm install typescript@5.9.3 --ignore-scripts
+
+      - name: Detect new feature flags
+        id: detect
+        run: node packages/compass-preferences-model/scripts/detect-new-feature-flags-for-mms.mts
+        env:
+          # Different commit hashes are used depending on whether the workflow is triggered by a pull request or a push event (main).
+          BASE_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.event.after }}
+
+  add-comment-to-pr:
+    name: Comment on PR with new feature flags
+    needs: detect-flags
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && needs.detect-flags.outputs.flags_count != '' && needs.detect-flags.outputs.flags_count != '0'
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Post or update comment on PR
+        uses: actions/github-script@v7
+        env:
+          COMMENT_BODY: ${{ needs.detect-flags.outputs.comment_body }}
+        with:
+          script: |
+            const marker = '<!-- feature-flag-mms-comment -->';
+            const body = marker + '\n' + process.env.COMMENT_BODY;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const existing = comments.find(c => c.body.includes(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+  create-mms-pr:
+    name: Create MMS PR
+    needs: detect-flags
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    # Only run it on push to main and if there are new feature flags detected
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.detect-flags.outputs.flags_count != '' && needs.detect-flags.outputs.flags_count != '0'
+    steps:
+      - name: Create Github App Token
+        uses: mongodb-js/devtools-shared/actions/setup-bot-token@main
+        id: app-token
+        with:
+          app-id: ${{ vars.DEVTOOLS_BOT_APP_ID }}
+          private-key: ${{ secrets.DEVTOOLS_BOT_PRIVATE_KEY }}
+          owner: 10gen
+          repositories: mms
+
+      - name: Checkout MMS
+        uses: actions/checkout@v4
+        with:
+          repository: 10gen/mms
+          token: ${{ steps.app-token.outputs.token }}
+          path: mms
+          show-progress: false
+      - name: Setup PR info
+        id: pull-request-info
+        env:
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+        run: |
+          # JIRA Ticket
+          TICKET=$(echo "$COMMIT_MSG" | grep -oE '\b[A-Z]+-[0-9]+\b' | head -1)
+          if [ -z "$TICKET" ]; then
+            TICKET="CLOUDP-XXXX"
+          fi
+          echo "ticket=${TICKET}" >> $GITHUB_OUTPUT
+
+          # Branch Name
+          REPO_SANITIZED="${{ github.repository }}"
+          REPO_SANITIZED="${REPO_SANITIZED//\//-}"
+          BRANCH_NAME="${TICKET}/${REPO_SANITIZED}-${{ github.sha }}"
+          echo "name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+
+          # Assign the PR to the author of the commit, fallback to empty if not available
+          AUTHOR="${{ github.event.head_commit.author.username }}"
+          if [ -n "$AUTHOR" ]; then
+            echo "reviewer=${AUTHOR}" >> $GITHUB_OUTPUT
+          else
+            echo "reviewer=code-review-team-data-explorer" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add feature flag config files
+        env:
+          MMS_FLAGS: ${{ needs.detect-flags.outputs.mms_pull_request_content }}
+        run: |
+          echo "$MMS_FLAGS" | jq -c '.[]' | while read -r flag; do
+            filePath=$(echo "$flag" | jq -r '.filePath')
+            config=$(echo "$flag" | jq -r '.config')
+            mkdir -p "mms/$(dirname "$filePath")"
+            if ! printf '%s' "$config" > "mms/$filePath"; then
+              echo "Error: Failed to write $filePath"
+              exit 1
+            fi
+            echo "Successfully created mms/$filePath"
+          done
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@5e914681df9dc83aa4e4905692ca88beb2f9e91f # 7.0.5
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          path: mms
+          sign-commits: true
+          add-paths: feature-flags/definitions/developer-tools
+          branch: ${{ steps.pull-request-info.outputs.name }}
+          commit-message: 'sync feature flags from ${{ github.repository }}@${{ github.sha }}'
+          title: '${{ steps.pull-request-info.outputs.ticket }}: Add feature flag config from Compass'
+          reviewers: ${{ steps.pull-request-info.outputs.reviewer }}
+          author: '${{ steps.app-token.outputs.app-slug }}[bot] <${{ steps.app-token.outputs.app-email }}>'
+          body: |
+            Ticket: [${{ steps.pull-request-info.outputs.ticket }}](https://jira.mongodb.org/browse/${{ steps.pull-request-info.outputs.ticket }})
+
+            ## Description
+
+            This PR is autogenerated by the [feature-flag-mms-pr.yml](https://github.com/${{ github.repository }}/actions/workflows/feature-flag-mms-pr.yml)
+            workflow when feature flags are added to Compass.
+
+            **Source:** [${{ github.repository }}@${{ github.sha }}](https://github.com/${{ github.repository }}/commit/${{ github.sha }})

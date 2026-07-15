@@ -1,89 +1,94 @@
 /**
- * Traits sent along with the Segment identify call
+ * The Segment identify call
+ *
+ * @category Identify
  */
-export type IdentifyTraits = {
-  /**
-   * Shortened version number (e.g., '1.29').
-   */
-  compass_version: string;
+export type IdentifyEvent = {
+  name: 'Identify';
+  payload: {
+    /**
+     * Shortened version number (e.g., '1.29').
+     */
+    compass_version: string;
 
-  /**
-   * The full version of the Compass application, including additional identifiers
-   * such as build metadata or pre-release tags (e.g., '1.29.0-beta.1').
-   */
-  compass_full_version: string;
+    /**
+     * The full version of the Compass application, including additional identifiers
+     * such as build metadata or pre-release tags (e.g., '1.29.0-beta.1').
+     */
+    compass_full_version: string;
 
-  /**
-   * The distribution of Compass being used.
-   */
-  compass_distribution: 'compass' | 'compass-readonly' | 'compass-isolated';
+    /**
+     * The distribution of Compass being used.
+     */
+    compass_distribution: 'compass' | 'compass-readonly' | 'compass-isolated';
 
-  /**
-   * The release channel of Compass.
-   * - 'stable' for the general release.
-   * - 'beta' for pre-release versions intended for testing.
-   * - 'dev' for development versions only distributed internally.
-   */
-  compass_channel: 'stable' | 'beta' | 'dev';
+    /**
+     * The release channel of Compass.
+     * - 'stable' for the general release.
+     * - 'beta' for pre-release versions intended for testing.
+     * - 'dev' for development versions only distributed internally.
+     */
+    compass_channel: 'stable' | 'beta' | 'dev';
 
-  /**
-   * The platform on which Compass is running, derived from Node.js `os.platform()`.
-   * Corresponds to the operating system (e.g., 'darwin' for macOS, 'win32' for Windows, 'linux' for Linux).
-   */
-  platform: string;
+    /**
+     * The platform on which Compass is running, derived from Node.js `os.platform()`.
+     * Corresponds to the operating system (e.g., 'darwin' for macOS, 'win32' for Windows, 'linux' for Linux).
+     */
+    platform: string;
 
-  /**
-   * The architecture of the system's processor, derived from Node.js `os.arch()`.
-   * 'x64' for 64-bit processors and 'arm' for ARM processors.
-   */
-  arch: string;
+    /**
+     * The architecture of the system's processor, derived from Node.js `os.arch()`.
+     * 'x64' for 64-bit processors and 'arm' for ARM processors.
+     */
+    arch: string;
 
-  /**
-   * The type of operating system, including specific operating system
-   * names or types (e.g., 'Linux', 'Windows_NT', 'Darwin').
-   */
-  os_type?: string;
+    /**
+     * The type of operating system, including specific operating system
+     * names or types (e.g., 'Linux', 'Windows_NT', 'Darwin').
+     */
+    os_type?: string;
 
-  /**
-   * Detailed kernel or system version information.
-   * Example: 'Darwin Kernel Version 21.4.0: Fri Mar 18 00:45:05 PDT 2022; root:xnu-8020.101.4~15/RELEASE_X86_64'.
-   */
-  os_version?: string;
+    /**
+     * Detailed kernel or system version information.
+     * Example: 'Darwin Kernel Version 21.4.0: Fri Mar 18 00:45:05 PDT 2022; root:xnu-8020.101.4~15/RELEASE_X86_64'.
+     */
+    os_version?: string;
 
-  /**
-   * The architecture of the operating system, if available, which might be more specific
-   * than the system's processor architecture (e.g., 'x86_64' for 64-bit architecture).
-   */
-  os_arch?: string;
+    /**
+     * The architecture of the operating system, if available, which might be more specific
+     * than the system's processor architecture (e.g., 'x86_64' for 64-bit architecture).
+     */
+    os_arch?: string;
 
-  /**
-   * The release identifier of the operating system.
-   * This can provide additional details about the operating system release or
-   * version (e.g. the kernel version for a specific macOS release).
-   *
-   * NOTE: This property helps determine the macOS version in use. The reported
-   * version corresponds to the Darwin kernel version, which can be mapped
-   * to the respective macOS release using the conversion table available at:
-   * https://en.wikipedia.org/wiki/MacOS_version_history.
-   */
-  os_release?: string;
+    /**
+     * The release identifier of the operating system.
+     * This can provide additional details about the operating system release or
+     * version (e.g. the kernel version for a specific macOS release).
+     *
+     * NOTE: This property helps determine the macOS version in use. The reported
+     * version corresponds to the Darwin kernel version, which can be mapped
+     * to the respective macOS release using the conversion table available at:
+     * https://en.wikipedia.org/wiki/MacOS_version_history.
+     */
+    os_release?: string;
 
-  /**
-   * The Linux distribution name, if running on a Linux-based operating system,
-   * derived by reading from `/etc/os-release`.
-   * Examples include 'ubuntu', 'debian', or 'rhel'.
-   */
-  os_linux_dist?: string;
+    /**
+     * The Linux distribution name, if running on a Linux-based operating system,
+     * derived by reading from `/etc/os-release`.
+     * Examples include 'ubuntu', 'debian', or 'rhel'.
+     */
+    os_linux_dist?: string;
 
-  /**
-   * The version of the Linux distribution, if running on a Linux-based operating system,
-   * derived by reading from `/etc/os-release`.
-   * Examples include '20.04' for Ubuntu or '10' for Debian.
-   */
-  os_linux_release?: string;
+    /**
+     * The version of the Linux distribution, if running on a Linux-based operating system,
+     * derived by reading from `/etc/os-release`.
+     * Examples include '20.04' for Ubuntu or '10' for Debian.
+     */
+    os_linux_release?: string;
+  };
 };
 
-export type CommonProperties = {
+export type CommonEventProperties = {
   is_compass_web?: true;
 };
 
@@ -91,7 +96,7 @@ export type CommonProperties = {
  * All events in compass
  */
 type CommonEvent<E extends { payload: unknown }> = E & {
-  payload: E['payload'] & CommonProperties;
+  payload: E['payload'] & CommonEventProperties;
 };
 
 export type ConnectionScopedProperties = {
@@ -105,7 +110,7 @@ export type ConnectionScopedProperties = {
  * Events that are connection scoped are associated with one connection.
  */
 type ConnectionScopedEvent<E extends { payload: unknown }> = E & {
-  payload: E['payload'] & CommonProperties & ConnectionScopedProperties;
+  payload: E['payload'] & CommonEventProperties & ConnectionScopedProperties;
 };
 
 /**
@@ -1525,7 +1530,14 @@ type AssistantPromptSubmittedEvent = ConnectionScopedEvent<{
 type AssistantEntryPointUsedEvent = ConnectionScopedEvent<{
   name: 'Assistant Entry Point Used';
   payload: {
-    source: 'explain plan' | 'performance insights' | 'connection error';
+    source:
+      | 'explain plan'
+      | 'performance insights'
+      | 'connection error'
+      | 'follow-up prompt'
+      | 'analyze output'
+      | 'search stage error'
+      | 'search stage diagnose';
     request_id?: string;
   };
 }>;
@@ -2868,35 +2880,6 @@ type ApplicationLaunchedEvent = CommonEvent<{
      * Whether any preferences were specified using CLI arguments.
      */
     cli_args: boolean;
-
-    /**
-     * Whether Compass discovered any connections in the legacy connection format
-     * (prior to COMPASS-5490 'Remove storage-mixin' from summer 2023).
-     */
-    legacy_connections: boolean;
-  };
-}>;
-
-/**
- * This event is fired when the keytar migration fails for a user.
- * See: https://jira.mongodb.org/browse/COMPASS-6856.
- *
- * NOTE: Should be removed as part of https://jira.mongodb.org/browse/COMPASS-7948.
- *
- * @category Other
- */
-type KeytarSecretsMigrationFailedEvent = CommonEvent<{
-  name: 'Keytar Secrets Migration Failed';
-  payload: {
-    /**
-     * The number of connections that were successfully saved.
-     */
-    num_saved_connections: number;
-
-    /**
-     * The number of connections that failed to save during the migration.
-     */
-    num_failed_connections: number;
   };
 }>;
 
@@ -3743,6 +3726,205 @@ type SearchIndexStatusDetailsLinkClickedEvent = CommonEvent<{
   };
 }>;
 
+export type RerankTelemetryContext =
+  | 'Rerank Not Enabled Banner'
+  | 'Rerank Version Warning Banner'
+  | 'Rerank First Stage Banner'
+  | 'Rerank Insight'
+  | 'Stage Toolbar'
+  | 'Focus Mode';
+
+/**
+ * This event is fired when the "rerank not enabled" server error banner is
+ * shown to the user in the pipeline results workspace.
+ *
+ * @category Aggregation Builder
+ */
+type RerankNotEnabledBannerShownEvent = CommonEvent<{
+  name: 'Rerank Not Enabled Banner Shown';
+  payload: {
+    /** The context/screen from which the banner was shown. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the rerank server version warning banner is shown
+ * to the user, indicating the cluster must be upgraded to use $rerank.
+ *
+ * @category Aggregation Builder
+ */
+type RerankVersionWarningBannerShownEvent = CommonEvent<{
+  name: 'Rerank Version Warning Banner Shown';
+  payload: {
+    /** The context/screen from which the banner was shown. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user dismisses the $rerank first-stage
+ * insight banner.
+ *
+ * @category Aggregation Builder
+ */
+type RerankFirstStageBannerDismissedEvent = CommonEvent<{
+  name: 'Rerank First Stage Banner Dismissed';
+  payload: {
+    /** The context/screen from which the banner was dismissed. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Learn more" button in the
+ * $rerank first-stage insight banner.
+ *
+ * @category Aggregation Builder
+ */
+type RerankFirstStageBannerLearnMoreClickedEvent = CommonEvent<{
+  name: 'Rerank First Stage Banner Learn More Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Add $search stage" button
+ * in the $rerank insight popover.
+ *
+ * @category Aggregation Builder
+ */
+type RerankAddSearchStageButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Add Search Stage Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Learn about search" button
+ * in the $rerank insight popover.
+ *
+ * @category Aggregation Builder
+ */
+type RerankLearnAboutSearchButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Learn About Search Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Tell me more" assistant
+ * button in the $rerank insight popover.
+ *
+ * @category Aggregation Builder
+ */
+type RerankTellMeMoreButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Tell Me More Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Upgrade Cluster" button in
+ * the rerank version warning banner.
+ *
+ * @category Aggregation Builder
+ */
+type RerankUpgradeClusterButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Upgrade Cluster Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "Project Settings" button in
+ * the rerank not enabled banner.
+ *
+ * @category Aggregation Builder
+ */
+type RerankProjectSettingsButtonClickedEvent = CommonEvent<{
+  name: 'Rerank Project Settings Button Clicked';
+  payload: {
+    /** The context/screen from which the button was clicked. */
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "View $rerank Usage and Rate
+ * Limits" link in the stage toolbar or focus mode header.
+ *
+ * @category Aggregation Builder
+ */
+type RerankViewUsageAndRateLimitsLinkClickedEvent = CommonEvent<{
+  name: 'Rerank View Usage And Rate Limits Link Clicked';
+  payload: {
+    context: RerankTelemetryContext;
+  };
+}>;
+
+/**
+ * This event is fired when the search extension rate limit exceeded banner
+ * is shown to the user.
+ *
+ * @category Aggregation Builder
+ */
+type SearchExtensionRateLimitBannerShownEvent = CommonEvent<{
+  name: 'Search Extension Rate Limit Banner Shown';
+  payload: {
+    /** The context/screen from which the banner was shown. */
+    context: 'Search Extension Rate Limit Banner';
+    /** The search extension type that triggered the rate limit. */
+    search_extension_type: string | null;
+    /** The type of rate limit that was exceeded. */
+    rate_limit_type: 'billing' | 'rpm' | 'tpm';
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the billing link in the search
+ * extension rate limit banner.
+ *
+ * @category Aggregation Builder
+ */
+type SearchExtensionRateLimitBillingLinkClickedEvent = CommonEvent<{
+  name: 'Search Extension Rate Limit Billing Link Clicked';
+  payload: {
+    /** The context/screen from which the link was clicked. */
+    context: 'Search Extension Rate Limit Banner';
+    /** The search extension type that triggered the rate limit. */
+    search_extension_type: string | null;
+  };
+}>;
+
+/**
+ * This event is fired when the user clicks the "View Rate Limit" link in the
+ * search extension rate limit banner.
+ *
+ * @category Aggregation Builder
+ */
+type SearchExtensionRateLimitPageLinkClickedEvent = CommonEvent<{
+  name: 'Search Extension Rate Limit Page Link Clicked';
+  payload: {
+    /** The context/screen from which the link was clicked. */
+    context: 'Search Extension Rate Limit Banner';
+    /** The search extension type that triggered the rate limit. */
+    search_extension_type: string | null;
+    /** Whether the rate limit is requests-per-minute or tokens-per-minute. */
+    rate_limit_type: 'rpm' | 'tpm';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -3843,6 +4025,7 @@ export type TelemetryEvent =
   | FocusModeOpenedEvent
   | GuideCueDismissedEvent
   | GuideCueGroupDismissedEvent
+  | IdentifyEvent
   | ImportCompletedEvent
   | ImportErrorLogOpenedEvent
   | ImportOpenedEvent
@@ -3851,7 +4034,6 @@ export type TelemetryEvent =
   | IndexCreateOpenedEvent
   | IndexDroppedEvent
   | IndexEditedEvent
-  | KeytarSecretsMigrationFailedEvent
   | MyQueriesFilterEvent
   | MyQueriesSearchEvent
   | MyQueriesSortEvent
@@ -3938,4 +4120,17 @@ export type TelemetryEvent =
   | SearchIndexEditCancelledEvent
   | ManageSearchIndexesLinkClickedEvent
   | RenderProcessGoneEvent
-  | SearchIndexStatusDetailsLinkClickedEvent;
+  | SearchIndexStatusDetailsLinkClickedEvent
+  | RerankNotEnabledBannerShownEvent
+  | RerankVersionWarningBannerShownEvent
+  | RerankFirstStageBannerDismissedEvent
+  | RerankFirstStageBannerLearnMoreClickedEvent
+  | RerankAddSearchStageButtonClickedEvent
+  | RerankLearnAboutSearchButtonClickedEvent
+  | RerankTellMeMoreButtonClickedEvent
+  | RerankUpgradeClusterButtonClickedEvent
+  | RerankProjectSettingsButtonClickedEvent
+  | RerankViewUsageAndRateLimitsLinkClickedEvent
+  | SearchExtensionRateLimitBannerShownEvent
+  | SearchExtensionRateLimitBillingLinkClickedEvent
+  | SearchExtensionRateLimitPageLinkClickedEvent;

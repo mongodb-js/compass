@@ -10,7 +10,6 @@ import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
 import React from 'react';
 import { usePreferences } from 'compass-preferences-model/provider';
 import toNS from 'mongodb-ns';
-import { wrapField } from '@mongodb-js/mongodb-constants';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import {
   buildChartsUrl,
@@ -66,8 +65,8 @@ const CollectionHeaderActions: React.FunctionComponent<
           data-testid="collection-header-open-shell-button"
           onClick={() => {
             openShellWorkspace(connectionId, {
-              initialEvaluate: `use ${database}`,
-              initialInput: `db[${wrapField(collection, true)}].find()`,
+              initialEvaluate: `use(${JSON.stringify(database)})`,
+              initialInput: `db[${JSON.stringify(collection)}].find()`,
             });
             track('Open Shell', { entrypoint: 'collection' }, connectionInfo);
           }}

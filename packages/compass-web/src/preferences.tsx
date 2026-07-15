@@ -1,6 +1,7 @@
 import {
   CompassWebPreferencesAccess,
   featureFlags as FEATURE_FLAG_DEFINITIONS,
+  isPreferenceNameValid,
   type AllPreferences,
   type FeatureFlagDefinition,
   type FeatureFlags,
@@ -21,9 +22,6 @@ export const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableGenAIToolCallingAtlasProject: true,
   enablePerformanceAdvisorBanner: true,
   enableMyQueries: false,
-  cloudFeatureRolloutAccess: {
-    GEN_AI_COMPASS: false,
-  },
   maximumNumberOfActiveConnections: 10,
   trackUsageStatistics: true,
   enableShell: false,
@@ -123,8 +121,13 @@ const getPermissionsFromUserRoles = (userRoles: {
  * @internal Exported for testing.
  */
 export async function getPreferencesFromCloudApi(projectId: string) {
-  const { featureFlags, userAuid, appUser, currentOrganization, userRoles } =
-    await _fetchPreferencesFromCloudApi(projectId);
+  const {
+    featureFlags: featureFlagsAndPreferences,
+    userAuid,
+    appUser,
+    currentOrganization,
+    userRoles,
+  } = await _fetchPreferencesFromCloudApi(projectId);
 
   const atlasCloudUserPreferences: Partial<AllPreferences> = {
     atlasServiceBackendPreset: getAtlasServiceBackendPreset(),
@@ -140,7 +143,15 @@ export async function getPreferencesFromCloudApi(projectId: string) {
 
   // Cloud feature flags arrive keyed by their Compass preference name. We
   // override Compass' value to resolve to the cloud value.
-  for (const [name, enabled] of Object.entries(featureFlags)) {
+  // Note: Things we would consider preferences in Compass are feature flags in
+  // mms. For instance, settings on the project that enable or disable features
+  // for users of that project are feature flags in mms. As a result, the properties in
+  // this `featureFlags` object are a mix of feature flags and preferences from Compass' perspective.
+  for (const [name, enabled] of Object.entries(featureFlagsAndPreferences)) {
+    // Filter the feature flags that are not defined in Compass' preferences schema.
+    if (!isPreferenceNameValid(name)) {
+      continue;
+    }
     (atlasCloudUserPreferences as Record<string, unknown>)[name] = enabled;
     if (FEATURE_FLAG_BY_NAME.has(name)) {
       const scope = FEATURE_FLAG_BY_NAME.get(name)?.atlasCloudFeatureScope;
@@ -172,6 +183,8 @@ async function _fetchAndCachePreferences(
       {
         ...DEFAULT_COMPASS_WEB_PREFERENCES,
         ...atlasCloudUserPreferences,
+        ...atlasCloudProjectPreferences,
+        ...atlasCloudOrgPreferences,
       },
       {
         atlasCloudUser: atlasCloudUserPreferences,

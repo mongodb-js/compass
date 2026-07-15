@@ -6,11 +6,9 @@ import { Resizable } from 're-resizable';
 import PipelineEditor from './pipeline-editor';
 import PipelinePreview from './pipeline-preview';
 import ResizeHandle from '../../resize-handle';
-import { RerankTokensBanner } from '../../rerank-tokens-banner';
 import type { RootState } from '../../../modules';
 import { RerankFirstStageBanner } from '../../rerank-first-stage-banner';
-import { getIsRerankFirstStage } from '../../../modules/pipeline-builder/builder-helpers';
-import { getStageOperator } from '../../../utils/stage';
+import { getIsRerankFirstStageBannerVisible } from '../../../modules/pipeline-builder/builder-helpers';
 
 const outerContainerStyles = css({
   display: 'flex',
@@ -21,6 +19,7 @@ const outerContainerStyles = css({
 const rowStyles = css({
   display: 'flex',
   flex: 1,
+  height: '100%',
 });
 
 const noPreviewEditorStyles = css({
@@ -37,19 +36,25 @@ const workspaceContainerStyles = css({
   paddingBottom: spacing[400],
   width: '100%',
   overflow: 'auto',
+  scrollbarGutter: 'stable',
+});
+
+// To match with keycard border styles.
+const rerankBannerStyles = css({
+  borderTopLeftRadius: spacing[200],
+  borderTopRightRadius: spacing[200],
 });
 
 type PipelineAsTextWorkspaceProps = {
   isAutoPreview: boolean;
   showRerankFirstStageBanner: boolean;
-  showRerankTokensBanner: boolean;
 };
 
 const containerDataTestId = 'pipeline-as-text-workspace';
 
 export const PipelineAsTextWorkspace: React.FunctionComponent<
   PipelineAsTextWorkspaceProps
-> = ({ isAutoPreview, showRerankFirstStageBanner, showRerankTokensBanner }) => {
+> = ({ isAutoPreview, showRerankFirstStageBanner }) => {
   if (!isAutoPreview) {
     return (
       <div className={workspaceContainerStyles}>
@@ -58,7 +63,7 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
           className={outerContainerStyles}
         >
           {showRerankFirstStageBanner && (
-            <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
+            <RerankFirstStageBanner className={rerankBannerStyles} />
           )}
           <div className={noPreviewEditorStyles}>
             <PipelineEditor />
@@ -74,10 +79,7 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
         className={outerContainerStyles}
       >
         {showRerankFirstStageBanner && (
-          <RerankFirstStageBanner data-testid="pipeline-editor-rerank-first-stage-banner" />
-        )}
-        {showRerankTokensBanner && (
-          <RerankTokensBanner data-testid="pipeline-editor-rerank-tokens-banner" />
+          <RerankFirstStageBanner className={rerankBannerStyles} />
         )}
         <div className={rowStyles}>
           <Resizable
@@ -106,19 +108,10 @@ export const PipelineAsTextWorkspace: React.FunctionComponent<
 };
 
 const mapState = (state: RootState) => {
-  const {
-    autoPreview,
-    pipelineBuilder: {
-      textEditor: {
-        pipeline: { pipeline },
-      },
-    },
-  } = state;
+  const { autoPreview } = state;
   return {
     isAutoPreview: !!autoPreview,
-    showRerankFirstStageBanner: getIsRerankFirstStage(state),
-    showRerankTokensBanner:
-      pipeline.some((s) => getStageOperator(s) === '$rerank') && !!autoPreview,
+    showRerankFirstStageBanner: getIsRerankFirstStageBannerVisible(state),
   };
 };
 

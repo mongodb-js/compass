@@ -5,7 +5,7 @@ import { createLogger } from '@mongodb-js/compass-logging';
 import type { CompassApplication } from './application';
 import type { EventEmitter } from 'events';
 import { getOsInfo } from '@mongodb-js/get-os-info';
-import type { IdentifyTraits } from '@mongodb-js/compass-telemetry';
+import type { IdentifyEvent } from '@mongodb-js/compass-telemetry';
 import { getDeviceId } from '@mongodb-js/device-id';
 import { getMachineId } from 'native-machine-id';
 
@@ -52,7 +52,7 @@ class CompassTelemetry {
 
   private static initPromise: Promise<void> | null = null;
 
-  private static _getCommonProperties() {
+  private static _getCommonEventProperties() {
     // Used in both track and identify to add common traits
     // to any event that we send to segment
     return {
@@ -66,7 +66,7 @@ class CompassTelemetry {
 
   // Keep this method synchronous to avoid race conditions.
   private static _track(info: EventInfo) {
-    const commonProperties = this._getCommonProperties();
+    const commonProperties = this._getCommonEventProperties();
 
     if (!this.telemetryAnonymousId) {
       this.queuedEvents.push(info);
@@ -112,8 +112,8 @@ class CompassTelemetry {
       this.analytics &&
       this.telemetryAnonymousId
     ) {
-      const traits: IdentifyTraits = {
-        ...this._getCommonProperties(),
+      const traits: IdentifyEvent['payload'] = {
+        ...this._getCommonEventProperties(),
         platform: process.platform,
         arch: process.arch,
         ...this.osInfo,

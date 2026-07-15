@@ -20,9 +20,13 @@ import {
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import {
+  useTelemetry,
+  useSearchActivationProgramP2,
+} from '@mongodb-js/compass-telemetry/provider';
 import { NON_GENUINE_WARNING_MESSAGE } from '../preset-messages';
 import { SuggestedPrompts } from './suggested-prompts';
+import { FollowUpPrompts, parseFollowUpQuestions } from './follow-up-prompts';
 import type { ToolUIPart } from 'ai';
 import { useAssistantGlobalState } from '../assistant-global-state';
 import type { WorkspaceTab } from '@mongodb-js/workspace-info';
@@ -235,6 +239,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const track = useTelemetry();
   const darkMode = useDarkMode();
   const isToolCallingEnabled = usePreference('enableToolCalling');
+  const { enableSearchActivationProgramP2 } = useSearchActivationProgramP2({
+    trackIsInSample: false,
+  });
   const enableGenAIToolCallingAtlasProject = usePreference(
     'enableGenAIToolCallingAtlasProject'
   );
@@ -309,6 +316,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     }) ?? null;
 
   const shouldDisplayThinking = isAssistantThinking(status, messages);
+  const isResponseComplete = status === 'ready' && !shouldDisplayThinking;
   const toolsController = useToolsController();
 
   useEffect(() => {
@@ -587,6 +595,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 const seenTitles = new Set<string>();
                 const sources = [];
                 const toolCalls: ToolUIPart[] = [];
+                const isLastMessage = index === visibleMessages.length - 1;
 
                 for (const part of parts) {
                   // Related sources are type source-url. We want to only
@@ -612,7 +621,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 // Handle confirmation messages
                 if (metadata?.confirmation) {
                   const { description, state } = metadata.confirmation;
-                  const isLastMessage = index === visibleMessages.length - 1;
 
                   return (
                     <ConfirmationMessage
@@ -631,7 +639,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                   );
                 }
 
-                const displayText =
+                const rawDisplayText =
                   message.metadata?.displayText ||
                   message.parts
                     ?.filter((part) => part.type === 'text')
@@ -639,6 +647,18 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                     .join('');
 
                 const isSender = role === 'user';
+
+                const parsedMessage =
+                  !isSender && rawDisplayText && enableSearchActivationProgramP2
+                    ? parseFollowUpQuestions(rawDisplayText, {
+                        isLastMessage,
+                        isResponseComplete,
+                      })
+                    : null;
+                const displayText = parsedMessage
+                  ? parsedMessage.strippedText
+                  : rawDisplayText;
+                const followUpQuestions = parsedMessage?.questions ?? [];
 
                 const messageConnection =
                   message.metadata?.connectionInfo ?? null;
@@ -703,6 +723,17 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                           />
                         )}
                       </Message>
+                    )}
+                    {followUpQuestions.length > 0 && (
+                      <FollowUpPrompts
+                        questions={followUpQuestions}
+                        onSend={(text) =>
+                          void handleMessageSend({
+                            text,
+                            metadata: { source: 'follow-up prompt' },
+                          })
+                        }
+                      />
                     )}
                   </React.Fragment>
                 );

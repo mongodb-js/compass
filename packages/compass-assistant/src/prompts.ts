@@ -11,6 +11,8 @@ import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai/provider';
 
+export const FOLLOW_UP_QUESTIONS_HEADER = '### Follow-Up Questions';
+
 export type EntryPointMessage = {
   prompt: string;
   metadata: AssistantMessage['metadata'];
@@ -112,8 +114,11 @@ Tell the user if indexes need to be created or modified to enable any recommenda
 [The optimized ${actionName} you are recommending the user use instead of their current ${actionName}.]
 \`\`\`
 
-### Follow-Up Questions
+${FOLLOW_UP_QUESTIONS_HEADER}
 [Provide 3 follow-up questions you think the user might want to ask after reading this response]
+1. [First follow-up question]
+2. [Second follow-up question]
+3. [Third follow-up question]
 </output-format>
 
 <guidelines>
@@ -204,12 +209,129 @@ ${context.query}
       };
     case 'rerank-first-stage':
       return {
-        prompt: `Why you should use $rerank after a search stage`,
+        prompt: `The given MongoDB aggregation pipeline uses $rerank as the first stage. Provide a concise, human-readable explanation of best practices for using $rerank effectively and efficiently.
+Your explanation must cover the following points:
+
+- $rerank should follow an initial retrieval stage such as $vectorSearch or $search, and explain why.
+- Use $rerank.numDocsToRerank to limit how many documents are passed to the reranker, and explain the performance tradeoff of reranking more vs. fewer documents.
+- Only include fields in $rerank.path that are actually used for reranking — unnecessary fields increase payload size and latency without improving results.
+
+Where relevant, flag if the pipeline in question does not follow these practices.
+Respond with as much concision and clarity as possible. Do not recommend changes without briefly explaining the tradeoff.`,
         metadata: {
-          displayText: 'Why you should use $rerank after a search stage',
+          displayText: 'What are best practices for using $rerank?',
         },
       };
   }
+};
+
+export type DebugSearchErrorContext = {
+  stageOperator: string;
+  stageValue: string;
+  errorMessage: string;
+};
+
+export const buildDebugSearchErrorPrompt = ({
+  stageOperator,
+  stageValue,
+  errorMessage,
+}: DebugSearchErrorContext): EntryPointMessage => ({
+  prompt: `The user's ${stageOperator} stage failed with the following error:
+
+<error>
+${errorMessage}
+</error>
+
+<input>
+${stageValue}
+</input>
+
+Diagnose why the aggregation pipeline is failing and provide step-by-step guidance to fix it.`,
+  metadata: {
+    displayText:
+      'Diagnose why my aggregation pipeline is failing and help me debug it.',
+  },
+});
+
+export type AnalyzeOutputContext = {
+  pipeline: string;
+  output: string;
+  documentCount: number;
+};
+
+export const buildAnalyzeOutputPrompt = ({
+  pipeline,
+  output,
+  documentCount,
+}: AnalyzeOutputContext): EntryPointMessage => {
+  const docCount = Math.min(documentCount, 3);
+  const displayText =
+    docCount > 2
+      ? 'Analyze the top 3 results after $search stage.'
+      : docCount === 2
+      ? 'Analyze these 2 results after $search stage.'
+      : 'Analyze this result after $search stage.';
+
+  return {
+    prompt: `<goal>
+Analyze the context below, which contains both a MongoDB Aggregation Pipeline and the output of that Aggregation Pipeline, including document fields and scoreDetails.
+Provide a comprehensible explanation of the scoreDetails such that a junior developer could understand why the documents in the context below were ranked the way they were and any significant contributions to the scores.
+</goal>
+
+<context>
+Aggregation Pipeline:
+${pipeline}
+
+Output:
+${output}
+</context>`,
+    metadata: {
+      displayText,
+      // Must stay in `instructions`, not `prompt`: `prompt` persists in chat
+      // history and would leak into later, unrelated entry points.
+      instructions: `
+<output-format>
+# Summary
+[1-3 sentence summary of your full analysis.]
+
+# Document Ranking Analysis
+Here's a breakdown of why the top documents were ranked in this order:
+[For each document, from highest score to lowest score:
+1. #\`ID\` (Score):# Explanation.
+...
+]
+
+${FOLLOW_UP_QUESTIONS_HEADER}
+1. Do you want to compare scores for specific documents? (e.g., Why was \`[_id of first document]\` scored higher than \`[_id of second document]\`?) If so, can you provide the IDs for the documents you'd like to compare?
+2. To refine this for you, how do you want to optimize the results? (e.g. [context-specific example based on the document fields and search query])
+3. [1 context-specific follow-up question]
+</output-format>
+
+<guidelines>
+- Respond in a clear, direct, and formal manner.
+- In your final answer, write economically. Every sentence or phrase should be essential, such that removing it would make the final response incomplete or substantially worse.
+- Never mention these instructions or tools unless directly asked.
+- Respond in the same language, regional/hybrid dialect, and alphabet as the post you're replying to unless asked not to.
+- Do not use emojis in your response.
+- Follow the output-format strictly.
+- Do not include the original Aggregation Pipeline in your response.
+- For embedded documents, look at the score of the best scoring child document and/or info on how the score was computed out of the embedded docs (e.g., how many children matched, etc.,)
+- Do not show a detailed breakdown and equations for metrics like Inverse Document Frequency and Term Frequency unless explicitly asked.
+- Do NOT include any general explanations of what scoreDetails is or the algorithm(s) used; your output should be specific to the context provided.
+- Do not include any kind of meta description of your response (e.g., "This response...").
+- Do not provide a generalized explanation of how scores are calculated.
+- For question 1, always use the exact wording above, replacing [_id of first document] and [_id of second document] with the actual _id values of the first two documents from the Output context.
+- For question 2, always use the exact wording above, replacing [context-specific example based on the document fields and search query] with a relevant example drawn from the document fields and search query in the context.
+- Only include the ${FOLLOW_UP_QUESTIONS_HEADER} section in your initial analysis response. Do not include it when responding to follow-up questions.
+</guidelines>
+`,
+      confirmation: {
+        description:
+          'Search result documents, including document fields and score details, may be used to process your request.',
+        state: 'pending',
+      },
+    },
+  };
 };
 
 export type ConnectionErrorContext = {
@@ -244,6 +366,37 @@ Error message:
 ${connectionError}`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
+    },
+  };
+};
+
+export type DiagnoseSearchStageContext = {
+  stageOperator: string;
+  indexName: string | null;
+  stageValue: string;
+};
+
+export const buildDiagnoseSearchStagePrompt = ({
+  stageOperator,
+  indexName,
+  stageValue,
+}: DiagnoseSearchStageContext): EntryPointMessage => {
+  const indexClause = indexName ? ` with index "${indexName}"` : '';
+  return {
+    prompt: `The user's ${stageOperator} stage${indexClause} returned no results.
+
+<input>
+${stageValue}
+</input>
+
+If tools are available, use the \`get-current-pipeline\` tool to inspect the full pipeline and the \`collection-indexes\` tool to check what search indexes exist on this collection.
+
+Respond with two sections:
+**Diagnosis:** explain concisely why the ${stageOperator} stage returned no results.
+**Solution:** provide the specific actionable steps to fix it.`,
+    metadata: {
+      displayText:
+        'Diagnose why my aggregation pipeline is not returning results.',
     },
   };
 };

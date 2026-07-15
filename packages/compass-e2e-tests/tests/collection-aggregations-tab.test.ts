@@ -194,7 +194,6 @@ describe('Collection aggregations tab', function () {
       '$out',
       '$project',
       '$redact',
-      '$rerank',
       '$replaceRoot',
       '$replaceWith',
       '$sample',
@@ -212,6 +211,9 @@ describe('Collection aggregations tab', function () {
 
     if (serverSatisfies('>=7.0.0')) {
       expectedAggregations.push('$listSearchIndexes');
+      if (isTestingWebAtlasCloud()) {
+        expectedAggregations.push('$rerank');
+      }
     }
     if (serverSatisfies('>=6.0.10 <7.0.0 || >=7.0.2')) {
       expectedAggregations.push('$vectorSearch');
@@ -1158,7 +1160,20 @@ describe('Collection aggregations tab', function () {
       '{ i: 5 }'
     );
 
-    await browser.clickVisible(Selectors.AggregationExplainButton);
+    await browser.$(Selectors.AggregationExplainButton).waitForDisplayed();
+    const isDropdownVariant = await browser
+      .$(Selectors.AggregationExplainDropdownButton)
+      .isExisting();
+
+    if (isDropdownVariant) {
+      await browser.clickVisible(Selectors.AggregationExplainDropdownButton);
+      await browser.clickVisible(
+        Selectors.AggregationExplainDropdownVisualTreeAction
+      );
+    } else {
+      await browser.clickVisible(Selectors.AggregationExplainLegacyButton);
+    }
+
     await browser.waitForAnimations(Selectors.AggregationExplainModal);
     await browser.waitForOpenModal(Selectors.AggregationExplainModal);
 

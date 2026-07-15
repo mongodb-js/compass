@@ -7,6 +7,7 @@ import {
   connectionNameFromString,
 } from '../helpers/compass.ts';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
+import { isTestingWebAtlasCloud } from '../helpers/test-runner-context.ts';
 
 const DATABASE_NAME = 'collections_db';
 const TEST_COLLECTION_NAME = 'test_collection_1';
@@ -54,8 +55,10 @@ describe('Atlas: Database with large number of collections', function () {
   let connectionName: string;
 
   before(function () {
-    if (!hasBasicAtlasEnvVars()) {
-      this.skip();
+    if (!hasBasicAtlasEnvVars() || isTestingWebAtlasCloud()) {
+      // Skip the test when we don't have the creds (local running),
+      // or when testing on Atlas web (we don't support this test there).
+      return this.skip();
     }
     connectionString = buildAtlasConnectionString();
     connectionName = connectionNameFromString(connectionString);

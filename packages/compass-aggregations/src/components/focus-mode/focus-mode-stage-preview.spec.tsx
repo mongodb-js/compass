@@ -1,8 +1,9 @@
 import React, { type ComponentProps } from 'react';
 import HadronDocument from 'hadron-document';
 import type { Document } from 'mongodb';
-import { screen, within } from '@mongodb-js/testing-library-compass';
+import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 import {
   FocusModePreview,
   InputPreview,
@@ -12,6 +13,9 @@ import {
   MERGE_STAGE_PREVIEW_TEXT,
   OUT_STAGE_PREVIEW_TEXT,
 } from '../../constants';
+import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
+import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
+import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 import {
   renderWithStore,
@@ -21,6 +25,54 @@ import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
 import type { ConfigureStoreOptions } from '../../stores/store';
 
 const DEFAULT_PIPELINE: Document[] = [{ $match: { _id: 1 } }, { $limit: 10 }];
+
+const AI_ASSISTANT_PREFERENCES = {
+  enableAIAssistant: true,
+  enableGenAIFeatures: true,
+  enableGenAIFeaturesAtlasOrg: true,
+};
+
+const renderOutputPreview = async (
+  props: Partial<ComponentProps<typeof OutputPreview>> = {},
+  {
+    enableSearchActivationP2Experiment = false,
+    enableAIAssistant = false,
+    diagnoseSearchStage,
+    interpretAnalyzeOutput,
+  }: {
+    enableSearchActivationP2Experiment?: boolean;
+    enableAIAssistant?: boolean;
+    diagnoseSearchStage?: Sinon.SinonSpy;
+    interpretAnalyzeOutput?: Sinon.SinonSpy;
+  } = {}
+) => {
+  const preferences = await createSandboxFromDefaultPreferences();
+  const experimentVariant = enableSearchActivationP2Experiment
+    ? ExperimentTestGroups.searchActivationProgramP2Variant
+    : null;
+  if (enableAIAssistant) {
+    await preferences.savePreferences(AI_ASSISTANT_PREFERENCES);
+  }
+
+  const ui = wrapWithExperimentProvider(
+    <AssistantActionsContext.Provider
+      value={{ diagnoseSearchStage, interpretAnalyzeOutput }}
+    >
+      <PreferencesProvider value={preferences}>
+        <OutputPreview
+          stageIndex={0}
+          stageOperator="$search"
+          documents={[]}
+          onExpand={() => {}}
+          onCollapse={() => {}}
+          {...props}
+        />
+      </PreferencesProvider>
+    </AssistantActionsContext.Provider>,
+    experimentVariant
+  );
+  return renderWithStore(ui, { pipeline: DEFAULT_PIPELINE });
+};
 
 const renderFocusModePreview = (
   props: Partial<ComponentProps<typeof FocusModePreview>> = {},
@@ -131,6 +183,22 @@ describe('FocusModeStagePreview', function () {
         ).to.not.exist;
       });
     }
+    it('renders the empty-state action (e.g. the diagnose button) when there are no documents', async function () {
+      await renderFocusModePreview({
+        stageOperator: '$match',
+        documents: [],
+        emptyStateAction: <div data-testid="empty-state-action" />,
+      });
+      expect(screen.getByTestId('empty-state-action')).to.exist;
+    });
+    it('does not render the empty-state action when there are documents', async function () {
+      await renderFocusModePreview({
+        stageOperator: '$match',
+        documents: [new HadronDocument({ _id: 1 })],
+        emptyStateAction: <div data-testid="empty-state-action" />,
+      });
+      expect(screen.queryByTestId('empty-state-action')).to.not.exist;
+    });
     it('renders $out stage preview', async function () {
       await renderFocusModePreview(
         {
@@ -259,6 +327,150 @@ describe('FocusModeStagePreview', function () {
           screen.queryByTestId('search-index-stale-results-banner')
         ).to.not.exist;
       });
+    });
+  });
+
+  describe('OutputPreview diagnose button', function () {
+    it('renders the diagnose button for a no-results $search stage under P2 with the assistant enabled', async function () {
+      await renderOutputPreview(
+        { stageOperator: '$search', documents: [] },
+        {
+          enableSearchActivationP2Experiment: true,
+          enableAIAssistant: true,
+          diagnoseSearchStage: Sinon.spy(),
+        }
+      );
+      expect(screen.getByTestId('focus-mode-diagnose-search-button')).to.exist;
+    });
+
+    it('does not render the diagnose button when the assistant is disabled and keeps SearchNoResults', async function () {
+      await renderOutputPreview(
+        { stageOperator: '$search', documents: [] },
+        { enableSearchActivationP2Experiment: true }
+      );
+      expect(screen.queryByTestId('focus-mode-diagnose-search-button')).to.not
+        .exist;
+      expect(
+        screen.getByText(
+          'This may be because your search has no results or your search index does not exist.'
+        )
+      ).to.exist;
+    });
+
+    it('closes focus mode and calls diagnoseSearchStage with the stage context on click', async function () {
+      const diagnoseSearchStage = Sinon.spy();
+      const onCloseFocusMode = Sinon.spy();
+      await renderOutputPreview(
+        {
+          stageOperator: '$search',
+          documents: [],
+          stageValue: '{ "index": "movies" }',
+          searchIndexName: 'movies',
+          onCloseFocusMode,
+        },
+        {
+          enableSearchActivationP2Experiment: true,
+          enableAIAssistant: true,
+          diagnoseSearchStage,
+        }
+      );
+      userEvent.click(screen.getByTestId('focus-mode-diagnose-search-button'));
+      expect(onCloseFocusMode).to.have.been.calledOnce;
+      expect(diagnoseSearchStage).to.have.been.calledOnceWith({
+        stageOperator: '$search',
+        indexName: 'movies',
+        stageValue: '{ "index": "movies" }',
+      });
+    });
+  });
+
+  describe('OutputPreview analyze output button', function () {
+    const score = { value: 1.5, description: 'sum of:', details: [] };
+
+    it('renders the button for $search stage with documents and score metadata when P2 experiment is enabled', async function () {
+      await renderOutputPreview(
+        {
+          documents: [new HadronDocument({ _id: 1 })],
+          stageMetadata: { type: '$search', scores: [score] },
+        },
+        {
+          enableSearchActivationP2Experiment: true,
+          enableAIAssistant: true,
+          interpretAnalyzeOutput: Sinon.spy(),
+        }
+      );
+      expect(screen.getByTestId('focus-mode-analyze-search-output-button')).to
+        .exist;
+    });
+
+    it('does not render the button when the assistant is disabled', async function () {
+      await renderOutputPreview(
+        {
+          documents: [new HadronDocument({ _id: 1 })],
+          stageMetadata: { type: '$search', scores: [score] },
+        },
+        { enableSearchActivationP2Experiment: true }
+      );
+      expect(screen.queryByTestId('focus-mode-analyze-search-output-button')).to
+        .not.exist;
+    });
+
+    it('does not render the button when score metadata is absent', async function () {
+      await renderOutputPreview(
+        {
+          documents: [new HadronDocument({ _id: 1 })],
+          stageMetadata: null,
+        },
+        { enableSearchActivationP2Experiment: true, enableAIAssistant: true }
+      );
+      expect(screen.queryByTestId('focus-mode-analyze-search-output-button')).to
+        .not.exist;
+    });
+
+    it('does not render the button when P2 experiment is not enabled', async function () {
+      await renderOutputPreview(
+        {
+          documents: [new HadronDocument({ _id: 1 })],
+          stageMetadata: { type: '$search', scores: [score] },
+        },
+        { enableAIAssistant: true }
+      );
+      expect(screen.queryByTestId('focus-mode-analyze-search-output-button')).to
+        .not.exist;
+    });
+
+    it('closes focus mode and calls interpretAnalyzeOutput with the correct args when clicked', async function () {
+      const interpretAnalyzeOutputSpy = Sinon.spy();
+      const onCloseFocusMode = Sinon.spy();
+      const doc = new HadronDocument({ _id: 1, title: 'Espresso Basics' });
+      const pipeline =
+        '[{ $search: { index: "default", text: { query: "espresso", path: "title" } } }]';
+      await renderOutputPreview(
+        {
+          documents: [doc],
+          stageMetadata: { type: '$search', scores: [score] },
+          pipeline,
+          onCloseFocusMode,
+        },
+        {
+          enableSearchActivationP2Experiment: true,
+          enableAIAssistant: true,
+          interpretAnalyzeOutput: interpretAnalyzeOutputSpy,
+        }
+      );
+
+      userEvent.click(
+        screen.getByTestId('focus-mode-analyze-search-output-button')
+      );
+
+      expect(onCloseFocusMode).to.have.been.calledOnce;
+      expect(interpretAnalyzeOutputSpy).to.have.been.calledOnce;
+      const args = interpretAnalyzeOutputSpy.firstCall.args[0];
+      expect(args).to.have.property('pipeline', pipeline);
+      expect(args).to.have.property('documentCount', 1);
+      expect(args.output).to.include('Document 1:');
+      expect(args.output).to.include('Espresso Basics');
+      expect(args.output).to.include(`scoreDetails: ${JSON.stringify(score)}`);
     });
   });
 });

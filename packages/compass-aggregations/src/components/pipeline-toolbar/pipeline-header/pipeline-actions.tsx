@@ -7,6 +7,7 @@ import {
   OptionsToggle,
   PerformanceSignals,
   SignalPopover,
+  SpinLoader,
   css,
   spacing,
 } from '@mongodb-js/compass-components';
@@ -26,6 +27,7 @@ import {
 } from 'compass-preferences-model/provider';
 import { showInput as showAIInput } from '../../../modules/pipeline-builder/pipeline-ai';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -55,6 +57,7 @@ type PipelineActionsProps = {
   showCollectionScanInsight?: boolean;
   onCollectionScanInsightActionButtonClick: () => void;
 
+  isInterpretLoading?: boolean;
   stages: string[];
 };
 
@@ -74,19 +77,22 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   onExplainAggregation,
   showCollectionScanInsight,
   onCollectionScanInsightActionButtonClick,
+  isInterpretLoading = false,
   stages,
 }) => {
   const {
     readWrite: preferencesReadWrite,
     enableAggregationBuilderExtraOptions,
     showInsights,
-    enableSearchActivationProgramP2,
   } = usePreferences([
     'readWrite',
     'enableAggregationBuilderExtraOptions',
     'showInsights',
-    'enableSearchActivationProgramP2',
   ]);
+  const {
+    enableSearchActivationProgramP2,
+    isSearchActivationProgramP2Loading,
+  } = useSearchActivationProgramP2({ trackIsInSample: true });
   const isAIFeatureEnabled = useIsAIFeatureEnabled();
   const { tellMoreAboutInsight, getIsAssistantEnabled } = useAssistantActions();
   const isAssistantEnabled = getIsAssistantEnabled();
@@ -98,8 +104,19 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
       {
         action: 'interpret',
         label: 'Interpret',
-        icon: 'Sparkle',
-        isDisabled: !isAssistantEnabled,
+        icon: isInterpretLoading ? (
+          <SpinLoader title="Loading interpret" />
+        ) : (
+          'Sparkle'
+        ),
+        isDisabled: !isAssistantEnabled || hasSearchStage || isInterpretLoading,
+        disabledDescription: isInterpretLoading
+          ? 'Interpret in progress'
+          : hasSearchStage
+          ? 'Not supported for this query'
+          : !isAssistantEnabled
+          ? 'Assistant is not available'
+          : undefined,
       },
       {
         action: 'visual-tree',
@@ -116,7 +133,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         icon: 'CurlyBraces',
       },
     ],
-    [isAssistantEnabled, hasSearchStage]
+    [isAssistantEnabled, hasSearchStage, isInterpretLoading]
   );
 
   const onExplainAction = useCallback(
@@ -170,7 +187,18 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
         </Button>
       )}
       {showExplainButton &&
-        (enableSearchActivationProgramP2 ? (
+        (isSearchActivationProgramP2Loading ? (
+          <Button
+            aria-label="Explain aggregation"
+            data-testid="pipeline-toolbar-explain-aggregation-button-loading"
+            variant="default"
+            size="small"
+            disabled
+            leftGlyph={<SpinLoader />}
+          >
+            Explain
+          </Button>
+        ) : enableSearchActivationProgramP2 ? (
           <DropdownMenuButton
             data-testid="pipeline-toolbar-explain-aggregation-dropdown-button"
             buttonText="Explain"
@@ -178,6 +206,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
               size: 'small',
               variant: 'default',
               disabled: isExplainButtonDisabled,
+              leftGlyph: isInterpretLoading ? <SpinLoader /> : undefined,
             }}
             actions={explainActions}
             onAction={onExplainAction}
@@ -237,6 +266,7 @@ const mapState = (state: RootState) => {
     isUpdateViewButtonDisabled:
       !state.isModified || hasSyntaxErrors || isAIFetching,
     showCollectionScanInsight: state.insights.isCollectionScan,
+    isInterpretLoading: state.explain.isLoading,
     stages: resultPipeline,
   };
 };

@@ -113,6 +113,35 @@ describe('CompassConnections store', function () {
       });
     });
 
+    it('can reconnect after connecting an already-connected connection and disconnecting', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        connectFn: async () => {
+          await wait(1);
+          return {};
+        },
+      });
+
+      const connectionInfo = createDefaultConnectionInfo();
+      const getStatus = () =>
+        connectionsStore.getState().connections.byId[connectionInfo.id]?.status;
+
+      await connectionsStore.actions.connect(connectionInfo);
+      expect(getStatus()).to.eq('connected');
+
+      // Connecting again while already connected is a no-op but must not leave
+      // the connection in a state where it can no longer be connected.
+      await connectionsStore.actions.connect(connectionInfo);
+      expect(getStatus()).to.eq('connected');
+
+      connectionsStore.actions.disconnect(connectionInfo.id);
+      await waitFor(() => {
+        expect(getStatus()).to.eq('disconnected');
+      });
+
+      await connectionsStore.actions.connect(connectionInfo);
+      expect(getStatus()).to.eq('connected');
+    });
+
     it('should show error toast if connection failed', async function () {
       const { connectionsStore } = renderCompassConnections({
         connectFn: sinon
@@ -143,7 +172,6 @@ describe('CompassConnections store', function () {
           enableAIAssistant: true,
           enableGenAIFeatures: true,
           enableGenAIFeaturesAtlasOrg: true,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: true },
         },
         connectFn: sinon
           .stub()
@@ -169,7 +197,6 @@ describe('CompassConnections store', function () {
           enableAIAssistant: false,
           enableGenAIFeatures: false,
           enableGenAIFeaturesAtlasOrg: false,
-          cloudFeatureRolloutAccess: { GEN_AI_COMPASS: false },
         },
         connectFn: sinon
           .stub()

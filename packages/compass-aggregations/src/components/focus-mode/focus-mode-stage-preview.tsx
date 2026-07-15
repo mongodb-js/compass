@@ -24,11 +24,24 @@ import {
 import {
   collapsePreviewDocsForStage,
   expandPreviewDocsForStage,
+  getPipelineStringForStage,
 } from '../../modules/pipeline-builder/stage-editor';
 import type { StoreStage } from '../../modules/pipeline-builder/stage-editor';
+import { disableFocusMode } from '../../modules/focus-mode';
 import SearchNoResults from '../search-no-results';
 import { useSearchActivationProgramP1 } from '@mongodb-js/compass-telemetry/provider';
 import SearchIndexStaleResultsBanner from '../search-index-stale-results-banner';
+import {
+  SearchStageDiagnoseButton,
+  useShouldShowSearchStageDiagnose,
+} from '../search-stage-diagnose-button';
+import {
+  AnalyzeAndRefineResultsButton,
+  buildAnalyzeOutputContext,
+  useShouldShowAnalyzeOutput,
+} from '../search-analyze-output-button';
+import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import type { StagePreviewMetadata } from '../../utils/search-score-injection';
 
 const containerStyles = css({
   display: 'flex',
@@ -58,6 +71,7 @@ const centerStyles = css({
   justifyContent: 'center',
   height: '100%',
   textAlign: 'center',
+  gap: spacing[200],
 });
 
 const messageStyles = css({ marginTop: spacing[400] });
@@ -73,6 +87,11 @@ const pipelineOutputMenuStyles = css({
   marginLeft: 'auto',
 });
 
+const resultsActionRowStyles = css({
+  display: 'flex',
+  justifyContent: 'flex-end',
+});
+
 const loaderStyles = css({
   display: 'flex',
   alignItems: 'center',
@@ -85,11 +104,17 @@ type FocusModePreviewProps = {
   documents?: HadronDocument[] | null;
   stageIndex?: number;
   stageOperator?: string | null;
+  stageValue?: string | null;
+  stageMetadata?: StagePreviewMetadata | null;
+  pipeline?: string | null;
   isMissingAtlasOnlyStageSupport?: boolean;
   showSearchIndexStaleResultsBanner?: boolean;
   searchIndexName?: string | null;
   onExpand: (stageIdx: number) => void;
   onCollapse: (stageIdx: number) => void;
+  onCloseFocusMode?: () => void;
+  emptyStateAction?: React.ReactNode;
+  resultsAction?: React.ReactNode;
 };
 
 export const FocusModePreview = ({
@@ -103,6 +128,8 @@ export const FocusModePreview = ({
   searchIndexName = null,
   onExpand,
   onCollapse,
+  emptyStateAction,
+  resultsAction,
 }: FocusModePreviewProps) => {
   const copyToClipboard = useCallback((doc: HadronDocument) => {
     const str = doc.toEJSON();
@@ -126,7 +153,7 @@ export const FocusModePreview = ({
   const docText = docCount === 1 ? 'document' : 'documents';
   const shouldShowCount = !isLoading && docCount > 0;
 
-  const isPipelineOptionsMenuVisible = documents && documents.length > 0;
+  const hasDocuments = documents && documents.length > 0;
 
   let content = null;
 
@@ -166,12 +193,17 @@ export const FocusModePreview = ({
           )}
       </>
     );
-  } else if (!enableSearchActivationProgramP1 && isSearchStage(stageOperator)) {
+  } else if (
+    !enableSearchActivationProgramP1 &&
+    isSearchStage(stageOperator) &&
+    !emptyStateAction
+  ) {
     content = <SearchNoResults />;
   } else {
     content = (
       <div className={centerStyles}>
         <Body className={messageStyles}>No preview documents</Body>
+        {emptyStateAction}
       </div>
     );
   }
@@ -188,7 +220,7 @@ export const FocusModePreview = ({
           )}
         </div>
         <div className={pipelineOutputMenuStyles}>
-          {isPipelineOptionsMenuVisible && (
+          {hasDocuments && (
             <PipelineOutputOptionsMenu
               buttonText="Options"
               onChangeOption={handlePipelineOutputOptionChanged}
@@ -196,6 +228,9 @@ export const FocusModePreview = ({
           )}
         </div>
       </div>
+      {hasDocuments && resultsAction && (
+        <div className={resultsActionRowStyles}>{resultsAction}</div>
+      )}
       {content}
     </div>
   );
@@ -206,7 +241,82 @@ export const InputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
 };
 
 export const OutputPreview = (props: Omit<FocusModePreviewProps, 'title'>) => {
-  return <FocusModePreview {...props} title="Stage Output" />;
+  const {
+    onCloseFocusMode,
+    stageOperator,
+    searchIndexName,
+    stageValue,
+    stageMetadata = null,
+    pipeline = null,
+    documents,
+  } = props;
+  const { diagnoseSearchStage, interpretAnalyzeOutput } = useAssistantActions();
+  const showDiagnoseSearchStage = useShouldShowSearchStageDiagnose(
+    stageOperator,
+    documents
+  );
+  const showAnalyzeButton = useShouldShowAnalyzeOutput(
+    stageOperator,
+    stageMetadata
+  );
+
+  const handleDiagnoseSearchStage = useCallback(() => {
+    onCloseFocusMode?.();
+    diagnoseSearchStage?.({
+      stageOperator: stageOperator ?? '',
+      indexName: searchIndexName ?? null,
+      stageValue: stageValue ?? '',
+    });
+  }, [
+    onCloseFocusMode,
+    diagnoseSearchStage,
+    stageOperator,
+    searchIndexName,
+    stageValue,
+  ]);
+
+  const handleAnalyzeOutput = useCallback(() => {
+    if (!interpretAnalyzeOutput || !stageMetadata) return;
+    const { output, documentCount } = buildAnalyzeOutputContext(
+      documents ?? [],
+      stageMetadata
+    );
+    onCloseFocusMode?.();
+    interpretAnalyzeOutput({
+      pipeline: pipeline ?? '',
+      output,
+      documentCount,
+    });
+  }, [
+    interpretAnalyzeOutput,
+    documents,
+    stageMetadata,
+    pipeline,
+    onCloseFocusMode,
+  ]);
+
+  return (
+    <FocusModePreview
+      {...props}
+      title="Stage Output"
+      emptyStateAction={
+        showDiagnoseSearchStage ? (
+          <SearchStageDiagnoseButton
+            onClick={handleDiagnoseSearchStage}
+            data-testid="focus-mode-diagnose-search-button"
+          />
+        ) : undefined
+      }
+      resultsAction={
+        showAnalyzeButton ? (
+          <AnalyzeAndRefineResultsButton
+            onClick={handleAnalyzeOutput}
+            data-testid="focus-mode-analyze-search-output-button"
+          />
+        ) : undefined
+      }
+    />
+  );
 };
 
 export const FocusModeStageInput = connect(
@@ -312,11 +422,16 @@ export const FocusModeStageOutput = connect(
         (x) => x.name === searchIndexName && x.status !== 'READY' && x.queryable
       );
 
+    const pipeline = getPipelineStringForStage(stages, stageIndex);
+
     return {
       isLoading: stage.loading,
       documents: stage.previewDocs,
       stageIndex,
       stageOperator: stage.stageOperator,
+      stageValue: stage.value,
+      stageMetadata: stage.stageMetadata,
+      pipeline,
       isMissingAtlasOnlyStageSupport,
       showSearchIndexStaleResultsBanner,
       searchIndexName,
@@ -325,5 +440,6 @@ export const FocusModeStageOutput = connect(
   {
     onExpand: expandPreviewDocsForStage,
     onCollapse: collapsePreviewDocsForStage,
+    onCloseFocusMode: disableFocusMode,
   }
 )(OutputPreview);

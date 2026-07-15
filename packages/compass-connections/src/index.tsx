@@ -5,7 +5,6 @@ import React, { useContext } from 'react';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { connectionStorageLocator } from '@mongodb-js/connection-storage/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
-export { LegacyConnectionsModal } from './components/legacy-connections-modal';
 import {
   autoconnectCheck,
   configureStore,

@@ -13,6 +13,7 @@ import { DEFAULT_MAX_TIME_MS } from '../../constants';
 import type { PreviewOptions } from './pipeline-preview-manager';
 import {
   createPreviewAggregation,
+  DEFAULT_PREVIEW_DEBOUNCE_MS,
   DEFAULT_PREVIEW_LIMIT,
   DEFAULT_SAMPLE_SIZE,
 } from './pipeline-preview-manager';
@@ -41,6 +42,10 @@ import type {
   PipelineGeneratedFromQueryAction,
 } from './pipeline-ai';
 import { cancellableWait } from '@mongodb-js/compass-utils';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry/provider';
 
 export const StageEditorActionTypes = {
   StagePreviewFetch:
@@ -260,6 +265,22 @@ export function getIndexOfFirstStageWithServerError(
   return null;
 }
 
+/** Builds the pipeline string (up to and including `toIndex`) used as
+ *  context for the Assistant's Analyze Output entry point. */
+export function getPipelineStringForStage(
+  stages: StageEditorState['stages'],
+  toIndex: number
+): string {
+  return `[${stages
+    .slice(0, toIndex + 1)
+    .filter(
+      (s): s is StoreStage =>
+        s.type === 'stage' && !!s.stageOperator && !!s.value && !s.disabled
+    )
+    .map((s) => `{ ${s.stageOperator}: ${s.value} }`)
+    .join(', ')}]`;
+}
+
 function canRunStage(stage?: StoreStage, allowOut = false): boolean {
   return (
     !!stage &&
@@ -280,7 +301,11 @@ export const loadStagePreview = (
   | StagePreviewFetchErrorAction
   | StagePreviewFetchSkippedAction
 > => {
-  return async (dispatch, getState, { pipelineBuilder, preferences }) => {
+  return async (
+    dispatch,
+    getState,
+    { pipelineBuilder, preferences, experimentationServices }
+  ) => {
     const {
       pipelineBuilder: {
         stageEditor: { stages },
@@ -330,12 +355,20 @@ export const loadStagePreview = (
       } = getState();
 
       const activeDataService = dataService.dataService;
-      const { enableSearchActivationProgramP2 } = preferences.getPreferences();
-      const shouldFetchSearchStageMetadata =
-        !!enableSearchActivationProgramP2 &&
+      const isSingleSearchStagePreview =
         !!activeDataService &&
         stagesForPreview.length === 1 &&
         stagesForPreview[0].stageOperator === '$search';
+      let shouldFetchSearchStageMetadata = false;
+      if (isSingleSearchStagePreview) {
+        const assignment = await experimentationServices.getAssignment(
+          ExperimentTestNames.searchActivationProgramP2,
+          false
+        );
+        shouldFetchSearchStageMetadata =
+          assignment?.assignmentData?.variant ===
+          ExperimentTestGroups.searchActivationProgramP2Variant;
+      }
       const aggregateOptions: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collationString.value ?? undefined,
@@ -352,7 +385,10 @@ export const loadStagePreview = (
         shouldFetchSearchStageMetadata && activeDataService
           ? (async () => {
               try {
-                await cancellableWait(700, metadataAbortController.signal);
+                await cancellableWait(
+                  DEFAULT_PREVIEW_DEBOUNCE_MS,
+                  metadataAbortController.signal
+                );
 
                 return await aggregatePipeline({
                   dataService: activeDataService,
@@ -363,7 +399,8 @@ export const loadStagePreview = (
                     injectSearchScoreMetadata(
                       pipelineBuilder.getPipelineFromStages(
                         pipelineBuilder.stages.slice(0, idxInPipeline + 1)
-                      )
+                      ),
+                      options.previewSize ?? DEFAULT_PREVIEW_LIMIT
                     ),
                     options
                   ),
@@ -380,7 +417,10 @@ export const loadStagePreview = (
           pipelineBuilder.getPreviewForStage(idxInPipeline, namespace, options),
           metadataPromise,
         ]);
-        const stageMetadata = createSearchStageMetadata(metadataDocs);
+        const stageMetadata = createSearchStageMetadata(
+          metadataDocs,
+          documents.length
+        );
         dispatch({
           type: StageEditorActionTypes.StagePreviewFetchSuccess,
           id: idx,
@@ -1118,6 +1158,9 @@ export type StoreStage = {
   serverError: MongoServerError | null;
   loading: boolean;
   previewDocs: HadronDocument[] | null;
+  // Sticky flag: true once a successful preview has returned at least one
+  // document. Resets only when the stage operator changes.
+  didReturnDocs: boolean;
   stageMetadata: StagePreviewMetadata | null;
   collapsed: boolean;
   disabled: boolean;
@@ -1156,6 +1199,7 @@ export function mapBuilderStageToStoreStage(
     serverError: null,
     loading: false,
     previewDocs: null,
+    didReturnDocs: false,
     stageMetadata: null,
     collapsed: false,
     empty: stage.isEmpty,
@@ -1263,6 +1307,9 @@ const reducer: Reducer<StageEditorState, Action> = (
           ...state.stages[action.id],
           loading: false,
           previewDocs: action.previewDocs,
+          didReturnDocs:
+            action.previewDocs.length > 0 ||
+            !!(state.stages[action.id] as StoreStage).didReturnDocs,
           stageMetadata: action.stageMetadata,
           serverError: null,
         },
@@ -1328,6 +1375,7 @@ const reducer: Reducer<StageEditorState, Action> = (
         {
           ...state.stages[action.id],
           previewDocs: null,
+          didReturnDocs: false,
           stageOperator: action.stage.operator,
           syntaxError: action.stage.syntaxError,
           empty: action.stage.isEmpty,

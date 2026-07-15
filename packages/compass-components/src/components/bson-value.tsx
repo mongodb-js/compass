@@ -7,6 +7,7 @@ import {
 } from 'hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
+import { stringify } from 'mongodb-query-parser';
 import { variantColors } from '@leafygreen-ui/code';
 
 import { Icon, Link } from './leafygreen';
@@ -475,7 +476,7 @@ const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
-    return `DBRef('${value.collection}', '${String(value.oid)}'${
+    return `DBRef('${value.collection}', ${stringify(value.oid)}${
       value?.db ? `, '${value.db}'` : ''
     })`;
   }, [value.collection, value.oid, value.db]);
@@ -530,6 +531,21 @@ const ArrayValue: React.FunctionComponent<PropsByValueType<'Array'>> = ({
   );
 };
 
+const ObjectValue: React.FunctionComponent<PropsByValueType<'Object'>> = ({
+  value,
+}) => {
+  const lengthString = useMemo(() => {
+    const keys = Object.keys(value ?? {});
+    return `(${keys.length === 0 ? 'empty' : keys.length})`;
+  }, [value]);
+
+  return (
+    <BSONValueContainer title={`Object ${lengthString}`}>
+      Object {lengthString}
+    </BSONValueContainer>
+  );
+};
+
 const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
   switch (props.type) {
     case 'ObjectId':
@@ -574,7 +590,7 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
     case 'Array':
       return <ArrayValue value={props.value}></ArrayValue>;
     case 'Object':
-      return <UnknownValue type={props.type} value={props.type}></UnknownValue>;
+      return <ObjectValue value={props.value}></ObjectValue>;
     default:
       return (
         <UnknownValue type={props.type} value={props.value}></UnknownValue>

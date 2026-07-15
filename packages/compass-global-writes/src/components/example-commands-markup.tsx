@@ -34,21 +34,16 @@ export function ExampleCommandsMarkup({
   namespace,
   shardKey,
 }: ExampleCommandsMarkupProps) {
-  const customShardKeyField = useMemo(() => {
-    return shardKey.fields[1].name;
-  }, [shardKey]);
-
   const sampleCodes = useMemo(() => {
     const { collection, database } = toNS(namespace);
+    const db = JSON.stringify(database);
+    const coll = JSON.stringify(collection);
+    const customShardKeyField = JSON.stringify(shardKey.fields[1].name);
     return {
-      findingDocuments: `use ${database}\ndb[${JSON.stringify(
-        collection
-      )}].find({"location": "US-NY", "${customShardKeyField}": "<id_value>"})`,
-      insertingDocuments: `use ${database}\ndb[${JSON.stringify(
-        collection
-      )}].insertOne({"location": "US-NY", "${customShardKeyField}": "<id_value>",...<other fields>})`,
+      findingDocuments: `use(${db})\ndb[${coll}].find({"location": "US-NY", ${customShardKeyField}: "<id_value>"})`,
+      insertingDocuments: `use(${db})\ndb[${coll}].insertOne({"location": "US-NY", ${customShardKeyField}: "<id_value>",...<other fields>})`,
     };
-  }, [namespace, customShardKeyField]);
+  }, [namespace, shardKey]);
 
   return (
     <>
