@@ -158,6 +158,9 @@ describe('BSONValue', function () {
     { type: 'Boolean', value: true, expected: 'true' },
     { type: 'Array', value: [1, 2, 3], expected: 'Array (3)' },
     { type: 'Array', value: [], expected: 'Array (empty)' },
+    { type: 'Object', value: {}, expected: 'Object (empty)' },
+    { type: 'Object', value: { a: 1 }, expected: 'Object (1)' },
+    { type: 'Object', value: { a: 1, b: 2 }, expected: 'Object (2)' },
   ];
 
   valuesToRender.forEach(function ({ expected, ...props }) {

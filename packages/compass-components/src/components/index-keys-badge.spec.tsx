@@ -26,7 +26,7 @@ describe('IndexKeysBadge Component', function () {
         value: 'text',
       },
     ];
-    render(<IndexKeysBadge keys={keys as any} />);
+    render(<IndexKeysBadge keys={keys} />);
 
     const keysList = screen.getByRole('list');
 
