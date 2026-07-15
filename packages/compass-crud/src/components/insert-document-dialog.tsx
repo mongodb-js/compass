@@ -23,9 +23,9 @@ import InsertDocument from './insert-document';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { WriteError } from '../stores/crud-store';
+import type { WriteError } from '../stores/insert';
 import { connect } from 'react-redux';
-import type { CrudState } from '../stores/crud-store';
+import type { CrudState } from '../stores/reducer';
 import {
   insertDocument,
   insertMany,
@@ -33,7 +33,6 @@ import {
   toggleInsertDocumentView,
   closeInsertDocumentDialog,
   updateJsonDoc,
-  updateComment,
 } from '../stores/insert';
 
 /**
@@ -75,8 +74,6 @@ type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   jsonView: boolean;
   doc: Document | null;
   ns: string;
-  isCommentNeeded: boolean;
-  updateComment: (isCommentNeeded: boolean) => void;
   logger?: Logger;
   track?: TrackFunction;
 };
@@ -87,25 +84,10 @@ const DocumentOrJsonView: React.FC<{
   hasManyDocuments: () => boolean;
   updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
   jsonDoc: InsertDocumentDialogProps['jsonDoc'];
-  isCommentNeeded: InsertDocumentDialogProps['isCommentNeeded'];
-  updateComment: InsertDocumentDialogProps['updateComment'];
-}> = ({
-  jsonView,
-  doc,
-  hasManyDocuments,
-  updateJsonDoc,
-  jsonDoc,
-  isCommentNeeded,
-  updateComment,
-}) => {
+}> = ({ jsonView, doc, hasManyDocuments, updateJsonDoc, jsonDoc }) => {
   if (jsonView) {
     return (
-      <InsertJsonDocument
-        updateJsonDoc={updateJsonDoc}
-        jsonDoc={jsonDoc}
-        isCommentNeeded={isCommentNeeded}
-        updateComment={updateComment}
-      />
+      <InsertJsonDocument updateJsonDoc={updateJsonDoc} jsonDoc={jsonDoc} />
     );
   }
 
@@ -134,7 +116,6 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   jsonView,
   jsonDoc,
   doc,
-  isCommentNeeded,
   error: _error,
   ns,
   csfleState,
@@ -144,7 +125,6 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   toggleInsertDocument,
   toggleInsertDocumentView,
   updateJsonDoc,
-  updateComment,
   closeInsertDocumentDialog,
 }) => {
   const [invalidElements, setInvalidElements] = useState<Document['uuid'][]>(
@@ -342,8 +322,6 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           hasManyDocuments={hasManyDocuments}
           updateJsonDoc={updateJsonDoc}
           jsonDoc={jsonDoc}
-          isCommentNeeded={isCommentNeeded}
-          updateComment={updateComment}
         />
       </div>
       {banner && (
@@ -384,7 +362,6 @@ export default connect(
     jsonView: state.insert.jsonView,
     doc: state.insert.doc,
     ns: state.documents.ns,
-    isCommentNeeded: state.insert.isCommentNeeded,
     csfleState: state.insert.csfleState,
   }),
   {
@@ -394,6 +371,5 @@ export default connect(
     toggleInsertDocumentView,
     closeInsertDocumentDialog,
     updateJsonDoc,
-    updateComment,
   }
 )(withLogger(InsertDocumentDialog, 'COMPASS-CRUD-UI'));

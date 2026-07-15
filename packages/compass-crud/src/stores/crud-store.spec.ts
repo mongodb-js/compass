@@ -15,19 +15,13 @@ import { once } from 'events';
 import sinon from 'sinon';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import type {
-  CrudReduxStore,
-  CrudState,
-  CrudStoreOptions,
-  DocumentsPluginServices,
-} from './crud-store';
+import type { CrudReduxStore, DocumentsPluginServices } from './crud-store';
+import type { CrudState, CrudStoreOptions } from './reducer';
+import { activateDocumentsPlugin as _activate } from './crud-store';
 import {
   findAndModifyWithFLEFallback,
   fetchDocuments,
-  activateDocumentsPlugin as _activate,
-  MAX_DOCS_PER_PAGE_STORAGE_KEY,
-  DOCUMENT_VIEW_STORAGE_KEY,
-} from './crud-store';
+} from '../utils/fetch-documents';
 import {
   cancelOperation,
   copyToClipboard,
@@ -36,9 +30,9 @@ import {
   refreshDocuments,
   removeDocument,
   replaceDocument,
-  seedDocumentsTestState,
   updateDocument,
   updateMaxDocumentsPerPage,
+  MAX_DOCS_PER_PAGE_STORAGE_KEY,
 } from './documents';
 import {
   insertDocument,
@@ -55,7 +49,12 @@ import {
   updateBulkUpdatePreview,
 } from './bulk-update';
 import { closeBulkDeleteDialog, openBulkDeleteDialog } from './bulk-delete';
-import { drillDown, pathChanged, viewChanged } from './view';
+import {
+  DOCUMENT_VIEW_STORAGE_KEY,
+  drillDown,
+  pathChanged,
+  viewChanged,
+} from './view';
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
@@ -339,6 +338,57 @@ describe('store', function () {
     sinon.restore();
   });
 
+  // Refresh the documents and wait for the result (and optional count).
+  async function loadDocuments(
+    store: CrudReduxStore,
+    expectedLength: number,
+    { waitForCount = true }: { waitForCount?: boolean } = {}
+  ) {
+    const listener = waitForState(store, (state) => {
+      expect(state.documents.docs).to.have.length(expectedLength);
+      if (waitForCount) {
+        // Count is a separate call from fetching the docs.
+        expect(state.documents.count).to.equal(expectedLength);
+      }
+    });
+    void store.dispatch(refreshDocuments());
+    await listener;
+  }
+
+  async function seedDocuments(
+    store: CrudReduxStore,
+    docs: Record<string, unknown>[]
+  ) {
+    await dataService.insertMany('compass-crud.test', docs);
+    await loadDocuments(store, docs.length);
+  }
+
+  async function waitForDocumentRefresh(store: CrudReduxStore) {
+    const listener = waitForState(store, (state) => {
+      // We wait for count to be zero as it starts as undefined,
+      // and is asynchronously (not await) updated from refreshDocuments.
+      expect(state.documents.count).to.equal(0);
+    });
+    void store.dispatch(refreshDocuments());
+    await listener;
+  }
+
+  // Register a shard key in config.collections and refresh the documents in the store.
+  async function seedShardKeys(
+    store: CrudReduxStore,
+    shardKeys: Record<string, unknown>
+  ) {
+    await dataService.insertOne('config.collections', {
+      _id: 'compass-crud.test',
+      key: shardKeys,
+    });
+    const listener = waitForState(store, (state) => {
+      expect(state.documents.shardKeys).to.deep.equal(shardKeys);
+    });
+    void store.dispatch(refreshDocuments());
+    await listener;
+  }
+
   describe('#getInitialState', function () {
     let store: CrudReduxStore;
 
@@ -399,7 +449,6 @@ describe('store', function () {
       });
       expect(state.insert).to.deep.equal({
         doc: null,
-        isCommentNeeded: true,
         isOpen: false,
         jsonDoc: null,
         jsonView: false,
@@ -504,18 +553,16 @@ describe('store', function () {
       deactivate = () => plugin.deactivate();
     });
 
+    afterEach(function () {
+      return dataService.deleteMany('compass-crud.test', {});
+    });
+
     context('when there is no error', function () {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(function () {
-        store.dispatch(
-          seedDocumentsTestState({
-            docs: [hadronDoc],
-            count: 1,
-            end: 1,
-          })
-        );
+      beforeEach(async function () {
+        await seedDocuments(store, [doc]);
       });
 
       it('deletes the document from the collection', async function () {
@@ -535,14 +582,8 @@ describe('store', function () {
       const doc = { _id: null, name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(function () {
-        store.dispatch(
-          seedDocumentsTestState({
-            docs: [hadronDoc],
-            count: 1,
-            end: 1,
-          })
-        );
+      beforeEach(async function () {
+        await seedDocuments(store, [doc]);
       });
 
       it('deletes the document from the collection', async function () {
@@ -562,14 +603,12 @@ describe('store', function () {
       const doc = { _id: null, name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(function () {
-        store.dispatch(
-          seedDocumentsTestState({
-            docs: [hadronDoc],
-            count: null,
-            end: 1,
-          })
-        );
+      beforeEach(async function () {
+        // Make the count query fail so that count stays null while the
+        // documents are still loaded.
+        sinon.stub(dataService, 'aggregate').rejects(new Error('count failed'));
+        await dataService.insertMany('compass-crud.test', [doc]);
+        await loadDocuments(store, 1, { waitForCount: false });
       });
 
       it('keeps the count as null after the delete', async function () {
@@ -627,8 +666,8 @@ describe('store', function () {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(function () {
-        store.dispatch(seedDocumentsTestState({ docs: [hadronDoc] }));
+      beforeEach(async function () {
+        await loadDocuments(store, 1);
         hadronDoc.elements.at(1)?.rename('new name');
       });
 
@@ -661,8 +700,8 @@ describe('store', function () {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(function () {
-        store.dispatch(seedDocumentsTestState({ docs: [hadronDoc] }));
+      beforeEach(async function () {
+        await loadDocuments(store, 1);
         hadronDoc.insertAfter(
           hadronDoc.elements.at(1)!,
           'new field',
@@ -792,14 +831,16 @@ describe('store', function () {
         const hadronDoc = new HadronDocument(doc);
         let stub;
 
-        beforeEach(function () {
-          store.dispatch(seedDocumentsTestState({ shardKeys: { yes: 1 } }));
+        beforeEach(async function () {
+          await seedShardKeys(store, { yes: 1 });
           hadronDoc.get('name')?.edit('Desert Sand');
           stub = sinon.stub(dataService, 'findOneAndUpdate').resolves({});
         });
 
         afterEach(function () {
-          store.dispatch(seedDocumentsTestState({ shardKeys: null }));
+          return dataService.deleteMany('config.collections', {
+            _id: 'compass-crud.test',
+          } as any);
         });
 
         it('has the shard key in the query', async function () {
@@ -1001,14 +1042,12 @@ describe('store', function () {
       deactivate = () => plugin.deactivate();
     });
 
-    it('opens the bulk dialog with a proper initialised state', function () {
-      const hadronDoc = new HadronDocument({ a: 1 });
-      store.dispatch(
-        seedDocumentsTestState({
-          docs: [hadronDoc],
-          count: 1,
-        })
-      );
+    afterEach(function () {
+      return dataService.deleteMany('compass-crud.test', {});
+    });
+
+    it('opens the bulk dialog with a proper initialised state', async function () {
+      await seedDocuments(store, [{ a: new Int32(1) }]);
 
       store.dispatch(openBulkDeleteDialog());
 
@@ -1026,14 +1065,8 @@ describe('store', function () {
       });
     });
 
-    it('closes the bulk dialog keeping previous state', function () {
-      const hadronDoc = new HadronDocument({ a: 1 });
-      store.dispatch(
-        seedDocumentsTestState({
-          docs: [hadronDoc],
-          count: 1,
-        })
-      );
+    it('closes the bulk dialog keeping previous state', async function () {
+      await seedDocuments(store, [{ a: new Int32(1) }]);
 
       store.dispatch(openBulkDeleteDialog());
       store.dispatch(closeBulkDeleteDialog());
@@ -1077,12 +1110,16 @@ describe('store', function () {
       deactivate = () => plugin.deactivate();
     });
 
+    afterEach(function () {
+      return dataService.deleteMany('compass-crud.test', {});
+    });
+
     context('when there is no error', function () {
       const doc = { _id: 'testing', name: 'Depeche Mode' };
       const hadronDoc = new HadronDocument(doc);
 
-      beforeEach(function () {
-        store.dispatch(seedDocumentsTestState({ docs: [hadronDoc] }));
+      beforeEach(async function () {
+        await seedDocuments(store, [doc]);
       });
 
       it('replaces the document in the list', async function () {
@@ -1143,14 +1180,16 @@ describe('store', function () {
         const hadronDoc = new HadronDocument(doc);
         let stub;
 
-        beforeEach(function () {
-          store.dispatch(seedDocumentsTestState({ shardKeys: { yes: 1 } }));
+        beforeEach(async function () {
+          await seedShardKeys(store, { yes: 1 });
           hadronDoc.get('name')?.edit('Desert Sand');
           stub = sinon.stub(dataService, 'findOneAndReplace').resolves({});
         });
 
         afterEach(function () {
-          store.dispatch(seedDocumentsTestState({ shardKeys: null }));
+          return dataService.deleteMany('config.collections', {
+            _id: 'compass-crud.test',
+          } as any);
         });
 
         it('has the shard key in the query', async function () {
@@ -1279,7 +1318,7 @@ describe('store', function () {
         beforeEach(async function () {
           await store.dispatch(openInsertDocumentDialog({}));
           store.dispatch(updateJsonDoc(jsonDoc));
-          store.dispatch(seedDocumentsTestState({ count: 0 }));
+          await waitForDocumentRefresh(store);
         });
 
         it('does not insert the document and sets the error', async function () {
@@ -1310,7 +1349,7 @@ describe('store', function () {
         beforeEach(async function () {
           await store.dispatch(openInsertDocumentDialog({}));
           store.dispatch(updateJsonDoc(jsonDoc));
-          store.dispatch(seedDocumentsTestState({ count: 0 }));
+          await waitForDocumentRefresh(store);
         });
 
         afterEach(function () {
@@ -1339,7 +1378,7 @@ describe('store', function () {
         beforeEach(async function () {
           await store.dispatch(openInsertDocumentDialog({ status: 'testing' }));
           store.dispatch(toggleInsertDocument('List'));
-          store.dispatch(seedDocumentsTestState({ count: 0 }));
+          await waitForDocumentRefresh(store);
         });
 
         afterEach(function () {
@@ -1373,7 +1412,7 @@ describe('store', function () {
         beforeEach(async function () {
           await store.dispatch(openInsertDocumentDialog({}));
           store.dispatch(updateJsonDoc(jsonDoc));
-          store.dispatch(seedDocumentsTestState({ count: 0 }));
+          await waitForDocumentRefresh(store);
         });
 
         afterEach(async function () {
@@ -1533,8 +1572,8 @@ describe('store', function () {
       const docs =
         '[ { "name": "Chashu", "type": "Norwegian Forest", "status": "invalid" }, { "name": "Rey", "type": "Viszla" } ]';
 
-      beforeEach(function () {
-        store.dispatch(seedDocumentsTestState({ count: 0 }));
+      beforeEach(async function () {
+        await waitForDocumentRefresh(store);
       });
 
       afterEach(function () {
@@ -2120,9 +2159,16 @@ describe('store', function () {
     });
 
     it('does nothing if documents are already being fetched', async function () {
-      store.dispatch(seedDocumentsTestState({ status: 'fetching' }));
-      await store.dispatch(getPage(1));
+      // Start a page fetch but don't await it so the store is left in the
+      // 'fetching' state, then check that a second getPage is a no-op.
+      const inFlight = store.dispatch(getPage(1));
+      expect(store.getState().documents.status).to.equal('fetching');
+      findSpy.resetHistory();
+
+      await store.dispatch(getPage(2));
       expect(findSpy.called).to.be.false;
+
+      await inFlight;
     });
 
     it('does nothing if the page being requested is past the end', async function () {

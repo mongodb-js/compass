@@ -6,10 +6,10 @@ import type { DocumentListProps } from './components/document-list';
 import DocumentList from './components/document-list';
 import InsertDocumentDialog from './components/insert-document-dialog';
 import {
-  type EmittedAppRegistryEvents,
   activateDocumentsPlugin,
   type CrudReduxStore,
 } from './stores/crud-store';
+import type { EmittedAppRegistryEvents } from './stores/reducer';
 import { GridStoreContext } from './stores/grid-store-context';
 import {
   connectionInfoRefLocator,

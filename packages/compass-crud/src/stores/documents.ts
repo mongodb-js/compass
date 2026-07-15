@@ -33,6 +33,7 @@ import {
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_INITIAL,
 } from '../constants/documents-statuses';
+import type { DocumentViewTelemetry } from './view';
 
 /**
  * Default number of docs per page.
@@ -145,8 +146,6 @@ export const DocumentsActionTypes = {
   DOCUMENT_REMOVED: 'crud/documents/DOCUMENT_REMOVED',
   DOCUMENT_REPLACED: 'crud/documents/DOCUMENT_REPLACED',
   DOCS_PER_PAGE_CHANGED: 'crud/documents/DOCS_PER_PAGE_CHANGED',
-  /** @internal Test-only — seed partial state for unit tests. */
-  SEED_DOCUMENTS_TEST_STATE: 'crud/documents/SEED_DOCUMENTS_TEST_STATE',
 } as const;
 
 export type RefreshStartedAction = {
@@ -230,11 +229,6 @@ export type DocsPerPageChangedAction = {
   docsPerPage: number;
 };
 
-export type SeedDocumentsTestStateAction = {
-  type: typeof DocumentsActionTypes.SEED_DOCUMENTS_TEST_STATE;
-  state: Partial<DocumentsState>;
-};
-
 export type DocumentsActions =
   | RefreshStartedAction
   | RefreshSuccessAction
@@ -250,19 +244,7 @@ export type DocumentsActions =
   | LoadDebounceFinishedAction
   | DocumentRemovedAction
   | DocumentReplacedAction
-  | DocsPerPageChangedAction
-  | SeedDocumentsTestStateAction;
-
-/**
- * Test-only helper to seed partial documents-slice state. Production code
- * should never dispatch this — it's a convenience for unit tests that previously
- * relied on direct Reflux state mutation.
- */
-export function seedDocumentsTestState(
-  state: Partial<DocumentsState>
-): SeedDocumentsTestStateAction {
-  return { type: DocumentsActionTypes.SEED_DOCUMENTS_TEST_STATE, state };
-}
+  | DocsPerPageChangedAction;
 
 export function createDocumentsReducer(
   initialState: DocumentsState
@@ -372,15 +354,12 @@ export function createDocumentsReducer(
     if (isAction(action, DocumentsActionTypes.DOCS_PER_PAGE_CHANGED)) {
       return { ...state, docsPerPage: action.docsPerPage };
     }
-    if (isAction(action, DocumentsActionTypes.SEED_DOCUMENTS_TEST_STATE)) {
-      return { ...state, ...action.state };
-    }
     return state;
   };
 }
 
-function modeForTelemetry(view: string): 'list' | 'json' | 'table' {
-  return view.toLowerCase() as 'list' | 'json' | 'table';
+function modeForTelemetry(view: string): DocumentViewTelemetry {
+  return view.toLowerCase() as DocumentViewTelemetry;
 }
 
 function findDocumentIndex(docs: Document[] | null, doc: Document) {

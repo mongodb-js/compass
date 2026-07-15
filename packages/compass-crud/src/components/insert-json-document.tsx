@@ -18,20 +18,15 @@ const EDITOR_COMMENT = '/** \n* Paste one or more documents here\n*/\n';
 type InsertJsonDocumentProps = {
   darkMode?: boolean;
   jsonDoc: string;
-  isCommentNeeded: boolean;
-  updateComment: (value: boolean) => void;
   updateJsonDoc: (value: string) => void;
 };
 
 const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
   darkMode,
   jsonDoc,
-  isCommentNeeded,
   updateJsonDoc,
 }) => {
-  const [text, setText] = useState(() => {
-    return isCommentNeeded ? `${EDITOR_COMMENT}${jsonDoc}` : jsonDoc;
-  });
+  const [text, setText] = useState(`${EDITOR_COMMENT}${jsonDoc}`);
 
   const onChangeText = (value: string) => {
     setText(value);

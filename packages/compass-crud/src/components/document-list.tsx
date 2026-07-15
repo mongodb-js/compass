@@ -29,7 +29,9 @@ import {
   DOCUMENTS_STATUS_FETCHED_INITIAL,
 } from '../constants/documents-statuses';
 import { connect } from 'react-redux';
-import type { BSONObject, CrudState, DocumentView } from '../stores/crud-store';
+import type { BSONObject } from '../stores/insert';
+import type { CrudState } from '../stores/reducer';
+import type { DocumentView } from '../stores/view';
 import {
   refreshDocuments,
   cancelOperation,

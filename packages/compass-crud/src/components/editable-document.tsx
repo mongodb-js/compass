@@ -6,7 +6,7 @@ import { withPreferences } from 'compass-preferences-model/provider';
 
 import { documentStyles, documentContentStyles } from './readonly-document';
 import { getInsightsForDocument } from '../utils';
-import type { BSONObject } from '../stores/crud-store';
+import type { BSONObject } from '../stores/insert';
 
 const documentElementsContainerStyles = css({
   position: 'relative',

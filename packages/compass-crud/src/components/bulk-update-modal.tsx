@@ -30,8 +30,8 @@ import type { Annotation } from '@mongodb-js/compass-editor';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 
 import { connect } from 'react-redux';
-import type { CrudState } from '../stores/crud-store';
-import type { BSONObject } from '../stores/crud-store';
+import type { CrudState } from '../stores/reducer';
+import type { BSONObject } from '../stores/insert';
 import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
 import { useLastAppliedQuery } from '@mongodb-js/compass-query-bar';

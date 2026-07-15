@@ -7,7 +7,7 @@ import type Document from 'hadron-document';
 import type { CellEditorProps } from './cell-editor';
 import type { GridActions } from '../../stores/grid-store';
 import { DocumentEvents, type Element } from 'hadron-document';
-import type { BSONObject } from '../../stores/crud-store';
+import type { BSONObject } from '../../stores/insert';
 
 export type FullWidthCellRendererProps = Pick<
   CellEditorProps,

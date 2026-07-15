@@ -14,7 +14,8 @@ import {
   useId,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import type { BSONObject, CrudState } from '../stores/crud-store';
+import type { BSONObject } from '../stores/insert';
+import type { CrudState } from '../stores/reducer';
 import { toJSString } from 'mongodb-query-parser';
 import { ReadonlyFilter } from './readonly-filter';
 import ReadonlyDocument from './readonly-document';

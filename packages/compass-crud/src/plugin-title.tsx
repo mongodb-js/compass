@@ -8,7 +8,7 @@ import {
   compactNumber,
 } from '@mongodb-js/compass-components';
 import { connect } from 'react-redux';
-import type { CrudState } from './stores/crud-store';
+import type { CrudState } from './stores/reducer';
 import type { CollectionStats } from './stores/collection-meta';
 import { usePreference } from 'compass-preferences-model/provider';
 

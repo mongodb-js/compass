@@ -5,7 +5,7 @@ import type { MongoServerError } from 'mongodb';
 import { isAction } from '../utils/is-action';
 import type { CrudThunkAction } from './reducer';
 import { refreshDocuments } from './documents';
-import type { DocumentView } from './view';
+import type { DocumentView, DocumentViewTelemetry } from './view';
 
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
@@ -33,7 +33,6 @@ export type InsertState = {
   mode: 'modifying' | 'error';
   jsonView: boolean;
   isOpen: boolean;
-  isCommentNeeded: boolean;
 };
 
 const MODIFYING = 'modifying';
@@ -46,7 +45,6 @@ export const INITIAL_INSERT_STATE: InsertState = {
   mode: MODIFYING,
   jsonView: false,
   isOpen: false,
-  isCommentNeeded: true,
 };
 
 export const InsertActionTypes = {
@@ -56,7 +54,6 @@ export const InsertActionTypes = {
   INSERT_MANY_DOCUMENTS_VIEW_TOGGLED:
     'crud/insert/INSERT_MANY_DOCUMENTS_VIEW_TOGGLED',
   JSON_DOC_EDITED: 'crud/insert/JSON_DOC_EDITED',
-  UPDATE_COMMENT: 'crud/insert/UPDATE_COMMENT',
   INSERT_DOCUMENT_ERROR: 'crud/insert/INSERT_DOCUMENT_ERROR',
 } as const;
 
@@ -86,11 +83,6 @@ export type JsonDocEditedAction = {
   jsonDoc: string | null;
 };
 
-export type UpdateCommentAction = {
-  type: typeof InsertActionTypes.UPDATE_COMMENT;
-  isCommentNeeded: boolean;
-};
-
 export type InsertDocumentErrorAction = {
   type: typeof InsertActionTypes.INSERT_DOCUMENT_ERROR;
   error: WriteError;
@@ -106,7 +98,6 @@ export type InsertActions =
   | InsertDocumentViewToggledAction
   | InsertManyDocumentsViewToggledAction
   | JsonDocEditedAction
-  | UpdateCommentAction
   | InsertDocumentErrorAction;
 
 export const insertReducer: Reducer<InsertState> = (
@@ -122,7 +113,6 @@ export const insertReducer: Reducer<InsertState> = (
       csfleState: action.csfleState,
       mode: MODIFYING,
       isOpen: true,
-      isCommentNeeded: true,
     };
   }
   if (isAction(action, InsertActionTypes.CLOSE_INSERT_DOCUMENT_DIALOG)) {
@@ -169,19 +159,15 @@ export const insertReducer: Reducer<InsertState> = (
       mode: MODIFYING,
     };
   }
-  if (isAction(action, InsertActionTypes.UPDATE_COMMENT)) {
-    return { ...state, isCommentNeeded: action.isCommentNeeded };
-  }
   if (isAction(action, InsertActionTypes.INSERT_DOCUMENT_ERROR)) {
     return {
+      ...state,
       doc: action.doc ?? state.doc,
       jsonDoc: action.jsonDoc ?? state.jsonDoc,
       jsonView: action.jsonView ?? state.jsonView,
       error: action.error,
-      csfleState: state.csfleState,
       mode: ERROR,
       isOpen: true,
-      isCommentNeeded: state.isCommentNeeded,
     };
   }
   return state;
@@ -210,10 +196,6 @@ export function updateJsonDoc(jsonDoc: string | null): JsonDocEditedAction {
   return { type: InsertActionTypes.JSON_DOC_EDITED, jsonDoc };
 }
 
-export function updateComment(isCommentNeeded: boolean): UpdateCommentAction {
-  return { type: InsertActionTypes.UPDATE_COMMENT, isCommentNeeded };
-}
-
 function getWriteError(error: Error): WriteError {
   return {
     message: error.message,
@@ -236,7 +218,7 @@ export function openInsertDocumentDialog(
       track(
         'Document Cloned',
         {
-          mode: getState().view.view.toLowerCase() as 'list' | 'json' | 'table',
+          mode: getState().view.view.toLowerCase() as DocumentViewTelemetry,
         },
         connectionInfoRef.current
       );

@@ -17,7 +17,8 @@ import CellEditor from './cell-editor';
 import './document-table-view.less';
 import './ag-grid-dist.css';
 import { cx, spacing, withDarkMode } from '@mongodb-js/compass-components';
-import type { BSONObject, TableState } from '../../stores/crud-store';
+import type { BSONObject } from '../../stores/insert';
+import type { TableState } from '../../stores/view';
 import type {
   GridActions,
   GridStoreTriggerParams,

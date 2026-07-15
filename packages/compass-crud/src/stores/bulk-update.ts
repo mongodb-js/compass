@@ -170,7 +170,6 @@ export function updateBulkUpdatePreview(
     try {
       update = parseShellBSON(updateText);
     } catch (err: any) {
-      if (abortController.signal.aborted) return;
       bulkUpdatePreviewAbortControllerRef.current = undefined;
       dispatch({
         type: BulkUpdateActionTypes.FETCH_PREVIEW_SYNTAX_ERRORED,
@@ -179,8 +178,6 @@ export function updateBulkUpdatePreview(
       });
       return;
     }
-
-    if (abortController.signal.aborted) return;
 
     const ns = getState().documents.ns;
     const { filter = {} } = queryBar.getLastAppliedQuery('crud');

@@ -7,6 +7,7 @@ import { DocumentsActionTypes } from './documents';
 
 const DOCUMENT_VIEWS = ['List', 'JSON', 'Table'] as const;
 export type DocumentView = (typeof DOCUMENT_VIEWS)[number];
+export type DocumentViewTelemetry = Lowercase<(typeof DOCUMENT_VIEWS)[number]>;
 
 export type TableState = {
   doc: Document | null;
