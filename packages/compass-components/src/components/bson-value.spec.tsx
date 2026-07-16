@@ -174,6 +174,19 @@ describe('BSONValue', function () {
     });
   });
 
+  it('should cap the title attribute for very large strings', function () {
+    // A very large string in a `title` attribute crashes the Chromium renderer.
+    const largeString = 'a'.repeat(2_000_000);
+    const { container } = render(
+      <BSONValue type="String" value={largeString} />
+    );
+
+    const element = container.querySelector('.element-value');
+    const title = element?.getAttribute('title') ?? '';
+    expect(title.length).to.be.lessThan(largeString.length);
+    expect(title.length).to.be.lessThan(2000);
+  });
+
   it('should render an info link for encrypted values', async function () {
     render(
       <BSONValue
