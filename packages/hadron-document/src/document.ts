@@ -3,6 +3,7 @@ import type { Element, ElementEventsType } from './element';
 import { ElementList } from './element';
 import EventEmitter from 'eventemitter3';
 import { EJSON, UUID } from 'bson';
+import { toJSString } from 'mongodb-query-parser';
 import type {
   KeyInclusionOptions,
   ObjectGeneratorOptions,
@@ -434,6 +435,21 @@ export class Document extends EventEmitter<
         ? this.generateOriginalObject()
         : this.generateObject();
     return objectToIdiomaticEJSON(obj, options);
+  }
+
+  toShellSyntax(
+    source: 'original' | 'current' = 'current',
+    options: {
+      indent?: number;
+    } = {
+      indent: 2,
+    }
+  ): string {
+    const obj =
+      source === 'original'
+        ? this.generateOriginalObject()
+        : this.generateObject();
+    return toJSString(obj, options.indent) ?? '{}';
   }
 
   /**

@@ -51,9 +51,15 @@ export function useDocumentItemContextMenu({
               ]
             : []),
           {
+            label: 'Copy document as Shell Syntax',
+            onAction: () => {
+              copyToClipboard?.(doc, 'shell-syntax');
+            },
+          },
+          {
             label: 'Copy document as EJSON',
             onAction: () => {
-              copyToClipboard?.(doc);
+              copyToClipboard?.(doc, 'ejson');
             },
           },
           isEditable

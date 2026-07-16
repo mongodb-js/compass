@@ -73,6 +73,7 @@ import type { CollationOptions, MongoServerError } from 'mongodb';
 export type BSONObject = TypeCastMap['Object'];
 export type BSONArray = TypeCastMap['Array'];
 type Mutable<T> = { -readonly [P in keyof T]: T[P] };
+export type CopyDocumentFormat = 'ejson' | 'shell-syntax';
 
 export type EmittedAppRegistryEvents =
   | 'open-import'
@@ -95,7 +96,7 @@ export type CrudActions = {
   removeDocument(doc: Document): Promise<void>;
   replaceDocument(doc: Document): Promise<void>;
   openInsertDocumentDialog(doc: BSONObject, cloned: boolean): Promise<void>;
-  copyToClipboard(doc: Document): void; //XXX
+  copyToClipboard(doc: Document, format: CopyDocumentFormat): void; //XXX
   openBulkDeleteDialog(): void;
   runBulkUpdate(): Promise<void>;
   closeBulkDeleteDialog(): void;
@@ -541,22 +542,14 @@ class CrudStoreImpl
     return this.state.view.toLowerCase() as Lowercase<DocumentView>;
   }
 
-  /**
-   * Copy the document to the clipboard.
-   *
-   * @param {HadronDocument} doc - The document.
-   *
-   * @returns {Boolean} If the copy succeeded.
-   */
-  copyToClipboard(doc: Document) {
+  copyToClipboard(doc: Document, format: CopyDocumentFormat = 'ejson') {
     this.track(
       'Document Copied',
-      { mode: this.modeForTelemetry() },
+      { mode: this.modeForTelemetry(), format },
       this.connectionInfoRef.current
     );
-    const documentEJSON = doc.toEJSON();
-    // eslint-disable-next-line no-undef
-    void navigator.clipboard.writeText(documentEJSON);
+    const str = format === 'ejson' ? doc.toEJSON() : doc.toShellSyntax();
+    void navigator.clipboard.writeText(str);
   }
 
   getWriteError(error: Error): WriteError {

@@ -6,7 +6,7 @@ import { withPreferences } from 'compass-preferences-model/provider';
 
 import { documentStyles, documentContentStyles } from './readonly-document';
 import { getInsightsForDocument } from '../utils';
-import type { CrudActions } from '../stores/crud-store';
+import type { CopyDocumentFormat, CrudActions } from '../stores/crud-store';
 
 const documentElementsContainerStyles = css({
   position: 'relative',
@@ -126,7 +126,7 @@ class EditableDocument extends React.Component<
    * Handle copying JSON to clipboard of the document.
    */
   handleCopy() {
-    this.props.copyToClipboard?.(this.props.doc);
+    this.props.copyToClipboard?.(this.props.doc, 'ejson');
   }
 
   /**
