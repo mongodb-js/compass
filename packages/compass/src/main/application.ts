@@ -506,6 +506,12 @@ class CompassApplication {
             url: details.url,
           });
         } catch (err) {
+          log.warn(
+            mongoLogId(1_001_000_249),
+            'CompassApplication',
+            'Request authentication failed, cancelling request',
+            { error: (err as Error).message }
+          );
           callback({ cancel: true });
           return;
         }

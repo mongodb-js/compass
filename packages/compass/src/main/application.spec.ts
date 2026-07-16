@@ -17,9 +17,9 @@ describe('CompassApplication onBeforeSendHeaders listener', function () {
   beforeEach(function () {
     sandbox
       .stub(session.defaultSession.webRequest, 'onBeforeSendHeaders')
-      .callsFake((_filter, listener) => {
+      .callsFake(((_filter: any, listener: any) => {
         capturedListener = listener as typeof capturedListener;
-      });
+      }) as any);
     sandbox.stub(session.defaultSession.webRequest, 'onHeadersReceived');
     sandbox.stub(session.defaultSession, 'on');
 

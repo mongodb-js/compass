@@ -1,4 +1,5 @@
 import { shell, app } from 'electron';
+import type Electron from 'electron';
 import { URL, URLSearchParams } from 'url';
 import type {
   AuthFlowType,
