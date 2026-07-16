@@ -106,7 +106,8 @@ export type CrudActions = {
   saveUpdateQuery(name: string): Promise<void>;
 };
 
-export type DocumentView = 'List' | 'JSON' | 'Table';
+const DOCUMENT_VIEWS = ['List', 'JSON', 'Table'] as const;
+export type DocumentView = (typeof DOCUMENT_VIEWS)[number];
 
 const INITIAL_BULK_UPDATE_TEXT = `{
   $set: {
@@ -223,11 +224,6 @@ const ERROR = 'error';
 const MODIFYING = 'modifying';
 
 /**
- * The list view constant.
- */
-const LIST = 'List';
-
-/**
  * The delete error message.
  */
 const DELETE_ERROR = new Error(
@@ -265,6 +261,13 @@ export const COUNT_MAX_TIME_MS_CAP = 5000;
  * Exported only for test purpose
  */
 export const MAX_DOCS_PER_PAGE_STORAGE_KEY = 'compass_crud-max_docs_per_page';
+
+/**
+ * The key we use to persist the user selected document view for other tabs or
+ * for the next application start.
+ * Exported only for test purpose
+ */
+export const DOCUMENT_VIEW_STORAGE_KEY = 'compass_crud-document_view';
 
 export type CrudStoreOptions = Pick<
   CollectionTabPluginMetadata,
@@ -446,7 +449,7 @@ class CrudStoreImpl
       version: this.instance.build.version,
       end: 0,
       page: 0,
-      view: LIST,
+      view: this.getInitialDocumentView(),
       count: null,
       insert: this.getInitialInsertState(),
       bulkUpdate: this.getInitialBulkUpdateState(),
@@ -470,6 +473,14 @@ class CrudStoreImpl
       docsPerPage: this.getInitialDocsPerPage(),
       collectionStats: extractCollectionStats(this.collection),
     };
+  }
+
+  getInitialDocumentView(): DocumentView {
+    const view = localStorage.getItem(DOCUMENT_VIEW_STORAGE_KEY);
+    if (DOCUMENT_VIEWS.includes(view as DocumentView)) {
+      return view as DocumentView;
+    }
+    return 'List';
   }
 
   getInitialDocsPerPage(): number {
@@ -1553,10 +1564,9 @@ class CrudStoreImpl
 
   /**
    * The view has changed.
-   *
-   * @param {String} view - The new view.
    */
-  viewChanged(view: CrudState['view']) {
+  viewChanged(view: DocumentView) {
+    localStorage.setItem(DOCUMENT_VIEW_STORAGE_KEY, view);
     this.setState({ view: view });
   }
 

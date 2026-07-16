@@ -63,6 +63,8 @@ export function useShouldShowAnalyzeOutput(
 const analyzeButtonGradientWrapperStyles = css({
   display: 'inline-flex',
   alignSelf: 'flex-start',
+  flexShrink: 0,
+  whiteSpace: 'nowrap',
   background: `linear-gradient(135deg, ${palette.green.dark1}, ${palette.blue.base})`,
   padding: '1px',
   borderRadius: '6px',
