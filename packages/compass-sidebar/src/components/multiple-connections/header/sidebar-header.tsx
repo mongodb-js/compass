@@ -55,7 +55,7 @@ export function SidebarHeader({
           </>
         )}
       </Subtitle>
-      {enableCompassWebSettings && (
+      {(!isCompassWeb || enableCompassWebSettings) && (
         <ItemActionControls<Action>
           onAction={onAction}
           iconSize="small"
