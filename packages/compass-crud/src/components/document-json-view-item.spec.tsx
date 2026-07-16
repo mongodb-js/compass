@@ -62,6 +62,7 @@ describe('DocumentJsonViewItem', function () {
     userEvent.click(element, { button: 2 });
 
     // Should show context menu with expected items
+    expect(screen.getByText('Copy document as Shell Syntax')).to.exist;
     expect(screen.getByText('Copy document as EJSON')).to.exist;
     expect(screen.getByText('Clone document...')).to.exist;
     expect(screen.getByText('Delete document')).to.exist;

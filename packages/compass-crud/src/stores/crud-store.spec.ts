@@ -423,7 +423,7 @@ describe('store', function () {
 
       store.copyToClipboard(hadronDoc, 'shell-syntax');
       expect(mockCopyToClipboard).to.have.been.calledOnceWithExactly(
-        '{\n  "_id": "testing",\n  "count": "Int32(5)"\n}'
+        "{\n  _id: 'testing',\n  count: NumberInt('2')\n}"
       );
     });
   });
