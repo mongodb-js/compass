@@ -112,7 +112,7 @@ describe('PipelinePreview', function () {
       '[data-testid="readonly-document-empty"]'
     );
     expect(items).to.have.lengthOf(2);
-    expect(container.textContent).to.include('{}');
+    expect(container.textContent).to.include('(empty document)');
   });
 
   it('renders pipeline output menu', async function () {

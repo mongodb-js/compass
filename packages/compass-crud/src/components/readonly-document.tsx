@@ -1,10 +1,5 @@
 import React from 'react';
-import {
-  DocumentList,
-  css,
-  spacing,
-  fontFamilies,
-} from '@mongodb-js/compass-components';
+import { DocumentList, css, spacing } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import { withPreferences } from 'compass-preferences-model/provider';
@@ -26,12 +21,6 @@ export const documentStyles = css({
 export const documentContentStyles = css({
   paddingTop: spacing[400],
   paddingBottom: spacing[400],
-});
-
-const emptyDocumentStyles = css({
-  fontFamily: fontFamilies.code,
-  paddingLeft: spacing[400],
-  marginLeft: spacing[900],
 });
 
 export type ReadonlyDocumentProps = {
@@ -143,16 +132,6 @@ class ReadonlyDocument extends React.Component<
    * @returns {Array} The elements.
    */
   renderElements() {
-    if (this.props.doc.elements.size === 0) {
-      return (
-        <div
-          className={emptyDocumentStyles}
-          data-testid="readonly-document-empty"
-        >
-          {'{}'}
-        </div>
-      );
-    }
     return (
       <>
         <DocumentList.Document

@@ -44,7 +44,7 @@ describe('<DocumentListView />', function () {
 
         const emptyDocs = screen.getAllByTestId('readonly-document-empty');
         expect(emptyDocs).to.have.length(1);
-        expect(emptyDocs[0].textContent).to.equal('{}');
+        expect(emptyDocs[0].textContent).to.equal('(empty document)');
       });
     });
   });
