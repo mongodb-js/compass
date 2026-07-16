@@ -450,7 +450,7 @@ export class Document extends EventEmitter<
       source === 'original'
         ? this.generateOriginalObject()
         : this.generateObject();
-    return toJSString(obj, options.indent) ?? '{}';
+    return toJSString(obj, options.indent) || '{}';
   }
 
   /**

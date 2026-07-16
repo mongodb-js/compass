@@ -2553,7 +2553,6 @@ describe('Document', function () {
         b: 1.5,
         c: Long.fromNumber(2),
       });
-      doc.get('a')?.edit(2 as unknown as BSONValue);
       doc.get('a')?.edit(new Int32(2));
       expect(doc.toShellSyntax('current', { indent: 0 })).to.equal(
         "{a:NumberInt('2'),b:Double('1.5'),c:NumberLong('2')}"

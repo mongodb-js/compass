@@ -96,7 +96,7 @@ export type CrudActions = {
   removeDocument(doc: Document): Promise<void>;
   replaceDocument(doc: Document): Promise<void>;
   openInsertDocumentDialog(doc: BSONObject, cloned: boolean): Promise<void>;
-  copyToClipboard(doc: Document, format: CopyDocumentFormat): void; //XXX
+  copyToClipboard(doc: Document, format?: CopyDocumentFormat): void; //XXX
   openBulkDeleteDialog(): void;
   runBulkUpdate(): Promise<void>;
   closeBulkDeleteDialog(): void;
