@@ -23,6 +23,9 @@ export type {
 const menuStyles = css({
   paddingTop: spacing[150],
   paddingBottom: spacing[150],
+  width: 'max-content',
+  // LG default width for menu
+  minWidth: 210,
 });
 
 const itemStyles = css({
