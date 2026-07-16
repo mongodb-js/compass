@@ -26,5 +26,26 @@ describe('<DocumentListView />', function () {
         expect(documents).to.have.length(2);
       });
     });
+
+    context('when a readonly document has no fields', function () {
+      it('renders the document as an empty object', function () {
+        const hadronDocs = [
+          new HadronDocument({ _id: 1 }),
+          new HadronDocument({}),
+        ];
+
+        render(
+          <DocumentListView
+            docs={hadronDocs}
+            isEditable={false}
+            isTimeSeries={false}
+          />
+        );
+
+        const emptyDocs = screen.getAllByTestId('readonly-document-empty');
+        expect(emptyDocs).to.have.length(1);
+        expect(emptyDocs[0].textContent).to.equal('{}');
+      });
+    });
   });
 });
