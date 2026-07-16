@@ -126,7 +126,7 @@ class EditableDocument extends React.Component<
    * Handle copying JSON to clipboard of the document.
    */
   handleCopy() {
-    this.props.copyToClipboard?.(this.props.doc, 'ejson');
+    this.props.copyToClipboard?.(this.props.doc, 'shell-syntax');
   }
 
   /**
