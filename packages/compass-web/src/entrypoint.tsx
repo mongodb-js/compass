@@ -43,6 +43,7 @@ import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
 import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
+import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 import {
@@ -600,6 +601,7 @@ const CompassWebWithPreferences = ({
                                     projectId={projectId}
                                     isCloudOptIn={true}
                                   />
+                                  <CompassSettingsPlugin></CompassSettingsPlugin>
                                 </CompassInstanceStorePlugin>
                               </CompassConnections>
                             </CompassAssistantProvider>

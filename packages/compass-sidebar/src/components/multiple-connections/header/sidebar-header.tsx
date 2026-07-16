@@ -7,6 +7,7 @@ import {
   ItemActionControls,
   Badge,
 } from '@mongodb-js/compass-components';
+import { usePreference } from 'compass-preferences-model/provider';
 
 const sidebarHeaderStyles = css({
   paddingLeft: spacing[400],
@@ -43,6 +44,7 @@ export function SidebarHeader({
   onAction(actionName: Action): void;
   isCompassWeb?: boolean;
 }): React.ReactElement {
+  const enableCompassWebSettings = usePreference('enableCompassWebSettings');
   return (
     <div className={sidebarHeaderStyles} data-testid="sidebar-header">
       <Subtitle className={sidebarHeaderTextStyles}>
@@ -53,7 +55,7 @@ export function SidebarHeader({
           </>
         )}
       </Subtitle>
-      {!isCompassWeb && (
+      {enableCompassWebSettings && (
         <ItemActionControls<Action>
           onAction={onAction}
           iconSize="small"
