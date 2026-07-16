@@ -1,4 +1,4 @@
-// Whitelist of Atlas Admin API endpoints that require authentication (and that Compass actively uses).
+// Allow-list of Atlas Admin API endpoints that require authentication (and that Compass actively uses).
 
 // Source: https://www.mongodb.com/docs/api/doc/atlas-admin-api-v2/
 
