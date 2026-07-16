@@ -184,7 +184,7 @@ describe('BSONValue', function () {
     const element = container.querySelector('.element-value');
     const title = element?.getAttribute('title') ?? '';
     expect(title.length).to.be.lessThan(largeString.length);
-    expect(title.length).to.be.lessThan(2000);
+    expect(title.length).to.equal(1001);
   });
 
   it('should render an info link for encrypted values', async function () {
