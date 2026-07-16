@@ -493,16 +493,22 @@ class CompassApplication {
     session.defaultSession.webRequest.onBeforeSendHeaders(
       allowedCloudEndpoints,
       async (details, callback) => {
-        const filteredHeaders = Object.fromEntries(
-          Object.entries(details.requestHeaders).filter(([name]) => {
-            return !REQUEST_CORS_HEADERS.includes(name.toLowerCase());
-          })
-        );
+        let headers;
+        try {
+          const filteredHeaders = Object.fromEntries(
+            Object.entries(details.requestHeaders).filter(([name]) => {
+              return !REQUEST_CORS_HEADERS.includes(name.toLowerCase());
+            })
+          );
 
-        const headers = await CompassAuthService.handleAuthHeaders({
-          headers: filteredHeaders,
-          url: details.url,
-        });
+          headers = await CompassAuthService.handleAuthHeaders({
+            requestHeaders: filteredHeaders,
+            url: details.url,
+          });
+        } catch (err) {
+          callback({ cancel: true });
+          return;
+        }
 
         callback({ requestHeaders: headers });
       }
