@@ -275,6 +275,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableCompassWebSettings',
     stage: 'development',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable settings in compass web',
     },
