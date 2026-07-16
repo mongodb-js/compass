@@ -46,6 +46,10 @@ export interface HadronEJSONOptions {
   indent?: number | string;
 }
 
+export interface HadronShellSyntaxOptions {
+  indent?: number | string;
+}
+
 /**
  * Turn a BSON value into what we consider idiomatic extended JSON.
  *

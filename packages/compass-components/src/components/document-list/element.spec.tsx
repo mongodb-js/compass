@@ -115,7 +115,7 @@ describe('HadronElement', function () {
         skipPointerEventsCheck: true,
       });
 
-      expect(clipboardWriteTextStub).to.have.been.calledWith('"value"');
+      expect(clipboardWriteTextStub).to.have.been.calledWith("'value'");
     });
 
     it('copies field and value when "Copy field & value" is clicked', function () {
@@ -136,7 +136,7 @@ describe('HadronElement', function () {
         skipPointerEventsCheck: true,
       });
 
-      expect(clipboardWriteTextStub).to.have.been.calledWith('field: "value"');
+      expect(clipboardWriteTextStub).to.have.been.calledWith("field: 'value'");
     });
 
     it('shows "Open URL in browser" for URL string values', function () {

@@ -2535,6 +2535,42 @@ describe('Document', function () {
     });
   });
 
+  describe('#toShellSyntax', function () {
+    it('serializes document', function () {
+      const doc = new Document({
+        a: 1,
+        b: { foo: 2 },
+        null_val: null,
+      });
+      expect(doc.toShellSyntax('current', { indent: 0 })).to.equal(
+        "{a:NumberInt('1'),b:{foo:NumberInt('2')},null_val:null}"
+      );
+    });
+
+    it('optionally serializes the current or the original document', function () {
+      const doc = new Document({
+        a: 1,
+        b: 1.5,
+        c: Long.fromNumber(2),
+      });
+      doc.get('a')?.edit(2 as unknown as BSONValue);
+      doc.get('a')?.edit(new Int32(2));
+      expect(doc.toShellSyntax('current', { indent: 0 })).to.equal(
+        "{a:NumberInt('2'),b:Double('1.5'),c:NumberLong('2')}"
+      );
+      expect(doc.toShellSyntax('original', { indent: 0 })).to.equal(
+        "{a:NumberInt('1'),b:Double('1.5'),c:NumberLong('2')}"
+      );
+    });
+
+    it('allows specifying JSON indent', function () {
+      const doc = new Document({ a: 1 });
+      expect(doc.toShellSyntax('current', { indent: '>' })).to.equal(
+        "{\n>a: NumberInt('1')\n}"
+      );
+    });
+  });
+
   context('when a document is expanded/collapsed', function () {
     it('expands/collapse all of the child elements and sub-elements and notifies about the expansion/collapse', function () {
       const doc = {

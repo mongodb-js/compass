@@ -9,7 +9,12 @@ import type {
   ObjectGeneratorOptions,
 } from './object-generator';
 import ObjectGenerator from './object-generator';
-import type { BSONArray, BSONObject, BSONValue } from './utils';
+import type {
+  BSONArray,
+  BSONObject,
+  BSONValue,
+  HadronShellSyntaxOptions,
+} from './utils';
 import { objectToIdiomaticEJSON } from './utils';
 import type { HadronEJSONOptions } from './utils';
 import type { Binary, MongoServerError } from 'mongodb';
@@ -216,7 +221,7 @@ export class Document extends EventEmitter<
     if (!path) {
       return undefined;
     }
-    let element = this.elements.get(path[0] as string);
+    let element = this.elements.get(path[0]);
     let i = 1;
     while (i < path.length) {
       if (element === undefined) {
@@ -225,7 +230,7 @@ export class Document extends EventEmitter<
       element =
         element.currentType === 'Array'
           ? element.at(path[i] as number)
-          : element.get(path[i] as string);
+          : element.get(path[i]);
       i++;
     }
     return element;
@@ -439,11 +444,7 @@ export class Document extends EventEmitter<
 
   toShellSyntax(
     source: 'original' | 'current' = 'current',
-    options: {
-      indent?: number;
-    } = {
-      indent: 2,
-    }
+    options: HadronShellSyntaxOptions = {}
   ): string {
     const obj =
       source === 'original'
