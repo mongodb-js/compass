@@ -53,9 +53,6 @@ class MockAtlasService {
   cloudEndpoint = (url: string) => `${['/cloud', url].join('/')}`;
   privateApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
   assistantApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
-  authenticatedFetch = (url: string, init: RequestInit) => {
-    return fetch(url, init);
-  };
   fetch = (url: string, init: RequestInit) => {
     return fetch(url, init);
   };
