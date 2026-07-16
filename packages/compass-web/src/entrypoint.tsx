@@ -601,7 +601,9 @@ const CompassWebWithPreferences = ({
                                     projectId={projectId}
                                     isCloudOptIn={true}
                                   />
-                                  <CompassSettingsPlugin></CompassSettingsPlugin>
+                                  {preferences.getPreferences().enableCompassWebSettings && (
+                                    <CompassSettingsPlugin />
+                                  )}
                                 </CompassInstanceStorePlugin>
                               </CompassConnections>
                             </CompassAssistantProvider>
