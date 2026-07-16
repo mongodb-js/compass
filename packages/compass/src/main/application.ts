@@ -492,31 +492,33 @@ class CompassApplication {
 
     session.defaultSession.webRequest.onBeforeSendHeaders(
       allowedCloudEndpoints,
-      async (details, callback) => {
-        let headers;
-        try {
-          const filteredHeaders = Object.fromEntries(
-            Object.entries(details.requestHeaders).filter(([name]) => {
-              return !REQUEST_CORS_HEADERS.includes(name.toLowerCase());
-            })
-          );
+      (details, callback) => {
+        void (async () => {
+          let headers;
+          try {
+            const filteredHeaders = Object.fromEntries(
+              Object.entries(details.requestHeaders).filter(([name]) => {
+                return !REQUEST_CORS_HEADERS.includes(name.toLowerCase());
+              })
+            );
 
-          headers = await CompassAuthService.handleAuthHeaders({
-            requestHeaders: filteredHeaders,
-            url: details.url,
-          });
-        } catch (err) {
-          log.warn(
-            mongoLogId(1_001_000_249),
-            'CompassApplication',
-            'Request authentication failed, cancelling request',
-            { error: (err as Error).message }
-          );
-          callback({ cancel: true });
-          return;
-        }
+            headers = await CompassAuthService.handleAuthHeaders({
+              requestHeaders: filteredHeaders,
+              url: details.url,
+            });
+          } catch (err) {
+            log.warn(
+              mongoLogId(1_001_000_249),
+              'CompassApplication',
+              'Request authentication failed, cancelling request',
+              { error: (err as Error).message }
+            );
+            callback({ cancel: true });
+            return;
+          }
 
-        callback({ requestHeaders: headers });
+          callback({ requestHeaders: headers });
+        })();
       }
     );
 

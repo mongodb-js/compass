@@ -35,16 +35,17 @@ describe('CompassApplication onBeforeSendHeaders listener', function () {
       .stub(CompassAuthService, 'handleAuthHeaders')
       .rejects(new Error('Invalid authenticated request URL.'));
 
-    const callback = sandbox.stub();
-    await capturedListener(
-      {
-        requestHeaders: { 'X-Compass-Auth': 'true' },
-        url: 'https://cloud.mongodb.com/some/endpoint',
-      },
-      callback
-    );
+    const callbackResponse = new Promise((resolve) => {
+      capturedListener(
+        {
+          requestHeaders: { 'X-Compass-Auth': 'true' },
+          url: 'https://cloud.mongodb.com/some/endpoint',
+        },
+        resolve
+      );
+    });
 
-    expect(callback).to.have.been.calledOnceWithExactly({ cancel: true });
+    expect(await callbackResponse).to.deep.equal({ cancel: true });
   });
 
   it('invokes callback with returned headers on success', async function () {
@@ -52,13 +53,14 @@ describe('CompassApplication onBeforeSendHeaders listener', function () {
       .stub(CompassAuthService, 'handleAuthHeaders')
       .resolves({ Authorization: 'Bearer abc' });
 
-    const callback = sandbox.stub();
-    await capturedListener(
-      { requestHeaders: {}, url: 'https://cloud.mongodb.com/foo' },
-      callback
-    );
+    const callbackResponse = new Promise((resolve) => {
+      capturedListener(
+        { requestHeaders: {}, url: 'https://cloud.mongodb.com/foo' },
+        resolve
+      );
+    });
 
-    expect(callback).to.have.been.calledOnceWithExactly({
+    expect(await callbackResponse).to.deep.equal({
       requestHeaders: { Authorization: 'Bearer abc' },
     });
   });
