@@ -1,15 +1,11 @@
 import Sinon from 'sinon';
-import chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
+import { expect } from 'chai';
 import { CompassAuthService } from './main';
 import { throwIfNotOk } from './util';
 import { EventEmitter } from 'events';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import * as util from './util';
-
-const { expect } = chai;
-chai.use(chaiAsPromised);
 
 function getListenerCount(emitter: EventEmitter) {
   return emitter.eventNames().reduce((acc, name) => {
@@ -424,14 +420,21 @@ describe('CompassAuthServiceMain', function () {
 
         for (const url of attackerUrls) {
           it(`throws when asked to add auth headers for ${url}`, async function () {
-            await expect(
-              CompassAuthService.handleAuthHeaders({
+            let err: Error | undefined;
+            try {
+              await CompassAuthService.handleAuthHeaders({
                 requestHeaders: {
                   'X-Compass-Auth': 'true',
                 },
                 url,
-              })
-            ).to.be.rejectedWith(Error, 'Invalid authenticated request URL.');
+              });
+            } catch (error) {
+              err = error as Error;
+            }
+            expect(err).to.have.property(
+              'message',
+              'Invalid authenticated request URL.'
+            );
           });
         }
       });
