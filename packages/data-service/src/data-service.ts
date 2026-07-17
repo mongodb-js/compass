@@ -3044,6 +3044,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
             },
             {
               maxTimeMS: remainingTimeoutMS(),
+              // txn require primary read preference
+              readPreference: ReadPreference.primary,
             }
           );
         } catch (err: any) {
