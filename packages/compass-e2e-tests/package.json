@@ -64,7 +64,7 @@
     "mongodb-connection-string-url": "^7.0.1",
     "mongodb-log-writer": "^2.4.4",
     "mongodb-ns": "^3.2.0",
-    "mongodb-runner": "^6.8.2",
+    "mongodb-runner": "^6.8.3",
     "node-fetch": "^2.7.0",
     "nyc": "^15.1.0",
     "ps-list": "^8.1.0",
