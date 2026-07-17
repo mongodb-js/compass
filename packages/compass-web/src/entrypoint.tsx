@@ -488,6 +488,13 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
   );
 };
 
+const CompassSettingsPluginWithPreferences = () => {
+  const { enableCompassWebSettings } = usePreferences([
+    'enableCompassWebSettings',
+  ]);
+  return enableCompassWebSettings ? <CompassSettingsPlugin /> : null;
+};
+
 const CompassWebWithPreferences = ({
   appName,
   orgId,
@@ -601,10 +608,7 @@ const CompassWebWithPreferences = ({
                                     projectId={projectId}
                                     isCloudOptIn={true}
                                   />
-                                  {preferences.getPreferences()
-                                    .enableCompassWebSettings && (
-                                    <CompassSettingsPlugin />
-                                  )}
+                                  <CompassSettingsPluginWithPreferences />
                                 </CompassInstanceStorePlugin>
                               </CompassConnections>
                             </CompassAssistantProvider>
