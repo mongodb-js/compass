@@ -12,6 +12,7 @@ import { GROUP_STEPS_MAP } from './guide-cue-groups';
 import type { GroupName } from './guide-cue-groups';
 import { css, cx, useCurrentValueRef } from '../..';
 import { rafraf } from '../../utils/rafraf';
+import { useEffectOnChange } from '../../hooks/use-effect-on-change';
 
 const hiddenPopoverStyles = css({
   display: 'none !important',
@@ -262,14 +263,11 @@ export const GuideCue = <T extends HTMLElement>({
   const isCueDisabled = context.disabled;
   const isCueShown = readyToRender && !isCueDisabled && isCueOpen;
 
-  useEffect(() => {
+  useEffectOnChange(() => {
     if (isCueShown) {
       context.onShow?.(cueData);
     }
-    // We only want to fire this when the cue transitions to being shown, and
-    // not every time cueData / onShow identity changes.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isCueShown]);
+  }, isCueShown);
 
   return (
     <>
