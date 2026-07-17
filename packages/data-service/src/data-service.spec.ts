@@ -2268,10 +2268,7 @@ describe('DataService', function () {
         const connectionString = new ConnectionString(
           replsetCluster().connectionString
         );
-        connectionString.searchParams.set(
-          'readPreference',
-          'secondaryPreferred'
-        );
+        connectionString.searchParams.set('readPreference', 'secondary');
         dataService = new DataServiceImpl({
           connectionString: connectionString.toString(),
         });

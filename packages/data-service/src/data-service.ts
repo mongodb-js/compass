@@ -2505,6 +2505,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
         collMod: collectionName,
         ...flags,
       },
+      // colMod can only be run on the primary
       { readPreference: ReadPreference.primary }
     );
     // Reset the CSFLE-enabled client (if any) to clear any collection
