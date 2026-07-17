@@ -1,4 +1,5 @@
 import { shell, app } from 'electron';
+import type Electron from 'electron';
 import { URL, URLSearchParams } from 'url';
 import type {
   AuthFlowType,
@@ -28,6 +29,7 @@ import { spawn } from 'child_process';
 import { getAtlasConfig } from './util';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
 import type { RequestInit, Response } from '@mongodb-js/devtools-proxy-support';
+import { ATLAS_ADMIN_API_AUTH_ENDPOINTS } from './atlas-admin-api-auth-endpoints';
 
 const { log } = createLogger('COMPASS-ATLAS-SERVICE');
 const track = createIpcTrack();
@@ -182,7 +184,6 @@ export class CompassAuthService {
           'isAuthenticated',
           'signIn',
           'signOut',
-          'maybeGetToken',
         ]);
       }
       this.attachOidcPluginLoggerEvents();
@@ -464,8 +465,55 @@ export class CompassAuthService {
         mongoLogId(1_001_000_221),
         'AtlasService',
         'Failed to save auth state',
-        { erroe: (err as Error).stack }
+        { error: (err as Error).stack }
       );
     }
+  }
+
+  static isAuthenticatedAtlasAdminApiRequest({
+    url,
+  }: {
+    url: string;
+  }): boolean {
+    const parsedUrl = new URL(url);
+    return (
+      parsedUrl.origin === new URL(this.config.atlasAdminApiBaseUrl).origin &&
+      ATLAS_ADMIN_API_AUTH_ENDPOINTS.some((endpoint) => {
+        if (typeof endpoint === 'string') {
+          return parsedUrl.pathname === endpoint;
+        }
+        return endpoint.test(parsedUrl.pathname);
+      })
+    );
+  }
+
+  static async handleAuthHeaders({
+    requestHeaders,
+    url,
+  }: Pick<
+    Electron.OnBeforeSendHeadersListenerDetails,
+    'requestHeaders' | 'url'
+  >): Promise<Electron.OnBeforeSendHeadersListenerDetails['requestHeaders']> {
+    if (requestHeaders['X-Compass-Auth'] !== 'true') {
+      return requestHeaders;
+    }
+
+    if (!this.isAuthenticatedAtlasAdminApiRequest({ url }))
+      throw new Error('Invalid authenticated request URL.');
+
+    const newHeaders = { ...requestHeaders };
+    const token = await this.maybeGetToken({
+      tokenType: 'accessToken',
+    });
+    if (token) {
+      newHeaders.Authorization = `Bearer ${token}`;
+    }
+
+    delete newHeaders['X-Compass-Auth'];
+    log.info(mongoLogId(1_001_000_248), 'AtlasService', 'Added auth headers', {
+      url,
+    });
+
+    return newHeaders;
   }
 }
