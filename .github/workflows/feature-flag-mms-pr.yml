@@ -38,7 +38,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install -w compass-preferences-model --ignore-scripts
+          npm ci
 
       - name: Detect new feature flags
         id: detect
