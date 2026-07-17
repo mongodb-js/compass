@@ -2251,6 +2251,51 @@ describe('DataService', function () {
     });
   });
 
+  context(
+    'with a replicaset connection using a non-primary read preference',
+    function () {
+      this.slow(30_000);
+      this.timeout(120_000);
+
+      const namespace = 'test.readPref';
+      const replsetCluster = mochaTestServer({
+        topology: 'replset',
+        secondaries: 1,
+      });
+      let dataService: DataService;
+
+      before(async function () {
+        const connectionString = new ConnectionString(
+          replsetCluster().connectionString
+        );
+        connectionString.searchParams.set(
+          'readPreference',
+          'secondaryPreferred'
+        );
+        dataService = new DataServiceImpl({
+          connectionString: connectionString.toString(),
+        });
+        await dataService.connect();
+        await dataService.insertOne(namespace, { foo: 'bar' });
+      });
+
+      after(async function () {
+        // eslint-disable-next-line no-console
+        await dataService?.disconnect().catch(console.log);
+      });
+
+      it('runs collMod (updateCollection) against the primary', async function () {
+        // collMod is a write command that must run on the primary. When it
+        // inherits the client's secondaryPreferred read preference it gets
+        // routed to a secondary and the server rejects it with "not primary".
+        const result = await dataService.updateCollection(namespace, {
+          validator: { $jsonSchema: { bsonType: 'object' } },
+        });
+        expect(result.ok).to.equal(1);
+      });
+    }
+  );
+
   context('with mocked client', function () {
     function createDataServiceWithMockedClient(
       clientConfig: Partial<ClientMockOptions>

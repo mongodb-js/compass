@@ -2497,12 +2497,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
   ): Promise<Document> {
     const collectionName = this._collectionName(ns);
     const db = this._database(ns, 'CRUD');
-    const result = await runCommand(db, {
-      // Order of arguments is important here, collMod is a command name and it
-      // should always be the first one in the object
-      collMod: collectionName,
-      ...flags,
-    });
+    const result = await runCommand(
+      db,
+      {
+        // Order of arguments is important here, collMod is a command name and it
+        // should always be the first one in the object
+        collMod: collectionName,
+        ...flags,
+      },
+      { readPreference: ReadPreference.primary }
+    );
     // Reset the CSFLE-enabled client (if any) to clear any collection
     // metadata caches that might still be active.
     await this._resetCRUDClient();
