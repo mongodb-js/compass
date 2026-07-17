@@ -424,6 +424,13 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
       // Making sure that compass-web modals and tooltips are definitely not
       // hidden by Cloud UI sidebar and page header
       stackedElementsZIndex={10_000}
+      onGuideCueShown={(cue) => {
+        track('Guide Cue Shown', {
+          groupId: cue.groupId,
+          cueId: cue.cueId,
+          step: cue.step,
+        });
+      }}
       onNextGuideGue={(cue) => {
         track('Guide Cue Dismissed', {
           groupId: cue.groupId,

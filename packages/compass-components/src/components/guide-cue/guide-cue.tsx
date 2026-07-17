@@ -31,6 +31,7 @@ export type GroupCue = Cue & {
 };
 
 type GuideCueContextValue = {
+  onShow?: (cue: Cue) => void;
   onNext?: (cue: Cue) => void;
   onNextGroup?: (groupCue: GroupCue) => void;
   disabled?: boolean;
@@ -46,6 +47,9 @@ export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
   const callbacksRef = useCurrentValueRef(callbacks);
   const value = useMemo(
     () => ({
+      onShow(cue: Cue) {
+        callbacksRef.current.onShow?.(cue);
+      },
       onNext(cue: Cue) {
         callbacksRef.current.onNext?.(cue);
       },
@@ -256,6 +260,16 @@ export const GuideCue = <T extends HTMLElement>({
   }, [isCueOpen, cueData, onNext, setOpen]);
 
   const isCueDisabled = context.disabled;
+  const isCueShown = readyToRender && !isCueDisabled && isCueOpen;
+
+  useEffect(() => {
+    if (isCueShown) {
+      context.onShow?.(cueData);
+    }
+    // We only want to fire this when the cue transitions to being shown, and
+    // not every time cueData / onShow identity changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCueShown]);
 
   return (
     <>
