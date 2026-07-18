@@ -112,9 +112,9 @@
       "@leafygreen-ui/icon": "^14.9.0",
       "@leafygreen-ui/leafygreen-provider": "^5.0.4",
       "@leafygreen-ui/palette": "^5.0.2",
-      "@leafygreen-ui/select": "^17.0.3",
+      "@leafygreen-ui/select": "^17.1.0",
       "@leafygreen-ui/tokens": "^4.2.2",
-      "@leafygreen-ui/tooltip": "^14.3.1",
+      "@leafygreen-ui/tooltip": "^14.3.2",
       "@leafygreen-ui/typography": "^22.2.4"
     },
     "@types/react": "^17.0.83",
