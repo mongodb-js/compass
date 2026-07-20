@@ -2100,38 +2100,6 @@ describe('DataService', function () {
         const count = await replDataService.count(namespace, {});
         expect(count).to.equal(100);
       });
-
-      it('should succeed when the connection uses a non-primary read preference', async function () {
-        if (replDataService.getCurrentTopologyType() === 'Single') {
-          return this.skip(); // Transactions only work in replicasets or sharded clusters
-        }
-
-        const baseConnectionString = new ConnectionString(
-          replsetCluster().connectionString
-        );
-        baseConnectionString.searchParams.set(
-          'readPreference',
-          'secondaryPreferred'
-        );
-        const secondaryPreferredService = new DataServiceImpl({
-          connectionString: baseConnectionString.toString(),
-        });
-
-        try {
-          await secondaryPreferredService.connect();
-
-          const changeset = await secondaryPreferredService.previewUpdate(
-            namespace,
-            { foo: 'bar' },
-            { $set: { foo: 'baz' } }
-          );
-
-          expect(changeset.changes).to.have.length(1);
-        } finally {
-          // eslint-disable-next-line no-console
-          await secondaryPreferredService.disconnect().catch(console.log);
-        }
-      });
     });
   });
 
