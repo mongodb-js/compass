@@ -25,6 +25,7 @@ import {
   fetchDocuments,
   activateDocumentsPlugin as _activate,
   MAX_DOCS_PER_PAGE_STORAGE_KEY,
+  DOCUMENT_VIEW_STORAGE_KEY,
 } from './crud-store';
 import { Int32 } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
@@ -137,7 +138,7 @@ function onceDocumentEvent(
 ): Promise<unknown[]> {
   // The once function was not meant for strongly typed events, so we need to
   // do some additional type casting.
-  return once(doc as unknown as EventEmitter, event as string);
+  return once(doc as unknown as EventEmitter, event);
 }
 
 const mockFieldStoreService = {
@@ -1724,11 +1725,30 @@ describe('store', function () {
 
   describe('#viewChanged', function () {
     let store: CrudStore;
+    let fakeLocalStorage: sinon.SinonStub;
+    let fakeGetItem: (key: string) => string | null;
+    let fakeSetItem: (key: string, value: string) => void;
 
     beforeEach(function () {
+      const localStorageValues: Record<string, string> = Object.create(null);
+      fakeGetItem = sinon.fake((key: string) => {
+        return localStorageValues[key];
+      });
+      fakeSetItem = sinon.fake((key: string, value: any) => {
+        localStorageValues[key] = value.toString();
+      });
+
+      fakeLocalStorage = sinon.stub(global, 'localStorage').value({
+        getItem: fakeGetItem,
+        setItem: fakeSetItem,
+      });
       const plugin = activatePlugin();
       store = plugin.store;
       deactivate = () => plugin.deactivate();
+    });
+
+    afterEach(function () {
+      fakeLocalStorage.restore();
     });
 
     it('sets the view', async function () {
@@ -1737,6 +1757,37 @@ describe('store', function () {
       });
 
       store.viewChanged('Table');
+
+      await listener;
+    });
+
+    it('initializes the view from localStorage on store creation', function () {
+      fakeSetItem(DOCUMENT_VIEW_STORAGE_KEY, 'JSON');
+      deactivate?.();
+
+      const plugin = activatePlugin();
+      store = plugin.store;
+      deactivate = () => plugin.deactivate();
+
+      expect(store.state.view).to.equal('JSON');
+    });
+
+    it('sets the view and stores it in localStorage', async function () {
+      let listener = waitForState(store, (state) => {
+        expect(state.view).to.equal('Table');
+        expect(fakeGetItem(DOCUMENT_VIEW_STORAGE_KEY)).to.equal('Table');
+      });
+
+      store.viewChanged('Table');
+
+      await listener;
+
+      listener = waitForState(store, (state) => {
+        expect(state.view).to.equal('JSON');
+        expect(fakeGetItem(DOCUMENT_VIEW_STORAGE_KEY)).to.equal('JSON');
+      });
+
+      store.viewChanged('JSON');
 
       await listener;
     });
@@ -2158,7 +2209,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'update'
       );
@@ -2188,7 +2239,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'replace'
       );
@@ -2219,7 +2270,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'update'
       );
@@ -2250,7 +2301,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'update'
       );
@@ -2297,7 +2348,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'update'
       );
@@ -2320,7 +2371,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'update'
       );
@@ -2347,7 +2398,7 @@ describe('store', function () {
       const [error, d] = await findAndModifyWithFLEFallback(
         dataServiceStub,
         'compass-crud.test',
-        { _id: 1234 } as any,
+        { _id: 1234 },
         { name: 'document_12345' },
         'replace'
       );

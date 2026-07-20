@@ -6,7 +6,7 @@ import { expect } from 'chai';
 describe('Int64Editor', function () {
   describe('#start', function () {
     const int64Value = Long.fromString('750');
-    const element = new Element('field', int64Value, false);
+    const element = new Element('field', int64Value);
 
     context('when the current type is not edited and is valid', function () {
       const int64Editor = new Int64Editor(element);
@@ -56,7 +56,7 @@ describe('Int64Editor', function () {
 
   describe('#edit', function () {
     const int64Value = Long.fromString('122');
-    const element = new Element('field', int64Value, false);
+    const element = new Element('field', int64Value);
 
     context('when the current value is edited to a valid int64', function () {
       const int64Editor = new Int64Editor(element);
@@ -113,7 +113,7 @@ describe('Int64Editor', function () {
 
   describe('#complete', function () {
     const int64Value = Long.fromString('123');
-    const element = new Element('field', int64Value, false);
+    const element = new Element('field', int64Value);
 
     context('when the current value is edited to a valid int64', function () {
       const int64Editor = new Int64Editor(element);

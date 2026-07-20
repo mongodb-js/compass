@@ -6,6 +6,7 @@ import {
   buildDebugSearchErrorPrompt,
   buildDiagnoseSearchStagePrompt,
   buildContextPrompt,
+  FOLLOW_UP_QUESTIONS_HEADER,
 } from './prompts';
 
 describe('prompts', function () {
@@ -139,6 +140,22 @@ describe('prompts', function () {
       });
       expect(result.metadata?.confirmation?.state).to.equal('pending');
       expect(result.metadata?.confirmation?.description).to.be.a('string');
+    });
+
+    it('keeps the follow-up question format and instructions out of the persisted prompt, so they cannot leak into later entry points via chat history', function () {
+      const result = buildAnalyzeOutputPrompt({
+        pipeline: mockPipeline,
+        output: mockOutput,
+        documentCount: 1,
+      });
+      expect(result.prompt).to.not.include(FOLLOW_UP_QUESTIONS_HEADER);
+      expect(result.prompt).to.not.include('always use the exact wording');
+      expect(result.metadata?.instructions).to.include(
+        FOLLOW_UP_QUESTIONS_HEADER
+      );
+      expect(result.metadata?.instructions).to.include(
+        'always use the exact wording'
+      );
     });
   });
 

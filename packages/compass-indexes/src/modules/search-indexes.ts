@@ -52,6 +52,8 @@ export const ActionTypes = {
     'compass-indexes/search-indexes/create-search-index-failed',
   CreateSearchIndexSucceeded:
     'compass-indexes/search-indexes/create-search-index-succeeded',
+  CreateSearchIndexErrorCleared:
+    'compass-indexes/search-indexes/create-search-index-error-cleared',
 
   // Update Index
   UpdateSearchIndexOpened:
@@ -64,6 +66,8 @@ export const ActionTypes = {
     'compass-indexes/search-indexes/update-search-index-failed',
   UpdateSearchIndexSucceeded:
     'compass-indexes/search-indexes/update-search-index-succeeded',
+  UpdateSearchIndexErrorCleared:
+    'compass-indexes/search-indexes/update-search-index-error-cleared',
 } as const;
 
 type FetchSearchIndexesStartedAction = {
@@ -98,6 +102,10 @@ export type CreateSearchIndexSucceededAction = {
   type: typeof ActionTypes.CreateSearchIndexSucceeded;
 };
 
+export type CreateSearchIndexErrorClearedAction = {
+  type: typeof ActionTypes.CreateSearchIndexErrorCleared;
+};
+
 export type CreateSearchIndexClosedAction = {
   type: typeof ActionTypes.CreateSearchIndexClosed;
 };
@@ -118,6 +126,10 @@ type UpdateSearchIndexFailedAction = {
 
 export type UpdateSearchIndexSucceededAction = {
   type: typeof ActionTypes.UpdateSearchIndexSucceeded;
+};
+
+export type UpdateSearchIndexErrorClearedAction = {
+  type: typeof ActionTypes.UpdateSearchIndexErrorCleared;
 };
 
 export type UpdateSearchIndexClosedAction = {
@@ -242,6 +254,21 @@ export default function reducer(
   }
 
   if (
+    isAction<CreateSearchIndexErrorClearedAction>(
+      action,
+      ActionTypes.CreateSearchIndexErrorCleared
+    )
+  ) {
+    return {
+      ...state,
+      createIndex: {
+        ...state.createIndex,
+        error: undefined,
+      },
+    };
+  }
+
+  if (
     isAction<UpdateSearchIndexOpenedAction>(
       action,
       ActionTypes.UpdateSearchIndexOpened
@@ -320,6 +347,21 @@ export default function reducer(
         ...state.updateIndex,
         isModalOpen: false,
         isBusy: false,
+        error: undefined,
+      },
+    };
+  }
+
+  if (
+    isAction<UpdateSearchIndexErrorClearedAction>(
+      action,
+      ActionTypes.UpdateSearchIndexErrorCleared
+    )
+  ) {
+    return {
+      ...state,
+      updateIndex: {
+        ...state.updateIndex,
         error: undefined,
       },
     };
@@ -439,6 +481,11 @@ const createSearchIndexSucceeded = (): CreateSearchIndexSucceededAction => ({
   type: ActionTypes.CreateSearchIndexSucceeded,
 });
 
+export const createSearchIndexErrorCleared =
+  (): CreateSearchIndexErrorClearedAction => ({
+    type: ActionTypes.CreateSearchIndexErrorCleared,
+  });
+
 const updateSearchIndexStarted = (): UpdateSearchIndexStartedAction => ({
   type: ActionTypes.UpdateSearchIndexStarted,
 });
@@ -453,6 +500,11 @@ const updateSearchIndexFailed = (
 const updateSearchIndexSucceeded = (): UpdateSearchIndexSucceededAction => ({
   type: ActionTypes.UpdateSearchIndexSucceeded,
 });
+
+export const updateSearchIndexErrorCleared =
+  (): UpdateSearchIndexErrorClearedAction => ({
+    type: ActionTypes.UpdateSearchIndexErrorCleared,
+  });
 
 export const POLLING_INTERVAL = 5000;
 

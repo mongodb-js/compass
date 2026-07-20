@@ -265,6 +265,22 @@ export function getIndexOfFirstStageWithServerError(
   return null;
 }
 
+/** Builds the pipeline string (up to and including `toIndex`) used as
+ *  context for the Assistant's Analyze Output entry point. */
+export function getPipelineStringForStage(
+  stages: StageEditorState['stages'],
+  toIndex: number
+): string {
+  return `[${stages
+    .slice(0, toIndex + 1)
+    .filter(
+      (s): s is StoreStage =>
+        s.type === 'stage' && !!s.stageOperator && !!s.value && !s.disabled
+    )
+    .map((s) => `{ ${s.stageOperator}: ${s.value} }`)
+    .join(', ')}]`;
+}
+
 function canRunStage(stage?: StoreStage, allowOut = false): boolean {
   return (
     !!stage &&

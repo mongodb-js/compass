@@ -106,9 +106,13 @@ export type AtlasServiceConfig = {
    */
   cloudBaseUrl: string;
   /**
+   * Atlas private API base url
+   */
+  atlasPrivateApiBaseUrl: string;
+  /**
    * Atlas admin API base url
    */
-  atlasApiBaseUrl: string;
+  atlasAdminApiBaseUrl: string;
   /**
    * Atlas OIDC config
    */
@@ -143,7 +147,8 @@ const config = Object.create({
     ccsBaseUrl: 'ws://localhost:61001/ws',
     multiplexedWsBaseUrls: ['ws://cloud-local.mmscloudteam.com/ccs'],
     cloudBaseUrl: '',
-    atlasApiBaseUrl: 'http://cloud-local.mmscloudteam.com/api/private',
+    atlasPrivateApiBaseUrl: 'http://cloud-local.mmscloudteam.com/api/private',
+    atlasAdminApiBaseUrl: 'https://cloud-local.mmscloudteam.com/api/atlas',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
@@ -159,7 +164,8 @@ const config = Object.create({
       'wss://cluster-connection.cloud-dev.mongodb.com/ccs',
     ],
     cloudBaseUrl: '',
-    atlasApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
+    atlasPrivateApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
+    atlasAdminApiBaseUrl: 'https://cloud-dev.mongodb.com/api/atlas',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
@@ -175,7 +181,8 @@ const config = Object.create({
       'wss://cluster-connection.cloud-qa.mongodb.com/ccs',
     ],
     cloudBaseUrl: '',
-    atlasApiBaseUrl: 'https://cloud-qa.mongodb.com/api/private',
+    atlasPrivateApiBaseUrl: 'https://cloud-qa.mongodb.com/api/private',
+    atlasAdminApiBaseUrl: 'https://cloud-qa.mongodb.com/api/atlas',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
@@ -191,7 +198,8 @@ const config = Object.create({
       'wss://cluster-connection.cloud-stage.mongodb.com/ccs',
     ],
     cloudBaseUrl: '',
-    atlasApiBaseUrl: 'https://cloud-stage.mongodb.com/api/private',
+    atlasPrivateApiBaseUrl: 'https://cloud-stage.mongodb.com/api/private',
+    atlasAdminApiBaseUrl: 'https://cloud-stage.mongodb.com/api/atlas',
     atlasLogin: {
       clientId: '0oaq1le5jlzxCuTbu357',
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
@@ -207,7 +215,8 @@ const config = Object.create({
       'wss://cluster-connection.cloud.mongodb.com/ccs',
     ],
     cloudBaseUrl: '',
-    atlasApiBaseUrl: 'https://cloud.mongodb.com/api/private',
+    atlasPrivateApiBaseUrl: 'https://cloud.mongodb.com/api/private',
+    atlasAdminApiBaseUrl: 'https://cloud.mongodb.com/api/atlas',
     atlasLogin: {
       clientId: '0oajzdcznmE8GEyio297',
       issuer: 'https://auth.mongodb.com/oauth2/default',
@@ -223,7 +232,8 @@ export function getAtlasConfig(
 ) {
   const { atlasServiceBackendPreset } = preferences.getPreferences();
   const envConfig = {
-    atlasApiBaseUrl: process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
+    atlasPrivateApiBaseUrl:
+      process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
     cloudBaseUrl: process.env.COMPASS_CLOUD_BASE_URL_OVERRIDE,
     atlasLogin: {
       clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,

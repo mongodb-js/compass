@@ -37,6 +37,7 @@ import { selectIsViewSearchCompatible } from '../../utils/is-view-search-compati
 
 import { useSearchIndexesTable } from './use-search-indexes-table';
 import { COLUMNS, COLUMNS_WITH_ACTIONS } from './search-indexes-columns';
+import ViewStandardIndexesIncompatibleEmptyState from '../view-incompatible-components/view-standard-indexes-incompatible-empty-state';
 
 type SearchIndexesTableProps = {
   namespace: string;
@@ -209,6 +210,9 @@ export const SearchIndexesTable: React.FunctionComponent<
   }
 
   if (indexes.length === 0) {
+    if (isReadonlyView && !isViewPipelineSearchQueryable) {
+      return <ViewStandardIndexesIncompatibleEmptyState />;
+    }
     return (
       <ZeroState
         onOpenCreateModalClick={onOpenCreateModalClick}
