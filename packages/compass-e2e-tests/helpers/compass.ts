@@ -896,17 +896,21 @@ export async function startBrowser(
       prefs: {
         'download.default_directory': DOWNLOADS_PATH,
       },
-      args: isTestingWebAtlasCloud(context)
-        ? [
-            // We're going to be hitting localhost from remote domain, LNA needs
-            // to be disabled
-            '--disable-features=LocalNetworkAccessChecks',
-            // Allow to load extensions from cli and don't check when remote
-            // websites are accessing localhost
-            '--disable-features=DisableLoadExtensionCommandLineSwitch',
-            `--load-extension=${redirectExtension!.extensionPath}`,
-          ]
-        : [],
+      args: [
+        '--no-sandbox',
+        '--disable-gpu',
+        ...(isTestingWebAtlasCloud(context)
+          ? [
+              // We're going to be hitting localhost from remote domain, LNA needs
+              // to be disabled
+              '--disable-features=LocalNetworkAccessChecks',
+              // Allow to load extensions from cli and don't check when remote
+              // websites are accessing localhost
+              '--disable-features=DisableLoadExtensionCommandLineSwitch',
+              `--load-extension=${redirectExtension!.extensionPath}`,
+            ]
+          : []),
+      ],
     },
     'moz:firefoxOptions': {
       prefs: {
