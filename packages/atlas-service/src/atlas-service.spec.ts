@@ -156,4 +156,405 @@ describe('AtlasService', function () {
       'X-CSRF-Token': 'token',
     });
   });
+
+  describe('Atlas Admin API cluster endpoints', function () {
+    function stubJsonResponse(body: unknown) {
+      const fetchStub = sandbox.stub().resolves({
+        status: 200,
+        ok: true,
+        json: () => Promise.resolve(body),
+      });
+      global.fetch = fetchStub;
+      return fetchStub;
+    }
+
+    // Sets up sequential fetch responses so we can drive the group-listing
+    // request followed by one per-group connection-strings request.
+    function stubSequentialJsonResponses(bodies: unknown[]) {
+      const fetchStub = sandbox.stub();
+      bodies.forEach((body, i) => {
+        fetchStub.onCall(i).resolves({
+          status: 200,
+          ok: true,
+          json: () => Promise.resolve(body),
+        });
+      });
+      global.fetch = fetchStub;
+      return fetchStub;
+    }
+
+    describe('getProjectAndClusterId', function () {
+      it('should match an srv connection string', async function () {
+        const fetchStub = stubSequentialJsonResponses([
+          // listGroupIds -> /v2/clusters
+          {
+            results: [
+              { groupId: 'g1', name: 'c1' },
+              { groupId: 'g2', name: 'c2' },
+            ],
+            totalCount: 2,
+          },
+          // listConnectionStrings('g1')
+          {
+            results: [
+              {
+                name: 'c1',
+                connectionStrings: {
+                  standardSrv: 'mongodb+srv://c1.aaaaa.mongodb.net',
+                },
+              },
+            ],
+            totalCount: 1,
+          },
+          // listConnectionStrings('g2')
+          {
+            results: [
+              {
+                name: 'c2',
+                connectionStrings: {
+                  standardSrv: 'mongodb+srv://c2.bbbbb.mongodb.net',
+                },
+              },
+            ],
+            totalCount: 1,
+          },
+        ]);
+
+        const res = await atlasService.getProjectNameAndClusterId(
+          'mongodb+srv://user:pass@c2.bbbbb.mongodb.net/test?retryWrites=true'
+        );
+
+        expect(res).to.deep.equal({ projectId: 'g2', clusterName: 'c2' });
+        expect(fetchStub.getCall(0).args[0]).to.equal(
+          'http://example.com/api/atlas/v2/clusters?pageNum=1&itemsPerPage=100'
+        );
+        expect(fetchStub.getCall(1).args[0]).to.equal(
+          'http://example.com/api/atlas/v2/groups/g1/clusters?pageNum=1&itemsPerPage=100'
+        );
+      });
+
+      it('should match a standard connection string on its first host', async function () {
+        const fetchStub = stubSequentialJsonResponses([
+          { results: [{ groupId: 'g1', name: 'c1' }], totalCount: 1 },
+          {
+            results: [
+              {
+                name: 'c1',
+                connectionStrings: {
+                  standard:
+                    'mongodb://a.host.mongodb.net:27017,b.host.mongodb.net:27017,c.host.mongodb.net:27017/?ssl=true',
+                },
+              },
+            ],
+            totalCount: 1,
+          },
+        ]);
+
+        const res = await atlasService.getProjectNameAndClusterId(
+          'mongodb://user:pass@a.host.mongodb.net:27017,z.other.mongodb.net:27017/test'
+        );
+
+        expect(res).to.deep.equal({ projectId: 'g1', clusterName: 'c1' });
+        expect(fetchStub.calledTwice).to.be.true;
+      });
+
+      it('should stop fetching connection strings once a match is found', async function () {
+        const fetchStub = stubSequentialJsonResponses([
+          {
+            results: [
+              { groupId: 'g1', name: 'c1' },
+              { groupId: 'g2', name: 'c2' },
+            ],
+            totalCount: 2,
+          },
+          {
+            results: [
+              {
+                name: 'c1',
+                connectionStrings: {
+                  standardSrv: 'mongodb+srv://c1.aaaaa.mongodb.net',
+                },
+              },
+            ],
+            totalCount: 1,
+          },
+        ]);
+
+        const res = await atlasService.getProjectNameAndClusterId(
+          'mongodb+srv://c1.aaaaa.mongodb.net'
+        );
+
+        expect(res).to.deep.equal({ projectId: 'g1', clusterName: 'c1' });
+        // Only two calls: listGroupIds + listConnectionStrings('g1'). g2 is
+        // never fetched because g1 already matched.
+        expect(fetchStub.calledTwice).to.be.true;
+      });
+
+      it('should not match a standard string against an srv string', async function () {
+        stubSequentialJsonResponses([
+          { results: [{ groupId: 'g1', name: 'c1' }], totalCount: 1 },
+          {
+            results: [
+              {
+                name: 'c1',
+                connectionStrings: {
+                  standardSrv: 'mongodb+srv://c1.aaaaa.mongodb.net',
+                },
+              },
+            ],
+            totalCount: 1,
+          },
+        ]);
+
+        const res = await atlasService.getProjectNameAndClusterId(
+          'mongodb://c1.aaaaa.mongodb.net:27017'
+        );
+
+        expect(res).to.equal(undefined);
+      });
+
+      it('should return undefined when no cluster matches', async function () {
+        stubSequentialJsonResponses([
+          { results: [{ groupId: 'g1', name: 'c1' }], totalCount: 1 },
+          {
+            results: [
+              {
+                name: 'c1',
+                connectionStrings: {
+                  standardSrv: 'mongodb+srv://c1.aaaaa.mongodb.net',
+                },
+              },
+            ],
+            totalCount: 1,
+          },
+        ]);
+
+        const res = await atlasService.getProjectNameAndClusterId(
+          'mongodb+srv://other.zzzzz.mongodb.net'
+        );
+
+        expect(res).to.equal(undefined);
+      });
+
+      it('should return undefined for an invalid connection string', async function () {
+        const fetchStub = stubSequentialJsonResponses([]);
+
+        const res = await atlasService.getProjectNameAndClusterId('not-a-uri');
+
+        expect(res).to.equal(undefined);
+        expect(fetchStub.called).to.be.false;
+      });
+    });
+
+    it('listGroupIds should hit the clusters endpoint and dedupe group ids', async function () {
+      const fetchStub = stubJsonResponse({
+        results: [
+          { groupId: 'g1', name: 'c1' },
+          { groupId: 'g1', name: 'c2' },
+          { groupId: 'g2', name: 'c3' },
+        ],
+        totalCount: 3,
+      });
+
+      const res = await atlasService.listGroupIds();
+
+      expect(res).to.deep.equal(['g1', 'g2']);
+      expect(fetchStub.firstCall.args[0]).to.equal(
+        'http://example.com/api/atlas/v2/clusters?pageNum=1&itemsPerPage=100'
+      );
+    });
+
+    it('listGroupIds should page through results and dedupe across pages', async function () {
+      const firstPage = {
+        results: Array.from({ length: 100 }, (_, i) => ({
+          groupId: i < 50 ? 'g1' : 'g2',
+          name: `c${i}`,
+        })),
+        totalCount: 101,
+      };
+      const secondPage = {
+        results: [{ groupId: 'g2', name: 'cLast' }],
+        totalCount: 101,
+      };
+      const fetchStub = stubSequentialJsonResponses([firstPage, secondPage]);
+
+      const res = await atlasService.listGroupIds();
+
+      expect(res).to.deep.equal(['g1', 'g2']);
+      expect(fetchStub.calledTwice).to.be.true;
+      expect(fetchStub.secondCall.args[0]).to.equal(
+        'http://example.com/api/atlas/v2/clusters?pageNum=2&itemsPerPage=100'
+      );
+    });
+
+    it('listConnectionStrings should page through results', async function () {
+      const firstPage = {
+        results: Array.from({ length: 100 }, (_, i) => ({
+          name: `c${i}`,
+          connectionStrings: {
+            standardSrv: `mongodb+srv://c${i}.host.mongodb.net`,
+          },
+        })),
+        totalCount: 101,
+      };
+      const secondPage = {
+        results: [
+          {
+            name: 'cLast',
+            connectionStrings: {
+              standardSrv: 'mongodb+srv://clast.host.mongodb.net',
+            },
+          },
+        ],
+        totalCount: 101,
+      };
+      const fetchStub = stubSequentialJsonResponses([firstPage, secondPage]);
+
+      const res = await atlasService.listConnectionStrings('abc123');
+
+      expect(res).to.have.lengthOf(101);
+      expect(res[100]).to.deep.equal({
+        clusterName: 'cLast',
+        connectionStrings: ['mongodb+srv://clast.host.mongodb.net'],
+      });
+      expect(fetchStub.secondCall.args[0]).to.equal(
+        'http://example.com/api/atlas/v2/groups/abc123/clusters?pageNum=2&itemsPerPage=100'
+      );
+    });
+
+    it('listConnectionStrings should encode the groupId and flatten connection strings', async function () {
+      const fetchStub = stubJsonResponse({
+        results: [
+          {
+            name: 'c1',
+            connectionStrings: {
+              standardSrv: 'mongodb+srv://c1.aaaaa.mongodb.net',
+              standard: 'mongodb://c1.aaaaa.mongodb.net:27017',
+            },
+          },
+        ],
+        totalCount: 1,
+      });
+
+      const res = await atlasService.listConnectionStrings('abc123');
+
+      expect(res).to.deep.equal([
+        {
+          clusterName: 'c1',
+          connectionStrings: [
+            'mongodb+srv://c1.aaaaa.mongodb.net',
+            'mongodb://c1.aaaaa.mongodb.net:27017',
+          ],
+        },
+      ]);
+      expect(fetchStub.firstCall.args[0]).to.equal(
+        'http://example.com/api/atlas/v2/groups/abc123/clusters?pageNum=1&itemsPerPage=100'
+      );
+    });
+
+    it('getClusterState should hit the single cluster endpoint and return the computed state', async function () {
+      const fetchStub = stubJsonResponse({
+        name: 'c1',
+        paused: false,
+        stateName: 'IDLE',
+      });
+
+      const res = await atlasService.getClusterState('abc123', 'c1');
+
+      expect(res).to.equal('IDLE');
+      expect(fetchStub.firstCall.args[0]).to.equal(
+        'http://example.com/api/atlas/v2/groups/abc123/clusters/c1'
+      );
+    });
+
+    it('getClusterState should compute PAUSED / PROVISIONING / DELETING from the response', async function () {
+      stubJsonResponse({ name: 'c1', paused: true, stateName: 'IDLE' });
+      expect(await atlasService.getClusterState('abc123', 'c1')).to.equal(
+        'PAUSED'
+      );
+
+      stubJsonResponse({ name: 'c1', paused: false, stateName: 'CREATING' });
+      expect(await atlasService.getClusterState('abc123', 'c1')).to.equal(
+        'PROVISIONING'
+      );
+
+      stubJsonResponse({ name: 'c1', paused: false, stateName: 'DELETING' });
+      expect(await atlasService.getClusterState('abc123', 'c1')).to.equal(
+        'DELETING'
+      );
+
+      stubJsonResponse({ name: 'c1', paused: false, stateName: 'UPDATING' });
+      expect(await atlasService.getClusterState('abc123', 'c1')).to.equal(
+        'UPDATING'
+      );
+
+      stubJsonResponse({ name: 'c1', paused: false, stateName: 'REPAIRING' });
+      expect(await atlasService.getClusterState('abc123', 'c1')).to.equal(
+        'REPAIRING'
+      );
+    });
+
+    it('getClusterState should map a 404 to NOT_FOUND', async function () {
+      global.fetch = sandbox.stub().resolves({
+        status: 404,
+        ok: false,
+        statusText: 'Not Found',
+        json: () => Promise.resolve(undefined),
+      });
+
+      expect(await atlasService.getClusterState('abc123', 'missing')).to.equal(
+        'NOT_FOUND'
+      );
+    });
+
+    it('getProjectIPAccessList should hit the access list endpoint', async function () {
+      const fetchStub = stubJsonResponse({
+        results: [{ cidrBlock: '0.0.0.0/0' }],
+        totalCount: 1,
+      });
+
+      const res = await atlasService.getProjectIPAccessList('abc123');
+
+      expect(res).to.deep.equal([{ cidrBlock: '0.0.0.0/0' }]);
+      expect(fetchStub.firstCall.args[0]).to.equal(
+        'http://example.com/api/atlas/v2/groups/abc123/accessList?pageNum=1&itemsPerPage=100'
+      );
+    });
+
+    it('getProjectIPAccessList should page through all entries', async function () {
+      const firstPage = {
+        results: Array.from({ length: 100 }, (_, i) => ({
+          cidrBlock: `10.0.0.${i}/32`,
+        })),
+        totalCount: 101,
+      };
+      const secondPage = {
+        results: [{ ipAddress: '1.2.3.4' }],
+        totalCount: 101,
+      };
+      const fetchStub = stubSequentialJsonResponses([firstPage, secondPage]);
+
+      const res = await atlasService.getProjectIPAccessList('abc123');
+
+      expect(res).to.have.lengthOf(101);
+      expect(res[100]).to.deep.equal({ ipAddress: '1.2.3.4' });
+      expect(fetchStub.secondCall.args[0]).to.equal(
+        'http://example.com/api/atlas/v2/groups/abc123/accessList?pageNum=2&itemsPerPage=100'
+      );
+    });
+
+    it('should throw when the cluster response is malformed', async function () {
+      stubJsonResponse({ name: 'c1' });
+
+      try {
+        await atlasService.getClusterState('abc123', 'c1');
+        expect.fail('Expected getClusterState to throw');
+      } catch (err) {
+        expect(err).to.have.property(
+          'message',
+          'Got unexpected backend response for Atlas Admin API cluster request'
+        );
+      }
+    });
+  });
 });
