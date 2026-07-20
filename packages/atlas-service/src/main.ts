@@ -382,6 +382,7 @@ export class CompassAuthService {
     signal?: AbortSignal;
     tokenType?: 'accessToken' | 'refreshToken';
   } = {}) {
+    // TODO(COMPASS-7094): use the discovery endpoint instead of hardcoding this
     this.throwIfNetworkTrafficDisabled();
     const url = new URL(`${this.config.atlasLogin.issuer}/tokens/introspect`);
     url.searchParams.set('client_id', this.config.atlasLogin.clientId);
@@ -390,19 +391,23 @@ export class CompassAuthService {
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const res = await this.fetch(url.toString(), {
-      method: 'POST',
-      body: new URLSearchParams([
-        ['token', token ?? ''],
-        ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
-        ['client_id', this.config.atlasLogin.clientId],
-      ]),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      signal: signal,
-    });
+    try {
+      const res = await this.fetch(url.toString(), {
+        method: 'POST',
+        body: new URLSearchParams([
+          ['token', token ?? ''],
+          ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
+          ['client_id', this.config.atlasLogin.clientId],
+        ]),
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        signal: signal,
+      });
+    } catch (err) {
+      console.error('Failed to introspect token', err);
+    }
 
     return res.json() as Promise<IntrospectInfo>;
   }
