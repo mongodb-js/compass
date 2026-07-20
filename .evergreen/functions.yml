@@ -700,6 +700,7 @@ functions:
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
           COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
+          PACKAGED_APP_TEST_ARGS: '${packaged_app_test_args|}'
         script: |
           set -e
           # Load environment variables
@@ -717,7 +718,7 @@ functions:
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
           fi
 
-          npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+          npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci -- $PACKAGED_APP_TEST_ARGS
 
   smoketest-on-github-actions:
     - command: github.generate_token
