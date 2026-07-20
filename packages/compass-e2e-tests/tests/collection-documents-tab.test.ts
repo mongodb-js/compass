@@ -595,6 +595,70 @@ FindIterable<Document> result = collection.find(filter);`);
     );
   });
 
+  it('shows error for unsafe integer values and action to fix them in json view', async function () {
+    await browser.runFindOperation('Documents', '{ i: 123 }');
+    await browser.clickVisible(Selectors.SelectJSONView);
+
+    const document = browser.$(Selectors.DocumentJSONEntry);
+    await document.waitForDisplayed();
+
+    await waitForJSON(browser, document);
+
+    const json = await browser.getCodemirrorEditorText(
+      Selectors.DocumentJSONEntry
+    );
+    expect(json.replace(/\s+/g, ' ')).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": 0 \}$/
+    );
+
+    await browser.hover(Selectors.JSONDocumentCard);
+    await browser.clickVisible(Selectors.JSONEditDocumentButton);
+
+    const newjson = JSON.stringify({
+      ...JSON.parse(json),
+      j: Number.MAX_SAFE_INTEGER + 1,
+    });
+
+    await browser.setCodemirrorEditorValue(
+      Selectors.DocumentJSONEntry,
+      newjson
+    );
+
+    const footer = document.$(Selectors.DocumentFooterMessage);
+    expect(await footer.getText()).to.contain(
+      'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
+    );
+
+    await document.$(Selectors.DocumentFooterFixUnsafeIntegerLink).click();
+
+    const updatedJson = await browser.getCodemirrorEditorText(
+      Selectors.DocumentJSONEntry
+    );
+    expect(updatedJson.replace(/\s+/g, ' ')).to.contain(
+      `"j":{"$numberLong": "${Number.MAX_SAFE_INTEGER + 1}"}`
+    );
+
+    const button = document.$(Selectors.UpdateDocumentButton);
+    await button.click();
+    await footer.waitForDisplayed({ reverse: true });
+
+    await browser.runFindOperation('Documents', '{ i: 123 }');
+    await browser.clickVisible(Selectors.SelectJSONView);
+
+    const modifiedDocument = browser.$(Selectors.DocumentJSONEntry);
+    await modifiedDocument.waitForDisplayed();
+
+    await waitForJSON(browser, modifiedDocument);
+
+    expect(
+      (
+        await browser.getCodemirrorEditorText(Selectors.DocumentJSONEntry)
+      ).replace(/\s+/g, ' ')
+    ).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": { "\$numberLong": "[0-9]{16}" } \}$/
+    );
+  });
+
   it('supports view/edit via table view', async function () {
     await browser.runFindOperation('Documents', '{ i: 33 }');
     await browser.clickVisible(Selectors.SelectTableView);

@@ -368,7 +368,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
               {docValidationError instanceof UnsafeIntegerValidationError && (
                 <Link
                   as="button"
-                  data-testid="apply-fix-unsafe-integer-violations"
+                  data-testid="fix-unsafe-integer-violations-button"
                   onClick={onFixUnsafeIntegerViolations}
                 >
                   Convert to Int64
