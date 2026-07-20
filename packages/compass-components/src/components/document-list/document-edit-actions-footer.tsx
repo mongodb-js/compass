@@ -343,7 +343,7 @@ const EditActionsFooter: React.FunctionComponent<{
 
   const statusMessage = StatusMessages[status];
 
-  if (status === 'Initial' || isSuccess(status)) {
+  if (status === 'Initial') {
     return null;
   }
 
@@ -357,57 +357,59 @@ const EditActionsFooter: React.FunctionComponent<{
       <div className={message} data-testid="document-footer-message">
         {renderStatusMessage(error?.message ?? statusMessage)}
       </div>
-      <div className={buttonGroup}>
-        {error?.details && (
+      {!isSuccess(status) && (
+        <div className={buttonGroup}>
+          {error?.details && (
+            <Button
+              className={button}
+              size="xsmall"
+              onClick={() =>
+                showErrorDetails({
+                  details: error.details!,
+                  closeAction: 'close',
+                })
+              }
+              data-testid="edit-actions-footer-error-details-button"
+            >
+              VIEW ERROR DETAILS
+            </Button>
+          )}
           <Button
-            className={button}
+            type="button"
             size="xsmall"
-            onClick={() =>
-              showErrorDetails({
-                details: error.details!,
-                closeAction: 'close',
-              })
-            }
-            data-testid="edit-actions-footer-error-details-button"
+            className={button}
+            data-testid="cancel-button"
+            onClick={() => {
+              doc.cancel();
+              onCancel?.();
+              updateStatus('Initial');
+            }}
+            disabled={isCancelDisabled(status)}
           >
-            VIEW ERROR DETAILS
+            Cancel
           </Button>
-        )}
-        <Button
-          type="button"
-          size="xsmall"
-          className={button}
-          data-testid="cancel-button"
-          onClick={() => {
-            doc.cancel();
-            onCancel?.();
-            updateStatus('Initial');
-          }}
-          disabled={isCancelDisabled(status)}
-        >
-          Cancel
-        </Button>
-        <Button
-          type="button"
-          size="xsmall"
-          className={button}
-          data-testid={isDeleting(status) ? 'delete-button' : 'update-button'}
-          onClick={() => {
-            if (isDeleting(status)) {
-              onDelete();
-            } else {
-              onUpdate(alwaysForceUpdate || status === 'UpdateBlocked');
-            }
-          }}
-          disabled={isPrimaryActionDisabled(status)}
-        >
-          {isDeleting(status)
-            ? 'Delete'
-            : alwaysForceUpdate || status === 'UpdateBlocked'
-            ? 'Replace'
-            : 'Update'}
-        </Button>
-      </div>
+          <Button
+            type="button"
+            size="xsmall"
+            className={button}
+            data-testid={isDeleting(status) ? 'delete-button' : 'update-button'}
+            onClick={() => {
+              if (isDeleting(status)) {
+                onDelete();
+              } else {
+                onUpdate(alwaysForceUpdate || status === 'UpdateBlocked');
+              }
+            }}
+            disabled={isPrimaryActionDisabled(status)}
+          >
+            {isDeleting(status)
+              ? 'Delete'
+              : alwaysForceUpdate || status === 'UpdateBlocked'
+              ? 'Replace'
+              : 'Update'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
