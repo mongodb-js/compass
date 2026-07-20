@@ -151,6 +151,7 @@ ${
 `,
 
       displayText: 'Interpret this explain plan output for me.',
+      sendWithoutHistory: true,
       confirmation: {
         description:
           'Explain plan metadata, including the original query, may be used to process your request.',
@@ -246,10 +247,15 @@ ${errorMessage}
 ${stageValue}
 </input>
 
+First, parse the <input> above and compare it directly against the error message to find the actual mismatch(es). Ground your diagnosis in the specific structural issue(s) you find — do not offer a generic list of possible causes that the input doesn't confirm.
+Respond with two sections:
+**Diagnosis:** state the specific root cause(s) found in the <input>, quoting the exact part(s) of the structure that are wrong.
+**Solution:** provide the corrected ${stageOperator} stage as one code block the user can paste in directly, plus an explanation of what changed.
 Diagnose why the aggregation pipeline is failing and provide step-by-step guidance to fix it.`,
   metadata: {
     displayText:
       'Diagnose why my aggregation pipeline is failing and help me debug it.',
+    sendWithoutHistory: true,
   },
 });
 
@@ -287,6 +293,7 @@ ${output}
 </context>`,
     metadata: {
       displayText,
+      sendWithoutHistory: true,
       // Must stay in `instructions`, not `prompt`: `prompt` persists in chat
       // history and would leak into later, unrelated entry points.
       instructions: `
@@ -302,8 +309,8 @@ Here's a breakdown of why the top documents were ranked in this order:
 ]
 
 ${FOLLOW_UP_QUESTIONS_HEADER}
-1. Do you want to compare scores for specific documents? (e.g., Why was \`[_id of first document]\` scored higher than \`[_id of second document]\`?) If so, can you provide the IDs for the documents you'd like to compare?
-2. To refine this for you, how do you want to optimize the results? (e.g. [context-specific example based on the document fields and search query])
+1. Help me optimize these results (e.g. [context-specific example based on the document fields and search query])
+2. [If the Document Ranking Analysis has more than one document, use this exact question: Help me compare why one document scored higher than another (e.g., Why was \`[_id of first document]\` scored higher than \`[_id of second document]\`?) If the Document Ranking Analysis has only one document, this must instead be a different context-specific follow-up question — never use the comparison wording when there is only one document.]
 3. [1 context-specific follow-up question]
 </output-format>
 
@@ -320,9 +327,11 @@ ${FOLLOW_UP_QUESTIONS_HEADER}
 - Do NOT include any general explanations of what scoreDetails is or the algorithm(s) used; your output should be specific to the context provided.
 - Do not include any kind of meta description of your response (e.g., "This response...").
 - Do not provide a generalized explanation of how scores are calculated.
-- For question 1, always use the exact wording above, replacing [_id of first document] and [_id of second document] with the actual _id values of the first two documents from the Output context.
-- For question 2, always use the exact wording above, replacing [context-specific example based on the document fields and search query] with a relevant example drawn from the document fields and search query in the context.
+- For question 1, use the exact fixed wording and sentence structure above verbatim — do not reword, merge, or drop the parenthetical — substituting only [context-specific example based on the document fields and search query] with a relevant example drawn from the document fields and search query in the context.
+- For question 2, if there is more than one document in the Document Ranking Analysis, use the exact fixed wording and sentence structure above verbatim — do not reword, merge, or drop the parenthetical — substituting only [_id of first document] and [_id of second document] with the actual _id values of the first two documents from the Output context. When the user replies with two document _ids from the analyzed Output, answer the comparison using the scores and scoreDetails already present in that Output. If there is only one document in the Document Ranking Analysis, do not use the comparison wording at all — replace question 2 with another context-specific follow-up question instead, distinct from question 3.
 - Only include the ${FOLLOW_UP_QUESTIONS_HEADER} section in your initial analysis response. Do not include it when responding to follow-up questions.
+- The "concise request" phrasing guideline below applies only to question 3, which has no fixed wording. It does not apply to questions 1 and 2, which must keep their fixed sentence structure as specified above.
+- For the Follow-up Questions, phrase each suggestion as a concise request the user could send next, not as the assistant offering help or asking for confirmation. Keep it open-ended enough for either a direct answer or a clarifying question. "Concise" applies to phrasing, not to required substituted values (e.g., document _ids) — those must always be included in full.
 </guidelines>
 `,
       confirmation: {
@@ -389,14 +398,15 @@ export const buildDiagnoseSearchStagePrompt = ({
 ${stageValue}
 </input>
 
-If tools are available, use the \`get-current-pipeline\` tool to inspect the full pipeline and the \`collection-indexes\` tool to check what search indexes exist on this collection.
+If tools are available, use the \`get-current-pipeline\` tool to inspect the full pipeline, the \`collection-indexes\` tool to check what search indexes exist on this collection, and the \`collection-schema\` tool to determine the actual types of the fields referenced by the ${stageOperator} stage.
 
 Respond with two sections:
 **Diagnosis:** explain concisely why the ${stageOperator} stage returned no results.
-**Solution:** provide the specific actionable steps to fix it.`,
+**Solution:** provide the specific actionable steps to fix it. If the root cause is a missing or misconfigured Atlas Search index, include a concrete suggested index definition (JSON) that maps the specific fields referenced by the ${stageOperator} stage to appropriate field types, rather than only instructing the user to create one manually.`,
     metadata: {
       displayText:
         'Diagnose why my aggregation pipeline is not returning results.',
+      sendWithoutHistory: true,
     },
   };
 };
