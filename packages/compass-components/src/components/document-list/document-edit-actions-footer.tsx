@@ -309,6 +309,7 @@ const EditActionsFooter: React.FunctionComponent<{
   modified?: boolean;
   validationError?: Error | null;
   alwaysForceUpdate?: boolean;
+  renderStatusMessage?(message: string): React.ReactNode;
   onUpdate(force: boolean): void;
   onDelete(): void;
   onCancel?: () => void;
@@ -319,6 +320,7 @@ const EditActionsFooter: React.FunctionComponent<{
   modified = false,
   validationError: initialError = null,
   alwaysForceUpdate = false,
+  renderStatusMessage = (message: string) => message,
   onUpdate,
   onDelete,
   onCancel,
@@ -341,7 +343,7 @@ const EditActionsFooter: React.FunctionComponent<{
 
   const statusMessage = StatusMessages[status];
 
-  if (status === 'Initial') {
+  if (status === 'Initial' || isSuccess(status)) {
     return null;
   }
 
@@ -353,61 +355,59 @@ const EditActionsFooter: React.FunctionComponent<{
       data-status={status}
     >
       <div className={message} data-testid="document-footer-message">
-        {error?.message ?? statusMessage}
+        {renderStatusMessage(error?.message ?? statusMessage)}
       </div>
-      {!isSuccess(status) && (
-        <div className={buttonGroup}>
-          {error?.details && (
-            <Button
-              className={button}
-              size="xsmall"
-              onClick={() =>
-                showErrorDetails({
-                  details: error.details!,
-                  closeAction: 'close',
-                })
-              }
-              data-testid="edit-actions-footer-error-details-button"
-            >
-              VIEW ERROR DETAILS
-            </Button>
-          )}
+      <div className={buttonGroup}>
+        {error?.details && (
           <Button
-            type="button"
-            size="xsmall"
             className={button}
-            data-testid="cancel-button"
-            onClick={() => {
-              doc.cancel();
-              onCancel?.();
-              updateStatus('Initial');
-            }}
-            disabled={isCancelDisabled(status)}
-          >
-            Cancel
-          </Button>
-          <Button
-            type="button"
             size="xsmall"
-            className={button}
-            data-testid={isDeleting(status) ? 'delete-button' : 'update-button'}
-            onClick={() => {
-              if (isDeleting(status)) {
-                onDelete();
-              } else {
-                onUpdate(alwaysForceUpdate || status === 'UpdateBlocked');
-              }
-            }}
-            disabled={isPrimaryActionDisabled(status)}
+            onClick={() =>
+              showErrorDetails({
+                details: error.details!,
+                closeAction: 'close',
+              })
+            }
+            data-testid="edit-actions-footer-error-details-button"
           >
-            {isDeleting(status)
-              ? 'Delete'
-              : alwaysForceUpdate || status === 'UpdateBlocked'
-              ? 'Replace'
-              : 'Update'}
+            VIEW ERROR DETAILS
           </Button>
-        </div>
-      )}
+        )}
+        <Button
+          type="button"
+          size="xsmall"
+          className={button}
+          data-testid="cancel-button"
+          onClick={() => {
+            doc.cancel();
+            onCancel?.();
+            updateStatus('Initial');
+          }}
+          disabled={isCancelDisabled(status)}
+        >
+          Cancel
+        </Button>
+        <Button
+          type="button"
+          size="xsmall"
+          className={button}
+          data-testid={isDeleting(status) ? 'delete-button' : 'update-button'}
+          onClick={() => {
+            if (isDeleting(status)) {
+              onDelete();
+            } else {
+              onUpdate(alwaysForceUpdate || status === 'UpdateBlocked');
+            }
+          }}
+          disabled={isPrimaryActionDisabled(status)}
+        >
+          {isDeleting(status)
+            ? 'Delete'
+            : alwaysForceUpdate || status === 'UpdateBlocked'
+            ? 'Replace'
+            : 'Update'}
+        </Button>
+      </div>
     </div>
   );
 };

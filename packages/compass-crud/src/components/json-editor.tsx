@@ -9,18 +9,19 @@ import {
   css,
   cx,
   DocumentList,
+  Link,
   palette,
   spacing,
   useCurrentValueRef,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+import HadronDocument, { UnsafeIntegerValidationError } from 'hadron-document';
 import {
   createDocumentAutocompleter,
   CodemirrorMultilineEditor,
 } from '@mongodb-js/compass-editor';
-import type { EditorRef, Action } from '@mongodb-js/compass-editor';
+import type { EditorRef, Action, Annotation } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 
@@ -47,6 +48,13 @@ const editorDarkModeStyles = css({
 
 const actionsGroupStyles = css({
   padding: spacing[200],
+});
+
+const bannerContentStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: spacing[200],
+  justifyContent: 'flex-start',
 });
 
 export type JSONEditorProps = {
@@ -291,6 +299,36 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     }, 0);
   }, [expanded]);
 
+  const annotations: Annotation[] = useMemo(() => {
+    if (docValidationError instanceof UnsafeIntegerValidationError) {
+      return docValidationError.violations.map((violation) => ({
+        message:
+          'Exceeds safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.',
+        from: violation.loc.from,
+        to: violation.loc.to,
+        severity: 'error',
+      }));
+    }
+    return [];
+  }, [docValidationError]);
+
+  const onFixUnsafeIntegerViolations = useCallback(() => {
+    const editor = editorRef.current?.editor;
+    if (!editor) {
+      return;
+    }
+    if (docValidationError instanceof UnsafeIntegerValidationError) {
+      editor.dispatch({
+        changes: docValidationError.violations.map((violation) => ({
+          from: violation.loc.from,
+          to: violation.loc.to,
+          insert: `{"$numberLong": "${violation.source}"}`,
+        })),
+      });
+      setDocValidationError(null);
+    }
+  }, [docValidationError]);
+
   return (
     <div data-testid="editable-json">
       <CodemirrorMultilineEditor
@@ -311,6 +349,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         completer={completer}
         onExpand={editing ? undefined : toggleExpandCollapse}
         expanded={expanded}
+        annotations={annotations}
       />
       <DocumentList.DocumentEditActionsFooter
         doc={doc}
@@ -322,6 +361,22 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         onUpdate={onUpdate}
         onDelete={onDelete}
         onCancel={onCancel}
+        renderStatusMessage={(message) => {
+          return (
+            <div className={bannerContentStyles}>
+              <span>{message}</span>
+              {docValidationError instanceof UnsafeIntegerValidationError && (
+                <Link
+                  as="button"
+                  data-testid="apply-fix-unsafe-integer-violations"
+                  onClick={onFixUnsafeIntegerViolations}
+                >
+                  Convert to Int64
+                </Link>
+              )}
+            </div>
+          );
+        }}
       />
     </div>
   );
