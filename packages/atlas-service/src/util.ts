@@ -245,3 +245,8 @@ export function getTrackingUserInfo(userInfo: AtlasUserInfo) {
     auid: createHash('sha256').update(userInfo.sub, 'utf8').digest('hex'),
   };
 }
+
+export function getJWTTokenPayload(token: string): Record<string, unknown> {
+  const base64Url = token.split('.')[1];
+  return JSON.parse(Buffer.from(base64Url, 'base64url').toString('utf8'));
+}

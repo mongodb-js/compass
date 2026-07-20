@@ -17,7 +17,6 @@ const ATLAS_CONFIG: AtlasServiceConfig = {
     clientId: 'some-client-id',
     issuer: 'http://example.com/oauth2/default',
   },
-  authPortalUrl: 'http://example.com/account/login',
   assistantApiBaseUrl: 'http://example.com/assistant',
   userDataBaseUrl: 'http://example.com/ui/userData',
 };

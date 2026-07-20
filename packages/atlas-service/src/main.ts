@@ -10,6 +10,7 @@ import {
   throwIfNotOk,
   throwIfNetworkTrafficDisabled,
   getTrackingUserInfo,
+  getJWTTokenPayload,
 } from './util';
 import {
   createMongoDBOIDCPlugin,
@@ -297,16 +298,18 @@ export class CompassAuthService {
     if (!this.currentUser) {
       throw new Error("Can't sign out if not signed in yet");
     }
-    // Revoke tokens BEFORE destroying the plugin — otherwise maybeGetToken
-    // reads from a fresh, empty plugin and posts an empty token, which the
-    // revocation endpoint rejects with 400. Revoking the refresh token also
-    // invalidates the associated access token (RFC 7009 §2.1).
     try {
       await this.revoke({ tokenType: 'refreshToken' });
     } catch (err) {
       if (!(err as any).statusCode) {
         throw err;
       }
+      log.error(
+        mongoLogId(1_001_000_393),
+        'AtlasService',
+        'Failed to revoke refresh token',
+        { error: (err as Error).stack }
+      );
       // Not much we can do if revoking failed with a network error, practically
       // this is not a failed state for the app, we already cleaned up token
       // from everywhere, so we just ignore this
@@ -347,9 +350,11 @@ export class CompassAuthService {
     }
   }
 
-  static getUserInfo({
-    signal: _signal,
+  static async getUserInfo({
+    signal,
   }: { signal?: AbortSignal } = {}): Promise<AtlasUserInfo> {
+    // For now, the server is oauth only, so the user info is just a static sub from the access token.
+    // Keeping this method for future when we might have more user info available
     if (!this.currentUser) {
       throw new Error('User info is not available, user is not signed in');
     }
@@ -359,13 +364,15 @@ export class CompassAuthService {
   private static getUserInfoFromAccessToken(
     accessToken: string
   ): AtlasUserInfo {
-    const base64Url = accessToken.split('.')[1];
-    const decodedToken = JSON.parse(
-      Buffer.from(base64Url, 'base64url').toString('utf8')
-    );
-    return {
-      sub: decodedToken.sub,
-    };
+    try {
+      const { sub } = getJWTTokenPayload(accessToken);
+      if (typeof sub !== 'string') {
+        throw new Error('Invalid sub claim in access token');
+      }
+      return { sub };
+    } catch (err) {
+      throw new Error('Failed to parse access token', err as Error);
+    }
   }
 
   static async introspect({
@@ -375,17 +382,15 @@ export class CompassAuthService {
     signal?: AbortSignal;
     tokenType?: 'accessToken' | 'refreshToken';
   } = {}) {
-    throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
-
-    const url = new URL(`${this.config.atlasLogin.issuer}/v1/introspect`);
+    const url = new URL(`${this.config.atlasLogin.issuer}/tokens/introspect`);
     url.searchParams.set('client_id', this.config.atlasLogin.clientId);
 
     tokenType ??= 'accessToken';
 
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const res = await this.httpClient.fetch(url.toString(), {
+    const res = await this.fetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
         ['token', token ?? ''],
@@ -398,8 +403,6 @@ export class CompassAuthService {
       signal: signal,
     });
 
-    await throwIfNotOk(res);
-
     return res.json() as Promise<IntrospectInfo>;
   }
 
@@ -410,18 +413,15 @@ export class CompassAuthService {
     signal?: AbortSignal;
     tokenType?: 'accessToken' | 'refreshToken';
   } = {}): Promise<void> {
-    throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
-
-    // TODO: check if we should use the discovery endpoint instead of hardcoding this
+    // TODO(COMPASS-7094): use the discovery endpoint instead of hardcoding this
     const url = new URL(`${this.config.atlasLogin.issuer}/tokens/revoke`);
 
     tokenType ??= 'accessToken';
 
-    console.log('[sign out] revoking token', tokenType);
     const token = await this.maybeGetToken({ signal, tokenType });
 
-    const res = await this.httpClient.fetch(url.toString(), {
+    await this.fetch(url.toString(), {
       method: 'POST',
       body: new URLSearchParams([
         ['token', token ?? ''],
@@ -435,17 +435,11 @@ export class CompassAuthService {
       signal: signal,
     });
 
-    if (!res.ok) {
-      const body = await res.text().catch(() => '<unreadable>');
-      console.log(
-        '[sign out] revocation failed',
-        res.status,
-        res.statusText,
-        body
-      );
-    }
-
-    await throwIfNotOk(res);
+    log.info(
+      mongoLogId(1_001_000_394),
+      'AtlasService',
+      'Signed out successfully'
+    );
   }
 
   static async onExit() {
