@@ -22,6 +22,11 @@ export class UnsafeIntegerValidationError extends Error {
 }
 
 export function assertNoUnsafeIntegers(input: string): void {
+  // An unsafe integer literal needs at least 16 digits. If
+  // 16+ digits do not exist in a string being parsed, skip.
+  if (!/\d{16,}/.test(input)) {
+    return;
+  }
   const violations: UnsafeIntegerViolation[] = [];
   let cursor = 0;
   try {

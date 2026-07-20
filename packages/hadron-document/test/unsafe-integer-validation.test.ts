@@ -122,4 +122,18 @@ describe('assertNoUnsafeIntegers', function () {
       );
     }
   });
+
+  it('does not throw if JSON contains a number less than 16 digits', function () {
+    expect(
+      () => assertNoUnsafeIntegers('{"value": 900719925474099}'),
+      'json with 15digit number'
+    ).to.not.throw('UnsafeIntegerValidationError');
+    expect(
+      () =>
+        assertNoUnsafeIntegers(
+          '{"value": 9007199254740991, "other": "90071992547409919999"}'
+        ),
+      'json with 15digit number followed by a long string that contains >16digit number'
+    ).to.not.throw('UnsafeIntegerValidationError');
+  });
 });
