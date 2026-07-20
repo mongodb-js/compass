@@ -17,25 +17,25 @@ import {
   ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
 } from './util';
 import ConnectionString from 'mongodb-connection-string-url';
+import type {
+  AtlasServiceOptions,
+  AtlasClusterConnectionStrings,
+  AtlasGroupClusterResponse,
+  AtlasGroupCluster,
+  AtlasAccessListEntry,
+  AtlasCluster,
+  AtlasClusterComputedState,
+} from './types';
 
-export type AtlasServiceOptions = {
-  defaultHeaders?: Record<string, string>;
-};
-
-export type AtlasClusterConnectionStrings = {
-  standard?: string;
-  standardSrv?: string;
-};
-
-type AtlasGroupClusterResponse = {
-  name: string;
-  connectionStrings?: AtlasClusterConnectionStrings;
-};
-
-export type AtlasGroupCluster = {
-  clusterName: string;
-  connectionStrings: string[];
-};
+export type {
+  AtlasServiceOptions,
+  AtlasClusterConnectionStrings,
+  AtlasGroupCluster,
+  AtlasAccessListEntry,
+  AtlasClusterState,
+  AtlasCluster,
+  AtlasClusterComputedState,
+} from './types';
 
 function extractConnectionStrings(
   connectionStrings?: AtlasClusterConnectionStrings
@@ -63,36 +63,6 @@ function connectionStringMatches(
   const candidateFirstHost = candidateUrl.hosts[0]?.toLowerCase();
   return inputFirstHost !== undefined && inputFirstHost === candidateFirstHost;
 }
-
-export type AtlasAccessListEntry = {
-  cidrBlock?: string;
-  ipAddress?: string;
-  awsSecurityGroup?: string;
-  comment?: string;
-};
-
-export type AtlasClusterState =
-  | 'IDLE'
-  | 'CREATING'
-  | 'UPDATING'
-  | 'DELETING'
-  | 'REPAIRING';
-
-export type AtlasCluster = {
-  name: string;
-  paused: boolean;
-  stateName: AtlasClusterState;
-  connectionStrings?: AtlasClusterConnectionStrings;
-};
-
-export type AtlasClusterComputedState =
-  | 'NOT_FOUND'
-  | 'PAUSED'
-  | 'PROVISIONING'
-  | 'DELETING'
-  | 'IDLE'
-  | 'UPDATING'
-  | 'REPAIRING';
 
 function computeClusterState(cluster: AtlasCluster): AtlasClusterComputedState {
   if (cluster.paused) {
