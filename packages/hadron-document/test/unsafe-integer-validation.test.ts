@@ -107,4 +107,19 @@ describe('assertNoUnsafeIntegers', function () {
       expect(validationError.violations[0].loc.to).to.equal(85);
     }
   });
+
+  it('does not throw for invalid JSON (lets the caller handle parse errors)', function () {
+    const invalidJson = [
+      '{invalid json}',
+      '{"a": }',
+      '',
+      'undefined',
+      '{a: 9007199254740992}',
+    ];
+    for (const input of invalidJson) {
+      expect(() => assertNoUnsafeIntegers(input)).to.not.throw(
+        'UnsafeIntegerValidationError'
+      );
+    }
+  });
 });

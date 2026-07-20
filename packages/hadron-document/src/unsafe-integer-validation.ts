@@ -24,30 +24,36 @@ export class UnsafeIntegerValidationError extends Error {
 export function assertNoUnsafeIntegers(input: string): void {
   const violations: UnsafeIntegerViolation[] = [];
   let cursor = 0;
-  JSON.parse(
-    input,
-    function (_key: string, value: unknown, context?: { source?: string }) {
-      const source = context?.source;
-      if (source === undefined) {
+  try {
+    JSON.parse(
+      input,
+      function (_key: string, value: unknown, context?: { source?: string }) {
+        const source = context?.source;
+        if (source === undefined) {
+          return value;
+        }
+        const from = input.indexOf(source, cursor);
+        const to = from + source.length;
+        cursor = to;
+        if (
+          typeof value === 'number' &&
+          !Number.isSafeInteger(value) &&
+          // Check if the source is an integer literal
+          /^-?\d+$/.test(source)
+        ) {
+          violations.push({
+            source,
+            loc: { from, to },
+          });
+        }
         return value;
       }
-      const from = input.indexOf(source, cursor);
-      const to = from + source.length;
-      cursor = to;
-      if (
-        typeof value === 'number' &&
-        !Number.isSafeInteger(value) &&
-        // Check if the source is an integer literal
-        /^-?\d+$/.test(source)
-      ) {
-        violations.push({
-          source,
-          loc: { from, to },
-        });
-      }
-      return value;
-    }
-  );
+    );
+  } catch {
+    // If JSON.parse fails (e.g. invalid JSON), skip validation — the caller's
+    // own parser (EJSON.parse) will surface the parse error.
+    return;
+  }
   if (violations.length > 0) {
     throw new UnsafeIntegerValidationError(violations);
   }
