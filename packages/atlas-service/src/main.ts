@@ -351,7 +351,7 @@ export class CompassAuthService {
   }
 
   static async getUserInfo({
-    signal,
+    signal: _signal,
   }: { signal?: AbortSignal } = {}): Promise<AtlasUserInfo> {
     // For now, the server is oauth only, so the user info is just a static sub from the access token.
     // Keeping this method for future when we might have more user info available
@@ -395,6 +395,7 @@ export class CompassAuthService {
       body: new URLSearchParams([
         ['token', token ?? ''],
         ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
+        ['client_id', this.config.atlasLogin.clientId],
       ]),
       headers: {
         Accept: 'application/json',
