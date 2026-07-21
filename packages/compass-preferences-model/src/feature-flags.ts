@@ -58,14 +58,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   {
-    name: 'enableContextMenus',
-    stage: 'released',
-    description: {
-      short: 'Enable context (right-click) menus',
-    },
-  },
-
-  {
     name: 'enableUnauthenticatedGenAI',
     stage: 'released',
     description: {

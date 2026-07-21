@@ -411,12 +411,10 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
   darkMode?: boolean;
 }> = ({ darkMode, children }) => {
   const track = useTelemetry();
-  const { enableContextMenus, enableGuideCues, legacyUUIDDisplayEncoding } =
-    usePreferences([
-      'enableContextMenus',
-      'enableGuideCues',
-      'legacyUUIDDisplayEncoding',
-    ]);
+  const { enableGuideCues, legacyUUIDDisplayEncoding } = usePreferences([
+    'enableGuideCues',
+    'legacyUUIDDisplayEncoding',
+  ]);
   return (
     <CompassComponentsProvider
       darkMode={darkMode}
@@ -478,7 +476,7 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
-      disableContextMenus={!enableContextMenus}
+      disableContextMenus={false}
       disableGuideCues={!enableGuideCues}
       {...LINK_PROPS}
     >
