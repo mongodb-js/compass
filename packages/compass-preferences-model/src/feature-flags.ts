@@ -30,18 +30,6 @@ export type FeatureFlagDefinition = {
 };
 
 export const FEATURE_FLAG_DEFINITIONS = [
-  /**
-   * Feature flag for explicit proxy configuration support.
-   */
-  {
-    name: 'enableProxySupport',
-    stage: 'released',
-    description: {
-      short: 'Enables support for explicit proxy configuration.',
-      long: 'Allows users to specify proxy configuration for the entire Compass application.',
-    },
-  },
-
   {
     name: 'showDisabledConnections',
     stage: 'released',
