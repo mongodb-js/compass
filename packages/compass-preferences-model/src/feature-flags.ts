@@ -127,6 +127,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableAutoEmbeddingPublicPreview',
     stage: 'preview',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Adds UI for auto-embedded vector search indexes',
     },
@@ -138,6 +139,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableAutoEmbeddingPrivatePreview',
     stage: 'preview',
+    atlasCloudFeatureScope: 'group',
     description: {
       short:
         'Adds UI for auto-embedded vector search indexes (private preview)',
@@ -150,6 +152,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableSortedSearchIndexes',
     stage: 'preview',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable sorted syntax for search indexes schema',
     },
