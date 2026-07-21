@@ -151,7 +151,6 @@ ${
 `,
 
       displayText: 'Interpret this explain plan output for me.',
-      sendWithoutHistory: true,
       confirmation: {
         description:
           'Explain plan metadata, including the original query, may be used to process your request.',
@@ -255,7 +254,6 @@ Diagnose why the aggregation pipeline is failing and provide step-by-step guidan
   metadata: {
     displayText:
       'Diagnose why my aggregation pipeline is failing and help me debug it.',
-    sendWithoutHistory: true,
   },
 });
 
@@ -293,7 +291,6 @@ ${output}
 </context>`,
     metadata: {
       displayText,
-      sendWithoutHistory: true,
       // Must stay in `instructions`, not `prompt`: `prompt` persists in chat
       // history and would leak into later, unrelated entry points.
       instructions: `
@@ -406,7 +403,6 @@ Respond with two sections:
     metadata: {
       displayText:
         'Diagnose why my aggregation pipeline is not returning results.',
-      sendWithoutHistory: true,
     },
   };
 };
