@@ -57,7 +57,6 @@ const ConnectionsNavigationTree: React.FunctionComponent<
   onItemAction,
 }) => {
   const {
-    enableRenameCollectionModal,
     enableShell: preferencesShellEnabled,
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
@@ -66,11 +65,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     'enableShell',
     'readOnly',
     'readWrite',
-    'enableRenameCollectionModal',
     'showDisabledConnections',
   ]);
-  const isRenameCollectionEnabled =
-    enableRenameCollectionModal && !preferencesReadWrite;
+  const isRenameCollectionEnabled = !preferencesReadWrite;
 
   const id = useId();
   const getConnectable = useConnectable();

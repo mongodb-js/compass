@@ -31,18 +31,6 @@ export type FeatureFlagDefinition = {
 
 export const FEATURE_FLAG_DEFINITIONS = [
   /**
-   * Feature flag for the rename collection modal.
-   */
-  {
-    name: 'enableRenameCollectionModal',
-    stage: 'released',
-    description: {
-      short: 'Enables renaming a collection',
-      long: 'Allows users to rename a collection from the sidebar',
-    },
-  },
-
-  /**
    * Feature flag for explicit proxy configuration support.
    */
   {

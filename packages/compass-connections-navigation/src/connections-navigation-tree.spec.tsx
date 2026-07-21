@@ -145,10 +145,7 @@ describe('ConnectionsNavigationTree', function () {
     preferencesOverrides: Partial<AllPreferences> = {}
   ) {
     preferences = await createSandboxFromDefaultPreferences();
-    await preferences.savePreferences({
-      enableRenameCollectionModal: true,
-      ...preferencesOverrides,
-    });
+    await preferences.savePreferences(preferencesOverrides);
     return renderWithConnections(
       <PreferencesProvider value={preferences}>
         <ConnectionsNavigationTree {...props} {...customProps} />
@@ -665,14 +662,6 @@ describe('ConnectionsNavigationTree', function () {
   });
 
   describe('onItemAction', function () {
-    let preferences: PreferencesAccess;
-    beforeEach(async function () {
-      preferences = await createSandboxFromDefaultPreferences();
-      await preferences.savePreferences({
-        enableRenameCollectionModal: true,
-      });
-    });
-
     describe('when selecting a tree item', function () {
       it('should activate callback with `select-connection` when a connection is clicked', async function () {
         const spy = Sinon.spy();
