@@ -193,8 +193,8 @@ export class AtlasClusterService {
       });
       const json: unknown = await this.atlasService
         .authenticatedFetch(requestUrl, {
-          method: 'GET',
           ...init,
+          method: 'GET',
         })
         .then((res) => res.json());
       assertPaginatedResponse<T>(json);
