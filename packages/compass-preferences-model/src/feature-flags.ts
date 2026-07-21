@@ -59,17 +59,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
-  /**
-   * Feature flag for Data Modeling Collapse / Expand functionality. Epic COMPASS-9625
-   */
-  {
-    name: 'enableDataModelingCollapse',
-    stage: 'released',
-    description: {
-      short: 'Enable Collapse / Expand functionality in Data Modeling',
-    },
-  },
-
   {
     name: 'enableContextMenus',
     stage: 'released',

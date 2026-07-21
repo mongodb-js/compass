@@ -287,7 +287,6 @@ describe('Data Modeling tab', function () {
   });
 
   beforeEach(async function () {
-    await browser.setFeature('enableDataModelingCollapse', true);
     if (exportFileName) {
       cleanUpDownloadedFile(exportFileName);
     }

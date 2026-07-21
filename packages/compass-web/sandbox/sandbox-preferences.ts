@@ -38,7 +38,6 @@ if (Object.hasOwn(globalThis, '__compassWebEnableSandboxPreferencesOverride')) {
     enableGenAISampleDocumentPassing: false,
     enableGenAIToolCallingAtlasProject: true,
     optInGenAIFeatures: false,
-    enableDataModelingCollapse: true,
     enableMyQueries: false,
     telemetryAtlasUserId: 'compass_web_sandbox_telemetry_user_id',
   });
