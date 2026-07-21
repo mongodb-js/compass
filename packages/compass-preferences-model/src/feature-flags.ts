@@ -48,12 +48,10 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
-  /**
-   * https://jira.mongodb.org/browse/INIT-592
-   */
   {
     name: 'enableDataModeling',
     stage: 'released',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Design, Visualize, and Evolve your Data Model',
     },
