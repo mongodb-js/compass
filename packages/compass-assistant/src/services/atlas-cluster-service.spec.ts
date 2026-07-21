@@ -166,7 +166,7 @@ describe('AtlasClusterService', function () {
         ]),
       ]);
 
-      const res = await service.getProjectNameAndClusterId(
+      const res = await service.getProjectIdAndClusterName(
         'mongodb+srv://user:pass@c2.bbbbb.mongodb.net/test?retryWrites=true'
       );
 
@@ -187,7 +187,7 @@ describe('AtlasClusterService', function () {
         ]),
       ]);
 
-      const res = await service.getProjectNameAndClusterId(
+      const res = await service.getProjectIdAndClusterName(
         'mongodb://user:pass@a.host.mongodb.net:27017,z.other.mongodb.net:27017/test'
       );
 
@@ -207,7 +207,7 @@ describe('AtlasClusterService', function () {
         ]),
       ]);
 
-      const res = await service.getProjectNameAndClusterId(
+      const res = await service.getProjectIdAndClusterName(
         'mongodb+srv://c1.aaaaa.mongodb.net'
       );
 
@@ -229,7 +229,7 @@ describe('AtlasClusterService', function () {
         ]),
       ]);
 
-      const res = await service.getProjectNameAndClusterId(
+      const res = await service.getProjectIdAndClusterName(
         'mongodb://c1.aaaaa.mongodb.net:27017'
       );
 
@@ -249,7 +249,7 @@ describe('AtlasClusterService', function () {
         ]),
       ]);
 
-      const res = await service.getProjectNameAndClusterId(
+      const res = await service.getProjectIdAndClusterName(
         'mongodb+srv://other.zzzzz.mongodb.net'
       );
 
@@ -257,7 +257,7 @@ describe('AtlasClusterService', function () {
     });
 
     it('should return undefined for an invalid connection string', async function () {
-      const res = await service.getProjectNameAndClusterId('not-a-uri');
+      const res = await service.getProjectIdAndClusterName('not-a-uri');
 
       expect(res).to.equal(undefined);
       expect(atlasServiceStub.authenticatedFetch.called).to.be.false;

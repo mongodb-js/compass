@@ -232,7 +232,7 @@ export class AtlasClusterService {
     }));
   }
 
-  async getProjectNameAndClusterId(
+  async getProjectIdAndClusterName(
     connectionString: string
   ): Promise<{ projectId: string; clusterName: string } | undefined> {
     let input: ConnectionString;
