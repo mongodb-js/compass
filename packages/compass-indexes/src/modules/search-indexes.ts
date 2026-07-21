@@ -911,20 +911,22 @@ function stripVectorSearchAutoEmbedSnippetPlaceholders(
       case '1':
         return '"string"';
       case '2':
-        return '0';
+        return '"string"';
       case '3':
-        return '1';
+        return '0';
       case '4':
-        return JSON.stringify('<field-to-search>');
+        return '1';
       case '5':
-        return '50';
+        return JSON.stringify('<field-to-search>');
       case '6':
-        return JSON.stringify(indexName);
+        return '50';
       case '7':
-        return '10';
+        return JSON.stringify(indexName);
       case '8':
-        return '';
+        return '10';
       case '9':
+        return '';
+      case '10':
         return 'false';
       default:
         return 'null';
