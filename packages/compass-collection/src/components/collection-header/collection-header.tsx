@@ -12,7 +12,6 @@ import type { BreadcrumbItem } from '@mongodb-js/compass-components';
 import type { Signal } from '@mongodb-js/compass-components';
 import React, { useMemo } from 'react';
 import toNS from 'mongodb-ns';
-import { usePreference } from 'compass-preferences-model/provider';
 import CollectionHeaderActions from '../collection-header-actions';
 import { CollectionBadge } from './badges';
 import { useOpenWorkspace } from '@mongodb-js/compass-workspaces/provider';
@@ -95,7 +94,6 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
   sourcePipeline,
 }) => {
   const darkMode = useDarkMode();
-  const showInsights = usePreference('showInsights');
   const {
     openCollectionWorkspace,
     openCollectionsWorkspace,
@@ -143,10 +141,9 @@ const CollectionHeader: React.FunctionComponent<CollectionHeaderProps> = ({
     openDatabasesWorkspace,
   ]);
 
-  const insights =
-    showInsights && sourcePipeline?.length
-      ? getInsightsForPipeline(sourcePipeline, isAtlas)
-      : [];
+  const insights = sourcePipeline?.length
+    ? getInsightsForPipeline(sourcePipeline, isAtlas)
+    : [];
   return (
     <div
       className={cx(

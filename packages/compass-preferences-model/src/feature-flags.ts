@@ -51,15 +51,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
-  {
-    name: 'showInsights',
-    stage: 'released',
-    description: {
-      short: 'Show performance insights',
-      long: 'Surface visual signals in the Compass interface to highlight potential performance issues and anti-patterns.',
-    },
-  },
-
   /**
    * Feature flag for the rename collection modal.
    */

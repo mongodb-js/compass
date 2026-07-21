@@ -146,7 +146,6 @@ const IndexDetails = ({
   'indexType' | 'indexKeys' | 'onCreateIndexInsightClick'
 >) => {
   const darkMode = useDarkMode();
-  const showInsights = usePreference('showInsights');
   const warningColor = darkMode ? palette.yellow.base : palette.yellow.dark2;
 
   if (indexType === 'CLUSTERED') {
@@ -158,14 +157,12 @@ const IndexDetails = ({
       <div className={statsStyles} style={{ color: warningColor }}>
         <Icon glyph="Warning"></Icon>
         <span>No index available for this query.</span>
-        {showInsights && (
-          <SignalPopover
-            signals={{
-              ...PerformanceSignals.get('explain-plan-without-index'),
-              onPrimaryActionButtonClick: onCreateIndexInsightClick,
-            }}
-          ></SignalPopover>
-        )}
+        <SignalPopover
+          signals={{
+            ...PerformanceSignals.get('explain-plan-without-index'),
+            onPrimaryActionButtonClick: onCreateIndexInsightClick,
+          }}
+        ></SignalPopover>
       </div>
     );
   }

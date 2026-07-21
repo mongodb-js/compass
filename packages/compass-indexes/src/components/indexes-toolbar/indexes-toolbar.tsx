@@ -113,17 +113,13 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   hasSearchIndexes = false,
   isViewPipelineSearchQueryable = true,
 }) => {
-  const {
-    readWrite: preferencesReadWrite,
-    enableAtlasSearchIndexes,
-    showInsights: preferencesShowInsights,
-  } = usePreferences(['readWrite', 'enableAtlasSearchIndexes', 'showInsights']);
+  const { readWrite: preferencesReadWrite, enableAtlasSearchIndexes } =
+    usePreferences(['readWrite', 'enableAtlasSearchIndexes']);
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const isSearchManagementActive =
     enableAtlasSearchIndexes || enableSearchActivationProgramP1;
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
-  const showInsights = preferencesShowInsights && !errorMessage;
   const showCreateIndexButton =
     (!isReadonlyView ||
       VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
@@ -211,7 +207,7 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
                 Manage your search indexes
               </Link>
             )}
-            {showInsights && hasTooManyIndexes && (
+            {!errorMessage && hasTooManyIndexes && (
               <SignalPopover
                 signals={PerformanceSignals.get('too-many-indexes')}
               />

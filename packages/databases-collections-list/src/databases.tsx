@@ -68,11 +68,9 @@ function isReady(
 function databaseColumns({
   darkMode,
   enableDbAndCollStats,
-  showInsights,
 }: {
   darkMode: boolean | undefined;
   enableDbAndCollStats: boolean;
-  showInsights?: boolean;
 }): LGColumnDef<DatabaseProps>[] {
   return [
     {
@@ -172,13 +170,11 @@ function databaseColumns({
         return (
           <span className={collectionsLengthWrapStyles}>
             <span className={collectionsLengthStyles}>{text}</span>
-            {showInsights &&
-              enableDbAndCollStats &&
-              (info.getValue() as number) > 10_000 && (
-                <SignalPopover
-                  signals={PerformanceSignals.get('too-many-collections')}
-                ></SignalPopover>
-              )}
+            {enableDbAndCollStats && (info.getValue() as number) > 10_000 && (
+              <SignalPopover
+                signals={PerformanceSignals.get('too-many-collections')}
+              ></SignalPopover>
+            )}
           </span>
         );
       },
@@ -223,12 +219,11 @@ const DatabasesList: React.FunctionComponent<{
     virtual = false;
   }
 
-  const showInsights = usePreference('showInsights');
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const darkMode = useDarkMode();
   const columns = React.useMemo(
-    () => databaseColumns({ darkMode, enableDbAndCollStats, showInsights }),
-    [darkMode, enableDbAndCollStats, showInsights]
+    () => databaseColumns({ darkMode, enableDbAndCollStats }),
+    [darkMode, enableDbAndCollStats]
   );
 
   const TableComponent = virtual ? VirtualItemsTable : ItemsTable;

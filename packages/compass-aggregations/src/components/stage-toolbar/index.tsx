@@ -158,7 +158,6 @@ export function StageToolbar({
   onStageOperatorChange,
   onClickViewSearchIndexes,
 }: StageToolbarProps) {
-  const showInsights = usePreference('showInsights');
   const enableRerank = usePreference('enableRerank');
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const darkMode = useDarkMode();
@@ -260,7 +259,7 @@ export function StageToolbar({
               View Indexes
             </Button>
           )}
-        {showInsights && insight && (
+        {insight && (
           <SignalPopover
             signals={insight}
             onPopoverOpenChange={onPopoverOpenChange}
