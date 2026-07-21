@@ -46,14 +46,6 @@ import type {
 } from '@mongodb-js/workspace-info';
 import type { CollectionMetadata } from 'mongodb-collection-model';
 
-function WithAtlasProviders({ children }: { children: React.ReactNode }) {
-  return (
-    <AtlasAuthServiceProvider value={{} as AtlasAuthService}>
-      <AtlasServiceProvider>{children}</AtlasServiceProvider>
-    </AtlasAuthServiceProvider>
-  );
-}
-
 function createMockProvider({
   mockAtlasService,
   mockAtlasAiService,
@@ -156,29 +148,27 @@ const TestComponent: React.FunctionComponent<{
   return (
     <AssistantGlobalStateProvider>
       <DrawerContentProvider>
-        <WithAtlasProviders>
-          <ToolsControllerProvider>
-            {/* Breaking this rule is fine while none of the tests try to re-render the content */}
+        <ToolsControllerProvider>
+          {/* Breaking this rule is fine while none of the tests try to re-render the content */}
+          {/* eslint-disable-next-line react-hooks/static-components */}
+          <MockedProvider
+            originForPrompt="mongodb-compass"
+            appNameForPrompt="MongoDB Compass"
+            chat={chat}
+          >
+            <DrawerAnchor>
+              <div data-testid="provider-children">Provider children</div>
+              <CompassAssistantDrawer
+                appName="Compass"
+                autoOpen={autoOpen}
+                hasNonGenuineConnections={hasNonGenuineConnections}
+              />
+            </DrawerAnchor>
+            {/* Test code, doesn't matter */}
             {/* eslint-disable-next-line react-hooks/static-components */}
-            <MockedProvider
-              originForPrompt="mongodb-compass"
-              appNameForPrompt="MongoDB Compass"
-              chat={chat}
-            >
-              <DrawerAnchor>
-                <div data-testid="provider-children">Provider children</div>
-                <CompassAssistantDrawer
-                  appName="Compass"
-                  autoOpen={autoOpen}
-                  hasNonGenuineConnections={hasNonGenuineConnections}
-                />
-              </DrawerAnchor>
-              {/* Test code, doesn't matter */}
-              {/* eslint-disable-next-line react-hooks/static-components */}
-              <FakeStateSetterComponent />
-            </MockedProvider>
-          </ToolsControllerProvider>
-        </WithAtlasProviders>
+            <FakeStateSetterComponent />
+          </MockedProvider>
+        </ToolsControllerProvider>
       </DrawerContentProvider>
     </AssistantGlobalStateProvider>
   );
