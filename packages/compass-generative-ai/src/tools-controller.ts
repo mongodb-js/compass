@@ -22,6 +22,7 @@ import { removeZodTransforms } from './remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import { debugConnection } from './tools/debug-connection';
 
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
@@ -303,7 +304,10 @@ export class ToolsController {
             'Executing atlas-connection-error-debugger tool'
           );
 
-          return await this.atlasService.debugConnection(args.connectionString);
+          return await debugConnection(
+            args.connectionString,
+            this.atlasService
+          );
         },
       };
     }
