@@ -30,18 +30,6 @@ export type FeatureFlagDefinition = {
 };
 
 export const FEATURE_FLAG_DEFINITIONS = [
-  /**
-   * Feature flag for enabling OIDC authentication.
-   * Epic: COMPASS-5955
-   */
-  {
-    name: 'enableOidc', // Not capitalized "OIDC" for spawn arg casing.
-    stage: 'released',
-    description: {
-      short: 'Enable OIDC Authentication',
-    },
-  },
-
   {
     name: 'newExplainPlan',
     stage: 'released',
