@@ -30,15 +30,6 @@ export type FeatureFlagDefinition = {
 };
 
 export const FEATURE_FLAG_DEFINITIONS = [
-  {
-    name: 'newExplainPlan',
-    stage: 'released',
-    description: {
-      short: 'Access explain plan from query bar',
-      long: 'Explain plan is now accessible right from the query bar. To view a query’s execution plan, click “Explain” as you would on an aggregation pipeline.',
-    },
-  },
-
   /**
    * Feature flag for the rename collection modal.
    */
