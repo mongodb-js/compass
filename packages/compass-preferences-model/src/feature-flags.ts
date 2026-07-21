@@ -57,14 +57,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
-  {
-    name: 'enableUnauthenticatedGenAI',
-    stage: 'released',
-    description: {
-      short: 'Enable GenAI for unauthenticated users',
-    },
-  },
-
   /**
    * Feature flag for CLOUDP-308952.
    */
