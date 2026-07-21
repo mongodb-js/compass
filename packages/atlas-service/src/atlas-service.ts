@@ -1,12 +1,10 @@
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { AtlasAuthService } from './atlas-auth-service';
-import type { AtlasServiceConfig, AtlasPaginationOptions } from './util';
+import type { AtlasServiceConfig } from './util';
 import {
   getAtlasConfig,
   throwIfNetworkTrafficDisabled,
   throwIfNotOk,
-  assertPaginatedResponse,
-  ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
 } from './util';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
@@ -226,49 +224,16 @@ export class AtlasService {
     assertAutomationAgentAwaitResponse<T>(json, opType);
     return json;
   }
-
-  /**
-   * Generic batch fetcher for Atlas Admin API paginated endpoints. Pages
-   * through every result, delegating the concrete endpoint URL (including its
-   * pagination query) to the caller so this stays agnostic of any specific
-   * admin-API route.
-   */
-  async fetchAllPages<T>(
-    buildEndpoint: (pagination: AtlasPaginationOptions) => string,
-    init?: RequestInit
-  ): Promise<T[]> {
-    const results: T[] = [];
-    let pageNum = 1;
-    for (;;) {
-      const requestUrl = buildEndpoint({
-        pageNum,
-        itemsPerPage: ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
-      });
-      const json: unknown = await this.authenticatedFetch(requestUrl, {
-        method: 'GET',
-        ...init,
-      }).then((res) => res.json());
-      assertPaginatedResponse<T>(json);
-      results.push(...json.results);
-      if (json.results.length < ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE) {
-        return results;
-      }
-      pageNum++;
-    }
-  }
 }
 
 function assertAutomationAgentRequestResponse(
-  json: unknown,
+  json: any,
   opType: string
 ): asserts json is { _id: string; requestType: string } {
-  const body = json as { _id?: unknown; requestType?: unknown };
   if (
-    json &&
-    typeof json === 'object' &&
     Object.prototype.hasOwnProperty.call(json, '_id') &&
     Object.prototype.hasOwnProperty.call(json, 'requestType') &&
-    body.requestType === opType
+    json.requestType === opType
   ) {
     return;
   }
@@ -278,17 +243,14 @@ function assertAutomationAgentRequestResponse(
 }
 
 function assertAutomationAgentAwaitResponse<T>(
-  json: unknown,
+  json: any,
   opType: string
 ): asserts json is { _id: string; requestType: string; response: T[] } {
-  const body = json as { requestType?: unknown };
   if (
-    json &&
-    typeof json === 'object' &&
     Object.prototype.hasOwnProperty.call(json, '_id') &&
     Object.prototype.hasOwnProperty.call(json, 'requestType') &&
     Object.prototype.hasOwnProperty.call(json, 'response') &&
-    body.requestType === opType
+    json.requestType === opType
   ) {
     return;
   }
