@@ -43,7 +43,6 @@ import {
 } from '../modules/validation';
 import { clearSampleDocuments } from '../modules/sample-documents';
 import { enableEditRules } from '../modules/edit-mode';
-import { usePreference } from 'compass-preferences-model/provider';
 import { generateValidationRules } from '../modules/rules-generation';
 
 const validationEditorStyles = css({
@@ -189,7 +188,6 @@ export const ValidationEditor: React.FunctionComponent<
   isSavingInProgress,
   isValidatorGenerated,
 }) => {
-  const enableExportSchema = usePreference('enableExportSchema');
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
   const clearSampleDocumentsRef = useCurrentValueRef(clearSampleDocuments);
@@ -267,28 +265,26 @@ export const ValidationEditor: React.FunctionComponent<
       className={validationEditorStyles}
     >
       <div className={validationOptionsStyles}>
-        {enableExportSchema && (
-          <div className={generateButtonContainerStyles}>
-            <Tooltip
-              enabled={!isEmpty}
-              trigger={
-                <Button
-                  data-testid="generate-rules-button"
-                  disabled={!isEmpty}
-                  isLoading={isRulesGenerationInProgress}
-                  loadingIndicator={<SpinLoader />}
-                  onClick={generateValidationRules}
-                  variant={ButtonVariant.Primary}
-                  size="small"
-                >
-                  Generate rules
-                </Button>
-              }
-            >
-              Clear existing rules before generating new ones
-            </Tooltip>
-          </div>
-        )}
+        <div className={generateButtonContainerStyles}>
+          <Tooltip
+            enabled={!isEmpty}
+            trigger={
+              <Button
+                data-testid="generate-rules-button"
+                disabled={!isEmpty}
+                isLoading={isRulesGenerationInProgress}
+                loadingIndicator={<SpinLoader />}
+                onClick={generateValidationRules}
+                variant={ButtonVariant.Primary}
+                size="small"
+              >
+                Generate rules
+              </Button>
+            }
+          >
+            Clear existing rules before generating new ones
+          </Tooltip>
+        </div>
         <ActionSelector
           isEditable={isEditable && isEditingEnabled}
           validationActionChanged={validationActionChanged}

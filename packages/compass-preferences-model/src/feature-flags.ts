@@ -49,17 +49,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /**
-   * Feature flag for export schema. Epic: COMPASS-6862.
-   */
-  {
-    name: 'enableExportSchema',
-    stage: 'released',
-    description: {
-      short: 'Enable schema export',
-    },
-  },
-
-  /**
    * https://jira.mongodb.org/browse/INIT-592
    */
   {

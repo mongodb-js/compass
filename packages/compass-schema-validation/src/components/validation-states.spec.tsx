@@ -262,8 +262,8 @@ describe('ValidationStates [Component]', function () {
       expect(screen.getByTestId('empty-content')).to.exist;
     });
 
-    it('when enableExportSchema is set, shows button for rules generation', function () {
-      render(props, { preferences: { enableExportSchema: true } });
+    it('shows button for rules generation', function () {
+      render(props);
       const btn = screen.getByRole('button', { name: 'Generate rules' });
       expect(btn).to.be.visible;
     });

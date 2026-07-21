@@ -437,7 +437,7 @@ export const fetchValidation = (namespace: {
   database: string;
   collection: string;
 }): SchemaValidationThunkAction<Promise<void>> => {
-  return async (dispatch, _getState, { dataService, preferences }) => {
+  return async (dispatch, _getState, { dataService }) => {
     try {
       const collInfo = await dataService.collectionInfo(
         namespace.database,
@@ -446,9 +446,7 @@ export const fetchValidation = (namespace: {
       if (!collInfo?.validation?.validator) {
         dispatch(
           emptyValidationFetched({
-            validationTemplate: preferences.getPreferences().enableExportSchema
-              ? VALIDATION_TEMPLATE
-              : '{}',
+            validationTemplate: VALIDATION_TEMPLATE,
           })
         );
         return;
