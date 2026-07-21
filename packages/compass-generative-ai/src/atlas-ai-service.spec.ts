@@ -672,7 +672,6 @@ describe('AtlasAiService', function () {
   describe('getQueryFromUserInput and getAggregationFromUserInput', function () {
     type Chunk = { type: 'text' | 'error'; content: string };
     let atlasAiService: AtlasAiService;
-    const mockConnectionInfo = getMockConnectionInfo();
 
     function streamChunkResponse(
       readableStreamController: ReadableStreamController<Uint8Array>,
@@ -951,10 +950,7 @@ describe('AtlasAiService', function () {
             enableStorage: true,
           };
 
-          const res = await atlasAiService[functionName](
-            input,
-            mockConnectionInfo
-          );
+          const res = await atlasAiService[functionName](input);
 
           expect(fetchStub).to.have.been.calledOnce;
 
@@ -998,17 +994,14 @@ describe('AtlasAiService', function () {
           global.fetch = fetchStub;
 
           try {
-            await atlasAiService[functionName](
-              {
-                userInput: 'test',
-                collectionName: 'test',
-                databaseName: 'peanut',
-                requestId: 'abc',
-                signal: new AbortController().signal,
-                enableStorage: true,
-              },
-              mockConnectionInfo
-            );
+            await atlasAiService[functionName]({
+              userInput: 'test',
+              collectionName: 'test',
+              databaseName: 'peanut',
+              requestId: 'abc',
+              signal: new AbortController().signal,
+              enableStorage: true,
+            });
             expect.fail(`Expected ${functionName} to throw`);
           } catch (err) {
             expect((err as Error).message).to.match(

@@ -113,13 +113,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   {
-    name: 'enableChatbotEndpointForGenAI',
-    stage: 'released',
-    description: {
-      short: 'Enable Chatbot API for Generative AI',
-    },
-  },
-  {
     name: 'enableRerank',
     stage: 'released',
     atlasCloudFeatureScope: 'group',
