@@ -149,12 +149,14 @@ describe('prompts', function () {
         documentCount: 1,
       });
       expect(result.prompt).to.not.include(FOLLOW_UP_QUESTIONS_HEADER);
-      expect(result.prompt).to.not.include('always use the exact wording');
+      expect(result.prompt).to.not.include(
+        'use the exact fixed wording and sentence structure'
+      );
       expect(result.metadata?.instructions).to.include(
         FOLLOW_UP_QUESTIONS_HEADER
       );
       expect(result.metadata?.instructions).to.include(
-        'always use the exact wording'
+        'use the exact fixed wording and sentence structure'
       );
     });
   });
