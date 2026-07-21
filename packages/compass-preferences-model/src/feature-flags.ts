@@ -31,15 +31,6 @@ export type FeatureFlagDefinition = {
 
 export const FEATURE_FLAG_DEFINITIONS = [
   {
-    name: 'showDisabledConnections',
-    stage: 'released',
-    description: {
-      short:
-        'Show clusters that are not in a "connectable" state in Atlas Cloud',
-    },
-  },
-
-  {
     name: 'enableRollingIndexes',
     stage: 'released',
     atlasCloudFeatureScope: 'group',

@@ -23,7 +23,6 @@ export default function StyledNavigationItem({
   item: SidebarTreeItem;
   children: React.ReactChild;
 }): React.ReactElement {
-  const showDisabledConnections = !!usePreference('showDisabledConnections');
   const isDarkMode = useDarkMode();
   const { connectionColorToHex, connectionColorToHexActive } =
     useConnectionColor();
@@ -37,8 +36,7 @@ export default function StyledNavigationItem({
   const style: React.CSSProperties & AcceptedStyles = useMemo(() => {
     const style: AcceptedStyles = {};
     const connectionId = getConnectionId(item);
-    const isConnectable =
-      !showDisabledConnections || getConnectable(connectionId);
+    const isConnectable = getConnectable(connectionId);
     const isDisconnectedConnection =
       item.type === 'connection' && item.connectionStatus !== 'connected';
     const inferredFromPrivilegesNamespace =
@@ -69,7 +67,6 @@ export default function StyledNavigationItem({
     item,
     colorCode,
     getConnectable,
-    showDisabledConnections,
     connectionColorToHex,
     connectionColorToHexActive,
   ]);

@@ -60,13 +60,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     enableShell: preferencesShellEnabled,
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
-    showDisabledConnections,
-  } = usePreferences([
-    'enableShell',
-    'readOnly',
-    'readWrite',
-    'showDisabledConnections',
-  ]);
+  } = usePreferences(['enableShell', 'readOnly', 'readWrite']);
   const isRenameCollectionEnabled = !preferencesReadWrite;
 
   const id = useId();
@@ -90,11 +84,9 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(
     (item, evt) => {
-      if (showDisabledConnections) {
-        const connectionId = getConnectionId(item);
-        if (!getConnectable(connectionId)) {
-          return;
-        }
+      const connectionId = getConnectionId(item);
+      if (!getConnectable(connectionId)) {
+        return;
       }
 
       if (item.type === 'connection') {
@@ -111,7 +103,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
         }
       }
     },
-    [onItemAction, getConnectable, showDisabledConnections]
+    [onItemAction, getConnectable]
   );
 
   const activeItemId = useMemo(() => {
@@ -173,13 +165,11 @@ const ConnectionsNavigationTree: React.FunctionComponent<
 
   const getItemActionsAndConfig = useCallback(
     (item: SidebarTreeItem) => {
-      if (showDisabledConnections) {
-        const connectionId = getConnectionId(item);
-        if (!getConnectable(connectionId)) {
-          return {
-            actions: [],
-          };
-        }
+      const connectionId = getConnectionId(item);
+      if (!getConnectable(connectionId)) {
+        return {
+          actions: [],
+        };
       }
       switch (item.type) {
         case 'placeholder':
@@ -235,7 +225,6 @@ const ConnectionsNavigationTree: React.FunctionComponent<
       isRenameCollectionEnabled,
       getCollapseAfterForConnectedItem,
       getConnectable,
-      showDisabledConnections,
     ]
   );
 
