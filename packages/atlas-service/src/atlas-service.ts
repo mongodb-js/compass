@@ -15,11 +15,6 @@ export type AtlasServiceOptions = {
   defaultHeaders?: Record<string, string>;
 };
 
-export type AtlasConnectionDebugResult = {
-  clusterState: 'ready' | 'paused' | 'provisioning' | 'deleted' | 'notFound';
-  ipAccessAllowed: boolean;
-};
-
 function normalizePath(path?: string) {
   path = path ? (path.startsWith('/') ? path : `/${path}`) : '';
   return encodeURI(path);
@@ -226,16 +221,6 @@ export class AtlasService {
     });
     assertAutomationAgentAwaitResponse<T>(json, opType);
     return json;
-  }
-
-  async debugConnection(
-    _connectionString: string
-  ): Promise<AtlasConnectionDebugResult> {
-    // TODO(COMPASS-10826): implement
-    return await Promise.resolve({
-      clusterState: 'paused',
-      ipAccessAllowed: true,
-    });
   }
 }
 
