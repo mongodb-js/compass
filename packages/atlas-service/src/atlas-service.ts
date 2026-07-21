@@ -1,83 +1,21 @@
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { AtlasAuthService } from './atlas-auth-service';
-import type { AtlasServiceConfig } from './util';
+import type { AtlasServiceConfig, AtlasPaginationOptions } from './util';
 import {
-  AtlasServiceError,
   getAtlasConfig,
   throwIfNetworkTrafficDisabled,
   throwIfNotOk,
+  assertPaginatedResponse,
+  ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
 } from './util';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 import { type UserDataType } from '@mongodb-js/compass-user-data';
-import {
-  assertPaginatedResponse,
-  buildPaginationQuery,
-  ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
-} from './util';
-import ConnectionString from 'mongodb-connection-string-url';
-import type {
-  AtlasServiceOptions,
-  AtlasClusterConnectionStrings,
-  AtlasGroupClusterResponse,
-  AtlasGroupCluster,
-  AtlasAccessListEntry,
-  AtlasCluster,
-  AtlasClusterComputedState,
-} from './types';
 
-export type {
-  AtlasServiceOptions,
-  AtlasClusterConnectionStrings,
-  AtlasGroupCluster,
-  AtlasAccessListEntry,
-  AtlasClusterState,
-  AtlasCluster,
-  AtlasClusterComputedState,
-} from './types';
-
-function extractConnectionStrings(
-  connectionStrings?: AtlasClusterConnectionStrings
-): string[] {
-  return [
-    ...(connectionStrings?.standardSrv ? [connectionStrings.standardSrv] : []),
-    ...(connectionStrings?.standard ? [connectionStrings.standard] : []),
-  ];
-}
-
-function connectionStringMatches(
-  input: ConnectionString,
-  candidate: string
-): boolean {
-  let candidateUrl: ConnectionString;
-  try {
-    candidateUrl = new ConnectionString(candidate);
-  } catch {
-    return false;
-  }
-  if (input.isSRV !== candidateUrl.isSRV) {
-    return false;
-  }
-  const inputFirstHost = input.hosts[0]?.toLowerCase();
-  const candidateFirstHost = candidateUrl.hosts[0]?.toLowerCase();
-  return inputFirstHost !== undefined && inputFirstHost === candidateFirstHost;
-}
-
-function computeClusterState(cluster: AtlasCluster): AtlasClusterComputedState {
-  if (cluster.paused) {
-    return 'PAUSED';
-  }
-  switch (cluster.stateName) {
-    case 'CREATING':
-      return 'PROVISIONING';
-    case 'IDLE':
-    case 'UPDATING':
-    case 'DELETING':
-    case 'REPAIRING':
-      return cluster.stateName;
-  }
-}
+export type AtlasServiceOptions = {
+  defaultHeaders?: Record<string, string>;
+};
 
 function normalizePath(path?: string) {
   path = path ? (path.startsWith('/') ? path : `/${path}`) : '';
@@ -289,156 +227,35 @@ export class AtlasService {
     return json;
   }
 
-  async listGroupIds(): Promise<string[]> {
-    const groupIds = new Set<string>();
-    let pageNum = 1;
-    for (;;) {
-      const requestUrl = this.adminApiEndpoint(
-        `/v2/clusters${buildPaginationQuery({
-          pageNum,
-          itemsPerPage: ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
-        })}`
-      );
-      const json: unknown = await this.authenticatedFetch(requestUrl, {
-        method: 'GET',
-      }).then((res) => res.json());
-      assertPaginatedResponse<{ groupId: string }>(json);
-      for (const cluster of json.results) {
-        groupIds.add(cluster.groupId);
-      }
-      if (json.results.length < ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE) {
-        return [...groupIds];
-      }
-      pageNum++;
-    }
-  }
-
-  async listConnectionStrings(groupId: string): Promise<AtlasGroupCluster[]> {
-    const encodedGroupId = encodeURIComponent(groupId);
-    const clusters: AtlasGroupCluster[] = [];
-    let pageNum = 1;
-    for (;;) {
-      const requestUrl = this.adminApiEndpoint(
-        `/v2/groups/${encodedGroupId}/clusters${buildPaginationQuery({
-          pageNum,
-          itemsPerPage: ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
-        })}`
-      );
-      const json: unknown = await this.authenticatedFetch(requestUrl, {
-        method: 'GET',
-      }).then((res) => res.json());
-      assertPaginatedResponse<AtlasGroupClusterResponse>(json);
-      for (const cluster of json.results) {
-        clusters.push({
-          clusterName: cluster.name,
-          connectionStrings: extractConnectionStrings(
-            cluster.connectionStrings
-          ),
-        });
-      }
-      if (json.results.length < ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE) {
-        return clusters;
-      }
-      pageNum++;
-    }
-  }
-
-  async getProjectNameAndClusterId(
-    connectionString: string
-  ): Promise<{ projectId: string; clusterName: string } | undefined> {
-    let input: ConnectionString;
-    try {
-      input = new ConnectionString(connectionString);
-    } catch {
-      return undefined;
-    }
-    const groupIds = await this.listGroupIds();
-    for (const groupId of groupIds) {
-      const clusters = await this.listConnectionStrings(groupId);
-      for (const cluster of clusters) {
-        if (
-          cluster.connectionStrings.some((candidate) =>
-            connectionStringMatches(input, candidate)
-          )
-        ) {
-          return { projectId: groupId, clusterName: cluster.clusterName };
-        }
-      }
-    }
-    return undefined;
-  }
-
-  async getClusterState(
-    groupId: string,
-    clusterName: string
-  ): Promise<AtlasClusterComputedState> {
-    const encodedGroupId = encodeURIComponent(groupId);
-    const encodedClusterName = encodeURIComponent(clusterName);
-    const requestUrl = this.adminApiEndpoint(
-      `/v2/groups/${encodedGroupId}/clusters/${encodedClusterName}`
-    );
-    let json: unknown;
-    try {
-      json = await this.authenticatedFetch(requestUrl, {
-        method: 'GET',
-      }).then((res) => res.json());
-    } catch (err) {
-      if (err instanceof AtlasServiceError && err.statusCode === 404) {
-        return 'NOT_FOUND';
-      }
-      throw err;
-    }
-    assertClusterState(json);
-    return computeClusterState(json);
-  }
-
   /**
-   * Returns the project IP access list entries, paging through every entry.
+   * Generic batch fetcher for Atlas Admin API paginated endpoints. Pages
+   * through every result, delegating the concrete endpoint URL (including its
+   * pagination query) to the caller so this stays agnostic of any specific
+   * admin-API route.
    */
-  async getProjectIPAccessList(
-    groupId: string
-  ): Promise<AtlasAccessListEntry[]> {
-    const encodedGroupId = encodeURIComponent(groupId);
-    const entries: AtlasAccessListEntry[] = [];
+  async fetchAllPages<T>(
+    buildEndpoint: (pagination: AtlasPaginationOptions) => string,
+    init?: RequestInit
+  ): Promise<T[]> {
+    const results: T[] = [];
     let pageNum = 1;
     for (;;) {
-      const requestUrl = this.adminApiEndpoint(
-        `/v2/groups/${encodedGroupId}/accessList${buildPaginationQuery({
-          pageNum,
-          itemsPerPage: ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
-        })}`
-      );
+      const requestUrl = buildEndpoint({
+        pageNum,
+        itemsPerPage: ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
+      });
       const json: unknown = await this.authenticatedFetch(requestUrl, {
         method: 'GET',
+        ...init,
       }).then((res) => res.json());
-      assertPaginatedResponse<AtlasAccessListEntry>(json);
-      entries.push(...json.results);
+      assertPaginatedResponse<T>(json);
+      results.push(...json.results);
       if (json.results.length < ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE) {
-        return entries;
+        return results;
       }
       pageNum++;
     }
   }
-}
-
-function assertClusterState(json: unknown): asserts json is AtlasCluster {
-  const cluster = json as {
-    name?: unknown;
-    paused?: unknown;
-    stateName?: unknown;
-  };
-  if (
-    json &&
-    typeof json === 'object' &&
-    typeof cluster.name === 'string' &&
-    typeof cluster.paused === 'boolean' &&
-    typeof cluster.stateName === 'string'
-  ) {
-    return;
-  }
-  throw new Error(
-    'Got unexpected backend response for Atlas Admin API cluster request'
-  );
 }
 
 function assertAutomationAgentRequestResponse(
