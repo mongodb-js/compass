@@ -106,19 +106,12 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableRestoreWorkspaces',
     stage: 'development',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable restoring previous workspace tabs on startup',
     },
   },
 
-  {
-    name: 'enableAutomaticRelationshipInference',
-    stage: 'released',
-    description: {
-      short:
-        'Enable automatic relationship inference during data model generation',
-    },
-  },
   {
     name: 'enableChatbotEndpointForGenAI',
     stage: 'released',
