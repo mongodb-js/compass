@@ -230,12 +230,24 @@ function main(): void {
     process.exit(1);
   }
 
+  // List of feature flags where we added `atlasCloudFeatureScope` to the definition
+  // after the automation (to create mms PRs). We do not want to create mms PRs for
+  // these as they already exist in mms codebase. When cleaning up any of these flags,
+  // remove them from this list as well.
+  const ignoreList = new Set([
+    'enableDataModeling',
+    'enableRestoreWorkspaces',
+    'enableAutoEmbeddingPublicPreview',
+    'enableAutoEmbeddingPrivatePreview',
+    'enableSortedSearchIndexes',
+  ]);
+
   const baseSource = getFileAt(mergeBase);
   const baseFlags = baseSource ? extractFlags(baseSource) : new Map();
 
   const headFlags = extractFlags(headSource);
   const newFlags = [...headFlags.values()].filter(
-    (f) => !baseFlags.has(f.name)
+    (f) => !baseFlags.has(f.name) && !ignoreList.has(f.name)
   );
 
   console.log(
