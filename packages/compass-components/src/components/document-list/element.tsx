@@ -220,12 +220,7 @@ const elementRemovedLightMode = css({
   },
 });
 
-const elementModifiedLightMode = css({
-  backgroundColor: palette.yellow.light3,
-  '&:hover': {
-    backgroundColor: palette.yellow.light2,
-  },
-});
+const elementModifiedLightMode = elementInvalidLightMode;
 
 const elementInvalidDarkMode = css({
   backgroundColor: palette.yellow.dark3,
