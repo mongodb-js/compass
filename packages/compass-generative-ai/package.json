@@ -69,7 +69,7 @@
     "lodash": "^4.18.1",
     "mongodb": "^7.1.1",
     "mongodb-build-info": "^1.8.1",
-    "mongodb-connection-string-url": "^7.0.1",
+    "mongodb-connection-string-url": "^7.0.2",
     "mongodb-mcp-server": "^1.10.0",
     "mongodb-query-parser": "^4.7.14",
     "mongodb-schema": "^12.6.3",
