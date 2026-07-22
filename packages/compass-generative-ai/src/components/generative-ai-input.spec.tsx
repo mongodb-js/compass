@@ -27,9 +27,9 @@ const renderGenerativeAIInput = ({
       didGenerateEmptyResults={false}
       onCancelRequest={noop}
       onChangeAIPromptText={noop}
-      onSubmitText={noop as any}
+      onSubmitText={noop}
       onClose={noop}
-      onSubmitFeedback={noop as any}
+      onSubmitFeedback={noop}
       show
       {...props}
     />

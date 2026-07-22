@@ -18,9 +18,6 @@ class AtlasCloudAuthService extends AtlasAuthService {
   getUserInfo(): Promise<AtlasUserInfo> {
     throw new Error('AtlasCloudAuthService.getUserInfo not implemented');
   }
-  getAuthHeaders() {
-    return Promise.resolve({});
-  }
 }
 
 const atlasAuthService = new AtlasCloudAuthService();

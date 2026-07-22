@@ -122,6 +122,17 @@ const HadronDocument: React.FunctionComponent<{
     [editable, extraGutterWidth]
   );
 
+  const emptyDocumentOffset = useMemo(
+    () =>
+      calculateShowMoreToggleOffset({
+        editable,
+        level: 0,
+        alignWithNestedExpandIcon: true,
+        extraGutterWidth,
+      }),
+    [editable, extraGutterWidth]
+  );
+
   return (
     <div className={className}>
       <div
@@ -129,6 +140,14 @@ const HadronDocument: React.FunctionComponent<{
         data-testid="hadron-document"
         data-id={document.uuid}
       >
+        {!editable && elements.length === 0 && (
+          <div
+            data-testid="readonly-document-empty"
+            style={{ paddingLeft: emptyDocumentOffset }}
+          >
+            <em>(empty document)</em>
+          </div>
+        )}
         <AutoFocusContext.Provider value={editing ? autoFocus : null}>
           {visibleElements.map((el, idx) => {
             return (

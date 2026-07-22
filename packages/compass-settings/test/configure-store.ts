@@ -20,9 +20,6 @@ class MockAtlasAuthService extends AtlasAuthService {
   async signOut() {
     return Promise.resolve();
   }
-  async getAuthHeaders() {
-    return Promise.resolve({});
-  }
 }
 
 export default function configureStore(

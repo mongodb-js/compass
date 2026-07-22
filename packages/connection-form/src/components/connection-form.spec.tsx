@@ -371,8 +371,7 @@ describe('ConnectionForm Component', function () {
         onSaveClicked={noop}
       />
     );
-    expect(screen.getByText('Invalid connection string "pineapples"')).to.be
-      .visible;
+    expect(screen.getByText('Invalid connection string')).to.be.visible;
   });
 
   // TODO(COMPASS-7762)
