@@ -22,7 +22,7 @@ export type FeatureFlagDefinition = {
    * feature flag for Atlas Cloud. Supply this when the feature flag is intended
    * to be set in Atlas and not scoped to Compass.
    */
-  atlasCloudFeatureScope?: 'group' | 'organization';
+  atlasCloudFeatureScope: 'group' | 'organization';
   description: {
     short: string;
     long?: string;
