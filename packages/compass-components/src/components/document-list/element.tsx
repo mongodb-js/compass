@@ -241,12 +241,7 @@ const elementRemovedDarkMode = css({
   },
 });
 
-const elementModifiedDarkMode = css({
-  backgroundColor: palette.yellow.dark3,
-  '&:hover': {
-    backgroundColor: palette.yellow.dark2,
-  },
-});
+const elementModifiedDarkMode = elementInvalidDarkMode;
 
 const elementActions = css({
   flex: 'none',
