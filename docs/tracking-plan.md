@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-07-19. Do not edit manually.
+> Auto-generated on 2026-07-22. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -146,6 +146,7 @@
   - [AI Response Generated](#ai-response-generated)
   - [PipelineAI Feedback](#pipelineai-feedback)
 - [Guide Cues](#guide-cues)
+  - [Guide Cue Shown](#guide-cue-shown)
   - [Guide Cue Dismissed](#guide-cue-dismissed)
   - [Guide Cue Group Dismissed](#guide-cue-group-dismissed)
 - [Identify](#identify)
@@ -1608,9 +1609,21 @@ This event is fired when a user submits feedback for a pipeline generation.
 
 ## Guide Cues
 
+### Guide Cue Shown
+
+This event is fired when a guide cue is shown to the user.
+
+| Property         | Type                  | Required | Description                                                                                                                             |
+| ---------------- | --------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `groupId`        | `string \| undefined` | No       | The unique identifier of the group of guide cues to which this cue belongs. This field is only set for guide cues belonging to a group. |
+| `cueId`          | `string`              | Yes      | The unique identifier of the specific guide cue that was shown.                                                                         |
+| `step`           | `number`              | Yes      | The step number within the guide cue sequence that was shown.                                                                           |
+| `is_compass_web` | `true \| undefined`   | No       |                                                                                                                                         |
+
 ### Guide Cue Dismissed
 
-This event is fired when a user clicks "next" on a guide cue.
+This event is fired when a user clicks the action like
+"next" or "got it" on a guide cue.
 
 | Property         | Type                  | Required | Description                                                                                                                             |
 | ---------------- | --------------------- | -------- | --------------------------------------------------------------------------------------------------------------------------------------- |

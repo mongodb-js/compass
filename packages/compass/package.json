@@ -266,7 +266,7 @@
     "mongodb": "^7.1.1",
     "mongodb-build-info": "^1.8.1",
     "mongodb-cloud-info": "^2.3.15",
-    "mongodb-connection-string-url": "^7.0.1",
+    "mongodb-connection-string-url": "^7.0.2",
     "mongodb-data-service": "^22.40.2",
     "mongodb-log-writer": "^2.4.4",
     "mongodb-ns": "^3.2.0",

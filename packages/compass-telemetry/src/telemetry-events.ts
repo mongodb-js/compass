@@ -2394,7 +2394,34 @@ type PerformancePausedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
- * This event is fired when a user clicks "next" on a guide cue.
+ * This event is fired when a guide cue is shown to the user.
+ *
+ * @category Guide Cues
+ */
+type GuideCueShownEvent = CommonEvent<{
+  name: 'Guide Cue Shown';
+  payload: {
+    /**
+     * The unique identifier of the group of guide cues to which this cue belongs.
+     * This field is only set for guide cues belonging to a group.
+     */
+    groupId?: string;
+
+    /**
+     * The unique identifier of the specific guide cue that was shown.
+     */
+    cueId: string;
+
+    /**
+     * The step number within the guide cue sequence that was shown.
+     */
+    step: number;
+  };
+}>;
+
+/**
+ * This event is fired when a user clicks the action like
+ * "next" or "got it" on a guide cue.
  *
  * @category Guide Cues
  */
@@ -4023,6 +4050,7 @@ export type TelemetryEvent =
   | ExportOpenedEvent
   | FocusModeClosedEvent
   | FocusModeOpenedEvent
+  | GuideCueShownEvent
   | GuideCueDismissedEvent
   | GuideCueGroupDismissedEvent
   | IdentifyEvent
