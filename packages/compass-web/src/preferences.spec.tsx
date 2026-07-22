@@ -186,8 +186,6 @@ describe('compass-web preferences', function () {
       // Cloud value wins over the "released" hardcoded `true`.
       expect(preferences.enableGlobalWrites).to.equal(false);
       expect(preferences.enableRollingIndexes).to.equal(true);
-      // A released flag not present in the response stays hardcoded `true`.
-      expect(preferences.enableDataModeling).to.equal(true);
       // The project preference.
       expect(preferences.enableGenAIFeaturesAtlasProject).to.equal(true);
       expect(preferences.enableGenAIFeaturesAtlasOrg).to.equal(true);

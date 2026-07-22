@@ -235,7 +235,6 @@ function main(): void {
   // these as they already exist in mms codebase. When cleaning up any of these flags,
   // remove them from this list as well.
   const ignoreList = new Set([
-    'enableDataModeling',
     'enableRestoreWorkspaces',
     'enableAutoEmbeddingPublicPreview',
     'enableAutoEmbeddingPrivatePreview',

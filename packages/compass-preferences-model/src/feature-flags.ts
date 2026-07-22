@@ -48,15 +48,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
     },
   },
 
-  {
-    name: 'enableDataModeling',
-    stage: 'released',
-    atlasCloudFeatureScope: 'group',
-    description: {
-      short: 'Design, Visualize, and Evolve your Data Model',
-    },
-  },
-
   /**
    * Feature flag for CLOUDP-308952.
    */
