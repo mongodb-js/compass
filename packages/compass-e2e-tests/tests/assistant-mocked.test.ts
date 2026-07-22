@@ -599,13 +599,24 @@ async function useExplainPlanEntryPoint(
   browser: CompassBrowser,
   { waitForMessages = true } = {}
 ) {
-  await browser.clickVisible(Selectors.AggregationExplainButton);
+  await browser.$(Selectors.AggregationExplainButton).waitForDisplayed();
+  const isDropdownVariant = await browser
+    .$(Selectors.AggregationExplainDropdownButton)
+    .isExisting();
 
-  await browser.clickVisible(Selectors.ExplainPlanInterpretButton);
+  if (isDropdownVariant) {
+    await browser.clickVisible(Selectors.AggregationExplainDropdownButton);
+    await browser.clickVisible(
+      Selectors.AggregationExplainDropdownInterpretAction
+    );
+  } else {
+    await browser.clickVisible(Selectors.AggregationExplainLegacyButton);
+    await browser.clickVisible(Selectors.ExplainPlanInterpretButton);
 
-  await browser.waitForOpenModal(Selectors.AggregationExplainModal, {
-    reverse: true,
-  });
+    await browser.waitForOpenModal(Selectors.AggregationExplainModal, {
+      reverse: true,
+    });
+  }
 
   if (waitForMessages) {
     await browser.$(Selectors.AssistantChatMessages).waitForDisplayed();

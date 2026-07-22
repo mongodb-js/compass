@@ -146,14 +146,17 @@ class ReadonlyDocument extends React.Component<
   }
 
   renderActions() {
+    const expandProps =
+      this.props.doc.elements.size > 0
+        ? { onExpand: this.handleExpandAll, expanded: this.state.expanded }
+        : {};
     return (
       <DocumentList.DocumentActionsGroup
         onCopy={this.props.copyToClipboard ? this.handleCopy : undefined}
         onClone={
           this.props.openInsertDocumentDialog ? this.handleClone : undefined
         }
-        onExpand={this.handleExpandAll}
-        expanded={this.state.expanded}
+        {...expandProps}
         insights={
           this.props.showInsights
             ? getInsightsForDocument(this.props.doc)

@@ -423,8 +423,12 @@ const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
     return truncate(value, 70);
   }, [value]);
 
+  const truncatedValueForTitle = useMemo(() => {
+    return truncate(value, 1000);
+  }, [value]);
+
   return (
-    <BSONValueContainer type="String" title={value}>
+    <BSONValueContainer type="String" title={truncatedValueForTitle}>
       &quot;{truncatedValue}&quot;
     </BSONValueContainer>
   );
@@ -531,6 +535,21 @@ const ArrayValue: React.FunctionComponent<PropsByValueType<'Array'>> = ({
   );
 };
 
+const ObjectValue: React.FunctionComponent<PropsByValueType<'Object'>> = ({
+  value,
+}) => {
+  const lengthString = useMemo(() => {
+    const keys = Object.keys(value ?? {});
+    return `(${keys.length === 0 ? 'empty' : keys.length})`;
+  }, [value]);
+
+  return (
+    <BSONValueContainer title={`Object ${lengthString}`}>
+      Object {lengthString}
+    </BSONValueContainer>
+  );
+};
+
 const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
   switch (props.type) {
     case 'ObjectId':
@@ -575,7 +594,7 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
     case 'Array':
       return <ArrayValue value={props.value}></ArrayValue>;
     case 'Object':
-      return <UnknownValue type={props.type} value={props.type}></UnknownValue>;
+      return <ObjectValue value={props.value}></ObjectValue>;
     default:
       return (
         <UnknownValue type={props.type} value={props.value}></UnknownValue>

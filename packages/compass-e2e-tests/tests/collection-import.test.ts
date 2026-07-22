@@ -462,7 +462,7 @@ describe('Collection import', function () {
       dateField_canonical: '2019-08-11T17:54:14.692+00:00',
       dateField_relaxed: '2019-08-11T17:54:14.692+00:00',
       decimal128Field: '10.99',
-      documentField: 'Object',
+      documentField: 'Object (1)',
       doubleField_canonical: '10.5',
       doubleField_relaxed: '10.5',
       infiniteNumber: 'Infinity',

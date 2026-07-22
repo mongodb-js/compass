@@ -51,7 +51,8 @@ describe('CompassAuthServiceMain', function () {
     ccsBaseUrl: 'ws://example.com',
     multiplexedWsBaseUrls: ['ws://example.com/multiplex'],
     cloudBaseUrl: 'ws://example.com/cloud',
-    atlasApiBaseUrl: 'http://example.com/api',
+    atlasPrivateApiBaseUrl: 'http://example.com/api/private',
+    atlasAdminApiBaseUrl: 'http://example.com/api/atlas',
     atlasLogin: {
       issuer: 'http://example.com',
       clientId: '1234abcd',
@@ -351,6 +352,122 @@ describe('CompassAuthServiceMain', function () {
           "Can't sign out if not signed in yet"
         );
       }
+    });
+  });
+
+  describe('handleAuthHeaders', function () {
+    context('user is signed in', function () {
+      const accessToken = 'abcd1234';
+      beforeEach(function () {
+        CompassAuthService['currentUser'] = {
+          sub: '1234',
+        } as any;
+
+        CompassAuthService['plugin'] = {
+          mongoClientOptions: {
+            authMechanismProperties: {
+              OIDC_HUMAN_CALLBACK: sandbox
+                .stub()
+                .resolves({ accessToken: accessToken }),
+            },
+          },
+        } as any;
+      });
+
+      it('should add auth headers for an Atlas Admin API request', async function () {
+        const url = `${defaultConfig.atlasAdminApiBaseUrl}/v2/clusters`;
+        const authHeaders = await CompassAuthService.handleAuthHeaders({
+          requestHeaders: {
+            'X-Some-Header': 'value',
+            'X-Compass-Auth': 'true',
+          },
+          url,
+        });
+        expect(authHeaders).to.have.property(
+          'Authorization',
+          `Bearer ${accessToken}`
+        );
+        expect(authHeaders).to.have.property('X-Some-Header', 'value');
+        expect(authHeaders).to.not.have.property('X-Compass-Auth');
+      });
+
+      it('should not add auth headers if they werent asked for', async function () {
+        const url = 'http://example.com/api/private/some-endpoint';
+        const oldHeaders = {
+          'X-Some-Header': 'value',
+        };
+        expect(
+          await CompassAuthService.handleAuthHeaders({
+            requestHeaders: oldHeaders,
+            url,
+          })
+        ).to.deep.equal(oldHeaders);
+      });
+
+      describe('prevents token exfiltration', function () {
+        const attackerUrls = [
+          // Lookalike host (suffix attack).
+          'http://example.com.attacker.tld/api/atlas/v2/clusters',
+          // Lookalike host (prefix attack).
+          'http://attacker-example.com/api/atlas/v2/clusters',
+          // Correct origin, path not on the allowlist.
+          'http://example.com/api/atlas/v2/clusters/extra',
+          // Different protocol on the same host.
+          'https://example.com/api/atlas/v2/clusters',
+          // URL userinfo spoofing.
+          'http://example.com@attacker.tld/api/atlas/v2/clusters',
+        ];
+
+        for (const url of attackerUrls) {
+          it(`throws when asked to add auth headers for ${url}`, async function () {
+            let err: Error | undefined;
+            try {
+              await CompassAuthService.handleAuthHeaders({
+                requestHeaders: {
+                  'X-Compass-Auth': 'true',
+                },
+                url,
+              });
+            } catch (error) {
+              err = error as Error;
+            }
+            expect(err).to.have.property(
+              'message',
+              'Invalid authenticated request URL.'
+            );
+          });
+        }
+      });
+    });
+
+    context('is not signed in', function () {
+      beforeEach(function () {
+        CompassAuthService['plugin'] = {
+          mongoClientOptions: {
+            authMechanismProperties: {
+              OIDC_HUMAN_CALLBACK: sandbox
+                .stub()
+                .rejects(new Error('Failed to request token')),
+            },
+          },
+        } as any;
+      });
+
+      it('does not throw when asked to add auth headers when not signed in', async function () {
+        const req = {
+          url: `${defaultConfig.atlasAdminApiBaseUrl}/v2/clusters`,
+        } as Request;
+        const headers = await CompassAuthService.handleAuthHeaders({
+          requestHeaders: {
+            'X-Compass-Auth': 'true',
+            'X-Some-Header': 'value',
+          },
+          url: req.url,
+        });
+        expect(headers).to.not.have.property('Authorization');
+        expect(headers).to.not.have.property('X-Compass-Auth');
+        expect(headers).to.have.property('X-Some-Header', 'value');
+      });
     });
   });
 });

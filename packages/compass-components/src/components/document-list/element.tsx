@@ -110,6 +110,18 @@ function useHadronElement(el: HadronElementType) {
 
   const isValid = el.isCurrentTypeValid();
 
+  const originalValue =
+    el.currentType === 'Array'
+      ? [...(el.elements || [])]
+      : el.currentType === 'Object'
+      ? Object.fromEntries(
+          Array.from(el.elements || []).map((e) => [
+            e.currentKey,
+            e.currentValue,
+          ])
+        )
+      : el.currentValue;
+
   return {
     id: el.uuid,
     key: {
@@ -129,8 +141,7 @@ function useHadronElement(el: HadronElementType) {
     },
     value: {
       value: editor.value(),
-      originalValue:
-        el.currentType === 'Array' ? [...(el.elements || [])] : el.currentValue,
+      originalValue,
       change(newVal: string) {
         editor.edit(newVal);
       },
