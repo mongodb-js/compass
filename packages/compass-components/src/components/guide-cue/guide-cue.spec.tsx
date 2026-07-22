@@ -11,41 +11,44 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import { Icon, IconButton, Button } from '../..';
 import * as GuideCueGroups from './guide-cue-groups';
-import { GuideCue } from './guide-cue';
+import { GuideCue, GuideCueProvider } from './guide-cue';
 import Sinon from 'sinon';
 
 const renderGuideCue = (
   props: Omit<
     Partial<ComponentProps<typeof GuideCue<HTMLElement>>>,
     'triggerNode' | 'trigger'
-  >
+  >,
+  providerProps: Partial<ComponentProps<typeof GuideCueProvider>> = {}
 ) => {
   const containerRef = React.createRef<any>();
   // Wrapping GuideCue component in this way as it is easier to test for
   // outside clicks.
   render(
-    <div ref={containerRef}>
-      <Button data-testid="outside-component">
-        Outside Guide Cue Component
-      </Button>
-      <GuideCue<HTMLButtonElement>
-        cueId=""
-        groupId=""
-        step={0}
-        title=""
-        description=""
-        trigger={({ ref }) => (
-          <IconButton
-            data-testid="guide-cue-trigger"
-            ref={ref}
-            aria-labelledby="Guide Cue Trigger"
-          >
-            <Icon glyph={'Code'} size="small"></Icon>
-          </IconButton>
-        )}
-        {...props}
-      />
-    </div>
+    <GuideCueProvider {...providerProps}>
+      <div ref={containerRef}>
+        <Button data-testid="outside-component">
+          Outside Guide Cue Component
+        </Button>
+        <GuideCue<HTMLButtonElement>
+          cueId=""
+          groupId=""
+          step={0}
+          title=""
+          description=""
+          trigger={({ ref }) => (
+            <IconButton
+              data-testid="guide-cue-trigger"
+              ref={ref}
+              aria-labelledby="Guide Cue Trigger"
+            >
+              <Icon glyph={'Code'} size="small"></Icon>
+            </IconButton>
+          )}
+          {...props}
+        />
+      </div>
+    </GuideCueProvider>
   );
 
   expect(within(containerRef.current).getByTestId('guide-cue-trigger')).to
@@ -310,6 +313,49 @@ describe('GuideCue', function () {
       );
 
       expect(onDismiss.calledOnce).to.be.true;
+    });
+
+    it('calls onShow when a cue is shown to the user', async function () {
+      const onShow = Sinon.spy();
+      renderGuideCue(
+        {
+          title: 'Login with Atlas',
+          cueId: 'one',
+          description: 'Now you can login with your atlas account',
+        },
+        { onShow }
+      );
+
+      // Wait for cue to show up.
+      await waitFor(() => getGuideCuePopover());
+
+      expect(onShow.calledOnce).to.be.true;
+      expect(onShow.firstCall.firstArg).to.deep.equal({
+        cueId: 'one',
+        step: 1,
+      });
+    });
+
+    it('does not call onShow when guide cues are disabled', async function () {
+      const onShow = Sinon.spy();
+      renderGuideCue(
+        {
+          title: 'Login with Atlas',
+          cueId: 'one',
+          description: 'Now you can login with your atlas account',
+        },
+        { onShow, disabled: true }
+      );
+
+      // Give the cue a chance to not show.
+      await waitFor(
+        () =>
+          new Promise((resolve) => {
+            setTimeout(resolve, 100);
+          })
+      );
+
+      expect(onShow.called).to.be.false;
     });
 
     it('renders standalone cues', async function () {

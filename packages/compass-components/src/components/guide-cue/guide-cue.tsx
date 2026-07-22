@@ -12,6 +12,7 @@ import { GROUP_STEPS_MAP } from './guide-cue-groups';
 import type { GroupName } from './guide-cue-groups';
 import { css, cx, useCurrentValueRef } from '../..';
 import { rafraf } from '../../utils/rafraf';
+import { useEffectOnChange } from '../../hooks/use-effect-on-change';
 
 const hiddenPopoverStyles = css({
   display: 'none !important',
@@ -31,6 +32,7 @@ export type GroupCue = Cue & {
 };
 
 type GuideCueContextValue = {
+  onShow?: (cue: Cue) => void;
   onNext?: (cue: Cue) => void;
   onNextGroup?: (groupCue: GroupCue) => void;
   disabled?: boolean;
@@ -46,6 +48,9 @@ export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
   const callbacksRef = useCurrentValueRef(callbacks);
   const value = useMemo(
     () => ({
+      onShow(cue: Cue) {
+        callbacksRef.current.onShow?.(cue);
+      },
       onNext(cue: Cue) {
         callbacksRef.current.onNext?.(cue);
       },
@@ -256,6 +261,13 @@ export const GuideCue = <T extends HTMLElement>({
   }, [isCueOpen, cueData, onNext, setOpen]);
 
   const isCueDisabled = context.disabled;
+  const isCueShown = readyToRender && !isCueDisabled && isCueOpen;
+
+  useEffectOnChange(() => {
+    if (isCueShown) {
+      context.onShow?.(cueData);
+    }
+  }, isCueShown);
 
   return (
     <>
