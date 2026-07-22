@@ -49,28 +49,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /**
-   * Feature flag for CLOUDP-308952.
-   */
-  {
-    name: 'enableSearchActivationProgramP1',
-    stage: 'development',
-    description: {
-      short: 'Enable interface to view and modify search indexes',
-    },
-  },
-
-  /**
-   * Feature flag for CLOUDP-331931.
-   */
-  {
-    name: 'enableSearchActivationProgramP2',
-    stage: 'development',
-    description: {
-      short: 'Enable AI-powered features for pipeline and query results',
-    },
-  },
-
-  /**
    * Feature flag for AI Assistant.
    */
   {
