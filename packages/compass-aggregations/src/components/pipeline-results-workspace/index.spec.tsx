@@ -53,6 +53,17 @@ describe('PipelineResultsWorkspace', function () {
     expect(within(container).getByTestId('pipeline-empty-results')).to.exist;
   });
 
+  it('renders documents with no fields as empty objects', async function () {
+    await renderPipelineResultsWorkspace({
+      documents: [new HadronDocument({}), new HadronDocument({})],
+    });
+    const container = screen.getByTestId('pipeline-results-workspace');
+    expect(container).to.exist;
+    expect(
+      container.querySelectorAll('[data-testid="readonly-document-empty"]')
+    ).to.have.lengthOf(2);
+  });
+
   it('renders documents', async function () {
     await renderPipelineResultsWorkspace({
       documents: [

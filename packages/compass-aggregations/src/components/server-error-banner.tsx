@@ -179,6 +179,7 @@ export default function ServerErrorBanner({
               size="xsmall"
               variant="primaryOutline"
               onClick={onDebugClick}
+              className={bannerButtonStyles}
               // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
               leftGlyph={<Icon glyph="Sparkle" />}
               data-testid="server-error-banner-debug-button"

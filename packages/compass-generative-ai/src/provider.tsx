@@ -15,7 +15,7 @@ import {
 const AtlasAiServiceContext = createContext<AtlasAiService | null>(null);
 
 export const AtlasAiServiceProvider: React.FC<{
-  apiURLPreset: 'admin-api' | 'cloud';
+  apiURLPreset: 'private-api' | 'cloud';
 }> = createServiceProvider(function AtlasAiServiceProvider({
   apiURLPreset,
   children,

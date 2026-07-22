@@ -213,28 +213,6 @@ buildvariants:
       - name: test-packaged-app-1
       - name: test-packaged-app-2
       - name: test-packaged-app-3
-  - name: test-packaged-app-macos-14-arm
-    tags:
-      - run-on-pr
-    display_name: Test Packaged App MacOS arm64 14
-    run_on: macos-14-arm64-gui
-    depends_on:
-      - name: package-compass
-        variant: package-macos-arm
-    tasks:
-      - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
-  - name: test-packaged-app-macos-14-x64
-    display_name: Test Packaged App MacOS x64 14
-    run_on: macos-14-gui
-    depends_on:
-      - name: package-compass
-        variant: package-macos-x64
-    tasks:
-      - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
   - name: test-packaged-app-macos-15-arm
     tags:
       - run-on-pr
@@ -279,6 +257,14 @@ buildvariants:
     depends_on:
       - name: package-compass
         variant: package-macos-arm
+    tasks:
+      - name: test-packaged-app-min-version-macos13
+  - name: test-packaged-app-min-macos-x64
+    display_name: Test Packaged App MacOS x64 13 (min version)
+    run_on: macos-13-gui
+    depends_on:
+      - name: package-compass
+        variant: package-macos-x64
     tasks:
       - name: test-packaged-app-min-version-macos13
   - name: publish

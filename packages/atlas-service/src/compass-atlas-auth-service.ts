@@ -8,26 +8,14 @@ import type { ArgsWithSignal } from './atlas-auth-service';
 export class CompassAtlasAuthService extends AtlasAuthService {
   private _ipc = ipcRenderer?.createInvoke<
     typeof AtlasServiceMain,
-    'getUserInfo' | 'isAuthenticated' | 'signIn' | 'signOut' | 'maybeGetToken'
-  >('AtlasService', [
-    'getUserInfo',
-    'isAuthenticated',
-    'signIn',
-    'signOut',
-    'maybeGetToken',
-  ]);
+    'getUserInfo' | 'isAuthenticated' | 'signIn' | 'signOut'
+  >('AtlasService', ['getUserInfo', 'isAuthenticated', 'signIn', 'signOut']);
 
   private get ipc() {
     if (!this._ipc) {
       throw new Error('IPC not available');
     }
     return this._ipc;
-  }
-
-  async getAuthHeaders(opts: ArgsWithSignal = {}) {
-    return {
-      Authorization: `Bearer ${await this.ipc.maybeGetToken(opts)}`,
-    };
   }
 
   isAuthenticated(opts?: ArgsWithSignal) {

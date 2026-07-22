@@ -84,19 +84,6 @@ const TEST_PACKAGED_APP_BUILD_VARIANTS = [
     depends_on: 'package-rhel',
   },
   {
-    name: 'test-packaged-app-macos-14-arm',
-    display_name: 'MacOS arm64 14',
-    run_on: 'macos-14-arm64-gui',
-    depends_on: 'package-macos-arm'
-  },
-  {
-    name: 'test-packaged-app-macos-14-x64',
-    display_name: 'MacOS x64 14',
-    run_on: 'macos-14-gui',
-    run_on_prs: false,
-    depends_on: 'package-macos-x64'
-  },
-  {
     name: 'test-packaged-app-macos-15-arm',
     display_name: 'MacOS arm64 15',
     run_on: 'macos-15-arm64-gui',
@@ -134,6 +121,13 @@ const TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS = [
     display_name: 'MacOS arm64 13 (min version)',
     run_on: 'macos-13-arm64-gui',
     depends_on: 'package-macos-arm',
+    task: 'test-packaged-app-min-version-macos13',
+  },
+  {
+    name: 'test-packaged-app-min-macos-x64',
+    display_name: 'MacOS x64 13 (min version)',
+    run_on: 'macos-13-gui',
+    depends_on: 'package-macos-x64',
     task: 'test-packaged-app-min-version-macos13',
   }
 ];
