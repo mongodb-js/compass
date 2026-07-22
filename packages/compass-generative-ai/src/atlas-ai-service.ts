@@ -173,26 +173,6 @@ export function validateAIAggregationResponse(
   }
 }
 
-const aiURLConfig = {
-  // There are two different sets of endpoints we use for our requests.
-  // Down the line we'd like to only use the admin api, however,
-  // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
-  // NOTE: The unauthenticated endpoints are also rate limited by IP address
-  // rather than by logged in user.
-  'private-api': {
-    aggregation: 'unauth/ai/api/v1/mql-aggregation',
-    query: 'unauth/ai/api/v1/mql-query',
-  },
-  cloud: {
-    aggregation: (projectId: string) => {
-      return `ai/v1/groups/${projectId}/mql-aggregation`;
-    },
-    query: (projectId: string) => {
-      return `ai/v1/groups/${projectId}/mql-query`;
-    },
-  },
-} as const;
-
 export type { MockDataSchemaRawField, MockDataSchemaToolOutput };
 export { mockDataSchemaToolSchema };
 
@@ -236,11 +216,6 @@ async function getHashedActiveUserId(
     return 'unknown';
   }
 }
-
-/**
- * The type of resource from the natural language query REST API
- */
-type AIResourceType = 'query' | 'aggregation';
 
 export class AtlasAiService {
   private apiURLPreset: 'private-api' | 'cloud';
@@ -296,23 +271,6 @@ export class AtlasAiService {
         return this.atlasService.fetch(uri, init);
       },
     }).responses(AI_MODEL_SLIM_VERSION);
-  }
-
-  /**
-   * @throws {AtlasAiServiceInvalidInputError} when given invalid arguments
-   */
-  private getUrlForEndpoint(
-    resourceType: AIResourceType,
-    { atlasMetadata }: ConnectionInfo
-  ) {
-    if (atlasMetadata) {
-      return this.atlasService.cloudEndpoint(
-        aiURLConfig.cloud[resourceType](atlasMetadata.projectId)
-      );
-    }
-
-    const urlPath = aiURLConfig['private-api'][resourceType];
-    return this.atlasService.privateApiEndpoint(urlPath);
   }
 
   private throwIfAINotEnabled() {
