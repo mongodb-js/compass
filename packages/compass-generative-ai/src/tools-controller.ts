@@ -20,6 +20,9 @@ import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { removeZodTransforms } from './remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import type { PreferencesAccess } from 'compass-preferences-model';
+import { debugConnection } from './tools/debug-connection';
 
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
@@ -74,27 +77,35 @@ class InMemoryRunner extends TransportRunnerBase {
 
 type ToolsControllerConfig = {
   logger: Logger;
+  preferences: PreferencesAccess;
   getTelemetryAnonymousId: () => string;
   enableTelemetry: boolean;
   maxTimeMS?: number;
+  atlasService: AtlasService;
 };
 
 export class ToolsController {
   private logger: Logger;
+  private preferences: PreferencesAccess;
   private toolGroups: Set<ToolGroup> = new Set();
   private context: ToolsContext = Object.create(null);
   private readonly runner: InMemoryRunner;
   private connectionManager: ToolsConnectionManager;
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
+  private readonly atlasService: AtlasService;
 
   constructor({
     logger,
     getTelemetryAnonymousId,
     enableTelemetry,
     maxTimeMS,
+    atlasService,
+    preferences,
   }: ToolsControllerConfig) {
     this.logger = logger;
+    this.atlasService = atlasService;
+    this.preferences = preferences;
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
       loggers: ['mcp'],
@@ -269,6 +280,36 @@ export class ToolsController {
           },
         });
       }
+    }
+
+    const { enableAtlasConnectionErrorDebugger } =
+      this.preferences.getPreferences();
+    if (enableAtlasConnectionErrorDebugger) {
+      tools['atlas-connection-error-debugger'] = {
+        description:
+          'Returns Atlas-side diagnostics (cluster state, IP access list). Use to debug a Compass connection failure to an Atlas cluster.',
+        inputSchema: z.object({
+          connectionString: z.string(),
+          errorMessage: z.string(),
+        }),
+        needsApproval: true,
+        strict: false,
+        execute: async (args: {
+          connectionString: string;
+          errorMessage: string;
+        }) => {
+          this.logger.log.info(
+            this.logger.mongoLogId(1_001_000_436),
+            'ToolsController',
+            'Executing atlas-connection-error-debugger tool'
+          );
+
+          return await debugConnection(
+            args.connectionString,
+            this.atlasService
+          );
+        },
+      };
     }
 
     return tools;

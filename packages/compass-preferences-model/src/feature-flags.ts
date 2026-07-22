@@ -271,6 +271,17 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable sorted syntax for search indexes schema',
     },
   },
+
+  /*
+   * Feature flag for enabling the Atlas Connection Error Debugger.
+   */
+  {
+    name: 'enableAtlasConnectionErrorDebugger',
+    stage: 'development',
+    description: {
+      short: 'Enable Atlas Connection Error Debugger',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;
