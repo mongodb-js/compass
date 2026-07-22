@@ -20,7 +20,6 @@ import {
   type SerializedExplainPlan,
 } from '../stores/explain-plan-modal-store';
 import { connect } from 'react-redux';
-import { usePreference } from 'compass-preferences-model/provider';
 
 const defaultFormatter = (_: unknown) => String(_);
 
