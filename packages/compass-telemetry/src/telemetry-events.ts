@@ -900,6 +900,10 @@ type DocumentCopiedEvent = ConnectionScopedEvent<{
      * The view used to copy the document.
      */
     mode: 'list' | 'json' | 'table';
+    /**
+     * The format used to copy the document.
+     */
+    format: 'ejson' | 'shell-syntax';
   };
 }>;
 

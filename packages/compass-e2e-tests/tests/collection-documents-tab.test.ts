@@ -644,7 +644,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await browser.waitUntil(
       async () => {
-        return !!/^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 34, "j": 0 \}$/.exec(
+        return !!/^\{ _id: ObjectId\('[a-f0-9]{24}'\), i: NumberInt\('34'\), j: NumberInt\('0'\) \}$/.exec(
           (await clipboard.read()).replace(/\s+/g, ' ').replace(/\n/g, '')
         );
       },
