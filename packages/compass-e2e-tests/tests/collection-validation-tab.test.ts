@@ -9,7 +9,6 @@ import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 import { expect } from 'chai';
-import { isTestingDesktop } from '../helpers/test-runner-context.ts';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 const PASSING_VALIDATOR = '{ $jsonSchema: {} }';

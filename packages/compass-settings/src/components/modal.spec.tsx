@@ -42,7 +42,6 @@ describe('SettingsModal', function () {
             onSelectTab={onSelectTabSpy}
             selectedTab={undefined}
             hasChangedSettings={false}
-            isOIDCEnabled={false}
             {...props}
           />
         </Provider>
