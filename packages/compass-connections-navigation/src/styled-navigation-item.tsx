@@ -6,7 +6,6 @@ import {
 import { palette, useDarkMode } from '@mongodb-js/compass-components';
 import { getConnectionId, type SidebarTreeItem } from './tree-data';
 import { useConnectable } from '@mongodb-js/compass-connections/provider';
-import { usePreference } from 'compass-preferences-model/provider';
 
 type AcceptedStyles = {
   '--item-bg-color'?: string;
