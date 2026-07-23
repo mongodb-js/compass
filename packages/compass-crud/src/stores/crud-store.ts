@@ -7,7 +7,7 @@ import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
 import HadronDocument, { Document } from 'hadron-document';
 import { toJSString, validate } from 'mongodb-query-parser';
-import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
+import { parseShellBSON } from '../utils/parse-shell-bson';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import { capMaxTimeMSAtPreferenceLimit } from 'compass-preferences-model/provider';
 import type { Stage } from '@mongodb-js/explain-plan-helper';
@@ -1088,7 +1088,7 @@ class CrudStoreImpl
     // see if the update will parse.
     if (!this.state.isUpdatePreviewSupported) {
       try {
-        parseShellBSON(updateText);
+        await parseShellBSON(updateText);
       } catch (err: any) {
         this.setState({
           bulkUpdate: {
@@ -1135,7 +1135,7 @@ class CrudStoreImpl
 
     let update: BSONObject | BSONObject[];
     try {
-      update = parseShellBSON(updateText);
+      update = await parseShellBSON(updateText);
     } catch (err: any) {
       if (abortController.signal.aborted) {
         // ignore this result because it is stale
@@ -1236,7 +1236,7 @@ class CrudStoreImpl
     const { filter = {} } = query;
     let update;
     try {
-      update = parseShellBSON(this.state.bulkUpdate.updateText);
+      update = await parseShellBSON(this.state.bulkUpdate.updateText);
     } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
@@ -2077,7 +2077,7 @@ class CrudStoreImpl
     const { filter } = this.queryBar.getLastAppliedQuery('crud');
     let update;
     try {
-      update = parseShellBSON(this.state.bulkUpdate.updateText);
+      update = await parseShellBSON(this.state.bulkUpdate.updateText);
     } catch {
       // If this couldn't parse then the update button should have been
       // disabled. So if we get here it is a race condition and ignoring is
@@ -2303,19 +2303,4 @@ export async function findAndModifyWithFLEFallback(
   // deleted the document between the findAndModify command
   // and the find command. Just return the original error.
   return [error, undefined] as ErrorOrResult;
-}
-
-// Copied from packages/compass-aggregations/src/modules/pipeline-builder/pipeline-parser/utils.ts
-export function parseShellBSON(source: string): BSONObject | BSONObject[] {
-  const parsed = _parseShellBSON(source, {
-    mode: ParseMode.Strict,
-    allowComments: true,
-    allowMethods: true,
-  });
-  if (!parsed || typeof parsed !== 'object') {
-    // XXX(COMPASS-5689): We've hit the condition in
-    // https://github.com/mongodb-js/ejson-shell-parser/blob/c9c0145ababae52536ccd2244ac2ad01a4bbdef3/src/index.ts#L36
-    throw new Error('The provided definition is invalid.');
-  }
-  return parsed as BSONObject | BSONObject[];
 }
