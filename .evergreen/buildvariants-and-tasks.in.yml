@@ -137,9 +137,13 @@ const EOL_SERVER_VERSIONS = [
   { name: '60x-enterprise', version: '6.0.x-enterprise', requiredForPublish: true },
 ];
 
+// MongoDB 7.0 has no Ubuntu 24.04 build (24.04 support was added in 8.0), so
+// its binaries fall back to the 22.04 build and fail to start on a 24.04 host.
+// Pin the 7.x servers to 22.04 via a run_on override on the version entry.
+// https://www.mongodb.com/docs/v7.0/tutorial/install-mongodb-on-ubuntu/#platform-support
 const MAINTAINED_SERVER_VERSIONS = [
-  { name: '70x-community', version: '7.0.x', requiredForPublish: true },
-  { name: '70x-enterprise', version: '7.0.x-enterprise', requiredForPublish: true },
+  { name: '70x-community', version: '7.0.x', requiredForPublish: true, run_on: 'ubuntu2204-large' },
+  { name: '70x-enterprise', version: '7.0.x-enterprise', requiredForPublish: true, run_on: 'ubuntu2204-large' },
   { name: '80x-community', version: '8.0.x', requiredForPublish: true },
   { name: '80x-enterprise', version: '8.0.x-enterprise', requiredForPublish: true },
 ];
@@ -238,41 +242,23 @@ buildvariants:
     <% } %>
     <% } %>
 
-<%
-  // Server 7.0 has no Ubuntu 24.04 build (support was added in 8.0), so its
-  // binaries fall back to the 22.04 build and fail to run on 24.04. Keep the
-  // 7.x maintained servers on 22.04 and run the rest on 24.04.
-  const MAINTAINED_SERVER_GROUPS = [
-    {
-      nameSuffix: '',
-      displayName: 'Test Maintained Servers',
-      run_on: 'ubuntu2404-latest-large',
-      versions: MAINTAINED_SERVER_VERSIONS.filter((v) => !v.version.startsWith('7.')),
-    },
-    {
-      nameSuffix: '-7x',
-      displayName: 'Test Maintained Servers (7.x)',
-      run_on: 'ubuntu2204-large',
-      versions: MAINTAINED_SERVER_VERSIONS.filter((v) => v.version.startsWith('7.')),
-    },
-  ];
-%>
-<% for (const serverGroup of MAINTAINED_SERVER_GROUPS) { %>
-  - name: test-maintained-servers<%= serverGroup.nameSuffix %>
+  - name: test-maintained-servers
     tags:
       - run-on-pr
-    display_name: <%= serverGroup.displayName %>
-    run_on: <%= serverGroup.run_on %>
+    display_name: Test Maintained Servers
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
     tasks:
-    <% for (const serverVersion of serverGroup.versions) { %>
+    <% for (const serverVersion of MAINTAINED_SERVER_VERSIONS) { %>
     <% for (const group of E2E_TEST_GROUPS) { %>
     - name: test-server-<%= serverVersion.name %>-<%= group.number %>
+      <% if (serverVersion.run_on) { %>
+      run_on: <%= serverVersion.run_on %>
+      <% } %>
     <% } %>
     <% } %>
-<% } %>
 
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server

@@ -155,27 +155,24 @@ buildvariants:
       - name: package-compass
         variant: package-ubuntu
     tasks:
+      - name: test-server-70x-community-1
+        run_on: ubuntu2204-large
+      - name: test-server-70x-community-2
+        run_on: ubuntu2204-large
+      - name: test-server-70x-community-3
+        run_on: ubuntu2204-large
+      - name: test-server-70x-enterprise-1
+        run_on: ubuntu2204-large
+      - name: test-server-70x-enterprise-2
+        run_on: ubuntu2204-large
+      - name: test-server-70x-enterprise-3
+        run_on: ubuntu2204-large
       - name: test-server-80x-community-1
       - name: test-server-80x-community-2
       - name: test-server-80x-community-3
       - name: test-server-80x-enterprise-1
       - name: test-server-80x-enterprise-2
       - name: test-server-80x-enterprise-3
-  - name: test-maintained-servers-7x
-    tags:
-      - run-on-pr
-    display_name: Test Maintained Servers (7.x)
-    run_on: ubuntu2204-large
-    depends_on:
-      - name: package-compass
-        variant: package-ubuntu
-    tasks:
-      - name: test-server-70x-community-1
-      - name: test-server-70x-community-2
-      - name: test-server-70x-community-3
-      - name: test-server-70x-enterprise-1
-      - name: test-server-70x-enterprise-2
-      - name: test-server-70x-enterprise-3
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
     run_on: ubuntu2404-latest-large
