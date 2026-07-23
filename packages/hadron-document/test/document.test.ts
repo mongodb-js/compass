@@ -2288,6 +2288,42 @@ describe('Document', function () {
       });
     });
 
+    describe('unsafe numbers', function () {
+      it('throws on integer literals above MAX_SAFE_INTEGER', function () {
+        expect(() => Document.FromEJSON('{"a": 9223372036854775807}')).to.throw(
+          /\$numberLong/
+        );
+      });
+
+      it('throws on negative integer literals below MIN_SAFE_INTEGER', function () {
+        expect(() =>
+          Document.FromEJSON('{"a": -9223372036854775807}')
+        ).to.throw(/\$numberLong/);
+      });
+
+      it('also guards FromEJSONArray', function () {
+        expect(() =>
+          Document.FromEJSONArray('[{"a": 9223372036854775807}]')
+        ).to.throw(/\$numberLong/);
+      });
+
+      it('allows safe integer literals', function () {
+        expect(() => Document.FromEJSON('{"a": 42}')).to.not.throw();
+      });
+
+      it('allows exact 16-digit doubles without false positives', function () {
+        expect(() =>
+          Document.FromEJSON('{"a": 3.141592653589793}')
+        ).to.not.throw();
+      });
+
+      it('allows large values expressed as $numberLong', function () {
+        expect(() =>
+          Document.FromEJSON('{"a": {"$numberLong": "9223372036854775807"}}')
+        ).to.not.throw();
+      });
+    });
+
     describe('#toEJSON', function () {
       it('handles null values', function () {
         const doc = new Document({
