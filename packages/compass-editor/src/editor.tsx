@@ -660,22 +660,12 @@ async function waitUntilEditorIsReady(
  */
 async function scheduleDispatch(
   editorView: EditorView,
-  transactions:
-    | TransactionSpec
-    | TransactionSpec[]
-    | ((view: EditorView) => TransactionSpec | TransactionSpec[]),
+  transactions: TransactionSpec | TransactionSpec[],
   signal?: AbortSignal
 ): Promise<boolean> {
   await waitUntilEditorIsReady(editorView, signal);
-  // Resolve the transactions after the editor is ready so callers can build
-  // them against the current document state. Fast edits can shrink the doc
-  // between the time a transaction is requested and when it is dispatched,
-  // which would otherwise produce out-of-range changes/effects.
-  const resolved =
-    typeof transactions === 'function'
-      ? transactions(editorView)
-      : transactions;
-  editorView.dispatch(...(Array.isArray(resolved) ? resolved : [resolved]));
+  transactions = Array.isArray(transactions) ? transactions : [transactions];
+  editorView.dispatch(...transactions);
   return true;
 }
 
@@ -1203,27 +1193,8 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
     void scheduleDispatch(
       editorViewRef.current,
-      (view) => {
-        const docLength = view.state.doc.length;
-        return {
-          effects: setDiagnosticsEffect.of(
-            (annotations ?? []).map((annotation) => {
-              // Clamp ranges to the current document length: the annotations
-              // may have been computed against a previous (longer) document.
-              const from = Math.min(annotation.from, docLength);
-              const to = Math.min(annotation.to, docLength);
-              return {
-                // CodeMirror's Diagnostic always requires a string message
-                // (used for the gutter / a11y); default it when only
-                // renderMessage is set.
-                message: '',
-                ...annotation,
-                from,
-                to: Math.max(from, to),
-              };
-            })
-          ),
-        };
+      {
+        effects: setDiagnosticsEffect.of(annotations ?? []),
       },
       controller.signal
     );
