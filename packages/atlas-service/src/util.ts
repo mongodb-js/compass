@@ -205,7 +205,7 @@ const config = Object.create({
       issuer: 'https://auth-qa.mongodb.com/oauth2/default',
     },
     authPortalUrl: 'https://account-stage.mongodb.com/account/login',
-    assistantApiBaseUrl: 'https://knowledge-staging.mongodb.com/api/v1',
+    assistantApiBaseUrl: 'https://knowledge-dev.mongodb.com/api/v1',
     userDataBaseUrl: 'https://cloud-stage.mongodb.com/ui/userData',
   },
   atlas: {
