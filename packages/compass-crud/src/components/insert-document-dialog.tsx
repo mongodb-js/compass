@@ -30,7 +30,7 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { WriteError } from '../stores/crud-store';
-import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
+import type { EditorRef } from '@mongodb-js/compass-editor';
 import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
 
 /**
@@ -80,7 +80,7 @@ const DocumentOrJsonView: React.FC<{
   hasManyDocuments: () => boolean;
   updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
   jsonDoc: InsertDocumentDialogProps['jsonDoc'];
-  annotations: Annotation[];
+  error: Error | null;
   editorRef: React.RefObject<EditorRef>;
 }> = ({
   jsonView,
@@ -88,7 +88,7 @@ const DocumentOrJsonView: React.FC<{
   hasManyDocuments,
   updateJsonDoc,
   jsonDoc,
-  annotations,
+  error,
   editorRef,
 }) => {
   if (jsonView) {
@@ -96,7 +96,7 @@ const DocumentOrJsonView: React.FC<{
       <InsertJsonDocument
         updateJsonDoc={updateJsonDoc}
         jsonDoc={jsonDoc}
-        annotations={annotations}
+        error={error}
         editorRef={editorRef}
       />
     );
@@ -261,19 +261,6 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     [hasManyDocuments, toggleInsertDocument, toggleInsertDocumentView]
   );
 
-  const annotations: Annotation[] = useMemo(() => {
-    if (documentValidationError instanceof UnsafeIntegerValidationError) {
-      return documentValidationError.violations.map((violation) => ({
-        message:
-          'Exceeds safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.',
-        from: violation.loc.from,
-        to: violation.loc.to,
-        severity: 'error',
-      }));
-    }
-    return [];
-  }, [documentValidationError]);
-
   const onFixUnsafeIntegerViolations = useCallback(() => {
     const editor = editorRef.current?.editor;
     if (!editor) {
@@ -355,7 +342,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           hasManyDocuments={hasManyDocuments}
           updateJsonDoc={updateJsonDoc}
           jsonDoc={jsonDoc}
-          annotations={annotations}
+          error={documentValidationError}
           editorRef={editorRef}
         />
       </div>
