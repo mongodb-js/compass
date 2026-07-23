@@ -476,9 +476,6 @@ const themeStyles = {
 
 // Base theme for autocomplete hover - applies to document root for tooltips
 const autocompleteHoverStyles = EditorView.baseTheme({
-  '.cm-tooltip': {
-    maxWidth: 'min(90vw, 500px)',
-  },
   '&light .cm-tooltip.cm-tooltip-autocomplete ul li:hover': {
     color: editorPalette.light.autocompleteColor,
     backgroundColor: editorPalette.light.autocompleteSelectedBackgroundColor,
@@ -663,12 +660,22 @@ async function waitUntilEditorIsReady(
  */
 async function scheduleDispatch(
   editorView: EditorView,
-  transactions: TransactionSpec | TransactionSpec[],
+  transactions:
+    | TransactionSpec
+    | TransactionSpec[]
+    | ((view: EditorView) => TransactionSpec | TransactionSpec[]),
   signal?: AbortSignal
 ): Promise<boolean> {
   await waitUntilEditorIsReady(editorView, signal);
-  transactions = Array.isArray(transactions) ? transactions : [transactions];
-  editorView.dispatch(...transactions);
+  // Resolve the transactions after the editor is ready so callers can build
+  // them against the current document state. Fast edits can shrink the doc
+  // between the time a transaction is requested and when it is dispatched,
+  // which would otherwise produce out-of-range changes/effects.
+  const resolved =
+    typeof transactions === 'function'
+      ? transactions(editorView)
+      : transactions;
+  editorView.dispatch(...(Array.isArray(resolved) ? resolved : [resolved]));
   return true;
 }
 
@@ -1196,8 +1203,27 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
     void scheduleDispatch(
       editorViewRef.current,
-      {
-        effects: setDiagnosticsEffect.of(annotations ?? []),
+      (view) => {
+        const docLength = view.state.doc.length;
+        return {
+          effects: setDiagnosticsEffect.of(
+            (annotations ?? []).map((annotation) => {
+              // Clamp ranges to the current document length: the annotations
+              // may have been computed against a previous (longer) document.
+              const from = Math.min(annotation.from, docLength);
+              const to = Math.min(annotation.to, docLength);
+              return {
+                // CodeMirror's Diagnostic always requires a string message
+                // (used for the gutter / a11y); default it when only
+                // renderMessage is set.
+                message: '',
+                ...annotation,
+                from,
+                to: Math.max(from, to),
+              };
+            })
+          ),
+        };
       },
       controller.signal
     );
