@@ -299,7 +299,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
             <Code
               language="javascript"
               copyButtonAppearance="none"
-            >{`[{title: "..."}, ...]`}</Code>
+            >{`[{ "title": "..." }, ...]`}</Code>
           </InfoSprinkle>
         )}
         <SegmentedControl

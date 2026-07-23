@@ -17,7 +17,7 @@ const actionContainerStyles = css({
 });
 
 type InsertDocumentDialogBannerProps = {
-  documentWriteError: WriteError;
+  documentWriteError: WriteError | null;
   insertInProgress: boolean;
   documentValidationError: Error | null;
   onFixUnsafeIntegerViolations: () => void;
@@ -43,7 +43,8 @@ export function InsertDocumentDialogBanner({
         ...(hasViolations && {
           action: {
             onClick: onFixUnsafeIntegerViolations,
-            text: `Convert ${numViolations === 1 ? '' : 'all'} to Int64`,
+            text:
+              numViolations === 1 ? 'Convert to Int64' : 'Convert all to Int64',
           },
         }),
       };
