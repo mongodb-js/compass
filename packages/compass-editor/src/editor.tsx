@@ -476,6 +476,9 @@ const themeStyles = {
 
 // Base theme for autocomplete hover - applies to document root for tooltips
 const autocompleteHoverStyles = EditorView.baseTheme({
+  '.cm-tooltip': {
+    maxWidth: 'min(90vw, 500px)',
+  },
   '&light .cm-tooltip.cm-tooltip-autocomplete ul li:hover': {
     color: editorPalette.light.autocompleteColor,
     backgroundColor: editorPalette.light.autocompleteSelectedBackgroundColor,
