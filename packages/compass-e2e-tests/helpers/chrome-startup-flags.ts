@@ -45,12 +45,14 @@ const DEFAULT_WEBDRIVER_FLAGS = [
 ];
 
 // These flags are used to start Chrome driver based on the CI requirements.
-const CI_FLAGS = [
+export const CI_FLAGS = [
   // Chromecast feature that is enabled by default in some chrome versions
   // and breaks the app on Ubuntu
   '--media-router=0',
-  // Evergren RHEL ci runs everything as root, and chrome will not start as
-  // root without this flag
+  // Evergreen RHEL ci runs everything as root, and chrome will not start as
+  // root without this flag. It is also required on Ubuntu 23.10+ (incl. 24.04),
+  // which disables unprivileged user namespaces via AppArmor, the mechanism
+  // Chrome's sandbox relies on, so Chrome refuses to start without it.
   '--no-sandbox',
   // Seeing gpu init related errors on at least RHEL, especially when starting
   // the CLI
