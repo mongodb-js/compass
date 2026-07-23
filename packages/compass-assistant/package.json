@@ -96,7 +96,7 @@
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0",
-    "mongodb": "^7.1.1",
+    "mongodb": "^7.5.0",
     "mongodb-assistant-eval": "^0.0.8",
     "nyc": "^15.1.0",
     "openai": "^6.3.0",
