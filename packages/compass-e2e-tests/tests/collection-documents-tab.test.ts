@@ -1212,4 +1212,61 @@ FindIterable<Document> result = collection.find(filter);`);
         .waitForDisplayed();
     });
   });
+
+  it('handles unsafe integer values when inserting a document in json view', async function () {
+    await browser.navigateToCollectionTab(
+      getDefaultConnectionNames(0),
+      'test',
+      'numbers',
+      'Documents'
+    );
+
+    // browse to the "Insert to Collection" modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+    await browser.waitForOpenModal(Selectors.InsertDialog);
+
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertJSONEditor,
+      `{ "i": ${Number.MAX_SAFE_INTEGER + 1} }`
+    );
+
+    const banner = browser.$(Selectors.InsertDialogErrorMessage);
+    await banner.waitForDisplayed();
+
+    await browser.waitUntil(async () => {
+      return (await banner.getText()).includes(
+        'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
+      );
+    });
+
+    // Fix the error
+    const errorDetailsBtn = browser.$(Selectors.InsertDialogErrorDetailsBtn);
+    await banner.waitForDisplayed();
+    await errorDetailsBtn.click();
+
+    // Banner should be gone now
+    await banner.waitForDisplayed({ reverse: true });
+
+    const updatedJson = await browser.getCodemirrorEditorText(
+      Selectors.InsertJSONEditor
+    );
+    expect(updatedJson.replace(/\s+/g, ' ')).to.include(
+      `"i": {"$numberLong": "${Number.MAX_SAFE_INTEGER + 1}"}`
+    );
+
+    const insertConfirm = browser.$(Selectors.InsertConfirm);
+    await insertConfirm.waitForEnabled();
+    await browser.clickVisible(Selectors.InsertConfirm);
+    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
+
+    await browser.runFindOperation(
+      'Documents',
+      `{ "i": Int64("${Number.MAX_SAFE_INTEGER + 1}") }`
+    );
+    const document = browser.$(Selectors.DocumentListEntry);
+    await document.waitForDisplayed();
+  });
 });

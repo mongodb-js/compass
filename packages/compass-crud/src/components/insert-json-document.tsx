@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
-import { css, cx, palette, withDarkMode } from '@mongodb-js/compass-components';
+import React from 'react';
+import {
+  css,
+  cx,
+  palette,
+  useDarkMode,
+  withDarkMode,
+} from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
 
 const editorContainerStylesLight = css({
   borderLeft: `3px solid ${palette.gray.light2}`,
@@ -10,34 +17,21 @@ const editorContainerStylesDark = css({
   borderLeft: `3px solid ${palette.gray.dark2}`,
 });
 
-/**
- * The comment block.
- */
-const EDITOR_COMMENT = '/** \n* Paste one or more documents here\n*/\n';
-
 type InsertJsonDocumentProps = {
   darkMode?: boolean;
   jsonDoc: string;
-  isCommentNeeded: boolean;
-  updateComment: (value: boolean) => void;
   updateJsonDoc: (value: string) => void;
+  annotations: Annotation[];
+  editorRef: React.RefObject<EditorRef>;
 };
 
 const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
-  darkMode,
+  annotations,
   jsonDoc,
-  isCommentNeeded,
   updateJsonDoc,
+  editorRef,
 }) => {
-  const [text, setText] = useState(() => {
-    return isCommentNeeded ? `${EDITOR_COMMENT}${jsonDoc}` : jsonDoc;
-  });
-
-  const onChangeText = (value: string) => {
-    setText(value);
-    updateJsonDoc(value.split('*/\n').pop() ?? '');
-  };
-
+  const darkMode = useDarkMode();
   return (
     <div
       className={cx(
@@ -47,10 +41,12 @@ const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
       <CodemirrorMultilineEditor
         data-testid="insert-document-json-editor"
         language="json"
-        text={text}
-        onChangeText={onChangeText}
+        text={jsonDoc}
+        onChangeText={updateJsonDoc}
         initialJSONFoldAll={false}
         minLines={18}
+        annotations={annotations}
+        ref={editorRef}
       />
     </div>
   );

@@ -1046,11 +1046,14 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           ...completionKeymap,
           ...tabKeymap,
         ]),
-        // Supply the document body as the tooltip parent
-        // because we are using containment contexts for container
-        // queries which offset things otherwise.
+        // Supply the tooltip parent explicitly because we are using
+        // containment contexts for container queries which offset things
+        // otherwise. When the editor is rendered inside a modal (a native
+        // <dialog> promoted to the top layer via showModal), the tooltip
+        // must be parented to that dialog so it renders in the same top
+        // layer instead of behind the modal.
         tooltips({
-          parent: document.body,
+          parent: domNode.closest('dialog') ?? document.body,
         }),
         editableExtension,
         readOnlyExtension,
