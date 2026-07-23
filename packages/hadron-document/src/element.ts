@@ -303,8 +303,16 @@ export class Element extends EventEmitter {
     } else {
       try {
         if (newType === 'Date') {
+          // Use the current date for:
+          // 1. Empty values (null, undefined, empty string, Object/Array)
+          //  For Array/Object, the value is stored in elements and this.currentValue is falsy.
+          // 2. Boolean values (true, false).
+          const newValue =
+            !this.currentValue || this.currentType === 'Boolean'
+              ? new Date()
+              : this.generateObject();
           const editor = new DateEditor(this);
-          editor.edit(this.generateObject());
+          editor.edit(newValue);
           editor.complete();
         } else if (
           isUUIDType(newType) &&

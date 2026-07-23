@@ -613,6 +613,8 @@ export const CloneDocumentButton = '[data-testid="clone-document-button"]';
 export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
 export const DocumentFooter = '[data-testid="document-footer"]';
 export const DocumentFooterMessage = '[data-testid="document-footer-message"]';
+export const DocumentFooterFixUnsafeIntegerLink =
+  '[data-testid="fix-unsafe-integer-violations-button"]';
 export const DocumentFooterErrorDetailsButton =
   '[data-testid="edit-actions-footer-error-details-button"]';
 export const UpdateDocumentButton = `${DocumentFooter} [data-testid="update-button"]`;
