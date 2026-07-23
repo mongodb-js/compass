@@ -1003,24 +1003,54 @@ describe('Collection aggregations tab', function () {
     const unsubscribeAllowWarnings = allowServerWarnings(
       8996503, // Allow "$function is deprecated" warning
       (l: LogEntry) => {
+        // In 9.0 the errors for ClientDisconnect and Interrupted race when an
+        // operation is cancelled, so we allow both. Older servers only report
+        // Interrupted.
+        const allowedCodeNames = serverSatisfies('>=9.0.0-alpha0', true)
+          ? ['ClientDisconnect', 'Interrupted']
+          : ['Interrupted'];
         return (
-          l.id === 23799 &&
-          ['Interrupted', 'ClientDisconnect'].includes(l.attr?.error?.codeName)
+          l.id === 23799 && allowedCodeNames.includes(l.attr?.error?.codeName)
         );
       }
     );
     try {
+      // Nesting this $map N times will give runtime of 1000 ^ N,
+      // so with N = 5 it is basically infinite.
       const slowQuery = `{
-        sleep: {
-          $function: {
-            body: function () {
-              return sleep(10000) || true;
-            },
-            args: [],
-            lang: "js",
+  $expr: {
+    $map: {
+      input: {
+        $range: [0, 1000]
+      },
+      in: {
+        $map: {
+          input: {
+            $range: [0, 1000]
           },
-        },
-      }`;
+          in: {
+            $map: {
+              input: {$range: [0, 1000]},
+              in: {
+                $map: {
+                  input: {
+                    $range: [0, 1000]
+                  },
+                  in: {
+                    $map: {
+                      input: {$range: [0, 1000]},
+                      in: '$$this'
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}`;
 
       // Set first stage to a very slow $addFields
       await browser.selectStageOperator(0, '$addFields');
