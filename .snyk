@@ -134,6 +134,13 @@ ignore:
           which Compass does not call.
         expires: 2026-07-13T00:00:00.000Z
         created: 2026-04-13T00:00:00.000Z
+  SNYK-JS-HONONODESERVER-18170326:
+    - '*':
+        reason: >-
+          Not applicable to Compass. Requires serveStatic to be
+          invoked which Compass does not use.
+        expires: 2026-10-21T00:00:00.000Z
+        created: 2026-07-23T00:00:00.000Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':
