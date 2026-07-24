@@ -35,6 +35,7 @@ const allowedConnectionStringOptions = [
   'localAddress',
   'localPort',
   'localThresholdMS',
+  'maxAdaptiveRetries',
   'maxConnecting',
   'maxIdleTimeMS',
   'maxPoolSize',
