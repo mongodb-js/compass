@@ -20,6 +20,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
+import { AtlasToolCallMessage } from './atlas-tool-call-message';
 import {
   useTelemetry,
   useSearchActivationProgramP2,
@@ -481,6 +482,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       confirmedMessage: AssistantMessage,
       newState: 'confirmed' | 'rejected'
     ) => {
+      // Which choice continues the conversation (pushes a follow-up message
+      // and sends it). Defaults to 'confirmed' so the generic flow sends on
+      // confirm; specific flows (e.g. Atlas connection errors) can declare a
+      // different policy via metadata.
+      const continueOn =
+        confirmedMessage.metadata?.confirmation?.continueOn ?? 'confirmed';
+      const shouldContinue = newState === continueOn;
+
       setMessages((messages) => {
         const newMessages: AssistantMessage[] = messages.map((message) => {
           if (
@@ -501,11 +510,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           return message;
         });
 
-        // If confirmed, add a new message with the same content but without confirmation metadata
-        if (newState === 'confirmed') {
+        // Add a new message with the same content but without confirmation
+        // metadata so it gets sent to the assistant.
+        if (shouldContinue) {
           newMessages.push({
             ...confirmedMessage,
-            id: `${confirmedMessage.id}-confirmed`,
+            id: `${confirmedMessage.id}-${newState}`,
             metadata: {
               ...confirmedMessage.metadata,
               confirmation: undefined,
@@ -523,7 +533,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         },
         confirmedMessage.metadata?.connectionInfo ?? undefined
       );
-      if (newState === 'confirmed') {
+      if (shouldContinue) {
         // Force the new message request to be sent
         void ensureOptInAndSend?.(undefined, {}, () => {});
       }
@@ -621,16 +631,29 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 // Handle confirmation messages
                 if (metadata?.confirmation) {
                   const { description, state } = metadata.confirmation;
+                  // Show as rejected if it's not the last message
+                  const confirmationState =
+                    !isLastMessage && state === 'pending' ? 'rejected' : state;
+
+                  if (metadata.confirmation.variant === 'atlas') {
+                    return (
+                      <AtlasToolCallMessage
+                        key={`${id}-confirmation`}
+                        state={confirmationState}
+                        description={description}
+                        connectionInfo={metadata.connectionInfo ?? null}
+                        onConfirm={() =>
+                          handleConfirmation(message, 'confirmed')
+                        }
+                        onReject={() => handleConfirmation(message, 'rejected')}
+                      />
+                    );
+                  }
 
                   return (
                     <ConfirmationMessage
                       key={`${id}-confirmation`}
-                      // Show as rejected if it's not the last message
-                      state={
-                        !isLastMessage && state === 'pending'
-                          ? 'rejected'
-                          : state
-                      }
+                      state={confirmationState}
                       title="Please confirm your request"
                       description={description}
                       onConfirm={() => handleConfirmation(message, 'confirmed')}

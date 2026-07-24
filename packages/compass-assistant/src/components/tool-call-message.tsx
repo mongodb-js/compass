@@ -2,21 +2,14 @@ import React from 'react';
 import _ from 'lodash';
 import {
   css,
-  LgChatMessage,
-  spacing,
-  useDarkMode,
   InlineDefinition,
   ServerIcon,
-  palette,
-  cx,
-  Icon,
 } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
 import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai/provider';
 import { cleanToolCallOutput, getToolState } from '../utils';
-
-const { Message } = LgChatMessage;
+import { ActionCardMessage } from './action-card-message';
 
 interface ToolCallMessageProps {
   connection: BasicConnectionInfo | null;
@@ -34,37 +27,12 @@ function getToolDescription(toolName: string): string | undefined {
   return AVAILABLE_TOOLS.find((tool) => tool.name === toolName)?.description;
 }
 
-const toolCallMessageStyles = css({
-  paddingTop: spacing[400],
-
-  // TODO(COMPASS-10000): This is a temporary fix to make the tool call message take the entire width of the chat message.
-  '> div': {
-    width: '100%',
-  },
-});
-
 const expandableContentStyles = css({
   h3: {
     lineHeight: '16px',
     fontSize: '12px',
     fontWeight: 600,
     textTransform: 'uppercase',
-  },
-
-  pre: {
-    maxHeight: '200px',
-    overflow: 'auto',
-  },
-});
-const expandableContentStylesLight = css({
-  h3: {
-    color: palette.gray.dark1,
-  },
-});
-
-const expandableContentStylesDark = css({
-  h3: {
-    color: palette.gray.light1,
   },
 });
 
@@ -74,10 +42,6 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   onApprove,
   onDeny,
 }) => {
-  const darkMode = useDarkMode();
-
-  const runButtonRef = React.useRef<HTMLButtonElement>(null);
-
   const chips = [];
 
   // TODO: find a better way to only display this when the connection is relevant
@@ -155,12 +119,6 @@ ${toolCall.errorText}
     title = <>Run {toolNameElement}?</>;
   }
 
-  React.useEffect(() => {
-    if (isAwaitingApproval && runButtonRef.current) {
-      runButtonRef.current.focus();
-    }
-  }, [isAwaitingApproval, toolCall.approval?.id]);
-
   if (toolCall.state === 'input-streaming') {
     // The tool call renders with undefined input or incomplete input and then
     // soon after with an object. At that point even if there are no parameters
@@ -174,44 +132,28 @@ ${toolCall.errorText}
   const initialIsExpanded = !_.isEmpty(toolCall.input);
 
   return (
-    <div className={toolCallMessageStyles}>
-      <Message.ActionCard
-        initialIsExpanded={initialIsExpanded}
-        showExpandButton={true}
-        state={toolCallState}
-        title={title}
-        darkMode={darkMode}
-        chips={chips}
-      >
-        <Message.ActionCard.ExpandableContent
-          className={cx(
-            expandableContentStyles,
-            darkMode
-              ? expandableContentStylesDark
-              : expandableContentStylesLight
-          )}
-        >
-          {expandableContentText}
-        </Message.ActionCard.ExpandableContent>
-        {isAwaitingApproval && (
-          <Message.ActionCard.Button
-            onClick={() => onDeny?.(toolCall.approval.id)}
-            variant="default"
-          >
-            Cancel
-          </Message.ActionCard.Button>
-        )}
-        {isAwaitingApproval && (
-          <Message.ActionCard.Button
-            onClick={() => onApprove?.(toolCall.approval.id)}
-            variant="primary"
-            rightGlyph={<Icon glyph="Return" />}
-            ref={runButtonRef}
-          >
-            Run
-          </Message.ActionCard.Button>
-        )}
-      </Message.ActionCard>
-    </div>
+    <ActionCardMessage
+      initialIsExpanded={initialIsExpanded}
+      state={toolCallState}
+      title={title}
+      chips={chips}
+      contentClassName={expandableContentStyles}
+      showActions={isAwaitingApproval}
+      buttons={[
+        {
+          label: 'Cancel',
+          variant: 'default',
+          onClick: () => toolCall.approval && onDeny?.(toolCall.approval.id),
+        },
+        {
+          label: 'Run',
+          variant: 'primary',
+          onClick: () => toolCall.approval && onApprove?.(toolCall.approval.id),
+          isPrimary: true,
+        },
+      ]}
+    >
+      {expandableContentText}
+    </ActionCardMessage>
   );
 };
