@@ -476,6 +476,9 @@ const themeStyles = {
 
 // Base theme for autocomplete hover - applies to document root for tooltips
 const autocompleteHoverStyles = EditorView.baseTheme({
+  '.cm-tooltip': {
+    maxWidth: 'min(90vw, 500px)',
+  },
   '&light .cm-tooltip.cm-tooltip-autocomplete ul li:hover': {
     color: editorPalette.light.autocompleteColor,
     backgroundColor: editorPalette.light.autocompleteSelectedBackgroundColor,
@@ -560,7 +563,7 @@ type EditorLanguage = 'json' | 'javascript' | 'javascript-expression';
 
 export type Annotation = Pick<
   Diagnostic,
-  'from' | 'to' | 'severity' | 'message'
+  'from' | 'to' | 'severity' | 'message' | 'renderMessage'
 >;
 
 type EditorProps = {
@@ -1046,11 +1049,14 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
           ...completionKeymap,
           ...tabKeymap,
         ]),
-        // Supply the document body as the tooltip parent
-        // because we are using containment contexts for container
-        // queries which offset things otherwise.
+        // Supply the tooltip parent explicitly because we are using
+        // containment contexts for container queries which offset things
+        // otherwise. When the editor is rendered inside a modal (a native
+        // <dialog> promoted to the top layer via showModal), the tooltip
+        // must be parented to that dialog so it renders in the same top
+        // layer instead of behind the modal.
         tooltips({
-          parent: document.body,
+          parent: domNode.closest('dialog') ?? document.body,
         }),
         editableExtension,
         readOnlyExtension,

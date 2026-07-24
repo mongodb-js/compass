@@ -21,9 +21,10 @@ import {
   createDocumentAutocompleter,
   CodemirrorMultilineEditor,
 } from '@mongodb-js/compass-editor';
-import type { EditorRef, Action, Annotation } from '@mongodb-js/compass-editor';
+import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useJsonEditorAnnotations } from '../utils/use-json-editor-annotations';
 
 const editorStyles = css({
   minHeight: spacing[800] + spacing[400],
@@ -299,18 +300,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     }, 0);
   }, [expanded]);
 
-  const annotations: Annotation[] = useMemo(() => {
-    if (docValidationError instanceof UnsafeIntegerValidationError) {
-      return docValidationError.violations.map((violation) => ({
-        message:
-          'Exceeds safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.',
-        from: violation.loc.from,
-        to: violation.loc.to,
-        severity: 'error',
-      }));
-    }
-    return [];
-  }, [docValidationError]);
+  const annotations = useJsonEditorAnnotations({ error: docValidationError });
 
   const onFixUnsafeIntegerViolations = useCallback(() => {
     const editor = editorRef.current?.editor;
