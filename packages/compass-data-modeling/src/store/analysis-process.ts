@@ -274,7 +274,6 @@ export function startAnalysis(
       cancelAnalysisControllerRef,
       track,
       logger,
-      preferences,
       dataModelStorage,
     }
   ) => {
@@ -285,9 +284,7 @@ export function startAnalysis(
 
     const connectionInfo = connections.getConnectionById(connectionId)?.info;
 
-    const willInferRelations =
-      preferences.getPreferences().enableAutomaticRelationshipInference &&
-      options.automaticallyInferRelations;
+    const willInferRelations = options.automaticallyInferRelations;
 
     track(
       'Data Modeling Diagram Creation Started',
@@ -746,15 +743,13 @@ export function analyzeCollections({
   return async (
     dispatch,
     _getState,
-    { connections, logger, preferences, cancelAnalysisControllerRef, track }
+    { connections, logger, cancelAnalysisControllerRef, track }
   ) => {
     const abortSignal = cancelAnalysisControllerRef.current?.signal;
     const namespaces = selectedCollections.map((collName) => {
       return `${database}.${collName}`;
     });
-    const willInferRelations =
-      preferences.getPreferences().enableAutomaticRelationshipInference &&
-      options.automaticallyInferRelations;
+    const willInferRelations = options.automaticallyInferRelations;
     dispatch({
       type: AnalysisProcessActionTypes.ANALYZING_COLLECTIONS_START,
       name,

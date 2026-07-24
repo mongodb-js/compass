@@ -27,7 +27,6 @@ Object.defineProperty(globalThis, kSandboxPreferencesAccess, {
 if (Object.hasOwn(globalThis, '__compassWebEnableSandboxPreferencesOverride')) {
   sandboxPreferencesAccess = new CompassWebPreferencesAccess({
     ...DEFAULT_COMPASS_WEB_PREFERENCES,
-    enableExportSchema: true,
     enablePerformanceAdvisorBanner: false,
     enableAtlasSearchIndexes: true,
     maximumNumberOfActiveConnections: undefined,
@@ -39,7 +38,6 @@ if (Object.hasOwn(globalThis, '__compassWebEnableSandboxPreferencesOverride')) {
     enableGenAISampleDocumentPassing: false,
     enableGenAIToolCallingAtlasProject: true,
     optInGenAIFeatures: false,
-    enableDataModelingCollapse: true,
     enableMyQueries: false,
     telemetryAtlasUserId: 'compass_web_sandbox_telemetry_user_id',
   });

@@ -83,12 +83,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
   const {
     readWrite: preferencesReadWrite,
     enableAggregationBuilderExtraOptions,
-    showInsights,
-  } = usePreferences([
-    'readWrite',
-    'enableAggregationBuilderExtraOptions',
-    'showInsights',
-  ]);
+  } = usePreferences(['readWrite', 'enableAggregationBuilderExtraOptions']);
   const {
     enableSearchActivationProgramP2,
     isSearchActivationProgramP2Loading,
@@ -148,7 +143,7 @@ export const PipelineActions: React.FunctionComponent<PipelineActionsProps> = ({
       {isAIFeatureEnabled && showAIEntry && (
         <AIExperienceEntry onClick={onShowAIInputClick} type="aggregation" />
       )}
-      {showInsights && showCollectionScanInsight && (
+      {showCollectionScanInsight && (
         <div>
           <SignalPopover
             signals={{

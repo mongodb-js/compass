@@ -14,7 +14,6 @@ import {
   useDarkMode,
   WarningSummary,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
 import React, { useCallback, useMemo } from 'react';
 import {
   areSamplingOptionsValid,
@@ -117,10 +116,6 @@ export const DiagramSettingsContent: React.FunctionComponent<
   onAutomaticallyInferRelationshipsToggle,
   onSamplingOptionsChange,
 }) => {
-  const showAutoInferOption = usePreference(
-    'enableAutomaticRelationshipInference'
-  );
-
   const handleSamplingOptionChange = useCallback(
     (change: Partial<SamplingOptions>) => {
       onSamplingOptionsChange({
@@ -172,39 +167,35 @@ export const DiagramSettingsContent: React.FunctionComponent<
   }
   return (
     <>
-      {showAutoInferOption && (
-        <>
-          <div className={InferRelationshipsHeaderStyles}>
-            <Label
-              id={inferRelationshipLabelId}
-              htmlFor={inferRelationshipToggleId}
-            >
-              Automatically infer relationships
-            </Label>
-            <Toggle
-              id={inferRelationshipToggleId}
-              aria-labelledby={inferRelationshipLabelId}
-              aria-describedby={inferRelationshipDescriptionId}
-              checked={automaticallyInferRelationships}
-              onChange={(checked) => {
-                onAutomaticallyInferRelationshipsToggle(checked);
-              }}
-              size="small"
-            ></Toggle>
-          </div>
-          <div
-            id={inferRelationshipDescriptionId}
-            className={cx(infoTextStyles, darkMode && infoTextStylesDark)}
-          >
-            Analysis process will try to automatically discover relationships in
-            selected collections. This operation will run multiple find requests
-            against indexed fields of the collections and{' '}
-            <strong>
-              will take additional time per collection being analyzed.
-            </strong>
-          </div>
-        </>
-      )}
+      <div className={InferRelationshipsHeaderStyles}>
+        <Label
+          id={inferRelationshipLabelId}
+          htmlFor={inferRelationshipToggleId}
+        >
+          Automatically infer relationships
+        </Label>
+        <Toggle
+          id={inferRelationshipToggleId}
+          aria-labelledby={inferRelationshipLabelId}
+          aria-describedby={inferRelationshipDescriptionId}
+          checked={automaticallyInferRelationships}
+          onChange={(checked) => {
+            onAutomaticallyInferRelationshipsToggle(checked);
+          }}
+          size="small"
+        ></Toggle>
+      </div>
+      <div
+        id={inferRelationshipDescriptionId}
+        className={cx(infoTextStyles, darkMode && infoTextStylesDark)}
+      >
+        Analysis process will try to automatically discover relationships in
+        selected collections. This operation will run multiple find requests
+        against indexed fields of the collections and{' '}
+        <strong>
+          will take additional time per collection being analyzed.
+        </strong>
+      </div>
       <FormFieldContainer className={sampleSizeContainerStyles}>
         <Body weight="bold">Document sampling</Body>
         <div

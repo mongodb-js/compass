@@ -64,7 +64,6 @@ import {
 import toNS from 'mongodb-ns';
 import { FIELD_TYPES } from '../utils/field-types';
 import { getNamespaceRelationships } from '../utils/utils';
-import { usePreference } from 'compass-preferences-model/provider';
 import AnalysisProgressStatus from './analysis-progress-status';
 
 const errorBannerStyles = css({
@@ -224,7 +223,6 @@ const DiagramContent: React.FunctionComponent<{
   onToggleFieldExpanded,
 }) => {
   const isDarkMode = useDarkMode();
-  const isCollapseFlagEnabled = usePreference('enableDataModelingCollapse');
   const diagram = useRef(useDiagram());
   const { openDrawer } = useDrawerActions();
   const { isDrawerOpen } = useDrawerState();
@@ -496,12 +494,8 @@ const DiagramContent: React.FunctionComponent<{
         onFieldTypeChange,
         onNodeDragStop,
         onConnect,
-        onNodeExpandToggle: isCollapseFlagEnabled
-          ? handleNodeExpandedToggle
-          : undefined,
-        onFieldExpandToggle: isCollapseFlagEnabled
-          ? handleFieldExpandedToggle
-          : undefined,
+        onNodeExpandToggle: handleNodeExpandedToggle,
+        onFieldExpandToggle: handleFieldExpandedToggle,
         fieldTypes: FIELD_TYPES,
       } satisfies DiagramProps),
     [
@@ -521,7 +515,6 @@ const DiagramContent: React.FunctionComponent<{
       onConnect,
       handleNodeExpandedToggle,
       handleFieldExpandedToggle,
-      isCollapseFlagEnabled,
     ]
   );
 
