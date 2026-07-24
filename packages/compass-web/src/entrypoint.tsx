@@ -484,7 +484,6 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
-      disableContextMenus={false}
       disableGuideCues={!enableGuideCues}
       {...LINK_PROPS}
     >
