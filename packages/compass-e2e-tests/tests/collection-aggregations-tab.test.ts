@@ -995,21 +995,45 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
-    if (isTestingWebAtlasCloud()) {
+    // Fall back to a $function sleep in earlier server versions.
+    // The driver disconnect cancel doesn't always kill CPU bound op
+    // on earlier versions.
+    const useSleepSlowQuery = serverSatisfies('<8.0.0');
+
+    if (useSleepSlowQuery && isTestingWebAtlasCloud()) {
       // No $function on the free tier, skipping this test.
       return this.skip();
     }
 
-    const unsubscribeAllowWarnings = allowServerWarnings(
-      8996503, // Allow "$function is deprecated" warning
-      (l: LogEntry) => {
-        return (
-          l.id === 23799 && ['Interrupted'].includes(l.attr?.error?.codeName)
-        );
-      }
-    );
+    // We tag each aggregation command with identifiable `comment`s.
+    const RUN_AGGREGATION_COMMENT = 'Run aggregation';
+    const PREVIEW_AGGREGATION_COMMENT = 'Aggregation preview';
+
+    let sawRunAggregationInterrupt = false;
+    const unsubscribeAllowWarnings = useSleepSlowQuery
+      ? allowServerWarnings(
+          8996503, // Allow "$function is deprecated" warning
+          (l: LogEntry) => {
+            return l.id === 23799 && l.attr?.error?.codeName === 'Interrupted';
+          }
+        )
+      : allowServerWarnings((l: LogEntry) => {
+          const comment = l.attr?.cmd?.comment as string | undefined;
+          const matches =
+            l.id === 23799 &&
+            l.attr?.error?.codeName === 'Interrupted' &&
+            comment !== undefined &&
+            [RUN_AGGREGATION_COMMENT, PREVIEW_AGGREGATION_COMMENT].includes(
+              comment
+            );
+          if (matches && comment === RUN_AGGREGATION_COMMENT) {
+            sawRunAggregationInterrupt = true;
+          }
+          return matches;
+        });
     try {
-      const slowQuery = `{
+      const slowQuery = useSleepSlowQuery
+        ? `{
         sleep: {
           $function: {
             body: function () {
@@ -1019,7 +1043,42 @@ describe('Collection aggregations tab', function () {
             lang: "js",
           },
         },
-      }`;
+      }`
+        : // Nesting this $reduce N times will give runtime of 1000 ^ N, so with
+          // N = 5 it is basically infinite.
+          `{
+  slow: {
+    $reduce: {
+      input: {$range: [0, 1000]},
+      initialValue: 0,
+      in: {
+        $reduce: {
+          input: {$range: [0, 1000]},
+          initialValue: 0,
+          in: {
+            $reduce: {
+              input: {$range: [0, 1000]},
+              initialValue: 0,
+              in: {
+                $reduce: {
+                  input: {$range: [0, 1000]},
+                  initialValue: 0,
+                  in: {
+                    $reduce: {
+                      input: {$range: [0, 1000]},
+                      initialValue: 0,
+                      in: {$add: ['$$value', 1]}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}`;
 
       // Set first stage to a very slow $addFields
       await browser.selectStageOperator(0, '$addFields');
@@ -1037,6 +1096,13 @@ describe('Collection aggregations tab', function () {
       // load anything and dismissed "Loading" banner)
       const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
       await emptyResultsBanner.waitForDisplayed();
+
+      if (!useSleepSlowQuery) {
+        // Wait until the server has logged the run aggregation's
+        // cancellation error before we remove the allowlist, so we don't
+        // leak it into other tests.
+        await browser.waitUntil(() => sawRunAggregationInterrupt);
+      }
     } finally {
       unsubscribeAllowWarnings();
     }
