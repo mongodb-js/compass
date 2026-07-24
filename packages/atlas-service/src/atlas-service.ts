@@ -82,6 +82,9 @@ export class AtlasService {
   cloudEndpoint(path?: string): string {
     return `${this.config.cloudBaseUrl}${normalizePath(path)}`;
   }
+  adminApiEndpoint(path?: string): string {
+    return `${this.config.atlasAdminApiBaseUrl}${normalizePath(path)}`;
+  }
   assistantApiEndpoint(path?: string): string {
     return `${this.config.assistantApiBaseUrl}${normalizePath(path)}`;
   }
