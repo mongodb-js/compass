@@ -995,34 +995,26 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
-    if (isTestingWebAtlasCloud()) {
-      // No $function on the free tier, skipping this test.
-      return this.skip();
-    }
-
     // We tag each aggregate command with a `comment` so we can tell the
     // run aggregation apart from the stage preview aggregations.
     const RUN_AGGREGATION_COMMENT = 'Compass: Run aggregation';
     const PREVIEW_AGGREGATION_COMMENT = 'Compass: Aggregation preview';
 
     let sawRunAggregationInterrupt = false;
-    const unsubscribeAllowWarnings = allowServerWarnings(
-      8996503, // Allow "$function is deprecated" warning
-      (l: LogEntry) => {
-        const comment = l.attr?.cmd?.comment as string | undefined;
-        const matches =
-          l.id === 23799 &&
-          l.attr?.error?.codeName === 'Interrupted' &&
-          comment !== undefined &&
-          [RUN_AGGREGATION_COMMENT, PREVIEW_AGGREGATION_COMMENT].includes(
-            comment
-          );
-        if (matches && comment === RUN_AGGREGATION_COMMENT) {
-          sawRunAggregationInterrupt = true;
-        }
-        return matches;
+    const unsubscribeAllowWarnings = allowServerWarnings((l: LogEntry) => {
+      const comment = l.attr?.cmd?.comment as string | undefined;
+      const matches =
+        l.id === 23799 &&
+        l.attr?.error?.codeName === 'Interrupted' &&
+        comment !== undefined &&
+        [RUN_AGGREGATION_COMMENT, PREVIEW_AGGREGATION_COMMENT].includes(
+          comment
+        );
+      if (matches && comment === RUN_AGGREGATION_COMMENT) {
+        sawRunAggregationInterrupt = true;
       }
-    );
+      return matches;
+    });
     try {
       // Nesting this $reduce N times will give runtime of 1000 ^ N, so with
       // N = 5 it is basically infinite.
