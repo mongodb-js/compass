@@ -1000,46 +1000,54 @@ describe('Collection aggregations tab', function () {
       return this.skip();
     }
 
+    // We tag each aggregate command with a `comment` so we can tell the
+    // run aggregation apart from the stage preview aggregations.
+    const RUN_AGGREGATION_COMMENT = 'Compass: Run aggregation';
+    const PREVIEW_AGGREGATION_COMMENT = 'Compass: Aggregation preview';
+
+    let sawRunAggregationInterrupt = false;
     const unsubscribeAllowWarnings = allowServerWarnings(
       8996503, // Allow "$function is deprecated" warning
       (l: LogEntry) => {
-        // In 9.0 the errors for ClientDisconnect and Interrupted race when an
-        // operation is cancelled, so we allow both. Older servers only report
-        // Interrupted.
-        const allowedCodeNames = serverSatisfies('>=9.0.0-alpha0', true)
-          ? ['ClientDisconnect', 'Interrupted']
-          : ['Interrupted'];
-        return (
-          l.id === 23799 && allowedCodeNames.includes(l.attr?.error?.codeName)
-        );
+        const comment = l.attr?.cmd?.comment as string | undefined;
+        const matches =
+          l.id === 23799 &&
+          l.attr?.error?.codeName === 'Interrupted' &&
+          comment !== undefined &&
+          [RUN_AGGREGATION_COMMENT, PREVIEW_AGGREGATION_COMMENT].includes(
+            comment
+          );
+        if (matches && comment === RUN_AGGREGATION_COMMENT) {
+          sawRunAggregationInterrupt = true;
+        }
+        return matches;
       }
     );
     try {
-      // Nesting this $map N times will give runtime of 1000 ^ N,
-      // so with N = 5 it is basically infinite.
+      // Nesting this $reduce N times will give runtime of 1000 ^ N, so with
+      // N = 5 it is basically infinite.
       const slowQuery = `{
-  $expr: {
-    $map: {
-      input: {
-        $range: [0, 1000]
-      },
+  slow: {
+    $reduce: {
+      input: {$range: [0, 1000]},
+      initialValue: 0,
       in: {
-        $map: {
-          input: {
-            $range: [0, 1000]
-          },
+        $reduce: {
+          input: {$range: [0, 1000]},
+          initialValue: 0,
           in: {
-            $map: {
+            $reduce: {
               input: {$range: [0, 1000]},
+              initialValue: 0,
               in: {
-                $map: {
-                  input: {
-                    $range: [0, 1000]
-                  },
+                $reduce: {
+                  input: {$range: [0, 1000]},
+                  initialValue: 0,
                   in: {
-                    $map: {
+                    $reduce: {
                       input: {$range: [0, 1000]},
-                      in: '$$this'
+                      initialValue: 0,
+                      in: {$add: ['$$value', 1]}
                     }
                   }
                 }
@@ -1068,6 +1076,12 @@ describe('Collection aggregations tab', function () {
       // load anything and dismissed "Loading" banner)
       const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
       await emptyResultsBanner.waitForDisplayed();
+
+      // Wait until the server has actually logged the run aggregation's
+      // cancellation error before we remove the allowlist, otherwise it could
+      // arrive later and leak into a subsequent test's server warnings
+      // checkpoint.
+      await browser.waitUntil(() => sawRunAggregationInterrupt);
     } finally {
       unsubscribeAllowWarnings();
     }
