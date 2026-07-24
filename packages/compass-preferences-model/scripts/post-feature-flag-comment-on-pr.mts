@@ -7,7 +7,7 @@ import { getOctokit, context } from '@actions/github';
 async function main(): Promise<void> {
   const marker = '<!-- feature-flag-mms-comment -->';
   const outdatedMarker = '<!-- feature-flag-mms-comment-outdated -->';
-  const flagsCount = process.env.FLAGS_COUNT;
+  const flagsCount = process.env.FLAGS_COUNT ?? '';
   const hasFlags = flagsCount !== '' && flagsCount !== '0';
 
   const github = getOctokit(process.env.GITHUB_TOKEN || '');
