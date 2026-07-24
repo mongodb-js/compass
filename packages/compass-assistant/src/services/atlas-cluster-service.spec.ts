@@ -30,9 +30,14 @@ describe('AtlasClusterService', function () {
     });
   }
 
-  // Builds a single paginated response body for the given results array.
-  function page<T>(results: T[]): { results: T[]; totalCount: number } {
-    return { results, totalCount: results.length };
+  // Builds a single paginated response body for the given results array. The
+  // Atlas API returns totalCount as the grand total across all pages, so
+  // callers spanning multiple pages should pass it explicitly.
+  function page<T>(
+    results: T[],
+    totalCount: number = results.length
+  ): { results: T[]; totalCount: number } {
+    return { results, totalCount };
   }
 
   function fetchUrl(callIndex: number): string {
@@ -57,8 +62,11 @@ describe('AtlasClusterService', function () {
   describe('pagination', function () {
     it('should page through results until a partial page is returned', async function () {
       stubSequentialJsonResponses([
-        page(Array.from({ length: 100 }, (_, i) => ({ groupId: `g${i}` }))),
-        page([{ groupId: 'g100' }]),
+        page(
+          Array.from({ length: 100 }, (_, i) => ({ groupId: `g${i}` })),
+          101
+        ),
+        page([{ groupId: 'g100' }], 101),
       ]);
 
       const res = await service.listGroupIds();

@@ -186,7 +186,8 @@ export class AtlasClusterService {
   ): Promise<T[]> {
     const results: T[] = [];
     let pageNum = 1;
-    for (;;) {
+    let hasNextPage = true;
+    while (hasNextPage) {
       const requestUrl = buildEndpoint({
         pageNum,
         itemsPerPage: ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
@@ -199,11 +200,11 @@ export class AtlasClusterService {
         .then((res) => res.json());
       assertPaginatedResponse<T>(json);
       results.push(...json.results);
-      if (json.results.length < ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE) {
-        return results;
-      }
+      hasNextPage =
+        json.totalCount > pageNum * ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE;
       pageNum++;
     }
+    return results;
   }
 
   async listGroupIds(): Promise<string[]> {
