@@ -135,15 +135,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable settings in compass web',
     },
   },
-
-  {
-    name: 'testFeature',
-    stage: 'development',
-    atlasCloudFeatureScope: 'group',
-    description: {
-      short: 'Enable test feature',
-    },
-  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;
