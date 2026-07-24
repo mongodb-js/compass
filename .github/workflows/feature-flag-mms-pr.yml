@@ -22,12 +22,12 @@ jobs:
       comment_body: ${{ steps.detect.outputs.comment_body }}
       mms_pull_request_content: ${{ steps.detect.outputs.mms_pull_request_content }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
           show-progress: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24.15.0
           cache: 'npm'
@@ -56,11 +56,11 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           show-progress: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
         with:
           node-version: 24.15.0
       - name: Install npm@11.16.0
@@ -97,7 +97,7 @@ jobs:
           repositories: mms
 
       - name: Checkout MMS
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           repository: 10gen/mms
           token: ${{ steps.app-token.outputs.token }}
