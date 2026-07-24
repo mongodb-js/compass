@@ -56,69 +56,21 @@ jobs:
     permissions:
       pull-requests: write
     steps:
+      - uses: actions/checkout@v4
+        with:
+          show-progress: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24.15.0
+
       - name: Post or update comment on PR
-        uses: actions/github-script@v7
+        run: node packages/compass-preferences-model/scripts/post-feature-flag-comment-on-pr.mts
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.pull_request.number }}
           COMMENT_BODY: ${{ needs.detect-flags.outputs.comment_body }}
           FLAGS_COUNT: ${{ needs.detect-flags.outputs.flags_count }}
-        with:
-          script: |
-            const marker = '<!-- feature-flag-mms-comment -->';
-            const outdatedMarker = '<!-- feature-flag-mms-comment-outdated -->';
-            const flagsCount = process.env.FLAGS_COUNT;
-            const hasFlags = flagsCount !== '' && flagsCount !== '0';
-
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-
-            const existing = comments.find(c => c.body.includes(marker));
-
-            // No new feature flags and no existing comment: nothing to do.
-            if (!existing && !hasFlags) {
-              return;
-            }
-
-            // New flag and no existing comment: create a new comment.
-            if (hasFlags && !existing) {
-              return await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: marker + '\n' + process.env.COMMENT_BODY,
-              });
-            }
-
-            // New flag and existing comment: update the existing comment.
-            if (hasFlags && existing) {
-              return await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body: marker + '\n' + process.env.COMMENT_BODY,
-              });
-            }
-
-            // No flag, but existing comment: mark the comment as outdated.
-            if (!hasFlags && existing && !existing.body.includes(outdatedMarker)) {
-              const previous = existing.body
-                .replace(marker, '')
-                .trim();
-              const body = marker + '\n' + outdatedMarker + '\n' +
-                '> [!NOTE]\n' +
-                '> The new feature flag(s) originally detected in this PR are no longer ' +
-                'present in the latest commits, so this notice no longer applies.\n\n' +
-                '<details><summary>Previous message</summary>\n\n' +
-                previous + '\n\n</details>';
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: existing.id,
-                body,
-              });
-            }
 
   create-mms-pr:
     name: Create MMS PR

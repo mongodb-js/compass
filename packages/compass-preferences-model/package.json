@@ -73,7 +73,8 @@
     "depcheck": "^1.4.1",
     "mocha": "^10.2.0",
     "sinon": "^9.2.3",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "@actions/github": "^9.1.1"
   },
   "private": true
 }
