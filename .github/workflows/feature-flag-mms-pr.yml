@@ -68,7 +68,6 @@ jobs:
         run: node packages/compass-preferences-model/scripts/post-feature-flag-comment-on-pr.mts
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.pull_request.number }}
           COMMENT_BODY: ${{ needs.detect-flags.outputs.comment_body }}
           FLAGS_COUNT: ${{ needs.detect-flags.outputs.flags_count }}
 
