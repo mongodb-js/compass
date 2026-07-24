@@ -16,7 +16,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 
 // Used in the `comment` on the aggregate command to help identify
 // the operation in server logs and currentOp.
-export const PREVIEW_AGGREGATION_COMMENT = 'Compass: Aggregation preview';
+export const PREVIEW_AGGREGATION_COMMENT = 'Aggregation preview';
 
 export const DEFAULT_SAMPLE_SIZE = 100000;
 

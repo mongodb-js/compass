@@ -997,8 +997,8 @@ describe('Collection aggregations tab', function () {
   it('supports cancelling long-running aggregations', async function () {
     // We tag each aggregate command with a `comment` so we can tell the
     // run aggregation apart from the stage preview aggregations.
-    const RUN_AGGREGATION_COMMENT = 'Compass: Run aggregation';
-    const PREVIEW_AGGREGATION_COMMENT = 'Compass: Aggregation preview';
+    const RUN_AGGREGATION_COMMENT = 'Run aggregation';
+    const PREVIEW_AGGREGATION_COMMENT = 'Aggregation preview';
 
     let sawRunAggregationInterrupt = false;
     const unsubscribeAllowWarnings = allowServerWarnings((l: LogEntry) => {

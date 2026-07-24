@@ -31,7 +31,7 @@ import type { PreferencesAccess } from 'compass-preferences-model';
 
 // Used in the `comment` on the aggregate command to help identify
 // the operation in server logs and currentOp.
-export const RUN_AGGREGATION_COMMENT = 'Compass: Run aggregation';
+export const RUN_AGGREGATION_COMMENT = 'Run aggregation';
 
 const WRITE_STAGE_LINK = {
   $merge:
