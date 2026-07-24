@@ -32,8 +32,8 @@
   },
   "devDependencies": {
     "@electron/rebuild": "^4.0.4",
-    "@mongodb-js/compass-generative-ai": "^1.2.0",
     "@mongodb-js/compass-components": "^1.68.0",
+    "@mongodb-js/compass-generative-ai": "^1.2.0",
     "@mongodb-js/compass-test-server": "^0.4.9",
     "@mongodb-js/connection-info": "^0.28.2",
     "@mongodb-js/eslint-config-compass": "^1.4.25",
@@ -64,7 +64,7 @@
     "mongodb-connection-string-url": "^7.0.2",
     "mongodb-log-writer": "^2.4.4",
     "mongodb-ns": "^3.2.0",
-    "mongodb-runner": "^6.8.3",
+    "mongodb-runner": "^6.8.4",
     "node-fetch": "^2.7.0",
     "nyc": "^15.1.0",
     "ps-list": "^8.1.0",
