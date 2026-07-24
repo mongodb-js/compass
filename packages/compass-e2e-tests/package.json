@@ -31,7 +31,7 @@
     "coverage-report": "npm run coverage-merge && nyc report"
   },
   "devDependencies": {
-    "@electron/rebuild": "^4.0.4",
+    "@electron/rebuild": "^4.2.0",
     "@mongodb-js/compass-generative-ai": "^1.2.0",
     "@mongodb-js/compass-components": "^1.68.0",
     "@mongodb-js/compass-test-server": "^0.4.9",
@@ -51,8 +51,8 @@
     "cross-spawn": "^7.0.5",
     "debug": "^4.3.4",
     "depcheck": "^1.4.1",
-    "electron": "^41.1.1",
-    "electron-to-chromium": "^1.5.364",
+    "electron": "^43.2.0",
+    "electron-to-chromium": "^1.5.395",
     "glob": "^10.2.5",
     "globals": "^15.14.0",
     "hadron-build": "^25.10.2",
