@@ -359,6 +359,10 @@ export const buildConnectionErrorPrompt = ({
   const productDisplayName = connectionInfo.atlasMetadata
     ? 'Data Explorer'
     : 'Compass';
+
+  const { message } = error as { message?: string };
+  const isAuthenticationError = message === 'bad auth : authentication failed';
+
   const connectionDetailsSection = connectionInfo.atlasMetadata
     ? ''
     : ` If no auth mechanism is specified in the connection string, the default (username/password) is being used:
@@ -372,6 +376,20 @@ Error message:
 ${connectionError}`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
+      connectionInfo: {
+        id: connectionInfo.id,
+        name: getConnectionTitle(connectionInfo),
+      },
+      ...(isAuthenticationError
+        ? {}
+        : {
+            confirmation: {
+              description: `Connecting would call Atlas API endpoints (cluster state, IP allowlist, TLS) to explain why this connection is failing. This is read-only and won’t change your cluster.`,
+              state: 'pending' as const,
+              continueOn: 'rejected' as const,
+              variant: 'atlas' as const,
+            },
+          }),
     },
   };
 };

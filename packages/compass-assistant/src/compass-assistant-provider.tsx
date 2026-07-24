@@ -120,6 +120,11 @@ export type AssistantMessage = UIMessage & {
     confirmation?: {
       description: string;
       state: 'confirmed' | 'rejected' | 'pending';
+      /** Which choice continues the conversation (pushes a follow-up message
+       *  and sends it). Defaults to 'confirmed'. */
+      continueOn?: 'confirmed' | 'rejected';
+      /** Which confirmation UI to render. Defaults to 'default'. */
+      variant?: 'default' | 'atlas';
     };
     /** Overrides the default sent instructions for the assistant for this message. */
     instructions?: string;
@@ -443,7 +448,7 @@ export function ensureOptInAndSendThunk(
             disableStorage: activeConnections.some(
               (info) => info.connectionOptions.fleOptions
             ),
-            connectionInfo,
+            connectionInfo: _message.metadata?.connectionInfo ?? connectionInfo,
             requestId,
             analyticsId: await getHashedActiveUserId(preferences, logger),
           },
