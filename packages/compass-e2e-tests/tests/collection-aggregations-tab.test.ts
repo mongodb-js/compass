@@ -995,30 +995,58 @@ describe('Collection aggregations tab', function () {
   });
 
   it('supports cancelling long-running aggregations', async function () {
-    // We tag each aggregate command with a `comment` so we can tell the
-    // run aggregation apart from the stage preview aggregations.
+    // Fall back to a $function sleep in earlier server versions.
+    // The driver disconnect cancel doesn't always kill CPU bound op
+    // on earlier versions.
+    const useSleepSlowQuery = serverSatisfies('<8.0.0');
+
+    if (useSleepSlowQuery && isTestingWebAtlasCloud()) {
+      // No $function on the free tier, skipping this test.
+      return this.skip();
+    }
+
+    // We tag each aggregation command with identifiable `comment`s.
     const RUN_AGGREGATION_COMMENT = 'Run aggregation';
     const PREVIEW_AGGREGATION_COMMENT = 'Aggregation preview';
 
     let sawRunAggregationInterrupt = false;
-    const unsubscribeAllowWarnings = allowServerWarnings((l: LogEntry) => {
-      const comment = l.attr?.cmd?.comment as string | undefined;
-      const matches =
-        l.id === 23799 &&
-        l.attr?.error?.codeName === 'Interrupted' &&
-        comment !== undefined &&
-        [RUN_AGGREGATION_COMMENT, PREVIEW_AGGREGATION_COMMENT].includes(
-          comment
-        );
-      if (matches && comment === RUN_AGGREGATION_COMMENT) {
-        sawRunAggregationInterrupt = true;
-      }
-      return matches;
-    });
+    const unsubscribeAllowWarnings = useSleepSlowQuery
+      ? allowServerWarnings(
+          8996503, // Allow "$function is deprecated" warning
+          (l: LogEntry) => {
+            return l.id === 23799 && l.attr?.error?.codeName === 'Interrupted';
+          }
+        )
+      : allowServerWarnings((l: LogEntry) => {
+          const comment = l.attr?.cmd?.comment as string | undefined;
+          const matches =
+            l.id === 23799 &&
+            l.attr?.error?.codeName === 'Interrupted' &&
+            comment !== undefined &&
+            [RUN_AGGREGATION_COMMENT, PREVIEW_AGGREGATION_COMMENT].includes(
+              comment
+            );
+          if (matches && comment === RUN_AGGREGATION_COMMENT) {
+            sawRunAggregationInterrupt = true;
+          }
+          return matches;
+        });
     try {
-      // Nesting this $reduce N times will give runtime of 1000 ^ N, so with
-      // N = 5 it is basically infinite.
-      const slowQuery = `{
+      const slowQuery = useSleepSlowQuery
+        ? `{
+        sleep: {
+          $function: {
+            body: function () {
+              return sleep(10000) || true;
+            },
+            args: [],
+            lang: "js",
+          },
+        },
+      }`
+        : // Nesting this $reduce N times will give runtime of 1000 ^ N, so with
+          // N = 5 it is basically infinite.
+          `{
   slow: {
     $reduce: {
       input: {$range: [0, 1000]},
@@ -1069,11 +1097,12 @@ describe('Collection aggregations tab', function () {
       const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
       await emptyResultsBanner.waitForDisplayed();
 
-      // Wait until the server has actually logged the run aggregation's
-      // cancellation error before we remove the allowlist, otherwise it could
-      // arrive later and leak into a subsequent test's server warnings
-      // checkpoint.
-      await browser.waitUntil(() => sawRunAggregationInterrupt);
+      if (!useSleepSlowQuery) {
+        // Wait until the server has logged the run aggregation's
+        // cancellation error before we remove the allowlist, so we don't
+        // leak it into other tests.
+        await browser.waitUntil(() => sawRunAggregationInterrupt);
+      }
     } finally {
       unsubscribeAllowWarnings();
     }
