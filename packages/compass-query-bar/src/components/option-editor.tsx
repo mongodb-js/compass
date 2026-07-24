@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   css,
   cx,
@@ -7,6 +7,9 @@ import {
   spacing,
   rafraf,
   useDarkMode,
+  InteractivePopover,
+  Icon,
+  Button,
 } from '@mongodb-js/compass-components';
 import type {
   Command,
@@ -57,7 +60,88 @@ const editorContainerStyles = css({
   border: '1px solid transparent',
   borderRadius: spacing[100],
   overflow: 'visible',
+  alignItems: 'center',
 });
+
+const emptySpaceStyles = css({
+  // Width of a warning icon
+  width: spacing[400],
+});
+
+const warningIconButtonStyles = css({
+  background: 'none',
+  border: 'none',
+  padding: 0,
+  outline: 'none',
+  cursor: 'pointer',
+  display: 'flex',
+  color: palette.red.light1,
+});
+
+const warningIconButtonDarkStyles = css({
+  color: palette.red.base,
+});
+
+const popoverContentStyles = css({
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: spacing[400],
+  padding: `${spacing[300]}px ${spacing[400]}px`,
+  maxWidth: spacing[1600] * 6,
+  fontSize: '13px',
+  lineHeight: '20px',
+  '& > button': {
+    flexShrink: 0,
+  },
+});
+
+function EditorWarning({
+  optionName,
+}: {
+  optionName: QueryOptionOfTypeDocument;
+}) {
+  const darkMode = useDarkMode();
+  const [open, setOpen] = useState(false);
+
+  if (optionName !== 'filter') {
+    return null;
+  }
+
+  const isInvalidFilter = true;
+  if (!isInvalidFilter) {
+    return <div className={emptySpaceStyles} />;
+  }
+
+  return (
+    <InteractivePopover<HTMLButtonElement>
+      open={open}
+      setOpen={setOpen}
+      align="bottom"
+      justify="start"
+      hideCloseButton
+      containerClassName={popoverContentStyles}
+      trigger={({ onClick, ref, children }) => (
+        <>
+          <button
+            type="button"
+            ref={ref}
+            onClick={onClick}
+            className={cx(
+              warningIconButtonStyles,
+              darkMode && warningIconButtonDarkStyles
+            )}
+          >
+            <Icon glyph="Warning" />
+          </button>
+          {children}
+        </>
+      )}
+    >
+      Exceeds safe integer range. Convert to Int64 to match.
+      <Button size="xsmall">Convert to Int64</Button>
+    </InteractivePopover>
+  );
+}
 
 const editorWithErrorStyles = css({
   '&:after': {
@@ -245,6 +329,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       )}
       ref={editorContainerRef}
     >
+      <EditorWarning optionName={optionName} />
       <InlineEditor
         ref={editorRef}
         id={id}
