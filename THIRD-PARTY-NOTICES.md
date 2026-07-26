@@ -338,7 +338,7 @@ This document was automatically generated on Sun Jul 26 2026.
 | **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**                                                | 1.3.8        | ISC                                 |
 | **[inline-style-parser](#c2fe1c96120d7ffd4bdf7cb3b2baf79ba444a6e143cff9634f9e5bd6d379023d)**                                | 0.1.1        | MIT                                 |
 | **[interruptor](#e7e9b55aaa6e4d9f301e7038def466cf714935a5ff0452046531084208944548)**                                        | 2.0.1        | Apache-2.0                          |
-| **[ip-address](#8f9dc76970292780f686db9bcc5c5f5d32730cf29c84fa483d91d883bf2f2663)**                                         | 10.1.0       | MIT                                 |
+| **[ip-address](#9e2f4e21a091a6dc02a877834bd3b8a6db99459564cbb6b71d286c0cd854e685)**                                         | 10.3.1       | MIT                                 |
 | **[ip-address](#8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8)**                                         | 9.0.5        | MIT                                 |
 | **[ipaddr.js](#38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2)**                                          | 1.9.1        | MIT                                 |
 | **[ipaddr.js](#c746e4b3a8a615446d1693e57151c8d5461ffc4caa1a3ec15527b6247b74f21c)**                                          | 2.3.0        | MIT                                 |
@@ -419,7 +419,7 @@ This document was automatically generated on Sun Jul 26 2026.
 | **[mongodb-cloud-info](#98dc5421dfc5dacf1abe71e8878d1245b7e2d6e2bf24a8d326b9df33db9ff537)**                                 | 2.3.15       | Apache-2.0                          |
 | **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**                      | 7.0.1        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#267005f447433080cc6f4777fd158a8ea3dc603ee3a9d3d77cace34dcf82718c)**                      | 7.0.2        | Apache-2.0                          |
-| **[mongodb-log-writer](#0788567a51c952a5640e64bd3cb5ef4a5e445f340b3bc971f286caa80334a932)**                                 | 2.5.13       | Apache-2.0                          |
+| **[mongodb-log-writer](#29ce1833ae99c6452d014e8847ac7e8e50bbfe6241534fb000c8a313519fa9c4)**                                 | 2.5.14       | Apache-2.0                          |
 | **[mongodb-mcp-server](#170d115701124029e823835d30b7a783037c72cd0f53bf99816bbbe444a3676d)**                                 | 1.10.0       | Apache-2.0                          |
 | **[mongodb-ns](#3f1ced6a4a6bd87959cd71735e41b49339b332c67606c37ac7afdebd8561d484)**                                         | 3.2.0        | Apache-2.0                          |
 | **[mongodb-query-parser](#838162f5f4693f72b9fae4e366e3975b95d197ed77f28e00b001b66f468311aa)**                               | 4.7.14       | Apache-2.0                          |
@@ -528,7 +528,7 @@ This document was automatically generated on Sun Jul 26 2026.
 | **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**                                         | 4.0.1        | MIT                                 |
 | **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**                                       | 4.2.0        | MIT                                 |
 | **[socks-proxy-agent](#d2c38f45ca9652d91bdddab43eb515b26566789904dee10e0c32517705184cec)**                                  | 8.0.5        | MIT                                 |
-| **[socks](#4e0e5ac276b79a2d0decf0832ffd4bcd86f25240fdfd33b3b37831f36ebf7346)**                                              | 2.8.7        | MIT                                 |
+| **[socks](#d403b00b9f091afcb89dd752cd6387b4480b3c976cd41048ba4efadef13df30e)**                                              | 2.8.9        | MIT                                 |
 | **[sort-keys-length](#af13db706339ff49fba434ce0fbda036b99f3dc30e66a530b64374afd5a1eec1)**                                   | 1.0.1        | MIT                                 |
 | **[sort-keys](#714faeb378f5373d2aa5f80825d02c9f7ab2cacb699db02c84e675d193a6bfa8)**                                          | 1.1.2        | MIT                                 |
 | **[source-code-pro](#0496fbae8c99eac4b7354b7eb0a394806e547de30fd2acbdf14f2ac77079e643)**                                    | 2.38.0       | OFL-1.1                             |
@@ -25128,9 +25128,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="8f9dc76970292780f686db9bcc5c5f5d32730cf29c84fa483d91d883bf2f2663"></a>
+<a id="9e2f4e21a091a6dc02a877834bd3b8a6db99459564cbb6b71d286c0cd854e685"></a>
 
-### [ip-address](https://www.npmjs.com/package/ip-address) (version 10.1.0)
+### [ip-address](https://www.npmjs.com/package/ip-address) (version 10.3.1)
 
 License tags: MIT
 
@@ -28416,9 +28416,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="0788567a51c952a5640e64bd3cb5ef4a5e445f340b3bc971f286caa80334a932"></a>
+<a id="29ce1833ae99c6452d014e8847ac7e8e50bbfe6241534fb000c8a313519fa9c4"></a>
 
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.13)
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.14)
 
 License tags: Apache-2.0
 
@@ -39628,9 +39628,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="4e0e5ac276b79a2d0decf0832ffd4bcd86f25240fdfd33b3b37831f36ebf7346"></a>
+<a id="d403b00b9f091afcb89dd752cd6387b4480b3c976cd41048ba4efadef13df30e"></a>
 
-### [socks](https://www.npmjs.com/package/socks) (version 2.8.7)
+### [socks](https://www.npmjs.com/package/socks) (version 2.8.9)
 
 License tags: MIT
 
