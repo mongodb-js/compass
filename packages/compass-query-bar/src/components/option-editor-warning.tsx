@@ -61,7 +61,12 @@ export function EditorWarning({
   }
 
   if (violations.length === 0) {
-    return <div className={emptySpaceStyles} />;
+    return (
+      <div
+        className={emptySpaceStyles}
+        data-testid="option-editor-warning-empty-space"
+      />
+    );
   }
 
   return (
