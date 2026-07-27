@@ -186,7 +186,7 @@ buildvariants:
   - name: test-packaged-app-ubuntu
     tags:
       - run-on-pr
-    display_name: Test Packaged App Ubuntu 22.04
+    display_name: Test Packaged App Ubuntu 24.04
     run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
