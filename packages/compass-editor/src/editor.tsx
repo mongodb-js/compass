@@ -38,7 +38,7 @@ import {
   indentWithTab,
 } from '@codemirror/commands';
 import type { Diagnostic } from '@codemirror/lint';
-import { lintGutter, setDiagnosticsEffect } from '@codemirror/lint';
+import { lintGutter, linter, setDiagnosticsEffect } from '@codemirror/lint';
 import type { CompletionSource } from '@codemirror/autocomplete';
 import {
   acceptCompletion,
@@ -563,6 +563,11 @@ export type Annotation = Pick<
   'from' | 'to' | 'severity' | 'message'
 >;
 
+export type Linter = (
+  tree: ReturnType<typeof syntaxTree>,
+  view: EditorView
+) => readonly Annotation[];
+
 type EditorProps = {
   language?: EditorLanguage;
   onChangeText?: (text: string, event?: any) => void;
@@ -581,6 +586,7 @@ type EditorProps = {
   'data-testid'?: string;
   annotations?: Annotation[];
   completer?: CompletionSource;
+  linter?: Linter;
   customExtensions?: Extension[];
   minLines?: number;
   maxLines?: number;
@@ -726,6 +732,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     highlightActiveLine: shouldHighlightActiveLine = true,
     annotations,
     completer,
+    linter: linterSource,
     customExtensions,
     darkMode: _darkMode,
     disabled = false,
@@ -948,6 +955,16 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     editorViewRef
   );
 
+  const linterExtension = useCodemirrorExtensionCompartment(
+    () => {
+      return linterSource
+        ? linter((view) => linterSource(syntaxTree(view.state), view))
+        : [];
+    },
+    linterSource,
+    editorViewRef
+  );
+
   const placeholderExtension = useCodemirrorExtensionCompartment(
     () => {
       return placeholder ? codemirrorPlaceholder(placeholder) : [];
@@ -1015,6 +1032,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
         bracketMatching(),
         closeBrackets(),
         autocompletionExtension,
+        linterExtension,
         languageExtension,
         syntaxHighlighting(highlightStyles['light']),
         syntaxHighlighting(highlightStyles['dark']),
@@ -1138,6 +1156,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     readOnlyExtension,
     themeConfigExtension,
     autocompletionExtension,
+    linterExtension,
     lineHeightExtension,
     activeLineExtension,
     placeholderExtension,

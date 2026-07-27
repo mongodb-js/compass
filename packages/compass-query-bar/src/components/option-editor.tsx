@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   css,
   cx,
@@ -7,14 +7,12 @@ import {
   spacing,
   rafraf,
   useDarkMode,
-  InteractivePopover,
-  Icon,
-  Button,
 } from '@mongodb-js/compass-components';
 import type {
   Command,
   EditorRef,
   SavedQuery,
+  Linter,
 } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
@@ -40,12 +38,19 @@ import type {
   RecentQuery,
 } from '@mongodb-js/my-queries-storage';
 import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
+import { EditorWarning } from './option-editor-warning';
 
 type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> & {
   _lastExecuted: Date;
 };
 type AutoCompleteRecentQuery = AutoCompleteQuery<RecentQuery>;
 type AutoCompleteFavoriteQuery = AutoCompleteQuery<FavoriteQuery>;
+
+export type UnsafeIntegerViolation = {
+  from: number;
+  to: number;
+  insert: string;
+};
 
 const editorContainerStyles = css({
   position: 'relative',
@@ -62,86 +67,6 @@ const editorContainerStyles = css({
   overflow: 'visible',
   alignItems: 'center',
 });
-
-const emptySpaceStyles = css({
-  // Width of a warning icon
-  width: spacing[400],
-});
-
-const warningIconButtonStyles = css({
-  background: 'none',
-  border: 'none',
-  padding: 0,
-  outline: 'none',
-  cursor: 'pointer',
-  display: 'flex',
-  color: palette.red.light1,
-});
-
-const warningIconButtonDarkStyles = css({
-  color: palette.red.base,
-});
-
-const popoverContentStyles = css({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: spacing[400],
-  padding: `${spacing[300]}px ${spacing[400]}px`,
-  maxWidth: spacing[1600] * 6,
-  fontSize: '13px',
-  lineHeight: '20px',
-  '& > button': {
-    flexShrink: 0,
-  },
-});
-
-function EditorWarning({
-  optionName,
-}: {
-  optionName: QueryOptionOfTypeDocument;
-}) {
-  const darkMode = useDarkMode();
-  const [open, setOpen] = useState(false);
-
-  if (optionName !== 'filter') {
-    return null;
-  }
-
-  const isInvalidFilter = true;
-  if (!isInvalidFilter) {
-    return <div className={emptySpaceStyles} />;
-  }
-
-  return (
-    <InteractivePopover<HTMLButtonElement>
-      open={open}
-      setOpen={setOpen}
-      align="bottom"
-      justify="start"
-      hideCloseButton
-      containerClassName={popoverContentStyles}
-      trigger={({ onClick, ref, children }) => (
-        <>
-          <button
-            type="button"
-            ref={ref}
-            onClick={onClick}
-            className={cx(
-              warningIconButtonStyles,
-              darkMode && warningIconButtonDarkStyles
-            )}
-          >
-            <Icon glyph="Warning" />
-          </button>
-          {children}
-        </>
-      )}
-    >
-      Exceeds safe integer range. Convert to Int64 to match.
-      <Button size="xsmall">Convert to Int64</Button>
-    </InteractivePopover>
-  );
-}
 
 const editorWithErrorStyles = css({
   '&:after': {
@@ -282,6 +207,39 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     optionName,
   ]);
 
+  const [unsafeIntegerViolations, setUnsafeIntegerViolations] = useState<
+    UnsafeIntegerViolation[]
+  >([]);
+  const safeIntegerLinter: Linter = useMemo(() => {
+    return (tree, view) => {
+      const violations: UnsafeIntegerViolation[] = [];
+      tree.iterate({
+        enter: (node) => {
+          // Only warn on bare number literals. Not Int64(...)
+          if (node.name !== 'Number' || node.node.parent?.name === 'ArgList') {
+            return;
+          }
+          const text = view.state.sliceDoc(node.from, node.to);
+          if (!/^-?\d+$/.test(text)) {
+            return;
+          }
+
+          if (!Number.isSafeInteger(Number(text))) {
+            violations.push({
+              from: node.from,
+              to: node.to,
+              insert: `Int64("${text}")`,
+            });
+          }
+        },
+      });
+      setUnsafeIntegerViolations(violations);
+      // We are not returning anything from this linter, just capturing the
+      // lint violations and showing them manually in the UI.
+      return [];
+    };
+  }, []);
+
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
       rafraf(() => {
@@ -320,6 +278,17 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     }
   };
 
+  const onFixUnsafeIntegerViolations = useCallback(() => {
+    const editor = editorRef.current?.editor;
+    if (!editor) {
+      return;
+    }
+    editor.dispatch({
+      changes: unsafeIntegerViolations,
+    });
+    setUnsafeIntegerViolations([]);
+  }, [unsafeIntegerViolations]);
+
   return (
     <div
       className={cx(
@@ -329,7 +298,11 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       )}
       ref={editorContainerRef}
     >
-      <EditorWarning optionName={optionName} />
+      <EditorWarning
+        optionName={optionName}
+        onFixViolations={onFixUnsafeIntegerViolations}
+        violations={unsafeIntegerViolations}
+      />
       <InlineEditor
         ref={editorRef}
         id={id}
@@ -337,6 +310,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         onChangeText={onChange}
         placeholder={placeholder}
         completer={completer}
+        linter={safeIntegerLinter}
         commands={commands}
         data-testid={dataTestId}
         disabled={disabled}

@@ -7,7 +7,13 @@ export {
   setCodemirrorEditorValue,
   getCodemirrorEditorValue,
 } from './editor';
-export type { EditorView, Command, Annotation, Completer } from './editor';
+export type {
+  EditorView,
+  Command,
+  Annotation,
+  Completer,
+  Linter,
+} from './editor';
 export type { Action } from './action-button';
 export { createDocumentAutocompleter } from './codemirror/document-autocompleter';
 export { createValidationAutocompleter } from './codemirror/validation-autocompleter';
