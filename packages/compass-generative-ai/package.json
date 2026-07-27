@@ -71,7 +71,7 @@
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.2",
     "mongodb-mcp-server": "^1.10.0",
-    "mongodb-query-parser": "^4.7.14",
+    "mongodb-query-parser": "^4.7.15",
     "mongodb-schema": "^12.6.3",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
