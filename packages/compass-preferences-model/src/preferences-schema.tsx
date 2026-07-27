@@ -106,7 +106,6 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     defaultSortOrder: SORT_ORDERS;
     enableShowDialogOnQuit: boolean;
     enableCreatingNewConnections: boolean;
-    enableProxySupport: boolean;
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
     // Features that are enabled by default in Date Explorer, but are disabled in Compass

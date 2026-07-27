@@ -11,7 +11,6 @@ import {
   css,
   spacing,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
 import type { AnalysisState } from '../constants/analysis-states';
 import { ANALYSIS_STATE_COMPLETE } from '../constants/analysis-states';
 import { QueryBar } from '@mongodb-js/compass-query-bar';
@@ -94,8 +93,6 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
     [sampleSize]
   );
 
-  const enableExportSchema = usePreference('enableExportSchema');
-
   return (
     <div className={schemaToolbarStyles}>
       <div className={schemaQueryBarStyles}>
@@ -109,7 +106,7 @@ export const SchemaToolbar: React.FunctionComponent<SchemaToolbarProps> = ({
       </div>
       {analysisState === ANALYSIS_STATE_COMPLETE && !isOutdated && (
         <div className={schemaToolbarActionBarStyles}>
-          {enableExportSchema && ANALYSIS_STATE_COMPLETE && (
+          {ANALYSIS_STATE_COMPLETE && (
             <div>
               <Tooltip
                 id="export-schema-tooltip"

@@ -19,8 +19,6 @@ async function renderValidationEditor(
   } as const;
 
   const preferences = await createSandboxFromDefaultPreferences();
-  await preferences.savePreferences({ enableExportSchema: true });
-
   return render(
     <PreferencesProvider value={preferences}>
       <ValidationEditor

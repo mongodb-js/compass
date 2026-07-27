@@ -5,10 +5,6 @@ import mongoDBSchemaAnalyzeSchema from 'mongodb-schema';
 import type { Schema } from 'mongodb-schema';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { isInternalFieldPath } from 'hadron-document';
-import {
-  createSandboxFromDefaultPreferences,
-  type PreferencesAccess,
-} from 'compass-preferences-model';
 
 import { analyzeSchema, calculateSchemaMetadata } from './schema-analysis';
 
@@ -68,17 +64,8 @@ const testDocs = [
 ];
 
 const dummyLogger = createNoopLogger('TEST');
-let preferences: PreferencesAccess;
 
 describe('schema-analysis', function () {
-  beforeEach(async function () {
-    preferences = await createSandboxFromDefaultPreferences();
-  });
-
-  afterEach(function () {
-    sinon.restore();
-  });
-
   describe('#getResult', function () {
     it('returns the schema', async function () {
       const docs = [
@@ -103,8 +90,7 @@ describe('schema-analysis', function () {
         'db.coll',
         {},
         {},
-        dummyLogger,
-        preferences
+        dummyLogger
       );
 
       const expectedSchema = {
@@ -204,8 +190,7 @@ describe('schema-analysis', function () {
         'db.coll',
         {},
         {},
-        dummyLogger,
-        preferences
+        dummyLogger
       );
 
       expect(sampleSpy).to.have.been.calledWith(
@@ -242,8 +227,7 @@ describe('schema-analysis', function () {
         'db.coll',
         {},
         {},
-        dummyLogger,
-        preferences
+        dummyLogger
       );
 
       expect(result).to.equal(undefined);
@@ -277,8 +261,7 @@ describe('schema-analysis', function () {
           'db.coll',
           {},
           {},
-          dummyLogger,
-          preferences
+          dummyLogger
         );
       } catch (err: any) {
         expect(err.message).to.equal('pineapple');

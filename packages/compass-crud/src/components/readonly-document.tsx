@@ -2,7 +2,6 @@ import React from 'react';
 import { DocumentList, css, spacing } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
-import { withPreferences } from 'compass-preferences-model/provider';
 import { getInsightsForDocument } from '../utils';
 import { DocumentEvents } from 'hadron-document';
 type BSONObject = TypeCastMap['Object'];
@@ -27,7 +26,6 @@ export type ReadonlyDocumentProps = {
   copyToClipboard?: (doc: Document) => void;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   doc: Document;
-  showInsights?: boolean;
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
 };
@@ -157,11 +155,7 @@ class ReadonlyDocument extends React.Component<
           this.props.openInsertDocumentDialog ? this.handleClone : undefined
         }
         {...expandProps}
-        insights={
-          this.props.showInsights
-            ? getInsightsForDocument(this.props.doc)
-            : undefined
-        }
+        insights={getInsightsForDocument(this.props.doc)}
       />
     );
   }
@@ -185,4 +179,4 @@ class ReadonlyDocument extends React.Component<
   static displayName = 'ReadonlyDocument';
 }
 
-export default withPreferences(ReadonlyDocument, ['showInsights']);
+export default ReadonlyDocument;

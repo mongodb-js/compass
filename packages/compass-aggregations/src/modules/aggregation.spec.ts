@@ -24,6 +24,7 @@ import { defaultPreferencesInstance } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import type { AggregationsStore } from '../stores/store';
+import { PipelineBuilder } from './pipeline-builder/pipeline-builder';
 
 const getMockedStore = (
   aggregation: AggregateState,
@@ -69,6 +70,7 @@ describe('aggregation module', function () {
 
   it('runs an aggregation', async function () {
     const mockDocuments = [{ id: 1 }, { id: 2 }];
+    const stopPreview = spy(PipelineBuilder.prototype, 'stopPreview');
     const store: AggregationsStore = (
       await configureStore(
         { pipeline: [] },
@@ -80,8 +82,12 @@ describe('aggregation module', function () {
       )
     ).plugin.store;
 
+    stopPreview.resetHistory();
     await store.dispatch(runAggregation() as any);
     const aggregation = store.getState().aggregation;
+
+    expect(stopPreview).to.have.been.calledOnce;
+    stopPreview.restore();
 
     expect(omit(aggregation, 'documents')).to.deep.equal({
       pipeline: [],

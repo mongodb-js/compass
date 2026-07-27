@@ -340,8 +340,7 @@ export const startAnalysis = (): SchemaThunkAction<
         namespace,
         samplingOptions,
         driverOptions,
-        logger,
-        preferences
+        logger
       );
       if (abortSignal?.aborted) {
         throw new Error(abortSignal?.reason || new Error('Operation aborted'));
