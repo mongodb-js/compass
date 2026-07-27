@@ -55,7 +55,7 @@ export function useJsonEditorAnnotations({
             actionButtonStyles,
             darkmode && actionButtonDarkStyles
           );
-          button.textContent = 'Convert to Int64';
+          button.textContent = 'Convert to Long';
           button.addEventListener('click', () => {
             view.dispatch({
               changes: [

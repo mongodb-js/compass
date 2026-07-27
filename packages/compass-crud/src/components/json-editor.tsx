@@ -361,7 +361,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
                   data-testid="fix-unsafe-integer-violations-button"
                   onClick={onFixUnsafeIntegerViolations}
                 >
-                  Convert to Int64
+                  Convert to Long
                 </Link>
               )}
             </div>

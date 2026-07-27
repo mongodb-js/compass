@@ -44,7 +44,7 @@ export function InsertDocumentDialogBanner({
           action: {
             onClick: onFixUnsafeIntegerViolations,
             text:
-              numViolations === 1 ? 'Convert to Int64' : 'Convert all to Int64',
+              numViolations === 1 ? 'Convert to Long' : 'Convert all to Long',
           },
         }),
       };
