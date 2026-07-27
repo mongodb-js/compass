@@ -29,6 +29,10 @@ import type { DataService } from '../modules/data-service';
 import toNS from 'mongodb-ns';
 import type { PreferencesAccess } from 'compass-preferences-model';
 
+// Used in the `comment` on the aggregate command to help identify
+// the operation in server logs and currentOp.
+export const RUN_AGGREGATION_COMMENT = 'Run aggregation';
+
 const WRITE_STAGE_LINK = {
   $merge:
     'https://www.mongodb.com/docs/manual/reference/operator/aggregation/merge/',
@@ -331,6 +335,8 @@ export const runAggregation = (): PipelineBuilderThunkAction<Promise<void>> => {
       return;
     }
 
+    pipelineBuilder.stopPreview();
+
     void dispatch(fetchExplainForPipeline());
     dispatch({
       type: ActionTypes.RunAggregation,
@@ -454,6 +460,7 @@ const fetchAggregationData = (
       const options: AggregateOptions = {
         maxTimeMS: maxTimeMS ?? DEFAULT_MAX_TIME_MS,
         collation: collation ?? undefined,
+        comment: RUN_AGGREGATION_COMMENT,
       };
 
       const lastStage = pipeline[pipeline.length - 1];
