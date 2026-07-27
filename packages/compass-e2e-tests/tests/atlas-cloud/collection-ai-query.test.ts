@@ -16,8 +16,8 @@ import { switchPipelineMode } from '../../helpers/commands/switch-pipeline-mode.
 // Whether the generate query / generate aggregation input was left open is
 // persisted, make sure every test starts with it closed.
 const AI_INPUT_VISIBLE_STORAGE_KEYS = [
-  'compass_query_bar-ai_input_visible',
-  'compass_aggregations-ai_input_visible',
+  'compass_query_bar_ai_input_visible',
+  'compass_aggregations_ai_input_visible',
 ];
 
 async function resetAIInputVisibleState(browser: CompassBrowser) {
