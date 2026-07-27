@@ -2,6 +2,12 @@ export * from './react';
 export { ReadOnlyPreferenceAccess } from './read-only-preferences-access';
 export { CompassWebPreferencesAccess } from './compass-web-preferences-access';
 export {
+  AtlasPreferencesStorage,
+  loadAtlasPreferences,
+  type AtlasPreferencesLoadResult,
+  type AtlasServiceLike,
+} from './preferences-atlas-storage';
+export {
   isPreferenceNameValid,
   useIsAIFeatureEnabled,
   isAIFeatureEnabled,

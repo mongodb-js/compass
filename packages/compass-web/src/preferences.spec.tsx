@@ -1,15 +1,26 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
+import type { AllPreferences } from 'compass-preferences-model/provider';
 import {
   DEFAULT_COMPASS_WEB_PREFERENCES,
   getAtlasServiceBackendPreset,
   getPreferencesFromCloudApi,
   getProjectIdFromUrl,
+  loadCompassWebPreferences,
+  resetCompassWebPreferencesCache,
 } from './preferences';
 import { defaultHeaders } from './url-builder';
 
 const PROJECT_ID = '0123456789abcdef01234567';
+
+const emptyApiResponse = {
+  featureFlags: {},
+  userAuid: 'auid-123',
+  appUser: { isOptedIntoDataExplorerGenAIFeatures: false },
+  currentOrganization: { genAIFeaturesEnabled: false },
+  userRoles: { isDataAccessAdmin: true },
+};
 
 const apiResponse = {
   featureFlags: {
@@ -29,13 +40,24 @@ const apiResponse = {
   userRoles: { isDataAccessAdmin: true },
 };
 
-function fakeResponse(body: unknown, ok = true) {
+function fakeResponse(body: unknown, status = 200) {
   return {
-    ok,
-    status: ok ? 200 : 500,
-    statusText: ok ? 'OK' : 'Internal Server Error',
+    ok: status >= 200 && status < 300,
+    status,
+    statusText: String(status),
     json: () => Promise.resolve(body),
   } as unknown as Response;
+}
+
+const USER_DATA_URL = Sinon.match(/\/userData\/AppPreferences$/);
+const GET = Sinon.match({ method: 'GET' });
+const PUT = Sinon.match({ method: 'PUT' });
+
+type PreferencesEnvelope = { data: string };
+
+function savedDocument(preferences: Partial<AllPreferences>) {
+  const envelope: PreferencesEnvelope = { data: JSON.stringify(preferences) };
+  return fakeResponse(envelope);
 }
 
 describe('compass-web preferences', function () {
@@ -208,7 +230,7 @@ describe('compass-web preferences', function () {
     });
 
     it('throws when the request is not ok', async function () {
-      fetchStub.resolves(fakeResponse({}, false));
+      fetchStub.resolves(fakeResponse({}, 500));
 
       let error: Error | undefined;
       try {
@@ -217,6 +239,74 @@ describe('compass-web preferences', function () {
         error = err as Error;
       }
       expect(error).to.be.an('error');
+    });
+  });
+
+  describe('loadCompassWebPreferences', function () {
+    let fetchStub: Sinon.SinonStub;
+
+    const userDataGet = () => fetchStub.withArgs(USER_DATA_URL, GET);
+    const userDataPut = () => fetchStub.withArgs(USER_DATA_URL, PUT);
+
+    beforeEach(function () {
+      fetchStub = Sinon.stub(globalThis, 'fetch');
+      fetchStub.resolves(fakeResponse(emptyApiResponse));
+      userDataGet().resolves(fakeResponse({ error: 'Not Found' }, 404));
+      userDataPut().resolves(fakeResponse(undefined));
+    });
+
+    afterEach(function () {
+      Sinon.restore();
+      resetCompassWebPreferencesCache();
+    });
+
+    function putPreferences() {
+      const { body } = userDataPut().firstCall.args[1] as RequestInit;
+      const { data } = JSON.parse(body as string) as PreferencesEnvelope;
+      return JSON.parse(data) as Partial<AllPreferences>;
+    }
+
+    it('surfaces the persisted preferences', async function () {
+      userDataGet().resolves(
+        savedDocument({ maximumNumberOfActiveConnections: 4 })
+      );
+
+      const access = await loadCompassWebPreferences(PROJECT_ID);
+
+      expect(access.getPreferences().maximumNumberOfActiveConnections).to.equal(
+        4
+      );
+    });
+
+    it('applies the compass-web defaults when nothing was persisted', async function () {
+      const access = await loadCompassWebPreferences(PROJECT_ID);
+      expect(access.getPreferences().enableImportExport).to.equal(false);
+    });
+
+    it('does not let a persisted preference override a cloud value', async function () {
+      fetchStub.resolves(
+        fakeResponse({
+          ...emptyApiResponse,
+          featureFlags: { enableGenAIFeaturesAtlasProject: false },
+        })
+      );
+      userDataGet().resolves(
+        savedDocument({ enableGenAIFeaturesAtlasProject: true })
+      );
+
+      const access = await loadCompassWebPreferences(PROJECT_ID);
+
+      expect(access.getPreferences().enableGenAIFeaturesAtlasProject).to.equal(
+        false
+      );
+    });
+
+    it('persists a saved preference to the endpoint', async function () {
+      const access = await loadCompassWebPreferences(PROJECT_ID);
+      await access.savePreferences({ enableShell: true });
+
+      expect(userDataPut().calledOnce).to.equal(true);
+      expect(putPreferences()).to.deep.equal({ enableShell: true });
     });
   });
 });

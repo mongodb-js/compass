@@ -1,11 +1,16 @@
 import {
+  AtlasPreferencesStorage,
   CompassWebPreferencesAccess,
   featureFlags as FEATURE_FLAG_DEFINITIONS,
   isPreferenceNameValid,
+  loadAtlasPreferences,
+  ReadOnlyPreferenceAccess,
   type AllPreferences,
+  type AtlasServiceLike,
   type FeatureFlagDefinition,
   type FeatureFlags,
 } from 'compass-preferences-model/provider';
+import { getAtlasConfig } from '@mongodb-js/atlas-service/provider';
 import { useEffect, useState } from 'react';
 import { defaultHeaders } from './url-builder';
 
@@ -170,27 +175,62 @@ export async function getPreferencesFromCloudApi(projectId: string) {
   };
 }
 
+export function createPreferencesAtlasService(): AtlasServiceLike {
+  const { userDataBaseUrl } = getAtlasConfig(
+    new ReadOnlyPreferenceAccess({
+      atlasServiceBackendPreset: getAtlasServiceBackendPreset(),
+    })
+  );
+
+  return {
+    userDataEndpoint: (dataType) =>
+      `${userDataBaseUrl}/${encodeURIComponent(dataType)}`,
+    authenticatedFetch: (url, init) =>
+      fetch(url, {
+        ...init,
+        headers: { ...defaultHeaders, ...init?.headers },
+        credentials: 'include',
+      }),
+  };
+}
+
 async function _fetchAndCachePreferences(
   projectId: string
 ): Promise<CompassWebPreferencesAccess> {
   try {
-    const {
-      atlasCloudUserPreferences,
-      atlasCloudProjectPreferences,
-      atlasCloudOrgPreferences,
-    } = await getPreferencesFromCloudApi(projectId);
-    const preferencesAccess = new CompassWebPreferencesAccess(
+    const atlasService = createPreferencesAtlasService();
+    const [
       {
-        ...DEFAULT_COMPASS_WEB_PREFERENCES,
-        ...atlasCloudUserPreferences,
-        ...atlasCloudProjectPreferences,
-        ...atlasCloudOrgPreferences,
+        atlasCloudUserPreferences,
+        atlasCloudProjectPreferences,
+        atlasCloudOrgPreferences,
       },
+      loadResult,
+    ] = await Promise.all([
+      getPreferencesFromCloudApi(projectId),
+      loadAtlasPreferences(atlasService),
+    ]);
+
+    const cloudOverrides = {
+      ...atlasCloudUserPreferences,
+      ...atlasCloudProjectPreferences,
+      ...atlasCloudOrgPreferences,
+    };
+
+    const preferencesStorage = new AtlasPreferencesStorage(atlasService, {
+      loadResult,
+      compassWebDefaults: DEFAULT_COMPASS_WEB_PREFERENCES,
+      cloudOverrides,
+    });
+
+    const preferencesAccess = new CompassWebPreferencesAccess(
+      undefined,
       {
         atlasCloudUser: atlasCloudUserPreferences,
         atlasCloudProject: atlasCloudProjectPreferences,
         atlasCloudOrg: atlasCloudOrgPreferences,
-      }
+      },
+      preferencesStorage
     );
     // Replace the pending promise with the resolved access so a remount can
     // pick it up synchronously without a loading state.
@@ -203,7 +243,10 @@ async function _fetchAndCachePreferences(
   }
 }
 
-async function loadCompassWebPreferences(
+/**
+ * @internal Exported for testing.
+ */
+export async function loadCompassWebPreferences(
   projectId: string
 ): Promise<CompassWebPreferencesAccess> {
   const cached = compassWebPreferencesCache.get(projectId);
@@ -261,6 +304,13 @@ export function useCompassWebPreferences(projectId: string): {
     isLoading: !preferencesAccess && !error,
     error,
   };
+}
+
+/**
+ * @internal Exported for testing.
+ */
+export function resetCompassWebPreferencesCache() {
+  compassWebPreferencesCache.clear();
 }
 
 /**

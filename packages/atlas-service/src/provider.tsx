@@ -1,4 +1,5 @@
 export * from './url-builders';
+export { getAtlasConfig } from './util';
 
 import React, { createContext, useContext, useMemo } from 'react';
 import type { AtlasAuthService } from './atlas-auth-service';
