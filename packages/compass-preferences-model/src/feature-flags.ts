@@ -19,8 +19,8 @@ export type FeatureFlagDefinition = {
   stage: 'development' | 'preview' | 'released';
   /**
    * This field is used to specify the scope of the feature flag for
-   * Atlas Cloud. When adding a new feature flag, `feature-flag-mms-pr.yml`
-   * gha will create a PR on mms side to add feature-flag config.
+   * Atlas Cloud. When adding a new feature flag, the `feature-flag-mms-pr.yml`
+   * Github Action will create a PR in the MMS repository to add the corresponding config.
    *
    * *Note*: If the feature flag is only intended to be used in Compass,
    * close that PR.
