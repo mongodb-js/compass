@@ -35,6 +35,8 @@ import { ATLAS_ADMIN_API_AUTH_ENDPOINTS } from './atlas-admin-api-auth-endpoints
 const { log } = createLogger('COMPASS-ATLAS-SERVICE');
 const track = createIpcTrack();
 
+const REDIRECT_URI = 'http://127.0.0.1:0/compass/oauth/callback';
+
 const redirectRequestHandler = oidcServerRequestHandler.bind(null, {
   productName: 'Compass',
   productDocsLink: 'https://www.mongodb.com/docs/compass',
@@ -144,7 +146,7 @@ export class CompassAuthService {
       skipNonceInAuthCodeRequest: true,
       defaultScopes: ['offline_access'],
       discoveryAlgorithm: 'oauth2',
-      redirectURI: 'http://127.0.0.1:0/compass/oauth/callback',
+      redirectURI: REDIRECT_URI,
       redirectServerRequestHandler: redirectRequestHandler,
       openBrowser: async ({ url }) => {
         await this.openExternal(url);
