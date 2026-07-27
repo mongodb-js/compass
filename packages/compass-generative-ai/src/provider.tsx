@@ -108,7 +108,11 @@ export type { ToolGroup } from './tools-controller';
 // Export the hook for direct use in components
 export const useToolsController = useToolsControllerContext;
 
-export { getAvailableTools, READ_ONLY_DATABASE_TOOLS } from './available-tools';
+export {
+  getAvailableTools,
+  READ_ONLY_DATABASE_TOOLS,
+  doesToolUseConnection,
+} from './available-tools';
 export { AI_MODEL_CHAT_VERSION, AI_MODEL_SLIM_VERSION } from './model-version';
 
 export {

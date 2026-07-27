@@ -68,10 +68,14 @@ export const getAvailableTools = ({
           {
             name: 'atlas-connection-error-debugger',
             description:
-              'Returns Atlas-side diagnostics (cluster state, IP access list). Use to debug a Compass connection failure to an Atlas cluster.',
+              'Use to debug a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
           },
         ]
       : []),
   ];
   return tools;
 };
+
+export function doesToolUseConnection(toolName: string): boolean {
+  return READ_ONLY_DATABASE_TOOLS.map((tool) => tool.name).includes(toolName);
+}

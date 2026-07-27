@@ -223,7 +223,7 @@ describe('prompts', function () {
 
   describe('buildContextPrompt', function () {
     const atlasDebuggerLine =
-      '- atlas-connection-error-debugger: Returns Atlas-side diagnostics (cluster state, IP access list). Use to debug a Compass connection failure to an Atlas cluster.';
+      '- atlas-connection-error-debugger: Use to debug a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).';
 
     const noConnectionInstructions = (enableAtlasDebugger: boolean = false) =>
       `

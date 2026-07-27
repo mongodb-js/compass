@@ -13,7 +13,10 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
-import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  getAvailableTools,
+  doesToolUseConnection,
+} from '@mongodb-js/compass-generative-ai/provider';
 import { cleanToolCallOutput, getToolState } from '../utils';
 
 const { Message } = LgChatMessage;
@@ -83,12 +86,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
 
   const chips = [];
 
-  // TODO: find a better way to only display this when the connection is relevant
-  if (
-    connection &&
-    !toolCall.type.startsWith('tool-get-current-') &&
-    toolCall.type !== 'tool-atlas-connection-error-debugger'
-  ) {
+  if (connection && doesToolUseConnection(getToolDisplayName(toolCall.type))) {
     chips.push({ glyph: <ServerIcon />, label: connection.name });
   }
 
