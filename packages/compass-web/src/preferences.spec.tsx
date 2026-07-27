@@ -15,7 +15,7 @@ import { defaultHeaders } from './url-builder';
 const PROJECT_ID = '0123456789abcdef01234567';
 
 const emptyApiResponse = {
-  featureFlags: {},
+  featureFlags: { enableCompassWebSettings: true },
   userAuid: 'auid-123',
   appUser: { isOptedIntoDataExplorerGenAIFeatures: false },
   currentOrganization: { genAIFeaturesEnabled: false },
@@ -287,7 +287,10 @@ describe('compass-web preferences', function () {
       fetchStub.resolves(
         fakeResponse({
           ...emptyApiResponse,
-          featureFlags: { enableGenAIFeaturesAtlasProject: false },
+          featureFlags: {
+            enableCompassWebSettings: true,
+            enableGenAIFeaturesAtlasProject: false,
+          },
         })
       );
       userDataGet().resolves(
@@ -307,6 +310,26 @@ describe('compass-web preferences', function () {
 
       expect(userDataPut().calledOnce).to.equal(true);
       expect(putPreferences()).to.deep.equal({ enableShell: true });
+    });
+
+    context('when enableCompassWebSettings is disabled', function () {
+      beforeEach(function () {
+        fetchStub.resolves(
+          fakeResponse({
+            ...emptyApiResponse,
+            featureFlags: { enableCompassWebSettings: false },
+          })
+        );
+      });
+
+      it('does not fetch or persist preferences through the mms endpoint', async function () {
+        const access = await loadCompassWebPreferences(PROJECT_ID);
+        await access.savePreferences({ enableShell: true });
+
+        expect(userDataGet().called).to.equal(false);
+        expect(userDataPut().called).to.equal(false);
+        expect(access.getPreferences().enableShell).to.equal(true);
+      });
     });
   });
 });

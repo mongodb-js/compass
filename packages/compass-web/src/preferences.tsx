@@ -9,6 +9,7 @@ import {
   type AtlasServiceLike,
   type FeatureFlagDefinition,
   type FeatureFlags,
+  type PreferencesStorage,
 } from 'compass-preferences-model/provider';
 import { getAtlasConfig } from '@mongodb-js/atlas-service/provider';
 import { useEffect, useState } from 'react';
@@ -198,18 +199,11 @@ async function _fetchAndCachePreferences(
   projectId: string
 ): Promise<CompassWebPreferencesAccess> {
   try {
-    const atlasService = createPreferencesAtlasService();
-    const [
-      {
-        atlasCloudUserPreferences,
-        atlasCloudProjectPreferences,
-        atlasCloudOrgPreferences,
-      },
-      loadResult,
-    ] = await Promise.all([
-      getPreferencesFromCloudApi(projectId),
-      loadAtlasPreferences(atlasService),
-    ]);
+    const {
+      atlasCloudUserPreferences,
+      atlasCloudProjectPreferences,
+      atlasCloudOrgPreferences,
+    } = await getPreferencesFromCloudApi(projectId);
 
     const cloudOverrides = {
       ...atlasCloudUserPreferences,
@@ -217,11 +211,17 @@ async function _fetchAndCachePreferences(
       ...atlasCloudOrgPreferences,
     };
 
-    const preferencesStorage = new AtlasPreferencesStorage(atlasService, {
-      loadResult,
-      compassWebDefaults: DEFAULT_COMPASS_WEB_PREFERENCES,
-      cloudOverrides,
-    });
+    // Parallelize this with getPreferencesFromCloudApi once Compass Web Settings are not gated behind a feature flag.
+    let preferencesStorage: PreferencesStorage | undefined;
+    if (cloudOverrides.enableCompassWebSettings) {
+      const atlasService = createPreferencesAtlasService();
+      const loadResult = await loadAtlasPreferences(atlasService);
+      preferencesStorage = new AtlasPreferencesStorage(atlasService, {
+        loadResult,
+        compassWebDefaults: DEFAULT_COMPASS_WEB_PREFERENCES,
+        cloudOverrides,
+      });
+    }
 
     const preferencesAccess = new CompassWebPreferencesAccess(
       undefined,

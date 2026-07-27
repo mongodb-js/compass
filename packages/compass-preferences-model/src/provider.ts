@@ -7,6 +7,7 @@ export {
   type AtlasPreferencesLoadResult,
   type AtlasServiceLike,
 } from './preferences-atlas-storage';
+export type { PreferencesStorage } from './preferences-storage';
 export {
   isPreferenceNameValid,
   useIsAIFeatureEnabled,
