@@ -135,7 +135,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable settings in compass web',
     },
   },
-  
+
   /*
    * Feature flag for enabling the Atlas Connection Error Debugger.
    */
