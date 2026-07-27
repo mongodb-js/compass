@@ -287,7 +287,7 @@ export class ToolsController {
     if (enableAtlasConnectionErrorDebugger) {
       tools['atlas-connection-error-debugger'] = {
         description:
-          'Use to debug a Compass connection failure to an Atlas cluster.Returns Atlas-side diagnostics (cluster state, IP access list).',
+          'Use to debug a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
         inputSchema: z.object({
           connectionString: z.string(),
           errorMessage: z.string(),
