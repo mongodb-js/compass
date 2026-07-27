@@ -116,6 +116,18 @@ export const FEATURE_FLAG_DEFINITIONS = [
   },
 
   /*
+   * Feature flag for the auto embedding GA release.
+   */
+  {
+    name: 'enableAutoEmbeddingGaRelease',
+    stage: 'preview',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Enable the GA release of auto-embedded vector search indexes',
+    },
+  },
+
+  /*
    * Feature flag for sorted search indexes.
    */
   {
