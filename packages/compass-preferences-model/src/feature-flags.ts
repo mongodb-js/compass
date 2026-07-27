@@ -22,7 +22,7 @@ export type FeatureFlagDefinition = {
    * feature flag for Atlas Cloud. Supply this when the feature flag is intended
    * to be set in Atlas and not scoped to Compass.
    */
-  atlasCloudFeatureScope?: 'group' | 'organization';
+  atlasCloudFeatureScope: 'group' | 'organization';
   description: {
     short: string;
     long?: string;
@@ -30,69 +30,6 @@ export type FeatureFlagDefinition = {
 };
 
 export const FEATURE_FLAG_DEFINITIONS = [
-  /**
-   * Feature flag for enabling OIDC authentication.
-   * Epic: COMPASS-5955
-   */
-  {
-    name: 'enableOidc', // Not capitalized "OIDC" for spawn arg casing.
-    stage: 'released',
-    description: {
-      short: 'Enable OIDC Authentication',
-    },
-  },
-
-  {
-    name: 'newExplainPlan',
-    stage: 'released',
-    description: {
-      short: 'Access explain plan from query bar',
-      long: 'Explain plan is now accessible right from the query bar. To view a query’s execution plan, click “Explain” as you would on an aggregation pipeline.',
-    },
-  },
-
-  {
-    name: 'showInsights',
-    stage: 'released',
-    description: {
-      short: 'Show performance insights',
-      long: 'Surface visual signals in the Compass interface to highlight potential performance issues and anti-patterns.',
-    },
-  },
-
-  /**
-   * Feature flag for the rename collection modal.
-   */
-  {
-    name: 'enableRenameCollectionModal',
-    stage: 'released',
-    description: {
-      short: 'Enables renaming a collection',
-      long: 'Allows users to rename a collection from the sidebar',
-    },
-  },
-
-  /**
-   * Feature flag for explicit proxy configuration support.
-   */
-  {
-    name: 'enableProxySupport',
-    stage: 'released',
-    description: {
-      short: 'Enables support for explicit proxy configuration.',
-      long: 'Allows users to specify proxy configuration for the entire Compass application.',
-    },
-  },
-
-  {
-    name: 'showDisabledConnections',
-    stage: 'released',
-    description: {
-      short:
-        'Show clusters that are not in a "connectable" state in Atlas Cloud',
-    },
-  },
-
   {
     name: 'enableRollingIndexes',
     stage: 'released',
@@ -108,77 +45,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable Global Writes tab in Atlas Cloud',
-    },
-  },
-
-  /**
-   * Feature flag for export schema. Epic: COMPASS-6862.
-   */
-  {
-    name: 'enableExportSchema',
-    stage: 'released',
-    description: {
-      short: 'Enable schema export',
-    },
-  },
-
-  /**
-   * https://jira.mongodb.org/browse/INIT-592
-   */
-  {
-    name: 'enableDataModeling',
-    stage: 'released',
-    description: {
-      short: 'Design, Visualize, and Evolve your Data Model',
-    },
-  },
-
-  /**
-   * Feature flag for Data Modeling Collapse / Expand functionality. Epic COMPASS-9625
-   */
-  {
-    name: 'enableDataModelingCollapse',
-    stage: 'released',
-    description: {
-      short: 'Enable Collapse / Expand functionality in Data Modeling',
-    },
-  },
-
-  {
-    name: 'enableContextMenus',
-    stage: 'released',
-    description: {
-      short: 'Enable context (right-click) menus',
-    },
-  },
-
-  {
-    name: 'enableUnauthenticatedGenAI',
-    stage: 'released',
-    description: {
-      short: 'Enable GenAI for unauthenticated users',
-    },
-  },
-
-  /**
-   * Feature flag for CLOUDP-308952.
-   */
-  {
-    name: 'enableSearchActivationProgramP1',
-    stage: 'development',
-    description: {
-      short: 'Enable interface to view and modify search indexes',
-    },
-  },
-
-  /**
-   * Feature flag for CLOUDP-331931.
-   */
-  {
-    name: 'enableSearchActivationProgramP2',
-    stage: 'development',
-    description: {
-      short: 'Enable AI-powered features for pipeline and query results',
     },
   },
 
@@ -209,26 +75,12 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableRestoreWorkspaces',
     stage: 'development',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable restoring previous workspace tabs on startup',
     },
   },
 
-  {
-    name: 'enableAutomaticRelationshipInference',
-    stage: 'released',
-    description: {
-      short:
-        'Enable automatic relationship inference during data model generation',
-    },
-  },
-  {
-    name: 'enableChatbotEndpointForGenAI',
-    stage: 'released',
-    description: {
-      short: 'Enable Chatbot API for Generative AI',
-    },
-  },
   {
     name: 'enableRerank',
     stage: 'released',
@@ -244,6 +96,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableAutoEmbeddingPublicPreview',
     stage: 'preview',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Adds UI for auto-embedded vector search indexes',
     },
@@ -255,6 +108,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableAutoEmbeddingPrivatePreview',
     stage: 'preview',
+    atlasCloudFeatureScope: 'group',
     description: {
       short:
         'Adds UI for auto-embedded vector search indexes (private preview)',
@@ -267,6 +121,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
   {
     name: 'enableSortedSearchIndexes',
     stage: 'preview',
+    atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable sorted syntax for search indexes schema',
     },

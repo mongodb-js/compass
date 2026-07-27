@@ -223,24 +223,21 @@ export const runAIQuery = (
 
       const { collection: collectionName, database: databaseName } =
         toNS(namespace);
-      jsonResponse = await atlasAiService.getQueryFromUserInput(
-        {
-          signal: abortController.signal,
-          userInput,
-          collectionName,
-          databaseName,
-          schema,
-          // Provide sample documents when the user has opted in in their settings.
-          ...(provideSampleDocuments
-            ? {
-                sampleDocuments,
-              }
-            : undefined),
-          requestId,
-          enableStorage: !isFLE,
-        },
-        connectionInfo
-      );
+      jsonResponse = await atlasAiService.getQueryFromUserInput({
+        signal: abortController.signal,
+        userInput,
+        collectionName,
+        databaseName,
+        schema,
+        // Provide sample documents when the user has opted in in their settings.
+        ...(provideSampleDocuments
+          ? {
+              sampleDocuments,
+            }
+          : undefined),
+        requestId,
+        enableStorage: !isFLE,
+      });
     } catch (err: any) {
       if (signal.aborted) {
         // If we already aborted so we ignore the error.

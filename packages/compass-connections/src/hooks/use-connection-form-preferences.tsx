@@ -6,7 +6,6 @@ export function useConnectionFormPreferences() {
   const forceConnectionOptions = usePreference('forceConnectionOptions');
   const showKerberosPasswordField = usePreference('showKerberosPasswordField');
   const showOIDCDeviceAuthFlow = usePreference('showOIDCDeviceAuthFlow');
-  const enableOidc = usePreference('enableOidc');
   const enableDebugUseCsfleSchemaMap = usePreference(
     'enableDebugUseCsfleSchemaMap'
   );
@@ -20,7 +19,6 @@ export function useConnectionFormPreferences() {
       forceConnectionOptions,
       showKerberosPasswordField,
       showOIDCDeviceAuthFlow,
-      enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
     }),
@@ -29,7 +27,6 @@ export function useConnectionFormPreferences() {
       forceConnectionOptions,
       showKerberosPasswordField,
       showOIDCDeviceAuthFlow,
-      enableOidc,
       enableDebugUseCsfleSchemaMap,
       protectConnectionStringsForNewConnections,
     ]

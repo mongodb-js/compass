@@ -60,6 +60,7 @@ import {
   toolsControllerLocator,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
+import { AtlasClusterService } from './services/atlas-cluster-service';
 import { createOpenAI } from '@ai-sdk/openai';
 import type {
   ActiveConnectionInfo,
@@ -298,6 +299,7 @@ export type AssistantState = Record<string, never>;
 type AssistantExtraArgs = {
   chat: Chat<AssistantMessage>;
   atlasAiService: AtlasAiService;
+  atlasClusterService: AtlasClusterService;
   toolsController: ToolsController;
   preferences: PreferencesAccess;
   logger: Logger;
@@ -681,6 +683,8 @@ function activateAssistantPlugin(
 
   const lastContextPromptRef = { current: null as string | null };
 
+  const atlasClusterService = new AtlasClusterService(atlasService);
+
   const store = createStore(
     reducer,
     {},
@@ -688,6 +692,7 @@ function activateAssistantPlugin(
       thunk.withExtraArgument({
         chat,
         atlasAiService,
+        atlasClusterService,
         toolsController,
         preferences,
         logger,
