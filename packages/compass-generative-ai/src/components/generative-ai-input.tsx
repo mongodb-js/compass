@@ -144,10 +144,6 @@ const textInputStyles = css({
     height: defaultTextAreaSize, // Default height, overridden runtime.
     minHeight: `${defaultTextAreaSize}px`,
     maxHeight: spacing[1600] * 2,
-    '&::placeholder': {
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-    },
   },
 });
 
