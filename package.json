@@ -69,8 +69,8 @@
   "devDependencies": {
     "@mongodb-js/diagramming": "^2.4.1",
     "@mongodb-js/eslint-config-devtools": "^0.11.5",
-    "@mongodb-js/monorepo-tools": "^1.5.7",
-    "@mongodb-js/sbom-tools": "^0.10.18",
+    "@mongodb-js/monorepo-tools": "^1.5.8",
+    "@mongodb-js/sbom-tools": "^0.10.19",
     "@mongodb-js/tracking-plan": "^0.3.2",
     "@testing-library/dom": "^8.20.1",
     "ag-grid-react": "^20.2.0",

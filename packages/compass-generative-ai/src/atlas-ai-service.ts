@@ -4,11 +4,9 @@ import {
   isAIFeatureEnabled,
 } from 'compass-preferences-model/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
-import { AtlasServiceError } from '@mongodb-js/atlas-service/renderer';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
-import { EJSON } from 'bson';
 import {
   mockDataSchemaToolSchema,
   type MockDataSchemaToolOutput,
@@ -56,11 +54,6 @@ export type GenerativeAiInput = {
   enableStorage: boolean;
 };
 
-// The size/token validation happens on the server, however, we do
-// want to ensure we're not uploading massive documents (some folks have documents > 1mb).
-const AI_MAX_REQUEST_SIZE = 5120000;
-const AI_MIN_SAMPLE_DOCUMENTS = 1;
-
 type AIAggregation = {
   content: {
     aggregation?: {
@@ -78,44 +71,6 @@ type AIQuery = {
     aggregation?: { pipeline: string };
   };
 };
-
-function buildQueryOrAggregationMessageBody(
-  input: Omit<GenerativeAiInput, 'signal' | 'requestId'>
-) {
-  const sampleDocuments = input.sampleDocuments
-    ? EJSON.serialize(input.sampleDocuments, {
-        relaxed: false,
-      })
-    : undefined;
-
-  let msgBody = JSON.stringify({
-    ...input,
-    sampleDocuments,
-  });
-  if (msgBody.length > AI_MAX_REQUEST_SIZE && sampleDocuments) {
-    // When the message body is over the max size, we try
-    // to see if with fewer sample documents we can still perform the request.
-    // If that fails we throw an error indicating this collection's
-    // documents are too large to send to the ai.
-    msgBody = JSON.stringify({
-      ...input,
-      sampleDocuments: EJSON.serialize(
-        input.sampleDocuments?.slice(0, AI_MIN_SAMPLE_DOCUMENTS) || [],
-        {
-          relaxed: false,
-        }
-      ),
-    });
-  }
-
-  if (msgBody.length > AI_MAX_REQUEST_SIZE) {
-    throw new Error(
-      'Sorry, your request is too large. Please use a smaller prompt or try using this feature on a collection with smaller documents.'
-    );
-  }
-
-  return msgBody;
-}
 
 function hasExtraneousKeys(obj: any, expectedKeys: string[]) {
   return Object.keys(obj).some((key) => !expectedKeys.includes(key));
@@ -218,26 +173,6 @@ export function validateAIAggregationResponse(
   }
 }
 
-const aiURLConfig = {
-  // There are two different sets of endpoints we use for our requests.
-  // Down the line we'd like to only use the admin api, however,
-  // we cannot currently call that from the Atlas UI. Pending CLOUDP-251201
-  // NOTE: The unauthenticated endpoints are also rate limited by IP address
-  // rather than by logged in user.
-  'private-api': {
-    aggregation: 'unauth/ai/api/v1/mql-aggregation',
-    query: 'unauth/ai/api/v1/mql-query',
-  },
-  cloud: {
-    aggregation: (projectId: string) => {
-      return `ai/v1/groups/${projectId}/mql-aggregation`;
-    },
-    query: (projectId: string) => {
-      return `ai/v1/groups/${projectId}/mql-query`;
-    },
-  },
-} as const;
-
 export type { MockDataSchemaRawField, MockDataSchemaToolOutput };
 export { mockDataSchemaToolSchema };
 
@@ -281,11 +216,6 @@ async function getHashedActiveUserId(
     return 'unknown';
   }
 }
-
-/**
- * The type of resource from the natural language query REST API
- */
-type AIResourceType = 'query' | 'aggregation';
 
 export class AtlasAiService {
   private apiURLPreset: 'private-api' | 'cloud';
@@ -343,23 +273,6 @@ export class AtlasAiService {
     }).responses(AI_MODEL_SLIM_VERSION);
   }
 
-  /**
-   * @throws {AtlasAiServiceInvalidInputError} when given invalid arguments
-   */
-  private getUrlForEndpoint(
-    resourceType: AIResourceType,
-    { atlasMetadata }: ConnectionInfo
-  ) {
-    if (atlasMetadata) {
-      return this.atlasService.cloudEndpoint(
-        aiURLConfig.cloud[resourceType](atlasMetadata.projectId)
-      );
-    }
-
-    const urlPath = aiURLConfig['private-api'][resourceType];
-    return this.atlasService.privateApiEndpoint(urlPath);
-  }
-
   private throwIfAINotEnabled() {
     if (process.env.COMPASS_E2E_SKIP_AI_OPT_IN === 'true') {
       return;
@@ -380,128 +293,27 @@ export class AtlasAiService {
     );
   }
 
-  private getQueryOrAggregationFromUserInput = async <T>(
-    {
-      urlId,
-      input,
-      connectionInfo,
-    }: {
-      urlId: 'query' | 'aggregation';
-      input: GenerativeAiInput;
-      connectionInfo: ConnectionInfo;
-    },
-    validationFn: (res: any) => asserts res is T
-  ): Promise<T> => {
-    this.throwIfAINotEnabled();
-
-    const { signal, requestId, ...rest } = input;
-    const msgBody = buildQueryOrAggregationMessageBody(rest);
-
-    const url = `${this.getUrlForEndpoint(
-      urlId,
-      connectionInfo
-    )}?request_id=${encodeURIComponent(requestId)}`;
-
-    this.logger.log.info(
-      this.logger.mongoLogId(1_001_000_308),
-      'AtlasAIService',
-      'Running AI query generation request',
-      {
-        url,
-        userInput: input.userInput,
-        collectionName: input.collectionName,
-        databaseName: input.databaseName,
-        messageBodyLength: msgBody.length,
-        requestId,
-      }
-    );
-
-    const res = await this.atlasService.fetch(url, {
-      signal,
-      method: 'POST',
-      body: msgBody,
-      headers: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json',
-      },
+  async getAggregationFromUserInput(input: GenerativeAiInput) {
+    const message = buildAggregateQueryPrompt({
+      ...input,
+      analyticsId: await getHashedActiveUserId(this.preferences, this.logger),
     });
-
-    // Sometimes the server will return empty response and calling res.json directly
-    // throws and user see "Unexpected end of JSON input" error, which is not helpful.
-    // So we will get the text from the response first and then try to parse it.
-    // If it fails, we will throw a more helpful error message.
-    const text = await res.text();
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch {
-      this.logger.log.info(
-        this.logger.mongoLogId(1_001_000_310),
-        'AtlasAIService',
-        'Failed to parse the response from AI API',
-        {
-          text,
-          requestId,
-        }
-      );
-      throw new AtlasServiceError(
-        'ServerError',
-        500, // Not using res.status as its 200 in this case
-        'Internal server error',
-        'INTERNAL_SERVER_ERROR'
-      );
-    }
-    validationFn(data);
-    return data;
-  };
-
-  async getAggregationFromUserInput(
-    input: GenerativeAiInput,
-    connectionInfo: ConnectionInfo
-  ) {
-    if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
-      const message = buildAggregateQueryPrompt({
-        ...input,
-        analyticsId: await getHashedActiveUserId(this.preferences, this.logger),
-      });
-      return this.generateQueryUsingChatbot(
-        message,
-        validateAIAggregationResponse,
-        { signal: input.signal, type: 'aggregate' }
-      );
-    }
-    return this.getQueryOrAggregationFromUserInput(
-      {
-        connectionInfo,
-        urlId: 'aggregation',
-        input,
-      },
-      validateAIAggregationResponse
+    return this.generateQueryUsingChatbot(
+      message,
+      validateAIAggregationResponse,
+      { signal: input.signal, type: 'aggregate' }
     );
   }
 
-  async getQueryFromUserInput(
-    input: GenerativeAiInput,
-    connectionInfo: ConnectionInfo
-  ) {
-    if (this.preferences.getPreferences().enableChatbotEndpointForGenAI) {
-      const message = buildFindQueryPrompt({
-        ...input,
-        analyticsId: await getHashedActiveUserId(this.preferences, this.logger),
-      });
-      return this.generateQueryUsingChatbot(message, validateAIQueryResponse, {
-        signal: input.signal,
-        type: 'find',
-      });
-    }
-    return this.getQueryOrAggregationFromUserInput(
-      {
-        urlId: 'query',
-        input,
-        connectionInfo,
-      },
-      validateAIQueryResponse
-    );
+  async getQueryFromUserInput(input: GenerativeAiInput) {
+    const message = buildFindQueryPrompt({
+      ...input,
+      analyticsId: await getHashedActiveUserId(this.preferences, this.logger),
+    });
+    return this.generateQueryUsingChatbot(message, validateAIQueryResponse, {
+      signal: input.signal,
+      type: 'find',
+    });
   }
 
   /**

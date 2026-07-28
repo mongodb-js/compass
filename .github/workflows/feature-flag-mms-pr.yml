@@ -52,7 +52,7 @@ jobs:
     name: Comment on PR with new feature flags
     needs: detect-flags
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && needs.detect-flags.outputs.flags_count != '' && needs.detect-flags.outputs.flags_count != '0'
+    if: github.event_name == 'pull_request'
     permissions:
       pull-requests: write
     steps:
@@ -60,10 +60,13 @@ jobs:
         uses: actions/github-script@v7
         env:
           COMMENT_BODY: ${{ needs.detect-flags.outputs.comment_body }}
+          FLAGS_COUNT: ${{ needs.detect-flags.outputs.flags_count }}
         with:
           script: |
             const marker = '<!-- feature-flag-mms-comment -->';
-            const body = marker + '\n' + process.env.COMMENT_BODY;
+            const outdatedMarker = '<!-- feature-flag-mms-comment-outdated -->';
+            const flagsCount = process.env.FLAGS_COUNT;
+            const hasFlags = flagsCount !== '' && flagsCount !== '0';
 
             const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
@@ -73,18 +76,46 @@ jobs:
 
             const existing = comments.find(c => c.body.includes(marker));
 
-            if (existing) {
+            // No new feature flags and no existing comment: nothing to do.
+            if (!existing && !hasFlags) {
+              return;
+            }
+
+            // New flag and no existing comment: create a new comment.
+            if (hasFlags && !existing) {
+              return await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: marker + '\n' + process.env.COMMENT_BODY,
+              });
+            }
+
+            // New flag and existing comment: update the existing comment.
+            if (hasFlags && existing) {
+              return await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body: marker + '\n' + process.env.COMMENT_BODY,
+              });
+            }
+
+            // No flag, but existing comment: mark the comment as outdated.
+            if (!hasFlags && existing && !existing.body.includes(outdatedMarker)) {
+              const previous = existing.body
+                .replace(marker, '')
+                .trim();
+              const body = marker + '\n' + outdatedMarker + '\n' +
+                '> [!NOTE]\n' +
+                '> The new feature flag(s) originally detected in this PR are no longer ' +
+                'present in the latest commits, so this notice no longer applies.\n\n' +
+                '<details><summary>Previous message</summary>\n\n' +
+                previous + '\n\n</details>';
               await github.rest.issues.updateComment({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 comment_id: existing.id,
-                body,
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
                 body,
               });
             }
