@@ -216,7 +216,9 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
           if (node.name !== 'Number' || node.node.parent?.name === 'ArgList') {
             return;
           }
-          const str = view.state.sliceDoc(node.from, node.to);
+          const from = node.from;
+          const to = node.to;
+          const str = view.state.sliceDoc(from, to);
           if (!/^-?\d+$/.test(str)) {
             return;
           }
@@ -230,19 +232,19 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
               return;
             }
             violations.push({
-              from: node.from,
-              to: node.to,
+              from,
+              to,
               message: `Unsafe integer literal, consider using Long`,
               severity: 'error',
               actions: [
                 {
                   name: 'Convert to Long',
-                  apply: () => {
+                  apply: (view, from, to) => {
                     view.dispatch({
                       changes: [
                         {
-                          from: node.from,
-                          to: node.to,
+                          from,
+                          to,
                           insert: `Long("${num}")`,
                         },
                       ],
