@@ -132,10 +132,9 @@ const TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS = [
   }
 ];
 
-const EOL_SERVER_VERSIONS = [
-  { name: '60x-community', version: '6.0.x', requiredForPublish: true },
-  { name: '60x-enterprise', version: '6.0.x-enterprise', requiredForPublish: true },
-];
+// Versions past vendor EoL that we still test against until they are more than
+// a year out of date, at which point they are dropped from here entirely.
+const EOL_SERVER_VERSIONS = [];
 
 // MongoDB 7.0 has no Ubuntu 24.04 build (24.04 support was added in 8.0), so
 // its binaries fall back to the 22.04 build and fail to start on a 24.04 host.
@@ -146,10 +145,18 @@ const MAINTAINED_SERVER_VERSIONS = [
   { name: '70x-enterprise', version: '7.0.x-enterprise', requiredForPublish: true, run_on: 'ubuntu2204-large' },
   { name: '80x-community', version: '8.0.x', requiredForPublish: true },
   { name: '80x-enterprise', version: '8.0.x-enterprise', requiredForPublish: true },
+  // Pre-release entries: tested for early signal but not required for publish so
+  // an unreleased server cannot gate Compass releases. Promote to a stable
+  // version with requiredForPublish once the server reaches GA.
+  { name: '90x-community', version: '9.0.0-rc0', requiredForPublish: false },
+  { name: '90x-enterprise', version: '9.0.0-rc0-enterprise', requiredForPublish: false },
 ];
 
+// Latest generally-available version, used for the core suites we gate publishing
+// on. Resolves to the newest required-for-publish entry so pre-release versions
+// above are excluded.
 const LATEST_MAINTAINED_SERVER_VERSION =
-  MAINTAINED_SERVER_VERSIONS[MAINTAINED_SERVER_VERSIONS.length - 1];
+  [...MAINTAINED_SERVER_VERSIONS].reverse().find((v) => v.requiredForPublish);
 
 const TEST_LATEST_ALPHA_SERVER_VERSION = { name: 'latest-alpha', version: 'latest-alpha-enterprise', requiredForPublish: false };
 
@@ -229,6 +236,7 @@ buildvariants:
     tasks:
       - name: smoketest-packaged-app
 
+  <% if (EOL_SERVER_VERSIONS.length) { %>
   - name: test-eol-servers
     display_name: Test EoL Servers
     run_on: ubuntu2004-large
@@ -241,6 +249,7 @@ buildvariants:
     - name: test-server-<%= serverVersion.name %>-<%= group.number %>
     <% } %>
     <% } %>
+  <% } %>
 
   - name: test-maintained-servers
     tags:
