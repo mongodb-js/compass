@@ -458,6 +458,10 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-tooltip .completion-info p:last-child': {
         marginBottom: 0,
       },
+      // Hide the inline underline @codemirror/lint error
+      '& .cm-lintRange-error': {
+        backgroundImage: 'none',
+      },
       // Only style the diagnostic tooltip that carries an action, styled to
       // resemble a LeafyGreen popover. Tooltips without an action are left as-is
       '& .cm-tooltip.cm-tooltip-lint:has(.cm-diagnosticAction)': {
@@ -1022,7 +1026,11 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
   const linterExtension = useCodemirrorExtensionCompartment(
     () => {
       return linterSource
-        ? linter((view) => linterSource(syntaxTree(view.state), view))
+        ? linter((view) => linterSource(syntaxTree(view.state), view), {
+            // Do not show inline (on-hover) tooltips for linting errors,
+            // we will show them in the gutter instead
+            tooltipFilter: () => [],
+          })
         : [];
     },
     linterSource,
