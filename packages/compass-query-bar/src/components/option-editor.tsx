@@ -221,7 +221,14 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
             return;
           }
 
-          if (!Number.isSafeInteger(Number(str))) {
+          try {
+            const num = BigInt(str);
+            const isInvalid =
+              num > BigInt(Number.MAX_SAFE_INTEGER) ||
+              num < BigInt(Number.MIN_SAFE_INTEGER);
+            if (!isInvalid) {
+              return;
+            }
             violations.push({
               from: node.from,
               to: node.to,
@@ -236,7 +243,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
                         {
                           from: node.from,
                           to: node.to,
-                          insert: `Long("${str}")`,
+                          insert: `Long("${num}")`,
                         },
                       ],
                     });
@@ -244,6 +251,8 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
                 },
               ],
             });
+          } catch {
+            return;
           }
         },
       });
