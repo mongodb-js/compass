@@ -458,6 +458,64 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-tooltip .completion-info p:last-child': {
         marginBottom: 0,
       },
+      // Only style the diagnostic tooltip that carries an action, styled to
+      // resemble a LeafyGreen popover. Tooltips without an action are left as-is
+      '& .cm-tooltip.cm-tooltip-lint:has(.cm-diagnosticAction)': {
+        ...cmFontStyles,
+        color: editorPalette[theme].autocompleteColor,
+        backgroundColor: editorPalette[theme].autocompleteBackgroundColor,
+        border: `1px solid ${editorPalette[theme].autocompleteBorderColor}`,
+        borderRadius: `${spacing[300]}px`,
+        boxShadow:
+          theme === 'dark'
+            ? `0 ${spacing[100]}px ${spacing[300]}px rgba(0, 0, 0, 0.5)`
+            : `0 ${spacing[100]}px ${spacing[300]}px rgba(0, 0, 0, 0.15)`,
+        overflow: 'hidden',
+      },
+      '& .cm-diagnostic:has(.cm-diagnosticAction)': {
+        padding: `${spacing[200]}px ${spacing[300]}px`,
+        marginLeft: 0,
+        borderLeft: 'none',
+        display: 'flex',
+        gap: `${spacing[200]}px`,
+        alignItems: 'center',
+      },
+      '& .cm-diagnostic:has(.cm-diagnosticAction) .cm-diagnosticText': {
+        color: editorPalette[theme].autocompleteColor,
+      },
+      '& .cm-diagnosticAction': {
+        ...cmFontStyles,
+        display: 'inline-flex',
+        alignItems: 'center',
+        margin: 0,
+        padding: `0 ${spacing[150]}px`,
+        height: `${spacing[500]}px`,
+        fontWeight: 500,
+        lineHeight: '20px',
+        color: theme === 'dark' ? palette.gray.light2 : palette.gray.dark2,
+        backgroundColor: theme === 'dark' ? palette.gray.dark2 : palette.white,
+        backgroundImage: 'none',
+        border: `1px solid ${palette.gray.base}`,
+        borderRadius: `${spacing[150]}px`,
+        cursor: 'pointer',
+        transition: 'all 150ms ease-in-out',
+        flexShrink: 0,
+      },
+      '& .cm-diagnosticAction:hover': {
+        backgroundColor:
+          theme === 'dark' ? palette.gray.dark1 : palette.gray.light2,
+        borderColor: theme === 'dark' ? palette.gray.base : palette.gray.dark1,
+        boxShadow:
+          theme === 'dark'
+            ? `0 0 0 ${spacing[100]}px ${palette.gray.dark2}`
+            : `0 0 0 ${spacing[100]}px ${palette.gray.light2}`,
+      },
+      '& .cm-diagnosticAction:focus-visible': {
+        outline: 'none',
+        boxShadow: `0 0 0 ${spacing[100]}px ${
+          theme === 'dark' ? palette.blue.light1 : palette.blue.base
+        }`,
+      },
       '& .cm-widgetBuffer': {
         // Default is text-top which causes weird 1px added to the line height
         // when widget (in our case this is placeholder widget) is shown in the
@@ -561,9 +619,12 @@ const highlightStyles = {
 // We don't have any other cases we need to support in a base editor
 type EditorLanguage = 'json' | 'javascript' | 'javascript-expression';
 
+/**
+ * *Note*: Action only works when linting has been enabled
+ */
 export type Annotation = Pick<
   Diagnostic,
-  'from' | 'to' | 'severity' | 'message' | 'renderMessage'
+  'from' | 'to' | 'severity' | 'message' | 'actions' | 'renderMessage'
 >;
 
 export type Linter = (
@@ -1395,7 +1456,6 @@ type InlineEditorProps = Omit<
   | 'text'
   | 'showLineNumbers'
   | 'showFoldGutter'
-  | 'showAnnotationsGutter'
   | 'showScroll'
   | 'highlightActiveLine'
   | 'minLines'
@@ -1413,14 +1473,17 @@ const inlineStyles = css({
 });
 
 const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
-  function InlineEditor({ className, ...props }, forwardRef) {
+  function InlineEditor(
+    { className, showAnnotationsGutter, ...props },
+    forwardRef
+  ) {
     return (
       <BaseEditor
         ref={forwardRef}
         maxLines={10}
         showFoldGutter={false}
         showLineNumbers={false}
-        showAnnotationsGutter={false}
+        showAnnotationsGutter={Boolean(showAnnotationsGutter)}
         showScroll={false}
         highlightActiveLine={false}
         className={cx(inlineStyles, className)}
