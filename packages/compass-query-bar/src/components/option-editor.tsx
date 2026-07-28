@@ -9,15 +9,15 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type {
+  Annotation,
   Command,
   EditorRef,
   SavedQuery,
-  Linter,
-  Annotation,
 } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
   createQueryWithHistoryAutocompleter,
+  createSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -200,60 +200,36 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     optionName,
   ]);
 
-  const safeIntegerLinter: Linter = useMemo(() => {
-    return (tree, view) => {
-      const violations: Annotation[] = [];
-      tree.iterate({
-        enter: (node) => {
-          // Only warn on bare number literals. Not Int64(...)
-          if (node.name !== 'Number' || node.node.parent?.name === 'ArgList') {
-            return;
-          }
-          const from = node.from;
-          const to = node.to;
-          const str = view.state.sliceDoc(from, to);
-          if (!/^-?\d+$/.test(str)) {
-            return;
-          }
-
-          try {
-            const num = BigInt(str);
-            const isInvalid =
-              num > BigInt(Number.MAX_SAFE_INTEGER) ||
-              num < BigInt(Number.MIN_SAFE_INTEGER);
-            if (!isInvalid) {
-              return;
-            }
-            violations.push({
-              from,
-              to,
-              message: `Unsafe integer literal, consider using Long`,
-              severity: 'error',
-              actions: [
-                {
-                  name: 'Convert to Long',
-                  apply: (view, from, to) => {
-                    view.dispatch({
-                      changes: [
-                        {
-                          from,
-                          to,
-                          insert: `Long("${num}")`,
-                        },
-                      ],
-                    });
-                  },
+  const safeIntegerLinter = useMemo(
+    () =>
+      createSafeIntegerLinter({
+        onViolation(from, to, source): Annotation {
+          return {
+            from,
+            to,
+            severity: 'error',
+            message: 'This number is outside the safe integer range.',
+            actions: [
+              {
+                name: 'Convert to Long',
+                apply: (view, from, to) => {
+                  view.dispatch({
+                    changes: [
+                      {
+                        from,
+                        to,
+                        insert: `Long("${source}")`,
+                      },
+                    ],
+                  });
                 },
-              ],
-            });
-          } catch {
-            return;
-          }
+              },
+            ],
+          };
         },
-      });
-      return violations;
-    };
-  }, []);
+      }),
+    []
+  );
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {

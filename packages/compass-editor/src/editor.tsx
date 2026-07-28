@@ -38,7 +38,7 @@ import {
   indentWithTab,
 } from '@codemirror/commands';
 import type { Diagnostic } from '@codemirror/lint';
-import { lintGutter, linter, setDiagnosticsEffect } from '@codemirror/lint';
+import { lintGutter, setDiagnosticsEffect } from '@codemirror/lint';
 import type { CompletionSource } from '@codemirror/autocomplete';
 import {
   acceptCompletion,
@@ -654,7 +654,7 @@ type EditorProps = {
   'data-testid'?: string;
   annotations?: Annotation[];
   completer?: CompletionSource;
-  linter?: Linter;
+  linter?: Extension;
   customExtensions?: Extension[];
   minLines?: number;
   maxLines?: number;
@@ -800,7 +800,7 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
     highlightActiveLine: shouldHighlightActiveLine = true,
     annotations,
     completer,
-    linter: linterSource,
+    linter,
     customExtensions,
     darkMode: _darkMode,
     disabled = false,
@@ -1025,15 +1025,9 @@ const BaseEditor = React.forwardRef<EditorRef, EditorProps>(function BaseEditor(
 
   const linterExtension = useCodemirrorExtensionCompartment(
     () => {
-      return linterSource
-        ? linter((view) => linterSource(syntaxTree(view.state), view), {
-            // Do not show inline (on-hover) tooltips for linting errors,
-            // we will show them in the gutter instead
-            tooltipFilter: () => [],
-          })
-        : [];
+      return linter ? linter : [];
     },
-    linterSource,
+    linter,
     editorViewRef
   );
 
