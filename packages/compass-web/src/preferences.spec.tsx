@@ -329,6 +329,7 @@ describe('compass-web preferences', function () {
         expect(userDataGet().called).to.equal(false);
         expect(userDataPut().called).to.equal(false);
         expect(access.getPreferences().enableShell).to.equal(true);
+        expect(access.getPreferences().enableMyQueries).to.equal(false);
       });
     });
   });

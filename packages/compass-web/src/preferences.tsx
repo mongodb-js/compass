@@ -224,7 +224,12 @@ async function _fetchAndCachePreferences(
     }
 
     const preferencesAccess = new CompassWebPreferencesAccess(
-      undefined,
+      cloudOverrides.enableCompassWebSettings
+        ? undefined
+        : {
+            ...DEFAULT_COMPASS_WEB_PREFERENCES,
+            ...cloudOverrides,
+          },
       {
         atlasCloudUser: atlasCloudUserPreferences,
         atlasCloudProject: atlasCloudProjectPreferences,
