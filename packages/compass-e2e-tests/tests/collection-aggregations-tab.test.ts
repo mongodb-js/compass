@@ -1097,7 +1097,7 @@ describe('Collection aggregations tab', function () {
       const emptyResultsBanner = browser.$(Selectors.AggregationEmptyResults);
       await emptyResultsBanner.waitForDisplayed();
 
-      if (!useSleepSlowQuery) {
+      if (!useSleepSlowQuery && !isTestingWebAtlasCloud()) {
         // Wait until the server has logged the run aggregation's
         // cancellation error before we remove the allowlist, so we don't
         // leak it into other tests.
