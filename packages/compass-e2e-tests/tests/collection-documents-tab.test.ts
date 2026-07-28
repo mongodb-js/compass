@@ -1269,4 +1269,37 @@ FindIterable<Document> result = collection.find(filter);`);
     const document = browser.$(Selectors.DocumentListEntry);
     await document.waitForDisplayed();
   });
+
+  it('handles unsafe integer values when querying a document', async function () {
+    await browser.navigateToCollectionTab(
+      getDefaultConnectionNames(0),
+      'test',
+      'numbers',
+      'Documents'
+    );
+
+    await browser.runFindOperation(
+      'Documents',
+      `{ "i": ${Number.MAX_SAFE_INTEGER + 1} }`
+    );
+
+    await browser.waitUntil(async () => {
+      return browser.$(Selectors.CodemirrorLintErrorIcon).isDisplayed();
+    });
+
+    await browser.hover(Selectors.CodemirrorLintErrorIcon);
+
+    await browser.waitUntil(async () => {
+      return browser.$(Selectors.CodemirrorLintTooltip).isDisplayed();
+    });
+
+    await browser.clickVisible(Selectors.CodemirrorLintAction);
+
+    const query = await browser.getCodemirrorEditorText(
+      Selectors.queryBarOptionInputFilter('Documents')
+    );
+    expect(query.replace(/\s+/g, ' ')).to.include(
+      `"i": Long("${Number.MAX_SAFE_INTEGER + 1}")`
+    );
+  });
 });
