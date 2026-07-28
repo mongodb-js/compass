@@ -1287,6 +1287,14 @@ FindIterable<Document> result = collection.find(filter);`);
       return browser.$(Selectors.CodemirrorLintErrorIcon).isDisplayed();
     });
 
+    // query.filter field is invalid and run button should be disabled
+    const runButton = browser.$(
+      Selectors.queryBarApplyFilterButton('Documents')
+    );
+    await browser.waitUntil(async () => {
+      return (await runButton.getAttribute('aria-disabled')) === 'true';
+    });
+
     await browser.hover(Selectors.CodemirrorLintErrorIcon);
 
     await browser.waitUntil(async () => {
@@ -1301,5 +1309,9 @@ FindIterable<Document> result = collection.find(filter);`);
     expect(query.replace(/\s+/g, ' ')).to.include(
       `"i": Long("${Number.MAX_SAFE_INTEGER + 1}")`
     );
+
+    await browser.waitUntil(async () => {
+      return (await runButton.getAttribute('aria-disabled')) === 'false';
+    });
   });
 });
