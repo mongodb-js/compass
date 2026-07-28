@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   css,
   cx,
@@ -13,6 +13,7 @@ import type {
   EditorRef,
   SavedQuery,
   Linter,
+  Annotation,
 } from '@mongodb-js/compass-editor';
 import {
   CodemirrorInlineEditor as InlineEditor,
@@ -38,7 +39,6 @@ import type {
   RecentQuery,
 } from '@mongodb-js/my-queries-storage';
 import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
-import { EditorWarning } from './option-editor-warning';
 
 type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> & {
   _lastExecuted: Date;
@@ -207,36 +207,47 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     optionName,
   ]);
 
-  const [unsafeIntegerViolations, setUnsafeIntegerViolations] = useState<
-    UnsafeIntegerViolation[]
-  >([]);
   const safeIntegerLinter: Linter = useMemo(() => {
     return (tree, view) => {
-      const violations: UnsafeIntegerViolation[] = [];
+      const violations: Annotation[] = [];
       tree.iterate({
         enter: (node) => {
           // Only warn on bare number literals. Not Int64(...)
           if (node.name !== 'Number' || node.node.parent?.name === 'ArgList') {
             return;
           }
-          const text = view.state.sliceDoc(node.from, node.to);
-          if (!/^-?\d+$/.test(text)) {
+          const str = view.state.sliceDoc(node.from, node.to);
+          if (!/^-?\d+$/.test(str)) {
             return;
           }
 
-          if (!Number.isSafeInteger(Number(text))) {
+          if (!Number.isSafeInteger(Number(str))) {
             violations.push({
               from: node.from,
               to: node.to,
-              insert: `Int64("${text}")`,
+              message: `Unsafe integer literal, consider using Long`,
+              severity: 'error',
+              actions: [
+                {
+                  name: 'Convert to Long',
+                  apply: () => {
+                    view.dispatch({
+                      changes: [
+                        {
+                          from: node.from,
+                          to: node.to,
+                          insert: `Long("${str}")`,
+                        },
+                      ],
+                    });
+                  },
+                },
+              ],
             });
           }
         },
       });
-      setUnsafeIntegerViolations(violations);
-      // We are not returning anything from this linter, just capturing the
-      // lint violations and showing them manually in the UI.
-      return [];
+      return violations;
     };
   }, []);
 
@@ -278,17 +289,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     }
   };
 
-  const onFixUnsafeIntegerViolations = useCallback(() => {
-    const editor = editorRef.current?.editor;
-    if (!editor) {
-      return;
-    }
-    editor.dispatch({
-      changes: unsafeIntegerViolations,
-    });
-    setUnsafeIntegerViolations([]);
-  }, [unsafeIntegerViolations]);
-
   return (
     <div
       className={cx(
@@ -298,15 +298,11 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
       )}
       ref={editorContainerRef}
     >
-      <EditorWarning
-        optionName={optionName}
-        onFixViolations={onFixUnsafeIntegerViolations}
-        violations={unsafeIntegerViolations}
-      />
       <InlineEditor
         ref={editorRef}
         id={id}
         text={value}
+        showAnnotationsGutter={optionName === 'filter'}
         onChangeText={onChange}
         placeholder={placeholder}
         completer={completer}
