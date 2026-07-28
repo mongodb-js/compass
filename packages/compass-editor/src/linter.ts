@@ -3,7 +3,11 @@ import { syntaxTree } from '@codemirror/language';
 import type { Annotation, EditorView } from './editor';
 import type { Extension } from '@codemirror/state';
 
-export type LintConfig = Parameters<typeof linter>[1];
+export type LintConfig =
+  | {
+      delay?: number;
+    }
+  | undefined;
 
 export function createCodemirrorLinter(
   // Function that produces diagnostics
@@ -13,5 +17,10 @@ export function createCodemirrorLinter(
   ) => Annotation[],
   config?: LintConfig
 ): Extension {
-  return linter((view) => diagnosticsFn(syntaxTree(view.state), view), config);
+  return linter((view) => diagnosticsFn(syntaxTree(view.state), view), {
+    delay: config?.delay,
+    // Do not show inline (on-hover) tooltips for linting errors,
+    // we will show them in the gutter instead
+    tooltipFilter: () => [],
+  });
 }
