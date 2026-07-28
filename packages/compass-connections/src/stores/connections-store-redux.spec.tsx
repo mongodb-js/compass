@@ -154,10 +154,7 @@ describe('CompassConnections store', function () {
       const getStatus = () =>
         connectionsStore.getState().connections.byId[connectionInfo.id]?.status;
 
-      // A malformed connection string makes ensureWellFormedConnectionString
-      // throw synchronously, before the first `await` in the connection
-      // attempt. This must not leave a stale (already-settled) promise in the
-      // in-flight connections map keyed by this connection's id.
+      // A connection attempt with a malformed connection string
       await connectionsStore.actions.connect({
         ...connectionInfo,
         connectionOptions: {
@@ -167,8 +164,7 @@ describe('CompassConnections store', function () {
       });
       expect(getStatus()).to.not.eq('connected');
 
-      // Fixing the connection string and retrying must start a fresh attempt
-      // rather than short-circuiting on the stale in-flight entry.
+      // Fixing the connection string and retrying should succeed
       await connectionsStore.actions.connect(connectionInfo);
       expect(getStatus()).to.eq('connected');
     });
