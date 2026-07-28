@@ -31,10 +31,9 @@ export function createSafeIntegerLinter({
           const isInvalid =
             num > BigInt(Number.MAX_SAFE_INTEGER) ||
             num < BigInt(Number.MIN_SAFE_INTEGER);
-          if (!isInvalid) {
-            return;
+          if (isInvalid) {
+            violations.push(onViolation(from, to, str));
           }
-          violations.push(onViolation(from, to, str));
         } catch {
           return;
         }
