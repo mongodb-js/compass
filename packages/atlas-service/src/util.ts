@@ -232,10 +232,7 @@ export function getAtlasConfig(
   };
   return defaultsDeep(
     envConfig,
-    config[
-      process.env.COMPASS_ATLAS_SERVICE_BACKEND_PRESET_OVERRIDE ??
-        atlasServiceBackendPreset
-    ]
+    config[atlasServiceBackendPreset]
   ) as AtlasServiceConfig;
 }
 
