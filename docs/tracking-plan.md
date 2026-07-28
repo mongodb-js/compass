@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-07-24. Do not edit manually.
+> Auto-generated on 2026-07-28. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -113,8 +113,11 @@
   - [Document Cloned](#document-cloned)
   - [Document Copied](#document-copied)
   - [Document Deleted](#document-deleted)
+  - [Document Insert Cancelled](#document-insert-cancelled)
+  - [Document Insert Failed](#document-insert-failed)
   - [Document Inserted](#document-inserted)
   - [Document Updated](#document-updated)
+  - [Document View Changed](#document-view-changed)
 - [Drawer](#drawer)
   - [Drawer Section Opened](#drawer-section-opened)
   - [Drawer Section Closed](#drawer-section-closed)
@@ -140,6 +143,7 @@
   - [AI Opt In Modal Shown](#ai-opt-in-modal-shown)
   - [AI Opt In Modal Dismissed](#ai-opt-in-modal-dismissed)
   - [AI Generate Query Clicked](#ai-generate-query-clicked)
+  - [AI Generate Query Closed](#ai-generate-query-closed)
   - [AI Prompt Submitted](#ai-prompt-submitted)
   - [AI Query Feedback](#ai-query-feedback)
   - [AI Response Failed](#ai-response-failed)
@@ -1314,6 +1318,28 @@ This event is fired when user deletes a document.
 | `is_compass_web` | `true \| undefined`           | No       |                                                    |
 | `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
 
+### Document Insert Cancelled
+
+This event is fired when user cancels the insert document dialog without
+inserting.
+
+| Property         | Type                         | Required | Description                                        |
+| ---------------- | ---------------------------- | -------- | -------------------------------------------------- |
+| `mode`           | `"json" \| "field-by-field"` | Yes      | The view used in the insert document dialog.       |
+| `is_compass_web` | `true \| undefined`          | No       |                                                    |
+| `connection_id`  | `string \| undefined`        | No       | The id of the connection associated to this event. |
+
+### Document Insert Failed
+
+This event is fired when user fails to insert a document.
+
+| Property         | Type                         | Required | Description                                                   |
+| ---------------- | ---------------------------- | -------- | ------------------------------------------------------------- |
+| `mode`           | `"json" \| "field-by-field"` | Yes      | The view used in the insert document dialog.                  |
+| `multiple`       | `boolean \| undefined`       | No       | Specifies if the user attempted to insert multiple documents. |
+| `is_compass_web` | `true \| undefined`          | No       |                                                               |
+| `connection_id`  | `string \| undefined`        | No       | The id of the connection associated to this event.            |
+
 ### Document Inserted
 
 This event is fired when user inserts documents.
@@ -1331,7 +1357,18 @@ This event is fired when user updates a document
 
 | Property         | Type                          | Required | Description                                        |
 | ---------------- | ----------------------------- | -------- | -------------------------------------------------- |
-| `mode`           | `"json" \| "list" \| "table"` | Yes      | The view used to delete the document.              |
+| `mode`           | `"json" \| "list" \| "table"` | Yes      | The view used to update the document.              |
+| `is_compass_web` | `true \| undefined`           | No       |                                                    |
+| `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
+
+### Document View Changed
+
+This event is fired when user switches between the List, JSON, and Table
+document views in the CRUD toolbar.
+
+| Property         | Type                          | Required | Description                                        |
+| ---------------- | ----------------------------- | -------- | -------------------------------------------------- |
+| `view`           | `"json" \| "list" \| "table"` | Yes      | The view that was switched to.                     |
 | `is_compass_web` | `true \| undefined`           | No       |                                                    |
 | `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
 
@@ -1540,6 +1577,16 @@ This event is fired when a user clicks the Generate Query / Aggregation entry po
 | ---------------- | -------------------------- | -------- | ---------------------------------- |
 | `type`           | `"aggregation" \| "query"` | Yes      | The type of query being generated. |
 | `is_compass_web` | `true \| undefined`        | No       |                                    |
+
+### AI Generate Query Closed
+
+This event is fired when a user closes the Generate Query / Aggregation
+panel, whether via the close button, Escape, or by cancelling a request.
+
+| Property         | Type                       | Required | Description                                 |
+| ---------------- | -------------------------- | -------- | ------------------------------------------- |
+| `type`           | `"aggregation" \| "query"` | Yes      | The type of query that was being generated. |
+| `is_compass_web` | `true \| undefined`        | No       |                                             |
 
 ### AI Prompt Submitted
 

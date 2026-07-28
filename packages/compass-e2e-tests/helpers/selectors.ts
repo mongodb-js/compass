@@ -637,7 +637,7 @@ export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
   '[data-testid="insert-document-banner"][data-variant="danger"]';
 export const InsertDialogErrorDetailsBtn =
-  'button[data-testid="insert-document-error-details-button"]';
+  'button[data-testid="insert-document-error-action-button"]';
 export const InsertJSONEditor = '[data-testid="insert-document-json-editor"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';

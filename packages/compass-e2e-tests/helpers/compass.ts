@@ -20,7 +20,7 @@ import type { CompassBrowser } from './compass-browser.ts';
 import type { LogEntry } from './telemetry.ts';
 import Debug from 'debug';
 import semver from 'semver';
-import { CHROME_STARTUP_FLAGS } from './chrome-startup-flags.ts';
+import { CHROME_STARTUP_FLAGS, CI_FLAGS } from './chrome-startup-flags.ts';
 import {
   DEFAULT_CONNECTIONS_SERVER_INFO,
   isTestingWeb,
@@ -896,17 +896,26 @@ export async function startBrowser(
       prefs: {
         'download.default_directory': DOWNLOADS_PATH,
       },
-      args: isTestingWebAtlasCloud(context)
-        ? [
-            // We're going to be hitting localhost from remote domain, LNA needs
-            // to be disabled
-            '--disable-features=LocalNetworkAccessChecks',
-            // Allow to load extensions from cli and don't check when remote
-            // websites are accessing localhost
-            '--disable-features=DisableLoadExtensionCommandLineSwitch',
-            `--load-extension=${redirectExtension!.extensionPath}`,
-          ]
-        : [],
+      // Reuse the shared CI flags rather than redefining them here. These are
+      // needed for real Chrome to start in CI: on Ubuntu 23.10+ (incl. 24.04)
+      // --no-sandbox is required because AppArmor disables the unprivileged
+      // user namespaces Chrome's sandbox relies on. The Electron path gets
+      // these via CHROME_STARTUP_FLAGS (which includes CI_FLAGS) through
+      // processCommonOpts.
+      args: [
+        ...CI_FLAGS,
+        ...(isTestingWebAtlasCloud(context)
+          ? [
+              // We're going to be hitting localhost from remote domain, LNA needs
+              // to be disabled
+              '--disable-features=LocalNetworkAccessChecks',
+              // Allow to load extensions from cli and don't check when remote
+              // websites are accessing localhost
+              '--disable-features=DisableLoadExtensionCommandLineSwitch',
+              `--load-extension=${redirectExtension!.extensionPath}`,
+            ]
+          : []),
+      ],
     },
     'moz:firefoxOptions': {
       prefs: {
