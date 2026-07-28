@@ -1567,6 +1567,10 @@ const connectWithOptions = (
     }
 
     inflightConnection = (async () => {
+      // Ensure that the following is async so that we can set inflightConnection
+      // before it has a chance to fail
+      await Promise.resolve();
+
       const deviceAuthAbortController = new AbortController();
 
       try {
