@@ -142,6 +142,37 @@ describe('CompassConnections store', function () {
       expect(getStatus()).to.eq('connected');
     });
 
+    it('can connect after a previous attempt failed (invalid connection string)', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        connectFn: async () => {
+          await wait(1);
+          return {};
+        },
+      });
+
+      const connectionInfo = createDefaultConnectionInfo();
+      const getStatus = () =>
+        connectionsStore.getState().connections.byId[connectionInfo.id]?.status;
+
+      // A malformed connection string makes ensureWellFormedConnectionString
+      // throw synchronously, before the first `await` in the connection
+      // attempt. This must not leave a stale (already-settled) promise in the
+      // in-flight connections map keyed by this connection's id.
+      await connectionsStore.actions.connect({
+        ...connectionInfo,
+        connectionOptions: {
+          ...connectionInfo.connectionOptions,
+          connectionString: 'notavalidconnectionstring',
+        },
+      });
+      expect(getStatus()).to.not.eq('connected');
+
+      // Fixing the connection string and retrying must start a fresh attempt
+      // rather than short-circuiting on the stale in-flight entry.
+      await connectionsStore.actions.connect(connectionInfo);
+      expect(getStatus()).to.eq('connected');
+    });
+
     it('should show error toast if connection failed', async function () {
       const { connectionsStore } = renderCompassConnections({
         connectFn: sinon
