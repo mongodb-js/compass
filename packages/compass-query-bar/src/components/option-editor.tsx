@@ -89,6 +89,7 @@ type OptionEditorProps = {
    */
   insertEmptyDocOnFocus?: boolean;
   onChange: (value: string) => void;
+  onUnsafeInteger: () => void;
   onApply?(): void;
   onBlur?(): void;
   placeholder?: string | (() => HTMLElement);
@@ -118,6 +119,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   recentQueries,
   favoriteQueries,
   onApplyQuery,
+  onUnsafeInteger,
 }) => {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
@@ -200,36 +202,36 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     optionName,
   ]);
 
-  const safeIntegerLinter = useMemo(
-    () =>
-      createSafeIntegerLinter({
-        onViolation(from, to, source): Annotation {
-          return {
-            from,
-            to,
-            severity: 'error',
-            message: 'This number is outside the safe integer range.',
-            actions: [
-              {
-                name: 'Convert to Long',
-                apply: (view, from, to) => {
-                  view.dispatch({
-                    changes: [
-                      {
-                        from,
-                        to,
-                        insert: `Long("${source}")`,
-                      },
-                    ],
-                  });
-                },
+  const safeIntegerLinter = useMemo(() => {
+    return createSafeIntegerLinter({
+      delay: 300,
+      onViolation(from, to, source): Annotation {
+        onUnsafeInteger();
+        return {
+          from,
+          to,
+          severity: 'error',
+          message: 'Exceeds safe integer range. Convert to Long to match.',
+          actions: [
+            {
+              name: 'Convert to Long',
+              apply: (view, from, to) => {
+                view.dispatch({
+                  changes: [
+                    {
+                      from,
+                      to,
+                      insert: `Long("${source}")`,
+                    },
+                  ],
+                });
               },
-            ],
-          };
-        },
-      }),
-    []
-  );
+            },
+          ],
+        };
+      },
+    });
+  }, [onUnsafeInteger]);
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
