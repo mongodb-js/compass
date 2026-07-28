@@ -10,7 +10,6 @@ export type LintConfig =
   | undefined;
 
 export function createCodemirrorLinter(
-  // Function that produces diagnostics
   diagnosticsFn: (
     tree: ReturnType<typeof syntaxTree>,
     view: EditorView
