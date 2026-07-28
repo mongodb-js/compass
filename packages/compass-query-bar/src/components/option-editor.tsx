@@ -46,12 +46,6 @@ type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> & {
 type AutoCompleteRecentQuery = AutoCompleteQuery<RecentQuery>;
 type AutoCompleteFavoriteQuery = AutoCompleteQuery<FavoriteQuery>;
 
-export type UnsafeIntegerViolation = {
-  from: number;
-  to: number;
-  insert: string;
-};
-
 const editorContainerStyles = css({
   position: 'relative',
   display: 'flex',
@@ -65,7 +59,6 @@ const editorContainerStyles = css({
   border: '1px solid transparent',
   borderRadius: spacing[100],
   overflow: 'visible',
-  alignItems: 'center',
 });
 
 const editorWithErrorStyles = css({
