@@ -144,7 +144,6 @@ export const ExplainPlanModal: React.FunctionComponent<
             <Button
               size="small"
               variant="default"
-              // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
               leftGlyph={<Icon glyph="Sparkle" />}
               data-testid="interpret-for-me-button"
               onClick={() => {

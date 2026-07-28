@@ -1,5 +1,9 @@
 import React from 'react';
-import { Button, Icon, css } from '@mongodb-js/compass-components';
+import {
+  AssistantSparkleIcon,
+  Button,
+  css,
+} from '@mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
 import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
@@ -74,8 +78,7 @@ export const AnalyzeAndRefineResultsButton: React.FunctionComponent<
       size="small"
       variant="primaryOutline"
       className={analyzeButtonStyles}
-      // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
-      leftGlyph={<Icon glyph="Sparkle" />}
+      leftGlyph={<AssistantSparkleIcon />}
       onClick={onClick}
     >
       Analyze &amp; Refine Results
