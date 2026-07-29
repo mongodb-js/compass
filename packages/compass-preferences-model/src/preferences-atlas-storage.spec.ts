@@ -303,17 +303,29 @@ describe('preferences-atlas-storage', function () {
       expect(putPreferences()).to.deep.equal({ enableShell: true });
     });
 
-    it('does not throw when the write fails', async function () {
+    it('does not throw when the write fails and resolves false', async function () {
       userDataPut().resolves(fakeResponse({ error: 'nope' }, 400));
       const storage = createStorage({ loadResult: { status: 'empty' } });
 
-      await storage.updatePreferences({
+      const saved = await storage.updatePreferences({
         maximumNumberOfActiveConnections: 7,
       });
+
+      expect(saved).to.equal(false);
 
       expect(
         storage.getPreferences().maximumNumberOfActiveConnections
       ).to.equal(7);
+    });
+
+    it('resolves true when the write succeeds', async function () {
+      const storage = createStorage({ loadResult: { status: 'empty' } });
+
+      const saved = await storage.updatePreferences({
+        maximumNumberOfActiveConnections: 7,
+      });
+
+      expect(saved).to.equal(true);
     });
   });
 });

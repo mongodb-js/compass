@@ -1,4 +1,3 @@
-import { z } from '@mongodb-js/compass-user-data';
 import { type Logger } from '@mongodb-js/compass-logging';
 
 import type { ParsedGlobalPreferencesResult } from './global-config';
@@ -141,19 +140,20 @@ export class Preferences {
     }
 
     try {
-      await this._preferencesStorage.updatePreferences(attributes);
+      const didSavePreferences =
+        await this._preferencesStorage.updatePreferences(attributes);
+
+      if (!didSavePreferences) {
+        throw new Error('Failed to save preferences');
+      }
     } catch (err) {
       this._logger.log.error(
         this._logger.mongoLogId(1_001_000_157),
         'preferences',
-        'Failed to save preferences, error while saving models',
-        {
-          error: (err as Error).message,
-        }
+        'Failed to save preferences',
+        { error: (err as Error).message, attributes: keys }
       );
-      if (err instanceof z.ZodError) {
-        throw err;
-      }
+      throw err;
     }
 
     const newPreferences = this.getPreferences();

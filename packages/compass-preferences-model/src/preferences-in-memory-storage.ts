@@ -17,11 +17,14 @@ export class InMemoryStorage implements PreferencesStorage {
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
-  async updatePreferences(attributes: Partial<StoredPreferences>) {
+  async updatePreferences(
+    attributes: Partial<StoredPreferences>
+  ): Promise<boolean> {
     this.preferences = {
       ...this.preferences,
       ...attributes,
     };
+    return true;
   }
 
   async setup() {

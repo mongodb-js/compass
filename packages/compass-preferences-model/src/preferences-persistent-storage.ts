@@ -53,7 +53,7 @@ export class PersistentStorage implements PreferencesStorage {
 
   private async writePreferences(
     preferences: z.input<StoredPreferencesValidator>
-  ): Promise<void> {
+  ): Promise<boolean> {
     const copy = { ...preferences };
     for (const [key, { extract }] of listEncryptedStoredPreferences()) {
       if (copy[key]) {
@@ -67,7 +67,7 @@ export class PersistentStorage implements PreferencesStorage {
         });
       }
     }
-    await this.userData.write(this.file, copy);
+    return this.userData.write(this.file, copy);
   }
 
   private async readPreferences(): Promise<StoredPreferences> {
@@ -106,12 +106,13 @@ export class PersistentStorage implements PreferencesStorage {
 
   async updatePreferences(
     attributes: Partial<z.input<StoredPreferencesValidator>>
-  ) {
-    await this.writePreferences({
+  ): Promise<boolean> {
+    const didSavePreferences = await this.writePreferences({
       ...(await this.readPreferences()),
       ...attributes,
     });
 
     this.preferences = await this.readPreferences();
+    return didSavePreferences;
   }
 }

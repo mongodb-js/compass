@@ -119,12 +119,12 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
 
   async updatePreferences(
     attributes: Partial<StoredPreferences>
-  ): Promise<void> {
+  ): Promise<boolean> {
     this.sessionChanges = { ...this.sessionChanges, ...attributes };
 
     const loadResult = await loadAtlasPreferences(this.atlasService);
     if (loadResult.status === 'failed') {
-      return;
+      return false;
     }
 
     const updatedPreferences = {
@@ -132,8 +132,13 @@ export class AtlasPreferencesStorage implements PreferencesStorage {
       ...this.sessionChanges,
     };
 
-    if (await saveAtlasPreferences(this.atlasService, updatedPreferences)) {
+    const didSavePreferences = await saveAtlasPreferences(
+      this.atlasService,
+      updatedPreferences
+    );
+    if (didSavePreferences) {
       this.savedPreferences = updatedPreferences;
     }
+    return didSavePreferences;
   }
 }

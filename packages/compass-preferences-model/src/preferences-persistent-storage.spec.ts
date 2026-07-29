@@ -2,6 +2,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
 import crypto from 'crypto';
+import Sinon from 'sinon';
+import { FileUserData } from '@mongodb-js/compass-user-data';
 import { PersistentStorage } from './preferences-persistent-storage';
 import { getDefaultsForStoredPreferences } from './preferences-schema';
 import { expect } from 'chai';
@@ -102,6 +104,24 @@ describe('PersistentStorage', function () {
       ...getDefaultsForStoredPreferences(),
       currentUserId: '123456789',
     });
+  });
+
+  it('resolves false when the write fails', async function () {
+    const storage = new PersistentStorage(tmpDir);
+    await storage.setup();
+
+    const writeStub = Sinon.stub(FileUserData.prototype, 'write').resolves(
+      false
+    );
+    try {
+      const saved = await storage.updatePreferences({
+        currentUserId: '123456789',
+      });
+
+      expect(saved).to.equal(false);
+    } finally {
+      writeStub.restore();
+    }
   });
 
   it('does not save random props', async function () {

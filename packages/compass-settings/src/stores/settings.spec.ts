@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/unbound-method */
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import { fetchSettings, changeFieldValue, saveSettings } from './settings';
+import {
+  fetchSettings,
+  changeFieldValue,
+  saveSettings,
+  openModal,
+} from './settings';
 import configureStore from '../../test/configure-store';
 
 describe('Settings store actions', function () {
@@ -87,6 +92,32 @@ describe('Settings store actions', function () {
       await store.dispatch(saveSettings() as any);
       expect(preferencesSandbox.applySandboxChangesToPreferences).to.have.been
         .calledOnce;
+    });
+
+    it('closes the modal when the save succeeds', async function () {
+      const store = configureStore({ preferencesSandbox });
+      await store.dispatch(fetchSettings() as any);
+      await store.dispatch(saveSettings() as any);
+      expect(store.getState()).to.have.nested.property(
+        'settings.isModalOpen',
+        false
+      );
+    });
+
+    it('closes the modal and does not throw when the save fails', async function () {
+      const failingSandbox = {
+        ...preferencesSandbox,
+        applySandboxChangesToPreferences: sinonSandbox
+          .stub()
+          .rejects(new Error('Failed to save preferences')),
+      };
+      const store = configureStore({ preferencesSandbox: failingSandbox });
+      await store.dispatch(openModal() as any);
+      await store.dispatch(saveSettings() as any);
+      expect(store.getState()).to.have.nested.property(
+        'settings.isModalOpen',
+        false
+      );
     });
   });
 });

@@ -37,7 +37,7 @@ describe('CompassWebPreferencesAccess', function () {
   });
 
   it('writes through to an injected storage', async function () {
-    const updatePreferences = Sinon.stub().resolves();
+    const updatePreferences = Sinon.stub().resolves(true);
     const preferences = getDefaultsForStoredPreferences();
     const storage: PreferencesStorage = {
       setup: Sinon.stub().resolves(),
@@ -81,7 +81,7 @@ describe('CompassWebPreferencesAccess', function () {
   });
 
   it('sandboxes an injected storage into an in-memory copy', async function () {
-    const updatePreferences = Sinon.stub().resolves();
+    const updatePreferences = Sinon.stub().resolves(true);
     const storage: PreferencesStorage = {
       setup: Sinon.stub().resolves(),
       getPreferences: () => ({

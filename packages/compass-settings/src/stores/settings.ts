@@ -4,6 +4,7 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
 } from 'compass-preferences-model';
+import { openToast } from '@mongodb-js/compass-components';
 
 export type SettingsTabId =
   | 'general'
@@ -46,6 +47,7 @@ export const ActionTypes = {
   ChangeFieldValue: 'compass-settings/ChangeFieldValue',
   FieldUpdated: 'compass-settings/settingsFieldUpdated',
   SettingsSaved: 'compass-settings/settingsUpdated',
+  SettingsSaveFailed: 'compass-settings/settingsSaveFailed',
   OpenSettingsModal: 'compass-settings/OpenSettingsModal',
   SelectTab: 'compass-settings/SelectTab',
   CloseSettingsModal: 'compass-settings/CloseSettingsModal',
@@ -60,6 +62,10 @@ type SettingsFetchedAction = {
 
 type SaveSettingsAction = {
   type: typeof ActionTypes.SettingsSaved;
+};
+
+type SaveSettingsFailedAction = {
+  type: typeof ActionTypes.SettingsSaveFailed;
 };
 
 type SettingsFetchStartAction = {
@@ -156,6 +162,14 @@ export const reducer: Reducer<State, Action> = (
     };
   }
   if (isAction<SaveSettingsAction>(action, ActionTypes.SettingsSaved)) {
+    return {
+      ...state,
+      isModalOpen: false,
+    };
+  }
+  if (
+    isAction<SaveSettingsFailedAction>(action, ActionTypes.SettingsSaveFailed)
+  ) {
     return {
       ...state,
       isModalOpen: false,
@@ -266,7 +280,7 @@ export const closeModal = (): SettingsThunkAction<
 
 export const saveSettings = (): SettingsThunkAction<
   Promise<void>,
-  SaveSettingsAction
+  SaveSettingsAction | SaveSettingsFailedAction
 > => {
   return async (
     dispatch,
@@ -291,6 +305,14 @@ export const saveSettings = (): SettingsThunkAction<
         'Failed to update settings',
         { message: (e as Error).message }
       );
+      dispatch({
+        type: ActionTypes.SettingsSaveFailed,
+      });
+      openToast('compass-settings-save-failed', {
+        title: 'Failed to save settings',
+        description: 'Your changes could not be saved. Please try again.',
+        variant: 'warning',
+      });
     }
   };
 };

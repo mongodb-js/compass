@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
+import Sinon from 'sinon';
 import { Preferences } from './preferences';
 import { expect } from 'chai';
 import { FEATURE_FLAG_DEFINITIONS } from './feature-flags';
@@ -85,6 +86,28 @@ describe('Preferences class', function () {
       })
       .catch((e) => e);
     expect(error).to.be.instanceOf(Error);
+  });
+
+  it('throws when the storage fails to persist the change', async function () {
+    const preferencesStorage = new PersistentStorage(tmpdir);
+    const preferences = new Preferences({ preferencesStorage, logger });
+    await preferences.setupStorage();
+
+    const updatePreferencesStub = Sinon.stub(
+      PersistentStorage.prototype,
+      'updatePreferences'
+    ).resolves(false);
+
+    try {
+      const error = await preferences
+        .savePreferences({ readOnly: true })
+        .catch((e) => e);
+
+      expect(error).to.be.instanceOf(Error);
+      expect(preferences.getPreferences().readOnly).to.not.equal(true);
+    } finally {
+      updatePreferencesStub.restore();
+    }
   });
 
   it('stores preferences across instances', async function () {
