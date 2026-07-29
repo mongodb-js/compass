@@ -635,7 +635,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             updateJsonDoc={updateJsonDoc}
             toggleInsertDocument={toggleInsertDocument}
             toggleInsertDocumentView={toggleInsertDocumentView}
-            jsonView
+            insertView="JSON"
             version={version}
             ns={ns}
             updateComment={updateComment}

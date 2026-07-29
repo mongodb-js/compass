@@ -333,7 +333,7 @@ describe('store', function () {
           isCommentNeeded: true,
           isOpen: false,
           jsonDoc: null,
-          jsonView: false,
+          insertView: 'List',
           csfleState: { state: 'none' },
           mode: 'modifying',
         },
@@ -432,7 +432,7 @@ describe('store', function () {
       let listener;
 
       listener = waitForState(store, (state) => {
-        expect(state).to.have.nested.property('insert.jsonView', false);
+        expect(state).to.have.nested.property('insert.insertView', 'List');
       });
 
       store.toggleInsertDocument('List');
@@ -440,11 +440,38 @@ describe('store', function () {
       await listener;
 
       listener = waitForState(store, (state) => {
-        expect(state).to.have.nested.property('insert.jsonView', true);
+        expect(state).to.have.nested.property('insert.insertView', 'JSON');
       });
 
       store.toggleInsertDocument('JSON');
 
+      await listener;
+    });
+
+    it('converts the editor text between JSON and shell syntax', async function () {
+      let listener = waitForState(store, (state) => {
+        expect(state).to.have.nested.property('insert.insertView', 'JSON');
+        expect(state.insert.jsonDoc).to.include('"foo"');
+      });
+      store.toggleInsertDocument('JSON');
+      await listener;
+
+      listener = waitForState(store, (state) => {
+        expect(state).to.have.nested.property('insert.insertView', 'Shell');
+        // Shell syntax uses unquoted keys.
+        expect(state.insert.jsonDoc).to.match(/foo:/);
+        expect(state.insert.jsonDoc).to.not.include('"foo"');
+      });
+      store.toggleInsertDocument('Shell');
+      await listener;
+
+      listener = waitForState(store, (state) => {
+        expect(state).to.have.nested.property('insert.insertView', 'JSON');
+        expect(JSON.parse(state.insert.jsonDoc ?? '{}')).to.deep.equal({
+          foo: 1,
+        });
+      });
+      store.toggleInsertDocument('JSON');
       await listener;
     });
   });
@@ -1167,7 +1194,7 @@ describe('store', function () {
             expect(state.insert.doc).to.equal(null);
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
-            expect(state.insert.jsonView).to.equal(false);
+            expect(state.insert.insertView).to.equal('List');
             expect(state.insert.error).to.equal(undefined);
           });
 
@@ -1195,7 +1222,7 @@ describe('store', function () {
             expect(state.insert.doc).to.equal(null);
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
-            expect(state.insert.jsonView).to.equal(false);
+            expect(state.insert.insertView).to.equal('List');
             expect(state.insert.error).to.equal(undefined);
           });
 
@@ -1211,7 +1238,7 @@ describe('store', function () {
         const hadronDoc = new HadronDocument({});
 
         beforeEach(function () {
-          store.state.insert.jsonView = true;
+          store.state.insert.insertView = 'JSON';
           store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
           store.state.count = 0;
@@ -1224,7 +1251,7 @@ describe('store', function () {
             expect(state.insert.doc).to.deep.equal(hadronDoc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
-            expect(state.insert.jsonView).to.equal(true);
+            expect(state.insert.insertView).to.equal('JSON');
             expect(state.insert.error).to.exist;
             expect(state.insert.error.message).to.not.be.empty;
             expect(state.insert.mode).to.equal('error');
@@ -1244,7 +1271,7 @@ describe('store', function () {
         const jsonDoc = '{ "status": "testing" }';
 
         beforeEach(function () {
-          store.state.insert.jsonView = true;
+          store.state.insert.insertView = 'JSON';
           store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
           store.state.count = 0;
@@ -1261,7 +1288,7 @@ describe('store', function () {
             expect(state.insert.doc).to.deep.equal(hadronDoc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
-            expect(state.insert.jsonView).to.equal(true);
+            expect(state.insert.insertView).to.equal('JSON');
             expect(state.insert.error).to.exist;
             expect(state.insert.error.message).to.not.be.empty;
           });
@@ -1293,7 +1320,7 @@ describe('store', function () {
             expect(state.insert.doc).to.equal(doc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
-            expect(state.insert.jsonView).to.equal(false);
+            expect(state.insert.insertView).to.equal('List');
             expect(state.insert.error).to.exist;
             expect(state.insert.error.message).to.not.be.empty;
           });
@@ -1311,7 +1338,7 @@ describe('store', function () {
         const jsonDoc = '{ "status": "testing" }';
 
         beforeEach(function () {
-          store.state.insert.jsonView = true;
+          store.state.insert.insertView = 'JSON';
           store.state.insert.doc = hadronDoc;
           store.state.insert.jsonDoc = jsonDoc;
           store.state.count = 0;
@@ -1328,7 +1355,7 @@ describe('store', function () {
             expect(state.insert.doc).to.deep.equal(hadronDoc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
-            expect(state.insert.jsonView).to.equal(true);
+            expect(state.insert.insertView).to.equal('JSON');
             expect(state.insert.error).to.exist;
             expect(state.insert.error.message).to.not.be.empty;
             expect(state.insert.error.info).not.to.be.empty;
@@ -1370,7 +1397,7 @@ describe('store', function () {
               expect(state.insert.doc).to.equal(null);
               expect(state.insert.jsonDoc).to.equal(null);
               expect(state.insert.isOpen).to.equal(false);
-              expect(state.insert.jsonView).to.equal(false);
+              expect(state.insert.insertView).to.equal('List');
               expect(state.insert.error).to.equal(undefined);
 
               expect(state.status).to.equal('fetching');
@@ -1430,7 +1457,7 @@ describe('store', function () {
             expect(state.insert.doc).to.equal(null);
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
-            expect(state.insert.jsonView).to.equal(false);
+            expect(state.insert.insertView).to.equal('List');
             expect(state.insert.error).to.equal(undefined);
           });
 
@@ -1472,6 +1499,7 @@ describe('store', function () {
         '[ { "name": "Chashu", "type": "Norwegian Forest", "status": "invalid" }, { "name": "Rey", "type": "Viszla" } ]';
 
       beforeEach(function () {
+        store.state.insert.insertView = 'JSON';
         store.state.insert.jsonDoc = JSON.stringify(docs);
         store.state.count = 0;
       });
@@ -1487,7 +1515,7 @@ describe('store', function () {
           expect(state.insert.doc?.generateObject()).to.deep.equal({});
           expect(state.insert.jsonDoc).to.deep.equal(docs);
           expect(state.insert.isOpen).to.equal(true);
-          expect(state.insert.jsonView).to.equal(true);
+          expect(state.insert.insertView).to.equal('JSON');
           expect(state.insert.error).to.not.be.null;
           expect(state.insert.error?.message).to.equal(
             'Document failed validation'

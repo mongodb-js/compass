@@ -20,7 +20,6 @@ import {
   InfoSprinkle,
   Code,
 } from '@mongodb-js/compass-components';
-import HadronDocument from 'hadron-document';
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
@@ -29,7 +28,8 @@ import InsertDocument from './insert-document';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { WriteError } from '../stores/crud-store';
+import type { InsertDocumentView, WriteError } from '../stores/crud-store';
+import { parseInsertDocument, parseShellBSON } from '../stores/crud-store';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
 
@@ -55,8 +55,8 @@ const documentViewContainer = css({
 
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   closeInsertDocumentDialog: () => void;
-  toggleInsertDocumentView: (view: 'JSON' | 'List') => void;
-  toggleInsertDocument: (view: 'JSON' | 'List') => void;
+  toggleInsertDocumentView: (view: InsertDocumentView) => void;
+  toggleInsertDocument: (view: InsertDocumentView) => void;
   insertDocument: () => void;
   insertMany: () => void;
   isOpen: boolean;
@@ -65,7 +65,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   version: string;
   updateJsonDoc: (value: string | null) => void;
   jsonDoc: string;
-  jsonView: boolean;
+  insertView: InsertDocumentView;
   doc: Document | null;
   ns: string;
   isCommentNeeded: boolean;
@@ -75,7 +75,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
 };
 
 const DocumentOrJsonView: React.FC<{
-  jsonView: InsertDocumentDialogProps['jsonView'];
+  insertView: InsertDocumentView;
   doc: InsertDocumentDialogProps['doc'];
   hasManyDocuments: () => boolean;
   updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
@@ -83,7 +83,7 @@ const DocumentOrJsonView: React.FC<{
   error: Error | null;
   editorRef: React.RefObject<EditorRef>;
 }> = ({
-  jsonView,
+  insertView,
   doc,
   hasManyDocuments,
   updateJsonDoc,
@@ -91,13 +91,14 @@ const DocumentOrJsonView: React.FC<{
   error,
   editorRef,
 }) => {
-  if (jsonView) {
+  if (insertView !== 'List') {
     return (
       <InsertJsonDocument
         updateJsonDoc={updateJsonDoc}
         jsonDoc={jsonDoc}
         error={error}
         editorRef={editorRef}
+        shellSyntax={insertView === 'Shell'}
       />
     );
   }
@@ -124,7 +125,7 @@ const DocumentOrJsonView: React.FC<{
  */
 const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   isOpen,
-  jsonView,
+  insertView,
   jsonDoc,
   doc,
   error: documentWriteError,
@@ -145,14 +146,14 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   const [insertInProgress, setInsertInProgress] = useState(false);
 
   const hasManyDocuments = useCallback(() => {
-    let parsed: unknown;
     try {
-      parsed = JSON.parse(jsonDoc);
+      const parsed =
+        insertView === 'Shell' ? parseShellBSON(jsonDoc) : JSON.parse(jsonDoc);
+      return Array.isArray(parsed);
     } catch {
       return false;
     }
-    return Array.isArray(parsed);
-  }, [jsonDoc]);
+  }, [jsonDoc, insertView]);
 
   /**
    * Does the document have errors with the bson types?  Checks for
@@ -164,9 +165,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
    *
    */
   const documentValidationError = useMemo(() => {
-    if (jsonView) {
+    if (insertView !== 'List') {
       try {
-        HadronDocument.FromEJSON(jsonDoc);
+        parseInsertDocument(insertView, jsonDoc);
         return null;
       } catch (e) {
         return e as Error;
@@ -175,7 +176,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     return invalidElements.length > 0
       ? new Error(INSERT_INVALID_MESSAGE)
       : null;
-  }, [jsonDoc, jsonView, invalidElements]);
+  }, [jsonDoc, insertView, invalidElements]);
 
   const handleInvalid = useCallback(
     (el: Element) => {
@@ -206,13 +207,13 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   }, [isOpen, track]);
 
   useSyncStateOnPropChange(() => {
-    if (!jsonView) {
+    if (insertView === 'List') {
       // When switching to Hadron Document View.
       // Reset the invalid elements list, which contains the
       // uuids of each element that has BSON type cast errors.
       setInvalidElements([]);
     }
-  }, [jsonView]);
+  }, [insertView]);
 
   useEffect(() => {
     if (!doc) {
@@ -243,19 +244,19 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   }, [setInsertInProgress, insertMany, insertDocument, hasManyDocuments]);
 
   /**
-   * Switches between JSON and Hadron Document views.
+   * Switches between the JSON, Shell and Hadron Document views.
    *
-   * In case of multiple documents, only switches the this.props.insert.jsonView
-   * In other cases, also modifies this.props.insert.doc/jsonDoc to keep data in place.
+   * In case of multiple documents, only converts the editor text between
+   * views. In other cases, also modifies doc/jsonDoc to keep data in place.
    *
-   * @param {String} view - which view we are looking at: JSON or LIST.
+   * @param {String} view - which view we are switching to: JSON, Shell or List.
    */
   const switchInsertDocumentView = useCallback(
     (view: string) => {
       if (!hasManyDocuments()) {
-        toggleInsertDocument(view as 'JSON' | 'List');
+        toggleInsertDocument(view as InsertDocumentView);
       } else {
-        toggleInsertDocumentView(view as 'JSON' | 'List');
+        toggleInsertDocumentView(view as InsertDocumentView);
       }
     },
     [hasManyDocuments, toggleInsertDocument, toggleInsertDocumentView]
@@ -277,7 +278,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     }
   }, [documentValidationError]);
 
-  const currentView = jsonView ? 'JSON' : 'List';
+  const isTextView = insertView !== 'List';
 
   return (
     <FormModal
@@ -292,7 +293,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
     >
       <div className={toolbarStyles}>
-        {jsonView && (
+        {isTextView && (
           <InfoSprinkle>
             Paste a document, or an array to insert multiple. If an ObjectId is
             not specified, one is assigned automatically.
@@ -305,7 +306,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         <SegmentedControl
           label="View"
           size="xsmall"
-          value={currentView}
+          value={insertView}
           aria-controls={documentViewId}
           onChange={switchInsertDocumentView.bind(this)}
         >
@@ -315,6 +316,18 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
             aria-label="E-JSON View"
             value="JSON"
             glyph={<Icon glyph="CurlyBraces" />}
+            onClick={(evt) => {
+              // We override the `onClick` functionality to prevent form submission.
+              // The value changing occurs in the `onChange` in the `SegmentedControl`.
+              evt.preventDefault();
+            }}
+          ></SegmentedControlOption>
+          <SegmentedControlOption
+            disabled={Boolean(documentValidationError)}
+            data-testid="insert-document-dialog-view-shell"
+            aria-label="Shell syntax view"
+            value="Shell"
+            glyph={<Icon glyph="Shell" />}
             onClick={(evt) => {
               // We override the `onClick` functionality to prevent form submission.
               // The value changing occurs in the `onChange` in the `SegmentedControl`.
@@ -337,7 +350,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       </div>
       <div className={documentViewContainer} id={documentViewId}>
         <DocumentOrJsonView
-          jsonView={jsonView}
+          insertView={insertView}
           doc={doc}
           hasManyDocuments={hasManyDocuments}
           updateJsonDoc={updateJsonDoc}

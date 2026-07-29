@@ -5,7 +5,10 @@ import { findIndex, isEmpty, isEqual } from 'lodash';
 import semver from 'semver';
 import StateMixin from '@mongodb-js/reflux-state-mixin';
 import type { Element } from 'hadron-document';
-import HadronDocument, { Document } from 'hadron-document';
+import HadronDocument, {
+  Document,
+  objectToIdiomaticEJSON,
+} from 'hadron-document';
 import { toJSString, validate } from 'mongodb-query-parser';
 import _parseShellBSON, { ParseMode } from '@mongodb-js/shell-bson-parser';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
@@ -107,6 +110,8 @@ export type CrudActions = {
 
 const DOCUMENT_VIEWS = ['List', 'JSON', 'Table'] as const;
 export type DocumentView = (typeof DOCUMENT_VIEWS)[number];
+
+export type InsertDocumentView = 'List' | 'JSON' | 'Shell';
 
 const INITIAL_BULK_UPDATE_TEXT = `{
   $set: {
@@ -301,7 +306,7 @@ type InsertState = {
   error?: WriteError;
   csfleState: InsertCSFLEState;
   mode: 'modifying' | 'error';
-  jsonView: boolean;
+  insertView: InsertDocumentView;
   isOpen: boolean;
   isCommentNeeded: boolean;
 };
@@ -503,7 +508,7 @@ class CrudStoreImpl
       jsonDoc: null,
       csfleState: { state: 'none' },
       mode: MODIFYING,
-      jsonView: false,
+      insertView: 'List',
       isOpen: false,
       isCommentNeeded: true,
     };
@@ -974,7 +979,7 @@ class CrudStoreImpl
   closeInsertDocumentDialog() {
     this.track(
       'Document Insert Cancelled',
-      { mode: this.state.insert.jsonView ? 'json' : 'field-by-field' },
+      { mode: insertModeForTelemetry(this.state.insert.insertView) },
       this.connectionInfoRef.current
     );
     this.setState({
@@ -1056,7 +1061,7 @@ class CrudStoreImpl
       insert: {
         doc: hadronDoc,
         jsonDoc: jsonDoc,
-        jsonView: true,
+        insertView: 'JSON',
         error: undefined,
         csfleState,
         mode: MODIFYING,
@@ -1314,58 +1319,53 @@ class CrudStoreImpl
    * Also modifies doc and jsonDoc states to keep accurate data for each view.
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocument(view: DocumentView) {
-    if (view === 'JSON') {
-      const jsonDoc = this.state.insert.doc?.toEJSON();
+  toggleInsertDocument(view: InsertDocumentView) {
+    const { insertView: from, doc, jsonDoc } = this.state.insert;
+    const common: Pick<
+      InsertState,
+      'error' | 'csfleState' | 'mode' | 'isOpen' | 'isCommentNeeded'
+    > = {
+      error: undefined,
+      csfleState: this.state.insert.csfleState,
+      mode: MODIFYING,
+      isOpen: true,
+      isCommentNeeded: this.state.insert.isCommentNeeded,
+    };
 
+    if (view === 'List') {
+      const hadronDoc =
+        !jsonDoc || jsonDoc === '' ? doc : parseInsertDocument(from, jsonDoc);
       this.setState({
-        insert: {
-          doc: this.state.insert.doc,
-          jsonView: true,
-          jsonDoc: jsonDoc ?? null,
-          error: undefined,
-          csfleState: this.state.insert.csfleState,
-          mode: MODIFYING,
-          isOpen: true,
-          isCommentNeeded: this.state.insert.isCommentNeeded,
-        },
+        insert: { ...common, insertView: 'List', doc: hadronDoc, jsonDoc },
       });
-    } else {
-      let hadronDoc;
-
-      if (this.state.insert.jsonDoc === '') {
-        hadronDoc = this.state.insert.doc;
-      } else {
-        hadronDoc = HadronDocument.FromEJSON(this.state.insert.jsonDoc ?? '');
-      }
-
-      this.setState({
-        insert: {
-          doc: hadronDoc,
-          jsonView: false,
-          jsonDoc: this.state.insert.jsonDoc,
-          error: undefined,
-          csfleState: this.state.insert.csfleState,
-          mode: MODIFYING,
-          isOpen: true,
-          isCommentNeeded: this.state.insert.isCommentNeeded,
-        },
-      });
+      return;
     }
+
+    const nextJsonDoc =
+      from === 'List'
+        ? serializeInsertDocument(view, doc)
+        : convertInsertText(from, view, jsonDoc ?? '');
+    this.setState({
+      insert: { ...common, insertView: view, doc, jsonDoc: nextJsonDoc },
+    });
   }
 
   /**
-   * Toggle just the jsonView insert state.
+   * Toggle the insert view for the multiple-document case, converting the
+   * editor text between EJSON and shell syntax while keeping it in place.
    *
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocumentView(view: DocumentView) {
-    const jsonView = view === 'JSON';
+  toggleInsertDocumentView(view: InsertDocumentView) {
     this.setState({
       insert: {
         doc: new Document({}),
-        jsonDoc: this.state.insert.jsonDoc,
-        jsonView: jsonView,
+        jsonDoc: convertInsertText(
+          this.state.insert.insertView,
+          view,
+          this.state.insert.jsonDoc ?? ''
+        ),
+        insertView: view,
         error: undefined,
         csfleState: this.state.insert.csfleState,
         mode: MODIFYING,
@@ -1376,17 +1376,17 @@ class CrudStoreImpl
   }
 
   /**
-   * As we are editing a JSON document in Insert Document Dialog, update the
-   * state with the inputed json data.
+   * As we are editing a document in the Insert Document Dialog, update the
+   * state with the inputted text (EJSON or shell syntax).
    *
-   * @param {String} value - JSON string we are updating.
+   * @param {String} value - text we are updating.
    */
   updateJsonDoc(value: string | null) {
     this.setState({
       insert: {
         doc: new Document({}),
         jsonDoc: value,
-        jsonView: true,
+        insertView: this.state.insert.insertView,
         error: undefined,
         csfleState: this.state.insert.csfleState,
         mode: MODIFYING,
@@ -1400,13 +1400,14 @@ class CrudStoreImpl
    * Insert a single document.
    */
   async insertMany() {
-    const insertMode = this.state.insert.jsonView ? 'json' : 'field-by-field';
+    const insertMode = insertModeForTelemetry(this.state.insert.insertView);
     let isMultipleDocs = false;
     try {
       const schemaFields = this.fieldStoreService.getSchemaFieldsForNamespace(
         this.state.ns
       );
-      const docs = HadronDocument.FromEJSONArray(
+      const docs = parseInsertDocumentArray(
+        this.state.insert.insertView,
         this.state.insert.jsonDoc ?? ''
       ).map((doc) => {
         if (schemaFields) {
@@ -1431,7 +1432,7 @@ class CrudStoreImpl
       const payload = {
         ns: this.state.ns,
         view: this.state.view,
-        mode: this.state.insert.jsonView ? 'json' : 'default',
+        mode: insertMode,
         multiple: isMultipleDocs,
         docs,
       };
@@ -1456,7 +1457,7 @@ class CrudStoreImpl
         insert: {
           doc: new Document({}),
           jsonDoc: this.state.insert.jsonDoc,
-          jsonView: true,
+          insertView: this.state.insert.insertView,
           error: this.getWriteError(error as Error),
           csfleState: this.state.insert.csfleState,
           mode: ERROR,
@@ -1480,14 +1481,15 @@ class CrudStoreImpl
   async insertDocument() {
     let doc: BSONObject;
 
-    const insertMode = this.state.insert.jsonView ? 'json' : 'field-by-field';
+    const insertMode = insertModeForTelemetry(this.state.insert.insertView);
 
     try {
       const schemaFields = this.fieldStoreService.getSchemaFieldsForNamespace(
         this.state.ns
       );
-      if (this.state.insert.jsonView) {
-        const hadronDoc = HadronDocument.FromEJSON(
+      if (this.state.insert.insertView !== 'List') {
+        const hadronDoc = parseInsertDocument(
+          this.state.insert.insertView,
           this.state.insert.jsonDoc ?? ''
         );
         if (schemaFields) {
@@ -1520,7 +1522,7 @@ class CrudStoreImpl
       const payload = {
         ns: this.state.ns,
         view: this.state.view,
-        mode: this.state.insert.jsonView ? 'json' : 'default',
+        mode: insertMode,
         multiple: false,
         docs: [doc],
       };
@@ -1544,7 +1546,7 @@ class CrudStoreImpl
         insert: {
           doc: this.state.insert.doc,
           jsonDoc: this.state.insert.jsonDoc,
-          jsonView: this.state.insert.jsonView,
+          insertView: this.state.insert.insertView,
           error: this.getWriteError(error as Error),
           csfleState: this.state.insert.csfleState,
           mode: ERROR,
@@ -2353,4 +2355,81 @@ export function parseShellBSON(source: string): BSONObject | BSONObject[] {
     throw new Error('The provided definition is invalid.');
   }
   return parsed as BSONObject | BSONObject[];
+}
+
+function insertModeForTelemetry(
+  view: InsertDocumentView
+): 'field-by-field' | 'json' | 'shell' {
+  return view === 'List'
+    ? 'field-by-field'
+    : view === 'Shell'
+    ? 'shell'
+    : 'json';
+}
+
+/**
+ * Parse the insert editor text into a single HadronDocument, using shell
+ * syntax or EJSON depending on the active insert view.
+ */
+export function parseInsertDocument(
+  view: InsertDocumentView,
+  text: string
+): HadronDocument {
+  return view === 'Shell'
+    ? new HadronDocument(parseShellBSON(text) as BSONObject)
+    : HadronDocument.FromEJSON(text);
+}
+
+/**
+ * Parse the insert editor text into an array of HadronDocuments (for the
+ * multiple-document case), using shell syntax or EJSON.
+ */
+export function parseInsertDocumentArray(
+  view: InsertDocumentView,
+  text: string
+): HadronDocument[] {
+  if (view === 'Shell') {
+    const parsed = parseShellBSON(text);
+    return (Array.isArray(parsed) ? parsed : [parsed]).map(
+      (doc) => new HadronDocument(doc)
+    );
+  }
+  return HadronDocument.FromEJSONArray(text);
+}
+
+function serializeInsertDocument(
+  view: InsertDocumentView,
+  doc: Document | null
+): string {
+  if (!doc) {
+    return '';
+  }
+  return view === 'Shell'
+    ? toJSString(doc.generateObject()) ?? ''
+    : doc.toEJSON();
+}
+
+/**
+ * Convert insert editor text between EJSON and shell syntax when switching
+ * views, keeping the original text if it can't be parsed.
+ */
+function convertInsertText(
+  from: InsertDocumentView,
+  to: InsertDocumentView,
+  text: string
+): string {
+  if (from === to || from === 'List' || to === 'List' || !text.trim()) {
+    return text;
+  }
+  try {
+    const value =
+      from === 'Shell'
+        ? parseShellBSON(text)
+        : EJSON.parse(text, { relaxed: false });
+    return to === 'Shell'
+      ? toJSString(value) ?? text
+      : objectToIdiomaticEJSON(value);
+  } catch {
+    return text;
+  }
 }

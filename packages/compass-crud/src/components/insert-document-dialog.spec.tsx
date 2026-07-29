@@ -35,7 +35,7 @@ describe('InsertDocumentDialog', function () {
         doc={doc}
         jsonDoc={jsonDoc}
         updateJsonDoc={updateJsonDoc}
-        jsonView
+        insertView="JSON"
       />
     );
     await setCodemirrorEditorValue(
@@ -48,12 +48,77 @@ describe('InsertDocumentDialog', function () {
         doc={doc}
         jsonDoc={jsonDoc}
         updateJsonDoc={updateJsonDoc}
-        jsonView
+        insertView="JSON"
       />
     );
     const errorMessage = await screen.findByText(
       /numberLong string is too long/i
     );
     expect(errorMessage).to.exist;
+  });
+
+  it('accepts valid shell syntax without an error', async function () {
+    const doc = new HadronDocument({});
+    doc.editing = true;
+    let jsonDoc = '{}';
+    function updateJsonDoc(value: string | null) {
+      jsonDoc = value ?? '{}';
+    }
+    const { rerender } = render(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        jsonDoc={jsonDoc}
+        updateJsonDoc={updateJsonDoc}
+        insertView="Shell"
+      />
+    );
+    await setCodemirrorEditorValue(
+      screen.getByTestId('insert-document-json-editor'),
+      '{ _id: ObjectId(), createdAt: new Date() }'
+    );
+    rerender(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        jsonDoc={jsonDoc}
+        updateJsonDoc={updateJsonDoc}
+        insertView="Shell"
+      />
+    );
+    expect(screen.queryByTestId('insert-document-banner')).to.not.exist;
+    expect(screen.getByTestId('insert-document-dialog-view-shell')).to.exist;
+  });
+
+  it('shows an error for invalid shell syntax', async function () {
+    const doc = new HadronDocument({});
+    doc.editing = true;
+    let jsonDoc = '{}';
+    function updateJsonDoc(value: string | null) {
+      jsonDoc = value ?? '{}';
+    }
+    const { rerender } = render(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        jsonDoc={jsonDoc}
+        updateJsonDoc={updateJsonDoc}
+        insertView="Shell"
+      />
+    );
+    await setCodemirrorEditorValue(
+      screen.getByTestId('insert-document-json-editor'),
+      '{ _id: ObjectId( }'
+    );
+    rerender(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        jsonDoc={jsonDoc}
+        updateJsonDoc={updateJsonDoc}
+        insertView="Shell"
+      />
+    );
+    expect(await screen.findByTestId('insert-document-banner')).to.exist;
   });
 });

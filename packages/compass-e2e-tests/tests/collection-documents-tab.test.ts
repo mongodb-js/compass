@@ -1269,4 +1269,51 @@ FindIterable<Document> result = collection.find(filter);`);
     const document = browser.$(Selectors.DocumentListEntry);
     await document.waitForDisplayed();
   });
+
+  it('inserts a document using shell syntax', async function () {
+    // browse to the "Insert to Collection" modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+    await browser.waitForOpenModal(Selectors.InsertDialog);
+
+    // switch to the shell syntax view and enter a document using unquoted keys
+    // and a shell constructor, neither of which is valid JSON
+    await browser.clickVisible(Selectors.InsertDialogShellView);
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertJSONEditor,
+      '{ i: 10142, _id: ObjectId() }'
+    );
+
+    // no validation error for valid shell syntax
+    const banner = browser.$(Selectors.InsertDialogErrorMessage);
+    await banner.waitForDisplayed({ reverse: true });
+
+    const insertConfirm = browser.$(Selectors.InsertConfirm);
+    await insertConfirm.waitForEnabled();
+    await browser.clickVisible(Selectors.InsertConfirm);
+    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
+
+    await browser.runFindOperation('Documents', '{ i: 10142 }');
+    expect(await getFormattedDocument(browser)).to.match(
+      /^_id: ObjectId\('[a-f0-9]{24}'\) i: 10142$/
+    );
+  });
+
+  it('shows a validation error for invalid shell syntax when inserting', async function () {
+    await browser.clickVisible(Selectors.AddDataButton);
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+    await browser.waitForOpenModal(Selectors.InsertDialog);
+
+    await browser.clickVisible(Selectors.InsertDialogShellView);
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertJSONEditor,
+      '{ i: ObjectId( }'
+    );
+
+    const banner = browser.$(Selectors.InsertDialogErrorMessage);
+    await banner.waitForDisplayed();
+
+    await browser.clickVisible(Selectors.InsertCancel);
+    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
+  });
 });

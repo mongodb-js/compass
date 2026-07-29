@@ -980,7 +980,7 @@ type DocumentInsertCancelledEvent = ConnectionScopedEvent<{
     /**
      * The view used in the insert document dialog.
      */
-    mode: 'json' | 'field-by-field';
+    mode: 'json' | 'shell' | 'field-by-field';
   };
 }>;
 
@@ -995,7 +995,7 @@ type DocumentInsertFailedEvent = ConnectionScopedEvent<{
     /**
      * The view used in the insert document dialog.
      */
-    mode: 'json' | 'field-by-field';
+    mode: 'json' | 'shell' | 'field-by-field';
 
     /**
      * Specifies if the user attempted to insert multiple documents.

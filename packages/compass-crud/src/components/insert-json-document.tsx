@@ -24,6 +24,7 @@ type InsertJsonDocumentProps = {
   updateJsonDoc: (value: string) => void;
   error: Error | null;
   editorRef: React.RefObject<EditorRef>;
+  shellSyntax?: boolean;
 };
 
 const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
@@ -31,6 +32,7 @@ const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
   jsonDoc,
   updateJsonDoc,
   editorRef,
+  shellSyntax,
 }) => {
   const darkMode = useDarkMode();
   const annotations = useJsonEditorAnnotations({ error });
@@ -42,7 +44,7 @@ const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
     >
       <CodemirrorMultilineEditor
         data-testid="insert-document-json-editor"
-        language="json"
+        language={shellSyntax ? 'javascript-expression' : 'json'}
         text={jsonDoc}
         onChangeText={updateJsonDoc}
         initialJSONFoldAll={false}
