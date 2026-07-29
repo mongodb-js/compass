@@ -24,26 +24,31 @@ export type AtlasPreferencesLoadResult =
 export async function loadAtlasPreferences(
   atlasService: AtlasServiceLike
 ): Promise<AtlasPreferencesLoadResult> {
+  let res: Response;
   try {
-    const res = await atlasService.authenticatedFetch(
+    res = await atlasService.authenticatedFetch(
       atlasService.userDataEndpoint(APP_PREFERENCES),
       { method: 'GET' }
     );
-
-    if (res.status === 404) {
-      return { status: 'empty' };
-    }
-
-    if (!res.ok) {
-      return { status: 'failed' };
-    }
-
-    const { data } = (await res.json()) as { data: string };
-    const preferences = appPreferencesValidator.parse(JSON.parse(data));
-
-    return { status: 'loaded', preferences };
   } catch {
     return { status: 'failed' };
+  }
+
+  if (res.status === 404) {
+    return { status: 'empty' };
+  }
+
+  if (!res.ok) {
+    return { status: 'failed' };
+  }
+
+  try {
+    const { data } = (await res.json()) as { data: string };
+    const preferences = appPreferencesValidator.parse(JSON.parse(data));
+    return { status: 'loaded', preferences };
+  } catch {
+    // Malformed stored data is treated as if nothing was ever saved so we can overwrite it
+    return { status: 'empty' };
   }
 }
 
