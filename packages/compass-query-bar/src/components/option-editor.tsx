@@ -9,6 +9,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type {
+  Annotation,
   Command,
   EditorRef,
   SavedQuery,
@@ -16,6 +17,7 @@ import type {
 import {
   CodemirrorInlineEditor as InlineEditor,
   createQueryWithHistoryAutocompleter,
+  createSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -87,6 +89,7 @@ type OptionEditorProps = {
    */
   insertEmptyDocOnFocus?: boolean;
   onChange: (value: string) => void;
+  onUnsafeInteger: () => void;
   onApply?(): void;
   onBlur?(): void;
   placeholder?: string | (() => HTMLElement);
@@ -116,6 +119,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   recentQueries,
   favoriteQueries,
   onApplyQuery,
+  onUnsafeInteger,
 }) => {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
@@ -198,6 +202,37 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     optionName,
   ]);
 
+  const safeIntegerLinter = useMemo(() => {
+    return createSafeIntegerLinter({
+      delay: 300,
+      onViolation(from, to, source): Annotation {
+        onUnsafeInteger();
+        return {
+          from,
+          to,
+          severity: 'error',
+          message: 'Exceeds safe integer range. Convert to Long to match.',
+          actions: [
+            {
+              name: 'Convert to Long',
+              apply: (view, from, to) => {
+                view.dispatch({
+                  changes: [
+                    {
+                      from,
+                      to,
+                      insert: `Long("${source}")`,
+                    },
+                  ],
+                });
+              },
+            },
+          ],
+        };
+      },
+    });
+  }, [onUnsafeInteger]);
+
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
       rafraf(() => {
@@ -249,9 +284,11 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         ref={editorRef}
         id={id}
         text={value}
+        showAnnotationsGutter={optionName === 'filter'}
         onChangeText={onChange}
         placeholder={placeholder}
         completer={completer}
+        linter={safeIntegerLinter}
         commands={commands}
         data-testid={dataTestId}
         disabled={disabled}
