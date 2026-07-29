@@ -394,10 +394,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     return createSearchIndexAutocompleter({ fields });
   }, [fields]);
 
-  // The restriction banner's copy is scoped to Public Preview, so the GA flag
-  // retires it. Note the GA flag must be enabled *in addition to* the public
-  // preview flag, never instead of it: the preview flag is what enables the
-  // rest of the auto-embedding UI (template dropdown, cost banner, schema).
+  // The banner's copy is scoped to Public Preview, so the GA flag retires it.
   const isAutoEmbedPreviewMessagingActive =
     enableAutoEmbeddingPublicPreview && !enableAutoEmbeddingGaRelease;
 
