@@ -200,7 +200,6 @@ export default function ThemedHome(
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
-      disableContextMenus={false}
       // Wait for the "Welcome" modal to disappear before showing any guide cues
       // in the app
       disableGuideCues={!enableGuideCues || !showedNetworkOptIn}

@@ -63,6 +63,7 @@
     "yargs-parser": "^21.1.1"
   },
   "devDependencies": {
+    "@actions/github": "^9.1.1",
     "@mongodb-js/eslint-config-compass": "^1.4.25",
     "@mongodb-js/mocha-config-compass": "^1.8.0",
     "@mongodb-js/testing-library-compass": "^1.6.0",
