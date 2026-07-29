@@ -22,15 +22,18 @@ function getListenerCount(emitter: EventEmitter) {
 describe('CompassAuthServiceMain', function () {
   const sandbox = Sinon.createSandbox();
 
+  const atlasUid = '1234';
+  const accessToken = `header.${Buffer.from(
+    JSON.stringify({ sub: atlasUid })
+  ).toString('base64url')}.signature`;
+  const refreshToken = 'abcdRefresh';
+
   const mockFetch = sandbox.stub().callsFake((url: string) => {
     return {
-      'http://example.com/v1/userinfo': {
+      'http://example.com/tokens/introspect': {
         ok: true,
-        json() {
-          return { sub: '1234' };
-        },
       },
-      'http://example.com/v1/revoke?client_id=1234abcd': {
+      'http://example.com/tokens/revoke': {
         ok: true,
       },
     }[url];
@@ -39,7 +42,9 @@ describe('CompassAuthServiceMain', function () {
   const mockOidcPlugin = {
     mongoClientOptions: {
       authMechanismProperties: {
-        OIDC_HUMAN_CALLBACK: sandbox.stub().resolves({ accessToken: '1234' }),
+        OIDC_HUMAN_CALLBACK: sandbox
+          .stub()
+          .resolves({ accessToken, refreshToken }),
       },
     },
     logger: CompassAuthService['oidcPluginLogger'],
@@ -57,7 +62,6 @@ describe('CompassAuthServiceMain', function () {
       issuer: 'http://example.com',
       clientId: '1234abcd',
     },
-    authPortalUrl: 'http://example.com',
     assistantApiBaseUrl: 'http://example.com/assistant',
     userDataBaseUrl: 'http://example.com/ui/userData',
   };
@@ -117,14 +121,18 @@ describe('CompassAuthServiceMain', function () {
     it('should sign in using oidc plugin', async function () {
       const atlasUid = 'abcdefgh';
       getTrackingUserInfoStub.returns({ auid: atlasUid });
-
       const userInfo = await CompassAuthService.signIn();
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .OIDC_HUMAN_CALLBACK
-        // two times because we need to explicitly request token first to show a
-        // proper error message from oidc plugin in case of failed sign in
-      ).to.have.been.calledTwice;
+      ).to.have.been.calledOnceWith({
+        idpInfo: {
+          issuer: defaultConfig.atlasLogin.issuer,
+          clientId: defaultConfig.atlasLogin.clientId,
+        },
+        version: 1,
+        timeoutContext: undefined,
+      });
       expect(userInfo).to.have.property('sub', '1234');
       expect(preferences.getPreferences().telemetryAtlasUserId).to.equal(
         atlasUid
@@ -142,9 +150,7 @@ describe('CompassAuthServiceMain', function () {
       expect(
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
           .OIDC_HUMAN_CALLBACK
-        // two times because we need to explicitly request token first to show a
-        // proper error message from oidc plugin in case of failed sign in
-      ).to.have.been.calledTwice;
+      ).to.have.been.calledOnce;
     });
 
     it('should fail with oidc-plugin error first if auth failed', async function () {
@@ -296,7 +302,6 @@ describe('CompassAuthServiceMain', function () {
     for (const methodName of [
       'requestOAuthToken',
       'signIn',
-      'getUserInfo',
       'introspect',
       'revoke',
     ]) {
@@ -317,18 +322,15 @@ describe('CompassAuthServiceMain', function () {
   describe('signOut', function () {
     it('should reset service state, revoke tokens, and destroy plugin', async function () {
       const logger = new EventEmitter();
-      CompassAuthService['openExternal'] = sandbox.stub().resolves();
       CompassAuthService['oidcPluginLogger'] = logger;
       CompassAuthService['currentUser'] = {
         sub: '1234',
       } as any;
       await CompassAuthService.init(preferences, {} as any);
       CompassAuthService['config'] = defaultConfig;
-
       // We expect that the oidc plugin registers a number of listeners
       // upon creation, which should get unregistered when we sign out.
       expect(getListenerCount(logger)).to.be.greaterThan(0);
-
       // We did all preparations, reset sinon history for easier assertions
       sandbox.resetHistory();
 
@@ -337,9 +339,16 @@ describe('CompassAuthServiceMain', function () {
       expect(logger).to.not.eq(CompassAuthService['oidcPluginLogger']);
       expect(mockOidcPlugin.destroy).to.have.been.calledOnce;
       expect(CompassAuthService['fetch']).to.have.been.calledOnceWith(
-        'http://example.com/v1/revoke?client_id=1234abcd'
+        'http://example.com/tokens/revoke'
       );
-      expect(CompassAuthService['openExternal']).to.have.been.calledOnce;
+      const [, fetchOptions] = (
+        CompassAuthService['fetch'] as Sinon.SinonStub
+      ).getCall(0).args;
+      expect(Object.fromEntries(fetchOptions.body)).to.deep.equal({
+        token: refreshToken,
+        token_type_hint: 'refresh_token',
+        client_id: '1234abcd',
+      });
     });
 
     it('should throw when called before sign in', async function () {
