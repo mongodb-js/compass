@@ -11,7 +11,7 @@ export async function saveConnectionStringAsFavorite(
   color = 'Green'
 ): Promise<string> {
   // open the connection modal so we can fill in the connection string
-  await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+  await browser.clickVisible(browser.pages.sidebar.$newConnectionButton);
   favoriteName ??= new UUID().toHexString();
   await browser.setValueVisible(
     Selectors.ConnectionFormStringInput,

@@ -23,7 +23,7 @@ export async function openShellFromSidebar(
   browser: CompassBrowser,
   connectionName: string
 ): Promise<void> {
-  await browser.selectConnectionMenuItem(
+  await browser.pages.sidebar.selectConnectionMenuItem(
     connectionName,
     Selectors.OpenShellItem,
     false // the item is not contained in the three-dot menu

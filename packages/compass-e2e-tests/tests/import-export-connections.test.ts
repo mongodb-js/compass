@@ -103,7 +103,7 @@ describe('Connection Import / Export', function () {
     favoriteName: string,
     variant: (typeof variants)[number]
   ) {
-    await browser.selectConnection(favoriteName);
+    await browser.pages.sidebar.selectConnection(favoriteName);
     await browser.clickVisible(Selectors.EditConnectionStringToggle);
     await browser.clickVisible(Selectors.confirmationModalConfirmButton());
     const cs = await browser.getConnectFormConnectionString(true);
@@ -116,7 +116,7 @@ describe('Connection Import / Export', function () {
     // close the modal again so connectWithConnectionString sees the expected state
     await browser.clickVisible(Selectors.ConnectionModalCloseButton);
 
-    await browser.selectConnectionMenuItem(
+    await browser.pages.sidebar.selectConnectionMenuItem(
       favoriteName,
       Selectors.RemoveConnectionItem
     );
@@ -148,7 +148,9 @@ describe('Connection Import / Export', function () {
           const { browser } = compass;
 
           // open the connection modal so we can fill in the connection string
-          await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+          await browser.clickVisible(
+            browser.pages.sidebar.$newConnectionButton
+          );
 
           await browser.setValueVisible(
             Selectors.ConnectionFormStringInput,
@@ -193,7 +195,7 @@ describe('Connection Import / Export', function () {
         );
         try {
           const { browser } = compass;
-          await browser.selectConnectionMenuItem(
+          await browser.pages.sidebar.selectConnectionMenuItem(
             favoriteName,
             Selectors.RemoveConnectionItem
           );
@@ -249,7 +251,7 @@ describe('Connection Import / Export', function () {
       browser = compass.browser;
 
       // open the connection modal so we can fill in the connection string
-      await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+      await browser.clickVisible(browser.pages.sidebar.$newConnectionButton);
 
       await browser.setValueVisible(
         Selectors.ConnectionFormStringInput,
@@ -285,7 +287,7 @@ describe('Connection Import / Export', function () {
 
         // Open export modal
         {
-          await browser.selectConnectionsMenuItem(
+          await browser.pages.sidebar.selectConnectionsMenuItem(
             Selectors.ExportConnectionsModalOpen
           );
           await browser.waitForOpenModal(Selectors.ExportConnectionsModal);
@@ -348,7 +350,7 @@ describe('Connection Import / Export', function () {
 
         // Open import modal
         {
-          await browser.selectConnectionsMenuItem(
+          await browser.pages.sidebar.selectConnectionsMenuItem(
             Selectors.ImportConnectionsModalOpen
           );
           await browser.waitForOpenModal(Selectors.ImportConnectionsModal);

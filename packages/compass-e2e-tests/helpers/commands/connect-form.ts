@@ -17,7 +17,7 @@ export async function resetConnectForm(browser: CompassBrowser): Promise<void> {
   }
 
   await browser.waitForOpenModal(Selectors.ConnectionModal, { reverse: true });
-  await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+  await browser.clickVisible(browser.pages.sidebar.$newConnectionButton);
 
   const connectionTitleSelector = Selectors.ConnectionModalTitle;
 
@@ -965,7 +965,7 @@ export async function setupDefaultConnections(browser: CompassBrowser) {
   try {
     for (const connectionInfo of DEFAULT_CONNECTIONS) {
       const connectionName = getConnectionTitle(connectionInfo);
-      if (await browser.removeConnection(connectionName)) {
+      if (await browser.pages.sidebar.removeConnection(connectionName)) {
         debug('Removing existing connection so we do not create a duplicate', {
           connectionName,
         });

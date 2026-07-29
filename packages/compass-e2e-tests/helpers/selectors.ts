@@ -250,15 +250,9 @@ export const ConenctionToastCancelConnectionButton =
 export const ConnectionToastErrorDebugButton =
   '[data-testid="connection-error-debug"]';
 
-// Connections sidebar
-export const ConnectionsTitle = '[data-testid="connections-header"]';
-export const SidebarNewConnectionButton = '[data-action="add-new-connection"]';
-export const ConnectButton =
-  '[data-testid="sidebar-navigation-item-actions-connection-connect-action"]';
-export const ConnectDropdownButton = `[data-testid="lg-split_button-trigger"]`;
-export const ConnectInNewWindowButton =
-  '[data-action="connection-connect-in-new-window"]';
-export const ConnectionMenu = '[data-testid="sidebar-navigation-item-actions"]';
+// Connections sidebar — connection-row menu items (still consumed by helpers
+// scheduled for migration in later PRs; sidebar shell + connect controls moved
+// to SidebarPage in PR 1.1a)
 export const CreateDatabaseButton =
   '[data-testid="sidebar-navigation-item-actions-create-database-action"]';
 export const OpenShellItem =
@@ -281,35 +275,10 @@ export const RefreshDatabasesItem =
   '[data-testid="sidebar-navigation-item-actions-refresh-databases-action"]';
 export const ClusterInfoItem =
   '[data-testid="sidebar-navigation-item-actions-open-connection-info-action"]';
-export const ConnectionsMenuButton =
-  '[data-testid="connections-list-title-actions-show-actions"]';
-export const ConnectionsMenu = '[data-testid="connections-list-title-actions"]';
 export const ExportConnectionsModalOpen =
   '[data-testid="connections-list-title-actions-export-saved-connections-action"]';
 export const ImportConnectionsModalOpen =
   '[data-testid="connections-list-title-actions-import-saved-connections-action"]';
-
-export const InUseEncryptionMarker = '[data-action="open-csfle-modal"]';
-
-export const ConnectionItems =
-  '[role="treeitem"][aria-level="1"] [data-is-connected]';
-export const ConnectedConnectionItems =
-  '[role="treeitem"][aria-level="1"] [data-is-connected=true]';
-
-export const NoDeploymentsText = '[data-testid="no-deployments-text"]';
-export const AddNewConnectionButton =
-  '[data-testid="add-new-connection-button"]';
-
-export const connectionItemByName = (
-  connectionName: string,
-  { connected }: { connected?: boolean } = {}
-) => {
-  const connectedFilter =
-    connected !== undefined
-      ? `[data-is-connected="${connected.toString()}"]`
-      : '';
-  return `[role="treeitem"][aria-level="1"] [data-connection-name="${connectionName}"]${connectedFilter}`;
-};
 
 // Rename Collection Modal
 export const RenameCollectionModal = '[data-testid="rename-collection-modal"]';
@@ -325,21 +294,18 @@ export const RenameCollectionModalErrorBanner =
   '[data-testid="rename-collection-modal-error"]';
 export const RenameCollectionModalCloseButton = `${RenameCollectionModal} [aria-label="Close modal"]`;
 
-// Database-Collection Sidebar
-export const Sidebar = '[data-testid="navigation-sidebar"]';
-export const SidebarNavigationTree = '[data-testid="sidebar-navigation-tree"]';
-export const SidebarTreeItems = `${SidebarNavigationTree} [role="treeitem"]`;
-export const SidebarFilterInput = '[data-testid="sidebar-filter-input"]';
-export const SidebarTitle = '[data-testid="sidebar-title"]';
+// Database-Collection Sidebar — db/collection tree (sidebar shell moved to
+// SidebarPage in PR 1.1a; the tree itself migrates in PR 1.1b)
+// Internal: still composed into the selectors below and into workspace-tab
+// selectors. Removed in PR 1.1b alongside `sidebarDatabase` / `sidebarCollection`.
+const Sidebar = '[data-testid="navigation-sidebar"]';
+
 export const SidebarNavigationItemShowActionsButton =
   '[data-testid="sidebar-navigation-item-actions-show-actions"]';
 export const RenameCollectionButton =
   '[data-testid="sidebar-navigation-item-actions-rename-collection-action"]';
 export const DropDatabaseButton = '[data-action="drop-database"]';
 export const CreateCollectionButton = '[data-action="create-collection"]';
-export const DatabaseCollectionPlaceholder = '[data-testid="placeholder"]';
-export const CollapseConnectionsButton =
-  '[data-testid="connections-list-title-actions-collapse-all-connections-action"]';
 
 export const sidebarDatabase = (
   connectionId: string,
@@ -367,33 +333,6 @@ export const sidebarCollection = (
     return `${Sidebar} [data-connection-id="${connectionId}"][data-namespace="${dbName}.${collectionName}"]`;
   }
   return `${Sidebar} [data-namespace="${dbName}.${collectionName}"]`;
-};
-
-export const sidebarConnection = (connectionName: string): string => {
-  return `${Sidebar} [data-connection-name="${connectionName}"]`;
-};
-
-export const sidebarConnectionButton = (connectionName: string): string => {
-  return `${sidebarConnection(
-    connectionName
-  )} [data-action="connection-connect"]`;
-};
-
-export const sidebarConnectionDropdownButton = (
-  connectionName: string
-): string => {
-  return `${sidebarConnection(connectionName)} ${ConnectDropdownButton}`;
-};
-
-export const sidebarConnectionActionButton = (
-  connectionName: string,
-  selector: string
-): string => {
-  return `${sidebarConnection(connectionName)} ${selector}`;
-};
-
-export const sidebarConnectionMenuButton = (connectionName: string): string => {
-  return `${sidebarConnection(connectionName)} button[title="Show actions"]`;
 };
 
 // CSFLE modal
