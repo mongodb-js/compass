@@ -394,7 +394,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     return createSearchIndexAutocompleter({ fields });
   }, [fields]);
 
-  // The banner's copy is scoped to Public Preview, so the GA flag retires it.
+  // The restriction banner's copy is scoped to Public Preview. The GA flag retires it.
   const isAutoEmbedPreviewMessagingActive =
     enableAutoEmbeddingPublicPreview && !enableAutoEmbeddingGaRelease;
 
