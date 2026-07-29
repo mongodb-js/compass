@@ -61,6 +61,10 @@ const bannerContentStyles = css({
   justifyContent: 'flex-start',
 });
 
+const footerActionButtonStyles = css({
+  flexShrink: 0,
+});
+
 export type JSONEditorProps = {
   namespace: string;
   doc: Document;
@@ -342,15 +346,17 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
           return (
             <div className={bannerContentStyles}>
               <span>{message}</span>
-              {violationError instanceof SafeIntegerValidationError && (
-                <Link
-                  as="button"
-                  data-testid="fix-safe-integer-violations-button"
-                  onClick={onFixViolationError}
-                >
-                  Convert to Long
-                </Link>
-              )}
+              {!docValidationError &&
+                violationError instanceof SafeIntegerValidationError && (
+                  <Link
+                    as="button"
+                    data-testid="fix-safe-integer-violations-button"
+                    onClick={onFixViolationError}
+                    className={footerActionButtonStyles}
+                  >
+                    Convert to Long
+                  </Link>
+                )}
             </div>
           );
         }}

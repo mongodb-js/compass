@@ -278,7 +278,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       onSubmit={handleInsert.bind(this)}
       onCancel={closeInsertDocumentDialog}
       submitButtonText="Insert"
-      submitDisabled={Boolean(documentValidationError)}
+      submitDisabled={Boolean(documentValidationError || violationError)}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
     >

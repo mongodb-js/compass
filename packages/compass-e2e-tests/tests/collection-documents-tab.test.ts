@@ -629,7 +629,7 @@ FindIterable<Document> result = collection.find(filter);`);
       'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
     );
 
-    await document.$(Selectors.DocumentFooterFixUnsafeIntegerLink).click();
+    await document.$(Selectors.DocumentFooterFixSafeIntegerLink).click();
 
     const updatedJson = await browser.getCodemirrorEditorText(
       Selectors.DocumentJSONEntry
