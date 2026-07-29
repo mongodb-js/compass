@@ -91,14 +91,14 @@ const DocumentOrJsonView: React.FC<{
   error,
   editorRef,
 }) => {
-  if (insertView !== 'List') {
+  if (insertView !== 'list') {
     return (
       <InsertJsonDocument
         updateJsonDoc={updateJsonDoc}
         jsonDoc={jsonDoc}
         error={error}
         editorRef={editorRef}
-        shellSyntax={insertView === 'Shell'}
+        shellSyntax={insertView === 'shell'}
       />
     );
   }
@@ -148,7 +148,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   const hasManyDocuments = useCallback(() => {
     try {
       const parsed =
-        insertView === 'Shell' ? parseShellBSON(jsonDoc) : JSON.parse(jsonDoc);
+        insertView === 'shell' ? parseShellBSON(jsonDoc) : JSON.parse(jsonDoc);
       return Array.isArray(parsed);
     } catch {
       return false;
@@ -165,7 +165,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
    *
    */
   const documentValidationError = useMemo(() => {
-    if (insertView !== 'List') {
+    if (insertView !== 'list') {
       try {
         parseInsertDocument(insertView, jsonDoc);
         return null;
@@ -207,7 +207,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   }, [isOpen, track]);
 
   useSyncStateOnPropChange(() => {
-    if (insertView === 'List') {
+    if (insertView === 'list') {
       // When switching to Hadron Document View.
       // Reset the invalid elements list, which contains the
       // uuids of each element that has BSON type cast errors.
@@ -278,7 +278,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     }
   }, [documentValidationError]);
 
-  const isTextView = insertView !== 'List';
+  const isTextView = insertView !== 'list';
 
   return (
     <FormModal
@@ -314,7 +314,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
             disabled={Boolean(documentValidationError)}
             data-testid="insert-document-dialog-view-json"
             aria-label="E-JSON View"
-            value="JSON"
+            value="json"
             glyph={<Icon glyph="CurlyBraces" />}
             onClick={(evt) => {
               // We override the `onClick` functionality to prevent form submission.
@@ -326,7 +326,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
             disabled={Boolean(documentValidationError)}
             data-testid="insert-document-dialog-view-shell"
             aria-label="Shell syntax view"
-            value="Shell"
+            value="shell"
             glyph={<Icon glyph="Shell" />}
             onClick={(evt) => {
               // We override the `onClick` functionality to prevent form submission.
@@ -338,7 +338,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
             disabled={Boolean(documentValidationError)}
             data-testid="insert-document-dialog-view-list"
             aria-label="Document list"
-            value="List"
+            value="list"
             onClick={(evt) => {
               // We override the `onClick` functionality to prevent form submission.
               // The value changing occurs in the `onChange` in the `SegmentedControl`.

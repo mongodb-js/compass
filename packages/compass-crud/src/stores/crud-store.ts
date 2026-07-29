@@ -111,7 +111,7 @@ export type CrudActions = {
 const DOCUMENT_VIEWS = ['List', 'JSON', 'Table'] as const;
 export type DocumentView = (typeof DOCUMENT_VIEWS)[number];
 
-export type InsertDocumentView = 'List' | 'JSON' | 'Shell';
+export type InsertDocumentView = 'list' | 'json' | 'shell';
 
 const INITIAL_BULK_UPDATE_TEXT = `{
   $set: {
@@ -508,7 +508,7 @@ class CrudStoreImpl
       jsonDoc: null,
       csfleState: { state: 'none' },
       mode: MODIFYING,
-      insertView: 'List',
+      insertView: 'list',
       isOpen: false,
       isCommentNeeded: true,
     };
@@ -1061,7 +1061,7 @@ class CrudStoreImpl
       insert: {
         doc: hadronDoc,
         jsonDoc: jsonDoc,
-        insertView: 'JSON',
+        insertView: 'json',
         error: undefined,
         csfleState,
         mode: MODIFYING,
@@ -1332,17 +1332,17 @@ class CrudStoreImpl
       isCommentNeeded: this.state.insert.isCommentNeeded,
     };
 
-    if (view === 'List') {
+    if (view === 'list') {
       const hadronDoc =
         !jsonDoc || jsonDoc === '' ? doc : parseInsertDocument(from, jsonDoc);
       this.setState({
-        insert: { ...common, insertView: 'List', doc: hadronDoc, jsonDoc },
+        insert: { ...common, insertView: 'list', doc: hadronDoc, jsonDoc },
       });
       return;
     }
 
     const nextJsonDoc =
-      from === 'List'
+      from === 'list'
         ? serializeInsertDocument(view, doc)
         : convertInsertText(from, view, jsonDoc ?? '');
     this.setState({
@@ -1487,7 +1487,7 @@ class CrudStoreImpl
       const schemaFields = this.fieldStoreService.getSchemaFieldsForNamespace(
         this.state.ns
       );
-      if (this.state.insert.insertView !== 'List') {
+      if (this.state.insert.insertView !== 'list') {
         const hadronDoc = parseInsertDocument(
           this.state.insert.insertView,
           this.state.insert.jsonDoc ?? ''
@@ -2360,9 +2360,9 @@ export function parseShellBSON(source: string): BSONObject | BSONObject[] {
 function insertModeForTelemetry(
   view: InsertDocumentView
 ): 'field-by-field' | 'json' | 'shell' {
-  return view === 'List'
+  return view === 'list'
     ? 'field-by-field'
-    : view === 'Shell'
+    : view === 'shell'
     ? 'shell'
     : 'json';
 }
@@ -2375,7 +2375,7 @@ export function parseInsertDocument(
   view: InsertDocumentView,
   text: string
 ): HadronDocument {
-  return view === 'Shell'
+  return view === 'shell'
     ? new HadronDocument(parseShellBSON(text) as BSONObject)
     : HadronDocument.FromEJSON(text);
 }
@@ -2388,7 +2388,7 @@ export function parseInsertDocumentArray(
   view: InsertDocumentView,
   text: string
 ): HadronDocument[] {
-  if (view === 'Shell') {
+  if (view === 'shell') {
     const parsed = parseShellBSON(text);
     return (Array.isArray(parsed) ? parsed : [parsed]).map(
       (doc) => new HadronDocument(doc)
@@ -2404,7 +2404,7 @@ function serializeInsertDocument(
   if (!doc) {
     return '';
   }
-  return view === 'Shell'
+  return view === 'shell'
     ? toJSString(doc.generateObject()) ?? ''
     : doc.toEJSON();
 }
@@ -2418,15 +2418,15 @@ function convertInsertText(
   to: InsertDocumentView,
   text: string
 ): string {
-  if (from === to || from === 'List' || to === 'List' || !text.trim()) {
+  if (from === to || from === 'list' || to === 'list' || !text.trim()) {
     return text;
   }
   try {
     const value =
-      from === 'Shell'
+      from === 'shell'
         ? parseShellBSON(text)
         : EJSON.parse(text, { relaxed: false });
-    return to === 'Shell'
+    return to === 'shell'
       ? toJSString(value) ?? text
       : objectToIdiomaticEJSON(value);
   } catch {

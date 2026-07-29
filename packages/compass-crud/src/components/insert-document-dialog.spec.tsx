@@ -35,7 +35,7 @@ describe('InsertDocumentDialog', function () {
         doc={doc}
         jsonDoc={jsonDoc}
         updateJsonDoc={updateJsonDoc}
-        insertView="JSON"
+        insertView="json"
       />
     );
     await setCodemirrorEditorValue(
@@ -48,7 +48,7 @@ describe('InsertDocumentDialog', function () {
         doc={doc}
         jsonDoc={jsonDoc}
         updateJsonDoc={updateJsonDoc}
-        insertView="JSON"
+        insertView="json"
       />
     );
     const errorMessage = await screen.findByText(
@@ -70,7 +70,7 @@ describe('InsertDocumentDialog', function () {
         doc={doc}
         jsonDoc={jsonDoc}
         updateJsonDoc={updateJsonDoc}
-        insertView="Shell"
+        insertView="shell"
       />
     );
     await setCodemirrorEditorValue(
@@ -83,7 +83,7 @@ describe('InsertDocumentDialog', function () {
         doc={doc}
         jsonDoc={jsonDoc}
         updateJsonDoc={updateJsonDoc}
-        insertView="Shell"
+        insertView="shell"
       />
     );
     expect(screen.queryByTestId('insert-document-banner')).to.not.exist;
@@ -103,7 +103,7 @@ describe('InsertDocumentDialog', function () {
         doc={doc}
         jsonDoc={jsonDoc}
         updateJsonDoc={updateJsonDoc}
-        insertView="Shell"
+        insertView="shell"
       />
     );
     await setCodemirrorEditorValue(
@@ -116,7 +116,7 @@ describe('InsertDocumentDialog', function () {
         doc={doc}
         jsonDoc={jsonDoc}
         updateJsonDoc={updateJsonDoc}
-        insertView="Shell"
+        insertView="shell"
       />
     );
     expect(await screen.findByTestId('insert-document-banner')).to.exist;
