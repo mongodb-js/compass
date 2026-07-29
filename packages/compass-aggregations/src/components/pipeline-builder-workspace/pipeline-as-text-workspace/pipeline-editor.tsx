@@ -47,6 +47,7 @@ import {
 import { RerankVersionWarningBanner } from '../../rerank-version-warning-banner';
 import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
 import type { SearchIndexType } from '../../../modules/search-indexes';
+import { useSafeIntegerLinter } from '../../use-safe-integer-linter';
 
 const containerStyles = css({
   position: 'relative',
@@ -195,6 +196,9 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     pipelineText.includes('$rerank') &&
     !isRerankVersionSupported(serverVersion);
 
+  const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
+  const { safeIntegerLinter } = useSafeIntegerLinter(annotationsRef);
+
   const showErrorContainer =
     serverError ||
     syntaxErrors.length > 0 ||
@@ -209,13 +213,13 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
         <CodemirrorMultilineEditor
           text={pipelineText}
           onChangeText={onChangePipelineText}
-          annotations={annotations}
           id="pipeline-text-editor"
           data-testid="pipeline-text-editor"
           completer={completer}
           minLines={16}
           onBlur={onBlurEditor}
           className={codeEditorStyles}
+          linter={safeIntegerLinter}
         />
       </div>
       {(showErrorContainer || showRerankVersionWarning) && (

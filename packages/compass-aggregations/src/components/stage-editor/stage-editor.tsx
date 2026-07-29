@@ -52,6 +52,7 @@ import {
 } from '../../utils/search-stage-errors';
 import SearchIndexDoesNotExistBanner from '../search-index-does-not-exist-banner';
 import { RerankVersionWarningBanner } from '../rerank-version-warning-banner';
+import { useSafeIntegerLinter } from '../use-safe-integer-linter';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -207,6 +208,9 @@ export const StageEditor = ({
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [serverErrorStageIdx]);
 
+  const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
+  const { safeIntegerLinter } = useSafeIntegerLinter(annotationsRef);
+
   const isServerErrorUpstream =
     serverErrorStageIdx !== null && serverErrorStageIdx < index;
 
@@ -229,8 +233,8 @@ export const StageEditor = ({
           className={codeEditorStyles}
           id={`aggregations-stage-editor-${index}`}
           completer={completer}
-          annotations={annotations}
           onBlur={onBlurEditor}
+          linter={safeIntegerLinter}
         />
       </div>
       {enableRerank &&
