@@ -11,7 +11,7 @@ export function useSafeIntegerLinter(
     return createSafeIntegerLinter({
       delay: 300,
       onViolations(_violations): Annotation[] {
-        const violations = _violations.map(({ loc, source }) => ({
+        const violations: Annotation[] = _violations.map(({ loc, source }) => ({
           from: loc.from,
           to: loc.to,
           severity: 'error' as const,
