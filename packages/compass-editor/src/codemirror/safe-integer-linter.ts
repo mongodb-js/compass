@@ -3,16 +3,24 @@ import type { Extension } from '@codemirror/state';
 import type { LintConfig } from '../linter';
 import { createCodemirrorLinter } from '../linter';
 
+export type SafeIntegerViolation = {
+  loc: {
+    from: number;
+    to: number;
+  };
+  source: string;
+};
+
 type CreateSafeIntegerLinterOptions = LintConfig & {
-  onViolation: (from: number, to: number, source: string) => Annotation;
+  onViolations: (violation: SafeIntegerViolation[]) => Annotation[];
 };
 
 export function createSafeIntegerLinter({
-  onViolation,
+  onViolations,
   ...linterOptions
 }: CreateSafeIntegerLinterOptions): Extension {
   return createCodemirrorLinter((tree, view) => {
-    const violations: Annotation[] = [];
+    const violations: SafeIntegerViolation[] = [];
     tree.iterate({
       enter: (node) => {
         // Only warn on bare number literals. Not Int64(...)
@@ -32,13 +40,16 @@ export function createSafeIntegerLinter({
             num > BigInt(Number.MAX_SAFE_INTEGER) ||
             num < BigInt(Number.MIN_SAFE_INTEGER);
           if (isInvalid) {
-            violations.push(onViolation(from, to, str));
+            violations.push({
+              loc: { from, to },
+              source: str,
+            });
           }
         } catch {
           return;
         }
       },
     });
-    return violations;
+    return onViolations(violations);
   }, linterOptions);
 }

@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { UnsafeIntegerValidationError } from 'hadron-document';
 import {
   Banner,
   Button,
@@ -8,6 +7,7 @@ import {
   showErrorDetails,
 } from '@mongodb-js/compass-components';
 import type { WriteError } from '../stores/crud-store';
+import { SafeIntegerValidationError } from './use-safe-integer-linter';
 
 const bannerStyles = css({
   marginTop: spacing[400],
@@ -20,19 +20,19 @@ type InsertDocumentDialogBannerProps = {
   documentWriteError: WriteError | null;
   insertInProgress: boolean;
   documentValidationError: Error | null;
-  onFixUnsafeIntegerViolations: () => void;
+  onFixViolationError: () => void;
 };
 
 export function InsertDocumentDialogBanner({
   documentWriteError,
   insertInProgress,
   documentValidationError,
-  onFixUnsafeIntegerViolations,
+  onFixViolationError,
 }: InsertDocumentDialogBannerProps) {
   const banner = useMemo(() => {
     if (documentValidationError) {
       const hasViolations =
-        documentValidationError instanceof UnsafeIntegerValidationError &&
+        documentValidationError instanceof SafeIntegerValidationError &&
         documentValidationError.violations.length > 0;
       const numViolations = hasViolations
         ? documentValidationError.violations.length
@@ -42,7 +42,7 @@ export function InsertDocumentDialogBanner({
         variant: 'danger' as const,
         ...(hasViolations && {
           action: {
-            onClick: onFixUnsafeIntegerViolations,
+            onClick: onFixViolationError,
             text:
               numViolations === 1 ? 'Convert to Long' : 'Convert all to Long',
           },
@@ -74,7 +74,7 @@ export function InsertDocumentDialogBanner({
     documentValidationError,
     insertInProgress,
     documentWriteError,
-    onFixUnsafeIntegerViolations,
+    onFixViolationError,
   ]);
 
   if (!banner) {

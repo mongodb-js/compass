@@ -205,9 +205,11 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const safeIntegerLinter = useMemo(() => {
     return createSafeIntegerLinter({
       delay: 300,
-      onViolation(from, to, source): Annotation {
-        onUnsafeInteger();
-        return {
+      onViolations(violations): Annotation[] {
+        if (violations.length > 0) {
+          onUnsafeInteger();
+        }
+        return violations.map(({ loc: { from, to }, source }) => ({
           from,
           to,
           severity: 'error',
@@ -228,7 +230,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
               },
             },
           ],
-        };
+        }));
       },
     });
   }, [onUnsafeInteger]);

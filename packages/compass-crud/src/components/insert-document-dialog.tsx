@@ -7,7 +7,7 @@ import React, {
   useState,
 } from 'react';
 import type Document from 'hadron-document';
-import { Element, UnsafeIntegerValidationError } from 'hadron-document';
+import { Element } from 'hadron-document';
 import {
   Banner,
   css,
@@ -32,6 +32,10 @@ import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { WriteError } from '../stores/crud-store';
 import type { EditorRef } from '@mongodb-js/compass-editor';
 import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
+import {
+  type SafeIntegerLinter,
+  useSafeIntegerLinter,
+} from './use-safe-integer-linter';
 
 /**
  * The insert invalid message.
@@ -80,7 +84,7 @@ const DocumentOrJsonView: React.FC<{
   hasManyDocuments: () => boolean;
   updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
   jsonDoc: InsertDocumentDialogProps['jsonDoc'];
-  error: Error | null;
+  safeIntegerLinter: SafeIntegerLinter;
   editorRef: React.RefObject<EditorRef>;
 }> = ({
   jsonView,
@@ -88,7 +92,7 @@ const DocumentOrJsonView: React.FC<{
   hasManyDocuments,
   updateJsonDoc,
   jsonDoc,
-  error,
+  safeIntegerLinter,
   editorRef,
 }) => {
   if (jsonView) {
@@ -96,7 +100,7 @@ const DocumentOrJsonView: React.FC<{
       <InsertJsonDocument
         updateJsonDoc={updateJsonDoc}
         jsonDoc={jsonDoc}
-        error={error}
+        safeIntegerLinter={safeIntegerLinter}
         editorRef={editorRef}
       />
     );
@@ -261,21 +265,8 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     [hasManyDocuments, toggleInsertDocument, toggleInsertDocumentView]
   );
 
-  const onFixUnsafeIntegerViolations = useCallback(() => {
-    const editor = editorRef.current?.editor;
-    if (!editor) {
-      return;
-    }
-    if (documentValidationError instanceof UnsafeIntegerValidationError) {
-      editor.dispatch({
-        changes: documentValidationError.violations.map((violation) => ({
-          from: violation.loc.from,
-          to: violation.loc.to,
-          insert: `{"$numberLong": "${violation.source}"}`,
-        })),
-      });
-    }
-  }, [documentValidationError]);
+  const { onFixViolationError, violationError, safeIntegerLinter } =
+    useSafeIntegerLinter(editorRef);
 
   const currentView = jsonView ? 'JSON' : 'List';
 
@@ -342,15 +333,15 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           hasManyDocuments={hasManyDocuments}
           updateJsonDoc={updateJsonDoc}
           jsonDoc={jsonDoc}
-          error={documentValidationError}
+          safeIntegerLinter={safeIntegerLinter}
           editorRef={editorRef}
         />
       </div>
       <InsertDocumentDialogBanner
-        documentValidationError={documentValidationError}
+        documentValidationError={documentValidationError || violationError}
         documentWriteError={documentWriteError}
         insertInProgress={insertInProgress}
-        onFixUnsafeIntegerViolations={onFixUnsafeIntegerViolations}
+        onFixViolationError={onFixViolationError}
       />
       <InsertCSFLEWarningBanner csfleState={csfleState} />
     </FormModal>

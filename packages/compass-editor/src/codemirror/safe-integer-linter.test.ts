@@ -1,28 +1,31 @@
 import { expect } from 'chai';
 import { setupCodemirrorLinter } from '../../test/linter';
-import { createSafeIntegerLinter } from './safe-integer-linter';
+import {
+  createSafeIntegerLinter,
+  type SafeIntegerViolation,
+} from './safe-integer-linter';
 
 describe('createSafeIntegerLinter', function () {
-  const violations: { from: number; to: number; source: string }[] = [];
+  let violations: SafeIntegerViolation[] = [];
 
   const lint = setupCodemirrorLinter(
     createSafeIntegerLinter({
       delay: 0,
-      onViolation: (from, to, source) => {
-        violations.push({ from, to, source });
-        return {
-          from,
-          to,
+      onViolations: (newViolations) => {
+        violations = newViolations;
+        return newViolations.map(({ loc, source }) => ({
+          from: loc.from,
+          to: loc.to,
           severity: 'error',
           message: 'Exceeds safe integer range.',
           source,
-        };
+        }));
       },
     })
   );
 
   beforeEach(function () {
-    violations.length = 0;
+    violations = [];
   });
 
   it('does not flag a safe integer', function () {
