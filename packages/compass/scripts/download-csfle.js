@@ -32,10 +32,16 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
     console.log('Downloading csfle library for package %s', packageJson.name);
   }
 
+  // The 'continuous' release currently resolves to an 8.x crypt_shared, which
+  // rejects the GA queryType names (prefix/suffix/substring) that server 9.0
+  // expects. Pin the 9.0 release candidate until 9.0 is GA, then switch back
+  // to 'continuous'.
+  const cryptSharedVersion = '9.0.0-rc0';
+
   const downloadOptions = {
     enterprise: true,
     crypt_shared: true,
-    version: 'continuous',
+    version: cryptSharedVersion,
   };
   if (process.platform === 'linux') {
     // The CSFLE shared library is built for different distros,
@@ -47,7 +53,7 @@ const CSFLE_DIRECTORY = path.resolve(PACKAGE_ROOT, 'src', 'deps', 'csfle');
 
   const { downloadedBinDir, version } = await downloadMongoDbWithVersionInfo({
     directory: CACHE_DIR,
-    version: 'continuous',
+    version: cryptSharedVersion,
     downloadOptions,
   });
   await fs.mkdir(CSFLE_DIRECTORY, { recursive: true });
