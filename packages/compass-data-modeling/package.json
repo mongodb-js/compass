@@ -72,7 +72,7 @@
     "lodash": "^4.18.1",
     "mongodb": "^7.5.0",
     "mongodb-ns": "^3.2.0",
-    "mongodb-schema": "^12.6.3",
+    "@mongodb-js/mongodb-schema": "^12.7.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-redux": "^8.1.3",

@@ -1,5 +1,5 @@
 import type { Action, Reducer } from 'redux';
-import { getSimplifiedSchema } from 'mongodb-schema';
+import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import toNS from 'mongodb-ns';
 import { UUID } from 'bson';
 

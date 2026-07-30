@@ -6,7 +6,7 @@ import type {
   DocumentSchemaType,
   PrimitiveSchemaType,
   ConstantSchemaType,
-} from 'mongodb-schema';
+} from '@mongodb-js/mongodb-schema';
 import type { FieldInfo, SampleValue } from './schema-analysis-types';
 import type { ArrayLengthMap } from './components/mock-data-generator-modal/script-generation-utils';
 import type {
