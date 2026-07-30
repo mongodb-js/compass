@@ -1497,7 +1497,7 @@ export const connect = (
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
 > => {
-  return connectWithOptions(connectionInfo, { forceSave: false });
+  return ensureSingleConnection(connectionInfo, { forceSave: false });
 };
 
 export const saveAndConnect = (
@@ -1509,7 +1509,7 @@ export const saveAndConnect = (
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
 > => {
-  return connectWithOptions(connectionInfo, { forceSave: true });
+  return ensureSingleConnection(connectionInfo, { forceSave: true });
 };
 
 type ConnectWithOptionsActions =
@@ -1518,7 +1518,10 @@ type ConnectWithOptionsActions =
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction;
 
-const handleConnection = (
+/**
+ * @internal Do not call directly outside of ensureSingleConnection.
+ */
+const performConnection = (
   connectionInfo: ConnectionInfo,
   options: { forceSave: boolean }
 ): ConnectionsThunkAction<Promise<void>, ConnectWithOptionsActions> => {
@@ -1537,6 +1540,25 @@ const handleConnection = (
     const deviceAuthAbortController = new AbortController();
 
     try {
+      if (!connectable(connectionInfo)) {
+        return;
+      }
+
+      {
+        const { maximumNumberOfActiveConnections } =
+          preferences.getPreferences();
+        if (
+          typeof maximumNumberOfActiveConnections !== 'undefined' &&
+          getActiveConnectionsCount(getState().connections) >=
+            maximumNumberOfActiveConnections
+        ) {
+          getNotificationTriggers().openMaximumConnectionsReachedToast(
+            maximumNumberOfActiveConnections
+          );
+          return;
+        }
+      }
+
       const isAutoconnectAttempt = isAutoconnectInfo(
         getState(),
         connectionInfo.id
@@ -1889,7 +1911,7 @@ const handleConnection = (
   };
 };
 
-const connectWithOptions = (
+const ensureSingleConnection = (
   connectionInfo: ConnectionInfo,
   options: {
     forceSave: boolean;
@@ -1908,24 +1930,6 @@ const connectWithOptions = (
       return;
     }
 
-    if (!connectable(connectionInfo)) {
-      return;
-    }
-
-    {
-      const { maximumNumberOfActiveConnections } = preferences.getPreferences();
-      if (
-        typeof maximumNumberOfActiveConnections !== 'undefined' &&
-        getActiveConnectionsCount(getState().connections) >=
-          maximumNumberOfActiveConnections
-      ) {
-        getNotificationTriggers().openMaximumConnectionsReachedToast(
-          maximumNumberOfActiveConnections
-        );
-        return;
-      }
-    }
-
     const {
       promise,
       resolve: resolveInflightConnection,
@@ -1933,7 +1937,7 @@ const connectWithOptions = (
     } = Promise.withResolvers<void>();
     inflightConnection = promise;
     InFlightConnections.set(connectionInfo.id, inflightConnection);
-    dispatch(handleConnection(connectionInfo, options)).then(
+    dispatch(performConnection(connectionInfo, options)).then(
       resolveInflightConnection,
       rejectInflightConnection
     );
