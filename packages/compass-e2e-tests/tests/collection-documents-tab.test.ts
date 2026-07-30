@@ -625,9 +625,11 @@ FindIterable<Document> result = collection.find(filter);`);
     );
 
     const footer = document.$(Selectors.DocumentFooterMessage);
-    expect(await footer.getText()).to.contain(
-      'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
-    );
+    await browser.waitUntil(async () => {
+      return (await footer.getText()).includes(
+        'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
+      );
+    });
 
     await document.$(Selectors.DocumentFooterFixSafeIntegerLink).click();
 
