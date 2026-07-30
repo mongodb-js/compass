@@ -1926,8 +1926,17 @@ const connectWithOptions = (
       }
     }
 
-    inflightConnection = dispatch(handleConnection(connectionInfo, options));
+    const {
+      promise,
+      resolve: resolveInflightConnection,
+      reject: rejectInflightConnection,
+    } = Promise.withResolvers<void>();
+    inflightConnection = promise;
     InFlightConnections.set(connectionInfo.id, inflightConnection);
+    dispatch(handleConnection(connectionInfo, options)).then(
+      resolveInflightConnection,
+      rejectInflightConnection
+    );
     return inflightConnection;
   };
 };
