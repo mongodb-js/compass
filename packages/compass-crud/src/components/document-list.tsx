@@ -40,6 +40,7 @@ import {
 } from '@mongodb-js/compass-query-bar';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import { useDocumentEditsTelemetry } from '../hooks/use-document-edits-telemetry';
 
 // Table has its own scrollable container.
 const tableStyles = css({
@@ -327,6 +328,11 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     docsPerPage,
     updateMaxDocumentsPerPage,
   } = props;
+
+  useDocumentEditsTelemetry(
+    docs,
+    view === 'Table' ? 'table' : view === 'JSON' ? 'json' : 'list'
+  );
 
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
