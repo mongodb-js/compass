@@ -145,18 +145,10 @@ const MAINTAINED_SERVER_VERSIONS = [
   { name: '70x-enterprise', version: '7.0.x-enterprise', requiredForPublish: true, run_on: 'ubuntu2204-large' },
   { name: '80x-community', version: '8.0.x', requiredForPublish: true },
   { name: '80x-enterprise', version: '8.0.x-enterprise', requiredForPublish: true },
-  // Pre-release entries: tested for early signal but not required for publish so
-  // an unreleased server cannot gate Compass releases. Promote to a stable
-  // version with requiredForPublish once the server reaches GA.
-  { name: '90x-community', version: '9.0.0-rc0', requiredForPublish: false },
-  { name: '90x-enterprise', version: '9.0.0-rc0-enterprise', requiredForPublish: false },
 ];
 
-// Latest generally-available version, used for the core suites we gate publishing
-// on. Resolves to the newest required-for-publish entry so pre-release versions
-// above are excluded.
 const LATEST_MAINTAINED_SERVER_VERSION =
-  [...MAINTAINED_SERVER_VERSIONS].reverse().find((v) => v.requiredForPublish);
+  MAINTAINED_SERVER_VERSIONS[MAINTAINED_SERVER_VERSIONS.length - 1];
 
 const TEST_LATEST_ALPHA_SERVER_VERSION = { name: 'latest-alpha', version: 'latest-alpha-enterprise', requiredForPublish: false };
 
