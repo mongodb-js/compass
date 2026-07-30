@@ -11,7 +11,11 @@ import {
   type FeatureFlags,
   type PreferencesStorage,
 } from 'compass-preferences-model/provider';
-import { getAtlasConfig } from '@mongodb-js/atlas-service/provider';
+import {
+  getAtlasConfig,
+  getCSRFHeaders,
+  shouldAddCSRFHeaders,
+} from '@mongodb-js/atlas-service/provider';
 import { useEffect, useState } from 'react';
 import { defaultHeaders } from './url-builder';
 
@@ -189,7 +193,12 @@ export function createPreferencesAtlasService(): AtlasServiceLike {
     authenticatedFetch: (url, init) =>
       fetch(url, {
         ...init,
-        headers: { ...defaultHeaders, ...init?.headers },
+        headers: {
+          ...defaultHeaders,
+          ...(shouldAddCSRFHeaders(init?.method) && getCSRFHeaders()),
+          ...init?.headers,
+          'X-Compass-Auth': 'true',
+        },
         credentials: 'include',
       }),
   };

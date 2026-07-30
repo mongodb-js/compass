@@ -31,6 +31,23 @@ export class AtlasServiceError extends Error {
   }
 }
 
+export function getCSRFHeaders() {
+  return {
+    'X-CSRF-Token':
+      document
+        .querySelector('meta[name="csrf-token" i]')
+        ?.getAttribute('content') ?? '',
+    'X-CSRF-Time':
+      document
+        .querySelector('meta[name="csrf-time" i]')
+        ?.getAttribute('content') ?? '',
+  };
+}
+
+export function shouldAddCSRFHeaders(method = 'get') {
+  return !/^(get|head|options|trace)$/.test(method.toLowerCase());
+}
+
 export function throwIfNetworkTrafficDisabled(
   preferences: Pick<PreferencesAccess, 'getPreferences'>
 ) {

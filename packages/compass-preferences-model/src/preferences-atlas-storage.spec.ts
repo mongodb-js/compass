@@ -109,11 +109,11 @@ describe('preferences-atlas-storage', function () {
       });
     });
 
-    it('returns "failed" when the saved document is malformed', async function () {
+    it('returns "empty" when the saved document is malformed', async function () {
       authenticatedFetch.resolves(fakeResponse({ _id: 'x', data: 'not json' }));
 
       expect(await loadAtlasPreferences(atlasService)).to.deep.equal({
-        status: 'failed',
+        status: 'empty',
       });
     });
   });

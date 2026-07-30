@@ -3,6 +3,7 @@ import Sinon from 'sinon';
 import { CompassWebPreferencesAccess } from 'compass-preferences-model/provider';
 import type { AllPreferences } from 'compass-preferences-model/provider';
 import {
+  createPreferencesAtlasService,
   DEFAULT_COMPASS_WEB_PREFERENCES,
   getAtlasServiceBackendPreset,
   getPreferencesFromCloudApi,
@@ -96,6 +97,64 @@ describe('compass-web preferences', function () {
       expect(getAtlasServiceBackendPreset('localhost:3000')).to.equal(
         'atlas-local'
       );
+    });
+  });
+
+  describe('createPreferencesAtlasService', function () {
+    let fetchStub: Sinon.SinonStub;
+    const metaTags: HTMLMetaElement[] = [];
+
+    function addMetaTag(name: string, content: string) {
+      const el = document.createElement('meta');
+      el.setAttribute('name', name);
+      el.setAttribute('content', content);
+      document.head.appendChild(el);
+      metaTags.push(el);
+    }
+
+    beforeEach(function () {
+      fetchStub = Sinon.stub(globalThis, 'fetch').resolves(fakeResponse({}));
+      addMetaTag('csrf-token', 'token');
+      addMetaTag('csrf-time', 'time');
+    });
+
+    afterEach(function () {
+      fetchStub.restore();
+      for (const el of metaTags.splice(0)) {
+        el.remove();
+      }
+    });
+
+    it('sends CSRF headers for mutating requests', async function () {
+      await createPreferencesAtlasService().authenticatedFetch('/userData', {
+        method: 'PUT',
+      });
+
+      expect(fetchStub.firstCall.args[1].headers).to.deep.equal({
+        ...defaultHeaders,
+        'X-CSRF-Token': 'token',
+        'X-CSRF-Time': 'time',
+        'X-Compass-Auth': 'true',
+      });
+    });
+
+    it('does not send CSRF headers for safe requests', async function () {
+      await createPreferencesAtlasService().authenticatedFetch('/userData', {
+        method: 'GET',
+      });
+
+      expect(fetchStub.firstCall.args[1].headers).to.deep.equal({
+        ...defaultHeaders,
+        'X-Compass-Auth': 'true',
+      });
+    });
+
+    it('sends credentials with the request', async function () {
+      await createPreferencesAtlasService().authenticatedFetch('/userData', {
+        method: 'GET',
+      });
+
+      expect(fetchStub.firstCall.args[1].credentials).to.equal('include');
     });
   });
 

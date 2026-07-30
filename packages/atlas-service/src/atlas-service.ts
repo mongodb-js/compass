@@ -3,6 +3,8 @@ import type { AtlasAuthService } from './atlas-auth-service';
 import type { AtlasServiceConfig } from './util';
 import {
   getAtlasConfig,
+  getCSRFHeaders,
+  shouldAddCSRFHeaders,
   throwIfNetworkTrafficDisabled,
   throwIfNotOk,
 } from './util';
@@ -18,23 +20,6 @@ export type AtlasServiceOptions = {
 function normalizePath(path?: string) {
   path = path ? (path.startsWith('/') ? path : `/${path}`) : '';
   return encodeURI(path);
-}
-
-function getCSRFHeaders() {
-  return {
-    'X-CSRF-Token':
-      document
-        .querySelector('meta[name="csrf-token" i]')
-        ?.getAttribute('content') ?? '',
-    'X-CSRF-Time':
-      document
-        .querySelector('meta[name="csrf-time" i]')
-        ?.getAttribute('content') ?? '',
-  };
-}
-
-function shouldAddCSRFHeaders(method = 'get') {
-  return !/^(get|head|options|trace)$/.test(method.toLowerCase());
 }
 
 function getAutomationAgentClusterId(
