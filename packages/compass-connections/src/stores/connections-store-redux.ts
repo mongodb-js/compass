@@ -1917,7 +1917,7 @@ const ensureSingleConnection = (
     forceSave: boolean;
   }
 ): ConnectionsThunkAction<Promise<void>, ConnectWithOptionsActions> => {
-  return async (dispatch, getState, { preferences }) => {
+  return async (dispatch, getState) => {
     let inflightConnection = InFlightConnections.get(connectionInfo.id);
     if (inflightConnection) {
       return inflightConnection;
