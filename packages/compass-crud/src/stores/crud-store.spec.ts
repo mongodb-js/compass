@@ -26,8 +26,10 @@ import {
   activateDocumentsPlugin as _activate,
   MAX_DOCS_PER_PAGE_STORAGE_KEY,
   DOCUMENT_VIEW_STORAGE_KEY,
+  parseInsertDocument,
 } from './crud-store';
-import { Int32 } from 'bson';
+import type { InsertDocumentView } from './crud-store';
+import { Int32, Long, Double, Decimal128, ObjectId, Binary } from 'bson';
 import { mochaTestServer } from '@mongodb-js/compass-test-server';
 import {
   createElectronRecentQueryStorage,
@@ -333,7 +335,7 @@ describe('store', function () {
           isCommentNeeded: true,
           isOpen: false,
           jsonDoc: null,
-          insertView: 'list',
+          insertView: 'shell',
           csfleState: { state: 'none' },
           mode: 'modifying',
         },
@@ -417,7 +419,7 @@ describe('store', function () {
     });
   });
 
-  describe('#toggleInsertDocument', function () {
+  describe('#toggleInsertDocumentView', function () {
     let store: CrudStore;
 
     beforeEach(async function () {
@@ -435,7 +437,7 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.insertView', 'list');
       });
 
-      store.toggleInsertDocument('list');
+      store.toggleInsertDocumentView('list');
 
       await listener;
 
@@ -443,7 +445,7 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.insertView', 'json');
       });
 
-      store.toggleInsertDocument('json');
+      store.toggleInsertDocumentView('json');
 
       await listener;
     });
@@ -453,7 +455,7 @@ describe('store', function () {
         expect(state).to.have.nested.property('insert.insertView', 'json');
         expect(state.insert.jsonDoc).to.include('"foo"');
       });
-      store.toggleInsertDocument('json');
+      store.toggleInsertDocumentView('json');
       await listener;
 
       listener = waitForState(store, (state) => {
@@ -462,7 +464,7 @@ describe('store', function () {
         expect(state.insert.jsonDoc).to.match(/foo:/);
         expect(state.insert.jsonDoc).to.not.include('"foo"');
       });
-      store.toggleInsertDocument('shell');
+      store.toggleInsertDocumentView('shell');
       await listener;
 
       listener = waitForState(store, (state) => {
@@ -471,8 +473,58 @@ describe('store', function () {
           foo: 1,
         });
       });
-      store.toggleInsertDocument('json');
+      store.toggleInsertDocumentView('json');
       await listener;
+    });
+
+    it('preserves complex types and out-of-safe-range int64s when switching views', async function () {
+      const complexDoc = {
+        _id: new ObjectId('64eff8f8f8f8f8f8f8f8f8f8'),
+        maxInt64: Long.fromString('9223372036854775807'),
+        minInt64: Long.fromString('-9223372036854775808'),
+        justOverSafe: Long.fromString('9007199254740993'),
+        justUnderSafe: Long.fromString('-9007199254740993'),
+        decimal: new Decimal128('1234567890.0987654321'),
+        bigDouble: new Double(1.234e300),
+        createdAt: new Date('2020-04-05T06:07:08.910Z'),
+        binary: new Binary(Buffer.from('pineapple', 'utf8'), 0x80),
+        nested: {
+          count: new Int32(42),
+          tags: ['a', 'b', 'c'],
+          longs: [
+            Long.fromString('9223372036854775806'),
+            Long.fromString('42'),
+          ],
+        },
+      };
+
+      await store.openInsertDocumentDialog(complexDoc);
+
+      const currentObject = (view: InsertDocumentView) => {
+        const { doc, jsonDoc } = store.state.insert;
+        return view === 'list'
+          ? doc?.generateObject()
+          : parseInsertDocument(view, jsonDoc ?? '').generateObject();
+      };
+
+      const switchTo = async (view: InsertDocumentView) => {
+        const listener = waitForState(store, (state) => {
+          expect(state).to.have.nested.property('insert.insertView', view);
+        });
+        store.toggleInsertDocumentView(view);
+        await listener;
+        expect(currentObject(view)).to.deep.equal(complexDoc);
+      };
+
+      expect(store.state.insert.insertView).to.equal('shell');
+      expect(currentObject('shell')).to.deep.equal(complexDoc);
+
+      await switchTo('json');
+      await switchTo('list');
+      await switchTo('shell');
+      await switchTo('list');
+      await switchTo('json');
+      await switchTo('shell');
     });
   });
 
@@ -1194,10 +1246,11 @@ describe('store', function () {
             expect(state.insert.doc).to.equal(null);
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
-            expect(state.insert.insertView).to.equal('list');
+            expect(state.insert.insertView).to.equal('shell');
             expect(state.insert.error).to.equal(undefined);
           });
 
+          store.state.insert.insertView = 'list';
           store.state.insert.doc = doc;
           void store.insertDocument();
 
@@ -1209,6 +1262,7 @@ describe('store', function () {
         const doc = new HadronDocument({ name: 'testing' });
 
         beforeEach(function () {
+          store.state.insert.insertView = 'list';
           store.state.insert.doc = doc;
           mockQueryBar.getLastAppliedQuery.returns({
             filter: { name: 'something' },
@@ -1222,7 +1276,7 @@ describe('store', function () {
             expect(state.insert.doc).to.equal(null);
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
-            expect(state.insert.insertView).to.equal('list');
+            expect(state.insert.insertView).to.equal('shell');
             expect(state.insert.error).to.equal(undefined);
           });
 
@@ -1320,7 +1374,7 @@ describe('store', function () {
             expect(state.insert.doc).to.equal(doc);
             expect(state.insert.jsonDoc).to.equal(jsonDoc);
             expect(state.insert.isOpen).to.equal(true);
-            expect(state.insert.insertView).to.equal('list');
+            expect(state.insert.insertView).to.equal('shell');
             expect(state.insert.error).to.exist;
             expect(state.insert.error.message).to.not.be.empty;
           });
@@ -1397,7 +1451,7 @@ describe('store', function () {
               expect(state.insert.doc).to.equal(null);
               expect(state.insert.jsonDoc).to.equal(null);
               expect(state.insert.isOpen).to.equal(false);
-              expect(state.insert.insertView).to.equal('list');
+              expect(state.insert.insertView).to.equal('shell');
               expect(state.insert.error).to.equal(undefined);
 
               expect(state.status).to.equal('fetching');
@@ -1457,7 +1511,7 @@ describe('store', function () {
             expect(state.insert.doc).to.equal(null);
             expect(state.insert.jsonDoc).to.equal(null);
             expect(state.insert.isOpen).to.equal(false);
-            expect(state.insert.insertView).to.equal('list');
+            expect(state.insert.insertView).to.equal('shell');
             expect(state.insert.error).to.equal(undefined);
           });
 

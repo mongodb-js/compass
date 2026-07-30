@@ -508,7 +508,7 @@ class CrudStoreImpl
       jsonDoc: null,
       csfleState: { state: 'none' },
       mode: MODIFYING,
-      insertView: 'list',
+      insertView: 'shell',
       isOpen: false,
       isCommentNeeded: true,
     };
@@ -1055,13 +1055,13 @@ class CrudStoreImpl
       csfleState.state = 'csfle-disabled';
     }
 
-    const jsonDoc = hadronDoc.toEJSON();
+    const insertView = 'shell';
 
     this.setState({
       insert: {
         doc: hadronDoc,
-        jsonDoc: jsonDoc,
-        insertView: 'json',
+        jsonDoc: serializeInsertDocument(insertView, hadronDoc),
+        insertView,
         error: undefined,
         csfleState,
         mode: MODIFYING,
@@ -1314,12 +1314,16 @@ class CrudStoreImpl
   }
 
   /**
-   * Switch between list and JSON views when inserting a document through Insert Document modal.
+   * Switch between the list, JSON, and shell views when inserting through the
+   * Insert Document modal.
    *
-   * Also modifies doc and jsonDoc states to keep accurate data for each view.
+   * The `list` (Hadron Document) view is only available for a single document,
+   * so it converts between the structured `doc` and the editor text. For the
+   * text views it just converts `jsonDoc` between EJSON and shell syntax.
+   *
    * @param {String} view - view we are switching to.
    */
-  toggleInsertDocument(view: InsertDocumentView) {
+  toggleInsertDocumentView(view: InsertDocumentView) {
     const { insertView: from, doc, jsonDoc } = this.state.insert;
     const common: Pick<
       InsertState,
@@ -1347,31 +1351,6 @@ class CrudStoreImpl
         : convertInsertText(from, view, jsonDoc ?? '');
     this.setState({
       insert: { ...common, insertView: view, doc, jsonDoc: nextJsonDoc },
-    });
-  }
-
-  /**
-   * Toggle the insert view for the multiple-document case, converting the
-   * editor text between EJSON and shell syntax while keeping it in place.
-   *
-   * @param {String} view - view we are switching to.
-   */
-  toggleInsertDocumentView(view: InsertDocumentView) {
-    this.setState({
-      insert: {
-        doc: new Document({}),
-        jsonDoc: convertInsertText(
-          this.state.insert.insertView,
-          view,
-          this.state.insert.jsonDoc ?? ''
-        ),
-        insertView: view,
-        error: undefined,
-        csfleState: this.state.insert.csfleState,
-        mode: MODIFYING,
-        isOpen: true,
-        isCommentNeeded: this.state.insert.isCommentNeeded,
-      },
     });
   }
 
@@ -1432,7 +1411,7 @@ class CrudStoreImpl
       const payload = {
         ns: this.state.ns,
         view: this.state.view,
-        mode: insertMode,
+        mode: this.state.insert.insertView !== 'list' ? 'json' : 'default',
         multiple: isMultipleDocs,
         docs,
       };
@@ -1522,7 +1501,7 @@ class CrudStoreImpl
       const payload = {
         ns: this.state.ns,
         view: this.state.view,
-        mode: insertMode,
+        mode: this.state.insert.insertView !== 'list' ? 'json' : 'default',
         multiple: false,
         docs: [doc],
       };

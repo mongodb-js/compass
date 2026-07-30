@@ -17,7 +17,6 @@ const configureActions = () => {
     'insertDocument',
     'insertMany',
     'toggleInsertDocumentView',
-    'toggleInsertDocument',
     'openInsertDocumentDialog',
     'openBulkUpdateModal',
     'updateBulkUpdatePreview',

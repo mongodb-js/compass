@@ -111,7 +111,6 @@ export type DocumentListProps = {
     | 'insertDocument'
     | 'insertMany'
     | 'updateJsonDoc'
-    | 'toggleInsertDocument'
     | 'toggleInsertDocumentView'
     | 'version'
     | 'ns'
@@ -313,7 +312,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     insertDocument,
     insertMany,
     updateJsonDoc,
-    toggleInsertDocument,
     toggleInsertDocumentView,
     version,
     ns,
@@ -633,7 +631,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             insertDocument={insertDocument}
             insertMany={insertMany}
             updateJsonDoc={updateJsonDoc}
-            toggleInsertDocument={toggleInsertDocument}
             toggleInsertDocumentView={toggleInsertDocumentView}
             insertView="json"
             version={version}

@@ -19,6 +19,7 @@ import {
   useSyncStateOnPropChange,
   InfoSprinkle,
   Code,
+  Tooltip,
 } from '@mongodb-js/compass-components';
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
@@ -53,10 +54,30 @@ const documentViewContainer = css({
   marginTop: spacing[400],
 });
 
+const insertViewOptions = [
+  {
+    value: 'shell',
+    label: 'Shell syntax',
+    testId: 'insert-document-dialog-view-shell',
+    glyph: 'Shell',
+  },
+  {
+    value: 'list',
+    label: 'Visual editor',
+    testId: 'insert-document-dialog-view-list',
+    glyph: 'Menu',
+  },
+  {
+    value: 'json',
+    label: 'EJSON',
+    testId: 'insert-document-dialog-view-json',
+    glyph: 'CurlyBraces',
+  },
+] as const;
+
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   closeInsertDocumentDialog: () => void;
   toggleInsertDocumentView: (view: InsertDocumentView) => void;
-  toggleInsertDocument: (view: InsertDocumentView) => void;
   insertDocument: () => void;
   insertMany: () => void;
   isOpen: boolean;
@@ -134,7 +155,6 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   track,
   insertMany,
   insertDocument,
-  toggleInsertDocument,
   toggleInsertDocumentView,
   updateJsonDoc,
   closeInsertDocumentDialog,
@@ -244,22 +264,15 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   }, [setInsertInProgress, insertMany, insertDocument, hasManyDocuments]);
 
   /**
-   * Switches between the JSON, Shell and Hadron Document views.
-   *
-   * In case of multiple documents, only converts the editor text between
-   * views. In other cases, also modifies doc/jsonDoc to keep data in place.
+   * Switches between the JSON, Shell, and Hadron Document views.
    *
    * @param {String} view - which view we are switching to: JSON, Shell or List.
    */
   const switchInsertDocumentView = useCallback(
     (view: string) => {
-      if (!hasManyDocuments()) {
-        toggleInsertDocument(view as InsertDocumentView);
-      } else {
-        toggleInsertDocumentView(view as InsertDocumentView);
-      }
+      toggleInsertDocumentView(view as InsertDocumentView);
     },
-    [hasManyDocuments, toggleInsertDocument, toggleInsertDocumentView]
+    [toggleInsertDocumentView]
   );
 
   const onFixUnsafeIntegerViolations = useCallback(() => {
@@ -280,12 +293,24 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
 
   const isTextView = insertView !== 'list';
 
+  // The visual editor can only represent a single document, so disable it when
+  // the editor holds an array.
+  const isManyDocuments = hasManyDocuments();
+
+  // `SegmentedControl` overrides the `ref` on its options, so we can't anchor
+  // the tooltip that way. Instead we capture the hovered option's element from
+  // the mouse event and point a single tooltip at it. We keep the label after
+  // unhovering so the text stays visible through the close animation.
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [tooltipLabel, setTooltipLabel] = useState('');
+  const hoveredOptionRef = useRef<HTMLElement | null>(null);
+
   return (
     <FormModal
       title="Insert Document"
       subtitle={`To collection ${ns}`}
       open={isOpen}
-      onSubmit={handleInsert.bind(this)}
+      onSubmit={handleInsert}
       onCancel={closeInsertDocumentDialog}
       submitButtonText="Insert"
       submitDisabled={Boolean(documentValidationError)}
@@ -308,45 +333,43 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           size="xsmall"
           value={insertView}
           aria-controls={documentViewId}
-          onChange={switchInsertDocumentView.bind(this)}
+          onChange={switchInsertDocumentView}
         >
-          <SegmentedControlOption
-            disabled={Boolean(documentValidationError)}
-            data-testid="insert-document-dialog-view-json"
-            aria-label="E-JSON View"
-            value="json"
-            glyph={<Icon glyph="CurlyBraces" />}
-            onClick={(evt) => {
-              // We override the `onClick` functionality to prevent form submission.
-              // The value changing occurs in the `onChange` in the `SegmentedControl`.
-              evt.preventDefault();
-            }}
-          ></SegmentedControlOption>
-          <SegmentedControlOption
-            disabled={Boolean(documentValidationError)}
-            data-testid="insert-document-dialog-view-shell"
-            aria-label="Shell syntax view"
-            value="shell"
-            glyph={<Icon glyph="Shell" />}
-            onClick={(evt) => {
-              // We override the `onClick` functionality to prevent form submission.
-              // The value changing occurs in the `onChange` in the `SegmentedControl`.
-              evt.preventDefault();
-            }}
-          ></SegmentedControlOption>
-          <SegmentedControlOption
-            disabled={Boolean(documentValidationError)}
-            data-testid="insert-document-dialog-view-list"
-            aria-label="Document list"
-            value="list"
-            onClick={(evt) => {
-              // We override the `onClick` functionality to prevent form submission.
-              // The value changing occurs in the `onChange` in the `SegmentedControl`.
-              evt.preventDefault();
-            }}
-            glyph={<Icon glyph="Menu" />}
-          ></SegmentedControlOption>
+          {insertViewOptions.map((option) => {
+            const disabledForManyDocs =
+              option.value === 'list' && isManyDocuments;
+            return (
+              <SegmentedControlOption
+                key={option.value}
+                disabled={
+                  Boolean(documentValidationError) || disabledForManyDocs
+                }
+                data-testid={option.testId}
+                aria-label={option.label}
+                value={option.value}
+                glyph={<Icon glyph={option.glyph} />}
+                onMouseEnter={(evt) => {
+                  hoveredOptionRef.current = evt.currentTarget;
+                  setTooltipLabel(
+                    disabledForManyDocs
+                      ? 'The visual editor is unavailable for multiple documents'
+                      : option.label
+                  );
+                  setTooltipOpen(true);
+                }}
+                onMouseLeave={() => setTooltipOpen(false)}
+                onClick={(evt) => {
+                  // We override the `onClick` functionality to prevent form submission.
+                  // The value changing occurs in the `onChange` in the `SegmentedControl`.
+                  evt.preventDefault();
+                }}
+              ></SegmentedControlOption>
+            );
+          })}
         </SegmentedControl>
+        <Tooltip open={tooltipOpen} refEl={hoveredOptionRef}>
+          {tooltipLabel}
+        </Tooltip>
       </div>
       <div className={documentViewContainer} id={documentViewId}>
         <DocumentOrJsonView

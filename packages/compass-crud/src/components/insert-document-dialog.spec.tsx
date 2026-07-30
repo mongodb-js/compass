@@ -10,7 +10,6 @@ const defaultProps = {
   closeInsertDocumentDialog: noop,
   insertDocument: noop,
   insertMany: noop,
-  toggleInsertDocument: noop,
   toggleInsertDocumentView: noop,
   isCommentNeeded: false,
   csfleState: { state: 'none' },
@@ -55,6 +54,56 @@ describe('InsertDocumentDialog', function () {
       /numberLong string is too long/i
     );
     expect(errorMessage).to.exist;
+  });
+
+  it('renders the view options in order: shell, list, json', function () {
+    const doc = new HadronDocument({});
+    doc.editing = true;
+    render(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        jsonDoc="{}"
+        updateJsonDoc={noop}
+        insertView="json"
+      />
+    );
+
+    const shell = screen.getByTestId('insert-document-dialog-view-shell');
+    const list = screen.getByTestId('insert-document-dialog-view-list');
+    const json = screen.getByTestId('insert-document-dialog-view-json');
+
+    expect(
+      shell.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).to.be.greaterThan(0);
+    expect(
+      list.compareDocumentPosition(json) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).to.be.greaterThan(0);
+  });
+
+  it('disables the visual editor when the editor holds an array', function () {
+    const doc = new HadronDocument({});
+    doc.editing = true;
+    render(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        jsonDoc='[{ "a": 1 }, { "a": 2 }]'
+        updateJsonDoc={noop}
+        insertView="json"
+      />
+    );
+
+    const buttonIn = (testId: string) =>
+      screen.getByTestId(testId).querySelector('button');
+    expect(buttonIn('insert-document-dialog-view-list')).to.have.property(
+      'disabled',
+      true
+    );
+    expect(buttonIn('insert-document-dialog-view-shell')).to.have.property(
+      'disabled',
+      false
+    );
   });
 
   it('accepts valid shell syntax without an error', async function () {
@@ -106,6 +155,7 @@ describe('InsertDocumentDialog', function () {
         insertView="shell"
       />
     );
+    expect(screen.queryByTestId('insert-document-banner')).to.not.exist;
     await setCodemirrorEditorValue(
       screen.getByTestId('insert-document-json-editor'),
       '{ _id: ObjectId( }'
