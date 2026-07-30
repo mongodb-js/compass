@@ -74,6 +74,11 @@ import AppRegistry, {
 import { expect } from 'chai';
 import { Provider } from 'react-redux';
 import ConnectionString from 'mongodb-connection-string-url';
+import {
+  AtlasAuthServiceProvider,
+  AtlasServiceProvider,
+  type AtlasAuthService,
+} from '@mongodb-js/atlas-service/provider';
 
 import './assertions';
 
@@ -423,41 +428,48 @@ function createWrapper(
           <_CompassComponentsProvider popoverPortalContainer={container}>
             <PreferencesProvider value={wrapperState.preferences}>
               <LoggerProvider value={logger}>
-                <TelemetryProvider options={telemetryOptions}>
-                  <CompassExperimentationProvider
-                    {...experimentationProviderProps}
-                  >
-                    <ConnectionStorageProvider
-                      value={wrapperState.connectionStorage}
-                    >
-                      <ConnectFnProvider connect={wrapperState.connect}>
-                        <CompassConnections
-                          appName={options.appName ?? 'TEST'}
-                          onExtraConnectionDataRequest={
-                            options.onExtraConnectionDataRequest ??
-                            (() => {
-                              return Promise.resolve([{}, null] as [any, null]);
-                            })
-                          }
-                          onAutoconnectInfoRequest={
-                            options.onAutoconnectInfoRequest
-                          }
-                          preloadStorageConnectionInfos={connections}
+                <AtlasAuthServiceProvider value={{} as AtlasAuthService}>
+                  <AtlasServiceProvider>
+                    <TelemetryProvider options={telemetryOptions}>
+                      <CompassExperimentationProvider
+                        {...experimentationProviderProps}
+                      >
+                        <ConnectionStorageProvider
+                          value={wrapperState.connectionStorage}
                         >
-                          <StoreGetter>
-                            <TestEnvCurrentConnectionContext.Provider
-                              value={TEST_ENV_CURRENT_CONNECTION}
+                          <ConnectFnProvider connect={wrapperState.connect}>
+                            <CompassConnections
+                              appName={options.appName ?? 'TEST'}
+                              onExtraConnectionDataRequest={
+                                options.onExtraConnectionDataRequest ??
+                                (() => {
+                                  return Promise.resolve([{}, null] as [
+                                    any,
+                                    null
+                                  ]);
+                                })
+                              }
+                              onAutoconnectInfoRequest={
+                                options.onAutoconnectInfoRequest
+                              }
+                              preloadStorageConnectionInfos={connections}
                             >
-                              <TestingLibraryWrapper {...props}>
-                                {children}
-                              </TestingLibraryWrapper>
-                            </TestEnvCurrentConnectionContext.Provider>
-                          </StoreGetter>
-                        </CompassConnections>
-                      </ConnectFnProvider>
-                    </ConnectionStorageProvider>
-                  </CompassExperimentationProvider>
-                </TelemetryProvider>
+                              <StoreGetter>
+                                <TestEnvCurrentConnectionContext.Provider
+                                  value={TEST_ENV_CURRENT_CONNECTION}
+                                >
+                                  <TestingLibraryWrapper {...props}>
+                                    {children}
+                                  </TestingLibraryWrapper>
+                                </TestEnvCurrentConnectionContext.Provider>
+                              </StoreGetter>
+                            </CompassConnections>
+                          </ConnectFnProvider>
+                        </ConnectionStorageProvider>
+                      </CompassExperimentationProvider>
+                    </TelemetryProvider>
+                  </AtlasServiceProvider>
+                </AtlasAuthServiceProvider>
               </LoggerProvider>
             </PreferencesProvider>
           </_CompassComponentsProvider>
