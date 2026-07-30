@@ -613,6 +613,8 @@ export const CloneDocumentButton = '[data-testid="clone-document-button"]';
 export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
 export const DocumentFooter = '[data-testid="document-footer"]';
 export const DocumentFooterMessage = '[data-testid="document-footer-message"]';
+export const DocumentFooterFixUnsafeIntegerLink =
+  '[data-testid="fix-unsafe-integer-violations-button"]';
 export const DocumentFooterErrorDetailsButton =
   '[data-testid="edit-actions-footer-error-details-button"]';
 export const UpdateDocumentButton = `${DocumentFooter} [data-testid="update-button"]`;
@@ -635,7 +637,7 @@ export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
   '[data-testid="insert-document-banner"][data-variant="danger"]';
 export const InsertDialogErrorDetailsBtn =
-  'button[data-testid="insert-document-error-details-button"]';
+  'button[data-testid="insert-document-error-action-button"]';
 export const InsertJSONEditor = '[data-testid="insert-document-json-editor"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';
@@ -1575,3 +1577,8 @@ export const AssistantConfirmClearChatModalConfirmButton = `${AssistantConfirmCl
 export const AIOptInModal = '[data-testid="ai-optin-modal"]';
 export const AIOptInModalAcceptButton = 'button=Use AI Features';
 export const AIOptInModalDeclineLink = 'span=Not now';
+
+// Codemirror
+export const CodemirrorLintErrorIcon = '.cm-lint-marker.cm-lint-marker-error';
+export const CodemirrorLintTooltip = '.cm-tooltip-lint';
+export const CodemirrorLintAction = '.cm-diagnosticAction';

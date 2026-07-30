@@ -132,20 +132,22 @@ export default function ThemedHome(
   props: HomeWithConnectionsProps
 ): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
-  const {
-    enableContextMenus,
-    legacyUUIDDisplayEncoding,
-    showedNetworkOptIn,
-    enableGuideCues,
-  } = usePreferences([
-    'enableContextMenus',
-    'legacyUUIDDisplayEncoding',
-    'showedNetworkOptIn',
-    'enableGuideCues',
-  ]);
+  const { legacyUUIDDisplayEncoding, showedNetworkOptIn, enableGuideCues } =
+    usePreferences([
+      'legacyUUIDDisplayEncoding',
+      'showedNetworkOptIn',
+      'enableGuideCues',
+    ]);
   return (
     <CompassComponentsProvider
       legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
+      onGuideCueShown={(cue) => {
+        track('Guide Cue Shown', {
+          groupId: cue.groupId,
+          cueId: cue.cueId,
+          step: cue.step,
+        });
+      }}
       onNextGuideGue={(cue) => {
         track('Guide Cue Dismissed', {
           groupId: cue.groupId,
@@ -198,7 +200,7 @@ export default function ThemedHome(
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
-      disableContextMenus={!enableContextMenus}
+      disableContextMenus={false}
       // Wait for the "Welcome" modal to disappear before showing any guide cues
       // in the app
       disableGuideCues={!enableGuideCues || !showedNetworkOptIn}

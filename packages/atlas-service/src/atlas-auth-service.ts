@@ -22,9 +22,6 @@ export abstract class AtlasAuthService extends EventEmitter {
   ): Promise<AtlasUserInfo>;
   abstract signOut(): Promise<void>;
   abstract isAuthenticated(opts?: ArgsWithSignal): Promise<boolean>;
-  abstract getAuthHeaders(
-    opts?: ArgsWithSignal
-  ): Promise<Record<string, string>>;
 
   abstract getUserInfo(opts?: ArgsWithSignal): Promise<AtlasUserInfo>;
 

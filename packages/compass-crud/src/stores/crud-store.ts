@@ -965,6 +965,11 @@ class CrudStoreImpl
    * Closing the insert document dialog just resets the state to the default.
    */
   closeInsertDocumentDialog() {
+    this.track(
+      'Document Insert Cancelled',
+      { mode: this.state.insert.jsonView ? 'json' : 'field-by-field' },
+      this.connectionInfoRef.current
+    );
     this.setState({
       insert: this.getInitialInsertState(),
     });
@@ -1388,6 +1393,8 @@ class CrudStoreImpl
    * Insert a single document.
    */
   async insertMany() {
+    const insertMode = this.state.insert.jsonView ? 'json' : 'field-by-field';
+    let isMultipleDocs = false;
     try {
       const schemaFields = this.fieldStoreService.getSchemaFieldsForNamespace(
         this.state.ns
@@ -1400,22 +1407,25 @@ class CrudStoreImpl
         }
         return doc.generateObject();
       });
+      isMultipleDocs = docs.length > 1;
+
+      await this.dataService.insertMany(this.state.ns, docs);
+
       this.track(
         'Document Inserted',
         {
-          mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
-          multiple: docs.length > 1,
+          mode: insertMode,
+          multiple: isMultipleDocs,
         },
         this.connectionInfoRef.current
       );
 
-      await this.dataService.insertMany(this.state.ns, docs);
       // track mode for analytics events
       const payload = {
         ns: this.state.ns,
         view: this.state.view,
         mode: this.state.insert.jsonView ? 'json' : 'default',
-        multiple: true,
+        multiple: isMultipleDocs,
         docs,
       };
       void this.fieldStoreService.updateFieldsFromDocuments(
@@ -1427,6 +1437,14 @@ class CrudStoreImpl
 
       this.state.insert = this.getInitialInsertState();
     } catch (error) {
+      this.track(
+        'Document Insert Failed',
+        {
+          mode: insertMode,
+          multiple: isMultipleDocs,
+        },
+        this.connectionInfoRef.current
+      );
       this.setState({
         insert: {
           doc: new Document({}),
@@ -1453,16 +1471,9 @@ class CrudStoreImpl
    * view to insert.
    */
   async insertDocument() {
-    this.track(
-      'Document Inserted',
-      {
-        mode: this.state.insert.jsonView ? 'json' : 'field-by-field',
-        multiple: false,
-      },
-      this.connectionInfoRef.current
-    );
-
     let doc: BSONObject;
+
+    const insertMode = this.state.insert.jsonView ? 'json' : 'field-by-field';
 
     try {
       const schemaFields = this.fieldStoreService.getSchemaFieldsForNamespace(
@@ -1490,6 +1501,15 @@ class CrudStoreImpl
       }
       await this.dataService.insertOne(this.state.ns, doc);
 
+      this.track(
+        'Document Inserted',
+        {
+          mode: insertMode,
+          multiple: false,
+        },
+        this.connectionInfoRef.current
+      );
+
       const payload = {
         ns: this.state.ns,
         view: this.state.view,
@@ -1505,6 +1525,14 @@ class CrudStoreImpl
 
       this.state.insert = this.getInitialInsertState();
     } catch (error) {
+      this.track(
+        'Document Insert Failed',
+        {
+          mode: insertMode,
+          multiple: false,
+        },
+        this.connectionInfoRef.current
+      );
       this.setState({
         insert: {
           doc: this.state.insert.doc,
@@ -1566,6 +1594,13 @@ class CrudStoreImpl
    * The view has changed.
    */
   viewChanged(view: DocumentView) {
+    if (view !== this.state.view) {
+      this.track(
+        'Document View Changed',
+        { view: view.toLowerCase() as Lowercase<DocumentView> },
+        this.connectionInfoRef.current
+      );
+    }
     localStorage.setItem(DOCUMENT_VIEW_STORAGE_KEY, view);
     this.setState({ view: view });
   }

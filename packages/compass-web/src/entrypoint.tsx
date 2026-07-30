@@ -43,6 +43,7 @@ import { CompassIndexesPlugin } from '@mongodb-js/compass-indexes';
 import { CompassSchemaValidationPlugin } from '@mongodb-js/compass-schema-validation';
 import { CompassGlobalWritesPlugin } from '@mongodb-js/compass-global-writes';
 import { CompassGenerativeAIPlugin } from '@mongodb-js/compass-generative-ai';
+import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import ExplainPlanCollectionTabModal from '@mongodb-js/compass-explain-plan';
 import ExportToLanguageCollectionTabModal from '@mongodb-js/compass-export-to-language';
 import {
@@ -411,12 +412,10 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
   darkMode?: boolean;
 }> = ({ darkMode, children }) => {
   const track = useTelemetry();
-  const { enableContextMenus, enableGuideCues, legacyUUIDDisplayEncoding } =
-    usePreferences([
-      'enableContextMenus',
-      'enableGuideCues',
-      'legacyUUIDDisplayEncoding',
-    ]);
+  const { enableGuideCues, legacyUUIDDisplayEncoding } = usePreferences([
+    'enableGuideCues',
+    'legacyUUIDDisplayEncoding',
+  ]);
   return (
     <CompassComponentsProvider
       darkMode={darkMode}
@@ -424,6 +423,13 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
       // Making sure that compass-web modals and tooltips are definitely not
       // hidden by Cloud UI sidebar and page header
       stackedElementsZIndex={10_000}
+      onGuideCueShown={(cue) => {
+        track('Guide Cue Shown', {
+          groupId: cue.groupId,
+          cueId: cue.cueId,
+          step: cue.step,
+        });
+      }}
       onNextGuideGue={(cue) => {
         track('Guide Cue Dismissed', {
           groupId: cue.groupId,
@@ -478,13 +484,20 @@ const CompassComponentsProviderWeb: React.FunctionComponent<{
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
-      disableContextMenus={!enableContextMenus}
+      disableContextMenus={false}
       disableGuideCues={!enableGuideCues}
       {...LINK_PROPS}
     >
       {children}
     </CompassComponentsProvider>
   );
+};
+
+const CompassSettingsPluginWithPreferences = () => {
+  const { enableCompassWebSettings } = usePreferences([
+    'enableCompassWebSettings',
+  ]);
+  return enableCompassWebSettings ? <CompassSettingsPlugin /> : null;
 };
 
 const CompassWebWithPreferences = ({
@@ -600,6 +613,7 @@ const CompassWebWithPreferences = ({
                                     projectId={projectId}
                                     isCloudOptIn={true}
                                   />
+                                  <CompassSettingsPluginWithPreferences />
                                 </CompassInstanceStorePlugin>
                               </CompassConnections>
                             </CompassAssistantProvider>

@@ -406,8 +406,6 @@ const Schema: React.FunctionComponent<{
     'enablePerformanceAdvisorBanner'
   );
 
-  const enableExportSchema = usePreference('enableExportSchema');
-
   return (
     <>
       <div className={rootStyles}>
@@ -440,12 +438,10 @@ const Schema: React.FunctionComponent<{
           </div>
         </WorkspaceContainer>
       </div>
-      {enableExportSchema && <ExportSchemaModal />}
-      {enableExportSchema && (
-        <ExportSchemaLegacyModal
-          setShowLegacyExportTooltip={setShowLegacyExportTooltip}
-        />
-      )}
+      <ExportSchemaModal />
+      <ExportSchemaLegacyModal
+        setShowLegacyExportTooltip={setShowLegacyExportTooltip}
+      />
     </>
   );
 };

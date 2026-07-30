@@ -12,7 +12,6 @@ import type {
 } from 'mongodb-schema';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
-import type { PreferencesAccess } from 'compass-preferences-model/provider';
 
 // hack for driver 3.6 not promoting error codes and
 // attributes from ejson when promoteValue is false.
@@ -40,8 +39,7 @@ export const analyzeSchema = async (
       }
     | undefined,
   aggregateOptions: AggregateOptions,
-  { log, mongoLogId, debug }: Logger,
-  preferences: PreferencesAccess
+  { log, mongoLogId, debug }: Logger
 ): Promise<SchemaAccessor | undefined> => {
   try {
     log.info(mongoLogId(1001000089), 'Schema', 'Starting schema analysis', {
@@ -60,15 +58,10 @@ export const analyzeSchema = async (
         fallbackReadPreference: 'secondaryPreferred',
       }
     );
-    const { enableExportSchema } = preferences.getPreferences();
-    const schemaParseOptions: SchemaParseOptions = enableExportSchema
-      ? {
-          signal: abortSignal,
-          storedValuesLengthLimit: 100,
-        }
-      : {
-          signal: abortSignal,
-        };
+    const schemaParseOptions: SchemaParseOptions = {
+      signal: abortSignal,
+      storedValuesLengthLimit: 100,
+    };
     const schemaAccessor = await analyzeDocuments(
       sampleCursor,
       schemaParseOptions

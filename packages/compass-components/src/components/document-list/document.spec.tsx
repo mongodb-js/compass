@@ -56,6 +56,18 @@ describe('Document', function () {
     expect(screen.getByTitle('1970-01-01T00:00:00.000+00:00')).to.exist;
   });
 
+  it('renders a readonly document with no fields as an empty document', function () {
+    render(<Document value={new HadronDocument({})}></Document>);
+    const empty = screen.getByTestId('readonly-document-empty');
+    expect(empty).to.exist;
+    expect(empty.textContent).to.equal('(empty document)');
+  });
+
+  it('does not render the empty document placeholder for editable documents', function () {
+    render(<Document value={new HadronDocument({})} editable></Document>);
+    expect(screen.queryByTestId('readonly-document-empty')).to.not.exist;
+  });
+
   describe('edit mode', function () {
     it('should change element key name on edit', function () {
       render(<Document value={doc} editable editing></Document>);

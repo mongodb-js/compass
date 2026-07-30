@@ -76,11 +76,14 @@ export class AtlasService {
   get config(): AtlasServiceConfig {
     return this.defaultConfigOverride ?? getAtlasConfig(this.preferences);
   }
-  adminApiEndpoint(path?: string): string {
-    return `${this.config.atlasApiBaseUrl}${normalizePath(path)}`;
+  privateApiEndpoint(path?: string): string {
+    return `${this.config.atlasPrivateApiBaseUrl}${normalizePath(path)}`;
   }
   cloudEndpoint(path?: string): string {
     return `${this.config.cloudBaseUrl}${normalizePath(path)}`;
+  }
+  adminApiEndpoint(path?: string): string {
+    return `${this.config.atlasAdminApiBaseUrl}${normalizePath(path)}`;
   }
   assistantApiEndpoint(path?: string): string {
     return `${this.config.assistantApiBaseUrl}${normalizePath(path)}`;
@@ -162,12 +165,11 @@ export class AtlasService {
     url: RequestInfo | URL,
     init?: RequestInit
   ): Promise<Response> {
-    const authHeaders = await this.authService.getAuthHeaders();
     return this.fetch(url, {
       ...init,
       headers: {
         ...init?.headers,
-        ...authHeaders,
+        ['X-Compass-Auth']: 'true',
       },
       credentials: 'include',
     });

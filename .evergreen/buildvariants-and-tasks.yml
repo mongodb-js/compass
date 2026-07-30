@@ -5,14 +5,14 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Check
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: check
   - name: unit-tests-ubuntu
     tags:
       - run-on-pr
     display_name: Unit Tests Ubuntu
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test
       - name: test-electron
@@ -99,7 +99,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Smoke Test via GitHub Actions
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -150,17 +150,23 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Test Maintained Servers
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
     tasks:
       - name: test-server-70x-community-1
+        run_on: ubuntu2204-large
       - name: test-server-70x-community-2
+        run_on: ubuntu2204-large
       - name: test-server-70x-community-3
+        run_on: ubuntu2204-large
       - name: test-server-70x-enterprise-1
+        run_on: ubuntu2204-large
       - name: test-server-70x-enterprise-2
+        run_on: ubuntu2204-large
       - name: test-server-70x-enterprise-3
+        run_on: ubuntu2204-large
       - name: test-server-80x-community-1
       - name: test-server-80x-community-2
       - name: test-server-80x-community-3
@@ -169,7 +175,7 @@ buildvariants:
       - name: test-server-80x-enterprise-3
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -180,8 +186,8 @@ buildvariants:
   - name: test-packaged-app-ubuntu
     tags:
       - run-on-pr
-    display_name: Test Packaged App Ubuntu 22.04
-    run_on: ubuntu2204-large
+    display_name: Test Packaged App Ubuntu 24.04
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -209,28 +215,6 @@ buildvariants:
     depends_on:
       - name: package-compass
         variant: package-rhel
-    tasks:
-      - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
-  - name: test-packaged-app-macos-14-arm
-    tags:
-      - run-on-pr
-    display_name: Test Packaged App MacOS arm64 14
-    run_on: macos-14-arm64-gui
-    depends_on:
-      - name: package-compass
-        variant: package-macos-arm
-    tasks:
-      - name: test-packaged-app-1
-      - name: test-packaged-app-2
-      - name: test-packaged-app-3
-  - name: test-packaged-app-macos-14-x64
-    display_name: Test Packaged App MacOS x64 14
-    run_on: macos-14-gui
-    depends_on:
-      - name: package-compass
-        variant: package-macos-x64
     tasks:
       - name: test-packaged-app-1
       - name: test-packaged-app-2
@@ -281,11 +265,19 @@ buildvariants:
         variant: package-macos-arm
     tasks:
       - name: test-packaged-app-min-version-macos13
+  - name: test-packaged-app-min-macos-x64
+    display_name: Test Packaged App MacOS x64 13 (min version)
+    run_on: macos-13-gui
+    depends_on:
+      - name: package-compass
+        variant: package-macos-x64
+    tasks:
+      - name: test-packaged-app-min-version-macos13
   - name: publish
     tags:
       - run-on-pr
     display_name: Publish Artifacts
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: publish
       - name: publish-web
@@ -300,14 +292,14 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Connectivity Tests
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-connectivity
   - name: e2e-coverage
     tags:
       - run-on-pr
     display_name: E2E Coverage
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: e2e-coverage-1
       - name: e2e-coverage-2
@@ -316,14 +308,14 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: CSFLE Tests
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-csfle
   - name: test-web-sandbox
     tags:
       - run-on-pr
     display_name: Test Web Sandbox
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-chrome-1
       - name: test-web-sandbox-chrome-2
@@ -335,19 +327,19 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Test Can Bundle Compass Web
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-can-bundle-compass-web
   - name: test-web-sandbox-atlas-cloud
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-1
       - name: test-web-sandbox-atlas-cloud-2
       - name: test-web-sandbox-atlas-cloud-3
   - name: test-web-sandbox-atlas-cloud-geo-sharded
     display_name: Test Web Sandbox Geo Sharded (w/ Atlas Cloud login)
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-geo-sharded
         cron: '@daily'
@@ -355,7 +347,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Vulnerability Report
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: generate-vulnerability-report
 tasks:

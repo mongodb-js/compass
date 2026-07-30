@@ -2,7 +2,6 @@ import React from 'react';
 import { DocumentList, css, spacing } from '@mongodb-js/compass-components';
 import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
-import { withPreferences } from 'compass-preferences-model/provider';
 import { getInsightsForDocument } from '../utils';
 import { DocumentEvents } from 'hadron-document';
 import type { CopyDocumentFormat } from '../stores/crud-store';
@@ -28,7 +27,6 @@ export type ReadonlyDocumentProps = {
   copyToClipboard?: (doc: Document, format: CopyDocumentFormat) => void;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   doc: Document;
-  showInsights?: boolean;
   onUpdateQuery?: (field: string, value: unknown) => void;
   query?: Record<string, unknown>;
 };
@@ -147,19 +145,18 @@ class ReadonlyDocument extends React.Component<
   }
 
   renderActions() {
+    const expandProps =
+      this.props.doc.elements.size > 0
+        ? { onExpand: this.handleExpandAll, expanded: this.state.expanded }
+        : {};
     return (
       <DocumentList.DocumentActionsGroup
         onCopy={this.props.copyToClipboard ? this.handleCopy : undefined}
         onClone={
           this.props.openInsertDocumentDialog ? this.handleClone : undefined
         }
-        onExpand={this.handleExpandAll}
-        expanded={this.state.expanded}
-        insights={
-          this.props.showInsights
-            ? getInsightsForDocument(this.props.doc)
-            : undefined
-        }
+        {...expandProps}
+        insights={getInsightsForDocument(this.props.doc)}
       />
     );
   }
@@ -183,4 +180,4 @@ class ReadonlyDocument extends React.Component<
   static displayName = 'ReadonlyDocument';
 }
 
-export default withPreferences(ReadonlyDocument, ['showInsights']);
+export default ReadonlyDocument;

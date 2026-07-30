@@ -423,8 +423,12 @@ const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
     return truncate(value, 70);
   }, [value]);
 
+  const truncatedValueForTitle = useMemo(() => {
+    return truncate(value, 1000);
+  }, [value]);
+
   return (
-    <BSONValueContainer type="String" title={value}>
+    <BSONValueContainer type="String" title={truncatedValueForTitle}>
       &quot;{truncatedValue}&quot;
     </BSONValueContainer>
   );

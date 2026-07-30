@@ -595,6 +595,70 @@ FindIterable<Document> result = collection.find(filter);`);
     );
   });
 
+  it('shows error for unsafe integer values and action to fix them in json view', async function () {
+    await browser.runFindOperation('Documents', '{ i: 123 }');
+    await browser.clickVisible(Selectors.SelectJSONView);
+
+    const document = browser.$(Selectors.DocumentJSONEntry);
+    await document.waitForDisplayed();
+
+    await waitForJSON(browser, document);
+
+    const json = await browser.getCodemirrorEditorText(
+      Selectors.DocumentJSONEntry
+    );
+    expect(json.replace(/\s+/g, ' ')).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": 0 \}$/
+    );
+
+    await browser.hover(Selectors.JSONDocumentCard);
+    await browser.clickVisible(Selectors.JSONEditDocumentButton);
+
+    const newjson = JSON.stringify({
+      ...JSON.parse(json),
+      j: Number.MAX_SAFE_INTEGER + 1,
+    });
+
+    await browser.setCodemirrorEditorValue(
+      Selectors.DocumentJSONEntry,
+      newjson
+    );
+
+    const footer = document.$(Selectors.DocumentFooterMessage);
+    expect(await footer.getText()).to.contain(
+      'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
+    );
+
+    await document.$(Selectors.DocumentFooterFixUnsafeIntegerLink).click();
+
+    const updatedJson = await browser.getCodemirrorEditorText(
+      Selectors.DocumentJSONEntry
+    );
+    expect(updatedJson.replace(/\s+/g, ' ')).to.contain(
+      `"j":{"$numberLong": "${Number.MAX_SAFE_INTEGER + 1}"}`
+    );
+
+    const button = document.$(Selectors.UpdateDocumentButton);
+    await button.click();
+    await footer.waitForDisplayed({ reverse: true });
+
+    await browser.runFindOperation('Documents', '{ i: 123 }');
+    await browser.clickVisible(Selectors.SelectJSONView);
+
+    const modifiedDocument = browser.$(Selectors.DocumentJSONEntry);
+    await modifiedDocument.waitForDisplayed();
+
+    await waitForJSON(browser, modifiedDocument);
+
+    expect(
+      (
+        await browser.getCodemirrorEditorText(Selectors.DocumentJSONEntry)
+      ).replace(/\s+/g, ' ')
+    ).to.match(
+      /^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 123, "j": { "\$numberLong": "[0-9]{16}" } \}$/
+    );
+  });
+
   it('supports view/edit via table view', async function () {
     await browser.runFindOperation('Documents', '{ i: 33 }');
     await browser.clickVisible(Selectors.SelectTableView);
@@ -1146,6 +1210,108 @@ FindIterable<Document> result = collection.find(filter);`);
       await browser
         .$(Selectors.hadronDocumentFieldRow('newFieldFromObject'))
         .waitForDisplayed();
+    });
+  });
+
+  it('handles unsafe integer values when inserting a document in json view', async function () {
+    await browser.navigateToCollectionTab(
+      getDefaultConnectionNames(0),
+      'test',
+      'numbers',
+      'Documents'
+    );
+
+    // browse to the "Insert to Collection" modal
+    await browser.clickVisible(Selectors.AddDataButton);
+    const insertDocumentOption = browser.$(Selectors.InsertDocumentOption);
+    await insertDocumentOption.waitForDisplayed();
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+    await browser.waitForOpenModal(Selectors.InsertDialog);
+
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertJSONEditor,
+      `{ "i": ${Number.MAX_SAFE_INTEGER + 1} }`
+    );
+
+    const banner = browser.$(Selectors.InsertDialogErrorMessage);
+    await banner.waitForDisplayed();
+
+    await browser.waitUntil(async () => {
+      return (await banner.getText()).includes(
+        'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
+      );
+    });
+
+    // Fix the error
+    const errorDetailsBtn = browser.$(Selectors.InsertDialogErrorDetailsBtn);
+    await banner.waitForDisplayed();
+    await errorDetailsBtn.click();
+
+    // Banner should be gone now
+    await banner.waitForDisplayed({ reverse: true });
+
+    const updatedJson = await browser.getCodemirrorEditorText(
+      Selectors.InsertJSONEditor
+    );
+    expect(updatedJson.replace(/\s+/g, ' ')).to.include(
+      `"i": {"$numberLong": "${Number.MAX_SAFE_INTEGER + 1}"}`
+    );
+
+    const insertConfirm = browser.$(Selectors.InsertConfirm);
+    await insertConfirm.waitForEnabled();
+    await browser.clickVisible(Selectors.InsertConfirm);
+    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
+
+    await browser.runFindOperation(
+      'Documents',
+      `{ "i": Int64("${Number.MAX_SAFE_INTEGER + 1}") }`
+    );
+    const document = browser.$(Selectors.DocumentListEntry);
+    await document.waitForDisplayed();
+  });
+
+  it('handles unsafe integer values when querying a document', async function () {
+    await browser.navigateToCollectionTab(
+      getDefaultConnectionNames(0),
+      'test',
+      'numbers',
+      'Documents'
+    );
+
+    await browser.runFindOperation(
+      'Documents',
+      `{ "i": ${Number.MAX_SAFE_INTEGER + 1} }`
+    );
+
+    await browser.waitUntil(async () => {
+      return browser.$(Selectors.CodemirrorLintErrorIcon).isDisplayed();
+    });
+
+    // query.filter field is invalid and run button should be disabled
+    const runButton = browser.$(
+      Selectors.queryBarApplyFilterButton('Documents')
+    );
+    await browser.waitUntil(async () => {
+      return (await runButton.getAttribute('aria-disabled')) === 'true';
+    });
+
+    await browser.hover(Selectors.CodemirrorLintErrorIcon);
+
+    await browser.waitUntil(async () => {
+      return browser.$(Selectors.CodemirrorLintTooltip).isDisplayed();
+    });
+
+    await browser.clickVisible(Selectors.CodemirrorLintAction);
+
+    const query = await browser.getCodemirrorEditorText(
+      Selectors.queryBarOptionInputFilter('Documents')
+    );
+    expect(query.replace(/\s+/g, ' ')).to.include(
+      `"i": Long("${Number.MAX_SAFE_INTEGER + 1}")`
+    );
+
+    await browser.waitUntil(async () => {
+      return (await runButton.getAttribute('aria-disabled')) === 'false';
     });
   });
 });
