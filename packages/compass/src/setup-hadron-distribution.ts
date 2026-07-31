@@ -9,9 +9,18 @@ import { app, protocol, net } from 'electron';
  * particular it sets up paths for file system operations.
  */
 export function setupHadronDistribution() {
-  // Prevent a whole class of issues where prototype can be unexpectedly mutated
-  // by dynamic property access
-  delete (Object.prototype as any).__proto__;
+  // Clean-up deprecated platform features that can cause various issues when
+  // used in the runtime
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Deprecated_and_obsolete_features
+  for (const deprecated of [
+    '__proto__',
+    '__defineGetter__',
+    '__lookupGetter__',
+    '__defineSetter__',
+    '__lookupSetter__',
+  ]) {
+    delete (Object.prototype as any)[deprecated];
+  }
 
   /**
    * All these variables below are used by Compass and its plugins in one way or

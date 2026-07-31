@@ -1583,3 +1583,8 @@ export const AssistantConfirmClearChatModalConfirmButton = `${AssistantConfirmCl
 export const AIOptInModal = '[data-testid="ai-optin-modal"]';
 export const AIOptInModalAcceptButton = 'button=Use AI Features';
 export const AIOptInModalDeclineLink = 'span=Not now';
+
+// Codemirror
+export const CodemirrorLintErrorIcon = '.cm-lint-marker.cm-lint-marker-error';
+export const CodemirrorLintTooltip = '.cm-tooltip-lint';
+export const CodemirrorLintAction = '.cm-diagnosticAction';

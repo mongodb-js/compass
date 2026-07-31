@@ -11,8 +11,7 @@ function canSign(): boolean {
   return !!(
     process.env.GARASIGN_USERNAME &&
     process.env.GARASIGN_PASSWORD &&
-    process.env.ARTIFACTORY_USERNAME &&
-    process.env.ARTIFACTORY_PASSWORD
+    process.env.ECR_LOGIN_PASSWORD
   );
 }
 
