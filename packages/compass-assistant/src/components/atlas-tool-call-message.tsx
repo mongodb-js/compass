@@ -6,8 +6,6 @@ import { ActionCardMessage } from './action-card-message';
 
 interface AtlasToolCallMessageProps {
   state: 'confirmed' | 'rejected' | 'pending';
-  /** Whether there is already an Atlas sign-in. When true, the primary action
-   *  runs the debug tool directly ("Run") instead of prompting to connect. */
   isUserSignedIn: boolean;
   description: string;
   connectionInfo: BasicConnectionInfo | null;

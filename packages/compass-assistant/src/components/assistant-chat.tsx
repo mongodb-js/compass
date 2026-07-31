@@ -566,10 +566,16 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
   const handleAtlasConfirm = useCallback(
     (message: AssistantMessage) => {
-      void ensureAtlasSignIn?.().then((ok) => {
-        setIsAtlasSignedIn(!!ok);
-        handleConfirmation(message, ok ? 'confirmed' : 'rejected');
-      });
+      ensureAtlasSignIn?.()
+        .then((ok) => {
+          setIsAtlasSignedIn(!!ok);
+          handleConfirmation(message, ok ? 'confirmed' : 'rejected');
+        })
+        .catch(() => {
+          // Treat any unexpected failure as a rejection → standard debug flow.
+          setIsAtlasSignedIn(false);
+          handleConfirmation(message, 'rejected');
+        });
     },
     [ensureAtlasSignIn, handleConfirmation]
   );
