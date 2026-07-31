@@ -1,6 +1,6 @@
 import { FIELD_NAME_SEPARATOR } from '../../transform-schema-to-field-info';
 import type { processSchema } from '../../transform-schema-to-field-info';
-import type { PrimitiveSchemaType } from 'mongodb-schema';
+import type { PrimitiveSchemaType } from '@mongodb-js/mongodb-schema';
 
 type UserFriendlyFieldInfoNode =
   | { [field: string]: UserFriendlyFieldInfoNode }

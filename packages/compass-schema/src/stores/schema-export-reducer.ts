@@ -6,7 +6,7 @@ import type {
   MongoDBJSONSchema,
   ExpandedJSONSchema,
   SchemaAccessor,
-} from 'mongodb-schema';
+} from '@mongodb-js/mongodb-schema';
 import { openToast } from '@mongodb-js/compass-components';
 
 import type { SchemaThunkAction } from './store';

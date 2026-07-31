@@ -2,7 +2,7 @@ import type { Readable } from 'stream';
 import { Transform } from 'stream';
 import { pipeline } from 'stream/promises';
 import type { DataService } from 'mongodb-data-service';
-import { SchemaAnalyzer } from 'mongodb-schema';
+import { SchemaAnalyzer } from '@mongodb-js/mongodb-schema';
 import type { Document, FindOptions } from 'mongodb';
 import toNS from 'mongodb-ns';
 import { isInternalFieldPath } from 'hadron-document';
