@@ -11,8 +11,6 @@ import {
 describe('useDocumentEditsTelemetry', function () {
   let events: { name: string; payload: any }[];
 
-  // Tracking an event is asynchronous. All these events are connection
-  // scoped, the connection_id is asserted separately.
   const trackedEvents = async () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
     return events.map(({ name, payload }) => {
@@ -90,8 +88,6 @@ describe('useDocumentEditsTelemetry', function () {
     const doc = new HadronDocument({ name: 'compass' });
     renderWithDoc(doc, 'list');
 
-    // The footer cancel button cancels the document before the view finishes
-    // the deletion
     doc.markForDeletion();
     doc.cancel();
     doc.finishDeletion();
