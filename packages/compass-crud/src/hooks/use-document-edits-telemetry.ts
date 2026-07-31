@@ -7,7 +7,11 @@ import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 export type DocumentEditsMode = 'list' | 'json' | 'table' | 'insert';
 
 function addedTo(element: Element) {
-  return element.parent?.currentType === 'Array' ? 'array' : 'document';
+  const parent = element.parent;
+  if (!parent || parent.isRoot()) {
+    return 'top_level';
+  }
+  return parent.currentType === 'Array' ? 'array' : 'document';
 }
 
 /**

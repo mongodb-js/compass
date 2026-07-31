@@ -37,7 +37,7 @@ describe('useDocumentEditsTelemetry', function () {
   };
 
   it('tracks events against the current connection', async function () {
-    const doc = new HadronDocument({ name: 'compass' });
+    const doc = new HadronDocument({ name: 'squirrel' });
     renderWithDoc(doc, 'list');
 
     doc.get('name')!.remove();
@@ -47,14 +47,23 @@ describe('useDocumentEditsTelemetry', function () {
   });
 
   it('tracks added and removed fields, including nested ones', async function () {
-    const doc = new HadronDocument({ tags: ['a'], name: 'compass' });
+    const doc = new HadronDocument({
+      tags: ['a'],
+      meta: { source: 'x' },
+      name: 'squirrel',
+    });
     renderWithDoc(doc, 'list');
 
     doc.insertEnd('added', 'value');
+    doc.get('meta')!.insertEnd('nested', 'value');
     doc.get('tags')!.insertEnd('1', 'b');
     doc.get('name')!.remove();
 
     expect(await trackedEvents()).to.deep.equal([
+      {
+        name: 'Document Field Added',
+        payload: { added_to: 'top_level', mode: 'list' },
+      },
       {
         name: 'Document Field Added',
         payload: { added_to: 'document', mode: 'list' },
@@ -71,21 +80,21 @@ describe('useDocumentEditsTelemetry', function () {
   });
 
   it('tracks cancelling an edit, but not in the insert dialog', async function () {
-    const doc = new HadronDocument({ name: 'compass' });
+    const doc = new HadronDocument({ name: 'squirrel' });
     renderWithDoc(doc, 'json');
     doc.cancel();
     expect(await trackedEvents()).to.deep.equal([
       { name: 'Document Update Cancelled', payload: { mode: 'json' } },
     ]);
 
-    const insertDoc = new HadronDocument({ name: 'compass' });
+    const insertDoc = new HadronDocument({ name: 'squirrel' });
     renderWithDoc(insertDoc, 'insert');
     insertDoc.cancel();
     expect(await trackedEvents()).to.deep.equal([]);
   });
 
   it('does not track cancelling a deletion as a cancelled update', async function () {
-    const doc = new HadronDocument({ name: 'compass' });
+    const doc = new HadronDocument({ name: 'squirrel' });
     renderWithDoc(doc, 'list');
 
     doc.markForDeletion();
@@ -96,7 +105,7 @@ describe('useDocumentEditsTelemetry', function () {
   });
 
   it('does not track field events in the json view', async function () {
-    const doc = new HadronDocument({ name: 'compass' });
+    const doc = new HadronDocument({ name: 'squirrel' });
     renderWithDoc(doc, 'json');
 
     doc.get('name')!.edit('other');

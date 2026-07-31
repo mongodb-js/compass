@@ -961,7 +961,7 @@ type DocumentFieldAddedEvent = ConnectionScopedEvent<{
      * Whether the field was added to the top level of the document or
      * inside an array or document.
      */
-    added_to?: 'array' | 'document';
+    added_to: 'top_level' | 'array' | 'document';
 
     /**
      * The view in which the field was added.
