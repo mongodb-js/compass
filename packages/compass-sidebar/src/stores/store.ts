@@ -12,6 +12,7 @@ import {
   MongoDBInstancesManagerEvents,
 } from '@mongodb-js/compass-app-stores/provider';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 
 export function createSidebarStore(
   {
@@ -19,11 +20,13 @@ export function createSidebarStore(
     connections,
     instancesManager,
     logger,
+    atlasAuthService,
   }: {
     globalAppRegistry: AppRegistry;
     connections: ConnectionsService;
     instancesManager: MongoDBInstancesManager;
     logger: Logger;
+    atlasAuthService: AtlasAuthService;
   },
   { on, cleanup }: ActivateHelpers
 ) {
@@ -35,6 +38,7 @@ export function createSidebarStore(
         connections,
         instancesManager,
         logger,
+        atlasAuthService,
       })
     )
   );
