@@ -19,6 +19,7 @@ import type { ThunkAction } from 'redux-thunk';
 import type { ConnectionsService } from '@mongodb-js/compass-connections/provider';
 import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 
 export interface RootState {
   connectionOptions: ConnectionOptionsState;
@@ -41,9 +42,16 @@ export type SidebarThunkAction<R, A extends Action = AnyAction> = ThunkAction<
     connections: ConnectionsService;
     instancesManager: MongoDBInstancesManager;
     logger: Logger;
+    atlasAuthService: AtlasAuthService;
   },
   A
 >;
+
+/** Thunk that exposes the injected AtlasAuthService to connected components. */
+export const getAtlasAuthService =
+  (): SidebarThunkAction<AtlasAuthService> =>
+  (_dispatch, _getState, { atlasAuthService }) =>
+    atlasAuthService;
 
 /**
  * The reducer.
