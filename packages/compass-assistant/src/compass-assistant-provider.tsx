@@ -60,6 +60,7 @@ import {
   toolsControllerLocator,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
+import { AtlasClusterService } from './services/atlas-cluster-service';
 import { createOpenAI } from '@ai-sdk/openai';
 import type {
   ActiveConnectionInfo,
@@ -303,11 +304,13 @@ export type AssistantState = Record<string, never>;
 type AssistantExtraArgs = {
   chat: Chat<AssistantMessage>;
   atlasAiService: AtlasAiService;
+  atlasClusterService: AtlasClusterService;
   toolsController: ToolsController;
   preferences: PreferencesAccess;
   logger: Logger;
   track: TrackFunction;
   lastContextPromptRef: { current: string | null };
+  atlasService: AtlasService;
 };
 
 export type AssistantThunkAction<R, A extends Action = AnyAction> = ThunkAction<
@@ -317,9 +320,7 @@ export type AssistantThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   A
 >;
 
-const reducer = (
-  state: AssistantState = {} as AssistantState
-): AssistantState => state;
+const reducer = (state: AssistantState = {}): AssistantState => state;
 
 // Thunk action for the core send logic
 export function ensureOptInAndSendThunk(
@@ -380,6 +381,8 @@ export function ensureOptInAndSendThunk(
     const enableToolCalling = prefs.enableToolCalling;
     const enableGenAIToolCalling =
       prefs.enableGenAIToolCallingAtlasProject && prefs.enableGenAIToolCalling;
+    const enableAtlasConnectionErrorDebugger =
+      prefs.enableAtlasConnectionErrorDebugger;
 
     if (enableToolCalling && enableGenAIToolCalling) {
       // Start the server once the first time both the feature flag and
@@ -426,6 +429,7 @@ export function ensureOptInAndSendThunk(
       activeCollectionMetadata,
       activeCollectionSubTab,
       enableGenAIToolCalling: enableToolCalling && enableGenAIToolCalling,
+      enableAtlasConnectionErrorDebugger,
     });
 
     // use just the text so we have a stable reference to compare against
@@ -686,6 +690,8 @@ function activateAssistantPlugin(
 
   const lastContextPromptRef = { current: null as string | null };
 
+  const atlasClusterService = new AtlasClusterService(atlasService);
+
   const store = createStore(
     reducer,
     {},
@@ -693,6 +699,7 @@ function activateAssistantPlugin(
       thunk.withExtraArgument({
         chat,
         atlasAiService,
+        atlasClusterService,
         toolsController,
         preferences,
         logger,

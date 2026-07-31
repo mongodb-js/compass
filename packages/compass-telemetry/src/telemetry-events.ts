@@ -927,7 +927,7 @@ type DocumentUpdatedEvent = ConnectionScopedEvent<{
   name: 'Document Updated';
   payload: {
     /**
-     * The view used to delete the document.
+     * The view used to update the document.
      */
     mode: 'list' | 'json' | 'table';
   };
@@ -965,6 +965,58 @@ type DocumentInsertedEvent = ConnectionScopedEvent<{
      * Specifies if the user inserted multiple documents.
      */
     multiple?: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when user cancels the insert document dialog without
+ * inserting.
+ *
+ * @category Documents
+ */
+type DocumentInsertCancelledEvent = ConnectionScopedEvent<{
+  name: 'Document Insert Cancelled';
+  payload: {
+    /**
+     * The view used in the insert document dialog.
+     */
+    mode: 'json' | 'field-by-field';
+  };
+}>;
+
+/**
+ * This event is fired when user fails to insert a document.
+ *
+ * @category Documents
+ */
+type DocumentInsertFailedEvent = ConnectionScopedEvent<{
+  name: 'Document Insert Failed';
+  payload: {
+    /**
+     * The view used in the insert document dialog.
+     */
+    mode: 'json' | 'field-by-field';
+
+    /**
+     * Specifies if the user attempted to insert multiple documents.
+     */
+    multiple?: boolean;
+  };
+}>;
+
+/**
+ * This event is fired when user switches between the List, JSON, and Table
+ * document views in the CRUD toolbar.
+ *
+ * @category Documents
+ */
+type DocumentViewChangedEvent = ConnectionScopedEvent<{
+  name: 'Document View Changed';
+  payload: {
+    /**
+     * The view that was switched to.
+     */
+    view: 'list' | 'json' | 'table';
   };
 }>;
 
@@ -1731,6 +1783,22 @@ type AiGenerateQueryClickedEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when a user closes the Generate Query / Aggregation
+ * panel, whether via the close button, Escape, or by cancelling a request.
+ *
+ * @category Gen AI
+ */
+type AiGenerateQueryClosedEvent = CommonEvent<{
+  name: 'AI Generate Query Closed';
+  payload: {
+    /**
+     * The type of query that was being generated.
+     */
+    type: 'aggregation' | 'query';
+  };
+}>;
+
+/**
  * This event is fired when a user submits feedback for a pipeline generation.
  *
  * @category Gen AI
@@ -2394,7 +2462,34 @@ type PerformancePausedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
- * This event is fired when a user clicks "next" on a guide cue.
+ * This event is fired when a guide cue is shown to the user.
+ *
+ * @category Guide Cues
+ */
+type GuideCueShownEvent = CommonEvent<{
+  name: 'Guide Cue Shown';
+  payload: {
+    /**
+     * The unique identifier of the group of guide cues to which this cue belongs.
+     * This field is only set for guide cues belonging to a group.
+     */
+    groupId?: string;
+
+    /**
+     * The unique identifier of the specific guide cue that was shown.
+     */
+    cueId: string;
+
+    /**
+     * The step number within the guide cue sequence that was shown.
+     */
+    step: number;
+  };
+}>;
+
+/**
+ * This event is fired when a user clicks the action like
+ * "next" or "got it" on a guide cue.
  *
  * @category Guide Cues
  */
@@ -3951,6 +4046,7 @@ export type TelemetryEvent =
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
   | AiGenerateQueryClickedEvent
+  | AiGenerateQueryClosedEvent
   | AiPromptSubmittedEvent
   | AiQueryFeedbackEvent
   | AiResponseFailedEvent
@@ -4012,8 +4108,11 @@ export type TelemetryEvent =
   | DocumentClonedEvent
   | DocumentCopiedEvent
   | DocumentDeletedEvent
+  | DocumentInsertCancelledEvent
+  | DocumentInsertFailedEvent
   | DocumentInsertedEvent
   | DocumentUpdatedEvent
+  | DocumentViewChangedEvent
   | DrawerSectionOpenedEvent
   | DrawerSectionClosedEvent
   | EditorTypeChangedEvent
@@ -4023,6 +4122,7 @@ export type TelemetryEvent =
   | ExportOpenedEvent
   | FocusModeClosedEvent
   | FocusModeOpenedEvent
+  | GuideCueShownEvent
   | GuideCueDismissedEvent
   | GuideCueGroupDismissedEvent
   | IdentifyEvent

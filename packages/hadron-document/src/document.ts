@@ -14,6 +14,7 @@ import type { HadronEJSONOptions } from './utils';
 import type { Binary, MongoServerError } from 'mongodb';
 import { DocumentEvents, type DocumentEventsType } from './document-events';
 import { ElementEvents } from './element-events';
+import { assertNoUnsafeIntegers } from './unsafe-integer-validation';
 
 /**
  * The id field.
@@ -405,6 +406,7 @@ export class Document extends EventEmitter<
    * Parse a new Document from extended JSON input.
    */
   static FromEJSON(input: string): Document {
+    assertNoUnsafeIntegers(input);
     const parsed = EJSON.parse(input, { relaxed: false });
     return new Document(parsed as BSONObject);
   }
@@ -416,6 +418,7 @@ export class Document extends EventEmitter<
    * that document.
    */
   static FromEJSONArray(input: string): Document[] {
+    assertNoUnsafeIntegers(input);
     const parsed = EJSON.parse(input, { relaxed: false });
     return Array.isArray(parsed)
       ? parsed.map((doc) => new Document(doc as BSONObject))

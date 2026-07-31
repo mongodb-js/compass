@@ -168,6 +168,7 @@ function useHadronElement(el: HadronElementType) {
     visibleChildren: el.getVisibleElements(),
     level: el.level,
     parentType: el.parent?.currentType,
+    modified: el.isModified(),
     removed: el.isRemoved(),
     internal: el.isInternalField(),
     expanded: el.expanded,
@@ -219,6 +220,8 @@ const elementRemovedLightMode = css({
   },
 });
 
+const elementModifiedLightMode = elementInvalidLightMode;
+
 const elementInvalidDarkMode = css({
   backgroundColor: palette.yellow.dark3,
   '&:hover': {
@@ -232,6 +235,8 @@ const elementRemovedDarkMode = css({
     backgroundColor: palette.red.dark2,
   },
 });
+
+const elementModifiedDarkMode = elementInvalidDarkMode;
 
 const elementActions = css({
   flex: 'none',
@@ -471,6 +476,7 @@ export const HadronElement: React.FunctionComponent<{
     visibleChildren,
     level,
     parentType,
+    modified,
     removed,
     internal,
     expanded,
@@ -591,6 +597,9 @@ export const HadronElement: React.FunctionComponent<{
     className: cx(
       hadronElement,
       darkMode ? hadronElementDarkMode : hadronElementLightMode,
+      modified &&
+        !expanded &&
+        (darkMode ? elementModifiedDarkMode : elementModifiedLightMode),
       removed ? elementRemoved : editingEnabled && !isValid && elementInvalid
     ),
     onClick: toggleExpanded,

@@ -9,7 +9,6 @@ import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import { createNumbersCollection } from '../helpers/mongo-clients.ts';
 import { expect } from 'chai';
-import { isTestingDesktop } from '../helpers/test-runner-context.ts';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 const PASSING_VALIDATOR = '{ $jsonSchema: {} }';
@@ -55,12 +54,6 @@ describe('Collection validation tab', function () {
   }
 
   context('when the schema validation is empty', function () {
-    before(async function () {
-      if (isTestingDesktop()) {
-        await browser.setFeature('enableExportSchema', true);
-      }
-    });
-
     it('provides users with a button to generate rules', async function () {
       await browser.clickVisible(Selectors.GenerateValidationRulesButton);
       const editor = browser.$(Selectors.ValidationEditor);

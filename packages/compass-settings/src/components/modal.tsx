@@ -30,7 +30,6 @@ type Settings = {
 
 type SettingsModalProps = {
   isOpen: boolean;
-  isOIDCEnabled: boolean;
   selectedTab: SettingsTabId | undefined;
   onMount?: () => void;
   onClose: () => void;
@@ -66,7 +65,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   onClose,
   onSave,
   onSelectTab,
-  isOIDCEnabled,
   hasChangedSettings,
 }) => {
   const onMountRef = useRef(onMount);
@@ -84,21 +82,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       name: 'Proxy Configuration',
       component: ProxySettings,
     },
+    { tabId: 'oidc', name: 'OIDC', component: OIDCSettings },
+    { tabId: 'ai', name: 'Artificial Intelligence', component: GenAISettings },
   ];
-
-  if (isOIDCEnabled) {
-    settings.push({
-      tabId: 'oidc',
-      name: 'OIDC',
-      component: OIDCSettings,
-    });
-  }
-
-  settings.push({
-    tabId: 'ai',
-    name: 'Artificial Intelligence',
-    component: GenAISettings,
-  });
 
   if (useShouldShowFeaturePreviewSettings()) {
     settings.push({
@@ -152,7 +138,6 @@ export default connect(
     return {
       isOpen:
         state.settings.isModalOpen && state.settings.loadingState === 'ready',
-      isOIDCEnabled: !!state.settings.settings.enableOidc,
       hasChangedSettings: state.settings.updatedFields.length > 0,
       selectedTab: state.settings.tab,
     };

@@ -3065,6 +3065,88 @@ describe('Element', function () {
     }
   );
 
+  describe('#changeType', function () {
+    context('when changing to Date', function () {
+      context('and the current value is empty', function () {
+        it('defaults the value to the current date for an empty string', function () {
+          const before = Date.now();
+          const element = new Element('d', '');
+          element.changeType('Date');
+          const after = Date.now();
+          expect(element.currentType).to.equal('Date');
+          expect(element.isCurrentTypeValid()).to.equal(true);
+          const value = element.currentValue as Date;
+          expect(value).to.be.instanceOf(Date);
+          expect(value.getTime()).to.be.at.least(before);
+          expect(value.getTime()).to.be.at.most(after);
+        });
+
+        it('defaults the value to the current date for null', function () {
+          const before = Date.now();
+          const element = new Element('d', null);
+          element.changeType('Date');
+          const after = Date.now();
+          expect(element.currentType).to.equal('Date');
+          expect(element.isCurrentTypeValid()).to.equal(true);
+          const value = element.currentValue as Date;
+          expect(value).to.be.instanceOf(Date);
+          expect(value.getTime()).to.be.at.least(before);
+          expect(value.getTime()).to.be.at.most(after);
+        });
+      });
+
+      it('and the current value is a boolean', function () {
+        const element = new Element('d', false);
+        element.changeType('Date');
+        expect(element.currentType).to.equal('Date');
+        expect(element.isCurrentTypeValid()).to.equal(true);
+      });
+
+      context('and the current value is a valid date string', function () {
+        it('preserves the existing value', function () {
+          const element = new Element('d', '2020-01-01T00:00:00.000Z');
+          element.changeType('Date');
+          expect(element.currentType).to.equal('Date');
+          expect(element.isCurrentTypeValid()).to.equal(true);
+          const value = element.currentValue as Date;
+          expect(value).to.be.instanceOf(Date);
+          expect(value.toISOString()).to.equal('2020-01-01T00:00:00.000Z');
+        });
+      });
+
+      context('and the current value is an existing Date', function () {
+        it('keeps the existing date rather than resetting to now', function () {
+          const existing = new Date('2000-06-15T12:00:00.000Z');
+          const element = new Element('d', existing);
+          element.changeType('Date');
+          expect(element.currentType).to.equal('Date');
+          expect(element.isCurrentTypeValid()).to.equal(true);
+          const value = element.currentValue as Date;
+          expect(value.getTime()).to.equal(existing.getTime());
+        });
+      });
+
+      context('and the current value is a non-empty', function () {
+        const useCases = [
+          { value: new Int32(1234), title: 'Int32' },
+          { value: new Double(1234.5678), title: 'Double' },
+          { value: [1, 2, 3], title: 'Array' },
+          { value: { a: 1, b: 2 }, title: 'Object' },
+        ];
+
+        for (const useCase of useCases) {
+          it(`casts the ${useCase.title} value to a Date`, function () {
+            const element = new Element('n', useCase.value);
+            element.changeType('Date');
+            expect(element.currentType).to.equal('Date');
+            expect(element.isCurrentTypeValid()).to.equal(true);
+            expect(element.currentValue).to.be.instanceOf(Date);
+          });
+        }
+      });
+    });
+  });
+
   describe('#toEJSON', function () {
     it('handles null values', function () {
       const element = new Element('test', {

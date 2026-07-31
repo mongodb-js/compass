@@ -239,8 +239,7 @@ export const generateValidationRules = (): SchemaValidationThunkAction<
         namespace.toString(),
         samplingOptions,
         driverOptions,
-        logger,
-        preferences
+        logger
       );
       if (abortSignal?.aborted) {
         throw new Error(ABORT_MESSAGE);

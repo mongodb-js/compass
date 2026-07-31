@@ -9,13 +9,14 @@ import {
   css,
   cx,
   DocumentList,
+  Link,
   palette,
   spacing,
   useCurrentValueRef,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { Document } from 'hadron-document';
-import HadronDocument from 'hadron-document';
+import HadronDocument, { UnsafeIntegerValidationError } from 'hadron-document';
 import {
   createDocumentAutocompleter,
   CodemirrorMultilineEditor,
@@ -23,6 +24,7 @@ import {
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useJsonEditorAnnotations } from '../utils/use-json-editor-annotations';
 
 const editorStyles = css({
   minHeight: spacing[800] + spacing[400],
@@ -47,6 +49,13 @@ const editorDarkModeStyles = css({
 
 const actionsGroupStyles = css({
   padding: spacing[200],
+});
+
+const bannerContentStyles = css({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: spacing[200],
+  justifyContent: 'flex-start',
 });
 
 export type JSONEditorProps = {
@@ -291,6 +300,25 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     }, 0);
   }, [expanded]);
 
+  const annotations = useJsonEditorAnnotations({ error: docValidationError });
+
+  const onFixUnsafeIntegerViolations = useCallback(() => {
+    const editor = editorRef.current?.editor;
+    if (!editor) {
+      return;
+    }
+    if (docValidationError instanceof UnsafeIntegerValidationError) {
+      editor.dispatch({
+        changes: docValidationError.violations.map((violation) => ({
+          from: violation.loc.from,
+          to: violation.loc.to,
+          insert: `{"$numberLong": "${violation.source}"}`,
+        })),
+      });
+      setDocValidationError(null);
+    }
+  }, [docValidationError]);
+
   return (
     <div data-testid="editable-json">
       <CodemirrorMultilineEditor
@@ -311,6 +339,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         completer={completer}
         onExpand={editing ? undefined : toggleExpandCollapse}
         expanded={expanded}
+        annotations={annotations}
       />
       <DocumentList.DocumentEditActionsFooter
         doc={doc}
@@ -322,6 +351,22 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         onUpdate={onUpdate}
         onDelete={onDelete}
         onCancel={onCancel}
+        renderStatusMessage={(message) => {
+          return (
+            <div className={bannerContentStyles}>
+              <span>{message}</span>
+              {docValidationError instanceof UnsafeIntegerValidationError && (
+                <Link
+                  as="button"
+                  data-testid="fix-unsafe-integer-violations-button"
+                  onClick={onFixUnsafeIntegerViolations}
+                >
+                  Convert to Long
+                </Link>
+              )}
+            </div>
+          );
+        }}
       />
     </div>
   );

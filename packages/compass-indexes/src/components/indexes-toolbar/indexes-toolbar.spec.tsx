@@ -41,7 +41,7 @@ describe('IndexesToolbar Component', function () {
   describe('when rendered', function () {
     describe('with atlas search index management is disabled', function () {
       beforeEach(function () {
-        renderIndexesToolbar({}, { showInsights: true });
+        renderIndexesToolbar({});
       });
 
       it('should render the create index button enabled', function () {
@@ -57,12 +57,7 @@ describe('IndexesToolbar Component', function () {
     describe('with atlas search index management is enabled', function () {
       describe('when cluster has Atlas Search available', function () {
         beforeEach(function () {
-          renderIndexesToolbar(
-            { isSearchIndexesSupported: true },
-            {
-              showInsights: true,
-            }
-          );
+          renderIndexesToolbar({ isSearchIndexesSupported: true });
         });
 
         it('should render the create index dropdown button enabled', async function () {
@@ -83,10 +78,7 @@ describe('IndexesToolbar Component', function () {
 
       describe('when cluster does not support Atlas Search', function () {
         beforeEach(function () {
-          renderIndexesToolbar(
-            { isSearchIndexesSupported: false },
-            { showInsights: true }
-          );
+          renderIndexesToolbar({ isSearchIndexesSupported: false });
         });
 
         it('should render the create index button only', function () {
@@ -342,13 +334,10 @@ describe('IndexesToolbar Component', function () {
     });
 
     it('when it supports search management, it changes tab view', function () {
-      renderIndexesToolbar(
-        {
-          isSearchIndexesSupported: true,
-          onIndexViewChanged: onChangeViewCallback,
-        },
-        { showInsights: true }
-      );
+      renderIndexesToolbar({
+        isSearchIndexesSupported: true,
+        onIndexViewChanged: onChangeViewCallback,
+      });
       const segmentControl = screen.getByText('Search Indexes');
       userEvent.click(segmentControl);
 
@@ -357,13 +346,10 @@ describe('IndexesToolbar Component', function () {
     });
 
     it('when it does not support search management, it renders tab as disabled', function () {
-      renderIndexesToolbar(
-        {
-          isSearchIndexesSupported: false,
-          onIndexViewChanged: onChangeViewCallback,
-        },
-        { showInsights: true }
-      );
+      renderIndexesToolbar({
+        isSearchIndexesSupported: false,
+        onIndexViewChanged: onChangeViewCallback,
+      });
       const segmentControl = screen.getByText('Search Indexes');
       userEvent.click(segmentControl);
 

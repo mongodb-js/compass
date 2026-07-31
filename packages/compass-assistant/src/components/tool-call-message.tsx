@@ -7,7 +7,10 @@ import {
 } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
-import { AVAILABLE_TOOLS } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  getAvailableTools,
+  doesToolUseConnection,
+} from '@mongodb-js/compass-generative-ai/provider';
 import { cleanToolCallOutput, getToolState } from '../utils';
 import { ActionCardMessage } from './action-card-message';
 
@@ -24,7 +27,10 @@ function getToolDisplayName(type: string): string {
 }
 
 function getToolDescription(toolName: string): string | undefined {
-  return AVAILABLE_TOOLS.find((tool) => tool.name === toolName)?.description;
+  // If we get to this point we can assume the tool is available, no need to pipe preferences here
+  return getAvailableTools({ enableAtlasConnectionErrorDebugger: true }).find(
+    (tool) => tool.name === toolName
+  )?.description;
 }
 
 const expandableContentStyles = css({
@@ -44,8 +50,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
 }) => {
   const chips = [];
 
-  // TODO: find a better way to only display this when the connection is relevant
-  if (connection && !toolCall.type.startsWith('tool-get-current-')) {
+  if (connection && doesToolUseConnection(getToolDisplayName(toolCall.type))) {
     chips.push({ glyph: <ServerIcon />, label: connection.name });
   }
 
