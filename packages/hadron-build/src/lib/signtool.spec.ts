@@ -8,8 +8,7 @@ describe('hadron-build::signtool', function () {
   const CURRENT_SIGING_VARS = {
     GARASIGN_USERNAME: process.env.GARASIGN_USERNAME,
     GARASIGN_PASSWORD: process.env.GARASIGN_PASSWORD,
-    ARTIFACTORY_USERNAME: process.env.ARTIFACTORY_USERNAME,
-    ARTIFACTORY_PASSWORD: process.env.ARTIFACTORY_PASSWORD,
+    ECR_LOGIN_PASSWORD: process.env.ECR_LOGIN_PASSWORD,
   };
   function setEnvVars(obj: Record<string, string | undefined | false>) {
     Object.keys(obj).forEach((key) => {
