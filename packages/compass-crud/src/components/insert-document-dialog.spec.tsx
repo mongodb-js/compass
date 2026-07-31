@@ -21,19 +21,19 @@ const defaultProps = {
 
 describe('InsertDocumentDialog', function () {
   it('show error message for invalid EJSON', async function () {
-    let jsonDoc = '{}';
+    let editorText = '{}';
     const doc = new HadronDocument({});
     doc.editing = true;
-    function updateJsonDoc(value: string | null) {
+    function updateInsertDocText(value: string | null) {
       doc.setModifiedEJSONString(value);
-      jsonDoc = value ?? '{}';
+      editorText = value ?? '{}';
     }
     const { rerender } = render(
       <InsertDocumentDialog
         {...defaultProps}
         doc={doc}
-        jsonDoc={jsonDoc}
-        updateJsonDoc={updateJsonDoc}
+        editorText={editorText}
+        updateInsertDocText={updateInsertDocText}
         insertView="json"
       />
     );
@@ -45,8 +45,8 @@ describe('InsertDocumentDialog', function () {
       <InsertDocumentDialog
         {...defaultProps}
         doc={doc}
-        jsonDoc={jsonDoc}
-        updateJsonDoc={updateJsonDoc}
+        editorText={editorText}
+        updateInsertDocText={updateInsertDocText}
         insertView="json"
       />
     );
@@ -63,8 +63,8 @@ describe('InsertDocumentDialog', function () {
       <InsertDocumentDialog
         {...defaultProps}
         doc={doc}
-        jsonDoc="{}"
-        updateJsonDoc={noop}
+        editorText="{}"
+        updateInsertDocText={noop}
         insertView="json"
       />
     );
@@ -88,8 +88,8 @@ describe('InsertDocumentDialog', function () {
       <InsertDocumentDialog
         {...defaultProps}
         doc={doc}
-        jsonDoc='[{ "a": 1 }, { "a": 2 }]'
-        updateJsonDoc={noop}
+        editorText='[{ "a": 1 }, { "a": 2 }]'
+        updateInsertDocText={noop}
         insertView="json"
       />
     );
@@ -109,16 +109,16 @@ describe('InsertDocumentDialog', function () {
   it('accepts valid shell syntax without an error', async function () {
     const doc = new HadronDocument({});
     doc.editing = true;
-    let jsonDoc = '{}';
-    function updateJsonDoc(value: string | null) {
-      jsonDoc = value ?? '{}';
+    let editorText = '{}';
+    function updateInsertDocText(value: string | null) {
+      editorText = value ?? '{}';
     }
     const { rerender } = render(
       <InsertDocumentDialog
         {...defaultProps}
         doc={doc}
-        jsonDoc={jsonDoc}
-        updateJsonDoc={updateJsonDoc}
+        editorText={editorText}
+        updateInsertDocText={updateInsertDocText}
         insertView="shell"
       />
     );
@@ -130,8 +130,8 @@ describe('InsertDocumentDialog', function () {
       <InsertDocumentDialog
         {...defaultProps}
         doc={doc}
-        jsonDoc={jsonDoc}
-        updateJsonDoc={updateJsonDoc}
+        editorText={editorText}
+        updateInsertDocText={updateInsertDocText}
         insertView="shell"
       />
     );
@@ -142,16 +142,16 @@ describe('InsertDocumentDialog', function () {
   it('shows an error for invalid shell syntax', async function () {
     const doc = new HadronDocument({});
     doc.editing = true;
-    let jsonDoc = '{}';
-    function updateJsonDoc(value: string | null) {
-      jsonDoc = value ?? '{}';
+    let editorText = '{}';
+    function updateInsertDocText(value: string | null) {
+      editorText = value ?? '{}';
     }
     const { rerender } = render(
       <InsertDocumentDialog
         {...defaultProps}
         doc={doc}
-        jsonDoc={jsonDoc}
-        updateJsonDoc={updateJsonDoc}
+        editorText={editorText}
+        updateInsertDocText={updateInsertDocText}
         insertView="shell"
       />
     );
@@ -164,8 +164,8 @@ describe('InsertDocumentDialog', function () {
       <InsertDocumentDialog
         {...defaultProps}
         doc={doc}
-        jsonDoc={jsonDoc}
-        updateJsonDoc={updateJsonDoc}
+        editorText={editorText}
+        updateInsertDocText={updateInsertDocText}
         insertView="shell"
       />
     );

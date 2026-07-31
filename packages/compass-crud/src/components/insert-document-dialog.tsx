@@ -24,7 +24,7 @@ import {
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
-import InsertJsonDocument from './insert-json-document';
+import InsertDocumentEditor from './insert-document-editor';
 import InsertDocument from './insert-document';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
@@ -84,8 +84,8 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   error: WriteError;
   mode: 'modifying' | 'error';
   version: string;
-  updateJsonDoc: (value: string | null) => void;
-  jsonDoc: string;
+  updateInsertDocText: (value: string | null) => void;
+  editorText: string;
   insertView: InsertDocumentView;
   doc: Document | null;
   ns: string;
@@ -99,24 +99,24 @@ const DocumentOrJsonView: React.FC<{
   insertView: InsertDocumentView;
   doc: InsertDocumentDialogProps['doc'];
   hasManyDocuments: () => boolean;
-  updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
-  jsonDoc: InsertDocumentDialogProps['jsonDoc'];
+  updateInsertDocText: InsertDocumentDialogProps['updateInsertDocText'];
+  editorText: InsertDocumentDialogProps['editorText'];
   error: Error | null;
   editorRef: React.RefObject<EditorRef>;
 }> = ({
   insertView,
   doc,
   hasManyDocuments,
-  updateJsonDoc,
-  jsonDoc,
+  updateInsertDocText,
+  editorText,
   error,
   editorRef,
 }) => {
   if (insertView !== 'list') {
     return (
-      <InsertJsonDocument
-        updateJsonDoc={updateJsonDoc}
-        jsonDoc={jsonDoc}
+      <InsertDocumentEditor
+        updateInsertDocText={updateInsertDocText}
+        editorText={editorText}
         error={error}
         editorRef={editorRef}
         shellSyntax={insertView === 'shell'}
@@ -147,7 +147,7 @@ const DocumentOrJsonView: React.FC<{
 const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   isOpen,
   insertView,
-  jsonDoc,
+  editorText,
   doc,
   error: documentWriteError,
   ns,
@@ -156,7 +156,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   insertMany,
   insertDocument,
   toggleInsertDocumentView,
-  updateJsonDoc,
+  updateInsertDocText,
   closeInsertDocumentDialog,
 }) => {
   const editorRef = useRef<EditorRef>(null);
@@ -168,12 +168,14 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   const hasManyDocuments = useCallback(() => {
     try {
       const parsed =
-        insertView === 'shell' ? parseShellBSON(jsonDoc) : JSON.parse(jsonDoc);
+        insertView === 'shell'
+          ? parseShellBSON(editorText)
+          : JSON.parse(editorText);
       return Array.isArray(parsed);
     } catch {
       return false;
     }
-  }, [jsonDoc, insertView]);
+  }, [editorText, insertView]);
 
   /**
    * Does the document have errors with the bson types?  Checks for
@@ -187,7 +189,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   const documentValidationError = useMemo(() => {
     if (insertView !== 'list') {
       try {
-        parseInsertDocument(insertView, jsonDoc);
+        parseInsertDocument(insertView, editorText);
         return null;
       } catch (e) {
         return e as Error;
@@ -196,7 +198,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     return invalidElements.length > 0
       ? new Error(INSERT_INVALID_MESSAGE)
       : null;
-  }, [jsonDoc, insertView, invalidElements]);
+  }, [editorText, insertView, invalidElements]);
 
   const handleInvalid = useCallback(
     (el: Element) => {
@@ -376,8 +378,8 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           insertView={insertView}
           doc={doc}
           hasManyDocuments={hasManyDocuments}
-          updateJsonDoc={updateJsonDoc}
-          jsonDoc={jsonDoc}
+          updateInsertDocText={updateInsertDocText}
+          editorText={editorText}
           error={documentValidationError}
           editorRef={editorRef}
         />

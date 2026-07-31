@@ -33,7 +33,7 @@ const configureActions = () => {
     'replaceDocument',
     'resetColumns',
     'updateDocument',
-    'updateJsonDoc',
+    'updateInsertDocText',
     'viewChanged',
     'updateComment',
     'updateMaxDocumentsPerPage',

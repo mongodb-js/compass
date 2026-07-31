@@ -84,8 +84,9 @@ export type DocumentListProps = {
         | 'isOpen'
         | 'error'
         | 'mode'
-        | 'jsonDoc'
+        | 'editorText'
         | 'isCommentNeeded'
+        | 'insertView'
       >
     >;
   bulkUpdate: Partial<BulkUpdateModalProps> &
@@ -110,7 +111,7 @@ export type DocumentListProps = {
     | 'closeInsertDocumentDialog'
     | 'insertDocument'
     | 'insertMany'
-    | 'updateJsonDoc'
+    | 'updateInsertDocText'
     | 'toggleInsertDocumentView'
     | 'version'
     | 'ns'
@@ -311,7 +312,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     closeInsertDocumentDialog,
     insertDocument,
     insertMany,
-    updateJsonDoc,
+    updateInsertDocText,
     toggleInsertDocumentView,
     version,
     ns,
@@ -630,9 +631,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             closeInsertDocumentDialog={closeInsertDocumentDialog}
             insertDocument={insertDocument}
             insertMany={insertMany}
-            updateJsonDoc={updateJsonDoc}
+            updateInsertDocText={updateInsertDocText}
             toggleInsertDocumentView={toggleInsertDocumentView}
-            insertView="json"
             version={version}
             ns={ns}
             updateComment={updateComment}

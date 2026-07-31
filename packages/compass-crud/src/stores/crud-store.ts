@@ -302,7 +302,7 @@ export type WriteError = {
 
 type InsertState = {
   doc: null | Document;
-  jsonDoc: null | string;
+  editorText: null | string;
   error?: WriteError;
   csfleState: InsertCSFLEState;
   mode: 'modifying' | 'error';
@@ -505,7 +505,7 @@ class CrudStoreImpl
   getInitialInsertState(): InsertState {
     return {
       doc: null,
-      jsonDoc: null,
+      editorText: null,
       csfleState: { state: 'none' },
       mode: MODIFYING,
       insertView: 'shell',
@@ -1060,7 +1060,7 @@ class CrudStoreImpl
     this.setState({
       insert: {
         doc: hadronDoc,
-        jsonDoc: serializeInsertDocument(insertView, hadronDoc),
+        editorText: serializeInsertDocument(insertView, hadronDoc),
         insertView,
         error: undefined,
         csfleState,
@@ -1319,12 +1319,12 @@ class CrudStoreImpl
    *
    * The `list` (Hadron Document) view is only available for a single document,
    * so it converts between the structured `doc` and the editor text. For the
-   * text views it just converts `jsonDoc` between EJSON and shell syntax.
+   * text views it just converts `editorText` between EJSON and shell syntax.
    *
    * @param {String} view - view we are switching to.
    */
   toggleInsertDocumentView(view: InsertDocumentView) {
-    const { insertView: from, doc, jsonDoc } = this.state.insert;
+    const { insertView: from, doc, editorText } = this.state.insert;
     const common: Pick<
       InsertState,
       'error' | 'csfleState' | 'mode' | 'isOpen' | 'isCommentNeeded'
@@ -1338,19 +1338,21 @@ class CrudStoreImpl
 
     if (view === 'list') {
       const hadronDoc =
-        !jsonDoc || jsonDoc === '' ? doc : parseInsertDocument(from, jsonDoc);
+        !editorText || editorText === ''
+          ? doc
+          : parseInsertDocument(from, editorText);
       this.setState({
-        insert: { ...common, insertView: 'list', doc: hadronDoc, jsonDoc },
+        insert: { ...common, insertView: 'list', doc: hadronDoc, editorText },
       });
       return;
     }
 
-    const nextJsonDoc =
+    const nextEditorText =
       from === 'list'
         ? serializeInsertDocument(view, doc)
-        : convertInsertText(from, view, jsonDoc ?? '');
+        : convertInsertText(from, view, editorText ?? '');
     this.setState({
-      insert: { ...common, insertView: view, doc, jsonDoc: nextJsonDoc },
+      insert: { ...common, insertView: view, doc, editorText: nextEditorText },
     });
   }
 
@@ -1360,11 +1362,11 @@ class CrudStoreImpl
    *
    * @param {String} value - text we are updating.
    */
-  updateJsonDoc(value: string | null) {
+  updateInsertDocText(value: string | null) {
     this.setState({
       insert: {
         doc: new Document({}),
-        jsonDoc: value,
+        editorText: value,
         insertView: this.state.insert.insertView,
         error: undefined,
         csfleState: this.state.insert.csfleState,
@@ -1387,7 +1389,7 @@ class CrudStoreImpl
       );
       const docs = parseInsertDocumentArray(
         this.state.insert.insertView,
-        this.state.insert.jsonDoc ?? ''
+        this.state.insert.editorText ?? ''
       ).map((doc) => {
         if (schemaFields) {
           doc.preserveTypesFromSchema(schemaFields);
@@ -1435,7 +1437,7 @@ class CrudStoreImpl
       this.setState({
         insert: {
           doc: new Document({}),
-          jsonDoc: this.state.insert.jsonDoc,
+          editorText: this.state.insert.editorText,
           insertView: this.state.insert.insertView,
           error: this.getWriteError(error as Error),
           csfleState: this.state.insert.csfleState,
@@ -1469,7 +1471,7 @@ class CrudStoreImpl
       if (this.state.insert.insertView !== 'list') {
         const hadronDoc = parseInsertDocument(
           this.state.insert.insertView,
-          this.state.insert.jsonDoc ?? ''
+          this.state.insert.editorText ?? ''
         );
         if (schemaFields) {
           hadronDoc.preserveTypesFromSchema(schemaFields);
@@ -1524,7 +1526,7 @@ class CrudStoreImpl
       this.setState({
         insert: {
           doc: this.state.insert.doc,
-          jsonDoc: this.state.insert.jsonDoc,
+          editorText: this.state.insert.editorText,
           insertView: this.state.insert.insertView,
           error: this.getWriteError(error as Error),
           csfleState: this.state.insert.csfleState,
