@@ -356,7 +356,7 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
       }
       openToast('atlas-sign-in-success', {
         variant: 'success',
-        title: `Signed in as ${userInfo.login}`,
+        title: `Atlas sign in successful`,
         timeout: 10_000,
       });
       dispatch({ type: AtlasSignInActions.Success, userInfo });
