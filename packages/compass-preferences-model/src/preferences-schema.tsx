@@ -479,14 +479,14 @@ export const storedUserPreferencesProps: Required<{
   /**
    * Enables Index Management for users with the Atlas "Index Manager" role combined with any data-access role (read-only or read-write).
    * This is derived from the user's Atlas roles in Compass-Web / Data Explorer and controls whether the index management UI (create / drop / hide indexes) is shown
-   * even when general write access is restricted via `readOnly` / `readWrite`.
+   * for non-admin users.
    */
   enableIndexesManagement: {
     ui: false,
     cli: false,
     global: false,
     description: null,
-    validator: z.boolean().default(true),
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   /**
