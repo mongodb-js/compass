@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useContext, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
@@ -256,7 +262,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const { id: lastMessageId, role: lastMessageRole } =
     chat.messages[chat.messages.length - 1] ?? {};
 
-  const { ensureOptInAndSend } = useContext(AssistantActionsContext);
+  const { ensureOptInAndSend, ensureAtlasSignIn, getAtlasSignedIn } =
+    useContext(AssistantActionsContext);
+  const [isAtlasSignedIn, setIsAtlasSignedIn] = useState(false);
   const {
     messages,
     status,
@@ -541,6 +549,31 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [ensureOptInAndSend, setMessages, track]
   );
 
+  // Reflect the current Atlas sign-in state so the Atlas confirmation card can
+  // show "Run" instead of "Connect to Atlas" when already signed in. Re-check
+  // whenever the last message changes (e.g. a new debug card appears).
+  useEffect(() => {
+    let cancelled = false;
+    void getAtlasSignedIn?.().then((signedIn) => {
+      if (!cancelled) {
+        setIsAtlasSignedIn(signedIn);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [getAtlasSignedIn, lastMessageId]);
+
+  const handleAtlasConfirm = useCallback(
+    (message: AssistantMessage) => {
+      void ensureAtlasSignIn?.().then((ok) => {
+        setIsAtlasSignedIn(!!ok);
+        handleConfirmation(message, ok ? 'confirmed' : 'rejected');
+      });
+    },
+    [ensureAtlasSignIn, handleConfirmation]
+  );
+
   const handleToolApproval = useCallback(
     ({
       message,
@@ -640,11 +673,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                       <AtlasToolCallMessage
                         key={`${id}-confirmation`}
                         state={confirmationState}
+                        isUserSignedIn={isAtlasSignedIn}
                         description={description}
                         connectionInfo={metadata.connectionInfo ?? null}
-                        onConfirm={() =>
-                          handleConfirmation(message, 'confirmed')
-                        }
+                        onConfirm={() => handleAtlasConfirm(message)}
                         onReject={() => handleConfirmation(message, 'rejected')}
                       />
                     );

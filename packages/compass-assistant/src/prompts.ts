@@ -10,6 +10,7 @@ import type { CollectionMetadata } from 'mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
+import { isAtlas } from 'mongodb-build-info';
 
 export const FOLLOW_UP_QUESTIONS_HEADER = '### Follow-Up Questions';
 
@@ -360,15 +361,20 @@ export const buildConnectionErrorPrompt = ({
     ? 'Data Explorer'
     : 'Compass';
 
-  const { message } = error as { message?: string };
-  const isAuthenticationError = message === 'bad auth : authentication failed';
-
   const connectionDetailsSection = connectionInfo.atlasMetadata
     ? ''
     : ` If no auth mechanism is specified in the connection string, the default (username/password) is being used:
 
 Connection string (password redacted):
 ${connectionString}`;
+
+  // Offer the Atlas debug tool (via the confirmation card) whenever this is an
+  // Atlas connection, regardless of the error. Otherwise `confirmation` is
+  // omitted and the message flows straight to the assistant as a regular debug
+  // prompt (the standard AI assistant flow).
+  const isAtlasConnection = isAtlas(
+    connectionInfo.connectionOptions.connectionString
+  );
 
   return {
     prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB ${productDisplayName}.${connectionDetailsSection}
@@ -380,16 +386,16 @@ ${connectionError}`,
         id: connectionInfo.id,
         name: getConnectionTitle(connectionInfo),
       },
-      ...(isAuthenticationError
-        ? {}
-        : {
+      ...(isAtlasConnection
+        ? {
             confirmation: {
               description: `Connecting would call Atlas API endpoints (cluster state, IP allowlist, TLS) to explain why this connection is failing. This is read-only and won’t change your cluster.`,
               state: 'pending' as const,
               continueOn: 'rejected' as const,
               variant: 'atlas' as const,
             },
-          }),
+          }
+        : {}),
     },
   };
 };
