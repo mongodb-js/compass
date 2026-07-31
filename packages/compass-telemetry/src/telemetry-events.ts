@@ -949,27 +949,6 @@ type DocumentClonedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
- * This event is fired when a field's value is edited and then the field
- * loses focus, in the default document view or the table view.
- *
- * @category Documents
- */
-type DocumentFieldEditedEvent = ConnectionScopedEvent<{
-  name: 'Document Field Edited';
-  payload: {
-    /**
-     * The BSON type of the edited field.
-     */
-    type: string;
-
-    /**
-     * The view in which the field was edited.
-     */
-    mode: 'list' | 'table' | 'insert';
-  };
-}>;
-
-/**
  * This event is fired when user adds a field to a document, either at the
  * top level or nested inside an array/document.
  *
@@ -4186,7 +4165,6 @@ export type TelemetryEvent =
   | DocumentClonedEvent
   | DocumentCopiedEvent
   | DocumentDeletedEvent
-  | DocumentFieldEditedEvent
   | DocumentFieldAddedEvent
   | DocumentFieldRemovedEvent
   | DocumentInsertCancelledEvent

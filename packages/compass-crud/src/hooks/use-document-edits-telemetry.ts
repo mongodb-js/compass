@@ -7,15 +7,12 @@ import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 export type DocumentEditsMode = 'list' | 'json' | 'table' | 'insert';
 
 function addedTo(element: Element) {
-  return element.parent && element.parent.currentType === 'Array'
-    ? 'array'
-    : 'document';
+  return element.parent?.currentType === 'Array' ? 'array' : 'document';
 }
 
 /**
- * Tracks how the user edits documents by listening to the documents
- * themselves, so that all the editing UIs (list, table and the insert dialog)
- * are covered without them having to know about telemetry.
+ * Tracks how the user edits documents, so that various ways of
+ * editing (list, table and the insert dialog) can share similar tracking.
  */
 export function useDocumentEditsTelemetry(
   docs: HadronDocument[],
@@ -25,45 +22,12 @@ export function useDocumentEditsTelemetry(
   const connectionInfoRef = useConnectionInfoRef();
 
   useEffect(() => {
-    // The JSON view edits documents as text, it has no field editing UI
+    // The JSON view edits documents as text, it has no field editing UI.
     const fieldsMode = mode === 'json' ? null : mode;
-    // Cancelling an insert is tracked as `Document Insert Cancelled` instead
+    // Cancelling an insert is tracked separately as `Document Insert Cancelled`.
     const cancelMode = mode === 'insert' ? null : mode;
 
     const cleanup = docs.map((doc) => {
-      // Elements emit `Edited` on every keystroke, so we only report the first
-      // edit of a field within an editing session
-      const editedElements = new Set<string>();
-      // Last known type of an element. Changing the type of a field is also
-      // only reported as `Edited`, and is not a value edit.
-      const currentTypes = new Map<string, string>();
-
-      const onEdited = (element: Element) => {
-        if (!fieldsMode) {
-          return;
-        }
-        const previousType = currentTypes.get(element.uuid) ?? element.type;
-        currentTypes.set(element.uuid, element.currentType);
-
-        // TODO(COMPASS-10767): track this as `Document Field Type Changed`
-        // once hadron-document emits `Converted` for type changes.
-        if (previousType !== element.currentType) {
-          return;
-        }
-
-        // Editing a field the user just added is already covered by the added
-        // event
-        if (element.isAdded() || editedElements.has(element.uuid)) {
-          return;
-        }
-        editedElements.add(element.uuid);
-        track(
-          'Document Field Edited',
-          { type: element.currentType, mode: fieldsMode },
-          connectionInfoRef.current
-        );
-      };
-
       const onAdded = (element: Element) => {
         if (!fieldsMode) {
           return;
@@ -86,13 +50,10 @@ export function useDocumentEditsTelemetry(
         );
       };
 
-      const onUpdateSuccess = () => {
-        editedElements.clear();
-      };
-
       const onCancel = () => {
-        editedElements.clear();
-        if (cancelMode) {
+        // The edit actions footer cancels the document when the user backs out
+        // of the delete document confirmation, which is not an update.
+        if (cancelMode && !doc.markedForDeletion) {
           track(
             'Document Update Cancelled',
             { mode: cancelMode },
@@ -101,17 +62,13 @@ export function useDocumentEditsTelemetry(
         }
       };
 
-      doc.on(ElementEvents.Edited, onEdited);
       doc.on(ElementEvents.Added, onAdded);
       doc.on(ElementEvents.Removed, onRemoved);
-      doc.on(DocumentEvents.UpdateSuccess, onUpdateSuccess);
       doc.on(DocumentEvents.Cancel, onCancel);
 
       return () => {
-        doc.off(ElementEvents.Edited, onEdited);
         doc.off(ElementEvents.Added, onAdded);
         doc.off(ElementEvents.Removed, onRemoved);
-        doc.off(DocumentEvents.UpdateSuccess, onUpdateSuccess);
         doc.off(DocumentEvents.Cancel, onCancel);
       };
     });

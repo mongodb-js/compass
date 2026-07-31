@@ -48,34 +48,6 @@ describe('useDocumentEditsTelemetry', function () {
     expect(events[0].payload).to.have.property('connection_id', 'TEST');
   });
 
-  it('tracks a field value edit once per editing session', async function () {
-    const doc = new HadronDocument({ name: 'compass' });
-    renderWithDoc(doc, 'list');
-
-    const element = doc.get('name')!;
-    // Typing emits an `Edited` event per keystroke
-    element.edit('compas');
-    element.edit('compa');
-
-    expect(await trackedEvents()).to.deep.equal([
-      {
-        name: 'Document Field Edited',
-        payload: { type: 'String', mode: 'list' },
-      },
-    ]);
-  });
-
-  // TODO(COMPASS-10767): changing a type will be tracked as
-  // `Document Field Type Changed` once hadron-document emits `Converted`
-  it('does not report a type change as a value edit', async function () {
-    const doc = new HadronDocument({ count: 1 });
-    renderWithDoc(doc, 'table');
-
-    doc.get('count')!.changeType('String');
-
-    expect(await trackedEvents()).to.deep.equal([]);
-  });
-
   it('tracks added and removed fields, including nested ones', async function () {
     const doc = new HadronDocument({ tags: ['a'], name: 'compass' });
     renderWithDoc(doc, 'list');
@@ -111,6 +83,19 @@ describe('useDocumentEditsTelemetry', function () {
     const insertDoc = new HadronDocument({ name: 'compass' });
     renderWithDoc(insertDoc, 'insert');
     insertDoc.cancel();
+    expect(await trackedEvents()).to.deep.equal([]);
+  });
+
+  it('does not track cancelling a deletion as a cancelled update', async function () {
+    const doc = new HadronDocument({ name: 'compass' });
+    renderWithDoc(doc, 'list');
+
+    // The footer cancel button cancels the document before the view finishes
+    // the deletion
+    doc.markForDeletion();
+    doc.cancel();
+    doc.finishDeletion();
+
     expect(await trackedEvents()).to.deep.equal([]);
   });
 
