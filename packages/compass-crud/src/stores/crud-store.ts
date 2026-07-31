@@ -2390,7 +2390,7 @@ function serializeInsertDocument(
 
 /**
  * Convert insert editor text between EJSON and shell syntax when switching
- * views, keeping the original text if it can't be parsed.
+ * views.
  */
 function convertInsertText(
   from: InsertDocumentView,
@@ -2409,6 +2409,8 @@ function convertInsertText(
       ? toJSString(value) ?? text
       : objectToIdiomaticEJSON(value);
   } catch {
+    // This shouldn't happen as switching is disabled in
+    // the UI when parsing fails.
     return text;
   }
 }
