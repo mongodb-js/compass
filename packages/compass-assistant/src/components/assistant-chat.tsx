@@ -569,7 +569,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       ensureAtlasSignIn?.()
         .then((ok) => {
           setIsAtlasSignedIn(!!ok);
-          handleConfirmation(message, ok ? 'confirmed' : 'rejected');
+          if (ok) {
+            // TODO(COMPASS-10828): The user is signed in and confirmed via
+            // "Run". Trigger the Atlas connection-error debugging actions here
+            // (e.g. run the atlas-connection-error-debugger tool and surface
+            // its results). For now we just mark the confirmation as accepted.
+            handleConfirmation(message, 'confirmed');
+          } else {
+            handleConfirmation(message, 'rejected');
+          }
         })
         .catch(() => {
           // Treat any unexpected failure as a rejection → standard debug flow.
