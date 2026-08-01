@@ -185,9 +185,11 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       : 'search';
   const editorRef = useRef<EditorRef>(null);
   const connectionInfoRef = useConnectionInfoRef();
-  const { enableAutoEmbeddingPublicPreview } = usePreferences([
-    'enableAutoEmbeddingPublicPreview',
-  ]);
+  const { enableAutoEmbeddingPublicPreview, enableAutoEmbeddingGaRelease } =
+    usePreferences([
+      'enableAutoEmbeddingPublicPreview',
+      'enableAutoEmbeddingGaRelease',
+    ]);
   const defaultVectorTemplateChoice: VectorIndexTemplateChoice =
     enableAutoEmbeddingPublicPreview ? 'autoEmbed' : 'bringYourOwn';
   const [
@@ -392,8 +394,12 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     return createSearchIndexAutocompleter({ fields });
   }, [fields]);
 
+  // The restriction banner's copy is scoped to Public Preview. The GA flag retires it.
+  const isAutoEmbedPreviewMessagingActive =
+    enableAutoEmbeddingPublicPreview && !enableAutoEmbeddingGaRelease;
+
   const showAutoEmbedEditRestrictedBanner = useMemo(() => {
-    if (!enableAutoEmbeddingPublicPreview) {
+    if (!isAutoEmbedPreviewMessagingActive) {
       return false;
     }
     try {
@@ -402,7 +408,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     } catch {
       return false;
     }
-  }, [enableAutoEmbeddingPublicPreview, initialIndexDefinition]);
+  }, [isAutoEmbedPreviewMessagingActive, initialIndexDefinition]);
 
   const isEditingVectorSearchIndex =
     mode === 'update' && initialIndexType === 'vectorSearch';

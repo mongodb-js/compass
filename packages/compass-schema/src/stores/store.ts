@@ -17,7 +17,7 @@ import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { FieldStoreService } from '@mongodb-js/compass-field-store';
 import type { QueryBarService } from '@mongodb-js/compass-query-bar';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { SchemaAccessor } from 'mongodb-schema';
+import type { SchemaAccessor } from '@mongodb-js/mongodb-schema';
 import {
   schemaAnalysisReducer,
   cleanupAnalysis,

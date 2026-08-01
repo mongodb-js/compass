@@ -12,7 +12,6 @@ import type { SinonSpy } from 'sinon';
 import { applyFromHistory } from '../stores/query-bar-reducer';
 import sinon from 'sinon';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
-import type { PreferencesAccess } from 'compass-preferences-model';
 import { PreferencesProvider } from 'compass-preferences-model/provider';
 
 class MockPasteEvent extends window.Event {
@@ -26,6 +25,28 @@ class MockPasteEvent extends window.Event {
       return this.text;
     },
   };
+}
+
+async function renderOptionEditor(
+  props: Partial<React.ComponentProps<typeof OptionEditor>> = {}
+) {
+  const preferencesAccess = await createSandboxFromDefaultPreferences();
+  return render(
+    <PreferencesProvider value={preferencesAccess}>
+      <OptionEditor
+        optionName="filter"
+        namespace="test.test"
+        insertEmptyDocOnFocus
+        onChange={() => {}}
+        onUnsafeInteger={() => {}}
+        value=""
+        recentQueries={[]}
+        favoriteQueries={[]}
+        onApplyQuery={applyFromHistory}
+        {...props}
+      ></OptionEditor>
+    </PreferencesProvider>
+  );
 }
 
 describe('OptionEditor', function () {
@@ -42,18 +63,7 @@ describe('OptionEditor', function () {
 
   describe('with autofix enabled', function () {
     it('fills the input with an empty object "{}" when empty on focus', async function () {
-      render(
-        <OptionEditor
-          optionName="filter"
-          namespace="test.test"
-          insertEmptyDocOnFocus
-          onChange={() => {}}
-          value=""
-          recentQueries={[]}
-          favoriteQueries={[]}
-          onApplyQuery={applyFromHistory}
-        ></OptionEditor>
-      );
+      await renderOptionEditor();
 
       expect(screen.getByRole('textbox').textContent).to.eq('');
 
@@ -65,18 +75,9 @@ describe('OptionEditor', function () {
     });
 
     it('does not change input value when empty on focus', async function () {
-      render(
-        <OptionEditor
-          optionName="filter"
-          namespace="test.test"
-          insertEmptyDocOnFocus
-          onChange={() => {}}
-          value="{ foo: 1 }"
-          recentQueries={[]}
-          favoriteQueries={[]}
-          onApplyQuery={applyFromHistory}
-        ></OptionEditor>
-      );
+      await renderOptionEditor({
+        value: '{ foo: 1 }',
+      });
 
       expect(screen.getByRole('textbox').textContent).to.eq('{ foo: 1 }');
 
@@ -88,18 +89,7 @@ describe('OptionEditor', function () {
     });
 
     it('should adjust pasted query if pasting over empty brackets with the cursor in the middle', async function () {
-      render(
-        <OptionEditor
-          optionName="filter"
-          namespace="test.test"
-          insertEmptyDocOnFocus
-          onChange={() => {}}
-          value=""
-          favoriteQueries={[]}
-          recentQueries={[]}
-          onApplyQuery={applyFromHistory}
-        ></OptionEditor>
-      );
+      await renderOptionEditor();
 
       userEvent.tab();
 
@@ -117,18 +107,7 @@ describe('OptionEditor', function () {
     });
 
     it('should not modify user text whe pasting when cursor moved', async function () {
-      render(
-        <OptionEditor
-          optionName="filter"
-          namespace="test.test"
-          insertEmptyDocOnFocus
-          onChange={() => {}}
-          value=""
-          favoriteQueries={[]}
-          recentQueries={[]}
-          onApplyQuery={applyFromHistory}
-        ></OptionEditor>
-      );
+      await renderOptionEditor();
 
       userEvent.tab();
 
@@ -148,18 +127,7 @@ describe('OptionEditor', function () {
     });
 
     it('should not modify user text when pasting in empty input', async function () {
-      render(
-        <OptionEditor
-          optionName="filter"
-          namespace="test.test"
-          insertEmptyDocOnFocus
-          onChange={() => {}}
-          value=""
-          favoriteQueries={[]}
-          recentQueries={[]}
-          onApplyQuery={applyFromHistory}
-        ></OptionEditor>
-      );
+      await renderOptionEditor();
 
       userEvent.tab();
       userEvent.keyboard('{arrowright}{backspace}{backspace}{backspace}');
@@ -176,44 +144,30 @@ describe('OptionEditor', function () {
 
   describe('when rendering filter option', function () {
     let onApplySpy: SinonSpy;
-    let preferencesAccess: PreferencesAccess;
 
     beforeEach(async function () {
-      preferencesAccess = await createSandboxFromDefaultPreferences();
       onApplySpy = sinon.spy();
-      render(
-        <PreferencesProvider value={preferencesAccess}>
-          <OptionEditor
-            optionName="filter"
-            namespace="test.test"
-            insertEmptyDocOnFocus
-            onChange={() => {}}
-            value=""
-            recentQueries={[
-              {
-                _lastExecuted: new Date(),
-                filter: { a: 1 },
-              },
-            ]}
-            favoriteQueries={[
-              {
-                _lastExecuted: new Date(),
-                filter: { a: 2 },
-                sort: { a: -1 },
-              },
-            ]}
-            onApplyQuery={onApplySpy}
-          />
-        </PreferencesProvider>
-      );
+      await renderOptionEditor({
+        onApplyQuery: onApplySpy,
+        recentQueries: [
+          {
+            _lastExecuted: new Date(),
+            filter: { a: 1 },
+          },
+        ],
+        favoriteQueries: [
+          {
+            _lastExecuted: new Date(),
+            filter: { a: 2 },
+            sort: { a: -1 },
+          },
+        ],
+      });
+
       userEvent.click(screen.getByRole('textbox'));
       await waitFor(() => {
         screen.getByLabelText('Completions');
       });
-    });
-
-    afterEach(function () {
-      cleanup();
     });
 
     it('renders autocomplete options', function () {
@@ -238,43 +192,30 @@ describe('OptionEditor', function () {
 
   describe('when rendering project option', function () {
     let onApplySpy: SinonSpy;
-    let preferencesAccess: PreferencesAccess;
 
     beforeEach(async function () {
-      preferencesAccess = await createSandboxFromDefaultPreferences();
       onApplySpy = sinon.spy();
-      render(
-        <PreferencesProvider value={preferencesAccess}>
-          <OptionEditor
-            optionName="project"
-            namespace="test.test"
-            insertEmptyDocOnFocus
-            onChange={() => {}}
-            value=""
-            favoriteQueries={[
-              {
-                _lastExecuted: new Date(),
-                project: { a: 1 },
-              },
-            ]}
-            recentQueries={[
-              {
-                _lastExecuted: new Date(),
-                project: { a: 0 },
-              },
-            ]}
-            onApplyQuery={onApplySpy}
-          />
-        </PreferencesProvider>
-      );
+      await renderOptionEditor({
+        optionName: 'project',
+        onApplyQuery: onApplySpy,
+        recentQueries: [
+          {
+            _lastExecuted: new Date(),
+            project: { a: 1 },
+          },
+        ],
+        favoriteQueries: [
+          {
+            _lastExecuted: new Date(),
+            project: { a: 0 },
+            sort: { a: -1 },
+          },
+        ],
+      });
       userEvent.click(screen.getByRole('textbox'));
       await waitFor(() => {
         screen.getByLabelText('Completions');
       });
-    });
-
-    afterEach(function () {
-      cleanup();
     });
 
     it('renders autocomplete options', function () {
