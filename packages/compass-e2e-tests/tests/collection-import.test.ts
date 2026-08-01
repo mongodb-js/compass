@@ -166,9 +166,11 @@ describe('Collection import', function () {
     // wait for the modal to appear
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
+    await browser.clickVisible(Selectors.InsertDialogJSONView);
+
     // set the text in the editor
     await browser.setCodemirrorEditorValue(
-      Selectors.InsertJSONEditor,
+      Selectors.InsertDocumentEditor,
       '{ "foo": 10, "long": { "$numberLong": "99" } }'
     );
 
@@ -319,7 +321,10 @@ describe('Collection import', function () {
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
     // set the text in the editor
-    await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertDocumentEditor,
+      json
+    );
 
     // confirm
     // this selector is very brittle, so just make sure it works
@@ -373,7 +378,10 @@ describe('Collection import', function () {
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
     // set the text in the editor
-    await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertDocumentEditor,
+      json
+    );
 
     // make sure that there's an error and that the insert button is disabled
     const errorElement = browser.$(Selectors.InsertDialogErrorMessage);

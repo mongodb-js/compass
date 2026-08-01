@@ -578,7 +578,7 @@ describe('CSFLE / QE', function () {
 
         // set the text in the editor
         await browser.setCodemirrorEditorValue(
-          Selectors.InsertJSONEditor,
+          Selectors.InsertDocumentEditor,
           '{ "phoneNumber": "30303030", "name": "Person X" }'
         );
 
@@ -924,7 +924,7 @@ describe('CSFLE / QE', function () {
 
         // set the text in the editor
         await browser.setCodemirrorEditorValue(
-          Selectors.InsertJSONEditor,
+          Selectors.InsertDocumentEditor,
           '{ "phoneNumber": "30303030", "faxNumber": "30303030", "name": "Third" }'
         );
 

@@ -39,7 +39,7 @@ const InsertDocumentEditor: React.FunctionComponent<
       )}
     >
       <CodemirrorMultilineEditor
-        data-testid="insert-document-json-editor"
+        data-testid="insert-document-editor"
         language={shellSyntax ? 'javascript-expression' : 'json'}
         text={editorText}
         onChangeText={updateInsertDocText}

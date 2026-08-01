@@ -38,7 +38,7 @@ describe('InsertDocumentDialog', function () {
       />
     );
     await setCodemirrorEditorValue(
-      screen.getByTestId('insert-document-json-editor'),
+      screen.getByTestId('insert-document-editor'),
       '{ "invalid_long": { "$numberLong": "1234567234324812317654321" } } '
     );
     rerender(
@@ -123,7 +123,7 @@ describe('InsertDocumentDialog', function () {
       />
     );
     await setCodemirrorEditorValue(
-      screen.getByTestId('insert-document-json-editor'),
+      screen.getByTestId('insert-document-editor'),
       '{ _id: ObjectId(), createdAt: new Date() }'
     );
     rerender(
@@ -157,7 +157,7 @@ describe('InsertDocumentDialog', function () {
     );
     expect(screen.queryByTestId('insert-document-banner')).to.not.exist;
     await setCodemirrorEditorValue(
-      screen.getByTestId('insert-document-json-editor'),
+      screen.getByTestId('insert-document-editor'),
       '{ _id: ObjectId( }'
     );
     rerender(

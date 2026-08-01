@@ -730,7 +730,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     // set the text in the editor and insert the document
     await browser.setCodemirrorEditorValue(
-      Selectors.InsertJSONEditor,
+      Selectors.InsertDocumentEditor,
       '{ "i": 10042 }'
     );
     const insertConfirm = browser.$(Selectors.InsertConfirm);
@@ -1229,7 +1229,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
     await browser.setCodemirrorEditorValue(
-      Selectors.InsertJSONEditor,
+      Selectors.InsertDocumentEditor,
       `{ "i": ${Number.MAX_SAFE_INTEGER + 1} }`
     );
 
@@ -1251,7 +1251,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await banner.waitForDisplayed({ reverse: true });
 
     const updatedJson = await browser.getCodemirrorEditorText(
-      Selectors.InsertJSONEditor
+      Selectors.InsertDocumentEditor
     );
     expect(updatedJson.replace(/\s+/g, ' ')).to.include(
       `"i": {"$numberLong": "${Number.MAX_SAFE_INTEGER + 1}"}`
@@ -1280,8 +1280,20 @@ FindIterable<Document> result = collection.find(filter);`);
     // and a shell constructor, neither of which is valid JSON
     await browser.clickVisible(Selectors.InsertDialogShellView);
     await browser.setCodemirrorEditorValue(
-      Selectors.InsertJSONEditor,
-      '{ i: 10142, _id: ObjectId() }'
+      Selectors.InsertDocumentEditor,
+      `{
+        i: 10142,
+        _id: ObjectId(),
+        long: NumberLong('9223372036854775807'),
+        decimal: NumberDecimal('123.45'),
+        date: ISODate('2023-01-01T00:00:00.000Z'),
+        regex: /foo.*bar/i,
+        ts: Timestamp(1234, 5),
+        uuid: UUID('79a4a7c6-1c1f-4d5e-9f8a-1b2c3d4e5f60'),
+        min: MinKey(),
+        nested: { a: 1, b: { c: 2 } },
+        arr: [1, 2, 3]
+      }`
     );
 
     // no validation error for valid shell syntax
@@ -1295,7 +1307,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await browser.runFindOperation('Documents', '{ i: 10142 }');
     expect(await getFormattedDocument(browser)).to.match(
-      /^_id: ObjectId\('[a-f0-9]{24}'\) i: 10142$/
+      /^_id: ObjectId\('[a-f0-9]{24}'\) i: 10142 long: 9223372036854775807 decimal: 123\.45 date: 2023-01-01T00:00:00\.000\+00:00 regex: \/foo\.\*bar\/i ts: Timestamp\(\{ t: 1234, i: 5 \}\) uuid: UUID\('79a4a7c6-1c1f-4d5e-9f8a-1b2c3d4e5f60'\) min: MinKey\(\) nested: Object \(2\) arr: Array \(3\)$/
     );
   });
 
@@ -1306,7 +1318,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await browser.clickVisible(Selectors.InsertDialogShellView);
     await browser.setCodemirrorEditorValue(
-      Selectors.InsertJSONEditor,
+      Selectors.InsertDocumentEditor,
       '{ i: ObjectId( }'
     );
 
