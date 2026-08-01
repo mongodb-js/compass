@@ -185,7 +185,7 @@
     "@mongosh/node-runtime-worker-thread": "^5.2.13",
     "clipboard": "^2.0.6",
     "kerberos": "^7.0.0",
-    "mongodb-client-encryption": "^7.2.0",
+    "mongodb-client-encryption": "^7.2.1",
     "native-machine-id": "^0.3.6",
     "os-dns-native": "^2.0.1",
     "system-ca": "^3.0.0"
