@@ -1,5 +1,9 @@
 import React from 'react';
-import { Button, Icon, css } from '@mongodb-js/compass-components';
+import {
+  AssistantSparkleIcon,
+  Button,
+  css,
+} from '@mongodb-js/compass-components';
 import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
 
@@ -38,7 +42,7 @@ export const SearchStageDiagnoseButton: React.FunctionComponent<
       size="small"
       variant="primaryOutline"
       className={diagnoseButtonStyles}
-      leftGlyph={<Icon glyph="Sparkle" />}
+      leftGlyph={<AssistantSparkleIcon />}
       onClick={onClick}
     >
       Investigate no results

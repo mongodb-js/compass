@@ -10,7 +10,6 @@ import {
   css,
   Link,
   Icon,
-  palette,
   Tooltip,
 } from '@mongodb-js/compass-components';
 import type { ExplainPlanModalState } from '../stores/explain-plan-modal-store';
@@ -145,10 +144,7 @@ export const ExplainPlanModal: React.FunctionComponent<
             <Button
               size="small"
               variant="default"
-              leftGlyph={
-                // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
-                <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
-              }
+              leftGlyph={<Icon glyph="Sparkle" />}
               data-testid="interpret-for-me-button"
               onClick={() => {
                 onModalClose();
@@ -166,7 +162,7 @@ export const ExplainPlanModal: React.FunctionComponent<
               triggerEvent="hover"
               trigger={
                 <span className={tooltipTriggerStyles}>
-                  <Icon color={palette.gray.dark1} glyph="InfoWithCircle" />
+                  <Icon glyph="InfoWithCircle" />
                 </span>
               }
             >

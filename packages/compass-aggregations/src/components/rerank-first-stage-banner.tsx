@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import {
+  AssistantSparkleIcon,
   Banner,
   Button,
-  Icon,
   Link,
   PerformanceSignals,
   css,
@@ -232,7 +232,7 @@ export const RerankFirstStageBanner = ({
               });
               onInsightAction?.();
             }}
-            leftGlyph={<Icon glyph="Sparkle" />}
+            leftGlyph={<AssistantSparkleIcon />}
             data-testid="rerank-first-stage-learn-more-button"
           >
             Learn more
