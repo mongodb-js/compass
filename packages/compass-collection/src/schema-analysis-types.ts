@@ -1,5 +1,5 @@
 import type { Document } from 'mongodb';
-import type { PrimitiveSchemaType } from 'mongodb-schema';
+import type { PrimitiveSchemaType } from '@mongodb-js/mongodb-schema';
 
 export const SCHEMA_ANALYSIS_STATE_INITIAL = 'initial';
 export const SCHEMA_ANALYSIS_STATE_ANALYZING = 'analyzing';

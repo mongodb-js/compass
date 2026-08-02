@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import type { Schema as MongodbSchema } from 'mongodb-schema';
+import type { Schema as MongodbSchema } from '@mongodb-js/mongodb-schema';
 import { connect } from 'react-redux';
 import type { AnalysisState } from '../constants/analysis-states';
 import {

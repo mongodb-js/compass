@@ -421,6 +421,26 @@ functions:
           cd packages/compass && npm run prepackage-compass
     - command: ec2.assume_role
       retry_on_failure: true
+      display_name: Assume IAM role with permissions to pull SilkBomb image from DevProd Platforms ECR
+      params:
+        role_arn: ${devprod_platforms_ecr_readonly_role_arn}
+    - command: shell.exec
+      retry_on_failure: true
+      params:
+        include_expansions_in_env:
+          [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
+        script: |
+          set -e
+          ecr_login_password=$(aws ecr get-login-password --region us-east-1)
+          cat <<EOL > ecr_login_password.yml
+          ECR_LOGIN_PASSWORD: $ecr_login_password
+          EOL
+    - command: expansions.update
+      retry_on_failure: true
+      params:
+        file: ecr_login_password.yml
+    - command: ec2.assume_role
+      retry_on_failure: true
       display_name: Assume IAM role with permissions to pull Kondukto API token
       params:
         role_arn: ${kondukto_role_arn}
@@ -439,8 +459,7 @@ functions:
         env:
           <<: *compass-env
           npm_config_loglevel: ${npm_loglevel}
-          ARTIFACTORY_USERNAME: ${artifactory_username}
-          ARTIFACTORY_PASSWORD: ${artifactory_password}
+          ECR_LOGIN_PASSWORD: ${ECR_LOGIN_PASSWORD}
           SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
           SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
@@ -452,12 +471,23 @@ functions:
           set -e
           eval $(.evergreen/print-compass-env.sh)
           bash ".evergreen/retry-with-backoff.sh" .evergreen/create-sbom.sh
+    - command: ec2.assume_role
+      retry_on_failure: true
+      display_name: Assume IAM role with permissions to pull Garasign images from DevProd Platforms ECR
+      params:
+        role_arn: ${devprod_platforms_ecr_readonly_role_arn}
     - command: shell.exec
       retry_on_failure: true
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [DEVELOPER_DIR]
+        include_expansions_in_env:
+          [
+            AWS_ACCESS_KEY_ID,
+            AWS_SECRET_ACCESS_KEY,
+            AWS_SESSION_TOKEN,
+            DEVELOPER_DIR,
+          ]
         env:
           <<: *compass-env
           DEBUG: ${debug}
@@ -472,8 +502,6 @@ functions:
           # linux / windows signing secrets
           GARASIGN_USERNAME: ${garasign_username}
           GARASIGN_PASSWORD: ${garasign_password}
-          ARTIFACTORY_USERNAME: ${artifactory_username}
-          ARTIFACTORY_PASSWORD: ${artifactory_password}
           SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
           SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
@@ -489,6 +517,7 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+          export ECR_LOGIN_PASSWORD=$(aws ecr get-login-password --region us-east-1)
           .evergreen/compass_package.sh
 
   get_first_party_dependency_list:

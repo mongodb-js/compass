@@ -350,6 +350,19 @@ describe('CSFLE / QE', function () {
       });
 
       beforeEach(async function () {
+        // These query types were renamed from their "*Preview" names to their
+        // GA names in server 9.0; older servers only accept the preview names.
+        const useGAStringQueryTypes = serverSatisfies('>=9.0.0-alpha0', true);
+        const prefixQueryType = useGAStringQueryTypes
+          ? 'prefix'
+          : 'prefixPreview';
+        const suffixQueryType = useGAStringQueryTypes
+          ? 'suffix'
+          : 'suffixPreview';
+        const substringQueryType = useGAStringQueryTypes
+          ? 'substring'
+          : 'substringPreview';
+
         await browser.disconnectAll();
         await browser.connectWithConnectionForm({
           hosts: [CONNECTION_HOSTS],
@@ -406,7 +419,7 @@ describe('CSFLE / QE', function () {
                   bsonType: 'string',
                   queries: [
                     {
-                      queryType: 'prefixPreview',
+                      queryType: '${prefixQueryType}',
                       contention: 0,
                       strMinQueryLength: 3,
                       strMaxQueryLength: 30,
@@ -425,7 +438,7 @@ describe('CSFLE / QE', function () {
                   bsonType: 'string',
                   queries: [
                     {
-                      queryType: 'suffixPreview',
+                      queryType: '${suffixQueryType}',
                       contention: 0,
                       strMinQueryLength: 3,
                       strMaxQueryLength: 30,
@@ -444,7 +457,7 @@ describe('CSFLE / QE', function () {
                   bsonType: 'string',
                   queries: [
                     {
-                      queryType: 'substringPreview',
+                      queryType: '${substringQueryType}',
                       contention: 0,
                       strMinQueryLength: 3,
                       strMaxQueryLength: 10,
@@ -647,16 +660,6 @@ describe('CSFLE / QE', function () {
             !serverSatisfies('>= 8.2.0', true)
           ) {
             // QE Prefix/Suffix/Substring Support only available on 8.2+
-            return this.skip();
-          }
-
-          if (
-            ['prefixPreview', 'suffixPreview', 'substringPreview'].includes(
-              mode
-            ) &&
-            serverSatisfies('>=9.0.0-alpha0', true)
-          ) {
-            // TODO(COMPASS-10665): prefixPreview, suffixPreview and substringPreview are renamed in 9.0.0
             return this.skip();
           }
 
