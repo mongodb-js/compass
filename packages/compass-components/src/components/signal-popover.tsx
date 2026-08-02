@@ -14,7 +14,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
-import { AssistantSparkleIcon } from './icons/assistant-sparkle-icon';
+import { AssistantAvatar as AssistantSparkleIcon } from '@leafygreen-ui/avatar';
 import { GuideCue } from './guide-cue/guide-cue';
 import { useEffectOnChange } from '../hooks/use-effect-on-change';
 import { rafraf } from '../utils/rafraf';
