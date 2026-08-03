@@ -360,7 +360,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
               {!docValidationError && safeIntegerViolations.length > 0 && (
                 <Link
                   as="button"
-                  data-testid="fix-safe-integer-safeIntegerViolations-button"
+                  data-testid="fix-safe-integer-violations-button"
                   onClick={onFixSafeIntegerViolations}
                   className={footerActionButtonStyles}
                 >
