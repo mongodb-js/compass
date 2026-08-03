@@ -7,6 +7,7 @@ import {
   showErrorDetails,
 } from '@mongodb-js/compass-components';
 import type { WriteError } from '../stores/crud-store';
+import { getSafeIntergerViolationMessage } from '../utils';
 
 const bannerStyles = css({
   marginTop: spacing[400],
@@ -39,7 +40,7 @@ export function InsertDocumentDialogBanner({
     }
     if (violationCount > 0) {
       return {
-        message: 'Unsafe integer violation',
+        message: getSafeIntergerViolationMessage(violationCount),
         variant: 'danger' as const,
         action: {
           onClick: onFixViolations,

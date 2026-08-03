@@ -25,6 +25,7 @@ import {
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { getSafeIntergerViolationMessage } from '../utils';
 
 const editorStyles = css({
   minHeight: spacing[800] + spacing[400],
@@ -340,7 +341,9 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         modified={value !== initialValue}
         validationError={
           docValidationError ??
-          (violations.length > 0 ? new Error('Unsafe integer violation') : null)
+          (violations.length > 0
+            ? new Error(getSafeIntergerViolationMessage(violations.length))
+            : null)
         }
         onUpdate={onUpdate}
         onDelete={onDelete}

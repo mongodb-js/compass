@@ -627,7 +627,7 @@ FindIterable<Document> result = collection.find(filter);`);
     const footer = document.$(Selectors.DocumentFooterMessage);
     await browser.waitUntil(async () => {
       return (await footer.getText()).includes(
-        'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
+        'Number exceeds the safe integer range.'
       );
     });
 
@@ -1240,7 +1240,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await browser.waitUntil(async () => {
       return (await banner.getText()).includes(
-        'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
+        'Number exceeds the safe integer range.'
       );
     });
 
