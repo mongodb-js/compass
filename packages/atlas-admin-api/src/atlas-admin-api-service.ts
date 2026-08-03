@@ -1,172 +1,50 @@
 import ConnectionString from 'mongodb-connection-string-url';
 import { type AtlasService } from '@mongodb-js/atlas-service/provider';
+import {
+  ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
+  assertPaginatedResponse,
+  buildPaginationQuery,
+  type AtlasPaginationOptions,
+} from './pagination';
+import {
+  assertClusterState,
+  computeClusterState,
+  type AtlasAccessListEntry,
+  type AtlasClusterComputedState,
+  type AtlasGroupCluster,
+  type AtlasGroupClusterResponse,
+} from './cluster-types';
+import { connectionStringMatches, extractConnectionStrings } from './util';
 
-export type AtlasClusterConnectionStrings = {
-  standard?: string;
-  standardSrv?: string;
-};
-
-type AtlasGroupClusterResponse = {
-  name: string;
-  connectionStrings?: AtlasClusterConnectionStrings;
-};
-
-export type AtlasGroupCluster = {
+export type AtlasProjectAndCluster = {
+  projectId: string;
   clusterName: string;
-  connectionStrings: string[];
 };
-
-export type AtlasAccessListEntry = {
-  cidrBlock?: string;
-  ipAddress?: string;
-  awsSecurityGroup?: string;
-  comment?: string;
-};
-
-export const ATLAS_CLUSTER_STATES = [
-  'IDLE',
-  'CREATING',
-  'UPDATING',
-  'DELETING',
-  'REPAIRING',
-] as const;
-
-export type AtlasClusterState = (typeof ATLAS_CLUSTER_STATES)[number];
-
-export type AtlasCluster = {
-  name: string;
-  paused: boolean;
-  stateName: AtlasClusterState;
-  connectionStrings?: AtlasClusterConnectionStrings;
-};
-
-export type AtlasClusterComputedState =
-  | 'NOT_FOUND'
-  | 'PAUSED'
-  | 'PROVISIONING'
-  | 'DELETING'
-  | 'IDLE'
-  | 'UPDATING'
-  | 'REPAIRING';
-
-const ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE = 100;
-
-type AtlasPaginationOptions = {
-  pageNum?: number;
-  itemsPerPage?: number;
-};
-
-type AtlasPaginatedResponse<T> = {
-  results: T[];
-  totalCount: number;
-};
-
-function buildPaginationQuery(pagination?: AtlasPaginationOptions): string {
-  const params = new URLSearchParams();
-  if (pagination?.pageNum !== undefined) {
-    params.set('pageNum', String(pagination.pageNum));
-  }
-  if (pagination?.itemsPerPage !== undefined) {
-    params.set('itemsPerPage', String(pagination.itemsPerPage));
-  }
-  const query = params.toString();
-  return query ? `?${query}` : '';
-}
-
-function assertPaginatedResponse<T>(
-  json: unknown
-): asserts json is AtlasPaginatedResponse<T> {
-  if (
-    json &&
-    typeof json === 'object' &&
-    Array.isArray((json as { results?: unknown }).results) &&
-    typeof (json as { totalCount?: unknown }).totalCount === 'number'
-  ) {
-    return;
-  }
-  throw new Error(
-    'Got unexpected backend response for Atlas Admin API paginated request'
-  );
-}
-
-function extractConnectionStrings(
-  connectionStrings?: AtlasClusterConnectionStrings
-): string[] {
-  return [
-    ...(connectionStrings?.standardSrv ? [connectionStrings.standardSrv] : []),
-    ...(connectionStrings?.standard ? [connectionStrings.standard] : []),
-  ];
-}
-
-function connectionStringMatches(
-  input: ConnectionString,
-  candidate: string
-): boolean {
-  let candidateUrl: ConnectionString;
-  try {
-    candidateUrl = new ConnectionString(candidate);
-  } catch {
-    return false;
-  }
-  if (input.isSRV !== candidateUrl.isSRV) {
-    return false;
-  }
-  const inputFirstHost = input.hosts[0]?.toLowerCase();
-  const candidateFirstHost = candidateUrl.hosts[0]?.toLowerCase();
-  return inputFirstHost !== undefined && inputFirstHost === candidateFirstHost;
-}
-
-function computeClusterState(cluster: AtlasCluster): AtlasClusterComputedState {
-  if (cluster.paused) {
-    return 'PAUSED';
-  }
-  switch (cluster.stateName) {
-    case 'CREATING':
-      return 'PROVISIONING';
-    default:
-      return cluster.stateName;
-  }
-}
-
-function assertClusterState(json: unknown): asserts json is AtlasCluster {
-  const cluster = json as {
-    name?: unknown;
-    paused?: unknown;
-    stateName?: unknown;
-  };
-  if (
-    json &&
-    typeof json === 'object' &&
-    typeof cluster.name === 'string' &&
-    typeof cluster.paused === 'boolean' &&
-    typeof cluster.stateName === 'string'
-  ) {
-    return;
-  }
-  throw new Error(
-    'Got unexpected backend response for Atlas Admin API cluster request'
-  );
-}
-
-function isNotFoundError(err: unknown): boolean {
-  return (
-    !!err &&
-    typeof err === 'object' &&
-    (err as { statusCode?: unknown }).statusCode === 404
-  );
-}
 
 /**
  * Provides access to the Atlas Admin API cluster endpoints. Injects an
  * AtlasService and uses it internally for network requests, keeping the
  * concrete admin-API routes (and the pagination plumbing they need) scoped to
- * where they are used.
+ * this package.
  */
-export class AtlasClusterService {
+export class AtlasAdminApiService {
   private readonly atlasService: Pick<
     AtlasService,
     'adminApiEndpoint' | 'authenticatedFetch'
   >;
+
+  /**
+   * Resolved project / cluster per connection string. The mapping is
+   * effectively immutable: an Atlas hostname derives from the cluster name plus
+   * a per-project suffix, so renaming or moving a cluster produces a different
+   * connection string rather than remapping an existing one. Only successful
+   * lookups are stored - a miss can become a hit once a cluster finishes
+   * provisioning.
+   */
+  private readonly projectAndClusterCache = new Map<
+    string,
+    Promise<AtlasProjectAndCluster | undefined>
+  >();
 
   constructor(
     atlasService: Pick<AtlasService, 'adminApiEndpoint' | 'authenticatedFetch'>
@@ -233,15 +111,48 @@ export class AtlasClusterService {
     }));
   }
 
+  /**
+   * Resolves the Atlas project and cluster a connection string belongs to.
+   * Successful lookups are cached for the lifetime of the service, see
+   * `clearCache`.
+   */
   async getProjectIdAndClusterName(
     connectionString: string
-  ): Promise<{ projectId: string; clusterName: string } | undefined> {
+  ): Promise<AtlasProjectAndCluster | undefined> {
     let input: ConnectionString;
     try {
       input = new ConnectionString(connectionString);
     } catch {
       return undefined;
     }
+
+    const cacheKey = input.toString();
+    const cached = this.projectAndClusterCache.get(cacheKey);
+    if (cached) {
+      return await cached;
+    }
+
+    // Cache the in-flight promise so concurrent callers share one lookup, then
+    // drop the entry again if it fails or finds nothing: a rejected request
+    // must not poison the key, and a cluster that is still provisioning should
+    // be found on a later attempt.
+    const lookup = this.findProjectIdAndClusterName(input);
+    this.projectAndClusterCache.set(cacheKey, lookup);
+    try {
+      const result = await lookup;
+      if (!result) {
+        this.projectAndClusterCache.delete(cacheKey);
+      }
+      return result;
+    } catch (err) {
+      this.projectAndClusterCache.delete(cacheKey);
+      throw err;
+    }
+  }
+
+  private async findProjectIdAndClusterName(
+    input: ConnectionString
+  ): Promise<AtlasProjectAndCluster | undefined> {
     const groupIds = await this.listGroupIds();
     for (const groupId of groupIds) {
       const clusters = await this.listConnectionStrings(groupId);
@@ -258,6 +169,10 @@ export class AtlasClusterService {
     return undefined;
   }
 
+  clearCache(): void {
+    this.projectAndClusterCache.clear();
+  }
+
   async getClusterState(
     groupId: string,
     clusterName: string
@@ -267,19 +182,11 @@ export class AtlasClusterService {
     const requestUrl = this.atlasService.adminApiEndpoint(
       `/v2/groups/${encodedGroupId}/clusters/${encodedClusterName}`
     );
-    let json: unknown;
-    try {
-      json = await this.atlasService
-        .authenticatedFetch(requestUrl, {
-          method: 'GET',
-        })
-        .then((res) => res.json());
-    } catch (err) {
-      if (isNotFoundError(err)) {
-        return 'NOT_FOUND';
-      }
-      throw err;
-    }
+    const json: unknown = await this.atlasService
+      .authenticatedFetch(requestUrl, {
+        method: 'GET',
+      })
+      .then((res) => res.json());
     assertClusterState(json);
     return computeClusterState(json);
   }

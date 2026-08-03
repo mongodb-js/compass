@@ -60,7 +60,8 @@ import {
   toolsControllerLocator,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
-import { AtlasClusterService } from './services/atlas-cluster-service';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
 import { createOpenAI } from '@ai-sdk/openai';
 import type {
   ActiveConnectionInfo,
@@ -299,7 +300,7 @@ export type AssistantState = Record<string, never>;
 type AssistantExtraArgs = {
   chat: Chat<AssistantMessage>;
   atlasAiService: AtlasAiService;
-  atlasClusterService: AtlasClusterService;
+  atlasAdminApi: AtlasAdminApiService;
   toolsController: ToolsController;
   preferences: PreferencesAccess;
   logger: Logger;
@@ -658,6 +659,7 @@ function activateAssistantPlugin(
   {
     atlasService,
     atlasAiService,
+    atlasAdminApi,
     toolsController,
     preferences,
     logger,
@@ -665,6 +667,7 @@ function activateAssistantPlugin(
   }: {
     atlasService: AtlasService;
     atlasAiService: AtlasAiService;
+    atlasAdminApi: AtlasAdminApiService;
     toolsController: ToolsController;
     preferences: PreferencesAccess;
     logger: Logger;
@@ -685,8 +688,6 @@ function activateAssistantPlugin(
 
   const lastContextPromptRef = { current: null as string | null };
 
-  const atlasClusterService = new AtlasClusterService(atlasService);
-
   const store = createStore(
     reducer,
     {},
@@ -694,7 +695,7 @@ function activateAssistantPlugin(
       thunk.withExtraArgument({
         chat,
         atlasAiService,
-        atlasClusterService,
+        atlasAdminApi,
         toolsController,
         preferences,
         logger,
@@ -883,6 +884,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
   {
     atlasService: atlasServiceLocator,
     atlasAiService: atlasAiServiceLocator,
+    atlasAdminApi: atlasAdminApiServiceLocator,
     atlasAuthService: atlasAuthServiceLocator,
     toolsController: toolsControllerLocator,
     track: telemetryLocator,
