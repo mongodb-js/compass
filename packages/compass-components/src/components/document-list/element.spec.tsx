@@ -14,7 +14,11 @@ describe('HadronElement', function () {
     let clipboardWriteTextStub: sinon.SinonStub;
 
     beforeEach(function () {
-      doc = new HadronDocument({ field: 'value' });
+      doc = new HadronDocument({
+        field: 'value',
+        array: ['item1', 'item2'],
+        object: { nestedField: 'nestedValue' },
+      });
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       element = doc.elements.at(0)!;
       windowOpenStub = sinon.stub(window, 'open');
@@ -118,7 +122,7 @@ describe('HadronElement', function () {
       expect(clipboardWriteTextStub).to.have.been.calledWith("'value'");
     });
 
-    it('copies field and value when "Copy field & value" is clicked', function () {
+    it('copies field and value when "Copy field & value" is clicked - string value', function () {
       render(
         <HadronElement
           value={element}
@@ -137,6 +141,52 @@ describe('HadronElement', function () {
       });
 
       expect(clipboardWriteTextStub).to.have.been.calledWith("field: 'value'");
+    });
+
+    it('copies field and value when "Copy field & value" is clicked - array value', function () {
+      render(
+        <HadronElement
+          value={doc.elements.at(1)!} // Accessing the array element
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+
+      // Open context menu and click the copy option
+      const elementNode = screen.getByTestId('hadron-document-element');
+      userEvent.click(elementNode, { button: 2 });
+      userEvent.click(screen.getByText('Copy field & value'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      const callArg = clipboardWriteTextStub.firstCall.firstArg;
+      expect(callArg.replace(/\s+/g, '')).to.equal("array:['item1','item2']");
+    });
+
+    it('copies field and value when "Copy field & value" is clicked - object value', function () {
+      render(
+        <HadronElement
+          value={doc.elements.at(2)!} // Accessing the object element
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+
+      // Open context menu and click the copy option
+      const elementNode = screen.getByTestId('hadron-document-element');
+      userEvent.click(elementNode, { button: 2 });
+      userEvent.click(screen.getByText('Copy field & value'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      const callArg = clipboardWriteTextStub.firstCall.firstArg;
+      expect(callArg.replace(/\s+/g, '')).to.equal(
+        "object:{nestedField:'nestedValue'}"
+      );
     });
 
     it('shows "Open URL in browser" for URL string values', function () {
