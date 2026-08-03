@@ -700,20 +700,54 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await browser.runFindOperation('Documents', '{ i: 34 }');
 
-    const document = browser.$(Selectors.DocumentListEntry);
-    await document.waitForDisplayed();
+    async function navigateToDocumentView(
+      view: 'list' | 'json',
+      onNavigate: () => Promise<void>
+    ) {
+      const tabSelector =
+        view === 'list' ? Selectors.SelectListView : Selectors.SelectJSONView;
+      const documentSelector =
+        view === 'list'
+          ? Selectors.DocumentListEntry
+          : Selectors.DocumentJSONEntry;
+      const copyButtonSelector =
+        view === 'list'
+          ? Selectors.CopyDocumentButton
+          : Selectors.JSONCopyDocumentButton;
+      await browser.clickVisible(tabSelector);
+      const document = browser.$(documentSelector);
+      await document.waitForDisplayed();
+      await browser.hover(documentSelector);
+      await browser.clickVisible(copyButtonSelector);
+      await onNavigate();
+      // Hide the tooltip that appears when copying a document
+      // by clicking on the document again.
+      await browser.clickVisible(documentSelector);
+    }
 
-    await browser.hover(Selectors.DocumentListEntry);
-    await browser.clickVisible(Selectors.CopyDocumentButton);
+    // Currently in list view, we copy in shell-syntax
+    // and in json view, we copy in ejson format.
+    await navigateToDocumentView('list', async () => {
+      await browser.waitUntil(
+        async () => {
+          return !!/^\{ _id: ObjectId\('[a-f0-9]{24}'\), i: NumberInt\('34'\), j: NumberInt\('0'\) \}$/.exec(
+            (await clipboard.read()).replace(/\s+/g, ' ').replace(/\n/g, '')
+          );
+        },
+        { timeoutMsg: 'Expected copy to clipboard to work in list view' }
+      );
+    });
 
-    await browser.waitUntil(
-      async () => {
-        return !!/^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 34, "j": 0 \}$/.exec(
-          (await clipboard.read()).replace(/\s+/g, ' ').replace(/\n/g, '')
-        );
-      },
-      { timeoutMsg: 'Expected copy to clipboard to work' }
-    );
+    await navigateToDocumentView('json', async () => {
+      await browser.waitUntil(
+        async () => {
+          return !!/^\{ "_id": \{ "\$oid": "[a-f0-9]{24}" \}, "i": 34, "j": 0 \}$/.exec(
+            (await clipboard.read()).replace(/\s+/g, ' ').replace(/\n/g, '')
+          );
+        },
+        { timeoutMsg: 'Expected copy to clipboard to work in json view' }
+      );
+    });
   });
 
   it('can clone and delete a document from the contextual toolbar', async function () {
