@@ -8,7 +8,7 @@ import {
 } from './pagination';
 import {
   assertClusterState,
-  AtlasClusterState,
+  type AtlasClusterState,
   type AtlasAccessListEntry,
   type AtlasGroupCluster,
   type AtlasGroupClusterResponse,

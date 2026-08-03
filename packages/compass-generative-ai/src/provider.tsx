@@ -64,7 +64,6 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
   function ToolsControllerProvider({ children }) {
     const logger = useLogger('TOOLS-CONTROLLER');
     const preferences = preferencesLocator();
-    const atlasService = atlasServiceLocator();
     const atlasAdminApi = atlasAdminApiServiceLocator();
     const authService = atlasAuthServiceLocator();
 
@@ -80,7 +79,7 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
         atlasAdminApi,
         authService,
       });
-    }, [logger, telemetryAnonymousId, preferences, atlasService]);
+    }, [logger, telemetryAnonymousId, preferences, atlasAdminApi, authService]);
 
     useEffect(() => {
       return () => {

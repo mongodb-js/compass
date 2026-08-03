@@ -427,25 +427,14 @@ describe('AtlasAdminApiService', function () {
       });
     }
 
-    it('should hit the single cluster endpoint and return the computed state', async function () {
+    it('should hit the single cluster endpoint and return the state', async function () {
       stubClusterResponse({ name: 'c1', paused: false, stateName: 'IDLE' });
 
       const res = await service.getClusterState('abc123', 'c1');
 
-      expect(res).to.equal('IDLE');
+      expect(res).to.deep.equal({ state: 'IDLE', paused: false });
       expect(atlasServiceStub.authenticatedFetch.firstCall.args[0]).to.equal(
         'http://example.com/api/atlas/v2/groups/abc123/clusters/c1'
-      );
-    });
-
-    it('should compute PAUSED / PROVISIONING from the response', async function () {
-      stubClusterResponse({ name: 'c1', paused: true, stateName: 'IDLE' });
-      expect(await service.getClusterState('abc123', 'c1')).to.equal('PAUSED');
-
-      atlasServiceStub.authenticatedFetch.resetBehavior();
-      stubClusterResponse({ name: 'c1', paused: false, stateName: 'CREATING' });
-      expect(await service.getClusterState('abc123', 'c1')).to.equal(
-        'PROVISIONING'
       );
     });
 
@@ -479,9 +468,10 @@ describe('AtlasAdminApiService', function () {
     it('should pass through a state that is not explicitly mapped', async function () {
       stubClusterResponse({ name: 'c1', paused: false, stateName: 'DELETING' });
 
-      expect(await service.getClusterState('abc123', 'c1')).to.equal(
-        'DELETING'
-      );
+      expect(await service.getClusterState('abc123', 'c1')).to.deep.equal({
+        state: 'DELETING',
+        paused: false,
+      });
     });
   });
 

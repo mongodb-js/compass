@@ -1,7 +1,7 @@
-export {
+export type {
   AtlasAdminApiService,
-  type AtlasAdminApiRequestOptions,
-  type AtlasProjectAndCluster,
+  AtlasAdminApiRequestOptions,
+  AtlasProjectAndCluster,
 } from './atlas-admin-api-service';
 export {
   ATLAS_CLUSTER_STATES,
@@ -11,3 +11,4 @@ export {
   type AtlasClusterState,
   type AtlasGroupCluster,
 } from './cluster-types';
+export { ATLAS_ADMIN_API_DEFAULT_VERSION } from './version';
