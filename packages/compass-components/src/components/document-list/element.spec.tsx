@@ -5,6 +5,7 @@ import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
 import { HadronElement, getNestedKeyPathForElement } from './element';
 import type { Element } from 'hadron-document';
+import { BSON } from 'bson';
 
 describe('HadronElement', function () {
   describe('context menu', function () {
@@ -18,6 +19,7 @@ describe('HadronElement', function () {
         field: 'value',
         array: ['item1', 'item2'],
         object: { nestedField: 'nestedValue' },
+        _id: new BSON.ObjectId('6a709bfd0ce4efdf334e9979'),
       });
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       element = doc.elements.at(0)!;
@@ -186,6 +188,30 @@ describe('HadronElement', function () {
       const callArg = clipboardWriteTextStub.firstCall.firstArg;
       expect(callArg.replace(/\s+/g, '')).to.equal(
         "object:{nestedField:'nestedValue'}"
+      );
+    });
+
+    it('copies field and value when "Copy field & value" is clicked - bson value', function () {
+      render(
+        <HadronElement
+          value={doc.elements.at(3)!} // Accessing the objectId element
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+
+      // Open context menu and click the copy option
+      const elementNode = screen.getByTestId('hadron-document-element');
+      userEvent.click(elementNode, { button: 2 });
+      userEvent.click(screen.getByText('Copy field & value'), undefined, {
+        skipPointerEventsCheck: true,
+      });
+
+      const callArg = clipboardWriteTextStub.firstCall.firstArg;
+      expect(callArg.replace(/\s+/g, '')).to.equal(
+        "_id:ObjectId('6a709bfd0ce4efdf334e9979')"
       );
     });
 
