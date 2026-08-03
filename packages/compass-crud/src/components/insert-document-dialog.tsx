@@ -50,8 +50,17 @@ const toolbarStyles = css({
   gap: spacing[200],
 });
 
+const modalBodyStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
+});
+
 const documentViewContainer = css({
   marginTop: spacing[400],
+  flex: '1 1 auto',
+  minHeight: 0,
+  overflow: 'auto',
 });
 
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
@@ -286,6 +295,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       )}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
+      bodyClassName={modalBodyStyles}
     >
       <div className={toolbarStyles}>
         {jsonView && (

@@ -113,7 +113,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
   }, [value, editing, setModifiedEJSONStringRef]);
 
   const handleCopy = useCallback(() => {
-    copyToClipboard?.(doc);
+    copyToClipboard?.(doc, 'ejson');
   }, [copyToClipboard, doc]);
 
   const handleClone = useCallback(() => {

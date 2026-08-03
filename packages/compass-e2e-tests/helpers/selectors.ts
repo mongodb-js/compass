@@ -621,6 +621,7 @@ export const UpdateDocumentButton = `${DocumentFooter} [data-testid="update-butt
 export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="delete-button"]`;
 export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
+export const JSONCopyDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Copy"]`;
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 export const BulkActionsButton =
   '[data-testid="crud-bulk-actions-show-actions"]';
