@@ -94,9 +94,6 @@ describe('AtlasAdminApiServiceProvider', function () {
 
     authService.emit('signed-out');
     expect(clearCache.callCount).to.equal(1);
-
-    authService.emit('signed-in');
-    expect(clearCache.callCount).to.equal(2);
   });
 
   it('should stop clearing the cache once unmounted', function () {

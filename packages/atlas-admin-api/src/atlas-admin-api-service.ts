@@ -8,9 +8,8 @@ import {
 } from './pagination';
 import {
   assertClusterState,
-  computeClusterState,
+  AtlasClusterState,
   type AtlasAccessListEntry,
-  type AtlasClusterComputedState,
   type AtlasGroupCluster,
   type AtlasGroupClusterResponse,
 } from './cluster-types';
@@ -193,7 +192,7 @@ export class AtlasAdminApiService {
     groupId: string,
     clusterName: string,
     options?: AtlasAdminApiRequestOptions
-  ): Promise<AtlasClusterComputedState> {
+  ): Promise<{ state: AtlasClusterState; paused: boolean }> {
     const encodedGroupId = encodeURIComponent(groupId);
     const encodedClusterName = encodeURIComponent(clusterName);
     const requestUrl = this.atlasService.adminApiEndpoint(
@@ -201,7 +200,10 @@ export class AtlasAdminApiService {
     );
     const json = await this.fetchJson(requestUrl, options);
     assertClusterState(json);
-    return computeClusterState(json);
+    return {
+      state: json.stateName,
+      paused: json.paused,
+    };
   }
 
   async getProjectIPAccessList(

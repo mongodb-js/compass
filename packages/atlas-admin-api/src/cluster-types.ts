@@ -37,33 +37,6 @@ export type AtlasCluster = {
   connectionStrings?: AtlasClusterConnectionStrings;
 };
 
-/**
- * The cluster states as reported by the Atlas Admin API, with `paused` and
- * `CREATING` folded in. A cluster that does not exist has no state here - the
- * request 404s and it is up to the caller to interpret that.
- */
-export type AtlasClusterComputedState =
-  | 'PAUSED'
-  | 'PROVISIONING'
-  | 'DELETING'
-  | 'IDLE'
-  | 'UPDATING'
-  | 'REPAIRING';
-
-export function computeClusterState(
-  cluster: AtlasCluster
-): AtlasClusterComputedState {
-  if (cluster.paused) {
-    return 'PAUSED';
-  }
-  switch (cluster.stateName) {
-    case 'CREATING':
-      return 'PROVISIONING';
-    default:
-      return cluster.stateName;
-  }
-}
-
 export function assertClusterState(
   json: unknown
 ): asserts json is AtlasCluster {

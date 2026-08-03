@@ -7,7 +7,6 @@ export {
   ATLAS_CLUSTER_STATES,
   type AtlasAccessListEntry,
   type AtlasCluster,
-  type AtlasClusterComputedState,
   type AtlasClusterConnectionStrings,
   type AtlasClusterState,
   type AtlasGroupCluster,

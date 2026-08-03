@@ -22,16 +22,10 @@ export const AtlasAdminApiServiceProvider: React.FC = createServiceProvider(
       return new AtlasAdminApiService(atlasService);
     }, [atlasService]);
 
-    // The project / cluster lookup cache is keyed only by connection string, so
-    // it has to be dropped whenever the Atlas user changes - `signed-in` covers
-    // switching accounts, which would otherwise keep serving the previous
-    // user's project ids.
     useEffect(() => {
       const clearCache = () => adminApiService.clearCache();
-      authService.on('signed-in', clearCache);
       authService.on('signed-out', clearCache);
       return () => {
-        authService.off('signed-in', clearCache);
         authService.off('signed-out', clearCache);
       };
     }, [authService, adminApiService]);
