@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import Sinon from 'sinon';
 
 import { AtlasAdminApiService } from './atlas-admin-api-service';
-import { isNotFoundError } from './util';
+import { ATLAS_ADMIN_API_DEFAULT_VERSION } from './version';
 
 // Minimal error shape matching what AtlasService.authenticatedFetch throws on a
 // non-ok response; the cluster service only reads `statusCode`.
@@ -89,6 +89,34 @@ describe('AtlasAdminApiService', function () {
 
       expect(atlasServiceStub.authenticatedFetch.firstCall.args[1]).to.include({
         method: 'GET',
+      });
+    });
+
+    it('should send the versioned Accept header', async function () {
+      stubSequentialJsonResponses([page([])]);
+
+      await service.listGroupIds();
+
+      // Without this the Atlas Admin API rejects the request with
+      // INVALID_VERSION_DATE.
+      expect(
+        atlasServiceStub.authenticatedFetch.firstCall.args[1].headers
+      ).to.deep.equal({
+        Accept: `application/vnd.atlas.${ATLAS_ADMIN_API_DEFAULT_VERSION}+json`,
+      });
+    });
+
+    it('should let an endpoint override the version', async function () {
+      stubSequentialJsonResponses([page([])]);
+
+      await service.getProjectIPAccessList('abc123', {
+        version: '2024-08-05',
+      });
+
+      expect(
+        atlasServiceStub.authenticatedFetch.firstCall.args[1].headers
+      ).to.deep.equal({
+        Accept: 'application/vnd.atlas.2024-08-05+json',
       });
     });
 

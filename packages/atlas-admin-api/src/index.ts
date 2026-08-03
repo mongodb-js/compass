@@ -1,5 +1,6 @@
 export {
   AtlasAdminApiService,
+  type AtlasAdminApiRequestOptions,
   type AtlasProjectAndCluster,
 } from './atlas-admin-api-service';
 export {
@@ -11,4 +12,3 @@ export {
   type AtlasClusterState,
   type AtlasGroupCluster,
 } from './cluster-types';
-export { isNotFoundError } from './util';

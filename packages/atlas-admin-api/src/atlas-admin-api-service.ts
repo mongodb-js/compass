@@ -15,10 +15,19 @@ import {
   type AtlasGroupClusterResponse,
 } from './cluster-types';
 import { connectionStringMatches, extractConnectionStrings } from './util';
+import { getAtlasAdminApiAcceptHeader } from './version';
 
 export type AtlasProjectAndCluster = {
   projectId: string;
   clusterName: string;
+};
+
+export type AtlasAdminApiRequestOptions = {
+  /**
+   * Overrides the Atlas Admin API resource version for this request. Defaults
+   * to `ATLAS_ADMIN_API_DEFAULT_VERSION`.
+   */
+  version?: string;
 };
 
 /**
@@ -52,6 +61,18 @@ export class AtlasAdminApiService {
     this.atlasService = atlasService;
   }
 
+  private async fetchJson(
+    requestUrl: string,
+    { version }: AtlasAdminApiRequestOptions = {}
+  ): Promise<unknown> {
+    return await this.atlasService
+      .authenticatedFetch(requestUrl, {
+        method: 'GET',
+        headers: { Accept: getAtlasAdminApiAcceptHeader(version) },
+      })
+      .then((res) => res.json());
+  }
+
   /**
    * Generic batch fetcher for Atlas Admin API paginated endpoints. Pages
    * through every result, delegating the concrete endpoint URL (including its
@@ -60,7 +81,7 @@ export class AtlasAdminApiService {
    */
   private async fetchAllPages<T>(
     buildEndpoint: (pagination: AtlasPaginationOptions) => string,
-    init?: RequestInit
+    options?: AtlasAdminApiRequestOptions
   ): Promise<T[]> {
     const results: T[] = [];
     let pageNum = 1;
@@ -70,12 +91,7 @@ export class AtlasAdminApiService {
         pageNum,
         itemsPerPage: ATLAS_ADMIN_API_MAX_ITEMS_PER_PAGE,
       });
-      const json: unknown = await this.atlasService
-        .authenticatedFetch(requestUrl, {
-          ...init,
-          method: 'GET',
-        })
-        .then((res) => res.json());
+      const json = await this.fetchJson(requestUrl, options);
       assertPaginatedResponse<T>(json);
       results.push(...json.results);
       hasNextPage =
@@ -175,32 +191,32 @@ export class AtlasAdminApiService {
 
   async getClusterState(
     groupId: string,
-    clusterName: string
+    clusterName: string,
+    options?: AtlasAdminApiRequestOptions
   ): Promise<AtlasClusterComputedState> {
     const encodedGroupId = encodeURIComponent(groupId);
     const encodedClusterName = encodeURIComponent(clusterName);
     const requestUrl = this.atlasService.adminApiEndpoint(
       `/v2/groups/${encodedGroupId}/clusters/${encodedClusterName}`
     );
-    const json: unknown = await this.atlasService
-      .authenticatedFetch(requestUrl, {
-        method: 'GET',
-      })
-      .then((res) => res.json());
+    const json = await this.fetchJson(requestUrl, options);
     assertClusterState(json);
     return computeClusterState(json);
   }
 
   async getProjectIPAccessList(
-    groupId: string
+    groupId: string,
+    options?: AtlasAdminApiRequestOptions
   ): Promise<AtlasAccessListEntry[]> {
     const encodedGroupId = encodeURIComponent(groupId);
-    return await this.fetchAllPages<AtlasAccessListEntry>((pagination) =>
-      this.atlasService.adminApiEndpoint(
-        `/v2/groups/${encodedGroupId}/accessList${buildPaginationQuery(
-          pagination
-        )}`
-      )
+    return await this.fetchAllPages<AtlasAccessListEntry>(
+      (pagination) =>
+        this.atlasService.adminApiEndpoint(
+          `/v2/groups/${encodedGroupId}/accessList${buildPaginationQuery(
+            pagination
+          )}`
+        ),
+      options
     );
   }
 }
