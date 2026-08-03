@@ -1305,6 +1305,7 @@ This event is fired when user copies a document to the clipboard.
 | Property         | Type                          | Required | Description                                        |
 | ---------------- | ----------------------------- | -------- | -------------------------------------------------- |
 | `mode`           | `"json" \| "list" \| "table"` | Yes      | The view used to copy the document.                |
+| `format`         | `"ejson" \| "shell-syntax"`   | Yes      | The format used to copy the document.              |
 | `is_compass_web` | `true \| undefined`           | No       |                                                    |
 | `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
 
