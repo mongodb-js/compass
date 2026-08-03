@@ -11,7 +11,7 @@ import {
   parseSchema,
   type PrimitiveSchemaType,
   type SchemaType,
-} from 'mongodb-schema';
+} from '@mongodb-js/mongodb-schema';
 import { BSON, Decimal128 } from 'bson';
 import Field, { shouldShowUnboundArrayInsight } from './field';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';

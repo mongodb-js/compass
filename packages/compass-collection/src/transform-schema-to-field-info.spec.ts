@@ -18,7 +18,7 @@ import {
   processSchema,
   ProcessSchemaUnsupportedStateError,
 } from './transform-schema-to-field-info';
-import type { Schema } from 'mongodb-schema';
+import type { Schema } from '@mongodb-js/mongodb-schema';
 
 describe('processSchema', function () {
   it('selects most probable type when multiple types exist', function () {

@@ -1,4 +1,4 @@
-import type { Schema } from 'mongodb-schema';
+import type { Schema } from '@mongodb-js/mongodb-schema';
 import { isInternalFieldPath } from 'hadron-document';
 import type { Action, Reducer } from 'redux';
 import type { AggregateOptions, MongoError } from 'mongodb';
