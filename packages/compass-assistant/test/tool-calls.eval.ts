@@ -17,6 +17,8 @@ import {
   type ToolGroup,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { defaultPreferencesInstance } from 'compass-preferences-model';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 import { startTestServer } from '@mongodb-js/compass-test-server';
 import {
   toolCallEvalCases,
@@ -65,6 +67,8 @@ const toolsController = new ToolsController({
   logger,
   getTelemetryAnonymousId: () => 'eval-anonymous-id',
   enableTelemetry: false,
+  preferences: defaultPreferencesInstance,
+  atlasService: {} as AtlasService,
 });
 
 let toolsInitialized = false;

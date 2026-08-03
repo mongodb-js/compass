@@ -4,7 +4,7 @@ import type {
   Schema,
   SchemaField,
   SchemaType,
-} from 'mongodb-schema';
+} from '@mongodb-js/mongodb-schema';
 
 // Every 1000 iterations, unblock the thread.
 const UNBLOCK_INTERVAL_COUNT = 1000;

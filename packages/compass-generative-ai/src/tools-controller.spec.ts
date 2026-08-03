@@ -6,22 +6,33 @@ import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import type { Logger } from '@mongodb-js/compass-logging';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
+import {
+  createSandboxFromDefaultPreferences,
+  type PreferencesAccess,
+} from 'compass-preferences-model';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 
 describe('ToolsController', function () {
   let sandbox: sinon.SinonSandbox;
   let logger: Logger;
   let toolsController: ToolsController;
   let getTelemetryAnonymousId: sinon.SinonStub;
+  let preferences: PreferencesAccess;
+  let atlasService: AtlasService;
 
-  beforeEach(function () {
+  beforeEach(async function () {
     sandbox = sinon.createSandbox();
     logger = createNoopLogger();
     getTelemetryAnonymousId = sandbox.stub().returns('test-anonymous-id');
+    preferences = await createSandboxFromDefaultPreferences();
+    atlasService = {} as AtlasService;
 
     toolsController = new ToolsController({
       enableTelemetry: false,
       logger,
       getTelemetryAnonymousId,
+      preferences,
+      atlasService,
     });
   });
 
@@ -209,6 +220,8 @@ describe('ToolsController', function () {
           enableTelemetry: false,
           logger,
           getTelemetryAnonymousId,
+          preferences,
+          atlasService,
         });
         newController.setActiveTools(new Set(['db-read']));
 
@@ -508,6 +521,8 @@ describe('ToolsController', function () {
           getTelemetryAnonymousId: () => {
             throw new Error('Telemetry error');
           },
+          preferences,
+          atlasService,
         });
 
         // Should not throw even if there's an error

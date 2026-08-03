@@ -37,7 +37,7 @@ import { itemActionsToContextMenuGroups } from './context-menus';
 const ConnectionsNavigationContainerStyles = css({
   display: 'flex',
   flex: '1 0 auto',
-  height: `calc(100% - ${spacing[1600]}px - ${spacing[200]}px)`,
+  height: `calc(100% - ${spacing[1600]}px - ${spacing[100]}px)`,
 });
 export interface ConnectionsNavigationTreeProps {
   connections: Connection[];

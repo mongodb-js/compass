@@ -637,7 +637,7 @@ export const InsertDialog = '[data-testid="insert-document-modal"]';
 export const InsertDialogErrorMessage =
   '[data-testid="insert-document-banner"][data-variant="danger"]';
 export const InsertDialogErrorDetailsBtn =
-  'button[data-testid="insert-document-error-details-button"]';
+  'button[data-testid="insert-document-error-action-button"]';
 export const InsertJSONEditor = '[data-testid="insert-document-json-editor"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';
@@ -1577,3 +1577,8 @@ export const AssistantConfirmClearChatModalConfirmButton = `${AssistantConfirmCl
 export const AIOptInModal = '[data-testid="ai-optin-modal"]';
 export const AIOptInModalAcceptButton = 'button=Use AI Features';
 export const AIOptInModalDeclineLink = 'span=Not now';
+
+// Codemirror
+export const CodemirrorLintErrorIcon = '.cm-lint-marker.cm-lint-marker-error';
+export const CodemirrorLintTooltip = '.cm-tooltip-lint';
+export const CodemirrorLintAction = '.cm-diagnosticAction';

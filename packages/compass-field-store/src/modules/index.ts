@@ -1,7 +1,7 @@
 import type { Action, Reducer } from 'redux';
 import { uniq, omit } from 'lodash';
-import type { SchemaField, Schema } from 'mongodb-schema';
-import { parseSchema } from 'mongodb-schema';
+import type { SchemaField, Schema } from '@mongodb-js/mongodb-schema';
+import { parseSchema } from '@mongodb-js/mongodb-schema';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
 import type { SchemaFieldSubset } from './fields';
 import { mergeSchema } from './fields';

@@ -1,8 +1,8 @@
 import sinon from 'sinon';
 import bson from 'bson';
 import { expect } from 'chai';
-import mongoDBSchemaAnalyzeSchema from 'mongodb-schema';
-import type { Schema } from 'mongodb-schema';
+import mongoDBSchemaAnalyzeSchema from '@mongodb-js/mongodb-schema';
+import type { Schema } from '@mongodb-js/mongodb-schema';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
 import { isInternalFieldPath } from 'hadron-document';
 

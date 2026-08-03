@@ -1,5 +1,5 @@
 import type { Action, Reducer } from 'redux';
-import { getSimplifiedSchema } from 'mongodb-schema';
+import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import toNS from 'mongodb-ns';
 import { UUID } from 'bson';
 
@@ -425,10 +425,11 @@ export const showInput = (): QueryBarThunkAction<Promise<void>> => {
 };
 
 export const hideInput = (): QueryBarThunkAction<void, HideInputAction> => {
-  return (dispatch) => {
+  return (dispatch, _getState, { track }) => {
     // Cancel any ongoing op when we hide.
     dispatch(cancelAIQuery());
     dispatch({ type: AIQueryActionTypes.HideInput });
+    track('AI Generate Query Closed', { type: 'query' });
   };
 };
 

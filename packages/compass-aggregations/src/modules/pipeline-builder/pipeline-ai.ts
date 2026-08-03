@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-import { getSimplifiedSchema } from 'mongodb-schema';
+import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import toNS from 'mongodb-ns';
 import { openToast } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
@@ -475,10 +475,11 @@ export const hideInput = (): PipelineBuilderThunkAction<
   void,
   HideInputAction
 > => {
-  return (dispatch) => {
+  return (dispatch, _getState, { track }) => {
     // Cancel any ongoing op when we hide.
     dispatch(cancelAIPipelineGeneration());
     dispatch({ type: AIPipelineActionTypes.HideInput });
+    track('AI Generate Query Closed', { type: 'aggregation' });
   };
 };
 
