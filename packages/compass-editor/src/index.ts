@@ -7,13 +7,8 @@ export {
   setCodemirrorEditorValue,
   getCodemirrorEditorValue,
 } from './editor';
-export type {
-  EditorView,
-  Command,
-  Annotation,
-  Completer,
-  Linter,
-} from './editor';
+export type { EditorView, Command, Annotation, Completer } from './editor';
+export type { Extension } from '@codemirror/state';
 export type { Action } from './action-button';
 export { createDocumentAutocompleter } from './codemirror/document-autocompleter';
 export { createValidationAutocompleter } from './codemirror/validation-autocompleter';
@@ -28,7 +23,4 @@ export {
 export { createQueryWithHistoryAutocompleter } from './codemirror/query-autocompleter-with-history';
 export { useJsonSchemaAutocompleter } from './use-json-schema-autocompleter';
 export type { JsonSchemaAutocompleterResult } from './use-json-schema-autocompleter';
-export {
-  createSafeIntegerLinter,
-  type SafeIntegerViolation,
-} from './codemirror/safe-integer-linter';
+export { useSafeIntegerLinter } from './codemirror/use-safe-integer-linter';

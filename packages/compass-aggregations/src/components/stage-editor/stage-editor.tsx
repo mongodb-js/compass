@@ -4,6 +4,7 @@ import type { MongoServerError } from 'mongodb';
 import {
   CodemirrorMultilineEditor,
   createStageAutocompleter,
+  useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
 import {
@@ -52,7 +53,6 @@ import {
 } from '../../utils/search-stage-errors';
 import SearchIndexDoesNotExistBanner from '../search-index-does-not-exist-banner';
 import { RerankVersionWarningBanner } from '../rerank-version-warning-banner';
-import { useSafeIntegerLinter } from '../use-safe-integer-linter';
 
 const editorContainerStyles = css({
   display: 'flex',
@@ -209,7 +209,9 @@ export const StageEditor = ({
   }, [serverErrorStageIdx]);
 
   const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
-  const { safeIntegerLinter } = useSafeIntegerLinter(annotationsRef);
+  const { safeIntegerLinter } = useSafeIntegerLinter({
+    externalAnnotations: annotationsRef,
+  });
 
   const isServerErrorUpstream =
     serverErrorStageIdx !== null && serverErrorStageIdx < index;

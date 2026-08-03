@@ -30,12 +30,9 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { WriteError } from '../stores/crud-store';
-import type { EditorRef } from '@mongodb-js/compass-editor';
+import { useSafeIntegerLinter } from '@mongodb-js/compass-editor';
+import type { Extension, EditorRef } from '@mongodb-js/compass-editor';
 import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
-import {
-  type SafeIntegerLinter,
-  useSafeIntegerLinter,
-} from './use-safe-integer-linter';
 
 /**
  * The insert invalid message.
@@ -84,7 +81,7 @@ const DocumentOrJsonView: React.FC<{
   hasManyDocuments: () => boolean;
   updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
   jsonDoc: InsertDocumentDialogProps['jsonDoc'];
-  safeIntegerLinter: SafeIntegerLinter;
+  safeIntegerLinter: Extension;
   editorRef: React.RefObject<EditorRef>;
 }> = ({
   jsonView,
@@ -265,8 +262,11 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     [hasManyDocuments, toggleInsertDocument, toggleInsertDocumentView]
   );
 
-  const { onFixViolationError, violationError, safeIntegerLinter } =
-    useSafeIntegerLinter(editorRef);
+  const { onFixViolations, violations, safeIntegerLinter } =
+    useSafeIntegerLinter({
+      editorRef,
+      onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
+    });
 
   const currentView = jsonView ? 'JSON' : 'List';
 
@@ -278,7 +278,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       onSubmit={handleInsert.bind(this)}
       onCancel={closeInsertDocumentDialog}
       submitButtonText="Insert"
-      submitDisabled={Boolean(documentValidationError || violationError)}
+      submitDisabled={Boolean(documentValidationError || violations.length > 0)}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
     >
@@ -338,10 +338,11 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         />
       </div>
       <InsertDocumentDialogBanner
-        documentValidationError={documentValidationError || violationError}
+        documentValidationError={documentValidationError}
         documentWriteError={documentWriteError}
         insertInProgress={insertInProgress}
-        onFixViolationError={onFixViolationError}
+        violationCount={violations.length}
+        onFixViolations={onFixViolations}
       />
       <InsertCSFLEWarningBanner csfleState={csfleState} />
     </FormModal>

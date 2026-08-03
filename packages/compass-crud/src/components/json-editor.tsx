@@ -20,14 +20,11 @@ import HadronDocument from 'hadron-document';
 import {
   createDocumentAutocompleter,
   CodemirrorMultilineEditor,
+  useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import {
-  SafeIntegerValidationError,
-  useSafeIntegerLinter,
-} from './use-safe-integer-linter';
 
 const editorStyles = css({
   minHeight: spacing[800] + spacing[400],
@@ -307,8 +304,11 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     }, 0);
   }, [expanded]);
 
-  const { safeIntegerLinter, violationError, onFixViolationError } =
-    useSafeIntegerLinter(editorRef);
+  const { safeIntegerLinter, violations, onFixViolations } =
+    useSafeIntegerLinter({
+      editorRef,
+      onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
+    });
 
   return (
     <div data-testid="editable-json">
@@ -338,7 +338,10 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         editing={!!editing}
         deleting={!!deleting}
         modified={value !== initialValue}
-        validationError={docValidationError || violationError}
+        validationError={
+          docValidationError ??
+          (violations.length > 0 ? new Error('Unsafe integer violation') : null)
+        }
         onUpdate={onUpdate}
         onDelete={onDelete}
         onCancel={onCancel}
@@ -346,17 +349,18 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
           return (
             <div className={bannerContentStyles}>
               <span>{message}</span>
-              {!docValidationError &&
-                violationError instanceof SafeIntegerValidationError && (
-                  <Link
-                    as="button"
-                    data-testid="fix-safe-integer-violations-button"
-                    onClick={onFixViolationError}
-                    className={footerActionButtonStyles}
-                  >
-                    Convert to Long
-                  </Link>
-                )}
+              {!docValidationError && violations.length > 0 && (
+                <Link
+                  as="button"
+                  data-testid="fix-safe-integer-violations-button"
+                  onClick={onFixViolations}
+                  className={footerActionButtonStyles}
+                >
+                  {violations.length === 1
+                    ? 'Convert to Long'
+                    : 'Convert all to Long'}
+                </Link>
+              )}
             </div>
           );
         }}

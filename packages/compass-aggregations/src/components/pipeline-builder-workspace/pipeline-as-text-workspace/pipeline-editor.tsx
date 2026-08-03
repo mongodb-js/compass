@@ -13,6 +13,7 @@ import {
 import {
   createAggregationAutocompleter,
   CodemirrorMultilineEditor,
+  useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import type { RootState } from '../../../modules';
@@ -47,7 +48,6 @@ import {
 import { RerankVersionWarningBanner } from '../../rerank-version-warning-banner';
 import SearchIndexDoesNotExistBanner from '../../search-index-does-not-exist-banner';
 import type { SearchIndexType } from '../../../modules/search-indexes';
-import { useSafeIntegerLinter } from '../../use-safe-integer-linter';
 
 const containerStyles = css({
   position: 'relative',
@@ -197,7 +197,9 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     !isRerankVersionSupported(serverVersion);
 
   const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
-  const { safeIntegerLinter } = useSafeIntegerLinter(annotationsRef);
+  const { safeIntegerLinter } = useSafeIntegerLinter({
+    externalAnnotations: annotationsRef,
+  });
 
   const showErrorContainer =
     serverError ||

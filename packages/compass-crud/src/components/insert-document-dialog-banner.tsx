@@ -7,7 +7,6 @@ import {
   showErrorDetails,
 } from '@mongodb-js/compass-components';
 import type { WriteError } from '../stores/crud-store';
-import { SafeIntegerValidationError } from './use-safe-integer-linter';
 
 const bannerStyles = css({
   marginTop: spacing[400],
@@ -20,33 +19,33 @@ type InsertDocumentDialogBannerProps = {
   documentWriteError: WriteError | null;
   insertInProgress: boolean;
   documentValidationError: Error | null;
-  onFixViolationError: () => void;
+  violationCount: number;
+  onFixViolations: () => void;
 };
 
 export function InsertDocumentDialogBanner({
   documentWriteError,
   insertInProgress,
   documentValidationError,
-  onFixViolationError,
+  violationCount,
+  onFixViolations,
 }: InsertDocumentDialogBannerProps) {
   const banner = useMemo(() => {
     if (documentValidationError) {
-      const hasViolations =
-        documentValidationError instanceof SafeIntegerValidationError &&
-        documentValidationError.violations.length > 0;
-      const numViolations = hasViolations
-        ? documentValidationError.violations.length
-        : 0;
       return {
         message: documentValidationError.message,
         variant: 'danger' as const,
-        ...(hasViolations && {
-          action: {
-            onClick: onFixViolationError,
-            text:
-              numViolations === 1 ? 'Convert to Long' : 'Convert all to Long',
-          },
-        }),
+      };
+    }
+    if (violationCount > 0) {
+      return {
+        message: 'Unsafe integer violation',
+        variant: 'danger' as const,
+        action: {
+          onClick: onFixViolations,
+          text:
+            violationCount === 1 ? 'Convert to Long' : 'Convert all to Long',
+        },
       };
     }
     if (insertInProgress) {
@@ -74,7 +73,8 @@ export function InsertDocumentDialogBanner({
     documentValidationError,
     insertInProgress,
     documentWriteError,
-    onFixViolationError,
+    violationCount,
+    onFixViolations,
   ]);
 
   if (!banner) {

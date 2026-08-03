@@ -7,8 +7,7 @@ import {
   withDarkMode,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
-import type { EditorRef } from '@mongodb-js/compass-editor';
-import type { SafeIntegerLinter } from './use-safe-integer-linter';
+import type { EditorRef, Extension } from '@mongodb-js/compass-editor';
 
 const editorContainerStylesLight = css({
   borderLeft: `3px solid ${palette.gray.light2}`,
@@ -22,7 +21,7 @@ type InsertJsonDocumentProps = {
   darkMode?: boolean;
   jsonDoc: string;
   updateJsonDoc: (value: string) => void;
-  safeIntegerLinter: SafeIntegerLinter;
+  safeIntegerLinter: Extension;
   editorRef: React.RefObject<EditorRef>;
 };
 
