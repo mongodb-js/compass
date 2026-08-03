@@ -1228,6 +1228,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.clickVisible(Selectors.InsertDocumentOption);
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
+    await browser.clickVisible(Selectors.InsertDialogJSONView);
     await browser.setCodemirrorEditorValue(
       Selectors.InsertDocumentEditor,
       `{ "i": ${Number.MAX_SAFE_INTEGER + 1} }`
@@ -1271,14 +1272,22 @@ FindIterable<Document> result = collection.find(filter);`);
   });
 
   it('inserts a document using shell syntax', async function () {
-    // browse to the "Insert to Collection" modal
+    // Browse to the "Insert to Collection" modal.
     await browser.clickVisible(Selectors.AddDataButton);
     await browser.clickVisible(Selectors.InsertDocumentOption);
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
-    // switch to the shell syntax view and enter a document using unquoted keys
-    // and a shell constructor, neither of which is valid JSON
     await browser.clickVisible(Selectors.InsertDialogShellView);
+
+    // First we show an invalid entry, and look for the error.
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertDocumentEditor,
+      '{ i: ObjectId( }'
+    );
+    const errorBanner = browser.$(Selectors.InsertDialogErrorMessage);
+    await errorBanner.waitForDisplayed();
+
+    // Now we enter a valid document.
     await browser.setCodemirrorEditorValue(
       Selectors.InsertDocumentEditor,
       `{
@@ -1296,7 +1305,7 @@ FindIterable<Document> result = collection.find(filter);`);
       }`
     );
 
-    // no validation error for valid shell syntax
+    // No validation error for valid shell syntax.
     const banner = browser.$(Selectors.InsertDialogErrorMessage);
     await banner.waitForDisplayed({ reverse: true });
 
@@ -1309,24 +1318,6 @@ FindIterable<Document> result = collection.find(filter);`);
     expect(await getFormattedDocument(browser)).to.match(
       /^_id: ObjectId\('[a-f0-9]{24}'\) i: 10142 long: 9223372036854775807 decimal: 123\.45 date: 2023-01-01T00:00:00\.000\+00:00 regex: \/foo\.\*bar\/i ts: Timestamp\(\{ t: 1234, i: 5 \}\) uuid: UUID\('79a4a7c6-1c1f-4d5e-9f8a-1b2c3d4e5f60'\) min: MinKey\(\) nested: Object \(2\) arr: Array \(3\)$/
     );
-  });
-
-  it('shows a validation error for invalid shell syntax when inserting', async function () {
-    await browser.clickVisible(Selectors.AddDataButton);
-    await browser.clickVisible(Selectors.InsertDocumentOption);
-    await browser.waitForOpenModal(Selectors.InsertDialog);
-
-    await browser.clickVisible(Selectors.InsertDialogShellView);
-    await browser.setCodemirrorEditorValue(
-      Selectors.InsertDocumentEditor,
-      '{ i: ObjectId( }'
-    );
-
-    const banner = browser.$(Selectors.InsertDialogErrorMessage);
-    await banner.waitForDisplayed();
-
-    await browser.clickVisible(Selectors.InsertCancel);
-    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
   });
 
   it('handles unsafe integer values when querying a document', async function () {
