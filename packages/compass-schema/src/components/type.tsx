@@ -8,7 +8,7 @@ import {
   palette,
   spacing,
 } from '@mongodb-js/compass-components';
-import type { SchemaType } from 'mongodb-schema';
+import type { SchemaType } from '@mongodb-js/mongodb-schema';
 
 const schemaFieldTypeLabelStyles = css({
   textTransform: 'lowercase',

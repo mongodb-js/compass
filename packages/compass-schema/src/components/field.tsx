@@ -17,7 +17,7 @@ import type {
   DocumentSchemaType,
   SchemaField,
   SchemaType,
-} from 'mongodb-schema';
+} from '@mongodb-js/mongodb-schema';
 import { FieldType, sortTypes } from './type';
 import Minichart from './minichart';
 import detectCoordinates from '../modules/detect-coordinates';
