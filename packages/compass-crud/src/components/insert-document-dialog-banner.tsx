@@ -7,7 +7,7 @@ import {
   showErrorDetails,
 } from '@mongodb-js/compass-components';
 import type { WriteError } from '../stores/crud-store';
-import { getSafeIntergerViolationMessage } from '../utils';
+import { getSafeIntegerViolationMessage } from '../utils';
 
 const bannerStyles = css({
   marginTop: spacing[400],
@@ -20,16 +20,16 @@ type InsertDocumentDialogBannerProps = {
   documentWriteError: WriteError | null;
   insertInProgress: boolean;
   documentValidationError: Error | null;
-  violationCount: number;
-  onFixViolations: () => void;
+  safeIntegerViolationCount: number;
+  onFixSafeIntegerViolations: () => void;
 };
 
 export function InsertDocumentDialogBanner({
   documentWriteError,
   insertInProgress,
   documentValidationError,
-  violationCount,
-  onFixViolations,
+  safeIntegerViolationCount,
+  onFixSafeIntegerViolations,
 }: InsertDocumentDialogBannerProps) {
   const banner = useMemo(() => {
     if (documentValidationError) {
@@ -38,14 +38,16 @@ export function InsertDocumentDialogBanner({
         variant: 'danger' as const,
       };
     }
-    if (violationCount > 0) {
+    if (safeIntegerViolationCount > 0) {
       return {
-        message: getSafeIntergerViolationMessage(violationCount),
+        message: getSafeIntegerViolationMessage(safeIntegerViolationCount),
         variant: 'danger' as const,
         action: {
-          onClick: onFixViolations,
+          onClick: onFixSafeIntegerViolations,
           text:
-            violationCount === 1 ? 'Convert to Long' : 'Convert all to Long',
+            safeIntegerViolationCount === 1
+              ? 'Convert to Long'
+              : 'Convert all to Long',
         },
       };
     }
@@ -74,8 +76,8 @@ export function InsertDocumentDialogBanner({
     documentValidationError,
     insertInProgress,
     documentWriteError,
-    violationCount,
-    onFixViolations,
+    safeIntegerViolationCount,
+    onFixSafeIntegerViolations,
   ]);
 
   if (!banner) {

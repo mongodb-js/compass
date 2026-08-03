@@ -201,12 +201,13 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     optionName,
   ]);
 
-  const { safeIntegerLinter, violations } = useSafeIntegerLinter();
+  const { safeIntegerLinter, violations: safeIntegerViolations } =
+    useSafeIntegerLinter();
   useEffect(() => {
-    if (violations.length > 0) {
+    if (safeIntegerViolations.length > 0) {
       onUnsafeInteger();
     }
-  }, [violations, onUnsafeInteger]);
+  }, [safeIntegerViolations, onUnsafeInteger]);
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {

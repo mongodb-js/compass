@@ -75,8 +75,10 @@ export function objectContainsRegularExpression(obj: unknown): boolean {
   return Object.values(obj).some(objectContainsRegularExpression);
 }
 
-export function getSafeIntergerViolationMessage(numViolations: number): string {
-  return numViolations === 1
+export function getSafeIntegerViolationMessage(
+  numSafeIntegerViolations: number
+): string {
+  return numSafeIntegerViolations === 1
     ? 'Number exceeds the safe integer range.'
     : 'Numbers exceed the safe integer range.';
 }

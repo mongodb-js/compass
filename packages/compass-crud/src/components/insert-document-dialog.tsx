@@ -262,11 +262,14 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     [hasManyDocuments, toggleInsertDocument, toggleInsertDocumentView]
   );
 
-  const { onFixViolations, violations, safeIntegerLinter } =
-    useSafeIntegerLinter({
-      editorRef,
-      onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
-    });
+  const {
+    onFixViolations: onFixSafeIntegerViolations,
+    violations: safeIntegerViolations,
+    safeIntegerLinter,
+  } = useSafeIntegerLinter({
+    editorRef,
+    onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
+  });
 
   const currentView = jsonView ? 'JSON' : 'List';
 
@@ -278,7 +281,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       onSubmit={handleInsert.bind(this)}
       onCancel={closeInsertDocumentDialog}
       submitButtonText="Insert"
-      submitDisabled={Boolean(documentValidationError || violations.length > 0)}
+      submitDisabled={Boolean(
+        documentValidationError || safeIntegerViolations.length > 0
+      )}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
     >
@@ -341,8 +346,8 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         documentValidationError={documentValidationError}
         documentWriteError={documentWriteError}
         insertInProgress={insertInProgress}
-        violationCount={violations.length}
-        onFixViolations={onFixViolations}
+        safeIntegerViolationCount={safeIntegerViolations.length}
+        onFixSafeIntegerViolations={onFixSafeIntegerViolations}
       />
       <InsertCSFLEWarningBanner csfleState={csfleState} />
     </FormModal>

@@ -25,7 +25,7 @@ import {
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { getSafeIntergerViolationMessage } from '../utils';
+import { getSafeIntegerViolationMessage } from '../utils';
 
 const editorStyles = css({
   minHeight: spacing[800] + spacing[400],
@@ -305,11 +305,14 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     }, 0);
   }, [expanded]);
 
-  const { safeIntegerLinter, violations, onFixViolations } =
-    useSafeIntegerLinter({
-      editorRef,
-      onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
-    });
+  const {
+    safeIntegerLinter,
+    violations: safeIntegerViolations,
+    onFixViolations: onFixSafeIntegerViolations,
+  } = useSafeIntegerLinter({
+    editorRef,
+    onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
+  });
 
   return (
     <div data-testid="editable-json">
@@ -341,8 +344,10 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         modified={value !== initialValue}
         validationError={
           docValidationError ??
-          (violations.length > 0
-            ? new Error(getSafeIntergerViolationMessage(violations.length))
+          (safeIntegerViolations.length > 0
+            ? new Error(
+                getSafeIntegerViolationMessage(safeIntegerViolations.length)
+              )
             : null)
         }
         onUpdate={onUpdate}
@@ -352,14 +357,14 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
           return (
             <div className={bannerContentStyles}>
               <span>{message}</span>
-              {!docValidationError && violations.length > 0 && (
+              {!docValidationError && safeIntegerViolations.length > 0 && (
                 <Link
                   as="button"
-                  data-testid="fix-safe-integer-violations-button"
-                  onClick={onFixViolations}
+                  data-testid="fix-safe-integer-safeIntegerViolations-button"
+                  onClick={onFixSafeIntegerViolations}
                   className={footerActionButtonStyles}
                 >
-                  {violations.length === 1
+                  {safeIntegerViolations.length === 1
                     ? 'Convert to Long'
                     : 'Convert all to Long'}
                 </Link>
