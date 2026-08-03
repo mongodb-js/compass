@@ -50,7 +50,8 @@ export function assertClusterState(
     typeof json === 'object' &&
     typeof cluster.name === 'string' &&
     typeof cluster.paused === 'boolean' &&
-    typeof cluster.stateName === 'string'
+    typeof cluster.stateName === 'string' &&
+    ATLAS_CLUSTER_STATES.includes(cluster.stateName as AtlasClusterState)
   ) {
     return;
   }
