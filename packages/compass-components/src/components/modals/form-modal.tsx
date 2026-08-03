@@ -29,6 +29,7 @@ type FormModalProps = React.ComponentProps<typeof Modal> & {
   submitDisabled?: boolean;
   scroll?: boolean;
   minBodyHeight?: number;
+  bodyClassName?: string;
   onSubmit: () => void;
   onCancel: () => void;
 };
@@ -42,6 +43,7 @@ function FormModal({
   variant = Variant.Default,
   scroll = true,
   minBodyHeight,
+  bodyClassName,
   onSubmit,
   onCancel,
   children,
@@ -56,7 +58,12 @@ function FormModal({
         }}
       >
         <ModalHeader title={title} subtitle={subtitle} variant={variant} />
-        <ModalBody variant={variant} scroll={scroll} minHeight={minBodyHeight}>
+        <ModalBody
+          variant={variant}
+          scroll={scroll}
+          minHeight={minBodyHeight}
+          className={bodyClassName}
+        >
           {children}
         </ModalBody>
         <ModalFooter className={footerStyles}>
