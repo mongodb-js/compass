@@ -33,6 +33,13 @@ interface ActionCardMessageProps {
   contentClassName?: string;
   /** Whether the action buttons should be shown (and the primary focused). */
   showActions?: boolean;
+  /**
+   * When this value changes while actions are shown, the primary button is
+   * re-focused. Use it to move focus to a newly-relevant action even when
+   * `showActions` itself doesn't toggle (e.g. a new tool approval request
+   * replaces a previous one in the same message).
+   */
+  focusPrimaryKey?: string;
   buttons?: ActionCardButton[];
   children: string;
 }
@@ -69,6 +76,7 @@ export const ActionCardMessage: React.FunctionComponent<
   initialIsExpanded = true,
   contentClassName,
   showActions = false,
+  focusPrimaryKey,
   buttons = [],
   children,
 }) => {
@@ -79,7 +87,10 @@ export const ActionCardMessage: React.FunctionComponent<
     if (showActions && primaryButtonRef.current) {
       primaryButtonRef.current.focus();
     }
-  }, [showActions]);
+    // `focusPrimaryKey` is intentionally part of the deps so focus moves to the
+    // primary action again when the caller signals a new relevant action, even
+    // if `showActions` stays true the whole time.
+  }, [showActions, focusPrimaryKey]);
 
   return (
     <div className={actionCardMessageStyles}>

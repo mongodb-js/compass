@@ -479,6 +479,51 @@ describe('ToolCallMessage', function () {
         expect(document.activeElement).to.equal(runButton);
       });
     });
+
+    it('re-focuses the Run button when a new approval is requested in the same message', async function () {
+      const firstApproval: ToolUIPart = {
+        ...baseToolCall,
+        state: 'approval-requested',
+        approval: { id: 'approval-1', approved: undefined },
+      };
+
+      const { rerender } = render(
+        <ToolCallMessage
+          connection={defaultConnection}
+          toolCall={firstApproval}
+        />
+      );
+
+      await waitFor(() => {
+        expect(document.activeElement).to.equal(
+          screen.getByRole('button', { name: /Run/ })
+        );
+      });
+
+      // Move focus elsewhere to simulate the user tabbing away.
+      (document.activeElement as HTMLElement | null)?.blur();
+
+      // A new approval request replaces the previous one while the actions
+      // remain shown (showActions stays true the whole time).
+      const secondApproval: ToolUIPart = {
+        ...baseToolCall,
+        state: 'approval-requested',
+        approval: { id: 'approval-2', approved: undefined },
+      };
+
+      rerender(
+        <ToolCallMessage
+          connection={defaultConnection}
+          toolCall={secondApproval}
+        />
+      );
+
+      await waitFor(() => {
+        expect(document.activeElement).to.equal(
+          screen.getByRole('button', { name: /Run/ })
+        );
+      });
+    });
   });
 
   describe('edge cases', function () {

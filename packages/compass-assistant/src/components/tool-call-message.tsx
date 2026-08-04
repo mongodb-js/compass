@@ -144,6 +144,7 @@ ${toolCall.errorText}
       chips={chips}
       contentClassName={expandableContentStyles}
       showActions={isAwaitingApproval}
+      focusPrimaryKey={toolCall.approval?.id}
       buttons={[
         {
           label: 'Cancel',
