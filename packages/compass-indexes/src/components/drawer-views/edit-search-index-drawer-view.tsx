@@ -22,6 +22,7 @@ import {
 import {
   Badge,
   BadgeVariant,
+  Banner,
   Button,
   css,
   spacing,
@@ -51,6 +52,8 @@ import type { Document } from 'mongodb';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import type { SearchIndex } from 'mongodb-data-service';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
+import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
+import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
 import {
   useConnectionInfo,
   useConnectionInfoRef,
@@ -111,10 +114,16 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
   );
 
   const { atlasMetadata } = useConnectionInfo();
-  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+  const {
+    readOnly,
+    readWrite,
+    enableAtlasSearchIndexes,
+    enableAutoEmbeddingGaRelease,
+  } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
+    'enableAutoEmbeddingGaRelease',
   ]);
   const { isSearchIndexesWritable } = useSelector(
     selectReadWriteAccess({
@@ -182,6 +191,11 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       ? 'Vector Search Index'
       : 'Search Index';
 
+  const showAutoEmbedEditCostBanner =
+    enableAutoEmbeddingGaRelease &&
+    isSearchIndexesWritable &&
+    isAutoEmbedIndex(searchIndex);
+
   return (
     <div
       className={containerStyles}
@@ -245,6 +259,11 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
           />
         </div>
         {error && <ErrorSummary errors={error} />}
+        {showAutoEmbedEditCostBanner && (
+          <Banner data-testid="auto-embed-edit-cost-banner">
+            {AUTO_EMBED_EDIT_COST_WARNING}
+          </Banner>
+        )}
       </div>
       <div className={buttonContainerStyles}>
         <Button
