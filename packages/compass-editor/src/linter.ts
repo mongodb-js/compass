@@ -10,7 +10,7 @@ import { lintTooltipExitDelay } from './lint-tooltip-exit-delay';
 const noInlineTooltips = () => [];
 
 export type LintConfig = {
-  delay?: number;
+  lintDelay?: number;
   tooltipExitDelay?: number;
   // Optional theme spec used to style the diagnostic popover. When provided
   // we build an `EditorView.theme` from it and return an array of extensions
@@ -31,7 +31,7 @@ export function createCodemirrorLinter(
   const lintExtension = linter(
     (view) => diagnosticsFn(syntaxTree(view.state), view),
     {
-      delay: config?.delay ?? 500,
+      delay: config?.lintDelay ?? 500,
       tooltipFilter: noInlineTooltips,
     }
   );
