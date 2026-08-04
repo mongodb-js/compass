@@ -197,30 +197,28 @@ functions:
           eval $(.evergreen/print-compass-env.sh)
 
           # node-gyp needs a Python with the ctypes module to configure native
-          # modules. Some Windows distros ship no Python of their own, leaving
-          # node-gyp to fall back on the one bundled with MinGW, which is built
-          # without ctypes and fails every native build.
+          # modules, and on Windows it resolves one from PATH. MinGW's Python
+          # comes first on some distros and is built without ctypes, which fails
+          # every native build, so point node-gyp at an interpreter explicitly.
+          # Windows distros keep Python either in the toolchain directory or at
+          # the root, depending on how it was installed.
           case "$(uname -s)" in
             CYGWIN*|MINGW*|MSYS*)
-              find_usable_python() {
-                for candidate in /cygdrive/c/Python3*/python.exe; do
-                  if [ -x "$candidate" ] && "$candidate" -c 'import ctypes' >/dev/null 2>&1; then
-                    echo "$candidate"
-                    return
-                  fi
-                done
-              }
-              python_exe="$(find_usable_python)"
-              if [ -z "$python_exe" ]; then
-                echo "No Python with ctypes found, installing one for node-gyp"
-                choco install python3 -y --no-progress
-                python_exe="$(find_usable_python)"
-              fi
+              python_exe=""
+              # C:\python\Current is the version the distro's toolchain selected;
+              # otherwise prefer the newest available.
+              for candidate in /cygdrive/c/python/Current/python.exe \
+                               $(ls -d /cygdrive/c/python/Python3*/python.exe /cygdrive/c/Python3*/python.exe 2>/dev/null | sort -Vr); do
+                if [ -x "$candidate" ] && "$candidate" -c 'import ctypes' >/dev/null 2>&1; then
+                  python_exe="$candidate"
+                  break
+                fi
+              done
               if [ -n "$python_exe" ]; then
                 export npm_config_python="$(cygpath -w "$python_exe")"
                 echo "Using Python at $npm_config_python for node-gyp"
               else
-                echo "WARNING: no usable Python found, native module builds will likely fail"
+                echo "WARNING: no Python with ctypes found, native module builds will likely fail"
               fi
               ;;
           esac
