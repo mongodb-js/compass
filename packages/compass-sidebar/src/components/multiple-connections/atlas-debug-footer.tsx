@@ -50,9 +50,9 @@ type AtlasDebugFooterProps = {
   getAtlasAuthService: () => AtlasAuthService;
 };
 
-const AtlasDebugFooter: React.FunctionComponent<AtlasDebugFooterProps> = ({
-  getAtlasAuthService,
-}) => {
+export const AtlasDebugFooter: React.FunctionComponent<
+  AtlasDebugFooterProps
+> = ({ getAtlasAuthService }) => {
   const darkMode = useDarkMode();
   // The service is stable for the lifetime of the plugin, resolve it once.
   const [atlasAuthService] = useState(() => getAtlasAuthService());

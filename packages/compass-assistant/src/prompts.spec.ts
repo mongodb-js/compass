@@ -5,9 +5,11 @@ import {
   buildAnalyzeOutputPrompt,
   buildDebugSearchErrorPrompt,
   buildDiagnoseSearchStagePrompt,
+  buildConnectionErrorPrompt,
   buildContextPrompt,
   FOLLOW_UP_QUESTIONS_HEADER,
 } from './prompts';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 describe('prompts', function () {
   describe('buildConversationInstructionsPrompt', function () {
@@ -804,6 +806,72 @@ You SHOULD:
         expect(text).equal(testCase.expected);
       });
     }
+  });
+
+  describe('buildConnectionErrorPrompt', function () {
+    describe('Atlas connection', function () {
+      const atlasConnectionInfo: ConnectionInfo = {
+        id: 'conn-atlas',
+        connectionOptions: {
+          connectionString: 'mongodb+srv://cluster0.abcde.mongodb.net',
+        },
+        favorite: { name: 'Atlas Cluster' },
+      };
+
+      it('includes an atlas confirmation for an Atlas connection', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: atlasConnectionInfo,
+          error: new Error('connection timed out'),
+        });
+
+        expect(result.metadata?.confirmation).to.deep.include({
+          state: 'pending',
+          continueOn: 'rejected',
+          variant: 'atlas',
+        });
+      });
+
+      it('includes the atlas confirmation regardless of the error type', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: atlasConnectionInfo,
+          error: new Error('bad auth : authentication failed'),
+        });
+
+        expect(result.metadata?.confirmation?.variant).to.equal('atlas');
+      });
+    });
+
+    describe('Not Atlas connection', function () {
+      const localConnectionInfo: ConnectionInfo = {
+        id: 'conn-local',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+        favorite: { name: 'Local' },
+      };
+
+      it('does not include a confirmation for a non-Atlas connection', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: localConnectionInfo,
+          error: new Error('connection refused'),
+        });
+
+        expect(result.metadata?.confirmation).to.be.undefined;
+      });
+
+      it('always includes the connection info and the error in the prompt', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: localConnectionInfo,
+          error: new Error('connection refused'),
+        });
+
+        expect(result.metadata?.connectionInfo).to.deep.equal({
+          id: 'conn-local',
+          name: 'Local',
+        });
+        expect(result.prompt).to.include('connection refused');
+      });
+    });
   });
 });
 

@@ -80,6 +80,8 @@ describe('AssistantChat', function () {
       preferences,
       trackingOptions = {},
       experimentVariant = null,
+      ensureAtlasSignInResult = false,
+      getAtlasSignedInResult = false,
     }: {
       connections?: ConnectionInfo[];
       preferences?: Partial<AllPreferences>;
@@ -87,6 +89,8 @@ describe('AssistantChat', function () {
         requestId?: string;
       };
       experimentVariant?: ExperimentTestGroup | null;
+      ensureAtlasSignInResult?: boolean;
+      getAtlasSignedInResult?: boolean;
     } = {}
   ) {
     // The chat component does not use chat.sendMessage() directly, it uses
@@ -100,8 +104,15 @@ describe('AssistantChat', function () {
         await chat.sendMessage(message, options);
       });
 
+    const ensureAtlasSignInStub = sinon
+      .stub()
+      .resolves(ensureAtlasSignInResult);
+    const getAtlasSignedInStub = sinon.stub().resolves(getAtlasSignedInResult);
+
     const assistantActionsContext = {
       ensureOptInAndSend: ensureOptInAndSendStub,
+      ensureAtlasSignIn: ensureAtlasSignInStub,
+      getAtlasSignedIn: getAtlasSignedInStub,
     };
     const result = render(
       <ToolsControllerProvider>
@@ -119,6 +130,8 @@ describe('AssistantChat', function () {
       result,
       chat,
       ensureOptInAndSendStub,
+      ensureAtlasSignInStub,
+      getAtlasSignedInStub,
     };
   }
 
@@ -1021,6 +1034,118 @@ describe('AssistantChat', function () {
           }
         );
       });
+    });
+  });
+
+  describe('Atlas connection-error confirmation', function () {
+    function makeAtlasConfirmationMessage(): AssistantMessage {
+      return {
+        id: 'atlas-confirmation',
+        role: 'assistant',
+        parts: [{ type: 'text', text: 'Debug this Atlas connection.' }],
+        metadata: {
+          source: 'connection error',
+          connectionInfo: { id: 'conn-1', name: 'My Cluster' },
+          confirmation: {
+            state: 'pending',
+            description: 'Connecting would call Atlas API endpoints.',
+            continueOn: 'rejected',
+            variant: 'atlas',
+          },
+        },
+      };
+    }
+
+    it('renders the Atlas confirmation card instead of the default one', function () {
+      renderWithChat(
+        createMockChat({ messages: [makeAtlasConfirmationMessage()] })
+      );
+
+      expect(screen.getByText('Connecting would call Atlas API endpoints.')).to
+        .exist;
+      // Atlas variant, not the generic confirmation card.
+      expect(screen.queryByText('Please confirm your request')).to.not.exist;
+    });
+
+    it('shows "Connect to Atlas" when the user is not signed in', function () {
+      renderWithChat(
+        createMockChat({ messages: [makeAtlasConfirmationMessage()] }),
+        { getAtlasSignedInResult: false }
+      );
+
+      expect(screen.getByText('Connect to Atlas')).to.exist;
+      expect(screen.queryByText('Run')).to.not.exist;
+    });
+
+    it('shows "Run" when the user is already signed in', async function () {
+      renderWithChat(
+        createMockChat({ messages: [makeAtlasConfirmationMessage()] }),
+        { getAtlasSignedInResult: true }
+      );
+
+      // The signed-in state is resolved asynchronously on mount.
+      await waitFor(() => {
+        expect(screen.getByText('Run')).to.exist;
+      });
+      expect(screen.queryByText('Connect to Atlas')).to.not.exist;
+    });
+
+    it('confirms without sending a follow-up when sign-in succeeds', async function () {
+      const { chat, ensureAtlasSignInStub, ensureOptInAndSendStub } =
+        renderWithChat(
+          createMockChat({ messages: [makeAtlasConfirmationMessage()] }),
+          { ensureAtlasSignInResult: true }
+        );
+
+      userEvent.click(screen.getByText('Connect to Atlas'));
+
+      await waitFor(() => {
+        expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
+          'confirmed'
+        );
+      });
+      expect(ensureAtlasSignInStub).to.have.been.calledOnce;
+      // continueOn is 'rejected', so confirming must NOT push/send a new
+      // message (the model is expected to call the debug tool instead).
+      expect(chat.messages).to.have.length(1);
+      expect(ensureOptInAndSendStub).to.not.have.been.called;
+    });
+
+    it('falls back to the standard debug flow when sign-in fails', async function () {
+      const { chat, ensureAtlasSignInStub, ensureOptInAndSendStub } =
+        renderWithChat(
+          createMockChat({ messages: [makeAtlasConfirmationMessage()] }),
+          { ensureAtlasSignInResult: false }
+        );
+
+      userEvent.click(screen.getByText('Connect to Atlas'));
+
+      await waitFor(() => {
+        expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
+          'rejected'
+        );
+      });
+      expect(ensureAtlasSignInStub).to.have.been.calledOnce;
+      // continueOn is 'rejected', so a rejected state continues the
+      // conversation by pushing and sending a plain debug prompt.
+      expect(chat.messages).to.have.length(2);
+      expect(chat.messages[1].metadata?.confirmation).to.be.undefined;
+      expect(ensureOptInAndSendStub).to.have.been.called;
+    });
+
+    it('starts the standard debug flow when the user skips', function () {
+      const { chat, ensureAtlasSignInStub } = renderWithChat(
+        createMockChat({ messages: [makeAtlasConfirmationMessage()] })
+      );
+
+      userEvent.click(screen.getByText('Skip'));
+
+      expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
+        'rejected'
+      );
+      // Skipping should not attempt to sign in.
+      expect(ensureAtlasSignInStub).to.not.have.been.called;
+      expect(chat.messages).to.have.length(2);
     });
   });
 
