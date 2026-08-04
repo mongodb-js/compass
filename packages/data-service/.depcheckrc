@@ -5,5 +5,7 @@ ignores: [
   "@types/whatwg-url",
   # Optional dependencies of mongodb node driver that we need for testing
   "kerberos",
-  "@mongodb-js/oidc-plugin"
+  "@mongodb-js/oidc-plugin",
+  # Loaded by the mongodb node driver itself when auto encryption is configured
+  "mongodb-client-encryption"
 ]

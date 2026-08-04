@@ -24,6 +24,9 @@
   "compass:exports": {
     ".": "./src/index.ts"
   },
+  "compass:ignoredDependencies": [
+    "mongodb-client-encryption"
+  ],
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
