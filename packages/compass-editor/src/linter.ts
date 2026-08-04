@@ -3,6 +3,7 @@ import { syntaxTree } from '@codemirror/language';
 import type { Annotation } from './editor';
 import { EditorView } from '@codemirror/view';
 import type { Extension } from '@codemirror/state';
+import { lintTooltipExitDelay } from './lint-tooltip-exit-delay';
 
 // Do not show inline (on-hover) tooltips for linting errors,
 // we will show them in the gutter instead
@@ -10,6 +11,7 @@ const noInlineTooltips = () => [];
 
 export type LintConfig = {
   delay?: number;
+  tooltipExitDelay?: number;
   // Optional theme spec used to style the diagnostic popover. When provided
   // we build an `EditorView.theme` from it and return an array of extensions
   // instead of a single linter extension.
@@ -33,12 +35,12 @@ export function createCodemirrorLinter(
       tooltipFilter: noInlineTooltips,
     }
   );
+  const extensions: Extension[] = [
+    lintExtension,
+    lintTooltipExitDelay(config?.tooltipExitDelay),
+  ];
   if (config?.theme) {
-    const themeExtension = EditorView.theme(
-      config.theme.spec,
-      config.theme.options
-    );
-    return [lintExtension, themeExtension];
+    extensions.push(EditorView.theme(config.theme.spec, config.theme.options));
   }
-  return lintExtension;
+  return extensions;
 }
