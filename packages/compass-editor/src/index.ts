@@ -7,19 +7,13 @@ export {
   setCodemirrorEditorValue,
   getCodemirrorEditorValue,
 } from './editor';
-export type {
-  EditorView,
-  Command,
-  Annotation,
-  Completer,
-  Linter,
-} from './editor';
+export type { EditorView, Command, Annotation, Completer } from './editor';
+export type { Extension } from '@codemirror/state';
 export type { Action } from './action-button';
 export { createDocumentAutocompleter } from './codemirror/document-autocompleter';
 export { createValidationAutocompleter } from './codemirror/validation-autocompleter';
 export { createQueryAutocompleter } from './codemirror/query-autocompleter';
 export { createStageAutocompleter } from './codemirror/stage-autocompleter';
-export { createSafeIntegerLinter } from './codemirror/safe-integer-linter';
 export { createAggregationAutocompleter } from './codemirror/aggregation-autocompleter';
 export { createSearchIndexAutocompleter } from './codemirror/search-index-autocompleter';
 export {
@@ -29,3 +23,4 @@ export {
 export { createQueryWithHistoryAutocompleter } from './codemirror/query-autocompleter-with-history';
 export { useJsonSchemaAutocompleter } from './use-json-schema-autocompleter';
 export type { JsonSchemaAutocompleterResult } from './use-json-schema-autocompleter';
+export { useSafeIntegerLinter } from './codemirror/use-safe-integer-linter';
