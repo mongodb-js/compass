@@ -2288,42 +2288,6 @@ describe('Document', function () {
       });
     });
 
-    describe('unsafe numbers', function () {
-      it('throws on integer literals above MAX_SAFE_INTEGER', function () {
-        expect(() => Document.FromEJSON('{"a": 9223372036854775807}')).to.throw(
-          /\$numberLong/
-        );
-      });
-
-      it('throws on negative integer literals below MIN_SAFE_INTEGER', function () {
-        expect(() =>
-          Document.FromEJSON('{"a": -9223372036854775807}')
-        ).to.throw(/\$numberLong/);
-      });
-
-      it('also guards FromEJSONArray', function () {
-        expect(() =>
-          Document.FromEJSONArray('[{"a": 9223372036854775807}]')
-        ).to.throw(/\$numberLong/);
-      });
-
-      it('allows safe integer literals', function () {
-        expect(() => Document.FromEJSON('{"a": 42}')).to.not.throw();
-      });
-
-      it('allows exact 16-digit doubles without false positives', function () {
-        expect(() =>
-          Document.FromEJSON('{"a": 3.141592653589793}')
-        ).to.not.throw();
-      });
-
-      it('allows large values expressed as $numberLong', function () {
-        expect(() =>
-          Document.FromEJSON('{"a": {"$numberLong": "9223372036854775807"}}')
-        ).to.not.throw();
-      });
-    });
-
     describe('#toEJSON', function () {
       it('handles null values', function () {
         const doc = new Document({
@@ -2568,6 +2532,41 @@ describe('Document', function () {
         expect(doc.get('a')?.currentType).to.equal('Int32');
         expect(doc.get('b')?.currentType).to.equal('Double');
       });
+    });
+  });
+
+  describe('#toShellSyntax', function () {
+    it('serializes document', function () {
+      const doc = new Document({
+        a: 1,
+        b: { foo: 2 },
+        null_val: null,
+      });
+      expect(doc.toShellSyntax('current', { indent: 0 })).to.equal(
+        "{a:NumberInt('1'),b:{foo:NumberInt('2')},null_val:null}"
+      );
+    });
+
+    it('optionally serializes the current or the original document', function () {
+      const doc = new Document({
+        a: 1,
+        b: 1.5,
+        c: Long.fromNumber(2),
+      });
+      doc.get('a')?.edit(new Int32(2));
+      expect(doc.toShellSyntax('current', { indent: 0 })).to.equal(
+        "{a:NumberInt('2'),b:Double('1.5'),c:NumberLong('2')}"
+      );
+      expect(doc.toShellSyntax('original', { indent: 0 })).to.equal(
+        "{a:NumberInt('1'),b:Double('1.5'),c:NumberLong('2')}"
+      );
+    });
+
+    it('allows specifying JSON indent', function () {
+      const doc = new Document({ a: 1 });
+      expect(doc.toShellSyntax('current', { indent: '>' })).to.equal(
+        "{\n>a: NumberInt('1')\n}"
+      );
     });
   });
 

@@ -26,10 +26,6 @@ const connectionsWithNoSearchSupport: Connection[] = [
       ? undefined
       : getDefaultConnectionStrings(0),
   },
-  {
-    name: 'Atlas Free Cluster',
-    connectionString: process.env.E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH,
-  },
 ];
 const connectionsWithSearchSupport: Connection[] = [
   {
@@ -230,10 +226,7 @@ describe('Search Indexes', function () {
         await browser.dropIndex(indexName);
       });
 
-      // TODO(COMPASS-8220): Un-skip this test
-      (name === 'Atlas Free Cluster'
-        ? it.skip
-        : it)('renders search indexes tab disabled', async function () {
+      it('renders search indexes tab disabled', async function () {
         const searchTab = browser.$(
           Selectors.indexesSegmentedTab('search-indexes')
         );

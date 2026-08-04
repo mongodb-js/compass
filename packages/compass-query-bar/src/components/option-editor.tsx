@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
   css,
   cx,
@@ -9,7 +9,6 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import type {
-  Annotation,
   Command,
   EditorRef,
   SavedQuery,
@@ -17,7 +16,7 @@ import type {
 import {
   CodemirrorInlineEditor as InlineEditor,
   createQueryWithHistoryAutocompleter,
-  createSafeIntegerLinter,
+  useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -202,36 +201,13 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     optionName,
   ]);
 
-  const safeIntegerLinter = useMemo(() => {
-    return createSafeIntegerLinter({
-      delay: 300,
-      onViolation(from, to, source): Annotation {
-        onUnsafeInteger();
-        return {
-          from,
-          to,
-          severity: 'error',
-          message: 'Exceeds safe integer range. Convert to Long to match.',
-          actions: [
-            {
-              name: 'Convert to Long',
-              apply: (view, from, to) => {
-                view.dispatch({
-                  changes: [
-                    {
-                      from,
-                      to,
-                      insert: `Long("${source}")`,
-                    },
-                  ],
-                });
-              },
-            },
-          ],
-        };
-      },
-    });
-  }, [onUnsafeInteger]);
+  const { safeIntegerLinter, violations: safeIntegerViolations } =
+    useSafeIntegerLinter();
+  useEffect(() => {
+    if (safeIntegerViolations.length > 0) {
+      onUnsafeInteger();
+    }
+  }, [safeIntegerViolations, onUnsafeInteger]);
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {

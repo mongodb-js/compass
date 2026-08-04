@@ -14,6 +14,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { useDarkMode } from '../hooks/use-theme';
 import { spacing } from '@leafygreen-ui/tokens';
+import { AssistantAvatar as AssistantSparkleIcon } from '@leafygreen-ui/avatar';
 import { GuideCue } from './guide-cue/guide-cue';
 import { useEffectOnChange } from '../hooks/use-effect-on-change';
 import { rafraf } from '../utils/rafraf';
@@ -284,10 +285,7 @@ const SignalCard: React.FunctionComponent<
             size="small"
             variant="default"
             className={signalCardActionButtonStyles}
-            leftGlyph={
-              // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
-              <Icon glyph="Sparkle" style={{ color: palette.green.dark1 }} />
-            }
+            leftGlyph={<AssistantSparkleIcon />}
             data-testid="tell-me-more-button"
             onClick={onAssistantButtonClick}
           >
