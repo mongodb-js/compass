@@ -29,7 +29,7 @@ function TestEditor({
     useSafeIntegerLinter({
       editorRef,
       onFixViolation,
-      lintDelay: 0,
+      delay: 0,
     });
 
   useEffect(() => {
