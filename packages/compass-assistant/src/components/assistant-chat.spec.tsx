@@ -1133,6 +1133,30 @@ describe('AssistantChat', function () {
       expect(ensureOptInAndSendStub).to.have.been.called;
     });
 
+    it('falls back to the standard debug flow when no sign-in handler is available', function () {
+      // Render with a partial context value that omits ensureAtlasSignIn /
+      // getAtlasSignedIn (a pattern used elsewhere in the repo).
+      const chat = createMockChat({
+        messages: [makeAtlasConfirmationMessage()],
+      });
+      render(
+        <ToolsControllerProvider>
+          <AssistantActionsContext.Provider
+            value={{ ensureOptInAndSend: sinon.stub().resolves() }}
+          >
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </AssistantActionsContext.Provider>
+        </ToolsControllerProvider>
+      );
+
+      // Should not throw when clicking the primary action.
+      userEvent.click(screen.getByText('Connect to Atlas'));
+
+      expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
+        'rejected'
+      );
+    });
+
     it('starts the standard debug flow when the user skips', function () {
       const { chat, ensureAtlasSignInStub } = renderWithChat(
         createMockChat({ messages: [makeAtlasConfirmationMessage()] })
