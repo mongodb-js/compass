@@ -50,8 +50,8 @@ export function useSafeIntegerLinter({
   onFixViolation = defaultOnFixViolation,
   externalAnnotations,
   lintDelay,
-  theme,
   tooltipExitDelay,
+  theme,
 }: SafeIntegerLinterOptions = {}) {
   const [violations, setViolations] = useState<SafeIntegerViolation[]>([]);
   const optionsRef = useCurrentValueRef({
@@ -118,10 +118,6 @@ export function useSafeIntegerLinter({
       },
       { lintDelay, theme, tooltipExitDelay }
     );
-    // The linter extension is swapped into a codemirror compartment by
-    // identity, so it has to stay stable between renders: recreating it on
-    // every render re-injects the theme styles and makes the diagnostic
-    // tooltip flicker.
   }, [lintDelay, theme, tooltipExitDelay]);
 
   const onFixViolations = useCallback(() => {
