@@ -172,13 +172,6 @@ async function main() {
     })
   );
 
-  // Dependencies that are required at runtime but never imported from the
-  // package source, so they can't be discovered by walking the imports. Native
-  // modules loaded internally by another dependency are the usual case.
-  const ignoredDependencies = new Set(
-    pkgJson['compass:ignoredDependencies'] ?? []
-  );
-
   const expectedPropDeps = await getImportsForPackage(pkgJson);
 
   const shouldBeInDev = new Set();
@@ -190,10 +183,6 @@ async function main() {
     ...devDependencies,
     ...expectedPropDeps,
   ])) {
-    if (ignoredDependencies.has(depName)) {
-      continue;
-    }
-
     if (prodDependencies.has(depName) + devDependencies.has(depName) > 1) {
       shouldNotBeDuplicated.add(depName);
     }
