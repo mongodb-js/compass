@@ -15,6 +15,7 @@ import {
 } from '../../../test/configure-store';
 import {
   AIPipelineActionTypes,
+  AI_INPUT_VISIBLE_STORAGE_KEY,
   changeAIPromptText,
   showInput,
 } from '../../modules/pipeline-builder/pipeline-ai';
@@ -57,6 +58,8 @@ describe('PipelineAI Component', function () {
   });
 
   afterEach(function () {
+    // showInput persists the open state, don't leak it to other tests.
+    localStorage.removeItem(AI_INPUT_VISIBLE_STORAGE_KEY);
     cleanup();
   });
 
