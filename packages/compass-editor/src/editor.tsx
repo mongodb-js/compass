@@ -462,6 +462,9 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-lintRange-error': {
         backgroundImage: 'none',
       },
+      '& .cm-lintPoint::after': {
+        display: 'none',
+      },
       // Only style the diagnostic tooltip that carries an action, styled to
       // resemble a LeafyGreen popover. Tooltips without an action are left as-is
       '& .cm-tooltip.cm-tooltip-lint:has(.cm-diagnosticAction)': {
