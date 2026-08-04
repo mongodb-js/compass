@@ -553,8 +553,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   // show "Run" instead of "Connect to Atlas" when already signed in. Re-check
   // whenever the last message changes (e.g. a new debug card appears).
   useEffect(() => {
+    if (!getAtlasSignedIn) {
+      return;
+    }
     let cancelled = false;
-    void getAtlasSignedIn?.().then((signedIn) => {
+    void getAtlasSignedIn().then((signedIn) => {
       if (!cancelled) {
         setIsAtlasSignedIn(signedIn);
       }
@@ -566,7 +569,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
 
   const handleAtlasConfirm = useCallback(
     (message: AssistantMessage) => {
-      ensureAtlasSignIn?.()
+      if (!ensureAtlasSignIn) {
+        // No sign-in handler available: fall back to the standard debug flow.
+        setIsAtlasSignedIn(false);
+        handleConfirmation(message, 'rejected');
+        return;
+      }
+      ensureAtlasSignIn()
         .then((ok) => {
           setIsAtlasSignedIn(!!ok);
           if (ok) {
