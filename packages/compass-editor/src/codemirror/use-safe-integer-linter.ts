@@ -7,6 +7,10 @@ import { createCodemirrorLinter } from '../linter';
 export type SafeIntegerViolation = {
   from: number;
   to: number;
+  // True when the literal is already an argument to a constructor call like
+  // `Long(123...)`. The fix then quotes the argument (`Long("123...")`)
+  // instead of wrapping the whole thing again.
+  isArgument: boolean;
 };
 
 type SafeIntegerLinterOptions = {
@@ -41,8 +45,21 @@ function sameViolations(
 ): boolean {
   return (
     a.length === b.length &&
-    a.every((v, i) => v.from === b[i].from && v.to === b[i].to)
+    a.every(
+      (v, i) =>
+        v.from === b[i].from &&
+        v.to === b[i].to &&
+        v.isArgument === b[i].isArgument
+    )
   );
+}
+
+function fixFor(
+  violation: SafeIntegerViolation,
+  source: string,
+  onFixViolation: (source: string) => string
+): string {
+  return violation.isArgument ? `"${source}"` : onFixViolation(source);
 }
 
 export function useSafeIntegerLinter({
@@ -64,15 +81,19 @@ export function useSafeIntegerLinter({
         const violations: SafeIntegerViolation[] = [];
         tree.iterate({
           enter: (node) => {
-            // Only warn on bare number literals, not on Int64(...) arguments
-            if (
-              node.name !== 'Number' ||
-              node.node.parent?.name === 'ArgList'
-            ) {
+            // Warn on any bare number literal, including one passed as a
+            // numeric argument to a constructor like `Long(123...)`: the
+            // literal is parsed as a JS double and loses precision before the
+            // constructor sees it.
+            if (node.name !== 'Number') {
               return;
             }
             if (isUnsafeInteger(view.state.sliceDoc(node.from, node.to))) {
-              violations.push({ from: node.from, to: node.to });
+              violations.push({
+                from: node.from,
+                to: node.to,
+                isArgument: node.node.parent?.name === 'ArgList',
+              });
             }
           },
         });
@@ -84,7 +105,8 @@ export function useSafeIntegerLinter({
           setViolations(violations);
         }
 
-        const annotations = violations.map(({ from, to }): Annotation => {
+        const annotations = violations.map((violation): Annotation => {
+          const { from, to } = violation;
           return {
             from,
             to,
@@ -98,8 +120,10 @@ export function useSafeIntegerLinter({
                     changes: {
                       from,
                       to,
-                      insert: optionsRef.current.onFixViolation(
-                        view.state.sliceDoc(from, to)
+                      insert: fixFor(
+                        violation,
+                        view.state.sliceDoc(from, to),
+                        optionsRef.current.onFixViolation
                       ),
                     },
                   });
@@ -124,13 +148,18 @@ export function useSafeIntegerLinter({
       return;
     }
     editor.dispatch({
-      changes: violations.map(({ from, to }) => ({
-        from,
-        to,
-        insert: optionsRef.current.onFixViolation(
-          editor.state.sliceDoc(from, to)
-        ),
-      })),
+      changes: violations.map((violation) => {
+        const { from, to } = violation;
+        return {
+          from,
+          to,
+          insert: fixFor(
+            violation,
+            editor.state.sliceDoc(from, to),
+            optionsRef.current.onFixViolation
+          ),
+        };
+      }),
     });
     setViolations([]);
   }, [violations, editorRef]);

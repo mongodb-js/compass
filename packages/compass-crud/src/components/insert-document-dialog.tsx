@@ -293,7 +293,10 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     safeIntegerLinter,
   } = useSafeIntegerLinter({
     editorRef,
-    onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
+    onFixViolation: (source: string) =>
+      insertView === 'shell'
+        ? `Long("${source}")`
+        : `{"$numberLong": "${source}"}`,
   });
 
   const isTextView = insertView !== 'list';
