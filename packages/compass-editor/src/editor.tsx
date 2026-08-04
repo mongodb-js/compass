@@ -474,8 +474,14 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
         padding: '0',
         border: 'none',
         color: editorPalette[theme].linkColor,
-        textDecoration: 'underline',
         cursor: 'pointer',
+      },
+      '& .cm-diagnosticAction:focus-visible': {
+        outline: 'none',
+        boxShadow: `0 0 0 2px ${palette.blue.light1}`,
+      },
+      '& .cm-diagnosticAction:hover': {
+        textDecoration: 'underline',
       },
       '& .cm-widgetBuffer': {
         // Default is text-top which causes weird 1px added to the line height
