@@ -142,6 +142,33 @@ describe('CompassConnections store', function () {
       expect(getStatus()).to.eq('connected');
     });
 
+    it('can connect after a previous attempt failed (invalid connection string)', async function () {
+      const { connectionsStore } = renderCompassConnections({
+        connectFn: async () => {
+          await wait(1);
+          return {};
+        },
+      });
+
+      const connectionInfo = createDefaultConnectionInfo();
+      const getStatus = () =>
+        connectionsStore.getState().connections.byId[connectionInfo.id]?.status;
+
+      // A connection attempt with a malformed connection string
+      await connectionsStore.actions.connect({
+        ...connectionInfo,
+        connectionOptions: {
+          ...connectionInfo.connectionOptions,
+          connectionString: 'notavalidconnectionstring',
+        },
+      });
+      expect(getStatus()).to.not.eq('connected');
+
+      // Fixing the connection string and retrying should succeed
+      await connectionsStore.actions.connect(connectionInfo);
+      expect(getStatus()).to.eq('connected');
+    });
+
     it('should show error toast if connection failed', async function () {
       const { connectionsStore } = renderCompassConnections({
         connectFn: sinon

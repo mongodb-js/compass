@@ -1,4 +1,4 @@
-import { getSimplifiedSchema } from 'mongodb-schema';
+import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import type { Message } from './types';
 import { EJSON } from 'bson';
 

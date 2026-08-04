@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Mon Jul 27 2026.
+This document was automatically generated on Tue Aug 04 2026.
 
 ## List of dependencies
 
@@ -286,7 +286,7 @@ This document was automatically generated on Mon Jul 27 2026.
 | **[fast-deep-equal](#c3b1bc7fbf8bedbac237ffb2eb2aa967bc264fc393bb6451c52a831352540d09)**                                    | 2.0.1        | MIT                                 |
 | **[fast-deep-equal](#60db03f2d9496a0b9ae959899afa824927ba0b591f97c193aa8b0c67acc710e6)**                                    | 3.1.3        | MIT                                 |
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2        | MIT                                 |
-| **[fast-uri](#0fafed8ee7fee650ece783c075b1c3dfaf2caf86dc6d4c4c510172f68dc140df)**                                           | 3.1.4        | BSD-3-Clause                        |
+| **[fast-uri](#ade6c223e148259c4c6d2fb8e51352448926195f6d385c598e9d3ca4710f5150)**                                           | 3.1.5        | BSD-3-Clause                        |
 | **[fast-xml-builder](#37a0e599fe1e49e5394d7fe31c7de1a70e6530a300655305d76ec4b97141105a)**                                   | 1.1.4        | MIT                                 |
 | **[fast-xml-parser](#1edd68d10296c5e70396c4f2d95ef2070e6878a5ed751629bcb8d5e531e277f2)**                                    | 5.5.8        | MIT                                 |
 | **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**                                         | 3.2.0        | MIT                                 |
@@ -415,13 +415,13 @@ This document was automatically generated on Mon Jul 27 2026.
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0        | MIT                                 |
 | **[mongodb-build-info](#072a485ce651997e66b97b522fce57ad957256d3fae4c7c7179933ee22c75ecd)**                                 | 1.9.6        | Apache-2.0                          |
 | **[mongodb-build-info](#569643918aa9f6c59a3c75af223a75d278c3f8bce63ef306cdfd0e36f71f3e69)**                                 | 1.9.8        | Apache-2.0                          |
-| **[mongodb-client-encryption](#c1c2e8654dbbacdaa456c73e0892d6ab5c32e8d5a2a25c056b9174ca4d1c3cab)**                          | 7.2.0        | Apache-2.0                          |
+| **[mongodb-client-encryption](#d51bc496aad712aff10716acb139c248545f100815af800ea4cfa8d2e9d73db3)**                          | 7.2.1        | Apache-2.0                          |
 | **[mongodb-cloud-info](#c9e25f02dc496626584a9259e634cb9f6b5fcc7c3288cff4d111296b59fc7309)**                                 | 2.3.16       | Apache-2.0                          |
 | **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**                      | 7.0.1        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#267005f447433080cc6f4777fd158a8ea3dc603ee3a9d3d77cace34dcf82718c)**                      | 7.0.2        | Apache-2.0                          |
 | **[mongodb-log-writer](#29ce1833ae99c6452d014e8847ac7e8e50bbfe6241534fb000c8a313519fa9c4)**                                 | 2.5.14       | Apache-2.0                          |
 | **[mongodb-mcp-server](#170d115701124029e823835d30b7a783037c72cd0f53bf99816bbbe444a3676d)**                                 | 1.10.0       | Apache-2.0                          |
-| **[mongodb-ns](#3f1ced6a4a6bd87959cd71735e41b49339b332c67606c37ac7afdebd8561d484)**                                         | 3.2.0        | Apache-2.0                          |
+| **[mongodb-ns](#9658ed4c4d2d38de9ce3cef33fe9341cfa97429730fc4a4638828d4e5b74b329)**                                         | 3.2.1        | Apache-2.0                          |
 | **[mongodb-query-parser](#507c5d6b3e607106a0b30dbbb555589c2480c46a719114c16ff1b0a4a3466716)**                               | 4.7.15       | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6        | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0       | Apache-2.0                          |
@@ -22687,9 +22687,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="0fafed8ee7fee650ece783c075b1c3dfaf2caf86dc6d4c4c510172f68dc140df"></a>
+<a id="ade6c223e148259c4c6d2fb8e51352448926195f6d385c598e9d3ca4710f5150"></a>
 
-### [fast-uri](https://www.npmjs.com/package/fast-uri) (version 3.1.4)
+### [fast-uri](https://www.npmjs.com/package/fast-uri) (version 3.1.5)
 
 License tags: BSD-3-Clause
 
@@ -27590,9 +27590,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="c1c2e8654dbbacdaa456c73e0892d6ab5c32e8d5a2a25c056b9174ca4d1c3cab"></a>
+<a id="d51bc496aad712aff10716acb139c248545f100815af800ea4cfa8d2e9d73db3"></a>
 
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 7.2.0)
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 7.2.1)
 
 License tags: Apache-2.0
 
@@ -28840,9 +28840,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="3f1ced6a4a6bd87959cd71735e41b49339b332c67606c37ac7afdebd8561d484"></a>
+<a id="9658ed4c4d2d38de9ce3cef33fe9341cfa97429730fc4a4638828d4e5b74b329"></a>
 
-### [mongodb-ns](https://www.npmjs.com/package/mongodb-ns) (version 3.2.0)
+### [mongodb-ns](https://www.npmjs.com/package/mongodb-ns) (version 3.2.1)
 
 License tags: Apache-2.0
 

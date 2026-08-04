@@ -12,7 +12,7 @@ import type {
   DocumentSchemaType,
   SchemaField,
   SchemaType,
-} from 'mongodb-schema';
+} from '@mongodb-js/mongodb-schema';
 
 const SCHEMA_FIELD_FIELDS = ['name', 'path', 'count', 'type'] as const;
 
