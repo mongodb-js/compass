@@ -4,6 +4,7 @@ import type { EditorRef } from '../types';
 import type { Annotation } from './../editor';
 import { createCodemirrorLinter } from '../linter';
 import type { LintConfig } from '../linter';
+import { wrapLinterAnnotation } from '../lint-tooltip-exit-delay';
 
 export type SafeIntegerViolation = {
   from: number;
@@ -112,7 +113,7 @@ export function useSafeIntegerLinter({
         });
 
         return [
-          ...annotations,
+          ...annotations.map(wrapLinterAnnotation),
           ...(optionsRef.current.externalAnnotations?.current ?? []),
         ];
       },

@@ -1,15 +1,35 @@
 import { ViewPlugin, showTooltip, type EditorView } from '@codemirror/view';
 import {
-  Annotation,
+  Annotation as StateAnnotation,
   EditorState,
   type Extension,
   type StateEffect,
   type TransactionSpec,
 } from '@codemirror/state';
+import type { Annotation } from './editor';
 
-const delayedHide = Annotation.define<boolean>();
+const delayedHide = StateAnnotation.define<boolean>();
 const DEFAULT_TOOLTIP_EXIT_DELAY = 300;
-const LINT_HOVER_SELECTOR = '.cm-tooltip-lint, .cm-lint-marker';
+const LINT_TOOLTIP_ATTR = 'data-codemirror-linter';
+
+export function wrapLinterAnnotation(annotation: Annotation): Annotation {
+  return {
+    ...annotation,
+    renderMessage: (view: EditorView): Node => {
+      const wrapper = document.createElement('span');
+      wrapper.setAttribute(LINT_TOOLTIP_ATTR, 'true');
+      if (annotation.renderMessage) {
+        wrapper.appendChild(annotation.renderMessage(view));
+      } else {
+        wrapper.textContent = annotation.message;
+      }
+      return wrapper;
+    },
+  };
+}
+
+const TOOLTIP_SELECTOR = `.cm-diagnostic:has([${LINT_TOOLTIP_ATTR}=true])`;
+const HOVER_SELECTOR = `${TOOLTIP_SELECTOR}, .cm-lint-marker`;
 
 export function lintTooltipExitDelay(
   tooltipExitDelay: number = DEFAULT_TOOLTIP_EXIT_DELAY
@@ -42,7 +62,7 @@ export function lintTooltipExitDelay(
       return;
     }
     const target = event.target as HTMLElement | null;
-    if (target?.closest?.(LINT_HOVER_SELECTOR)) {
+    if (target?.closest?.(HOVER_SELECTOR)) {
       // Pointer came back in time, keep the tooltip open until it leaves again.
       clearPendingTimeout();
     } else if (!pendingTimeout) {
@@ -72,11 +92,11 @@ export function lintTooltipExitDelay(
           return tr;
         }
         const before = tr.startState.facet(showTooltip);
-        const after = tr.state.facet(showTooltip);
+        const stillShown = new Set(tr.state.facet(showTooltip).filter(Boolean));
         const hidesTooltip = before.some(
-          (tooltip, index) => tooltip && !after[index]
+          (tooltip) => tooltip && !stillShown.has(tooltip)
         );
-        if (!hidesTooltip || !document.querySelector('.cm-tooltip-lint')) {
+        if (!hidesTooltip || !document.querySelector(TOOLTIP_SELECTOR)) {
           return tr;
         }
         hideEffects = tr.effects;
