@@ -1,5 +1,5 @@
 import type { AggregateOptions, Filter, Document } from 'mongodb';
-import { analyzeDocuments } from 'mongodb-schema';
+import { analyzeDocuments } from '@mongodb-js/mongodb-schema';
 import type {
   Schema,
   SchemaAccessor,
@@ -9,7 +9,7 @@ import type {
   SchemaType,
   PrimitiveSchemaType,
   SchemaParseOptions,
-} from 'mongodb-schema';
+} from '@mongodb-js/mongodb-schema';
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 

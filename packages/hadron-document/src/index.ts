@@ -26,5 +26,3 @@ export {
   type BSONValue,
   getDisplayType,
 } from './utils';
-
-export { UnsafeIntegerValidationError } from './unsafe-integer-validation';

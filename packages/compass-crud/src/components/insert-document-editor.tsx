@@ -7,8 +7,7 @@ import {
   withDarkMode,
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
-import type { EditorRef } from '@mongodb-js/compass-editor';
-import { useJsonEditorAnnotations } from '../utils/use-json-editor-annotations';
+import type { EditorRef, Extension } from '@mongodb-js/compass-editor';
 
 const editorContainerStylesLight = css({
   borderLeft: `3px solid ${palette.gray.light2}`,
@@ -22,16 +21,21 @@ type InsertDocumentEditorProps = {
   darkMode?: boolean;
   editorText: string;
   updateInsertDocText: (value: string) => void;
-  error: Error | null;
+  safeIntegerLinter: Extension;
   editorRef: React.RefObject<EditorRef>;
   shellSyntax?: boolean;
 };
 
 const InsertDocumentEditor: React.FunctionComponent<
   InsertDocumentEditorProps
-> = ({ error, editorText, updateInsertDocText, editorRef, shellSyntax }) => {
+> = ({
+  editorText,
+  updateInsertDocText,
+  editorRef,
+  shellSyntax,
+  safeIntegerLinter,
+}) => {
   const darkMode = useDarkMode();
-  const annotations = useJsonEditorAnnotations({ error });
   return (
     <div
       className={cx(
@@ -45,7 +49,7 @@ const InsertDocumentEditor: React.FunctionComponent<
         onChangeText={updateInsertDocText}
         initialJSONFoldAll={false}
         minLines={18}
-        annotations={annotations}
+        linter={safeIntegerLinter}
         ref={editorRef}
       />
     </div>

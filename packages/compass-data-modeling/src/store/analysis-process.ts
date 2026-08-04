@@ -1,7 +1,10 @@
 import type { Reducer } from 'redux';
 import { isAction } from './util';
 import type { DataModelingThunkAction } from './reducer';
-import { analyzeDocuments, type MongoDBJSONSchema } from 'mongodb-schema';
+import {
+  analyzeDocuments,
+  type MongoDBJSONSchema,
+} from '@mongodb-js/mongodb-schema';
 import {
   applySetModelEdit,
   getCurrentDiagramFromState,

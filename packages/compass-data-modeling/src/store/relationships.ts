@@ -1,7 +1,7 @@
 import type { DataService } from '@mongodb-js/compass-connections/provider';
 import type { Document } from 'bson';
 import { isEqual } from 'lodash';
-import type { MongoDBJSONSchema } from 'mongodb-schema';
+import type { MongoDBJSONSchema } from '@mongodb-js/mongodb-schema';
 import type { Relationship } from '../services/data-model-storage';
 
 /**

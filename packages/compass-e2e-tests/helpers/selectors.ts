@@ -613,14 +613,15 @@ export const CloneDocumentButton = '[data-testid="clone-document-button"]';
 export const DeleteDocumentButton = '[data-testid="remove-document-button"]';
 export const DocumentFooter = '[data-testid="document-footer"]';
 export const DocumentFooterMessage = '[data-testid="document-footer-message"]';
-export const DocumentFooterFixUnsafeIntegerLink =
-  '[data-testid="fix-unsafe-integer-violations-button"]';
+export const DocumentFooterFixSafeIntegerLink =
+  '[data-testid="fix-safe-integer-violations-button"]';
 export const DocumentFooterErrorDetailsButton =
   '[data-testid="edit-actions-footer-error-details-button"]';
 export const UpdateDocumentButton = `${DocumentFooter} [data-testid="update-button"]`;
 export const ConfirmDeleteDocumentButton = `${DocumentFooter} [data-testid="delete-button"]`;
 export const JSONDocumentCard = '[data-testid="editable-json"]';
 export const JSONEditDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Edit"]`;
+export const JSONCopyDocumentButton = `${JSONDocumentCard} [data-testid="editor-action-Copy"]`;
 export const ShowMoreFieldsButton = '[data-testid="show-more-fields-button"]';
 export const BulkActionsButton =
   '[data-testid="crud-bulk-actions-show-actions"]';

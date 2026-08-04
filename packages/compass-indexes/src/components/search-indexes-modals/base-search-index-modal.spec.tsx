@@ -495,7 +495,7 @@ describe('Base Search Index Modal', function () {
       fields: [{ type: 'autoEmbed', path: 'content' }],
     });
 
-    it('shows the restriction banner when preview flag is on and index is auto-embed', function () {
+    it('shows the restriction banner when preview flag is on, GA flag is off, and index is auto-embed', function () {
       renderBaseSearchIndexModal(
         {
           mode: 'update',
@@ -503,13 +503,37 @@ describe('Base Search Index Modal', function () {
           initialIndexDefinition: autoEmbedDefinitionString,
           initialIndexType: 'vectorSearch',
         },
-        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: false,
+          },
+        }
       );
       const banner = screen.getByTestId('auto-embed-edit-restricted-banner');
       expect(banner).to.be.visible;
       expect(banner.textContent).to.include(
         'You cannot edit an autoEmbed field'
       );
+    });
+
+    it('does not show the restriction banner when the GA flag is on', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+          },
+        }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-restricted-banner')).to.not
+        .exist;
     });
 
     it('does not show the restriction banner when preview flag is off', function () {

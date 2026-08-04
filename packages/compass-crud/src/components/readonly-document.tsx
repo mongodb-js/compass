@@ -4,6 +4,7 @@ import type Document from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import { getInsightsForDocument } from '../utils';
 import { DocumentEvents } from 'hadron-document';
+import type { CopyDocumentFormat } from '../stores/crud-store';
 type BSONObject = TypeCastMap['Object'];
 
 export const documentStyles = css({
@@ -23,7 +24,7 @@ export const documentContentStyles = css({
 });
 
 export type ReadonlyDocumentProps = {
-  copyToClipboard?: (doc: Document) => void;
+  copyToClipboard?: (doc: Document, format: CopyDocumentFormat) => void;
   openInsertDocumentDialog?: (doc: BSONObject, cloned: boolean) => void;
   doc: Document;
   onUpdateQuery?: (field: string, value: unknown) => void;
@@ -108,7 +109,7 @@ class ReadonlyDocument extends React.Component<
    * Handle copying JSON to clipboard of the document.
    */
   handleCopy = () => {
-    this.props.copyToClipboard?.(this.props.doc);
+    this.props.copyToClipboard?.(this.props.doc, 'shell-syntax');
   };
 
   /**

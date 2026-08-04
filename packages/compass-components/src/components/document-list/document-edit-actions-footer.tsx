@@ -249,10 +249,6 @@ const container = css({
   borderBottomRightRadius: 'inherit',
 });
 
-const message = css({
-  overflow: 'scroll',
-});
-
 const buttonGroup = css({
   display: 'flex',
   marginLeft: 'auto',
@@ -354,7 +350,7 @@ const EditActionsFooter: React.FunctionComponent<{
       data-testid="document-footer"
       data-status={status}
     >
-      <div className={message} data-testid="document-footer-message">
+      <div data-testid="document-footer-message">
         {renderStatusMessage(error?.message ?? statusMessage)}
       </div>
       {!isSuccess(status) && (
