@@ -3,18 +3,23 @@ import type { Element, ElementEventsType } from './element';
 import { ElementList } from './element';
 import EventEmitter from 'eventemitter3';
 import { EJSON, UUID } from 'bson';
+import { toJSString } from 'mongodb-query-parser';
 import type {
   KeyInclusionOptions,
   ObjectGeneratorOptions,
 } from './object-generator';
 import ObjectGenerator from './object-generator';
-import type { BSONArray, BSONObject, BSONValue } from './utils';
+import type {
+  BSONArray,
+  BSONObject,
+  BSONValue,
+  HadronShellSyntaxOptions,
+} from './utils';
 import { objectToIdiomaticEJSON } from './utils';
 import type { HadronEJSONOptions } from './utils';
 import type { Binary, MongoServerError } from 'mongodb';
 import { DocumentEvents, type DocumentEventsType } from './document-events';
 import { ElementEvents } from './element-events';
-import { assertNoUnsafeIntegers } from './unsafe-integer-validation';
 
 /**
  * The id field.
@@ -216,7 +221,7 @@ export class Document extends EventEmitter<
     if (!path) {
       return undefined;
     }
-    let element = this.elements.get(path[0] as string);
+    let element = this.elements.get(path[0]);
     let i = 1;
     while (i < path.length) {
       if (element === undefined) {
@@ -225,7 +230,7 @@ export class Document extends EventEmitter<
       element =
         element.currentType === 'Array'
           ? element.at(path[i] as number)
-          : element.get(path[i] as string);
+          : element.get(path[i]);
       i++;
     }
     return element;
@@ -406,7 +411,6 @@ export class Document extends EventEmitter<
    * Parse a new Document from extended JSON input.
    */
   static FromEJSON(input: string): Document {
-    assertNoUnsafeIntegers(input);
     const parsed = EJSON.parse(input, { relaxed: false });
     return new Document(parsed as BSONObject);
   }
@@ -418,7 +422,6 @@ export class Document extends EventEmitter<
    * that document.
    */
   static FromEJSONArray(input: string): Document[] {
-    assertNoUnsafeIntegers(input);
     const parsed = EJSON.parse(input, { relaxed: false });
     return Array.isArray(parsed)
       ? parsed.map((doc) => new Document(doc as BSONObject))
@@ -437,6 +440,17 @@ export class Document extends EventEmitter<
         ? this.generateOriginalObject()
         : this.generateObject();
     return objectToIdiomaticEJSON(obj, options);
+  }
+
+  toShellSyntax(
+    source: 'original' | 'current' = 'current',
+    options: HadronShellSyntaxOptions = {}
+  ): string {
+    const obj =
+      source === 'original'
+        ? this.generateOriginalObject()
+        : this.generateObject();
+    return toJSString(obj, options.indent) || '{}';
   }
 
   /**

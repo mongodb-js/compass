@@ -1,4 +1,4 @@
-import type { JSONSchema } from 'mongodb-schema';
+import type { JSONSchema } from '@mongodb-js/mongodb-schema';
 import type { FieldPath, FieldData } from '../services/data-model-storage';
 
 /**

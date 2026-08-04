@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-import { getSimplifiedSchema } from 'mongodb-schema';
+import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import toNS from 'mongodb-ns';
 import { openToast } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';

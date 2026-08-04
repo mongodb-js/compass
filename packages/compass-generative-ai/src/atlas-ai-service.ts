@@ -1,4 +1,4 @@
-import type { SimplifiedSchema } from 'mongodb-schema';
+import type { SimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import {
   type PreferencesAccess,
   isAIFeatureEnabled,

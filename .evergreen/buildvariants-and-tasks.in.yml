@@ -132,10 +132,9 @@ const TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS = [
   }
 ];
 
-const EOL_SERVER_VERSIONS = [
-  { name: '60x-community', version: '6.0.x', requiredForPublish: true },
-  { name: '60x-enterprise', version: '6.0.x-enterprise', requiredForPublish: true },
-];
+// Versions past vendor EoL that we still test against until they are more than
+// a year out of date, at which point they are dropped from here entirely.
+const EOL_SERVER_VERSIONS = [];
 
 // MongoDB 7.0 has no Ubuntu 24.04 build (24.04 support was added in 8.0), so
 // its binaries fall back to the 22.04 build and fail to start on a 24.04 host.
@@ -229,6 +228,7 @@ buildvariants:
     tasks:
       - name: smoketest-packaged-app
 
+  <% if (EOL_SERVER_VERSIONS.length) { %>
   - name: test-eol-servers
     display_name: Test EoL Servers
     run_on: ubuntu2004-large
@@ -241,6 +241,7 @@ buildvariants:
     - name: test-server-<%= serverVersion.name %>-<%= group.number %>
     <% } %>
     <% } %>
+  <% } %>
 
   - name: test-maintained-servers
     tags:

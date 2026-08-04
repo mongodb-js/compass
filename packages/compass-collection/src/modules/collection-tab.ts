@@ -1,5 +1,5 @@
 import type { Reducer, AnyAction, Action } from 'redux';
-import { analyzeDocuments } from 'mongodb-schema';
+import { analyzeDocuments } from '@mongodb-js/mongodb-schema';
 import { UUID } from 'bson';
 import { isCancelError } from '@mongodb-js/compass-utils';
 

@@ -85,7 +85,7 @@
     "typescript": "^6.0.3"
   },
   "optionalDependencies": {
-    "mongodb-client-encryption": "^7.2.0"
+    "mongodb-client-encryption": "^7.2.1"
   },
   "publishConfig": {
     "access": "public"

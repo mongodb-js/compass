@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-07-29. Do not edit manually.
+> Auto-generated on 2026-08-04. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -1305,6 +1305,7 @@ This event is fired when user copies a document to the clipboard.
 | Property         | Type                          | Required | Description                                        |
 | ---------------- | ----------------------------- | -------- | -------------------------------------------------- |
 | `mode`           | `"json" \| "list" \| "table"` | Yes      | The view used to copy the document.                |
+| `format`         | `"ejson" \| "shell-syntax"`   | Yes      | The format used to copy the document.              |
 | `is_compass_web` | `true \| undefined`           | No       |                                                    |
 | `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
 

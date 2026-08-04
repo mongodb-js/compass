@@ -5,7 +5,7 @@ import type {
   SchemaField,
   DocumentSchemaType,
   ArraySchemaType,
-} from 'mongodb-schema';
+} from '@mongodb-js/mongodb-schema';
 
 describe('calculateSchemaDepth', function () {
   it('returns 1 for flat schema', async function () {
