@@ -17,23 +17,22 @@ const noop = () => {
   /* no op */
 };
 
+const defaultProps: ComponentProps<typeof GenerativeAIInput> = {
+  aiPromptText: '',
+  didSucceed: false,
+  didGenerateEmptyResults: false,
+  onCancelRequest: noop,
+  onChangeAIPromptText: noop,
+  onSubmitText: noop,
+  onClose: noop,
+  onSubmitFeedback: noop,
+  show: true,
+};
+
 const renderGenerativeAIInput = ({
   ...props
 }: Partial<ComponentProps<typeof GenerativeAIInput>> = {}) => {
-  render(
-    <GenerativeAIInput
-      aiPromptText=""
-      didSucceed={false}
-      didGenerateEmptyResults={false}
-      onCancelRequest={noop}
-      onChangeAIPromptText={noop}
-      onSubmitText={noop}
-      onClose={noop}
-      onSubmitFeedback={noop}
-      show
-      {...props}
-    />
-  );
+  return render(<GenerativeAIInput {...defaultProps} {...props} />);
 };
 
 const feedbackPopoverTextAreaId = 'feedback-popover-textarea';
@@ -44,6 +43,39 @@ describe('GenerativeAIInput Component', function () {
   afterEach(() => {
     cleanup();
     sinon.restore();
+  });
+
+  describe('focusing the prompt input', function () {
+    const promptInputId = 'ai-user-text-input';
+
+    it('does not focus the prompt when the input is already shown on mount', function () {
+      renderGenerativeAIInput({ show: true });
+
+      expect(document.activeElement).to.not.equal(
+        screen.getByTestId(promptInputId)
+      );
+    });
+
+    it('focuses the prompt when the input is opened', function () {
+      const { rerender } = renderGenerativeAIInput({ show: false });
+
+      rerender(<GenerativeAIInput {...defaultProps} show />);
+
+      expect(document.activeElement).to.equal(
+        screen.getByTestId(promptInputId)
+      );
+    });
+
+    it('focuses the prompt when an aggregation was generated from a query', function () {
+      renderGenerativeAIInput({
+        show: true,
+        isAggregationGeneratedFromQuery: true,
+      });
+
+      expect(document.activeElement).to.equal(
+        screen.getByTestId(promptInputId)
+      );
+    });
   });
 
   describe('when rendered', function () {
@@ -90,6 +122,7 @@ describe('GenerativeAIInput Component', function () {
     });
 
     it('calls onSubmitText when submitted with a keypress', function () {
+      userEvent.click(screen.getByTestId('ai-user-text-input'));
       userEvent.keyboard('{Enter}');
       expect(onSubmitTextSpy).to.be.calledOnceWith(promptText);
     });
