@@ -404,12 +404,9 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
 
   const isInitialFetch = status === DOCUMENTS_STATUS_FETCHED_INITIAL;
 
-  const isFirstFetch = useMemo(() => {
-    return (
-      status === DOCUMENTS_STATUS_INITIAL ||
-      (status === DOCUMENTS_STATUS_FETCHING && isEmpty)
-    );
-  }, [status, isEmpty]);
+  const isFirstFetch =
+    status === DOCUMENTS_STATUS_INITIAL ||
+    (status === DOCUMENTS_STATUS_FETCHING && isEmpty);
 
   const isFetching =
     isFirstFetch || (status === DOCUMENTS_STATUS_FETCHING && !debouncingLoad);
