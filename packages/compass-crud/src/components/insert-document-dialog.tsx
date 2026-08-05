@@ -19,17 +19,18 @@ import {
   useSyncStateOnPropChange,
   InfoSprinkle,
   Code,
+  Tooltip,
 } from '@mongodb-js/compass-components';
-import HadronDocument from 'hadron-document';
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
-import InsertJsonDocument from './insert-json-document';
+import InsertDocumentEditor from './insert-document-editor';
 import InsertDocument from './insert-document';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
-import type { WriteError } from '../stores/crud-store';
+import type { InsertDocumentView, WriteError } from '../stores/crud-store';
+import { parseInsertDocument, parseShellBSON } from '../stores/crud-store';
 import { useSafeIntegerLinter } from '@mongodb-js/compass-editor';
 import type { Extension, EditorRef } from '@mongodb-js/compass-editor';
 import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
@@ -63,19 +64,39 @@ const documentViewContainer = css({
   overflow: 'auto',
 });
 
+const insertViewOptions = [
+  {
+    value: 'shell',
+    label: 'Shell syntax',
+    testId: 'insert-document-dialog-view-shell',
+    glyph: 'Shell',
+  },
+  {
+    value: 'list',
+    label: 'Visual editor',
+    testId: 'insert-document-dialog-view-list',
+    glyph: 'Menu',
+  },
+  {
+    value: 'json',
+    label: 'EJSON',
+    testId: 'insert-document-dialog-view-json',
+    glyph: 'CurlyBraces',
+  },
+] as const;
+
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
   closeInsertDocumentDialog: () => void;
-  toggleInsertDocumentView: (view: 'JSON' | 'List') => void;
-  toggleInsertDocument: (view: 'JSON' | 'List') => void;
+  toggleInsertDocumentView: (view: InsertDocumentView) => void;
   insertDocument: () => void;
   insertMany: () => void;
   isOpen: boolean;
   error: WriteError;
   mode: 'modifying' | 'error';
   version: string;
-  updateJsonDoc: (value: string | null) => void;
-  jsonDoc: string;
-  jsonView: boolean;
+  updateInsertDocText: (value: string | null) => void;
+  editorText: string;
+  insertView: InsertDocumentView;
   doc: Document | null;
   ns: string;
   isCommentNeeded: boolean;
@@ -85,29 +106,30 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
 };
 
 const DocumentOrJsonView: React.FC<{
-  jsonView: InsertDocumentDialogProps['jsonView'];
+  insertView: InsertDocumentView;
   doc: InsertDocumentDialogProps['doc'];
   hasManyDocuments: () => boolean;
-  updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
-  jsonDoc: InsertDocumentDialogProps['jsonDoc'];
+  updateInsertDocText: InsertDocumentDialogProps['updateInsertDocText'];
+  editorText: InsertDocumentDialogProps['editorText'];
   safeIntegerLinter: Extension;
   editorRef: React.RefObject<EditorRef>;
 }> = ({
-  jsonView,
+  insertView,
   doc,
   hasManyDocuments,
-  updateJsonDoc,
-  jsonDoc,
+  updateInsertDocText,
+  editorText,
   safeIntegerLinter,
   editorRef,
 }) => {
-  if (jsonView) {
+  if (insertView !== 'list') {
     return (
-      <InsertJsonDocument
-        updateJsonDoc={updateJsonDoc}
-        jsonDoc={jsonDoc}
+      <InsertDocumentEditor
+        updateInsertDocText={updateInsertDocText}
+        editorText={editorText}
         safeIntegerLinter={safeIntegerLinter}
         editorRef={editorRef}
+        shellSyntax={insertView === 'shell'}
       />
     );
   }
@@ -134,8 +156,8 @@ const DocumentOrJsonView: React.FC<{
  */
 const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   isOpen,
-  jsonView,
-  jsonDoc,
+  insertView,
+  editorText,
   doc,
   error: documentWriteError,
   ns,
@@ -143,9 +165,8 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   track,
   insertMany,
   insertDocument,
-  toggleInsertDocument,
   toggleInsertDocumentView,
-  updateJsonDoc,
+  updateInsertDocText,
   closeInsertDocumentDialog,
 }) => {
   const editorRef = useRef<EditorRef>(null);
@@ -155,14 +176,16 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   const [insertInProgress, setInsertInProgress] = useState(false);
 
   const hasManyDocuments = useCallback(() => {
-    let parsed: unknown;
     try {
-      parsed = JSON.parse(jsonDoc);
+      const parsed =
+        insertView === 'shell'
+          ? parseShellBSON(editorText)
+          : JSON.parse(editorText);
+      return Array.isArray(parsed);
     } catch {
       return false;
     }
-    return Array.isArray(parsed);
-  }, [jsonDoc]);
+  }, [editorText, insertView]);
 
   /**
    * Does the document have errors with the bson types?  Checks for
@@ -174,9 +197,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
    *
    */
   const documentValidationError = useMemo(() => {
-    if (jsonView) {
+    if (insertView !== 'list') {
       try {
-        HadronDocument.FromEJSON(jsonDoc);
+        parseInsertDocument(insertView, editorText);
         return null;
       } catch (e) {
         return e as Error;
@@ -185,7 +208,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     return invalidElements.length > 0
       ? new Error(INSERT_INVALID_MESSAGE)
       : null;
-  }, [jsonDoc, jsonView, invalidElements]);
+  }, [editorText, insertView, invalidElements]);
 
   const handleInvalid = useCallback(
     (el: Element) => {
@@ -216,13 +239,13 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   }, [isOpen, track]);
 
   useSyncStateOnPropChange(() => {
-    if (!jsonView) {
+    if (insertView === 'list') {
       // When switching to Hadron Document View.
       // Reset the invalid elements list, which contains the
       // uuids of each element that has BSON type cast errors.
       setInvalidElements([]);
     }
-  }, [jsonView]);
+  }, [insertView]);
 
   useEffect(() => {
     if (!doc) {
@@ -253,22 +276,15 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   }, [setInsertInProgress, insertMany, insertDocument, hasManyDocuments]);
 
   /**
-   * Switches between JSON and Hadron Document views.
+   * Switches between the JSON, Shell, and Hadron Document views.
    *
-   * In case of multiple documents, only switches the this.props.insert.jsonView
-   * In other cases, also modifies this.props.insert.doc/jsonDoc to keep data in place.
-   *
-   * @param {String} view - which view we are looking at: JSON or LIST.
+   * @param {String} view - which view we are switching to: JSON, Shell or List.
    */
   const switchInsertDocumentView = useCallback(
     (view: string) => {
-      if (!hasManyDocuments()) {
-        toggleInsertDocument(view as 'JSON' | 'List');
-      } else {
-        toggleInsertDocumentView(view as 'JSON' | 'List');
-      }
+      toggleInsertDocumentView(view as InsertDocumentView);
     },
-    [hasManyDocuments, toggleInsertDocument, toggleInsertDocumentView]
+    [toggleInsertDocumentView]
   );
 
   const {
@@ -277,17 +293,32 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     safeIntegerLinter,
   } = useSafeIntegerLinter({
     editorRef,
-    onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
+    onFixViolation: (source: string) =>
+      insertView === 'shell'
+        ? `Long("${source}")`
+        : `{"$numberLong": "${source}"}`,
   });
 
-  const currentView = jsonView ? 'JSON' : 'List';
+  const isTextView = insertView !== 'list';
+
+  // The visual editor can only represent a single document, so disable it when
+  // the editor holds an array.
+  const isManyDocuments = hasManyDocuments();
+
+  // `SegmentedControl` overrides the `ref` on its options, so we can't anchor
+  // the tooltip that way. Instead we capture the hovered option's element from
+  // the mouse event and point a single tooltip at it. We keep the label after
+  // unhovering so the text stays visible through the close animation.
+  const [tooltipOpen, setTooltipOpen] = useState(false);
+  const [tooltipLabel, setTooltipLabel] = useState('');
+  const hoveredOptionRef = useRef<HTMLElement | null>(null);
 
   return (
     <FormModal
       title="Insert Document"
       subtitle={`To collection ${ns}`}
       open={isOpen}
-      onSubmit={handleInsert.bind(this)}
+      onSubmit={handleInsert}
       onCancel={closeInsertDocumentDialog}
       submitButtonText="Insert"
       submitDisabled={Boolean(
@@ -298,7 +329,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       bodyClassName={modalBodyStyles}
     >
       <div className={toolbarStyles}>
-        {jsonView && (
+        {isTextView && (
           <InfoSprinkle>
             Paste a document, or an array to insert multiple. If an ObjectId is
             not specified, one is assigned automatically.
@@ -311,43 +342,53 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         <SegmentedControl
           label="View"
           size="xsmall"
-          value={currentView}
+          value={insertView}
           aria-controls={documentViewId}
-          onChange={switchInsertDocumentView.bind(this)}
+          onChange={switchInsertDocumentView}
         >
-          <SegmentedControlOption
-            disabled={Boolean(documentValidationError)}
-            data-testid="insert-document-dialog-view-json"
-            aria-label="E-JSON View"
-            value="JSON"
-            glyph={<Icon glyph="CurlyBraces" />}
-            onClick={(evt) => {
-              // We override the `onClick` functionality to prevent form submission.
-              // The value changing occurs in the `onChange` in the `SegmentedControl`.
-              evt.preventDefault();
-            }}
-          ></SegmentedControlOption>
-          <SegmentedControlOption
-            disabled={Boolean(documentValidationError)}
-            data-testid="insert-document-dialog-view-list"
-            aria-label="Document list"
-            value="List"
-            onClick={(evt) => {
-              // We override the `onClick` functionality to prevent form submission.
-              // The value changing occurs in the `onChange` in the `SegmentedControl`.
-              evt.preventDefault();
-            }}
-            glyph={<Icon glyph="Menu" />}
-          ></SegmentedControlOption>
+          {insertViewOptions.map((option) => {
+            const disabledForManyDocs =
+              option.value === 'list' && isManyDocuments;
+            return (
+              <SegmentedControlOption
+                key={option.value}
+                disabled={
+                  Boolean(documentValidationError) || disabledForManyDocs
+                }
+                data-testid={option.testId}
+                aria-label={option.label}
+                value={option.value}
+                glyph={<Icon glyph={option.glyph} />}
+                onMouseEnter={(evt) => {
+                  hoveredOptionRef.current = evt.currentTarget;
+                  setTooltipLabel(
+                    disabledForManyDocs
+                      ? 'The visual editor is unavailable for multiple documents'
+                      : option.label
+                  );
+                  setTooltipOpen(true);
+                }}
+                onMouseLeave={() => setTooltipOpen(false)}
+                onClick={(evt) => {
+                  // We override the `onClick` functionality to prevent form submission.
+                  // The value changing occurs in the `onChange` in the `SegmentedControl`.
+                  evt.preventDefault();
+                }}
+              ></SegmentedControlOption>
+            );
+          })}
         </SegmentedControl>
+        <Tooltip open={tooltipOpen} refEl={hoveredOptionRef}>
+          {tooltipLabel}
+        </Tooltip>
       </div>
       <div className={documentViewContainer} id={documentViewId}>
         <DocumentOrJsonView
-          jsonView={jsonView}
+          insertView={insertView}
           doc={doc}
           hasManyDocuments={hasManyDocuments}
-          updateJsonDoc={updateJsonDoc}
-          jsonDoc={jsonDoc}
+          updateInsertDocText={updateInsertDocText}
+          editorText={editorText}
           safeIntegerLinter={safeIntegerLinter}
           editorRef={editorRef}
         />

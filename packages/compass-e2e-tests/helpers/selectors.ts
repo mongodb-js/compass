@@ -639,7 +639,13 @@ export const InsertDialogErrorMessage =
   '[data-testid="insert-document-banner"][data-variant="danger"]';
 export const InsertDialogErrorDetailsBtn =
   'button[data-testid="insert-document-error-action-button"]';
-export const InsertJSONEditor = '[data-testid="insert-document-json-editor"]';
+export const InsertDocumentEditor = '[data-testid="insert-document-editor"]';
+export const InsertDialogJSONView =
+  '[data-testid="insert-document-dialog-view-json"]';
+export const InsertDialogShellView =
+  '[data-testid="insert-document-dialog-view-shell"]';
+export const InsertDialogListView =
+  '[data-testid="insert-document-dialog-view-list"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';
 export const InsertCancel =

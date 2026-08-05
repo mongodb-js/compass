@@ -17,19 +17,23 @@ const editorContainerStylesDark = css({
   borderLeft: `3px solid ${palette.gray.dark2}`,
 });
 
-type InsertJsonDocumentProps = {
+type InsertDocumentEditorProps = {
   darkMode?: boolean;
-  jsonDoc: string;
-  updateJsonDoc: (value: string) => void;
+  editorText: string;
+  updateInsertDocText: (value: string) => void;
   safeIntegerLinter: Extension;
   editorRef: React.RefObject<EditorRef>;
+  shellSyntax?: boolean;
 };
 
-const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
-  safeIntegerLinter,
-  jsonDoc,
-  updateJsonDoc,
+const InsertDocumentEditor: React.FunctionComponent<
+  InsertDocumentEditorProps
+> = ({
+  editorText,
+  updateInsertDocText,
   editorRef,
+  shellSyntax,
+  safeIntegerLinter,
 }) => {
   const darkMode = useDarkMode();
   return (
@@ -39,10 +43,10 @@ const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
       )}
     >
       <CodemirrorMultilineEditor
-        data-testid="insert-document-json-editor"
-        language="json"
-        text={jsonDoc}
-        onChangeText={updateJsonDoc}
+        data-testid="insert-document-editor"
+        language={shellSyntax ? 'javascript-expression' : 'json'}
+        text={editorText}
+        onChangeText={updateInsertDocText}
         initialJSONFoldAll={false}
         minLines={18}
         linter={safeIntegerLinter}
@@ -52,4 +56,4 @@ const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
   );
 };
 
-export default withDarkMode(InsertJsonDocument);
+export default withDarkMode(InsertDocumentEditor);
