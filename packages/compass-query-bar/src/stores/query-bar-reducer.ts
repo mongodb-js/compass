@@ -241,9 +241,8 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
 type ApplyFromHistoryAction = {
   type: typeof QueryBarActions.ApplyFromHistory;
   fields: QueryFormFields;
-  // Set when the query has to become the last applied query for a source
-  // without re-running it (bulk update queries: the bulk update modal reads
-  // its filter from the last applied query).
+  // bulk update queries: the bulk update modal reads its
+  // filter from the last applied query
   applyToSource?: string;
 };
 
@@ -270,9 +269,6 @@ export const applyFromHistory = (
     dispatch({
       type: QueryBarActions.ApplyFromHistory,
       fields,
-      // A bulk update query is not run in the query bar, but the bulk update
-      // modal (and the update it eventually runs) operates on the last applied
-      // query's filter, so it has to be recorded here.
       applyToSource: query.update ? 'crud' : undefined,
     });
 
