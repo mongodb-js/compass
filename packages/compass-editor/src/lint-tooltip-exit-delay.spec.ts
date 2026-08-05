@@ -2,7 +2,11 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { EditorView, showTooltip, type Tooltip } from '@codemirror/view';
 import { StateEffect, StateField } from '@codemirror/state';
-import { lintTooltipExitDelay } from './lint-tooltip-exit-delay';
+import {
+  lintTooltipExitDelay,
+  TOOLTIP_DATA_ATTR,
+  TOOLTIP_SELECTOR,
+} from './lint-tooltip-exit-delay';
 
 const EXIT_DELAY = 300;
 
@@ -23,9 +27,16 @@ const tooltipField = StateField.define<Tooltip | null>({
 const tooltip: Tooltip = {
   pos: 0,
   create() {
+    // Mirror the DOM shape produced by codemirror
     const dom = document.createElement('ul');
     dom.className = 'cm-tooltip-lint';
-    dom.textContent = 'Exceeds safe integer range.';
+    const diagnostic = document.createElement('li');
+    diagnostic.className = 'cm-diagnostic';
+    const message = document.createElement('span');
+    message.setAttribute(TOOLTIP_DATA_ATTR, 'true');
+    message.textContent = 'Exceeds safe integer range.';
+    diagnostic.appendChild(message);
+    dom.appendChild(diagnostic);
     return { dom };
   },
 };
@@ -34,7 +45,7 @@ describe('lintTooltipExitDelay', function () {
   let clock: sinon.SinonFakeTimers;
   let view: EditorView;
 
-  const tooltipInDom = () => !!view.dom.querySelector('.cm-tooltip-lint');
+  const tooltipInDom = () => !!view.dom.querySelector(TOOLTIP_SELECTOR);
 
   const mousemoveOver = (selector: string) => {
     const target = view.dom.querySelector(selector) ?? view.dom;
@@ -80,7 +91,7 @@ describe('lintTooltipExitDelay', function () {
     view.dispatch({ effects: setTooltip.of(null) });
 
     clock.tick(EXIT_DELAY - 100);
-    mousemoveOver('.cm-tooltip-lint');
+    mousemoveOver(TOOLTIP_SELECTOR);
 
     clock.tick(EXIT_DELAY * 10);
     expect(tooltipInDom()).to.be.true;
@@ -89,7 +100,7 @@ describe('lintTooltipExitDelay', function () {
   it('hides the tooltip when the pointer leaves again after coming back', function () {
     view.dispatch({ effects: setTooltip.of(null) });
     clock.tick(EXIT_DELAY - 100);
-    mousemoveOver('.cm-tooltip-lint');
+    mousemoveOver(TOOLTIP_SELECTOR);
     clock.tick(EXIT_DELAY * 10);
     expect(tooltipInDom()).to.be.true;
 

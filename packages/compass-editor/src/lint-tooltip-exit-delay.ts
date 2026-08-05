@@ -10,14 +10,14 @@ import type { Annotation } from './editor';
 
 const delayedHide = StateAnnotation.define<boolean>();
 const DEFAULT_TOOLTIP_EXIT_DELAY = 300;
-const LINT_TOOLTIP_ATTR = 'data-codemirror-linter';
+export const TOOLTIP_DATA_ATTR = 'data-codemirror-linter';
 
 export function wrapLinterAnnotation(annotation: Annotation): Annotation {
   return {
     ...annotation,
     renderMessage: (view: EditorView): Node => {
       const wrapper = document.createElement('span');
-      wrapper.setAttribute(LINT_TOOLTIP_ATTR, 'true');
+      wrapper.setAttribute(TOOLTIP_DATA_ATTR, 'true');
       if (annotation.renderMessage) {
         wrapper.appendChild(annotation.renderMessage(view));
       } else {
@@ -28,7 +28,7 @@ export function wrapLinterAnnotation(annotation: Annotation): Annotation {
   };
 }
 
-const TOOLTIP_SELECTOR = `.cm-diagnostic:has([${LINT_TOOLTIP_ATTR}=true])`;
+export const TOOLTIP_SELECTOR = `.cm-diagnostic:has([${TOOLTIP_DATA_ATTR}=true])`;
 const HOVER_SELECTOR = `${TOOLTIP_SELECTOR}, .cm-lint-marker`;
 
 export function lintTooltipExitDelay(
