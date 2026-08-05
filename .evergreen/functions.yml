@@ -195,6 +195,33 @@ functions:
           set -e
           eval $(.evergreen/print-compass-env.sh)
 
+          # node-gyp needs a Python with the ctypes module to configure native
+          # modules, and on Windows it resolves one from PATH. MinGW's Python
+          # comes first on some distros and is built without ctypes, which fails
+          # every native build, so point node-gyp at an interpreter explicitly.
+          # Windows distros keep Python either in the toolchain directory or at
+          # the root, depending on how it was installed.
+          case "$(uname -s)" in
+            CYGWIN*|MINGW*|MSYS*)
+              python_exe=""
+              # C:\python\Current is the version the distro's toolchain selected;
+              # otherwise prefer the newest available.
+              for candidate in /cygdrive/c/python/Current/python.exe \
+                               $(ls -d /cygdrive/c/python/Python3*/python.exe /cygdrive/c/Python3*/python.exe 2>/dev/null | sort -Vr); do
+                if [ -x "$candidate" ] && "$candidate" -c 'import ctypes' >/dev/null 2>&1; then
+                  python_exe="$candidate"
+                  break
+                fi
+              done
+              if [ -n "$python_exe" ]; then
+                export npm_config_python="$(cygpath -w "$python_exe")"
+                echo "Using Python at $npm_config_python for node-gyp"
+              else
+                echo "WARNING: no Python with ctypes found, native module builds will likely fail"
+              fi
+              ;;
+          esac
+
           echo "Installing Compass dependencies with the following npm configuration"
           npm config ls -l
           echo "(if npm fails, debug.log will be uploaded to S3)"
