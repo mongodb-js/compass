@@ -156,9 +156,9 @@ export const SearchIndexesTable: React.FunctionComponent<
     selectReadWriteAccess({
       readOnly,
       readWrite,
-      enableIndexesManagement,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1,
+      enableIndexesManagement,
     }),
     shallowEqual
   );

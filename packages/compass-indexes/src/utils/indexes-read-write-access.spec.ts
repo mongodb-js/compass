@@ -26,7 +26,7 @@ describe('indexes-read-write-access', function () {
       const readOnly = preferences.readOnly ?? false;
       const readWrite = preferences.readWrite ?? false;
       const enableIndexesManagement =
-        preferences.enableIndexesManagement ?? true;
+        preferences.enableIndexesManagement ?? false;
       const enableAtlasSearchIndexes =
         preferences.enableAtlasSearchIndexes ?? true;
       const enableSearchActivationProgramP1 =
@@ -37,9 +37,9 @@ describe('indexes-read-write-access', function () {
             selectReadWriteAccess({
               readOnly,
               readWrite,
-              enableIndexesManagement,
               enableAtlasSearchIndexes,
               enableSearchActivationProgramP1,
+              enableIndexesManagement,
             })
           ),
         {
