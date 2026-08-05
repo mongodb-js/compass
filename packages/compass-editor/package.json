@@ -77,7 +77,7 @@
     "@mongodb-js/mongodb-constants": "^0.34.3",
     "hast": "^0.0.2",
     "json-schema": "^0.4.0",
-    "mongodb-query-parser": "^4.7.15",
+    "mongodb-query-parser": "^4.7.16",
     "polished": "^4.2.2",
     "prettier": "^2.7.1",
     "react": "^17.0.2",
