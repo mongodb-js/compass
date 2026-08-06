@@ -55,12 +55,6 @@ const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
 const { InputBar } = LgChatInputBar;
 
-// Tool part type for the Atlas connection-error debugger. Approval requests for
-// this tool are auto-approved because the user already consented by confirming
-// the Atlas debug card that triggered it.
-const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
-  'tool-atlas-connection-error-debugger';
-
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
   hasNonGenuineConnections: boolean;
@@ -245,6 +239,9 @@ const toolToggleContainerStyles = css({
 
 const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedAssistantToolsIntro' as const;
+
+const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
+  'tool-atlas-connection-error-debugger';
 
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
@@ -583,8 +580,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   );
 
   // Reflect the current Atlas sign-in state so the Atlas confirmation card can
-  // show "Run" instead of "Connect to Atlas" when already signed in. Re-check
-  // whenever the last message changes (e.g. a new debug card appears).
+  // show "Run" instead of "Connect to Atlas" when already signed in.
+  // 'rejected' here means the user will be sent back to the standard assistant.
   useEffect(() => {
     if (!getAtlasSignedIn) {
       return;
@@ -603,7 +600,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const handleAtlasConfirm = useCallback(
     (message: AssistantMessage) => {
       if (!ensureAtlasSignIn) {
-        // No sign-in handler available: fall back to the standard debug flow.
         setIsAtlasSignedIn(false);
         handleConfirmation(message, 'rejected');
         return;
@@ -612,19 +608,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         .then((ok) => {
           setIsAtlasSignedIn(!!ok);
           if (ok) {
-            // The user is signed in and confirmed via "Run": mark the card
-            // confirmed AND send the message (forceContinue, since the Atlas
-            // card's `continueOn` is 'rejected') so the assistant runs the
-            // atlas-connection-error-debugger tool. The message carries the
-            // tool instruction in `metadata.instructions`.
+            // The user is signed in and confirmed via "Run"
             handleConfirmation(message, 'confirmed', { forceContinue: true });
           } else {
-            // Sign-in failed/declined: fall back to the standard debug flow.
             handleConfirmation(message, 'rejected');
           }
         })
         .catch(() => {
-          // Treat any unexpected failure as a rejection → standard debug flow.
           setIsAtlasSignedIn(false);
           handleConfirmation(message, 'rejected');
         });

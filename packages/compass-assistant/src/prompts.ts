@@ -369,9 +369,8 @@ Connection string (password redacted):
 ${connectionString}`;
 
   // Offer the Atlas debug tool (via the confirmation card) whenever this is an
-  // Atlas connection, regardless of the error. Otherwise `confirmation` is
-  // omitted and the message flows straight to the assistant as a regular debug
-  // prompt (the standard AI assistant flow).
+  // Atlas connection, regardless of the error. An Atlas connection is one
+  // where the connection string contains an Atlas host (e.g. *.mongodb.net)
   const isAtlasConnection = isAtlas(
     connectionInfo.connectionOptions.connectionString
   );

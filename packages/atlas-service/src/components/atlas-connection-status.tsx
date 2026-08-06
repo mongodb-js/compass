@@ -47,24 +47,17 @@ const labelTextStylesLight = css({ color: palette.gray.dark1 });
 const labelTextStylesDark = css({ color: palette.gray.light1 });
 
 export interface AtlasConnectionStatusProps {
-  signedInLabel?: string;
-  disconnectLabel?: string;
   'data-testid'?: string;
 }
 
 /**
  * Shows the current Atlas sign-in status and a control to disconnect. Renders
  * nothing while signed out. Reads the shared AtlasAuthService from context and
- * stays in sync via its sign-in/out events. Labels are configurable so it can
- * be reused across surfaces.
+ * stays in sync via its sign-in/out events
  */
 export const AtlasConnectionStatus: React.FunctionComponent<
   AtlasConnectionStatusProps
-> = ({
-  signedInLabel = 'Signed in to Atlas',
-  disconnectLabel = 'Disconnect Atlas',
-  'data-testid': dataTestId = 'atlas-connection-status',
-}) => {
+> = ({ 'data-testid': dataTestId = 'atlas-connection-status' }) => {
   const darkMode = useDarkMode();
   const atlasAuthService = useAtlasAuthService();
   const [userInfo, setUserInfo] = useState<AtlasUserInfo | null>(null);
@@ -125,7 +118,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
           )}
           data-testid={`${dataTestId}-label`}
         >
-          {signedInLabel}
+          Signed in to Atlas
         </Body>
       </div>
       <Button
@@ -134,7 +127,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
         onClick={onDisconnect}
         data-testid={`${dataTestId}-disconnect`}
       >
-        {disconnectLabel}
+        Disconnect Atlas
       </Button>
     </div>
   );
