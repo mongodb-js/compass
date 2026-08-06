@@ -185,8 +185,8 @@ buildvariants:
   - name: test-packaged-app-windows
     tags:
       - run-on-pr
-    display_name: Test Packaged App Windows 10
-    run_on: windows-vsCurrent-large
+    display_name: Test Packaged App Windows 11 (Server 2022)
+    run_on: windows-2022-large
     depends_on:
       - name: package-compass
         variant: package-windows
@@ -260,6 +260,14 @@ buildvariants:
         variant: package-macos-x64
     tasks:
       - name: test-packaged-app-min-version-macos13
+  - name: test-packaged-app-min-windows
+    display_name: Test Packaged App Windows 10 (min version, Server 2019)
+    run_on: windows-vsCurrent-large
+    depends_on:
+      - name: package-compass
+        variant: package-windows
+    tasks:
+      - name: test-packaged-app-min-version
   - name: publish
     tags:
       - run-on-pr

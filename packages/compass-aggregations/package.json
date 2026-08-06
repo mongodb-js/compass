@@ -88,7 +88,7 @@
     "mongodb-database-model": "^2.41.2",
     "mongodb-instance-model": "^13.2.0",
     "mongodb-ns": "^3.2.0",
-    "mongodb-query-parser": "^4.7.15",
+    "mongodb-query-parser": "^4.7.16",
     "re-resizable": "^6.9.0",
     "react": "^17.0.2",
     "react-redux": "^8.1.3",
