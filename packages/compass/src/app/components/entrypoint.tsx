@@ -7,6 +7,7 @@ import {
   AtlasAuthServiceProvider,
   AtlasServiceProvider,
 } from '@mongodb-js/atlas-service/provider';
+import { AtlasAdminApiServiceProvider } from '@mongodb-js/atlas-admin-api/provider';
 import { AtlasAiServiceProvider } from '@mongodb-js/compass-generative-ai/provider';
 import {
   createElectronRecentQueryStorage,
@@ -66,9 +67,11 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
           },
         }}
       >
-        <AtlasAiServiceProvider apiURLPreset="private-api">
-          {children}
-        </AtlasAiServiceProvider>
+        <AtlasAdminApiServiceProvider>
+          <AtlasAiServiceProvider apiURLPreset="private-api">
+            {children}
+          </AtlasAiServiceProvider>
+        </AtlasAdminApiServiceProvider>
       </AtlasServiceProvider>
     </AtlasAuthServiceProvider>
   );
