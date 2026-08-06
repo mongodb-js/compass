@@ -953,6 +953,63 @@ type DocumentClonedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user adds a field to a document, either at the
+ * top level or nested inside an array/document.
+ *
+ * @category Documents
+ */
+type DocumentFieldAddedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Added';
+  payload: {
+    /**
+     * Whether the field was added to the top level of the document or
+     * inside an array or document.
+     */
+    added_to: 'top_level' | 'array' | 'document';
+
+    /**
+     * The view in which the field was added.
+     */
+    mode: 'list' | 'table' | 'insert';
+  };
+}>;
+
+/**
+ * This event is fired when user removes a field from a document.
+ *
+ * @category Documents
+ */
+type DocumentFieldRemovedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Removed';
+  payload: {
+    /**
+     * The BSON type of the removed field.
+     */
+    type: string;
+
+    /**
+     * The view in which the field was removed.
+     */
+    mode: 'list' | 'table' | 'insert';
+  };
+}>;
+
+/**
+ * This event is fired when user cancels editing of a document.
+ *
+ * @category Documents
+ */
+type DocumentUpdateCancelledEvent = ConnectionScopedEvent<{
+  name: 'Document Update Cancelled';
+  payload: {
+    /**
+     * The view used to edit the document.
+     */
+    mode: 'list' | 'json' | 'table';
+  };
+}>;
+
+/**
  * This event is fired when user inserts documents.
  *
  * @category Documents
@@ -4112,9 +4169,12 @@ export type TelemetryEvent =
   | DocumentClonedEvent
   | DocumentCopiedEvent
   | DocumentDeletedEvent
+  | DocumentFieldAddedEvent
+  | DocumentFieldRemovedEvent
   | DocumentInsertCancelledEvent
   | DocumentInsertFailedEvent
   | DocumentInsertedEvent
+  | DocumentUpdateCancelledEvent
   | DocumentUpdatedEvent
   | DocumentViewChangedEvent
   | DrawerSectionOpenedEvent

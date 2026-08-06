@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { css, DocumentList, spacing } from '@mongodb-js/compass-components';
 import type HadronDocumentType from 'hadron-document';
+import { useDocumentEditsTelemetry } from '../hooks/use-document-edits-telemetry';
 
 const insertDocumentStyles = css({
   // We give it a good amount of spacing for dropdown menus.
@@ -14,6 +15,11 @@ type InsertDocumentProps = {
 };
 
 function InsertDocument({ doc }: InsertDocumentProps) {
+  useDocumentEditsTelemetry(
+    useMemo(() => [doc], [doc]),
+    'insert'
+  );
+
   return (
     <div className={insertDocumentStyles} data-testid="insert-document-modal">
       <DocumentList.Document value={doc} editable editing />
