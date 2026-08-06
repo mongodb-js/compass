@@ -566,20 +566,23 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         // Add a new message with the same content but without confirmation
         // metadata so it gets sent to the assistant.
         if (shouldContinue) {
+          // `instructions` may force a specific tool (e.g. the Atlas
+          // connection-error debugger). On confirm, use them as-is; on reject,
+          // use the confirmation's `rejectedInstructions` (if any) so we can
+          // steer the assistant away from that tool and back to the standard
+          // flow, rather than leaving the tool available with no guidance.
+          const followUpInstructions =
+            newState === 'confirmed'
+              ? confirmedMessage.metadata?.instructions
+              : confirmedMessage.metadata?.confirmation?.rejectedInstructions;
+
           newMessages.push({
             ...confirmedMessage,
             id: `${confirmedMessage.id}-${newState}`,
             metadata: {
               ...confirmedMessage.metadata,
               confirmation: undefined,
-              // `instructions` may force a specific tool (e.g. the Atlas
-              // connection-error debugger). Only keep them when the user
-              // confirmed; on rejection we fall back to the standard debug
-              // flow, which must not run that tool.
-              instructions:
-                newState === 'confirmed'
-                  ? confirmedMessage.metadata?.instructions
-                  : undefined,
+              instructions: followUpInstructions,
             },
           });
         }

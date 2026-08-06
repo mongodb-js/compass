@@ -831,6 +831,20 @@ You SHOULD:
         });
       });
 
+      it('instructs to use the atlas tool on confirm and not to use it on reject', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: atlasConnectionInfo,
+          error: new Error('connection timed out'),
+        });
+
+        expect(result.metadata?.instructions).to.contain(
+          'Use the atlas-connection-error-debugger tool'
+        );
+        expect(result.metadata?.confirmation?.rejectedInstructions).to.contain(
+          'Do not use the atlas-connection-error-debugger tool'
+        );
+      });
+
       it('includes the atlas confirmation regardless of the error type', function () {
         const result = buildConnectionErrorPrompt({
           connectionInfo: atlasConnectionInfo,

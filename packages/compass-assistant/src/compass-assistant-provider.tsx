@@ -130,6 +130,11 @@ export type AssistantMessage = UIMessage & {
       continueOn?: 'confirmed' | 'rejected';
       /** Which confirmation UI to render. Defaults to 'default'. */
       variant?: 'default' | 'atlas';
+      /** Instructions to use for the follow-up when the user rejects. When set,
+       *  the rejected follow-up uses these instead of the message's
+       *  `instructions` (which are meant for the confirm path). Use it to steer
+       *  the assistant away from a tool the confirm path would have used. */
+      rejectedInstructions?: string;
     };
     /** Overrides the default sent instructions for the assistant for this message. */
     instructions?: string;

@@ -1053,6 +1053,8 @@ describe('AssistantChat', function () {
             description: 'Connecting would call Atlas API endpoints.',
             continueOn: 'rejected',
             variant: 'atlas',
+            rejectedInstructions:
+              'Do not use the atlas-connection-error-debugger tool.',
           },
         },
       };
@@ -1138,9 +1140,11 @@ describe('AssistantChat', function () {
       // conversation by pushing and sending a plain debug prompt.
       expect(chat.messages).to.have.length(2);
       expect(chat.messages[1].metadata?.confirmation).to.be.undefined;
-      // The tool instruction must be dropped so the standard debug flow does
-      // not run the atlas-connection-error-debugger tool.
-      expect(chat.messages[1].metadata?.instructions).to.be.undefined;
+      // The follow-up carries the negative instruction so the standard debug
+      // flow does not use the atlas-connection-error-debugger tool.
+      expect(chat.messages[1].metadata?.instructions).to.contain(
+        'Do not use the atlas-connection-error-debugger tool'
+      );
       expect(ensureOptInAndSendStub).to.have.been.called;
     });
 
@@ -1181,9 +1185,11 @@ describe('AssistantChat', function () {
       // Skipping should not attempt to sign in.
       expect(ensureAtlasSignInStub).to.not.have.been.called;
       expect(chat.messages).to.have.length(2);
-      // Skipping falls back to the standard debug flow, so the tool
-      // instruction must not be forwarded.
-      expect(chat.messages[1].metadata?.instructions).to.be.undefined;
+      // Skipping falls back to the standard debug flow with a negative
+      // instruction so the atlas tool is not used.
+      expect(chat.messages[1].metadata?.instructions).to.contain(
+        'Do not use the atlas-connection-error-debugger tool'
+      );
     });
 
     function makeAtlasToolCallMessage(): AssistantMessage {

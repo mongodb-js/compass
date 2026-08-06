@@ -395,6 +395,10 @@ ${connectionError}`,
               state: 'pending' as const,
               continueOn: 'rejected' as const,
               variant: 'atlas' as const,
+              // If the user declines connecting to Atlas, don't use the Atlas
+              // tool - fall back to standard, general debugging guidance.
+              rejectedInstructions:
+                'Do not use the atlas-connection-error-debugger tool. Provide general guidance to help the user debug their connection based on the error message.',
             },
           }
         : {}),
