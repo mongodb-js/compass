@@ -32,6 +32,8 @@ interface ActionCardMessageProps {
   showActions?: boolean;
   focusPrimaryKey?: string;
   buttons?: ActionCardButton[];
+  // `Message.ActionCard.ExpandableContent` renders markdown from a string, so
+  // children must be a string (not a general ReactNode).
   children: string;
 }
 

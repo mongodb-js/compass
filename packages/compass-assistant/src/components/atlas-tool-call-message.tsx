@@ -21,7 +21,7 @@ function getTitle(
     case 'confirmed':
       return 'Connected to Atlas';
     case 'rejected':
-      return 'Failed to connect to Atlas';
+      return 'Not connected to Atlas';
     default:
       return isUserSignedIn
         ? 'Run Atlas to debug this connection'
