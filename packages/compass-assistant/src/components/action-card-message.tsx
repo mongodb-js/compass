@@ -46,12 +46,6 @@ interface ActionCardMessageProps {
 
 const actionCardMessageStyles = css({
   paddingTop: spacing[400],
-
-  // TODO(COMPASS-10000): This is a temporary fix to make the tool call message
-  // take the entire width of the chat message.
-  '> div': {
-    width: '100%',
-  },
 });
 
 const expandableContentStyles = css({
