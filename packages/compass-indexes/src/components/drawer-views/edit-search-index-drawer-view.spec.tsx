@@ -239,6 +239,94 @@ describe('EditSearchIndexDrawerView', function () {
     });
   });
 
+  describe('auto-embed edit cost banner', function () {
+    const autoEmbedSearchIndex = mockSearchIndex({
+      name: 'autoEmbedIndex',
+      type: 'vectorSearch',
+      status: 'READY',
+      queryable: true,
+      latestDefinition: {
+        fields: [{ type: 'autoEmbed', path: 'content', model: 'voyage-3' }],
+      },
+    });
+
+    it('shows the cost banner when GA is on', function () {
+      renderEditSearchIndexDrawerView(
+        { searchIndex: autoEmbedSearchIndex },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+          },
+        }
+      );
+
+      const banner = screen.getByTestId('auto-embed-edit-cost-banner');
+      expect(banner).to.exist;
+      expect(banner.textContent).to.match(/trigger new embedding calls/);
+    });
+
+    it('does not show the cost banner when GA is off', function () {
+      renderEditSearchIndexDrawerView(
+        { searchIndex: autoEmbedSearchIndex },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: false,
+          },
+        }
+      );
+
+      expect(screen.queryByTestId('auto-embed-edit-cost-banner')).to.not.exist;
+    });
+
+    it('does not show the cost banner for a non-auto-embed vector index', function () {
+      const vectorSearchIndex = mockSearchIndex({
+        name: 'vectorIndex',
+        type: 'vectorSearch',
+        status: 'READY',
+        queryable: true,
+        latestDefinition: {
+          fields: [
+            {
+              type: 'vector',
+              path: 'content',
+              numDimensions: 1536,
+              similarity: 'cosine',
+            },
+          ],
+        },
+      });
+
+      renderEditSearchIndexDrawerView(
+        { searchIndex: vectorSearchIndex },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+          },
+        }
+      );
+
+      expect(screen.queryByTestId('auto-embed-edit-cost-banner')).to.not.exist;
+    });
+
+    it('does not show the cost banner when the user does not have write permissions', function () {
+      renderEditSearchIndexDrawerView(
+        { searchIndex: autoEmbedSearchIndex },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+            readOnly: true,
+          },
+        }
+      );
+
+      expect(screen.queryByTestId('auto-embed-edit-cost-banner')).to.not.exist;
+    });
+  });
+
   describe('when user does not have write permissions', function () {
     it('disables the submit button and sets the editor to read-only', function () {
       renderEditSearchIndexDrawerView({}, { preferences: { readOnly: true } });
