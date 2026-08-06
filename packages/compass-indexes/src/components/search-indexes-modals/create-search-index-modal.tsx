@@ -2,6 +2,7 @@ import React from 'react';
 import {
   createSearchIndexClosed,
   createIndex,
+  createSearchIndexErrorCleared,
 } from '../../modules/search-indexes';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
@@ -24,6 +25,7 @@ type CreateSearchIndexModalProps = {
     definition: Document;
   }) => void;
   onCloseModalClick: () => void;
+  onClearError: () => void;
 };
 
 export const CreateSearchIndexModal: React.FunctionComponent<
@@ -36,6 +38,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
   error,
   onCreateIndexClick,
   onCloseModalClick,
+  onClearError,
 }) => {
   return (
     <BaseSearchIndexModal
@@ -49,6 +52,7 @@ export const CreateSearchIndexModal: React.FunctionComponent<
       error={error}
       onSubmit={onCreateIndexClick}
       onClose={onCloseModalClick}
+      onClearError={onClearError}
     />
   );
 };
@@ -71,6 +75,7 @@ const mapState = ({
 const mapDispatch = {
   onCloseModalClick: createSearchIndexClosed,
   onCreateIndexClick: createIndex,
+  onClearError: createSearchIndexErrorCleared,
 };
 
 export default connect(mapState, mapDispatch)(CreateSearchIndexModal);

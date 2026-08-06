@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
-import type { MongoDBJSONSchema } from 'mongodb-schema';
+import type { MongoDBJSONSchema } from '@mongodb-js/mongodb-schema';
 import type { Document } from 'bson';
 import {
   findPropertyPathsMatchingSchema,

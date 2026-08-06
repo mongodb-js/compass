@@ -64,7 +64,6 @@ variables:
     E2E_TESTS_ATLAS_READANYDATABASE_STRING: ${e2e_tests_atlas_readanydatabase_string}
     E2E_TESTS_ATLAS_CUSTOMROLE_STRING: ${e2e_tests_atlas_customrole_string}
     E2E_TESTS_ATLAS_SPECIFICPERMISSION_STRING: ${e2e_tests_atlas_specificpermission_string}
-    E2E_TESTS_ATLAS_CS_WITHOUT_SEARCH: ${e2e_tests_atlas_cs_without_search}
     E2E_TESTS_ATLAS_CS_WITH_SEARCH: ${e2e_tests_atlas_cs_with_search}
     ATLAS_CLOUD_TEST_UTILS: ${atlas_cloud_test_utils}
 
@@ -195,6 +194,33 @@ functions:
         script: |
           set -e
           eval $(.evergreen/print-compass-env.sh)
+
+          # node-gyp needs a Python with the ctypes module to configure native
+          # modules, and on Windows it resolves one from PATH. MinGW's Python
+          # comes first on some distros and is built without ctypes, which fails
+          # every native build, so point node-gyp at an interpreter explicitly.
+          # Windows distros keep Python either in the toolchain directory or at
+          # the root, depending on how it was installed.
+          case "$(uname -s)" in
+            CYGWIN*|MINGW*|MSYS*)
+              python_exe=""
+              # C:\python\Current is the version the distro's toolchain selected;
+              # otherwise prefer the newest available.
+              for candidate in /cygdrive/c/python/Current/python.exe \
+                               $(ls -d /cygdrive/c/python/Python3*/python.exe /cygdrive/c/Python3*/python.exe 2>/dev/null | sort -Vr); do
+                if [ -x "$candidate" ] && "$candidate" -c 'import ctypes' >/dev/null 2>&1; then
+                  python_exe="$candidate"
+                  break
+                fi
+              done
+              if [ -n "$python_exe" ]; then
+                export npm_config_python="$(cygpath -w "$python_exe")"
+                echo "Using Python at $npm_config_python for node-gyp"
+              else
+                echo "WARNING: no Python with ctypes found, native module builds will likely fail"
+              fi
+              ;;
+          esac
 
           echo "Installing Compass dependencies with the following npm configuration"
           npm config ls -l
@@ -421,6 +447,26 @@ functions:
           cd packages/compass && npm run prepackage-compass
     - command: ec2.assume_role
       retry_on_failure: true
+      display_name: Assume IAM role with permissions to pull SilkBomb image from DevProd Platforms ECR
+      params:
+        role_arn: ${devprod_platforms_ecr_readonly_role_arn}
+    - command: shell.exec
+      retry_on_failure: true
+      params:
+        include_expansions_in_env:
+          [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
+        script: |
+          set -e
+          ecr_login_password=$(aws ecr get-login-password --region us-east-1)
+          cat <<EOL > ecr_login_password.yml
+          ECR_LOGIN_PASSWORD: $ecr_login_password
+          EOL
+    - command: expansions.update
+      retry_on_failure: true
+      params:
+        file: ecr_login_password.yml
+    - command: ec2.assume_role
+      retry_on_failure: true
       display_name: Assume IAM role with permissions to pull Kondukto API token
       params:
         role_arn: ${kondukto_role_arn}
@@ -439,8 +485,7 @@ functions:
         env:
           <<: *compass-env
           npm_config_loglevel: ${npm_loglevel}
-          ARTIFACTORY_USERNAME: ${artifactory_username}
-          ARTIFACTORY_PASSWORD: ${artifactory_password}
+          ECR_LOGIN_PASSWORD: ${ECR_LOGIN_PASSWORD}
           SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
           SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
@@ -452,12 +497,23 @@ functions:
           set -e
           eval $(.evergreen/print-compass-env.sh)
           bash ".evergreen/retry-with-backoff.sh" .evergreen/create-sbom.sh
+    - command: ec2.assume_role
+      retry_on_failure: true
+      display_name: Assume IAM role with permissions to pull Garasign images from DevProd Platforms ECR
+      params:
+        role_arn: ${devprod_platforms_ecr_readonly_role_arn}
     - command: shell.exec
       retry_on_failure: true
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [DEVELOPER_DIR]
+        include_expansions_in_env:
+          [
+            AWS_ACCESS_KEY_ID,
+            AWS_SECRET_ACCESS_KEY,
+            AWS_SESSION_TOKEN,
+            DEVELOPER_DIR,
+          ]
         env:
           <<: *compass-env
           DEBUG: ${debug}
@@ -472,8 +528,6 @@ functions:
           # linux / windows signing secrets
           GARASIGN_USERNAME: ${garasign_username}
           GARASIGN_PASSWORD: ${garasign_password}
-          ARTIFACTORY_USERNAME: ${artifactory_username}
-          ARTIFACTORY_PASSWORD: ${artifactory_password}
           SIGNING_SERVER_HOSTNAME: ${SIGNING_SERVER_HOSTNAME}
           SIGNING_SERVER_PRIVATE_KEY: ${SIGNING_SERVER_PRIVATE_KEY}
           SIGNING_SERVER_PRIVATE_KEY_CYGPATH: ${SIGNING_SERVER_PRIVATE_KEY_CYGPATH}
@@ -489,6 +543,7 @@ functions:
           set -e
           # Load environment variables
           eval $(.evergreen/print-compass-env.sh)
+          export ECR_LOGIN_PASSWORD=$(aws ecr get-login-password --region us-east-1)
           .evergreen/compass_package.sh
 
   get_first_party_dependency_list:
@@ -700,6 +755,7 @@ functions:
           MONGODB_RUNNER_VERSION: ${mongodb_version|}
           COMPASS_E2E_TEST_GROUPS: ${e2e_test_groups}
           COMPASS_E2E_TEST_GROUP: ${e2e_test_group}
+          PACKAGED_APP_TEST_ARGS: '${packaged_app_test_args|}'
         script: |
           set -e
           # Load environment variables
@@ -717,7 +773,7 @@ functions:
             export COMPASS_E2E_DISABLE_CLIPBOARD_USAGE="true"
           fi
 
-          npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci
+          npm run --unsafe-perm --workspace compass-e2e-tests test-packaged-ci -- $PACKAGED_APP_TEST_ARGS
 
   smoketest-on-github-actions:
     - command: github.generate_token

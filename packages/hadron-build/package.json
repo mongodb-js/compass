@@ -1,7 +1,7 @@
 {
   "name": "hadron-build",
   "description": "Tooling for Hadron apps like Compass",
-  "version": "25.10.1",
+  "version": "25.10.2",
   "main": "dist/index.js",
   "compass:main": "src/index.ts",
   "types": "./dist/index.d.ts",
@@ -40,9 +40,9 @@
   "dependencies": {
     "@electron/rebuild": "^4.0.4",
     "@mongodb-js/devtools-github-repo": "^1.4.1",
-    "@mongodb-js/dl-center": "^1.6.13",
+    "@mongodb-js/dl-center": "^1.6.14",
     "@mongodb-js/electron-wix-msi": "^3.0.0",
-    "@mongodb-js/signing-utils": "^0.5.12",
+    "@mongodb-js/signing-utils": "^0.5.14",
     "@npmcli/arborist": "^6.2.0",
     "@octokit/rest": "^18.6.2",
     "asar": "^3.0.3",
@@ -74,10 +74,10 @@
     "zip-folder": "^1.0.0"
   },
   "devDependencies": {
-    "@mongodb-js/eslint-config-compass": "^1.4.24",
+    "@mongodb-js/eslint-config-compass": "^1.4.25",
     "@mongodb-js/mocha-config-compass": "^1.8.0",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
-    "@mongodb-js/tsconfig-compass": "^1.3.0",
+    "@mongodb-js/tsconfig-compass": "^1.3.1",
     "@types/chai": "^4.2.21",
     "@types/debug": "^4.1.12",
     "@types/js-yaml": "^4.0.5",

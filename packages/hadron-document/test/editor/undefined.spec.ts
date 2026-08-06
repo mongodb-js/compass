@@ -4,7 +4,7 @@ import { expect } from 'chai';
 
 describe('UndefinedEditor', function () {
   describe('#size', function () {
-    const element = new Element('field', undefined, false);
+    const element = new Element('field', undefined);
     const undefinedEditor = new UndefinedEditor(element);
 
     it('returns the number of characters', function () {
@@ -13,7 +13,7 @@ describe('UndefinedEditor', function () {
   });
 
   describe('#value', function () {
-    const element = new Element('field', undefined, false);
+    const element = new Element('field', undefined);
     const undefinedEditor = new UndefinedEditor(element);
 
     it('returns the string undefined', function () {

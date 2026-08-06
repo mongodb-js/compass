@@ -5,7 +5,7 @@ import { expect } from 'chai';
 
 describe('Int32Editor', function () {
   describe('#size', function () {
-    const element = new Element('field', new Int32(12), false);
+    const element = new Element('field', new Int32(12));
     const int32Editor = new Int32Editor(element);
 
     it('returns the number of characters', function () {

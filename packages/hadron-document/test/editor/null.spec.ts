@@ -4,7 +4,7 @@ import { expect } from 'chai';
 
 describe('NullEditor', function () {
   describe('#size', function () {
-    const element = new Element('field', null, false);
+    const element = new Element('field', null);
     const nullEditor = new NullEditor(element);
 
     it('returns the number of characters', function () {
@@ -13,7 +13,7 @@ describe('NullEditor', function () {
   });
 
   describe('#value', function () {
-    const element = new Element('field', null, false);
+    const element = new Element('field', null);
     const nullEditor = new NullEditor(element);
 
     it('returns the string null', function () {

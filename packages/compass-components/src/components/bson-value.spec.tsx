@@ -158,6 +158,9 @@ describe('BSONValue', function () {
     { type: 'Boolean', value: true, expected: 'true' },
     { type: 'Array', value: [1, 2, 3], expected: 'Array (3)' },
     { type: 'Array', value: [], expected: 'Array (empty)' },
+    { type: 'Object', value: {}, expected: 'Object (empty)' },
+    { type: 'Object', value: { a: 1 }, expected: 'Object (1)' },
+    { type: 'Object', value: { a: 1, b: 2 }, expected: 'Object (2)' },
   ];
 
   valuesToRender.forEach(function ({ expected, ...props }) {
@@ -169,6 +172,19 @@ describe('BSONValue', function () {
         expected
       );
     });
+  });
+
+  it('should cap the title attribute for very large strings', function () {
+    // A very large string in a `title` attribute crashes the Chromium renderer.
+    const largeString = 'a'.repeat(2000);
+    const { container } = render(
+      <BSONValue type="String" value={largeString} />
+    );
+
+    const element = container.querySelector('.element-value');
+    const title = element?.getAttribute('title') ?? '';
+    expect(title.length).to.be.lessThan(largeString.length);
+    expect(title.length).to.equal(1001);
   });
 
   it('should render an info link for encrypted values', async function () {

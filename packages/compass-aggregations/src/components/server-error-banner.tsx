@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 
 import {
+  AssistantSparkleIcon,
   Banner,
   Button,
   Icon,
@@ -177,10 +178,10 @@ export default function ServerErrorBanner({
           {onDebugClick && (
             <Button
               size="xsmall"
-              variant="primaryOutline"
+              variant="default"
               onClick={onDebugClick}
-              // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
-              leftGlyph={<Icon glyph="Sparkle" />}
+              className={bannerButtonStyles}
+              leftGlyph={<AssistantSparkleIcon />}
               data-testid="server-error-banner-debug-button"
             >
               Debug

@@ -51,11 +51,8 @@ const getMockConnectionInfo = (): ConnectionInfo => {
 class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
   cloudEndpoint = (url: string) => `${['/cloud', url].join('/')}`;
-  adminApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
+  privateApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
   assistantApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
-  authenticatedFetch = (url: string, init: RequestInit) => {
-    return fetch(url, init);
-  };
   fetch = (url: string, init: RequestInit) => {
     return fetch(url, init);
   };
@@ -87,11 +84,11 @@ describe('AtlasAiService', function () {
     global.fetch = initialFetch;
   });
 
-  const endpointBasepathTests = ['admin-api', 'cloud'] as const;
+  const endpointBasepathTests = ['private-api', 'cloud'] as const;
 
   for (const apiURLPreset of endpointBasepathTests) {
     const describeName =
-      apiURLPreset === 'admin-api'
+      apiURLPreset === 'private-api'
         ? 'connection WITHOUT atlas metadata'
         : 'connection WITH atlas metadata';
     describe(describeName, function () {
@@ -99,7 +96,7 @@ describe('AtlasAiService', function () {
 
       const mockConnectionInfo = getMockConnectionInfo();
 
-      if (apiURLPreset === 'admin-api') {
+      if (apiURLPreset === 'private-api') {
         delete mockConnectionInfo.atlasMetadata;
       }
 
@@ -308,15 +305,15 @@ describe('AtlasAiService', function () {
           });
         }
 
-        if (apiURLPreset === 'admin-api') {
-          it('throws AtlasAiServiceInvalidInputError for admin-api preset', async function () {
+        if (apiURLPreset === 'private-api') {
+          it('throws AtlasAiServiceInvalidInputError for private-api preset', async function () {
             try {
               await atlasAiService.getMockDataSchema(
                 mockSchemaInput,
                 mockConnectionInfo
               );
               expect.fail(
-                'Expected getMockDataSchema to throw for admin-api preset'
+                'Expected getMockDataSchema to throw for private-api preset'
               );
             } catch (err) {
               expect(err).to.be.instanceOf(AtlasAiServiceInvalidInputError);
@@ -559,9 +556,7 @@ describe('AtlasAiService', function () {
             const { args } = fetchStub.firstCall;
             // Header keys may be normalised to lowercase by the SDK; compare
             // case-insensitively via a Headers wrapper.
-            const headers = new Headers(
-              (args[1] as RequestInit).headers as HeadersInit
-            );
+            const headers = new Headers((args[1] as RequestInit).headers);
             expect(headers.get('X-Assistant-Entrypoint')).to.equal(
               'mock-data-generator'
             );
@@ -677,7 +672,6 @@ describe('AtlasAiService', function () {
   describe('getQueryFromUserInput and getAggregationFromUserInput', function () {
     type Chunk = { type: 'text' | 'error'; content: string };
     let atlasAiService: AtlasAiService;
-    const mockConnectionInfo = getMockConnectionInfo();
 
     function streamChunkResponse(
       readableStreamController: ReadableStreamController<Uint8Array>,
@@ -956,10 +950,7 @@ describe('AtlasAiService', function () {
             enableStorage: true,
           };
 
-          const res = await atlasAiService[functionName](
-            input,
-            mockConnectionInfo
-          );
+          const res = await atlasAiService[functionName](input);
 
           expect(fetchStub).to.have.been.calledOnce;
 
@@ -1003,17 +994,14 @@ describe('AtlasAiService', function () {
           global.fetch = fetchStub;
 
           try {
-            await atlasAiService[functionName](
-              {
-                userInput: 'test',
-                collectionName: 'test',
-                databaseName: 'peanut',
-                requestId: 'abc',
-                signal: new AbortController().signal,
-                enableStorage: true,
-              },
-              mockConnectionInfo
-            );
+            await atlasAiService[functionName]({
+              userInput: 'test',
+              collectionName: 'test',
+              databaseName: 'peanut',
+              requestId: 'abc',
+              signal: new AbortController().signal,
+              enableStorage: true,
+            });
             expect.fail(`Expected ${functionName} to throw`);
           } catch (err) {
             expect((err as Error).message).to.match(

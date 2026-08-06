@@ -1,18 +1,24 @@
 import { without } from 'lodash';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import type Document from 'hadron-document';
 import { Element } from 'hadron-document';
 import {
   Banner,
-  Button,
   css,
   FormModal,
   Icon,
   SegmentedControl,
   SegmentedControlOption,
   spacing,
-  showErrorDetails,
   useSyncStateOnPropChange,
+  InfoSprinkle,
+  Code,
 } from '@mongodb-js/compass-components';
 import HadronDocument from 'hadron-document';
 
@@ -24,6 +30,9 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { WriteError } from '../stores/crud-store';
+import { useSafeIntegerLinter } from '@mongodb-js/compass-editor';
+import type { Extension, EditorRef } from '@mongodb-js/compass-editor';
+import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
 
 /**
  * The insert invalid message.
@@ -36,19 +45,22 @@ const documentViewId = 'insert-document-view';
 const toolbarStyles = css({
   marginTop: spacing[200],
   display: 'flex',
+  alignItems: 'center',
   justifyContent: 'flex-end',
+  gap: spacing[200],
+});
+
+const modalBodyStyles = css({
+  display: 'flex',
+  flexDirection: 'column',
+  overflow: 'hidden',
 });
 
 const documentViewContainer = css({
   marginTop: spacing[400],
-});
-
-const bannerStyles = css({
-  marginTop: spacing[400],
-});
-
-const errorDetailsBtnStyles = css({
-  float: 'right',
+  flex: '1 1 auto',
+  minHeight: 0,
+  overflow: 'auto',
 });
 
 export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
@@ -78,24 +90,24 @@ const DocumentOrJsonView: React.FC<{
   hasManyDocuments: () => boolean;
   updateJsonDoc: InsertDocumentDialogProps['updateJsonDoc'];
   jsonDoc: InsertDocumentDialogProps['jsonDoc'];
-  isCommentNeeded: InsertDocumentDialogProps['isCommentNeeded'];
-  updateComment: InsertDocumentDialogProps['updateComment'];
+  safeIntegerLinter: Extension;
+  editorRef: React.RefObject<EditorRef>;
 }> = ({
   jsonView,
   doc,
   hasManyDocuments,
   updateJsonDoc,
   jsonDoc,
-  isCommentNeeded,
-  updateComment,
+  safeIntegerLinter,
+  editorRef,
 }) => {
   if (jsonView) {
     return (
       <InsertJsonDocument
         updateJsonDoc={updateJsonDoc}
         jsonDoc={jsonDoc}
-        isCommentNeeded={isCommentNeeded}
-        updateComment={updateComment}
+        safeIntegerLinter={safeIntegerLinter}
+        editorRef={editorRef}
       />
     );
   }
@@ -125,8 +137,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   jsonView,
   jsonDoc,
   doc,
-  isCommentNeeded,
-  error: _error,
+  error: documentWriteError,
   ns,
   csfleState,
   track,
@@ -135,9 +146,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   toggleInsertDocument,
   toggleInsertDocumentView,
   updateJsonDoc,
-  updateComment,
   closeInsertDocumentDialog,
 }) => {
+  const editorRef = useRef<EditorRef>(null);
   const [invalidElements, setInvalidElements] = useState<Document['uuid'][]>(
     []
   );
@@ -162,16 +173,18 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
    * parsing error in JsonView of the modal
    *
    */
-  const documentErrors = useMemo(() => {
+  const documentValidationError = useMemo(() => {
     if (jsonView) {
       try {
         HadronDocument.FromEJSON(jsonDoc);
-        return false;
+        return null;
       } catch (e) {
-        return (e as Error).message;
+        return e as Error;
       }
     }
-    return invalidElements.length > 0 ? INSERT_INVALID_MESSAGE : false;
+    return invalidElements.length > 0
+      ? new Error(INSERT_INVALID_MESSAGE)
+      : null;
   }, [jsonDoc, jsonView, invalidElements]);
 
   const handleInvalid = useCallback(
@@ -185,7 +198,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
 
   const handleValid = useCallback(
     (el: Element) => {
-      if (documentErrors) {
+      if (documentValidationError) {
         setInvalidElements((invalidElements) =>
           without(invalidElements, el.uuid)
         );
@@ -193,7 +206,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         setInvalidElements([]);
       }
     },
-    [documentErrors, setInvalidElements]
+    [documentValidationError, setInvalidElements]
   );
 
   useEffect(() => {
@@ -258,27 +271,16 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     [hasManyDocuments, toggleInsertDocument, toggleInsertDocumentView]
   );
 
-  const currentView = jsonView ? 'JSON' : 'List';
+  const {
+    onFixViolations: onFixSafeIntegerViolations,
+    violations: safeIntegerViolations,
+    safeIntegerLinter,
+  } = useSafeIntegerLinter({
+    editorRef,
+    onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
+  });
 
-  const banner = useMemo(() => {
-    if (documentErrors) {
-      return {
-        message: documentErrors,
-        variant: 'danger' as const,
-      };
-    }
-    if (insertInProgress) {
-      return { message: 'Inserting Document', variant: 'info' as const };
-    }
-    if (_error) {
-      return {
-        message: _error.message,
-        variant: 'danger' as const,
-        info: _error.info,
-      };
-    }
-    return null;
-  }, [_error, documentErrors, insertInProgress]);
+  const currentView = jsonView ? 'JSON' : 'List';
 
   return (
     <FormModal
@@ -288,11 +290,24 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       onSubmit={handleInsert.bind(this)}
       onCancel={closeInsertDocumentDialog}
       submitButtonText="Insert"
-      submitDisabled={Boolean(documentErrors)}
+      submitDisabled={Boolean(
+        documentValidationError || safeIntegerViolations.length > 0
+      )}
       data-testid="insert-document-modal"
       minBodyHeight={spacing[1600] * 2} // make sure there is enough space for the menu
+      bodyClassName={modalBodyStyles}
     >
       <div className={toolbarStyles}>
+        {jsonView && (
+          <InfoSprinkle>
+            Paste a document, or an array to insert multiple. If an ObjectId is
+            not specified, one is assigned automatically.
+            <Code
+              language="javascript"
+              copyButtonAppearance="none"
+            >{`[{ "title": "..." }, ...]`}</Code>
+          </InfoSprinkle>
+        )}
         <SegmentedControl
           label="View"
           size="xsmall"
@@ -301,7 +316,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           onChange={switchInsertDocumentView.bind(this)}
         >
           <SegmentedControlOption
-            disabled={Boolean(documentErrors)}
+            disabled={Boolean(documentValidationError)}
             data-testid="insert-document-dialog-view-json"
             aria-label="E-JSON View"
             value="JSON"
@@ -313,7 +328,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
             }}
           ></SegmentedControlOption>
           <SegmentedControlOption
-            disabled={Boolean(documentErrors)}
+            disabled={Boolean(documentValidationError)}
             data-testid="insert-document-dialog-view-list"
             aria-label="Document list"
             value="List"
@@ -333,35 +348,17 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           hasManyDocuments={hasManyDocuments}
           updateJsonDoc={updateJsonDoc}
           jsonDoc={jsonDoc}
-          isCommentNeeded={isCommentNeeded}
-          updateComment={updateComment}
+          safeIntegerLinter={safeIntegerLinter}
+          editorRef={editorRef}
         />
       </div>
-      {banner && (
-        <Banner
-          data-testid="insert-document-banner"
-          data-variant={banner.variant}
-          variant={banner.variant}
-          className={bannerStyles}
-        >
-          {banner.message}
-          {banner.info && (
-            <Button
-              size="xsmall"
-              className={errorDetailsBtnStyles}
-              onClick={() =>
-                showErrorDetails({
-                  details: banner.info!,
-                  closeAction: 'back',
-                })
-              }
-              data-testid="insert-document-error-details-button"
-            >
-              VIEW ERROR DETAILS
-            </Button>
-          )}
-        </Banner>
-      )}
+      <InsertDocumentDialogBanner
+        documentValidationError={documentValidationError}
+        documentWriteError={documentWriteError}
+        insertInProgress={insertInProgress}
+        safeIntegerViolationCount={safeIntegerViolations.length}
+        onFixSafeIntegerViolations={onFixSafeIntegerViolations}
+      />
       <InsertCSFLEWarningBanner csfleState={csfleState} />
     </FormModal>
   );

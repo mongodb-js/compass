@@ -119,7 +119,7 @@ describe('GuideCueService', function () {
         groupId: 'group-one',
         isIntersecting: true,
       };
-      guideCueService.addCue(cue as any);
+      guideCueService.addCue(cue);
 
       expect((guideCueService as any)._cues).to.deep.equal([
         {
@@ -138,7 +138,7 @@ describe('GuideCueService', function () {
       };
       guideCueStorage.markCueAsVisited(cue.cueId, cue.groupId);
 
-      guideCueService.addCue(cue as any);
+      guideCueService.addCue(cue);
       expect((guideCueService as any)._cues).to.deep.equal([
         {
           ...cue,
@@ -156,7 +156,7 @@ describe('GuideCueService', function () {
       };
       const dispatchEventSpy = Sinon.spy(guideCueService, 'dispatchEvent');
 
-      guideCueService.addCue(cue as any);
+      guideCueService.addCue(cue);
 
       expect(dispatchEventSpy.calledOnce).to.be.true;
 
@@ -198,9 +198,9 @@ describe('GuideCueService', function () {
       // Add cue3. As its added, we already have an active cue and it
       // also fires an event for same cue (cue1).
 
-      guideCueService.addCue(cue2 as any);
-      guideCueService.addCue(cue1 as any);
-      guideCueService.addCue(cue3 as any);
+      guideCueService.addCue(cue2);
+      guideCueService.addCue(cue1);
+      guideCueService.addCue(cue3);
 
       expect(spy.callCount).to.be.equal(2);
 
@@ -249,7 +249,7 @@ describe('GuideCueService', function () {
         step: 2,
         groupId: 'group-two',
         isIntersecting: true,
-      } as any);
+      });
       expect(guideCueService.getCountOfSteps('group-two')).to.equal(1);
 
       guideCueService.addCue({
@@ -257,7 +257,7 @@ describe('GuideCueService', function () {
         step: 1,
         groupId: 'group-two',
         isIntersecting: true,
-      } as any);
+      });
       expect(guideCueService.getCountOfSteps('group-two')).to.equal(2);
     });
 
@@ -369,7 +369,7 @@ describe('GuideCueService', function () {
     let markCueAsVisited: Sinon.SinonSpy;
     beforeEach(function () {
       markCueAsVisited = Sinon.spy(guideCueStorage, 'markCueAsVisited');
-      guideCueService.addCue(cue as any);
+      guideCueService.addCue(cue);
       guideCueService.markCueAsVisited(cue.cueId, cue.groupId);
     });
 
@@ -505,9 +505,9 @@ describe('GuideCueService', function () {
 
     beforeEach(function () {
       markCueAsVisited = Sinon.spy(guideCueStorage, 'markCueAsVisited');
-      guideCueService.addCue(cue1 as any);
-      guideCueService.addCue(cue2 as any);
-      guideCueService.addCue(cue3 as any);
+      guideCueService.addCue(cue1);
+      guideCueService.addCue(cue2);
+      guideCueService.addCue(cue3);
       guideCueService.markAllCuesAsVisited();
     });
 
@@ -548,9 +548,9 @@ describe('GuideCueService', function () {
     const cue3 = { cueId: 'three', step: 1, isIntersecting: true };
 
     beforeEach(function () {
-      guideCueService.addCue(cue1 as any);
-      guideCueService.addCue(cue2 as any);
-      guideCueService.addCue(cue3 as any);
+      guideCueService.addCue(cue1);
+      guideCueService.addCue(cue2);
+      guideCueService.addCue(cue3);
 
       expect((guideCueService as any)._activeCue).to.deep.equal({
         ...cue1,

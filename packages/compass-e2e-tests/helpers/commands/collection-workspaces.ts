@@ -83,6 +83,20 @@ export async function navigateToCollectionTab(
   await browser
     .$(Selectors.WorkspaceTabTooltip)
     .waitForDisplayed({ reverse: true });
+
+  // In COMPASS-6937 we are persisting the last selected document view (list, table, json)
+  // in the local storage. Always ensure that we have the list view selected once we
+  // navigate to a collection tab.
+  // If the current view is not list view, then click the list view button to switch to list view.
+  if (tabName === 'Documents') {
+    const isListViewChecked = await browser
+      .$(Selectors.SelectListView)
+      .$('..')
+      .getAttribute('data-lg-checked');
+    if (isListViewChecked !== 'true') {
+      await browser.clickVisible(Selectors.SelectListView);
+    }
+  }
 }
 
 export async function navigateWithinCurrentCollectionTabs(

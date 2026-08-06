@@ -1497,7 +1497,7 @@ export const connect = (
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
 > => {
-  return connectWithOptions(connectionInfo, { forceSave: false });
+  return ensureSingleConnection(connectionInfo, { forceSave: false });
 };
 
 export const saveAndConnect = (
@@ -1509,33 +1509,415 @@ export const saveAndConnect = (
   | ConnectionAttemptSuccessAction
   | ConnectionAttemptCancelledAction
 > => {
-  return connectWithOptions(connectionInfo, { forceSave: true });
+  return ensureSingleConnection(connectionInfo, { forceSave: true });
 };
 
-const connectWithOptions = (
-  connectionInfo: ConnectionInfo,
-  options: {
-    forceSave: boolean;
-  }
-): ConnectionsThunkAction<
-  Promise<void>,
+type ConnectWithOptionsActions =
   | ConnectionAttemptStartAction
   | ConnectionAttemptErrorAction
   | ConnectionAttemptSuccessAction
-  | ConnectionAttemptCancelledAction
-> => {
+  | ConnectionAttemptCancelledAction;
+
+/**
+ * @internal Do not call directly outside of ensureSingleConnection.
+ */
+const performConnection = (
+  connectionInfo: ConnectionInfo,
+  options: { forceSave: boolean }
+): ConnectionsThunkAction<Promise<void>, ConnectWithOptionsActions> => {
   return async (
     dispatch,
     getState,
     {
       preferences,
-      logger: { log, debug, mongoLogId },
       track,
+      logger: { log, debug, mongoLogId },
+      connectFn,
       appName,
       getExtraConnectionData,
-      connectFn,
     }
   ) => {
+    const deviceAuthAbortController = new AbortController();
+
+    try {
+      if (!connectable(connectionInfo)) {
+        return;
+      }
+
+      {
+        const { maximumNumberOfActiveConnections } =
+          preferences.getPreferences();
+        if (
+          typeof maximumNumberOfActiveConnections !== 'undefined' &&
+          getActiveConnectionsCount(getState().connections) >=
+            maximumNumberOfActiveConnections
+        ) {
+          getNotificationTriggers().openMaximumConnectionsReachedToast(
+            maximumNumberOfActiveConnections
+          );
+          return;
+        }
+      }
+
+      const isAutoconnectAttempt = isAutoconnectInfo(
+        getState(),
+        connectionInfo.id
+      );
+
+      connectionInfo = cloneDeep(connectionInfo);
+
+      const {
+        forceConnectionOptions,
+        browserCommandForOIDCAuth,
+        telemetryAnonymousId,
+      } = preferences.getPreferences();
+
+      const connectionProgress = getNotificationTriggers();
+
+      dispatch({
+        type: ActionTypes.ConnectionAttemptStart,
+        connectionInfo,
+        options: { forceSave: options.forceSave },
+      });
+
+      track(
+        'Connection Attempt',
+        {
+          is_favorite: connectionInfo.savedConnectionType === 'favorite',
+          is_new: isNewConnection(getState(), connectionInfo.id),
+        },
+        connectionInfo
+      );
+
+      debug('connecting with connectionInfo', connectionInfo);
+
+      log.info(
+        mongoLogId(1_001_000_004),
+        'Connection UI',
+        'Initiating connection attempt',
+        { isAutoconnectAttempt }
+      );
+
+      // Connection form allows to start connecting with invalid connection
+      // strings, so throw fast if it's not valid before doing anything else
+      ensureWellFormedConnectionString(
+        connectionInfo.connectionOptions.connectionString
+      );
+
+      connectionProgress.openConnectionStartedToast(connectionInfo, () => {
+        dispatch(disconnect(connectionInfo.id));
+      });
+
+      const { connectionOptions, ...restOfTheConnectionInfo } = connectionInfo;
+
+      const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
+        cloneDeep(restOfTheConnectionInfo),
+        {
+          connectionOptions: adjustConnectionOptionsBeforeConnect({
+            connectionOptions: merge(
+              cloneDeep(connectionOptions),
+              SecretsForConnection.get(connectionInfo.id) ?? {}
+            ),
+            connectionId: connectionInfo.id,
+            defaultAppName: appName,
+            preferences: {
+              forceConnectionOptions: forceConnectionOptions ?? [],
+              browserCommandForOIDCAuth,
+              telemetryAnonymousId,
+            },
+            notifyDeviceFlow: (deviceFlowInfo) => {
+              connectionProgress.openNotifyDeviceAuthModal(
+                connectionInfo,
+                deviceFlowInfo.verificationUrl,
+                deviceFlowInfo.userCode,
+                () => {
+                  void dispatch(disconnect(connectionInfo.id));
+                },
+                deviceAuthAbortController.signal
+              );
+            },
+          }),
+        }
+      );
+
+      // Temporarily disable Atlas Streams connections until https://jira.mongodb.org/browse/STREAMS-862
+      // is done.
+      if (isAtlasStreamsInstance(adjustedConnectionInfoForConnection)) {
+        throw new Error(
+          'Atlas Stream Processing is not yet supported on MongoDB Compass. To work with your Stream Processing Instance, connect with mongosh or MongoDB for VS Code.'
+        );
+      }
+
+      // This is used for Data Explorer connection latency tracing
+      log.info(
+        mongoLogId(1_001_000_005),
+        'Compass Connection Attempt Started',
+        'Connection attempt started',
+        {
+          clusterName: connectionInfo.atlasMetadata?.clusterName,
+          connectionId: connectionInfo.id,
+        }
+      );
+
+      const connectionAttempt = createConnectionAttempt({
+        logger: log.unbound,
+        proxyOptions: proxyPreferenceToProxyOptions(
+          preferences.getPreferences().proxy
+        ),
+        connectFn,
+      });
+
+      ConnectionAttemptForConnection.set(connectionInfo.id, connectionAttempt);
+
+      const dataService = await connectionAttempt.connect(
+        adjustedConnectionInfoForConnection.connectionOptions
+      );
+
+      // This is how connection attempt indicates that the connection was
+      // aborted
+      if (!dataService || connectionAttempt.isClosed()) {
+        // This is used for Data Explorer connection latency tracing
+        log.info(
+          mongoLogId(1_001_000_007),
+          'Compass Connection Attempt Cancelled',
+          'Connection attempt cancelled',
+          {
+            clusterName: connectionInfo.atlasMetadata?.clusterName,
+            connectionId: connectionInfo.id,
+          }
+        );
+        dispatch({
+          type: ActionTypes.ConnectionAttemptCancelled,
+          connectionId: connectionInfo.id,
+        });
+        return;
+      }
+
+      // We're trying to optimise the initial Compass loading times here: to
+      // make sure that the driver connection pool doesn't immediately get
+      // overwhelmed with requests, we fetch instance info only once and then
+      // pass it down to telemetry and instance model. This is a relatively
+      // expensive dataService operation so we're trying to keep the usage
+      // very limited
+      const instanceInfo = await dataService.instance();
+
+      let showedNonRetryableErrorToast = false;
+      // Listen for non-retry-able errors on failed server heartbeats.
+      // These can happen on compass web when:
+      // - A user's session has ended.
+      // - The user's roles have changed.
+      // - The cluster / group they are trying to connect to has since been deleted.
+      // When we encounter one we disconnect. This is to avoid polluting logs/metrics
+      // and to avoid constantly retrying to connect when we know it'll fail.
+      dataService.on(
+        'serverHeartbeatFailed',
+        (evt: ServerHeartbeatFailedEvent) => {
+          if (!isNonRetryableHeartbeatFailure(evt)) {
+            return;
+          }
+
+          if (!dataService.isConnected() || showedNonRetryableErrorToast) {
+            return;
+          }
+
+          openConnectionClosedWithNonRetryableErrorToast(
+            connectionInfo,
+            evt.failure
+          );
+          showedNonRetryableErrorToast = true;
+          void dataService.disconnect();
+        }
+      );
+
+      dataService.on('oidcAuthFailed', (error) => {
+        openToast('oidc-auth-failed', {
+          title: `Failed to authenticate for ${getConnectionTitle(
+            connectionInfo
+          )}`,
+          description: error,
+          variant: 'important',
+        });
+      });
+
+      dataService.on('connectionInfoSecretsChanged', () => {
+        void dataService.getUpdatedSecrets().then(
+          (secrets) => {
+            SecretsForConnection.set(connectionInfo.id, secrets);
+            if (!preferences.getPreferences().persistOIDCTokens) {
+              return;
+            }
+            const info = getCurrentConnectionInfo(
+              getState(),
+              connectionInfo.id
+            );
+            if (!info) {
+              return;
+            }
+            void dispatch(
+              saveConnectionInfo(
+                merge(cloneDeep(info), { connectionOptions: secrets })
+              )
+            );
+          },
+          () => {
+            // Do nothing if getting secrets failed
+          }
+        );
+      });
+
+      dataService.addReauthenticationHandler(() => {
+        return showOIDCReauthModal(connectionInfo);
+      });
+
+      DataServiceForConnection.set(connectionInfo.id, dataService);
+
+      try {
+        await dispatch(
+          saveConnectionInfo(
+            merge(
+              cloneDeep(
+                // See `ConnectionAttemptStartAction` handler in the reducer:
+                // in case of existing connection from storage, we keep the
+                // stored version in the state, in case of new connection,
+                // this is the whole info as was passed to the connect method
+                getCurrentConnectionInfo(getState(), connectionInfo.id)
+              ),
+              {
+                // Update lastUsed and secrets if connection was successful
+                lastUsed: new Date(),
+                ...(preferences.getPreferences().persistOIDCTokens
+                  ? {
+                      connectionOptions: await dataService.getUpdatedSecrets(),
+                    }
+                  : {}),
+              }
+            )
+          )
+        );
+      } catch (err) {
+        debug('failed to update connection info after successful connect', err);
+      }
+
+      track(
+        'New Connection',
+        async () => {
+          const {
+            dataLake,
+            genuineMongoDB,
+            host,
+            build,
+            isAtlas,
+            isLocalAtlas,
+          } = instanceInfo;
+          const [extraInfo, resolvedHostname] = await getExtraConnectionData(
+            connectionInfo
+          );
+
+          const connections = getState().connections;
+          // Counting all connections, we need to filter out any connections currently being created
+          const totalConnectionsCount = Object.values(connections.byId).filter(
+            ({ isBeingCreated }) => !isBeingCreated
+          ).length;
+          const activeConnectionsCount = getActiveConnectionsCount(connections);
+          const inactiveConnectionsCount =
+            totalConnectionsCount - activeConnectionsCount;
+
+          return {
+            is_atlas: isAtlas,
+            atlas_hostname: isAtlas ? resolvedHostname : null,
+            is_local_atlas: isLocalAtlas,
+            is_dataLake: dataLake.isDataLake,
+            is_enterprise: build.isEnterprise,
+            is_genuine: genuineMongoDB.isGenuine,
+            non_genuine_server_name: genuineMongoDB.serverName,
+            server_version: build.version,
+            server_arch: host.arch,
+            server_os_family: host.os_family,
+            topology_type: dataService.getCurrentTopologyType(),
+            num_active_connections: activeConnectionsCount,
+            num_inactive_connections: inactiveConnectionsCount,
+            user_language: globalThis.navigator?.language ?? 'unknown',
+            user_languages: [...(globalThis.navigator?.languages ?? [])],
+            ...extraInfo,
+          };
+        },
+        connectionInfo
+      );
+
+      debug(
+        'connection attempt succeeded with connection info',
+        connectionInfo
+      );
+
+      // This is used for Data Explorer connection latency tracing
+      log.info(
+        mongoLogId(1_001_000_006),
+        'Compass Connection Attempt Succeeded',
+        'Connection attempt succeeded',
+        {
+          clusterName: connectionInfo.atlasMetadata?.clusterName,
+          connectionId: connectionInfo.id,
+        }
+      );
+
+      connectionProgress.openConnectionSucceededToast(connectionInfo);
+
+      // Emit before changing state because some plugins rely on this
+      connectionsEventEmitter.emit(
+        'connected',
+        connectionInfo.id,
+        connectionInfo,
+        instanceInfo
+      );
+
+      dispatch({
+        type: ActionTypes.ConnectionAttemptSuccess,
+        connectionId: connectionInfo.id,
+      });
+
+      if (!instanceInfo.genuineMongoDB.isGenuine) {
+        dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
+      } else if (
+        await shouldShowEndOfLifeWarning(
+          instanceInfo.build.version,
+          preferences,
+          debug
+        )
+      ) {
+        dispatch(
+          showEndOfLifeMongoDBWarningModal(
+            connectionInfo.id,
+            instanceInfo.build.version
+          )
+        );
+      }
+    } catch (err) {
+      log.info(
+        mongoLogId(1_001_000_008),
+        'Compass Connection Attempt Failed',
+        'Connection attempt failed',
+        {
+          clusterName: connectionInfo.atlasMetadata?.clusterName,
+          connectionId: connectionInfo.id,
+          error: (err as Error).message,
+        }
+      );
+      dispatch(connectionAttemptError(connectionInfo, err));
+    } finally {
+      deviceAuthAbortController.abort();
+      ConnectionAttemptForConnection.delete(connectionInfo.id);
+      InFlightConnections.delete(connectionInfo.id);
+    }
+  };
+};
+
+const ensureSingleConnection = (
+  connectionInfo: ConnectionInfo,
+  options: {
+    forceSave: boolean;
+  }
+): ConnectionsThunkAction<Promise<void>, ConnectWithOptionsActions> => {
+  return async (dispatch, getState) => {
     let inflightConnection = InFlightConnections.get(connectionInfo.id);
     if (inflightConnection) {
       return inflightConnection;
@@ -1548,388 +1930,17 @@ const connectWithOptions = (
       return;
     }
 
-    if (!connectable(connectionInfo)) {
-      return;
-    }
-
-    {
-      const { maximumNumberOfActiveConnections } = preferences.getPreferences();
-      if (
-        typeof maximumNumberOfActiveConnections !== 'undefined' &&
-        getActiveConnectionsCount(getState().connections) >=
-          maximumNumberOfActiveConnections
-      ) {
-        getNotificationTriggers().openMaximumConnectionsReachedToast(
-          maximumNumberOfActiveConnections
-        );
-        return;
-      }
-    }
-
-    inflightConnection = (async () => {
-      const deviceAuthAbortController = new AbortController();
-
-      try {
-        const isAutoconnectAttempt = isAutoconnectInfo(
-          getState(),
-          connectionInfo.id
-        );
-
-        connectionInfo = cloneDeep(connectionInfo);
-
-        const {
-          forceConnectionOptions,
-          browserCommandForOIDCAuth,
-          telemetryAnonymousId,
-        } = preferences.getPreferences();
-
-        const connectionProgress = getNotificationTriggers();
-
-        dispatch({
-          type: ActionTypes.ConnectionAttemptStart,
-          connectionInfo,
-          options: { forceSave: options.forceSave },
-        });
-
-        track(
-          'Connection Attempt',
-          {
-            is_favorite: connectionInfo.savedConnectionType === 'favorite',
-            is_new: isNewConnection(getState(), connectionInfo.id),
-          },
-          connectionInfo
-        );
-
-        debug('connecting with connectionInfo', connectionInfo);
-
-        log.info(
-          mongoLogId(1_001_000_004),
-          'Connection UI',
-          'Initiating connection attempt',
-          { isAutoconnectAttempt }
-        );
-
-        // Connection form allows to start connecting with invalid connection
-        // strings, so throw fast if it's not valid before doing anything else
-        ensureWellFormedConnectionString(
-          connectionInfo.connectionOptions.connectionString
-        );
-
-        connectionProgress.openConnectionStartedToast(connectionInfo, () => {
-          dispatch(disconnect(connectionInfo.id));
-        });
-
-        const { connectionOptions, ...restOfTheConnectionInfo } =
-          connectionInfo;
-
-        const adjustedConnectionInfoForConnection: ConnectionInfo = merge(
-          cloneDeep(restOfTheConnectionInfo),
-          {
-            connectionOptions: adjustConnectionOptionsBeforeConnect({
-              connectionOptions: merge(
-                cloneDeep(connectionOptions),
-                SecretsForConnection.get(connectionInfo.id) ?? {}
-              ),
-              connectionId: connectionInfo.id,
-              defaultAppName: appName,
-              preferences: {
-                forceConnectionOptions: forceConnectionOptions ?? [],
-                browserCommandForOIDCAuth,
-                telemetryAnonymousId,
-              },
-              notifyDeviceFlow: (deviceFlowInfo) => {
-                connectionProgress.openNotifyDeviceAuthModal(
-                  connectionInfo,
-                  deviceFlowInfo.verificationUrl,
-                  deviceFlowInfo.userCode,
-                  () => {
-                    void dispatch(disconnect(connectionInfo.id));
-                  },
-                  deviceAuthAbortController.signal
-                );
-              },
-            }),
-          }
-        );
-
-        // Temporarily disable Atlas Streams connections until https://jira.mongodb.org/browse/STREAMS-862
-        // is done.
-        if (isAtlasStreamsInstance(adjustedConnectionInfoForConnection)) {
-          throw new Error(
-            'Atlas Stream Processing is not yet supported on MongoDB Compass. To work with your Stream Processing Instance, connect with mongosh or MongoDB for VS Code.'
-          );
-        }
-
-        // This is used for Data Explorer connection latency tracing
-        log.info(
-          mongoLogId(1_001_000_005),
-          'Compass Connection Attempt Started',
-          'Connection attempt started',
-          {
-            clusterName: connectionInfo.atlasMetadata?.clusterName,
-            connectionId: connectionInfo.id,
-          }
-        );
-
-        const connectionAttempt = createConnectionAttempt({
-          logger: log.unbound,
-          proxyOptions: proxyPreferenceToProxyOptions(
-            preferences.getPreferences().proxy
-          ),
-          connectFn,
-        });
-
-        ConnectionAttemptForConnection.set(
-          connectionInfo.id,
-          connectionAttempt
-        );
-
-        const dataService = await connectionAttempt.connect(
-          adjustedConnectionInfoForConnection.connectionOptions
-        );
-
-        // This is how connection attempt indicates that the connection was
-        // aborted
-        if (!dataService || connectionAttempt.isClosed()) {
-          // This is used for Data Explorer connection latency tracing
-          log.info(
-            mongoLogId(1_001_000_007),
-            'Compass Connection Attempt Cancelled',
-            'Connection attempt cancelled',
-            {
-              clusterName: connectionInfo.atlasMetadata?.clusterName,
-              connectionId: connectionInfo.id,
-            }
-          );
-          dispatch({
-            type: ActionTypes.ConnectionAttemptCancelled,
-            connectionId: connectionInfo.id,
-          });
-          return;
-        }
-
-        // We're trying to optimise the initial Compass loading times here: to
-        // make sure that the driver connection pool doesn't immediately get
-        // overwhelmed with requests, we fetch instance info only once and then
-        // pass it down to telemetry and instance model. This is a relatively
-        // expensive dataService operation so we're trying to keep the usage
-        // very limited
-        const instanceInfo = await dataService.instance();
-
-        let showedNonRetryableErrorToast = false;
-        // Listen for non-retry-able errors on failed server heartbeats.
-        // These can happen on compass web when:
-        // - A user's session has ended.
-        // - The user's roles have changed.
-        // - The cluster / group they are trying to connect to has since been deleted.
-        // When we encounter one we disconnect. This is to avoid polluting logs/metrics
-        // and to avoid constantly retrying to connect when we know it'll fail.
-        dataService.on(
-          'serverHeartbeatFailed',
-          (evt: ServerHeartbeatFailedEvent) => {
-            if (!isNonRetryableHeartbeatFailure(evt)) {
-              return;
-            }
-
-            if (!dataService.isConnected() || showedNonRetryableErrorToast) {
-              return;
-            }
-
-            openConnectionClosedWithNonRetryableErrorToast(
-              connectionInfo,
-              evt.failure
-            );
-            showedNonRetryableErrorToast = true;
-            void dataService.disconnect();
-          }
-        );
-
-        dataService.on('oidcAuthFailed', (error) => {
-          openToast('oidc-auth-failed', {
-            title: `Failed to authenticate for ${getConnectionTitle(
-              connectionInfo
-            )}`,
-            description: error,
-            variant: 'important',
-          });
-        });
-
-        dataService.on('connectionInfoSecretsChanged', () => {
-          void dataService.getUpdatedSecrets().then(
-            (secrets) => {
-              SecretsForConnection.set(connectionInfo.id, secrets);
-              if (!preferences.getPreferences().persistOIDCTokens) {
-                return;
-              }
-              const info = getCurrentConnectionInfo(
-                getState(),
-                connectionInfo.id
-              );
-              if (!info) {
-                return;
-              }
-              void dispatch(
-                saveConnectionInfo(
-                  merge(cloneDeep(info), { connectionOptions: secrets })
-                )
-              );
-            },
-            () => {
-              // Do nothing if getting secrets failed
-            }
-          );
-        });
-
-        dataService.addReauthenticationHandler(() => {
-          return showOIDCReauthModal(connectionInfo);
-        });
-
-        DataServiceForConnection.set(connectionInfo.id, dataService);
-
-        try {
-          await dispatch(
-            saveConnectionInfo(
-              merge(
-                cloneDeep(
-                  // See `ConnectionAttemptStartAction` handler in the reducer:
-                  // in case of existing connection from storage, we keep the
-                  // stored version in the state, in case of new connection,
-                  // this is the whole info as was passed to the connect method
-                  getCurrentConnectionInfo(getState(), connectionInfo.id)
-                ),
-                {
-                  // Update lastUsed and secrets if connection was successful
-                  lastUsed: new Date(),
-                  ...(preferences.getPreferences().persistOIDCTokens
-                    ? {
-                        connectionOptions:
-                          await dataService.getUpdatedSecrets(),
-                      }
-                    : {}),
-                }
-              )
-            )
-          );
-        } catch (err) {
-          debug(
-            'failed to update connection info after successful connect',
-            err
-          );
-        }
-
-        track(
-          'New Connection',
-          async () => {
-            const {
-              dataLake,
-              genuineMongoDB,
-              host,
-              build,
-              isAtlas,
-              isLocalAtlas,
-            } = instanceInfo;
-            const [extraInfo, resolvedHostname] = await getExtraConnectionData(
-              connectionInfo
-            );
-
-            const connections = getState().connections;
-            // Counting all connections, we need to filter out any connections currently being created
-            const totalConnectionsCount = Object.values(
-              connections.byId
-            ).filter(({ isBeingCreated }) => !isBeingCreated).length;
-            const activeConnectionsCount =
-              getActiveConnectionsCount(connections);
-            const inactiveConnectionsCount =
-              totalConnectionsCount - activeConnectionsCount;
-
-            return {
-              is_atlas: isAtlas,
-              atlas_hostname: isAtlas ? resolvedHostname : null,
-              is_local_atlas: isLocalAtlas,
-              is_dataLake: dataLake.isDataLake,
-              is_enterprise: build.isEnterprise,
-              is_genuine: genuineMongoDB.isGenuine,
-              non_genuine_server_name: genuineMongoDB.serverName,
-              server_version: build.version,
-              server_arch: host.arch,
-              server_os_family: host.os_family,
-              topology_type: dataService.getCurrentTopologyType(),
-              num_active_connections: activeConnectionsCount,
-              num_inactive_connections: inactiveConnectionsCount,
-              user_language: globalThis.navigator?.language ?? 'unknown',
-              user_languages: [...(globalThis.navigator?.languages ?? [])],
-              ...extraInfo,
-            };
-          },
-          connectionInfo
-        );
-
-        debug(
-          'connection attempt succeeded with connection info',
-          connectionInfo
-        );
-
-        // This is used for Data Explorer connection latency tracing
-        log.info(
-          mongoLogId(1_001_000_006),
-          'Compass Connection Attempt Succeeded',
-          'Connection attempt succeeded',
-          {
-            clusterName: connectionInfo.atlasMetadata?.clusterName,
-            connectionId: connectionInfo.id,
-          }
-        );
-
-        connectionProgress.openConnectionSucceededToast(connectionInfo);
-
-        // Emit before changing state because some plugins rely on this
-        connectionsEventEmitter.emit(
-          'connected',
-          connectionInfo.id,
-          connectionInfo,
-          instanceInfo
-        );
-
-        dispatch({
-          type: ActionTypes.ConnectionAttemptSuccess,
-          connectionId: connectionInfo.id,
-        });
-
-        if (!instanceInfo.genuineMongoDB.isGenuine) {
-          dispatch(showNonGenuineMongoDBWarningModal(connectionInfo.id));
-        } else if (
-          await shouldShowEndOfLifeWarning(
-            instanceInfo.build.version,
-            preferences,
-            debug
-          )
-        ) {
-          dispatch(
-            showEndOfLifeMongoDBWarningModal(
-              connectionInfo.id,
-              instanceInfo.build.version
-            )
-          );
-        }
-      } catch (err) {
-        log.info(
-          mongoLogId(1_001_000_008),
-          'Compass Connection Attempt Failed',
-          'Connection attempt failed',
-          {
-            clusterName: connectionInfo.atlasMetadata?.clusterName,
-            connectionId: connectionInfo.id,
-            error: (err as Error).message,
-          }
-        );
-        dispatch(connectionAttemptError(connectionInfo, err));
-      } finally {
-        deviceAuthAbortController.abort();
-        ConnectionAttemptForConnection.delete(connectionInfo.id);
-        InFlightConnections.delete(connectionInfo.id);
-      }
-    })();
+    const {
+      promise,
+      resolve: resolveInflightConnection,
+      reject: rejectInflightConnection,
+    } = Promise.withResolvers<void>();
+    inflightConnection = promise;
     InFlightConnections.set(connectionInfo.id, inflightConnection);
+    dispatch(performConnection(connectionInfo, options)).then(
+      resolveInflightConnection,
+      rejectInflightConnection
+    );
     return inflightConnection;
   };
 };

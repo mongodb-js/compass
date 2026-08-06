@@ -10,6 +10,7 @@ import TypeChecker, {
   isUUIDType,
 } from 'hadron-type-checker';
 import { Binary, UUID } from 'bson';
+import { toJSString } from 'mongodb-query-parser';
 import DateEditor from './editor/date';
 import { ElementEvents, type ElementEventsType } from './element-events';
 import type { Document } from './document';
@@ -19,9 +20,9 @@ import type {
   BSONArray,
   BSONObject,
   BSONValue,
-  HadronEJSONOptions,
+  HadronShellSyntaxOptions,
 } from './utils';
-import { getDefaultValueForType, objectToIdiomaticEJSON } from './utils';
+import { getDefaultValueForType } from './utils';
 import { DocumentEvents, type DocumentEventsType } from './document-events';
 
 export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
@@ -303,8 +304,16 @@ export class Element extends EventEmitter {
     } else {
       try {
         if (newType === 'Date') {
+          // Use the current date for:
+          // 1. Empty values (null, undefined, empty string, Object/Array)
+          //  For Array/Object, the value is stored in elements and this.currentValue is falsy.
+          // 2. Boolean values (true, false).
+          const newValue =
+            !this.currentValue || this.currentType === 'Boolean'
+              ? new Date()
+              : this.generateObject();
           const editor = new DateEditor(this);
-          editor.edit(this.generateObject());
+          editor.edit(newValue);
           editor.complete();
         } else if (
           isUUIDType(newType) &&
@@ -416,19 +425,19 @@ export class Element extends EventEmitter {
   }
 
   /**
-   * Generate the Extended JSON string representation of this element.
+   * Generate the Shell Syntax string representation of this element.
    *
-   * @returns The Extended JSON string.
+   * @returns The Shell Syntax string.
    */
-  toEJSON(
+  toShellSyntax(
     source: 'original' | 'current' = 'current',
-    options: HadronEJSONOptions = {}
+    options: HadronShellSyntaxOptions = {}
   ): string {
     const generated =
       source === 'original'
         ? this.generateOriginalObject()
         : this.generateObject();
-    return objectToIdiomaticEJSON(generated, options);
+    return toJSString(generated, options.indent) || '{}';
   }
 
   /**
