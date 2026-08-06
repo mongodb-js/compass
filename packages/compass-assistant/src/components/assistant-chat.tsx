@@ -557,6 +557,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             metadata: {
               ...confirmedMessage.metadata,
               confirmation: undefined,
+              // `instructions` may force a specific tool (e.g. the Atlas
+              // connection-error debugger). Only keep them when the user
+              // confirmed; on rejection we fall back to the standard debug
+              // flow, which must not run that tool.
+              instructions:
+                newState === 'confirmed'
+                  ? confirmedMessage.metadata?.instructions
+                  : undefined,
             },
           });
         }

@@ -1138,6 +1138,9 @@ describe('AssistantChat', function () {
       // conversation by pushing and sending a plain debug prompt.
       expect(chat.messages).to.have.length(2);
       expect(chat.messages[1].metadata?.confirmation).to.be.undefined;
+      // The tool instruction must be dropped so the standard debug flow does
+      // not run the atlas-connection-error-debugger tool.
+      expect(chat.messages[1].metadata?.instructions).to.be.undefined;
       expect(ensureOptInAndSendStub).to.have.been.called;
     });
 
@@ -1178,6 +1181,9 @@ describe('AssistantChat', function () {
       // Skipping should not attempt to sign in.
       expect(ensureAtlasSignInStub).to.not.have.been.called;
       expect(chat.messages).to.have.length(2);
+      // Skipping falls back to the standard debug flow, so the tool
+      // instruction must not be forwarded.
+      expect(chat.messages[1].metadata?.instructions).to.be.undefined;
     });
 
     it('auto-approves the atlas-connection-error-debugger tool call', function () {
