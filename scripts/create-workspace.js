@@ -210,7 +210,6 @@ async function createWorkspace({
   isConfig,
   dependants,
   depType,
-  allowJs,
 }) {
   if (isPlugin) {
     isPublic = false;
@@ -335,13 +334,7 @@ async function createWorkspace({
   const tsconfigPath = path.join(packagePath, 'tsconfig.json');
   const tsconfigContent = JSON.stringify(
     {
-      extends: `@mongodb-js/tsconfig-compass/tsconfig.${
-        isReact ? 'react' : 'common'
-      }.json`,
-      compilerOptions: {
-        outDir: 'dist',
-        allowJs: allowJs === true ? true : undefined,
-      },
+      extends: '@mongodb-js/tsconfig-compass/tsconfig.common.json',
       include: ['**/*'],
       exclude: ['node_modules', 'dist'],
     },
@@ -352,7 +345,7 @@ async function createWorkspace({
   const tsconfigBuildPath = path.join(packagePath, 'tsconfig-build.json');
   const tsconfigBuildContent = JSON.stringify(
     {
-      extends: './tsconfig.json',
+      extends: '@mongodb-js/tsconfig-compass/tsconfig.build.json',
       include: ['src/**/*'],
       exclude: ['./src/**/*.spec.*'],
     },
