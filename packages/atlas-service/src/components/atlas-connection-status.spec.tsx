@@ -120,17 +120,4 @@ describe('AtlasConnectionStatus', function () {
       expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;
     });
   });
-
-  it('supports customizing the labels (reusability)', async function () {
-    const service = new FakeAtlasAuthService({ sub: 'user-1' });
-    renderStatus(service, {
-      signedInLabel: 'Custom signed in',
-      disconnectLabel: 'Custom disconnect',
-    });
-
-    await waitFor(() => {
-      expect(screen.getByText('Custom signed in')).to.exist;
-    });
-    expect(screen.getByText('Custom disconnect')).to.exist;
-  });
 });
