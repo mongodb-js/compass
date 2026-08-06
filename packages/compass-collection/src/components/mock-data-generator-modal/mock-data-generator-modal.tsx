@@ -181,7 +181,6 @@ const MockDataGeneratorModal = ({
             onClick={handleNextClick}
             data-testid="next-step-button"
             disabled={isNextButtonDisabled}
-            // Only the Confirm step sends the schema to the LLM.
             leftGlyph={
               currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION ? (
                 <Icon glyph="Sparkle" />
