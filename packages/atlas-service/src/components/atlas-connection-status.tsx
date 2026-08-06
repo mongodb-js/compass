@@ -2,15 +2,20 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   Body,
   Button,
+  ConfirmationModalVariant,
   Icon,
   css,
   cx,
+  openToast,
   palette,
+  showConfirmation,
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { useAtlasAuthService } from '../provider';
 import type { AtlasUserInfo } from '../util';
+
+const DISCONNECT_TOAST_ID = 'atlas-disconnected';
 
 const containerStyles = css({
   display: 'flex',
@@ -95,11 +100,27 @@ export const AtlasConnectionStatus: React.FunctionComponent<
 
   const onDisconnect = useCallback(() => {
     void (async () => {
+      const confirmed = await showConfirmation({
+        title: 'Are you sure you want to disconnect Atlas?',
+        description:
+          "Once Atlas is disconnected you won't have Atlas context anymore.",
+        variant: ConfirmationModalVariant.Danger,
+        buttonText: 'Disconnect',
+      });
+      if (!confirmed) {
+        return;
+      }
       try {
         await atlasAuthService.signOut();
       } finally {
         setUserInfo(null);
       }
+      openToast(DISCONNECT_TOAST_ID, {
+        title: 'Disconnected from Atlas',
+        description: "You won't have Atlas context anymore.",
+        variant: 'note',
+        timeout: 5000,
+      });
     })();
   }, [atlasAuthService]);
 

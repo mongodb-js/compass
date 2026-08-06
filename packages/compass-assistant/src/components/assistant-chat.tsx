@@ -263,6 +263,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     usePersistedState(DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY, false);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const previousLastMessageId = useRef<string | undefined>(undefined);
+  // Set when the user accepts the Atlas confirmation card, to auto-approve the
+  // single tool call it triggers. Prevents auto-approving Atlas debugger calls
+  // the model may make outside of that explicit user consent.
+  const pendingAtlasAutoApproveRef = useRef(false);
   const { id: lastMessageId, role: lastMessageRole } =
     chat.messages[chat.messages.length - 1] ?? {};
 
@@ -427,13 +431,15 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     prevToolCallingEnabled.current = areToolCallsEnabled;
   }, [areToolCallsEnabled, chat, addToolApprovalResponse]);
 
-  // Auto-approve pending approval requests for the Atlas connection-error
-  // debugger tool: the user already consented by confirming the Atlas debug
-  // card that triggered it, so a second approval prompt would be redundant.
+  // Auto-approve the single Atlas connection-error debugger tool call that the
+  // user just consented to by accepting the Atlas debug card (one-shot, tracked
+  // via `pendingAtlasAutoApproveRef`). This avoids a redundant second approval
+  // prompt right after the card, while still requiring the standard approval UI
+  // for any other call to this tool (e.g. one the model makes on its own).
   // Skip when tool calling is disabled so we don't override the "tools off"
   // choice (in that case the effect above denies all pending approvals).
   useEffect(() => {
-    if (!areToolCallsEnabled) {
+    if (!areToolCallsEnabled || !pendingAtlasAutoApproveRef.current) {
       return;
     }
     for (const message of chat.messages) {
@@ -442,10 +448,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
           partIsApprovalRequest(part) &&
           part.type === ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE
         ) {
+          // Consume the one-shot flag before responding so we only ever
+          // auto-approve a single tool call per user confirmation.
+          pendingAtlasAutoApproveRef.current = false;
           void addToolApprovalResponse({
             id: part.approval.id,
             approved: true,
           });
+          return;
         }
       }
     }
@@ -621,7 +631,10 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         .then((ok) => {
           setIsAtlasSignedIn(!!ok);
           if (ok) {
-            // The user is signed in and confirmed via "Run"
+            // The user is signed in and confirmed via "Run": allow the single
+            // tool call this triggers to be auto-approved (see the effect
+            // below), then continue by sending the message.
+            pendingAtlasAutoApproveRef.current = true;
             handleConfirmation(message, 'confirmed', { forceContinue: true });
           } else {
             handleConfirmation(message, 'rejected');

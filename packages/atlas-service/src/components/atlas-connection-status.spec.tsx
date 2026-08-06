@@ -75,7 +75,7 @@ describe('AtlasConnectionStatus', function () {
     expect(screen.getByText('Disconnect Atlas')).to.exist;
   });
 
-  it('calls signOut and hides itself when disconnect is clicked', async function () {
+  it('confirms, calls signOut, and hides itself when disconnect is confirmed', async function () {
     const service = new FakeAtlasAuthService({ sub: 'user-1' });
     renderStatus(service);
 
@@ -85,10 +85,47 @@ describe('AtlasConnectionStatus', function () {
 
     userEvent.click(screen.getByTestId('atlas-connection-status-disconnect'));
 
-    expect(service.signOut).to.have.been.calledOnce;
+    // A confirmation modal appears before signing out.
+    await waitFor(() => {
+      expect(screen.getByText('Are you sure you want to disconnect Atlas?')).to
+        .exist;
+    });
+    expect(service.signOut).to.not.have.been.called;
+
+    userEvent.click(screen.getByRole('button', { name: 'Disconnect' }));
+
+    await waitFor(() => {
+      expect(service.signOut).to.have.been.calledOnce;
+    });
     await waitFor(() => {
       expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;
     });
+    // Shows a confirmation toast after disconnecting.
+    await waitFor(() => {
+      expect(screen.getByText('Disconnected from Atlas')).to.exist;
+    });
+  });
+
+  it('does not sign out when the disconnect confirmation is cancelled', async function () {
+    const service = new FakeAtlasAuthService({ sub: 'user-1' });
+    renderStatus(service);
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atlas-connection-status')).to.exist;
+    });
+
+    userEvent.click(screen.getByTestId('atlas-connection-status-disconnect'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Are you sure you want to disconnect Atlas?')).to
+        .exist;
+    });
+
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(service.signOut).to.not.have.been.called;
+    // Still signed in.
+    expect(screen.getByTestId('atlas-connection-status')).to.exist;
   });
 
   it('appears when the user signs in externally (signed-in event)', async function () {
