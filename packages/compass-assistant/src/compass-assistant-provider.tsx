@@ -15,6 +15,7 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
 import {
+  openToast,
   useCurrentValueRef,
   useDrawerActions,
   useInitialValue,
@@ -61,7 +62,8 @@ import {
   toolsControllerLocator,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
-import { AtlasClusterService } from './services/atlas-cluster-service';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
 import { createOpenAI } from '@ai-sdk/openai';
 import type {
   ActiveConnectionInfo,
@@ -91,6 +93,8 @@ import { connect } from 'react-redux';
 import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
+
+const ATLAS_CONNECTED_TOAST_ID = 'atlas-connected';
 
 export type BasicConnectionInfo = {
   id: string;
@@ -311,8 +315,8 @@ export type AssistantState = Record<string, never>;
 type AssistantExtraArgs = {
   chat: Chat<AssistantMessage>;
   atlasAiService: AtlasAiService;
-  atlasClusterService: AtlasClusterService;
   atlasAuthService: AtlasAuthService;
+  atlasAdminApi: AtlasAdminApiService;
   toolsController: ToolsController;
   preferences: PreferencesAccess;
   logger: Logger;
@@ -672,6 +676,7 @@ function activateAssistantPlugin(
     atlasService,
     atlasAiService,
     atlasAuthService,
+    atlasAdminApi,
     toolsController,
     preferences,
     logger,
@@ -680,6 +685,7 @@ function activateAssistantPlugin(
     atlasService: AtlasService;
     atlasAiService: AtlasAiService;
     atlasAuthService: AtlasAuthService;
+    atlasAdminApi: AtlasAdminApiService;
     toolsController: ToolsController;
     preferences: PreferencesAccess;
     logger: Logger;
@@ -700,8 +706,6 @@ function activateAssistantPlugin(
 
   const lastContextPromptRef = { current: null as string | null };
 
-  const atlasClusterService = new AtlasClusterService(atlasService);
-
   const store = createStore(
     reducer,
     {},
@@ -710,7 +714,7 @@ function activateAssistantPlugin(
         chat,
         atlasAiService,
         atlasAuthService,
-        atlasClusterService,
+        atlasAdminApi,
         toolsController,
         preferences,
         logger,
@@ -757,6 +761,14 @@ function ensureAtlasSignInThunk(): AssistantThunkAction<Promise<boolean>> {
     try {
       await atlasAuthService.signIn({ mainProcessSignIn: true });
       atlasAuthService.emit('signed-in');
+      // Only shown for a fresh sign-in (an already signed-in user returns
+      // above without reaching here).
+      openToast(ATLAS_CONNECTED_TOAST_ID, {
+        title: 'Connected to Atlas',
+        description: 'You can start using context from Atlas.',
+        variant: 'success',
+        timeout: 5000,
+      });
       return true;
     } catch {
       return false;
@@ -943,6 +955,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
   {
     atlasService: atlasServiceLocator,
     atlasAiService: atlasAiServiceLocator,
+    atlasAdminApi: atlasAdminApiServiceLocator,
     atlasAuthService: atlasAuthServiceLocator,
     toolsController: toolsControllerLocator,
     track: telemetryLocator,
