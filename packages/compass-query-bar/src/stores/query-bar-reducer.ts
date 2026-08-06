@@ -241,6 +241,9 @@ export const openExportToLanguage = (): QueryBarThunkAction<void> => {
 type ApplyFromHistoryAction = {
   type: typeof QueryBarActions.ApplyFromHistory;
   fields: QueryFormFields;
+  // bulk update queries: the bulk update modal reads its
+  // filter from the last applied query
+  applyToSource?: string;
 };
 
 export const applyFromHistory = (
@@ -266,6 +269,7 @@ export const applyFromHistory = (
     dispatch({
       type: QueryBarActions.ApplyFromHistory,
       fields,
+      applyToSource: query.update ? 'crud' : undefined,
     });
 
     if (query.update) {
@@ -653,6 +657,15 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       ...state,
       expanded: state.expanded || doesQueryHaveExtraOptionsSet(action.fields),
       fields: action.fields,
+      lastAppliedQuery: action.applyToSource
+        ? {
+            source: action.applyToSource,
+            query: {
+              ...state.lastAppliedQuery.query,
+              [action.applyToSource]: mapFormFieldsToQuery(action.fields),
+            },
+          }
+        : state.lastAppliedQuery,
     };
   }
 
