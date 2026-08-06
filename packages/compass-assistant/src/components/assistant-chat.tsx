@@ -430,7 +430,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   // Auto-approve pending approval requests for the Atlas connection-error
   // debugger tool: the user already consented by confirming the Atlas debug
   // card that triggered it, so a second approval prompt would be redundant.
+  // Skip when tool calling is disabled so we don't override the "tools off"
+  // choice (in that case the effect above denies all pending approvals).
   useEffect(() => {
+    if (!areToolCallsEnabled) {
+      return;
+    }
     for (const message of chat.messages) {
       for (const part of message.parts) {
         if (
@@ -444,7 +449,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         }
       }
     }
-  }, [chat, messages, addToolApprovalResponse]);
+  }, [areToolCallsEnabled, chat, messages, addToolApprovalResponse]);
 
   const handleMessageSend = useCallback(
     async ({ text, metadata }: SendMessageOptions) => {

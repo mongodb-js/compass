@@ -85,7 +85,7 @@ describe('AtlasToolCallMessage', function () {
     it('shows the cancelled title and hides the action buttons', function () {
       renderMessage({ state: 'rejected', isUserSignedIn: false });
 
-      expect(screen.getByText('Cancelled Atlas Connection')).to.exist;
+      expect(screen.getByText('Failed to connect to Atlas')).to.exist;
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
       expect(screen.queryByText('Skip')).to.not.exist;
     });

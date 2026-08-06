@@ -1236,6 +1236,42 @@ describe('AssistantChat', function () {
 
       expect(addToolApprovalResponse).to.not.have.been.called;
     });
+
+    it('does not auto-approve the atlas tool when tool calling is disabled', function () {
+      const atlasToolMessage: AssistantMessage = {
+        id: 'atlas-tool-call',
+        role: 'assistant',
+        parts: [
+          {
+            type: 'tool-atlas-connection-error-debugger',
+            toolCallId: 'atlas-tool-call-1',
+            state: 'approval-requested',
+            approval: { id: 'atlas-approval-1' },
+          } as unknown as ToolUIPart,
+        ],
+      };
+      const chat = createMockChat({ messages: [atlasToolMessage] });
+      const addToolApprovalResponse = sinon.spy(
+        chat,
+        'addToolApprovalResponse'
+      );
+
+      renderWithChat(chat, {
+        preferences: {
+          enableGenAIToolCallingAtlasProject: true,
+          enableGenAIToolCalling: false,
+        },
+      });
+
+      // With tool calling disabled, the atlas tool must not be auto-approved
+      // (the user's "tools off" choice must be respected).
+      expect(
+        addToolApprovalResponse.getCalls().some((call) => {
+          const arg = call.args[0] as { approved?: boolean };
+          return arg?.approved === true;
+        })
+      ).to.be.false;
+    });
   });
 
   describe('error handling', function () {
