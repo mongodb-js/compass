@@ -3,6 +3,10 @@ import { syntaxTree } from '@codemirror/language';
 import type { Annotation, EditorView } from './editor';
 import type { Extension } from '@codemirror/state';
 
+// Do not show inline (on-hover) tooltips for linting errors,
+// we will show them in the gutter instead
+const noInlineTooltips = () => [];
+
 export type LintConfig =
   | {
       delay?: number;
@@ -18,8 +22,6 @@ export function createCodemirrorLinter(
 ): Extension {
   return linter((view) => diagnosticsFn(syntaxTree(view.state), view), {
     delay: config?.delay,
-    // Do not show inline (on-hover) tooltips for linting errors,
-    // we will show them in the gutter instead
-    tooltipFilter: () => [],
+    tooltipFilter: noInlineTooltips,
   });
 }

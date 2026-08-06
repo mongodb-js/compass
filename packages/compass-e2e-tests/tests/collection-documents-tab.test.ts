@@ -625,11 +625,13 @@ FindIterable<Document> result = collection.find(filter);`);
     );
 
     const footer = document.$(Selectors.DocumentFooterMessage);
-    expect(await footer.getText()).to.contain(
-      'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
-    );
+    await browser.waitUntil(async () => {
+      return (await footer.getText()).includes(
+        'Number exceeds the safe integer range.'
+      );
+    });
 
-    await document.$(Selectors.DocumentFooterFixUnsafeIntegerLink).click();
+    await document.$(Selectors.DocumentFooterFixSafeIntegerLink).click();
 
     const updatedJson = await browser.getCodemirrorEditorText(
       Selectors.DocumentJSONEntry
@@ -1272,7 +1274,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     await browser.waitUntil(async () => {
       return (await banner.getText()).includes(
-        'Number exceeds the safe integer range. Wrap it as {"$numberLong": "..."} to preserve its exact value.'
+        'Number exceeds the safe integer range.'
       );
     });
 

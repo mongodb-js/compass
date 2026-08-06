@@ -13,6 +13,7 @@ import {
 import {
   createAggregationAutocompleter,
   CodemirrorMultilineEditor,
+  useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import type { Annotation } from '@mongodb-js/compass-editor';
 import type { RootState } from '../../../modules';
@@ -195,6 +196,11 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
     pipelineText.includes('$rerank') &&
     !isRerankVersionSupported(serverVersion);
 
+  const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
+  const { safeIntegerLinter } = useSafeIntegerLinter({
+    externalAnnotations: annotationsRef,
+  });
+
   const showErrorContainer =
     serverError ||
     syntaxErrors.length > 0 ||
@@ -209,13 +215,13 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
         <CodemirrorMultilineEditor
           text={pipelineText}
           onChangeText={onChangePipelineText}
-          annotations={annotations}
           id="pipeline-text-editor"
           data-testid="pipeline-text-editor"
           completer={completer}
           minLines={16}
           onBlur={onBlurEditor}
           className={codeEditorStyles}
+          linter={safeIntegerLinter}
         />
       </div>
       {(showErrorContainer || showRerankVersionWarning) && (

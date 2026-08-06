@@ -9,9 +9,12 @@ import configureReduxStore, {
 } from '../../../test/configure-store';
 import {
   AIPipelineActionTypes,
+  AI_INPUT_VISIBLE_STORAGE_KEY,
   cancelAIPipelineGeneration,
   runAIPipelineGeneration,
   generateAggregationFromQuery,
+  showInput,
+  hideInput,
 } from './pipeline-ai';
 import { toggleAutoPreview } from '../auto-preview';
 
@@ -228,6 +231,58 @@ describe('AIPipelineReducer', function () {
       expect(store.getState().pipelineBuilder.aiPipeline.status).to.equal(
         'ready'
       );
+    });
+  });
+
+  describe('showInput / hideInput', function () {
+    let fakeLocalStorage: Sinon.SinonStub;
+
+    beforeEach(function () {
+      const localStorageValues: Record<string, string> = Object.create(null);
+
+      fakeLocalStorage = Sinon.stub(global, 'localStorage').value({
+        getItem: (key: string) => localStorageValues[key],
+        setItem: (key: string, value: unknown) => {
+          localStorageValues[key] = String(value);
+        },
+      });
+    });
+
+    afterEach(function () {
+      fakeLocalStorage.restore();
+    });
+
+    it('persists the visible state of the input for new stores', async function () {
+      const store1 = await configureStore();
+      expect(
+        store1.getState().pipelineBuilder.aiPipeline.isInputVisible
+      ).to.equal(false);
+
+      await store1.dispatch(showInput());
+      expect(
+        store1.getState().pipelineBuilder.aiPipeline.isInputVisible
+      ).to.equal(true);
+      expect(localStorage.getItem(AI_INPUT_VISIBLE_STORAGE_KEY)).to.equal(
+        'true'
+      );
+
+      const store2 = await configureStore();
+      expect(
+        store2.getState().pipelineBuilder.aiPipeline.isInputVisible
+      ).to.equal(true);
+
+      store2.dispatch(hideInput());
+      expect(
+        store2.getState().pipelineBuilder.aiPipeline.isInputVisible
+      ).to.equal(false);
+      expect(localStorage.getItem(AI_INPUT_VISIBLE_STORAGE_KEY)).to.equal(
+        'false'
+      );
+
+      const store3 = await configureStore();
+      expect(
+        store3.getState().pipelineBuilder.aiPipeline.isInputVisible
+      ).to.equal(false);
     });
   });
 
