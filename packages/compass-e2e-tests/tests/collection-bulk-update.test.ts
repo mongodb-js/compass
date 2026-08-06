@@ -88,7 +88,6 @@ async function saveUpdateQueryAndRunIt(
       const favouriteName = await element
         .$(Selectors.FavouriteQueryTitle)
         .getText();
-      console.log(favouriteName);
       if (favouriteName === name) {
         await element.click();
         return true;
