@@ -13,9 +13,7 @@ import {
   openToast,
   HorizontalRule,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
 import { SidebarHeader } from './header/sidebar-header';
-import AtlasDebugFooter from './atlas-debug-footer';
 import { type RootState, type SidebarThunkAction } from '../../modules';
 import { Navigation } from './navigation/navigation';
 import ConnectionInfoModal from '../connection-info-modal';
@@ -105,12 +103,6 @@ export function MultipleConnectionSidebar({
   );
   const [connectionInfoModalConnectionId, setConnectionInfoModalConnectionId] =
     useState<string | undefined>();
-
-  const enableAtlasConnectionErrorDebugger = usePreference(
-    'enableAtlasConnectionErrorDebugger'
-  );
-  const showAtlasDebugFooter =
-    enableAtlasConnectionErrorDebugger && !isCompassWeb;
 
   const maybeProtectConnectionString = useMaybeProtectConnectionString();
   const connectionsWithStatus = useConnectionsWithStatus();
@@ -217,7 +209,6 @@ export function MultipleConnectionSidebar({
           }}
           onOpenConnectViaModal={onOpenConnectViaModal}
         />
-        {showAtlasDebugFooter && <AtlasDebugFooter />}
         <MappedCsfleModal
           connectionId={csfleModalConnectionId}
           onClose={onCloseCsfleModal}

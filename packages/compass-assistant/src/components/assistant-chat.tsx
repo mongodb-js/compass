@@ -27,6 +27,7 @@ import {
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
+import { AtlasConnectionStatus } from '@mongodb-js/atlas-service/provider';
 import {
   useTelemetry,
   useSearchActivationProgramP2,
@@ -53,6 +54,12 @@ const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
 const { Message } = LgChatMessage;
 const { InputBar } = LgChatInputBar;
+
+// Tool part type for the Atlas connection-error debugger. Approval requests for
+// this tool are auto-approved because the user already consented by confirming
+// the Atlas debug card that triggered it.
+const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
+  'tool-atlas-connection-error-debugger';
 
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
@@ -265,6 +272,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const { ensureOptInAndSend, ensureAtlasSignIn, getAtlasSignedIn } =
     useContext(AssistantActionsContext);
   const [isAtlasSignedIn, setIsAtlasSignedIn] = useState(false);
+  const enableAtlasConnectionErrorDebugger = usePreference(
+    'enableAtlasConnectionErrorDebugger'
+  );
   const {
     messages,
     status,
@@ -420,6 +430,25 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     prevToolCallingEnabled.current = areToolCallsEnabled;
   }, [areToolCallsEnabled, chat, addToolApprovalResponse]);
 
+  // Auto-approve pending approval requests for the Atlas connection-error
+  // debugger tool: the user already consented by confirming the Atlas debug
+  // card that triggered it, so a second approval prompt would be redundant.
+  useEffect(() => {
+    for (const message of chat.messages) {
+      for (const part of message.parts) {
+        if (
+          partIsApprovalRequest(part) &&
+          part.type === ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE
+        ) {
+          void addToolApprovalResponse({
+            id: part.approval.id,
+            approved: true,
+          });
+        }
+      }
+    }
+  }, [chat, messages, addToolApprovalResponse]);
+
   const handleMessageSend = useCallback(
     async ({ text, metadata }: SendMessageOptions) => {
       const trimmedMessageBody = text.trim();
@@ -488,15 +517,19 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const handleConfirmation = useCallback(
     (
       confirmedMessage: AssistantMessage,
-      newState: 'confirmed' | 'rejected'
+      newState: 'confirmed' | 'rejected',
+      // Overrides the `continueOn` policy to force continuing regardless of the
+      // resolved state. Used by flows that must send a follow-up on either
+      // outcome (e.g. the Atlas debug card, which runs the tool on confirm and
+      // falls back to the standard debug prompt on reject).
+      { forceContinue = false }: { forceContinue?: boolean } = {}
     ) => {
-      // Which choice continues the conversation (pushes a follow-up message
-      // and sends it). Defaults to 'confirmed' so the generic flow sends on
-      // confirm; specific flows (e.g. Atlas connection errors) can declare a
-      // different policy via metadata.
+      // Which choice continues the conversation (pushes a follow-up message and
+      // sends it). Defaults to 'confirmed' so the generic flow sends on confirm;
+      // specific flows can declare a different policy via `continueOn` metadata.
       const continueOn =
         confirmedMessage.metadata?.confirmation?.continueOn ?? 'confirmed';
-      const shouldContinue = newState === continueOn;
+      const shouldContinue = forceContinue || newState === continueOn;
 
       setMessages((messages) => {
         const newMessages: AssistantMessage[] = messages.map((message) => {
@@ -579,12 +612,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
         .then((ok) => {
           setIsAtlasSignedIn(!!ok);
           if (ok) {
-            // TODO(COMPASS-10828): The user is signed in and confirmed via
-            // "Run". Trigger the Atlas connection-error debugging actions here
-            // (e.g. run the atlas-connection-error-debugger tool and surface
-            // its results). For now we just mark the confirmation as accepted.
-            handleConfirmation(message, 'confirmed');
+            // The user is signed in and confirmed via "Run": mark the card
+            // confirmed AND send the message (forceContinue, since the Atlas
+            // card's `continueOn` is 'rejected') so the assistant runs the
+            // atlas-connection-error-debugger tool. The message carries the
+            // tool instruction in `metadata.instructions`.
+            handleConfirmation(message, 'confirmed', { forceContinue: true });
           } else {
+            // Sign-in failed/declined: fall back to the standard debug flow.
             handleConfirmation(message, 'rejected');
           }
         })
@@ -650,6 +685,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     >
       <LeafyGreenChatProvider>
         <ChatWindow>
+          {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
           <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}

@@ -77,7 +77,6 @@ describe('SidebarStore [Store]', function () {
         } as any,
         instancesManager: instancesManager,
         logger: createNoopLogger(),
-        atlasAuthService: {} as any,
       },
       { on() {}, cleanup() {}, addCleanup() {} } as any
     ));

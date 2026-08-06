@@ -382,6 +382,9 @@ Error message:
 ${connectionError}`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
+      instructions: isAtlasConnection
+        ? 'Use the atlas-connection-error-debugger tool to check the connection and provide specific guidance on how to fix it.'
+        : undefined,
       connectionInfo: {
         id: connectionInfo.id,
         name: getConnectionTitle(connectionInfo),

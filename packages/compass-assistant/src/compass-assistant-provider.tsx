@@ -757,7 +757,7 @@ function ensureAtlasSignInThunk(): AssistantThunkAction<Promise<boolean>> {
       await atlasAuthService.signIn({ mainProcessSignIn: true });
       // The main-process sign-in flow does not emit 'signed-in' on the
       // renderer-side service instance (unlike the store-driven flow), so emit
-      // it here to notify subscribers such as the sidebar debug footer.
+      // it here to notify subscribers such as the Atlas connection status.
       atlasAuthService.emit('signed-in');
       return true;
     } catch {

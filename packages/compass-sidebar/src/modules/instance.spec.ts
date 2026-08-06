@@ -76,7 +76,6 @@ describe('sidebar instance', function () {
           connections: connectionsService,
           instancesManager,
           logger,
-          atlasAuthService: {} as any,
         }
       );
 

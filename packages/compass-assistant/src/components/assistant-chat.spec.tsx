@@ -21,7 +21,7 @@ import {
   type AssistantMessage,
 } from '../compass-assistant-provider';
 import sinon from 'sinon';
-import type { SourceUrlUIPart, TextPart } from 'ai';
+import type { SourceUrlUIPart, TextPart, ToolUIPart } from 'ai';
 import { Chat } from '../@ai-sdk/react/chat-react';
 import {
   ToolsControllerProvider,
@@ -1046,6 +1046,8 @@ describe('AssistantChat', function () {
         metadata: {
           source: 'connection error',
           connectionInfo: { id: 'conn-1', name: 'My Cluster' },
+          instructions:
+            'Use the atlas-connection-error-debugger tool to check the connection.',
           confirmation: {
             state: 'pending',
             description: 'Connecting would call Atlas API endpoints.',
@@ -1090,7 +1092,7 @@ describe('AssistantChat', function () {
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
     });
 
-    it('confirms without sending a follow-up when sign-in succeeds', async function () {
+    it('runs the debug tool by sending a message with the tool instruction when sign-in succeeds', async function () {
       const { chat, ensureAtlasSignInStub, ensureOptInAndSendStub } =
         renderWithChat(
           createMockChat({ messages: [makeAtlasConfirmationMessage()] }),
@@ -1105,10 +1107,16 @@ describe('AssistantChat', function () {
         );
       });
       expect(ensureAtlasSignInStub).to.have.been.calledOnce;
-      // continueOn is 'rejected', so confirming must NOT push/send a new
-      // message (the model is expected to call the debug tool instead).
-      expect(chat.messages).to.have.length(1);
-      expect(ensureOptInAndSendStub).to.not.have.been.called;
+      // On confirm, a copy of the message is pushed without confirmation
+      // metadata (so it is sent) and it carries the tool instruction so the
+      // assistant runs the atlas-connection-error-debugger tool.
+      expect(chat.messages).to.have.length(2);
+      const sentMessage = chat.messages[1];
+      expect(sentMessage.metadata?.confirmation).to.be.undefined;
+      expect(sentMessage.metadata?.instructions).to.contain(
+        'atlas-connection-error-debugger'
+      );
+      expect(ensureOptInAndSendStub).to.have.been.called;
     });
 
     it('falls back to the standard debug flow when sign-in fails', async function () {
@@ -1170,6 +1178,57 @@ describe('AssistantChat', function () {
       // Skipping should not attempt to sign in.
       expect(ensureAtlasSignInStub).to.not.have.been.called;
       expect(chat.messages).to.have.length(2);
+    });
+
+    it('auto-approves the atlas-connection-error-debugger tool call', function () {
+      const atlasToolMessage: AssistantMessage = {
+        id: 'atlas-tool-call',
+        role: 'assistant',
+        parts: [
+          {
+            type: 'tool-atlas-connection-error-debugger',
+            toolCallId: 'atlas-tool-call-1',
+            state: 'approval-requested',
+            approval: { id: 'atlas-approval-1' },
+          } as unknown as ToolUIPart,
+        ],
+      };
+      const chat = createMockChat({ messages: [atlasToolMessage] });
+      const addToolApprovalResponse = sinon.spy(
+        chat,
+        'addToolApprovalResponse'
+      );
+
+      renderWithChat(chat);
+
+      expect(addToolApprovalResponse).to.have.been.calledOnceWith({
+        id: 'atlas-approval-1',
+        approved: true,
+      });
+    });
+
+    it('does not auto-approve other tool calls', function () {
+      const otherToolMessage: AssistantMessage = {
+        id: 'other-tool-call',
+        role: 'assistant',
+        parts: [
+          {
+            type: 'tool-find',
+            toolCallId: 'find-call-1',
+            state: 'approval-requested',
+            approval: { id: 'find-approval-1' },
+          } as unknown as ToolUIPart,
+        ],
+      };
+      const chat = createMockChat({ messages: [otherToolMessage] });
+      const addToolApprovalResponse = sinon.spy(
+        chat,
+        'addToolApprovalResponse'
+      );
+
+      renderWithChat(chat);
+
+      expect(addToolApprovalResponse).to.not.have.been.called;
     });
   });
 

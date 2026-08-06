@@ -14,10 +14,6 @@ import type { ConnectionsService } from '@mongodb-js/compass-connections/provide
 import { connectionsLocator } from '@mongodb-js/compass-connections/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
-import {
-  type AtlasAuthService,
-  atlasAuthServiceLocator,
-} from '@mongodb-js/atlas-service/provider';
 import { AtlasClusterConnectionsOnly } from './components/multiple-connections/connections-navigation';
 
 export const CompassSidebarPlugin = registerCompassPlugin(
@@ -31,13 +27,11 @@ export const CompassSidebarPlugin = registerCompassPlugin(
         connections,
         instancesManager,
         logger,
-        atlasAuthService,
       }: {
         globalAppRegistry: AppRegistry;
         connections: ConnectionsService;
         instancesManager: MongoDBInstancesManager;
         logger: Logger;
-        atlasAuthService: AtlasAuthService;
       },
       helpers: ActivateHelpers
     ) {
@@ -47,7 +41,6 @@ export const CompassSidebarPlugin = registerCompassPlugin(
           connections,
           instancesManager,
           logger,
-          atlasAuthService,
         },
         helpers
       );
@@ -61,7 +54,6 @@ export const CompassSidebarPlugin = registerCompassPlugin(
     connections: connectionsLocator,
     instancesManager: mongoDBInstancesManagerLocator,
     logger: createLoggerLocator('COMPASS-SIDEBAR-UI'),
-    atlasAuthService: atlasAuthServiceLocator,
   }
 );
 

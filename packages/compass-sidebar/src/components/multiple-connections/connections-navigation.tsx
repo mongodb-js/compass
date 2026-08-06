@@ -69,12 +69,7 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 
 const connectionsContainerStyles = css({
-  // Grow to fill the remaining space in the sidebar's flex column while still
-  // leaving room for any siblings below (e.g. the Atlas debug footer).
-  // `minHeight: 0` allows the inner list to shrink and scroll instead of
-  // forcing the container to its full content height.
-  flex: 1,
-  minHeight: 0,
+  height: '100%',
   paddingBottom: spacing[400],
   display: 'flex',
   flexDirection: 'column',
