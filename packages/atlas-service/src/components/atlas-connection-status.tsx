@@ -51,6 +51,14 @@ const labelTextStyles = css({
 const labelTextStylesLight = css({ color: palette.gray.dark1 });
 const labelTextStylesDark = css({ color: palette.gray.light1 });
 
+const disconnectConfirmationModalDetails = {
+  title: 'Are you sure you want to disconnect Atlas?',
+  description:
+    "Once Atlas is disconnected you won't have Atlas context anymore.",
+  variant: ConfirmationModalVariant.Danger,
+  buttonText: 'Disconnect',
+};
+
 export interface AtlasConnectionStatusProps {
   'data-testid'?: string;
 }
@@ -101,11 +109,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
   const onDisconnect = useCallback(() => {
     void (async () => {
       const confirmed = await showConfirmation({
-        title: 'Are you sure you want to disconnect Atlas?',
-        description:
-          "Once Atlas is disconnected you won't have Atlas context anymore.",
-        variant: ConfirmationModalVariant.Danger,
-        buttonText: 'Disconnect',
+        ...disconnectConfirmationModalDetails,
       });
       if (!confirmed) {
         return;
