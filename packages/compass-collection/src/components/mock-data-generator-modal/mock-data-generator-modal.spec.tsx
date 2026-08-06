@@ -294,9 +294,7 @@ describe('MockDataGeneratorModal', () => {
       });
 
       expect(
-        screen
-          .getByRole('button', { name: /Confirm/ })
-          .getAttribute('aria-disabled')
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
       ).to.equal('true');
     });
 
@@ -474,11 +472,7 @@ describe('MockDataGeneratorModal', () => {
 
     it('shows the AI icon on the Confirm button', async () => {
       await renderModal();
-      expect(
-        screen
-          .getByTestId('next-step-button')
-          .querySelector('[aria-label="Sparkle Icon"]')
-      ).to.exist;
+      expect(screen.getByTestId('confirm-button-ai-icon')).to.exist;
     });
 
     it('displays sample document when sample document passing is enabled', async () => {

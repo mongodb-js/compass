@@ -183,7 +183,7 @@ const MockDataGeneratorModal = ({
             disabled={isNextButtonDisabled}
             leftGlyph={
               currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION ? (
-                <Icon glyph="Sparkle" />
+                <Icon glyph="Sparkle" data-testid="confirm-button-ai-icon" />
               ) : undefined
             }
           >
