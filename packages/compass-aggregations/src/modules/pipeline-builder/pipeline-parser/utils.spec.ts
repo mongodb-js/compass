@@ -49,7 +49,7 @@ describe('PipelineParser Utils', function () {
       `'); globalThis['${MARKER}'] = true; //`,
       `") ; globalThis['${MARKER}'] = true; //`,
       `') + (({}).constructor.constructor('globalThis[\\'${MARKER}\\'] = true')()) + ('`,
-      `') + [].constructor.constructor('return process')().mainModule.require('child_process').exec('echo test') + ('`,
+      `') + [].constructor.constructor('globalThis['${MARKER}'] = true')() + ('`,
       `'\n; globalThis['${MARKER}'] = true; '`,
       `'\r\n; globalThis['${MARKER}'] = true; '`,
     ];
