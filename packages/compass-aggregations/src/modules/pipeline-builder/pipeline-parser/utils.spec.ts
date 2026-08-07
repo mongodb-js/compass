@@ -50,6 +50,7 @@ describe('PipelineParser Utils', function () {
       `") ; globalThis['${MARKER}'] = true; //`,
       `') + (({}).constructor.constructor('globalThis[\\'${MARKER}\\'] = true')()) + ('`,
       `') + [].constructor.constructor('globalThis['${MARKER}'] = true')() + ('`,
+      `') + Function('globalThis[\\'${MARKER}\\'] = true')() + ('`,
       `'\n; globalThis['${MARKER}'] = true; '`,
       `'\r\n; globalThis['${MARKER}'] = true; '`,
     ];
@@ -92,6 +93,22 @@ describe('PipelineParser Utils', function () {
 
           expect(parsed[0].$match.$where.code).to.equal(payload);
           expect(parsed[0].$match.$where.scope?.[MARKER]).to.equal(payload);
+          expect(marker()).to.equal(undefined);
+        });
+
+        it('round-trips a Code with the payload as a scope key', function () {
+          const source = toJSString([
+            {
+              $match: {
+                $where: new Code('return true;', { [payload]: 1 }),
+              },
+            },
+          ]) as string;
+
+          const parsed = parseShellBSON<ParsedPipeline>(source);
+
+          expect(parsed[0].$match.$where.code).to.equal('return true;');
+          expect(parsed[0].$match.$where.scope?.[payload]).to.equal(1);
           expect(marker()).to.equal(undefined);
         });
       });
