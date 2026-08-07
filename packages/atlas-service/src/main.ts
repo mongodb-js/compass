@@ -244,6 +244,7 @@ export class CompassAuthService {
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
     throwIfAborted(signal);
+    await this.initPromise;
     return !!this.currentUser;
   }
 
@@ -271,7 +272,7 @@ export class CompassAuthService {
     } catch {
       this.currentUser = null;
       log.info(
-        mongoLogId(1_001_000_437),
+        mongoLogId(1_001_000_439),
         'AtlasService',
         'Did not restore sign in state',
         { reason: 'Failed to parse access token' }
