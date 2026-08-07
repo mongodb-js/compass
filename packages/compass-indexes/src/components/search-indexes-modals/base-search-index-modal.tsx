@@ -51,6 +51,7 @@ import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { isEqual } from 'lodash';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
+import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
 
 const bodyStyles = css({
   display: 'flex',
@@ -410,6 +411,19 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     }
   }, [isAutoEmbedPreviewMessagingActive, initialIndexDefinition]);
 
+  // At GA the edit is allowed but re-triggers embedding, so warn about cost instead.
+  const showAutoEmbedEditCostBanner = useMemo(() => {
+    if (!enableAutoEmbeddingGaRelease || mode !== 'update') {
+      return false;
+    }
+    try {
+      const latestDefinition = parseShellBSON(initialIndexDefinition);
+      return isAutoEmbedIndex({ latestDefinition });
+    } catch {
+      return false;
+    }
+  }, [enableAutoEmbeddingGaRelease, mode, initialIndexDefinition]);
+
   const isEditingVectorSearchIndex =
     mode === 'update' && initialIndexType === 'vectorSearch';
 
@@ -581,7 +595,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         </div>
         {parsingError && <WarningSummary warnings={parsingError.message} />}
         {!parsingError && error && <ErrorSummary errors={error} />}
-        {mode === 'update' && (
+        {mode === 'update' && !showAutoEmbedEditCostBanner && (
           <Banner>
             Note: Updating the index definition will consume additional
             resources on your cluster.
@@ -593,6 +607,11 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             quantization, etc.) in an existing index during Public Preview. This
             includes adding, removing, or modifying fields. To use a different
             autoEmbed configuration, create a new index.
+          </Banner>
+        )}
+        {showAutoEmbedEditCostBanner && (
+          <Banner data-testid="auto-embed-edit-cost-banner">
+            {AUTO_EMBED_EDIT_COST_WARNING}
           </Banner>
         )}
       </ModalBody>

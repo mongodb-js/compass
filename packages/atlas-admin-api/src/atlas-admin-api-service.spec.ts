@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import Sinon from 'sinon';
 
-import { AtlasClusterService } from './atlas-cluster-service';
+import { AtlasAdminApiService } from './atlas-admin-api-service';
+import { ATLAS_ADMIN_API_DEFAULT_VERSION } from './version';
 
 // Minimal error shape matching what AtlasService.authenticatedFetch throws on a
 // non-ok response; the cluster service only reads `statusCode`.
@@ -13,13 +14,13 @@ class FakeAtlasServiceError extends Error {
   }
 }
 
-describe('AtlasClusterService', function () {
+describe('AtlasAdminApiService', function () {
   let sandbox: Sinon.SinonSandbox;
   let atlasServiceStub: {
     adminApiEndpoint: Sinon.SinonStub;
     authenticatedFetch: Sinon.SinonStub;
   };
-  let service: AtlasClusterService;
+  let service: AtlasAdminApiService;
 
   // Queue up JSON bodies to be returned by successive authenticatedFetch calls.
   function stubSequentialJsonResponses(bodies: unknown[]) {
@@ -52,7 +53,7 @@ describe('AtlasClusterService', function () {
         .callsFake((path = '') => `http://example.com/api/atlas${path}`),
       authenticatedFetch: sandbox.stub(),
     };
-    service = new AtlasClusterService(atlasServiceStub);
+    service = new AtlasAdminApiService(atlasServiceStub);
   });
 
   afterEach(function () {
@@ -88,6 +89,34 @@ describe('AtlasClusterService', function () {
 
       expect(atlasServiceStub.authenticatedFetch.firstCall.args[1]).to.include({
         method: 'GET',
+      });
+    });
+
+    it('should send the versioned Accept header', async function () {
+      stubSequentialJsonResponses([page([])]);
+
+      await service.listGroupIds();
+
+      // Without this the Atlas Admin API rejects the request with
+      // INVALID_VERSION_DATE.
+      expect(
+        atlasServiceStub.authenticatedFetch.firstCall.args[1].headers
+      ).to.deep.equal({
+        Accept: `application/vnd.atlas.${ATLAS_ADMIN_API_DEFAULT_VERSION}+json`,
+      });
+    });
+
+    it('should let an endpoint override the version', async function () {
+      stubSequentialJsonResponses([page([])]);
+
+      await service.getProjectIPAccessList('abc123', {
+        version: '2024-08-05',
+      });
+
+      expect(
+        atlasServiceStub.authenticatedFetch.firstCall.args[1].headers
+      ).to.deep.equal({
+        Accept: 'application/vnd.atlas.2024-08-05+json',
       });
     });
 
@@ -272,6 +301,125 @@ describe('AtlasClusterService', function () {
     });
   });
 
+  describe('getProjectIdAndClusterName caching', function () {
+    function stubSingleMatch() {
+      stubSequentialJsonResponses([
+        page([{ groupId: 'g1' }]),
+        page([
+          {
+            name: 'c1',
+            connectionStrings: {
+              standardSrv: 'mongodb+srv://c1.aaaaa.mongodb.net',
+            },
+          },
+        ]),
+      ]);
+    }
+
+    it('should not re-fetch for a connection string it already resolved', async function () {
+      stubSingleMatch();
+
+      const first = await service.getProjectIdAndClusterName(
+        'mongodb+srv://c1.aaaaa.mongodb.net'
+      );
+      const callsAfterFirst = atlasServiceStub.authenticatedFetch.callCount;
+      const second = await service.getProjectIdAndClusterName(
+        'mongodb+srv://c1.aaaaa.mongodb.net'
+      );
+
+      expect(second).to.deep.equal(first);
+      expect(atlasServiceStub.authenticatedFetch.callCount).to.equal(
+        callsAfterFirst
+      );
+    });
+
+    it('should share a single lookup between concurrent callers', async function () {
+      stubSingleMatch();
+
+      const [first, second] = await Promise.all([
+        service.getProjectIdAndClusterName(
+          'mongodb+srv://c1.aaaaa.mongodb.net'
+        ),
+        service.getProjectIdAndClusterName(
+          'mongodb+srv://c1.aaaaa.mongodb.net'
+        ),
+      ]);
+
+      expect(first).to.deep.equal({ projectId: 'g1', clusterName: 'c1' });
+      expect(second).to.deep.equal(first);
+      // listGroupIds + listConnectionStrings('g1'), not doubled.
+      expect(atlasServiceStub.authenticatedFetch.callCount).to.equal(2);
+    });
+
+    // `onCall(i)` indices are absolute, so re-arming the stub for a second
+    // round of requests needs the call history cleared as well.
+    function rearmSingleMatch() {
+      atlasServiceStub.authenticatedFetch.resetBehavior();
+      atlasServiceStub.authenticatedFetch.resetHistory();
+      stubSingleMatch();
+    }
+
+    it('should re-fetch after clearCache', async function () {
+      stubSingleMatch();
+
+      await service.getProjectIdAndClusterName(
+        'mongodb+srv://c1.aaaaa.mongodb.net'
+      );
+
+      service.clearCache();
+      rearmSingleMatch();
+
+      const res = await service.getProjectIdAndClusterName(
+        'mongodb+srv://c1.aaaaa.mongodb.net'
+      );
+
+      expect(res).to.deep.equal({ projectId: 'g1', clusterName: 'c1' });
+      expect(atlasServiceStub.authenticatedFetch.callCount).to.equal(2);
+    });
+
+    it('should not cache a lookup that found no cluster', async function () {
+      stubSingleMatch();
+
+      const first = await service.getProjectIdAndClusterName(
+        'mongodb+srv://other.zzzzz.mongodb.net'
+      );
+
+      rearmSingleMatch();
+
+      const second = await service.getProjectIdAndClusterName(
+        'mongodb+srv://other.zzzzz.mongodb.net'
+      );
+
+      expect(first).to.equal(undefined);
+      expect(second).to.equal(undefined);
+      // Re-queried rather than replaying the cached miss.
+      expect(atlasServiceStub.authenticatedFetch.callCount).to.equal(2);
+    });
+
+    it('should not cache a lookup that failed', async function () {
+      atlasServiceStub.authenticatedFetch.rejects(
+        new FakeAtlasServiceError(500)
+      );
+
+      try {
+        await service.getProjectIdAndClusterName(
+          'mongodb+srv://c1.aaaaa.mongodb.net'
+        );
+        expect.fail('Expected getProjectIdAndClusterName to throw');
+      } catch (err) {
+        expect(err).to.have.property('statusCode', 500);
+      }
+
+      rearmSingleMatch();
+
+      const res = await service.getProjectIdAndClusterName(
+        'mongodb+srv://c1.aaaaa.mongodb.net'
+      );
+
+      expect(res).to.deep.equal({ projectId: 'g1', clusterName: 'c1' });
+    });
+  });
+
   describe('getClusterState', function () {
     function stubClusterResponse(body: unknown) {
       atlasServiceStub.authenticatedFetch.resolves({
@@ -279,35 +427,14 @@ describe('AtlasClusterService', function () {
       });
     }
 
-    it('should hit the single cluster endpoint and return the computed state', async function () {
+    it('should hit the single cluster endpoint and return the state', async function () {
       stubClusterResponse({ name: 'c1', paused: false, stateName: 'IDLE' });
 
       const res = await service.getClusterState('abc123', 'c1');
 
-      expect(res).to.equal('IDLE');
+      expect(res).to.deep.equal({ state: 'IDLE', paused: false });
       expect(atlasServiceStub.authenticatedFetch.firstCall.args[0]).to.equal(
         'http://example.com/api/atlas/v2/groups/abc123/clusters/c1'
-      );
-    });
-
-    it('should compute PAUSED / PROVISIONING from the response', async function () {
-      stubClusterResponse({ name: 'c1', paused: true, stateName: 'IDLE' });
-      expect(await service.getClusterState('abc123', 'c1')).to.equal('PAUSED');
-
-      atlasServiceStub.authenticatedFetch.resetBehavior();
-      stubClusterResponse({ name: 'c1', paused: false, stateName: 'CREATING' });
-      expect(await service.getClusterState('abc123', 'c1')).to.equal(
-        'PROVISIONING'
-      );
-    });
-
-    it('should map a 404 to NOT_FOUND', async function () {
-      atlasServiceStub.authenticatedFetch.rejects(
-        new FakeAtlasServiceError(404)
-      );
-
-      expect(await service.getClusterState('abc123', 'missing')).to.equal(
-        'NOT_FOUND'
       );
     });
 
@@ -341,9 +468,10 @@ describe('AtlasClusterService', function () {
     it('should pass through a state that is not explicitly mapped', async function () {
       stubClusterResponse({ name: 'c1', paused: false, stateName: 'DELETING' });
 
-      expect(await service.getClusterState('abc123', 'c1')).to.equal(
-        'DELETING'
-      );
+      expect(await service.getClusterState('abc123', 'c1')).to.deep.equal({
+        state: 'DELETING',
+        paused: false,
+      });
     });
   });
 
