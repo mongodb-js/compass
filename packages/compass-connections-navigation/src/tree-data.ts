@@ -1,4 +1,5 @@
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
+import toNS from 'mongodb-ns';
 import {
   MAX_COLLECTION_PLACEHOLDER_ITEMS,
   MAX_DATABASE_PLACEHOLDER_ITEMS,
@@ -8,7 +9,6 @@ import type {
   VirtualPlaceholderItem,
   VirtualTreeItem,
 } from './virtual-list/use-virtual-navigation-tree';
-import { ConnectionStatus } from '@mongodb-js/compass-connections/provider';
 
 type DatabaseOrCollectionStatus =
   | 'initial'
@@ -105,6 +105,11 @@ export type DatabaseTreeItem = VirtualTreeItem & {
   hasWriteActionsDisabled: boolean;
   canDeleteDatabase: boolean;
   inferredFromPrivileges: boolean;
+  // Raw namespace classification (from mongodb-ns), not a display decision.
+  // isInternal: an Atlas-managed internal database (__mdb_internal_*).
+  // isSpecialish: isInternal, plus admin/local/config.
+  isInternal: boolean;
+  isSpecialish: boolean;
 };
 
 export type CollectionTreeItem = VirtualTreeItem & {
@@ -118,6 +123,10 @@ export type CollectionTreeItem = VirtualTreeItem & {
   hasWriteActionsDisabled: boolean;
   canEditCollection: boolean;
   inferredFromPrivileges: boolean;
+  // isSystem: a system.* (except system.profile) or enxcol_.* collection.
+  // Whether this collection's *database* is hidden is available via
+  // databaseItem.isSpecialish rather than duplicated here.
+  isSystem: boolean;
 };
 
 export type SidebarActionableItem =
@@ -222,9 +231,10 @@ const connectedConnectionToItems = ({
     return sidebarData;
   }
 
-  const areDatabasesReady = ['ready', 'refreshing', 'error'].includes(
-    databasesStatus
-  );
+  const areDatabasesReady =
+    databasesStatus === 'ready' ||
+    databasesStatus === 'refreshing' ||
+    databasesStatus === 'error';
   const placeholdersLength = Math.max(
     Math.min(databasesLength, MAX_DATABASE_PLACEHOLDER_ITEMS),
     // we are connecting and we don't have metadata on how many databases are in this cluster
@@ -294,6 +304,7 @@ const databaseToItems = ({
   canEditCollection: boolean;
 }): SidebarTreeItem[] => {
   const isExpanded = !!expandedItems[id];
+  const ns = toNS(id);
   const databaseTI: DatabaseTreeItem = {
     id: `${connectionId}.${id}`,
     level,
@@ -310,6 +321,8 @@ const databaseToItems = ({
     hasWriteActionsDisabled,
     inferredFromPrivileges,
     canDeleteDatabase,
+    isInternal: ns.internal,
+    isSpecialish: ns.specialish,
   };
 
   const sidebarData: SidebarTreeItem[] = [databaseTI];
@@ -317,9 +330,10 @@ const databaseToItems = ({
     return sidebarData;
   }
 
-  const areCollectionsReady = ['ready', 'refreshing', 'error'].includes(
-    collectionsStatus
-  );
+  const areCollectionsReady =
+    collectionsStatus === 'ready' ||
+    collectionsStatus === 'refreshing' ||
+    collectionsStatus === 'error';
   const placeholdersLength = Math.min(
     collectionsLength,
     MAX_COLLECTION_PLACEHOLDER_ITEMS
@@ -353,6 +367,7 @@ const databaseToItems = ({
         isExpandable: false,
         inferredFromPrivileges,
         canEditCollection,
+        isSystem: toNS(id).system,
       })
     )
   );
@@ -381,7 +396,7 @@ export function getVirtualTreeItems({
   preferencesShellEnabled: boolean;
 }): SidebarTreeItem[] {
   return connections.flatMap((connection, connectionIndex) => {
-    if (connection.connectionStatus === ConnectionStatus.Connected) {
+    if (connection.connectionStatus === 'connected') {
       return connectedConnectionToItems({
         connection,
         expandedItems,
@@ -399,4 +414,87 @@ export function getVirtualTreeItems({
       });
     }
   });
+}
+
+/**
+ * Whether a tree item represents a namespace that is hidden by default
+ * (internal, system, or one of admin/local/config). This is derived purely
+ * from the namespace data already present on the item, independent of any
+ * user setting.
+ */
+export function isHiddenTreeItem(item: SidebarTreeItem): boolean {
+  if (item.type === 'database') {
+    return item.isSpecialish;
+  }
+  if (
+    item.type === 'collection' ||
+    item.type === 'view' ||
+    item.type === 'timeseries'
+  ) {
+    return item.isSystem || item.databaseItem.isSpecialish;
+  }
+  return false;
+}
+
+function selectVisibleDatabase(database: Database): Database {
+  const collectionsLoaded =
+    database.collectionsStatus === 'ready' ||
+    database.collectionsStatus === 'refreshing' ||
+    database.collectionsStatus === 'error';
+
+  const collections: Collection[] = [];
+  for (const collection of database.collections) {
+    if (!toNS(collection._id).system) {
+      collections.push(collection);
+    }
+  }
+
+  return {
+    ...database,
+    collectionsLength: collectionsLoaded
+      ? collections.length
+      : database.collectionsLength,
+    collections,
+  };
+}
+
+function selectVisibleConnection(connection: Connection): Connection {
+  if (connection.connectionStatus !== 'connected') {
+    return connection;
+  }
+
+  const databasesLoaded =
+    connection.databasesStatus === 'ready' ||
+    connection.databasesStatus === 'refreshing' ||
+    connection.databasesStatus === 'error';
+
+  const databases: Database[] = [];
+  for (const database of connection.databases) {
+    if (!toNS(database._id).specialish) {
+      databases.push(selectVisibleDatabase(database));
+    }
+  }
+
+  return {
+    ...connection,
+    databasesLength: databasesLoaded
+      ? databases.length
+      : connection.databasesLength,
+    databases,
+  };
+}
+
+export function selectVisibleConnections(
+  connections: Connection[],
+  { showHiddenNamespaces }: { showHiddenNamespaces: boolean }
+): Connection[] {
+  if (showHiddenNamespaces) {
+    return connections;
+  }
+
+  const result: Connection[] = [];
+  for (const connection of connections) {
+    result.push(selectVisibleConnection(connection));
+  }
+  return result;
 }

@@ -51,11 +51,12 @@
     "@mongodb-js/compass-components": "^1.68.0",
     "@mongodb-js/compass-connections": "^2.2.0",
     "@mongodb-js/compass-context-menu": "^0.3.15",
-    "@mongodb-js/workspace-info": "^1.10.0",
     "@mongodb-js/connection-form": "^1.85.0",
     "@mongodb-js/connection-info": "^0.28.2",
+    "@mongodb-js/workspace-info": "^1.10.0",
     "compass-preferences-model": "^3.2.0",
     "mongodb-build-info": "^1.8.1",
+    "mongodb-ns": "^3.2.1",
     "react": "^17.0.2",
     "react-virtualized-auto-sizer": "^1.0.6",
     "react-window": "^1.8.6"

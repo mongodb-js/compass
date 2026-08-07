@@ -1,6 +1,10 @@
 import React, { useCallback, useMemo } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { getConnectionId, getVirtualTreeItems } from './tree-data';
+import {
+  getConnectionId,
+  getVirtualTreeItems,
+  selectVisibleConnections,
+} from './tree-data';
 import { ROW_HEIGHT } from './constants';
 import type { Actions } from './constants';
 import { VirtualTree } from './virtual-list/virtual-list';
@@ -60,15 +64,29 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     enableShell: preferencesShellEnabled,
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
-  } = usePreferences(['enableShell', 'readOnly', 'readWrite']);
+    showHiddenNamespaces,
+  } = usePreferences([
+    'enableShell',
+    'readOnly',
+    'readWrite',
+    'showHiddenNamespaces',
+  ]);
   const isRenameCollectionEnabled = !preferencesReadWrite;
 
   const id = useId();
   const getConnectable = useConnectable();
 
   const treeData = useMemo(() => {
+    // getVirtualTreeItems itself has no notion of the setting: it always
+    // builds whatever connections it's given. Whether hidden namespaces are
+    // even part of that is decided here, by combining the setting with each
+    // namespace's own data, before the tree (and its setSize/posInSet) gets
+    // built.
+    const visibleConnections = selectVisibleConnections(connections, {
+      showHiddenNamespaces,
+    });
     return getVirtualTreeItems({
-      connections,
+      connections: visibleConnections,
       expandedItems: expanded,
       preferencesReadOnly,
       preferencesReadWrite,
@@ -80,6 +98,7 @@ const ConnectionsNavigationTree: React.FunctionComponent<
     preferencesReadOnly,
     preferencesReadWrite,
     preferencesShellEnabled,
+    showHiddenNamespaces,
   ]);
 
   const onDefaultAction: OnDefaultAction<SidebarActionableItem> = useCallback(

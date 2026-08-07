@@ -34,7 +34,7 @@ describe('mongodb-collection-model', function () {
       };
     }
 
-    it('hides system collections but keeps system.profile', async function () {
+    it('keeps system collections in the list', async function () {
       var collections = new CollectionCollection([], {
         parent: createFakeDatabase(),
       });
@@ -56,7 +56,7 @@ describe('mongodb-collection-model', function () {
         collections.map(function (coll) {
           return coll._id;
         }),
-        ['test.bar', 'test.foo', 'test.system.profile']
+        ['test.bar', 'test.foo', 'test.system.profile', 'test.system.views']
       );
     });
   });
