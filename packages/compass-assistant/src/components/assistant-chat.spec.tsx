@@ -21,7 +21,7 @@ import {
   type AssistantMessage,
 } from '../compass-assistant-provider';
 import sinon from 'sinon';
-import type { SourceUrlUIPart, TextPart } from 'ai';
+import type { SourceUrlUIPart, TextPart, ToolUIPart } from 'ai';
 import { Chat } from '../@ai-sdk/react/chat-react';
 import {
   ToolsControllerProvider,
@@ -80,6 +80,8 @@ describe('AssistantChat', function () {
       preferences,
       trackingOptions = {},
       experimentVariant = null,
+      ensureAtlasSignInResult = false,
+      getAtlasSignedInResult = false,
     }: {
       connections?: ConnectionInfo[];
       preferences?: Partial<AllPreferences>;
@@ -87,6 +89,8 @@ describe('AssistantChat', function () {
         requestId?: string;
       };
       experimentVariant?: ExperimentTestGroup | null;
+      ensureAtlasSignInResult?: boolean;
+      getAtlasSignedInResult?: boolean;
     } = {}
   ) {
     // The chat component does not use chat.sendMessage() directly, it uses
@@ -100,8 +104,15 @@ describe('AssistantChat', function () {
         await chat.sendMessage(message, options);
       });
 
+    const ensureAtlasSignInStub = sinon
+      .stub()
+      .resolves(ensureAtlasSignInResult);
+    const getAtlasSignedInStub = sinon.stub().resolves(getAtlasSignedInResult);
+
     const assistantActionsContext = {
       ensureOptInAndSend: ensureOptInAndSendStub,
+      ensureAtlasSignIn: ensureAtlasSignInStub,
+      getAtlasSignedIn: getAtlasSignedInStub,
     };
     const result = render(
       <ToolsControllerProvider>
@@ -119,6 +130,8 @@ describe('AssistantChat', function () {
       result,
       chat,
       ensureOptInAndSendStub,
+      ensureAtlasSignInStub,
+      getAtlasSignedInStub,
     };
   }
 
@@ -1020,6 +1033,122 @@ describe('AssistantChat', function () {
             request_id: undefined,
           }
         );
+      });
+    });
+  });
+
+  describe('Atlas connection-error debugger tool call', function () {
+    function makeAtlasToolCallMessage(
+      state: ToolUIPart['state'] = 'approval-requested',
+      approvalId: string | undefined = 'atlas-approval-1'
+    ): AssistantMessage {
+      return {
+        id: 'atlas-tool-call',
+        role: 'assistant',
+        parts: [
+          {
+            type: 'tool-atlas-connection-error-debugger',
+            toolCallId: 'atlas-tool-call-1',
+            state,
+            approval: approvalId ? { id: approvalId } : undefined,
+          } as unknown as ToolUIPart,
+        ],
+        metadata: { connectionInfo: { id: 'conn-1', name: 'My Cluster' } },
+      };
+    }
+
+    it('renders the Atlas card (not the generic tool-call card) for the debugger tool', function () {
+      renderWithChat(
+        createMockChat({ messages: [makeAtlasToolCallMessage()] })
+      );
+
+      // Atlas-specific card copy, not the generic "Run <tool>?" card.
+      expect(screen.getByText('Connect with Atlas to debug this connection')).to
+        .exist;
+    });
+
+    it('shows "Connect to Atlas" when the user is not signed in', function () {
+      renderWithChat(
+        createMockChat({ messages: [makeAtlasToolCallMessage()] }),
+        { getAtlasSignedInResult: false }
+      );
+
+      expect(screen.getByText('Connect to Atlas')).to.exist;
+      expect(screen.queryByText('Run')).to.not.exist;
+    });
+
+    it('shows "Run" when the user is already signed in', async function () {
+      renderWithChat(
+        createMockChat({ messages: [makeAtlasToolCallMessage()] }),
+        { getAtlasSignedInResult: true }
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText('Run')).to.exist;
+      });
+      expect(screen.queryByText('Connect to Atlas')).to.not.exist;
+    });
+
+    it('should call the tool after the user signs in', async function () {
+      const chat = createMockChat({ messages: [makeAtlasToolCallMessage()] });
+      const addToolApprovalResponse = sinon.spy(
+        chat,
+        'addToolApprovalResponse'
+      );
+      const { ensureAtlasSignInStub } = renderWithChat(chat, {
+        ensureAtlasSignInResult: true,
+      });
+
+      userEvent.click(screen.getByText('Connect to Atlas'));
+
+      await waitFor(() => {
+        expect(ensureAtlasSignInStub).to.have.been.calledOnce;
+      });
+      await waitFor(() => {
+        expect(addToolApprovalResponse).to.have.been.calledOnceWith({
+          id: 'atlas-approval-1',
+          approved: true,
+        });
+      });
+    });
+
+    it('denies the tool call when sign-in fails', async function () {
+      const chat = createMockChat({ messages: [makeAtlasToolCallMessage()] });
+      const addToolApprovalResponse = sinon.spy(
+        chat,
+        'addToolApprovalResponse'
+      );
+      const { ensureAtlasSignInStub } = renderWithChat(chat, {
+        ensureAtlasSignInResult: false,
+      });
+
+      userEvent.click(screen.getByText('Connect to Atlas'));
+
+      await waitFor(() => {
+        expect(ensureAtlasSignInStub).to.have.been.calledOnce;
+      });
+      await waitFor(() => {
+        expect(addToolApprovalResponse).to.have.been.calledOnceWith({
+          id: 'atlas-approval-1',
+          approved: false,
+        });
+      });
+    });
+
+    it('denies the tool call without signing in when the user skips', function () {
+      const chat = createMockChat({ messages: [makeAtlasToolCallMessage()] });
+      const addToolApprovalResponse = sinon.spy(
+        chat,
+        'addToolApprovalResponse'
+      );
+      const { ensureAtlasSignInStub } = renderWithChat(chat);
+
+      userEvent.click(screen.getByText('Skip'));
+
+      expect(ensureAtlasSignInStub).to.not.have.been.called;
+      expect(addToolApprovalResponse).to.have.been.calledOnceWith({
+        id: 'atlas-approval-1',
+        approved: false,
       });
     });
   });

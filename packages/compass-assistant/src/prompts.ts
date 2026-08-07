@@ -10,6 +10,7 @@ import type { CollectionMetadata } from 'mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
+import { isAtlas } from 'mongodb-build-info';
 
 export const FOLLOW_UP_QUESTIONS_HEADER = '### Follow-Up Questions';
 
@@ -359,6 +360,7 @@ export const buildConnectionErrorPrompt = ({
   const productDisplayName = connectionInfo.atlasMetadata
     ? 'Data Explorer'
     : 'Compass';
+
   const connectionDetailsSection = connectionInfo.atlasMetadata
     ? ''
     : ` If no auth mechanism is specified in the connection string, the default (username/password) is being used:
@@ -366,12 +368,23 @@ export const buildConnectionErrorPrompt = ({
 Connection string (password redacted):
 ${connectionString}`;
 
+  const isAtlasConnection = isAtlas(
+    connectionInfo.connectionOptions.connectionString
+  );
+
   return {
     prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB ${productDisplayName}.${connectionDetailsSection}
 Error message:
 ${connectionError}`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
+      instructions: isAtlasConnection
+        ? 'Use the atlas-connection-error-debugger tool to check the connection and provide specific guidance on how to fix it.'
+        : undefined,
+      connectionInfo: {
+        id: connectionInfo.id,
+        name: getConnectionTitle(connectionInfo),
+      },
     },
   };
 };

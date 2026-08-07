@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useContext, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
@@ -20,6 +26,8 @@ import {
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
+import { AtlasToolCallMessage } from './atlas-tool-call-message';
+import { AtlasConnectionStatus } from '@mongodb-js/atlas-service/provider';
 import {
   useTelemetry,
   useSearchActivationProgramP2,
@@ -232,6 +240,9 @@ const toolToggleContainerStyles = css({
 const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedAssistantToolsIntro' as const;
 
+const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
+  'tool-atlas-connection-error-debugger';
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -255,7 +266,12 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const { id: lastMessageId, role: lastMessageRole } =
     chat.messages[chat.messages.length - 1] ?? {};
 
-  const { ensureOptInAndSend } = useContext(AssistantActionsContext);
+  const { ensureOptInAndSend, ensureAtlasSignIn, getAtlasSignedIn } =
+    useContext(AssistantActionsContext);
+  const [isAtlasSignedIn, setIsAtlasSignedIn] = useState(false);
+  const enableAtlasConnectionErrorDebugger = usePreference(
+    'enableAtlasConnectionErrorDebugger'
+  );
   const {
     messages,
     status,
@@ -531,6 +547,24 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [ensureOptInAndSend, setMessages, track]
   );
 
+  // Reflect the current Atlas sign-in state so the Atlas confirmation card can
+  // show "Run" instead of "Connect to Atlas" when already signed in.
+  // 'rejected' here means the user will be sent back to the standard assistant.
+  useEffect(() => {
+    if (!getAtlasSignedIn) {
+      return;
+    }
+    let cancelled = false;
+    void getAtlasSignedIn().then((signedIn) => {
+      if (!cancelled) {
+        setIsAtlasSignedIn(signedIn);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [getAtlasSignedIn, lastMessageId]);
+
   const handleToolApproval = useCallback(
     ({
       message,
@@ -562,6 +596,34 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [addToolApprovalResponse, track]
   );
 
+  // Approving the Atlas debugger tool requires an Atlas sign-in first (the tool
+  // calls Atlas APIs). Trigger the sign-in flow, then approve on success or
+  // deny on failure/decline so the assistant falls back to standard guidance.
+  const handleAtlasToolApproval = useCallback(
+    ({
+      message,
+      type,
+      approvalId,
+    }: {
+      message: AssistantMessage;
+      type: string;
+      approvalId: string;
+    }) => {
+      const respond = (approved: boolean) => {
+        setIsAtlasSignedIn(approved);
+        handleToolApproval({ message, type, approvalId, approved });
+      };
+      if (!ensureAtlasSignIn) {
+        respond(false);
+        return;
+      }
+      ensureAtlasSignIn()
+        .then((ok) => respond(!!ok))
+        .catch(() => respond(false));
+    },
+    [ensureAtlasSignIn, handleToolApproval]
+  );
+
   const handleStopButtonClick = useCallback(async () => {
     await stopChat(chat);
   }, [chat]);
@@ -584,6 +646,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     >
       <LeafyGreenChatProvider>
         <ChatWindow>
+          {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
           <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
@@ -621,16 +684,14 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 // Handle confirmation messages
                 if (metadata?.confirmation) {
                   const { description, state } = metadata.confirmation;
+                  // Show as rejected if it's not the last message
+                  const confirmationState =
+                    !isLastMessage && state === 'pending' ? 'rejected' : state;
 
                   return (
                     <ConfirmationMessage
                       key={`${id}-confirmation`}
-                      // Show as rejected if it's not the last message
-                      state={
-                        !isLastMessage && state === 'pending'
-                          ? 'rejected'
-                          : state
-                      }
+                      state={confirmationState}
                       title="Please confirm your request"
                       description={description}
                       onConfirm={() => handleConfirmation(message, 'confirmed')}
@@ -670,6 +731,35 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                     {toolCalls.map((toolCall, index) => {
                       const toolCallId =
                         toolCall.toolCallId || `${id}-${toolCall.type}`;
+
+                      if (
+                        toolCall.type ===
+                        ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE
+                      ) {
+                        return (
+                          <AtlasToolCallMessage
+                            key={`${toolCallId}-${index}`}
+                            toolCall={toolCall}
+                            isUserSignedIn={isAtlasSignedIn}
+                            connectionInfo={messageConnection}
+                            onApprove={(approvalId) =>
+                              handleAtlasToolApproval({
+                                message,
+                                type: toolCall.type,
+                                approvalId,
+                              })
+                            }
+                            onDeny={(approvalId) =>
+                              handleToolApproval({
+                                message,
+                                type: toolCall.type,
+                                approvalId,
+                                approved: false,
+                              })
+                            }
+                          />
+                        );
+                      }
 
                       return (
                         <ToolCallMessage
