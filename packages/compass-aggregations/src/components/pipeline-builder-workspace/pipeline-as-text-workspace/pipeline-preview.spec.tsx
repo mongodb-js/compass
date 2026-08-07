@@ -103,6 +103,18 @@ describe('PipelinePreview', function () {
     ).to.have.lengthOf(2);
   });
 
+  it('renders documents as empty objects when they have no fields', async function () {
+    await renderPipelineEditor({
+      previewDocs: [{}, {}].map((doc) => new HadronDocument(doc)),
+    });
+    const container = screen.getByTestId('pipeline-as-text-preview');
+    const items = container.querySelectorAll(
+      '[data-testid="readonly-document-empty"]'
+    );
+    expect(items).to.have.lengthOf(2);
+    expect(container.textContent).to.include('(empty document)');
+  });
+
   it('renders pipeline output menu', async function () {
     const previewDocs = [
       new HadronDocument({

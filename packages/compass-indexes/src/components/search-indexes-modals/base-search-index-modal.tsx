@@ -51,6 +51,7 @@ import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 import { isEqual } from 'lodash';
 import { parseShellBSON } from '../../utils/parse-shell-bson';
 import { isAutoEmbedIndex } from '../../utils/is-auto-embed-index';
+import { AUTO_EMBED_EDIT_COST_WARNING } from '../../utils/auto-embed-messaging';
 
 const bodyStyles = css({
   display: 'flex',
@@ -185,9 +186,11 @@ export const BaseSearchIndexModal: React.FunctionComponent<
       : 'search';
   const editorRef = useRef<EditorRef>(null);
   const connectionInfoRef = useConnectionInfoRef();
-  const { enableAutoEmbeddingPublicPreview } = usePreferences([
-    'enableAutoEmbeddingPublicPreview',
-  ]);
+  const { enableAutoEmbeddingPublicPreview, enableAutoEmbeddingGaRelease } =
+    usePreferences([
+      'enableAutoEmbeddingPublicPreview',
+      'enableAutoEmbeddingGaRelease',
+    ]);
   const defaultVectorTemplateChoice: VectorIndexTemplateChoice =
     enableAutoEmbeddingPublicPreview ? 'autoEmbed' : 'bringYourOwn';
   const [
@@ -392,8 +395,12 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     return createSearchIndexAutocompleter({ fields });
   }, [fields]);
 
+  // The restriction banner's copy is scoped to Public Preview. The GA flag retires it.
+  const isAutoEmbedPreviewMessagingActive =
+    enableAutoEmbeddingPublicPreview && !enableAutoEmbeddingGaRelease;
+
   const showAutoEmbedEditRestrictedBanner = useMemo(() => {
-    if (!enableAutoEmbeddingPublicPreview) {
+    if (!isAutoEmbedPreviewMessagingActive) {
       return false;
     }
     try {
@@ -402,7 +409,20 @@ export const BaseSearchIndexModal: React.FunctionComponent<
     } catch {
       return false;
     }
-  }, [enableAutoEmbeddingPublicPreview, initialIndexDefinition]);
+  }, [isAutoEmbedPreviewMessagingActive, initialIndexDefinition]);
+
+  // At GA the edit is allowed but re-triggers embedding, so warn about cost instead.
+  const showAutoEmbedEditCostBanner = useMemo(() => {
+    if (!enableAutoEmbeddingGaRelease || mode !== 'update') {
+      return false;
+    }
+    try {
+      const latestDefinition = parseShellBSON(initialIndexDefinition);
+      return isAutoEmbedIndex({ latestDefinition });
+    } catch {
+      return false;
+    }
+  }, [enableAutoEmbeddingGaRelease, mode, initialIndexDefinition]);
 
   const isEditingVectorSearchIndex =
     mode === 'update' && initialIndexType === 'vectorSearch';
@@ -575,7 +595,7 @@ export const BaseSearchIndexModal: React.FunctionComponent<
         </div>
         {parsingError && <WarningSummary warnings={parsingError.message} />}
         {!parsingError && error && <ErrorSummary errors={error} />}
-        {mode === 'update' && (
+        {mode === 'update' && !showAutoEmbedEditCostBanner && (
           <Banner>
             Note: Updating the index definition will consume additional
             resources on your cluster.
@@ -587,6 +607,11 @@ export const BaseSearchIndexModal: React.FunctionComponent<
             quantization, etc.) in an existing index during Public Preview. This
             includes adding, removing, or modifying fields. To use a different
             autoEmbed configuration, create a new index.
+          </Banner>
+        )}
+        {showAutoEmbedEditCostBanner && (
+          <Banner data-testid="auto-embed-edit-cost-banner">
+            {AUTO_EMBED_EDIT_COST_WARNING}
           </Banner>
         )}
       </ModalBody>

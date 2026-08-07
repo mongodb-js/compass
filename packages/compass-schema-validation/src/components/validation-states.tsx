@@ -183,10 +183,7 @@ export function ValidationStates({
   stopRulesGeneration,
   editMode,
 }: ValidationStatesProps) {
-  const { readOnly, enableExportSchema } = usePreferences([
-    'readOnly',
-    'enableExportSchema',
-  ]);
+  const { readOnly } = usePreferences(['readOnly']);
 
   const isEditable =
     !editMode.collectionReadOnly &&
@@ -219,23 +216,19 @@ export function ValidationStates({
               icon={ZeroGraphic}
               title="Create validation rules"
               subTitle={
-                enableExportSchema
-                  ? 'Generate rules via schema analysis from existing sample data or add them manually to enforce document structure during updates and inserts'
-                  : 'Create rules to enforce data structure of documents on updates and inserts.'
+                'Generate rules via schema analysis from existing sample data or add them manually to enforce document structure during updates and inserts'
               }
               callToAction={
                 <div className={zeroStateButtonsStyles}>
-                  {enableExportSchema && (
-                    <Button
-                      data-testid="generate-rules-button"
-                      disabled={!isEditable}
-                      onClick={generateValidationRules}
-                      variant={ButtonVariant.Primary}
-                      size="small"
-                    >
-                      Generate rules
-                    </Button>
-                  )}
+                  <Button
+                    data-testid="generate-rules-button"
+                    disabled={!isEditable}
+                    onClick={generateValidationRules}
+                    variant={ButtonVariant.Primary}
+                    size="small"
+                  >
+                    Generate rules
+                  </Button>
                   <Button
                     data-testid="add-rule-button"
                     disabled={!isEditable}

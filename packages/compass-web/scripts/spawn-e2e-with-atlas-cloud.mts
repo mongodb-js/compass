@@ -149,7 +149,7 @@ const patchInfoStr = spawnEvergreenSync([
   '10gen-compass-main',
   '--variants',
   'test-web-sandbox-atlas-cloud',
-  '--tasks',
+  '--regex_tasks',
   'test-web-sandbox-atlas-cloud',
   '--description',
   process.env.COMPASS_WEB_E2E_TEST_EVERGREEN_PATCH_DESCRIPTION ??

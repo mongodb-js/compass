@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { getNewUnusedFieldName } from './schema';
-import type { MongoDBJSONSchema } from 'mongodb-schema';
+import type { MongoDBJSONSchema } from '@mongodb-js/mongodb-schema';
 
 describe('schema diagram utils', function () {
   describe('#getNewUnusedFieldName', function () {

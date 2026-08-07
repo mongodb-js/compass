@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Jul 14 2026.
+This document was automatically generated on Thu Aug 06 2026.
 
 ## List of dependencies
 
@@ -204,7 +204,7 @@ This document was automatically generated on Tue Jul 14 2026.
 | **[bintrees](#92dc6fdc6f493d9afcb140539293dd1b94e368d4792ec5165e9f061eab8db78a)**                                           | 1.0.2        | MIT                                 |
 | **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**                                                 | 4.1.0        | MIT                                 |
 | **[body-parser](#8be9d00742e0c959eebfc712f74afc77041b168c90520ab43c5ac057756220fd)**                                        | 2.2.2        | MIT                                 |
-| **[bson](#a3a364829d55c90b5dd8133a198aa1164a86ef4642f89d4fff608b98f37f02e4)**                                               | 7.2.0        | Apache-2.0                          |
+| **[bson](#230b84987836dcb0c829c5b9eec2b483d2aa41b9c055d3507096ba964cf5b73c)**                                               | 7.3.1        | Apache-2.0                          |
 | **[buffer-from](#3dcff218e9c4fa2693fbfb63ee6a17483a662804fa7e26dd92051d7b95284ef3)**                                        | 1.1.1        | MIT                                 |
 | **[buffer](#409d076f160d0351818531a7c09f5e2928335b83e3f0070a7f3e2685553efa6a)**                                             | 5.7.1        | MIT                                 |
 | **[bundle-name](#9307e757191c716fdc918490999a9bea1fc1169006ce1e5ba4d2810c13dd7326)**                                        | 4.1.0        | MIT                                 |
@@ -286,7 +286,7 @@ This document was automatically generated on Tue Jul 14 2026.
 | **[fast-deep-equal](#c3b1bc7fbf8bedbac237ffb2eb2aa967bc264fc393bb6451c52a831352540d09)**                                    | 2.0.1        | MIT                                 |
 | **[fast-deep-equal](#60db03f2d9496a0b9ae959899afa824927ba0b591f97c193aa8b0c67acc710e6)**                                    | 3.1.3        | MIT                                 |
 | **[fast-memoize](#f613a3ea5150bd2496e9eb6f15357579eb3ec308a8ee91cdafce0d68ffef289b)**                                       | 2.5.2        | MIT                                 |
-| **[fast-uri](#0962e5ce59c1d22af7f12385e6eb7df040abb8845b9d24595b83637004044ffd)**                                           | 3.1.3        | BSD-3-Clause                        |
+| **[fast-uri](#ade6c223e148259c4c6d2fb8e51352448926195f6d385c598e9d3ca4710f5150)**                                           | 3.1.5        | BSD-3-Clause                        |
 | **[fast-xml-builder](#37a0e599fe1e49e5394d7fe31c7de1a70e6530a300655305d76ec4b97141105a)**                                   | 1.1.4        | MIT                                 |
 | **[fast-xml-parser](#1edd68d10296c5e70396c4f2d95ef2070e6878a5ed751629bcb8d5e531e277f2)**                                    | 5.5.8        | MIT                                 |
 | **[fetch-blob](#9a40c73e2482c1cc651991133722a6fedd12dc752d2858a21da24395e6fc8461)**                                         | 3.2.0        | MIT                                 |
@@ -338,7 +338,7 @@ This document was automatically generated on Tue Jul 14 2026.
 | **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**                                                | 1.3.8        | ISC                                 |
 | **[inline-style-parser](#c2fe1c96120d7ffd4bdf7cb3b2baf79ba444a6e143cff9634f9e5bd6d379023d)**                                | 0.1.1        | MIT                                 |
 | **[interruptor](#e7e9b55aaa6e4d9f301e7038def466cf714935a5ff0452046531084208944548)**                                        | 2.0.1        | Apache-2.0                          |
-| **[ip-address](#8f9dc76970292780f686db9bcc5c5f5d32730cf29c84fa483d91d883bf2f2663)**                                         | 10.1.0       | MIT                                 |
+| **[ip-address](#9e2f4e21a091a6dc02a877834bd3b8a6db99459564cbb6b71d286c0cd854e685)**                                         | 10.3.1       | MIT                                 |
 | **[ip-address](#8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8)**                                         | 9.0.5        | MIT                                 |
 | **[ipaddr.js](#38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2)**                                          | 1.9.1        | MIT                                 |
 | **[ipaddr.js](#c746e4b3a8a615446d1693e57151c8d5461ffc4caa1a3ec15527b6247b74f21c)**                                          | 2.3.0        | MIT                                 |
@@ -415,23 +415,24 @@ This document was automatically generated on Tue Jul 14 2026.
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0        | MIT                                 |
 | **[mongodb-build-info](#072a485ce651997e66b97b522fce57ad957256d3fae4c7c7179933ee22c75ecd)**                                 | 1.9.6        | Apache-2.0                          |
 | **[mongodb-build-info](#569643918aa9f6c59a3c75af223a75d278c3f8bce63ef306cdfd0e36f71f3e69)**                                 | 1.9.8        | Apache-2.0                          |
-| **[mongodb-client-encryption](#f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e)**                          | 7.0.0        | Apache-2.0                          |
-| **[mongodb-cloud-info](#98dc5421dfc5dacf1abe71e8878d1245b7e2d6e2bf24a8d326b9df33db9ff537)**                                 | 2.3.15       | Apache-2.0                          |
+| **[mongodb-client-encryption](#d51bc496aad712aff10716acb139c248545f100815af800ea4cfa8d2e9d73db3)**                          | 7.2.1        | Apache-2.0                          |
+| **[mongodb-cloud-info](#c9e25f02dc496626584a9259e634cb9f6b5fcc7c3288cff4d111296b59fc7309)**                                 | 2.3.16       | Apache-2.0                          |
 | **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**                      | 7.0.1        | Apache-2.0                          |
-| **[mongodb-log-writer](#0788567a51c952a5640e64bd3cb5ef4a5e445f340b3bc971f286caa80334a932)**                                 | 2.5.13       | Apache-2.0                          |
+| **[mongodb-connection-string-url](#267005f447433080cc6f4777fd158a8ea3dc603ee3a9d3d77cace34dcf82718c)**                      | 7.0.2        | Apache-2.0                          |
+| **[mongodb-log-writer](#29ce1833ae99c6452d014e8847ac7e8e50bbfe6241534fb000c8a313519fa9c4)**                                 | 2.5.14       | Apache-2.0                          |
 | **[mongodb-mcp-server](#170d115701124029e823835d30b7a783037c72cd0f53bf99816bbbe444a3676d)**                                 | 1.10.0       | Apache-2.0                          |
-| **[mongodb-ns](#3f1ced6a4a6bd87959cd71735e41b49339b332c67606c37ac7afdebd8561d484)**                                         | 3.2.0        | Apache-2.0                          |
-| **[mongodb-query-parser](#838162f5f4693f72b9fae4e366e3975b95d197ed77f28e00b001b66f468311aa)**                               | 4.7.14       | Apache-2.0                          |
+| **[mongodb-ns](#9658ed4c4d2d38de9ce3cef33fe9341cfa97429730fc4a4638828d4e5b74b329)**                                         | 3.2.1        | Apache-2.0                          |
+| **[mongodb-query-parser](#e0cbcb1c33d08af69063bbae69ff5514f704455c05a61355bcb81f69363bfbb3)**                               | 4.7.16       | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6        | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0       | Apache-2.0                          |
-| **[mongodb](#71db4d6739a9dc892a0fa23a6b9beef3b83bd28ced0c57b39bc667538a270708)**                                            | 7.1.1        | Apache-2.0                          |
+| **[mongodb](#2b6d1321e5706f8de316a1b3f659dfd6e492d154443936866c044e7ac313d9c5)**                                            | 7.5.0        | Apache-2.0                          |
 | **[ms](#2083576c5af8054927640b4788059806d07e250a26066c9ccb2d928394fb9226)**                                                 | 2.1.3        | MIT                                 |
 | **[napi-build-utils](#4446cbf58ee41dfc4c30b35af90a053cab7e15fcc9736c67a43265eeef531372)**                                   | 2.0.0        | MIT                                 |
 | **[native-machine-id](#bbfaa5ab42199dbf008376a78ed5e9399068f58266fa0a07d7853c4f22c77e1e)**                                  | 0.3.6        | Apache-2.0                          |
 | **[negotiator](#617fa350c7c0fe851efe2301be0dfe1e0a38808562f7dbd2e655d30b17730ccc)**                                         | 1.0.0        | MIT                                 |
 | **[netmask](#2bd5b8ff7fab9adace6c38d3fd32e7328484939fdd07836635b0155d0afc35b2)**                                            | 2.0.2        | MIT                                 |
 | **[node-abi](#60b91071d5bcb34e939a0d91e2292df844057f90bff2eaa84de9da328f6792ba)**                                           | 3.75.0       | MIT                                 |
-| **[node-addon-api](#e7486763beec09dbdc97b04188281671ab43bf57761b71a087741fe5db541d00)**                                     | 8.5.0        | MIT                                 |
+| **[node-addon-api](#6229b4201ea3ef7be83227f13d178fe940528acd58ded6d96bb0726958086cb6)**                                     | 8.9.0        | MIT                                 |
 | **[node-cache](#7facc0b98aa570bf195800a761cbe85a8d5b639a49d16be0162f589f86ab6f4e)**                                         | 5.1.2        | MIT                                 |
 | **[node-domexception](#3c25065fd2bc1b6b56856e30ac5b8f34ddae33ca87b225854f8d855b0ccabfbe)**                                  | 1.0.0        | MIT                                 |
 | **[node-fetch](#364527ef1b51cc6ac34872b931049c9e25b5014f9b40e3898c84e1a830e21720)**                                         | 2.6.7        | MIT                                 |
@@ -527,7 +528,7 @@ This document was automatically generated on Tue Jul 14 2026.
 | **[simple-get](#c2c12990b6319daff653bdf953cadfa368185f0edc671124fb1028f6979df829)**                                         | 4.0.1        | MIT                                 |
 | **[smart-buffer](#bc8fbee089eb9cddf673c4c9dbc15edd13839063c27e2814009b6a0448065875)**                                       | 4.2.0        | MIT                                 |
 | **[socks-proxy-agent](#d2c38f45ca9652d91bdddab43eb515b26566789904dee10e0c32517705184cec)**                                  | 8.0.5        | MIT                                 |
-| **[socks](#4e0e5ac276b79a2d0decf0832ffd4bcd86f25240fdfd33b3b37831f36ebf7346)**                                              | 2.8.7        | MIT                                 |
+| **[socks](#d403b00b9f091afcb89dd752cd6387b4480b3c976cd41048ba4efadef13df30e)**                                              | 2.8.9        | MIT                                 |
 | **[sort-keys-length](#af13db706339ff49fba434ce0fbda036b99f3dc30e66a530b64374afd5a1eec1)**                                   | 1.0.1        | MIT                                 |
 | **[sort-keys](#714faeb378f5373d2aa5f80825d02c9f7ab2cacb699db02c84e675d193a6bfa8)**                                          | 1.1.2        | MIT                                 |
 | **[source-code-pro](#0496fbae8c99eac4b7354b7eb0a394806e547de30fd2acbdf14f2ac77079e643)**                                    | 2.38.0       | OFL-1.1                             |
@@ -19914,9 +19915,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="a3a364829d55c90b5dd8133a198aa1164a86ef4642f89d4fff608b98f37f02e4"></a>
+<a id="230b84987836dcb0c829c5b9eec2b483d2aa41b9c055d3507096ba964cf5b73c"></a>
 
-### [bson](https://www.npmjs.com/package/bson) (version 7.2.0)
+### [bson](https://www.npmjs.com/package/bson) (version 7.3.1)
 
 License tags: Apache-2.0
 
@@ -22686,9 +22687,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="0962e5ce59c1d22af7f12385e6eb7df040abb8845b9d24595b83637004044ffd"></a>
+<a id="ade6c223e148259c4c6d2fb8e51352448926195f6d385c598e9d3ca4710f5150"></a>
 
-### [fast-uri](https://www.npmjs.com/package/fast-uri) (version 3.1.3)
+### [fast-uri](https://www.npmjs.com/package/fast-uri) (version 3.1.5)
 
 License tags: BSD-3-Clause
 
@@ -25127,9 +25128,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="8f9dc76970292780f686db9bcc5c5f5d32730cf29c84fa483d91d883bf2f2663"></a>
+<a id="9e2f4e21a091a6dc02a877834bd3b8a6db99459564cbb6b71d286c0cd854e685"></a>
 
-### [ip-address](https://www.npmjs.com/package/ip-address) (version 10.1.0)
+### [ip-address](https://www.npmjs.com/package/ip-address) (version 10.3.1)
 
 License tags: MIT
 
@@ -27589,9 +27590,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="f24794d804800d6c453e41a022153224598e9e9c89b0cf7a097419d8e9df3a2e"></a>
+<a id="d51bc496aad712aff10716acb139c248545f100815af800ea4cfa8d2e9d73db3"></a>
 
-### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 7.0.0)
+### [mongodb-client-encryption](https://www.npmjs.com/package/mongodb-client-encryption) (version 7.2.1)
 
 License tags: Apache-2.0
 
@@ -27801,9 +27802,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="98dc5421dfc5dacf1abe71e8878d1245b7e2d6e2bf24a8d326b9df33db9ff537"></a>
+<a id="c9e25f02dc496626584a9259e634cb9f6b5fcc7c3288cff4d111296b59fc7309"></a>
 
-### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.3.15)
+### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.3.16)
 
 License tags: Apache-2.0
 
@@ -28214,9 +28215,210 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="0788567a51c952a5640e64bd3cb5ef4a5e445f340b3bc971f286caa80334a932"></a>
+<a id="267005f447433080cc6f4777fd158a8ea3dc603ee3a9d3d77cace34dcf82718c"></a>
 
-### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.13)
+### [mongodb-connection-string-url](https://www.npmjs.com/package/mongodb-connection-string-url) (version 7.0.2)
+
+License tags: Apache-2.0
+
+License files:
+
+- LICENSE:
+
+                                       Apache License
+                                 Version 2.0, January 2004
+                              http://www.apache.org/licenses/
+
+         TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+         1. Definitions.
+
+            "License" shall mean the terms and conditions for use, reproduction,
+            and distribution as defined by Sections 1 through 9 of this document.
+
+            "Licensor" shall mean the copyright owner or entity authorized by
+            the copyright owner that is granting the License.
+
+            "Legal Entity" shall mean the union of the acting entity and all
+            other entities that control, are controlled by, or are under common
+            control with that entity. For the purposes of this definition,
+            "control" means (i) the power, direct or indirect, to cause the
+            direction or management of such entity, whether by contract or
+            otherwise, or (ii) ownership of fifty percent (50%) or more of the
+            outstanding shares, or (iii) beneficial ownership of such entity.
+
+            "You" (or "Your") shall mean an individual or Legal Entity
+            exercising permissions granted by this License.
+
+            "Source" form shall mean the preferred form for making modifications,
+            including but not limited to software source code, documentation
+            source, and configuration files.
+
+            "Object" form shall mean any form resulting from mechanical
+            transformation or translation of a Source form, including but
+            not limited to compiled object code, generated documentation,
+            and conversions to other media types.
+
+            "Work" shall mean the work of authorship, whether in Source or
+            Object form, made available under the License, as indicated by a
+            copyright notice that is included in or attached to the work
+            (an example is provided in the Appendix below).
+
+            "Derivative Works" shall mean any work, whether in Source or Object
+            form, that is based on (or derived from) the Work and for which the
+            editorial revisions, annotations, elaborations, or other modifications
+            represent, as a whole, an original work of authorship. For the purposes
+            of this License, Derivative Works shall not include works that remain
+            separable from, or merely link (or bind by name) to the interfaces of,
+            the Work and Derivative Works thereof.
+
+            "Contribution" shall mean any work of authorship, including
+            the original version of the Work and any modifications or additions
+            to that Work or Derivative Works thereof, that is intentionally
+            submitted to Licensor for inclusion in the Work by the copyright owner
+            or by an individual or Legal Entity authorized to submit on behalf of
+            the copyright owner. For the purposes of this definition, "submitted"
+            means any form of electronic, verbal, or written communication sent
+            to the Licensor or its representatives, including but not limited to
+            communication on electronic mailing lists, source code control systems,
+            and issue tracking systems that are managed by, or on behalf of, the
+            Licensor for the purpose of discussing and improving the Work, but
+            excluding communication that is conspicuously marked or otherwise
+            designated in writing by the copyright owner as "Not a Contribution."
+
+            "Contributor" shall mean Licensor and any individual or Legal Entity
+            on behalf of whom a Contribution has been received by Licensor and
+            subsequently incorporated within the Work.
+
+         2. Grant of Copyright License. Subject to the terms and conditions of
+            this License, each Contributor hereby grants to You a perpetual,
+            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+            copyright license to reproduce, prepare Derivative Works of,
+            publicly display, publicly perform, sublicense, and distribute the
+            Work and such Derivative Works in Source or Object form.
+
+         3. Grant of Patent License. Subject to the terms and conditions of
+            this License, each Contributor hereby grants to You a perpetual,
+            worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+            (except as stated in this section) patent license to make, have made,
+            use, offer to sell, sell, import, and otherwise transfer the Work,
+            where such license applies only to those patent claims licensable
+            by such Contributor that are necessarily infringed by their
+            Contribution(s) alone or by combination of their Contribution(s)
+            with the Work to which such Contribution(s) was submitted. If You
+            institute patent litigation against any entity (including a
+            cross-claim or counterclaim in a lawsuit) alleging that the Work
+            or a Contribution incorporated within the Work constitutes direct
+            or contributory patent infringement, then any patent licenses
+            granted to You under this License for that Work shall terminate
+            as of the date such litigation is filed.
+
+         4. Redistribution. You may reproduce and distribute copies of the
+            Work or Derivative Works thereof in any medium, with or without
+            modifications, and in Source or Object form, provided that You
+            meet the following conditions:
+
+            (a) You must give any other recipients of the Work or
+                Derivative Works a copy of this License; and
+
+            (b) You must cause any modified files to carry prominent notices
+                stating that You changed the files; and
+
+            (c) You must retain, in the Source form of any Derivative Works
+                that You distribute, all copyright, patent, trademark, and
+                attribution notices from the Source form of the Work,
+                excluding those notices that do not pertain to any part of
+                the Derivative Works; and
+
+            (d) If the Work includes a "NOTICE" text file as part of its
+                distribution, then any Derivative Works that You distribute must
+                include a readable copy of the attribution notices contained
+                within such NOTICE file, excluding those notices that do not
+                pertain to any part of the Derivative Works, in at least one
+                of the following places: within a NOTICE text file distributed
+                as part of the Derivative Works; within the Source form or
+                documentation, if provided along with the Derivative Works; or,
+                within a display generated by the Derivative Works, if and
+                wherever such third-party notices normally appear. The contents
+                of the NOTICE file are for informational purposes only and
+                do not modify the License. You may add Your own attribution
+                notices within Derivative Works that You distribute, alongside
+                or as an addendum to the NOTICE text from the Work, provided
+                that such additional attribution notices cannot be construed
+                as modifying the License.
+
+            You may add Your own copyright statement to Your modifications and
+            may provide additional or different license terms and conditions
+            for use, reproduction, or distribution of Your modifications, or
+            for any such Derivative Works as a whole, provided Your use,
+            reproduction, and distribution of the Work otherwise complies with
+            the conditions stated in this License.
+
+         5. Submission of Contributions. Unless You explicitly state otherwise,
+            any Contribution intentionally submitted for inclusion in the Work
+            by You to the Licensor shall be under the terms and conditions of
+            this License, without any additional terms or conditions.
+            Notwithstanding the above, nothing herein shall supersede or modify
+            the terms of any separate license agreement you may have executed
+            with Licensor regarding such Contributions.
+
+         6. Trademarks. This License does not grant permission to use the trade
+            names, trademarks, service marks, or product names of the Licensor,
+            except as required for reasonable and customary use in describing the
+            origin of the Work and reproducing the content of the NOTICE file.
+
+         7. Disclaimer of Warranty. Unless required by applicable law or
+            agreed to in writing, Licensor provides the Work (and each
+            Contributor provides its Contributions) on an "AS IS" BASIS,
+            WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+            implied, including, without limitation, any warranties or conditions
+            of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A
+            PARTICULAR PURPOSE. You are solely responsible for determining the
+            appropriateness of using or redistributing the Work and assume any
+            risks associated with Your exercise of permissions under this License.
+
+         8. Limitation of Liability. In no event and under no legal theory,
+            whether in tort (including negligence), contract, or otherwise,
+            unless required by applicable law (such as deliberate and grossly
+            negligent acts) or agreed to in writing, shall any Contributor be
+            liable to You for damages, including any direct, indirect, special,
+            incidental, or consequential damages of any character arising as a
+            result of this License or out of the use or inability to use the
+            Work (including but not limited to damages for loss of goodwill,
+            work stoppage, computer failure or malfunction, or any and all
+            other commercial damages or losses), even if such Contributor
+            has been advised of the possibility of such damages.
+
+         9. Accepting Warranty or Additional Liability. While redistributing
+            the Work or Derivative Works thereof, You may choose to offer,
+            and charge a fee for, acceptance of support, warranty, indemnity,
+            or other liability obligations and/or rights consistent with this
+            License. However, in accepting such obligations, You may act only
+            on Your own behalf and on Your sole responsibility, not on behalf
+            of any other Contributor, and only if You agree to indemnify,
+            defend, and hold each Contributor harmless for any liability
+            incurred by, or claims asserted against, such Contributor by reason
+            of your accepting any such warranty or additional liability.
+
+         END OF TERMS AND CONDITIONS
+
+         Copyright 2020 MongoDB Inc.
+
+         Licensed under the Apache License, Version 2.0 (the "License");
+         you may not use this file except in compliance with the License.
+         You may obtain a copy of the License at
+
+             http://www.apache.org/licenses/LICENSE-2.0
+
+         Unless required by applicable law or agreed to in writing, software
+         distributed under the License is distributed on an "AS IS" BASIS,
+         WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+         See the License for the specific language governing permissions and
+         limitations under the License.
+
+<a id="29ce1833ae99c6452d014e8847ac7e8e50bbfe6241534fb000c8a313519fa9c4"></a>
+
+### [mongodb-log-writer](https://www.npmjs.com/package/mongodb-log-writer) (version 2.5.14)
 
 License tags: Apache-2.0
 
@@ -28638,9 +28840,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="3f1ced6a4a6bd87959cd71735e41b49339b332c67606c37ac7afdebd8561d484"></a>
+<a id="9658ed4c4d2d38de9ce3cef33fe9341cfa97429730fc4a4638828d4e5b74b329"></a>
 
-### [mongodb-ns](https://www.npmjs.com/package/mongodb-ns) (version 3.2.0)
+### [mongodb-ns](https://www.npmjs.com/package/mongodb-ns) (version 3.2.1)
 
 License tags: Apache-2.0
 
@@ -28850,9 +29052,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="838162f5f4693f72b9fae4e366e3975b95d197ed77f28e00b001b66f468311aa"></a>
+<a id="e0cbcb1c33d08af69063bbae69ff5514f704455c05a61355bcb81f69363bfbb3"></a>
 
-### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.7.14)
+### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.7.16)
 
 License tags: Apache-2.0
 
@@ -29486,9 +29688,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="71db4d6739a9dc892a0fa23a6b9beef3b83bd28ced0c57b39bc667538a270708"></a>
+<a id="2b6d1321e5706f8de316a1b3f659dfd6e492d154443936866c044e7ac313d9c5"></a>
 
-### [mongodb](https://www.npmjs.com/package/mongodb) (version 7.1.1)
+### [mongodb](https://www.npmjs.com/package/mongodb) (version 7.5.0)
 
 License tags: Apache-2.0
 
@@ -30036,9 +30238,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="e7486763beec09dbdc97b04188281671ab43bf57761b71a087741fe5db541d00"></a>
+<a id="6229b4201ea3ef7be83227f13d178fe940528acd58ded6d96bb0726958086cb6"></a>
 
-### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 8.5.0)
+### [node-addon-api](https://www.npmjs.com/package/node-addon-api) (version 8.9.0)
 
 License tags: MIT
 
@@ -39426,9 +39628,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="4e0e5ac276b79a2d0decf0832ffd4bcd86f25240fdfd33b3b37831f36ebf7346"></a>
+<a id="d403b00b9f091afcb89dd752cd6387b4480b3c976cd41048ba4efadef13df30e"></a>
 
-### [socks](https://www.npmjs.com/package/socks) (version 2.8.7)
+### [socks](https://www.npmjs.com/package/socks) (version 2.8.9)
 
 License tags: MIT
 

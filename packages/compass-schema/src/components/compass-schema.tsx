@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import type { Schema as MongodbSchema } from 'mongodb-schema';
+import type { Schema as MongodbSchema } from '@mongodb-js/mongodb-schema';
 import { connect } from 'react-redux';
 import type { AnalysisState } from '../constants/analysis-states';
 import {
@@ -406,8 +406,6 @@ const Schema: React.FunctionComponent<{
     'enablePerformanceAdvisorBanner'
   );
 
-  const enableExportSchema = usePreference('enableExportSchema');
-
   return (
     <>
       <div className={rootStyles}>
@@ -440,12 +438,10 @@ const Schema: React.FunctionComponent<{
           </div>
         </WorkspaceContainer>
       </div>
-      {enableExportSchema && <ExportSchemaModal />}
-      {enableExportSchema && (
-        <ExportSchemaLegacyModal
-          setShowLegacyExportTooltip={setShowLegacyExportTooltip}
-        />
-      )}
+      <ExportSchemaModal />
+      <ExportSchemaLegacyModal
+        setShowLegacyExportTooltip={setShowLegacyExportTooltip}
+      />
     </>
   );
 };

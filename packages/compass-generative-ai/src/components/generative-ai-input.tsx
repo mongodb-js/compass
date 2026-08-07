@@ -393,10 +393,15 @@ function GenerativeAIInput({
     }
   }, [showSuccess]);
 
+  // We only want to autofocus when a user clicks to open the input,
+  // not when it is already shown on mount. The exception is when we
+  // mount when opening an aggregation as a result of generating a query.
+  const wasShownRef = useRef(show && !isAggregationGeneratedFromQuery);
   useEffect(() => {
-    if (show) {
+    if (show && !wasShownRef.current) {
       promptTextInputRef.current?.focus();
     }
+    wasShownRef.current = show;
   }, [show]);
 
   const onCancelRequestRef = useCurrentValueRef(onCancelRequest);

@@ -164,7 +164,7 @@ export function useSortedItems<T extends Record<string, unknown>>(
       }
       // Otherwise use default sort method based on the value type
       if (typeof a[name] === 'string') {
-        return sortString(a[name] as string, b[name] as string, order);
+        return sortString(a[name], b[name] as string, order);
       }
       return sortUnknown(a[name], b[name], order);
     });

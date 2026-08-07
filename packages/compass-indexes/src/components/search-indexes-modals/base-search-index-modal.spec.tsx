@@ -495,7 +495,7 @@ describe('Base Search Index Modal', function () {
       fields: [{ type: 'autoEmbed', path: 'content' }],
     });
 
-    it('shows the restriction banner when preview flag is on and index is auto-embed', function () {
+    it('shows the restriction banner when preview flag is on, GA flag is off, and index is auto-embed', function () {
       renderBaseSearchIndexModal(
         {
           mode: 'update',
@@ -503,13 +503,37 @@ describe('Base Search Index Modal', function () {
           initialIndexDefinition: autoEmbedDefinitionString,
           initialIndexType: 'vectorSearch',
         },
-        { preferences: { enableAutoEmbeddingPublicPreview: true } }
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: false,
+          },
+        }
       );
       const banner = screen.getByTestId('auto-embed-edit-restricted-banner');
       expect(banner).to.be.visible;
       expect(banner.textContent).to.include(
         'You cannot edit an autoEmbed field'
       );
+    });
+
+    it('does not show the restriction banner when the GA flag is on', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+          },
+        }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-restricted-banner')).to.not
+        .exist;
     });
 
     it('does not show the restriction banner when preview flag is off', function () {
@@ -555,6 +579,138 @@ describe('Base Search Index Modal', function () {
       expect(banner.textContent).to.include(
         'You cannot edit an autoEmbed field'
       );
+    });
+
+    it('shows the cost banner instead of the restriction banner when both preview and GA flags are on', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+          },
+        }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-restricted-banner')).to.not
+        .exist;
+      expect(screen.getByTestId('auto-embed-edit-cost-banner')).to.be.visible;
+    });
+  });
+
+  describe('update mode auto-embed edit cost banner', function () {
+    const autoEmbedDefinitionString = JSON.stringify({
+      fields: [{ type: 'autoEmbed', path: 'content' }],
+    });
+
+    it('shows the cost banner when GA is on and index is auto-embed', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingGaRelease: true } }
+      );
+      const banner = screen.getByTestId('auto-embed-edit-cost-banner');
+      expect(banner).to.be.visible;
+      expect(banner.textContent).to.match(/trigger new embedding calls/);
+    });
+
+    it('does not show the cost banner when GA is off', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: false,
+          },
+        }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-cost-banner')).to.not.exist;
+    });
+
+    it('does not show the cost banner when index is not auto-embed', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingGaRelease: true } }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-cost-banner')).to.not.exist;
+    });
+
+    it('does not show the cost banner in create mode', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'create',
+          initialIndexName: 'default',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+          },
+        }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-cost-banner')).to.not.exist;
+    });
+
+    it('replaces the generic resources note rather than stacking with it', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: autoEmbedDefinitionString,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingGaRelease: true } }
+      );
+      expect(screen.getByTestId('auto-embed-edit-cost-banner')).to.be.visible;
+      expect(screen.queryByText(/consume additional resources/)).to.not.exist;
+    });
+
+    it('keeps the generic resources note for non-auto-embed indexes', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: VALID_ATLAS_SEARCH_INDEX_DEFINITION_STRING,
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingGaRelease: true } }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-cost-banner')).to.not.exist;
+      expect(screen.queryByText(/consume additional resources/)).to.exist;
+    });
+
+    it('falls back to the generic resources note when the definition cannot be parsed', function () {
+      renderBaseSearchIndexModal(
+        {
+          mode: 'update',
+          initialIndexName: 'idx',
+          initialIndexDefinition: '{ not valid json or bson',
+          initialIndexType: 'vectorSearch',
+        },
+        { preferences: { enableAutoEmbeddingGaRelease: true } }
+      );
+      expect(screen.queryByTestId('auto-embed-edit-cost-banner')).to.not.exist;
+      expect(screen.queryByText(/consume additional resources/)).to.exist;
     });
   });
 

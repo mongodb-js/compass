@@ -101,7 +101,6 @@ export function Navigation({
   const { hasWorkspacePlugin } = useWorkspacePlugins();
   const { openMyQueriesWorkspace, openDataModelingWorkspace } =
     useOpenWorkspace();
-  const isDataModelingEnabled = usePreference('enableDataModeling');
   const isMyQueriesEnabled = usePreference('enableMyQueries');
   return (
     <div>
@@ -113,14 +112,12 @@ export function Navigation({
           isActive={currentLocation === 'My Queries'}
         />
       )}
-      {isDataModelingEnabled && (
-        <NavigationItem
-          onClick={openDataModelingWorkspace}
-          glyph="Diagram"
-          label="Data Modeling"
-          isActive={currentLocation === 'Data Modeling'}
-        />
-      )}
+      <NavigationItem
+        onClick={openDataModelingWorkspace}
+        glyph="Diagram"
+        label="Data Modeling"
+        isActive={currentLocation === 'Data Modeling'}
+      />
     </div>
   );
 }

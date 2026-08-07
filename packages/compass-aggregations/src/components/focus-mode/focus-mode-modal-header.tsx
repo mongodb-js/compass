@@ -125,7 +125,6 @@ export const FocusModeModalHeader: React.FunctionComponent<
   onCloseFocusMode,
 }) => {
   const [menuOpen, setMenuOpen] = useState(false);
-  const showInsights = usePreference('showInsights');
   const enableRerank = usePreference('enableRerank');
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
@@ -396,7 +395,7 @@ export const FocusModeModalHeader: React.FunctionComponent<
         </Link>
       )}
 
-      {showInsights && insight && (
+      {insight && (
         <SignalPopover
           signals={insight}
           onPopoverOpenChange={onPopoverOpenChange}

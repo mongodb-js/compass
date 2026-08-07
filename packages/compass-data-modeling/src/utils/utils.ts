@@ -1,4 +1,4 @@
-import type { MongoDBJSONSchema } from 'mongodb-schema';
+import type { MongoDBJSONSchema } from '@mongodb-js/mongodb-schema';
 import type {
   FieldData,
   FieldPath,

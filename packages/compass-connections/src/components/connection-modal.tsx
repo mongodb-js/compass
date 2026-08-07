@@ -108,6 +108,7 @@ const ConnectionModal: React.FunctionComponent<ConnectionModalProps> = ({
       initialConnectionInfo={initialConnectionInfo}
       {...props}
       {...formPreferences}
+      enableOidc={true}
       onDisconnectClicked={() => disconnect(editingConnectionInfoId)}
       setOpen={(newOpen) => {
         // This is how leafygreen propagates `X` button click

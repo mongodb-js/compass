@@ -56,6 +56,7 @@ type CompassComponentsProviderProps = {
    */
   disableGuideCues?: boolean;
 } & {
+  onGuideCueShown?: GuideCueProviderProps['onShow'];
   onNextGuideGue?: GuideCueProviderProps['onNext'];
   onNextGuideCueGroup?: GuideCueProviderProps['onNextGroup'];
 } & {
@@ -130,6 +131,7 @@ export const CompassComponentsProvider = ({
   darkMode: _darkMode,
   children,
   legacyUUIDDisplayEncoding,
+  onGuideCueShown,
   onNextGuideGue,
   onNextGuideCueGroup,
   onContextMenuOpen,
@@ -180,6 +182,7 @@ export const CompassComponentsProvider = ({
               utmMedium={utmMedium}
             >
               <GuideCueProvider
+                onShow={onGuideCueShown}
                 onNext={onNextGuideGue}
                 onNextGroup={onNextGuideCueGroup}
                 disabled={disableGuideCues}

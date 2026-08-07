@@ -110,6 +110,18 @@ function useHadronElement(el: HadronElementType) {
 
   const isValid = el.isCurrentTypeValid();
 
+  const originalValue =
+    el.currentType === 'Array'
+      ? [...(el.elements || [])]
+      : el.currentType === 'Object'
+      ? Object.fromEntries(
+          Array.from(el.elements || []).map((e) => [
+            e.currentKey,
+            e.currentValue,
+          ])
+        )
+      : el.currentValue;
+
   return {
     id: el.uuid,
     key: {
@@ -129,8 +141,7 @@ function useHadronElement(el: HadronElementType) {
     },
     value: {
       value: editor.value(),
-      originalValue:
-        el.currentType === 'Array' ? [...(el.elements || [])] : el.currentValue,
+      originalValue,
       change(newVal: string) {
         editor.edit(newVal);
       },
@@ -157,6 +168,7 @@ function useHadronElement(el: HadronElementType) {
     visibleChildren: el.getVisibleElements(),
     level: el.level,
     parentType: el.parent?.currentType,
+    modified: el.isModified(),
     removed: el.isRemoved(),
     internal: el.isInternalField(),
     expanded: el.expanded,
@@ -208,6 +220,8 @@ const elementRemovedLightMode = css({
   },
 });
 
+const elementModifiedLightMode = elementInvalidLightMode;
+
 const elementInvalidDarkMode = css({
   backgroundColor: palette.yellow.dark3,
   '&:hover': {
@@ -221,6 +235,8 @@ const elementRemovedDarkMode = css({
     backgroundColor: palette.red.dark2,
   },
 });
+
+const elementModifiedDarkMode = elementInvalidDarkMode;
 
 const elementActions = css({
   flex: 'none',
@@ -460,6 +476,7 @@ export const HadronElement: React.FunctionComponent<{
     visibleChildren,
     level,
     parentType,
+    modified,
     removed,
     internal,
     expanded,
@@ -502,10 +519,16 @@ export const HadronElement: React.FunctionComponent<{
               }
             : undefined,
           {
+            label: 'Copy value',
+            onAction: () => {
+              void navigator.clipboard.writeText(element.toShellSyntax());
+            },
+          },
+          {
             label: 'Copy field & value',
             onAction: () => {
               void navigator.clipboard.writeText(
-                `${key.value}: ${element.toEJSON()}`
+                `${key.value}: ${element.toShellSyntax()}`
               );
             },
           },
@@ -580,6 +603,9 @@ export const HadronElement: React.FunctionComponent<{
     className: cx(
       hadronElement,
       darkMode ? hadronElementDarkMode : hadronElementLightMode,
+      modified &&
+        !expanded &&
+        (darkMode ? elementModifiedDarkMode : elementModifiedLightMode),
       removed ? elementRemoved : editingEnabled && !isValid && elementInvalid
     ),
     onClick: toggleExpanded,

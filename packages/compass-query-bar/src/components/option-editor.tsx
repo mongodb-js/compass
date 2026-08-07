@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
   css,
   cx,
@@ -16,6 +16,7 @@ import type {
 import {
   CodemirrorInlineEditor as InlineEditor,
   createQueryWithHistoryAutocompleter,
+  useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import { connect } from '../stores/context';
 import { usePreference } from 'compass-preferences-model/provider';
@@ -87,6 +88,7 @@ type OptionEditorProps = {
    */
   insertEmptyDocOnFocus?: boolean;
   onChange: (value: string) => void;
+  onUnsafeInteger: () => void;
   onApply?(): void;
   onBlur?(): void;
   placeholder?: string | (() => HTMLElement);
@@ -116,6 +118,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   recentQueries,
   favoriteQueries,
   onApplyQuery,
+  onUnsafeInteger,
 }) => {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
@@ -198,6 +201,14 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     optionName,
   ]);
 
+  const { safeIntegerLinter, violations: safeIntegerViolations } =
+    useSafeIntegerLinter();
+  useEffect(() => {
+    if (safeIntegerViolations.length > 0) {
+      onUnsafeInteger();
+    }
+  }, [safeIntegerViolations, onUnsafeInteger]);
+
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
       rafraf(() => {
@@ -249,9 +260,11 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         ref={editorRef}
         id={id}
         text={value}
+        showAnnotationsGutter={optionName === 'filter'}
         onChangeText={onChange}
         placeholder={placeholder}
         completer={completer}
+        linter={safeIntegerLinter}
         commands={commands}
         data-testid={dataTestId}
         disabled={disabled}
