@@ -51,6 +51,7 @@ const menuStyles = css({
 const itemContainerStyles = css({
   color: 'var(--item-color)',
   backgroundColor: 'var(--item-bg-color)',
+  fontStyle: 'var(--item-font-style, normal)',
   '&[data-is-active="true"] .item-wrapper': {
     fontWeight: 600,
     color: 'var(--item-color-active)',

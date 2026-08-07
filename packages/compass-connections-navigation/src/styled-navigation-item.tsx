@@ -4,7 +4,11 @@ import {
   DefaultColorCode,
 } from '@mongodb-js/connection-form';
 import { palette, useDarkMode } from '@mongodb-js/compass-components';
-import { getConnectionId, type SidebarTreeItem } from './tree-data';
+import {
+  getConnectionId,
+  isHiddenTreeItem,
+  type SidebarTreeItem,
+} from './tree-data';
 import { useConnectable } from '@mongodb-js/compass-connections/provider';
 
 type AcceptedStyles = {
@@ -13,6 +17,7 @@ type AcceptedStyles = {
   '--item-bg-color-active'?: string;
   '--item-color'?: string;
   '--item-color-active'?: string;
+  '--item-font-style'?: string;
 };
 
 export default function StyledNavigationItem({
@@ -30,6 +35,9 @@ export default function StyledNavigationItem({
     () => (isDarkMode ? palette.gray.light1 : palette.gray.dark1),
     [isDarkMode]
   );
+  // More washed-out than inactiveColor: a hidden namespace that's being
+  // shown anyway should read as "don't touch this" at a glance.
+  const hiddenColor = palette.gray.base;
   const getConnectable = useConnectable();
 
   const style: React.CSSProperties & AcceptedStyles = useMemo(() => {
@@ -41,6 +49,7 @@ export default function StyledNavigationItem({
     const inferredFromPrivilegesNamespace =
       (item.type === 'database' || item.type === 'collection') &&
       item.inferredFromPrivileges;
+    const isHidden = isHiddenTreeItem(item);
 
     if (colorCode && colorCode !== DefaultColorCode) {
       style['--item-bg-color'] = connectionColorToHex(colorCode);
@@ -60,9 +69,18 @@ export default function StyledNavigationItem({
     if (inferredFromPrivilegesNamespace || !isConnectable) {
       style['--item-color-active'] = inactiveColor;
     }
+
+    // Hidden namespaces get their own, more washed-out treatment (takes
+    // precedence over the plain inactive styling above).
+    if (isHidden) {
+      style['--item-color'] = hiddenColor;
+      style['--item-color-active'] = hiddenColor;
+      style['--item-font-style'] = 'italic';
+    }
     return style;
   }, [
     inactiveColor,
+    hiddenColor,
     item,
     colorCode,
     getConnectable,

@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SidebarTreeItem } from './tree-data';
+import { isHiddenTreeItem, type SidebarTreeItem } from './tree-data';
 import { css, Icon, ServerIcon, Tooltip } from '@mongodb-js/compass-components';
 import type { GlyphName } from '@mongodb-js/compass-components';
 import { WithStatusMarker } from './with-status-marker';
@@ -7,6 +7,9 @@ import { isLocalhost } from 'mongodb-build-info';
 
 const INFERRED_FROM_PRIVILEGES_TEXT =
   'Your privileges grant you access to this namespace, but it might not currently exist';
+
+const HIDDEN_NAMESPACE_TEXT =
+  'This is an internal MongoDB namespace. Modifying it may cause unexpected behavior.';
 
 const tooltipTriggerStyles = css({
   display: 'flex',
@@ -35,6 +38,11 @@ const IconWithTooltip = ({
 
 export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
   if (item.type === 'database') {
+    if (isHiddenTreeItem(item)) {
+      return (
+        <IconWithTooltip text={HIDDEN_NAMESPACE_TEXT} glyph="EmptyDatabase" />
+      );
+    }
     if (item.inferredFromPrivileges) {
       return (
         <IconWithTooltip
@@ -46,6 +54,11 @@ export const NavigationItemIcon = ({ item }: { item: SidebarTreeItem }) => {
     return <Icon glyph="Database" />;
   }
   if (item.type === 'collection') {
+    if (isHiddenTreeItem(item)) {
+      return (
+        <IconWithTooltip text={HIDDEN_NAMESPACE_TEXT} glyph="EmptyFolder" />
+      );
+    }
     if (item.inferredFromPrivileges) {
       return (
         <IconWithTooltip
