@@ -10,6 +10,10 @@ import { mergeProps } from '../../utils/merge-props';
 import { documentTypography } from './typography';
 import { Icon, Tooltip } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
+import {
+  convertFromPickerDateTime,
+  convertToPickerDateTime,
+} from '../../utils/format-date';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -162,8 +166,7 @@ const editorTextarea = css({
   color: 'inherit',
 });
 
-// UUID editor container that shows: UUID(" <input> ")
-const uuidEditorContainer = css({
+const editorWithLabelContainerStyles = css({
   display: 'inline-flex',
   alignItems: 'center',
   maxWidth: '100%',
@@ -176,10 +179,48 @@ const uuidEditorInput = css({
   color: 'inherit',
 });
 
-const uuidEditorLabel = css({
+const editorWithLabelStyles = css({
   userSelect: 'none',
   whiteSpace: 'nowrap',
 });
+
+const dateContainerStyles = css({
+  display: 'flex',
+});
+
+const dateTimePickerInput = css({
+  width: spacing[400],
+  colorScheme: 'light',
+  '&::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button':
+    {
+      display: 'none',
+    },
+  '&::-webkit-calendar-picker-indicator': {
+    margin: 0,
+    padding: 0,
+    cursor: 'pointer',
+  },
+});
+
+const dateTimePickerInputDarkMode = css({
+  colorScheme: 'dark',
+});
+
+function EditorWithLabel({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={editorWithLabelContainerStyles}>
+      <span className={editorWithLabelStyles}>{label}(&apos;</span>
+      {children}
+      <span className={editorWithLabelStyles}>&apos;)</span>
+    </div>
+  );
+}
 
 export const ValueEditor: React.FunctionComponent<{
   editing?: boolean;
@@ -292,9 +333,61 @@ export const ValueEditor: React.FunctionComponent<{
                       {...(mergedProps as React.HTMLProps<HTMLTextAreaElement>)}
                     ></textarea>
                   </BSONValueContainer>
+                ) : type === 'Date' ? (
+                  <span className={dateContainerStyles}>
+                    <EditorWithLabel label="ISODate">
+                      <input
+                        type="text"
+                        data-testid="hadron-document-value-editor"
+                        value={val}
+                        onChange={(evt) => {
+                          onChange(evt.currentTarget.value);
+                        }}
+                        // See ./element.tsx
+                        // eslint-disable-next-line jsx-a11y/no-autofocus
+                        autoFocus={autoFocus}
+                        className={cx(
+                          editorReset,
+                          editorOutline,
+                          !valid && editorInvalid,
+                          !valid &&
+                            (darkMode
+                              ? editorInvalidDarkMode
+                              : editorInvalidLightMode)
+                        )}
+                        spellCheck="false"
+                        style={{
+                          // 29 because the ISODate format is 29 characters long
+                          width: `${Math.max(val.length, 29)}ch`,
+                        }}
+                        {...(mergedProps as React.HTMLProps<HTMLInputElement>)}
+                      ></input>
+                    </EditorWithLabel>
+                    <input
+                      type="datetime-local"
+                      // Milliseconds precision, matching BSON dates.
+                      step="0.001"
+                      aria-label="Select date and time"
+                      data-testid="hadron-document-date-picker"
+                      value={convertToPickerDateTime(val)}
+                      // The picker is only reachable by clicking its button, so
+                      // that tabbing keeps moving between the editors.
+                      tabIndex={-1}
+                      onChange={(evt) => {
+                        onChange(
+                          convertFromPickerDateTime(evt.currentTarget.value)
+                        );
+                        onBlur();
+                      }}
+                      className={cx(
+                        editorReset,
+                        dateTimePickerInput,
+                        darkMode && dateTimePickerInputDarkMode
+                      )}
+                    ></input>
+                  </span>
                 ) : isUUIDType(type) ? (
-                  <div className={uuidEditorContainer}>
-                    <span className={uuidEditorLabel}>{type}(&apos;</span>
+                  <EditorWithLabel label={type}>
                     <input
                       type="text"
                       data-testid="hadron-document-value-editor"
@@ -320,8 +413,7 @@ export const ValueEditor: React.FunctionComponent<{
                       style={uuidInputStyle}
                       {...(mergedProps as React.HTMLProps<HTMLInputElement>)}
                     ></input>
-                    <span className={uuidEditorLabel}>&apos;)</span>
-                  </div>
+                  </EditorWithLabel>
                 ) : (
                   <input
                     type="text"
