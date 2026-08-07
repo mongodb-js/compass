@@ -818,20 +818,7 @@ You SHOULD:
         favorite: { name: 'Atlas Cluster' },
       };
 
-      it('includes an atlas confirmation for an Atlas connection', function () {
-        const result = buildConnectionErrorPrompt({
-          connectionInfo: atlasConnectionInfo,
-          error: new Error('connection timed out'),
-        });
-
-        expect(result.metadata?.confirmation).to.deep.include({
-          state: 'pending',
-          continueOn: 'rejected',
-          variant: 'atlas',
-        });
-      });
-
-      it('instructs to use the atlas tool on confirm and not to use it on reject', function () {
+      it('instructs the assistant to use the atlas debugger tool', function () {
         const result = buildConnectionErrorPrompt({
           connectionInfo: atlasConnectionInfo,
           error: new Error('connection timed out'),
@@ -840,18 +827,17 @@ You SHOULD:
         expect(result.metadata?.instructions).to.contain(
           'Use the atlas-connection-error-debugger tool'
         );
-        expect(result.metadata?.confirmation?.rejectedInstructions).to.contain(
-          'Do not use the atlas-connection-error-debugger tool'
-        );
       });
 
-      it('includes the atlas confirmation regardless of the error type', function () {
+      it('instructs to use the tool regardless of the error type', function () {
         const result = buildConnectionErrorPrompt({
           connectionInfo: atlasConnectionInfo,
           error: new Error('bad auth : authentication failed'),
         });
 
-        expect(result.metadata?.confirmation?.variant).to.equal('atlas');
+        expect(result.metadata?.instructions).to.contain(
+          'Use the atlas-connection-error-debugger tool'
+        );
       });
     });
 
@@ -864,13 +850,13 @@ You SHOULD:
         favorite: { name: 'Local' },
       };
 
-      it('does not include a confirmation for a non-Atlas connection', function () {
+      it('does not instruct to use the atlas tool for a non-Atlas connection', function () {
         const result = buildConnectionErrorPrompt({
           connectionInfo: localConnectionInfo,
           error: new Error('connection refused'),
         });
 
-        expect(result.metadata?.confirmation).to.be.undefined;
+        expect(result.metadata?.instructions).to.be.undefined;
       });
 
       it('always includes the connection info and the error in the prompt', function () {

@@ -368,9 +368,6 @@ export const buildConnectionErrorPrompt = ({
 Connection string (password redacted):
 ${connectionString}`;
 
-  // Offer the Atlas debug tool (via the confirmation card) whenever this is an
-  // Atlas connection, regardless of the error. An Atlas connection is one
-  // where the connection string contains an Atlas host (e.g. *.mongodb.net)
   const isAtlasConnection = isAtlas(
     connectionInfo.connectionOptions.connectionString
   );
@@ -388,20 +385,6 @@ ${connectionError}`,
         id: connectionInfo.id,
         name: getConnectionTitle(connectionInfo),
       },
-      ...(isAtlasConnection
-        ? {
-            confirmation: {
-              description: `Connecting would call Atlas API endpoints (cluster state, IP allowlist, TLS) to explain why this connection is failing. This is read-only and won’t change your cluster.`,
-              state: 'pending' as const,
-              continueOn: 'rejected' as const,
-              variant: 'atlas' as const,
-              // If the user declines connecting to Atlas, don't use the Atlas
-              // tool - fall back to standard, general debugging guidance.
-              rejectedInstructions:
-                'Do not use the atlas-connection-error-debugger tool. Provide general guidance to help the user debug their connection based on the error message.',
-            },
-          }
-        : {}),
     },
   };
 };

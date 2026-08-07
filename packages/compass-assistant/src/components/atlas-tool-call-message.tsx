@@ -1,27 +1,29 @@
 import React from 'react';
 import { ServerIcon } from '@mongodb-js/compass-components';
+import type { ToolUIPart } from 'ai';
+import { ATLAS_CONNECTION_ERROR_DEBUGGER_CONFIRMATION_DESCRIPTION } from '@mongodb-js/compass-generative-ai/provider';
 import type { ToolState } from '../utils';
+import { getToolState } from '../utils';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
 import { ActionCardMessage } from './action-card-message';
 
 interface AtlasToolCallMessageProps {
-  state: 'confirmed' | 'rejected' | 'pending';
+  toolCall: ToolUIPart;
   isUserSignedIn: boolean;
-  description: string;
   connectionInfo: BasicConnectionInfo | null;
-  onConfirm: () => void;
-  onReject: () => void;
+  onApprove: (approvalId: string) => void;
+  onDeny: (approvalId: string) => void;
 }
 
-function getTitle(
-  state: AtlasToolCallMessageProps['state'],
-  isUserSignedIn: boolean
-): string {
+function getTitle(state: ToolState, isUserSignedIn: boolean): string {
   switch (state) {
-    case 'confirmed':
+    case 'success':
+    case 'running':
       return 'Connected to Atlas';
-    case 'rejected':
+    case 'canceled':
       return 'Not connected to Atlas';
+    case 'error':
+      return 'Failed to debug connection with Atlas';
     default:
       return isUserSignedIn
         ? 'Run Atlas to debug this connection'
@@ -29,56 +31,41 @@ function getTitle(
   }
 }
 
-function getToolStateFromConfirmation(
-  state: AtlasToolCallMessageProps['state']
-): ToolState {
-  switch (state) {
-    case 'confirmed':
-      return 'success';
-    case 'rejected':
-      return 'canceled';
-    default:
-      return 'idle';
-  }
-}
-
 export const AtlasToolCallMessage: React.FunctionComponent<
   AtlasToolCallMessageProps
-> = ({
-  state,
-  isUserSignedIn,
-  description,
-  connectionInfo,
-  onConfirm,
-  onReject,
-}) => {
-  const isPending = state === 'pending';
+> = ({ toolCall, isUserSignedIn, connectionInfo, onApprove, onDeny }) => {
+  const toolCallState = getToolState(toolCall.state);
+  const isAwaitingApproval = toolCallState === 'idle' && !!toolCall.approval;
+  const approvalId = toolCall.approval?.id;
 
   return (
     <ActionCardMessage
-      state={getToolStateFromConfirmation(state)}
-      title={getTitle(state, isUserSignedIn)}
+      state={toolCallState}
+      title={getTitle(toolCallState, isUserSignedIn)}
       chips={
         connectionInfo
           ? [{ label: connectionInfo.name, glyph: <ServerIcon /> }]
           : []
       }
-      showActions={isPending}
+      showActions={isAwaitingApproval}
+      focusPrimaryKey={approvalId}
       buttons={[
         {
           label: isUserSignedIn ? 'Cancel' : 'Skip',
           variant: 'default',
-          onClick: onReject,
+          onClick: () => approvalId && onDeny(approvalId),
         },
         {
           label: isUserSignedIn ? 'Run' : 'Connect to Atlas',
           variant: 'primary',
-          onClick: onConfirm,
+          onClick: () => approvalId && onApprove(approvalId),
           isPrimary: true,
         },
       ]}
     >
-      {description}
+      Connecting would call Atlas API endpoints (cluster state, IP allowlist,
+      TLS) to explain why this connection is failing. This is read-only and
+      won’t change your cluster.
     </ActionCardMessage>
   );
 };

@@ -1037,43 +1037,39 @@ describe('AssistantChat', function () {
     });
   });
 
-  describe('Atlas connection-error confirmation', function () {
-    function makeAtlasConfirmationMessage(): AssistantMessage {
+  describe('Atlas connection-error debugger tool call', function () {
+    function makeAtlasToolCallMessage(
+      state: ToolUIPart['state'] = 'approval-requested',
+      approvalId: string | undefined = 'atlas-approval-1'
+    ): AssistantMessage {
       return {
-        id: 'atlas-confirmation',
+        id: 'atlas-tool-call',
         role: 'assistant',
-        parts: [{ type: 'text', text: 'Debug this Atlas connection.' }],
-        metadata: {
-          source: 'connection error',
-          connectionInfo: { id: 'conn-1', name: 'My Cluster' },
-          instructions:
-            'Use the atlas-connection-error-debugger tool to check the connection.',
-          confirmation: {
-            state: 'pending',
-            description: 'Connecting would call Atlas API endpoints.',
-            continueOn: 'rejected',
-            variant: 'atlas',
-            rejectedInstructions:
-              'Do not use the atlas-connection-error-debugger tool.',
-          },
-        },
+        parts: [
+          {
+            type: 'tool-atlas-connection-error-debugger',
+            toolCallId: 'atlas-tool-call-1',
+            state,
+            approval: approvalId ? { id: approvalId } : undefined,
+          } as unknown as ToolUIPart,
+        ],
+        metadata: { connectionInfo: { id: 'conn-1', name: 'My Cluster' } },
       };
     }
 
-    it('renders the Atlas confirmation card instead of the default one', function () {
+    it('renders the Atlas card (not the generic tool-call card) for the debugger tool', function () {
       renderWithChat(
-        createMockChat({ messages: [makeAtlasConfirmationMessage()] })
+        createMockChat({ messages: [makeAtlasToolCallMessage()] })
       );
 
-      expect(screen.getByText('Connecting would call Atlas API endpoints.')).to
+      // Atlas-specific card copy, not the generic "Run <tool>?" card.
+      expect(screen.getByText('Connect with Atlas to debug this connection')).to
         .exist;
-      // Atlas variant, not the generic confirmation card.
-      expect(screen.queryByText('Please confirm your request')).to.not.exist;
     });
 
     it('shows "Connect to Atlas" when the user is not signed in', function () {
       renderWithChat(
-        createMockChat({ messages: [makeAtlasConfirmationMessage()] }),
+        createMockChat({ messages: [makeAtlasToolCallMessage()] }),
         { getAtlasSignedInResult: false }
       );
 
@@ -1083,327 +1079,77 @@ describe('AssistantChat', function () {
 
     it('shows "Run" when the user is already signed in', async function () {
       renderWithChat(
-        createMockChat({ messages: [makeAtlasConfirmationMessage()] }),
+        createMockChat({ messages: [makeAtlasToolCallMessage()] }),
         { getAtlasSignedInResult: true }
       );
 
-      // The signed-in state is resolved asynchronously on mount.
       await waitFor(() => {
         expect(screen.getByText('Run')).to.exist;
       });
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
     });
 
-    it('runs the debug tool by sending a message with the tool instruction when sign-in succeeds', async function () {
-      const { chat, ensureAtlasSignInStub, ensureOptInAndSendStub } =
-        renderWithChat(
-          createMockChat({ messages: [makeAtlasConfirmationMessage()] }),
-          { ensureAtlasSignInResult: true }
-        );
-
-      userEvent.click(screen.getByText('Connect to Atlas'));
-
-      await waitFor(() => {
-        expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
-          'confirmed'
-        );
-      });
-      expect(ensureAtlasSignInStub).to.have.been.calledOnce;
-      // On confirm, a copy of the message is pushed without confirmation
-      // metadata (so it is sent) and it carries the tool instruction so the
-      // assistant runs the atlas-connection-error-debugger tool.
-      expect(chat.messages).to.have.length(2);
-      const sentMessage = chat.messages[1];
-      expect(sentMessage.metadata?.confirmation).to.be.undefined;
-      expect(sentMessage.metadata?.instructions).to.contain(
-        'atlas-connection-error-debugger'
-      );
-      expect(ensureOptInAndSendStub).to.have.been.called;
-    });
-
-    it('falls back to the standard debug flow when sign-in fails', async function () {
-      const { chat, ensureAtlasSignInStub, ensureOptInAndSendStub } =
-        renderWithChat(
-          createMockChat({ messages: [makeAtlasConfirmationMessage()] }),
-          { ensureAtlasSignInResult: false }
-        );
-
-      userEvent.click(screen.getByText('Connect to Atlas'));
-
-      await waitFor(() => {
-        expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
-          'rejected'
-        );
-      });
-      expect(ensureAtlasSignInStub).to.have.been.calledOnce;
-      // continueOn is 'rejected', so a rejected state continues the
-      // conversation by pushing and sending a plain debug prompt.
-      expect(chat.messages).to.have.length(2);
-      expect(chat.messages[1].metadata?.confirmation).to.be.undefined;
-      // The follow-up carries the negative instruction so the standard debug
-      // flow does not use the atlas-connection-error-debugger tool.
-      expect(chat.messages[1].metadata?.instructions).to.contain(
-        'Do not use the atlas-connection-error-debugger tool'
-      );
-      expect(ensureOptInAndSendStub).to.have.been.called;
-    });
-
-    it('falls back to the standard debug flow when no sign-in handler is available', function () {
-      // Render with a partial context value that omits ensureAtlasSignIn /
-      // getAtlasSignedIn (a pattern used elsewhere in the repo).
-      const chat = createMockChat({
-        messages: [makeAtlasConfirmationMessage()],
-      });
-      render(
-        <ToolsControllerProvider>
-          <AssistantActionsContext.Provider
-            value={{ ensureOptInAndSend: sinon.stub().resolves() }}
-          >
-            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-          </AssistantActionsContext.Provider>
-        </ToolsControllerProvider>
-      );
-
-      // Should not throw when clicking the primary action.
-      userEvent.click(screen.getByText('Connect to Atlas'));
-
-      expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
-        'rejected'
-      );
-    });
-
-    it('starts the standard debug flow when the user skips', function () {
-      const { chat, ensureAtlasSignInStub } = renderWithChat(
-        createMockChat({ messages: [makeAtlasConfirmationMessage()] })
-      );
-
-      userEvent.click(screen.getByText('Skip'));
-
-      expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
-        'rejected'
-      );
-      // Skipping should not attempt to sign in.
-      expect(ensureAtlasSignInStub).to.not.have.been.called;
-      expect(chat.messages).to.have.length(2);
-      // Skipping falls back to the standard debug flow with a negative
-      // instruction so the atlas tool is not used.
-      expect(chat.messages[1].metadata?.instructions).to.contain(
-        'Do not use the atlas-connection-error-debugger tool'
-      );
-    });
-
-    function makeAtlasToolCallMessage(): AssistantMessage {
-      return {
-        id: 'atlas-tool-call',
-        role: 'assistant',
-        parts: [
-          {
-            type: 'tool-atlas-connection-error-debugger',
-            toolCallId: 'atlas-tool-call-1',
-            state: 'approval-requested',
-            approval: { id: 'atlas-approval-1' },
-          } as unknown as ToolUIPart,
-        ],
-      };
-    }
-
-    it('does not auto-approve an atlas tool call the user did not consent to', function () {
-      // A bare tool call (no preceding Atlas confirmation) must NOT be
-      // auto-approved - only calls the user consented to via the card are.
-      const chat = createMockChat({
-        messages: [makeAtlasToolCallMessage()],
-      });
+    it('should call the tool after the user signs in', async function () {
+      const chat = createMockChat({ messages: [makeAtlasToolCallMessage()] });
       const addToolApprovalResponse = sinon.spy(
         chat,
         'addToolApprovalResponse'
       );
-
-      renderWithChat(chat);
-
-      expect(addToolApprovalResponse).to.not.have.been.called;
-    });
-
-    it('auto-approves the atlas tool call after the user accepts the Atlas card', async function () {
-      const chat = createMockChat({
-        messages: [makeAtlasConfirmationMessage()],
-      });
-      const addToolApprovalResponse = sinon.spy(
-        chat,
-        'addToolApprovalResponse'
-      );
-      const { result } = renderWithChat(chat, {
+      const { ensureAtlasSignInStub } = renderWithChat(chat, {
         ensureAtlasSignInResult: true,
       });
 
-      // User confirms the Atlas card, which arms the one-shot auto-approval.
       userEvent.click(screen.getByText('Connect to Atlas'));
+
       await waitFor(() => {
-        expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
-          'confirmed'
-        );
+        expect(ensureAtlasSignInStub).to.have.been.calledOnce;
       });
-
-      // The tool call the confirmation triggered now arrives.
-      chat.messages = [...chat.messages, makeAtlasToolCallMessage()];
-      result.rerender(
-        <ToolsControllerProvider>
-          <AssistantActionsContext.Provider
-            value={{
-              ensureOptInAndSend: sinon.stub().resolves(),
-              ensureAtlasSignIn: sinon.stub().resolves(true),
-              getAtlasSignedIn: sinon.stub().resolves(true),
-            }}
-          >
-            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-          </AssistantActionsContext.Provider>
-        </ToolsControllerProvider>
-      );
-
       await waitFor(() => {
-        expect(addToolApprovalResponse).to.have.been.calledWith({
+        expect(addToolApprovalResponse).to.have.been.calledOnceWith({
           id: 'atlas-approval-1',
           approved: true,
         });
       });
     });
 
-    it('only auto-approves a single atlas tool call per confirmation', async function () {
-      const chat = createMockChat({
-        messages: [makeAtlasConfirmationMessage()],
-      });
+    it('denies the tool call when sign-in fails', async function () {
+      const chat = createMockChat({ messages: [makeAtlasToolCallMessage()] });
       const addToolApprovalResponse = sinon.spy(
         chat,
         'addToolApprovalResponse'
       );
-      const { result } = renderWithChat(chat, {
-        ensureAtlasSignInResult: true,
+      const { ensureAtlasSignInStub } = renderWithChat(chat, {
+        ensureAtlasSignInResult: false,
       });
 
       userEvent.click(screen.getByText('Connect to Atlas'));
+
       await waitFor(() => {
-        expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
-          'confirmed'
-        );
+        expect(ensureAtlasSignInStub).to.have.been.calledOnce;
       });
-
-      const rerenderWith = (messages: AssistantMessage[]) => {
-        chat.messages = messages;
-        result.rerender(
-          <ToolsControllerProvider>
-            <AssistantActionsContext.Provider
-              value={{
-                ensureOptInAndSend: sinon.stub().resolves(),
-                ensureAtlasSignIn: sinon.stub().resolves(true),
-                getAtlasSignedIn: sinon.stub().resolves(true),
-              }}
-            >
-              <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-            </AssistantActionsContext.Provider>
-          </ToolsControllerProvider>
-        );
-      };
-
-      // First tool call is auto-approved.
-      rerenderWith([...chat.messages, makeAtlasToolCallMessage()]);
       await waitFor(() => {
-        expect(addToolApprovalResponse).to.have.been.calledOnce;
+        expect(addToolApprovalResponse).to.have.been.calledOnceWith({
+          id: 'atlas-approval-1',
+          approved: false,
+        });
       });
+    });
 
-      // A second, separate tool call (not preceded by a new confirmation) is
-      // NOT auto-approved.
-      const secondToolCall: AssistantMessage = {
-        id: 'atlas-tool-call-2',
-        role: 'assistant',
-        parts: [
-          {
-            type: 'tool-atlas-connection-error-debugger',
-            toolCallId: 'atlas-tool-call-2',
-            state: 'approval-requested',
-            approval: { id: 'atlas-approval-2' },
-          } as unknown as ToolUIPart,
-        ],
-      };
-      rerenderWith([...chat.messages, secondToolCall]);
+    it('denies the tool call without signing in when the user skips', function () {
+      const chat = createMockChat({ messages: [makeAtlasToolCallMessage()] });
+      const addToolApprovalResponse = sinon.spy(
+        chat,
+        'addToolApprovalResponse'
+      );
+      const { ensureAtlasSignInStub } = renderWithChat(chat);
 
-      // Still only the first approval.
-      expect(addToolApprovalResponse).to.have.been.calledOnce;
-      expect(addToolApprovalResponse).to.have.been.calledWith({
+      userEvent.click(screen.getByText('Skip'));
+
+      expect(ensureAtlasSignInStub).to.not.have.been.called;
+      expect(addToolApprovalResponse).to.have.been.calledOnceWith({
         id: 'atlas-approval-1',
-        approved: true,
+        approved: false,
       });
-    });
-
-    it('does not auto-approve other tool calls', function () {
-      const otherToolMessage: AssistantMessage = {
-        id: 'other-tool-call',
-        role: 'assistant',
-        parts: [
-          {
-            type: 'tool-find',
-            toolCallId: 'find-call-1',
-            state: 'approval-requested',
-            approval: { id: 'find-approval-1' },
-          } as unknown as ToolUIPart,
-        ],
-      };
-      const chat = createMockChat({ messages: [otherToolMessage] });
-      const addToolApprovalResponse = sinon.spy(
-        chat,
-        'addToolApprovalResponse'
-      );
-
-      renderWithChat(chat);
-
-      expect(addToolApprovalResponse).to.not.have.been.called;
-    });
-
-    it('does not auto-approve the atlas tool when tool calling is disabled', async function () {
-      const chat = createMockChat({
-        messages: [makeAtlasConfirmationMessage()],
-      });
-      const addToolApprovalResponse = sinon.spy(
-        chat,
-        'addToolApprovalResponse'
-      );
-      const toolsOffContext = {
-        ensureOptInAndSend: sinon.stub().resolves(),
-        ensureAtlasSignIn: sinon.stub().resolves(true),
-        getAtlasSignedIn: sinon.stub().resolves(true),
-      };
-      const toolsOffPreferences = {
-        enableGenAIToolCallingAtlasProject: true,
-        enableGenAIToolCalling: false,
-      };
-
-      const { result } = renderWithChat(chat, {
-        ensureAtlasSignInResult: true,
-        preferences: toolsOffPreferences,
-      });
-
-      // Even after the user accepts the card, with tool calling disabled the
-      // tool call must not be auto-approved (the "tools off" choice wins).
-      userEvent.click(screen.getByText('Connect to Atlas'));
-      await waitFor(() => {
-        expect(chat.messages[0].metadata?.confirmation?.state).to.equal(
-          'confirmed'
-        );
-      });
-
-      chat.messages = [...chat.messages, makeAtlasToolCallMessage()];
-      result.rerender(
-        <ToolsControllerProvider>
-          <AssistantActionsContext.Provider value={toolsOffContext}>
-            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-          </AssistantActionsContext.Provider>
-        </ToolsControllerProvider>
-      );
-
-      expect(
-        addToolApprovalResponse.getCalls().some((call) => {
-          const arg = call.args[0] as { approved?: boolean };
-          return arg?.approved === true;
-        })
-      ).to.be.false;
     });
   });
 
