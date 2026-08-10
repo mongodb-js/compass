@@ -88,10 +88,6 @@ describe('AssistantChat', function () {
         requestId?: string;
       };
       experimentVariant?: ExperimentTestGroup | null;
-      /** Whether the fake Atlas auth service starts signed in. */
-      atlasSignedIn?: boolean;
-      /** Whether a triggered Atlas sign-in resolves successfully. */
-      atlasSignInSucceeds?: boolean;
     } = {}
   ) {
     // The chat component does not use chat.sendMessage() directly, it uses
@@ -108,9 +104,7 @@ describe('AssistantChat', function () {
     // The Atlas tool-call card reads sign-in state and triggers sign-in via
     // the compass-atlas-login-ui plugin, so wrap the tree in that plugin with a
     // fake auth service backing it.
-    const AtlasLoginPlugin = CompassAtlasLoginPlugin.withMockServices({
-      atlasAuthService: null,
-    });
+    const AtlasLoginPlugin = CompassAtlasLoginPlugin.withMockServices({});
 
     const assistantActionsContext = {
       ensureOptInAndSend: ensureOptInAndSendStub,

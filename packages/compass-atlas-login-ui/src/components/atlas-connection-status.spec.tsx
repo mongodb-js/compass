@@ -46,6 +46,7 @@ class FakeAtlasAuthService extends EventEmitter {
 describe('AtlasConnectionStatus', function () {
   function renderStatus(service: FakeAtlasAuthService) {
     const { renderWithConnections } = createPluginTestHelpers(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       CompassAtlasLoginPlugin.withMockServices({
         atlasAuthService: service as unknown as AtlasAuthService,
       })
