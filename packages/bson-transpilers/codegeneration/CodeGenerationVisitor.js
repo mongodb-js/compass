@@ -92,9 +92,9 @@ module.exports = (ANTLRVisitor) =>
     }
 
     /**
-     * Every StringTypeTemplate expects source text: a literal as it appeared in
-     * the input, still surrounded by quotes and with backslashes already acting
-     * as escapes.
+     * StringTypeTemplate operates on "source text"-like input (it may or may not
+     * be surrounded by quotes). This helper converts a raw JS string into that
+     * form by escaping backslashes and, when needed, adding an extra quote pair.
      *
      * @param {String} str - a raw string.
      * @return {String} - the equivalent source text.
