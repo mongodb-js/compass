@@ -15,7 +15,6 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import { DocsProviderTransport } from './docs-provider-transport';
 import {
-  openToast,
   useCurrentValueRef,
   useDrawerActions,
   useInitialValue,
@@ -62,6 +61,7 @@ import {
   toolsControllerLocator,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
+import { CompassAtlasLoginPlugin } from '@mongodb-js/compass-atlas-login-ui';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
 import { createOpenAI } from '@ai-sdk/openai';
@@ -93,8 +93,6 @@ import { connect } from 'react-redux';
 import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai/provider';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
-
-const ATLAS_CONNECTED_TOAST_ID = 'atlas-connected';
 
 export type BasicConnectionInfo = {
   id: string;
@@ -195,10 +193,6 @@ type AssistantActionsContextType = {
       connectionInfo?: BasicConnectionInfo;
     }) => void
   ) => Promise<void>;
-  /** Renders the sign-in prompt for Atlas. Returns true when the user is signed in. */
-  ensureAtlasSignIn?: () => Promise<boolean>;
-  /** Whether the user is currently signed in to Atlas. */
-  getAtlasSignedIn?: () => Promise<boolean>;
 };
 
 type AssistantActionsType = Omit<
@@ -217,8 +211,6 @@ export const AssistantActionsContext =
     debugSearchError: () => {},
     diagnoseSearchStage: () => {},
     ensureOptInAndSend: async () => {},
-    ensureAtlasSignIn: async () => Promise.resolve(false),
-    getAtlasSignedIn: async () => Promise.resolve(false),
   });
 
 export function useAssistantActions(): AssistantActionsType {
@@ -727,50 +719,6 @@ function getChat(): AssistantThunkAction<Chat<AssistantMessage>> {
   return (_dispatch, _getState, { chat }) => chat;
 }
 
-// Whether there's a current Atlas session, without triggering a sign-in.
-// Uses getUserInfo() (reads the cached signed-in user) rather than
-// isAuthenticated() to detect an existing session: isAuthenticated() performs a
-// token introspection network call that can be unreliable in some environments.
-// getUserInfo() throws when there is no signed-in user.
-async function isAtlasSignedIn(
-  atlasAuthService: AtlasAuthService
-): Promise<boolean> {
-  try {
-    await atlasAuthService.getUserInfo();
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-function getAtlasSignedInThunk(): AssistantThunkAction<Promise<boolean>> {
-  return (_dispatch, _getState, { atlasAuthService }) =>
-    isAtlasSignedIn(atlasAuthService);
-}
-
-function ensureAtlasSignInThunk(): AssistantThunkAction<Promise<boolean>> {
-  return async (_dispatch, _getState, { atlasAuthService }) => {
-    if (await isAtlasSignedIn(atlasAuthService)) {
-      return true;
-    }
-    try {
-      await atlasAuthService.signIn({ mainProcessSignIn: true });
-      atlasAuthService.emit('signed-in');
-      // Only shown for a fresh sign-in (an already signed-in user returns
-      // above without reaching here).
-      openToast(ATLAS_CONNECTED_TOAST_ID, {
-        title: 'Connected to Atlas',
-        description: 'You can start using context from Atlas.',
-        variant: 'success',
-        timeout: 5000,
-      });
-      return true;
-    } catch {
-      return false;
-    }
-  };
-}
-
 // Connected AssistantProvider component
 const AssistantProviderInner: React.FunctionComponent<
   PropsWithChildren<{
@@ -822,8 +770,6 @@ const AssistantProviderInner: React.FunctionComponent<
       globalState: GlobalState,
       openDrawer: (id: string) => void
     ) => void;
-    ensureAtlasSignIn: () => Promise<boolean>;
-    getAtlasSignedIn: () => Promise<boolean>;
   }>
 > = ({
   projectId,
@@ -835,8 +781,6 @@ const AssistantProviderInner: React.FunctionComponent<
   interpretAnalyzeOutput,
   debugSearchError,
   diagnoseSearchStage,
-  ensureAtlasSignIn,
-  getAtlasSignedIn,
   children,
 }) => {
   // chat is stable — created once in activate, never changes
@@ -897,8 +841,6 @@ const AssistantProviderInner: React.FunctionComponent<
         assistantGlobalStateRef.current
       );
     },
-    ensureAtlasSignIn: () => ensureAtlasSignIn(),
-    getAtlasSignedIn: () => getAtlasSignedIn(),
   });
 
   return (
@@ -921,8 +863,6 @@ const ConnectedAssistantProvider = connect(null, {
   interpretAnalyzeOutput: interpretAnalyzeOutputThunk,
   debugSearchError: debugSearchErrorThunk,
   diagnoseSearchStage: diagnoseSearchStageThunk,
-  ensureAtlasSignIn: ensureAtlasSignInThunk,
-  getAtlasSignedIn: getAtlasSignedInThunk,
 })(AssistantProviderInner);
 
 export const CompassAssistantProvider = registerCompassPlugin(
@@ -939,9 +879,11 @@ export const CompassAssistantProvider = registerCompassPlugin(
     }>) {
       return (
         <AssistantGlobalStateProvider>
-          <ConnectedAssistantProvider projectId={projectId}>
-            {children}
-          </ConnectedAssistantProvider>
+          <CompassAtlasLoginPlugin>
+            <ConnectedAssistantProvider projectId={projectId}>
+              {children}
+            </ConnectedAssistantProvider>
+          </CompassAtlasLoginPlugin>
         </AssistantGlobalStateProvider>
       );
     },

@@ -28,13 +28,6 @@ export const atlasAuthServiceLocator = createServiceLocator(
   'atlasAuthServiceLocator'
 );
 
-/**
- * Hook to access the AtlasAuthService from React components. Unlike
- * `atlasAuthServiceLocator`, this can be called from a render method (it just
- * reads the context provided by `AtlasAuthServiceProvider`).
- */
-export const useAtlasAuthService = useAtlasAuthServiceContext;
-
 const AtlasServiceContext = createContext<AtlasService | null>(null);
 
 export const AtlasServiceProvider: React.FC<{

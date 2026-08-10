@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useContext,
-  useRef,
-  useState,
-} from 'react';
+import React, { useCallback, useEffect, useContext, useRef } from 'react';
 import type { AssistantMessage } from '../compass-assistant-provider';
 import { AssistantActionsContext } from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
@@ -266,9 +260,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const { id: lastMessageId, role: lastMessageRole } =
     chat.messages[chat.messages.length - 1] ?? {};
 
-  const { ensureOptInAndSend, ensureAtlasSignIn, getAtlasSignedIn } =
-    useContext(AssistantActionsContext);
-  const [isAtlasSignedIn, setIsAtlasSignedIn] = useState(false);
+  const { ensureOptInAndSend } = useContext(AssistantActionsContext);
   const enableAtlasConnectionErrorDebugger = usePreference(
     'enableAtlasConnectionErrorDebugger'
   );
@@ -547,18 +539,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     [ensureOptInAndSend, setMessages, track]
   );
 
-  // Reflect the current Atlas sign-in state so the Atlas confirmation card can
-  // show "Run" instead of "Connect to Atlas" when already signed in.
-  // 'rejected' here means the user will be sent back to the standard assistant.
-  useEffect(() => {
-    if (!getAtlasSignedIn) {
-      return;
-    }
-    void getAtlasSignedIn().then((signedIn) => {
-      setIsAtlasSignedIn(signedIn);
-    });
-  }, [getAtlasSignedIn, lastMessageId]);
-
   const handleToolApproval = useCallback(
     ({
       message,
@@ -588,34 +568,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       );
     },
     [addToolApprovalResponse, track]
-  );
-
-  // Approving the Atlas debugger tool requires an Atlas sign-in first (the tool
-  // calls Atlas APIs). Trigger the sign-in flow, then approve on success or
-  // deny on failure/decline so the assistant falls back to standard guidance.
-  const handleAtlasToolApproval = useCallback(
-    ({
-      message,
-      type,
-      approvalId,
-    }: {
-      message: AssistantMessage;
-      type: string;
-      approvalId: string;
-    }) => {
-      const respond = (approved: boolean) => {
-        setIsAtlasSignedIn(approved);
-        handleToolApproval({ message, type, approvalId, approved });
-      };
-      if (!ensureAtlasSignIn) {
-        respond(false);
-        return;
-      }
-      ensureAtlasSignIn()
-        .then((ok) => respond(!!ok))
-        .catch(() => respond(false));
-    },
-    [ensureAtlasSignIn, handleToolApproval]
   );
 
   const handleStopButtonClick = useCallback(async () => {
@@ -734,13 +686,13 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                           <AtlasToolCallMessage
                             key={`${toolCallId}-${index}`}
                             toolCall={toolCall}
-                            isUserSignedIn={isAtlasSignedIn}
                             connectionInfo={messageConnection}
-                            onApprove={(approvalId) =>
-                              handleAtlasToolApproval({
+                            onApprove={(approvalId, approved) =>
+                              handleToolApproval({
                                 message,
                                 type: toolCall.type,
                                 approvalId,
+                                approved,
                               })
                             }
                             onDeny={(approvalId) =>

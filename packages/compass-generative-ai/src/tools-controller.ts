@@ -297,7 +297,6 @@ export class ToolsController {
           connectionString: z.string(),
           errorMessage: z.string(),
         }),
-        sendWithoutHistory: true,
         needsApproval: true,
         strict: false,
         execute: async (args: {

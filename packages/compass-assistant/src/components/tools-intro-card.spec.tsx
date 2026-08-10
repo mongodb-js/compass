@@ -4,6 +4,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import { ToolsIntroCard } from './tools-intro-card';
 import { CompassAssistantProvider } from '../compass-assistant-provider';
+import { createMockAtlasAuthService } from '../../test/utils';
 import type {
   AtlasAuthService,
   AtlasService,
@@ -35,9 +36,7 @@ describe('ToolsIntroCard', function () {
       getActiveTools: sinon.stub().returns({}),
       setContext: sinon.stub().resolves(),
     };
-    const mockAtlasAuthService = {
-      getOrganizationId: sinon.stub().returns('test-org-id'),
-    };
+    const mockAtlasAuthService = createMockAtlasAuthService();
 
     const Provider = CompassAssistantProvider.withMockServices({
       atlasService: mockAtlasService as unknown as AtlasService,

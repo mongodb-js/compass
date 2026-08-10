@@ -1,4 +1,5 @@
 import { Chat } from '../src/@ai-sdk/react/chat-react';
+import { EventEmitter } from 'events';
 import sinon from 'sinon';
 import {
   CompassAssistantProvider,
@@ -14,6 +15,30 @@ import {
 } from '@mongodb-js/compass-generative-ai/provider';
 import { render } from '@mongodb-js/testing-library-compass';
 import React from 'react';
+
+/**
+ * A minimal EventEmitter-backed AtlasAuthService mock. The compass-assistant
+ * plugin now mounts the compass-atlas-login-ui plugin, whose activate() calls
+ * `on('signed-in'/'signed-out')` and `getUserInfo()` on the auth service, so
+ * mocks used with CompassAssistantProvider must support those.
+ */
+export function createMockAtlasAuthService({
+  signedIn = false,
+}: { signedIn?: boolean } = {}) {
+  const service = new EventEmitter() as EventEmitter & {
+    getOrganizationId: sinon.SinonStub;
+    getUserInfo: sinon.SinonStub;
+  };
+  service.getOrganizationId = sinon.stub().returns('test-org-id');
+  service.getUserInfo = sinon
+    .stub()
+    .callsFake(() =>
+      signedIn
+        ? Promise.resolve({ sub: 'user-1' })
+        : Promise.reject(new Error('not signed in'))
+    );
+  return service;
+}
 
 export const createMockChat = ({
   messages,
@@ -218,9 +243,7 @@ export function renderWithProvider(
     getActiveTools: sinon.stub().returns({}),
     setContext: sinon.stub().resolves(),
   };
-  const mockAtlasAuthService = {
-    getOrganizationId: sinon.stub().returns('test-org-id'),
-  };
+  const mockAtlasAuthService = createMockAtlasAuthService();
 
   const Provider = CompassAssistantProvider.withMockServices({
     atlasService: mockAtlasService as unknown as AtlasService,

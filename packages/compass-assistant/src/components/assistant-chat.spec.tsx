@@ -1,4 +1,5 @@
 import React from 'react';
+import { EventEmitter } from 'events';
 import {
   render,
   screen,
@@ -20,6 +21,11 @@ import {
   AssistantActionsContext,
   type AssistantMessage,
 } from '../compass-assistant-provider';
+import { CompassAtlasLoginPlugin } from '@mongodb-js/compass-atlas-login-ui';
+import type {
+  AtlasAuthService,
+  AtlasUserInfo,
+} from '@mongodb-js/atlas-service/provider';
 import sinon from 'sinon';
 import type { SourceUrlUIPart, TextPart, ToolUIPart } from 'ai';
 import { Chat } from '../@ai-sdk/react/chat-react';
@@ -31,6 +37,38 @@ import {
   ExperimentTestGroups,
   type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
+
+/**
+ * Minimal fake AtlasAuthService backed by a real EventEmitter, used to drive
+ * the compass-atlas-login-ui plugin that owns the sign-in/out state and
+ * actions consumed by the Atlas tool-call card.
+ */
+class FakeAtlasAuthService extends EventEmitter {
+  private user: AtlasUserInfo | null;
+  public signIn: sinon.SinonStub;
+
+  constructor({
+    signedIn = false,
+    signInSucceeds = true,
+  }: { signedIn?: boolean; signInSucceeds?: boolean } = {}) {
+    super();
+    this.user = signedIn ? { sub: 'user-1' } : null;
+    this.signIn = sinon.stub().callsFake(() => {
+      if (!signInSucceeds) {
+        return Promise.reject(new Error('sign-in failed'));
+      }
+      this.user = { sub: 'user-1' };
+      return Promise.resolve(this.user);
+    });
+  }
+
+  getUserInfo(): Promise<AtlasUserInfo> {
+    if (!this.user) {
+      return Promise.reject(new Error('not signed in'));
+    }
+    return Promise.resolve(this.user);
+  }
+}
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -80,8 +118,8 @@ describe('AssistantChat', function () {
       preferences,
       trackingOptions = {},
       experimentVariant = null,
-      ensureAtlasSignInResult = false,
-      getAtlasSignedInResult = false,
+      atlasSignedIn = false,
+      atlasSignInSucceeds = true,
     }: {
       connections?: ConnectionInfo[];
       preferences?: Partial<AllPreferences>;
@@ -89,8 +127,10 @@ describe('AssistantChat', function () {
         requestId?: string;
       };
       experimentVariant?: ExperimentTestGroup | null;
-      ensureAtlasSignInResult?: boolean;
-      getAtlasSignedInResult?: boolean;
+      /** Whether the fake Atlas auth service starts signed in. */
+      atlasSignedIn?: boolean;
+      /** Whether a triggered Atlas sign-in resolves successfully. */
+      atlasSignInSucceeds?: boolean;
     } = {}
   ) {
     // The chat component does not use chat.sendMessage() directly, it uses
@@ -104,21 +144,27 @@ describe('AssistantChat', function () {
         await chat.sendMessage(message, options);
       });
 
-    const ensureAtlasSignInStub = sinon
-      .stub()
-      .resolves(ensureAtlasSignInResult);
-    const getAtlasSignedInStub = sinon.stub().resolves(getAtlasSignedInResult);
+    // The Atlas tool-call card reads sign-in state and triggers sign-in via
+    // the compass-atlas-login-ui plugin, so wrap the tree in that plugin with a
+    // fake auth service backing it.
+    const atlasAuthService = new FakeAtlasAuthService({
+      signedIn: atlasSignedIn,
+      signInSucceeds: atlasSignInSucceeds,
+    });
+    const AtlasLoginPlugin = CompassAtlasLoginPlugin.withMockServices({
+      atlasAuthService: atlasAuthService as unknown as AtlasAuthService,
+    });
 
     const assistantActionsContext = {
       ensureOptInAndSend: ensureOptInAndSendStub,
-      ensureAtlasSignIn: ensureAtlasSignInStub,
-      getAtlasSignedIn: getAtlasSignedInStub,
     };
     const result = render(
       <ToolsControllerProvider>
-        <AssistantActionsContext.Provider value={assistantActionsContext}>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </AssistantActionsContext.Provider>
+        <AtlasLoginPlugin>
+          <AssistantActionsContext.Provider value={assistantActionsContext}>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </AssistantActionsContext.Provider>
+        </AtlasLoginPlugin>
       </ToolsControllerProvider>,
       {
         connections,
@@ -130,8 +176,7 @@ describe('AssistantChat', function () {
       result,
       chat,
       ensureOptInAndSendStub,
-      ensureAtlasSignInStub,
-      getAtlasSignedInStub,
+      atlasAuthService,
     };
   }
 
@@ -1070,7 +1115,7 @@ describe('AssistantChat', function () {
     it('shows "Connect to Atlas" when the user is not signed in', function () {
       renderWithChat(
         createMockChat({ messages: [makeAtlasToolCallMessage()] }),
-        { getAtlasSignedInResult: false }
+        { atlasSignedIn: false }
       );
 
       expect(screen.getByText('Connect to Atlas')).to.exist;
@@ -1080,7 +1125,7 @@ describe('AssistantChat', function () {
     it('shows "Run" when the user is already signed in', async function () {
       renderWithChat(
         createMockChat({ messages: [makeAtlasToolCallMessage()] }),
-        { getAtlasSignedInResult: true }
+        { atlasSignedIn: true }
       );
 
       await waitFor(() => {
@@ -1095,14 +1140,14 @@ describe('AssistantChat', function () {
         chat,
         'addToolApprovalResponse'
       );
-      const { ensureAtlasSignInStub } = renderWithChat(chat, {
-        ensureAtlasSignInResult: true,
+      const { atlasAuthService } = renderWithChat(chat, {
+        atlasSignInSucceeds: true,
       });
 
       userEvent.click(screen.getByText('Connect to Atlas'));
 
       await waitFor(() => {
-        expect(ensureAtlasSignInStub).to.have.been.calledOnce;
+        expect(atlasAuthService.signIn).to.have.been.calledOnce;
       });
       await waitFor(() => {
         expect(addToolApprovalResponse).to.have.been.calledOnceWith({
@@ -1118,14 +1163,14 @@ describe('AssistantChat', function () {
         chat,
         'addToolApprovalResponse'
       );
-      const { ensureAtlasSignInStub } = renderWithChat(chat, {
-        ensureAtlasSignInResult: false,
+      const { atlasAuthService } = renderWithChat(chat, {
+        atlasSignInSucceeds: false,
       });
 
       userEvent.click(screen.getByText('Connect to Atlas'));
 
       await waitFor(() => {
-        expect(ensureAtlasSignInStub).to.have.been.calledOnce;
+        expect(atlasAuthService.signIn).to.have.been.calledOnce;
       });
       await waitFor(() => {
         expect(addToolApprovalResponse).to.have.been.calledOnceWith({
@@ -1141,11 +1186,11 @@ describe('AssistantChat', function () {
         chat,
         'addToolApprovalResponse'
       );
-      const { ensureAtlasSignInStub } = renderWithChat(chat);
+      const { atlasAuthService } = renderWithChat(chat);
 
       userEvent.click(screen.getByText('Skip'));
 
-      expect(ensureAtlasSignInStub).to.not.have.been.called;
+      expect(atlasAuthService.signIn).to.not.have.been.called;
       expect(addToolApprovalResponse).to.have.been.calledOnceWith({
         id: 'atlas-approval-1',
         approved: false,

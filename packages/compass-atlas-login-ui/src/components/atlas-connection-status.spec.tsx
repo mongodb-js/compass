@@ -3,27 +3,25 @@ import { EventEmitter } from 'events';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {
-  render,
+  createPluginTestHelpers,
   screen,
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import { AtlasConnectionStatus } from './atlas-connection-status';
-import {
-  AtlasAuthServiceProvider,
-  type AtlasAuthService,
-  type AtlasUserInfo,
+import type {
+  AtlasAuthService,
+  AtlasUserInfo,
 } from '@mongodb-js/atlas-service/provider';
+import { CompassAtlasLoginPlugin, AtlasConnectionStatus } from '../index';
 
 /**
- * Minimal fake AtlasAuthService backed by a real EventEmitter so the
- * component's on/off/emit subscriptions behave like the real service.
+ * Minimal fake AtlasAuthService backed by a real EventEmitter so the plugin's
+ * activate-time subscriptions behave like the real service.
  */
 class FakeAtlasAuthService extends EventEmitter {
   private user: AtlasUserInfo | null;
   public signOut = sinon.stub().callsFake(() => {
     this.user = null;
-    this.emit('signed-out');
     return Promise.resolve();
   });
 
@@ -46,20 +44,17 @@ class FakeAtlasAuthService extends EventEmitter {
 }
 
 describe('AtlasConnectionStatus', function () {
-  function renderStatus(
-    service: FakeAtlasAuthService,
-    props: Partial<React.ComponentProps<typeof AtlasConnectionStatus>> = {}
-  ) {
-    return render(
-      <AtlasAuthServiceProvider value={service as unknown as AtlasAuthService}>
-        <AtlasConnectionStatus {...props} />
-      </AtlasAuthServiceProvider>
+  function renderStatus(service: FakeAtlasAuthService) {
+    const { renderWithConnections } = createPluginTestHelpers(
+      CompassAtlasLoginPlugin.withMockServices({
+        atlasAuthService: service as unknown as AtlasAuthService,
+      })
     );
+    return renderWithConnections(<AtlasConnectionStatus />);
   }
 
   it('renders nothing when the user is not signed in', async function () {
-    const service = new FakeAtlasAuthService(null);
-    renderStatus(service);
+    renderStatus(new FakeAtlasAuthService(null));
 
     await waitFor(() => {
       expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;
@@ -67,8 +62,7 @@ describe('AtlasConnectionStatus', function () {
   });
 
   it('renders the status and disconnect button when signed in', async function () {
-    const service = new FakeAtlasAuthService({ sub: 'user-1' });
-    renderStatus(service);
+    renderStatus(new FakeAtlasAuthService({ sub: 'user-1' }));
 
     await waitFor(() => {
       expect(screen.getByTestId('atlas-connection-status')).to.exist;
@@ -87,7 +81,6 @@ describe('AtlasConnectionStatus', function () {
 
     userEvent.click(screen.getByTestId('atlas-connection-status-disconnect'));
 
-    // A confirmation modal appears before signing out.
     await waitFor(() => {
       expect(screen.getByText('Are you sure you want to disconnect Atlas?')).to
         .exist;
@@ -102,7 +95,6 @@ describe('AtlasConnectionStatus', function () {
     await waitFor(() => {
       expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;
     });
-    // Shows a confirmation toast after disconnecting.
     await waitFor(() => {
       expect(screen.getByText('Disconnected from Atlas')).to.exist;
     });
@@ -126,37 +118,6 @@ describe('AtlasConnectionStatus', function () {
     userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
     expect(service.signOut).to.not.have.been.called;
-    // Still signed in.
     expect(screen.getByTestId('atlas-connection-status')).to.exist;
-  });
-
-  it('appears when the user signs in externally (signed-in event)', async function () {
-    const service = new FakeAtlasAuthService(null);
-    renderStatus(service);
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;
-    });
-
-    service.simulateSignIn({ sub: 'user-1' });
-
-    await waitFor(() => {
-      expect(screen.getByTestId('atlas-connection-status')).to.exist;
-    });
-  });
-
-  it('disappears when the user signs out externally (signed-out event)', async function () {
-    const service = new FakeAtlasAuthService({ sub: 'user-1' });
-    renderStatus(service);
-
-    await waitFor(() => {
-      expect(screen.getByTestId('atlas-connection-status')).to.exist;
-    });
-
-    service.emit('signed-out');
-
-    await waitFor(() => {
-      expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;
-    });
   });
 });

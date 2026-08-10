@@ -23,7 +23,11 @@ import {
 } from '@mongodb-js/compass-components';
 import { type AtlasService } from '@mongodb-js/atlas-service/provider';
 import { CompassAssistantDrawer } from './compass-assistant-drawer';
-import { createBrokenTransport, createMockChat } from '../test/utils';
+import {
+  createBrokenTransport,
+  createMockAtlasAuthService,
+  createMockChat,
+} from '../test/utils';
 import {
   ToolsControllerProvider,
   type AtlasAiService,
@@ -67,7 +71,7 @@ function createMockProvider({
   }
 
   if (!mockAtlasAuthService) {
-    mockAtlasAuthService = {};
+    mockAtlasAuthService = createMockAtlasAuthService();
   }
 
   if (!mockToolsController) {

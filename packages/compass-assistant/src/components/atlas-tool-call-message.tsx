@@ -1,16 +1,19 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { ServerIcon } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import type { ToolState } from '../utils';
 import { getToolState } from '../utils';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
+import {
+  useAtlasLoginActions,
+  useAtlasSignedInUser,
+} from '@mongodb-js/compass-atlas-login-ui';
 import { ActionCardMessage } from './action-card-message';
 
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
-  isUserSignedIn: boolean;
   connectionInfo: BasicConnectionInfo | null;
-  onApprove: (approvalId: string) => void;
+  onApprove: (approvalId: string, approved: boolean) => void;
   onDeny: (approvalId: string) => void;
 }
 
@@ -32,10 +35,21 @@ function getTitle(state: ToolState, isUserSignedIn: boolean): string {
 
 export const AtlasToolCallMessage: React.FunctionComponent<
   AtlasToolCallMessageProps
-> = ({ toolCall, isUserSignedIn, connectionInfo, onApprove, onDeny }) => {
+> = ({ toolCall, connectionInfo, onApprove, onDeny }) => {
   const toolCallState = getToolState(toolCall.state);
   const isAwaitingApproval = toolCallState === 'idle' && !!toolCall.approval;
   const approvalId = toolCall.approval?.id;
+  const isUserSignedIn = !!useAtlasSignedInUser();
+  const { signIn } = useAtlasLoginActions();
+
+  const handleAtlasToolApproval = useCallback(
+    (approvalId: string) => {
+      signIn()
+        .then((signedIn: boolean) => onApprove(approvalId, signedIn))
+        .catch(() => onApprove(approvalId, false));
+    },
+    [signIn, onApprove]
+  );
 
   return (
     <ActionCardMessage
@@ -57,7 +71,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
         {
           label: isUserSignedIn ? 'Run' : 'Connect to Atlas',
           variant: 'primary',
-          onClick: () => approvalId && onApprove(approvalId),
+          onClick: () => approvalId && handleAtlasToolApproval(approvalId),
           isPrimary: true,
         },
       ]}

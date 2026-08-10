@@ -1,23 +1,18 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React from 'react';
 import {
   Body,
   Button,
-  ConfirmationModalVariant,
   Icon,
   css,
   cx,
-  openToast,
   palette,
-  showConfirmation,
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import {
-  useAtlasAuthService,
-  type AtlasUserInfo,
-} from '@mongodb-js/atlas-service/provider';
-
-const DISCONNECT_TOAST_ID = 'atlas-disconnected';
+  useAtlasSignedInUser,
+  useAtlasLoginActions,
+} from '../stores/store-context';
 
 const containerStyles = css({
   display: 'flex',
@@ -66,82 +61,16 @@ const disconnectButtonStyles = css({
 const labelTextStylesLight = css({ color: palette.gray.dark1 });
 const labelTextStylesDark = css({ color: palette.gray.light1 });
 
-const disconnectConfirmationModalDetails = {
-  title: 'Are you sure you want to disconnect Atlas?',
-  description:
-    "Once Atlas is disconnected you won't have Atlas context anymore.",
-  variant: ConfirmationModalVariant.Danger,
-  buttonText: 'Disconnect',
-};
-
 export interface AtlasConnectionStatusProps {
   'data-testid'?: string;
 }
 
-/**
- * Shows the current Atlas sign-in status and a control to disconnect. Renders
- * nothing while signed out. Reads the shared AtlasAuthService from context and
- * stays in sync via its sign-in/out events
- */
 export const AtlasConnectionStatus: React.FunctionComponent<
   AtlasConnectionStatusProps
 > = ({ 'data-testid': dataTestId = 'atlas-connection-status' }) => {
   const darkMode = useDarkMode();
-  const atlasAuthService = useAtlasAuthService();
-  const [userInfo, setUserInfo] = useState<AtlasUserInfo | null>(null);
-
-  useEffect(() => {
-    let cancelled = false;
-
-    const refresh = async () => {
-      try {
-        const info = await atlasAuthService.getUserInfo();
-        if (!cancelled) {
-          setUserInfo(info);
-        }
-      } catch {
-        if (!cancelled) {
-          setUserInfo(null);
-        }
-      }
-    };
-
-    void refresh();
-
-    const onSignedIn = () => void refresh();
-    const onSignedOut = () => setUserInfo(null);
-
-    atlasAuthService.on('signed-in', onSignedIn);
-    atlasAuthService.on('signed-out', onSignedOut);
-
-    return () => {
-      cancelled = true;
-      atlasAuthService.off('signed-in', onSignedIn);
-      atlasAuthService.off('signed-out', onSignedOut);
-    };
-  }, [atlasAuthService]);
-
-  const onDisconnect = useCallback(() => {
-    void (async () => {
-      const confirmed = await showConfirmation({
-        ...disconnectConfirmationModalDetails,
-      });
-      if (!confirmed) {
-        return;
-      }
-      try {
-        await atlasAuthService.signOut();
-      } finally {
-        setUserInfo(null);
-      }
-      openToast(DISCONNECT_TOAST_ID, {
-        title: 'Disconnected from Atlas',
-        description: "You won't have Atlas context anymore.",
-        variant: 'note',
-        timeout: 5000,
-      });
-    })();
-  }, [atlasAuthService]);
+  const userInfo = useAtlasSignedInUser();
+  const { disconnect } = useAtlasLoginActions();
 
   if (!userInfo) {
     return null;
@@ -165,7 +94,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
         className={disconnectButtonStyles}
         size="xsmall"
         leftGlyph={<Icon glyph="Disconnect" />}
-        onClick={onDisconnect}
+        onClick={disconnect}
         data-testid={`${dataTestId}-disconnect`}
         darkMode={darkMode}
       >

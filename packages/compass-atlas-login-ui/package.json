@@ -22,13 +22,13 @@
   ],
   "license": "SSPL",
   "main": "dist/index.js",
-  "compass:main": "src/index.ts",
+  "compass:main": "src/index.tsx",
   "exports": {
     "import": "./dist/.esm-wrapper.mjs",
     "require": "./dist/index.js"
   },
   "compass:exports": {
-    ".": "./src/index.ts"
+    ".": "./src/index.tsx"
   },
   "types": "./dist/index.d.ts",
   "scripts": {
@@ -50,8 +50,12 @@
   },
   "dependencies": {
     "@mongodb-js/atlas-service": "^1.2.0",
+    "@mongodb-js/compass-app-registry": "^9.13.0",
     "@mongodb-js/compass-components": "^1.68.0",
-    "react": "^17.0.2"
+    "react": "^17.0.2",
+    "react-redux": "^8.1.3",
+    "redux": "^4.2.1",
+    "redux-thunk": "^2.4.2"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.25",

@@ -375,13 +375,18 @@ ${connectionString}`;
   return {
     prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB ${productDisplayName}.${connectionDetailsSection}
 Error message:
-${connectionError}`,
+${connectionError}
+
+${
+  isAtlasConnection
+    ? `
+1. Use the "atlas-connection-error-debugger" tool to check the connection and provide specific guidance on how to fix it. 
+2. Do not use any previous results from the "atlas-connection-error-debugger" tool. 
+3. Always recall the "atlas-connection-error-debugger" to get new results.`
+    : ''
+}`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
-      instructions: isAtlasConnection
-        ? 'Use the atlas-connection-error-debugger tool to check the connection and provide specific guidance on how to fix it.'
-        : undefined,
-      sendWithoutHistory: isAtlasConnection,
       connectionInfo: {
         id: connectionInfo.id,
         name: getConnectionTitle(connectionInfo),
