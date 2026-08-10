@@ -10,7 +10,8 @@ import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from 'compass-preferences-model';
-import type { AtlasService } from '@mongodb-js/atlas-service/provider';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 
 describe('ToolsController', function () {
   let sandbox: sinon.SinonSandbox;
@@ -18,21 +19,24 @@ describe('ToolsController', function () {
   let toolsController: ToolsController;
   let getTelemetryAnonymousId: sinon.SinonStub;
   let preferences: PreferencesAccess;
-  let atlasService: AtlasService;
+  let authService: AtlasAuthService;
+  let atlasAdminApi: AtlasAdminApiService;
 
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
     logger = createNoopLogger();
     getTelemetryAnonymousId = sandbox.stub().returns('test-anonymous-id');
     preferences = await createSandboxFromDefaultPreferences();
-    atlasService = {} as AtlasService;
+    authService = {} as AtlasAuthService;
+    atlasAdminApi = {} as AtlasAdminApiService;
 
     toolsController = new ToolsController({
       enableTelemetry: false,
       logger,
       getTelemetryAnonymousId,
       preferences,
-      atlasService,
+      authService,
+      atlasAdminApi,
     });
   });
 
@@ -221,7 +225,8 @@ describe('ToolsController', function () {
           logger,
           getTelemetryAnonymousId,
           preferences,
-          atlasService,
+          authService,
+          atlasAdminApi,
         });
         newController.setActiveTools(new Set(['db-read']));
 
@@ -522,7 +527,8 @@ describe('ToolsController', function () {
             throw new Error('Telemetry error');
           },
           preferences,
-          atlasService,
+          authService,
+          atlasAdminApi,
         });
 
         // Should not throw even if there's an error

@@ -57,7 +57,7 @@
     "mongodb-build-info": "^1.8.1",
     "mongodb-connection-string-url": "^7.0.2",
     "mongodb-data-service": "^22.40.2",
-    "mongodb-query-parser": "^4.7.15",
+    "mongodb-query-parser": "^4.7.16",
     "react": "^17.0.2"
   },
   "devDependencies": {
