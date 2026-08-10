@@ -1,6 +1,6 @@
 import React, { type ComponentProps } from 'react';
 import { expect } from 'chai';
-import { render, screen } from '@mongodb-js/testing-library-compass';
+import { render, screen, waitFor } from '@mongodb-js/testing-library-compass';
 import InsertDocumentDialog from './insert-document-dialog';
 import HadronDocument from 'hadron-document';
 import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
@@ -137,6 +137,57 @@ describe('InsertDocumentDialog', function () {
     );
     expect(screen.queryByTestId('insert-document-banner')).to.not.exist;
     expect(screen.getByTestId('insert-document-dialog-view-shell')).to.exist;
+  });
+
+  it('disables switching views while a number exceeds the safe integer range', async function () {
+    const doc = new HadronDocument({});
+    doc.editing = true;
+    let editorText = '{}';
+    function updateInsertDocText(value: string | null) {
+      editorText = value ?? '{}';
+    }
+    const renderDialog = () => (
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        editorText={editorText}
+        updateInsertDocText={updateInsertDocText}
+        insertView="shell"
+      />
+    );
+    const { rerender } = render(renderDialog());
+    const buttonIn = (testId: string) =>
+      screen.getByTestId(testId).querySelector('button');
+
+    await setCodemirrorEditorValue(
+      screen.getByTestId('insert-document-editor'),
+      '{ a: 9007199254740993 }'
+    );
+    rerender(renderDialog());
+
+    await waitFor(() => {
+      expect(buttonIn('insert-document-dialog-view-json')).to.have.property(
+        'disabled',
+        true
+      );
+    });
+    expect(buttonIn('insert-document-dialog-view-list')).to.have.property(
+      'disabled',
+      true
+    );
+
+    await setCodemirrorEditorValue(
+      screen.getByTestId('insert-document-editor'),
+      '{ a: Long("9007199254740993") }'
+    );
+    rerender(renderDialog());
+
+    await waitFor(() => {
+      expect(buttonIn('insert-document-dialog-view-json')).to.have.property(
+        'disabled',
+        false
+      );
+    });
   });
 
   it('shows an error for invalid shell syntax', async function () {

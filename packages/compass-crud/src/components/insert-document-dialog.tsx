@@ -301,6 +301,11 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
 
   const isTextView = insertView !== 'list';
 
+  // Switching views re-parses and re-serializes the text, which would silently
+  // round an unsafe number and clear the warning, so the violations have to be
+  // fixed before the view can change.
+  const hasSafeIntegerViolations = safeIntegerViolations.length > 0;
+
   // The visual editor can only represent a single document, so disable it when
   // the editor holds an array.
   const isManyDocuments = hasManyDocuments();
@@ -353,7 +358,9 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
               <SegmentedControlOption
                 key={option.value}
                 disabled={
-                  Boolean(documentValidationError) || disabledForManyDocs
+                  Boolean(documentValidationError) ||
+                  hasSafeIntegerViolations ||
+                  disabledForManyDocs
                 }
                 data-testid={option.testId}
                 aria-label={option.label}
@@ -364,6 +371,8 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
                   setTooltipLabel(
                     disabledForManyDocs
                       ? 'The visual editor is unavailable for multiple documents'
+                      : hasSafeIntegerViolations
+                      ? 'Fix the numbers exceeding the safe integer range to switch views'
                       : option.label
                   );
                   setTooltipOpen(true);
