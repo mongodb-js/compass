@@ -2,8 +2,10 @@ name: Check package-lock diff
 
 on:
   pull_request:
+    paths:
+      - 'package-lock.json'
+      - '**/package-lock.json'
     types: [opened, synchronize, reopened, ready_for_review]
-
 jobs:
   check-package-lock-diff:
     name: Check package-lock.json diff size
