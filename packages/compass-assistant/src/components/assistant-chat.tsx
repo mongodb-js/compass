@@ -27,7 +27,7 @@ import {
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
-import { AtlasConnectionStatus } from '@mongodb-js/atlas-service/provider';
+import { AtlasConnectionStatus } from '@mongodb-js/compass-atlas-login-ui';
 import {
   useTelemetry,
   useSearchActivationProgramP2,

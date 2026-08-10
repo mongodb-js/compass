@@ -80,7 +80,3 @@ export const atlasServiceLocator = createServiceLocator(
 export { AtlasAuthService } from './atlas-auth-service';
 export type { AtlasService } from './atlas-service';
 export type { AtlasUserInfo } from './renderer';
-export {
-  AtlasConnectionStatus,
-  type AtlasConnectionStatusProps,
-} from './components/atlas-connection-status';

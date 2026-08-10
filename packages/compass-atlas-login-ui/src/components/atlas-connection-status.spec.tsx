@@ -9,9 +9,11 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { AtlasConnectionStatus } from './atlas-connection-status';
-import { AtlasAuthServiceProvider } from '../provider';
-import type { AtlasAuthService } from '../provider';
-import type { AtlasUserInfo } from '../util';
+import {
+  AtlasAuthServiceProvider,
+  type AtlasAuthService,
+  type AtlasUserInfo,
+} from '@mongodb-js/atlas-service/provider';
 
 /**
  * Minimal fake AtlasAuthService backed by a real EventEmitter so the

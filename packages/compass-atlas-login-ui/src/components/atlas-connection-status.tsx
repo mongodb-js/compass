@@ -12,8 +12,10 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useAtlasAuthService } from '../provider';
-import type { AtlasUserInfo } from '../util';
+import {
+  useAtlasAuthService,
+  type AtlasUserInfo,
+} from '@mongodb-js/atlas-service/provider';
 
 const DISCONNECT_TOAST_ID = 'atlas-disconnected';
 

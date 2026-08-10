@@ -58,6 +58,7 @@
     "@mongodb-js/atlas-admin-api": "^1.0.0",
     "@mongodb-js/atlas-service": "^1.2.0",
     "@mongodb-js/compass-app-registry": "^9.13.0",
+    "@mongodb-js/compass-atlas-login-ui": "^0.1.0",
     "@mongodb-js/compass-components": "^1.68.0",
     "@mongodb-js/compass-generative-ai": "^1.2.0",
     "@mongodb-js/compass-logging": "^1.16.0",

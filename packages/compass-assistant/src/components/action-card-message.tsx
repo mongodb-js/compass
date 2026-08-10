@@ -54,6 +54,18 @@ const expandableContentStylesDark = css({
   color: palette.gray.light1,
 });
 
+const primaryButtonStyle = css({
+  flex: 'unset',
+  marginLeft: 'auto',
+  marginRight: '0',
+});
+
+const secondaryButtonStyle = css({
+  flex: 'unset',
+  marginLeft: '0',
+  marginRight: 'auto',
+});
+
 export const ActionCardMessage: React.FunctionComponent<
   ActionCardMessageProps
 > = ({
@@ -100,6 +112,9 @@ export const ActionCardMessage: React.FunctionComponent<
         {showActions &&
           buttons.map((button) => (
             <Message.ActionCard.Button
+              className={
+                button.isPrimary ? primaryButtonStyle : secondaryButtonStyle
+              }
               key={button.label}
               onClick={button.onClick}
               variant={button.variant}
