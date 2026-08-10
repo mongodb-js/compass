@@ -169,11 +169,27 @@ describe('IndexesToolbar Component', function () {
 
   describe('when it is preferences ReadWrite', function () {
     beforeEach(function () {
-      renderIndexesToolbar(undefined, { readWrite: true });
+      renderIndexesToolbar(undefined, {
+        readWrite: true,
+        enableIndexesManagement: false,
+      });
     });
 
     it('should not render the create index button', function () {
       expect(screen.queryByText('Create Index')).to.not.exist;
+    });
+  });
+
+  describe('when it is preferences ReadWrite but the user can manage indexes', function () {
+    beforeEach(function () {
+      renderIndexesToolbar(undefined, {
+        readWrite: true,
+        enableIndexesManagement: true,
+      });
+    });
+
+    it('should render the create index button', function () {
+      expect(screen.getByText('Create Index')).to.be.visible;
     });
   });
 

@@ -2194,8 +2194,7 @@ export function activateDocumentsPlugin(
     'favorites-open-bulk-update-favorite',
     (query: { update: BSONObject }) => {
       void store.refreshDocuments();
-      void store.openBulkUpdateModal();
-      void store.updateBulkUpdatePreview(
+      void store.openBulkUpdateModal(
         toJSString(query.update) || INITIAL_BULK_UPDATE_TEXT
       );
     }
