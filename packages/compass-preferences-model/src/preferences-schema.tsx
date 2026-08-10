@@ -485,7 +485,7 @@ export const storedUserPreferencesProps: Required<{
     cli: false,
     global: false,
     description: null,
-    validator: z.boolean().default(true),
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   /**
