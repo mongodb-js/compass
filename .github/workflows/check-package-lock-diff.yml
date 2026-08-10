@@ -1,0 +1,104 @@
+name: Check package-lock diff
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+jobs:
+  check-package-lock-diff:
+    name: Check package-lock.json diff size
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Check package-lock.json diff size and comment
+        uses: actions/github-script@v7
+        env:
+          # Changed lines (additions + deletions) in package-lock.json above
+          # which we warn on the PR.
+          THRESHOLD: '1000'
+        with:
+          script: |
+            const marker = '<!-- package-lock-diff-comment -->';
+            const outdatedMarker = '<!-- package-lock-diff-comment-outdated -->';
+            const threshold = Number(process.env.THRESHOLD);
+
+            const files = await github.paginate(github.rest.pulls.listFiles, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              per_page: 100,
+            });
+
+            const lockFiles = files.filter(
+              (f) => f.filename === 'package-lock.json' || f.filename.endsWith('/package-lock.json')
+            );
+            const changes = lockFiles.reduce((sum, f) => sum + f.additions + f.deletions, 0);
+            const exceedsThreshold = changes > threshold;
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+
+            const existing = comments.find((c) => c.body.includes(marker));
+
+            if (!existing && !exceedsThreshold) {
+              return;
+            }
+
+            if (exceedsThreshold) {
+              const breakdown = lockFiles
+                .map((f) => `> - \`${f.filename}\`: +${f.additions} / -${f.deletions}`)
+                .join('\n');
+              const body =
+                marker + '\n' +
+                '> [!WARNING]\n' +
+                `> This PR changes **${changes}** lines in package-lock.json ` +
+                `(threshold: ${threshold}).\n` +
+                '>\n' +
+                breakdown + '\n' +
+                '>\n' +
+                '> Adding or updating a dependency should rarely produce a diff this large. ' +
+                'Please double check the lockfile changes are intentional - a common cause is ' +
+                'running a different npm or Node.js version than the one the repo pins, or ' +
+                'running `npm install` in a way that re-resolves unrelated dependencies.\n' +
+                '>\n' +
+                '> If the changes are unexpected, try restoring the lockfile from the base branch ' +
+                'and re-running the install with the pinned npm version.\n';
+
+              if (existing) {
+                return await github.rest.issues.updateComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  comment_id: existing.id,
+                  body,
+                });
+              }
+
+              return await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+            // Below the threshold again, but there is an existing comment: mark it as outdated.
+            if (!existing.body.includes(outdatedMarker)) {
+              const previous = existing.body.replace(marker, '').trim();
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body:
+                  marker + '\n' + outdatedMarker + '\n' +
+                  '> [!NOTE]\n' +
+                  '> The package-lock.json diff is no longer above the threshold, so this notice ' +
+                  'no longer applies.\n\n' +
+                  '<details><summary>Previous message</summary>\n\n' +
+                  previous + '\n\n</details>',
+              });
+            }
