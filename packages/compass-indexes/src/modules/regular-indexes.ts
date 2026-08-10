@@ -424,13 +424,18 @@ const fetchIndexes = (
       isWritable,
     } = getState();
 
-    const { readOnly, readWrite, enableAtlasSearchIndexes } =
-      preferences.getPreferences();
+    const {
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+      enableIndexesManagement,
+    } = preferences.getPreferences();
     const { isRegularIndexesReadable } = selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1: false, // regular indexes are not affected by the experiment
+      enableIndexesManagement,
     })(getState());
 
     if (
