@@ -48,6 +48,19 @@ const labelTextStyles = css({
   whiteSpace: 'nowrap',
 });
 
+const disconnectButtonStyles = css({
+  color: palette.blue.base,
+  backgroundColor: palette.white,
+  border: 0,
+  '&:hover': {
+    backgroundColor: palette.white,
+    color: palette.blue.base,
+  },
+  '& svg': {
+    color: palette.blue.base,
+  },
+});
+
 const labelTextStylesLight = css({ color: palette.gray.dark1 });
 const labelTextStylesDark = css({ color: palette.gray.light1 });
 
@@ -147,10 +160,12 @@ export const AtlasConnectionStatus: React.FunctionComponent<
         </Body>
       </div>
       <Button
+        className={disconnectButtonStyles}
         size="xsmall"
         leftGlyph={<Icon glyph="Disconnect" />}
         onClick={onDisconnect}
         data-testid={`${dataTestId}-disconnect`}
+        darkMode={darkMode}
       >
         Disconnect Atlas
       </Button>

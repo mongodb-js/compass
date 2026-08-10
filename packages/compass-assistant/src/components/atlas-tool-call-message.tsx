@@ -1,7 +1,6 @@
 import React from 'react';
 import { ServerIcon } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
-import { ATLAS_CONNECTION_ERROR_DEBUGGER_CONFIRMATION_DESCRIPTION } from '@mongodb-js/compass-generative-ai/provider';
 import type { ToolState } from '../utils';
 import { getToolState } from '../utils';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';

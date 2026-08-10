@@ -381,6 +381,7 @@ ${connectionError}`,
       instructions: isAtlasConnection
         ? 'Use the atlas-connection-error-debugger tool to check the connection and provide specific guidance on how to fix it.'
         : undefined,
+      sendWithoutHistory: isAtlasConnection,
       connectionInfo: {
         id: connectionInfo.id,
         name: getConnectionTitle(connectionInfo),

@@ -554,15 +554,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     if (!getAtlasSignedIn) {
       return;
     }
-    let cancelled = false;
     void getAtlasSignedIn().then((signedIn) => {
-      if (!cancelled) {
-        setIsAtlasSignedIn(signedIn);
-      }
+      setIsAtlasSignedIn(signedIn);
     });
-    return () => {
-      cancelled = true;
-    };
   }, [getAtlasSignedIn, lastMessageId]);
 
   const handleToolApproval = useCallback(
