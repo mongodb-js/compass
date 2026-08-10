@@ -203,7 +203,7 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
       track('Safe Integer Fix Applied', {
         source: 'pipeline-editor',
       });
-      return `NumberLong(${source})`;
+      return `Long("${source}")`;
     },
   });
 

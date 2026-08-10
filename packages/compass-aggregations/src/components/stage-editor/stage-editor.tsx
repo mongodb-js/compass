@@ -215,7 +215,7 @@ export const StageEditor = ({
       track('Safe Integer Fix Applied', {
         source: 'stage-editor',
       });
-      return `NumberLong(${source})`;
+      return `Long("${source}")`;
     },
   });
 
