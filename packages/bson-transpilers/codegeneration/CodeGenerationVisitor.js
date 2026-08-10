@@ -27,7 +27,11 @@ module.exports = (ANTLRVisitor) =>
       super();
       this.idiomatic = true; // PUBLIC
       this.clearImports();
-      this.state = { declarations: new DeclarationStore() };
+      this.state = {
+        declarations: new DeclarationStore(),
+        toStringLiteral: (str) =>
+          this.Types._string.template(this.rawToSourceText(`${str}`)),
+      };
     }
 
     clearImports() {
@@ -85,6 +89,29 @@ module.exports = (ANTLRVisitor) =>
 
     getState() {
       return this.state;
+    }
+
+    /**
+     * Every StringTypeTemplate expects source text: a literal as it appeared in
+     * the input, still surrounded by quotes and with backslashes already acting
+     * as escapes.
+     *
+     * @param {String} str - a raw string.
+     * @return {String} - the equivalent source text.
+     */
+    rawToSourceText(str) {
+      // A backslash is a literal character here, not the start of an escape.
+      const escaped = str.replace(/\\/g, '\\\\');
+      // Templates drop the first and last character when a string looks
+      // quoted. Add a matching pair for them to consume.
+      const first = escaped.charAt(0);
+      if (
+        (first === "'" || first === '"') &&
+        escaped.charAt(escaped.length - 1) === first
+      ) {
+        return first + escaped + first;
+      }
+      return escaped;
     }
 
     clearDeclarations() {
