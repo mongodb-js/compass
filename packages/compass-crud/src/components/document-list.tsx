@@ -29,6 +29,7 @@ import {
   DOCUMENTS_STATUS_ERROR,
   DOCUMENTS_STATUS_FETCHING,
   DOCUMENTS_STATUS_FETCHED_INITIAL,
+  DOCUMENTS_STATUS_INITIAL,
 } from '../constants/documents-statuses';
 import type { CrudStore, BSONObject, DocumentView } from '../stores/crud-store';
 import { getToolbarSignal } from '../utils/toolbar-signal';
@@ -403,7 +404,12 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
 
   const isInitialFetch = status === DOCUMENTS_STATUS_FETCHED_INITIAL;
 
-  const isFetching = status === DOCUMENTS_STATUS_FETCHING && !debouncingLoad;
+  const isFirstFetch =
+    status === DOCUMENTS_STATUS_INITIAL ||
+    (status === DOCUMENTS_STATUS_FETCHING && isEmpty);
+
+  const isFetching =
+    isFirstFetch || (status === DOCUMENTS_STATUS_FETCHING && !debouncingLoad);
 
   const isError = status === DOCUMENTS_STATUS_ERROR;
 

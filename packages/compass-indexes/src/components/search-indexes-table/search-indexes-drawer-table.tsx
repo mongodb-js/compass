@@ -188,10 +188,16 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
 }) => {
   const track = useTelemetry();
 
-  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+  const {
+    readOnly,
+    readWrite,
+    enableAtlasSearchIndexes,
+    enableIndexesManagement,
+  } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
+    'enableIndexesManagement',
   ]);
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isSearchIndexesWritable } = useSelector(
@@ -200,6 +206,7 @@ export const SearchIndexesDrawerTable: React.FunctionComponent<
       readWrite,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1,
+      enableIndexesManagement,
     }),
     shallowEqual
   );
