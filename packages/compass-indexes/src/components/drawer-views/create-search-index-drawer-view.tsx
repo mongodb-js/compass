@@ -136,10 +136,16 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   );
 
   const { atlasMetadata } = useConnectionInfo();
-  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+  const {
+    readOnly,
+    readWrite,
+    enableAtlasSearchIndexes,
+    enableIndexesManagement,
+  } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
+    'enableIndexesManagement',
   ]);
   const { isSearchIndexesWritable } = useSelector(
     selectReadWriteAccess({
@@ -147,6 +153,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       readWrite,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1: true, // This component is only rendered if the user is in the variant
+      enableIndexesManagement,
     }),
     shallowEqual
   );

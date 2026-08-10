@@ -3,6 +3,8 @@ import { useCurrentValueRef } from '@mongodb-js/compass-components';
 import type { EditorRef } from '../types';
 import type { Annotation } from './../editor';
 import { createCodemirrorLinter } from '../linter';
+import type { LintConfig } from '../linter';
+import { wrapLinterAnnotation } from '../lint-tooltip-exit-delay';
 
 export type SafeIntegerViolation = {
   from: number;
@@ -13,10 +15,9 @@ export type SafeIntegerViolation = {
   isArgument: boolean;
 };
 
-type SafeIntegerLinterOptions = {
+type SafeIntegerLinterOptions = LintConfig & {
   editorRef?: React.RefObject<EditorRef>;
   onFixViolation?: (source: string) => string;
-  lintDelay?: number;
   externalAnnotations?: React.RefObject<Annotation[]>;
 };
 
@@ -65,8 +66,10 @@ function fixFor(
 export function useSafeIntegerLinter({
   editorRef,
   onFixViolation = defaultOnFixViolation,
-  lintDelay = 500,
   externalAnnotations,
+  lintDelay,
+  tooltipExitDelay,
+  theme,
 }: SafeIntegerLinterOptions = {}) {
   const [violations, setViolations] = useState<SafeIntegerViolation[]>([]);
   const optionsRef = useCurrentValueRef({
@@ -134,13 +137,13 @@ export function useSafeIntegerLinter({
         });
 
         return [
-          ...annotations,
+          ...annotations.map(wrapLinterAnnotation),
           ...(optionsRef.current.externalAnnotations?.current ?? []),
         ];
       },
-      { delay: lintDelay }
+      { lintDelay, theme, tooltipExitDelay }
     );
-  }, [lintDelay]);
+  }, [lintDelay, theme, tooltipExitDelay]);
 
   const onFixViolations = useCallback(() => {
     const editor = editorRef?.current?.editor;
