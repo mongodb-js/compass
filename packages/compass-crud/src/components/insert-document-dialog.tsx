@@ -55,6 +55,7 @@ const modalBodyStyles = css({
   display: 'flex',
   flexDirection: 'column',
   overflow: 'hidden',
+  paddingBottom: 0,
 });
 
 const documentViewContainer = css({

@@ -15,6 +15,14 @@ const bannerStyles = css({
 const actionContainerStyles = css({
   marginTop: spacing[200],
 });
+const messageStyles = css({
+  // We want to show some lines of the error, and part of the next
+  // line so folks know it can scroll.
+  maxHeight: '5.6em',
+  overflowY: 'auto',
+  overflowWrap: 'anywhere',
+  whiteSpace: 'pre-wrap',
+});
 
 type InsertDocumentDialogBannerProps = {
   documentWriteError: WriteError | null;
@@ -91,7 +99,7 @@ export function InsertDocumentDialogBanner({
       variant={banner.variant}
       className={bannerStyles}
     >
-      {banner.message}
+      <div className={messageStyles}>{banner.message}</div>
       {'action' in banner && (
         <div className={actionContainerStyles}>
           <Button
