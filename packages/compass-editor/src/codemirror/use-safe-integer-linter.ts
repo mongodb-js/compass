@@ -12,6 +12,8 @@ export type SafeIntegerViolation = {
   // True when the literal is already an argument to a constructor call like
   // `Long(123...)`. The fix then quotes the argument (`Long("123...")`)
   // instead of wrapping the whole thing again.
+  // TODO(COMPASS-10964): update this argument check to only include
+  // methods we know handle string arguments.
   isArgument: boolean;
 };
 
