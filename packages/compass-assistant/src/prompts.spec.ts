@@ -824,8 +824,8 @@ You SHOULD:
           error: new Error('connection timed out'),
         });
 
-        expect(result.metadata?.instructions).to.contain(
-          'Use the atlas-connection-error-debugger tool'
+        expect(result.prompt).to.contain(
+          'Use the "atlas-connection-error-debugger" tool'
         );
       });
 
@@ -835,8 +835,8 @@ You SHOULD:
           error: new Error('bad auth : authentication failed'),
         });
 
-        expect(result.metadata?.instructions).to.contain(
-          'Use the atlas-connection-error-debugger tool'
+        expect(result.prompt).to.contain(
+          'Use the "atlas-connection-error-debugger" tool'
         );
       });
     });
@@ -856,7 +856,9 @@ You SHOULD:
           error: new Error('connection refused'),
         });
 
-        expect(result.metadata?.instructions).to.be.undefined;
+        expect(result.prompt).to.not.contain(
+          'Use the "atlas-connection-error-debugger" tool'
+        );
       });
 
       it('always includes the connection info and the error in the prompt', function () {
