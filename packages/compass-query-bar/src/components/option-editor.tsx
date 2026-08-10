@@ -38,6 +38,7 @@ import type {
   RecentQuery,
 } from '@mongodb-js/my-queries-storage';
 import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> & {
   _lastExecuted: Date;
@@ -201,8 +202,16 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     optionName,
   ]);
 
+  const track = useTelemetry();
   const { safeIntegerLinter, violations: safeIntegerViolations } =
-    useSafeIntegerLinter();
+    useSafeIntegerLinter({
+      onFixViolation(source) {
+        track('Safe Integer Fix Applied', {
+          source: 'query-bar-editor',
+        });
+        return `NumberLong(${source})`;
+      },
+    });
   useEffect(() => {
     if (safeIntegerViolations.length > 0) {
       onUnsafeInteger();

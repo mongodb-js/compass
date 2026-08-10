@@ -199,6 +199,12 @@ export const PipelineEditor: React.FunctionComponent<PipelineEditorProps> = ({
   const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
   const { safeIntegerLinter } = useSafeIntegerLinter({
     externalAnnotations: annotationsRef,
+    onFixViolation(source) {
+      track('Safe Integer Fix Applied', {
+        source: 'pipeline-editor',
+      });
+      return `NumberLong(${source})`;
+    },
   });
 
   const showErrorContainer =
