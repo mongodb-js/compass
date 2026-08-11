@@ -18,6 +18,11 @@ const editorContainerStylesDark = css({
   borderLeft: `3px solid ${palette.gray.dark2}`,
 });
 
+const MIN_LINES = 18;
+// The editor's default line height.
+const LINE_HEIGHT = 16;
+export const INSERT_EDITOR_MIN_HEIGHT = MIN_LINES * LINE_HEIGHT;
+
 type InsertDocumentEditorProps = {
   darkMode?: boolean;
   editorText: string;

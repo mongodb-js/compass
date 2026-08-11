@@ -25,7 +25,9 @@ import {
 
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
-import InsertDocumentEditor from './insert-document-editor';
+import InsertDocumentEditor, {
+  INSERT_EDITOR_MIN_HEIGHT,
+} from './insert-document-editor';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
@@ -61,7 +63,8 @@ const modalBodyStyles = css({
 const documentViewContainer = css({
   marginTop: spacing[400],
   flex: '1 1 auto',
-  minHeight: 0,
+  // Keeps the views the same height when switching between them with little content.
+  minHeight: INSERT_EDITOR_MIN_HEIGHT,
   overflow: 'auto',
 });
 
