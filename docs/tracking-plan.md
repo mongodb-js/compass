@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-08-10. Do not edit manually.
+> Auto-generated on 2026-08-11. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -2046,6 +2046,7 @@ This event is fired when the application launch is initiated.
 | `launch_connection` | `"string" \| "JSON_file" \| "none"` | Yes      | Whether Compass was instructed to automatically connect to a specific cluster using a connection string on the command line, a JSON file containing an exported connection on the command line, or not at all. |
 | `protected`         | `boolean \| undefined`              | No       | Whether the `protectConnectionStrings` preference was set at launch.                                                                                                                                           |
 | `readOnly`          | `boolean`                           | Yes      | Whether the `readOnly` preference was set at launch (including the compass-readonly distribution).                                                                                                             |
+| `enableAtlasSignIn` | `boolean`                           | Yes      | Whether Atlas sign in is enabled at launch. Can only be disabled through the global configuration file, so this indicates a managed installation that opted out of Atlas sign in.                              |
 | `maxTimeMS`         | `number \| undefined`               | No       | The value of the `maxTimeMS` preference at launch.                                                                                                                                                             |
 | `global_config`     | `boolean`                           | Yes      | Whether any preferences were specified in the global configuration file.                                                                                                                                       |
 | `cli_args`          | `boolean`                           | Yes      | Whether any preferences were specified using CLI arguments.                                                                                                                                                    |
