@@ -20,7 +20,10 @@ import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { removeZodTransforms } from './remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import type {
+  AtlasAuthService,
+  AtlasService,
+} from '@mongodb-js/atlas-service/provider';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { debugConnection } from './tools/debug-connection';
@@ -84,6 +87,7 @@ type ToolsControllerConfig = {
   maxTimeMS?: number;
   atlasAdminApi: AtlasAdminApiService;
   authService: AtlasAuthService;
+  atlasService: AtlasService;
 };
 
 export class ToolsController {
@@ -97,6 +101,7 @@ export class ToolsController {
     Object.create(null);
   private readonly atlasAdminApi: AtlasAdminApiService;
   private readonly authService: AtlasAuthService;
+  private readonly atlasService: AtlasService;
 
   constructor({
     logger,
@@ -106,11 +111,13 @@ export class ToolsController {
     atlasAdminApi,
     authService,
     preferences,
+    atlasService,
   }: ToolsControllerConfig) {
     this.logger = logger;
     this.atlasAdminApi = atlasAdminApi;
     this.authService = authService;
     this.preferences = preferences;
+    this.atlasService = atlasService;
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
       loggers: ['mcp'],
@@ -312,7 +319,7 @@ export class ToolsController {
           return await debugConnection(
             args.connectionString,
             this.atlasAdminApi,
-            this.authService
+            this.atlasService
           );
         },
       };
