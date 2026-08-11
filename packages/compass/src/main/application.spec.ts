@@ -19,8 +19,6 @@ describe('CompassApplication trackApplicationLaunched', function () {
     });
 
     return new Promise((resolve, reject) => {
-      let timeout: ReturnType<typeof setTimeout>;
-
       const onTrack = ({
         event,
         properties,
@@ -37,7 +35,7 @@ describe('CompassApplication trackApplicationLaunched', function () {
       };
 
       process.on('compass:track' as any, onTrack);
-      timeout = setTimeout(() => {
+      const timeout = setTimeout(() => {
         process.off('compass:track' as any, onTrack);
         reject(
           new Error('Timed out waiting for the Application Launched event')
