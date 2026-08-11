@@ -27,6 +27,7 @@ import {
   MAX_DOCS_PER_PAGE_STORAGE_KEY,
   DOCUMENT_VIEW_STORAGE_KEY,
   parseInsertDocument,
+  parseInsertDocumentArray,
 } from './crud-store';
 import type { InsertDocumentView } from './crud-store';
 import { Int32, Long, Double, Decimal128, ObjectId, Binary } from 'bson';
@@ -537,6 +538,32 @@ describe('store', function () {
       await switchTo('list');
       await switchTo('json');
       await switchTo('shell');
+    });
+  });
+
+  describe('#parseInsertDocument', function () {
+    it('parses a shell document literal', function () {
+      expect(
+        parseInsertDocument('shell', '{ foo: 1 }').generateObject()
+      ).to.deep.equal({ foo: new Int32(1) });
+    });
+
+    for (const text of [
+      'new Date()',
+      '/foo/',
+      'new ObjectId("64eff8f8f8f8f8f8f8f8f8f8")',
+    ]) {
+      it(`rejects the object-valued shell expression ${text}`, function () {
+        expect(() => parseInsertDocument('shell', text)).to.throw(
+          'The provided definition is not a valid document.'
+        );
+      });
+    }
+
+    it('rejects object-valued shell expressions in the array case', function () {
+      expect(() =>
+        parseInsertDocumentArray('shell', '[{ foo: 1 }, new Date()]')
+      ).to.throw('The provided definition is not a valid document.');
     });
   });
 

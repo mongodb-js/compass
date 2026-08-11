@@ -2331,6 +2331,21 @@ export function parseShellBSON(source: string): BSONObject | BSONObject[] {
   return parsed as BSONObject | BSONObject[];
 }
 
+/**
+ * Shell syntax accepts any object-valued expression (`new Date()`, `/foo/`,
+ * ...), not only document literals. Passing one of those to HadronDocument
+ * would enumerate no fields and silently insert an empty document, so we
+ * reject anything that isn't a plain object.
+ */
+function assertPlainDocument(parsed: unknown): BSONObject {
+  const prototype =
+    parsed && typeof parsed === 'object' ? Object.getPrototypeOf(parsed) : null;
+  if (prototype !== Object.prototype && prototype !== null) {
+    throw new Error('The provided definition is not a valid document.');
+  }
+  return parsed as BSONObject;
+}
+
 function insertModeForTelemetry(
   view: InsertDocumentView
 ): 'field-by-field' | 'json' | 'shell' {
@@ -2349,9 +2364,15 @@ export function parseInsertDocument(
   view: InsertDocumentView,
   text: string
 ): HadronDocument {
-  return view === 'shell'
-    ? new HadronDocument(parseShellBSON(text) as BSONObject)
-    : HadronDocument.FromEJSON(text);
+  if (view !== 'shell') {
+    return HadronDocument.FromEJSON(text);
+  }
+  const parsed = parseShellBSON(text);
+  return new HadronDocument(
+    Array.isArray(parsed)
+      ? (parsed as unknown as BSONObject)
+      : assertPlainDocument(parsed)
+  );
 }
 
 /**
@@ -2365,7 +2386,7 @@ export function parseInsertDocumentArray(
   if (view === 'shell') {
     const parsed = parseShellBSON(text);
     return (Array.isArray(parsed) ? parsed : [parsed]).map(
-      (doc) => new HadronDocument(doc)
+      (doc) => new HadronDocument(assertPlainDocument(doc))
     );
   }
   return HadronDocument.FromEJSONArray(text);
