@@ -396,7 +396,7 @@ class CrudStoreImpl
   instance: MongoDBInstance;
   connectionScopedAppRegistry: ConnectionScopedAppRegistry<EmittedAppRegistryEvents>;
   queryBar: QueryBarService;
-  collection: Collection;
+  collectionModel: Collection;
 
   constructor(
     options: CrudStoreOptions & CrudStoreActionsOptions,
@@ -432,7 +432,7 @@ class CrudStoreImpl
     this.fieldStoreService = services.fieldStoreService;
     this.connectionScopedAppRegistry = services.connectionScopedAppRegistry;
     this.queryBar = services.queryBar;
-    this.collection = services.collection;
+    this.collectionModel = services.collection;
   }
 
   getInitialState(): CrudState {
@@ -471,7 +471,7 @@ class CrudStoreImpl
       isUpdatePreviewSupported:
         this.instance.topologyDescription.type !== 'Single',
       docsPerPage: this.getInitialDocsPerPage(),
-      collectionStats: extractCollectionStats(this.collection),
+      collectionStats: extractCollectionStats(this.collectionModel),
     };
   }
 
