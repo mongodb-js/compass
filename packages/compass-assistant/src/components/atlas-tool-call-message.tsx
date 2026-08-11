@@ -9,6 +9,8 @@ import {
   useAtlasSignedInUser,
 } from '@mongodb-js/compass-atlas-login-ui';
 import { ActionCardMessage } from './action-card-message';
+import { doesToolUseConnection } from '@mongodb-js/compass-generative-ai/provider';
+import { getToolDisplayName } from '../utils';
 
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
@@ -41,6 +43,14 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const approvalId = toolCall.approval?.id;
   const isUserSignedIn = !!useAtlasSignedInUser();
   const { signIn } = useAtlasLoginActions();
+  const chips = [];
+
+  if (
+    connectionInfo &&
+    doesToolUseConnection(getToolDisplayName(toolCall.type))
+  ) {
+    chips.push({ glyph: <ServerIcon />, label: connectionInfo.name });
+  }
 
   const handleAtlasToolApproval = useCallback(
     (approvalId: string) => {
@@ -51,15 +61,16 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     [signIn, onApprove]
   );
 
+  const expandableContentText = `
+Connecting would call Atlas API endpoints (cluster state, IP allowlist,
+TLS) to explain why this connection is failing. This is read-only and
+won’t change your cluster.`;
+
   return (
     <ActionCardMessage
       state={toolCallState}
       title={getTitle(toolCallState, isUserSignedIn)}
-      chips={
-        connectionInfo
-          ? [{ label: connectionInfo.name, glyph: <ServerIcon /> }]
-          : []
-      }
+      chips={chips}
       showActions={isAwaitingApproval}
       focusPrimaryKey={approvalId}
       buttons={[
@@ -76,9 +87,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
         },
       ]}
     >
-      Connecting would call Atlas API endpoints (cluster state, IP allowlist,
-      TLS) to explain why this connection is failing. This is read-only and
-      won’t change your cluster.
+      {expandableContentText}
     </ActionCardMessage>
   );
 };

@@ -11,7 +11,11 @@ import {
   getAvailableTools,
   doesToolUseConnection,
 } from '@mongodb-js/compass-generative-ai/provider';
-import { cleanToolCallOutput, getToolState } from '../utils';
+import {
+  cleanToolCallOutput,
+  getToolState,
+  getToolDisplayName,
+} from '../utils';
 import { ActionCardMessage } from './action-card-message';
 
 interface ToolCallMessageProps {
@@ -19,11 +23,6 @@ interface ToolCallMessageProps {
   toolCall: ToolUIPart;
   onApprove?: (approvalId: string) => void;
   onDeny?: (approvalId: string) => void;
-}
-
-// Extract tool name from type (e.g., "tool-list-databases" -> "list-databases")
-function getToolDisplayName(type: string): string {
-  return type.replace(/^tool-/, '');
 }
 
 function getToolDescription(toolName: string): string | undefined {
