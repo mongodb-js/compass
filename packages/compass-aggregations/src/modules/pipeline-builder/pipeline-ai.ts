@@ -1,5 +1,5 @@
 import type { Reducer } from 'redux';
-import { getSimplifiedSchema } from 'mongodb-schema';
+import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import toNS from 'mongodb-ns';
 import { openToast } from '@mongodb-js/compass-components';
 import type { Document } from 'mongodb';
@@ -32,16 +32,26 @@ export type AIPipelineState = {
   isAggregationGeneratedFromQuery: boolean;
 };
 
-export const initialState: AIPipelineState = {
-  status: 'ready',
-  aiPromptText: '',
-  errorMessage: undefined,
-  errorCode: undefined,
-  isInputVisible: false,
-  aiPipelineRequestId: null,
-  lastAIPipelineRequestId: null,
-  isAggregationGeneratedFromQuery: false,
-};
+/**
+ * localStorage key used to persist whether the generate input is open.
+ * Exported for testing purposes.
+ */
+export const AI_INPUT_VISIBLE_STORAGE_KEY =
+  'compass_aggregations_ai_input_visible';
+
+function getInitialState(): AIPipelineState {
+  return {
+    status: 'ready',
+    aiPromptText: '',
+    errorMessage: undefined,
+    errorCode: undefined,
+    aiPipelineRequestId: null,
+    lastAIPipelineRequestId: null,
+    isAggregationGeneratedFromQuery: false,
+    isInputVisible:
+      localStorage.getItem(AI_INPUT_VISIBLE_STORAGE_KEY) === 'true',
+  };
+}
 
 export const AIPipelineActionTypes = {
   AIPipelineStarted:
@@ -462,6 +472,7 @@ export const showInput = (): PipelineBuilderThunkAction<Promise<void>> => {
       if (process.env.COMPASS_E2E_SKIP_AI_OPT_IN !== 'true') {
         await atlasAiService.ensureAiFeatureAccess();
       }
+      localStorage.setItem(AI_INPUT_VISIBLE_STORAGE_KEY, 'true');
       dispatch({
         type: AIPipelineActionTypes.ShowInput,
       });
@@ -475,10 +486,12 @@ export const hideInput = (): PipelineBuilderThunkAction<
   void,
   HideInputAction
 > => {
-  return (dispatch) => {
+  return (dispatch, _getState, { track }) => {
     // Cancel any ongoing op when we hide.
     dispatch(cancelAIPipelineGeneration());
+    localStorage.setItem(AI_INPUT_VISIBLE_STORAGE_KEY, 'false');
     dispatch({ type: AIPipelineActionTypes.HideInput });
+    track('AI Generate Query Closed', { type: 'aggregation' });
   };
 };
 
@@ -493,7 +506,7 @@ export type AIPipelineAction =
   | HideInputAction
   | ChangeAIPromptTextAction;
 const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
-  state = initialState,
+  state = getInitialState(),
   action
 ) => {
   if (
@@ -520,7 +533,10 @@ const aiPipelineReducer: Reducer<AIPipelineState, AIPipelineAction> = (
     // hide the input and show the "Generate aggregation" button again: this should start the
     // sign in flow for the user when clicked
     if (action.statusCode === 401) {
-      return { ...initialState };
+      return {
+        ...getInitialState(),
+        isInputVisible: false,
+      };
     }
     return {
       ...state,

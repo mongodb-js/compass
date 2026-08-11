@@ -2,7 +2,7 @@ import schemaFixture from '../../test/fixtures/array_of_docs.fixture.json';
 import type { activatePlugin } from './store';
 import { expect } from 'chai';
 import { schemaFieldsToAutocompleteItems } from '../modules/fields';
-import type { Schema } from 'mongodb-schema';
+import type { Schema } from '@mongodb-js/mongodb-schema';
 import {
   createPluginTestHelpers,
   cleanup,

@@ -60,6 +60,8 @@ import {
   toolsControllerLocator,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
 import { createOpenAI } from '@ai-sdk/openai';
 import type {
   ActiveConnectionInfo,
@@ -298,11 +300,13 @@ export type AssistantState = Record<string, never>;
 type AssistantExtraArgs = {
   chat: Chat<AssistantMessage>;
   atlasAiService: AtlasAiService;
+  atlasAdminApi: AtlasAdminApiService;
   toolsController: ToolsController;
   preferences: PreferencesAccess;
   logger: Logger;
   track: TrackFunction;
   lastContextPromptRef: { current: string | null };
+  atlasService: AtlasService;
 };
 
 export type AssistantThunkAction<R, A extends Action = AnyAction> = ThunkAction<
@@ -312,9 +316,7 @@ export type AssistantThunkAction<R, A extends Action = AnyAction> = ThunkAction<
   A
 >;
 
-const reducer = (
-  state: AssistantState = {} as AssistantState
-): AssistantState => state;
+const reducer = (state: AssistantState = {}): AssistantState => state;
 
 // Thunk action for the core send logic
 export function ensureOptInAndSendThunk(
@@ -375,6 +377,8 @@ export function ensureOptInAndSendThunk(
     const enableToolCalling = prefs.enableToolCalling;
     const enableGenAIToolCalling =
       prefs.enableGenAIToolCallingAtlasProject && prefs.enableGenAIToolCalling;
+    const enableAtlasConnectionErrorDebugger =
+      prefs.enableAtlasConnectionErrorDebugger;
 
     if (enableToolCalling && enableGenAIToolCalling) {
       // Start the server once the first time both the feature flag and
@@ -421,6 +425,7 @@ export function ensureOptInAndSendThunk(
       activeCollectionMetadata,
       activeCollectionSubTab,
       enableGenAIToolCalling: enableToolCalling && enableGenAIToolCalling,
+      enableAtlasConnectionErrorDebugger,
     });
 
     // use just the text so we have a stable reference to compare against
@@ -654,6 +659,7 @@ function activateAssistantPlugin(
   {
     atlasService,
     atlasAiService,
+    atlasAdminApi,
     toolsController,
     preferences,
     logger,
@@ -661,6 +667,7 @@ function activateAssistantPlugin(
   }: {
     atlasService: AtlasService;
     atlasAiService: AtlasAiService;
+    atlasAdminApi: AtlasAdminApiService;
     toolsController: ToolsController;
     preferences: PreferencesAccess;
     logger: Logger;
@@ -688,6 +695,7 @@ function activateAssistantPlugin(
       thunk.withExtraArgument({
         chat,
         atlasAiService,
+        atlasAdminApi,
         toolsController,
         preferences,
         logger,
@@ -876,6 +884,7 @@ export const CompassAssistantProvider = registerCompassPlugin(
   {
     atlasService: atlasServiceLocator,
     atlasAiService: atlasAiServiceLocator,
+    atlasAdminApi: atlasAdminApiServiceLocator,
     atlasAuthService: atlasAuthServiceLocator,
     toolsController: toolsControllerLocator,
     track: telemetryLocator,

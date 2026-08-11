@@ -8,8 +8,11 @@ import type {
 } from './query-bar-store';
 import {
   AIQueryActionTypes,
+  AI_INPUT_VISIBLE_STORAGE_KEY,
   cancelAIQuery,
   runAIQuery,
+  showInput,
+  hideInput,
 } from './ai-query-reducer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
@@ -269,6 +272,66 @@ describe('aiQueryReducer', function () {
 
       expect(store.getState().aiQuery.aiQueryRequestId).to.equal(null);
       expect(store.getState().aiQuery.status).to.equal('ready');
+    });
+  });
+
+  describe('showInput / hideInput', function () {
+    let fakeLocalStorage: Sinon.SinonStub;
+
+    function createAIQueryStore() {
+      return createStore({}, {
+        atlasAiService: {
+          ensureAiFeatureAccess: sandbox.stub().resolves(),
+        },
+        dataService: {
+          sample() {
+            return Promise.resolve([]);
+          },
+        },
+        connectionInfoRef: { current: { id: 'TEST' } },
+        preferences,
+        logger: createNoopLogger(),
+        track: createNoopTrack(),
+        collection: mockCollectionModel,
+      } as any);
+    }
+
+    beforeEach(function () {
+      const localStorageValues: Record<string, string> = Object.create(null);
+
+      fakeLocalStorage = Sinon.stub(global, 'localStorage').value({
+        getItem: (key: string) => localStorageValues[key],
+        setItem: (key: string, value: unknown) => {
+          localStorageValues[key] = String(value);
+        },
+      });
+    });
+
+    afterEach(function () {
+      fakeLocalStorage.restore();
+    });
+
+    it('persists the visible state of the input for new stores', async function () {
+      const store1 = createAIQueryStore();
+      expect(store1.getState().aiQuery.isInputVisible).to.equal(false);
+
+      await store1.dispatch(showInput());
+      expect(store1.getState().aiQuery.isInputVisible).to.equal(true);
+      expect(localStorage.getItem(AI_INPUT_VISIBLE_STORAGE_KEY)).to.equal(
+        'true'
+      );
+
+      const store2 = createAIQueryStore();
+      expect(store2.getState().aiQuery.isInputVisible).to.equal(true);
+
+      store2.dispatch(hideInput());
+      expect(store2.getState().aiQuery.isInputVisible).to.equal(false);
+      expect(localStorage.getItem(AI_INPUT_VISIBLE_STORAGE_KEY)).to.equal(
+        'false'
+      );
+
+      const store3 = createAIQueryStore();
+      expect(store3.getState().aiQuery.isInputVisible).to.equal(false);
     });
   });
 });

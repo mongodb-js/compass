@@ -65,7 +65,7 @@ describe('ToolCallMessage', function () {
       expect(toolName).to.exist;
 
       // InlineDefinition is used for tools with descriptions
-      // list-databases should have a description from AVAILABLE_TOOLS
+      // list-databases should have a description from getAvailableTools
       userEvent.hover(toolName);
       await waitFor(() => {
         const description = screen.getByText(
@@ -114,6 +114,19 @@ describe('ToolCallMessage', function () {
       const toolCall: ToolUIPart = {
         ...baseToolCall,
         type: 'tool-get-current-query',
+      };
+
+      render(
+        <ToolCallMessage connection={defaultConnection} toolCall={toolCall} />
+      );
+
+      expect(screen.queryByText(defaultConnection.name)).to.not.exist;
+    });
+
+    it('does not display connection chip for atlas-connection-error-debugger', function () {
+      const toolCall: ToolUIPart = {
+        ...baseToolCall,
+        type: 'tool-atlas-connection-error-debugger',
       };
 
       render(

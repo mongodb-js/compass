@@ -6,7 +6,7 @@ const UNIT_TESTS_BUILD_VARIANTS = [
   {
     name: 'unit-tests-ubuntu',
     display_name: 'Unit Tests Ubuntu',
-    run_on: 'ubuntu2204-large',
+    run_on: 'ubuntu2404-latest-large',
   },
   {
     name: 'unit-tests-windows',
@@ -67,14 +67,17 @@ const PACKAGE_BUILD_VARIANTS = [
 const TEST_PACKAGED_APP_BUILD_VARIANTS = [
   {
     name: 'test-packaged-app-ubuntu',
-    display_name: 'Ubuntu 22.04',
-    run_on: 'ubuntu2204-large',
+    display_name: 'Ubuntu 24.04',
+    run_on: 'ubuntu2404-latest-large',
     depends_on: 'package-ubuntu',
   },
   {
+    // Evergreen has no Windows client images, only Server ones, so the
+    // supported client versions are covered by the Server release sharing
+    // their build number.
     name: 'test-packaged-app-windows',
-    display_name: 'Windows 10',
-    run_on: 'windows-vsCurrent-large',
+    display_name: 'Windows 11 (Server 2022)',
+    run_on: 'windows-2022-large',
     depends_on: 'package-windows',
   },
   {
@@ -118,28 +121,38 @@ const TEST_PACKAGED_APP_MIN_VERSION_BUILD_VARIANTS = [
     // session, so this must run on a macOS GUI distro (not the non-GUI
     // arm64 packaging distro).
     name: 'test-packaged-app-min-macos-arm',
-    display_name: 'MacOS arm64 13 (min version)',
-    run_on: 'macos-13-arm64-gui',
+    display_name: 'MacOS arm64 14 (min version)',
+    run_on: 'macos-14-arm64-gui',
     depends_on: 'package-macos-arm',
-    task: 'test-packaged-app-min-version-macos13',
+    task: 'test-packaged-app-min-version',
   },
   {
     name: 'test-packaged-app-min-macos-x64',
-    display_name: 'MacOS x64 13 (min version)',
-    run_on: 'macos-13-gui',
+    display_name: 'MacOS x64 14 (min version)',
+    run_on: 'macos-14-gui',
     depends_on: 'package-macos-x64',
-    task: 'test-packaged-app-min-version-macos13',
+    task: 'test-packaged-app-min-version',
+  },
+  {
+    name: 'test-packaged-app-min-windows',
+    display_name: 'Windows 10 (min version, Server 2019)',
+    run_on: 'windows-vsCurrent-large',
+    depends_on: 'package-windows',
+    task: 'test-packaged-app-min-version',
   }
 ];
 
-const EOL_SERVER_VERSIONS = [
-  { name: '60x-community', version: '6.0.x', requiredForPublish: true },
-  { name: '60x-enterprise', version: '6.0.x-enterprise', requiredForPublish: true },
-];
+// Versions past vendor EoL that we still test against until they are more than
+// a year out of date, at which point they are dropped from here entirely.
+const EOL_SERVER_VERSIONS = [];
 
+// MongoDB 7.0 has no Ubuntu 24.04 build (24.04 support was added in 8.0), so
+// its binaries fall back to the 22.04 build and fail to start on a 24.04 host.
+// Pin the 7.x servers to 22.04 via a run_on override on the version entry.
+// https://www.mongodb.com/docs/v7.0/tutorial/install-mongodb-on-ubuntu/#platform-support
 const MAINTAINED_SERVER_VERSIONS = [
-  { name: '70x-community', version: '7.0.x', requiredForPublish: true },
-  { name: '70x-enterprise', version: '7.0.x-enterprise', requiredForPublish: true },
+  { name: '70x-community', version: '7.0.x', requiredForPublish: true, run_on: 'ubuntu2204-large' },
+  { name: '70x-enterprise', version: '7.0.x-enterprise', requiredForPublish: true, run_on: 'ubuntu2204-large' },
   { name: '80x-community', version: '8.0.x', requiredForPublish: true },
   { name: '80x-enterprise', version: '8.0.x-enterprise', requiredForPublish: true },
 ];
@@ -171,7 +184,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Check
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: check
 
@@ -214,7 +227,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Smoke Test via GitHub Actions
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     depends_on:
     <% for (const distribution of COMPASS_DISTRIBUTIONS) { %>
     <% for (const buildVariant of PACKAGE_BUILD_VARIANTS) { %>
@@ -225,6 +238,7 @@ buildvariants:
     tasks:
       - name: smoketest-packaged-app
 
+  <% if (EOL_SERVER_VERSIONS.length) { %>
   - name: test-eol-servers
     display_name: Test EoL Servers
     run_on: ubuntu2004-large
@@ -237,12 +251,13 @@ buildvariants:
     - name: test-server-<%= serverVersion.name %>-<%= group.number %>
     <% } %>
     <% } %>
+  <% } %>
 
   - name: test-maintained-servers
     tags:
       - run-on-pr
     display_name: Test Maintained Servers
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -250,12 +265,15 @@ buildvariants:
     <% for (const serverVersion of MAINTAINED_SERVER_VERSIONS) { %>
     <% for (const group of E2E_TEST_GROUPS) { %>
     - name: test-server-<%= serverVersion.name %>-<%= group.number %>
+      <% if (serverVersion.run_on) { %>
+      run_on: <%= serverVersion.run_on %>
+      <% } %>
     <% } %>
     <% } %>
 
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -303,7 +321,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Publish Artifacts
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       # On PRs does a dry-run: doesn't actually publishes, but checks that all
       # files exist and we are not trying to do a "broken" publish
@@ -324,7 +342,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Connectivity Tests
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-connectivity
 
@@ -332,7 +350,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: E2E Coverage
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
     <% for(const group of E2E_TEST_GROUPS) { %>
     - name: e2e-coverage-<%= group.number %>
@@ -342,7 +360,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: CSFLE Tests
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-csfle
 
@@ -351,7 +369,7 @@ buildvariants:
       - run-on-pr
     display_name: Test Web Sandbox
     # DEVPROD-22850: On ubuntu24.02, AppArmor blocks electron proxy used in web tests.
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
     <% for (const browser of BROWSERS) { %>
     <% for (const group of E2E_TEST_GROUPS) { %>
@@ -363,13 +381,13 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Test Can Bundle Compass Web
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-can-bundle-compass-web
 
   - name: test-web-sandbox-atlas-cloud
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
     <% for(const group of E2E_TEST_GROUPS) { %>
     - name: test-web-sandbox-atlas-cloud-<%= group.number %>
@@ -377,7 +395,7 @@ buildvariants:
 
   - name: test-web-sandbox-atlas-cloud-geo-sharded
     display_name: Test Web Sandbox Geo Sharded (w/ Atlas Cloud login)
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-geo-sharded
         # Only run these tests once per day as they require dedicated
@@ -388,7 +406,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Vulnerability Report
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: generate-vulnerability-report
 
@@ -611,15 +629,10 @@ tasks:
 
   # Single, non-sharded smoke that runs only the time-to-first-query test
   # against the packaged app. Used by the minimum-supported-version variants
-  # (COMPASS-9087). Two flavors: the default one, and a macOS-13 one that pins
-  # an older server version because the latest 8.0.x mongod is built for
-  # macOS 14+ and won't launch on macOS 13.
+  # (COMPASS-9087).
 <%
   const MIN_VERSION_TASKS = [
     { name: 'test-packaged-app-min-version', mongodb_version: LATEST_MAINTAINED_SERVER_VERSION.version, required_for_publish: true },
-    // Same as above but pins an older server: the latest 8.0.x mongod is
-    // built for macOS 14+ and won't launch on macOS 13.
-    { name: 'test-packaged-app-min-version-macos13', mongodb_version: '8.0.5', required_for_publish: true },
   ];
 %>
 <% for (const task of MIN_VERSION_TASKS) { %>

@@ -1,5 +1,5 @@
 import type { Action, Reducer } from 'redux';
-import { getSimplifiedSchema } from 'mongodb-schema';
+import { getSimplifiedSchema } from '@mongodb-js/mongodb-schema';
 import toNS from 'mongodb-ns';
 import { UUID } from 'bson';
 
@@ -30,15 +30,25 @@ export type AIQueryState = {
   lastAIQueryRequestId: string | null; // We store the last request id so we can pass it when a user provides feedback.
 };
 
-export const initialState: AIQueryState = {
-  status: 'ready',
-  aiPromptText: '',
-  errorMessage: undefined,
-  errorCode: undefined,
-  isInputVisible: false,
-  aiQueryRequestId: null,
-  lastAIQueryRequestId: null,
-};
+/**
+ * localStorage key used to persist whether the generate input is open.
+ * Exported for testing purposes.
+ */
+export const AI_INPUT_VISIBLE_STORAGE_KEY =
+  'compass_query_bar_ai_input_visible';
+
+function getInitialState(): AIQueryState {
+  return {
+    aiPromptText: '',
+    aiQueryRequestId: null,
+    errorMessage: undefined,
+    errorCode: undefined,
+    isInputVisible:
+      localStorage.getItem(AI_INPUT_VISIBLE_STORAGE_KEY) === 'true',
+    lastAIQueryRequestId: null,
+    status: 'ready',
+  };
+}
 
 export const AIQueryActionTypes = {
   AIQueryStarted: 'compass-query-bar/ai-query/AIQueryStarted',
@@ -417,6 +427,7 @@ export const showInput = (): QueryBarThunkAction<Promise<void>> => {
       if (process.env.COMPASS_E2E_SKIP_AI_OPT_IN !== 'true') {
         await atlasAiService.ensureAiFeatureAccess();
       }
+      localStorage.setItem(AI_INPUT_VISIBLE_STORAGE_KEY, 'true');
       dispatch({ type: AIQueryActionTypes.ShowInput });
     } catch {
       // if sign in failed / user canceled we just don't show the input
@@ -425,15 +436,17 @@ export const showInput = (): QueryBarThunkAction<Promise<void>> => {
 };
 
 export const hideInput = (): QueryBarThunkAction<void, HideInputAction> => {
-  return (dispatch) => {
+  return (dispatch, _getState, { track }) => {
     // Cancel any ongoing op when we hide.
     dispatch(cancelAIQuery());
+    localStorage.setItem(AI_INPUT_VISIBLE_STORAGE_KEY, 'false');
     dispatch({ type: AIQueryActionTypes.HideInput });
+    track('AI Generate Query Closed', { type: 'query' });
   };
 };
 
 const aiQueryReducer: Reducer<AIQueryState, Action> = (
-  state = initialState,
+  state = getInitialState(),
   action
 ) => {
   if (
@@ -452,7 +465,10 @@ const aiQueryReducer: Reducer<AIQueryState, Action> = (
     // hide the input and show the "Generate query" button again: this should start
     // the sign in flow for the user when clicked
     if (action.statusCode === 401) {
-      return { ...initialState };
+      return {
+        ...getInitialState(),
+        isInputVisible: false,
+      };
     }
 
     return {

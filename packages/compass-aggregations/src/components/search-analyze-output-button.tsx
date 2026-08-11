@@ -1,10 +1,8 @@
 import React from 'react';
 import {
+  AssistantSparkleIcon,
   Button,
-  Icon,
   css,
-  palette,
-  useDarkMode,
 } from '@mongodb-js/compass-components';
 import { toJSString } from 'mongodb-query-parser';
 import { useSearchActivationProgramP2 } from '@mongodb-js/compass-telemetry/provider';
@@ -60,44 +58,10 @@ export function useShouldShowAnalyzeOutput(
   );
 }
 
-const analyzeButtonGradientWrapperStyles = css({
-  display: 'inline-flex',
+const analyzeButtonStyles = css({
   alignSelf: 'flex-start',
-  flexShrink: 0,
   whiteSpace: 'nowrap',
-  background: `linear-gradient(135deg, ${palette.green.dark1}, ${palette.blue.base})`,
-  padding: '1px',
-  borderRadius: '6px',
-});
-
-const analyzeButtonLightStyles = css({
-  '&&': {
-    borderColor: 'transparent',
-    borderRadius: '5px',
-    color: palette.green.dark1,
-    '& svg': { color: palette.green.dark1 },
-    '&:hover': {
-      color: palette.green.dark2,
-      borderColor: 'transparent',
-      '& svg': { color: palette.green.dark2 },
-    },
-  },
-});
-
-const analyzeButtonDarkStyles = css({
-  '&&': {
-    borderColor: 'transparent',
-    borderRadius: '5px',
-    backgroundColor: palette.black,
-    color: palette.white,
-    '& svg': { color: palette.green.dark1 },
-    '&:hover': {
-      backgroundColor: palette.gray.dark4,
-      color: palette.white,
-      borderColor: 'transparent',
-      '& svg': { color: palette.green.dark1 },
-    },
-  },
+  flexShrink: 0,
 });
 
 type AnalyzeAndRefineResultsButtonProps = {
@@ -108,21 +72,16 @@ type AnalyzeAndRefineResultsButtonProps = {
 export const AnalyzeAndRefineResultsButton: React.FunctionComponent<
   AnalyzeAndRefineResultsButtonProps
 > = ({ onClick, 'data-testid': dataTestId }) => {
-  const darkMode = useDarkMode();
   return (
-    <div className={analyzeButtonGradientWrapperStyles}>
-      <Button
-        size="xsmall"
-        className={
-          darkMode ? analyzeButtonDarkStyles : analyzeButtonLightStyles
-        }
-        onClick={onClick}
-        // TODO(COMPASS-9751): Will be replaced with Sparkle gradient icon once Leafygreen components are updated.
-        leftGlyph={<Icon glyph="Sparkle" />}
-        data-testid={dataTestId}
-      >
-        Analyze &amp; Refine Results
-      </Button>
-    </div>
+    <Button
+      data-testid={dataTestId}
+      size="small"
+      variant="primaryOutline"
+      className={analyzeButtonStyles}
+      leftGlyph={<AssistantSparkleIcon />}
+      onClick={onClick}
+    >
+      Analyze &amp; Refine Results
+    </Button>
   );
 };

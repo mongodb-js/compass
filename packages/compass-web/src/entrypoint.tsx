@@ -56,6 +56,7 @@ import {
   atlasServiceLocator,
   AtlasServiceProvider,
 } from '@mongodb-js/atlas-service/provider';
+import { AtlasAdminApiServiceProvider } from '@mongodb-js/atlas-admin-api/provider';
 import {
   AtlasAiServiceProvider,
   ToolsControllerProvider,
@@ -130,9 +131,11 @@ const WithAtlasProviders: React.FC<{ children: React.ReactNode }> = ({
             defaultHeaders,
           }}
         >
-          <AtlasAiServiceProvider apiURLPreset="cloud">
-            {children}
-          </AtlasAiServiceProvider>
+          <AtlasAdminApiServiceProvider>
+            <AtlasAiServiceProvider apiURLPreset="cloud">
+              {children}
+            </AtlasAiServiceProvider>
+          </AtlasAdminApiServiceProvider>
         </AtlasServiceProvider>
       </AtlasClusterConnectionsOnlyProvider>
     </AtlasCloudAuthServiceProvider>

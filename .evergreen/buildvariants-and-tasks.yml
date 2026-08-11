@@ -5,14 +5,14 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Check
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: check
   - name: unit-tests-ubuntu
     tags:
       - run-on-pr
     display_name: Unit Tests Ubuntu
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test
       - name: test-electron
@@ -99,7 +99,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Smoke Test via GitHub Actions
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -133,34 +133,27 @@ buildvariants:
         variant: package-macos-arm
     tasks:
       - name: smoketest-packaged-app
-  - name: test-eol-servers
-    display_name: Test EoL Servers
-    run_on: ubuntu2004-large
-    depends_on:
-      - name: package-compass
-        variant: package-ubuntu
-    tasks:
-      - name: test-server-60x-community-1
-      - name: test-server-60x-community-2
-      - name: test-server-60x-community-3
-      - name: test-server-60x-enterprise-1
-      - name: test-server-60x-enterprise-2
-      - name: test-server-60x-enterprise-3
   - name: test-maintained-servers
     tags:
       - run-on-pr
     display_name: Test Maintained Servers
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
     tasks:
       - name: test-server-70x-community-1
+        run_on: ubuntu2204-large
       - name: test-server-70x-community-2
+        run_on: ubuntu2204-large
       - name: test-server-70x-community-3
+        run_on: ubuntu2204-large
       - name: test-server-70x-enterprise-1
+        run_on: ubuntu2204-large
       - name: test-server-70x-enterprise-2
+        run_on: ubuntu2204-large
       - name: test-server-70x-enterprise-3
+        run_on: ubuntu2204-large
       - name: test-server-80x-community-1
       - name: test-server-80x-community-2
       - name: test-server-80x-community-3
@@ -169,7 +162,7 @@ buildvariants:
       - name: test-server-80x-enterprise-3
   - name: test-latest-alpha
     display_name: Test Latest Alpha Server
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -180,8 +173,8 @@ buildvariants:
   - name: test-packaged-app-ubuntu
     tags:
       - run-on-pr
-    display_name: Test Packaged App Ubuntu 22.04
-    run_on: ubuntu2204-large
+    display_name: Test Packaged App Ubuntu 24.04
+    run_on: ubuntu2404-latest-large
     depends_on:
       - name: package-compass
         variant: package-ubuntu
@@ -192,8 +185,8 @@ buildvariants:
   - name: test-packaged-app-windows
     tags:
       - run-on-pr
-    display_name: Test Packaged App Windows 10
-    run_on: windows-vsCurrent-large
+    display_name: Test Packaged App Windows 11 (Server 2022)
+    run_on: windows-2022-large
     depends_on:
       - name: package-compass
         variant: package-windows
@@ -252,26 +245,34 @@ buildvariants:
     tasks:
       - name: test-packaged-app-min-version
   - name: test-packaged-app-min-macos-arm
-    display_name: Test Packaged App MacOS arm64 13 (min version)
-    run_on: macos-13-arm64-gui
+    display_name: Test Packaged App MacOS arm64 14 (min version)
+    run_on: macos-14-arm64-gui
     depends_on:
       - name: package-compass
         variant: package-macos-arm
     tasks:
-      - name: test-packaged-app-min-version-macos13
+      - name: test-packaged-app-min-version
   - name: test-packaged-app-min-macos-x64
-    display_name: Test Packaged App MacOS x64 13 (min version)
-    run_on: macos-13-gui
+    display_name: Test Packaged App MacOS x64 14 (min version)
+    run_on: macos-14-gui
     depends_on:
       - name: package-compass
         variant: package-macos-x64
     tasks:
-      - name: test-packaged-app-min-version-macos13
+      - name: test-packaged-app-min-version
+  - name: test-packaged-app-min-windows
+    display_name: Test Packaged App Windows 10 (min version, Server 2019)
+    run_on: windows-vsCurrent-large
+    depends_on:
+      - name: package-compass
+        variant: package-windows
+    tasks:
+      - name: test-packaged-app-min-version
   - name: publish
     tags:
       - run-on-pr
     display_name: Publish Artifacts
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: publish
       - name: publish-web
@@ -286,14 +287,14 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Connectivity Tests
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-connectivity
   - name: e2e-coverage
     tags:
       - run-on-pr
     display_name: E2E Coverage
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: e2e-coverage-1
       - name: e2e-coverage-2
@@ -302,14 +303,14 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: CSFLE Tests
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-csfle
   - name: test-web-sandbox
     tags:
       - run-on-pr
     display_name: Test Web Sandbox
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-chrome-1
       - name: test-web-sandbox-chrome-2
@@ -321,19 +322,19 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Test Can Bundle Compass Web
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-can-bundle-compass-web
   - name: test-web-sandbox-atlas-cloud
     display_name: Test Web Sandbox (w/ Atlas Cloud login)
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-1
       - name: test-web-sandbox-atlas-cloud-2
       - name: test-web-sandbox-atlas-cloud-3
   - name: test-web-sandbox-atlas-cloud-geo-sharded
     display_name: Test Web Sandbox Geo Sharded (w/ Atlas Cloud login)
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: test-web-sandbox-atlas-cloud-geo-sharded
         cron: '@daily'
@@ -341,7 +342,7 @@ buildvariants:
     tags:
       - run-on-pr
     display_name: Vulnerability Report
-    run_on: ubuntu2204-large
+    run_on: ubuntu2404-latest-large
     tasks:
       - name: generate-vulnerability-report
 tasks:
@@ -552,138 +553,6 @@ tasks:
           scope: '@mongodb-js/compass-smoke-tests'
       - func: smoketest-on-github-actions
         vars:
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-60x-community-1
-    tags:
-      - required-for-publish-desktop
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 6.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-60x-community-2
-    tags:
-      - required-for-publish-desktop
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 6.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-60x-community-3
-    tags:
-      - required-for-publish-desktop
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 6.0.x
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-60x-enterprise-1
-    tags:
-      - required-for-publish-desktop
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 6.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 1
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-60x-enterprise-2
-    tags:
-      - required-for-publish-desktop
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 6.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 2
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-server-60x-enterprise-3
-    tags:
-      - required-for-publish-desktop
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 6.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 3
-          e2e_test_group: 3
           debug: compass-e2e-tests*,electron*,hadron*,mongo*
   - name: test-server-70x-community-1
     tags:
@@ -1101,31 +970,6 @@ tasks:
       - func: test-packaged-app
         vars:
           mongodb_version: 8.0.x-enterprise
-          compass_distribution: compass
-          e2e_test_groups: 1
-          e2e_test_group: 1
-          packaged_app_test_args: '--test-filter="time-to-first-query"'
-          debug: compass-e2e-tests*,electron*,hadron*,mongo*
-  - name: test-packaged-app-min-version-macos13
-    tags:
-      - required-for-publish-desktop
-      - assigned_to_jira_team_compass_compass
-      - foliage_check_task_only
-    commands:
-      - func: prepare
-      - func: install
-      - func: bootstrap
-        vars:
-          scope: compass-e2e-tests
-      - func: apply-compass-target-expansion
-        vars:
-          compass_distribution: compass
-      - func: get-packaged-app
-        vars:
-          compass_distribution: compass
-      - func: test-packaged-app
-        vars:
-          mongodb_version: 8.0.5
           compass_distribution: compass
           e2e_test_groups: 1
           e2e_test_group: 1
