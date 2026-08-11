@@ -96,6 +96,8 @@ export function onActivated(
         collectionReadOnly: options.isReadonly ? true : false,
         writeStateStoreReadOnly: !instance.isWritable,
         oldServerReadOnly: semver.gte(MIN_VERSION, instance.build.version),
+        // Only known once the validation has been fetched.
+        constraintValidation: 'none' as const,
         isEditingEnabledByUser: false,
       },
     },

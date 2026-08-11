@@ -20,6 +20,13 @@ function hash(input: string): string {
 
 let isClosed = false;
 const clusters = new Map<string, MongoCluster>();
+
+// mongodb-download-url resolves against https://downloads.mongodb.org/full.json
+// by default, which does not carry every pre-release build — 9.0 release
+// candidates past rc0, for example, are only published to cloud.json. Point
+// MONGODB_VERSION_LIST_URL at another feed to test against those.
+const versionListUrl = process.env.MONGODB_VERSION_LIST_URL;
+
 const defaults: MongoClusterOptions = {
   topology: 'standalone',
   tmpDir: path.join(
@@ -28,6 +35,7 @@ const defaults: MongoClusterOptions = {
   ),
   logDir: process.env.MONGODB_RUNNER_LOGDIR,
   version: process.env.MONGODB_VERSION,
+  ...(versionListUrl ? { downloadOptions: { versionListUrl } } : {}),
 };
 
 // Like MongoCluster.start(), but with Compass-specific defaults

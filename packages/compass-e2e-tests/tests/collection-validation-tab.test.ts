@@ -4,16 +4,22 @@ import {
   cleanup,
   screenshotIfFailed,
   getDefaultConnectionNames,
+  serverSatisfies,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
-import { createNumbersCollection } from '../helpers/mongo-clients.ts';
+import {
+  createNumbersCollection,
+  createConstraintValidationCollection,
+} from '../helpers/mongo-clients.ts';
 import { expect } from 'chai';
 
 const NO_PREVIEW_DOCUMENTS = 'No Preview Documents';
 const PASSING_VALIDATOR = '{ $jsonSchema: {} }';
 const FAILING_VALIDATOR =
   '{ $jsonSchema: { bsonType: "object", required: [ "phone" ] } }';
+const CONSTRAINT_COLLECTION = 'constraint-validation';
+const PREPARED_COLLECTION = 'prepared-validation';
 
 describe('Collection validation tab', function () {
   let compass: Compass;
@@ -27,6 +33,15 @@ describe('Collection validation tab', function () {
 
   beforeEach(async function () {
     await createNumbersCollection();
+    // Has to happen before connecting, otherwise the collections are missing
+    // from the sidebar. The "constraint" validation level is MongoDB 9.0+ and
+    // requires FCV 9.0.
+    if (serverSatisfies('>= 9.0.0-alpha0')) {
+      await createConstraintValidationCollection(CONSTRAINT_COLLECTION);
+      await createConstraintValidationCollection(PREPARED_COLLECTION, {
+        stopAfterPrepare: true,
+      });
+    }
     await browser.disconnectAll();
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(
@@ -159,6 +174,76 @@ describe('Collection validation tab', function () {
         }
         return result;
       });
+    });
+  });
+
+  context(
+    'when the collection uses the constraint validation level',
+    function () {
+      beforeEach(async function () {
+        if (!serverSatisfies('>= 9.0.0-alpha0')) {
+          return this.skip();
+        }
+        await browser.navigateToCollectionTab(
+          getDefaultConnectionNames(0),
+          'test',
+          CONSTRAINT_COLLECTION,
+          'Validation'
+        );
+      });
+
+      it('shows the level and prevents the rules from being edited', async function () {
+        const banner = browser.$(Selectors.ValidationWarningBanner);
+        await banner.waitForDisplayed();
+        expect(await banner.getText()).to.include(
+          'cannot be changed while it is in effect'
+        );
+
+        // The server rejects validator changes outright, so editing is never
+        // offered rather than failing on apply.
+        expect(
+          await browser.$(Selectors.EnableEditValidationButton).isExisting()
+        ).to.equal(false);
+        expect(
+          await browser
+            .$(Selectors.ValidationLevelSelector)
+            .getAttribute('aria-disabled')
+        ).to.equal('true');
+
+        // The level still has to be readable, not blank.
+        expect(
+          await browser.$(Selectors.ValidationLevelSelector).getText()
+        ).to.include('Constraint');
+      });
+    }
+  );
+
+  context('when a constraint validation upgrade is prepared', function () {
+    beforeEach(async function () {
+      if (!serverSatisfies('>= 9.0.0-alpha0')) {
+        return this.skip();
+      }
+      await browser.navigateToCollectionTab(
+        getDefaultConnectionNames(0),
+        'test',
+        PREPARED_COLLECTION,
+        'Validation'
+      );
+    });
+
+    it('prevents the rules from being edited while the level still reads strict', async function () {
+      const banner = browser.$(Selectors.ValidationWarningBanner);
+      await banner.waitForDisplayed();
+      expect(await banner.getText()).to.include(
+        'prepareConstraintValidationLevel: false'
+      );
+
+      expect(
+        await browser.$(Selectors.EnableEditValidationButton).isExisting()
+      ).to.equal(false);
+      expect(
+        await browser.$(Selectors.ValidationLevelSelector).getText()
+      ).to.include('Strict');
     });
   });
 });

@@ -1201,6 +1201,8 @@ export const AddRuleButton = '[data-testid="add-rule-button"]';
 export const EnableEditValidationButton =
   '[data-testid="enable-edit-validation-button"]';
 export const ValidationEditor = '[data-testid="validation-editor"]';
+export const ValidationWarningBanner =
+  '[data-testid="collection-validation-warning"]';
 export const ValidationActionMessage =
   '[data-testid="validation-action-message"]';
 export const UpdateValidationButton =
