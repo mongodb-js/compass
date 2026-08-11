@@ -176,6 +176,7 @@ export type AtlasProjectPreferences = {
 
 export type AtlasOrgPreferences = {
   enableGenAIFeaturesAtlasOrg: boolean;
+  enableAtlasSignIn: boolean;
 };
 
 export type AllPreferences = UserPreferences &
@@ -225,6 +226,10 @@ type SecretsConfiguration<T> = {
   merge(extracted: { remainder: string; secrets: string }): T;
 };
 
+export type OmitFromHelp =
+  | boolean
+  | ((preferences: Partial<AllPreferences>) => boolean);
+
 export type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
@@ -255,13 +260,18 @@ export type PreferenceDefinition<K extends keyof AllPreferences> = {
   deriveValue?: DeriveValueFunction<AllPreferences[K]>;
   /** A method for cleaning up/normalizing input from the command line or global config file */
   customPostProcess?: PostProcessFunction<AllPreferences[K]>;
-  /** Specify that this option should not be listed in --help output */
+  /**
+   * Specify that this option should not be listed in --help output. Can be a
+   * predicate to only hide the option depending on other preferences, e.g. to
+   * keep an option out of --help while the feature flag it belongs to is
+   * disabled.
+   */
   omitFromHelp?: K extends keyof (UserConfigurablePreferences &
     CliOnlyPreferences)
     ? K extends keyof AllFeatureFlags
-      ? boolean
+      ? OmitFromHelp
       : false
-    : boolean;
+    : OmitFromHelp;
 
   validator: z.Schema<
     AllPreferences[K],
@@ -1094,6 +1104,19 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Enable Gen AI Features on Atlas Org Level',
     },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  enableAtlasSignIn: {
+    ui: false,
+    cli: false,
+    global: true,
+    description: {
+      short: 'Enable Atlas Sign In',
+      long: 'Allow users to sign in to their Atlas account and access their clusters and data.',
+    },
+    omitFromHelp: (preferences) =>
+      !preferences.enableAtlasConnectionErrorDebugger,
     validator: z.boolean().default(true),
     type: 'boolean',
   },

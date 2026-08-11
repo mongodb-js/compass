@@ -39,6 +39,14 @@ export function throwIfNetworkTrafficDisabled(
   }
 }
 
+export function throwIfAtlasSignInDisabled(
+  preferences: Pick<PreferencesAccess, 'getPreferences'>
+) {
+  if (!preferences.getPreferences().enableAtlasSignIn) {
+    throw new Error('Atlas sign in is not allowed');
+  }
+}
+
 /**
  * https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
  */

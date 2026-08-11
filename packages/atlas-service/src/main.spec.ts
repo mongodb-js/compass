@@ -319,6 +319,27 @@ describe('CompassAuthServiceMain', function () {
     }
   });
 
+  describe('with enableAtlasSignIn turned off', function () {
+    beforeEach(async function () {
+      await preferences.savePreferences({ enableAtlasSignIn: false });
+    });
+
+    it('signIn should throw', async function () {
+      try {
+        await CompassAuthService.signIn({});
+        expect.fail('Expected signIn to throw');
+      } catch (err) {
+        expect(err).to.have.property('message', 'Atlas sign in is not allowed');
+      }
+    });
+
+    it('isAuthenticated should return false without introspecting', async function () {
+      const introspectSpy = sandbox.spy(CompassAuthService, 'introspect');
+      expect(await CompassAuthService.isAuthenticated()).to.eq(false);
+      expect(introspectSpy).to.not.have.been.called;
+    });
+  });
+
   describe('signOut', function () {
     it('should reset service state, revoke tokens, and destroy plugin', async function () {
       const logger = new EventEmitter();

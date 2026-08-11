@@ -9,6 +9,7 @@ import type {
 import {
   throwIfNotOk,
   throwIfNetworkTrafficDisabled,
+  throwIfAtlasSignInDisabled,
   getTrackingUserInfo,
   getJWTTokenPayload,
 } from './util';
@@ -197,6 +198,10 @@ export class CompassAuthService {
     throwIfNetworkTrafficDisabled(this.preferences);
   }
 
+  private static throwIfAtlasSignInDisabled() {
+    throwIfAtlasSignInDisabled(this.preferences);
+  }
+
   private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
@@ -241,6 +246,9 @@ export class CompassAuthService {
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
     throwIfAborted(signal);
+    if (!this.preferences.getPreferences().enableAtlasSignIn) {
+      return false;
+    }
     try {
       return (await this.introspect({ signal })).active;
     } catch {
@@ -258,6 +266,7 @@ export class CompassAuthService {
       this.signInPromise = (async () => {
         throwIfAborted(signal);
         this.throwIfNetworkTrafficDisabled();
+        this.throwIfAtlasSignInDisabled();
 
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
