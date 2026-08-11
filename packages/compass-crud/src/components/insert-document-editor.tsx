@@ -8,6 +8,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import type { EditorRef, Extension } from '@mongodb-js/compass-editor';
+import { useDocumentAutocompleter } from '../hooks/use-document-autocompleter';
 
 const editorContainerStylesLight = css({
   borderLeft: `3px solid ${palette.gray.light2}`,
@@ -24,6 +25,7 @@ type InsertDocumentEditorProps = {
   safeIntegerLinter: Extension;
   editorRef: React.RefObject<EditorRef>;
   shellSyntax?: boolean;
+  namespace: string;
 };
 
 const InsertDocumentEditor: React.FunctionComponent<
@@ -34,8 +36,10 @@ const InsertDocumentEditor: React.FunctionComponent<
   editorRef,
   shellSyntax,
   safeIntegerLinter,
+  namespace,
 }) => {
   const darkMode = useDarkMode();
+  const completer = useDocumentAutocompleter(namespace);
   return (
     <div
       className={cx(
@@ -50,6 +54,7 @@ const InsertDocumentEditor: React.FunctionComponent<
         initialJSONFoldAll={false}
         minLines={18}
         linter={safeIntegerLinter}
+        completer={completer}
         ref={editorRef}
       />
     </div>

@@ -18,13 +18,12 @@ import {
 import type { Document } from 'hadron-document';
 import HadronDocument from 'hadron-document';
 import {
-  createDocumentAutocompleter,
   CodemirrorMultilineEditor,
   useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
-import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
+import { useDocumentAutocompleter } from '../hooks/use-document-autocompleter';
 import { getSafeIntegerViolationMessage } from '../utils';
 
 const editorStyles = css({
@@ -186,15 +185,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     setExpanded(false);
   }, []);
 
-  const fields = useAutocompleteFields(namespace);
-
-  const completer = useMemo(() => {
-    return createDocumentAutocompleter(
-      fields.map((field) => {
-        return field.name;
-      })
-    );
-  }, [fields]);
+  const completer = useDocumentAutocompleter(namespace);
 
   const isEditable = editable && !deleting && !isTimeSeries;
 

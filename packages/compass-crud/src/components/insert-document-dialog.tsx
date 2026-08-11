@@ -114,6 +114,7 @@ const DocumentOrJsonView: React.FC<{
   editorText: InsertDocumentDialogProps['editorText'];
   safeIntegerLinter: Extension;
   editorRef: React.RefObject<EditorRef>;
+  namespace: string;
 }> = ({
   insertView,
   doc,
@@ -122,6 +123,7 @@ const DocumentOrJsonView: React.FC<{
   editorText,
   safeIntegerLinter,
   editorRef,
+  namespace,
 }) => {
   if (insertView !== 'list') {
     return (
@@ -131,6 +133,7 @@ const DocumentOrJsonView: React.FC<{
         safeIntegerLinter={safeIntegerLinter}
         editorRef={editorRef}
         shellSyntax={insertView === 'shell'}
+        namespace={namespace}
       />
     );
   }
@@ -401,6 +404,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           editorText={editorText}
           safeIntegerLinter={safeIntegerLinter}
           editorRef={editorRef}
+          namespace={ns}
         />
       </div>
       <InsertDocumentDialogBanner
