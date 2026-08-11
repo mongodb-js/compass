@@ -81,7 +81,14 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
         authService,
         atlasService,
       });
-    }, [logger, telemetryAnonymousId, preferences, atlasAdminApi, authService]);
+    }, [
+      logger,
+      telemetryAnonymousId,
+      preferences,
+      atlasAdminApi,
+      authService,
+      atlasService,
+    ]);
 
     useEffect(() => {
       return () => {

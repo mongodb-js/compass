@@ -2,10 +2,7 @@ import type {
   AtlasAdminApiService,
   AtlasClusterState,
 } from '@mongodb-js/atlas-admin-api/provider';
-import type {
-  AtlasService,
-  AtlasAuthService,
-} from '@mongodb-js/atlas-service/provider';
+import type { AtlasService } from '@mongodb-js/atlas-service/provider';
 
 export type AtlasConnectionDebugResult = {
   clusterState: 'ready' | 'paused' | 'provisioning' | 'deleted' | 'notFound';
@@ -34,18 +31,18 @@ function mapClusterStateToDebugResultState({
   }
 }
 
-function isUserIPIncluded(
-  ipAccessList?: Array<{ ipAddress?: string }>,
-  userIp?: string
-): boolean | 'unknown' {
-  if (!userIp || !ipAccessList) {
-    return 'unknown';
-  }
-  const userIP = userIp.trim();
-  return ipAccessList.some(
-    ({ ipAddress }) => ipAddress && ipAddress === userIp
-  );
-}
+// function isUserIPIncluded(
+//   ipAccessList?: Array<{ ipAddress?: string }>,
+//   userIp?: string
+// ): boolean | 'unknown' {
+//   if (!userIp || !ipAccessList) {
+//     return 'unknown';
+//   }
+//   const userIP = userIp.trim();
+//   return ipAccessList.some(
+//     ({ ipAddress }) => ipAddress && ipAddress === userIp
+//   );
+// }
 
 export async function debugConnection(
   connectionString: string,
@@ -58,7 +55,7 @@ export async function debugConnection(
   if (!result) {
     return {
       clusterState: 'notFound',
-      ipAccessAllowed: false,
+      ipAccessAllowed: 'unknown',
     };
   }
 
@@ -67,8 +64,8 @@ export async function debugConnection(
     projectId,
     clusterName
   );
-  const ipAccessList = await atlasAdminApi.getProjectIPAccessList(projectId);
-  console.log({ clusterDetails, ipAccessList });
+  // const ipAccessList = await atlasAdminApi.getProjectIPAccessList(projectId);
+  // console.log({ clusterDetails, ipAccessList });
   // TODO: we can't authenticate for this endpoint yet
   // const userIp = await atlasService.authenticatedFetch(
   //   atlasService.privateApiEndpoint('/ipinfo')

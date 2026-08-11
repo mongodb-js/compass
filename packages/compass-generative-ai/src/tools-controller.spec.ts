@@ -10,7 +10,10 @@ import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from 'compass-preferences-model';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
+import type {
+  AtlasAuthService,
+  AtlasService,
+} from '@mongodb-js/atlas-service/provider';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 
 describe('ToolsController', function () {
@@ -20,6 +23,7 @@ describe('ToolsController', function () {
   let getTelemetryAnonymousId: sinon.SinonStub;
   let preferences: PreferencesAccess;
   let authService: AtlasAuthService;
+  let atlasService: AtlasService;
   let atlasAdminApi: AtlasAdminApiService;
 
   beforeEach(async function () {
@@ -28,6 +32,7 @@ describe('ToolsController', function () {
     getTelemetryAnonymousId = sandbox.stub().returns('test-anonymous-id');
     preferences = await createSandboxFromDefaultPreferences();
     authService = {} as AtlasAuthService;
+    atlasService = {} as AtlasService;
     atlasAdminApi = {} as AtlasAdminApiService;
 
     toolsController = new ToolsController({
@@ -36,6 +41,7 @@ describe('ToolsController', function () {
       getTelemetryAnonymousId,
       preferences,
       authService,
+      atlasService,
       atlasAdminApi,
     });
   });
@@ -260,6 +266,7 @@ describe('ToolsController', function () {
           getTelemetryAnonymousId,
           preferences,
           authService,
+          atlasService,
           atlasAdminApi,
         });
         newController.setActiveTools(new Set(['db-read']));
@@ -562,6 +569,7 @@ describe('ToolsController', function () {
           },
           preferences,
           authService,
+          atlasService,
           atlasAdminApi,
         });
 
