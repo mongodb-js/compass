@@ -260,7 +260,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
         track('Safe Integer Fix Applied', {
           source: 'query-bar-editor',
         });
-        return `NumberLong(${source})`;
+        return `Long("${source}")`;
       },
     });
   useEffect(() => {
