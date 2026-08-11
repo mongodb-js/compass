@@ -10,10 +10,7 @@ import { mergeProps } from '../../utils/merge-props';
 import { documentTypography } from './typography';
 import { Icon, Tooltip } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
-import {
-  convertFromPickerDateTime,
-  convertToPickerDateTime,
-} from '../../utils/format-date';
+import { DateTimePicker } from './date-time-picker';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -188,24 +185,6 @@ const dateContainerStyles = css({
   display: 'flex',
 });
 
-const dateTimePickerInput = css({
-  width: spacing[400],
-  colorScheme: 'light',
-  '&::-webkit-datetime-edit, &::-webkit-inner-spin-button, &::-webkit-clear-button':
-    {
-      display: 'none',
-    },
-  '&::-webkit-calendar-picker-indicator': {
-    margin: 0,
-    padding: 0,
-    cursor: 'pointer',
-  },
-});
-
-const dateTimePickerInputDarkMode = css({
-  colorScheme: 'dark',
-});
-
 function EditorWithLabel({
   label,
   children,
@@ -363,28 +342,13 @@ export const ValueEditor: React.FunctionComponent<{
                         {...(mergedProps as React.HTMLProps<HTMLInputElement>)}
                       ></input>
                     </EditorWithLabel>
-                    <input
-                      type="datetime-local"
-                      // Milliseconds precision, matching BSON dates.
-                      step="0.001"
-                      aria-label="Select date and time"
-                      data-testid="hadron-document-date-picker"
-                      value={convertToPickerDateTime(val)}
-                      // The picker is only reachable by clicking its button, so
-                      // that tabbing keeps moving between the editors.
-                      tabIndex={-1}
-                      onChange={(evt) => {
-                        onChange(
-                          convertFromPickerDateTime(evt.currentTarget.value)
-                        );
+                    <DateTimePicker
+                      value={val}
+                      onChange={(newValue) => {
+                        onChange(newValue);
                         onBlur();
                       }}
-                      className={cx(
-                        editorReset,
-                        dateTimePickerInput,
-                        darkMode && dateTimePickerInputDarkMode
-                      )}
-                    ></input>
+                    />
                   </span>
                 ) : isUUIDType(type) ? (
                   <EditorWithLabel label={type}>
