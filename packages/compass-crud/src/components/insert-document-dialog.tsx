@@ -11,6 +11,7 @@ import { Element } from 'hadron-document';
 import {
   Banner,
   css,
+  DocumentList,
   FormModal,
   Icon,
   SegmentedControl,
@@ -25,7 +26,6 @@ import {
 import type { InsertCSFLEWarningBannerProps } from './insert-csfle-warning-banner';
 import InsertCSFLEWarningBanner from './insert-csfle-warning-banner';
 import InsertDocumentEditor from './insert-document-editor';
-import InsertDocument from './insert-document';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
@@ -63,6 +63,13 @@ const documentViewContainer = css({
   flex: '1 1 auto',
   minHeight: 0,
   overflow: 'auto',
+});
+
+const insertDocumentStyles = css({
+  // We give it a good amount of spacing for dropdown menus.
+  // TODO(COMPASS-6271): We'll use portals in the document editing Menu
+  // so we don't need special padding here.
+  paddingBottom: spacing[1800] + spacing[400],
 });
 
 const insertViewOptions = [
@@ -152,7 +159,11 @@ const DocumentOrJsonView: React.FC<{
     return null;
   }
 
-  return <InsertDocument doc={doc} />;
+  return (
+    <div className={insertDocumentStyles} data-testid="insert-document-modal">
+      <DocumentList.Document value={doc} editable editing />
+    </div>
+  );
 };
 
 /**
