@@ -184,9 +184,9 @@ describe('AtlasToolCallMessage', function () {
     });
   });
 
-  it('does not display connection chip for atlas-connection-error-debugger', function () {
+  it('displays the connection chip for atlas-connection-error-debugger', function () {
     renderMessage();
 
-    expect(screen.queryByText(connectionInfo.name)).to.not.exist;
+    expect(screen.getByText(connectionInfo.name)).to.exist;
   });
 });

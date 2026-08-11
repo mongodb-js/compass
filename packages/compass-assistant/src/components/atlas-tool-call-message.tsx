@@ -12,11 +12,18 @@ import { ActionCardMessage } from './action-card-message';
 import { doesToolUseConnection } from '@mongodb-js/compass-generative-ai/provider';
 import { getToolDisplayName } from '../utils';
 
+const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
+  'tool-atlas-connection-error-debugger';
+
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
   connectionInfo: BasicConnectionInfo | null;
   onApprove: (approvalId: string, approved: boolean) => void;
   onDeny: (approvalId: string) => void;
+}
+
+function isDebuggerToolCall(type: string): boolean {
+  return type === ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE;
 }
 
 function getTitle(state: ToolState, isUserSignedIn: boolean): string {
@@ -47,7 +54,8 @@ export const AtlasToolCallMessage: React.FunctionComponent<
 
   if (
     connectionInfo &&
-    doesToolUseConnection(getToolDisplayName(toolCall.type))
+    (doesToolUseConnection(getToolDisplayName(toolCall.type)) ||
+      isDebuggerToolCall(toolCall.type))
   ) {
     chips.push({ glyph: <ServerIcon />, label: connectionInfo.name });
   }
