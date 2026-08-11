@@ -64,8 +64,8 @@ Templates:
             .concat('// https://www.mongodb.com/docs/drivers/php/')
             .join('\n')
         ;
-        const client = `$client = new Client('${options.uri}');`;
-        const collection = `$collection = $client->selectCollection('${options.database}', '${options.collection}');`;
+        const client = `$client = new Client(${this.toStringLiteral(options.uri)});`;
+        const collection = `$collection = $client->selectCollection(${this.toStringLiteral(options.database)}, ${this.toStringLiteral(options.collection)});`;
 
         if ('aggregation' in spec) {
             // Note: toPHPArray() may not be required here as Compass should always provide an array for spec.aggregation
