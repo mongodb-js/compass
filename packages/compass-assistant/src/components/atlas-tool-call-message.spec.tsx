@@ -77,6 +77,7 @@ describe('AtlasToolCallMessage', function () {
       signInSucceeds,
     });
     const { renderWithConnections } = createPluginTestHelpers(
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       CompassAtlasLoginPlugin.withMockServices({
         atlasAuthService: atlasAuthService as unknown as AtlasAuthService,
       })
@@ -183,8 +184,9 @@ describe('AtlasToolCallMessage', function () {
     });
   });
 
-  it('renders the connection name as a chip', function () {
+  it('does not display connection chip for atlas-connection-error-debugger', function () {
     renderMessage();
-    expect(screen.getByText('My Cluster')).to.exist;
+
+    expect(screen.queryByText(connectionInfo.name)).to.not.exist;
   });
 });
