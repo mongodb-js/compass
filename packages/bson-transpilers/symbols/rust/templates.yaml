@@ -55,8 +55,8 @@ Templates:
         delete spec.filter;
         delete spec.exportMode;
 
-        const connect = `let client = Client::with_uri_str("${options.uri}").await?;`
-        const coll = `client.database("${options.database}").collection::<Document>("${options.collection}")`;
+        const connect = `let client = Client::with_uri_str(${this.toStringLiteral(options.uri)}).await?;`
+        const coll = `client.database(${this.toStringLiteral(options.database)}).collection::<Document>(${this.toStringLiteral(options.collection)})`;
 
         if ('aggregation' in spec) {
             let agg = spec.aggregation;
@@ -188,7 +188,7 @@ Templates:
         (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
         newStr = str.substr(1, str.length - 2);
       }
-      return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+      return `"${newStr.replace(/\\[\s\S]|["\n\r]/g, (m) => m.length === 2 ? m : m === '\n' ? '\\n' : m === '\r' ? '\\r' : '\\' + m)}"`;
     }
   RegexTypeTemplate: !!js/function &RegexTypeTemplate >
     (pattern, flags) => {

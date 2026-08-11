@@ -77,7 +77,7 @@ Templates:
             .concat('ctx := context.TODO()')
             .concat(this.declarations.length() > 0 ? `\n${this.declarations.toString()}\n` : '')
             .concat('// Set client options')
-            .concat(`clientOptions := options.Client().ApplyURI("${uri}")`)
+            .concat(`clientOptions := options.Client().ApplyURI(${this.toStringLiteral(uri)})`)
             .concat('')
             .concat('// Connect to MongoDB')
             .concat('client, err := mongo.Connect(ctx, clientOptions)')
@@ -92,7 +92,7 @@ Templates:
             .join('\n');
 
         const coll = []
-            .concat(`coll := client.Database("${options.database}").Collection("${options.collection}")`)
+            .concat(`coll := client.Database(${this.toStringLiteral(options.database)}).Collection(${this.toStringLiteral(options.collection)})`)
             .join('\n');
 
         if ('aggregation' in spec) {
@@ -211,7 +211,7 @@ Templates:
         const doubleQuoted = str.charAt(0) === '"' && str.charAt(str.length - 1) === '"';
         if (singleQuoted || doubleQuoted)
             str = str.substr(1, str.length - 2);
-        return `"${str.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+        return `"${str.replace(/\\[\s\S]|["\n\r]/g, (m) => m.length === 2 ? m : m === '\n' ? '\\n' : m === '\r' ? '\\r' : '\\' + m)}"`;
     }
   RegexTypeTemplate: !!js/function &RegexTypeTemplate >
     (pattern, flags) => {
