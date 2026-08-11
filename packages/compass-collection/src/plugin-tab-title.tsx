@@ -29,6 +29,10 @@ function PluginTitle({
   isTimeSeries,
   sourceName,
   namespace,
+  // The workspace props below are not valid DOM attributes and would end up
+  // on the tab element through the spread of the remaining props.
+  tabId: _tabId,
+  subTab: _subTab,
   ...tabProps
 }: PluginTitleProps) {
   const { getConnectionById } = useConnectionsListRef();
@@ -83,5 +87,7 @@ export const CollectionPluginTitleComponent = connect(
     isTimeSeries: state.metadata?.isTimeSeries,
     isReadonly: state.metadata?.isReadonly,
     sourceName: state.metadata?.sourceName,
-  })
+  }),
+  // Passing an empty object so that dispatch is not passed down.
+  () => ({})
 )(PluginTitle);
