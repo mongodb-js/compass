@@ -14,14 +14,6 @@ ignore:
           Not applicable as we don't use ag-grid utils and the library never
           passes user input directly to the merge function
         created: 2024-09-17T13:05:57.071Z
-  SNYK-JS-AGGRIDCOMMUNITY-10874844:
-    - '*':
-        reason: >-
-          Fix requires upgrading ag-grid-community from v20 to v31.3.4, a
-          major version jump with breaking API changes. Tracked as a
-          separate migration effort, not applied here.
-        expires: 2026-11-11T00:00:00.000Z
-        created: 2026-08-11T00:00:00.000Z
   SNYK-JS-ELECTRON-8642944:
     - '*':
         reason: 'Fixed in https://github.com/electron/electron/releases/tag/v32.3.0'
@@ -149,21 +141,6 @@ ignore:
           invoked which Compass does not use.
         expires: 2026-10-21T00:00:00.000Z
         created: 2026-07-23T00:00:00.000Z
-  SNYK-JS-IPADDRESS-18516623:
-    - '*':
-        reason: 'Remediation not available yet'
-        expires: 2026-11-09T00:00:00.000Z
-        created: 2026-08-11T00:00:00.000Z
-  SNYK-JS-IPADDRESS-16636412:
-    - '*':
-        reason: 'Remediation not available yet'
-        expires: 2026-11-09T00:00:00.000Z
-        created: 2026-08-11T00:00:00.000Z
-  SNYK-JS-LEAFLET-16427276:
-    - '*':
-        reason: 'Remediation not available yet'
-        expires: 2026-11-09T00:00:00.000Z
-        created: 2026-08-11T00:00:00.000Z
 # patches apply the minimum changes required to fix a vulnerability
 patch:
   'npm:ms:20170412':
