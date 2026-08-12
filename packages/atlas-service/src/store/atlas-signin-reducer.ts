@@ -350,7 +350,6 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
         userInfo = await atlasAuthService.getUserInfo({ signal });
       } else {
         userInfo = await atlasAuthService.signIn({
-          mainProcessSignIn: true,
           signal,
         });
       }
@@ -360,7 +359,6 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
         timeout: 10_000,
       });
       dispatch({ type: AtlasSignInActions.Success, userInfo });
-      atlasAuthService.emit('signed-in');
       AttemptStateMap.clear();
       resolve(userInfo);
     } catch (err) {
@@ -398,9 +396,8 @@ export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
 };
 
 export const tokenRefreshFailed = (): AtlasSignInThunkAction<void> => {
-  return (dispatch, _getState, { atlasAuthService }) => {
+  return (dispatch, _getState) => {
     dispatch({ type: AtlasSignInActions.TokenRefreshFailed });
-    atlasAuthService.emit('token-refresh-failed');
   };
 };
 
@@ -409,7 +406,6 @@ export const signOut = (): AtlasSignInThunkAction<Promise<void>> => {
     try {
       await atlasAuthService.signOut();
       dispatch({ type: AtlasSignInActions.SignedOut });
-      atlasAuthService.emit('signed-out');
       openToast('atlas-disconnected', {
         title: 'Disconnected from Atlas',
         description: "You won't have context from Atlas anymore.",

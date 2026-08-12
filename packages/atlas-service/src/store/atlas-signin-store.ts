@@ -9,14 +9,6 @@ import { type AtlasAuthService } from '../provider';
 import { ipcRenderer } from 'hadron-ipc';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
-let store: AtlasServiceStore;
-export function getStore() {
-  if (!store) {
-    throw new Error('AtlasAuthPlugin not activated');
-  }
-  return store;
-}
-
 export type AtlasAuthPluginServices = {
   atlasAuthService: AtlasAuthService;
 };
@@ -25,7 +17,7 @@ export function activatePlugin(
   services: AtlasAuthPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  store = configureStore(services);
+  const store = configureStore(services);
 
   const onTokenRefreshFailed = () => store.dispatch(tokenRefreshFailed());
 

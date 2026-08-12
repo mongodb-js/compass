@@ -46,10 +46,16 @@ function getTitle(state: ToolState, isUserSignedIn: boolean): string {
   }
 }
 
-function getToolDescription(toolName: string): string {
+function getToolDescription(toolType: string): string {
+  if (isDebuggerToolCall(toolType)) {
+    return `Connecting would call Atlas API endpoint (cluster
+state IP allowlist, TLS) to explain why this connection is failing.
+This is read-only and won't change your cluster.`;
+  }
+
   return (
     getAvailableTools({ enableAtlasConnectionErrorDebugger: true }).find(
-      (tool) => tool.name === toolName
+      (tool) => tool.name === getToolDisplayName(toolType)
     )?.description || ''
   );
 }
@@ -106,7 +112,7 @@ ${inputJSON}
   let expandableContentText = '';
   if (toolCallState === 'idle') {
     expandableContentText = [
-      getToolDescription(getToolDisplayName(toolCall.type)),
+      getToolDescription(toolCall.type),
       argumentsText,
     ].join('\n\n');
   } else {

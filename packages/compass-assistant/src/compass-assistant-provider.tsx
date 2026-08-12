@@ -90,7 +90,6 @@ import type { ThunkAction } from 'redux-thunk';
 import type { Action, AnyAction } from 'redux';
 import { connect } from 'react-redux';
 import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai/provider';
-import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -879,11 +878,9 @@ export const CompassAssistantProvider = registerCompassPlugin(
     }>) {
       return (
         <AssistantGlobalStateProvider>
-          <AtlasAuthPlugin>
-            <ConnectedAssistantProvider projectId={projectId}>
-              {children}
-            </ConnectedAssistantProvider>
-          </AtlasAuthPlugin>
+          <ConnectedAssistantProvider projectId={projectId}>
+            {children}
+          </ConnectedAssistantProvider>
         </AssistantGlobalStateProvider>
       );
     },

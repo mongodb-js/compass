@@ -80,7 +80,6 @@ function Home({ appName }: HomeProps): React.ReactElement | null {
           <WelcomeModal></WelcomeModal>
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
-          <AtlasAuthPlugin></AtlasAuthPlugin>
           <CompassGenerativeAIPlugin
             isCloudOptIn={false}
           ></CompassGenerativeAIPlugin>
@@ -109,19 +108,21 @@ function HomeWithConnections({
     <ConnectionStorageProvider value={connectionStorage}>
       <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
         <ToolsControllerProvider>
-          <CompassAssistantProvider
-            originForPrompt="mongodb-compass"
-            appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
-          >
-            <CompassConnections
-              appName={props.appName}
-              onExtraConnectionDataRequest={getExtraConnectionData}
-              onAutoconnectInfoRequest={onAutoconnectInfoRequest}
-              doNotReconnectDisconnectedAutoconnectInfo
+          <AtlasAuthPlugin>
+            <CompassAssistantProvider
+              originForPrompt="mongodb-compass"
+              appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
             >
-              <Home {...props}></Home>
-            </CompassConnections>
-          </CompassAssistantProvider>
+              <CompassConnections
+                appName={props.appName}
+                onExtraConnectionDataRequest={getExtraConnectionData}
+                onAutoconnectInfoRequest={onAutoconnectInfoRequest}
+                doNotReconnectDisconnectedAutoconnectInfo
+              >
+                <Home {...props}></Home>
+              </CompassConnections>
+            </CompassAssistantProvider>
+          </AtlasAuthPlugin>
         </ToolsControllerProvider>
       </FileInputBackendProvider>
     </ConnectionStorageProvider>

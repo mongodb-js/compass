@@ -72,6 +72,5 @@
     "sinon": "^17.0.1",
     "typescript": "^6.0.3",
     "xvfb-maybe": "^0.2.1"
-  },
-  "is_compass_plugin": true
+  }
 }
