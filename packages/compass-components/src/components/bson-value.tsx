@@ -15,7 +15,7 @@ import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import type { Theme } from '../hooks/use-theme';
 import { Themes, useDarkMode } from '../hooks/use-theme';
-import { useLegacyUUIDDisplayContext } from './document-list/legacy-uuid-format-context';
+import { useBSONDisplayOptions } from './document-list/bson-display-options-context';
 
 type ValueProps =
   | {
@@ -152,7 +152,9 @@ const toLegacyPythonUUID = ({ value }: PropsByValueType<'Binary'>) => {
 const LegacyUUIDValue: React.FunctionComponent<PropsByValueType<'Binary'>> = (
   bsonValue
 ) => {
-  const legacyUUIDDisplayEncoding = useLegacyUUIDDisplayContext();
+  const { legacyUUIDDisplayEncoding } = useBSONDisplayOptions([
+    'legacyUUIDDisplayEncoding',
+  ]);
 
   const stringifiedValue = useMemo(() => {
     // UUID must be exactly 16 bytes.

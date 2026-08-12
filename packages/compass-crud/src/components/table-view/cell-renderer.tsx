@@ -16,6 +16,7 @@ import type { ICellRendererParams } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
 import type { GridContext } from './document-table-view';
+import { withPreferences } from 'compass-preferences-model/provider';
 
 /**
  * The BEM base style name for the cell.
@@ -89,7 +90,7 @@ export type CellRendererProps = Omit<ICellRendererParams, 'context'> & {
   elementRemoved: GridActions['elementRemoved'];
   elementTypeChanged: GridActions['elementTypeChanged'];
   drillDown: CrudActions['drillDown'];
-  tz: string;
+  timezone?: DocumentListTypes.BSONDisplayOptions['timezone'];
   darkMode?: boolean;
   legacyUUIDDisplayEncoding?: DocumentListTypes.LegacyUUIDDisplay;
 };
@@ -350,10 +351,11 @@ class CellRenderer
 
     return (
       // `ag-grid` renders this component outside of the context chain
-      // so we re-supply the dark mode theme and legacy UUID encoding here.
+      // so we re-supply the dark mode theme and the BSON display options here.
       <LeafyGreenProvider darkMode={this.props.darkMode}>
-        <DocumentList.LegacyUUIDDisplayContext.Provider
-          value={this.props.legacyUUIDDisplayEncoding ?? ''}
+        <DocumentList.BSONDisplayOptionsProvider
+          legacyUUIDDisplayEncoding={this.props.legacyUUIDDisplayEncoding}
+          timezone={this.props.timezone}
         >
           {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/interactive-supports-focus*/}
           <div
@@ -365,7 +367,7 @@ class CellRenderer
             {this.renderExpand(canExpand)}
             {element}
           </div>
-        </DocumentList.LegacyUUIDDisplayContext.Provider>
+        </DocumentList.BSONDisplayOptionsProvider>
       </LeafyGreenProvider>
     );
   }
@@ -373,4 +375,7 @@ class CellRenderer
   static displayName = 'CellRenderer';
 }
 
-export default withDarkMode(CellRenderer);
+export default withPreferences(withDarkMode(CellRenderer), [
+  'legacyUUIDDisplayEncoding',
+  'timezone',
+]);
