@@ -134,11 +134,13 @@ export const SearchIndexesTable: React.FunctionComponent<
   const {
     readOnly,
     readWrite,
+    enableIndexesManagement,
     enableAtlasSearchIndexes,
     enableAutoEmbeddingPublicPreview,
   } = usePreferences([
     'readOnly',
     'readWrite',
+    'enableIndexesManagement',
     'enableAtlasSearchIndexes',
     'enableAutoEmbeddingPublicPreview',
   ]);
@@ -156,6 +158,7 @@ export const SearchIndexesTable: React.FunctionComponent<
       readWrite,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1,
+      enableIndexesManagement,
     }),
     shallowEqual
   );
