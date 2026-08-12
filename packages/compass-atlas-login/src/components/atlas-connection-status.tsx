@@ -16,7 +16,6 @@ import {
   useAtlasLoginActions,
 } from '@mongodb-js/atlas-service/provider';
 
-/* TODO COMPASS-10944: consider dark mode */
 const containerStyles = css({
   display: 'flex',
   width: '100%',
@@ -38,9 +37,11 @@ const signedInDotStyles = css({
   width: spacing[200],
   height: spacing[200],
   borderRadius: '50%',
-  backgroundColor: palette.green.dark1,
   flexShrink: 0,
 });
+
+const signedInDotStylesLight = css({ backgroundColor: palette.green.light1 });
+const signedInDotStylesDark = css({ backgroundColor: palette.green.dark1 });
 
 const labelTextStyles = css({
   overflow: 'hidden',
@@ -85,7 +86,12 @@ export const AtlasConnectionStatus: React.FunctionComponent<
   return (
     <div className={containerStyles} data-testid={dataTestId}>
       <div className={labelStyles}>
-        <span className={signedInDotStyles} />
+        <span
+          className={cx(
+            signedInDotStyles,
+            darkMode ? signedInDotStylesDark : signedInDotStylesLight
+          )}
+        />
         <Body
           className={cx(
             labelTextStyles,
