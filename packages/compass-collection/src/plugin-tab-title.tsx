@@ -88,6 +88,5 @@ export const CollectionPluginTitleComponent = connect(
     isReadonly: state.metadata?.isReadonly,
     sourceName: state.metadata?.sourceName,
   }),
-  // Passing an empty object so that dispatch is not passed down.
-  () => ({})
+  {}
 )(PluginTitle);
