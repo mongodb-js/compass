@@ -73,6 +73,11 @@ export function activatePlugin(
           connections.getDataServiceForConnection(connectionId);
 
         await dataService[method](ns);
+        track(
+          isCollection ? 'Collection Dropped' : 'Database Dropped',
+          {},
+          connections.getConnectionById(connectionId)?.info
+        );
         globalAppRegistry.emit(
           isCollection ? 'collection-dropped' : 'database-dropped',
           ns,
