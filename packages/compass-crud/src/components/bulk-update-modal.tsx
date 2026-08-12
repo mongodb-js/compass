@@ -25,15 +25,20 @@ import {
   useId,
   DocumentIcon,
   useSyncStateOnPropChange,
+  useCurrentValueRef,
 } from '@mongodb-js/compass-components';
 import type { Annotation } from '@mongodb-js/compass-editor';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
+import {
+  CodemirrorMultilineEditor,
+  useSafeIntegerLinter,
+} from '@mongodb-js/compass-editor';
 
 import type { BSONObject } from '../stores/crud-store';
 import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
 
 import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const modalContentStyles = css({
   width: '100%',
@@ -372,6 +377,17 @@ export default function BulkUpdateModal({
 
     return [];
   }, [syntaxError]);
+  const track = useTelemetry();
+  const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
+  const { safeIntegerLinter, violations } = useSafeIntegerLinter({
+    externalAnnotations: annotationsRef,
+    onFixViolation(source) {
+      track('Safe Integer Fix Applied', {
+        source: 'bulk-update-editor',
+      });
+      return `Long("${source}")`;
+    },
+  });
 
   // This hack in addition to keeping the text state locally exists due to
   // reflux (unlike redux) being async. We can remove it once we move
@@ -395,7 +411,7 @@ export default function BulkUpdateModal({
   }, [count]);
 
   const bulkUpdateUpdateId = useId();
-  const disabled = !!(syntaxError || serverError);
+  const disabled = !!(syntaxError || serverError || violations.length > 0);
 
   const favoriteQueryStorageAvailable = !!useFavoriteQueryStorageAccess();
 
@@ -438,7 +454,7 @@ export default function BulkUpdateModal({
                   id={bulkUpdateUpdateId}
                   data-testid="bulk-update-update"
                   onBlur={() => ({})}
-                  annotations={annotations}
+                  linter={safeIntegerLinter}
                   minLines={12}
                 />
 

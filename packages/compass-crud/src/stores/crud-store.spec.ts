@@ -404,15 +404,27 @@ describe('store', function () {
       }
     });
 
-    it('copies the document to the clipboard', function () {
+    it('copies the document to the clipboard in ejson format', function () {
       expect(mockCopyToClipboard.called).to.equal(false);
 
       const doc = { _id: 'testing', name: 'heart 5' };
       const hadronDoc = new HadronDocument(doc);
 
-      store.copyToClipboard(hadronDoc);
+      store.copyToClipboard(hadronDoc, 'ejson');
       expect(mockCopyToClipboard).to.have.been.calledOnceWithExactly(
         '{\n  "_id": "testing",\n  "name": "heart 5"\n}'
+      );
+    });
+
+    it('copies the document to the clipboard in shell syntax', function () {
+      expect(mockCopyToClipboard.called).to.equal(false);
+
+      const doc = { _id: 'testing', count: 2 };
+      const hadronDoc = new HadronDocument(doc);
+
+      store.copyToClipboard(hadronDoc, 'shell-syntax');
+      expect(mockCopyToClipboard).to.have.been.calledOnceWithExactly(
+        "{\n  _id: 'testing',\n  count: NumberInt('2')\n}"
       );
     });
   });

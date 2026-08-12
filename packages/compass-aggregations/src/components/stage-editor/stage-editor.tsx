@@ -4,6 +4,7 @@ import type { MongoServerError } from 'mongodb';
 import {
   CodemirrorMultilineEditor,
   createStageAutocompleter,
+  useSafeIntegerLinter,
 } from '@mongodb-js/compass-editor';
 import type { Annotation, EditorRef } from '@mongodb-js/compass-editor';
 import {
@@ -207,6 +208,17 @@ export const StageEditor = ({
       ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }, [serverErrorStageIdx]);
 
+  const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
+  const { safeIntegerLinter } = useSafeIntegerLinter({
+    externalAnnotations: annotationsRef,
+    onFixViolation(source) {
+      track('Safe Integer Fix Applied', {
+        source: 'stage-editor',
+      });
+      return `Long("${source}")`;
+    },
+  });
+
   const isServerErrorUpstream =
     serverErrorStageIdx !== null && serverErrorStageIdx < index;
 
@@ -229,8 +241,8 @@ export const StageEditor = ({
           className={codeEditorStyles}
           id={`aggregations-stage-editor-${index}`}
           completer={completer}
-          annotations={annotations}
           onBlur={onBlurEditor}
+          linter={safeIntegerLinter}
         />
       </div>
       {enableRerank &&

@@ -58,7 +58,7 @@
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
     "depcheck": "^1.4.1",
-    "electron": "^41.1.1",
+    "electron": "^41.10.5",
     "electron-mocha": "^12.2.0",
     "mocha": "^10.2.0",
     "mongodb-instance-model": "^13.2.0",
@@ -95,7 +95,7 @@
     "mongodb": "^7.5.0",
     "mongodb-data-service": "^22.40.2",
     "mongodb-ns": "^3.2.0",
-    "mongodb-query-parser": "^4.7.15",
+    "mongodb-query-parser": "^4.7.16",
     "react": "^17.0.2",
     "reflux": "^0.4.1",
     "semver": "^7.6.3"

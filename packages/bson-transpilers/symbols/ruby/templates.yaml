@@ -63,8 +63,8 @@ Templates:
         delete spec.filter
         delete spec.exportMode;
 
-        const connect = `client = Mongo::Client.new('${options.uri}', :database => '${options.database}')`;
-        const coll = `client.database['${options.collection}']`;
+        const connect = `client = Mongo::Client.new(${this.toStringLiteral(options.uri)}, :database => ${this.toStringLiteral(options.database)})`;
+        const coll = `client.database[${this.toStringLiteral(options.collection)}]`;
 
         let driverMethod;
         switch (exportMode) {

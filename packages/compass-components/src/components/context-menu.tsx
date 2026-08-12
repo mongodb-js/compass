@@ -23,6 +23,9 @@ export type {
 const menuStyles = css({
   paddingTop: spacing[150],
   paddingBottom: spacing[150],
+  width: 'max-content',
+  // LG default width for menu
+  minWidth: 210,
 });
 
 const itemStyles = css({
@@ -33,12 +36,10 @@ const itemStyles = css({
 
 export function ContextMenuProvider({
   children,
-  disabled,
   onContextMenuItemClick,
   onContextMenuOpen,
 }: {
   children: React.ReactNode;
-  disabled?: boolean;
   onContextMenuOpen?: (itemGroups: ContextMenuItemGroup[]) => void;
   onContextMenuItemClick?: (
     itemGroup: ContextMenuItemGroup,
@@ -47,7 +48,6 @@ export function ContextMenuProvider({
 }) {
   return (
     <ContextMenuProviderBase
-      disabled={disabled}
       menuWrapper={(props) => (
         <ContextMenu
           {...props}

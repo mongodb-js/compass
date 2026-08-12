@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { UnsafeIntegerValidationError } from 'hadron-document';
 import {
   Banner,
   Button,
@@ -8,6 +7,7 @@ import {
   showErrorDetails,
 } from '@mongodb-js/compass-components';
 import type { WriteError } from '../stores/crud-store';
+import { getSafeIntegerViolationMessage } from '../utils';
 
 const bannerStyles = css({
   marginTop: spacing[400],
@@ -20,33 +20,35 @@ type InsertDocumentDialogBannerProps = {
   documentWriteError: WriteError | null;
   insertInProgress: boolean;
   documentValidationError: Error | null;
-  onFixUnsafeIntegerViolations: () => void;
+  safeIntegerViolationCount: number;
+  onFixSafeIntegerViolations: () => void;
 };
 
 export function InsertDocumentDialogBanner({
   documentWriteError,
   insertInProgress,
   documentValidationError,
-  onFixUnsafeIntegerViolations,
+  safeIntegerViolationCount,
+  onFixSafeIntegerViolations,
 }: InsertDocumentDialogBannerProps) {
   const banner = useMemo(() => {
     if (documentValidationError) {
-      const hasViolations =
-        documentValidationError instanceof UnsafeIntegerValidationError &&
-        documentValidationError.violations.length > 0;
-      const numViolations = hasViolations
-        ? documentValidationError.violations.length
-        : 0;
       return {
         message: documentValidationError.message,
         variant: 'danger' as const,
-        ...(hasViolations && {
-          action: {
-            onClick: onFixUnsafeIntegerViolations,
-            text:
-              numViolations === 1 ? 'Convert to Long' : 'Convert all to Long',
-          },
-        }),
+      };
+    }
+    if (safeIntegerViolationCount > 0) {
+      return {
+        message: getSafeIntegerViolationMessage(safeIntegerViolationCount),
+        variant: 'danger' as const,
+        action: {
+          onClick: onFixSafeIntegerViolations,
+          text:
+            safeIntegerViolationCount === 1
+              ? 'Convert to Long'
+              : 'Convert all to Long',
+        },
       };
     }
     if (insertInProgress) {
@@ -74,7 +76,8 @@ export function InsertDocumentDialogBanner({
     documentValidationError,
     insertInProgress,
     documentWriteError,
-    onFixUnsafeIntegerViolations,
+    safeIntegerViolationCount,
+    onFixSafeIntegerViolations,
   ]);
 
   if (!banner) {
