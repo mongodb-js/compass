@@ -1,11 +1,13 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import {
   Body,
   Button,
+  ConfirmationModalVariant,
   Icon,
   css,
   cx,
   palette,
+  showConfirmation,
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
@@ -13,7 +15,7 @@ import {
   useAtlasSignedInUser,
   useAtlasLoginActions,
 } from '@mongodb-js/atlas-service/provider';
-  
+
 /* TODO COMPASS-10944: consider dark mode */
 const containerStyles = css({
   display: 'flex',
@@ -58,7 +60,23 @@ export const AtlasConnectionStatus: React.FunctionComponent<
 > = ({ 'data-testid': dataTestId = 'atlas-connection-status' }) => {
   const darkMode = useDarkMode();
   const userInfo = useAtlasSignedInUser();
-  const { disconnect } = useAtlasLoginActions();
+  const { signOut } = useAtlasLoginActions();
+
+  const handleDisconnect = useCallback(() => {
+    void (async () => {
+      const confirmedLogout = await showConfirmation({
+        title: 'Are you sure you want to disconnect Atlas?',
+        description:
+          "Once Atlas is disconnected you won't have context from Atlas anymore.",
+        variant: ConfirmationModalVariant.Danger,
+        buttonText: 'Disconnect',
+      });
+      if (!confirmedLogout) {
+        return;
+      }
+      await signOut();
+    })();
+  }, [signOut]);
 
   if (!userInfo) {
     return null;
@@ -81,7 +99,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
       <Button
         size="xsmall"
         leftGlyph={<Icon glyph="Disconnect" />}
-        onClick={disconnect}
+        onClick={handleDisconnect}
         data-testid={`${dataTestId}-disconnect`}
         darkMode={darkMode}
         variant="dangerOutline"

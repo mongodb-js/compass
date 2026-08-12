@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import {
-  disconnect,
   performSignInAttempt,
+  signOut,
   type AtlasSignInState,
 } from './atlas-signin-reducer';
 import type { ReactReduxContextValue, TypedUseSelectorHook } from 'react-redux';
@@ -36,7 +36,7 @@ export function useAtlasSignedInUser(): AtlasUserInfo | null {
 }
 
 export type AtlasLoginActions = {
-  disconnect: () => Promise<void>;
+  signOut: () => Promise<void>;
   signIn: () => Promise<boolean>;
 };
 
@@ -44,10 +44,7 @@ export function useAtlasLoginActions(): AtlasLoginActions {
   const dispatch = useDispatch();
   return useMemo(
     () => ({
-      disconnect: () => dispatch(disconnect()),
-      // `performSignInAttempt` manages the sign-in attempt lifecycle and
-      // resolves with the user info on success / rejects on failure, so we
-      // derive the boolean outcome directly from it.
+      signOut: () => dispatch(signOut()),
       signIn: () =>
         dispatch(performSignInAttempt())
           .then(() => true)

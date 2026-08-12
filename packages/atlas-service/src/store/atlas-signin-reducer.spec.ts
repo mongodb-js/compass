@@ -6,9 +6,11 @@ import {
   attemptId,
   AttemptStateMap,
   performSignInAttempt,
+  signOut,
 } from './atlas-signin-reducer';
 import { expect } from 'chai';
 import { configureStore } from './atlas-signin-store';
+import * as compassComponents from '@mongodb-js/compass-components';
 
 describe('atlasSignInReducer', function () {
   const sandbox = Sinon.createSandbox();
@@ -253,6 +255,83 @@ describe('atlasSignInReducer', function () {
 
       // Ensure that we are not leaving a dangling store operation that would conflict with our mocks being reset.
       await signInCalled;
+    });
+  });
+
+  describe('signOut', function () {
+    let openToastStub: Sinon.SinonStub;
+
+    beforeEach(function () {
+      openToastStub = sandbox.stub();
+      sandbox.replaceGetter(
+        compassComponents,
+        'openToast',
+        () => openToastStub
+      );
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    function createSignedInStore(mockAtlasService: any) {
+      const store = configureStore({
+        atlasAuthService: mockAtlasService,
+      });
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AtlasSignInSuccess',
+        userInfo: { sub: '1234' },
+      });
+      return store;
+    }
+
+    it('should sign out, reset state, and emit signed-out', async function () {
+      const mockAtlasService = {
+        signOut: sandbox.stub().resolves(),
+        emit: sandbox.stub(),
+      };
+      const store = createSignedInStore(mockAtlasService);
+
+      await store.dispatch(signOut());
+
+      expect(mockAtlasService.signOut).to.have.been.calledOnce;
+      expect(mockAtlasService.emit).to.have.been.calledOnceWith('signed-out');
+      expect(store.getState()).to.have.nested.property('state', 'initial');
+      expect(store.getState()).to.have.nested.property('userInfo', null);
+    });
+
+    it('should show a toast notifying the user that Atlas was disconnected', async function () {
+      const mockAtlasService = {
+        signOut: sandbox.stub().resolves(),
+        emit: sandbox.stub(),
+      };
+      const store = createSignedInStore(mockAtlasService);
+
+      await store.dispatch(signOut());
+
+      expect(openToastStub).to.have.been.calledOnce;
+      expect(openToastStub.firstCall.args[1]).to.include({
+        title: 'Disconnected from Atlas',
+        variant: 'note',
+      });
+    });
+
+    it('should show failed toast if signOut rejects', async function () {
+      const mockAtlasService = {
+        signOut: sandbox.stub().rejects(new Error('Whoops!')),
+        emit: sandbox.stub(),
+      };
+      const store = createSignedInStore(mockAtlasService);
+
+      await store.dispatch(signOut());
+
+      expect(mockAtlasService.signOut).to.have.been.calledOnce;
+      expect(mockAtlasService.emit).to.not.have.been.called;
+      expect(openToastStub).to.have.been.calledOnce;
+      expect(openToastStub.firstCall.args[1]).to.include({
+        title: 'Failed to disconnect from Atlas',
+        variant: 'warning',
+      });
     });
   });
 });

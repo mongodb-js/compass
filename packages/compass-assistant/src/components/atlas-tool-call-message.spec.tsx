@@ -168,21 +168,21 @@ describe('AtlasToolCallMessage', function () {
   });
 
   describe('resolved states', function () {
-    it('shows the connected title and hides the action buttons when run', function () {
+    it('shows "Running" title and hides the action buttons when run', function () {
       renderMessage(
         { toolCall: makeToolCall('output-available') },
         { signedIn: true }
       );
 
-      expect(screen.getByText('Connected to Atlas')).to.exist;
+      expect(screen.getByText('Running')).to.exist;
       expect(screen.queryByText('Run')).to.not.exist;
       expect(screen.queryByText('Cancel')).to.not.exist;
     });
 
-    it('shows the not-connected title when denied', function () {
+    it('shows "Canceled" title when denied', function () {
       renderMessage({ toolCall: makeToolCall('output-denied') });
 
-      expect(screen.getByText('Not connected to Atlas')).to.exist;
+      expect(screen.getByText('Canceled')).to.exist;
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
       expect(screen.queryByText('Skip')).to.not.exist;
     });
