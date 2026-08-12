@@ -77,7 +77,6 @@ describe('atlasSignInReducer', function () {
           .onSecondCall()
           .resolves(true),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -102,7 +101,6 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(true),
         signIn: sandbox.stub().resolves({ sub: '1234' }),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -119,7 +117,6 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().resolves({ sub: '1234' }),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -195,7 +192,6 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().resolves({ sub: '1234' }),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -209,7 +205,6 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().rejects(new Error('Sign in failed')),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -235,7 +230,6 @@ describe('atlasSignInReducer', function () {
           return { sub: '1234' };
         }),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -285,17 +279,15 @@ describe('atlasSignInReducer', function () {
       return store;
     }
 
-    it('should sign out, reset state, and emit signed-out', async function () {
+    it('should sign out and reset state', async function () {
       const mockAtlasService = {
         signOut: sandbox.stub().resolves(),
-        emit: sandbox.stub(),
       };
       const store = createSignedInStore(mockAtlasService);
 
       await store.dispatch(signOut());
 
       expect(mockAtlasService.signOut).to.have.been.calledOnce;
-      expect(mockAtlasService.emit).to.have.been.calledOnceWith('signed-out');
       expect(store.getState()).to.have.nested.property('state', 'initial');
       expect(store.getState()).to.have.nested.property('userInfo', null);
     });
@@ -303,7 +295,6 @@ describe('atlasSignInReducer', function () {
     it('should show a toast notifying the user that Atlas was disconnected', async function () {
       const mockAtlasService = {
         signOut: sandbox.stub().resolves(),
-        emit: sandbox.stub(),
       };
       const store = createSignedInStore(mockAtlasService);
 
@@ -319,14 +310,12 @@ describe('atlasSignInReducer', function () {
     it('should show failed toast if signOut rejects', async function () {
       const mockAtlasService = {
         signOut: sandbox.stub().rejects(new Error('Whoops!')),
-        emit: sandbox.stub(),
       };
       const store = createSignedInStore(mockAtlasService);
 
       await store.dispatch(signOut());
 
       expect(mockAtlasService.signOut).to.have.been.calledOnce;
-      expect(mockAtlasService.emit).to.not.have.been.called;
       expect(openToastStub).to.have.been.calledOnce;
       expect(openToastStub.firstCall.args[1]).to.include({
         title: 'Failed to disconnect from Atlas',
