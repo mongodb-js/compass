@@ -9,7 +9,6 @@ import {
 } from '@mongodb-js/compass-app-registry';
 import {
   atlasAuthServiceLocator,
-  type AtlasAuthService,
   type AtlasService,
   atlasServiceLocator,
 } from '@mongodb-js/atlas-service/provider';
@@ -301,7 +300,6 @@ export type AssistantState = Record<string, never>;
 type AssistantExtraArgs = {
   chat: Chat<AssistantMessage>;
   atlasAiService: AtlasAiService;
-  atlasAuthService: AtlasAuthService;
   atlasAdminApi: AtlasAdminApiService;
   toolsController: ToolsController;
   preferences: PreferencesAccess;
@@ -446,7 +444,7 @@ export function ensureOptInAndSendThunk(
             disableStorage: activeConnections.some(
               (info) => info.connectionOptions.fleOptions
             ),
-            connectionInfo: _message.metadata?.connectionInfo ?? connectionInfo,
+            connectionInfo,
             requestId,
             analyticsId: await getHashedActiveUserId(preferences, logger),
           },
@@ -661,7 +659,6 @@ function activateAssistantPlugin(
   {
     atlasService,
     atlasAiService,
-    atlasAuthService,
     atlasAdminApi,
     toolsController,
     preferences,
@@ -670,7 +667,6 @@ function activateAssistantPlugin(
   }: {
     atlasService: AtlasService;
     atlasAiService: AtlasAiService;
-    atlasAuthService: AtlasAuthService;
     atlasAdminApi: AtlasAdminApiService;
     toolsController: ToolsController;
     preferences: PreferencesAccess;
@@ -699,7 +695,6 @@ function activateAssistantPlugin(
       thunk.withExtraArgument({
         chat,
         atlasAiService,
-        atlasAuthService,
         atlasAdminApi,
         toolsController,
         preferences,

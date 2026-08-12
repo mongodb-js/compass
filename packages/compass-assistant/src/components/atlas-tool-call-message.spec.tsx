@@ -1,5 +1,4 @@
 import React from 'react';
-import { EventEmitter } from 'events';
 import {
   createPluginTestHelpers,
   screen,
@@ -16,7 +15,7 @@ import type {
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
 
-class FakeAtlasAuthService extends EventEmitter {
+class FakeAtlasAuthService {
   private user: AtlasUserInfo | null;
   public signIn: sinon.SinonStub;
 
@@ -24,7 +23,6 @@ class FakeAtlasAuthService extends EventEmitter {
     signedIn = false,
     signInSucceeds = true,
   }: { signedIn?: boolean; signInSucceeds?: boolean } = {}) {
-    super();
     this.user = signedIn ? { sub: 'user-1' } : null;
     this.signIn = sinon.stub().callsFake(() => {
       if (!signInSucceeds) {

@@ -49,7 +49,7 @@ function getTitle(state: ToolState, isUserSignedIn: boolean): string {
 function getToolDescription(toolType: string): string {
   if (isDebuggerToolCall(toolType)) {
     return `Connecting would call Atlas API endpoint (cluster
-state IP allowlist, TLS) to explain why this connection is failing.
+state, IP allowlist, TLS) to explain why this connection is failing.
 This is read-only and won't change your cluster.`;
   }
 

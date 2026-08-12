@@ -1,5 +1,4 @@
 import React from 'react';
-import { EventEmitter } from 'events';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {
@@ -15,7 +14,7 @@ import type {
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { AtlasConnectionStatus } from '../index';
 
-class FakeAtlasAuthService extends EventEmitter {
+class FakeAtlasAuthService {
   private user: AtlasUserInfo | null;
   public signOut = sinon.stub().callsFake(() => {
     this.user = null;
@@ -23,7 +22,6 @@ class FakeAtlasAuthService extends EventEmitter {
   });
 
   constructor(user: AtlasUserInfo | null) {
-    super();
     this.user = user;
   }
 
@@ -40,7 +38,6 @@ class FakeAtlasAuthService extends EventEmitter {
 
   simulateSignIn(user: AtlasUserInfo) {
     this.user = user;
-    this.emit('signed-in');
   }
 }
 
