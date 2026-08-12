@@ -116,8 +116,8 @@ const RawSchemaConfirmationScreen = ({
       {schemaAnalysis.status === 'complete' ? (
         <>
           <Body className={descriptionStyles}>
-            We&apos;ll use the identified schema to generate a mock data script
-            for your collection. You can customize the script and its{' '}
+            We&apos;ll use the identified schema and AI to generate a mock data
+            script for your collection. You can customize the script and its{' '}
             <Link href={FAKER_API_LINK} target="_blank" hideExternalIcon>
               Faker functions
             </Link>{' '}
