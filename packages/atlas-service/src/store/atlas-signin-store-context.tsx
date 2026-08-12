@@ -37,7 +37,7 @@ export function useAtlasSignedInUser(): AtlasUserInfo | null {
 
 export type AtlasLoginActions = {
   signOut: () => Promise<void>;
-  signIn: () => Promise<boolean>;
+  signIn: () => Promise<AtlasUserInfo>;
 };
 
 export function useAtlasLoginActions(): AtlasLoginActions {
@@ -45,10 +45,7 @@ export function useAtlasLoginActions(): AtlasLoginActions {
   return useMemo(
     () => ({
       signOut: () => dispatch(signOut()),
-      signIn: () =>
-        dispatch(performSignInAttempt())
-          .then(() => true)
-          .catch(() => false),
+      signIn: () => dispatch(performSignInAttempt()),
     }),
     [dispatch]
   );

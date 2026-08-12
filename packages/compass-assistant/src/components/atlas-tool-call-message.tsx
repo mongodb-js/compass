@@ -82,7 +82,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const handleAtlasToolApproval = useCallback(
     (approvalId: string) => {
       signIn()
-        .then((signedIn) => onApprove(approvalId, signedIn))
+        .then((userInfo) => onApprove(approvalId, !!userInfo))
         .catch(() => onApprove(approvalId, false));
     },
     [signIn, onApprove]
