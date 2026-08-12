@@ -2,15 +2,18 @@ import React, { useCallback } from 'react';
 import { ServerIcon } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import type { ToolState } from '../utils';
-import { getToolState } from '../utils';
+import { cleanToolCallOutput, getToolState } from '../utils';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
+import { ActionCardMessage } from './action-card-message';
+import {
+  getAvailableTools,
+  doesToolUseConnection,
+} from '@mongodb-js/compass-generative-ai/provider';
+import { getToolDisplayName } from '../utils';
 import {
   useAtlasLoginActions,
   useAtlasSignedInUser,
-} from '@mongodb-js/compass-atlas-login-ui';
-import { ActionCardMessage } from './action-card-message';
-import { doesToolUseConnection } from '@mongodb-js/compass-generative-ai/provider';
-import { getToolDisplayName } from '../utils';
+} from '@mongodb-js/compass-atlas-login';
 
 const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
   'tool-atlas-connection-error-debugger';
@@ -26,20 +29,29 @@ function isDebuggerToolCall(type: string): boolean {
   return type === ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE;
 }
 
+// TODO COMPASS-10944: The title logic should match what's in tool-call-message.tsx.
 function getTitle(state: ToolState, isUserSignedIn: boolean): string {
   switch (state) {
     case 'success':
     case 'running':
-      return 'Connected to Atlas';
+      return 'Running';
     case 'canceled':
-      return 'Not connected to Atlas';
+      return 'Canceled';
     case 'error':
-      return 'Failed to debug connection with Atlas';
+      return 'Failed';
     default:
       return isUserSignedIn
         ? 'Run Atlas to debug this connection'
         : 'Connect with Atlas to debug this connection';
   }
+}
+
+function getToolDescription(toolName: string): string {
+  return (
+    getAvailableTools({ enableAtlasConnectionErrorDebugger: true }).find(
+      (tool) => tool.name === toolName
+    )?.description || ''
+  );
 }
 
 export const AtlasToolCallMessage: React.FunctionComponent<
@@ -50,6 +62,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const approvalId = toolCall.approval?.id;
   const isUserSignedIn = !!useAtlasSignedInUser();
   const { signIn } = useAtlasLoginActions();
+
   const chips = [];
 
   if (
@@ -63,17 +76,62 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const handleAtlasToolApproval = useCallback(
     (approvalId: string) => {
       signIn()
-        .then((signedIn: boolean) => onApprove(approvalId, signedIn))
+        .then((signedIn) => onApprove(approvalId, signedIn))
         .catch(() => onApprove(approvalId, false));
     },
     [signIn, onApprove]
   );
 
-  const expandableContentText = `
-Connecting would call Atlas API endpoints (cluster state, IP allowlist,
-TLS) to explain why this connection is failing. This is read-only and
-won’t change your cluster.`;
+  const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
+  const argumentsText = `### Arguments
 
+\`\`\`json
+${inputJSON}
+\`\`\``;
+
+  const cleanedOutput = React.useMemo(
+    () => (toolCall.output ? cleanToolCallOutput(toolCall.output) : null),
+    [toolCall.output]
+  );
+
+  const hasOutput = !!(
+    cleanedOutput &&
+    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
+  );
+
+  const outputText = cleanedOutput
+    ? JSON.stringify(cleanedOutput, null, 2)
+    : '';
+
+  let expandableContentText = '';
+  if (toolCallState === 'idle') {
+    expandableContentText = [
+      getToolDescription(getToolDisplayName(toolCall.type)),
+      argumentsText,
+    ].join('\n\n');
+  } else {
+    const expandableContent = [argumentsText];
+
+    if (hasOutput) {
+      expandableContent.push(`### Response
+
+\`\`\`json
+${outputText}
+\`\`\``);
+    }
+
+    if (toolCall.errorText) {
+      expandableContent.push(`### Error
+
+\`\`\`
+${toolCall.errorText}
+\`\`\``);
+    }
+
+    expandableContentText = expandableContent.join('\n\n');
+  }
+
+  // TODO COMPASS-10973: don't render actions if there's no approvalId.
   return (
     <ActionCardMessage
       state={toolCallState}

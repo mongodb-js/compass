@@ -1,5 +1,5 @@
 {
-  "name": "@mongodb-js/compass-atlas-login-ui",
+  "name": "@mongodb-js/compass-atlas-login",
   "description": "Package to manage Atlas integration components in Compass",
   "author": {
     "name": "MongoDB Inc",

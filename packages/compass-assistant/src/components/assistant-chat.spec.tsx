@@ -20,7 +20,6 @@ import {
   AssistantActionsContext,
   type AssistantMessage,
 } from '../compass-assistant-provider';
-import { CompassAtlasLoginPlugin } from '@mongodb-js/compass-atlas-login-ui';
 import sinon from 'sinon';
 import type { SourceUrlUIPart, TextPart, ToolUIPart } from 'ai';
 import { Chat } from '../@ai-sdk/react/chat-react';
@@ -32,6 +31,7 @@ import {
   ExperimentTestGroups,
   type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -102,9 +102,9 @@ describe('AssistantChat', function () {
       });
 
     // The Atlas tool-call card reads sign-in state and triggers sign-in via
-    // the compass-atlas-login-ui plugin, so wrap the tree in that plugin with a
+    // the compass-atlas-login plugin, so wrap the tree in that plugin with a
     // fake auth service backing it.
-    const AtlasLoginPlugin = CompassAtlasLoginPlugin.withMockServices({});
+    const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 
     const assistantActionsContext = {
       ensureOptInAndSend: ensureOptInAndSendStub,

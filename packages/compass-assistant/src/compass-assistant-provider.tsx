@@ -61,7 +61,6 @@ import {
   toolsControllerLocator,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { buildConversationInstructionsPrompt } from './prompts';
-import { CompassAtlasLoginPlugin } from '@mongodb-js/compass-atlas-login-ui';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
 import { createOpenAI } from '@ai-sdk/openai';
@@ -91,6 +90,7 @@ import type { ThunkAction } from 'redux-thunk';
 import type { Action, AnyAction } from 'redux';
 import { connect } from 'react-redux';
 import { AI_MODEL_CHAT_VERSION } from '@mongodb-js/compass-generative-ai/provider';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 
 export const ASSISTANT_DRAWER_ID = 'compass-assistant-drawer';
 
@@ -879,11 +879,11 @@ export const CompassAssistantProvider = registerCompassPlugin(
     }>) {
       return (
         <AssistantGlobalStateProvider>
-          <CompassAtlasLoginPlugin>
+          <AtlasAuthPlugin>
             <ConnectedAssistantProvider projectId={projectId}>
               {children}
             </ConnectedAssistantProvider>
-          </CompassAtlasLoginPlugin>
+          </AtlasAuthPlugin>
         </AssistantGlobalStateProvider>
       );
     },

@@ -21,7 +21,6 @@ import {
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
-import { AtlasConnectionStatus } from '@mongodb-js/compass-atlas-login-ui';
 import {
   useTelemetry,
   useSearchActivationProgramP2,
@@ -43,6 +42,7 @@ import {
   partIsToolUI,
   stopChat,
 } from '../utils';
+import { AtlasConnectionStatus } from '@mongodb-js/compass-atlas-login';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -592,6 +592,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     >
       <LeafyGreenChatProvider>
         <ChatWindow>
+          {/* TODO  COMPASS-10944: fix connection status to the top of chat*/}
           {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
           <div
             data-testid="assistant-chat-messages"

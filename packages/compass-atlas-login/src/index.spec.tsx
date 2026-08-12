@@ -11,7 +11,8 @@ import type {
   AtlasAuthService,
   AtlasUserInfo,
 } from '@mongodb-js/atlas-service/provider';
-import { CompassAtlasLoginPlugin, AtlasConnectionStatus } from './index';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
+import { AtlasConnectionStatus } from './index';
 
 class FakeAtlasAuthService extends EventEmitter {
   private user: AtlasUserInfo | null;
@@ -43,7 +44,7 @@ describe('CompassAtlasLoginPlugin', function () {
   function renderPlugin(atlasAuthService: FakeAtlasAuthService) {
     const { renderWithConnections } = createPluginTestHelpers(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      CompassAtlasLoginPlugin.withMockServices({
+      AtlasAuthPlugin.withMockServices({
         atlasAuthService: atlasAuthService as unknown as AtlasAuthService,
       })
     );

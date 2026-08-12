@@ -32,7 +32,7 @@
   },
   "compass:exports": {
     "./main": "./src/main.ts",
-    "./renderer": "./src/renderer.ts",
+    "./renderer": "./src/renderer.tsx",
     "./provider": "./src/provider.tsx"
   },
   "scripts": {

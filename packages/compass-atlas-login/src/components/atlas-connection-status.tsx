@@ -12,8 +12,9 @@ import {
 import {
   useAtlasSignedInUser,
   useAtlasLoginActions,
-} from '../stores/store-context';
-
+} from '@mongodb-js/atlas-service/provider';
+  
+/* TODO COMPASS-10944: consider dark mode */
 const containerStyles = css({
   display: 'flex',
   width: '100%',
@@ -43,19 +44,6 @@ const labelTextStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
-});
-
-const disconnectButtonStyles = css({
-  color: palette.blue.base,
-  backgroundColor: palette.white,
-  border: 0,
-  '&:hover': {
-    backgroundColor: palette.white,
-    color: palette.blue.base,
-  },
-  '& svg': {
-    color: palette.blue.base,
-  },
 });
 
 const labelTextStylesLight = css({ color: palette.gray.dark1 });
@@ -91,12 +79,12 @@ export const AtlasConnectionStatus: React.FunctionComponent<
         </Body>
       </div>
       <Button
-        className={disconnectButtonStyles}
         size="xsmall"
         leftGlyph={<Icon glyph="Disconnect" />}
         onClick={disconnect}
         data-testid={`${dataTestId}-disconnect`}
         darkMode={darkMode}
+        variant="dangerOutline"
       >
         Disconnect Atlas
       </Button>

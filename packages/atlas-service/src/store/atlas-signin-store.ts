@@ -2,9 +2,9 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer, {
   restoreSignInState,
-  signedOut,
   tokenRefreshFailed,
 } from './atlas-signin-reducer';
+import { AtlasSignInStoreContext } from './atlas-signin-store-context';
 import { type AtlasAuthService } from '../provider';
 import { ipcRenderer } from 'hadron-ipc';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
@@ -21,24 +21,22 @@ export type AtlasAuthPluginServices = {
   atlasAuthService: AtlasAuthService;
 };
 export function activatePlugin(
-  _: Record<string, never>,
+  _initialProps: unknown,
   services: AtlasAuthPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
   store = configureStore(services);
 
-  const onSignedOut = () => store.dispatch(signedOut());
   const onTokenRefreshFailed = () => store.dispatch(tokenRefreshFailed());
 
   if (ipcRenderer) {
     on(ipcRenderer, 'atlas-service-token-refresh-failed', onTokenRefreshFailed);
-    on(ipcRenderer, 'atlas-service-signed-out', onSignedOut);
   }
 
-  // Restore the sign-in state when plugin is activated
+  // Restore the sign-in state when the plugin is activated
   void store.dispatch(restoreSignInState());
 
-  return { store, deactivate: cleanup };
+  return { store, deactivate: cleanup, context: AtlasSignInStoreContext };
 }
 
 export function configureStore({ atlasAuthService }: AtlasAuthPluginServices) {

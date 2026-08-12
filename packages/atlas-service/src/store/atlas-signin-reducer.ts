@@ -1,9 +1,15 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
-import { openToast } from '@mongodb-js/compass-components';
+import {
+  ConfirmationModalVariant,
+  openToast,
+  showConfirmation,
+} from '@mongodb-js/compass-components';
 import type { AtlasUserInfo } from '../util';
 import type { AtlasAuthService } from '../provider';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
+
+const DISCONNECT_TOAST_ID = 'atlas-disconnected';
 
 export function isAction<A extends AnyAction>(
   action: AnyAction,
@@ -404,10 +410,30 @@ export const tokenRefreshFailed = (): AtlasSignInThunkAction<void> => {
   };
 };
 
-export const signedOut = (): AtlasSignInThunkAction<void> => {
-  return (dispatch, _getState, { atlasAuthService }) => {
-    dispatch({ type: AtlasSignInActions.SignedOut });
-    atlasAuthService.emit('signed-out');
+export const disconnect = (): AtlasSignInThunkAction<Promise<void>> => {
+  return async (dispatch, _getState, { atlasAuthService }) => {
+    const confirmed = await showConfirmation({
+      title: 'Are you sure you want to disconnect Atlas?',
+      description:
+        "Once Atlas is disconnected you won't have context from Atlas anymore.",
+      variant: ConfirmationModalVariant.Danger,
+      buttonText: 'Disconnect',
+    });
+    if (!confirmed) {
+      return;
+    }
+    try {
+      await atlasAuthService.signOut();
+    } finally {
+      dispatch({ type: AtlasSignInActions.SignedOut });
+      atlasAuthService.emit('signed-out');
+      openToast(DISCONNECT_TOAST_ID, {
+        title: 'Disconnected from Atlas',
+        description: "You won't have context from Atlas anymore.",
+        variant: 'note',
+        timeout: 5000,
+      });
+    }
   };
 };
 

@@ -13,12 +13,12 @@ import type {
   AtlasAuthService,
   AtlasUserInfo,
 } from '@mongodb-js/atlas-service/provider';
-import { CompassAtlasLoginPlugin } from '@mongodb-js/compass-atlas-login-ui';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
 
 /**
  * Minimal fake AtlasAuthService backed by a real EventEmitter, used to drive
- * the compass-atlas-login-ui plugin that owns the sign-in state and actions
+ * the compass-atlas-login plugin that owns the sign-in state and actions
  * the card consumes.
  */
 class FakeAtlasAuthService extends EventEmitter {
@@ -38,6 +38,10 @@ class FakeAtlasAuthService extends EventEmitter {
       this.user = { sub: 'user-1' };
       return Promise.resolve(this.user);
     });
+  }
+
+  isAuthenticated(): Promise<boolean> {
+    return Promise.resolve(!!this.user);
   }
 
   getUserInfo(): Promise<AtlasUserInfo> {
@@ -78,7 +82,7 @@ describe('AtlasToolCallMessage', function () {
     });
     const { renderWithConnections } = createPluginTestHelpers(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      CompassAtlasLoginPlugin.withMockServices({
+      AtlasAuthPlugin.withMockServices({
         atlasAuthService: atlasAuthService as unknown as AtlasAuthService,
       })
     );

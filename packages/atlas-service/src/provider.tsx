@@ -73,3 +73,8 @@ export const atlasServiceLocator = createServiceLocator(
 export { AtlasAuthService } from './atlas-auth-service';
 export type { AtlasService } from './atlas-service';
 export type { AtlasUserInfo } from './renderer';
+export {
+  useAtlasSignedInUser,
+  useAtlasLoginActions,
+} from './store/atlas-signin-store-context';
+export type { AtlasLoginActions } from './store/atlas-signin-store-context';

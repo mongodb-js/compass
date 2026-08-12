@@ -12,7 +12,8 @@ import type {
   AtlasAuthService,
   AtlasUserInfo,
 } from '@mongodb-js/atlas-service/provider';
-import { CompassAtlasLoginPlugin, AtlasConnectionStatus } from '../index';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
+import { AtlasConnectionStatus } from '../index';
 
 /**
  * Minimal fake AtlasAuthService backed by a real EventEmitter so the plugin's
@@ -28,6 +29,10 @@ class FakeAtlasAuthService extends EventEmitter {
   constructor(user: AtlasUserInfo | null) {
     super();
     this.user = user;
+  }
+
+  isAuthenticated(): Promise<boolean> {
+    return Promise.resolve(!!this.user);
   }
 
   getUserInfo(): Promise<AtlasUserInfo> {
@@ -47,7 +52,7 @@ describe('AtlasConnectionStatus', function () {
   function renderStatus(service: FakeAtlasAuthService) {
     const { renderWithConnections } = createPluginTestHelpers(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      CompassAtlasLoginPlugin.withMockServices({
+      AtlasAuthPlugin.withMockServices({
         atlasAuthService: service as unknown as AtlasAuthService,
       })
     );
