@@ -99,10 +99,16 @@ const IndexesListDrawerView: React.FunctionComponent<
     track('Screen', { name: 'indexes_list_drawer' }, connectionInfoRef.current);
   }, [track, connectionInfoRef]);
 
-  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+  const {
+    readOnly,
+    readWrite,
+    enableAtlasSearchIndexes,
+    enableIndexesManagement,
+  } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
+    'enableIndexesManagement',
   ]);
   const { isViewVersionSearchCompatible, isViewPipelineSearchQueryable } =
     useSelector(selectIsViewSearchCompatible, shallowEqual);
@@ -117,6 +123,7 @@ const IndexesListDrawerView: React.FunctionComponent<
       readWrite,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1: true, // This component is only rendered if the user is in the variant
+      enableIndexesManagement,
     }),
     shallowEqual
   );

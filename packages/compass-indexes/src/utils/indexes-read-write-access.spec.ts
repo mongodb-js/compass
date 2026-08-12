@@ -14,6 +14,7 @@ describe('indexes-read-write-access', function () {
       preferences: {
         readOnly?: boolean;
         readWrite?: boolean;
+        enableIndexesManagement?: boolean;
         enableAtlasSearchIndexes?: boolean;
         enableSearchActivationProgramP1?: boolean;
       } = {}
@@ -24,6 +25,8 @@ describe('indexes-read-write-access', function () {
 
       const readOnly = preferences.readOnly ?? false;
       const readWrite = preferences.readWrite ?? false;
+      const enableIndexesManagement =
+        preferences.enableIndexesManagement ?? false;
       const enableAtlasSearchIndexes =
         preferences.enableAtlasSearchIndexes ?? true;
       const enableSearchActivationProgramP1 =
@@ -36,6 +39,7 @@ describe('indexes-read-write-access', function () {
               readWrite,
               enableAtlasSearchIndexes,
               enableSearchActivationProgramP1,
+              enableIndexesManagement,
             })
           ),
         {
@@ -69,20 +73,48 @@ describe('indexes-read-write-access', function () {
           expect(result.isRegularIndexesWritable).to.equal(true);
         });
 
-        it('should return isRegularIndexesWritable as false when readOnly preference is true', function () {
+        it('should return isRegularIndexesWritable as false when readOnly preference is true and index management is disabled', function () {
           const result = getSelectReadWriteAccessResult(
             { isReadonly: false },
-            { readOnly: true }
+            { readOnly: true, enableIndexesManagement: false }
           );
           expect(result.isRegularIndexesWritable).to.equal(false);
         });
 
-        it('should return isRegularIndexesWritable as false when readWrite preference is true', function () {
+        it('should return isRegularIndexesWritable as false when readWrite preference is true and index management is disabled', function () {
           const result = getSelectReadWriteAccessResult(
             { isReadonly: false },
-            { readWrite: true }
+            { readWrite: true, enableIndexesManagement: false }
           );
           expect(result.isRegularIndexesWritable).to.equal(false);
+        });
+
+        it('should return isRegularIndexesWritable as true for a read-only + index-manager user (enableIndexesManagement bypasses readOnly)', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false },
+            { readOnly: true, enableIndexesManagement: true }
+          );
+          expect(result.isRegularIndexesWritable).to.equal(true);
+        });
+
+        it('should return isRegularIndexesWritable as true for a read-write + index-manager user (enableIndexesManagement bypasses readWrite)', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false },
+            { readWrite: true, enableIndexesManagement: true }
+          );
+          expect(result.isRegularIndexesWritable).to.equal(true);
+        });
+
+        it('should return isRegularIndexesWritable as true for an admin/writer (no read restrictions) regardless of index management flag', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false },
+            {
+              readOnly: false,
+              readWrite: false,
+              enableIndexesManagement: false,
+            }
+          );
+          expect(result.isRegularIndexesWritable).to.equal(true);
         });
       });
 
@@ -98,6 +130,14 @@ describe('indexes-read-write-access', function () {
           const result = getSelectReadWriteAccessResult({
             isReadonly: true,
           });
+          expect(result.isRegularIndexesWritable).to.equal(false);
+        });
+
+        it('should keep isRegularIndexesWritable as false even for an index-manager user (index management cannot override a readonly view)', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: true },
+            { readOnly: true, enableIndexesManagement: true }
+          );
           expect(result.isRegularIndexesWritable).to.equal(false);
         });
       });
@@ -152,6 +192,14 @@ describe('indexes-read-write-access', function () {
           const result = getSelectReadWriteAccessResult(
             { isReadonly: false, isSearchIndexesSupported: true },
             { readWrite: true }
+          );
+          expect(result.isSearchIndexesWritable).to.equal(false);
+        });
+
+        it('should return isSearchIndexesWritable as false for an index-manager user (index management does not grant search index write access)', function () {
+          const result = getSelectReadWriteAccessResult(
+            { isReadonly: false, isSearchIndexesSupported: true },
+            { readOnly: true, enableIndexesManagement: true }
           );
           expect(result.isSearchIndexesWritable).to.equal(false);
         });

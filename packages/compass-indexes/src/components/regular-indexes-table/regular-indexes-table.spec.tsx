@@ -159,7 +159,8 @@ const rollingIndexes: RollingIndex[] = [
 
 const renderIndexList = (
   props: Partial<React.ComponentProps<typeof RegularIndexesTable>> = {},
-  state?: Partial<RootState>
+  state?: Partial<RootState>,
+  preferences: Record<string, unknown> = {}
 ) => {
   const store = setupStore({
     ...props,
@@ -185,7 +186,8 @@ const renderIndexList = (
         onRegularIndexesClosed={() => {}}
         {...props}
       />
-    </Provider>
+    </Provider>,
+    { preferences }
   );
 };
 
@@ -410,6 +412,43 @@ describe('RegularIndexesTable Component', function () {
 
   it('does not render delete and hide/unhide button when a user can not modify indexes (!isWritable)', function () {
     renderIndexList({ indexes: indexes }, { isWritable: false });
+    const indexesList = screen.getByTestId('indexes-list');
+    expect(indexesList).to.exist;
+    indexes.forEach((index) => {
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      expect(within(indexRow).queryByTestId('indexes-actions-field')).to.not
+        .exist;
+    });
+  });
+
+  it('renders the row actions for an index-manager user without general write access (readWrite + enableIndexesManagement)', function () {
+    renderIndexList(
+      { indexes: indexes },
+      { isWritable: true },
+      { readWrite: true, enableIndexesManagement: true }
+    );
+    const indexesList = screen.getByTestId('indexes-list');
+    expect(indexesList).to.exist;
+    indexes.forEach((index) => {
+      const indexRow = screen.getByTestId(`indexes-row-${index.name}`);
+      if (index.name === '_id_') {
+        expect(within(indexRow).queryByTestId('indexes-actions-field')).to
+          .exist;
+      } else {
+        const buttons = within(indexRow)
+          .getByTestId('indexes-actions-field')
+          .querySelectorAll('button');
+        expect(buttons).to.not.be.empty;
+      }
+    });
+  });
+
+  it('does not render the row actions for a pure read-only user without index management (readOnly + !enableIndexesManagement)', function () {
+    renderIndexList(
+      { indexes: indexes },
+      { isWritable: true },
+      { readOnly: true, enableIndexesManagement: false }
+    );
     const indexesList = screen.getByTestId('indexes-list');
     expect(indexesList).to.exist;
     indexes.forEach((index) => {

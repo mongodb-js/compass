@@ -128,6 +128,10 @@ export type InternalUserPreferences = {
   // TODO: Remove this as part of COMPASS-8970.
   enableConnectInNewWindow: boolean;
   showEndOfLifeConnectionModal: boolean;
+  // Derived from the user's Atlas roles (Index Manager + data-access role) in Compass-Web / Data Explorer.
+  // Controls whether the user can create/drop regular indexes.
+  // This preference does not include Search Index management.
+  enableIndexesManagement: boolean;
   zoomLevel?: number;
   windowBounds?: {
     x?: number;
@@ -469,6 +473,19 @@ export const storedUserPreferencesProps: Required<{
     global: false,
     description: null,
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  /**
+   * Enables Index Management for users with the Atlas "Index Manager" role combined with any data-access role (read-only or read-write).
+   * This is derived from the user's Atlas roles in Compass-Web / Data Explorer and controls whether the index management UI (create / drop / hide indexes) is shown
+   * for non-admin users. This does not include Search Index management.
+   */
+  enableIndexesManagement: {
+    ui: false,
+    cli: false,
+    global: false,
+    description: null,
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   /**
