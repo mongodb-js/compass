@@ -16,11 +16,6 @@ import type {
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
 
-/**
- * Minimal fake AtlasAuthService backed by a real EventEmitter, used to drive
- * the compass-atlas-login plugin that owns the sign-in state and actions
- * the card consumes.
- */
 class FakeAtlasAuthService extends EventEmitter {
   private user: AtlasUserInfo | null;
   public signIn: sinon.SinonStub;

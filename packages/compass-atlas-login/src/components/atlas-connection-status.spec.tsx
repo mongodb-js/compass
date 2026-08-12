@@ -15,10 +15,6 @@ import type {
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { AtlasConnectionStatus } from '../index';
 
-/**
- * Minimal fake AtlasAuthService backed by a real EventEmitter so the plugin's
- * activate-time subscriptions behave like the real service.
- */
 class FakeAtlasAuthService extends EventEmitter {
   private user: AtlasUserInfo | null;
   public signOut = sinon.stub().callsFake(() => {

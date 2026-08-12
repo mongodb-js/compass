@@ -101,9 +101,6 @@ describe('AssistantChat', function () {
         await chat.sendMessage(message, options);
       });
 
-    // The Atlas tool-call card reads sign-in state and triggers sign-in via
-    // the compass-atlas-login plugin, so wrap the tree in that plugin with a
-    // fake auth service backing it.
     const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 
     const assistantActionsContext = {

@@ -631,14 +631,16 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                 // Handle confirmation messages
                 if (metadata?.confirmation) {
                   const { description, state } = metadata.confirmation;
-                  // Show as rejected if it's not the last message
-                  const confirmationState =
-                    !isLastMessage && state === 'pending' ? 'rejected' : state;
 
                   return (
                     <ConfirmationMessage
                       key={`${id}-confirmation`}
-                      state={confirmationState}
+                      // Show as rejected if it's not the last message
+                      state={
+                        !isLastMessage && state === 'pending'
+                          ? 'rejected'
+                          : state
+                      }
                       title="Please confirm your request"
                       description={description}
                       onConfirm={() => handleConfirmation(message, 'confirmed')}

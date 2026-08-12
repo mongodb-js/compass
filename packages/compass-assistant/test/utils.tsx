@@ -16,12 +16,6 @@ import {
 import { render } from '@mongodb-js/testing-library-compass';
 import React from 'react';
 
-/**
- * A minimal EventEmitter-backed AtlasAuthService mock. The compass-assistant
- * plugin now mounts the compass-atlas-login plugin, whose activate() calls
- * `on('signed-in'/'signed-out')` and `getUserInfo()` on the auth service, so
- * mocks used with CompassAssistantProvider must support those.
- */
 export function createMockAtlasAuthService({
   signedIn = false,
 }: { signedIn?: boolean } = {}) {

@@ -5,8 +5,6 @@ import type { AtlasUserInfo } from '../util';
 import type { AtlasAuthService } from '../provider';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 
-const DISCONNECT_TOAST_ID = 'atlas-disconnected';
-
 export function isAction<A extends AnyAction>(
   action: AnyAction,
   type: A['type']
@@ -412,14 +410,14 @@ export const signOut = (): AtlasSignInThunkAction<Promise<void>> => {
       await atlasAuthService.signOut();
       dispatch({ type: AtlasSignInActions.SignedOut });
       atlasAuthService.emit('signed-out');
-      openToast(DISCONNECT_TOAST_ID, {
+      openToast('atlas-disconnected', {
         title: 'Disconnected from Atlas',
         description: "You won't have context from Atlas anymore.",
         variant: 'note',
         timeout: 5000,
       });
     } catch (err) {
-      openToast(DISCONNECT_TOAST_ID, {
+      openToast('atlas-disconnect-error', {
         title: 'Failed to disconnect from Atlas',
         description: (err as Error).message,
         variant: 'warning',
