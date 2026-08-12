@@ -132,8 +132,9 @@ export class CompassAuthService {
 
   private static getAllowedAuthFlows(): AuthFlowType[] {
     if (!this.signInPromise) {
-      // This is not a sign in flow, most likely a token refresh - so we don't want to allow user interaction
-      return [];
+      throw new Error(
+        'Auth flows are not allowed when sign in is not triggered by user'
+      );
     }
     return ['auth-code'];
   }
