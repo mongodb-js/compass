@@ -385,7 +385,7 @@ export default function BulkUpdateModal({
       track('Safe Integer Fix Applied', {
         source: 'bulk-update-editor',
       });
-      return `NumberLong(${source})`;
+      return `Long("${source}")`;
     },
   });
 
