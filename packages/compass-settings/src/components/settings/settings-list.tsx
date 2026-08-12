@@ -7,6 +7,7 @@ import {
 import {
   SORT_ORDER_VALUES,
   LEGACY_UUID_ENCODINGS,
+  TIMEZONES,
 } from 'compass-preferences-model/provider';
 import { settingStateLabels } from './state-labels';
 import {
@@ -20,6 +21,8 @@ import {
   Option,
   FormFieldContainer,
   Badge,
+  Combobox,
+  ComboboxOption,
 } from '@mongodb-js/compass-components';
 import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
@@ -28,6 +31,7 @@ import { connect } from 'react-redux';
 const ENUM_PREFERENCE_CONFIG = {
   defaultSortOrder: SORT_ORDER_VALUES,
   legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS,
+  timezone: TIMEZONES,
 } as const;
 
 type KeysMatching<T, V> = keyof {
@@ -190,32 +194,69 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
   }
 
   const onChangeCallback = useCallback(
-    (value: string) => {
-      onChange(name, value as UserConfigurablePreferences[PreferenceName]);
+    (value: string | null) => {
+      if (value) {
+        onChange(name, value as UserConfigurablePreferences[PreferenceName]);
+      }
     },
     [name, onChange]
   );
 
+  // TODO: Should we have two different types of selects?
+  // Combobox is searchable and for timezones its super helpful,
+  // otherwise normal select is much better. And combobox flickers
+  if (Object.keys(optionDescriptions).length < 10) {
+    return (
+      <>
+        <SettingLabel name={name} />
+        <Select
+          className={inputStyles}
+          allowDeselect={false}
+          aria-labelledby={`${name}-label`}
+          id={name}
+          name={name}
+          data-testid={name}
+          value={value}
+          onChange={onChangeCallback}
+          disabled={disabled}
+        >
+          {Object.entries(optionDescriptions).map(([option, details]) => (
+            <Option
+              key={option}
+              value={option}
+              description={details.description}
+            >
+              {details.label}
+            </Option>
+          ))}
+        </Select>
+      </>
+    );
+  }
   return (
     <>
       <SettingLabel name={name} />
-      <Select
+      <Combobox
         className={inputStyles}
-        allowDeselect={false}
-        aria-labelledby={`${name}-label`}
+        aria-label={`${name}-label`}
         id={name}
-        name={name}
         data-testid={name}
         value={value}
-        onChange={onChangeCallback}
+        multiselect={false}
+        clearable={false}
+        onChange={(value: string | null) => onChangeCallback(value)}
         disabled={disabled}
       >
         {Object.entries(optionDescriptions).map(([option, details]) => (
-          <Option key={option} value={option} description={details.description}>
+          <ComboboxOption
+            key={option}
+            value={option}
+            description={details.description}
+          >
             {details.label}
-          </Option>
+          </ComboboxOption>
         ))}
-      </Select>
+      </Combobox>
     </>
   );
 }

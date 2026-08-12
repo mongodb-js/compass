@@ -1,12 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 
-import {
-  FormModal,
-  css,
-  spacing,
-  focusRing,
-} from '@mongodb-js/compass-components';
+import { FormModal, css, spacing } from '@mongodb-js/compass-components';
 
 import GeneralSettings from './settings/general';
 import { ProxySettings } from './settings/proxy-settings';
@@ -38,7 +33,7 @@ type SettingsModalProps = {
   hasChangedSettings: boolean;
 };
 
-const contentStyles = css({
+const containerStyles = css({
   display: 'flex',
   height: spacing[7] * 5,
   paddingTop: spacing[200],
@@ -49,14 +44,22 @@ const sideNavStyles = css({
   width: spacing[1600] * 3,
 });
 
-const settingsStyles = css(
-  {
-    width: '80%',
-    marginLeft: spacing[1600] * 3,
-    padding: `0 ${spacing[200]}px 0 ${spacing[400]}px`,
+const tabContentStyles = css({
+  width: '80%',
+  marginLeft: spacing[1600] * 3,
+});
+
+const contentStyles = css({
+  paddingRight: spacing[200],
+  paddingLeft: spacing[400],
+  paddingBottom: spacing[200],
+});
+
+const modalBodyStyles = css({
+  '&:focus, &:focus-visible': {
+    outline: 'none',
   },
-  focusRing
-);
+});
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOpen,
@@ -109,8 +112,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       onCancel={onClose}
       data-testid="settings-modal"
       minBodyHeight={spacing[1600] * 2}
+      bodyClassName={modalBodyStyles}
     >
-      <div className={contentStyles}>
+      <div className={containerStyles}>
         <div className={sideNavStyles}>
           <Sidebar
             activeItem={selectedTab}
@@ -119,14 +123,16 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           />
         </div>
         <div
-          className={settingsStyles}
+          className={tabContentStyles}
           data-testid="settings-modal-content"
           role="tabpanel"
           tabIndex={0}
           id={`${selectedTab}-section`}
           aria-labelledby={`${selectedTab}-tab`}
         >
-          {SettingComponent && <SettingComponent />}
+          <div className={contentStyles}>
+            {SettingComponent && <SettingComponent />}
+          </div>
         </div>
       </div>
     </FormModal>

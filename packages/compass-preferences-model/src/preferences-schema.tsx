@@ -12,6 +12,7 @@ import {
   proxyPreferenceToProxyOptions,
 } from './utils';
 import { Link } from '@mongodb-js/compass-components';
+import { TIMEZONE_OPTIONS, TIMEZONES } from './timezone';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = (typeof THEMES_VALUES)[number];
@@ -110,6 +111,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     inferNamespacesFromPrivileges?: boolean;
     // Features that are enabled by default in Date Explorer, but are disabled in Compass
     maxTimeMSEnvLimit?: number;
+    timezone: string;
   };
 
 /**
@@ -1140,6 +1142,23 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.number().min(0).default(0),
     type: 'number',
+  },
+  timezone: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Timezone to use for displaying dates and times in Compass.',
+      long: 'Set the timezone to use for displaying dates in Compass. Default is UTC.',
+      options: TIMEZONE_OPTIONS,
+    },
+    validator: z
+      .string()
+      .transform((val) => {
+        return TIMEZONES.includes(val) ? val : 'UTC';
+      })
+      .default('UTC'),
+    type: 'string',
   },
 
   // There are a good amount of folks who still use the legacy UUID
