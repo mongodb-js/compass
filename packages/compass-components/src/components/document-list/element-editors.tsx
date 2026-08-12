@@ -17,6 +17,12 @@ const maxWidth = css({
   textOverflow: 'ellipsis',
 });
 
+// Keeps the key on the same line as its value for copying.
+const inlineKey = css({
+  display: 'inline-block',
+  verticalAlign: 'top',
+});
+
 const editorReset = css({
   padding: 0,
   margin: 0,
@@ -68,11 +74,12 @@ export const KeyEditor: React.FunctionComponent<{
   onEditStart,
 }) => {
   const darkMode = useDarkMode();
-  // On Safari if a text is 5 mono-characters wide and is supposed to overflow /
-  // get ellipse'd only when shorter than that, it would still overflow and get
-  // ellipse'd under normal conditions, for unknown reasons. For that, we add a
-  // small amount to the width to tackle this issue.
-  const width = `${Math.max(value.length, 1)}.5ch`;
+  // The input has to be sized to its content. On Safari if a text is 5
+  // mono-characters wide and is supposed to overflow / get ellipse'd only when
+  // shorter than that, it would still overflow and get ellipse'd under normal
+  // conditions, for unknown reasons. For that, we add a small amount to the
+  // width to tackle this issue.
+  const inputWidth = `${Math.max(value.length, 1)}.5ch`;
 
   return (
     <>
@@ -117,7 +124,7 @@ export const KeyEditor: React.FunctionComponent<{
                         ? editorInvalidDarkMode
                         : editorInvalidLightMode)
                   )}
-                  style={{ width }}
+                  style={{ width: inputWidth }}
                   spellCheck="false"
                   {...triggerProps}
                 ></input>
@@ -133,8 +140,7 @@ export const KeyEditor: React.FunctionComponent<{
         <div
           data-testid="hadron-document-clickable-key"
           onDoubleClick={onEditStart}
-          className={maxWidth}
-          style={{ width }}
+          className={cx(inlineKey, maxWidth)}
         >
           {value}
         </div>
@@ -144,6 +150,7 @@ export const KeyEditor: React.FunctionComponent<{
 };
 
 const textareaContainer = css({
+  display: 'block',
   width: '100%',
   maxWidth: '100%',
   '&::before, &::after': {
@@ -357,12 +364,12 @@ export const ValueEditor: React.FunctionComponent<{
       ) : (
         // Double-click is not accessible so no reason for this to be a button,
         // users won't be able to interact with it anyway
-        <div
+        <span
           data-testid="hadron-document-clickable-value"
           onDoubleClick={onEditStart}
         >
           <BSONValue type={type as any} value={originalValue}></BSONValue>
-        </div>
+        </span>
       )}
     </>
   );

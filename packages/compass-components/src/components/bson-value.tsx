@@ -60,13 +60,11 @@ const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
 } as const;
 
 const bsonValue = css({
+  // Keeps a field and its value on one line when copied.
+  display: 'inline',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-});
-
-const bsonValuePrewrap = css({
-  whiteSpace: 'pre-wrap',
 });
 
 export const BSONValueContainer: React.FunctionComponent<
@@ -94,7 +92,6 @@ export const BSONValueContainer: React.FunctionComponent<
       className={cx(
         className,
         bsonValue,
-        type === 'String' && bsonValuePrewrap,
         `element-value element-value-is-${
           type ? type.toLowerCase() : 'unknown'
         }`
@@ -105,10 +102,6 @@ export const BSONValueContainer: React.FunctionComponent<
     </div>
   );
 };
-
-const nonSelectable = css({
-  userSelect: 'none',
-});
 
 const encryptedHelpLinkStyle = css({
   color: 'inherit',
@@ -124,9 +117,7 @@ const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({
 
   return (
     <BSONValueContainer type="ObjectId" title={stringifiedValue}>
-      <span className={nonSelectable}>ObjectId(&apos;</span>
-      {stringifiedValue}
-      <span className={nonSelectable}>&apos;)</span>
+      ObjectId(&apos;{stringifiedValue}&apos;)
     </BSONValueContainer>
   );
 };
@@ -210,9 +201,7 @@ const UUIDValue: React.FunctionComponent<PropsByValueType<'UUID'>> = ({
 
   return (
     <BSONValueContainer type="Binary" title={stringifiedValue}>
-      <span className={nonSelectable}>UUID(&apos;</span>
-      {stringifiedValue}
-      <span className={nonSelectable}>&apos;)</span>
+      UUID(&apos;{stringifiedValue}&apos;)
     </BSONValueContainer>
   );
 };
