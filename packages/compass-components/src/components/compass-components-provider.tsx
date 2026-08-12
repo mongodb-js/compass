@@ -47,11 +47,6 @@ type CompassComponentsProviderProps = {
   stackedElementsZIndex?: number;
 
   /**
-   * Set to disable context menus in the application.
-   */
-  disableContextMenus?: boolean;
-
-  /**
    * Set to disable guide cues in the application
    */
   disableGuideCues?: boolean;
@@ -142,7 +137,6 @@ export const CompassComponentsProvider = ({
   utmMedium,
   stackedElementsZIndex,
   popoverPortalContainer: _popoverPortalContainer,
-  disableContextMenus,
   disableGuideCues,
   ...signalHooksProviderProps
 }: CompassComponentsProviderProps) => {
@@ -190,7 +184,6 @@ export const CompassComponentsProvider = ({
                 <SignalHooksProvider {...signalHooksProviderProps}>
                   <ConfirmationModalArea>
                     <ContextMenuProvider
-                      disabled={disableContextMenus}
                       onContextMenuOpen={onContextMenuOpen}
                       onContextMenuItemClick={onContextMenuItemClick}
                     >

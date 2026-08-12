@@ -36,12 +36,10 @@ const itemStyles = css({
 
 export function ContextMenuProvider({
   children,
-  disabled,
   onContextMenuItemClick,
   onContextMenuOpen,
 }: {
   children: React.ReactNode;
-  disabled?: boolean;
   onContextMenuOpen?: (itemGroups: ContextMenuItemGroup[]) => void;
   onContextMenuItemClick?: (
     itemGroup: ContextMenuItemGroup,
@@ -50,7 +48,6 @@ export function ContextMenuProvider({
 }) {
   return (
     <ContextMenuProviderBase
-      disabled={disabled}
       menuWrapper={(props) => (
         <ContextMenu
           {...props}

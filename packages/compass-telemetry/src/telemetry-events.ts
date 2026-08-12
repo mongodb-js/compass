@@ -4024,6 +4024,26 @@ type SearchExtensionRateLimitPageLinkClickedEvent = CommonEvent<{
   };
 }>;
 
+/**
+ * This event is fired when a user applies the safe integer fix using
+ * codemirror annotation.
+ *
+ * @category Other
+ */
+type SafeIntegerFixAppliedEvent = CommonEvent<{
+  name: 'Safe Integer Fix Applied';
+  payload: {
+    source:
+      | 'pipeline-editor'
+      | 'stage-editor'
+      | 'insert-document-editor-json'
+      | 'insert-document-editor-shell'
+      | 'document-json-editor'
+      | 'query-bar-editor'
+      | 'bulk-update-editor';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -4237,4 +4257,5 @@ export type TelemetryEvent =
   | RerankViewUsageAndRateLimitsLinkClickedEvent
   | SearchExtensionRateLimitBannerShownEvent
   | SearchExtensionRateLimitBillingLinkClickedEvent
-  | SearchExtensionRateLimitPageLinkClickedEvent;
+  | SearchExtensionRateLimitPageLinkClickedEvent
+  | SafeIntegerFixAppliedEvent;

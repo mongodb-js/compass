@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-08-10. Do not edit manually.
+> Auto-generated on 2026-08-12. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -202,6 +202,7 @@
   - [New Index Field Added](#new-index-field-added)
   - [Options Clicked](#options-clicked)
   - [UUID Encountered](#uuid-encountered)
+  - [Safe Integer Fix Applied](#safe-integer-fix-applied)
 - [Performance Tab](#performance-tab)
   - [CurrentOp showOperationDetails](#currentop-showoperationdetails)
   - [DetailView hideOperationDetails](#detailview-hideoperationdetails)
@@ -2153,6 +2154,16 @@ _No additional properties._
 | `subtype`        | `3 \| 4`            | Yes      |             |
 | `count`          | `number`            | Yes      |             |
 | `is_compass_web` | `true \| undefined` | No       |             |
+
+### Safe Integer Fix Applied
+
+This event is fired when a user applies the safe integer fix using
+codemirror annotation.
+
+| Property         | Type                                                                                                                                      | Required | Description |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
+| `source`         | `"pipeline-editor" \| "stage-editor" \| "insert-document-editor" \| "document-json-editor" \| "query-bar-editor" \| "bulk-update-editor"` | Yes      |             |
+| `is_compass_web` | `true \| undefined`                                                                                                                       | No       |             |
 
 ## Performance Tab
 
