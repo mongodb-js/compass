@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Aug 12 2026.
+This document was automatically generated on Thu Aug 13 2026.
 
 ## List of dependencies
 
@@ -90,7 +90,7 @@ This document was automatically generated on Wed Aug 12 2026.
 | **[@emotion/use-insertion-effect-with-fallbacks](#a7662316f90ed8cb032ced23bee64ce0574a0b8eb63d56ee8eedb8c56cfc2812)**       | 1.2.0        | MIT                                 |
 | **[@emotion/utils](#e99b2a20e001e7734cc4f71b8fa6de4d5578c101b034e4571c7b51f86704f663)**                                     | 1.4.2        | MIT                                 |
 | **[@emotion/weak-memoize](#87ba3696f63d7274d407f7e4e93881675689944435b0d8af05b1f5bac283250d)**                              | 0.4.0        | MIT                                 |
-| **[@faker-js/faker](#f5a8ba92aeaeb15079b8d47c68c0302243d8ec85cc1cf54c18d4c7c6bf11e471)**                                    | 10.4.0       | MIT                                 |
+| **[@faker-js/faker](#b9a356d35e0512831d9a6ede2f15c31d250571e37e0953aab224413f12902d4f)**                                    | 10.5.0       | MIT                                 |
 | **[@floating-ui/core](#52eaaaf13a60e5614d4e42dc0c8df65304c83c88e8d34e448677b62df5a5a7b3)**                                  | 1.7.3        | MIT                                 |
 | **[@floating-ui/dom](#5dc31aa39bfa54e98ceef86b9ce9c257a0a5882f5ca51d3ba3b5df7c7678ad98)**                                   | 1.7.4        | MIT                                 |
 | **[@floating-ui/react-dom](#efe6c567c3c1d938b8eca9f8ea0a574964195b9282179c8fe0af77c9b73d2257)**                             | 2.1.6        | MIT                                 |
@@ -204,7 +204,7 @@ This document was automatically generated on Wed Aug 12 2026.
 | **[bintrees](#92dc6fdc6f493d9afcb140539293dd1b94e368d4792ec5165e9f061eab8db78a)**                                           | 1.0.2        | MIT                                 |
 | **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**                                                 | 4.1.0        | MIT                                 |
 | **[body-parser](#8be9d00742e0c959eebfc712f74afc77041b168c90520ab43c5ac057756220fd)**                                        | 2.2.2        | MIT                                 |
-| **[bson](#230b84987836dcb0c829c5b9eec2b483d2aa41b9c055d3507096ba964cf5b73c)**                                               | 7.3.1        | Apache-2.0                          |
+| **[bson](#6133393e6e3c3c93d04129a6d46c2c1d3cf66a5146cb987dccca4a58f40966a4)**                                               | 7.3.2        | Apache-2.0                          |
 | **[buffer-from](#3dcff218e9c4fa2693fbfb63ee6a17483a662804fa7e26dd92051d7b95284ef3)**                                        | 1.1.1        | MIT                                 |
 | **[buffer](#409d076f160d0351818531a7c09f5e2928335b83e3f0070a7f3e2685553efa6a)**                                             | 5.7.1        | MIT                                 |
 | **[bundle-name](#9307e757191c716fdc918490999a9bea1fc1169006ce1e5ba4d2810c13dd7326)**                                        | 4.1.0        | MIT                                 |
@@ -6591,9 +6591,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="f5a8ba92aeaeb15079b8d47c68c0302243d8ec85cc1cf54c18d4c7c6bf11e471"></a>
+<a id="b9a356d35e0512831d9a6ede2f15c31d250571e37e0953aab224413f12902d4f"></a>
 
-### [@faker-js/faker](https://www.npmjs.com/package/@faker-js/faker) (version 10.4.0)
+### [@faker-js/faker](https://www.npmjs.com/package/@faker-js/faker) (version 10.5.0)
 
 License tags: MIT
 
@@ -19915,9 +19915,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="230b84987836dcb0c829c5b9eec2b483d2aa41b9c055d3507096ba964cf5b73c"></a>
+<a id="6133393e6e3c3c93d04129a6d46c2c1d3cf66a5146cb987dccca4a58f40966a4"></a>
 
-### [bson](https://www.npmjs.com/package/bson) (version 7.3.1)
+### [bson](https://www.npmjs.com/package/bson) (version 7.3.2)
 
 License tags: Apache-2.0
 

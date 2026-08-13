@@ -172,7 +172,11 @@ export const renameCollection = (
   RenameCollectionPluginServices,
   AnyAction
 > => {
-  return async (dispatch, getState, { connections, globalAppRegistry }) => {
+  return async (
+    dispatch,
+    getState,
+    { connections, globalAppRegistry, track }
+  ) => {
     const sanitizedNewCollectionName = newCollectionName.trim();
     const state = getState();
     const { connectionId, databaseName, initialCollectionName } = state;
@@ -186,6 +190,11 @@ export const renameCollection = (
       await dataService.renameCollection(
         oldNamespace,
         sanitizedNewCollectionName
+      );
+      track(
+        'Collection Renamed',
+        {},
+        connections.getConnectionById(connectionId)?.info
       );
       globalAppRegistry.emit(
         'collection-renamed',
