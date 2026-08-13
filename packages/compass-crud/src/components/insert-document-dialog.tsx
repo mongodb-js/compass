@@ -56,7 +56,6 @@ const toolbarStyles = css({
 const modalBodyStyles = css({
   display: 'flex',
   flexDirection: 'column',
-  overflow: 'hidden',
   paddingBottom: 0,
 });
 
