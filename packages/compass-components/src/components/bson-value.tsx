@@ -16,6 +16,7 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import type { Theme } from '../hooks/use-theme';
 import { Themes, useDarkMode } from '../hooks/use-theme';
 import { useBSONDisplayOptions } from './document-list/bson-display-options-context';
+import { formatBSONDate } from '../utils/format-bson-date';
 
 type ValueProps =
   | {
@@ -387,13 +388,11 @@ const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
 const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   value,
 }) => {
+  const { timezone } = useBSONDisplayOptions(['timezone']);
+
   const stringifiedValue = useMemo(() => {
-    try {
-      return new Date(value).toISOString().replace('Z', '+00:00');
-    } catch {
-      return String(value);
-    }
-  }, [value]);
+    return formatBSONDate(value, timezone);
+  }, [value, timezone]);
 
   return (
     <BSONValueContainer type="Date" title={stringifiedValue}>

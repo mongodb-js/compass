@@ -306,4 +306,40 @@ describe('BSONValue', function () {
       });
     });
   });
+
+  describe('Date timezone', function () {
+    const date = new Date('2024-01-15T12:30:45.123Z');
+
+    it('should render a Date in UTC by default', function () {
+      const { container } = render(<BSONValue type="Date" value={date} />);
+
+      expect(container.querySelector('.element-value')?.textContent).to.eq(
+        '2024-01-15T12:30:45.123+00:00'
+      );
+    });
+
+    it('should render a Date in the configured timezone', function () {
+      const { container } = render(
+        <BSONDisplayOptionsProvider timezone="Europe/Berlin">
+          <BSONValue type="Date" value={date} />
+        </BSONDisplayOptionsProvider>
+      );
+
+      expect(container.querySelector('.element-value')?.textContent).to.eq(
+        '2024-01-15T13:30:45.123+01:00'
+      );
+    });
+
+    it('should use the configured timezone for the title attribute', function () {
+      const { container } = render(
+        <BSONDisplayOptionsProvider timezone="America/New_York">
+          <BSONValue type="Date" value={date} />
+        </BSONDisplayOptionsProvider>
+      );
+
+      expect(
+        container.querySelector('.element-value')?.getAttribute('title')
+      ).to.eq('2024-01-15T07:30:45.123-05:00');
+    });
+  });
 });
