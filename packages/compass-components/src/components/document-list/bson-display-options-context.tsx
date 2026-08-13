@@ -6,12 +6,6 @@ export type LegacyUUIDDisplay =
   | 'LegacyCSharpUUID'
   | 'LegacyPythonUUID';
 
-/**
- * User preferences that affect how BSON values are displayed. These are read
- * from the preferences model at the application boundary and passed down from
- * there so that compass-components stays independent of the preferences
- * package.
- */
 export type BSONDisplayOptions = {
   legacyUUIDDisplayEncoding: LegacyUUIDDisplay;
   timezone: string;
@@ -26,12 +20,6 @@ export const BSONDisplayOptionsContext = createContext<BSONDisplayOptions>(
   DEFAULT_BSON_DISPLAY_OPTIONS
 );
 
-/**
- * Returns the requested subset of the BSON display options, mirroring the
- * `usePreferences` API so that call sites read the same way:
- *
- *   const { timezone } = useBSONDisplayOptions(['timezone']);
- */
 export function useBSONDisplayOptions<K extends keyof BSONDisplayOptions>(
   keys: K[]
 ): Pick<BSONDisplayOptions, K> {

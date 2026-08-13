@@ -16,7 +16,6 @@ import type { ICellRendererParams } from 'ag-grid-community';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
 import type { GridContext } from './document-table-view';
-import { withPreferences } from 'compass-preferences-model/provider';
 
 /**
  * The BEM base style name for the cell.
@@ -375,7 +374,4 @@ class CellRenderer
   static displayName = 'CellRenderer';
 }
 
-export default withPreferences(withDarkMode(CellRenderer), [
-  'legacyUUIDDisplayEncoding',
-  'timezone',
-]);
+export default withDarkMode(CellRenderer);
