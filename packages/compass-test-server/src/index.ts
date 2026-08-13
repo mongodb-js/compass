@@ -21,10 +21,7 @@ function hash(input: string): string {
 let isClosed = false;
 const clusters = new Map<string, MongoCluster>();
 
-// mongodb-download-url resolves against https://downloads.mongodb.org/full.json
-// by default, which does not carry every pre-release build — 9.0 release
-// candidates past rc0, for example, are only published to cloud.json. Point
-// MONGODB_VERSION_LIST_URL at another feed to test against those.
+// Allows to override the URL that mongodb-download-url uses when pulling a list of existing MongoDB versions to match against requested version. Useful when you need to point it at a custom list (for example https://downloads.mongodb.org/cloud.json)
 const versionListUrl = process.env.MONGODB_VERSION_LIST_URL;
 
 const defaults: MongoClusterOptions = {
