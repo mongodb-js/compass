@@ -6,6 +6,7 @@ import {
   Body,
   Button,
   ButtonVariant,
+  Icon,
   ModalBody,
   ModalHeader,
   Modal,
@@ -157,7 +158,7 @@ const MockDataGeneratorModal = ({
       }}
       data-testid="generate-mock-data-modal"
     >
-      <ModalHeader title="Generate Mock Data Script" />
+      <ModalHeader title="Generate Mock Data Script With AI" />
       <ModalBody>
         {shouldShowNamespace && (
           <Body className={namespaceStyles}>{namespace}</Body>
@@ -180,6 +181,11 @@ const MockDataGeneratorModal = ({
             onClick={handleNextClick}
             data-testid="next-step-button"
             disabled={isNextButtonDisabled}
+            leftGlyph={
+              currentStep === MockDataGeneratorSteps.SCHEMA_CONFIRMATION ? (
+                <Icon glyph="Sparkle" data-testid="confirm-button-ai-icon" />
+              ) : undefined
+            }
           >
             {StepButtonLabelMap[currentStep]}
           </Button>

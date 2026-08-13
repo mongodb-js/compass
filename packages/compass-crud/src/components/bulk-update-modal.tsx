@@ -38,6 +38,7 @@ import { ChangeView } from './change-view';
 import { ReadonlyFilter } from './readonly-filter';
 
 import { useFavoriteQueryStorageAccess } from '@mongodb-js/my-queries-storage/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const modalContentStyles = css({
   width: '100%',
@@ -376,10 +377,16 @@ export default function BulkUpdateModal({
 
     return [];
   }, [syntaxError]);
-
+  const track = useTelemetry();
   const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
   const { safeIntegerLinter, violations } = useSafeIntegerLinter({
     externalAnnotations: annotationsRef,
+    onFixViolation(source) {
+      track('Safe Integer Fix Applied', {
+        source: 'bulk-update-editor',
+      });
+      return `Long("${source}")`;
+    },
   });
 
   // This hack in addition to keeping the text state locally exists due to
