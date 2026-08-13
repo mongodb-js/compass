@@ -416,6 +416,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           {tooltipLabel}
         </Tooltip>
       </div>
+      <InsertCSFLEWarningBanner csfleState={csfleState} />
       <div className={documentViewContainer} id={documentViewId}>
         <DocumentOrJsonView
           insertView={insertView}
@@ -435,7 +436,6 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         safeIntegerViolationCount={safeIntegerViolations.length}
         onFixSafeIntegerViolations={onFixSafeIntegerViolations}
       />
-      <InsertCSFLEWarningBanner csfleState={csfleState} />
     </FormModal>
   );
 };
