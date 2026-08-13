@@ -28,12 +28,10 @@ const contextMenuContainerStyles = {
 };
 
 export function ContextMenuProvider({
-  disabled = false,
   children,
   menuWrapper: Wrapper,
   onContextMenuOpen,
 }: {
-  disabled?: boolean;
   children: React.ReactNode;
   menuWrapper: React.ComponentType<{
     menu: ContextMenuState & { close: () => void };
@@ -73,7 +71,7 @@ export function ContextMenuProvider({
   useEffect(() => {
     // We skip registering listeners when parentContext is known to avoid registering multiple (nested) listeners
     const { current: container } = containerRef;
-    if (parentContext || disabled || !container) return;
+    if (parentContext || !container) return;
 
     function handleContextMenu(event: MouseEvent) {
       const itemGroups = getContextMenuContent(event as EnhancedMouseEvent);
@@ -114,13 +112,7 @@ export function ContextMenuProvider({
         capture: true,
       });
     };
-  }, [
-    disabled,
-    containerRef,
-    handleClosingEvent,
-    onContextMenuOpenRef,
-    parentContext,
-  ]);
+  }, [containerRef, handleClosingEvent, onContextMenuOpenRef, parentContext]);
 
   const value = useMemo(
     () => ({

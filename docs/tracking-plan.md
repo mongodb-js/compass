@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-08-11. Do not edit manually.
+> Auto-generated on 2026-08-13. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -107,7 +107,10 @@
   - [Data Modeling Relationship Deleted](#data-modeling-relationship-deleted)
 - [Database / Collection List](#database-collection-list)
   - [Collection Created](#collection-created)
+  - [Collection Dropped](#collection-dropped)
+  - [Collection Renamed](#collection-renamed)
   - [Database Created](#database-created)
+  - [Database Dropped](#database-dropped)
   - [Switch View Type](#switch-view-type)
 - [Documents](#documents)
   - [Document Cloned](#document-cloned)
@@ -202,6 +205,7 @@
   - [New Index Field Added](#new-index-field-added)
   - [Options Clicked](#options-clicked)
   - [UUID Encountered](#uuid-encountered)
+  - [Safe Integer Fix Applied](#safe-integer-fix-applied)
 - [Performance Tab](#performance-tab)
   - [CurrentOp showOperationDetails](#currentop-showoperationdetails)
   - [DetailView hideOperationDetails](#detailview-hideoperationdetails)
@@ -1261,6 +1265,18 @@ This event is fired when a collection is created.
 | `is_compass_web` | `true \| undefined`   | No       |                                                                                      |
 | `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event.                                   |
 
+### Collection Dropped
+
+This event is fired when a collection is successfully dropped.
+
+_No additional properties._
+
+### Collection Renamed
+
+This event is fired when a collection is successfully renamed.
+
+_No additional properties._
+
 ### Database Created
 
 This event is fired when a database is created.
@@ -1274,6 +1290,12 @@ This event is fired when a database is created.
 | `expires`        | `boolean`             | Yes      | Indicates whether the first collection in the database has an expiration (TTL index).                      |
 | `is_compass_web` | `true \| undefined`   | No       |                                                                                                            |
 | `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event.                                                         |
+
+### Database Dropped
+
+This event is fired when a database is successfully dropped.
+
+_No additional properties._
 
 ### Switch View Type
 
@@ -2153,6 +2175,16 @@ _No additional properties._
 | `subtype`        | `3 \| 4`            | Yes      |             |
 | `count`          | `number`            | Yes      |             |
 | `is_compass_web` | `true \| undefined` | No       |             |
+
+### Safe Integer Fix Applied
+
+This event is fired when a user applies the safe integer fix using
+codemirror annotation.
+
+| Property         | Type                                                                                                                                      | Required | Description |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
+| `source`         | `"pipeline-editor" \| "stage-editor" \| "insert-document-editor" \| "document-json-editor" \| "query-bar-editor" \| "bulk-update-editor"` | Yes      |             |
+| `is_compass_web` | `true \| undefined`                                                                                                                       | No       |             |
 
 ## Performance Tab
 

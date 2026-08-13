@@ -26,6 +26,7 @@ import type { EditorRef, Action } from '@mongodb-js/compass-editor';
 import type { CrudActions } from '../stores/crud-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
 import { getSafeIntegerViolationMessage } from '../utils';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const editorStyles = css({
   minHeight: spacing[800] + spacing[400],
@@ -305,13 +306,19 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     }, 0);
   }, [expanded]);
 
+  const track = useTelemetry();
   const {
     safeIntegerLinter,
     violations: safeIntegerViolations,
     onFixViolations: onFixSafeIntegerViolations,
   } = useSafeIntegerLinter({
     editorRef,
-    onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
+    onFixViolation: (source: string) => {
+      track('Safe Integer Fix Applied', {
+        source: 'document-json-editor',
+      });
+      return `{"$numberLong": "${source}"}`;
+    },
   });
 
   return (
