@@ -15,7 +15,7 @@ import {
 import { connect } from 'react-redux';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { changeZeroState } from '../modules/zero-state';
-import type { ConstraintValidationState } from '../modules/edit-mode';
+import type { EditModeState } from '../modules/edit-mode';
 import type { RootState } from '../modules';
 import ValidationEditor from './validation-editor';
 import { SampleDocuments } from './sample-documents';
@@ -80,13 +80,14 @@ type ValidationStatesProps = {
   generateValidationRules: () => void;
   clearRulesGenerationError: () => void;
   stopRulesGeneration: () => void;
-  editMode: {
-    collectionTimeSeries?: boolean;
-    collectionReadOnly?: boolean;
-    writeStateStoreReadOnly?: boolean;
-    oldServerReadOnly?: boolean;
-    constraintValidation?: ConstraintValidationState;
-  };
+  editMode: Pick<
+    EditModeState,
+    | 'collectionTimeSeries'
+    | 'collectionReadOnly'
+    | 'writeStateStoreReadOnly'
+    | 'oldServerReadOnly'
+    | 'constraintValidation'
+  >;
 };
 
 function ValidationBanners({
@@ -214,7 +215,7 @@ export function ValidationStates({
     !editMode.collectionTimeSeries &&
     !editMode.writeStateStoreReadOnly &&
     !editMode.oldServerReadOnly &&
-    (editMode.constraintValidation ?? 'none') === 'none' &&
+    editMode.constraintValidation === 'none' &&
     !readOnly;
 
   return (

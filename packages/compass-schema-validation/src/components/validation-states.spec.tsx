@@ -73,6 +73,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: true,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = true;
@@ -104,6 +105,7 @@ describe('ValidationStates [Component]', function () {
         collectionReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = true;
@@ -129,6 +131,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = true;
@@ -219,6 +222,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = true;
@@ -242,6 +246,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = true;
       props.isZeroState = false;
@@ -265,6 +270,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = false;
@@ -292,6 +298,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = false;
@@ -313,6 +320,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = true;
@@ -339,6 +347,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = false;
@@ -360,6 +369,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = false;
