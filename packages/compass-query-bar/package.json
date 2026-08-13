@@ -80,7 +80,7 @@
     "@mongodb-js/mongodb-constants": "^0.34.3",
     "@mongodb-js/mongodb-schema": "^12.7.2",
     "@mongodb-js/my-queries-storage": "^1.2.0",
-    "bson": "^7.3.1",
+    "bson": "^7.3.2",
     "compass-preferences-model": "^3.2.0",
     "lodash": "^4.18.1",
     "mongodb": "^7.5.0",
