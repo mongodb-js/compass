@@ -1,18 +1,25 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef, useState, useMemo } from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { Icon } from '../leafygreen';
-import { useDarkMode } from '../../hooks/use-theme';
+import { Icon } from '../../leafygreen';
+import type { EditorProps } from './shared';
+import { InputEditor } from './input-editor';
+import { useDarkMode } from '../../../hooks/use-theme';
 import {
   convertFromPickerDateTime,
   convertToPickerDateTime,
-} from '../../utils/format-date';
+} from '../../../utils/format-date';
+import { EditorWithLabel } from './editor-with-label';
 
-const containerStyles = css({
+const dateContainerStyles = css({
+  display: 'flex',
+});
+
+const dateTimePickerContainerStyles = css({
   display: 'flex',
   alignItems: 'center',
 });
 
-const buttonStyles = css({
+const dateTimePickerButtonStyles = css({
   display: 'flex',
   alignItems: 'center',
   padding: 0,
@@ -27,7 +34,7 @@ const buttonStyles = css({
 // rendered in Safari. For Chrome/Firefox, we can hide the input and only show
 // the picker icon, but that's not possible in Safari. So we hide everything
 // and use our custom button to open the picker.
-const dateTimePickerInput = css({
+const dateTimePickerInputStyles = css({
   colorScheme: 'light',
   width: 0,
   padding: 0,
@@ -39,12 +46,12 @@ const dateTimePickerInput = css({
   },
 });
 
-const dateTimePickerInputDarkMode = css({
+const dateTimePickerInputDarkModeStyles = css({
   // This is the only bit we can customize in the native picker popup.
   colorScheme: 'dark',
 });
 
-export function DateTimePicker({
+function DateTimePicker({
   value,
   onChange,
 }: {
@@ -77,7 +84,7 @@ export function DateTimePicker({
   }, [pickerDateTime]);
 
   return (
-    <span className={containerStyles}>
+    <span className={dateTimePickerContainerStyles}>
       <button
         type="button"
         aria-label="Select date and time"
@@ -85,7 +92,7 @@ export function DateTimePicker({
         // The picker is only reachable by clicking its button, so that tabbing
         // keeps moving between the editors.
         tabIndex={-1}
-        className={buttonStyles}
+        className={dateTimePickerButtonStyles}
         onClick={openPicker}
       >
         <Icon glyph="Calendar" size="small" />
@@ -109,10 +116,44 @@ export function DateTimePicker({
           onChange(convertFromPickerDateTime(evt.currentTarget.value));
         }}
         className={cx(
-          dateTimePickerInput,
-          darkMode && dateTimePickerInputDarkMode
+          dateTimePickerInputStyles,
+          darkMode && dateTimePickerInputDarkModeStyles
         )}
       ></input>
+    </span>
+  );
+}
+
+export function DateEditor({
+  value,
+  onChange,
+  onBlur,
+  label,
+  ...props
+}: EditorProps) {
+  const inputStyle = useMemo(() => {
+    // 29 because the ISODate format is 29 characters long
+    return { width: `${Math.max(value.length, 29)}ch` };
+  }, [value]);
+
+  return (
+    <span className={dateContainerStyles}>
+      <EditorWithLabel label={label}>
+        <InputEditor
+          value={value}
+          onChange={onChange}
+          onBlur={onBlur}
+          {...props}
+          style={inputStyle}
+        />
+      </EditorWithLabel>
+      <DateTimePicker
+        value={value}
+        onChange={(newValue) => {
+          onChange(newValue);
+          onBlur();
+        }}
+      />
     </span>
   );
 }
