@@ -81,7 +81,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.4.0",
+    "@faker-js/faker": "^10.5.0",
     "@mongodb-js/eslint-config-compass": "^1.4.25",
     "@mongodb-js/mocha-config-compass": "^1.8.0",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
@@ -94,7 +94,7 @@
     "@types/sinon-chai": "^3.2.5",
     "autoevals": "^0.0.132",
     "braintrust": "^2.2.2",
-    "bson": "^7.3.1",
+    "bson": "^7.3.2",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",
     "electron-mocha": "^12.2.0",

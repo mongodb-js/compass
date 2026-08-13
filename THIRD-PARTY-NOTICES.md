@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Aug 06 2026.
+This document was automatically generated on Thu Aug 13 2026.
 
 ## List of dependencies
 
@@ -90,7 +90,7 @@ This document was automatically generated on Thu Aug 06 2026.
 | **[@emotion/use-insertion-effect-with-fallbacks](#a7662316f90ed8cb032ced23bee64ce0574a0b8eb63d56ee8eedb8c56cfc2812)**       | 1.2.0        | MIT                                 |
 | **[@emotion/utils](#e99b2a20e001e7734cc4f71b8fa6de4d5578c101b034e4571c7b51f86704f663)**                                     | 1.4.2        | MIT                                 |
 | **[@emotion/weak-memoize](#87ba3696f63d7274d407f7e4e93881675689944435b0d8af05b1f5bac283250d)**                              | 0.4.0        | MIT                                 |
-| **[@faker-js/faker](#f5a8ba92aeaeb15079b8d47c68c0302243d8ec85cc1cf54c18d4c7c6bf11e471)**                                    | 10.4.0       | MIT                                 |
+| **[@faker-js/faker](#b9a356d35e0512831d9a6ede2f15c31d250571e37e0953aab224413f12902d4f)**                                    | 10.5.0       | MIT                                 |
 | **[@floating-ui/core](#52eaaaf13a60e5614d4e42dc0c8df65304c83c88e8d34e448677b62df5a5a7b3)**                                  | 1.7.3        | MIT                                 |
 | **[@floating-ui/dom](#5dc31aa39bfa54e98ceef86b9ce9c257a0a5882f5ca51d3ba3b5df7c7678ad98)**                                   | 1.7.4        | MIT                                 |
 | **[@floating-ui/react-dom](#efe6c567c3c1d938b8eca9f8ea0a574964195b9282179c8fe0af77c9b73d2257)**                             | 2.1.6        | MIT                                 |
@@ -204,7 +204,7 @@ This document was automatically generated on Thu Aug 06 2026.
 | **[bintrees](#92dc6fdc6f493d9afcb140539293dd1b94e368d4792ec5165e9f061eab8db78a)**                                           | 1.0.2        | MIT                                 |
 | **[bl](#0e8c95ceb67a28a94b8caec6fa59d55974c80aab5dcf21bf1b17b0867f694c3c)**                                                 | 4.1.0        | MIT                                 |
 | **[body-parser](#8be9d00742e0c959eebfc712f74afc77041b168c90520ab43c5ac057756220fd)**                                        | 2.2.2        | MIT                                 |
-| **[bson](#230b84987836dcb0c829c5b9eec2b483d2aa41b9c055d3507096ba964cf5b73c)**                                               | 7.3.1        | Apache-2.0                          |
+| **[bson](#6133393e6e3c3c93d04129a6d46c2c1d3cf66a5146cb987dccca4a58f40966a4)**                                               | 7.3.2        | Apache-2.0                          |
 | **[buffer-from](#3dcff218e9c4fa2693fbfb63ee6a17483a662804fa7e26dd92051d7b95284ef3)**                                        | 1.1.1        | MIT                                 |
 | **[buffer](#409d076f160d0351818531a7c09f5e2928335b83e3f0070a7f3e2685553efa6a)**                                             | 5.7.1        | MIT                                 |
 | **[bundle-name](#9307e757191c716fdc918490999a9bea1fc1169006ce1e5ba4d2810c13dd7326)**                                        | 4.1.0        | MIT                                 |
@@ -259,7 +259,7 @@ This document was automatically generated on Thu Aug 06 2026.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#623fac6cd4cc8969c9aa0ff46b8611f2f7532e1006da451dee11b725544ec33c)**                                           | 41.1.1       | MIT                                 |
+| **[electron](#f0833a39f636845e14f1333f2bb6a4a1b46a20124825c25ad039ca0a74042454)**                                           | 41.10.5      | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -358,7 +358,7 @@ This document was automatically generated on Thu Aug 06 2026.
 | **[jose](#9bf013b12d5fa87804279a368fe71609a841374b58c2dd067d0ebf14a989b98b)**                                               | 6.1.3        | MIT                                 |
 | **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**                                          | 4.0.0        | MIT                                 |
 | **[js-yaml-js-types](#94fe5e72af8a132923f015d2da5fc0d6cc8d214f0b2b3eca7f42fbf67f09cbf5)**                                   | 1.0.1        | MIT                                 |
-| **[js-yaml](#4f38198b2bf4c5ff18c053030b97639d00ee388d640c87b5adef64dacd5da317)**                                            | 4.3.0        | MIT                                 |
+| **[js-yaml](#dbe200745f642f5939519a0e0d34f601df5728072560f50f5bc25ca044df3588)**                                            | 4.3.1        | MIT                                 |
 | **[jsbn](#936d5c89291f7b505f688e45ff8261d3f225f96e0e981fd0366a9efda9e0e7f2)**                                               | 1.1.0        | MIT                                 |
 | **[jsesc](#ea0becb009dc00e5116c19296121a196c13ad07e74e6a35b68220ae5e3aac71c)**                                              | 3.1.0        | MIT                                 |
 | **[json-bigint](#88c834751617826d41739bc9c4eda53c24014d5a030f6265ec4ea569c58cf995)**                                        | 1.0.0        | MIT                                 |
@@ -6591,9 +6591,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
       SOFTWARE.
 
-<a id="f5a8ba92aeaeb15079b8d47c68c0302243d8ec85cc1cf54c18d4c7c6bf11e471"></a>
+<a id="b9a356d35e0512831d9a6ede2f15c31d250571e37e0953aab224413f12902d4f"></a>
 
-### [@faker-js/faker](https://www.npmjs.com/package/@faker-js/faker) (version 10.4.0)
+### [@faker-js/faker](https://www.npmjs.com/package/@faker-js/faker) (version 10.5.0)
 
 License tags: MIT
 
@@ -19915,9 +19915,9 @@ License files:
       TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
       SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="230b84987836dcb0c829c5b9eec2b483d2aa41b9c055d3507096ba964cf5b73c"></a>
+<a id="6133393e6e3c3c93d04129a6d46c2c1d3cf66a5146cb987dccca4a58f40966a4"></a>
 
-### [bson](https://www.npmjs.com/package/bson) (version 7.3.1)
+### [bson](https://www.npmjs.com/package/bson) (version 7.3.2)
 
 License tags: Apache-2.0
 
@@ -21868,9 +21868,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="623fac6cd4cc8969c9aa0ff46b8611f2f7532e1006da451dee11b725544ec33c"></a>
+<a id="f0833a39f636845e14f1333f2bb6a4a1b46a20124825c25ad039ca0a74042454"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 41.1.1)
+### [electron](https://www.npmjs.com/package/electron) (version 41.10.5)
 
 License tags: MIT
 
@@ -25645,9 +25645,9 @@ License files:
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
 
-<a id="4f38198b2bf4c5ff18c053030b97639d00ee388d640c87b5adef64dacd5da317"></a>
+<a id="dbe200745f642f5939519a0e0d34f601df5728072560f50f5bc25ca044df3588"></a>
 
-### [js-yaml](https://www.npmjs.com/package/js-yaml) (version 4.3.0)
+### [js-yaml](https://www.npmjs.com/package/js-yaml) (version 4.3.1)
 
 License tags: MIT
 
