@@ -83,7 +83,7 @@
     "@mongodb-js/mongodb-schema": "^12.7.2",
     "@mongodb-js/compass-telemetry": "^1.32.0",
     "@mongodb-js/connection-storage": "^1.2.0",
-    "bson": "^7.3.1",
+    "bson": "^7.3.2",
     "compass-preferences-model": "^3.2.0",
     "d3": "^3.5.17",
     "hadron-document": "^8.11.8",

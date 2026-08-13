@@ -7,8 +7,6 @@ export type AtlasUserInfo = {
   sub: string;
 };
 
-export type IntrospectInfo = { active: boolean };
-
 export type Token = plugin.IdPServerResponse;
 
 // See: https://www.mongodb.com/docs/atlas/api/atlas-admin-api-ref/#errors
