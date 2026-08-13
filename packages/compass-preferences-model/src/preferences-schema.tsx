@@ -10,6 +10,7 @@ import {
   proxyOptionsToProxyPreference,
   proxyPreferenceToProxyOptions,
 } from './utils';
+import type { LGGlyph } from '@mongodb-js/compass-components';
 import { TIMEZONE_OPTIONS, TIMEZONES } from './timezone';
 import {
   TimezoneDescription,
@@ -236,9 +237,15 @@ export type PreferenceDefinition<K extends keyof AllPreferences> = {
     : {
         short: string;
         long?: string;
-        longReact?: React.FC<{ value: AllPreferences[K] }>;
+        longReact?: React.FC;
         options?: AllPreferences[K] extends string
-          ? { [k in AllPreferences[K]]: { label: string; description: string } }
+          ? {
+              [k in AllPreferences[K]]: {
+                label: string;
+                description?: string;
+                glyph?: LGGlyph.Element;
+              };
+            }
           : never;
       };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */

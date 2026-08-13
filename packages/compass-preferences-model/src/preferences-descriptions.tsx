@@ -20,37 +20,18 @@ const timezoneDaylightSavingsStyles = css({
   gap: spacing[100],
 });
 
-function observesDaylightSavings(timeZone: string): boolean {
-  const year = new Date().getFullYear();
-
-  const january = new Date(Date.UTC(year, 0, 1));
-  const july = new Date(Date.UTC(year, 6, 1));
-
-  const getOffset = (date: Date) => {
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone,
-      timeZoneName: 'longOffset',
-    }).formatToParts(date);
-    return parts.find((p) => p.type === 'timeZoneName')?.value;
-  };
-
-  return getOffset(january) !== getOffset(july);
-}
-
-export function TimezoneDescription({ value }: { value: string }) {
+export function TimezoneDescription() {
   return (
     <div className={containerStyles}>
       <span>The data will still always be stored in UTC.</span>
-      {observesDaylightSavings(value) && (
-        <InlineDefinition
-          className={timezoneDaylightSavingsStyles}
-          tooltipProps={{ align: 'top', justify: 'start' }}
-          definition="This timezone observes daylight savings."
-        >
-          <Icon glyph="Sun" />
-          Observes daylight saving
-        </InlineDefinition>
-      )}
+      <InlineDefinition
+        className={timezoneDaylightSavingsStyles}
+        tooltipProps={{ align: 'top', justify: 'start' }}
+        definition="This icon indicates that a timezone observes daylight savings."
+      >
+        <Icon glyph="Sun" />
+        Observes daylight saving
+      </InlineDefinition>
     </div>
   );
 }
