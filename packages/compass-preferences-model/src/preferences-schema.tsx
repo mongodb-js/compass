@@ -1,4 +1,3 @@
-import React from 'react';
 import { z } from '@mongodb-js/compass-user-data';
 import type { FeatureFlags } from './feature-flags';
 import { FEATURE_FLAG_PREFERENCES } from './feature-flags';
@@ -11,27 +10,16 @@ import {
   proxyOptionsToProxyPreference,
   proxyPreferenceToProxyOptions,
 } from './utils';
-import { Link } from '@mongodb-js/compass-components';
 import { TIMEZONE_OPTIONS, TIMEZONES } from './timezone';
+import {
+  TimezoneDescription,
+  EnableDbAndCollStatsDescription,
+  DefaultSortDescription,
+  EnableGenAIToolCallingDescription,
+} from './preferences-descriptions';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = (typeof THEMES_VALUES)[number];
-
-const enableDbAndCollStatsDescription: React.ReactNode = (
-  <>
-    When enabled, Compass occasionally calls the{' '}
-    <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
-      dbStats
-    </Link>
-    and{' '}
-    <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
-      collStats
-    </Link>{' '}
-    commands to access storage statistics for a given database or collection.
-    Disabling this setting can help reduce Compass&apos; overhead on your
-    MongoDB deployments.
-  </>
-);
 
 export const SORT_ORDER_VALUES = [
   '',
@@ -248,7 +236,7 @@ export type PreferenceDefinition<K extends keyof AllPreferences> = {
     : {
         short: string;
         long?: string;
-        longReact?: React.ReactNode;
+        longReact?: React.FC<{ value: AllPreferences[K] }>;
         options?: AllPreferences[K] extends string
           ? { [k in AllPreferences[K]]: { label: string; description: string } }
           : never;
@@ -604,7 +592,7 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Show Database and Collection Statistics',
       long: "The dbStats and collStats command returns storage statistics for a given database or collection. Disabling this setting can help reduce Compass' overhead on your MongoDB deployments.",
-      longReact: enableDbAndCollStatsDescription,
+      longReact: EnableDbAndCollStatsDescription,
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -706,12 +694,7 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Default Sort for Query Bar',
       long: 'All queries executed from the query bar will apply this sort. Not available for views and timeseries.',
-      longReact: (
-        <>
-          All queries executed from the query bar will apply this sort.{' '}
-          <strong>Not available for views and timeseries.</strong>
-        </>
-      ),
+      longReact: DefaultSortDescription,
       options: {
         '': {
           label: 'MongoDB server default',
@@ -971,18 +954,7 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Enable read-only tools in the MongoDB Assistant',
       long: 'Allow the MongoDB Assistant to interact with your databases. All actions require your approval before running.',
-      longReact: (
-        <>
-          Allow the MongoDB Assistant to interact with your databases. All
-          actions require your approval before running. Learn more about{' '}
-          <Link
-            href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
-            target="_blank"
-          >
-            MongoDB database tools
-          </Link>
-        </>
-      ),
+      longReact: EnableGenAIToolCallingDescription,
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -1148,8 +1120,8 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Timezone to use for displaying dates and times in Compass.',
-      long: 'Set the timezone to use for displaying dates in Compass. Default is UTC.',
+      short: 'Personal timezone display preference.',
+      longReact: TimezoneDescription,
       options: TIMEZONE_OPTIONS,
     },
     validator: z

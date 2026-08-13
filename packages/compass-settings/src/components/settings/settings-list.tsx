@@ -83,8 +83,17 @@ export type SettingsListProps<PreferenceName extends SupportedPreferences> = {
   fields: readonly PreferenceName[];
 };
 
-function SettingLabel({ name }: { name: SupportedPreferences }) {
+function SettingLabel({
+  name,
+  value,
+}: {
+  name: SupportedPreferences;
+  value: UserConfigurablePreferences[SupportedPreferences];
+}) {
   const { short, long, longReact } = getSettingDescription(name).description;
+  const SettingDescription = longReact as
+    | React.FC<{ value: UserConfigurablePreferences[SupportedPreferences] }>
+    | undefined;
   const featureFlagDefinition = featureFlags.find((definition) => {
     return definition.name === name;
   });
@@ -98,7 +107,13 @@ function SettingLabel({ name }: { name: SupportedPreferences }) {
           </span>
         )}
       </Label>
-      {(longReact || long) && <Description>{longReact ?? long}</Description>}
+      <Description>
+        {SettingDescription ? (
+          <SettingDescription value={value} />
+        ) : long ? (
+          long
+        ) : null}
+      </Description>
     </>
   );
 }
@@ -129,7 +144,7 @@ function BooleanSetting<PreferenceName extends BooleanPreferences>({
       id={name}
       data-testid={name}
       onChange={handleCheckboxChange}
-      label={<SettingLabel name={name} />}
+      label={<SettingLabel name={name} value={value} />}
       checked={value}
       disabled={disabled}
     />
@@ -159,7 +174,7 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
 
   return (
     <>
-      <SettingLabel name={name} />
+      <SettingLabel name={name} value={value} />
       <TextInput
         className={inputStyles}
         aria-labelledby={`${name}-label`}
@@ -208,7 +223,7 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
   if (Object.keys(optionDescriptions).length < 10) {
     return (
       <>
-        <SettingLabel name={name} />
+        <SettingLabel name={name} value={value} />
         <Select
           className={inputStyles}
           allowDeselect={false}
@@ -235,7 +250,7 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
   }
   return (
     <>
-      <SettingLabel name={name} />
+      <SettingLabel name={name} value={value} />
       <Combobox
         className={inputStyles}
         aria-label={`${name}-label`}
@@ -291,7 +306,7 @@ function StringSetting<PreferenceName extends StringPreferences>({
 
   return (
     <>
-      <SettingLabel name={name} />
+      <SettingLabel name={name} value={value} />
       <TextInput
         className={inputStyles}
         aria-labelledby={`${name}-label`}
