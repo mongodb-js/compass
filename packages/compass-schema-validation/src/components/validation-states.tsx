@@ -52,7 +52,7 @@ const READ_ONLY_WARNING = {
   collectionReadOnly: 'Schema validation for readonly views is not supported.',
   writeStateStoreReadOnly: 'This action is not available on a secondary node.',
   constraintValidationActive:
-    'This collection uses the "constraint" validation level, which guarantees every document matches the validator. The rules cannot be changed while it is in effect — lower the validation level to "strict" first.',
+    'This collection uses the "constraint" validation level, which guarantees every document matches the validator. The rules cannot be changed while it is in effect.',
   constraintValidationPrepared:
     'This collection is prepared for an upgrade to the "constraint" validation level. The rules cannot be changed until the upgrade completes, or until the prepared state is cleared by running collMod with prepareConstraintValidationLevel: false.',
   oldServerReadOnly:
