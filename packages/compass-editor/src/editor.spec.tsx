@@ -54,6 +54,28 @@ describe('Editor', function () {
 
       expect(editorRef.current?.editorContents).to.equal('{\n  \n}');
     });
+
+    it('hides the scroller scrollbar in a cross-browser way', function () {
+      // The inline editor hides the scrollbar (showScroll={false}). Ensure we
+      // use the standard `scrollbar-width` property so it is actually hidden in
+      // Firefox (data explorer / web) rather than the long-removed
+      // `-moz-scrollbars-none` value.
+      const styleTags = document.querySelectorAll('style');
+      const scrollerStyles = Array.from(styleTags)
+        .map((style) => style.textContent ?? '')
+        .filter((textContent) => textContent.includes('.cm-scroller'));
+
+      expect(
+        scrollerStyles.some((textContent) =>
+          /scrollbar-width:\s*none/.test(textContent)
+        )
+      ).to.be.true;
+      expect(
+        scrollerStyles.some((textContent) =>
+          textContent.includes('-moz-scrollbars-none')
+        )
+      ).to.be.false;
+    });
   });
 
   context('CodemirrorMultilineEditor', function () {
