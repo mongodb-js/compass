@@ -12,7 +12,7 @@ import type {
   AtlasUserInfo,
 } from '@mongodb-js/atlas-service/provider';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
-import { AtlasConnectionStatus } from '../index';
+import { AtlasConnectionStatus } from './atlas-connection-status';
 
 class FakeAtlasAuthService {
   private user: AtlasUserInfo | null;

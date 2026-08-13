@@ -316,10 +316,16 @@ export const performSignInAttempt = ({
 > => {
   return async (dispatch, getState) => {
     // Nothing to do if we already signed in
-    const { state, userInfo } = getState();
+    const { state, userInfo, currentAttemptId } = getState();
     if (state === 'success') {
       return userInfo;
     }
+
+    // if there's already an attempt in progress, return the promise for that attempt
+    if (currentAttemptId) {
+      return getAttempt(currentAttemptId).promise;
+    }
+
     const attempt = dispatch(
       startAttempt(() => {
         void dispatch(signIn());

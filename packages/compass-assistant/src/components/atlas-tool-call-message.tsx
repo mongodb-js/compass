@@ -13,7 +13,7 @@ import { getToolDisplayName } from '../utils';
 import {
   useAtlasLoginActions,
   useAtlasSignedInUser,
-} from '@mongodb-js/compass-atlas-login';
+} from '@mongodb-js/atlas-service/provider';
 
 const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
   'tool-atlas-connection-error-debugger';

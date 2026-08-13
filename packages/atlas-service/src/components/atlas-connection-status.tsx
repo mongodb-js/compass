@@ -11,10 +11,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import {
-  useAtlasSignedInUser,
-  useAtlasLoginActions,
-} from '@mongodb-js/atlas-service/provider';
+import { useAtlasLoginActions, useAtlasSignedInUser } from '../provider';
 
 const containerStyles = css({
   display: 'flex',

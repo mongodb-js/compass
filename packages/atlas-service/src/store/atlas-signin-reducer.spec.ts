@@ -250,6 +250,30 @@ describe('atlasSignInReducer', function () {
       // Ensure that we are not leaving a dangling store operation that would conflict with our mocks being reset.
       await signInCalled;
     });
+
+    it('should join the existing attempt if one is already in progress', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(false),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+      };
+      const store = configureStore({
+        atlasAuthService: mockAtlasService as any,
+      });
+
+      const firstAttemptPromise = store.dispatch(performSignInAttempt());
+      const secondAttemptPromise = store.dispatch(performSignInAttempt());
+
+      const [firstUserInfo, secondUserInfo] = await Promise.all([
+        firstAttemptPromise,
+        secondAttemptPromise,
+      ]);
+
+      // the second call should not have triggered a second signIn call, and both should have the same userInfo
+      expect(mockAtlasService.signIn).to.have.been.calledOnce;
+      expect(firstUserInfo).to.deep.equal(secondUserInfo);
+      expect(store.getState()).to.have.property('state', 'success');
+    });
   });
 
   describe('signOut', function () {
