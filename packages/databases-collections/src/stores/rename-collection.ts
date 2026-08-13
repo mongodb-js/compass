@@ -9,10 +9,12 @@ import type {
 } from '@mongodb-js/my-queries-storage/provider';
 import { type MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/provider';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export type RenameCollectionPluginServices = {
   globalAppRegistry: AppRegistry;
   connections: ConnectionsService;
+  track: TrackFunction;
   instancesManager: MongoDBInstancesManager;
   queryStorage?: FavoriteQueryStorageAccess;
   pipelineStorage?: PipelineStorageAccess;
@@ -23,6 +25,7 @@ export function activateRenameCollectionPlugin(
   {
     globalAppRegistry,
     connections,
+    track,
     instancesManager,
     queryStorage,
     pipelineStorage,
@@ -55,6 +58,7 @@ export function activateRenameCollectionPlugin(
         globalAppRegistry,
         instancesManager,
         connections,
+        track,
       })
     )
   );

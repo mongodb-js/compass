@@ -294,9 +294,7 @@ describe('MockDataGeneratorModal', () => {
       });
 
       expect(
-        screen
-          .getByRole('button', { name: 'Confirm' })
-          .getAttribute('aria-disabled')
+        screen.getByTestId('next-step-button').getAttribute('aria-disabled')
       ).to.equal('true');
     });
 
@@ -467,9 +465,14 @@ describe('MockDataGeneratorModal', () => {
 
     it('displays the description copy with Faker functions link', async () => {
       await renderModal();
-      expect(screen.getByText(/We'll use the identified schema to generate/)).to
+      expect(screen.getByText(/We'll use the identified schema and AI/)).to
         .exist;
       expect(screen.getByRole('link', { name: 'Faker functions' })).to.exist;
+    });
+
+    it('shows the AI icon on the Confirm button', async () => {
+      await renderModal();
+      expect(screen.getByTestId('confirm-button-ai-icon')).to.exist;
     });
 
     it('displays sample document when sample document passing is enabled', async () => {
@@ -734,7 +737,7 @@ describe('MockDataGeneratorModal', () => {
         }),
       });
 
-      expect(screen.getByText('Generate Mock Data Script')).to.exist;
+      expect(screen.getByText('Generate Mock Data Script With AI')).to.exist;
       expect(
         screen.getByText(/We've created the following script for your use\./)
       ).to.exist;

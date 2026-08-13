@@ -2774,6 +2774,36 @@ type CollectionCreatedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when a collection is successfully dropped.
+ *
+ * @category Database / Collection List
+ */
+type CollectionDroppedEvent = ConnectionScopedEvent<{
+  name: 'Collection Dropped';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a collection is successfully renamed.
+ *
+ * @category Database / Collection List
+ */
+type CollectionRenamedEvent = ConnectionScopedEvent<{
+  name: 'Collection Renamed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a database is successfully dropped.
+ *
+ * @category Database / Collection List
+ */
+type DatabaseDroppedEvent = ConnectionScopedEvent<{
+  name: 'Database Dropped';
+  payload: Record<string, never>;
+}>;
+
+/**
  * This event is fired when a database is created.
  *
  * @category Database / Collection List
@@ -4092,6 +4122,8 @@ export type TelemetryEvent =
   | BulkUpdateFavoritedEvent
   | BulkUpdateOpenedEvent
   | CollectionCreatedEvent
+  | CollectionDroppedEvent
+  | CollectionRenamedEvent
   | ConnectionAttemptEvent
   | ConnectionCreatedEvent
   | ConnectionDisconnectedEvent
@@ -4102,6 +4134,7 @@ export type TelemetryEvent =
   | CreateSearchIndexForViewClickedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
+  | DatabaseDroppedEvent
   | DataModelingDiagramCollectionAdded
   | DataModelingDiagramCollectionRemoved
   | DataModelingDiagramCollectionRenamed

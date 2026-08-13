@@ -107,7 +107,10 @@
   - [Data Modeling Relationship Deleted](#data-modeling-relationship-deleted)
 - [Database / Collection List](#database-collection-list)
   - [Collection Created](#collection-created)
+  - [Collection Dropped](#collection-dropped)
+  - [Collection Renamed](#collection-renamed)
   - [Database Created](#database-created)
+  - [Database Dropped](#database-dropped)
   - [Switch View Type](#switch-view-type)
 - [Documents](#documents)
   - [Document Cloned](#document-cloned)
@@ -1262,6 +1265,18 @@ This event is fired when a collection is created.
 | `is_compass_web` | `true \| undefined`   | No       |                                                                                      |
 | `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event.                                   |
 
+### Collection Dropped
+
+This event is fired when a collection is successfully dropped.
+
+_No additional properties._
+
+### Collection Renamed
+
+This event is fired when a collection is successfully renamed.
+
+_No additional properties._
+
 ### Database Created
 
 This event is fired when a database is created.
@@ -1275,6 +1290,12 @@ This event is fired when a database is created.
 | `expires`        | `boolean`             | Yes      | Indicates whether the first collection in the database has an expiration (TTL index).                      |
 | `is_compass_web` | `true \| undefined`   | No       |                                                                                                            |
 | `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event.                                                         |
+
+### Database Dropped
+
+This event is fired when a database is successfully dropped.
+
+_No additional properties._
 
 ### Switch View Type
 
