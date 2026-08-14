@@ -413,7 +413,7 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   }, [value]);
 
   return (
-    <div className={dateValueContainerStyles}>
+    <span className={dateValueContainerStyles}>
       <BSONValueContainer
         className={dateBsonValueStyles}
         type="Date"
@@ -427,7 +427,7 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
       >
         {dateValueTimezoneFormatted}
       </InlineDefinition>
-    </div>
+    </span>
   );
 };
 

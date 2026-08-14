@@ -32,7 +32,7 @@ export function formatBSONDate(
       timeZoneName: 'short',
     }).formatToParts(date);
 
-    const get = (type: Intl.DateTimeFormatPartTypes) =>
+    const get = (type: Intl.DateTimeFormatPart['type']) =>
       parts.find((part) => part.type === type)?.value ?? '';
 
     return (

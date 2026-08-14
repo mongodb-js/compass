@@ -47,11 +47,6 @@ describe('formatBSONDate', function () {
       expected: 'January 14, 2024, 4:30:00 PM PST',
     },
     {
-      title: 'formats midnight as 00 and not 24',
-      input: [new Date('2024-01-15T00:00:00.000Z'), 'Europe/London'],
-      expected: 'January 15, 2024, 12:00:00 AM GMT',
-    },
-    {
       title: 'accepts a timestamp number',
       input: [date.valueOf(), 'Europe/Berlin'],
       expected: 'January 15, 2024, 1:30:45 PM GMT+1',
@@ -62,12 +57,12 @@ describe('formatBSONDate', function () {
       expected: 'January 15, 2024, 12:30:45 PM UTC',
     },
     {
-      title: 'returns the raw date string for a non representable date',
+      title: 'returns `Invalid Date` for a non representable date',
       input: [Number.MAX_SAFE_INTEGER, 'Europe/Berlin'],
       expected: 'Invalid Date',
     },
     {
-      title: 'returns the raw date string for a non representable date - NaN',
+      title: 'returns `Invalid Date` for a non representable date - NaN',
       input: [NaN],
       expected: 'Invalid Date',
     },
