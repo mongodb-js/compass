@@ -19,7 +19,7 @@ describe('mongodb-database-model', function () {
       };
     }
 
-    it('filters out internal (__mdb_internal_) databases from the list', async function () {
+    it('filters out internal (__mdb_internal_) databases from the list except search', async function () {
       var databases = new Database.Collection([], {
         parent: createFakeInstance(),
       });
@@ -29,6 +29,7 @@ describe('mongodb-database-model', function () {
           return [
             { _id: 'admin' },
             { _id: 'test' },
+            { _id: '__mdb_internal_atlas' },
             { _id: '__mdb_internal_search' },
             { _id: 'local' },
           ];
@@ -38,10 +39,8 @@ describe('mongodb-database-model', function () {
       await databases.fetch({ dataService: dataService });
 
       assert.deepStrictEqual(
-        databases.map(function (db) {
-          return db._id;
-        }),
-        ['admin', 'local', 'test']
+        databases.map(({ _id }) => _id),
+        ['__mdb_internal_search', 'admin', 'local', 'test']
       );
     });
   });

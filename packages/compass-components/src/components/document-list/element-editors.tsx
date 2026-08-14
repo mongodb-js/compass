@@ -10,6 +10,7 @@ import { mergeProps } from '../../utils/merge-props';
 import { documentTypography } from './typography';
 import { Icon, Tooltip } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
+import { DateTimePicker } from './date-time-picker';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -162,8 +163,7 @@ const editorTextarea = css({
   color: 'inherit',
 });
 
-// UUID editor container that shows: UUID(" <input> ")
-const uuidEditorContainer = css({
+const editorWithLabelContainerStyles = css({
   display: 'inline-flex',
   alignItems: 'center',
   maxWidth: '100%',
@@ -176,10 +176,30 @@ const uuidEditorInput = css({
   color: 'inherit',
 });
 
-const uuidEditorLabel = css({
+const editorWithLabelStyles = css({
   userSelect: 'none',
   whiteSpace: 'nowrap',
 });
+
+const dateContainerStyles = css({
+  display: 'flex',
+});
+
+function EditorWithLabel({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={editorWithLabelContainerStyles}>
+      <span className={editorWithLabelStyles}>{label}(&apos;</span>
+      {children}
+      <span className={editorWithLabelStyles}>&apos;)</span>
+    </div>
+  );
+}
 
 export const ValueEditor: React.FunctionComponent<{
   editing?: boolean;
@@ -292,9 +312,46 @@ export const ValueEditor: React.FunctionComponent<{
                       {...(mergedProps as React.HTMLProps<HTMLTextAreaElement>)}
                     ></textarea>
                   </BSONValueContainer>
+                ) : type === 'Date' ? (
+                  <span className={dateContainerStyles}>
+                    <EditorWithLabel label="ISODate">
+                      <input
+                        type="text"
+                        data-testid="hadron-document-value-editor"
+                        value={val}
+                        onChange={(evt) => {
+                          onChange(evt.currentTarget.value);
+                        }}
+                        // See ./element.tsx
+                        // eslint-disable-next-line jsx-a11y/no-autofocus
+                        autoFocus={autoFocus}
+                        className={cx(
+                          editorReset,
+                          editorOutline,
+                          !valid && editorInvalid,
+                          !valid &&
+                            (darkMode
+                              ? editorInvalidDarkMode
+                              : editorInvalidLightMode)
+                        )}
+                        spellCheck="false"
+                        style={{
+                          // 29 because the ISODate format is 29 characters long
+                          width: `${Math.max(val.length, 29)}ch`,
+                        }}
+                        {...(mergedProps as React.HTMLProps<HTMLInputElement>)}
+                      ></input>
+                    </EditorWithLabel>
+                    <DateTimePicker
+                      value={val}
+                      onChange={(newValue) => {
+                        onChange(newValue);
+                        onBlur();
+                      }}
+                    />
+                  </span>
                 ) : isUUIDType(type) ? (
-                  <div className={uuidEditorContainer}>
-                    <span className={uuidEditorLabel}>{type}(&apos;</span>
+                  <EditorWithLabel label={type}>
                     <input
                       type="text"
                       data-testid="hadron-document-value-editor"
@@ -320,8 +377,7 @@ export const ValueEditor: React.FunctionComponent<{
                       style={uuidInputStyle}
                       {...(mergedProps as React.HTMLProps<HTMLInputElement>)}
                     ></input>
-                    <span className={uuidEditorLabel}>&apos;)</span>
-                  </div>
+                  </EditorWithLabel>
                 ) : (
                   <input
                     type="text"

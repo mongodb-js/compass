@@ -30,9 +30,6 @@ describe('CompassAuthServiceMain', function () {
 
   const mockFetch = sandbox.stub().callsFake((url: string) => {
     return {
-      'http://example.com/tokens/introspect': {
-        ok: true,
-      },
       'http://example.com/tokens/revoke': {
         ok: true,
       },
@@ -187,32 +184,14 @@ describe('CompassAuthServiceMain', function () {
   });
 
   describe('isAuthenticated', function () {
-    it('should return true if token is active', async function () {
-      CompassAuthService['fetch'] = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({ active: true });
-        },
-      }) as any;
+    it('should return true if there is a current user', async function () {
+      CompassAuthService['currentUser'] = { sub: atlasUid };
 
       expect(await CompassAuthService.isAuthenticated()).to.eq(true);
     });
 
-    it('should return false if token is inactive', async function () {
-      CompassAuthService['fetch'] = sandbox.stub().resolves({
-        ok: true,
-        json() {
-          return Promise.resolve({ active: false });
-        },
-      }) as any;
-
-      expect(await CompassAuthService.isAuthenticated()).to.eq(false);
-    });
-
-    it('should return false if checking token fails', async function () {
-      CompassAuthService['fetch'] = sandbox
-        .stub()
-        .resolves({ ok: false, status: 500 }) as any;
+    it('should return false if there is no current user', async function () {
+      CompassAuthService['currentUser'] = null;
 
       expect(await CompassAuthService.isAuthenticated()).to.eq(false);
     });
@@ -226,6 +205,61 @@ describe('CompassAuthServiceMain', function () {
       } catch (err) {
         expect(err).to.have.property('message', 'Aborted');
       }
+    });
+  });
+
+  describe('restoreCurrentUser', function () {
+    function mockPluginWithCallback(callback: Sinon.SinonStub) {
+      CompassAuthService['plugin'] = {
+        mongoClientOptions: {
+          authMechanismProperties: { OIDC_HUMAN_CALLBACK: callback },
+        },
+      } as any;
+    }
+
+    it('should restore the current user from the access token', async function () {
+      mockPluginWithCallback(
+        sandbox.stub().resolves({ accessToken, refreshToken })
+      );
+
+      await CompassAuthService['restoreCurrentUser']();
+
+      expect(CompassAuthService['currentUser']).to.have.property(
+        'sub',
+        atlasUid
+      );
+      expect(await CompassAuthService.isAuthenticated()).to.eq(true);
+    });
+
+    it('should leave the current user unset if no token can be acquired', async function () {
+      mockPluginWithCallback(
+        sandbox.stub().rejects(new Error('Auth flows are not allowed'))
+      );
+
+      await CompassAuthService['restoreCurrentUser']();
+
+      expect(CompassAuthService['currentUser']).to.eq(null);
+      expect(await CompassAuthService.isAuthenticated()).to.eq(false);
+    });
+
+    it('should leave the current user unset if the access token cannot be parsed', async function () {
+      mockPluginWithCallback(
+        sandbox.stub().resolves({ accessToken: 'not-a-jwt', refreshToken })
+      );
+
+      await CompassAuthService['restoreCurrentUser']();
+
+      expect(CompassAuthService['currentUser']).to.eq(null);
+      expect(await CompassAuthService.isAuthenticated()).to.eq(false);
+    });
+
+    it('should clear a previously signed in user if the token is gone', async function () {
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      mockPluginWithCallback(sandbox.stub().resolves({ refreshToken }));
+
+      await CompassAuthService['restoreCurrentUser']();
+
+      expect(CompassAuthService['currentUser']).to.eq(null);
     });
   });
 
@@ -299,12 +333,7 @@ describe('CompassAuthServiceMain', function () {
       await preferences.savePreferences({ networkTraffic: false });
     });
 
-    for (const methodName of [
-      'requestOAuthToken',
-      'signIn',
-      'introspect',
-      'revoke',
-    ]) {
+    for (const methodName of ['requestOAuthToken', 'signIn', 'revoke']) {
       it(`${methodName} should throw`, async function () {
         try {
           await (CompassAuthService as any)[methodName]({});

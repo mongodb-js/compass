@@ -395,7 +395,7 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
 
   return (
     <BSONValueContainer type="Date" title={stringifiedValue}>
-      {stringifiedValue}
+      {`ISODate('${stringifiedValue}')`}
     </BSONValueContainer>
   );
 };
