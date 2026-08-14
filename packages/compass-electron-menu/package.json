@@ -53,9 +53,9 @@
     "reformat": "npm run eslint . -- --fix && npm run prettier -- --write ."
   },
   "dependencies": {
-    "bson": "^7.3.1",
+    "bson": "^7.3.2",
     "debug": "^4.3.4",
-    "electron": "^41.2.2",
+    "electron": "^41.10.5",
     "react": "^17.0.2"
   },
   "devDependencies": {

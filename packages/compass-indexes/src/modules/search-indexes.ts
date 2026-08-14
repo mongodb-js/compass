@@ -704,8 +704,12 @@ const fetchIndexes = (
       searchIndexes: { status, indexes: previousIndexes },
     } = getState();
 
-    const { readOnly, readWrite, enableAtlasSearchIndexes } =
-      preferences.getPreferences();
+    const {
+      readOnly,
+      readWrite,
+      enableAtlasSearchIndexes,
+      enableIndexesManagement,
+    } = preferences.getPreferences();
     const { atlasMetadata } = connectionInfoRef.current;
     const assignment = await experimentationServices.getAssignment(
       ExperimentTestNames.searchActivationProgramP1,
@@ -719,6 +723,7 @@ const fetchIndexes = (
       readWrite,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1,
+      enableIndexesManagement,
     })(getState());
 
     if (

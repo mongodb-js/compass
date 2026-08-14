@@ -11,11 +11,13 @@ export function selectReadWriteAccess({
   readWrite,
   enableAtlasSearchIndexes,
   enableSearchActivationProgramP1,
+  enableIndexesManagement,
 }: {
   readOnly: boolean;
   readWrite: boolean;
   enableAtlasSearchIndexes: boolean;
   enableSearchActivationProgramP1: boolean;
+  enableIndexesManagement: boolean;
 }) {
   return (
     state: RootState
@@ -31,8 +33,14 @@ export function selectReadWriteAccess({
       selectIsViewSearchCompatible(state);
 
     const isRegularIndexesReadable = !isReadonlyView;
+    // `enableIndexesManagement` allows creating / dropping / hiding indexes even
+    // when the user lacks general write access (`readOnly`) or admin-level
+    // access (`readWrite`). This matches the Atlas "Index Manager" role, where
+    // MongoDB itself authorizes `createIndex` / `dropIndex` for these users.
+    const canManageIndexes =
+      enableIndexesManagement || (!readOnly && !readWrite);
     const isRegularIndexesWritable =
-      isRegularIndexesReadable && !readOnly && !readWrite && isWritable;
+      isRegularIndexesReadable && canManageIndexes && isWritable;
 
     // there is a case where a view was initially search queryable but then the view gets updated to be not search queryable
     // in this case the view should still be search indexes readable (but not writable)

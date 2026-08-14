@@ -56,10 +56,16 @@ export const RegularIndexesTable: React.FunctionComponent<
   error,
 }) => {
   const tabId = useWorkspaceTabId();
-  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
+  const {
+    readOnly,
+    readWrite,
+    enableAtlasSearchIndexes,
+    enableIndexesManagement,
+  } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
+    'enableIndexesManagement',
   ]);
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const { isRegularIndexesWritable } = useSelector(
@@ -68,6 +74,7 @@ export const RegularIndexesTable: React.FunctionComponent<
       readWrite,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1,
+      enableIndexesManagement,
     }),
     shallowEqual
   );

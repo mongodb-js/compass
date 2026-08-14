@@ -81,6 +81,7 @@ export const RenameCollectionPlugin = registerCompassPlugin(
   },
   {
     connections: connectionsLocator,
+    track: telemetryLocator,
     instancesManager: mongoDBInstancesManagerLocator,
     queryStorage: favoriteQueryStorageAccessLocator,
     pipelineStorage: pipelineStorageLocator,

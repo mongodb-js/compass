@@ -78,7 +78,7 @@
     "chai-enzyme": "^1.0.0-beta.1",
     "express": "^4.22.1",
     "husky": "^8.0.3",
-    "js-yaml": "^4.3.0",
+    "js-yaml": "^4.3.1",
     "lerna": "^7.1.5",
     "lodash": "^4.18.1",
     "node-gyp": "^12.2.0",
@@ -101,8 +101,8 @@
   ],
   "overrides": {
     "@mongodb-js/eslint-config-devtools": {
-      "@typescript-eslint/eslint-plugin": "^8.65.0",
-      "@typescript-eslint/parser": "^8.65.0",
+      "@typescript-eslint/eslint-plugin": "^8.67.0",
+      "@typescript-eslint/parser": "^8.67.0",
       "eslint": "^8.57.1",
       "eslint-plugin-jsx-a11y": "^6.10.2",
       "eslint-plugin-react": "^7.37.5",

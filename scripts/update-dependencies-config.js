@@ -8,7 +8,8 @@ module.exports = {
     // breaking changes, but those rarely affect us. If it becomes a problem, we
     // can always change this code to lock it to whatever major version of
     // electron compass is currently at
-    'electron',
+    // TODO(COMPASS-10879): remove the fixed version when all issues are resolved
+    'electron@41',
     'electron-to-chromium',
     'node-abi',
   ],

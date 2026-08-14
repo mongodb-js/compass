@@ -32,7 +32,7 @@
   },
   "compass:exports": {
     "./main": "./src/main.ts",
-    "./renderer": "./src/renderer.ts",
+    "./renderer": "./src/renderer.tsx",
     "./provider": "./src/provider.tsx"
   },
   "scripts": {
@@ -80,11 +80,12 @@
     "@mongodb-js/devtools-proxy-support": "^0.7.18",
     "@mongodb-js/oidc-plugin": "^2.2.0",
     "compass-preferences-model": "^3.2.0",
-    "electron": "^41.2.2",
+    "electron": "^41.10.5",
     "hadron-ipc": "^3.6.2",
     "lodash": "^4.18.1",
     "mongodb-ns": "^3.2.0",
     "react": "^17.0.2",
+    "react-redux": "^8.1.3",
     "redux": "^4.2.1",
     "redux-thunk": "^2.4.2"
   }

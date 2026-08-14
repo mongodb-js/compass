@@ -160,6 +160,101 @@ describe('compass-web preferences', function () {
       expect(atlasCloudUserPreferences).to.not.have.property('readWrite');
     });
 
+    it('does not enable index management for a plain read-write user (no index-manager role)', async function () {
+      fetchStub.resolves(
+        fakeResponse({ ...apiResponse, userRoles: { isDataAccessWrite: true } })
+      );
+
+      const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
+        PROJECT_ID
+      );
+
+      expect(atlasCloudUserPreferences).to.include({
+        readWrite: true,
+        enableIndexesManagement: false,
+      });
+    });
+
+    it('enables index management for a read-write user with the index-manager role', async function () {
+      fetchStub.resolves(
+        fakeResponse({
+          ...apiResponse,
+          userRoles: {
+            isDataAccessWrite: true,
+            isDataAccessAny: true,
+            isGroupIndexManager: true,
+          },
+        })
+      );
+
+      const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
+        PROJECT_ID
+      );
+
+      expect(atlasCloudUserPreferences).to.include({
+        readWrite: true,
+        enableIndexesManagement: true,
+      });
+    });
+
+    it('enables index management for a read-only user with the index-manager role', async function () {
+      fetchStub.resolves(
+        fakeResponse({
+          ...apiResponse,
+          userRoles: {
+            isDataAccessAny: true,
+            isGroupIndexManager: true,
+          },
+        })
+      );
+
+      const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
+        PROJECT_ID
+      );
+
+      expect(atlasCloudUserPreferences).to.include({
+        readOnly: true,
+        enableIndexesManagement: true,
+      });
+    });
+
+    it('does not enable index management for an index-manager without any data access', async function () {
+      fetchStub.resolves(
+        fakeResponse({
+          ...apiResponse,
+          userRoles: { isGroupIndexManager: true },
+        })
+      );
+
+      const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
+        PROJECT_ID
+      );
+
+      expect(atlasCloudUserPreferences).to.include({
+        readOnly: true,
+        enableIndexesManagement: false,
+      });
+    });
+
+    it('does not set index-management preferences for an admin (full UI)', async function () {
+      fetchStub.resolves(
+        fakeResponse({
+          ...apiResponse,
+          userRoles: { isDataAccessAdmin: true, isGroupIndexManager: true },
+        })
+      );
+
+      const { atlasCloudUserPreferences } = await getPreferencesFromCloudApi(
+        PROJECT_ID
+      );
+
+      expect(atlasCloudUserPreferences).to.not.have.property('readOnly');
+      expect(atlasCloudUserPreferences).to.not.have.property('readWrite');
+      expect(atlasCloudUserPreferences).to.not.have.property(
+        'enableIndexesManagement'
+      );
+    });
+
     it('makes cloud feature flags resolve to the cloud value instead of the hardcoded released default', async function () {
       fetchStub.resolves(fakeResponse(apiResponse));
 

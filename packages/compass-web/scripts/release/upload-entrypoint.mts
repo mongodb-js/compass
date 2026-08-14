@@ -10,7 +10,7 @@ import {
   MANIFEST_FILENAME,
   PUBLISH_ENVIRONMENT,
   RELEASE_COMMIT,
-  asyncPutObject,
+  putObject,
   getObjectKey,
 } from './utils.mts';
 
@@ -118,7 +118,7 @@ const ENTRYPOINT_CACHE_MAX_AGE_SECONDS = 1 * 60 * 3; // 3mins
 if (DRY_RUN) {
   console.log('Skipping actual upload because dry run');
 } else {
-  const res = await asyncPutObject({
+  const res = await putObject({
     ACL: 'private',
     Bucket: DOWNLOADS_BUCKET,
     Key: fileKey,

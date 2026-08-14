@@ -134,12 +134,14 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
     enableAtlasSearchIndexes,
     enableAutoEmbeddingPublicPreview,
     enableAutoEmbeddingGaRelease,
+    enableIndexesManagement,
   } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
     'enableAutoEmbeddingPublicPreview',
     'enableAutoEmbeddingGaRelease',
+    'enableIndexesManagement',
   ]);
 
   // Public preview is required so the schema variant picked by use-json-schema
@@ -175,6 +177,7 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
       readWrite,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1: true, // This component is only rendered if the user is in the variant
+      enableIndexesManagement,
     }),
     shallowEqual
   );

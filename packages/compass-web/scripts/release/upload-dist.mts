@@ -4,7 +4,7 @@ import { brotliCompressSync } from 'zlib';
 import {
   DIST_DIR,
   DOWNLOADS_BUCKET,
-  asyncPutObject,
+  putObject,
   getObjectKey,
 } from './utils.mts';
 
@@ -45,7 +45,7 @@ for (const file of artifacts) {
   const fileContent = fs.readFileSync(filePath, 'utf8');
   const compressedFileContent = brotliCompressSync(fileContent);
 
-  const res = await asyncPutObject({
+  const res = await putObject({
     ACL: 'private',
     Bucket: DOWNLOADS_BUCKET,
     Key: objectKey,
