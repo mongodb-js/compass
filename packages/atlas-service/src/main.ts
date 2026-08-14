@@ -190,7 +190,11 @@ export class CompassAuthService {
       );
       const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
-      if (serializedState) await this.restoreCurrentUser();
+      if (
+        serializedState &&
+        this.preferences.getPreferences().enableAtlasSignIn
+      )
+        await this.restoreCurrentUser();
     })());
   }
 
@@ -205,6 +209,9 @@ export class CompassAuthService {
   private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
+    // Even if we still have a usable token stored, we should not to use it
+    // when Atlas sign in is disabled for the organization
+    this.throwIfAtlasSignInDisabled();
 
     if (!this.plugin) {
       throw new Error(
