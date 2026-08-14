@@ -430,7 +430,6 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [DEVELOPER_DIR]
         env:
           <<: *compass-env
           DEBUG: ${debug}
@@ -476,12 +475,7 @@ functions:
         working_dir: src
         shell: bash
         include_expansions_in_env:
-          [
-            AWS_ACCESS_KEY_ID,
-            AWS_SECRET_ACCESS_KEY,
-            AWS_SESSION_TOKEN,
-            DEVELOPER_DIR,
-          ]
+          [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           <<: *compass-env
           npm_config_loglevel: ${npm_loglevel}
@@ -508,12 +502,7 @@ functions:
         working_dir: src
         shell: bash
         include_expansions_in_env:
-          [
-            AWS_ACCESS_KEY_ID,
-            AWS_SECRET_ACCESS_KEY,
-            AWS_SESSION_TOKEN,
-            DEVELOPER_DIR,
-          ]
+          [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           <<: *compass-env
           DEBUG: ${debug}
