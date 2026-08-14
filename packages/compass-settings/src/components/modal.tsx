@@ -38,7 +38,7 @@ type SettingsModalProps = {
   hasChangedSettings: boolean;
 };
 
-const contentStyles = css({
+const containerStyles = css({
   display: 'flex',
   height: spacing[7] * 5,
   paddingTop: spacing[200],
@@ -49,14 +49,29 @@ const sideNavStyles = css({
   width: spacing[1600] * 3,
 });
 
-const settingsStyles = css(
+const tabContentStyles = css(
   {
     width: '80%',
     marginLeft: spacing[1600] * 3,
-    padding: `0 ${spacing[200]}px 0 ${spacing[400]}px`,
   },
   focusRing
 );
+
+const contentStyles = css({
+  paddingRight: spacing[200],
+  paddingLeft: spacing[400],
+  paddingBottom: spacing[200],
+});
+
+// The modal body is a scroll container, which Chrome makes keyboard-focusable
+// and treats as `:focus-visible`. That makes LeafyGreen's focus trap land on it
+// when the modal opens, showing a ring around the whole body. The tabpanel
+// inside keeps its own focus ring, so nothing is lost by hiding this one.
+const modalBodyStyles = css({
+  '&:focus, &:focus-visible': {
+    outline: 'none',
+  },
+});
 
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOpen,
@@ -109,8 +124,9 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       onCancel={onClose}
       data-testid="settings-modal"
       minBodyHeight={spacing[1600] * 2}
+      bodyClassName={modalBodyStyles}
     >
-      <div className={contentStyles}>
+      <div className={containerStyles}>
         <div className={sideNavStyles}>
           <Sidebar
             activeItem={selectedTab}
@@ -119,14 +135,16 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
           />
         </div>
         <div
-          className={settingsStyles}
+          className={tabContentStyles}
           data-testid="settings-modal-content"
           role="tabpanel"
           tabIndex={0}
           id={`${selectedTab}-section`}
           aria-labelledby={`${selectedTab}-tab`}
         >
-          {SettingComponent && <SettingComponent />}
+          <div className={contentStyles}>
+            {SettingComponent && <SettingComponent />}
+          </div>
         </div>
       </div>
     </FormModal>

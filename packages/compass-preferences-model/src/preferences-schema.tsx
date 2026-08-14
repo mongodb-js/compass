@@ -1,4 +1,3 @@
-import React from 'react';
 import { z } from '@mongodb-js/compass-user-data';
 import type { FeatureFlags } from './feature-flags';
 import { FEATURE_FLAG_PREFERENCES } from './feature-flags';
@@ -11,26 +10,18 @@ import {
   proxyOptionsToProxyPreference,
   proxyPreferenceToProxyOptions,
 } from './utils';
-import { Link } from '@mongodb-js/compass-components';
+import type { GlyphName } from '@mongodb-js/compass-components';
+import { getTimezoneOptions, isSupportedTimezone } from './timezone';
+import {
+  TimezoneDescription,
+  EnableDbAndCollStatsDescription,
+  DefaultSortDescription,
+  EnableGenAIToolCallingDescription,
+} from './preferences-descriptions';
+import type { PreferencesDescriptionProps } from './preferences-descriptions';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = (typeof THEMES_VALUES)[number];
-
-const enableDbAndCollStatsDescription: React.ReactNode = (
-  <>
-    When enabled, Compass occasionally calls the{' '}
-    <Link href="https://www.mongodb.com/docs/manual/reference/command/dbStats/#mongodb-dbcommand-dbcmd.dbStats">
-      dbStats
-    </Link>
-    and{' '}
-    <Link href="https://www.mongodb.com/docs/manual/reference/command/collStats/">
-      collStats
-    </Link>{' '}
-    commands to access storage statistics for a given database or collection.
-    Disabling this setting can help reduce Compass&apos; overhead on your
-    MongoDB deployments.
-  </>
-);
 
 export const SORT_ORDER_VALUES = [
   '',
@@ -110,6 +101,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     inferNamespacesFromPrivileges?: boolean;
     // Features that are enabled by default in Date Explorer, but are disabled in Compass
     maxTimeMSEnvLimit?: number;
+    timezone: string;
   };
 
 /**
@@ -251,9 +243,15 @@ export type PreferenceDefinition<K extends keyof AllPreferences> = {
     : {
         short: string;
         long?: string;
-        longReact?: React.ReactNode;
+        longReact?: React.FC<PreferencesDescriptionProps<K>>;
         options?: AllPreferences[K] extends string
-          ? { [k in AllPreferences[K]]: { label: string; description: string } }
+          ? {
+              [k in AllPreferences[K]]: {
+                label: string;
+                description?: string;
+                glyph?: GlyphName;
+              };
+            }
           : never;
       };
   /** A method for deriving the current semantic value of this option, even if it differs from the stored value */
@@ -618,7 +616,7 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Show Database and Collection Statistics',
       long: "The dbStats and collStats command returns storage statistics for a given database or collection. Disabling this setting can help reduce Compass' overhead on your MongoDB deployments.",
-      longReact: enableDbAndCollStatsDescription,
+      longReact: EnableDbAndCollStatsDescription,
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -720,12 +718,7 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Default Sort for Query Bar',
       long: 'All queries executed from the query bar will apply this sort. Not available for views and timeseries.',
-      longReact: (
-        <>
-          All queries executed from the query bar will apply this sort.{' '}
-          <strong>Not available for views and timeseries.</strong>
-        </>
-      ),
+      longReact: DefaultSortDescription,
       options: {
         '': {
           label: 'MongoDB server default',
@@ -985,18 +978,7 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Enable read-only tools in the MongoDB Assistant',
       long: 'Allow the MongoDB Assistant to interact with your databases. All actions require your approval before running.',
-      longReact: (
-        <>
-          Allow the MongoDB Assistant to interact with your databases. All
-          actions require your approval before running. Learn more about{' '}
-          <Link
-            href="https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/"
-            target="_blank"
-          >
-            MongoDB database tools
-          </Link>
-        </>
-      ),
+      longReact: EnableGenAIToolCallingDescription,
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -1169,6 +1151,37 @@ export const storedUserPreferencesProps: Required<{
     },
     validator: z.number().min(0).default(0),
     type: 'number',
+  },
+  timezone: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Timezone',
+      longReact: TimezoneDescription,
+      get options() {
+        return getTimezoneOptions();
+      },
+    },
+    validator: z
+      .string()
+      .optional()
+      .transform((value) => {
+        if (value === undefined) {
+          return 'UTC';
+        }
+        if (!isSupportedTimezone(value)) {
+          // eslint-disable-next-line no-console
+          console.warn(
+            `Unknown timezone ${JSON.stringify(
+              value
+            )}, expected an IANA timezone identifier. Falling back to UTC.`
+          );
+          return 'UTC';
+        }
+        return value;
+      }),
+    type: 'string',
   },
 
   // There are a good amount of folks who still use the legacy UUID
