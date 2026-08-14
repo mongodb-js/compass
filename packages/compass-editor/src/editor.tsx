@@ -182,6 +182,7 @@ export const editorPalette = {
     autocompleteBorderColor: palette.gray.light2,
     autocompleteMatchColor: palette.green.dark1,
     autocompleteSelectedBackgroundColor: palette.gray.light2,
+    linkColor: palette.blue.base,
   },
   dark: {
     color: codePalette.dark[3],
@@ -207,6 +208,7 @@ export const editorPalette = {
     autocompleteBorderColor: palette.gray.dark1,
     autocompleteMatchColor: palette.gray.light3,
     autocompleteSelectedBackgroundColor: palette.gray.dark2,
+    linkColor: palette.blue.light1,
   },
 } as const;
 
@@ -465,63 +467,21 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       '& .cm-lintPoint::after': {
         display: 'none',
       },
-      // Only style the diagnostic tooltip that carries an action, styled to
-      // resemble a LeafyGreen popover. Tooltips without an action are left as-is
-      '& .cm-tooltip.cm-tooltip-lint:has(.cm-diagnosticAction)': {
-        ...cmFontStyles,
-        color: editorPalette[theme].autocompleteColor,
-        backgroundColor: editorPalette[theme].autocompleteBackgroundColor,
-        border: `1px solid ${editorPalette[theme].autocompleteBorderColor}`,
-        borderRadius: `${spacing[300]}px`,
-        boxShadow:
-          theme === 'dark'
-            ? `0 ${spacing[100]}px ${spacing[300]}px rgba(0, 0, 0, 0.5)`
-            : `0 ${spacing[100]}px ${spacing[300]}px rgba(0, 0, 0, 0.15)`,
-        overflow: 'hidden',
-      },
-      '& .cm-diagnostic:has(.cm-diagnosticAction)': {
-        padding: `${spacing[200]}px ${spacing[300]}px`,
-        marginLeft: 0,
-        borderLeft: 'none',
-        display: 'flex',
-        gap: `${spacing[200]}px`,
-        alignItems: 'center',
-      },
-      '& .cm-diagnostic:has(.cm-diagnosticAction) .cm-diagnosticText': {
-        color: editorPalette[theme].autocompleteColor,
-      },
-      '& .cm-diagnosticAction': {
-        ...cmFontStyles,
-        display: 'inline-flex',
-        alignItems: 'center',
-        margin: 0,
-        padding: `0 ${spacing[150]}px`,
-        height: `${spacing[500]}px`,
-        fontWeight: 500,
-        lineHeight: '20px',
-        color: theme === 'dark' ? palette.gray.light2 : palette.gray.dark2,
-        backgroundColor: theme === 'dark' ? palette.gray.dark2 : palette.white,
-        backgroundImage: 'none',
-        border: `1px solid ${palette.gray.base}`,
-        borderRadius: `${spacing[150]}px`,
+      '.cm-diagnosticAction': {
+        background: 'none',
+        display: 'inline',
+        margin: '0 0 0 8px',
+        padding: '0',
+        border: 'none',
+        color: editorPalette[theme].linkColor,
         cursor: 'pointer',
-        transition: 'all 150ms ease-in-out',
-        flexShrink: 0,
-      },
-      '& .cm-diagnosticAction:hover': {
-        backgroundColor:
-          theme === 'dark' ? palette.gray.dark1 : palette.gray.light2,
-        borderColor: theme === 'dark' ? palette.gray.base : palette.gray.dark1,
-        boxShadow:
-          theme === 'dark'
-            ? `0 0 0 ${spacing[100]}px ${palette.gray.dark2}`
-            : `0 0 0 ${spacing[100]}px ${palette.gray.light2}`,
       },
       '& .cm-diagnosticAction:focus-visible': {
         outline: 'none',
-        boxShadow: `0 0 0 ${spacing[100]}px ${
-          theme === 'dark' ? palette.blue.light1 : palette.blue.base
-        }`,
+        boxShadow: `0 0 0 2px ${palette.blue.light1}`,
+      },
+      '& .cm-diagnosticAction:hover': {
+        textDecoration: 'underline',
       },
       '& .cm-widgetBuffer': {
         // Default is text-top which causes weird 1px added to the line height

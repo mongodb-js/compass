@@ -21,14 +21,7 @@ Templates:
      * Requires the MongoDB Java Driver.
      * https://mongodb.github.io/mongo-java-driver`;
 
-        const str = spec.options.uri;
-        let newStr = str;
-        if (
-            (str.charAt(0) === '\'' && str.charAt(str.length - 1) === '\'') ||
-            (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
-            newStr = str.substr(1, str.length - 2);
-        }
-        const uri = `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+        const uri = this.toStringLiteral(spec.options.uri);
         const exportMode = spec.exportMode;
         delete spec.exportMode;
 
@@ -38,9 +31,9 @@ Templates:
         )
     );
 
-    MongoDatabase database = mongoClient.getDatabase("${spec.options.database}");
+    MongoDatabase database = mongoClient.getDatabase(${this.toStringLiteral(spec.options.database)});
 
-    MongoCollection<Document> collection = database.getCollection("${spec.options.collection}");`;
+    MongoCollection<Document> collection = database.getCollection(${this.toStringLiteral(spec.options.collection)});`;
 
     let driverMethod;
     let driverResult;
@@ -175,7 +168,7 @@ Templates:
         (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
         newStr = str.substr(1, str.length - 2);
       }
-      return `"${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}"`;
+      return `"${newStr.replace(/\\[\s\S]|["\n\r]/g, (m) => m.length === 2 ? m : m === '\n' ? '\\n' : m === '\r' ? '\\r' : '\\' + m)}"`;
     }
   RegexTypeTemplate: !!js/function &RegexTypeTemplate >
     (pattern, flags) => {

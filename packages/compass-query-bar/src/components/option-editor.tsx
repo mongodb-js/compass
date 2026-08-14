@@ -38,6 +38,7 @@ import type {
   RecentQuery,
 } from '@mongodb-js/my-queries-storage';
 import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> & {
   _lastExecuted: Date;
@@ -75,6 +76,53 @@ const editorWithErrorStyles = css({
   '&:focus-within': {
     borderColor: palette.gray.base,
   },
+});
+
+// For querybar we want tooltip to be more like LG popover
+const getDiagnosticActionTooltipTheme = (darkMode?: boolean) => ({
+  spec: {
+    '& .cm-tooltip.cm-tooltip-lint': {
+      borderRadius: `${spacing[300]}px`,
+      boxShadow: darkMode
+        ? `0 ${spacing[100]}px ${spacing[300]}px rgba(0, 0, 0, 0.5)`
+        : `0 ${spacing[100]}px ${spacing[300]}px rgba(0, 0, 0, 0.15)`,
+      overflow: 'hidden',
+    },
+    '& .cm-diagnostic': {
+      padding: `${spacing[200]}px ${spacing[300]}px`,
+      marginLeft: 0,
+      borderLeft: 'none',
+      display: 'flex',
+      gap: `${spacing[200]}px`,
+      alignItems: 'center',
+    },
+    '& .cm-diagnosticAction': {
+      padding: `0 ${spacing[150]}px`,
+      fontWeight: 500,
+      lineHeight: '20px',
+      color: darkMode ? palette.gray.light2 : palette.gray.dark2,
+      backgroundColor: darkMode ? palette.gray.dark2 : palette.white,
+      textDecoration: 'none',
+      border: `1px solid ${palette.gray.base}`,
+      borderRadius: `${spacing[150]}px`,
+      cursor: 'pointer',
+      transition: 'all 150ms ease-in-out',
+    },
+    '& .cm-diagnosticAction:hover': {
+      backgroundColor: darkMode ? palette.gray.dark1 : palette.gray.light2,
+      borderColor: darkMode ? palette.gray.base : palette.gray.dark1,
+      boxShadow: darkMode
+        ? `0 0 0 ${spacing[100]}px ${palette.gray.dark2}`
+        : `0 0 0 ${spacing[100]}px ${palette.gray.light2}`,
+    },
+    '& .cm-diagnosticAction:focus-visible': {
+      outline: 'none',
+      boxShadow: `0 0 0 ${spacing[100]}px ${
+        darkMode ? palette.blue.light1 : palette.blue.base
+      }`,
+    },
+  },
+  options: { dark: darkMode },
 });
 
 type OptionEditorProps = {
@@ -200,9 +248,21 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     darkMode,
     optionName,
   ]);
-
+  const track = useTelemetry();
+  const linterAnnotationTheme = useMemo(
+    () => getDiagnosticActionTooltipTheme(darkMode),
+    [darkMode]
+  );
   const { safeIntegerLinter, violations: safeIntegerViolations } =
-    useSafeIntegerLinter();
+    useSafeIntegerLinter({
+      theme: linterAnnotationTheme,
+      onFixViolation(source) {
+        track('Safe Integer Fix Applied', {
+          source: 'query-bar-editor',
+        });
+        return `Long("${source}")`;
+      },
+    });
   useEffect(() => {
     if (safeIntegerViolations.length > 0) {
       onUnsafeInteger();
