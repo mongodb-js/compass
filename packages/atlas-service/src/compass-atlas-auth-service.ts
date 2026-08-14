@@ -1,7 +1,5 @@
 import { ipcRenderer } from 'hadron-ipc';
 import type { CompassAuthService as AtlasServiceMain } from './main';
-import { performSignInAttempt } from './store/atlas-signin-reducer';
-import { getStore } from './store/atlas-signin-store';
 import { AtlasAuthService } from './atlas-auth-service';
 import type { ArgsWithSignal } from './atlas-auth-service';
 
@@ -24,15 +22,8 @@ export class CompassAtlasAuthService extends AtlasAuthService {
   signOut() {
     return this.ipc.signOut();
   }
-  signIn({
-    mainProcessSignIn,
-    signal,
-  }: ArgsWithSignal<{ mainProcessSignIn?: boolean }> = {}) {
-    if (mainProcessSignIn) {
-      return this.ipc.signIn({ signal });
-    }
-
-    return getStore().dispatch(performSignInAttempt({ signal }));
+  signIn({ signal }: ArgsWithSignal = {}) {
+    return this.ipc.signIn({ signal });
   }
   getUserInfo(opts?: ArgsWithSignal) {
     return this.ipc.getUserInfo(opts);

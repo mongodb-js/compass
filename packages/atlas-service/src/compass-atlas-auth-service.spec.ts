@@ -44,7 +44,6 @@ describe('CompassAtlasAuthService', function () {
       signIn: signInStub,
     });
     await atlasAuthService.signIn({
-      mainProcessSignIn: true,
       signal: c.signal,
     });
     expect(signInStub.calledOnce).to.be.true;
