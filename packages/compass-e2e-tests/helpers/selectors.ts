@@ -646,6 +646,10 @@ export const InsertDialogShellView =
   '[data-testid="insert-document-dialog-view-shell"]';
 export const InsertDialogListView =
   '[data-testid="insert-document-dialog-view-list"]';
+export const InsertDialogEJSONConversionBanner =
+  '[data-testid="insert-document-ejson-conversion-banner"]';
+export const InsertDialogEJSONConversionBtn =
+  'button[data-testid="insert-document-ejson-conversion-button"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';
 export const InsertCancel =

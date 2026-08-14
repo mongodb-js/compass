@@ -1025,6 +1025,22 @@ type DocumentViewChangedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when a user converts Extended JSON to shell syntax from
+ * the banner in the insert document dialog.
+ *
+ * @category Documents
+ */
+type ExtendedJSONConversionAttemptedEvent = ConnectionScopedEvent<{
+  name: 'Extended JSON Conversion Attempted';
+  payload: {
+    /**
+     * The conversion attempt result.
+     */
+    success: boolean;
+  };
+}>;
+
+/**
  * This event is fired when user explains a query.
  *
  * @category Explain
@@ -4177,6 +4193,7 @@ export type TelemetryEvent =
   | ExplainPlanExecutedEvent
   | ExportCompletedEvent
   | ExportOpenedEvent
+  | ExtendedJSONConversionAttemptedEvent
   | FocusModeClosedEvent
   | FocusModeOpenedEvent
   | GuideCueShownEvent

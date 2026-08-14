@@ -32,10 +32,16 @@ import type { Logger } from '@mongodb-js/compass-logging/provider';
 import { withLogger } from '@mongodb-js/compass-logging/provider';
 import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 import type { InsertDocumentView, WriteError } from '../stores/crud-store';
-import { parseInsertDocument, parseShellBSON } from '../stores/crud-store';
+import {
+  parseInsertDocumentText,
+  toInsertHadronDocument,
+} from '../stores/crud-store';
 import { useSafeIntegerLinter } from '@mongodb-js/compass-editor';
 import type { Extension, EditorRef } from '@mongodb-js/compass-editor';
 import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
+import InsertEJSONConversionBanner from './insert-ejson-conversion-banner';
+import { convertEJSONToShellSyntax } from '../utils/ejson-conversion';
+import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
 
 /**
  * The insert invalid message.
@@ -118,7 +124,7 @@ export type InsertDocumentDialogProps = InsertCSFLEWarningBannerProps & {
 const DocumentOrJsonView: React.FC<{
   insertView: InsertDocumentView;
   doc: InsertDocumentDialogProps['doc'];
-  hasManyDocuments: () => boolean;
+  isManyDocuments: boolean;
   updateInsertDocText: InsertDocumentDialogProps['updateInsertDocText'];
   editorText: InsertDocumentDialogProps['editorText'];
   safeIntegerLinter: Extension;
@@ -127,7 +133,7 @@ const DocumentOrJsonView: React.FC<{
 }> = ({
   insertView,
   doc,
-  hasManyDocuments,
+  isManyDocuments,
   updateInsertDocText,
   editorText,
   safeIntegerLinter,
@@ -147,7 +153,7 @@ const DocumentOrJsonView: React.FC<{
     );
   }
 
-  if (hasManyDocuments()) {
+  if (isManyDocuments) {
     return (
       <Banner variant="warning">
         This view is not supported for multiple documents. To specify data types
@@ -180,6 +186,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   ns,
   csfleState,
   track,
+  logger,
   insertMany,
   insertDocument,
   toggleInsertDocumentView,
@@ -187,45 +194,51 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   closeInsertDocumentDialog,
 }) => {
   const editorRef = useRef<EditorRef>(null);
+  const connectionInfoRef = useConnectionInfoRef();
   const [invalidElements, setInvalidElements] = useState<Document['uuid'][]>(
     []
   );
   const [insertInProgress, setInsertInProgress] = useState(false);
 
-  const hasManyDocuments = useCallback(() => {
+  // Parsing is not free for large documents and several things below need
+  // either the parsed value or the error, so the text is only parsed once per
+  // change here. In the list view the editor text is not the source of truth,
+  // so there is nothing to parse.
+  const parseResult = useMemo((): {
+    value: unknown;
+    error: Error | null;
+  } => {
+    if (insertView === 'list') {
+      return { value: null, error: null };
+    }
     try {
-      const parsed =
-        insertView === 'shell'
-          ? parseShellBSON(editorText)
-          : JSON.parse(editorText);
-      return Array.isArray(parsed);
-    } catch {
-      return false;
+      const value = parseInsertDocumentText(insertView, editorText);
+      // Not everything that parses can be inserted as a document, and that is
+      // part of what makes the text invalid.
+      toInsertHadronDocument(value);
+      return { value, error: null };
+    } catch (e) {
+      return { value: null, error: e as Error };
     }
   }, [editorText, insertView]);
 
+  // The visual editor can only represent a single document, so disable it when
+  // the editor holds an array.
+  const isManyDocuments = Array.isArray(parseResult.value);
+
   /**
-   * Does the document have errors with the bson types?  Checks for
+   * Does the document have errors with the bson types? Checks for
    * invalidElements in hadron doc if in HadronDocument view, or parsing error
-   * in JsonView of the modal
-   *
-   * Checks for invalidElements in hadron doc if in HadronDocument view, or
-   * parsing error in JsonView of the modal
-   *
+   * in the JSON and shell views of the modal.
    */
   const documentValidationError = useMemo(() => {
     if (insertView !== 'list') {
-      try {
-        parseInsertDocument(insertView, editorText);
-        return null;
-      } catch (e) {
-        return e as Error;
-      }
+      return parseResult.error;
     }
     return invalidElements.length > 0
       ? new Error(INSERT_INVALID_MESSAGE)
       : null;
-  }, [editorText, insertView, invalidElements]);
+  }, [insertView, parseResult, invalidElements]);
 
   const handleInvalid = useCallback(
     (el: Element) => {
@@ -285,12 +298,12 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     setTimeout(() => {
       setInsertInProgress(false);
     }, 0);
-    if (hasManyDocuments()) {
+    if (isManyDocuments) {
       insertMany();
     } else {
       insertDocument();
     }
-  }, [setInsertInProgress, insertMany, insertDocument, hasManyDocuments]);
+  }, [setInsertInProgress, insertMany, insertDocument, isManyDocuments]);
 
   /**
    * Switches between the JSON, Shell, and Hadron Document views.
@@ -303,6 +316,47 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     },
     [toggleInsertDocumentView]
   );
+
+  const [failedConversion, setFailedConversion] = useState<{
+    text: string;
+    message: string;
+  } | null>(null);
+
+  // A failed conversion leaves the text as it was, so the error only applies
+  // while the document is unchanged.
+  const conversionError =
+    failedConversion?.text === editorText ? failedConversion.message : null;
+
+  const onFixEJSONToShellSyntax = useCallback(() => {
+    let succeeded = false;
+    try {
+      updateInsertDocText(convertEJSONToShellSyntax(parseResult.value));
+      succeeded = true;
+    } catch (err) {
+      setFailedConversion({
+        text: editorText,
+        message: (err as Error).message,
+      });
+      logger?.log.error(
+        logger.mongoLogId(1_001_000_437),
+        'Insert Document Dialog',
+        'Failed to convert Extended JSON to shell syntax',
+        err
+      );
+    }
+    track?.(
+      'Extended JSON Conversion Attempted',
+      { success: succeeded },
+      connectionInfoRef.current
+    );
+  }, [
+    parseResult,
+    editorText,
+    updateInsertDocText,
+    logger,
+    track,
+    connectionInfoRef,
+  ]);
 
   const {
     onFixViolations: onFixSafeIntegerViolations,
@@ -329,10 +383,6 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   // round an unsafe number and clear the warning, so the violations have to be
   // fixed before the view can change.
   const hasSafeIntegerViolations = safeIntegerViolations.length > 0;
-
-  // The visual editor can only represent a single document, so disable it when
-  // the editor holds an array.
-  const isManyDocuments = hasManyDocuments();
 
   // `SegmentedControl` overrides the `ref` on its options, so we can't anchor
   // the tooltip that way. Instead we capture the hovered option's element from
@@ -415,12 +465,11 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           {tooltipLabel}
         </Tooltip>
       </div>
-      <InsertCSFLEWarningBanner csfleState={csfleState} />
       <div className={documentViewContainer} id={documentViewId}>
         <DocumentOrJsonView
           insertView={insertView}
           doc={doc}
-          hasManyDocuments={hasManyDocuments}
+          isManyDocuments={isManyDocuments}
           updateInsertDocText={updateInsertDocText}
           editorText={editorText}
           safeIntegerLinter={safeIntegerLinter}
@@ -428,6 +477,13 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           namespace={ns}
         />
       </div>
+      {insertView === 'shell' && (
+        <InsertEJSONConversionBanner
+          parsedEditorText={parseResult.value}
+          conversionError={conversionError}
+          onConvert={onFixEJSONToShellSyntax}
+        />
+      )}
       <InsertDocumentDialogBanner
         documentValidationError={documentValidationError}
         documentWriteError={documentWriteError}
@@ -435,6 +491,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         safeIntegerViolationCount={safeIntegerViolations.length}
         onFixSafeIntegerViolations={onFixSafeIntegerViolations}
       />
+      <InsertCSFLEWarningBanner csfleState={csfleState} />
     </FormModal>
   );
 };

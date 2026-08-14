@@ -1,5 +1,6 @@
 import chai from 'chai';
 import clipboard from 'clipboardy';
+import { EJSON } from 'bson';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   deleteCommonVariedProperties,
@@ -15,6 +16,7 @@ import {
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import {
+  allTypesDoc,
   createNestedDocumentsCollection,
   createNumbersCollection,
 } from '../helpers/mongo-clients.ts';
@@ -1354,6 +1356,56 @@ FindIterable<Document> result = collection.find(filter);`);
     expect(await getFormattedDocument(browser)).to.match(
       /^_id: ObjectId\('[a-f0-9]{24}'\) i: 10142 long: 9223372036854775807 decimal: 123\.45 date: 2023-01-01T00:00:00\.000\+00:00 regex: \/foo\.\*bar\/i ts: Timestamp\(\{ t: 1234, i: 5 \}\) uuid: UUID\('79a4a7c6-1c1f-4d5e-9f8a-1b2c3d4e5f60'\) min: MinKey\(\) nested: Object \(2\) arr: Array \(3\)$/
     );
+  });
+
+  it('converts Extended JSON to shell syntax, keeping the BSON types', async function () {
+    // Browse to the "Insert to Collection" modal.
+    await browser.clickVisible(Selectors.AddDataButton);
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+    await browser.waitForOpenModal(Selectors.InsertDialog);
+
+    await browser.clickVisible(Selectors.InsertDialogShellView);
+
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertDocumentEditor,
+      EJSON.stringify(allTypesDoc, { relaxed: false }, 2)
+    );
+
+    const conversionBanner = browser.$(
+      Selectors.InsertDialogEJSONConversionBanner
+    );
+    await conversionBanner.waitForDisplayed();
+    expect(await conversionBanner.getText()).to.include('$numberDouble');
+
+    await browser.clickVisible(Selectors.InsertDialogEJSONConversionBtn);
+    await conversionBanner.waitForDisplayed({ reverse: true });
+
+    // The full type-by-type mapping is covered by the compass-crud unit tests
+    // for convertEJSONToShellSyntax, here we only check that the editor picked
+    // the conversion up.
+    const converted = (
+      await browser.getCodemirrorEditorText(Selectors.InsertDocumentEditor)
+    ).replace(/\s+/g, ' ');
+    expect(converted).to.include(
+      `objectId: ObjectId('642d766c7300158b1f22e975')`
+    );
+    expect(converted).to.include(`'long': NumberLong('123456789123456789')`);
+    expect(converted).to.not.include('$numberLong');
+
+    const insertConfirm = browser.$(Selectors.InsertConfirm);
+    await insertConfirm.waitForEnabled();
+    await browser.clickVisible(Selectors.InsertConfirm);
+    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
+
+    // Converting in relaxed mode would have rounded this to the nearest
+    // double, so the document would not be found by its exact value.
+    await browser.runFindOperation(
+      'Documents',
+      `{ long: Long('123456789123456789') }`
+    );
+    expect(
+      await browser.$(Selectors.DocumentListActionBarMessage).getText()
+    ).to.equal('1 – 1 of 1');
   });
 
   it('handles unsafe integer values when querying a document', async function () {

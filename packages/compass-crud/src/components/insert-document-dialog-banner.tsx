@@ -9,13 +9,15 @@ import {
 import type { WriteError } from '../stores/crud-store';
 import { getSafeIntegerViolationMessage } from '../utils';
 
-const bannerStyles = css({
+export const bannerStyles = css({
   marginTop: spacing[400],
 });
-const actionContainerStyles = css({
+export const bannerActionContainerStyles = css({
   marginTop: spacing[200],
 });
-const messageStyles = css({
+// Error text can be arbitrarily long, so it gets its own scroll area rather
+// than growing the banner without bound.
+export const bannerMessageStyles = css({
   // We want to show some lines of the error, and part of the next
   // line so folks know it can scroll.
   maxHeight: '5.6em',
@@ -99,9 +101,9 @@ export function InsertDocumentDialogBanner({
       variant={banner.variant}
       className={bannerStyles}
     >
-      <div className={messageStyles}>{banner.message}</div>
+      <div className={bannerMessageStyles}>{banner.message}</div>
       {'action' in banner && (
-        <div className={actionContainerStyles}>
+        <div className={bannerActionContainerStyles}>
           <Button
             size="xsmall"
             onClick={banner.action!.onClick}

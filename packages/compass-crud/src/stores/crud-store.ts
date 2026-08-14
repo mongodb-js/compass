@@ -2356,6 +2356,31 @@ function insertModeForTelemetry(
 }
 
 /**
+ * Parse the insert editor text into its plain value, using shell syntax or
+ * EJSON depending on the active insert view.
+ */
+export function parseInsertDocumentText(
+  view: InsertDocumentView,
+  text: string
+): unknown {
+  return view === 'shell'
+    ? parseShellBSON(text)
+    : EJSON.parse(text, { relaxed: false });
+}
+
+/**
+ * Wrap an already parsed insert editor value into a single HadronDocument,
+ * rejecting values that could not be inserted as a document.
+ */
+export function toInsertHadronDocument(parsed: unknown): HadronDocument {
+  return new HadronDocument(
+    Array.isArray(parsed)
+      ? (parsed as unknown as BSONObject)
+      : assertPlainDocument(parsed)
+  );
+}
+
+/**
  * Parse the insert editor text into a single HadronDocument, using shell
  * syntax or EJSON depending on the active insert view.
  */
@@ -2363,15 +2388,7 @@ export function parseInsertDocument(
   view: InsertDocumentView,
   text: string
 ): HadronDocument {
-  if (view !== 'shell') {
-    return HadronDocument.FromEJSON(text);
-  }
-  const parsed = parseShellBSON(text);
-  return new HadronDocument(
-    Array.isArray(parsed)
-      ? (parsed as unknown as BSONObject)
-      : assertPlainDocument(parsed)
-  );
+  return toInsertHadronDocument(parseInsertDocumentText(view, text));
 }
 
 /**
