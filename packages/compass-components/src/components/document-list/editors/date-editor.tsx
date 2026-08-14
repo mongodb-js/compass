@@ -9,6 +9,7 @@ import {
   convertToPickerDateTime,
 } from '../../../utils/format-date';
 import { EditorWithLabel } from './editor-with-label';
+import { DateWithTimezoneHint } from '../date-with-timezone-hint';
 
 const dateContainerStyles = css({
   display: 'flex',
@@ -37,6 +38,7 @@ const dateTimePickerButtonStyles = css({
 const dateTimePickerInputStyles = css({
   colorScheme: 'light',
   width: 0,
+  height: 0,
   padding: 0,
   border: 'none',
   boxShadow: 'none',
@@ -137,23 +139,25 @@ export function DateEditor({
   }, [value]);
 
   return (
-    <span className={dateContainerStyles}>
-      <EditorWithLabel label={label}>
-        <InputEditor
+    <DateWithTimezoneHint value={value}>
+      <span className={dateContainerStyles}>
+        <EditorWithLabel label={label}>
+          <InputEditor
+            value={value}
+            onChange={onChange}
+            onBlur={onBlur}
+            {...props}
+            style={inputStyle}
+          />
+        </EditorWithLabel>
+        <DateTimePicker
           value={value}
-          onChange={onChange}
-          onBlur={onBlur}
-          {...props}
-          style={inputStyle}
+          onChange={(newValue) => {
+            onChange(newValue);
+            onBlur();
+          }}
         />
-      </EditorWithLabel>
-      <DateTimePicker
-        value={value}
-        onChange={(newValue) => {
-          onChange(newValue);
-          onBlur();
-        }}
-      />
-    </span>
+      </span>
+    </DateWithTimezoneHint>
   );
 }
