@@ -16,6 +16,8 @@ import { css, cx } from '@leafygreen-ui/emotion';
 import type { Theme } from '../hooks/use-theme';
 import { Themes, useDarkMode } from '../hooks/use-theme';
 import { useBSONDisplayOptions } from './document-list/bson-display-options-context';
+import { InlineDefinition } from './inline-definition';
+import { formatBSONDate } from '../utils/format-bson-date';
 
 type ValueProps =
   | {
@@ -382,9 +384,26 @@ const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   );
 };
 
+// We are not adding any gap here. When the content wraps in the next
+// line, the gap will create extra space and we want to avoid that,
+// and that's why we are adding paddingRight to the bson date.
+const dateValueContainerStyles = css({
+  display: 'inline-flex',
+  flexWrap: 'wrap',
+});
+const dateBsonValueStyles = css({
+  display: 'inline',
+  paddingRight: spacing[200],
+});
+
 const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   value,
 }) => {
+  const { timezone } = useBSONDisplayOptions(['timezone']);
+  const dateValueTimezoneFormatted = useMemo(() => {
+    return formatBSONDate(value, timezone);
+  }, [value, timezone]);
+
   const stringifiedValue = useMemo(() => {
     try {
       return new Date(value).toISOString().replace('Z', '+00:00');
@@ -394,9 +413,21 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   }, [value]);
 
   return (
-    <BSONValueContainer type="Date" title={stringifiedValue}>
-      {`ISODate('${stringifiedValue}')`}
-    </BSONValueContainer>
+    <div className={dateValueContainerStyles}>
+      <BSONValueContainer
+        className={dateBsonValueStyles}
+        type="Date"
+        title={stringifiedValue}
+      >
+        {`ISODate('${stringifiedValue}')`}
+      </BSONValueContainer>
+      <InlineDefinition
+        title={dateValueTimezoneFormatted}
+        definition="This personal timezone display preference may be configured in Compass Settings."
+      >
+        {dateValueTimezoneFormatted}
+      </InlineDefinition>
+    </div>
   );
 };
 
