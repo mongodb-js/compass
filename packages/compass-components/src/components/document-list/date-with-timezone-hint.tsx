@@ -3,11 +3,46 @@ import { css } from '@leafygreen-ui/emotion';
 
 import { InlineDefinition } from '../inline-definition';
 import { useBSONDisplayOptions } from './bson-display-options-context';
-import { formatBSONDate } from '../../utils/format-bson-date';
+
+function isValidTimezone(timezone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: timezone });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Exported for tests only.
+ * @internal
+ */
+export function formatDateWithTimezone(
+  value: Date | number | string,
+  timezone = 'UTC',
+  locale?: string
+): string {
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (isNaN(date.valueOf())) {
+    return 'Invalid Date';
+  }
+
+  const timeZone = isValidTimezone(timezone) ? timezone : 'UTC';
+  try {
+    return new Intl.DateTimeFormat(locale, {
+      timeZone,
+      dateStyle: 'long',
+      timeStyle: 'long',
+    }).format(date);
+  } catch {
+    return 'Invalid Date';
+  }
+}
 
 // We are not adding any gap here. When the content wraps in the next line, the
 // gap will create extra space and we want to avoid that, and that's why we are
-// adding paddingRight to the date value instead.
+// adding paddingRight to the children instead.
 const containerStyles = css({
   display: 'inline-flex',
   flexWrap: 'wrap',
@@ -27,9 +62,8 @@ export function DateWithTimezoneHint({
 }) {
   const { timezone } = useBSONDisplayOptions(['timezone']);
   const timezoneFormattedValue = useMemo(() => {
-    return formatBSONDate(value, timezone);
+    return formatDateWithTimezone(value, timezone);
   }, [value, timezone]);
-
   return (
     <span className={containerStyles}>
       <span className={valueStyles}>{children}</span>
