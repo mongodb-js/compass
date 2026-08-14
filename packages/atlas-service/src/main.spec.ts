@@ -362,10 +362,11 @@ describe('CompassAuthServiceMain', function () {
       }
     });
 
-    it('isAuthenticated should return false without introspecting', async function () {
-      const introspectSpy = sandbox.spy(CompassAuthService, 'introspect');
+    it('isAuthenticated should return false without making any requests', async function () {
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      mockFetch.resetHistory();
       expect(await CompassAuthService.isAuthenticated()).to.eq(false);
-      expect(introspectSpy).to.not.have.been.called;
+      expect(mockFetch).to.not.have.been.called;
     });
   });
 
