@@ -12,7 +12,7 @@ describe('mongodb-collection-model', function () {
   });
 
   describe('CollectionCollection#fetch', function () {
-    function createFakeDatabase() {
+    function createFakeDatabase({ showHiddenNamespaces }) {
       var instance = {
         modelType: 'Instance',
         shouldFetchNamespacesFromPrivileges() {
@@ -20,6 +20,9 @@ describe('mongodb-collection-model', function () {
         },
         shouldFetchDbAndCollStats() {
           return false;
+        },
+        shouldShowHiddenNamespaces() {
+          return showHiddenNamespaces;
         },
         auth: { privileges: null, roles: null },
         emit: function () {},
@@ -34,12 +37,8 @@ describe('mongodb-collection-model', function () {
       };
     }
 
-    it('hides system collections but keeps system.profile', async function () {
-      var collections = new CollectionCollection([], {
-        parent: createFakeDatabase(),
-      });
-
-      var dataService = {
+    function createDataService() {
+      return {
         listCollections: async function () {
           return [
             { _id: 'test.foo' },
@@ -49,14 +48,35 @@ describe('mongodb-collection-model', function () {
           ];
         },
       };
+    }
 
-      await collections.fetch({ dataService: dataService });
+    it('hides system collections by default, but keeps system.profile', async function () {
+      var collections = new CollectionCollection([], {
+        parent: createFakeDatabase({ showHiddenNamespaces: false }),
+      });
+
+      await collections.fetch({ dataService: createDataService() });
 
       assert.deepStrictEqual(
         collections.map(function (coll) {
           return coll._id;
         }),
         ['test.bar', 'test.foo', 'test.system.profile']
+      );
+    });
+
+    it('keeps system collections when showHiddenNamespaces is enabled', async function () {
+      var collections = new CollectionCollection([], {
+        parent: createFakeDatabase({ showHiddenNamespaces: true }),
+      });
+
+      await collections.fetch({ dataService: createDataService() });
+
+      assert.deepStrictEqual(
+        collections.map(function (coll) {
+          return coll._id;
+        }),
+        ['test.bar', 'test.foo', 'test.system.profile', 'test.system.views']
       );
     });
   });

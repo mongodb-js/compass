@@ -417,18 +417,13 @@ const CollectionCollection = AmpersandCollection.extend(
         }
       );
 
+      const showHiddenNamespaces = instanceModel.shouldShowHiddenNamespaces();
+
       this.set(
         collections
-          .filter((coll) => {
-            // TODO: This is not the best place to do this kind of
-            // filtering, but for now this preserves the current behavior
-            // and changing it right away will expand the scope of the
-            // refactor significantly. We can address this in COMPASS-5211
-            return (
-              getNamespaceInfo(coll._id).system === false ||
-              getNamespaceInfo(coll._id).collection === 'system.profile'
-            );
-          })
+          .filter(
+            (coll) => showHiddenNamespaces || !getNamespaceInfo(coll._id).system
+          )
           .map(({ _id, ...rest }) => {
             return {
               _id,
