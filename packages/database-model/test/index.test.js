@@ -8,39 +8,65 @@ describe('mongodb-database-model', function () {
   });
 
   describe('DatabaseCollection#fetch', function () {
-    function createFakeInstance() {
+    function createFakeInstance({ showHiddenNamespaces }) {
       return {
         modelType: 'Instance',
         shouldFetchNamespacesFromPrivileges() {
           return false;
+        },
+        shouldShowHiddenNamespaces() {
+          return showHiddenNamespaces;
         },
         auth: { privileges: null, roles: null },
         emit: function () {},
       };
     }
 
-    it('filters out internal (__mdb_internal_) databases from the list except search', async function () {
-      var databases = new Database.Collection([], {
-        parent: createFakeInstance(),
-      });
-
-      var dataService = {
+    function createDataService() {
+      return {
         listDatabases: async function () {
           return [
             { _id: 'admin' },
             { _id: 'test' },
-            { _id: '__mdb_internal_atlas' },
-            { _id: '__mdb_internal_search' },
+            { _id: 'config' },
             { _id: 'local' },
+            { _id: '__mdb_internal_search' },
+            { _id: '__mdb_internal_atlas' },
           ];
         },
       };
+    }
 
-      await databases.fetch({ dataService: dataService });
+    it('hides internal (__mdb_internal_) databases by default', async function () {
+      var databases = new Database.Collection([], {
+        parent: createFakeInstance({ showHiddenNamespaces: false }),
+      });
+
+      await databases.fetch({ dataService: createDataService() });
 
       assert.deepStrictEqual(
         databases.map(({ _id }) => _id),
-        ['__mdb_internal_search', 'admin', 'local', 'test']
+        ['admin', 'config', 'local', 'test']
+      );
+    });
+
+    it('keeps internal (__mdb_internal_) databases when showHiddenNamespaces is enabled', async function () {
+      var databases = new Database.Collection([], {
+        parent: createFakeInstance({ showHiddenNamespaces: true }),
+      });
+
+      await databases.fetch({ dataService: createDataService() });
+
+      assert.deepStrictEqual(
+        databases.map(({ _id }) => _id),
+        [
+          '__mdb_internal_atlas',
+          '__mdb_internal_search',
+          'admin',
+          'config',
+          'local',
+          'test',
+        ]
       );
     });
   });
