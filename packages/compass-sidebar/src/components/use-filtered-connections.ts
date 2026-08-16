@@ -9,7 +9,17 @@ import type {
   SidebarNotConnectedConnection,
 } from '@mongodb-js/compass-connections-navigation';
 import { type ConnectionInfo } from '@mongodb-js/connection-info';
-import { useCallback, useEffect, useMemo, useReducer, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useReducer,
+  useRef,
+} from 'react';
+
+/** Matches nothing; used when the user entered a non-empty search that is not a valid RegExp. */
+const NEVER_MATCH_REGEX = /^$/;
 
 type ExpandedDatabases = Record<
   SidebarDatabase['_id'],
@@ -394,6 +404,11 @@ function filteredConnectionsToSidebarConnection(
 
 export type ConnectionsFilter = {
   regex: RegExp | null;
+  /**
+   * Raw search field text. When non-empty and `regex` is null (invalid pattern),
+   * filtering still runs so the UI can show an empty state instead of the full list.
+   */
+  searchText?: string;
   excludeInactive: boolean;
 };
 
@@ -429,10 +444,19 @@ export const useFilteredConnections = ({
   // filter updates
   // connections change often, but the effect only uses connections if the filter is active
   // so we use this conditional dependency to avoid too many calls
-  const connectionsWhenFiltering =
-    (filter.regex || filter.excludeInactive) && connections;
-  useEffect(() => {
-    if (!filter.regex && !filter.excludeInactive) {
+  const searchText = filter.searchText ?? '';
+  const invalidSearchPattern = searchText.length > 0 && filter.regex === null;
+  const isFilteringActive =
+    !!filter.regex || filter.excludeInactive || invalidSearchPattern;
+  const connectionsWhenFiltering = isFilteringActive && connections;
+  const filterRegexForReducer = invalidSearchPattern
+    ? NEVER_MATCH_REGEX
+    : filter.regex;
+
+  // useLayoutEffect so the filtered list and empty state update in the same frame as
+  // the search input, avoiding a brief flash of unfiltered results.
+  useLayoutEffect(() => {
+    if (!isFilteringActive) {
       dispatch({ type: CLEAR_FILTER });
     } else if (connectionsWhenFiltering) {
       // the above check is extra just to please TS
@@ -445,12 +469,13 @@ export const useFilteredConnections = ({
       dispatch({
         type: FILTER_CONNECTIONS,
         connections: connectionsWhenFiltering,
-        filterRegex: filter.regex,
+        filterRegex: filterRegexForReducer,
         excludeInactive: filter.excludeInactive,
       });
     }
   }, [
-    filter.regex,
+    isFilteringActive,
+    filterRegexForReducer,
     filter.excludeInactive,
     connectionsWhenFiltering,
     fetchAllCollections,

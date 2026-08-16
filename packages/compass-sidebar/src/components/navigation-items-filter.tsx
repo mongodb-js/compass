@@ -45,6 +45,7 @@ export default function NavigationItemsFilter({
     (event) => {
       onFilterChange((filter) => ({
         ...filter,
+        searchText: event.target.value,
         regex: createRegExp(event.target.value),
       }));
     },
