@@ -1374,13 +1374,13 @@ export const allPreferencesProps: Required<{
 function deriveAtlasSignInOptionState<K extends keyof AllPreferences>(
   property: K
 ): DeriveValueFunction<boolean> {
-  return (v, s) => ({
-    value: !!v(property) && v('enableAtlasSignIn'),
+  return (value, state) => ({
+    value: !!value(property) && value('enableAtlasSignIn'),
     state:
-      s(property) ??
-      (v('enableAtlasSignIn')
+      state(property) ??
+      (value('enableAtlasSignIn')
         ? undefined
-        : s('enableAtlasSignIn') ?? 'derived'),
+        : state('enableAtlasSignIn') ?? 'derived'),
   });
 }
 
@@ -1388,11 +1388,13 @@ function deriveAtlasSignInOptionState<K extends keyof AllPreferences>(
 function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
   property: K
 ): DeriveValueFunction<boolean> {
-  return (v, s) => ({
-    value: v(property) && v('networkTraffic'),
+  return (value, state) => ({
+    value: value(property) && value('networkTraffic'),
     state:
-      s(property) ??
-      (v('networkTraffic') ? undefined : s('networkTraffic') ?? 'derived'),
+      state(property) ??
+      (value('networkTraffic')
+        ? undefined
+        : state('networkTraffic') ?? 'derived'),
   });
 }
 
@@ -1400,21 +1402,21 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
 function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
   property: K
 ): DeriveValueFunction<boolean> {
-  return (v, s) => ({
+  return (value, state) => ({
     value:
-      v(property) &&
-      v('enableShell') &&
-      !v('maxTimeMS') &&
-      !v('protectConnectionStrings') &&
-      !v('readOnly'),
+      value(property) &&
+      value('enableShell') &&
+      !value('maxTimeMS') &&
+      !value('protectConnectionStrings') &&
+      !value('readOnly'),
     state:
-      s(property) ??
-      (v('protectConnectionStrings')
-        ? s('protectConnectionStrings') ?? 'derived'
+      state(property) ??
+      (value('protectConnectionStrings')
+        ? state('protectConnectionStrings') ?? 'derived'
         : undefined) ??
-      (v('readOnly') ? s('readOnly') ?? 'derived' : undefined) ??
-      (v('enableShell') ? undefined : s('enableShell') ?? 'derived') ??
-      (v('maxTimeMS') ? s('maxTimeMS') ?? 'derived' : undefined),
+      (value('readOnly') ? state('readOnly') ?? 'derived' : undefined) ??
+      (value('enableShell') ? undefined : state('enableShell') ?? 'derived') ??
+      (value('maxTimeMS') ? state('maxTimeMS') ?? 'derived' : undefined),
   });
 }
 
@@ -1432,14 +1434,15 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
   property: K,
   matchReadOnlyProperty = false
 ): DeriveValueFunction<boolean> {
-  return (v, s) => ({
+  return (value, state) => ({
     value: Boolean(
       matchReadOnlyProperty
-        ? v(property) || v('readOnly')
-        : v(property) && !v('readOnly')
+        ? value(property) || value('readOnly')
+        : value(property) && !value('readOnly')
     ),
     state:
-      s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
+      state(property) ??
+      (value('readOnly') ? state('readOnly') ?? 'derived' : undefined),
   });
 }
 
