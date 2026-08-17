@@ -277,7 +277,12 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     safeIntegerLinter,
   } = useSafeIntegerLinter({
     editorRef,
-    onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
+    onFixViolation: (source: string) => {
+      track?.('Safe Integer Fix Applied', {
+        source: 'insert-document-editor',
+      });
+      return `{"$numberLong": "${source}"}`;
+    },
   });
 
   const currentView = jsonView ? 'JSON' : 'List';

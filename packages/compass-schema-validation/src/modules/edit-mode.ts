@@ -35,11 +35,20 @@ export type EditModeAction =
   | EnableEditRulesAction
   | DisableModeChangedAction;
 
+/**
+ * Whether the collection is locked by the "constraint" validation level, which
+ * makes the server reject any change to the validator. "prepared" is the
+ * intermediate state of the two-step upgrade: it locks the validator in the
+ * same way, and outlives an upgrade that failed or was interrupted.
+ */
+export type ConstraintValidationState = 'none' | 'active' | 'prepared';
+
 export interface EditModeState {
   collectionReadOnly: boolean;
   collectionTimeSeries: boolean;
   writeStateStoreReadOnly: boolean;
   oldServerReadOnly: boolean;
+  constraintValidation: ConstraintValidationState;
   isEditingEnabledByUser: boolean;
 }
 
@@ -51,6 +60,7 @@ export const INITIAL_STATE: EditModeState = {
   collectionTimeSeries: false,
   writeStateStoreReadOnly: false,
   oldServerReadOnly: false,
+  constraintValidation: 'none',
   isEditingEnabledByUser: false,
 };
 
@@ -84,7 +94,11 @@ export default function reducer(
       ValidationActions.EmptyValidationFetched
     )
   ) {
-    return { ...state, isEditingEnabledByUser: true };
+    return {
+      ...state,
+      constraintValidation: 'none',
+      isEditingEnabledByUser: true,
+    };
   }
 
   if (
@@ -93,7 +107,16 @@ export default function reducer(
       ValidationActions.ValidationFetched
     )
   ) {
-    return { ...state, isEditingEnabledByUser: false };
+    return {
+      ...state,
+      constraintValidation:
+        action.validationLevel === 'constraint'
+          ? 'active'
+          : action.prepareConstraintValidationLevel
+          ? 'prepared'
+          : 'none',
+      isEditingEnabledByUser: false,
+    };
   }
 
   if (

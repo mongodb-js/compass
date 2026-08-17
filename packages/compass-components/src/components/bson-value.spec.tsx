@@ -138,7 +138,7 @@ describe('BSONValue', function () {
     {
       type: 'Date',
       value: new Date(0),
-      expected: '1970-01-01T00:00:00.000+00:00',
+      expected: "ISODate('1970-01-01T00:00:00.000+00:00')",
     },
     {
       type: 'String',

@@ -38,6 +38,7 @@ import type {
   RecentQuery,
 } from '@mongodb-js/my-queries-storage';
 import type { QueryOptionOfTypeDocument } from '../constants/query-option-definition';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 type AutoCompleteQuery<T extends { _lastExecuted: Date }> = Partial<T> & {
   _lastExecuted: Date;
@@ -247,6 +248,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     darkMode,
     optionName,
   ]);
+  const track = useTelemetry();
   const linterAnnotationTheme = useMemo(
     () => getDiagnosticActionTooltipTheme(darkMode),
     [darkMode]
@@ -254,6 +256,12 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const { safeIntegerLinter, violations: safeIntegerViolations } =
     useSafeIntegerLinter({
       theme: linterAnnotationTheme,
+      onFixViolation(source) {
+        track('Safe Integer Fix Applied', {
+          source: 'query-bar-editor',
+        });
+        return `Long("${source}")`;
+      },
     });
   useEffect(() => {
     if (safeIntegerViolations.length > 0) {

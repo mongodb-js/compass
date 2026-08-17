@@ -20,6 +20,10 @@ function hash(input: string): string {
 
 let isClosed = false;
 const clusters = new Map<string, MongoCluster>();
+
+// Allows to override the URL that mongodb-download-url uses when pulling a list of existing MongoDB versions to match against requested version. Useful when you need to point it at a custom list (for example https://downloads.mongodb.org/cloud.json)
+const versionListUrl = process.env.MONGODB_VERSION_LIST_URL;
+
 const defaults: MongoClusterOptions = {
   topology: 'standalone',
   tmpDir: path.join(
@@ -28,6 +32,7 @@ const defaults: MongoClusterOptions = {
   ),
   logDir: process.env.MONGODB_RUNNER_LOGDIR,
   version: process.env.MONGODB_VERSION,
+  ...(versionListUrl ? { downloadOptions: { versionListUrl } } : {}),
 };
 
 // Like MongoCluster.start(), but with Compass-specific defaults
