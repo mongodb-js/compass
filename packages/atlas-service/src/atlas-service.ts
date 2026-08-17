@@ -1,5 +1,4 @@
 import { throwIfAborted } from '@mongodb-js/compass-utils';
-import type { AtlasAuthService } from './atlas-auth-service';
 import type { AtlasServiceConfig } from './util';
 import {
   getAtlasConfig,
@@ -53,19 +52,16 @@ function getAutomationAgentClusterId(
 }
 
 export class AtlasService {
-  private readonly authService: AtlasAuthService;
   private readonly preferences: PreferencesAccess;
   private readonly logger: Logger;
   private readonly options?: AtlasServiceOptions;
   private readonly defaultConfigOverride?: AtlasServiceConfig;
   constructor(
-    authService: AtlasAuthService,
     preferences: PreferencesAccess,
     logger: Logger,
     options?: AtlasServiceOptions,
     defaultConfigOverride?: AtlasServiceConfig
   ) {
-    this.authService = authService;
     this.preferences = preferences;
     this.logger = logger;
     this.options = options;
