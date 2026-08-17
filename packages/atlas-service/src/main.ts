@@ -252,6 +252,7 @@ export class CompassAuthService {
     try {
       const accessToken = await this.maybeGetToken({
         tokenType: 'accessToken',
+        skipWaitingForInit: true,
       });
       if (!accessToken) {
         this.currentUser = null;
@@ -371,11 +372,14 @@ export class CompassAuthService {
   static async maybeGetToken({
     tokenType,
     signal,
+    skipWaitingForInit = false,
   }: {
     tokenType?: 'accessToken' | 'refreshToken';
     signal?: AbortSignal;
+    skipWaitingForInit?: boolean;
   }): Promise<string | undefined> {
     try {
+      if (!skipWaitingForInit) await this.initPromise;
       tokenType ??= 'accessToken';
       const token = await this.requestOAuthToken({ signal });
       return token[tokenType];
