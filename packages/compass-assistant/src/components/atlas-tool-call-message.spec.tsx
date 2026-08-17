@@ -198,7 +198,11 @@ describe('AtlasToolCallMessage', function () {
     it('shows "Cancelled" title when denied', function () {
       renderMessage({ toolCall: makeToolCall('output-denied') });
 
-      expect(screen.getByText('Cancelled')).to.exist;
+      expect(
+        screen.getByText(
+          containsText('Cancelled atlas-connection-error-debugger')
+        )
+      ).to.exist;
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
       expect(screen.queryByText('Skip')).to.not.exist;
     });

@@ -27,7 +27,6 @@ describe('CustomToolResult', function () {
       expect(screen.getByText('Cluster0')).to.exist;
 
       expect(screen.getByText('State')).to.exist;
-      // clusterState is upper-cased by the mapper
       expect(screen.getByText('PAUSED')).to.exist;
 
       expect(screen.getByText('IP Access')).to.exist;
@@ -65,7 +64,6 @@ describe('CustomToolResult', function () {
         <CustomToolResult toolType="tool-list-databases" output={debugResult} />
       );
 
-      // None of the debugger-specific labels should render for an unknown tool.
       expect(screen.queryByText('Cluster')).to.not.exist;
       expect(screen.queryByText('State')).to.not.exist;
       expect(screen.queryByText('IP Access')).to.not.exist;
