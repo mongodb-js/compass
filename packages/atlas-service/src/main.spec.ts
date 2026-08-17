@@ -43,7 +43,12 @@ describe('CompassAuthServiceMain', function () {
   };
 
   let oidcCallback: Sinon.SinonStub;
-  let pluginOptions: { serializedState?: string } | undefined;
+  let pluginOptions:
+    | {
+        serializedState?: string;
+        customFetch?: (url: string, init?: RequestInit) => Promise<unknown>;
+      }
+    | undefined;
 
   const defaultConfig: util.AtlasServiceConfig = {
     ccsBaseUrl: 'ws://example.com',
@@ -60,6 +65,7 @@ describe('CompassAuthServiceMain', function () {
   };
 
   const fetch = CompassAuthService['fetch'];
+  const getUserAgent = CompassAuthService['getUserAgent'];
   const ipcMain = CompassAuthService['ipcMain'];
   const createPlugin = CompassAuthService['createMongoDBOIDCPlugin'];
   const authConfig = CompassAuthService['config'];
@@ -108,6 +114,7 @@ describe('CompassAuthServiceMain', function () {
   // eslint-disable-next-line @typescript-eslint/require-await
   afterEach(async function () {
     CompassAuthService['fetch'] = fetch;
+    CompassAuthService['getUserAgent'] = getUserAgent;
     CompassAuthService['ipcMain'] = ipcMain;
     CompassAuthService['initPromise'] = null;
     CompassAuthService['createMongoDBOIDCPlugin'] = createPlugin;
@@ -306,6 +313,22 @@ describe('CompassAuthServiceMain', function () {
 
     it('should restore the stored user when the plugin requests a token', async function () {
       CompassAuthService['fetch'] = fetch;
+      // `app` is not available outside of electron
+      CompassAuthService['getUserAgent'] = () => 'Compass/test';
+      const httpClientFetch = sandbox.stub().resolves({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        json: () => Promise.resolve({}),
+      });
+      // Ensure the mock oidc plugin actually calls the custom fetch
+      // - this part is important as we want to test the whole flow
+      oidcCallback.callsFake(async () => {
+        await pluginOptions?.customFetch?.('http://example.com/oauth/token', {
+          method: 'POST',
+        });
+        return { accessToken, refreshToken };
+      });
       const restoreCurrentUserSpy = sandbox.spy(
         CompassAuthService as any,
         'restoreCurrentUser'
@@ -314,13 +337,23 @@ describe('CompassAuthServiceMain', function () {
         .stub(CompassAuthService['secretStore'], 'getState')
         .resolves('serialized-plugin-state');
 
-      await CompassAuthService.init(preferences, { fetch: mockFetch } as any);
+      await CompassAuthService.init(preferences, {
+        fetch: httpClientFetch,
+      } as any);
 
       expect(pluginOptions).to.have.property(
         'serializedState',
         'serialized-plugin-state'
       );
       expect(restoreCurrentUserSpy).to.have.been.calledOnce;
+      expect(httpClientFetch).to.have.been.calledOnce;
+      expect(httpClientFetch.firstCall.args[0]).to.eq(
+        'http://example.com/oauth/token'
+      );
+      expect(CompassAuthService['currentUser']).to.have.property(
+        'sub',
+        atlasUid
+      );
       expect(await CompassAuthService.isAuthenticated()).to.equal(true);
     });
   });

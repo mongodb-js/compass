@@ -69,6 +69,8 @@ export class CompassAuthService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
+  private static getUserAgent = () => `${app.getName()}/${app.getVersion()}`;
+
   private static fetch = async (
     url: string,
     init: RequestInit = {}
@@ -86,7 +88,7 @@ export class CompassAuthService {
         ...init,
         headers: {
           ...init.headers,
-          'User-Agent': `${app.getName()}/${app.getVersion()}`,
+          'User-Agent': this.getUserAgent(),
         },
       });
       await throwIfNotOk(res);
