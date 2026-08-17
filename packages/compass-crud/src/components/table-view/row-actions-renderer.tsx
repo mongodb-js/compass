@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo } from 'react';
 import type { ItemAction } from '@mongodb-js/compass-components';
-import { ItemActionGroup } from '@mongodb-js/compass-components';
+import { CloneIcon, ItemActionGroup } from '@mongodb-js/compass-components';
 
 type RowActionsRendererProps = {
   api?: any;
@@ -38,7 +38,11 @@ const RowActionsRenderer: React.FunctionComponent<RowActionsRendererProps> = ({
     return [
       edit,
       { action: 'copy', label: 'Copy Document', icon: 'Copy' },
-      { action: 'clone', label: 'Clone Document', icon: 'Clone' },
+      {
+        action: 'clone',
+        label: 'Clone Document',
+        icon: <CloneIcon size={12} role="presentation" />,
+      },
       { action: 'remove', label: 'Delete Document', icon: 'Trash' },
     ];
   }, [nested]);

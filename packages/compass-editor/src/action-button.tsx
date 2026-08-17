@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import type { EditorView } from '@codemirror/view';
 
 export type Action = {
-  icon: GlyphName;
+  icon: GlyphName | React.ReactElement;
   label: string;
   action: (editor: EditorView) => boolean | void;
 };

@@ -73,6 +73,7 @@ export { ItemActionMenu } from './components/actions/item-action-menu';
 export { DropdownMenuButton } from './components/actions/dropdown-menu-button';
 
 export { AssistantAvatar as AssistantSparkleIcon } from '@leafygreen-ui/avatar';
+export { CloneIcon } from './components/icons/clone-icon';
 export { DocumentIcon } from './components/icons/document-icon';
 export { FavoriteIcon } from './components/icons/favorite-icon';
 export { ServerIcon } from './components/icons/server-icon';

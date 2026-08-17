@@ -8,6 +8,7 @@ import React, {
 import {
   css,
   cx,
+  CloneIcon,
   DocumentList,
   Link,
   palette,
@@ -221,7 +222,7 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
         },
       },
       isEditable && {
-        icon: 'Clone',
+        icon: <CloneIcon size="small" role="presentation" />,
         label: 'Clone',
         action: handleClone,
       },

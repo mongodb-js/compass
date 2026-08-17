@@ -10,6 +10,7 @@ import type { BaseButtonProps } from '@leafygreen-ui/button';
 import { Button, Icon, Tooltip } from '../leafygreen';
 import type { Signal } from '../signal-popover';
 import { SignalPopover } from '../signal-popover';
+import { CloneIcon } from '../icons/clone-icon';
 
 const actionsGroupContainer = css({
   position: 'absolute',
@@ -229,7 +230,7 @@ const DocumentActionsGroup: React.FunctionComponent<
         <ActionButton
           size="xsmall"
           tooltipEnabled={isActive}
-          rightGlyph={<Icon role="presentation" glyph="Clone"></Icon>}
+          rightGlyph={<CloneIcon role="presentation" />}
           aria-label="Clone document"
           data-testid="clone-document-button"
           onClick={onClone}
