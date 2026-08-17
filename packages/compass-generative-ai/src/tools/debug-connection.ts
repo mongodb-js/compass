@@ -4,7 +4,7 @@ import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 export type AtlasConnectionDebugResult = {
   cluster: string;
   clusterState: 'ready' | 'paused' | 'provisioning' | 'deleted' | 'notFound';
-  ipAccessAllowed: 'Allowed' | 'NotAllowed';
+  ipAccessAllowed: boolean;
 };
 
 export async function debugConnection(
@@ -16,6 +16,6 @@ export async function debugConnection(
   return await Promise.resolve({
     cluster: 'Cluster0',
     clusterState: 'paused',
-    ipAccessAllowed: 'Allowed',
+    ipAccessAllowed: true,
   });
 }

@@ -2,12 +2,15 @@ import React, { useCallback } from 'react';
 import {
   css,
   InlineDefinition,
-  LgChatSuggestions,
   ServerIcon,
-  useDarkMode,
 } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
-import { cleanToolCallOutput, getToolState } from '../utils';
+import {
+  cleanToolCallOutput,
+  getToolState,
+  hasCustomToolResult,
+  isDebuggerToolCall,
+} from '../utils';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
 import { ActionCardMessage } from './action-card-message';
 import {
@@ -19,11 +22,7 @@ import {
   useAtlasLoginActions,
   useAtlasSignedInUser,
 } from '@mongodb-js/atlas-service/provider';
-
-const { SuggestedActions } = LgChatSuggestions;
-
-const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
-  'tool-atlas-connection-error-debugger';
+import { CustomToolResult } from './custom-tool-result';
 
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
@@ -40,14 +39,6 @@ const expandableContentStyles = css({
     textTransform: 'uppercase',
   },
 });
-
-const suggestedActionsContainerStyles = css({
-  marginTop: '8px',
-});
-
-function isDebuggerToolCall(type: string): boolean {
-  return type === ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE;
-}
 
 function getTitle(
   toolCall: ToolUIPart,
@@ -150,7 +141,6 @@ ${toolCall.errorText}
 export const AtlasToolCallMessage: React.FunctionComponent<
   AtlasToolCallMessageProps
 > = ({ toolCall, connectionInfo, onApprove, onDeny }) => {
-  const darkMode = useDarkMode();
   const toolCallState = getToolState(toolCall.state);
   const isAwaitingApproval = toolCallState === 'idle' && !!toolCall.approval;
   const approvalId = toolCall.approval?.id;
@@ -221,20 +211,8 @@ export const AtlasToolCallMessage: React.FunctionComponent<
       >
         {expandableContentText}
       </ActionCardMessage>
-      {hasOutput && isDebuggerToolCall(toolCall.type) && (
-        <SuggestedActions
-          className={suggestedActionsContainerStyles}
-          darkMode={darkMode}
-          state="unset"
-          // No apply button is rendered when state is 'unset', so we can pass a no-op function here.
-          onClickApply={() => {}}
-          configurationParameters={Object.entries(cleanedOutput).flatMap(
-            ([key, value]) => ({
-              key: key,
-              value: value,
-            })
-          )}
-        />
+      {hasOutput && hasCustomToolResult(toolCall.type) && (
+        <CustomToolResult toolType={toolCall.type} output={cleanedOutput} />
       )}
     </div>
   );

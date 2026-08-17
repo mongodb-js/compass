@@ -208,3 +208,7 @@ export * as LgChatLeafygreenChatProvider from '@lg-chat/leafygreen-chat-provider
 export * as LgChatMessage from '@lg-chat/message';
 export * as LgChatMessagePrompts from '@lg-chat/message-prompts';
 export * as LgChatSuggestions from '@lg-chat/suggestions';
+export type {
+  ConfigurationParameter,
+  ConfigurationParameters,
+} from '@lg-chat/suggestions';

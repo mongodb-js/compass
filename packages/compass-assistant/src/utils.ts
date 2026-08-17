@@ -10,6 +10,9 @@ import type { Chat } from './@ai-sdk/react/chat-react';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 
+const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
+  'tool-atlas-connection-error-debugger';
+
 export type ToolState = 'idle' | 'running' | 'success' | 'error' | 'canceled';
 
 // Type guard to check if a message part is an approval request
@@ -260,4 +263,12 @@ function isStructuredOutput(
 // Extract tool name from type (e.g., "tool-list-databases" -> "list-databases")
 export function getToolDisplayName(type: string): string {
   return type.replace(/^tool-/, '');
+}
+
+export function isDebuggerToolCall(type: string): boolean {
+  return type === ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE;
+}
+
+export function hasCustomToolResult(toolType: string): boolean {
+  return isDebuggerToolCall(toolType);
 }
