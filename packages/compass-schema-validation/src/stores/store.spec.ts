@@ -138,6 +138,7 @@ describe('Schema Validation Store', function () {
           isEditingEnabledByUser: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: true,
+          constraintValidation: 'none',
         });
 
         (fakeInstance as any).set({
@@ -153,6 +154,7 @@ describe('Schema Validation Store', function () {
           isEditingEnabledByUser: false,
           oldServerReadOnly: false,
           writeStateStoreReadOnly: false,
+          constraintValidation: 'none',
         });
       });
     });

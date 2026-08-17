@@ -76,6 +76,7 @@
     "react-dom": "^17.0.2"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.1103.0",
     "@microsoft/api-extractor": "^7.58.12",
     "@mongodb-js/atlas-admin-api": "^1.0.0",
     "@mongodb-js/atlas-service": "^1.2.0",
@@ -123,7 +124,6 @@
     "@types/react": "^17.0.5",
     "@types/react-dom": "^17.0.10",
     "@types/sinon-chai": "^3.2.5",
-    "aws-sdk": "^2.1692.0",
     "browser-process-hrtime": "^1.0.0",
     "bson": "^7.3.2",
     "buffer": "^6.0.3",

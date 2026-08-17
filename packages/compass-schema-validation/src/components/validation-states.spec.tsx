@@ -73,6 +73,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: true,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = true;
@@ -104,6 +105,7 @@ describe('ValidationStates [Component]', function () {
         collectionReadOnly: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = true;
@@ -129,6 +131,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = true;
@@ -149,6 +152,69 @@ describe('ValidationStates [Component]', function () {
     });
   });
 
+  context(
+    'when the collection uses the constraint validation level',
+    function () {
+      beforeEach(function () {
+        props.editMode = {
+          collectionReadOnly: false,
+          collectionTimeSeries: false,
+          writeStateStoreReadOnly: false,
+          oldServerReadOnly: false,
+          constraintValidation: 'active',
+        };
+        props.readOnly = false;
+        props.isZeroState = false;
+        props.isLoaded = true;
+        props.serverVersion = '9.0.0';
+
+        render(props);
+      });
+
+      it('renders the constraint validation banner', function () {
+        expect(
+          screen.getByTestId('collection-validation-warning').textContent
+        ).to.include('cannot be changed while it is in effect');
+      });
+
+      it('renders the rules but does not offer to edit them', function () {
+        expect(screen.getByTestId('validation-editor')).to.exist;
+        expect(screen.queryByTestId('enable-edit-validation-button')).to.not
+          .exist;
+      });
+    }
+  );
+
+  context('when a constraint validation upgrade is in progress', function () {
+    beforeEach(function () {
+      props.editMode = {
+        collectionReadOnly: false,
+        collectionTimeSeries: false,
+        writeStateStoreReadOnly: false,
+        oldServerReadOnly: false,
+        constraintValidation: 'prepared',
+      };
+      props.readOnly = false;
+      props.isZeroState = false;
+      props.isLoaded = true;
+      props.serverVersion = '9.0.0';
+
+      render(props);
+    });
+
+    it('renders the in-progress upgrade banner', function () {
+      expect(
+        screen.getByTestId('collection-validation-warning').textContent
+      ).to.include('prepareConstraintValidationLevel: false');
+    });
+
+    it('does not offer to edit the rules', function () {
+      expect(
+        screen.queryByTestId('enable-edit-validation-button')
+      ).to.not.exist;
+    });
+  });
+
   context('when the server version is higher than 3.2', function () {
     beforeEach(function () {
       props.editMode = {
@@ -156,6 +222,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = true;
@@ -179,6 +246,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: false,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = true;
       props.isZeroState = false;
@@ -202,6 +270,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = false;
@@ -229,6 +298,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = false;
@@ -250,6 +320,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = true;
@@ -276,6 +347,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = false;
@@ -297,6 +369,7 @@ describe('ValidationStates [Component]', function () {
         collectionTimeSeries: false,
         writeStateStoreReadOnly: true,
         oldServerReadOnly: false,
+        constraintValidation: 'none',
       };
       props.readOnly = false;
       props.isZeroState = false;
