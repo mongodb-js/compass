@@ -204,8 +204,6 @@ export const AtlasToolCallMessage: React.FunctionComponent<
         initialIsExpanded={!hasOutput}
         contentClassName={expandableContentStyles}
         focusPrimaryKey={approvalId}
-        // Collapse/Expand the card based on whether there's output to show. If there's output, we want it collapsed by default, otherwise expanded.
-        key={hasOutput ? 'collapsed' : 'expanded'}
         buttons={[
           {
             label: isUserSignedIn ? 'Cancel' : 'Skip',
