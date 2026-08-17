@@ -38,9 +38,7 @@ function useElementEditor(
 
 function useHadronElement(el: HadronElementType) {
   const forceUpdate = useForceUpdate();
-  const { legacyUUIDDisplayEncoding } = useBSONDisplayOptions([
-    'legacyUUIDDisplayEncoding',
-  ]);
+  const { legacyUUIDDisplayEncoding } = useBSONDisplayOptions();
   const displayType = getDisplayType(el, legacyUUIDDisplayEncoding);
   const editor = useElementEditor(el, displayType);
   // NB: Duplicate key state is kept local to the component and not derived on

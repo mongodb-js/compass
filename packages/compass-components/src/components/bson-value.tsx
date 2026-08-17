@@ -152,9 +152,7 @@ const toLegacyPythonUUID = ({ value }: PropsByValueType<'Binary'>) => {
 const LegacyUUIDValue: React.FunctionComponent<PropsByValueType<'Binary'>> = (
   bsonValue
 ) => {
-  const { legacyUUIDDisplayEncoding } = useBSONDisplayOptions([
-    'legacyUUIDDisplayEncoding',
-  ]);
+  const { legacyUUIDDisplayEncoding } = useBSONDisplayOptions();
 
   const stringifiedValue = useMemo(() => {
     // UUID must be exactly 16 bytes.
