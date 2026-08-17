@@ -136,6 +136,50 @@ describe('CompassAuthServiceMain', function () {
       );
     });
 
+    it('should track the elapsed sign in time on success', async function () {
+      getTrackingUserInfoStub.returns({ auid: 'abcdefgh' });
+
+      const trackedEvents: {
+        event: string;
+        properties: Record<string, unknown>;
+      }[] = [];
+      const onTrack = (data: {
+        event: string;
+        properties: Record<string, unknown>;
+      }) => {
+        trackedEvents.push(data);
+      };
+      process.on('compass:track' as any, onTrack);
+
+      // Only fake Date so that promise scheduling keeps working, and advance it
+      // while the oidc flow is inflight to simulate the time the user spends
+      // going through the sign in.
+      const clock = sandbox.useFakeTimers({ now: 1000, toFake: ['Date'] });
+      const oidcCallback =
+        mockOidcPlugin.mongoClientOptions.authMechanismProperties
+          .OIDC_HUMAN_CALLBACK;
+      oidcCallback.callsFake(() => {
+        clock.tick(5000);
+        return Promise.resolve({ accessToken, refreshToken });
+      });
+
+      try {
+        await CompassAuthService.signIn();
+        // track() sends the event on a microtask
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const signInSuccess = trackedEvents.filter(({ event }) => {
+          return event === 'Atlas Sign In Success';
+        });
+        expect(signInSuccess).to.have.lengthOf(1);
+        expect(signInSuccess[0].properties).to.have.property('duration', 5000);
+      } finally {
+        process.off('compass:track' as any, onTrack);
+        oidcCallback.resolves({ accessToken, refreshToken });
+        clock.restore();
+      }
+    });
+
     it('should debounce inflight sign in requests', async function () {
       void CompassAuthService.signIn();
       void CompassAuthService.signIn();

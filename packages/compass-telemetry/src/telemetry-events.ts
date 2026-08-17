@@ -114,6 +114,54 @@ type ConnectionScopedEvent<E extends { payload: unknown }> = E & {
 };
 
 /**
+ * The surface of the application that triggered an Atlas sign in attempt. Used
+ * to tell what the main drivers of Atlas sign in are.
+ */
+export type AtlasSignInEntrypoint =
+  /**
+   * The sign in was triggered from a connection failure.
+   */
+  | 'connection_failure'
+  /**
+   * The sign in was triggered by a caller that doesn't provide an entrypoint.
+   */
+  | 'unknown';
+
+/**
+ * This event is fired when the user is shown a prompt inviting them to sign in
+ * to their Atlas account, before they decide whether to go ahead with it.
+ * Paired with `Atlas Sign In Started` it tells us how often each entrypoint
+ * converts.
+ *
+ * @category Atlas
+ */
+type AtlasSignInPromptShownEvent = CommonEvent<{
+  name: 'Atlas Sign In Prompt Shown';
+  payload: {
+    /**
+     * The surface of the application the prompt was shown in.
+     */
+    entrypoint: AtlasSignInEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when a sign in attempt to an Atlas account is started,
+ * before the user is taken through the sign in flow.
+ *
+ * @category Atlas
+ */
+type AtlasSignInStartedEvent = CommonEvent<{
+  name: 'Atlas Sign In Started';
+  payload: {
+    /**
+     * The surface of the application the sign in was triggered from.
+     */
+    entrypoint: AtlasSignInEntrypoint;
+  };
+}>;
+
+/**
  * This event is fired when user successfully signed in to their Atlas account
  *
  * @category Atlas
@@ -125,6 +173,11 @@ type AtlasSignInSuccessEvent = CommonEvent<{
      * The id of the atlas user who signed in.
      */
     auid: string;
+    /**
+     * The time elapsed between the start of the sign in flow and its
+     * completion, in milliseconds.
+     */
+    duration: number;
   };
 }>;
 
@@ -4108,6 +4161,8 @@ export type TelemetryEvent =
   | AtlasLinkClickedEvent
   | AtlasSearchIndexesForViewLinkClickedEvent
   | AtlasSignInErrorEvent
+  | AtlasSignInPromptShownEvent
+  | AtlasSignInStartedEvent
   | AtlasSignInSuccessEvent
   | AtlasSignOutEvent
   | AutoupdateAcceptedEvent

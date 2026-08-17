@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { ServerIcon } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import type { ToolState } from '../utils';
@@ -13,10 +13,18 @@ import { getToolDisplayName } from '../utils';
 import {
   useAtlasLoginActions,
   useAtlasSignedInUser,
+  useIsAtlasSignInStateResolved,
 } from '@mongodb-js/atlas-service/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
   'tool-atlas-connection-error-debugger';
+
+/**
+ * This card is only ever rendered as part of the assistant's connection failure
+ * troubleshooting flow, so every sign in it drives is attributed to it.
+ */
+const SIGN_IN_ENTRYPOINT = 'connection_failure';
 
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
@@ -68,6 +76,30 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const approvalId = toolCall.approval?.id;
   const isUserSignedIn = !!useAtlasSignedInUser();
   const { signIn } = useAtlasLoginActions();
+  const track = useTelemetry();
+  const isSignInStateResolved = useIsAtlasSignInStateResolved();
+
+  // The card re-renders on every state change, so we only report the prompt the
+  // first time it's actually offered to a signed out user. We also wait for the
+  // sign in state to be restored, otherwise an already signed in user looks
+  // signed out on the first render.
+  const trackedPromptForApprovalId = useRef<string | null>(null);
+  const isSignInPromptShown =
+    isAwaitingApproval &&
+    isSignInStateResolved &&
+    !isUserSignedIn &&
+    !!approvalId;
+
+  useEffect(() => {
+    if (
+      !isSignInPromptShown ||
+      trackedPromptForApprovalId.current === approvalId
+    ) {
+      return;
+    }
+    trackedPromptForApprovalId.current = approvalId ?? null;
+    track('Atlas Sign In Prompt Shown', { entrypoint: SIGN_IN_ENTRYPOINT });
+  }, [isSignInPromptShown, approvalId, track]);
 
   const chips = [];
 
@@ -81,7 +113,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
 
   const handleAtlasToolApproval = useCallback(
     (approvalId: string) => {
-      signIn()
+      signIn({ entrypoint: SIGN_IN_ENTRYPOINT })
         .then((userInfo) => onApprove(approvalId, !!userInfo))
         .catch(() => onApprove(approvalId, false));
     },

@@ -294,6 +294,8 @@ export class CompassAuthService {
 
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
+        const startedAt = Date.now();
+
         try {
           const tokens = await this.requestOAuthToken({ signal });
           this.currentUser = this.getUserInfoFromAccessToken(
@@ -305,7 +307,10 @@ export class CompassAuthService {
             'Signed in successfully'
           );
           const { auid } = getTrackingUserInfo(this.currentUser);
-          track('Atlas Sign In Success', { auid });
+          track('Atlas Sign In Success', {
+            auid,
+            duration: Date.now() - startedAt,
+          });
           await this.preferences.savePreferences({
             telemetryAtlasUserId: auid,
           });

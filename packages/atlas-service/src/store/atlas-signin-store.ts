@@ -6,11 +6,14 @@ import reducer, {
 } from './atlas-signin-reducer';
 import { AtlasSignInStoreContext } from './atlas-signin-store-context';
 import { type AtlasAuthService } from '../provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { ipcRenderer } from 'hadron-ipc';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
 export type AtlasAuthPluginServices = {
   atlasAuthService: AtlasAuthService;
+  track?: TrackFunction;
 };
 export function activatePlugin(
   _initialProps: unknown,
@@ -31,10 +34,13 @@ export function activatePlugin(
   return { store, deactivate: cleanup, context: AtlasSignInStoreContext };
 }
 
-export function configureStore({ atlasAuthService }: AtlasAuthPluginServices) {
+export function configureStore({
+  atlasAuthService,
+  track = createNoopTrack(),
+}: AtlasAuthPluginServices) {
   const store = createStore(
     reducer,
-    applyMiddleware(thunk.withExtraArgument({ atlasAuthService }))
+    applyMiddleware(thunk.withExtraArgument({ atlasAuthService, track }))
   );
   return store;
 }
