@@ -152,6 +152,7 @@ const assistantChatFixesLightStyles = css({
 const chatContainerOverrideStyle = {
   height: '100%',
   width: '100%',
+  overflowY: 'clip',
 };
 
 const messageFeedFixesStyles = css({
@@ -592,12 +593,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       )}
       style={chatContainerOverrideStyle}
     >
+      {enableAtlasConnectionErrorDebugger && (
+        <AtlasConnectionStatus appName={appName} />
+      )}
       <LeafyGreenChatProvider>
         <ChatWindow>
-          {/* TODO  COMPASS-10944: fix connection status to the top of chat*/}
-          {enableAtlasConnectionErrorDebugger && (
-            <AtlasConnectionStatus appName={appName} />
-          )}
           <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}
