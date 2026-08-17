@@ -60,8 +60,8 @@ describe('AtlasConnectionStatus', function () {
     });
   });
 
-  it('renders nothing when app is Data Explorer', async function () {
-    renderStatus(new FakeAtlasAuthService(null), 'data explorer');
+  it('renders nothing when app is Data Explorer (even when signed in)', async function () {
+    renderStatus(new FakeAtlasAuthService({ sub: 'user-1' }), 'data explorer');
 
     await waitFor(() => {
       expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;

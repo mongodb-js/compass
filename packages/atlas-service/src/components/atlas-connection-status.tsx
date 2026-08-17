@@ -54,11 +54,11 @@ export interface AtlasConnectionStatusProps {
   'data-testid'?: string;
 }
 
-const DATA_EXPLORER_NAME = 'data explorer';
+const DATA_EXPLORER_APP_NAME = 'data explorer';
 
 // The name of the application is defined in the entrypoint
-function isCompassWeb(appName: string): boolean {
-  return appName.toLowerCase() === DATA_EXPLORER_NAME;
+function isDataExplorer(appName: string): boolean {
+  return appName.toLowerCase() === DATA_EXPLORER_APP_NAME;
 }
 
 export const AtlasConnectionStatus: React.FunctionComponent<
