@@ -23,6 +23,8 @@ describe('CustomToolResult', function () {
         />
       );
 
+      expect(screen.getByText('Atlas check result:')).to.exist;
+
       expect(screen.getByText('Cluster')).to.exist;
       expect(screen.getByText('Cluster0')).to.exist;
 

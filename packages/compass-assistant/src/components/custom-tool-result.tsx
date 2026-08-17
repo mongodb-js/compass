@@ -19,8 +19,12 @@ function getToolResultParameters(
   toolType: string,
   output: unknown
 ): ConfigurationParameters {
+  const params = [{ key: 'Atlas check result:', value: '' }];
   if (isDebuggerToolCall(toolType)) {
-    return mapAtlasConnectionDebugResult(output as AtlasConnectionDebugResult);
+    return [
+      ...params,
+      ...mapAtlasConnectionDebugResult(output as AtlasConnectionDebugResult),
+    ];
   }
   return [];
 }
@@ -40,7 +44,7 @@ export const CustomToolResult: React.FC<{
       className={suggestedActionsContainerStyles}
       darkMode={darkMode}
       state="unset"
-      // No apply button is rendered when state is 'unset', so we can pass a no-op function here.
+      // The apply button is not rendered when the state is 'unset', so we can pass a no-op function here.
       onClickApply={() => {}}
       configurationParameters={configurationParameters}
     />
