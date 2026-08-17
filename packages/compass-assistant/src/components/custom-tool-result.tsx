@@ -19,10 +19,11 @@ function getToolResultParameters(
   toolType: string,
   output: unknown
 ): ConfigurationParameters {
-  const params = [{ key: 'Atlas check result:', value: '' }];
+  // This is so the first row renders as a title
+  const titleRow = { key: 'Atlas check result:', value: '' };
   if (isDebuggerToolCall(toolType)) {
     return [
-      ...params,
+      titleRow,
       ...mapAtlasConnectionDebugResult(output as AtlasConnectionDebugResult),
     ];
   }

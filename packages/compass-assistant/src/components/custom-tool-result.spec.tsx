@@ -69,6 +69,7 @@ describe('CustomToolResult', function () {
       expect(screen.queryByText('Cluster')).to.not.exist;
       expect(screen.queryByText('State')).to.not.exist;
       expect(screen.queryByText('IP Access')).to.not.exist;
+      expect(screen.queryByText('Atlas check result:')).to.not.exist;
     });
   });
 });
