@@ -1,3 +1,4 @@
+import type React from 'react';
 import { z } from '@mongodb-js/compass-user-data';
 import type { FeatureFlags } from './feature-flags';
 import { FEATURE_FLAG_PREFERENCES } from './feature-flags';

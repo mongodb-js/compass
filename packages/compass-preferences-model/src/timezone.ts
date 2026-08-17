@@ -40,7 +40,7 @@ export const TIMEZONES = [
   ...new Set([
     'UTC', // Always show UTC as first option
     SYSTEM_TIMEZONE, // Followed by the system timezone
-    ...Intl.supportedValuesOf('timeZone'),
+    ...(Intl.supportedValuesOf?.('timeZone') ?? []),
   ]),
 ];
 

@@ -213,7 +213,7 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
 
   const onChangeCallback = useCallback(
     (value: string | null) => {
-      if (value) {
+      if (value !== null) {
         onChange(name, value as UserConfigurablePreferences[PreferenceName]);
       }
     },

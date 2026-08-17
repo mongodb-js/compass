@@ -49,7 +49,7 @@ describe('timezone', function () {
     });
 
     it('formats offsets with a UTC prefix', function () {
-      // Testing against a timezoe that does not observe daylight
+      // Testing against a timezone that does not observe daylight
       // savings to avoid flakiness in the test.
       expect(getUtcOffset('Africa/Algiers')).to.equal('UTC+01:00');
       expect(getUtcOffset('Pacific/Marquesas')).to.equal('UTC-09:30');
