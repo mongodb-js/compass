@@ -50,12 +50,20 @@ const labelTextStylesLight = css({ color: palette.gray.dark1 });
 const labelTextStylesDark = css({ color: palette.gray.light1 });
 
 export interface AtlasConnectionStatusProps {
+  appName: string;
   'data-testid'?: string;
+}
+
+const DATA_EXPLORER_NAME = 'data explorer';
+
+// The name of the application is defined in the entrypoint
+function isCompassWeb(appName: string): boolean {
+  return appName.toLowerCase() === DATA_EXPLORER_NAME;
 }
 
 export const AtlasConnectionStatus: React.FunctionComponent<
   AtlasConnectionStatusProps
-> = ({ 'data-testid': dataTestId = 'atlas-connection-status' }) => {
+> = ({ appName, 'data-testid': dataTestId = 'atlas-connection-status' }) => {
   const darkMode = useDarkMode();
   const userInfo = useAtlasSignedInUser();
   const { signOut } = useAtlasLoginActions();
@@ -76,7 +84,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
     })();
   }, [signOut]);
 
-  if (!userInfo) {
+  if (!userInfo || isCompassWeb(appName)) {
     return null;
   }
 

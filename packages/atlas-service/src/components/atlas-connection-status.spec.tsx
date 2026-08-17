@@ -39,18 +39,37 @@ class FakeAtlasAuthService {
 }
 
 describe('AtlasConnectionStatus', function () {
-  function renderStatus(service: FakeAtlasAuthService) {
+  function renderStatus(
+    service: FakeAtlasAuthService,
+    appName: string = 'Compass'
+  ) {
     const { renderWithConnections } = createPluginTestHelpers(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       AtlasAuthPlugin.withMockServices({
         atlasAuthService: service as unknown as AtlasAuthService,
       })
     );
-    return renderWithConnections(<AtlasConnectionStatus />);
+    return renderWithConnections(<AtlasConnectionStatus appName={appName} />);
   }
 
   it('renders nothing when the user is not signed in', async function () {
     renderStatus(new FakeAtlasAuthService(null));
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;
+    });
+  });
+
+  it('renders nothing when app is Data Explorer', async function () {
+    renderStatus(new FakeAtlasAuthService(null), 'data explorer');
+
+    await waitFor(() => {
+      expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;
+    });
+  });
+
+  it('renders nothing when app is Data Explorer - no matter the case', async function () {
+    renderStatus(new FakeAtlasAuthService(null), 'Data Explorer');
 
     await waitFor(() => {
       expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;

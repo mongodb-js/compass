@@ -97,6 +97,7 @@ export const CompassAssistantDrawer: React.FunctionComponent<{
       <AssistantChat
         chat={chat}
         hasNonGenuineConnections={hasNonGenuineConnections}
+        appName={appName}
       />
     </DrawerSection>
   );

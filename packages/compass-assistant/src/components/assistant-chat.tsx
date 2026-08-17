@@ -52,6 +52,7 @@ const { InputBar } = LgChatInputBar;
 interface AssistantChatProps {
   chat: Chat<AssistantMessage>;
   hasNonGenuineConnections: boolean;
+  appName: string;
 }
 
 export type SendMessageOptions = {
@@ -240,6 +241,7 @@ const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
+  appName,
 }) => {
   const track = useTelemetry();
   const darkMode = useDarkMode();
@@ -593,7 +595,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       <LeafyGreenChatProvider>
         <ChatWindow>
           {/* TODO  COMPASS-10944: fix connection status to the top of chat*/}
-          {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
+          {enableAtlasConnectionErrorDebugger && (
+            <AtlasConnectionStatus appName={appName} />
+          )}
           <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}

@@ -88,7 +88,8 @@ describe('AssistantChat', function () {
         requestId?: string;
       };
       experimentVariant?: ExperimentTestGroup | null;
-    } = {}
+    } = {},
+    appName: string = 'compass'
   ) {
     // The chat component does not use chat.sendMessage() directly, it uses
     // ensureOptInAndSend() via the AssistantActionsContext.
@@ -110,7 +111,11 @@ describe('AssistantChat', function () {
       <ToolsControllerProvider>
         <AtlasLoginPlugin>
           <AssistantActionsContext.Provider value={assistantActionsContext}>
-            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+            <AssistantChat
+              chat={chat}
+              hasNonGenuineConnections={false}
+              appName={appName}
+            />
           </AssistantActionsContext.Provider>
         </AtlasLoginPlugin>
       </ToolsControllerProvider>,
@@ -237,7 +242,11 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={true}
+            appName="compass"
+          />
         </ToolsControllerProvider>
       );
 
@@ -252,14 +261,7 @@ describe('AssistantChat', function () {
 
     it('does not show warning message when all connections are genuine', function () {
       const chat = createMockChat({ messages: [] });
-      render(
-        <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </ToolsControllerProvider>,
-        {
-          connections: [],
-        }
-      );
+      renderWithChat(chat, { connections: [] });
 
       const warningMessage = screen.queryByText(
         /MongoDB Assistant will not provide accurate guidance for non-genuine hosts/
@@ -271,7 +273,11 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={true}
+            appName="compass"
+          />
         </ToolsControllerProvider>,
         {}
       );
@@ -284,7 +290,11 @@ describe('AssistantChat', function () {
 
       rerender(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          <AssistantChat
+            chat={chat}
+            hasNonGenuineConnections={false}
+            appName="compass"
+          />
         </ToolsControllerProvider>
       );
 
