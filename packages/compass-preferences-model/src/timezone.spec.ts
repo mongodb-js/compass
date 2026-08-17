@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import {
   TIMEZONES,
   SYSTEM_TIMEZONE,
-  getTimezoneOptions,
+  TIMEZONE_OPTIONS,
   getUtcOffset,
   isSupportedTimezone,
   timezoneObservesDaylightSavings,
@@ -54,10 +54,6 @@ describe('timezone', function () {
       expect(getUtcOffset('Africa/Algiers')).to.equal('UTC+01:00');
       expect(getUtcOffset('Pacific/Marquesas')).to.equal('UTC-09:30');
     });
-
-    it('returns undefined for an unknown timezone', function () {
-      expect(getUtcOffset('Not/AZone')).to.equal(undefined);
-    });
   });
 
   describe('timezoneObservesDaylightSavings', function () {
@@ -84,27 +80,23 @@ describe('timezone', function () {
         false
       );
     });
-
-    it('returns false and does not throw for an unknown timezone', function () {
-      expect(timezoneObservesDaylightSavings('Not/AZone')).to.equal(false);
-    });
   });
 
-  describe('getTimezoneOptions', function () {
+  describe('TIMEZONE_OPTIONS', function () {
     it('returns one option per supported timezone', function () {
-      expect(Object.keys(getTimezoneOptions())).to.deep.equal(TIMEZONES);
+      expect(Object.keys(TIMEZONE_OPTIONS)).to.deep.equal(TIMEZONES);
     });
 
     it('labels UTC without an offset prefix', function () {
-      expect(getTimezoneOptions()['UTC']).to.deep.equal({
-        label: 'UTC±00:00',
+      expect(TIMEZONE_OPTIONS['UTC']).to.deep.equal({
+        label: 'UTC+00:00',
         description: 'Coordinated Universal Time',
         glyph: undefined,
       });
     });
 
     it('labels other timezones with their offset', function () {
-      expect(getTimezoneOptions()['Africa/Algiers'].label).to.equal(
+      expect(TIMEZONE_OPTIONS['Africa/Algiers'].label).to.equal(
         '(UTC+01:00) - Africa/Algiers'
       );
     });
@@ -114,8 +106,8 @@ describe('timezone', function () {
         'Europe/Berlin',
         'America/New_York'
       );
-      expect(getTimezoneOptions()[timeZone].glyph).to.equal('Sun');
-      expect(getTimezoneOptions()[timeZone].description).to.equal(
+      expect(TIMEZONE_OPTIONS[timeZone].glyph).to.equal('Sun');
+      expect(TIMEZONE_OPTIONS[timeZone].description).to.equal(
         'Observes daylight savings.'
       );
     });
@@ -125,14 +117,14 @@ describe('timezone', function () {
         'Africa/Algiers',
         'America/Phoenix'
       );
-      expect(getTimezoneOptions()[timeZone].glyph).to.equal(undefined);
+      expect(TIMEZONE_OPTIONS[timeZone].glyph).to.equal(undefined);
     });
 
     it('describes the system timezone', function () {
       if (SYSTEM_TIMEZONE === 'UTC') {
         return this.skip();
       }
-      expect(getTimezoneOptions()[SYSTEM_TIMEZONE].description).to.equal(
+      expect(TIMEZONE_OPTIONS[SYSTEM_TIMEZONE].description).to.equal(
         "Your system's timezone"
       );
     });

@@ -23,6 +23,13 @@ const contentStyle = css({
   '&:first-child': {
     paddingTop: spacing[800],
   },
+  // The modal body is a scroll container, which Chrome makes keyboard-focusable
+  // and treats as `:focus-visible`. That makes LeafyGreen's focus trap land on it
+  // when the modal opens, showing a ring around the whole body. The tabpanel
+  // inside keeps its own focus ring, so nothing is lost by hiding this one.
+  '&:focus, &:focus-visible': {
+    outline: 'none',
+  },
 });
 
 const variantStyle = {

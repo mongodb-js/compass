@@ -28,6 +28,8 @@ import {
 import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
 import { connect } from 'react-redux';
+import type { SettingsDescriptionComponent } from '../settings-descriptions';
+import { SETTINGS_DESCRIPTIONS_MAP } from '../settings-descriptions';
 
 const ENUM_PREFERENCE_CONFIG = {
   defaultSortOrder: SORT_ORDER_VALUES,
@@ -52,7 +54,7 @@ type StringPreferences = KeysMatching<
   string | undefined
 >;
 type StringEnumPreferences = keyof typeof ENUM_PREFERENCE_CONFIG;
-type SupportedPreferences =
+export type SupportedPreferences =
   | BooleanPreferences
   | NumericPreferences
   | StringPreferences;
@@ -91,12 +93,9 @@ function SettingLabel<PreferenceName extends SupportedPreferences>({
   name: PreferenceName;
   value: UserConfigurablePreferences[PreferenceName] | undefined;
 }) {
-  const { short, long, longReact } = getSettingDescription(name).description;
-  // The description component is declared with the value type of the
-  // preference it belongs to, but TypeScript cannot correlate that with the
-  // still-generic `name` here, so the pairing is re-asserted at this one spot.
-  const SettingDescription = longReact as
-    | React.FC<{ value: unknown }>
+  const { short, long } = getSettingDescription(name).description;
+  const SettingDescription = SETTINGS_DESCRIPTIONS_MAP[name] as
+    | SettingsDescriptionComponent<PreferenceName>
     | undefined;
   const featureFlagDefinition = featureFlags.find((definition) => {
     return definition.name === name;

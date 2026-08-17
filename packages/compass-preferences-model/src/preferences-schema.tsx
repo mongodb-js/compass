@@ -1,4 +1,3 @@
-import type React from 'react';
 import { z } from '@mongodb-js/compass-user-data';
 import type { FeatureFlags } from './feature-flags';
 import { FEATURE_FLAG_PREFERENCES } from './feature-flags';
@@ -12,14 +11,7 @@ import {
   proxyPreferenceToProxyOptions,
 } from './utils';
 import type { GlyphName } from '@mongodb-js/compass-components';
-import { getTimezoneOptions, isSupportedTimezone } from './timezone';
-import {
-  TimezoneDescription,
-  EnableDbAndCollStatsDescription,
-  DefaultSortDescription,
-  EnableGenAIToolCallingDescription,
-} from './preferences-descriptions';
-import type { PreferencesDescriptionProps } from './preferences-descriptions';
+import { TIMEZONE_OPTIONS, isSupportedTimezone } from './timezone';
 
 export const THEMES_VALUES = ['DARK', 'LIGHT', 'OS_THEME'] as const;
 export type THEMES = (typeof THEMES_VALUES)[number];
@@ -244,7 +236,6 @@ export type PreferenceDefinition<K extends keyof AllPreferences> = {
     : {
         short: string;
         long?: string;
-        longReact?: React.FC<PreferencesDescriptionProps<K>>;
         options?: AllPreferences[K] extends string
           ? {
               [k in AllPreferences[K]]: {
@@ -617,7 +608,6 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Show Database and Collection Statistics',
       long: "The dbStats and collStats command returns storage statistics for a given database or collection. Disabling this setting can help reduce Compass' overhead on your MongoDB deployments.",
-      longReact: EnableDbAndCollStatsDescription,
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -719,7 +709,6 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Default Sort for Query Bar',
       long: 'All queries executed from the query bar will apply this sort. Not available for views and timeseries.',
-      longReact: DefaultSortDescription,
       options: {
         '': {
           label: 'MongoDB server default',
@@ -979,7 +968,6 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Enable read-only tools in the MongoDB Assistant',
       long: 'Allow the MongoDB Assistant to interact with your databases. All actions require your approval before running.',
-      longReact: EnableGenAIToolCallingDescription,
     },
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -1159,10 +1147,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Timezone',
-      longReact: TimezoneDescription,
-      get options() {
-        return getTimezoneOptions();
-      },
+      options: TIMEZONE_OPTIONS,
     },
     validator: z
       .string()

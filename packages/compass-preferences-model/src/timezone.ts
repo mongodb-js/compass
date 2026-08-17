@@ -4,16 +4,11 @@ function getTimezoneLongOffset(
   timeZone: string,
   date: Date = new Date()
 ): string | undefined {
-  try {
-    const parts = new Intl.DateTimeFormat('en-US', {
-      timeZone,
-      timeZoneName: 'longOffset',
-    }).formatToParts(date);
-    return parts.find((p) => p.type === 'timeZoneName')?.value;
-  } catch {
-    // Intl throws a RangeError for timezones that are unknown to the system
-    return undefined;
-  }
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    timeZoneName: 'longOffset',
+  }).formatToParts(date);
+  return parts.find((p) => p.type === 'timeZoneName')?.value;
 }
 
 export function getUtcOffset(timeZone: string): string | undefined {
@@ -21,6 +16,13 @@ export function getUtcOffset(timeZone: string): string | undefined {
   return offset === 'GMT' ? 'UTC+00:00' : offset?.replace('GMT', 'UTC');
 }
 
+/**
+ * Detects daylight savings time by comparing the timezone's UTC offset on
+ * January 1 and July 1 of the current year. A different offset indicates
+ * a seasonal clock change.
+ *
+ * Using UTC dates keeps interpretation independent of the system timezone.
+ */
 export function timezoneObservesDaylightSavings(timeZone: string): boolean {
   const year = new Date().getFullYear();
   const janOffset = getTimezoneLongOffset(
@@ -54,37 +56,28 @@ export type TimezoneOption = {
   glyph?: GlyphName;
 };
 
-let timezoneOptions: Record<string, TimezoneOption> | undefined;
+export const TIMEZONE_OPTIONS = Object.fromEntries(
+  TIMEZONES.map((tz): [string, TimezoneOption] => {
+    const observesDaylightSavings = timezoneObservesDaylightSavings(tz);
 
-/**
- * Builds the timezone dropdown options. There are ~450 timezones and building
- * the label for each one requires constructing several `Intl.DateTimeFormat`
- * instances, so this is computed lazily and memoized.
- */
-export function getTimezoneOptions(): Record<string, TimezoneOption> {
-  return (timezoneOptions ??= Object.fromEntries(
-    TIMEZONES.map((tz): [string, TimezoneOption] => {
-      const observesDaylightSavings = timezoneObservesDaylightSavings(tz);
+    const label =
+      tz === 'UTC' ? 'UTC+00:00' : `(${getUtcOffset(tz) ?? ''}) - ${tz}`;
+    const description =
+      tz === 'UTC'
+        ? 'Coordinated Universal Time'
+        : tz === SYSTEM_TIMEZONE
+        ? "Your system's timezone"
+        : observesDaylightSavings
+        ? 'Observes daylight savings.'
+        : undefined;
 
-      const label =
-        tz === 'UTC' ? 'UTC±00:00' : `(${getUtcOffset(tz) ?? ''}) - ${tz}`;
-      const description =
-        tz === 'UTC'
-          ? 'Coordinated Universal Time'
-          : tz === SYSTEM_TIMEZONE
-          ? "Your system's timezone"
-          : observesDaylightSavings
-          ? 'Observes daylight savings.'
-          : undefined;
-
-      return [
-        tz,
-        {
-          label,
-          description,
-          glyph: observesDaylightSavings ? 'Sun' : undefined,
-        },
-      ];
-    })
-  ));
-}
+    return [
+      tz,
+      {
+        label,
+        description,
+        glyph: observesDaylightSavings ? 'Sun' : undefined,
+      },
+    ];
+  })
+);

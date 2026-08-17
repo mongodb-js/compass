@@ -63,16 +63,6 @@ const contentStyles = css({
   paddingBottom: spacing[200],
 });
 
-// The modal body is a scroll container, which Chrome makes keyboard-focusable
-// and treats as `:focus-visible`. That makes LeafyGreen's focus trap land on it
-// when the modal opens, showing a ring around the whole body. The tabpanel
-// inside keeps its own focus ring, so nothing is lost by hiding this one.
-const modalBodyStyles = css({
-  '&:focus, &:focus-visible': {
-    outline: 'none',
-  },
-});
-
 export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
   isOpen,
   selectedTab,
@@ -124,7 +114,6 @@ export const SettingsModal: React.FunctionComponent<SettingsModalProps> = ({
       onCancel={onClose}
       data-testid="settings-modal"
       minBodyHeight={spacing[1600] * 2}
-      bodyClassName={modalBodyStyles}
     >
       <div className={containerStyles}>
         <div className={sideNavStyles}>

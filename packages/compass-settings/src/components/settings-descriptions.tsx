@@ -6,8 +6,9 @@ import {
   Icon,
   spacing,
 } from '@mongodb-js/compass-components';
-import type { AllPreferences } from '.';
-import { timezoneObservesDaylightSavings } from './timezone';
+import type { UserConfigurablePreferences } from 'compass-preferences-model';
+import { timezoneObservesDaylightSavings, } from 'compass-preferences-model/provider';
+import type { SupportedPreferences } from './settings/settings-list';
 
 const containerStyles = css({
   display: 'flex',
@@ -22,8 +23,10 @@ const timezoneDaylightSavingsStyles = css({
   gap: spacing[100],
 });
 
-export type PreferencesDescriptionProps<K extends keyof AllPreferences> = {
-  value: AllPreferences[K];
+export type PreferencesDescriptionProps<
+  K extends keyof UserConfigurablePreferences
+> = {
+  value: UserConfigurablePreferences[K] | undefined;
 };
 
 export function TimezoneDescription({
@@ -32,7 +35,7 @@ export function TimezoneDescription({
   return (
     <div className={containerStyles}>
       <span>The data will still always be stored in UTC.</span>
-      {timezoneObservesDaylightSavings(value) && (
+      {!!value && timezoneObservesDaylightSavings(value) && (
         <InlineDefinition
           className={timezoneDaylightSavingsStyles}
           tooltipProps={{ align: 'top', justify: 'start' }}
@@ -87,3 +90,18 @@ export function EnableGenAIToolCallingDescription() {
     </>
   );
 }
+
+export type SettingsDescriptionComponent<K extends SupportedPreferences> = React.ComponentType<
+  PreferencesDescriptionProps<K>
+>;
+
+type SettingsDescriptionsMap = {
+  [K in SupportedPreferences]?: SettingsDescriptionComponent<K>;
+};
+
+export const SETTINGS_DESCRIPTIONS_MAP: SettingsDescriptionsMap = {
+  enableDbAndCollStats: EnableDbAndCollStatsDescription,
+  defaultSortOrder: DefaultSortDescription,
+  enableGenAIToolCalling: EnableGenAIToolCallingDescription,
+  timezone: TimezoneDescription,
+};
