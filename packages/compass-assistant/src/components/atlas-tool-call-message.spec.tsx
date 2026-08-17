@@ -45,20 +45,41 @@ class FakeAtlasAuthService {
   }
 }
 
+function containsText(match: string) {
+  return (_: unknown, element: Element | null): boolean => {
+    // this only works for <>text <tag>more text</tag></> but that's sufficient for now
+    const firstChild = element?.firstChild;
+    if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
+      // only check elements that start with text so we don't match on nested elements
+      return element?.textContent === match;
+    }
+
+    return false;
+  };
+}
+
 describe('AtlasToolCallMessage', function () {
   const connectionInfo = { id: 'conn-1', name: 'My Cluster' };
 
   function makeToolCall(
     state: ToolUIPart['state'],
-    approvalId: string | undefined = 'approval-1'
+    approvalId: string | undefined = 'approval-1',
+    output?: unknown
   ): ToolUIPart {
     return {
       type: 'tool-atlas-connection-error-debugger',
       toolCallId: 'atlas-tool-call-1',
       state,
       approval: approvalId ? { id: approvalId } : undefined,
+      output,
     } as unknown as ToolUIPart;
   }
+
+  const debugResultOutput = {
+    cluster: 'Cluster0',
+    clusterState: 'paused',
+    ipAccessAllowed: true,
+  };
 
   function renderMessage(
     props: Partial<React.ComponentProps<typeof AtlasToolCallMessage>> = {},
@@ -95,8 +116,8 @@ describe('AtlasToolCallMessage', function () {
     it('prompts the user to connect to Atlas', function () {
       renderMessage();
 
-      expect(screen.getByText('Connect with Atlas to debug this connection')).to
-        .exist;
+      expect(screen.getByText('Connect with Atlas to debug this connection?'))
+        .to.exist;
       expect(screen.getByText('Connect to Atlas')).to.exist;
       expect(screen.getByText('Skip')).to.exist;
     });
@@ -141,7 +162,7 @@ describe('AtlasToolCallMessage', function () {
       await waitFor(() => {
         expect(screen.getByText('Run')).to.exist;
       });
-      expect(screen.getByText('Run Atlas to debug this connection')).to.exist;
+      expect(screen.getByText('Run Atlas to debug this connection?')).to.exist;
       expect(screen.getByText('Cancel')).to.exist;
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
     });
@@ -161,21 +182,23 @@ describe('AtlasToolCallMessage', function () {
   });
 
   describe('resolved states', function () {
-    it('shows "Running" title and hides the action buttons when run', function () {
+    it('shows "Ran" title and hides the action buttons when run', function () {
       renderMessage(
         { toolCall: makeToolCall('output-available') },
         { signedIn: true }
       );
 
-      expect(screen.getByText('Running')).to.exist;
+      expect(
+        screen.getByText(containsText('Ran atlas-connection-error-debugger'))
+      ).to.exist;
       expect(screen.queryByText('Run')).to.not.exist;
       expect(screen.queryByText('Cancel')).to.not.exist;
     });
 
-    it('shows "Canceled" title when denied', function () {
+    it('shows "Cancelled" title when denied', function () {
       renderMessage({ toolCall: makeToolCall('output-denied') });
 
-      expect(screen.getByText('Canceled')).to.exist;
+      expect(screen.getByText('Cancelled')).to.exist;
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
       expect(screen.queryByText('Skip')).to.not.exist;
     });
@@ -185,5 +208,31 @@ describe('AtlasToolCallMessage', function () {
     renderMessage();
 
     expect(screen.getByText(connectionInfo.name)).to.exist;
+  });
+
+  describe('custom tool result', function () {
+    it('renders the custom tool result once the debugger tool has output', function () {
+      renderMessage(
+        {
+          toolCall: makeToolCall(
+            'output-available',
+            undefined,
+            debugResultOutput
+          ),
+        },
+        { signedIn: true }
+      );
+
+      // The mapped Atlas debug result is surfaced via SuggestedActions.
+      expect(screen.getByText('Cluster0')).to.exist;
+    });
+
+    it('does not render the custom tool result while awaiting approval', function () {
+      renderMessage({
+        toolCall: makeToolCall('approval-requested', 'approval-1'),
+      });
+
+      expect(screen.queryByText('Cluster0')).to.not.exist;
+    });
   });
 });

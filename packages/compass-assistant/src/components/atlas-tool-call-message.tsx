@@ -7,6 +7,7 @@ import {
 import type { ToolUIPart } from 'ai';
 import {
   cleanToolCallOutput,
+  getToolDisplayName,
   getToolState,
   hasCustomToolResult,
   isDebuggerToolCall,
@@ -17,7 +18,6 @@ import {
   getAvailableTools,
   doesToolUseConnection,
 } from '@mongodb-js/compass-generative-ai/provider';
-import { getToolDisplayName } from '../utils';
 import {
   useAtlasLoginActions,
   useAtlasSignedInUser,
@@ -40,16 +40,25 @@ const expandableContentStyles = css({
   },
 });
 
+function toolHasOutput(toolCall: ToolUIPart, cleanedOutput: unknown): boolean {
+  return (
+    !!cleanedOutput &&
+    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
+  );
+}
+
 function getTitle(
   toolCall: ToolUIPart,
   isUserSignedIn: boolean,
+  toolDisplayName: string,
   toolDescription?: string
 ): React.ReactNode {
-  const toolName = getToolDisplayName(toolCall.type);
   const toolNameElement = toolDescription ? (
-    <InlineDefinition definition={toolDescription}>{toolName}</InlineDefinition>
+    <InlineDefinition definition={toolDescription}>
+      {toolDisplayName}
+    </InlineDefinition>
   ) : (
-    toolName
+    toolDisplayName
   );
 
   let title: React.ReactNode;
@@ -77,7 +86,7 @@ function getTitle(
   return title;
 }
 
-function getToolDescription(toolType: string): string {
+function getToolDescription(toolType: string, toolDisplayName: string): string {
   if (isDebuggerToolCall(toolType)) {
     return `Connecting would call Atlas API endpoint (cluster
 state, IP allowlist, TLS) to explain why this connection is failing.
@@ -86,7 +95,7 @@ This is read-only and won't change your cluster.`;
 
   return (
     getAvailableTools({ enableAtlasConnectionErrorDebugger: true }).find(
-      (tool) => tool.name === getToolDisplayName(toolType)
+      (tool) => tool.name === toolDisplayName
     )?.description || ''
   );
 }
@@ -94,13 +103,10 @@ This is read-only and won't change your cluster.`;
 function getExpandableContentText(
   toolCall: ToolUIPart,
   toolDescription: string,
-  cleanedOutput: any
+  cleanedOutput: unknown
 ): string {
   const toolCallState = getToolState(toolCall.state);
-  const hasOutput = !!(
-    cleanedOutput &&
-    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
-  );
+  const hasOutput = toolHasOutput(toolCall, cleanedOutput);
 
   const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
   const argumentsText = `### Arguments
@@ -109,53 +115,55 @@ function getExpandableContentText(
 ${inputJSON}
 \`\`\``;
 
-  const outputText = cleanedOutput
-    ? JSON.stringify(cleanedOutput, null, 2)
-    : '';
-
   if (toolCallState === 'idle') {
     return [toolDescription, argumentsText].join('\n\n');
-  } else {
-    const expandableContent = [argumentsText];
+  }
 
-    if (hasOutput) {
-      expandableContent.push(`### Response
+  const expandableContent = [argumentsText];
+
+  if (hasOutput) {
+    const outputText = cleanedOutput
+      ? JSON.stringify(cleanedOutput, null, 2)
+      : '';
+
+    expandableContent.push(`### Response
 
 \`\`\`json
 ${outputText}
 \`\`\``);
-    }
+  }
 
-    if (toolCall.errorText) {
-      expandableContent.push(`### Error
+  if (toolCall.errorText) {
+    expandableContent.push(`### Error
 
 \`\`\`
 ${toolCall.errorText}
 \`\`\``);
-    }
-
-    return expandableContent.join('\n\n');
   }
+
+  return expandableContent.join('\n\n');
 }
 
 export const AtlasToolCallMessage: React.FunctionComponent<
   AtlasToolCallMessageProps
 > = ({ toolCall, connectionInfo, onApprove, onDeny }) => {
   const toolCallState = getToolState(toolCall.state);
+  const toolDisplayName = getToolDisplayName(toolCall.type);
   const isAwaitingApproval = toolCallState === 'idle' && !!toolCall.approval;
   const approvalId = toolCall.approval?.id;
   const isUserSignedIn = !!useAtlasSignedInUser();
   const { signIn } = useAtlasLoginActions();
 
-  const chips = [];
-
-  if (
-    connectionInfo &&
-    (doesToolUseConnection(getToolDisplayName(toolCall.type)) ||
-      isDebuggerToolCall(toolCall.type))
-  ) {
-    chips.push({ glyph: <ServerIcon />, label: connectionInfo.name });
-  }
+  const chips = React.useMemo(() => {
+    if (
+      connectionInfo &&
+      (doesToolUseConnection(toolDisplayName) ||
+        isDebuggerToolCall(toolCall.type))
+    ) {
+      return [{ glyph: <ServerIcon />, label: connectionInfo.name }];
+    }
+    return [];
+  }, [connectionInfo, toolCall.type, toolDisplayName]);
 
   const handleAtlasToolApproval = useCallback(
     (approvalId: string) => {
@@ -166,16 +174,13 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     [signIn, onApprove]
   );
 
-  const toolDescription = getToolDescription(toolCall.type);
+  const toolDescription = getToolDescription(toolCall.type, toolDisplayName);
 
   const cleanedOutput = React.useMemo(
     () => (toolCall.output ? cleanToolCallOutput(toolCall.output) : null),
     [toolCall.output]
   );
-  const hasOutput = !!(
-    cleanedOutput &&
-    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
-  );
+  const hasOutput = toolHasOutput(toolCall, cleanedOutput);
 
   const expandableContentText = getExpandableContentText(
     toolCall,
@@ -188,12 +193,18 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     <div>
       <ActionCardMessage
         state={toolCallState}
-        title={getTitle(toolCall, isUserSignedIn, toolDescription)}
+        title={getTitle(
+          toolCall,
+          isUserSignedIn,
+          toolDisplayName,
+          toolDescription
+        )}
         chips={chips}
         showActions={isAwaitingApproval}
         initialIsExpanded={!hasOutput}
         contentClassName={expandableContentStyles}
         focusPrimaryKey={approvalId}
+        // Collapse/Expand the card based on whether there's output to show. If there's output, we want it collapsed by default, otherwise expanded.
         key={hasOutput ? 'collapsed' : 'expanded'}
         buttons={[
           {
