@@ -34,6 +34,11 @@ variables:
     EVERGREEN_CREATED_AT: ${created_at}
     NODE_JS_VERSION: '24.15.0'
     NPM_VERSION: '11.16.0'
+    # Electron 43's deprecated String::Value declaration doesn't parse under
+    # GCC 12, breaking every native module on the Linux builders. The -U makes
+    # V8_DEPRECATED expand to nothing, which is compile-time only but costs us
+    # V8 deprecation warnings in all addons; drop once we're off GCC 12.
+    CXXFLAGS: '-UV8_DEPRECATION_WARNINGS'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
