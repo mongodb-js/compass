@@ -84,7 +84,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
     })();
   }, [signOut]);
 
-  if (!userInfo || isCompassWeb(appName)) {
+  if (!userInfo || isDataExplorer(appName)) {
     return null;
   }
 

@@ -68,8 +68,8 @@ describe('AtlasConnectionStatus', function () {
     });
   });
 
-  it('renders nothing when app is Data Explorer - no matter the case', async function () {
-    renderStatus(new FakeAtlasAuthService(null), 'Data Explorer');
+  it('renders nothing when app is Data Explorer - no matter if the case of the name', async function () {
+    renderStatus(new FakeAtlasAuthService({ sub: 'user-1' }), 'Data Explorer');
 
     await waitFor(() => {
       expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;

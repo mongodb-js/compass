@@ -63,6 +63,7 @@ export type SendMessageOptions = {
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
 const assistantChatFixesStyles = css({
+  overflowY: 'clip',
   // Compass has a global bullet point override but we clear this for the chat.
   ul: {
     listStyleType: 'disc',
@@ -152,7 +153,6 @@ const assistantChatFixesLightStyles = css({
 const chatContainerOverrideStyle = {
   height: '100%',
   width: '100%',
-  overflowY: 'clip',
 };
 
 const messageFeedFixesStyles = css({
