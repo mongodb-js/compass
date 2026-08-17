@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react';
+import { useCurrentValueRef } from '../../hooks/use-current-value-ref';
 
 export type LegacyUUIDDisplay =
   | ''
@@ -21,19 +22,16 @@ export const BSONDisplayOptionsContext = createContext<BSONDisplayOptions>(
 );
 
 export function useBSONDisplayOptions<K extends keyof BSONDisplayOptions>(
-  keys: K[]
+  keys: readonly K[]
 ): Pick<BSONDisplayOptions, K> {
+  const initialKeys = useCurrentValueRef(keys);
+  const keysSignature = keys.join('|');
   const options = useContext(BSONDisplayOptionsContext);
   return useMemo(() => {
-    return Object.fromEntries(keys.map((key) => [key, options[key]])) as Pick<
-      BSONDisplayOptions,
-      K
-    >;
-    // `keys` is expected to be a constant list of option names, so we only
-    // depend on the options object itself to avoid recomputing on every render
-    // when the list is passed as an inline array literal.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [options]);
+    return Object.fromEntries(
+      initialKeys.current.map((key) => [key, options[key]])
+    ) as Pick<BSONDisplayOptions, K>;
+  }, [keysSignature, options]);
 }
 
 export const BSONDisplayOptionsProvider: React.FunctionComponent<
