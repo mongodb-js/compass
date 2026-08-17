@@ -219,32 +219,12 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
     [name, onChange]
   );
 
-  // For setting with more options, we should use combobox as its
-  // searchable and easier to find the option.
   const selectComponent =
-    Object.keys(optionDescriptions).length > 9 ? (
-      <Combobox
-        className={inputStyles}
-        aria-label={short}
-        id={name}
-        data-testid={name}
-        value={value}
-        multiselect={false}
-        clearable={false}
-        onChange={onChangeCallback}
-        disabled={disabled}
-      >
-        {Object.entries(optionDescriptions).map(([option, details]) => (
-          <ComboboxOption
-            key={option}
-            value={option}
-            glyph={details.glyph ? <Icon glyph={details.glyph} /> : undefined}
-            displayName={details.label}
-            description={details.description}
-          />
-        ))}
-      </Combobox>
-    ) : (
+    // TODO(COMPASS-10998): LG Select and Combobox do not render selected
+    // option's label in a same way, if the option is an empty string.
+    // Select, renders the label and Comboxbox does not. So we are showing
+    // Select for such settings.
+    Object.keys(optionDescriptions).some((x) => x === '') ? (
       <Select
         className={inputStyles}
         allowDeselect={false}
@@ -267,6 +247,28 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
           </Option>
         ))}
       </Select>
+    ) : (
+      <Combobox
+        className={inputStyles}
+        aria-label={short}
+        id={name}
+        data-testid={name}
+        value={value}
+        multiselect={false}
+        clearable={false}
+        onChange={onChangeCallback}
+        disabled={disabled}
+      >
+        {Object.entries(optionDescriptions).map(([option, details]) => (
+          <ComboboxOption
+            key={option}
+            value={option}
+            glyph={details.glyph ? <Icon glyph={details.glyph} /> : undefined}
+            displayName={details.label}
+            description={details.description}
+          />
+        ))}
+      </Combobox>
     );
   return (
     <>

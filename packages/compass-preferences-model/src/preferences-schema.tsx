@@ -1146,27 +1146,15 @@ export const storedUserPreferencesProps: Required<{
     cli: true,
     global: true,
     description: {
-      short: 'Timezone',
+      short: 'Personal timezone display preference',
       options: TIMEZONE_OPTIONS,
     },
     validator: z
       .string()
-      .optional()
-      .transform((value) => {
-        if (value === undefined) {
-          return 'UTC';
-        }
-        if (!isSupportedTimezone(value)) {
-          // eslint-disable-next-line no-console
-          console.warn(
-            `Unknown timezone ${JSON.stringify(
-              value
-            )}, expected an IANA timezone identifier. Falling back to UTC.`
-          );
-          return 'UTC';
-        }
-        return value;
-      }),
+      .refine(isSupportedTimezone, {
+        message: 'Not a supported IANA timezone name',
+      })
+      .default('UTC'),
     type: 'string',
   },
 

@@ -141,8 +141,10 @@ describe('timezone', function () {
       expect(validator.parse('Europe/Berlin')).to.equal('Europe/Berlin');
     });
 
-    it('falls back to UTC for unknown timezones', function () {
-      expect(validator.parse('Not/AZone')).to.equal('UTC');
+    it('rejects unknown timezones', function () {
+      expect(() => validator.parse('Not/AZone')).to.throw(
+        'Not a supported IANA timezone name'
+      );
     });
   });
 });
