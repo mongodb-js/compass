@@ -681,6 +681,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                       const toolCallId =
                         toolCall.toolCallId || `${id}-${toolCall.type}`;
 
+                      // If the tool call has no approval ID, we can't approve or deny it, so we skip rendering it.
+                      if (!toolCall.approval?.id) return null;
+
                       if (
                         toolCall.type ===
                         ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE

@@ -2,8 +2,9 @@ import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider'
 import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 
 export type AtlasConnectionDebugResult = {
+  cluster: string;
   clusterState: 'ready' | 'paused' | 'provisioning' | 'deleted' | 'notFound';
-  ipAccessAllowed: boolean;
+  ipAccessAllowed: 'Allowed' | 'NotAllowed';
 };
 
 export async function debugConnection(
@@ -13,7 +14,8 @@ export async function debugConnection(
 ): Promise<AtlasConnectionDebugResult> {
   // TODO(COMPASS-10826): implement
   return await Promise.resolve({
+    cluster: 'Cluster0',
     clusterState: 'paused',
-    ipAccessAllowed: true,
+    ipAccessAllowed: 'Allowed',
   });
 }

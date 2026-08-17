@@ -414,7 +414,6 @@ export const signOut = (): AtlasSignInThunkAction<Promise<void>> => {
       dispatch({ type: AtlasSignInActions.SignedOut });
       openToast('atlas-disconnected', {
         title: 'Disconnected from Atlas',
-        description: "You won't have context from Atlas anymore.",
         variant: 'note',
         timeout: 5000,
       });

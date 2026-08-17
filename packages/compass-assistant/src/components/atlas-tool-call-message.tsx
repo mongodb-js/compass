@@ -1,7 +1,12 @@
 import React, { useCallback } from 'react';
-import { ServerIcon } from '@mongodb-js/compass-components';
+import {
+  css,
+  InlineDefinition,
+  LgChatSuggestions,
+  ServerIcon,
+  useDarkMode,
+} from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
-import type { ToolState } from '../utils';
 import { cleanToolCallOutput, getToolState } from '../utils';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
 import { ActionCardMessage } from './action-card-message';
@@ -15,6 +20,8 @@ import {
   useAtlasSignedInUser,
 } from '@mongodb-js/atlas-service/provider';
 
+const { SuggestedActions } = LgChatSuggestions;
+
 const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
   'tool-atlas-connection-error-debugger';
 
@@ -25,25 +32,58 @@ interface AtlasToolCallMessageProps {
   onDeny: (approvalId: string) => void;
 }
 
+const expandableContentStyles = css({
+  h3: {
+    lineHeight: '16px',
+    fontSize: '12px',
+    fontWeight: 600,
+    textTransform: 'uppercase',
+  },
+});
+
+const suggestedActionsContainerStyles = css({
+  marginTop: '8px',
+});
+
 function isDebuggerToolCall(type: string): boolean {
   return type === ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE;
 }
 
-// TODO COMPASS-10944: The title logic should match what's in tool-call-message.tsx.
-function getTitle(state: ToolState, isUserSignedIn: boolean): string {
-  switch (state) {
-    case 'success':
-    case 'running':
-      return 'Running';
-    case 'canceled':
-      return 'Canceled';
-    case 'error':
-      return 'Failed';
-    default:
-      return isUserSignedIn
-        ? 'Run Atlas to debug this connection'
-        : 'Connect with Atlas to debug this connection';
+function getTitle(
+  toolCall: ToolUIPart,
+  isUserSignedIn: boolean,
+  toolDescription?: string
+): React.ReactNode {
+  const toolName = getToolDisplayName(toolCall.type);
+  const toolNameElement = toolDescription ? (
+    <InlineDefinition definition={toolDescription}>{toolName}</InlineDefinition>
+  ) : (
+    toolName
+  );
+
+  let title: React.ReactNode;
+  const wasApproved = toolCall.approval?.approved === true;
+  const isDenied = toolCall.state === 'output-denied';
+  const didRun =
+    toolCall.state === 'output-available' || toolCall.state === 'output-error';
+  if (didRun) {
+    title = <>Ran {toolNameElement}</>;
+  } else if (wasApproved) {
+    title = <>Running {toolNameElement}</>;
+  } else if (isDenied) {
+    title = <>Cancelled {toolNameElement}</>;
+  } else {
+    title = (
+      <>
+        {isUserSignedIn ? (
+          <>Run Atlas to debug this connection?</>
+        ) : (
+          <>Connect with Atlas to debug this connection?</>
+        )}
+      </>
+    );
   }
+  return title;
 }
 
 function getToolDescription(toolType: string): string {
@@ -60,9 +100,57 @@ This is read-only and won't change your cluster.`;
   );
 }
 
+function getExpandableContentText(
+  toolCall: ToolUIPart,
+  toolDescription: string,
+  cleanedOutput: any
+): string {
+  const toolCallState = getToolState(toolCall.state);
+  const hasOutput = !!(
+    cleanedOutput &&
+    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
+  );
+
+  const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
+  const argumentsText = `### Arguments
+
+\`\`\`json
+${inputJSON}
+\`\`\``;
+
+  const outputText = cleanedOutput
+    ? JSON.stringify(cleanedOutput, null, 2)
+    : '';
+
+  if (toolCallState === 'idle') {
+    return [toolDescription, argumentsText].join('\n\n');
+  } else {
+    const expandableContent = [argumentsText];
+
+    if (hasOutput) {
+      expandableContent.push(`### Response
+
+\`\`\`json
+${outputText}
+\`\`\``);
+    }
+
+    if (toolCall.errorText) {
+      expandableContent.push(`### Error
+
+\`\`\`
+${toolCall.errorText}
+\`\`\``);
+    }
+
+    return expandableContent.join('\n\n');
+  }
+}
+
 export const AtlasToolCallMessage: React.FunctionComponent<
   AtlasToolCallMessageProps
 > = ({ toolCall, connectionInfo, onApprove, onDeny }) => {
+  const darkMode = useDarkMode();
   const toolCallState = getToolState(toolCall.state);
   const isAwaitingApproval = toolCallState === 'idle' && !!toolCall.approval;
   const approvalId = toolCall.approval?.id;
@@ -88,78 +176,66 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     [signIn, onApprove]
   );
 
-  const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
-  const argumentsText = `### Arguments
-
-\`\`\`json
-${inputJSON}
-\`\`\``;
+  const toolDescription = getToolDescription(toolCall.type);
 
   const cleanedOutput = React.useMemo(
     () => (toolCall.output ? cleanToolCallOutput(toolCall.output) : null),
     [toolCall.output]
   );
-
   const hasOutput = !!(
     cleanedOutput &&
     (toolCall.state === 'output-available' || toolCall.state === 'output-error')
   );
 
-  const outputText = cleanedOutput
-    ? JSON.stringify(cleanedOutput, null, 2)
-    : '';
-
-  let expandableContentText = '';
-  if (toolCallState === 'idle') {
-    expandableContentText = [
-      getToolDescription(toolCall.type),
-      argumentsText,
-    ].join('\n\n');
-  } else {
-    const expandableContent = [argumentsText];
-
-    if (hasOutput) {
-      expandableContent.push(`### Response
-
-\`\`\`json
-${outputText}
-\`\`\``);
-    }
-
-    if (toolCall.errorText) {
-      expandableContent.push(`### Error
-
-\`\`\`
-${toolCall.errorText}
-\`\`\``);
-    }
-
-    expandableContentText = expandableContent.join('\n\n');
-  }
+  const expandableContentText = getExpandableContentText(
+    toolCall,
+    toolDescription,
+    cleanedOutput
+  );
 
   // TODO COMPASS-10973: don't render actions if there's no approvalId.
   return (
-    <ActionCardMessage
-      state={toolCallState}
-      title={getTitle(toolCallState, isUserSignedIn)}
-      chips={chips}
-      showActions={isAwaitingApproval}
-      focusPrimaryKey={approvalId}
-      buttons={[
-        {
-          label: isUserSignedIn ? 'Cancel' : 'Skip',
-          variant: 'default',
-          onClick: () => approvalId && onDeny(approvalId),
-        },
-        {
-          label: isUserSignedIn ? 'Run' : 'Connect to Atlas',
-          variant: 'primary',
-          onClick: () => approvalId && handleAtlasToolApproval(approvalId),
-          isPrimary: true,
-        },
-      ]}
-    >
-      {expandableContentText}
-    </ActionCardMessage>
+    <div>
+      <ActionCardMessage
+        state={toolCallState}
+        title={getTitle(toolCall, isUserSignedIn, toolDescription)}
+        chips={chips}
+        showActions={isAwaitingApproval}
+        initialIsExpanded={!hasOutput}
+        contentClassName={expandableContentStyles}
+        focusPrimaryKey={approvalId}
+        key={hasOutput ? 'collapsed' : 'expanded'}
+        buttons={[
+          {
+            label: isUserSignedIn ? 'Cancel' : 'Skip',
+            variant: 'default',
+            onClick: () => approvalId && onDeny(approvalId),
+          },
+          {
+            label: isUserSignedIn ? 'Run' : 'Connect to Atlas',
+            variant: 'primary',
+            onClick: () => approvalId && handleAtlasToolApproval(approvalId),
+            isPrimary: true,
+          },
+        ]}
+      >
+        {expandableContentText}
+      </ActionCardMessage>
+      {hasOutput && isDebuggerToolCall(toolCall.type) && (
+        <SuggestedActions
+          className={suggestedActionsContainerStyles}
+          darkMode={darkMode}
+          state="unset"
+          // No apply button is rendered when state is 'unset', so we can pass a no-op function here.
+          onClickApply={() => {}}
+          configurationParameters={Object.entries(cleanedOutput).flatMap(
+            ([key, value]) => ({
+              key: key,
+              value: value,
+            })
+          )}
+        />
+      )}
+    </div>
   );
 };
