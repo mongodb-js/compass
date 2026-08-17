@@ -1,6 +1,7 @@
 import type {
   AtlasAdminApiService,
   AtlasClusterState,
+  AtlasAccessListEntry,
 } from '@mongodb-js/atlas-admin-api/provider';
 import {
   type AtlasService,
@@ -8,16 +9,16 @@ import {
   buildClusterOverviewUrl,
 } from '@mongodb-js/atlas-service/provider';
 
-export type ClusterState =
-  | 'ready'
-  | 'paused'
-  | 'provisioning'
-  | 'deleted'
-  | 'notFound';
-export type IpAccessAllowed = boolean | 'unknown';
+export type IpAccessAllowed = 'Client IP Allowed' | 'Could not confirm';
+
+export type NetworkAccessDetails = {
+  networkAccessList: AtlasAccessListEntry[];
+  userIp?: string;
+};
 
 export type AtlasConnectionDebugResult = {
-  clusterState: ClusterState;
+  clusterName: string;
+  clusterState: string;
   ipAccessAllowed: IpAccessAllowed;
   advice?: string;
 };
@@ -28,111 +29,122 @@ function mapClusterStateToDebugResultState({
 }: {
   state: AtlasClusterState;
   paused: boolean;
-}): ClusterState {
+}): string {
   if (paused) {
-    return 'paused';
+    return 'PAUSED';
   }
-  switch (state) {
-    case 'IDLE':
-      return 'ready';
-    case 'CREATING':
-    case 'UPDATING':
-    case 'REPAIRING':
-      return 'provisioning';
-    case 'DELETING':
-      return 'deleted';
+  if (state === 'IDLE') {
+    return 'READY';
   }
+  return state;
 }
 
-// function isUserIPIncluded(
-//   ipAccessList?: Array<{ ipAddress?: string }>,
-//   userIp?: string
-// ): boolean | 'unknown' {
-//   if (!userIp || !ipAccessList) {
-//     return 'unknown';
-//   }
-//   const userIP = userIp.trim();
-//   return ipAccessList.some(
-//     ({ ipAddress }) => ipAddress && ipAddress === userIp
-//   );
-// }
+function isUserIPIncluded(
+  ipAccessList: Array<{ ipAddress?: string }>,
+  userIp: string
+): boolean | undefined {
+  return ipAccessList.some(
+    ({ ipAddress }) => ipAddress && ipAddress === userIp
+  );
+}
 
 async function getClusterInfo(
   connectionString: string,
-  atlasAdminApi: AtlasAdminApiService,
-  atlasService: AtlasService
-): Promise<{
-  clusterState: ClusterState;
-  ipAccessAllowed: IpAccessAllowed;
-  clusterInfo?: {
-    projectId: string;
-    clusterName: string;
-  };
-}> {
+  atlasAdminApi: AtlasAdminApiService
+): Promise<
+  | {
+      projectId: string;
+      clusterName: string;
+      clusterState: string;
+    }
+  | {
+      clusterNotFound: true;
+    }
+> {
   const result = await atlasAdminApi.getProjectIdAndClusterName(
     connectionString
   );
   if (!result) {
     return {
-      clusterState: 'notFound',
-      ipAccessAllowed: 'unknown',
+      clusterNotFound: true,
     };
   }
 
   const { projectId, clusterName } = result;
+
   const clusterDetails = await atlasAdminApi.getClusterState(
     projectId,
     clusterName
   );
-  // const ipAccessList = await atlasAdminApi.getProjectIPAccessList(projectId);
-  // console.log({ clusterDetails, ipAccessList });
-  // TODO: we can't authenticate for this endpoint yet
-  // const userIp = await atlasService.authenticatedFetch(
-  //   atlasService.privateApiEndpoint('/ipinfo')
-  // ).catch(() => undefined)?.then((res) => res?.json()).then((data) => data?.ip);
-  // console.log({ userIp, ipAccessList });
 
   return await Promise.resolve({
+    projectId,
+    clusterName,
     clusterState: mapClusterStateToDebugResultState({
       state: clusterDetails.state,
       paused: clusterDetails.paused,
     }),
-    ipAccessAllowed: true,
-    // ipAccessAllowed: isUserIPIncluded(ipAccessList, userIp),
-    clusterInfo: {
-      projectId,
-      clusterName,
-    },
   });
 }
 
-function getAdvice(
-  clusterState: ClusterState,
-  ipAccessAllowed: IpAccessAllowed,
-  clusterInfo?: { projectId: string; clusterName: string }
-): string {
+async function getNetworkAccessInfo({
+  projectId,
+  atlasAdminApi,
+}: {
+  projectId: string;
+  atlasAdminApi: AtlasAdminApiService;
+}): Promise<{
+  ipAccessAllowed: IpAccessAllowed;
+  networkAccessDetails: NetworkAccessDetails;
+}> {
+  const ipAccessList = await atlasAdminApi.getProjectIPAccessList(projectId);
+  // TODO(COMPASS-10981): replace with Atlas Admin API once it's ready
+  const userIp = await fetch('https://api.ipify.org?format=json')
+    .then((res) => res.json())
+    .then((data) => data?.ip)
+    .catch(() => undefined);
+  console.log({ userIp, ipAccessList });
+  return {
+    ipAccessAllowed:
+      ipAccessList && userIp && isUserIPIncluded(ipAccessList, userIp)
+        ? 'Client IP Allowed'
+        : 'Could not confirm',
+    networkAccessDetails: {
+      networkAccessList: ipAccessList,
+      userIp,
+    },
+  };
+}
+
+function getAdvice({
+  clusterState,
+  ipAccessAllowed,
+  projectId,
+  clusterName,
+}: {
+  clusterState: string;
+  ipAccessAllowed: IpAccessAllowed;
+  projectId: string;
+  clusterName: string;
+}): string {
   if (clusterState === 'notFound') {
     return 'The cluster does not exist or you do not have access to it.';
   }
   const advice = [];
 
-  const clusterOverviewUrl =
-    clusterInfo &&
-    buildClusterOverviewUrl({
-      projectId: clusterInfo.projectId,
-      clusterName: clusterInfo.clusterName,
-    });
-  const networkAccessListUrl =
-    clusterInfo &&
-    buildNetworkAccessListUrl({ projectId: clusterInfo.projectId });
+  const clusterOverviewUrl = buildClusterOverviewUrl({
+    projectId,
+    clusterName,
+  });
+  const networkAccessListUrl = buildNetworkAccessListUrl({ projectId });
 
-  if (clusterState === 'paused') {
+  if (clusterState === 'PAUSED') {
     advice.push('The cluster is currently paused.');
     if (clusterOverviewUrl) {
       advice.push(`You can resume it in the Atlas UI: ${clusterOverviewUrl}`);
     }
   }
-  if (clusterState === 'provisioning') {
+  if (clusterState === 'CREATING') {
     advice.push(
       'The cluster is being provisioned. Wait until it is ready before attempting to connect.'
     );
@@ -140,11 +152,8 @@ function getAdvice(
       advice.push(`See the status in the Atlas UI: ${clusterOverviewUrl}`);
     }
   }
-  if (clusterState === 'deleted') {
-    advice.push('The cluster has been deleted.');
-  }
 
-  if (ipAccessAllowed === false && clusterInfo) {
+  if (ipAccessAllowed !== 'Client IP Allowed') {
     advice.push('Your IP address is not allowed to access the cluster.');
     if (networkAccessListUrl) {
       advice.push(
@@ -159,16 +168,35 @@ function getAdvice(
 export async function debugConnection(
   connectionString: string,
   atlasAdminApi: AtlasAdminApiService,
-  atlasService: AtlasService
+  _atlasService: AtlasService
 ): Promise<AtlasConnectionDebugResult> {
-  const { clusterState, ipAccessAllowed, clusterInfo } = await getClusterInfo(
-    connectionString,
+  console.log('Debugging connection for', connectionString);
+  const clusterInfo = await getClusterInfo(connectionString, atlasAdminApi);
+  if ('clusterNotFound' in clusterInfo) {
+    return {
+      clusterName: 'Unknown',
+      clusterState: 'Unknown',
+      ipAccessAllowed: 'Could not confirm',
+      advice: 'The cluster does not exist or you do not have access to it.',
+    };
+  }
+  const { projectId, clusterName, clusterState } = clusterInfo;
+  console.log({ projectId, clusterName, clusterState });
+  const { ipAccessAllowed, networkAccessDetails } = await getNetworkAccessInfo({
+    projectId,
     atlasAdminApi,
-    atlasService
-  );
+  });
+  console.log({ ipAccessAllowed, networkAccessDetails });
   return {
+    clusterName,
     clusterState,
-    ipAccessAllowed: ipAccessAllowed ?? 'unknown',
-    advice: getAdvice(clusterState, ipAccessAllowed, clusterInfo),
+    ipAccessAllowed,
+    advice: getAdvice({
+      clusterState,
+      projectId,
+      clusterName,
+      ipAccessAllowed,
+    }),
+    ...(!ipAccessAllowed ? { networkAccessDetails } : {}),
   };
 }
