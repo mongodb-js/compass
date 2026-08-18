@@ -24,6 +24,7 @@ import type {
   TableState,
 } from '../../stores/crud-store';
 import type {
+  ColumnKey,
   GridActions,
   GridStoreTriggerParams,
   TableHeaderType,
@@ -376,8 +377,8 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
    * headers because of an insert.
    */
   addGridColumn(
-    colIdBefore: string | null,
-    headerName: string,
+    colIdBefore: ColumnKey | null,
+    headerName: ColumnKey,
     colType: TableHeaderType | '',
     path: (string | number)[],
     updateArray?: boolean
@@ -443,7 +444,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
    *
    * @param {Array} colIds - The list of colIds that will be removed.
    */
-  removeColumns(colIds: string[]) {
+  removeColumns(colIds: ColumnKey[]) {
     if (!this.columnApi) return;
     const columnHeaders = map(this.columnApi.getAllGridColumns(), (col) =>
       col.getColDef()
@@ -451,7 +452,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
 
     const newCols = [];
     for (let i = 0; i < columnHeaders.length; i++) {
-      if (!colIds.includes(String(columnHeaders[i].colId))) {
+      if (!colIds.map(String).includes(String(columnHeaders[i].colId))) {
         newCols.push(columnHeaders[i]);
       }
     }
@@ -531,10 +532,11 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
       this.gridApi.refreshCells({ rowNodes: [node], force: true });
     }
     if (params.edit) {
-      this.gridApi.setFocusedCell(params.edit.rowIndex, params.edit.colId);
+      const colKey = String(params.edit.colId);
+      this.gridApi.setFocusedCell(params.edit.rowIndex, colKey);
       this.gridApi.startEditingCell({
         rowIndex: params.edit.rowIndex,
-        colKey: params.edit.colId,
+        colKey,
       });
     }
   };

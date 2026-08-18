@@ -338,12 +338,12 @@ export type BulkDeleteState = {
   affected?: number;
 };
 
-type CrudState = {
+export type CrudState = {
   ns: string;
   collection: string;
   abortController: AbortController | null;
   error: Error | null;
-  docs: Document[] | null;
+  docs: Document[];
   start: number;
   end: number;
   page: number;
@@ -389,6 +389,7 @@ class CrudStoreImpl
   // readonly state: Readonly<CrudState>
   declare state: CrudState;
   declare setState: (newState: Partial<CrudState>) => void;
+  declare listen: (callback: (state: CrudState) => void) => () => void;
   dataService: DataService;
   preferences: PreferencesAccess;
   localAppRegistry: Pick<AppRegistry, 'on' | 'emit' | 'removeListener'>;

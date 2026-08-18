@@ -1,8 +1,8 @@
 import { assert, expect } from 'chai';
 
 import configureStore, { type GridStore } from './grid-store';
+import type { TableHeaderType } from './grid-store';
 import configureActions from '../actions';
-import type { TypeCastMap } from 'hadron-type-checker';
 
 describe('store', function () {
   let store: GridStore;
@@ -13,24 +13,24 @@ describe('store', function () {
     field3: 'Int32',
     field4: 'Binary',
     field5: 'Mixed',
-  };
+  } as Record<string, TableHeaderType>;
   const columns = {
     field1: { 1: 'Object', 2: 'Object', 3: 'Object' },
     field2: { 1: 'Array', 2: 'Array', 3: 'Array' },
     field3: { 1: 'Int32', 2: 'Int32', 3: 'Int32' },
     field4: { 1: 'Binary', 2: 'Binary', 3: 'Binary' },
     field5: { 1: 'Int32', 2: 'Int32', 3: 'String' },
-  };
+  } as Record<string, Record<string, TableHeaderType>>;
   const arrayCols = {
     0: { id1: 'String', id2: 'Int64' },
     1: { id1: 'Int64', id2: 'Double' },
     2: { id1: 'Int32' },
-  } as unknown as Record<string, Record<string, keyof TypeCastMap>>;
+  } as Record<string, Record<string, TableHeaderType>>;
   const arrayShowing = {
     0: 'Mixed',
     1: 'Mixed',
     2: 'Int32',
-  };
+  } as Record<string, TableHeaderType>;
 
   describe('#columns', function () {
     describe('adding an array column', function () {
@@ -415,7 +415,7 @@ describe('store', function () {
         it('triggers correctly', function (done) {
           const unsubscribe = store.listen((params) => {
             unsubscribe();
-            const show = {};
+            const show = {} as Record<string, TableHeaderType>;
             show[key] = columns[key][1];
             expect(params).to.deep.equal({ updateHeaders: { showing: show } });
             done();
@@ -1076,8 +1076,8 @@ describe('store', function () {
         const unsubscribe = store.listen(() => {
           assert.fail();
         });
-        store.elementRemoved('field1', '1');
-        store.elementRemoved('field1', '2');
+        store.elementRemoved('field1', '1', false);
+        store.elementRemoved('field1', '2', false);
         unsubscribe();
       });
       it('sets this.columns correctly', function () {
@@ -1103,7 +1103,7 @@ describe('store', function () {
           expect(params).to.deep.equal({ remove: { colIds: ['field1'] } });
           done();
         });
-        store.elementRemoved('field1', '3');
+        store.elementRemoved('field1', '3', false);
       });
       it('sets field1 this.showing correctly', function () {
         delete showing.field1;
@@ -1124,9 +1124,9 @@ describe('store', function () {
         store.resetColumns({
           field1: { 1: 'Object', 2: 'Object', 3: 'Object' },
         });
-        store.elementMarkRemoved('field1', 1);
-        store.elementMarkRemoved('field1', 2);
-        store.elementMarkRemoved('field1', 3);
+        store.elementMarkRemoved('field1', '1');
+        store.elementMarkRemoved('field1', '2');
+        store.elementMarkRemoved('field1', '3');
         expect(store.columns).to.deep.equal({});
         expect(store.showing).to.deep.equal({ field1: 'Object' });
         expect(store.stageRemove).to.deep.equal({

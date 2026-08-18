@@ -9,22 +9,25 @@ import type { BSONObject } from './crud-store';
 
 export type TableHeaderType = TypeCastTypes | 'Mixed';
 
+/* Columns of arrays are keyed by their index rather than by a fieldname. */
+export type ColumnKey = string | number;
+
 export interface GridActions {
   addColumn(
-    newColId: string,
-    columnBefore: string,
+    newColId: ColumnKey,
+    columnBefore: ColumnKey,
     rowIndex: number,
     path: (string | number)[],
     isArray: boolean,
     editOnly: boolean,
     oid: string
   ): void;
-  removeColumn(colId: string): void;
-  renameColumn(oldColId: string, newColId: string): void;
-  elementAdded(key: string, type: TableHeaderType, oid: string): void;
-  elementRemoved(key: string, oid: string, isArray: boolean): void;
-  elementTypeChanged(key: string, type: TableHeaderType, oid: string): void;
-  elementMarkRemoved(key: string, oid: string): void;
+  removeColumn(colId: ColumnKey): void;
+  renameColumn(oldColId: ColumnKey, newColId: ColumnKey): void;
+  elementAdded(key: ColumnKey, type: TableHeaderType, oid: string): void;
+  elementRemoved(key: ColumnKey, oid: string, isArray: boolean): void;
+  elementTypeChanged(key: ColumnKey, type: TableHeaderType, oid: string): void;
+  elementMarkRemoved(key: ColumnKey, oid: string): void;
   resetColumns(columns: Record<string, Record<string, TableHeaderType>>): void;
   cleanCols(): void;
   replaceDoc(oldOid: string, newOid: string, newDoc: BSONObject): void;
@@ -39,16 +42,16 @@ export type GridStoreOptions = {
 export type GridStoreTriggerParams = {
   refresh?: { oid: string };
   add?: {
-    colIdBefore: string;
-    newColId: string;
+    colIdBefore: ColumnKey;
+    newColId: ColumnKey;
     colType: TableHeaderType | '';
     path: (string | number)[];
     isArray: boolean;
   };
   updateHeaders?: { showing: Record<string, TableHeaderType> };
-  remove?: { colIds: string[] };
+  remove?: { colIds: ColumnKey[] };
   edit?: {
-    colId: string;
+    colId: ColumnKey;
     rowIndex: number;
   };
 };
@@ -63,6 +66,9 @@ class GridStoreImpl
   declare showing: Record<string, TableHeaderType>;
   declare stageRemove: Record<string, Record<string, boolean>>;
   declare trigger: (params: GridStoreTriggerParams) => void;
+  declare listen: (
+    callback: (params: GridStoreTriggerParams) => void
+  ) => () => void;
 
   constructor(options: GridStoreOptions) {
     super(options);
@@ -100,7 +106,7 @@ class GridStoreImpl
    * @param {String} key - The column key.
    *
    */
-  setShowing(key: string) {
+  setShowing(key: ColumnKey) {
     if (!(key in this.columns)) {
       return;
     }
@@ -127,7 +133,7 @@ class GridStoreImpl
    * we are no longer tracking that field (either because it was actually
    * deleted or undo/cancel was clicked.
    */
-  stageField(key: string, oid: string, add: boolean): void {
+  stageField(key: ColumnKey, oid: string, add: boolean): void {
     if (add) {
       if (!(key in this.stageRemove)) {
         this.stageRemove[key] = {};
@@ -147,7 +153,7 @@ class GridStoreImpl
    * @param {Object} columns - A mapping of column names to a mapping of ObjectIds
    * to BSON types.
    */
-  resetColumns(columns: Record<string, Record<string, TypeCastTypes>>) {
+  resetColumns(columns: Record<string, Record<string, TableHeaderType>>) {
     this.showing = {};
     this.stageRemove = {};
     this.columns = cloneDeep(columns);
@@ -216,7 +222,7 @@ class GridStoreImpl
    * @param {String} oldKey
    * @param {String} newKey
    */
-  renameColumn(oldKey: string, newKey: string) {
+  renameColumn(oldKey: ColumnKey, newKey: ColumnKey) {
     if (!this.columns[oldKey]) {
       return;
     }
@@ -259,7 +265,7 @@ class GridStoreImpl
    * @param {String} type - The newly added element's type.
    * @param {String} oid - The ObjectId string of the parent document.
    */
-  elementAdded(key: string, type: TableHeaderType, oid: string) {
+  elementAdded(key: ColumnKey, type: TableHeaderType, oid: string) {
     let oldType: TableHeaderType | undefined;
 
     if (!(key in this.columns)) {
@@ -300,7 +306,7 @@ class GridStoreImpl
    * @param {String} key - The removed element's key.
    * @param {ObjectId} oid - The ObjectId of the parent element.
    */
-  elementMarkRemoved(key: string, oid: string) {
+  elementMarkRemoved(key: ColumnKey, oid: string) {
     delete this.columns[key][oid];
 
     /* Need to track columns that are marked as deletion but not removed yet */
@@ -332,7 +338,7 @@ class GridStoreImpl
    * @param {String} oid - The ObjectId of the parent element.
    * @param {Boolean} isArray - If the parent of the element is an array.
    */
-  elementRemoved(key: string, oid: string, isArray: boolean) {
+  elementRemoved(key: ColumnKey, oid: string, isArray: boolean) {
     const params: Record<string, unknown> = Object.create(null);
     const newShowing: typeof this.showing = {};
 
@@ -430,7 +436,7 @@ class GridStoreImpl
    * @param {String} type - The newly added element's type.
    * @param {ObjectId} oid - The ObjectId of the parent document.
    */
-  elementTypeChanged(key: string, type: TableHeaderType, oid: string) {
+  elementTypeChanged(key: ColumnKey, type: TableHeaderType, oid: string) {
     const oldType = this.showing[key];
 
     this.columns[key][oid] = type;
@@ -464,8 +470,8 @@ class GridStoreImpl
    * @param {String} oid - The string representation of the _id field of the row.
    */
   addColumn(
-    newColId: string,
-    columnBefore: string,
+    newColId: ColumnKey,
+    columnBefore: ColumnKey,
     rowIndex: number,
     path: (string | number)[],
     isArray: boolean,
@@ -555,7 +561,7 @@ class GridStoreImpl
    *
    * @param {String} colId - The colId of the column to be removed.
    */
-  removeColumn(colId: string) {
+  removeColumn(colId: ColumnKey) {
     this.trigger({ remove: { colIds: [colId] } });
   }
 }

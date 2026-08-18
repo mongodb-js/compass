@@ -16,6 +16,7 @@ import sinon from 'sinon';
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type {
+  CrudState,
   CrudStore,
   CrudStoreOptions,
   DocumentsPluginServices,
@@ -72,7 +73,9 @@ chai.use(chaiAsPromised);
 
 const delay = util.promisify(setTimeout);
 
-function waitForStates(store, cbs, timeout = 2000) {
+type StateMatcher = (state: CrudState, numMatches: number) => void;
+
+function waitForStates(store: CrudStore, cbs: StateMatcher[], timeout = 2000) {
   let numMatches = 0;
   const states: any[] = [];
   const errors: Error[] = [];
@@ -131,7 +134,7 @@ function waitForStates(store, cbs, timeout = 2000) {
     });
 }
 
-function waitForState(store, cb, timeout?: number) {
+function waitForState(store: CrudStore, cb: StateMatcher, timeout?: number) {
   return waitForStates(store, [cb], timeout);
 }
 
@@ -695,10 +698,10 @@ describe('store', function () {
       it('replaces the document in the list', function (done) {
         const unsubscribe = store.listen((state) => {
           expect(state.docs[0]).to.not.equal(hadronDoc);
-          expect(state.docs[0].elements.at(1).key === 'new name');
+          expect(state.docs[0].elements.at(1)!.key === 'new name');
           unsubscribe();
           done();
-        }, store);
+        });
 
         hadronDoc.on(DocumentEvents.UpdateBlocked, () => {
           done(new Error("Didn't expect update to be blocked."));
@@ -733,11 +736,11 @@ describe('store', function () {
         const unsubscribe = store.listen((state) => {
           expect(state.docs[0]).to.not.equal(hadronDoc);
           expect(state.docs[0]).to.have.property('elements');
-          expect(state.docs[0].elements.at(2).key).to.equal('new field');
+          expect(state.docs[0].elements.at(2)!.key).to.equal('new field');
           unsubscribe();
           // Ensure we have enough time for update-blocked or update-error to be called.
           setTimeout(() => done(), 100);
-        }, store);
+        });
 
         hadronDoc.on(DocumentEvents.UpdateBlocked, () => {
           done(new Error("Didn't expect update to be blocked."));
@@ -819,7 +822,7 @@ describe('store', function () {
     context('when update is called on an edited doc', function () {
       const doc = { _id: 'testing', name: 'Beach Sand' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
+      let stub: sinon.SinonStub;
 
       beforeEach(function () {
         hadronDoc.get('name')?.edit('Desert Sand');
@@ -846,7 +849,7 @@ describe('store', function () {
       function () {
         const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
         const hadronDoc = new HadronDocument(doc);
-        let stub;
+        let stub: sinon.SinonStub;
 
         beforeEach(function () {
           store.state.shardKeys = { yes: 1 };
@@ -898,9 +901,9 @@ describe('store', function () {
       function () {
         const doc = { _id: 'testing', name: 'Beach Sand' };
         const hadronDoc = new HadronDocument(doc);
-        let findOneAndReplaceStub;
-        let findOneAndUpdateStub;
-        let isUpdateAllowedStub;
+        let findOneAndReplaceStub: sinon.SinonStub;
+        let findOneAndUpdateStub: sinon.SinonStub;
+        let isUpdateAllowedStub: sinon.SinonStub;
 
         beforeEach(function () {
           hadronDoc.get('name')?.edit('Desert Sand');
@@ -1166,7 +1169,7 @@ describe('store', function () {
     context('when replace is called on an edited doc', function () {
       const doc = { _id: 'testing', name: 'Beach Sand' };
       const hadronDoc = new HadronDocument(doc);
-      let stub;
+      let stub: sinon.SinonStub;
 
       beforeEach(function () {
         hadronDoc.get('name')?.edit('Desert Sand');
@@ -1188,7 +1191,7 @@ describe('store', function () {
       function () {
         const doc = { _id: 'testing', name: 'Beach Sand', yes: 'no' };
         const hadronDoc = new HadronDocument(doc);
-        let stub;
+        let stub: sinon.SinonStub;
 
         beforeEach(function () {
           store.state.shardKeys = { yes: 1 };
@@ -1221,9 +1224,9 @@ describe('store', function () {
       function () {
         const doc = { _id: 'testing', name: 'Beach Sand' };
         const hadronDoc = new HadronDocument(doc);
-        let findOneAndReplaceStub;
-        let findOneAndUpdateStub;
-        let isUpdateAllowedStub;
+        let findOneAndReplaceStub: sinon.SinonStub;
+        let findOneAndUpdateStub: sinon.SinonStub;
+        let isUpdateAllowedStub: sinon.SinonStub;
 
         beforeEach(function () {
           hadronDoc.get('name')?.edit('Desert Sand');
@@ -1346,7 +1349,7 @@ describe('store', function () {
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.insertView).to.equal('json');
             expect(state.insert.error).to.exist;
-            expect(state.insert.error.message).to.not.be.empty;
+            expect(state.insert.error!.message).to.not.be.empty;
             expect(state.insert.mode).to.equal('error');
           });
 
@@ -1383,7 +1386,7 @@ describe('store', function () {
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.insertView).to.equal('json');
             expect(state.insert.error).to.exist;
-            expect(state.insert.error.message).to.not.be.empty;
+            expect(state.insert.error!.message).to.not.be.empty;
           });
 
           void store.insertDocument();
@@ -1415,7 +1418,7 @@ describe('store', function () {
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.insertView).to.equal('shell');
             expect(state.insert.error).to.exist;
-            expect(state.insert.error.message).to.not.be.empty;
+            expect(state.insert.error!.message).to.not.be.empty;
           });
 
           store.state.insert.doc = doc;
@@ -1450,8 +1453,8 @@ describe('store', function () {
             expect(state.insert.isOpen).to.equal(true);
             expect(state.insert.insertView).to.equal('json');
             expect(state.insert.error).to.exist;
-            expect(state.insert.error.message).to.not.be.empty;
-            expect(state.insert.error.info).not.to.be.empty;
+            expect(state.insert.error!.message).to.not.be.empty;
+            expect(state.insert.error!.info).not.to.be.empty;
           });
 
           void store.insertDocument();
@@ -1636,7 +1639,7 @@ describe('store', function () {
     context('when clone is true', function () {
       it('removes _id from the document', async function () {
         const listener = waitForState(store, (state) => {
-          expect(state.insert.doc.elements.at(0).key).to.equal('name');
+          expect(state.insert.doc!.elements.at(0)!.key).to.equal('name');
         });
 
         void store.openInsertDocumentDialog(doc, true);
@@ -1648,7 +1651,7 @@ describe('store', function () {
     context('when clone is false', function () {
       it('does not remove _id from the document', async function () {
         const listener = waitForState(store, (state) => {
-          expect(state.insert.doc.elements.at(0).key).to.equal('_id');
+          expect(state.insert.doc!.elements.at(0)!.key).to.equal('_id');
         });
 
         void store.openInsertDocumentDialog(doc, false);
@@ -1658,9 +1661,9 @@ describe('store', function () {
     });
 
     context('with CSFLE connection', function () {
-      let getCSFLEMode;
-      let knownSchemaForCollection;
-      let isUpdateAllowed;
+      let getCSFLEMode: sinon.SinonStub;
+      let knownSchemaForCollection: sinon.SinonStub;
+      let isUpdateAllowed: sinon.SinonStub;
 
       beforeEach(function () {
         knownSchemaForCollection = sinon.stub();
@@ -2134,7 +2137,7 @@ describe('store', function () {
           (state) => {
             // the operation should fail
             expect(state.status).to.equal('error');
-            expect(state.error.message).to.equal('This operation was aborted');
+            expect(state.error!.message).to.equal('This operation was aborted');
             expect(state.abortController).to.be.null;
             expect(state.loadingCount).to.be.false; // eventually count loads
           },
@@ -2154,7 +2157,7 @@ describe('store', function () {
 
   describe('#getPage', function () {
     let store: CrudStore;
-    let findSpy;
+    let findSpy: sinon.SinonSpy;
 
     beforeEach(async function () {
       const plugin = activatePlugin();
@@ -2295,12 +2298,12 @@ describe('store', function () {
   });
 
   describe('#findAndModifyWithFLEFallback', function () {
-    let dataServiceStub;
-    let findFake;
-    let findOneAndReplaceFake;
-    let findOneAndUpdateFake;
-    let updateOneFake;
-    let replaceOneFake;
+    let dataServiceStub: DataService;
+    let findFake: sinon.SinonStub;
+    let findOneAndReplaceFake: sinon.SinonStub;
+    let findOneAndUpdateFake: sinon.SinonStub;
+    let updateOneFake: sinon.SinonStub;
+    let replaceOneFake: sinon.SinonStub;
 
     const updatedDocument = { _id: 1234, name: 'document_12345' };
 
@@ -2316,7 +2319,7 @@ describe('store', function () {
         findOneAndUpdate: findOneAndUpdateFake,
         updateOne: updateOneFake,
         replaceOne: replaceOneFake,
-      };
+      } as unknown as DataService;
     });
 
     afterEach(function () {
@@ -2711,8 +2714,10 @@ describe('store', function () {
   });
 
   describe('saveUpdateQuery', function () {
-    let favoriteQueriesStorage;
-    let saveQueryStub;
+    let favoriteQueriesStorage: ReturnType<
+      typeof compassFavoriteQueryStorageAccess.getStorage
+    >;
+    let saveQueryStub: sinon.SinonStub;
     let store: CrudStore;
 
     beforeEach(function () {
@@ -2755,7 +2760,7 @@ describe('store', function () {
 
   describe('updateBulkUpdatePreview', function () {
     context('with isUpdatePreviewSupported=false', function () {
-      let previewUpdateStub;
+      let previewUpdateStub: sinon.SinonStub;
       let store: CrudStore;
 
       beforeEach(function () {
@@ -2826,7 +2831,7 @@ describe('store', function () {
     });
 
     context('with isUpdatePreviewSupported=true', function () {
-      let previewUpdateStub;
+      let previewUpdateStub: sinon.SinonStub;
       let store: CrudStore;
 
       beforeEach(function () {
@@ -2873,8 +2878,10 @@ describe('store', function () {
   });
 
   describe('saveRecentQueryQuery', function () {
-    let recentQueriesStorage;
-    let saveQueryStub;
+    let recentQueriesStorage: ReturnType<
+      typeof compassRecentQueryStorageAccess.getStorage
+    >;
+    let saveQueryStub: sinon.SinonStub;
     let store: CrudStore;
 
     beforeEach(function () {
