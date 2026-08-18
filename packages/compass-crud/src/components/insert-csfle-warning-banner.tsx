@@ -1,5 +1,10 @@
 import React from 'react';
-import { css, Banner, BannerVariant } from '@mongodb-js/compass-components';
+import {
+  css,
+  spacing,
+  Banner,
+  BannerVariant,
+} from '@mongodb-js/compass-components';
 import type { InsertCSFLEState } from '../stores/crud-store';
 
 export type InsertCSFLEWarningBannerProps = {
@@ -7,6 +12,7 @@ export type InsertCSFLEWarningBannerProps = {
 };
 
 const listStyles = css({ listStyle: 'inherit' });
+const bannerStyles = css({ marginTop: spacing[200] });
 
 function InsertCSFLEWarningBanner({
   csfleState,
@@ -32,7 +38,7 @@ function InsertCSFLEWarningBanner({
 
     case 'no-known-schema':
       return (
-        <Banner variant={BannerVariant.Warning}>
+        <Banner variant={BannerVariant.Warning} className={bannerStyles}>
           This insert operation will not encrypt any document fields because no
           schema or In-Use Encryption configuration is associated with the
           collection.
@@ -44,6 +50,7 @@ function InsertCSFLEWarningBanner({
         <Banner
           data-testid="incomplete-schema-for-cloned-doc"
           variant={BannerVariant.Danger}
+          className={bannerStyles}
         >
           This insert operation will not encrypt all fields that were encrypted
           in the original document due to a missing or incomplete schema for
@@ -57,6 +64,7 @@ function InsertCSFLEWarningBanner({
         <Banner
           data-testid="insert-csfle-has-known-schema"
           variant={BannerVariant.Info}
+          className={bannerStyles}
         >
           This insert operation will encrypt all fields that are specified in
           the schema or In-Use Encryption configuration associated with the
@@ -67,7 +75,7 @@ function InsertCSFLEWarningBanner({
 
     case 'csfle-disabled':
       return (
-        <Banner variant={BannerVariant.Warning}>
+        <Banner variant={BannerVariant.Warning} className={bannerStyles}>
           This insert operation will not encrypt any document fields because
           In-Use Encryption support was explicitly disabled.
         </Banner>
