@@ -21,6 +21,7 @@ export type AtlasConnectionDebugResult = {
   clusterState: string;
   ipAccessAllowed: IpAccessAllowed;
   advice?: string;
+  networkAccessDetails?: NetworkAccessDetails;
 };
 
 function mapClusterStateToDebugResultState({
@@ -154,7 +155,9 @@ function getAdvice({
   }
 
   if (ipAccessAllowed !== 'Client IP Allowed') {
-    advice.push('Your IP address is not allowed to access the cluster.');
+    advice.push(
+      'We could not verify whether your network access is allowed. See the networkAccessDetails.'
+    );
     if (networkAccessListUrl) {
       advice.push(
         'Add your IP address in the Atlas UI: ' + networkAccessListUrl
@@ -197,6 +200,8 @@ export async function debugConnection(
       clusterName,
       ipAccessAllowed,
     }),
-    ...(!ipAccessAllowed ? { networkAccessDetails } : {}),
+    ...(ipAccessAllowed !== 'Client IP Allowed'
+      ? { networkAccessDetails }
+      : {}),
   };
 }
