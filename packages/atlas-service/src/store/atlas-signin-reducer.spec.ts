@@ -288,10 +288,12 @@ describe('atlasSignInReducer', function () {
         track,
       });
       await store.dispatch(
-        performSignInAttempt({ entrypoint: 'connection_failure' })
+        performSignInAttempt({
+          entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+        })
       );
       expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
-        entrypoint: 'connection_failure',
+        entrypoint: 'assistant-tool-atlas-connection-error-debugger',
       });
     });
 

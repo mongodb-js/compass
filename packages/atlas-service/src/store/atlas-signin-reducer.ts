@@ -332,9 +332,6 @@ export const performSignInAttempt = ({
       return userInfo;
     }
 
-    // if there's already an attempt in progress, return the promise for that
-    // attempt. We don't track a new sign in start in that case: the user is
-    // joining the attempt that was already reported.
     if (currentAttemptId) {
       return getAttempt(currentAttemptId).promise;
     }

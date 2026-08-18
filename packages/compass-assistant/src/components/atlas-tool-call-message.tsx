@@ -10,6 +10,7 @@ import {
   doesToolUseConnection,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { getToolDisplayName } from '../utils';
+import type { AtlasSignInEntrypoint } from '@mongodb-js/compass-telemetry';
 import {
   useAtlasLoginActions,
   useAtlasSignedInUser,
@@ -21,10 +22,14 @@ const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
   'tool-atlas-connection-error-debugger';
 
 /**
- * This card is only ever rendered as part of the assistant's connection failure
- * troubleshooting flow, so every sign in it drives is attributed to it.
+ * Every sign in this card drives is attributed to the assistant tool call that
+ * required it, so we can tell which Atlas tools drive sign in.
  */
-const SIGN_IN_ENTRYPOINT = 'connection_failure';
+function getSignInEntrypoint(
+  toolType: ToolUIPart['type']
+): AtlasSignInEntrypoint {
+  return `assistant-${toolType}`;
+}
 
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
@@ -98,8 +103,10 @@ export const AtlasToolCallMessage: React.FunctionComponent<
       return;
     }
     trackedPromptForApprovalId.current = approvalId ?? null;
-    track('Atlas Sign In Prompt Shown', { entrypoint: SIGN_IN_ENTRYPOINT });
-  }, [isSignInPromptShown, approvalId, track]);
+    track('Atlas Sign In Prompt Shown', {
+      entrypoint: getSignInEntrypoint(toolCall.type),
+    });
+  }, [isSignInPromptShown, approvalId, track, toolCall.type]);
 
   const chips = [];
 
@@ -113,11 +120,11 @@ export const AtlasToolCallMessage: React.FunctionComponent<
 
   const handleAtlasToolApproval = useCallback(
     (approvalId: string) => {
-      signIn({ entrypoint: SIGN_IN_ENTRYPOINT })
+      signIn({ entrypoint: getSignInEntrypoint(toolCall.type) })
         .then((userInfo) => onApprove(approvalId, !!userInfo))
         .catch(() => onApprove(approvalId, false));
     },
-    [signIn, onApprove]
+    [signIn, onApprove, toolCall.type]
   );
 
   const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);

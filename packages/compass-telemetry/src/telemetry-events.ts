@@ -119,9 +119,11 @@ type ConnectionScopedEvent<E extends { payload: unknown }> = E & {
  */
 export type AtlasSignInEntrypoint =
   /**
-   * The sign in was triggered from a connection failure.
+   * The sign in was triggered by an assistant tool call requiring Atlas, where
+   * the suffix is the name of the tool, e.g.
+   * `assistant-tool-atlas-connection-error-debugger`.
    */
-  | 'connection_failure'
+  | `assistant-tool-${string}`
   /**
    * The sign in was triggered by a caller that doesn't provide an entrypoint.
    */

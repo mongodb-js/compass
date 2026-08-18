@@ -124,12 +124,12 @@ describe('AtlasToolCallMessage', function () {
       });
     });
 
-    it('tracks the sign in prompt once, with the connection_failure entrypoint', async function () {
+    it('tracks the sign in prompt once, with the tool name as entrypoint', async function () {
       const { track } = renderMessage();
 
       await waitFor(() => {
         expect(track).to.have.been.calledWith('Atlas Sign In Prompt Shown', {
-          entrypoint: 'connection_failure',
+          entrypoint: 'assistant-tool-atlas-connection-error-debugger',
         });
       });
       expect(
@@ -139,14 +139,31 @@ describe('AtlasToolCallMessage', function () {
       ).to.have.lengthOf(1);
     });
 
-    it('tracks sign in started with the connection_failure entrypoint', async function () {
+    it('tracks sign in started with the tool name as entrypoint', async function () {
       const { track } = renderMessage();
 
       userEvent.click(screen.getByText('Connect to Atlas'));
 
       await waitFor(() => {
         expect(track).to.have.been.calledWith('Atlas Sign In Started', {
-          entrypoint: 'connection_failure',
+          entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+        });
+      });
+    });
+
+    it('derives the entrypoint from the tool that requested sign in', async function () {
+      const { track } = renderMessage({
+        toolCall: {
+          type: 'tool-atlas-some-future-tool',
+          toolCallId: 'atlas-tool-call-2',
+          state: 'approval-requested',
+          approval: { id: 'approval-1' },
+        } as unknown as ToolUIPart,
+      });
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith('Atlas Sign In Prompt Shown', {
+          entrypoint: 'assistant-tool-atlas-some-future-tool',
         });
       });
     });
