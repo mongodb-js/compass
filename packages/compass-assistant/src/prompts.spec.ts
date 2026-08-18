@@ -839,6 +839,34 @@ You SHOULD:
           'Use the "atlas-connection-error-debugger" tool'
         );
       });
+
+      describe('when Atlas sign in is not allowed', function () {
+        it('does not instruct to use the atlas debugger tool', function () {
+          const result = buildConnectionErrorPrompt({
+            connectionInfo: atlasConnectionInfo,
+            error: new Error('connection timed out'),
+            enableAtlasSignIn: false,
+          });
+
+          expect(result.prompt).to.not.contain(
+            'Use the "atlas-connection-error-debugger" tool to check'
+          );
+        });
+
+        it('instructs to inform the user and to keep debugging generically', function () {
+          const result = buildConnectionErrorPrompt({
+            connectionInfo: atlasConnectionInfo,
+            error: new Error('connection timed out'),
+            enableAtlasSignIn: false,
+          });
+
+          expect(result.prompt).to.contain(
+            'Atlas Login is not allowed in their organization'
+          );
+          expect(result.prompt).to.contain('general troubleshooting steps');
+          expect(result.prompt).to.contain('connection timed out');
+        });
+      });
     });
 
     describe('Not Atlas connection', function () {

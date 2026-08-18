@@ -10,6 +10,12 @@
 - Ensure proper error handling throughout
 - Suggest changes to improve code readability and maintainability
 
+### Comments
+
+Comments should be clear and concise. They should explain the "why", not the "what".
+Add comments only if they provide additional value - i.e. record a constraint, a non-obvious use case, or a rejected alternative.
+If the comment restates what the code does, consider if the code can be improved to make it self-documenting and remove the comment.
+
 ## Best practices
 
 - Refer to official documentation and best practices for React.js, Redux and Node.js. If you see anti-patterns, highlight them and provide links to the relevant official documentation.

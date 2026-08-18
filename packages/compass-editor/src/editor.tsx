@@ -582,7 +582,7 @@ const highlightStyles = {
 } as const;
 
 // We don't have any other cases we need to support in a base editor
-type EditorLanguage = 'json' | 'javascript' | 'javascript-expression';
+export type EditorLanguage = 'json' | 'javascript' | 'javascript-expression';
 
 /**
  * *Note*: Action only works when linting has been enabled

@@ -248,10 +248,15 @@ export async function parseAndValidateGlobalPreferences(
 
 function formatSingleOption(
   key: keyof AllPreferences,
-  context: 'cli' | 'global'
+  context: 'cli' | 'global',
+  preferences: Partial<AllPreferences>
 ): string {
   const descriptor = allPreferencesProps[key];
-  if (descriptor.omitFromHelp) return '';
+  const omitFromHelp =
+    typeof descriptor.omitFromHelp === 'function'
+      ? descriptor.omitFromHelp(preferences)
+      : descriptor.omitFromHelp;
+  if (omitFromHelp) return '';
   let line = '';
 
   const addDescription = () => {
@@ -273,12 +278,12 @@ function formatSingleOption(
   return line;
 }
 
-export function getHelpText(): string {
+export function getHelpText(preferences: Partial<AllPreferences> = {}): string {
   let text = 'Available options:\n\n';
   for (const key of Object.keys(
     allPreferencesProps
   ) as (keyof AllPreferences)[]) {
-    text += formatSingleOption(key, 'cli');
+    text += formatSingleOption(key, 'cli', preferences);
   }
   text +=
     '\nOptions marked with (*) are also configurable through the global configuration file.\n';
@@ -288,7 +293,7 @@ export function getHelpText(): string {
   for (const key of Object.keys(
     allPreferencesProps
   ) as (keyof AllPreferences)[]) {
-    text += formatSingleOption(key, 'global');
+    text += formatSingleOption(key, 'global', preferences);
   }
   text +=
     '\nThe following global configuration file paths will be searched:\n\n';
