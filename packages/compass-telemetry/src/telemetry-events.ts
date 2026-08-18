@@ -2210,7 +2210,7 @@ type SchemaValidationUpdatedEvent = ConnectionScopedEvent<{
     /**
      * The level of schema validation passed to the driver.
      */
-    validation_level: 'off' | 'moderate' | 'strict';
+    validation_level: 'off' | 'moderate' | 'strict' | 'constraint';
   };
 }>;
 

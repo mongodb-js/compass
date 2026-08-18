@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-08-14. Do not edit manually.
+> Auto-generated on 2026-08-17. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -2365,12 +2365,12 @@ This event is fired when user edits validation rules (without saving them).
 
 This event is fired when user saves validation rules.
 
-| Property            | Type                                 | Required | Description                                          |
-| ------------------- | ------------------------------------ | -------- | ---------------------------------------------------- |
-| `validation_action` | `"error" \| "warn" \| "errorAndLog"` | Yes      | The validation action passed to the driver.          |
-| `validation_level`  | `"off" \| "moderate" \| "strict"`    | Yes      | The level of schema validation passed to the driver. |
-| `is_compass_web`    | `true \| undefined`                  | No       |                                                      |
-| `connection_id`     | `string \| undefined`                | No       | The id of the connection associated to this event.   |
+| Property            | Type                                              | Required | Description                                          |
+| ------------------- | ------------------------------------------------- | -------- | ---------------------------------------------------- |
+| `validation_action` | `"error" \| "warn" \| "errorAndLog"`              | Yes      | The validation action passed to the driver.          |
+| `validation_level`  | `"off" \| "moderate" \| "strict" \| "constraint"` | Yes      | The level of schema validation passed to the driver. |
+| `is_compass_web`    | `true \| undefined`                               | No       |                                                      |
+| `connection_id`     | `string \| undefined`                             | No       | The id of the connection associated to this event.   |
 
 ### Schema Validation Generated
 
