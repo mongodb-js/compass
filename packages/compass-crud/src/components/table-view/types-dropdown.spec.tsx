@@ -33,7 +33,7 @@ const selectableTypes = [
 ];
 
 describe('TypesDropdown', function () {
-  let element;
+  let element: Element;
   beforeEach(function () {
     element = new Element('name', 1, null, false);
     render(<TypesDropdown element={element}></TypesDropdown>);

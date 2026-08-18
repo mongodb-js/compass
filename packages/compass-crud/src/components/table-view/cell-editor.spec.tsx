@@ -37,7 +37,7 @@ describe('<CellEditor />', function () {
     describe('editable element', function () {
       it('renders the input field and type dropdown', function () {
         const rowNode = getNode({ field1: 'value' });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const { container } = render(
           <CellEditor
             api={api as any}
@@ -67,7 +67,7 @@ describe('<CellEditor />', function () {
 
       it('renders the add field and remove field buttons', function () {
         const rowNode = getNode({ field1: 'value' });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         render(
           <CellEditor
             api={api as any}
@@ -105,7 +105,7 @@ describe('<CellEditor />', function () {
       it('renders fieldname input, value input, and type dropdown', function () {
         const rowNode = getNode({});
         rowNode.data.hadronDocument.insertEnd('$new', '');
-        const value = rowNode.data.hadronDocument.get('$new');
+        const value = rowNode.data.hadronDocument.get('$new')!;
         const { container } = render(
           <CellEditor
             api={api as any}
@@ -160,7 +160,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            version="3.4.0"
             tz="UTC"
             columnApi={columnApi}
             context={context}
@@ -186,7 +185,7 @@ describe('<CellEditor />', function () {
     describe('expandable element', function () {
       it('renders type dropdown, expand, add, and remove buttons', function () {
         const rowNode = getNode({ field1: { subfield1: 'value' } });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const { container } = render(
           <CellEditor
             api={api}
@@ -201,7 +200,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            version="3.4.0"
             tz="UTC"
             columnApi={columnApi}
             context={context}
@@ -226,7 +224,7 @@ describe('<CellEditor />', function () {
     describe('ObjectId', function () {
       it('top-level _id renders add field button only', function () {
         const rowNode = getNode({ field1: { _id: new ObjectId() } });
-        const value = rowNode.data.hadronDocument.get('_id');
+        const value = rowNode.data.hadronDocument.get('_id')!;
         const { container } = render(
           <CellEditor
             api={api}
@@ -241,7 +239,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            version="3.4.0"
             tz="UTC"
             columnApi={columnApi}
             context={context}
@@ -265,7 +262,7 @@ describe('<CellEditor />', function () {
 
       it('sub-level _id renders type dropdown, add, remove buttons', function () {
         const rowNode = getNode({ field1: { _id: new ObjectId() } });
-        const value = rowNode.data.hadronDocument.getChild(['field1', '_id']);
+        const value = rowNode.data.hadronDocument.getChild(['field1', '_id'])!;
         const subContext = getContext(['field1']);
         const { container } = render(
           <CellEditor
@@ -281,7 +278,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            version="3.4.0"
             tz="UTC"
             columnApi={columnApi}
             context={subContext}
@@ -318,7 +314,7 @@ describe('<CellEditor />', function () {
         const api = getApi();
         const actions = getActions();
         const rowNode = getNode({ field1: 'value' });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
 
         render(
           <CellEditor
@@ -334,7 +330,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            version="3.4.0"
             tz="UTC"
             context={context}
             columnApi={columnApi}
@@ -357,7 +352,7 @@ describe('<CellEditor />', function () {
           const api = getApi();
           const actions = getActions();
           const rowNode = getNode({ field1: '100' });
-          const value = rowNode.data.hadronDocument.get('field1');
+          const value = rowNode.data.hadronDocument.get('field1')!;
 
           render(
             <CellEditor
@@ -373,7 +368,6 @@ describe('<CellEditor />', function () {
               elementMarkRemoved={actions.elementMarkRemoved}
               drillDown={actions.drillDown}
               addColumn={actions.addColumn}
-              version="3.4.0"
               tz="UTC"
               context={context}
               columnApi={columnApi}
@@ -404,7 +398,7 @@ describe('<CellEditor />', function () {
           // Verify the type was changed on the element
           expect(value.currentType).to.equal('Int32');
           // Int32 wraps value in an object, so check valueOf()
-          expect(value.currentValue.valueOf()).to.equal(100);
+          expect(value.currentValue!.valueOf()).to.equal(100);
         });
       });
 
@@ -412,7 +406,7 @@ describe('<CellEditor />', function () {
         const api = getApi();
         const actions = getActions();
         const rowNode = getNode({ field1: 'value' });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
 
         render(
           <CellEditor
@@ -428,7 +422,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            version="3.4.0"
             tz="UTC"
             context={context}
             columnApi={columnApi}
@@ -454,7 +447,7 @@ describe('<CellEditor />', function () {
         const actions = getActions();
         const rowNode = getNode({});
         rowNode.data.hadronDocument.insertEnd('field1', 'value');
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
 
         render(
           <CellEditor
@@ -470,7 +463,6 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            version="3.4.0"
             tz="UTC"
             context={context}
             columnApi={columnApi}
@@ -502,7 +494,7 @@ describe('<CellEditor />', function () {
         const columnApi = getColumnApi([]);
         const context = getContext([]);
         rowNode.data.hadronDocument.insertEnd('$new', '');
-        const value = rowNode.data.hadronDocument.get('$new');
+        const value = rowNode.data.hadronDocument.get('$new')!;
 
         render(
           <CellEditor
@@ -519,7 +511,6 @@ describe('<CellEditor />', function () {
             addColumn={actions.addColumn}
             context={context}
             column={column}
-            version="3.4.0"
             tz="UTC"
             columnApi={columnApi}
           />
@@ -541,15 +532,11 @@ describe('<CellEditor />', function () {
         const colId = {};
         const column = getColumn('field1', colId);
         const columnApi = getColumnApi([
-          {
-            getColDef: () => {
-              return { colId: 'fieldname' };
-            },
-          },
+          getColumn('fieldname', { colId: 'fieldname' }),
         ]);
         const context = getContext([]);
         rowNode.data.hadronDocument.insertEnd('$new', '');
-        const value = rowNode.data.hadronDocument.get('$new');
+        const value = rowNode.data.hadronDocument.get('$new')!;
 
         render(
           <CellEditor
@@ -566,7 +553,6 @@ describe('<CellEditor />', function () {
             addColumn={actions.addColumn}
             context={context}
             column={column}
-            version="3.4.0"
             tz="UTC"
             columnApi={columnApi}
           />
@@ -611,13 +597,12 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             columnApi={columnApi}
-            version="3.4.0"
             tz="UTC"
             context={context}
           />
         );
 
-        expect(rowNode.data.hadronDocument.get('field1').currentType).to.equal(
+        expect(rowNode.data.hadronDocument.get('field1')!.currentType).to.equal(
           'Date'
         );
         notCalledExcept(api, []);
@@ -651,13 +636,12 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             columnApi={columnApi}
-            version="3.4.0"
             tz="UTC"
             context={context}
           />
         );
 
-        expect(rowNode.data.hadronDocument.get('field1').currentType).to.equal(
+        expect(rowNode.data.hadronDocument.get('field1')!.currentType).to.equal(
           'Undefined'
         );
         notCalledExcept(api, []);
@@ -691,7 +675,6 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             columnApi={columnApi}
-            version="3.4.0"
             tz="UTC"
             context={context}
           />
@@ -705,16 +688,16 @@ describe('<CellEditor />', function () {
         userEvent.type(input, 'new input');
         expect(input.value).to.equal('new input');
         // HadronDocument is updated with the new value
-        expect(rowNode.data.hadronDocument.get('field1').currentValue).to.equal(
-          'new input'
-        );
+        expect(
+          rowNode.data.hadronDocument.get('field1')!.currentValue
+        ).to.equal('new input');
       });
     });
 
     describe('expandable element', function () {
       it('clicking on expand calls drillDown action and stopEditing', function () {
         const rowNode = getNode({ field1: { subfield1: 'value' } });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const api = getApi();
         const actions = getActions();
         const column = getColumn();
@@ -736,7 +719,6 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             columnApi={columnApi}
-            version="3.4.0"
             tz="UTC"
             context={context}
           />

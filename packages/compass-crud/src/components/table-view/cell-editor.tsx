@@ -20,6 +20,7 @@ import {
   TextInput,
 } from '@mongodb-js/compass-components';
 import type {
+  Column,
   ColumnApi,
   GridApi,
   ICellEditorParams,
@@ -61,9 +62,15 @@ export interface DocumentTableRowNode extends RowNode {
   };
 }
 
-export type CellEditorProps = Omit<ICellEditorParams, 'node' | 'context'> & {
-  value: Element;
+export type CellEditorProps = Partial<
+  Omit<
+    ICellEditorParams,
+    'value' | 'node' | 'context' | 'api' | 'columnApi' | 'column'
+  >
+> & {
+  value?: Element;
   node: DocumentTableRowNode;
+  column: Column;
   api: GridApi;
   columnApi: ColumnApi;
   context: GridContext;
@@ -146,7 +153,7 @@ class CellEditor
         this.setState({ fieldName: String(this.element.currentKey) });
       }
       /* If this column has just been added */
-      this.newField = value.currentKey === '$new';
+      this.newField = this.element.currentKey === '$new';
     }
 
     const displayType = getDisplayType(

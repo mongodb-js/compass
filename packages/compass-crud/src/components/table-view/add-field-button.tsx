@@ -98,7 +98,7 @@ class AddFieldButton extends React.Component<
 
     if (!this.empty) {
       /* Set key to $new even though for arrays, it will be a index */
-      newElement = parent.insertAfter(this.props.value, '$new', '')!;
+      newElement = parent.insertAfter(this.props.value!, '$new', '')!;
     } else {
       newElement = parent.insertEnd('$new', '');
     }
@@ -125,7 +125,7 @@ class AddFieldButton extends React.Component<
    * When clicking on an expandable element to append a child.
    */
   handleAddChildClick() {
-    const newElement = this.props.value.insertEnd('$new', '');
+    const newElement = this.props.value!.insertEnd('$new', '');
 
     const edit = {
       colId: newElement.currentKey,
@@ -134,7 +134,7 @@ class AddFieldButton extends React.Component<
 
     this.props.drillDown(
       this.props.node.data.hadronDocument,
-      this.props.value,
+      this.props.value!,
       edit
     );
   }
@@ -145,7 +145,7 @@ class AddFieldButton extends React.Component<
    * @returns {Boolean} If the element is an object.
    */
   isElementObject() {
-    return !this.empty && this.props.value.currentType === 'Object';
+    return !this.empty && this.props.value!.currentType === 'Object';
   }
 
   /**
@@ -154,7 +154,7 @@ class AddFieldButton extends React.Component<
    * @returns {Boolean} If the element is an array.
    */
   isElementArray() {
-    return !this.empty && this.props.value.currentType === 'Array';
+    return !this.empty && this.props.value!.currentType === 'Array';
   }
 
   /**
@@ -178,7 +178,7 @@ class AddFieldButton extends React.Component<
    * @returns {React.Component} The component.
    */
   renderArrayItem() {
-    if (this.isElementArray() && this.props.value.isValueEditable()) {
+    if (this.isElementArray() && this.props.value!.isValueEditable()) {
       return this.renderMenuItem(
         ADD_CHILD_ICON,
         ARRAY_TEXT,
@@ -214,8 +214,8 @@ class AddFieldButton extends React.Component<
     }
     return (
       <BSONValue
-        type={this.props.value.currentType}
-        value={this.props.value.currentValue}
+        type={this.props.value!.currentType as any}
+        value={this.props.value!.currentValue}
       />
     );
   }
@@ -236,9 +236,9 @@ class AddFieldButton extends React.Component<
       this.isParentArray() &&
       (this.isElementObject() || this.isElementArray())
     ) {
-      return this.props.value.currentType;
+      return this.props.value!.currentType;
     }
-    return this.props.value.currentKey || this.renderValue();
+    return this.props.value!.currentKey || this.renderValue();
   }
 
   /**
@@ -274,7 +274,7 @@ class AddFieldButton extends React.Component<
    * @returns {React.Component} The component.
    */
   renderObjectItem() {
-    if (this.isElementObject() && this.props.value.isValueEditable()) {
+    if (this.isElementObject() && this.props.value!.isValueEditable()) {
       return this.renderMenuItem(
         ADD_CHILD_ICON,
         OBJECT_TEXT,

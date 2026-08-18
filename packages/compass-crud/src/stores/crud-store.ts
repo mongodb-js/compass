@@ -91,7 +91,7 @@ export type CrudActions = {
     doc: Document,
     element: Element,
     editParams?: {
-      colId: string;
+      colId: string | number;
       rowIndex: number;
     }
   ): void;

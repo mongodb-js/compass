@@ -210,7 +210,7 @@ describe('Bulk Action Toasts', function () {
         it(`${useCase.modal.name} shows the text '${useCase.expected}' when ${useCase.affected} document/s affected`, async function () {
           useCase.modal({
             affectedDocuments: useCase.affected,
-            error: useCase.error,
+            error: useCase.error as Error,
             onRefresh: () => {},
           });
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { expect } from 'chai';
+import { Int32 } from 'bson';
 import {
   render,
   screen,
@@ -29,7 +30,7 @@ describe('<CellRenderer />', function () {
     describe('element is valid', function () {
       it('renders the element value correctly', function () {
         const rowNode = getNode({ field1: 'value' });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         render(
           <CellRenderer
             api={api as any}
@@ -50,7 +51,7 @@ describe('<CellRenderer />', function () {
 
       it('does not render the undo button', function () {
         const rowNode = getNode({ field1: 'value' });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         render(
           <CellRenderer
             api={api as any}
@@ -74,7 +75,7 @@ describe('<CellRenderer />', function () {
       it('renders the cell as added with value and undo button', function () {
         const rowNode = getNode({});
         rowNode.data.hadronDocument.insertEnd('field1', 'value');
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const { container } = render(
           <CellRenderer
             api={api as any}
@@ -100,8 +101,8 @@ describe('<CellRenderer />', function () {
     describe('element is modified', function () {
       it('renders the element as modified with undo button', function () {
         const rowNode = getNode({ field1: 'value' });
-        rowNode.data.hadronDocument.get('field1').edit('a new value');
-        const value = rowNode.data.hadronDocument.get('field1');
+        rowNode.data.hadronDocument.get('field1')!.edit('a new value');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const { container } = render(
           <CellRenderer
             api={api as any}
@@ -127,8 +128,8 @@ describe('<CellRenderer />', function () {
     describe('element is removed', function () {
       it('renders the element as removed with undo button', function () {
         const rowNode = getNode({ field1: 'value' });
-        rowNode.data.hadronDocument.get('field1').remove();
-        const value = rowNode.data.hadronDocument.get('field1');
+        rowNode.data.hadronDocument.get('field1')!.remove();
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const { container } = render(
           <CellRenderer
             api={api as any}
@@ -155,9 +156,9 @@ describe('<CellRenderer />', function () {
       it('renders the element as invalid', function () {
         const rowNode = getNode({ field1: 'value' });
         rowNode.data.hadronDocument
-          .get('field1')
+          .get('field1')!
           .setInvalid('invalid', 'String', 'message');
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const { container } = render(
           <CellRenderer
             api={api as any}
@@ -238,7 +239,7 @@ describe('<CellRenderer />', function () {
     describe('parent type of element is incorrect', function () {
       it('is array, object expected - renders as uneditable', function () {
         const rowNode = getNode({ array: [1, 2] });
-        const value = rowNode.data.hadronDocument.getChild(['array', 1]);
+        const value = rowNode.data.hadronDocument.getChild(['array', 1])!;
         const context2 = getContext(['array']);
         const column2 = getColumn(1);
         const { container } = render(
@@ -266,7 +267,7 @@ describe('<CellRenderer />', function () {
 
       it('is object, array expected - renders as uneditable', function () {
         const rowNode = getNode({ obj: { field1: 1, field2: 2 } });
-        const value = rowNode.data.hadronDocument.getChild(['obj', 'field1']);
+        const value = rowNode.data.hadronDocument.getChild(['obj', 'field1'])!;
         const context2 = getContext(['obj']);
         const column2 = getColumn('field1');
         const { container } = render(
@@ -296,7 +297,7 @@ describe('<CellRenderer />', function () {
     describe('element is expandable', function () {
       it('renders the element with expand button', function () {
         const rowNode = getNode({ field1: { subfield1: 1 } });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         render(
           <CellRenderer
             api={api}
@@ -321,7 +322,7 @@ describe('<CellRenderer />', function () {
     describe('element is array', function () {
       it('renders the element correctly', function () {
         const rowNode = getNode({ field1: [1, 2, 3] });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         render(
           <CellRenderer
             api={api}
@@ -345,9 +346,9 @@ describe('<CellRenderer />', function () {
       it('renders both undo and expand buttons', function () {
         const rowNode = getNode({ field1: { subfield1: 1 } });
         rowNode.data.hadronDocument
-          .getChild(['field1', 'subfield1'])
+          .getChild(['field1', 'subfield1'])!
           .edit('a new value');
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const { container } = render(
           <CellRenderer
             api={api}
@@ -379,8 +380,8 @@ describe('<CellRenderer />', function () {
     describe('undo', function () {
       it('clicking undo on an element reverts it to original value', function () {
         const rowNode = getNode({ field1: 'value' });
-        rowNode.data.hadronDocument.get('field1').edit('a new value');
-        const value = rowNode.data.hadronDocument.get('field1');
+        rowNode.data.hadronDocument.get('field1')!.edit('a new value');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const api = getApi();
         const actions = getActions();
         render(
@@ -410,7 +411,7 @@ describe('<CellRenderer />', function () {
       it('clicking undo on an added element calls elementRemoved action', function () {
         const rowNode = getNode({});
         rowNode.data.hadronDocument.insertEnd('field1', 'value');
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const api = getApi();
         const actions = getActions();
         render(
@@ -442,8 +443,8 @@ describe('<CellRenderer />', function () {
 
       it('clicking undo on a type changed element calls elementTypeChanged action', function () {
         const rowNode = getNode({ field1: 'value' });
-        rowNode.data.hadronDocument.get('field1').edit(100);
-        const value = rowNode.data.hadronDocument.get('field1');
+        rowNode.data.hadronDocument.get('field1')!.edit(new Int32(100));
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const api = getApi();
         const actions = getActions();
         render(
@@ -479,8 +480,8 @@ describe('<CellRenderer />', function () {
 
       it('clicking undo on a removed element calls elementAdded action', function () {
         const rowNode = getNode({ field1: 'value' });
-        rowNode.data.hadronDocument.get('field1').remove();
-        const value = rowNode.data.hadronDocument.get('field1');
+        rowNode.data.hadronDocument.get('field1')!.remove();
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const api = getApi();
         const actions = getActions();
         render(
@@ -516,7 +517,7 @@ describe('<CellRenderer />', function () {
         const api = getApi();
         const actions = getActions();
         const rowNode = getNode({ field1: { subfield1: 1 } });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         render(
           <CellRenderer
             api={api}
@@ -553,7 +554,7 @@ describe('<CellRenderer />', function () {
         const api = getApi();
         const actions = getActions();
         const rowNode = getNode({ field1: 'value' });
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const { container } = render(
           <CellRenderer
             api={api}
@@ -582,7 +583,7 @@ describe('<CellRenderer />', function () {
         const actions = getActions();
         const rowNode = getNode({ field1: 'value' });
         rowNode.data.state = 'editing';
-        const value = rowNode.data.hadronDocument.get('field1');
+        const value = rowNode.data.hadronDocument.get('field1')!;
         const { container } = render(
           <CellRenderer
             api={api}

@@ -5,9 +5,9 @@ import { PreferencesProvider } from 'compass-preferences-model/provider';
 import QueryBarPlugin from '@mongodb-js/compass-query-bar';
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import {
-  compassFavoriteQueryStorageAccess,
-  compassRecentQueryStorageAccess,
-} from '@mongodb-js/my-queries-storage';
+  createElectronFavoriteQueryStorage,
+  createElectronRecentQueryStorage,
+} from '@mongodb-js/my-queries-storage/electron';
 
 export const MockQueryBarPlugin: typeof QueryBarPlugin =
   QueryBarPlugin.withMockServices({
@@ -20,8 +20,14 @@ export const MockQueryBarPlugin: typeof QueryBarPlugin =
       },
     } as any,
     instance: { on() {}, removeListener() {} } as any,
-    favoriteQueryStorageAccess: compassFavoriteQueryStorageAccess,
-    recentQueryStorageAccess: compassRecentQueryStorageAccess,
+    favoriteQueryStorageAccess: {
+      getStorage: () =>
+        createElectronFavoriteQueryStorage({ basepath: '/tmp/test' }),
+    },
+    recentQueryStorageAccess: {
+      getStorage: () =>
+        createElectronRecentQueryStorage({ basepath: '/tmp/test' }),
+    },
     atlasAiService: {} as any,
     collection: {
       fetchMetadata: () => Promise.resolve({} as any),

@@ -2,6 +2,9 @@ import HadronDocument from 'hadron-document';
 import sinon from 'sinon';
 import { expect } from 'chai';
 import { ObjectId } from 'bson';
+import type { Column, ColDef, ColumnApi, GridApi } from 'ag-grid-community';
+import type { DocumentTableRowNode } from '../src/components/table-view/cell-editor';
+import type { GridContext } from '../src/components/table-view/document-table-view';
 
 export const NUM_DOCS = 20;
 export const expectedDocs: any[] = [];
@@ -10,13 +13,14 @@ for (let i = 0; i < 60; i++) {
 }
 
 export const getApi = function () {
-  return {
+  const api = {
     selectAll: sinon.spy(),
     startEditingCell: sinon.spy(),
     stopEditing: sinon.spy(),
     refreshHeader: sinon.spy(),
     refreshCells: sinon.spy(),
   };
+  return api as typeof api & GridApi;
 };
 
 export const getActions = function () {
@@ -40,26 +44,24 @@ export const getActions = function () {
   };
 };
 
-export const getRowNode = function (doc: any, id?: any) {
-  if (!id) {
-    id = '1';
-  }
+export const getRowNode = function (doc: any, id: any = '1') {
   doc._id = id;
-  return {
+  const node = {
     data: {
       hadronDocument: new HadronDocument(doc),
       isFooter: false,
       hasFooter: false,
-      state: null,
+      state: undefined as DocumentTableRowNode['data']['state'],
       rowNumber: 0,
     },
     childIndex: 2,
   };
+  return node as typeof node & DocumentTableRowNode;
 };
 export const getNode = getRowNode;
 
-export const getColumn = function (colId: any, colDef: any) {
-  return {
+export const getColumn = function (colId?: string | number, colDef?: ColDef) {
+  const column = {
     getColId: () => {
       return colId;
     },
@@ -67,21 +69,23 @@ export const getColumn = function (colId: any, colDef: any) {
       return colDef;
     },
   };
+  return column as typeof column & Column;
 };
 
-export const getColumnApi = function (columns: any[]) {
-  return {
+export const getColumnApi = function (columns: Column[]) {
+  const columnApi = {
     getAllColumns: () => {
       return columns;
     },
-    getColumn: (index) => {
-      return index in columns ? columns[index] : null;
+    getColumn: (index: string | number | Column) => {
+      return (index as number) in columns ? columns[index as number] : null;
     },
   };
+  return columnApi as typeof columnApi & ColumnApi;
 };
 
-export const getContext = function (path) {
-  return {
+export const getContext = function (path: (string | number)[]) {
+  const context = {
     path: path,
     removeFooter: sinon.spy(),
     handleUpdate: sinon.spy(),
@@ -90,6 +94,7 @@ export const getContext = function (path) {
     handleClone: sinon.spy(),
     handleCopy: sinon.spy(),
   };
+  return context as typeof context & GridContext;
 };
 
 export const checkPageRange = function (
@@ -129,14 +134,14 @@ export const checkPageRange = function (
   expect(end).to.equal(NUM_DOCS * page + nextPageSize);
 };
 
-export const notCalledExcept = function (spies, except) {
-  for (const action in spies) {
+export const notCalledExcept = function (spies: object, except: string[]) {
+  for (const [action, spy] of Object.entries(spies)) {
     if (
       except.indexOf(action) < 0 &&
       action !== 'selectAll' &&
       action !== 'path'
     ) {
-      expect(spies[action].called).to.equal(
+      expect((spy as sinon.SinonSpy).called).to.equal(
         false,
         action + ' called but should not be'
       );

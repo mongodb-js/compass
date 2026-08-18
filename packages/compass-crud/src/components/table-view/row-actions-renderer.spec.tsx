@@ -21,7 +21,7 @@ describe('<RowActionsRenderer />', function () {
   describe('#render', function () {
     it('renders all action buttons at top-level', function () {
       const rowNode = getNode({ field1: 'value' });
-      const value = rowNode.data.hadronDocument.get('field1');
+      const value = rowNode.data.hadronDocument.get('field1')!;
 
       render(
         <RowActionsRenderer
@@ -43,7 +43,7 @@ describe('<RowActionsRenderer />', function () {
 
     it('renders only edit button when nested', function () {
       const rowNode = getNode({ field1: 'value' });
-      const value = rowNode.data.hadronDocument.get('field1');
+      const value = rowNode.data.hadronDocument.get('field1')!;
 
       render(
         <RowActionsRenderer
@@ -65,7 +65,7 @@ describe('<RowActionsRenderer />', function () {
 
     it('does not render buttons when not editable', function () {
       const rowNode = getNode({ field1: 'value' });
-      const value = rowNode.data.hadronDocument.get('field1');
+      const value = rowNode.data.hadronDocument.get('field1')!;
 
       render(
         <RowActionsRenderer
@@ -90,8 +90,8 @@ describe('<RowActionsRenderer />', function () {
     it('clicking edit button calls context.addFooter with editing', function () {
       const rowNode = getNode({ field1: 'value' });
       const data = rowNode.data;
-      const value = rowNode.data.hadronDocument.get('field1');
-      const context = getContext();
+      const value = rowNode.data.hadronDocument.get('field1')!;
+      const context = getContext([]);
 
       render(
         <RowActionsRenderer
@@ -117,8 +117,8 @@ describe('<RowActionsRenderer />', function () {
     it('clicking clone button calls context.handleClone', function () {
       const rowNode = getNode({ field1: 'value' });
       const data = rowNode.data;
-      const value = rowNode.data.hadronDocument.get('field1');
-      const context = getContext();
+      const value = rowNode.data.hadronDocument.get('field1')!;
+      const context = getContext([]);
 
       render(
         <RowActionsRenderer
@@ -142,8 +142,8 @@ describe('<RowActionsRenderer />', function () {
     it('clicking delete button calls context.addFooter with deleting', function () {
       const rowNode = getNode({ field1: 'value' });
       const data = rowNode.data;
-      const value = rowNode.data.hadronDocument.get('field1');
-      const context = getContext();
+      const value = rowNode.data.hadronDocument.get('field1')!;
+      const context = getContext([]);
 
       render(
         <RowActionsRenderer
@@ -169,8 +169,8 @@ describe('<RowActionsRenderer />', function () {
     it('clicking edit button when nested calls context.addFooter with editing', function () {
       const rowNode = getNode({ field1: 'value' });
       const data = rowNode.data;
-      const value = rowNode.data.hadronDocument.get('field1');
-      const context = getContext();
+      const value = rowNode.data.hadronDocument.get('field1')!;
+      const context = getContext([]);
 
       render(
         <RowActionsRenderer

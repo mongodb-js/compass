@@ -10,27 +10,29 @@ import {
 
 import {
   getNode,
-  getApi,
   getColumn,
   getActions,
   getColumnApi,
   getContext,
 } from '../../../test/aggrid-helper';
 import AddFieldButton from './add-field-button';
+import type { AddFieldButtonProps } from './add-field-button';
 
-function renderButtonAndOpenMenu(props) {
+function renderButtonAndOpenMenu(
+  props: Pick<AddFieldButtonProps, 'node' | 'value'> &
+    Partial<AddFieldButtonProps>
+) {
   const actions = getActions();
-  const api = getApi();
   const column = getColumn('field1', { headerName: 'field1', colId: 'field1' });
   const columnApi = getColumnApi([]);
   const context = getContext([]);
   const defaultProps = {
-    api: api,
     column: column,
     addColumn: actions.addColumn,
     drillDown: actions.drillDown,
     columnApi: columnApi,
     context: context,
+    displace: 20,
   };
 
   render(<AddFieldButton {...defaultProps} {...props} />);
@@ -43,8 +45,8 @@ describe('<AddFieldButton />', function () {
 
   it('renders actions for an object', function () {
     const rowNode = getNode({ field1: { subfield1: 'value' } });
-    const value = rowNode.data.hadronDocument.get('field1');
-    renderButtonAndOpenMenu({ rowNode, value });
+    const value = rowNode.data.hadronDocument.get('field1')!;
+    renderButtonAndOpenMenu({ node: rowNode, value });
 
     expect(screen.queryByTestId('add-field-after')).to.exist;
     expect(screen.queryByTestId('add-child-to-object')).to.exist;
@@ -53,8 +55,8 @@ describe('<AddFieldButton />', function () {
 
   it('renders actions for an array', function () {
     const rowNode = getNode({ field1: ['item1', 'item2'] });
-    const value = rowNode.data.hadronDocument.get('field1');
-    renderButtonAndOpenMenu({ rowNode, value });
+    const value = rowNode.data.hadronDocument.get('field1')!;
+    renderButtonAndOpenMenu({ node: rowNode, value });
 
     expect(screen.queryByTestId('add-field-after')).to.exist;
     expect(screen.queryByTestId('add-child-to-object')).to.not.exist;
@@ -63,8 +65,8 @@ describe('<AddFieldButton />', function () {
 
   it('renders actions for a non expandable value', function () {
     const rowNode = getNode({ field1: 'value' });
-    const value = rowNode.data.hadronDocument.get('field1');
-    renderButtonAndOpenMenu({ rowNode, value });
+    const value = rowNode.data.hadronDocument.get('field1')!;
+    renderButtonAndOpenMenu({ node: rowNode, value });
 
     expect(screen.queryByTestId('add-field-after')).to.exist;
     expect(screen.queryByTestId('add-child-to-object')).to.not.exist;
@@ -81,7 +83,7 @@ describe('<AddFieldButton />', function () {
       const columnApi = getColumnApi([]);
       const context = getContext([]);
       const rowNode = getNode({ field1: 'value', field3: 'value3' });
-      const value = rowNode.data.hadronDocument.get('field1');
+      const value = rowNode.data.hadronDocument.get('field1')!;
 
       render(
         <AddFieldButton
@@ -120,7 +122,7 @@ describe('<AddFieldButton />', function () {
       const columnApi = getColumnApi([]);
       const context = getContext([]);
       const rowNode = getNode({ field1: 'value', field3: 'value3' });
-      const value = rowNode.data.hadronDocument.get('field1');
+      const value = rowNode.data.hadronDocument.get('field1')!;
 
       render(
         <AddFieldButton
@@ -138,7 +140,7 @@ describe('<AddFieldButton />', function () {
       userEvent.click(screen.getByRole('button', { name: 'Add field' }));
       userEvent.click(screen.getByTestId('add-field-after'));
 
-      expect(value.nextElement.currentKey).to.equal('$new');
+      expect(value.nextElement!.currentKey).to.equal('$new');
     });
 
     it('clicking add-field-after in nested object view calls addColumn correctly', function () {
@@ -150,7 +152,7 @@ describe('<AddFieldButton />', function () {
       const columnApi = getColumnApi([]);
       const context = getContext(['field0']);
       const rowNode = getNode({ field0: { field1: 'value' } });
-      const value = rowNode.data.hadronDocument.getChild(['field0', 'field1']);
+      const value = rowNode.data.hadronDocument.getChild(['field0', 'field1'])!;
 
       render(
         <AddFieldButton
@@ -178,7 +180,7 @@ describe('<AddFieldButton />', function () {
         false,
         '1',
       ]);
-      expect(value.nextElement.currentKey).to.equal('$new');
+      expect(value.nextElement!.currentKey).to.equal('$new');
     });
   });
 
@@ -192,7 +194,7 @@ describe('<AddFieldButton />', function () {
       const columnApi = getColumnApi([]);
       const context = getContext([]);
       const rowNode = getNode({ field0: { field1: 'value' } });
-      const value = rowNode.data.hadronDocument.get('field0');
+      const value = rowNode.data.hadronDocument.get('field0')!;
 
       render(
         <AddFieldButton
@@ -220,8 +222,8 @@ describe('<AddFieldButton />', function () {
         rowIndex: 2,
       });
 
-      const child = rowNode.data.hadronDocument.getChild(['field0', 'field1']);
-      expect(child.nextElement.currentKey).to.equal('$new');
+      const child = rowNode.data.hadronDocument.getChild(['field0', 'field1'])!;
+      expect(child.nextElement!.currentKey).to.equal('$new');
     });
   });
 
@@ -235,7 +237,7 @@ describe('<AddFieldButton />', function () {
       const columnApi = getColumnApi([]);
       const context = getContext([]);
       const rowNode = getNode({ field0: ['value0', 'value1', 'value2'] });
-      const value = rowNode.data.hadronDocument.get('field0');
+      const value = rowNode.data.hadronDocument.get('field0')!;
 
       render(
         <AddFieldButton
@@ -263,8 +265,8 @@ describe('<AddFieldButton />', function () {
         rowIndex: 2,
       });
 
-      const child = rowNode.data.hadronDocument.getChild(['field0']);
-      expect(child.elements.lastElement.currentKey).to.equal(3);
+      const child = rowNode.data.hadronDocument.getChild(['field0'])!;
+      expect(child.elements!.lastElement!.currentKey).to.equal(3);
     });
   });
 });

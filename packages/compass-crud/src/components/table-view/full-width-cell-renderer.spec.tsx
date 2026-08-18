@@ -5,7 +5,7 @@ import {
   cleanup,
   userEvent,
 } from '@mongodb-js/testing-library-compass';
-import { ObjectId } from 'bson';
+import { Int32, ObjectId } from 'bson';
 import { expect } from 'chai';
 
 import {
@@ -118,9 +118,9 @@ describe('<FullWidthCellRenderer />', function () {
         rowNode.data.state = 'editing';
         const data = rowNode.data;
 
-        data.hadronDocument.get('toAdd').remove();
+        data.hadronDocument.get('toAdd')!.remove();
         data.hadronDocument.insertEnd('toRemove', '3');
-        data.hadronDocument.get('toTypeChange').edit(false);
+        data.hadronDocument.get('toTypeChange')!.edit(false);
 
         render(
           <FullWidthCellRenderer
@@ -171,9 +171,9 @@ describe('<FullWidthCellRenderer />', function () {
         rowNode.data.state = 'editing';
         const data = rowNode.data;
 
-        data.hadronDocument.get('toAdd').remove();
-        data.hadronDocument.insertEnd('toRemove', 3);
-        data.hadronDocument.get('toTypeChange').edit('2');
+        data.hadronDocument.get('toAdd')!.remove();
+        data.hadronDocument.insertEnd('toRemove', new Int32(3));
+        data.hadronDocument.get('toTypeChange')!.edit('2');
 
         render(
           <FullWidthCellRenderer
@@ -185,7 +185,7 @@ describe('<FullWidthCellRenderer />', function () {
             removeDocument={actions.removeDocument}
             data={data}
             context={context}
-            replaceDocument={() => {}}
+            replaceDocument={() => Promise.resolve()}
           />
         );
 
@@ -252,7 +252,7 @@ describe('<FullWidthCellRenderer />', function () {
         rowNode.data.state = 'editing';
         const data = rowNode.data;
         data.hadronDocument.insertEnd('newfield', 'value');
-        data.hadronDocument.get('toRemove').remove();
+        data.hadronDocument.get('toRemove')!.remove();
 
         render(
           <FullWidthCellRenderer

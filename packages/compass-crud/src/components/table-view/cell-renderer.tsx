@@ -12,7 +12,8 @@ import {
 import type { DocumentList as DocumentListTypes } from '@mongodb-js/compass-components';
 import { Element } from 'hadron-document';
 import type { ICellRendererReactComp } from 'ag-grid-react';
-import type { ICellRendererParams } from 'ag-grid-community';
+import type { Column, GridApi, ICellRendererParams } from 'ag-grid-community';
+import type { DocumentTableRowNode } from './cell-editor';
 import type { GridActions, TableHeaderType } from '../../stores/grid-store';
 import type { CrudActions } from '../../stores/crud-store';
 import type { GridContext } from './document-table-view';
@@ -82,9 +83,15 @@ const decrypdedIconStyles = css({
   display: 'flex',
 });
 
-export type CellRendererProps = Omit<ICellRendererParams, 'context'> & {
+export type CellRendererProps = Partial<
+  Omit<ICellRendererParams, 'value' | 'node' | 'column' | 'api' | 'context'>
+> & {
+  value?: Element;
+  node: DocumentTableRowNode;
+  column: Column;
+  api: GridApi;
   context: GridContext;
-  parentType: TableHeaderType;
+  parentType: TableHeaderType | '';
   elementAdded: GridActions['elementAdded'];
   elementRemoved: GridActions['elementRemoved'];
   elementTypeChanged: GridActions['elementTypeChanged'];
@@ -111,7 +118,7 @@ class CellRenderer
 
     this.isEmpty = props.value === undefined || props.value === null;
     this.isDeleted = false;
-    this.element = props.value;
+    this.element = props.value!;
 
     /* Can't get the editable() function from here, so have to reevaluate */
     this.editable = true;
@@ -126,7 +133,7 @@ class CellRenderer
         this.editable = false;
       } else if (parent.currentType === 'Array') {
         let maxKey = 0;
-        if (parent.elements.lastElement) {
+        if (parent.elements?.lastElement) {
           maxKey = +parent.elements.lastElement.currentKey + 1;
         }
         if (+props.column.getColId() > maxKey) {
@@ -174,7 +181,7 @@ class CellRenderer
 
   handleUndo = (event: React.MouseEvent) => {
     event.stopPropagation();
-    const oid = this.props.node.data.hadronDocument.getStringId();
+    const oid = this.props.node.data.hadronDocument.getStringId() as string;
     if (this.element.isAdded()) {
       this.isDeleted = true;
       const isArray =
@@ -249,8 +256,8 @@ class CellRenderer
     } else {
       element = (
         <BSONValue
-          type={this.props.value.currentType}
-          value={this.props.value.currentValue}
+          type={this.element.currentType as any}
+          value={this.element.currentValue}
         />
       );
     }
@@ -258,7 +265,7 @@ class CellRenderer
     return (
       <div className={className}>
         <div className={cellContainerStyle}>
-          {this.props.value.decrypted && (
+          {this.element.decrypted && (
             <span
               data-testid="hadron-document-element-decrypted-icon"
               title="Encrypted Field"
