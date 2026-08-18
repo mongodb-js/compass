@@ -121,6 +121,7 @@
   - [Document Inserted](#document-inserted)
   - [Document Updated](#document-updated)
   - [Document View Changed](#document-view-changed)
+  - [Extended JSON Conversion Attempted](#extended-json-conversion-attempted)
 - [Drawer](#drawer)
   - [Drawer Section Opened](#drawer-section-opened)
   - [Drawer Section Closed](#drawer-section-closed)
@@ -1346,22 +1347,22 @@ This event is fired when user deletes a document.
 This event is fired when user cancels the insert document dialog without
 inserting.
 
-| Property         | Type                         | Required | Description                                        |
-| ---------------- | ---------------------------- | -------- | -------------------------------------------------- |
-| `mode`           | `"json" \| "field-by-field"` | Yes      | The view used in the insert document dialog.       |
-| `is_compass_web` | `true \| undefined`          | No       |                                                    |
-| `connection_id`  | `string \| undefined`        | No       | The id of the connection associated to this event. |
+| Property         | Type                                    | Required | Description                                        |
+| ---------------- | --------------------------------------- | -------- | -------------------------------------------------- |
+| `mode`           | `"json" \| "shell" \| "field-by-field"` | Yes      | The view used in the insert document dialog.       |
+| `is_compass_web` | `true \| undefined`                     | No       |                                                    |
+| `connection_id`  | `string \| undefined`                   | No       | The id of the connection associated to this event. |
 
 ### Document Insert Failed
 
 This event is fired when user fails to insert a document.
 
-| Property         | Type                         | Required | Description                                                   |
-| ---------------- | ---------------------------- | -------- | ------------------------------------------------------------- |
-| `mode`           | `"json" \| "field-by-field"` | Yes      | The view used in the insert document dialog.                  |
-| `multiple`       | `boolean \| undefined`       | No       | Specifies if the user attempted to insert multiple documents. |
-| `is_compass_web` | `true \| undefined`          | No       |                                                               |
-| `connection_id`  | `string \| undefined`        | No       | The id of the connection associated to this event.            |
+| Property         | Type                                    | Required | Description                                                   |
+| ---------------- | --------------------------------------- | -------- | ------------------------------------------------------------- |
+| `mode`           | `"json" \| "shell" \| "field-by-field"` | Yes      | The view used in the insert document dialog.                  |
+| `multiple`       | `boolean \| undefined`                  | No       | Specifies if the user attempted to insert multiple documents. |
+| `is_compass_web` | `true \| undefined`                     | No       |                                                               |
+| `connection_id`  | `string \| undefined`                   | No       | The id of the connection associated to this event.            |
 
 ### Document Inserted
 
@@ -1394,6 +1395,17 @@ document views in the CRUD toolbar.
 | `view`           | `"json" \| "list" \| "table"` | Yes      | The view that was switched to.                     |
 | `is_compass_web` | `true \| undefined`           | No       |                                                    |
 | `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
+
+### Extended JSON Conversion Attempted
+
+This event is fired when a user converts Extended JSON to shell syntax from
+the banner in the insert document dialog.
+
+| Property         | Type                  | Required | Description                                        |
+| ---------------- | --------------------- | -------- | -------------------------------------------------- |
+| `success`        | `boolean`             | Yes      | The conversion attempt result.                     |
+| `is_compass_web` | `true \| undefined`   | No       |                                                    |
+| `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event. |
 
 ## Drawer
 
@@ -2182,10 +2194,10 @@ _No additional properties._
 This event is fired when a user applies the safe integer fix using
 codemirror annotation.
 
-| Property         | Type                                                                                                                                      | Required | Description |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
-| `source`         | `"pipeline-editor" \| "stage-editor" \| "insert-document-editor" \| "document-json-editor" \| "query-bar-editor" \| "bulk-update-editor"` | Yes      |             |
-| `is_compass_web` | `true \| undefined`                                                                                                                       | No       |             |
+| Property         | Type                                                                                                                                                                             | Required | Description |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
+| `source`         | `"pipeline-editor" \| "stage-editor" \| "insert-document-editor-json" \| "insert-document-editor-shell" \| "document-json-editor" \| "query-bar-editor" \| "bulk-update-editor"` | Yes      |             |
+| `is_compass_web` | `true \| undefined`                                                                                                                                                              | No       |             |
 
 ## Performance Tab
 
