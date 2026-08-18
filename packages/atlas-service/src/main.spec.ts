@@ -348,6 +348,57 @@ describe('CompassAuthServiceMain', function () {
     }
   });
 
+  describe('with enableAtlasSignIn turned off', function () {
+    beforeEach(async function () {
+      await preferences.savePreferences({ enableAtlasSignIn: false });
+    });
+
+    it('signIn should throw', async function () {
+      try {
+        await CompassAuthService.signIn({});
+        expect.fail('Expected signIn to throw');
+      } catch (err) {
+        expect(err).to.have.property('message', 'Atlas sign in is not allowed');
+      }
+    });
+
+    it('isAuthenticated should return false without making any requests', async function () {
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      mockFetch.resetHistory();
+      expect(await CompassAuthService.isAuthenticated()).to.eq(false);
+      expect(mockFetch).to.not.have.been.called;
+    });
+
+    it('maybeGetToken should not return a stored token', async function () {
+      expect(await CompassAuthService.maybeGetToken({})).to.eq(undefined);
+    });
+
+    it('handleAuthHeaders should not add auth headers even with a usable token', async function () {
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      const authHeaders = await CompassAuthService.handleAuthHeaders({
+        requestHeaders: {
+          'X-Some-Header': 'value',
+          'X-Compass-Auth': 'true',
+        },
+        url: `${defaultConfig.atlasAdminApiBaseUrl}/v2/clusters`,
+      });
+      expect(authHeaders).to.not.have.property('Authorization');
+      expect(authHeaders).to.have.property('X-Some-Header', 'value');
+    });
+
+    it('init should not restore the current user from a stored token', async function () {
+      CompassAuthService['currentUser'] = null;
+      CompassAuthService['initPromise'] = null;
+      sandbox
+        .stub(CompassAuthService['secretStore'], 'getState')
+        .resolves('serialized-state');
+
+      await CompassAuthService.init(preferences, {} as any);
+
+      expect(CompassAuthService['currentUser']).to.eq(null);
+    });
+  });
+
   describe('signOut', function () {
     it('should reset service state, revoke tokens, and destroy plugin', async function () {
       const logger = new EventEmitter();

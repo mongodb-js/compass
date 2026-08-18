@@ -215,6 +215,7 @@ class CompassApplication {
     const {
       protectConnectionStrings,
       readOnly,
+      enableAtlasSignIn,
       file,
       positionalArguments,
       maxTimeMS,
@@ -227,6 +228,7 @@ class CompassApplication {
         launch_connection: getLaunchConnectionSource(file, positionalArguments),
         protected: protectConnectionStrings,
         readOnly,
+        enableAtlasSignIn,
         maxTimeMS,
         global_config: hasConfig('global', globalPreferences),
         cli_args: hasConfig('cli', globalPreferences),

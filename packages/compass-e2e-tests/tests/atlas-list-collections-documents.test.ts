@@ -115,7 +115,7 @@ describe('Atlas: Database with large number of collections', function () {
 
     // Set the document content
     await browser.setCodemirrorEditorValue(
-      Selectors.InsertJSONEditor,
+      Selectors.InsertDocumentEditor,
       `{ "testField": "${uniqueValue}" }`
     );
 

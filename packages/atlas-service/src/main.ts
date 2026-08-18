@@ -9,6 +9,7 @@ import type {
 import {
   throwIfNotOk,
   throwIfNetworkTrafficDisabled,
+  throwIfAtlasSignInDisabled,
   getTrackingUserInfo,
   getJWTTokenPayload,
 } from './util';
@@ -189,7 +190,11 @@ export class CompassAuthService {
       );
       const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
-      if (serializedState) await this.restoreCurrentUser();
+      if (
+        serializedState &&
+        this.preferences.getPreferences().enableAtlasSignIn
+      )
+        await this.restoreCurrentUser();
     })());
   }
 
@@ -197,9 +202,16 @@ export class CompassAuthService {
     throwIfNetworkTrafficDisabled(this.preferences);
   }
 
+  private static throwIfAtlasSignInDisabled() {
+    throwIfAtlasSignInDisabled(this.preferences);
+  }
+
   private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
+    // Even if we still have a usable token stored, we should not to use it
+    // when Atlas sign in is disabled for the organization
+    this.throwIfAtlasSignInDisabled();
 
     if (!this.plugin) {
       throw new Error(
@@ -245,6 +257,9 @@ export class CompassAuthService {
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
     throwIfAborted(signal);
+    if (!this.preferences.getPreferences().enableAtlasSignIn) {
+      return false;
+    }
     await this.initPromise;
     return !!this.currentUser;
   }
@@ -291,6 +306,7 @@ export class CompassAuthService {
       this.signInPromise = (async () => {
         throwIfAborted(signal);
         this.throwIfNetworkTrafficDisabled();
+        this.throwIfAtlasSignInDisabled();
 
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 

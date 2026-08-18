@@ -349,9 +349,11 @@ export type ConnectionErrorContext = {
 export const buildConnectionErrorPrompt = ({
   connectionInfo,
   error,
+  enableAtlasSignIn = true,
 }: {
   connectionInfo: ConnectionInfo;
   error: Error;
+  enableAtlasSignIn?: boolean;
 }) => {
   const connectionString = redactConnectionString(
     connectionInfo.connectionOptions.connectionString
@@ -379,10 +381,17 @@ ${connectionError}
 
 ${
   isAtlasConnection
-    ? `
-1. Use the "atlas-connection-error-debugger" tool to check the connection and provide specific guidance on how to fix it. 
-2. Do not use any previous results from the "atlas-connection-error-debugger" tool. 
+    ? enableAtlasSignIn
+      ? `
+1. Use the "atlas-connection-error-debugger" tool to check the connection and provide specific guidance on how to fix it.
+2. Do not use any previous results from the "atlas-connection-error-debugger" tool.
 3. Always recall the "atlas-connection-error-debugger" to get new results.`
+      : `
+This is an Atlas connection, but Atlas Login is not allowed in this user's organization, so Atlas-side diagnostics are unavailable.
+
+1. Begin your answer by informing the user that Atlas Login is not allowed in their organization, so you cannot retrieve Atlas-side diagnostics such as the cluster state or the IP access list, and that they should contact their organization administrator if they need those checks.
+2. Do not ask the user to sign in or connect to Atlas, that is not an option for them.
+3. Then continue and still answer the question: provide the general troubleshooting steps for the error message above, based on the error and the connection details.`
     : ''
 }`,
     metadata: {

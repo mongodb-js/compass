@@ -176,6 +176,7 @@ export type AtlasProjectPreferences = {
 
 export type AtlasOrgPreferences = {
   enableGenAIFeaturesAtlasOrg: boolean;
+  enableAtlasSignIn: boolean;
 };
 
 export type AllPreferences = UserPreferences &
@@ -225,6 +226,10 @@ type SecretsConfiguration<T> = {
   merge(extracted: { remainder: string; secrets: string }): T;
 };
 
+export type OmitFromHelp =
+  | boolean
+  | ((preferences: Partial<AllPreferences>) => boolean);
+
 export type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** Whether the preference can be modified through the Settings UI */
   ui: K extends keyof UserConfigurablePreferences ? true : false;
@@ -255,13 +260,18 @@ export type PreferenceDefinition<K extends keyof AllPreferences> = {
   deriveValue?: DeriveValueFunction<AllPreferences[K]>;
   /** A method for cleaning up/normalizing input from the command line or global config file */
   customPostProcess?: PostProcessFunction<AllPreferences[K]>;
-  /** Specify that this option should not be listed in --help output */
+  /**
+   * Specify that this option should not be listed in --help output. Can be a
+   * predicate to only hide the option depending on other preferences, e.g. to
+   * keep an option out of --help while the feature flag it belongs to is
+   * disabled.
+   */
   omitFromHelp?: K extends keyof (UserConfigurablePreferences &
     CliOnlyPreferences)
     ? K extends keyof AllFeatureFlags
-      ? boolean
+      ? OmitFromHelp
       : false
-    : boolean;
+    : OmitFromHelp;
 
   validator: z.Schema<
     AllPreferences[K],
@@ -322,6 +332,12 @@ const allFeatureFlagsProps: Required<{
   },
 
   ...FEATURE_FLAG_PREFERENCES,
+  enableAtlasConnectionErrorDebugger: {
+    ...FEATURE_FLAG_PREFERENCES.enableAtlasConnectionErrorDebugger,
+    deriveValue: deriveAtlasSignInOptionState(
+      'enableAtlasConnectionErrorDebugger'
+    ),
+  },
 };
 
 export const storedUserPreferencesProps: Required<{
@@ -1097,6 +1113,19 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(true),
     type: 'boolean',
   },
+  enableAtlasSignIn: {
+    ui: false,
+    cli: false,
+    global: true,
+    description: {
+      short: 'Enable Atlas Sign In',
+      long: 'Allow users to sign in to their Atlas account and access their clusters and data.',
+    },
+    omitFromHelp: (preferences) =>
+      !preferences.enableAtlasConnectionErrorDebugger,
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
   enableGenAIToolCallingAtlasProject: {
     ui: false,
     cli: true,
@@ -1341,15 +1370,31 @@ export const allPreferencesProps: Required<{
   ...nonUserPreferences,
 };
 
+/** Helper for defining how to derive value/state for preferences that require Atlas sign in */
+function deriveAtlasSignInOptionState<K extends keyof AllPreferences>(
+  property: K
+): DeriveValueFunction<boolean> {
+  return (value, state) => ({
+    value: !!value(property) && value('enableAtlasSignIn'),
+    state:
+      state(property) ??
+      (value('enableAtlasSignIn')
+        ? undefined
+        : state('enableAtlasSignIn') ?? 'derived'),
+  });
+}
+
 /** Helper for defining how to derive value/state for networkTraffic-affected preferences */
 function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
   property: K
 ): DeriveValueFunction<boolean> {
-  return (v, s) => ({
-    value: v(property) && v('networkTraffic'),
+  return (value, state) => ({
+    value: value(property) && value('networkTraffic'),
     state:
-      s(property) ??
-      (v('networkTraffic') ? undefined : s('networkTraffic') ?? 'derived'),
+      state(property) ??
+      (value('networkTraffic')
+        ? undefined
+        : state('networkTraffic') ?? 'derived'),
   });
 }
 
@@ -1357,21 +1402,21 @@ function deriveNetworkTrafficOptionState<K extends keyof AllPreferences>(
 function deriveFeatureRestrictingOptionsState<K extends keyof AllPreferences>(
   property: K
 ): DeriveValueFunction<boolean> {
-  return (v, s) => ({
+  return (value, state) => ({
     value:
-      v(property) &&
-      v('enableShell') &&
-      !v('maxTimeMS') &&
-      !v('protectConnectionStrings') &&
-      !v('readOnly'),
+      value(property) &&
+      value('enableShell') &&
+      !value('maxTimeMS') &&
+      !value('protectConnectionStrings') &&
+      !value('readOnly'),
     state:
-      s(property) ??
-      (v('protectConnectionStrings')
-        ? s('protectConnectionStrings') ?? 'derived'
+      state(property) ??
+      (value('protectConnectionStrings')
+        ? state('protectConnectionStrings') ?? 'derived'
         : undefined) ??
-      (v('readOnly') ? s('readOnly') ?? 'derived' : undefined) ??
-      (v('enableShell') ? undefined : s('enableShell') ?? 'derived') ??
-      (v('maxTimeMS') ? s('maxTimeMS') ?? 'derived' : undefined),
+      (value('readOnly') ? state('readOnly') ?? 'derived' : undefined) ??
+      (value('enableShell') ? undefined : state('enableShell') ?? 'derived') ??
+      (value('maxTimeMS') ? state('maxTimeMS') ?? 'derived' : undefined),
   });
 }
 
@@ -1389,14 +1434,15 @@ function deriveReadOnlyOptionState<K extends keyof AllPreferences>(
   property: K,
   matchReadOnlyProperty = false
 ): DeriveValueFunction<boolean> {
-  return (v, s) => ({
+  return (value, state) => ({
     value: Boolean(
       matchReadOnlyProperty
-        ? v(property) || v('readOnly')
-        : v(property) && !v('readOnly')
+        ? value(property) || value('readOnly')
+        : value(property) && !value('readOnly')
     ),
     state:
-      s(property) ?? (v('readOnly') ? s('readOnly') ?? 'derived' : undefined),
+      state(property) ??
+      (value('readOnly') ? state('readOnly') ?? 'derived' : undefined),
   });
 }
 
