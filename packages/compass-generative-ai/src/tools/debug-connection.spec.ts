@@ -6,10 +6,64 @@ import type {
   AtlasClusterState,
 } from '@mongodb-js/atlas-admin-api/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
-import { debugConnection } from './debug-connection';
+import { debugConnection, isUserIpIncluded } from './debug-connection';
 
 const CONNECTION_STRING = 'mongodb+srv://cluster0.abcde.mongodb.net';
 const USER_IP = '1.2.3.4';
+
+describe('isUserIpIncluded', function () {
+  it('matches an exact ipAddress entry', function () {
+    expect(isUserIpIncluded([{ ipAddress: '1.2.3.4' }], '1.2.3.4')).to.be.true;
+  });
+
+  it('does not match a different ipAddress entry', function () {
+    expect(isUserIpIncluded([{ ipAddress: '1.2.3.5' }], '1.2.3.4')).to.be.false;
+  });
+
+  it('matches an ip inside a cidrBlock entry', function () {
+    expect(isUserIpIncluded([{ cidrBlock: '1.2.3.0/24' }], '1.2.3.4')).to.be
+      .true;
+  });
+
+  it('does not match an ip outside a cidrBlock entry', function () {
+    expect(isUserIpIncluded([{ cidrBlock: '1.2.4.0/24' }], '1.2.3.4')).to.be
+      .false;
+  });
+
+  it('finds a match anywhere in the list', function () {
+    expect(
+      isUserIpIncluded(
+        [{ awsSecurityGroup: 'sg-1' }, { cidrBlock: '9.9.9.0/24' }],
+        '9.9.9.9'
+      )
+    ).to.be.true;
+  });
+
+  it('does not match an entry without an ipAddress or a cidrBlock', function () {
+    expect(isUserIpIncluded([{ awsSecurityGroup: 'sg-1' }], '1.2.3.4')).to.be
+      .false;
+  });
+
+  it('does not match an empty access list', function () {
+    expect(isUserIpIncluded([], '1.2.3.4')).to.be.false;
+  });
+
+  it('trims whitespace around the entry and the user ip', function () {
+    expect(isUserIpIncluded([{ ipAddress: ' 1.2.3.4 ' }], ' 1.2.3.4 ')).to.be
+      .true;
+    expect(isUserIpIncluded([{ cidrBlock: ' 1.2.3.0/24 ' }], ' 1.2.3.4 ')).to.be
+      .true;
+  });
+
+  it('returns false instead of throwing on malformed values', function () {
+    expect(isUserIpIncluded([{ ipAddress: 'not-an-ip' }], '1.2.3.4')).to.be
+      .false;
+    expect(isUserIpIncluded([{ cidrBlock: 'not-a-cidr' }], '1.2.3.4')).to.be
+      .false;
+    expect(isUserIpIncluded([{ ipAddress: '1.2.3.4' }], 'not-an-ip')).to.be
+      .false;
+  });
+});
 
 describe('debugConnection', function () {
   let sandbox: Sinon.SinonSandbox;

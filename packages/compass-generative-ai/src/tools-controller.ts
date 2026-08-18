@@ -298,8 +298,11 @@ export class ToolsController {
       this.preferences.getPreferences();
     if (enableAtlasConnectionErrorDebugger) {
       tools['atlas-connection-error-debugger'] = {
-        description:
-          'Use to debug a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
+        description: `
+          Use to debug a Compass connection failure to an Atlas cluster. 
+          Returns Atlas-side diagnostics (cluster state, IP access list) as well as targeted advice. 
+          Provide the advice to the user
+        `,
         inputSchema: z.object({
           connectionString: z.string(),
           errorMessage: z.string(),

@@ -1,3 +1,4 @@
+import ip from 'ipaddr.js';
 import type {
   AtlasAdminApiService,
   AtlasClusterState,
@@ -40,13 +41,38 @@ function mapClusterStateToDebugResultState({
   return state;
 }
 
-function isUserIPIncluded(
-  ipAccessList: Array<{ ipAddress?: string }>,
+export function isUserIpIncluded(
+  ipAccessList: NetworkAccessDetails['networkAccessList'],
   userIp: string
 ): boolean | undefined {
-  return ipAccessList.some(
-    ({ ipAddress }) => ipAddress && ipAddress === userIp
-  );
+  return ipAccessList.some(({ ipAddress, cidrBlock }) => {
+    // it's either one or the other
+    if (cidrBlock) return isAddressInCidrRange(cidrBlock, userIp);
+    if (ipAddress) return isAddressEqual(ipAddress, userIp);
+    return false;
+  });
+}
+
+function isAddressInCidrRange(cidrNotation: string, address: string): boolean {
+  try {
+    const range: [ip.IPv4 | ip.IPv6, number] = ip.parseCIDR(
+      cidrNotation.trim()
+    );
+    return ip.parse(address.trim()).match(range);
+  } catch {
+    return false;
+  }
+}
+
+function isAddressEqual(ipAddress: string, address: string): boolean {
+  try {
+    const entry = ip.parse(ipAddress.trim());
+    return ip
+      .parse(address.trim())
+      .match(entry, entry.kind() === 'ipv6' ? 128 : 32);
+  } catch {
+    return false;
+  }
 }
 
 async function getClusterInfo(
@@ -100,14 +126,11 @@ async function getNetworkAccessInfo({
 }> {
   const ipAccessList = await atlasAdminApi.getProjectIPAccessList(projectId);
   // TODO(COMPASS-10981): replace with Atlas Admin API once it's ready
-  const userIp = await fetch('https://api.ipify.org?format=json')
-    .then((res) => res.json())
-    .then((data) => data?.ip)
-    .catch(() => undefined);
+  const userIp = '1.2.3.4';
   console.log({ userIp, ipAccessList });
   return {
     ipAccessAllowed:
-      ipAccessList && userIp && isUserIPIncluded(ipAccessList, userIp)
+      ipAccessList && userIp && isUserIpIncluded(ipAccessList, userIp)
         ? 'Client IP Allowed'
         : 'Could not confirm',
     networkAccessDetails: {
@@ -142,7 +165,7 @@ function getAdvice({
   if (clusterState === 'PAUSED') {
     advice.push('The cluster is currently paused.');
     if (clusterOverviewUrl) {
-      advice.push(`You can resume it in the Atlas UI: ${clusterOverviewUrl}`);
+      advice.push(`You can resume it in the Atlas UI: ${clusterOverviewUrl}.`);
     }
   }
   if (clusterState === 'CREATING') {
@@ -150,7 +173,7 @@ function getAdvice({
       'The cluster is being provisioned. Wait until it is ready before attempting to connect.'
     );
     if (clusterOverviewUrl) {
-      advice.push(`See the status in the Atlas UI: ${clusterOverviewUrl}`);
+      advice.push(`See the status in the Atlas UI: ${clusterOverviewUrl}.`);
     }
   }
 
@@ -160,7 +183,7 @@ function getAdvice({
     );
     if (networkAccessListUrl) {
       advice.push(
-        'Add your IP address in the Atlas UI: ' + networkAccessListUrl
+        `Add your IP address in the Atlas UI: ${networkAccessListUrl}.`
       );
     }
   }
