@@ -338,7 +338,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
         message: (err as Error).message,
       });
       logger?.log.error(
-        logger.mongoLogId(1_001_000_437),
+        logger.mongoLogId(1_001_000_440),
         'Insert Document Dialog',
         'Failed to convert Extended JSON to shell syntax',
         err
