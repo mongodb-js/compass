@@ -34,6 +34,17 @@ variables:
     EVERGREEN_CREATED_AT: ${created_at}
     NODE_JS_VERSION: '24.15.0'
     NPM_VERSION: '11.16.0'
+    # Deprecated String::Value declaration in Electron 43 doesn't parse under
+    # GCC 12, breaking every native module on the Linux builders.
+    # We prepend /opt/devtools/bin (COMPASS-5150),
+    # which pins gcc 12.4.0 and shadows the distro compiler.
+    # macOS is on clang and Windows builds with MSBuild, which ignores CXXFLAGS.
+    # The -U makes V8_DEPRECATED expand to nothing; it only silences deprecation
+    # warnings in the addons' own sources, with no effect on the binaries.
+    # devtools-toolchain is already on gcc 13.4.0, which builds this fine, but it
+    # can't reach the builders until publishing is unblocked.
+    # TODO(DEVPROD-41681): remove CXXFLAGS once the builders are on GCC 13+.
+    CXXFLAGS: '-UV8_DEPRECATION_WARNINGS'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
@@ -73,9 +84,6 @@ parameters:
     description: Atlas Cloud environment that compass-web will be deployed for during a CI run
   - key: compass_web_release_commit
     description: Exact commit that will be deployed as a latest release for provided compass_web_publish_environment
-  # TODO: debug only, clean up before merging the PR.
-  - key: devtools_toolchain_url
-    description: Signed URL of a devtools-toolchain tarball to install over /opt/devtools (Linux only)
 
 # This is here with the variables because anchors aren't supported across includes
 post:
@@ -159,26 +167,6 @@ functions:
       type: system
       params:
         directory: src
-
-    # TODO: debug only, clean up before merging the PR.
-    - command: shell.exec
-      type: setup
-      params:
-        working_dir: src
-        shell: bash
-        script: |
-          set -e
-          URL="${devtools_toolchain_url}"
-          if [[ -z "$URL" || "$(uname -s)" != "Linux" ]]; then
-            echo "Using the stock toolchain"
-            exit 0
-          fi
-          echo "Installing devtools-toolchain from a patch build over /opt/devtools"
-          curl -sSfL -o /tmp/devtools.tar.gz "$URL"
-          # RPATH is baked to /opt/devtools, so it has to go back to that path
-          sudo rm -rf /opt/devtools
-          sudo tar -xzf /tmp/devtools.tar.gz -C /opt
-          /opt/devtools/bin/g++ --version
 
     - command: shell.exec
       type: setup
