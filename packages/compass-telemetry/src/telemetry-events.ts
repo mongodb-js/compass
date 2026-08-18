@@ -2996,6 +2996,13 @@ type ApplicationLaunchedEvent = CommonEvent<{
     readOnly: boolean;
 
     /**
+     * Whether Atlas sign in is enabled at launch. Can only be disabled through
+     * the global configuration file, so this indicates a managed installation
+     * that opted out of Atlas sign in.
+     */
+    enableAtlasSignIn: boolean;
+
+    /**
      * The value of the `maxTimeMS` preference at launch.
      */
     maxTimeMS?: number;
