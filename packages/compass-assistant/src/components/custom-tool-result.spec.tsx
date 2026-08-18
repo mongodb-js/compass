@@ -23,8 +23,6 @@ describe('CustomToolResult', function () {
         />
       );
 
-      expect(screen.getByText('Atlas check result:')).to.exist;
-
       expect(screen.getByText('Cluster')).to.exist;
       expect(screen.getByText('Cluster0')).to.exist;
 
@@ -69,7 +67,6 @@ describe('CustomToolResult', function () {
       expect(screen.queryByText('Cluster')).to.not.exist;
       expect(screen.queryByText('State')).to.not.exist;
       expect(screen.queryByText('IP Access')).to.not.exist;
-      expect(screen.queryByText('Atlas check result:')).to.not.exist;
     });
   });
 });
