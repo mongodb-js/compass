@@ -5,7 +5,6 @@ import type {
   AtlasAccessListEntry,
 } from '@mongodb-js/atlas-admin-api/provider';
 import {
-  type AtlasService,
   buildNetworkAccessListUrl,
   buildClusterOverviewUrl,
 } from '@mongodb-js/atlas-service/provider';
@@ -193,8 +192,7 @@ function getAdvice({
 
 export async function debugConnection(
   connectionString: string,
-  atlasAdminApi: AtlasAdminApiService,
-  _atlasService: AtlasService
+  atlasAdminApi: AtlasAdminApiService
 ): Promise<AtlasConnectionDebugResult> {
   console.log('Debugging connection for', connectionString);
   const clusterInfo = await getClusterInfo(connectionString, atlasAdminApi);
