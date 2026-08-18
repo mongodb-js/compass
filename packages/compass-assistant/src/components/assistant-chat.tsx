@@ -591,7 +591,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       )}
       style={chatContainerOverrideStyle}
     >
-      {/* TODO  COMPASS-10944: fix connection status to the top of chat*/}
       {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
       <LeafyGreenChatProvider>
         <ChatWindow>

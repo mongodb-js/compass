@@ -45,19 +45,6 @@ class FakeAtlasAuthService {
   }
 }
 
-function containsText(match: string) {
-  return (_: unknown, element: Element | null): boolean => {
-    // this only works for <>text <tag>more text</tag></> but that's sufficient for now
-    const firstChild = element?.firstChild;
-    if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
-      // only check elements that start with text so we don't match on nested elements
-      return element?.textContent === match;
-    }
-
-    return false;
-  };
-}
-
 describe('AtlasToolCallMessage', function () {
   const connectionInfo = { id: 'conn-1', name: 'My Cluster' };
 
@@ -100,7 +87,7 @@ describe('AtlasToolCallMessage', function () {
         atlasAuthService: atlasAuthService as unknown as AtlasAuthService,
       })
     );
-    renderWithConnections(
+    const { container } = renderWithConnections(
       <AtlasToolCallMessage
         toolCall={makeToolCall('approval-requested')}
         connectionInfo={connectionInfo}
@@ -109,7 +96,7 @@ describe('AtlasToolCallMessage', function () {
         {...props}
       />
     );
-    return { onApprove, onDeny, atlasAuthService };
+    return { onApprove, onDeny, atlasAuthService, container };
   }
 
   describe('when awaiting approval and the user is not signed in', function () {
@@ -183,26 +170,24 @@ describe('AtlasToolCallMessage', function () {
 
   describe('resolved states', function () {
     it('shows "Ran" title and hides the action buttons when run', function () {
-      renderMessage(
+      const { container } = renderMessage(
         { toolCall: makeToolCall('output-available') },
         { signedIn: true }
       );
 
-      expect(
-        screen.getByText(containsText('Ran atlas-connection-error-debugger'))
-      ).to.exist;
+      expect(container).to.contain.text('Ran atlas-connection-error-debugger');
       expect(screen.queryByText('Run')).to.not.exist;
       expect(screen.queryByText('Cancel')).to.not.exist;
     });
 
-    it('shows "Cancelled" title when denied', function () {
-      renderMessage({ toolCall: makeToolCall('output-denied') });
+    it('shows "Cancelled" title and hides the action buttons when denied', function () {
+      const { container } = renderMessage({
+        toolCall: makeToolCall('output-denied'),
+      });
 
-      expect(
-        screen.getByText(
-          containsText('Cancelled atlas-connection-error-debugger')
-        )
-      ).to.exist;
+      expect(container).to.contain.text(
+        'Cancelled atlas-connection-error-debugger'
+      );
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
       expect(screen.queryByText('Skip')).to.not.exist;
     });

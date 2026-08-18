@@ -1,9 +1,5 @@
 import React, { useCallback } from 'react';
-import {
-  css,
-  InlineDefinition,
-  ServerIcon,
-} from '@mongodb-js/compass-components';
+import { css, ServerIcon } from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import {
   cleanToolCallOutput,
@@ -23,6 +19,7 @@ import {
   useAtlasSignedInUser,
 } from '@mongodb-js/atlas-service/provider';
 import { CustomToolResult } from './custom-tool-result';
+import { ToolCallTitle } from './tool-call-title';
 
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
@@ -50,40 +47,26 @@ function toolHasOutput(toolCall: ToolUIPart, cleanedOutput: unknown): boolean {
 function getTitle(
   toolCall: ToolUIPart,
   isUserSignedIn: boolean,
-  toolDisplayName: string,
-  toolDescription?: string
-): React.ReactNode {
-  const toolNameElement = toolDescription ? (
-    <InlineDefinition definition={toolDescription}>
-      {toolDisplayName}
-    </InlineDefinition>
-  ) : (
-    toolDisplayName
-  );
-
-  let title: React.ReactNode;
+  toolDisplayName: string
+): string {
   const wasApproved = toolCall.approval?.approved === true;
   const isDenied = toolCall.state === 'output-denied';
   const didRun =
     toolCall.state === 'output-available' || toolCall.state === 'output-error';
+
   if (didRun) {
-    title = <>Ran {toolNameElement}</>;
-  } else if (wasApproved) {
-    title = <>Running {toolNameElement}</>;
-  } else if (isDenied) {
-    title = <>Cancelled {toolNameElement}</>;
-  } else {
-    title = (
-      <>
-        {isUserSignedIn ? (
-          <>Run Atlas to debug this connection?</>
-        ) : (
-          <>Connect with Atlas to debug this connection?</>
-        )}
-      </>
-    );
+    return `Ran ${toolDisplayName}`;
   }
-  return title;
+  if (wasApproved) {
+    return `Running ${toolDisplayName}`;
+  }
+  if (isDenied) {
+    return `Cancelled ${toolDisplayName}`;
+  }
+
+  return isUserSignedIn
+    ? 'Run Atlas to debug this connection?'
+    : 'Connect with Atlas to debug this connection?';
 }
 
 function getToolDescription(toolType: string, toolDisplayName: string): string {
@@ -188,17 +171,20 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     cleanedOutput
   );
 
+  const title = getTitle(toolCall, isUserSignedIn, toolDisplayName);
+
   // TODO COMPASS-10973: don't render actions if there's no approvalId.
   return (
-    <div>
+    <>
       <ActionCardMessage
         state={toolCallState}
-        title={getTitle(
-          toolCall,
-          isUserSignedIn,
-          toolDisplayName,
-          toolDescription
-        )}
+        title={
+          <ToolCallTitle
+            title={title}
+            toolDisplayName={toolDisplayName}
+            toolDescription={toolDescription}
+          />
+        }
         chips={chips}
         showActions={isAwaitingApproval}
         initialIsExpanded={!hasOutput}
@@ -223,6 +209,6 @@ export const AtlasToolCallMessage: React.FunctionComponent<
       {hasOutput && hasCustomToolResult(toolCall.type) && (
         <CustomToolResult toolType={toolCall.type} output={cleanedOutput} />
       )}
-    </div>
+    </>
   );
 };
