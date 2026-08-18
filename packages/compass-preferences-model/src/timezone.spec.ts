@@ -41,6 +41,13 @@ describe('timezone', function () {
       expect(isSupportedTimezone('Not/AZone')).to.equal(false);
       expect(isSupportedTimezone('')).to.equal(false);
     });
+
+    it('accepts timezones that are not in the TIMEZONES list but are still valid', function () {
+      expect(isSupportedTimezone('America/Indiana/Indianapolis')).to.equal(
+        true
+      );
+      expect(isSupportedTimezone('Asia/Kolkata')).to.equal(true);
+    });
   });
 
   describe('getUtcOffset', function () {

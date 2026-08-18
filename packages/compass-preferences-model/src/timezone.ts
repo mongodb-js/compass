@@ -47,7 +47,27 @@ export const TIMEZONES = [
 ];
 
 export function isSupportedTimezone(timeZone: string): boolean {
-  return TIMEZONES.includes(timeZone);
+  if (TIMEZONES.includes(timeZone)) {
+    return true;
+  }
+  try {
+    // The above check should be sufficient in most of the cases, but mms has some really old
+    // timezone names hard-coded (check `/v2/timezones`). We have 6 timezone names that are not
+    // part of the TIMEZONES list above, but are still valid timezone names and Intl supports
+    // them. So we are checking if the timezone is valid by trying to create a DateTimeFormat
+    // object with it.
+    //
+    // 1. America/Indiana/Indianapolis -> America/Indianapolis
+    // 2. America/Argentina/Buenos_Aires -> America/Buenos_Aires
+    // 3. Etc/UTC -> UTC
+    // 4. Asia/Kolkata -> Asia/Calcutta
+    // 5. Asia/Kathmandu -> Asia/Katmandu
+    // 6. Asia/Chongqing -> Asia/Shanghai
+    new Intl.DateTimeFormat('en-US', { timeZone });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export type TimezoneOption = {
