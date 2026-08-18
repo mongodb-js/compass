@@ -103,6 +103,40 @@ describe('ToolsController', function () {
   });
 
   describe('getActiveTools', function () {
+    describe('atlas-connection-error-debugger tool', function () {
+      it('is not registered by default', function () {
+        expect(toolsController.getActiveTools()).to.not.have.property(
+          'atlas-connection-error-debugger'
+        );
+      });
+
+      it('is registered when the feature flag is enabled', async function () {
+        await preferences.savePreferences({
+          enableAtlasConnectionErrorDebugger: true,
+        });
+
+        expect(toolsController.getActiveTools()).to.have.property(
+          'atlas-connection-error-debugger'
+        );
+      });
+
+      it('is not registered when Atlas sign in is not allowed', async function () {
+        await preferences.savePreferences({
+          enableAtlasConnectionErrorDebugger: true,
+          enableAtlasSignIn: false,
+        });
+
+        // The preference is derived from enableAtlasSignIn, so the tool is never
+        // offered to the model when sign in is disabled for the organization
+        expect(
+          preferences.getPreferences().enableAtlasConnectionErrorDebugger
+        ).to.eq(false);
+        expect(toolsController.getActiveTools()).to.not.have.property(
+          'atlas-connection-error-debugger'
+        );
+      });
+    });
+
     describe('querybar tools', function () {
       beforeEach(function () {
         toolsController.setActiveTools(new Set(['querybar']));

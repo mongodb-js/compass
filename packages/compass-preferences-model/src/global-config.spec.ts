@@ -227,6 +227,13 @@ forceConnectionOptions:
     );
   });
 
+  it('omits options that are hidden depending on other preferences', function () {
+    expect(getHelpText()).to.not.include('enableAtlasSignIn');
+    expect(getHelpText({ enableAtlasConnectionErrorDebugger: true })).to.match(
+      /enableAtlasSignIn\s*Enable Atlas Sign In/
+    );
+  });
+
   it('allows empty theme option and defaults to LIGHT', async function () {
     const result = await parseAndValidateGlobalPreferences({
       globalConfigPaths: [],

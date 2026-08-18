@@ -4,7 +4,6 @@ import { AtlasService } from './atlas-service';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
-import { CompassAtlasAuthService } from './compass-atlas-auth-service';
 import type { AtlasServiceConfig } from './util';
 
 const ATLAS_CONFIG: AtlasServiceConfig = {
@@ -22,10 +21,7 @@ const ATLAS_CONFIG: AtlasServiceConfig = {
 };
 
 function getAtlasService(preferences: PreferencesAccess) {
-  const authService = new CompassAtlasAuthService();
-
   const atlasService = new AtlasService(
-    authService,
     preferences,
     createNoopLogger(),
     undefined,

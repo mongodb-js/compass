@@ -172,6 +172,36 @@ describe('Preferences class', function () {
     });
   });
 
+  it('disables the Atlas connection error debugger when Atlas sign in is not allowed', async function () {
+    const preferences = await setupPreferences(tmpdir, {
+      cli: {
+        enableAtlasConnectionErrorDebugger: true,
+      },
+      global: {
+        enableAtlasSignIn: false,
+      },
+    });
+
+    const result = preferences.getPreferences();
+    expect(result.enableAtlasSignIn).to.equal(false);
+    expect(result.enableAtlasConnectionErrorDebugger).to.equal(false);
+  });
+
+  it('keeps the Atlas connection error debugger enabled when Atlas sign in is allowed', async function () {
+    const preferences = await setupPreferences(tmpdir, {
+      cli: {
+        enableAtlasConnectionErrorDebugger: true,
+      },
+      global: {
+        enableAtlasSignIn: true,
+      },
+    });
+
+    const result = preferences.getPreferences();
+    expect(result.enableAtlasSignIn).to.equal(true);
+    expect(result.enableAtlasConnectionErrorDebugger).to.equal(true);
+  });
+
   it('allows providing false options that should not influence the values of other options', async function () {
     const preferences = await setupPreferences(tmpdir, {
       global: {
