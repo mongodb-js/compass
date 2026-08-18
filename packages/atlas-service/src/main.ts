@@ -254,7 +254,7 @@ export class CompassAuthService {
     try {
       const accessToken = await this.maybeGetToken({
         tokenType: 'accessToken',
-        skipWaitingForInit: true,
+        _skipWaitingForInit: true,
       });
       if (!accessToken) {
         this.currentUser = null;
@@ -374,14 +374,18 @@ export class CompassAuthService {
   static async maybeGetToken({
     tokenType,
     signal,
-    skipWaitingForInit = false,
+    _skipWaitingForInit = false,
   }: {
     tokenType?: 'accessToken' | 'refreshToken';
     signal?: AbortSignal;
-    skipWaitingForInit?: boolean;
+    /**
+     * @internal Only for use by `restoreCurrentUser`, which runs inside the
+     * `initPromise` executor and would deadlock awaiting it.
+     */
+    _skipWaitingForInit?: boolean;
   }): Promise<string | undefined> {
     try {
-      if (!skipWaitingForInit) await this.initPromise;
+      if (!_skipWaitingForInit) await this.initPromise;
       tokenType ??= 'accessToken';
       const token = await this.requestOAuthToken({ signal });
       return token[tokenType];
