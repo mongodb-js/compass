@@ -3,6 +3,7 @@ import type Electron from 'electron';
 import { URL, URLSearchParams } from 'url';
 import type {
   AuthFlowType,
+  MongoDBOIDCError,
   MongoDBOIDCPlugin,
   MongoDBOIDCPluginOptions,
 } from '@mongodb-js/oidc-plugin';
@@ -316,8 +317,10 @@ export class CompassAuthService {
           });
           return this.currentUser;
         } catch (err) {
+          const error = err as Error & Partial<MongoDBOIDCError>;
           track('Atlas Sign In Error', {
-            error: (err as Error).message,
+            error: error.message,
+            error_code: error.codeName ?? error.name,
           });
           log.error(
             mongoLogId(1_001_000_220),

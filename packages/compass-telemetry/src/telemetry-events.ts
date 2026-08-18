@@ -193,6 +193,12 @@ type AtlasSignInErrorEvent = CommonEvent<{
      * The error message reported on sign in.
      */
     error: string;
+    /**
+     * The code identifying the error reported on sign in. The `codeName` of the
+     * oidc-plugin error when the failure comes from the sign in flow itself,
+     * the error name otherwise.
+     */
+    error_code: string;
   };
 }>;
 

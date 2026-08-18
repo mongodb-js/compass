@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-08-17. Do not edit manually.
+> Auto-generated on 2026-08-18. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -709,10 +709,11 @@ This event is fired when the AI response is generated.
 
 This event is fired when user failed to sign in to their Atlas account.
 
-| Property         | Type                | Required | Description                            |
-| ---------------- | ------------------- | -------- | -------------------------------------- |
-| `error`          | `string`            | Yes      | The error message reported on sign in. |
-| `is_compass_web` | `true \| undefined` | No       |                                        |
+| Property         | Type                | Required | Description                                                                                                                                                                |
+| ---------------- | ------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `error`          | `string`            | Yes      | The error message reported on sign in.                                                                                                                                     |
+| `error_code`     | `string`            | Yes      | The code identifying the error reported on sign in. The `codeName` of the oidc-plugin error when the failure comes from the sign in flow itself, the error name otherwise. |
+| `is_compass_web` | `true \| undefined` | No       |                                                                                                                                                                            |
 
 ### Atlas Sign In Prompt Shown
 
