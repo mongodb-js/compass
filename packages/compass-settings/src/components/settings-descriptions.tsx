@@ -7,7 +7,7 @@ import {
   spacing,
 } from '@mongodb-js/compass-components';
 import type { UserConfigurablePreferences } from 'compass-preferences-model';
-import { timezoneObservesDaylightSavings, } from 'compass-preferences-model/provider';
+import { timezoneObservesDaylightSavings } from 'compass-preferences-model/provider';
 import type { SupportedPreferences } from './settings/settings-list';
 
 const containerStyles = css({
@@ -91,9 +91,8 @@ export function EnableGenAIToolCallingDescription() {
   );
 }
 
-export type SettingsDescriptionComponent<K extends SupportedPreferences> = React.ComponentType<
-  PreferencesDescriptionProps<K>
->;
+export type SettingsDescriptionComponent<K extends SupportedPreferences> =
+  React.ComponentType<PreferencesDescriptionProps<K>>;
 
 type SettingsDescriptionsMap = {
   [K in SupportedPreferences]?: SettingsDescriptionComponent<K>;
