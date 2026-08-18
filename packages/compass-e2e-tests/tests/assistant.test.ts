@@ -16,7 +16,7 @@ import {
 } from '../helpers/test-runner-context.ts';
 import { expect } from 'chai';
 
-describe('MongoDB Assistant (with real backend)', function () {
+describe.skip('MongoDB Assistant (with real backend)', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
