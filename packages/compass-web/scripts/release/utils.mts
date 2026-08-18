@@ -1,7 +1,9 @@
-import type S3 from 'aws-sdk/clients/s3.js';
+import type {
+  PutObjectCommandInput,
+  PutObjectCommandOutput,
+} from '@aws-sdk/client-s3';
 import child_process from 'child_process';
 import path from 'path';
-import { promisify } from 'util';
 
 // TODO(SRE-4971): replace with a compass-web-only bucket when provisioned
 export const DOWNLOADS_BUCKET = 'cdn-origin-compass';
@@ -42,14 +44,15 @@ function getAWSCredentials() {
 
 let s3Client;
 
-export const asyncPutObject: (
-  params: S3.Types.PutObjectRequest
-) => Promise<S3.Types.PutObjectOutput> = async (params) => {
-  const { default: S3 } = await import('aws-sdk/clients/s3.js');
-  s3Client ??= new S3({
+export const putObject: (
+  params: PutObjectCommandInput
+) => Promise<PutObjectCommandOutput> = async (params) => {
+  const { S3Client, PutObjectCommand } = await import('@aws-sdk/client-s3');
+  s3Client ??= new S3Client({
+    region: 'us-east-1',
     credentials: getAWSCredentials(),
   });
-  return promisify(s3Client.putObject.bind(s3Client))(params);
+  return s3Client.send(new PutObjectCommand(params));
 };
 
 export function getObjectKey(filename: string, release = RELEASE_COMMIT) {

@@ -75,6 +75,10 @@ export type CollectionDetails = {
     validator: Document;
     validationAction: string;
     validationLevel: string;
+    // Set while a collection is being upgraded to the "constraint" validation
+    // level; it outlives a failed or interrupted upgrade and, like the
+    // "constraint" level itself, locks the validator against changes.
+    prepareConstraintValidationLevel?: boolean;
   } | null;
   inferred_from_privileges: boolean;
 };
@@ -434,6 +438,7 @@ export function adaptCollectionInfo({
     validator,
     validationAction,
     validationLevel,
+    prepareConstraintValidationLevel,
     clusteredIndex,
     encryptedFields,
   } = options ?? {};
@@ -460,7 +465,12 @@ export function adaptCollectionInfo({
     clustered: clusteredIndex ? true : false,
     fle2: encryptedFields ? true : false,
     validation: hasValidation
-      ? { validator, validationAction, validationLevel }
+      ? {
+          validator,
+          validationAction,
+          validationLevel,
+          prepareConstraintValidationLevel,
+        }
       : null,
   };
 }

@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-08-10. Do not edit manually.
+> Auto-generated on 2026-08-18. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -107,7 +107,10 @@
   - [Data Modeling Relationship Deleted](#data-modeling-relationship-deleted)
 - [Database / Collection List](#database-collection-list)
   - [Collection Created](#collection-created)
+  - [Collection Dropped](#collection-dropped)
+  - [Collection Renamed](#collection-renamed)
   - [Database Created](#database-created)
+  - [Database Dropped](#database-dropped)
   - [Switch View Type](#switch-view-type)
 - [Documents](#documents)
   - [Document Cloned](#document-cloned)
@@ -118,6 +121,7 @@
   - [Document Inserted](#document-inserted)
   - [Document Updated](#document-updated)
   - [Document View Changed](#document-view-changed)
+  - [Extended JSON Conversion Attempted](#extended-json-conversion-attempted)
 - [Drawer](#drawer)
   - [Drawer Section Opened](#drawer-section-opened)
   - [Drawer Section Closed](#drawer-section-closed)
@@ -202,6 +206,7 @@
   - [New Index Field Added](#new-index-field-added)
   - [Options Clicked](#options-clicked)
   - [UUID Encountered](#uuid-encountered)
+  - [Safe Integer Fix Applied](#safe-integer-fix-applied)
 - [Performance Tab](#performance-tab)
   - [CurrentOp showOperationDetails](#currentop-showoperationdetails)
   - [DetailView hideOperationDetails](#detailview-hideoperationdetails)
@@ -1261,6 +1266,18 @@ This event is fired when a collection is created.
 | `is_compass_web` | `true \| undefined`   | No       |                                                                                      |
 | `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event.                                   |
 
+### Collection Dropped
+
+This event is fired when a collection is successfully dropped.
+
+_No additional properties._
+
+### Collection Renamed
+
+This event is fired when a collection is successfully renamed.
+
+_No additional properties._
+
 ### Database Created
 
 This event is fired when a database is created.
@@ -1274,6 +1291,12 @@ This event is fired when a database is created.
 | `expires`        | `boolean`             | Yes      | Indicates whether the first collection in the database has an expiration (TTL index).                      |
 | `is_compass_web` | `true \| undefined`   | No       |                                                                                                            |
 | `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event.                                                         |
+
+### Database Dropped
+
+This event is fired when a database is successfully dropped.
+
+_No additional properties._
 
 ### Switch View Type
 
@@ -1324,22 +1347,22 @@ This event is fired when user deletes a document.
 This event is fired when user cancels the insert document dialog without
 inserting.
 
-| Property         | Type                         | Required | Description                                        |
-| ---------------- | ---------------------------- | -------- | -------------------------------------------------- |
-| `mode`           | `"json" \| "field-by-field"` | Yes      | The view used in the insert document dialog.       |
-| `is_compass_web` | `true \| undefined`          | No       |                                                    |
-| `connection_id`  | `string \| undefined`        | No       | The id of the connection associated to this event. |
+| Property         | Type                                    | Required | Description                                        |
+| ---------------- | --------------------------------------- | -------- | -------------------------------------------------- |
+| `mode`           | `"json" \| "shell" \| "field-by-field"` | Yes      | The view used in the insert document dialog.       |
+| `is_compass_web` | `true \| undefined`                     | No       |                                                    |
+| `connection_id`  | `string \| undefined`                   | No       | The id of the connection associated to this event. |
 
 ### Document Insert Failed
 
 This event is fired when user fails to insert a document.
 
-| Property         | Type                         | Required | Description                                                   |
-| ---------------- | ---------------------------- | -------- | ------------------------------------------------------------- |
-| `mode`           | `"json" \| "field-by-field"` | Yes      | The view used in the insert document dialog.                  |
-| `multiple`       | `boolean \| undefined`       | No       | Specifies if the user attempted to insert multiple documents. |
-| `is_compass_web` | `true \| undefined`          | No       |                                                               |
-| `connection_id`  | `string \| undefined`        | No       | The id of the connection associated to this event.            |
+| Property         | Type                                    | Required | Description                                                   |
+| ---------------- | --------------------------------------- | -------- | ------------------------------------------------------------- |
+| `mode`           | `"json" \| "shell" \| "field-by-field"` | Yes      | The view used in the insert document dialog.                  |
+| `multiple`       | `boolean \| undefined`                  | No       | Specifies if the user attempted to insert multiple documents. |
+| `is_compass_web` | `true \| undefined`                     | No       |                                                               |
+| `connection_id`  | `string \| undefined`                   | No       | The id of the connection associated to this event.            |
 
 ### Document Inserted
 
@@ -1372,6 +1395,17 @@ document views in the CRUD toolbar.
 | `view`           | `"json" \| "list" \| "table"` | Yes      | The view that was switched to.                     |
 | `is_compass_web` | `true \| undefined`           | No       |                                                    |
 | `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
+
+### Extended JSON Conversion Attempted
+
+This event is fired when a user converts Extended JSON to shell syntax from
+the banner in the insert document dialog.
+
+| Property         | Type                  | Required | Description                                        |
+| ---------------- | --------------------- | -------- | -------------------------------------------------- |
+| `success`        | `boolean`             | Yes      | The conversion attempt result.                     |
+| `is_compass_web` | `true \| undefined`   | No       |                                                    |
+| `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event. |
 
 ## Drawer
 
@@ -2046,6 +2080,7 @@ This event is fired when the application launch is initiated.
 | `launch_connection` | `"string" \| "JSON_file" \| "none"` | Yes      | Whether Compass was instructed to automatically connect to a specific cluster using a connection string on the command line, a JSON file containing an exported connection on the command line, or not at all. |
 | `protected`         | `boolean \| undefined`              | No       | Whether the `protectConnectionStrings` preference was set at launch.                                                                                                                                           |
 | `readOnly`          | `boolean`                           | Yes      | Whether the `readOnly` preference was set at launch (including the compass-readonly distribution).                                                                                                             |
+| `enableAtlasSignIn` | `boolean`                           | Yes      | Whether Atlas sign in is enabled at launch. Can only be disabled through the global configuration file, so this indicates a managed installation that opted out of Atlas sign in.                              |
 | `maxTimeMS`         | `number \| undefined`               | No       | The value of the `maxTimeMS` preference at launch.                                                                                                                                                             |
 | `global_config`     | `boolean`                           | Yes      | Whether any preferences were specified in the global configuration file.                                                                                                                                       |
 | `cli_args`          | `boolean`                           | Yes      | Whether any preferences were specified using CLI arguments.                                                                                                                                                    |
@@ -2153,6 +2188,16 @@ _No additional properties._
 | `subtype`        | `3 \| 4`            | Yes      |             |
 | `count`          | `number`            | Yes      |             |
 | `is_compass_web` | `true \| undefined` | No       |             |
+
+### Safe Integer Fix Applied
+
+This event is fired when a user applies the safe integer fix using
+codemirror annotation.
+
+| Property         | Type                                                                                                                                                                             | Required | Description |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
+| `source`         | `"pipeline-editor" \| "stage-editor" \| "insert-document-editor-json" \| "insert-document-editor-shell" \| "document-json-editor" \| "query-bar-editor" \| "bulk-update-editor"` | Yes      |             |
+| `is_compass_web` | `true \| undefined`                                                                                                                                                              | No       |             |
 
 ## Performance Tab
 
@@ -2332,12 +2377,12 @@ This event is fired when user edits validation rules (without saving them).
 
 This event is fired when user saves validation rules.
 
-| Property            | Type                                 | Required | Description                                          |
-| ------------------- | ------------------------------------ | -------- | ---------------------------------------------------- |
-| `validation_action` | `"error" \| "warn" \| "errorAndLog"` | Yes      | The validation action passed to the driver.          |
-| `validation_level`  | `"off" \| "moderate" \| "strict"`    | Yes      | The level of schema validation passed to the driver. |
-| `is_compass_web`    | `true \| undefined`                  | No       |                                                      |
-| `connection_id`     | `string \| undefined`                | No       | The id of the connection associated to this event.   |
+| Property            | Type                                              | Required | Description                                          |
+| ------------------- | ------------------------------------------------- | -------- | ---------------------------------------------------- |
+| `validation_action` | `"error" \| "warn" \| "errorAndLog"`              | Yes      | The validation action passed to the driver.          |
+| `validation_level`  | `"off" \| "moderate" \| "strict" \| "constraint"` | Yes      | The level of schema validation passed to the driver. |
+| `is_compass_web`    | `true \| undefined`                               | No       |                                                      |
+| `connection_id`     | `string \| undefined`                             | No       | The id of the connection associated to this event.   |
 
 ### Schema Validation Generated
 

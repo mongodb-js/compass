@@ -256,3 +256,8 @@ function isStructuredOutput(
   }
   return false;
 }
+
+// Extract tool name from type (e.g., "tool-list-databases" -> "list-databases")
+export function getToolDisplayName(type: string): string {
+  return type.replace(/^tool-/, '');
+}

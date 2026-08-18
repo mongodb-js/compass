@@ -1,15 +1,25 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import type { Element as HadronElementType } from 'hadron-document';
 import type { TypeCastMap } from 'hadron-type-checker';
 import TypeChecker, { isUUIDType } from 'hadron-type-checker';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
 import { spacing } from '@leafygreen-ui/tokens';
-import BSONValue, { BSONValueContainer } from '../bson-value';
+import BSONValue from '../bson-value';
 import { mergeProps } from '../../utils/merge-props';
-import { documentTypography } from './typography';
 import { Icon, Tooltip } from '../leafygreen';
 import { useDarkMode } from '../../hooks/use-theme';
+import {
+  editorInvalidStyles,
+  editorInvalidLightModeStyles,
+  editorInvalidDarkModeStyles,
+  editorStyles,
+} from './editors/shared';
+import type { EditorInputProps } from './editors/shared';
+import { DateEditor } from './editors/date-editor';
+import { DefaultEditor } from './editors/default-editor';
+import { TextEditor } from './editors/text-editor';
+import { UUIDEditor } from './editors/uuid-editor';
 
 const maxWidth = css({
   maxWidth: '100%',
@@ -21,39 +31,6 @@ const maxWidth = css({
 const inlineKey = css({
   display: 'inline-block',
   verticalAlign: 'top',
-});
-
-const editorReset = css({
-  padding: 0,
-  margin: 0,
-  border: 'none',
-  boxShadow: 'none',
-  outline: 'none',
-  backgroundColor: 'transparent',
-  maxWidth: '100%',
-});
-
-const editorOutline = css({
-  '&:focus, &:active': {
-    borderRadius: `2px`,
-    boxShadow: `0 0 0 2px ${palette.blue.light1}`,
-  },
-});
-
-const editorInvalid = css({
-  '&:focus, &:active': {
-    boxShadow: `0 0 0 2px ${palette.red.dark2}`,
-  },
-});
-
-const editorInvalidLightMode = css({
-  backgroundColor: palette.red.light2,
-  color: palette.red.dark2,
-});
-
-const editorInvalidDarkMode = css({
-  backgroundColor: palette.red.dark2,
-  color: palette.red.light2,
 });
 
 export const KeyEditor: React.FunctionComponent<{
@@ -116,13 +93,12 @@ export const KeyEditor: React.FunctionComponent<{
                   autoFocus={autoFocus}
                   className={cx(
                     maxWidth,
-                    editorReset,
-                    editorOutline,
-                    !valid && editorInvalid,
+                    editorStyles,
+                    !valid && editorInvalidStyles,
                     !valid &&
                       (darkMode
-                        ? editorInvalidDarkMode
-                        : editorInvalidLightMode)
+                        ? editorInvalidDarkModeStyles
+                        : editorInvalidLightModeStyles)
                   )}
                   style={{ width: inputWidth }}
                   spellCheck="false"
@@ -149,45 +125,6 @@ export const KeyEditor: React.FunctionComponent<{
   );
 };
 
-const textareaContainer = css({
-  display: 'block',
-  width: '100%',
-  maxWidth: '100%',
-  '&::before, &::after': {
-    content: "'\"'",
-    userSelect: 'none',
-  },
-});
-
-const editorTextarea = css({
-  display: 'inline-block',
-  whiteSpace: 'nowrap',
-  minWidth: '5ch',
-  // 2ch for `"` around the textarea
-  maxWidth: 'calc(100% - 2ch)',
-  verticalAlign: 'top',
-  color: 'inherit',
-});
-
-// UUID editor container that shows: UUID(" <input> ")
-const uuidEditorContainer = css({
-  display: 'inline-flex',
-  alignItems: 'center',
-  maxWidth: '100%',
-});
-
-const uuidEditorInput = css({
-  display: 'inline-block',
-  whiteSpace: 'nowrap',
-  verticalAlign: 'top',
-  color: 'inherit',
-});
-
-const uuidEditorLabel = css({
-  userSelect: 'none',
-  whiteSpace: 'nowrap',
-});
-
 export const ValueEditor: React.FunctionComponent<{
   editing?: boolean;
   onEditStart(): void;
@@ -213,165 +150,66 @@ export const ValueEditor: React.FunctionComponent<{
   onFocus,
   onBlur,
 }) => {
-  const val = String(value);
-  const darkMode = useDarkMode();
+  if (!editing) {
+    // Double-click is not accessible so no reason for this to be a button,
+    // users won't be able to interact with it anyway
+    return (
+      <span
+        data-testid="hadron-document-clickable-value"
+        onDoubleClick={onEditStart}
+      >
+        <BSONValue type={type as any} value={originalValue}></BSONValue>
+      </span>
+    );
+  }
 
-  const inputStyle = useMemo(() => {
-    if (type === 'String') {
-      const lines = val.split('\n');
-      let longestLineCharLength = 0;
-      for (const line of lines) {
-        const length = line.length;
-        if (length > longestLineCharLength) {
-          longestLineCharLength = length;
-        }
-      }
-      const width = `${Math.min(
-        // Adding one to account for a textarea resize icon button thingie
-        longestLineCharLength + 1,
-        70
-      )}ch`;
-      const minLines = Math.max(
-        lines.length,
-        longestLineCharLength > 70 ? 2 : 1
-      );
-      const maxLines = Math.min(minLines, 10);
-      const minHeight =
-        documentTypography.lineHeight * Math.min(minLines, maxLines);
-      const height = documentTypography.lineHeight * maxLines;
-
-      return { width, minHeight, height };
-    }
-
-    return { width: `${Math.max(val.length, 1)}ch` };
-  }, [val, type]);
-
-  const uuidInputStyle = useMemo(() => {
-    // UUID format is 36 characters (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
-    return { width: `${Math.max(val.length, 36)}ch` };
-  }, [val]);
+  const sharedProps = {
+    autoFocus,
+    value: String(value),
+    valid,
+    onChange,
+    onBlur,
+  };
 
   return (
-    <>
-      {editing ? (
-        <Tooltip
-          darkMode
-          enabled={!valid}
-          trigger={({
-            className,
-            children,
-            // See above
-            onDragStart,
-            onPointerUp,
-            onPointerDown,
-            onMouseDown,
-            ...triggerProps
-          }: React.HTMLProps<HTMLElement>) => {
-            // NB: Order is important, if triggerProps has onFocus / onBlur we
-            // want to merge them with ours, if they are not passed, we want our
-            // listeners to overwrite undefined keys
-            const mergedProps = mergeProps(triggerProps, { onBlur, onFocus });
-
-            return (
-              <div className={className}>
-                {type === 'String' ? (
-                  <BSONValueContainer
-                    type="String"
-                    className={cx(textareaContainer)}
-                  >
-                    <textarea
-                      data-testid="hadron-document-value-editor"
-                      value={val}
-                      onChange={(evt) => {
-                        onChange(evt.currentTarget.value);
-                      }}
-                      // See ./element.tsx
-                      // eslint-disable-next-line jsx-a11y/no-autofocus
-                      autoFocus={autoFocus}
-                      className={cx(
-                        editorReset,
-                        editorOutline,
-                        editorTextarea,
-                        !valid && editorInvalid
-                      )}
-                      spellCheck="false"
-                      style={inputStyle}
-                      {...(mergedProps as React.HTMLProps<HTMLTextAreaElement>)}
-                    ></textarea>
-                  </BSONValueContainer>
-                ) : isUUIDType(type) ? (
-                  <div className={uuidEditorContainer}>
-                    <span className={uuidEditorLabel}>{type}(&apos;</span>
-                    <input
-                      type="text"
-                      data-testid="hadron-document-value-editor"
-                      value={val}
-                      placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                      onChange={(evt) => {
-                        onChange(evt.currentTarget.value);
-                      }}
-                      // See ./element.tsx
-                      // eslint-disable-next-line jsx-a11y/no-autofocus
-                      autoFocus={autoFocus}
-                      className={cx(
-                        editorReset,
-                        editorOutline,
-                        uuidEditorInput,
-                        !valid && editorInvalid,
-                        !valid &&
-                          (darkMode
-                            ? editorInvalidDarkMode
-                            : editorInvalidLightMode)
-                      )}
-                      spellCheck="false"
-                      style={uuidInputStyle}
-                      {...(mergedProps as React.HTMLProps<HTMLInputElement>)}
-                    ></input>
-                    <span className={uuidEditorLabel}>&apos;)</span>
-                  </div>
-                ) : (
-                  <input
-                    type="text"
-                    data-testid="hadron-document-value-editor"
-                    value={val}
-                    onChange={(evt) => {
-                      onChange(evt.currentTarget.value);
-                    }}
-                    // See ./element.tsx
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
-                    autoFocus={autoFocus}
-                    className={cx(
-                      editorReset,
-                      editorOutline,
-                      !valid && editorInvalid,
-                      !valid &&
-                        (darkMode
-                          ? editorInvalidDarkMode
-                          : editorInvalidLightMode)
-                    )}
-                    style={inputStyle}
-                    spellCheck="false"
-                    {...(mergedProps as React.HTMLProps<HTMLInputElement>)}
-                  ></input>
-                )}
-                {children}
-              </div>
-            );
-          }}
-        >
-          {validationMessage}
-        </Tooltip>
-      ) : (
-        // Double-click is not accessible so no reason for this to be a button,
-        // users won't be able to interact with it anyway
-        <span
-          data-testid="hadron-document-clickable-value"
-          onDoubleClick={onEditStart}
-        >
-          <BSONValue type={type as any} value={originalValue}></BSONValue>
-        </span>
-      )}
-    </>
+    <Tooltip
+      darkMode
+      enabled={!valid}
+      trigger={({
+        className,
+        children,
+        // See above
+        onDragStart,
+        onPointerUp,
+        onPointerDown,
+        onMouseDown,
+        ...triggerProps
+      }: React.HTMLProps<HTMLElement>) => {
+        // NB: Order is important, if triggerProps has onFocus / onBlur we
+        // want to merge them with ours, if they are not passed, we want our
+        // listeners to overwrite undefined keys
+        const mergedProps = mergeProps(triggerProps, {
+          onBlur,
+          onFocus,
+        }) as EditorInputProps;
+        return (
+          <div className={className}>
+            {type === 'String' ? (
+              <TextEditor {...sharedProps} {...mergedProps} />
+            ) : type === 'Date' ? (
+              <DateEditor label="ISODate" {...sharedProps} {...mergedProps} />
+            ) : isUUIDType(type) ? (
+              <UUIDEditor label={type} {...sharedProps} {...mergedProps} />
+            ) : (
+              <DefaultEditor {...sharedProps} {...mergedProps} />
+            )}
+            {children}
+          </div>
+        );
+      }}
+    >
+      {validationMessage}
+    </Tooltip>
   );
 };
 
@@ -444,8 +282,7 @@ export const TypeEditor: React.FunctionComponent<{
               onChange(evt.currentTarget.value as HadronElementType['type']);
             }}
             className={cx(
-              editorReset,
-              editorOutline,
+              editorStyles,
               typeEditor,
               visuallyActive && typeEditorActive
             )}
