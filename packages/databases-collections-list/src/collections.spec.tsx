@@ -246,6 +246,75 @@ describe('Collections', () => {
     expect(deleteSpy.calledOnce).to.be.true;
   });
 
+  it('hides the Storage size column when no collection reports one', () => {
+    renderCollectionsList({
+      collections: [
+        createCollection('filtered', {
+          storage_size: undefined,
+          free_storage_size: undefined,
+        }),
+        createCollection('also-filtered', {
+          storage_size: undefined,
+          free_storage_size: undefined,
+        }),
+      ],
+    });
+
+    const result = inspectTable(screen, 'collections-list');
+
+    expect(result.columns).to.not.include('Storage size');
+    expect(result.columns).to.include('Data size');
+  });
+
+  it('keeps the Storage size column when only views lack a storage size', () => {
+    renderCollectionsList({
+      collections: [
+        createCollection('a-view', {
+          storage_size: undefined,
+          type: 'view',
+          view_on: 'foo',
+          properties: [{ id: 'view' }],
+        }),
+        createCollection('a-collection', { storage_size: 1000 }),
+      ],
+    });
+
+    const result = inspectTable(screen, 'collections-list');
+
+    expect(result.columns).to.include('Storage size');
+  });
+
+  it('renders "-" for a collection whose storage size was not reported', () => {
+    renderCollectionsList({
+      collections: [
+        createCollection('reported', { storage_size: 1000 }),
+        createCollection('not-reported', {
+          storage_size: undefined,
+          free_storage_size: undefined,
+        }),
+      ],
+    });
+
+    const result = inspectTable(screen, 'collections-list');
+
+    expect(result.getColumn('Storage size')).to.deep.equal(['1.00 kB', '-']);
+  });
+
+  it('renders Storage size without the total/used/free breakdown when free storage size is missing', () => {
+    renderCollectionsList({
+      collections: [
+        createCollection('no-free-storage-size', {
+          storage_size: 4266,
+          free_storage_size: undefined,
+        }),
+      ],
+    });
+
+    const result = inspectTable(screen, 'collections-list');
+
+    expect(result.getColumn('Storage size')).to.deep.equal(['4.27 kB']);
+  });
+
   it('sorts by Collection name', async function () {
     renderCollectionsList({
       collections: colls,

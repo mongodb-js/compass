@@ -88,7 +88,10 @@ export type DatabaseDetails = {
   name: string;
   collection_count: number;
   document_count: number;
-  storage_size: number;
+  // Undefined when the server did not report it: Atlas disaggregated storage
+  // clusters filter `storageSize` out of `dbStats` for non-internal users, and a
+  // fabricated 0 would read as "this database uses no storage".
+  storage_size: number | undefined;
   data_size: number;
   index_count: number;
   index_size: number;
@@ -403,7 +406,7 @@ export function adaptDatabaseInfo(
     collection_count: databaseStats.collections ?? 0,
     document_count: databaseStats.objects ?? 0,
     index_count: databaseStats.indexes ?? 0,
-    storage_size: databaseStats.storageSize ?? 0,
+    storage_size: databaseStats.storageSize,
     data_size: databaseStats.dataSize ?? 0,
     index_size: databaseStats.indexSize ?? 0,
   };

@@ -16,6 +16,7 @@ import {
   InlineDefinition,
 } from '@mongodb-js/compass-components';
 import { ItemsTable, VirtualItemsTable } from './items-table';
+import { shouldShowStorageSizeColumn } from './storage-size';
 import type { CollectionProps } from 'mongodb-collection-model';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -221,11 +222,13 @@ function isReady(
 function collectionColumns({
   darkMode,
   enableDbAndCollStats,
+  showStorageSize,
 }: {
   darkMode: boolean | undefined;
   enableDbAndCollStats: boolean;
+  showStorageSize: boolean;
 }): LGColumnDef<CollectionProps>[] {
-  return [
+  const columns: LGColumnDef<CollectionProps>[] = [
     {
       accessorKey: 'name',
       header: 'Collection name',
@@ -321,9 +324,16 @@ function collectionColumns({
         }
 
         const storageSize = collection.storage_size;
-        const freeStorageSize = collection.free_storage_size ?? 0;
-        const usedStorageSize = storageSize - freeStorageSize;
         const displayValue = compactBytes(storageSize);
+
+        // Without freeStorageSize there is no total/used/free split to show, and
+        // rendering it as all-zeros would be wrong rather than merely empty.
+        if (collection.free_storage_size === undefined) {
+          return displayValue;
+        }
+
+        const freeStorageSize = collection.free_storage_size;
+        const usedStorageSize = storageSize - freeStorageSize;
 
         const definition = (
           <div>
@@ -462,6 +472,13 @@ function collectionColumns({
       },
     },
   ];
+
+  return columns.filter((column) => {
+    if (showStorageSize) {
+      return true;
+    }
+    return !('accessorKey' in column && column.accessorKey === 'storage_size');
+  });
 }
 
 const CollectionsList: React.FunctionComponent<{
@@ -486,9 +503,15 @@ const CollectionsList: React.FunctionComponent<{
 
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const darkMode = useDarkMode();
+  // Views never report a storage size, so they must not influence the decision:
+  // a database holding only views would otherwise lose the column.
+  const showStorageSize = shouldShowStorageSizeColumn(
+    collections.filter((collection) => collection.type !== 'view')
+  );
   const columns = React.useMemo(
-    () => collectionColumns({ darkMode, enableDbAndCollStats }),
-    [darkMode, enableDbAndCollStats]
+    () =>
+      collectionColumns({ darkMode, enableDbAndCollStats, showStorageSize }),
+    [darkMode, enableDbAndCollStats, showStorageSize]
   );
 
   const TableComponent = virtual ? VirtualItemsTable : ItemsTable;

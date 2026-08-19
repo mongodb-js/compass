@@ -1207,6 +1207,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
         freeStorageSize: { $sum: { $toDouble: string } };
         unscaledCollSize: { $sum: { $multiply: unknown[] } };
         nindexes: { $max: string };
+        storageSizeType: { $first: { $type: string } };
+        freeStorageSizeType: { $first: { $type: string } };
         timeseriesBucketCount?: { $first: string };
         timeseriesAvgBucketSize?: { $first: string };
       } = {
@@ -1232,6 +1234,18 @@ class DataServiceImpl extends WithLogContext implements DataService {
           },
         },
         nindexes: { $max: '$storageStats.nindexes' },
+        // Atlas disaggregated storage clusters filter storageSize and
+        // freeStorageSize out of $collStats for non-internal users. The
+        // accumulators above have to stay $sum to add up per-shard values, but
+        // $toDouble turns a *missing* field into null and $sum turns that into 0
+        // — so without these probes we cannot tell an omitted field from a
+        // genuine zero, and would report "0 B" for a collection holding data.
+        // $type reports "missing" for absent fields. $first is enough because
+        // the filtering is cluster-wide, so every shard answers the same way.
+        storageSizeType: { $first: { $type: '$storageStats.storageSize' } },
+        freeStorageSizeType: {
+          $first: { $type: '$storageStats.freeStorageSize' },
+        },
       };
 
       // Only extract bucket statistics for time series collections
@@ -3095,8 +3109,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
       document_count: data.count ?? 0,
       document_size: data.size,
       avg_document_size: data.avgObjSize ?? 0,
-      storage_size: data.storageSize ?? 0,
-      free_storage_size: data.freeStorageSize ?? 0,
+      // Left undefined when the server did not report the field, so callers can
+      // distinguish "not reported" from a genuine zero. See the $type probes in
+      // the $collStats pipeline above.
+      storage_size:
+        data.storageSizeType === 'missing' ? undefined : data.storageSize,
+      free_storage_size:
+        data.freeStorageSizeType === 'missing'
+          ? undefined
+          : data.freeStorageSize,
       index_count: data.nindexes ?? 0,
       index_size: data.totalIndexSize ?? 0,
       bucket_count: data.bucket_count,

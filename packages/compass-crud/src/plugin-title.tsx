@@ -87,13 +87,18 @@ export const CrudTabTitle = ({
   const { documentCount, storageSize, avgDocumentSize } = useMemo(() => {
     const {
       document_count = NaN,
-      storage_size = NaN,
-      free_storage_size = NaN,
+      storage_size,
+      free_storage_size,
       avg_document_size = NaN,
     } = collectionStats ?? {};
     return {
       documentCount: format(document_count, 'number'),
-      storageSize: format(storage_size - free_storage_size, 'bytes'),
+      // Undefined when the server did not report the sizes, which is not the
+      // same as reporting zero — see CollectionStats in data-service.
+      storageSize:
+        storage_size === undefined
+          ? undefined
+          : format(storage_size - (free_storage_size ?? 0), 'bytes'),
       avgDocumentSize: format(avg_document_size, 'bytes'),
     };
   }, [collectionStats]);
@@ -101,7 +106,9 @@ export const CrudTabTitle = ({
 
   const details = [
     `Documents: ${documentCount}`,
-    `Storage Size: ${storageSize}`,
+    // Omitted rather than shown as "N/A": the storage size of a disaggregated
+    // storage cluster is not something we can report at all.
+    ...(storageSize === undefined ? [] : [`Storage Size: ${storageSize}`]),
     `Avg. Size: ${avgDocumentSize}`,
   ];
 

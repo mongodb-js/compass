@@ -106,6 +106,33 @@ describe('Databases', function () {
     };
   };
 
+  it('renders "-" for a database whose storage size was not reported', function () {
+    renderDatabasesList({
+      databases: [
+        { ...createDatabase('reported'), storage_size: 1500 },
+        { ...createDatabase('not-reported'), storage_size: undefined },
+      ],
+    });
+
+    const result = inspectTable(screen, 'databases-list');
+
+    expect(result.getColumn('Storage size')).to.deep.equal(['1.50 kB', '-']);
+  });
+
+  it('hides the Storage size column when no database reports one', function () {
+    renderDatabasesList({
+      databases: [
+        { ...createDatabase('filtered'), storage_size: undefined },
+        { ...createDatabase('also-filtered'), storage_size: undefined },
+      ],
+    });
+
+    const result = inspectTable(screen, 'databases-list');
+
+    expect(result.columns).to.not.include('Storage size');
+    expect(result.columns).to.include('Data size');
+  });
+
   it('should render the database list', function () {
     const { clickSpy, deleteSpy, createSpy, refreshSpy } = renderDatabasesList({
       databases: dbs,
