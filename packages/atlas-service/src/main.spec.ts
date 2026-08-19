@@ -165,9 +165,6 @@ describe('CompassAuthServiceMain', function () {
       process.on('compass:track', onTrack);
 
       const clock = sandbox.useFakeTimers({ now: 1000, toFake: ['Date'] });
-      const oidcCallback =
-        mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .OIDC_HUMAN_CALLBACK;
       oidcCallback.callsFake(() => {
         clock.tick(5000);
         return Promise.resolve({ accessToken, refreshToken });
