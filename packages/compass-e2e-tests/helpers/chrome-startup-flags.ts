@@ -64,7 +64,8 @@ const COMPASS_FLAGS = [
   // Allow options such as --user-data-dir to pass through the command line
   // flag validation code.
   '--ignore-additional-command-line-flags',
-  // Use the Atlas dev server for generative ai and atlas requests (cloud-dev).
+  // Use the Atlas dev server for generative ai and atlas requests.
+  // The production environment needs to be used as cloud-dev has IP restrictions.
   '--atlasServiceBackendPreset=atlas',
 ];
 
