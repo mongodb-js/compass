@@ -16,8 +16,6 @@ import {
 } from '../helpers/test-runner-context.ts';
 import { expect } from 'chai';
 
-// TODO(COMPASS-11029): These tests are currently skipped while we implement
-// a fix or workaround for using the knowledge dev server from a non-office ip.
 describe.skip('MongoDB Assistant (with real backend)', function () {
   let compass: Compass;
   let browser: CompassBrowser;

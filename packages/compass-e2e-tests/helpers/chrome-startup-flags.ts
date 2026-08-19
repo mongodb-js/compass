@@ -65,7 +65,7 @@ const COMPASS_FLAGS = [
   // flag validation code.
   '--ignore-additional-command-line-flags',
   // Use the Atlas dev server for generative ai and atlas requests (cloud-dev).
-  '--atlasServiceBackendPreset=atlas-dev',
+  '--atlasServiceBackendPreset=atlas',
 ];
 
 // The shared set of flags that are used to start Chrome driver when running Compass
