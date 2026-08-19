@@ -1,5 +1,9 @@
 import React, { useCallback } from 'react';
-import { css, ServerIcon } from '@mongodb-js/compass-components';
+import {
+  css,
+  InlineDefinition,
+  ServerIcon,
+} from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import {
   cleanToolCallOutput,
@@ -19,7 +23,7 @@ import {
   useAtlasSignedInUser,
 } from '@mongodb-js/atlas-service/provider';
 import { CustomToolResult } from './custom-tool-result';
-import { ToolCallTitle } from './tool-call-title';
+import { getToolCallTitle } from './tool-call-title';
 
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
@@ -42,31 +46,6 @@ function toolHasOutput(toolCall: ToolUIPart, cleanedOutput: unknown): boolean {
     !!cleanedOutput &&
     (toolCall.state === 'output-available' || toolCall.state === 'output-error')
   );
-}
-
-function getTitle(
-  toolCall: ToolUIPart,
-  isUserSignedIn: boolean,
-  toolDisplayName: string
-): string {
-  const wasApproved = toolCall.approval?.approved === true;
-  const isDenied = toolCall.state === 'output-denied';
-  const didRun =
-    toolCall.state === 'output-available' || toolCall.state === 'output-error';
-
-  if (didRun) {
-    return `Ran ${toolDisplayName}`;
-  }
-  if (wasApproved) {
-    return `Running ${toolDisplayName}`;
-  }
-  if (isDenied) {
-    return `Cancelled ${toolDisplayName}`;
-  }
-
-  return isUserSignedIn
-    ? 'Run Atlas to debug this connection?'
-    : 'Connect with Atlas to debug this connection?';
 }
 
 function getToolDescription(toolType: string, toolDisplayName: string): string {
@@ -171,20 +150,24 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     cleanedOutput
   );
 
-  const title = getTitle(toolCall, isUserSignedIn, toolDisplayName);
+  const toolNameElement = toolDescription ? (
+    <InlineDefinition definition={toolDescription}>
+      {toolDisplayName}
+    </InlineDefinition>
+  ) : (
+    toolDisplayName
+  );
+
+  const approvalMessage = isUserSignedIn
+    ? 'Run Atlas to debug this connection?'
+    : 'Connect with Atlas to debug this connection?';
 
   // TODO COMPASS-10973: don't render actions if there's no approvalId.
   return (
     <>
       <ActionCardMessage
         state={toolCallState}
-        title={
-          <ToolCallTitle
-            title={title}
-            toolDisplayName={toolDisplayName}
-            toolDescription={toolDescription}
-          />
-        }
+        title={getToolCallTitle(toolCall, toolNameElement, approvalMessage)}
         chips={chips}
         showActions={isAwaitingApproval}
         initialIsExpanded={!hasOutput}

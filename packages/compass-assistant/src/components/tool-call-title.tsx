@@ -1,27 +1,18 @@
+import { type ToolUIPart } from 'ai';
 import React from 'react';
-import { InlineDefinition } from '@mongodb-js/compass-components';
 
-/**
- * Renders the tool call title, decorating the tool name with an
- * InlineDefinition tooltip when a description is available.
- */
-export const ToolCallTitle: React.FunctionComponent<{
-  title: string;
-  toolDisplayName: string;
-  toolDescription?: string;
-}> = ({ title, toolDisplayName, toolDescription }) => {
-  if (!toolDescription || !title.includes(toolDisplayName)) {
-    return <>{title}</>;
-  }
+export function getToolCallTitle(
+  toolCall: ToolUIPart,
+  toolNameElement: React.ReactNode,
+  approvalMessage: string | React.ReactNode
+): React.ReactNode {
+  const wasApproved = toolCall.approval?.approved === true;
+  const isDenied = toolCall.state === 'output-denied';
+  const didRun =
+    toolCall.state === 'output-available' || toolCall.state === 'output-error';
 
-  const [before, after] = title.split(toolDisplayName);
-  return (
-    <>
-      {before}
-      <InlineDefinition definition={toolDescription}>
-        {toolDisplayName}
-      </InlineDefinition>
-      {after}
-    </>
-  );
-};
+  if (didRun) return <>Ran {toolNameElement}</>;
+  if (wasApproved) return <>Running {toolNameElement}</>;
+  if (isDenied) return <>Cancelled {toolNameElement}</>;
+  return <>{approvalMessage}</>;
+}

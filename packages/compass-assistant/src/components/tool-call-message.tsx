@@ -17,6 +17,7 @@ import {
   getToolDisplayName,
 } from '../utils';
 import { ActionCardMessage } from './action-card-message';
+import { getToolCallTitle } from './tool-call-title';
 
 interface ToolCallMessageProps {
   connection: BasicConnectionInfo | null;
@@ -75,10 +76,6 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
 
   const isAwaitingApproval =
     toolCall.state === 'approval-requested' && !!toolCall.approval;
-  const wasApproved = toolCall.approval?.approved === true;
-  const isDenied = toolCall.state === 'output-denied';
-  const didRun =
-    toolCall.state === 'output-available' || toolCall.state === 'output-error';
 
   const expandableContent = [
     `### Arguments
@@ -112,16 +109,7 @@ ${toolCall.errorText}
     toolName
   );
 
-  let title: React.ReactNode;
-  if (didRun) {
-    title = <>Ran {toolNameElement}</>;
-  } else if (wasApproved) {
-    title = <>Running {toolNameElement}</>;
-  } else if (isDenied) {
-    title = <>Cancelled {toolNameElement}</>;
-  } else {
-    title = <>Run {toolNameElement}?</>;
-  }
+  const approvalMessage = <>Run {toolNameElement}?</>;
 
   if (toolCall.state === 'input-streaming') {
     // The tool call renders with undefined input or incomplete input and then
@@ -139,7 +127,7 @@ ${toolCall.errorText}
     <ActionCardMessage
       initialIsExpanded={initialIsExpanded}
       state={toolCallState}
-      title={title}
+      title={getToolCallTitle(toolCall, toolNameElement, approvalMessage)}
       chips={chips}
       contentClassName={expandableContentStyles}
       showActions={isAwaitingApproval}
