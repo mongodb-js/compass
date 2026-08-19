@@ -1,0 +1,39 @@
+name: Check package-lock diff
+
+on:
+  pull_request:
+    paths:
+      - 'package-lock.json'
+      - '**/package-lock.json'
+    types: [opened, synchronize, reopened, ready_for_review]
+jobs:
+  check-package-lock-diff:
+    name: Check package-lock.json diff size
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          show-progress: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: 24.15.0
+          cache: 'npm'
+
+      - name: Install npm@11.16.0
+        run: |
+          npm install -g npm@11.16.0
+
+      - name: Install Dependencies
+        run: |
+          npm ci -w @mongodb-js/compass-scripts --ignore-scripts
+
+      - name: Check package-lock.json diff size and comment
+        run: node scripts/check-package-lock-diff.mts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Changed lines (additions + deletions) in package-lock.json above
+          # which we warn on the PR.
+          THRESHOLD: '1000'
