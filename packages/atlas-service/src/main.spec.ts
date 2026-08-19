@@ -75,11 +75,10 @@ describe('CompassAuthServiceMain', function () {
     typeof util.getTrackingUserInfo
   >;
 
-  before(function () {
-    getTrackingUserInfoStub = sandbox.stub(util, 'getTrackingUserInfo');
-  });
-
   beforeEach(async function () {
+    getTrackingUserInfoStub = sandbox
+      .stub(util, 'getTrackingUserInfo')
+      .returns({ auid: atlasUid });
     CompassAuthService['ipcMain'] = {
       handle: sandbox.stub(),
       broadcast: sandbox.stub(),
@@ -123,10 +122,6 @@ describe('CompassAuthServiceMain', function () {
     CompassAuthService['currentUser'] = null;
     CompassAuthService['config'] = authConfig;
 
-    sandbox.resetHistory();
-  });
-
-  after(function () {
     sandbox.restore();
   });
 
