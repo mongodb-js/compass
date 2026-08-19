@@ -149,7 +149,7 @@ describe('CompassAuthServiceMain', function () {
       }) => {
         trackedEvents.push(data);
       };
-      process.on('compass:track' as any, onTrack);
+      process.on('compass:track', onTrack);
 
       const clock = sandbox.useFakeTimers({ now: 1000, toFake: ['Date'] });
       const oidcCallback =
@@ -171,7 +171,7 @@ describe('CompassAuthServiceMain', function () {
         expect(signInSuccess).to.have.lengthOf(1);
         expect(signInSuccess[0].properties).to.have.property('duration', 5000);
       } finally {
-        process.off('compass:track' as any, onTrack);
+        process.off('compass:track', onTrack);
         oidcCallback.resolves({ accessToken, refreshToken });
         clock.restore();
       }
@@ -220,7 +220,7 @@ describe('CompassAuthServiceMain', function () {
       }) => {
         trackedEvents.push(data);
       };
-      process.on('compass:track' as any, onTrack);
+      process.on('compass:track', onTrack);
 
       try {
         try {
@@ -249,7 +249,7 @@ describe('CompassAuthServiceMain', function () {
           'MongoDBOIDCGenericError'
         );
       } finally {
-        process.off('compass:track' as any, onTrack);
+        process.off('compass:track', onTrack);
       }
     });
 
@@ -274,7 +274,7 @@ describe('CompassAuthServiceMain', function () {
       }) => {
         trackedEvents.push(data);
       };
-      process.on('compass:track' as any, onTrack);
+      process.on('compass:track', onTrack);
 
       try {
         await CompassAuthService.signIn().catch(() => {
@@ -293,7 +293,7 @@ describe('CompassAuthServiceMain', function () {
           'TypeError'
         );
       } finally {
-        process.off('compass:track' as any, onTrack);
+        process.off('compass:track', onTrack);
       }
     });
   });
@@ -520,7 +520,7 @@ describe('CompassAuthServiceMain', function () {
       CompassAuthService['oidcPluginLogger'] = logger;
       CompassAuthService['currentUser'] = {
         sub: '1234',
-      } as any;
+      };
       await CompassAuthService.init(preferences, {} as any);
       CompassAuthService['config'] = defaultConfig;
       // We expect that the oidc plugin registers a number of listeners
@@ -565,7 +565,7 @@ describe('CompassAuthServiceMain', function () {
       beforeEach(function () {
         CompassAuthService['currentUser'] = {
           sub: '1234',
-        } as any;
+        };
 
         CompassAuthService['plugin'] = {
           mongoClientOptions: {

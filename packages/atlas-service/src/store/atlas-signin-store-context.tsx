@@ -47,7 +47,10 @@ export function useAtlasSignedInUser(): AtlasUserInfo | null {
  */
 export function useIsAtlasSignInStateResolved(): boolean {
   return useSelector(
-    (state) => state.state !== 'initial' && state.state !== 'restoring'
+    (state) =>
+      state.state !== 'initial' &&
+      state.state !== 'restoring' &&
+      state.state !== 'in-progress'
   );
 }
 
