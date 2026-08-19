@@ -55,7 +55,7 @@
   "dependencies": {
     "bson": "^7.3.2",
     "debug": "^4.3.4",
-    "electron": "^41.10.5",
+    "electron": "^41.10.6",
     "react": "^17.0.2"
   },
   "devDependencies": {
