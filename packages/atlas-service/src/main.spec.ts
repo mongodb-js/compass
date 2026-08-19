@@ -151,9 +151,6 @@ describe('CompassAuthServiceMain', function () {
       };
       process.on('compass:track' as any, onTrack);
 
-      // Only fake Date so that promise scheduling keeps working, and advance it
-      // while the oidc flow is inflight to simulate the time the user spends
-      // going through the sign in.
       const clock = sandbox.useFakeTimers({ now: 1000, toFake: ['Date'] });
       const oidcCallback =
         mockOidcPlugin.mongoClientOptions.authMechanismProperties
