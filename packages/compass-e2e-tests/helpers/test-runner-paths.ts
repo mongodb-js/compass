@@ -2,8 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import electronPath from 'electron';
 import url from 'url';
-// @ts-expect-error no types for this package
-import { electronToChromium } from 'electron-to-chromium';
+import { execFileSync } from 'child_process';
 
 function requireResolve(module: string) {
   return url.fileURLToPath(import.meta.resolve(module));
@@ -43,9 +42,14 @@ export const ELECTRON_PATH = electronPath;
 export const MONOREPO_ELECTRON_VERSION = JSON.parse(
   fs.readFileSync(requireResolve('electron/package.json'), 'utf8')
 ).version;
-export const MONOREPO_ELECTRON_CHROMIUM_VERSION = electronToChromium(
-  MONOREPO_ELECTRON_VERSION
-);
+// Ask electron itself instead of a lookup table.
+// electron-to-chromium only learns about an exact electron version
+// some time after it is released, and returns undefined until then.
+export const MONOREPO_ELECTRON_CHROMIUM_VERSION = execFileSync(
+  ELECTRON_PATH,
+  ['-p', 'process.versions.chrome'],
+  { encoding: 'utf8', env: { ...process.env, ELECTRON_RUN_AS_NODE: '1' } }
+).trim();
 
 export const FIXTURES_PATH = path.join(E2E_WORKSPACE_PATH, 'fixtures');
 // Directory provided to the app / browser as a default download folder
