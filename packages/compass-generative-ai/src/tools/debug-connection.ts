@@ -9,6 +9,14 @@ import {
   buildClusterOverviewUrl,
 } from '@mongodb-js/atlas-service/provider';
 
+export const debugConnectionDescription = `
+  Use to debug a Compass connection failure to an Atlas cluster. 
+  Atlas-side diagnostics (cluster state, IP access list) as well as targeted advice. 
+  When advice is provided:
+  1. Provide the advice as part of your response.
+  2. If the url contains any links present the links in the advice as part of your response, with a 1-line explanation.
+`;
+
 export type IpAccessAllowed = 'Client IP Allowed' | 'Could not confirm';
 
 export type NetworkAccessDetails = {
@@ -63,11 +71,11 @@ function isAddressInCidrRange(cidrNotation: string, address: string): boolean {
   }
 }
 
-function isAddressEqual(ipAddress: string, address: string): boolean {
+function isAddressEqual(address1: string, address2: string): boolean {
   try {
-    const entry = ip.parse(ipAddress.trim());
+    const entry = ip.parse(address1.trim());
     return ip
-      .parse(address.trim())
+      .parse(address2.trim())
       .match(entry, entry.kind() === 'ipv6' ? 128 : 32);
   } catch {
     return false;
@@ -126,7 +134,6 @@ async function getNetworkAccessInfo({
   const ipAccessList = await atlasAdminApi.getProjectIPAccessList(projectId);
   // TODO(COMPASS-10981): replace with Atlas Admin API once it's ready
   const userIp = '1.2.3.4';
-  console.log({ userIp, ipAccessList });
   return {
     ipAccessAllowed:
       ipAccessList && userIp && isUserIpIncluded(ipAccessList, userIp)
@@ -150,9 +157,6 @@ function getAdvice({
   projectId: string;
   clusterName: string;
 }): string {
-  if (clusterState === 'notFound') {
-    return 'The cluster does not exist or you do not have access to it.';
-  }
   const advice = [];
 
   const clusterOverviewUrl = buildClusterOverviewUrl({
@@ -194,7 +198,6 @@ export async function debugConnection(
   connectionString: string,
   atlasAdminApi: AtlasAdminApiService
 ): Promise<AtlasConnectionDebugResult> {
-  console.log('Debugging connection for', connectionString);
   const clusterInfo = await getClusterInfo(connectionString, atlasAdminApi);
   if ('clusterNotFound' in clusterInfo) {
     return {
@@ -205,12 +208,10 @@ export async function debugConnection(
     };
   }
   const { projectId, clusterName, clusterState } = clusterInfo;
-  console.log({ projectId, clusterName, clusterState });
   const { ipAccessAllowed, networkAccessDetails } = await getNetworkAccessInfo({
     projectId,
     atlasAdminApi,
   });
-  console.log({ ipAccessAllowed, networkAccessDetails });
   return {
     clusterName,
     clusterState,
