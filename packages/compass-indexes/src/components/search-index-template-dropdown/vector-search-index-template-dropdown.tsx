@@ -43,11 +43,12 @@ type VectorSearchIndexTemplateDropdownProps = {
     choice: VectorIndexTemplateChoice,
     template: SearchTemplate
   ) => void;
+  disabled?: boolean;
 };
 
 export const VectorSearchIndexTemplateDropdown: React.FunctionComponent<
   VectorSearchIndexTemplateDropdownProps
-> = ({ tooltip, value, onTemplateChoice }) => {
+> = ({ tooltip, value, onTemplateChoice, disabled }) => {
   const labelId = useId();
 
   const onChoose = useCallback(
@@ -72,6 +73,7 @@ export const VectorSearchIndexTemplateDropdown: React.FunctionComponent<
         value={value}
         allowDeselect={false}
         onChange={onChoose}
+        disabled={disabled}
       >
         <Option value="autoEmbed">Automated embedding</Option>
         <Option value="bringYourOwn">Bring your own embeddings</Option>
