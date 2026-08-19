@@ -49,23 +49,16 @@ async function main(): Promise<void> {
     const breakdown = lockFiles
       .map((f) => `> - \`${f.filename}\`: +${f.additions} / -${f.deletions}`)
       .join('\n');
-    const body =
-      marker +
-      '\n' +
-      '> [!WARNING]\n' +
-      `> This PR changes **${changes}** lines in package-lock.json ` +
-      `(threshold: ${threshold}).\n` +
-      '>\n' +
-      breakdown +
-      '\n' +
-      '>\n' +
-      '> Adding or updating a dependency should rarely produce a diff this large. ' +
-      'Please double check the lockfile changes are intentional - a common cause is ' +
-      'running a different npm or Node.js version than the one the repo pins, or ' +
-      'running `npm install` in a way that re-resolves unrelated dependencies.\n' +
-      '>\n' +
-      '> If the changes are unexpected, try restoring the lockfile from the base branch ' +
-      'and re-running the install with the pinned npm version.\n';
+    const body = `${marker}
+> [!WARNING]
+> This PR changes **${changes}** lines in package-lock.json (threshold: ${threshold}).
+>
+${breakdown}
+>
+> Adding or updating a dependency should rarely produce a diff this large. Please double check the lockfile changes are intentional - a common cause is running a different npm or Node.js version than the one the repo pins, or running \`npm install\` in a way that re-resolves unrelated dependencies.
+>
+> If the changes are unexpected, try restoring the lockfile from the base branch and re-running the install with the pinned npm version.
+`;
 
     if (existing) {
       await github.rest.issues.updateComment({
@@ -93,17 +86,16 @@ async function main(): Promise<void> {
       owner: context.repo.owner,
       repo: context.repo.repo,
       comment_id: existing.id,
-      body:
-        marker +
-        '\n' +
-        outdatedMarker +
-        '\n' +
-        '> [!NOTE]\n' +
-        '> The package-lock.json diff is no longer above the threshold, so this notice ' +
-        'no longer applies.\n\n' +
-        '<details><summary>Previous message</summary>\n\n' +
-        previous +
-        '\n\n</details>',
+      body: `${marker}
+${outdatedMarker}
+> [!NOTE]
+> The package-lock.json diff is no longer above the threshold, so this notice no longer applies.
+
+<details><summary>Previous message</summary>
+
+${previous}
+
+</details>`,
     });
   }
 }
