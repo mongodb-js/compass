@@ -63,7 +63,7 @@ async function main(): Promise<void> {
   }
 
   if (preferences.help) {
-    process.stdout.write(getHelpText());
+    process.stdout.write(getHelpText(preferences));
     return app.exit(0);
   }
 

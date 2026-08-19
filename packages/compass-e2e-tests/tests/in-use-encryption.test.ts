@@ -578,7 +578,7 @@ describe('CSFLE / QE', function () {
 
         // set the text in the editor
         await browser.setCodemirrorEditorValue(
-          Selectors.InsertJSONEditor,
+          Selectors.InsertDocumentEditor,
           '{ "phoneNumber": "30303030", "name": "Person X" }'
         );
 
@@ -666,8 +666,13 @@ describe('CSFLE / QE', function () {
           const [field, oldValue, newValue] = fieldOldNewByMode(mode);
           const oldValueJS = eval(oldValue);
           const newValueJS = eval(newValue);
-          const toString = (v: any) =>
-            v?.toISOString?.()?.replace(/Z$/, '+00:00') ?? JSON.stringify(v);
+          const toString = (v: any, isInsert: boolean) => {
+            if (v instanceof Date) {
+              const date = v.toISOString().replace(/Z$/, '+00:00');
+              return isInsert ? date : `ISODate('${date}')`;
+            }
+            return JSON.stringify(v);
+          };
 
           await browser.shellEval(connectionName, [
             `use ${databaseName}`,
@@ -686,7 +691,7 @@ describe('CSFLE / QE', function () {
           );
 
           const result = await browser.getFirstListDocument();
-          expect(result[field]).to.be.equal(toString(oldValueJS));
+          expect(result[field]).to.be.equal(toString(oldValueJS, false));
 
           const document = browser.$(Selectors.DocumentListEntry);
           const value = document.$(
@@ -699,7 +704,9 @@ describe('CSFLE / QE', function () {
           );
           await browser.setValueVisible(
             input,
-            typeof newValueJS === 'string' ? newValueJS : toString(newValueJS)
+            typeof newValueJS === 'string'
+              ? newValueJS
+              : toString(newValueJS, true)
           );
 
           const footer = document.$(Selectors.DocumentFooterMessage);
@@ -731,7 +738,9 @@ describe('CSFLE / QE', function () {
           await browser.runFindOperation('Documents', filter);
 
           const modifiedResult = await browser.getFirstListDocument();
-          expect(modifiedResult[field]).to.be.equal(toString(newValueJS));
+          expect(modifiedResult[field]).to.be.equal(
+            toString(newValueJS, false)
+          );
           expect(modifiedResult._id).to.be.equal(result._id);
         });
       }
@@ -924,7 +933,7 @@ describe('CSFLE / QE', function () {
 
         // set the text in the editor
         await browser.setCodemirrorEditorValue(
-          Selectors.InsertJSONEditor,
+          Selectors.InsertDocumentEditor,
           '{ "phoneNumber": "30303030", "faxNumber": "30303030", "name": "Third" }'
         );
 

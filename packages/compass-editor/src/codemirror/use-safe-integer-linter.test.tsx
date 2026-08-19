@@ -121,8 +121,17 @@ describe('useSafeIntegerLinter', function () {
     });
   });
 
-  it('does not flag a number wrapped in a constructor call', async function () {
+  it('flags an unsafe bare number passed as a constructor argument', async function () {
+    // `Long(9007...)` still loses precision: the literal is parsed as a JS
+    // double before Long sees it. Only a string argument is safe.
     const handle = renderTestEditor(`{ a: Long(${UNSAFE_MAX}) }`);
+    await waitFor(() => {
+      expect(handle().getViolations()).to.have.lengthOf(1);
+    });
+  });
+
+  it('does not flag a string argument to a constructor call', async function () {
+    const handle = renderTestEditor(`{ a: Long("${UNSAFE_MAX}") }`);
     await waitFor(() => {
       expect(handle().getViolations()).to.have.lengthOf(0);
     });
@@ -179,6 +188,21 @@ describe('useSafeIntegerLinter', function () {
         expect(handle().getText()).to.equal(
           `{ a: {$numberLong: "${UNSAFE_MAX}"} }`
         );
+      });
+    });
+
+    it('quotes the argument when the number is already in a constructor call', async function () {
+      // `Long(123...)` must become `Long("123...")`, not `Long(Long("123..."))`.
+      const handle = renderTestEditor(`{ a: Long(${UNSAFE_MAX}) }`);
+      await waitFor(() => {
+        expect(handle().getViolations()).to.have.lengthOf(1);
+      });
+
+      handle().fixViolations();
+
+      await waitFor(() => {
+        expect(handle().getText()).to.equal(`{ a: Long("${UNSAFE_MAX}") }`);
+        expect(handle().getViolations()).to.have.lengthOf(0);
       });
     });
 

@@ -1041,7 +1041,7 @@ type DocumentInsertCancelledEvent = ConnectionScopedEvent<{
     /**
      * The view used in the insert document dialog.
      */
-    mode: 'json' | 'field-by-field';
+    mode: 'json' | 'shell' | 'field-by-field';
   };
 }>;
 
@@ -1056,7 +1056,7 @@ type DocumentInsertFailedEvent = ConnectionScopedEvent<{
     /**
      * The view used in the insert document dialog.
      */
-    mode: 'json' | 'field-by-field';
+    mode: 'json' | 'shell' | 'field-by-field';
 
     /**
      * Specifies if the user attempted to insert multiple documents.
@@ -1078,6 +1078,22 @@ type DocumentViewChangedEvent = ConnectionScopedEvent<{
      * The view that was switched to.
      */
     view: 'list' | 'json' | 'table';
+  };
+}>;
+
+/**
+ * This event is fired when a user converts Extended JSON to shell syntax from
+ * the banner in the insert document dialog.
+ *
+ * @category Documents
+ */
+type ExtendedJSONConversionAttemptedEvent = ConnectionScopedEvent<{
+  name: 'Extended JSON Conversion Attempted';
+  payload: {
+    /**
+     * The conversion attempt result.
+     */
+    success: boolean;
   };
 }>;
 
@@ -2267,7 +2283,7 @@ type SchemaValidationUpdatedEvent = ConnectionScopedEvent<{
     /**
      * The level of schema validation passed to the driver.
      */
-    validation_level: 'off' | 'moderate' | 'strict';
+    validation_level: 'off' | 'moderate' | 'strict' | 'constraint';
   };
 }>;
 
@@ -3051,6 +3067,13 @@ type ApplicationLaunchedEvent = CommonEvent<{
      * compass-readonly distribution).
      */
     readOnly: boolean;
+
+    /**
+     * Whether Atlas sign in is enabled at launch. Can only be disabled through
+     * the global configuration file, so this indicates a managed installation
+     * that opted out of Atlas sign in.
+     */
+    enableAtlasSignIn: boolean;
 
     /**
      * The value of the `maxTimeMS` preference at launch.
@@ -4123,7 +4146,8 @@ type SafeIntegerFixAppliedEvent = CommonEvent<{
     source:
       | 'pipeline-editor'
       | 'stage-editor'
-      | 'insert-document-editor'
+      | 'insert-document-editor-json'
+      | 'insert-document-editor-shell'
       | 'document-json-editor'
       | 'query-bar-editor'
       | 'bulk-update-editor';
@@ -4236,6 +4260,7 @@ export type TelemetryEvent =
   | ExplainPlanExecutedEvent
   | ExportCompletedEvent
   | ExportOpenedEvent
+  | ExtendedJSONConversionAttemptedEvent
   | FocusModeClosedEvent
   | FocusModeOpenedEvent
   | GuideCueShownEvent

@@ -14,7 +14,7 @@ import {
 import semver from 'semver';
 
 export type ValidationServerAction = 'error' | 'warn' | 'errorAndLog';
-export type ValidationLevel = 'off' | 'moderate' | 'strict';
+export type ValidationLevel = 'off' | 'moderate' | 'strict' | 'constraint';
 
 export const ValidationActions = {
   ValidatorChanged: 'compass-schema-validation/validation/ValidatorChanged',
@@ -62,6 +62,7 @@ export interface ValidationFetchedAction {
   validator: Document;
   validationAction: ValidationServerAction;
   validationLevel: ValidationLevel;
+  prepareConstraintValidationLevel?: boolean;
 }
 
 export interface ValidationFetchErroredAction {
@@ -394,15 +395,18 @@ export const validationFetched = ({
   validator,
   validationLevel,
   validationAction,
+  prepareConstraintValidationLevel,
 }: {
   validator: Document;
   validationLevel: ValidationLevel;
   validationAction: ValidationServerAction;
+  prepareConstraintValidationLevel?: boolean;
 }): ValidationFetchedAction => ({
   type: ValidationActions.ValidationFetched,
   validator,
   validationLevel,
   validationAction,
+  prepareConstraintValidationLevel,
 });
 
 export const emptyValidationFetched = ({
@@ -461,6 +465,8 @@ export const fetchValidation = (namespace: {
             (collInfo.validation.validationLevel as ValidationLevel) ??
             INITIAL_STATE.validationLevel,
           validator: collInfo.validation.validator,
+          prepareConstraintValidationLevel:
+            collInfo.validation.prepareConstraintValidationLevel,
         })
       );
     } catch (err) {

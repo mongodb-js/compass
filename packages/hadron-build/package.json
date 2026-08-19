@@ -40,7 +40,7 @@
   "dependencies": {
     "@electron/rebuild": "^4.2.0",
     "@mongodb-js/devtools-github-repo": "^1.4.1",
-    "@mongodb-js/dl-center": "^1.6.14",
+    "@mongodb-js/dl-center": "^1.7.0",
     "@mongodb-js/electron-wix-msi": "^3.0.0",
     "@mongodb-js/signing-utils": "^0.5.14",
     "@npmcli/arborist": "^6.2.0",
@@ -51,7 +51,7 @@
     "debug": "^4.3.4",
     "del": "^2.0.2",
     "download": "^8.0.0",
-    "electron": "^41.10.5",
+    "electron": "^41.10.6",
     "electron-packager": "^15.5.1",
     "electron-packager-plugin-non-proprietary-codecs-ffmpeg": "^1.0.2",
     "flatnest": "^1.0.0",

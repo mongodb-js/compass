@@ -158,7 +158,7 @@ export async function createNestedDocumentsCollection(
   );
 }
 
-const allTypesDoc = {
+export const allTypesDoc = {
   double: new Double(1.2),
   primitiveDouble: 1.2,
   doubleThatIsAlsoAnInteger: new Double(1),
@@ -260,6 +260,36 @@ export async function createNumbersStringCollection(
           j: 0,
         }))
       );
+    })
+  );
+}
+
+/**
+ * Creates a collection locked against validator changes by the MongoDB 9.0+
+ * "constraint" validation level. Pass `stopAfterPrepare` to leave it in the
+ * intermediate state of the two-step upgrade, which locks the validator in the
+ * same way but keeps the level reported as "strict". Requires FCV 9.0.
+ */
+export async function createConstraintValidationCollection(
+  name: string,
+  { stopAfterPrepare = false }: { stopAfterPrepare?: boolean } = {}
+): Promise<void> {
+  await Promise.all(
+    test_dbs.map(async (db) => {
+      await db.createCollection(name, {
+        validator: { a: { $exists: true } },
+        validationLevel: 'strict',
+        validationAction: 'error',
+      });
+      await db.collection(name).insertOne({ a: 1 });
+      await db.command({
+        collMod: name,
+        validationLevel: 'strict',
+        prepareConstraintValidationLevel: true,
+      });
+      if (!stopAfterPrepare) {
+        await db.command({ collMod: name, validationLevel: 'constraint' });
+      }
     })
   );
 }
