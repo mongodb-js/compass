@@ -71,11 +71,12 @@ export class CompassAuthService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
+  private static getUserAgent = () => `${app.getName()}/${app.getVersion()}`;
+
   private static fetch = async (
     url: string,
     init: RequestInit = {}
   ): Promise<Response> => {
-    await this.initPromise;
     this.throwIfNetworkTrafficDisabled();
     throwIfAborted(init.signal ?? undefined);
     log.info(
@@ -89,7 +90,7 @@ export class CompassAuthService {
         ...init,
         headers: {
           ...init.headers,
-          'User-Agent': `${app.getName()}/${app.getVersion()}`,
+          'User-Agent': this.getUserAgent(),
         },
       });
       await throwIfNotOk(res);
@@ -269,6 +270,7 @@ export class CompassAuthService {
     try {
       const accessToken = await this.maybeGetToken({
         tokenType: 'accessToken',
+        _skipWaitingForInit: true,
       });
       if (!accessToken) {
         this.currentUser = null;
@@ -396,11 +398,18 @@ export class CompassAuthService {
   static async maybeGetToken({
     tokenType,
     signal,
+    _skipWaitingForInit = false,
   }: {
     tokenType?: 'accessToken' | 'refreshToken';
     signal?: AbortSignal;
+    /**
+     * @internal Only for use by `restoreCurrentUser`, which runs inside the
+     * `initPromise` executor and would deadlock awaiting it.
+     */
+    _skipWaitingForInit?: boolean;
   }): Promise<string | undefined> {
     try {
+      if (!_skipWaitingForInit) await this.initPromise;
       tokenType ??= 'accessToken';
       const token = await this.requestOAuthToken({ signal });
       return token[tokenType];
