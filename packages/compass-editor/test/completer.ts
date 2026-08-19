@@ -2,12 +2,14 @@ import { forceParsing } from '@codemirror/language';
 import { EditorView } from '@codemirror/view';
 import type { CompletionSource } from '@codemirror/autocomplete';
 import { CompletionContext } from '@codemirror/autocomplete';
-import { languages } from '../src/editor';
+import { languages, languageName } from '../src/editor';
+import type { EditorLanguage } from '../src/editor';
 
 export const setupCodemirrorCompleter = <
   T extends (...args: any[]) => CompletionSource
 >(
-  completer: T
+  completer: T,
+  language: EditorLanguage = 'javascript-expression'
 ) => {
   let el: HTMLDivElement;
   let editor: EditorView;
@@ -16,7 +18,7 @@ export const setupCodemirrorCompleter = <
     window.document.body.appendChild(el);
     editor = new EditorView({
       doc: '',
-      extensions: [languages['javascript-expression']()],
+      extensions: [languages[language](), languageName.of(language)],
       parent: el,
     });
   });

@@ -516,13 +516,13 @@ function handleEntryPoint<T>(
     | 'analyze output'
     | 'search stage error'
     | 'search stage diagnose',
-  builder: (props: T) => EntryPointMessage,
+  builder: (props: T, preferences: PreferencesAccess) => EntryPointMessage,
   props: T,
   globalState: GlobalState,
   openDrawer: (id: string) => void
 ): AssistantThunkAction<void> {
-  return (dispatch, _getState, { track }) => {
-    const { prompt, metadata } = builder(props);
+  return (dispatch, _getState, { track, preferences }) => {
+    const { prompt, metadata } = builder(props, preferences);
     void dispatch(
       ensureOptInAndSendThunk(
         {
@@ -581,7 +581,11 @@ function interpretConnectionErrorThunk(
 ): AssistantThunkAction<void> {
   return handleEntryPoint(
     'connection error',
-    buildConnectionErrorPrompt,
+    (entryPointProps, preferences) =>
+      buildConnectionErrorPrompt({
+        ...entryPointProps,
+        enableAtlasSignIn: preferences.getPreferences().enableAtlasSignIn,
+      }),
     props,
     globalState,
     openDrawer
