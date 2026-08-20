@@ -55,7 +55,7 @@ export function wrapValueWithBsonLabel(
   if (!label) {
     return value;
   }
-  return `${label}("${value}")`;
+  return `${label}('${value}')`;
 }
 
 export function useBsonThemeStyles(type?: BSONValueType) {

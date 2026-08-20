@@ -25,9 +25,9 @@ export function EditorWithLabel({
   const bsonStyles = useBsonThemeStyles(type);
   return (
     <div className={containerStyles} style={bsonStyles}>
-      {label && <span className={labelStyles}>{label}(&quot;</span>}
+      {label && <span className={labelStyles}>{label}(&apos;</span>}
       {children}
-      {label && <span className={labelStyles}>&quot;)</span>}
+      {label && <span className={labelStyles}>&apos;)</span>}
     </div>
   );
 }
