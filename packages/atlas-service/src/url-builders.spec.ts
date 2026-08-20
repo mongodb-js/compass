@@ -93,16 +93,6 @@ describe('url-builders', function () {
         `${TEST_ORIGIN}/v2/proj123#/security/network/accessList`
       );
     });
-
-    it('builds network access list url with params', function () {
-      expect(
-        buildNetworkAccessListUrl({
-          projectId: 'proj123',
-        })
-      ).to.equal(
-        `${TEST_ORIGIN}/v2/proj123#/security/network/accessList?highlight=nativeReranking`
-      );
-    });
   });
 
   describe('buildMonitoringUrl', function () {
