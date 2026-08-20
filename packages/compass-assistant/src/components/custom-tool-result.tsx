@@ -5,7 +5,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { mapAtlasConnectionDebugResult } from '../tool-result-mapper';
-import { hasCustomToolResult, isDebuggerToolCall } from '../utils';
+import { isDebuggerToolCall } from '../utils';
 import React from 'react';
 import type { AtlasConnectionDebugResult } from '@mongodb-js/compass-generative-ai/provider';
 
@@ -14,6 +14,10 @@ const { SuggestedActions } = LgChatSuggestions;
 const suggestedActionsContainerStyles = css({
   marginTop: '8px',
 });
+
+function hasCustomToolResult(toolType: string): boolean {
+  return isDebuggerToolCall(toolType);
+}
 
 function getToolResultParameters(
   toolType: string,

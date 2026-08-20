@@ -269,10 +269,6 @@ export function isDebuggerToolCall(type: string): boolean {
   return type === ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE;
 }
 
-export function hasCustomToolResult(toolType: string): boolean {
-  return isDebuggerToolCall(toolType);
-}
-
 export function toolHasOutput(
   toolCall: ToolUIPart,
   cleanedOutput: unknown
