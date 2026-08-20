@@ -53,6 +53,10 @@ const valueStyles = css({
   paddingRight: '8px',
 });
 
+const dateWithTimezoneHintStyles = css({
+  userSelect: 'none',
+});
+
 export function DateWithTimezoneHint({
   value,
   children,
@@ -60,7 +64,7 @@ export function DateWithTimezoneHint({
   value: Date | number | string;
   children: React.ReactNode;
 }) {
-  const { timezone } = useBSONDisplayOptions(['timezone']);
+  const { timezone } = useBSONDisplayOptions();
   const timezoneFormattedValue = useMemo(() => {
     return formatDateWithTimezone(value, timezone);
   }, [value, timezone]);
@@ -68,6 +72,7 @@ export function DateWithTimezoneHint({
     <span className={containerStyles}>
       <span className={valueStyles}>{children}</span>
       <InlineDefinition
+        className={dateWithTimezoneHintStyles}
         data-testid="date-with-timezone-hint"
         title={timezoneFormattedValue}
         definition="This personal timezone display preference may be configured in Compass Settings."
