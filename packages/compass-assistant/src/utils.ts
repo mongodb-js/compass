@@ -272,3 +272,47 @@ export function isDebuggerToolCall(type: string): boolean {
 export function hasCustomToolResult(toolType: string): boolean {
   return isDebuggerToolCall(toolType);
 }
+
+export function getExpandableContentText(
+  toolCall: ToolUIPart,
+  hasOutput: boolean,
+  cleanedOutput?: unknown,
+  toolDescription?: string
+): string {
+  const toolCallState = getToolState(toolCall.state);
+
+  const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
+  const argumentsText = `### Arguments
+
+\`\`\`json
+${inputJSON}
+\`\`\``;
+
+  if (toolDescription && toolCallState === 'idle') {
+    return [toolDescription, argumentsText].join('\n\n');
+  }
+
+  const expandableContent = [argumentsText];
+
+  if (hasOutput) {
+    const outputText = cleanedOutput
+      ? JSON.stringify(cleanedOutput, null, 2)
+      : '';
+
+    expandableContent.push(`### Response
+
+\`\`\`json
+${outputText}
+\`\`\``);
+  }
+
+  if (toolCall.errorText) {
+    expandableContent.push(`### Error
+
+\`\`\`
+${toolCall.errorText}
+\`\`\``);
+  }
+
+  return expandableContent.join('\n\n');
+}

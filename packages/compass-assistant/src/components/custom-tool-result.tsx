@@ -5,7 +5,7 @@ import {
   useDarkMode,
 } from '@mongodb-js/compass-components';
 import { mapAtlasConnectionDebugResult } from '../tool-result-mapper';
-import { isDebuggerToolCall } from '../utils';
+import { hasCustomToolResult, isDebuggerToolCall } from '../utils';
 import React from 'react';
 import type { AtlasConnectionDebugResult } from '@mongodb-js/compass-generative-ai/provider';
 
@@ -34,6 +34,10 @@ export const CustomToolResult: React.FC<{
     () => getToolResultParameters(toolType, output) ?? [],
     [toolType, output]
   );
+
+  if (!hasCustomToolResult(toolType)) {
+    return null;
+  }
 
   return (
     <SuggestedActions

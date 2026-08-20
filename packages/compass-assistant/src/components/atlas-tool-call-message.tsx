@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   css,
   InlineDefinition,
@@ -7,9 +7,9 @@ import {
 import type { ToolUIPart } from 'ai';
 import {
   cleanToolCallOutput,
+  getExpandableContentText,
   getToolDisplayName,
   getToolState,
-  hasCustomToolResult,
   isDebuggerToolCall,
 } from '../utils';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
@@ -18,12 +18,25 @@ import {
   getAvailableTools,
   doesToolUseConnection,
 } from '@mongodb-js/compass-generative-ai/provider';
+import type { AtlasSignInEntrypoint } from '@mongodb-js/compass-telemetry';
 import {
   useAtlasLoginActions,
   useAtlasSignedInUser,
+  useIsAtlasSignInStateResolved,
 } from '@mongodb-js/atlas-service/provider';
 import { CustomToolResult } from './custom-tool-result';
 import { getToolCallTitle } from './tool-call-title';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+
+/**
+ * Every sign in this card drives is attributed to the assistant tool call that
+ * required it, so we can tell which Atlas tools drive sign in.
+ */
+function getSignInEntrypoint(
+  toolType: ToolUIPart['type']
+): AtlasSignInEntrypoint {
+  return `assistant-${toolType}`;
+}
 
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
@@ -62,50 +75,6 @@ This is read-only and won't change your cluster.`;
   );
 }
 
-function getExpandableContentText(
-  toolCall: ToolUIPart,
-  toolDescription: string,
-  cleanedOutput: unknown
-): string {
-  const toolCallState = getToolState(toolCall.state);
-  const hasOutput = toolHasOutput(toolCall, cleanedOutput);
-
-  const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
-  const argumentsText = `### Arguments
-
-\`\`\`json
-${inputJSON}
-\`\`\``;
-
-  if (toolCallState === 'idle') {
-    return [toolDescription, argumentsText].join('\n\n');
-  }
-
-  const expandableContent = [argumentsText];
-
-  if (hasOutput) {
-    const outputText = cleanedOutput
-      ? JSON.stringify(cleanedOutput, null, 2)
-      : '';
-
-    expandableContent.push(`### Response
-
-\`\`\`json
-${outputText}
-\`\`\``);
-  }
-
-  if (toolCall.errorText) {
-    expandableContent.push(`### Error
-
-\`\`\`
-${toolCall.errorText}
-\`\`\``);
-  }
-
-  return expandableContent.join('\n\n');
-}
-
 export const AtlasToolCallMessage: React.FunctionComponent<
   AtlasToolCallMessageProps
 > = ({ toolCall, connectionInfo, onApprove, onDeny }) => {
@@ -115,8 +84,34 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const approvalId = toolCall.approval?.id;
   const isUserSignedIn = !!useAtlasSignedInUser();
   const { signIn } = useAtlasLoginActions();
+  const track = useTelemetry();
+  const isSignInStateResolved = useIsAtlasSignInStateResolved();
 
-  const chips = React.useMemo(() => {
+  // The card re-renders on every state change, so we only report the prompt the
+  // first time it's actually offered to a signed out user. We also wait for the
+  // sign in state to be restored, otherwise an already signed in user looks
+  // signed out on the first render.
+  const trackedPromptForApprovalId = useRef<string | null>(null);
+  const isSignInPromptShown =
+    isAwaitingApproval &&
+    isSignInStateResolved &&
+    !isUserSignedIn &&
+    !!approvalId;
+
+  useEffect(() => {
+    if (
+      !isSignInPromptShown ||
+      trackedPromptForApprovalId.current === approvalId
+    ) {
+      return;
+    }
+    trackedPromptForApprovalId.current = approvalId ?? null;
+    track('Atlas Sign In Prompt Shown', {
+      entrypoint: getSignInEntrypoint(toolCall.type),
+    });
+  }, [isSignInPromptShown, approvalId, track, toolCall.type]);
+
+  const chips = useMemo(() => {
     if (
       connectionInfo &&
       (doesToolUseConnection(toolDisplayName) ||
@@ -129,16 +124,16 @@ export const AtlasToolCallMessage: React.FunctionComponent<
 
   const handleAtlasToolApproval = useCallback(
     (approvalId: string) => {
-      signIn()
+      signIn({ entrypoint: getSignInEntrypoint(toolCall.type) })
         .then((userInfo) => onApprove(approvalId, !!userInfo))
         .catch(() => onApprove(approvalId, false));
     },
-    [signIn, onApprove]
+    [signIn, onApprove, toolCall.type]
   );
 
   const toolDescription = getToolDescription(toolCall.type, toolDisplayName);
 
-  const cleanedOutput = React.useMemo(
+  const cleanedOutput = useMemo(
     () => (toolCall.output ? cleanToolCallOutput(toolCall.output) : null),
     [toolCall.output]
   );
@@ -146,8 +141,9 @@ export const AtlasToolCallMessage: React.FunctionComponent<
 
   const expandableContentText = getExpandableContentText(
     toolCall,
-    toolDescription,
-    cleanedOutput
+    hasOutput,
+    cleanedOutput,
+    toolDescription
   );
 
   const toolNameElement = toolDescription ? (
@@ -158,6 +154,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     toolDisplayName
   );
 
+  // TODO(COMPASS-11044): update texts to be generic
   const approvalMessage = isUserSignedIn
     ? 'Run Atlas to debug this connection?'
     : 'Connect with Atlas to debug this connection?';
@@ -189,7 +186,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
       >
         {expandableContentText}
       </ActionCardMessage>
-      {hasOutput && hasCustomToolResult(toolCall.type) && (
+      {hasOutput && (
         <CustomToolResult toolType={toolCall.type} output={cleanedOutput} />
       )}
     </>

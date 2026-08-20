@@ -4,7 +4,7 @@ import React from 'react';
 export function getToolCallTitle(
   toolCall: ToolUIPart,
   toolNameElement: React.ReactNode,
-  approvalMessage: string | React.ReactNode
+  approvalMessage?: string | React.ReactNode
 ): React.ReactNode {
   const wasApproved = toolCall.approval?.approved === true;
   const isDenied = toolCall.state === 'output-denied';
@@ -14,5 +14,6 @@ export function getToolCallTitle(
   if (didRun) return <>Ran {toolNameElement}</>;
   if (wasApproved) return <>Running {toolNameElement}</>;
   if (isDenied) return <>Cancelled {toolNameElement}</>;
-  return <>{approvalMessage}</>;
+
+  return approvalMessage ? <>{approvalMessage}</> : <>Run {toolNameElement}?</>;
 }

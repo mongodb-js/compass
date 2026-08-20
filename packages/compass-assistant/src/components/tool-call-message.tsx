@@ -15,6 +15,7 @@ import {
   cleanToolCallOutput,
   getToolState,
   getToolDisplayName,
+  getExpandableContentText,
 } from '../utils';
 import { ActionCardMessage } from './action-card-message';
 import { getToolCallTitle } from './tool-call-title';
@@ -58,8 +59,6 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   const toolDescription = getToolDescription(toolName);
   const toolCallState = getToolState(toolCall.state);
 
-  const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
-
   const cleanedOutput = React.useMemo(
     () => (toolCall.output ? cleanToolCallOutput(toolCall.output) : null),
     [toolCall.output]
@@ -70,46 +69,20 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
     (toolCall.state === 'output-available' || toolCall.state === 'output-error')
   );
 
-  const outputText = cleanedOutput
-    ? JSON.stringify(cleanedOutput, null, 2)
-    : '';
-
   const isAwaitingApproval =
     toolCall.state === 'approval-requested' && !!toolCall.approval;
 
-  const expandableContent = [
-    `### Arguments
-
-\`\`\`json
-${inputJSON}
-\`\`\``,
-  ];
-
-  if (hasOutput) {
-    expandableContent.push(`### Response
-
-\`\`\`json
-${outputText}
-\`\`\``);
-  }
-
-  if (toolCall.errorText) {
-    expandableContent.push(`### Error
-
-\`\`\`
-${toolCall.errorText}
-\`\`\``);
-  }
-
-  const expandableContentText = expandableContent.join('\n\n');
+  const expandableContentText = getExpandableContentText(
+    toolCall,
+    hasOutput,
+    cleanedOutput
+  );
 
   const toolNameElement = toolDescription ? (
     <InlineDefinition definition={toolDescription}>{toolName}</InlineDefinition>
   ) : (
     toolName
   );
-
-  const approvalMessage = <>Run {toolNameElement}?</>;
 
   if (toolCall.state === 'input-streaming') {
     // The tool call renders with undefined input or incomplete input and then
@@ -127,7 +100,7 @@ ${toolCall.errorText}
     <ActionCardMessage
       initialIsExpanded={initialIsExpanded}
       state={toolCallState}
-      title={getToolCallTitle(toolCall, toolNameElement, approvalMessage)}
+      title={getToolCallTitle(toolCall, toolNameElement)}
       chips={chips}
       contentClassName={expandableContentStyles}
       showActions={isAwaitingApproval}

@@ -87,7 +87,7 @@ describe('AtlasToolCallMessage', function () {
         atlasAuthService: atlasAuthService as unknown as AtlasAuthService,
       })
     );
-    const { container } = renderWithConnections(
+    const { container, track } = renderWithConnections(
       <AtlasToolCallMessage
         toolCall={makeToolCall('approval-requested')}
         connectionInfo={connectionInfo}
@@ -96,7 +96,7 @@ describe('AtlasToolCallMessage', function () {
         {...props}
       />
     );
-    return { onApprove, onDeny, atlasAuthService, container };
+    return { onApprove, onDeny, atlasAuthService, container, track };
   }
 
   describe('when awaiting approval and the user is not signed in', function () {
@@ -132,6 +132,50 @@ describe('AtlasToolCallMessage', function () {
       });
     });
 
+    it('tracks the sign in prompt once, with the tool name as entrypoint', async function () {
+      const { track } = renderMessage();
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith('Atlas Sign In Prompt Shown', {
+          entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+        });
+      });
+      expect(
+        track
+          .getCalls()
+          .filter((call) => call.args[0] === 'Atlas Sign In Prompt Shown')
+      ).to.have.lengthOf(1);
+    });
+
+    it('tracks sign in started with the tool name as entrypoint', async function () {
+      const { track } = renderMessage();
+
+      userEvent.click(screen.getByText('Connect to Atlas'));
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith('Atlas Sign In Started', {
+          entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+        });
+      });
+    });
+
+    it('derives the entrypoint from the tool that requested sign in', async function () {
+      const { track } = renderMessage({
+        toolCall: {
+          type: 'tool-atlas-some-future-tool',
+          toolCallId: 'atlas-tool-call-2',
+          state: 'approval-requested',
+          approval: { id: 'approval-1' },
+        } as unknown as ToolUIPart,
+      });
+
+      await waitFor(() => {
+        expect(track).to.have.been.calledWith('Atlas Sign In Prompt Shown', {
+          entrypoint: 'assistant-tool-atlas-some-future-tool',
+        });
+      });
+    });
+
     it('calls onDeny with the approval id when skipping', function () {
       const { onDeny, atlasAuthService } = renderMessage();
 
@@ -152,6 +196,15 @@ describe('AtlasToolCallMessage', function () {
       expect(screen.getByText('Run Atlas to debug this connection?')).to.exist;
       expect(screen.getByText('Cancel')).to.exist;
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
+    });
+
+    it('does not track a sign in prompt', async function () {
+      const { track } = renderMessage({}, { signedIn: true });
+
+      await waitFor(() => {
+        expect(screen.getByText('Run')).to.exist;
+      });
+      expect(track).to.not.have.been.calledWith('Atlas Sign In Prompt Shown');
     });
 
     it('calls onApprove when Run is clicked', async function () {

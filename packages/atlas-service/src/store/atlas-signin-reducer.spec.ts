@@ -274,6 +274,62 @@ describe('atlasSignInReducer', function () {
       expect(firstUserInfo).to.deep.equal(secondUserInfo);
       expect(store.getState()).to.have.property('state', 'success');
     });
+
+    it('should track sign in started with the provided entrypoint', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(false),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        emit: sandbox.stub(),
+      };
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: mockAtlasService as any,
+        track,
+      });
+      await store.dispatch(
+        performSignInAttempt({
+          entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+        })
+      );
+      expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
+        entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+      });
+    });
+
+    it('should track sign in started with an unknown entrypoint by default', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(false),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        emit: sandbox.stub(),
+      };
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: mockAtlasService as any,
+        track,
+      });
+      await store.dispatch(performSignInAttempt());
+      expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
+        entrypoint: 'unknown',
+      });
+    });
+
+    it('should not track sign in started when already signed in', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(true),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        emit: sandbox.stub(),
+      };
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: mockAtlasService as any,
+        track,
+      });
+      await store.dispatch(restoreSignInState());
+      await store.dispatch(performSignInAttempt());
+      expect(track).to.not.have.been.called;
+    });
   });
 
   describe('signOut', function () {
