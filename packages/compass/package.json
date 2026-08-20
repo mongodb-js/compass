@@ -233,7 +233,7 @@
     "@mongodb-js/eslint-config-compass": "^1.4.25",
     "@mongodb-js/get-os-info": "^0.7.1",
     "@mongodb-js/mocha-config-compass": "^1.8.0",
-    "@mongodb-js/mongodb-downloader": "^1.1.17",
+    "@mongodb-js/mongodb-downloader": "^1.2.0",
     "@mongodb-js/my-queries-storage": "^1.2.0",
     "@mongodb-js/prettier-config-compass": "^1.2.9",
     "@mongodb-js/sbom-tools": "^0.10.19",
