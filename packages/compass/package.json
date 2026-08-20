@@ -109,6 +109,7 @@
           "**/smart-buffer/**",
           "**/ip/**",
           "**/bl/**",
+          "**/nan/**",
           "**/node_modules/bindings/**",
           "**/file-uri-to-path/**",
           "**/bson/**",
