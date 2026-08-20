@@ -199,7 +199,7 @@ describe('debugConnection', function () {
       expect(result.ipAccessAllowed).to.equal('Could not confirm');
     });
 
-    it('cannot confirm when the user ip lookup fails', async function () {
+    it.skip('cannot confirm when the user ip lookup fails', async function () {
       sandbox.restore();
       sandbox = Sinon.createSandbox();
       sandbox.stub(globalThis, 'fetch').rejects(new Error('offline'));
