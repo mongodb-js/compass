@@ -136,7 +136,8 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const expandableContentText = getExpandableContentText(
     toolCall,
     hasOutput,
-    cleanedOutput
+    cleanedOutput,
+    toolDescription
   );
 
   const toolNameElement = toolDescription ? (
