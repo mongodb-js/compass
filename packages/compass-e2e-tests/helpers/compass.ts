@@ -592,10 +592,7 @@ function execFileIgnoreError(
 async function getChromiumVersionFromBinary(path: string) {
   const { stdout } = await execFileIgnoreError(path, ['--versions'], {});
   try {
-    // Anything but a chromium version here and webdriver falls back to reading
-    // the version off the binary itself, which is Compass' own version, and
-    // then looks for a chromedriver that doesn't exist.
-    return JSON.parse(stdout).chrome ?? MONOREPO_ELECTRON_CHROMIUM_VERSION;
+    return JSON.parse(stdout).chrome;
   } catch {
     return MONOREPO_ELECTRON_CHROMIUM_VERSION;
   }
