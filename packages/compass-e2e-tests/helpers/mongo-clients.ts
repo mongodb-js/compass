@@ -158,7 +158,7 @@ export async function createNestedDocumentsCollection(
   );
 }
 
-const allTypesDoc = {
+export const allTypesDoc = {
   double: new Double(1.2),
   primitiveDouble: 1.2,
   doubleThatIsAlsoAnInteger: new Double(1),

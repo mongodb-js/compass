@@ -8,6 +8,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import type { EditorRef, Extension } from '@mongodb-js/compass-editor';
+import { useDocumentAutocompleter } from '../hooks/use-document-autocompleter';
 
 const editorContainerStylesLight = css({
   borderLeft: `3px solid ${palette.gray.light2}`,
@@ -17,21 +18,33 @@ const editorContainerStylesDark = css({
   borderLeft: `3px solid ${palette.gray.dark2}`,
 });
 
-type InsertJsonDocumentProps = {
+const MIN_LINES = 12;
+// The editor's default line height.
+const LINE_HEIGHT = 16;
+export const INSERT_EDITOR_MIN_HEIGHT = MIN_LINES * LINE_HEIGHT;
+
+type InsertDocumentEditorProps = {
   darkMode?: boolean;
-  jsonDoc: string;
-  updateJsonDoc: (value: string) => void;
+  editorText: string;
+  updateInsertDocText: (value: string) => void;
   safeIntegerLinter: Extension;
   editorRef: React.RefObject<EditorRef>;
+  shellSyntax?: boolean;
+  namespace: string;
 };
 
-const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
-  safeIntegerLinter,
-  jsonDoc,
-  updateJsonDoc,
+const InsertDocumentEditor: React.FunctionComponent<
+  InsertDocumentEditorProps
+> = ({
+  editorText,
+  updateInsertDocText,
   editorRef,
+  shellSyntax,
+  safeIntegerLinter,
+  namespace,
 }) => {
   const darkMode = useDarkMode();
+  const completer = useDocumentAutocompleter(namespace);
   return (
     <div
       className={cx(
@@ -39,17 +52,18 @@ const InsertJsonDocument: React.FunctionComponent<InsertJsonDocumentProps> = ({
       )}
     >
       <CodemirrorMultilineEditor
-        data-testid="insert-document-json-editor"
-        language="json"
-        text={jsonDoc}
-        onChangeText={updateJsonDoc}
+        data-testid="insert-document-editor"
+        language={shellSyntax ? 'javascript-expression' : 'json'}
+        text={editorText}
+        onChangeText={updateInsertDocText}
         initialJSONFoldAll={false}
-        minLines={18}
+        minLines={MIN_LINES}
         linter={safeIntegerLinter}
+        completer={completer}
         ref={editorRef}
       />
     </div>
   );
 };
 
-export default withDarkMode(InsertJsonDocument);
+export default withDarkMode(InsertDocumentEditor);

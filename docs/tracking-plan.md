@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-08-18. Do not edit manually.
+> Auto-generated on 2026-08-20. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -51,6 +51,8 @@
   - [Assistant Response Generated](#assistant-response-generated)
 - [Atlas](#atlas)
   - [Atlas Sign In Error](#atlas-sign-in-error)
+  - [Atlas Sign In Prompt Shown](#atlas-sign-in-prompt-shown)
+  - [Atlas Sign In Started](#atlas-sign-in-started)
   - [Atlas Sign In Success](#atlas-sign-in-success)
   - [Atlas Sign Out](#atlas-sign-out)
 - [Auto-updates](#auto-updates)
@@ -121,6 +123,7 @@
   - [Document Inserted](#document-inserted)
   - [Document Updated](#document-updated)
   - [Document View Changed](#document-view-changed)
+  - [Extended JSON Conversion Attempted](#extended-json-conversion-attempted)
 - [Drawer](#drawer)
   - [Drawer Section Opened](#drawer-section-opened)
   - [Drawer Section Closed](#drawer-section-closed)
@@ -707,19 +710,43 @@ This event is fired when the AI response is generated.
 
 This event is fired when user failed to sign in to their Atlas account.
 
-| Property         | Type                | Required | Description                            |
-| ---------------- | ------------------- | -------- | -------------------------------------- |
-| `error`          | `string`            | Yes      | The error message reported on sign in. |
-| `is_compass_web` | `true \| undefined` | No       |                                        |
+| Property         | Type                | Required | Description                                                                                                                                                                |
+| ---------------- | ------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `error`          | `string`            | Yes      | The error message reported on sign in.                                                                                                                                     |
+| `error_code`     | `string`            | Yes      | The code identifying the error reported on sign in. The `codeName` of the oidc-plugin error when the failure comes from the sign in flow itself, the error name otherwise. |
+| `is_compass_web` | `true \| undefined` | No       |                                                                                                                                                                            |
+
+### Atlas Sign In Prompt Shown
+
+This event is fired when the user is shown a prompt inviting them to sign in
+to their Atlas account, before they decide whether to go ahead with it.
+Paired with `Atlas Sign In Started` it tells us how often each entrypoint
+converts.
+
+| Property         | Type                    | Required | Description                                             |
+| ---------------- | ----------------------- | -------- | ------------------------------------------------------- |
+| `entrypoint`     | `AtlasSignInEntrypoint` | Yes      | The surface of the application the prompt was shown in. |
+| `is_compass_web` | `true \| undefined`     | No       |                                                         |
+
+### Atlas Sign In Started
+
+This event is fired when a sign in attempt to an Atlas account is started,
+before the user is taken through the sign in flow.
+
+| Property         | Type                    | Required | Description                                                    |
+| ---------------- | ----------------------- | -------- | -------------------------------------------------------------- |
+| `entrypoint`     | `AtlasSignInEntrypoint` | Yes      | The surface of the application the sign in was triggered from. |
+| `is_compass_web` | `true \| undefined`     | No       |                                                                |
 
 ### Atlas Sign In Success
 
 This event is fired when user successfully signed in to their Atlas account
 
-| Property         | Type                | Required | Description                             |
-| ---------------- | ------------------- | -------- | --------------------------------------- |
-| `auid`           | `string`            | Yes      | The id of the atlas user who signed in. |
-| `is_compass_web` | `true \| undefined` | No       |                                         |
+| Property         | Type                | Required | Description                                                                                 |
+| ---------------- | ------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `auid`           | `string`            | Yes      | The id of the atlas user who signed in.                                                     |
+| `duration`       | `number`            | Yes      | The time elapsed between the start of the sign in flow and its completion, in milliseconds. |
+| `is_compass_web` | `true \| undefined` | No       |                                                                                             |
 
 ### Atlas Sign Out
 
@@ -1346,22 +1373,22 @@ This event is fired when user deletes a document.
 This event is fired when user cancels the insert document dialog without
 inserting.
 
-| Property         | Type                         | Required | Description                                        |
-| ---------------- | ---------------------------- | -------- | -------------------------------------------------- |
-| `mode`           | `"json" \| "field-by-field"` | Yes      | The view used in the insert document dialog.       |
-| `is_compass_web` | `true \| undefined`          | No       |                                                    |
-| `connection_id`  | `string \| undefined`        | No       | The id of the connection associated to this event. |
+| Property         | Type                                    | Required | Description                                        |
+| ---------------- | --------------------------------------- | -------- | -------------------------------------------------- |
+| `mode`           | `"json" \| "shell" \| "field-by-field"` | Yes      | The view used in the insert document dialog.       |
+| `is_compass_web` | `true \| undefined`                     | No       |                                                    |
+| `connection_id`  | `string \| undefined`                   | No       | The id of the connection associated to this event. |
 
 ### Document Insert Failed
 
 This event is fired when user fails to insert a document.
 
-| Property         | Type                         | Required | Description                                                   |
-| ---------------- | ---------------------------- | -------- | ------------------------------------------------------------- |
-| `mode`           | `"json" \| "field-by-field"` | Yes      | The view used in the insert document dialog.                  |
-| `multiple`       | `boolean \| undefined`       | No       | Specifies if the user attempted to insert multiple documents. |
-| `is_compass_web` | `true \| undefined`          | No       |                                                               |
-| `connection_id`  | `string \| undefined`        | No       | The id of the connection associated to this event.            |
+| Property         | Type                                    | Required | Description                                                   |
+| ---------------- | --------------------------------------- | -------- | ------------------------------------------------------------- |
+| `mode`           | `"json" \| "shell" \| "field-by-field"` | Yes      | The view used in the insert document dialog.                  |
+| `multiple`       | `boolean \| undefined`                  | No       | Specifies if the user attempted to insert multiple documents. |
+| `is_compass_web` | `true \| undefined`                     | No       |                                                               |
+| `connection_id`  | `string \| undefined`                   | No       | The id of the connection associated to this event.            |
 
 ### Document Inserted
 
@@ -1394,6 +1421,17 @@ document views in the CRUD toolbar.
 | `view`           | `"json" \| "list" \| "table"` | Yes      | The view that was switched to.                     |
 | `is_compass_web` | `true \| undefined`           | No       |                                                    |
 | `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
+
+### Extended JSON Conversion Attempted
+
+This event is fired when a user converts Extended JSON to shell syntax from
+the banner in the insert document dialog.
+
+| Property         | Type                  | Required | Description                                        |
+| ---------------- | --------------------- | -------- | -------------------------------------------------- |
+| `success`        | `boolean`             | Yes      | The conversion attempt result.                     |
+| `is_compass_web` | `true \| undefined`   | No       |                                                    |
+| `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event. |
 
 ## Drawer
 
@@ -2182,10 +2220,10 @@ _No additional properties._
 This event is fired when a user applies the safe integer fix using
 codemirror annotation.
 
-| Property         | Type                                                                                                                                      | Required | Description |
-| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
-| `source`         | `"pipeline-editor" \| "stage-editor" \| "insert-document-editor" \| "document-json-editor" \| "query-bar-editor" \| "bulk-update-editor"` | Yes      |             |
-| `is_compass_web` | `true \| undefined`                                                                                                                       | No       |             |
+| Property         | Type                                                                                                                                                                             | Required | Description |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | ----------- |
+| `source`         | `"pipeline-editor" \| "stage-editor" \| "insert-document-editor-json" \| "insert-document-editor-shell" \| "document-json-editor" \| "query-bar-editor" \| "bulk-update-editor"` | Yes      |             |
+| `is_compass_web` | `true \| undefined`                                                                                                                                                              | No       |             |
 
 ## Performance Tab
 
