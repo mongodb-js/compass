@@ -139,3 +139,5 @@ export type {
 } from './atlas-ai-service';
 
 export { mockDataSchemaToolSchema } from './atlas-ai-service';
+
+export type { AtlasConnectionDebugResult } from './tools/debug-connection';
