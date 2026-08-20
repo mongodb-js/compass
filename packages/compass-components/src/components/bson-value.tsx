@@ -8,15 +8,14 @@ import {
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
 import { stringify } from 'mongodb-query-parser';
-import { variantColors } from '@leafygreen-ui/code';
-
 import { Icon, Link } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import type { Theme } from '../hooks/use-theme';
-import { Themes, useDarkMode } from '../hooks/use-theme';
 import { useLegacyUUIDDisplayContext } from './document-list/legacy-uuid-format-context';
-import { wrapValueWithBsonLabel } from './document-list/bson-label';
+import {
+  useBsonThemeStyles,
+  wrapValueWithBsonLabel,
+} from './document-list/bson-utils';
 
 type ValueProps =
   | {
@@ -36,32 +35,6 @@ type PropsByValueType<V extends ValueTypes> = Omit<
   'type'
 >;
 
-export const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
-  Theme,
-  Partial<Record<ValueTypes, string>>
-> = {
-  [Themes.Dark]: {
-    Int32: variantColors.dark[9],
-    Int64: variantColors.dark[9],
-    Double: variantColors.dark[9],
-    Decimal128: variantColors.dark[9],
-    Date: variantColors.dark[9],
-    Boolean: variantColors.dark[10],
-    String: variantColors.dark[7],
-    ObjectId: variantColors.dark[5],
-  },
-  [Themes.Light]: {
-    Int32: variantColors.light[9],
-    Int64: variantColors.light[9],
-    Double: variantColors.light[9],
-    Decimal128: variantColors.light[9],
-    Date: variantColors.light[9],
-    Boolean: variantColors.light[10],
-    String: variantColors.light[7],
-    ObjectId: variantColors.light[5],
-  },
-} as const;
-
 const bsonValue = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -78,18 +51,7 @@ export const BSONValueContainer: React.FunctionComponent<
     chidren?: React.ReactChildren;
   }
 > = ({ type, children, className, ...props }) => {
-  const darkMode = useDarkMode();
-  const colorStyle = useMemo(() => {
-    if (!type) {
-      return;
-    }
-    return {
-      color:
-        VALUE_COLOR_BY_THEME_AND_TYPE[darkMode ? Themes.Dark : Themes.Light][
-          type
-        ],
-    };
-  }, [type, darkMode]);
+  const bsonStyles = useBsonThemeStyles(type);
 
   return (
     <div
@@ -102,7 +64,7 @@ export const BSONValueContainer: React.FunctionComponent<
           type ? type.toLowerCase() : 'unknown'
         }`
       )}
-      style={colorStyle}
+      style={bsonStyles}
     >
       {children}
     </div>

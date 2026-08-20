@@ -1,9 +1,7 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
 import type { TypeCastMap } from 'hadron-type-checker';
-import { VALUE_COLOR_BY_THEME_AND_TYPE } from '../../bson-value';
-import { useDarkMode, Themes } from '../../../hooks/use-theme';
-import { BSON_TYPE_LABEL } from '../bson-label';
+import { BSON_TYPE_LABEL, useBsonThemeStyles } from '../bson-utils';
 
 const containerStyles = css({
   display: 'inline-flex',
@@ -23,19 +21,10 @@ export function EditorWithLabel({
   type: keyof TypeCastMap;
   children: React.ReactNode;
 }) {
-  const darkMode = useDarkMode();
   const label = BSON_TYPE_LABEL[type];
-  const colorStyle = useMemo(() => {
-    return {
-      color:
-        VALUE_COLOR_BY_THEME_AND_TYPE[darkMode ? Themes.Dark : Themes.Light][
-          type
-        ],
-    };
-  }, [type, darkMode]);
-
+  const bsonStyles = useBsonThemeStyles(type);
   return (
-    <div className={containerStyles} style={colorStyle}>
+    <div className={containerStyles} style={bsonStyles}>
       {label && <span className={labelStyles}>{label}(&quot;</span>}
       {children}
       {label && <span className={labelStyles}>&quot;)</span>}
