@@ -220,7 +220,7 @@ function ChangeArrayItem({ item }: { item: ItemBranch }) {
   const shape = getValueShape(value);
   if (shape === 'array') {
     // array summary followed by array items if expanded
-    return <ChangeArrayItemArray item={item} />;
+    return <ChangeArrayItemArray item={item as ArrayItemBranch} />;
   } else if (shape === 'object') {
     // object summary followed by object properties if expanded
     return <ChangeArrayItemObject item={item as ObjectItemBranch} />;
@@ -401,7 +401,9 @@ function ChangeObjectProperty({ property }: { property: PropertyBranch }) {
   const shape = getValueShape(value);
   if (shape === 'array') {
     // array summary followed by array items if expanded
-    return <ChangeObjectPropertyArray property={property} />;
+    return (
+      <ChangeObjectPropertyArray property={property as ArrayPropertyBranch} />
+    );
   } else if (shape === 'object') {
     // object summary followed by object properties if expanded
     return (

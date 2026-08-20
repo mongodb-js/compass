@@ -341,7 +341,9 @@ describe('<CellEditor />', function () {
           />
         );
 
-        const input = screen.getByTestId('table-view-cell-editor-value-input');
+        const input = screen.getByTestId(
+          'table-view-cell-editor-value-input'
+        ) as HTMLInputElement;
         expect(input).to.exist;
         userEvent.clear(input);
         userEvent.type(input, 'new input');
@@ -525,7 +527,7 @@ describe('<CellEditor />', function () {
 
         const fieldInput = screen.getByTestId(
           'table-view-cell-editor-fieldname-input'
-        );
+        ) as HTMLInputElement;
         expect(fieldInput).to.exist;
         userEvent.clear(fieldInput);
         userEvent.type(fieldInput, 'fieldname');
@@ -572,7 +574,7 @@ describe('<CellEditor />', function () {
 
         const fieldInput = screen.getByTestId(
           'table-view-cell-editor-fieldname-input'
-        );
+        ) as HTMLInputElement;
         expect(fieldInput).to.exist;
         userEvent.clear(fieldInput);
         userEvent.type(fieldInput, 'fieldname');
@@ -695,7 +697,9 @@ describe('<CellEditor />', function () {
           />
         );
 
-        const input = screen.getByTestId('table-view-cell-editor-value-input');
+        const input = screen.getByTestId(
+          'table-view-cell-editor-value-input'
+        ) as HTMLInputElement;
         expect(input).to.exist;
         userEvent.clear(input);
         userEvent.type(input, 'new input');

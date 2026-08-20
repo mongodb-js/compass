@@ -256,7 +256,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
     node.data.hasFooter = true;
     node.data.state = state;
     this.gridApi?.refreshCells({
-      rowNodes: [node],
+      rowNodes: [node as RowNode],
       columns: ['$rowActions'],
       force: true,
     });
