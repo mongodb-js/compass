@@ -163,7 +163,6 @@ export const ValueEditor: React.FunctionComponent<{
     valid,
     onChange,
     onBlur,
-    type,
   };
 
   return (
@@ -192,11 +191,11 @@ export const ValueEditor: React.FunctionComponent<{
             {type === 'String' ? (
               <TextEditor {...mergedProps} {...sharedProps} />
             ) : type === 'Date' ? (
-              <DateEditor {...mergedProps} {...sharedProps} />
+              <DateEditor {...sharedProps} {...mergedProps} type={type} />
             ) : isUUIDType(type) ? (
-              <UUIDEditor {...mergedProps} {...sharedProps} />
+              <UUIDEditor {...sharedProps} {...mergedProps} type={type} />
             ) : (
-              <DefaultEditor {...mergedProps} {...sharedProps} />
+              <DefaultEditor {...sharedProps} {...mergedProps} type={type} />
             )}
             {children}
           </div>

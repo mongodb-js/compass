@@ -48,7 +48,6 @@ const bsonValuePrewrap = css({
 export const BSONValueContainer: React.FunctionComponent<
   React.HTMLProps<HTMLDivElement> & {
     type?: ValueTypes;
-    chidren?: React.ReactChildren;
   }
 > = ({ type, children, className, ...props }) => {
   const bsonStyles = useBsonThemeStyles(type);
