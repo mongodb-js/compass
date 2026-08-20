@@ -63,6 +63,7 @@ async function changeTimezone(browser: CompassBrowser, timezone: string) {
   });
   expect(await browser.getFeature('timezone')).to.equal(timezone);
 }
+
 function bsonFormattedDate() {
   // We show the value with the UTC offset in the raw BSON value
   return `ISODate('${INSERTED_DATE.toISOString().replace('Z', '+00:00')}')`;
@@ -87,8 +88,6 @@ describe('Timezone', function () {
     await createDatesCollection(COLLECTION_NAME, INSERTED_DATE);
     await browser.setFeature('timezone', 'UTC');
     await browser.disconnectAll();
-
-    // await changeTimezone(browser, BERLIN);
 
     await browser.connectToDefaults();
     await browser.navigateToCollectionTab(

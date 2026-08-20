@@ -74,7 +74,6 @@ export function DateWithTimezoneHint({
       <InlineDefinition
         className={dateWithTimezoneHintStyles}
         data-testid="date-with-timezone-hint"
-        title={timezoneFormattedValue}
         definition="This personal timezone display preference may be configured in Compass Settings."
       >
         {timezoneFormattedValue}
