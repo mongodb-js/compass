@@ -128,7 +128,7 @@ export function DateEditor({
   value,
   onChange,
   onBlur,
-  label,
+  type,
   ...props
 }: EditorProps) {
   const inputStyle = useMemo(() => {
@@ -138,7 +138,7 @@ export function DateEditor({
 
   return (
     <span className={dateContainerStyles}>
-      <EditorWithLabel label={label}>
+      <EditorWithLabel type={type}>
         <InputEditor
           value={value}
           onChange={onChange}
