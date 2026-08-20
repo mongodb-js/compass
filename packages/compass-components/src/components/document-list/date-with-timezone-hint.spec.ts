@@ -1,6 +1,14 @@
 import { expect } from 'chai';
 import { formatDateWithTimezone } from './date-with-timezone-hint';
 
+function normalizeSpaces(str: string): string {
+  return str.replace(/[\u202f\u00a0]/g, ' ');
+}
+
+function isLocaleSupported(locale: string): boolean {
+  return Intl.DateTimeFormat.supportedLocalesOf([locale]).length > 0;
+}
+
 describe('date-with-timezone-hint', function () {
   describe('formatDateWithTimezone', function () {
     const date = new Date('2024-01-15T12:30:45.123Z');
@@ -91,7 +99,12 @@ describe('date-with-timezone-hint', function () {
     for (const { title, input, expected } of usecases) {
       it(title, function () {
         const [date, timezone, locale] = input;
-        expect(formatDateWithTimezone(date, timezone, locale)).to.eq(expected);
+        if (!isLocaleSupported(locale)) {
+          return this.skip();
+        }
+        expect(
+          normalizeSpaces(formatDateWithTimezone(date, timezone, locale))
+        ).to.eq(expected);
       });
     }
 
