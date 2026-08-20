@@ -86,7 +86,6 @@ export const CustomToolResult: React.FC<{
 
   return (
     <Card
-      title="testing"
       className={cx(cardStyles, {
         [cardStylesDarkMode]: darkMode,
       })}
