@@ -5,11 +5,8 @@ import {
   useConnectionInfo,
   useConnectionsListRef,
 } from '@mongodb-js/compass-connections/provider';
-import {
-  WorkspaceTab,
-  type WorkspaceTabCoreProps,
-} from '@mongodb-js/compass-components';
-import type { WorkspacePluginProps } from '@mongodb-js/workspace-info';
+import { WorkspaceTab } from '@mongodb-js/compass-components';
+import type { PluginHeaderProps } from '@mongodb-js/workspace-info';
 
 import { type CollectionState } from './modules/collection-tab';
 
@@ -19,8 +16,7 @@ type PluginTitleProps = {
   isTimeSeries?: boolean;
   isReadonly?: boolean;
   sourceName?: string | null;
-} & WorkspaceTabCoreProps &
-  WorkspacePluginProps<typeof CollectionWorkspaceTitle>;
+} & PluginHeaderProps<typeof CollectionWorkspaceTitle>;
 
 function PluginTitle({
   editViewName,
@@ -29,10 +25,6 @@ function PluginTitle({
   isTimeSeries,
   sourceName,
   namespace,
-  // The workspace props below are not valid DOM attributes and would end up
-  // on the tab element through the spread of the remaining props.
-  tabId: _tabId,
-  subTab: _subTab,
   ...tabProps
 }: PluginTitleProps) {
   const { getConnectionById } = useConnectionsListRef();
