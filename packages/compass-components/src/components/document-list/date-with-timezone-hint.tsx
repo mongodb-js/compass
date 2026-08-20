@@ -69,8 +69,8 @@ export function DateWithTimezoneHint({
     return formatDateWithTimezone(value, timezone);
   }, [value, timezone]);
   return (
-    <span className={containerStyles}>
-      <span className={valueStyles}>{children}</span>
+    <div className={containerStyles}>
+      <div className={valueStyles}>{children}</div>
       <InlineDefinition
         className={dateWithTimezoneHintStyles}
         data-testid="date-with-timezone-hint"
@@ -78,6 +78,6 @@ export function DateWithTimezoneHint({
       >
         {timezoneFormattedValue}
       </InlineDefinition>
-    </span>
+    </div>
   );
 }
