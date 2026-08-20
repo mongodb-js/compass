@@ -19,3 +19,4 @@ export {
 export type * from './preferences-schema';
 export type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 export type { ParsedGlobalPreferencesResult } from './global-config';
+export { TIMEZONES, timezoneObservesDaylightSavings } from './timezone';
