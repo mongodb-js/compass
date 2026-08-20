@@ -273,6 +273,16 @@ export function hasCustomToolResult(toolType: string): boolean {
   return isDebuggerToolCall(toolType);
 }
 
+export function toolHasOutput(
+  toolCall: ToolUIPart,
+  cleanedOutput: unknown
+): boolean {
+  return (
+    !!cleanedOutput &&
+    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
+  );
+}
+
 export function getExpandableContentText(
   toolCall: ToolUIPart,
   hasOutput: boolean,

@@ -16,6 +16,7 @@ import {
   getToolState,
   getToolDisplayName,
   getExpandableContentText,
+  toolHasOutput,
 } from '../utils';
 import { ActionCardMessage } from './action-card-message';
 import { getToolCallTitle } from './tool-call-title';
@@ -64,10 +65,7 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
     [toolCall.output]
   );
 
-  const hasOutput = !!(
-    cleanedOutput &&
-    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
-  );
+  const hasOutput = toolHasOutput(toolCall, cleanedOutput);
 
   const isAwaitingApproval =
     toolCall.state === 'approval-requested' && !!toolCall.approval;

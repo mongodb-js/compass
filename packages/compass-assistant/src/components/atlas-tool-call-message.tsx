@@ -11,6 +11,7 @@ import {
   getToolDisplayName,
   getToolState,
   isDebuggerToolCall,
+  toolHasOutput,
 } from '../utils';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
 import { ActionCardMessage } from './action-card-message';
@@ -53,13 +54,6 @@ const expandableContentStyles = css({
     textTransform: 'uppercase',
   },
 });
-
-function toolHasOutput(toolCall: ToolUIPart, cleanedOutput: unknown): boolean {
-  return (
-    !!cleanedOutput &&
-    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
-  );
-}
 
 function getToolDescription(toolType: string, toolDisplayName: string): string {
   if (isDebuggerToolCall(toolType)) {
@@ -142,8 +136,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const expandableContentText = getExpandableContentText(
     toolCall,
     hasOutput,
-    cleanedOutput,
-    toolDescription
+    cleanedOutput
   );
 
   const toolNameElement = toolDescription ? (
