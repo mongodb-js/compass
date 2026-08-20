@@ -161,7 +161,6 @@ export const AtlasToolCallMessage: React.FunctionComponent<
         title={getToolCallTitle(toolCall, toolNameElement, approvalMessage)}
         chips={chips}
         showActions={isAwaitingApproval}
-        initialIsExpanded={!hasOutput}
         contentClassName={expandableContentStyles}
         focusPrimaryKey={approvalId}
         buttons={[
@@ -181,7 +180,11 @@ export const AtlasToolCallMessage: React.FunctionComponent<
         {expandableContentText}
       </ActionCardMessage>
       {hasOutput && (
-        <CustomToolResult toolType={toolCall.type} output={cleanedOutput} />
+        <CustomToolResult
+          title="Atlas Check Result:"
+          toolType={toolCall.type}
+          output={cleanedOutput}
+        />
       )}
     </>
   );

@@ -14,14 +14,29 @@ describe('CustomToolResult', function () {
     ipAccessAllowed: true,
   };
 
+  function renderWithArguments({
+    title = 'Atlas Check Result:',
+    toolType = ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE,
+    output = debugResult,
+  }: {
+    title?: string;
+    toolType?: string;
+    output?: unknown;
+  } = {}) {
+    render(
+      <CustomToolResult title={title} toolType={toolType} output={output} />
+    );
+  }
+
   describe('atlas-connection-error-debugger tool', function () {
+    it('renders the title', function () {
+      renderWithArguments();
+
+      expect(screen.getByText('Atlas Check Result:')).to.exist;
+    });
+
     it('renders the mapped labels and values', function () {
-      render(
-        <CustomToolResult
-          toolType={ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE}
-          output={debugResult}
-        />
-      );
+      renderWithArguments();
 
       expect(screen.getByText('Cluster')).to.exist;
       expect(screen.getByText('Cluster0')).to.exist;
@@ -34,24 +49,18 @@ describe('CustomToolResult', function () {
     });
 
     it('formats a denied ip access result', function () {
-      render(
-        <CustomToolResult
-          toolType={ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE}
-          output={{ ...debugResult, ipAccessAllowed: false }}
-        />
-      );
+      renderWithArguments({
+        output: { ...debugResult, ipAccessAllowed: false },
+      });
 
       expect(screen.getByText('Client IP not allowed')).to.exist;
       expect(screen.queryByText('Client IP allowed')).to.not.exist;
     });
 
     it('falls back to N/A for missing values', function () {
-      render(
-        <CustomToolResult
-          toolType={ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE}
-          output={{ cluster: '', clusterState: '', ipAccessAllowed: false }}
-        />
-      );
+      renderWithArguments({
+        output: { cluster: '', clusterState: '', ipAccessAllowed: false },
+      });
 
       const naValues = screen.getAllByText('N/A');
       expect(naValues.length).to.be.greaterThanOrEqual(1);
@@ -60,9 +69,7 @@ describe('CustomToolResult', function () {
 
   describe('for a tool without a custom result mapping', function () {
     it('does not render any configuration parameters', function () {
-      render(
-        <CustomToolResult toolType="tool-list-databases" output={debugResult} />
-      );
+      renderWithArguments({ toolType: 'tool-list-databases' });
 
       expect(screen.queryByText('Cluster')).to.not.exist;
       expect(screen.queryByText('State')).to.not.exist;
