@@ -7,7 +7,7 @@ import {
 } from 'hadron-type-checker';
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
-import { stringify } from 'mongodb-query-parser';
+import { toJSString } from 'mongodb-query-parser';
 import { variantColors } from '@leafygreen-ui/code';
 
 import { Icon, Link } from './leafygreen';
@@ -395,7 +395,7 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
 
   return (
     <BSONValueContainer type="Date" title={stringifiedValue}>
-      {stringifiedValue}
+      {`ISODate('${stringifiedValue}')`}
     </BSONValueContainer>
   );
 };
@@ -480,10 +480,8 @@ const DBRefValue: React.FunctionComponent<PropsByValueType<'DBRef'>> = ({
   value,
 }) => {
   const stringifiedValue = useMemo(() => {
-    return `DBRef('${value.collection}', ${stringify(value.oid)}${
-      value?.db ? `, '${value.db}'` : ''
-    })`;
-  }, [value.collection, value.oid, value.db]);
+    return toJSString(value, 0);
+  }, [value]);
 
   return (
     <BSONValueContainer type="DBRef" title={stringifiedValue}>

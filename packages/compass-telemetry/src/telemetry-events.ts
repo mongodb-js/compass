@@ -114,6 +114,56 @@ type ConnectionScopedEvent<E extends { payload: unknown }> = E & {
 };
 
 /**
+ * The surface of the application that triggered an Atlas sign in attempt. Used
+ * to tell what the main drivers of Atlas sign in are.
+ */
+export type AtlasSignInEntrypoint =
+  /**
+   * The sign in was triggered by an assistant tool call requiring Atlas, where
+   * the suffix is the name of the tool, e.g.
+   * `assistant-tool-atlas-connection-error-debugger`.
+   */
+  | `assistant-tool-${string}`
+  /**
+   * The sign in was triggered by a caller that doesn't provide an entrypoint.
+   */
+  | 'unknown';
+
+/**
+ * This event is fired when the user is shown a prompt inviting them to sign in
+ * to their Atlas account, before they decide whether to go ahead with it.
+ * Paired with `Atlas Sign In Started` it tells us how often each entrypoint
+ * converts.
+ *
+ * @category Atlas
+ */
+type AtlasSignInPromptShownEvent = CommonEvent<{
+  name: 'Atlas Sign In Prompt Shown';
+  payload: {
+    /**
+     * The surface of the application the prompt was shown in.
+     */
+    entrypoint: AtlasSignInEntrypoint;
+  };
+}>;
+
+/**
+ * This event is fired when a sign in attempt to an Atlas account is started,
+ * before the user is taken through the sign in flow.
+ *
+ * @category Atlas
+ */
+type AtlasSignInStartedEvent = CommonEvent<{
+  name: 'Atlas Sign In Started';
+  payload: {
+    /**
+     * The surface of the application the sign in was triggered from.
+     */
+    entrypoint: AtlasSignInEntrypoint;
+  };
+}>;
+
+/**
  * This event is fired when user successfully signed in to their Atlas account
  *
  * @category Atlas
@@ -125,6 +175,11 @@ type AtlasSignInSuccessEvent = CommonEvent<{
      * The id of the atlas user who signed in.
      */
     auid: string;
+    /**
+     * The time elapsed between the start of the sign in flow and its
+     * completion, in milliseconds.
+     */
+    duration: number;
   };
 }>;
 
@@ -140,6 +195,12 @@ type AtlasSignInErrorEvent = CommonEvent<{
      * The error message reported on sign in.
      */
     error: string;
+    /**
+     * The code identifying the error reported on sign in. The `codeName` of the
+     * oidc-plugin error when the failure comes from the sign in flow itself,
+     * the error name otherwise.
+     */
+    error_code: string;
   };
 }>;
 
@@ -984,7 +1045,7 @@ type DocumentInsertCancelledEvent = ConnectionScopedEvent<{
     /**
      * The view used in the insert document dialog.
      */
-    mode: 'json' | 'field-by-field';
+    mode: 'json' | 'shell' | 'field-by-field';
   };
 }>;
 
@@ -999,7 +1060,7 @@ type DocumentInsertFailedEvent = ConnectionScopedEvent<{
     /**
      * The view used in the insert document dialog.
      */
-    mode: 'json' | 'field-by-field';
+    mode: 'json' | 'shell' | 'field-by-field';
 
     /**
      * Specifies if the user attempted to insert multiple documents.
@@ -1021,6 +1082,22 @@ type DocumentViewChangedEvent = ConnectionScopedEvent<{
      * The view that was switched to.
      */
     view: 'list' | 'json' | 'table';
+  };
+}>;
+
+/**
+ * This event is fired when a user converts Extended JSON to shell syntax from
+ * the banner in the insert document dialog.
+ *
+ * @category Documents
+ */
+type ExtendedJSONConversionAttemptedEvent = ConnectionScopedEvent<{
+  name: 'Extended JSON Conversion Attempted';
+  payload: {
+    /**
+     * The conversion attempt result.
+     */
+    success: boolean;
   };
 }>;
 
@@ -2210,7 +2287,7 @@ type SchemaValidationUpdatedEvent = ConnectionScopedEvent<{
     /**
      * The level of schema validation passed to the driver.
      */
-    validation_level: 'off' | 'moderate' | 'strict';
+    validation_level: 'off' | 'moderate' | 'strict' | 'constraint';
   };
 }>;
 
@@ -2774,6 +2851,36 @@ type CollectionCreatedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when a collection is successfully dropped.
+ *
+ * @category Database / Collection List
+ */
+type CollectionDroppedEvent = ConnectionScopedEvent<{
+  name: 'Collection Dropped';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a collection is successfully renamed.
+ *
+ * @category Database / Collection List
+ */
+type CollectionRenamedEvent = ConnectionScopedEvent<{
+  name: 'Collection Renamed';
+  payload: Record<string, never>;
+}>;
+
+/**
+ * This event is fired when a database is successfully dropped.
+ *
+ * @category Database / Collection List
+ */
+type DatabaseDroppedEvent = ConnectionScopedEvent<{
+  name: 'Database Dropped';
+  payload: Record<string, never>;
+}>;
+
+/**
  * This event is fired when a database is created.
  *
  * @category Database / Collection List
@@ -2964,6 +3071,13 @@ type ApplicationLaunchedEvent = CommonEvent<{
      * compass-readonly distribution).
      */
     readOnly: boolean;
+
+    /**
+     * Whether Atlas sign in is enabled at launch. Can only be disabled through
+     * the global configuration file, so this indicates a managed installation
+     * that opted out of Atlas sign in.
+     */
+    enableAtlasSignIn: boolean;
 
     /**
      * The value of the `maxTimeMS` preference at launch.
@@ -4024,6 +4138,26 @@ type SearchExtensionRateLimitPageLinkClickedEvent = CommonEvent<{
   };
 }>;
 
+/**
+ * This event is fired when a user applies the safe integer fix using
+ * codemirror annotation.
+ *
+ * @category Other
+ */
+type SafeIntegerFixAppliedEvent = CommonEvent<{
+  name: 'Safe Integer Fix Applied';
+  payload: {
+    source:
+      | 'pipeline-editor'
+      | 'stage-editor'
+      | 'insert-document-editor-json'
+      | 'insert-document-editor-shell'
+      | 'document-json-editor'
+      | 'query-bar-editor'
+      | 'bulk-update-editor';
+  };
+}>;
+
 export type TelemetryEvent =
   | AggregationCanceledEvent
   | AggregationCopiedEvent
@@ -4059,6 +4193,8 @@ export type TelemetryEvent =
   | AtlasLinkClickedEvent
   | AtlasSearchIndexesForViewLinkClickedEvent
   | AtlasSignInErrorEvent
+  | AtlasSignInPromptShownEvent
+  | AtlasSignInStartedEvent
   | AtlasSignInSuccessEvent
   | AtlasSignOutEvent
   | AutoupdateAcceptedEvent
@@ -4072,6 +4208,8 @@ export type TelemetryEvent =
   | BulkUpdateFavoritedEvent
   | BulkUpdateOpenedEvent
   | CollectionCreatedEvent
+  | CollectionDroppedEvent
+  | CollectionRenamedEvent
   | ConnectionAttemptEvent
   | ConnectionCreatedEvent
   | ConnectionDisconnectedEvent
@@ -4082,6 +4220,7 @@ export type TelemetryEvent =
   | CreateSearchIndexForViewClickedEvent
   | CurrentOpShowOperationDetailsEvent
   | DatabaseCreatedEvent
+  | DatabaseDroppedEvent
   | DataModelingDiagramCollectionAdded
   | DataModelingDiagramCollectionRemoved
   | DataModelingDiagramCollectionRenamed
@@ -4124,6 +4263,7 @@ export type TelemetryEvent =
   | ExplainPlanExecutedEvent
   | ExportCompletedEvent
   | ExportOpenedEvent
+  | ExtendedJSONConversionAttemptedEvent
   | FocusModeClosedEvent
   | FocusModeOpenedEvent
   | GuideCueShownEvent
@@ -4237,4 +4377,5 @@ export type TelemetryEvent =
   | RerankViewUsageAndRateLimitsLinkClickedEvent
   | SearchExtensionRateLimitBannerShownEvent
   | SearchExtensionRateLimitBillingLinkClickedEvent
-  | SearchExtensionRateLimitPageLinkClickedEvent;
+  | SearchExtensionRateLimitPageLinkClickedEvent
+  | SafeIntegerFixAppliedEvent;

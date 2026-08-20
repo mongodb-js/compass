@@ -2,49 +2,45 @@ import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 import reducer, {
   restoreSignInState,
-  signedOut,
   tokenRefreshFailed,
 } from './atlas-signin-reducer';
+import { AtlasSignInStoreContext } from './atlas-signin-store-context';
 import { type AtlasAuthService } from '../provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { ipcRenderer } from 'hadron-ipc';
 import type { ActivateHelpers } from '@mongodb-js/compass-app-registry';
 
-let store: AtlasServiceStore;
-export function getStore() {
-  if (!store) {
-    throw new Error('AtlasAuthPlugin not activated');
-  }
-  return store;
-}
-
 export type AtlasAuthPluginServices = {
   atlasAuthService: AtlasAuthService;
+  track?: TrackFunction;
 };
 export function activatePlugin(
-  _: Record<string, never>,
+  _initialProps: unknown,
   services: AtlasAuthPluginServices,
   { on, cleanup }: ActivateHelpers
 ) {
-  store = configureStore(services);
+  const store = configureStore(services);
 
-  const onSignedOut = () => store.dispatch(signedOut());
   const onTokenRefreshFailed = () => store.dispatch(tokenRefreshFailed());
 
   if (ipcRenderer) {
     on(ipcRenderer, 'atlas-service-token-refresh-failed', onTokenRefreshFailed);
-    on(ipcRenderer, 'atlas-service-signed-out', onSignedOut);
   }
 
-  // Restore the sign-in state when plugin is activated
+  // Restore the sign-in state when the plugin is activated
   void store.dispatch(restoreSignInState());
 
-  return { store, deactivate: cleanup };
+  return { store, deactivate: cleanup, context: AtlasSignInStoreContext };
 }
 
-export function configureStore({ atlasAuthService }: AtlasAuthPluginServices) {
+export function configureStore({
+  atlasAuthService,
+  track = createNoopTrack(),
+}: AtlasAuthPluginServices) {
   const store = createStore(
     reducer,
-    applyMiddleware(thunk.withExtraArgument({ atlasAuthService }))
+    applyMiddleware(thunk.withExtraArgument({ atlasAuthService, track }))
   );
   return store;
 }

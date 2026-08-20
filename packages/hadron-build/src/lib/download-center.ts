@@ -29,8 +29,10 @@ export function getDownloadCenter(
 
   return new DownloadCenter({
     ...bucketConfig,
-    accessKeyId: process.env.DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY,
+    credentials: {
+      accessKeyId: process.env.DOWNLOAD_CENTER_AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.DOWNLOAD_CENTER_AWS_SECRET_ACCESS_KEY,
+    },
   } as unknown as ConstructorParameters<typeof DownloadCenter>[0]);
 }
 
@@ -45,9 +47,11 @@ function getDownloadCenterNew(
 
   return new DownloadCenter({
     ...bucketConfig,
-    accessKeyId: process.env.DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY,
-    sessionToken: process.env.DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN,
+    credentials: {
+      accessKeyId: process.env.DOWNLOAD_CENTER_NEW_AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.DOWNLOAD_CENTER_NEW_AWS_SECRET_ACCESS_KEY,
+      sessionToken: process.env.DOWNLOAD_CENTER_NEW_AWS_SESSION_TOKEN,
+    },
   } as unknown as ConstructorParameters<typeof DownloadCenter>[0]);
 }
 

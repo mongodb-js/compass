@@ -164,7 +164,6 @@ export const editorPalette = {
     disabledColor: codePalette.light[2],
     disabledBackgroundColor: codePalette.light[1],
     gutterColor: codePalette.light[3],
-    gutterBackgroundColor: codePalette.light[0],
     gutterActiveLineBackgroundColor: rgba(palette.gray.light2, 0.5),
     gutterFoldButtonColor: palette.black,
     cursorColor: palette.gray.base,
@@ -190,7 +189,6 @@ export const editorPalette = {
     disabledColor: codePalette.dark[3],
     disabledBackgroundColor: palette.gray.dark3,
     gutterColor: codePalette.dark[3],
-    gutterBackgroundColor: codePalette.dark[0],
     gutterActiveLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
     gutterFoldButtonColor: palette.white,
     cursorColor: palette.green.base,
@@ -250,7 +248,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '& .cm-gutters': {
         color: editorPalette[theme].gutterColor,
-        backgroundColor: editorPalette[theme].gutterBackgroundColor,
+        backgroundColor: 'transparent',
         border: 'none',
       },
       '& .cm-gutter-lint': {
@@ -584,7 +582,7 @@ const highlightStyles = {
 } as const;
 
 // We don't have any other cases we need to support in a base editor
-type EditorLanguage = 'json' | 'javascript' | 'javascript-expression';
+export type EditorLanguage = 'json' | 'javascript' | 'javascript-expression';
 
 /**
  * *Note*: Action only works when linting has been enabled

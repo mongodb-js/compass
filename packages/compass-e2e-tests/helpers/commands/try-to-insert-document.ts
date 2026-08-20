@@ -18,7 +18,7 @@ export async function tryToInsertDocument(
   if (document) {
     // set the text in the editor
     await browser.setCodemirrorEditorValue(
-      Selectors.InsertJSONEditor,
+      Selectors.InsertDocumentEditor,
       document
     );
   }

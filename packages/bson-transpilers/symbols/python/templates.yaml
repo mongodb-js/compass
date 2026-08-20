@@ -35,8 +35,8 @@ Templates:
         delete spec.options;
         delete spec.exportMode;
 
-        const connect = `client = MongoClient('${options.uri}')`;
-        const coll = `client['${options.database}']['${options.collection}']`;
+        const connect = `client = MongoClient(${this.toStringLiteral(options.uri)})`;
+        const coll = `client[${this.toStringLiteral(options.database)}][${this.toStringLiteral(options.collection)}]`;
 
         let driverMethod;
         switch (exportMode) {
@@ -139,7 +139,7 @@ Templates:
         (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
         newStr = str.substr(1, str.length - 2);
       }
-      return `'${newStr.replace(/\\([\s\S])|(")/g, '\\$1$2')}'`;
+      return `'${newStr.replace(/\\[\s\S]|['\n\r]/g, (m) => m.length === 2 ? m : m === '\n' ? '\\n' : m === '\r' ? '\\r' : '\\' + m)}'`;
     }
   RegexTypeTemplate: !!js/function &RegexTypeTemplate >
     (pattern, flags) => {
