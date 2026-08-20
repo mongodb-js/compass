@@ -5,6 +5,7 @@ const generalFields = [
   'readOnly',
   'enableShell',
   'protectConnectionStrings',
+  'timezone',
   'defaultSortOrder',
   'showKerberosPasswordField',
   'maxTimeMS',
