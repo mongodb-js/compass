@@ -404,6 +404,10 @@ const InstanceModel = AmpersandModel.extend(
       return this.preferences.getPreferences().inferNamespacesFromPrivileges;
     },
 
+    shouldShowHiddenNamespaces() {
+      return this.preferences.getPreferences().showHiddenNamespaces;
+    },
+
     removeAllListeners() {
       InstanceModel.removeAllListeners(this);
     },
