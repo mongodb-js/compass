@@ -3,6 +3,7 @@ import type Electron from 'electron';
 import { URL, URLSearchParams } from 'url';
 import type {
   AuthFlowType,
+  MongoDBOIDCError,
   MongoDBOIDCPlugin,
   MongoDBOIDCPluginOptions,
 } from '@mongodb-js/oidc-plugin';
@@ -312,6 +313,8 @@ export class CompassAuthService {
 
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
+        const startedAt = Date.now();
+
         try {
           const tokens = await this.requestOAuthToken({ signal });
           this.currentUser = this.getUserInfoFromAccessToken(
@@ -323,14 +326,19 @@ export class CompassAuthService {
             'Signed in successfully'
           );
           const { auid } = getTrackingUserInfo(this.currentUser);
-          track('Atlas Sign In Success', { auid });
+          track('Atlas Sign In Success', {
+            auid,
+            duration: Date.now() - startedAt,
+          });
           await this.preferences.savePreferences({
             telemetryAtlasUserId: auid,
           });
           return this.currentUser;
         } catch (err) {
+          const error = err as Error & Partial<MongoDBOIDCError>;
           track('Atlas Sign In Error', {
-            error: (err as Error).message,
+            error: error.message,
+            error_code: error.codeName ?? error.name,
           });
           log.error(
             mongoLogId(1_001_000_220),
