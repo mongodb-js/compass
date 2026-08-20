@@ -88,10 +88,9 @@ export type DatabaseDetails = {
   name: string;
   collection_count: number;
   document_count: number;
-  // Undefined when the server did not report it: Atlas disaggregated storage
-  // clusters filter `storageSize` out of `dbStats` for non-internal users, and a
-  // fabricated 0 would read as "this database uses no storage".
-  storage_size: number | undefined;
+  // Undefined when the server did not report it.
+  // DSC filters `storageSize` out of `dbStats` for non-internal users.
+  storage_size?: number;
   data_size: number;
   index_count: number;
   index_size: number;

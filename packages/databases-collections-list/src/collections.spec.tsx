@@ -15,75 +15,23 @@ import {
 } from 'compass-preferences-model/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { CollectionProps } from 'mongodb-collection-model';
-
-import { inspectTable, testSortColumn } from '../test/utils';
-
-function createCollection(
-  name: string,
-  props: Partial<CollectionProps> = {}
-): CollectionProps {
-  const col = {
-    _id: name,
-    name: name,
-    type: 'collection' as const,
-    status: 'ready' as const,
-    statusError: null,
-    ns: `db.${name}`,
-    database: 'db',
-    system: true,
-    oplog: true,
-    command: true,
-    special: false,
-    specialish: false,
-    normal: false,
-    readonly: false,
-    view_on: null,
-    collation: '',
-    pipeline: [],
-    validation: '',
-    properties: [],
-    is_capped: false,
-    isTimeSeries: false,
-    isView: false,
-    inferred_from_privileges: false,
-    /** Only relevant for a view and identifies collection/view from which this view was created. */
-    sourceName: null,
-    source: {} as any,
-    // collStats
-    document_count: 10,
-    document_size: 11,
-    avg_document_size: 150,
-    storage_size: 2500,
-    free_storage_size: 1000,
-    index_count: 15,
-    index_size: 16,
-    calculated_storage_size: undefined,
-    bucket_count: undefined,
-    avg_bucket_size: undefined,
-    ...props,
-  };
-
-  return col;
-}
-
-function createTimeSeries(
-  name: string,
-  props: Partial<CollectionProps> = {}
-): CollectionProps {
-  return {
-    ...createCollection(name, props),
-    type: 'timeseries' as const,
-  };
-}
+import {
+  inspectTable,
+  testSortColumn,
+  createCollection,
+  createTimeSeries,
+} from '../test/utils';
 const colls: CollectionProps[] = [
-  createCollection('foo', {
+  createCollection({
+    name: 'foo',
     storage_size: 1000,
     document_count: 10,
     avg_document_size: 100,
     index_count: 5,
     index_size: 500,
   }),
-  createCollection('garply', {
+  createCollection({
+    name: 'garply',
     storage_size: 1000,
     document_count: 0,
     avg_document_size: 0,
@@ -91,7 +39,8 @@ const colls: CollectionProps[] = [
     index_size: 0,
     inferred_from_privileges: true,
   }),
-  createCollection('bar', {
+  createCollection({
+    name: 'bar',
     storage_size: undefined,
     document_count: undefined,
     avg_document_size: undefined,
@@ -101,7 +50,8 @@ const colls: CollectionProps[] = [
     view_on: 'foo',
     properties: [{ id: 'view' }],
   }),
-  createTimeSeries('baz', {
+  createTimeSeries({
+    name: 'baz',
     storage_size: 5000,
     document_count: undefined,
     avg_document_size: undefined,
@@ -112,7 +62,8 @@ const colls: CollectionProps[] = [
     avg_bucket_size: 100,
     properties: [{ id: 'timeseries' }],
   }),
-  createCollection('qux', {
+  createCollection({
+    name: 'qux',
     storage_size: 7000,
     document_count: undefined,
     avg_document_size: undefined,
@@ -120,7 +71,8 @@ const colls: CollectionProps[] = [
     index_size: 17000,
     properties: [{ id: 'capped' }],
   }),
-  createCollection('quux', {
+  createCollection({
+    name: 'quux',
     storage_size: 6000,
     document_count: undefined,
     avg_document_size: undefined,
@@ -128,7 +80,8 @@ const colls: CollectionProps[] = [
     index_size: 10000000,
     properties: [{ id: 'collation' }],
   }),
-  createCollection('corge', {
+  createCollection({
+    name: 'corge',
     storage_size: 4000,
     document_count: undefined,
     avg_document_size: undefined,
@@ -136,7 +89,8 @@ const colls: CollectionProps[] = [
     index_size: 555,
     properties: [{ id: 'clustered' }],
   }),
-  createCollection('grault', {
+  createCollection({
+    name: 'grault',
     storage_size: 2000,
     document_count: undefined,
     avg_document_size: undefined,
@@ -144,14 +98,16 @@ const colls: CollectionProps[] = [
     index_size: 333333,
     properties: [{ id: 'fle2' }],
   }),
-  createCollection('waldo', {
+  createCollection({
+    name: 'waldo',
     storage_size: 100,
     document_count: 27,
     avg_document_size: 10000,
     index_count: 5,
     index_size: 123456,
   }),
-  createCollection('fred', {
+  createCollection({
+    name: 'fred',
     storage_size: 200,
     document_count: 13,
     avg_document_size: 5000,
@@ -249,11 +205,13 @@ describe('Collections', () => {
   it('hides the Storage size column when no collection reports one', () => {
     renderCollectionsList({
       collections: [
-        createCollection('filtered', {
+        createCollection({
+          name: 'filtered',
           storage_size: undefined,
           free_storage_size: undefined,
         }),
-        createCollection('also-filtered', {
+        createCollection({
+          name: 'also-filtered',
           storage_size: undefined,
           free_storage_size: undefined,
         }),
@@ -269,13 +227,17 @@ describe('Collections', () => {
   it('keeps the Storage size column when only views lack a storage size', () => {
     renderCollectionsList({
       collections: [
-        createCollection('a-view', {
+        createCollection({
+          name: 'a-view',
           storage_size: undefined,
           type: 'view',
           view_on: 'foo',
           properties: [{ id: 'view' }],
         }),
-        createCollection('a-collection', { storage_size: 1000 }),
+        createCollection({
+          name: 'a-collection',
+          storage_size: 1000,
+        }),
       ],
     });
 
@@ -287,8 +249,12 @@ describe('Collections', () => {
   it('renders "-" for a collection whose storage size was not reported', () => {
     renderCollectionsList({
       collections: [
-        createCollection('reported', { storage_size: 1000 }),
-        createCollection('not-reported', {
+        createCollection({
+          name: 'reported',
+          storage_size: 1000,
+        }),
+        createCollection({
+          name: 'not-reported',
           storage_size: undefined,
           free_storage_size: undefined,
         }),
@@ -303,7 +269,8 @@ describe('Collections', () => {
   it('renders Storage size without the total/used/free breakdown when free storage size is missing', () => {
     renderCollectionsList({
       collections: [
-        createCollection('no-free-storage-size', {
+        createCollection({
+          name: 'no-free-storage-size',
           storage_size: 4266,
           free_storage_size: undefined,
         }),

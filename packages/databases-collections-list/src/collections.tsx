@@ -473,12 +473,14 @@ function collectionColumns({
     },
   ];
 
-  return columns.filter((column) => {
-    if (showStorageSize) {
-      return true;
-    }
-    return !('accessorKey' in column && column.accessorKey === 'storage_size');
-  });
+  if (!showStorageSize) {
+    return columns.filter(
+      (column) =>
+        !('accessorKey' in column && column.accessorKey === 'storage_size')
+    );
+  }
+
+  return columns;
 }
 
 const CollectionsList: React.FunctionComponent<{
@@ -503,11 +505,7 @@ const CollectionsList: React.FunctionComponent<{
 
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const darkMode = useDarkMode();
-  // Views never report a storage size, so they must not influence the decision:
-  // a database holding only views would otherwise lose the column.
-  const showStorageSize = shouldShowStorageSizeColumn(
-    collections.filter((collection) => collection.type !== 'view')
-  );
+  const showStorageSize = shouldShowStorageSizeColumn(collections);
   const columns = React.useMemo(
     () =>
       collectionColumns({ darkMode, enableDbAndCollStats, showStorageSize }),

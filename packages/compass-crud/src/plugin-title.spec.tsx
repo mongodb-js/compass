@@ -21,14 +21,11 @@ async function renderTitleAndOpenTooltip(collectionStats: unknown) {
   // container itself would not open it.
   userEvent.hover(screen.getByText('10'));
 
-  await waitFor(
-    function () {
-      expect(screen.getByRole('tooltip')).to.exist;
-    },
-    { timeout: 5000 }
-  );
+  await waitFor(() => {
+    expect(screen.getByTestId('collection-stats-tooltip')).to.exist;
+  });
 
-  return screen.getByRole('tooltip').textContent ?? '';
+  return screen.getByTestId('collection-stats-tooltip').textContent ?? '';
 }
 
 describe('CrudTabTitle', function () {
@@ -48,8 +45,6 @@ describe('CrudTabTitle', function () {
   });
 
   it('omits the storage size when the server did not report it', async function () {
-    // Atlas disaggregated storage clusters filter storageSize out of $collStats
-    // for non-internal users. Showing "0 B" or "N/A" would both be misleading.
     const tooltipText = await renderTitleAndOpenTooltip({
       document_count: 10,
       storage_size: undefined,

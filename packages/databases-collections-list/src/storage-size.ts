@@ -1,26 +1,24 @@
+import type { CollectionProps } from 'mongodb-collection-model';
+import type { DatabaseProps } from 'mongodb-database-model';
+
 /**
- * Atlas disaggregated storage ("Infinite") clusters filter `storageSize` out of
- * `dbStats` and `$collStats` for non-internal users, because the value describes
- * space in the shared storage layer rather than anything the customer can act
- * on. Rather than detecting the cluster type — which a client cannot do reliably
- * for every user role — we decide from the data: if nothing reports a storage
- * size, the column has nothing to say and is dropped.
- *
- * Rows are only considered once their stats have been fetched, so the column
- * does not disappear and reappear while a list is still loading.
+ * Decides whether to show the storage size column in the databases and collections lists.
+ * If none of the items have a storage size, the column is hidden.
  */
 export function shouldShowStorageSizeColumn(
-  items: { status: string; storage_size?: number | undefined }[]
+  items: (DatabaseProps | CollectionProps)[]
 ): boolean {
-  const withFetchedStats = items.filter((item) => {
-    return item.status === 'ready' || item.status === 'refreshing';
-  });
+  const withFetchedStats = items.filter(
+    (item) =>
+      ['ready', 'refreshing'].includes(item.status) &&
+      // Views never report a storage size, so they must not influence the decision:
+      // a database holding only views would otherwise lose the column.
+      ('type' in item ? item.type !== 'view' : true)
+  );
 
   if (withFetchedStats.length === 0) {
     return true;
   }
 
-  return withFetchedStats.some((item) => {
-    return item.storage_size !== undefined;
-  });
+  return withFetchedStats.some((item) => item.storage_size !== undefined);
 }

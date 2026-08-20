@@ -201,12 +201,14 @@ function databaseColumns({
     },
   ];
 
-  return columns.filter((column) => {
-    if (showStorageSize) {
-      return true;
-    }
-    return !('accessorKey' in column && column.accessorKey === 'storage_size');
-  });
+  if (!showStorageSize) {
+    return columns.filter(
+      (column) =>
+        !('accessorKey' in column && column.accessorKey === 'storage_size')
+    );
+  }
+
+  return columns;
 }
 
 const DatabasesList: React.FunctionComponent<{

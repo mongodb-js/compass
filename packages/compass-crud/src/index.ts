@@ -50,10 +50,7 @@ const CompassDocumentsPluginProvider = registerCompassPlugin(
     activate: activateDocumentsPlugin,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<
-      RequiredDataServiceProps,
-      OptionalDataServiceProps
-    >,
+    dataService: dataServiceLocator,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,
     logger: createLoggerLocator('COMPASS-CRUD-UI'),

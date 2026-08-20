@@ -1234,14 +1234,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
           },
         },
         nindexes: { $max: '$storageStats.nindexes' },
-        // Atlas disaggregated storage clusters filter storageSize and
-        // freeStorageSize out of $collStats for non-internal users. The
-        // accumulators above have to stay $sum to add up per-shard values, but
-        // $toDouble turns a *missing* field into null and $sum turns that into 0
-        // — so without these probes we cannot tell an omitted field from a
-        // genuine zero, and would report "0 B" for a collection holding data.
-        // $type reports "missing" for absent fields. $first is enough because
-        // the filtering is cluster-wide, so every shard answers the same way.
+        // DSC filter storageSize and eeStorageSize out of $collStats for
+        // non-internal users. $type reports "missing" for absent fields.
+        // $first is enough because the filtering is cluster-wide.
         storageSizeType: { $first: { $type: '$storageStats.storageSize' } },
         freeStorageSizeType: {
           $first: { $type: '$storageStats.freeStorageSize' },
