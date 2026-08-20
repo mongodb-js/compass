@@ -27,13 +27,9 @@ export function buildProjectSettingsUrl({
 
 export function buildNetworkAccessListUrl({
   projectId,
-  params,
-}: Pick<AtlasClusterMetadata, 'projectId'> & {
-  params?: Record<string, string>;
-}): string {
+}: Pick<AtlasClusterMetadata, 'projectId'>): string {
   const url = new URL(`/v2/${projectId}`, window.location.origin);
-  const query = params ? `?${new URLSearchParams(params)}` : '';
-  return `${url}#/security/network/accessList${query}`;
+  return `${url}#/security/network/accessList`;
 }
 
 export function buildMonitoringUrl({

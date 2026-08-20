@@ -91,18 +91,12 @@ async function getClusterInfo(
       clusterName: string;
       clusterState: string;
     }
-  | {
-      clusterNotFound: true;
-    }
+  | undefined
 > {
   const result = await atlasAdminApi.getProjectIdAndClusterName(
     connectionString
   );
-  if (!result) {
-    return {
-      clusterNotFound: true,
-    };
-  }
+  if (!result) return;
 
   const { projectId, clusterName } = result;
 
@@ -111,14 +105,14 @@ async function getClusterInfo(
     clusterName
   );
 
-  return await Promise.resolve({
+  return {
     projectId,
     clusterName,
     clusterState: mapClusterStateToDebugResultState({
       state: clusterDetails.state,
       paused: clusterDetails.paused,
     }),
-  });
+  };
 }
 
 async function getNetworkAccessInfo({
@@ -199,7 +193,7 @@ export async function debugConnection(
   atlasAdminApi: AtlasAdminApiService
 ): Promise<AtlasConnectionDebugResult> {
   const clusterInfo = await getClusterInfo(connectionString, atlasAdminApi);
-  if ('clusterNotFound' in clusterInfo) {
+  if (!clusterInfo) {
     return {
       clusterName: 'Unknown',
       clusterState: 'Unknown',

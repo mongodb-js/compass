@@ -89,7 +89,7 @@ describe('CompassAuthServiceMain', function () {
 
     oidcCallback = sandbox.stub().resolves({ accessToken, refreshToken });
     pluginOptions = undefined;
-    CompassAuthService['createMongoDBOIDCPlugin'] = ((options: {
+    CompassAuthService['createMongoDBOIDCPlugin'] = (options: {
       serializedState?: string;
     }) => {
       pluginOptions = options;
@@ -99,7 +99,7 @@ describe('CompassAuthServiceMain', function () {
           authMechanismProperties: { OIDC_HUMAN_CALLBACK: oidcCallback },
         },
       };
-    }) as any;
+    };
 
     CompassAuthService['config'] = defaultConfig;
 

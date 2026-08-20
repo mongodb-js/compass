@@ -98,7 +98,6 @@ describe('url-builders', function () {
       expect(
         buildNetworkAccessListUrl({
           projectId: 'proj123',
-          params: { highlight: 'nativeReranking' },
         })
       ).to.equal(
         `${TEST_ORIGIN}/v2/proj123#/security/network/accessList?highlight=nativeReranking`
