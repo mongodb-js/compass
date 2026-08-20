@@ -70,6 +70,7 @@ export type { AtlasUserInfo } from './renderer';
 export {
   useAtlasSignedInUser,
   useAtlasLoginActions,
+  useIsAtlasSignInStateResolved,
 } from './store/atlas-signin-store-context';
 export type { AtlasLoginActions } from './store/atlas-signin-store-context';
 export { AtlasConnectionStatus } from './components/atlas-connection-status';
