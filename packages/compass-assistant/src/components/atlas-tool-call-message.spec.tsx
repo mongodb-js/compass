@@ -63,9 +63,9 @@ describe('AtlasToolCallMessage', function () {
   }
 
   const debugResultOutput = {
-    cluster: 'Cluster0',
-    clusterState: 'paused',
-    ipAccessAllowed: true,
+    clusterName: 'Cluster0',
+    clusterState: 'PAUSED',
+    ipAccessStatus: 'Client IP Allowed',
   };
 
   function renderMessage(

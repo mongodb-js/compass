@@ -17,20 +17,30 @@ export const debugConnectionDescription = `
   2. If the url contains any links present the links in the advice as part of your response, with a 1-line explanation.
 `;
 
-export type IpAccessAllowed = 'Client IP Allowed' | 'Could not confirm';
+export type IpAccessStatus = 'Client IP Allowed' | 'Could not confirm';
 
 export type NetworkAccessDetails = {
   networkAccessList: AtlasAccessListEntry[];
   userIp?: string;
 };
 
+type Links = {
+  clusterOverview?: string;
+  networkAccessList?: string;
+};
+
 export type AtlasConnectionDebugResult = {
   clusterName: string;
   clusterState: string;
-  ipAccessAllowed: IpAccessAllowed;
+  ipAccessStatus: IpAccessStatus;
   advice?: string;
   networkAccessDetails?: NetworkAccessDetails;
+  links?: Links;
 };
+
+function isIPAccessAllowed(ipAccessStatus: IpAccessStatus): boolean {
+  return ipAccessStatus === 'Client IP Allowed';
+}
 
 function mapClusterStateToDebugResultState({
   state,
@@ -122,14 +132,14 @@ async function getNetworkAccessInfo({
   projectId: string;
   atlasAdminApi: AtlasAdminApiService;
 }): Promise<{
-  ipAccessAllowed: IpAccessAllowed;
+  ipAccessStatus: IpAccessStatus;
   networkAccessDetails: NetworkAccessDetails;
 }> {
   const ipAccessList = await atlasAdminApi.getProjectIPAccessList(projectId);
   // TODO(COMPASS-10981): replace with Atlas Admin API once it's ready
   const userIp = '1.2.3.4';
   return {
-    ipAccessAllowed:
+    ipAccessStatus:
       ipAccessList && userIp && isUserIpIncluded(ipAccessList, userIp)
         ? 'Client IP Allowed'
         : 'Could not confirm',
@@ -140,47 +150,67 @@ async function getNetworkAccessInfo({
   };
 }
 
-function getAdvice({
-  clusterState,
-  ipAccessAllowed,
+function getLinks({
   projectId,
   clusterName,
+  ipAccessStatus,
 }: {
-  clusterState: string;
-  ipAccessAllowed: IpAccessAllowed;
   projectId: string;
   clusterName: string;
+  ipAccessStatus: IpAccessStatus;
+}): Links {
+  return {
+    clusterOverview: buildClusterOverviewUrl({ projectId, clusterName }),
+    ...(!isIPAccessAllowed(ipAccessStatus)
+      ? { networkAccessList: buildNetworkAccessListUrl({ projectId }) }
+      : undefined),
+  };
+}
+
+function getAdvice({
+  clusterState,
+  ipAccessStatus,
+  links,
+}: {
+  clusterState: string;
+  ipAccessStatus: IpAccessStatus;
+  projectId: string;
+  clusterName: string;
+  links?: Links;
 }): string {
   const advice = [];
 
-  const clusterOverviewUrl = buildClusterOverviewUrl({
-    projectId,
-    clusterName,
-  });
-  const networkAccessListUrl = buildNetworkAccessListUrl({ projectId });
-
   if (clusterState === 'PAUSED') {
     advice.push('The cluster is currently paused.');
-    if (clusterOverviewUrl) {
-      advice.push(`You can resume it in the Atlas UI: ${clusterOverviewUrl}.`);
+    if (links?.clusterOverview) {
+      advice.push(
+        `You can resume it in the Atlas UI: ${links.clusterOverview}.`
+      );
     }
   }
   if (clusterState === 'CREATING') {
     advice.push(
       'The cluster is being provisioned. Wait until it is ready before attempting to connect.'
     );
-    if (clusterOverviewUrl) {
-      advice.push(`See the status in the Atlas UI: ${clusterOverviewUrl}.`);
+    if (links?.clusterOverview) {
+      advice.push(`See the status in the Atlas UI: ${links.clusterOverview}.`);
     }
   }
 
-  if (ipAccessAllowed !== 'Client IP Allowed') {
+  if (clusterState === 'DELETING') {
+    advice.push('The cluster is being deleted.');
+    if (links?.clusterOverview) {
+      advice.push(`See the status in the Atlas UI: ${links.clusterOverview}.`);
+    }
+  }
+
+  if (!isIPAccessAllowed(ipAccessStatus)) {
     advice.push(
       'We could not verify whether your network access is allowed. See the networkAccessDetails.'
     );
-    if (networkAccessListUrl) {
+    if (links?.networkAccessList) {
       advice.push(
-        `Add your IP address in the Atlas UI: ${networkAccessListUrl}.`
+        `Add your IP address in the Atlas UI: ${links.networkAccessList}.`
       );
     }
   }
@@ -197,26 +227,29 @@ export async function debugConnection(
     return {
       clusterName: 'Unknown',
       clusterState: 'Unknown',
-      ipAccessAllowed: 'Could not confirm',
+      ipAccessStatus: 'Could not confirm',
       advice: 'The cluster does not exist or you do not have access to it.',
     };
   }
   const { projectId, clusterName, clusterState } = clusterInfo;
-  const { ipAccessAllowed, networkAccessDetails } = await getNetworkAccessInfo({
+  const { ipAccessStatus, networkAccessDetails } = await getNetworkAccessInfo({
     projectId,
     atlasAdminApi,
   });
+  const links = getLinks({ projectId, clusterName, ipAccessStatus });
   return {
     clusterName,
     clusterState,
-    ipAccessAllowed,
+    ipAccessStatus,
+    links,
     advice: getAdvice({
       clusterState,
       projectId,
       clusterName,
-      ipAccessAllowed,
+      ipAccessStatus,
+      links,
     }),
-    ...(ipAccessAllowed !== 'Client IP Allowed'
+    ...(!isIPAccessAllowed(ipAccessStatus) && networkAccessDetails
       ? { networkAccessDetails }
       : {}),
   };

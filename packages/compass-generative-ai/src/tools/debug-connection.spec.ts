@@ -72,12 +72,6 @@ describe('debugConnection', function () {
     getProjectIPAccessList: Sinon.SinonStub;
   };
 
-  function mockUserIp(ip: string | undefined) {
-    sandbox.stub(globalThis, 'fetch').resolves({
-      json: () => Promise.resolve(ip ? { ip } : {}),
-    } as unknown as Response);
-  }
-
   function mockAtlasAdminApi(
     opts: {
       state?: AtlasClusterState;
@@ -106,7 +100,6 @@ describe('debugConnection', function () {
 
   beforeEach(function () {
     sandbox = Sinon.createSandbox();
-    mockUserIp(USER_IP);
   });
 
   afterEach(function () {
@@ -121,7 +114,7 @@ describe('debugConnection', function () {
     expect(result).to.deep.equal({
       clusterName: 'Unknown',
       clusterState: 'Unknown',
-      ipAccessAllowed: 'Could not confirm',
+      ipAccessStatus: 'Could not confirm',
       advice: 'The cluster does not exist or you do not have access to it.',
     });
     expect(atlasAdminApi.getClusterState).to.not.have.been.called;
@@ -170,7 +163,7 @@ describe('debugConnection', function () {
     });
   }
 
-  describe('ipAccessAllowed', function () {
+  describe('ipAccessStatus', function () {
     it('is allowed when the user ip is on the access list', async function () {
       const api = mockAtlasAdminApi({
         ipAccessList: [{ ipAddress: '9.9.9.9' }, { ipAddress: USER_IP }],
@@ -178,7 +171,7 @@ describe('debugConnection', function () {
 
       const result = await debugConnection(CONNECTION_STRING, api);
 
-      expect(result.ipAccessAllowed).to.equal('Client IP Allowed');
+      expect(result.ipAccessStatus).to.equal('Client IP Allowed');
     });
 
     it('cannot confirm when the user ip is not on the access list', async function () {
@@ -188,7 +181,7 @@ describe('debugConnection', function () {
 
       const result = await debugConnection(CONNECTION_STRING, api);
 
-      expect(result.ipAccessAllowed).to.equal('Could not confirm');
+      expect(result.ipAccessStatus).to.equal('Could not confirm');
     });
 
     it('cannot confirm when the access list is empty', async function () {
@@ -196,18 +189,45 @@ describe('debugConnection', function () {
 
       const result = await debugConnection(CONNECTION_STRING, api);
 
-      expect(result.ipAccessAllowed).to.equal('Could not confirm');
+      expect(result.ipAccessStatus).to.equal('Could not confirm');
     });
+  });
 
-    it.skip('cannot confirm when the user ip lookup fails', async function () {
-      sandbox.restore();
-      sandbox = Sinon.createSandbox();
-      sandbox.stub(globalThis, 'fetch').rejects(new Error('offline'));
+  describe('links', function () {
+    it('always links to the cluster overview', async function () {
       const api = mockAtlasAdminApi({ ipAccessList: [{ ipAddress: USER_IP }] });
 
       const result = await debugConnection(CONNECTION_STRING, api);
 
-      expect(result.ipAccessAllowed).to.equal('Could not confirm');
+      expect(result.links?.clusterOverview).to.equal(
+        `${window.location.origin}/v2/p1#/clusters/detail/cluster0`
+      );
+    });
+
+    it('omits the network access list link when the client ip is allowed', async function () {
+      const api = mockAtlasAdminApi({ ipAccessList: [{ ipAddress: USER_IP }] });
+
+      const result = await debugConnection(CONNECTION_STRING, api);
+
+      expect(result.links).to.not.have.property('networkAccessList');
+    });
+
+    it('links to the network access list when access could not be confirmed', async function () {
+      const api = mockAtlasAdminApi({ ipAccessList: [] });
+
+      const result = await debugConnection(CONNECTION_STRING, api);
+
+      expect(result.links?.networkAccessList).to.equal(
+        `${window.location.origin}/v2/p1#/security/network/accessList`
+      );
+    });
+
+    it('are omitted entirely when the cluster could not be found', async function () {
+      const api = mockAtlasAdminApi({ projectIdAndClusterName: undefined });
+
+      const result = await debugConnection(CONNECTION_STRING, api);
+
+      expect(result).to.not.have.property('links');
     });
   });
 
@@ -232,20 +252,6 @@ describe('debugConnection', function () {
       expect(result.networkAccessDetails).to.deep.equal({
         networkAccessList: ipAccessList,
         userIp: USER_IP,
-      });
-    });
-
-    it.skip('reports an undefined user ip when the lookup fails', async function () {
-      sandbox.restore();
-      sandbox = Sinon.createSandbox();
-      sandbox.stub(globalThis, 'fetch').rejects(new Error('offline'));
-      const api = mockAtlasAdminApi({ ipAccessList: [] });
-
-      const result = await debugConnection(CONNECTION_STRING, api);
-
-      expect(result.networkAccessDetails).to.deep.equal({
-        networkAccessList: [],
-        userIp: undefined,
       });
     });
   });
@@ -290,6 +296,18 @@ describe('debugConnection', function () {
 
     it('links to the cluster overview page for a provisioning cluster', async function () {
       expect(await getAdvice({ state: 'CREATING' })).to.include(
+        `${window.location.origin}/v2/p1#/clusters/detail/cluster0`
+      );
+    });
+
+    it('explains a deleting cluster', async function () {
+      expect(await getAdvice({ state: 'DELETING' })).to.include(
+        'The cluster is being deleted.'
+      );
+    });
+
+    it('links to the cluster overview page for a deleting cluster', async function () {
+      expect(await getAdvice({ state: 'DELETING' })).to.include(
         `${window.location.origin}/v2/p1#/clusters/detail/cluster0`
       );
     });
