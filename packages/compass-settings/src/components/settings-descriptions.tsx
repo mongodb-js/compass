@@ -33,7 +33,7 @@ export function TimezoneDescription({
   value,
 }: PreferencesDescriptionProps<'timezone'>) {
   return (
-    <div className={containerStyles}>
+    <div className={containerStyles} data-testid="timezone-description">
       <span>The data will still always be stored in UTC.</span>
       {!!value && timezoneObservesDaylightSavings(value) && (
         <InlineDefinition
