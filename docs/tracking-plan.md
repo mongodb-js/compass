@@ -713,19 +713,21 @@ This event is fired when the AI response is generated.
 
 This event is fired when the Atlas connection troubleshooting has completed.
 
-| Property            | Type     | Required | Description |
-| ------------------- | -------- | -------- | ----------- |
-| `causes_identified` | `{}`     | Yes      |             |
-| `duration`          | `number` | Yes      |             |
+| Property            | Type                | Required | Description |
+| ------------------- | ------------------- | -------- | ----------- |
+| `causes_identified` | `{}`                | Yes      |             |
+| `duration`          | `number`            | Yes      |             |
+| `is_compass_web`    | `true \| undefined` | No       |             |
 
 ### Atlas Connection Troubleshooting Failed
 
 This event is fired when the Atlas connection troubleshooting has failed.
 
-| Property     | Type     | Required | Description |
-| ------------ | -------- | -------- | ----------- |
-| `error_name` | `string` | Yes      |             |
-| `error_code` | `string` | Yes      |             |
+| Property         | Type                | Required | Description |
+| ---------------- | ------------------- | -------- | ----------- |
+| `error_name`     | `string`            | Yes      |             |
+| `error_code`     | `string`            | Yes      |             |
+| `is_compass_web` | `true \| undefined` | No       |             |
 
 ## Atlas
 
