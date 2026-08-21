@@ -11,11 +11,11 @@ import { toJSString } from 'mongodb-query-parser';
 import { Icon, Link } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import { useLegacyUUIDDisplayContext } from './document-list/legacy-uuid-format-context';
 import {
   useBsonThemeStyles,
   wrapValueWithBsonLabel,
 } from './document-list/bson-utils';
+import { useBSONDisplayOptions } from './document-list/bson-display-options-context';
 
 type ValueProps =
   | {
@@ -113,7 +113,7 @@ const toLegacyPythonUUID = ({ value }: PropsByValueType<'Binary'>) => {
 const LegacyUUIDValue: React.FunctionComponent<PropsByValueType<'Binary'>> = (
   bsonValue
 ) => {
-  const legacyUUIDDisplayEncoding = useLegacyUUIDDisplayContext();
+  const { legacyUUIDDisplayEncoding } = useBSONDisplayOptions();
 
   const stringifiedValue = useMemo(() => {
     // UUID must be exactly 16 bytes.
