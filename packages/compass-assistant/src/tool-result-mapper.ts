@@ -11,11 +11,15 @@ export type ToolResultField =
 
 export type ToolResultFields = ToolResultField[];
 
-function linkOrText(
-  label: string,
-  value: string,
-  href?: string
-): ToolResultField {
+function getResultContent({
+  label,
+  value,
+  href,
+}: {
+  label: string;
+  value: string;
+  href?: string;
+}): ToolResultField {
   return href
     ? { type: 'link', label, value, href }
     : { type: 'text', label, value };
@@ -25,16 +29,19 @@ export function mapAtlasConnectionDebugResult(
   result: AtlasConnectionDebugResult
 ): ToolResultFields {
   return [
-    linkOrText('Cluster', result.clusterName, result.links?.clusterOverview),
     {
-      type: 'text',
+      label: 'Cluster',
+      value: result.clusterName,
+      href: result.links?.clusterOverview,
+    },
+    {
       label: 'State',
       value: result.clusterState,
     },
-    linkOrText(
-      'IP Access',
-      result.ipAccessStatus,
-      result.links?.networkAccessList
-    ),
-  ];
+    {
+      label: 'IP Access',
+      value: result.ipAccessStatus,
+      href: result.links?.networkAccessList,
+    },
+  ].map(getResultContent);
 }
