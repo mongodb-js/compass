@@ -16,6 +16,7 @@ import {
   wrapValueWithBsonLabel,
 } from './document-list/bson-utils';
 import { useBSONDisplayOptions } from './document-list/bson-display-options-context';
+import { DateWithTimezoneHint } from './document-list/date-with-timezone-hint';
 
 type ValueProps =
   | {
@@ -341,6 +342,10 @@ const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   );
 };
 
+const dateBsonValueStyles = css({
+  display: 'inline',
+});
+
 const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   value,
 }) => {
@@ -353,9 +358,15 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   }, [value]);
 
   return (
-    <BSONValueContainer type="Date" title={stringifiedValue}>
-      {wrapValueWithBsonLabel('Date', stringifiedValue)}
-    </BSONValueContainer>
+    <DateWithTimezoneHint value={value}>
+      <BSONValueContainer
+        className={dateBsonValueStyles}
+        type="Date"
+        title={stringifiedValue}
+      >
+        {wrapValueWithBsonLabel('Date', stringifiedValue)}
+      </BSONValueContainer>
+    </DateWithTimezoneHint>
   );
 };
 
