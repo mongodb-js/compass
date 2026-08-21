@@ -18,18 +18,41 @@ import { AtlasToolCallMessage } from './atlas-tool-call-message';
 class FakeAtlasAuthService {
   private user: AtlasUserInfo | null;
   public signIn: sinon.SinonStub;
+  public resolveSignIn: () => void = () => {};
 
   constructor({
     signedIn = false,
     signInSucceeds = true,
-  }: { signedIn?: boolean; signInSucceeds?: boolean } = {}) {
+    deferSignIn = false,
+  }: {
+    signedIn?: boolean;
+    signInSucceeds?: boolean;
+    deferSignIn?: boolean;
+  } = {}) {
     this.user = signedIn ? { sub: 'user-1' } : null;
     this.signIn = sinon.stub().callsFake(() => {
-      if (!signInSucceeds) {
-        return Promise.reject(new Error('sign-in failed'));
+      const complete = () => {
+        if (!signInSucceeds) {
+          throw new Error('sign-in failed');
+        }
+        this.user = { sub: 'user-1' };
+        return this.user;
+      };
+      if (!deferSignIn) {
+        return signInSucceeds
+          ? Promise.resolve(complete())
+          : Promise.reject(new Error('sign-in failed'));
       }
-      this.user = { sub: 'user-1' };
-      return Promise.resolve(this.user);
+      // Do not resolve immediately so we can test the in-progress flows
+      return new Promise<AtlasUserInfo>((resolve, reject) => {
+        this.resolveSignIn = () => {
+          try {
+            resolve(complete());
+          } catch (err) {
+            reject(err as Error);
+          }
+        };
+      });
     });
   }
 
@@ -73,13 +96,19 @@ describe('AtlasToolCallMessage', function () {
     {
       signedIn = false,
       signInSucceeds = true,
-    }: { signedIn?: boolean; signInSucceeds?: boolean } = {}
+      deferSignIn = false,
+    }: {
+      signedIn?: boolean;
+      signInSucceeds?: boolean;
+      deferSignIn?: boolean;
+    } = {}
   ) {
     const onApprove = sinon.stub();
     const onDeny = sinon.stub();
     const atlasAuthService = new FakeAtlasAuthService({
       signedIn,
       signInSucceeds,
+      deferSignIn,
     });
     const { renderWithConnections } = createPluginTestHelpers(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -214,6 +243,60 @@ describe('AtlasToolCallMessage', function () {
         expect(screen.getByText('Run')).to.exist;
       });
       userEvent.click(screen.getByText('Run'));
+
+      await waitFor(() => {
+        expect(onApprove).to.have.been.calledOnceWith('approval-1', true);
+      });
+    });
+  });
+
+  describe('while sign in is in progress', function () {
+    async function startSignIn(opts: { signedIn?: boolean } = {}) {
+      const rendered = renderMessage({}, { ...opts, deferSignIn: true });
+      const buttonLabel = opts.signedIn ? 'Run' : 'Connect to Atlas';
+      await waitFor(() => {
+        expect(screen.getByText(buttonLabel)).to.exist;
+      });
+      userEvent.click(screen.getByText(buttonLabel));
+      // Wait for the store to move into the 'in-progress' state, surfaced as the
+      // connecting message.
+      await waitFor(() => {
+        expect(
+          screen.getByText('Connecting with Atlas to debug this connection')
+        ).to.exist;
+      });
+      return rendered;
+    }
+
+    it('shows the connecting message', async function () {
+      const { atlasAuthService, onApprove } = await startSignIn();
+
+      expect(screen.getByText('Connecting with Atlas to debug this connection'))
+        .to.exist;
+
+      // Let the pending sign in settle so we don't leave a dangling attempt
+      atlasAuthService.resolveSignIn();
+      await waitFor(() => {
+        expect(onApprove).to.have.been.called;
+      });
+    });
+
+    it('hides the approval action buttons', async function () {
+      const { atlasAuthService, onApprove } = await startSignIn();
+
+      expect(screen.queryByText('Connect to Atlas')).to.not.exist;
+      expect(screen.queryByText('Skip')).to.not.exist;
+
+      atlasAuthService.resolveSignIn();
+      await waitFor(() => {
+        expect(onApprove).to.have.been.called;
+      });
+    });
+
+    it('resolves the approval once sign in completes', async function () {
+      const { onApprove, atlasAuthService } = await startSignIn();
+
+      atlasAuthService.resolveSignIn();
 
       await waitFor(() => {
         expect(onApprove).to.have.been.calledOnceWith('approval-1', true);

@@ -189,6 +189,7 @@ describe('atlasSignInReducer', function () {
 
   describe('sign in timeout', function () {
     let clock: Sinon.SinonFakeTimers;
+    const ENTRYPOINT = 'assistant-tool-atlas-connection-error-debugger';
 
     beforeEach(function () {
       clock = sandbox.useFakeTimers({ shouldAdvanceTime: true });
@@ -196,9 +197,10 @@ describe('atlasSignInReducer', function () {
 
     afterEach(function () {
       clock.restore();
+      sandbox.restore();
     });
 
-    it('should time out and reset the state if the flow does not complete in time', async function () {
+    async function driveToTimeout() {
       const isAuthenticatedStub = sandbox
         .stub()
         .callsFake(({ signal }: { signal: AbortSignal }) => {
@@ -208,33 +210,66 @@ describe('atlasSignInReducer', function () {
             });
           });
         });
+      const track = sandbox.stub();
+      const openToast = sandbox.stub();
+      sandbox.replaceGetter(compassComponents, 'openToast', () => openToast);
       const store = configureStore({
         atlasAuthService: { isAuthenticated: isAuthenticatedStub } as any,
+        track,
       });
 
-      const attemptPromise = store.dispatch(performSignInAttempt());
+      const attemptPromise = store.dispatch(
+        performSignInAttempt({ entrypoint: ENTRYPOINT })
+      );
 
       await clock.tickAsync(0);
       expect(store.getState()).to.have.nested.property('state', 'in-progress');
 
       // Advance past the timeout.
       await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+      const result = await attemptPromise;
+
+      return { store, track, openToast, result };
+    }
+
+    it('resets the state to timed out', async function () {
+      const { store, result } = await driveToTimeout();
 
       expect(store.getState()).to.have.nested.property('state', 'timed-out');
       expect(store.getState()).to.have.nested.property(
         'currentAttemptId',
         null
       );
-      expect(await attemptPromise).to.deep.equal({ status: 'timed-out' });
+      expect(result).to.deep.equal({ status: 'timed-out' });
+    });
+
+    it('tracks the timed out event with the entrypoint', async function () {
+      const { track } = await driveToTimeout();
+
+      expect(
+        track.withArgs('Atlas Sign In Timed Out', { entrypoint: ENTRYPOINT })
+      ).to.have.been.calledOnce;
+    });
+
+    it('shows a toast informing the user that sign in timed out', async function () {
+      const { openToast } = await driveToTimeout();
+
+      expect(openToast.withArgs('atlas-disconnected')).to.have.been.calledOnce;
+      expect(openToast.lastCall.args[1]).to.include({
+        title: 'The login to Atlas has timed out, please try again.',
+        variant: 'note',
+      });
     });
 
     it('should not time out if the flow completes before the timeout', async function () {
+      const track = sandbox.stub();
       const store = configureStore({
         atlasAuthService: {
           isAuthenticated: sandbox.stub().resolves(false),
           signIn: sandbox.stub().resolves({ sub: '1234' }),
           getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
         } as any,
+        track,
       });
 
       const result = await store.dispatch(performSignInAttempt());
@@ -243,6 +278,7 @@ describe('atlasSignInReducer', function () {
 
       await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
       expect(store.getState()).to.have.property('state', 'success');
+      expect(track).to.not.have.been.calledWith('Atlas Sign In Timed Out');
     });
   });
 
