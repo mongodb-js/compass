@@ -1758,6 +1758,32 @@ type AssistantToolCallApprovalEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when the Atlas connection troubleshooting has completed.
+ *
+ * @category Assistant
+ */
+type AtlasConnectionErrorTroubleshootingSuccessEvent = {
+  name: 'Atlas Connection Troubleshooting Success';
+  payload: {
+    causes_identified: string[];
+    duration: number;
+  };
+};
+
+/**
+ * This event is fired when the Atlas connection troubleshooting has failed.
+ *
+ * @category Assistant
+ */
+type AtlasConnectionErrorTroubleshootingFailedEvent = {
+  name: 'Atlas Connection Troubleshooting Failed';
+  payload: {
+    error_name: string;
+    error_code: string;
+  };
+};
+
+/**
  * This event is fired when a user submits feedback for a query generation.
  *
  * @category Gen AI
@@ -4181,6 +4207,8 @@ export type TelemetryEvent =
   | AssistantEntryPointUsedEvent
   | AssistantConfirmationSubmittedEvent
   | AssistantResponseGeneratedEvent
+  | AtlasConnectionErrorTroubleshootingSuccessEvent
+  | AtlasConnectionErrorTroubleshootingFailedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
   | AiGenerateQueryClickedEvent
