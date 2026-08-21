@@ -25,6 +25,13 @@ export function buildProjectSettingsUrl({
   return `${url}#/settings/groupSettings${query}`;
 }
 
+export function buildNetworkAccessListUrl({
+  projectId,
+}: Pick<AtlasClusterMetadata, 'projectId'>): string {
+  const url = new URL(`/v2/${projectId}`, window.location.origin);
+  return `${url}#/security/network/accessList`;
+}
+
 export function buildMonitoringUrl({
   projectId,
   clusterName,
@@ -42,7 +49,9 @@ export function buildClusterOverviewUrl({
   projectId,
   clusterName,
   metricsType,
-}: AtlasClusterMetadata): string {
+}: Pick<AtlasClusterMetadata, 'projectId' | 'clusterName'> & {
+  metricsType?: AtlasClusterMetadata['metricsType'];
+}): string {
   const url = new URL(`/v2/${projectId}`, window.location.origin);
   if (metricsType === 'flex') {
     return `${url}#/flex/detail/${clusterName}`;

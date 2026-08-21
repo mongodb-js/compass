@@ -11,27 +11,37 @@ export type ToolResultField =
 
 export type ToolResultFields = ToolResultField[];
 
+function getResultContent({
+  label,
+  value,
+  href,
+}: {
+  label: string;
+  value: string;
+  href?: string;
+}): ToolResultField {
+  return href
+    ? { type: 'link', label, value, href }
+    : { type: 'text', label, value };
+}
+
 export function mapAtlasConnectionDebugResult(
   result: AtlasConnectionDebugResult
 ): ToolResultFields {
   return [
     {
-      type: 'link',
       label: 'Cluster',
-      value: result.cluster || 'N/A',
-      href: `https://cloud.mongodb.com/`,
+      value: result.clusterName,
+      href: result.links?.clusterOverview,
     },
     {
-      type: 'text',
       label: 'State',
-      value: (result.clusterState || 'N/A').toUpperCase(),
+      value: result.clusterState,
     },
     {
-      type: 'text',
       label: 'IP Access',
-      value: result.ipAccessAllowed
-        ? 'Client IP allowed'
-        : 'Client IP not allowed',
+      value: result.ipAccessStatus,
+      href: result.links?.networkAccessList,
     },
-  ];
+  ].map(getResultContent);
 }
