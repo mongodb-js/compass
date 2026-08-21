@@ -17,6 +17,7 @@ import {
   type ToolGroup,
 } from '@mongodb-js/compass-generative-ai/provider';
 import { createNoopLogger } from '@mongodb-js/compass-logging/provider';
+import { createNoopTrack } from '@mongodb-js/compass-telemetry/provider';
 import { defaultPreferencesInstance } from 'compass-preferences-model';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { startTestServer } from '@mongodb-js/compass-test-server';
@@ -69,6 +70,7 @@ const toolsController = new ToolsController({
   enableTelemetry: false,
   preferences: defaultPreferencesInstance,
   atlasAdminApi: {} as AtlasAdminApiService,
+  track: createNoopTrack(),
 });
 
 let toolsInitialized = false;

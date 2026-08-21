@@ -50,6 +50,7 @@
   - [Assistant Confirmation Submitted](#assistant-confirmation-submitted)
   - [Assistant Response Generated](#assistant-response-generated)
 - [Atlas](#atlas)
+  - [Atlas Connection Troubleshooting Results](#atlas-connection-troubleshooting-results)
   - [Atlas Sign In Error](#atlas-sign-in-error)
   - [Atlas Sign In Prompt Shown](#atlas-sign-in-prompt-shown)
   - [Atlas Sign In Started](#atlas-sign-in-started)
@@ -705,6 +706,17 @@ This event is fired when the AI response is generated.
 | `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event. |
 
 ## Atlas
+
+### Atlas Connection Troubleshooting Results
+
+This event is fired when the Atlas connection troubleshooting flow finished
+diagnosing a connection failure.
+
+| Property           | Type                | Required | Description                                                                                                                    |
+| ------------------ | ------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `cluster_state`    | `string`            | Yes      | The state of the cluster the user tried to connect to, as reported by Atlas, or `Unknown` when the cluster could not be found. |
+| `ip_access_status` | `string`            | Yes      | Whether we could confirm that the user's IP address is allowed by the project's IP access list.                                |
+| `is_compass_web`   | `true \| undefined` | No       |                                                                                                                                |
 
 ### Atlas Sign In Error
 

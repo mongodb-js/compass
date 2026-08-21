@@ -19,6 +19,7 @@ describe('ToolsController', function () {
   let getTelemetryAnonymousId: sinon.SinonStub;
   let preferences: PreferencesAccess;
   let atlasAdminApi: AtlasAdminApiService;
+  let track: sinon.SinonStub;
 
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
@@ -26,6 +27,7 @@ describe('ToolsController', function () {
     getTelemetryAnonymousId = sandbox.stub().returns('test-anonymous-id');
     preferences = await createSandboxFromDefaultPreferences();
     atlasAdminApi = {} as AtlasAdminApiService;
+    track = sandbox.stub();
 
     toolsController = new ToolsController({
       enableTelemetry: false,
@@ -33,6 +35,7 @@ describe('ToolsController', function () {
       getTelemetryAnonymousId,
       preferences,
       atlasAdminApi,
+      track,
     });
   });
 
@@ -129,6 +132,37 @@ describe('ToolsController', function () {
         ).to.eq(false);
         expect(toolsController.getActiveTools()).to.not.have.property(
           'atlas-connection-error-debugger'
+        );
+      });
+
+      it('tracks the troubleshooting results the tool reported', async function () {
+        await preferences.savePreferences({
+          enableAtlasConnectionErrorDebugger: true,
+        });
+        atlasAdminApi.getProjectIdAndClusterName = sandbox
+          .stub()
+          .resolves({ projectId: 'project-1', clusterName: 'cluster-1' });
+        atlasAdminApi.getClusterState = sandbox
+          .stub()
+          .resolves({ state: 'IDLE', paused: true });
+        atlasAdminApi.getProjectIPAccessList = sandbox.stub().resolves([]);
+
+        const tool =
+          toolsController.getActiveTools()['atlas-connection-error-debugger'];
+        await tool.execute?.(
+          {
+            connectionString: 'mongodb+srv://cluster-1.abcde.mongodb.net',
+            errorMessage: 'connection timed out',
+          },
+          { toolCallId: 'tool-call-1', messages: [] }
+        );
+
+        expect(track).to.have.been.calledOnceWith(
+          'Atlas Connection Troubleshooting Results',
+          {
+            cluster_state: 'PAUSED',
+            ip_access_status: 'Could not confirm',
+          }
         );
       });
     });
@@ -256,6 +290,7 @@ describe('ToolsController', function () {
           getTelemetryAnonymousId,
           preferences,
           atlasAdminApi,
+          track,
         });
         newController.setActiveTools(new Set(['db-read']));
 
@@ -557,6 +592,7 @@ describe('ToolsController', function () {
           },
           preferences,
           atlasAdminApi,
+          track,
         });
 
         // Should not throw even if there's an error

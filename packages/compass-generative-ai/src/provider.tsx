@@ -12,6 +12,7 @@ import {
   createServiceProvider,
 } from '@mongodb-js/compass-app-registry';
 import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 const AtlasAiServiceContext = createContext<AtlasAiService | null>(null);
 
@@ -64,6 +65,7 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
     const atlasAdminApi = atlasAdminApiServiceLocator();
 
     const telemetryAnonymousId = usePreference('telemetryAnonymousId');
+    const track = useTelemetry();
 
     const toolsController = useMemo(() => {
       return new ToolsController({
@@ -73,8 +75,9 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
         enableTelemetry: false,
         preferences,
         atlasAdminApi,
+        track,
       });
-    }, [logger, telemetryAnonymousId, preferences, atlasAdminApi]);
+    }, [logger, telemetryAnonymousId, preferences, atlasAdminApi, track]);
 
     useEffect(() => {
       return () => {
