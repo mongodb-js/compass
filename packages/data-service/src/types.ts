@@ -6,8 +6,10 @@ export interface CollectionStats {
   document_count: number;
   document_size?: number;
   avg_document_size: number;
-  storage_size: number;
-  free_storage_size: number;
+  // Undefined when the server did not report the field.
+  // DSC filter both out of $collStats for non-internal users.
+  storage_size: number | undefined;
+  free_storage_size: number | undefined;
   index_count: number;
   index_size: number;
   bucket_count?: number;

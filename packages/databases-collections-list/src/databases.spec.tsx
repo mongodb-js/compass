@@ -14,56 +14,34 @@ import {
 } from 'compass-preferences-model/provider';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
 import type { DatabaseProps } from 'mongodb-database-model';
-import { inspectTable, testSortColumn } from '../test/utils';
-
-function createDatabase(name: string): DatabaseProps {
-  const db: DatabaseProps = {
-    _id: name,
-    name: name,
-    status: 'ready',
-    statusError: null,
-    collectionsLength: 35,
-    collectionsStatus: 'ready',
-    collectionsStatusError: null,
-    collection_count: 1,
-    collections: [] as any,
-    inferred_from_privileges: false,
-    // dbStats
-    document_count: 10,
-    storage_size: 1500,
-    data_size: 1000,
-    index_count: 25,
-    index_size: 100,
-  };
-  return db;
-}
+import { inspectTable, testSortColumn, createDatabase } from '../test/utils';
 
 const dbs: DatabaseProps[] = [
-  {
-    ...createDatabase('foo'),
+  createDatabase({
+    name: 'foo',
     storage_size: 5000,
     collectionsLength: 5,
     index_count: 5,
-  },
-  {
-    ...createDatabase('bar'),
+  }),
+  createDatabase({
+    name: 'bar',
     storage_size: 0,
     collectionsLength: 1,
     index_count: 10,
     inferred_from_privileges: true,
-  },
-  {
-    ...createDatabase('buz'),
+  }),
+  createDatabase({
+    name: 'buz',
     storage_size: 10000,
     collectionsLength: 10_001,
     index_count: 12,
-  },
-  {
-    ...createDatabase('bat'),
+  }),
+  createDatabase({
+    name: 'bat',
     storage_size: 7500,
     collectionsLength: 7,
     index_count: 9,
-  },
+  }),
 ];
 
 describe('Databases', function () {
@@ -105,6 +83,19 @@ describe('Databases', function () {
       refreshSpy,
     };
   };
+
+  it('renders "-" for a database whose storage size was not reported', function () {
+    renderDatabasesList({
+      databases: [
+        createDatabase({ name: 'reported', storage_size: 1500 }),
+        createDatabase({ name: 'not-reported', storage_size: undefined }),
+      ],
+    });
+
+    const result = inspectTable(screen, 'databases-list');
+
+    expect(result.getColumn('Storage size')).to.deep.equal(['1.50 kB', '-']);
+  });
 
   it('should render the database list', function () {
     const { clickSpy, deleteSpy, createSpy, refreshSpy } = renderDatabasesList({
