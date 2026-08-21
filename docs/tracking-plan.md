@@ -49,6 +49,8 @@
   - [Assistant Entry Point Used](#assistant-entry-point-used)
   - [Assistant Confirmation Submitted](#assistant-confirmation-submitted)
   - [Assistant Response Generated](#assistant-response-generated)
+  - [Atlas Connection Troubleshooting Success](#atlas-connection-troubleshooting-success)
+  - [Atlas Connection Troubleshooting Failed](#atlas-connection-troubleshooting-failed)
 - [Atlas](#atlas)
   - [Atlas Sign In Error](#atlas-sign-in-error)
   - [Atlas Sign In Prompt Shown](#atlas-sign-in-prompt-shown)
@@ -706,6 +708,24 @@ This event is fired when the AI response is generated.
 | `request_id`     | `string \| undefined` | No       |                                                    |
 | `is_compass_web` | `true \| undefined`   | No       |                                                    |
 | `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event. |
+
+### Atlas Connection Troubleshooting Success
+
+This event is fired when the Atlas connection troubleshooting has completed.
+
+| Property            | Type     | Required | Description |
+| ------------------- | -------- | -------- | ----------- |
+| `causes_identified` | `{}`     | Yes      |             |
+| `duration`          | `number` | Yes      |             |
+
+### Atlas Connection Troubleshooting Failed
+
+This event is fired when the Atlas connection troubleshooting has failed.
+
+| Property     | Type     | Required | Description |
+| ------------ | -------- | -------- | ----------- |
+| `error_name` | `string` | Yes      |             |
+| `error_code` | `string` | Yes      |             |
 
 ## Atlas
 
