@@ -53,6 +53,7 @@ type CloudPreferencesApiResponse = {
   userAuid: string;
   appUser: {
     isOptedIntoDataExplorerGenAIFeatures: boolean;
+    timeZoneId: string;
   };
   userRoles: {
     isDataAccessAdmin?: boolean;
@@ -143,6 +144,7 @@ export async function getPreferencesFromCloudApi(projectId: string) {
     atlasServiceBackendPreset: getAtlasServiceBackendPreset(),
     telemetryAtlasUserId: userAuid,
     optInGenAIFeatures: appUser.isOptedIntoDataExplorerGenAIFeatures,
+    timezone: appUser.timeZoneId,
     ...getPermissionsFromUserRoles(userRoles),
   };
   const atlasCloudProjectPreferences: Partial<AllPreferences> = {};

@@ -11,14 +11,14 @@ const uuidEditorInput = css({
   color: 'inherit',
 });
 
-export function UUIDEditor({ value, label, ...props }: EditorProps) {
+export function UUIDEditor({ value, type, ...props }: EditorProps) {
   const inputStyle = useMemo(() => {
     // UUID format is 36 characters (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
     return { width: `${Math.max(value.length, 36)}ch` };
   }, [value]);
 
   return (
-    <EditorWithLabel label={label}>
+    <EditorWithLabel type={type}>
       <InputEditor
         value={value}
         placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"

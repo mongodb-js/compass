@@ -1,5 +1,7 @@
 import React from 'react';
 import { css } from '@leafygreen-ui/emotion';
+import type { TypeCastMap } from 'hadron-type-checker';
+import { BSON_TYPE_LABEL, useBsonThemeStyles } from '../bson-utils';
 
 const containerStyles = css({
   display: 'inline-flex',
@@ -13,17 +15,19 @@ const labelStyles = css({
 });
 
 export function EditorWithLabel({
-  label,
+  type,
   children,
 }: {
-  label: string;
+  type: keyof TypeCastMap;
   children: React.ReactNode;
 }) {
+  const label = BSON_TYPE_LABEL[type];
+  const bsonStyles = useBsonThemeStyles(type);
   return (
-    <div className={containerStyles}>
-      <span className={labelStyles}>{label}(&apos;</span>
+    <div className={containerStyles} style={bsonStyles}>
+      {label && <span className={labelStyles}>{label}(&apos;</span>}
       {children}
-      <span className={labelStyles}>&apos;)</span>
+      {label && <span className={labelStyles}>&apos;)</span>}
     </div>
   );
 }

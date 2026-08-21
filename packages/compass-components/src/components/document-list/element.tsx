@@ -24,7 +24,7 @@ import VisibleFieldsToggle from './visible-field-toggle';
 import { hasDistinctValue } from 'mongodb-query-util';
 import { useContextMenuGroups } from '../context-menu';
 import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
-import { useLegacyUUIDDisplayContext } from './legacy-uuid-format-context';
+import { useBSONDisplayOptions } from './bson-display-options-context';
 
 function useElementEditor(
   el: HadronElementType,
@@ -38,8 +38,8 @@ function useElementEditor(
 
 function useHadronElement(el: HadronElementType) {
   const forceUpdate = useForceUpdate();
-  const legacyUUIDEncoding = useLegacyUUIDDisplayContext();
-  const displayType = getDisplayType(el, legacyUUIDEncoding);
+  const { legacyUUIDDisplayEncoding } = useBSONDisplayOptions();
+  const displayType = getDisplayType(el, legacyUUIDDisplayEncoding);
   const editor = useElementEditor(el, displayType);
   // NB: Duplicate key state is kept local to the component and not derived on
   // every change so that only the changed key is highlighed as duplicate

@@ -7,6 +7,7 @@ import {
 import {
   SORT_ORDER_VALUES,
   LEGACY_UUID_ENCODINGS,
+  TIMEZONES,
 } from 'compass-preferences-model/provider';
 import { settingStateLabels } from './state-labels';
 import {
@@ -20,14 +21,20 @@ import {
   Option,
   FormFieldContainer,
   Badge,
+  Combobox,
+  ComboboxOption,
+  Icon,
 } from '@mongodb-js/compass-components';
 import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
 import { connect } from 'react-redux';
+import type { SettingsDescriptionComponent } from '../settings-descriptions';
+import { SETTINGS_DESCRIPTIONS_MAP } from '../settings-descriptions';
 
 const ENUM_PREFERENCE_CONFIG = {
   defaultSortOrder: SORT_ORDER_VALUES,
   legacyUUIDDisplayEncoding: LEGACY_UUID_ENCODINGS,
+  timezone: TIMEZONES,
 } as const;
 
 type KeysMatching<T, V> = keyof {
@@ -47,7 +54,7 @@ type StringPreferences = KeysMatching<
   string | undefined
 >;
 type StringEnumPreferences = keyof typeof ENUM_PREFERENCE_CONFIG;
-type SupportedPreferences =
+export type SupportedPreferences =
   | BooleanPreferences
   | NumericPreferences
   | StringPreferences;
@@ -79,8 +86,17 @@ export type SettingsListProps<PreferenceName extends SupportedPreferences> = {
   fields: readonly PreferenceName[];
 };
 
-function SettingLabel({ name }: { name: SupportedPreferences }) {
-  const { short, long, longReact } = getSettingDescription(name).description;
+function SettingLabel<PreferenceName extends SupportedPreferences>({
+  name,
+  value,
+}: {
+  name: PreferenceName;
+  value: UserConfigurablePreferences[PreferenceName] | undefined;
+}) {
+  const { short, long } = getSettingDescription(name).description;
+  const SettingDescription = SETTINGS_DESCRIPTIONS_MAP[name] as
+    | SettingsDescriptionComponent<PreferenceName>
+    | undefined;
   const featureFlagDefinition = featureFlags.find((definition) => {
     return definition.name === name;
   });
@@ -94,7 +110,11 @@ function SettingLabel({ name }: { name: SupportedPreferences }) {
           </span>
         )}
       </Label>
-      {(longReact || long) && <Description>{longReact ?? long}</Description>}
+      {(SettingDescription || long) && (
+        <Description>
+          {SettingDescription ? <SettingDescription value={value} /> : long}
+        </Description>
+      )}
     </>
   );
 }
@@ -125,7 +145,7 @@ function BooleanSetting<PreferenceName extends BooleanPreferences>({
       id={name}
       data-testid={name}
       onChange={handleCheckboxChange}
-      label={<SettingLabel name={name} />}
+      label={<SettingLabel name={name} value={value} />}
       checked={value}
       disabled={disabled}
     />
@@ -155,7 +175,7 @@ function NumericSetting<PreferenceName extends NumericPreferences>({
 
   return (
     <>
-      <SettingLabel name={name} />
+      <SettingLabel name={name} value={value} />
       <TextInput
         className={inputStyles}
         aria-labelledby={`${name}-label`}
@@ -183,22 +203,28 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
   value: string;
   disabled: boolean;
 }) {
-  const optionDescriptions = getSettingDescription(name).description.options;
+  const { short, options: optionDescriptions } =
+    getSettingDescription(name).description;
 
   if (!optionDescriptions) {
     throw new Error(`No option descriptions found for preference ${name}`);
   }
 
   const onChangeCallback = useCallback(
-    (value: string) => {
-      onChange(name, value as UserConfigurablePreferences[PreferenceName]);
+    (value: string | null) => {
+      if (value !== null) {
+        onChange(name, value as UserConfigurablePreferences[PreferenceName]);
+      }
     },
     [name, onChange]
   );
 
-  return (
-    <>
-      <SettingLabel name={name} />
+  const selectComponent =
+    // TODO(COMPASS-10998): LG Select and Combobox do not render selected
+    // option's label in a same way, if the option is an empty string.
+    // Select, renders the label and Comboxbox does not. So we are showing
+    // Select for such settings.
+    Object.keys(optionDescriptions).some((x) => x === '') ? (
       <Select
         className={inputStyles}
         allowDeselect={false}
@@ -211,11 +237,46 @@ function StringEnumSetting<PreferenceName extends StringEnumPreferences>({
         disabled={disabled}
       >
         {Object.entries(optionDescriptions).map(([option, details]) => (
-          <Option key={option} value={option} description={details.description}>
+          <Option
+            key={option}
+            value={option}
+            glyph={details.glyph ? <Icon glyph={details.glyph} /> : undefined}
+            description={details.description}
+          >
             {details.label}
           </Option>
         ))}
       </Select>
+    ) : (
+      <Combobox
+        className={inputStyles}
+        aria-label={short}
+        id={name}
+        data-testid={name}
+        value={value}
+        multiselect={false}
+        clearable={false}
+        onChange={onChangeCallback}
+        disabled={disabled}
+      >
+        {Object.entries(optionDescriptions).map(([option, details]) => (
+          <ComboboxOption
+            key={option}
+            value={option}
+            glyph={details.glyph ? <Icon glyph={details.glyph} /> : undefined}
+            displayName={details.label}
+            description={details.description}
+          />
+        ))}
+      </Combobox>
+    );
+  return (
+    <>
+      <SettingLabel
+        name={name}
+        value={value as UserConfigurablePreferences[PreferenceName]}
+      />
+      {selectComponent}
     </>
   );
 }
@@ -250,7 +311,10 @@ function StringSetting<PreferenceName extends StringPreferences>({
 
   return (
     <>
-      <SettingLabel name={name} />
+      <SettingLabel
+        name={name}
+        value={value as UserConfigurablePreferences[PreferenceName]}
+      />
       <TextInput
         className={inputStyles}
         aria-labelledby={`${name}-label`}
