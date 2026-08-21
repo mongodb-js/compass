@@ -70,15 +70,16 @@ This is read-only and won't change your cluster.`;
   );
 }
 
+// TODO(COMPASS-11044): update texts to be generic
 function getApprovalMessage(
   isSignInInProgress: boolean,
   isUserSignedIn: boolean
 ) {
-  if (isSignInInProgress) {
-    return 'Connecting with Atlas to debug this connection';
-  }
   if (isUserSignedIn) {
     return 'Run Atlas to debug this connection?';
+  }
+  if (isSignInInProgress) {
+    return 'Connecting with Atlas to debug this connection';
   }
 
   return 'Connect with Atlas to debug this connection?';
@@ -140,7 +141,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
             case 'success':
               onApprove(approvalId, true);
               break;
-            // If sign in timed out, give the user a new change instead of
+            // If sign in timed out, give the user a new chance instead of
             // rejecting the tool
             case 'timed-out':
               break;

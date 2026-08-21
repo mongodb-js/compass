@@ -137,7 +137,7 @@ type AttemptState = {
   timeoutId?: ReturnType<typeof setTimeout>;
 };
 
-export const SIGN_IN_TIMEOUT_MS = 10 * 1000;
+export const SIGN_IN_TIMEOUT_MS = 2 * 60 * 1000; // 2 Minutes
 
 // Exported for testing purposes only
 export const AttemptStateMap = new Map<number, AttemptState>();
