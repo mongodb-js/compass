@@ -1234,7 +1234,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
           },
         },
         nindexes: { $max: '$storageStats.nindexes' },
-        // DSC filter storageSize and eeStorageSize out of $collStats for
+        // DSC filter storageSize and freeStorageSize out of $collStats for
         // non-internal users. $type reports "missing" for absent fields.
         // $first is enough because the filtering is cluster-wide.
         storageSizeType: { $first: { $type: '$storageStats.storageSize' } },

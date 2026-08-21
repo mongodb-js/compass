@@ -25,11 +25,7 @@ export class SecretStore {
   }
 
   async setState(value: string): Promise<void> {
-    try {
-      const data = safeStorage.encryptString(value).toString('base64');
-      await this.userData.write(this.fileName, data);
-    } catch {
-      return;
-    }
+    const data = safeStorage.encryptString(value).toString('base64');
+    await this.userData.write(this.fileName, data);
   }
 }

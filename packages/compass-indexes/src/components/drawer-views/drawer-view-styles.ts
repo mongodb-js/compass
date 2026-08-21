@@ -27,6 +27,7 @@ export const editorContainerStyles = css({
   border: `1px solid ${palette.gray.light2}`,
   background: palette.gray.light3,
   overflow: 'hidden',
+  flexShrink: 0,
 });
 
 export const editorContainerDarkModeStyles = css({

@@ -3,6 +3,7 @@ import type Electron from 'electron';
 import { URL, URLSearchParams } from 'url';
 import type {
   AuthFlowType,
+  MongoDBOIDCError,
   MongoDBOIDCPlugin,
   MongoDBOIDCPluginOptions,
 } from '@mongodb-js/oidc-plugin';
@@ -70,11 +71,12 @@ export class CompassAuthService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
+  private static getUserAgent = () => `${app.getName()}/${app.getVersion()}`;
+
   private static fetch = async (
     url: string,
     init: RequestInit = {}
   ): Promise<Response> => {
-    await this.initPromise;
     this.throwIfNetworkTrafficDisabled();
     throwIfAborted(init.signal ?? undefined);
     log.info(
@@ -88,7 +90,7 @@ export class CompassAuthService {
         ...init,
         headers: {
           ...init.headers,
-          'User-Agent': `${app.getName()}/${app.getVersion()}`,
+          'User-Agent': this.getUserAgent(),
         },
       });
       await throwIfNotOk(res);
@@ -268,6 +270,7 @@ export class CompassAuthService {
     try {
       const accessToken = await this.maybeGetToken({
         tokenType: 'accessToken',
+        _skipWaitingForInit: true,
       });
       if (!accessToken) {
         this.currentUser = null;
@@ -310,6 +313,8 @@ export class CompassAuthService {
 
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
 
+        const startedAt = Date.now();
+
         try {
           const tokens = await this.requestOAuthToken({ signal });
           this.currentUser = this.getUserInfoFromAccessToken(
@@ -321,14 +326,19 @@ export class CompassAuthService {
             'Signed in successfully'
           );
           const { auid } = getTrackingUserInfo(this.currentUser);
-          track('Atlas Sign In Success', { auid });
+          track('Atlas Sign In Success', {
+            auid,
+            duration: Date.now() - startedAt,
+          });
           await this.preferences.savePreferences({
             telemetryAtlasUserId: auid,
           });
           return this.currentUser;
         } catch (err) {
+          const error = err as Error & Partial<MongoDBOIDCError>;
           track('Atlas Sign In Error', {
-            error: (err as Error).message,
+            error: error.message,
+            error_code: error.codeName ?? error.name,
           });
           log.error(
             mongoLogId(1_001_000_220),
@@ -388,11 +398,18 @@ export class CompassAuthService {
   static async maybeGetToken({
     tokenType,
     signal,
+    _skipWaitingForInit = false,
   }: {
     tokenType?: 'accessToken' | 'refreshToken';
     signal?: AbortSignal;
+    /**
+     * @internal Only for use by `restoreCurrentUser`, which runs inside the
+     * `initPromise` executor and would deadlock awaiting it.
+     */
+    _skipWaitingForInit?: boolean;
   }): Promise<string | undefined> {
     try {
+      if (!_skipWaitingForInit) await this.initPromise;
       tokenType ??= 'accessToken';
       const token = await this.requestOAuthToken({ signal });
       return token[tokenType];

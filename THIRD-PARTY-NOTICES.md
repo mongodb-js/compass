@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Tue Aug 18 2026.
+This document was automatically generated on Thu Aug 20 2026.
 
 ## List of dependencies
 
@@ -270,7 +270,7 @@ This document was automatically generated on Tue Aug 18 2026.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#f0833a39f636845e14f1333f2bb6a4a1b46a20124825c25ad039ca0a74042454)**                                           | 41.10.5      | MIT                                 |
+| **[electron](#823318eb6b55bca7d1b1b4caea76c6cf806a01a2706aba6b184a55e41e18e39a)**                                           | 41.10.6      | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -432,7 +432,7 @@ This document was automatically generated on Tue Aug 18 2026.
 | **[mongodb-log-writer](#29ce1833ae99c6452d014e8847ac7e8e50bbfe6241534fb000c8a313519fa9c4)**                                 | 2.5.14       | Apache-2.0                          |
 | **[mongodb-mcp-server](#170d115701124029e823835d30b7a783037c72cd0f53bf99816bbbe444a3676d)**                                 | 1.10.0       | Apache-2.0                          |
 | **[mongodb-ns](#9658ed4c4d2d38de9ce3cef33fe9341cfa97429730fc4a4638828d4e5b74b329)**                                         | 3.2.1        | Apache-2.0                          |
-| **[mongodb-query-parser](#e0cbcb1c33d08af69063bbae69ff5514f704455c05a61355bcb81f69363bfbb3)**                               | 4.7.16       | Apache-2.0                          |
+| **[mongodb-query-parser](#1ec8ed719ca0a368a7474fda7282181b70e15ac85d3456a528d57e92cda08189)**                               | 5.0.1        | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6        | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0       | Apache-2.0                          |
 | **[mongodb](#2b6d1321e5706f8de316a1b3f659dfd6e492d154443936866c044e7ac313d9c5)**                                            | 7.5.0        | Apache-2.0                          |
@@ -23842,9 +23842,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="f0833a39f636845e14f1333f2bb6a4a1b46a20124825c25ad039ca0a74042454"></a>
+<a id="823318eb6b55bca7d1b1b4caea76c6cf806a01a2706aba6b184a55e41e18e39a"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 41.10.5)
+### [electron](https://www.npmjs.com/package/electron) (version 41.10.6)
 
 License tags: MIT
 
@@ -30814,9 +30814,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="e0cbcb1c33d08af69063bbae69ff5514f704455c05a61355bcb81f69363bfbb3"></a>
+<a id="1ec8ed719ca0a368a7474fda7282181b70e15ac85d3456a528d57e92cda08189"></a>
 
-### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.7.16)
+### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 5.0.1)
 
 License tags: Apache-2.0
 
