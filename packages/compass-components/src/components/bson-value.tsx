@@ -8,13 +8,13 @@ import {
 import { Binary } from 'bson';
 import type { DBRef } from 'bson';
 import { toJSString } from 'mongodb-query-parser';
-import { variantColors } from '@leafygreen-ui/code';
-
 import { Icon, Link } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
-import type { Theme } from '../hooks/use-theme';
-import { Themes, useDarkMode } from '../hooks/use-theme';
+import {
+  useBsonThemeStyles,
+  wrapValueWithBsonLabel,
+} from './document-list/bson-utils';
 import { useBSONDisplayOptions } from './document-list/bson-display-options-context';
 import { DateWithTimezoneHint } from './document-list/date-with-timezone-hint';
 
@@ -36,30 +36,6 @@ type PropsByValueType<V extends ValueTypes> = Omit<
   'type'
 >;
 
-const VALUE_COLOR_BY_THEME_AND_TYPE: Record<
-  Theme,
-  Partial<Record<ValueTypes, string>>
-> = {
-  [Themes.Dark]: {
-    Int32: variantColors.dark[9],
-    Double: variantColors.dark[9],
-    Decimal128: variantColors.dark[9],
-    Date: variantColors.dark[9],
-    Boolean: variantColors.dark[10],
-    String: variantColors.dark[7],
-    ObjectId: variantColors.dark[5],
-  },
-  [Themes.Light]: {
-    Int32: variantColors.light[9],
-    Double: variantColors.light[9],
-    Decimal128: variantColors.light[9],
-    Date: variantColors.light[9],
-    Boolean: variantColors.light[10],
-    String: variantColors.light[7],
-    ObjectId: variantColors.light[5],
-  },
-} as const;
-
 const bsonValue = css({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -73,21 +49,9 @@ const bsonValuePrewrap = css({
 export const BSONValueContainer: React.FunctionComponent<
   React.HTMLProps<HTMLDivElement> & {
     type?: ValueTypes;
-    chidren?: React.ReactChildren;
   }
 > = ({ type, children, className, ...props }) => {
-  const darkMode = useDarkMode();
-  const colorStyle = useMemo(() => {
-    if (!type) {
-      return;
-    }
-    return {
-      color:
-        VALUE_COLOR_BY_THEME_AND_TYPE[darkMode ? Themes.Dark : Themes.Light][
-          type
-        ],
-    };
-  }, [type, darkMode]);
+  const bsonStyles = useBsonThemeStyles(type);
 
   return (
     <div
@@ -100,16 +64,12 @@ export const BSONValueContainer: React.FunctionComponent<
           type ? type.toLowerCase() : 'unknown'
         }`
       )}
-      style={colorStyle}
+      style={bsonStyles}
     >
       {children}
     </div>
   );
 };
-
-const nonSelectable = css({
-  userSelect: 'none',
-});
 
 const encryptedHelpLinkStyle = css({
   color: 'inherit',
@@ -125,9 +85,7 @@ const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({
 
   return (
     <BSONValueContainer type="ObjectId" title={stringifiedValue}>
-      <span className={nonSelectable}>ObjectId(&apos;</span>
-      {stringifiedValue}
-      <span className={nonSelectable}>&apos;)</span>
+      {wrapValueWithBsonLabel('ObjectId', stringifiedValue)}
     </BSONValueContainer>
   );
 };
@@ -135,18 +93,21 @@ const ObjectIdValue: React.FunctionComponent<PropsByValueType<'ObjectId'>> = ({
 const toLegacyJavaUUID = ({ value }: PropsByValueType<'Binary'>) => {
   const hex = value.toString('hex');
   const reversedHex = reverseJavaUUIDBytes(hex);
-  return "LegacyJavaUUID('" + uuidHexToString(reversedHex) + "')";
+  return wrapValueWithBsonLabel('LegacyJavaUUID', uuidHexToString(reversedHex));
 };
 
 const toLegacyCSharpUUID = ({ value }: PropsByValueType<'Binary'>) => {
   const hex = value.toString('hex');
   const reversedHex = reverseCSharpUUIDBytes(hex);
-  return "LegacyCSharpUUID('" + uuidHexToString(reversedHex) + "')";
+  return wrapValueWithBsonLabel(
+    'LegacyCSharpUUID',
+    uuidHexToString(reversedHex)
+  );
 };
 
 const toLegacyPythonUUID = ({ value }: PropsByValueType<'Binary'>) => {
   const hex = value.toString('hex');
-  return "LegacyPythonUUID('" + uuidHexToString(hex) + "')";
+  return wrapValueWithBsonLabel('LegacyPythonUUID', uuidHexToString(hex));
 };
 
 // Binary sub_type 3.
@@ -211,9 +172,7 @@ const UUIDValue: React.FunctionComponent<PropsByValueType<'UUID'>> = ({
 
   return (
     <BSONValueContainer type="Binary" title={stringifiedValue}>
-      <span className={nonSelectable}>UUID(&apos;</span>
-      {stringifiedValue}
-      <span className={nonSelectable}>&apos;)</span>
+      {wrapValueWithBsonLabel('UUID', stringifiedValue)}
     </BSONValueContainer>
   );
 };
@@ -225,7 +184,7 @@ const LegacyJavaUUIDValue: React.FunctionComponent<
   const stringifiedValue = useMemo(() => {
     // During editing, value might be a string
     if (typeof value === 'string') {
-      return `LegacyJavaUUID('${value}')`;
+      return wrapValueWithBsonLabel('LegacyJavaUUID', value);
     }
     if (!value || !value.buffer) {
       return String(value);
@@ -247,7 +206,7 @@ const LegacyCSharpUUIDValue: React.FunctionComponent<
   const stringifiedValue = useMemo(() => {
     // During editing, value might be a string
     if (typeof value === 'string') {
-      return `LegacyCSharpUUID('${value}')`;
+      return wrapValueWithBsonLabel('LegacyCSharpUUID', value);
     }
     if (!value || !value.buffer) {
       return String(value);
@@ -269,7 +228,7 @@ const LegacyPythonUUIDValue: React.FunctionComponent<
   const stringifiedValue = useMemo(() => {
     // During editing, value might be a string
     if (typeof value === 'string') {
-      return `LegacyPythonUUID('${value}')`;
+      return wrapValueWithBsonLabel('LegacyPythonUUID', value);
     }
     if (!value || !value.buffer) {
       return String(value);
@@ -405,7 +364,7 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
         type="Date"
         title={stringifiedValue}
       >
-        {`ISODate('${stringifiedValue}')`}
+        {wrapValueWithBsonLabel('Date', stringifiedValue)}
       </BSONValueContainer>
     </DateWithTimezoneHint>
   );
@@ -417,8 +376,8 @@ const NumberValue: React.FunctionComponent<
   }
 > = ({ type, value }) => {
   const stringifiedValue = useMemo(() => {
-    return String(value.valueOf());
-  }, [value]);
+    return wrapValueWithBsonLabel(type, String(value));
+  }, [value, type]);
 
   return (
     <BSONValueContainer type={type} title={stringifiedValue}>
@@ -516,15 +475,15 @@ const SymbolValue: React.FunctionComponent<PropsByValueType<'BSONSymbol'>> = ({
 };
 
 const UnknownValue: React.FunctionComponent<{
-  type: string;
+  type: keyof Pick<TypeCastMap, 'Boolean' | 'Null' | 'Undefined'>;
   value: unknown;
-}> = ({ value }) => {
+}> = ({ value, type }) => {
   const stringifiedValue = useMemo(() => {
     return String(value);
   }, [value]);
 
   return (
-    <BSONValueContainer title={stringifiedValue}>
+    <BSONValueContainer type={type} title={stringifiedValue}>
       {stringifiedValue}
     </BSONValueContainer>
   );
@@ -584,6 +543,8 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
       );
     case 'Int32':
     case 'Double':
+    case 'Int64':
+    case 'Decimal128':
       return <NumberValue type={props.type} value={props.value}></NumberValue>;
     case 'String':
       return <StringValue value={props.value}></StringValue>;

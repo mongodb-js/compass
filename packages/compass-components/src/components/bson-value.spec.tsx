@@ -142,7 +142,7 @@ describe('BSONValue', function () {
     {
       type: 'Decimal128',
       value: new Decimal128('10.0'),
-      expected: '10.0',
+      expected: "Decimal128('10.0')",
     },
     {
       type: 'Date',
