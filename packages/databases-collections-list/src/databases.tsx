@@ -1,7 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import { ItemsTable, VirtualItemsTable } from './items-table';
-import { shouldShowStorageSizeColumn } from './storage-size';
 import type { DatabaseProps } from 'mongodb-database-model';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { LGColumnDef } from '@mongodb-js/compass-components';
@@ -69,13 +68,11 @@ function isReady(
 function databaseColumns({
   darkMode,
   enableDbAndCollStats,
-  showStorageSize,
 }: {
   darkMode: boolean | undefined;
   enableDbAndCollStats: boolean;
-  showStorageSize: boolean;
 }): LGColumnDef<DatabaseProps>[] {
-  const columns: LGColumnDef<DatabaseProps>[] = [
+  return [
     {
       accessorKey: 'name',
       header: 'Database name',
@@ -200,15 +197,6 @@ function databaseColumns({
       },
     },
   ];
-
-  if (!showStorageSize) {
-    return columns.filter(
-      (column) =>
-        !('accessorKey' in column && column.accessorKey === 'storage_size')
-    );
-  }
-
-  return columns;
 }
 
 const DatabasesList: React.FunctionComponent<{
@@ -233,10 +221,9 @@ const DatabasesList: React.FunctionComponent<{
 
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const darkMode = useDarkMode();
-  const showStorageSize = shouldShowStorageSizeColumn(databases);
   const columns = React.useMemo(
-    () => databaseColumns({ darkMode, enableDbAndCollStats, showStorageSize }),
-    [darkMode, enableDbAndCollStats, showStorageSize]
+    () => databaseColumns({ darkMode, enableDbAndCollStats }),
+    [darkMode, enableDbAndCollStats]
   );
 
   const TableComponent = virtual ? VirtualItemsTable : ItemsTable;

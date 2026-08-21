@@ -16,7 +16,6 @@ import {
   InlineDefinition,
 } from '@mongodb-js/compass-components';
 import { ItemsTable, VirtualItemsTable } from './items-table';
-import { shouldShowStorageSizeColumn } from './storage-size';
 import type { CollectionProps } from 'mongodb-collection-model';
 import { usePreference } from 'compass-preferences-model/provider';
 
@@ -222,13 +221,11 @@ function isReady(
 function collectionColumns({
   darkMode,
   enableDbAndCollStats,
-  showStorageSize,
 }: {
   darkMode: boolean | undefined;
   enableDbAndCollStats: boolean;
-  showStorageSize: boolean;
 }): LGColumnDef<CollectionProps>[] {
-  const columns: LGColumnDef<CollectionProps>[] = [
+  return [
     {
       accessorKey: 'name',
       header: 'Collection name',
@@ -472,15 +469,6 @@ function collectionColumns({
       },
     },
   ];
-
-  if (!showStorageSize) {
-    return columns.filter(
-      (column) =>
-        !('accessorKey' in column && column.accessorKey === 'storage_size')
-    );
-  }
-
-  return columns;
 }
 
 const CollectionsList: React.FunctionComponent<{
@@ -505,11 +493,9 @@ const CollectionsList: React.FunctionComponent<{
 
   const enableDbAndCollStats = usePreference('enableDbAndCollStats');
   const darkMode = useDarkMode();
-  const showStorageSize = shouldShowStorageSizeColumn(collections);
   const columns = React.useMemo(
-    () =>
-      collectionColumns({ darkMode, enableDbAndCollStats, showStorageSize }),
-    [darkMode, enableDbAndCollStats, showStorageSize]
+    () => collectionColumns({ darkMode, enableDbAndCollStats }),
+    [darkMode, enableDbAndCollStats]
   );
 
   const TableComponent = virtual ? VirtualItemsTable : ItemsTable;

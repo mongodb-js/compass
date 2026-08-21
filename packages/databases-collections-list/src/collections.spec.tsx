@@ -202,50 +202,6 @@ describe('Collections', () => {
     expect(deleteSpy.calledOnce).to.be.true;
   });
 
-  it('hides the Storage size column when no collection reports one', () => {
-    renderCollectionsList({
-      collections: [
-        createCollection({
-          name: 'filtered',
-          storage_size: undefined,
-          free_storage_size: undefined,
-        }),
-        createCollection({
-          name: 'also-filtered',
-          storage_size: undefined,
-          free_storage_size: undefined,
-        }),
-      ],
-    });
-
-    const result = inspectTable(screen, 'collections-list');
-
-    expect(result.columns).to.not.include('Storage size');
-    expect(result.columns).to.include('Data size');
-  });
-
-  it('keeps the Storage size column when only views lack a storage size', () => {
-    renderCollectionsList({
-      collections: [
-        createCollection({
-          name: 'a-view',
-          storage_size: undefined,
-          type: 'view',
-          view_on: 'foo',
-          properties: [{ id: 'view' }],
-        }),
-        createCollection({
-          name: 'a-collection',
-          storage_size: 1000,
-        }),
-      ],
-    });
-
-    const result = inspectTable(screen, 'collections-list');
-
-    expect(result.columns).to.include('Storage size');
-  });
-
   it('renders "-" for a collection whose storage size was not reported', () => {
     renderCollectionsList({
       collections: [

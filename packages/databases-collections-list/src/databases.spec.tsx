@@ -97,20 +97,6 @@ describe('Databases', function () {
     expect(result.getColumn('Storage size')).to.deep.equal(['1.50 kB', '-']);
   });
 
-  it('hides the Storage size column when no database reports one', function () {
-    renderDatabasesList({
-      databases: [
-        createDatabase({ name: 'filtered', storage_size: undefined }),
-        createDatabase({ name: 'also-filtered', storage_size: undefined }),
-      ],
-    });
-
-    const result = inspectTable(screen, 'databases-list');
-
-    expect(result.columns).to.not.include('Storage size');
-    expect(result.columns).to.include('Data size');
-  });
-
   it('should render the database list', function () {
     const { clickSpy, deleteSpy, createSpy, refreshSpy } = renderDatabasesList({
       databases: dbs,
