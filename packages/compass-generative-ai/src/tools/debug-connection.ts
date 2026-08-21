@@ -226,7 +226,7 @@ function getTelemetryCausesIdentified({
   clusterState: string;
   ipAccessStatus: IpAccessStatus;
 }): string[] {
-  const causesIdentified = [];
+  const causesIdentified: string[] = [];
   switch (clusterState) {
     case 'PAUSED':
       causesIdentified.push('clusterPaused');
