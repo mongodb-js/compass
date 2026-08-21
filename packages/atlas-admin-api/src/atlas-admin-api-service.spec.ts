@@ -475,6 +475,74 @@ describe('AtlasAdminApiService', function () {
     });
   });
 
+  describe('getSystemStatus', function () {
+    it('should hit the system status endpoint and return the ip address and user', async function () {
+      atlasServiceStub.authenticatedFetch.resolves({
+        json: () =>
+          Promise.resolve({
+            appName: 'MongoDB Atlas',
+            ipAddress: '1.2.3.4',
+            user: { username: 'user@example.com' },
+          }),
+      });
+
+      const res = await service.getSystemStatus();
+
+      expect(res).to.deep.equal({
+        ipAddress: '1.2.3.4',
+        user: { username: 'user@example.com' },
+      });
+      expect(fetchUrl(0)).to.equal('http://example.com/api/atlas/v2');
+      expect(
+        atlasServiceStub.authenticatedFetch.firstCall.args[1].headers.Accept
+      ).to.equal(
+        `application/vnd.atlas.${ATLAS_ADMIN_API_DEFAULT_VERSION}+json`
+      );
+    });
+
+    it('should omit the user when it is not returned', async function () {
+      atlasServiceStub.authenticatedFetch.resolves({
+        json: () => Promise.resolve({ ipAddress: '1.2.3.4' }),
+      });
+
+      expect(await service.getSystemStatus()).to.deep.equal({
+        ipAddress: '1.2.3.4',
+      });
+    });
+
+    it('should throw when the ip address is missing', async function () {
+      atlasServiceStub.authenticatedFetch.resolves({
+        json: () => Promise.resolve({ user: { username: 'user@example.com' } }),
+      });
+
+      try {
+        await service.getSystemStatus();
+        expect.fail('Expected getSystemStatus to throw');
+      } catch (err) {
+        expect(err).to.have.property(
+          'message',
+          'Got unexpected backend response for Atlas Admin API system status request'
+        );
+      }
+    });
+
+    it('should throw when the returned user is malformed', async function () {
+      atlasServiceStub.authenticatedFetch.resolves({
+        json: () => Promise.resolve({ ipAddress: '1.2.3.4', user: {} }),
+      });
+
+      try {
+        await service.getSystemStatus();
+        expect.fail('Expected getSystemStatus to throw');
+      } catch (err) {
+        expect(err).to.have.property(
+          'message',
+          'Got unexpected backend response for Atlas Admin API system status request'
+        );
+      }
+    });
+  });
+
   describe('getProjectIPAccessList', function () {
     it('should hit the access list endpoint and return the entries', async function () {
       stubSequentialJsonResponses([page([{ cidrBlock: '0.0.0.0/0' }])]);
