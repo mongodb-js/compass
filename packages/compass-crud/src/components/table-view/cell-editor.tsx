@@ -75,7 +75,7 @@ export type CellEditorProps = Omit<ICellEditorParams, 'node' | 'context'> & {
   elementTypeChanged: GridActions['elementTypeChanged'];
   elementMarkRemoved: GridActions['elementMarkRemoved'];
   drillDown: CrudActions['drillDown'];
-  tz: string;
+  timezone?: string;
   darkMode?: boolean;
   legacyUUIDDisplayEncoding?: string;
 };
