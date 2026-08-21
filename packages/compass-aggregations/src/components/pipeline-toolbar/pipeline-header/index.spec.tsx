@@ -42,4 +42,11 @@ describe('PipelineHeader', function () {
 
     expect(await screen.findByTestId('saved-pipelines')).to.exist;
   });
+
+  it('renders the query icon on the open saved pipelines button', function () {
+    const button = within(container).getByTestId(
+      'pipeline-toolbar-open-pipelines-button'
+    );
+    expect(button.querySelector('[aria-label="Curly Braces Icon"]')).to.exist;
+  });
 });

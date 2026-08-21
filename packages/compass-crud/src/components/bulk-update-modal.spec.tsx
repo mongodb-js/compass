@@ -233,6 +233,14 @@ describe('BulkUpdateModal Component', function () {
     expect(saveUpdateQuerySpy).to.have.been.calledOnceWith('MySavedQuery');
   });
 
+  it('does not render an icon on the Save button', function () {
+    renderBulkUpdateModal();
+
+    const saveButton = screen.getByTestId('inline-save-query-modal-opener');
+    expect(saveButton.querySelector('[aria-label="Favorite Icon"]')).to.not
+      .exist;
+  });
+
   it('does not render the Save button if there is no saved ', function () {
     render(
       <BulkUpdateModal

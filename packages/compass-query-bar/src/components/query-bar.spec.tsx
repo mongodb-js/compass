@@ -379,6 +379,17 @@ describe('QueryBar Component', function () {
     });
   });
 
+  describe('the query history button', function () {
+    beforeEach(function () {
+      renderQueryBar();
+    });
+
+    it('renders the query icon', function () {
+      const button = screen.getByTestId(queryHistoryButtonId);
+      expect(button.querySelector('[aria-label="Curly Braces Icon"]')).to.exist;
+    });
+  });
+
   describe('tab navigation', function () {
     beforeEach(function () {
       renderQueryBar();
