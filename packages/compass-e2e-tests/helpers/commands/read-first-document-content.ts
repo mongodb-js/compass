@@ -15,7 +15,16 @@ export async function getFirstListDocument(browser: CompassBrowser) {
 
   const fieldValues = await browser
     .$$(Selectors.documentListDocumentValue(1))
-    .map((el) => el.getText());
+    .map(async (el) => {
+      const text = await el.getText();
+      // Date values are rendered together with a hint showing the same date in
+      // the user's preferred timezone. That's not part of the value itself.
+      const hint = el.$(Selectors.DateWithTimezoneHint);
+      if (await hint.isExisting()) {
+        return text.replace(await hint.getText(), '').trim();
+      }
+      return text;
+    });
 
   expect(fieldValues).to.have.lengthOf(fieldNames.length);
 
