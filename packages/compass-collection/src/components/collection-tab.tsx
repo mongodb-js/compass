@@ -286,8 +286,8 @@ const CollectionTabWithMetadata: React.FunctionComponent<
           return <ModalPlugin key={idx} {...pluginProps}></ModalPlugin>;
         })}
       </div>
-      {tabs.map(({ drawer }) => (
-        <>{drawer}</>
+      {tabs.map(({ name, drawer }) => (
+        <React.Fragment key={name}>{drawer}</React.Fragment>
       ))}
     </div>
   );
