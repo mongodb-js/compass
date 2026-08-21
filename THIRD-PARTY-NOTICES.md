@@ -352,6 +352,7 @@ This document was automatically generated on Fri Aug 21 2026.
 | **[ip-address](#4c6a71d5c1419be494b8794def88d8be4703e39af5b389cc107438779df9b74f)**                                         | 10.5.0       | MIT                                 |
 | **[ipaddr.js](#38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2)**                                          | 1.9.1        | MIT                                 |
 | **[ipaddr.js](#c746e4b3a8a615446d1693e57151c8d5461ffc4caa1a3ec15527b6247b74f21c)**                                          | 2.3.0        | MIT                                 |
+| **[ipaddr.js](#cb3eb5b02801a63fbaf355582a1e113c29d6fc8377f3abd6fa736a19a4eb74d2)**                                          | 2.5.0        | MIT                                 |
 | **[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**                                     | 1.0.1        | MIT                                 |
 | **[is-buffer](#fecc2287723697a57d87b2a01997386d175b7d82d4b4c7af571e8a4a1ecef992)**                                          | 2.0.5        | MIT                                 |
 | **[is-callable](#8cf8f70dfb44d8f426d81a03a0f5a1e4be28081368aa69089c22ac2571dcac14)**                                        | 1.2.7        | MIT                                 |
@@ -27162,6 +27163,36 @@ License files:
 <a id="c746e4b3a8a615446d1693e57151c8d5461ffc4caa1a3ec15527b6247b74f21c"></a>
 
 ### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 2.3.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      Copyright (C) 2011-2017 whitequark <whitequark@whitequark.org>
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+
+<a id="cb3eb5b02801a63fbaf355582a1e113c29d6fc8377f3abd6fa736a19a4eb74d2"></a>
+
+### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 2.5.0)
 
 License tags: MIT
 

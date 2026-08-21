@@ -9,9 +9,13 @@ const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
 
 describe('CustomToolResult', function () {
   const debugResult: AtlasConnectionDebugResult = {
-    cluster: 'Cluster0',
-    clusterState: 'paused',
-    ipAccessAllowed: true,
+    clusterName: 'Cluster0',
+    clusterState: 'PAUSED',
+    ipAccessStatus: 'Client IP Allowed',
+    links: {
+      clusterOverview:
+        'https://cloud.mongodb.com/v2/p1#/clusters/detail/Cluster0',
+    },
   };
 
   function renderWithArguments({
@@ -45,25 +49,46 @@ describe('CustomToolResult', function () {
       expect(screen.getByText('PAUSED')).to.exist;
 
       expect(screen.getByText('IP Access')).to.exist;
-      expect(screen.getByText('Client IP allowed')).to.exist;
+      expect(screen.getByText('Client IP Allowed')).to.exist;
     });
 
-    it('formats a denied ip access result', function () {
-      renderWithArguments({
-        output: { ...debugResult, ipAccessAllowed: false },
-      });
+    it('renders the cluster name as a link to the cluster overview', function () {
+      renderWithArguments();
 
-      expect(screen.getByText('Client IP not allowed')).to.exist;
-      expect(screen.queryByText('Client IP allowed')).to.not.exist;
+      expect(screen.getByText('Cluster0').closest('a')).to.have.attribute(
+        'href',
+        'https://cloud.mongodb.com/v2/p1#/clusters/detail/Cluster0'
+      );
     });
 
-    it('falls back to N/A for missing values', function () {
+    it('renders an unconfirmed ip access status as a link to the access list', function () {
+      const networkAccessList =
+        'https://cloud.mongodb.com/v2/p1#/security/network/accessList';
       renderWithArguments({
-        output: { cluster: '', clusterState: '', ipAccessAllowed: false },
+        output: {
+          ...debugResult,
+          ipAccessStatus: 'Could not confirm',
+          links: { ...debugResult.links, networkAccessList },
+        },
       });
 
-      const naValues = screen.getAllByText('N/A');
-      expect(naValues.length).to.be.greaterThanOrEqual(1);
+      expect(screen.queryByText('Client IP Allowed')).to.not.exist;
+      expect(
+        screen.getByText('Could not confirm').closest('a')
+      ).to.have.attribute('href', networkAccessList);
+    });
+
+    it('renders values as plain text when there are no links', function () {
+      renderWithArguments({
+        output: {
+          clusterName: 'Unknown',
+          clusterState: 'Unknown',
+          ipAccessStatus: 'Could not confirm',
+        },
+      });
+
+      expect(screen.getAllByText('Unknown')).to.have.lengthOf(2);
+      expect(screen.getByText('Could not confirm').closest('a')).to.be.null;
     });
   });
 

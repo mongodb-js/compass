@@ -2,12 +2,18 @@ import { expect } from 'chai';
 import type { AtlasConnectionDebugResult } from '@mongodb-js/compass-generative-ai/provider';
 import { mapAtlasConnectionDebugResult } from './tool-result-mapper';
 
+const CLUSTER_OVERVIEW_URL =
+  'https://cloud.mongodb.com/v2/p1#/clusters/detail/Cluster0';
+const NETWORK_ACCESS_LIST_URL =
+  'https://cloud.mongodb.com/v2/p1#/security/network/accessList';
+
 describe('tool-result-mapper', function () {
   describe('mapAtlasConnectionDebugResult', function () {
     const debugResult: AtlasConnectionDebugResult = {
-      cluster: 'Cluster0',
-      clusterState: 'paused',
-      ipAccessAllowed: true,
+      clusterName: 'Cluster0',
+      clusterState: 'PAUSED',
+      ipAccessStatus: 'Client IP Allowed',
+      links: { clusterOverview: CLUSTER_OVERVIEW_URL },
     };
 
     it('maps the result into cluster, state and ip access fields', function () {
@@ -20,18 +26,32 @@ describe('tool-result-mapper', function () {
       ]);
     });
 
-    it('renders the cluster as a link to the value', function () {
+    it('renders the cluster as a link when the overview link is present', function () {
       const [cluster] = mapAtlasConnectionDebugResult(debugResult);
 
       expect(cluster).to.deep.equal({
         type: 'link',
         label: 'Cluster',
         value: 'Cluster0',
-        href: 'https://cloud.mongodb.com/',
+        href: CLUSTER_OVERVIEW_URL,
       });
     });
 
-    it('uppercases the cluster state', function () {
+    it('renders the cluster as text when there are no links at all', function () {
+      const [cluster] = mapAtlasConnectionDebugResult({
+        clusterName: 'Unknown',
+        clusterState: 'Unknown',
+        ipAccessStatus: 'Could not confirm',
+      });
+
+      expect(cluster).to.deep.equal({
+        type: 'text',
+        label: 'Cluster',
+        value: 'Unknown',
+      });
+    });
+
+    it('passes the cluster state through as text', function () {
       const fields = mapAtlasConnectionDebugResult(debugResult);
       const state = fields.find((field) => field.label === 'State');
 
@@ -42,43 +62,34 @@ describe('tool-result-mapper', function () {
       });
     });
 
-    it('formats an allowed ip access result', function () {
+    it('renders an allowed ip access status as text', function () {
+      const fields = mapAtlasConnectionDebugResult(debugResult);
+      const ipAccess = fields.find((field) => field.label === 'IP Access');
+
+      expect(ipAccess).to.deep.equal({
+        type: 'text',
+        label: 'IP Access',
+        value: 'Client IP Allowed',
+      });
+    });
+
+    it('renders an unconfirmed ip access status as a link to the access list', function () {
       const fields = mapAtlasConnectionDebugResult({
         ...debugResult,
-        ipAccessAllowed: true,
+        ipAccessStatus: 'Could not confirm',
+        links: {
+          clusterOverview: CLUSTER_OVERVIEW_URL,
+          networkAccessList: NETWORK_ACCESS_LIST_URL,
+        },
       });
       const ipAccess = fields.find((field) => field.label === 'IP Access');
 
-      expect(ipAccess?.value).to.equal('Client IP allowed');
-    });
-
-    it('formats a denied ip access result', function () {
-      const fields = mapAtlasConnectionDebugResult({
-        ...debugResult,
-        ipAccessAllowed: false,
+      expect(ipAccess).to.deep.equal({
+        type: 'link',
+        label: 'IP Access',
+        value: 'Could not confirm',
+        href: NETWORK_ACCESS_LIST_URL,
       });
-      const ipAccess = fields.find((field) => field.label === 'IP Access');
-
-      expect(ipAccess?.value).to.equal('Client IP not allowed');
-    });
-
-    it('falls back to N/A for an empty cluster name', function () {
-      const [cluster] = mapAtlasConnectionDebugResult({
-        ...debugResult,
-        cluster: '',
-      });
-
-      expect(cluster.value).to.equal('N/A');
-    });
-
-    it('falls back to N/A for an empty cluster state', function () {
-      const fields = mapAtlasConnectionDebugResult({
-        ...debugResult,
-        clusterState: '' as AtlasConnectionDebugResult['clusterState'],
-      });
-      const state = fields.find((field) => field.label === 'State');
-
-      expect(state?.value).to.equal('N/A');
     });
   });
 });
