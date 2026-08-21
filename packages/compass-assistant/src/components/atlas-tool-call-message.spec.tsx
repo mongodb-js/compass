@@ -184,6 +184,8 @@ describe('AtlasToolCallMessage', function () {
       await waitFor(() => {
         expect(track).to.have.been.calledWith('Atlas Sign In Started', {
           entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+          attempt: 1,
+          previousOutcome: null,
         });
       });
     });

@@ -160,7 +160,28 @@ type AtlasSignInStartedEvent = CommonEvent<{
      * The surface of the application the sign in was triggered from.
      */
     entrypoint: AtlasSignInEntrypoint;
+    /**
+     * The current attempt of the sign in. If the attempt is bigger than 1,
+     * it means the user is re-trying to sign in after a previous attempt
+     * did not succeed.
+     */
+    attempt: number;
+    /**
+     * How the immediately preceding attempt ended, when this is a retry.
+     * Absent on the first attempt.
+     */
+    previousOutcome: 'timed-out' | 'canceled' | 'error' | null;
   };
+}>;
+
+/**
+ * This event is fired when the user aborts the current sign in attempt.
+ *
+ * @category Atlas
+ */
+type AtlasSignInCanceledEvent = CommonEvent<{
+  name: 'Atlas Sign In Canceled';
+  payload: Record<string, never>;
 }>;
 
 /**
@@ -4208,6 +4229,7 @@ export type TelemetryEvent =
   | ApplicationLaunchedEvent
   | AtlasLinkClickedEvent
   | AtlasSearchIndexesForViewLinkClickedEvent
+  | AtlasSignInCanceledEvent
   | AtlasSignInErrorEvent
   | AtlasSignInTimedOutEvent
   | AtlasSignInPromptShownEvent

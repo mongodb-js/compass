@@ -171,8 +171,10 @@ describe('atlasSignInReducer', function () {
       const mockAtlasService = {
         isAuthenticated: isAuthenticatedStub,
       };
+      const track = sandbox.stub();
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
+        track,
       });
 
       void store.dispatch(performSignInAttempt());
@@ -182,8 +184,23 @@ describe('atlasSignInReducer', function () {
       await new Promise((resolve) => setTimeout(resolve, 100));
       store.dispatch(cancelSignIn());
       expect(store.getState()).to.have.nested.property('state', 'canceled');
+      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('previousOutcome', 'canceled');
 
       expect(isAuthenticatedStub).to.have.been.calledOnce;
+      expect(track).to.have.been.calledWith('Atlas Sign In Canceled', {});
+    });
+
+    it('should not track a cancel when no sign in is in progress', function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {} as any,
+        track,
+      });
+
+      store.dispatch(cancelSignIn());
+
+      expect(track).to.not.have.been.calledWith('Atlas Sign In Canceled');
     });
   });
 
@@ -236,6 +253,8 @@ describe('atlasSignInReducer', function () {
       const { store, result } = await driveToTimeout();
 
       expect(store.getState()).to.have.nested.property('state', 'timed-out');
+      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('previousOutcome', 'timed-out');
       expect(store.getState()).to.have.nested.property(
         'currentAttemptId',
         null
@@ -313,6 +332,8 @@ describe('atlasSignInReducer', function () {
       expect(result).to.have.property('status', 'error');
       expect(result).to.have.nested.property('error.message', 'Sign in failed');
       expect(store.getState()).to.have.property('state', 'error');
+      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('previousOutcome', 'error');
     });
 
     it('should resolve with a canceled result if provided signal was aborted', async function () {
@@ -390,6 +411,8 @@ describe('atlasSignInReducer', function () {
       );
       expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
         entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+        attempt: 1,
+        previousOutcome: null,
       });
     });
 
@@ -408,6 +431,8 @@ describe('atlasSignInReducer', function () {
       await store.dispatch(performSignInAttempt());
       expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
         entrypoint: 'unknown',
+        attempt: 1,
+        previousOutcome: null,
       });
     });
 
@@ -425,6 +450,187 @@ describe('atlasSignInReducer', function () {
       await store.dispatch(restoreSignInState());
       await store.dispatch(performSignInAttempt());
       expect(track).to.not.have.been.called;
+    });
+  });
+
+  describe('sign in attempt tracking (retries)', function () {
+    let clock: Sinon.SinonFakeTimers;
+    const ENTRYPOINT = 'assistant-tool-atlas-connection-error-debugger';
+
+    beforeEach(function () {
+      clock = sandbox.useFakeTimers({ shouldAdvanceTime: true });
+      sandbox.replaceGetter(compassComponents, 'openToast', () =>
+        sandbox.stub()
+      );
+    });
+
+    afterEach(function () {
+      clock.restore();
+      sandbox.restore();
+    });
+
+    function startedCalls(track: Sinon.SinonStub) {
+      return track
+        .getCalls()
+        .filter((call) => call.args[0] === 'Atlas Sign In Started')
+        .map((call) => call.args[1]);
+    }
+
+    async function attemptThenTimeout(store: any) {
+      const attemptPromise = store.dispatch(
+        performSignInAttempt({ entrypoint: ENTRYPOINT })
+      );
+      await clock.tickAsync(0);
+      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+      await attemptPromise;
+    }
+
+    it('first attempt, previousOutcome is null', async function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {
+          isAuthenticated: sandbox.stub().resolves(false),
+          signIn: sandbox.stub().resolves({ sub: '1234' }),
+          getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        } as any,
+        track,
+      });
+
+      await store.dispatch(performSignInAttempt({ entrypoint: ENTRYPOINT }));
+
+      expect(startedCalls(track)).to.deep.equal([
+        { entrypoint: ENTRYPOINT, attempt: 1, previousOutcome: null },
+      ]);
+    });
+
+    it('after a timeout, retrying increases attempt number and fill previousOutcome', async function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {
+          isAuthenticated: sandbox
+            .stub()
+            .callsFake(({ signal }: { signal: AbortSignal }) => {
+              return new Promise((_resolve, reject) => {
+                signal.addEventListener('abort', () => reject(signal.reason));
+              });
+            }),
+        } as any,
+        track,
+      });
+
+      await attemptThenTimeout(store);
+
+      const secondPromise = store.dispatch(
+        performSignInAttempt({ entrypoint: ENTRYPOINT })
+      );
+      await clock.tickAsync(0);
+
+      expect(startedCalls(track)).to.deep.equal([
+        { entrypoint: ENTRYPOINT, attempt: 1, previousOutcome: null },
+        { entrypoint: ENTRYPOINT, attempt: 2, previousOutcome: 'timed-out' },
+      ]);
+
+      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+      await secondPromise;
+    });
+
+    it('after a cancel, reports the previous outcome as canceled when retrying', async function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {
+          isAuthenticated: sandbox
+            .stub()
+            .callsFake(({ signal }: { signal: AbortSignal }) => {
+              return new Promise((_resolve, reject) => {
+                signal.addEventListener('abort', () => reject(signal.reason));
+              });
+            }),
+        } as any,
+        track,
+      });
+
+      const c = new AbortController();
+      const firstPromise = store.dispatch(
+        performSignInAttempt({ entrypoint: ENTRYPOINT, signal: c.signal })
+      );
+      await clock.tickAsync(0);
+      c.abort(new Error('user canceled'));
+      await firstPromise;
+
+      const secondPromise = store.dispatch(
+        performSignInAttempt({ entrypoint: ENTRYPOINT })
+      );
+      await clock.tickAsync(0);
+
+      expect(startedCalls(track)).to.deep.equal([
+        { entrypoint: ENTRYPOINT, attempt: 1, previousOutcome: null },
+        { entrypoint: ENTRYPOINT, attempt: 2, previousOutcome: 'canceled' },
+      ]);
+
+      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+      await secondPromise;
+    });
+
+    it('after a failure, reports the previous outcome as error when retrying', async function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {
+          isAuthenticated: sandbox.stub().resolves(false),
+          signIn: sandbox.stub().rejects(new Error('Sign in failed')),
+          getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        } as any,
+        track,
+      });
+
+      await store.dispatch(performSignInAttempt({ entrypoint: ENTRYPOINT }));
+      await store.dispatch(performSignInAttempt({ entrypoint: ENTRYPOINT }));
+
+      expect(startedCalls(track)).to.deep.equal([
+        { entrypoint: ENTRYPOINT, attempt: 1, previousOutcome: null },
+        { entrypoint: ENTRYPOINT, attempt: 2, previousOutcome: 'error' },
+      ]);
+    });
+
+    it('resets the attempt tracking after a successful sign in', function () {
+      const store = configureStore({ atlasAuthService: {} as any });
+
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AttemptStart',
+        id: 1,
+      });
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AtlasSignInError',
+        error: 'some error',
+      });
+      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('previousOutcome', 'error');
+
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AtlasSignInSuccess',
+        userInfo: { sub: '1234' },
+      });
+      expect(store.getState()).to.have.property('attemptNumber', 0);
+      expect(store.getState()).to.have.property('previousOutcome', null);
+    });
+
+    it('increments attemptNumber on each AttemptStart', function () {
+      const store = configureStore({ atlasAuthService: {} as any });
+
+      expect(store.getState()).to.have.property('attemptNumber', 0);
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AttemptStart',
+        id: 1,
+      });
+      expect(store.getState()).to.have.property('attemptNumber', 1);
+      store.dispatch({ type: 'atlas-service/atlas-signin/AttemptEnd', id: 1 });
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AtlasSignInTimedOut',
+      });
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AttemptStart',
+        id: 2,
+      });
+      expect(store.getState()).to.have.property('attemptNumber', 2);
     });
   });
 
