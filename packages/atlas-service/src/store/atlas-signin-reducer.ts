@@ -420,6 +420,7 @@ async function toSignInAttemptResult(
 export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
   return async (dispatch, getState, { atlasAuthService }) => {
     const {
+      id: currentAttemptId,
       controller: { signal },
       resolve,
       reject,
@@ -458,6 +459,7 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
         type: AtlasSignInActions.Error,
         error: (err as Error).message,
       });
+      AttemptStateMap.delete(currentAttemptId);
       reject(err);
     }
   };
@@ -474,6 +476,7 @@ export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
     clearTimeout(attempt.timeoutId);
     attempt.controller.abort();
     attempt.reject(reason ?? attempt.controller.signal.reason);
+    AttemptStateMap.delete(attempt.id);
     dispatch({ type: AtlasSignInActions.Cancel });
     track('Atlas Sign In Canceled', {});
   };
@@ -491,6 +494,7 @@ export const timeoutSignIn = (
     clearTimeout(attempt.timeoutId);
     attempt.controller.abort();
     attempt.reject(new Error('Sign in timed out'));
+    AttemptStateMap.delete(attempt.id);
     openToast('atlas-disconnected', {
       title: 'The login to Atlas has timed out, please try again.',
       variant: 'note',

@@ -168,7 +168,7 @@ type AtlasSignInStartedEvent = CommonEvent<{
     attempt: number;
     /**
      * How the immediately preceding attempt ended, when this is a retry.
-     * Absent on the first attempt.
+     * Null on the first attempt.
      */
     previousOutcome: 'timed-out' | 'canceled' | 'error' | null;
   };
