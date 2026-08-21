@@ -1762,26 +1762,26 @@ type AssistantToolCallApprovalEvent = ConnectionScopedEvent<{
  *
  * @category Assistant
  */
-type AtlasConnectionErrorTroubleshootingSuccessEvent = {
+type AtlasConnectionErrorTroubleshootingSuccessEvent = CommonEvent<{
   name: 'Atlas Connection Troubleshooting Success';
   payload: {
     causes_identified: string[];
     duration: number;
   };
-};
+}>;
 
 /**
  * This event is fired when the Atlas connection troubleshooting has failed.
  *
  * @category Assistant
  */
-type AtlasConnectionErrorTroubleshootingFailedEvent = {
+type AtlasConnectionErrorTroubleshootingFailedEvent = CommonEvent<{
   name: 'Atlas Connection Troubleshooting Failed';
   payload: {
     error_name: string;
     error_code: string;
   };
-};
+}>;
 
 /**
  * This event is fired when a user submits feedback for a query generation.
