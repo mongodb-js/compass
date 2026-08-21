@@ -8,6 +8,7 @@ import {
   buildNetworkAccessListUrl,
   buildClusterOverviewUrl,
 } from '@mongodb-js/atlas-service/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 
 export const debugConnectionDescription = `
   Use to debug a Compass connection failure to an Atlas cluster. 
@@ -231,42 +232,60 @@ function getAdvice({
 export async function debugConnection(
   connectionString: string,
   atlasAdminApi: AtlasAdminApiService,
+  track: TrackFunction,
   atlasUiBaseUrl: string
 ): Promise<AtlasConnectionDebugResult> {
-  const clusterInfo = await getClusterInfo(connectionString, atlasAdminApi);
-  if (!clusterInfo) {
+  try {
+    const startTime = Date.now();
+    const clusterInfo = await getClusterInfo(connectionString, atlasAdminApi);
+    if (!clusterInfo) {
+      track('Atlas Connection Troubleshooting Success', {
+        duration: Date.now() - startTime,
+        cluster_state: 'Unknown',
+        ip_access_status: 'Could not confirm',
+      });
+      return {
+        clusterName: 'Unknown',
+        clusterState: 'Unknown',
+        ipAccessStatus: 'Could not confirm',
+        advice: 'The cluster does not exist or you do not have access to it.',
+      };
+    }
+    const { projectId, clusterName, clusterState } = clusterInfo;
+    const { ipAccessStatus, networkAccessDetails } = await getNetworkAccessInfo(
+      {
+        projectId,
+        atlasAdminApi,
+      }
+    );
+    const links = getLinks({ projectId, clusterName, ipAccessStatus, atlasUiBaseUrl });
+
+    track('Atlas Connection Troubleshooting Success', {
+      duration: Date.now() - startTime,
+      cluster_state: clusterState,
+      ip_access_status: ipAccessStatus,
+    });
     return {
-      clusterName: 'Unknown',
-      clusterState: 'Unknown',
-      ipAccessStatus: 'Could not confirm',
-      advice: 'The cluster does not exist or you do not have access to it.',
-    };
-  }
-  const { projectId, clusterName, clusterState } = clusterInfo;
-  const { ipAccessStatus, networkAccessDetails } = await getNetworkAccessInfo({
-    projectId,
-    atlasAdminApi,
-  });
-  const links = getLinks({
-    projectId,
-    clusterName,
-    ipAccessStatus,
-    atlasUiBaseUrl,
-  });
-  return {
-    clusterName,
-    clusterState,
-    ipAccessStatus,
-    links,
-    advice: getAdvice({
-      clusterState,
-      projectId,
       clusterName,
+      clusterState,
       ipAccessStatus,
       links,
-    }),
-    ...(!isIPAccessAllowed(ipAccessStatus) && networkAccessDetails
-      ? { networkAccessDetails }
-      : {}),
-  };
+      advice: getAdvice({
+        clusterState,
+        projectId,
+        clusterName,
+        ipAccessStatus,
+        links,
+      }),
+      ...(!isIPAccessAllowed(ipAccessStatus) && networkAccessDetails
+        ? { networkAccessDetails }
+        : {}),
+    };
+  } catch (error) {
+    track('Atlas Connection Troubleshooting Failed', {
+      error_name: (error as Error).name,
+      error_code: (error as any).code,
+    });
+    throw error;
+  }
 }
