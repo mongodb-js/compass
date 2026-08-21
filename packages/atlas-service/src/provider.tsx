@@ -71,6 +71,7 @@ export {
   useAtlasSignedInUser,
   useAtlasLoginActions,
   useIsAtlasSignInStateResolved,
+  useIsAtlasSignInInProgress,
 } from './store/atlas-signin-store-context';
 export type { AtlasLoginActions } from './store/atlas-signin-store-context';
 export { AtlasConnectionStatus } from './components/atlas-connection-status';

@@ -75,7 +75,7 @@ describe('Collection indexes tab', function () {
     await browser.dropIndex(createdIndexName, 'drop-index-modal-basic.png');
   });
 
-  it('supports creating a wildcard index', async function () {
+  it.only('supports creating a wildcard index', async function () {
     const indexName = await browser.createIndex(
       {
         fieldName: '$**',

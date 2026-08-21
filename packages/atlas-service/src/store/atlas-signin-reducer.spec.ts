@@ -7,6 +7,7 @@ import {
   AttemptStateMap,
   performSignInAttempt,
   signOut,
+  SIGN_IN_TIMEOUT_MS,
 } from './atlas-signin-reducer';
 import { expect } from 'chai';
 import { configureStore } from './atlas-signin-store';
@@ -174,7 +175,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
       });
 
-      void store.dispatch(performSignInAttempt()).catch(() => {});
+      void store.dispatch(performSignInAttempt());
 
       // Give it some time for start the sign in attempt. It will be waiting
       // at isAuthenticated, which never resolves.
@@ -186,8 +187,67 @@ describe('atlasSignInReducer', function () {
     });
   });
 
+  describe('sign in timeout', function () {
+    let clock: Sinon.SinonFakeTimers;
+
+    beforeEach(function () {
+      clock = sandbox.useFakeTimers({ shouldAdvanceTime: true });
+    });
+
+    afterEach(function () {
+      clock.restore();
+    });
+
+    it('should time out and reset the state if the flow does not complete in time', async function () {
+      const isAuthenticatedStub = sandbox
+        .stub()
+        .callsFake(({ signal }: { signal: AbortSignal }) => {
+          return new Promise((_resolve, reject) => {
+            signal.addEventListener('abort', () => {
+              reject(signal.reason);
+            });
+          });
+        });
+      const store = configureStore({
+        atlasAuthService: { isAuthenticated: isAuthenticatedStub } as any,
+      });
+
+      const attemptPromise = store.dispatch(performSignInAttempt());
+
+      await clock.tickAsync(0);
+      expect(store.getState()).to.have.nested.property('state', 'in-progress');
+
+      // Advance past the timeout.
+      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+
+      expect(store.getState()).to.have.nested.property('state', 'timed-out');
+      expect(store.getState()).to.have.nested.property(
+        'currentAttemptId',
+        null
+      );
+      expect(await attemptPromise).to.deep.equal({ status: 'timed-out' });
+    });
+
+    it('should not time out if the flow completes before the timeout', async function () {
+      const store = configureStore({
+        atlasAuthService: {
+          isAuthenticated: sandbox.stub().resolves(false),
+          signIn: sandbox.stub().resolves({ sub: '1234' }),
+          getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        } as any,
+      });
+
+      const result = await store.dispatch(performSignInAttempt());
+      expect(result).to.have.property('status', 'success');
+      expect(store.getState()).to.have.property('state', 'success');
+
+      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+      expect(store.getState()).to.have.property('state', 'success');
+    });
+  });
+
   describe('performSignInAttempt', function () {
-    it('should resolve when sign in flow finishes', async function () {
+    it('should resolve with a success result when sign in flow finishes', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().resolves({ sub: '1234' }),
@@ -196,11 +256,15 @@ describe('atlasSignInReducer', function () {
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
       });
-      await store.dispatch(performSignInAttempt());
+      const result = await store.dispatch(performSignInAttempt());
+      expect(result).to.deep.equal({
+        status: 'success',
+        userInfo: { sub: '1234' },
+      });
       expect(store.getState()).to.have.property('state', 'success');
     });
 
-    it('should reject if sign in fails', async function () {
+    it('should resolve with an error result if sign in fails', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().rejects(new Error('Sign in failed')),
@@ -209,16 +273,13 @@ describe('atlasSignInReducer', function () {
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
       });
-      try {
-        await store.dispatch(performSignInAttempt());
-        expect.fail('Expected performSignInAttempt action to throw');
-      } catch (err) {
-        expect(err).to.have.property('message', 'Sign in failed');
-      }
+      const result = await store.dispatch(performSignInAttempt());
+      expect(result).to.have.property('status', 'error');
+      expect(result).to.have.nested.property('error.message', 'Sign in failed');
       expect(store.getState()).to.have.property('state', 'error');
     });
 
-    it('should reject if provided signal was aborted', async function () {
+    it('should resolve with a canceled result if provided signal was aborted', async function () {
       let resolveSignInCalled = () => {};
       const signInCalled: Promise<void> = new Promise(
         (resolve) => (resolveSignInCalled = resolve)
@@ -239,12 +300,7 @@ describe('atlasSignInReducer', function () {
         performSignInAttempt({ signal: c.signal })
       );
       c.abort(new Error('Aborted from outside'));
-      try {
-        await signInPromise;
-        throw new Error('Expected signInPromise to throw');
-      } catch (err) {
-        expect(err).to.have.property('message', 'Aborted from outside');
-      }
+      expect(await signInPromise).to.deep.equal({ status: 'canceled' });
       expect(store.getState()).to.have.property('state', 'canceled');
 
       // Ensure that we are not leaving a dangling store operation that would conflict with our mocks being reset.
@@ -264,14 +320,18 @@ describe('atlasSignInReducer', function () {
       const firstAttemptPromise = store.dispatch(performSignInAttempt());
       const secondAttemptPromise = store.dispatch(performSignInAttempt());
 
-      const [firstUserInfo, secondUserInfo] = await Promise.all([
+      const [firstResult, secondResult] = await Promise.all([
         firstAttemptPromise,
         secondAttemptPromise,
       ]);
 
-      // the second call should not have triggered a second signIn call, and both should have the same userInfo
+      // the second call should not have triggered a second signIn call, and both should resolve to the same result
       expect(mockAtlasService.signIn).to.have.been.calledOnce;
-      expect(firstUserInfo).to.deep.equal(secondUserInfo);
+      expect(firstResult).to.deep.equal({
+        status: 'success',
+        userInfo: { sub: '1234' },
+      });
+      expect(firstResult).to.deep.equal(secondResult);
       expect(store.getState()).to.have.property('state', 'success');
     });
 

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import {
   performSignInAttempt,
   signOut,
+  type SignInAttemptResult,
   type AtlasSignInState,
 } from './atlas-signin-reducer';
 import type { ReactReduxContextValue, TypedUseSelectorHook } from 'react-redux';
@@ -54,11 +55,15 @@ export function useIsAtlasSignInStateResolved(): boolean {
   );
 }
 
+export function useIsAtlasSignInInProgress(): boolean {
+  return useSelector((state) => state.state === 'in-progress');
+}
+
 export type AtlasLoginActions = {
   signOut: () => Promise<void>;
   signIn: (opts?: {
     entrypoint?: AtlasSignInEntrypoint;
-  }) => Promise<AtlasUserInfo>;
+  }) => Promise<SignInAttemptResult>;
 };
 
 export function useAtlasLoginActions(): AtlasLoginActions {

@@ -205,6 +205,22 @@ type AtlasSignInErrorEvent = CommonEvent<{
 }>;
 
 /**
+ * This event is fired when the user does not complete the sign in to their Atlas
+ * account on time.
+ *
+ * @category Atlas
+ */
+type AtlasSignInTimedOutEvent = CommonEvent<{
+  name: 'Atlas Sign In Timed Out';
+  payload: {
+    /**
+     * The surface of the application the sign in was triggered from.
+     */
+    entrypoint: AtlasSignInEntrypoint;
+  };
+}>;
+
+/**
  * This event is fired when user signed out from their Atlas account.
  *
  * @category Atlas
@@ -4193,6 +4209,7 @@ export type TelemetryEvent =
   | AtlasLinkClickedEvent
   | AtlasSearchIndexesForViewLinkClickedEvent
   | AtlasSignInErrorEvent
+  | AtlasSignInTimedOutEvent
   | AtlasSignInPromptShownEvent
   | AtlasSignInStartedEvent
   | AtlasSignInSuccessEvent
