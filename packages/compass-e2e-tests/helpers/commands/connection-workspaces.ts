@@ -8,9 +8,11 @@ export async function navigateToConnectionTab(
   tabType: 'Performance' | 'Databases'
 ): Promise<void> {
   if (tabType === 'Databases') {
-    await browser.clickVisible(Selectors.sidebarConnection(connectionName));
+    await browser.clickVisible(
+      browser.pages.sidebar.$connection(connectionName)
+    );
   } else {
-    await browser.selectConnectionMenuItem(
+    await browser.pages.sidebar.selectConnectionMenuItem(
       connectionName,
       Selectors.ViewPerformanceItem
     );

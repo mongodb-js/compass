@@ -13,17 +13,16 @@ async function resetForDisconnect(
 
   // Collapse all the connections so that they will all hopefully fit on screen
   // and therefore be rendered.
-  await browser.clickVisible(Selectors.CollapseConnectionsButton);
+  await browser.pages.sidebar.collapseAllConnections();
 
   if (
-    (await browser.$(Selectors.SidebarFilterInput).isDisplayed()) &&
-    (await browser
-      .$(Selectors.SidebarFilterInput)
-      .getAttribute('aria-disabled')) !== 'true'
+    (await browser.pages.sidebar.$filterInput.isDisplayed()) &&
+    (await browser.pages.sidebar.$filterInput.getAttribute('aria-disabled')) !==
+      'true'
   ) {
     // Clear the filter to make sure every connection shows
-    await browser.clickVisible(Selectors.SidebarFilterInput);
-    await browser.setValueVisible(Selectors.SidebarFilterInput, '');
+    await browser.clickVisible(browser.pages.sidebar.$filterInput);
+    await browser.setValueVisible(browser.pages.sidebar.$filterInput, '');
   }
 
   if (closeToasts) {
@@ -50,7 +49,8 @@ export async function disconnectAll(
   // The potential problem here is that the list is virtual, so it is possible
   // that not every connection is rendered. Collapsing them all helps a little
   // bit, though.
-  const connectionItems = browser.$$(Selectors.ConnectedConnectionItems);
+  const connectionItems = browser.pages.sidebar.$$connectedConnections;
+
   for await (const connectionItem of connectionItems) {
     const connectionName = await connectionItem.getAttribute(
       'data-connection-name'
@@ -82,16 +82,12 @@ export async function disconnectByName(
 ) {
   await resetForDisconnect(browser, { closeToasts: false });
 
-  await browser.selectConnectionMenuItem(
+  await browser.pages.sidebar.selectConnectionMenuItem(
     connectionName,
     Selectors.DisconnectConnectionItem
   );
 
-  await browser
-    .$(
-      Selectors.connectionItemByName(connectionName, {
-        connected: false,
-      })
-    )
+  await browser.pages.sidebar
+    .$connectionItem(connectionName, { connected: false })
     .waitForDisplayed();
 }
