@@ -20,6 +20,8 @@ export type AtlasSignInState = {
   error: string | null;
   // For managing attempt state that doesn't belong in the store
   currentAttemptId: number | null;
+  attemptNumber: number;
+  previousOutcome: 'timed-out' | 'canceled' | 'error' | null;
 } & (
   | {
       state:
@@ -28,11 +30,18 @@ export type AtlasSignInState = {
         | 'unauthenticated'
         | 'in-progress'
         | 'error'
-        | 'canceled';
+        | 'canceled'
+        | 'timed-out';
       userInfo: null;
     }
   | { state: 'success'; userInfo: AtlasUserInfo }
 );
+
+export type SignInAttemptResult =
+  | { status: 'success'; userInfo: AtlasUserInfo }
+  | { status: 'timed-out' }
+  | { status: 'canceled' }
+  | { status: 'error'; error: Error };
 
 export type AtlasSignInThunkAction<
   R,
@@ -55,6 +64,7 @@ export const enum AtlasSignInActions {
   Success = 'atlas-service/atlas-signin/AtlasSignInSuccess',
   Error = 'atlas-service/atlas-signin/AtlasSignInError',
   Cancel = 'atlas-service/atlas-signin/AtlasSignInCancel',
+  TimedOut = 'atlas-service/atlas-signin/AtlasSignInTimedOut',
   TokenRefreshFailed = 'atlas-service/atlas-signin/TokenRefreshFailed',
   SignedOut = 'atlas-service/atlas-signin/SignedOut',
 }
@@ -106,12 +116,16 @@ export type AtlasSignInSignedOutAction = {
 
 export type AtlasSignInCancelAction = { type: AtlasSignInActions.Cancel };
 
+export type AtlasSignInTimedOutAction = { type: AtlasSignInActions.TimedOut };
+
 const INITIAL_STATE = {
   state: 'initial' as const,
   userInfo: null,
   error: null,
   isModalOpen: false,
   currentAttemptId: null,
+  attemptNumber: 0,
+  previousOutcome: null,
 };
 
 type AttemptState = {
@@ -120,7 +134,10 @@ type AttemptState = {
   promise: Promise<AtlasUserInfo>;
   resolve: (userInfo: AtlasUserInfo) => void;
   reject: (reason?: any) => void;
+  timeoutId?: ReturnType<typeof setTimeout>;
 };
+
+export const SIGN_IN_TIMEOUT_MS = 2 * 60 * 1000; // 2 Minutes
 
 // Exported for testing purposes only
 export const AttemptStateMap = new Map<number, AttemptState>();
@@ -209,6 +226,7 @@ const reducer: Reducer<AtlasSignInState, Action> = (
     return {
       ...state,
       currentAttemptId: action.id,
+      attemptNumber: state.attemptNumber + 1,
     };
   }
 
@@ -232,6 +250,8 @@ const reducer: Reducer<AtlasSignInState, Action> = (
       userInfo: action.userInfo,
       error: null,
       isModalOpen: false,
+      attemptNumber: 0,
+      previousOutcome: null,
     };
   }
 
@@ -242,11 +262,28 @@ const reducer: Reducer<AtlasSignInState, Action> = (
       userInfo: null,
       error: action.error,
       isModalOpen: false,
+      previousOutcome: 'error',
     };
   }
 
   if (isAction<AtlasSignInCancelAction>(action, AtlasSignInActions.Cancel)) {
-    return { ...INITIAL_STATE, state: 'canceled' };
+    return {
+      ...INITIAL_STATE,
+      state: 'canceled',
+      attemptNumber: state.attemptNumber,
+      previousOutcome: 'canceled',
+    };
+  }
+
+  if (
+    isAction<AtlasSignInTimedOutAction>(action, AtlasSignInActions.TimedOut)
+  ) {
+    return {
+      ...INITIAL_STATE,
+      state: 'timed-out',
+      attemptNumber: state.attemptNumber,
+      previousOutcome: 'timed-out',
+    };
   }
 
   if (
@@ -296,17 +333,21 @@ export const restoreSignInState = (): AtlasSignInThunkAction<Promise<void>> => {
   };
 };
 
-const startAttempt = (fn: () => void): AtlasSignInThunkAction<AttemptState> => {
-  return (dispatch, getState) => {
-    if (getState().currentAttemptId) {
-      throw new Error(
-        "Can't start sign in with prompt while another sign in attempt is in progress"
-      );
-    }
+const startAttempt = (
+  fn: () => void,
+  entrypoint: AtlasSignInEntrypoint
+): AtlasSignInThunkAction<AttemptState> => {
+  return (dispatch) => {
     const attempt = getAttempt();
     dispatch({ type: AtlasSignInActions.AttemptStart, id: attempt.id });
+
+    attempt.timeoutId = setTimeout(() => {
+      dispatch(timeoutSignIn(attempt.id, entrypoint));
+    }, SIGN_IN_TIMEOUT_MS);
+
     attempt.promise
       .finally(() => {
+        clearTimeout(attempt.timeoutId);
         dispatch({ type: AtlasSignInActions.AttemptEnd, id: attempt.id });
       })
       .catch(() => {
@@ -324,30 +365,54 @@ export const performSignInAttempt = ({
 }: {
   signal?: AbortSignal;
   entrypoint?: AtlasSignInEntrypoint;
-} = {}): AtlasSignInThunkAction<Promise<AtlasUserInfo>> => {
+} = {}): AtlasSignInThunkAction<Promise<SignInAttemptResult>> => {
   return async (dispatch, getState, { track }) => {
     // Nothing to do if we already signed in
     const { state, userInfo, currentAttemptId } = getState();
     if (state === 'success') {
-      return userInfo;
+      return { status: 'success', userInfo };
     }
 
     if (currentAttemptId) {
-      return getAttempt(currentAttemptId).promise;
+      return toSignInAttemptResult(
+        getAttempt(currentAttemptId).promise,
+        getState
+      );
     }
 
-    track('Atlas Sign In Started', { entrypoint });
     const attempt = dispatch(
       startAttempt(() => {
         void dispatch(signIn());
-      })
+      }, entrypoint)
     );
+    // The attemptNumber is incremented when AttemptStart is dispatched, so we
+    // must track the event after it.
+    track('Atlas Sign In Started', {
+      entrypoint,
+      attempt: getState().attemptNumber,
+      previousOutcome: getState().previousOutcome,
+    });
     signal?.addEventListener('abort', () => {
       dispatch(cancelSignIn(signal.reason));
     });
-    return attempt.promise;
+    return toSignInAttemptResult(attempt.promise, getState);
   };
 };
+
+async function toSignInAttemptResult(
+  promise: Promise<AtlasUserInfo>,
+  getState: () => AtlasSignInState
+): Promise<SignInAttemptResult> {
+  try {
+    const userInfo = await promise;
+    return { status: 'success', userInfo };
+  } catch (error) {
+    const state = getState().state;
+    if (state === 'timed-out') return { status: 'timed-out' };
+    if (state === 'canceled') return { status: 'canceled' };
+    return { status: 'error', error: error as Error };
+  }
+}
 
 /**
  * Sign into Atlas. To be called when the user isn't signed in yet.
@@ -355,6 +420,7 @@ export const performSignInAttempt = ({
 export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
   return async (dispatch, getState, { atlasAuthService }) => {
     const {
+      id: currentAttemptId,
       controller: { signal },
       resolve,
       reject,
@@ -393,22 +459,49 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
         type: AtlasSignInActions.Error,
         error: (err as Error).message,
       });
+      AttemptStateMap.delete(currentAttemptId);
       reject(err);
     }
   };
 };
 
 export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
-  return (dispatch, getState) => {
+  return (dispatch, getState, { track }) => {
     // Can't cancel sign in after the flow was finished indicated by current
     // attempt id being set to null
     if (getState().currentAttemptId === null) {
       return;
     }
     const attempt = getAttempt(getState().currentAttemptId);
+    clearTimeout(attempt.timeoutId);
     attempt.controller.abort();
     attempt.reject(reason ?? attempt.controller.signal.reason);
+    AttemptStateMap.delete(attempt.id);
     dispatch({ type: AtlasSignInActions.Cancel });
+    track('Atlas Sign In Canceled', {});
+  };
+};
+
+export const timeoutSignIn = (
+  attemptId: number,
+  entrypoint: AtlasSignInEntrypoint
+): AtlasSignInThunkAction<void> => {
+  return (dispatch, getState, { track }) => {
+    if (getState().currentAttemptId !== attemptId) {
+      return;
+    }
+    const attempt = getAttempt(attemptId);
+    clearTimeout(attempt.timeoutId);
+    attempt.controller.abort();
+    attempt.reject(new Error('Sign in timed out'));
+    AttemptStateMap.delete(attempt.id);
+    openToast('atlas-disconnected', {
+      title: 'The login to Atlas has timed out, please try again.',
+      variant: 'note',
+      timeout: 5000,
+    });
+    dispatch({ type: AtlasSignInActions.TimedOut });
+    track('Atlas Sign In Timed Out', { entrypoint });
   };
 };
 

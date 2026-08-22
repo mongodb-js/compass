@@ -7,6 +7,7 @@ import {
   AtlasSignInStoreContext,
   useAtlasSignedInUser,
   useIsAtlasSignInStateResolved,
+  useIsAtlasSignInInProgress,
 } from './atlas-signin-store-context';
 import { AtlasSignInActions } from './atlas-signin-reducer';
 import { configureStore } from './atlas-signin-store';
@@ -24,6 +25,8 @@ function renderWithState(actions: AnyAction[]) {
   return {
     store,
     isResolved: renderHook(() => useIsAtlasSignInStateResolved(), { wrapper })
+      .result,
+    isInProgress: renderHook(() => useIsAtlasSignInInProgress(), { wrapper })
       .result,
     signedInUser: renderHook(() => useAtlasSignedInUser(), { wrapper }).result,
   };
@@ -84,4 +87,39 @@ describe('useIsAtlasSignInStateResolved', function () {
     expect(signedInUser.current).to.eq(null);
     expect(isResolved.current).to.eq(false);
   });
+});
+
+describe('useIsAtlasSignInInProgress', function () {
+  const cases: [string, AnyAction[], boolean][] = [
+    // only in-progress should return true
+    ['in-progress', [{ type: AtlasSignInActions.Start }], true],
+    ['initial', [], false],
+    ['restoring', RESTORING, false],
+    [
+      'unauthenticated',
+      [...RESTORING, { type: AtlasSignInActions.RestoringFailed }],
+      false,
+    ],
+    ['success', SUCCESS, false],
+    [
+      'error',
+      [
+        { type: AtlasSignInActions.Start },
+        { type: AtlasSignInActions.Error, error: 'Whoops!' },
+      ],
+      false,
+    ],
+    ['canceled', [{ type: AtlasSignInActions.Cancel }], false],
+    ['timed-out', [{ type: AtlasSignInActions.TimedOut }], false],
+  ];
+
+  for (const [state, actions, expected] of cases) {
+    it(`should return ${String(
+      expected
+    )} for the '${state}' state`, function () {
+      const { store, isInProgress } = renderWithState(actions);
+      expect(store.getState()).to.have.property('state', state);
+      expect(isInProgress.current).to.eq(expected);
+    });
+  }
 });

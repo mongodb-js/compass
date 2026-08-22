@@ -7,6 +7,7 @@ import {
   AttemptStateMap,
   performSignInAttempt,
   signOut,
+  SIGN_IN_TIMEOUT_MS,
 } from './atlas-signin-reducer';
 import { expect } from 'chai';
 import { configureStore } from './atlas-signin-store';
@@ -170,24 +171,138 @@ describe('atlasSignInReducer', function () {
       const mockAtlasService = {
         isAuthenticated: isAuthenticatedStub,
       };
+      const track = sandbox.stub();
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
+        track,
       });
 
-      void store.dispatch(performSignInAttempt()).catch(() => {});
+      void store.dispatch(performSignInAttempt());
 
       // Give it some time for start the sign in attempt. It will be waiting
       // at isAuthenticated, which never resolves.
       await new Promise((resolve) => setTimeout(resolve, 100));
       store.dispatch(cancelSignIn());
       expect(store.getState()).to.have.nested.property('state', 'canceled');
+      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('previousOutcome', 'canceled');
 
       expect(isAuthenticatedStub).to.have.been.calledOnce;
+      expect(track).to.have.been.calledWith('Atlas Sign In Canceled', {});
+    });
+
+    it('should not track a cancel when no sign in is in progress', function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {} as any,
+        track,
+      });
+
+      store.dispatch(cancelSignIn());
+
+      expect(track).to.not.have.been.calledWith('Atlas Sign In Canceled');
+    });
+  });
+
+  describe('sign in timeout', function () {
+    let clock: Sinon.SinonFakeTimers;
+    const ENTRYPOINT = 'assistant-tool-atlas-connection-error-debugger';
+
+    beforeEach(function () {
+      clock = sandbox.useFakeTimers({ shouldAdvanceTime: true });
+    });
+
+    afterEach(function () {
+      clock.restore();
+      sandbox.restore();
+    });
+
+    async function driveToTimeout() {
+      const isAuthenticatedStub = sandbox
+        .stub()
+        .callsFake(({ signal }: { signal: AbortSignal }) => {
+          return new Promise((_resolve, reject) => {
+            signal.addEventListener('abort', () => {
+              reject(signal.reason);
+            });
+          });
+        });
+      const track = sandbox.stub();
+      const openToast = sandbox.stub();
+      sandbox.replaceGetter(compassComponents, 'openToast', () => openToast);
+      const store = configureStore({
+        atlasAuthService: { isAuthenticated: isAuthenticatedStub } as any,
+        track,
+      });
+
+      const attemptPromise = store.dispatch(
+        performSignInAttempt({ entrypoint: ENTRYPOINT })
+      );
+
+      await clock.tickAsync(0);
+      expect(store.getState()).to.have.nested.property('state', 'in-progress');
+
+      // Advance past the timeout.
+      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+      const result = await attemptPromise;
+
+      return { store, track, openToast, result };
+    }
+
+    it('resets the state to timed out', async function () {
+      const { store, result } = await driveToTimeout();
+
+      expect(store.getState()).to.have.nested.property('state', 'timed-out');
+      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('previousOutcome', 'timed-out');
+      expect(store.getState()).to.have.nested.property(
+        'currentAttemptId',
+        null
+      );
+      expect(result).to.deep.equal({ status: 'timed-out' });
+    });
+
+    it('tracks the timed out event with the entrypoint', async function () {
+      const { track } = await driveToTimeout();
+
+      expect(
+        track.withArgs('Atlas Sign In Timed Out', { entrypoint: ENTRYPOINT })
+      ).to.have.been.calledOnce;
+    });
+
+    it('shows a toast informing the user that sign in timed out', async function () {
+      const { openToast } = await driveToTimeout();
+
+      expect(openToast.withArgs('atlas-disconnected')).to.have.been.calledOnce;
+      expect(openToast.lastCall.args[1]).to.include({
+        title: 'The login to Atlas has timed out, please try again.',
+        variant: 'note',
+      });
+    });
+
+    it('should not time out if the flow completes before the timeout', async function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {
+          isAuthenticated: sandbox.stub().resolves(false),
+          signIn: sandbox.stub().resolves({ sub: '1234' }),
+          getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        } as any,
+        track,
+      });
+
+      const result = await store.dispatch(performSignInAttempt());
+      expect(result).to.have.property('status', 'success');
+      expect(store.getState()).to.have.property('state', 'success');
+
+      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+      expect(store.getState()).to.have.property('state', 'success');
+      expect(track).to.not.have.been.calledWith('Atlas Sign In Timed Out');
     });
   });
 
   describe('performSignInAttempt', function () {
-    it('should resolve when sign in flow finishes', async function () {
+    it('should resolve with a success result when sign in flow finishes', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().resolves({ sub: '1234' }),
@@ -196,11 +311,15 @@ describe('atlasSignInReducer', function () {
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
       });
-      await store.dispatch(performSignInAttempt());
+      const result = await store.dispatch(performSignInAttempt());
+      expect(result).to.deep.equal({
+        status: 'success',
+        userInfo: { sub: '1234' },
+      });
       expect(store.getState()).to.have.property('state', 'success');
     });
 
-    it('should reject if sign in fails', async function () {
+    it('should resolve with an error result if sign in fails', async function () {
       const mockAtlasService = {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().rejects(new Error('Sign in failed')),
@@ -209,16 +328,15 @@ describe('atlasSignInReducer', function () {
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
       });
-      try {
-        await store.dispatch(performSignInAttempt());
-        expect.fail('Expected performSignInAttempt action to throw');
-      } catch (err) {
-        expect(err).to.have.property('message', 'Sign in failed');
-      }
+      const result = await store.dispatch(performSignInAttempt());
+      expect(result).to.have.property('status', 'error');
+      expect(result).to.have.nested.property('error.message', 'Sign in failed');
       expect(store.getState()).to.have.property('state', 'error');
+      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('previousOutcome', 'error');
     });
 
-    it('should reject if provided signal was aborted', async function () {
+    it('should resolve with a canceled result if provided signal was aborted', async function () {
       let resolveSignInCalled = () => {};
       const signInCalled: Promise<void> = new Promise(
         (resolve) => (resolveSignInCalled = resolve)
@@ -239,12 +357,7 @@ describe('atlasSignInReducer', function () {
         performSignInAttempt({ signal: c.signal })
       );
       c.abort(new Error('Aborted from outside'));
-      try {
-        await signInPromise;
-        throw new Error('Expected signInPromise to throw');
-      } catch (err) {
-        expect(err).to.have.property('message', 'Aborted from outside');
-      }
+      expect(await signInPromise).to.deep.equal({ status: 'canceled' });
       expect(store.getState()).to.have.property('state', 'canceled');
 
       // Ensure that we are not leaving a dangling store operation that would conflict with our mocks being reset.
@@ -264,14 +377,18 @@ describe('atlasSignInReducer', function () {
       const firstAttemptPromise = store.dispatch(performSignInAttempt());
       const secondAttemptPromise = store.dispatch(performSignInAttempt());
 
-      const [firstUserInfo, secondUserInfo] = await Promise.all([
+      const [firstResult, secondResult] = await Promise.all([
         firstAttemptPromise,
         secondAttemptPromise,
       ]);
 
-      // the second call should not have triggered a second signIn call, and both should have the same userInfo
+      // the second call should not have triggered a second signIn call, and both should resolve to the same result
       expect(mockAtlasService.signIn).to.have.been.calledOnce;
-      expect(firstUserInfo).to.deep.equal(secondUserInfo);
+      expect(firstResult).to.deep.equal({
+        status: 'success',
+        userInfo: { sub: '1234' },
+      });
+      expect(firstResult).to.deep.equal(secondResult);
       expect(store.getState()).to.have.property('state', 'success');
     });
 
@@ -294,6 +411,8 @@ describe('atlasSignInReducer', function () {
       );
       expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
         entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+        attempt: 1,
+        previousOutcome: null,
       });
     });
 
@@ -312,6 +431,8 @@ describe('atlasSignInReducer', function () {
       await store.dispatch(performSignInAttempt());
       expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
         entrypoint: 'unknown',
+        attempt: 1,
+        previousOutcome: null,
       });
     });
 
@@ -329,6 +450,187 @@ describe('atlasSignInReducer', function () {
       await store.dispatch(restoreSignInState());
       await store.dispatch(performSignInAttempt());
       expect(track).to.not.have.been.called;
+    });
+  });
+
+  describe('sign in attempt tracking (retries)', function () {
+    let clock: Sinon.SinonFakeTimers;
+    const ENTRYPOINT = 'assistant-tool-atlas-connection-error-debugger';
+
+    beforeEach(function () {
+      clock = sandbox.useFakeTimers({ shouldAdvanceTime: true });
+      sandbox.replaceGetter(compassComponents, 'openToast', () =>
+        sandbox.stub()
+      );
+    });
+
+    afterEach(function () {
+      clock.restore();
+      sandbox.restore();
+    });
+
+    function startedCalls(track: Sinon.SinonStub) {
+      return track
+        .getCalls()
+        .filter((call) => call.args[0] === 'Atlas Sign In Started')
+        .map((call) => call.args[1]);
+    }
+
+    async function attemptThenTimeout(store: any) {
+      const attemptPromise = store.dispatch(
+        performSignInAttempt({ entrypoint: ENTRYPOINT })
+      );
+      await clock.tickAsync(0);
+      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+      await attemptPromise;
+    }
+
+    it('first attempt, previousOutcome is null', async function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {
+          isAuthenticated: sandbox.stub().resolves(false),
+          signIn: sandbox.stub().resolves({ sub: '1234' }),
+          getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        } as any,
+        track,
+      });
+
+      await store.dispatch(performSignInAttempt({ entrypoint: ENTRYPOINT }));
+
+      expect(startedCalls(track)).to.deep.equal([
+        { entrypoint: ENTRYPOINT, attempt: 1, previousOutcome: null },
+      ]);
+    });
+
+    it('after a timeout, retrying increases attempt number and fill previousOutcome', async function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {
+          isAuthenticated: sandbox
+            .stub()
+            .callsFake(({ signal }: { signal: AbortSignal }) => {
+              return new Promise((_resolve, reject) => {
+                signal.addEventListener('abort', () => reject(signal.reason));
+              });
+            }),
+        } as any,
+        track,
+      });
+
+      await attemptThenTimeout(store);
+
+      const secondPromise = store.dispatch(
+        performSignInAttempt({ entrypoint: ENTRYPOINT })
+      );
+      await clock.tickAsync(0);
+
+      expect(startedCalls(track)).to.deep.equal([
+        { entrypoint: ENTRYPOINT, attempt: 1, previousOutcome: null },
+        { entrypoint: ENTRYPOINT, attempt: 2, previousOutcome: 'timed-out' },
+      ]);
+
+      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+      await secondPromise;
+    });
+
+    it('after a cancel, reports the previous outcome as canceled when retrying', async function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {
+          isAuthenticated: sandbox
+            .stub()
+            .callsFake(({ signal }: { signal: AbortSignal }) => {
+              return new Promise((_resolve, reject) => {
+                signal.addEventListener('abort', () => reject(signal.reason));
+              });
+            }),
+        } as any,
+        track,
+      });
+
+      const c = new AbortController();
+      const firstPromise = store.dispatch(
+        performSignInAttempt({ entrypoint: ENTRYPOINT, signal: c.signal })
+      );
+      await clock.tickAsync(0);
+      c.abort(new Error('user canceled'));
+      await firstPromise;
+
+      const secondPromise = store.dispatch(
+        performSignInAttempt({ entrypoint: ENTRYPOINT })
+      );
+      await clock.tickAsync(0);
+
+      expect(startedCalls(track)).to.deep.equal([
+        { entrypoint: ENTRYPOINT, attempt: 1, previousOutcome: null },
+        { entrypoint: ENTRYPOINT, attempt: 2, previousOutcome: 'canceled' },
+      ]);
+
+      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
+      await secondPromise;
+    });
+
+    it('after a failure, reports the previous outcome as error when retrying', async function () {
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: {
+          isAuthenticated: sandbox.stub().resolves(false),
+          signIn: sandbox.stub().rejects(new Error('Sign in failed')),
+          getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        } as any,
+        track,
+      });
+
+      await store.dispatch(performSignInAttempt({ entrypoint: ENTRYPOINT }));
+      await store.dispatch(performSignInAttempt({ entrypoint: ENTRYPOINT }));
+
+      expect(startedCalls(track)).to.deep.equal([
+        { entrypoint: ENTRYPOINT, attempt: 1, previousOutcome: null },
+        { entrypoint: ENTRYPOINT, attempt: 2, previousOutcome: 'error' },
+      ]);
+    });
+
+    it('resets the attempt tracking after a successful sign in', function () {
+      const store = configureStore({ atlasAuthService: {} as any });
+
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AttemptStart',
+        id: 1,
+      });
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AtlasSignInError',
+        error: 'some error',
+      });
+      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('previousOutcome', 'error');
+
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AtlasSignInSuccess',
+        userInfo: { sub: '1234' },
+      });
+      expect(store.getState()).to.have.property('attemptNumber', 0);
+      expect(store.getState()).to.have.property('previousOutcome', null);
+    });
+
+    it('increments attemptNumber on each AttemptStart', function () {
+      const store = configureStore({ atlasAuthService: {} as any });
+
+      expect(store.getState()).to.have.property('attemptNumber', 0);
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AttemptStart',
+        id: 1,
+      });
+      expect(store.getState()).to.have.property('attemptNumber', 1);
+      store.dispatch({ type: 'atlas-service/atlas-signin/AttemptEnd', id: 1 });
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AtlasSignInTimedOut',
+      });
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AttemptStart',
+        id: 2,
+      });
+      expect(store.getState()).to.have.property('attemptNumber', 2);
     });
   });
 
