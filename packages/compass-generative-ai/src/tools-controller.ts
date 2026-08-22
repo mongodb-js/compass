@@ -26,6 +26,7 @@ import {
   debugConnection,
   debugConnectionDescription,
 } from './tools/debug-connection';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
 
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
@@ -85,6 +86,7 @@ type ToolsControllerConfig = {
   enableTelemetry: boolean;
   maxTimeMS?: number;
   atlasAdminApi: AtlasAdminApiService;
+  track: TrackFunction;
 };
 
 export class ToolsController {
@@ -97,6 +99,7 @@ export class ToolsController {
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
   private readonly atlasAdminApi: AtlasAdminApiService;
+  private readonly track: TrackFunction;
 
   constructor({
     logger,
@@ -105,8 +108,10 @@ export class ToolsController {
     maxTimeMS,
     atlasAdminApi,
     preferences,
+    track,
   }: ToolsControllerConfig) {
     this.logger = logger;
+    this.track = track;
     this.atlasAdminApi = atlasAdminApi;
     this.preferences = preferences;
     const mcpConfig = UserConfigSchema.parse({
@@ -306,10 +311,17 @@ export class ToolsController {
             'Executing atlas-connection-error-debugger tool'
           );
 
-          return await debugConnection(
+          const result = await debugConnection(
             args.connectionString,
             this.atlasAdminApi
           );
+
+          this.track('Atlas Connection Troubleshooting Results', {
+            cluster_state: result.clusterState,
+            ip_access_status: result.ipAccessStatus,
+          });
+
+          return result;
         },
       };
     }
