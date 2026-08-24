@@ -8,14 +8,9 @@ import {
   userEvent,
   waitFor,
 } from '@mongodb-js/testing-library-compass';
-import {
-  AtlasAuthServiceProvider,
-  AtlasServiceProvider,
-  useAtlasLoginActions,
-} from '@mongodb-js/atlas-service/provider';
+import { useAtlasLoginActions } from '@mongodb-js/atlas-service/provider';
 import type { AtlasUserInfo } from '@mongodb-js/atlas-service/provider';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
-import { AtlasAdminApiServiceProvider } from './provider';
 import { AtlasAdminApiService } from './atlas-admin-api-service';
 import { useAtlasSystemStatus } from './use-atlas-system-status';
 
@@ -78,15 +73,9 @@ describe('useAtlasSystemStatus', function () {
       atlasAuthService: authService,
     });
     render(
-      <AtlasAuthServiceProvider value={authService}>
-        <AtlasServiceProvider>
-          <AtlasAdminApiServiceProvider>
-            <Plugin>
-              <Consumer />
-            </Plugin>
-          </AtlasAdminApiServiceProvider>
-        </AtlasServiceProvider>
-      </AtlasAuthServiceProvider>
+      <Plugin>
+        <Consumer />
+      </Plugin>
     );
     return authService;
   }
