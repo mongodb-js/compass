@@ -80,7 +80,6 @@ function Home({ appName }: HomeProps): React.ReactElement | null {
           <WelcomeModal></WelcomeModal>
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
-          <AtlasAuthPlugin></AtlasAuthPlugin>
           <CompassGenerativeAIPlugin
             isCloudOptIn={false}
           ></CompassGenerativeAIPlugin>
@@ -109,19 +108,21 @@ function HomeWithConnections({
     <ConnectionStorageProvider value={connectionStorage}>
       <FileInputBackendProvider createFileInputBackend={createFileInputBackend}>
         <ToolsControllerProvider>
-          <CompassAssistantProvider
-            originForPrompt="mongodb-compass"
-            appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
-          >
-            <CompassConnections
-              appName={props.appName}
-              onExtraConnectionDataRequest={getExtraConnectionData}
-              onAutoconnectInfoRequest={onAutoconnectInfoRequest}
-              doNotReconnectDisconnectedAutoconnectInfo
+          <AtlasAuthPlugin>
+            <CompassAssistantProvider
+              originForPrompt="mongodb-compass"
+              appNameForPrompt={APP_NAMES_FOR_PROMPT.Compass}
             >
-              <Home {...props}></Home>
-            </CompassConnections>
-          </CompassAssistantProvider>
+              <CompassConnections
+                appName={props.appName}
+                onExtraConnectionDataRequest={getExtraConnectionData}
+                onAutoconnectInfoRequest={onAutoconnectInfoRequest}
+                doNotReconnectDisconnectedAutoconnectInfo
+              >
+                <Home {...props}></Home>
+              </CompassConnections>
+            </CompassAssistantProvider>
+          </AtlasAuthPlugin>
         </ToolsControllerProvider>
       </FileInputBackendProvider>
     </ConnectionStorageProvider>
@@ -132,15 +133,21 @@ export default function ThemedHome(
   props: HomeWithConnectionsProps
 ): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
-  const { legacyUUIDDisplayEncoding, showedNetworkOptIn, enableGuideCues } =
-    usePreferences([
-      'legacyUUIDDisplayEncoding',
-      'showedNetworkOptIn',
-      'enableGuideCues',
-    ]);
+  const {
+    legacyUUIDDisplayEncoding,
+    timezone,
+    showedNetworkOptIn,
+    enableGuideCues,
+  } = usePreferences([
+    'legacyUUIDDisplayEncoding',
+    'timezone',
+    'showedNetworkOptIn',
+    'enableGuideCues',
+  ]);
   return (
     <CompassComponentsProvider
       legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
+      timezone={timezone}
       onGuideCueShown={(cue) => {
         track('Guide Cue Shown', {
           groupId: cue.groupId,
@@ -200,7 +207,6 @@ export default function ThemedHome(
       onSignalClose={(id) => {
         track('Signal Closed', { id });
       }}
-      disableContextMenus={false}
       // Wait for the "Welcome" modal to disappear before showing any guide cues
       // in the app
       disableGuideCues={!enableGuideCues || !showedNetworkOptIn}

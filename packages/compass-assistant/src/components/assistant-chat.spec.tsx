@@ -21,7 +21,7 @@ import {
   type AssistantMessage,
 } from '../compass-assistant-provider';
 import sinon from 'sinon';
-import type { SourceUrlUIPart, TextPart } from 'ai';
+import type { SourceUrlUIPart, TextPart, ToolUIPart } from 'ai';
 import { Chat } from '../@ai-sdk/react/chat-react';
 import {
   ToolsControllerProvider,
@@ -31,6 +31,7 @@ import {
   ExperimentTestGroups,
   type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -100,14 +101,18 @@ describe('AssistantChat', function () {
         await chat.sendMessage(message, options);
       });
 
+    const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
+
     const assistantActionsContext = {
       ensureOptInAndSend: ensureOptInAndSendStub,
     };
     const result = render(
       <ToolsControllerProvider>
-        <AssistantActionsContext.Provider value={assistantActionsContext}>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </AssistantActionsContext.Provider>
+        <AtlasLoginPlugin>
+          <AssistantActionsContext.Provider value={assistantActionsContext}>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </AssistantActionsContext.Provider>
+        </AtlasLoginPlugin>
       </ToolsControllerProvider>,
       {
         connections,
@@ -1021,6 +1026,36 @@ describe('AssistantChat', function () {
           }
         );
       });
+    });
+  });
+
+  describe('Atlas connection-error debugger tool call', function () {
+    function makeAtlasToolCallMessage(
+      state: ToolUIPart['state'] = 'approval-requested',
+      approvalId: string | undefined = 'atlas-approval-1'
+    ): AssistantMessage {
+      return {
+        id: 'atlas-tool-call',
+        role: 'assistant',
+        parts: [
+          {
+            type: 'tool-atlas-connection-error-debugger',
+            toolCallId: 'atlas-tool-call-1',
+            state,
+            approval: approvalId ? { id: approvalId } : undefined,
+          } as unknown as ToolUIPart,
+        ],
+        metadata: { connectionInfo: { id: 'conn-1', name: 'My Cluster' } },
+      };
+    }
+
+    it('renders the Atlas card (not the generic tool-call card) for the debugger tool', function () {
+      renderWithChat(
+        createMockChat({ messages: [makeAtlasToolCallMessage()] })
+      );
+
+      expect(screen.getByText('Connect with Atlas to debug this connection?'))
+        .to.exist;
     });
   });
 

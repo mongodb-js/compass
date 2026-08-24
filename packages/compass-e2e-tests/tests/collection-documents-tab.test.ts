@@ -1,5 +1,6 @@
 import chai from 'chai';
 import clipboard from 'clipboardy';
+import { EJSON } from 'bson';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   deleteCommonVariedProperties,
@@ -15,6 +16,7 @@ import {
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
 import {
+  allTypesDoc,
   createNestedDocumentsCollection,
   createNumbersCollection,
 } from '../helpers/mongo-clients.ts';
@@ -766,7 +768,7 @@ FindIterable<Document> result = collection.find(filter);`);
 
     // set the text in the editor and insert the document
     await browser.setCodemirrorEditorValue(
-      Selectors.InsertJSONEditor,
+      Selectors.InsertDocumentEditor,
       '{ "i": 10042 }'
     );
     const insertConfirm = browser.$(Selectors.InsertConfirm);
@@ -1264,8 +1266,9 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.clickVisible(Selectors.InsertDocumentOption);
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
+    await browser.clickVisible(Selectors.InsertDialogJSONView);
     await browser.setCodemirrorEditorValue(
-      Selectors.InsertJSONEditor,
+      Selectors.InsertDocumentEditor,
       `{ "i": ${Number.MAX_SAFE_INTEGER + 1} }`
     );
 
@@ -1287,7 +1290,7 @@ FindIterable<Document> result = collection.find(filter);`);
     await banner.waitForDisplayed({ reverse: true });
 
     const updatedJson = await browser.getCodemirrorEditorText(
-      Selectors.InsertJSONEditor
+      Selectors.InsertDocumentEditor
     );
     expect(updatedJson.replace(/\s+/g, ' ')).to.include(
       `"i": {"$numberLong": "${Number.MAX_SAFE_INTEGER + 1}"}`
@@ -1304,6 +1307,116 @@ FindIterable<Document> result = collection.find(filter);`);
     );
     const document = browser.$(Selectors.DocumentListEntry);
     await document.waitForDisplayed();
+  });
+
+  it('inserts a document using shell syntax', async function () {
+    // Browse to the "Insert to Collection" modal.
+    await browser.clickVisible(Selectors.AddDataButton);
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+    await browser.waitForOpenModal(Selectors.InsertDialog);
+
+    await browser.clickVisible(Selectors.InsertDialogShellView);
+
+    // First we show an invalid entry, and look for the error.
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertDocumentEditor,
+      '{ i: ObjectId( }'
+    );
+    const errorBanner = browser.$(Selectors.InsertDialogErrorMessage);
+    await errorBanner.waitForDisplayed();
+
+    // Now we enter a valid document.
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertDocumentEditor,
+      `{
+        i: 10142,
+        _id: ObjectId(),
+        long: NumberLong('9223372036854775807'),
+        decimal: NumberDecimal('123.45'),
+        date: ISODate('2023-01-01T00:00:00.000Z'),
+        regex: /foo.*bar/i,
+        ts: Timestamp(1234, 5),
+        uuid: UUID('79a4a7c6-1c1f-4d5e-9f8a-1b2c3d4e5f60'),
+        min: MinKey(),
+        nested: { a: 1, b: { c: 2 } },
+        arr: [1, 2, 3]
+      }`
+    );
+
+    // No validation error for valid shell syntax.
+    const banner = browser.$(Selectors.InsertDialogErrorMessage);
+    await banner.waitForDisplayed({ reverse: true });
+
+    const insertConfirm = browser.$(Selectors.InsertConfirm);
+    await insertConfirm.waitForEnabled();
+    await browser.clickVisible(Selectors.InsertConfirm);
+    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
+
+    await browser.runFindOperation('Documents', '{ i: 10142 }');
+    const doc = await getFormattedDocument(browser);
+    expect(doc).to.match(/^_id: ObjectId\('[a-f0-9]{24}'\)/);
+    expect(doc).to.include('i: 10142');
+    expect(doc).to.include("long: Long('9223372036854775807')");
+    expect(doc).to.include("decimal: Decimal128('123.45')");
+    expect(doc).to.include("date: ISODate('2023-01-01T00:00:00.000+00:00')");
+    expect(doc).to.include('regex: /foo.*bar/i');
+    expect(doc).to.include('ts: Timestamp({ t: 1234, i: 5 })');
+    expect(doc).to.include(
+      "uuid: UUID('79a4a7c6-1c1f-4d5e-9f8a-1b2c3d4e5f60')"
+    );
+    expect(doc).to.include('min: MinKey()');
+    expect(doc).to.include('nested: Object (2)');
+    expect(doc).to.include('arr: Array (3)');
+  });
+
+  it('converts Extended JSON to shell syntax, keeping the BSON types', async function () {
+    // Browse to the "Insert to Collection" modal.
+    await browser.clickVisible(Selectors.AddDataButton);
+    await browser.clickVisible(Selectors.InsertDocumentOption);
+    await browser.waitForOpenModal(Selectors.InsertDialog);
+
+    await browser.clickVisible(Selectors.InsertDialogShellView);
+
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertDocumentEditor,
+      EJSON.stringify(allTypesDoc, { relaxed: false }, 2)
+    );
+
+    const conversionBanner = browser.$(
+      Selectors.InsertDialogEJSONConversionBanner
+    );
+    await conversionBanner.waitForDisplayed();
+    expect(await conversionBanner.getText()).to.include('$numberDouble');
+
+    await browser.clickVisible(Selectors.InsertDialogEJSONConversionBtn);
+    await conversionBanner.waitForDisplayed({ reverse: true });
+
+    // The full type-by-type mapping is covered by the compass-crud unit tests
+    // for convertEJSONToShellSyntax, here we only check that the editor picked
+    // the conversion up.
+    const converted = (
+      await browser.getCodemirrorEditorText(Selectors.InsertDocumentEditor)
+    ).replace(/\s+/g, ' ');
+    expect(converted).to.include(
+      `objectId: ObjectId('642d766c7300158b1f22e975')`
+    );
+    expect(converted).to.include(`'long': NumberLong('123456789123456789')`);
+    expect(converted).to.not.include('$numberLong');
+
+    const insertConfirm = browser.$(Selectors.InsertConfirm);
+    await insertConfirm.waitForEnabled();
+    await browser.clickVisible(Selectors.InsertConfirm);
+    await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
+
+    // Converting in relaxed mode would have rounded this to the nearest
+    // double, so the document would not be found by its exact value.
+    await browser.runFindOperation(
+      'Documents',
+      `{ long: Long('123456789123456789') }`
+    );
+    expect(
+      await browser.$(Selectors.DocumentListActionBarMessage).getText()
+    ).to.equal('1 – 1 of 1');
   });
 
   it('handles unsafe integer values when querying a document', async function () {

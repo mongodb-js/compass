@@ -5,6 +5,7 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import type { AtlasUserInfo } from '@mongodb-js/atlas-service/provider';
 
+// TODO(COMPASS-10993): implement a proper AtlasAuthService for the cloud build of Compass
 class AtlasCloudAuthService extends AtlasAuthService {
   signIn() {
     return this.getUserInfo();

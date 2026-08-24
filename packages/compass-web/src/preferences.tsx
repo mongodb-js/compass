@@ -53,10 +53,13 @@ type CloudPreferencesApiResponse = {
   userAuid: string;
   appUser: {
     isOptedIntoDataExplorerGenAIFeatures: boolean;
+    timeZoneId: string;
   };
   userRoles: {
     isDataAccessAdmin?: boolean;
     isDataAccessWrite?: boolean;
+    isDataAccessAny?: boolean;
+    isGroupIndexManager?: boolean;
   };
   currentOrganization: {
     genAIFeaturesEnabled: boolean | null;
@@ -104,17 +107,25 @@ const FEATURE_FLAG_BY_NAME = new Map<string, FeatureFlagDefinition>(
 const getPermissionsFromUserRoles = (userRoles: {
   isDataAccessAdmin?: boolean;
   isDataAccessWrite?: boolean;
+  isDataAccessAny?: boolean;
+  isGroupIndexManager?: boolean;
 }): {
   readOnly?: boolean;
   readWrite?: boolean;
+  enableIndexesManagement?: boolean;
 } => {
   if (userRoles?.isDataAccessAdmin) {
     return {};
   }
+  // A user with the project "Index Manager" role combined with any data-access
+  // role (read-only or read-write) is granted Index Management.
+  const enableIndexesManagement = Boolean(
+    userRoles?.isGroupIndexManager && userRoles?.isDataAccessAny
+  );
   if (userRoles?.isDataAccessWrite) {
-    return { readWrite: true };
+    return { readWrite: true, enableIndexesManagement };
   }
-  return { readOnly: true };
+  return { readOnly: true, enableIndexesManagement };
 };
 
 /**
@@ -133,6 +144,7 @@ export async function getPreferencesFromCloudApi(projectId: string) {
     atlasServiceBackendPreset: getAtlasServiceBackendPreset(),
     telemetryAtlasUserId: userAuid,
     optInGenAIFeatures: appUser.isOptedIntoDataExplorerGenAIFeatures,
+    timezone: appUser.timeZoneId,
     ...getPermissionsFromUserRoles(userRoles),
   };
   const atlasCloudProjectPreferences: Partial<AllPreferences> = {};

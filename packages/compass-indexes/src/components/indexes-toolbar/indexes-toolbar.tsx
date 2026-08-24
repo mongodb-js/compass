@@ -113,19 +113,29 @@ export const IndexesToolbar: React.FunctionComponent<IndexesToolbarProps> = ({
   hasSearchIndexes = false,
   isViewPipelineSearchQueryable = true,
 }) => {
-  const { readWrite: preferencesReadWrite, enableAtlasSearchIndexes } =
-    usePreferences(['readWrite', 'enableAtlasSearchIndexes']);
+  const {
+    readWrite: preferencesReadWrite,
+    enableAtlasSearchIndexes,
+    enableIndexesManagement,
+  } = usePreferences([
+    'readWrite',
+    'enableAtlasSearchIndexes',
+    'enableIndexesManagement',
+  ]);
   const { enableSearchActivationProgramP1 } = useSearchActivationProgramP1();
   const isSearchManagementActive =
     enableAtlasSearchIndexes || enableSearchActivationProgramP1;
   const { atlasMetadata } = useConnectionInfo();
   const track = useTelemetry();
+  // `readWrite` (Atlas "Project Data Access Read Write") normally hides index
+  // editing, but a user with index-management permission (Atlas "Index
+  // Manager" role) is still allowed to create indexes.
   const showCreateIndexButton =
     (!isReadonlyView ||
       VIEW_PIPELINE_UTILS.isVersionSearchCompatibleForViewsCompass(
         serverVersion
       )) &&
-    !preferencesReadWrite &&
+    (!preferencesReadWrite || enableIndexesManagement) &&
     !errorMessage;
   const refreshButtonIcon = isRefreshing ? (
     <div className={spinnerStyles}>

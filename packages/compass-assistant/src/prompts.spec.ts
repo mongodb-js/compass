@@ -5,9 +5,11 @@ import {
   buildAnalyzeOutputPrompt,
   buildDebugSearchErrorPrompt,
   buildDiagnoseSearchStagePrompt,
+  buildConnectionErrorPrompt,
   buildContextPrompt,
   FOLLOW_UP_QUESTIONS_HEADER,
 } from './prompts';
+import type { ConnectionInfo } from '@mongodb-js/connection-info';
 
 describe('prompts', function () {
   describe('buildConversationInstructionsPrompt', function () {
@@ -804,6 +806,102 @@ You SHOULD:
         expect(text).equal(testCase.expected);
       });
     }
+  });
+
+  describe('buildConnectionErrorPrompt', function () {
+    describe('Atlas connection', function () {
+      const atlasConnectionInfo: ConnectionInfo = {
+        id: 'conn-atlas',
+        connectionOptions: {
+          connectionString: 'mongodb+srv://cluster0.abcde.mongodb.net',
+        },
+        favorite: { name: 'Atlas Cluster' },
+      };
+
+      it('instructs the assistant to use the atlas debugger tool', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: atlasConnectionInfo,
+          error: new Error('connection timed out'),
+        });
+
+        expect(result.prompt).to.contain(
+          'Use the "atlas-connection-error-debugger" tool'
+        );
+      });
+
+      it('instructs to use the tool regardless of the error type', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: atlasConnectionInfo,
+          error: new Error('bad auth : authentication failed'),
+        });
+
+        expect(result.prompt).to.contain(
+          'Use the "atlas-connection-error-debugger" tool'
+        );
+      });
+
+      describe('when Atlas sign in is not allowed', function () {
+        it('does not instruct to use the atlas debugger tool', function () {
+          const result = buildConnectionErrorPrompt({
+            connectionInfo: atlasConnectionInfo,
+            error: new Error('connection timed out'),
+            enableAtlasSignIn: false,
+          });
+
+          expect(result.prompt).to.not.contain(
+            'Use the "atlas-connection-error-debugger" tool to check'
+          );
+        });
+
+        it('instructs to inform the user and to keep debugging generically', function () {
+          const result = buildConnectionErrorPrompt({
+            connectionInfo: atlasConnectionInfo,
+            error: new Error('connection timed out'),
+            enableAtlasSignIn: false,
+          });
+
+          expect(result.prompt).to.contain(
+            'Atlas Login is not allowed in their organization'
+          );
+          expect(result.prompt).to.contain('general troubleshooting steps');
+          expect(result.prompt).to.contain('connection timed out');
+        });
+      });
+    });
+
+    describe('Not Atlas connection', function () {
+      const localConnectionInfo: ConnectionInfo = {
+        id: 'conn-local',
+        connectionOptions: {
+          connectionString: 'mongodb://localhost:27017',
+        },
+        favorite: { name: 'Local' },
+      };
+
+      it('does not instruct to use the atlas tool for a non-Atlas connection', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: localConnectionInfo,
+          error: new Error('connection refused'),
+        });
+
+        expect(result.prompt).to.not.contain(
+          'Use the "atlas-connection-error-debugger" tool'
+        );
+      });
+
+      it('always includes the connection info and the error in the prompt', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: localConnectionInfo,
+          error: new Error('connection refused'),
+        });
+
+        expect(result.metadata?.connectionInfo).to.deep.equal({
+          id: 'conn-local',
+          name: 'Local',
+        });
+        expect(result.prompt).to.include('connection refused');
+      });
+    });
   });
 });
 

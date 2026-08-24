@@ -34,6 +34,17 @@ variables:
     EVERGREEN_CREATED_AT: ${created_at}
     NODE_JS_VERSION: '24.15.0'
     NPM_VERSION: '11.16.0'
+    # Deprecated String::Value declaration in Electron 43 doesn't parse under
+    # GCC 12, breaking every native module on the Linux builders.
+    # We prepend /opt/devtools/bin (COMPASS-5150),
+    # which pins gcc 12.4.0 and shadows the distro compiler.
+    # macOS is on clang and Windows builds with MSBuild, which ignores CXXFLAGS.
+    # The -U makes V8_DEPRECATED expand to nothing; it only silences deprecation
+    # warnings in the addons' own sources, with no effect on the binaries.
+    # devtools-toolchain is already on gcc 13.4.0, which builds this fine, but it
+    # can't reach the builders until publishing is unblocked.
+    # TODO(DEVPROD-41681): remove CXXFLAGS once the builders are on GCC 13+.
+    CXXFLAGS: '-UV8_DEPRECATION_WARNINGS'
     # secrets
     HADRON_METRICS_INTERCOM_APP_ID: ${metrics_intercom_app_id}
     HADRON_METRICS_SEGMENT_API_KEY: ${metrics_segment_api_key}
@@ -430,7 +441,6 @@ functions:
       params:
         working_dir: src
         shell: bash
-        include_expansions_in_env: [DEVELOPER_DIR]
         env:
           <<: *compass-env
           DEBUG: ${debug}
@@ -476,12 +486,7 @@ functions:
         working_dir: src
         shell: bash
         include_expansions_in_env:
-          [
-            AWS_ACCESS_KEY_ID,
-            AWS_SECRET_ACCESS_KEY,
-            AWS_SESSION_TOKEN,
-            DEVELOPER_DIR,
-          ]
+          [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           <<: *compass-env
           npm_config_loglevel: ${npm_loglevel}
@@ -508,12 +513,7 @@ functions:
         working_dir: src
         shell: bash
         include_expansions_in_env:
-          [
-            AWS_ACCESS_KEY_ID,
-            AWS_SECRET_ACCESS_KEY,
-            AWS_SESSION_TOKEN,
-            DEVELOPER_DIR,
-          ]
+          [AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN]
         env:
           <<: *compass-env
           DEBUG: ${debug}

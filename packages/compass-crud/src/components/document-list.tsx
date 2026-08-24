@@ -85,8 +85,9 @@ export type DocumentListProps = {
         | 'isOpen'
         | 'error'
         | 'mode'
-        | 'jsonDoc'
+        | 'editorText'
         | 'isCommentNeeded'
+        | 'insertView'
       >
     >;
   bulkUpdate: Partial<BulkUpdateModalProps> &
@@ -111,8 +112,7 @@ export type DocumentListProps = {
     | 'closeInsertDocumentDialog'
     | 'insertDocument'
     | 'insertMany'
-    | 'updateJsonDoc'
-    | 'toggleInsertDocument'
+    | 'updateInsertDocText'
     | 'toggleInsertDocumentView'
     | 'version'
     | 'ns'
@@ -313,8 +313,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     closeInsertDocumentDialog,
     insertDocument,
     insertMany,
-    updateJsonDoc,
-    toggleInsertDocument,
+    updateInsertDocText,
     toggleInsertDocumentView,
     version,
     ns,
@@ -386,13 +385,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
     enableImportExport: isImportExportEnabled,
-    legacyUUIDDisplayEncoding,
-  } = usePreferences([
-    'readOnly',
-    'readWrite',
-    'enableImportExport',
-    'legacyUUIDDisplayEncoding',
-  ]);
+  } = usePreferences(['readOnly', 'readWrite', 'enableImportExport']);
 
   const isEditable =
     !preferencesReadOnly &&
@@ -522,7 +515,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               scrollTriggerRef={scrollTriggerRef}
               columnWidths={columnWidths}
               onColumnWidthChange={onColumnWidthChange}
-              legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
             />
           );
         }
@@ -545,7 +537,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
       currentViewInitialScrollTop,
       columnWidths,
       onColumnWidthChange,
-      legacyUUIDDisplayEncoding,
     ]
   );
 
@@ -638,10 +629,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
             closeInsertDocumentDialog={closeInsertDocumentDialog}
             insertDocument={insertDocument}
             insertMany={insertMany}
-            updateJsonDoc={updateJsonDoc}
-            toggleInsertDocument={toggleInsertDocument}
+            updateInsertDocText={updateInsertDocText}
             toggleInsertDocumentView={toggleInsertDocumentView}
-            jsonView
             version={version}
             ns={ns}
             updateComment={updateComment}

@@ -6,9 +6,11 @@ import {
   attemptId,
   AttemptStateMap,
   performSignInAttempt,
+  signOut,
 } from './atlas-signin-reducer';
 import { expect } from 'chai';
 import { configureStore } from './atlas-signin-store';
+import * as compassComponents from '@mongodb-js/compass-components';
 
 describe('atlasSignInReducer', function () {
   const sandbox = Sinon.createSandbox();
@@ -75,7 +77,6 @@ describe('atlasSignInReducer', function () {
           .onSecondCall()
           .resolves(true),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -100,7 +101,6 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(true),
         signIn: sandbox.stub().resolves({ sub: '1234' }),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -117,7 +117,6 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().resolves({ sub: '1234' }),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -193,7 +192,6 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().resolves({ sub: '1234' }),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -207,7 +205,6 @@ describe('atlasSignInReducer', function () {
         isAuthenticated: sandbox.stub().resolves(false),
         signIn: sandbox.stub().rejects(new Error('Sign in failed')),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -233,7 +230,6 @@ describe('atlasSignInReducer', function () {
           return { sub: '1234' };
         }),
         getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        emit: sandbox.stub(),
       };
       const store = configureStore({
         atlasAuthService: mockAtlasService as any,
@@ -253,6 +249,158 @@ describe('atlasSignInReducer', function () {
 
       // Ensure that we are not leaving a dangling store operation that would conflict with our mocks being reset.
       await signInCalled;
+    });
+
+    it('should join the existing attempt if one is already in progress', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(false),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+      };
+      const store = configureStore({
+        atlasAuthService: mockAtlasService as any,
+      });
+
+      const firstAttemptPromise = store.dispatch(performSignInAttempt());
+      const secondAttemptPromise = store.dispatch(performSignInAttempt());
+
+      const [firstUserInfo, secondUserInfo] = await Promise.all([
+        firstAttemptPromise,
+        secondAttemptPromise,
+      ]);
+
+      // the second call should not have triggered a second signIn call, and both should have the same userInfo
+      expect(mockAtlasService.signIn).to.have.been.calledOnce;
+      expect(firstUserInfo).to.deep.equal(secondUserInfo);
+      expect(store.getState()).to.have.property('state', 'success');
+    });
+
+    it('should track sign in started with the provided entrypoint', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(false),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        emit: sandbox.stub(),
+      };
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: mockAtlasService as any,
+        track,
+      });
+      await store.dispatch(
+        performSignInAttempt({
+          entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+        })
+      );
+      expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
+        entrypoint: 'assistant-tool-atlas-connection-error-debugger',
+      });
+    });
+
+    it('should track sign in started with an unknown entrypoint by default', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(false),
+        signIn: sandbox.stub().resolves({ sub: '1234' }),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        emit: sandbox.stub(),
+      };
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: mockAtlasService as any,
+        track,
+      });
+      await store.dispatch(performSignInAttempt());
+      expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
+        entrypoint: 'unknown',
+      });
+    });
+
+    it('should not track sign in started when already signed in', async function () {
+      const mockAtlasService = {
+        isAuthenticated: sandbox.stub().resolves(true),
+        getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
+        emit: sandbox.stub(),
+      };
+      const track = sandbox.stub();
+      const store = configureStore({
+        atlasAuthService: mockAtlasService as any,
+        track,
+      });
+      await store.dispatch(restoreSignInState());
+      await store.dispatch(performSignInAttempt());
+      expect(track).to.not.have.been.called;
+    });
+  });
+
+  describe('signOut', function () {
+    let openToastStub: Sinon.SinonStub;
+
+    beforeEach(function () {
+      openToastStub = sandbox.stub();
+      sandbox.replaceGetter(
+        compassComponents,
+        'openToast',
+        () => openToastStub
+      );
+    });
+
+    afterEach(function () {
+      sandbox.restore();
+    });
+
+    function createSignedInStore(mockAtlasService: any) {
+      const store = configureStore({
+        atlasAuthService: mockAtlasService,
+      });
+      store.dispatch({
+        type: 'atlas-service/atlas-signin/AtlasSignInSuccess',
+        userInfo: { sub: '1234' },
+      });
+      return store;
+    }
+
+    it('should sign out and reset state', async function () {
+      const mockAtlasService = {
+        signOut: sandbox.stub().resolves(),
+      };
+      const store = createSignedInStore(mockAtlasService);
+
+      await store.dispatch(signOut());
+
+      expect(mockAtlasService.signOut).to.have.been.calledOnce;
+      expect(store.getState()).to.have.nested.property('state', 'initial');
+      expect(store.getState()).to.have.nested.property('userInfo', null);
+    });
+
+    it('should show a toast notifying the user that Atlas was disconnected', async function () {
+      const mockAtlasService = {
+        signOut: sandbox.stub().resolves(),
+      };
+      const store = createSignedInStore(mockAtlasService);
+
+      await store.dispatch(signOut());
+
+      expect(openToastStub).to.have.been.calledOnce;
+      expect(openToastStub.firstCall.args[1]).to.include({
+        title: 'Disconnected from Atlas',
+        variant: 'note',
+      });
+    });
+
+    it('should show failed toast if signOut rejects', async function () {
+      const mockAtlasService = {
+        signOut: sandbox.stub().rejects(new Error('Whoops!')),
+      };
+      const store = createSignedInStore(mockAtlasService);
+
+      await store.dispatch(signOut());
+
+      expect(mockAtlasService.signOut).to.have.been.calledOnce;
+      expect(openToastStub).to.have.been.calledOnce;
+      expect(openToastStub.firstCall.args[1]).to.include({
+        title: 'Failed to disconnect from Atlas',
+        variant: 'warning',
+      });
     });
   });
 });

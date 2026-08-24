@@ -43,8 +43,14 @@ import { parseShellBSON } from '../../utils/parse-shell-bson';
 import {
   ATLAS_SEARCH_TEMPLATES,
   ATLAS_VECTOR_SEARCH_TEMPLATE,
+  ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE,
 } from '@mongodb-js/mongodb-constants';
+import type { SearchTemplate } from '@mongodb-js/mongodb-constants';
 import type { SearchIndex } from 'mongodb-data-service';
+import {
+  VectorSearchIndexTemplateDropdown,
+  type VectorIndexTemplateChoice,
+} from '../search-index-template-dropdown/vector-search-index-template-dropdown';
 import { selectReadWriteAccess } from '../../utils/indexes-read-write-access';
 import {
   useConnectionInfo,
@@ -121,10 +127,39 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   }, [track, connectionInfoRef]);
 
   const editorRef = useRef<EditorRef>(null);
+
+  const {
+    readOnly,
+    readWrite,
+    enableAtlasSearchIndexes,
+    enableAutoEmbeddingPublicPreview,
+    enableAutoEmbeddingGaRelease,
+    enableIndexesManagement,
+  } = usePreferences([
+    'readOnly',
+    'readWrite',
+    'enableAtlasSearchIndexes',
+    'enableAutoEmbeddingPublicPreview',
+    'enableAutoEmbeddingGaRelease',
+    'enableIndexesManagement',
+  ]);
+
+  // Public preview is required so the schema variant picked by use-json-schema
+  // accepts autoEmbed; GA scopes the drawer to the GA rollout.
+  const isAutoEmbedEnabled =
+    enableAutoEmbeddingPublicPreview && enableAutoEmbeddingGaRelease;
+  const defaultVectorTemplateChoice: VectorIndexTemplateChoice =
+    isAutoEmbedEnabled ? 'autoEmbed' : 'bringYourOwn';
+
+  const [vectorTemplateChoice, setVectorTemplateChoice] =
+    useState<VectorIndexTemplateChoice>(defaultVectorTemplateChoice);
+
   const [indexDefinition, setIndexDefinition] = useState(
     normalizeSnippet(
       currentIndexType === 'vectorSearch'
-        ? ATLAS_VECTOR_SEARCH_TEMPLATE.snippet
+        ? defaultVectorTemplateChoice === 'autoEmbed'
+          ? ATLAS_VECTOR_SEARCH_AUTO_EMBED_TEMPLATE.snippet
+          : ATLAS_VECTOR_SEARCH_TEMPLATE.snippet
         : ATLAS_SEARCH_TEMPLATES[0].snippet
     )
   );
@@ -136,17 +171,13 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   );
 
   const { atlasMetadata } = useConnectionInfo();
-  const { readOnly, readWrite, enableAtlasSearchIndexes } = usePreferences([
-    'readOnly',
-    'readWrite',
-    'enableAtlasSearchIndexes',
-  ]);
   const { isSearchIndexesWritable } = useSelector(
     selectReadWriteAccess({
       readOnly,
       readWrite,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1: true, // This component is only rendered if the user is in the variant
+      enableIndexesManagement,
     }),
     shallowEqual
   );
@@ -171,6 +202,15 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
   const onChangeText = useIndexDefinitionChange(
     setIndexDefinition,
     onIndexDefinitionEdit
+  );
+
+  const onVectorTemplateChoice = useCallback(
+    (choice: VectorIndexTemplateChoice, template: SearchTemplate) => {
+      setVectorTemplateChoice(choice);
+      setIndexDefinition(normalizeSnippet(template.snippet));
+      onIndexDefinitionEdit(true);
+    },
+    [onIndexDefinitionEdit]
   );
 
   const onCreateClick = useCallback(() => {
@@ -224,6 +264,14 @@ const CreateSearchIndexDrawerView: React.FunctionComponent<
           configurations. We recommend starting with this and refining it later
           if you need to.
         </Body>
+        {currentIndexType === 'vectorSearch' && isAutoEmbedEnabled && (
+          <VectorSearchIndexTemplateDropdown
+            value={vectorTemplateChoice}
+            tooltip="Selecting a new template will replace your existing index definition in the code editor."
+            onTemplateChoice={onVectorTemplateChoice}
+            disabled={!isSearchIndexesWritable}
+          />
+        )}
         <div
           className={cx(
             editorContainerStyles,

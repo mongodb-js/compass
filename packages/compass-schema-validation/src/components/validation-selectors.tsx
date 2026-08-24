@@ -120,6 +120,17 @@ export function LevelSelector({
         <Option value="off">Off</Option>
         <Option value="moderate">Moderate</Option>
         <Option value="strict">Strict</Option>
+        {/* Upgrading to "constraint" requires a separate two-command collMod
+            workflow that Compass does not drive, so the option is only ever
+            rendered to display a level that is already in effect. */}
+        {validationLevel === 'constraint' && (
+          <Option
+            value="constraint"
+            data-testid="validation-level-option-constraint"
+          >
+            Constraint
+          </Option>
+        )}
       </Select>
     </div>
   );

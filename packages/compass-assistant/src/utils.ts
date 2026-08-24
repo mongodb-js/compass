@@ -10,6 +10,9 @@ import type { Chat } from './@ai-sdk/react/chat-react';
 import type { PreferencesAccess } from 'compass-preferences-model/provider';
 import type { Logger } from '@mongodb-js/compass-logging/provider';
 
+const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
+  'tool-atlas-connection-error-debugger';
+
 export type ToolState = 'idle' | 'running' | 'success' | 'error' | 'canceled';
 
 // Type guard to check if a message part is an approval request
@@ -255,4 +258,67 @@ function isStructuredOutput(
     return 'content' in output && 'structuredContent' in output;
   }
   return false;
+}
+
+// Extract tool name from type (e.g., "tool-list-databases" -> "list-databases")
+export function getToolDisplayName(type: string): string {
+  return type.replace(/^tool-/, '');
+}
+
+export function isDebuggerToolCall(type: string): boolean {
+  return type === ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE;
+}
+
+export function toolHasOutput(
+  toolCall: ToolUIPart,
+  cleanedOutput: unknown
+): boolean {
+  return (
+    !!cleanedOutput &&
+    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
+  );
+}
+
+export function getExpandableContentText(
+  toolCall: ToolUIPart,
+  hasOutput: boolean,
+  cleanedOutput?: unknown,
+  toolDescription?: string
+): string {
+  const toolCallState = getToolState(toolCall.state);
+
+  const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
+  const argumentsText = `### Arguments
+
+\`\`\`json
+${inputJSON}
+\`\`\``;
+
+  if (toolDescription && toolCallState === 'idle') {
+    return [toolDescription, argumentsText].join('\n\n');
+  }
+
+  const expandableContent = [argumentsText];
+
+  if (hasOutput) {
+    const outputText = cleanedOutput
+      ? JSON.stringify(cleanedOutput, null, 2)
+      : '';
+
+    expandableContent.push(`### Response
+
+\`\`\`json
+${outputText}
+\`\`\``);
+  }
+
+  if (toolCall.errorText) {
+    expandableContent.push(`### Error
+
+\`\`\`
+${toolCall.errorText}
+\`\`\``);
+  }
+
+  return expandableContent.join('\n\n');
 }

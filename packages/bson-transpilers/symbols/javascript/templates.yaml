@@ -65,9 +65,9 @@ Templates:
         }
         return `${comment}\n\n${defs}
     const client = await MongoClient.connect(
-      '${spec.options.uri}'
+      ${this.toStringLiteral(spec.options.uri)}
     );
-    const coll = client.db('${spec.options.database}').collection('${spec.options.collection}');
+    const coll = client.db(${this.toStringLiteral(spec.options.database)}).collection(${this.toStringLiteral(spec.options.collection)});
     ${cmd}
     await client.close();`;
     }
@@ -141,7 +141,7 @@ Templates:
         (str.charAt(0) === '"' && str.charAt(str.length - 1) === '"')) {
         newStr = str.substr(1, str.length - 2);
       }
-      return `'${newStr.replace(/\\([\s\S])|(')/g, '\\$1$2')}'`;
+      return `'${newStr.replace(/\\[\s\S]|['\n\r]/g, (m) => m.length === 2 ? m : m === '\n' ? '\\n' : m === '\r' ? '\\r' : '\\' + m)}'`;
     }
   RegexTypeTemplate: !!js/function &RegexTypeTemplate >
     (pattern, flags) => {

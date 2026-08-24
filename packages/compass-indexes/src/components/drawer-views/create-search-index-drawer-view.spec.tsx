@@ -253,6 +253,113 @@ describe('CreateSearchIndexDrawerView', function () {
       expect(cmContent).to.have.attribute('aria-readonly', 'true');
     });
   });
+
+  describe('vector search template dropdown', function () {
+    for (const [publicPreview, gaRelease] of [
+      [false, false],
+      [true, false],
+      [false, true],
+    ]) {
+      it(`does not render the dropdown unless both flags are on (publicPreview=${String(
+        publicPreview
+      )}, gaRelease=${String(gaRelease)})`, function () {
+        renderCreateSearchIndexDrawerView(
+          { currentIndexType: 'vectorSearch' },
+          {
+            preferences: {
+              enableAutoEmbeddingPublicPreview: publicPreview,
+              enableAutoEmbeddingGaRelease: gaRelease,
+            },
+          }
+        );
+
+        expect(screen.queryByTestId('vector-search-index-template')).to.not
+          .exist;
+      });
+    }
+
+    it('renders the dropdown and seeds the auto embed template when both flags are on', function () {
+      renderCreateSearchIndexDrawerView(
+        { currentIndexType: 'vectorSearch' },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+          },
+        }
+      );
+
+      expect(screen.getByTestId('vector-search-index-template')).to.exist;
+
+      const editor = screen.getByTestId(
+        'create-search-index-drawer-view-editor'
+      );
+      expect(editor.textContent).to.include('"type": "autoEmbed"');
+      expect(editor.textContent).to.include('"model": "voyage-4"');
+    });
+
+    it('does not render the dropdown for currentIndexType "search" regardless of flags', function () {
+      renderCreateSearchIndexDrawerView(
+        { currentIndexType: 'search' },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+          },
+        }
+      );
+
+      expect(screen.queryByTestId('vector-search-index-template')).to.not.exist;
+    });
+
+    it('switching to "Bring your own embeddings" replaces the editor content and marks the view dirty', async function () {
+      const onIndexDefinitionEdit = sinon.spy();
+      renderCreateSearchIndexDrawerView(
+        {
+          currentIndexType: 'vectorSearch',
+          onIndexDefinitionEdit,
+        },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+          },
+        }
+      );
+
+      const editor = screen.getByTestId(
+        'create-search-index-drawer-view-editor'
+      );
+      expect(editor.textContent).to.include('autoEmbed');
+
+      userEvent.click(screen.getByRole('button', { name: 'Template' }));
+      const option = await screen.findByRole('option', {
+        name: 'Bring your own embeddings',
+      });
+      userEvent.click(option);
+
+      await waitFor(() => {
+        expect(editor.textContent).to.not.include('autoEmbed');
+      });
+      expect(onIndexDefinitionEdit).to.have.been.calledWith(true);
+    });
+
+    it('disables the dropdown when the user lacks write access', function () {
+      renderCreateSearchIndexDrawerView(
+        { currentIndexType: 'vectorSearch' },
+        {
+          preferences: {
+            enableAutoEmbeddingPublicPreview: true,
+            enableAutoEmbeddingGaRelease: true,
+            readOnly: true,
+          },
+        }
+      );
+
+      const select = screen.getByRole('button', { name: 'Template' });
+      expect(select).to.have.attribute('aria-disabled', 'true');
+    });
+  });
 });
 
 describe('getNextAvailableIndexName', function () {

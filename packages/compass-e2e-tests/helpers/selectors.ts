@@ -23,6 +23,9 @@ export const ArtificialIntelligenceSettingsContent = `${SettingsModal} [data-tes
 export const SettingsInputElement = (settingName: string): string => {
   return `${SettingsModal} [data-testid="${settingName}"]`;
 };
+export const SettingsComboboxInputElement = (settingName: string): string => {
+  return `${SettingsInputElement(settingName)} input`;
+};
 
 // LG Modals
 export const LGModal = '[data-lgid="lg-modal"]';
@@ -639,7 +642,17 @@ export const InsertDialogErrorMessage =
   '[data-testid="insert-document-banner"][data-variant="danger"]';
 export const InsertDialogErrorDetailsBtn =
   'button[data-testid="insert-document-error-action-button"]';
-export const InsertJSONEditor = '[data-testid="insert-document-json-editor"]';
+export const InsertDocumentEditor = '[data-testid="insert-document-editor"]';
+export const InsertDialogJSONView =
+  '[data-testid="insert-document-dialog-view-json"]';
+export const InsertDialogShellView =
+  '[data-testid="insert-document-dialog-view-shell"]';
+export const InsertDialogListView =
+  '[data-testid="insert-document-dialog-view-list"]';
+export const InsertDialogEJSONConversionBanner =
+  '[data-testid="insert-document-ejson-conversion-banner"]';
+export const InsertDialogEJSONConversionBtn =
+  'button[data-testid="insert-document-ejson-conversion-button"]';
 export const InsertConfirm =
   '[data-testid="insert-document-modal"] [data-testid="submit-button"]';
 export const InsertCancel =
@@ -746,6 +759,7 @@ export const HadronDocumentTypeEditor =
   '[data-testid="hadron-document-type-editor"]';
 export const HadronDocumentValue =
   '[data-testid="hadron-document-element-value"]';
+export const DateWithTimezoneHint = '[data-testid="date-with-timezone-hint"]';
 export const HadronDocumentValueEditor =
   '[data-testid="hadron-document-value-editor"]';
 export const HadronDocumentClickableValue =
@@ -1201,6 +1215,8 @@ export const AddRuleButton = '[data-testid="add-rule-button"]';
 export const EnableEditValidationButton =
   '[data-testid="enable-edit-validation-button"]';
 export const ValidationEditor = '[data-testid="validation-editor"]';
+export const ValidationWarningBanner =
+  '[data-testid="collection-validation-warning"]';
 export const ValidationActionMessage =
   '[data-testid="validation-action-message"]';
 export const UpdateValidationButton =

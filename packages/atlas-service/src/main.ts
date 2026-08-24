@@ -3,12 +3,14 @@ import type Electron from 'electron';
 import { URL, URLSearchParams } from 'url';
 import type {
   AuthFlowType,
+  MongoDBOIDCError,
   MongoDBOIDCPlugin,
   MongoDBOIDCPluginOptions,
 } from '@mongodb-js/oidc-plugin';
 import {
   throwIfNotOk,
   throwIfNetworkTrafficDisabled,
+  throwIfAtlasSignInDisabled,
   getTrackingUserInfo,
   getJWTTokenPayload,
 } from './util';
@@ -18,7 +20,7 @@ import {
 } from '@mongodb-js/oidc-plugin';
 import { oidcServerRequestHandler } from '@mongodb-js/devtools-connect';
 import type { Agent } from 'https';
-import type { IntrospectInfo, AtlasUserInfo, AtlasServiceConfig } from './util';
+import type { AtlasUserInfo, AtlasServiceConfig } from './util';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
 import type { HadronIpcMain } from 'hadron-ipc';
 import { ipcMain } from 'hadron-ipc';
@@ -69,11 +71,12 @@ export class CompassAuthService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
+  private static getUserAgent = () => `${app.getName()}/${app.getVersion()}`;
+
   private static fetch = async (
     url: string,
     init: RequestInit = {}
   ): Promise<Response> => {
-    await this.initPromise;
     this.throwIfNetworkTrafficDisabled();
     throwIfAborted(init.signal ?? undefined);
     log.info(
@@ -87,7 +90,7 @@ export class CompassAuthService {
         ...init,
         headers: {
           ...init.headers,
-          'User-Agent': `${app.getName()}/${app.getVersion()}`,
+          'User-Agent': this.getUserAgent(),
         },
       });
       await throwIfNotOk(res);
@@ -175,7 +178,6 @@ export class CompassAuthService {
       if (this.ipcMain) {
         this.ipcMain.createHandle('AtlasService', this, [
           'getUserInfo',
-          'introspect',
           'isAuthenticated',
           'signIn',
           'signOut',
@@ -190,6 +192,11 @@ export class CompassAuthService {
       );
       const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
+      if (
+        serializedState &&
+        this.preferences.getPreferences().enableAtlasSignIn
+      )
+        await this.restoreCurrentUser();
     })());
   }
 
@@ -197,9 +204,16 @@ export class CompassAuthService {
     throwIfNetworkTrafficDisabled(this.preferences);
   }
 
+  private static throwIfAtlasSignInDisabled() {
+    throwIfAtlasSignInDisabled(this.preferences);
+  }
+
   private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
+    // Even if we still have a usable token stored, we should not to use it
+    // when Atlas sign in is disabled for the organization
+    this.throwIfAtlasSignInDisabled();
 
     if (!this.plugin) {
       throw new Error(
@@ -237,14 +251,51 @@ export class CompassAuthService {
     });
   }
 
+  /**
+   * Compass cannot use the introspect endpoint as it's a protected resource and Compass is an unauthenticated client.
+   * This method returns the last known state, which might be corrected if the next token refresh fails.
+   */
   static async isAuthenticated({
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
     throwIfAborted(signal);
-    try {
-      return (await this.introspect({ signal })).active;
-    } catch {
+    if (!this.preferences.getPreferences().enableAtlasSignIn) {
       return false;
+    }
+    await this.initPromise;
+    return !!this.currentUser;
+  }
+
+  static async restoreCurrentUser(): Promise<void> {
+    try {
+      const accessToken = await this.maybeGetToken({
+        tokenType: 'accessToken',
+        _skipWaitingForInit: true,
+      });
+      if (!accessToken) {
+        this.currentUser = null;
+        log.info(
+          mongoLogId(1_001_000_437),
+          'AtlasService',
+          'Did not restore sign in state',
+          { reason: 'No usable access token' }
+        );
+        return;
+      }
+      this.currentUser = this.getUserInfoFromAccessToken(accessToken);
+      log.info(
+        mongoLogId(1_001_000_438),
+        'AtlasService',
+        'Restored sign in state from stored token'
+      );
+    } catch {
+      this.currentUser = null;
+      log.info(
+        mongoLogId(1_001_000_439),
+        'AtlasService',
+        'Did not restore sign in state',
+        { reason: 'Failed to parse access token' }
+      );
     }
   }
 
@@ -258,8 +309,11 @@ export class CompassAuthService {
       this.signInPromise = (async () => {
         throwIfAborted(signal);
         this.throwIfNetworkTrafficDisabled();
+        this.throwIfAtlasSignInDisabled();
 
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
+
+        const startedAt = Date.now();
 
         try {
           const tokens = await this.requestOAuthToken({ signal });
@@ -272,14 +326,19 @@ export class CompassAuthService {
             'Signed in successfully'
           );
           const { auid } = getTrackingUserInfo(this.currentUser);
-          track('Atlas Sign In Success', { auid });
+          track('Atlas Sign In Success', {
+            auid,
+            duration: Date.now() - startedAt,
+          });
           await this.preferences.savePreferences({
             telemetryAtlasUserId: auid,
           });
           return this.currentUser;
         } catch (err) {
+          const error = err as Error & Partial<MongoDBOIDCError>;
           track('Atlas Sign In Error', {
-            error: (err as Error).message,
+            error: error.message,
+            error_code: error.codeName ?? error.name,
           });
           log.error(
             mongoLogId(1_001_000_220),
@@ -339,11 +398,18 @@ export class CompassAuthService {
   static async maybeGetToken({
     tokenType,
     signal,
+    _skipWaitingForInit = false,
   }: {
     tokenType?: 'accessToken' | 'refreshToken';
     signal?: AbortSignal;
+    /**
+     * @internal Only for use by `restoreCurrentUser`, which runs inside the
+     * `initPromise` executor and would deadlock awaiting it.
+     */
+    _skipWaitingForInit?: boolean;
   }): Promise<string | undefined> {
     try {
+      if (!_skipWaitingForInit) await this.initPromise;
       tokenType ??= 'accessToken';
       const token = await this.requestOAuthToken({ signal });
       return token[tokenType];
@@ -375,39 +441,6 @@ export class CompassAuthService {
     } catch (err) {
       throw new Error('Failed to parse access token', err as Error);
     }
-  }
-
-  static async introspect({
-    signal,
-    tokenType,
-  }: {
-    signal?: AbortSignal;
-    tokenType?: 'accessToken' | 'refreshToken';
-  } = {}) {
-    // TODO(COMPASS-7094): use the discovery endpoint instead of hardcoding this
-    this.throwIfNetworkTrafficDisabled();
-    const url = new URL(`${this.config.atlasLogin.issuer}/tokens/introspect`);
-    url.searchParams.set('client_id', this.config.atlasLogin.clientId);
-
-    tokenType ??= 'accessToken';
-
-    const token = await this.maybeGetToken({ signal, tokenType });
-
-    const res = await this.fetch(url.toString(), {
-      method: 'POST',
-      body: new URLSearchParams([
-        ['token', token ?? ''],
-        ['token_type_hint', TOKEN_TYPE_TO_HINT[tokenType]],
-        ['client_id', this.config.atlasLogin.clientId],
-      ]),
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      signal: signal,
-    });
-
-    return res.json() as Promise<IntrospectInfo>;
   }
 
   static async revoke({

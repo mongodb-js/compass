@@ -118,11 +118,13 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
     readOnly,
     readWrite,
     enableAtlasSearchIndexes,
+    enableIndexesManagement,
     enableAutoEmbeddingGaRelease,
   } = usePreferences([
     'readOnly',
     'readWrite',
     'enableAtlasSearchIndexes',
+    'enableIndexesManagement',
     'enableAutoEmbeddingGaRelease',
   ]);
   const { isSearchIndexesWritable } = useSelector(
@@ -131,6 +133,7 @@ const EditSearchIndexDrawerView: React.FunctionComponent<
       readWrite,
       enableAtlasSearchIndexes,
       enableSearchActivationProgramP1: true, // This component is only rendered if the user is in the variant
+      enableIndexesManagement,
     }),
     shallowEqual
   );

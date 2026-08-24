@@ -10,6 +10,7 @@ import type { CollectionMetadata } from 'mongodb-collection-model';
 import { redactConnectionString } from 'mongodb-connection-string-url';
 import type { AssistantMessage } from './compass-assistant-provider';
 import { getAvailableTools } from '@mongodb-js/compass-generative-ai/provider';
+import { isAtlas } from 'mongodb-build-info';
 
 export const FOLLOW_UP_QUESTIONS_HEADER = '### Follow-Up Questions';
 
@@ -348,9 +349,11 @@ export type ConnectionErrorContext = {
 export const buildConnectionErrorPrompt = ({
   connectionInfo,
   error,
+  enableAtlasSignIn = true,
 }: {
   connectionInfo: ConnectionInfo;
   error: Error;
+  enableAtlasSignIn?: boolean;
 }) => {
   const connectionString = redactConnectionString(
     connectionInfo.connectionOptions.connectionString
@@ -359,6 +362,7 @@ export const buildConnectionErrorPrompt = ({
   const productDisplayName = connectionInfo.atlasMetadata
     ? 'Data Explorer'
     : 'Compass';
+
   const connectionDetailsSection = connectionInfo.atlasMetadata
     ? ''
     : ` If no auth mechanism is specified in the connection string, the default (username/password) is being used:
@@ -366,12 +370,36 @@ export const buildConnectionErrorPrompt = ({
 Connection string (password redacted):
 ${connectionString}`;
 
+  const isAtlasConnection = isAtlas(
+    connectionInfo.connectionOptions.connectionString
+  );
+
   return {
     prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB ${productDisplayName}.${connectionDetailsSection}
 Error message:
-${connectionError}`,
+${connectionError}
+
+${
+  isAtlasConnection
+    ? enableAtlasSignIn
+      ? `
+1. Use the "atlas-connection-error-debugger" tool to check the connection and provide specific guidance on how to fix it.
+2. Do not use any previous results from the "atlas-connection-error-debugger" tool.
+3. Always recall the "atlas-connection-error-debugger" to get new results.`
+      : `
+This is an Atlas connection, but Atlas Login is not allowed in this user's organization, so Atlas-side diagnostics are unavailable.
+
+1. Begin your answer by informing the user that Atlas Login is not allowed in their organization, so you cannot retrieve Atlas-side diagnostics such as the cluster state or the IP access list, and that they should contact their organization administrator if they need those checks.
+2. Do not ask the user to sign in or connect to Atlas, that is not an option for them.
+3. Then continue and still answer the question: provide the general troubleshooting steps for the error message above, based on the error and the connection details.`
+    : ''
+}`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
+      connectionInfo: {
+        id: connectionInfo.id,
+        name: getConnectionTitle(connectionInfo),
+      },
     },
   };
 };

@@ -20,6 +20,7 @@ import {
 } from '@mongodb-js/compass-components';
 import { ConfirmationMessage } from './confirmation-message';
 import { ToolCallMessage } from './tool-call-message';
+import { AtlasToolCallMessage } from './atlas-tool-call-message';
 import {
   useTelemetry,
   useSearchActivationProgramP2,
@@ -41,6 +42,7 @@ import {
   partIsToolUI,
   stopChat,
 } from '../utils';
+import { AtlasConnectionStatus } from '@mongodb-js/atlas-service/provider';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -60,6 +62,7 @@ export type SendMessageOptions = {
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
 const assistantChatFixesStyles = css({
+  overflowY: 'clip',
   // Compass has a global bullet point override but we clear this for the chat.
   ul: {
     listStyleType: 'disc',
@@ -232,6 +235,9 @@ const toolToggleContainerStyles = css({
 const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
   'mongodb_compass_dismissedAssistantToolsIntro' as const;
 
+const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
+  'tool-atlas-connection-error-debugger';
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -256,6 +262,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     chat.messages[chat.messages.length - 1] ?? {};
 
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
+  const enableAtlasConnectionErrorDebugger = usePreference(
+    'enableAtlasConnectionErrorDebugger'
+  );
   const {
     messages,
     status,
@@ -582,6 +591,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       )}
       style={chatContainerOverrideStyle}
     >
+      {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
       <LeafyGreenChatProvider>
         <ChatWindow>
           <div
@@ -670,6 +680,35 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                     {toolCalls.map((toolCall, index) => {
                       const toolCallId =
                         toolCall.toolCallId || `${id}-${toolCall.type}`;
+
+                      if (
+                        toolCall.type ===
+                        ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE
+                      ) {
+                        return (
+                          <AtlasToolCallMessage
+                            key={`${toolCallId}-${index}`}
+                            toolCall={toolCall}
+                            connectionInfo={messageConnection}
+                            onApprove={(approvalId, approved) =>
+                              handleToolApproval({
+                                message,
+                                type: toolCall.type,
+                                approvalId,
+                                approved,
+                              })
+                            }
+                            onDeny={(approvalId) =>
+                              handleToolApproval({
+                                message,
+                                type: toolCall.type,
+                                approvalId,
+                                approved: false,
+                              })
+                            }
+                          />
+                        );
+                      }
 
                       return (
                         <ToolCallMessage

@@ -1,6 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { css } from '@leafygreen-ui/emotion';
+import { css, cx } from '@leafygreen-ui/emotion';
 import { Body, Tooltip } from './leafygreen';
 
 const underline = css({
@@ -22,13 +22,13 @@ const InlineDefinition: React.FunctionComponent<
       Omit<React.ComponentProps<typeof Tooltip>, 'trigger' | 'children'>
     >;
   }
-> = ({ children, definition, tooltipProps, ...props }) => {
+> = ({ children, definition, tooltipProps, className, ...props }) => {
   return (
     <Tooltip
       justify="middle"
       spacing={5}
       trigger={
-        <span className={underline} {...props}>
+        <span className={cx(underline, className)} {...props}>
           {children}
         </span>
       }

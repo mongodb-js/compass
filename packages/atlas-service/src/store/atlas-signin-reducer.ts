@@ -1,6 +1,10 @@
 import type { Action, AnyAction, Reducer } from 'redux';
 import type { ThunkAction } from 'redux-thunk';
 import { openToast } from '@mongodb-js/compass-components';
+import type {
+  AtlasSignInEntrypoint,
+  TrackFunction,
+} from '@mongodb-js/compass-telemetry';
 import type { AtlasUserInfo } from '../util';
 import type { AtlasAuthService } from '../provider';
 import { throwIfAborted } from '@mongodb-js/compass-utils';
@@ -33,7 +37,12 @@ export type AtlasSignInState = {
 export type AtlasSignInThunkAction<
   R,
   A extends AnyAction = AnyAction
-> = ThunkAction<R, AtlasSignInState, { atlasAuthService: AtlasAuthService }, A>;
+> = ThunkAction<
+  R,
+  AtlasSignInState,
+  { atlasAuthService: AtlasAuthService; track: TrackFunction },
+  A
+>;
 
 // @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum AtlasSignInActions {
@@ -311,15 +320,23 @@ const startAttempt = (fn: () => void): AtlasSignInThunkAction<AttemptState> => {
 
 export const performSignInAttempt = ({
   signal,
-}: { signal?: AbortSignal } = {}): AtlasSignInThunkAction<
-  Promise<AtlasUserInfo>
-> => {
-  return async (dispatch, getState) => {
+  entrypoint = 'unknown',
+}: {
+  signal?: AbortSignal;
+  entrypoint?: AtlasSignInEntrypoint;
+} = {}): AtlasSignInThunkAction<Promise<AtlasUserInfo>> => {
+  return async (dispatch, getState, { track }) => {
     // Nothing to do if we already signed in
-    const { state, userInfo } = getState();
+    const { state, userInfo, currentAttemptId } = getState();
     if (state === 'success') {
       return userInfo;
     }
+
+    if (currentAttemptId) {
+      return getAttempt(currentAttemptId).promise;
+    }
+
+    track('Atlas Sign In Started', { entrypoint });
     const attempt = dispatch(
       startAttempt(() => {
         void dispatch(signIn());
@@ -350,7 +367,6 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
         userInfo = await atlasAuthService.getUserInfo({ signal });
       } else {
         userInfo = await atlasAuthService.signIn({
-          mainProcessSignIn: true,
           signal,
         });
       }
@@ -360,7 +376,6 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
         timeout: 10_000,
       });
       dispatch({ type: AtlasSignInActions.Success, userInfo });
-      atlasAuthService.emit('signed-in');
       AttemptStateMap.clear();
       resolve(userInfo);
     } catch (err) {
@@ -398,16 +413,29 @@ export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
 };
 
 export const tokenRefreshFailed = (): AtlasSignInThunkAction<void> => {
-  return (dispatch, _getState, { atlasAuthService }) => {
+  return (dispatch, _getState) => {
     dispatch({ type: AtlasSignInActions.TokenRefreshFailed });
-    atlasAuthService.emit('token-refresh-failed');
   };
 };
 
-export const signedOut = (): AtlasSignInThunkAction<void> => {
-  return (dispatch, _getState, { atlasAuthService }) => {
-    dispatch({ type: AtlasSignInActions.SignedOut });
-    atlasAuthService.emit('signed-out');
+export const signOut = (): AtlasSignInThunkAction<Promise<void>> => {
+  return async (dispatch, _getState, { atlasAuthService }) => {
+    try {
+      await atlasAuthService.signOut();
+      dispatch({ type: AtlasSignInActions.SignedOut });
+      openToast('atlas-disconnected', {
+        title: 'Disconnected from Atlas',
+        variant: 'note',
+        timeout: 5000,
+      });
+    } catch (err) {
+      openToast('atlas-disconnect-error', {
+        title: 'Failed to disconnect from Atlas',
+        description: (err as Error).message,
+        variant: 'warning',
+        timeout: 5000,
+      });
+    }
   };
 };
 
