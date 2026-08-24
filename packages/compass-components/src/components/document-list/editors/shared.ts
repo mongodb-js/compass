@@ -1,6 +1,7 @@
 import type React from 'react';
 import { css, cx } from '@leafygreen-ui/emotion';
 import { palette } from '@leafygreen-ui/palette';
+import type { TypeCastMap } from 'hadron-type-checker';
 
 const editorReset = css({
   padding: 0,
@@ -50,5 +51,5 @@ export type EditorProps = {
   valid: boolean;
   onChange(newValue: string): void;
   onBlur(): void;
-  label: string;
+  type: keyof TypeCastMap;
 } & EditorInputProps;

@@ -40,7 +40,7 @@ describe('<CellRenderer />', function () {
             elementAdded={actions.elementAdded}
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
-            tz="UTC"
+            timezone="UTC"
             parentType=""
             context={context}
           />
@@ -61,7 +61,7 @@ describe('<CellRenderer />', function () {
             elementAdded={actions.elementAdded}
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
-            tz="UTC"
+            timezone="UTC"
             parentType=""
             context={context}
           />
@@ -86,7 +86,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -113,7 +113,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -140,7 +140,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -169,7 +169,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -193,7 +193,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -221,7 +221,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context2}
           />
         );
@@ -252,7 +252,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             context={context2}
-            tz="UTC"
+            timezone="UTC"
             parentType={'Object'}
           />
         );
@@ -280,7 +280,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             context={context2}
-            tz="UTC"
+            timezone="UTC"
             parentType={'Array'}
           />
         );
@@ -308,7 +308,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -333,7 +333,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -359,7 +359,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -394,7 +394,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -424,7 +424,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -457,7 +457,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -494,7 +494,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -528,7 +528,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -565,7 +565,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -594,7 +594,7 @@ describe('<CellRenderer />', function () {
             elementRemoved={actions.elementRemoved}
             elementTypeChanged={actions.elementTypeChanged}
             parentType=""
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );

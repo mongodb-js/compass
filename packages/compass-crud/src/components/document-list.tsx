@@ -397,13 +397,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
     enableImportExport: isImportExportEnabled,
-    legacyUUIDDisplayEncoding,
-  } = usePreferences([
-    'readOnly',
-    'readWrite',
-    'enableImportExport',
-    'legacyUUIDDisplayEncoding',
-  ]);
+  } = usePreferences(['readOnly', 'readWrite', 'enableImportExport']);
 
   const isEditable =
     !preferencesReadOnly &&
@@ -533,7 +527,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               scrollTriggerRef={scrollTriggerRef}
               columnWidths={columnWidths}
               onColumnWidthChange={onColumnWidthChange}
-              legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
             />
           );
         }
@@ -556,7 +549,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
       currentViewInitialScrollTop,
       columnWidths,
       onColumnWidthChange,
-      legacyUUIDDisplayEncoding,
     ]
   );
 

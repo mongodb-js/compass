@@ -89,7 +89,7 @@ describe('CompassAuthServiceMain', function () {
 
     oidcCallback = sandbox.stub().resolves({ accessToken, refreshToken });
     pluginOptions = undefined;
-    CompassAuthService['createMongoDBOIDCPlugin'] = ((options: {
+    CompassAuthService['createMongoDBOIDCPlugin'] = (options: {
       serializedState?: string;
     }) => {
       pluginOptions = options;
@@ -99,7 +99,7 @@ describe('CompassAuthServiceMain', function () {
           authMechanismProperties: { OIDC_HUMAN_CALLBACK: oidcCallback },
         },
       };
-    }) as any;
+    };
 
     CompassAuthService['config'] = defaultConfig;
 
@@ -144,6 +144,44 @@ describe('CompassAuthServiceMain', function () {
       );
     });
 
+    it('should track the elapsed sign in time on success', async function () {
+      getTrackingUserInfoStub.returns({ auid: 'abcdefgh' });
+
+      const trackedEvents: {
+        event: string;
+        properties: Record<string, unknown>;
+      }[] = [];
+      const onTrack = (data: {
+        event: string;
+        properties: Record<string, unknown>;
+      }) => {
+        trackedEvents.push(data);
+      };
+      process.on('compass:track', onTrack);
+
+      const clock = sandbox.useFakeTimers({ now: 1000, toFake: ['Date'] });
+      oidcCallback.callsFake(() => {
+        clock.tick(5000);
+        return Promise.resolve({ accessToken, refreshToken });
+      });
+
+      try {
+        await CompassAuthService.signIn();
+        // track() sends the event on a microtask
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const signInSuccess = trackedEvents.filter(({ event }) => {
+          return event === 'Atlas Sign In Success';
+        });
+        expect(signInSuccess).to.have.lengthOf(1);
+        expect(signInSuccess[0].properties).to.have.property('duration', 5000);
+      } finally {
+        process.off('compass:track', onTrack);
+        oidcCallback.resolves({ accessToken, refreshToken });
+        clock.restore();
+      }
+    });
+
     it('should debounce inflight sign in requests', async function () {
       void CompassAuthService.signIn();
       void CompassAuthService.signIn();
@@ -162,18 +200,102 @@ describe('CompassAuthServiceMain', function () {
         status: 401,
         statusText: 'Unauthorized',
       });
-      oidcCallback.rejects(
-        new Error('Failed to request token for some specific plugin reason')
+      const pluginError = Object.assign(
+        new Error('Failed to request token for some specific plugin reason'),
+        { codeName: 'MongoDBOIDCGenericError' }
       );
+      CompassAuthService['plugin'] = {
+        mongoClientOptions: {
+          authMechanismProperties: {
+            OIDC_HUMAN_CALLBACK: sandbox.stub().rejects(pluginError),
+          },
+        },
+      } as any;
+
+      const trackedEvents: {
+        event: string;
+        properties: Record<string, unknown>;
+      }[] = [];
+      const onTrack = (data: {
+        event: string;
+        properties: Record<string, unknown>;
+      }) => {
+        trackedEvents.push(data);
+      };
+      process.on('compass:track', onTrack);
 
       try {
-        await CompassAuthService.signIn();
-        expect.fail('Expected AtlasService.signIn to throw');
-      } catch (err) {
-        expect(err).to.have.property(
-          'message',
+        try {
+          await CompassAuthService.signIn();
+          expect.fail('Expected AtlasService.signIn to throw');
+        } catch (err) {
+          expect(err).to.have.property(
+            'message',
+            'Failed to request token for some specific plugin reason'
+          );
+        }
+
+        // track() sends the event on a microtask
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const signInError = trackedEvents.filter(({ event }) => {
+          return event === 'Atlas Sign In Error';
+        });
+        expect(signInError).to.have.lengthOf(1);
+        expect(signInError[0].properties).to.have.property(
+          'error',
           'Failed to request token for some specific plugin reason'
         );
+        expect(signInError[0].properties).to.have.property(
+          'error_code',
+          'MongoDBOIDCGenericError'
+        );
+      } finally {
+        process.off('compass:track', onTrack);
+      }
+    });
+
+    it('should fall back to the error name as error code for non oidc-plugin errors', async function () {
+      CompassAuthService['plugin'] = {
+        mongoClientOptions: {
+          authMechanismProperties: {
+            OIDC_HUMAN_CALLBACK: sandbox
+              .stub()
+              .rejects(new TypeError('Something else went wrong')),
+          },
+        },
+      } as any;
+
+      const trackedEvents: {
+        event: string;
+        properties: Record<string, unknown>;
+      }[] = [];
+      const onTrack = (data: {
+        event: string;
+        properties: Record<string, unknown>;
+      }) => {
+        trackedEvents.push(data);
+      };
+      process.on('compass:track', onTrack);
+
+      try {
+        await CompassAuthService.signIn().catch(() => {
+          // expected, we're only interested in the tracked event
+        });
+
+        // track() sends the event on a microtask
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const signInError = trackedEvents.filter(({ event }) => {
+          return event === 'Atlas Sign In Error';
+        });
+        expect(signInError).to.have.lengthOf(1);
+        expect(signInError[0].properties).to.have.property(
+          'error_code',
+          'TypeError'
+        );
+      } finally {
+        process.off('compass:track', onTrack);
       }
     });
   });
