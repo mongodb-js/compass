@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Wed Aug 19 2026.
+This document was automatically generated on Mon Aug 24 2026.
 
 ## List of dependencies
 
@@ -270,7 +270,7 @@ This document was automatically generated on Wed Aug 19 2026.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#823318eb6b55bca7d1b1b4caea76c6cf806a01a2706aba6b184a55e41e18e39a)**                                           | 41.10.6      | MIT                                 |
+| **[electron](#8713c6babffb8178f4cf841a39add7930f1d6fea34933ecb59538a0cdc252ef5)**                                           | 43.4.1       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -349,10 +349,10 @@ This document was automatically generated on Wed Aug 19 2026.
 | **[ini](#2269ab4bd2e1fa90571f520780ab5499f6d49da3b7daee9b9dfdad9e93c33a18)**                                                | 1.3.8        | ISC                                 |
 | **[inline-style-parser](#c2fe1c96120d7ffd4bdf7cb3b2baf79ba444a6e143cff9634f9e5bd6d379023d)**                                | 0.1.1        | MIT                                 |
 | **[interruptor](#e7e9b55aaa6e4d9f301e7038def466cf714935a5ff0452046531084208944548)**                                        | 2.0.1        | Apache-2.0                          |
-| **[ip-address](#9e2f4e21a091a6dc02a877834bd3b8a6db99459564cbb6b71d286c0cd854e685)**                                         | 10.3.1       | MIT                                 |
-| **[ip-address](#8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8)**                                         | 9.0.5        | MIT                                 |
+| **[ip-address](#4c6a71d5c1419be494b8794def88d8be4703e39af5b389cc107438779df9b74f)**                                         | 10.5.0       | MIT                                 |
 | **[ipaddr.js](#38a5a1606dbc89a9c65a28d1e9ebe3c8d323e107a77c495a56dbf522211676d2)**                                          | 1.9.1        | MIT                                 |
 | **[ipaddr.js](#c746e4b3a8a615446d1693e57151c8d5461ffc4caa1a3ec15527b6247b74f21c)**                                          | 2.3.0        | MIT                                 |
+| **[ipaddr.js](#cb3eb5b02801a63fbaf355582a1e113c29d6fc8377f3abd6fa736a19a4eb74d2)**                                          | 2.5.0        | MIT                                 |
 | **[ipv6-normalize](#7a4346dbf206011966449898fcd37178a9be89acf6dff120b676d4c4d0dec203)**                                     | 1.0.1        | MIT                                 |
 | **[is-buffer](#fecc2287723697a57d87b2a01997386d175b7d82d4b4c7af571e8a4a1ecef992)**                                          | 2.0.5        | MIT                                 |
 | **[is-callable](#8cf8f70dfb44d8f426d81a03a0f5a1e4be28081368aa69089c22ac2571dcac14)**                                        | 1.2.7        | MIT                                 |
@@ -370,7 +370,6 @@ This document was automatically generated on Wed Aug 19 2026.
 | **[js-tokens](#f4371f095c6f087cf41433031f8c612e21a4258b18cb4e847ffae73905e146d4)**                                          | 4.0.0        | MIT                                 |
 | **[js-yaml-js-types](#94fe5e72af8a132923f015d2da5fc0d6cc8d214f0b2b3eca7f42fbf67f09cbf5)**                                   | 1.0.1        | MIT                                 |
 | **[js-yaml](#dbe200745f642f5939519a0e0d34f601df5728072560f50f5bc25ca044df3588)**                                            | 4.3.1        | MIT                                 |
-| **[jsbn](#936d5c89291f7b505f688e45ff8261d3f225f96e0e981fd0366a9efda9e0e7f2)**                                               | 1.1.0        | MIT                                 |
 | **[jsesc](#ea0becb009dc00e5116c19296121a196c13ad07e74e6a35b68220ae5e3aac71c)**                                              | 3.1.0        | MIT                                 |
 | **[json-bigint](#88c834751617826d41739bc9c4eda53c24014d5a030f6265ec4ea569c58cf995)**                                        | 1.0.0        | MIT                                 |
 | **[json-schema-traverse](#e830fd7d93f6ebaa303067a25ee40b4b88dce5126f3473b7f80f712ea55d44b8)**                               | 1.0.0        | MIT                                 |
@@ -432,7 +431,7 @@ This document was automatically generated on Wed Aug 19 2026.
 | **[mongodb-log-writer](#29ce1833ae99c6452d014e8847ac7e8e50bbfe6241534fb000c8a313519fa9c4)**                                 | 2.5.14       | Apache-2.0                          |
 | **[mongodb-mcp-server](#170d115701124029e823835d30b7a783037c72cd0f53bf99816bbbe444a3676d)**                                 | 1.10.0       | Apache-2.0                          |
 | **[mongodb-ns](#9658ed4c4d2d38de9ce3cef33fe9341cfa97429730fc4a4638828d4e5b74b329)**                                         | 3.2.1        | Apache-2.0                          |
-| **[mongodb-query-parser](#e0cbcb1c33d08af69063bbae69ff5514f704455c05a61355bcb81f69363bfbb3)**                               | 4.7.16       | Apache-2.0                          |
+| **[mongodb-query-parser](#1ec8ed719ca0a368a7474fda7282181b70e15ac85d3456a528d57e92cda08189)**                               | 5.0.1        | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6        | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0       | Apache-2.0                          |
 | **[mongodb](#2b6d1321e5706f8de316a1b3f659dfd6e492d154443936866c044e7ac313d9c5)**                                            | 7.5.0        | Apache-2.0                          |
@@ -546,7 +545,6 @@ This document was automatically generated on Wed Aug 19 2026.
 | **[source-map](#55fb2b4a8e114a26cce0c971365f26175ae0d834849c5edebbdb5adafaa08787)**                                         | 0.6.1        | BSD-3-Clause                        |
 | **[space-separated-tokens](#9b48fc080c7093651a07b66f349e7adefab08e5b65c63eed171352c38d6bd762)**                             | 2.0.2        | MIT                                 |
 | **[sparse-bitfield](#0cbcf2cac3ff859d288ae5ffc2c793bbd2430b120f5930bd09b6dba7259086d7)**                                    | 3.0.3        | MIT                                 |
-| **[sprintf-js](#d8b6ff1ba6436283de681a756ad453428005e61986c5113a3a8088ced2b36eb7)**                                         | 1.1.3        | BSD-3-Clause                        |
 | **[ssh2](#93a456b00d0854244fabe1d5f5fd42fa38d0528630795c8c9a1d478b6960b80e)**                                               | 1.17.0       | MIT                                 |
 | **[statuses](#d39841e95558c32cf23fd38bbb45e971edc4b3c907e806a9528a1e5b7b5075de)**                                           | 2.0.2        | MIT                                 |
 | **[stream-chain](#dbe4594ad347bd2850f84bc41ea7ed1f0bebb82c38b9e7e0f6820d1c071e534c)**                                       | 2.2.5        | BSD-3-Clause                        |
@@ -23842,9 +23840,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="823318eb6b55bca7d1b1b4caea76c6cf806a01a2706aba6b184a55e41e18e39a"></a>
+<a id="8713c6babffb8178f4cf841a39add7930f1d6fea34933ecb59538a0cdc252ef5"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 41.10.6)
+### [electron](https://www.npmjs.com/package/electron) (version 43.4.1)
 
 License tags: MIT
 
@@ -27102,39 +27100,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="9e2f4e21a091a6dc02a877834bd3b8a6db99459564cbb6b71d286c0cd854e685"></a>
+<a id="4c6a71d5c1419be494b8794def88d8be4703e39af5b389cc107438779df9b74f"></a>
 
-### [ip-address](https://www.npmjs.com/package/ip-address) (version 10.3.1)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Copyright (C) 2011 by Beau Gunderson
-
-      Permission is hereby granted, free of charge, to any person obtaining a copy
-      of this software and associated documentation files (the "Software"), to deal
-      in the Software without restriction, including without limitation the rights
-      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-      copies of the Software, and to permit persons to whom the Software is
-      furnished to do so, subject to the following conditions:
-
-      The above copyright notice and this permission notice shall be included in
-      all copies or substantial portions of the Software.
-
-      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-      THE SOFTWARE.
-
-<a id="8de6e89459554be8a933663b25ae1d1ffee71458028fa8cbe5d68b349438a8c8"></a>
-
-### [ip-address](https://www.npmjs.com/package/ip-address) (version 9.0.5)
+### [ip-address](https://www.npmjs.com/package/ip-address) (version 10.5.0)
 
 License tags: MIT
 
@@ -27195,6 +27163,36 @@ License files:
 <a id="c746e4b3a8a615446d1693e57151c8d5461ffc4caa1a3ec15527b6247b74f21c"></a>
 
 ### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 2.3.0)
+
+License tags: MIT
+
+License files:
+
+- LICENSE:
+
+      Copyright (C) 2011-2017 whitequark <whitequark@whitequark.org>
+
+      Permission is hereby granted, free of charge, to any person obtaining a copy
+      of this software and associated documentation files (the "Software"), to deal
+      in the Software without restriction, including without limitation the rights
+      to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+      copies of the Software, and to permit persons to whom the Software is
+      furnished to do so, subject to the following conditions:
+
+      The above copyright notice and this permission notice shall be included in
+      all copies or substantial portions of the Software.
+
+      THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+      IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+      FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+      AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+      LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+      THE SOFTWARE.
+
+<a id="cb3eb5b02801a63fbaf355582a1e113c29d6fc8377f3abd6fa736a19a4eb74d2"></a>
+
+### [ipaddr.js](https://www.npmjs.com/package/ipaddr.js) (version 2.5.0)
 
 License tags: MIT
 
@@ -27650,57 +27648,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
-
-<a id="936d5c89291f7b505f688e45ff8261d3f225f96e0e981fd0366a9efda9e0e7f2"></a>
-
-### [jsbn](https://www.npmjs.com/package/jsbn) (version 1.1.0)
-
-License tags: MIT
-
-License files:
-
-- LICENSE:
-
-      Licensing
-      ---------
-
-      This software is covered under the following copyright:
-
-      /*
-       * Copyright (c) 2003-2005  Tom Wu
-       * All Rights Reserved.
-       *
-       * Permission is hereby granted, free of charge, to any person obtaining
-       * a copy of this software and associated documentation files (the
-       * "Software"), to deal in the Software without restriction, including
-       * without limitation the rights to use, copy, modify, merge, publish,
-       * distribute, sublicense, and/or sell copies of the Software, and to
-       * permit persons to whom the Software is furnished to do so, subject to
-       * the following conditions:
-       *
-       * The above copyright notice and this permission notice shall be
-       * included in all copies or substantial portions of the Software.
-       *
-       * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
-       * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
-       * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
-       *
-       * IN NO EVENT SHALL TOM WU BE LIABLE FOR ANY SPECIAL, INCIDENTAL,
-       * INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND, OR ANY DAMAGES WHATSOEVER
-       * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER OR NOT ADVISED OF
-       * THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF LIABILITY, ARISING OUT
-       * OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-       *
-       * In addition, the following condition applies:
-       *
-       * All redistributions must retain an intact copy of this copyright notice
-       * and disclaimer.
-       */
-
-      Address all questions regarding this license to:
-
-        Tom Wu
-        tjw@cs.Stanford.EDU
 
 <a id="ea0becb009dc00e5116c19296121a196c13ad07e74e6a35b68220ae5e3aac71c"></a>
 
@@ -30814,9 +30761,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="e0cbcb1c33d08af69063bbae69ff5514f704455c05a61355bcb81f69363bfbb3"></a>
+<a id="1ec8ed719ca0a368a7474fda7282181b70e15ac85d3456a528d57e92cda08189"></a>
 
-### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 4.7.16)
+### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 5.0.1)
 
 License tags: Apache-2.0
 
@@ -41813,41 +41760,6 @@ License files:
       LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
       OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
       THE SOFTWARE.
-
-<a id="d8b6ff1ba6436283de681a756ad453428005e61986c5113a3a8088ced2b36eb7"></a>
-
-### [sprintf-js](https://www.npmjs.com/package/sprintf-js) (version 1.1.3)
-
-License tags: BSD-3-Clause
-
-License files:
-
-- LICENSE:
-
-      Copyright (c) 2007-present, Alexandru Mărășteanu <hello@alexei.ro>
-      All rights reserved.
-
-      Redistribution and use in source and binary forms, with or without
-      modification, are permitted provided that the following conditions are met:
-      * Redistributions of source code must retain the above copyright
-        notice, this list of conditions and the following disclaimer.
-      * Redistributions in binary form must reproduce the above copyright
-        notice, this list of conditions and the following disclaimer in the
-        documentation and/or other materials provided with the distribution.
-      * Neither the name of this software nor the names of its contributors may be
-        used to endorse or promote products derived from this software without
-        specific prior written permission.
-
-      THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-      ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-      WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-      DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
-      ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-      (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-      LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-      ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-      (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-      SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 <a id="93a456b00d0854244fabe1d5f5fd42fa38d0528630795c8c9a1d478b6960b80e"></a>
 

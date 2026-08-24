@@ -133,15 +133,21 @@ export default function ThemedHome(
   props: HomeWithConnectionsProps
 ): ReturnType<typeof HomeWithConnections> {
   const track = useTelemetry();
-  const { legacyUUIDDisplayEncoding, showedNetworkOptIn, enableGuideCues } =
-    usePreferences([
-      'legacyUUIDDisplayEncoding',
-      'showedNetworkOptIn',
-      'enableGuideCues',
-    ]);
+  const {
+    legacyUUIDDisplayEncoding,
+    timezone,
+    showedNetworkOptIn,
+    enableGuideCues,
+  } = usePreferences([
+    'legacyUUIDDisplayEncoding',
+    'timezone',
+    'showedNetworkOptIn',
+    'enableGuideCues',
+  ]);
   return (
     <CompassComponentsProvider
       legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
+      timezone={timezone}
       onGuideCueShown={(cue) => {
         track('Guide Cue Shown', {
           groupId: cue.groupId,

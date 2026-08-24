@@ -93,7 +93,19 @@ describe('ejson-conversion', function () {
           encrypted: Binary.createFromBase64('c//SZESzTGmQ6OfR38A11A==', 6),
           custom: Binary.createFromBase64('//8=', 128),
         },
-        dbRef: new DBRef('namespace', new ObjectId('642d76b4b7ebfab15d3c4a78')),
+        dbRef: new DBRef('collect', new ObjectId('642d76b4b7ebfab15d3c4a78')),
+        dbRefWithFields: new DBRef(
+          'col',
+          new ObjectId('642d76b4b7ebfab15d3c4a78'),
+          'datab',
+          { a: 1, b: 2 }
+        ),
+        dbRefWithFieldsNoDB: new DBRef(
+          'colNoDB',
+          new ObjectId('642d76b4b7ebfab15d3c4a78'),
+          undefined,
+          { a: new ObjectId('642d76b4b7ebfab15d3c4a55'), b: 'test' }
+        ),
       };
 
       const converted = convert(EJSON.stringify(allTypes, { relaxed: false }));
@@ -140,9 +152,9 @@ describe('ejson-conversion', function () {
         `md5: BinData(5, 'c//SZESzTGmQ6OfR38A11A==')`,
         `encrypted: BinData(6, 'c//SZESzTGmQ6OfR38A11A==')`,
         `custom: BinData(128, '//8=')`,
-        // TODO(COMPASS-10987): The $id in db ref should stay an ObjectId, it currently
-        // degrades to a string.
-        `dbRef: DBRef('namespace', '642d76b4b7ebfab15d3c4a78')`,
+        `dbRef: DBRef("collect", ObjectId('642d76b4b7ebfab15d3c4a78'))`,
+        `dbRefWithFields: DBRef("col", ObjectId('642d76b4b7ebfab15d3c4a78'), "datab", {a:NumberInt('1'),b:NumberInt('2')})`,
+        `dbRefWithFieldsNoDB: DBRef("colNoDB", ObjectId('642d76b4b7ebfab15d3c4a78'), undefined, {a:ObjectId('642d76b4b7ebfab15d3c4a55'),b:'test'})`,
       ];
       for (const expectedField of expectedFields) {
         expect(converted).to.include(expectedField);

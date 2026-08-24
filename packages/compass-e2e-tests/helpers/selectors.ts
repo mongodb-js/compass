@@ -23,6 +23,9 @@ export const ArtificialIntelligenceSettingsContent = `${SettingsModal} [data-tes
 export const SettingsInputElement = (settingName: string): string => {
   return `${SettingsModal} [data-testid="${settingName}"]`;
 };
+export const SettingsComboboxInputElement = (settingName: string): string => {
+  return `${SettingsInputElement(settingName)} input`;
+};
 
 // LG Modals
 export const LGModal = '[data-lgid="lg-modal"]';
@@ -756,6 +759,7 @@ export const HadronDocumentTypeEditor =
   '[data-testid="hadron-document-type-editor"]';
 export const HadronDocumentValue =
   '[data-testid="hadron-document-element-value"]';
+export const DateWithTimezoneHint = '[data-testid="date-with-timezone-hint"]';
 export const HadronDocumentValueEditor =
   '[data-testid="hadron-document-value-editor"]';
 export const HadronDocumentClickableValue =

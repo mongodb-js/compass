@@ -321,9 +321,16 @@ function collectionColumns({
         }
 
         const storageSize = collection.storage_size;
-        const freeStorageSize = collection.free_storage_size ?? 0;
-        const usedStorageSize = storageSize - freeStorageSize;
         const displayValue = compactBytes(storageSize);
+
+        // Without freeStorageSize there is no total/used/free split to show, and
+        // rendering it as all-zeros would be wrong rather than merely empty.
+        if (collection.free_storage_size === undefined) {
+          return displayValue;
+        }
+
+        const freeStorageSize = collection.free_storage_size;
+        const usedStorageSize = storageSize - freeStorageSize;
 
         const definition = (
           <div>

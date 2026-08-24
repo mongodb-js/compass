@@ -16,9 +16,7 @@ import {
 } from '../helpers/test-runner-context.ts';
 import { expect } from 'chai';
 
-// TODO(COMPASS-11029): These tests are currently skipped while we implement
-// a fix or workaround for using the knowledge dev server from a non-office ip.
-describe.skip('MongoDB Assistant (with real backend)', function () {
+describe('MongoDB Assistant (with real backend)', function () {
   let compass: Compass;
   let browser: CompassBrowser;
   let telemetry: Telemetry;
@@ -30,8 +28,14 @@ describe.skip('MongoDB Assistant (with real backend)', function () {
   const collectionName = 'assistant-test';
 
   before(async function () {
-    if (isTestingWeb() && !isTestingWebAtlasCloud()) {
-      // The assistant does not allow requests from localhost:7777 yet
+    // Skipping tests for environments where real backend is not available
+    if (
+      // Knowledge API doesn't allow requests from localhost
+      isTestingWeb() ||
+      // Knowledge API doesn't allow requests from Evergreen in non-prod
+      // envioronments that we're using for WebAtlasCloud tests
+      isTestingWebAtlasCloud()
+    ) {
       this.skip();
     }
 
@@ -91,9 +95,7 @@ describe.skip('MongoDB Assistant (with real backend)', function () {
 
   after(async function () {
     await cleanup(compass);
-    if (telemetry) {
-      await telemetry.stop();
-    }
+    await telemetry?.stop();
   });
 
   beforeEach(async function () {

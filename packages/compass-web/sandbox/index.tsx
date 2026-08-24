@@ -69,4 +69,9 @@ const App = () => {
   );
 };
 
-ReactDOM.render(<App></App>, document.querySelector('#sandbox-app'));
+ReactDOM.render(
+  <React.StrictMode>
+    <App></App>
+  </React.StrictMode>,
+  document.querySelector('#sandbox-app')
+);

@@ -12,6 +12,7 @@ import {
   buildProjectSettingsUrl,
   buildSearchExtensionRateLimitsUrl,
   buildBillingUrl,
+  buildNetworkAccessListUrl,
 } from './url-builders';
 
 const TEST_ORIGIN = 'https://cloud.mongodb.com';
@@ -82,6 +83,14 @@ describe('url-builders', function () {
         })
       ).to.equal(
         `${TEST_ORIGIN}/v2/proj123#/settings/groupSettings?highlight=nativeReranking`
+      );
+    });
+  });
+
+  describe('buildNetworkAccessListUrl', function () {
+    it('builds network access list url', function () {
+      expect(buildNetworkAccessListUrl({ projectId: 'proj123' })).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/security/network/accessList`
       );
     });
   });

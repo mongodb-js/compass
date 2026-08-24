@@ -1054,8 +1054,8 @@ describe('AssistantChat', function () {
         createMockChat({ messages: [makeAtlasToolCallMessage()] })
       );
 
-      expect(screen.getByText('Connect with Atlas to debug this connection')).to
-        .exist;
+      expect(screen.getByText('Connect with Atlas to debug this connection?'))
+        .to.exist;
     });
   });
 
