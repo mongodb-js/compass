@@ -62,6 +62,7 @@ export type SendMessageOptions = {
 // TODO(COMPASS-9751): These are temporary patches to make the Assistant chat take the entire
 // width and height of the drawer since Leafygreen doesn't support this yet.
 const assistantChatFixesStyles = css({
+  overflowY: 'clip',
   // Compass has a global bullet point override but we clear this for the chat.
   ul: {
     listStyleType: 'disc',
@@ -590,10 +591,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       )}
       style={chatContainerOverrideStyle}
     >
+      {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
       <LeafyGreenChatProvider>
         <ChatWindow>
-          {/* TODO  COMPASS-10944: fix connection status to the top of chat*/}
-          {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
           <div
             data-testid="assistant-chat-messages"
             className={messageFeedFixesStyles}

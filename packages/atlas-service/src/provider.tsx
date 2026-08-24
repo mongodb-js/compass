@@ -38,17 +38,11 @@ export const AtlasServiceProvider: React.FC<{
 }) {
   const logger = useLogger('ATLAS-SERVICE');
   const preferences = preferencesLocator();
-  const authService = atlasAuthServiceLocator();
   const initialValueOptions = useInitialValue(options);
 
   const atlasService = useMemo(() => {
-    return new AtlasService(
-      authService,
-      preferences,
-      logger,
-      initialValueOptions
-    );
-  }, [authService, preferences, logger, initialValueOptions]);
+    return new AtlasService(preferences, logger, initialValueOptions);
+  }, [preferences, logger, initialValueOptions]);
 
   return (
     <AtlasServiceContext.Provider value={atlasService}>
@@ -76,6 +70,7 @@ export type { AtlasUserInfo } from './renderer';
 export {
   useAtlasSignedInUser,
   useAtlasLoginActions,
+  useIsAtlasSignInStateResolved,
 } from './store/atlas-signin-store-context';
 export type { AtlasLoginActions } from './store/atlas-signin-store-context';
 export { AtlasConnectionStatus } from './components/atlas-connection-status';

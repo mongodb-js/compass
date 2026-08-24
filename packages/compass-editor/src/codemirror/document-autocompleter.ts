@@ -1,7 +1,12 @@
 import type { CompletionSource } from '@codemirror/autocomplete';
 import { completer, wrapField } from '../autocompleter';
 import { languageName } from '../editor';
-import { resolveTokenAtCursor, completeWordsInString } from './utils';
+import {
+  resolveTokenAtCursor,
+  completeWordsInString,
+  isPropertyValue,
+  mapMongoDBCompletionToCodemirrorCompletion,
+} from './utils';
 import type { Token } from './utils';
 
 function isJSONPropertyName(token: Token): boolean {
@@ -26,19 +31,22 @@ function isJavaScriptPropertyName(token: Token): boolean {
 }
 
 /**
- * Autocompleter for the document object, only autocompletes field names in the
- * appropriate format (either escaped or not) both for javascript and json modes
+ * Autocompleter for the document object. Completes field names in the
+ * appropriate format (either escaped or not) both for javascript and json
+ * modes, and bson constructors (`ObjectId()`, `ISODate()`, ...) in value
+ * position, which are only valid outside of json mode.
  */
 export const createDocumentAutocompleter = (
   fields: string[]
 ): CompletionSource => {
   const completions = completer('', { fields, meta: ['field:identifier'] });
+  const bsonCompletions = completer('', { meta: ['bson'] });
 
   return (context) => {
     const token = resolveTokenAtCursor(context);
 
-    const shouldAlwaysEscapeProperty =
-      context.state.facet(languageName)[0] === 'json';
+    const isJSON = context.state.facet(languageName)[0] === 'json';
+    const shouldAlwaysEscapeProperty = isJSON;
 
     if (isJSONPropertyName(token) || isJavaScriptPropertyName(token)) {
       const prefix = context.state
@@ -61,6 +69,33 @@ export const createDocumentAutocompleter = (
               type: 'property',
               detail: 'field',
             };
+          }),
+        filter: false,
+      };
+    }
+
+    if (!isJSON && token.type.name !== 'String' && isPropertyValue(token)) {
+      const prefix = context.state.sliceDoc(token.from, context.pos);
+
+      if (!prefix) {
+        return null;
+      }
+
+      return {
+        from: token.from,
+        to: token.to,
+        options: bsonCompletions
+          .filter((completion) => {
+            return completion.value
+              .toLowerCase()
+              .startsWith(prefix.toLowerCase());
+          })
+          .map((completion) => {
+            // bson constructors are expressions, never quoted like a field name
+            return mapMongoDBCompletionToCodemirrorCompletion(
+              completion,
+              'never'
+            );
           }),
         filter: false,
       };

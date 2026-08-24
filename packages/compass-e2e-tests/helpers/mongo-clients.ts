@@ -158,7 +158,7 @@ export async function createNestedDocumentsCollection(
   );
 }
 
-const allTypesDoc = {
+export const allTypesDoc = {
   double: new Double(1.2),
   primitiveDouble: 1.2,
   doubleThatIsAlsoAnInteger: new Double(1),
@@ -242,6 +242,20 @@ export async function createNumbersCollection(
           pipeline: [{ $match: { _id: { $exists: true } } }],
         });
       }
+    })
+  );
+}
+
+export async function createDatesCollection(
+  name = 'dates',
+  date = new Date()
+): Promise<void> {
+  await Promise.all(
+    test_dbs.map(async (db) => {
+      await db.collection(name).insertOne({
+        i: 0,
+        date,
+      });
     })
   );
 }

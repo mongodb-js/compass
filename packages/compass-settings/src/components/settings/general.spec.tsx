@@ -91,4 +91,80 @@ describe('GeneralSettings', function () {
       expect(getSettings()).to.have.property(option, undefined);
     });
   });
+
+  context('timezone', function () {
+    let timezoneContainer: HTMLElement;
+
+    function getTimezoneInput() {
+      const input = within(timezoneContainer).getByLabelText(
+        'Personal timezone display preference'
+      ) as HTMLInputElement | null;
+      if (!input) {
+        throw new Error('Could not find timezone input');
+      }
+      return input;
+    }
+
+    function selectTimezone(timezone: string) {
+      const input = getTimezoneInput();
+      userEvent.click(input);
+      userEvent.clear(input);
+      userEvent.type(input, timezone);
+      // The menu is rendered in a portal, outside of the settings container.
+      const menu = document.querySelector(
+        `#${input.getAttribute('aria-controls') as string}`
+      ) as HTMLElement;
+      userEvent.click(
+        within(menu).getByRole('option', { name: new RegExp(timezone, 'i') }),
+        undefined,
+        { skipPointerEventsCheck: true }
+      );
+      userEvent.keyboard('{Escape}');
+    }
+
+    function getTimezoneDescription() {
+      return within(timezoneContainer).getByTestId(
+        'timezone-description'
+      ).textContent;
+    }
+
+    beforeEach(function () {
+      expect(getSettings()).to.have.property('timezone', 'UTC');
+
+      timezoneContainer = within(container).getByTestId('setting-timezone');
+      expect(timezoneContainer).to.exist;
+    });
+
+    it('explains where the data is stored', function () {
+      expect(getTimezoneDescription()).to.match(
+        /the data will still always be stored in utc\./i
+      );
+    });
+
+    it('defaults to UTC and does not show daylight savings text', function () {
+      expect(getTimezoneInput().value).to.equal('UTC+00:00');
+      expect(getSettings()).to.have.property('timezone', 'UTC');
+      expect(getTimezoneDescription()).to.not.match(
+        /observes daylight savings/i
+      );
+    });
+
+    it('changes the value of timezone - no daylight saving timezone', function () {
+      selectTimezone('Africa/Algiers');
+
+      expect(getSettings()).to.have.property('timezone', 'Africa/Algiers');
+      expect(getTimezoneInput().value).to.include('Africa/Algiers');
+      expect(getTimezoneDescription()).to.not.match(
+        /observes daylight savings/i
+      );
+    });
+
+    it('changes the value of timezone - daylight saving timezone', function () {
+      selectTimezone('Europe/Berlin');
+
+      expect(getSettings()).to.have.property('timezone', 'Europe/Berlin');
+      expect(getTimezoneInput().value).to.include('Europe/Berlin');
+      expect(getTimezoneDescription()).to.match(/observes daylight savings/i);
+    });
+  });
 });

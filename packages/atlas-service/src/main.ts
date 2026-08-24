@@ -3,12 +3,14 @@ import type Electron from 'electron';
 import { URL, URLSearchParams } from 'url';
 import type {
   AuthFlowType,
+  MongoDBOIDCError,
   MongoDBOIDCPlugin,
   MongoDBOIDCPluginOptions,
 } from '@mongodb-js/oidc-plugin';
 import {
   throwIfNotOk,
   throwIfNetworkTrafficDisabled,
+  throwIfAtlasSignInDisabled,
   getTrackingUserInfo,
   getJWTTokenPayload,
 } from './util';
@@ -69,11 +71,12 @@ export class CompassAuthService {
 
   private static signInPromise: Promise<AtlasUserInfo> | null = null;
 
+  private static getUserAgent = () => `${app.getName()}/${app.getVersion()}`;
+
   private static fetch = async (
     url: string,
     init: RequestInit = {}
   ): Promise<Response> => {
-    await this.initPromise;
     this.throwIfNetworkTrafficDisabled();
     throwIfAborted(init.signal ?? undefined);
     log.info(
@@ -87,7 +90,7 @@ export class CompassAuthService {
         ...init,
         headers: {
           ...init.headers,
-          'User-Agent': `${app.getName()}/${app.getVersion()}`,
+          'User-Agent': this.getUserAgent(),
         },
       });
       await throwIfNotOk(res);
@@ -189,7 +192,11 @@ export class CompassAuthService {
       );
       const serializedState = await this.secretStore.getState();
       this.setupPlugin(serializedState);
-      if (serializedState) await this.restoreCurrentUser();
+      if (
+        serializedState &&
+        this.preferences.getPreferences().enableAtlasSignIn
+      )
+        await this.restoreCurrentUser();
     })());
   }
 
@@ -197,9 +204,16 @@ export class CompassAuthService {
     throwIfNetworkTrafficDisabled(this.preferences);
   }
 
+  private static throwIfAtlasSignInDisabled() {
+    throwIfAtlasSignInDisabled(this.preferences);
+  }
+
   private static requestOAuthToken({ signal }: { signal?: AbortSignal } = {}) {
     throwIfAborted(signal);
     this.throwIfNetworkTrafficDisabled();
+    // Even if we still have a usable token stored, we should not to use it
+    // when Atlas sign in is disabled for the organization
+    this.throwIfAtlasSignInDisabled();
 
     if (!this.plugin) {
       throw new Error(
@@ -245,6 +259,9 @@ export class CompassAuthService {
     signal,
   }: { signal?: AbortSignal } = {}): Promise<boolean> {
     throwIfAborted(signal);
+    if (!this.preferences.getPreferences().enableAtlasSignIn) {
+      return false;
+    }
     await this.initPromise;
     return !!this.currentUser;
   }
@@ -253,6 +270,7 @@ export class CompassAuthService {
     try {
       const accessToken = await this.maybeGetToken({
         tokenType: 'accessToken',
+        _skipWaitingForInit: true,
       });
       if (!accessToken) {
         this.currentUser = null;
@@ -291,8 +309,11 @@ export class CompassAuthService {
       this.signInPromise = (async () => {
         throwIfAborted(signal);
         this.throwIfNetworkTrafficDisabled();
+        this.throwIfAtlasSignInDisabled();
 
         log.info(mongoLogId(1_001_000_218), 'AtlasService', 'Starting sign in');
+
+        const startedAt = Date.now();
 
         try {
           const tokens = await this.requestOAuthToken({ signal });
@@ -305,14 +326,19 @@ export class CompassAuthService {
             'Signed in successfully'
           );
           const { auid } = getTrackingUserInfo(this.currentUser);
-          track('Atlas Sign In Success', { auid });
+          track('Atlas Sign In Success', {
+            auid,
+            duration: Date.now() - startedAt,
+          });
           await this.preferences.savePreferences({
             telemetryAtlasUserId: auid,
           });
           return this.currentUser;
         } catch (err) {
+          const error = err as Error & Partial<MongoDBOIDCError>;
           track('Atlas Sign In Error', {
-            error: (err as Error).message,
+            error: error.message,
+            error_code: error.codeName ?? error.name,
           });
           log.error(
             mongoLogId(1_001_000_220),
@@ -372,11 +398,18 @@ export class CompassAuthService {
   static async maybeGetToken({
     tokenType,
     signal,
+    _skipWaitingForInit = false,
   }: {
     tokenType?: 'accessToken' | 'refreshToken';
     signal?: AbortSignal;
+    /**
+     * @internal Only for use by `restoreCurrentUser`, which runs inside the
+     * `initPromise` executor and would deadlock awaiting it.
+     */
+    _skipWaitingForInit?: boolean;
   }): Promise<string | undefined> {
     try {
+      if (!_skipWaitingForInit) await this.initPromise;
       tokenType ??= 'accessToken';
       const token = await this.requestOAuthToken({ signal });
       return token[tokenType];

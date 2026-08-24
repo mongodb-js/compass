@@ -31,7 +31,7 @@ export function TextEditor({
   autoFocus,
   onBlur,
   ...props
-}: Omit<EditorProps, 'label'>) {
+}: Omit<EditorProps, 'type'>) {
   const inputStyle = useMemo(() => {
     const lines = val.split('\n');
     let longestLineCharLength = 0;

@@ -166,9 +166,11 @@ describe('Collection import', function () {
     // wait for the modal to appear
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
+    await browser.clickVisible(Selectors.InsertDialogJSONView);
+
     // set the text in the editor
     await browser.setCodemirrorEditorValue(
-      Selectors.InsertJSONEditor,
+      Selectors.InsertDocumentEditor,
       '{ "foo": 10, "long": { "$numberLong": "99" } }'
     );
 
@@ -199,7 +201,7 @@ describe('Collection import', function () {
 
     expect(result).to.deep.equal({
       foo: '10',
-      long: '99',
+      long: "Long('99')",
     });
 
     // make sure document count also updated
@@ -319,7 +321,10 @@ describe('Collection import', function () {
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
     // set the text in the editor
-    await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertDocumentEditor,
+      json
+    );
 
     // confirm
     // this selector is very brittle, so just make sure it works
@@ -373,7 +378,10 @@ describe('Collection import', function () {
     await browser.waitForOpenModal(Selectors.InsertDialog);
 
     // set the text in the editor
-    await browser.setCodemirrorEditorValue(Selectors.InsertJSONEditor, json);
+    await browser.setCodemirrorEditorValue(
+      Selectors.InsertDocumentEditor,
+      json
+    );
 
     // make sure that there's an error and that the insert button is disabled
     const errorElement = browser.$(Selectors.InsertDialogErrorMessage);
@@ -461,14 +469,14 @@ describe('Collection import', function () {
       dateBefore1970: "ISODate('1920-01-01T00:00:00.000+00:00')",
       dateField_canonical: "ISODate('2019-08-11T17:54:14.692+00:00')",
       dateField_relaxed: "ISODate('2019-08-11T17:54:14.692+00:00')",
-      decimal128Field: '10.99',
+      decimal128Field: "Decimal128('10.99')",
       documentField: 'Object (1)',
       doubleField_canonical: '10.5',
       doubleField_relaxed: '10.5',
       infiniteNumber: 'Infinity',
       int32field_canonical: '10',
       int32field_relaxed: '10',
-      int64Field_canonical: '50',
+      int64Field_canonical: "Long('50')",
       int64Field_relaxed: '50',
       maxKeyField: 'MaxKey()',
       minKeyField: 'MinKey()',

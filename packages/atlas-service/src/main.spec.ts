@@ -37,17 +37,18 @@ describe('CompassAuthServiceMain', function () {
   });
 
   const mockOidcPlugin = {
-    mongoClientOptions: {
-      authMechanismProperties: {
-        OIDC_HUMAN_CALLBACK: sandbox
-          .stub()
-          .resolves({ accessToken, refreshToken }),
-      },
-    },
     logger: CompassAuthService['oidcPluginLogger'],
     serialize: sandbox.stub(),
     destroy: sandbox.stub(),
   };
+
+  let oidcCallback: Sinon.SinonStub;
+  let pluginOptions:
+    | {
+        serializedState?: string;
+        customFetch?: (url: string, init?: RequestInit) => Promise<unknown>;
+      }
+    | undefined;
 
   const defaultConfig: util.AtlasServiceConfig = {
     ccsBaseUrl: 'ws://example.com',
@@ -64,6 +65,7 @@ describe('CompassAuthServiceMain', function () {
   };
 
   const fetch = CompassAuthService['fetch'];
+  const getUserAgent = CompassAuthService['getUserAgent'];
   const ipcMain = CompassAuthService['ipcMain'];
   const createPlugin = CompassAuthService['createMongoDBOIDCPlugin'];
   const authConfig = CompassAuthService['config'];
@@ -73,11 +75,10 @@ describe('CompassAuthServiceMain', function () {
     typeof util.getTrackingUserInfo
   >;
 
-  before(function () {
-    getTrackingUserInfoStub = sandbox.stub(util, 'getTrackingUserInfo');
-  });
-
   beforeEach(async function () {
+    getTrackingUserInfoStub = sandbox
+      .stub(util, 'getTrackingUserInfo')
+      .returns({ auid: atlasUid });
     CompassAuthService['ipcMain'] = {
       handle: sandbox.stub(),
       broadcast: sandbox.stub(),
@@ -85,7 +86,20 @@ describe('CompassAuthServiceMain', function () {
     };
     CompassAuthService['fetch'] = mockFetch as any;
     CompassAuthService['httpClient'] = { fetch: mockFetch } as any;
-    CompassAuthService['createMongoDBOIDCPlugin'] = () => mockOidcPlugin;
+
+    oidcCallback = sandbox.stub().resolves({ accessToken, refreshToken });
+    pluginOptions = undefined;
+    CompassAuthService['createMongoDBOIDCPlugin'] = (options: {
+      serializedState?: string;
+    }) => {
+      pluginOptions = options;
+      return {
+        ...mockOidcPlugin,
+        mongoClientOptions: {
+          authMechanismProperties: { OIDC_HUMAN_CALLBACK: oidcCallback },
+        },
+      };
+    };
 
     CompassAuthService['config'] = defaultConfig;
 
@@ -99,6 +113,7 @@ describe('CompassAuthServiceMain', function () {
   // eslint-disable-next-line @typescript-eslint/require-await
   afterEach(async function () {
     CompassAuthService['fetch'] = fetch;
+    CompassAuthService['getUserAgent'] = getUserAgent;
     CompassAuthService['ipcMain'] = ipcMain;
     CompassAuthService['initPromise'] = null;
     CompassAuthService['createMongoDBOIDCPlugin'] = createPlugin;
@@ -107,10 +122,6 @@ describe('CompassAuthServiceMain', function () {
     CompassAuthService['currentUser'] = null;
     CompassAuthService['config'] = authConfig;
 
-    sandbox.resetHistory();
-  });
-
-  after(function () {
     sandbox.restore();
   });
 
@@ -119,10 +130,7 @@ describe('CompassAuthServiceMain', function () {
       const atlasUid = 'abcdefgh';
       getTrackingUserInfoStub.returns({ auid: atlasUid });
       const userInfo = await CompassAuthService.signIn();
-      expect(
-        mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .OIDC_HUMAN_CALLBACK
-      ).to.have.been.calledOnceWith({
+      expect(oidcCallback).to.have.been.calledOnceWith({
         idpInfo: {
           issuer: defaultConfig.atlasLogin.issuer,
           clientId: defaultConfig.atlasLogin.clientId,
@@ -136,6 +144,44 @@ describe('CompassAuthServiceMain', function () {
       );
     });
 
+    it('should track the elapsed sign in time on success', async function () {
+      getTrackingUserInfoStub.returns({ auid: 'abcdefgh' });
+
+      const trackedEvents: {
+        event: string;
+        properties: Record<string, unknown>;
+      }[] = [];
+      const onTrack = (data: {
+        event: string;
+        properties: Record<string, unknown>;
+      }) => {
+        trackedEvents.push(data);
+      };
+      process.on('compass:track', onTrack);
+
+      const clock = sandbox.useFakeTimers({ now: 1000, toFake: ['Date'] });
+      oidcCallback.callsFake(() => {
+        clock.tick(5000);
+        return Promise.resolve({ accessToken, refreshToken });
+      });
+
+      try {
+        await CompassAuthService.signIn();
+        // track() sends the event on a microtask
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const signInSuccess = trackedEvents.filter(({ event }) => {
+          return event === 'Atlas Sign In Success';
+        });
+        expect(signInSuccess).to.have.lengthOf(1);
+        expect(signInSuccess[0].properties).to.have.property('duration', 5000);
+      } finally {
+        process.off('compass:track', onTrack);
+        oidcCallback.resolves({ accessToken, refreshToken });
+        clock.restore();
+      }
+    });
+
     it('should debounce inflight sign in requests', async function () {
       void CompassAuthService.signIn();
       void CompassAuthService.signIn();
@@ -144,10 +190,7 @@ describe('CompassAuthServiceMain', function () {
 
       await CompassAuthService.signIn();
 
-      expect(
-        mockOidcPlugin.mongoClientOptions.authMechanismProperties
-          .OIDC_HUMAN_CALLBACK
-      ).to.have.been.calledOnce;
+      expect(oidcCallback).to.have.been.calledOnce;
     });
 
     it('should fail with oidc-plugin error first if auth failed', async function () {
@@ -157,28 +200,102 @@ describe('CompassAuthServiceMain', function () {
         status: 401,
         statusText: 'Unauthorized',
       });
+      const pluginError = Object.assign(
+        new Error('Failed to request token for some specific plugin reason'),
+        { codeName: 'MongoDBOIDCGenericError' }
+      );
+      CompassAuthService['plugin'] = {
+        mongoClientOptions: {
+          authMechanismProperties: {
+            OIDC_HUMAN_CALLBACK: sandbox.stub().rejects(pluginError),
+          },
+        },
+      } as any;
+
+      const trackedEvents: {
+        event: string;
+        properties: Record<string, unknown>;
+      }[] = [];
+      const onTrack = (data: {
+        event: string;
+        properties: Record<string, unknown>;
+      }) => {
+        trackedEvents.push(data);
+      };
+      process.on('compass:track', onTrack);
+
+      try {
+        try {
+          await CompassAuthService.signIn();
+          expect.fail('Expected AtlasService.signIn to throw');
+        } catch (err) {
+          expect(err).to.have.property(
+            'message',
+            'Failed to request token for some specific plugin reason'
+          );
+        }
+
+        // track() sends the event on a microtask
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const signInError = trackedEvents.filter(({ event }) => {
+          return event === 'Atlas Sign In Error';
+        });
+        expect(signInError).to.have.lengthOf(1);
+        expect(signInError[0].properties).to.have.property(
+          'error',
+          'Failed to request token for some specific plugin reason'
+        );
+        expect(signInError[0].properties).to.have.property(
+          'error_code',
+          'MongoDBOIDCGenericError'
+        );
+      } finally {
+        process.off('compass:track', onTrack);
+      }
+    });
+
+    it('should fall back to the error name as error code for non oidc-plugin errors', async function () {
       CompassAuthService['plugin'] = {
         mongoClientOptions: {
           authMechanismProperties: {
             OIDC_HUMAN_CALLBACK: sandbox
               .stub()
-              .rejects(
-                new Error(
-                  'Failed to request token for some specific plugin reason'
-                )
-              ),
+              .rejects(new TypeError('Something else went wrong')),
           },
         },
       } as any;
 
+      const trackedEvents: {
+        event: string;
+        properties: Record<string, unknown>;
+      }[] = [];
+      const onTrack = (data: {
+        event: string;
+        properties: Record<string, unknown>;
+      }) => {
+        trackedEvents.push(data);
+      };
+      process.on('compass:track', onTrack);
+
       try {
-        await CompassAuthService.signIn();
-        expect.fail('Expected AtlasService.signIn to throw');
-      } catch (err) {
-        expect(err).to.have.property(
-          'message',
-          'Failed to request token for some specific plugin reason'
+        await CompassAuthService.signIn().catch(() => {
+          // expected, we're only interested in the tracked event
+        });
+
+        // track() sends the event on a microtask
+        await new Promise((resolve) => setTimeout(resolve, 0));
+
+        const signInError = trackedEvents.filter(({ event }) => {
+          return event === 'Atlas Sign In Error';
+        });
+        expect(signInError).to.have.lengthOf(1);
+        expect(signInError[0].properties).to.have.property(
+          'error_code',
+          'TypeError'
         );
+      } finally {
+        process.off('compass:track', onTrack);
       }
     });
   });
@@ -209,19 +326,7 @@ describe('CompassAuthServiceMain', function () {
   });
 
   describe('restoreCurrentUser', function () {
-    function mockPluginWithCallback(callback: Sinon.SinonStub) {
-      CompassAuthService['plugin'] = {
-        mongoClientOptions: {
-          authMechanismProperties: { OIDC_HUMAN_CALLBACK: callback },
-        },
-      } as any;
-    }
-
     it('should restore the current user from the access token', async function () {
-      mockPluginWithCallback(
-        sandbox.stub().resolves({ accessToken, refreshToken })
-      );
-
       await CompassAuthService['restoreCurrentUser']();
 
       expect(CompassAuthService['currentUser']).to.have.property(
@@ -232,9 +337,7 @@ describe('CompassAuthServiceMain', function () {
     });
 
     it('should leave the current user unset if no token can be acquired', async function () {
-      mockPluginWithCallback(
-        sandbox.stub().rejects(new Error('Auth flows are not allowed'))
-      );
+      oidcCallback.rejects(new Error('Auth flows are not allowed'));
 
       await CompassAuthService['restoreCurrentUser']();
 
@@ -243,9 +346,7 @@ describe('CompassAuthServiceMain', function () {
     });
 
     it('should leave the current user unset if the access token cannot be parsed', async function () {
-      mockPluginWithCallback(
-        sandbox.stub().resolves({ accessToken: 'not-a-jwt', refreshToken })
-      );
+      oidcCallback.resolves({ accessToken: 'not-a-jwt', refreshToken });
 
       await CompassAuthService['restoreCurrentUser']();
 
@@ -255,7 +356,7 @@ describe('CompassAuthServiceMain', function () {
 
     it('should clear a previously signed in user if the token is gone', async function () {
       CompassAuthService['currentUser'] = { sub: atlasUid };
-      mockPluginWithCallback(sandbox.stub().resolves({ refreshToken }));
+      oidcCallback.resolves({ refreshToken });
 
       await CompassAuthService['restoreCurrentUser']();
 
@@ -326,6 +427,52 @@ describe('CompassAuthServiceMain', function () {
       await CompassAuthService.init(preferences, {} as any);
       expect(setupPluginSpy).to.have.been.calledOnce;
     });
+
+    it('should restore the stored user when the plugin requests a token', async function () {
+      CompassAuthService['fetch'] = fetch;
+      // `app` is not available outside of electron
+      CompassAuthService['getUserAgent'] = () => 'Compass/test';
+      const httpClientFetch = sandbox.stub().resolves({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        json: () => Promise.resolve({}),
+      });
+      // Ensure the mock oidc plugin actually calls the custom fetch
+      // - this part is important as we want to test the whole flow
+      oidcCallback.callsFake(async () => {
+        await pluginOptions?.customFetch?.('http://example.com/oauth/token', {
+          method: 'POST',
+        });
+        return { accessToken, refreshToken };
+      });
+      const restoreCurrentUserSpy = sandbox.spy(
+        CompassAuthService as any,
+        'restoreCurrentUser'
+      );
+      sandbox
+        .stub(CompassAuthService['secretStore'], 'getState')
+        .resolves('serialized-plugin-state');
+
+      await CompassAuthService.init(preferences, {
+        fetch: httpClientFetch,
+      } as any);
+
+      expect(pluginOptions).to.have.property(
+        'serializedState',
+        'serialized-plugin-state'
+      );
+      expect(restoreCurrentUserSpy).to.have.been.calledOnce;
+      expect(httpClientFetch).to.have.been.calledOnce;
+      expect(httpClientFetch.firstCall.args[0]).to.eq(
+        'http://example.com/oauth/token'
+      );
+      expect(CompassAuthService['currentUser']).to.have.property(
+        'sub',
+        atlasUid
+      );
+      expect(await CompassAuthService.isAuthenticated()).to.equal(true);
+    });
   });
 
   describe('with networkTraffic turned off', function () {
@@ -348,13 +495,64 @@ describe('CompassAuthServiceMain', function () {
     }
   });
 
+  describe('with enableAtlasSignIn turned off', function () {
+    beforeEach(async function () {
+      await preferences.savePreferences({ enableAtlasSignIn: false });
+    });
+
+    it('signIn should throw', async function () {
+      try {
+        await CompassAuthService.signIn({});
+        expect.fail('Expected signIn to throw');
+      } catch (err) {
+        expect(err).to.have.property('message', 'Atlas sign in is not allowed');
+      }
+    });
+
+    it('isAuthenticated should return false without making any requests', async function () {
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      mockFetch.resetHistory();
+      expect(await CompassAuthService.isAuthenticated()).to.eq(false);
+      expect(mockFetch).to.not.have.been.called;
+    });
+
+    it('maybeGetToken should not return a stored token', async function () {
+      expect(await CompassAuthService.maybeGetToken({})).to.eq(undefined);
+    });
+
+    it('handleAuthHeaders should not add auth headers even with a usable token', async function () {
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      const authHeaders = await CompassAuthService.handleAuthHeaders({
+        requestHeaders: {
+          'X-Some-Header': 'value',
+          'X-Compass-Auth': 'true',
+        },
+        url: `${defaultConfig.atlasAdminApiBaseUrl}/v2/clusters`,
+      });
+      expect(authHeaders).to.not.have.property('Authorization');
+      expect(authHeaders).to.have.property('X-Some-Header', 'value');
+    });
+
+    it('init should not restore the current user from a stored token', async function () {
+      CompassAuthService['currentUser'] = null;
+      CompassAuthService['initPromise'] = null;
+      sandbox
+        .stub(CompassAuthService['secretStore'], 'getState')
+        .resolves('serialized-state');
+
+      await CompassAuthService.init(preferences, {} as any);
+
+      expect(CompassAuthService['currentUser']).to.eq(null);
+    });
+  });
+
   describe('signOut', function () {
     it('should reset service state, revoke tokens, and destroy plugin', async function () {
       const logger = new EventEmitter();
       CompassAuthService['oidcPluginLogger'] = logger;
       CompassAuthService['currentUser'] = {
         sub: '1234',
-      } as any;
+      };
       await CompassAuthService.init(preferences, {} as any);
       CompassAuthService['config'] = defaultConfig;
       // We expect that the oidc plugin registers a number of listeners
@@ -399,17 +597,9 @@ describe('CompassAuthServiceMain', function () {
       beforeEach(function () {
         CompassAuthService['currentUser'] = {
           sub: '1234',
-        } as any;
+        };
 
-        CompassAuthService['plugin'] = {
-          mongoClientOptions: {
-            authMechanismProperties: {
-              OIDC_HUMAN_CALLBACK: sandbox
-                .stub()
-                .resolves({ accessToken: accessToken }),
-            },
-          },
-        } as any;
+        oidcCallback.resolves({ accessToken });
       });
 
       it('should add auth headers for an Atlas Admin API request', async function () {
@@ -480,15 +670,7 @@ describe('CompassAuthServiceMain', function () {
 
     context('is not signed in', function () {
       beforeEach(function () {
-        CompassAuthService['plugin'] = {
-          mongoClientOptions: {
-            authMechanismProperties: {
-              OIDC_HUMAN_CALLBACK: sandbox
-                .stub()
-                .rejects(new Error('Failed to request token')),
-            },
-          },
-        } as any;
+        oidcCallback.rejects(new Error('Failed to request token'));
       });
 
       it('does not throw when asked to add auth headers when not signed in', async function () {

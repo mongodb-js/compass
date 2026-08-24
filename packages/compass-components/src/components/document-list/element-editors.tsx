@@ -122,7 +122,7 @@ export const KeyEditor: React.FunctionComponent<{
 export const ValueEditor: React.FunctionComponent<{
   editing?: boolean;
   onEditStart(): void;
-  type: string;
+  type: keyof TypeCastMap;
   value: string;
   valid: boolean;
   validationMessage: string | null;
@@ -189,13 +189,13 @@ export const ValueEditor: React.FunctionComponent<{
         return (
           <div className={className}>
             {type === 'String' ? (
-              <TextEditor {...sharedProps} {...mergedProps} />
+              <TextEditor {...mergedProps} {...sharedProps} />
             ) : type === 'Date' ? (
-              <DateEditor label="ISODate" {...sharedProps} {...mergedProps} />
+              <DateEditor {...sharedProps} {...mergedProps} type={type} />
             ) : isUUIDType(type) ? (
-              <UUIDEditor label={type} {...sharedProps} {...mergedProps} />
+              <UUIDEditor {...sharedProps} {...mergedProps} type={type} />
             ) : (
-              <DefaultEditor {...sharedProps} {...mergedProps} />
+              <DefaultEditor {...sharedProps} {...mergedProps} type={type} />
             )}
             {children}
           </div>

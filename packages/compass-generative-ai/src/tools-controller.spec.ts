@@ -10,7 +10,6 @@ import {
   createSandboxFromDefaultPreferences,
   type PreferencesAccess,
 } from 'compass-preferences-model';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 
 describe('ToolsController', function () {
@@ -19,7 +18,6 @@ describe('ToolsController', function () {
   let toolsController: ToolsController;
   let getTelemetryAnonymousId: sinon.SinonStub;
   let preferences: PreferencesAccess;
-  let authService: AtlasAuthService;
   let atlasAdminApi: AtlasAdminApiService;
 
   beforeEach(async function () {
@@ -27,7 +25,6 @@ describe('ToolsController', function () {
     logger = createNoopLogger();
     getTelemetryAnonymousId = sandbox.stub().returns('test-anonymous-id');
     preferences = await createSandboxFromDefaultPreferences();
-    authService = {} as AtlasAuthService;
     atlasAdminApi = {} as AtlasAdminApiService;
 
     toolsController = new ToolsController({
@@ -35,7 +32,6 @@ describe('ToolsController', function () {
       logger,
       getTelemetryAnonymousId,
       preferences,
-      authService,
       atlasAdminApi,
     });
   });
@@ -103,6 +99,40 @@ describe('ToolsController', function () {
   });
 
   describe('getActiveTools', function () {
+    describe('atlas-connection-error-debugger tool', function () {
+      it('is not registered by default', function () {
+        expect(toolsController.getActiveTools()).to.not.have.property(
+          'atlas-connection-error-debugger'
+        );
+      });
+
+      it('is registered when the feature flag is enabled', async function () {
+        await preferences.savePreferences({
+          enableAtlasConnectionErrorDebugger: true,
+        });
+
+        expect(toolsController.getActiveTools()).to.have.property(
+          'atlas-connection-error-debugger'
+        );
+      });
+
+      it('is not registered when Atlas sign in is not allowed', async function () {
+        await preferences.savePreferences({
+          enableAtlasConnectionErrorDebugger: true,
+          enableAtlasSignIn: false,
+        });
+
+        // The preference is derived from enableAtlasSignIn, so the tool is never
+        // offered to the model when sign in is disabled for the organization
+        expect(
+          preferences.getPreferences().enableAtlasConnectionErrorDebugger
+        ).to.eq(false);
+        expect(toolsController.getActiveTools()).to.not.have.property(
+          'atlas-connection-error-debugger'
+        );
+      });
+    });
+
     describe('querybar tools', function () {
       beforeEach(function () {
         toolsController.setActiveTools(new Set(['querybar']));
@@ -225,7 +255,6 @@ describe('ToolsController', function () {
           logger,
           getTelemetryAnonymousId,
           preferences,
-          authService,
           atlasAdminApi,
         });
         newController.setActiveTools(new Set(['db-read']));
@@ -527,7 +556,6 @@ describe('ToolsController', function () {
             throw new Error('Telemetry error');
           },
           preferences,
-          authService,
           atlasAdminApi,
         });
 

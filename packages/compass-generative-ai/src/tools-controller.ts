@@ -20,10 +20,12 @@ import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { removeZodTransforms } from './remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { debugConnection } from './tools/debug-connection';
+import {
+  debugConnection,
+  debugConnectionDescription,
+} from './tools/debug-connection';
 
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
@@ -83,7 +85,6 @@ type ToolsControllerConfig = {
   enableTelemetry: boolean;
   maxTimeMS?: number;
   atlasAdminApi: AtlasAdminApiService;
-  authService: AtlasAuthService;
 };
 
 export class ToolsController {
@@ -96,7 +97,6 @@ export class ToolsController {
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
   private readonly atlasAdminApi: AtlasAdminApiService;
-  private readonly authService: AtlasAuthService;
 
   constructor({
     logger,
@@ -104,12 +104,10 @@ export class ToolsController {
     enableTelemetry,
     maxTimeMS,
     atlasAdminApi,
-    authService,
     preferences,
   }: ToolsControllerConfig) {
     this.logger = logger;
     this.atlasAdminApi = atlasAdminApi;
-    this.authService = authService;
     this.preferences = preferences;
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
@@ -291,8 +289,7 @@ export class ToolsController {
       this.preferences.getPreferences();
     if (enableAtlasConnectionErrorDebugger) {
       tools['atlas-connection-error-debugger'] = {
-        description:
-          'Use to debug a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
+        description: debugConnectionDescription,
         inputSchema: z.object({
           connectionString: z.string(),
           errorMessage: z.string(),
@@ -311,8 +308,7 @@ export class ToolsController {
 
           return await debugConnection(
             args.connectionString,
-            this.atlasAdminApi,
-            this.authService
+            this.atlasAdminApi
           );
         },
       };

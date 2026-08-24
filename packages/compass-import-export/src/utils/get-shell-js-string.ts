@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { stringify } from 'mongodb-query-parser';
+import { toJSString } from 'mongodb-query-parser';
 import toNS from 'mongodb-ns';
 import type { Document, SortDirection } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
@@ -11,6 +11,10 @@ const codeFormatting: Partial<FormatOptions> = {
   singleQuote: true,
 };
 
+function compactStringify(obj: unknown) {
+  return toJSString(obj, 0);
+}
+
 export function queryAsShellJSString({
   ns,
   query,
@@ -19,18 +23,18 @@ export function queryAsShellJSString({
   query: ExportQuery;
 }) {
   let ret = `db.getCollection("${toNS(ns).collection}").find(`;
-  ret += `${stringify(query.filter ? query.filter : {}) || ''}`;
+  ret += `${compactStringify(query.filter ? query.filter : {}) || ''}`;
   if (query.projection) {
-    ret += `,${stringify(query.projection) || ''}`;
+    ret += `,${compactStringify(query.projection) || ''}`;
   }
   ret += ')';
   if (query.collation) {
-    ret += `.collation(${stringify(query.collation as Document) || ''})`;
+    ret += `.collation(${compactStringify(query.collation as Document) || ''})`;
   }
   if (query.sort) {
     ret += `.sort(${
       _.isObject(query.sort) && !Array.isArray(query.sort)
-        ? stringify(query.sort as Record<string, SortDirection>) || ''
+        ? compactStringify(query.sort as Record<string, SortDirection>) || ''
         : JSON.stringify(query.sort)
     })`;
   }
@@ -54,7 +58,9 @@ export function aggregationAsShellJSString({
 
   let ret = `db.getCollection("${toNS(ns).collection}").aggregate([`;
   for (const [index, stage] of stages.entries()) {
-    ret += `${stringify(stage) || ''}${index === stages.length - 1 ? '' : ','}`;
+    ret += `${compactStringify(stage) || ''}${
+      index === stages.length - 1 ? '' : ','
+    }`;
   }
   ret += ']';
   if (Object.keys(options).length > 0) {
@@ -62,7 +68,7 @@ export function aggregationAsShellJSString({
     const filteredOptions = Object.fromEntries(
       Object.entries(options).filter((option) => option[1] !== undefined)
     );
-    ret += stringify(filteredOptions);
+    ret += compactStringify(filteredOptions);
   }
   ret += ');';
   return prettify(ret, 'javascript', codeFormatting);

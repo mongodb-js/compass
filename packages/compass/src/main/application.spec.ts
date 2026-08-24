@@ -4,6 +4,69 @@ import { session } from 'electron';
 import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 import { CompassApplication } from './application';
 
+describe('CompassApplication trackApplicationLaunched', function () {
+  const sandbox = Sinon.createSandbox();
+
+  afterEach(function () {
+    sandbox.restore();
+  });
+
+  function trackedLaunchEvent(
+    preferences: Record<string, unknown>
+  ): Promise<Record<string, unknown>> {
+    sandbox.stub(CompassApplication as any, 'preferences').value({
+      getPreferences: () => preferences,
+    });
+
+    return new Promise((resolve, reject) => {
+      const onTrack = ({
+        event,
+        properties,
+      }: {
+        event: string;
+        properties: Record<string, unknown>;
+      }) => {
+        if (event !== 'Application Launched') {
+          return;
+        }
+        clearTimeout(timeout);
+        process.off('compass:track' as any, onTrack);
+        resolve(properties);
+      };
+
+      process.on('compass:track' as any, onTrack);
+      const timeout = setTimeout(() => {
+        process.off('compass:track' as any, onTrack);
+        reject(
+          new Error('Timed out waiting for the Application Launched event')
+        );
+      }, 2000);
+
+      (CompassApplication as any).trackApplicationLaunched({
+        global: {},
+        cli: {},
+        preferenceParseErrors: [],
+      });
+    });
+  }
+
+  it('reports enableAtlasSignIn when it is disabled', async function () {
+    const properties = await trackedLaunchEvent({
+      readOnly: false,
+      enableAtlasSignIn: false,
+    });
+    expect(properties).to.have.property('enableAtlasSignIn', false);
+  });
+
+  it('reports enableAtlasSignIn when it is enabled', async function () {
+    const properties = await trackedLaunchEvent({
+      readOnly: false,
+      enableAtlasSignIn: true,
+    });
+    expect(properties).to.have.property('enableAtlasSignIn', true);
+  });
+});
+
 describe('CompassApplication onBeforeSendHeaders listener', function () {
   const sandbox = Sinon.createSandbox();
   let capturedListener: (
