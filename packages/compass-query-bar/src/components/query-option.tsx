@@ -95,7 +95,10 @@ type QueryOptionProps = {
   onChange: (name: QueryBarProperty, value: string) => void;
   placeholder?: string | (() => HTMLElement);
   onApply?(): void;
-  onUnsafeIntegerReceived(name: QueryBarProperty): void;
+  onUnsafeIntegerReceived(
+    name: QueryBarProperty,
+    hasUnsafeInteger: boolean
+  ): void;
   disabled?: boolean;
 };
 
@@ -149,9 +152,12 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
     [name, onChange]
   );
 
-  const onUnsafeInteger = useCallback(() => {
-    return onUnsafeIntegerReceived(name);
-  }, [name, onUnsafeIntegerReceived]);
+  const onUnsafeInteger = useCallback(
+    (hasUnsafeInteger: boolean) => {
+      return onUnsafeIntegerReceived(name, hasUnsafeInteger);
+    },
+    [name, onUnsafeIntegerReceived]
+  );
 
   const onBlurEditor = useCallback(() => {
     if (
@@ -290,7 +296,9 @@ const ConnectedQueryOption = connect(
     const field = state.queryBar.fields[ownProps.name];
     return {
       value: field.string,
-      hasError: !field.valid,
+      hasError:
+        !field.valid ||
+        (ownProps.name === 'filter' && state.queryBar.hasUnsafeInteger),
     };
   },
   { onChange: changeField, onUnsafeIntegerReceived: unsafeIntegerReceived }

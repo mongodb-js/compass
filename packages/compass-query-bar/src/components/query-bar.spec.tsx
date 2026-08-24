@@ -6,6 +6,7 @@ import {
   screen,
   within,
   userEvent,
+  waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -14,7 +15,11 @@ import QueryBar from './query-bar';
 import { Provider } from '../stores/context';
 import { configureStore } from '../stores/query-bar-store';
 import type { QueryBarExtraArgs, RootState } from '../stores/query-bar-store';
-import { toggleQueryOptions } from '../stores/query-bar-reducer';
+import {
+  applyQuery,
+  changeField,
+  toggleQueryOptions,
+} from '../stores/query-bar-reducer';
 import { AIQueryActionTypes } from '../stores/ai-query-reducer';
 import type { PreferencesAccess } from 'compass-preferences-model';
 import { createSandboxFromDefaultPreferences } from 'compass-preferences-model';
@@ -417,6 +422,43 @@ describe('QueryBar Component', function () {
       expect(screen.queryByTestId('query-bar-explain-dropdown-button')).to.not
         .exist;
       expect(screen.queryByTestId('query-bar-explain-button')).to.not.exist;
+    });
+  });
+
+  describe('when the filter holds an unsafe integer', function () {
+    const UNSAFE_FILTER = '{ a: 9007199254740993 }';
+
+    it('disables applying the query and keeps it disabled across a further edit', async function () {
+      const { store } = renderQueryBar();
+      const applyButton = screen.getByTestId('query-bar-apply-filter-button');
+
+      store.dispatch(changeField('filter', UNSAFE_FILTER));
+      await waitFor(() => {
+        expect(applyButton.getAttribute('aria-disabled')).to.equal('true');
+      });
+
+      // Editing after the offending literal leaves the violation ranges
+      // untouched, so the linter does not report again. The button has to stay
+      // disabled off the back of the previous report.
+      store.dispatch(changeField('filter', `${UNSAFE_FILTER}  `));
+
+      expect(applyButton.getAttribute('aria-disabled')).to.equal('true');
+      expect(store.dispatch(applyQuery('test') as any)).to.equal(false);
+    });
+
+    it('re-enables applying the query once the violation is gone', async function () {
+      const { store } = renderQueryBar();
+      const applyButton = screen.getByTestId('query-bar-apply-filter-button');
+
+      store.dispatch(changeField('filter', UNSAFE_FILTER));
+      await waitFor(() => {
+        expect(applyButton.getAttribute('aria-disabled')).to.equal('true');
+      });
+
+      store.dispatch(changeField('filter', '{ a: Long("9007199254740993") }'));
+      await waitFor(() => {
+        expect(applyButton.getAttribute('aria-disabled')).to.equal('false');
+      });
     });
   });
 });

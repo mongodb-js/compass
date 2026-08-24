@@ -304,11 +304,11 @@ const JSONEditor: React.FunctionComponent<JSONEditorProps> = ({
     onFixViolations: onFixSafeIntegerViolations,
   } = useSafeIntegerLinter({
     editorRef,
-    onFixViolation: (source: string) => {
+    onFixViolation: (source: string) => `{"$numberLong": "${source}"}`,
+    onViolationFixed: () => {
       track('Safe Integer Fix Applied', {
         source: 'document-json-editor',
       });
-      return `{"$numberLong": "${source}"}`;
     },
   });
 

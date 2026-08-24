@@ -13,6 +13,7 @@ import {
   resetQuery,
   saveRecentAsFavorite,
   setQuery,
+  unsafeIntegerReceived,
 } from './query-bar-reducer';
 import { configureStore } from './query-bar-store';
 import type { QueryBarExtraArgs, RootState } from './query-bar-store';
@@ -176,6 +177,16 @@ describe('queryBarReducer', function () {
       );
     });
 
+    it('should not "apply" query if the filter holds an unsafe integer', function () {
+      store.dispatch(changeField('filter', '{ a: 9007199254740993 }'));
+      store.dispatch(unsafeIntegerReceived('filter', true));
+      const appliedQuery = store.dispatch(applyQuery('test') as any);
+      expect(appliedQuery).to.eq(false);
+      expect(store.getState().queryBar).to.not.have.nested.property(
+        'lastAppliedQuery.query.test'
+      );
+    });
+
     it('should not re-save favorite query in recents', async function () {
       const updateAttributesStub = Sinon.stub();
       const saveQueriesStub = Sinon.stub().resolves();
@@ -224,6 +235,31 @@ describe('queryBarReducer', function () {
       // updateAttributes is called in saveRecentAsFavorite and updateFavoriteQuery
       expect(updateAttributesStub).to.have.been.calledOnce;
       expect(saveQueriesStub).not.to.have.been.calledTwice;
+    });
+  });
+
+  describe('unsafeIntegerReceived', function () {
+    it('records and clears the flag as the linter reports it', function () {
+      store.dispatch(unsafeIntegerReceived('filter', true));
+      expect(store.getState().queryBar.hasUnsafeInteger).to.eq(true);
+
+      store.dispatch(unsafeIntegerReceived('filter', false));
+      expect(store.getState().queryBar.hasUnsafeInteger).to.eq(false);
+    });
+
+    it('ignores options other than the filter', function () {
+      store.dispatch(unsafeIntegerReceived('project', true));
+      expect(store.getState().queryBar.hasUnsafeInteger).to.eq(false);
+    });
+
+    it('outlives an edit that leaves the field parseable', function () {
+      store.dispatch(changeField('filter', '{ a: 9007199254740993 }'));
+      store.dispatch(unsafeIntegerReceived('filter', true));
+
+      // changeField re-validates from the text alone, so it must not be able
+      // to clear the flag on its own.
+      store.dispatch(changeField('filter', '{ a: 9007199254740993 }  '));
+      expect(store.getState().queryBar.hasUnsafeInteger).to.eq(true);
     });
   });
 

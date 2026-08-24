@@ -49,6 +49,12 @@ type QueryBarState = {
   recentQueries: RecentQuery[];
   favoriteQueries: FavoriteQuery[];
   isInterpretLoading: boolean;
+  /**
+   * Whether the filter holds a number outside the safe integer range. Kept
+   * separate from `fields.filter.valid` because that is recomputed from the
+   * text on every keystroke, while this only changes when the linter runs.
+   */
+  hasUnsafeInteger: boolean;
 };
 
 export const INITIAL_STATE: QueryBarState = {
@@ -62,6 +68,7 @@ export const INITIAL_STATE: QueryBarState = {
   recentQueries: [],
   favoriteQueries: [],
   isInterpretLoading: false,
+  hasUnsafeInteger: false,
 };
 
 export const QueryBarActions = {
@@ -104,15 +111,18 @@ type ChangeFieldAction<T = QueryProperty> = {
 
 type QueryUnsafeIntegerReceivedAction = {
   type: typeof QueryBarActions.QueryUnsafeIntegerReceived;
+  hasUnsafeInteger: boolean;
 };
 
 export function unsafeIntegerReceived(
-  name: QueryProperty
+  name: QueryProperty,
+  hasUnsafeInteger: boolean
 ): QueryBarThunkAction<void, QueryUnsafeIntegerReceivedAction> {
   return (dispatch) => {
     if (name === 'filter') {
       dispatch({
         type: QueryBarActions.QueryUnsafeIntegerReceived,
+        hasUnsafeInteger,
       });
     }
   };
@@ -151,9 +161,12 @@ export const applyQuery = (
 ): QueryBarThunkAction<false | BaseQuery, ApplyQueryAction> => {
   return (dispatch, getState, { preferences }) => {
     const {
-      queryBar: { fields, favoriteQueries },
+      queryBar: { fields, favoriteQueries, hasUnsafeInteger },
     } = getState();
-    if (!isQueryFieldsValid(fields, preferences.getPreferences())) {
+    if (
+      hasUnsafeInteger ||
+      !isQueryFieldsValid(fields, preferences.getPreferences())
+    ) {
       return false;
     }
     const query = mapFormFieldsToQuery(fields);
@@ -602,13 +615,7 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
   ) {
     return {
       ...state,
-      fields: {
-        ...state.fields,
-        filter: {
-          ...state.fields.filter,
-          valid: false,
-        },
-      },
+      hasUnsafeInteger: action.hasUnsafeInteger,
     };
   }
 
