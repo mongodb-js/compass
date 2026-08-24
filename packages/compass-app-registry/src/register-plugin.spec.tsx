@@ -1,5 +1,5 @@
-import React, { createContext, useContext } from 'react';
-import { cleanup, render } from '@mongodb-js/testing-library-compass';
+import React, { StrictMode, createContext, useContext } from 'react';
+import { render } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {
@@ -13,8 +13,6 @@ import { connect } from 'react-redux';
 import { EventEmitter } from 'events';
 
 describe('registerCompassPlugin', function () {
-  afterEach(cleanup);
-
   it('allows registering plugins with a reflux-ish store', function () {
     const component = sinon.stub().callsFake(() => <></>);
     const activate = sinon.stub().returns({ store: { state: { foo: 'bar' } } });
@@ -129,6 +127,32 @@ describe('registerCompassPlugin', function () {
       </AppRegistryProvider>
     );
     expect(activate.firstCall.args[1]).to.have.property('blah', dummy);
+  });
+
+  it('runs activate / deactivate only once (even in StrictMode)', function () {
+    const deactivate = sinon.spy();
+    const activate = sinon.stub().returns({ store: { state: {} }, deactivate });
+    const Plugin = registerCompassPlugin({
+      name: 'FooPlugin',
+      component: function Component() {
+        return <></>;
+      },
+      activate,
+    });
+
+    const { unmount } = render(
+      <StrictMode>
+        <AppRegistryProvider>
+          <Plugin />
+        </AppRegistryProvider>
+      </StrictMode>
+    );
+    expect(activate, 'Expected activate() to have been called once').to.have
+      .been.calledOnce;
+
+    unmount();
+    expect(deactivate, 'Expected deactivate() to have been called once').to.have
+      .been.calledOnce;
   });
 });
 

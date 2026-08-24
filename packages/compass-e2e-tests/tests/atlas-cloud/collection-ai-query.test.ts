@@ -10,7 +10,10 @@ import {
 import type { Compass } from '../../helpers/compass.ts';
 import * as Selectors from '../../helpers/selectors.ts';
 import { createNumbersCollection } from '../../helpers/mongo-clients.ts';
-import { isTestingWebAtlasCloud } from '../../helpers/test-runner-context.ts';
+import {
+  isTestingWeb,
+  isTestingWebAtlasCloud,
+} from '../../helpers/test-runner-context.ts';
 import { switchPipelineMode } from '../../helpers/commands/switch-pipeline-mode.ts';
 
 // Whether the generate query / generate aggregation input was left open is
@@ -34,7 +37,14 @@ describe('Collection ai query (with real Cloud backend)', function () {
   let browser: CompassBrowser;
 
   before(function () {
-    if (!isTestingWebAtlasCloud()) {
+    // Skipping tests for environments where real backend is not available
+    if (
+      // Knowledge API doesn't allow requests from localhost
+      isTestingWeb() ||
+      // Knowledge API doesn't allow requests from Evergreen in non-prod
+      // envioronments that we're using for WebAtlasCloud tests
+      isTestingWebAtlasCloud()
+    ) {
       this.skip();
     }
   });
