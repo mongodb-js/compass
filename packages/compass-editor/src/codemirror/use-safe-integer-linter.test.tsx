@@ -18,7 +18,7 @@ type TestEditorHandle = {
 function TestEditor({
   initialText,
   onFixViolation,
-  onViolationFixed,
+  onViolationFixed = () => undefined,
   handleRef,
 }: {
   initialText: string;

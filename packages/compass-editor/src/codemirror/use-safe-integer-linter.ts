@@ -22,13 +22,13 @@ export type SafeIntegerViolation = {
 type SafeIntegerLinterOptions = LintConfig & {
   editorRef?: React.RefObject<EditorRef>;
   onFixViolation?: (source: string) => string;
-  onViolationFixed?: () => void;
+  onViolationFixed: () => void;
   externalAnnotations?: React.RefObject<Annotation[]>;
 };
 
 type FixOptions = {
   onFixViolation: (source: string) => string;
-  onViolationFixed?: () => void;
+  onViolationFixed: () => void;
 };
 
 const defaultOnFixViolation = (source: string) => `Long("${source}")`;
@@ -124,7 +124,7 @@ function applyFix(
 ): string {
   // The violation can span whitespace between a sign and its digits (`- 123`).
   const literal = source.replace(/\s+/g, '');
-  onViolationFixed?.();
+  onViolationFixed();
   return violation.acceptsStringArgument
     ? `"${literal}"`
     : onFixViolation(literal);
@@ -138,7 +138,7 @@ export function useSafeIntegerLinter({
   lintDelay,
   tooltipExitDelay,
   theme,
-}: SafeIntegerLinterOptions = {}) {
+}: SafeIntegerLinterOptions) {
   const [violations, setViolations] = useState<SafeIntegerViolation[]>([]);
   const optionsRef = useCurrentValueRef({
     onFixViolation,

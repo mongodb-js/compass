@@ -421,20 +421,14 @@ type OwnProps = {
 
 export default connect(
   ({
-    queryBar: {
-      expanded,
-      fields,
-      applyId,
-      isInterpretLoading,
-      hasUnsafeInteger,
-    },
+    queryBar: { expanded, fields, applyId, isInterpretLoading },
     aiQuery,
   }: RootState) => {
     return {
       expanded: expanded,
       queryChanged: !isEqualDefaultQuery(fields),
       filterHasContent: fields.filter.string !== '',
-      valid: isQueryValid(fields) && !hasUnsafeInteger,
+      valid: isQueryValid(fields),
       applyId: applyId,
       isAIInputVisible: aiQuery.isInputVisible,
       isAIFetching: aiQuery.status === 'fetching',

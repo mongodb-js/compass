@@ -49,12 +49,6 @@ type QueryBarState = {
   recentQueries: RecentQuery[];
   favoriteQueries: FavoriteQuery[];
   isInterpretLoading: boolean;
-  /**
-   * Whether the filter holds a number outside the safe integer range. Kept
-   * separate from `fields.filter.valid` because that is recomputed from the
-   * text on every keystroke, while this only changes when the linter runs.
-   */
-  hasUnsafeInteger: boolean;
 };
 
 export const INITIAL_STATE: QueryBarState = {
@@ -68,7 +62,6 @@ export const INITIAL_STATE: QueryBarState = {
   recentQueries: [],
   favoriteQueries: [],
   isInterpretLoading: false,
-  hasUnsafeInteger: false,
 };
 
 export const QueryBarActions = {
@@ -76,7 +69,6 @@ export const QueryBarActions = {
     'compass-query-bar/ChangeReadonlyConnectionStatus',
   ToggleQueryOptions: 'compass-query-bar/ToggleQueryOptions',
   ChangeField: 'compass-query-bar/ChangeField',
-  QueryUnsafeIntegerReceived: 'compass-query-bar/QueryUnsafeIntegerAdded',
   SetQuery: 'compass-query-bar/SetQuery',
   ApplyQuery: 'compass-query-bar/ApplyQuery',
   ResetQuery: 'compass-query-bar/ResetQuery',
@@ -108,25 +100,6 @@ type ChangeFieldAction<T = QueryProperty> = {
   name: T;
   value: FormField<T>;
 };
-
-type QueryUnsafeIntegerReceivedAction = {
-  type: typeof QueryBarActions.QueryUnsafeIntegerReceived;
-  hasUnsafeInteger: boolean;
-};
-
-export function unsafeIntegerReceived(
-  name: QueryProperty,
-  hasUnsafeInteger: boolean
-): QueryBarThunkAction<void, QueryUnsafeIntegerReceivedAction> {
-  return (dispatch) => {
-    if (name === 'filter') {
-      dispatch({
-        type: QueryBarActions.QueryUnsafeIntegerReceived,
-        hasUnsafeInteger,
-      });
-    }
-  };
-}
 
 export const changeField = (
   name: QueryProperty,
@@ -161,12 +134,9 @@ export const applyQuery = (
 ): QueryBarThunkAction<false | BaseQuery, ApplyQueryAction> => {
   return (dispatch, getState, { preferences }) => {
     const {
-      queryBar: { fields, favoriteQueries, hasUnsafeInteger },
+      queryBar: { fields, favoriteQueries },
     } = getState();
-    if (
-      hasUnsafeInteger ||
-      !isQueryFieldsValid(fields, preferences.getPreferences())
-    ) {
+    if (!isQueryFieldsValid(fields, preferences.getPreferences())) {
       return false;
     }
     const query = mapFormFieldsToQuery(fields);
@@ -604,18 +574,6 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
         ...state.fields,
         [action.name]: action.value,
       },
-    };
-  }
-
-  if (
-    isAction<QueryUnsafeIntegerReceivedAction>(
-      action,
-      QueryBarActions.QueryUnsafeIntegerReceived
-    )
-  ) {
-    return {
-      ...state,
-      hasUnsafeInteger: action.hasUnsafeInteger,
     };
   }
 

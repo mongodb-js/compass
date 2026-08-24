@@ -17,10 +17,7 @@ import type {
   QueryOptionOfTypeDocument,
   QueryOption as QueryOptionType,
 } from '../constants/query-option-definition';
-import {
-  changeField,
-  unsafeIntegerReceived,
-} from '../stores/query-bar-reducer';
+import { changeField } from '../stores/query-bar-reducer';
 import type { QueryProperty } from '../constants/query-properties';
 import type { RootState } from '../stores/query-bar-store';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
@@ -95,10 +92,6 @@ type QueryOptionProps = {
   onChange: (name: QueryBarProperty, value: string) => void;
   placeholder?: string | (() => HTMLElement);
   onApply?(): void;
-  onUnsafeIntegerReceived(
-    name: QueryBarProperty,
-    hasUnsafeInteger: boolean
-  ): void;
   disabled?: boolean;
 };
 
@@ -131,7 +124,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
   value,
   onApply,
   disabled = false,
-  onUnsafeIntegerReceived,
 }) => {
   const track = useTelemetry();
   const connectionInfoRef = useConnectionInfoRef();
@@ -150,13 +142,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
       return onChange(name, newVal);
     },
     [name, onChange]
-  );
-
-  const onUnsafeInteger = useCallback(
-    (hasUnsafeInteger: boolean) => {
-      return onUnsafeIntegerReceived(name, hasUnsafeInteger);
-    },
-    [name, onUnsafeIntegerReceived]
   );
 
   const onBlurEditor = useCallback(() => {
@@ -230,7 +215,6 @@ const QueryOption: React.FunctionComponent<QueryOptionProps> = ({
             data-testid={`query-bar-option-${name}-input`}
             onApply={onApply}
             disabled={disabled}
-            onUnsafeInteger={onUnsafeInteger}
           />
         ) : (
           <WithOptionDefinitionTextInputProps definition={optionDefinition}>
@@ -296,12 +280,10 @@ const ConnectedQueryOption = connect(
     const field = state.queryBar.fields[ownProps.name];
     return {
       value: field.string,
-      hasError:
-        !field.valid ||
-        (ownProps.name === 'filter' && state.queryBar.hasUnsafeInteger),
+      hasError: !field.valid,
     };
   },
-  { onChange: changeField, onUnsafeIntegerReceived: unsafeIntegerReceived }
+  { onChange: changeField }
 )(QueryOption);
 
 export default ConnectedQueryOption;

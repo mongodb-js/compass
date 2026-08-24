@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   css,
   cx,
@@ -136,7 +136,6 @@ type OptionEditorProps = {
    */
   insertEmptyDocOnFocus?: boolean;
   onChange: (value: string) => void;
-  onUnsafeInteger: (hasUnsafeInteger: boolean) => void;
   onApply?(): void;
   onBlur?(): void;
   placeholder?: string | (() => HTMLElement);
@@ -166,7 +165,6 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   recentQueries,
   favoriteQueries,
   onApplyQuery,
-  onUnsafeInteger,
 }) => {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
@@ -253,22 +251,15 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     () => getDiagnosticActionTooltipTheme(darkMode),
     [darkMode]
   );
-  const { safeIntegerLinter, violations: safeIntegerViolations } =
-    useSafeIntegerLinter({
-      theme: linterAnnotationTheme,
-      onFixViolation: (source) => `Long("${source}")`,
-      onViolationFixed() {
-        track('Safe Integer Fix Applied', {
-          source: 'query-bar-editor',
-        });
-      },
-    });
-  // Reported on every change, not just when violations appear: the store
-  // recomputes field validity from the text on each keystroke, so it needs to
-  // hear when the editor stops holding an unsafe integer as well.
-  useEffect(() => {
-    onUnsafeInteger(safeIntegerViolations.length > 0);
-  }, [safeIntegerViolations, onUnsafeInteger]);
+  const { safeIntegerLinter } = useSafeIntegerLinter({
+    theme: linterAnnotationTheme,
+    onFixViolation: (source) => `Long("${source}")`,
+    onViolationFixed() {
+      track('Safe Integer Fix Applied', {
+        source: 'query-bar-editor',
+      });
+    },
+  });
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
