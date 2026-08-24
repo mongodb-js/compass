@@ -1436,7 +1436,7 @@ const inlineStyles = css({
     backgroundColor: 'transparent',
   },
   '& .cm-gutters': {
-    backgroundColor: 'transparent',
+    backgroundColor: 'transparent !important',
   },
 });
 
