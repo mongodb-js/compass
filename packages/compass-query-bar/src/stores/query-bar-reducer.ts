@@ -69,6 +69,7 @@ export const QueryBarActions = {
     'compass-query-bar/ChangeReadonlyConnectionStatus',
   ToggleQueryOptions: 'compass-query-bar/ToggleQueryOptions',
   ChangeField: 'compass-query-bar/ChangeField',
+  QueryUnsafeIntegerReceived: 'compass-query-bar/QueryUnsafeIntegerAdded',
   SetQuery: 'compass-query-bar/SetQuery',
   ApplyQuery: 'compass-query-bar/ApplyQuery',
   ResetQuery: 'compass-query-bar/ResetQuery',
@@ -100,6 +101,22 @@ type ChangeFieldAction<T = QueryProperty> = {
   name: T;
   value: FormField<T>;
 };
+
+type QueryUnsafeIntegerReceivedAction = {
+  type: typeof QueryBarActions.QueryUnsafeIntegerReceived;
+};
+
+export function unsafeIntegerReceived(
+  name: QueryProperty
+): QueryBarThunkAction<void, QueryUnsafeIntegerReceivedAction> {
+  return (dispatch) => {
+    if (name === 'filter') {
+      dispatch({
+        type: QueryBarActions.QueryUnsafeIntegerReceived,
+      });
+    }
+  };
+}
 
 export const changeField = (
   name: QueryProperty,
@@ -573,6 +590,24 @@ export const queryBarReducer: Reducer<QueryBarState, Action> = (
       fields: {
         ...state.fields,
         [action.name]: action.value,
+      },
+    };
+  }
+
+  if (
+    isAction<QueryUnsafeIntegerReceivedAction>(
+      action,
+      QueryBarActions.QueryUnsafeIntegerReceived
+    )
+  ) {
+    return {
+      ...state,
+      fields: {
+        ...state.fields,
+        filter: {
+          ...state.fields.filter,
+          valid: false,
+        },
       },
     };
   }

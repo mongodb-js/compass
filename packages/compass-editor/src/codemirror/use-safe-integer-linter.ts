@@ -15,7 +15,7 @@ export type SafeIntegerViolation = {
   to: number;
   // True when the literal is an argument to a constructor that takes the same
   // value as a string, like `Long(123...)`. The fix then quotes the argument
-  // (`Long("123...")`) instead of wrapping the whole thing again.
+  // in place instead of wrapping the whole thing again.
   acceptsStringArgument: boolean;
 };
 
@@ -35,9 +35,9 @@ const defaultOnFixViolation = (source: string) => `Long("${source}")`;
 
 const VIOLATION_MESSAGE = 'Exceeds safe integer range.';
 
-// Constructors that accept a string and keep every digit of it, so quoting the
-// literal in place is a complete fix. Anything else either changes meaning
-// (`Date`) or still rounds the value (`Int32`, `Double`), so those get wrapped.
+// Constructors that accept a string and use the value. Anything else
+// either changes meaning (`Date`) or still rounds the value (`Int32`,
+// `Double`), so those get wrapped instead.
 const STRING_ARGUMENT_CONSTRUCTORS = new Set([
   'Long',
   'NumberLong',
@@ -61,9 +61,9 @@ function isUnsafeInteger(str: string): boolean {
   }
 }
 
-// A leading `-` is a unary expression wrapped around the literal rather than
-// part of it, so it has to be pulled into the violation for `-123...` to be
-// fixed as `Long("-123...")` instead of `-Long("123...")`.
+// A leading `-` is a unary expression around the literal rather than part of
+// it, so it has to be pulled into the violation to fix `-123...` as
+// `Long("-123...")` rather than `-Long("123...")`.
 function negationOperator(node: SyntaxNode, doc: Text): SyntaxNode | null {
   const operator =
     node.parent?.name === 'UnaryExpression' ? node.parent.firstChild : null;
@@ -114,9 +114,6 @@ function sameViolations(
   );
 }
 
-// Reports through `onViolationFixed` on both paths: quoting an argument in
-// place is as much a fix as wrapping the literal, and `onFixViolation` only
-// runs on the latter.
 function applyFix(
   violation: SafeIntegerViolation,
   source: string,

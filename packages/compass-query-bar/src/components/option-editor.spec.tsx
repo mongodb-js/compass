@@ -38,6 +38,7 @@ async function renderOptionEditor(
         namespace="test.test"
         insertEmptyDocOnFocus
         onChange={() => {}}
+        onUnsafeInteger={() => {}}
         value=""
         recentQueries={[]}
         favoriteQueries={[]}

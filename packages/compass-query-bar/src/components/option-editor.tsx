@@ -1,4 +1,4 @@
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import {
   css,
   cx,
@@ -136,6 +136,7 @@ type OptionEditorProps = {
    */
   insertEmptyDocOnFocus?: boolean;
   onChange: (value: string) => void;
+  onUnsafeInteger: () => void;
   onApply?(): void;
   onBlur?(): void;
   placeholder?: string | (() => HTMLElement);
@@ -165,6 +166,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   recentQueries,
   favoriteQueries,
   onApplyQuery,
+  onUnsafeInteger,
 }) => {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
@@ -251,15 +253,21 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     () => getDiagnosticActionTooltipTheme(darkMode),
     [darkMode]
   );
-  const { safeIntegerLinter } = useSafeIntegerLinter({
-    theme: linterAnnotationTheme,
-    onFixViolation: (source) => `Long("${source}")`,
-    onViolationFixed() {
-      track('Safe Integer Fix Applied', {
-        source: 'query-bar-editor',
-      });
-    },
-  });
+  const { safeIntegerLinter, violations: safeIntegerViolations } =
+    useSafeIntegerLinter({
+      theme: linterAnnotationTheme,
+      onFixViolation: (source) => `Long("${source}")`,
+      onViolationFixed() {
+        track('Safe Integer Fix Applied', {
+          source: 'query-bar-editor',
+        });
+      },
+    });
+  useEffect(() => {
+    if (safeIntegerViolations.length > 0) {
+      onUnsafeInteger();
+    }
+  }, [safeIntegerViolations, onUnsafeInteger]);
 
   const onFocus = () => {
     if (insertEmptyDocOnFocus) {
