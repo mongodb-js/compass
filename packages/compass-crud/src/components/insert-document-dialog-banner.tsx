@@ -24,16 +24,16 @@ export const bannerMessageStyles = css({
   overflowY: 'auto',
   overflowWrap: 'anywhere',
   whiteSpace: 'pre-wrap',
-  // macOS overlay scrollbars only appear while the pointer is over the
-  // scroll area, so we style the scrollbar explicitly to keep it visible.
+  // We override the global scrollbars to keep the scrollbar always visible.
+  // Without this is only appears on hover, and folks may miss someof the error message.
   '&::-webkit-scrollbar': {
     WebkitAppearance: 'none',
   },
-  '&::-webkit-scrollbar-thumb': {
-    // Derived from the banner's text color so it works in both themes and
-    // for every banner variant.
-    backgroundColor: 'color-mix(in srgb, currentcolor 40%, transparent)',
-  },
+  '&&::-webkit-scrollbar-thumb, &&:hover::-webkit-scrollbar-thumb, &&:active::-webkit-scrollbar-thumb, &&:focus::-webkit-scrollbar-thumb':
+    {
+      backgroundColor: 'color-mix(in srgb, currentcolor 40%, transparent)',
+      opacity: 0.4,
+    },
 });
 
 type InsertDocumentDialogBannerProps = {
