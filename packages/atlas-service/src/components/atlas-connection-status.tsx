@@ -51,11 +51,12 @@ const labelTextStylesDark = css({ color: palette.gray.light1 });
 
 export interface AtlasConnectionStatusProps {
   'data-testid'?: string;
+  username?: string;
 }
 
 export const AtlasConnectionStatus: React.FunctionComponent<
   AtlasConnectionStatusProps
-> = ({ 'data-testid': dataTestId = 'atlas-connection-status' }) => {
+> = ({ 'data-testid': dataTestId = 'atlas-connection-status', username }) => {
   const darkMode = useDarkMode();
   const userInfo = useAtlasSignedInUser();
   const { signOut } = useAtlasLoginActions();
@@ -96,7 +97,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
           )}
           data-testid={`${dataTestId}-label`}
         >
-          Signed in to Atlas
+          {username ?? 'Signed in to Atlas'}
         </Body>
       </div>
       <Button

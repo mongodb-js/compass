@@ -39,14 +39,14 @@ class FakeAtlasAuthService {
 }
 
 describe('AtlasConnectionStatus', function () {
-  function renderStatus(service: FakeAtlasAuthService) {
+  function renderStatus(service: FakeAtlasAuthService, username?: string) {
     const { renderWithConnections } = createPluginTestHelpers(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       AtlasAuthPlugin.withMockServices({
         atlasAuthService: service as unknown as AtlasAuthService,
       })
     );
-    return renderWithConnections(<AtlasConnectionStatus />);
+    return renderWithConnections(<AtlasConnectionStatus username={username} />);
   }
 
   it('renders nothing when the user is not signed in', async function () {
@@ -65,6 +65,19 @@ describe('AtlasConnectionStatus', function () {
     });
     expect(screen.getByText('Signed in to Atlas')).to.exist;
     expect(screen.getByText('Disconnect Atlas')).to.exist;
+  });
+
+  it('renders the username instead of the generic label when it is known', async function () {
+    renderStatus(
+      new FakeAtlasAuthService({ sub: 'user-1' }),
+      'user@example.com'
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId('atlas-connection-status')).to.exist;
+    });
+    expect(screen.getByText('user@example.com')).to.exist;
+    expect(screen.queryByText('Signed in to Atlas')).to.not.exist;
   });
 
   it('confirms, calls signOut, and hides itself when disconnect is confirmed', async function () {

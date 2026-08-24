@@ -43,6 +43,7 @@ import {
   stopChat,
 } from '../utils';
 import { AtlasConnectionStatus } from '@mongodb-js/atlas-service/provider';
+import { useAtlasSystemStatus } from '@mongodb-js/atlas-admin-api/provider';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -265,6 +266,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const enableAtlasConnectionErrorDebugger = usePreference(
     'enableAtlasConnectionErrorDebugger'
   );
+  const atlasUsername = useAtlasSystemStatus()?.username;
   const {
     messages,
     status,
@@ -591,7 +593,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       )}
       style={chatContainerOverrideStyle}
     >
-      {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
+      {enableAtlasConnectionErrorDebugger && (
+        <AtlasConnectionStatus username={atlasUsername} />
+      )}
       <LeafyGreenChatProvider>
         <ChatWindow>
           <div

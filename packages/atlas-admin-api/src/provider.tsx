@@ -38,7 +38,7 @@ export const AtlasAdminApiServiceProvider: React.FC = createServiceProvider(
   }
 );
 
-function useAtlasAdminApiServiceContext(): AtlasAdminApiService {
+export function useAtlasAdminApiServiceContext(): AtlasAdminApiService {
   const service = useContext(AtlasAdminApiServiceContext);
   if (!service) {
     throw new Error('No AtlasAdminApiService available in this context');
@@ -64,4 +64,9 @@ export {
   type AtlasClusterState,
   type AtlasGroupCluster,
 } from './cluster-types';
+export { type AtlasSystemStatus } from './system-status-types';
+export {
+  useAtlasSystemStatus,
+  type AtlasSystemStatusInfo,
+} from './use-atlas-system-status';
 export { ATLAS_ADMIN_API_DEFAULT_VERSION } from './version';
