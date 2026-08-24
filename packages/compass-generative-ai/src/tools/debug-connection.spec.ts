@@ -70,6 +70,7 @@ describe('debugConnection', function () {
     getProjectIdAndClusterName: Sinon.SinonStub;
     getClusterState: Sinon.SinonStub;
     getProjectIPAccessList: Sinon.SinonStub;
+    getSystemStatus: Sinon.SinonStub;
   };
 
   function mockAtlasAdminApi(
@@ -77,10 +78,16 @@ describe('debugConnection', function () {
       state?: AtlasClusterState;
       paused?: boolean;
       ipAccessList?: AtlasAccessListEntry[];
+      userIp?: string;
       projectIdAndClusterName?: { projectId: string; clusterName: string };
     } = {}
   ) {
-    const { state = 'IDLE', paused = false, ipAccessList = [] } = opts;
+    const {
+      state = 'IDLE',
+      paused = false,
+      ipAccessList = [],
+      userIp = USER_IP,
+    } = opts;
     // The cluster lookup resolves to undefined when the cluster is not among
     // the ones the user can see, so an explicit undefined has to be
     // distinguishable from an omitted option here.
@@ -94,6 +101,7 @@ describe('debugConnection', function () {
         .resolves(projectIdAndClusterName),
       getClusterState: sandbox.stub().resolves({ state, paused }),
       getProjectIPAccessList: sandbox.stub().resolves(ipAccessList),
+      getSystemStatus: sandbox.stub().resolves({ ipAddress: userIp }),
     };
     return atlasAdminApi as unknown as AtlasAdminApiService;
   }
@@ -119,6 +127,7 @@ describe('debugConnection', function () {
     });
     expect(atlasAdminApi.getClusterState).to.not.have.been.called;
     expect(atlasAdminApi.getProjectIPAccessList).to.not.have.been.called;
+    expect(atlasAdminApi.getSystemStatus).to.not.have.been.called;
   });
 
   it('looks up the cluster and the access list with the resolved project id and cluster name', async function () {
@@ -182,6 +191,31 @@ describe('debugConnection', function () {
       const result = await debugConnection(CONNECTION_STRING, api);
 
       expect(result.ipAccessStatus).to.equal('Could not confirm');
+    });
+
+    it('matches the access list against the ip reported by the system status endpoint', async function () {
+      const api = mockAtlasAdminApi({
+        userIp: '9.9.9.9',
+        ipAccessList: [{ ipAddress: '9.9.9.9' }],
+      });
+
+      const result = await debugConnection(CONNECTION_STRING, api);
+
+      expect(result.ipAccessStatus).to.equal('Client IP Allowed');
+    });
+
+    it('cannot confirm when the user ip cannot be resolved', async function () {
+      const api = mockAtlasAdminApi({
+        ipAccessList: [{ ipAddress: USER_IP }],
+      });
+      atlasAdminApi.getSystemStatus.rejects(new Error('nope'));
+
+      const result = await debugConnection(CONNECTION_STRING, api);
+
+      expect(result.ipAccessStatus).to.equal('Could not confirm');
+      expect(result.networkAccessDetails).to.deep.equal({
+        networkAccessList: [{ ipAddress: USER_IP }],
+      });
     });
 
     it('cannot confirm when the access list is empty', async function () {
