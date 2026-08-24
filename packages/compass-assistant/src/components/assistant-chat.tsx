@@ -239,6 +239,11 @@ const DISMISSED_ASSISTANT_TOOLS_INTRO_LOCAL_STORAGE_KEY =
 const ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE =
   'tool-atlas-connection-error-debugger';
 
+const AtlasConnectionStatusWithUser: React.FunctionComponent = () => {
+  const atlasUsername = useAtlasSystemStatus()?.username;
+  return <AtlasConnectionStatus username={atlasUsername} />;
+};
+
 export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   chat,
   hasNonGenuineConnections,
@@ -266,7 +271,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const enableAtlasConnectionErrorDebugger = usePreference(
     'enableAtlasConnectionErrorDebugger'
   );
-  const atlasUsername = useAtlasSystemStatus()?.username;
   const {
     messages,
     status,
@@ -593,9 +597,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       )}
       style={chatContainerOverrideStyle}
     >
-      {enableAtlasConnectionErrorDebugger && (
-        <AtlasConnectionStatus username={atlasUsername} />
-      )}
+      {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatusWithUser />}
       <LeafyGreenChatProvider>
         <ChatWindow>
           <div
