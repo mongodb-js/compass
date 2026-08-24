@@ -164,6 +164,7 @@ export const editorPalette = {
     disabledColor: codePalette.light[2],
     disabledBackgroundColor: codePalette.light[1],
     gutterColor: codePalette.light[3],
+    gutterBackgroundColor: codePalette.light[0],
     gutterActiveLineBackgroundColor: rgba(palette.gray.light2, 0.5),
     gutterFoldButtonColor: palette.black,
     cursorColor: palette.gray.base,
@@ -189,6 +190,7 @@ export const editorPalette = {
     disabledColor: codePalette.dark[3],
     disabledBackgroundColor: palette.gray.dark3,
     gutterColor: codePalette.dark[3],
+    gutterBackgroundColor: codePalette.dark[0],
     gutterActiveLineBackgroundColor: rgba(palette.gray.dark2, 0.5),
     gutterFoldButtonColor: palette.white,
     cursorColor: palette.green.base,
@@ -248,7 +250,7 @@ function getStylesForTheme(theme: CodemirrorThemeType) {
       },
       '& .cm-gutters': {
         color: editorPalette[theme].gutterColor,
-        backgroundColor: 'transparent',
+        backgroundColor: editorPalette[theme].gutterBackgroundColor,
         border: 'none',
       },
       '& .cm-gutter-lint': {
@@ -1431,6 +1433,9 @@ type InlineEditorProps = Omit<
 
 const inlineStyles = css({
   '& .cm-editor': {
+    backgroundColor: 'transparent',
+  },
+  '& .cm-gutters': {
     backgroundColor: 'transparent',
   },
 });
