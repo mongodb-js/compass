@@ -1431,12 +1431,12 @@ type InlineEditorProps = Omit<
     | { text?: never; initialText: string }
   );
 
-const inlineStyles = css({
+const inlineStylesLightMode = css({
   '& .cm-editor': {
-    backgroundColor: 'transparent',
+    backgroundColor: palette.white,
   },
   '& .cm-gutters': {
-    backgroundColor: 'transparent !important',
+    backgroundColor: `${palette.white} !important`,
   },
 });
 
@@ -1445,6 +1445,8 @@ const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
     { className, showAnnotationsGutter, ...props },
     forwardRef
   ) {
+    const darkMode = useDarkMode();
+
     return (
       <BaseEditor
         ref={forwardRef}
@@ -1454,7 +1456,7 @@ const InlineEditor = React.forwardRef<EditorRef, InlineEditorProps>(
         showAnnotationsGutter={Boolean(showAnnotationsGutter)}
         showScroll={false}
         highlightActiveLine={false}
-        className={cx(inlineStyles, className)}
+        className={cx(!darkMode && inlineStylesLightMode, className)}
         language="javascript-expression"
         {...props}
       ></BaseEditor>
