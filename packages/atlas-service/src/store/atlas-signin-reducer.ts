@@ -141,9 +141,8 @@ const INITIAL_STATE = {
 type AttemptState = {
   id: number;
   controller: AbortController;
-  promise: Promise<AtlasUserInfo>;
-  resolve: (userInfo: AtlasUserInfo) => void;
-  reject: (reason?: any) => void;
+  promise: Promise<SignInAttemptResult>;
+  resolve: (attemptResult: SignInAttemptResult) => void;
 };
 
 export const SIGN_IN_TIMEOUT_MS = 2 * 60 * 1000; // 2 Minutes
@@ -158,18 +157,15 @@ function getAttempt(id?: number | null): AttemptState {
     id = ++attemptId;
     const controller = new AbortController();
     let resolve;
-    let reject;
-    const promise = new Promise<AtlasUserInfo>((res, rej) => {
+    const promise = new Promise<SignInAttemptResult>((res, _rej) => {
       resolve = res;
-      reject = rej;
     });
-    if (resolve && reject) {
+    if (resolve) {
       AttemptStateMap.set(id, {
         id,
         controller,
         promise,
         resolve: resolve,
-        reject: reject,
       });
     }
   }
@@ -371,19 +367,9 @@ export const performSignInAttempt = ({
     }
 
     if (currentAttemptId) {
-      return toSignInAttemptResult(
-        getAttempt(currentAttemptId).promise,
-        getState
-      );
+      return getAttempt(currentAttemptId).promise;
     }
 
-    const attempt = dispatch(
-      startAttempt(() => {
-        void dispatch(signIn({ entrypoint }));
-      })
-    );
-    // The attemptNumber is incremented when AttemptStart is dispatched, so we
-    // must track the event after it.
     track('Atlas Sign In Started', {
       entrypoint,
       attempt: attemptNumber,
@@ -392,27 +378,17 @@ export const performSignInAttempt = ({
           ? state
           : null,
     });
+    const attempt = dispatch(
+      startAttempt(() => {
+        void dispatch(signIn({ entrypoint }));
+      })
+    );
     signal?.addEventListener('abort', () => {
-      dispatch(cancelSignIn(signal.reason));
+      dispatch(cancelSignIn());
     });
-    return toSignInAttemptResult(attempt.promise, getState);
+    return attempt.promise;
   };
 };
-
-async function toSignInAttemptResult(
-  promise: Promise<AtlasUserInfo>,
-  getState: () => AtlasSignInState
-): Promise<SignInAttemptResult> {
-  try {
-    const userInfo = await promise;
-    return { status: 'success', userInfo };
-  } catch (error) {
-    const state = getState().state;
-    if (state === 'timed-out') return { status: 'timed-out' };
-    if (state === 'canceled') return { status: 'canceled' };
-    return { status: 'error', error: error as Error };
-  }
-}
 
 /**
  * Sign into Atlas. To be called when the user isn't signed in yet.
@@ -428,7 +404,6 @@ export const signIn =
       id: currentAttemptId,
       controller,
       resolve,
-      reject,
     } = getAttempt(getState().currentAttemptId);
     dispatch({ type: AtlasSignInActions.Start });
     const signal = controller.signal;
@@ -452,7 +427,7 @@ export const signIn =
         });
         dispatch({ type: AtlasSignInActions.Success, userInfo });
         AttemptStateMap.clear();
-        resolve(userInfo);
+        resolve({ userInfo, status: 'success' });
       };
       const timeoutPromise = new Promise<never>((_resolve, reject) => {
         timeoutId = setTimeout(() => {
@@ -476,7 +451,7 @@ export const signIn =
           });
           dispatch({ type: AtlasSignInActions.TimedOut });
           track('Atlas Sign In Timed Out', { entrypoint });
-          reject(signal.reason);
+          resolve({ status: 'timed-out' });
         }
       } else {
         openToast('atlas-sign-in-error', {
@@ -489,7 +464,7 @@ export const signIn =
           error: (err as Error).message,
         });
 
-        reject(err);
+        resolve({ status: 'error', error: err as Error });
       }
       AttemptStateMap.delete(currentAttemptId);
     } finally {
@@ -498,7 +473,7 @@ export const signIn =
     }
   };
 
-export const cancelSignIn = (reason: any): AtlasSignInThunkAction<void> => {
+export const cancelSignIn = (): AtlasSignInThunkAction<void> => {
   return (dispatch, getState, { track }) => {
     // Can't cancel sign in after the flow was finished indicated by current
     // attempt id being set to null
@@ -507,7 +482,7 @@ export const cancelSignIn = (reason: any): AtlasSignInThunkAction<void> => {
     }
     const attempt = getAttempt(getState().currentAttemptId);
     attempt.controller.abort(new CanceledError());
-    attempt.reject(reason ?? attempt.controller.signal.reason);
+    attempt.resolve({ status: 'canceled' });
     AttemptStateMap.delete(attempt.id);
     dispatch({ type: AtlasSignInActions.Cancel });
     track('Atlas Sign In Canceled', {});
