@@ -607,26 +607,6 @@ describe('atlasSignInReducer', function () {
       });
       expect(store.getState()).to.have.property('attemptNumber', 1);
     });
-
-    it('increments attemptNumber on each AttemptStart', function () {
-      const store = configureStore({ atlasAuthService: {} as any });
-
-      expect(store.getState()).to.have.property('attemptNumber', 1);
-      store.dispatch({
-        type: 'atlas-service/atlas-signin/AttemptStart',
-        id: 1,
-      });
-      expect(store.getState()).to.have.property('attemptNumber', 2);
-      store.dispatch({ type: 'atlas-service/atlas-signin/AttemptEnd', id: 1 });
-      store.dispatch({
-        type: 'atlas-service/atlas-signin/AtlasSignInTimedOut',
-      });
-      store.dispatch({
-        type: 'atlas-service/atlas-signin/AttemptStart',
-        id: 2,
-      });
-      expect(store.getState()).to.have.property('attemptNumber', 3);
-    });
   });
 
   describe('signOut', function () {

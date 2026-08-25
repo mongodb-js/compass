@@ -92,7 +92,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const approvalId = toolCall.approval?.id;
   const atlasSignInStatus = useAtlasSignInStatus();
   const isUserSignedIn = !!atlasSignInStatus.user;
-  const isSignInInProgress = atlasSignInStatus?.state === 'in-progress';
+  const isSignInInProgress = atlasSignInStatus.state === 'in-progress';
   const { signIn } = useAtlasLoginActions();
   const track = useTelemetry();
 

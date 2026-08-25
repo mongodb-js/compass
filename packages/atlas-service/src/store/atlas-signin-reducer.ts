@@ -58,6 +58,12 @@ class TimeoutError extends Error {
   }
 }
 
+class CanceledError extends Error {
+  constructor() {
+    super('Sign in canceled');
+  }
+}
+
 // @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum AtlasSignInActions {
   RestoringStart = 'atlas-service/atlas-signin/StartRestoring',
@@ -460,17 +466,18 @@ export const signIn =
       if (signal.aborted) {
         // the canceled flow must be tracked outside of the signIn function
         // as it can be triggered by an external caller.
-        if (!(signal.reason instanceof TimeoutError)) {
+        if (signal.reason instanceof CanceledError) {
           return;
+        } else if (signal.reason instanceof TimeoutError) {
+          openToast('atlas-timed-out', {
+            title: 'The login to Atlas has timed out, please try again.',
+            variant: 'note',
+            timeout: 5000,
+          });
+          dispatch({ type: AtlasSignInActions.TimedOut });
+          track('Atlas Sign In Timed Out', { entrypoint });
+          reject(signal.reason);
         }
-        openToast('atlas-timed-out', {
-          title: 'The login to Atlas has timed out, please try again.',
-          variant: 'note',
-          timeout: 5000,
-        });
-        dispatch({ type: AtlasSignInActions.TimedOut });
-        track('Atlas Sign In Timed Out', { entrypoint });
-        reject(signal.reason);
       } else {
         openToast('atlas-sign-in-error', {
           variant: 'important',
@@ -499,7 +506,7 @@ export const cancelSignIn = (reason: any): AtlasSignInThunkAction<void> => {
       return;
     }
     const attempt = getAttempt(getState().currentAttemptId);
-    attempt.controller.abort();
+    attempt.controller.abort(new CanceledError());
     attempt.reject(reason ?? attempt.controller.signal.reason);
     AttemptStateMap.delete(attempt.id);
     dispatch({ type: AtlasSignInActions.Cancel });
