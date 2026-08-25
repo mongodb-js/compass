@@ -496,7 +496,7 @@ describe('debugConnection', function () {
         projectIdAndClusterName: undefined,
       });
       expect(payload.cluster_state).to.equal('Unknown');
-      expect(payload).to.not.have.property('ip_access_status');
+      expect(payload.ip_access_status).to.equal('Could not confirm');
     });
 
     it('tracks a failure event when the atlas api throws', async function () {
