@@ -52,6 +52,12 @@ export type AtlasSignInThunkAction<
   A
 >;
 
+class TimeoutError extends Error {
+  constructor() {
+    super('Sign in timed out');
+  }
+}
+
 // @ts-expect-error TODO(COMPASS-10124): replace enums with const kv objects
 export const enum AtlasSignInActions {
   RestoringStart = 'atlas-service/atlas-signin/StartRestoring',
@@ -123,7 +129,7 @@ const INITIAL_STATE = {
   error: null,
   isModalOpen: false,
   currentAttemptId: null,
-  attemptNumber: 0,
+  attemptNumber: 1,
 };
 
 type AttemptState = {
@@ -132,7 +138,6 @@ type AttemptState = {
   promise: Promise<AtlasUserInfo>;
   resolve: (userInfo: AtlasUserInfo) => void;
   reject: (reason?: any) => void;
-  timeoutId?: ReturnType<typeof setTimeout>;
 };
 
 export const SIGN_IN_TIMEOUT_MS = 2 * 60 * 1000; // 2 Minutes
@@ -248,7 +253,7 @@ const reducer: Reducer<AtlasSignInState, Action> = (
       userInfo: action.userInfo,
       error: null,
       isModalOpen: false,
-      attemptNumber: 0,
+      attemptNumber: 1,
     };
   }
 
@@ -327,21 +332,13 @@ export const restoreSignInState = (): AtlasSignInThunkAction<Promise<void>> => {
   };
 };
 
-const startAttempt = (
-  fn: () => void,
-  entrypoint: AtlasSignInEntrypoint
-): AtlasSignInThunkAction<AttemptState> => {
+const startAttempt = (fn: () => void): AtlasSignInThunkAction<AttemptState> => {
   return (dispatch) => {
     const attempt = getAttempt();
     dispatch({ type: AtlasSignInActions.AttemptStart, id: attempt.id });
 
-    attempt.timeoutId = setTimeout(() => {
-      dispatch(timeoutSignIn(attempt.id, entrypoint));
-    }, SIGN_IN_TIMEOUT_MS);
-
     attempt.promise
       .finally(() => {
-        clearTimeout(attempt.timeoutId);
         dispatch({ type: AtlasSignInActions.AttemptEnd, id: attempt.id });
       })
       .catch(() => {
@@ -353,11 +350,6 @@ const startAttempt = (
   };
 };
 
-const isRelevantPreviousState = (state: AtlasSignInState): boolean =>
-  state.state === 'error' ||
-  state.state === 'canceled' ||
-  state.state === 'timed-out';
-
 export const performSignInAttempt = ({
   signal,
   entrypoint = 'unknown',
@@ -367,7 +359,7 @@ export const performSignInAttempt = ({
 } = {}): AtlasSignInThunkAction<Promise<SignInAttemptResult>> => {
   return async (dispatch, getState, { track }) => {
     // Nothing to do if we already signed in
-    const { state, userInfo, currentAttemptId } = getState();
+    const { state, userInfo, currentAttemptId, attemptNumber } = getState();
     if (state === 'success') {
       return { status: 'success', userInfo };
     }
@@ -382,16 +374,17 @@ export const performSignInAttempt = ({
     const attempt = dispatch(
       startAttempt(() => {
         void dispatch(signIn({ entrypoint }));
-      }, entrypoint)
+      })
     );
     // The attemptNumber is incremented when AttemptStart is dispatched, so we
     // must track the event after it.
     track('Atlas Sign In Started', {
       entrypoint,
-      attempt: getState().attemptNumber,
-      previousOutcome: isRelevantPreviousState(getState())
-        ? (getState().state as 'error' | 'canceled' | 'timed-out')
-        : null,
+      attempt: attemptNumber,
+      previousOutcome:
+        state === 'error' || state === 'canceled' || state === 'timed-out'
+          ? state
+          : null,
     });
     signal?.addEventListener('abort', () => {
       dispatch(cancelSignIn(signal.reason));
@@ -418,62 +411,87 @@ async function toSignInAttemptResult(
 /**
  * Sign into Atlas. To be called when the user isn't signed in yet.
  */
-export const signIn = ({
-  entrypoint,
-}: {
-  entrypoint: AtlasSignInEntrypoint;
-}): AtlasSignInThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { atlasAuthService, track }) => {
+export const signIn =
+  ({
+    entrypoint,
+  }: {
+    entrypoint: AtlasSignInEntrypoint;
+  }): AtlasSignInThunkAction<Promise<void>> =>
+  async (dispatch, getState, { atlasAuthService, track }) => {
     const {
       id: currentAttemptId,
-      controller: { signal },
+      controller,
       resolve,
       reject,
     } = getAttempt(getState().currentAttemptId);
     dispatch({ type: AtlasSignInActions.Start });
+    const signal = controller.signal;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
     try {
       throwIfAborted(signal);
       let userInfo;
-      if (await atlasAuthService.isAuthenticated({ signal })) {
-        userInfo = await atlasAuthService.getUserInfo({ signal });
-      } else {
-        userInfo = await atlasAuthService.signIn({
-          signal,
+
+      const doSignIn = async () => {
+        if (await atlasAuthService.isAuthenticated({ signal })) {
+          userInfo = await atlasAuthService.getUserInfo({ signal });
+        } else {
+          userInfo = await atlasAuthService.signIn({
+            signal,
+          });
+        }
+        openToast('atlas-sign-in-success', {
+          variant: 'success',
+          title: `Atlas sign in successful`,
+          timeout: 10_000,
         });
-        track('Atlas Sign In Prompt Shown', {
-          entrypoint,
-        });
-      }
-      openToast('atlas-sign-in-success', {
-        variant: 'success',
-        title: `Atlas sign in successful`,
-        timeout: 10_000,
+        dispatch({ type: AtlasSignInActions.Success, userInfo });
+        AttemptStateMap.clear();
+        resolve(userInfo);
+      };
+      const timeoutPromise = new Promise<never>((_resolve, reject) => {
+        timeoutId = setTimeout(() => {
+          controller.abort(new TimeoutError());
+          reject(new TimeoutError());
+        }, SIGN_IN_TIMEOUT_MS);
       });
-      dispatch({ type: AtlasSignInActions.Success, userInfo });
-      AttemptStateMap.clear();
-      resolve(userInfo);
+
+      await Promise.race([doSignIn(), timeoutPromise]);
     } catch (err) {
-      // Only handle error if sign in wasn't aborted by the user, otherwise it
-      // was already handled in `cancelSignIn` action
       if (signal.aborted) {
-        return;
+        // the canceled flow must be tracked outside of the signIn function
+        // as it can be triggered by an external caller.
+        if (!(signal.reason instanceof TimeoutError)) {
+          return;
+        }
+        openToast('atlas-timed-out', {
+          title: 'The login to Atlas has timed out, please try again.',
+          variant: 'note',
+          timeout: 5000,
+        });
+        dispatch({ type: AtlasSignInActions.TimedOut });
+        track('Atlas Sign In Timed Out', { entrypoint });
+        reject(signal.reason);
+      } else {
+        openToast('atlas-sign-in-error', {
+          variant: 'important',
+          title: 'Sign in failed',
+          description: (err as Error).message,
+        });
+        dispatch({
+          type: AtlasSignInActions.Error,
+          error: (err as Error).message,
+        });
+
+        reject(err);
       }
-      openToast('atlas-sign-in-error', {
-        variant: 'important',
-        title: 'Sign in failed',
-        description: (err as Error).message,
-      });
-      dispatch({
-        type: AtlasSignInActions.Error,
-        error: (err as Error).message,
-      });
       AttemptStateMap.delete(currentAttemptId);
-      reject(err);
+    } finally {
+      // if the timeout is not cleared the promise will be dangling around
+      clearTimeout(timeoutId);
     }
   };
-};
 
-export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
+export const cancelSignIn = (reason: any): AtlasSignInThunkAction<void> => {
   return (dispatch, getState, { track }) => {
     // Can't cancel sign in after the flow was finished indicated by current
     // attempt id being set to null
@@ -481,35 +499,11 @@ export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
       return;
     }
     const attempt = getAttempt(getState().currentAttemptId);
-    clearTimeout(attempt.timeoutId);
     attempt.controller.abort();
     attempt.reject(reason ?? attempt.controller.signal.reason);
     AttemptStateMap.delete(attempt.id);
     dispatch({ type: AtlasSignInActions.Cancel });
     track('Atlas Sign In Canceled', {});
-  };
-};
-
-export const timeoutSignIn = (
-  attemptId: number,
-  entrypoint: AtlasSignInEntrypoint
-): AtlasSignInThunkAction<void> => {
-  return (dispatch, getState, { track }) => {
-    if (getState().currentAttemptId !== attemptId) {
-      return;
-    }
-    const attempt = getAttempt(attemptId);
-    clearTimeout(attempt.timeoutId);
-    attempt.controller.abort();
-    attempt.reject(new Error('Sign in timed out'));
-    AttemptStateMap.delete(attempt.id);
-    openToast('atlas-disconnected', {
-      title: 'The login to Atlas has timed out, please try again.',
-      variant: 'note',
-      timeout: 5000,
-    });
-    dispatch({ type: AtlasSignInActions.TimedOut });
-    track('Atlas Sign In Timed Out', { entrypoint });
   };
 };
 

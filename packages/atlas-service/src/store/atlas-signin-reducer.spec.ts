@@ -154,7 +154,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: {} as any,
       });
       expect(store.getState()).to.have.nested.property('state', 'initial');
-      store.dispatch(cancelSignIn());
+      store.dispatch(cancelSignIn('canceled'));
       expect(store.getState()).to.have.nested.property('state', 'initial');
     });
 
@@ -182,9 +182,9 @@ describe('atlasSignInReducer', function () {
       // Give it some time for start the sign in attempt. It will be waiting
       // at isAuthenticated, which never resolves.
       await new Promise((resolve) => setTimeout(resolve, 100));
-      store.dispatch(cancelSignIn());
+      store.dispatch(cancelSignIn('canceled'));
       expect(store.getState()).to.have.nested.property('state', 'canceled');
-      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('attemptNumber', 2);
 
       expect(isAuthenticatedStub).to.have.been.calledOnce;
       expect(track).to.have.been.calledWith('Atlas Sign In Canceled', {});
@@ -197,7 +197,7 @@ describe('atlasSignInReducer', function () {
         track,
       });
 
-      store.dispatch(cancelSignIn());
+      store.dispatch(cancelSignIn('canceled'));
 
       expect(track).to.not.have.been.calledWith('Atlas Sign In Canceled');
     });
@@ -252,7 +252,7 @@ describe('atlasSignInReducer', function () {
       const { store, result } = await driveToTimeout();
 
       expect(store.getState()).to.have.nested.property('state', 'timed-out');
-      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('attemptNumber', 2);
       expect(store.getState()).to.have.nested.property(
         'currentAttemptId',
         null
@@ -271,7 +271,7 @@ describe('atlasSignInReducer', function () {
     it('shows a toast informing the user that sign in timed out', async function () {
       const { openToast } = await driveToTimeout();
 
-      expect(openToast.withArgs('atlas-disconnected')).to.have.been.calledOnce;
+      expect(openToast.withArgs('atlas-timed-out')).to.have.been.calledOnce;
       expect(openToast.lastCall.args[1]).to.include({
         title: 'The login to Atlas has timed out, please try again.',
         variant: 'note',
@@ -330,7 +330,7 @@ describe('atlasSignInReducer', function () {
       expect(result).to.have.property('status', 'error');
       expect(result).to.have.nested.property('error.message', 'Sign in failed');
       expect(store.getState()).to.have.property('state', 'error');
-      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('attemptNumber', 2);
     });
 
     it('should resolve with a canceled result if provided signal was aborted', async function () {
@@ -599,24 +599,24 @@ describe('atlasSignInReducer', function () {
         type: 'atlas-service/atlas-signin/AtlasSignInError',
         error: 'some error',
       });
-      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('attemptNumber', 2);
 
       store.dispatch({
         type: 'atlas-service/atlas-signin/AtlasSignInSuccess',
         userInfo: { sub: '1234' },
       });
-      expect(store.getState()).to.have.property('attemptNumber', 0);
+      expect(store.getState()).to.have.property('attemptNumber', 1);
     });
 
     it('increments attemptNumber on each AttemptStart', function () {
       const store = configureStore({ atlasAuthService: {} as any });
 
-      expect(store.getState()).to.have.property('attemptNumber', 0);
+      expect(store.getState()).to.have.property('attemptNumber', 1);
       store.dispatch({
         type: 'atlas-service/atlas-signin/AttemptStart',
         id: 1,
       });
-      expect(store.getState()).to.have.property('attemptNumber', 1);
+      expect(store.getState()).to.have.property('attemptNumber', 2);
       store.dispatch({ type: 'atlas-service/atlas-signin/AttemptEnd', id: 1 });
       store.dispatch({
         type: 'atlas-service/atlas-signin/AtlasSignInTimedOut',
@@ -625,7 +625,7 @@ describe('atlasSignInReducer', function () {
         type: 'atlas-service/atlas-signin/AttemptStart',
         id: 2,
       });
-      expect(store.getState()).to.have.property('attemptNumber', 2);
+      expect(store.getState()).to.have.property('attemptNumber', 3);
     });
   });
 

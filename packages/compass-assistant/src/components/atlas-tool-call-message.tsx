@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   css,
   InlineDefinition,
@@ -26,6 +26,7 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import { CustomToolResult } from './custom-tool-result';
 import { getToolCallTitle } from './tool-call-title';
+import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 /**
  * Every sign in this card drives is attributed to the assistant tool call that
@@ -93,6 +94,33 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const isUserSignedIn = !!atlasSignInStatus.user;
   const isSignInInProgress = atlasSignInStatus?.state === 'in-progress';
   const { signIn } = useAtlasLoginActions();
+  const track = useTelemetry();
+
+  const isSignInStateResolved =
+    atlasSignInStatus.state !== 'initial' &&
+    atlasSignInStatus.state !== 'restoring';
+
+  // The card re-renders on every state change, so we only report the prompt the
+  // first time it's actually offered to a signed out user.
+  const trackedPromptForApprovalId = useRef<string | null>(null);
+  const isSignInPromptShown =
+    isAwaitingApproval &&
+    isSignInStateResolved &&
+    !isUserSignedIn &&
+    !!approvalId;
+
+  useEffect(() => {
+    if (
+      !isSignInPromptShown ||
+      trackedPromptForApprovalId.current === approvalId
+    ) {
+      return;
+    }
+    trackedPromptForApprovalId.current = approvalId ?? null;
+    track('Atlas Sign In Prompt Shown', {
+      entrypoint: getSignInEntrypoint(toolCall.type),
+    });
+  }, [isSignInPromptShown, approvalId, track, toolCall.type]);
 
   const chips = useMemo(() => {
     if (
