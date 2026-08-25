@@ -19,17 +19,16 @@ export function assertSystemStatus(
     typeof status.ipAddress !== 'string'
   ) {
     throw new Error(
-      'Got unexpected backend response for Atlas Admin API system status request'
+      'Got unexpected backend response for Atlas Admin API system status request, missing or malformed ipAddress'
     );
   }
   if (
     status.user !== undefined &&
     (typeof status.user !== 'object' ||
-      status.user === null ||
       typeof status.user.username !== 'string')
   ) {
     throw new Error(
-      'Got unexpected backend response for Atlas Admin API system status request'
+      'Got unexpected backend response for Atlas Admin API system status request, missing or malformed username'
     );
   }
 }
