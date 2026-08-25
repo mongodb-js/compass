@@ -258,7 +258,12 @@ export async function debugConnection(
         atlasAdminApi,
       }
     );
-    const links = getLinks({ projectId, clusterName, ipAccessStatus, atlasUiBaseUrl });
+    const links = getLinks({
+      projectId,
+      clusterName,
+      ipAccessStatus,
+      atlasUiBaseUrl,
+    });
 
     track('Atlas Connection Troubleshooting Success', {
       duration: Date.now() - startTime,

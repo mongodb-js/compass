@@ -105,7 +105,7 @@ describe('debugConnection', function () {
   beforeEach(function () {
     sandbox = Sinon.createSandbox();
     trackStub = sandbox.stub();
-    track = trackStub as unknown as TrackFunction;
+    track = trackStub;
   });
 
   afterEach(function () {

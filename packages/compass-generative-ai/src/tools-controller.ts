@@ -316,7 +316,7 @@ export class ToolsController {
             args.connectionString,
             this.atlasAdminApi,
             this.track,
-            getAtlasConfig(this.preferences).atlasUiBaseUrl,
+            getAtlasConfig(this.preferences).atlasUiBaseUrl
           );
         },
       };
