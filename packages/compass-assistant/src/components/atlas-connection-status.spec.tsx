@@ -8,8 +8,13 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { AtlasConnectionStatus } from './atlas-connection-status';
-import type { AtlasAuthService, AtlasUserInfo } from '../provider';
-import AtlasAuthPlugin from '../renderer';
+import type {
+  AtlasAuthService,
+  AtlasUserInfo,
+} from '@mongodb-js/atlas-service/provider';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import { AtlasAdminApiServiceContextProvider } from '@mongodb-js/atlas-admin-api/provider';
 
 class FakeAtlasAuthService {
   private user: AtlasUserInfo | null;
@@ -39,6 +44,12 @@ class FakeAtlasAuthService {
 }
 
 describe('AtlasConnectionStatus', function () {
+  let getSystemStatus: sinon.SinonStub;
+
+  beforeEach(function () {
+    getSystemStatus = sinon.stub().resolves({});
+  });
+
   function renderStatus(service: FakeAtlasAuthService) {
     const { renderWithConnections } = createPluginTestHelpers(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
@@ -46,7 +57,13 @@ describe('AtlasConnectionStatus', function () {
         atlasAuthService: service as unknown as AtlasAuthService,
       })
     );
-    return renderWithConnections(<AtlasConnectionStatus />);
+    return renderWithConnections(
+      <AtlasAdminApiServiceContextProvider
+        value={{ getSystemStatus } as unknown as AtlasAdminApiService}
+      >
+        <AtlasConnectionStatus />
+      </AtlasAdminApiServiceContextProvider>
+    );
   }
 
   it('renders nothing when the user is not signed in', async function () {
@@ -65,6 +82,15 @@ describe('AtlasConnectionStatus', function () {
     });
     expect(screen.getByText('Signed in to Atlas')).to.exist;
     expect(screen.getByText('Disconnect Atlas')).to.exist;
+  });
+
+  it('renders the username when it can be fetched', async function () {
+    getSystemStatus.resolves({ user: { username: 'jane@done.com' } });
+    renderStatus(new FakeAtlasAuthService({ sub: 'user-1' }));
+
+    await waitFor(() => {
+      expect(screen.getByText('jane@done.com')).to.exist;
+    });
   });
 
   it('confirms, calls signOut, and hides itself when disconnect is confirmed', async function () {

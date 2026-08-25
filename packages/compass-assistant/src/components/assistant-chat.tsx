@@ -42,7 +42,7 @@ import {
   partIsToolUI,
   stopChat,
 } from '../utils';
-import { AtlasConnectionStatus } from '@mongodb-js/atlas-service/provider';
+import { AtlasConnectionStatus } from './atlas-connection-status';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
