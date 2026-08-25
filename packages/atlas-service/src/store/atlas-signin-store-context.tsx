@@ -51,7 +51,6 @@ export type AtlasSignInStatus = {
     | 'success';
 };
 
-// one hook, one subscription, derived/curated shape
 export function useAtlasSignInStatus() {
   return useSelector(
     (s): AtlasSignInStatus => ({
