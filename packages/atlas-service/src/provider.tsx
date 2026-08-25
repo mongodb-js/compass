@@ -68,10 +68,8 @@ export { AtlasAuthService } from './atlas-auth-service';
 export type { AtlasService } from './atlas-service';
 export type { AtlasUserInfo } from './renderer';
 export {
-  useAtlasSignedInUser,
+  useAtlasSignInStatus,
   useAtlasLoginActions,
-  useIsAtlasSignInStateResolved,
-  useIsAtlasSignInInProgress,
 } from './store/atlas-signin-store-context';
 export type { AtlasLoginActions } from './store/atlas-signin-store-context';
 export { AtlasConnectionStatus } from './components/atlas-connection-status';

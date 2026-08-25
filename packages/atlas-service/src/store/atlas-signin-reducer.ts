@@ -21,7 +21,6 @@ export type AtlasSignInState = {
   // For managing attempt state that doesn't belong in the store
   currentAttemptId: number | null;
   attemptNumber: number;
-  previousOutcome: 'timed-out' | 'canceled' | 'error' | null;
 } & (
   | {
       state:
@@ -125,7 +124,6 @@ const INITIAL_STATE = {
   isModalOpen: false,
   currentAttemptId: null,
   attemptNumber: 0,
-  previousOutcome: null,
 };
 
 type AttemptState = {
@@ -251,7 +249,6 @@ const reducer: Reducer<AtlasSignInState, Action> = (
       error: null,
       isModalOpen: false,
       attemptNumber: 0,
-      previousOutcome: null,
     };
   }
 
@@ -262,7 +259,6 @@ const reducer: Reducer<AtlasSignInState, Action> = (
       userInfo: null,
       error: action.error,
       isModalOpen: false,
-      previousOutcome: 'error',
     };
   }
 
@@ -271,7 +267,6 @@ const reducer: Reducer<AtlasSignInState, Action> = (
       ...INITIAL_STATE,
       state: 'canceled',
       attemptNumber: state.attemptNumber,
-      previousOutcome: 'canceled',
     };
   }
 
@@ -282,7 +277,6 @@ const reducer: Reducer<AtlasSignInState, Action> = (
       ...INITIAL_STATE,
       state: 'timed-out',
       attemptNumber: state.attemptNumber,
-      previousOutcome: 'timed-out',
     };
   }
 
@@ -359,6 +353,11 @@ const startAttempt = (
   };
 };
 
+const isRelevantPreviousState = (state: AtlasSignInState): boolean =>
+  state.state === 'error' ||
+  state.state === 'canceled' ||
+  state.state === 'timed-out';
+
 export const performSignInAttempt = ({
   signal,
   entrypoint = 'unknown',
@@ -382,7 +381,7 @@ export const performSignInAttempt = ({
 
     const attempt = dispatch(
       startAttempt(() => {
-        void dispatch(signIn());
+        void dispatch(signIn({ entrypoint }));
       }, entrypoint)
     );
     // The attemptNumber is incremented when AttemptStart is dispatched, so we
@@ -390,7 +389,9 @@ export const performSignInAttempt = ({
     track('Atlas Sign In Started', {
       entrypoint,
       attempt: getState().attemptNumber,
-      previousOutcome: getState().previousOutcome,
+      previousOutcome: isRelevantPreviousState(getState())
+        ? (getState().state as 'error' | 'canceled' | 'timed-out')
+        : null,
     });
     signal?.addEventListener('abort', () => {
       dispatch(cancelSignIn(signal.reason));
@@ -417,8 +418,12 @@ async function toSignInAttemptResult(
 /**
  * Sign into Atlas. To be called when the user isn't signed in yet.
  */
-export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
-  return async (dispatch, getState, { atlasAuthService }) => {
+export const signIn = ({
+  entrypoint,
+}: {
+  entrypoint: AtlasSignInEntrypoint;
+}): AtlasSignInThunkAction<Promise<void>> => {
+  return async (dispatch, getState, { atlasAuthService, track }) => {
     const {
       id: currentAttemptId,
       controller: { signal },
@@ -434,6 +439,9 @@ export const signIn = (): AtlasSignInThunkAction<Promise<void>> => {
       } else {
         userInfo = await atlasAuthService.signIn({
           signal,
+        });
+        track('Atlas Sign In Prompt Shown', {
+          entrypoint,
         });
       }
       openToast('atlas-sign-in-success', {

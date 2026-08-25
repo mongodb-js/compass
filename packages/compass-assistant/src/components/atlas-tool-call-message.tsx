@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import {
   css,
   InlineDefinition,
@@ -22,13 +22,10 @@ import {
 import type { AtlasSignInEntrypoint } from '@mongodb-js/compass-telemetry';
 import {
   useAtlasLoginActions,
-  useAtlasSignedInUser,
-  useIsAtlasSignInStateResolved,
-  useIsAtlasSignInInProgress,
+  useAtlasSignInStatus,
 } from '@mongodb-js/atlas-service/provider';
 import { CustomToolResult } from './custom-tool-result';
 import { getToolCallTitle } from './tool-call-title';
-import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 
 /**
  * Every sign in this card drives is attributed to the assistant tool call that
@@ -92,35 +89,10 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const toolDisplayName = getToolDisplayName(toolCall.type);
   const isAwaitingApproval = toolCallState === 'idle' && !!toolCall.approval;
   const approvalId = toolCall.approval?.id;
-  const isUserSignedIn = !!useAtlasSignedInUser();
+  const atlasSignInStatus = useAtlasSignInStatus();
+  const isUserSignedIn = !!atlasSignInStatus.user;
+  const isSignInInProgress = atlasSignInStatus?.state === 'in-progress';
   const { signIn } = useAtlasLoginActions();
-  const track = useTelemetry();
-  const isSignInStateResolved = useIsAtlasSignInStateResolved();
-  const isSignInInProgress = useIsAtlasSignInInProgress();
-
-  // The card re-renders on every state change, so we only report the prompt the
-  // first time it's actually offered to a signed out user. We also wait for the
-  // sign in state to be restored, otherwise an already signed in user looks
-  // signed out on the first render.
-  const trackedPromptForApprovalId = useRef<string | null>(null);
-  const isSignInPromptShown =
-    isAwaitingApproval &&
-    isSignInStateResolved &&
-    !isUserSignedIn &&
-    !!approvalId;
-
-  useEffect(() => {
-    if (
-      !isSignInPromptShown ||
-      trackedPromptForApprovalId.current === approvalId
-    ) {
-      return;
-    }
-    trackedPromptForApprovalId.current = approvalId ?? null;
-    track('Atlas Sign In Prompt Shown', {
-      entrypoint: getSignInEntrypoint(toolCall.type),
-    });
-  }, [isSignInPromptShown, approvalId, track, toolCall.type]);
 
   const chips = useMemo(() => {
     if (
@@ -179,7 +151,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   );
 
   const approvalMessage = getApprovalMessage(
-    !!isSignInInProgress,
+    isSignInInProgress,
     isUserSignedIn
   );
   // TODO COMPASS-10973: don't render actions if there's no approvalId.

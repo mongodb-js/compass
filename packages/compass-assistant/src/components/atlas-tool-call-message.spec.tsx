@@ -164,6 +164,8 @@ describe('AtlasToolCallMessage', function () {
     it('tracks the sign in prompt once, with the tool name as entrypoint', async function () {
       const { track } = renderMessage();
 
+      userEvent.click(screen.getByText('Connect to Atlas'));
+
       await waitFor(() => {
         expect(track).to.have.been.calledWith('Atlas Sign In Prompt Shown', {
           entrypoint: 'assistant-tool-atlas-connection-error-debugger',
@@ -199,6 +201,8 @@ describe('AtlasToolCallMessage', function () {
           approval: { id: 'approval-1' },
         } as unknown as ToolUIPart,
       });
+
+      userEvent.click(screen.getByText('Connect to Atlas'));
 
       await waitFor(() => {
         expect(track).to.have.been.calledWith('Atlas Sign In Prompt Shown', {

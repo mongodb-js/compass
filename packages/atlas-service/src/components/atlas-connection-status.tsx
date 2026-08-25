@@ -11,7 +11,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useAtlasLoginActions, useAtlasSignedInUser } from '../provider';
+import { useAtlasLoginActions, useAtlasSignInStatus } from '../provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -57,7 +57,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
   AtlasConnectionStatusProps
 > = ({ 'data-testid': dataTestId = 'atlas-connection-status' }) => {
   const darkMode = useDarkMode();
-  const userInfo = useAtlasSignedInUser();
+  const signInStatus = useAtlasSignInStatus();
   const { signOut } = useAtlasLoginActions();
 
   const handleDisconnect = useCallback(() => {
@@ -76,7 +76,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
     })();
   }, [signOut]);
 
-  if (!userInfo) {
+  if (!signInStatus.user) {
     return null;
   }
 

@@ -85,7 +85,7 @@ describe('atlasSignInReducer', function () {
       const restorePromise = store.dispatch(restoreSignInState());
       expect(mockAtlasService.isAuthenticated).to.have.been.calledOnce;
       expect(store.getState()).to.have.nested.property('state', 'restoring');
-      await store.dispatch(signIn());
+      await store.dispatch(signIn({ entrypoint: 'unknown' }));
       expect(mockAtlasService.isAuthenticated).to.have.been.calledTwice;
       expect(store.getState()).to.have.nested.property('state', 'success');
       // Intentionally returning false here so that if action would affect
@@ -107,7 +107,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
       });
 
-      await store.dispatch(signIn());
+      await store.dispatch(signIn({ entrypoint: 'unknown' }));
       expect(mockAtlasService.isAuthenticated).to.have.been.calledOnce;
       expect(mockAtlasService.signIn).not.to.have.been.called;
       expect(store.getState()).to.have.nested.property('state', 'success');
@@ -123,7 +123,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
       });
 
-      await store.dispatch(signIn());
+      await store.dispatch(signIn({ entrypoint: 'unknown' }));
       expect(mockAtlasService.isAuthenticated).to.have.been.calledOnce;
       expect(mockAtlasService.signIn).to.have.been.calledOnce;
       expect(store.getState()).to.have.nested.property('state', 'success');
@@ -138,7 +138,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: mockAtlasService as any,
       });
 
-      const signInPromise = store.dispatch(signIn());
+      const signInPromise = store.dispatch(signIn({ entrypoint: 'unknown' }));
       // Avoid unhandled rejections
       AttemptStateMap.get(attemptId)?.promise.catch(() => {});
       await signInPromise;
@@ -185,7 +185,6 @@ describe('atlasSignInReducer', function () {
       store.dispatch(cancelSignIn());
       expect(store.getState()).to.have.nested.property('state', 'canceled');
       expect(store.getState()).to.have.property('attemptNumber', 1);
-      expect(store.getState()).to.have.property('previousOutcome', 'canceled');
 
       expect(isAuthenticatedStub).to.have.been.calledOnce;
       expect(track).to.have.been.calledWith('Atlas Sign In Canceled', {});
@@ -254,7 +253,6 @@ describe('atlasSignInReducer', function () {
 
       expect(store.getState()).to.have.nested.property('state', 'timed-out');
       expect(store.getState()).to.have.property('attemptNumber', 1);
-      expect(store.getState()).to.have.property('previousOutcome', 'timed-out');
       expect(store.getState()).to.have.nested.property(
         'currentAttemptId',
         null
@@ -333,7 +331,6 @@ describe('atlasSignInReducer', function () {
       expect(result).to.have.nested.property('error.message', 'Sign in failed');
       expect(store.getState()).to.have.property('state', 'error');
       expect(store.getState()).to.have.property('attemptNumber', 1);
-      expect(store.getState()).to.have.property('previousOutcome', 'error');
     });
 
     it('should resolve with a canceled result if provided signal was aborted', async function () {
@@ -409,7 +406,7 @@ describe('atlasSignInReducer', function () {
           entrypoint: 'assistant-tool-atlas-connection-error-debugger',
         })
       );
-      expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
+      expect(track).to.have.been.calledWith('Atlas Sign In Started', {
         entrypoint: 'assistant-tool-atlas-connection-error-debugger',
         attempt: 1,
         previousOutcome: null,
@@ -429,7 +426,7 @@ describe('atlasSignInReducer', function () {
         track,
       });
       await store.dispatch(performSignInAttempt());
-      expect(track).to.have.been.calledOnceWith('Atlas Sign In Started', {
+      expect(track).to.have.been.calledWith('Atlas Sign In Started', {
         entrypoint: 'unknown',
         attempt: 1,
         previousOutcome: null,
@@ -591,7 +588,7 @@ describe('atlasSignInReducer', function () {
       ]);
     });
 
-    it('resets the attempt tracking after a successful sign in', function () {
+    it('resets the attempt number after a successful sign in', function () {
       const store = configureStore({ atlasAuthService: {} as any });
 
       store.dispatch({
@@ -603,14 +600,12 @@ describe('atlasSignInReducer', function () {
         error: 'some error',
       });
       expect(store.getState()).to.have.property('attemptNumber', 1);
-      expect(store.getState()).to.have.property('previousOutcome', 'error');
 
       store.dispatch({
         type: 'atlas-service/atlas-signin/AtlasSignInSuccess',
         userInfo: { sub: '1234' },
       });
       expect(store.getState()).to.have.property('attemptNumber', 0);
-      expect(store.getState()).to.have.property('previousOutcome', null);
     });
 
     it('increments attemptNumber on each AttemptStart', function () {
