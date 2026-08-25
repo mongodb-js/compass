@@ -1822,7 +1822,16 @@ type AssistantToolCallApprovalEvent = ConnectionScopedEvent<{
 type AtlasConnectionErrorTroubleshootingSuccessEvent = CommonEvent<{
   name: 'Atlas Connection Troubleshooting Success';
   payload: {
-    causes_identified: string[];
+    /**
+     * The state of the cluster the user tried to connect to, as reported by
+     * Atlas, or `Unknown` when the cluster could not be found.
+     */
+    cluster_state: string;
+    /**
+     * Whether we could confirm that the user's IP address is allowed by the
+     * project's IP access list.
+     */
+    ip_access_status?: string;
     duration: number;
   };
 }>;

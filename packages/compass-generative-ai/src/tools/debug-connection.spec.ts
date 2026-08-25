@@ -434,11 +434,10 @@ describe('debugConnection', function () {
       return payload;
     }
 
-    it('reports no causes for a healthy cluster with an allowed ip', async function () {
-      expect(await getSuccessPayload()).to.have.deep.property(
-        'causes_identified',
-        []
-      );
+    it('reports a healthy cluster with an allowed ip', async function () {
+      const payload = await getSuccessPayload();
+      expect(payload.cluster_state).to.equal('READY');
+      expect(payload.ip_access_status).to.equal('Client IP Allowed');
     });
 
     it('reports the duration of the run', async function () {
@@ -447,37 +446,57 @@ describe('debugConnection', function () {
       expect(duration).to.be.at.least(0);
     });
 
-    const causeCases: [
+    const stateCases: [
       string,
       Parameters<typeof mockAtlasAdminApi>[0],
-      string[]
+      { cluster_state: string; ip_access_status?: string }
     ][] = [
-      ['a paused cluster', { state: 'IDLE', paused: true }, ['clusterPaused']],
-      ['a provisioning cluster', { state: 'CREATING' }, ['clusterCreating']],
-      ['a deleting cluster', { state: 'DELETING' }, ['clusterDeleting']],
-      ['an unverified ip', { ipAccessList: [] }, ['ipPossiblyNotAllowed']],
+      [
+        'a paused cluster',
+        { state: 'IDLE', paused: true },
+        { cluster_state: 'PAUSED', ip_access_status: 'Client IP Allowed' },
+      ],
+      [
+        'a provisioning cluster',
+        { state: 'CREATING' },
+        { cluster_state: 'CREATING', ip_access_status: 'Client IP Allowed' },
+      ],
+      [
+        'a deleting cluster',
+        { state: 'DELETING' },
+        { cluster_state: 'DELETING', ip_access_status: 'Client IP Allowed' },
+      ],
+      [
+        'an unverified ip',
+        { ipAccessList: [] },
+        { cluster_state: 'READY', ip_access_status: 'Could not confirm' },
+      ],
       [
         'a paused cluster with an unverified ip',
         { state: 'IDLE', paused: true, ipAccessList: [] },
-        ['clusterPaused', 'ipPossiblyNotAllowed'],
+        { cluster_state: 'PAUSED', ip_access_status: 'Could not confirm' },
       ],
       [
-        'a cluster that could not be found',
-        { projectIdAndClusterName: undefined },
-        ['cluster_not_found'],
+        'a state that needs no action',
+        { state: 'UPDATING' },
+        { cluster_state: 'UPDATING', ip_access_status: 'Client IP Allowed' },
       ],
     ];
 
-    for (const [description, opts, expected] of causeCases) {
+    for (const [description, opts, expected] of stateCases) {
       it(`reports ${description}`, async function () {
         const payload = await getSuccessPayload(opts);
-        expect(payload.causes_identified).to.deep.equal(expected);
+        expect(payload.cluster_state).to.equal(expected.cluster_state);
+        expect(payload.ip_access_status).to.equal(expected.ip_access_status);
       });
     }
 
-    it('does not report a state that needs no action as a cause', async function () {
-      const payload = await getSuccessPayload({ state: 'UPDATING' });
-      expect(payload.causes_identified).to.deep.equal([]);
+    it('reports a cluster that could not be found', async function () {
+      const payload = await getSuccessPayload({
+        projectIdAndClusterName: undefined,
+      });
+      expect(payload.cluster_state).to.equal('Unknown');
+      expect(payload).to.not.have.property('ip_access_status');
     });
 
     it('tracks a failure event when the atlas api throws', async function () {
