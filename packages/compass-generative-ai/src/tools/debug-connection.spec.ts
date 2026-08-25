@@ -204,18 +204,18 @@ describe('debugConnection', function () {
       expect(result.ipAccessStatus).to.equal('Client IP Allowed');
     });
 
-    it('cannot confirm when the user ip cannot be resolved', async function () {
+    it('fails when the user ip cannot be resolved', async function () {
       const api = mockAtlasAdminApi({
         ipAccessList: [{ ipAddress: USER_IP }],
       });
       atlasAdminApi.getSystemStatus.rejects(new Error('nope'));
 
-      const result = await debugConnection(CONNECTION_STRING, api);
-
-      expect(result.ipAccessStatus).to.equal('Could not confirm');
-      expect(result.networkAccessDetails).to.deep.equal({
-        networkAccessList: [{ ipAddress: USER_IP }],
-      });
+      try {
+        await debugConnection(CONNECTION_STRING, api);
+        expect.fail('expected debugConnection to reject');
+      } catch (err) {
+        expect((err as Error).message).to.equal('nope');
+      }
     });
 
     it('cannot confirm when the access list is empty', async function () {
