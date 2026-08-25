@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback } from 'react';
 import {
   Body,
   Button,
@@ -11,12 +11,7 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import {
-  useAtlasLoginActions,
-  useAtlasSignedInUser,
-} from '@mongodb-js/atlas-service/provider';
-import { useAtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
-import { useLogger } from '@mongodb-js/compass-logging/provider';
+import { useAtlasLoginActions, useAtlasSignedInUser } from '../provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -62,38 +57,8 @@ export const AtlasConnectionStatus: React.FunctionComponent<
   AtlasConnectionStatusProps
 > = ({ 'data-testid': dataTestId = 'atlas-connection-status' }) => {
   const darkMode = useDarkMode();
-  const atlasAdminApi = useAtlasAdminApiService();
-  const { debug } = useLogger('COMPASS-ASSISTANT');
   const userInfo = useAtlasSignedInUser();
   const { signOut } = useAtlasLoginActions();
-  const sub = userInfo?.sub;
-
-  const [atlasUsername, setAtlasUsername] = useState<{
-    sub: string;
-    username?: string;
-  }>();
-
-  useEffect(() => {
-    if (!sub) {
-      return;
-    }
-    let cancelled = false;
-    void (async () => {
-      let username: string | undefined;
-      try {
-        const { user } = await atlasAdminApi.getSystemStatus();
-        username = user?.username;
-      } catch (err) {
-        debug(`Failed to fetch Atlas system status: ${(err as Error).message}`);
-      }
-      if (!cancelled) {
-        setAtlasUsername({ sub, username });
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [atlasAdminApi, debug, sub]);
 
   const handleDisconnect = useCallback(() => {
     void (async () => {
@@ -115,9 +80,6 @@ export const AtlasConnectionStatus: React.FunctionComponent<
     return null;
   }
 
-  const username =
-    atlasUsername?.sub === sub ? atlasUsername?.username : undefined;
-
   return (
     <div className={containerStyles} data-testid={dataTestId}>
       <div className={labelStyles}>
@@ -134,9 +96,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
           )}
           data-testid={`${dataTestId}-label`}
         >
-          {username
-            ? `${username}`
-            : 'Signed in to Atlas'}
+          Signed in to Atlas
         </Body>
       </div>
       <Button

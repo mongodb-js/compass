@@ -46,11 +46,6 @@ function useAtlasAdminApiServiceContext(): AtlasAdminApiService {
   return service;
 }
 
-export const useAtlasAdminApiService = useAtlasAdminApiServiceContext;
-
-export const AtlasAdminApiServiceContextProvider =
-  AtlasAdminApiServiceContext.Provider;
-
 export const atlasAdminApiServiceLocator = createServiceLocator(
   useAtlasAdminApiServiceContext,
   'atlasAdminApiServiceLocator'
@@ -69,5 +64,4 @@ export {
   type AtlasClusterState,
   type AtlasGroupCluster,
 } from './cluster-types';
-export { type AtlasSystemStatus } from './system-status-types';
 export { ATLAS_ADMIN_API_DEFAULT_VERSION } from './version';
