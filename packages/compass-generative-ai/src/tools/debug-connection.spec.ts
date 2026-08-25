@@ -224,7 +224,11 @@ describe('debugConnection', function () {
         ipAccessList: [{ ipAddress: '9.9.9.9' }],
       });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result.ipAccessStatus).to.equal('Client IP Allowed');
     });
@@ -236,7 +240,7 @@ describe('debugConnection', function () {
       atlasAdminApi.getSystemStatus.rejects(new Error('nope'));
 
       try {
-        await debugConnection(CONNECTION_STRING, api);
+        await debugConnection(CONNECTION_STRING, api, CLOUD_UI_BASE_URL);
         expect.fail('expected debugConnection to reject');
       } catch (err) {
         expect((err as Error).message).to.equal('nope');
