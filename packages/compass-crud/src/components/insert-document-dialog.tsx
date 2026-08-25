@@ -42,6 +42,7 @@ import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
 import InsertEJSONConversionBanner from './insert-ejson-conversion-banner';
 import { convertEJSONToShellSyntax } from '../utils/ejson-conversion';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { useDocumentEditsTelemetry } from '../hooks/use-document-edits-telemetry';
 
 /**
  * The insert invalid message.
@@ -140,6 +141,11 @@ const DocumentOrJsonView: React.FC<{
   editorRef,
   namespace,
 }) => {
+  useDocumentEditsTelemetry(
+    useMemo(() => (doc ? [doc] : []), [doc]),
+    'insert'
+  );
+
   if (insertView !== 'list') {
     return (
       <InsertDocumentEditor
@@ -364,16 +370,17 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     safeIntegerLinter,
   } = useSafeIntegerLinter({
     editorRef,
-    onFixViolation: (source: string) => {
+    onFixViolation: (source: string) =>
+      insertView === 'shell'
+        ? `Long("${source}")`
+        : `{"$numberLong": "${source}"}`,
+    onViolationFixed: () => {
       track?.('Safe Integer Fix Applied', {
         source:
           insertView === 'shell'
             ? 'insert-document-editor-shell'
             : 'insert-document-editor-json',
       });
-      return insertView === 'shell'
-        ? `Long("${source}")`
-        : `{"$numberLong": "${source}"}`;
     },
   });
 
