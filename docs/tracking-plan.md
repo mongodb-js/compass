@@ -713,11 +713,12 @@ This event is fired when the AI response is generated.
 
 This event is fired when the Atlas connection troubleshooting has completed.
 
-| Property            | Type                | Required | Description |
-| ------------------- | ------------------- | -------- | ----------- |
-| `causes_identified` | `{}`                | Yes      |             |
-| `duration`          | `number`            | Yes      |             |
-| `is_compass_web`    | `true \| undefined` | No       |             |
+| Property           | Type                  | Required | Description                                                                                                                    |
+| ------------------ | --------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `cluster_state`    | `string`              | Yes      | The state of the cluster the user tried to connect to, as reported by Atlas, or `Unknown` when the cluster could not be found. |
+| `ip_access_status` | `string \| undefined` | No       | Whether we could confirm that the user's IP address is allowed by the project's IP access list.                                |
+| `duration`         | `number`              | Yes      |                                                                                                                                |
+| `is_compass_web`   | `true \| undefined`   | No       |                                                                                                                                |
 
 ### Atlas Connection Troubleshooting Failed
 
