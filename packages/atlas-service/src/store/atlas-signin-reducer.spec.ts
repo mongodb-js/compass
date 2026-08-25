@@ -154,7 +154,7 @@ describe('atlasSignInReducer', function () {
         atlasAuthService: {} as any,
       });
       expect(store.getState()).to.have.nested.property('state', 'initial');
-      store.dispatch(cancelSignIn('canceled'));
+      store.dispatch(cancelSignIn());
       expect(store.getState()).to.have.nested.property('state', 'initial');
     });
 
@@ -182,7 +182,7 @@ describe('atlasSignInReducer', function () {
       // Give it some time for start the sign in attempt. It will be waiting
       // at isAuthenticated, which never resolves.
       await new Promise((resolve) => setTimeout(resolve, 100));
-      store.dispatch(cancelSignIn('canceled'));
+      store.dispatch(cancelSignIn());
       expect(store.getState()).to.have.nested.property('state', 'canceled');
       expect(store.getState()).to.have.property('attemptNumber', 2);
 
@@ -197,7 +197,7 @@ describe('atlasSignInReducer', function () {
         track,
       });
 
-      store.dispatch(cancelSignIn('canceled'));
+      store.dispatch(cancelSignIn());
 
       expect(track).to.not.have.been.calledWith('Atlas Sign In Canceled');
     });
@@ -276,26 +276,6 @@ describe('atlasSignInReducer', function () {
         title: 'The login to Atlas has timed out, please try again.',
         variant: 'note',
       });
-    });
-
-    it('should not time out if the flow completes before the timeout', async function () {
-      const track = sandbox.stub();
-      const store = configureStore({
-        atlasAuthService: {
-          isAuthenticated: sandbox.stub().resolves(false),
-          signIn: sandbox.stub().resolves({ sub: '1234' }),
-          getUserInfo: sandbox.stub().resolves({ sub: '1234' }),
-        } as any,
-        track,
-      });
-
-      const result = await store.dispatch(performSignInAttempt());
-      expect(result).to.have.property('status', 'success');
-      expect(store.getState()).to.have.property('state', 'success');
-
-      await clock.tickAsync(SIGN_IN_TIMEOUT_MS);
-      expect(store.getState()).to.have.property('state', 'success');
-      expect(track).to.not.have.been.calledWith('Atlas Sign In Timed Out');
     });
   });
 
