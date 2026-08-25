@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-08-21. Do not edit manually.
+> Auto-generated on 2026-08-25. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -118,9 +118,12 @@
   - [Document Cloned](#document-cloned)
   - [Document Copied](#document-copied)
   - [Document Deleted](#document-deleted)
+  - [Document Field Added](#document-field-added)
+  - [Document Field Removed](#document-field-removed)
   - [Document Insert Cancelled](#document-insert-cancelled)
   - [Document Insert Failed](#document-insert-failed)
   - [Document Inserted](#document-inserted)
+  - [Document Update Cancelled](#document-update-cancelled)
   - [Document Updated](#document-updated)
   - [Document View Changed](#document-view-changed)
   - [Extended JSON Conversion Attempted](#extended-json-conversion-attempted)
@@ -1368,6 +1371,29 @@ This event is fired when user deletes a document.
 | `is_compass_web` | `true \| undefined`           | No       |                                                    |
 | `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
 
+### Document Field Added
+
+This event is fired when user adds a field to a document, either at the
+top level or nested inside an array/document.
+
+| Property         | Type                                   | Required | Description                                                                                  |
+| ---------------- | -------------------------------------- | -------- | -------------------------------------------------------------------------------------------- |
+| `added_to`       | `"top_level" \| "array" \| "document"` | Yes      | Whether the field was added to the top level of the document or inside an array or document. |
+| `mode`           | `"list" \| "table" \| "insert"`        | Yes      | The view in which the field was added.                                                       |
+| `is_compass_web` | `true \| undefined`                    | No       |                                                                                              |
+| `connection_id`  | `string \| undefined`                  | No       | The id of the connection associated to this event.                                           |
+
+### Document Field Removed
+
+This event is fired when user removes a field from a document.
+
+| Property         | Type                            | Required | Description                                        |
+| ---------------- | ------------------------------- | -------- | -------------------------------------------------- |
+| `type`           | `string`                        | Yes      | The BSON type of the removed field.                |
+| `mode`           | `"list" \| "table" \| "insert"` | Yes      | The view in which the field was removed.           |
+| `is_compass_web` | `true \| undefined`             | No       |                                                    |
+| `connection_id`  | `string \| undefined`           | No       | The id of the connection associated to this event. |
+
 ### Document Insert Cancelled
 
 This event is fired when user cancels the insert document dialog without
@@ -1400,6 +1426,16 @@ This event is fired when user inserts documents.
 | `multiple`       | `boolean \| undefined` | No       | Specifies if the user inserted multiple documents. |
 | `is_compass_web` | `true \| undefined`    | No       |                                                    |
 | `connection_id`  | `string \| undefined`  | No       | The id of the connection associated to this event. |
+
+### Document Update Cancelled
+
+This event is fired when user cancels editing of a document.
+
+| Property         | Type                          | Required | Description                                        |
+| ---------------- | ----------------------------- | -------- | -------------------------------------------------- |
+| `mode`           | `"json" \| "list" \| "table"` | Yes      | The view used to edit the document.                |
+| `is_compass_web` | `true \| undefined`           | No       |                                                    |
+| `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
 
 ### Document Updated
 
