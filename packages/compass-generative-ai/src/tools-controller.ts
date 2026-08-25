@@ -22,6 +22,7 @@ import { removeZodTransforms } from './remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
+import { getAtlasConfig } from '@mongodb-js/atlas-service/provider';
 import {
   debugConnection,
   debugConnectionDescription,
@@ -308,7 +309,8 @@ export class ToolsController {
 
           return await debugConnection(
             args.connectionString,
-            this.atlasAdminApi
+            this.atlasAdminApi,
+            getAtlasConfig(this.preferences).atlasUiBaseUrl
           );
         },
       };

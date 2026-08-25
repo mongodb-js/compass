@@ -154,15 +154,25 @@ function getLinks({
   projectId,
   clusterName,
   ipAccessStatus,
+  atlasUiBaseUrl,
 }: {
   projectId: string;
   clusterName: string;
   ipAccessStatus: IpAccessStatus;
+  atlasUiBaseUrl: string;
 }): Links {
   return {
-    clusterOverview: buildClusterOverviewUrl({ projectId, clusterName }),
+    clusterOverview: buildClusterOverviewUrl(
+      { projectId, clusterName },
+      atlasUiBaseUrl
+    ),
     ...(!isIPAccessAllowed(ipAccessStatus)
-      ? { networkAccessList: buildNetworkAccessListUrl({ projectId }) }
+      ? {
+          networkAccessList: buildNetworkAccessListUrl(
+            { projectId },
+            atlasUiBaseUrl
+          ),
+        }
       : undefined),
   };
 }
@@ -220,7 +230,8 @@ function getAdvice({
 
 export async function debugConnection(
   connectionString: string,
-  atlasAdminApi: AtlasAdminApiService
+  atlasAdminApi: AtlasAdminApiService,
+  atlasUiBaseUrl: string
 ): Promise<AtlasConnectionDebugResult> {
   const clusterInfo = await getClusterInfo(connectionString, atlasAdminApi);
   if (!clusterInfo) {
@@ -236,7 +247,12 @@ export async function debugConnection(
     projectId,
     atlasAdminApi,
   });
-  const links = getLinks({ projectId, clusterName, ipAccessStatus });
+  const links = getLinks({
+    projectId,
+    clusterName,
+    ipAccessStatus,
+    atlasUiBaseUrl,
+  });
   return {
     clusterName,
     clusterState,
