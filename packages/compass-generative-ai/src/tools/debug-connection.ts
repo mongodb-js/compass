@@ -135,12 +135,9 @@ async function getNetworkAccessInfo({
   ipAccessStatus: IpAccessStatus;
   networkAccessDetails: NetworkAccessDetails;
 }> {
-  const [ipAccessList, userIp] = await Promise.all([
+  const [ipAccessList, { ipAddress: userIp }] = await Promise.all([
     atlasAdminApi.getProjectIPAccessList(projectId),
-    atlasAdminApi
-      .getSystemStatus()
-      .then(({ ipAddress }) => ipAddress)
-      .catch(() => undefined),
+    atlasAdminApi.getSystemStatus(),
   ]);
   return {
     ipAccessStatus:
