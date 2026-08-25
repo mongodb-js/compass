@@ -25,7 +25,6 @@ export function assertSystemStatus(
   if (
     status.user !== undefined &&
     (typeof status.user !== 'object' ||
-      status.user === null ||
       typeof status.user.username !== 'string')
   ) {
     throw new Error(

@@ -521,7 +521,7 @@ describe('AtlasAdminApiService', function () {
       } catch (err) {
         expect(err).to.have.property(
           'message',
-          'Got unexpected backend response for Atlas Admin API system status request'
+          'Got unexpected backend response for Atlas Admin API system status request, missing or malformed ipAddress'
         );
       }
     });
@@ -537,7 +537,7 @@ describe('AtlasAdminApiService', function () {
       } catch (err) {
         expect(err).to.have.property(
           'message',
-          'Got unexpected backend response for Atlas Admin API system status request'
+          'Got unexpected backend response for Atlas Admin API system status request, missing or malformed username'
         );
       }
     });
