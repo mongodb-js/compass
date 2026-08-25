@@ -98,10 +98,13 @@ export const AtlasToolCallMessage: React.FunctionComponent<
 
   const isSignInStateResolved =
     atlasSignInStatus.state !== 'initial' &&
-    atlasSignInStatus.state !== 'restoring';
+    atlasSignInStatus.state !== 'restoring' &&
+    atlasSignInStatus.state !== 'in-progress';
 
   // The card re-renders on every state change, so we only report the prompt the
-  // first time it's actually offered to a signed out user.
+  // first time it's actually offered to a signed out user. We also wait for the
+  // sign in state to be restored, otherwise an already signed in user looks
+  // signed out on the first render.
   const trackedPromptForApprovalId = useRef<string | null>(null);
   const isSignInPromptShown =
     isAwaitingApproval &&
