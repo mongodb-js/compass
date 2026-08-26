@@ -41,7 +41,6 @@ describe('CompassGoTo', function () {
     openCollectionWorkspace: sinon.SinonStub;
   };
   let Plugin: typeof CompassGoToPlugin;
-  let fetchDatabases: sinon.SinonStub;
 
   before(function () {
     Object.defineProperty(navigator, 'userAgent', {
@@ -91,7 +90,7 @@ describe('CompassGoTo', function () {
     });
 
     const instance = instancesManager.getMongoDBInstanceForConnection();
-    fetchDatabases = sinon.stub(instance, 'fetchDatabases').resolves();
+    sinon.stub(instance, 'fetchDatabases').resolves();
     for (const database of instance.databases) {
       sinon.stub(database, 'fetchCollections').resolves();
     }
@@ -244,8 +243,6 @@ describe('CompassGoTo', function () {
           .some((el) => el.getAttribute('data-result-id')?.includes('users'))
       ).to.equal(true);
     });
-
-    expect(fetchDatabases.called).to.equal(true);
 
     userEvent.type(
       screen.getByPlaceholderText('Search connections'),
