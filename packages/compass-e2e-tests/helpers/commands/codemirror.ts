@@ -45,25 +45,29 @@ export async function setCodemirrorEditorValue(
   selector: string,
   text: string
 ) {
-  await browser.execute(
-    function (selector, text) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Accessing private Codemirror state
-      const node: any =
-        // eslint-disable-next-line no-restricted-globals
-        document.querySelector(`${selector} [data-codemirror]`) ??
-        // eslint-disable-next-line no-restricted-globals
-        document.querySelector(`${selector}[data-codemirror]`);
-      const editor = node._cm;
+  await browser.waitUntil(async () => {
+    await browser.execute(
+      function (selector, text) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Accessing private Codemirror state
+        const node: any =
+          // eslint-disable-next-line no-restricted-globals
+          document.querySelector(`${selector} [data-codemirror]`) ??
+          // eslint-disable-next-line no-restricted-globals
+          document.querySelector(`${selector}[data-codemirror]`);
+        const editor = node._cm;
 
-      editor.dispatch({
-        changes: {
-          from: 0,
-          to: editor.state.doc.length,
-          insert: text,
-        },
-      });
-    },
-    selector,
-    text
-  );
+        editor.dispatch({
+          changes: {
+            from: 0,
+            to: editor.state.doc.length,
+            insert: text,
+          },
+        });
+      },
+      selector,
+      text
+    );
+
+    return (await browser.getCodemirrorEditorText(selector)) === text;
+  });
 }
