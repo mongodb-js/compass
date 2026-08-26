@@ -16,6 +16,7 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
       logger: createNoopLogger(),
       preferencesStorage: new InMemoryStorage(preferencesOverrides),
       globalPreferences,
+      runningEnvironment: 'atlas',
     });
   }
 

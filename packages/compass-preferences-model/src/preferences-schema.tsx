@@ -216,8 +216,8 @@ export type OmitFromHelp =
   | ((preferences: Partial<AllPreferences>) => boolean);
 
 export type PreferenceDefinition<K extends keyof AllPreferences> = {
-  /** Whether the preference can be modified through the Settings UI */
-  ui: K extends keyof UserConfigurablePreferences ? true : false;
+  /** In which GUI environments this preference can be set. */
+  ui: ['desktop', 'web', 'atlas'][] | '*';
   /** Whether the preference can be set on the command line */
   cli: K extends keyof Omit<InternalUserPreferences, 'showedNetworkOptIn'>
     ? false
@@ -291,7 +291,7 @@ const allFeatureFlagsProps: Required<{
 }> = {
   /** Meta-feature-flag! Whether to show the dev flags of the feature flag settings modal */
   showDevFeatureFlags: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     omitFromHelp: true,
@@ -311,7 +311,7 @@ const allFeatureFlagsProps: Required<{
    * officially support the CSFLE schemaMap property.
    */
   enableDebugUseCsfleSchemaMap: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -337,7 +337,7 @@ export const storedUserPreferencesProps: Required<{
    * String identifier for this set of preferences. Default is `General`.
    */
   id: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -348,7 +348,7 @@ export const storedUserPreferencesProps: Required<{
    * Stores the last version compass was run as, e.g. `1.0.5`.
    */
   lastKnownVersion: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -359,7 +359,7 @@ export const storedUserPreferencesProps: Required<{
    * Stores the highest Compass version that has been running on this installation.
    */
   highestInstalledVersion: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -371,7 +371,7 @@ export const storedUserPreferencesProps: Required<{
    * the user already.
    */
   showedNetworkOptIn: {
-    ui: false,
+    ui: [],
     cli: true,
     global: false,
     description: null,
@@ -383,7 +383,7 @@ export const storedUserPreferencesProps: Required<{
    * Stores the theme preference for the user.
    */
   theme: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -407,7 +407,7 @@ export const storedUserPreferencesProps: Required<{
    * The telemetryAnonymousId should be used instead.
    */
   currentUserId: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -418,7 +418,7 @@ export const storedUserPreferencesProps: Required<{
    * Stores a unique telemetry anonymous ID (uuid) for the current user.
    */
   telemetryAnonymousId: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -429,7 +429,7 @@ export const storedUserPreferencesProps: Required<{
    * Stores a unique telemetry atlas ID for the current user.
    */
   telemetryAtlasUserId: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -440,7 +440,7 @@ export const storedUserPreferencesProps: Required<{
    * Stores the device ID used for telemetry.
    */
   telemetryDeviceId: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -451,7 +451,7 @@ export const storedUserPreferencesProps: Required<{
    * Stores the timestamp for when the user was created
    */
   userCreatedAt: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -463,7 +463,7 @@ export const storedUserPreferencesProps: Required<{
    * TODO: Remove this as part of COMPASS-8970.
    */
   enableConnectInNewWindow: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -474,7 +474,7 @@ export const storedUserPreferencesProps: Required<{
    * Show a modal when the user tries to connect to a server which has an end-of-life version.
    */
   showEndOfLifeConnectionModal: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -487,7 +487,7 @@ export const storedUserPreferencesProps: Required<{
    * for non-admin users. This does not include Search Index management.
    */
   enableIndexesManagement: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -498,7 +498,7 @@ export const storedUserPreferencesProps: Required<{
    * Zoom level for restoring browser zoom state.
    */
   zoomLevel: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -509,7 +509,7 @@ export const storedUserPreferencesProps: Required<{
    * Window bounds for restoring window size and position.
    */
   windowBounds: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -529,7 +529,7 @@ export const storedUserPreferencesProps: Required<{
    * Whether or not guide cues are enabled in the application
    */
   enableGuideCues: {
-    ui: false,
+    ui: [],
     cli: false,
     global: false,
     description: null,
@@ -543,7 +543,7 @@ export const storedUserPreferencesProps: Required<{
    * (which includes maps, telemetry, auto-updates).
    */
   networkTraffic: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -556,7 +556,7 @@ export const storedUserPreferencesProps: Required<{
    * Removes features that write to the database from the UI.
    */
   readOnly: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -572,7 +572,7 @@ export const storedUserPreferencesProps: Required<{
    * role
    */
   readWrite: {
-    ui: true,
+    ui: ['desktop'],
     cli: false,
     global: false,
     description: {
@@ -587,7 +587,7 @@ export const storedUserPreferencesProps: Required<{
    * Switch to enable/disable the embedded shell.
    */
   enableShell: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -602,7 +602,7 @@ export const storedUserPreferencesProps: Required<{
    * Switch to enable/disable dbStats and collStats calls.
    */
   enableDbAndCollStats: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -616,7 +616,7 @@ export const storedUserPreferencesProps: Required<{
    * Switch to enable/disable maps rendering.
    */
   enableMaps: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -628,7 +628,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   enableGenAIFeatures: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -643,7 +643,7 @@ export const storedUserPreferencesProps: Required<{
    * Switch to enable/disable Intercom panel (renamed from `intercom`).
    */
   enableFeedbackPanel: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -659,7 +659,7 @@ export const storedUserPreferencesProps: Required<{
    * (renamed from `googleAnalytics`).
    */
   trackUsageStatistics: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -674,7 +674,7 @@ export const storedUserPreferencesProps: Required<{
    * Switch to enable/disable automatic updates.
    */
   autoUpdates: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -689,7 +689,7 @@ export const storedUserPreferencesProps: Required<{
    * Switch to hide credentials in connection strings from users.
    */
   protectConnectionStrings: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -703,7 +703,7 @@ export const storedUserPreferencesProps: Required<{
    * Set the default sort.
    */
   defaultSortOrder: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -737,7 +737,7 @@ export const storedUserPreferencesProps: Required<{
    * Switch to enable DevTools in Electron.
    */
   enableDevTools: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -752,7 +752,7 @@ export const storedUserPreferencesProps: Required<{
    * Switch to show the Kerberos password field in the connection form.
    */
   showKerberosPasswordField: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -766,7 +766,7 @@ export const storedUserPreferencesProps: Required<{
    * Switch to show the OIDC device auth flow option in the connection form.
    */
   showOIDCDeviceAuthFlow: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -780,7 +780,7 @@ export const storedUserPreferencesProps: Required<{
    * Input to change the browser command used for OIDC authentication.
    */
   browserCommandForOIDCAuth: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -794,7 +794,7 @@ export const storedUserPreferencesProps: Required<{
    * Input to change the browser command used for OIDC authentication.
    */
   persistOIDCTokens: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -808,7 +808,7 @@ export const storedUserPreferencesProps: Required<{
    * Override certain connection string properties.
    */
   forceConnectionOptions: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -823,7 +823,7 @@ export const storedUserPreferencesProps: Required<{
    * Set an upper limit for maxTimeMS for operations started by Compass.
    */
   maxTimeMS: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -836,7 +836,7 @@ export const storedUserPreferencesProps: Required<{
    * Do not handle mongodb:// and mongodb+srv:// URLs via Compass
    */
   installURLHandlers: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -851,7 +851,7 @@ export const storedUserPreferencesProps: Required<{
    * should be in the off state or in the on state by default
    */
   protectConnectionStringsForNewConnections: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -871,7 +871,7 @@ export const storedUserPreferencesProps: Required<{
    *  - atlas:            mms backend (cloud.mongodb.com)
    */
   atlasServiceBackendPreset: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -883,7 +883,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'string',
   },
   optInGenAIFeatures: {
-    ui: true,
+    ui: '*',
     cli: false,
     global: false,
     description: {
@@ -893,7 +893,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   enableAtlasSearchIndexes: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -904,7 +904,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   enableImportExport: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -915,7 +915,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   enableAggregationBuilderRunPipeline: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -926,7 +926,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   enableExplainPlan: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -937,7 +937,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   enableAggregationBuilderExtraOptions: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -949,7 +949,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   enableGenAISampleDocumentPassing: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -962,7 +962,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   enableGenAIToolCalling: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -974,7 +974,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   enablePerformanceAdvisorBanner: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -985,7 +985,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   maximumNumberOfActiveConnections: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -996,7 +996,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   enableShowDialogOnQuit: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -1008,7 +1008,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   proxy: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -1054,7 +1054,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   enableCreatingNewConnections: {
-    ui: true,
+    ui: ['desktop'],
     cli: true,
     global: true,
     description: {
@@ -1065,7 +1065,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   enableGenAIFeaturesAtlasProject: {
-    ui: false,
+    ui: [],
     cli: true,
     global: true,
     description: {
@@ -1075,7 +1075,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   enableGenAIFeaturesAtlasOrg: {
-    ui: false,
+    ui: [],
     cli: true,
     global: true,
     description: {
@@ -1085,7 +1085,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   enableAtlasSignIn: {
-    ui: false,
+    ui: [],
     cli: false,
     global: true,
     description: {
@@ -1098,7 +1098,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   enableGenAIToolCallingAtlasProject: {
-    ui: false,
+    ui: [],
     cli: true,
     global: true,
     description: {
@@ -1108,7 +1108,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   enableMyQueries: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -1120,7 +1120,7 @@ export const storedUserPreferencesProps: Required<{
   },
 
   inferNamespacesFromPrivileges: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -1131,7 +1131,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
   maxTimeMSEnvLimit: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -1142,7 +1142,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'number',
   },
   timezone: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -1162,7 +1162,7 @@ export const storedUserPreferencesProps: Required<{
   // binary subtype 3, so we provide an option to control how those
   // values are displayed in Compass.
   legacyUUIDDisplayEncoding: {
-    ui: true,
+    ui: '*',
     cli: true,
     global: true,
     description: {
@@ -1201,7 +1201,7 @@ const cliOnlyPreferencesProps: Required<{
   [K in keyof CliOnlyPreferences]: PreferenceDefinition<K>;
 }> = {
   exportConnections: {
-    ui: false,
+    ui: [],
     cli: true,
     global: false,
     description: {
@@ -1212,7 +1212,7 @@ const cliOnlyPreferencesProps: Required<{
     type: 'string',
   },
   importConnections: {
-    ui: false,
+    ui: [],
     cli: true,
     global: false,
     description: {
@@ -1223,7 +1223,7 @@ const cliOnlyPreferencesProps: Required<{
     type: 'string',
   },
   passphrase: {
-    ui: false,
+    ui: [],
     cli: true,
     global: false,
     description: {
@@ -1234,7 +1234,7 @@ const cliOnlyPreferencesProps: Required<{
     type: 'string',
   },
   help: {
-    ui: false,
+    ui: [],
     cli: true,
     global: false,
     description: {
@@ -1244,7 +1244,7 @@ const cliOnlyPreferencesProps: Required<{
     type: 'boolean',
   },
   version: {
-    ui: false,
+    ui: [],
     cli: true,
     global: false,
     description: {
@@ -1254,7 +1254,7 @@ const cliOnlyPreferencesProps: Required<{
     type: 'boolean',
   },
   versions: {
-    ui: false,
+    ui: [],
     cli: true,
     global: false,
     description: {
@@ -1264,7 +1264,7 @@ const cliOnlyPreferencesProps: Required<{
     type: 'boolean',
   },
   showExampleConfig: {
-    ui: false,
+    ui: [],
     cli: true,
     global: false,
     description: {
@@ -1279,7 +1279,7 @@ const cliOnlyPreferencesProps: Required<{
    * even if the provided connection string contains disallowed connection options.
    */
   trustedConnectionString: {
-    ui: false,
+    ui: [],
     cli: true,
     global: false,
     description: {
@@ -1295,7 +1295,7 @@ const nonUserPreferences: Required<{
   [K in keyof NonUserPreferences]: PreferenceDefinition<K>;
 }> = {
   ignoreAdditionalCommandLineFlags: {
-    ui: false,
+    ui: [],
     cli: true,
     global: true,
     description: {
@@ -1306,7 +1306,7 @@ const nonUserPreferences: Required<{
     type: 'boolean',
   },
   positionalArguments: {
-    ui: false,
+    ui: [],
     cli: true,
     global: false,
     description: {
@@ -1318,7 +1318,7 @@ const nonUserPreferences: Required<{
     type: 'array',
   },
   file: {
-    ui: false,
+    ui: [],
     cli: true,
     global: true,
     description: {
@@ -1328,7 +1328,7 @@ const nonUserPreferences: Required<{
     type: 'string',
   },
   username: {
-    ui: false,
+    ui: [],
     cli: true,
     global: true,
     description: {
@@ -1338,7 +1338,7 @@ const nonUserPreferences: Required<{
     type: 'string',
   },
   password: {
-    ui: false,
+    ui: [],
     cli: true,
     global: true,
     description: {

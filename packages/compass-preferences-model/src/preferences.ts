@@ -60,13 +60,16 @@ export class Preferences {
     logger,
     globalPreferences,
     preferencesStorage = new InMemoryStorage(),
+    runningEnvironment = 'desktop',
   }: {
     logger: Logger;
     preferencesStorage: PreferencesStorage;
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>;
+    runningEnvironment: CompassRunningEnvironment;
   }) {
     this._logger = logger;
     this._preferencesStorage = preferencesStorage;
+    this._runningEnvironment = runningEnvironment;
 
     this._onPreferencesChangedCallbacks = [];
     this._globalPreferences = {
@@ -265,7 +268,10 @@ export class Preferences {
     return Object.fromEntries(
       Object.entries(preferences).filter(
         ([key]) =>
-          allPreferencesProps[key as keyof typeof preferences].ui === true
+          allPreferencesProps[key as keyof typeof preferences].ui === '*' ||
+          allPreferencesProps[key as keyof typeof preferences].ui.indexOf(
+            this._runningEnvironment
+          ) !== -1
       )
     ) as UserConfigurablePreferences;
   }
