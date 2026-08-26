@@ -212,9 +212,14 @@ export function useConnectionsListRef(): {
 function useConnections() {
   const actions = useConnectionActions();
   const connectionsListRef = useConnectionsListRef();
+  // Do not spread `connectionsListRef`: its `current` getter would be evaluated
+  // once and frozen by useInitialValue, leaving plugins with a stale snapshot.
   return useInitialValue({
     ...actions,
-    ...connectionsListRef,
+    getConnectionById: connectionsListRef.getConnectionById,
+    get current() {
+      return connectionsListRef.current;
+    },
     getDataServiceForConnection,
     on: connectionsEventEmitter.on,
     off: connectionsEventEmitter.off,

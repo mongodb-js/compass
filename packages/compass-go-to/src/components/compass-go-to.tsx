@@ -1,5 +1,14 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
+import { connect } from 'react-redux';
 import {
+  Icon,
+  ServerIcon,
   TextInput,
   css,
   cx,
@@ -10,6 +19,10 @@ import {
 } from '@mongodb-js/compass-components';
 import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
 import { usePreference } from 'compass-preferences-model/provider';
+import type { GoToCandidate } from '../go-to-candidates';
+import { rankGoToResults } from '../go-to-search';
+import type { GoToRootState } from '../stores/store';
+import { activateResult, loadInventory } from '../stores/store';
 
 const backdropStyles = css({
   position: 'fixed',
@@ -50,27 +63,202 @@ const searchStyles = css({
 });
 
 const resultsStyles = css({
-  minHeight: spacing[800],
+  maxHeight: 320,
+  overflowY: 'auto',
   borderTop: `1px solid ${palette.gray.light2}`,
+  padding: `${spacing[100]}px 0`,
 });
 
 const resultsDarkStyles = css({
   borderTopColor: palette.gray.dark1,
 });
 
+const resultsEmptyStyles = css({
+  minHeight: spacing[800],
+});
+
+const resultRowStyles = css({
+  display: 'flex',
+  alignItems: 'center',
+  gap: spacing[200],
+  width: '100%',
+  margin: 0,
+  padding: `${spacing[200]}px ${spacing[300]}px`,
+  border: 'none',
+  background: 'none',
+  textAlign: 'left',
+  cursor: 'pointer',
+  color: 'inherit',
+  font: 'inherit',
+});
+
+const resultRowActiveLightStyles = css({
+  backgroundColor: palette.blue.light3,
+});
+
+const resultRowActiveDarkStyles = css({
+  backgroundColor: palette.blue.dark3,
+});
+
+const resultIconStyles = css({
+  flex: 'none',
+  display: 'flex',
+  alignItems: 'center',
+  color: palette.gray.dark1,
+});
+
+const resultIconDarkStyles = css({
+  color: palette.gray.light1,
+});
+
+const resultTextStyles = css({
+  minWidth: 0,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacing[100],
+});
+
+const resultPrimaryStyles = css({
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+});
+
+const resultSecondaryStyles = css({
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  fontSize: '12px',
+  color: palette.gray.dark1,
+});
+
+const resultSecondaryDarkStyles = css({
+  color: palette.gray.light1,
+});
+
+function ResultIcon({
+  candidate,
+  darkMode,
+}: {
+  candidate: GoToCandidate;
+  darkMode?: boolean;
+}) {
+  const className = cx(resultIconStyles, darkMode && resultIconDarkStyles);
+
+  if (candidate.kind === 'connection') {
+    return (
+      <span className={className}>
+        <ServerIcon />
+      </span>
+    );
+  }
+
+  if (candidate.kind === 'database') {
+    return (
+      <span className={className}>
+        <Icon glyph="Database" />
+      </span>
+    );
+  }
+
+  const glyph =
+    candidate.collectionType === 'view'
+      ? 'Visibility'
+      : candidate.collectionType === 'timeseries'
+      ? 'TimeSeries'
+      : 'Folder';
+
+  return (
+    <span className={className}>
+      <Icon glyph={glyph} />
+    </span>
+  );
+}
+
 type GoToPaletteProps = {
+  candidates: GoToCandidate[];
   onClose: () => void;
+  onLoadInventory: () => void;
+  onActivateResult: (candidate: GoToCandidate) => boolean;
 };
 
-function GoToPalette({ onClose }: GoToPaletteProps) {
+function GoToPalette({
+  candidates,
+  onClose,
+  onLoadInventory,
+  onActivateResult,
+}: GoToPaletteProps) {
   const darkMode = useDarkMode();
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [query, setQuery] = useState('');
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+
+  const results = useMemo(
+    () => rankGoToResults(candidates, query),
+    [candidates, query]
+  );
+
+  const activeIndex =
+    results.length === 0 ? 0 : Math.min(highlightedIndex, results.length - 1);
 
   useHotkeys('esc', onClose, { enableOnFormTags: ['INPUT'] });
 
   useEffect(() => {
     inputRef.current?.focus();
-  }, []);
+    onLoadInventory();
+  }, [onLoadInventory]);
+
+  const activateHighlighted = useCallback(() => {
+    const candidate = results[activeIndex];
+    if (!candidate) {
+      return;
+    }
+    if (onActivateResult(candidate)) {
+      onClose();
+    }
+  }, [activeIndex, onActivateResult, onClose, results]);
+
+  useHotkeys(
+    'arrowdown',
+    (event) => {
+      event.preventDefault();
+      if (results.length === 0) {
+        return;
+      }
+      setHighlightedIndex((index) => {
+        const current = Math.min(index, results.length - 1);
+        return (current + 1) % results.length;
+      });
+    },
+    { enableOnFormTags: ['INPUT'] },
+    [results.length]
+  );
+
+  useHotkeys(
+    'arrowup',
+    (event) => {
+      event.preventDefault();
+      if (results.length === 0) {
+        return;
+      }
+      setHighlightedIndex((index) => {
+        const current = Math.min(index, results.length - 1);
+        return (current - 1 + results.length) % results.length;
+      });
+    },
+    { enableOnFormTags: ['INPUT'] },
+    [results.length]
+  );
+
+  useHotkeys(
+    'enter',
+    (event) => {
+      event.preventDefault();
+      activateHighlighted();
+    },
+    { enableOnFormTags: ['INPUT'] },
+    [activateHighlighted]
+  );
 
   return (
     <>
@@ -95,12 +283,69 @@ function GoToPalette({ onClose }: GoToPaletteProps) {
             ref={inputRef}
             aria-label="Search connections"
             placeholder="Search connections"
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setHighlightedIndex(0);
+            }}
           />
         </div>
         <div
           data-testid="go-to-results"
-          className={cx(resultsStyles, darkMode && resultsDarkStyles)}
-        />
+          role="listbox"
+          aria-label="Go to results"
+          className={cx(
+            resultsStyles,
+            results.length === 0 && resultsEmptyStyles,
+            darkMode && resultsDarkStyles
+          )}
+        >
+          {results.map((candidate, index) => {
+            const isActive = index === activeIndex;
+            return (
+              <button
+                key={candidate.id}
+                type="button"
+                role="option"
+                aria-selected={isActive}
+                data-testid="go-to-result"
+                data-result-id={candidate.id}
+                className={cx(
+                  resultRowStyles,
+                  isActive &&
+                    (darkMode
+                      ? resultRowActiveDarkStyles
+                      : resultRowActiveLightStyles)
+                )}
+                onMouseEnter={() => {
+                  setHighlightedIndex(index);
+                }}
+                onClick={() => {
+                  if (onActivateResult(candidate)) {
+                    onClose();
+                  }
+                }}
+              >
+                <ResultIcon candidate={candidate} darkMode={darkMode} />
+                <span className={resultTextStyles}>
+                  <span className={resultPrimaryStyles}>
+                    {candidate.primary}
+                  </span>
+                  {candidate.secondary ? (
+                    <span
+                      className={cx(
+                        resultSecondaryStyles,
+                        darkMode && resultSecondaryDarkStyles
+                      )}
+                    >
+                      {candidate.secondary}
+                    </span>
+                  ) : null}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </>
   );
@@ -108,7 +353,17 @@ function GoToPalette({ onClose }: GoToPaletteProps) {
 
 type ToggleSource = 'hotkey' | 'menu';
 
-export function CompassGoTo() {
+type CompassGoToProps = {
+  candidates: GoToCandidate[];
+  onLoadInventory: () => void;
+  onActivateResult: (candidate: GoToCandidate) => boolean;
+};
+
+function CompassGoTo({
+  candidates,
+  onLoadInventory,
+  onActivateResult,
+}: CompassGoToProps) {
   const enableGoTo = usePreference('enableGoTo');
   const [isOpen, setIsOpen] = useState(false);
   // Menu accelerator and renderer hotkeys can both fire for one keypress.
@@ -168,5 +423,23 @@ export function CompassGoTo() {
     return null;
   }
 
-  return <GoToPalette onClose={close} />;
+  return (
+    <GoToPalette
+      candidates={candidates}
+      onClose={close}
+      onLoadInventory={onLoadInventory}
+      onActivateResult={onActivateResult}
+    />
+  );
 }
+
+const mapState = (state: GoToRootState) => ({
+  candidates: state.candidates,
+});
+
+const mapDispatch = {
+  onLoadInventory: loadInventory,
+  onActivateResult: activateResult,
+};
+
+export default connect(mapState, mapDispatch)(CompassGoTo);
