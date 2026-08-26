@@ -49,7 +49,7 @@ const expandableContentStyles = css({
 });
 
 function getApprovalMessage(
-  toolNameElement: ToolUIPart,
+  toolNameElement: React.ReactNode,
   isUserSignedIn: boolean,
   isSignInInProgress: boolean
 ): React.ReactNode | undefined {
@@ -60,7 +60,6 @@ function getApprovalMessage(
     return <>Connecting with Atlas to run {toolNameElement}...</>;
   }
   return <>Connect with Atlas and run {toolNameElement}?</>;
-
 }
 
 const readonlyNoteStyles = css({
@@ -159,7 +158,11 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     toolDisplayName
   );
 
-  const approvalMessage = getApprovalMessage(toolCall, isUserSignedIn, isSignInInProgress);
+  const approvalMessage = getApprovalMessage(
+    toolNameElement,
+    isUserSignedIn,
+    isSignInInProgress
+  );
 
   const actionCardDescription = useMemo(
     () =>
