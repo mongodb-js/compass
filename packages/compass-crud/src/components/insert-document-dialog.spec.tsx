@@ -8,9 +8,25 @@ import {
 } from '@mongodb-js/testing-library-compass';
 import InsertDocumentDialog from './insert-document-dialog';
 import HadronDocument from 'hadron-document';
-import { setCodemirrorEditorValue } from '@mongodb-js/compass-editor';
+import {
+  getCodemirrorEditorValue,
+  setCodemirrorEditorValue,
+} from '@mongodb-js/compass-editor';
+import sinon from 'sinon';
 
 const noop = () => {};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Accessing the Codemirror view the editor attaches to its container
+const editorViewOf = (element: HTMLElement): any => (element as any)._cm;
+
+function setCursor(element: HTMLElement, position: number) {
+  editorViewOf(element).dispatch({ selection: { anchor: position } });
+}
+
+function getCursor(element: HTMLElement): number {
+  return editorViewOf(element).state.selection.main.head;
+}
+
 const defaultProps = {
   closeInsertDocumentDialog: noop,
   insertDocument: noop,
@@ -449,5 +465,77 @@ describe('InsertDocumentDialog', function () {
       />
     );
     expect(await screen.findByTestId('insert-document-banner')).to.exist;
+  });
+
+  it('keeps the edited text when the store catches up with an older value', async function () {
+    const doc = new HadronDocument({});
+    doc.editing = true;
+    const updateInsertDocTextSpy = sinon.spy();
+
+    const { rerender } = render(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        editorText="{}"
+        updateInsertDocText={updateInsertDocTextSpy}
+        insertView="json"
+      />
+    );
+
+    const editor = screen.getByTestId('insert-document-editor');
+    await setCodemirrorEditorValue(editor, '{ "a": 12 }');
+    setCursor(editor, 9);
+
+    rerender(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        editorText='{ "a": 1 }'
+        updateInsertDocText={updateInsertDocTextSpy}
+        insertView="json"
+      />
+    );
+
+    // Wait for next tick
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(getCodemirrorEditorValue(editor)).to.equal('{ "a": 12 }');
+    expect(getCursor(editor)).to.equal(9);
+
+    expect(updateInsertDocTextSpy.callCount).to.equal(1);
+    expect(updateInsertDocTextSpy.firstCall.args[0]).to.equal('{ "a": 12 }');
+  });
+
+  it('takes the store text when switching views', async function () {
+    const doc = new HadronDocument({});
+    doc.editing = true;
+    const { rerender } = render(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        editorText="{}"
+        updateInsertDocText={noop}
+        insertView="json"
+      />
+    );
+
+    const editor = screen.getByTestId('insert-document-editor');
+    await setCodemirrorEditorValue(editor, '{ "$oid": "1" }');
+
+    rerender(
+      <InsertDocumentDialog
+        {...defaultProps}
+        doc={doc}
+        editorText="{ _id: ObjectId('1') }"
+        updateInsertDocText={noop}
+        insertView="shell"
+      />
+    );
+
+    await waitFor(() => {
+      expect(getCodemirrorEditorValue(editor)).to.equal(
+        "{ _id: ObjectId('1') }"
+      );
+    });
   });
 });
