@@ -18,7 +18,7 @@ import {
 import BSONValue from './bson-value';
 import { expect } from 'chai';
 import { render, cleanup, screen } from '@mongodb-js/testing-library-compass';
-import { LegacyUUIDDisplayContext } from './document-list/legacy-uuid-format-context';
+import { BSONDisplayOptionsProvider } from './document-list/bson-display-options-context';
 
 describe('BSONValue', function () {
   const valuesToRender = [
@@ -142,7 +142,7 @@ describe('BSONValue', function () {
     {
       type: 'Decimal128',
       value: new Decimal128('10.0'),
-      expected: '10.0',
+      expected: "Decimal128('10.0')",
     },
     {
       type: 'Date',
@@ -219,9 +219,9 @@ describe('BSONValue', function () {
 
     it('should render Legacy UUID without encoding (raw format)', function () {
       const { container } = render(
-        <LegacyUUIDDisplayContext.Provider value="">
+        <BSONDisplayOptionsProvider legacyUUIDDisplayEncoding="">
           <BSONValue type="Binary" value={legacyUuidBinary} />
-        </LegacyUUIDDisplayContext.Provider>
+        </BSONDisplayOptionsProvider>
       );
 
       expect(container.querySelector('.element-value')?.textContent).to.include(
@@ -231,9 +231,9 @@ describe('BSONValue', function () {
 
     it('should render Legacy UUID in Java format', function () {
       const { container } = render(
-        <LegacyUUIDDisplayContext.Provider value="LegacyJavaUUID">
+        <BSONDisplayOptionsProvider legacyUUIDDisplayEncoding="LegacyJavaUUID">
           <BSONValue type="Binary" value={legacyUuidBinary} />
-        </LegacyUUIDDisplayContext.Provider>
+        </BSONDisplayOptionsProvider>
       );
 
       expect(container.querySelector('.element-value')?.textContent).to.eq(
@@ -243,9 +243,9 @@ describe('BSONValue', function () {
 
     it('should render Legacy UUID in C# format', function () {
       const { container } = render(
-        <LegacyUUIDDisplayContext.Provider value="LegacyCSharpUUID">
+        <BSONDisplayOptionsProvider legacyUUIDDisplayEncoding="LegacyCSharpUUID">
           <BSONValue type="Binary" value={legacyUuidBinary} />
-        </LegacyUUIDDisplayContext.Provider>
+        </BSONDisplayOptionsProvider>
       );
 
       expect(container.querySelector('.element-value')?.textContent).to.eq(
@@ -255,9 +255,9 @@ describe('BSONValue', function () {
 
     it('should render Legacy UUID in Python format', function () {
       const { container } = render(
-        <LegacyUUIDDisplayContext.Provider value="LegacyPythonUUID">
+        <BSONDisplayOptionsProvider legacyUUIDDisplayEncoding="LegacyPythonUUID">
           <BSONValue type="Binary" value={legacyUuidBinary} />
-        </LegacyUUIDDisplayContext.Provider>
+        </BSONDisplayOptionsProvider>
       );
 
       expect(container.querySelector('.element-value')?.textContent).to.eq(
@@ -273,9 +273,9 @@ describe('BSONValue', function () {
       );
 
       const { container } = render(
-        <LegacyUUIDDisplayContext.Provider value="LegacyJavaUUID">
+        <BSONDisplayOptionsProvider legacyUUIDDisplayEncoding="LegacyJavaUUID">
           <BSONValue type="Binary" value={invalidUuidBinary} />
-        </LegacyUUIDDisplayContext.Provider>
+        </BSONDisplayOptionsProvider>
       );
 
       expect(container.querySelector('.element-value')?.textContent).to.include(
@@ -297,9 +297,9 @@ describe('BSONValue', function () {
 
       formats.forEach((format) => {
         const { container } = render(
-          <LegacyUUIDDisplayContext.Provider value={format}>
+          <BSONDisplayOptionsProvider legacyUUIDDisplayEncoding={format}>
             <BSONValue type="Binary" value={invalidUuidBinary} />
-          </LegacyUUIDDisplayContext.Provider>
+          </BSONDisplayOptionsProvider>
         );
 
         expect(

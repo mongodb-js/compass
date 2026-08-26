@@ -6,15 +6,13 @@ import {
   usePreference,
 } from 'compass-preferences-model/provider';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
-import {
-  atlasServiceLocator,
-  atlasAuthServiceLocator,
-} from '@mongodb-js/atlas-service/provider';
+import { atlasServiceLocator } from '@mongodb-js/atlas-service/provider';
 import {
   createServiceLocator,
   createServiceProvider,
 } from '@mongodb-js/compass-app-registry';
 import { atlasAdminApiServiceLocator } from '@mongodb-js/atlas-admin-api/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 
 const AtlasAiServiceContext = createContext<AtlasAiService | null>(null);
 
@@ -65,7 +63,7 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
     const logger = useLogger('TOOLS-CONTROLLER');
     const preferences = preferencesLocator();
     const atlasAdminApi = atlasAdminApiServiceLocator();
-    const authService = atlasAuthServiceLocator();
+    const track = telemetryLocator();
 
     const telemetryAnonymousId = usePreference('telemetryAnonymousId');
 
@@ -73,13 +71,13 @@ export const ToolsControllerProvider: React.FC = createServiceProvider(
       return new ToolsController({
         logger,
         getTelemetryAnonymousId: () => telemetryAnonymousId ?? '',
+        track,
         // we will set this later through setContext()
-        enableTelemetry: false,
+        enableMCPTelemetry: false,
         preferences,
         atlasAdminApi,
-        authService,
       });
-    }, [logger, telemetryAnonymousId, preferences, atlasAdminApi, authService]);
+    }, [logger, telemetryAnonymousId, track, preferences, atlasAdminApi]);
 
     useEffect(() => {
       return () => {
@@ -139,3 +137,5 @@ export type {
 } from './atlas-ai-service';
 
 export { mockDataSchemaToolSchema } from './atlas-ai-service';
+
+export type { AtlasConnectionDebugResult } from './tools/debug-connection';

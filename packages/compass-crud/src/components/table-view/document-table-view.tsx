@@ -39,6 +39,7 @@ import type {
   ValueGetterParams,
   ColumnResizedEvent,
 } from 'ag-grid-community';
+import { withPreferences } from 'compass-preferences-model/provider';
 
 const MIXED = 'Mixed' as const;
 
@@ -68,9 +69,9 @@ export type DocumentTableViewProps = {
   start: number;
   store: CrudStore;
   table: TableState;
-  tz: string;
   className?: string;
   darkMode?: boolean;
+  timezone?: string;
   legacyUUIDDisplayEncoding?: string;
   columnWidths: Record<string, number>;
   onColumnWidthChange: (newColumnWidths: Record<string, number>) => void;
@@ -749,7 +750,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         elementTypeChanged: this.props.elementTypeChanged,
         drillDown: this.props.drillDown,
         parentType: '',
-        tz: this.props.tz,
+        timezone: this.props.timezone,
         darkMode: this.props.darkMode,
         legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
@@ -823,7 +824,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         elementTypeChanged: this.props.elementTypeChanged,
         drillDown: this.props.drillDown,
         parentType: parentType,
-        tz: this.props.tz,
+        timezone: this.props.timezone,
         darkMode: this.props.darkMode,
         legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
@@ -866,7 +867,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         elementTypeChanged: this.props.elementTypeChanged,
         elementMarkRemoved: this.props.elementMarkRemoved,
         drillDown: this.props.drillDown,
-        tz: this.props.tz,
+        timezone: this.props.timezone,
         darkMode: this.props.darkMode,
         legacyUUIDDisplayEncoding: this.props.legacyUUIDDisplayEncoding,
       },
@@ -984,7 +985,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
         nested: path.length !== 0,
         isEditable: this.props.isEditable,
         copyToClipboard: this.props.copyToClipboard,
-        tz: this.props.tz,
+        timezone: this.props.timezone,
       },
       editable: false,
       pinned: 'right',
@@ -1052,4 +1053,7 @@ export class DocumentTableView extends React.Component<DocumentTableViewProps> {
   static displayName = 'DocumentTableView';
 }
 
-export default withDarkMode(DocumentTableView);
+export default withPreferences(withDarkMode(DocumentTableView), [
+  'legacyUUIDDisplayEncoding',
+  'timezone',
+]);

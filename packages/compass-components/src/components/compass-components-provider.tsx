@@ -14,9 +14,9 @@ import {
 import { DrawerContentProvider } from './drawer-portal';
 import { CopyPasteContextMenu } from '../hooks/use-copy-paste-context-menu';
 import {
-  type LegacyUUIDDisplay,
-  LegacyUUIDDisplayContext,
-} from './document-list/legacy-uuid-format-context';
+  type BSONDisplayOptions,
+  BSONDisplayOptionsProvider,
+} from './document-list/bson-display-options-context';
 
 type GuideCueProviderProps = React.ComponentProps<typeof GuideCueProvider>;
 
@@ -26,7 +26,8 @@ type CompassComponentsProviderProps = {
    * value will be derived from the system settings
    */
   darkMode?: boolean;
-  legacyUUIDDisplayEncoding?: LegacyUUIDDisplay;
+  legacyUUIDDisplayEncoding?: BSONDisplayOptions['legacyUUIDDisplayEncoding'];
+  timezone?: BSONDisplayOptions['timezone'];
   popoverPortalContainer?: HTMLElement;
   /**
    * Either React children or a render callback that will get the darkMode
@@ -126,6 +127,7 @@ export const CompassComponentsProvider = ({
   darkMode: _darkMode,
   children,
   legacyUUIDDisplayEncoding,
+  timezone,
   onGuideCueShown,
   onNextGuideGue,
   onNextGuideCueGroup,
@@ -163,8 +165,9 @@ export const CompassComponentsProvider = ({
       darkMode={darkMode}
       popoverPortalContainer={popoverPortalContainer}
     >
-      <LegacyUUIDDisplayContext.Provider
-        value={legacyUUIDDisplayEncoding ?? ''}
+      <BSONDisplayOptionsProvider
+        legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
+        timezone={timezone}
       >
         <DrawerContentProvider
           onDrawerSectionOpen={onDrawerSectionOpen}
@@ -205,7 +208,7 @@ export const CompassComponentsProvider = ({
             </RequiredURLSearchParamsProvider>
           </StackedComponentProvider>
         </DrawerContentProvider>
-      </LegacyUUIDDisplayContext.Provider>
+      </BSONDisplayOptionsProvider>
     </LeafyGreenProvider>
   );
 };

@@ -19,7 +19,7 @@ export function InputEditor({
   onBlur,
   className,
   ...props
-}: Omit<EditorProps, 'label'>) {
+}: Omit<EditorProps, 'type'>) {
   const darkMode = useDarkMode();
 
   return (

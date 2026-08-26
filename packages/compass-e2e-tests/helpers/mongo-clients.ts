@@ -246,6 +246,20 @@ export async function createNumbersCollection(
   );
 }
 
+export async function createDatesCollection(
+  name = 'dates',
+  date = new Date()
+): Promise<void> {
+  await Promise.all(
+    test_dbs.map(async (db) => {
+      await db.collection(name).insertOne({
+        i: 0,
+        date,
+      });
+    })
+  );
+}
+
 // Useful for testing collation with `numericOrdering`.
 export async function createNumbersStringCollection(
   name = 'numbers-strings',

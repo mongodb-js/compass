@@ -1353,9 +1353,20 @@ FindIterable<Document> result = collection.find(filter);`);
     await browser.waitForOpenModal(Selectors.InsertDialog, { reverse: true });
 
     await browser.runFindOperation('Documents', '{ i: 10142 }');
-    expect(await getFormattedDocument(browser)).to.match(
-      /^_id: ObjectId\('[a-f0-9]{24}'\) i: 10142 long: 9223372036854775807 decimal: 123\.45 date: ISODate\('2023-01-01T00:00:00\.000\+00:00'\) regex: \/foo\.\*bar\/i ts: Timestamp\(\{ t: 1234, i: 5 \}\) uuid: UUID\('79a4a7c6-1c1f-4d5e-9f8a-1b2c3d4e5f60'\) min: MinKey\(\) nested: Object \(2\) arr: Array \(3\)$/
+    const doc = await getFormattedDocument(browser);
+    expect(doc).to.match(/^_id: ObjectId\('[a-f0-9]{24}'\)/);
+    expect(doc).to.include('i: 10142');
+    expect(doc).to.include("long: Long('9223372036854775807')");
+    expect(doc).to.include("decimal: Decimal128('123.45')");
+    expect(doc).to.include("date: ISODate('2023-01-01T00:00:00.000+00:00')");
+    expect(doc).to.include('regex: /foo.*bar/i');
+    expect(doc).to.include('ts: Timestamp({ t: 1234, i: 5 })');
+    expect(doc).to.include(
+      "uuid: UUID('79a4a7c6-1c1f-4d5e-9f8a-1b2c3d4e5f60')"
     );
+    expect(doc).to.include('min: MinKey()');
+    expect(doc).to.include('nested: Object (2)');
+    expect(doc).to.include('arr: Array (3)');
   });
 
   it('converts Extended JSON to shell syntax, keeping the BSON types', async function () {
