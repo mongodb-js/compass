@@ -36,6 +36,7 @@
     "depcheck": "^1.4.1"
   },
   "dependencies": {
+    "@actions/github": "^6.0.0",
     "@babel/core": "^7.29.7",
     "@mongodb-js/monorepo-tools": "^1.5.8",
     "commander": "^11.0.0",
