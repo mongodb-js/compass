@@ -32,6 +32,7 @@ import {
   type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
+import { containsText } from './test-helpers';
 
 const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 
@@ -1062,8 +1063,13 @@ describe('AssistantChat', function () {
         createMockChat({ messages: [makeAtlasToolCallMessage()] })
       );
 
-      expect(screen.getByText('Connect with Atlas to debug this connection?'))
-        .to.exist;
+      expect(
+        screen.getByText(
+          containsText(
+            'Connect with Atlas and run atlas-connection-error-debugger?'
+          )
+        )
+      ).to.exist;
     });
   });
 

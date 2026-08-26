@@ -14,6 +14,7 @@ import type {
 } from '@mongodb-js/atlas-service/provider';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
+import { containsText } from './test-helpers';
 
 class FakeAtlasAuthService {
   private user: AtlasUserInfo | null;
@@ -49,7 +50,7 @@ class FakeAtlasAuthService {
           try {
             resolve(complete());
           } catch (err) {
-            reject(err as Error);
+            reject(err);
           }
         };
       });
@@ -129,10 +130,23 @@ describe('AtlasToolCallMessage', function () {
     it('prompts the user to connect to Atlas', function () {
       renderMessage();
 
-      expect(screen.getByText('Connect with Atlas to debug this connection?'))
-        .to.exist;
+      expect(
+        screen.getByText(
+          containsText(
+            'Connect with Atlas and run atlas-connection-error-debugger?'
+          )
+        )
+      ).to.exist;
       expect(screen.getByText('Connect to Atlas')).to.exist;
       expect(screen.getByText('Skip')).to.exist;
+    });
+
+    it('notes that the read-only tool will not change the cluster', function () {
+      renderMessage();
+
+      expect(
+        screen.getByText("This is read-only and won't change your cluster.")
+      ).to.exist;
     });
 
     it('signs in then calls onApprove with the approval id when confirming', async function () {
@@ -221,9 +235,22 @@ describe('AtlasToolCallMessage', function () {
       await waitFor(() => {
         expect(screen.getByText('Run')).to.exist;
       });
-      expect(screen.getByText('Run Atlas to debug this connection?')).to.exist;
+      expect(
+        screen.getByText(containsText('Run atlas-connection-error-debugger?'))
+      ).to.exist;
       expect(screen.getByText('Cancel')).to.exist;
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
+    });
+
+    it('does not show the read-only note', async function () {
+      renderMessage({}, { signedIn: true });
+
+      await waitFor(() => {
+        expect(screen.getByText('Run')).to.exist;
+      });
+      expect(
+        screen.queryByText("This is read-only and won't change your cluster.")
+      ).to.not.exist;
     });
 
     it('does not track a sign in prompt', async function () {
@@ -261,7 +288,11 @@ describe('AtlasToolCallMessage', function () {
       // connecting message.
       await waitFor(() => {
         expect(
-          screen.getByText('Connecting with Atlas to debug this connection')
+          screen.getByText(
+            containsText(
+              `Connecting with Atlas to run atlas-connection-error-debugger...`
+            )
+          )
         ).to.exist;
       });
       return rendered;
@@ -270,8 +301,13 @@ describe('AtlasToolCallMessage', function () {
     it('shows the connecting message', async function () {
       const { atlasAuthService, onApprove } = await startSignIn();
 
-      expect(screen.getByText('Connecting with Atlas to debug this connection'))
-        .to.exist;
+      expect(
+        screen.getByText(
+          containsText(
+            `Connecting with Atlas to run atlas-connection-error-debugger...`
+          )
+        )
+      ).to.exist;
 
       // Let the pending sign in settle so we don't leave a dangling attempt
       atlasAuthService.resolveSignIn();

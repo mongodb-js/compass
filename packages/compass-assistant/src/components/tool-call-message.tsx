@@ -5,12 +5,10 @@ import {
   InlineDefinition,
   ServerIcon,
 } from '@mongodb-js/compass-components';
+import { getToolDescription } from '../utils';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
-import {
-  getAvailableTools,
-  doesToolUseConnection,
-} from '@mongodb-js/compass-generative-ai/provider';
+import { doesToolUseConnection } from '@mongodb-js/compass-generative-ai/provider';
 import {
   cleanToolCallOutput,
   getToolState,
@@ -26,13 +24,6 @@ interface ToolCallMessageProps {
   toolCall: ToolUIPart;
   onApprove?: (approvalId: string) => void;
   onDeny?: (approvalId: string) => void;
-}
-
-function getToolDescription(toolName: string): string | undefined {
-  // If we get to this point we can assume the tool is available, no need to pipe preferences here
-  return getAvailableTools({ enableAtlasConnectionErrorDebugger: true }).find(
-    (tool) => tool.name === toolName
-  )?.description;
 }
 
 const expandableContentStyles = css({
