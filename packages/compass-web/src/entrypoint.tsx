@@ -375,6 +375,7 @@ function CompassWorkspace({
                   <CreateNamespacePlugin></CreateNamespacePlugin>
                   <DropNamespacePlugin></DropNamespacePlugin>
                   <RenameCollectionPlugin></RenameCollectionPlugin>
+                  <CompassGoToPlugin />
                   <CompassAssistantDrawerWithConnections appName="Data Explorer" />
                 </>
               );
@@ -620,7 +621,6 @@ const CompassWebWithPreferences = ({
                                     isCloudOptIn={true}
                                   />
                                   <CompassSettingsPluginWithPreferences />
-                                  <CompassGoToPlugin />
                                 </CompassInstanceStorePlugin>
                               </CompassConnections>
                             </CompassAssistantProvider>

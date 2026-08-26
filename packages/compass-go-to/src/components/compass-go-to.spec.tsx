@@ -1,10 +1,12 @@
 import React from 'react';
 import {
-  render,
   screen,
   cleanup,
   fireEvent,
   userEvent,
+  waitFor,
+  renderWithConnections,
+  createDefaultConnectionInfo,
 } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
@@ -13,13 +15,33 @@ import {
   type ApplicationMenuProvider,
 } from '@mongodb-js/compass-electron-menu';
 import type { CompassAppMenu } from '@mongodb-js/compass-electron-menu';
-import { CompassGoTo } from './compass-go-to';
+import { TestMongoDBInstanceManager } from '@mongodb-js/compass-app-stores/provider';
+import { CompassGoToPlugin } from '../index';
 
 const initialUserAgent = navigator.userAgent;
+
+const connectedConnection = {
+  ...createDefaultConnectionInfo(),
+  id: 'conn-1',
+  favorite: { name: 'Production' },
+};
+
+const disconnectedConnection = {
+  ...createDefaultConnectionInfo(),
+  id: 'conn-2',
+  favorite: { name: 'Staging Offline' },
+};
 
 describe('CompassGoTo', function () {
   let showApplicationMenu: sinon.SinonStub;
   let menuProvider: ApplicationMenuProvider;
+  let workspaces: {
+    openDatabasesWorkspace: sinon.SinonStub;
+    openCollectionsWorkspace: sinon.SinonStub;
+    openCollectionWorkspace: sinon.SinonStub;
+  };
+  let Plugin: typeof CompassGoToPlugin;
+  let fetchDatabases: sinon.SinonStub;
 
   before(function () {
     Object.defineProperty(navigator, 'userAgent', {
@@ -42,22 +64,92 @@ describe('CompassGoTo', function () {
       showApplicationMenu,
       handleMenuRole: sinon.stub().returns(() => {}),
     };
+
+    const instancesManager = new TestMongoDBInstanceManager({
+      _id: '1',
+      status: 'ready',
+      databasesStatus: 'ready',
+      databases: [
+        {
+          _id: 'users',
+          name: 'users',
+          collectionsStatus: 'ready',
+          collections: [
+            {
+              _id: 'users.accounts',
+              name: 'accounts',
+              type: 'collection',
+            },
+            {
+              _id: 'users.profiles',
+              name: 'profiles',
+              type: 'collection',
+            },
+          ],
+        },
+      ] as any,
+    });
+
+    const instance = instancesManager.getMongoDBInstanceForConnection();
+    fetchDatabases = sinon.stub(instance, 'fetchDatabases').resolves();
+    for (const database of instance.databases) {
+      sinon.stub(database, 'fetchCollections').resolves();
+    }
+
+    sinon
+      .stub(instancesManager, 'listMongoDBInstances')
+      .returns(new Map([[connectedConnection.id, instance]]));
+
+    workspaces = {
+      openDatabasesWorkspace: sinon.stub(),
+      openCollectionsWorkspace: sinon.stub(),
+      openCollectionWorkspace: sinon.stub(),
+    };
+
+    Plugin = CompassGoToPlugin.withMockServices({
+      instancesManager,
+      workspaces: workspaces as any,
+    });
   });
 
   afterEach(cleanup);
 
-  function renderGoTo(preferences: { enableGoTo?: boolean } = {}) {
-    return render(
+  function renderGoTo(
+    preferences: { enableGoTo?: boolean } = {},
+    connections = [connectedConnection, disconnectedConnection]
+  ) {
+    return renderWithConnections(
       <ApplicationMenuContextProvider provider={menuProvider}>
-        <CompassGoTo />
+        <Plugin />
       </ApplicationMenuContextProvider>,
       {
         preferences: {
           enableGoTo: true,
           ...preferences,
         },
+        connections,
+        connectFn() {
+          return {
+            listDatabases() {
+              return Promise.resolve([]);
+            },
+            listCollections() {
+              return Promise.resolve([]);
+            },
+          };
+        },
       }
     );
+  }
+
+  async function openConnectedPalette() {
+    const result = renderGoTo();
+    await result.connectionsStore.actions.connect({
+      ...connectedConnection,
+    });
+    fireEvent.keyDown(document, { key: 'p', metaKey: true });
+    expect(screen.getByTestId('go-to-palette')).to.be.visible;
+    return result;
   }
 
   function pressModP() {
@@ -140,5 +232,130 @@ describe('CompassGoTo', function () {
 
     expect(screen.queryByTestId('go-to-palette')).to.equal(null);
     expect(showApplicationMenu.called).to.equal(false);
+  });
+
+  it('loads connected inventory on open and shows ranked results while typing', async function () {
+    await openConnectedPalette();
+
+    await waitFor(() => {
+      expect(
+        screen
+          .getAllByTestId('go-to-result')
+          .some((el) => el.getAttribute('data-result-id')?.includes('users'))
+      ).to.equal(true);
+    });
+
+    expect(fetchDatabases.called).to.equal(true);
+
+    userEvent.type(
+      screen.getByPlaceholderText('Search connections'),
+      'accounts'
+    );
+
+    await waitFor(() => {
+      const results = screen.getAllByTestId('go-to-result');
+      expect(results[0]).to.include.text('accounts');
+      expect(results[0]).to.include.text('Production');
+    });
+  });
+
+  it('highlights the first result and wraps with arrow keys', async function () {
+    await openConnectedPalette();
+
+    userEvent.type(screen.getByPlaceholderText('Search connections'), 'user');
+
+    await waitFor(() => {
+      expect(screen.getAllByTestId('go-to-result').length).to.be.greaterThan(1);
+    });
+
+    const results = screen.getAllByTestId('go-to-result');
+    expect(results[0].getAttribute('aria-selected')).to.equal('true');
+
+    userEvent.keyboard('{ArrowDown}');
+    expect(results[1].getAttribute('aria-selected')).to.equal('true');
+
+    userEvent.keyboard('{ArrowUp}');
+    expect(results[0].getAttribute('aria-selected')).to.equal('true');
+
+    userEvent.keyboard('{ArrowUp}');
+    expect(results[results.length - 1].getAttribute('aria-selected')).to.equal(
+      'true'
+    );
+  });
+
+  it('opens the Collections workspace when activating a database result', async function () {
+    await openConnectedPalette();
+
+    userEvent.type(screen.getByPlaceholderText('Search connections'), 'users');
+
+    await waitFor(() => {
+      expect(
+        screen
+          .getAllByTestId('go-to-result')
+          .some(
+            (el) =>
+              el.getAttribute('data-result-id') === 'database:conn-1:users'
+          )
+      ).to.equal(true);
+    });
+
+    const databaseResult = screen
+      .getAllByTestId('go-to-result')
+      .find(
+        (el) => el.getAttribute('data-result-id') === 'database:conn-1:users'
+      );
+    userEvent.click(databaseResult!);
+
+    expect(workspaces.openCollectionsWorkspace.calledOnce).to.equal(true);
+    expect(workspaces.openCollectionsWorkspace.firstCall.args).to.deep.equal([
+      'conn-1',
+      'users',
+    ]);
+    expect(screen.queryByTestId('go-to-palette')).to.equal(null);
+  });
+
+  it('opens the Collection workspace on Enter for a collection result', async function () {
+    await openConnectedPalette();
+
+    userEvent.type(
+      screen.getByPlaceholderText('Search connections'),
+      'users.accounts'
+    );
+
+    await waitFor(() => {
+      const first = screen.getAllByTestId('go-to-result')[0];
+      expect(first.getAttribute('data-result-id')).to.equal(
+        'collection:conn-1:users.accounts'
+      );
+    });
+
+    userEvent.keyboard('{Enter}');
+
+    expect(workspaces.openCollectionWorkspace.calledOnce).to.equal(true);
+    expect(workspaces.openCollectionWorkspace.firstCall.args).to.deep.equal([
+      'conn-1',
+      'users.accounts',
+    ]);
+  });
+
+  it('shows disconnected hosts as connection rows only', async function () {
+    await openConnectedPalette();
+
+    userEvent.type(
+      screen.getByPlaceholderText('Search connections'),
+      'Staging Offline'
+    );
+
+    await waitFor(() => {
+      const results = screen.getAllByTestId('go-to-result');
+      expect(results).to.have.length(1);
+      expect(results[0].getAttribute('data-result-id')).to.equal(
+        'connection:conn-2'
+      );
+    });
+
+    userEvent.click(screen.getByTestId('go-to-result'));
+    expect(workspaces.openDatabasesWorkspace.called).to.equal(false);
+    expect(screen.getByTestId('go-to-palette')).to.be.visible;
   });
 });
