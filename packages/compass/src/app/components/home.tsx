@@ -11,6 +11,7 @@ import {
 } from '@mongodb-js/compass-components';
 import CompassConnections from '@mongodb-js/compass-connections';
 import { CompassFindInPagePlugin } from '@mongodb-js/compass-find-in-page';
+import { CompassGoToPlugin } from '@mongodb-js/compass-go-to';
 import { CompassSettingsPlugin } from '@mongodb-js/compass-settings';
 import { WelcomeModal } from '@mongodb-js/compass-welcome';
 import { type ConnectionStorage } from '@mongodb-js/connection-storage/provider';
@@ -80,6 +81,7 @@ function Home({ appName }: HomeProps): React.ReactElement | null {
           <WelcomeModal></WelcomeModal>
           <CompassSettingsPlugin></CompassSettingsPlugin>
           <CompassFindInPagePlugin></CompassFindInPagePlugin>
+          <CompassGoToPlugin></CompassGoToPlugin>
           <CompassGenerativeAIPlugin
             isCloudOptIn={false}
           ></CompassGenerativeAIPlugin>
