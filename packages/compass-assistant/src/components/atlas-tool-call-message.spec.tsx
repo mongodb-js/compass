@@ -141,6 +141,14 @@ describe('AtlasToolCallMessage', function () {
       expect(screen.getByText('Skip')).to.exist;
     });
 
+    it('notes that the read-only tool will not change the cluster', function () {
+      renderMessage();
+
+      expect(
+        screen.getByText("This is read-only and won't change your cluster.")
+      ).to.exist;
+    });
+
     it('signs in then calls onApprove with the approval id when confirming', async function () {
       const { onApprove, atlasAuthService } = renderMessage();
 
@@ -232,6 +240,17 @@ describe('AtlasToolCallMessage', function () {
       ).to.exist;
       expect(screen.getByText('Cancel')).to.exist;
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
+    });
+
+    it('does not show the read-only note', async function () {
+      renderMessage({}, { signedIn: true });
+
+      await waitFor(() => {
+        expect(screen.getByText('Run')).to.exist;
+      });
+      expect(
+        screen.queryByText("This is read-only and won't change your cluster.")
+      ).to.not.exist;
     });
 
     it('does not track a sign in prompt', async function () {

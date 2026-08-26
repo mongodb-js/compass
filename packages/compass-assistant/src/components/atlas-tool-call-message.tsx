@@ -5,6 +5,7 @@ import {
   cleanToolCallOutput,
   getExpandableContentText,
   getToolDisplayName,
+  getToolDescription,
   getToolState,
   toolHasOutput,
 } from '../utils';
@@ -72,14 +73,6 @@ const ReadonlyNote: React.FunctionComponent = () => (
   </div>
 );
 
-function getToolDescription(toolType: string, toolDisplayName: string): string {
-  return (
-    getAvailableTools({ enableAtlasConnectionErrorDebugger: true }).find(
-      (tool) => tool.name === toolDisplayName
-    )?.description || ''
-  );
-}
-
 export const AtlasToolCallMessage: React.FunctionComponent<
   AtlasToolCallMessageProps
 > = ({ toolCall, onApprove, onDeny }) => {
@@ -144,7 +137,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     [signIn, onApprove, toolCall.type]
   );
 
-  const toolDescription = getToolDescription(toolCall.type, toolDisplayName);
+  const toolDescription = getToolDescription(toolDisplayName);
 
   const cleanedOutput = useMemo(
     () => (toolCall.output ? cleanToolCallOutput(toolCall.output) : null),
