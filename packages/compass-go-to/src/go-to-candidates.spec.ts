@@ -44,11 +44,15 @@ describe('buildGoToCandidates', function () {
       'collection:c1:admin.roles',
       'connection:c2',
     ]);
+    expect(candidates.find((c) => c.id === 'database:c1:admin')).to.include({
+      primary: 'admin',
+      secondary: 'Prod',
+    });
     expect(
       candidates.find((c) => c.id === 'collection:c1:admin.roles')
     ).to.include({
       primary: 'roles',
-      secondary: 'Prod',
+      secondary: 'admin · Prod',
       collectionType: 'view',
       namespace: 'admin.roles',
     });

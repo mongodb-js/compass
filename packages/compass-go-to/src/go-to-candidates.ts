@@ -8,7 +8,10 @@ export type GoToCandidate = {
   connectionId: string;
   /** Primary label shown in the result row */
   primary: string;
-  /** Muted secondary text (connection title for nested items; empty for connections) */
+  /**
+   * Muted secondary text: empty for connections; connection title for databases;
+   * `database · connection` for collections.
+   */
   secondary: string;
   connected: boolean;
   /** db name for database; db.coll for collection */
@@ -85,7 +88,7 @@ export function buildGoToCandidates(
           kind: 'collection',
           connectionId: connection.id,
           primary: collection.name,
-          secondary: connection.title,
+          secondary: `${database.name} · ${connection.title}`,
           connected: true,
           namespace,
           collectionType: toCollectionType(collection.type),
