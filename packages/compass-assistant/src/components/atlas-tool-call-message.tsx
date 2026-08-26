@@ -22,8 +22,7 @@ import {
 import type { AtlasSignInEntrypoint } from '@mongodb-js/compass-telemetry';
 import {
   useAtlasLoginActions,
-  useAtlasSignedInUser,
-  useIsAtlasSignInStateResolved,
+  useAtlasSignInStatus,
 } from '@mongodb-js/atlas-service/provider';
 import { CustomToolResult } from './custom-tool-result';
 import { getToolCallTitle } from './tool-call-title';
@@ -69,6 +68,21 @@ This is read-only and won't change your cluster.`;
   );
 }
 
+// TODO(COMPASS-11044): update texts to be generic
+function getApprovalMessage(
+  isSignInInProgress: boolean,
+  isUserSignedIn: boolean
+) {
+  if (isUserSignedIn) {
+    return 'Run Atlas to debug this connection?';
+  }
+  if (isSignInInProgress) {
+    return 'Connecting with Atlas to debug this connection';
+  }
+
+  return 'Connect with Atlas to debug this connection?';
+}
+
 export const AtlasToolCallMessage: React.FunctionComponent<
   AtlasToolCallMessageProps
 > = ({ toolCall, connectionInfo, onApprove, onDeny }) => {
@@ -76,10 +90,16 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const toolDisplayName = getToolDisplayName(toolCall.type);
   const isAwaitingApproval = toolCallState === 'idle' && !!toolCall.approval;
   const approvalId = toolCall.approval?.id;
-  const isUserSignedIn = !!useAtlasSignedInUser();
+  const atlasSignInStatus = useAtlasSignInStatus();
+  const isUserSignedIn = !!atlasSignInStatus.user;
+  const isSignInInProgress = atlasSignInStatus.state === 'in-progress';
   const { signIn } = useAtlasLoginActions();
   const track = useTelemetry();
-  const isSignInStateResolved = useIsAtlasSignInStateResolved();
+
+  const isSignInStateResolved =
+    atlasSignInStatus.state !== 'initial' &&
+    atlasSignInStatus.state !== 'restoring' &&
+    atlasSignInStatus.state !== 'in-progress';
 
   // The card re-renders on every state change, so we only report the prompt the
   // first time it's actually offered to a signed out user. We also wait for the
@@ -119,7 +139,20 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const handleAtlasToolApproval = useCallback(
     (approvalId: string) => {
       signIn({ entrypoint: getSignInEntrypoint(toolCall.type) })
-        .then((userInfo) => onApprove(approvalId, !!userInfo))
+        .then((result) => {
+          switch (result.status) {
+            case 'success':
+              onApprove(approvalId, true);
+              break;
+            // If sign in timed out, give the user a new chance instead of
+            // rejecting the tool
+            case 'timed-out':
+              break;
+            default:
+              onApprove(approvalId, false);
+              break;
+          }
+        })
         .catch(() => onApprove(approvalId, false));
     },
     [signIn, onApprove, toolCall.type]
@@ -148,19 +181,18 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     toolDisplayName
   );
 
-  // TODO(COMPASS-11044): update texts to be generic
-  const approvalMessage = isUserSignedIn
-    ? 'Run Atlas to debug this connection?'
-    : 'Connect with Atlas to debug this connection?';
-
+  const approvalMessage = getApprovalMessage(
+    isSignInInProgress,
+    isUserSignedIn
+  );
   // TODO COMPASS-10973: don't render actions if there's no approvalId.
   return (
     <>
       <ActionCardMessage
-        state={toolCallState}
+        state={isSignInInProgress ? 'running' : toolCallState}
         title={getToolCallTitle(toolCall, toolNameElement, approvalMessage)}
         chips={chips}
-        showActions={isAwaitingApproval}
+        showActions={isAwaitingApproval && !isSignInInProgress}
         contentClassName={expandableContentStyles}
         focusPrimaryKey={approvalId}
         buttons={[
