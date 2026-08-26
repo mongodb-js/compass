@@ -105,7 +105,11 @@ export const loadInventory =
   (): GoToThunkAction<Promise<void>> =>
   async (dispatch, _getState, services) => {
     const { connections, instancesManager } = services;
-    // Prefer instance manager: it only tracks currently connected connections.
+
+    // Immediate refresh with live connection list + whatever inventory is
+    // already loaded (e.g. via sidebar), so typing works before fetches finish.
+    dispatch(refreshCandidates());
+
     const connectedIds = new Set([
       ...instancesManager.listMongoDBInstances().keys(),
       ...connections.current
@@ -127,7 +131,7 @@ export const loadInventory =
             )
           );
         } catch {
-          // Inventory load is best-effort; search still works with whatever is loaded.
+          // Best-effort: still refresh below with whatever is already loaded.
         }
       })
     );
