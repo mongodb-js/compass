@@ -238,6 +238,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -251,7 +252,7 @@ describe('debugConnection', function () {
       atlasAdminApi.getSystemStatus.rejects(new Error('nope'));
 
       try {
-        await debugConnection(CONNECTION_STRING, api, CLOUD_UI_BASE_URL);
+        await debugConnection(CONNECTION_STRING, api, track, CLOUD_UI_BASE_URL);
         expect.fail('expected debugConnection to reject');
       } catch (err) {
         expect((err as Error).message).to.equal('nope');
