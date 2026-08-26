@@ -171,9 +171,9 @@ export const AtlasToolCallMessage: React.FunctionComponent<
       <ActionCardMessage
         state={isSignInInProgress ? 'running' : toolCallState}
         title={getToolCallTitle(toolCall, toolNameElement, approvalMessage)}
-        // TODO(COMPASS-11077): find a way to properly implement the connection info
-        // when connecting has failed. The current connectionInfo in the assistant-chat
-        // has the connection the user has successfuly connected to.
+        // TODO(COMPASS-11077): find a way to properly implement connection info
+        // when a connection attempt has failed. The current connectionInfo in assistant-chat
+        // represents the last connection the user successfully connected to.
         chips={[]}
         showActions={isAwaitingApproval && !isSignInInProgress}
         contentClassName={expandableContentStyles}
