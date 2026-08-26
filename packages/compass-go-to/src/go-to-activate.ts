@@ -8,7 +8,8 @@ export type GoToWorkspaces = {
 
 /**
  * Opens or focuses the workspace that the sidebar would for the same target.
- * Disconnected connection rows are ignored (activation is connected-only).
+ * Only connected candidates are handled here; disconnected connection rows are
+ * connected first by the activateResult thunk, then opened via this helper.
  * Returns whether a workspace was opened.
  */
 export function activateGoToCandidate(
