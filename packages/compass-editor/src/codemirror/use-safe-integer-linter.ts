@@ -1,31 +1,50 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useCurrentValueRef } from '@mongodb-js/compass-components';
+import type { syntaxTree } from '@codemirror/language';
+import type { Text } from '@codemirror/state';
 import type { EditorRef } from '../types';
 import type { Annotation } from './../editor';
 import { createCodemirrorLinter } from '../linter';
 import type { LintConfig } from '../linter';
 import { wrapLinterAnnotation } from '../lint-tooltip-exit-delay';
 
+type SyntaxNode = ReturnType<typeof syntaxTree>['topNode'];
+
 export type SafeIntegerViolation = {
   from: number;
   to: number;
-  // True when the literal is already an argument to a constructor call like
-  // `Long(123...)`. The fix then quotes the argument (`Long("123...")`)
-  // instead of wrapping the whole thing again.
-  // TODO(COMPASS-10964): update this argument check to only include
-  // methods we know handle string arguments.
-  isArgument: boolean;
+  // True when the literal is an argument to a constructor that takes the same
+  // value as a string, like `Long(123...)`. The fix then quotes the argument
+  // in place instead of wrapping the whole thing again.
+  acceptsStringArgument: boolean;
 };
 
 type SafeIntegerLinterOptions = LintConfig & {
   editorRef?: React.RefObject<EditorRef>;
   onFixViolation?: (source: string) => string;
+  onViolationFixed: () => void;
   externalAnnotations?: React.RefObject<Annotation[]>;
+};
+
+type FixOptions = {
+  onFixViolation: (source: string) => string;
+  onViolationFixed: () => void;
 };
 
 const defaultOnFixViolation = (source: string) => `Long("${source}")`;
 
 const VIOLATION_MESSAGE = 'Exceeds safe integer range.';
+
+// Constructors that accept a string and use the value. Anything else
+// either changes meaning (`Date`) or still rounds the value (`Int32`,
+// `Double`), so those get wrapped instead.
+const STRING_ARGUMENT_CONSTRUCTORS = new Set([
+  'Long',
+  'NumberLong',
+  'Int64',
+  'Decimal128',
+  'NumberDecimal',
+]);
 
 function isUnsafeInteger(str: string): boolean {
   if (!/^-?\d+$/.test(str)) {
@@ -42,6 +61,44 @@ function isUnsafeInteger(str: string): boolean {
   }
 }
 
+// A leading `-` is a unary expression around the literal rather than part of
+// it, so it has to be pulled into the violation to fix `-123...` as
+// `Long("-123...")` rather than `-Long("123...")`.
+function negationOperator(node: SyntaxNode, doc: Text): SyntaxNode | null {
+  const operator =
+    node.parent?.name === 'UnaryExpression' ? node.parent.firstChild : null;
+  return operator?.name === 'ArithOp' &&
+    doc.sliceString(operator.from, operator.to) === '-'
+    ? operator
+    : null;
+}
+
+function isStringConstructorArgument(node: SyntaxNode, doc: Text): boolean {
+  if (node.parent?.name !== 'ArgList') {
+    return false;
+  }
+  const callee = node.parent.prevSibling;
+  return (
+    callee?.name === 'VariableName' &&
+    STRING_ARGUMENT_CONSTRUCTORS.has(doc.sliceString(callee.from, callee.to))
+  );
+}
+
+function unsafeIntegerViolation(
+  node: SyntaxNode,
+  doc: Text
+): SafeIntegerViolation | null {
+  if (!isUnsafeInteger(doc.sliceString(node.from, node.to))) {
+    return null;
+  }
+  const literal = negationOperator(node, doc)?.parent ?? node;
+  return {
+    from: literal.from,
+    to: literal.to,
+    acceptsStringArgument: isStringConstructorArgument(literal, doc),
+  };
+}
+
 function sameViolations(
   a: SafeIntegerViolation[],
   b: SafeIntegerViolation[]
@@ -52,30 +109,37 @@ function sameViolations(
       (v, i) =>
         v.from === b[i].from &&
         v.to === b[i].to &&
-        v.isArgument === b[i].isArgument
+        v.acceptsStringArgument === b[i].acceptsStringArgument
     )
   );
 }
 
-function fixFor(
+function applyFix(
   violation: SafeIntegerViolation,
   source: string,
-  onFixViolation: (source: string) => string
+  { onFixViolation, onViolationFixed }: FixOptions
 ): string {
-  return violation.isArgument ? `"${source}"` : onFixViolation(source);
+  // The violation can span whitespace between a sign and its digits (`- 123`).
+  const literal = source.replace(/\s+/g, '');
+  onViolationFixed();
+  return violation.acceptsStringArgument
+    ? `"${literal}"`
+    : onFixViolation(literal);
 }
 
 export function useSafeIntegerLinter({
   editorRef,
   onFixViolation = defaultOnFixViolation,
+  onViolationFixed,
   externalAnnotations,
   lintDelay,
   tooltipExitDelay,
   theme,
-}: SafeIntegerLinterOptions = {}) {
+}: SafeIntegerLinterOptions) {
   const [violations, setViolations] = useState<SafeIntegerViolation[]>([]);
   const optionsRef = useCurrentValueRef({
     onFixViolation,
+    onViolationFixed,
     externalAnnotations,
   });
   const violationsRef = useCurrentValueRef(violations);
@@ -93,12 +157,9 @@ export function useSafeIntegerLinter({
             if (node.name !== 'Number') {
               return;
             }
-            if (isUnsafeInteger(view.state.sliceDoc(node.from, node.to))) {
-              violations.push({
-                from: node.from,
-                to: node.to,
-                isArgument: node.node.parent?.name === 'ArgList',
-              });
+            const violation = unsafeIntegerViolation(node.node, view.state.doc);
+            if (violation) {
+              violations.push(violation);
             }
           },
         });
@@ -125,10 +186,10 @@ export function useSafeIntegerLinter({
                     changes: {
                       from,
                       to,
-                      insert: fixFor(
+                      insert: applyFix(
                         violation,
                         view.state.sliceDoc(from, to),
-                        optionsRef.current.onFixViolation
+                        optionsRef.current
                       ),
                     },
                   });
@@ -158,10 +219,10 @@ export function useSafeIntegerLinter({
         return {
           from,
           to,
-          insert: fixFor(
+          insert: applyFix(
             violation,
             editor.state.sliceDoc(from, to),
-            optionsRef.current.onFixViolation
+            optionsRef.current
           ),
         };
       }),

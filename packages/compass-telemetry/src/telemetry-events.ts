@@ -1815,6 +1815,41 @@ type AssistantToolCallApprovalEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when the Atlas connection troubleshooting has completed.
+ *
+ * @category Assistant
+ */
+type AtlasConnectionErrorTroubleshootingSuccessEvent = CommonEvent<{
+  name: 'Atlas Connection Troubleshooting Success';
+  payload: {
+    /**
+     * The state of the cluster the user tried to connect to, as reported by
+     * Atlas, or `Unknown` when the cluster could not be found.
+     */
+    cluster_state: string;
+    /**
+     * Whether we could confirm that the user's IP address is allowed by the
+     * project's IP access list.
+     */
+    ip_access_status?: string;
+    duration: number;
+  };
+}>;
+
+/**
+ * This event is fired when the Atlas connection troubleshooting has failed.
+ *
+ * @category Assistant
+ */
+type AtlasConnectionErrorTroubleshootingFailedEvent = CommonEvent<{
+  name: 'Atlas Connection Troubleshooting Failed';
+  payload: {
+    error_name: string;
+    error_code: string;
+  };
+}>;
+
+/**
  * This event is fired when a user submits feedback for a query generation.
  *
  * @category Gen AI
@@ -4238,6 +4273,8 @@ export type TelemetryEvent =
   | AssistantEntryPointUsedEvent
   | AssistantConfirmationSubmittedEvent
   | AssistantResponseGeneratedEvent
+  | AtlasConnectionErrorTroubleshootingSuccessEvent
+  | AtlasConnectionErrorTroubleshootingFailedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
   | AiGenerateQueryClickedEvent

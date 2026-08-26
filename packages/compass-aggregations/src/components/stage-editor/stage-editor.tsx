@@ -211,11 +211,11 @@ export const StageEditor = ({
   const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
   const { safeIntegerLinter } = useSafeIntegerLinter({
     externalAnnotations: annotationsRef,
-    onFixViolation(source) {
+    onFixViolation: (source) => `Long("${source}")`,
+    onViolationFixed() {
       track('Safe Integer Fix Applied', {
         source: 'stage-editor',
       });
-      return `Long("${source}")`;
     },
   });
 

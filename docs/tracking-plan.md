@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-08-25. Do not edit manually.
+> Auto-generated on 2026-08-26. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -49,6 +49,8 @@
   - [Assistant Entry Point Used](#assistant-entry-point-used)
   - [Assistant Confirmation Submitted](#assistant-confirmation-submitted)
   - [Assistant Response Generated](#assistant-response-generated)
+  - [Atlas Connection Troubleshooting Success](#atlas-connection-troubleshooting-success)
+  - [Atlas Connection Troubleshooting Failed](#atlas-connection-troubleshooting-failed)
 - [Atlas](#atlas)
   - [Atlas Sign In Error](#atlas-sign-in-error)
   - [Atlas Sign In Prompt Shown](#atlas-sign-in-prompt-shown)
@@ -706,6 +708,27 @@ This event is fired when the AI response is generated.
 | `request_id`     | `string \| undefined` | No       |                                                    |
 | `is_compass_web` | `true \| undefined`   | No       |                                                    |
 | `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event. |
+
+### Atlas Connection Troubleshooting Success
+
+This event is fired when the Atlas connection troubleshooting has completed.
+
+| Property           | Type                  | Required | Description                                                                                                                    |
+| ------------------ | --------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `cluster_state`    | `string`              | Yes      | The state of the cluster the user tried to connect to, as reported by Atlas, or `Unknown` when the cluster could not be found. |
+| `ip_access_status` | `string \| undefined` | No       | Whether we could confirm that the user's IP address is allowed by the project's IP access list.                                |
+| `duration`         | `number`              | Yes      |                                                                                                                                |
+| `is_compass_web`   | `true \| undefined`   | No       |                                                                                                                                |
+
+### Atlas Connection Troubleshooting Failed
+
+This event is fired when the Atlas connection troubleshooting has failed.
+
+| Property         | Type                | Required | Description |
+| ---------------- | ------------------- | -------- | ----------- |
+| `error_name`     | `string`            | Yes      |             |
+| `error_code`     | `string`            | Yes      |             |
+| `is_compass_web` | `true \| undefined` | No       |             |
 
 ## Atlas
 

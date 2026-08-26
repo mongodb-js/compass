@@ -5,10 +5,12 @@ import type {
   AtlasAccessListEntry,
   AtlasClusterState,
 } from '@mongodb-js/atlas-admin-api/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import { debugConnection, isUserIpIncluded } from './debug-connection';
 
 const CONNECTION_STRING = 'mongodb+srv://cluster0.abcde.mongodb.net';
 const USER_IP = '1.2.3.4';
+const CLOUD_UI_BASE_URL = 'https://cloud.mongodb.com';
 
 describe('isUserIpIncluded', function () {
   it('matches an exact ipAddress entry', function () {
@@ -72,6 +74,8 @@ describe('debugConnection', function () {
     getProjectIPAccessList: Sinon.SinonStub;
     getSystemStatus: Sinon.SinonStub;
   };
+  let trackStub: Sinon.SinonStub;
+  let track!: TrackFunction;
 
   function mockAtlasAdminApi(
     opts: {
@@ -108,6 +112,8 @@ describe('debugConnection', function () {
 
   beforeEach(function () {
     sandbox = Sinon.createSandbox();
+    trackStub = sandbox.stub();
+    track = trackStub;
   });
 
   afterEach(function () {
@@ -117,7 +123,12 @@ describe('debugConnection', function () {
   it('returns unknown values when the cluster does not exist or the user has no access to it', async function () {
     const api = mockAtlasAdminApi({ projectIdAndClusterName: undefined });
 
-    const result = await debugConnection(CONNECTION_STRING, api);
+    const result = await debugConnection(
+      CONNECTION_STRING,
+      api,
+      track,
+      CLOUD_UI_BASE_URL
+    );
 
     expect(result).to.deep.equal({
       clusterName: 'Unknown',
@@ -133,7 +144,12 @@ describe('debugConnection', function () {
   it('looks up the cluster and the access list with the resolved project id and cluster name', async function () {
     const api = mockAtlasAdminApi();
 
-    const result = await debugConnection(CONNECTION_STRING, api);
+    const result = await debugConnection(
+      CONNECTION_STRING,
+      api,
+      track,
+      CLOUD_UI_BASE_URL
+    );
 
     expect(atlasAdminApi.getProjectIdAndClusterName).to.have.been.calledWith(
       CONNECTION_STRING
@@ -149,7 +165,12 @@ describe('debugConnection', function () {
   it('reports PAUSED regardless of the cluster state', async function () {
     const api = mockAtlasAdminApi({ state: 'IDLE', paused: true });
 
-    const result = await debugConnection(CONNECTION_STRING, api);
+    const result = await debugConnection(
+      CONNECTION_STRING,
+      api,
+      track,
+      CLOUD_UI_BASE_URL
+    );
 
     expect(result.clusterState).to.equal('PAUSED');
   });
@@ -166,7 +187,12 @@ describe('debugConnection', function () {
     it(`maps cluster state ${state} to ${expected}`, async function () {
       const api = mockAtlasAdminApi({ state });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result.clusterState).to.equal(expected);
     });
@@ -178,7 +204,12 @@ describe('debugConnection', function () {
         ipAccessList: [{ ipAddress: '9.9.9.9' }, { ipAddress: USER_IP }],
       });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result.ipAccessStatus).to.equal('Client IP Allowed');
     });
@@ -188,7 +219,12 @@ describe('debugConnection', function () {
         ipAccessList: [{ ipAddress: '9.9.9.9' }],
       });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result.ipAccessStatus).to.equal('Could not confirm');
     });
@@ -199,7 +235,11 @@ describe('debugConnection', function () {
         ipAccessList: [{ ipAddress: '9.9.9.9' }],
       });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result.ipAccessStatus).to.equal('Client IP Allowed');
     });
@@ -211,7 +251,7 @@ describe('debugConnection', function () {
       atlasAdminApi.getSystemStatus.rejects(new Error('nope'));
 
       try {
-        await debugConnection(CONNECTION_STRING, api);
+        await debugConnection(CONNECTION_STRING, api, CLOUD_UI_BASE_URL);
         expect.fail('expected debugConnection to reject');
       } catch (err) {
         expect((err as Error).message).to.equal('nope');
@@ -221,7 +261,12 @@ describe('debugConnection', function () {
     it('cannot confirm when the access list is empty', async function () {
       const api = mockAtlasAdminApi({ ipAccessList: [] });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result.ipAccessStatus).to.equal('Could not confirm');
     });
@@ -231,17 +276,27 @@ describe('debugConnection', function () {
     it('always links to the cluster overview', async function () {
       const api = mockAtlasAdminApi({ ipAccessList: [{ ipAddress: USER_IP }] });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result.links?.clusterOverview).to.equal(
-        `${window.location.origin}/v2/p1#/clusters/detail/cluster0`
+        `${CLOUD_UI_BASE_URL}/v2/p1#/clusters/detail/cluster0`
       );
     });
 
     it('omits the network access list link when the client ip is allowed', async function () {
       const api = mockAtlasAdminApi({ ipAccessList: [{ ipAddress: USER_IP }] });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result.links).to.not.have.property('networkAccessList');
     });
@@ -249,17 +304,27 @@ describe('debugConnection', function () {
     it('links to the network access list when access could not be confirmed', async function () {
       const api = mockAtlasAdminApi({ ipAccessList: [] });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result.links?.networkAccessList).to.equal(
-        `${window.location.origin}/v2/p1#/security/network/accessList`
+        `${CLOUD_UI_BASE_URL}/v2/p1#/security/network/accessList`
       );
     });
 
     it('are omitted entirely when the cluster could not be found', async function () {
       const api = mockAtlasAdminApi({ projectIdAndClusterName: undefined });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result).to.not.have.property('links');
     });
@@ -271,7 +336,12 @@ describe('debugConnection', function () {
         ipAccessList: [{ ipAddress: USER_IP }],
       });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result).to.not.have.property('networkAccessDetails');
     });
@@ -280,7 +350,12 @@ describe('debugConnection', function () {
       const ipAccessList = [{ ipAddress: '9.9.9.9' }];
       const api = mockAtlasAdminApi({ ipAccessList });
 
-      const result = await debugConnection(CONNECTION_STRING, api);
+      const result = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
 
       expect(result).to.have.property('networkAccessDetails');
       expect(result.networkAccessDetails).to.deep.equal({
@@ -298,7 +373,12 @@ describe('debugConnection', function () {
         ipAccessList: [{ ipAddress: USER_IP }],
         ...opts,
       });
-      const { advice } = await debugConnection(CONNECTION_STRING, api);
+      const { advice } = await debugConnection(
+        CONNECTION_STRING,
+        api,
+        track,
+        CLOUD_UI_BASE_URL
+      );
       return advice;
     }
 
@@ -318,7 +398,7 @@ describe('debugConnection', function () {
 
     it('links to the cluster overview page for a paused cluster', async function () {
       expect(await getAdvice({ state: 'IDLE', paused: true })).to.include(
-        `${window.location.origin}/v2/p1#/clusters/detail/cluster0`
+        `${CLOUD_UI_BASE_URL}/v2/p1#/clusters/detail/cluster0`
       );
     });
 
@@ -330,7 +410,7 @@ describe('debugConnection', function () {
 
     it('links to the cluster overview page for a provisioning cluster', async function () {
       expect(await getAdvice({ state: 'CREATING' })).to.include(
-        `${window.location.origin}/v2/p1#/clusters/detail/cluster0`
+        `${CLOUD_UI_BASE_URL}/v2/p1#/clusters/detail/cluster0`
       );
     });
 
@@ -342,7 +422,7 @@ describe('debugConnection', function () {
 
     it('links to the cluster overview page for a deleting cluster', async function () {
       expect(await getAdvice({ state: 'DELETING' })).to.include(
-        `${window.location.origin}/v2/p1#/clusters/detail/cluster0`
+        `${CLOUD_UI_BASE_URL}/v2/p1#/clusters/detail/cluster0`
       );
     });
 
@@ -354,7 +434,7 @@ describe('debugConnection', function () {
 
     it('links to the network access list for an ip that is not on it', async function () {
       expect(await getAdvice({ ipAccessList: [] })).to.include(
-        `${window.location.origin}/v2/p1#/security/network/accessList`
+        `${CLOUD_UI_BASE_URL}/v2/p1#/security/network/accessList`
       );
     });
 
@@ -377,12 +457,128 @@ describe('debugConnection', function () {
     });
   });
 
+  describe('telemetry', function () {
+    async function getSuccessPayload(
+      opts: Parameters<typeof mockAtlasAdminApi>[0] = {}
+    ) {
+      const api = mockAtlasAdminApi({
+        ipAccessList: [{ ipAddress: USER_IP }],
+        ...opts,
+      });
+      await debugConnection(CONNECTION_STRING, api, track, CLOUD_UI_BASE_URL);
+      expect(trackStub).to.have.been.calledOnce;
+      const [event, payload] = trackStub.firstCall.args;
+      expect(event).to.equal('Atlas Connection Troubleshooting Success');
+      return payload;
+    }
+
+    it('reports a healthy cluster with an allowed ip', async function () {
+      const payload = await getSuccessPayload();
+      expect(payload.cluster_state).to.equal('READY');
+      expect(payload.ip_access_status).to.equal('Client IP Allowed');
+    });
+
+    it('reports the duration of the run', async function () {
+      const { duration } = await getSuccessPayload();
+      expect(duration).to.be.a('number');
+      expect(duration).to.be.at.least(0);
+    });
+
+    const stateCases: [
+      string,
+      Parameters<typeof mockAtlasAdminApi>[0],
+      { cluster_state: string; ip_access_status?: string }
+    ][] = [
+      [
+        'a paused cluster',
+        { state: 'IDLE', paused: true },
+        { cluster_state: 'PAUSED', ip_access_status: 'Client IP Allowed' },
+      ],
+      [
+        'a provisioning cluster',
+        { state: 'CREATING' },
+        { cluster_state: 'CREATING', ip_access_status: 'Client IP Allowed' },
+      ],
+      [
+        'a deleting cluster',
+        { state: 'DELETING' },
+        { cluster_state: 'DELETING', ip_access_status: 'Client IP Allowed' },
+      ],
+      [
+        'an unverified ip',
+        { ipAccessList: [] },
+        { cluster_state: 'READY', ip_access_status: 'Could not confirm' },
+      ],
+      [
+        'a paused cluster with an unverified ip',
+        { state: 'IDLE', paused: true, ipAccessList: [] },
+        { cluster_state: 'PAUSED', ip_access_status: 'Could not confirm' },
+      ],
+      [
+        'a state that needs no action',
+        { state: 'UPDATING' },
+        { cluster_state: 'UPDATING', ip_access_status: 'Client IP Allowed' },
+      ],
+    ];
+
+    for (const [description, opts, expected] of stateCases) {
+      it(`reports ${description}`, async function () {
+        const payload = await getSuccessPayload(opts);
+        expect(payload.cluster_state).to.equal(expected.cluster_state);
+        expect(payload.ip_access_status).to.equal(expected.ip_access_status);
+      });
+    }
+
+    it('reports a cluster that could not be found', async function () {
+      const payload = await getSuccessPayload({
+        projectIdAndClusterName: undefined,
+      });
+      expect(payload.cluster_state).to.equal('Unknown');
+      expect(payload.ip_access_status).to.equal('Could not confirm');
+    });
+
+    it('tracks a failure event when the atlas api throws', async function () {
+      const api = mockAtlasAdminApi();
+      const error = Object.assign(new Error('nope'), {
+        name: 'AtlasError',
+        code: 'ETIMEDOUT',
+      });
+      atlasAdminApi.getClusterState.rejects(error);
+
+      try {
+        await debugConnection(CONNECTION_STRING, api, track, CLOUD_UI_BASE_URL);
+      } catch {
+        // expected, asserted on separately
+      }
+
+      expect(trackStub).to.have.been.calledOnceWith(
+        'Atlas Connection Troubleshooting Failed',
+        { error_name: 'AtlasError', error_code: 'ETIMEDOUT' }
+      );
+    });
+
+    it('does not track a success event when the atlas api throws', async function () {
+      const api = mockAtlasAdminApi();
+      atlasAdminApi.getProjectIPAccessList.rejects(new Error('nope'));
+
+      try {
+        await debugConnection(CONNECTION_STRING, api, track, CLOUD_UI_BASE_URL);
+      } catch {
+        // expected, asserted on separately
+      }
+
+      expect(trackStub).to.not.have.been.calledWith(
+        'Atlas Connection Troubleshooting Success'
+      );
+    });
+  });
+
   it('propagates errors from getClusterState', async function () {
     const api = mockAtlasAdminApi();
     atlasAdminApi.getClusterState.rejects(new Error('nope'));
 
     try {
-      await debugConnection(CONNECTION_STRING, api);
+      await debugConnection(CONNECTION_STRING, api, track, CLOUD_UI_BASE_URL);
       expect.fail('Expected debugConnection to throw');
     } catch (err) {
       expect(err).to.have.property('message', 'nope');
