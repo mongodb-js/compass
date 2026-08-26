@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Body,
-  Button,
   ConfirmationModalVariant,
   Icon,
+  Link,
   css,
   cx,
   palette,
@@ -24,6 +24,13 @@ const containerStyles = css({
   justifyContent: 'space-between',
   gap: spacing[200],
   padding: `${spacing[200]}px ${spacing[400]}px`,
+  backgroundColor: palette.gray.light3,
+  borderBottom: `1px solid ${palette.gray.light2}`,
+});
+
+const darkModeContainerStyles = css({
+  backgroundColor: palette.gray.dark4,
+  borderBottom: `1px solid ${palette.gray.dark2}`,
 });
 
 const labelStyles = css({
@@ -48,6 +55,10 @@ const labelTextStyles = css({
   overflow: 'hidden',
   textOverflow: 'ellipsis',
   whiteSpace: 'nowrap',
+});
+
+const linkStyles = css({
+  '> span': { display: 'flex', alignItems: 'center', gap: spacing[100] },
 });
 
 const labelTextStylesLight = css({ color: palette.gray.dark1 });
@@ -115,7 +126,10 @@ export const AtlasConnectionStatus: React.FunctionComponent<
   }
 
   return (
-    <div className={containerStyles} data-testid={dataTestId}>
+    <div
+      className={cx(containerStyles, darkMode && darkModeContainerStyles)}
+      data-testid={dataTestId}
+    >
       <div className={labelStyles}>
         <span
           className={cx(
@@ -133,16 +147,16 @@ export const AtlasConnectionStatus: React.FunctionComponent<
           {username ?? 'Signed in to Atlas'}
         </Body>
       </div>
-      <Button
-        size="xsmall"
-        leftGlyph={<Icon glyph="Disconnect" />}
+      <Link
+        as="button"
         onClick={handleDisconnect}
         data-testid={`${dataTestId}-disconnect`}
         darkMode={darkMode}
-        variant="dangerOutline"
+        className={cx(linkStyles)}
       >
+        <Icon glyph="Disconnect" />
         Disconnect Atlas
-      </Button>
+      </Link>
     </div>
   );
 };
