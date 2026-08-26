@@ -13,6 +13,10 @@ import {
   type AtlasGroupCluster,
   type AtlasGroupClusterResponse,
 } from './cluster-types';
+import {
+  assertSystemStatus,
+  type AtlasSystemStatus,
+} from './system-status-types';
 import { connectionStringMatches, extractConnectionStrings } from './util';
 import { getAtlasAdminApiAcceptHeader } from './version';
 
@@ -98,6 +102,23 @@ export class AtlasAdminApiService {
       pageNum++;
     }
     return results;
+  }
+
+  /**
+   * Fetches the Atlas Admin API system status, which reports the public IP
+   * address the request came from and, when authenticated as a user, that user
+   * (the username is the email the user is logged in with).
+   */
+  async getSystemStatus(
+    options?: AtlasAdminApiRequestOptions
+  ): Promise<AtlasSystemStatus> {
+    const requestUrl = this.atlasService.adminApiEndpoint('/v2');
+    const json = await this.fetchJson(requestUrl, options);
+    assertSystemStatus(json);
+    return {
+      ipAddress: json.ipAddress,
+      ...(json.user && { user: { username: json.user.username } }),
+    };
   }
 
   async listGroupIds(): Promise<string[]> {

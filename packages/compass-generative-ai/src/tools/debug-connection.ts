@@ -136,9 +136,10 @@ async function getNetworkAccessInfo({
   ipAccessStatus: IpAccessStatus;
   networkAccessDetails: NetworkAccessDetails;
 }> {
-  const ipAccessList = await atlasAdminApi.getProjectIPAccessList(projectId);
-  // TODO(COMPASS-10981): replace with Atlas Admin API once it's ready
-  const userIp = '1.2.3.4';
+  const [ipAccessList, { ipAddress: userIp }] = await Promise.all([
+    atlasAdminApi.getProjectIPAccessList(projectId),
+    atlasAdminApi.getSystemStatus(),
+  ]);
   return {
     ipAccessStatus:
       ipAccessList && userIp && isUserIpIncluded(ipAccessList, userIp)
@@ -146,7 +147,7 @@ async function getNetworkAccessInfo({
         : 'Could not confirm',
     networkAccessDetails: {
       networkAccessList: ipAccessList,
-      userIp,
+      ...(userIp && { userIp }),
     },
   };
 }
