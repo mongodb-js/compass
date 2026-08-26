@@ -169,8 +169,11 @@ export const AtlasToolCallMessage: React.FunctionComponent<
   const approvalMessage = getApprovalMessage(toolCall, isUserSignedIn, isSignInInProgress);
 
   const actionCardDescription = useMemo(
-    () => (isReadOnlyTool(toolDisplayName) ? <ReadonlyNote /> : undefined),
-    [toolDisplayName]
+    () =>
+      isReadOnlyTool(toolDisplayName) && !isUserSignedIn ? (
+        <ReadonlyNote />
+      ) : undefined,
+    [toolDisplayName, isUserSignedIn]
   );
 
   // TODO COMPASS-10973: don't render actions if there's no approvalId.
