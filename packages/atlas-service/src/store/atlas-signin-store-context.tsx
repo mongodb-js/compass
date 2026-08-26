@@ -2,10 +2,15 @@ import React, { useMemo } from 'react';
 import {
   performSignInAttempt,
   signOut,
+  type SignInAttemptResult,
   type AtlasSignInState,
 } from './atlas-signin-reducer';
 import type { ReactReduxContextValue, TypedUseSelectorHook } from 'react-redux';
-import { createDispatchHook, createSelectorHook } from 'react-redux';
+import {
+  createDispatchHook,
+  createSelectorHook,
+  shallowEqual,
+} from 'react-redux';
 import type { ThunkDispatch } from 'redux-thunk';
 import type { AnyAction } from 'redux';
 import type { AtlasAuthService, AtlasUserInfo } from '../provider';
@@ -33,24 +38,26 @@ const useDispatch: () => AtlasSignInDispatch = createDispatchHook(
   AtlasSignInStoreContext
 );
 
-export function useAtlasSignedInUser(): AtlasUserInfo | null {
-  return useSelector((state) =>
-    state.state === 'success' ? state.userInfo : null
-  );
-}
+export type AtlasSignInStatus = {
+  user: AtlasUserInfo | null;
+  state:
+    | 'initial'
+    | 'restoring'
+    | 'unauthenticated'
+    | 'in-progress'
+    | 'error'
+    | 'canceled'
+    | 'timed-out'
+    | 'success';
+};
 
-/**
- * Whether we know yet if the user is signed in. The signed in state is restored
- * asynchronously on startup, so `useAtlasSignedInUser` returns `null` for an
- * already signed in user until that finishes. Anything that shouldn't act on a
- * false "signed out" (reporting telemetry, for example) should wait for this.
- */
-export function useIsAtlasSignInStateResolved(): boolean {
+export function useAtlasSignInStatus() {
   return useSelector(
-    (state) =>
-      state.state !== 'initial' &&
-      state.state !== 'restoring' &&
-      state.state !== 'in-progress'
+    (s): AtlasSignInStatus => ({
+      user: s.state === 'success' ? s.userInfo : null,
+      state: s.state,
+    }),
+    shallowEqual
   );
 }
 
@@ -58,7 +65,7 @@ export type AtlasLoginActions = {
   signOut: () => Promise<void>;
   signIn: (opts?: {
     entrypoint?: AtlasSignInEntrypoint;
-  }) => Promise<AtlasUserInfo>;
+  }) => Promise<SignInAttemptResult>;
 };
 
 export function useAtlasLoginActions(): AtlasLoginActions {

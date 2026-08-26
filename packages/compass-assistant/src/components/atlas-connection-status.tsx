@@ -13,7 +13,7 @@ import {
 } from '@mongodb-js/compass-components';
 import {
   useAtlasLoginActions,
-  useAtlasSignedInUser,
+  useAtlasSignInStatus,
 } from '@mongodb-js/atlas-service/provider';
 import { useAtlasAdminApi } from '../compass-assistant-provider';
 
@@ -62,9 +62,9 @@ export const AtlasConnectionStatus: React.FunctionComponent<
 > = ({ 'data-testid': dataTestId = 'atlas-connection-status' }) => {
   const darkMode = useDarkMode();
   const atlasAdminApi = useAtlasAdminApi();
-  const userInfo = useAtlasSignedInUser();
+  const signInStatus = useAtlasSignInStatus();
   const { signOut } = useAtlasLoginActions();
-  const sub = userInfo?.sub;
+  const sub = signInStatus.user?.sub;
 
   const [atlasUser, setAtlasUser] = useState<{
     sub: string;
@@ -110,7 +110,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
     })();
   }, [signOut]);
 
-  if (!userInfo) {
+  if (!signInStatus.user) {
     return null;
   }
 

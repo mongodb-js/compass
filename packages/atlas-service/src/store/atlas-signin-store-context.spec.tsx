@@ -5,9 +5,9 @@ import { renderHook } from '@mongodb-js/testing-library-compass';
 import type { AnyAction } from 'redux';
 import {
   AtlasSignInStoreContext,
-  useAtlasSignedInUser,
-  useIsAtlasSignInStateResolved,
+  useAtlasSignInStatus,
 } from './atlas-signin-store-context';
+import type { AtlasSignInStatus } from './atlas-signin-store-context';
 import { AtlasSignInActions } from './atlas-signin-reducer';
 import { configureStore } from './atlas-signin-store';
 
@@ -23,65 +23,74 @@ function renderWithState(actions: AnyAction[]) {
   );
   return {
     store,
-    isResolved: renderHook(() => useIsAtlasSignInStateResolved(), { wrapper })
-      .result,
-    signedInUser: renderHook(() => useAtlasSignedInUser(), { wrapper }).result,
+    status: renderHook(() => useAtlasSignInStatus(), { wrapper }).result,
   };
 }
 
+const USER = { sub: '1234' };
 const RESTORING = [{ type: AtlasSignInActions.RestoringStart }];
 const SUCCESS = [
   { type: AtlasSignInActions.RestoringStart },
-  { type: AtlasSignInActions.RestoringSuccess, userInfo: { sub: '1234' } },
+  { type: AtlasSignInActions.RestoringSuccess, userInfo: USER },
 ];
 
-describe('useIsAtlasSignInStateResolved', function () {
-  const cases: [string, AnyAction[], boolean][] = [
-    ['initial', [], false],
-    ['restoring', RESTORING, false],
-    // A manual sign in attempt started while restoring makes the reducer
-    // discard the restoring result, so until this attempt settles we still
-    // don't know whether the user is signed in.
-    ['in-progress', [...RESTORING, { type: AtlasSignInActions.Start }], false],
+describe('useAtlasSignInStatus', function () {
+  const cases: [string, AnyAction[], AtlasSignInStatus][] = [
+    ['initial', [], { user: null, state: 'initial' }],
+    ['restoring', RESTORING, { user: null, state: 'restoring' }],
+    [
+      'in-progress',
+      [{ type: AtlasSignInActions.Start }],
+      { user: null, state: 'in-progress' },
+    ],
     [
       'unauthenticated',
       [...RESTORING, { type: AtlasSignInActions.RestoringFailed }],
-      true,
+      { user: null, state: 'unauthenticated' },
     ],
-    ['success', SUCCESS, true],
+    ['success', SUCCESS, { user: USER, state: 'success' }],
     [
       'error',
       [
         { type: AtlasSignInActions.Start },
         { type: AtlasSignInActions.Error, error: 'Whoops!' },
       ],
-      true,
+      { user: null, state: 'error' },
     ],
-    ['canceled', [{ type: AtlasSignInActions.Cancel }], true],
+    [
+      'canceled',
+      [{ type: AtlasSignInActions.Cancel }],
+      { user: null, state: 'canceled' },
+    ],
+    [
+      'timed-out',
+      [{ type: AtlasSignInActions.TimedOut }],
+      { user: null, state: 'timed-out' },
+    ],
   ];
 
   for (const [state, actions, expected] of cases) {
-    it(`should return ${String(
-      expected
-    )} for the '${state}' state`, function () {
-      const { store, isResolved } = renderWithState(actions);
+    it(`reports the status for the '${state}' state`, function () {
+      const { store, status } = renderWithState(actions);
       expect(store.getState()).to.have.property('state', state);
-      expect(isResolved.current).to.eq(expected);
+      expect(status.current).to.deep.equal(expected);
     });
   }
 
-  it('should not report a resolved state while a sign in started during restore is still in flight', function () {
-    const { store, isResolved, signedInUser } = renderWithState([
+  it('does not report a resolved or signed in state while a sign in started during restore is still in flight', function () {
+    const { store, status } = renderWithState([
       ...RESTORING,
       { type: AtlasSignInActions.Start },
       // The restore finishes after the manual attempt started, the reducer
-      // ignores it
-      { type: AtlasSignInActions.RestoringSuccess, userInfo: { sub: '1234' } },
+      // ignores it.
+      { type: AtlasSignInActions.RestoringSuccess, userInfo: USER },
     ]);
     expect(store.getState()).to.have.property('state', 'in-progress');
     // The user looks signed out here, so anything acting on that (telemetry,
-    // for example) has to wait for the state to resolve
-    expect(signedInUser.current).to.eq(null);
-    expect(isResolved.current).to.eq(false);
+    // for example) has to wait for the state to resolve.
+    expect(status.current).to.deep.equal({
+      user: null,
+      state: 'in-progress',
+    });
   });
 });
