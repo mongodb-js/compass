@@ -115,7 +115,8 @@ describe('CompassGoTo', function () {
 
   function renderGoTo(
     preferences: { enableGoTo?: boolean } = {},
-    connections = [connectedConnection, disconnectedConnection]
+    connections = [connectedConnection, disconnectedConnection],
+    connectFn?: () => any
   ) {
     return renderWithConnections(
       <ApplicationMenuContextProvider provider={menuProvider}>
@@ -127,22 +128,28 @@ describe('CompassGoTo', function () {
           ...preferences,
         },
         connections,
-        connectFn() {
-          return {
-            listDatabases() {
-              return Promise.resolve([]);
-            },
-            listCollections() {
-              return Promise.resolve([]);
-            },
-          };
-        },
+        connectFn:
+          connectFn ??
+          (() => {
+            return {
+              listDatabases() {
+                return Promise.resolve([]);
+              },
+              listCollections() {
+                return Promise.resolve([]);
+              },
+            };
+          }),
       }
     );
   }
 
-  async function openConnectedPalette() {
-    const result = renderGoTo();
+  async function openConnectedPalette(connectFn?: () => any) {
+    const result = renderGoTo(
+      {},
+      [connectedConnection, disconnectedConnection],
+      connectFn
+    );
     await result.connectionsStore.actions.connect({
       ...connectedConnection,
     });
@@ -303,12 +310,14 @@ describe('CompassGoTo', function () {
       );
     userEvent.click(databaseResult!);
 
-    expect(workspaces.openCollectionsWorkspace.calledOnce).to.equal(true);
+    await waitFor(() => {
+      expect(workspaces.openCollectionsWorkspace.calledOnce).to.equal(true);
+      expect(screen.queryByTestId('go-to-palette')).to.equal(null);
+    });
     expect(workspaces.openCollectionsWorkspace.firstCall.args).to.deep.equal([
       'conn-1',
       'users',
     ]);
-    expect(screen.queryByTestId('go-to-palette')).to.equal(null);
   });
 
   it('opens the Collection workspace on Enter for a collection result', async function () {
@@ -328,7 +337,9 @@ describe('CompassGoTo', function () {
 
     userEvent.keyboard('{Enter}');
 
-    expect(workspaces.openCollectionWorkspace.calledOnce).to.equal(true);
+    await waitFor(() => {
+      expect(workspaces.openCollectionWorkspace.calledOnce).to.equal(true);
+    });
     expect(workspaces.openCollectionWorkspace.firstCall.args).to.deep.equal([
       'conn-1',
       'users.accounts',
@@ -350,9 +361,77 @@ describe('CompassGoTo', function () {
         'connection:conn-2'
       );
     });
+  });
+
+  it('connects then opens Databases when activating a disconnected connection', async function () {
+    await openConnectedPalette();
+
+    userEvent.type(
+      screen.getByPlaceholderText('Search connections'),
+      'Staging Offline'
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('go-to-result').getAttribute('data-result-id')
+      ).to.equal('connection:conn-2');
+    });
 
     userEvent.click(screen.getByTestId('go-to-result'));
-    expect(workspaces.openDatabasesWorkspace.called).to.equal(false);
+
+    await waitFor(() => {
+      expect(workspaces.openDatabasesWorkspace.calledOnce).to.equal(true);
+      expect(screen.queryByTestId('go-to-palette')).to.equal(null);
+    });
+    expect(workspaces.openDatabasesWorkspace.firstCall.args).to.deep.equal([
+      'conn-2',
+    ]);
+  });
+
+  it('keeps the palette open with an inline error when connect fails', async function () {
+    let allowConnect = true;
+    await openConnectedPalette(() => {
+      if (!allowConnect) {
+        return Promise.reject(new Error('Authentication failed'));
+      }
+      return {
+        listDatabases() {
+          return Promise.resolve([]);
+        },
+        listCollections() {
+          return Promise.resolve([]);
+        },
+      };
+    });
+
+    allowConnect = false;
+
+    userEvent.type(
+      screen.getByPlaceholderText('Search connections'),
+      'Staging Offline'
+    );
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId('go-to-result').getAttribute('data-result-id')
+      ).to.equal('connection:conn-2');
+    });
+
+    expect(
+      screen.getByTestId('go-to-result').getAttribute('aria-selected')
+    ).to.equal('true');
+
+    userEvent.click(screen.getByTestId('go-to-result'));
+
+    await waitFor(() => {
+      expect(screen.getByTestId('go-to-activation-error')).to.include.text(
+        'Authentication failed'
+      );
+    });
     expect(screen.getByTestId('go-to-palette')).to.be.visible;
+    expect(
+      screen.getByTestId('go-to-result').getAttribute('aria-selected')
+    ).to.equal('true');
+    expect(workspaces.openDatabasesWorkspace.called).to.equal(false);
   });
 });

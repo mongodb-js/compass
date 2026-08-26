@@ -139,10 +139,49 @@ export const loadInventory =
     dispatch(refreshCandidates());
   };
 
+export type ActivateGoToResult = {
+  close: boolean;
+  error?: string;
+};
+
 export const activateResult =
-  (candidate: GoToCandidate): GoToThunkAction<boolean> =>
-  (_dispatch, _getState, { workspaces }) => {
-    return activateGoToCandidate(candidate, workspaces);
+  (candidate: GoToCandidate): GoToThunkAction<Promise<ActivateGoToResult>> =>
+  async (_dispatch, _getState, { connections, workspaces }) => {
+    if (candidate.connected) {
+      return {
+        close: activateGoToCandidate(candidate, workspaces),
+      };
+    }
+
+    if (candidate.kind !== 'connection') {
+      return { close: false };
+    }
+
+    const connection = connections.getConnectionById(candidate.connectionId);
+    if (!connection) {
+      return { close: false, error: 'Connection not found.' };
+    }
+
+    await connections.connect(connection.info);
+
+    // ConnectionsService.connect does not throw on failure; check the stored
+    // connection error the same way other features do after await.
+    const connectionError = connections.getConnectionById(
+      candidate.connectionId
+    )?.error;
+    if (connectionError) {
+      return {
+        close: false,
+        error: connectionError.message || 'Failed to connect.',
+      };
+    }
+
+    return {
+      close: activateGoToCandidate(
+        { ...candidate, connected: true },
+        workspaces
+      ),
+    };
   };
 
 function configureStore(services: GoToServices) {

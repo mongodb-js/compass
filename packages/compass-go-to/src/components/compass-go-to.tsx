@@ -7,6 +7,8 @@ import React, {
 } from 'react';
 import { connect } from 'react-redux';
 import {
+  Banner,
+  BannerVariant,
   Icon,
   ServerIcon,
   TextInput,
@@ -21,7 +23,7 @@ import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { GoToCandidate } from '../go-to-candidates';
 import { rankGoToResults } from '../go-to-search';
-import type { GoToRootState } from '../stores/store';
+import type { ActivateGoToResult, GoToRootState } from '../stores/store';
 import { activateResult, loadInventory } from '../stores/store';
 
 const backdropStyles = css({
@@ -75,6 +77,10 @@ const resultsDarkStyles = css({
 
 const resultsEmptyStyles = css({
   minHeight: spacing[800],
+});
+
+const activationErrorStyles = css({
+  margin: `0 ${spacing[300]}px ${spacing[200]}px`,
 });
 
 const resultRowStyles = css({
@@ -179,7 +185,7 @@ type GoToPaletteProps = {
   candidates: GoToCandidate[];
   onClose: () => void;
   onLoadInventory: () => void;
-  onActivateResult: (candidate: GoToCandidate) => boolean;
+  onActivateResult: (candidate: GoToCandidate) => Promise<ActivateGoToResult>;
 };
 
 function GoToPalette({
@@ -192,6 +198,8 @@ function GoToPalette({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [query, setQuery] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const [activationError, setActivationError] = useState<string | null>(null);
+  const activatingRef = useRef(false);
 
   const results = useMemo(
     () => rankGoToResults(candidates, query),
@@ -208,15 +216,36 @@ function GoToPalette({
     onLoadInventory();
   }, [onLoadInventory]);
 
+  const tryActivate = useCallback(
+    async (candidate: GoToCandidate) => {
+      if (activatingRef.current) {
+        return;
+      }
+      activatingRef.current = true;
+      setActivationError(null);
+      try {
+        const result = await onActivateResult(candidate);
+        if (result.close) {
+          onClose();
+          return;
+        }
+        if (result.error) {
+          setActivationError(result.error);
+        }
+      } finally {
+        activatingRef.current = false;
+      }
+    },
+    [onActivateResult, onClose]
+  );
+
   const activateHighlighted = useCallback(() => {
     const candidate = results[activeIndex];
     if (!candidate) {
       return;
     }
-    if (onActivateResult(candidate)) {
-      onClose();
-    }
-  }, [activeIndex, onActivateResult, onClose, results]);
+    void tryActivate(candidate);
+  }, [activeIndex, results, tryActivate]);
 
   useHotkeys(
     'arrowdown',
@@ -287,9 +316,19 @@ function GoToPalette({
             onChange={(event) => {
               setQuery(event.target.value);
               setHighlightedIndex(0);
+              setActivationError(null);
             }}
           />
         </div>
+        {activationError ? (
+          <Banner
+            className={activationErrorStyles}
+            data-testid="go-to-activation-error"
+            variant={BannerVariant.Danger}
+          >
+            {activationError}
+          </Banner>
+        ) : null}
         <div
           data-testid="go-to-results"
           role="listbox"
@@ -321,9 +360,7 @@ function GoToPalette({
                   setHighlightedIndex(index);
                 }}
                 onClick={() => {
-                  if (onActivateResult(candidate)) {
-                    onClose();
-                  }
+                  void tryActivate(candidate);
                 }}
               >
                 <ResultIcon candidate={candidate} darkMode={darkMode} />
@@ -356,7 +393,7 @@ type ToggleSource = 'hotkey' | 'menu';
 type CompassGoToProps = {
   candidates: GoToCandidate[];
   onLoadInventory: () => void;
-  onActivateResult: (candidate: GoToCandidate) => boolean;
+  onActivateResult: (candidate: GoToCandidate) => Promise<ActivateGoToResult>;
 };
 
 function CompassGoTo({
