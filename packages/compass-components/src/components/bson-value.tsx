@@ -12,6 +12,7 @@ import { Icon, Link } from './leafygreen';
 import { spacing } from '@leafygreen-ui/tokens';
 import { css, cx } from '@leafygreen-ui/emotion';
 import {
+  bsonValueDisplayVar,
   useBsonThemeStyles,
   wrapValueWithBsonLabel,
 } from './document-list/bson-utils';
@@ -37,6 +38,7 @@ type PropsByValueType<V extends ValueTypes> = Omit<
 >;
 
 const bsonValue = css({
+  display: `var(${bsonValueDisplayVar}, block)`,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -46,15 +48,17 @@ const bsonValuePrewrap = css({
   whiteSpace: 'pre-wrap',
 });
 
+// A span so that it stays valid markup whatever `bsonValueDisplayVar` resolves
+// the display to, including inside the inline document list layout.
 export const BSONValueContainer: React.FunctionComponent<
-  React.HTMLProps<HTMLDivElement> & {
+  React.HTMLProps<HTMLSpanElement> & {
     type?: ValueTypes;
   }
 > = ({ type, children, className, ...props }) => {
   const bsonStyles = useBsonThemeStyles(type);
 
   return (
-    <div
+    <span
       {...props}
       className={cx(
         className,
@@ -67,7 +71,7 @@ export const BSONValueContainer: React.FunctionComponent<
       style={bsonStyles}
     >
       {children}
-    </div>
+    </span>
   );
 };
 
@@ -342,10 +346,6 @@ const CodeValue: React.FunctionComponent<PropsByValueType<'Code'>> = ({
   );
 };
 
-const dateBsonValueStyles = css({
-  display: 'inline',
-});
-
 const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
   value,
 }) => {
@@ -359,11 +359,7 @@ const DateValue: React.FunctionComponent<PropsByValueType<'Date'>> = ({
 
   return (
     <DateWithTimezoneHint value={value}>
-      <BSONValueContainer
-        className={dateBsonValueStyles}
-        type="Date"
-        title={stringifiedValue}
-      >
+      <BSONValueContainer type="Date" title={stringifiedValue}>
         {wrapValueWithBsonLabel('Date', stringifiedValue)}
       </BSONValueContainer>
     </DateWithTimezoneHint>

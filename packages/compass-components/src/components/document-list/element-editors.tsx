@@ -106,14 +106,12 @@ export const KeyEditor: React.FunctionComponent<{
         </Tooltip>
       ) : (
         // Double-click is not accessible so no reason for this to be a button
-        <div
+        <span
           data-testid="hadron-document-clickable-key"
           onDoubleClick={onEditStart}
-          className={maxWidth}
-          style={{ width }}
         >
           {value}
-        </div>
+        </span>
       )}
     </>
   );
@@ -148,12 +146,12 @@ export const ValueEditor: React.FunctionComponent<{
     // Double-click is not accessible so no reason for this to be a button,
     // users won't be able to interact with it anyway
     return (
-      <div
+      <span
         data-testid="hadron-document-clickable-value"
         onDoubleClick={onEditStart}
       >
         <BSONValue type={type as any} value={originalValue}></BSONValue>
-      </div>
+      </span>
     );
   }
 
