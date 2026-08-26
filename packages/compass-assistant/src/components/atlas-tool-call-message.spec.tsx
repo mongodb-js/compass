@@ -69,8 +69,6 @@ class FakeAtlasAuthService {
 }
 
 describe('AtlasToolCallMessage', function () {
-  const connectionInfo = { id: 'conn-1', name: 'My Cluster' };
-
   function makeToolCall(
     state: ToolUIPart['state'],
     approvalId: string | undefined = 'approval-1',
@@ -119,7 +117,6 @@ describe('AtlasToolCallMessage', function () {
     const { container, track } = renderWithConnections(
       <AtlasToolCallMessage
         toolCall={makeToolCall('approval-requested')}
-        connectionInfo={connectionInfo}
         onApprove={onApprove}
         onDeny={onDeny}
         {...props}
@@ -329,12 +326,6 @@ describe('AtlasToolCallMessage', function () {
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
       expect(screen.queryByText('Skip')).to.not.exist;
     });
-  });
-
-  it('displays the connection chip for atlas-connection-error-debugger', function () {
-    renderMessage();
-
-    expect(screen.getByText(connectionInfo.name)).to.exist;
   });
 
   describe('custom tool result', function () {
