@@ -14,6 +14,7 @@ import type {
 } from '@mongodb-js/atlas-service/provider';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { AtlasToolCallMessage } from './atlas-tool-call-message';
+import { containsText } from './test-helpers';
 
 class FakeAtlasAuthService {
   private user: AtlasUserInfo | null;
@@ -129,8 +130,13 @@ describe('AtlasToolCallMessage', function () {
     it('prompts the user to connect to Atlas', function () {
       renderMessage();
 
-      expect(screen.getByText('Connect with Atlas to debug this connection?'))
-        .to.exist;
+      expect(
+        screen.getByText(
+          containsText(
+            'Connect with Atlas and run atlas-connection-error-debugger?'
+          )
+        )
+      ).to.exist;
       expect(screen.getByText('Connect to Atlas')).to.exist;
       expect(screen.getByText('Skip')).to.exist;
     });
@@ -221,7 +227,9 @@ describe('AtlasToolCallMessage', function () {
       await waitFor(() => {
         expect(screen.getByText('Run')).to.exist;
       });
-      expect(screen.getByText('Run Atlas to debug this connection?')).to.exist;
+      expect(
+        screen.getByText(containsText('Run atlas-connection-error-debugger?'))
+      ).to.exist;
       expect(screen.getByText('Cancel')).to.exist;
       expect(screen.queryByText('Connect to Atlas')).to.not.exist;
     });

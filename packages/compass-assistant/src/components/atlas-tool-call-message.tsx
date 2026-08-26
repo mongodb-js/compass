@@ -45,6 +45,21 @@ const expandableContentStyles = css({
   },
 });
 
+function getApprovalMessage(
+  toolNameElement: ToolUIPart,
+  isUserSignedIn: boolean,
+  isSignInInProgress: boolean
+): React.ReactNode | undefined {
+  if (isUserSignedIn) {
+    return undefined;
+  }
+  if (isSignInInProgress) {
+    return <>Connecting with Atlas to run {toolNameElement}...</>;
+  }
+  return <>Connect with Atlas and run {toolNameElement}?</>;
+
+}
+
 function getToolDescription(toolType: string, toolDisplayName: string): string {
   if (isDebuggerToolCall(toolType)) {
     return `Connecting would call Atlas API endpoint (cluster
@@ -57,21 +72,6 @@ This is read-only and won't change your cluster.`;
       (tool) => tool.name === toolDisplayName
     )?.description || ''
   );
-}
-
-// TODO(COMPASS-11044): update texts to be generic
-function getApprovalMessage(
-  isSignInInProgress: boolean,
-  isUserSignedIn: boolean
-) {
-  if (isUserSignedIn) {
-    return 'Run Atlas to debug this connection?';
-  }
-  if (isSignInInProgress) {
-    return 'Connecting with Atlas to debug this connection';
-  }
-
-  return 'Connect with Atlas to debug this connection?';
 }
 
 export const AtlasToolCallMessage: React.FunctionComponent<
@@ -161,10 +161,8 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     toolDisplayName
   );
 
-  const approvalMessage = getApprovalMessage(
-    isSignInInProgress,
-    isUserSignedIn
-  );
+  const approvalMessage = getApprovalMessage(toolCall, isUserSignedIn, isSignInInProgress);
+
   // TODO COMPASS-10973: don't render actions if there's no approvalId.
   return (
     <>
