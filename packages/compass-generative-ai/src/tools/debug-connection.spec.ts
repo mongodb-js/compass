@@ -5,6 +5,7 @@ import type {
   AtlasAccessListEntry,
   AtlasClusterState,
 } from '@mongodb-js/atlas-admin-api/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 import { debugConnection, isUserIpIncluded } from './debug-connection';
 
 const CONNECTION_STRING = 'mongodb+srv://cluster0.abcde.mongodb.net';
@@ -72,6 +73,8 @@ describe('debugConnection', function () {
     getClusterState: Sinon.SinonStub;
     getProjectIPAccessList: Sinon.SinonStub;
   };
+  let trackStub: Sinon.SinonStub;
+  let track!: TrackFunction;
 
   function mockAtlasAdminApi(
     opts: {
@@ -101,6 +104,8 @@ describe('debugConnection', function () {
 
   beforeEach(function () {
     sandbox = Sinon.createSandbox();
+    trackStub = sandbox.stub();
+    track = trackStub;
   });
 
   afterEach(function () {
@@ -113,6 +118,7 @@ describe('debugConnection', function () {
     const result = await debugConnection(
       CONNECTION_STRING,
       api,
+      track,
       CLOUD_UI_BASE_URL
     );
 
@@ -132,6 +138,7 @@ describe('debugConnection', function () {
     const result = await debugConnection(
       CONNECTION_STRING,
       api,
+      track,
       CLOUD_UI_BASE_URL
     );
 
@@ -152,6 +159,7 @@ describe('debugConnection', function () {
     const result = await debugConnection(
       CONNECTION_STRING,
       api,
+      track,
       CLOUD_UI_BASE_URL
     );
 
@@ -173,6 +181,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -189,6 +198,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -203,6 +213,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -215,6 +226,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -229,6 +241,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -243,6 +256,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -255,6 +269,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -269,6 +284,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -285,6 +301,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -298,6 +315,7 @@ describe('debugConnection', function () {
       const result = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
 
@@ -320,6 +338,7 @@ describe('debugConnection', function () {
       const { advice } = await debugConnection(
         CONNECTION_STRING,
         api,
+        track,
         CLOUD_UI_BASE_URL
       );
       return advice;
@@ -400,12 +419,128 @@ describe('debugConnection', function () {
     });
   });
 
+  describe('telemetry', function () {
+    async function getSuccessPayload(
+      opts: Parameters<typeof mockAtlasAdminApi>[0] = {}
+    ) {
+      const api = mockAtlasAdminApi({
+        ipAccessList: [{ ipAddress: USER_IP }],
+        ...opts,
+      });
+      await debugConnection(CONNECTION_STRING, api, track, CLOUD_UI_BASE_URL);
+      expect(trackStub).to.have.been.calledOnce;
+      const [event, payload] = trackStub.firstCall.args;
+      expect(event).to.equal('Atlas Connection Troubleshooting Success');
+      return payload;
+    }
+
+    it('reports a healthy cluster with an allowed ip', async function () {
+      const payload = await getSuccessPayload();
+      expect(payload.cluster_state).to.equal('READY');
+      expect(payload.ip_access_status).to.equal('Client IP Allowed');
+    });
+
+    it('reports the duration of the run', async function () {
+      const { duration } = await getSuccessPayload();
+      expect(duration).to.be.a('number');
+      expect(duration).to.be.at.least(0);
+    });
+
+    const stateCases: [
+      string,
+      Parameters<typeof mockAtlasAdminApi>[0],
+      { cluster_state: string; ip_access_status?: string }
+    ][] = [
+      [
+        'a paused cluster',
+        { state: 'IDLE', paused: true },
+        { cluster_state: 'PAUSED', ip_access_status: 'Client IP Allowed' },
+      ],
+      [
+        'a provisioning cluster',
+        { state: 'CREATING' },
+        { cluster_state: 'CREATING', ip_access_status: 'Client IP Allowed' },
+      ],
+      [
+        'a deleting cluster',
+        { state: 'DELETING' },
+        { cluster_state: 'DELETING', ip_access_status: 'Client IP Allowed' },
+      ],
+      [
+        'an unverified ip',
+        { ipAccessList: [] },
+        { cluster_state: 'READY', ip_access_status: 'Could not confirm' },
+      ],
+      [
+        'a paused cluster with an unverified ip',
+        { state: 'IDLE', paused: true, ipAccessList: [] },
+        { cluster_state: 'PAUSED', ip_access_status: 'Could not confirm' },
+      ],
+      [
+        'a state that needs no action',
+        { state: 'UPDATING' },
+        { cluster_state: 'UPDATING', ip_access_status: 'Client IP Allowed' },
+      ],
+    ];
+
+    for (const [description, opts, expected] of stateCases) {
+      it(`reports ${description}`, async function () {
+        const payload = await getSuccessPayload(opts);
+        expect(payload.cluster_state).to.equal(expected.cluster_state);
+        expect(payload.ip_access_status).to.equal(expected.ip_access_status);
+      });
+    }
+
+    it('reports a cluster that could not be found', async function () {
+      const payload = await getSuccessPayload({
+        projectIdAndClusterName: undefined,
+      });
+      expect(payload.cluster_state).to.equal('Unknown');
+      expect(payload.ip_access_status).to.equal('Could not confirm');
+    });
+
+    it('tracks a failure event when the atlas api throws', async function () {
+      const api = mockAtlasAdminApi();
+      const error = Object.assign(new Error('nope'), {
+        name: 'AtlasError',
+        code: 'ETIMEDOUT',
+      });
+      atlasAdminApi.getClusterState.rejects(error);
+
+      try {
+        await debugConnection(CONNECTION_STRING, api, track, CLOUD_UI_BASE_URL);
+      } catch {
+        // expected, asserted on separately
+      }
+
+      expect(trackStub).to.have.been.calledOnceWith(
+        'Atlas Connection Troubleshooting Failed',
+        { error_name: 'AtlasError', error_code: 'ETIMEDOUT' }
+      );
+    });
+
+    it('does not track a success event when the atlas api throws', async function () {
+      const api = mockAtlasAdminApi();
+      atlasAdminApi.getProjectIPAccessList.rejects(new Error('nope'));
+
+      try {
+        await debugConnection(CONNECTION_STRING, api, track, CLOUD_UI_BASE_URL);
+      } catch {
+        // expected, asserted on separately
+      }
+
+      expect(trackStub).to.not.have.been.calledWith(
+        'Atlas Connection Troubleshooting Success'
+      );
+    });
+  });
+
   it('propagates errors from getClusterState', async function () {
     const api = mockAtlasAdminApi();
     atlasAdminApi.getClusterState.rejects(new Error('nope'));
 
     try {
-      await debugConnection(CONNECTION_STRING, api, CLOUD_UI_BASE_URL);
+      await debugConnection(CONNECTION_STRING, api, track, CLOUD_UI_BASE_URL);
       expect.fail('Expected debugConnection to throw');
     } catch (err) {
       expect(err).to.have.property('message', 'nope');
