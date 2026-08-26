@@ -63,6 +63,8 @@ export type SendMessageOptions = {
 // width and height of the drawer since Leafygreen doesn't support this yet.
 const assistantChatFixesStyles = css({
   overflowY: 'clip',
+  display: 'flex',
+  flexDirection: 'column',
   // Compass has a global bullet point override but we clear this for the chat.
   ul: {
     listStyleType: 'disc',
@@ -160,7 +162,7 @@ const messageFeedFixesStyles = css({
   overflowY: 'auto',
   wordBreak: 'break-word',
   paddingTop: spacing[400],
-  width: '100%',
+  // width: '100%',
 
   // TODO(COMPASS-9751): We're setting the font weight to 600 here as the LG styling for the Assistant header isn't set
   '& > div > div > div:has(svg[aria-label="Sparkle Icon"]) p': {
