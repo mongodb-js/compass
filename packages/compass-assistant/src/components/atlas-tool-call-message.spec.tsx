@@ -288,7 +288,11 @@ describe('AtlasToolCallMessage', function () {
       // connecting message.
       await waitFor(() => {
         expect(
-          screen.getByText('Connecting with Atlas to debug this connection')
+          screen.getByText(
+            containsText(
+              `Connecting with Atlas to run atlas-connection-error-debugger...`
+            )
+          )
         ).to.exist;
       });
       return rendered;
@@ -297,8 +301,13 @@ describe('AtlasToolCallMessage', function () {
     it('shows the connecting message', async function () {
       const { atlasAuthService, onApprove } = await startSignIn();
 
-      expect(screen.getByText('Connecting with Atlas to debug this connection'))
-        .to.exist;
+      expect(
+        screen.getByText(
+          containsText(
+            `Connecting with Atlas to run atlas-connection-error-debugger...`
+          )
+        )
+      ).to.exist;
 
       // Let the pending sign in settle so we don't leave a dangling attempt
       atlasAuthService.resolveSignIn();
