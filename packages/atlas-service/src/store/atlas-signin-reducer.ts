@@ -39,7 +39,7 @@ export type AtlasSignInState = {
 export type SignInAttemptResult =
   | { status: 'success'; userInfo: AtlasUserInfo }
   | { status: 'timed-out' }
-  | { status: 'canceled' }
+  | { status: 'canceled'; reason?: unknown }
   | { status: 'error'; error: Error };
 
 export type AtlasSignInThunkAction<
@@ -156,18 +156,13 @@ function getAttempt(id?: number | null): AttemptState {
   if (!id) {
     id = ++attemptId;
     const controller = new AbortController();
-    let resolve;
-    const promise = new Promise<SignInAttemptResult>((res, _rej) => {
-      resolve = res;
+    const { promise, resolve } = Promise.withResolvers<SignInAttemptResult>();
+    AttemptStateMap.set(id, {
+      id,
+      controller,
+      promise,
+      resolve,
     });
-    if (resolve) {
-      AttemptStateMap.set(id, {
-        id,
-        controller,
-        promise,
-        resolve: resolve,
-      });
-    }
   }
   const attemptState = AttemptStateMap.get(id);
   if (!attemptState) {
@@ -335,7 +330,13 @@ export const restoreSignInState = (): AtlasSignInThunkAction<Promise<void>> => {
 };
 
 const startAttempt = (fn: () => void): AtlasSignInThunkAction<AttemptState> => {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    if (getState().currentAttemptId) {
+      throw new Error(
+        "Can't start sign in with prompt while another sign in attempt is in progress"
+      );
+    }
+
     const attempt = getAttempt();
     dispatch({ type: AtlasSignInActions.AttemptStart, id: attempt.id });
 
@@ -384,7 +385,7 @@ export const performSignInAttempt = ({
       })
     );
     signal?.addEventListener('abort', () => {
-      dispatch(cancelSignIn());
+      dispatch(cancelSignIn(signal.reason));
     });
     return attempt.promise;
   };
@@ -426,7 +427,6 @@ export const signIn =
           timeout: 10_000,
         });
         dispatch({ type: AtlasSignInActions.Success, userInfo });
-        AttemptStateMap.clear();
         resolve({ userInfo, status: 'success' });
       };
       const timeoutPromise = new Promise<never>((_resolve, reject) => {
@@ -466,14 +466,14 @@ export const signIn =
 
         resolve({ status: 'error', error: err as Error });
       }
-      AttemptStateMap.delete(currentAttemptId);
     } finally {
+      AttemptStateMap.delete(currentAttemptId);
       // if the timeout is not cleared the promise will be dangling around
       clearTimeout(timeoutId);
     }
   };
 
-export const cancelSignIn = (): AtlasSignInThunkAction<void> => {
+export const cancelSignIn = (reason?: any): AtlasSignInThunkAction<void> => {
   return (dispatch, getState, { track }) => {
     // Can't cancel sign in after the flow was finished indicated by current
     // attempt id being set to null
@@ -482,7 +482,7 @@ export const cancelSignIn = (): AtlasSignInThunkAction<void> => {
     }
     const attempt = getAttempt(getState().currentAttemptId);
     attempt.controller.abort(new CanceledError());
-    attempt.resolve({ status: 'canceled' });
+    attempt.resolve({ status: 'canceled', reason });
     AttemptStateMap.delete(attempt.id);
     dispatch({ type: AtlasSignInActions.Cancel });
     track('Atlas Sign In Canceled', {});

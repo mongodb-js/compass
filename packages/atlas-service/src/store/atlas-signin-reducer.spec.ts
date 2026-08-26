@@ -333,8 +333,12 @@ describe('atlasSignInReducer', function () {
       const signInPromise = store.dispatch(
         performSignInAttempt({ signal: c.signal })
       );
-      c.abort(new Error('Aborted from outside'));
-      expect(await signInPromise).to.deep.equal({ status: 'canceled' });
+      const err = new Error('Aborted from outside');
+      c.abort(err);
+      expect(await signInPromise).to.deep.equal({
+        status: 'canceled',
+        reason: err,
+      });
       expect(store.getState()).to.have.property('state', 'canceled');
 
       // Ensure that we are not leaving a dangling store operation that would conflict with our mocks being reset.
