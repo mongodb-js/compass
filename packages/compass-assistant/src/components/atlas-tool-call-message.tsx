@@ -173,7 +173,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
         title={getToolCallTitle(toolCall, toolNameElement, approvalMessage)}
         // TODO(COMPASS-11077): find a way to properly implement connection info
         // when a connection attempt has failed. The current connectionInfo in assistant-chat
-        // represents the last connection the user successfully connected to.
+        // represents a connection the user has successfully connected to before.
         chips={[]}
         showActions={isAwaitingApproval && !isSignInInProgress}
         contentClassName={expandableContentStyles}
