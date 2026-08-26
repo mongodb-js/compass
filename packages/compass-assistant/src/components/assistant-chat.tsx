@@ -691,7 +691,6 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                           <AtlasToolCallMessage
                             key={`${toolCallId}-${index}`}
                             toolCall={toolCall}
-                            connectionInfo={messageConnection}
                             onApprove={(approvalId, approved) =>
                               handleToolApproval({
                                 message,
