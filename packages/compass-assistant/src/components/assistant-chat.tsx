@@ -42,7 +42,7 @@ import {
   partIsToolUI,
   stopChat,
 } from '../utils';
-import { AtlasConnectionStatus } from '@mongodb-js/atlas-service/provider';
+import { AtlasConnectionStatus } from './atlas-connection-status';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -63,6 +63,8 @@ export type SendMessageOptions = {
 // width and height of the drawer since Leafygreen doesn't support this yet.
 const assistantChatFixesStyles = css({
   overflowY: 'clip',
+  display: 'flex',
+  flexDirection: 'column',
   // Compass has a global bullet point override but we clear this for the chat.
   ul: {
     listStyleType: 'disc',

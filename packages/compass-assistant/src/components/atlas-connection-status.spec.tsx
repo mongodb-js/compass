@@ -8,8 +8,13 @@ import {
   waitFor,
 } from '@mongodb-js/testing-library-compass';
 import { AtlasConnectionStatus } from './atlas-connection-status';
-import type { AtlasAuthService, AtlasUserInfo } from '../provider';
-import AtlasAuthPlugin from '../renderer';
+import type {
+  AtlasAuthService,
+  AtlasUserInfo,
+} from '@mongodb-js/atlas-service/provider';
+import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
+import { AssistantActionsContext } from '../compass-assistant-provider';
 
 class FakeAtlasAuthService {
   private user: AtlasUserInfo | null;
@@ -39,14 +44,25 @@ class FakeAtlasAuthService {
 }
 
 describe('AtlasConnectionStatus', function () {
-  function renderStatus(service: FakeAtlasAuthService) {
+  function renderStatus(
+    service: FakeAtlasAuthService,
+    getSystemStatus: sinon.SinonStub = sinon.stub().resolves({})
+  ) {
     const { renderWithConnections } = createPluginTestHelpers(
       // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       AtlasAuthPlugin.withMockServices({
         atlasAuthService: service as unknown as AtlasAuthService,
       })
     );
-    return renderWithConnections(<AtlasConnectionStatus />);
+    return renderWithConnections(
+      <AssistantActionsContext.Provider
+        value={{
+          atlasAdminApi: { getSystemStatus } as unknown as AtlasAdminApiService,
+        }}
+      >
+        <AtlasConnectionStatus />
+      </AssistantActionsContext.Provider>
+    );
   }
 
   it('renders nothing when the user is not signed in', async function () {
@@ -65,6 +81,29 @@ describe('AtlasConnectionStatus', function () {
     });
     expect(screen.getByText('Signed in to Atlas')).to.exist;
     expect(screen.getByText('Disconnect Atlas')).to.exist;
+  });
+
+  it('renders the username instead of the generic label when it is known', async function () {
+    renderStatus(
+      new FakeAtlasAuthService({ sub: 'user-1' }),
+      sinon.stub().resolves({ user: { username: 'user@example.com' } })
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('user@example.com')).to.exist;
+    });
+    expect(screen.queryByText('Signed in to Atlas')).to.not.exist;
+  });
+
+  it('falls back to the generic label when the request fails', async function () {
+    renderStatus(
+      new FakeAtlasAuthService({ sub: 'user-1' }),
+      sinon.stub().rejects(new Error('network error'))
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText('Signed in to Atlas')).to.exist;
+    });
   });
 
   it('confirms, calls signOut, and hides itself when disconnect is confirmed', async function () {

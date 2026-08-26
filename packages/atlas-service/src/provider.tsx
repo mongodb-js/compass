@@ -74,5 +74,3 @@ export {
   useAtlasLoginActions,
 } from './store/atlas-signin-store-context';
 export type { AtlasLoginActions } from './store/atlas-signin-store-context';
-export { AtlasConnectionStatus } from './components/atlas-connection-status';
-export type { AtlasConnectionStatusProps } from './components/atlas-connection-status';

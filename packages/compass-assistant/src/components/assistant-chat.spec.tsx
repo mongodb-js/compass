@@ -33,6 +33,8 @@ import {
 } from '@mongodb-js/compass-telemetry';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 
+const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
+
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
     {
@@ -100,8 +102,6 @@ describe('AssistantChat', function () {
 
         await chat.sendMessage(message, options);
       });
-
-    const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 
     const assistantActionsContext = {
       ensureOptInAndSend: ensureOptInAndSendStub,
@@ -237,7 +237,9 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          <AtlasLoginPlugin>
+            <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          </AtlasLoginPlugin>
         </ToolsControllerProvider>
       );
 
@@ -254,7 +256,9 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          <AtlasLoginPlugin>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </AtlasLoginPlugin>
         </ToolsControllerProvider>,
         {
           connections: [],
@@ -271,7 +275,9 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          <AtlasLoginPlugin>
+            <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          </AtlasLoginPlugin>
         </ToolsControllerProvider>,
         {}
       );
@@ -284,7 +290,9 @@ describe('AssistantChat', function () {
 
       rerender(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          <AtlasLoginPlugin>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </AtlasLoginPlugin>
         </ToolsControllerProvider>
       );
 

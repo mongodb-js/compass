@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   Body,
   Button,
@@ -11,7 +11,11 @@ import {
   spacing,
   useDarkMode,
 } from '@mongodb-js/compass-components';
-import { useAtlasLoginActions, useAtlasSignInStatus } from '../provider';
+import {
+  useAtlasLoginActions,
+  useAtlasSignInStatus,
+} from '@mongodb-js/atlas-service/provider';
+import { useAtlasAdminApi } from '../compass-assistant-provider';
 
 const containerStyles = css({
   display: 'flex',
@@ -57,8 +61,38 @@ export const AtlasConnectionStatus: React.FunctionComponent<
   AtlasConnectionStatusProps
 > = ({ 'data-testid': dataTestId = 'atlas-connection-status' }) => {
   const darkMode = useDarkMode();
+  const atlasAdminApi = useAtlasAdminApi();
   const signInStatus = useAtlasSignInStatus();
   const { signOut } = useAtlasLoginActions();
+  const sub = signInStatus.user?.sub;
+
+  const [atlasUser, setAtlasUser] = useState<{
+    sub: string;
+    username?: string;
+  }>();
+
+  useEffect(() => {
+    if (!sub) {
+      return;
+    }
+    let cancelled = false;
+    void (async () => {
+      try {
+        // This is a temporary implementation since username is only required here. If you need to retrieve the username somewhere else, merge together with the existing userInfo data.
+        const { user } = await atlasAdminApi.getSystemStatus();
+        if (!cancelled) {
+          setAtlasUser({ sub, username: user?.username });
+        }
+      } catch {
+        // Fall back to the generic label.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [atlasAdminApi, sub]);
+
+  const username = atlasUser?.sub === sub ? atlasUser?.username : undefined;
 
   const handleDisconnect = useCallback(() => {
     void (async () => {
@@ -96,7 +130,7 @@ export const AtlasConnectionStatus: React.FunctionComponent<
           )}
           data-testid={`${dataTestId}-label`}
         >
-          Signed in to Atlas
+          {username ?? 'Signed in to Atlas'}
         </Body>
       </div>
       <Button
