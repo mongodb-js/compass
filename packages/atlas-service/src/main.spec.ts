@@ -620,6 +620,17 @@ describe('CompassAuthServiceMain', function () {
         expect(authHeaders).to.not.have.property('X-Compass-Auth');
       });
 
+      it('should add auth headers for the system status request', async function () {
+        const authHeaders = await CompassAuthService.handleAuthHeaders({
+          requestHeaders: { 'X-Compass-Auth': 'true' },
+          url: `${defaultConfig.atlasAdminApiBaseUrl}/v2`,
+        });
+        expect(authHeaders).to.have.property(
+          'Authorization',
+          `Bearer ${accessToken}`
+        );
+      });
+
       it('should not add auth headers if they werent asked for', async function () {
         const url = 'http://example.com/api/private/some-endpoint';
         const oldHeaders = {
