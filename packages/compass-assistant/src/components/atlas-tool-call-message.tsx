@@ -10,10 +10,7 @@ import {
   toolHasOutput,
 } from '../utils';
 import { ActionCardMessage } from './action-card-message';
-import {
-  getAvailableTools,
-  isReadOnlyTool,
-} from '@mongodb-js/compass-generative-ai/provider';
+import { isReadOnlyTool } from '@mongodb-js/compass-generative-ai/provider';
 import type { AtlasSignInEntrypoint } from '@mongodb-js/compass-telemetry';
 import {
   useAtlasLoginActions,
@@ -68,7 +65,7 @@ const readonlyNoteStyles = css({
 
 const ReadonlyNote: React.FunctionComponent = () => (
   <div className={readonlyNoteStyles}>
-    This is read-only and won't change your cluster.
+    {"This is read-only and won't change your cluster."}
   </div>
 );
 

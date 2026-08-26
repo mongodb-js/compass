@@ -50,7 +50,7 @@ class FakeAtlasAuthService {
           try {
             resolve(complete());
           } catch (err) {
-            reject(err as Error);
+            reject(err);
           }
         };
       });

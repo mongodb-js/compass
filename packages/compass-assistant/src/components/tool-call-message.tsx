@@ -8,10 +8,7 @@ import {
 import { getToolDescription } from '../utils';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
-import {
-  getAvailableTools,
-  doesToolUseConnection,
-} from '@mongodb-js/compass-generative-ai/provider';
+import { doesToolUseConnection } from '@mongodb-js/compass-generative-ai/provider';
 import {
   cleanToolCallOutput,
   getToolState,
