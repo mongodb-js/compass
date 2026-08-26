@@ -19,10 +19,18 @@ export type GoToCandidate = {
   collectionType?: GoToCollectionType;
 };
 
+export type GoToConnectionStatus =
+  | 'initial'
+  | 'connecting'
+  | 'connected'
+  | 'disconnected'
+  | 'canceled'
+  | 'failed';
+
 export type GoToConnectionInput = {
   id: string;
   title: string;
-  status: string;
+  status: GoToConnectionStatus;
 };
 
 export type GoToCollectionInput = {

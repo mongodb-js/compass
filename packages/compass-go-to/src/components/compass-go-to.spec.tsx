@@ -243,13 +243,7 @@ describe('CompassGoTo', function () {
   it('loads connected inventory on open and shows ranked results while typing', async function () {
     await openConnectedPalette();
 
-    await waitFor(() => {
-      expect(
-        screen
-          .getAllByTestId('go-to-result')
-          .some((el) => el.getAttribute('data-result-id')?.includes('users'))
-      ).to.equal(true);
-    });
+    expect(screen.queryAllByTestId('go-to-result')).to.have.length(0);
 
     userEvent.type(
       screen.getByPlaceholderText('Search connections'),

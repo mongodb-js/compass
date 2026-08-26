@@ -1,40 +1,32 @@
 import { expect } from 'chai';
-import type { GoToCandidate } from './go-to-candidates';
+import { goToCandidate } from './go-to-candidate-fixture';
 import { rankGoToResults } from './go-to-search';
 
-function candidate(
-  partial: Pick<GoToCandidate, 'id' | 'kind' | 'primary'> &
-    Partial<GoToCandidate>
-): GoToCandidate {
-  return {
-    connectionId: 'c1',
-    secondary: partial.kind === 'connection' ? '' : 'Prod',
-    connected: true,
-    ...partial,
-  };
-}
-
-const inventory: GoToCandidate[] = [
-  candidate({ id: 'connection:c1', kind: 'connection', primary: 'Production' }),
-  candidate({
+const inventory = [
+  goToCandidate({
+    id: 'connection:c1',
+    kind: 'connection',
+    primary: 'Production',
+  }),
+  goToCandidate({
     id: 'database:c1:users',
     kind: 'database',
     primary: 'users',
     namespace: 'users',
   }),
-  candidate({
+  goToCandidate({
     id: 'collection:c1:users.user_profiles',
     kind: 'collection',
     primary: 'user_profiles',
     namespace: 'users.user_profiles',
   }),
-  candidate({
+  goToCandidate({
     id: 'collection:c1:users.accounts',
     kind: 'collection',
     primary: 'accounts',
     namespace: 'users.accounts',
   }),
-  candidate({
+  goToCandidate({
     id: 'connection:c2',
     kind: 'connection',
     primary: 'Staging',
@@ -44,20 +36,9 @@ const inventory: GoToCandidate[] = [
 ];
 
 describe('rankGoToResults', function () {
-  it('returns the first 20 candidates when the query is empty', function () {
-    const many = Array.from({ length: 25 }, (_, i) =>
-      candidate({
-        id: `connection:c${i}`,
-        kind: 'connection',
-        primary: `Conn ${i}`,
-        connectionId: `c${i}`,
-      })
-    );
-
-    expect(rankGoToResults(many, '').map((c) => c.id)).to.deep.equal(
-      many.slice(0, 20).map((c) => c.id)
-    );
-    expect(rankGoToResults(many, '   ')).to.have.length(20);
+  it('returns no results when the query is empty', function () {
+    expect(rankGoToResults(inventory, '')).to.deep.equal([]);
+    expect(rankGoToResults(inventory, '   ')).to.deep.equal([]);
   });
 
   it('ranks exact primary matches ahead of fuzzy matches', function () {

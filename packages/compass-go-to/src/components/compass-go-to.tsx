@@ -22,7 +22,7 @@ import {
 import { useApplicationMenu } from '@mongodb-js/compass-electron-menu';
 import { usePreference } from 'compass-preferences-model/provider';
 import type { GoToCandidate } from '../go-to-candidates';
-import { rankGoToResults } from '../go-to-search';
+import { createGoToSearcher } from '../go-to-search';
 import type { ActivateGoToResult, GoToRootState } from '../stores/store';
 import { activateResult, loadInventory } from '../stores/store';
 
@@ -201,10 +201,8 @@ function GoToPalette({
   const [activationError, setActivationError] = useState<string | null>(null);
   const activatingRef = useRef(false);
 
-  const results = useMemo(
-    () => rankGoToResults(candidates, query),
-    [candidates, query]
-  );
+  const search = useMemo(() => createGoToSearcher(candidates), [candidates]);
+  const results = useMemo(() => search(query), [search, query]);
 
   const activeIndex =
     results.length === 0 ? 0 : Math.min(highlightedIndex, results.length - 1);

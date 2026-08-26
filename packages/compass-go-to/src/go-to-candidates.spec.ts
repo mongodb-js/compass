@@ -4,8 +4,8 @@ import { buildGoToCandidates } from './go-to-candidates';
 describe('buildGoToCandidates', function () {
   it('includes databases and collections only for connected connections', function () {
     const connections = [
-      { id: 'c1', title: 'Prod', status: 'connected' },
-      { id: 'c2', title: 'Staging', status: 'disconnected' },
+      { id: 'c1', title: 'Prod', status: 'connected' as const },
+      { id: 'c2', title: 'Staging', status: 'disconnected' as const },
     ];
     const instances = new Map([
       [
@@ -65,7 +65,7 @@ describe('buildGoToCandidates', function () {
 
   it('skips nested inventory when a connected connection has no instance yet', function () {
     const candidates = buildGoToCandidates(
-      [{ id: 'c1', title: 'Local', status: 'connected' }],
+      [{ id: 'c1', title: 'Local', status: 'connected' as const }],
       new Map()
     );
 

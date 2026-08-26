@@ -8,7 +8,11 @@ import type { MongoDBInstancesManager } from '@mongodb-js/compass-app-stores/pro
 import { MongoDBInstancesManagerEvents } from '@mongodb-js/compass-app-stores/provider';
 import type { workspacesServiceLocator } from '@mongodb-js/compass-workspaces/provider';
 import type { MongoDBInstance } from 'mongodb-instance-model';
-import { buildGoToCandidates, type GoToCandidate } from '../go-to-candidates';
+import {
+  buildGoToCandidates,
+  type GoToCandidate,
+  type GoToConnectionStatus,
+} from '../go-to-candidates';
 import { activateGoToCandidate } from '../go-to-activate';
 
 export type GoToServices = {
@@ -78,15 +82,16 @@ function readCandidates(services: GoToServices): GoToCandidate[] {
 
   const connections = services.connections.current.map((connection) => {
     const hasInstance = instancesByConnectionId.has(connection.info.id);
+    // Instance presence is the reliable signal: the connections service emits
+    // `connected` before status flips to `connected`.
+    const status: GoToConnectionStatus =
+      connection.status === 'connected' || hasInstance
+        ? 'connected'
+        : connection.status;
     return {
       id: connection.info.id,
       title: connection.title,
-      // Instance presence is the reliable signal: the connections service emits
-      // `connected` before status flips to `connected`.
-      status:
-        connection.status === 'connected' || hasInstance
-          ? 'connected'
-          : connection.status,
+      status,
     };
   });
 

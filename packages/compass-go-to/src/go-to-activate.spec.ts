@@ -1,19 +1,7 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
 import { activateGoToCandidate } from './go-to-activate';
-import type { GoToCandidate } from './go-to-candidates';
-
-function candidate(
-  partial: Pick<GoToCandidate, 'id' | 'kind' | 'primary'> &
-    Partial<GoToCandidate>
-): GoToCandidate {
-  return {
-    connectionId: 'c1',
-    secondary: '',
-    connected: true,
-    ...partial,
-  };
-}
+import { goToCandidate } from './go-to-candidate-fixture';
 
 describe('activateGoToCandidate', function () {
   let workspaces: {
@@ -32,7 +20,7 @@ describe('activateGoToCandidate', function () {
 
   it('opens Databases workspace for a connected connection', function () {
     const opened = activateGoToCandidate(
-      candidate({
+      goToCandidate({
         id: 'connection:c1',
         kind: 'connection',
         primary: 'Prod',
@@ -49,7 +37,7 @@ describe('activateGoToCandidate', function () {
 
   it('opens Collections workspace for a database', function () {
     activateGoToCandidate(
-      candidate({
+      goToCandidate({
         id: 'database:c1:admin',
         kind: 'database',
         primary: 'admin',
@@ -68,7 +56,7 @@ describe('activateGoToCandidate', function () {
 
   it('opens Collection workspace for a collection', function () {
     activateGoToCandidate(
-      candidate({
+      goToCandidate({
         id: 'collection:c1:admin.users',
         kind: 'collection',
         primary: 'users',
@@ -87,7 +75,7 @@ describe('activateGoToCandidate', function () {
 
   it('does not open a workspace for a disconnected connection', function () {
     const opened = activateGoToCandidate(
-      candidate({
+      goToCandidate({
         id: 'connection:c2',
         kind: 'connection',
         primary: 'Offline',
