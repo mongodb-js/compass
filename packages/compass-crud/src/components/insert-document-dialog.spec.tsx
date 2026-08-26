@@ -520,13 +520,16 @@ describe('InsertDocumentDialog', function () {
     );
 
     const editor = screen.getByTestId('insert-document-editor');
-    await setCodemirrorEditorValue(editor, '{ "$oid": "1" }');
+    await setCodemirrorEditorValue(
+      editor,
+      '{ "$oid": "6a8ead802609f98884d1e76e" }'
+    );
 
     rerender(
       <InsertDocumentDialog
         {...defaultProps}
         doc={doc}
-        editorText="{ _id: ObjectId('1') }"
+        editorText="{ _id: ObjectId('6a8ead802609f98884d1e76e') }"
         updateInsertDocText={noop}
         insertView="shell"
       />
@@ -534,7 +537,7 @@ describe('InsertDocumentDialog', function () {
 
     await waitFor(() => {
       expect(getCodemirrorEditorValue(editor)).to.equal(
-        "{ _id: ObjectId('1') }"
+        "{ _id: ObjectId('6a8ead802609f98884d1e76e') }"
       );
     });
   });
