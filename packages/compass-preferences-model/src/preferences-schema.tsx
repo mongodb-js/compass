@@ -324,8 +324,8 @@ const allFeatureFlagsProps: Required<{
   ...FEATURE_FLAG_PREFERENCES,
   enableAtlasConnectionErrorDebugger: {
     ...FEATURE_FLAG_PREFERENCES.enableAtlasConnectionErrorDebugger,
-    deriveValue: deriveAtlasSignInOptionState(
-      'enableAtlasConnectionErrorDebugger'
+    deriveValue: deriveAtlasConnectionErrorDebuggerValue(
+      FEATURE_FLAG_PREFERENCES.enableAtlasConnectionErrorDebugger.deriveValue!
     ),
   },
 };
@@ -1358,17 +1358,20 @@ export const allPreferencesProps: Required<{
 };
 
 /** Helper for defining how to derive value/state for preferences that require Atlas sign in */
-function deriveAtlasSignInOptionState<K extends keyof AllPreferences>(
-  property: K
+function deriveAtlasConnectionErrorDebuggerValue(
+  baseDeriveValue: DeriveValueFunction<boolean>
 ): DeriveValueFunction<boolean> {
-  return (value, state) => ({
-    value: !!value(property) && value('enableAtlasSignIn'),
-    state:
-      state(property) ??
-      (value('enableAtlasSignIn')
-        ? undefined
-        : state('enableAtlasSignIn') ?? 'derived'),
-  });
+  return (value, state) => {
+    const base = baseDeriveValue(value, state);
+    return {
+      value: base.value && value('enableAtlasSignIn'),
+      state:
+        base.state ??
+        (value('enableAtlasSignIn')
+          ? undefined
+          : state('enableAtlasSignIn') ?? 'derived'),
+    };
+  };
 }
 
 /** Helper for defining how to derive value/state for networkTraffic-affected preferences */
