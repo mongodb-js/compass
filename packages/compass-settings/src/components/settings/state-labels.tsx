@@ -24,6 +24,11 @@ export const settingStateLabels = {
       This setting cannot be modified as its value is implied by another option.
     </Banner>
   ),
+  overridden: (
+    <Banner variant={BannerVariant.Info} data-testid="overridden-banner">
+      This setting cannot be modified as it is overridden by another setting.
+    </Banner>
+  ),
 
   // We shouldn't run into these as we don't surface settings on web.
   'set-cloud-user': null,
