@@ -197,6 +197,7 @@ export type PreferenceState =
   | 'set-cloud-org' // Set by the mms backend for the user's Atlas organization.
   | 'set-cloud-project' // Set by the mms backend for the user's Atlas project.
   | 'set-cloud-user' // Set by the mms backend for the user's Atlas user.
+  | 'overridden' // Overridden by a global setting.
   | undefined;
 
 export type DeriveValueFunction<T> = (
@@ -324,7 +325,7 @@ const allFeatureFlagsProps: Required<{
   ...FEATURE_FLAG_PREFERENCES,
   enableAtlasConnectionErrorDebugger: {
     ...FEATURE_FLAG_PREFERENCES.enableAtlasConnectionErrorDebugger,
-    deriveValue: deriveAtlasConnectionErrorDebuggerValue(
+    deriveValue: deriveValueDependingOnAtlasSignIn(
       FEATURE_FLAG_PREFERENCES.enableAtlasConnectionErrorDebugger.deriveValue!
     ),
   },
@@ -1357,8 +1358,8 @@ export const allPreferencesProps: Required<{
   ...nonUserPreferences,
 };
 
-/** Helper for defining how to derive value/state for preferences that require Atlas sign in */
-function deriveAtlasConnectionErrorDebuggerValue(
+/** Helper for defining how to override value/state for preferences that require Atlas sign in */
+function deriveValueDependingOnAtlasSignIn(
   baseDeriveValue: DeriveValueFunction<boolean>
 ): DeriveValueFunction<boolean> {
   return (value, state) => {
@@ -1369,7 +1370,7 @@ function deriveAtlasConnectionErrorDebuggerValue(
         base.state ??
         (value('enableAtlasSignIn')
           ? undefined
-          : state('enableAtlasSignIn') ?? 'derived'),
+          : state('enableAtlasSignIn') ?? 'overridden'),
     };
   };
 }
