@@ -8,12 +8,13 @@ import {
   spacing,
   openToast,
   closeToast,
-  Icon,
   Button,
+  palette,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
+import { DebugSparkleGlyph } from './debug-spark-glyph';
 
 export function isOIDCAuth(connectionString: string): boolean {
   const authMechanismString = (
@@ -53,18 +54,17 @@ const connectionErrorToastStyles = css({
 
 const connectionErrorToastBodyStyles = css({
   display: 'grid',
-  gridAutoFlow: 'column',
+  gridAutoFlow: 'row',
   gap: spacing[200],
 });
 
 const connectionErrorActionsStyles = css({
   display: 'flex',
-  flexDirection: 'column',
+  flexDirection: 'row',
   textAlign: 'right',
   // replacing the gap with a margin so the button glow does not get cut off
   marginRight: spacing[100],
   gap: spacing[100],
-  justifyContent: 'center',
 });
 
 const connectionErrorStyles = css({
@@ -81,8 +81,26 @@ const debugActionStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[100],
-  justifyContent: 'left',
+  justifyContent: 'right',
   textWrap: 'nowrap',
+  // Neutralize the Button's own border so only the gradient ring shows.
+  position: 'relative',
+  border: 'none',
+  backgroundColor: 'transparent',
+  // Draw the gradient as an overlay ring on top of the button, then punch out
+  // the interior with a mask so only the border-width band remains
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    inset: 0,
+    borderRadius: spacing[150],
+    padding: 1,
+    background: `linear-gradient(to right, ${palette.green.base}, ${palette.blue.base})`,
+    // exclude-composite the padding-box layer to leave just the ring
+    WebkitMask: `linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)`,
+    maskComposite: 'exclude',
+    pointerEvents: 'none',
+  },
 });
 
 function ConnectionErrorToastBody({
@@ -103,6 +121,17 @@ function ConnectionErrorToastBody({
         <span data-testid="connection-error-text">{error.message}</span>
       </span>
       <span className={connectionErrorActionsStyles}>
+        {info && onDebug && (
+          <Button
+            className={debugActionStyles}
+            size="small"
+            onClick={onDebug}
+            data-testid="connection-error-debug"
+            leftGlyph={<DebugSparkleGlyph />}
+          >
+            Debug
+          </Button>
+        )}
         {info && onReview && (
           <span>
             <Button
@@ -112,18 +141,6 @@ function ConnectionErrorToastBody({
             >
               Review
             </Button>
-          </span>
-        )}
-        {info && onDebug && (
-          <span className={debugActionStyles}>
-            <Icon glyph="Sparkle" size="small"></Icon>
-            <Link
-              hideExternalIcon={true}
-              onClick={onDebug}
-              data-testid="connection-error-debug"
-            >
-              Debug
-            </Link>
           </span>
         )}
       </span>
