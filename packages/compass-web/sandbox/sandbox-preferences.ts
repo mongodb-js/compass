@@ -37,6 +37,7 @@ if (Object.hasOwn(globalThis, '__compassWebEnableSandboxPreferencesOverride')) {
     enableGenAIFeaturesAtlasProject: true,
     enableGenAISampleDocumentPassing: false,
     enableGenAIToolCallingAtlasProject: true,
+    enableAtlasConnectionErrorDebugger: false,
     optInGenAIFeatures: false,
     enableMyQueries: false,
     telemetryAtlasUserId: 'compass_web_sandbox_telemetry_user_id',
