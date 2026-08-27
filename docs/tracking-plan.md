@@ -52,7 +52,9 @@
   - [Atlas Connection Troubleshooting Success](#atlas-connection-troubleshooting-success)
   - [Atlas Connection Troubleshooting Failed](#atlas-connection-troubleshooting-failed)
 - [Atlas](#atlas)
+  - [Atlas Sign In Canceled](#atlas-sign-in-canceled)
   - [Atlas Sign In Error](#atlas-sign-in-error)
+  - [Atlas Sign In Timed Out](#atlas-sign-in-timed-out)
   - [Atlas Sign In Prompt Shown](#atlas-sign-in-prompt-shown)
   - [Atlas Sign In Started](#atlas-sign-in-started)
   - [Atlas Sign In Success](#atlas-sign-in-success)
@@ -732,6 +734,12 @@ This event is fired when the Atlas connection troubleshooting has failed.
 
 ## Atlas
 
+### Atlas Sign In Canceled
+
+This event is fired when the user aborts the current sign in attempt.
+
+_No additional properties._
+
 ### Atlas Sign In Error
 
 This event is fired when user failed to sign in to their Atlas account.
@@ -741,6 +749,16 @@ This event is fired when user failed to sign in to their Atlas account.
 | `error`          | `string`            | Yes      | The error message reported on sign in.                                                                                                                                     |
 | `error_code`     | `string`            | Yes      | The code identifying the error reported on sign in. The `codeName` of the oidc-plugin error when the failure comes from the sign in flow itself, the error name otherwise. |
 | `is_compass_web` | `true \| undefined` | No       |                                                                                                                                                                            |
+
+### Atlas Sign In Timed Out
+
+This event is fired when the user does not complete the sign in to their Atlas
+account on time.
+
+| Property         | Type                    | Required | Description                                                    |
+| ---------------- | ----------------------- | -------- | -------------------------------------------------------------- |
+| `entrypoint`     | `AtlasSignInEntrypoint` | Yes      | The surface of the application the sign in was triggered from. |
+| `is_compass_web` | `true \| undefined`     | No       |                                                                |
 
 ### Atlas Sign In Prompt Shown
 
@@ -759,10 +777,12 @@ converts.
 This event is fired when a sign in attempt to an Atlas account is started,
 before the user is taken through the sign in flow.
 
-| Property         | Type                    | Required | Description                                                    |
-| ---------------- | ----------------------- | -------- | -------------------------------------------------------------- |
-| `entrypoint`     | `AtlasSignInEntrypoint` | Yes      | The surface of the application the sign in was triggered from. |
-| `is_compass_web` | `true \| undefined`     | No       |                                                                |
+| Property          | Type                                           | Required | Description                                                                                                                                              |
+| ----------------- | ---------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entrypoint`      | `AtlasSignInEntrypoint`                        | Yes      | The surface of the application the sign in was triggered from.                                                                                           |
+| `attempt`         | `number`                                       | Yes      | The current attempt of the sign in. If the attempt is bigger than 1, it means the user is re-trying to sign in after a previous attempt did not succeed. |
+| `previousOutcome` | `"error" \| "timed-out" \| "canceled" \| null` | Yes      | How the immediately preceding attempt ended, when this is a retry. Null on the first attempt.                                                            |
+| `is_compass_web`  | `true \| undefined`                            | No       |                                                                                                                                                          |
 
 ### Atlas Sign In Success
 

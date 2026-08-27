@@ -191,6 +191,7 @@ type AssistantActionsContextType = {
       connectionInfo?: BasicConnectionInfo;
     }) => void
   ) => Promise<void>;
+  atlasAdminApi?: AtlasAdminApiService;
 };
 
 type AssistantActionsType = Omit<
@@ -240,6 +241,17 @@ export function useAssistantActions(): AssistantActionsType {
     diagnoseSearchStage,
     getIsAssistantEnabled: () => true,
   };
+}
+
+/**
+ * Access the Atlas Admin API service from within the assistant.
+ */
+export function useAtlasAdminApi(): AtlasAdminApiService {
+  const { atlasAdminApi } = useContext(AssistantActionsContext);
+  if (!atlasAdminApi) {
+    throw new Error('No AtlasAdminApiService available in this context');
+  }
+  return atlasAdminApi;
 }
 
 export const compassAssistantServiceLocator = createServiceLocator(() => {
@@ -717,11 +729,17 @@ function getChat(): AssistantThunkAction<Chat<AssistantMessage>> {
   return (_dispatch, _getState, { chat }) => chat;
 }
 
+// Getter thunk to access the Atlas Admin API service from extra args
+function getAtlasAdminApi(): AssistantThunkAction<AtlasAdminApiService> {
+  return (_dispatch, _getState, { atlasAdminApi }) => atlasAdminApi;
+}
+
 // Connected AssistantProvider component
 const AssistantProviderInner: React.FunctionComponent<
   PropsWithChildren<{
     projectId?: string;
     getChat: () => Chat<AssistantMessage>;
+    getAtlasAdminApi: () => AtlasAdminApiService;
     ensureOptInAndSend: (
       message: SendMessage,
       options: SendOptions,
@@ -772,6 +790,7 @@ const AssistantProviderInner: React.FunctionComponent<
 > = ({
   projectId,
   getChat: getChatAction,
+  getAtlasAdminApi: getAtlasAdminApiAction,
   ensureOptInAndSend,
   interpretExplainPlan,
   interpretConnectionError,
@@ -783,6 +802,7 @@ const AssistantProviderInner: React.FunctionComponent<
 }) => {
   // chat is stable — created once in activate, never changes
   const [chat] = React.useState(() => getChatAction());
+  const [atlasAdminApi] = React.useState(() => getAtlasAdminApiAction());
   const { openDrawer } = useDrawerActions();
 
   const assistantGlobalStateRef = useCurrentValueRef(useAssistantGlobalState());
@@ -839,6 +859,7 @@ const AssistantProviderInner: React.FunctionComponent<
         assistantGlobalStateRef.current
       );
     },
+    atlasAdminApi,
   });
 
   return (
@@ -854,6 +875,7 @@ const AssistantProviderInner: React.FunctionComponent<
 
 const ConnectedAssistantProvider = connect(null, {
   getChat,
+  getAtlasAdminApi,
   ensureOptInAndSend: ensureOptInAndSendThunk,
   interpretExplainPlan: interpretExplainPlanThunk,
   interpretConnectionError: interpretConnectionErrorThunk,
