@@ -96,10 +96,10 @@ const debugActionStyles = css({
     borderRadius: spacing[150],
     padding: 1,
     background: `linear-gradient(to right, ${palette.green.base}, ${palette.blue.base})`,
-    // exclude-composite the padding-box layer to leave just the ring
-    WebkitMask: `linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)`,
+    mask: `linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)`,
     maskComposite: 'exclude',
-    pointerEvents: 'none',
+    WebkitMask: `linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)`,
+    WebkitMaskComposite: 'xor',
   },
 });
 
