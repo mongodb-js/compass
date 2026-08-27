@@ -54,14 +54,11 @@ const connectionErrorToastStyles = css({
 
 const connectionErrorToastBodyStyles = css({
   display: 'grid',
-  gridAutoFlow: 'row',
   gap: spacing[200],
 });
 
 const connectionErrorActionsStyles = css({
   display: 'flex',
-  flexDirection: 'row',
-  textAlign: 'right',
   // replacing the gap with a margin so the button glow does not get cut off
   marginRight: spacing[100],
   gap: spacing[100],
@@ -81,7 +78,6 @@ const debugActionStyles = css({
   display: 'flex',
   alignItems: 'center',
   gap: spacing[100],
-  justifyContent: 'right',
   textWrap: 'nowrap',
   // Neutralize the Button's own border so only the gradient ring shows.
   position: 'relative',
@@ -133,15 +129,13 @@ function ConnectionErrorToastBody({
           </Button>
         )}
         {info && onReview && (
-          <span>
-            <Button
-              onClick={onReview}
-              data-testid="connection-error-review"
-              size="small"
-            >
-              Review
-            </Button>
-          </span>
+          <Button
+            onClick={onReview}
+            data-testid="connection-error-review"
+            size="small"
+          >
+            Review
+          </Button>
         )}
       </span>
     </span>
