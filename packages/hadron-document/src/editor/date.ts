@@ -1,5 +1,4 @@
 import TypeChecker from 'hadron-type-checker';
-import { ElementEvents } from '../element-events';
 import type { BSONValue } from '../utils';
 import { fieldStringLen } from '../utils';
 import StandardEditor from './standard';
@@ -34,9 +33,7 @@ export default class DateEditor extends StandardEditor {
           `${String(value)} is not in a valid date format`
         );
       } else {
-        this.element.currentValue = value;
-        this.element.setValid();
-        this.element._bubbleUp(ElementEvents.Edited, this.element);
+        this.element._setEditedValue(value);
       }
     } catch (e: any) {
       this.element.setInvalid(value, this.element.currentType, e.message);
@@ -66,10 +63,12 @@ export default class DateEditor extends StandardEditor {
    * @param {Object} value - The value in the field.
    */
   start(): void {
-    super.start();
+    // Converting to the editable form is not itself an edit, so it happens
+    // before the edit session starts.
     if (this.element.isCurrentTypeValid()) {
       this.edit(this._formattedValue());
     }
+    super.start();
   }
 
   /**

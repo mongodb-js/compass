@@ -4,6 +4,8 @@
 export const ElementEvents = {
   Added: 'Element::Added',
   Edited: 'Element::Edited',
+  EditCompleted: 'Element::EditCompleted',
+  TypeChanged: 'Element::TypeChanged',
   Removed: 'Element::Removed',
   Reverted: 'Element::Reverted',
   Converted: 'Element::Converted',

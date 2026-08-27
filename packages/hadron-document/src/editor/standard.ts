@@ -18,6 +18,7 @@ export default class StandardEditor {
   type: TypeCastTypes;
   displayType: TypeCastTypes;
   editing: boolean;
+  private valueAtEditStart?: { value: BSONValue };
 
   /**
    * Create the editor with the element.
@@ -82,12 +83,33 @@ export default class StandardEditor {
     return String(this.element.currentValue);
   }
 
-  // Standard editing requires no special start/complete behaviour.
+  /**
+   * Start an edit session, remembering the value it starts from so that
+   * `complete` can tell whether the value actually changed. Subclasses that
+   * convert their value into an editable form do so before calling `super`, so
+   * that the conversion is not itself counted as an edit; correspondingly they
+   * call `super.complete()` before converting back.
+   */
   start(): void {
     this.editing = true;
+    this.valueAtEditStart = { value: this.element.currentValue };
   }
 
+  /**
+   * Complete the edit session, emitting `EditCompleted` if the value changed
+   * over the course of it. This lets consumers observe a whole edit instead of
+   * every intermediate `Edited` event a single edit produces.
+   */
   complete(): void {
     this.editing = false;
+    const valueAtEditStart = this.valueAtEditStart;
+    this.valueAtEditStart = undefined;
+    if (
+      valueAtEditStart &&
+      // eslint-disable-next-line @typescript-eslint/no-base-to-string
+      String(valueAtEditStart.value) !== String(this.element.currentValue)
+    ) {
+      this.element._bubbleUp(ElementEvents.EditCompleted, this.element);
+    }
   }
 }

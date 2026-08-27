@@ -7,7 +7,6 @@ import TypeChecker, {
   isUUIDType,
 } from 'hadron-type-checker';
 import type { Binary } from 'bson';
-import { ElementEvents } from '../element-events';
 import StandardEditor from './standard';
 import type { Element } from '../element';
 import type { BSONValue } from '../utils';
@@ -102,9 +101,7 @@ export default class UUIDEditor extends StandardEditor {
   edit(value: BSONValue): void {
     try {
       TypeChecker.cast(value, this.uuidType);
-      this.element.currentValue = value;
-      this.element.setValid();
-      this.element._bubbleUp(ElementEvents.Edited, this.element);
+      this.element._setEditedValue(value);
     } catch (e: any) {
       this.element.setInvalid(value, this.element.currentType, e.message);
     }
@@ -114,7 +111,8 @@ export default class UUIDEditor extends StandardEditor {
    * Start the UUID edit - convert Binary to string for editing.
    */
   start(): void {
-    super.start();
+    // Converting to the editable form is not itself an edit, so it happens
+    // before the edit session starts.
     if (this.element.isCurrentTypeValid()) {
       // Update the currentType to the UUID type so the UI displays correctly
       // This is needed because the element may have been created with currentType='Binary'
@@ -122,6 +120,7 @@ export default class UUIDEditor extends StandardEditor {
       this.element.currentType = this.uuidType;
       this.edit(this.value());
     }
+    super.start();
   }
 
   /**

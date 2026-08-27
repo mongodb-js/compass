@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import type { Document as HadronDocument, Element } from 'hadron-document';
+import type { TypeCastTypes } from 'hadron-type-checker';
 import { DocumentEvents, ElementEvents } from 'hadron-document';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
@@ -30,6 +31,8 @@ export function useDocumentEditsTelemetry(
     const fieldsMode = mode === 'json' ? null : mode;
     // Cancelling an insert is tracked separately as `Document Insert Cancelled`.
     const cancelMode = mode === 'insert' ? null : mode;
+    // Value edits are only tracked when editing existing documents.
+    const editMode = fieldsMode === 'insert' ? null : fieldsMode;
 
     const cleanup = docs.map((doc) => {
       const onAdded = (element: Element) => {
@@ -54,6 +57,32 @@ export function useDocumentEditsTelemetry(
         );
       };
 
+      const onTypeChanged = (element: Element, previousType: TypeCastTypes) => {
+        if (!fieldsMode) {
+          return;
+        }
+        track(
+          'Document Field Type Changed',
+          {
+            from_type: previousType,
+            to_type: element.currentType,
+            mode: fieldsMode,
+          },
+          connectionInfoRef.current
+        );
+      };
+
+      const onEditCompleted = (element: Element) => {
+        if (!editMode) {
+          return;
+        }
+        track(
+          'Document Field Edited',
+          { type: element.currentType, mode: editMode },
+          connectionInfoRef.current
+        );
+      };
+
       const onCancel = () => {
         // The edit actions footer cancels the document when the user backs out
         // of the delete document confirmation, which is not an update.
@@ -68,11 +97,15 @@ export function useDocumentEditsTelemetry(
 
       doc.on(ElementEvents.Added, onAdded);
       doc.on(ElementEvents.Removed, onRemoved);
+      doc.on(ElementEvents.TypeChanged, onTypeChanged);
+      doc.on(ElementEvents.EditCompleted, onEditCompleted);
       doc.on(DocumentEvents.Cancel, onCancel);
 
       return () => {
         doc.off(ElementEvents.Added, onAdded);
         doc.off(ElementEvents.Removed, onRemoved);
+        doc.off(ElementEvents.TypeChanged, onTypeChanged);
+        doc.off(ElementEvents.EditCompleted, onEditCompleted);
         doc.off(DocumentEvents.Cancel, onCancel);
       };
     });

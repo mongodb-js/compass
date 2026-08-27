@@ -1056,6 +1056,52 @@ type DocumentFieldRemovedEvent = ConnectionScopedEvent<{
 }>;
 
 /**
+ * This event is fired when user changes the BSON type of a document field.
+ *
+ * @category Documents
+ */
+type DocumentFieldTypeChangedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Type Changed';
+  payload: {
+    /**
+     * The BSON type the field had before the change.
+     */
+    from_type: string;
+
+    /**
+     * The BSON type the field was changed to.
+     */
+    to_type: string;
+
+    /**
+     * The view in which the type was changed.
+     */
+    mode: 'list' | 'table' | 'insert';
+  };
+}>;
+
+/**
+ * This event is fired when user finishes editing the value of a document
+ * field, ie. when the field loses focus after its value changed.
+ *
+ * @category Documents
+ */
+type DocumentFieldEditedEvent = ConnectionScopedEvent<{
+  name: 'Document Field Edited';
+  payload: {
+    /**
+     * The BSON type of the edited field.
+     */
+    type: string;
+
+    /**
+     * The view in which the field was edited.
+     */
+    mode: 'list' | 'table';
+  };
+}>;
+
+/**
  * This event is fired when user cancels editing of a document.
  *
  * @category Documents
@@ -4310,6 +4356,8 @@ export type TelemetryEvent =
   | DocumentDeletedEvent
   | DocumentFieldAddedEvent
   | DocumentFieldRemovedEvent
+  | DocumentFieldTypeChangedEvent
+  | DocumentFieldEditedEvent
   | DocumentInsertCancelledEvent
   | DocumentInsertFailedEvent
   | DocumentInsertedEvent

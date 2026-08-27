@@ -1,7 +1,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { renderHook } from '@mongodb-js/testing-library-compass';
-import HadronDocument from 'hadron-document';
+import HadronDocument, { ElementEditor } from 'hadron-document';
 import { TelemetryProvider } from '@mongodb-js/compass-telemetry/provider';
 import {
   useDocumentEditsTelemetry,
@@ -104,11 +104,80 @@ describe('useDocumentEditsTelemetry', function () {
     expect(await trackedEvents()).to.deep.equal([]);
   });
 
+  it('tracks type changes, including in the insert dialog', async function () {
+    const doc = new HadronDocument({ count: '1' });
+    renderWithDoc(doc, 'insert');
+
+    doc.get('count')!.changeType('Int32');
+    doc.get('count')!.changeType('Double');
+
+    expect(await trackedEvents()).to.deep.equal([
+      {
+        name: 'Document Field Type Changed',
+        payload: { from_type: 'String', to_type: 'Int32', mode: 'insert' },
+      },
+      {
+        name: 'Document Field Type Changed',
+        payload: { from_type: 'Int32', to_type: 'Double', mode: 'insert' },
+      },
+    ]);
+  });
+
+  it('does not track a type change to the same type', async function () {
+    const doc = new HadronDocument({ name: 'squirrel' });
+    renderWithDoc(doc, 'list');
+
+    doc.get('name')!.changeType('String');
+
+    expect(await trackedEvents()).to.deep.equal([]);
+  });
+
+  it('tracks completed value edits, but not in the insert dialog', async function () {
+    const doc = new HadronDocument({ name: 'squirrel' });
+    renderWithDoc(doc, 'list');
+
+    const editor = new ElementEditor.StandardEditor(doc.get('name')!);
+    editor.start();
+    editor.edit('otter');
+    editor.complete();
+
+    expect(await trackedEvents()).to.deep.equal([
+      {
+        name: 'Document Field Edited',
+        payload: { type: 'String', mode: 'list' },
+      },
+    ]);
+
+    const insertDoc = new HadronDocument({ name: 'squirrel' });
+    renderWithDoc(insertDoc, 'insert');
+
+    const insertEditor = new ElementEditor.StandardEditor(
+      insertDoc.get('name')!
+    );
+    insertEditor.start();
+    insertEditor.edit('otter');
+    insertEditor.complete();
+
+    expect(await trackedEvents()).to.deep.equal([]);
+  });
+
+  it('does not track a value edit that did not change anything', async function () {
+    const doc = new HadronDocument({ name: 'squirrel' });
+    renderWithDoc(doc, 'list');
+
+    const editor = new ElementEditor.StandardEditor(doc.get('name')!);
+    editor.start();
+    editor.complete();
+
+    expect(await trackedEvents()).to.deep.equal([]);
+  });
+
   it('does not track field events in the json view', async function () {
     const doc = new HadronDocument({ name: 'squirrel' });
     renderWithDoc(doc, 'json');
 
     doc.get('name')!.edit('other');
+    doc.get('name')!.changeType('Int32');
     doc.insertEnd('added', 'value');
 
     expect(await trackedEvents()).to.deep.equal([]);

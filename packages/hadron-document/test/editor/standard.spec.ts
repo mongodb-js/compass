@@ -1,6 +1,13 @@
-import { Element } from '../../src';
-import { StandardEditor } from '../../src/editor';
+import { Element, ElementEvents } from '../../src';
+import {
+  DateEditor,
+  ObjectIdEditor,
+  StandardEditor,
+  UUIDEditor,
+} from '../../src/editor';
+import { Binary, ObjectId } from 'bson';
 import { expect } from 'chai';
+import Sinon from 'sinon';
 
 describe('StandardEditor', function () {
   describe('#start', function () {
@@ -115,12 +122,118 @@ describe('StandardEditor', function () {
   });
 
   describe('#complete', function () {
-    const element = new Element('name', 'test');
-    const standardEditor = new StandardEditor(element);
+    let element: Element;
+    let standardEditor: StandardEditor;
+    let editCompleted: Sinon.SinonSpy;
 
-    it('has no behaviour', function () {
-      expect(standardEditor.start()).to.equal(undefined);
+    beforeEach(function () {
+      element = new Element('name', 'test');
+      standardEditor = new StandardEditor(element);
+      editCompleted = Sinon.spy();
+      element.on(ElementEvents.EditCompleted, editCompleted);
     });
+
+    it('emits EditCompleted with the element when the value changed', function () {
+      standardEditor.start();
+      standardEditor.edit('testing');
+      standardEditor.complete();
+
+      expect(editCompleted).to.have.been.calledOnceWithExactly(element);
+    });
+
+    it('does not emit EditCompleted when the value did not change', function () {
+      standardEditor.start();
+      standardEditor.complete();
+
+      expect(editCompleted).to.not.have.been.called;
+    });
+
+    it('does not emit EditCompleted again for a previous edit', function () {
+      standardEditor.start();
+      standardEditor.edit('testing');
+      standardEditor.complete();
+      standardEditor.start();
+      standardEditor.complete();
+
+      expect(editCompleted).to.have.been.calledOnce;
+    });
+
+    it('does not emit EditCompleted when completed without starting', function () {
+      standardEditor.start();
+      standardEditor.edit('testing');
+      standardEditor.complete();
+      standardEditor.complete();
+
+      expect(editCompleted).to.have.been.calledOnce;
+    });
+
+    it('emits EditCompleted once when the type is changed mid-edit', function () {
+      standardEditor.start();
+      standardEditor.edit('testing');
+      // The type dropdown is rendered inside the open editor, and changing to
+      // Date internally completes a throwaway editor of its own.
+      element.changeType('Date');
+      standardEditor.complete();
+
+      expect(editCompleted).to.have.been.calledOnceWithExactly(element);
+    });
+
+    // These editors convert their value to an editable string on start and
+    // back again on complete, which must not read as an edit by itself.
+    const roundTripping = [
+      ['DateEditor', DateEditor, () => new Element('field', new Date(0))],
+      [
+        'ObjectIdEditor',
+        ObjectIdEditor,
+        () => new Element('field', new ObjectId()),
+      ],
+      [
+        'UUIDEditor',
+        UUIDEditor,
+        () => {
+          const el = new Element(
+            'field',
+            Binary.createFromHexString(
+              '3b241101e2bb425587caf2d21b836b5a',
+              Binary.SUBTYPE_UUID
+            )
+          );
+          el.currentType = 'UUID';
+          return el;
+        },
+      ],
+    ] as const;
+
+    for (const [name, Editor, makeElement] of roundTripping) {
+      it(`does not emit EditCompleted for an untouched ${name}`, function () {
+        const el = makeElement();
+        const spy = Sinon.spy();
+        el.on(ElementEvents.EditCompleted, spy);
+        const editor = new Editor(el);
+
+        editor.start();
+        editor.complete();
+
+        expect(spy).to.not.have.been.called;
+      });
+
+      it(`emits EditCompleted for an edited ${name}`, function () {
+        const el = makeElement();
+        const spy = Sinon.spy();
+        el.on(ElementEvents.EditCompleted, spy);
+        const editor = new Editor(el);
+
+        editor.start();
+        editor.edit(
+          editor
+            .value()
+            .replace(/[0-9]/, (digit) => (digit === '1' ? '2' : '1'))
+        );
+        editor.complete();
+
+        expect(spy).to.have.been.calledOnceWithExactly(el);
+      });
+    }
   });
 
   describe('#size', function () {

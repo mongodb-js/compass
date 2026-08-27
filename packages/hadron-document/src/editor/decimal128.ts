@@ -1,5 +1,4 @@
 import TypeChecker from 'hadron-type-checker';
-import { ElementEvents } from '../element-events';
 import StandardEditor from './standard';
 import type { BSONValue } from '../utils';
 
@@ -29,9 +28,7 @@ export default class Decimal128Editor extends StandardEditor {
   edit(value: BSONValue): void {
     try {
       TypeChecker.cast(value, 'Decimal128');
-      this.element.currentValue = value;
-      this.element.setValid();
-      this.element._bubbleUp(ElementEvents.Edited, this.element);
+      this.element._setEditedValue(value);
     } catch (error: any) {
       this.element.setInvalid(value, this.element.currentType, error.message);
     }

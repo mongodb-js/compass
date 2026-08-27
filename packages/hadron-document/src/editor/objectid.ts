@@ -1,5 +1,4 @@
 import TypeChecker from 'hadron-type-checker';
-import { ElementEvents } from '../element-events';
 import StandardEditor from './standard';
 import type { BSONValue } from '../utils';
 
@@ -28,9 +27,7 @@ export default class ObjectIdEditor extends StandardEditor {
   edit(value: BSONValue): void {
     try {
       TypeChecker.cast(value, 'ObjectId');
-      this.element.currentValue = value;
-      this.element.setValid();
-      this.element._bubbleUp(ElementEvents.Edited, this.element);
+      this.element._setEditedValue(value);
     } catch (e: any) {
       this.element.setInvalid(value, this.element.currentType, e.message);
     }
@@ -40,9 +37,11 @@ export default class ObjectIdEditor extends StandardEditor {
    * Start the object id edit.
    */
   start(): void {
-    super.start();
+    // Converting to the editable form is not itself an edit, so it happens
+    // before the edit session starts.
     if (this.element.isCurrentTypeValid()) {
       this.edit(String(this.element.currentValue));
     }
+    super.start();
   }
 }

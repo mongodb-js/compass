@@ -3145,6 +3145,80 @@ describe('Element', function () {
         }
       });
     });
+
+    context('when emitting TypeChanged', function () {
+      let typeChanged: Sinon.SinonSpy;
+
+      beforeEach(function () {
+        typeChanged = Sinon.spy();
+      });
+
+      it('emits the element and its previous type', function () {
+        const element = new Element('n', '1');
+        element.on(ElementEvents.TypeChanged, typeChanged);
+
+        element.changeType('Int32');
+
+        expect(typeChanged).to.have.been.calledOnceWithExactly(
+          element,
+          'String'
+        );
+      });
+
+      it('bubbles up to the parent document', function () {
+        const doc = new Document({ n: '1' });
+        doc.on(ElementEvents.TypeChanged, typeChanged);
+
+        doc.get('n')!.changeType('Int32');
+
+        expect(typeChanged).to.have.been.calledOnceWithExactly(
+          doc.get('n'),
+          'String'
+        );
+      });
+
+      it('does not emit when the type did not change', function () {
+        const element = new Element('n', '1');
+        element.on(ElementEvents.TypeChanged, typeChanged);
+
+        element.changeType('String');
+
+        expect(typeChanged).to.not.have.been.called;
+      });
+
+      it('emits when the value cannot be cast to the new type, as the element still takes on that type', function () {
+        const element = new Element('n', 'not a number');
+        element.on(ElementEvents.TypeChanged, typeChanged);
+
+        element.changeType('Int32');
+
+        expect(element.isCurrentTypeValid()).to.equal(false);
+        expect(typeChanged).to.have.been.calledOnceWithExactly(
+          element,
+          'String'
+        );
+      });
+
+      it('does not emit for types preserved from another element', function () {
+        const element = new Element('n', new Int32(1));
+        element.on(ElementEvents.TypeChanged, typeChanged);
+
+        element.preserveType(new Element('n', new Double(1.5)));
+
+        expect(element.currentType).to.equal('Double');
+        expect(typeChanged).to.not.have.been.called;
+      });
+
+      it('does not emit for types preserved from the schema', function () {
+        const element = new Element('n', new Int32(1));
+        element.on(ElementEvents.TypeChanged, typeChanged);
+
+        element.preserveTypeFromSchema({ n: { type: 'Double' } }, '');
+
+        expect(element.currentType).to.equal('Double');
+        expect(typeChanged).to.not.have.been.called;
+      });
+    });
   });
 
   describe('#toShellSyntax', function () {

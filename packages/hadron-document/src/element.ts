@@ -213,6 +213,17 @@ export class Element extends EventEmitter {
     this._bubbleUp(ElementEvents.Edited, this);
   }
 
+  /**
+   * Set the value of the element without re-deriving its type, for editors
+   * that hold the value in an editable form that would otherwise be typed as a
+   * String while it is being edited.
+   */
+  _setEditedValue(value: BSONValue): void {
+    this.currentValue = value;
+    this.setValid();
+    this._bubbleUp(ElementEvents.Edited, this);
+  }
+
   preserveType(otherElement: Element): void {
     switch (this.currentType) {
       case 'Object': {
@@ -231,10 +242,10 @@ export class Element extends EventEmitter {
       case 'Int32': {
         const otherType = otherElement.currentType;
         if (otherType === 'Double') {
-          this.changeType('Double');
+          this._changeType('Double');
         }
         if (otherType === 'Int64') {
-          this.changeType('Int64');
+          this._changeType('Int64');
         }
         break;
       }
@@ -290,13 +301,26 @@ export class Element extends EventEmitter {
     // Prefer Double over Long/Int64 when both are present in the schema,
     // since Double is the more common floating-point representation.
     if (types.includes('Double')) {
-      this.changeType('Double');
+      this._changeType('Double');
     } else if (types.includes('Long') || types.includes('Int64')) {
-      this.changeType('Int64');
+      this._changeType('Int64');
     }
   }
 
+  /**
+   * Change the type of the element as a result of a user action. Unlike
+   * `_changeType`, which is used for internal type adjustments, this emits
+   * `TypeChanged`.
+   */
   changeType(newType: TypeCastTypes): void {
+    const previousType = this.currentType;
+    this._changeType(newType);
+    if (this.currentType !== previousType) {
+      this._bubbleUp(ElementEvents.TypeChanged, this, previousType);
+    }
+  }
+
+  private _changeType(newType: TypeCastTypes): void {
     if (newType === 'Object') {
       this._convertToEmptyObject();
     } else if (newType === 'Array') {

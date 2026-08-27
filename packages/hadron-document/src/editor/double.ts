@@ -1,5 +1,4 @@
 import TypeChecker from 'hadron-type-checker';
-import { ElementEvents } from '../element-events';
 import type { BSONValue } from '../utils';
 import { fieldStringLen } from '../utils';
 import StandardEditor from './standard';
@@ -35,9 +34,7 @@ export default class DoubleEditor extends StandardEditor {
           `${String(value)} is not a valid double format`
         );
       } else {
-        this.element.currentValue = value;
-        this.element.setValid();
-        this.element._bubbleUp(ElementEvents.Edited, this.element);
+        this.element._setEditedValue(value);
       }
     } catch (error: any) {
       this.element.setInvalid(value, this.element.currentType, error.message);
