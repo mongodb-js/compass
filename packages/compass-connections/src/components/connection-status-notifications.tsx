@@ -10,11 +10,11 @@ import {
   closeToast,
   Button,
   palette,
+  AssistantSparkleIcon,
 } from '@mongodb-js/compass-components';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
-import { DebugSparkleGlyph } from './debug-spark-glyph';
 
 export function isOIDCAuth(connectionString: string): boolean {
   const authMechanismString = (
@@ -123,7 +123,7 @@ function ConnectionErrorToastBody({
             size="small"
             onClick={onDebug}
             data-testid="connection-error-debug"
-            leftGlyph={<DebugSparkleGlyph />}
+            leftGlyph={<AssistantSparkleIcon />}
           >
             Debug
           </Button>
