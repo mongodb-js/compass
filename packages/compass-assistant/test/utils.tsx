@@ -14,6 +14,7 @@ import {
 } from '@mongodb-js/compass-generative-ai/provider';
 import { render } from '@mongodb-js/testing-library-compass';
 import React from 'react';
+import { AtlasAdminApiService } from '../../atlas-admin-api/dist/atlas-admin-api-service';
 
 export const createMockChat = ({
   messages,
@@ -221,12 +222,21 @@ export function renderWithProvider(
   const mockAtlasAuthService = {
     getOrganizationId: sinon.stub().returns('test-org-id'),
   };
+  const mockAtlasAdminApiService = {
+    atlasAdminApiEndpoint: sinon
+      .stub()
+      .returns('https://example.com/atlas-admin-api/v1'),
+    authenticatedFetch: sinon
+      .stub()
+      .resolves({ status: 200, json: async () => ({}) }),
+  };
 
   const Provider = CompassAssistantProvider.withMockServices({
     atlasService: mockAtlasService as unknown as AtlasService,
     atlasAiService: mockAtlasAiService as unknown as AtlasAiService,
     toolsController: mockToolsController as unknown as ToolsController,
     atlasAuthService: mockAtlasAuthService as unknown as AtlasAuthService,
+    atlasAdminApi: mockAtlasAdminApiService as unknown as AtlasAdminApiService,
   });
 
   return render(

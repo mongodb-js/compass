@@ -104,7 +104,7 @@ describe('ToolsController', function () {
 
   describe('getActiveTools', function () {
     describe('atlas-connection-error-debugger tool', function () {
-      it('is registered when the feature flag is enabled', async function () {
+      it('is registered when the feature flag is enabled', function () {
         expect(toolsController.getActiveTools()).to.have.property(
           'atlas-connection-error-debugger'
         );
