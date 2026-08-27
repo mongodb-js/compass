@@ -28,7 +28,6 @@ import {
 import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
 import { connect } from 'react-redux';
-import type { SettingsDescriptionComponent } from '../settings-descriptions';
 import { SETTINGS_DESCRIPTIONS_MAP } from '../settings-descriptions';
 
 const ENUM_PREFERENCE_CONFIG = {
@@ -95,7 +94,9 @@ function SettingLabel<PreferenceName extends SupportedPreferences>({
 }) {
   const { short, long } = getSettingDescription(name).description;
   const SettingDescription = SETTINGS_DESCRIPTIONS_MAP[name] as
-    | SettingsDescriptionComponent<PreferenceName>
+    | React.ComponentType<{
+        value: UserConfigurablePreferences[PreferenceName] | undefined;
+      }>
     | undefined;
   const featureFlagDefinition = featureFlags.find((definition) => {
     return definition.name === name;
@@ -331,6 +332,7 @@ function StringSetting<PreferenceName extends StringPreferences>({
 }
 
 type AnySetting = {
+  isConfigurableUserPreference: boolean;
   name: string;
   type: unknown;
   value?: unknown;
@@ -349,6 +351,7 @@ function isStringEnumPreference(name: string): name is StringEnumPreferences {
 
 function isSupported(props: AnySetting): props is
   | {
+      isConfigurableUserPreference: true;
       name: StringPreferences;
       type: 'string';
       value?: string;
@@ -356,12 +359,14 @@ function isSupported(props: AnySetting): props is
     }
   | {
       name: NumericPreferences;
+      isConfigurableUserPreference: true;
       type: 'number';
       value?: number;
       onChange: HandleChange<NumericPreferences>;
     }
   | {
       name: BooleanPreferences;
+      isConfigurableUserPreference: true;
       type: 'boolean';
       value?: boolean;
       onChange: HandleChange<BooleanPreferences>;
@@ -374,7 +379,10 @@ function SettingsInput({
   disabled = false,
   required = false,
   ...props
-}: SettingsInputProps): React.ReactElement {
+}: SettingsInputProps): React.ReactElement | null {
+  if (props.isConfigurableUserPreference !== true) {
+    return null;
+  }
   if (!isSupported(props)) {
     throw new Error(
       `Do not know how to render type ${String(props.type)} for preference ${
@@ -443,9 +451,13 @@ const ConnectedSettingsInput = connect(
       settings: { settings, preferenceStates },
     } = state;
     const { name } = ownProps;
-    const { type } = getSettingDescription(name);
+    const isConfigurableUserPreference = name in settings;
+    const { type } = isConfigurableUserPreference
+      ? getSettingDescription(name)
+      : {};
 
     return {
+      isConfigurableUserPreference,
       value: settings[name],
       type: type,
       disabled: !!preferenceStates[name],

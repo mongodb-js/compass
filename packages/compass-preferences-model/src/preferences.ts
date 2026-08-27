@@ -11,6 +11,7 @@ import type {
   DeriveValueFunction,
 } from './preferences-schema';
 import { allPreferencesProps } from './preferences-schema';
+import type { CompassRunningEnvironment } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import type { PreferencesStorage } from './preferences-storage';
 import type { FeatureFlags } from './feature-flags';
@@ -47,6 +48,7 @@ export class Preferences {
   private _logger: Logger;
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
   private _preferencesStorage: PreferencesStorage;
+  private _runningEnvironment: CompassRunningEnvironment;
   private _globalPreferences: {
     cli: Partial<AllPreferences>;
     global: Partial<AllPreferences>;
@@ -117,6 +119,7 @@ export class Preferences {
       logger,
       globalPreferences: global,
       preferencesStorage: new InMemoryStorage(),
+      runningEnvironment: 'desktop',
     });
     await instance.savePreferences(user);
     return instance;

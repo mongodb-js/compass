@@ -11,6 +11,7 @@ export class ReadOnlyPreferenceAccess implements PreferencesAccess {
     this._preferences = new Preferences({
       logger: createNoopLogger(),
       preferencesStorage: new InMemoryStorage(preferencesOverrides),
+      runningEnvironment: 'desktop',
     });
   }
 

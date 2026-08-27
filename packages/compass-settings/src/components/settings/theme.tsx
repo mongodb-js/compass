@@ -170,4 +170,5 @@ const mapDispatch = {
   onChange: changeFieldValue,
 };
 
+export const themeFields = ['theme'] as const;
 export default connect(mapState, mapDispatch)(ThemeSettings);
