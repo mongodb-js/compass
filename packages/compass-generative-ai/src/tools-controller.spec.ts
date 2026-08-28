@@ -21,6 +21,8 @@ describe('ToolsController', function () {
   let preferences: PreferencesAccess;
   let atlasAdminApi: AtlasAdminApiService;
 
+  const baseTools = ['atlas-connection-error-debugger'];
+
   beforeEach(async function () {
     sandbox = sinon.createSandbox();
     logger = createNoopLogger();
@@ -50,7 +52,7 @@ describe('ToolsController', function () {
 
     it('initializes with empty tool groups', function () {
       const tools = toolsController.getActiveTools();
-      expect(Object.keys(tools)).to.have.lengthOf(0);
+      expect(Object.keys(tools)).to.have.lengthOf(baseTools.length);
     });
 
     it('server is initially undefined', function () {
@@ -96,23 +98,13 @@ describe('ToolsController', function () {
       expect(tools).to.have.property('get-current-query');
       toolsController.setActiveTools(new Set([]));
       tools = toolsController.getActiveTools();
-      expect(tools).to.be.empty;
+      expect(Object.keys(tools)).to.deep.equal(baseTools);
     });
   });
 
   describe('getActiveTools', function () {
     describe('atlas-connection-error-debugger tool', function () {
-      it('is not registered by default', function () {
-        expect(toolsController.getActiveTools()).to.not.have.property(
-          'atlas-connection-error-debugger'
-        );
-      });
-
-      it('is registered when the feature flag is enabled', async function () {
-        await preferences.savePreferences({
-          enableAtlasConnectionErrorDebugger: true,
-        });
-
+      it('is registered when the feature flag is enabled', function () {
         expect(toolsController.getActiveTools()).to.have.property(
           'atlas-connection-error-debugger'
         );
@@ -262,7 +254,9 @@ describe('ToolsController', function () {
         });
         newController.setActiveTools(new Set(['db-read']));
 
-        expect(newController.getActiveTools()).to.be.empty;
+        expect(Object.keys(newController.getActiveTools())).to.deep.equal(
+          baseTools
+        );
       });
 
       it('includes readonly database tools', function () {
@@ -358,9 +352,9 @@ describe('ToolsController', function () {
     });
 
     describe('no active tools', function () {
-      it('returns empty object when no tool groups are set', function () {
+      it('returns only base tools when no tool groups are set', function () {
         const tools = toolsController.getActiveTools();
-        expect(Object.keys(tools)).to.have.lengthOf(0);
+        expect(Object.keys(tools)).to.have.lengthOf(baseTools.length);
       });
     });
   });
