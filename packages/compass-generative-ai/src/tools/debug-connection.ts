@@ -18,7 +18,10 @@ export const debugConnectionDescription = `
   2. If the url contains any links present the links in the advice as part of your response, with a 1-line explanation.
 `;
 
-export type IpAccessStatus = 'Client IP Allowed' | 'Could not confirm';
+export type IpAccessStatus =
+  | 'Client IP Allowed'
+  | 'Client IP Not Allowed'
+  | 'Could not confirm';
 
 export type NetworkAccessDetails = {
   networkAccessList: AtlasAccessListEntry[];
@@ -59,16 +62,25 @@ function mapClusterStateToDebugResultState({
   return state;
 }
 
-export function isUserIpIncluded(
-  ipAccessList: NetworkAccessDetails['networkAccessList'],
-  userIp: string
-): boolean | undefined {
-  return ipAccessList.some(({ ipAddress, cidrBlock }) => {
+export function getIpAccessStatus(
+  ipAccessList?: NetworkAccessDetails['networkAccessList'],
+  userIp?: string
+): IpAccessStatus {
+  if (!ipAccessList || !userIp) return 'Could not confirm';
+  if (ip.isValid(userIp.trim()) === false) return 'Could not confirm';
+
+  let containsAwsSecurityGroup = false;
+  for (const { ipAddress, cidrBlock, awsSecurityGroup } of ipAccessList) {
     // it's either one or the other
-    if (cidrBlock) return isAddressInCidrRange(cidrBlock, userIp);
-    if (ipAddress) return isAddressEqual(ipAddress, userIp);
-    return false;
-  });
+    if (cidrBlock && isAddressInCidrRange(cidrBlock, userIp))
+      return 'Client IP Allowed';
+    if (ipAddress && isAddressEqual(ipAddress, userIp))
+      return 'Client IP Allowed';
+    if (awsSecurityGroup) containsAwsSecurityGroup = true;
+  }
+  return containsAwsSecurityGroup
+    ? 'Could not confirm'
+    : 'Client IP Not Allowed';
 }
 
 function isAddressInCidrRange(cidrNotation: string, address: string): boolean {
@@ -141,10 +153,7 @@ async function getNetworkAccessInfo({
     atlasAdminApi.getSystemStatus(),
   ]);
   return {
-    ipAccessStatus:
-      ipAccessList && userIp && isUserIpIncluded(ipAccessList, userIp)
-        ? 'Client IP Allowed'
-        : 'Could not confirm',
+    ipAccessStatus: getIpAccessStatus(ipAccessList, userIp),
     networkAccessDetails: {
       networkAccessList: ipAccessList,
       ...(userIp && { userIp }),
