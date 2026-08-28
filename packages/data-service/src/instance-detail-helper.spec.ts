@@ -2,6 +2,7 @@ import { expect } from 'chai';
 import { MongoClient } from 'mongodb';
 import type { InstanceDetails } from './instance-detail-helper';
 import {
+  adaptDatabaseInfo,
   configuredKMSProviders,
   checkIsCSFLEConnection,
   getDatabasesByRoles,
@@ -407,6 +408,29 @@ describe('instance-detail-helper', function () {
           }
         );
       });
+    });
+  });
+
+  describe('#adaptDatabaseInfo', function () {
+    it('keeps the reported storage size', function () {
+      expect(adaptDatabaseInfo({ storageSize: 4266 })).to.have.property(
+        'storage_size',
+        4266
+      );
+    });
+
+    it('keeps a genuine zero storage size', function () {
+      expect(adaptDatabaseInfo({ storageSize: 0 })).to.have.property(
+        'storage_size',
+        0
+      );
+    });
+
+    it('leaves storage size undefined when the server did not report it', function () {
+      expect(adaptDatabaseInfo({ dataSize: 4598648 })).to.have.property(
+        'storage_size',
+        undefined
+      );
     });
   });
 

@@ -1,62 +1,76 @@
 import toNS from 'mongodb-ns';
 import type { AtlasClusterMetadata } from '@mongodb-js/connection-info';
 
-export function buildPerformanceMetricsUrl({
-  projectId,
-  clusterName,
-  metricsType,
-  metricsId,
-}: AtlasClusterMetadata): string {
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
+function getWebBaseUrl(): string {
+  return window.location.origin;
+}
+
+export function buildPerformanceMetricsUrl(
+  { projectId, clusterName, metricsType, metricsId }: AtlasClusterMetadata,
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2/${projectId}`, baseUrl);
   if (metricsType === 'flex') {
     return `${url}#/flex/realtime/${clusterName}`;
   }
   return `${url}#/metrics/${metricsType}/${metricsId}/realtime/panel`;
 }
 
-export function buildProjectSettingsUrl({
-  projectId,
-  params,
-}: Pick<AtlasClusterMetadata, 'projectId'> & {
-  params?: Record<string, string>;
-}): string {
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
+export function buildProjectSettingsUrl(
+  {
+    projectId,
+    params,
+  }: Pick<AtlasClusterMetadata, 'projectId'> & {
+    params?: Record<string, string>;
+  },
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2/${projectId}`, baseUrl);
   const query = params ? `?${new URLSearchParams(params)}` : '';
   return `${url}#/settings/groupSettings${query}`;
 }
 
-export function buildMonitoringUrl({
-  projectId,
-  clusterName,
-  metricsType,
-  metricsId,
-}: AtlasClusterMetadata): string {
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
+export function buildNetworkAccessListUrl(
+  { projectId }: Pick<AtlasClusterMetadata, 'projectId'>,
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2/${projectId}`, baseUrl);
+  return `${url}#/security/network/accessList`;
+}
+
+export function buildMonitoringUrl(
+  { projectId, clusterName, metricsType, metricsId }: AtlasClusterMetadata,
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2/${projectId}`, baseUrl);
   if (metricsType === 'flex') {
     return `${url}#/flex/monitoring/${clusterName}`;
   }
   return `${url}#/host/${metricsType}/${metricsId}`;
 }
 
-export function buildClusterOverviewUrl({
-  projectId,
-  clusterName,
-  metricsType,
-}: AtlasClusterMetadata): string {
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
+export function buildClusterOverviewUrl(
+  {
+    projectId,
+    clusterName,
+    metricsType,
+  }: Pick<AtlasClusterMetadata, 'projectId' | 'clusterName'> & {
+    metricsType?: AtlasClusterMetadata['metricsType'];
+  },
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2/${projectId}`, baseUrl);
   if (metricsType === 'flex') {
     return `${url}#/flex/detail/${clusterName}`;
   }
   return `${url}#/clusters/detail/${clusterName}`;
 }
 
-export function buildQueryInsightsUrl({
-  projectId,
-  clusterName,
-  metricsType,
-  metricsId,
-}: AtlasClusterMetadata): string {
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
+export function buildQueryInsightsUrl(
+  { projectId, clusterName, metricsType, metricsId }: AtlasClusterMetadata,
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2/${projectId}`, baseUrl);
   if (metricsType === 'flex') {
     return `${url}#/flex/queryInsights/${clusterName}`;
   }
@@ -65,10 +79,11 @@ export function buildQueryInsightsUrl({
 
 export function buildChartsUrl(
   { projectId, clusterName }: AtlasClusterMetadata,
-  namespace?: string
+  namespace?: string,
+  baseUrl: string = getWebBaseUrl()
 ): string {
   const { database } = toNS(namespace ?? '');
-  const url = new URL(`/charts/${projectId}`, window.location.origin);
+  const url = new URL(`/charts/${projectId}`, baseUrl);
   url.searchParams.set('sourceType', 'cluster');
   url.searchParams.set('name', clusterName);
   if (database) {
@@ -77,58 +92,66 @@ export function buildChartsUrl(
   return `${url}`;
 }
 
-export function buildUpgradeClusterUrl({
-  projectId,
-  clusterName,
-}: AtlasClusterMetadata): string {
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
+export function buildUpgradeClusterUrl(
+  { projectId, clusterName }: AtlasClusterMetadata,
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2/${projectId}`, baseUrl);
   return `${url}#/clusters/edit/${clusterName}`;
 }
 
-export function buildRerankTokenUsageUrl({
-  projectId,
-  clusterName,
-}: AtlasClusterMetadata): string {
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
+export function buildRerankTokenUsageUrl(
+  { projectId, clusterName }: AtlasClusterMetadata,
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2/${projectId}`, baseUrl);
   return `${url}#/clusters/atlasSearch/${clusterName}/rerank/usage`;
 }
 
-export function buildSearchExtensionRateLimitsUrl({
-  projectId,
-  clusterName,
-  extensionType,
-}: Pick<AtlasClusterMetadata, 'projectId' | 'clusterName'> & {
-  extensionType: 'rerank' | 'autoEmbedding';
-}): string {
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
+export function buildSearchExtensionRateLimitsUrl(
+  {
+    projectId,
+    clusterName,
+    extensionType,
+  }: Pick<AtlasClusterMetadata, 'projectId' | 'clusterName'> & {
+    extensionType: 'rerank' | 'autoEmbedding';
+  },
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2/${projectId}`, baseUrl);
   return `${url}#/clusters/atlasSearch/${clusterName}/${extensionType}/rateLimits`;
 }
 
-export function buildAtlasSearchClustersUrl({
-  projectId,
-}: Pick<AtlasClusterMetadata, 'projectId'>): string {
-  const url = new URL(`/v2/${projectId}`, window.location.origin);
+export function buildAtlasSearchClustersUrl(
+  { projectId }: Pick<AtlasClusterMetadata, 'projectId'>,
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2/${projectId}`, baseUrl);
   return `${url}#/clusters/atlasSearch`;
 }
 
-export function buildBillingUrl({
-  orgId,
-}: Pick<AtlasClusterMetadata, 'orgId'>): string {
-  const url = new URL(`/v2`, window.location.origin);
+export function buildBillingUrl(
+  { orgId }: Pick<AtlasClusterMetadata, 'orgId'>,
+  baseUrl: string = getWebBaseUrl()
+): string {
+  const url = new URL(`/v2`, baseUrl);
   return `${url}#/org/${orgId}/checkout?type=editPayment`;
 }
 
-export function buildAtlasSearchLink({
-  atlasMetadata,
-  namespace,
-  indexName,
-  view,
-}: {
-  atlasMetadata: AtlasClusterMetadata;
-  namespace: string;
-  indexName?: string;
-  view?: string;
-}): string {
+export function buildAtlasSearchLink(
+  {
+    atlasMetadata,
+    namespace,
+    indexName,
+    view,
+  }: {
+    atlasMetadata: AtlasClusterMetadata;
+    namespace: string;
+    indexName?: string;
+    view?: string;
+  },
+  baseUrl: string = getWebBaseUrl()
+): string {
   const { projectId, clusterName } = atlasMetadata;
   const hashParams = new URLSearchParams();
   const { database, collection } = toNS(namespace);
@@ -146,5 +169,5 @@ export function buildAtlasSearchLink({
   const hash = `/clusters/atlasSearch/${clusterName}${
     hashQuery ? `?${hashQuery}` : ''
   }`;
-  return `${window.location.origin}/v2/${projectId}#${hash}`;
+  return `${new URL(`/v2/${projectId}`, baseUrl)}#${hash}`;
 }

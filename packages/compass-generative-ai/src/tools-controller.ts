@@ -20,15 +20,19 @@ import { ToolsConnectionManager } from './tools-connection-manager';
 import type { ToolsConnectParams } from './tools-connection-manager';
 import { removeZodTransforms } from './remove-zod-transforms';
 import { READ_ONLY_DATABASE_TOOLS } from './available-tools';
-import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import type { PreferencesAccess } from 'compass-preferences-model';
-import { debugConnection } from './tools/debug-connection';
+import { getAtlasConfig } from '@mongodb-js/atlas-service/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry';
+import {
+  debugConnection,
+  debugConnectionDescription,
+} from './tools/debug-connection';
 
 export type ToolGroup = 'querybar' | 'aggregation-builder' | 'db-read';
 
 type CompassContext = {
-  enableTelemetry: boolean;
+  enableMCPTelemetry: boolean;
   maxTimeMS?: number;
   query?: string;
   pipeline?: string;
@@ -80,10 +84,10 @@ type ToolsControllerConfig = {
   logger: Logger;
   preferences: PreferencesAccess;
   getTelemetryAnonymousId: () => string;
-  enableTelemetry: boolean;
+  track: TrackFunction;
+  enableMCPTelemetry: boolean;
   maxTimeMS?: number;
   atlasAdminApi: AtlasAdminApiService;
-  authService: AtlasAuthService;
 };
 
 export class ToolsController {
@@ -96,28 +100,28 @@ export class ToolsController {
   private connectionIdByToolCallId: Record<string, string | null> =
     Object.create(null);
   private readonly atlasAdminApi: AtlasAdminApiService;
-  private readonly authService: AtlasAuthService;
+  private readonly track: TrackFunction;
 
   constructor({
     logger,
     getTelemetryAnonymousId,
-    enableTelemetry,
+    track,
+    enableMCPTelemetry,
     maxTimeMS,
     atlasAdminApi,
-    authService,
     preferences,
   }: ToolsControllerConfig) {
     this.logger = logger;
     this.atlasAdminApi = atlasAdminApi;
-    this.authService = authService;
     this.preferences = preferences;
+    this.track = track;
     const mcpConfig = UserConfigSchema.parse({
       disabledTools: ['connect'],
       loggers: ['mcp'],
       readOnly: true,
       // NOTE: the preferences could change at runtime. As a best-effort way of
       // keeping them in sync we'll change them every time we set the tools' context
-      telemetry: enableTelemetry ? 'enabled' : 'disabled',
+      telemetry: enableMCPTelemetry ? 'enabled' : 'disabled',
       maxTimeMS,
     });
 
@@ -291,8 +295,7 @@ export class ToolsController {
       this.preferences.getPreferences();
     if (enableAtlasConnectionErrorDebugger) {
       tools['atlas-connection-error-debugger'] = {
-        description:
-          'Use to debug a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
+        description: debugConnectionDescription,
         inputSchema: z.object({
           connectionString: z.string(),
           errorMessage: z.string(),
@@ -312,7 +315,8 @@ export class ToolsController {
           return await debugConnection(
             args.connectionString,
             this.atlasAdminApi,
-            this.authService
+            this.track,
+            getAtlasConfig(this.preferences).atlasUiBaseUrl
           );
         },
       };
@@ -323,7 +327,7 @@ export class ToolsController {
 
   setContext(context: ToolsContext): void {
     // make sure these properties are always in sync with the tools' config
-    this.runner.userConfig.telemetry = context.enableTelemetry
+    this.runner.userConfig.telemetry = context.enableMCPTelemetry
       ? 'enabled'
       : 'disabled';
     this.runner.userConfig.maxTimeMS = context.maxTimeMS;

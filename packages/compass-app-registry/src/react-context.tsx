@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useContext, useState } from 'react';
+import React, { createContext, useContext } from 'react';
 import { useInitialValue } from '@mongodb-js/compass-components';
 import { globalAppRegistry, AppRegistry } from './app-registry';
 
@@ -64,6 +64,25 @@ export function useIsTopLevelProvider() {
   return useContext(LocalAppRegistryContext) === null;
 }
 
+// Using Component class with `componentWillUnmount` to explicitly communicate
+// to React runtime that in this case we ONLY want the unmount clean-up, not a
+// effect-like full lifecycle and avoid the double-effect call in dev mode
+class AppRegistryDeactivator extends React.Component<
+  React.PropsWithChildren<{
+    deactivateOnUnmount: boolean;
+    appRegistry: AppRegistry;
+  }>
+> {
+  render() {
+    return <>{this.props.children}</>;
+  }
+  componentWillUnmount(): void {
+    if (this.props.deactivateOnUnmount) {
+      this.props.appRegistry.deactivate();
+    }
+  }
+}
+
 export function AppRegistryProvider({
   children,
   ...props
@@ -76,35 +95,29 @@ export function AppRegistryProvider({
 
   const globalAppRegistry = useGlobalAppRegistry();
   const isTopLevelProvider = useIsTopLevelProvider();
-  const [localAppRegistry] = useState(() => {
+  const localAppRegistry = useInitialValue(() => {
     return (
       initialLocalAppRegistry ??
       (isTopLevelProvider ? globalAppRegistry : new AppRegistry())
     );
   });
 
-  useEffect(() => {
-    // For cases where localAppRegistry was provided by the parent, we allow
-    // parent to also take control over the cleanup lifecycle by disabling
-    // deactivate call with the `deactivateOnUnmount` prop. Otherwise if
-    // localAppRegistry was created by the provider, it will always clean up on
-    // unmount
-    const shouldDeactivate = initialLocalAppRegistry
-      ? deactivateOnUnmount
-      : true;
-    return () => {
-      if (shouldDeactivate) {
-        localAppRegistry.deactivate();
-      }
-    };
-  }, [localAppRegistry, initialLocalAppRegistry, deactivateOnUnmount]);
-
   return (
-    <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
-      <LocalAppRegistryContext.Provider value={localAppRegistry}>
-        {children}
-      </LocalAppRegistryContext.Provider>
-    </GlobalAppRegistryContext.Provider>
+    <AppRegistryDeactivator
+      appRegistry={localAppRegistry}
+      // For cases where localAppRegistry was provided by the parent, we allow
+      // parent to also take control over the cleanup lifecycle by disabling
+      // deactivate call with the `deactivateOnUnmount` prop. Otherwise if
+      // localAppRegistry was created by the provider, it will always clean up
+      // on unmount
+      deactivateOnUnmount={initialLocalAppRegistry ? deactivateOnUnmount : true}
+    >
+      <GlobalAppRegistryContext.Provider value={globalAppRegistry}>
+        <LocalAppRegistryContext.Provider value={localAppRegistry}>
+          {children}
+        </LocalAppRegistryContext.Provider>
+      </GlobalAppRegistryContext.Provider>
+    </AppRegistryDeactivator>
   );
 }
 

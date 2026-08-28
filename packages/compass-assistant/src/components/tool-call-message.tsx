@@ -5,31 +5,25 @@ import {
   InlineDefinition,
   ServerIcon,
 } from '@mongodb-js/compass-components';
+import { getToolDescription } from '../utils';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
-import {
-  getAvailableTools,
-  doesToolUseConnection,
-} from '@mongodb-js/compass-generative-ai/provider';
+import { doesToolUseConnection } from '@mongodb-js/compass-generative-ai/provider';
 import {
   cleanToolCallOutput,
   getToolState,
   getToolDisplayName,
+  getExpandableContentText,
+  toolHasOutput,
 } from '../utils';
 import { ActionCardMessage } from './action-card-message';
+import { getToolCallTitle } from './tool-call-title';
 
 interface ToolCallMessageProps {
   connection: BasicConnectionInfo | null;
   toolCall: ToolUIPart;
   onApprove?: (approvalId: string) => void;
   onDeny?: (approvalId: string) => void;
-}
-
-function getToolDescription(toolName: string): string | undefined {
-  // If we get to this point we can assume the tool is available, no need to pipe preferences here
-  return getAvailableTools({ enableAtlasConnectionErrorDebugger: true }).find(
-    (tool) => tool.name === toolName
-  )?.description;
 }
 
 const expandableContentStyles = css({
@@ -57,71 +51,27 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
   const toolDescription = getToolDescription(toolName);
   const toolCallState = getToolState(toolCall.state);
 
-  const inputJSON = JSON.stringify(toolCall.input || {}, null, 2);
-
   const cleanedOutput = React.useMemo(
     () => (toolCall.output ? cleanToolCallOutput(toolCall.output) : null),
     [toolCall.output]
   );
 
-  const hasOutput = !!(
-    cleanedOutput &&
-    (toolCall.state === 'output-available' || toolCall.state === 'output-error')
-  );
-
-  const outputText = cleanedOutput
-    ? JSON.stringify(cleanedOutput, null, 2)
-    : '';
+  const hasOutput = toolHasOutput(toolCall, cleanedOutput);
 
   const isAwaitingApproval =
     toolCall.state === 'approval-requested' && !!toolCall.approval;
-  const wasApproved = toolCall.approval?.approved === true;
-  const isDenied = toolCall.state === 'output-denied';
-  const didRun =
-    toolCall.state === 'output-available' || toolCall.state === 'output-error';
 
-  const expandableContent = [
-    `### Arguments
-
-\`\`\`json
-${inputJSON}
-\`\`\``,
-  ];
-
-  if (hasOutput) {
-    expandableContent.push(`### Response
-
-\`\`\`json
-${outputText}
-\`\`\``);
-  }
-
-  if (toolCall.errorText) {
-    expandableContent.push(`### Error
-
-\`\`\`
-${toolCall.errorText}
-\`\`\``);
-  }
-
-  const expandableContentText = expandableContent.join('\n\n');
+  const expandableContentText = getExpandableContentText(
+    toolCall,
+    hasOutput,
+    cleanedOutput
+  );
 
   const toolNameElement = toolDescription ? (
     <InlineDefinition definition={toolDescription}>{toolName}</InlineDefinition>
   ) : (
     toolName
   );
-
-  let title: React.ReactNode;
-  if (didRun) {
-    title = <>Ran {toolNameElement}</>;
-  } else if (wasApproved) {
-    title = <>Running {toolNameElement}</>;
-  } else if (isDenied) {
-    title = <>Cancelled {toolNameElement}</>;
-  } else {
-    title = <>Run {toolNameElement}?</>;
-  }
 
   if (toolCall.state === 'input-streaming') {
     // The tool call renders with undefined input or incomplete input and then
@@ -139,7 +89,7 @@ ${toolCall.errorText}
     <ActionCardMessage
       initialIsExpanded={initialIsExpanded}
       state={toolCallState}
-      title={title}
+      title={getToolCallTitle(toolCall, toolNameElement)}
       chips={chips}
       contentClassName={expandableContentStyles}
       showActions={isAwaitingApproval}

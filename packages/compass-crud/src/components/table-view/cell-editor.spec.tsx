@@ -52,7 +52,7 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            tz="UTC"
+            timezone="UTC"
             columnApi={columnApi as any}
             context={context}
           />
@@ -82,7 +82,7 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            tz="UTC"
+            timezone="UTC"
             columnApi={columnApi as any}
             context={context}
           />
@@ -120,7 +120,7 @@ describe('<CellEditor />', function () {
             elementMarkRemoved={actions.elementMarkRemoved}
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
-            tz="UTC"
+            timezone="UTC"
             columnApi={columnApi as any}
             context={context}
           />
@@ -161,7 +161,7 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             columnApi={columnApi}
             context={context}
           />
@@ -202,7 +202,7 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             columnApi={columnApi}
             context={context}
           />
@@ -242,7 +242,7 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             columnApi={columnApi}
             context={context}
           />
@@ -282,7 +282,7 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             columnApi={columnApi}
             context={subContext}
           />
@@ -335,7 +335,7 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             context={context}
             columnApi={columnApi}
           />
@@ -374,7 +374,7 @@ describe('<CellEditor />', function () {
               drillDown={actions.drillDown}
               addColumn={actions.addColumn}
               version="3.4.0"
-              tz="UTC"
+              timezone="UTC"
               context={context}
               columnApi={columnApi}
             />
@@ -429,7 +429,7 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             context={context}
             columnApi={columnApi}
           />
@@ -471,7 +471,7 @@ describe('<CellEditor />', function () {
             drillDown={actions.drillDown}
             addColumn={actions.addColumn}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             context={context}
             columnApi={columnApi}
           />
@@ -520,7 +520,7 @@ describe('<CellEditor />', function () {
             context={context}
             column={column}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             columnApi={columnApi}
           />
         );
@@ -567,7 +567,7 @@ describe('<CellEditor />', function () {
             context={context}
             column={column}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             columnApi={columnApi}
           />
         );
@@ -612,7 +612,7 @@ describe('<CellEditor />', function () {
             addColumn={actions.addColumn}
             columnApi={columnApi}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -652,7 +652,7 @@ describe('<CellEditor />', function () {
             addColumn={actions.addColumn}
             columnApi={columnApi}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -692,7 +692,7 @@ describe('<CellEditor />', function () {
             addColumn={actions.addColumn}
             columnApi={columnApi}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );
@@ -737,7 +737,7 @@ describe('<CellEditor />', function () {
             addColumn={actions.addColumn}
             columnApi={columnApi}
             version="3.4.0"
-            tz="UTC"
+            timezone="UTC"
             context={context}
           />
         );

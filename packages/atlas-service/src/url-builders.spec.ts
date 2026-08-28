@@ -12,6 +12,7 @@ import {
   buildProjectSettingsUrl,
   buildSearchExtensionRateLimitsUrl,
   buildBillingUrl,
+  buildNetworkAccessListUrl,
 } from './url-builders';
 
 const TEST_ORIGIN = 'https://cloud.mongodb.com';
@@ -67,6 +68,32 @@ describe('url-builders', function () {
     });
   });
 
+  describe('explicit base url', function () {
+    it('is used instead of the current origin', function () {
+      expect(
+        buildClusterOverviewUrl(baseMetadata, 'https://cloud-dev.mongodb.com')
+      ).to.equal(
+        'https://cloud-dev.mongodb.com/v2/proj123#/clusters/detail/myCluster'
+      );
+      expect(
+        buildNetworkAccessListUrl(
+          { projectId: 'proj123' },
+          'https://cloud-dev.mongodb.com'
+        )
+      ).to.equal(
+        'https://cloud-dev.mongodb.com/v2/proj123#/security/network/accessList'
+      );
+      expect(
+        buildAtlasSearchLink(
+          { atlasMetadata: baseMetadata, namespace: 'myDB.myCollection' },
+          'https://cloud-dev.mongodb.com'
+        )
+      ).to.equal(
+        'https://cloud-dev.mongodb.com/v2/proj123#/clusters/atlasSearch/myCluster?collectionName=myCollection&database=myDB'
+      );
+    });
+  });
+
   describe('buildProjectSettingsUrl', function () {
     it('builds project settings url', function () {
       expect(buildProjectSettingsUrl({ projectId: 'proj123' })).to.equal(
@@ -82,6 +109,14 @@ describe('url-builders', function () {
         })
       ).to.equal(
         `${TEST_ORIGIN}/v2/proj123#/settings/groupSettings?highlight=nativeReranking`
+      );
+    });
+  });
+
+  describe('buildNetworkAccessListUrl', function () {
+    it('builds network access list url', function () {
+      expect(buildNetworkAccessListUrl({ projectId: 'proj123' })).to.equal(
+        `${TEST_ORIGIN}/v2/proj123#/security/network/accessList`
       );
     });
   });

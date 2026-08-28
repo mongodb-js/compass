@@ -41,6 +41,16 @@ import {
 } from '@mongodb-js/compass-query-bar';
 import { usePreferences } from 'compass-preferences-model/provider';
 import { useAssistantActions } from '@mongodb-js/compass-assistant';
+import {
+  useDocumentEditsTelemetry,
+  type DocumentEditsMode,
+} from '../hooks/use-document-edits-telemetry';
+
+const DOCUMENT_EDITS_MODES = {
+  List: 'list',
+  JSON: 'json',
+  Table: 'table',
+} as const satisfies { [view in DocumentView]: DocumentEditsMode };
 
 // Table has its own scrollable container.
 const tableStyles = css({
@@ -328,6 +338,8 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     updateMaxDocumentsPerPage,
   } = props;
 
+  useDocumentEditsTelemetry(docs, DOCUMENT_EDITS_MODES[view]);
+
   const onOpenInsert = useCallback(
     (key: 'insert-document' | 'import-file') => {
       if (key === 'insert-document') {
@@ -385,13 +397,7 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
     readOnly: preferencesReadOnly,
     readWrite: preferencesReadWrite,
     enableImportExport: isImportExportEnabled,
-    legacyUUIDDisplayEncoding,
-  } = usePreferences([
-    'readOnly',
-    'readWrite',
-    'enableImportExport',
-    'legacyUUIDDisplayEncoding',
-  ]);
+  } = usePreferences(['readOnly', 'readWrite', 'enableImportExport']);
 
   const isEditable =
     !preferencesReadOnly &&
@@ -521,7 +527,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
               scrollTriggerRef={scrollTriggerRef}
               columnWidths={columnWidths}
               onColumnWidthChange={onColumnWidthChange}
-              legacyUUIDDisplayEncoding={legacyUUIDDisplayEncoding}
             />
           );
         }
@@ -544,7 +549,6 @@ const DocumentList: React.FunctionComponent<DocumentListProps> = (props) => {
       currentViewInitialScrollTop,
       columnWidths,
       onColumnWidthChange,
-      legacyUUIDDisplayEncoding,
     ]
   );
 
