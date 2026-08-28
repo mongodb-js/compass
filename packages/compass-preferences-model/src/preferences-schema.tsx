@@ -193,7 +193,7 @@ export type PreferenceState =
   | 'set-cli' // Can be set directly or derived from a preference set via cli args.
   | 'set-global' // Can be set directly or derived from a preference set via global config.
   | 'hardcoded'
-  | 'derived' // Derived from a preference set by a user via setting UI.
+  | 'derived' // Computed from other preferences' values.
   | 'set-cloud-org' // Set by the mms backend for the user's Atlas organization.
   | 'set-cloud-project' // Set by the mms backend for the user's Atlas project.
   | 'set-cloud-user' // Set by the mms backend for the user's Atlas user.
