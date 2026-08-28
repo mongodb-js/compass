@@ -21,6 +21,7 @@ export const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableGenAIFeaturesAtlasOrg: false,
   enableGenAIToolCallingAtlasProject: true,
   enableAtlasConnectionErrorDebugger: false,
+  enableAtlasSignIn: false,
   enablePerformanceAdvisorBanner: true,
   enableMyQueries: false,
   maximumNumberOfActiveConnections: 10,
