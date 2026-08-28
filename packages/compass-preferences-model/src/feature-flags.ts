@@ -156,7 +156,7 @@ export const FEATURE_FLAG_DEFINITIONS = [
    */
   {
     name: 'enableAtlasConnectionErrorDebugger',
-    stage: 'development',
+    stage: 'released',
     atlasCloudFeatureScope: 'group',
     description: {
       short: 'Enable Atlas Connection Error Debugger',

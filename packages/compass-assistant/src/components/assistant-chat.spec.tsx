@@ -22,6 +22,7 @@ import {
 } from '../compass-assistant-provider';
 import sinon from 'sinon';
 import type { SourceUrlUIPart, TextPart, ToolUIPart } from 'ai';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { Chat } from '../@ai-sdk/react/chat-react';
 import {
   ToolsControllerProvider,
@@ -32,6 +33,32 @@ import {
   type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
+import { containsText } from './test-helpers';
+
+const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
+
+const mockAtlasAdminApi = {
+  getSystemStatus: sinon.stub().resolves({}),
+} as unknown as AtlasAdminApiService;
+
+function TestProviders({
+  children,
+  assistantActions,
+}: React.PropsWithChildren<{
+  assistantActions?: Partial<React.ContextType<typeof AssistantActionsContext>>;
+}>) {
+  return (
+    <ToolsControllerProvider>
+      <AtlasLoginPlugin>
+        <AssistantActionsContext.Provider
+          value={{ atlasAdminApi: mockAtlasAdminApi, ...assistantActions }}
+        >
+          {children}
+        </AssistantActionsContext.Provider>
+      </AtlasLoginPlugin>
+    </ToolsControllerProvider>
+  );
+}
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -101,19 +128,12 @@ describe('AssistantChat', function () {
         await chat.sendMessage(message, options);
       });
 
-    const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
-
-    const assistantActionsContext = {
-      ensureOptInAndSend: ensureOptInAndSendStub,
-    };
     const result = render(
-      <ToolsControllerProvider>
-        <AtlasLoginPlugin>
-          <AssistantActionsContext.Provider value={assistantActionsContext}>
-            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-          </AssistantActionsContext.Provider>
-        </AtlasLoginPlugin>
-      </ToolsControllerProvider>,
+      <TestProviders
+        assistantActions={{ ensureOptInAndSend: ensureOptInAndSendStub }}
+      >
+        <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+      </TestProviders>,
       {
         connections,
         preferences,
@@ -236,9 +256,9 @@ describe('AssistantChat', function () {
     it('shows warning message in chat when connected to non-genuine MongoDB', function () {
       const chat = createMockChat({ messages: [] });
       render(
-        <ToolsControllerProvider>
+        <TestProviders>
           <AssistantChat chat={chat} hasNonGenuineConnections={true} />
-        </ToolsControllerProvider>
+        </TestProviders>
       );
 
       expect(chat.messages).to.have.length(1);
@@ -253,9 +273,9 @@ describe('AssistantChat', function () {
     it('does not show warning message when all connections are genuine', function () {
       const chat = createMockChat({ messages: [] });
       render(
-        <ToolsControllerProvider>
+        <TestProviders>
           <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </ToolsControllerProvider>,
+        </TestProviders>,
         {
           connections: [],
         }
@@ -270,9 +290,9 @@ describe('AssistantChat', function () {
     it('warning message is removed when all active connections are changed to genuine', async function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
-        <ToolsControllerProvider>
+        <TestProviders>
           <AssistantChat chat={chat} hasNonGenuineConnections={true} />
-        </ToolsControllerProvider>,
+        </TestProviders>,
         {}
       );
 
@@ -283,9 +303,9 @@ describe('AssistantChat', function () {
       ).to.exist;
 
       rerender(
-        <ToolsControllerProvider>
+        <TestProviders>
           <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-        </ToolsControllerProvider>
+        </TestProviders>
       );
 
       await waitFor(() => {
@@ -1054,8 +1074,13 @@ describe('AssistantChat', function () {
         createMockChat({ messages: [makeAtlasToolCallMessage()] })
       );
 
-      expect(screen.getByText('Connect with Atlas to debug this connection?'))
-        .to.exist;
+      expect(
+        screen.getByText(
+          containsText(
+            'Connect with Atlas and run atlas-connection-error-debugger?'
+          )
+        )
+      ).to.exist;
     });
   });
 

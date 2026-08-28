@@ -42,6 +42,7 @@ import { InsertDocumentDialogBanner } from './insert-document-dialog-banner';
 import InsertEJSONConversionBanner from './insert-ejson-conversion-banner';
 import { convertEJSONToShellSyntax } from '../utils/ejson-conversion';
 import { useConnectionInfoRef } from '@mongodb-js/compass-connections/provider';
+import { useDocumentEditsTelemetry } from '../hooks/use-document-edits-telemetry';
 
 /**
  * The insert invalid message.
@@ -74,10 +75,7 @@ const documentViewContainer = css({
 });
 
 const insertDocumentStyles = css({
-  // We give it a good amount of spacing for dropdown menus.
-  // TODO(COMPASS-6271): We'll use portals in the document editing Menu
-  // so we don't need special padding here.
-  paddingBottom: spacing[1800] + spacing[400],
+  paddingBottom: spacing[400],
 });
 
 const insertViewOptions = [
@@ -125,7 +123,7 @@ const DocumentOrJsonView: React.FC<{
   insertView: InsertDocumentView;
   doc: InsertDocumentDialogProps['doc'];
   isManyDocuments: boolean;
-  updateInsertDocText: InsertDocumentDialogProps['updateInsertDocText'];
+  onChangeText: (text: string) => void;
   editorText: InsertDocumentDialogProps['editorText'];
   safeIntegerLinter: Extension;
   editorRef: React.RefObject<EditorRef>;
@@ -134,16 +132,21 @@ const DocumentOrJsonView: React.FC<{
   insertView,
   doc,
   isManyDocuments,
-  updateInsertDocText,
+  onChangeText,
   editorText,
   safeIntegerLinter,
   editorRef,
   namespace,
 }) => {
+  useDocumentEditsTelemetry(
+    useMemo(() => (doc ? [doc] : []), [doc]),
+    'insert'
+  );
+
   if (insertView !== 'list') {
     return (
       <InsertDocumentEditor
-        updateInsertDocText={updateInsertDocText}
+        onChangeText={onChangeText}
         editorText={editorText}
         safeIntegerLinter={safeIntegerLinter}
         editorRef={editorRef}
@@ -180,7 +183,7 @@ const DocumentOrJsonView: React.FC<{
 const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   isOpen,
   insertView,
-  editorText,
+  editorText: editorTextFromStore,
   doc,
   error: documentWriteError,
   ns,
@@ -199,6 +202,25 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     []
   );
   const [insertInProgress, setInsertInProgress] = useState(false);
+
+  // The store is updated via Reflux actions, which are dispatched async,
+  // so the text coming from it lags behind the editor while typing.
+  // Keeping the text the editor is controlled by in local state makes
+  // every edit land in the same tick as the keystroke, so the editor is never
+  // reset to a stale value (which would also reset the cursor position).
+  const [editorText, setEditorText] = useState(editorTextFromStore);
+
+  useSyncStateOnPropChange(() => {
+    setEditorText(editorTextFromStore);
+  }, [insertView, isOpen]);
+
+  const onChangeText = useCallback(
+    (text: string) => {
+      setEditorText(text);
+      updateInsertDocText(text);
+    },
+    [updateInsertDocText]
+  );
 
   // Parsing is not free for large documents and several things below need
   // either the parsed value or the error, so the text is only parsed once per
@@ -330,7 +352,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
   const onFixEJSONToShellSyntax = useCallback(() => {
     let succeeded = false;
     try {
-      updateInsertDocText(convertEJSONToShellSyntax(parseResult.value));
+      onChangeText(convertEJSONToShellSyntax(parseResult.value));
       succeeded = true;
     } catch (err) {
       setFailedConversion({
@@ -349,14 +371,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
       { success: succeeded },
       connectionInfoRef.current
     );
-  }, [
-    parseResult,
-    editorText,
-    updateInsertDocText,
-    logger,
-    track,
-    connectionInfoRef,
-  ]);
+  }, [parseResult, editorText, onChangeText, logger, track, connectionInfoRef]);
 
   const {
     onFixViolations: onFixSafeIntegerViolations,
@@ -364,16 +379,17 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
     safeIntegerLinter,
   } = useSafeIntegerLinter({
     editorRef,
-    onFixViolation: (source: string) => {
+    onFixViolation: (source: string) =>
+      insertView === 'shell'
+        ? `Long("${source}")`
+        : `{"$numberLong": "${source}"}`,
+    onViolationFixed: () => {
       track?.('Safe Integer Fix Applied', {
         source:
           insertView === 'shell'
             ? 'insert-document-editor-shell'
             : 'insert-document-editor-json',
       });
-      return insertView === 'shell'
-        ? `Long("${source}")`
-        : `{"$numberLong": "${source}"}`;
     },
   });
 
@@ -470,7 +486,7 @@ const InsertDocumentDialog: React.FC<InsertDocumentDialogProps> = ({
           insertView={insertView}
           doc={doc}
           isManyDocuments={isManyDocuments}
-          updateInsertDocText={updateInsertDocText}
+          onChangeText={onChangeText}
           editorText={editorText}
           safeIntegerLinter={safeIntegerLinter}
           editorRef={editorRef}

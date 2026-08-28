@@ -10,6 +10,7 @@ const ATLAS_CONFIG: AtlasServiceConfig = {
   ccsBaseUrl: 'ws://example.com',
   multiplexedWsBaseUrls: ['ws://example.com/multiplex'],
   cloudBaseUrl: 'ws://example.com/cloud',
+  atlasUiBaseUrl: 'https://example.com',
   atlasPrivateApiBaseUrl: 'http://example.com/api/private',
   atlasAdminApiBaseUrl: 'http://example.com/api/atlas',
   atlasLogin: {

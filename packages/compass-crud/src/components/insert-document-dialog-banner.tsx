@@ -24,6 +24,17 @@ export const bannerMessageStyles = css({
   overflowY: 'auto',
   overflowWrap: 'anywhere',
   whiteSpace: 'pre-wrap',
+
+  // We override the global scrollbars to keep the scrollbar always visible.
+  // Without this it only appears on hover, and folks may miss some of the error message.
+  '&::-webkit-scrollbar': {
+    WebkitAppearance: 'none',
+  },
+  '&&::-webkit-scrollbar-thumb, &&:hover::-webkit-scrollbar-thumb, &&:active::-webkit-scrollbar-thumb, &&:focus::-webkit-scrollbar-thumb':
+    {
+      backgroundColor: 'color-mix(in srgb, currentcolor 40%, transparent)',
+      borderRadius: spacing[200],
+    },
 });
 
 type InsertDocumentDialogBannerProps = {

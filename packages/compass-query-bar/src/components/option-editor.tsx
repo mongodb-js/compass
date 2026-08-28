@@ -256,11 +256,11 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   const { safeIntegerLinter, violations: safeIntegerViolations } =
     useSafeIntegerLinter({
       theme: linterAnnotationTheme,
-      onFixViolation(source) {
+      onFixViolation: (source) => `Long("${source}")`,
+      onViolationFixed() {
         track('Safe Integer Fix Applied', {
           source: 'query-bar-editor',
         });
-        return `Long("${source}")`;
       },
     });
   useEffect(() => {

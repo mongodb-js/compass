@@ -1,6 +1,6 @@
 # Compass Tracking Plan
 
-> Auto-generated on 2026-08-24. Do not edit manually.
+> Auto-generated on 2026-08-28. Do not edit manually.
 > Run `npm run generate-tracking-plan` to regenerate from source.
 
 ## Table of Contents
@@ -49,8 +49,12 @@
   - [Assistant Entry Point Used](#assistant-entry-point-used)
   - [Assistant Confirmation Submitted](#assistant-confirmation-submitted)
   - [Assistant Response Generated](#assistant-response-generated)
+  - [Atlas Connection Troubleshooting Success](#atlas-connection-troubleshooting-success)
+  - [Atlas Connection Troubleshooting Failed](#atlas-connection-troubleshooting-failed)
 - [Atlas](#atlas)
+  - [Atlas Sign In Canceled](#atlas-sign-in-canceled)
   - [Atlas Sign In Error](#atlas-sign-in-error)
+  - [Atlas Sign In Timed Out](#atlas-sign-in-timed-out)
   - [Atlas Sign In Prompt Shown](#atlas-sign-in-prompt-shown)
   - [Atlas Sign In Started](#atlas-sign-in-started)
   - [Atlas Sign In Success](#atlas-sign-in-success)
@@ -118,9 +122,12 @@
   - [Document Cloned](#document-cloned)
   - [Document Copied](#document-copied)
   - [Document Deleted](#document-deleted)
+  - [Document Field Added](#document-field-added)
+  - [Document Field Removed](#document-field-removed)
   - [Document Insert Cancelled](#document-insert-cancelled)
   - [Document Insert Failed](#document-insert-failed)
   - [Document Inserted](#document-inserted)
+  - [Document Update Cancelled](#document-update-cancelled)
   - [Document Updated](#document-updated)
   - [Document View Changed](#document-view-changed)
   - [Extended JSON Conversion Attempted](#extended-json-conversion-attempted)
@@ -704,7 +711,34 @@ This event is fired when the AI response is generated.
 | `is_compass_web` | `true \| undefined`   | No       |                                                    |
 | `connection_id`  | `string \| undefined` | No       | The id of the connection associated to this event. |
 
+### Atlas Connection Troubleshooting Success
+
+This event is fired when the Atlas connection troubleshooting has completed.
+
+| Property           | Type                  | Required | Description                                                                                                                    |
+| ------------------ | --------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `cluster_state`    | `string`              | Yes      | The state of the cluster the user tried to connect to, as reported by Atlas, or `Unknown` when the cluster could not be found. |
+| `ip_access_status` | `string \| undefined` | No       | Whether we could confirm that the user's IP address is allowed by the project's IP access list.                                |
+| `duration`         | `number`              | Yes      |                                                                                                                                |
+| `is_compass_web`   | `true \| undefined`   | No       |                                                                                                                                |
+
+### Atlas Connection Troubleshooting Failed
+
+This event is fired when the Atlas connection troubleshooting has failed.
+
+| Property         | Type                | Required | Description |
+| ---------------- | ------------------- | -------- | ----------- |
+| `error_name`     | `string`            | Yes      |             |
+| `error_code`     | `string`            | Yes      |             |
+| `is_compass_web` | `true \| undefined` | No       |             |
+
 ## Atlas
+
+### Atlas Sign In Canceled
+
+This event is fired when the user aborts the current sign in attempt.
+
+_No additional properties._
 
 ### Atlas Sign In Error
 
@@ -715,6 +749,16 @@ This event is fired when user failed to sign in to their Atlas account.
 | `error`          | `string`            | Yes      | The error message reported on sign in.                                                                                                                                     |
 | `error_code`     | `string`            | Yes      | The code identifying the error reported on sign in. The `codeName` of the oidc-plugin error when the failure comes from the sign in flow itself, the error name otherwise. |
 | `is_compass_web` | `true \| undefined` | No       |                                                                                                                                                                            |
+
+### Atlas Sign In Timed Out
+
+This event is fired when the user does not complete the sign in to their Atlas
+account on time.
+
+| Property         | Type                    | Required | Description                                                    |
+| ---------------- | ----------------------- | -------- | -------------------------------------------------------------- |
+| `entrypoint`     | `AtlasSignInEntrypoint` | Yes      | The surface of the application the sign in was triggered from. |
+| `is_compass_web` | `true \| undefined`     | No       |                                                                |
 
 ### Atlas Sign In Prompt Shown
 
@@ -733,10 +777,12 @@ converts.
 This event is fired when a sign in attempt to an Atlas account is started,
 before the user is taken through the sign in flow.
 
-| Property         | Type                    | Required | Description                                                    |
-| ---------------- | ----------------------- | -------- | -------------------------------------------------------------- |
-| `entrypoint`     | `AtlasSignInEntrypoint` | Yes      | The surface of the application the sign in was triggered from. |
-| `is_compass_web` | `true \| undefined`     | No       |                                                                |
+| Property          | Type                                           | Required | Description                                                                                                                                              |
+| ----------------- | ---------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entrypoint`      | `AtlasSignInEntrypoint`                        | Yes      | The surface of the application the sign in was triggered from.                                                                                           |
+| `attempt`         | `number`                                       | Yes      | The current attempt of the sign in. If the attempt is bigger than 1, it means the user is re-trying to sign in after a previous attempt did not succeed. |
+| `previousOutcome` | `"error" \| "timed-out" \| "canceled" \| null` | Yes      | How the immediately preceding attempt ended, when this is a retry. Null on the first attempt.                                                            |
+| `is_compass_web`  | `true \| undefined`                            | No       |                                                                                                                                                          |
 
 ### Atlas Sign In Success
 
@@ -1368,6 +1414,29 @@ This event is fired when user deletes a document.
 | `is_compass_web` | `true \| undefined`           | No       |                                                    |
 | `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
 
+### Document Field Added
+
+This event is fired when user adds a field to a document, either at the
+top level or nested inside an array/document.
+
+| Property         | Type                                   | Required | Description                                                                                  |
+| ---------------- | -------------------------------------- | -------- | -------------------------------------------------------------------------------------------- |
+| `added_to`       | `"top_level" \| "array" \| "document"` | Yes      | Whether the field was added to the top level of the document or inside an array or document. |
+| `mode`           | `"list" \| "table" \| "insert"`        | Yes      | The view in which the field was added.                                                       |
+| `is_compass_web` | `true \| undefined`                    | No       |                                                                                              |
+| `connection_id`  | `string \| undefined`                  | No       | The id of the connection associated to this event.                                           |
+
+### Document Field Removed
+
+This event is fired when user removes a field from a document.
+
+| Property         | Type                            | Required | Description                                        |
+| ---------------- | ------------------------------- | -------- | -------------------------------------------------- |
+| `type`           | `string`                        | Yes      | The BSON type of the removed field.                |
+| `mode`           | `"list" \| "table" \| "insert"` | Yes      | The view in which the field was removed.           |
+| `is_compass_web` | `true \| undefined`             | No       |                                                    |
+| `connection_id`  | `string \| undefined`           | No       | The id of the connection associated to this event. |
+
 ### Document Insert Cancelled
 
 This event is fired when user cancels the insert document dialog without
@@ -1400,6 +1469,16 @@ This event is fired when user inserts documents.
 | `multiple`       | `boolean \| undefined` | No       | Specifies if the user inserted multiple documents. |
 | `is_compass_web` | `true \| undefined`    | No       |                                                    |
 | `connection_id`  | `string \| undefined`  | No       | The id of the connection associated to this event. |
+
+### Document Update Cancelled
+
+This event is fired when user cancels editing of a document.
+
+| Property         | Type                          | Required | Description                                        |
+| ---------------- | ----------------------------- | -------- | -------------------------------------------------- |
+| `mode`           | `"json" \| "list" \| "table"` | Yes      | The view used to edit the document.                |
+| `is_compass_web` | `true \| undefined`           | No       |                                                    |
+| `connection_id`  | `string \| undefined`         | No       | The id of the connection associated to this event. |
 
 ### Document Updated
 
