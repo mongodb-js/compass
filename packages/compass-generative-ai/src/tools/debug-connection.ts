@@ -71,7 +71,7 @@ export function getIpAccessStatus(
 
   let containsAwsSecurityGroup = false;
   for (const { ipAddress, cidrBlock, awsSecurityGroup } of ipAccessList) {
-    // it's either one or the other
+    // each item has exactly one type of access control, so we can return early if we find a match
     if (cidrBlock && isAddressInCidrRange(cidrBlock, userIp))
       return 'Client IP Allowed';
     if (ipAddress && isAddressEqual(ipAddress, userIp))
