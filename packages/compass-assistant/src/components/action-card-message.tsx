@@ -26,6 +26,7 @@ export interface ActionCardButton {
 interface ActionCardMessageProps {
   state: ToolState;
   title: React.ReactNode;
+  description?: React.ReactNode;
   chips?: ActionCardChip[];
   initialIsExpanded?: boolean;
   contentClassName?: string;
@@ -71,6 +72,7 @@ export const ActionCardMessage: React.FunctionComponent<
 > = ({
   state,
   title,
+  description,
   chips = [],
   initialIsExpanded = true,
   contentClassName,
@@ -95,6 +97,7 @@ export const ActionCardMessage: React.FunctionComponent<
         showExpandButton={true}
         state={state}
         title={title}
+        description={description}
         darkMode={darkMode}
         chips={chips}
       >

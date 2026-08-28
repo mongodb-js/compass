@@ -32,6 +32,9 @@ import {
   type ExperimentTestGroup,
 } from '@mongodb-js/compass-telemetry';
 import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
+import { containsText } from './test-helpers';
+
+const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -100,8 +103,6 @@ describe('AssistantChat', function () {
 
         await chat.sendMessage(message, options);
       });
-
-    const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 
     const assistantActionsContext = {
       ensureOptInAndSend: ensureOptInAndSendStub,
@@ -237,7 +238,9 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          <AtlasLoginPlugin>
+            <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          </AtlasLoginPlugin>
         </ToolsControllerProvider>
       );
 
@@ -254,7 +257,9 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          <AtlasLoginPlugin>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </AtlasLoginPlugin>
         </ToolsControllerProvider>,
         {
           connections: [],
@@ -271,7 +276,9 @@ describe('AssistantChat', function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          <AtlasLoginPlugin>
+            <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+          </AtlasLoginPlugin>
         </ToolsControllerProvider>,
         {}
       );
@@ -284,7 +291,9 @@ describe('AssistantChat', function () {
 
       rerender(
         <ToolsControllerProvider>
-          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          <AtlasLoginPlugin>
+            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+          </AtlasLoginPlugin>
         </ToolsControllerProvider>
       );
 
@@ -1054,8 +1063,13 @@ describe('AssistantChat', function () {
         createMockChat({ messages: [makeAtlasToolCallMessage()] })
       );
 
-      expect(screen.getByText('Connect with Atlas to debug this connection?'))
-        .to.exist;
+      expect(
+        screen.getByText(
+          containsText(
+            'Connect with Atlas and run atlas-connection-error-debugger?'
+          )
+        )
+      ).to.exist;
     });
   });
 
