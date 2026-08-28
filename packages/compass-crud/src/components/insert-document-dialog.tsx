@@ -75,10 +75,7 @@ const documentViewContainer = css({
 });
 
 const insertDocumentStyles = css({
-  // We give it a good amount of spacing for dropdown menus.
-  // TODO(COMPASS-6271): We'll use portals in the document editing Menu
-  // so we don't need special padding here.
-  paddingBottom: spacing[1800] + spacing[400],
+  paddingBottom: spacing[400],
 });
 
 const insertViewOptions = [
