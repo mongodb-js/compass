@@ -197,7 +197,6 @@ export type PreferenceState =
   | 'set-cloud-org' // Set by the mms backend for the user's Atlas organization.
   | 'set-cloud-project' // Set by the mms backend for the user's Atlas project.
   | 'set-cloud-user' // Set by the mms backend for the user's Atlas user.
-  | 'overridden' // Overridden by a global setting.
   | undefined;
 
 export type DeriveValueFunction<T> = (
@@ -1370,7 +1369,7 @@ function deriveValueDependingOnAtlasSignIn(
         base.state ??
         (value('enableAtlasSignIn')
           ? undefined
-          : state('enableAtlasSignIn') ?? 'overridden'),
+          : state('enableAtlasSignIn') ?? 'derived'),
     };
   };
 }
