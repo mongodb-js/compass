@@ -218,7 +218,9 @@ export type OmitFromHelp =
 export type CompassRunningEnvironment = 'desktop' | 'web' | 'atlas';
 export type PreferenceDefinition<K extends keyof AllPreferences> = {
   /** In which GUI environments this preference can be set. */
-  ui: CompassRunningEnvironment[] | '*';
+  ui: K extends keyof UserConfigurablePreferences
+    ? CompassRunningEnvironment[] | '*'
+    : never[];
   /** Whether the preference can be set on the command line */
   cli: K extends keyof Omit<InternalUserPreferences, 'showedNetworkOptIn'>
     ? false

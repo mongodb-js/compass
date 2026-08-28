@@ -269,13 +269,11 @@ export class Preferences {
   getConfigurableUserPreferences(): UserConfigurablePreferences {
     const preferences = this.getPreferences();
     return Object.fromEntries(
-      Object.entries(preferences).filter(
-        ([key]) =>
-          allPreferencesProps[key as keyof typeof preferences].ui === '*' ||
-          allPreferencesProps[key as keyof typeof preferences].ui.indexOf(
-            this._runningEnvironment
-          ) !== -1
-      )
+      Object.entries(preferences).filter(([key]) => {
+        const ui: CompassRunningEnvironment[] | '*' =
+          allPreferencesProps[key as keyof typeof preferences].ui;
+        return ui === '*' || ui.includes(this._runningEnvironment);
+      })
     ) as UserConfigurablePreferences;
   }
 
