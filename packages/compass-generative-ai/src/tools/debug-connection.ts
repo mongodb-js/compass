@@ -226,9 +226,15 @@ function getAdvice({
   }
 
   if (!isIPAccessAllowed(ipAccessStatus)) {
-    advice.push(
-      'We could not verify whether your network access is allowed. See the networkAccessDetails.'
-    );
+    if (ipAccessStatus === 'Client IP Not Allowed') {
+      advice.push(
+        'Your current IP address is not allowed to access the cluster. See the networkAccessDetails.'
+      );
+    } else {
+      advice.push(
+        'We could not verify whether your network access is allowed. See the networkAccessDetails.'
+      );
+    }
     if (links?.networkAccessList) {
       advice.push(
         `Add your IP address in the Atlas UI: ${links.networkAccessList}.`

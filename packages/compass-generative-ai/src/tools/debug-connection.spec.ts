@@ -415,8 +415,16 @@ describe('debugConnection', function () {
       );
     });
 
-    it('explains an ip that could not be verified', async function () {
+    it('explains an ip that is not allowed', async function () {
       expect(await getAdvice({ ipAccessList: [] })).to.include(
+        'Your current IP address is not allowed to access the cluster. See the networkAccessDetails.'
+      );
+    });
+
+    it('explains an ip that could not be verified', async function () {
+      expect(
+        await getAdvice({ ipAccessList: [{ awsSecurityGroup: 'sg-1' }] })
+      ).to.include(
         'We could not verify whether your network access is allowed. See the networkAccessDetails.'
       );
     });
@@ -435,7 +443,7 @@ describe('debugConnection', function () {
       });
       expect(advice).to.include('The cluster is currently paused.');
       expect(advice).to.include(
-        'We could not verify whether your network access is allowed.'
+        'Your current IP address is not allowed to access the cluster. See the networkAccessDetails.'
       );
     });
 
