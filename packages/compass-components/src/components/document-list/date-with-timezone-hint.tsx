@@ -41,10 +41,7 @@ export function formatDateWithTimezone(
   }
 }
 
-// Laid out as inline text rather than as a flex row: flex boxes get their own
-// line when copied, and inline text wraps the hint onto its own line for free.
-// The gap is paddingRight on the value so that wrapping doesn't leave extra
-// space behind.
+// Inline styles to make things more easily copy-pasteable.
 const containerStyles = css({
   display: 'inline',
   whiteSpace: 'normal',

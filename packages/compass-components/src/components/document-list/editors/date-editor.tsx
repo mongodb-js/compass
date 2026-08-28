@@ -11,8 +11,10 @@ import {
 import { EditorWithLabel } from './editor-with-label';
 import { DateWithTimezoneHint } from '../date-with-timezone-hint';
 
+// Inline so the timezone info is on the same line unless it overflows.
 const dateContainerStyles = css({
-  display: 'flex',
+  display: 'inline-flex',
+  verticalAlign: 'bottom',
 });
 
 const dateTimePickerContainerStyles = css({

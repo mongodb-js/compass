@@ -356,8 +356,7 @@ const elementContent = css({
   minWidth: 0,
 });
 
-// Copied text gets a new line for every block box, so when not editing we lay
-// the key and the value out inline in this single box.
+// When not editing we want the key and value inline for copy-ability.
 const elementContentInline = css({
   display: 'block',
   flex: 1,
