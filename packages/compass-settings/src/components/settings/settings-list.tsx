@@ -28,6 +28,7 @@ import {
 import { changeFieldValue } from '../../stores/settings';
 import type { RootState } from '../../stores';
 import { connect } from 'react-redux';
+import type { SettingsDescriptionComponent } from '../settings-descriptions';
 import { SETTINGS_DESCRIPTIONS_MAP } from '../settings-descriptions';
 
 const ENUM_PREFERENCE_CONFIG = {
@@ -93,11 +94,10 @@ function SettingLabel<PreferenceName extends SupportedPreferences>({
   value: UserConfigurablePreferences[PreferenceName] | undefined;
 }) {
   const { short, long } = getSettingDescription(name).description;
-  const SettingDescription = SETTINGS_DESCRIPTIONS_MAP[name] as
-    | React.ComponentType<{
-        value: UserConfigurablePreferences[PreferenceName] | undefined;
-      }>
-    | undefined;
+  const SettingDescription = SETTINGS_DESCRIPTIONS_MAP[
+    name
+  ] as SettingsDescriptionComponent<PreferenceName>;
+
   const featureFlagDefinition = featureFlags.find((definition) => {
     return definition.name === name;
   });
