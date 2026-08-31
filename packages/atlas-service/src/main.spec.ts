@@ -330,46 +330,50 @@ describe('CompassAuthServiceMain', function () {
     });
   });
 
-  describe('getTrackingUserId', function () {
-    it('should return the auid of the current user', function () {
-      CompassAuthService['currentUser'] = { sub: atlasUid };
-      getTrackingUserInfoStub.returns({ auid: 'hashed-auid' });
+  describe('telemetryAtlasUserId', function () {
+    const telemetryAtlasUserId = () =>
+      preferences.getPreferences().telemetryAtlasUserId;
 
-      expect(CompassAuthService.getTrackingUserId()).to.eq('hashed-auid');
-    });
-
-    it('should return undefined if there is no current user', function () {
-      CompassAuthService['currentUser'] = null;
-
-      expect(CompassAuthService.getTrackingUserId()).to.be.undefined;
-    });
-
-    it('should return the auid after signing in', async function () {
+    it('should be set after signing in', async function () {
       getTrackingUserInfoStub.returns({ auid: 'hashed-auid' });
 
       await CompassAuthService.signIn();
 
-      expect(CompassAuthService.getTrackingUserId()).to.eq('hashed-auid');
+      expect(telemetryAtlasUserId()).to.eq('hashed-auid');
     });
 
-    it('should return undefined after signing out', async function () {
+    it('should be cleared after signing out', async function () {
       CompassAuthService['oidcPluginLogger'] = new EventEmitter();
       CompassAuthService['currentUser'] = { sub: atlasUid };
       await CompassAuthService.init(preferences, {} as any);
       CompassAuthService['config'] = defaultConfig;
+      await preferences.savePreferences({
+        telemetryAtlasUserId: 'hashed-auid',
+      });
 
       await CompassAuthService.signOut();
 
-      expect(CompassAuthService.getTrackingUserId()).to.be.undefined;
+      expect(telemetryAtlasUserId()).to.be.undefined;
     });
 
-    it('should return undefined when a previous session cannot be restored', async function () {
+    it('should be set when a previous session is restored', async function () {
+      getTrackingUserInfoStub.returns({ auid: 'hashed-auid' });
+
+      await CompassAuthService['restoreCurrentUser']();
+
+      expect(telemetryAtlasUserId()).to.eq('hashed-auid');
+    });
+
+    it('should be cleared when a previous session cannot be restored', async function () {
+      await preferences.savePreferences({
+        telemetryAtlasUserId: 'hashed-auid',
+      });
       CompassAuthService['currentUser'] = { sub: atlasUid };
       oidcCallback.resolves({ refreshToken });
 
       await CompassAuthService['restoreCurrentUser']();
 
-      expect(CompassAuthService.getTrackingUserId()).to.be.undefined;
+      expect(telemetryAtlasUserId()).to.be.undefined;
     });
   });
 

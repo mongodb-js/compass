@@ -296,6 +296,8 @@ export class CompassAuthService {
         'Did not restore sign in state',
         { reason: 'Failed to parse access token' }
       );
+    } finally {
+      await this.syncTelemetryAtlasUserId();
     }
   }
 
@@ -326,12 +328,10 @@ export class CompassAuthService {
             'Signed in successfully'
           );
           const { auid } = getTrackingUserInfo(this.currentUser);
+          await this.syncTelemetryAtlasUserId();
           track('Atlas Sign In Success', {
             auid,
             duration: Date.now() - startedAt,
-          });
-          await this.preferences.savePreferences({
-            telemetryAtlasUserId: auid,
           });
           return this.currentUser;
         } catch (err) {
@@ -390,6 +390,8 @@ export class CompassAuthService {
     this.oidcPluginLogger.emit('atlas-service-signed-out');
 
     track('Atlas Sign Out', getTrackingUserInfo(userInfo));
+
+    await this.syncTelemetryAtlasUserId();
   }
 
   // For every case where we request token, if requesting token fails we still
@@ -429,10 +431,12 @@ export class CompassAuthService {
     return Promise.resolve(this.currentUser);
   }
 
-  static getTrackingUserId(): string | undefined {
-    return this.currentUser
-      ? getTrackingUserInfo(this.currentUser).auid
-      : undefined;
+  private static async syncTelemetryAtlasUserId(): Promise<void> {
+    await this.preferences.savePreferences({
+      telemetryAtlasUserId: this.currentUser
+        ? getTrackingUserInfo(this.currentUser).auid
+        : undefined,
+    });
   }
 
   private static getUserInfoFromAccessToken(

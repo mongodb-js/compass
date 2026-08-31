@@ -8,9 +8,8 @@ import { getOsInfo } from '@mongodb-js/get-os-info';
 import type { IdentifyEvent } from '@mongodb-js/compass-telemetry';
 import { getDeviceId } from '@mongodb-js/device-id';
 import { getMachineId } from 'native-machine-id';
-import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 
-const { log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
+const { log, mongoLogId, debug } = createLogger('COMPASS-TELEMETRY');
 
 interface EventInfo {
   event: string;
@@ -85,8 +84,6 @@ class CompassTelemetry {
       this.lastReportedScreen = name;
     }
 
-    const atlasUserId = CompassAuthService.getTrackingUserId();
-
     this.analytics.track({
       userId: this.telemetryAtlasUserId,
       anonymousId: this.telemetryAnonymousId,
@@ -94,7 +91,9 @@ class CompassTelemetry {
       properties: {
         ...info.properties,
         ...commonProperties,
-        ...(atlasUserId ? { atlas_user_id: atlasUserId } : {}),
+        ...(this.telemetryAtlasUserId
+          ? { atlas_user_id: this.telemetryAtlasUserId }
+          : {}),
       },
     });
   }
@@ -224,10 +223,8 @@ class CompassTelemetry {
       }
     };
     const onAtlasUserIdChanged = (value?: string) => {
-      if (value) {
-        this.telemetryAtlasUserId = value;
-        this.identify();
-      }
+      this.telemetryAtlasUserId = value;
+      this.identify();
     };
 
     onTrackUsageStatisticsChanged(trackUsageStatistics); // initial setup with current value
