@@ -330,18 +330,18 @@ describe('CompassAuthServiceMain', function () {
     });
   });
 
-  describe('getAtlasUserId', function () {
+  describe('getTrackingUserId', function () {
     it('should return the auid of the current user', function () {
       CompassAuthService['currentUser'] = { sub: atlasUid };
       getTrackingUserInfoStub.returns({ auid: 'hashed-auid' });
 
-      expect(CompassAuthService.getAtlasUserId()).to.eq('hashed-auid');
+      expect(CompassAuthService.getTrackingUserId()).to.eq('hashed-auid');
     });
 
     it('should return undefined if there is no current user', function () {
       CompassAuthService['currentUser'] = null;
 
-      expect(CompassAuthService.getAtlasUserId()).to.be.undefined;
+      expect(CompassAuthService.getTrackingUserId()).to.be.undefined;
     });
 
     it('should return the auid after signing in', async function () {
@@ -349,7 +349,7 @@ describe('CompassAuthServiceMain', function () {
 
       await CompassAuthService.signIn();
 
-      expect(CompassAuthService.getAtlasUserId()).to.eq('hashed-auid');
+      expect(CompassAuthService.getTrackingUserId()).to.eq('hashed-auid');
     });
 
     it('should return undefined after signing out', async function () {
@@ -360,7 +360,7 @@ describe('CompassAuthServiceMain', function () {
 
       await CompassAuthService.signOut();
 
-      expect(CompassAuthService.getAtlasUserId()).to.be.undefined;
+      expect(CompassAuthService.getTrackingUserId()).to.be.undefined;
     });
 
     it('should return undefined when a previous session cannot be restored', async function () {
@@ -369,7 +369,7 @@ describe('CompassAuthServiceMain', function () {
 
       await CompassAuthService['restoreCurrentUser']();
 
-      expect(CompassAuthService.getAtlasUserId()).to.be.undefined;
+      expect(CompassAuthService.getTrackingUserId()).to.be.undefined;
     });
   });
 

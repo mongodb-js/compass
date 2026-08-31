@@ -68,7 +68,6 @@ class CompassTelemetry {
   // Keep this method synchronous to avoid race conditions.
   private static _track(info: EventInfo) {
     const commonProperties = this._getCommonEventProperties();
-    const atlasUserId = CompassAuthService.getAtlasUserId();
 
     if (!this.telemetryAnonymousId) {
       this.queuedEvents.push(info);
@@ -85,6 +84,8 @@ class CompassTelemetry {
       }
       this.lastReportedScreen = name;
     }
+
+    const atlasUserId = CompassAuthService.getTrackingUserId();
 
     this.analytics.track({
       userId: this.telemetryAtlasUserId,

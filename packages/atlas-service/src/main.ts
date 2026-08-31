@@ -429,7 +429,7 @@ export class CompassAuthService {
     return Promise.resolve(this.currentUser);
   }
 
-  static getAtlasUserId(): string | undefined {
+  static getTrackingUserId(): string | undefined {
     return this.currentUser
       ? getTrackingUserInfo(this.currentUser).auid
       : undefined;

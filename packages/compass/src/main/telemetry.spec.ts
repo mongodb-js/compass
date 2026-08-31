@@ -28,7 +28,9 @@ describe('CompassTelemetry', function () {
 
   describe('atlas_user_id', function () {
     it('is attached to events while signed in to Atlas', function () {
-      sandbox.stub(CompassAuthService, 'getAtlasUserId').returns('auid-1234');
+      sandbox
+        .stub(CompassAuthService, 'getTrackingUserId')
+        .returns('auid-1234');
 
       CompassTelemetry.track({ event: 'Test Event', properties: {} });
 
@@ -39,7 +41,7 @@ describe('CompassTelemetry', function () {
     });
 
     it('is omitted from events while signed out', function () {
-      sandbox.stub(CompassAuthService, 'getAtlasUserId').returns(undefined);
+      sandbox.stub(CompassAuthService, 'getTrackingUserId').returns(undefined);
 
       CompassTelemetry.track({ event: 'Test Event', properties: {} });
 
@@ -47,7 +49,9 @@ describe('CompassTelemetry', function () {
     });
 
     it('is attached alongside the event and connection properties', function () {
-      sandbox.stub(CompassAuthService, 'getAtlasUserId').returns('auid-1234');
+      sandbox
+        .stub(CompassAuthService, 'getTrackingUserId')
+        .returns('auid-1234');
 
       CompassTelemetry.track({
         event: 'Test Event',
@@ -63,13 +67,16 @@ describe('CompassTelemetry', function () {
     });
 
     it('is resolved for every event rather than cached', function () {
-      const getAtlasUserId = sandbox.stub(CompassAuthService, 'getAtlasUserId');
+      const getTrackingUserId = sandbox.stub(
+        CompassAuthService,
+        'getTrackingUserId'
+      );
 
-      getAtlasUserId.returns(undefined);
+      getTrackingUserId.returns(undefined);
       CompassTelemetry.track({ event: 'Test Event', properties: {} });
 
       // The user signs in between the two events.
-      getAtlasUserId.returns('auid-1234');
+      getTrackingUserId.returns('auid-1234');
       CompassTelemetry.track({ event: 'Test Event', properties: {} });
 
       expect(track.firstCall.args[0].properties).to.not.have.property(
