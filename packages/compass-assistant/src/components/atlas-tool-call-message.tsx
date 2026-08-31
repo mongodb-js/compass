@@ -1,5 +1,10 @@
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { css, InlineDefinition, spacing } from '@mongodb-js/compass-components';
+import {
+  css,
+  InlineDefinition,
+  ServerIcon,
+  spacing,
+} from '@mongodb-js/compass-components';
 import type { ToolUIPart } from 'ai';
 import {
   cleanToolCallOutput,
@@ -7,10 +12,14 @@ import {
   getToolDisplayName,
   getToolDescription,
   getToolState,
+  isDebuggerToolCall,
   toolHasOutput,
 } from '../utils';
 import { ActionCardMessage } from './action-card-message';
-import { isReadOnlyTool } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  doesToolUseConnection,
+  isReadOnlyTool,
+} from '@mongodb-js/compass-generative-ai/provider';
 import type { AtlasSignInEntrypoint } from '@mongodb-js/compass-telemetry';
 import {
   useAtlasLoginActions,
@@ -19,6 +28,7 @@ import {
 import { CustomToolResult } from './custom-tool-result';
 import { getToolCallTitle } from './tool-call-title';
 import { useTelemetry } from '@mongodb-js/compass-telemetry/provider';
+import type { BasicConnectionInfo } from '../compass-assistant-provider';
 
 /**
  * Every sign in this card drives is attributed to the assistant tool call that
@@ -32,6 +42,7 @@ function getSignInEntrypoint(
 
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
+  connection: BasicConnectionInfo | null;
   onApprove: (approvalId: string, approved: boolean) => void;
   onDeny: (approvalId: string) => void;
 }
@@ -71,7 +82,7 @@ const ReadonlyNote: React.FunctionComponent = () => (
 
 export const AtlasToolCallMessage: React.FunctionComponent<
   AtlasToolCallMessageProps
-> = ({ toolCall, onApprove, onDeny }) => {
+> = ({ connection, toolCall, onApprove, onDeny }) => {
   const toolCallState = getToolState(toolCall.state);
   const toolDisplayName = getToolDisplayName(toolCall.type);
   const isAwaitingApproval = toolCallState === 'idle' && !!toolCall.approval;
@@ -97,6 +108,13 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     isSignInStateResolved &&
     !isUserSignedIn &&
     !!approvalId;
+
+  const chips =
+    connection &&
+    (isDebuggerToolCall(toolCall.type) ||
+      doesToolUseConnection(toolDisplayName))
+      ? [{ glyph: <ServerIcon />, label: connection.name }]
+      : [];
 
   useEffect(() => {
     if (
@@ -175,10 +193,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
       <ActionCardMessage
         state={isSignInInProgress ? 'running' : toolCallState}
         title={getToolCallTitle(toolCall, toolNameElement, approvalMessage)}
-        // TODO(COMPASS-11077): find a way to properly implement connection info
-        // when a connection attempt has failed. The current connectionInfo in assistant-chat
-        // represents a connection the user has successfully connected to before.
-        chips={[]}
+        chips={chips}
         description={actionCardDescription}
         showActions={isAwaitingApproval && !isSignInInProgress}
         contentClassName={expandableContentStyles}

@@ -396,7 +396,7 @@ This is an Atlas connection, but Atlas Login is not allowed in this user's organ
 }`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
-      connectionInfo: {
+      failedConnectionInfo: {
         id: connectionInfo.id,
         name: getConnectionTitle(connectionInfo),
       },
