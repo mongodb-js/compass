@@ -193,7 +193,7 @@ export type PreferenceState =
   | 'set-cli' // Can be set directly or derived from a preference set via cli args.
   | 'set-global' // Can be set directly or derived from a preference set via global config.
   | 'hardcoded'
-  | 'derived' // Derived from a preference set by a user via setting UI.
+  | 'derived' // Computed from other preferences' values.
   | 'set-cloud-org' // Set by the mms backend for the user's Atlas organization.
   | 'set-cloud-project' // Set by the mms backend for the user's Atlas project.
   | 'set-cloud-user' // Set by the mms backend for the user's Atlas user.
@@ -324,8 +324,8 @@ const allFeatureFlagsProps: Required<{
   ...FEATURE_FLAG_PREFERENCES,
   enableAtlasConnectionErrorDebugger: {
     ...FEATURE_FLAG_PREFERENCES.enableAtlasConnectionErrorDebugger,
-    deriveValue: deriveAtlasSignInOptionState(
-      'enableAtlasConnectionErrorDebugger'
+    deriveValue: deriveValueDependingOnAtlasSignIn(
+      FEATURE_FLAG_PREFERENCES.enableAtlasConnectionErrorDebugger.deriveValue!
     ),
   },
 };
@@ -1357,18 +1357,21 @@ export const allPreferencesProps: Required<{
   ...nonUserPreferences,
 };
 
-/** Helper for defining how to derive value/state for preferences that require Atlas sign in */
-function deriveAtlasSignInOptionState<K extends keyof AllPreferences>(
-  property: K
+/** Helper for defining how to override value/state for preferences that require Atlas sign in */
+function deriveValueDependingOnAtlasSignIn(
+  baseDeriveValue: DeriveValueFunction<boolean>
 ): DeriveValueFunction<boolean> {
-  return (value, state) => ({
-    value: !!value(property) && value('enableAtlasSignIn'),
-    state:
-      state(property) ??
-      (value('enableAtlasSignIn')
-        ? undefined
-        : state('enableAtlasSignIn') ?? 'derived'),
-  });
+  return (value, state) => {
+    const base = baseDeriveValue(value, state);
+    return {
+      value: base.value && value('enableAtlasSignIn'),
+      state:
+        base.state ??
+        (value('enableAtlasSignIn')
+          ? undefined
+          : state('enableAtlasSignIn') ?? 'derived'),
+    };
+  };
 }
 
 /** Helper for defining how to derive value/state for networkTraffic-affected preferences */

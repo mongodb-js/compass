@@ -10,19 +10,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import type { ToolUIPart } from 'ai';
 import type { BasicConnectionInfo } from '../compass-assistant-provider';
-
-function containsText(match: string) {
-  return (_: unknown, element: Element | null): boolean => {
-    // this only works for <>text <tag>more text</tag></> but that's sufficient for now
-    const firstChild = element?.firstChild;
-    if (firstChild && firstChild.nodeType === Node.TEXT_NODE) {
-      // only check elements that start with text so we don't match on nested elements
-      return element?.textContent === match;
-    }
-
-    return false;
-  };
-}
+import { containsText } from './test-helpers';
 
 describe('ToolCallMessage', function () {
   const defaultConnection: BasicConnectionInfo = {

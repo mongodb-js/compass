@@ -8,6 +8,7 @@ import {
   buildNetworkAccessListUrl,
   buildClusterOverviewUrl,
 } from '@mongodb-js/atlas-service/provider';
+import type { TrackFunction } from '@mongodb-js/compass-telemetry/provider';
 
 export const debugConnectionDescription = `
   Use to debug a Compass connection failure to an Atlas cluster. 
@@ -17,7 +18,10 @@ export const debugConnectionDescription = `
   2. If the url contains any links present the links in the advice as part of your response, with a 1-line explanation.
 `;
 
-export type IpAccessStatus = 'Client IP Allowed' | 'Could not confirm';
+export type IpAccessStatus =
+  | 'Client IP Allowed'
+  | 'Client IP Not Allowed'
+  | 'Could not confirm';
 
 export type NetworkAccessDetails = {
   networkAccessList: AtlasAccessListEntry[];
@@ -58,16 +62,25 @@ function mapClusterStateToDebugResultState({
   return state;
 }
 
-export function isUserIpIncluded(
-  ipAccessList: NetworkAccessDetails['networkAccessList'],
-  userIp: string
-): boolean | undefined {
-  return ipAccessList.some(({ ipAddress, cidrBlock }) => {
-    // it's either one or the other
-    if (cidrBlock) return isAddressInCidrRange(cidrBlock, userIp);
-    if (ipAddress) return isAddressEqual(ipAddress, userIp);
-    return false;
-  });
+export function getIpAccessStatus(
+  ipAccessList?: NetworkAccessDetails['networkAccessList'],
+  userIp?: string
+): IpAccessStatus {
+  if (!ipAccessList || !userIp) return 'Could not confirm';
+  if (ip.isValid(userIp.trim()) === false) return 'Could not confirm';
+
+  let containsAwsSecurityGroup = false;
+  for (const { ipAddress, cidrBlock, awsSecurityGroup } of ipAccessList) {
+    // each item has exactly one type of access control, so we can return early if we find a match
+    if (cidrBlock && isAddressInCidrRange(cidrBlock, userIp))
+      return 'Client IP Allowed';
+    if (ipAddress && isAddressEqual(ipAddress, userIp))
+      return 'Client IP Allowed';
+    if (awsSecurityGroup) containsAwsSecurityGroup = true;
+  }
+  return containsAwsSecurityGroup
+    ? 'Could not confirm'
+    : 'Client IP Not Allowed';
 }
 
 function isAddressInCidrRange(cidrNotation: string, address: string): boolean {
@@ -135,17 +148,15 @@ async function getNetworkAccessInfo({
   ipAccessStatus: IpAccessStatus;
   networkAccessDetails: NetworkAccessDetails;
 }> {
-  const ipAccessList = await atlasAdminApi.getProjectIPAccessList(projectId);
-  // TODO(COMPASS-10981): replace with Atlas Admin API once it's ready
-  const userIp = '1.2.3.4';
+  const [ipAccessList, { ipAddress: userIp }] = await Promise.all([
+    atlasAdminApi.getProjectIPAccessList(projectId),
+    atlasAdminApi.getSystemStatus(),
+  ]);
   return {
-    ipAccessStatus:
-      ipAccessList && userIp && isUserIpIncluded(ipAccessList, userIp)
-        ? 'Client IP Allowed'
-        : 'Could not confirm',
+    ipAccessStatus: getIpAccessStatus(ipAccessList, userIp),
     networkAccessDetails: {
       networkAccessList: ipAccessList,
-      userIp,
+      ...(userIp && { userIp }),
     },
   };
 }
@@ -154,15 +165,25 @@ function getLinks({
   projectId,
   clusterName,
   ipAccessStatus,
+  atlasUiBaseUrl,
 }: {
   projectId: string;
   clusterName: string;
   ipAccessStatus: IpAccessStatus;
+  atlasUiBaseUrl: string;
 }): Links {
   return {
-    clusterOverview: buildClusterOverviewUrl({ projectId, clusterName }),
+    clusterOverview: buildClusterOverviewUrl(
+      { projectId, clusterName },
+      atlasUiBaseUrl
+    ),
     ...(!isIPAccessAllowed(ipAccessStatus)
-      ? { networkAccessList: buildNetworkAccessListUrl({ projectId }) }
+      ? {
+          networkAccessList: buildNetworkAccessListUrl(
+            { projectId },
+            atlasUiBaseUrl
+          ),
+        }
       : undefined),
   };
 }
@@ -205,9 +226,15 @@ function getAdvice({
   }
 
   if (!isIPAccessAllowed(ipAccessStatus)) {
-    advice.push(
-      'We could not verify whether your network access is allowed. See the networkAccessDetails.'
-    );
+    if (ipAccessStatus === 'Client IP Not Allowed') {
+      advice.push(
+        'Your current IP address is not allowed to access the cluster. See the networkAccessDetails.'
+      );
+    } else {
+      advice.push(
+        'We could not verify whether your network access is allowed. See the networkAccessDetails.'
+      );
+    }
     if (links?.networkAccessList) {
       advice.push(
         `Add your IP address in the Atlas UI: ${links.networkAccessList}.`
@@ -220,37 +247,66 @@ function getAdvice({
 
 export async function debugConnection(
   connectionString: string,
-  atlasAdminApi: AtlasAdminApiService
+  atlasAdminApi: AtlasAdminApiService,
+  track: TrackFunction,
+  atlasUiBaseUrl: string
 ): Promise<AtlasConnectionDebugResult> {
-  const clusterInfo = await getClusterInfo(connectionString, atlasAdminApi);
-  if (!clusterInfo) {
-    return {
-      clusterName: 'Unknown',
-      clusterState: 'Unknown',
-      ipAccessStatus: 'Could not confirm',
-      advice: 'The cluster does not exist or you do not have access to it.',
-    };
-  }
-  const { projectId, clusterName, clusterState } = clusterInfo;
-  const { ipAccessStatus, networkAccessDetails } = await getNetworkAccessInfo({
-    projectId,
-    atlasAdminApi,
-  });
-  const links = getLinks({ projectId, clusterName, ipAccessStatus });
-  return {
-    clusterName,
-    clusterState,
-    ipAccessStatus,
-    links,
-    advice: getAdvice({
-      clusterState,
+  try {
+    const startTime = Date.now();
+    const clusterInfo = await getClusterInfo(connectionString, atlasAdminApi);
+    if (!clusterInfo) {
+      track('Atlas Connection Troubleshooting Success', {
+        duration: Date.now() - startTime,
+        cluster_state: 'Unknown',
+        ip_access_status: 'Could not confirm',
+      });
+      return {
+        clusterName: 'Unknown',
+        clusterState: 'Unknown',
+        ipAccessStatus: 'Could not confirm',
+        advice: 'The cluster does not exist or you do not have access to it.',
+      };
+    }
+    const { projectId, clusterName, clusterState } = clusterInfo;
+    const { ipAccessStatus, networkAccessDetails } = await getNetworkAccessInfo(
+      {
+        projectId,
+        atlasAdminApi,
+      }
+    );
+    const links = getLinks({
       projectId,
       clusterName,
       ipAccessStatus,
+      atlasUiBaseUrl,
+    });
+
+    track('Atlas Connection Troubleshooting Success', {
+      duration: Date.now() - startTime,
+      cluster_state: clusterState,
+      ip_access_status: ipAccessStatus,
+    });
+    return {
+      clusterName,
+      clusterState,
+      ipAccessStatus,
       links,
-    }),
-    ...(!isIPAccessAllowed(ipAccessStatus) && networkAccessDetails
-      ? { networkAccessDetails }
-      : {}),
-  };
+      advice: getAdvice({
+        clusterState,
+        projectId,
+        clusterName,
+        ipAccessStatus,
+        links,
+      }),
+      ...(!isIPAccessAllowed(ipAccessStatus) && networkAccessDetails
+        ? { networkAccessDetails }
+        : {}),
+    };
+  } catch (error) {
+    track('Atlas Connection Troubleshooting Failed', {
+      error_name: (error as Error).name,
+      error_code: (error as any).code,
+    });
+    throw error;
+  }
 }

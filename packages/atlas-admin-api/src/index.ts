@@ -11,4 +11,5 @@ export {
   type AtlasClusterState,
   type AtlasGroupCluster,
 } from './cluster-types';
+export { type AtlasSystemStatus } from './system-status-types';
 export { ATLAS_ADMIN_API_DEFAULT_VERSION } from './version';
