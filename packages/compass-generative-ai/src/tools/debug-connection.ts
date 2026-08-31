@@ -18,7 +18,10 @@ export const debugConnectionDescription = `
   2. If the url contains any links present the links in the advice as part of your response, with a 1-line explanation.
 `;
 
-export type IpAccessStatus = 'Client IP Allowed' | 'Could not confirm';
+export type IpAccessStatus =
+  | 'Client IP Allowed'
+  | 'Client IP Not Allowed'
+  | 'Could not confirm';
 
 export type NetworkAccessDetails = {
   networkAccessList: AtlasAccessListEntry[];
@@ -59,16 +62,25 @@ function mapClusterStateToDebugResultState({
   return state;
 }
 
-export function isUserIpIncluded(
-  ipAccessList: NetworkAccessDetails['networkAccessList'],
-  userIp: string
-): boolean | undefined {
-  return ipAccessList.some(({ ipAddress, cidrBlock }) => {
-    // it's either one or the other
-    if (cidrBlock) return isAddressInCidrRange(cidrBlock, userIp);
-    if (ipAddress) return isAddressEqual(ipAddress, userIp);
-    return false;
-  });
+export function getIpAccessStatus(
+  ipAccessList?: NetworkAccessDetails['networkAccessList'],
+  userIp?: string
+): IpAccessStatus {
+  if (!ipAccessList || !userIp) return 'Could not confirm';
+  if (ip.isValid(userIp.trim()) === false) return 'Could not confirm';
+
+  let containsAwsSecurityGroup = false;
+  for (const { ipAddress, cidrBlock, awsSecurityGroup } of ipAccessList) {
+    // each item has exactly one type of access control, so we can return early if we find a match
+    if (cidrBlock && isAddressInCidrRange(cidrBlock, userIp))
+      return 'Client IP Allowed';
+    if (ipAddress && isAddressEqual(ipAddress, userIp))
+      return 'Client IP Allowed';
+    if (awsSecurityGroup) containsAwsSecurityGroup = true;
+  }
+  return containsAwsSecurityGroup
+    ? 'Could not confirm'
+    : 'Client IP Not Allowed';
 }
 
 function isAddressInCidrRange(cidrNotation: string, address: string): boolean {
@@ -141,10 +153,7 @@ async function getNetworkAccessInfo({
     atlasAdminApi.getSystemStatus(),
   ]);
   return {
-    ipAccessStatus:
-      ipAccessList && userIp && isUserIpIncluded(ipAccessList, userIp)
-        ? 'Client IP Allowed'
-        : 'Could not confirm',
+    ipAccessStatus: getIpAccessStatus(ipAccessList, userIp),
     networkAccessDetails: {
       networkAccessList: ipAccessList,
       ...(userIp && { userIp }),
@@ -217,9 +226,15 @@ function getAdvice({
   }
 
   if (!isIPAccessAllowed(ipAccessStatus)) {
-    advice.push(
-      'We could not verify whether your network access is allowed. See the networkAccessDetails.'
-    );
+    if (ipAccessStatus === 'Client IP Not Allowed') {
+      advice.push(
+        'Your current IP address is not allowed to access the cluster. See the networkAccessDetails.'
+      );
+    } else {
+      advice.push(
+        'We could not verify whether your network access is allowed. See the networkAccessDetails.'
+      );
+    }
     if (links?.networkAccessList) {
       advice.push(
         `Add your IP address in the Atlas UI: ${links.networkAccessList}.`
