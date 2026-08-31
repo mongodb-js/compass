@@ -9,7 +9,7 @@ import type { IdentifyEvent } from '@mongodb-js/compass-telemetry';
 import { getDeviceId } from '@mongodb-js/device-id';
 import { getMachineId } from 'native-machine-id';
 
-const { log, mongoLogId, debug } = createLogger('COMPASS-TELEMETRY');
+const { log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
 interface EventInfo {
   event: string;
