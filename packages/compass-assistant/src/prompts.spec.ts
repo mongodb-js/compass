@@ -895,7 +895,7 @@ You SHOULD:
           error: new Error('connection refused'),
         });
 
-        expect(result.metadata?.connectionInfo).to.deep.equal({
+        expect(result.metadata?.failedConnectionInfo).to.deep.equal({
           id: 'conn-local',
           name: 'Local',
         });
