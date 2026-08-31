@@ -8,6 +8,7 @@ import { getOsInfo } from '@mongodb-js/get-os-info';
 import type { IdentifyEvent } from '@mongodb-js/compass-telemetry';
 import { getDeviceId } from '@mongodb-js/device-id';
 import { getMachineId } from 'native-machine-id';
+import { CompassAuthService } from '@mongodb-js/atlas-service/main';
 
 const { log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
@@ -67,6 +68,7 @@ class CompassTelemetry {
   // Keep this method synchronous to avoid race conditions.
   private static _track(info: EventInfo) {
     const commonProperties = this._getCommonEventProperties();
+    const atlasUserId = CompassAuthService.getAtlasUserId();
 
     if (!this.telemetryAnonymousId) {
       this.queuedEvents.push(info);
@@ -88,7 +90,11 @@ class CompassTelemetry {
       userId: this.telemetryAtlasUserId,
       anonymousId: this.telemetryAnonymousId,
       event: info.event,
-      properties: { ...info.properties, ...commonProperties },
+      properties: {
+        ...info.properties,
+        ...commonProperties,
+        ...(atlasUserId ? { atlas_user_id: atlasUserId } : {}),
+      },
     });
   }
 

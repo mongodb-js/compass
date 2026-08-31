@@ -77,6 +77,10 @@ describe('CompassAuthServiceMain', function () {
   >;
 
   beforeEach(async function () {
+    mockFetch.resetHistory();
+    mockOidcPlugin.serialize.resetHistory();
+    mockOidcPlugin.destroy.resetHistory();
+
     getTrackingUserInfoStub = sandbox
       .stub(util, 'getTrackingUserInfo')
       .returns({ auid: atlasUid });
@@ -323,6 +327,49 @@ describe('CompassAuthServiceMain', function () {
       } catch (err) {
         expect(err).to.have.property('message', 'Aborted');
       }
+    });
+  });
+
+  describe('getAtlasUserId', function () {
+    it('should return the auid of the current user', function () {
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      getTrackingUserInfoStub.returns({ auid: 'hashed-auid' });
+
+      expect(CompassAuthService.getAtlasUserId()).to.eq('hashed-auid');
+    });
+
+    it('should return undefined if there is no current user', function () {
+      CompassAuthService['currentUser'] = null;
+
+      expect(CompassAuthService.getAtlasUserId()).to.be.undefined;
+    });
+
+    it('should return the auid after signing in', async function () {
+      getTrackingUserInfoStub.returns({ auid: 'hashed-auid' });
+
+      await CompassAuthService.signIn();
+
+      expect(CompassAuthService.getAtlasUserId()).to.eq('hashed-auid');
+    });
+
+    it('should return undefined after signing out', async function () {
+      CompassAuthService['oidcPluginLogger'] = new EventEmitter();
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      await CompassAuthService.init(preferences, {} as any);
+      CompassAuthService['config'] = defaultConfig;
+
+      await CompassAuthService.signOut();
+
+      expect(CompassAuthService.getAtlasUserId()).to.be.undefined;
+    });
+
+    it('should return undefined when a previous session cannot be restored', async function () {
+      CompassAuthService['currentUser'] = { sub: atlasUid };
+      oidcCallback.resolves({ refreshToken });
+
+      await CompassAuthService['restoreCurrentUser']();
+
+      expect(CompassAuthService.getAtlasUserId()).to.be.undefined;
     });
   });
 

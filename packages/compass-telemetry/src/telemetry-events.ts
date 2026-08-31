@@ -90,6 +90,11 @@ export type IdentifyEvent = {
 
 export type CommonEventProperties = {
   is_compass_web?: true;
+  /**
+   * The AUID of the Atlas user, present only while the user is signed in to
+   * Atlas.
+   */
+  atlas_user_id?: string;
 };
 
 /**

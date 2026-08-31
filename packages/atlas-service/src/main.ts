@@ -429,6 +429,12 @@ export class CompassAuthService {
     return Promise.resolve(this.currentUser);
   }
 
+  static getAtlasUserId(): string | undefined {
+    return this.currentUser
+      ? getTrackingUserInfo(this.currentUser).auid
+      : undefined;
+  }
+
   private static getUserInfoFromAccessToken(
     accessToken: string
   ): AtlasUserInfo {
