@@ -265,7 +265,7 @@ export default function reducer(
       ValidationActions.ValidationFetched
     )
   ) {
-    const validator = toJSString(action.validator, 2) as string;
+    const validator = toJSString(action.validator, 2) ?? '{}';
 
     return {
       ...state,
