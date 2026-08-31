@@ -342,7 +342,11 @@ describe('CompassAuthServiceMain', function () {
       expect(telemetryAtlasUserId()).to.eq('hashed-auid');
     });
 
-    it('should be cleared after signing out', async function () {
+    // Signing in is the only thing that writes this preference: it is
+    // deliberately kept after sign out so that segment is never handed a
+    // nullish userId, which means telemetry stays attributed to the last user
+    // that signed in on this machine.
+    it('should be kept after signing out', async function () {
       CompassAuthService['oidcPluginLogger'] = new EventEmitter();
       CompassAuthService['currentUser'] = { sub: atlasUid };
       await CompassAuthService.init(preferences, {} as any);
@@ -353,18 +357,10 @@ describe('CompassAuthServiceMain', function () {
 
       await CompassAuthService.signOut();
 
-      expect(telemetryAtlasUserId()).to.be.undefined;
-    });
-
-    it('should be set when a previous session is restored', async function () {
-      getTrackingUserInfoStub.returns({ auid: 'hashed-auid' });
-
-      await CompassAuthService['restoreCurrentUser']();
-
       expect(telemetryAtlasUserId()).to.eq('hashed-auid');
     });
 
-    it('should be cleared when a previous session cannot be restored', async function () {
+    it('should be kept when a previous session cannot be restored', async function () {
       await preferences.savePreferences({
         telemetryAtlasUserId: 'hashed-auid',
       });
@@ -373,7 +369,7 @@ describe('CompassAuthServiceMain', function () {
 
       await CompassAuthService['restoreCurrentUser']();
 
-      expect(telemetryAtlasUserId()).to.be.undefined;
+      expect(telemetryAtlasUserId()).to.eq('hashed-auid');
     });
   });
 

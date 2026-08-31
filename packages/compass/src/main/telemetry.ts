@@ -222,9 +222,17 @@ class CompassTelemetry {
         this.state = 'disabled';
       }
     };
+
+    /**
+     * The atlasUserId is set when user sign in to Atlas, and is only updated after another sign in.
+     * We deliberately do not clear the atlasUserId when user sign out, so that we can still attribute events
+     * to the same user even after they sign out.
+     */
     const onAtlasUserIdChanged = (value?: string) => {
-      this.telemetryAtlasUserId = value;
-      this.identify();
+      if (value) {
+        this.telemetryAtlasUserId = value;
+        this.identify();
+      }
     };
 
     onTrackUsageStatisticsChanged(trackUsageStatistics); // initial setup with current value
