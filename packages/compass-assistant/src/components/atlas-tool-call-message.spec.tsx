@@ -121,10 +121,25 @@ describe('AtlasToolCallMessage', function () {
         onApprove={onApprove}
         onDeny={onDeny}
         {...props}
+        connection={props.connection ?? null}
       />
     );
     return { onApprove, onDeny, atlasAuthService, container, track };
   }
+
+  describe('connection chip', function () {
+    it('renders the connection name when a connection is given', function () {
+      renderMessage({ connection: { id: 'conn-1', name: 'My Cluster' } });
+
+      expect(screen.getByText('My Cluster')).to.exist;
+    });
+
+    it('renders no connection name without a connection', function () {
+      renderMessage({ connection: null });
+
+      expect(screen.queryByText('My Cluster')).to.not.exist;
+    });
+  });
 
   describe('when awaiting approval and the user is not signed in', function () {
     it('prompts the user to connect to Atlas', function () {
