@@ -11,7 +11,7 @@ export const sharedExternals: string[] = [
   // list ourselves
   'kerberos',
   'interruptor',
-  'native-machine-id',
+  '@mongodb-js/native-machine-id',
   'os-dns-native',
   'system-ca',
   'win-export-certificate-and-key',
