@@ -7,7 +7,7 @@ import type { EventEmitter } from 'events';
 import { getOsInfo } from '@mongodb-js/get-os-info';
 import type { IdentifyEvent } from '@mongodb-js/compass-telemetry';
 import { getDeviceId } from '@mongodb-js/device-id';
-import { getMachineId } from 'native-machine-id';
+import { getMachineId } from '@mongodb-js/native-machine-id';
 
 const { log, mongoLogId } = createLogger('COMPASS-TELEMETRY');
 
