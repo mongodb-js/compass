@@ -430,18 +430,22 @@ const STATE_UPDATE: Readonly<
 
       this.maybeInterrupt();
 
-      // eslint-disable-next-line prefer-const
+      let settled = false;
       let heartbeat: ReturnType<typeof setInterval> | undefined;
+      const stopHeartbeat = () => {
+        settled = true;
+        clearInterval(heartbeat);
+      };
 
       autoUpdater.once('error', (error) => {
-        clearInterval(heartbeat);
+        stopHeartbeat();
         updateManager.setState(AutoUpdateManagerStates.DownloadingError, error);
       });
 
       this.maybeInterrupt();
 
       autoUpdater.once('update-downloaded', () => {
-        clearInterval(heartbeat);
+        stopHeartbeat();
         updateManager.setState(
           AutoUpdateManagerStates.PromptForRestart,
           updateInfo
@@ -461,18 +465,22 @@ const STATE_UPDATE: Readonly<
         newVersion: updateInfo.to,
       });
 
-      const downloadStartedAt = Date.now();
-      heartbeat = setInterval(() => {
-        log.info(
-          mongoLogId(1_001_000_441),
-          'AutoUpdateManager',
-          'Still downloading update',
-          {
-            elapsedSeconds: Math.round((Date.now() - downloadStartedAt) / 1000),
-          }
-        );
-      }, DOWNLOAD_HEARTBEAT_INTERVAL_MS);
-      heartbeat.unref();
+      if (!settled) {
+        const downloadStartedAt = Date.now();
+        heartbeat = setInterval(() => {
+          log.info(
+            mongoLogId(1_001_000_441),
+            'AutoUpdateManager',
+            'Still downloading update',
+            {
+              elapsedSeconds: Math.round(
+                (Date.now() - downloadStartedAt) / 1000
+              ),
+            }
+          );
+        }, DOWNLOAD_HEARTBEAT_INTERVAL_MS);
+        heartbeat.unref();
+      }
 
       autoUpdater.checkForUpdates();
     },
