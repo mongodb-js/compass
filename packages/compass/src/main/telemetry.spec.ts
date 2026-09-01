@@ -29,16 +29,21 @@ describe('CompassTelemetry', function () {
     return track.firstCall.args[0].properties;
   }
 
-  describe('atlas_user_id', function () {
-    it('is omitted from events when there is no atlas user id', function () {
+  function trackedUserId(): unknown {
+    expect(track).to.have.been.calledOnce;
+    return track.firstCall.args[0].userId;
+  }
+
+  describe('userId', function () {
+    it('is undefined when there is no atlas user id', function () {
       setAtlasUserId(undefined);
 
       CompassTelemetry.track({ event: 'Test Event', properties: {} });
 
-      expect(trackedProperties()).to.not.have.property('atlas_user_id');
+      expect(trackedUserId()).to.equal(undefined);
     });
 
-    it('is attached alongside the event, connection and common properties', function () {
+    it('is set to the atlas user id alongside the event, connection and common properties', function () {
       setAtlasUserId('auid-1234');
 
       CompassTelemetry.track({
@@ -46,19 +51,13 @@ describe('CompassTelemetry', function () {
         properties: { connection_id: 'connection-1', some_attribute: 123 },
       });
 
+      expect(trackedUserId()).to.equal('auid-1234');
+
       const properties = trackedProperties();
-      expect(properties).to.have.property('atlas_user_id', 'auid-1234');
+      expect(properties).to.not.have.property('atlas_user_id');
       expect(properties).to.have.property('connection_id', 'connection-1');
       expect(properties).to.have.property('some_attribute', 123);
       expect(properties).to.have.property('device_id');
-    });
-
-    it('matches the userId sent to segment', function () {
-      setAtlasUserId('auid-1234');
-
-      CompassTelemetry.track({ event: 'Test Event', properties: {} });
-
-      expect(track.firstCall.args[0]).to.have.property('userId', 'auid-1234');
     });
   });
 
@@ -104,10 +103,7 @@ describe('CompassTelemetry', function () {
 
       CompassTelemetry.track({ event: 'Test Event', properties: {} });
 
-      expect(trackedProperties()).to.have.property(
-        'atlas_user_id',
-        'auid-1234'
-      );
+      expect(trackedUserId()).to.equal('auid-1234');
     });
 
     it('re-identifies and attributes events once it is set', function () {
@@ -121,10 +117,7 @@ describe('CompassTelemetry', function () {
 
       CompassTelemetry.track({ event: 'Test Event', properties: {} });
 
-      expect(trackedProperties()).to.have.property(
-        'atlas_user_id',
-        'auid-5678'
-      );
+      expect(trackedUserId()).to.equal('auid-5678');
     });
   });
 });

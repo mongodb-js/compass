@@ -91,9 +91,6 @@ class CompassTelemetry {
       properties: {
         ...info.properties,
         ...commonProperties,
-        ...(this.telemetryAtlasUserId
-          ? { atlas_user_id: this.telemetryAtlasUserId }
-          : {}),
       },
     });
   }
