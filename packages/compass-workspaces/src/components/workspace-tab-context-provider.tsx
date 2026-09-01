@@ -41,6 +41,18 @@ function getInitialPropsForWorkspace(tab: WorkspaceTab) {
   }
 }
 
+function getHeaderPropsForWorkspace(tab: WorkspaceTab) {
+  return {
+    ...('namespace' in tab ? { namespace: tab.namespace } : {}),
+    ...('inferredFromPrivileges' in tab
+      ? { inferredFromPrivileges: tab.inferredFromPrivileges }
+      : {}),
+    ...(tab.type === 'Collection' && tab.editViewName
+      ? { editViewName: tab.editViewName }
+      : {}),
+  };
+}
+
 const TabCloseHandler: React.FunctionComponent = ({ children }) => {
   const mountedRef = useRef(false);
   const [hasInteractedOnce, setHasInteractedOnce] = useTabState(
@@ -111,8 +123,13 @@ const WorkspaceTabContextProvider: React.FunctionComponent<
 
   const { provider: WorkspaceProvider } = getWorkspacePluginByName(tab.type);
 
-  if (initialProps) {
-    children = React.cloneElement(children, initialProps);
+  // The tab content gets the full initial workspace state, the tab title only
+  // gets limited props it needs.
+  const childProps =
+    type === 'tab-title' ? getHeaderPropsForWorkspace(tab) : initialProps;
+
+  if (childProps) {
+    children = React.cloneElement(children, childProps);
   }
 
   // The ordering of the these providers is important,

@@ -143,7 +143,7 @@
     "macos-alias": true,
     "macos-export-certificate-and-key": true,
     "mongodb-client-encryption": true,
-    "native-machine-id": true,
+    "@mongodb-js/native-machine-id": true,
     "nx": false,
     "os-dns-native": true,
     "ssh2": true,
