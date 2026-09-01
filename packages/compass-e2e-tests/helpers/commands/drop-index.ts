@@ -11,15 +11,19 @@ export async function dropIndex(
   await indexComponent.waitForDisplayed();
   const dropButtonSelector = `${indexComponentSelector} ${Selectors.IndexesTableDropIndexButton}`;
 
-  await browser.waitUntil(async () => {
-    await browser.hover(indexComponentSelector);
-    try {
-      await browser.clickVisible(dropButtonSelector, { timeout: 5000 });
-    } catch {
-      return false;
+  await browser.waitUntil(
+    async () => {
+      await browser.hover(indexComponentSelector);
+      if (!(await browser.$(dropButtonSelector).isDisplayed())) {
+        return false;
+      }
+      await browser.clickVisible(dropButtonSelector);
+      return await browser.isModalOpen(Selectors.DropIndexModal);
+    },
+    {
+      timeoutMsg: `Timed out waiting for the drop index modal to open for index "${indexName}"`,
     }
-    return await browser.isModalOpen(Selectors.DropIndexModal);
-  });
+  );
 
   await browser.waitForOpenModal(Selectors.DropIndexModal);
 
