@@ -109,12 +109,16 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     !isUserSignedIn &&
     !!approvalId;
 
-  const chips =
-    connection &&
-    (isDebuggerToolCall(toolCall.type) ||
-      doesToolUseConnection(toolDisplayName))
-      ? [{ glyph: <ServerIcon />, label: connection.name }]
-      : [];
+  // Tools that are called for a connection that is not necessarily active (i.e.
+  // the connection error debugger) pass the connection name as an argument.
+  const connectionName =
+    (toolCall.input as { connectionName?: string } | undefined)
+      ?.connectionName ??
+    (doesToolUseConnection(toolDisplayName) ? connection?.name : undefined);
+
+  const chips = connectionName
+    ? [{ glyph: <ServerIcon />, label: connectionName }]
+    : [];
 
   useEffect(() => {
     if (

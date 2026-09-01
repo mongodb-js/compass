@@ -299,6 +299,12 @@ export class ToolsController {
         inputSchema: z.object({
           connectionString: z.string(),
           errorMessage: z.string(),
+          connectionName: z
+            .string()
+            .optional()
+            .describe(
+              'The name of the connection the failed connection attempt was made to. Only used to display which connection is being debugged.'
+            ),
         }),
         needsApproval: true,
         strict: false,

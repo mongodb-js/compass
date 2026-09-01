@@ -35,12 +35,16 @@ import { getConnectionTitle } from '@mongodb-js/connection-info';
 import { ToolToggle } from './tool-toggle';
 import { ToolsIntroCard } from './tools-intro-card';
 import { usePreference } from 'compass-preferences-model/provider';
-import { useToolsController } from '@mongodb-js/compass-generative-ai/provider';
+import {
+  useToolsController,
+  isAtlasTool,
+} from '@mongodb-js/compass-generative-ai/provider';
 import {
   isAssistantThinking,
   partIsApprovalRequest,
   partIsToolUI,
   stopChat,
+  getToolDisplayName,
 } from '../utils';
 import { AtlasConnectionStatus } from './atlas-connection-status';
 
@@ -683,17 +687,11 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                       const toolCallId =
                         toolCall.toolCallId || `${id}-${toolCall.type}`;
 
-                      if (
-                        toolCall.type ===
-                        ATLAS_CONNECTION_ERROR_DEBUGGER_TOOL_TYPE
-                      ) {
+                      if (isAtlasTool(getToolDisplayName(toolCall.type))) {
                         return (
                           <AtlasToolCallMessage
                             key={`${toolCallId}-${index}`}
-                            connection={
-                              message.metadata?.failedConnectionInfo ??
-                              messageConnection
-                            }
+                            connection={messageConnection}
                             toolCall={toolCall}
                             onApprove={(approvalId, approved) =>
                               handleToolApproval({

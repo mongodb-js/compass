@@ -363,6 +363,8 @@ export const buildConnectionErrorPrompt = ({
     ? 'Data Explorer'
     : 'Compass';
 
+  const connectionName = getConnectionTitle(connectionInfo);
+
   const connectionDetailsSection = connectionInfo.atlasMetadata
     ? ''
     : ` If no auth mechanism is specified in the connection string, the default (username/password) is being used:
@@ -375,7 +377,7 @@ ${connectionString}`;
   );
 
   return {
-    prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt from MongoDB ${productDisplayName}.${connectionDetailsSection}
+    prompt: `Given the error message below, please provide clear instructions to guide the user to debug their connection attempt to "${connectionName}" from MongoDB ${productDisplayName}.${connectionDetailsSection}
 Error message:
 ${connectionError}
 
@@ -383,7 +385,7 @@ ${
   isAtlasConnection
     ? enableAtlasSignIn
       ? `
-1. Use the "atlas-connection-error-debugger" tool to check the connection and provide specific guidance on how to fix it.
+1. Use the "atlas-connection-error-debugger" tool to check the connection and provide specific guidance on how to fix it. Always pass "${connectionName}" as its connectionName argument.
 2. Do not use any previous results from the "atlas-connection-error-debugger" tool.
 3. Always recall the "atlas-connection-error-debugger" to get new results.`
       : `
@@ -396,10 +398,6 @@ This is an Atlas connection, but Atlas Login is not allowed in this user's organ
 }`,
     metadata: {
       displayText: `Diagnose why my ${productDisplayName} connection is failing and help me debug it.`,
-      failedConnectionInfo: {
-        id: connectionInfo.id,
-        name: getConnectionTitle(connectionInfo),
-      },
     },
   };
 };
