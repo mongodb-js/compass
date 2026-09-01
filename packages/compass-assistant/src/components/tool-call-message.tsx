@@ -58,8 +58,8 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
 
   const hasOutput = toolHasOutput(toolCall, cleanedOutput);
 
-  const isAwaitingApproval =
-    toolCall.state === 'approval-requested' && !!toolCall.approval;
+  const approvalId = toolCall.approval?.id;
+  const isAwaitingApproval = toolCallState === 'idle' && !!approvalId;
 
   const expandableContentText = getExpandableContentText(
     toolCall,
@@ -93,20 +93,22 @@ export const ToolCallMessage: React.FunctionComponent<ToolCallMessageProps> = ({
       chips={chips}
       contentClassName={expandableContentStyles}
       showActions={isAwaitingApproval}
-      focusPrimaryKey={toolCall.approval?.id}
-      buttons={[
-        {
-          label: 'Cancel',
-          variant: 'default',
-          onClick: () => toolCall.approval && onDeny?.(toolCall.approval.id),
-        },
-        {
-          label: 'Run',
-          variant: 'primary',
-          onClick: () => toolCall.approval && onApprove?.(toolCall.approval.id),
-          isPrimary: true,
-        },
-      ]}
+      focusPrimaryKey={approvalId}
+      {...(approvalId && {
+        buttons: [
+          {
+            label: 'Cancel',
+            variant: 'default',
+            onClick: () => onDeny?.(approvalId),
+          },
+          {
+            label: 'Run',
+            variant: 'primary',
+            onClick: () => onApprove?.(approvalId),
+            isPrimary: true,
+          },
+        ],
+      })}
     >
       {expandableContentText}
     </ActionCardMessage>
