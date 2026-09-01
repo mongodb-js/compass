@@ -67,6 +67,26 @@ export const READ_ONLY_DATABASE_TOOLS: ToolDefinition[] = [
   },
 ];
 
+function getReadonlyAtlasTools({
+  enableAtlasConnectionErrorDebuggerTool,
+}: Pick<
+  AllPreferences,
+  'enableAtlasConnectionErrorDebuggerTool'
+>): ToolDefinition[] {
+  return [
+    ...(enableAtlasConnectionErrorDebuggerTool
+      ? [
+           {
+            name: 'atlas-connection-error-debugger',
+            readonly: true,
+            description:
+              'Use to debug a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
+          },
+        ]
+      : []),
+  ];
+}
+
 export const getAvailableTools = ({
   enableAtlasConnectionErrorDebuggerTool,
 }: Pick<
@@ -85,16 +105,7 @@ export const getAvailableTools = ({
       readonly: true,
       description: 'Get the current pipeline from the aggregation builder.',
     },
-    ...(enableAtlasConnectionErrorDebuggerTool
-      ? [
-          {
-            name: 'atlas-connection-error-debugger',
-            readonly: true,
-            description:
-              'Use to debug a Compass connection failure to an Atlas cluster. Returns Atlas-side diagnostics (cluster state, IP access list).',
-          },
-        ]
-      : []),
+    ...getReadonlyAtlasTools({ enableAtlasConnectionErrorDebuggerTool }),
   ];
   return tools;
 };
@@ -108,5 +119,13 @@ export function isReadOnlyTool(toolName: string): boolean {
     getAvailableTools({ enableAtlasConnectionErrorDebuggerTool: true }).find(
       (tool) => tool.name === toolName
     )?.readonly || false
+  );
+}
+
+export function isAtlasTool(toolName: string): boolean {
+  return (
+    getReadonlyAtlasTools({ enableAtlasConnectionErrorDebugger: true }).find(
+      (tool) => tool.name === toolName
+    ) !== undefined
   );
 }
