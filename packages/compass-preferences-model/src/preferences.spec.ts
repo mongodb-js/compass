@@ -295,7 +295,11 @@ describe('Preferences class', function () {
       .map(
         (pref) => allPreferencesProps[pref as keyof UserConfigurablePreferences]
       )
-      .every((pref) => pref.ui === '*' || pref.ui.includes('atlas'));
+      .every(
+        (pref) =>
+          pref.exposedInSettingsUI === '*' ||
+          pref.exposedInSettingsUI.includes('atlas')
+      );
 
     expect(allAtlas).to.be.true;
   });
