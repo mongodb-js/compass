@@ -49,6 +49,7 @@ module.exports = {
     '@mongodb-js/mongodb-constants',
     '@mongodb-js/device-id',
     '@mongodb-js/shell-bson-parser',
+    '@mongodb-js/native-machine-id',
     'mongodb-cloud-info',
     'mongodb-query-parser',
   ],
