@@ -431,11 +431,11 @@ describe('ToolCallMessage', function () {
     });
 
     it('does not show action buttons when there is no approval id', function () {
-      const approvalTool: ToolUIPart = {
+      const approvalTool = {
         ...baseToolCall,
         state: 'approval-requested',
         approval: undefined,
-      };
+      } as unknown as ToolUIPart;
 
       render(
         <ToolCallMessage
