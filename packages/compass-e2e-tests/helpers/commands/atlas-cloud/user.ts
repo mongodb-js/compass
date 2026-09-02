@@ -49,22 +49,11 @@ export async function fillAtlasLoginForm(
 
   let authenticated = false;
 
-  // After logging in, Atlas may show interstitial screens that need to be
-  // clicked through before the flow completes:
-  //  - a periodic "Remind me later" MFA reminder (even when encouragement is
-  //    bypassed), and
-  //  - an OAuth "Authorize" consent screen (desktop OIDC sign in).
-  // We watch for these in parallel with waiting for authentication to finish.
-  // We only click when the button is actually displayed (a cheap check) to
-  // avoid `click()`'s implicit wait blocking for the full `waitforTimeout` on
-  // buttons that never appear.
   const clickWhenDisplayed = async (selector: string) => {
     while (!authenticated) {
       const button = session.$(selector);
       if (await button.isDisplayed().catch(() => false)) {
-        await button.click().catch(() => {
-          // The screen may disappear between the check and the click.
-        });
+        await button.click().catch(() => {});
       }
       if (authenticated) {
         break;
@@ -74,7 +63,9 @@ export async function fillAtlasLoginForm(
   };
 
   const [, , authenticationPromiseSettled] = await Promise.allSettled([
+    // bypass MFA
     clickWhenDisplayed('button*=Remind me later'),
+    // authorize Compass screen
     clickWhenDisplayed('button=Authorize'),
     session.waitUntil(
       async () => {
@@ -273,7 +264,7 @@ function assertAtlasCloudTestUtils() {
   }
 }
 
-export async function createAtlasLoginUser(browser?: CompassBrowser): Promise<{
+export async function createAtlasLoginUser(): Promise<{
   username: string;
   password: string;
   orgId: string;
@@ -281,8 +272,8 @@ export async function createAtlasLoginUser(browser?: CompassBrowser): Promise<{
   cleanup: () => Promise<void>;
 }> {
   assertAtlasCloudTestUtils();
-  const session = (browser ??
-    (await createCloudBrowserSession())) as unknown as CompassBrowser;
+  const session =
+    (await createCloudBrowserSession()) as unknown as CompassBrowser;
 
   try {
     const username = template(ATLAS_CLOUD_TEST_UTILS.testUserUsernameTemplate)({

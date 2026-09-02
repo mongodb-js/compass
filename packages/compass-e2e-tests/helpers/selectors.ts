@@ -1590,17 +1590,6 @@ export const AssistantConfirmClearChatModal =
   '[data-testid="assistant-confirm-clear-chat-modal"]';
 export const AssistantConfirmClearChatModalConfirmButton = `${AssistantConfirmClearChatModal} [data-testid="lg-confirmation_modal-footer-confirm_button"]`;
 
-// Atlas connection status (shown in the assistant when the connection error
-// debugger is enabled)
-export const AtlasConnectionStatus = '[data-testid="atlas-connection-status"]';
-export const AtlasConnectionStatusLabel =
-  '[data-testid="atlas-connection-status-label"]';
-export const AtlasConnectionStatusDisconnect =
-  '[data-testid="atlas-connection-status-disconnect"]';
-// The Atlas tool call approval card renders this button as "Connect to Atlas"
-// when the user is signed out and "Run" once signed in.
-export const AtlasToolCallConnectButton = 'button=Connect to Atlas';
-
 // AI Opt-in Modal
 export const AIOptInModal = '[data-testid="ai-optin-modal"]';
 export const AIOptInModalAcceptButton = 'button=Use AI Features';

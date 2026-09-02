@@ -71,11 +71,9 @@ describe('Atlas sign in', function () {
     }
 
     // Driving the Atlas login page (form + consent + redirects against a real
-    // Atlas environment) can take longer than the oidc-plugin's default 20s
-    // "open browser" timeout, which would otherwise tear down the local
-    // callback server before we finish. Give it a generous window. Must be set
-    // before the app starts so the plugin picks it up when it is created.
-    process.env.COMPASS_OIDC_OPEN_BROWSER_TIMEOUT_OVERRIDE = String(2 * 60_000);
+    // Atlas environment) can take longer than the oidc-plugin's default 10s
+    // "open browser" timeout.
+    process.env.COMPASS_OIDC_OPEN_BROWSER_TIMEOUT_OVERRIDE = String(60_000);
 
     compass = await init(this.test?.fullTitle(), {
       extraSpawnArgs: [
