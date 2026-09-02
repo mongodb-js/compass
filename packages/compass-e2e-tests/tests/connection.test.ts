@@ -190,7 +190,7 @@ async function assertCannotCreateDb(
   await browser.navigateToConnectionTab(connectionName, 'Databases');
 
   // open the create database modal from the sidebar
-  await browser.selectConnectionMenuItem(
+  await browser.pages.sidebar.selectConnectionMenuItem(
     connectionName,
     Selectors.CreateDatabaseButton,
     false
@@ -226,11 +226,13 @@ async function assertCannotCreateCollection(
   dbName: string,
   collectionName: string
 ): Promise<void> {
-  const connectionId = await browser.getConnectionIdByName(connectionName);
+  const connectionId = await browser.pages.sidebar.getConnectionIdByName(
+    connectionName
+  );
 
   // open create collection modal from the sidebar
-  await browser.clickVisible(Selectors.SidebarFilterInput);
-  await browser.setValueVisible(Selectors.SidebarFilterInput, dbName);
+  await browser.clickVisible(browser.pages.sidebar.$filterInput);
+  await browser.setValueVisible(browser.pages.sidebar.$filterInput, dbName);
   const dbElement = browser.$(Selectors.sidebarDatabase(connectionId, dbName));
   await dbElement.waitForDisplayed();
   await browser.hover(Selectors.sidebarDatabase(connectionId, dbName));
@@ -654,18 +656,16 @@ describe('Connect in a new window', () => {
     skipForWeb(this, 'connecting in new window is not supported on web');
 
     const connectionName = getDefaultConnectionNames(0);
-    const connectionSelector = Selectors.sidebarConnection(connectionName);
-    await browser.hover(connectionSelector);
+    await browser.hover(browser.pages.sidebar.$connection(connectionName));
 
     const windowsBefore = await browser.getWindowHandles();
     expect(windowsBefore.length).equals(1);
 
-    const connectionElement = browser.$(connectionSelector);
     await browser.clickVisible(
-      connectionElement.$(Selectors.ConnectDropdownButton)
+      browser.pages.sidebar.$connectDropdownButton(connectionName)
     );
     await browser.clickVisible(
-      connectionElement.$(Selectors.ConnectInNewWindowButton)
+      browser.pages.sidebar.$connectInNewWindowButton(connectionName)
     );
 
     const windowsAfter = await browser.getWindowHandles();
@@ -680,15 +680,17 @@ describe('Connect in a new window', () => {
 
   it('shows correct connect button', async function (this) {
     const connectionName = getDefaultConnectionNames(0);
-    const connectionSelector = Selectors.sidebarConnection(connectionName);
-    await browser.hover(connectionSelector);
+    await browser.hover(browser.pages.sidebar.$connection(connectionName));
 
-    const connectionElement = browser.$(connectionSelector);
-    await connectionElement.$(Selectors.ConnectButton).waitForDisplayed();
-    await connectionElement.$(Selectors.ConnectDropdownButton).waitForExist({
-      // TODO: Remove this as part of COMPASS-8970.
-      reverse: isTestingWeb(),
-    });
+    await browser.pages.sidebar
+      .$connectButton(connectionName)
+      .waitForDisplayed();
+    await browser.pages.sidebar
+      .$connectDropdownButton(connectionName)
+      .waitForExist({
+        // TODO: Remove this as part of COMPASS-8970.
+        reverse: isTestingWeb(),
+      });
   });
 });
 
@@ -983,9 +985,10 @@ describe('Connection form', function () {
       if (!connection.state.connectionName) {
         throw new Error('expected connectionName');
       }
-      connection.connectionId = await browser.getConnectionIdByName(
-        connection.state.connectionName
-      );
+      connection.connectionId =
+        await browser.pages.sidebar.getConnectionIdByName(
+          connection.state.connectionName
+        );
     }
 
     // the last connection to be connected's toast appears on top, so we have to

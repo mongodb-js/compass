@@ -259,8 +259,8 @@ describe('OIDC integration', function () {
       }
     };
 
-    await browser.removeConnection(connectionName);
-    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+    await browser.pages.sidebar.removeConnection(connectionName);
+    await browser.clickVisible(browser.pages.sidebar.$newConnectionButton);
     await browser.waitForOpenModal(Selectors.ConnectionModal);
 
     await browser.setValueVisible(
@@ -318,8 +318,8 @@ describe('OIDC integration', function () {
       };
     };
 
-    await browser.removeConnection(connectionName);
-    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+    await browser.pages.sidebar.removeConnection(connectionName);
+    await browser.clickVisible(browser.pages.sidebar.$newConnectionButton);
     await browser.waitForOpenModal(Selectors.ConnectionModal);
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
@@ -333,7 +333,7 @@ describe('OIDC integration', function () {
     // we have to browse somewhere that will fire off commands that require
     // authentication so that those commands get rejected due to the expired
     // auth and then that will trigger the confirmation modal we expect.
-    await browser.selectConnectionMenuItem(
+    await browser.pages.sidebar.selectConnectionMenuItem(
       connectionName,
       Selectors.OpenShellItem,
       false
@@ -363,8 +363,8 @@ describe('OIDC integration', function () {
       };
     };
 
-    await browser.removeConnection(connectionName);
-    await browser.clickVisible(Selectors.SidebarNewConnectionButton);
+    await browser.pages.sidebar.removeConnection(connectionName);
+    await browser.clickVisible(browser.pages.sidebar.$newConnectionButton);
     await browser.waitForOpenModal(Selectors.ConnectionModal);
     await browser.setValueVisible(
       Selectors.ConnectionFormStringInput,
@@ -378,7 +378,7 @@ describe('OIDC integration', function () {
     // we have to browse somewhere that will fire off commands that require
     // authentication so that those commands get rejected due to the expired
     // auth and then that will trigger the confirmation modal we expect
-    await browser.selectConnectionMenuItem(
+    await browser.pages.sidebar.selectConnectionMenuItem(
       connectionName,
       Selectors.OpenShellItem,
       false
@@ -405,11 +405,11 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectConnection(favoriteName);
+    await browser.pages.sidebar.selectConnection(favoriteName);
     await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
-    await browser.selectConnection(favoriteName);
+    await browser.pages.sidebar.selectConnection(favoriteName);
     await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
@@ -430,7 +430,7 @@ describe('OIDC integration', function () {
 
     await browser.screenshot(`after-creating-favourite-${favoriteName}.png`);
 
-    await browser.selectConnection(favoriteName);
+    await browser.pages.sidebar.selectConnection(favoriteName);
     await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
@@ -439,7 +439,7 @@ describe('OIDC integration', function () {
     );
 
     // TODO(COMPASS-7810): when clicking on the favourite the element is somehow stale and then webdriverio throws
-    await browser.selectConnection(favoriteName);
+    await browser.pages.sidebar.selectConnection(favoriteName);
     await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
@@ -458,7 +458,7 @@ describe('OIDC integration', function () {
       connectionString
     );
 
-    await browser.selectConnection(favoriteName);
+    await browser.pages.sidebar.selectConnection(favoriteName);
     await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 
@@ -474,7 +474,7 @@ describe('OIDC integration', function () {
       browser = compass.browser;
     }
 
-    await browser.selectConnection(favoriteName);
+    await browser.pages.sidebar.selectConnection(favoriteName);
     await browser.doConnect(favoriteName);
     await browser.disconnectAll();
 

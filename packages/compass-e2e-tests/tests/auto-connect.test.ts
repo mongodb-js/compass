@@ -28,7 +28,9 @@ async function createDefaultConnectionAndClose(name: string | undefined) {
     const { browser } = compass;
     await browser.setupDefaultConnections();
     const connectionName = getDefaultConnectionNames(0);
-    const connectionId = await browser.getConnectionIdByName(connectionName);
+    const connectionId = await browser.pages.sidebar.getConnectionIdByName(
+      connectionName
+    );
     if (!connectionId) {
       throw new Error('Expected a connection id');
     }
@@ -333,9 +335,8 @@ describe('Automatically connecting from the command line', function () {
       expect(numToasts).to.equal(0);
 
       // no active connections
-      const numConnectionItems = await browser.$$(
-        Selectors.ConnectedConnectionItems
-      ).length;
+      const numConnectionItems = await browser.pages.sidebar
+        .$$connectedConnections.length;
       expect(numConnectionItems).to.equal(0);
     } finally {
       await cleanup(compass);
@@ -368,12 +369,12 @@ describe('Automatically connecting from the command line', function () {
       browser = compass.browser;
 
       // there should be no connection items
-      const numConnectionItems = await browser.$$(Selectors.ConnectionItems)
+      const numConnectionItems = await browser.pages.sidebar.$$connections
         .length;
       expect(numConnectionItems).to.equal(0);
 
-      await browser.$(Selectors.NoDeploymentsText).waitForDisplayed();
-      await browser.$(Selectors.AddNewConnectionButton).waitForDisplayed();
+      await browser.pages.sidebar.$noDeploymentsText.waitForDisplayed();
+      await browser.pages.sidebar.$addNewConnectionButton.waitForDisplayed();
     } finally {
       await cleanup(compass);
     }
