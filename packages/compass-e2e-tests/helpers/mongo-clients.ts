@@ -278,6 +278,23 @@ export async function createNumbersStringCollection(
   );
 }
 
+export const BSON_VALIDATION_UUID = new UUID(
+  '48b481f0-31c7-4b2d-81d4-987ac69262a9'
+);
+
+export async function createBsonValidationCollection(
+  name: string
+): Promise<void> {
+  await Promise.all(
+    test_dbs.map(async (db) => {
+      await db.createCollection(name, {
+        validator: { uuid: { $ne: BSON_VALIDATION_UUID.toBinary() } },
+      });
+      await db.collection(name).insertOne({ i: 1 });
+    })
+  );
+}
+
 /**
  * Creates a collection locked against validator changes by the MongoDB 9.0+
  * "constraint" validation level. Pass `stopAfterPrepare` to leave it in the
