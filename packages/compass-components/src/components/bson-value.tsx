@@ -30,6 +30,16 @@ function truncate(str: string, length = 70): string {
   return length < str.length ? `${truncated}…` : str;
 }
 
+function truncateLines(str: string, lines = 3): string {
+  let index = -1;
+  for (let i = 0; i < lines; i++) {
+    const next = str.indexOf('\n', index + 1);
+    if (next === -1) return str;
+    index = next;
+  }
+  return `${str.slice(0, index)}…`;
+}
+
 type ValueTypes = ValueProps['type'];
 
 type PropsByValueType<V extends ValueTypes> = Omit<
@@ -45,7 +55,7 @@ const bsonValue = css({
 });
 
 const bsonValuePrewrap = css({
-  whiteSpace: 'pre-wrap',
+  whiteSpace: 'pre',
 });
 
 // A span so that it stays valid markup whatever `bsonValueDisplayVar` resolves
@@ -386,15 +396,11 @@ const StringValue: React.FunctionComponent<PropsByValueType<'String'>> = ({
   value,
 }) => {
   const truncatedValue = useMemo(() => {
-    return truncate(value, 70);
-  }, [value]);
-
-  const truncatedValueForTitle = useMemo(() => {
-    return truncate(value, 1000);
+    return truncateLines(truncate(value, 1000));
   }, [value]);
 
   return (
-    <BSONValueContainer type="String" title={truncatedValueForTitle}>
+    <BSONValueContainer type="String" title={truncatedValue}>
       &quot;{truncatedValue}&quot;
     </BSONValueContainer>
   );

@@ -317,6 +317,7 @@ const elementExpand = css({
 const elementKey = css({
   flex: 'none',
   fontWeight: 'bold',
+  minWidth: '1em',
   maxWidth: '60%',
 });
 
