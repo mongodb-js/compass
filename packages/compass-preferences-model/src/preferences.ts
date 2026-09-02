@@ -23,7 +23,7 @@ export interface PreferencesAccess {
   ): Promise<AllPreferences>;
   refreshPreferences(): Promise<AllPreferences>;
   getPreferences(): AllPreferences;
-  getConfigurableUserPreferences(): Promise<UserConfigurablePreferences>;
+  getSettingsUIPreferences(): Promise<Partial<UserConfigurablePreferences>>;
   getPreferenceStates(): Promise<PreferenceStateInformation>;
   onPreferenceValueChanged<K extends keyof AllPreferences>(
     preferenceName: K,
@@ -262,11 +262,12 @@ export class Preferences {
   }
 
   /**
-   * Return the subset of preferences that can be edited through the UI.
+   * Return the subset of preferences that are exposed in the settings UI of the
+   * current running environment.
    *
-   * @returns The currently active set of UI-modifiable preferences.
+   * @returns The currently active set of settings UI preferences.
    */
-  getConfigurableUserPreferences(): UserConfigurablePreferences {
+  getSettingsUIPreferences(): Partial<UserConfigurablePreferences> {
     const preferences = this.getPreferences();
     return Object.fromEntries(
       Object.entries(preferences).filter(([key]) => {
@@ -278,7 +279,7 @@ export class Preferences {
             exposedInSettingsUI.includes(this._runningEnvironment))
         );
       })
-    ) as UserConfigurablePreferences;
+    ) as Partial<UserConfigurablePreferences>;
   }
 
   /**

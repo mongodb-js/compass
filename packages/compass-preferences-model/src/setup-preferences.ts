@@ -75,8 +75,8 @@ export async function setupPreferences(
     return preferences.getPreferenceStates();
   });
 
-  ipcMain.handle('compass:get-configurable-user-preferences', () => {
-    return preferences.getConfigurableUserPreferences();
+  ipcMain.handle('compass:get-settings-ui-preferences', () => {
+    return preferences.getSettingsUIPreferences();
   });
 
   ipcMain.handle('compass:get-preference-sandbox-properties', () => {
@@ -103,11 +103,10 @@ const makePreferenceMain = (
     return preferences()?.getPreferences?.() ?? ({} as AllPreferences);
   },
   // eslint-disable-next-line @typescript-eslint/require-await
-  async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
-    return (
-      preferences()?.getConfigurableUserPreferences?.() ??
-      ({} as UserConfigurablePreferences)
-    );
+  async getSettingsUIPreferences(): Promise<
+    Partial<UserConfigurablePreferences>
+  > {
+    return preferences()?.getSettingsUIPreferences?.() ?? {};
   },
   // eslint-disable-next-line @typescript-eslint/require-await
   async getPreferenceStates(): Promise<PreferenceStateInformation> {

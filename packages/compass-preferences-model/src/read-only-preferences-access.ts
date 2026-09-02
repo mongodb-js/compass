@@ -29,8 +29,8 @@ export class ReadOnlyPreferenceAccess implements PreferencesAccess {
     return this._preferences.getPreferences();
   }
 
-  getConfigurableUserPreferences() {
-    return Promise.resolve(this._preferences.getConfigurableUserPreferences());
+  getSettingsUIPreferences() {
+    return Promise.resolve(this._preferences.getSettingsUIPreferences());
   }
 
   getPreferenceStates() {

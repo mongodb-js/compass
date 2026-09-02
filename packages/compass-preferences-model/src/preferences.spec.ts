@@ -113,7 +113,7 @@ describe('Preferences class', function () {
 
   it('can return user-configurable preferences after setting their defaults', async function () {
     const preferences = await setupPreferences(tmpdir);
-    const result = preferences.getConfigurableUserPreferences();
+    const result = preferences.getSettingsUIPreferences();
     expect(result).not.to.have.property('id');
     expect(result.enableMaps).to.equal(true);
     expect(result.enableShell).to.equal(true);
@@ -129,7 +129,7 @@ describe('Preferences class', function () {
         trackUsageStatistics: false,
       },
     });
-    const result = preferences.getConfigurableUserPreferences();
+    const result = preferences.getSettingsUIPreferences();
     expect(result).not.to.have.property('id');
     expect(result.autoUpdates).to.equal(true);
     expect(result.enableMaps).to.equal(false);
@@ -267,7 +267,7 @@ describe('Preferences class', function () {
     const preferences = await setupPreferences(tmpdir);
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
-    preferences.getConfigurableUserPreferences(); // set defaults
+    preferences.getSettingsUIPreferences(); // set defaults
     await preferences.savePreferences({ networkTraffic: false });
     await preferences.savePreferences({ readOnly: true });
     expect(calls).to.deep.equal([
@@ -289,7 +289,7 @@ describe('Preferences class', function () {
 
   it('filters out irrelevant settings based on the running environment', async function () {
     const preferences = await setupPreferences(tmpdir, {}, 'atlas');
-    const userPreferences = preferences.getConfigurableUserPreferences();
+    const userPreferences = preferences.getSettingsUIPreferences();
 
     const allAtlas = Object.keys(userPreferences)
       .map(
