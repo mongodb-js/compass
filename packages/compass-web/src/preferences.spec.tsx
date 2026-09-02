@@ -6,6 +6,9 @@ import {
   getAtlasServiceBackendPreset,
   getPreferencesFromCloudApi,
   getProjectIdFromUrl,
+  createPreferencesRemoteService,
+  loadCompassWebPreferences,
+  resetCompassWebPreferencesCache,
 } from './preferences';
 import { defaultHeaders } from './url-builder';
 
@@ -312,6 +315,104 @@ describe('compass-web preferences', function () {
         error = err as Error;
       }
       expect(error).to.be.an('error');
+    });
+  });
+
+  describe('loadCompassWebPreferences', function () {
+    let fetchStub: Sinon.SinonStub;
+
+    beforeEach(function () {
+      resetCompassWebPreferencesCache();
+      fetchStub = Sinon.stub(globalThis, 'fetch');
+    });
+
+    afterEach(function () {
+      fetchStub.restore();
+      resetCompassWebPreferencesCache();
+    });
+
+    const APP_PREFERENCES_URL =
+      createPreferencesRemoteService().userDataEndpoint('AppPreferences');
+
+    function stubCloudApi(featureFlags: Record<string, boolean> = {}) {
+      fetchStub.withArgs(Sinon.match(/\/explorer\/v1\/groups\//)).resolves(
+        fakeResponse({
+          ...apiResponse,
+          featureFlags: { ...apiResponse.featureFlags, ...featureFlags },
+        })
+      );
+    }
+
+    it('resolves the AppPreferences url against the cloud base url', function () {
+      expect(APP_PREFERENCES_URL).to.match(
+        /^https?:\/\/.+\/ui\/userData\/AppPreferences$/
+      );
+    });
+
+    it('loads persisted preferences', async function () {
+      stubCloudApi();
+      fetchStub
+        .withArgs(APP_PREFERENCES_URL, Sinon.match({ method: 'GET' }))
+        .resolves(
+          fakeResponse({ data: JSON.stringify({ enableShell: true }) })
+        );
+
+      const preferencesAccess = await loadCompassWebPreferences(PROJECT_ID);
+
+      expect(preferencesAccess.getPreferences().enableShell).to.equal(true);
+    });
+
+    it('persists saved preferences to the userData endpoint', async function () {
+      stubCloudApi();
+      fetchStub
+        .withArgs(APP_PREFERENCES_URL, Sinon.match({ method: 'GET' }))
+        .resolves(fakeResponse({ data: JSON.stringify({}) }));
+      const putStub = fetchStub
+        .withArgs(APP_PREFERENCES_URL, Sinon.match({ method: 'PUT' }))
+        .resolves(fakeResponse({}));
+
+      const preferencesAccess = await loadCompassWebPreferences(PROJECT_ID);
+      await preferencesAccess.savePreferences({ enableShell: true });
+
+      expect(putStub.calledOnce).to.equal(true);
+      const [, init] = putStub.firstCall.args as [string, RequestInit];
+      const { data } = JSON.parse(init.body as string) as { data: string };
+      expect(JSON.parse(data)).to.deep.equal({ enableShell: true });
+    });
+
+    it('sends CSRF headers on the PUT but not the GET', async function () {
+      stubCloudApi();
+      const getStub = fetchStub
+        .withArgs(APP_PREFERENCES_URL, Sinon.match({ method: 'GET' }))
+        .resolves(fakeResponse({ data: JSON.stringify({}) }));
+      const putStub = fetchStub
+        .withArgs(APP_PREFERENCES_URL, Sinon.match({ method: 'PUT' }))
+        .resolves(fakeResponse({}));
+
+      const preferencesAccess = await loadCompassWebPreferences(PROJECT_ID);
+      await preferencesAccess.savePreferences({ enableShell: true });
+
+      const [, getInit] = getStub.firstCall.args as [string, RequestInit];
+      const [, putInit] = putStub.firstCall.args as [string, RequestInit];
+      expect(getInit.headers).to.not.have.property('X-CSRF-Token');
+      expect(putInit.headers).to.have.property('X-CSRF-Token');
+    });
+
+    it('still resolves when the userData request fails', async function () {
+      stubCloudApi();
+      fetchStub
+        .withArgs(APP_PREFERENCES_URL, Sinon.match({ method: 'GET' }))
+        .rejects(new Error('network down'));
+
+      const preferencesAccess = await loadCompassWebPreferences(PROJECT_ID);
+
+      expect(preferencesAccess).to.be.an.instanceOf(
+        CompassWebPreferencesAccess
+      );
+      // Falls back to the Compass Web defaults.
+      expect(preferencesAccess.getPreferences().enableShell).to.equal(
+        DEFAULT_COMPASS_WEB_PREFERENCES.enableShell
+      );
     });
   });
 });
