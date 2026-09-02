@@ -1,12 +1,84 @@
+import { promises as fs } from 'fs';
+import os from 'os';
+import path from 'path';
+import { remote } from 'webdriverio';
 import lodash from 'lodash';
 import type { CompassBrowser } from '../../compass-browser.ts';
 import {
   ATLAS_CLOUD_TEST_UTILS,
+  context,
   getCloudUrlsFromContext,
 } from '../../test-runner-context.ts';
+import {
+  FIXTURES_PATH,
+  MONOREPO_ELECTRON_CHROMIUM_VERSION,
+} from '../../test-runner-paths.ts';
 import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
 
 const { template } = lodash;
+
+export async function fillAtlasLoginForm(
+  session: WebdriverIO.Browser,
+  username: string,
+  password: string,
+  waitForAuthenticated: () => Promise<boolean>
+) {
+  const waitForLeafygreenEnabled = async (selector: string) => {
+    await session.waitUntil(async () => {
+      const el = session.$(selector);
+      return (
+        (await el.getAttribute('aria-disabled')) !== 'true' &&
+        (await el.isEnabled())
+      );
+    });
+  };
+
+  await waitForLeafygreenEnabled('input[name="username"]');
+  await session.$('input[name="username"]').setValue(username);
+
+  await waitForLeafygreenEnabled('button=Next');
+  await session.$('button=Next').click();
+
+  await session.$('input[name="password"]').waitForEnabled();
+  await session.$('input[name="password"]').setValue(password);
+
+  await waitForLeafygreenEnabled('button=Login');
+  await session.$('button=Login').click();
+
+  let authenticated = false;
+
+  const [, authenticationPromiseSettled] = await Promise.allSettled([
+    (async () => {
+      const remindMeLaterButton = 'button*=Remind me later';
+
+      await session.waitUntil(
+        async () => {
+          return (
+            authenticated ||
+            (await session.$(remindMeLaterButton).isDisplayed())
+          );
+        },
+        { interval: 2000 }
+      );
+
+      if (authenticated) {
+        return;
+      }
+
+      await session.$(remindMeLaterButton).click();
+    })(),
+    session.waitUntil(
+      async () => {
+        return (authenticated = await waitForAuthenticated());
+      },
+      { interval: 2000 }
+    ),
+  ]);
+
+  if (authenticationPromiseSettled.status === 'rejected') {
+    throw authenticationPromiseSettled.reason;
+  }
+}
 
 export async function signInToAtlas(
   browser: CompassBrowser,
@@ -36,61 +108,11 @@ export async function signInToAtlas(
     { form: { username } }
   );
 
-  await browser.waitForLeafygreenEnabled('input[name="username"]');
-  await browser.$('input[name="username"]').setValue(username);
-
-  await browser.waitForLeafygreenEnabled('button=Next');
-  await browser.$('button=Next').click();
-
-  await browser.$('input[name="password"]').waitForEnabled();
-  await browser.$('input[name="password"]').setValue(password);
-
-  await browser.waitForLeafygreenEnabled('button=Login');
-  await browser.$('button=Login').click();
-
-  let authenticated = false;
-
-  // Atlas Cloud will periodically remind user to enable MFA even if
-  // encouragement is bypassed, so to account for that, in parallel to waiting
-  // for auth to finish, we'll wait for the MFA screen to show up and skip it if
-  // it appears
-  const [, authenticationPromiseSettled] = await Promise.allSettled([
-    (async () => {
-      // TODO: figure out why the endpoint call doesn't make this reminder page
-      // disappear
-      const remindMeLaterButton = 'button*=Remind me later';
-
-      await browser.waitUntil(
-        async () => {
-          return (
-            authenticated ||
-            (await browser.$(remindMeLaterButton).isDisplayed())
-          );
-        },
-        // Takes awhile for the redirect to land on this reminder page when it
-        // happens, so no need to bombard the browser with displayed checks
-        { interval: 2000 }
-      );
-
-      if (authenticated) {
-        return;
-      }
-
-      await browser.clickVisible(remindMeLaterButton);
-    })(),
-    browser.waitUntil(
-      async () => {
-        // We don't check the exact project id, just want to make sure we are in
-        // logged in part of atlas cloud
-        return (authenticated = await isAtlasCloudPage(browser, cloudUrl));
-      },
-      { interval: 2000 }
-    ),
-  ]);
-
-  if (authenticationPromiseSettled.status === 'rejected') {
-    throw authenticationPromiseSettled.reason;
-  }
+  // We don't check the exact project id, just want to make sure we are in the
+  // logged in part of atlas cloud
+  await fillAtlasLoginForm(browser, username, password, () =>
+    isAtlasCloudPage(browser, cloudUrl)
+  );
 
   // Make sure that user has required roles before proceeding (those are not
   // persistent)
@@ -100,6 +122,78 @@ export async function signInToAtlas(
     { method: 'POST' },
     { json: ATLAS_CLOUD_TEST_UTILS.testUserRoles }
   );
+}
+
+function getCaptureOidcUrlCommand() {
+  return `${process.execPath} ${path.resolve(
+    FIXTURES_PATH,
+    'capture-oidc-url.js'
+  )}`;
+}
+
+export async function signInToAtlasDesktop(
+  browser: CompassBrowser,
+  {
+    username,
+    password,
+    triggerSignIn,
+    waitForSignedIn,
+  }: {
+    username: string;
+    password: string;
+    triggerSignIn: () => Promise<void>;
+    waitForSignedIn: () => Promise<boolean>;
+  }
+) {
+  const authUrlFile = path.join(
+    os.tmpdir(),
+    `compass-oidc-auth-url-${Date.now().toString(32)}`
+  );
+  await fs.rm(authUrlFile, { force: true });
+
+  // The capture fixture writes the auth URL to this file instead of opening it
+  // in the system browser.
+  await browser.setEnv('OIDC_AUTH_URL_FILE', authUrlFile);
+  await browser.setFeature(
+    'browserCommandForOIDCAuth',
+    getCaptureOidcUrlCommand()
+  );
+
+  let loginSession: WebdriverIO.Browser | undefined;
+
+  try {
+    void triggerSignIn();
+
+    const authUrl = await browser.waitUntil(
+      async () => {
+        return await fs.readFile(authUrlFile, 'utf8').catch(() => '');
+      },
+      {
+        timeoutMsg: 'Timed out waiting for the OIDC auth URL to be captured',
+      }
+    );
+
+    loginSession = await remote({
+      capabilities: {
+        browserName: 'chrome',
+        browserVersion: MONOREPO_ELECTRON_CHROMIUM_VERSION,
+        'wdio:enforceWebDriverClassic': true,
+      },
+      waitforTimeout: context.webdriverWaitforTimeout,
+      waitforInterval: context.webdriverWaitforInterval,
+    });
+
+    await loginSession.url(authUrl);
+
+    await fillAtlasLoginForm(loginSession, username, password, waitForSignedIn);
+  } finally {
+    await loginSession?.deleteSession().catch(() => {
+      // Ignore errors closing the login session, we don't want them to mask a
+      // real test failure.
+    });
+    await browser.setFeature('browserCommandForOIDCAuth', undefined);
+    await fs.rm(authUrlFile, { force: true });
+  }
 }
 
 export async function createAtlasUser(
