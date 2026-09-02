@@ -162,7 +162,7 @@ export async function signInToAtlasDesktop(
   let loginSession: WebdriverIO.Browser | undefined;
 
   try {
-    void triggerSignIn();
+    await triggerSignIn();
 
     const authUrl = await browser.waitUntil(
       async () => {

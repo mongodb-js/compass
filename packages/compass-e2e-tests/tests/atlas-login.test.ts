@@ -27,9 +27,9 @@ function hasAtlasCloudCredentials(): boolean {
 }
 
 async function startSignIn(browser: CompassBrowser): Promise<void> {
-  await browser.execute(() => {
+  await browser.execute(async () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    void require('electron').ipcRenderer.invoke('AtlasService.signIn', {});
+    await require('electron').ipcRenderer.invoke('AtlasService.signIn', {});
   });
 }
 

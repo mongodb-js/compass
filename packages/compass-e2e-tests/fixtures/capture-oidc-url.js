@@ -10,6 +10,9 @@ const fs = require('fs');
 // The destination file path is provided through the OIDC_AUTH_URL_FILE env var.
 (function () {
   const url = process.argv[2];
+  if (!url) {
+    throw new Error('OIDC auth URL argument is missing');
+  }
   const file = process.env.OIDC_AUTH_URL_FILE;
   if (!file) {
     throw new Error('OIDC_AUTH_URL_FILE env variable is not set');
