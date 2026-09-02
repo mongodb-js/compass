@@ -22,6 +22,7 @@ import {
 } from '../compass-assistant-provider';
 import sinon from 'sinon';
 import type { SourceUrlUIPart, TextPart, ToolUIPart } from 'ai';
+import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
 import { Chat } from '../@ai-sdk/react/chat-react';
 import {
   ToolsControllerProvider,
@@ -35,6 +36,29 @@ import { AtlasAuthPlugin } from '@mongodb-js/atlas-service/renderer';
 import { containsText } from './test-helpers';
 
 const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
+
+const mockAtlasAdminApi = {
+  getSystemStatus: sinon.stub().resolves({}),
+} as unknown as AtlasAdminApiService;
+
+function TestProviders({
+  children,
+  assistantActions,
+}: React.PropsWithChildren<{
+  assistantActions?: Partial<React.ContextType<typeof AssistantActionsContext>>;
+}>) {
+  return (
+    <ToolsControllerProvider>
+      <AtlasLoginPlugin>
+        <AssistantActionsContext.Provider
+          value={{ atlasAdminApi: mockAtlasAdminApi, ...assistantActions }}
+        >
+          {children}
+        </AssistantActionsContext.Provider>
+      </AtlasLoginPlugin>
+    </ToolsControllerProvider>
+  );
+}
 
 describe('AssistantChat', function () {
   const mockMessages: AssistantMessage[] = [
@@ -104,17 +128,12 @@ describe('AssistantChat', function () {
         await chat.sendMessage(message, options);
       });
 
-    const assistantActionsContext = {
-      ensureOptInAndSend: ensureOptInAndSendStub,
-    };
     const result = render(
-      <ToolsControllerProvider>
-        <AtlasLoginPlugin>
-          <AssistantActionsContext.Provider value={assistantActionsContext}>
-            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-          </AssistantActionsContext.Provider>
-        </AtlasLoginPlugin>
-      </ToolsControllerProvider>,
+      <TestProviders
+        assistantActions={{ ensureOptInAndSend: ensureOptInAndSendStub }}
+      >
+        <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+      </TestProviders>,
       {
         connections,
         preferences,
@@ -237,11 +256,9 @@ describe('AssistantChat', function () {
     it('shows warning message in chat when connected to non-genuine MongoDB', function () {
       const chat = createMockChat({ messages: [] });
       render(
-        <ToolsControllerProvider>
-          <AtlasLoginPlugin>
-            <AssistantChat chat={chat} hasNonGenuineConnections={true} />
-          </AtlasLoginPlugin>
-        </ToolsControllerProvider>
+        <TestProviders>
+          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+        </TestProviders>
       );
 
       expect(chat.messages).to.have.length(1);
@@ -256,11 +273,9 @@ describe('AssistantChat', function () {
     it('does not show warning message when all connections are genuine', function () {
       const chat = createMockChat({ messages: [] });
       render(
-        <ToolsControllerProvider>
-          <AtlasLoginPlugin>
-            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-          </AtlasLoginPlugin>
-        </ToolsControllerProvider>,
+        <TestProviders>
+          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+        </TestProviders>,
         {
           connections: [],
         }
@@ -275,11 +290,9 @@ describe('AssistantChat', function () {
     it('warning message is removed when all active connections are changed to genuine', async function () {
       const chat = createMockChat({ messages: [] });
       const { rerender } = render(
-        <ToolsControllerProvider>
-          <AtlasLoginPlugin>
-            <AssistantChat chat={chat} hasNonGenuineConnections={true} />
-          </AtlasLoginPlugin>
-        </ToolsControllerProvider>,
+        <TestProviders>
+          <AssistantChat chat={chat} hasNonGenuineConnections={true} />
+        </TestProviders>,
         {}
       );
 
@@ -290,11 +303,9 @@ describe('AssistantChat', function () {
       ).to.exist;
 
       rerender(
-        <ToolsControllerProvider>
-          <AtlasLoginPlugin>
-            <AssistantChat chat={chat} hasNonGenuineConnections={false} />
-          </AtlasLoginPlugin>
-        </ToolsControllerProvider>
+        <TestProviders>
+          <AssistantChat chat={chat} hasNonGenuineConnections={false} />
+        </TestProviders>
       );
 
       await waitFor(() => {

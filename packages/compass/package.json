@@ -130,7 +130,7 @@
           "interruptor",
           "kerberos",
           "os-dns-native",
-          "native-machine-id",
+          "@mongodb-js/native-machine-id",
           "win-export-certificate-and-key",
           "macos-export-certificate-and-key"
         ]
@@ -181,11 +181,11 @@
   },
   "dependencies": {
     "@mongodb-js/device-id": "^0.4.14",
+    "@mongodb-js/native-machine-id": "^0.3.6",
     "@mongosh/node-runtime-worker-thread": "^5.2.13",
     "clipboard": "^2.0.6",
     "kerberos": "^7.0.0",
     "mongodb-client-encryption": "^7.2.1",
-    "native-machine-id": "^0.3.6",
     "os-dns-native": "^2.0.1",
     "system-ca": "^3.0.0"
   },
