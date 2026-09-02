@@ -9,7 +9,10 @@ import sinon from 'sinon';
 import ServerErrorBanner from './server-error-banner';
 import { AssistantActionsContext } from '@mongodb-js/compass-assistant';
 import type { ConnectionInfo } from '@mongodb-js/compass-connections/provider';
-import { ExperimentTestGroups } from '@mongodb-js/compass-telemetry';
+import {
+  ExperimentTestGroups,
+  ExperimentTestNames,
+} from '@mongodb-js/compass-telemetry';
 import { wrapWithExperimentProvider } from '../../test/configure-store';
 
 const CONNECTION: ConnectionInfo = {
@@ -128,6 +131,68 @@ describe('ServerErrorBanner', function () {
         errorMessage: ERROR_MESSAGE,
         stageValue,
       });
+    });
+  });
+
+  describe('Edit Search Index link (Phase 1) vs Debug button (Phase 2)', function () {
+    it('shows the Edit Search Index link for index definition errors when only P1 is enabled', async function () {
+      const onEditSearchIndexClick = sinon.spy();
+      const element = (
+        <AssistantActionsContext.Provider
+          value={{ debugSearchError: sinon.stub() } as any}
+        >
+          <ServerErrorBanner
+            message={ERROR_MESSAGE}
+            searchIndexName="test-index"
+            dataTestId="test-banner"
+            onEditSearchIndexClick={onEditSearchIndexClick}
+          />
+        </AssistantActionsContext.Provider>
+      );
+
+      await renderWithActiveConnection(
+        wrapWithExperimentProvider(
+          element,
+          ExperimentTestGroups.searchActivationProgramP1Variant
+        ),
+        CONNECTION,
+        { preferences: AI_PREFERENCES }
+      );
+
+      expect(screen.getByText('Edit Search Index')).to.exist;
+      expect(screen.queryByTestId('server-error-banner-debug-button')).to.not
+        .exist;
+    });
+
+    it('shows the Debug button instead of the Edit Search Index link when P2 is enabled, even if the P1 whitelist also matches', async function () {
+      const debugSearchError = sinon.stub();
+      const onEditSearchIndexClick = sinon.spy();
+      const element = (
+        <AssistantActionsContext.Provider value={{ debugSearchError } as any}>
+          <ServerErrorBanner
+            message={ERROR_MESSAGE}
+            searchIndexName="test-index"
+            dataTestId="test-banner"
+            onEditSearchIndexClick={onEditSearchIndexClick}
+            stageOperator="$search"
+            stageValue='{ "index": "default" }'
+          />
+        </AssistantActionsContext.Provider>
+      );
+
+      await renderWithActiveConnection(
+        wrapWithExperimentProvider(element, {
+          [ExperimentTestNames.searchActivationProgramP1]:
+            ExperimentTestGroups.searchActivationProgramP1Variant,
+          [ExperimentTestNames.searchActivationProgramP2]:
+            ExperimentTestGroups.searchActivationProgramP2Variant,
+        }),
+        CONNECTION,
+        { preferences: AI_PREFERENCES }
+      );
+
+      expect(screen.queryByText('Edit Search Index')).to.not.exist;
+      expect(screen.getByTestId('server-error-banner-debug-button')).to.exist;
     });
   });
 });
