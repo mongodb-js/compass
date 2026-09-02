@@ -36,6 +36,10 @@ describe('PipelineMenus', function () {
       expect(screen.getByTestId('save-menu-createView-action')).to.exist;
     });
 
+    it('does not render an icon on the menu button', function () {
+      expect(menu.querySelector('[aria-label="Save Icon"]')).to.not.exist;
+    });
+
     it('calls save', function () {
       userEvent.click(menu);
 
