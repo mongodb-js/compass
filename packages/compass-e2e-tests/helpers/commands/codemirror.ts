@@ -45,25 +45,44 @@ export async function setCodemirrorEditorValue(
   selector: string,
   text: string
 ) {
-  await browser.execute(
-    function (selector, text) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Accessing private Codemirror state
-      const node: any =
-        // eslint-disable-next-line no-restricted-globals
-        document.querySelector(`${selector} [data-codemirror]`) ??
-        // eslint-disable-next-line no-restricted-globals
-        document.querySelector(`${selector}[data-codemirror]`);
-      const editor = node._cm;
+  await browser.waitUntil(
+    () => {
+      return browser.execute(
+        function (selector, text) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Accessing private Codemirror state
+          const node: any =
+            // eslint-disable-next-line no-restricted-globals
+            document.querySelector(`${selector} [data-codemirror]`) ??
+            // eslint-disable-next-line no-restricted-globals
+            document.querySelector(`${selector}[data-codemirror]`);
+          const editor = node?._cm;
 
-      editor.dispatch({
-        changes: {
-          from: 0,
-          to: editor.state.doc.length,
-          insert: text,
+          // Editor not available, retry
+          if (!editor) {
+            return false;
+          }
+
+          // Only dispatch when the value doesn't match already, this keeps the
+          // condition idempotent when waitUntil polls more than once
+          if (editor.state.sliceDoc() !== text) {
+            editor.dispatch({
+              changes: {
+                from: 0,
+                to: editor.state.doc.length,
+                insert: text,
+              },
+            });
+          }
+
+          return editor.state.sliceDoc() === text;
         },
-      });
+        selector,
+        text
+      );
     },
-    selector,
-    text
+    {
+      timeout: 10_000,
+      timeoutMsg: `Expected codemirror editor "${selector}" to have the provided value`,
+    }
   );
 }

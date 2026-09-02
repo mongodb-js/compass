@@ -28,17 +28,14 @@ const baseResizerStyles = css({
     opacity: 1,
   },
   WebkitAppearance: 'none',
-  '&::-moz-range-thumb': {
-    width: 0,
-    height: 0,
-  },
   '&::-webkit-slider-thumb': {
     WebkitAppearance: 'none',
   },
-  '&::-ms-track': {
-    background: 'none',
-    borderColor: 'none',
-    color: 'none',
+  '@supports (-moz-appearance: none)': {
+    '&::-moz-range-thumb': {
+      width: 0,
+      height: 0,
+    },
   },
 });
 

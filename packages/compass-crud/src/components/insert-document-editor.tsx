@@ -26,7 +26,7 @@ export const INSERT_EDITOR_MIN_HEIGHT = MIN_LINES * LINE_HEIGHT;
 type InsertDocumentEditorProps = {
   darkMode?: boolean;
   editorText: string;
-  updateInsertDocText: (value: string) => void;
+  onChangeText: (value: string) => void;
   safeIntegerLinter: Extension;
   editorRef: React.RefObject<EditorRef>;
   shellSyntax?: boolean;
@@ -37,7 +37,7 @@ const InsertDocumentEditor: React.FunctionComponent<
   InsertDocumentEditorProps
 > = ({
   editorText,
-  updateInsertDocText,
+  onChangeText,
   editorRef,
   shellSyntax,
   safeIntegerLinter,
@@ -55,7 +55,7 @@ const InsertDocumentEditor: React.FunctionComponent<
         data-testid="insert-document-editor"
         language={shellSyntax ? 'javascript-expression' : 'json'}
         text={editorText}
-        onChangeText={updateInsertDocText}
+        onChangeText={onChangeText}
         initialJSONFoldAll={false}
         minLines={MIN_LINES}
         linter={safeIntegerLinter}
