@@ -128,14 +128,21 @@ describe('AtlasToolCallMessage', function () {
   }
 
   describe('connection chip', function () {
-    it('renders the connection name when a connection is given', function () {
-      renderMessage({ connection: { id: 'conn-1', name: 'My Cluster' } });
+    it('renders the connection name passed in the tool arguments', function () {
+      renderMessage({
+        toolCall: {
+          ...makeToolCall('approval-requested'),
+          input: { connectionName: 'My Cluster' },
+        } as ToolUIPart,
+      });
 
       expect(screen.getByText('My Cluster')).to.exist;
     });
 
-    it('renders no connection name without a connection', function () {
-      renderMessage({ connection: null });
+    // The debugger tool runs for a connection the user is not connected to, so
+    // the active connection must not be used as its chip.
+    it('renders no connection name when the tool arguments have none', function () {
+      renderMessage({ connection: { id: 'conn-1', name: 'My Cluster' } });
 
       expect(screen.queryByText('My Cluster')).to.not.exist;
     });
