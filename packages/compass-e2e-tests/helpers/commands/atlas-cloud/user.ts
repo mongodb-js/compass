@@ -1,6 +1,7 @@
 import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
+import { randomBytes } from 'crypto';
 import { remote } from 'webdriverio';
 import lodash from 'lodash';
 import type { CompassBrowser } from '../../compass-browser.ts';
@@ -8,6 +9,7 @@ import {
   ATLAS_CLOUD_TEST_UTILS,
   context,
   getCloudUrlsFromContext,
+  RUN_ID,
 } from '../../test-runner-context.ts';
 import {
   FIXTURES_PATH,
@@ -47,31 +49,38 @@ export async function fillAtlasLoginForm(
 
   let authenticated = false;
 
-  const [, authenticationPromiseSettled] = await Promise.allSettled([
-    (async () => {
-      const remindMeLaterButton = 'button*=Remind me later';
-
-      await session.waitUntil(
-        async () => {
-          return (
-            authenticated ||
-            (await session.$(remindMeLaterButton).isDisplayed())
-          );
-        },
-        { interval: 2000 }
-      );
-
-      if (authenticated) {
-        return;
+  // After logging in, Atlas may show interstitial screens that need to be
+  // clicked through before the flow completes:
+  //  - a periodic "Remind me later" MFA reminder (even when encouragement is
+  //    bypassed), and
+  //  - an OAuth "Authorize" consent screen (desktop OIDC sign in).
+  // We watch for these in parallel with waiting for authentication to finish.
+  // We only click when the button is actually displayed (a cheap check) to
+  // avoid `click()`'s implicit wait blocking for the full `waitforTimeout` on
+  // buttons that never appear.
+  const clickWhenDisplayed = async (selector: string) => {
+    while (!authenticated) {
+      const button = session.$(selector);
+      if (await button.isDisplayed().catch(() => false)) {
+        await button.click().catch(() => {
+          // The screen may disappear between the check and the click.
+        });
       }
+      if (authenticated) {
+        break;
+      }
+      await session.pause(500);
+    }
+  };
 
-      await session.$(remindMeLaterButton).click();
-    })(),
+  const [, , authenticationPromiseSettled] = await Promise.allSettled([
+    clickWhenDisplayed('button*=Remind me later'),
+    clickWhenDisplayed('button=Authorize'),
     session.waitUntil(
       async () => {
         return (authenticated = await waitForAuthenticated());
       },
-      { interval: 2000 }
+      { interval: 500 }
     ),
   ]);
 
@@ -131,6 +140,18 @@ function getCaptureOidcUrlCommand() {
   )}`;
 }
 
+function createCloudBrowserSession(): Promise<WebdriverIO.Browser> {
+  return remote({
+    capabilities: {
+      browserName: 'chrome',
+      browserVersion: MONOREPO_ELECTRON_CHROMIUM_VERSION,
+      'wdio:enforceWebDriverClassic': true,
+    },
+    waitforTimeout: context.webdriverWaitforTimeout,
+    waitforInterval: context.webdriverWaitforInterval,
+  });
+}
+
 export async function signInToAtlasDesktop(
   browser: CompassBrowser,
   {
@@ -162,6 +183,8 @@ export async function signInToAtlasDesktop(
   let loginSession: WebdriverIO.Browser | undefined;
 
   try {
+    loginSession = await createCloudBrowserSession();
+
     await triggerSignIn();
 
     const authUrl = await browser.waitUntil(
@@ -173,26 +196,28 @@ export async function signInToAtlasDesktop(
       }
     );
 
-    loginSession = await remote({
-      capabilities: {
-        browserName: 'chrome',
-        browserVersion: MONOREPO_ELECTRON_CHROMIUM_VERSION,
-        'wdio:enforceWebDriverClassic': true,
-      },
-      waitforTimeout: context.webdriverWaitforTimeout,
-      waitforInterval: context.webdriverWaitforInterval,
-    });
-
     await loginSession.url(authUrl);
+
+    await doCloudFetch(
+      loginSession as unknown as CompassBrowser,
+      ATLAS_CLOUD_TEST_UTILS.bypassEncouragement,
+      { method: 'PATCH' },
+      { form: { username } }
+    );
+    await doCloudFetch(
+      loginSession as unknown as CompassBrowser,
+      ATLAS_CLOUD_TEST_UTILS.verifyEmail,
+      { method: 'POST' },
+      { form: { username } }
+    );
 
     await fillAtlasLoginForm(loginSession, username, password, waitForSignedIn);
   } finally {
-    await loginSession?.deleteSession().catch(() => {
-      // Ignore errors closing the login session, we don't want them to mask a
-      // real test failure.
-    });
-    await browser.setFeature('browserCommandForOIDCAuth', undefined);
-    await fs.rm(authUrlFile, { force: true });
+    await loginSession?.deleteSession().catch(() => {});
+    await browser
+      .setFeature('browserCommandForOIDCAuth', undefined)
+      .catch(() => {});
+    await fs.rm(authUrlFile, { force: true }).catch(() => {});
   }
 }
 
@@ -238,6 +263,50 @@ export async function createAtlasUser(
   );
 
   return { orgId, projectId: groupId };
+}
+
+function assertAtlasCloudTestUtils() {
+  if (!ATLAS_CLOUD_TEST_UTILS) {
+    throw new Error(
+      'Atlas Cloud test utils config is not provided. Make sure that the ATLAS_CLOUD_TEST_UTILS env variable is available'
+    );
+  }
+}
+
+export async function createAtlasLoginUser(browser?: CompassBrowser): Promise<{
+  username: string;
+  password: string;
+  orgId: string;
+  projectId: string;
+  cleanup: () => Promise<void>;
+}> {
+  assertAtlasCloudTestUtils();
+  const session = (browser ??
+    (await createCloudBrowserSession())) as unknown as CompassBrowser;
+
+  try {
+    const username = template(ATLAS_CLOUD_TEST_UTILS.testUserUsernameTemplate)({
+      username: `compass-usr-${RUN_ID}`,
+    });
+    const password = randomBytes(20).toString('hex');
+
+    const { orgId, projectId } = await createAtlasUser(
+      session,
+      username,
+      password
+    );
+
+    return {
+      username,
+      password,
+      orgId,
+      projectId,
+      cleanup: () =>
+        deleteAtlasUser(undefined as unknown as CompassBrowser, username),
+    };
+  } finally {
+    await session.deleteSession().catch(() => {});
+  }
 }
 
 export async function deleteAtlasUser(

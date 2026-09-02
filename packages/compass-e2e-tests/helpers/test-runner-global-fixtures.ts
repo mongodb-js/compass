@@ -2,7 +2,6 @@ import gunzip from './gunzip.ts';
 import fs from 'fs';
 import {
   assertTestingWebAtlasCloud,
-  ATLAS_CLOUD_TEST_UTILS,
   context,
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
@@ -38,12 +37,9 @@ import {
   waitForCompassWebSandboxToBeReady,
   waitForCompassWebStaticAssetsToBeReady,
 } from './compass-web-sandbox.ts';
-import lodash from 'lodash';
 import { randomBytes } from 'crypto';
 import { isAtlasCloudPage } from './commands/atlas-cloud/utils.ts';
 import type { ClusterTypes } from './commands/index.ts';
-
-const { template } = lodash;
 
 export const globalFixturesAbortController = new AbortController();
 
@@ -102,17 +98,11 @@ async function createAtlasCloudResources() {
     if (!usingExistingResources) {
       debug('Creating user...');
 
-      const atlasCloudUsername = template(
-        ATLAS_CLOUD_TEST_UTILS.testUserUsernameTemplate
-      )({ username: `compass-usr-${RUN_ID}` });
-
-      const atlasCloudPassword = randomBytes(20).toString('hex');
-
-      const { projectId: atlasCloudProjectId } =
-        await compass.browser.createAtlasUser(
-          atlasCloudUsername,
-          atlasCloudPassword
-        );
+      const {
+        username: atlasCloudUsername,
+        password: atlasCloudPassword,
+        projectId: atlasCloudProjectId,
+      } = await compass.browser.createAtlasLoginUser();
 
       cleanupFns.push(() => {
         return compass.browser.deleteAtlasUser(atlasCloudUsername);
