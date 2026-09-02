@@ -5,8 +5,11 @@ import {
 } from '@mongodb-js/atlas-service/provider';
 import type { AtlasUserInfo } from '@mongodb-js/atlas-service/provider';
 
-// TODO(COMPASS-10993): implement a proper AtlasAuthService for the cloud build of Compass
-class AtlasCloudAuthService extends AtlasAuthService {
+// Shell implementation of the AtlasAuthService for the cloud build of Compass:
+// in the cloud the user is always already authenticated by Atlas itself.
+// This exists so that compass-web can mount the same AtlasAuthPlugin as
+// compass-desktop does.
+export class AtlasCloudAuthService extends AtlasAuthService {
   signIn() {
     return this.getUserInfo();
   }
@@ -17,7 +20,7 @@ class AtlasCloudAuthService extends AtlasAuthService {
     return Promise.resolve(true);
   }
   getUserInfo(): Promise<AtlasUserInfo> {
-    throw new Error('AtlasCloudAuthService.getUserInfo not implemented');
+    return Promise.resolve({ sub: '' });
   }
 }
 

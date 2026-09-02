@@ -153,7 +153,9 @@ export const AssistantContext = createContext<AssistantContextType | null>(
   null
 );
 
-const AssistantProjectContext = createContext<string | undefined>(undefined);
+export const AssistantProjectContext = createContext<string | undefined>(
+  undefined
+);
 
 export function useAssistantProjectId(): string | undefined {
   return useContext(AssistantProjectContext);

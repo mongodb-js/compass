@@ -18,8 +18,10 @@ import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { AllPreferences } from 'compass-preferences-model';
 import {
   AssistantActionsContext,
+  AssistantProjectContext,
   type AssistantMessage,
 } from '../compass-assistant-provider';
+import type { AtlasAuthService } from '@mongodb-js/atlas-service/provider';
 import sinon from 'sinon';
 import type { SourceUrlUIPart, TextPart, ToolUIPart } from 'ai';
 import type { AtlasAdminApiService } from '@mongodb-js/atlas-admin-api/provider';
@@ -37,6 +39,14 @@ import { containsText } from './test-helpers';
 
 const AtlasLoginPlugin = AtlasAuthPlugin.withMockServices({});
 
+const SignedInAtlasLoginPlugin = AtlasAuthPlugin.withMockServices({
+  atlasAuthService: {
+    isAuthenticated: () => Promise.resolve(true),
+    getUserInfo: () => Promise.resolve({ sub: 'user-1' }),
+    signOut: () => Promise.resolve(),
+  } as unknown as AtlasAuthService,
+});
+
 const mockAtlasAdminApi = {
   getSystemStatus: sinon.stub().resolves({}),
 } as unknown as AtlasAdminApiService;
@@ -44,18 +54,26 @@ const mockAtlasAdminApi = {
 function TestProviders({
   children,
   assistantActions,
+  projectId,
+  signedIn = false,
 }: React.PropsWithChildren<{
   assistantActions?: Partial<React.ContextType<typeof AssistantActionsContext>>;
+  /** Only compass-web provides a projectId, so this stands in for "in the cloud". */
+  projectId?: string;
+  signedIn?: boolean;
 }>) {
+  const AtlasLogin = signedIn ? SignedInAtlasLoginPlugin : AtlasLoginPlugin;
   return (
     <ToolsControllerProvider>
-      <AtlasLoginPlugin>
-        <AssistantActionsContext.Provider
-          value={{ atlasAdminApi: mockAtlasAdminApi, ...assistantActions }}
-        >
-          {children}
-        </AssistantActionsContext.Provider>
-      </AtlasLoginPlugin>
+      <AtlasLogin>
+        <AssistantProjectContext.Provider value={projectId}>
+          <AssistantActionsContext.Provider
+            value={{ atlasAdminApi: mockAtlasAdminApi, ...assistantActions }}
+          >
+            {children}
+          </AssistantActionsContext.Provider>
+        </AssistantProjectContext.Provider>
+      </AtlasLogin>
     </ToolsControllerProvider>
   );
 }
@@ -108,6 +126,8 @@ describe('AssistantChat', function () {
       preferences,
       trackingOptions = {},
       experimentVariant = null,
+      projectId,
+      signedIn = false,
     }: {
       connections?: ConnectionInfo[];
       preferences?: Partial<AllPreferences>;
@@ -115,6 +135,8 @@ describe('AssistantChat', function () {
         requestId?: string;
       };
       experimentVariant?: ExperimentTestGroup | null;
+      projectId?: string;
+      signedIn?: boolean;
     } = {}
   ) {
     // The chat component does not use chat.sendMessage() directly, it uses
@@ -131,6 +153,8 @@ describe('AssistantChat', function () {
     const result = render(
       <TestProviders
         assistantActions={{ ensureOptInAndSend: ensureOptInAndSendStub }}
+        projectId={projectId}
+        signedIn={signedIn}
       >
         <AssistantChat chat={chat} hasNonGenuineConnections={false} />
       </TestProviders>,
@@ -146,6 +170,37 @@ describe('AssistantChat', function () {
       ensureOptInAndSendStub,
     };
   }
+
+  describe('Atlas connection status', function () {
+    const atlasDebuggerPreferences = {
+      enableAtlasSignIn: true,
+      enableAtlasConnectionErrorDebugger: true,
+    };
+
+    it('renders the status bar on desktop, where no projectId is provided', async function () {
+      renderWithChat(createMockChat({ messages: [] }), {
+        preferences: atlasDebuggerPreferences,
+        signedIn: true,
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('atlas-connection-status')).to.exist;
+      });
+    });
+
+    it('does not render the status bar in the cloud, where a projectId is provided', async function () {
+      renderWithChat(createMockChat({ messages: [] }), {
+        preferences: atlasDebuggerPreferences,
+        signedIn: true,
+        projectId: 'project-1',
+      });
+
+      await waitFor(() => {
+        expect(screen.getByTestId('assistant-chat')).to.exist;
+      });
+      expect(screen.queryByTestId('atlas-connection-status')).to.not.exist;
+    });
+  });
 
   it('renders input field and send button', function () {
     renderWithChat(createMockChat({ messages: [] }));

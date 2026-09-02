@@ -1,6 +1,9 @@
 import React, { useCallback, useEffect, useContext, useRef } from 'react';
 import type { AssistantMessage } from '../compass-assistant-provider';
-import { AssistantActionsContext } from '../compass-assistant-provider';
+import {
+  AssistantActionsContext,
+  useAssistantProjectId,
+} from '../compass-assistant-provider';
 import type { Chat } from '../@ai-sdk/react/chat-react';
 import { useChat } from '../@ai-sdk/react/use-chat';
 import {
@@ -267,6 +270,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
   const enableAtlasConnectionErrorDebugger = usePreference(
     'enableAtlasConnectionErrorDebugger'
   );
+
+  const isCloud = !!useAssistantProjectId();
   const {
     messages,
     status,
@@ -593,7 +598,9 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       )}
       style={chatContainerOverrideStyle}
     >
-      {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
+      {enableAtlasConnectionErrorDebugger && !isCloud && (
+        <AtlasConnectionStatus />
+      )}
       <LeafyGreenChatProvider>
         <ChatWindow>
           <div
