@@ -5,6 +5,7 @@ import type {
   PreferenceStateInformation,
   UserConfigurablePreferences,
   UserPreferences,
+  CompassRunningEnvironment,
 } from './preferences-schema';
 import type { PreferenceSandboxProperties } from './preferences';
 import type { ParsedGlobalPreferencesResult } from './global-config';
@@ -20,7 +21,8 @@ let preferencesSingleton: Preferences | undefined;
 
 export async function setupPreferences(
   globalPreferences: ParsedGlobalPreferencesResult,
-  safeStorage: PreferencesSafeStorage
+  safeStorage: PreferencesSafeStorage,
+  runningEnvironment: CompassRunningEnvironment = 'desktop'
 ): Promise<PreferencesAccess> {
   if (preferencesSingleton) {
     throw new Error('Preferences setup already been called!');
@@ -35,6 +37,7 @@ export async function setupPreferences(
     logger: compassPreferencesLogger,
     globalPreferences,
     preferencesStorage,
+    runningEnvironment,
   }));
 
   await preferences.setupStorage();
@@ -72,8 +75,8 @@ export async function setupPreferences(
     return preferences.getPreferenceStates();
   });
 
-  ipcMain.handle('compass:get-configurable-user-preferences', () => {
-    return preferences.getConfigurableUserPreferences();
+  ipcMain.handle('compass:get-settings-ui-preferences', () => {
+    return preferences.getSettingsUIPreferences();
   });
 
   ipcMain.handle('compass:get-preference-sandbox-properties', () => {
@@ -100,11 +103,10 @@ const makePreferenceMain = (
     return preferences()?.getPreferences?.() ?? ({} as AllPreferences);
   },
   // eslint-disable-next-line @typescript-eslint/require-await
-  async getConfigurableUserPreferences(): Promise<UserConfigurablePreferences> {
-    return (
-      preferences()?.getConfigurableUserPreferences?.() ??
-      ({} as UserConfigurablePreferences)
-    );
+  async getSettingsUIPreferences(): Promise<
+    Partial<UserConfigurablePreferences>
+  > {
+    return preferences()?.getSettingsUIPreferences?.() ?? {};
   },
   // eslint-disable-next-line @typescript-eslint/require-await
   async getPreferenceStates(): Promise<PreferenceStateInformation> {
