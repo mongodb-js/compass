@@ -15,6 +15,7 @@ import {
   FIXTURES_PATH,
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
 } from '../../test-runner-paths.ts';
+import { CI_FLAGS } from '../../chrome-startup-flags.ts';
 import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
 
 const { template } = lodash;
@@ -136,6 +137,11 @@ function createCloudBrowserSession(): Promise<WebdriverIO.Browser> {
     capabilities: {
       browserName: 'chrome',
       browserVersion: MONOREPO_ELECTRON_CHROMIUM_VERSION,
+      // CI_FLAGS (e.g. --no-sandbox) are required for Chrome to start in CI
+      // environments (Ubuntu/RHEL), otherwise the instance exits immediately.
+      'goog:chromeOptions': {
+        args: [...CI_FLAGS],
+      },
       'wdio:enforceWebDriverClassic': true,
     },
     waitforTimeout: context.webdriverWaitforTimeout,
