@@ -15,11 +15,14 @@ import type { AtlasConnectionDebugResult } from '@mongodb-js/compass-generative-
 
 const cardStyles = css({
   borderRadius: spacing[200],
+  padding: spacing[300],
   borderColor: palette.gray.light2,
+  backgroundColor: palette.gray.light3,
 });
 
 const cardStylesDarkMode = css({
   borderColor: palette.gray.dark2,
+  backgroundColor: palette.gray.dark3,
 });
 
 const gridStyle = css({

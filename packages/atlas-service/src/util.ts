@@ -108,6 +108,10 @@ export type AtlasServiceConfig = {
    */
   cloudBaseUrl: string;
   /**
+   * Atlas UI base url. Used from desktop to open Atlas UI links in the browser.
+   */
+  atlasUiBaseUrl: string;
+  /**
    * Atlas private API base url
    */
   atlasPrivateApiBaseUrl: string;
@@ -145,6 +149,7 @@ const config = Object.create({
     ccsBaseUrl: 'ws://localhost:61001/ws',
     multiplexedWsBaseUrls: ['ws://cloud-local.mmscloudteam.com/ccs'],
     cloudBaseUrl: '',
+    atlasUiBaseUrl: 'https://cloud-local.mmscloudteam.com',
     atlasPrivateApiBaseUrl: 'http://cloud-local.mmscloudteam.com/api/private',
     atlasAdminApiBaseUrl: 'https://cloud-local.mmscloudteam.com/api/atlas',
     atlasLogin: {
@@ -161,6 +166,7 @@ const config = Object.create({
       'wss://cluster-connection.cloud-dev.mongodb.com/ccs',
     ],
     cloudBaseUrl: '',
+    atlasUiBaseUrl: 'https://cloud-dev.mongodb.com',
     atlasPrivateApiBaseUrl: 'https://cloud-dev.mongodb.com/api/private',
     atlasAdminApiBaseUrl: 'https://cloud-dev.mongodb.com/api/atlas',
     atlasLogin: {
@@ -177,6 +183,7 @@ const config = Object.create({
       'wss://cluster-connection.cloud-qa.mongodb.com/ccs',
     ],
     cloudBaseUrl: '',
+    atlasUiBaseUrl: 'https://cloud-qa.mongodb.com',
     atlasPrivateApiBaseUrl: 'https://cloud-qa.mongodb.com/api/private',
     atlasAdminApiBaseUrl: 'https://cloud-qa.mongodb.com/api/atlas',
     atlasLogin: {
@@ -193,6 +200,7 @@ const config = Object.create({
       'wss://cluster-connection.cloud-stage.mongodb.com/ccs',
     ],
     cloudBaseUrl: '',
+    atlasUiBaseUrl: 'https://cloud-stage.mongodb.com',
     atlasPrivateApiBaseUrl: 'https://cloud-stage.mongodb.com/api/private',
     atlasAdminApiBaseUrl: 'https://cloud-stage.mongodb.com/api/atlas',
     atlasLogin: {
@@ -210,6 +218,7 @@ const config = Object.create({
       'wss://cluster-connection.cloud.mongodb.com/ccs',
     ],
     cloudBaseUrl: '',
+    atlasUiBaseUrl: 'https://cloud.mongodb.com',
     atlasPrivateApiBaseUrl: 'https://cloud.mongodb.com/api/private',
     atlasAdminApiBaseUrl: 'https://cloud.mongodb.com/api/atlas',
     atlasLogin: {
@@ -229,6 +238,7 @@ export function getAtlasConfig(
     atlasPrivateApiBaseUrl:
       process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
     cloudBaseUrl: process.env.COMPASS_CLOUD_BASE_URL_OVERRIDE,
+    atlasUiBaseUrl: process.env.COMPASS_CLOUD_UI_BASE_URL_OVERRIDE,
     atlasLogin: {
       clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
       issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,

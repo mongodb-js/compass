@@ -54,6 +54,7 @@ describe('CompassAuthServiceMain', function () {
     ccsBaseUrl: 'ws://example.com',
     multiplexedWsBaseUrls: ['ws://example.com/multiplex'],
     cloudBaseUrl: 'ws://example.com/cloud',
+    atlasUiBaseUrl: 'https://example.com',
     atlasPrivateApiBaseUrl: 'http://example.com/api/private',
     atlasAdminApiBaseUrl: 'http://example.com/api/atlas',
     atlasLogin: {
@@ -617,6 +618,17 @@ describe('CompassAuthServiceMain', function () {
         );
         expect(authHeaders).to.have.property('X-Some-Header', 'value');
         expect(authHeaders).to.not.have.property('X-Compass-Auth');
+      });
+
+      it('should add auth headers for the system status request', async function () {
+        const authHeaders = await CompassAuthService.handleAuthHeaders({
+          requestHeaders: { 'X-Compass-Auth': 'true' },
+          url: `${defaultConfig.atlasAdminApiBaseUrl}/v2`,
+        });
+        expect(authHeaders).to.have.property(
+          'Authorization',
+          `Bearer ${accessToken}`
+        );
       });
 
       it('should not add auth headers if they werent asked for', async function () {

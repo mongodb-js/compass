@@ -160,7 +160,28 @@ type AtlasSignInStartedEvent = CommonEvent<{
      * The surface of the application the sign in was triggered from.
      */
     entrypoint: AtlasSignInEntrypoint;
+    /**
+     * The current attempt of the sign in. If the attempt is bigger than 1,
+     * it means the user is re-trying to sign in after a previous attempt
+     * did not succeed.
+     */
+    attempt: number;
+    /**
+     * How the immediately preceding attempt ended, when this is a retry.
+     * Null on the first attempt.
+     */
+    previousOutcome: 'timed-out' | 'canceled' | 'error' | null;
   };
+}>;
+
+/**
+ * This event is fired when the user aborts the current sign in attempt.
+ *
+ * @category Atlas
+ */
+type AtlasSignInCanceledEvent = CommonEvent<{
+  name: 'Atlas Sign In Canceled';
+  payload: Record<string, never>;
 }>;
 
 /**
@@ -201,6 +222,22 @@ type AtlasSignInErrorEvent = CommonEvent<{
      * the error name otherwise.
      */
     error_code: string;
+  };
+}>;
+
+/**
+ * This event is fired when the user does not complete the sign in to their Atlas
+ * account on time.
+ *
+ * @category Atlas
+ */
+type AtlasSignInTimedOutEvent = CommonEvent<{
+  name: 'Atlas Sign In Timed Out';
+  payload: {
+    /**
+     * The surface of the application the sign in was triggered from.
+     */
+    entrypoint: AtlasSignInEntrypoint;
   };
 }>;
 
@@ -1811,6 +1848,41 @@ type AssistantToolCallApprovalEvent = ConnectionScopedEvent<{
     approved: boolean;
     approval_id: string;
     request_id?: string;
+  };
+}>;
+
+/**
+ * This event is fired when the Atlas connection troubleshooting has completed.
+ *
+ * @category Assistant
+ */
+type AtlasConnectionErrorTroubleshootingSuccessEvent = CommonEvent<{
+  name: 'Atlas Connection Troubleshooting Success';
+  payload: {
+    /**
+     * The state of the cluster the user tried to connect to, as reported by
+     * Atlas, or `Unknown` when the cluster could not be found.
+     */
+    cluster_state: string;
+    /**
+     * Whether we could confirm that the user's IP address is allowed by the
+     * project's IP access list.
+     */
+    ip_access_status?: string;
+    duration: number;
+  };
+}>;
+
+/**
+ * This event is fired when the Atlas connection troubleshooting has failed.
+ *
+ * @category Assistant
+ */
+type AtlasConnectionErrorTroubleshootingFailedEvent = CommonEvent<{
+  name: 'Atlas Connection Troubleshooting Failed';
+  payload: {
+    error_name: string;
+    error_code: string;
   };
 }>;
 
@@ -4238,6 +4310,8 @@ export type TelemetryEvent =
   | AssistantEntryPointUsedEvent
   | AssistantConfirmationSubmittedEvent
   | AssistantResponseGeneratedEvent
+  | AtlasConnectionErrorTroubleshootingSuccessEvent
+  | AtlasConnectionErrorTroubleshootingFailedEvent
   | AiOptInModalShownEvent
   | AiOptInModalDismissedEvent
   | AiGenerateQueryClickedEvent
@@ -4249,7 +4323,9 @@ export type TelemetryEvent =
   | ApplicationLaunchedEvent
   | AtlasLinkClickedEvent
   | AtlasSearchIndexesForViewLinkClickedEvent
+  | AtlasSignInCanceledEvent
   | AtlasSignInErrorEvent
+  | AtlasSignInTimedOutEvent
   | AtlasSignInPromptShownEvent
   | AtlasSignInStartedEvent
   | AtlasSignInSuccessEvent

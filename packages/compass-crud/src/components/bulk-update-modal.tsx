@@ -381,11 +381,11 @@ export default function BulkUpdateModal({
   const annotationsRef = useCurrentValueRef<Annotation[]>(annotations);
   const { safeIntegerLinter, violations } = useSafeIntegerLinter({
     externalAnnotations: annotationsRef,
-    onFixViolation(source) {
+    onFixViolation: (source) => `Long("${source}")`,
+    onViolationFixed() {
       track('Safe Integer Fix Applied', {
         source: 'bulk-update-editor',
       });
-      return `Long("${source}")`;
     },
   });
 
