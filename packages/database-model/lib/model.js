@@ -262,15 +262,11 @@ const DatabaseCollection = AmpersandCollection.extend(
         roles: instanceModel.auth.roles,
       });
 
+      const showHiddenNamespaces = instanceModel.shouldShowHiddenNamespaces();
+
       this.set(
         dbs
-          .filter((db) => {
-            const ns = toNS(db._id);
-            // TODO(COMPASS-10954): This is indisputably the wrong way and place to handle namespace filtering.
-            // There is a namespace that now _must_ be revealed again to users so they can repair it in unfortunate circumstances.
-            // We will instead reveal all internal namespaces under a setting removing this filter altogether in COMPASS-10954.
-            return !ns.internal || ns.database === '__mdb_internal_search';
-          })
+          .filter((db) => showHiddenNamespaces || !toNS(db._id).internal)
           .map(({ _id, name, inferred_from_privileges }) => ({
             _id,
             name,
