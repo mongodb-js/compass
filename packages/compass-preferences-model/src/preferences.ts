@@ -11,6 +11,7 @@ import type {
   DeriveValueFunction,
 } from './preferences-schema';
 import { allPreferencesProps } from './preferences-schema';
+import type { CompassRunningEnvironment } from './preferences-schema';
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import type { PreferencesStorage } from './preferences-storage';
 import type { FeatureFlags } from './feature-flags';
@@ -22,7 +23,7 @@ export interface PreferencesAccess {
   ): Promise<AllPreferences>;
   refreshPreferences(): Promise<AllPreferences>;
   getPreferences(): AllPreferences;
-  getConfigurableUserPreferences(): Promise<UserConfigurablePreferences>;
+  getSettingsUIPreferences(): Promise<Partial<UserConfigurablePreferences>>;
   getPreferenceStates(): Promise<PreferenceStateInformation>;
   onPreferenceValueChanged<K extends keyof AllPreferences>(
     preferenceName: K,
@@ -47,6 +48,7 @@ export class Preferences {
   private _logger: Logger;
   private _onPreferencesChangedCallbacks: OnPreferencesChangedCallback[];
   private _preferencesStorage: PreferencesStorage;
+  private _runningEnvironment: CompassRunningEnvironment;
   private _globalPreferences: {
     cli: Partial<AllPreferences>;
     global: Partial<AllPreferences>;
@@ -60,13 +62,16 @@ export class Preferences {
     logger,
     globalPreferences,
     preferencesStorage = new InMemoryStorage(),
+    runningEnvironment = 'desktop',
   }: {
     logger: Logger;
     preferencesStorage: PreferencesStorage;
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>;
+    runningEnvironment: CompassRunningEnvironment;
   }) {
     this._logger = logger;
     this._preferencesStorage = preferencesStorage;
+    this._runningEnvironment = runningEnvironment;
 
     this._onPreferencesChangedCallbacks = [];
     this._globalPreferences = {
@@ -114,6 +119,7 @@ export class Preferences {
       logger,
       globalPreferences: global,
       preferencesStorage: new InMemoryStorage(),
+      runningEnvironment: 'desktop',
     });
     await instance.savePreferences(user);
     return instance;
@@ -256,18 +262,24 @@ export class Preferences {
   }
 
   /**
-   * Return the subset of preferences that can be edited through the UI.
+   * Return the subset of preferences that are exposed in the settings UI of the
+   * current running environment.
    *
-   * @returns The currently active set of UI-modifiable preferences.
+   * @returns The currently active set of settings UI preferences.
    */
-  getConfigurableUserPreferences(): UserConfigurablePreferences {
+  getSettingsUIPreferences(): Partial<UserConfigurablePreferences> {
     const preferences = this.getPreferences();
     return Object.fromEntries(
-      Object.entries(preferences).filter(
-        ([key]) =>
-          allPreferencesProps[key as keyof typeof preferences].ui === true
-      )
-    ) as UserConfigurablePreferences;
+      Object.entries(preferences).filter(([key]) => {
+        const { ui, exposedInSettingsUI } =
+          allPreferencesProps[key as keyof typeof preferences];
+        return (
+          ui === true &&
+          (exposedInSettingsUI === '*' ||
+            exposedInSettingsUI.includes(this._runningEnvironment))
+        );
+      })
+    ) as Partial<UserConfigurablePreferences>;
   }
 
   /**

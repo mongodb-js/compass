@@ -40,12 +40,12 @@ export class PreferencesSandbox {
   }
 
   async getSandboxState(): Promise<{
-    userPreferences: UserConfigurablePreferences;
+    userPreferences: Partial<UserConfigurablePreferences>;
     preferenceStates: PreferenceStateInformation;
     updatedFields: (keyof UserConfigurablePreferences)[];
   }> {
     const [userPreferences, preferenceStates] = await Promise.all([
-      this.sandbox.getConfigurableUserPreferences(),
+      this.sandbox.getSettingsUIPreferences(),
       this.sandbox.getPreferenceStates(),
     ]);
     const updatedFields = (
