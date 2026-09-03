@@ -246,36 +246,12 @@ function assertAtlasCloudTestUtils() {
   }
 }
 
-/**
- * Adds a user to an existing organization with an owner role. Requires the
- * given browser session to be signed in. This lets the user access that org's
- * resources (e.g. clusters in its projects) through the Atlas Admin API.
- */
-export async function addUserToOrg(
-  browser: CompassBrowser,
-  orgId: string,
-  username: string
-): Promise<void> {
-  if (!ATLAS_CLOUD_TEST_UTILS.addOrgUser) {
-    throw new Error(
-      'ATLAS_CLOUD_TEST_UTILS.addOrgUser is not available, cannot add the user to the org'
-    );
-  }
-
-  await doCloudFetch(
-    browser,
-    template(ATLAS_CLOUD_TEST_UTILS.addOrgUser)({ orgId }),
-    { method: 'POST' },
-    { json: { username, roles: ['ORG_OWNER'] } }
-  );
-}
-
 export async function createAtlasLoginUser(
   session: CompassBrowser,
   {
-    orgId,
+    existingOrgId,
   }: {
-    orgId?: string;
+    existingOrgId?: string;
   } = {}
 ): Promise<{
   username: string;
@@ -291,20 +267,25 @@ export async function createAtlasLoginUser(
   });
   const password = randomBytes(20).toString('hex');
 
-  const { orgId: createdOrgId, projectId } = await createAtlasUser(
+  const { orgId, projectId } = await createAtlasUser(
     session,
     username,
     password
   );
 
-  if (orgId) {
-    await addUserToOrg(session, orgId, username);
+  if (existingOrgId) {
+    await doCloudFetch(
+      session,
+      template(ATLAS_CLOUD_TEST_UTILS.addOrgUser)({ orgId: existingOrgId }),
+      { method: 'POST' },
+      { json: { username, roles: ['ORG_OWNER'] } }
+    );
   }
 
   return {
     username,
     password,
-    orgId: orgId ?? createdOrgId,
+    orgId,
     projectId,
     cleanup: () =>
       deleteAtlasUser(undefined as unknown as CompassBrowser, username),

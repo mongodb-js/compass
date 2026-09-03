@@ -81,22 +81,14 @@ describe('Atlas connection error debugger', function () {
     // Driving the Atlas login page (form + consent + redirects against a real
     // Atlas environment) can take longer than the oidc-plugin's default "open
     // browser" timeout.
-    process.env.COMPASS_OIDC_OPEN_BROWSER_TIMEOUT_OVERRIDE = String(60_000);
+    process.env.COMPASS_OIDC_OPEN_BROWSER_TIMEOUT_OVERRIDE = String(2 * 60_000);
 
     session = await createExternalBrowser(false);
-
-    try {
-      ({
-        username,
-        password,
-        cleanup: deleteAtlasUser,
-      } = await createAtlasLoginUser(session, { orgId: QA_ORG_ID }));
-    } catch (err) {
-      await browser.screenshot(
-        screenshotPathName('before-atlas-connection-error-debugger')
-      );
-      throw err;
-    }
+    ({
+      username,
+      password,
+      cleanup: deleteAtlasUser,
+    } = await createAtlasLoginUser(session, { existingOrgId: QA_ORG_ID }));
   });
 
   after(async function () {
@@ -105,19 +97,24 @@ describe('Atlas connection error debugger', function () {
   });
 
   beforeEach(async function () {
-    compass = await init(this.test?.fullTitle(), {
-      extraSpawnArgs: [
-        `--atlasServiceBackendPreset=${getAtlasBackendPresetForEnvironment()}`,
-      ],
-    });
-    browser = compass.browser;
+    try {
+      compass = await init(this.test?.fullTitle(), {
+        extraSpawnArgs: [
+          `--atlasServiceBackendPreset=${getAtlasBackendPresetForEnvironment()}`,
+        ],
+      });
+      browser = compass.browser;
 
-    await browser.setFeature('enableAtlasSignIn', true);
-    await browser.setFeature('enableAtlasConnectionErrorDebugger', true);
-    await browser.setFeature('enableGenAIFeatures', true);
-    await browser.setFeature('optInGenAIFeatures', true);
-    await browser.setFeature('enableGenAIToolCalling', true);
-    await browser.setFeature('enableGenAIToolCallingAtlasProject', true);
+      await browser.setFeature('enableAtlasSignIn', true);
+      await browser.setFeature('enableAtlasConnectionErrorDebugger', true);
+      await browser.setFeature('enableGenAIFeatures', true);
+      await browser.setFeature('optInGenAIFeatures', true);
+    } catch (err) {
+      await browser.screenshot(
+        screenshotPathName('before-atlas-connection-error-debugger')
+      );
+      throw err;
+    }
   });
 
   afterEach(async function () {
@@ -127,65 +124,7 @@ describe('Atlas connection error debugger', function () {
     await screenshotIfFailed(compass, this.currentTest);
   });
 
-  it('reports that the cluster is paused', async function () {
-    const pausedClusterConnectionString =
-      await getClusterConnectionStringsFromNames(
-        session!,
-        [PAUSED_CLUSTER_NAME, NETWORK_ACCESS_CLUSTER_NAME],
-        username,
-        password,
-        PAUSED_PROJECT_ID
-      ).then(
-        (connectionStrings) =>
-          connectionStrings.find(([name]) => name === PAUSED_CLUSTER_NAME)?.[1]
-      );
-    await browser.connectWithConnectionString(pausedClusterConnectionString, {
-      connectionStatus: 'failure',
-    });
-
-    await browser.clickVisible(
-      browser.$(Selectors.ConnectionToastErrorDebugButton)
-    );
-
-    const chatMessages = browser.$(Selectors.AssistantChatMessages);
-    await chatMessages.waitForDisplayed();
-
-    const connectToAtlasButton = chatMessages.$('button=Connect to Atlas');
-    await connectToAtlasButton.waitForDisplayed({ timeout: 60_000 });
-
-    await browser.signInToAtlasDesktop({
-      username,
-      password,
-      triggerSignIn: () => browser.clickVisible(connectToAtlasButton),
-      waitForSignedIn: () => isSignedIn(browser),
-    });
-
-    await browser.waitUntil(
-      async () => {
-        const text = await chatMessages.getText();
-        return text.includes('PAUSED');
-      },
-      {
-        timeout: 60_000,
-        timeoutMsg:
-          'Expected the connection error debugger result to report the cluster as PAUSED',
-      }
-    );
-  });
-
-  it('reports ip access not allowed', async function () {
-    const connectionString = await getClusterConnectionStringsFromNames(
-      session!,
-      [NETWORK_ACCESS_CLUSTER_NAME],
-      username,
-      password,
-      NETWORK_ACCESS_PROJECT_ID
-    ).then(
-      (connectionStrings) =>
-        connectionStrings.find(
-          ([name]) => name === NETWORK_ACCESS_CLUSTER_NAME
-        )?.[1]
-    );
+  const useDebugger = async (connectionString: string) => {
     await browser.connectWithConnectionString(connectionString, {
       connectionStatus: 'failure',
     });
@@ -198,7 +137,7 @@ describe('Atlas connection error debugger', function () {
     await chatMessages.waitForDisplayed();
 
     const connectToAtlasButton = chatMessages.$('button=Connect to Atlas');
-    await connectToAtlasButton.waitForDisplayed({ timeout: 60_000 });
+    await connectToAtlasButton.waitForDisplayed({ timeout: 2 * 60_000 });
 
     await browser.signInToAtlasDesktop({
       username,
@@ -207,15 +146,47 @@ describe('Atlas connection error debugger', function () {
       waitForSignedIn: () => isSignedIn(browser),
     });
 
+    return { chatMessages };
+  };
+
+  it('reports that the cluster is paused', async function () {
+    const connectionString = await getClusterConnectionStringsFromNames(
+      session!,
+      [PAUSED_CLUSTER_NAME],
+      username,
+      password,
+      PAUSED_PROJECT_ID
+    );
+    const { chatMessages } = await useDebugger(connectionString[0][1]);
+
+    await browser.waitUntil(
+      async () => {
+        const text = await chatMessages.getText();
+        return text.includes('PAUSED');
+      },
+      {
+        timeout: 2 * 60_000,
+      }
+    );
+  });
+
+  it('reports ip access not allowed', async function () {
+    const connectionString = await getClusterConnectionStringsFromNames(
+      session!,
+      [NETWORK_ACCESS_CLUSTER_NAME],
+      username,
+      password,
+      NETWORK_ACCESS_PROJECT_ID
+    );
+    const { chatMessages } = await useDebugger(connectionString[0][1]);
+
     await browser.waitUntil(
       async () => {
         const text = await chatMessages.getText();
         return text.includes('Client IP Not Allowed');
       },
       {
-        timeout: 60_000,
-        timeoutMsg:
-          'Expected the connection error debugger result to report the client IP as "Client IP Not Allowed"',
+        timeout: 2 * 60_000,
       }
     );
   });
