@@ -478,6 +478,7 @@ export const ATLAS_CLOUD_TEST_UTILS: {
   addPaymentMethod: string;
   featureFlags: string;
   refreshFeatureFlags: string;
+  addOrgUser?: string;
   testUserRoles: string[];
   testUserUsernameTemplate: string;
 } = JSON.parse(

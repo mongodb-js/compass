@@ -7,13 +7,18 @@ export async function getClusterConnectionStringsFromNames(
   browser: CompassBrowser,
   clusterNames: string[],
   dbuserUsername: string,
-  dbuserPassword: string
+  dbuserPassword: string,
+  projectId?: string
 ): Promise<[string, string][]> {
   const { cloudUrl } = getCloudUrlsFromContext();
-  const projectId = await getProjectIdFromPageUrl(browser, cloudUrl);
   const clusters = await doCloudFetch<
     { name: string; state: string; srvAddress: string }[]
-  >(browser, `/nds/clusters/${projectId}`);
+  >(
+    browser,
+    `/nds/clusters/${
+      projectId ?? (await getProjectIdFromPageUrl(browser, cloudUrl))
+    }`
+  );
   return clusters
     .filter((cluster) => {
       return clusterNames.includes(cluster.name) && cluster.state === 'IDLE';
