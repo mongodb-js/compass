@@ -273,6 +273,13 @@ export async function createAtlasLoginUser(
   );
 
   if (existingOrgId) {
+    if (!ATLAS_CLOUD_TEST_UTILS.addOrgUser) {
+      throw new Error(
+        `addOrgUser missing at runtime. Keys present: ${Object.keys(
+          ATLAS_CLOUD_TEST_UTILS
+        ).join(', ')}`
+      );
+    }
     await doCloudFetch(
       session,
       template(ATLAS_CLOUD_TEST_UTILS.addOrgUser)({ orgId: existingOrgId }),

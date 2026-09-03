@@ -107,6 +107,17 @@ describe('Atlas connection error debugger', function () {
       await browser.setFeature('enableAtlasConnectionErrorDebugger', true);
       await browser.setFeature('enableGenAIFeatures', true);
       await browser.setFeature('optInGenAIFeatures', true);
+      await browser.setFeature('enableGenAIFeaturesAtlasProject', true);
+      await browser.setFeature('enableGenAIToolCallingAtlasProject', true);
+      await browser.setFeature('enableGenAIToolCalling', true);
+      await browser.setFeature('enableGenAIFeaturesAtlasOrg', true);
+      // Knowledge API doesn't allow requests from Evergreen in non-prod
+      // environments that we're using for WebAtlasCloud tests
+      await browser.setEnv(
+        'COMPASS_ASSISTANT_BASE_URL_OVERRIDE',
+        'https://knowledge.mongodb.com/api/v1'
+      );
+      await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed();
     } catch (err) {
       await browser.screenshot(
         screenshotPathName('before-atlas-connection-error-debugger')
