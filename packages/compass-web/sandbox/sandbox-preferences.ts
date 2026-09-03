@@ -25,23 +25,27 @@ Object.defineProperty(globalThis, kSandboxPreferencesAccess, {
 });
 
 if (Object.hasOwn(globalThis, '__compassWebEnableSandboxPreferencesOverride')) {
-  sandboxPreferencesAccess = new CompassWebPreferencesAccess({
-    ...DEFAULT_COMPASS_WEB_PREFERENCES,
-    enablePerformanceAdvisorBanner: false,
-    enableAtlasSearchIndexes: true,
-    maximumNumberOfActiveConnections: undefined,
-    enableCreatingNewConnections: true,
-    enableGlobalWrites: false,
-    enableRollingIndexes: false,
-    enableGenAIFeaturesAtlasOrg: true,
-    enableGenAIFeaturesAtlasProject: true,
-    enableGenAISampleDocumentPassing: false,
-    enableGenAIToolCallingAtlasProject: true,
-    enableAtlasConnectionErrorDebugger: false,
-    enableAtlasSignIn: false,
-    optInGenAIFeatures: false,
-    enableMyQueries: false,
-    telemetryAtlasUserId: 'compass_web_sandbox_telemetry_user_id',
-  });
+  sandboxPreferencesAccess = new CompassWebPreferencesAccess(
+    {
+      ...DEFAULT_COMPASS_WEB_PREFERENCES,
+      enablePerformanceAdvisorBanner: false,
+      enableAtlasSearchIndexes: true,
+      maximumNumberOfActiveConnections: undefined,
+      enableCreatingNewConnections: true,
+      enableGlobalWrites: false,
+      enableRollingIndexes: false,
+      enableGenAIFeaturesAtlasOrg: true,
+      enableGenAIFeaturesAtlasProject: true,
+      enableGenAISampleDocumentPassing: false,
+      enableGenAIToolCallingAtlasProject: true,
+      enableAtlasConnectionErrorDebugger: false,
+      enableAtlasSignIn: false,
+      optInGenAIFeatures: false,
+      enableMyQueries: false,
+      telemetryAtlasUserId: 'compass_web_sandbox_telemetry_user_id',
+    },
+    undefined,
+    'web'
+  );
   setCompassWebPreferencesAccess(sandboxPreferencesAccess);
 }
