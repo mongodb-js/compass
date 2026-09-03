@@ -311,6 +311,7 @@ export class ToolsController {
         execute: async (args: {
           connectionString: string;
           errorMessage: string;
+          connectionName?: string;
         }) => {
           this.logger.log.info(
             this.logger.mongoLogId(1_001_000_436),
