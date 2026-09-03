@@ -103,7 +103,7 @@ async function createAtlasCloudResources() {
         username: atlasCloudUsername,
         password: atlasCloudPassword,
         projectId: atlasCloudProjectId,
-      } = await createAtlasLoginUser();
+      } = await createAtlasLoginUser(compass.browser);
 
       cleanupFns.push(() => {
         return compass.browser.deleteAtlasUser(atlasCloudUsername);
