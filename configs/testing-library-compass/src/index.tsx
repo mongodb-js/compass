@@ -359,7 +359,9 @@ function createWrapper(
     },
     getDataServiceForConnection,
   };
-  const StoreGetter: React.FunctionComponent = ({ children }) => {
+  const StoreGetter: React.FunctionComponent<{
+    children?: React.ReactNode;
+  }> = ({ children }) => {
     const store = useStore();
     const actions = useConnectionActions();
     // We're breaking the rules of hooks on purpose here to expose the values

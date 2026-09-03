@@ -156,9 +156,9 @@ const ConnectionActionsContext = createContext<ReturnType<
  * spy on the actions if test requires it. Should not be exported from this
  * package
  */
-export const ConnectionActionsProvider: React.FunctionComponent = ({
-  children,
-}) => {
+export const ConnectionActionsProvider: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const dispatch = useDispatch();
   const [actions] = useState(() => {
     return getConnectionsActions(dispatch);

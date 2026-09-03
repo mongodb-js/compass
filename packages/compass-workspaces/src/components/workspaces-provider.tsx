@@ -16,6 +16,7 @@ const WorkspacesContext = React.createContext<AnyWorkspacePlugin[]>([]);
 
 export const WorkspacesProvider: React.FunctionComponent<{
   value: AnyWorkspacePlugin[];
+  children?: React.ReactNode;
 }> = ({ value, children }) => {
   const initialValue = useInitialValue(value);
   return (

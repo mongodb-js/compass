@@ -95,10 +95,10 @@ const errorDetailsBtnStyles = css({
   marginLeft: spacing[100],
 });
 
-const ResultsContainer: React.FunctionComponent<{ center?: boolean }> = ({
-  children,
-  center,
-}) => {
+const ResultsContainer: React.FunctionComponent<{
+  center?: boolean;
+  children?: React.ReactNode;
+}> = ({ children, center }) => {
   return <div className={cx(results, center && centered)}>{children}</div>;
 };
 

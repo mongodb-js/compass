@@ -25,6 +25,7 @@ export const TelemetryContext = React.createContext<TrackFunction>(
 
 export const TelemetryProvider: React.FC<{
   options: Omit<TelemetryServiceOptions, 'logger'>;
+  children?: React.ReactNode;
 }> = ({ options, children }) => {
   const logger = useLogger('COMPASS-TELEMETRY');
   const trackFn = useInitialValue(() => {
