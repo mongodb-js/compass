@@ -1,6 +1,7 @@
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
 import {
   createAtlasLoginUser,
+  deleteAtlasUser,
   getClusterConnectionStringsFromNames,
 } from '../helpers/commands/index.ts';
 import {
@@ -65,7 +66,6 @@ describe('Atlas connection error debugger', function () {
   let browser: CompassBrowser;
   let username: string;
   let password: string;
-  let deleteAtlasUser: () => Promise<void>;
   let session: CompassBrowser | undefined;
 
   before(async function () {
@@ -84,15 +84,13 @@ describe('Atlas connection error debugger', function () {
     process.env.COMPASS_OIDC_OPEN_BROWSER_TIMEOUT_OVERRIDE = String(2 * 60_000);
 
     session = await createExternalBrowser(false);
-    ({
-      username,
-      password,
-      cleanup: deleteAtlasUser,
-    } = await createAtlasLoginUser(session, { existingOrgId: QA_ORG_ID }));
+    ({ username, password } = await createAtlasLoginUser(session, {
+      existingOrgId: QA_ORG_ID,
+    }));
   });
 
   after(async function () {
-    await deleteAtlasUser?.();
+    await deleteAtlasUser(session as unknown as CompassBrowser, username);
     await session?.deleteSession().catch(() => {});
   });
 

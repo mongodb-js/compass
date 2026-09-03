@@ -258,7 +258,6 @@ export async function createAtlasLoginUser(
   password: string;
   orgId: string;
   projectId: string;
-  cleanup: () => Promise<void>;
 }> {
   assertAtlasCloudTestUtils();
 
@@ -287,8 +286,6 @@ export async function createAtlasLoginUser(
     password,
     orgId,
     projectId,
-    cleanup: () =>
-      deleteAtlasUser(undefined as unknown as CompassBrowser, username),
   };
 }
 
