@@ -14,10 +14,7 @@ import {
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
-import {
-  context,
-  ATLAS_CLOUD_TEST_UTILS,
-} from '../helpers/test-runner-context.ts';
+import { ATLAS_CLOUD_TEST_UTILS } from '../helpers/test-runner-context.ts';
 
 const QA_ORG_ID = '67ec23f45c93b57f2845860f';
 const PAUSED_PROJECT_ID = '6a8c5d1677636c0fc4177a8a';
@@ -36,19 +33,6 @@ function hasAtlasCloudTestUtils(): boolean {
   }
 
   return true;
-}
-
-const ENVIRONMENT_TO_PRESET = {
-  dev: 'atlas-dev',
-  qa: 'atlas-qa',
-  staging: 'atlas-staging',
-  prod: 'atlas',
-} as const;
-
-function getAtlasBackendPresetForEnvironment(ctx = context) {
-  return ENVIRONMENT_TO_PRESET[
-    (ctx.atlasCloudEnvironment ?? 'qa') as keyof typeof ENVIRONMENT_TO_PRESET
-  ];
 }
 
 async function isSignedIn(browser: CompassBrowser): Promise<boolean> {
@@ -97,9 +81,8 @@ describe('Atlas connection error debugger', function () {
   beforeEach(async function () {
     try {
       compass = await init(this.test?.fullTitle(), {
-        extraSpawnArgs: [
-          `--atlasServiceBackendPreset=${getAtlasBackendPresetForEnvironment()}`,
-        ],
+        // this test uses an org that only exists in the atlas-qa environment
+        extraSpawnArgs: [`--atlasServiceBackendPreset=atlas-qa`],
       });
       browser = compass.browser;
 
