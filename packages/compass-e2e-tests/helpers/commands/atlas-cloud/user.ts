@@ -2,73 +2,61 @@ import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
 import { randomBytes } from 'crypto';
-import { remote } from 'webdriverio';
 import lodash from 'lodash';
 import type { CompassBrowser } from '../../compass-browser.ts';
 import {
   ATLAS_CLOUD_TEST_UTILS,
-  context,
-  getCloudUrlsFromContext,
+  getCloudUrlsForEnvironment,
   RUN_ID,
 } from '../../test-runner-context.ts';
-import {
-  FIXTURES_PATH,
-  MONOREPO_ELECTRON_CHROMIUM_VERSION,
-} from '../../test-runner-paths.ts';
-import { CI_FLAGS } from '../../chrome-startup-flags.ts';
+import { FIXTURES_PATH } from '../../test-runner-paths.ts';
 import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
+import { createExternalBrowser } from '../../compass.ts';
+import { waitForLeafygreenEnabled } from '../leafygreen.ts';
 
 const { template } = lodash;
 
 export async function fillAtlasLoginForm(
-  session: WebdriverIO.Browser,
+  browser: CompassBrowser,
   username: string,
   password: string,
   waitForAuthenticated: () => Promise<boolean>
 ) {
-  const waitForLeafygreenEnabled = async (selector: string) => {
-    await session.waitUntil(async () => {
-      const el = session.$(selector);
-      return (
-        (await el.getAttribute('aria-disabled')) !== 'true' &&
-        (await el.isEnabled())
-      );
-    });
-  };
+  await waitForLeafygreenEnabled(browser, 'input[name="username"]');
+  await browser.$('input[name="username"]').setValue(username);
 
-  await waitForLeafygreenEnabled('input[name="username"]');
-  await session.$('input[name="username"]').setValue(username);
+  await waitForLeafygreenEnabled(browser, 'button=Next');
+  await browser.$('button=Next').click();
 
-  await waitForLeafygreenEnabled('button=Next');
-  await session.$('button=Next').click();
+  await browser.$('input[name="password"]').waitForEnabled();
+  await browser.$('input[name="password"]').setValue(password);
 
-  await session.$('input[name="password"]').waitForEnabled();
-  await session.$('input[name="password"]').setValue(password);
-
-  await waitForLeafygreenEnabled('button=Login');
-  await session.$('button=Login').click();
+  await waitForLeafygreenEnabled(browser, 'button=Login');
+  await browser.$('button=Login').click();
 
   let authenticated = false;
 
-  const clickWhenDisplayed = async (selector: string) => {
-    while (!authenticated) {
-      const button = session.$(selector);
-      if (await button.isDisplayed().catch(() => false)) {
-        await button.click().catch(() => {});
-      }
-      if (authenticated) {
-        break;
-      }
-      await session.pause(500);
-    }
-  };
+  const clickWhenDisplayed = (selector: string) =>
+    browser.waitUntil(
+      async () => {
+        if (authenticated) {
+          return true;
+        }
+        const button = browser.$(selector);
+        if (await button.isDisplayed().catch(() => false)) {
+          await button.click().catch(() => {});
+        }
+        return authenticated;
+      },
+      { interval: 500 }
+    );
 
   const [, , authenticationPromiseSettled] = await Promise.allSettled([
     // bypass MFA
     clickWhenDisplayed('button*=Remind me later'),
     // authorize Compass screen
     clickWhenDisplayed('button=Authorize'),
-    session.waitUntil(
+    browser.waitUntil(
       async () => {
         return (authenticated = await waitForAuthenticated());
       },
@@ -86,7 +74,7 @@ export async function signInToAtlas(
   username: string,
   password: string
 ) {
-  const { accountUrl, cloudUrl } = getCloudUrlsFromContext();
+  const { accountUrl, cloudUrl } = getCloudUrlsForEnvironment();
 
   await browser.navigateTo(`${accountUrl}/account/login?signedOut=true`);
 
@@ -132,23 +120,6 @@ function getCaptureOidcUrlCommand() {
   )}`;
 }
 
-function createCloudBrowserSession(): Promise<WebdriverIO.Browser> {
-  return remote({
-    capabilities: {
-      browserName: 'chrome',
-      browserVersion: MONOREPO_ELECTRON_CHROMIUM_VERSION,
-      // CI_FLAGS (e.g. --no-sandbox) are required for Chrome to start in CI
-      // environments (Ubuntu/RHEL), otherwise the instance exits immediately.
-      'goog:chromeOptions': {
-        args: [...CI_FLAGS],
-      },
-      'wdio:enforceWebDriverClassic': true,
-    },
-    waitforTimeout: context.webdriverWaitforTimeout,
-    waitforInterval: context.webdriverWaitforInterval,
-  });
-}
-
 export async function signInToAtlasDesktop(
   browser: CompassBrowser,
   {
@@ -177,10 +148,10 @@ export async function signInToAtlasDesktop(
     getCaptureOidcUrlCommand()
   );
 
-  let loginSession: WebdriverIO.Browser | undefined;
+  let loginSessionBrowser: CompassBrowser | undefined;
 
   try {
-    loginSession = await createCloudBrowserSession();
+    loginSessionBrowser = await createExternalBrowser(false);
 
     await triggerSignIn();
 
@@ -193,24 +164,29 @@ export async function signInToAtlasDesktop(
       }
     );
 
-    await loginSession.url(authUrl);
+    await loginSessionBrowser.url(authUrl);
 
     await doCloudFetch(
-      loginSession as unknown as CompassBrowser,
+      loginSessionBrowser,
       ATLAS_CLOUD_TEST_UTILS.bypassEncouragement,
       { method: 'PATCH' },
       { form: { username } }
     );
     await doCloudFetch(
-      loginSession as unknown as CompassBrowser,
+      loginSessionBrowser,
       ATLAS_CLOUD_TEST_UTILS.verifyEmail,
       { method: 'POST' },
       { form: { username } }
     );
 
-    await fillAtlasLoginForm(loginSession, username, password, waitForSignedIn);
+    await fillAtlasLoginForm(
+      loginSessionBrowser,
+      username,
+      password,
+      waitForSignedIn
+    );
   } finally {
-    await loginSession?.deleteSession().catch(() => {});
+    await loginSessionBrowser?.deleteSession().catch(() => {});
     await browser
       .setFeature('browserCommandForOIDCAuth', undefined)
       .catch(() => {});
@@ -223,7 +199,7 @@ export async function createAtlasUser(
   username: string,
   password: string
 ) {
-  const { accountUrl } = getCloudUrlsFromContext();
+  const { accountUrl } = getCloudUrlsForEnvironment();
 
   await browser.navigateTo(`${accountUrl}/account/login?signedOut=true`);
 
@@ -278,8 +254,7 @@ export async function createAtlasLoginUser(): Promise<{
   cleanup: () => Promise<void>;
 }> {
   assertAtlasCloudTestUtils();
-  const session =
-    (await createCloudBrowserSession()) as unknown as CompassBrowser;
+  const session = await createExternalBrowser(false);
 
   try {
     const username = template(ATLAS_CLOUD_TEST_UTILS.testUserUsernameTemplate)({
@@ -310,7 +285,7 @@ export async function deleteAtlasUser(
   _browser: CompassBrowser,
   username: string
 ) {
-  const { cloudUrl } = getCloudUrlsFromContext();
+  const { cloudUrl } = getCloudUrlsForEnvironment();
   // Using fetch directly so that we can clean-up even after tests are done
   await fetch(
     new URL(

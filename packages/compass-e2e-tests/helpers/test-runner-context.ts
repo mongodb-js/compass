@@ -457,10 +457,15 @@ const CLOUD_URLS = {
   },
 } as const;
 
-export function getCloudUrlsFromContext(ctx = context) {
+export function getCloudUrlsForEnvironment(ctx = context) {
   return CLOUD_URLS[
     (ctx.atlasCloudEnvironment ?? 'qa') as keyof typeof CLOUD_URLS
   ];
+}
+
+export function getCloudUrlsFromContext(ctx = context) {
+  assertTestingWebAtlasCloud(ctx);
+  return getCloudUrlsForEnvironment(ctx);
 }
 
 export const ATLAS_CLOUD_TEST_UTILS: {
