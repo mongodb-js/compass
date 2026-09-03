@@ -1951,37 +1951,39 @@ This event is fired when a user clicks the button to create a search index for a
 
 This event is fired when user creates an index.
 
-| Property                     | Type                   | Required | Description                                             |
-| ---------------------------- | ---------------------- | -------- | ------------------------------------------------------- |
-| `unique`                     | `boolean \| undefined` | No       | Indicates whether the index is unique.                  |
-| `ttl`                        | `any`                  | No       | Specifies the time-to-live (TTL) setting for the index. |
-| `columnstore_index`          | `boolean \| undefined` | No       | Indicates whether the index is a columnstore index.     |
-| `has_columnstore_projection` | `any`                  | No       | Indicates if the index has a columnstore projection.    |
-| `has_wildcard_projection`    | `any`                  | No       | Indicates if the index includes a wildcard projection.  |
-| `custom_collation`           | `any`                  | No       | Specifies if the index uses a custom collation.         |
-| `geo`                        | `boolean \| undefined` | No       | Indicates whether the index is a geospatial index.      |
-| `atlas_search`               | `boolean \| undefined` | No       | Indicates whether the index is an Atlas Search index.   |
-| `type`                       | `string \| undefined`  | No       | Specifies the type of the index.                        |
-| `is_compass_web`             | `true \| undefined`    | No       |                                                         |
-| `connection_id`              | `string \| undefined`  | No       | The id of the connection associated to this event.      |
+| Property                        | Type                   | Required | Description                                             |
+| ------------------------------- | ---------------------- | -------- | ------------------------------------------------------- |
+| `unique`                        | `boolean \| undefined` | No       | Indicates whether the index is unique.                  |
+| `ttl`                           | `boolean \| undefined` | No       | Specifies the time-to-live (TTL) setting for the index. |
+| `columnstore_index`             | `boolean \| undefined` | No       | Indicates whether the index is a columnstore index.     |
+| `has_columnstore_projection`    | `boolean \| undefined` | No       | Indicates if the index has a columnstore projection.    |
+| `has_partial_filter_expression` | `boolean \| undefined` | No       | Indicates if the index has a partial filter expression. |
+| `has_wildcard_projection`       | `boolean \| undefined` | No       | Indicates if the index includes a wildcard projection.  |
+| `custom_collation`              | `boolean \| undefined` | No       | Specifies if the index uses a custom collation.         |
+| `geo`                           | `boolean \| undefined` | No       | Indicates whether the index is a geospatial index.      |
+| `atlas_search`                  | `boolean \| undefined` | No       | Indicates whether the index is an Atlas Search index.   |
+| `type`                          | `string \| undefined`  | No       | Specifies the type of the index.                        |
+| `is_compass_web`                | `true \| undefined`    | No       |                                                         |
+| `connection_id`                 | `string \| undefined`  | No       | The id of the connection associated to this event.      |
 
 ### Index Create Failed
 
 This event is fired when user creates an index and it fails.
 
-| Property                     | Type                   | Required | Description                                             |
-| ---------------------------- | ---------------------- | -------- | ------------------------------------------------------- |
-| `unique`                     | `boolean \| undefined` | No       | Indicates whether the index is unique.                  |
-| `ttl`                        | `any`                  | No       | Specifies the time-to-live (TTL) setting for the index. |
-| `columnstore_index`          | `boolean \| undefined` | No       | Indicates whether the index is a columnstore index.     |
-| `has_columnstore_projection` | `any`                  | No       | Indicates if the index has a columnstore projection.    |
-| `has_wildcard_projection`    | `any`                  | No       | Indicates if the index includes a wildcard projection.  |
-| `custom_collation`           | `any`                  | No       | Specifies if the index uses a custom collation.         |
-| `geo`                        | `boolean \| undefined` | No       | Indicates whether the index is a geospatial index.      |
-| `atlas_search`               | `boolean \| undefined` | No       | Indicates whether the index is an Atlas Search index.   |
-| `type`                       | `string \| undefined`  | No       | Specifies the type of the index.                        |
-| `is_compass_web`             | `true \| undefined`    | No       |                                                         |
-| `connection_id`              | `string \| undefined`  | No       | The id of the connection associated to this event.      |
+| Property                        | Type                   | Required | Description                                             |
+| ------------------------------- | ---------------------- | -------- | ------------------------------------------------------- |
+| `unique`                        | `boolean \| undefined` | No       | Indicates whether the index is unique.                  |
+| `ttl`                           | `boolean \| undefined` | No       | Specifies the time-to-live (TTL) setting for the index. |
+| `columnstore_index`             | `boolean \| undefined` | No       | Indicates whether the index is a columnstore index.     |
+| `has_columnstore_projection`    | `boolean \| undefined` | No       | Indicates if the index has a columnstore projection.    |
+| `has_partial_filter_expression` | `boolean \| undefined` | No       | Indicates if the index has a partial filter expression. |
+| `has_wildcard_projection`       | `boolean \| undefined` | No       | Indicates if the index includes a wildcard projection.  |
+| `custom_collation`              | `boolean \| undefined` | No       | Specifies if the index uses a custom collation.         |
+| `geo`                           | `boolean \| undefined` | No       | Indicates whether the index is a geospatial index.      |
+| `atlas_search`                  | `boolean \| undefined` | No       | Indicates whether the index is an Atlas Search index.   |
+| `type`                          | `string \| undefined`  | No       | Specifies the type of the index.                        |
+| `is_compass_web`                | `true \| undefined`    | No       |                                                         |
+| `connection_id`                 | `string \| undefined`  | No       | The id of the connection associated to this event.      |
 
 ### Index Create Opened
 
