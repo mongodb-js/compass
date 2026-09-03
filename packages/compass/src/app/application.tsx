@@ -14,7 +14,7 @@ import ensureError from 'ensure-error';
 
 import * as webvitals from 'web-vitals';
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import { setupIntercom } from '@mongodb-js/compass-intercom';
 import { createLogger } from '@mongodb-js/compass-logging';
@@ -146,7 +146,6 @@ class Application {
       await this.getWindowAutoConnectPreferences();
     const isSecretStorageAvailable = await this.checkSecretStorageIsAvailable();
     const connectionStorage = new CompassRendererConnectionStorage(ipcRenderer);
-
     log.info(
       mongoLogId(1_001_000_092),
       'Main Window',
@@ -161,6 +160,10 @@ class Application {
       throw new Error('Application container not found');
     }
 
+    const root = createRoot(
+      elem.querySelector('[data-hook="layout-container"]')!
+    );
+
     // Create the application container structure
     elem.innerHTML = `
       <div id="application">
@@ -168,7 +171,7 @@ class Application {
       </div>
     `;
 
-    ReactDOM.render(
+    root.render(
       <React.StrictMode>
         <ApplicationMenuContextProvider provider={this.menuProvider}>
           <CompassElectron
@@ -189,8 +192,7 @@ class Application {
             }
           />
         </ApplicationMenuContextProvider>
-      </React.StrictMode>,
-      elem.querySelector('[data-hook="layout-container"]')
+      </React.StrictMode>
     );
 
     if (!isSecretStorageAvailable) {

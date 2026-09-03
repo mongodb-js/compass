@@ -57,7 +57,7 @@
     "mongodb-collection-model": "^5.41.2",
     "mongodb-database-model": "^2.41.2",
     "mongodb-ns": "^3.2.0",
-    "react": "^17.0.2"
+    "react": "^18.3.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.25",
@@ -68,7 +68,7 @@
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
-    "@types/react": "^17.0.5",
+    "@types/react": "^18.3.31",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.4",
     "depcheck": "^1.4.1",
