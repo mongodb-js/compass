@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { WorkspaceTab as ShellWorkspace } from '@mongodb-js/compass-shell';
+import { WorkspaceTab as AgentWorkspace } from '@mongodb-js/compass-agent-shell';
 import {
   WorkspaceTab as CollectionWorkspace,
   CollectionTabsProvider,
@@ -78,6 +79,7 @@ export default function Workspace({
         WelcomeWorkspace,
         MyQueriesWorkspace,
         ShellWorkspace,
+        AgentWorkspace,
         PerformanceWorkspace,
         DatabasesWorkspaceTab,
         CollectionsWorkspaceTab,

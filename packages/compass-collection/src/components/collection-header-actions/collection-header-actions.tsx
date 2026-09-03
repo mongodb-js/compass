@@ -42,8 +42,12 @@ const CollectionHeaderActions: React.FunctionComponent<
 }: CollectionHeaderActionsProps) => {
   const connectionInfo = useConnectionInfo();
   const { id: connectionId, atlasMetadata } = connectionInfo;
-  const { openCollectionWorkspace, openEditViewWorkspace, openShellWorkspace } =
-    useOpenWorkspace();
+  const {
+    openCollectionWorkspace,
+    openEditViewWorkspace,
+    openShellWorkspace,
+    openAgentWorkspace,
+  } = useOpenWorkspace();
   const { readWrite: preferencesReadWrite, enableShell: showOpenShellButton } =
     usePreferences(['readWrite', 'enableShell']);
   const track = useTelemetry();
@@ -75,6 +79,17 @@ const CollectionHeaderActions: React.FunctionComponent<
           Open MongoDB shell
         </Button>
       )}
+      <Button
+        size="small"
+        data-testid="collection-header-open-agent-button"
+        onClick={() => {
+          openAgentWorkspace(connectionId);
+          track('Open Agent', { entrypoint: 'collection' }, connectionInfo);
+        }}
+        leftGlyph={<Icon glyph="Sparkle"></Icon>}
+      >
+        Open AI Agent
+      </Button>
 
       {atlasMetadata && (
         <Button

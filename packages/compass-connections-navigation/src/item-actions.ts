@@ -112,6 +112,11 @@ export const connectedConnectionItemActions = ({
           label: 'Open MongoDB shell',
         }
       : null,
+    {
+      action: 'open-agent',
+      icon: 'Sparkle',
+      label: 'Open AI Agent',
+    },
     isPerformanceTabAvailable
       ? {
           action: 'connection-performance-metrics',
@@ -316,6 +321,11 @@ export const connectionContextMenuActions = ({
           label: 'Open MongoDB shell',
         }
       : null,
+    {
+      action: 'open-agent',
+      icon: 'Sparkle',
+      label: 'Open AI Agent',
+    },
     isPerformanceTabAvailable
       ? {
           action: 'connection-performance-metrics',

@@ -25,6 +25,7 @@ import { setupTheme } from './theme';
 import { setupProtocolHandlers } from './protocol-handling';
 import { initCompassMainConnectionStorage } from '@mongodb-js/connection-storage/main';
 import { createIpcTrack } from '@mongodb-js/compass-telemetry';
+import { setupAgentShellMain } from '@mongodb-js/compass-agent-shell/main';
 import type {
   AgentWithInitialize,
   RequestInit,
@@ -167,6 +168,7 @@ class CompassApplication {
     this.setupApplicationMenu();
     this.setupWindowManager();
     this.setupAutoUpdate();
+    setupAgentShellMain();
     this.trackApplicationLaunched(globalPreferences);
   }
 

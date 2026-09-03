@@ -14,6 +14,7 @@ export type Actions =
   | 'connection-query-insights'
   // connection item related actions
   | 'open-shell'
+  | 'open-agent'
   | 'select-connection'
   | 'edit-connection'
   | 'duplicate-connection'

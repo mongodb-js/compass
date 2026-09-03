@@ -670,6 +670,7 @@ export type OpenWorkspaceOptions =
       Workspace<'Shell'>,
       'type' | 'connectionId' | 'initialEvaluate' | 'initialInput'
     >
+  | Pick<Workspace<'Agent'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Databases'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Performance'>, 'type' | 'connectionId'>
   | Pick<Workspace<'Collections'>, 'type' | 'connectionId' | 'namespace'>

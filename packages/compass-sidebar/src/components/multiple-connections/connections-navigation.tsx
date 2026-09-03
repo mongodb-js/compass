@@ -214,6 +214,7 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
     openCollectionsWorkspace,
     openCollectionWorkspace,
     openEditViewWorkspace,
+    openAgentWorkspace,
   } = useOpenWorkspace();
   const { hasWorkspacePlugin } = useWorkspacePlugins();
   const track = useTelemetry();
@@ -395,6 +396,23 @@ const ConnectionsNavigation: React.FC<ConnectionsNavigationProps> = ({
           );
           return;
         }
+        case 'open-agent':
+          openAgentWorkspace(connectionId, {
+            namespace:
+              item.type === 'database'
+                ? item.dbName
+                : item.type === 'collection' ||
+                  item.type === 'view' ||
+                  item.type === 'timeseries'
+                ? item.namespace
+                : undefined,
+          });
+          track(
+            'Open Agent',
+            { entrypoint: item.entrypoint ?? 'sidebar' },
+            getConnectionInfo(item)
+          );
+          return;
         case 'connection-performance-metrics':
           openPerformanceWorkspace(connectionId);
           return;

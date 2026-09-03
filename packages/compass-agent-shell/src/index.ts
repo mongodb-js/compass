@@ -1,0 +1,34 @@
+import React from 'react';
+import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
+import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
+import { AgentShellPlugin, onActivated } from './plugin';
+import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
+import { preferencesLocator } from 'compass-preferences-model/provider';
+import type { WorkspacePlugin } from '@mongodb-js/workspace-info';
+import {
+  dataServiceLocator,
+  connectionInfoRefLocator,
+} from '@mongodb-js/compass-connections/provider';
+import { WorkspaceName, AgentPluginTitleComponent } from './plugin-tab-title';
+
+export const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
+  name: WorkspaceName,
+  provider: registerCompassPlugin(
+    {
+      name: WorkspaceName,
+      component: function AgentProvider({ children }) {
+        return React.createElement(React.Fragment, null, children);
+      },
+      activate: onActivated,
+    },
+    {
+      logger: createLoggerLocator('COMPASS-AGENT'),
+      track: telemetryLocator,
+      dataService: dataServiceLocator,
+      connectionInfo: connectionInfoRefLocator,
+      preferences: preferencesLocator,
+    }
+  ),
+  content: AgentShellPlugin,
+  header: AgentPluginTitleComponent,
+};

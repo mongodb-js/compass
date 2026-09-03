@@ -61,6 +61,14 @@ export type WorkspacesService = {
       >
   ): void;
   /**
+   * Open "Agent" workspace
+   */
+  openAgentWorkspace(
+    this: void,
+    connectionId: string,
+    options?: TabOptions & { namespace?: string }
+  ): void;
+  /**
    * Open "Databases" workspace showing list of all databases in the cluster
    */
   openDatabasesWorkspace(
@@ -212,6 +220,7 @@ const noopWorkspacesService = {
   openMyQueriesWorkspace: throwIfNotTestEnv,
   openDataModelingWorkspace: throwIfNotTestEnv,
   openShellWorkspace: throwIfNotTestEnv,
+  openAgentWorkspace: throwIfNotTestEnv,
   openDatabasesWorkspace: throwIfNotTestEnv,
   openPerformanceWorkspace: throwIfNotTestEnv,
   openCollectionsWorkspace: throwIfNotTestEnv,
@@ -267,6 +276,15 @@ export const WorkspacesServiceProvider: React.FunctionComponent<{
           openWorkspaceAction(
             { type: 'Shell', connectionId, ...workspaceOptions },
             { newTab }
+          )
+        );
+      },
+      openAgentWorkspace(connectionId, options = {}) {
+        const { namespace, ...tabOptions } = options;
+        return void store.dispatch(
+          openWorkspaceAction(
+            { type: 'Agent', connectionId, namespace },
+            tabOptions
           )
         );
       },
@@ -347,6 +365,7 @@ function useWorkspacesService() {
 export function useOpenWorkspace() {
   const {
     openShellWorkspace,
+    openAgentWorkspace,
     openCollectionWorkspace,
     openCollectionsWorkspace,
     openDatabasesWorkspace,
@@ -358,6 +377,7 @@ export function useOpenWorkspace() {
 
   const openFns = useInitialValue({
     openShellWorkspace,
+    openAgentWorkspace,
     openCollectionWorkspace,
     openCollectionsWorkspace,
     openDatabasesWorkspace,

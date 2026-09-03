@@ -32,6 +32,8 @@ function getInitialPropsForWorkspace(tab: WorkspaceTab) {
         initialEvaluate: tab.initialEvaluate,
         initialInput: tab.initialInput,
       };
+    case 'Agent':
+      return { namespace: tab.namespace };
     case 'Collections':
       return { namespace: tab.namespace };
     case 'Collection': {
@@ -139,7 +141,7 @@ const WorkspaceTabContextProvider: React.FunctionComponent<
     <WorkspaceProvider {...initialProps}>{children}</WorkspaceProvider>
   );
 
-  if ('namespace' in tab) {
+  if ('namespace' in tab && typeof tab.namespace === 'string') {
     children = (
       <NamespaceProvider
         namespace={tab.namespace}

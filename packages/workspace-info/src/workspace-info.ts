@@ -56,6 +56,14 @@ const ShellWorkspaceSchema = z.object({
 
 export type ShellWorkspace = z.output<typeof ShellWorkspaceSchema>;
 
+const AgentWorkspaceSchema = z.object({
+  type: z.literal('Agent'),
+  connectionId: z.string(),
+  namespace: z.string().optional(),
+});
+
+export type AgentWorkspace = z.output<typeof AgentWorkspaceSchema>;
+
 const CollectionsWorkspaceSchema = z.object({
   type: z.literal('Collections'),
   connectionId: z.string(),
@@ -95,6 +103,7 @@ const WorkspaceTabPropsSchema = z.discriminatedUnion('type', [
   DatabasesWorkspaceSchema,
   ServerStatsWorkspaceSchema,
   ShellWorkspaceSchema,
+  AgentWorkspaceSchema,
   CollectionsWorkspaceSchema,
   CollectionWorkspaceSchema,
 ]);
@@ -122,6 +131,7 @@ export type AnyWorkspace =
   | MyQueriesWorkspace
   | DataModelingWorkspace
   | ShellWorkspace
+  | AgentWorkspace
   | ServerStatsWorkspace
   | DatabasesWorkspace
   | CollectionsWorkspace

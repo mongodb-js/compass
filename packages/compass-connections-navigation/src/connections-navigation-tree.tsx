@@ -133,9 +133,12 @@ const ConnectionsNavigationTree: React.FunctionComponent<
           return false;
         }
 
-        return ['refresh-databases', 'create-database', 'open-shell'].includes(
-          (action as ItemAction<Actions>).action
-        );
+        return [
+          'refresh-databases',
+          'create-database',
+          'open-shell',
+          'open-agent',
+        ].includes((action as ItemAction<Actions>).action);
       };
 
       // this is the normal case for a connection that is writable and when we

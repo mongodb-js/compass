@@ -1,0 +1,7 @@
+{
+  "extends": "../../configs/tsconfig-compass/tsconfig.common.json",
+  "compilerOptions": {
+    "outDir": "dist"
+  },
+  "include": ["src/**/*"]
+}
