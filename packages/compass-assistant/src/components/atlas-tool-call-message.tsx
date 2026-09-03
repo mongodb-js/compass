@@ -12,7 +12,6 @@ import {
   getToolDisplayName,
   getToolDescription,
   getToolState,
-  isDebuggerToolCall,
   toolHasOutput,
 } from '../utils';
 import { ActionCardMessage } from './action-card-message';
