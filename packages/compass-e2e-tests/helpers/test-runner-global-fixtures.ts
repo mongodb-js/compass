@@ -39,6 +39,7 @@ import {
 } from './compass-web-sandbox.ts';
 import { randomBytes } from 'crypto';
 import { isAtlasCloudPage } from './commands/atlas-cloud/utils.ts';
+import { createAtlasLoginUser } from './commands/atlas-cloud/user.ts';
 import type { ClusterTypes } from './commands/index.ts';
 
 export const globalFixturesAbortController = new AbortController();
@@ -102,7 +103,7 @@ async function createAtlasCloudResources() {
         username: atlasCloudUsername,
         password: atlasCloudPassword,
         projectId: atlasCloudProjectId,
-      } = await compass.browser.createAtlasLoginUser();
+      } = await createAtlasLoginUser();
 
       cleanupFns.push(() => {
         return compass.browser.deleteAtlasUser(atlasCloudUsername);

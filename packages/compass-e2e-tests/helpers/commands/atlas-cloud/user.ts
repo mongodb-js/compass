@@ -246,7 +246,38 @@ function assertAtlasCloudTestUtils() {
   }
 }
 
-export async function createAtlasLoginUser(): Promise<{
+/**
+ * Adds a user to an existing organization with an owner role. Requires the
+ * given browser session to be signed in. This lets the user access that org's
+ * resources (e.g. clusters in its projects) through the Atlas Admin API.
+ */
+export async function addUserToOrg(
+  browser: CompassBrowser,
+  orgId: string,
+  username: string
+): Promise<void> {
+  if (!ATLAS_CLOUD_TEST_UTILS.addOrgUser) {
+    throw new Error(
+      'ATLAS_CLOUD_TEST_UTILS.addOrgUser is not available, cannot add the user to the org'
+    );
+  }
+
+  await doCloudFetch(
+    browser,
+    template(ATLAS_CLOUD_TEST_UTILS.addOrgUser)({ orgId }),
+    { method: 'POST' },
+    { json: { username, roles: ['ORG_OWNER'] } }
+  );
+}
+
+export async function createAtlasLoginUser(
+  session: CompassBrowser,
+  {
+    orgId,
+  }: {
+    orgId?: string;
+  } = {}
+): Promise<{
   username: string;
   password: string;
   orgId: string;
@@ -254,31 +285,30 @@ export async function createAtlasLoginUser(): Promise<{
   cleanup: () => Promise<void>;
 }> {
   assertAtlasCloudTestUtils();
-  const session = await createExternalBrowser(false);
 
-  try {
-    const username = template(ATLAS_CLOUD_TEST_UTILS.testUserUsernameTemplate)({
-      username: `compass-usr-${RUN_ID}`,
-    });
-    const password = randomBytes(20).toString('hex');
+  const username = template(ATLAS_CLOUD_TEST_UTILS.testUserUsernameTemplate)({
+    username: `compass-usr-${RUN_ID}`,
+  });
+  const password = randomBytes(20).toString('hex');
 
-    const { orgId, projectId } = await createAtlasUser(
-      session,
-      username,
-      password
-    );
+  const { orgId: createdOrgId, projectId } = await createAtlasUser(
+    session,
+    username,
+    password
+  );
 
-    return {
-      username,
-      password,
-      orgId,
-      projectId,
-      cleanup: () =>
-        deleteAtlasUser(undefined as unknown as CompassBrowser, username),
-    };
-  } finally {
-    await session.deleteSession().catch(() => {});
+  if (orgId) {
+    await addUserToOrg(session, orgId, username);
   }
+
+  return {
+    username,
+    password,
+    orgId: orgId ?? createdOrgId,
+    projectId,
+    cleanup: () =>
+      deleteAtlasUser(undefined as unknown as CompassBrowser, username),
+  };
 }
 
 export async function deleteAtlasUser(

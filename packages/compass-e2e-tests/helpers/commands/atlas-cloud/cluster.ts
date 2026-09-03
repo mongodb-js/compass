@@ -1,6 +1,9 @@
 import { ConnectionString } from 'mongodb-connection-string-url';
 import type { CompassBrowser } from '../../compass-browser.ts';
-import { getCloudUrlsFromContext } from '../../test-runner-context.ts';
+import {
+  getCloudUrlsForEnvironment,
+  getCloudUrlsFromContext,
+} from '../../test-runner-context.ts';
 import { getProjectIdFromPageUrl, doCloudFetch } from './utils.ts';
 
 export async function getClusterConnectionStringsFromNames(
@@ -10,7 +13,7 @@ export async function getClusterConnectionStringsFromNames(
   dbuserPassword: string,
   projectId?: string
 ): Promise<[string, string][]> {
-  const { cloudUrl } = getCloudUrlsFromContext();
+  const { cloudUrl } = getCloudUrlsForEnvironment();
   const clusters = await doCloudFetch<
     { name: string; state: string; srvAddress: string }[]
   >(
