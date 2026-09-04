@@ -3,6 +3,7 @@ import { css } from '@leafygreen-ui/emotion';
 
 import { InlineDefinition } from '../inline-definition';
 import { useBSONDisplayOptions } from './bson-display-options-context';
+import { bsonValueDisplayVar } from './bson-utils';
 
 function isValidTimezone(timezone: string): boolean {
   try {
@@ -40,21 +41,21 @@ export function formatDateWithTimezone(
   }
 }
 
-// We are not adding any gap here. When the content wraps in the next line, the
-// gap will create extra space and we want to avoid that, and that's why we are
-// adding paddingRight to the children instead.
+// Inline styles to make things more easily copy-pasteable.
 const containerStyles = css({
-  display: 'inline-flex',
-  flexWrap: 'wrap',
+  display: 'inline',
+  whiteSpace: 'normal',
+  [bsonValueDisplayVar]: 'inline',
 });
 
 const valueStyles = css({
-  display: 'inline-flex',
+  display: 'inline',
   paddingRight: '8px',
 });
 
 const dateWithTimezoneHintStyles = css({
   userSelect: 'none',
+  whiteSpace: 'nowrap',
 });
 
 export function DateWithTimezoneHint({
@@ -69,8 +70,9 @@ export function DateWithTimezoneHint({
     return formatDateWithTimezone(value, timezone);
   }, [value, timezone]);
   return (
-    <div className={containerStyles}>
-      <div className={valueStyles}>{children}</div>
+    <span className={containerStyles}>
+      <span className={valueStyles}>{children}</span>
+      <wbr />
       <InlineDefinition
         className={dateWithTimezoneHintStyles}
         data-testid="date-with-timezone-hint"
@@ -78,6 +80,6 @@ export function DateWithTimezoneHint({
       >
         {timezoneFormattedValue}
       </InlineDefinition>
-    </div>
+    </span>
   );
 }

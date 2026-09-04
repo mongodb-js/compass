@@ -11,6 +11,7 @@ import {
   getDisplayType,
 } from 'hadron-document';
 import BSONValue from '../bson-value';
+import { bsonValueDisplayVar } from './bson-utils';
 import { spacing } from '@leafygreen-ui/tokens';
 import { KeyEditor, ValueEditor, TypeEditor } from './element-editors';
 import { EditActions, AddFieldActions } from './element-actions';
@@ -242,6 +243,7 @@ const elementActions = css({
   flex: 'none',
   width: spacing[300],
   position: 'relative',
+  userSelect: 'none',
 });
 
 const elementLineNumber = css({
@@ -249,6 +251,7 @@ const elementLineNumber = css({
   position: 'relative',
   marginLeft: spacing[100],
   boxSizing: 'content-box',
+  userSelect: 'none',
 });
 
 const addFieldActionsContainer = css({
@@ -300,6 +303,7 @@ const lineNumberRemovedDarkMode = css({
 
 const elementSpacer = css({
   flex: 'none',
+  userSelect: 'none',
 });
 
 const elementExpand = css({
@@ -307,12 +311,23 @@ const elementExpand = css({
   flex: 'none',
   display: 'flex',
   alignItems: 'center',
+  userSelect: 'none',
 });
 
 const elementKey = css({
   flex: 'none',
   fontWeight: 'bold',
+  minWidth: '1em',
   maxWidth: '60%',
+});
+
+const elementKeyInline = css({
+  // Inline-block to keep the key's own max width and ellipsis, aligned to the
+  // bottom for the box's baseline.
+  display: 'inline-block',
+  verticalAlign: 'bottom',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 });
 
 const elementKeyInternal = css({
@@ -321,6 +336,11 @@ const elementKeyInternal = css({
 
 const elementDivider = css({
   flex: 'none',
+  display: 'inline',
+});
+
+const elementDecryptedIcon = css({
+  flex: 'none',
   userSelect: 'none',
 });
 
@@ -328,11 +348,30 @@ const elementValue = css({
   flex: 1,
   minWidth: 0,
   maxWidth: '100%',
+  display: 'inline',
+});
+
+const elementContent = css({
+  display: 'flex',
+  flex: 1,
+  minWidth: 0,
+});
+
+// When not editing we want the key and value inline for copy-ability.
+const elementContentInline = css({
+  display: 'block',
+  flex: 1,
+  minWidth: 0,
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  [bsonValueDisplayVar]: 'inline',
 });
 
 const elementType = css({
   flex: 'none',
   marginLeft: spacing[100],
+  userSelect: 'none',
 });
 
 const actions = css({
@@ -614,6 +653,7 @@ export const HadronElement: React.FunctionComponent<{
   const keyProps = {
     className: cx(
       elementKey,
+      !editingEnabled && elementKeyInline,
       internal && elementKeyInternal,
       darkMode && elementKeyDarkMode
     ),
@@ -722,89 +762,90 @@ export const HadronElement: React.FunctionComponent<{
             </button>
           )}
         </div>
-        <div {...keyProps} data-testid="hadron-document-element-key">
-          {key.editable ? (
-            <KeyEditor
-              value={key.value}
-              valid={key.valid}
-              validationMessage={key.validationMessage}
-              onChange={(newVal) => {
-                key.change(newVal);
-              }}
-              // This autofocus will only trigger after user deliberately
-              // double-clicked on a field and so auto focusing the input is
-              // expected in this case
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={autoFocus?.id === id && autoFocus?.type === 'key'}
-              editing={editingEnabled}
-              onEditStart={() => {
-                onEditStart?.(element.uuid, 'key');
-              }}
-            ></KeyEditor>
-          ) : (
-            <span>{key.value}</span>
-          )}
-        </div>
-        <div className={elementDivider} role="presentation">
-          :&nbsp;
-        </div>
-        <div className={elementDivider} role="presentation">
+        <div className={editingEnabled ? elementContent : elementContentInline}>
+          <div {...keyProps} data-testid="hadron-document-element-key">
+            {key.editable ? (
+              <KeyEditor
+                value={key.value}
+                valid={key.valid}
+                validationMessage={key.validationMessage}
+                onChange={(newVal) => {
+                  key.change(newVal);
+                }}
+                // This autofocus will only trigger after user deliberately
+                // double-clicked on a field and so auto focusing the input is
+                // expected in this case
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus={autoFocus?.id === id && autoFocus?.type === 'key'}
+                editing={editingEnabled}
+                onEditStart={() => {
+                  onEditStart?.(element.uuid, 'key');
+                }}
+              ></KeyEditor>
+            ) : (
+              <span>{key.value}</span>
+            )}
+          </div>
+          <div className={elementDivider} role="presentation">
+            :&nbsp;
+          </div>
           {value.decrypted && (
             <span
+              className={elementDecryptedIcon}
               data-testid="hadron-document-element-decrypted-icon"
               title="Encrypted Field"
             >
               <Icon glyph="Key" size="small" />
             </span>
           )}
-        </div>
-        <div
-          className={elementValue}
-          data-testid="hadron-document-element-value"
-        >
-          {value.editable ? (
-            <ValueEditor
-              type={type.value}
-              originalValue={value.originalValue}
-              value={value.value}
-              valid={value.valid}
-              validationMessage={value.validationMessage}
-              onChange={(newVal) => {
-                value.change(newVal);
-              }}
-              // See above
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus={autoFocus?.id === id && autoFocus?.type === 'value'}
-              editing={editingEnabled}
-              onEditStart={() => {
-                onEditStart?.(element.uuid, 'value');
-              }}
-              onFocus={() => {
-                value.startEdit();
-              }}
-              onBlur={() => {
-                value.completeEdit();
-              }}
-            ></ValueEditor>
-          ) : (
-            <div
-              data-testid={
-                editable && !editingEnabled
-                  ? 'hadron-document-clickable-value'
-                  : undefined
-              }
-              onDoubleClick={() => {
-                if (editable && !editingEnabled) {
-                  onEditStart?.(element.uuid, 'type');
+          <div
+            className={elementValue}
+            data-testid="hadron-document-element-value"
+          >
+            {value.editable ? (
+              <ValueEditor
+                type={type.value}
+                originalValue={value.originalValue}
+                value={value.value}
+                valid={value.valid}
+                validationMessage={value.validationMessage}
+                onChange={(newVal) => {
+                  value.change(newVal);
+                }}
+                // See above
+                // eslint-disable-next-line jsx-a11y/no-autofocus
+                autoFocus={autoFocus?.id === id && autoFocus?.type === 'value'}
+                editing={editingEnabled}
+                onEditStart={() => {
+                  onEditStart?.(element.uuid, 'value');
+                }}
+                onFocus={() => {
+                  value.startEdit();
+                }}
+                onBlur={() => {
+                  value.completeEdit();
+                }}
+              ></ValueEditor>
+            ) : (
+              <span
+                data-testid={
+                  editable && !editingEnabled
+                    ? 'hadron-document-clickable-value'
+                    : undefined
                 }
-              }}
-            >
-              <BSONValue
-                type={type.value as any}
-                value={value.originalValue}
-              ></BSONValue>
-            </div>
-          )}
+                onDoubleClick={() => {
+                  if (editable && !editingEnabled) {
+                    onEditStart?.(element.uuid, 'type');
+                  }
+                }}
+              >
+                <BSONValue
+                  type={type.value as any}
+                  value={value.originalValue}
+                ></BSONValue>
+              </span>
+            )}
+          </div>
         </div>
         {editable && (
           <div

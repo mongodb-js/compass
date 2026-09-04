@@ -27,6 +27,25 @@ const maxWidth = css({
   textOverflow: 'ellipsis',
 });
 
+// Sizes the input to its content by overlaying it on a hidden copy of the text,
+// so that the key occupies the same width when viewing and when editing.
+const keyEditorSizer = css({
+  display: 'inline-grid',
+  maxWidth: '100%',
+  verticalAlign: 'bottom',
+  '&::after': {
+    content: 'attr(data-value)',
+    visibility: 'hidden',
+    whiteSpace: 'pre',
+  },
+  '&::after, & > input': {
+    gridArea: '1 / 1',
+    font: 'inherit',
+    width: '100%',
+    minWidth: 0,
+  },
+});
+
 export const KeyEditor: React.FunctionComponent<{
   editing?: boolean;
   onEditStart(): void;
@@ -45,11 +64,6 @@ export const KeyEditor: React.FunctionComponent<{
   onEditStart,
 }) => {
   const darkMode = useDarkMode();
-  // On Safari if a text is 5 mono-characters wide and is supposed to overflow /
-  // get ellipse'd only when shorter than that, it would still overflow and get
-  // ellipse'd under normal conditions, for unknown reasons. For that, we add a
-  // small amount to the width to tackle this issue.
-  const width = `${Math.max(value.length, 1)}.5ch`;
 
   return (
     <>
@@ -74,29 +88,31 @@ export const KeyEditor: React.FunctionComponent<{
           }: React.HTMLProps<HTMLInputElement>) => {
             return (
               <div className={className}>
-                <input
-                  type="text"
-                  data-testid="hadron-document-key-editor"
-                  value={value}
-                  onChange={(evt) => {
-                    onChange(evt.currentTarget.value);
-                  }}
-                  // See ./element.tsx
-                  // eslint-disable-next-line jsx-a11y/no-autofocus
-                  autoFocus={autoFocus}
-                  className={cx(
-                    maxWidth,
-                    editorStyles,
-                    !valid && editorInvalidStyles,
-                    !valid &&
-                      (darkMode
-                        ? editorInvalidDarkModeStyles
-                        : editorInvalidLightModeStyles)
-                  )}
-                  style={{ width }}
-                  spellCheck="false"
-                  {...triggerProps}
-                ></input>
+                <span className={keyEditorSizer} data-value={value}>
+                  <input
+                    type="text"
+                    size={1}
+                    data-testid="hadron-document-key-editor"
+                    value={value}
+                    onChange={(evt) => {
+                      onChange(evt.currentTarget.value);
+                    }}
+                    // See ./element.tsx
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus={autoFocus}
+                    className={cx(
+                      maxWidth,
+                      editorStyles,
+                      !valid && editorInvalidStyles,
+                      !valid &&
+                        (darkMode
+                          ? editorInvalidDarkModeStyles
+                          : editorInvalidLightModeStyles)
+                    )}
+                    spellCheck="false"
+                    {...triggerProps}
+                  ></input>
+                </span>
                 {children}
               </div>
             );
@@ -106,14 +122,12 @@ export const KeyEditor: React.FunctionComponent<{
         </Tooltip>
       ) : (
         // Double-click is not accessible so no reason for this to be a button
-        <div
+        <span
           data-testid="hadron-document-clickable-key"
           onDoubleClick={onEditStart}
-          className={maxWidth}
-          style={{ width }}
         >
           {value}
-        </div>
+        </span>
       )}
     </>
   );
@@ -148,12 +162,12 @@ export const ValueEditor: React.FunctionComponent<{
     // Double-click is not accessible so no reason for this to be a button,
     // users won't be able to interact with it anyway
     return (
-      <div
+      <span
         data-testid="hadron-document-clickable-value"
         onDoubleClick={onEditStart}
       >
         <BSONValue type={type as any} value={originalValue}></BSONValue>
-      </div>
+      </span>
     );
   }
 
