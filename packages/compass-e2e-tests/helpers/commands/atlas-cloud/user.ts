@@ -127,11 +127,13 @@ export async function signInToAtlasDesktop(
   {
     username,
     password,
+    env,
     triggerSignIn,
     waitForSignedIn,
   }: {
     username: string;
     password: string;
+    env: AtlasEnvironment;
     triggerSignIn: () => Promise<void>;
     waitForSignedIn: () => Promise<boolean>;
   }
@@ -166,7 +168,10 @@ export async function signInToAtlasDesktop(
       }
     );
 
-    await loginSessionBrowser.url(authUrl);
+    const { accountUrl } = getCloudUrlsForEnvironment(env);
+    await loginSessionBrowser.navigateTo(
+      `${accountUrl}/account/login?signedOut=true`
+    );
 
     await doCloudFetch(
       loginSessionBrowser,
@@ -180,6 +185,8 @@ export async function signInToAtlasDesktop(
       { method: 'POST' },
       { form: { username } }
     );
+
+    await loginSessionBrowser.url(authUrl);
 
     await fillAtlasLoginForm(
       loginSessionBrowser,

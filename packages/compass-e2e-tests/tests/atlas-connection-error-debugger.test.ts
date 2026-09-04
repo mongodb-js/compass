@@ -147,6 +147,7 @@ describe('Atlas connection error debugger', function () {
     await browser.signInToAtlasDesktop({
       username,
       password,
+      env: ATLAS_ENV,
       triggerSignIn: () => browser.clickVisible(connectToAtlasButton),
       waitForSignedIn: () => isSignedIn(browser),
     });
