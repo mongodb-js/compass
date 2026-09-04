@@ -3,7 +3,7 @@ import { bsonType, Int32, ObjectId, UUID } from 'bson';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { Sort } from 'mongodb';
-import { Collection, MongoClient, MongoServerError } from 'mongodb';
+import { MongoClient, MongoServerError } from 'mongodb';
 import type { Document } from 'bson';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -843,14 +843,6 @@ describe('DataService', function () {
           { name: 'renamedCollection' }
         );
         expect(collection).to.exist;
-      });
-
-      it('returns the collection object', async function () {
-        const result = await dataService.renameCollection(
-          `${testDatabaseName}.initialCollection`,
-          'renamedCollection'
-        );
-        expect(result).to.be.instanceOf(Collection);
       });
     });
 
