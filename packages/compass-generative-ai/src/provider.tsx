@@ -117,6 +117,7 @@ export {
   READ_ONLY_DATABASE_TOOLS,
   doesToolUseConnection,
   isReadOnlyTool,
+  isAtlasTool,
 } from './available-tools';
 export { AI_MODEL_CHAT_VERSION, AI_MODEL_SLIM_VERSION } from './model-version';
 
