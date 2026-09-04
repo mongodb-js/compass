@@ -118,10 +118,10 @@ describe('Atlas connection error debugger', function () {
   });
 
   afterEach(async function () {
+    await screenshotIfFailed(compass, this.currentTest);
     if (compass) {
       await cleanup(compass);
     }
-    await screenshotIfFailed(compass, this.currentTest);
   });
 
   const useDebugger = async (connectionString: string) => {

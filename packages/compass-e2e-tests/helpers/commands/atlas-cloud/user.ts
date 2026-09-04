@@ -12,7 +12,11 @@ import {
 import type { AtlasEnvironment } from '../../test-runner-context.ts';
 import { FIXTURES_PATH } from '../../test-runner-paths.ts';
 import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
-import { createExternalBrowser } from '../../compass.ts';
+import {
+  createExternalBrowser,
+  screenshotIfFailed,
+  screenshotPathName,
+} from '../../compass.ts';
 import { waitForLeafygreenEnabled } from '../leafygreen.ts';
 
 const { template } = lodash;
@@ -198,6 +202,13 @@ export async function signInToAtlasDesktop(
       password,
       waitForSignedIn
     );
+  } catch (err) {
+    if (loginSessionBrowser) {
+      await loginSessionBrowser
+        .screenshot(screenshotPathName('signin-to-atlas-desktop-failure'))
+        .catch(() => {});
+    }
+    throw err;
   } finally {
     await loginSessionBrowser?.deleteSession().catch(() => {});
     await browser
