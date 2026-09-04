@@ -2,7 +2,6 @@ import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 import { EventEmitter } from 'events';
 import { ExplainVerbosity, ClientEncryption } from 'mongodb';
 import type {
-  Abortable,
   AggregateOptions,
   AggregationCursor,
   AnyBulkWriteOperation,
@@ -54,6 +53,7 @@ import type {
   ConnectionCreatedEvent,
   IndexDescriptionInfo,
   ReadPreferenceLike,
+  WithId,
 } from 'mongodb';
 import { ReadPreference } from 'mongodb';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -64,7 +64,6 @@ import type {
 } from './connection-options';
 import type {
   CollectionDetails,
-  DatabaseDetails,
   InstanceDetails,
 } from './instance-detail-helper';
 import {
@@ -89,7 +88,28 @@ import {
   connectMongoClientDataService as connectMongoClient,
   createClonedClient,
 } from './connect-mongo-client';
-import type { CollectionStats } from './types';
+import type {
+  AbortableAggregateOptions,
+  AuthenticatedUserPrivileges,
+  AuthenticatedUserRoles,
+  CollectionInfoDetails,
+  CollectionStats,
+  CollectionType,
+  CSFLEMode,
+  DatabaseStats,
+  ExecutionOptionsWithFallbackReadPreference,
+  FetchShardKeyOptions,
+  IsUpdateAllowedMethod,
+  KnownSchemaForCollectionMethod,
+  ListCollectionsOptions,
+  ListDatabasesOptions,
+  ListedDatabase,
+  MongoClientConnectionOptions,
+  ShardKey,
+  UpdateCollectionFlags,
+  UpdatedSecrets,
+  UpdateExpression,
+} from './types';
 import type { ConnectionStatusWithPrivileges } from './run-command';
 import { runCommand } from './run-command';
 import type { CSFLECollectionTracker } from './csfle-collection-tracker';
@@ -114,10 +134,7 @@ import type {
   UnboundDataServiceImplLogger,
 } from './logger';
 import { WithLogContext, debug, mongoLogId } from './logger';
-import type {
-  DevtoolsConnectOptions,
-  DevtoolsConnectionState,
-} from '@mongodb-js/devtools-connect';
+import type { DevtoolsConnectionState } from '@mongodb-js/devtools-connect';
 import { omit } from 'lodash';
 
 function uniqueBy<T extends Record<string, unknown>>(
@@ -268,9 +285,7 @@ export interface DataService {
   /**
    * Returns connection options passed to the driver on connection
    */
-  getMongoClientConnectionOptions():
-    | { url: string; options: DevtoolsConnectOptions }
-    | undefined;
+  getMongoClientConnectionOptions(): MongoClientConnectionOptions | undefined;
 
   /**
    * Returns connection options DataService was initialized with
@@ -295,7 +310,7 @@ export interface DataService {
    * Returns the most recent topology description from the server's SDAM events.
    * https://github.com/mongodb/specifications/blob/master/source/server-discovery-and-monitoring/server-discovery-and-monitoring-monitoring.rst#events
    */
-  getLastSeenTopology(): null | TopologyDescription;
+  getLastSeenTopology(): TopologyDescription | null;
 
   /**
    * Is the data service allowed to perform write operations.
@@ -352,13 +367,7 @@ export interface DataService {
   listCollections(
     databaseName: string,
     filter?: Document,
-    options?: {
-      nameOnly?: true;
-      fetchNamespacesFromPrivileges?: boolean;
-      privileges?:
-        | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
-        | null;
-    }
+    options?: ListCollectionsOptions
   ): Promise<CollectionDetails[]>;
 
   /**
@@ -371,7 +380,7 @@ export interface DataService {
   collectionInfo(
     dbName: string,
     collName: string
-  ): Promise<ReturnType<typeof adaptCollectionInfo> | null>;
+  ): Promise<CollectionInfoDetails>;
 
   /**
    * Get the stats for a collection.
@@ -383,7 +392,7 @@ export interface DataService {
   collectionStats(
     databaseName: string,
     collectionName: string,
-    collectionType: 'collection' | 'view' | 'timeseries'
+    collectionType: CollectionType
   ): Promise<CollectionStats>;
 
   /**
@@ -392,17 +401,14 @@ export interface DataService {
    * @param ns - The namespace.
    * @param options - The options.
    */
-  createCollection(
-    ns: string,
-    options: CreateCollectionOptions
-  ): Promise<Collection<Document>>;
+  createCollection(ns: string, options: CreateCollectionOptions): Promise<void>;
 
   /**
    * Create a new view.
    *
    * @param name - The collectionName for the view.
    * @param sourceNs - The source `<db>.<collectionOrViewName>` for the view.
-   * @param pipeline - The agggregation pipeline for the view.
+   * @param pipeline - The aggregation pipeline for the view.
    * @param options - Options e.g. collation.
    */
   createView(
@@ -410,7 +416,7 @@ export interface DataService {
     sourceNs: string,
     pipeline: Document[],
     options: CreateCollectionOptions
-  ): Promise<Collection<Document>>;
+  ): Promise<void>;
 
   /**
    * Update a collection.
@@ -418,13 +424,7 @@ export interface DataService {
    * @param ns - The namespace.
    * @param flags - The flags.
    */
-  updateCollection(
-    ns: string,
-    // Collection name to update that will be passed to the collMod command will
-    // be derived from the provided namespace, this is why we are explicitly
-    // prohibiting to pass collMod flag here
-    flags: Document & { collMod?: never }
-  ): Promise<Document>;
+  updateCollection(ns: string, flags: UpdateCollectionFlags): Promise<Document>;
 
   /**
    * Drops a collection from a database
@@ -437,10 +437,7 @@ export interface DataService {
   /**
    *
    */
-  renameCollection(
-    ns: string,
-    newCollectionName: string
-  ): Promise<Collection<Document>>;
+  renameCollection(ns: string, newCollectionName: string): Promise<void>;
 
   /**
    * Count the number of documents in the collection.
@@ -463,16 +460,7 @@ export interface DataService {
    * @deprecated avoid using `listDatabases` directly and use `DatabaseModel`
    * instead
    */
-  listDatabases(options?: {
-    nameOnly?: true;
-    fetchNamespacesFromPrivileges?: boolean;
-    privileges?:
-      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
-      | null;
-    roles?:
-      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
-      | null;
-  }): Promise<Omit<DatabaseDetails, 'collections'>[]>;
+  listDatabases(options?: ListDatabasesOptions): Promise<ListedDatabase[]>;
 
   /**
    * Get the stats for a database.
@@ -480,9 +468,7 @@ export interface DataService {
    * @param name - The database name.
    * @param callback - The callback.
    */
-  databaseStats(
-    name: string
-  ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }>;
+  databaseStats(name: string): Promise<DatabaseStats>;
 
   /**
    * Drops a database
@@ -573,7 +559,7 @@ export interface DataService {
   aggregateCursor(
     ns: string,
     pipeline: Document[],
-    options?: AggregateOptions & Abortable
+    options?: AbortableAggregateOptions
   ): AggregationCursor;
 
   explainAggregate(
@@ -597,9 +583,7 @@ export interface DataService {
     ns: string,
     filter: Filter<Document>,
     options?: FindOptions,
-    executionOptions?: ExecutionOptions & {
-      fallbackReadPreference?: ReadPreferenceMode;
-    }
+    executionOptions?: ExecutionOptionsWithFallbackReadPreference
   ): Promise<Document[]>;
 
   /**
@@ -643,7 +627,7 @@ export interface DataService {
     filter: Filter<Document>,
     replacement: Document,
     options?: FindOneAndReplaceOptions
-  ): Promise<Document | null>;
+  ): Promise<WithId<Document> | null>;
 
   /**
    * Find one document and update it with the update operations.
@@ -658,7 +642,7 @@ export interface DataService {
     filter: Filter<Document>,
     update: Document,
     options?: FindOneAndUpdateOptions
-  ): Promise<Document | null>;
+  ): Promise<WithId<Document> | null>;
 
   /**
    * Update one document.
@@ -673,7 +657,7 @@ export interface DataService {
     filter: Filter<Document>,
     update: Document,
     options?: UpdateOptions
-  ): Promise<Document | null>;
+  ): Promise<void>;
 
   /**
    * Replace one document.
@@ -688,7 +672,7 @@ export interface DataService {
     filter: Filter<Document>,
     replacement: Document,
     options?: UpdateOptions
-  ): Promise<Document | null>;
+  ): Promise<void>;
 
   /**
    * Count the number of documents in the collection for the provided filter
@@ -703,9 +687,7 @@ export interface DataService {
     ns: string,
     filter: Filter<Document>,
     options?: CountDocumentsOptions,
-    executionOptions?: ExecutionOptions & {
-      fallbackReadPreference?: ReadPreferenceMode;
-    }
+    executionOptions?: ExecutionOptionsWithFallbackReadPreference
   ): Promise<number>;
 
   /**
@@ -718,10 +700,8 @@ export interface DataService {
   sampleCursor(
     ns: string,
     args?: SampleOptions,
-    options?: AggregateOptions & Abortable,
-    executionOptions?: ExecutionOptions & {
-      fallbackReadPreference?: ReadPreferenceMode;
-    }
+    options?: AbortableAggregateOptions,
+    executionOptions?: ExecutionOptionsWithFallbackReadPreference
   ): AggregationCursor;
 
   /**
@@ -735,9 +715,7 @@ export interface DataService {
     ns: string,
     args?: SampleOptions,
     options?: AggregateOptions,
-    executionOptions?: ExecutionOptions & {
-      fallbackReadPreference?: ReadPreferenceMode;
-    }
+    executionOptions?: ExecutionOptionsWithFallbackReadPreference
   ): Promise<Document[]>;
 
   /**
@@ -749,9 +727,9 @@ export interface DataService {
    */
   fetchShardKey(
     ns: string,
-    options?: Omit<FindOptions, 'projection'>,
+    options?: FetchShardKeyOptions,
     executionOptions?: ExecutionOptions
-  ): Promise<Record<string, unknown> | null>;
+  ): Promise<ShardKey | null>;
 
   /*** Insert ***/
 
@@ -831,7 +809,7 @@ export interface DataService {
    *
    * @param error The error to check.
    */
-  isCancelError(error: any): ReturnType<typeof isCancelError>;
+  isCancelError(error: unknown): boolean;
 
   /**
    * Create a new data encryption key (DEK) using the ClientEncryption
@@ -845,7 +823,7 @@ export interface DataService {
    *
    * Should default to `unavailable` on unsupported platforms
    */
-  getCSFLEMode(): 'enabled' | 'disabled' | 'unavailable';
+  getCSFLEMode(): CSFLEMode;
 
   /**
    * Change current CSFLE status
@@ -855,12 +833,12 @@ export interface DataService {
   /**
    * @see CSFLECollectionTracker.isUpdateAllowed
    */
-  isUpdateAllowed: CSFLECollectionTracker['isUpdateAllowed'];
+  isUpdateAllowed: IsUpdateAllowedMethod;
 
   /**
    * @see CSFLECollectionTracker.knownSchemaForCollection
    */
-  knownSchemaForCollection: CSFLECollectionTracker['knownSchemaForCollection'];
+  knownSchemaForCollection: KnownSchemaForCollectionMethod;
 
   /**
    * Returns a list of configured KMS providers for the current connection
@@ -877,7 +855,7 @@ export interface DataService {
    * since connecting (e.g. OIDC tokens). The `connectionInfoSecretsChanged` event
    * is being emitted when this value changes.
    */
-  getUpdatedSecrets(): Promise<Partial<ConnectionOptions>>;
+  getUpdatedSecrets(): Promise<UpdatedSecrets>;
 
   /**
    * Runs the update within a transactions, only
@@ -887,7 +865,7 @@ export interface DataService {
   previewUpdate(
     ns: string,
     filter: Document,
-    update: Document | Document[],
+    update: UpdateExpression,
     executionOptions?: UpdatePreviewExecutionOptions
   ): Promise<UpdatePreview>;
 
@@ -941,8 +919,13 @@ const maybePickNs = ([ns]: unknown[]) => {
   }
 };
 
-const isPromiseLike = <T>(val: any): val is PromiseLike<T> => {
-  return 'then' in val && typeof val.then === 'function';
+const isPromiseLike = <T>(val: unknown): val is PromiseLike<T> => {
+  return (
+    !!val &&
+    typeof val === 'object' &&
+    'then' in val &&
+    typeof val.then === 'function'
+  );
 };
 
 /**
@@ -950,13 +933,15 @@ const isPromiseLike = <T>(val: any): val is PromiseLike<T> => {
  * @param error - The error.
  * @returns The error with message translated.
  */
-const translateErrorMessage = (error: any): Error | { message: string } => {
+const translateErrorMessage = (error: unknown): Error | { message: string } => {
+  if (!error) return { message: 'Unknown error' };
   if (typeof error === 'string') {
     error = { message: error };
-  } else if (!error.message) {
-    error.message = error.err || error.errmsg;
+  } else if (typeof error === 'object') {
+    const e: { message?: string; err?: string; errmsg?: string } = error;
+    if (!e.message) e.message = e.err || e.errmsg;
   }
-  return error;
+  return error as Error | { message: string };
 };
 
 /**
@@ -990,7 +975,7 @@ function op<T extends unknown[], K>(
         );
         return result;
       };
-      const handleError = (error: any) => {
+      const handleError = (error: unknown) => {
         const err = translateErrorMessage(error);
         this._logger.error(
           mongoLogId(1_001_000_058),
@@ -1010,7 +995,7 @@ function op<T extends unknown[], K>(
         } else {
           return handleResult(result);
         }
-      } catch (error) {
+      } catch (error: unknown) {
         return handleError(error);
       }
     };
@@ -1021,10 +1006,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   private readonly _connectionOptions: Readonly<ConnectionOptions>;
   private readonly _proxyOptions: Readonly<DevtoolsProxyOptions>;
   private _isConnecting = false;
-  private _mongoClientConnectionOptions?: {
-    url: string;
-    options: DevtoolsConnectOptions;
-  };
+  private _mongoClientConnectionOptions?: MongoClientConnectionOptions;
 
   // Use two separate clients in the CSFLE case, one with CSFLE
   // enabled, one disabled. _initializedClient() can be used
@@ -1140,9 +1122,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return this;
   }
 
-  getMongoClientConnectionOptions():
-    | { url: string; options: DevtoolsConnectOptions }
-    | undefined {
+  getMongoClientConnectionOptions(): MongoClientConnectionOptions | undefined {
     // `notifyDeviceFlow` is a function which cannot be serialized for inclusion
     // in the shell, `signal` is an abortSignal, and `allowedFlows` is turned
     // into a function by the connection code.
@@ -1171,7 +1151,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     this._useCRUDClient = enabled;
   }
 
-  getCSFLEMode(): 'enabled' | 'disabled' | 'unavailable' {
+  getCSFLEMode(): CSFLEMode {
     if (this._crudClient && checkIsCSFLEConnection(this._crudClient)) {
       if (this._useCRUDClient) {
         return 'enabled';
@@ -1189,7 +1169,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async collectionStats(
     databaseName: string,
     collectionName: string,
-    collectionType: 'collection' | 'view' | 'timeseries'
+    collectionType: CollectionType
   ): Promise<CollectionStats> {
     const ns = `${databaseName}.${collectionName}`;
 
@@ -1321,7 +1301,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async collectionInfo(
     dbName: string,
     collName: string
-  ): Promise<ReturnType<typeof adaptCollectionInfo> | null> {
+  ): Promise<CollectionInfoDetails> {
     const [collInfo] = await this._listCollections(dbName, { name: collName });
     return (
       adaptCollectionInfo({
@@ -1367,9 +1347,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   private async _getPrivilegesOrFallback(
-    privileges:
-      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
-      | null = null
+    privileges: AuthenticatedUserPrivileges | null = null
   ) {
     if (privileges) {
       return privileges;
@@ -1381,9 +1359,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   private async _getRolesOrFallback(
-    roles:
-      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
-      | null = null
+    roles: AuthenticatedUserRoles | null = null
   ) {
     if (roles) {
       return roles;
@@ -1457,13 +1433,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
       nameOnly,
       fetchNamespacesFromPrivileges = true,
       privileges = null,
-    }: {
-      nameOnly?: true;
-      fetchNamespacesFromPrivileges?: boolean;
-      privileges?:
-        | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
-        | null;
-    } = {}
+    }: ListCollectionsOptions = {}
   ): Promise<CollectionDetails[]> {
     const listCollections = async () => {
       const colls = await this._listCollections(databaseName, filter, {
@@ -1529,16 +1499,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     fetchNamespacesFromPrivileges = true,
     privileges = null,
     roles = null,
-  }: {
-    nameOnly?: true;
-    fetchNamespacesFromPrivileges?: boolean;
-    privileges?:
-      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserPrivileges']
-      | null;
-    roles?:
-      | ConnectionStatusWithPrivileges['authInfo']['authenticatedUserRoles']
-      | null;
-  } = {}): Promise<Omit<DatabaseDetails, 'collections'>[]> {
+  }: ListDatabasesOptions = {}): Promise<ListedDatabase[]> {
     const adminDb = this._database('admin', 'CRUD');
 
     const listDatabases = async () => {
@@ -1785,9 +1746,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     ns: string,
     filter: Filter<Document>,
     options: CountDocumentsOptions = {},
-    executionOptions?: ExecutionOptions & {
-      fallbackReadPreference?: ReadPreferenceMode;
-    }
+    executionOptions?: ExecutionOptionsWithFallbackReadPreference
   ): Promise<number> {
     return this._cancellableOperation(
       async (session, signal) => {
@@ -1805,16 +1764,16 @@ class DataServiceImpl extends WithLogContext implements DataService {
     );
   }
 
-  @op(mongoLogId(1_001_000_036), ([ns, options], result) => {
-    return { ns, options, ...(result && { result }) };
+  @op(mongoLogId(1_001_000_036), ([ns, options]) => {
+    return { ns, options };
   })
   async createCollection(
     ns: string,
     options: CreateCollectionOptions
-  ): Promise<Collection<Document>> {
+  ): Promise<void> {
     const collectionName = this._collectionName(ns);
     const db = this._database(ns, 'CRUD');
-    return await db.createCollection(collectionName, options);
+    await db.createCollection(collectionName, options);
   }
 
   @op(mongoLogId(1_001_000_037), ([ns, spec, options], result) => {
@@ -1912,12 +1871,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   @op(mongoLogId(1_001_000_276))
-  renameCollection(
-    ns: string,
-    newCollectionName: string
-  ): Promise<Collection<Document>> {
+  async renameCollection(ns: string, newCollectionName: string): Promise<void> {
     const db = this._database(ns, 'META');
-    return db.renameCollection(this._collectionName(ns), newCollectionName);
+    await db.renameCollection(this._collectionName(ns), newCollectionName);
   }
 
   @op(mongoLogId(1_001_000_040), ([db], result) => {
@@ -1990,7 +1946,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   aggregateCursor(
     ns: string,
     pipeline: Document[],
-    options: AggregateOptions & Abortable = {}
+    options: AbortableAggregateOptions = {}
   ): AggregationCursor {
     return this._collection(ns, 'CRUD').aggregate(pipeline, options);
   }
@@ -2034,9 +1990,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     ns: string,
     filter: Filter<Document>,
     options: FindOptions = {},
-    executionOptions?: ExecutionOptions & {
-      fallbackReadPreference?: ReadPreferenceMode;
-    }
+    executionOptions?: ExecutionOptionsWithFallbackReadPreference
   ): Promise<Document[]> {
     let cursor: FindCursor;
     return this._cancellableOperation(
@@ -2076,7 +2030,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     filter: Filter<Document>,
     replacement: Document,
     options: FindOneAndReplaceOptions
-  ): Promise<Document | null> {
+  ): Promise<WithId<Document> | null> {
     const coll = this._collection(ns, 'CRUD');
     return await coll.findOneAndReplace(filter, replacement, options);
   }
@@ -2087,7 +2041,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     filter: Filter<Document>,
     update: Document,
     options: FindOneAndUpdateOptions
-  ): Promise<Document | null> {
+  ): Promise<WithId<Document> | null> {
     const coll = this._collection(ns, 'CRUD');
     return await coll.findOneAndUpdate(filter, update, options);
   }
@@ -2098,9 +2052,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
     filter: Filter<Document>,
     update: Document,
     options: UpdateOptions
-  ): Promise<Document | null> {
+  ): Promise<void> {
     const coll = this._collection(ns, 'CRUD');
-    return await coll.updateOne(filter, update, options);
+    await coll.updateOne(filter, update, options);
   }
 
   @op(mongoLogId(1_001_000_191))
@@ -2109,9 +2063,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
     filter: Filter<Document>,
     replacement: Document,
     options: ReplaceOptions
-  ): Promise<Document | null> {
+  ): Promise<void> {
     const coll = this._collection(ns, 'CRUD');
-    return await coll.replaceOne(filter, replacement, options);
+    await coll.replaceOne(filter, replacement, options);
   }
 
   @op(mongoLogId(1_001_000_046), ([ns, , , executionOptions]) => {
@@ -2334,9 +2288,9 @@ class DataServiceImpl extends WithLogContext implements DataService {
   @op(mongoLogId(1_001_000_381))
   async fetchShardKey(
     ns: string,
-    options: Omit<FindOptions, 'projection'> = {},
+    options: FetchShardKeyOptions = {},
     executionOptions?: ExecutionOptions
-  ): Promise<Record<string, unknown> | null> {
+  ): Promise<ShardKey | null> {
     const docs = await this.find(
       'config.collections',
       {
@@ -2499,10 +2453,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   })
   async updateCollection(
     ns: string,
-    // Collection name to update that will be passed to the collMod command will
-    // be derived from the provided namespace, this is why we are explicitly
-    // prohibiting to pass collMod flag here
-    flags: Document & { collMod?: never } = {}
+    flags: UpdateCollectionFlags = {}
   ): Promise<Document> {
     const collectionName = this._collectionName(ns);
     const db = this._database(ns, 'CRUD');
@@ -2542,7 +2493,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return { inprog: currentOp };
   }
 
-  getLastSeenTopology(): null | TopologyDescription {
+  getLastSeenTopology(): TopologyDescription | null {
     return this._lastSeenTopology;
   }
 
@@ -2570,31 +2521,27 @@ class DataServiceImpl extends WithLogContext implements DataService {
     );
   }
 
-  @op(
-    mongoLogId(1_001_000_055),
-    ([name, sourceNs, pipeline, options], result) => {
-      return {
-        name,
-        sourceNs,
-        stages: pipeline.map((stage) => Object.keys(stage)[0]),
-        options,
-        ...(result && { result }),
-      };
-    }
-  )
+  @op(mongoLogId(1_001_000_055), ([name, sourceNs, pipeline, options]) => {
+    return {
+      name,
+      sourceNs,
+      stages: pipeline.map((stage) => Object.keys(stage)[0]),
+      options,
+    };
+  })
   async createView(
     name: string,
     sourceNs: string,
     pipeline: Document[],
     options: Omit<CreateCollectionOptions, 'viewOn' | 'pipeline'> = {}
-  ): Promise<Collection<Document>> {
+  ): Promise<void> {
     const createCollectionOptions: CreateCollectionOptions = {
       ...options,
       viewOn: this._collectionName(sourceNs),
       pipeline,
     };
     const db = this._database(sourceNs, 'CRUD');
-    return await db.createCollection(name, createCollectionOptions);
+    await db.createCollection(name, createCollectionOptions);
   }
 
   private _buildSamplingPipeline({ query, size, fields }: SampleOptions) {
@@ -2624,10 +2571,8 @@ class DataServiceImpl extends WithLogContext implements DataService {
   sampleCursor(
     ns: string,
     samplingOptions: SampleOptions = {},
-    options: AggregateOptions & Abortable = {},
-    executionOptions?: ExecutionOptions & {
-      fallbackReadPreference?: ReadPreferenceMode;
-    }
+    options: AbortableAggregateOptions = {},
+    executionOptions?: ExecutionOptionsWithFallbackReadPreference
   ): AggregationCursor {
     const pipeline = this._buildSamplingPipeline(samplingOptions);
 
@@ -2644,9 +2589,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     ns: string,
     samplingOptions: SampleOptions = {},
     options: AggregateOptions = {},
-    executionOptions?: ExecutionOptions & {
-      fallbackReadPreference?: ReadPreferenceMode;
-    }
+    executionOptions?: ExecutionOptionsWithFallbackReadPreference
   ): Promise<Document[]> {
     const pipeline = this._buildSamplingPipeline(samplingOptions);
 
@@ -2712,8 +2655,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     }
 
     if (abortSignal.aborted) {
-      // AbortSignal.reason is supported from node v17.2.0.
-      throw (abortSignal as any).reason ?? createCancelError();
+      throw abortSignal.reason ?? createCancelError();
     }
 
     const session = this._startSession('CRUD');
@@ -2743,7 +2685,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return result;
   }
 
-  isCancelError(error: any): ReturnType<typeof isCancelError> {
+  isCancelError(error: unknown): boolean {
     return isCancelError(error);
   }
 
@@ -2967,9 +2909,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 
   @op(mongoLogId(1_001_000_057))
-  async databaseStats(
-    name: string
-  ): Promise<ReturnType<typeof adaptDatabaseInfo> & { name: string }> {
+  async databaseStats(name: string): Promise<DatabaseStats> {
     const db = this._database(name, 'META');
     const stats = await runCommand(
       db,
@@ -2990,7 +2930,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
   async previewUpdate(
     ns: string,
     filter: Document,
-    update: Document | Document[],
+    update: UpdateExpression,
     executionOptions: UpdatePreviewExecutionOptions = {}
   ): Promise<UpdatePreview> {
     const {
@@ -3055,7 +2995,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
               maxTimeMS: remainingTimeoutMS(),
             }
           );
-        } catch (err: any) {
+        } catch (err: unknown) {
           if (isTransactionAbortError(err)) {
             // The transaction was aborted while it was still calculating the
             // preview. Just return something here rather than erroring. No
@@ -3259,7 +3199,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     });
   }
 
-  async getUpdatedSecrets(): Promise<Partial<ConnectionOptions>> {
+  async getUpdatedSecrets(): Promise<UpdatedSecrets> {
     if (!this._state) return {};
     return {
       oidc: {
@@ -3302,7 +3242,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     };
 
     const assertNoExtraProps = <T>(
-      _cls: new (...args: any[]) => NoExtraProps<DataService, T>
+      _cls: new (...args: never[]) => NoExtraProps<DataService, T>
     ) => {
       // Checking that we are not exposing anything unexpected on our data service
       // implementation. This file will not compile if there are more public methods
@@ -3313,11 +3253,15 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 }
 
-function isTransactionAbortError(err: any) {
-  if (err.message === 'Cannot use a session that has ended') {
+function isTransactionAbortError(err: unknown) {
+  if (!err || typeof err !== 'object') return false;
+  if (
+    'message' in err &&
+    err.message === 'Cannot use a session that has ended'
+  ) {
     return true;
   }
-  if (err.codeName === 'NoSuchTransaction') {
+  if ('codeName' in err && err.codeName === 'NoSuchTransaction') {
     return true;
   }
   return false;

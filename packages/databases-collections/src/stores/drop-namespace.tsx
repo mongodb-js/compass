@@ -68,11 +68,12 @@ export function activatePlugin(
     });
     if (confirmed) {
       try {
-        const method = isCollection ? 'dropCollection' : 'dropDatabase';
         const dataService =
           connections.getDataServiceForConnection(connectionId);
 
-        await dataService[method](ns);
+        await (isCollection
+          ? dataService.dropCollection(ns)
+          : dataService.dropDatabase(database));
         track(
           isCollection ? 'Collection Dropped' : 'Database Dropped',
           {},
