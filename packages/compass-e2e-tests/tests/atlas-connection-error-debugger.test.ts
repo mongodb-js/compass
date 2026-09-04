@@ -14,10 +14,7 @@ import {
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
-import {
-  ATLAS_CLOUD_TEST_UTILS,
-  getAtlasBackendPreset,
-} from '../helpers/test-runner-context.ts';
+import { ATLAS_CLOUD_TEST_UTILS } from '../helpers/test-runner-context.ts';
 
 // This test relies on Atlas resources (org, projects, paused/network-access
 // clusters) that only exist in the atlas-qa environment, so it always runs

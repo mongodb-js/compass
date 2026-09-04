@@ -12,11 +12,7 @@ import {
 import type { AtlasEnvironment } from '../../test-runner-context.ts';
 import { FIXTURES_PATH } from '../../test-runner-paths.ts';
 import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
-import {
-  createExternalBrowser,
-  screenshotIfFailed,
-  screenshotPathName,
-} from '../../compass.ts';
+import { createExternalBrowser, screenshotPathName } from '../../compass.ts';
 import { waitForLeafygreenEnabled } from '../leafygreen.ts';
 
 const { template } = lodash;
