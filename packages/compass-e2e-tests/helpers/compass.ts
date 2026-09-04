@@ -29,6 +29,7 @@ import {
   assertTestingWeb,
   isTestingWebAtlasCloud,
   getCloudUrlsFromContext,
+  getAtlasCloudEnvironmentFromContext,
 } from './test-runner-context.ts';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -1165,7 +1166,8 @@ export async function init(
   if (isTestingWebAtlasCloud(context)) {
     await browser.signInToAtlas(
       context.atlasCloudUsername,
-      context.atlasCloudPassword
+      context.atlasCloudPassword,
+      getAtlasCloudEnvironmentFromContext(context)
     );
 
     // Disable temporary marketing modal before proceeding

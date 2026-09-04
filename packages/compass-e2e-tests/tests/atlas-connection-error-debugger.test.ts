@@ -14,8 +14,15 @@ import {
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
-import { ATLAS_CLOUD_TEST_UTILS } from '../helpers/test-runner-context.ts';
+import {
+  ATLAS_CLOUD_TEST_UTILS,
+  getAtlasBackendPreset,
+} from '../helpers/test-runner-context.ts';
 
+// This test relies on Atlas resources (org, projects, paused/network-access
+// clusters) that only exist in the atlas-qa environment, so it always runs
+// against QA regardless of the task it's executed in.
+const ATLAS_ENV = 'qa' as const;
 const QA_ORG_ID = '67ec23f45c93b57f2845860f';
 const PAUSED_PROJECT_ID = '6a8c5d1677636c0fc4177a8a';
 const PAUSED_CLUSTER_NAME = 'paused';
@@ -68,13 +75,17 @@ describe('Atlas connection error debugger', function () {
     process.env.COMPASS_OIDC_OPEN_BROWSER_TIMEOUT_OVERRIDE = String(2 * 60_000);
 
     session = await createExternalBrowser(false);
-    ({ username, password } = await createAtlasLoginUser(session, {
+    ({ username, password } = await createAtlasLoginUser(session, ATLAS_ENV, {
       existingOrgId: QA_ORG_ID,
     }));
   });
 
   after(async function () {
-    await deleteAtlasUser(session as unknown as CompassBrowser, username);
+    await deleteAtlasUser(
+      session as unknown as CompassBrowser,
+      username,
+      ATLAS_ENV
+    );
     await session?.deleteSession().catch(() => {});
   });
 
@@ -82,7 +93,9 @@ describe('Atlas connection error debugger', function () {
     try {
       compass = await init(this.test?.fullTitle(), {
         // this test uses an org that only exists in the atlas-qa environment
-        extraSpawnArgs: [`--atlasServiceBackendPreset=atlas-qa`],
+        extraSpawnArgs: [
+          `--atlasServiceBackendPreset=${getAtlasBackendPreset(ATLAS_ENV)}`,
+        ],
       });
       browser = compass.browser;
 
@@ -147,6 +160,7 @@ describe('Atlas connection error debugger', function () {
       [PAUSED_CLUSTER_NAME],
       username,
       password,
+      ATLAS_ENV,
       PAUSED_PROJECT_ID
     );
     const { chatMessages } = await useDebugger(connectionString[0][1]);
@@ -168,6 +182,7 @@ describe('Atlas connection error debugger', function () {
       [NETWORK_ACCESS_CLUSTER_NAME],
       username,
       password,
+      ATLAS_ENV,
       NETWORK_ACCESS_PROJECT_ID
     );
     const { chatMessages } = await useDebugger(connectionString[0][1]);

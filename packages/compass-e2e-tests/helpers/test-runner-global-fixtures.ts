@@ -6,6 +6,7 @@ import {
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   getCloudUrlsFromContext,
+  getAtlasCloudEnvironmentFromContext,
   isTestingWebAtlasCloud,
   isTestingDesktop,
   isTestingWeb,
@@ -103,10 +104,16 @@ async function createAtlasCloudResources() {
         username: atlasCloudUsername,
         password: atlasCloudPassword,
         projectId: atlasCloudProjectId,
-      } = await createAtlasLoginUser(compass.browser);
+      } = await createAtlasLoginUser(
+        compass.browser,
+        getAtlasCloudEnvironmentFromContext(context)
+      );
 
       cleanupFns.push(() => {
-        return compass.browser.deleteAtlasUser(atlasCloudUsername);
+        return compass.browser.deleteAtlasUser(
+          atlasCloudUsername,
+          getAtlasCloudEnvironmentFromContext(context)
+        );
       });
 
       Object.assign(context, {
@@ -119,7 +126,8 @@ async function createAtlasCloudResources() {
       // commands will require auth
       await compass.browser.signInToAtlas(
         context.atlasCloudUsername,
-        context.atlasCloudPassword
+        context.atlasCloudPassword,
+        getAtlasCloudEnvironmentFromContext(context)
       );
 
       throwIfAborted();
@@ -223,7 +231,8 @@ async function createAtlasCloudResources() {
         await compass.browser.getClusterConnectionStringsFromNames(
           context.atlasCloudDefaultCluster,
           atlasCloudDbuserUsername,
-          atlasCloudDbuserPassword
+          atlasCloudDbuserPassword,
+          getAtlasCloudEnvironmentFromContext(context)
         );
 
       DEFAULT_CONNECTIONS.push(

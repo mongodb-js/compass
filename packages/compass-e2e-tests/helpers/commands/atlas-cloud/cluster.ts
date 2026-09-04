@@ -4,6 +4,7 @@ import {
   getCloudUrlsForEnvironment,
   getCloudUrlsFromContext,
 } from '../../test-runner-context.ts';
+import type { AtlasEnvironment } from '../../test-runner-context.ts';
 import { getProjectIdFromPageUrl, doCloudFetch } from './utils.ts';
 
 export async function getClusterConnectionStringsFromNames(
@@ -11,9 +12,10 @@ export async function getClusterConnectionStringsFromNames(
   clusterNames: string[],
   dbuserUsername: string,
   dbuserPassword: string,
+  env: AtlasEnvironment,
   projectId?: string
 ): Promise<[string, string][]> {
-  const { cloudUrl } = getCloudUrlsForEnvironment();
+  const { cloudUrl } = getCloudUrlsForEnvironment(env);
   const clusters = await doCloudFetch<
     { name: string; state: string; srvAddress: string }[]
   >(

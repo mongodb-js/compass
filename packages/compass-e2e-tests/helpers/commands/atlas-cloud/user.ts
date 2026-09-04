@@ -9,6 +9,7 @@ import {
   getCloudUrlsForEnvironment,
   RUN_ID,
 } from '../../test-runner-context.ts';
+import type { AtlasEnvironment } from '../../test-runner-context.ts';
 import { FIXTURES_PATH } from '../../test-runner-paths.ts';
 import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
 import { createExternalBrowser } from '../../compass.ts';
@@ -72,9 +73,10 @@ export async function fillAtlasLoginForm(
 export async function signInToAtlas(
   browser: CompassBrowser,
   username: string,
-  password: string
+  password: string,
+  env: AtlasEnvironment
 ) {
-  const { accountUrl, cloudUrl } = getCloudUrlsForEnvironment();
+  const { accountUrl, cloudUrl } = getCloudUrlsForEnvironment(env);
 
   await browser.navigateTo(`${accountUrl}/account/login?signedOut=true`);
 
@@ -197,9 +199,10 @@ export async function signInToAtlasDesktop(
 export async function createAtlasUser(
   browser: CompassBrowser,
   username: string,
-  password: string
+  password: string,
+  env: AtlasEnvironment
 ) {
-  const { accountUrl } = getCloudUrlsForEnvironment();
+  const { accountUrl } = getCloudUrlsForEnvironment(env);
 
   await browser.navigateTo(`${accountUrl}/account/login?signedOut=true`);
 
@@ -220,7 +223,7 @@ export async function createAtlasUser(
 
   // Sign in before proceeding: this will apply some extra configuration steps
   // and is required to run some further operations in the flow
-  await signInToAtlas(browser, username, password);
+  await signInToAtlas(browser, username, password, env);
 
   const { orgId, groupId } = await doCloudFetch(
     browser,
@@ -248,6 +251,7 @@ function assertAtlasCloudTestUtils() {
 
 export async function createAtlasLoginUser(
   session: CompassBrowser,
+  env: AtlasEnvironment,
   {
     existingOrgId,
   }: {
@@ -269,7 +273,8 @@ export async function createAtlasLoginUser(
   const { orgId, projectId } = await createAtlasUser(
     session,
     username,
-    password
+    password,
+    env
   );
 
   if (existingOrgId) {
@@ -298,9 +303,10 @@ export async function createAtlasLoginUser(
 
 export async function deleteAtlasUser(
   _browser: CompassBrowser,
-  username: string
+  username: string,
+  env: AtlasEnvironment
 ) {
-  const { cloudUrl } = getCloudUrlsForEnvironment();
+  const { cloudUrl } = getCloudUrlsForEnvironment(env);
   // Using fetch directly so that we can clean-up even after tests are done
   await fetch(
     new URL(
