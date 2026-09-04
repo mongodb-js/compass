@@ -94,7 +94,7 @@ describe('Atlas connection error debugger', function () {
       compass = await init(this.test?.fullTitle(), {
         // this test uses an org that only exists in the atlas-qa environment
         extraSpawnArgs: [
-          `--atlasServiceBackendPreset=${getAtlasBackendPreset(ATLAS_ENV)}`,
+          `--atlas-service-backend-preset=${getAtlasBackendPreset(ATLAS_ENV)}`,
         ],
       });
       browser = compass.browser;
