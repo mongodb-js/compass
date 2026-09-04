@@ -77,14 +77,16 @@ export function configureStore(
   return store;
 }
 
+type WorkspacesPluginProps = React.ComponentProps<typeof Workspaces> & {
+  initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
+  onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
+};
+
 export function activateWorkspacePlugin(
   {
     initialWorkspaceTabs,
     onBeforeUnloadCallbackRequest,
-  }: {
-    initialWorkspaceTabs?: OpenWorkspaceOptions[] | null;
-    onBeforeUnloadCallbackRequest?: (canCloseCallback: () => boolean) => void;
-  },
+  }: WorkspacesPluginProps,
   {
     globalAppRegistry,
     instancesManager,

@@ -72,7 +72,7 @@
     "@mongodb-js/monorepo-tools": "^1.5.8",
     "@mongodb-js/sbom-tools": "^0.10.19",
     "@mongodb-js/tracking-plan": "^0.3.2",
-    "@testing-library/dom": "^8.20.1",
+    "@testing-library/dom": "^9.3.4",
     "ag-grid-react": "^20.2.0",
     "braintrust": "^2.2.2",
     "chai-enzyme": "^1.0.0-beta.1",

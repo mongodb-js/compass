@@ -1,4 +1,9 @@
-import { screen, within, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  screen,
+  waitFor,
+  within,
+  userEvent,
+} from '@mongodb-js/testing-library-compass';
 
 const _getContainer = (parentElement?: HTMLElement) => {
   if (!parentElement) {
@@ -7,15 +12,39 @@ const _getContainer = (parentElement?: HTMLElement) => {
   return within(parentElement);
 };
 
-export const openComboBox = (name: RegExp, parentElement?: HTMLElement) => {
+/**
+ * Menus are not rendered synchronously after the control is clicked, and the
+ * `aria-controls` attribute pointing at them only appears once they are open,
+ * so both have to be waited for.
+ */
+const waitForControlledMenu = (control: HTMLElement): Promise<HTMLElement> => {
+  return waitFor(() => {
+    const menuId = control.getAttribute('aria-controls');
+    const menu = menuId
+      ? document.querySelector<HTMLElement>(`#${menuId}`)
+      : null;
+    if (!menu) {
+      throw new Error(
+        `Expected an open menu controlled by ${control.tagName.toLowerCase()}`
+      );
+    }
+    return menu;
+  });
+};
+
+export const openComboBox = async (
+  name: RegExp,
+  parentElement?: HTMLElement
+) => {
   const combobox = _getContainer(parentElement).getByRole('textbox', {
     name,
   });
-  combobox.click();
+  userEvent.click(combobox);
+  await waitForControlledMenu(combobox);
   return combobox;
 };
 
-export const setSelectValue = (
+export const setSelectValue = async (
   name: RegExp,
   value: string,
   parentElement?: HTMLElement
@@ -23,42 +52,34 @@ export const setSelectValue = (
   const select = _getContainer(parentElement).getByRole('button', {
     name,
   });
-  select.click();
-  const menuId = `#${select.getAttribute('aria-controls')!}`;
-  userEvent.click(
-    within(document.querySelector(menuId)!).getByText(new RegExp(value, 'i')),
-    undefined,
-    {
-      skipPointerEventsCheck: true,
-    }
-  );
+  userEvent.click(select);
+  const menu = await waitForControlledMenu(select);
+  userEvent.click(within(menu).getByText(new RegExp(value, 'i')), undefined, {
+    skipPointerEventsCheck: true,
+  });
 };
 
-export const setComboboxValue = (
+export const setComboboxValue = async (
   name: RegExp,
   value: string,
   parentElement?: HTMLElement
 ) => {
-  const combobox = openComboBox(name, parentElement);
-  const menuId = `#${combobox.getAttribute('aria-controls')!}`;
-  userEvent.click(
-    within(document.querySelector(menuId)!).getByText(new RegExp(value, 'i')),
-    undefined,
-    {
-      skipPointerEventsCheck: true,
-    }
-  );
+  const combobox = await openComboBox(name, parentElement);
+  const menu = await waitForControlledMenu(combobox);
+  userEvent.click(within(menu).getByText(new RegExp(value, 'i')), undefined, {
+    skipPointerEventsCheck: true,
+  });
   userEvent.keyboard('{Escape}');
 };
 
-export const setMultiSelectComboboxValues = (
+export const setMultiSelectComboboxValues = async (
   name: RegExp,
   values: string[],
   parentElement?: HTMLElement
 ) => {
-  const combobox = openComboBox(name, parentElement);
-  const menuId = `#${combobox.getAttribute('aria-controls')!}`;
-  const listbox = within(document.querySelector(menuId)!).getByRole('list');
+  const combobox = await openComboBox(name, parentElement);
+  const menu = await waitForControlledMenu(combobox);
+  const listbox = within(menu).getByRole('list');
   values.forEach((value) => {
     const option = within(listbox).getByRole('option', {
       name: new RegExp(value, 'i'),

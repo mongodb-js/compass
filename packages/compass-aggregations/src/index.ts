@@ -70,7 +70,9 @@ export const CompassAggregationsPlugin = {
 export const CreateViewPlugin = registerCompassPlugin(
   {
     name: 'CreateView',
-    component: CreateViewModal,
+    component: CreateViewModal as React.JSXElementConstructor<{
+      children?: React.ReactNode;
+    }>,
     activate: activateCreateViewPlugin,
   },
   {

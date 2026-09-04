@@ -41,7 +41,7 @@ describe('ExportToLanguagePlugin', function () {
   });
 
   describe('on `open-query-export-to-language` event', function () {
-    it('should show query export to language modal', function () {
+    it('should show query export to language modal', async function () {
       const { localAppRegistry } = render(
         <Plugin namespace="db.coll"></Plugin>
       );
@@ -50,12 +50,12 @@ describe('ExportToLanguagePlugin', function () {
         filter: allTypesStr,
       });
 
-      expect(screen.getByTestId('export-to-language-input').textContent).to.eq(
-        allTypesPrettyStr
-      );
+      expect(
+        (await screen.findByTestId('export-to-language-input')).textContent
+      ).to.eq(allTypesPrettyStr);
     });
 
-    it('should show other query options in the export', function () {
+    it('should show other query options in the export', async function () {
       const { localAppRegistry } = render(
         <Plugin namespace="db.coll"></Plugin>
       );
@@ -68,7 +68,7 @@ describe('ExportToLanguagePlugin', function () {
       });
 
       userEvent.click(
-        screen.getByRole('checkbox', { name: 'Include Driver Syntax' }),
+        await screen.findByRole('checkbox', { name: 'Include Driver Syntax' }),
         undefined,
         { skipPointerEventsCheck: true }
       );
@@ -98,23 +98,25 @@ result = client['db']['coll'].find(
 )
 `.replace(/\n/g, '');
 
-      expect(screen.getByTestId('export-to-language-output').textContent).to.eq(
-        expected
-      );
+      await waitFor(() => {
+        expect(
+          screen.getByTestId('export-to-language-output').textContent
+        ).to.eq(expected);
+      });
     });
   });
 
   describe('on `open-aggregation-export-to-language` event', function () {
-    it('should show aggregation export to language modal', function () {
+    it('should show aggregation export to language modal', async function () {
       const { localAppRegistry } = render(
         <Plugin namespace="db.coll"></Plugin>
       );
 
       localAppRegistry.emit('open-aggregation-export-to-language', allTypesStr);
 
-      expect(screen.getByTestId('export-to-language-input').textContent).to.eq(
-        allTypesPrettyStr
-      );
+      expect(
+        (await screen.findByTestId('export-to-language-input')).textContent
+      ).to.eq(allTypesPrettyStr);
     });
   });
 
@@ -129,10 +131,9 @@ result = client['db']['coll'].find(
       track.resetHistory();
 
       userEvent.click(
-        within(screen.getByTestId('export-to-language-output-field')).getByRole(
-          'button',
-          { name: 'Copy' }
-        )
+        within(
+          await screen.findByTestId('export-to-language-output-field')
+        ).getByRole('button', { name: 'Copy' })
       );
       await waitFor(() => {
         expect(track).to.have.been.calledWith('Aggregation Exported', {

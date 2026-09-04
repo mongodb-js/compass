@@ -161,7 +161,15 @@ describe('WorkspacesPlugin', function () {
     expect(onTabChangeSpy).to.have.been.calledWith(null);
 
     openFns.openCollectionWorkspace('1', 'db.coll0', { newTab: true });
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'db.coll0' })).to.exist;
+    });
+
     openFns.openCollectionWorkspace('1', 'db.coll1', { newTab: true });
+    await waitFor(() => {
+      expect(screen.getByRole('tab', { name: 'db.coll1' })).to.exist;
+    });
+
     openFns.openCollectionWorkspace('1', 'db.coll2', { newTab: true });
 
     await waitFor(() => {

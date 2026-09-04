@@ -53,7 +53,7 @@ export default function NavigationItemsFilter({
 
   const [isPopoverOpen, setPopoverOpen] = useState(false);
 
-  const onSubmit = useCallback((evt) => {
+  const onSubmit = useCallback((evt: React.FormEvent<HTMLFormElement>) => {
     evt.preventDefault();
     evt.stopPropagation();
   }, []);

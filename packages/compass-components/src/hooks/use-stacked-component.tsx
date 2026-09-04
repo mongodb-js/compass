@@ -59,6 +59,9 @@ export const withStackedComponentStyles = function <ComponentProps>(
   ComponentWithStackedStyles.displayName = `WithStackedStyles(${displayName})`;
 
   return React.forwardRef(
-    ComponentWithStackedStyles
-  ) as typeof WrappedComponent;
+    ComponentWithStackedStyles as React.ForwardRefRenderFunction<
+      React.ComponentType<ComponentProps>,
+      React.PropsWithoutRef<ComponentProps>
+    >
+  ) as unknown as typeof WrappedComponent;
 };

@@ -58,13 +58,13 @@ describe('FeedbackPopover', function () {
 
     expect(screen.queryByRole('textbox')).to.not.exist;
 
-    screen.getByTestId('open-feedback-button').click();
+    userEvent.click(screen.getByTestId('open-feedback-button'));
 
     const textArea = screen.getByTestId('feedback-popover-textarea');
     expect(textArea).to.be.visible;
     userEvent.type(textArea, 'pineapple');
 
-    screen.getByText('Submit').click();
+    userEvent.click(screen.getByText('Submit'));
     // Wait for the event to go through.
     await new Promise((resolve) => setTimeout(resolve, 3));
 

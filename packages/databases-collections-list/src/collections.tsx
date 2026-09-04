@@ -115,13 +115,13 @@ function collectionPropertyToBadge(
         hint: (
           <>
             {Object.entries(options ?? {}).map(([key, val]) => {
-              return (
-                val && (
-                  <div key={key}>
-                    <strong>{key}:</strong>&nbsp;{val.toString()}
-                  </div>
-                )
-              );
+              // `val` is `unknown`, so a `&&` expression would leave it in the
+              // rendered type.
+              return val ? (
+                <div key={key}>
+                  <strong>{key}:</strong>&nbsp;{String(val)}
+                </div>
+              ) : null;
             })}
           </>
         ),

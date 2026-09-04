@@ -67,7 +67,10 @@ const withDarkMode = function <
   ComponentWithDarkMode.displayName = `WithDarkMode(${displayName})`;
 
   return React.forwardRef(
-    ComponentWithDarkMode
+    ComponentWithDarkMode as React.ForwardRefRenderFunction<
+      React.ComponentType<ComponentProps>,
+      React.PropsWithoutRef<ComponentProps>
+    >
   ) as unknown as typeof WrappedComponent;
 };
 

@@ -263,7 +263,7 @@ export const VirtualGrid = forwardRef<
   const rowCount = Math.ceil(itemsCount / colCount);
 
   const onFocusMove = useCallback(
-    (idx) => {
+    (idx: number) => {
       const rowIdx = Math.floor(idx / colCount);
       listRef.current?.scrollToItem(rowIdx);
     },

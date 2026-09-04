@@ -133,7 +133,7 @@ export type CompassPluginConfig<
   A extends Plugin
 > = {
   name: string;
-  component: React.ComponentType<React.PropsWithChildren<T>>;
+  component: React.JSXElementConstructor<React.PropsWithChildren<T>>;
   /**
    * Plugin activation method, will receive any props passed to the component,
    * and global and local app registry instances to subscribe to any relevant
