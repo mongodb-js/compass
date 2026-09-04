@@ -226,6 +226,18 @@ describe('AtlasToolCallMessage', function () {
       expect(onDeny).to.have.been.calledOnceWith('approval-1');
       expect(atlasAuthService.signIn).to.not.have.been.called;
     });
+
+    it('does not render the action buttons when there is no approval id', function () {
+      renderMessage({
+        toolCall: {
+          ...makeToolCall('approval-requested'),
+          approval: undefined,
+        } as unknown as ToolUIPart,
+      });
+
+      expect(screen.queryByText('Connect to Atlas')).to.not.exist;
+      expect(screen.queryByText('Skip')).to.not.exist;
+    });
   });
 
   describe('when awaiting approval and the user is signed in', function () {

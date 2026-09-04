@@ -56,10 +56,10 @@ module.exports = {
   'devtools-shared-dev': [
     '@mongodb-js/dl-center',
     '@mongodb-js/mongodb-downloader',
+    '@mongodb-js/mongodb-runner',
     '@mongodb-js/monorepo-tools',
     '@mongodb-js/sbom-tools',
     '@mongodb-js/signing-utils',
-    'mongodb-runner',
   ],
   'webpack-config': [
     '@babel/core',

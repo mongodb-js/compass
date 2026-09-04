@@ -326,12 +326,12 @@ export class CompassAuthService {
             'Signed in successfully'
           );
           const { auid } = getTrackingUserInfo(this.currentUser);
+          await this.preferences.savePreferences({
+            telemetryAtlasUserId: auid,
+          });
           track('Atlas Sign In Success', {
             auid,
             duration: Date.now() - startedAt,
-          });
-          await this.preferences.savePreferences({
-            telemetryAtlasUserId: auid,
           });
           return this.currentUser;
         } catch (err) {

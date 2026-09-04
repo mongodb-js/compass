@@ -1,14 +1,14 @@
 import { CollapsibleFieldSet, TextInput } from '@mongodb-js/compass-components';
-import { CodemirrorMultilineEditor } from '@mongodb-js/compass-editor';
 import React from 'react';
 import { connect } from 'react-redux';
 import type { RootState } from '../../modules';
-import type { InputOptions } from '../../modules/create-index';
+import type { CodeOptions, InputOptions } from '../../modules/create-index';
 import {
   optionChanged,
   optionToggled,
   OPTIONS,
 } from '../../modules/create-index';
+import CodeFieldEditor from './code-field-editor';
 
 type CollapsibleInputProps = {
   name: InputOptions;
@@ -54,16 +54,11 @@ export const CollapsibleInput: React.FunctionComponent<
       disabled={disabled}
     >
       {type === 'code' ? (
-        <CodemirrorMultilineEditor
-          data-testid={inputId}
-          text={value}
-          onChangeText={(newVal) => {
-            onChange(name, newVal);
-          }}
-          id={inputId}
-          aria-labelledby={id}
-          readOnly={disabled}
-          language="json"
+        <CodeFieldEditor
+          name={name as CodeOptions}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
         />
       ) : (
         // @ts-expect-error leafygreen confused with labels

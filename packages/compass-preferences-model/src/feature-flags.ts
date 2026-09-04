@@ -187,6 +187,7 @@ function featureFlagToPreferenceDefinition(
     cli: true,
     global: true,
     ui: true,
+    exposedInSettingsUI: '*',
     description: featureFlag.description,
     // Only show feature flags in 'preview' stage in --help output
     omitFromHelp: featureFlag.stage !== 'preview',
