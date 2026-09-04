@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from 'react';
+// `ReactDOM` is still imported from 'react-dom' because that is the specifier
+// the compass-web library externalizes to `__compassWebSharedRuntime.ReactDOM`
+// (see webpack.config.js).
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {
   Body,
   CompassComponentsProvider,
@@ -69,9 +73,13 @@ const App = () => {
   );
 };
 
-ReactDOM.render(
+const sandboxContainer = document.querySelector('#sandbox-app');
+if (!sandboxContainer) {
+  throw new Error('Sandbox container not found');
+}
+
+createRoot(sandboxContainer).render(
   <React.StrictMode>
     <App></App>
-  </React.StrictMode>,
-  document.querySelector('#sandbox-app')
+  </React.StrictMode>
 );

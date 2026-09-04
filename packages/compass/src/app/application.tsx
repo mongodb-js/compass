@@ -160,16 +160,21 @@ class Application {
       throw new Error('Application container not found');
     }
 
-    const root = createRoot(
-      elem.querySelector('[data-hook="layout-container"]')!
-    );
-
     // Create the application container structure
     elem.innerHTML = `
       <div id="application">
         <div data-hook="layout-container"></div>
       </div>
     `;
+
+    const layoutContainer = elem.querySelector(
+      '[data-hook="layout-container"]'
+    );
+    if (!layoutContainer) {
+      throw new Error('Application layout container not found');
+    }
+
+    const root = createRoot(layoutContainer);
 
     root.render(
       <React.StrictMode>
