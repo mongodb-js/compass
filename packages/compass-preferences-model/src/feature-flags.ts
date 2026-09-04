@@ -162,6 +162,18 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable Atlas Connection Error Debugger',
     },
   },
+
+  /*
+   * Feature flag for the Go to command palette.
+   */
+  {
+    name: 'enableGoTo',
+    stage: 'development',
+    atlasCloudFeatureScope: 'group',
+    description: {
+      short: 'Enable Go to palette for navigating connections',
+    },
+  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;

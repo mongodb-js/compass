@@ -20,6 +20,7 @@ import {
   CollectionsWorkspaceTab,
 } from '@mongodb-js/compass-databases-collections';
 import { CompassSidebarPlugin } from '@mongodb-js/compass-sidebar';
+import { CompassGoToPlugin } from '@mongodb-js/compass-go-to';
 import CompassQueryBarPlugin from '@mongodb-js/compass-query-bar';
 import { CompassDocumentsPlugin } from '@mongodb-js/compass-crud';
 import { CompassAggregationsPlugin } from '@mongodb-js/compass-aggregations';
@@ -112,6 +113,7 @@ export default function Workspace({
               <CreateNamespacePlugin></CreateNamespacePlugin>
               <DropNamespacePlugin></DropNamespacePlugin>
               <RenameCollectionPlugin></RenameCollectionPlugin>
+              <CompassGoToPlugin></CompassGoToPlugin>
               <CompassAssistantDrawerWithConnections appName="Compass" />
             </>
           )}
