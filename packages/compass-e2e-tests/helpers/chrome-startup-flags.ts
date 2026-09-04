@@ -66,7 +66,7 @@ const COMPASS_FLAGS = [
   '--ignore-additional-command-line-flags',
   // Use the Atlas production backend config for generative ai and atlas requests.
   // The production environment needs to be used as cloud-dev has IP restrictions.
-  '--atlasServiceBackendPreset=atlas',
+  '--atlasServiceBackendPreset=atlas-qa',
 ];
 
 // The shared set of flags that are used to start Chrome driver when running Compass
