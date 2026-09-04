@@ -457,9 +457,54 @@ const CLOUD_URLS = {
   },
 } as const;
 
+export type AtlasEnvironment = keyof typeof CLOUD_URLS;
+
+const ENVIRONMENT_TO_BACKEND_PRESET = {
+  dev: 'atlas-dev',
+  qa: 'atlas-qa',
+  staging: 'atlas-staging',
+  prod: 'atlas',
+} as const;
+
+/**
+ * Resolve Atlas Cloud URLs for an explicitly provided environment.
+ *
+ * This helper is intentionally decoupled from `context.atlasCloudEnvironment`:
+ * that value only exists for the `web` command (Atlas Cloud tests) and is
+ * unreliable on desktop runs. Desktop callers must pass the environment
+ * explicitly; web callers should use `getCloudUrlsFromContext`.
+ */
+export function getCloudUrlsForEnvironment(env: AtlasEnvironment) {
+  return CLOUD_URLS[env];
+}
+
+/**
+ * Map an Atlas environment to the `--atlasServiceBackendPreset` value used to
+ * launch the desktop app against that environment.
+ */
+export function getAtlasBackendPreset(env: AtlasEnvironment) {
+  return ENVIRONMENT_TO_BACKEND_PRESET[env];
+}
+
+/**
+ * The web-only `atlasCloudEnvironment` context option, narrowed to
+ * `AtlasEnvironment`. Only meaningful for the `web` command; use explicit
+ * environments in desktop code paths.
+ */
+export function getAtlasCloudEnvironmentFromContext(
+  ctx = context
+): AtlasEnvironment {
+  return (ctx.atlasCloudEnvironment ?? 'qa') as AtlasEnvironment;
+}
+
+/**
+ * Web (Atlas Cloud) accessor: resolves URLs from the web-only
+ * `atlasCloudEnvironment` context option. Only valid when testing web Atlas
+ * Cloud.
+ */
 export function getCloudUrlsFromContext(ctx = context) {
   assertTestingWebAtlasCloud(ctx);
-  return CLOUD_URLS[context.atlasCloudEnvironment as keyof typeof CLOUD_URLS];
+  return getCloudUrlsForEnvironment(getAtlasCloudEnvironmentFromContext(ctx));
 }
 
 export const ATLAS_CLOUD_TEST_UTILS: {
@@ -472,6 +517,7 @@ export const ATLAS_CLOUD_TEST_UTILS: {
   addPaymentMethod: string;
   featureFlags: string;
   refreshFeatureFlags: string;
+  addOrgUser: string;
   testUserRoles: string[];
   testUserUsernameTemplate: string;
 } = JSON.parse(

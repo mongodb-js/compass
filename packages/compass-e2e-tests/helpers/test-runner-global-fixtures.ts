@@ -2,11 +2,11 @@ import gunzip from './gunzip.ts';
 import fs from 'fs';
 import {
   assertTestingWebAtlasCloud,
-  ATLAS_CLOUD_TEST_UTILS,
   context,
   DEFAULT_CONNECTIONS,
   DEFAULT_CONNECTIONS_SERVER_INFO,
   getCloudUrlsFromContext,
+  getAtlasCloudEnvironmentFromContext,
   isTestingWebAtlasCloud,
   isTestingDesktop,
   isTestingWeb,
@@ -38,12 +38,10 @@ import {
   waitForCompassWebSandboxToBeReady,
   waitForCompassWebStaticAssetsToBeReady,
 } from './compass-web-sandbox.ts';
-import lodash from 'lodash';
 import { randomBytes } from 'crypto';
 import { isAtlasCloudPage } from './commands/atlas-cloud/utils.ts';
+import { createAtlasLoginUser } from './commands/atlas-cloud/user.ts';
 import type { ClusterTypes } from './commands/index.ts';
-
-const { template } = lodash;
 
 export const globalFixturesAbortController = new AbortController();
 
@@ -102,20 +100,20 @@ async function createAtlasCloudResources() {
     if (!usingExistingResources) {
       debug('Creating user...');
 
-      const atlasCloudUsername = template(
-        ATLAS_CLOUD_TEST_UTILS.testUserUsernameTemplate
-      )({ username: `compass-usr-${RUN_ID}` });
-
-      const atlasCloudPassword = randomBytes(20).toString('hex');
-
-      const { projectId: atlasCloudProjectId } =
-        await compass.browser.createAtlasUser(
-          atlasCloudUsername,
-          atlasCloudPassword
-        );
+      const {
+        username: atlasCloudUsername,
+        password: atlasCloudPassword,
+        projectId: atlasCloudProjectId,
+      } = await createAtlasLoginUser(
+        compass.browser,
+        getAtlasCloudEnvironmentFromContext(context)
+      );
 
       cleanupFns.push(() => {
-        return compass.browser.deleteAtlasUser(atlasCloudUsername);
+        return compass.browser.deleteAtlasUser(
+          atlasCloudUsername,
+          getAtlasCloudEnvironmentFromContext(context)
+        );
       });
 
       Object.assign(context, {
@@ -128,7 +126,8 @@ async function createAtlasCloudResources() {
       // commands will require auth
       await compass.browser.signInToAtlas(
         context.atlasCloudUsername,
-        context.atlasCloudPassword
+        context.atlasCloudPassword,
+        getAtlasCloudEnvironmentFromContext(context)
       );
 
       throwIfAborted();
@@ -232,7 +231,8 @@ async function createAtlasCloudResources() {
         await compass.browser.getClusterConnectionStringsFromNames(
           context.atlasCloudDefaultCluster,
           atlasCloudDbuserUsername,
-          atlasCloudDbuserPassword
+          atlasCloudDbuserPassword,
+          getAtlasCloudEnvironmentFromContext(context)
         );
 
       DEFAULT_CONNECTIONS.push(

@@ -1,19 +1,29 @@
 import { ConnectionString } from 'mongodb-connection-string-url';
 import type { CompassBrowser } from '../../compass-browser.ts';
-import { getCloudUrlsFromContext } from '../../test-runner-context.ts';
+import {
+  getCloudUrlsForEnvironment,
+  getCloudUrlsFromContext,
+} from '../../test-runner-context.ts';
+import type { AtlasEnvironment } from '../../test-runner-context.ts';
 import { getProjectIdFromPageUrl, doCloudFetch } from './utils.ts';
 
 export async function getClusterConnectionStringsFromNames(
   browser: CompassBrowser,
   clusterNames: string[],
   dbuserUsername: string,
-  dbuserPassword: string
+  dbuserPassword: string,
+  env: AtlasEnvironment,
+  projectId?: string
 ): Promise<[string, string][]> {
-  const { cloudUrl } = getCloudUrlsFromContext();
-  const projectId = await getProjectIdFromPageUrl(browser, cloudUrl);
+  const { cloudUrl } = getCloudUrlsForEnvironment(env);
   const clusters = await doCloudFetch<
     { name: string; state: string; srvAddress: string }[]
-  >(browser, `/nds/clusters/${projectId}`);
+  >(
+    browser,
+    `/nds/clusters/${
+      projectId ?? (await getProjectIdFromPageUrl(browser, cloudUrl))
+    }`
+  );
   return clusters
     .filter((cluster) => {
       return clusterNames.includes(cluster.name) && cluster.state === 'IDLE';

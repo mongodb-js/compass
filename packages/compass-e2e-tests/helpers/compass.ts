@@ -29,6 +29,7 @@ import {
   assertTestingWeb,
   isTestingWebAtlasCloud,
   getCloudUrlsFromContext,
+  getAtlasCloudEnvironmentFromContext,
 } from './test-runner-context.ts';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -768,6 +769,11 @@ async function startCompassElectron(
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
 
+  // eslint-disable-next-line no-console
+  console.log('[atlas-debug] chromeArgs', {
+    chromeArgs,
+  });
+
   const options = {
     automationProtocol: 'webdriver' as const,
     capabilities: {
@@ -871,17 +877,12 @@ export type StoredAtlasCloudCookies = {
   expirationDate: number;
 }[];
 
-export async function startBrowser(
-  name: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  opts: StartCompassOptions = {}
-) {
-  assertTestingWeb(context);
+export async function createExternalBrowser(firstRun: boolean = true) {
+  const { webdriverOptions, wdioOptions } = await processCommonOpts({
+    firstRun,
+  });
 
-  runCounter++;
-  const { webdriverOptions, wdioOptions } = await processCommonOpts();
-
-  const browserName = context.browserName as 'chrome' | 'firefox';
+  const browserName = (context.browserName as 'chrome' | 'firefox') ?? 'chrome';
   const redirectExtension = isTestingWebAtlasCloud(context)
     ? await (async () => {
         return getExtension(
@@ -950,6 +951,27 @@ export async function startBrowser(
   debug(JSON.stringify(options, null, 2));
 
   const browser = (await remote(options)) as CompassBrowser;
+  if (isTestingWebAtlasCloud(context)) {
+    // In firefox extension needs to be loaded via special Gecko command and
+    // should be provided as a base64 string with compressed extension
+    if (browserName === 'firefox') {
+      await browser.installAddOn(redirectExtension!.extension, true);
+    }
+  }
+
+  return browser;
+}
+
+export async function startBrowser(
+  name: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  opts: StartCompassOptions = {}
+) {
+  assertTestingWeb(context);
+
+  runCounter++;
+
+  const browser = await createExternalBrowser();
 
   const compass = new Compass(name, browser, {
     mode: 'web',
@@ -958,14 +980,6 @@ export async function startBrowser(
   });
 
   await compass.prepare();
-
-  if (isTestingWebAtlasCloud(context)) {
-    // In firefox extension needs to be loaded via special Gecko command and
-    // should be provided as a base64 string with compressed extension
-    if (browserName === 'firefox') {
-      await browser.installAddOn(redirectExtension!.extension, true);
-    }
-  }
 
   return compass;
 }
@@ -1157,7 +1171,8 @@ export async function init(
   if (isTestingWebAtlasCloud(context)) {
     await browser.signInToAtlas(
       context.atlasCloudUsername,
-      context.atlasCloudPassword
+      context.atlasCloudPassword,
+      getAtlasCloudEnvironmentFromContext(context)
     );
 
     // Disable temporary marketing modal before proceeding
