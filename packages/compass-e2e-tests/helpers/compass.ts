@@ -769,6 +769,11 @@ async function startCompassElectron(
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
 
+  // eslint-disable-next-line no-console
+  console.log('[atlas-debug] chromeArgs', {
+    chromeArgs,
+  });
+
   const options = {
     automationProtocol: 'webdriver' as const,
     capabilities: {

@@ -173,6 +173,10 @@ export async function signInToAtlasDesktop(
       `${accountUrl}/account/login?signedOut=true`
     );
 
+    // eslint-disable-next-line no-console
+    console.log('[atlas-debug] accountUrl', {
+      accountUrl,
+    });
     await doCloudFetch(
       loginSessionBrowser,
       ATLAS_CLOUD_TEST_UTILS.bypassEncouragement,
