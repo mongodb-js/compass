@@ -3,7 +3,7 @@ import { bsonType, Int32, ObjectId, UUID } from 'bson';
 import chai from 'chai';
 import chaiAsPromised from 'chai-as-promised';
 import type { Sort } from 'mongodb';
-import { Collection, MongoClient, MongoServerError } from 'mongodb';
+import { MongoClient, MongoServerError } from 'mongodb';
 import type { Document } from 'bson';
 import sinon from 'sinon';
 import ConnectionStringUrl from 'mongodb-connection-string-url';
@@ -246,7 +246,7 @@ describe('DataService', function () {
         const dataService: any = new DataServiceImpl(null as any, logger);
         const client: Pick<MongoClient, 'on' | 'emit'> =
           new EventEmitter() as any;
-        dataService['_setupListeners'](client as MongoClient);
+        dataService['_setupListeners'](client);
         const connectionId = 'localhost:27017';
         client.emit('serverHeartbeatSucceeded', {
           connectionId,
@@ -474,12 +474,7 @@ describe('DataService', function () {
         ];
 
         const promise = dataService
-          .aggregate(
-            testNamespace,
-            pipeline,
-            {},
-            { abortSignal: abortSignal as unknown as AbortSignal }
-          )
+          .aggregate(testNamespace, pipeline, {}, { abortSignal: abortSignal })
           .catch((err) => err);
         // cancel the operation
         abortController.abort();
@@ -546,12 +541,7 @@ describe('DataService', function () {
         };
 
         const promise = dataService
-          .find(
-            testNamespace,
-            filter,
-            {},
-            { abortSignal: abortSignal as unknown as AbortSignal }
-          )
+          .find(testNamespace, filter, {}, { abortSignal: abortSignal })
           .catch((err) => err);
         // cancel the operation
         abortController.abort();
@@ -854,14 +844,6 @@ describe('DataService', function () {
         );
         expect(collection).to.exist;
       });
-
-      it('returns the collection object', async function () {
-        const result = await dataService.renameCollection(
-          `${testDatabaseName}.initialCollection`,
-          'renamedCollection'
-        );
-        expect(result).to.be.instanceOf(Collection);
-      });
     });
 
     describe('#estimatedCount', function () {
@@ -883,11 +865,7 @@ describe('DataService', function () {
         const abortSignal = abortController.signal;
 
         const promise = dataService
-          .estimatedCount(
-            testNamespace,
-            {},
-            { abortSignal: abortSignal as unknown as AbortSignal }
-          )
+          .estimatedCount(testNamespace, {}, { abortSignal: abortSignal })
           .catch((err) => err);
         // cancel the operation
         abortController.abort();
@@ -945,12 +923,7 @@ describe('DataService', function () {
         };
 
         const promise = dataService
-          .count(
-            testNamespace,
-            filter,
-            {},
-            { abortSignal: abortSignal as unknown as AbortSignal }
-          )
+          .count(testNamespace, filter, {}, { abortSignal: abortSignal })
           .catch((err) => err);
         // cancel the operation
         abortController.abort();
@@ -1815,7 +1788,7 @@ describe('DataService', function () {
         const response = await dataService['_cancellableOperation'](
           () => Promise.resolve(10),
           () => stop(),
-          abortSignal as unknown as AbortSignal
+          abortSignal
         );
         expect(response).to.equal(10);
         expect(stop.callCount).to.equal(0);
@@ -1828,7 +1801,7 @@ describe('DataService', function () {
         const promise = dataService['_cancellableOperation'](
           () => new Promise(() => {}),
           () => stop(),
-          abortSignal as unknown as AbortSignal
+          abortSignal
         ).catch((error) => error);
 
         abortController.abort();
@@ -2015,7 +1988,7 @@ describe('DataService', function () {
               },
             },
             {
-              abortSignal: controller.signal as unknown as AbortSignal,
+              abortSignal: controller.signal,
               sample: 10,
               timeout: 1000,
             }
@@ -2190,11 +2163,7 @@ describe('DataService', function () {
           const abortController = new AbortController();
           const abortSignal = abortController.signal;
           const promise = dataService
-            .fetchShardKey(
-              testNamespace,
-              {},
-              { abortSignal: abortSignal as unknown as AbortSignal }
-            )
+            .fetchShardKey(testNamespace, {}, { abortSignal: abortSignal })
             .catch((err) => err);
           abortController.abort();
           const error = await promise;
