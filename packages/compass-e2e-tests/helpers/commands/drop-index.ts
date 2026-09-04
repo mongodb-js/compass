@@ -9,15 +9,21 @@ export async function dropIndex(
   const indexComponentSelector = Selectors.indexComponent(indexName);
   const indexComponent = browser.$(indexComponentSelector);
   await indexComponent.waitForDisplayed();
+  const dropButtonSelector = `${indexComponentSelector} ${Selectors.IndexesTableDropIndexButton}`;
 
-  await browser.waitUntil(async () => {
-    await browser.hover(indexComponentSelector);
-    await browser.clickVisible(
-      `${indexComponentSelector} ${Selectors.IndexesTableDropIndexButton}`
-    );
-    // Check if modal opened successfully
-    return await browser.isModalOpen(Selectors.DropIndexModal);
-  });
+  await browser.waitUntil(
+    async () => {
+      await browser.hover(indexComponentSelector);
+      if (!(await browser.$(dropButtonSelector).isDisplayed())) {
+        return false;
+      }
+      await browser.clickVisible(dropButtonSelector);
+      return await browser.isModalOpen(Selectors.DropIndexModal);
+    },
+    {
+      timeoutMsg: `Timed out waiting for the drop index modal to open for index "${indexName}"`,
+    }
+  );
 
   await browser.waitForOpenModal(Selectors.DropIndexModal);
 
