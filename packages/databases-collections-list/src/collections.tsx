@@ -35,7 +35,9 @@ const collectionBadgesStyles = css({
   minHeight: 20,
 });
 
-const CollectionBadges: React.FunctionComponent = ({ children }) => {
+const CollectionBadges: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   return <div className={collectionBadgesStyles}>{children}</div>;
 };
 
@@ -64,7 +66,11 @@ const CollectionBadge: React.FunctionComponent<BadgeProp> = ({
   hint,
 }) => {
   const badge = useCallback(
-    ({ className, children, ...props } = {}) => {
+    ({
+      className,
+      children,
+      ...props
+    }: { className?: string; children?: React.ReactNode } = {}) => {
       return (
         <Badge
           data-testid={`collection-badge-${id}`}
@@ -109,13 +115,13 @@ function collectionPropertyToBadge(
         hint: (
           <>
             {Object.entries(options ?? {}).map(([key, val]) => {
-              return (
-                val && (
-                  <div key={key}>
-                    <strong>{key}:</strong>&nbsp;{val.toString()}
-                  </div>
-                )
-              );
+              // `val` is `unknown`, so a `&&` expression would leave it in the
+              // rendered type.
+              return val ? (
+                <div key={key}>
+                  <strong>{key}:</strong>&nbsp;{String(val)}
+                </div>
+              ) : null;
             })}
           </>
         ),

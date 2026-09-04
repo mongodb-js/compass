@@ -32,6 +32,7 @@ const AtlasServiceContext = createContext<AtlasService | null>(null);
 
 export const AtlasServiceProvider: React.FC<{
   options?: AtlasServiceOptions;
+  children?: React.ReactNode;
 }> = createServiceProvider(function AtlasServiceProvider({
   options,
   children,

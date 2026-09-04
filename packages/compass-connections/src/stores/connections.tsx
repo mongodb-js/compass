@@ -62,6 +62,7 @@ export const ConnectionsComponent: React.FunctionComponent<{
    */
   showErrorStateOnConnectionLoadError?: boolean;
   initialConnectionLoadFailed?: boolean;
+  children?: React.ReactNode;
 }> = ({
   activeConnections,
   showErrorStateOnConnectionLoadError,

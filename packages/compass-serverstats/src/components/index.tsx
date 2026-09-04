@@ -12,7 +12,7 @@ import {
   useInitialValue,
 } from '@mongodb-js/compass-components';
 
-import GraphsComponent from './server-stats-graphs-component';
+import UntypedGraphsComponent from './server-stats-graphs-component';
 import { realTimeDispatcher } from '../d3';
 import ListsComponent from './server-stats-lists-component';
 import { DBErrorComponent } from './dberror-component';
@@ -57,6 +57,15 @@ const mongosWarningStyles = css({
   margin: spacing[200],
   marginBottom: 0,
 });
+
+// `server-stats-graphs-component` is an untyped .jsx CommonJS module, so
+// TypeScript infers a class type that isn't a valid JSX component under React
+// 18. Declare the props it is actually rendered with.
+const GraphsComponent =
+  UntypedGraphsComponent as unknown as React.ComponentType<{
+    eventDispatcher: TimeScrubEventDispatcher;
+    interval: number;
+  }>;
 
 function PerformancePanel({
   eventDispatcher,

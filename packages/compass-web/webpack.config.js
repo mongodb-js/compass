@@ -212,6 +212,7 @@ module.exports = (env, args) => {
     externals: {
       react: ['__compassWebSharedRuntime', 'React'],
       'react-dom': ['__compassWebSharedRuntime', 'ReactDOM'],
+      'react-dom/client': ['__compassWebSharedRuntime', 'ReactDOM'],
     },
     plugins: [
       new webpack.ProvidePlugin({

@@ -1,6 +1,11 @@
 import React from 'react';
 import type { ComponentProps } from 'react';
-import { cleanup, screen, within } from '@mongodb-js/testing-library-compass';
+import {
+  cleanup,
+  screen,
+  waitFor,
+  within,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { renderWithStore } from '../../../test/configure-store';
 import { PipelineBuilderWorkspace } from '.';
@@ -36,9 +41,9 @@ describe('PipelineBuilderWorkspace', function () {
     const store = await renderBuilderWorkspace({ pipelineMode: 'builder-ui' });
     store.dispatch(toggleSidePanel() as any);
     const container = screen.getByTestId('pipeline-builder-workspace');
-    expect(() => {
-      within(container).getByTestId('aggregation-side-panel');
-    }).to.not.throw();
+    await waitFor(() => {
+      expect(within(container).getByTestId('aggregation-side-panel')).to.exist;
+    });
   });
 
   it('does not render side panel when enabled in as text mode', async function () {

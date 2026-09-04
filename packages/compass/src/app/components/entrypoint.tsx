@@ -35,7 +35,9 @@ import { DataModelStorageServiceProviderElectron } from '@mongodb-js/compass-dat
 import { WorkspacesStorageServiceProviderDesktop } from '@mongodb-js/compass-workspaces';
 import { useInitialValue } from '@mongodb-js/compass-components';
 
-const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
+const WithPreferencesAndLoggerProviders: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const loggerProviderValue = useInitialValue({
     createLogger,
   });
@@ -55,7 +57,9 @@ const WithPreferencesAndLoggerProviders: React.FC = ({ children }) => {
   );
 };
 
-export const WithAtlasProviders: React.FC = ({ children }) => {
+export const WithAtlasProviders: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const authService = useInitialValue(() => new CompassAtlasAuthService());
   return (
     <AtlasAuthServiceProvider value={authService}>
@@ -77,7 +81,9 @@ export const WithAtlasProviders: React.FC = ({ children }) => {
   );
 };
 
-export const WithStorageProviders: React.FC = ({ children }) => {
+export const WithStorageProviders: React.FC<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const pipelineStorage = useInitialValue<PipelineStorageAccess>({
     getStorage(options) {
       return createElectronPipelineStorage({ basepath: options?.basePath });

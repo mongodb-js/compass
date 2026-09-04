@@ -41,6 +41,12 @@ const waitForDrawerToOpen = async () => {
   });
 };
 
+const getComboboxByLabel = (label: string) => {
+  return screen.getByLabelText(label, {
+    selector: `[aria-label="${label}"]`,
+  });
+};
+
 const updateInputWithBlur = (label: string, text: string) => {
   const input = screen.getByLabelText(label);
   userEvent.clear(input);
@@ -197,19 +203,21 @@ describe('DiagramEditorSidePanel', function () {
 
     expect(screen.getByTitle('countries.name → airports.Country')).to.be
       .visible;
-    const localCollectionInput = screen.getByLabelText('Local collection');
+    const localCollectionInput = getComboboxByLabel('Local collection');
     expect(localCollectionInput).to.be.visible;
-    expect(localCollectionInput).to.have.value('countries');
+    await waitFor(() => {
+      expect(localCollectionInput).to.have.value('countries');
+    });
 
-    const foreignCollectionInput = screen.getByLabelText('Foreign collection');
+    const foreignCollectionInput = getComboboxByLabel('Foreign collection');
     expect(foreignCollectionInput).to.be.visible;
     expect(foreignCollectionInput).to.have.value('airports');
 
-    const localFieldInput = screen.getByLabelText('Local field');
+    const localFieldInput = getComboboxByLabel('Local field');
     expect(localFieldInput).to.be.visible;
     expect(localFieldInput).to.have.value('name');
 
-    const foreignFieldInput = screen.getByLabelText('Foreign field');
+    const foreignFieldInput = getComboboxByLabel('Foreign field');
     expect(foreignFieldInput).to.be.visible;
     expect(foreignFieldInput).to.have.value('Country');
 
@@ -486,30 +494,38 @@ describe('DiagramEditorSidePanel', function () {
     result.plugin.store.dispatch(
       selectCollection('flights.airports_coordinates_for_schema')
     );
-    expect(screen.getByLabelText('Name')).to.have.value(
-      'airports_coordinates_for_schema'
-    );
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).to.have.value(
+        'airports_coordinates_for_schema'
+      );
+    });
 
     result.plugin.store.dispatch(
       selectRelationship('204b1fc0-601f-4d62-bba3-38fade71e049')
     );
-    expect(
-      document.querySelector(
-        '[data-relationship-id="204b1fc0-601f-4d62-bba3-38fade71e049"]'
-      )
-    ).to.be.visible;
+    await waitFor(() => {
+      expect(
+        document.querySelector(
+          '[data-relationship-id="204b1fc0-601f-4d62-bba3-38fade71e049"]'
+        )
+      ).to.be.visible;
+    });
 
     result.plugin.store.dispatch(
       selectRelationship('6f776467-4c98-476b-9b71-1f8a724e6c2c')
     );
-    expect(
-      document.querySelector(
-        '[data-relationship-id="6f776467-4c98-476b-9b71-1f8a724e6c2c"]'
-      )
-    ).to.be.visible;
+    await waitFor(() => {
+      expect(
+        document.querySelector(
+          '[data-relationship-id="6f776467-4c98-476b-9b71-1f8a724e6c2c"]'
+        )
+      ).to.be.visible;
+    });
 
     result.plugin.store.dispatch(selectCollection('flights.planes'));
-    expect(screen.getByLabelText('Name')).to.have.value('planes');
+    await waitFor(() => {
+      expect(screen.getByLabelText('Name')).to.have.value('planes');
+    });
   });
 
   describe('Collection -> Relationships', function () {
@@ -524,10 +540,8 @@ describe('DiagramEditorSidePanel', function () {
       userEvent.click(screen.getByRole('button', { name: 'Add Relationship' }));
 
       // Collection is pre-selected
-      expect(screen.getByLabelText('Local collection')).to.be.visible;
-      expect(screen.getByLabelText('Local collection')).to.have.value(
-        'countries'
-      );
+      expect(getComboboxByLabel('Local collection')).to.be.visible;
+      expect(getComboboxByLabel('Local collection')).to.have.value('countries');
     });
 
     it('should open and edit relationship starting from a collection', async function () {
@@ -548,7 +562,7 @@ describe('DiagramEditorSidePanel', function () {
           name: 'Edit relationship',
         })
       );
-      expect(screen.getByLabelText('Local field')).to.be.visible;
+      expect(getComboboxByLabel('Local field')).to.be.visible;
 
       // Select new values
       await comboboxSelectItem('Local collection', 'planes');
@@ -633,12 +647,10 @@ describe('DiagramEditorSidePanel', function () {
       userEvent.click(screen.getByRole('button', { name: 'Add Relationship' }));
 
       // Collection and field are pre-selected
-      expect(screen.getByLabelText('Local collection')).to.be.visible;
-      expect(screen.getByLabelText('Local collection')).to.have.value(
-        'countries'
-      );
-      expect(screen.getByLabelText('Local field')).to.be.visible;
-      expect(screen.getByLabelText('Local field')).to.have.value('name');
+      expect(getComboboxByLabel('Local collection')).to.be.visible;
+      expect(getComboboxByLabel('Local collection')).to.have.value('countries');
+      expect(getComboboxByLabel('Local field')).to.be.visible;
+      expect(getComboboxByLabel('Local field')).to.have.value('name');
     });
 
     it('should open a relationship starting from a field', async function () {
@@ -659,10 +671,10 @@ describe('DiagramEditorSidePanel', function () {
           name: 'Edit relationship',
         })
       );
-      expect(screen.getByLabelText('Local field')).to.be.visible;
-      expect(screen.getByLabelText('Local field')).to.have.value('name');
-      expect(screen.getByLabelText('Foreign field')).to.be.visible;
-      expect(screen.getByLabelText('Foreign field')).to.have.value('Country');
+      expect(getComboboxByLabel('Local field')).to.be.visible;
+      expect(getComboboxByLabel('Local field')).to.have.value('name');
+      expect(getComboboxByLabel('Foreign field')).to.be.visible;
+      expect(getComboboxByLabel('Foreign field')).to.have.value('Country');
     });
 
     it('should delete a relationship from a field', async function () {

@@ -55,7 +55,7 @@
     "@mongodb-js/connection-storage": "^1.2.0",
     "compass-preferences-model": "^3.2.0",
     "hadron-ipc": "^3.6.2",
-    "react": "^17.0.2"
+    "react": "^18.3.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.25",
@@ -66,7 +66,7 @@
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
-    "@types/react": "^17.0.5",
+    "@types/react": "^18.3.31",
     "@types/sinon-chai": "^3.2.5",
     "chai": "^4.3.6",
     "depcheck": "^1.4.1",

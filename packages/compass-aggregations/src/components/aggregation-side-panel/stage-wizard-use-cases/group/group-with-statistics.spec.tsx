@@ -1,5 +1,10 @@
 import React from 'react';
-import { render, screen } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  userEvent,
+  waitFor,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import { GroupWithStatistics } from './group-with-statistics';
 import sinon from 'sinon';
@@ -70,23 +75,25 @@ describe('group with statistics', function () {
         })
       ).to.exist;
     });
-    it('renders accumulator add/remove buttons', function () {
-      screen
-        .getByRole('button', {
+    it('renders accumulator add/remove buttons', async function () {
+      userEvent.click(
+        screen.getByRole('button', {
           name: /add/i,
         })
-        .click();
+      );
 
-      expect(
-        screen.getAllByRole('button', {
-          name: /add/i,
-        })
-      ).to.have.lengthOf(2);
-      expect(
-        screen.getAllByRole('button', {
-          name: /remove/i,
-        })
-      ).to.have.lengthOf(2);
+      await waitFor(() => {
+        expect(
+          screen.getAllByRole('button', {
+            name: /add/i,
+          })
+        ).to.have.lengthOf(2);
+        expect(
+          screen.getAllByRole('button', {
+            name: /remove/i,
+          })
+        ).to.have.lengthOf(2);
+      });
     });
   });
 
@@ -102,8 +109,8 @@ describe('group with statistics', function () {
         />
       );
     });
-    it('when selecting group fields', function () {
-      setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+    it('when selecting group fields', async function () {
+      await setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
         'name',
         'street',
       ]);
@@ -118,8 +125,8 @@ describe('group with statistics', function () {
       expect(onChange.lastCall.args[1]).to.not.be.null;
     });
     context('accumulator group', function () {
-      it('when selecting only type', function () {
-        setSelectValue(/select accumulator/i, 'sum');
+      it('when selecting only type', async function () {
+        await setSelectValue(/select accumulator/i, 'sum');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
@@ -127,8 +134,8 @@ describe('group with statistics', function () {
         );
         expect(onChange.lastCall.args[1]).to.not.be.null;
       });
-      it('when selecting only field', function () {
-        setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'orders');
+      it('when selecting only field', async function () {
+        await setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'orders');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
@@ -136,9 +143,9 @@ describe('group with statistics', function () {
         );
         expect(onChange.lastCall.args[1]).to.not.be.null;
       });
-      it('when selecting both - field and type', function () {
-        setSelectValue(/select accumulator/i, 'sum');
-        setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'orders');
+      it('when selecting both - field and type', async function () {
+        await setSelectValue(/select accumulator/i, 'sum');
+        await setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'orders');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
@@ -152,8 +159,8 @@ describe('group with statistics', function () {
     });
 
     context('$count', function () {
-      it('adds a "count" field with the $count accumulator to the generated stage', function () {
-        setSelectValue(/select accumulator/i, 'count');
+      it('adds a "count" field with the $count accumulator to the generated stage', async function () {
+        await setSelectValue(/select accumulator/i, 'count');
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({
             _id: null,
@@ -162,14 +169,14 @@ describe('group with statistics', function () {
         );
       });
 
-      it('clears the field selection', function () {
-        setSelectValue(/select accumulator/i, 'sum');
-        setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'orders');
-        setSelectValue(/select accumulator/i, 'count');
+      it('clears the field selection', async function () {
+        await setSelectValue(/select accumulator/i, 'sum');
+        await setComboboxValue(new RegExp(SINGLE_SELECT_LABEL, 'i'), 'orders');
+        await setSelectValue(/select accumulator/i, 'count');
 
         // re-select sum, we expect the field to be gone, and the new accumulator to
         // be invalid (not present in the result)
-        setSelectValue(/select accumulator/i, 'sum');
+        await setSelectValue(/select accumulator/i, 'sum');
 
         expect(onChange.lastCall.args[0]).to.equal(
           JSON.stringify({

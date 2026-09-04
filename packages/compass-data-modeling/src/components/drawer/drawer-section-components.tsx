@@ -35,6 +35,7 @@ const buttonStyles = css({
 
 export const DMDrawerSection: React.FC<{
   label: React.ReactNode;
+  children?: React.ReactNode;
 }> = ({ label, children }) => {
   const darkMode = useDarkMode();
   return (

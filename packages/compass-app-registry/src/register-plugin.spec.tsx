@@ -1,5 +1,5 @@
 import React, { StrictMode, createContext, useContext } from 'react';
-import { render } from '@mongodb-js/testing-library-compass';
+import { render, waitFor } from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import {
@@ -64,7 +64,7 @@ describe('registerCompassPlugin', function () {
     });
   });
 
-  it('allows registering plugins with a redux store', function () {
+  it('allows registering plugins with a redux store', async function () {
     const connector = connect(({ counter }) => ({ counter }));
     const component = sinon.stub().callsFake(() => <></>);
     const store = createStore(
@@ -95,9 +95,11 @@ describe('registerCompassPlugin', function () {
       dispatch: store.dispatch,
     });
     store.dispatch({ type: 'inc' });
-    expect(component).to.have.been.calledWith({
-      counter: 1,
-      dispatch: store.dispatch,
+    await waitFor(() => {
+      expect(component).to.have.been.calledWith({
+        counter: 1,
+        dispatch: store.dispatch,
+      });
     });
   });
 

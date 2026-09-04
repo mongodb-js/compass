@@ -180,7 +180,7 @@ const TestComponent: React.FunctionComponent<{
 
 describe('useAssistantActions', function () {
   const createWrapper = (chat: Chat<AssistantMessage>) => {
-    function TestWrapper({ children }: { children: React.ReactNode }) {
+    function TestWrapper({ children }: { children?: React.ReactNode }) {
       const MockedProvider = createMockProvider();
 
       return (
@@ -512,7 +512,7 @@ describe('CompassAssistantProvider', function () {
           screen.getByPlaceholderText('Ask a question'),
           `Hello assistant! (${i})`
         );
-        userEvent.click(screen.getByLabelText('Send message'));
+        userEvent.click(await screen.findByLabelText('Send message'));
 
         await waitFor(() => {
           expect(sendMessageSpy.callCount).to.equal(i + 1);
@@ -558,7 +558,9 @@ describe('CompassAssistantProvider', function () {
         screen.getByPlaceholderText('Ask a question'),
         'How about now?'
       );
-      userEvent.click(screen.getByLabelText('Send message'));
+      // The earlier send left the input bar showing a stop button, so wait for
+      // the send button to come back
+      userEvent.click(await screen.findByLabelText('Send message'));
 
       await waitFor(() => {
         expect(sendMessageSpy.callCount).to.equal(1);
@@ -1085,15 +1087,16 @@ describe('CompassAssistantProvider', function () {
         const confirmButton = within(modal).getByText('Clear chat');
         userEvent.click(confirmButton);
 
+        // Closing the modal and clearing the messages are separate state
+        // updates, so both have to be waited for
         await waitFor(() => {
           expect(
             screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
           ).to.not.exist;
+          expect(mockChat.messages).to.be.empty;
+          expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
+          expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
         });
-
-        expect(mockChat.messages).to.be.empty;
-        expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
-        expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
       });
 
       it('does not clear the chat when the user clicks the button and cancels', async function () {
@@ -1159,14 +1162,13 @@ describe('CompassAssistantProvider', function () {
           expect(
             screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild
           ).to.not.exist;
+          expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
+          expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
         });
 
         // The non-genuine warning message should still be in the chat
         expect(screen.getByTestId('assistant-message-non-genuine-warning')).to
           .exist;
-        // The user messages should be gone
-        expect(screen.queryByTestId('assistant-message-1')).to.not.exist;
-        expect(screen.queryByTestId('assistant-message-2')).to.not.exist;
       });
     });
   });

@@ -72,8 +72,8 @@
     "latest-release": "node --experimental-strip-types scripts/release/get-latest.mts"
   },
   "peerDependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@aws-sdk/client-s3": "^3.1103.0",
@@ -121,8 +121,8 @@
     "@types/chai-dom": "^0.0.10",
     "@types/express-http-proxy": "^1.6.6",
     "@types/mocha": "^9.0.0",
-    "@types/react": "^17.0.5",
-    "@types/react-dom": "^17.0.10",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
     "@types/sinon-chai": "^3.2.5",
     "browser-process-hrtime": "^1.0.0",
     "bson": "^7.3.2",

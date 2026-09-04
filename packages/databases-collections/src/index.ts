@@ -49,7 +49,9 @@ export const CreateNamespacePlugin = registerCompassPlugin(
   {
     name: 'CreateNamespace',
     activate: activateCreateNamespacePlugin,
-    component: CreateNamespaceModal,
+    component: CreateNamespaceModal as React.JSXElementConstructor<{
+      children?: React.ReactNode;
+    }>,
   },
   {
     logger: createLoggerLocator('COMPASS-CREATE-NAMESPACE-UI'),
@@ -76,7 +78,9 @@ export const DropNamespacePlugin = registerCompassPlugin(
 export const RenameCollectionPlugin = registerCompassPlugin(
   {
     name: 'RenameCollectionPlugin',
-    component: MappedRenameCollectionModal,
+    component: MappedRenameCollectionModal as React.JSXElementConstructor<{
+      children?: React.ReactNode;
+    }>,
     activate: activateRenameCollectionPlugin,
   },
   {

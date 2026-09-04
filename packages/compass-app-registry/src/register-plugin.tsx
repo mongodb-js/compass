@@ -133,7 +133,7 @@ export type CompassPluginConfig<
   A extends Plugin
 > = {
   name: string;
-  component: React.ComponentType<T>;
+  component: React.JSXElementConstructor<React.PropsWithChildren<T>>;
   /**
    * Plugin activation method, will receive any props passed to the component,
    * and global and local app registry instances to subscribe to any relevant
@@ -209,7 +209,7 @@ export function createServiceProvider<T extends React.FunctionComponent<any>>(
 ): T {
   const displayName = `ServiceProvider(${fn.displayName ?? fn.name})`;
   const Provider = function (props: React.ComponentProps<T>) {
-    let content: React.ReactElement | null;
+    let content: React.ReactNode;
     try {
       serviceLocationInProgress = true;
       content = fn(props);
@@ -310,7 +310,7 @@ export type CompassPluginComponent<
   T,
   S extends Record<string, () => unknown>,
   A extends Plugin
-> = React.FunctionComponent<T> & {
+> = React.FunctionComponent<React.PropsWithChildren<T>> & {
   displayName: string;
 
   /**

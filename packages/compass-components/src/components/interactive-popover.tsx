@@ -95,7 +95,7 @@ function InteractivePopover<TriggerElement extends HTMLElement>({
   }, [setOpen]);
 
   const onClickTrigger = useCallback(
-    (event) => {
+    (event: React.MouseEvent<TriggerElement>) => {
       if (open) {
         if (
           containedElements.some((selector) => {
