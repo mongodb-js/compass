@@ -64,7 +64,7 @@
   },
   "dependencies": {
     "debug": "^4.3.4",
-    "electron": "^43.4.1",
+    "electron": "^44.2.0",
     "is-electron-renderer": "^2.0.1"
   },
   "private": true
