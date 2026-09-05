@@ -263,7 +263,7 @@
     "hadron-ipc": "^3.6.2",
     "make-fetch-happen": "^10.2.1",
     "minimatch": "^10.0.1",
-    "mongodb": "^7.5.0",
+    "mongodb": "^7.6.0",
     "mongodb-build-info": "^1.8.1",
     "mongodb-cloud-info": "^2.3.16",
     "mongodb-connection-string-url": "^7.0.2",
