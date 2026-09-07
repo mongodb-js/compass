@@ -14,6 +14,7 @@ import { FIXTURES_PATH } from '../../test-runner-paths.ts';
 import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
 import { createExternalBrowser, screenshotPathName } from '../../compass.ts';
 import { waitForLeafygreenEnabled } from '../leafygreen.ts';
+import { UUID } from 'mongodb';
 
 const { template } = lodash;
 
@@ -284,7 +285,7 @@ export async function createAtlasLoginUser(
   assertAtlasCloudTestUtils();
 
   const username = template(ATLAS_CLOUD_TEST_UTILS.testUserUsernameTemplate)({
-    username: `compass-usr-${RUN_ID}`,
+    username: `compass-usr-${new UUID().toString()}`,
   });
   const password = randomBytes(20).toString('hex');
 
