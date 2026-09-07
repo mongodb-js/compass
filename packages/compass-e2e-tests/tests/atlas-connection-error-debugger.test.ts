@@ -112,6 +112,26 @@ describe('Atlas connection error debugger', function () {
         'COMPASS_ASSISTANT_BASE_URL_OVERRIDE',
         'https://knowledge.mongodb.com/api/v1'
       );
+      await browser.setEnv(
+        'COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE',
+        'https://cloud-qa.mongodb.com/api/private'
+      );
+      await browser.setEnv(
+        'COMPASS_CLOUD_BASE_URL_OVERRIDE',
+        'https://cloud-qa.mongodb.com'
+      );
+      await browser.setEnv(
+        'COMPASS_ATLAS_ADMIN_API_BASE_URL_OVERRIDE',
+        'https://cloud-qa.mongodb.com/api/atlas'
+      );
+      await browser.setEnv(
+        'COMPASS_OIDC_ISSUER_OVERRIDE',
+        'https://authorize-qa.mongodb.com'
+      );
+      // await browser.setEnv(
+      //   'COMPASS_CLOUD_UI_BASE_URL_OVERRIDE',
+      //   ''
+      // );
       await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed();
     } catch (err) {
       await browser.screenshot(
