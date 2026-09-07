@@ -10,7 +10,6 @@ import {
   skipForWeb,
   TEST_COMPASS_WEB,
   getDefaultConnectionStrings,
-  connectionNameFromString,
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 
@@ -75,7 +74,6 @@ describe('AWS IAM credential chain', function () {
       '/test',
       '/?authMechanism=MONGODB-AWS&authSource=$external'
     );
-    const connectionName = connectionNameFromString(connectionString);
 
     // With no explicit access key/secret in the connection, the driver must go
     // through the AWS SDK credential chain, which reads the fake credentials
