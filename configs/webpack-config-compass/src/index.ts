@@ -280,11 +280,13 @@ export function createElectronRendererConfig(
       // which stubs `parseKnownFiles` to a non-callable sentinel in its browser
       // build) resolve to a variant that breaks the MONGODB-AWS credential
       // chain. See COMPASS-11097.
+      //
+      // This mirrors webpack's defaults for the electron-renderer target (see
+      // lib/config/defaults.js, getResolveDefaults) with the `browser` condition
+      // removed, so we don't change any other resolution behavior.
       conditionNames: [
-        'import',
-        'module',
-        'require',
         'webpack',
+        opts.mode === 'development' ? 'development' : 'production',
         'node',
         'electron',
       ],
