@@ -281,10 +281,15 @@ export function createElectronRendererConfig(
       // build) resolve to a variant that breaks the MONGODB-AWS credential
       // chain. See COMPASS-11097.
       //
-      // This mirrors webpack's defaults for the electron-renderer target (see
-      // lib/config/defaults.js, getResolveDefaults) with the `browser` condition
-      // removed, so we don't change any other resolution behavior.
+      // `resolve.conditionNames` is a full replacement of webpack's default, so
+      // we keep everything webpack injects by default and only drop `browser`:
+      // `import`/`require`/`module` (added per-dependency via byDependency),
+      // `webpack`, the mode condition, and the target conditions `node` +
+      // `electron`.
       conditionNames: [
+        'import',
+        'module',
+        'require',
         'webpack',
         opts.mode === 'development' ? 'development' : 'production',
         'node',
