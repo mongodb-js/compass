@@ -49,16 +49,17 @@ module.exports = {
     '@mongodb-js/mongodb-constants',
     '@mongodb-js/device-id',
     '@mongodb-js/shell-bson-parser',
+    '@mongodb-js/native-machine-id',
     'mongodb-cloud-info',
     'mongodb-query-parser',
   ],
   'devtools-shared-dev': [
     '@mongodb-js/dl-center',
     '@mongodb-js/mongodb-downloader',
+    '@mongodb-js/mongodb-runner',
     '@mongodb-js/monorepo-tools',
     '@mongodb-js/sbom-tools',
     '@mongodb-js/signing-utils',
-    'mongodb-runner',
   ],
   'webpack-config': [
     '@babel/core',

@@ -536,6 +536,11 @@ export const VirtualItemsTable = <T extends Item>({
     },
     state: { sorting: sortState },
     onSortingChange: setSortState,
+    // These tables are not paginated. Leaving this on makes react-table reset
+    // the page index in a queued microtask when sorting or data changes, which
+    // can land after the tab is closed and warn about setting state on an
+    // unmounted component.
+    autoResetPageIndex: false,
   });
 
   const rowItems = mapVirtualRowItems(table);
@@ -593,6 +598,8 @@ export const ItemsTable = <T extends Item>({
     columns: columnsWithActions,
     state: { sorting: sortState },
     onSortingChange: setSortState,
+    // See the note in VirtualItemsTable above.
+    autoResetPageIndex: false,
   });
 
   const rowItems = mapRowItems(table);

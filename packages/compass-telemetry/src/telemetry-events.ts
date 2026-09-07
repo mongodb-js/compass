@@ -1565,6 +1565,58 @@ type IndexCreateOpenedEvent = ConnectionScopedEvent<{
   };
 }>;
 
+type CreateIndexEventPayload = {
+  /**
+   * Indicates whether the index is unique.
+   */
+  unique?: boolean;
+
+  /**
+   * Specifies the time-to-live (TTL) setting for the index.
+   */
+  ttl?: boolean;
+
+  /**
+   * Indicates whether the index is a columnstore index.
+   */
+  columnstore_index?: boolean;
+
+  /**
+   * Indicates if the index has a columnstore projection.
+   */
+  has_columnstore_projection?: boolean;
+
+  /**
+   * Indicates if the index has a partial filter expression.
+   */
+  has_partial_filter_expression?: boolean;
+
+  /**
+   * Indicates if the index includes a wildcard projection.
+   */
+  has_wildcard_projection?: boolean;
+
+  /**
+   * Specifies if the index uses a custom collation.
+   */
+  custom_collation?: boolean;
+
+  /**
+   * Indicates whether the index is a geospatial index.
+   */
+  geo?: boolean;
+
+  /**
+   * Indicates whether the index is an Atlas Search index.
+   */
+  atlas_search?: boolean;
+
+  /**
+   * Specifies the type of the index.
+   */
+  type?: string;
+};
+
 /**
  * This event is fired when user creates an index.
  *
@@ -1572,53 +1624,7 @@ type IndexCreateOpenedEvent = ConnectionScopedEvent<{
  */
 type IndexCreatedEvent = ConnectionScopedEvent<{
   name: 'Index Created';
-
-  payload: {
-    /**
-     * Indicates whether the index is unique.
-     */
-    unique?: boolean;
-
-    /**
-     * Specifies the time-to-live (TTL) setting for the index.
-     */
-    ttl?: any;
-
-    /**
-     * Indicates whether the index is a columnstore index.
-     */
-    columnstore_index?: boolean;
-
-    /**
-     * Indicates if the index has a columnstore projection.
-     */
-    has_columnstore_projection?: any;
-
-    /**
-     * Indicates if the index includes a wildcard projection.
-     */
-    has_wildcard_projection?: any;
-
-    /**
-     * Specifies if the index uses a custom collation.
-     */
-    custom_collation?: any;
-
-    /**
-     * Indicates whether the index is a geospatial index.
-     */
-    geo?: boolean;
-
-    /**
-     * Indicates whether the index is an Atlas Search index.
-     */
-    atlas_search?: boolean;
-
-    /**
-     * Specifies the type of the index.
-     */
-    type?: string;
-  };
+  payload: CreateIndexEventPayload;
 }>;
 
 /**
@@ -1628,53 +1634,7 @@ type IndexCreatedEvent = ConnectionScopedEvent<{
  */
 type IndexCreateFailedEvent = ConnectionScopedEvent<{
   name: 'Index Create Failed';
-
-  payload: {
-    /**
-     * Indicates whether the index is unique.
-     */
-    unique?: boolean;
-
-    /**
-     * Specifies the time-to-live (TTL) setting for the index.
-     */
-    ttl?: any;
-
-    /**
-     * Indicates whether the index is a columnstore index.
-     */
-    columnstore_index?: boolean;
-
-    /**
-     * Indicates if the index has a columnstore projection.
-     */
-    has_columnstore_projection?: any;
-
-    /**
-     * Indicates if the index includes a wildcard projection.
-     */
-    has_wildcard_projection?: any;
-
-    /**
-     * Specifies if the index uses a custom collation.
-     */
-    custom_collation?: any;
-
-    /**
-     * Indicates whether the index is a geospatial index.
-     */
-    geo?: boolean;
-
-    /**
-     * Indicates whether the index is an Atlas Search index.
-     */
-    atlas_search?: boolean;
-
-    /**
-     * Specifies the type of the index.
-     */
-    type?: string;
-  };
+  payload: CreateIndexEventPayload;
 }>;
 
 /**

@@ -74,8 +74,8 @@ export const AtlasToolCallMessage: React.FunctionComponent<
 > = ({ toolCall, onApprove, onDeny }) => {
   const toolCallState = getToolState(toolCall.state);
   const toolDisplayName = getToolDisplayName(toolCall.type);
-  const isAwaitingApproval = toolCallState === 'idle' && !!toolCall.approval;
   const approvalId = toolCall.approval?.id;
+  const isAwaitingApproval = toolCallState === 'idle' && !!approvalId;
   const atlasSignInStatus = useAtlasSignInStatus();
   const isUserSignedIn = !!atlasSignInStatus.user;
   const isSignInInProgress = atlasSignInStatus.state === 'in-progress';
@@ -169,7 +169,6 @@ export const AtlasToolCallMessage: React.FunctionComponent<
     [toolDisplayName, isUserSignedIn]
   );
 
-  // TODO COMPASS-10973: don't render actions if there's no approvalId.
   return (
     <>
       <ActionCardMessage
@@ -183,19 +182,21 @@ export const AtlasToolCallMessage: React.FunctionComponent<
         showActions={isAwaitingApproval && !isSignInInProgress}
         contentClassName={expandableContentStyles}
         focusPrimaryKey={approvalId}
-        buttons={[
-          {
-            label: isUserSignedIn ? 'Cancel' : 'Skip',
-            variant: 'default',
-            onClick: () => approvalId && onDeny(approvalId),
-          },
-          {
-            label: isUserSignedIn ? 'Run' : 'Connect to Atlas',
-            variant: 'primary',
-            onClick: () => approvalId && handleAtlasToolApproval(approvalId),
-            isPrimary: true,
-          },
-        ]}
+        {...(approvalId && {
+          buttons: [
+            {
+              label: isUserSignedIn ? 'Cancel' : 'Skip',
+              variant: 'default',
+              onClick: () => onDeny(approvalId),
+            },
+            {
+              label: isUserSignedIn ? 'Run' : 'Connect to Atlas',
+              variant: 'primary',
+              onClick: () => handleAtlasToolApproval(approvalId),
+              isPrimary: true,
+            },
+          ],
+        })}
       >
         {expandableContentText}
       </ActionCardMessage>

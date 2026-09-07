@@ -137,8 +137,16 @@ export type WorkspacePluginProps<T extends AnyWorkspace['type']> = Omit<
   'type' | 'connectionId'
 >;
 
+type WorkspaceHeaderPluginProps<T extends AnyWorkspace['type']> = Pick<
+  Workspace<T>,
+  Extract<
+    keyof Workspace<T>,
+    'namespace' | 'editViewName' | 'inferredFromPrivileges'
+  >
+>;
+
 export type PluginHeaderProps<T extends AnyWorkspace['type']> =
-  WorkspaceTabCoreProps & WorkspacePluginProps<T>;
+  WorkspaceTabCoreProps & WorkspaceHeaderPluginProps<T>;
 
 export type WorkspacePlugin<T extends AnyWorkspace['type']> = {
   name: T;

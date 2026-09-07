@@ -1,5 +1,5 @@
 import type { Document } from 'mongodb';
-import { EJSON, ObjectId } from 'bson';
+import { ObjectId } from 'bson';
 import type { CreateIndexesOptions, IndexDirection } from 'mongodb';
 import { isCollationValid } from 'mongodb-query-parser';
 import React from 'react';
@@ -8,6 +8,7 @@ import { Badge, Link } from '@mongodb-js/compass-components';
 import { isAction } from '../utils/is-action';
 import type { IndexesThunkAction, RootState } from '.';
 import { createRegularIndex } from './regular-indexes';
+import { parseShellBSON } from '../utils/parse-shell-bson';
 
 export const ActionTypes = {
   FieldAdded: 'compass-indexes/create-index/fields/field-added',
@@ -209,13 +210,14 @@ export const OPTIONS = {
   },
 } as const;
 
-type OptionNames = keyof typeof OPTIONS;
+export type OptionNames = keyof typeof OPTIONS;
 
-export type CheckboxOptions = {
-  [k in OptionNames]: (typeof OPTIONS)[k]['type'] extends 'checkbox'
-    ? k
-    : never;
+type OptionsByType<T extends (typeof OPTIONS)[keyof typeof OPTIONS]['type']> = {
+  [k in OptionNames]: (typeof OPTIONS)[k]['type'] extends T ? k : never;
 }[OptionNames];
+
+export type CheckboxOptions = OptionsByType<'checkbox'>;
+export type CodeOptions = OptionsByType<'code'>;
 
 export type InputOptions = Exclude<OptionNames, CheckboxOptions>;
 
@@ -427,9 +429,9 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 
     if (formIndexOptions.wildcardProjection.enabled) {
       try {
-        options.wildcardProjection = EJSON.parse(
+        options.wildcardProjection = parseShellBSON(
           formIndexOptions.wildcardProjection.value ?? ''
-        ) as Document;
+        );
       } catch (err) {
         dispatch(errorEncountered(`Bad WildcardProjection: ${String(err)}`));
         return;
@@ -439,9 +441,9 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
     if (formIndexOptions.columnstoreProjection.enabled) {
       try {
         // @ts-expect-error columnstoreProjection is not a part of CreateIndexesOptions yet.
-        options.columnstoreProjection = EJSON.parse(
+        options.columnstoreProjection = parseShellBSON(
           formIndexOptions.columnstoreProjection.value ?? ''
-        ) as Document;
+        );
       } catch (err) {
         dispatch(errorEncountered(`Bad ColumnstoreProjection: ${String(err)}`));
         return;
@@ -450,9 +452,9 @@ export const createIndexFormSubmitted = (): IndexesThunkAction<
 
     if (formIndexOptions.partialFilterExpression.enabled) {
       try {
-        options.partialFilterExpression = EJSON.parse(
+        options.partialFilterExpression = parseShellBSON(
           formIndexOptions.partialFilterExpression.value ?? ''
-        ) as Document;
+        );
       } catch (err) {
         dispatch(
           errorEncountered(`Bad PartialFilterExpression: ${String(err)}`)

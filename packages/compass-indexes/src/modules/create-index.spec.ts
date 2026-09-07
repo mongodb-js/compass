@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 
 import { setupStore } from '../../test/setup-store';
+import { waitFor } from '@mongodb-js/testing-library-compass';
 
 import {
   createIndexClosed,
@@ -14,8 +15,10 @@ import {
   optionToggled,
   updateFieldName,
 } from './create-index';
+import type { OptionNames } from './create-index';
 import type { IndexesStore } from '../stores/store';
-import { EJSON } from 'bson';
+import { EJSON, ObjectId } from 'bson';
+import Sinon from 'sinon';
 
 describe('create-index module', function () {
   let store: IndexesStore;
@@ -24,7 +27,27 @@ describe('create-index module', function () {
   });
 
   describe('#createIndexFormSubmitted', function () {
+    let createIndexSpy: Sinon.SinonSpy;
+
+    const setOption = (name: OptionNames, value: string) => {
+      Object.assign(store.getState(), {
+        createIndex: {
+          ...store.getState().createIndex,
+          options: {
+            ...store.getState().createIndex.options,
+            [name]: {
+              ...store.getState().createIndex.options[name],
+              enabled: true,
+              value,
+            },
+          },
+        },
+      });
+    };
+
     beforeEach(function () {
+      createIndexSpy = Sinon.spy(() => Promise.resolve('ok'));
+      store = setupStore({}, { createIndex: createIndexSpy as any });
       store.dispatch(updateFieldName(0, 'foo'));
       store.dispatch(fieldTypeUpdated(0, 'text (full text search)'));
     });
@@ -72,66 +95,98 @@ describe('create-index module', function () {
     });
 
     it('validates wildcard projection', function () {
-      Object.assign(store.getState(), {
-        createIndex: {
-          ...store.getState().createIndex,
-          options: {
-            ...store.getState().createIndex.options,
-            wildcardProjection: {
-              ...store.getState().createIndex.options.wildcardProjection,
-              enabled: true,
-              value: 'not a wildcard projection',
-            },
-          },
-        },
-      });
+      setOption('wildcardProjection', 'not a wildcard projection');
       store.dispatch(createIndexFormSubmitted());
 
-      expect(store.getState().createIndex.error).to.equal(
-        'Bad WildcardProjection: SyntaxError: Unexpected token \'o\', "not a wildc"... is not valid JSON'
+      expect(store.getState().createIndex.error).to.match(
+        /^Bad WildcardProjection: SyntaxError/
       );
     });
 
     it('validates columnstore projection', function () {
-      Object.assign(store.getState(), {
-        createIndex: {
-          ...store.getState().createIndex,
-          options: {
-            ...store.getState().createIndex.options,
-            columnstoreProjection: {
-              ...store.getState().createIndex.options.columnstoreProjection,
-              enabled: true,
-              value: 'not a columnstore projection',
-            },
-          },
-        },
-      });
+      setOption('columnstoreProjection', 'not a columnstore projection');
       store.dispatch(createIndexFormSubmitted());
 
-      expect(store.getState().createIndex.error).to.equal(
-        'Bad ColumnstoreProjection: SyntaxError: Unexpected token \'o\', "not a colum"... is not valid JSON'
+      expect(store.getState().createIndex.error).to.match(
+        /^Bad ColumnstoreProjection: SyntaxError/
       );
     });
 
     it('validates partial filter expression', function () {
-      Object.assign(store.getState(), {
-        createIndex: {
-          ...store.getState().createIndex,
-          options: {
-            ...store.getState().createIndex.options,
-            partialFilterExpression: {
-              ...store.getState().createIndex.options.partialFilterExpression,
-              enabled: true,
-              value: '', // no partial filter expression
-            },
-          },
-        },
-      });
+      setOption('partialFilterExpression', ''); // no partial filter expression
       store.dispatch(createIndexFormSubmitted());
 
-      expect(store.getState().createIndex.error).to.equal(
-        'Bad PartialFilterExpression: SyntaxError: Unexpected end of JSON input'
+      expect(store.getState().createIndex.error).to.match(
+        /^Bad PartialFilterExpression: SyntaxError/
       );
+    });
+
+    describe('shell syntax options', function () {
+      it('parses wildcard projection written in shell syntax', async function () {
+        setOption('wildcardProjection', '{ fieldA: 1, fieldB: 1, }');
+        store.dispatch(createIndexFormSubmitted());
+        await waitFor(() => {
+          expect(createIndexSpy).to.have.been.calledOnce;
+        });
+
+        expect(store.getState().createIndex.error).to.equal(null);
+        expect(createIndexSpy.firstCall.args[2]).to.have.property(
+          'wildcardProjection'
+        );
+        expect(
+          createIndexSpy.firstCall.args[2].wildcardProjection
+        ).to.deep.equal({ fieldA: 1, fieldB: 1 });
+      });
+
+      it('parses columnstore projection written in shell syntax', async function () {
+        setOption('columnstoreProjection', "{ 'address.city': 1 }");
+        store.dispatch(createIndexFormSubmitted());
+        await waitFor(() => {
+          expect(createIndexSpy).to.have.been.calledOnce;
+        });
+
+        expect(store.getState().createIndex.error).to.equal(null);
+        expect(
+          createIndexSpy.firstCall.args[2].columnstoreProjection
+        ).to.deep.equal({ 'address.city': 1 });
+      });
+
+      it('parses partial filter expression written in shell syntax', async function () {
+        setOption(
+          'partialFilterExpression',
+          "{ _id: ObjectId('642d766b7300158b1f22e972'), age: { $gt: 5 } }"
+        );
+        store.dispatch(createIndexFormSubmitted());
+        await waitFor(() => {
+          expect(createIndexSpy).to.have.been.calledOnce;
+        });
+
+        expect(store.getState().createIndex.error).to.equal(null);
+        const { partialFilterExpression } = createIndexSpy.firstCall.args[2];
+        expect(partialFilterExpression._id).to.be.instanceOf(ObjectId);
+        expect(partialFilterExpression._id.toHexString()).to.equal(
+          '642d766b7300158b1f22e972'
+        );
+        expect(partialFilterExpression.age).to.deep.equal({ $gt: 5 });
+      });
+
+      it('does not interpret extended JSON ($oid) as a bson type anymore', async function () {
+        setOption(
+          'partialFilterExpression',
+          '{ "_id": { "$oid": "642d766b7300158b1f22e972" } }'
+        );
+        store.dispatch(createIndexFormSubmitted());
+        await waitFor(() => {
+          expect(createIndexSpy).to.have.been.calledOnce;
+        });
+
+        expect(store.getState().createIndex.error).to.equal(null);
+        const { partialFilterExpression } = createIndexSpy.firstCall.args[2];
+        expect(partialFilterExpression._id).to.not.be.instanceOf(ObjectId);
+        expect(partialFilterExpression._id).to.deep.equal({
+          $oid: '642d766b7300158b1f22e972',
+        });
+      });
     });
   });
 

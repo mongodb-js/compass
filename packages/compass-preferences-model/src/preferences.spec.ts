@@ -5,6 +5,11 @@ import { Preferences } from './preferences';
 import { expect } from 'chai';
 import { FEATURE_FLAG_DEFINITIONS } from './feature-flags';
 import { PersistentStorage } from './preferences-persistent-storage';
+import { allPreferencesProps } from './preferences-schema';
+import type {
+  UserConfigurablePreferences,
+  CompassRunningEnvironment,
+} from './preferences-schema';
 import { createLogger } from '@mongodb-js/compass-logging';
 
 const releasedFeatureFlags = FEATURE_FLAG_DEFINITIONS.filter(
@@ -21,13 +26,15 @@ const setupPreferences = async (
   basePath: string,
   globalPreferences?: ConstructorParameters<
     typeof Preferences
-  >[0]['globalPreferences']
+  >[0]['globalPreferences'],
+  runningEnvironment: string = 'desktop'
 ) => {
   const preferencesStorage = new PersistentStorage(basePath);
   const preferences = new Preferences({
     preferencesStorage,
     globalPreferences,
     logger,
+    runningEnvironment: runningEnvironment as CompassRunningEnvironment,
   });
   await preferences.setupStorage();
   return preferences;
@@ -106,7 +113,7 @@ describe('Preferences class', function () {
 
   it('can return user-configurable preferences after setting their defaults', async function () {
     const preferences = await setupPreferences(tmpdir);
-    const result = preferences.getConfigurableUserPreferences();
+    const result = preferences.getSettingsUIPreferences();
     expect(result).not.to.have.property('id');
     expect(result.enableMaps).to.equal(true);
     expect(result.enableShell).to.equal(true);
@@ -122,7 +129,7 @@ describe('Preferences class', function () {
         trackUsageStatistics: false,
       },
     });
-    const result = preferences.getConfigurableUserPreferences();
+    const result = preferences.getSettingsUIPreferences();
     expect(result).not.to.have.property('id');
     expect(result.autoUpdates).to.equal(true);
     expect(result.enableMaps).to.equal(false);
@@ -260,7 +267,7 @@ describe('Preferences class', function () {
     const preferences = await setupPreferences(tmpdir);
     const calls: any[] = [];
     preferences.onPreferencesChanged((prefs) => calls.push(prefs));
-    preferences.getConfigurableUserPreferences(); // set defaults
+    preferences.getSettingsUIPreferences(); // set defaults
     await preferences.savePreferences({ networkTraffic: false });
     await preferences.savePreferences({ readOnly: true });
     expect(calls).to.deep.equal([
@@ -278,6 +285,23 @@ describe('Preferences class', function () {
         enableShell: false,
       },
     ]);
+  });
+
+  it('filters out irrelevant settings based on the running environment', async function () {
+    const preferences = await setupPreferences(tmpdir, {}, 'atlas');
+    const userPreferences = preferences.getSettingsUIPreferences();
+
+    const allAtlas = Object.keys(userPreferences)
+      .map(
+        (pref) => allPreferencesProps[pref as keyof UserConfigurablePreferences]
+      )
+      .every(
+        (pref) =>
+          pref.exposedInSettingsUI === '*' ||
+          pref.exposedInSettingsUI.includes('atlas')
+      );
+
+    expect(allAtlas).to.be.true;
   });
 
   it('allows hardcoding some options and derive other option values based on that', async function () {

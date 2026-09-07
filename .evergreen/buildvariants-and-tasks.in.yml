@@ -453,7 +453,6 @@ tasks:
       - func: test-connectivity
         vars:
           debug: 'compass*,electron*,hadron*,mongo*'
-          mongodb_version: <%= LATEST_MAINTAINED_SERVER_VERSION.version %>
 
   - name: test-csfle
     tags:

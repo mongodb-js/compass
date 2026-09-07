@@ -2,7 +2,7 @@ import {
   getConnectionTitle,
   type ConnectionInfo,
 } from '@mongodb-js/connection-info';
-import type { MongoClusterOptions } from 'mongodb-runner';
+import type { MongoClusterOptions } from '@mongodb-js/mongodb-runner';
 import yargs from 'yargs';
 import type { Argv } from 'yargs';
 import { hideBin } from 'yargs/helpers';

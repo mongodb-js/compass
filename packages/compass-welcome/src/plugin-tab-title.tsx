@@ -1,14 +1,10 @@
 import React from 'react';
-import {
-  WorkspaceTab,
-  type WorkspaceTabCoreProps,
-} from '@mongodb-js/compass-components';
-import type { WorkspacePluginProps } from '@mongodb-js/workspace-info';
+import { WorkspaceTab } from '@mongodb-js/compass-components';
+import type { PluginHeaderProps } from '@mongodb-js/workspace-info';
 
 export const WorkspaceName = 'Welcome' as const;
 
-type PluginTitleComponentProps = WorkspaceTabCoreProps &
-  WorkspacePluginProps<typeof WorkspaceName>;
+type PluginTitleComponentProps = PluginHeaderProps<typeof WorkspaceName>;
 
 export function PluginTabTitleComponent(props: PluginTitleComponentProps) {
   return (

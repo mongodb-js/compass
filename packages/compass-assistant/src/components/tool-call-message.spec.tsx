@@ -430,6 +430,24 @@ describe('ToolCallMessage', function () {
       expect(screen.queryByText('Cancel')).to.not.exist;
     });
 
+    it('does not show action buttons when there is no approval id', function () {
+      const approvalTool = {
+        ...baseToolCall,
+        state: 'approval-requested',
+        approval: undefined,
+      } as unknown as ToolUIPart;
+
+      render(
+        <ToolCallMessage
+          connection={defaultConnection}
+          toolCall={approvalTool}
+        />
+      );
+
+      expect(screen.queryByText('Run')).to.not.exist;
+      expect(screen.queryByText('Cancel')).to.not.exist;
+    });
+
     it('does not show action buttons after approval is granted', function () {
       const approvedTool: ToolUIPart = {
         ...baseToolCall,
