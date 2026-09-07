@@ -17,7 +17,6 @@ export * as Selectors from './selectors.ts';
 export * as Commands from './commands/index.ts';
 import * as Commands from './commands/index.ts';
 import type { CompassBrowser } from './compass-browser.ts';
-import type { AllPreferences } from 'compass-preferences-model';
 import type { LogEntry } from './telemetry.ts';
 import Debug from 'debug';
 import semver from 'semver';
