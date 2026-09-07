@@ -239,7 +239,6 @@ export function getAtlasConfig(
       process.env.COMPASS_ATLAS_SERVICE_UNAUTH_BASE_URL_OVERRIDE,
     cloudBaseUrl: process.env.COMPASS_CLOUD_BASE_URL_OVERRIDE,
     atlasUiBaseUrl: process.env.COMPASS_CLOUD_UI_BASE_URL_OVERRIDE,
-    atlasAdminApiBaseUrl: process.env.COMPASS_ATLAS_ADMIN_API_BASE_URL_OVERRIDE,
     atlasLogin: {
       clientId: process.env.COMPASS_CLIENT_ID_OVERRIDE,
       issuer: process.env.COMPASS_OIDC_ISSUER_OVERRIDE,

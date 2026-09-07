@@ -470,9 +470,7 @@ const ENVIRONMENT_TO_BACKEND_PRESET = {
  * Resolve Atlas Cloud URLs for an explicitly provided environment.
  *
  * This helper is intentionally decoupled from `context.atlasCloudEnvironment`:
- * that value only exists for the `web` command (Atlas Cloud tests) and is
- * unreliable on desktop runs. Desktop callers must pass the environment
- * explicitly; web callers should use `getCloudUrlsFromContext`.
+ * so it can be used by Compass desktop to load the correct config.
  */
 export function getCloudUrlsForEnvironment(env: AtlasEnvironment) {
   return CLOUD_URLS[env];

@@ -23,6 +23,7 @@ import {
 // This test relies on Atlas resources (org, projects, paused/network-access
 // clusters) that only exist in the atlas-qa environment, so it always runs
 // against QA regardless of the task it's executed in.
+// TODO(COMPASS-10934): dynamically generate these
 const ATLAS_ENV = 'qa' as const;
 const QA_ORG_ID = '67ec23f45c93b57f2845860f';
 const PAUSED_PROJECT_ID = '6a8c5d1677636c0fc4177a8a';
@@ -103,11 +104,6 @@ describe('Atlas connection error debugger', function () {
       });
       browser = compass.browser;
 
-      // Fail fast if the QA backend preset didn't take effect at startup.
-      // The OIDC issuer, cloud and admin API URLs are read once when the main
-      // process AtlasService initializes, so a wrong preset here means the whole
-      // Atlas sign-in flow silently targets the wrong environment and only fails
-      // after a multi-minute OIDC timeout, which is hard to diagnose.
       const backendPreset = await browser.getFeature(
         'atlasServiceBackendPreset'
       );
