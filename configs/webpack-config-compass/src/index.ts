@@ -274,6 +274,20 @@ export function createElectronRendererConfig(
     resolve: {
       // To avoid resolving the `browser` field
       aliasFields: [],
+      // The desktop renderer runs inside Electron with full Node.js access, so
+      // we must not activate the `browser` condition when resolving package
+      // exports. Otherwise node-only packages (e.g. `@smithy/core/config`,
+      // which stubs `parseKnownFiles` to a non-callable sentinel in its browser
+      // build) resolve to a variant that breaks the MONGODB-AWS credential
+      // chain. See COMPASS-11097.
+      conditionNames: [
+        'import',
+        'module',
+        'require',
+        'webpack',
+        'node',
+        'electron',
+      ],
       ...sharedResolveOptions(opts.target),
     },
     ignoreWarnings: sharedIgnoreWarnings,
