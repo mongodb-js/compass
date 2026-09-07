@@ -11,6 +11,7 @@ import {
   TEST_COMPASS_WEB,
   getDefaultConnectionStrings,
 } from '../helpers/compass.ts';
+import * as Selectors from '../helpers/selectors.ts';
 import type { Compass } from '../helpers/compass.ts';
 
 // Provide fake AWS credentials through the shared credentials/config *files*
@@ -80,9 +81,13 @@ describe('AWS IAM credential chain', function () {
     // file above via parseKnownFiles and then attempts auth against the server.
     // The server is not configured for MONGODB-AWS, so it rejects the mechanism
     // after the client has already resolved credentials.
-    const error = await browser.connectWithConnectionString(connectionString, {
+    await browser.connectWithConnectionString(connectionString, {
       connectionStatus: 'failure',
     });
+
+    // `connectWithConnectionString` does not surface the error message, so read
+    // it from the connection error toast.
+    const error = await browser.$(Selectors.ConnectionToastErrorText).getText();
 
     // COMPASS-11097 regression guard: without the fix the credential chain
     // crashes in the renderer bundle (browser variant of @smithy/core/config)
