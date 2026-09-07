@@ -714,6 +714,33 @@ async function processCommonOpts({
   };
 }
 
+/**
+ * De-dupe repeated `--flag=value` arguments in place, keeping the last
+ * occurrence (later pushes win over earlier defaults). Only `--flag=value` form
+ * arguments are considered; bare flags and positional arguments are left as-is.
+ */
+function dedupeLastWinsFlags(args: string[]): void {
+  const lastIndexByName = new Map<string, number>();
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (!arg.startsWith('--') || !arg.includes('=')) {
+      continue;
+    }
+    const name = arg.slice(0, arg.indexOf('='));
+    lastIndexByName.set(name, i);
+  }
+
+  const deduped = args.filter((arg, i) => {
+    if (!arg.startsWith('--') || !arg.includes('=')) {
+      return true;
+    }
+    const name = arg.slice(0, arg.indexOf('='));
+    return lastIndexByName.get(name) === i;
+  });
+
+  args.splice(0, args.length, ...deduped);
+}
+
 async function startCompassElectron(
   name: string,
   opts: StartCompassOptions = {}
@@ -747,6 +774,14 @@ async function startCompassElectron(
   if (opts.extraSpawnArgs) {
     chromeArgs.push(...opts.extraSpawnArgs);
   }
+
+  // extraSpawnArgs (and other later pushes) may repeat a `--flag=value` that is
+  // already present in CHROME_STARTUP_FLAGS (e.g. --atlasServiceBackendPreset).
+  // Compass parses argv with yargs-parser, which turns a repeated scalar flag
+  // into an array (['atlas', 'atlas-qa']), failing the enum validation and
+  // silently falling back to the preference default. De-dupe with last-wins so
+  // a caller-provided override actually takes effect.
+  dedupeLastWinsFlags(chromeArgs);
 
   // Electron on Windows interprets its arguments in a weird way where
   // the second positional argument inserted by webdriverio (about:blank)
