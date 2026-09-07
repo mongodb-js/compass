@@ -180,6 +180,7 @@
     "email": "compass@mongodb.com"
   },
   "dependencies": {
+    "@mongodb-js/connection-string-policy": "^0.2.0",
     "@mongodb-js/device-id": "^0.4.14",
     "@mongodb-js/native-machine-id": "^0.3.6",
     "@mongosh/node-runtime-worker-thread": "^5.2.13",
@@ -192,8 +193,8 @@
   "devDependencies": {
     "@electron/rebuild": "^4.2.0",
     "@electron/remote": "^2.1.3",
-    "@mongodb-js/atlas-service": "^1.2.0",
     "@mongodb-js/atlas-admin-api": "^1.0.0",
+    "@mongodb-js/atlas-service": "^1.2.0",
     "@mongodb-js/compass-aggregations": "^10.2.0",
     "@mongodb-js/compass-app-registry": "^9.13.0",
     "@mongodb-js/compass-app-stores": "^8.2.0",
