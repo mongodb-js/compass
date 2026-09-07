@@ -136,6 +136,7 @@ export type AssistantMessage = UIMessage & {
      *  to (if any).
      */
     connectionInfo?: BasicConnectionInfo | null;
+
     /** Whether to enable or disable storage of this message in chatapi. */
     disableStorage?: boolean;
     /** SHA-256 hashed User ID. */

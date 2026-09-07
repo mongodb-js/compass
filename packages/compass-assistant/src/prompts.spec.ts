@@ -829,6 +829,17 @@ You SHOULD:
         );
       });
 
+      it('instructs the assistant to pass the connection name to the tool', function () {
+        const result = buildConnectionErrorPrompt({
+          connectionInfo: atlasConnectionInfo,
+          error: new Error('connection timed out'),
+        });
+
+        expect(result.prompt).to.contain(
+          'Always pass "Atlas Cluster" as its connectionName argument'
+        );
+      });
+
       it('instructs to use the tool regardless of the error type', function () {
         const result = buildConnectionErrorPrompt({
           connectionInfo: atlasConnectionInfo,
@@ -895,10 +906,8 @@ You SHOULD:
           error: new Error('connection refused'),
         });
 
-        expect(result.metadata?.connectionInfo).to.deep.equal({
-          id: 'conn-local',
-          name: 'Local',
-        });
+        expect(result.prompt).to.include('Local');
+        expect(result.prompt).to.include('mongodb://localhost:27017');
         expect(result.prompt).to.include('connection refused');
       });
     });

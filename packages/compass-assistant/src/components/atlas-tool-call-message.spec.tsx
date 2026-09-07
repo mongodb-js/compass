@@ -121,10 +121,32 @@ describe('AtlasToolCallMessage', function () {
         onApprove={onApprove}
         onDeny={onDeny}
         {...props}
+        connection={props.connection ?? null}
       />
     );
     return { onApprove, onDeny, atlasAuthService, container, track };
   }
+
+  describe('connection chip', function () {
+    it('renders the connection name passed in the tool arguments', function () {
+      renderMessage({
+        toolCall: {
+          ...makeToolCall('approval-requested'),
+          input: { connectionName: 'My Cluster' },
+        } as ToolUIPart,
+      });
+
+      expect(screen.getByText('My Cluster')).to.exist;
+    });
+
+    // The debugger tool runs for a connection the user is not connected to, so
+    // the active connection must not be used as its chip.
+    it('renders no connection name when the tool arguments have none', function () {
+      renderMessage({ connection: { id: 'conn-1', name: 'My Cluster' } });
+
+      expect(screen.queryByText('My Cluster')).to.not.exist;
+    });
+  });
 
   describe('when awaiting approval and the user is not signed in', function () {
     it('prompts the user to connect to Atlas', function () {
