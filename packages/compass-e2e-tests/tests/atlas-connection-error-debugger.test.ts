@@ -94,7 +94,11 @@ describe('Atlas connection error debugger', function () {
     try {
       compass = await init(this.test?.fullTitle(), {
         extraSpawnArgs: [
-          `--atlasServiceBackendPreset=${getAtlasBackendPreset(ATLAS_ENV)}`,
+          process.platform === 'win32'
+            ? `--atlas-service-backend-preset=${getAtlasBackendPreset(
+                ATLAS_ENV
+              )}`
+            : `--atlasServiceBackendPreset=${getAtlasBackendPreset(ATLAS_ENV)}`,
         ],
       });
       browser = compass.browser;
@@ -117,23 +121,9 @@ describe('Atlas connection error debugger', function () {
       await browser.setFeature('enableGenAIToolCallingAtlasProject', true);
       await browser.setFeature('enableGenAIToolCalling', true);
       await browser.setFeature('enableGenAIFeaturesAtlasOrg', true);
-      // The QA cloud/admin/OIDC endpoints all come from the atlas-qa backend
-      // preset (see extraSpawnArgs above), so we don't need to override them at
-      // runtime. Runtime overrides also wouldn't work for the OIDC issuer and
-      // other main-process config, which is read once at AtlasService init.
-      //
-      // The assistant (Knowledge API) base URL is the exception: the atlas-qa
-      // preset points at a non-prod Knowledge API that doesn't allow requests
-      // from Evergreen, so we override it to prod. This override is read
-      // dynamically by the renderer AtlasService on every request, so setting it
-      // here at runtime is honored.
       await browser.setEnv(
         'COMPASS_ASSISTANT_BASE_URL_OVERRIDE',
         'https://knowledge.mongodb.com/api/v1'
-      );
-      await browser.setEnv(
-        'COMPASS_CLOUD_BASE_URL_OVERRIDE',
-        'https://cloud-qa.mongodb.com'
       );
       await browser.$(Selectors.AssistantDrawerButton).waitForDisplayed();
     } catch (err) {

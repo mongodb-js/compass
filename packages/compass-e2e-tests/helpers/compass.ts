@@ -17,6 +17,7 @@ export * as Selectors from './selectors.ts';
 export * as Commands from './commands/index.ts';
 import * as Commands from './commands/index.ts';
 import type { CompassBrowser } from './compass-browser.ts';
+import type { AllPreferences } from 'compass-preferences-model';
 import type { LogEntry } from './telemetry.ts';
 import Debug from 'debug';
 import semver from 'semver';
@@ -775,12 +776,6 @@ async function startCompassElectron(
     chromeArgs.push(...opts.extraSpawnArgs);
   }
 
-  // extraSpawnArgs (and other later pushes) may repeat a `--flag=value` that is
-  // already present in CHROME_STARTUP_FLAGS (e.g. --atlasServiceBackendPreset).
-  // Compass parses argv with yargs-parser, which turns a repeated scalar flag
-  // into an array (['atlas', 'atlas-qa']), failing the enum validation and
-  // silently falling back to the preference default. De-dupe with last-wins so
-  // a caller-provided override actually takes effect.
   dedupeLastWinsFlags(chromeArgs);
 
   // Electron on Windows interprets its arguments in a weird way where
