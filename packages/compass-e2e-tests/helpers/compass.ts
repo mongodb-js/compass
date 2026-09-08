@@ -797,6 +797,10 @@ async function startCompassElectron(
   if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
+  // Driving the Atlas login page (form + consent + redirects against a real
+  // Atlas environment) can take longer than the oidc-plugin's default "open
+  // browser" timeout. Setting this to 0 disable the timeout.
+  process.env.COMPASS_OIDC_OPEN_BROWSER_TIMEOUT_OVERRIDE = String(0);
 
   const options = {
     automationProtocol: 'webdriver' as const,

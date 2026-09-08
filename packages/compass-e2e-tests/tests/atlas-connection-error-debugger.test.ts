@@ -71,11 +71,6 @@ describe('Atlas connection error debugger', function () {
       return this.skip();
     }
 
-    // Driving the Atlas login page (form + consent + redirects against a real
-    // Atlas environment) can take longer than the oidc-plugin's default "open
-    // browser" timeout.
-    process.env.COMPASS_OIDC_OPEN_BROWSER_TIMEOUT_OVERRIDE = String(2 * 60_000);
-
     session = await createExternalBrowser(false);
     ({ username, password } = await createAtlasLoginUser(session, ATLAS_ENV, {
       existingOrgId: QA_ORG_ID,
@@ -83,11 +78,14 @@ describe('Atlas connection error debugger', function () {
   });
 
   after(async function () {
-    await deleteAtlasUser(
-      session as unknown as CompassBrowser,
-      username,
-      ATLAS_ENV
-    );
+    if (username) {
+      await deleteAtlasUser(
+        session as unknown as CompassBrowser,
+        username,
+        ATLAS_ENV
+      );
+    }
+
     await session?.deleteSession().catch(() => {});
   });
 
