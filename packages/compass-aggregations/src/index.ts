@@ -11,7 +11,6 @@ import {
   connectionScopedAppRegistryLocator,
   connectionsLocator,
   dataServiceLocator,
-  type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import {
@@ -41,7 +40,7 @@ const CompassAggregationsPluginProvider = registerCompassPlugin(
     activate: activateAggregationsPlugin,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<
+    dataService: dataServiceLocator<
       RequiredDataServiceProps,
       OptionalDataServiceProps
     >,

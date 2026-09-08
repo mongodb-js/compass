@@ -39,7 +39,7 @@ function renderBanner(
   };
 
   const element = (
-    <AssistantActionsContext.Provider value={actionsContext as any}>
+    <AssistantActionsContext.Provider value={actionsContext}>
       <ServerErrorBanner
         message={ERROR_MESSAGE}
         searchIndexName={null}

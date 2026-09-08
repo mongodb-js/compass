@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { expect } from 'chai';
 import type { ConnectionInfo } from './connection-info';
-import type { ConnectionSecrets } from './connection-secrets';
 import { mergeSecrets, extractSecrets } from './connection-secrets';
 import { UUID } from 'bson';
 
@@ -98,7 +97,7 @@ describe('connection secrets', function () {
             identityKeyPassphrase: 'passphrase',
           },
         },
-      } as ConnectionInfo);
+      });
     });
 
     it('merges secrets for a cosmosdb connection string', function () {
@@ -120,7 +119,7 @@ describe('connection secrets', function () {
           connectionString:
             'mongodb://database-ut:userPassword@database-haha.mongo.cosmos.azure.com:8888/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@database-haha@',
         },
-      } as ConnectionInfo);
+      });
     });
   });
 
@@ -485,11 +484,11 @@ describe('connection secrets', function () {
           connectionString:
             'mongodb://database-ut@database-haha.mongo.cosmos.azure.com:8888/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@database-haha@',
         },
-      } as ConnectionInfo);
+      });
 
       expect(secrets).to.be.deep.equal({
         password: 'somerandomsecret',
-      } as ConnectionSecrets);
+      });
 
       const { connectionInfo: newConnectionInfoNoFle, secrets: secretsNoFle } =
         extractSecrets(

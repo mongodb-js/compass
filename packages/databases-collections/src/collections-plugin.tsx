@@ -7,7 +7,6 @@ import { activatePlugin as activateCollectionsTabPlugin } from './stores/collect
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   dataServiceLocator,
-  type DataServiceLocator,
   type DataService,
 } from '@mongodb-js/compass-connections/provider';
 
@@ -24,6 +23,6 @@ export const CollectionsPlugin = registerCompassPlugin(
   {
     instance: mongoDBInstanceLocator,
     database: databaseModelLocator,
-    dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+    dataService: dataServiceLocator<keyof DataService>,
   }
 );

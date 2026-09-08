@@ -908,8 +908,8 @@ describe('Collection Tab Content store', function () {
           experimentationServices: {
             getAssignment,
             assignExperiment,
-          } as any,
-          connectionInfoRef: mockAtlasConnectionInfo as any,
+          },
+          connectionInfoRef: mockAtlasConnectionInfo,
           logger: createNoopLogger('COMPASS-COLLECTION-TEST'),
           preferences: new ReadOnlyPreferenceAccess({
             enableGenAIFeatures: true,
@@ -979,8 +979,8 @@ describe('Collection Tab Content store', function () {
           experimentationServices: {
             getAssignment,
             assignExperiment,
-          } as any,
-          connectionInfoRef: mockAtlasConnectionInfo as any,
+          },
+          connectionInfoRef: mockAtlasConnectionInfo,
           logger: createNoopLogger('COMPASS-COLLECTION-TEST'),
           preferences: new ReadOnlyPreferenceAccess({
             enableGenAIFeatures: true,
