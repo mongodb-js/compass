@@ -39,14 +39,13 @@ if [ "$HAS_DOCKER" = true ]; then
   LOGS_DIR="$SCRIPT_DIR/logs"
   mkdir -p "$LOGS_DIR"
 
-  git clone -b v1.3.5 --single-branch https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
-
-  # Debian bullseye has reached EOL and its packages were removed from
-  # deb.debian.org/debian-security, so `apt-get install` in the kerberos KDC
-  # image fails with a 404. Until devtools-docker-test-envs ships a supported
-  # base image, build the KDC on bookworm instead.
-  sed -i 's|FROM debian:bullseye-slim|FROM debian:bookworm-slim|' \
-    test-envs/docker/kerberos/kdc/Dockerfile
+  # Pin to the upstream revision that builds the kerberos KDC on a supported
+  # base image (bookworm). Debian bullseye reached EOL and its packages were
+  # removed from deb.debian.org/debian-security, so the v1.3.5 tag (bullseye)
+  # fails to build the KDC image. This is the merged fix (#38); switch back to a
+  # tag once it is released.
+  git clone https://github.com/mongodb-js/devtools-docker-test-envs.git test-envs
+  git -C test-envs checkout b01126de0fb76ba41813d8ed9f761e3a02d735a6
 
   $DOCKER_COMPOSE -f test-envs/docker/enterprise/docker-compose.yaml up -d
   $DOCKER_COMPOSE -f test-envs/docker/ldap/docker-compose.yaml up -d
