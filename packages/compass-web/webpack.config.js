@@ -212,6 +212,7 @@ module.exports = (env, args) => {
     externals: {
       react: ['__compassWebSharedRuntime', 'React'],
       'react-dom': ['__compassWebSharedRuntime', 'ReactDOM'],
+      // React 18 exposes createRoot from react-dom/client, but React 19 don't. This will need to be refactored when upgrading to React 19+.
       'react-dom/client': ['__compassWebSharedRuntime', 'ReactDOM'],
     },
     plugins: [
