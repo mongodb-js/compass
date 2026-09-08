@@ -48,7 +48,7 @@ const withDarkMode = function <
 ): React.ComponentType<ComponentProps> {
   const ComponentWithDarkMode = (
     props: ComponentProps,
-    ref: React.ForwardedRef<React.ComponentType<ComponentProps>>
+    ref: React.ForwardedRef<unknown>
   ) => {
     const darkMode = useDarkMode();
     return (
@@ -68,7 +68,7 @@ const withDarkMode = function <
 
   return React.forwardRef(
     ComponentWithDarkMode as React.ForwardRefRenderFunction<
-      React.ComponentType<ComponentProps>,
+      unknown,
       React.PropsWithoutRef<ComponentProps>
     >
   ) as unknown as typeof WrappedComponent;

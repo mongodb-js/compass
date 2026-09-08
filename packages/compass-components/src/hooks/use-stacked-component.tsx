@@ -1,4 +1,4 @@
-import type { ComponentType, ForwardedRef } from 'react';
+import type { ForwardedRef } from 'react';
 import React, { createContext, useContext, useMemo } from 'react';
 
 type StackedComponentProviderProps = {
@@ -36,7 +36,7 @@ export const withStackedComponentStyles = function <ComponentProps>(
 ): React.FC<ComponentProps> {
   const ComponentWithStackedStyles = (
     props: ComponentProps,
-    ref: ForwardedRef<ComponentType<ComponentProps>>
+    ref: ForwardedRef<unknown>
   ) => {
     const context = useStackedComponent();
     const stackedElementProps = useMemo(() => {
@@ -60,7 +60,7 @@ export const withStackedComponentStyles = function <ComponentProps>(
 
   return React.forwardRef(
     ComponentWithStackedStyles as React.ForwardRefRenderFunction<
-      React.ComponentType<ComponentProps>,
+      unknown,
       React.PropsWithoutRef<ComponentProps>
     >
   ) as unknown as typeof WrappedComponent;
