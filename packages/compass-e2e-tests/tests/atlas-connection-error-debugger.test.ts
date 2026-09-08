@@ -93,6 +93,10 @@ describe('Atlas connection error debugger', function () {
     try {
       compass = await init(this.test?.fullTitle(), {
         extraSpawnArgs: [
+          // Windows transforms --atlasServiceBackendPreset to
+          // --atlasservicebackendpreset, which then fails the test
+          // as the env is not loaded properly. In order to avoid this,
+          // we need to use kebab-case when passing arguments to Windows
           process.platform === 'win32'
             ? `--atlas-service-backend-preset=${getAtlasBackendPreset(
                 ATLAS_ENV
