@@ -172,14 +172,6 @@ export class Compass {
   }
 
   async prepare() {
-    for (const [k, v] of Object.entries(Commands)) {
-      this.browser.addCommand(k, (...args) => {
-        // @ts-expect-error really hard to get these exactly right for
-        // typescript, but we know what we're doing
-        return v(this.browser, ...args);
-      });
-    }
-
     // The waitUntil helper will continue running even if we started tests
     // teardown on abort. To work around that, we will override the default
     // method, will short circuit the wait if we aborted, and then throw the
@@ -883,6 +875,7 @@ async function startCompassElectron(
     }
     throw err;
   }
+  attachCommands(browser);
 
   const compass = new Compass(name, browser, {
     mode: 'electron',
@@ -987,7 +980,19 @@ export async function createExternalBrowser(firstRun: boolean = true) {
     }
   }
 
+  attachCommands(browser);
+
   return browser;
+}
+
+function attachCommands(browser: CompassBrowser) {
+  const commands = Commands as Record<
+    string,
+    (browser: CompassBrowser, ...args: unknown[]) => unknown
+  >;
+  for (const [name, command] of Object.entries(commands)) {
+    browser.addCommand(name, (...args: unknown[]) => command(browser, ...args));
+  }
 }
 
 export async function startBrowser(

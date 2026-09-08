@@ -12,7 +12,6 @@ import type { AtlasEnvironment } from '../../test-runner-context.ts';
 import { FIXTURES_PATH } from '../../test-runner-paths.ts';
 import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
 import { createExternalBrowser, screenshotPathName } from '../../compass.ts';
-import { waitForLeafygreenEnabled } from '../leafygreen.ts';
 import { UUID } from 'mongodb';
 
 const { template } = lodash;
@@ -23,16 +22,16 @@ export async function fillAtlasLoginForm(
   password: string,
   waitForAuthenticated: () => Promise<boolean>
 ) {
-  await waitForLeafygreenEnabled(browser, 'input[name="username"]');
+  await browser.waitForLeafygreenEnabled('input[name="username"]');
   await browser.$('input[name="username"]').setValue(username);
 
-  await waitForLeafygreenEnabled(browser, 'button=Next');
+  await browser.waitForLeafygreenEnabled('button=Next');
   await browser.$('button=Next').click();
 
   await browser.$('input[name="password"]').waitForEnabled();
   await browser.$('input[name="password"]').setValue(password);
 
-  await waitForLeafygreenEnabled(browser, 'button=Login');
+  await browser.waitForLeafygreenEnabled('button=Login');
   await browser.$('button=Login').click();
 
   let authenticated = false;
@@ -101,7 +100,7 @@ export async function signInToAtlas(
 
   // We don't check the exact project id, just want to make sure we are in the
   // logged in part of atlas cloud
-  await fillAtlasLoginForm(browser, username, password, () =>
+  await browser.fillAtlasLoginForm(username, password, () =>
     isAtlasCloudPage(browser, cloudUrl)
   );
 
@@ -188,8 +187,7 @@ export async function signInToAtlasDesktop(
 
     await loginSessionBrowser.url(authUrl);
 
-    await fillAtlasLoginForm(
-      loginSessionBrowser,
+    await loginSessionBrowser.fillAtlasLoginForm(
       username,
       password,
       waitForSignedIn
@@ -237,7 +235,7 @@ export async function createAtlasUser(
 
   // Sign in before proceeding: this will apply some extra configuration steps
   // and is required to run some further operations in the flow
-  await signInToAtlas(browser, username, password, env);
+  await browser.signInToAtlas(username, password, env);
 
   const { orgId, groupId } = await doCloudFetch(
     browser,
@@ -284,8 +282,7 @@ export async function createAtlasLoginUser(
   });
   const password = randomBytes(20).toString('hex');
 
-  const { orgId, projectId } = await createAtlasUser(
-    session,
+  const { orgId, projectId } = await session.createAtlasUser(
     username,
     password,
     env

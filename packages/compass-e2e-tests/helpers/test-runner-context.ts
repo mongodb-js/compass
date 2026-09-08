@@ -459,13 +459,6 @@ const CLOUD_URLS = {
 
 export type AtlasEnvironment = keyof typeof CLOUD_URLS;
 
-const ENVIRONMENT_TO_BACKEND_PRESET = {
-  dev: 'atlas-dev',
-  qa: 'atlas-qa',
-  staging: 'atlas-staging',
-  prod: 'atlas',
-} as const;
-
 /**
  * Resolve Atlas Cloud URLs for an explicitly provided environment.
  *
@@ -474,14 +467,6 @@ const ENVIRONMENT_TO_BACKEND_PRESET = {
  */
 export function getCloudUrlsForEnvironment(env: AtlasEnvironment) {
   return CLOUD_URLS[env];
-}
-
-/**
- * Map an Atlas environment to the `--atlasServiceBackendPreset` value used to
- * launch the desktop app against that environment.
- */
-export function getAtlasBackendPreset(env: AtlasEnvironment) {
-  return ENVIRONMENT_TO_BACKEND_PRESET[env];
 }
 
 /**
@@ -502,7 +487,7 @@ export function getAtlasCloudEnvironmentFromContext(
  */
 export function getCloudUrlsFromContext(ctx = context) {
   assertTestingWebAtlasCloud(ctx);
-  return getCloudUrlsForEnvironment(getAtlasCloudEnvironmentFromContext(ctx));
+  return CLOUD_URLS[context.atlasCloudEnvironment as keyof typeof CLOUD_URLS];
 }
 
 export const ATLAS_CLOUD_TEST_UTILS: {

@@ -1,10 +1,6 @@
 import { expect } from 'chai';
 import type { CompassBrowser } from '../helpers/compass-browser.ts';
-import {
-  createAtlasLoginUser,
-  deleteAtlasUser,
-  getClusterConnectionStringsFromNames,
-} from '../helpers/commands/index.ts';
+import { getClusterConnectionStringsFromNames } from '../helpers/commands/index.ts';
 import {
   init,
   cleanup,
@@ -15,10 +11,7 @@ import {
 } from '../helpers/compass.ts';
 import type { Compass } from '../helpers/compass.ts';
 import * as Selectors from '../helpers/selectors.ts';
-import {
-  ATLAS_CLOUD_TEST_UTILS,
-  getAtlasBackendPreset,
-} from '../helpers/test-runner-context.ts';
+import { ATLAS_CLOUD_TEST_UTILS } from '../helpers/test-runner-context.ts';
 
 // This test relies on Atlas resources (org, projects, paused/network-access
 // clusters) that only exist in the atlas-qa environment, so it always runs
@@ -72,18 +65,14 @@ describe('Atlas connection error debugger', function () {
     }
 
     session = await createExternalBrowser(false);
-    ({ username, password } = await createAtlasLoginUser(session, ATLAS_ENV, {
+    ({ username, password } = await session.createAtlasLoginUser(ATLAS_ENV, {
       existingOrgId: QA_ORG_ID,
     }));
   });
 
   after(async function () {
     if (username) {
-      await deleteAtlasUser(
-        session as unknown as CompassBrowser,
-        username,
-        ATLAS_ENV
-      );
+      await session?.deleteAtlasUser(username, ATLAS_ENV);
     }
 
     await session?.deleteSession().catch(() => {});
@@ -98,10 +87,8 @@ describe('Atlas connection error debugger', function () {
           // as the env is not loaded properly. In order to avoid this,
           // we need to use kebab-case when passing arguments to Windows
           process.platform === 'win32'
-            ? `--atlas-service-backend-preset=${getAtlasBackendPreset(
-                ATLAS_ENV
-              )}`
-            : `--atlasServiceBackendPreset=${getAtlasBackendPreset(ATLAS_ENV)}`,
+            ? '--atlas-service-backend-preset=atlas-qa'
+            : '--atlasServiceBackendPreset=atlas-qa',
         ],
       });
       browser = compass.browser;
@@ -109,7 +96,7 @@ describe('Atlas connection error debugger', function () {
       const backendPreset = await browser.getFeature(
         'atlasServiceBackendPreset'
       );
-      expect(backendPreset).to.equal(getAtlasBackendPreset(ATLAS_ENV));
+      expect(backendPreset).to.equal('atlas-qa');
 
       await browser.setFeature('enableAtlasSignIn', true);
       await browser.setFeature('enableAtlasConnectionErrorDebugger', true);
