@@ -229,6 +229,7 @@ export function createElectronRendererConfig(
 ): WebpackConfig {
   const opts = webpackArgsWithDefaults(args, { target: 'electron-renderer' });
   const entries = entriesToNamedEntries(opts.entry);
+  const sharedResolve = sharedResolveOptions(opts.target);
 
   const config = {
     entry: entries,
@@ -274,28 +275,27 @@ export function createElectronRendererConfig(
     resolve: {
       // To avoid resolving the `browser` field
       aliasFields: [],
-      // The desktop renderer runs inside Electron with full Node.js access, so
-      // we must not activate the `browser` condition when resolving package
-      // exports. Otherwise node-only packages (e.g. `@smithy/core/config`,
-      // which stubs `parseKnownFiles` to a non-callable sentinel in its browser
-      // build) resolve to a variant that breaks the MONGODB-AWS credential
-      // chain. See COMPASS-11097.
-      //
-      // `resolve.conditionNames` is a full replacement of webpack's default, so
-      // we keep everything webpack injects by default and only drop `browser`:
-      // `import`/`require`/`module` (added per-dependency via byDependency),
-      // `webpack`, the mode condition, and the target conditions `node` +
-      // `electron`.
-      conditionNames: [
-        'import',
-        'module',
-        'require',
-        'webpack',
-        opts.mode === 'development' ? 'development' : 'production',
-        'node',
-        'electron',
-      ],
-      ...sharedResolveOptions(opts.target),
+      ...sharedResolve,
+      alias: {
+        ...sharedResolve.alias,
+        // The desktop renderer runs inside Electron with full Node.js access, so
+        // `@smithy/core/config` must resolve to its node build (which exports
+        // `parseKnownFiles`) rather than the browser build (which stubs
+        // `parseKnownFiles` to a non-callable sentinel), otherwise MONGODB-AWS
+        // credential resolution fails. We target only this module instead of
+        // removing the `browser` condition globally, because other packages rely
+        // on it (e.g. OIDC authentication). See COMPASS-11097.
+        '@smithy/core/config': path.resolve(
+          __dirname,
+          '../../..',
+          'node_modules',
+          '@smithy/core',
+          'dist-es',
+          'submodules',
+          'config',
+          'index.js'
+        ),
+      },
     },
     ignoreWarnings: sharedIgnoreWarnings,
   };
