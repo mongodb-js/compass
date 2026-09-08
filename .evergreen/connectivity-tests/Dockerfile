@@ -1,6 +1,7 @@
-# "bullseye" is the debian distribution that ubuntu:20.04 is based on
+# Debian bullseye has reached EOL and its repos are expired, so `apt-get` fails;
+# bookworm is the supported replacement.
 ARG NODE_JS_VERSION=22
-FROM node:${NODE_JS_VERSION}-bullseye
+FROM node:${NODE_JS_VERSION}-bookworm
 
 COPY .evergreen/connectivity-tests/krb5.conf /etc/krb5.conf
 
