@@ -73,7 +73,7 @@
     "@mongodb-js/sbom-tools": "^0.10.19",
     "@mongodb-js/tracking-plan": "^0.3.2",
     "@testing-library/dom": "^8.20.1",
-    "ag-grid-react": "^20.2.0",
+    "ag-grid-react": "^28.2.1",
     "braintrust": "^2.2.2",
     "chai-enzyme": "^1.0.0-beta.1",
     "express": "^4.22.1",
