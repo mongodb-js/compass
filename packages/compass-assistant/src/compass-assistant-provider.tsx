@@ -414,6 +414,7 @@ export function ensureOptInAndSendThunk(
           await chat.addToolApprovalResponse({
             id: part.approval.id,
             approved: false,
+            reason: 'Tool call interrupted by a new message',
           });
         }
       }

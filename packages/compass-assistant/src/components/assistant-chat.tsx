@@ -414,6 +414,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             void addToolApprovalResponse({
               id: part.approval.id,
               approved: false,
+              reason: 'Tool calling disabled',
             });
           }
         }
@@ -548,15 +549,18 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       type,
       approvalId,
       approved,
+      reason,
     }: {
       message: AssistantMessage;
       type: string;
       approvalId: string;
       approved: boolean;
+      reason?: string;
     }) => {
       void addToolApprovalResponse({
         id: approvalId,
         approved,
+        reason,
       });
 
       track(
@@ -705,6 +709,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                                 type: toolCall.type,
                                 approvalId,
                                 approved: false,
+                                reason: 'User denied the tool call',
                               })
                             }
                           />
@@ -730,6 +735,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                               type: toolCall.type,
                               approvalId,
                               approved: false,
+                              reason: 'User denied the tool call',
                             })
                           }
                         />
