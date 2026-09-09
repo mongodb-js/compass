@@ -83,7 +83,6 @@
     "@types/js-yaml": "^4.0.5",
     "@types/lodash": "^4.14.188",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^24.13.3",
     "@types/npmcli__arborist": "^6.3.3",
     "@types/semver": "^7.3.13",
     "@types/which": "^2.0.2",
