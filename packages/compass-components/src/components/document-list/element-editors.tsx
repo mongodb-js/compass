@@ -152,12 +152,7 @@ export const ValueEditor: React.FunctionComponent<{
         data-testid="hadron-document-clickable-value"
         onDoubleClick={onEditStart}
       >
-        <BSONValue
-          {...({
-            type,
-            value: originalValue,
-          } as unknown as React.ComponentProps<typeof BSONValue>)}
-        ></BSONValue>
+        <BSONValue type={type} value={originalValue}></BSONValue>
       </div>
     );
   }

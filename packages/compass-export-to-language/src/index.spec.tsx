@@ -27,8 +27,6 @@ const allTypesPrettyStr = prettify(
 ).replace(/\n/g, '');
 
 describe('ExportToLanguagePlugin', function () {
-  // Mock data service intentionally bypasses the strict DataService typing, the
-  // shape of a real DataService instance is too big to mock fully in a unit test
   const dataService: any = {
     getConnectionString() {
       return Object.assign(new URL('mongodb://localhost:27020'), {
@@ -38,9 +36,8 @@ describe('ExportToLanguagePlugin', function () {
       });
     },
   };
-  const Plugin = ExportToLanguagePlugin.withMockServices({
-    dataService,
-  });
+
+  const Plugin = ExportToLanguagePlugin.withMockServices({ dataService });
 
   describe('on `open-query-export-to-language` event', function () {
     it('should show query export to language modal', function () {
