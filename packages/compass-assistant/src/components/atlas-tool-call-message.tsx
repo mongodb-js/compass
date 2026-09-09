@@ -10,6 +10,7 @@ import {
   toolHasOutput,
 } from '../utils';
 import { ActionCardMessage } from './action-card-message';
+import { TOOL_DENIAL_REASONS } from '../prompts';
 import { isReadOnlyTool } from '@mongodb-js/compass-generative-ai/provider';
 import type { AtlasSignInEntrypoint } from '@mongodb-js/compass-telemetry';
 import {
@@ -32,8 +33,8 @@ function getSignInEntrypoint(
 
 interface AtlasToolCallMessageProps {
   toolCall: ToolUIPart;
-  onApprove: (approvalId: string, approved: boolean) => void;
-  onDeny: (approvalId: string) => void;
+  onApprove: (approvalId: string) => void;
+  onDeny: (approvalId: string, reason: string) => void;
 }
 
 const expandableContentStyles = css({
@@ -117,20 +118,20 @@ export const AtlasToolCallMessage: React.FunctionComponent<
         .then((result) => {
           switch (result.status) {
             case 'success':
-              onApprove(approvalId, true);
+              onApprove(approvalId);
               break;
             // If sign in timed out, give the user a new chance instead of
             // rejecting the tool
             case 'timed-out':
               break;
             default:
-              onApprove(approvalId, false);
+              onDeny(approvalId, TOOL_DENIAL_REASONS.atlasSignInFailed);
               break;
           }
         })
-        .catch(() => onApprove(approvalId, false));
+        .catch(() => onDeny(approvalId, TOOL_DENIAL_REASONS.atlasSignInFailed));
     },
-    [signIn, onApprove, toolCall.type]
+    [signIn, onApprove, onDeny, toolCall.type]
   );
 
   const toolDescription = getToolDescription(toolDisplayName);
@@ -187,7 +188,7 @@ export const AtlasToolCallMessage: React.FunctionComponent<
             {
               label: isUserSignedIn ? 'Cancel' : 'Skip',
               variant: 'default',
-              onClick: () => onDeny(approvalId),
+              onClick: () => onDeny(approvalId, TOOL_DENIAL_REASONS.userDenied),
             },
             {
               label: isUserSignedIn ? 'Run' : 'Connect to Atlas',

@@ -31,6 +31,7 @@ import {
   type ProactiveInsightsContext,
   type AnalyzeOutputContext,
   type DebugSearchErrorContext,
+  TOOL_DENIAL_REASONS,
 } from './prompts';
 import {
   type PreferencesAccess,
@@ -414,7 +415,7 @@ export function ensureOptInAndSendThunk(
           await chat.addToolApprovalResponse({
             id: part.approval.id,
             approved: false,
-            reason: 'Tool call interrupted by a new message',
+            reason: TOOL_DENIAL_REASONS.interrupted,
           });
         }
       }

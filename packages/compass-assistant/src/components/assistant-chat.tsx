@@ -43,6 +43,7 @@ import {
   stopChat,
 } from '../utils';
 import { AtlasConnectionStatus } from './atlas-connection-status';
+import { TOOL_DENIAL_REASONS } from '../prompts';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -414,7 +415,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             void addToolApprovalResponse({
               id: part.approval.id,
               approved: false,
-              reason: 'Tool calling disabled',
+              reason: TOOL_DENIAL_REASONS.toolCallingDisabled,
             });
           }
         }
@@ -695,21 +696,21 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                           <AtlasToolCallMessage
                             key={`${toolCallId}-${index}`}
                             toolCall={toolCall}
-                            onApprove={(approvalId, approved) =>
+                            onApprove={(approvalId) =>
                               handleToolApproval({
                                 message,
                                 type: toolCall.type,
                                 approvalId,
-                                approved,
+                                approved: true,
                               })
                             }
-                            onDeny={(approvalId) =>
+                            onDeny={(approvalId, reason) =>
                               handleToolApproval({
                                 message,
                                 type: toolCall.type,
                                 approvalId,
                                 approved: false,
-                                reason: 'User denied the tool call',
+                                reason,
                               })
                             }
                           />
@@ -735,7 +736,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                               type: toolCall.type,
                               approvalId,
                               approved: false,
-                              reason: 'User denied the tool call',
+                              reason: TOOL_DENIAL_REASONS.userDenied,
                             })
                           }
                         />

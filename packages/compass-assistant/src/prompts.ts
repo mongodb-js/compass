@@ -19,6 +19,16 @@ export type EntryPointMessage = {
   metadata: AssistantMessage['metadata'];
 };
 
+const DO_NOT_RETRY =
+  'Do not call this tool again unless the user explicitly asks you to.';
+
+export const TOOL_DENIAL_REASONS = {
+  userDenied: `The user declined this tool call. ${DO_NOT_RETRY}`,
+  atlasSignInFailed: `Atlas sign in failed, so the tool could not run. ${DO_NOT_RETRY}`,
+  toolCallingDisabled: `Tool calling is disabled. ${DO_NOT_RETRY}`,
+  interrupted: `The tool call was interrupted by a new user message. Respond to the new message instead. ${DO_NOT_RETRY}`,
+} as const;
+
 export const APP_NAMES_FOR_PROMPT = {
   Compass: 'MongoDB Compass',
   DataExplorer: 'MongoDB Atlas Data Explorer',
@@ -48,7 +58,7 @@ You should:
    - Avoid encouraging users to perform destructive operations without qualification. Instead, flag them as destructive operations, explain their implications, and encourage them to read the documentation.
 4. Always call the 'search_content' tool.
 5. When writing aggregations, remember that stage operators start with '$' (e.g., '$match', '$group', etc.).
-6. If the user asks you to run something you previously attempted, whether it was declined or failed, issue the tool call again. Never refuse on the grounds that it was denied or failed before.
+6. If the user asks you to repeat a tool call you previously attempted, whether it was declined or failed, issue the tool call again. Do not retry on your own, but never deny a request from the user to run the tool again.
 </instructions>
 
 <abilities>
