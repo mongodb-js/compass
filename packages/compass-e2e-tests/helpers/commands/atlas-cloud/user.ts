@@ -5,10 +5,11 @@ import {
   getCloudUrlsFromContext,
 } from '../../test-runner-context.ts';
 import { isAtlasCloudPage, doCloudFetch } from './utils.ts';
+import retryWithBackoff from '../../retry-with-backoff.ts';
 
 const { template } = lodash;
 
-export async function signInToAtlas(
+async function loginToAtlas(
   browser: CompassBrowser,
   username: string,
   password: string
@@ -91,6 +92,28 @@ export async function signInToAtlas(
   if (authenticationPromiseSettled.status === 'rejected') {
     throw authenticationPromiseSettled.reason;
   }
+}
+
+export async function signInToAtlas(
+  browser: CompassBrowser,
+  username: string,
+  password: string
+) {
+  // The interactive log-in flow has been observed to flake at the log-in phase
+  // due to external factors (slow Atlas Cloud redirects, intermittent MFA
+  // reminder pages), so retry the whole sequence. On each failed attempt we
+  // capture a screenshot to give us insight into what went wrong.
+  let attempt = 0;
+  await retryWithBackoff(async () => {
+    try {
+      await loginToAtlas(browser, username, password);
+    } catch (err) {
+      await browser.screenshot(
+        `screenshot-sign-in-to-atlas-failed-${attempt++}.png`
+      );
+      throw err;
+    }
+  });
 
   // Make sure that user has required roles before proceeding (those are not
   // persistent)
