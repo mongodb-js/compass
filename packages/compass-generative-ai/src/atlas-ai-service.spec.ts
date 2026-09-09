@@ -17,12 +17,13 @@ const ATLAS_USER = {
 };
 
 const BASE_URL = 'http://example.com';
+const ASSISTANT_BASE_URL = 'http://assistant.example.com';
 
 class MockAtlasService {
   getCurrentUser = () => Promise.resolve(ATLAS_USER);
   cloudEndpoint = (url: string) => `${['/cloud', url].join('/')}`;
   privateApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
-  assistantApiEndpoint = (url: string) => `${[BASE_URL, url].join('/')}`;
+  assistantApiEndpoint = () => ASSISTANT_BASE_URL;
   fetch = (url: string, init: RequestInit) => {
     return fetch(url, init);
   };
@@ -315,11 +316,7 @@ describe('AtlasAiService', function () {
           await atlasAiService.getMockDataSchema(mockSchemaInput);
 
           const { args } = fetchStub.firstCall;
-          // The AI SDK uses the base URL to construct the endpoint
-          expect(args[0]).to.include(BASE_URL);
-          // MockAtlasService prefixes only cloudEndpoint with /cloud, so this
-          // asserts the request isn't routed through the Atlas-only path.
-          expect(args[0]).to.not.include('/cloud');
+          expect(args[0]).to.equal(`${ASSISTANT_BASE_URL}/responses`);
         });
 
         it('strips sample values when includeSampleValues=false', async function () {
