@@ -249,10 +249,7 @@ export const fetchSampleDocuments = (): SchemaValidationThunkAction<
     const namespace = state.namespace.ns;
     const validator = state.validation.validator;
 
-    const checkedValidator = checkValidator(validator);
-    const query = checkValidator(
-      checkedValidator.validator as string
-    ).validator;
+    const query = checkValidator(validator).validator;
 
     void dispatch(fetchValidDocument({ namespace, query }));
     void dispatch(fetchInvalidDocument({ namespace, query }));
