@@ -8,6 +8,7 @@ const { WebpackDependenciesPlugin } = require('@mongodb-js/sbom-tools');
 const {
   createElectronMainConfig,
   createElectronRendererConfig,
+  sharedExternals,
   webpackArgsWithDefaults,
   isServe,
   webpack,
@@ -36,9 +37,71 @@ module.exports = (_env, args) => {
     outputFilename: '[name].js',
   });
 
+  // The data service utility process entry is emitted as ESM (so that
+  // `import.meta.main` is available to it) in a single file that the main
+  // process forks with `utilityProcess.fork`
+  const dataServiceUtilityBaseConfig = createElectronMainConfig({
+    ...opts,
+    entry: {
+      'data-service': path.resolve(
+        __dirname,
+        'src',
+        'utilities',
+        'data-service',
+        'index.mts'
+      ),
+    },
+    outputFilename: '[name].mjs',
+  });
+  // `createElectronMainConfig` attaches `WebpackPluginStartElectron` in serve
+  // mode. That plugin is a singleton keyed on `compiler.options.target`, and
+  // since this config also targets `electron-main`, attaching it here too
+  // makes it overwrite the real main compiler it already latched onto,
+  // racing which of the two decides the app's launch path. This isn't a
+  // main-process entry that starts the app, so it shouldn't get this plugin.
+  dataServiceUtilityBaseConfig.plugins = (
+    dataServiceUtilityBaseConfig.plugins ?? []
+  ).filter(
+    (plugin) => plugin.constructor.name !== 'WebpackPluginStartElectron'
+  );
+  const dataServiceUtilityConfig = merge(dataServiceUtilityBaseConfig, {
+    name: 'data-service',
+    experiments: { outputModule: true },
+    output: { module: true },
+    // The eval-based devtools used in development wrap every module in a
+    // script `eval`, where `import.meta` is a syntax error
+    devtool: 'source-map',
+    // Leave `import.meta` to the runtime instead of webpack rewriting it
+    module: { parser: { javascript: { importMeta: false } } },
+    externals: Object.fromEntries(
+      sharedExternals.map((name) => [name, `node-commonjs ${name}`])
+    ),
+    plugins: [new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 })],
+  });
+
   const rendererConfig = createElectronRendererConfig({
     ...opts,
     entry: path.resolve(__dirname, 'src', 'app', 'index.ts'),
+  });
+
+  // Preload script for the main window. Kept as plain `window.postMessage`
+  // listeners rather than `contextBridge` since `contextIsolation` is off
+  // today; `postMessage` crosses the isolated-world boundary regardless, so
+  // this doesn't need to change when that eventually flips.
+  const preloadBaseConfig = createElectronMainConfig({
+    ...opts,
+    entry: { preload: path.resolve(__dirname, 'src', 'preload', 'index.ts') },
+    outputFilename: '[name].js',
+  });
+  // See the comment above `dataServiceUtilityBaseConfig`: this is a second
+  // `electron-main`-targeted config, so it would otherwise steal the
+  // `WebpackPluginStartElectron` singleton from the real main compiler.
+  preloadBaseConfig.plugins = (preloadBaseConfig.plugins ?? []).filter(
+    (plugin) => plugin.constructor.name !== 'WebpackPluginStartElectron'
+  );
+  const preloadConfig = merge(preloadBaseConfig, {
+    name: 'preload',
+    target: 'electron-preload',
   });
 
   const externals = {
@@ -165,6 +228,16 @@ module.exports = (_env, args) => {
         new webpack.EnvironmentPlugin(hadronEnvConfig),
         ...compileOnlyPlugins,
       ],
+    }),
+    merge(dataServiceUtilityConfig, {
+      cache,
+      snapshot,
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
+    }),
+    merge(preloadConfig, {
+      cache,
+      snapshot,
+      plugins: [new webpack.EnvironmentPlugin(hadronEnvConfig)],
     }),
   ];
 };
