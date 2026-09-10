@@ -573,11 +573,9 @@ export function useJsonSchemaAutocompleter(
 
   // Compute hasErrors from annotations - both error and warning severity block validation
   // Note: vscode-json-languageservice reports schema violations (missing required fields,
-  // type mismatches, etc.) as warnings, so we include them in validation blocking
+  // type mismatches, etc.) as warnings
   const hasErrors = useMemo(() => {
-    return annotations.some(
-      (a) => a.severity === 'error' || a.severity === 'warning'
-    );
+    return annotations.some((a) => a.severity === 'error');
   }, [annotations]);
 
   return {
