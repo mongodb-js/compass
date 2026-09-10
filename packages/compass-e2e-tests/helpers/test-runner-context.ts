@@ -457,6 +457,34 @@ const CLOUD_URLS = {
   },
 } as const;
 
+export type AtlasEnvironment = keyof typeof CLOUD_URLS;
+
+/**
+ * Resolve Atlas Cloud URLs for an explicitly provided environment.
+ *
+ * This helper is intentionally decoupled from `context.atlasCloudEnvironment`:
+ * so it can be used by Compass desktop to load the correct config.
+ */
+export function getCloudUrlsForEnvironment(env: AtlasEnvironment) {
+  return CLOUD_URLS[env];
+}
+
+/**
+ * The web-only `atlasCloudEnvironment` context option, narrowed to
+ * `AtlasEnvironment`. Only meaningful for the `web` command; use explicit
+ * environments in desktop code paths.
+ */
+export function getAtlasCloudEnvironmentFromContext(
+  ctx = context
+): AtlasEnvironment {
+  return (ctx.atlasCloudEnvironment ?? 'qa') as AtlasEnvironment;
+}
+
+/**
+ * Web (Atlas Cloud) accessor: resolves URLs from the web-only
+ * `atlasCloudEnvironment` context option. Only valid when testing web Atlas
+ * Cloud.
+ */
 export function getCloudUrlsFromContext(ctx = context) {
   assertTestingWebAtlasCloud(ctx);
   return CLOUD_URLS[context.atlasCloudEnvironment as keyof typeof CLOUD_URLS];
@@ -472,6 +500,7 @@ export const ATLAS_CLOUD_TEST_UTILS: {
   addPaymentMethod: string;
   featureFlags: string;
   refreshFeatureFlags: string;
+  addOrgUser: string;
   testUserRoles: string[];
   testUserUsernameTemplate: string;
 } = JSON.parse(
