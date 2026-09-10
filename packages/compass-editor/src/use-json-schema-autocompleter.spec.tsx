@@ -181,8 +181,8 @@ describe('useJsonSchemaAutocompleter', function () {
       // Schema violations are reported as warnings: annotated, but not blocking
       await waitFor(() => {
         expect(capturedAnnotations.length).to.be.greaterThan(0);
+        expect(capturedHasErrors).to.equal(false);
       });
-      expect(capturedHasErrors).to.equal(false);
     });
 
     it('returns hasErrors=false but annotates a type mismatch', async function () {
@@ -217,8 +217,8 @@ describe('useJsonSchemaAutocompleter', function () {
       // Schema violations are reported as warnings: annotated, but not blocking
       await waitFor(() => {
         expect(capturedAnnotations.length).to.be.greaterThan(0);
+        expect(capturedHasErrors).to.equal(false);
       });
-      expect(capturedHasErrors).to.equal(false);
     });
 
     it('returns hasErrors=false but annotates additional properties when not allowed', async function () {
@@ -253,8 +253,8 @@ describe('useJsonSchemaAutocompleter', function () {
       // Schema violations are reported as warnings: annotated, but not blocking
       await waitFor(() => {
         expect(capturedAnnotations.length).to.be.greaterThan(0);
+        expect(capturedHasErrors).to.equal(false);
       });
-      expect(capturedHasErrors).to.equal(false);
     });
   });
 

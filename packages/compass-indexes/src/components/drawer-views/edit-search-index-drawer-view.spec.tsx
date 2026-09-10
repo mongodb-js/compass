@@ -181,7 +181,7 @@ describe('EditSearchIndexDrawerView', function () {
       });
     });
 
-    it('keeps submit button enabled when JSON has schema validation errors', async function () {
+    it('keeps submit button enabled for schema violations reported as warnings', async function () {
       renderEditSearchIndexDrawerView();
 
       const editor = screen.getByTestId('edit-search-index-drawer-view-editor');

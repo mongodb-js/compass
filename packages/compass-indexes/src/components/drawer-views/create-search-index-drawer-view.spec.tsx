@@ -181,7 +181,7 @@ describe('CreateSearchIndexDrawerView', function () {
       });
     });
 
-    it('keeps submit button enabled when JSON has schema validation errors', async function () {
+    it('keeps submit button enabled for schema violations reported as warnings', async function () {
       renderCreateSearchIndexDrawerView();
 
       const editor = screen.getByTestId(
