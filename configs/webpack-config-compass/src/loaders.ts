@@ -52,7 +52,7 @@ npm i -S -w @mongodb-js/webpack-config-compass browserslist@latest`;
 })();
 
 export const patchesLoader = (_args: ConfigArgs) => ({
-  test: /\.(m?js|c?jsx?|tsx?)$/,
+  test: /\.(m?js|c?jsx?|mts|tsx?)$/,
   use: {
     loader: path.join(__dirname, '..', 'loaders', 'patch-d3-loader.js'),
   },
@@ -66,7 +66,7 @@ const cloudSupportedBrowserslistConfig =
   'last 1 Chrome versions, last 1 Safari versions, last 1 Firefox versions, last 1 Edge versions';
 
 export const javascriptLoader = (args: ConfigArgs, web = false) => ({
-  test: /\.(mjs|c?jsx?|tsx?)$/,
+  test: /\.(mjs|c?jsx?|mts|tsx?)$/,
   exclude: [
     /\bnode_modules\b/,
     // Otherwise core-js will polyfill itself with core-js and this doesn't work
@@ -125,7 +125,7 @@ export const javascriptLoader = (args: ConfigArgs, web = false) => ({
 });
 
 export const sourceMapLoader = (args: ConfigArgs) => ({
-  test: /\.(mjs|c?jsx?|tsx?)$/,
+  test: /\.(mjs|c?jsx?|mts|tsx?)$/,
   enforce: 'pre',
   use: [
     {
