@@ -1580,6 +1580,7 @@ export const SideDrawerCloseButton = `[data-testid="${
 // Assistant
 export const AssistantDrawerButton = 'button[aria-label="MongoDB Assistant"]';
 export const AssistantDrawerCloseButton = `[data-testid="lg-drawer-close_button"]`;
+export const AssistantChat = '[data-testid="assistant-chat"]';
 export const AssistantChatMessages = '[data-testid="assistant-chat-messages"]';
 export const AssistantChatMessage = '[data-testid^="assistant-message-"]';
 export const AssistantChatInput = '[data-testid="assistant-chat-input"]';
