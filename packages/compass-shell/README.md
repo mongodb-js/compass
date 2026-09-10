@@ -4,10 +4,11 @@
 
 ## Features
 
-#### Enzyme
+#### Testing
 
-The test environment is configured to test components with [Enzyme][enzyme]
-(including full `mount` mode through [jsdom][jsdom]) and [enzyme-chai][enzyme-chai].
+The test environment is configured to test components with
+[@mongodb-js/testing-library-compass][testing-library-compass] (including full DOM
+rendering through [jsdom][jsdom]).
 See the test folder for examples. Run `npm test` to execute the test suite.
 
 ## Developing
@@ -27,6 +28,5 @@ For completeness, below is a list of directories present in this module:
   place to implement your own components. `npm run compile` will use `./src` as input
   and create `./dist`.
 
-[enzyme]: http://airbnb.io/enzyme/
-[enzyme-chai]: https://github.com/producthunt/chai-enzyme
+[testing-library-compass]: ../../configs/testing-library-compass
 [jsdom]: https://github.com/tmpvar/jsdom

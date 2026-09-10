@@ -28,10 +28,11 @@ compiles and the window content reloads when any file under `./src` changes.
 
 To start Electron and render your component, type `npm start`.
 
-#### Enzyme
+#### Testing
 
-The test environment is configured to test components with [Enzyme][enzyme]
-(including full `mount` mode through [jsdom][jsdom]) and [enzyme-chai][enzyme-chai].
+The test environment is configured to test components with
+[@mongodb-js/testing-library-compass][testing-library-compass] (including full DOM
+rendering through [jsdom][jsdom]).
 See the test folder for examples. Run `npm test` to execute the test suite.
 
 ## Developing
@@ -66,6 +67,5 @@ For completeness, below is a list of directories present in this module:
   and create `./lib`.
 - `test` implement your tests here, and name the files `*.test.js`.
 
-[enzyme]: http://airbnb.io/enzyme/
-[enzyme-chai]: https://github.com/producthunt/chai-enzyme
+[testing-library-compass]: ../../configs/testing-library-compass
 [jsdom]: https://github.com/tmpvar/jsdom
