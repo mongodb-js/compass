@@ -5,7 +5,6 @@ import { compassAssistantServiceLocator } from '@mongodb-js/compass-assistant';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
-  type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { createLoggerLocator } from '@mongodb-js/compass-logging/provider';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
@@ -21,7 +20,7 @@ const ExplainPlanModalPlugin = registerCompassPlugin(
     logger: createLoggerLocator('EXPLAIN-PLAN-MODAL-UI'),
     track: telemetryLocator,
     connectionInfoRef: connectionInfoRefLocator,
-    dataService: dataServiceLocator as DataServiceLocator<
+    dataService: dataServiceLocator<
       'explainAggregate' | 'explainFind' | 'isCancelError'
     >,
     preferences: preferencesLocator,

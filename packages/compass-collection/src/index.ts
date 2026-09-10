@@ -4,8 +4,6 @@ import { activatePlugin as activateCollectionTabPlugin } from './stores/collecti
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   dataServiceLocator,
-  type DataServiceLocator,
-  type DataService,
   connectionInfoRefLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { collectionModelLocator } from '@mongodb-js/compass-app-stores/provider';
@@ -31,7 +29,7 @@ export const WorkspaceTab: WorkspacePlugin<typeof CollectionWorkspaceTitle> = {
       activate: activateCollectionTabPlugin,
     },
     {
-      dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+      dataService: dataServiceLocator,
       collection: collectionModelLocator,
       atlasAiService: atlasAiServiceLocator,
       workspaces: workspacesServiceLocator,

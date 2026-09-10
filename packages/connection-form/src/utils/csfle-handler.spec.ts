@@ -193,7 +193,7 @@ describe('csfle-handler', function () {
       expect(
         hasAnyCsfleOption({
           tlsOptions: { aws: {} },
-          kmsProviders: { aws: {} } as any,
+          kmsProviders: { aws: {} },
         })
       ).to.equal(false);
       expect(

@@ -224,7 +224,7 @@ export function createElectronMainConfig(
             new BundleAnalyzerPlugin({
               logLevel: 'silent',
               analyzerPort: 'auto',
-            }) as unknown as WebpackPluginInstance,
+            }),
 
             new DuplicatePackageCheckerPlugin(),
           ],
@@ -351,7 +351,7 @@ export function createElectronRendererConfig(
                   // Plugin types are not matching Webpack 5, but they work
                   new ReactRefreshWebpackPlugin({
                     overlay: process.env.DISABLE_DEVSERVER_OVERLAY !== 'true',
-                  }) as unknown as WebpackPluginInstance,
+                  }),
                 ]
               : []
           ),
@@ -364,7 +364,7 @@ export function createElectronRendererConfig(
             new BundleAnalyzerPlugin({
               logLevel: 'silent',
               analyzerPort: 'auto',
-            }) as unknown as WebpackPluginInstance,
+            }),
 
             new DuplicatePackageCheckerPlugin(),
           ],

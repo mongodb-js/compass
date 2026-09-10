@@ -64,9 +64,7 @@ export class TestMongoDBInstanceManager extends MongoDBInstancesManager {
 // that includes default preferences
 export const MongoDBInstancesManagerContext =
   createContext<MongoDBInstancesManager | null>(
-    process.env.NODE_ENV === 'test'
-      ? (new TestMongoDBInstanceManager() as unknown as MongoDBInstancesManager)
-      : null
+    process.env.NODE_ENV === 'test' ? new TestMongoDBInstanceManager() : null
   );
 
 export const MongoDBInstancesManagerProvider =

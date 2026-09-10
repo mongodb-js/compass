@@ -61,13 +61,11 @@ describe('QueryAI Component', function () {
       // TODO(COMPASS-7415): use default values instead of updating values
       <PreferencesProvider value={preferences}>
         <LoggerProvider
-          value={
-            {
-              createLogger() {
-                return createNoopLogger();
-              },
-            } as any
-          }
+          value={{
+            createLogger() {
+              return createNoopLogger();
+            },
+          }}
         >
           <TelemetryProvider
             options={{

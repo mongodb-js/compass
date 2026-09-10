@@ -26,7 +26,7 @@ describe('saving-pipeline module', function () {
           expect(
             reducer(undefined, {
               type: 'test',
-            } as any)
+            })
           ).to.equal(INITIAL_STATE);
         });
       });
@@ -54,7 +54,7 @@ describe('saving-pipeline module', function () {
           expect(
             reducer(undefined, {
               type: 'test',
-            } as any)
+            })
           ).to.equal(INITIAL_STATE);
         });
       });
@@ -72,7 +72,7 @@ describe('saving-pipeline module', function () {
           expect(
             reducer(undefined, {
               type: 'test',
-            } as any)
+            })
           ).to.equal(INITIAL_STATE);
         });
       });
@@ -92,7 +92,7 @@ describe('saving-pipeline module', function () {
           expect(
             reducer(undefined, {
               type: 'test',
-            } as any)
+            })
           ).to.equal(INITIAL_STATE);
         });
       });
