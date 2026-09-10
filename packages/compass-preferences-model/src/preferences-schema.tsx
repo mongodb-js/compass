@@ -92,6 +92,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableCreatingNewConnections: boolean;
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
+    showHiddenNamespaces: boolean;
     // Features that are enabled by default in Date Explorer, but are disabled in Compass
     maxTimeMSEnvLimit?: number;
     timezone: string;
@@ -1192,6 +1193,17 @@ export const storedUserPreferencesProps: Required<{
       long: "Show databases and collections implied by your roles and privileges, in addition to those returned by listDatabases and listCollections. This may include namespaces that don't exist yet.",
     },
     validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+  showHiddenNamespaces: {
+    ui: true,
+    cli: true,
+    global: true,
+    description: {
+      short: 'Show Hidden Namespaces',
+      long: 'Show internal (__mdb_internal_) databases and system collections in the sidebar.',
+    },
+    validator: z.boolean().default(false),
     type: 'boolean',
   },
   maxTimeMSEnvLimit: {
