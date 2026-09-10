@@ -95,6 +95,7 @@ import type {
   CollectionInfoDetails,
   CollectionStats,
   CollectionType,
+  ConnectOptions,
   CSFLEMode,
   DatabaseStats,
   ExecutionOptionsWithFallbackReadPreference,
@@ -266,11 +267,7 @@ export interface DataService {
   /**
    * Connect the service
    */
-  connect(options?: {
-    signal?: AbortSignal;
-    productName?: string;
-    productDocsLink?: string;
-  }): Promise<void>;
+  connect(options?: ConnectOptions): Promise<void>;
 
   /**
    * Disconnect the service
@@ -809,7 +806,7 @@ export interface DataService {
    *
    * @param error The error to check.
    */
-  isCancelError(error: unknown): boolean;
+  isCancelError(error: unknown): error is Error;
 
   /**
    * Create a new data encryption key (DEK) using the ClientEncryption
@@ -919,13 +916,8 @@ const maybePickNs = ([ns]: unknown[]) => {
   }
 };
 
-const isPromiseLike = <T>(val: unknown): val is PromiseLike<T> => {
-  return (
-    !!val &&
-    typeof val === 'object' &&
-    'then' in val &&
-    typeof val.then === 'function'
-  );
+const isPromiseLike = <T>(val: any): val is PromiseLike<T> => {
+  return 'then' in val && typeof val.then === 'function';
 };
 
 /**
@@ -933,15 +925,13 @@ const isPromiseLike = <T>(val: unknown): val is PromiseLike<T> => {
  * @param error - The error.
  * @returns The error with message translated.
  */
-const translateErrorMessage = (error: unknown): Error | { message: string } => {
-  if (!error) return { message: 'Unknown error' };
+const translateErrorMessage = (error: any): Error | { message: string } => {
   if (typeof error === 'string') {
     error = { message: error };
-  } else if (typeof error === 'object') {
-    const e: { message?: string; err?: string; errmsg?: string } = error;
-    if (!e.message) e.message = e.err || e.errmsg;
+  } else if (!error.message) {
+    error.message = error.err || error.errmsg;
   }
-  return error as Error | { message: string };
+  return error;
 };
 
 /**
@@ -1632,11 +1622,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     signal,
     productName,
     productDocsLink,
-  }: {
-    signal?: AbortSignal;
-    productName?: string;
-    productDocsLink?: string;
-  } = {}): Promise<void> {
+  }: ConnectOptions = {}): Promise<void> {
     if (this._metadataClient) {
       debug('already connected');
       return;
@@ -2685,7 +2671,7 @@ class DataServiceImpl extends WithLogContext implements DataService {
     return result;
   }
 
-  isCancelError(error: unknown): boolean {
+  isCancelError(error: unknown): error is Error {
     return isCancelError(error);
   }
 
@@ -3253,15 +3239,11 @@ class DataServiceImpl extends WithLogContext implements DataService {
   }
 }
 
-function isTransactionAbortError(err: unknown) {
-  if (!err || typeof err !== 'object') return false;
-  if (
-    'message' in err &&
-    err.message === 'Cannot use a session that has ended'
-  ) {
+function isTransactionAbortError(err: any) {
+  if (err.message === 'Cannot use a session that has ended') {
     return true;
   }
-  if ('codeName' in err && err.codeName === 'NoSuchTransaction') {
+  if (err.codeName === 'NoSuchTransaction') {
     return true;
   }
   return false;

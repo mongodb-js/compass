@@ -1,10 +1,4 @@
-import type {
-  Abortable,
-  AggregateOptions,
-  Document,
-  FindOptions,
-  ReadPreferenceMode,
-} from 'mongodb';
+import type { Document, FindOptions, ReadPreferenceMode } from 'mongodb';
 import type { DevtoolsConnectOptions } from '@mongodb-js/devtools-connect';
 import type { ConnectionOptions } from './connection-options';
 import type { ConnectionStatusWithPrivileges } from './run-command';
@@ -15,6 +9,12 @@ import type {
   DatabaseDetails,
 } from './instance-detail-helper';
 import type { ExecutionOptions } from './data-service';
+
+export type ConnectOptions = {
+  signal?: AbortSignal;
+  productName?: string;
+  productDocsLink?: string;
+};
 
 /** Options passed to the driver when connecting, as reported by getMongoClientConnectionOptions */
 export type MongoClientConnectionOptions = {
