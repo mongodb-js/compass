@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {
   Body,
   CompassComponentsProvider,
@@ -69,9 +70,13 @@ const App = () => {
   );
 };
 
-ReactDOM.render(
+const sandboxContainer = document.querySelector('#sandbox-app');
+if (!sandboxContainer) {
+  throw new Error('Sandbox container not found');
+}
+
+createRoot(sandboxContainer).render(
   <React.StrictMode>
     <App></App>
-  </React.StrictMode>,
-  document.querySelector('#sandbox-app')
+  </React.StrictMode>
 );

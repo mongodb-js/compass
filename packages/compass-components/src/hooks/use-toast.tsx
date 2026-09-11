@@ -153,7 +153,9 @@ export const openToast = toastState.openToast.bind(toastState);
  */
 export const closeToast = toastState.closeToast.bind(toastState);
 
-const ToastStateHandler: React.FunctionComponent = ({ children }) => {
+const ToastStateHandler: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   // NB: the way leafygreen implements this hook leads to anything specifying
   // toast methods in hooks dependencies to constantly update potentially
   // causing infinite loops of toasts. To work around that we are storing toast
@@ -192,7 +194,9 @@ const ToastStateHandler: React.FunctionComponent = ({ children }) => {
 
 const ToastAreaMountedContext = React.createContext(false);
 
-export const ToastArea: React.FunctionComponent = ({ children }) => {
+export const ToastArea: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const stackedContext = useStackedComponent();
   // We always want to show the toast under the modal
   const toastPortalStyles = useMemo(() => {

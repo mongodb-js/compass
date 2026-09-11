@@ -369,12 +369,13 @@ describe('QueryBar Component', function () {
     beforeEach(function () {
       renderQueryBar();
 
-      const button = screen.getByTestId(queryHistoryButtonId);
-      button.click();
+      userEvent.click(screen.getByTestId(queryHistoryButtonId));
     });
 
-    it('renders the query history popover', function () {
-      const queryHistory = screen.getByTestId(queryHistoryComponentTestId);
+    it('renders the query history popover', async function () {
+      const queryHistory = await screen.findByTestId(
+        queryHistoryComponentTestId
+      );
       expect(queryHistory).to.be.visible;
     });
   });

@@ -93,6 +93,7 @@ const diagramStyles = css({
 
 const ErrorBannerWithRetry: React.FunctionComponent<{
   onRetryClick: () => void;
+  children?: React.ReactNode;
 }> = ({ children, onRetryClick }) => {
   return (
     <Banner variant="danger" className={errorBannerStyles}>

@@ -20,7 +20,7 @@ describe('indexes-read-write-access', function () {
       } = {}
     ) {
       const store = setupStore(options, {}, {});
-      const wrapper = ({ children }: { children: React.ReactNode }) =>
+      const wrapper = ({ children }: { children?: React.ReactNode }) =>
         React.createElement(Provider, { store, children });
 
       const readOnly = preferences.readOnly ?? false;

@@ -115,9 +115,9 @@ export function activatePlugin(
  * Drop namespace plugin doesn't render anything on it's own, but requires
  * compass-component toast and confirmation modal areas to be present
  */
-export const DropNamespaceComponent: React.FunctionComponent = ({
-  children,
-}) => {
+export const DropNamespaceComponent: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   return (
     <ConfirmationModalArea>
       <ToastArea>{children}</ToastArea>

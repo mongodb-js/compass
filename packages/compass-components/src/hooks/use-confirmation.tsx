@@ -115,9 +115,9 @@ const warningBannerStyles = css({
   marginTop: spacing[400],
 });
 
-const ConfirmationModalStateHandler: React.FunctionComponent = ({
-  children,
-}) => {
+const ConfirmationModalStateHandler: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const [confirmationProps, setConfirmationProps] = useState<
     Partial<ConfirmationProperties> & { open: boolean; confirmationId: number }
   >({
@@ -228,9 +228,9 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
 
 const ConfirmationModalAreaMountedContext = React.createContext(false);
 
-export const ConfirmationModalArea: React.FunctionComponent = ({
-  children,
-}) => {
+export const ConfirmationModalArea: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   if (useContext(ConfirmationModalAreaMountedContext)) {
     return <>{children}</>;
   }

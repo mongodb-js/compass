@@ -132,9 +132,9 @@ describe('DrawerSection', function () {
       expect(screen.queryByText('This is section 1')).not.to.exist;
       expect(screen.queryByText('This is section 2')).not.to.exist;
       expect(screen.queryByText('This is section 3')).not.to.exist;
+      expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith('section-1');
     });
 
-    expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith('section-1');
     expect(onDrawerSectionOpenSpy).to.not.have.been.called;
     onDrawerSectionOpenSpy.resetHistory();
     onDrawerSectionHideSpy.resetHistory();
@@ -297,11 +297,11 @@ describe('DrawerSection', function () {
     await waitFor(() => {
       expect(screen.getByTestId('drawer-state')).to.have.text('closed');
       expect(screen.queryByText('This is the controlled section')).not.to.exist;
+      expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith(
+        'controlled-section'
+      );
     });
 
-    expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith(
-      'controlled-section'
-    );
     expect(onDrawerSectionOpenSpy).to.not.have.been.called;
   });
 

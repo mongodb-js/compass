@@ -11,10 +11,10 @@ const errorContainerStyles = css({
  * Represents the component that renders DB Errors.
  */
 function DBErrorComponent({ store }: { store: Store }) {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<unknown[]>([]);
 
   const onRefresh = useCallback(
-    (data) => {
+    (data: unknown[]) => {
       setData(data);
     },
     [setData]

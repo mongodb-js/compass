@@ -159,7 +159,7 @@ function FieldType({
    * in case of subtypes).
    */
   const typeClicked = useCallback(
-    (e) => {
+    (e: React.MouseEvent) => {
       e.stopPropagation();
       if (typeName !== 'Undefined') {
         onSetTypeActive(type);

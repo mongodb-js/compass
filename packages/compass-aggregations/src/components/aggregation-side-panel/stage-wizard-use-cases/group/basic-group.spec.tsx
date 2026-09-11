@@ -24,7 +24,7 @@ describe('basic group', function () {
     });
   });
 
-  it('calls onChange when form fields change', function () {
+  it('calls onChange when form fields change', async function () {
     const onChange = sinon.spy();
     render(
       <BasicGroup
@@ -37,7 +37,7 @@ describe('basic group', function () {
       />
     );
 
-    setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+    await setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
       'a',
       'b',
       'c',
@@ -55,7 +55,9 @@ describe('basic group', function () {
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect a
-    setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), ['a']);
+    await setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+      'a',
+    ]);
     expect(onChange.lastCall.args[0]).to.equal(
       JSON.stringify({
         _id: {
@@ -67,7 +69,9 @@ describe('basic group', function () {
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect b
-    setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), ['b']);
+    await setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+      'b',
+    ]);
     expect(onChange.lastCall.args[0]).to.equal(
       JSON.stringify({
         _id: '$c',
@@ -76,7 +80,9 @@ describe('basic group', function () {
     expect(onChange.lastCall.args[1]).to.be.null;
 
     // deselect c
-    setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), ['c']);
+    await setMultiSelectComboboxValues(new RegExp(MULTI_SELECT_LABEL, 'i'), [
+      'c',
+    ]);
     expect(onChange.lastCall.args[0]).to.equal(JSON.stringify({ _id: null }));
     expect(onChange.lastCall.args[1]).to.be.an.instanceOf(Error);
   });
