@@ -12,7 +12,6 @@ import {
   palette,
   AssistantSparkleIcon,
 } from '@mongodb-js/compass-components';
-import { usePreference } from 'compass-preferences-model/provider';
 import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import ConnectionString from 'mongodb-connection-string-url';
@@ -106,9 +105,6 @@ function ConnectionErrorToastBody({
   onReview,
   onDebug,
 }: ConnectionErrorToastBodyProps): React.ReactElement {
-  const isAssistantDebugEnabled = usePreference(
-    'enableAssistantConnectionDebugging'
-  );
   return (
     <span className={connectionErrorToastBodyStyles}>
       <span className={connectionErrorStyles}>
@@ -121,7 +117,7 @@ function ConnectionErrorToastBody({
         <span data-testid="connection-error-text">{error.message}</span>
       </span>
       <span className={connectionErrorActionsStyles}>
-        {isAssistantDebugEnabled && info && onDebug && (
+        {info && onDebug && (
           <Button
             className={debugActionStyles}
             size="small"
