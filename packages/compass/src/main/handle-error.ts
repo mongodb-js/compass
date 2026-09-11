@@ -28,7 +28,9 @@ async function handleError(err: Error): Promise<void> {
     });
 
     if (response === 1) {
-      clipboard.writeText(`${message}\n${stack}`);
+      clipboard.writeText(`${message}\n${stack}`).catch(() => {
+        // Ignore if it failed for some reason
+      });
       return;
     }
 
