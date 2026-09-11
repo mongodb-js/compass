@@ -94,12 +94,16 @@ async function multiComboboxToggleItem(
   });
 }
 
-function getMultiComboboxValues(testId: string) {
-  const combobox = screen.getByTestId(testId);
-  expect(combobox).to.be.visible;
-  return within(combobox)
-    .getAllByRole('option')
-    .map((option) => option.textContent);
+async function getMultiComboboxValues(testId: string) {
+  let values: (string | null)[] = [];
+  await waitFor(() => {
+    const combobox = screen.getByTestId(testId);
+    expect(combobox).to.be.visible;
+    values = within(combobox)
+      .getAllByRole('option')
+      .map((option) => option.textContent);
+  });
+  return values;
 }
 
 describe('DiagramEditorSidePanel', function () {
@@ -249,7 +253,9 @@ describe('DiagramEditorSidePanel', function () {
       expect(nameInput).to.be.visible;
       expect(nameInput).to.have.value('alias');
 
-      const selectedTypes = getMultiComboboxValues('lg-combobox-datatype');
+      const selectedTypes = await getMultiComboboxValues(
+        'lg-combobox-datatype'
+      );
       expect(selectedTypes).to.have.lengthOf(2);
       expect(selectedTypes).to.include('string');
       expect(selectedTypes).to.include('int');
@@ -268,7 +274,9 @@ describe('DiagramEditorSidePanel', function () {
       expect(nameInput).to.be.visible;
       expect(nameInput).to.have.value('_id');
 
-      const selectedTypes = getMultiComboboxValues('lg-combobox-datatype');
+      const selectedTypes = await getMultiComboboxValues(
+        'lg-combobox-datatype'
+      );
       expect(selectedTypes).to.have.lengthOf(1);
       expect(selectedTypes).to.include('string');
     });
@@ -364,7 +372,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(screen.getByTitle('routes.airline.name')).to.be.visible;
 
       // before - string
-      const selectedTypesBefore = getMultiComboboxValues(
+      const selectedTypesBefore = await getMultiComboboxValues(
         'lg-combobox-datatype'
       );
       expect(selectedTypesBefore).to.have.members(['string']);
@@ -395,7 +403,7 @@ describe('DiagramEditorSidePanel', function () {
       expect(screen.getByTitle('routes.airline.name')).to.be.visible;
 
       // before - string
-      const selectedTypesBefore = getMultiComboboxValues(
+      const selectedTypesBefore = await getMultiComboboxValues(
         'lg-combobox-datatype'
       );
       expect(selectedTypesBefore).to.have.members(['string']);
