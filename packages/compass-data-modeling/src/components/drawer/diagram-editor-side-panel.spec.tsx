@@ -34,10 +34,9 @@ const drawerTestId = getDrawerIds().root;
 
 const waitForDrawerToOpen = async () => {
   await waitFor(() => {
-    expect(screen.queryByTestId(drawerTestId)).to.have.attribute(
-      'aria-hidden',
-      'false'
-    );
+    const drawer = screen.queryByTestId(drawerTestId);
+    expect(drawer).to.have.attribute('aria-hidden', 'false');
+    expect(drawer?.querySelector('input, textarea')).to.exist;
   });
 };
 
