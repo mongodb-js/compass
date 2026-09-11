@@ -179,14 +179,14 @@ describe('Preferences class', function () {
     });
   });
 
-  it('is hardcoded on by default, with no overrides', async function () {
+  it('is on by default, with no overrides', async function () {
     const preferences = await setupPreferences(tmpdir);
 
     const result = preferences.getPreferences();
     expect(result.enableAtlasConnectionErrorDebugger).to.equal(true);
 
     const states = preferences.getPreferenceStates();
-    expect(states.enableAtlasConnectionErrorDebugger).to.equal('hardcoded');
+    expect(states.enableAtlasConnectionErrorDebugger).to.equal(undefined);
   });
 
   it('disables the Atlas connection error debugger when Atlas sign in is not allowed', async function () {
@@ -204,7 +204,7 @@ describe('Preferences class', function () {
     expect(result.enableAtlasConnectionErrorDebugger).to.equal(false);
 
     const states = preferences.getPreferenceStates();
-    expect(states.enableAtlasConnectionErrorDebugger).to.equal('hardcoded');
+    expect(states.enableAtlasConnectionErrorDebugger).to.equal('set-cli');
   });
 
   it('keeps the Atlas connection error debugger enabled when Atlas sign in is allowed', async function () {
@@ -222,7 +222,7 @@ describe('Preferences class', function () {
     expect(result.enableAtlasConnectionErrorDebugger).to.equal(true);
 
     const states = preferences.getPreferenceStates();
-    expect(states.enableAtlasConnectionErrorDebugger).to.equal('hardcoded');
+    expect(states.enableAtlasConnectionErrorDebugger).to.equal('set-cli');
   });
 
   it('allows providing false options that should not influence the values of other options', async function () {

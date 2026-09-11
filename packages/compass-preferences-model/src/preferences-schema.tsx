@@ -90,6 +90,8 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     defaultSortOrder: SORT_ORDERS;
     enableShowDialogOnQuit: boolean;
     enableCreatingNewConnections: boolean;
+    enableAssistantConnectionDebugging: boolean;
+    enableAtlasConnectionErrorDebugger: boolean;
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
     // Features that are enabled by default in Date Explorer, but are disabled in Compass
@@ -329,12 +331,6 @@ const allFeatureFlagsProps: Required<{
   },
 
   ...FEATURE_FLAG_PREFERENCES,
-  enableAtlasConnectionErrorDebugger: {
-    ...FEATURE_FLAG_PREFERENCES.enableAtlasConnectionErrorDebugger,
-    deriveValue: deriveValueDependingOnAtlasSignIn(
-      FEATURE_FLAG_PREFERENCES.enableAtlasConnectionErrorDebugger.deriveValue!
-    ),
-  },
 };
 
 export const storedUserPreferencesProps: Required<{
@@ -1122,6 +1118,35 @@ export const storedUserPreferencesProps: Required<{
     validator: z.boolean().default(true),
     type: 'boolean',
   },
+
+  enableAssistantConnectionDebugging: {
+    ui: true,
+    exposedInSettingsUI: ['desktop'],
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enables connection debugging with the Assistant',
+    },
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
+  enableAtlasConnectionErrorDebugger: {
+    ui: true,
+    exposedInSettingsUI: ['desktop'],
+    cli: true,
+    global: true,
+    description: {
+      short: 'Enable Atlas Connection Error Debugger',
+    },
+    deriveValue: deriveValueDependingOnAtlasSignIn((value, state) => ({
+      value: value('enableAtlasConnectionErrorDebugger'),
+      state: state('enableAtlasConnectionErrorDebugger'),
+    })),
+    validator: z.boolean().default(true),
+    type: 'boolean',
+  },
+
   enableGenAIFeaturesAtlasProject: {
     ui: false,
     exposedInSettingsUI: [],
