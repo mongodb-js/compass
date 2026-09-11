@@ -32,6 +32,7 @@ import { fieldStoreServiceLocator } from '@mongodb-js/compass-field-store';
 import { queryBarServiceLocator } from '@mongodb-js/compass-query-bar';
 import { telemetryLocator } from '@mongodb-js/compass-telemetry/provider';
 import { CrudTabTitle } from './plugin-title';
+import { DocumentsWithQueryBuilder } from './components/query-builder/documents-with-query-builder';
 
 const CompassDocumentsPluginProvider = registerCompassPlugin(
   {
@@ -71,7 +72,9 @@ const CompassDocumentsPluginProvider = registerCompassPlugin(
 export const CompassDocumentsPlugin = {
   name: 'Documents' as const,
   provider: CompassDocumentsPluginProvider,
-  content: DocumentList as any, // as any because of reflux store
+  // The documents list with the query builder panel beside it. The panel is
+  // collapsed until asked for, so this renders as the documents tab always has.
+  content: DocumentsWithQueryBuilder as any, // as any because of reflux store
   header: CrudTabTitle as any, // as any because of reflux store
 };
 

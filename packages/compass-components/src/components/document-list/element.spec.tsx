@@ -1,9 +1,15 @@
 import React from 'react';
-import { render, screen, userEvent } from '@mongodb-js/testing-library-compass';
+import {
+  render,
+  screen,
+  userEvent,
+  fireEvent,
+} from '@mongodb-js/testing-library-compass';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
 import { HadronElement, getNestedKeyPathForElement } from './element';
+import { getDraggedDocumentField } from './field-drag';
 import type { Element } from 'hadron-document';
 import { BSON } from 'bson';
 
@@ -536,6 +542,132 @@ describe('HadronElement', function () {
       expect(onAddElement).to.not.have.been.called;
       expect(screen.getByTestId('hadron-document-add-child')).to.exist;
       expect(screen.getByTestId('hadron-document-add-sibling')).to.exist;
+    });
+  });
+
+  describe('drag a field to copy it', function () {
+    function fakeDataTransfer() {
+      const store: Record<string, string> = Object.create(null) as Record<
+        string,
+        string
+      >;
+      return {
+        effectAllowed: 'none',
+        setData(type: string, value: string) {
+          store[type] = value;
+        },
+        getData(type: string) {
+          return store[type];
+        },
+      };
+    }
+
+    it('makes the field name draggable when not editing', function () {
+      const doc = new HadronDocument({ field: 'value' });
+
+      render(
+        <HadronElement
+          value={doc.get('field')!}
+          editable={true}
+          editingEnabled={false}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+
+      expect(
+        screen
+          .getByTestId('hadron-document-element-key')
+          .getAttribute('draggable')
+      ).to.equal('true');
+    });
+
+    it('puts "field: value" on the drag data', function () {
+      const doc = new HadronDocument({ field: 'value' });
+
+      render(
+        <HadronElement
+          value={doc.get('field')!}
+          editable={true}
+          editingEnabled={false}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+
+      const dataTransfer = fakeDataTransfer();
+      fireEvent.dragStart(screen.getByTestId('hadron-document-element-key'), {
+        dataTransfer,
+      });
+
+      expect(dataTransfer.getData('text/plain')).to.equal("field: 'value'");
+      expect(dataTransfer.effectAllowed).to.equal('copy');
+    });
+
+    it('drags a subdocument as the whole nested value', function () {
+      const doc = new HadronDocument({ user: { name: 'John' } });
+
+      render(
+        <HadronElement
+          value={doc.get('user')!}
+          editable={true}
+          editingEnabled={false}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+
+      const dataTransfer = fakeDataTransfer();
+      fireEvent.dragStart(screen.getByTestId('hadron-document-element-key'), {
+        dataTransfer,
+      });
+
+      expect(dataTransfer.getData('text/plain')).to.equal(
+        `user: ${doc.get('user')!.toShellSyntax()}`
+      );
+    });
+
+    it('also carries the field path and value for drop targets in Compass', function () {
+      const doc = new HadronDocument({ user: { name: 'John' } });
+
+      render(
+        <HadronElement
+          value={doc.get('user')!.get('name')!}
+          editable={true}
+          editingEnabled={false}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+
+      const dataTransfer = fakeDataTransfer();
+      fireEvent.dragStart(screen.getByTestId('hadron-document-element-key'), {
+        dataTransfer,
+      });
+
+      expect(
+        getDraggedDocumentField(dataTransfer as unknown as DataTransfer)
+      ).to.deep.equal({ field: 'user.name', value: 'John' });
+    });
+
+    it('does not make the field name draggable while editing', function () {
+      const doc = new HadronDocument({ field: 'value' });
+
+      render(
+        <HadronElement
+          value={doc.get('field')!}
+          editable={true}
+          editingEnabled={true}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+
+      expect(
+        screen
+          .getByTestId('hadron-document-element-key')
+          .getAttribute('draggable')
+      ).to.equal('false');
     });
   });
 });
