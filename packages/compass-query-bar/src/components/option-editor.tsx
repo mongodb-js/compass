@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   css,
   cx,
@@ -7,6 +13,7 @@ import {
   spacing,
   rafraf,
   useDarkMode,
+  DocumentList,
 } from '@mongodb-js/compass-components';
 import type {
   Command,
@@ -23,7 +30,11 @@ import { usePreference } from 'compass-preferences-model/provider';
 import { lenientlyFixQuery } from '../query/leniently-fix-query';
 import type { RootState } from '../stores/query-bar-store';
 import { useAutocompleteFields } from '@mongodb-js/compass-field-store';
-import { applyFromHistory } from '../stores/query-bar-reducer';
+import {
+  applyFilterChange,
+  applyFromHistory,
+} from '../stores/query-bar-reducer';
+import type { ChangeFilterEvent } from '../modules/change-filter';
 import { getQueryAttributes } from '../utils';
 import type {
   BaseQuery,
@@ -59,6 +70,16 @@ const editorContainerStyles = css({
   border: '1px solid transparent',
   borderRadius: spacing[100],
   overflow: 'visible',
+});
+
+const editorDropTargetStyles = css({
+  borderColor: palette.green.base,
+  backgroundColor: palette.green.light3,
+});
+
+const editorDropTargetDarkModeStyles = css({
+  borderColor: palette.green.base,
+  backgroundColor: palette.green.dark3,
 });
 
 const editorWithErrorStyles = css({
@@ -147,6 +168,11 @@ type OptionEditorProps = {
   recentQueries: AutoCompleteRecentQuery[];
   favoriteQueries: AutoCompleteFavoriteQuery[];
   onApplyQuery: (query: BaseQuery, fieldsToPreserve: QueryProperty[]) => void;
+  /**
+   * Applies a change to the filter. Used when a field is dropped onto the
+   * editor; not needed when the editor is rendered for another query option.
+   */
+  onFilterChange?: (event: ChangeFilterEvent) => void;
 };
 
 export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
@@ -167,6 +193,7 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
   favoriteQueries,
   onApplyQuery,
   onUnsafeInteger,
+  onFilterChange,
 }) => {
   const editorContainerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<EditorRef>(null);
@@ -307,14 +334,77 @@ export const OptionEditor: React.FunctionComponent<OptionEditorProps> = ({
     }
   };
 
+  // Dropping a field dragged from the document list adds it to the filter
+  // rather than pasting its text. Fields accumulate: a filter with two keys is
+  // an implicit $and, and dropping the same field twice collects the values
+  // into an $in. This is the same change the "Add to query" context menu makes.
+  const [isDragOver, setIsDragOver] = useState(false);
+  const acceptsDroppedFields =
+    optionName === 'filter' && !disabled && !!onFilterChange;
+
+  const hasDraggedField = (dataTransfer: DataTransfer) => {
+    // `types` is readable during dragover, where the data itself is not.
+    return Array.from(dataTransfer.types).includes(
+      DocumentList.DOCUMENT_FIELD_DRAG_TYPE
+    );
+  };
+
+  // Capture phase: the editor has its own drop handling that would insert the
+  // text/plain version of the field, so the event has to be claimed before it
+  // reaches it.
+  const onDragOverCapture = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      if (!acceptsDroppedFields || !hasDraggedField(event.dataTransfer)) {
+        return;
+      }
+      // Without preventDefault the browser treats this as "no drop allowed"
+      // and never fires the drop event.
+      event.preventDefault();
+      event.stopPropagation();
+      event.dataTransfer.dropEffect = 'copy';
+      setIsDragOver(true);
+    },
+    [acceptsDroppedFields]
+  );
+
+  const onDropCapture = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      if (!acceptsDroppedFields) {
+        return;
+      }
+      const dragged = DocumentList.getDraggedDocumentField(event.dataTransfer);
+      if (!dragged) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      setIsDragOver(false);
+      onFilterChange?.({
+        type: 'addDistinctValue',
+        payload: { field: dragged.field, value: dragged.value },
+      });
+    },
+    [acceptsDroppedFields, onFilterChange]
+  );
+
+  const onDragLeave = useCallback(() => {
+    setIsDragOver(false);
+  }, []);
+
   return (
     <div
       className={cx(
         editorContainerStyles,
         !disabled && focusRingProps.className,
-        hasError && editorWithErrorStyles
+        hasError && editorWithErrorStyles,
+        isDragOver &&
+          (darkMode ? editorDropTargetDarkModeStyles : editorDropTargetStyles)
       )}
       ref={editorContainerRef}
+      onDragOverCapture={onDragOverCapture}
+      onDropCapture={onDropCapture}
+      onDragLeave={onDragLeave}
+      data-drag-over={isDragOver ? 'true' : undefined}
     >
       <InlineEditor
         ref={editorRef}
@@ -390,6 +480,7 @@ const mapStateToProps = ({
 
 const mapDispatchToProps = {
   onApplyQuery: applyFromHistory,
+  onFilterChange: applyFilterChange,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(OptionEditor);
