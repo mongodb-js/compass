@@ -7,6 +7,7 @@ import {
   waitFor,
   userEvent,
   fireEvent,
+  within,
 } from '@mongodb-js/testing-library-compass';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
@@ -15,7 +16,6 @@ import MockDataGeneratorModal from './mock-data-generator-modal';
 import type { FakerSchema, MockDataGeneratorStep } from './types';
 import { DataGenerationSteps, MockDataGeneratorSteps } from './types';
 import {
-  DEFAULT_CONNECTION_STRING_FALLBACK,
   StepButtonLabelMap,
   DEFAULT_DOCUMENT_COUNT,
   MOCK_DATA_GENERATOR_STEP_TO_NEXT_STEP_MAP,
@@ -51,7 +51,7 @@ const defaultSchemaAnalysisState: SchemaAnalysisState = {
     avgDocumentSize: undefined,
   },
 };
-const mockUserConnectionString = 'mockUserConnectionString';
+const mockUserConnectionString = 'mongodb+srv://cluster.example.com/';
 
 describe('MockDataGeneratorModal', () => {
   async function renderModal({
@@ -1010,31 +1010,139 @@ describe('MockDataGeneratorModal', () => {
 
       expect(screen.getByText(mockUserConnectionString, { exact: false })).to
         .exist;
-    });
-
-    it('shows fallback connection string when there is no Atlas metadata', async () => {
-      const atlasConnectionInfoWithoutAtlasMetadata: ConnectionInfo = {
-        id: 'test-atlas-connection',
-        connectionOptions: { connectionString: 'mongodb://localhost:27017' },
-      };
-
-      await renderModal({
-        currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
-        connectionInfo: atlasConnectionInfoWithoutAtlasMetadata,
-        fakerSchemaGeneration: createCompletedFakerSchema({
-          name: {
-            fakerMethod: 'person.firstName',
-            fakerArgs: [],
-            probability: 1.0,
-            mongoType: 'String',
-          },
-        }),
-      });
-
       expect(
-        screen.getByText(DEFAULT_CONNECTION_STRING_FALLBACK, { exact: false })
-      ).to.exist;
+        screen.getByTestId('mock-data-run-command').textContent
+      ).to.include(
+        `mongosh '${mockUserConnectionString}' --username '<your-username>' --file mockdatascript.js --password`
+      );
+      expect(
+        screen.getByTestId('mock-data-run-command').textContent
+      ).not.to.include('localhost');
     });
+
+    const commandCases = [
+      {
+        name: 'uses the active unauthenticated desktop connection',
+        uri: 'mongodb://localhost:27017',
+        expected:
+          "mongosh 'mongodb://localhost:27017/' --file mockdatascript.js",
+        promptsForPassword: false,
+      },
+      {
+        name: 'removes credentials and prompts for a password',
+        uri: 'mongodb://secret-user:secret-password@localhost:27017/?authSource=admin',
+        expected:
+          "mongosh 'mongodb://localhost:27017/?authSource=admin' --username '<your-username>' --file mockdatascript.js --password",
+        promptsForPassword: true,
+      },
+      {
+        name: 'prompts for SCRAM authentication without embedded credentials',
+        uri: 'mongodb://localhost/?authMechanism=SCRAM-SHA-256',
+        expected:
+          "mongosh 'mongodb://localhost/?authMechanism=SCRAM-SHA-256' --username '<your-username>' --file mockdatascript.js --password",
+        promptsForPassword: true,
+      },
+      {
+        name: 'preserves OIDC without adding a password prompt',
+        uri: 'mongodb://secret-user@localhost/?authMechanism=MONGODB-OIDC&authSource=%24external',
+        expected:
+          "mongosh 'mongodb://localhost/?authMechanism=MONGODB-OIDC&authSource=%24external' --username '<your-username>' --file mockdatascript.js",
+        promptsForPassword: false,
+      },
+      {
+        name: 'preserves certificate authentication without requesting a password',
+        uri: 'mongodb://localhost/?authMechanism=MONGODB-X509&tls=true',
+        expected:
+          "mongosh 'mongodb://localhost/?authMechanism=MONGODB-X509&tls=true' --file mockdatascript.js",
+        promptsForPassword: false,
+      },
+      {
+        name: 'redacts AWS credentials and session tokens',
+        uri: 'mongodb://secret-user:secret-password@localhost/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN:secret-token',
+        expected:
+          "mongosh 'mongodb://localhost/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN%3A<credentials>' --username '<your-username>' --file mockdatascript.js --password",
+        promptsForPassword: true,
+      },
+      {
+        name: 'redacts sensitive options',
+        uri: 'mongodb://localhost/?tlsCertificateKeyFilePassword=secret-password&proxyPassword=secret-password&proxyUsername=secret-user',
+        expected:
+          "mongosh 'mongodb://localhost/?tlsCertificateKeyFilePassword=<credentials>&proxyPassword=<credentials>&proxyUsername=<credentials>' --file mockdatascript.js",
+        promptsForPassword: false,
+      },
+      {
+        name: 'keeps shell substitutions literal and encodes quotes',
+        uri: "mongodb://localhost/?appName=it's$(whoami)`id`",
+        expected:
+          "mongosh 'mongodb://localhost/?appName=it%27s$(whoami)`id`' --file mockdatascript.js",
+        promptsForPassword: false,
+      },
+    ];
+
+    for (const { name, uri, expected, promptsForPassword } of commandCases) {
+      it(name, async () => {
+        const originalExecCommand = Object.getOwnPropertyDescriptor(
+          document,
+          'execCommand'
+        );
+        const copiedText = sinon.spy();
+        let selectedText = '';
+        // jsdom does not expose textarea selections through window.getSelection().
+        const select = sinon
+          .stub(HTMLTextAreaElement.prototype, 'select')
+          .callsFake(function (this: HTMLTextAreaElement) {
+            selectedText = this.value;
+          });
+        Object.defineProperty(document, 'execCommand', {
+          configurable: true,
+          value: () => {
+            copiedText(selectedText);
+            return true;
+          },
+        });
+        try {
+          await renderModal({
+            currentStep: MockDataGeneratorSteps.SCRIPT_RESULT,
+            connectionInfo: {
+              id: 'desktop-connection',
+              connectionOptions: { connectionString: uri },
+            },
+            fakerSchemaGeneration: createCompletedFakerSchema({
+              name: {
+                fakerMethod: 'person.firstName',
+                fakerArgs: [],
+                probability: 1.0,
+                mongoType: 'String',
+              },
+            }),
+          });
+          const section = screen.getByTestId('mock-data-run-command');
+          expect(section.textContent).to.include(expected);
+          expect(section.textContent).not.to.include('secret-user');
+          expect(section.textContent).not.to.include('secret-password');
+          expect(section.textContent).not.to.include('secret-token');
+          expect(
+            section.textContent?.includes(
+              'mongosh will prompt for your password.'
+            )
+          ).to.equal(promptsForPassword);
+          expect(section.textContent).to.include(
+            'configured separately for mongosh'
+          );
+          userEvent.click(within(section).getByTestId('lg-code-copy_button'));
+          await waitFor(() =>
+            expect(copiedText).to.have.been.calledWith(expected)
+          );
+        } finally {
+          select.restore();
+          if (originalExecCommand) {
+            Object.defineProperty(document, 'execCommand', originalExecCommand);
+          } else {
+            Reflect.deleteProperty(document, 'execCommand');
+          }
+        }
+      });
+    }
   });
 
   describe('when rendering the modal in a specific step', () => {
