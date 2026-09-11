@@ -141,7 +141,7 @@ export const TextSearch = ({
           allowDeselect={false}
           aria-label={'Select search type'}
           value={formData.type}
-          onChange={(value) => onChangeProperty('type', value as SearchType)}
+          onChange={(value) => onChangeProperty('type', value)}
         >
           <Option value="text">text search</Option>
           <Option value="fuzzy">fuzzy search</Option>
@@ -173,7 +173,7 @@ export const TextSearch = ({
           allowDeselect={false}
           aria-label={'Select search path'}
           value={formData.path}
-          onChange={(value) => onChangeProperty('path', value as SearchPath)}
+          onChange={(value) => onChangeProperty('path', value)}
         >
           <Option value="fields">field names</Option>
           <Option value="wildcard">any fields</Option>

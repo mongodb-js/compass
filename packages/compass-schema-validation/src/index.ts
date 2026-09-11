@@ -5,7 +5,6 @@ import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
-  type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import { preferencesLocator } from 'compass-preferences-model/provider';
@@ -24,8 +23,7 @@ const CompassSchemaValidationPluginProvider = registerCompassPlugin(
     activate: onActivated,
   },
   {
-    dataService:
-      dataServiceLocator as DataServiceLocator<RequiredDataServiceProps>,
+    dataService: dataServiceLocator<RequiredDataServiceProps>,
     connectionInfoRef: connectionInfoRefLocator,
     instance: mongoDBInstanceLocator,
     preferences: preferencesLocator,

@@ -147,8 +147,7 @@ export class ImportWriter {
         // when the operation ends in error, instead of relying on
         // `_mergeBulkOpResult` default argument substitution, we need to keep
         // this OR expression here
-        bulkWriteResult = ((bulkWriteError as MongoBulkWriteError).result ||
-          {}) as PartialBulkWriteResult;
+        bulkWriteResult = (bulkWriteError as MongoBulkWriteError).result || {};
 
         if (this.stopOnErrors) {
           this.docsWritten += bulkWriteResult.insertedCount || 0;

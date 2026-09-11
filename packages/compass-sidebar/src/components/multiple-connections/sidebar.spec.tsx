@@ -120,7 +120,7 @@ describe('Multiple Connections Sidebar Component', function () {
             },
           ]}
         >
-          <WorkspacesServiceProvider value={workspace as any}>
+          <WorkspacesServiceProvider value={workspace}>
             <MultipleConnectionSidebar
               activeWorkspace={activeWorkspace}
             ></MultipleConnectionSidebar>

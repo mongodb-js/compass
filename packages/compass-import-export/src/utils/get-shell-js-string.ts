@@ -1,7 +1,6 @@
 import _ from 'lodash';
 import { toJSString } from 'mongodb-query-parser';
 import toNS from 'mongodb-ns';
-import type { Document, SortDirection } from 'mongodb';
 import { prettify } from '@mongodb-js/compass-editor';
 import type { FormatOptions } from '@mongodb-js/compass-editor';
 
@@ -29,12 +28,12 @@ export function queryAsShellJSString({
   }
   ret += ')';
   if (query.collation) {
-    ret += `.collation(${compactStringify(query.collation as Document) || ''})`;
+    ret += `.collation(${compactStringify(query.collation) || ''})`;
   }
   if (query.sort) {
     ret += `.sort(${
       _.isObject(query.sort) && !Array.isArray(query.sort)
-        ? compactStringify(query.sort as Record<string, SortDirection>) || ''
+        ? compactStringify(query.sort) || ''
         : JSON.stringify(query.sort)
     })`;
   }

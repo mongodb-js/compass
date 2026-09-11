@@ -46,7 +46,7 @@ describe('AIPipelineReducer', function () {
         sample: sandbox.stub().resolves([{ _id: 42 }]),
         getConnectionString: sandbox.stub().returns({ hosts: [] }),
         ...mockDataService,
-      } as any,
+      },
       {
         atlasAiService: atlasAiService as any,
         preferences,

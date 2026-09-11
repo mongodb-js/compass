@@ -108,7 +108,7 @@ export const filterStageOperators = ({
 
   FilteredStagesCache.set(cacheKey, filteredStages);
 
-  return filteredStages as FilteredStageOperators;
+  return filteredStages;
 };
 
 export function getStageOperator(
@@ -335,7 +335,7 @@ export function applyFeatureFlagChangesToFilteredOperators(
           meta: VECTOR_SEARCH_AUTO_EMBED_STAGE.meta as Completion['meta'],
         }
       : op
-  ) as FilteredStageOperators;
+  );
 }
 
 const stageOperatorsMapByPreviewFlag = new Map<
