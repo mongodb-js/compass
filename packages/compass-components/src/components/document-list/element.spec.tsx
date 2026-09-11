@@ -9,6 +9,7 @@ import { expect } from 'chai';
 import sinon from 'sinon';
 import HadronDocument from 'hadron-document';
 import { HadronElement, getNestedKeyPathForElement } from './element';
+import { getDraggedDocumentField } from './field-drag';
 import type { Element } from 'hadron-document';
 import { BSON } from 'bson';
 
@@ -624,6 +625,29 @@ describe('HadronElement', function () {
       expect(dataTransfer.getData('text/plain')).to.equal(
         `user: ${doc.get('user')!.toShellSyntax()}`
       );
+    });
+
+    it('also carries the field path and value for drop targets in Compass', function () {
+      const doc = new HadronDocument({ user: { name: 'John' } });
+
+      render(
+        <HadronElement
+          value={doc.get('user')!.get('name')!}
+          editable={true}
+          editingEnabled={false}
+          lineNumberSize={1}
+          onAddElement={() => {}}
+        />
+      );
+
+      const dataTransfer = fakeDataTransfer();
+      fireEvent.dragStart(screen.getByTestId('hadron-document-element-key'), {
+        dataTransfer,
+      });
+
+      expect(
+        getDraggedDocumentField(dataTransfer as unknown as DataTransfer)
+      ).to.deep.equal({ field: 'user.name', value: 'John' });
     });
 
     it('does not make the field name draggable while editing', function () {
