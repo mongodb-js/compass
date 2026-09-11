@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo } from 'react';
 import {
   Icon,
   IconButton,
@@ -22,10 +22,9 @@ import {
 import {
   MAX_BUILDER_WIDTH,
   MIN_BUILDER_WIDTH,
-  loadBuilderSession,
   mirrorBuilderWidth,
-  saveBuilderSession,
-} from './builder-session';
+} from './builder-panel-size';
+import { useTabState } from '@mongodb-js/compass-workspaces/provider';
 
 const DEFAULT_BUILDER_WIDTH = 460;
 
@@ -103,21 +102,23 @@ export const DocumentsWithQueryBuilder: React.FunctionComponent<DocumentListProp
 ) => {
   const darkMode = useDarkMode();
   const { store } = props;
-  const namespace = store.state.ns;
-  // Read once, on mount. A collection opened before in this session comes back
-  // the way it was left: same rows, same panel, same width.
-  const [saved] = useState(() => loadBuilderSession(namespace));
-  const [builderState, setBuilderState] = useState<BuilderState>(
-    saved?.state ?? EMPTY_BUILDER_STATE
+  // Per workspace tab, and surviving the unmount that switching tabs causes.
+  // Two tabs on the same collection are two different queries, so this is
+  // scoped to the tab rather than to the collection.
+  const [builderState, setBuilderState] = useTabState<BuilderState>(
+    'query-builder-rows',
+    EMPTY_BUILDER_STATE
   );
-  const [builderWidth, setBuilderWidth] = useState(
-    saved?.width ?? DEFAULT_BUILDER_WIDTH
+  const [builderWidth, setBuilderWidth] = useTabState(
+    'query-builder-width',
+    DEFAULT_BUILDER_WIDTH
   );
   // Collapsed until asked for: this is the documents view, and it should look
   // and behave exactly as it always has for anyone not using the builder. Once
-  // it has been opened for a collection, it opens that way again.
-  const [isCollapsed, setIsCollapsed] = useState(
-    saved ? !saved.isExpanded : true
+  // opened in a tab it stays open for that tab.
+  const [isCollapsed, setIsCollapsed] = useTabState(
+    'query-builder-collapsed',
+    true
   );
 
   const compiled = useMemo(
@@ -144,16 +145,6 @@ export const DocumentsWithQueryBuilder: React.FunctionComponent<DocumentListProp
     }
     store.queryBar.setQuery(compiledQueryToAppliedQuery(compiled));
   }, [compiled, store, isCollapsed, builderHasRows]);
-
-  // Switching collections unmounts this view, so everything the panel looked
-  // like is kept per collection and restored when it is opened again.
-  useEffect(() => {
-    saveBuilderSession(namespace, {
-      state: builderState,
-      isExpanded: !isCollapsed,
-      width: builderWidth,
-    });
-  }, [namespace, builderState, isCollapsed, builderWidth]);
 
   const onRun = useCallback(() => {
     // Every property is sent on every run, using undefined for the ones the
