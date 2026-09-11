@@ -43,6 +43,7 @@ module.exports = {
     'kerberos',
     'socks',
     'mongodb-client-encryption',
+    'mongodb-log-writer',
   ],
   'devtools-shared-prod': [
     '@mongodb-js/get-os-info',
