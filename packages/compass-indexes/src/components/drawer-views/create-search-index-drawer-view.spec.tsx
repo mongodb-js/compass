@@ -181,7 +181,7 @@ describe('CreateSearchIndexDrawerView', function () {
       });
     });
 
-    it('disables submit button when JSON has schema validation errors', async function () {
+    it('keeps submit button enabled for schema violations reported as warnings', async function () {
       renderCreateSearchIndexDrawerView();
 
       const editor = screen.getByTestId(
@@ -192,13 +192,19 @@ describe('CreateSearchIndexDrawerView', function () {
       // Set syntactically valid JSON that violates schema
       await setCodemirrorEditorValue(editor, '{"notAValidProperty": 123}');
 
-      // Wait for validation to run and button to be disabled
+      // Schema violations are advisory: lint markers appear, but the user is
+      // still allowed to submit the definition.
       await waitFor(() => {
-        const submitButton = screen.getByTestId(
-          'create-search-index-drawer-view-submit-button'
+        const lintMarkers = document.querySelectorAll(
+          '.cm-lint-marker-error, .cm-lint-marker-warning'
         );
-        expect(submitButton).to.have.attribute('aria-disabled', 'true');
+        expect(lintMarkers.length).to.be.greaterThan(0);
       });
+
+      const submitButton = screen.getByTestId(
+        'create-search-index-drawer-view-submit-button'
+      );
+      expect(submitButton).to.have.attribute('aria-disabled', 'false');
     });
 
     it('enables submit button for valid JSON matching schema', async function () {
