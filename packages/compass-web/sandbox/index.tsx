@@ -1,7 +1,4 @@
 import React, { useEffect, useState } from 'react';
-// `ReactDOM` is still imported from 'react-dom' because that is the specifier
-// the compass-web library externalizes to `__compassWebSharedRuntime.ReactDOM`
-// (see webpack.config.js).
 import ReactDOM from 'react-dom';
 import { createRoot } from 'react-dom/client';
 import {

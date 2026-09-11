@@ -225,10 +225,6 @@ describe('BulkUpdateModal Component', function () {
     });
 
     userEvent.click(screen.getByTestId('inline-save-query-modal-opener'));
-    // The popover subtree is rendered with `pointer-events: none` until it has
-    // finished opening. userEvent silently does nothing when typing into a
-    // non-interactive element (and throws when clicking one), so wait for the
-    // popover to settle rather than just for the input to be visible.
     const inputElement = screen.getByTestId('inline-save-query-modal-input');
     await waitFor(() =>
       expect(window.getComputedStyle(inputElement).pointerEvents).to.not.equal(
@@ -237,8 +233,6 @@ describe('BulkUpdateModal Component', function () {
     );
     userEvent.type(inputElement, 'MySavedQuery');
 
-    // The submit button stays disabled until a name has been entered, and that
-    // re-render is not applied synchronously
     const submitButton = screen.getByTestId('inline-save-query-modal-submit');
     await waitFor(() =>
       expect(submitButton).to.have.attribute('aria-disabled', 'false')

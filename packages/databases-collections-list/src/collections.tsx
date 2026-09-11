@@ -115,8 +115,6 @@ function collectionPropertyToBadge(
         hint: (
           <>
             {Object.entries(options ?? {}).map(([key, val]) => {
-              // `val` is `unknown`, so a `&&` expression would leave it in the
-              // rendered type.
               return val ? (
                 <div key={key}>
                   <strong>{key}:</strong>&nbsp;{String(val)}

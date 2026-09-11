@@ -558,8 +558,7 @@ describe('CompassAssistantProvider', function () {
         screen.getByPlaceholderText('Ask a question'),
         'How about now?'
       );
-      // The earlier send left the input bar showing a stop button, so wait for
-      // the send button to come back
+
       userEvent.click(await screen.findByLabelText('Send message'));
 
       await waitFor(() => {
@@ -1087,8 +1086,6 @@ describe('CompassAssistantProvider', function () {
         const confirmButton = within(modal).getByText('Clear chat');
         userEvent.click(confirmButton);
 
-        // Closing the modal and clearing the messages are separate state
-        // updates, so both have to be waited for
         await waitFor(() => {
           expect(
             screen.getByTestId('assistant-confirm-clear-chat-modal').firstChild

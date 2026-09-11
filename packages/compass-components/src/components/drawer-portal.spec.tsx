@@ -297,8 +297,6 @@ describe('DrawerSection', function () {
     await waitFor(() => {
       expect(screen.getByTestId('drawer-state')).to.have.text('closed');
       expect(screen.queryByText('This is the controlled section')).not.to.exist;
-      // The section content is removed in a separate commit from the effect
-      // that reports the section as hidden, so both have to be waited for
       expect(onDrawerSectionHideSpy).to.have.been.calledOnceWith(
         'controlled-section'
       );
