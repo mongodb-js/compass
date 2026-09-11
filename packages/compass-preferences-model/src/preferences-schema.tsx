@@ -1139,10 +1139,9 @@ export const storedUserPreferencesProps: Required<{
     description: {
       short: 'Enable Atlas Connection Error Debugger',
     },
-    deriveValue: deriveValueDependingOnAtlasSignIn((value, state) => ({
-      value: value('enableAtlasConnectionErrorDebugger'),
-      state: state('enableAtlasConnectionErrorDebugger'),
-    })),
+    deriveValue: deriveValueDependingOnAtlasSignIn(
+      'enableAtlasConnectionErrorDebugger'
+    ),
     validator: z.boolean().default(true),
     type: 'boolean',
   },
@@ -1463,20 +1462,17 @@ export const allPreferencesProps: Required<{
 };
 
 /** Helper for defining how to override value/state for preferences that require Atlas sign in */
-function deriveValueDependingOnAtlasSignIn(
-  baseDeriveValue: DeriveValueFunction<boolean>
+function deriveValueDependingOnAtlasSignIn<K extends keyof AllPreferences>(
+  property: K
 ): DeriveValueFunction<boolean> {
-  return (value, state) => {
-    const base = baseDeriveValue(value, state);
-    return {
-      value: base.value && value('enableAtlasSignIn'),
-      state:
-        base.state ??
-        (value('enableAtlasSignIn')
-          ? undefined
-          : state('enableAtlasSignIn') ?? 'derived'),
-    };
-  };
+  return (value, state) => ({
+    value: value(property) && value('enableAtlasSignIn'),
+    state:
+      state(property) ??
+      (value('enableAtlasSignIn')
+        ? undefined
+        : state('enableAtlasSignIn') ?? 'derived'),
+  });
 }
 
 /** Helper for defining how to derive value/state for networkTraffic-affected preferences */
