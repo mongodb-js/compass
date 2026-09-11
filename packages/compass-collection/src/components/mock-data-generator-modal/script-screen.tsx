@@ -28,18 +28,8 @@ import {
   useTelemetry,
   useTrackOnChange,
 } from '@mongodb-js/compass-telemetry/provider';
-import {
-  DEFAULT_CONNECTION_STRING_FALLBACK,
-  DEFAULT_DOCUMENT_COUNT,
-} from './constants';
-import { redactConnectionString } from 'mongodb-connection-string-url';
-
-const RUN_SCRIPT_COMMAND = (connectionString: string) => `
-mongosh "${redactConnectionString(connectionString)}" \\
-  --username <your-username> \\
-  --password "<your-password>" \\
-  mockdatascript.js
-`;
+import { DEFAULT_DOCUMENT_COUNT } from './constants';
+import { getMongoshCommand } from './mongosh-command';
 
 const outerSectionStyles = css({
   display: 'flex',
@@ -104,9 +94,10 @@ const ScriptScreen = ({
   const connectionInfo = useConnectionInfo();
   const track = useTelemetry();
 
-  const connectionString: string =
-    connectionInfo?.atlasMetadata?.userConnectionString ??
-    DEFAULT_CONNECTION_STRING_FALLBACK;
+  const { command, needsUsername, promptsForPassword } = useMemo(
+    () => getMongoshCommand(connectionInfo),
+    [connectionInfo]
+  );
 
   const { database, collection } = toNS(namespace);
 
@@ -214,14 +205,16 @@ const ScriptScreen = ({
             : '// Script generation failed.'}
         </Code>
       </section>
-      <section>
+      <section data-testid="mock-data-run-command">
         <Body as="h2" baseFontSize={16} weight="medium">
           2. Run the script with <InlineCode>mongosh</InlineCode>
         </Body>
         <Body className={sectionInstructionStyles}>
-          In the same working directory run the command below. Please{' '}
-          <strong>paste in your username and password</strong> where there are
-          placeholders.{' '}
+          In the same working directory, run the command below in Bash, zsh, or
+          PowerShell on Windows. Replace any placeholders before running.
+          {needsUsername &&
+            ' Replace <your-username> with your database username.'}
+          {promptsForPassword && ' mongosh will prompt for your password.'}{' '}
           <em>
             Note that this will add data to your cluster and will not be
             reversible.
@@ -231,8 +224,16 @@ const ScriptScreen = ({
           language={Language.Bash}
           onCopy={() => onScriptCopy({ step: DataGenerationSteps.RUN_SCRIPT })}
         >
-          {RUN_SCRIPT_COMMAND(connectionString)}
+          {command}
         </Code>
+        {!connectionInfo.atlasMetadata && (
+          <Body className={sectionInstructionStyles}>
+            Settings outside the connection URI, such as Compass SSH tunnels,
+            proxies, or encryption settings, must be configured separately for
+            mongosh. Make sure any certificate files in the URI are available
+            where you run the command.
+          </Body>
+        )}
       </section>
       <section
         className={cx(
