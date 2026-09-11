@@ -20,6 +20,7 @@ export const DEFAULT_COMPASS_WEB_PREFERENCES = {
   enableGenAISampleDocumentPassing: false,
   enableGenAIFeaturesAtlasOrg: false,
   enableGenAIToolCallingAtlasProject: true,
+  enableAssistantConnectionDebugging: false,
   enableAtlasConnectionErrorDebugger: false,
   enableAtlasSignIn: false,
   enablePerformanceAdvisorBanner: true,
