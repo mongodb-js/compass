@@ -115,7 +115,12 @@ class CellRenderer
 
     /* Can't get the editable() function from here, so have to reevaluate */
     this.editable = true;
-    if (props.context.path.length > 0 && props.column.getColId() !== '$_id') {
+    const colId = props.column?.getColId();
+    if (
+      props.context.path.length > 0 &&
+      colId !== undefined &&
+      colId !== '$_id'
+    ) {
       const parent = props.node.data.hadronDocument.getChild(
         props.context.path
       );
@@ -129,7 +134,7 @@ class CellRenderer
         if (parent.elements.lastElement) {
           maxKey = +parent.elements.lastElement.currentKey + 1;
         }
-        if (+props.column.getColId() > maxKey) {
+        if (+colId > maxKey) {
           this.editable = false;
         }
       }
@@ -203,10 +208,11 @@ class CellRenderer
   }
 
   handleClicked() {
-    if (this.props.node.data.state === 'editing') {
-      this.props.api.startEditingCell({
-        rowIndex: this.props.node.rowIndex,
-        colKey: this.props.column.getColId(),
+    const { node, column, api } = this.props;
+    if (node.data.state === 'editing' && node.rowIndex !== null && column) {
+      api.startEditingCell({
+        rowIndex: node.rowIndex,
+        colKey: column.getColId(),
       });
     }
   }
