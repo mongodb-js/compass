@@ -25,6 +25,7 @@ import { hasDistinctValue } from 'mongodb-query-util';
 import { useContextMenuGroups } from '../context-menu';
 import { useSyncStateOnPropChange } from '../../hooks/use-sync-state-on-prop-change';
 import { useBSONDisplayOptions } from './bson-display-options-context';
+import { setDraggedDocumentField } from './field-drag';
 
 function useElementEditor(
   el: HadronElementType,
@@ -554,9 +555,13 @@ export const HadronElement: React.FunctionComponent<{
   );
 
   // Dragging a field name puts "field: value" on the drag data, so it can be
-  // dropped into the query bar, an aggregation stage, or any editor outside
-  // Compass. The payload is deliberately identical to the "Copy field & value"
+  // dropped into an aggregation stage or any editor outside Compass. The
+  // text/plain payload is deliberately identical to the "Copy field & value"
   // context menu action, which remains the keyboard accessible way to do this.
+  //
+  // The same field also goes on the event in structured form, so that drop
+  // targets inside Compass (the query bar) can use the BSON value rather than
+  // parsing the display string back.
   const onKeyDragStart = useCallback(
     (evt: React.DragEvent<HTMLDivElement>) => {
       // The row toggles expansion on click; dragging a field is not that.
@@ -566,6 +571,10 @@ export const HadronElement: React.FunctionComponent<{
         'text/plain',
         `${key.value}: ${element.toShellSyntax()}`
       );
+      setDraggedDocumentField(evt.dataTransfer, {
+        field: getNestedKeyPathForElement(element),
+        value: element.generateObject(),
+      });
     },
     [element, key.value]
   );
