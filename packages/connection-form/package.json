@@ -58,7 +58,7 @@
     "mongodb-connection-string-url": "^7.0.2",
     "mongodb-data-service": "^22.40.2",
     "mongodb-query-parser": "^5.0.1",
-    "react": "^17.0.2"
+    "react": "^18.3.1"
   },
   "devDependencies": {
     "@mongodb-js/eslint-config-compass": "^1.4.25",
@@ -69,7 +69,7 @@
     "@types/chai": "^4.2.21",
     "@types/chai-dom": "^0.0.10",
     "@types/mocha": "^9.0.0",
-    "@types/react": "^17.0.5",
+    "@types/react": "^18.3.31",
     "@types/sinon-chai": "^3.2.5",
     "bson": "^7.3.2",
     "chai": "^4.3.4",

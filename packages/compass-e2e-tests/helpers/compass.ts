@@ -29,6 +29,7 @@ import {
   assertTestingWeb,
   isTestingWebAtlasCloud,
   getCloudUrlsFromContext,
+  getAtlasCloudEnvironmentFromContext,
 } from './test-runner-context.ts';
 import {
   MONOREPO_ELECTRON_CHROMIUM_VERSION,
@@ -171,14 +172,6 @@ export class Compass {
   }
 
   async prepare() {
-    for (const [k, v] of Object.entries(Commands)) {
-      this.browser.addCommand(k, (...args) => {
-        // @ts-expect-error really hard to get these exactly right for
-        // typescript, but we know what we're doing
-        return v(this.browser, ...args);
-      });
-    }
-
     // The waitUntil helper will continue running even if we started tests
     // teardown on abort. To work around that, we will override the default
     // method, will short circuit the wait if we aborted, and then throw the
@@ -713,6 +706,33 @@ async function processCommonOpts({
   };
 }
 
+/**
+ * De-dupe repeated `--flag=value` arguments in place, keeping the last
+ * occurrence (later pushes win over earlier defaults). Only `--flag=value` form
+ * arguments are considered; bare flags and positional arguments are left as-is.
+ */
+function dedupeLastWinsFlags(args: string[]): void {
+  const lastIndexByName = new Map<string, number>();
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (!arg.startsWith('--') || !arg.includes('=')) {
+      continue;
+    }
+    const name = arg.slice(0, arg.indexOf('='));
+    lastIndexByName.set(name, i);
+  }
+
+  const deduped = args.filter((arg, i) => {
+    if (!arg.startsWith('--') || !arg.includes('=')) {
+      return true;
+    }
+    const name = arg.slice(0, arg.indexOf('='));
+    return lastIndexByName.get(name) === i;
+  });
+
+  args.splice(0, args.length, ...deduped);
+}
+
 async function startCompassElectron(
   name: string,
   opts: StartCompassOptions = {}
@@ -747,6 +767,8 @@ async function startCompassElectron(
     chromeArgs.push(...opts.extraSpawnArgs);
   }
 
+  dedupeLastWinsFlags(chromeArgs);
+
   // Electron on Windows interprets its arguments in a weird way where
   // the second positional argument inserted by webdriverio (about:blank)
   // throws it off and won't let it start because it then interprets the first
@@ -767,6 +789,10 @@ async function startCompassElectron(
   if (!process.env.HADRON_AUTO_UPDATE_ENDPOINT_OVERRIDE) {
     process.env.HADRON_PRODUCT_NAME_OVERRIDE = 'MongoDB Compass WebdriverIO';
   }
+  // Driving the Atlas login page (form + consent + redirects against a real
+  // Atlas environment) can take longer than the oidc-plugin's default "open
+  // browser" timeout. Setting this to 0 disable the timeout.
+  process.env.COMPASS_OIDC_OPEN_BROWSER_TIMEOUT_OVERRIDE = String(0);
 
   const options = {
     automationProtocol: 'webdriver' as const,
@@ -849,6 +875,7 @@ async function startCompassElectron(
     }
     throw err;
   }
+  attachCommands(browser);
 
   const compass = new Compass(name, browser, {
     mode: 'electron',
@@ -871,17 +898,12 @@ export type StoredAtlasCloudCookies = {
   expirationDate: number;
 }[];
 
-export async function startBrowser(
-  name: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  opts: StartCompassOptions = {}
-) {
-  assertTestingWeb(context);
+export async function createExternalBrowser(firstRun: boolean = true) {
+  const { webdriverOptions, wdioOptions } = await processCommonOpts({
+    firstRun,
+  });
 
-  runCounter++;
-  const { webdriverOptions, wdioOptions } = await processCommonOpts();
-
-  const browserName = context.browserName as 'chrome' | 'firefox';
+  const browserName = (context.browserName as 'chrome' | 'firefox') ?? 'chrome';
   const redirectExtension = isTestingWebAtlasCloud(context)
     ? await (async () => {
         return getExtension(
@@ -950,6 +972,39 @@ export async function startBrowser(
   debug(JSON.stringify(options, null, 2));
 
   const browser = (await remote(options)) as CompassBrowser;
+  if (isTestingWebAtlasCloud(context)) {
+    // In firefox extension needs to be loaded via special Gecko command and
+    // should be provided as a base64 string with compressed extension
+    if (browserName === 'firefox') {
+      await browser.installAddOn(redirectExtension!.extension, true);
+    }
+  }
+
+  attachCommands(browser);
+
+  return browser;
+}
+
+function attachCommands(browser: CompassBrowser) {
+  const commands = Commands as Record<
+    string,
+    (browser: CompassBrowser, ...args: unknown[]) => unknown
+  >;
+  for (const [name, command] of Object.entries(commands)) {
+    browser.addCommand(name, (...args: unknown[]) => command(browser, ...args));
+  }
+}
+
+export async function startBrowser(
+  name: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  opts: StartCompassOptions = {}
+) {
+  assertTestingWeb(context);
+
+  runCounter++;
+
+  const browser = await createExternalBrowser();
 
   const compass = new Compass(name, browser, {
     mode: 'web',
@@ -958,14 +1013,6 @@ export async function startBrowser(
   });
 
   await compass.prepare();
-
-  if (isTestingWebAtlasCloud(context)) {
-    // In firefox extension needs to be loaded via special Gecko command and
-    // should be provided as a base64 string with compressed extension
-    if (browserName === 'firefox') {
-      await browser.installAddOn(redirectExtension!.extension, true);
-    }
-  }
 
   return compass;
 }
@@ -1157,7 +1204,8 @@ export async function init(
   if (isTestingWebAtlasCloud(context)) {
     await browser.signInToAtlas(
       context.atlasCloudUsername,
-      context.atlasCloudPassword
+      context.atlasCloudPassword,
+      getAtlasCloudEnvironmentFromContext(context)
     );
 
     // Disable temporary marketing modal before proceeding

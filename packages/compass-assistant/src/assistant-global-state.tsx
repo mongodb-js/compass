@@ -37,9 +37,9 @@ const AssistantGlobalSetStateContext = React.createContext<
   React.Dispatch<React.SetStateAction<GlobalState>>
 >(() => undefined);
 
-export const AssistantGlobalStateProvider: React.FunctionComponent = ({
-  children,
-}) => {
+export const AssistantGlobalStateProvider: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const [globalState, setGlobalState] = React.useState({ ...INITIAL_STATE });
   return (
     <AssistantGlobalStateContext.Provider value={globalState}>

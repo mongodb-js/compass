@@ -596,7 +596,7 @@ describe('instance-detail-helper', function () {
           options: {
             autoEncryption: {
               kmsProviders: {
-                aws: {} as any,
+                aws: {},
                 local: {} as any,
               },
             },
@@ -608,7 +608,7 @@ describe('instance-detail-helper', function () {
           options: {
             autoEncryption: {
               kmsProviders: {
-                aws: {} as any,
+                aws: {},
                 local: { key: 'data' },
               },
             },
@@ -629,7 +629,7 @@ describe('instance-detail-helper', function () {
       expect(
         configuredKMSProviders({
           kmsProviders: {
-            aws: {} as any,
+            aws: {},
             local: {} as any,
           },
         })
@@ -637,7 +637,7 @@ describe('instance-detail-helper', function () {
       expect(
         configuredKMSProviders({
           kmsProviders: {
-            aws: {} as any,
+            aws: {},
             local: { key: 'data' },
           },
         })

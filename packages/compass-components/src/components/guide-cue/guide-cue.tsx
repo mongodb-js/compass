@@ -40,11 +40,9 @@ type GuideCueContextValue = {
 
 const GuideCueContext = React.createContext<GuideCueContextValue>({});
 
-export const GuideCueProvider: React.FC<GuideCueContextValue> = ({
-  children,
-  disabled = false,
-  ...callbacks
-}) => {
+export const GuideCueProvider: React.FC<
+  React.PropsWithChildren<GuideCueContextValue>
+> = ({ children, disabled = false, ...callbacks }) => {
   const callbacksRef = useCurrentValueRef(callbacks);
   const value = useMemo(
     () => ({

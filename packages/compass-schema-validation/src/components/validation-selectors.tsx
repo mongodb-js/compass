@@ -62,7 +62,7 @@ export function ActionSelector({
         data-testid="validation-action-selector"
         aria-labelledby={labelId}
         disabled={!isEditable}
-        onChange={validationActionChanged as (value: string) => void}
+        onChange={validationActionChanged}
         value={validationAction}
         allowDeselect={false}
         className={selectStyles}
@@ -111,7 +111,7 @@ export function LevelSelector({
         data-testid="validation-level-selector"
         aria-labelledby={labelId}
         disabled={!isEditable}
-        onChange={validationLevelChanged as (value: string) => void}
+        onChange={validationLevelChanged}
         value={validationLevel}
         allowDeselect={false}
         className={selectStyles}

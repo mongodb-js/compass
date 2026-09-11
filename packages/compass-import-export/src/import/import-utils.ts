@@ -166,7 +166,7 @@ export async function doImport(
   }
 
   try {
-    for await (const chunk of stream as Readable) {
+    for await (const chunk of stream) {
       // Call progress and increase the number processed even if it errors
       // below. The import writer stats at the end stores how many got written.
       // This way progress updates continue even if every row fails to parse.

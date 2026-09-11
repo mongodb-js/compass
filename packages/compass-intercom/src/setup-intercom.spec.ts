@@ -78,7 +78,7 @@ describe('setupIntercom', function () {
     };
 
     process.env.HADRON_AUTO_UPDATE_ENDPOINT = FAKE_HADRON_AUTO_UPDATE_ENDPOINT;
-    process.env.HADRON_PRODUCT_NAME = 'My App Name' as any;
+    process.env.HADRON_PRODUCT_NAME = 'My App Name';
     process.env.HADRON_APP_VERSION = 'v0.0.0-test.123';
     process.env.NODE_ENV = 'test';
     process.env.HADRON_METRICS_INTERCOM_APP_ID = 'appid123';
@@ -96,8 +96,8 @@ describe('setupIntercom', function () {
       backupEnv.HADRON_AUTO_UPDATE_ENDPOINT;
     process.env.HADRON_METRICS_INTERCOM_APP_ID =
       backupEnv.HADRON_METRICS_INTERCOM_APP_ID;
-    process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME as any;
-    process.env.HADRON_APP_VERSION = backupEnv.HADRON_APP_VERSION as any;
+    process.env.HADRON_PRODUCT_NAME = backupEnv.HADRON_PRODUCT_NAME;
+    process.env.HADRON_APP_VERSION = backupEnv.HADRON_APP_VERSION;
     process.env.NODE_ENV = backupEnv.NODE_ENV;
     fetchMock.restore();
     resetIntercomAllowedCache();

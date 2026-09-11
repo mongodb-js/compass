@@ -52,7 +52,7 @@ const TrackingHooksContext = React.createContext<SignalTrackingHooks>({
 });
 
 const SignalHooksProvider: React.FunctionComponent<
-  Partial<SignalTrackingHooks>
+  React.PropsWithChildren<Partial<SignalTrackingHooks>>
 > = ({ children, ..._hooks }) => {
   const hooksRef = useCurrentValueRef(_hooks);
   const hooks = useMemo(() => {

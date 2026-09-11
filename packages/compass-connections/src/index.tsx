@@ -127,6 +127,7 @@ const ConnectFnContext = React.createContext<
 
 export const ConnectFnProvider: React.FunctionComponent<{
   connect?: typeof devtoolsConnect | undefined;
+  children?: React.ReactNode;
 }> = ({ connect, children }) => {
   const connectFn = useInitialValue(() => connect);
   return (

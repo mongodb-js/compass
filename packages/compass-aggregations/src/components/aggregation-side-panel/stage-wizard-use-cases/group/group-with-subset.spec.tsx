@@ -108,8 +108,8 @@ describe('group with subset', function () {
     });
 
     context('sort form fields', function () {
-      beforeEach(function () {
-        setSelectValue(/select accumulator/i, 'Top');
+      beforeEach(async function () {
+        await setSelectValue(/select accumulator/i, 'Top');
       });
       it('renders sort fields combobox', function () {
         expect(
@@ -156,13 +156,13 @@ describe('group with subset', function () {
         ].forEach(({ operator, nOperator }) => {
           const accumulator = operator.replace(/^\$/, '');
 
-          it(`${accumulator} with n = 1`, function () {
-            setSelectValue(/select accumulator/i, accumulator);
-            setMultiSelectComboboxValues(/select project field names/i, [
+          it(`${accumulator} with n = 1`, async function () {
+            await setSelectValue(/select accumulator/i, accumulator);
+            await setMultiSelectComboboxValues(/select project field names/i, [
               'address',
               'street',
             ]);
-            setMultiSelectComboboxValues(/select group field names/i, [
+            await setMultiSelectComboboxValues(/select group field names/i, [
               'street',
             ]);
             setInputElementValueByTestId('number-of-records-input', '1');
@@ -180,13 +180,13 @@ describe('group with subset', function () {
             expect(onChange.lastCall.args[1]).to.be.null;
           });
 
-          it(`${accumulator} with n > 1`, function () {
-            setSelectValue(/select accumulator/i, accumulator);
-            setMultiSelectComboboxValues(/select project field names/i, [
+          it(`${accumulator} with n > 1`, async function () {
+            await setSelectValue(/select accumulator/i, accumulator);
+            await setMultiSelectComboboxValues(/select project field names/i, [
               'address',
               'street',
             ]);
-            setMultiSelectComboboxValues(/select group field names/i, [
+            await setMultiSelectComboboxValues(/select group field names/i, [
               'street',
             ]);
             setInputElementValueByTestId('number-of-records-input', '2');
@@ -222,16 +222,16 @@ describe('group with subset', function () {
         ].forEach(({ operator, nOperator }) => {
           const accumulator = operator.replace(/^\$/, '');
 
-          it(`${accumulator} with n = 1`, function () {
-            setSelectValue(/select accumulator/i, accumulator);
-            setMultiSelectComboboxValues(/select project field names/i, [
+          it(`${accumulator} with n = 1`, async function () {
+            await setSelectValue(/select accumulator/i, accumulator);
+            await setMultiSelectComboboxValues(/select project field names/i, [
               'address',
               'street',
             ]);
-            setMultiSelectComboboxValues(/select group field names/i, [
+            await setMultiSelectComboboxValues(/select group field names/i, [
               'street',
             ]);
-            setMultiSelectComboboxValues(/select sort field names/i, [
+            await setMultiSelectComboboxValues(/select sort field names/i, [
               'address',
             ]);
 
@@ -255,16 +255,16 @@ describe('group with subset', function () {
             expect(onChange.lastCall.args[1]).to.be.null;
           });
 
-          it(`${accumulator} with n > 1`, function () {
-            setSelectValue(/select accumulator/i, accumulator);
-            setMultiSelectComboboxValues(/select project field names/i, [
+          it(`${accumulator} with n > 1`, async function () {
+            await setSelectValue(/select accumulator/i, accumulator);
+            await setMultiSelectComboboxValues(/select project field names/i, [
               'address',
               'street',
             ]);
-            setMultiSelectComboboxValues(/select group field names/i, [
+            await setMultiSelectComboboxValues(/select group field names/i, [
               'street',
             ]);
-            setMultiSelectComboboxValues(/select sort field names/i, [
+            await setMultiSelectComboboxValues(/select sort field names/i, [
               'address',
             ]);
 
@@ -307,12 +307,14 @@ describe('group with subset', function () {
       });
       ['$first', '$last'].forEach((accumulator) => {
         const name = accumulator.replace(/^\$/, '');
-        it(accumulator, function () {
-          setSelectValue(/select accumulator/i, name);
-          setMultiSelectComboboxValues(/select project field names/i, [
+        it(accumulator, async function () {
+          await setSelectValue(/select accumulator/i, name);
+          await setMultiSelectComboboxValues(/select project field names/i, [
             'street',
           ]);
-          setMultiSelectComboboxValues(/select group field names/i, ['name']);
+          await setMultiSelectComboboxValues(/select group field names/i, [
+            'name',
+          ]);
           expect(onChange.lastCall.args[0]).to.equal(
             JSON.stringify({
               _id: '$name',

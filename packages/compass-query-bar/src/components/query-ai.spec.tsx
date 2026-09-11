@@ -61,13 +61,11 @@ describe('QueryAI Component', function () {
       // TODO(COMPASS-7415): use default values instead of updating values
       <PreferencesProvider value={preferences}>
         <LoggerProvider
-          value={
-            {
-              createLogger() {
-                return createNoopLogger();
-              },
-            } as any
-          }
+          value={{
+            createLogger() {
+              return createNoopLogger();
+            },
+          }}
         >
           <TelemetryProvider
             options={{
@@ -118,12 +116,12 @@ describe('QueryAI Component', function () {
       store.dispatch(changeAIPromptText('test'));
     });
 
-    it('calls to clear the text when the X is clicked', function () {
+    it('calls to clear the text when the X is clicked', async function () {
       expect(store.getState().aiQuery.aiPromptText).to.equal('test');
 
-      const clearTextButton = screen.getByTestId('ai-text-clear-prompt');
+      const clearTextButton = await screen.findByTestId('ai-text-clear-prompt');
       expect(clearTextButton).to.be.visible;
-      clearTextButton.click();
+      userEvent.click(clearTextButton);
 
       expect(store.getState().aiQuery.aiPromptText).to.equal('');
     });
@@ -149,15 +147,15 @@ describe('QueryAI Component', function () {
         });
 
         expect(screen.queryByTestId(feedbackPopoverTextAreaId)).to.not.exist;
-        const thumbsUpButton = screen.getByTestId(thumbsUpId);
+        const thumbsUpButton = await screen.findByTestId(thumbsUpId);
         expect(thumbsUpButton).to.be.visible;
-        thumbsUpButton.click();
+        userEvent.click(thumbsUpButton);
 
-        const textArea = screen.getByTestId(feedbackPopoverTextAreaId);
+        const textArea = await screen.findByTestId(feedbackPopoverTextAreaId);
         expect(textArea).to.be.visible;
         userEvent.type(textArea, 'this is the query I was looking for');
 
-        screen.getByText('Submit').click();
+        userEvent.click(screen.getByText('Submit'));
 
         await waitFor(
           () => {

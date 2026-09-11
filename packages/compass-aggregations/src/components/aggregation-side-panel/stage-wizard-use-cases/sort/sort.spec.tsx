@@ -69,7 +69,7 @@ describe('sort', function () {
   describe('when add button is clicked', function () {
     let sortFormItems: HTMLElement[] = [];
     let onChange: sinon.SinonSpy;
-    beforeEach(function () {
+    beforeEach(async function () {
       onChange = sinon.spy();
       renderSortForm({ onChange });
       const addButton = screen.getByRole('button', {
@@ -79,19 +79,19 @@ describe('sort', function () {
       expect(screen.getByTestId('sort-form-1')).to.exist;
       sortFormItems = screen.getAllByTestId(/sort-form-\d+$/);
 
-      setComboboxValue(
+      await setComboboxValue(
         new RegExp(SINGLE_SELECT_LABEL, 'i'),
         'street',
         sortFormItems[0]
       );
-      setSelectValue(/select direction/i, 'asc', sortFormItems[0]);
+      await setSelectValue(/select direction/i, 'asc', sortFormItems[0]);
 
-      setComboboxValue(
+      await setComboboxValue(
         new RegExp(SINGLE_SELECT_LABEL, 'i'),
         'zip',
         sortFormItems[1]
       );
-      setSelectValue(/select direction/i, 'desc', sortFormItems[1]);
+      await setSelectValue(/select direction/i, 'desc', sortFormItems[1]);
     });
 
     it('renders labels for each sort field', function () {
@@ -119,7 +119,7 @@ describe('sort', function () {
       expect(selectButtons[1].getAttribute('value')).to.equal('Desc');
     });
 
-    it('renders add button for each sort field', function () {
+    it('renders add button for each sort field', async function () {
       const addButtons = sortFormItems.map((sortForm) => {
         return within(sortForm).getByRole('button', {
           name: /add/i,
@@ -133,12 +133,12 @@ describe('sort', function () {
       // We added a new item after index 0
       const addedSortItem = screen.getByTestId('sort-form-1');
 
-      setComboboxValue(
+      await setComboboxValue(
         new RegExp(SINGLE_SELECT_LABEL, 'i'),
         'city',
         addedSortItem
       );
-      setSelectValue(/select direction/i, 'desc', addedSortItem);
+      await setSelectValue(/select direction/i, 'desc', addedSortItem);
 
       expect(onChange.lastCall.args[0]).to.equal(
         JSON.stringify({

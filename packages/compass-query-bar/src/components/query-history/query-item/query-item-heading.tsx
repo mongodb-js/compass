@@ -27,6 +27,7 @@ const childrenHoveredStyles = css({
 export const QueryItemHeading: React.FunctionComponent<{
   title: string;
   isHovered: boolean;
+  children?: React.ReactNode;
 }> = ({ title, isHovered, children }) => {
   return (
     <div

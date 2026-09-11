@@ -47,7 +47,7 @@ function CreateIndexModal({
   const track = useTelemetry();
 
   const onSetOpen = useCallback(
-    (open) => {
+    (open: boolean) => {
       if (!open) {
         onCancelCreateIndexClick();
         track('Create Index Modal Closed', {

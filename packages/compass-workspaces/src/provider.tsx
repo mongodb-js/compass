@@ -230,6 +230,7 @@ const WorkspacesServiceContext = React.createContext<WorkspacesServiceImpl>(
 
 export const WorkspacesServiceProvider: React.FunctionComponent<{
   value?: WorkspacesService;
+  children?: React.ReactNode;
 }> = ({ value, children }) => {
   // We're breaking React rules of hooks here, but this is unavoidable to allow
   // for testing components using this service. In reality this will never be a
@@ -379,10 +380,8 @@ export function useActiveWorkspace() {
   return service.getActiveWorkspace();
 }
 
-export const workspacesServiceLocator = createServiceLocator(
-  useWorkspacesService as () => WorkspacesService,
-  'workspacesServiceLocator'
-);
+export const workspacesServiceLocator: () => WorkspacesService =
+  createServiceLocator(useWorkspacesService, 'workspacesServiceLocator');
 
 export { useWorkspacePlugins } from './components/workspaces-provider';
 export {

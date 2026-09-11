@@ -179,12 +179,16 @@ describe('CompassIndexesPlugin', function () {
 
     result.plugin.store.dispatch(indexCreationStarted(inProgressIndex));
 
-    expect(screen.getByTestId('indexes-row-test_index')).to.exist;
+    await waitFor(() => {
+      expect(screen.getByTestId('indexes-row-test_index')).to.exist;
+    });
 
     /** Timeout check "fired" before index was returned from the API, index is removed */
 
     result.plugin.store.dispatch(rollingIndexTimeoutCheck('test'));
 
-    expect(() => screen.getByTestId('indexes-row-test_index')).to.throw();
+    await waitFor(() => {
+      expect(screen.queryByTestId('indexes-row-test_index')).to.not.exist;
+    });
   });
 });

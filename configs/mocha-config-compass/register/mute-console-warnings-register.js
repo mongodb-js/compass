@@ -11,7 +11,6 @@ const ignoreLeafygreenWarnings = [
     /./,
     /@leafygreen-ui\/(tooltip|toast)/,
   ],
-  /react-16-node-hanging-test-fix/,
 ];
 
 const console = globalThis.console;

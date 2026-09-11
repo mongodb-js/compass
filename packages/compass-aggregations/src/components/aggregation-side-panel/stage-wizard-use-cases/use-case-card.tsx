@@ -58,7 +58,7 @@ export const UseCaseCardLayout = React.forwardRef(function UseCaseCardLayout(
   ref: React.ForwardedRef<HTMLDivElement>
 ) {
   const handleKeyDown = useCallback(
-    (event) => {
+    (event: React.KeyboardEvent<HTMLDivElement>) => {
       if (event.key === 'Enter' || event.code === 'Enter') {
         onSelect?.();
       }

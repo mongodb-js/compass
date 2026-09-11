@@ -15,7 +15,7 @@ export class BaseCompassPipelineStorage<TSchema extends z.Schema>
   async loadAll(): Promise<SavedPipeline[]> {
     try {
       const { data } = await this.userData.readAll();
-      return data as SavedPipeline[];
+      return data;
     } catch {
       return [];
     }

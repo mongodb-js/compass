@@ -92,10 +92,7 @@ const ProjectForm = ({ fields, onChange }: WizardComponentProps) => {
           aria-label={SELECT_PLACEHOLDER_TEXT}
           value={projectFormState.projectionType}
           onChange={(value) =>
-            handleProjectFormStateChange(
-              'projectionType',
-              value as ProjectionType
-            )
+            handleProjectFormStateChange('projectionType', value)
           }
         >
           <Option value="include">Include</Option>

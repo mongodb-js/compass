@@ -29,7 +29,7 @@ describe('is-view-search-compatible', function () {
     ) {
       const collection = createMockCollectionWithPipeline(pipeline);
       const store = setupStore(options, {}, { collection });
-      const wrapper = ({ children }: { children: React.ReactNode }) =>
+      const wrapper = ({ children }: { children?: React.ReactNode }) =>
         React.createElement(Provider, { store, children });
 
       const { result } = renderHook(

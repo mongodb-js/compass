@@ -865,7 +865,6 @@ export const generateFakerMappings = (): CollectionThunkAction<
       logger,
       atlasAiService,
       preferences,
-      connectionInfoRef,
       fakerSchemaGenerationAbortControllerRef,
     }
   ) => {
@@ -917,8 +916,7 @@ export const generateFakerMappings = (): CollectionThunkAction<
       };
 
       const response = await atlasAiService.getMockDataSchema(
-        mockDataSchemaRequest,
-        connectionInfoRef.current
+        mockDataSchemaRequest
       );
 
       // Transform to keyed object structure

@@ -127,8 +127,10 @@ describe('Databasees [Plugin]', function () {
         topologyDescription: { type: 'Unknown' },
       });
 
-      expect(screen.queryByRole('button', { name: /Create database/ })).to.not
-        .exist;
+      await waitFor(() => {
+        expect(screen.queryByRole('button', { name: /Create database/ })).to.not
+          .exist;
+      });
     });
   });
 });
