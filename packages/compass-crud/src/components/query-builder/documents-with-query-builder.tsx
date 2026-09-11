@@ -22,9 +22,9 @@ import {
 import {
   MAX_BUILDER_WIDTH,
   MIN_BUILDER_WIDTH,
-  loadBuilderState,
+  loadBuilderSession,
   mirrorBuilderWidth,
-  saveBuilderState,
+  saveBuilderSession,
 } from './builder-session';
 
 const DEFAULT_BUILDER_WIDTH = 460;
@@ -104,13 +104,21 @@ export const DocumentsWithQueryBuilder: React.FunctionComponent<DocumentListProp
   const darkMode = useDarkMode();
   const { store } = props;
   const namespace = store.state.ns;
+  // Read once, on mount. A collection opened before in this session comes back
+  // the way it was left: same rows, same panel, same width.
+  const [saved] = useState(() => loadBuilderSession(namespace));
   const [builderState, setBuilderState] = useState<BuilderState>(
-    () => loadBuilderState(namespace) ?? EMPTY_BUILDER_STATE
+    saved?.state ?? EMPTY_BUILDER_STATE
   );
-  const [builderWidth, setBuilderWidth] = useState(DEFAULT_BUILDER_WIDTH);
+  const [builderWidth, setBuilderWidth] = useState(
+    saved?.width ?? DEFAULT_BUILDER_WIDTH
+  );
   // Collapsed until asked for: this is the documents view, and it should look
-  // and behave exactly as it always has for anyone not using the builder.
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  // and behave exactly as it always has for anyone not using the builder. Once
+  // it has been opened for a collection, it opens that way again.
+  const [isCollapsed, setIsCollapsed] = useState(
+    saved ? !saved.isExpanded : true
+  );
 
   const compiled = useMemo(
     () => compileBuilderState(builderState),
@@ -137,11 +145,15 @@ export const DocumentsWithQueryBuilder: React.FunctionComponent<DocumentListProp
     store.queryBar.setQuery(compiledQueryToAppliedQuery(compiled));
   }, [compiled, store, isCollapsed, builderHasRows]);
 
-  // Switching collections unmounts this view, so the rows are kept per
-  // collection and restored when it is opened again.
+  // Switching collections unmounts this view, so everything the panel looked
+  // like is kept per collection and restored when it is opened again.
   useEffect(() => {
-    saveBuilderState(namespace, builderState);
-  }, [namespace, builderState]);
+    saveBuilderSession(namespace, {
+      state: builderState,
+      isExpanded: !isCollapsed,
+      width: builderWidth,
+    });
+  }, [namespace, builderState, isCollapsed, builderWidth]);
 
   const onRun = useCallback(() => {
     // Every property is sent on every run, using undefined for the ones the

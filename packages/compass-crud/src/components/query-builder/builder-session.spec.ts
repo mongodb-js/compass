@@ -3,9 +3,9 @@ import {
   MAX_BUILDER_WIDTH,
   MIN_BUILDER_WIDTH,
   clearAllBuilderState,
-  loadBuilderState,
+  loadBuilderSession,
   mirrorBuilderWidth,
-  saveBuilderState,
+  saveBuilderSession,
 } from './builder-session';
 import { EMPTY_BUILDER_STATE } from './builder-query';
 
@@ -55,53 +55,71 @@ describe('builder-session', function () {
     });
   });
 
-  describe('per collection builder state', function () {
+  describe('per collection panel session', function () {
+    const panel = (over = {}) => ({
+      state: EMPTY_BUILDER_STATE,
+      isExpanded: false,
+      width: 460,
+      ...over,
+    });
+
     beforeEach(function () {
       clearAllBuilderState();
     });
 
     it('has nothing for a collection that was never opened', function () {
-      expect(loadBuilderState('shop.orders')).to.equal(undefined);
+      // Which is what keeps the panel collapsed the first time.
+      expect(loadBuilderSession('shop.orders')).to.equal(undefined);
     });
 
     it('gives a collection its own rows back', function () {
-      const state = {
-        ...EMPTY_BUILDER_STATE,
-        conditions: [
-          {
-            id: 'c1',
-            field: 'status',
-            operator: 'eq' as const,
-            valueText: "'shipped'",
-            enabled: true,
+      saveBuilderSession(
+        'shop.orders',
+        panel({
+          state: {
+            ...EMPTY_BUILDER_STATE,
+            conditions: [
+              {
+                id: 'c1',
+                field: 'status',
+                operator: 'eq' as const,
+                valueText: "'shipped'",
+                enabled: true,
+              },
+            ],
           },
-        ],
-      };
+        })
+      );
 
-      saveBuilderState('shop.orders', state);
-
-      expect(loadBuilderState('shop.orders')?.conditions).to.have.lengthOf(1);
+      expect(
+        loadBuilderSession('shop.orders')?.state.conditions
+      ).to.have.lengthOf(1);
     });
 
-    it('keeps collections apart', function () {
-      saveBuilderState('shop.orders', {
-        ...EMPTY_BUILDER_STATE,
-        skip: '10',
-      });
-      saveBuilderState('shop.customers', {
-        ...EMPTY_BUILDER_STATE,
-        skip: '99',
-      });
-
-      expect(loadBuilderState('shop.orders')?.skip).to.equal('10');
-      expect(loadBuilderState('shop.customers')?.skip).to.equal('99');
+    it('remembers that the panel was left open', function () {
+      saveBuilderSession('shop.orders', panel({ isExpanded: true }));
+      expect(loadBuilderSession('shop.orders')?.isExpanded).to.equal(true);
     });
 
-    it('replaces the rows for a collection when they change', function () {
-      saveBuilderState('shop.orders', { ...EMPTY_BUILDER_STATE, limit: '25' });
-      saveBuilderState('shop.orders', { ...EMPTY_BUILDER_STATE, limit: '50' });
+    it('remembers how wide the panel was', function () {
+      saveBuilderSession('shop.orders', panel({ width: 720 }));
+      expect(loadBuilderSession('shop.orders')?.width).to.equal(720);
+    });
 
-      expect(loadBuilderState('shop.orders')?.limit).to.equal('50');
+    it('keeps collections apart, including whether each was open', function () {
+      saveBuilderSession('shop.orders', panel({ isExpanded: true, width: 700 }));
+      saveBuilderSession('shop.customers', panel({ isExpanded: false }));
+
+      expect(loadBuilderSession('shop.orders')?.isExpanded).to.equal(true);
+      expect(loadBuilderSession('shop.orders')?.width).to.equal(700);
+      expect(loadBuilderSession('shop.customers')?.isExpanded).to.equal(false);
+    });
+
+    it('replaces what it holds for a collection when it changes', function () {
+      saveBuilderSession('shop.orders', panel({ isExpanded: true }));
+      saveBuilderSession('shop.orders', panel({ isExpanded: false }));
+
+      expect(loadBuilderSession('shop.orders')?.isExpanded).to.equal(false);
     });
   });
 });

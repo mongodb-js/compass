@@ -22,23 +22,37 @@ export function mirrorBuilderWidth(width: number): number {
 }
 
 /**
- * Builder rows, kept per collection for the life of the session.
+ * What the panel looked like for a collection, kept for the life of the
+ * session: its rows, whether it was open, and how wide it was.
  *
- * Switching collections unmounts the tab and coming back mounts a new one, so
+ * Switching collections unmounts the view and coming back mounts a new one, so
  * anything held in component state is lost. Keying by namespace means each
- * collection keeps its own query rather than sharing one set or starting over.
+ * collection keeps its own query and its own panel, rather than sharing one or
+ * starting over. A collection that has never been opened has no entry, which is
+ * what keeps the panel collapsed until it is asked for the first time.
  */
-const builderStateByNamespace = new Map<string, BuilderState>();
+export type BuilderSession = {
+  state: BuilderState;
+  isExpanded: boolean;
+  width: number;
+};
 
-export function loadBuilderState(namespace: string): BuilderState | undefined {
-  return builderStateByNamespace.get(namespace);
+const sessionsByNamespace = new Map<string, BuilderSession>();
+
+export function loadBuilderSession(
+  namespace: string
+): BuilderSession | undefined {
+  return sessionsByNamespace.get(namespace);
 }
 
-export function saveBuilderState(namespace: string, state: BuilderState): void {
-  builderStateByNamespace.set(namespace, state);
+export function saveBuilderSession(
+  namespace: string,
+  session: BuilderSession
+): void {
+  sessionsByNamespace.set(namespace, session);
 }
 
 /** Exported for tests, which need to start from a known state. */
 export function clearAllBuilderState(): void {
-  builderStateByNamespace.clear();
+  sessionsByNamespace.clear();
 }
