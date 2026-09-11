@@ -43,6 +43,7 @@ import {
   stopChat,
 } from '../utils';
 import { AtlasConnectionStatus } from './atlas-connection-status';
+import { TOOL_DENIAL_REASONS } from '../prompts';
 
 const { ChatWindow } = LgChatChatWindow;
 const { LeafyGreenChatProvider } = LgChatLeafygreenChatProvider;
@@ -414,6 +415,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
             void addToolApprovalResponse({
               id: part.approval.id,
               approved: false,
+              reason: TOOL_DENIAL_REASONS.toolCallingDisabled,
             });
           }
         }
@@ -548,15 +550,18 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       type,
       approvalId,
       approved,
+      reason,
     }: {
       message: AssistantMessage;
       type: string;
       approvalId: string;
       approved: boolean;
+      reason?: string;
     }) => {
       void addToolApprovalResponse({
         id: approvalId,
         approved,
+        reason,
       });
 
       track(
@@ -691,20 +696,21 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                           <AtlasToolCallMessage
                             key={`${toolCallId}-${index}`}
                             toolCall={toolCall}
-                            onApprove={(approvalId, approved) =>
+                            onApprove={(approvalId) =>
                               handleToolApproval({
                                 message,
                                 type: toolCall.type,
                                 approvalId,
-                                approved,
+                                approved: true,
                               })
                             }
-                            onDeny={(approvalId) =>
+                            onDeny={(approvalId, reason) =>
                               handleToolApproval({
                                 message,
                                 type: toolCall.type,
                                 approvalId,
                                 approved: false,
+                                reason,
                               })
                             }
                           />
@@ -730,6 +736,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
                               type: toolCall.type,
                               approvalId,
                               approved: false,
+                              reason: TOOL_DENIAL_REASONS.userDenied,
                             })
                           }
                         />
