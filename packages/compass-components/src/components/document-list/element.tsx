@@ -315,6 +315,13 @@ const elementKey = css({
   maxWidth: '60%',
 });
 
+const elementKeyDraggable = css({
+  cursor: 'grab',
+  '&:active': {
+    cursor: 'grabbing',
+  },
+});
+
 const elementKeyInternal = css({
   color: palette.gray.base,
 });
@@ -546,6 +553,23 @@ export const HadronElement: React.FunctionComponent<{
     [element, key.value, value.value, type.value, onUpdateQuery, isFieldInQuery]
   );
 
+  // Dragging a field name puts "field: value" on the drag data, so it can be
+  // dropped into the query bar, an aggregation stage, or any editor outside
+  // Compass. The payload is deliberately identical to the "Copy field & value"
+  // context menu action, which remains the keyboard accessible way to do this.
+  const onKeyDragStart = useCallback(
+    (evt: React.DragEvent<HTMLDivElement>) => {
+      // The row toggles expansion on click; dragging a field is not that.
+      evt.stopPropagation();
+      evt.dataTransfer.effectAllowed = 'copy';
+      evt.dataTransfer.setData(
+        'text/plain',
+        `${key.value}: ${element.toShellSyntax()}`
+      );
+    },
+    [element, key.value]
+  );
+
   const toggleExpanded = () => {
     if (expanded) {
       collapse();
@@ -611,11 +635,16 @@ export const HadronElement: React.FunctionComponent<{
     onClick: toggleExpanded,
   };
 
+  // While editing, the key is a text input and dragging it would fight with
+  // selecting the text inside it.
+  const keyDraggable = !editingEnabled;
+
   const keyProps = {
     className: cx(
       elementKey,
       internal && elementKeyInternal,
-      darkMode && elementKeyDarkMode
+      darkMode && elementKeyDarkMode,
+      keyDraggable && elementKeyDraggable
     ),
   };
 
@@ -722,7 +751,12 @@ export const HadronElement: React.FunctionComponent<{
             </button>
           )}
         </div>
-        <div {...keyProps} data-testid="hadron-document-element-key">
+        <div
+          {...keyProps}
+          data-testid="hadron-document-element-key"
+          draggable={keyDraggable}
+          onDragStart={keyDraggable ? onKeyDragStart : undefined}
+        >
           {key.editable ? (
             <KeyEditor
               value={key.value}
