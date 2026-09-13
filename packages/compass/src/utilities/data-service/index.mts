@@ -25,7 +25,7 @@ type MainArgs = {
 export async function main({ parentPort }: MainArgs): Promise<void> {
   setInterval(() => {
     // eslint-disable-next-line no-console
-    console.log(new Date(), 'hello from utility');
+    // console.log(new Date(), 'hello from utility');
   }, 5000);
 
   const dataServices = new Map<MessagePortMain, DataServiceUtility>();
@@ -36,8 +36,14 @@ export async function main({ parentPort }: MainArgs): Promise<void> {
       data,
       ports: [port],
     } = message as Electron.MessageEvent;
-    const { connectionOptions } = data;
-    dataServices.set(port, new DataServiceUtility({ port }, connectionOptions));
+    const { connectionOptions, id } = data;
+    dataServices.set(
+      port,
+      new DataServiceUtility(
+        { id, port, onClose: () => void dataServices.delete(port) },
+        connectionOptions
+      )
+    );
   }
 }
 
