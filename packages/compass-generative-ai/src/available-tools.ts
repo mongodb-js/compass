@@ -68,10 +68,10 @@ export const READ_ONLY_DATABASE_TOOLS: ToolDefinition[] = [
 ];
 
 export const getAvailableTools = ({
-  enableAtlasConnectionErrorDebugger,
+  enableAtlasConnectionErrorDebuggerTool,
 }: Pick<
   AllPreferences,
-  'enableAtlasConnectionErrorDebugger'
+  'enableAtlasConnectionErrorDebuggerTool'
 >): ToolDefinition[] => {
   const tools = [
     ...READ_ONLY_DATABASE_TOOLS,
@@ -85,7 +85,7 @@ export const getAvailableTools = ({
       readonly: true,
       description: 'Get the current pipeline from the aggregation builder.',
     },
-    ...(enableAtlasConnectionErrorDebugger
+    ...(enableAtlasConnectionErrorDebuggerTool
       ? [
           {
             name: 'atlas-connection-error-debugger',
@@ -105,7 +105,7 @@ export function doesToolUseConnection(toolName: string): boolean {
 
 export function isReadOnlyTool(toolName: string): boolean {
   return (
-    getAvailableTools({ enableAtlasConnectionErrorDebugger: true }).find(
+    getAvailableTools({ enableAtlasConnectionErrorDebuggerTool: true }).find(
       (tool) => tool.name === toolName
     )?.readonly || false
   );

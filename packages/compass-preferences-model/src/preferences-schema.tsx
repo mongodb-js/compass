@@ -91,7 +91,7 @@ export type UserConfigurablePreferences = PermanentFeatureFlags &
     enableShowDialogOnQuit: boolean;
     enableCreatingNewConnections: boolean;
     enableAssistantConnectionDebugging: boolean;
-    enableAtlasConnectionErrorDebugger: boolean;
+    enableAtlasConnectionErrorDebuggerTool: boolean;
     proxy: string;
     inferNamespacesFromPrivileges?: boolean;
     // Features that are enabled by default in Date Explorer, but are disabled in Compass
@@ -1131,7 +1131,7 @@ export const storedUserPreferencesProps: Required<{
     type: 'boolean',
   },
 
-  enableAtlasConnectionErrorDebugger: {
+  enableAtlasConnectionErrorDebuggerTool: {
     ui: true,
     exposedInSettingsUI: ['desktop'],
     cli: true,
@@ -1140,7 +1140,7 @@ export const storedUserPreferencesProps: Required<{
       short: 'Enable Atlas Connection Error Debugger',
     },
     deriveValue: deriveValueDependingOnAtlasSignIn(
-      'enableAtlasConnectionErrorDebugger'
+      'enableAtlasConnectionErrorDebuggerTool'
     ),
     validator: z.boolean().default(true),
     type: 'boolean',
@@ -1178,7 +1178,7 @@ export const storedUserPreferencesProps: Required<{
       long: 'Allow users to sign in to their Atlas account and access their clusters and data.',
     },
     omitFromHelp: (preferences) =>
-      !preferences.enableAtlasConnectionErrorDebugger,
+      !preferences.enableAtlasConnectionErrorDebuggerTool,
     validator: z.boolean().default(true),
     type: 'boolean',
   },

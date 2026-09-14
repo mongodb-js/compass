@@ -187,10 +187,12 @@ describe('Preferences class', function () {
     });
 
     const result = preferences.getPreferences();
-    expect(result.enableAtlasConnectionErrorDebugger).to.equal(false);
+    expect(result.enableAtlasConnectionErrorDebuggerTool).to.equal(false);
 
     const states = preferences.getPreferenceStates();
-    expect(states.enableAtlasConnectionErrorDebugger).to.equal('set-global');
+    expect(states.enableAtlasConnectionErrorDebuggerTool).to.equal(
+      'set-global'
+    );
   });
 
   it('keeps the Atlas connection error debugger enabled when Atlas sign in is allowed', async function () {
@@ -201,10 +203,10 @@ describe('Preferences class', function () {
     });
 
     const result = preferences.getPreferences();
-    expect(result.enableAtlasConnectionErrorDebugger).to.equal(true);
+    expect(result.enableAtlasConnectionErrorDebuggerTool).to.equal(true);
 
     const states = preferences.getPreferenceStates();
-    expect(states.enableAtlasConnectionErrorDebugger).to.equal(undefined);
+    expect(states.enableAtlasConnectionErrorDebuggerTool).to.equal(undefined);
   });
 
   it('allows providing false options that should not influence the values of other options', async function () {
