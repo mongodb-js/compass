@@ -64,6 +64,7 @@
     "@babel/runtime": "^7.29.7",
     "@cerner/duplicate-package-checker-webpack-plugin": "^2.1.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
+    "@smithy/core": "^3.31.1",
     "babel-loader": "^8.2.5",
     "babel-plugin-istanbul": "^5.2.0",
     "browserslist": "^4.28.8",

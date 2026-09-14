@@ -774,20 +774,30 @@ describe('useFilteredConnections', function () {
 
     context('and filter is removed', function () {
       it('should revert the temporarily expanded state', async function () {
-        const { result, rerender } = renderHookWithContext(
-          useFilteredConnections,
+        // Annotated so the `rerender` below can pass `null` for the regex
+        const mockFilterRegex = new RegExp('coll_ready_1_1', 'i');
+        const { result, rerender } = renderHookWithContext<
           {
-            initialProps: {
-              connections: mockSidebarConnections,
-              filter: {
-                regex: new RegExp('coll_ready_1_1', 'i') as RegExp | null,
-                excludeInactive: false,
-              },
-              fetchAllCollections: fetchAllCollectionsStub,
-              onDatabaseExpand: onDatabaseExpandStub,
+            connections: SidebarConnection[];
+            filter: {
+              regex: RegExp | null;
+              excludeInactive: boolean;
+            };
+            fetchAllCollections: Sinon.SinonStub;
+            onDatabaseExpand: Sinon.SinonStub;
+          },
+          ReturnType<typeof useFilteredConnections>
+        >(useFilteredConnections, {
+          initialProps: {
+            connections: mockSidebarConnections,
+            filter: {
+              regex: mockFilterRegex,
+              excludeInactive: false,
             },
-          }
-        );
+            fetchAllCollections: fetchAllCollectionsStub,
+            onDatabaseExpand: onDatabaseExpandStub,
+          },
+        });
         await waitFor(() => {
           expect(result.current.expanded).to.deep.equal({
             connected_connection_1: {

@@ -192,7 +192,7 @@ describe('executionStatsToTreeData', function () {
 
   it('should return undefined when given invalid execution stats', function () {
     const executionStats = {};
-    const treeData = executionStatsToTreeData(executionStats as any);
+    const treeData = executionStatsToTreeData(executionStats);
     expect(treeData).to.be.undefined;
   });
 });

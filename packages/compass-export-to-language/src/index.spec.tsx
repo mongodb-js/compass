@@ -27,7 +27,7 @@ const allTypesPrettyStr = prettify(
 ).replace(/\n/g, '');
 
 describe('ExportToLanguagePlugin', function () {
-  const dataService = {
+  const dataService: any = {
     getConnectionString() {
       return Object.assign(new URL('mongodb://localhost:27020'), {
         clone() {
@@ -36,9 +36,8 @@ describe('ExportToLanguagePlugin', function () {
       });
     },
   };
-  const Plugin = ExportToLanguagePlugin.withMockServices({
-    dataService: dataService as any,
-  });
+
+  const Plugin = ExportToLanguagePlugin.withMockServices({ dataService });
 
   describe('on `open-query-export-to-language` event', function () {
     it('should show query export to language modal', function () {

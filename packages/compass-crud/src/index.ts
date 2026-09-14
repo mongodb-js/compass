@@ -12,7 +12,6 @@ import {
   connectionInfoRefLocator,
   connectionScopedAppRegistryLocator,
   dataServiceLocator,
-  type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 import type {
   OptionalDataServiceProps,
@@ -50,7 +49,7 @@ const CompassDocumentsPluginProvider = registerCompassPlugin(
     activate: activateDocumentsPlugin,
   },
   {
-    dataService: dataServiceLocator as DataServiceLocator<
+    dataService: dataServiceLocator<
       RequiredDataServiceProps,
       OptionalDataServiceProps
     >,

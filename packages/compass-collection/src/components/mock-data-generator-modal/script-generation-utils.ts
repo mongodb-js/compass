@@ -583,7 +583,7 @@ export function formatFakerArgs(fakerArgs: FakerArg[]): string {
       stringifiedArgs.push(`${arg}`);
     } else if (typeof arg === 'object' && arg !== null && 'json' in arg) {
       // Pre-serialized JSON objects
-      const jsonArg = arg as { json: string };
+      const jsonArg = arg;
       stringifiedArgs.push(jsonArg.json);
     } else {
       throw new Error(
@@ -712,7 +712,7 @@ function prepareFakerArgs(fakerArgs: FakerArg[]): unknown[] {
     } else if (typeof arg === 'object' && arg !== null && 'json' in arg) {
       // Parse JSON objects
       try {
-        const jsonArg = arg as { json: string };
+        const jsonArg = arg;
         preparedArgs.push(JSON.parse(jsonArg.json));
       } catch {
         // Skip invalid JSON

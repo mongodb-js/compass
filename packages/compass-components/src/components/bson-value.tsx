@@ -18,23 +18,51 @@ import {
 import { useBSONDisplayOptions } from './document-list/bson-display-options-context';
 import { DateWithTimezoneHint } from './document-list/date-with-timezone-hint';
 
-type ValueProps =
-  | {
-      [type in keyof TypeCastMap]: { type: type; value: TypeCastMap[type] };
-    }[keyof TypeCastMap]
-  | { type: 'DBRef'; value: DBRef };
+type ValueTypeMap = TypeCastMap & { DBRef: DBRef };
+
+type ValueTypes = keyof ValueTypeMap;
+
+/**
+ * ValueProps external interface is meant to provide a correlation between type
+ * and the type of value.
+ *
+ * So `T` is used to capture the type name and pick the corresponding type
+ * out of ValueTypeMap.
+ *
+ * @example
+ * ```ts
+ * function x<T extends ValueTypes>(props: ValueProps<T>) {}
+ * x({ type: 'String', value: 'example' });
+ * x({ type: 'Decimal128', value: 'test' }); // Error
+ * ```
+ */
+type ValueProps<T extends ValueTypes = ValueTypes> = {
+  type: T;
+  value: ValueTypeMap[T];
+};
+
+/**
+ * Once the props are inside the component, `type` should
+ * be able to provide narrowing to select the type of value.
+ * This requires a discriminated union of each possible combination of
+ * type name and value type.
+ *
+ * ex.
+ * DiscriminatedValueProps =
+ *   | { type: 'String', value: string }
+ *   | { type: 'Date', value: Date } ... etc.
+ */
+type DiscriminatedValueProps = { [T in ValueTypes]: ValueProps<T> }[ValueTypes];
+
+type PropsByValueType<V extends ValueTypes> = Omit<
+  Extract<DiscriminatedValueProps, { type: V }>,
+  'type'
+>;
 
 function truncate(str: string, length = 70): string {
   const truncated = str.slice(0, length);
   return length < str.length ? `${truncated}…` : str;
 }
-
-type ValueTypes = ValueProps['type'];
-
-type PropsByValueType<V extends ValueTypes> = Omit<
-  Extract<ValueProps, { type: V }>,
-  'type'
->;
 
 const bsonValue = css({
   whiteSpace: 'nowrap',
@@ -518,7 +546,8 @@ const ObjectValue: React.FunctionComponent<PropsByValueType<'Object'>> = ({
   );
 };
 
-const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
+function BSONValue<T extends ValueTypes>(genericProps: ValueProps<T>) {
+  const props = genericProps as DiscriminatedValueProps;
   switch (props.type) {
     case 'ObjectId':
       return <ObjectIdValue value={props.value}></ObjectIdValue>;
@@ -570,6 +599,6 @@ const BSONValue: React.FunctionComponent<ValueProps> = (props) => {
         <UnknownValue type={props.type} value={props.value}></UnknownValue>
       );
   }
-};
+}
 
 export default BSONValue;

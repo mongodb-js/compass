@@ -269,7 +269,7 @@ class CellEditor
        */
     }
     this.props.api.refreshCells({
-      rowNodes: [this.props.node as RowNode],
+      rowNodes: [this.props.node],
       force: true,
     });
     return false;

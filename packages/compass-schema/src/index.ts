@@ -2,7 +2,6 @@ import React from 'react';
 import {
   connectionInfoRefLocator,
   dataServiceLocator,
-  type DataServiceLocator,
 } from '@mongodb-js/compass-connections/provider';
 
 import CompassSchema from './components/compass-schema';
@@ -32,8 +31,7 @@ const CompassSchemaPluginProvider = registerCompassPlugin(
     activate: activateSchemaPlugin,
   },
   {
-    dataService:
-      dataServiceLocator as DataServiceLocator<RequiredDataServiceProps>,
+    dataService: dataServiceLocator<RequiredDataServiceProps>,
     logger: createLoggerLocator('COMPASS-SCHEMA-UI'),
     track: telemetryLocator,
     preferences: preferencesLocator,
