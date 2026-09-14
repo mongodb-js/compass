@@ -6,6 +6,10 @@ const { getProperties } = require('./collection-properties');
 
 const NamespaceCache = new Map();
 
+/**
+ * @param {string} ns
+ * @returns {import('mongodb-ns')}
+ */
 function getNamespaceInfo(ns) {
   if (!NamespaceCache.has(ns)) {
     NamespaceCache.set(ns, toNs(ns));
@@ -422,7 +426,8 @@ const CollectionCollection = AmpersandCollection.extend(
       this.set(
         collections
           .filter(
-            (coll) => showHiddenNamespaces || !getNamespaceInfo(coll._id).system
+            (coll) =>
+              showHiddenNamespaces || !getNamespaceInfo(coll._id).specialish
           )
           .map(({ _id, ...rest }) => {
             return {
