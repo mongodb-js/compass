@@ -1,7 +1,6 @@
 import React from 'react';
 import type { StaticModel } from './data-model-storage';
-import { flushSync } from 'react-dom';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
 import type { DiagramInstance } from '@mongodb-js/compass-components';
 import {
@@ -91,22 +90,22 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
 
     const { nodes, edges } = getDiagramNodesAndEdges(diagram);
 
-    const root = createRoot(container);
-
-    flushSync(() => {
-      root.render(
-        <DiagramProvider>
-          <Diagram
-            edges={edges}
-            nodes={nodes}
-            onlyRenderVisibleElements={false}
-          />
-        </DiagramProvider>
-      );
-    });
+    // This code also ships in compass-web.
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.render(
+      <DiagramProvider>
+        <Diagram
+          edges={edges}
+          nodes={nodes}
+          onlyRenderVisibleElements={false}
+        />
+      </DiagramProvider>,
+      container
+    );
 
     const cleanup = () => {
-      root.unmount();
+      // eslint-disable-next-line react/no-deprecated
+      ReactDOM.unmountComponentAtNode(container);
       document.body.removeChild(container);
     };
 
