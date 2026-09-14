@@ -55,7 +55,6 @@ const valueStyles = css({
 
 const dateWithTimezoneHintStyles = css({
   userSelect: 'none',
-  whiteSpace: 'nowrap',
 });
 
 export function DateWithTimezoneHint({
