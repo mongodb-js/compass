@@ -389,8 +389,8 @@ export function ensureOptInAndSendThunk(
     const enableToolCalling = prefs.enableToolCalling;
     const enableGenAIToolCalling =
       prefs.enableGenAIToolCallingAtlasProject && prefs.enableGenAIToolCalling;
-    const enableAtlasConnectionErrorDebugger =
-      prefs.enableAtlasConnectionErrorDebugger;
+    const enableAtlasConnectionErrorDebuggerTool =
+      prefs.enableAtlasConnectionErrorDebuggerTool;
 
     if (enableToolCalling && enableGenAIToolCalling) {
       // Start the server once the first time both the feature flag and
@@ -437,7 +437,7 @@ export function ensureOptInAndSendThunk(
       activeCollectionMetadata,
       activeCollectionSubTab,
       enableGenAIToolCalling: enableToolCalling && enableGenAIToolCalling,
-      enableAtlasConnectionErrorDebugger,
+      enableAtlasConnectionErrorDebuggerTool,
     });
 
     // use just the text so we have a stable reference to compare against

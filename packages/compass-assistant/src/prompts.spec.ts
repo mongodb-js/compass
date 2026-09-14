@@ -328,7 +328,7 @@ You SHOULD:
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableGenAIToolCalling: true,
-          enableAtlasConnectionErrorDebugger: true,
+          enableAtlasConnectionErrorDebuggerTool: true,
         },
         expected: `${noConnectionInstructions(
           true
@@ -342,7 +342,7 @@ You SHOULD:
           activeCollectionMetadata: null,
           activeCollectionSubTab: null,
           enableGenAIToolCalling: false,
-          enableAtlasConnectionErrorDebugger: true,
+          enableAtlasConnectionErrorDebuggerTool: true,
         },
         expected: `The user does not have any tabs open.\n\n${toolCallingOffInabilities(
           true
@@ -766,8 +766,8 @@ You SHOULD:
       } = {};
       summary.enableGenAIToolCalling =
         testCase.context.enableGenAIToolCalling ?? false;
-      summary.enableAtlasConnectionErrorDebugger =
-        testCase.context.enableAtlasConnectionErrorDebugger ?? false;
+      summary.enableAtlasConnectionErrorDebuggerTool =
+        testCase.context.enableAtlasConnectionErrorDebuggerTool ?? false;
       summary.type = testCase.context.activeWorkspace?.type || 'No active tab';
       if (testCase.context.activeCollectionMetadata?.isTimeSeries) {
         summary.isTimeSeries = true;

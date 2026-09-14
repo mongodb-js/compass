@@ -12,9 +12,48 @@
 
 ### Comments
 
-Comments should be clear and concise. They should explain the "why", not the "what".
-Add comments only if they provide additional value - i.e. record a constraint, a non-obvious use case, or a rejected alternative.
-If the comment restates what the code does, consider if the code can be improved to make it self-documenting and remove the comment.
+- Comments should be clear and concise. They should explain the "why", not the "what".
+- Before adding comments, consider if they provide additional value - i.e. record a constraint or a rejected alternative,
+  or provide link to an external resource. Do not add comments if they are not bringing additional value.
+- When reviewing - if a comment explains what the code does, consider if the code can be improved to make it self-documenting so that the comment can be removed.
+- TODO comments are ok to use for tracking follow-up work, but they should include ticket number - e.g. `TODO(COMPASS-1234): ...`
+
+✅ Records a rejected alternative:
+
+```tsx
+// We use ipc.callQuiet instead of ipc.call because we already
+// print debugging messages below
+void ipc?.callQuiet?.(event, data);
+```
+
+✅ Records a constraint that isn't visible from here (including a link to the resource that documents the constraint):
+
+```tsx
+// Currently, the server does not support batched inserts for FLE2:
+// https://jira.mongodb.org/browse/SERVER-66315
+// We check for this specific error and re-try inserting documents one by one.
+if (bulkWriteError.code === 6371202) {
+```
+
+✅ Records non-obvious behaviour of a dependency:
+
+```tsx
+// bsonSerialize returns a Buffer which may be a view into a pooled allocation.
+// Wrap in a fresh Uint8Array so that .buffer covers exactly this frame.
+return new Uint8Array(headerBytes);
+```
+
+❌ Restates the code — delete both of these:
+
+```tsx
+// Getter thunk to access the telemetry service from extra args
+function getTelemetry(): AppThunkAction<TelemetryService> {
+  return (_dispatch, _getState, { telemetry }) => telemetry;
+}
+
+// Connected SettingsProvider component
+const SettingsProviderInner: React.FunctionComponent<
+```
 
 ## Best practices
 
