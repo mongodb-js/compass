@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { createRoot } from 'react-dom/client';
 import {
   Body,
   CompassComponentsProvider,
@@ -75,8 +74,10 @@ if (!sandboxContainer) {
   throw new Error('Sandbox container not found');
 }
 
-createRoot(sandboxContainer).render(
+// eslint-disable-next-line react/no-deprecated
+ReactDOM.render(
   <React.StrictMode>
     <App></App>
-  </React.StrictMode>
+  </React.StrictMode>,
+  sandboxContainer
 );

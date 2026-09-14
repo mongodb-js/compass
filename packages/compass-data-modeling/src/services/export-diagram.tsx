@@ -1,7 +1,6 @@
 import React from 'react';
 import type { StaticModel } from './data-model-storage';
-import { flushSync } from 'react-dom';
-import { createRoot } from 'react-dom/client';
+import ReactDOM from 'react-dom';
 import { toPng } from 'html-to-image';
 import type { DiagramInstance } from '@mongodb-js/compass-components';
 import {
@@ -91,72 +90,71 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
 
     const { nodes, edges } = getDiagramNodesAndEdges(diagram);
 
-    const root = createRoot(container);
+    // This code also ships in compass-web.
+    // eslint-disable-next-line react/no-deprecated
+    ReactDOM.render(
+      <DiagramProvider>
+        <Diagram
+          edges={edges}
+          nodes={nodes}
+          onlyRenderVisibleElements={false}
+        />
+      </DiagramProvider>,
+      container,
+      () => {
+        // We skip some frames here to ensure that the DOM has fully rendered and React has
+        // committed all updates before we try to query for viewport element. Without this,
+        // the element may not exist yet or may not have the correct styles etc.
+        rafraf(() => {
+          // For export we are selecting react-flow__viewport element,
+          // which contains the export canvas. It excludes diagram
+          // title, minmap, and other UI elements. However, it also
+          // excludes the svg defs that are currently outside of this element.
+          // So, when exporting, we need to include those defs as well so that
+          // edge markers are exported correctly.
+          const viewportElement = container.querySelector(
+            '.react-flow__viewport'
+          );
+          if (!viewportElement) {
+            document.body.removeChild(container);
+            return reject(new Error('Diagram element not found'));
+          }
 
-    flushSync(() => {
-      root.render(
-        <DiagramProvider>
-          <Diagram
-            edges={edges}
-            nodes={nodes}
-            onlyRenderVisibleElements={false}
-          />
-        </DiagramProvider>
-      );
-    });
+          const transform = getViewportForBounds(
+            bounds,
+            bounds.width,
+            bounds.height,
+            0.5, // Minimum zoom
+            2, // Maximum zoom
+            `${spacing[400]}px` // 16px padding
+          );
 
-    const cleanup = () => {
-      root.unmount();
-      document.body.removeChild(container);
-    };
-
-    // We skip some frames here to ensure that the DOM has fully rendered and React has
-    // committed all updates before we try to query for viewport element. Without this,
-    // the element may not exist yet or may not have the correct styles etc.
-    rafraf(() => {
-      // For export we are selecting react-flow__viewport element,
-      // which contains the export canvas. It excludes diagram
-      // title, minmap, and other UI elements. However, it also
-      // excludes the svg defs that are currently outside of this element.
-      // So, when exporting, we need to include those defs as well so that
-      // edge markers are exported correctly.
-      const viewportElement = container.querySelector('.react-flow__viewport');
-      if (!viewportElement) {
-        cleanup();
-        return reject(new Error('Diagram element not found'));
+          // Moving svg defs to the viewport element
+          moveSvgDefsToViewportElement(container, viewportElement);
+          rafraf(() => {
+            toPng(viewportElement as HTMLElement, {
+              backgroundColor: '#fff',
+              pixelRatio: 2,
+              width: bounds.width,
+              height: bounds.height,
+              style: {
+                width: `${bounds.width}px`,
+                height: `${bounds.height}px`,
+                transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
+              },
+              filter: (node) => {
+                return !node.classList?.contains('node-add-field-button');
+              },
+            })
+              .then(resolve)
+              .catch(reject)
+              .finally(() => {
+                document.body.removeChild(container);
+              });
+          });
+        });
       }
-
-      const transform = getViewportForBounds(
-        bounds,
-        bounds.width,
-        bounds.height,
-        0.5, // Minimum zoom
-        2, // Maximum zoom
-        `${spacing[400]}px` // 16px padding
-      );
-
-      // Moving svg defs to the viewport element
-      moveSvgDefsToViewportElement(container, viewportElement);
-      rafraf(() => {
-        toPng(viewportElement as HTMLElement, {
-          backgroundColor: '#fff',
-          pixelRatio: 2,
-          width: bounds.width,
-          height: bounds.height,
-          style: {
-            width: `${bounds.width}px`,
-            height: `${bounds.height}px`,
-            transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
-          },
-          filter: (node) => {
-            return !node.classList?.contains('node-add-field-button');
-          },
-        })
-          .then(resolve)
-          .catch(reject)
-          .finally(cleanup);
-      });
-    });
+    );
   });
 }
 
