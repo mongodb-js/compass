@@ -266,7 +266,7 @@ const DatabaseCollection = AmpersandCollection.extend(
 
       this.set(
         dbs
-          .filter((db) => showHiddenNamespaces || !toNS(db._id).internal)
+          .filter((db) => showHiddenNamespaces || !toNS(db._id).specialish)
           .map(({ _id, name, inferred_from_privileges }) => ({
             _id,
             name,

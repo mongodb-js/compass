@@ -37,7 +37,7 @@ describe('mongodb-database-model', function () {
       };
     }
 
-    it('hides internal (__mdb_internal_) databases by default', async function () {
+    it('hides admin, config, local, and internal (__mdb_internal_) databases by default', async function () {
       var databases = new Database.Collection([], {
         parent: createFakeInstance({ showHiddenNamespaces: false }),
       });
@@ -46,7 +46,7 @@ describe('mongodb-database-model', function () {
 
       assert.deepStrictEqual(
         databases.map(({ _id }) => _id),
-        ['admin', 'config', 'local', 'test']
+        ['test']
       );
     });
 
