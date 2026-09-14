@@ -114,6 +114,15 @@ const sharedResolveOptions = (
       // an optional dependency to webpack because it's not wrapped in try/catch.
       '@aws-sdk/client-sso-oidc': false,
 
+      // The desktop renderer runs inside Electron with full Node.js access, so
+      // `@smithy/core/config` must resolve to its node build (which exports
+      // `parseKnownFiles`) rather than the browser build (which stubs
+      // `parseKnownFiles` to a non-callable sentinel), otherwise MONGODB-AWS
+      // credential resolution fails. We target only this module instead of
+      // removing the `browser` condition globally, because other packages rely
+      // on it (e.g. OIDC authentication). See COMPASS-11097.
+      '@smithy/core/config': require.resolve('@smithy/core/config'),
+
       // Some lg test helpers that are getting bundled due to re-exporting from
       // the actual component packages, never needed in the webpack bundles
       '@lg-tools/test-harnesses': false,
@@ -215,7 +224,7 @@ export function createElectronMainConfig(
             new BundleAnalyzerPlugin({
               logLevel: 'silent',
               analyzerPort: 'auto',
-            }) as unknown as WebpackPluginInstance,
+            }),
 
             new DuplicatePackageCheckerPlugin(),
           ],
@@ -342,7 +351,7 @@ export function createElectronRendererConfig(
                   // Plugin types are not matching Webpack 5, but they work
                   new ReactRefreshWebpackPlugin({
                     overlay: process.env.DISABLE_DEVSERVER_OVERLAY !== 'true',
-                  }) as unknown as WebpackPluginInstance,
+                  }),
                 ]
               : []
           ),
@@ -355,7 +364,7 @@ export function createElectronRendererConfig(
             new BundleAnalyzerPlugin({
               logLevel: 'silent',
               analyzerPort: 'auto',
-            }) as unknown as WebpackPluginInstance,
+            }),
 
             new DuplicatePackageCheckerPlugin(),
           ],

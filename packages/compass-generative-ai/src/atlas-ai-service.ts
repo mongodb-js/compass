@@ -4,7 +4,6 @@ import {
   isAIFeatureEnabled,
 } from 'compass-preferences-model/provider';
 import type { AtlasService } from '@mongodb-js/atlas-service/provider';
-import type { ConnectionInfo } from '@mongodb-js/connection-info';
 import type { Document } from 'mongodb';
 import type { Logger } from '@mongodb-js/compass-logging';
 import {
@@ -322,17 +321,9 @@ export class AtlasAiService {
    * For large schemas, automatically batches requests into smaller chunks.
    */
   async getMockDataSchema(
-    input: MockDataSchemaRequest,
-    connectionInfo: ConnectionInfo
+    input: MockDataSchemaRequest
   ): Promise<MockDataSchemaToolOutput> {
     this.throwIfAINotEnabled();
-
-    // Mock data schema generation requires cloud API (atlas metadata)
-    if (!connectionInfo.atlasMetadata) {
-      throw new AtlasAiServiceInvalidInputError(
-        "Can't perform generative ai request: mock-data-schema requires Atlas connection"
-      );
-    }
 
     const { collectionName, databaseName, signal } = input;
     let schema: RawSchema = input.schema;

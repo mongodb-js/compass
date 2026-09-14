@@ -18,7 +18,7 @@ const renderStageToolbar = async (
   preferences?: InstanceType<typeof ReadOnlyPreferenceAccess>,
   {
     enableSearchActivationExperiment = false,
-    services = {} as Parameters<typeof renderWithStore>[3],
+    services = {},
     stageIndex = 0,
   }: {
     enableSearchActivationExperiment?: boolean;

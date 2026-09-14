@@ -97,7 +97,7 @@ export function useSortControls<T extends string>(
           className={select}
           style={{ minWidth: `calc(${longestLabel}ch + ${spacing[1600]}px)` }}
           onChange={(value) => {
-            dispatch({ type: 'change-name', name: (value as T) || null });
+            dispatch({ type: 'change-name', name: value || null });
           }}
           defaultValue={sortState.name ?? undefined}
         >

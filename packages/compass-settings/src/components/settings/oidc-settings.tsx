@@ -1,6 +1,12 @@
 import React from 'react';
 import SettingsList from './settings-list';
 
+export const oidcFields = [
+  'browserCommandForOIDCAuth',
+  'showOIDCDeviceAuthFlow',
+  'persistOIDCTokens',
+] as const;
+
 export const OIDCSettings: React.FunctionComponent = () => {
   return (
     <div data-testid="oidc-settings">

@@ -379,10 +379,8 @@ export function useActiveWorkspace() {
   return service.getActiveWorkspace();
 }
 
-export const workspacesServiceLocator = createServiceLocator(
-  useWorkspacesService as () => WorkspacesService,
-  'workspacesServiceLocator'
-);
+export const workspacesServiceLocator: () => WorkspacesService =
+  createServiceLocator(useWorkspacesService, 'workspacesServiceLocator');
 
 export { useWorkspacePlugins } from './components/workspaces-provider';
 export {

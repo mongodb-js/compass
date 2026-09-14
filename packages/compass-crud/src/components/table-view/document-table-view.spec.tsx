@@ -60,10 +60,10 @@ describe('<DocumentTableView />', function () {
         // - the '_id' column should not share that explicit width (keeps default)
         const nameHeader = document.querySelector(
           '.ag-header-cell[col-id="name"]'
-        ) as HTMLElement | null;
+        );
         const idHeader = document.querySelector(
           '.ag-header-cell[col-id="_id"]'
-        ) as HTMLElement | null;
+        );
         expect(nameHeader, 'name column header should exist').to.exist;
         expect(idHeader, '_id column header should exist').to.exist;
         if (nameHeader) {

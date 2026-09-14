@@ -1,5 +1,5 @@
-import type { MongoClusterOptions } from 'mongodb-runner';
-import { MongoCluster } from 'mongodb-runner';
+import type { MongoClusterOptions } from '@mongodb-js/mongodb-runner';
+import { MongoCluster } from '@mongodb-js/mongodb-runner';
 import { createHash } from 'crypto';
 import path from 'path';
 import os from 'os';
@@ -8,7 +8,7 @@ export type {
   MongoCluster,
   MongoClusterOptions,
   LogEntry,
-} from 'mongodb-runner';
+} from '@mongodb-js/mongodb-runner';
 export {
   ServerLogsChecker,
   type WarningFilter,

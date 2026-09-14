@@ -1,11 +1,7 @@
 import React from 'react';
 import { PerformanceComponent } from './components';
 import { registerCompassPlugin } from '@mongodb-js/compass-app-registry';
-import {
-  dataServiceLocator,
-  type DataServiceLocator,
-  type DataService,
-} from '@mongodb-js/compass-connections/provider';
+import { dataServiceLocator } from '@mongodb-js/compass-connections/provider';
 import { mongoDBInstanceLocator } from '@mongodb-js/compass-app-stores/provider';
 import CurrentOpStore from './stores/current-op-store';
 import ServerStatsStore from './stores/server-stats-graphs-store';
@@ -45,7 +41,7 @@ const WorkspaceTab: WorkspacePlugin<typeof WorkspaceName> = {
       },
     },
     {
-      dataService: dataServiceLocator as DataServiceLocator<keyof DataService>,
+      dataService: dataServiceLocator,
       instance: mongoDBInstanceLocator,
     }
   ),

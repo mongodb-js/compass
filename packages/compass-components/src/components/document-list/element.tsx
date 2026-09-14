@@ -840,7 +840,7 @@ export const HadronElement: React.FunctionComponent<{
                 }}
               >
                 <BSONValue
-                  type={type.value as any}
+                  type={type.value}
                   value={value.originalValue}
                 ></BSONValue>
               </span>

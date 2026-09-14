@@ -1,7 +1,7 @@
 import type { AllPreferences } from 'compass-preferences-model';
 import type { BrowserWindow } from 'electron';
 import { dialog } from 'electron';
-import { hasDisallowedConnectionStringOptions } from './validate-connection-string';
+import { checkConnectionStringPolicy } from '@mongodb-js/connection-string-policy';
 import COMPASS_ICON from './icon';
 import { createLogger, mongoLogId } from '@mongodb-js/compass-logging';
 import { redactConnectionString } from 'mongodb-connection-string-url';
@@ -96,8 +96,19 @@ const shouldPreventAutoConnect = async ({
   if (!connectionString) {
     return false;
   }
-  const needsConfirm = hasDisallowedConnectionStringOptions(connectionString);
-  if (trustedConnectionString || !needsConfirm) return false;
+  const { withinPolicy, flaggedOptions } =
+    checkConnectionStringPolicy(connectionString);
+  if (trustedConnectionString || withinPolicy) return false;
+
+  log.warn(
+    mongoLogId(1_001_000_291),
+    'validation',
+    'Connection string contains disallowed options',
+    {
+      options: flaggedOptions,
+      connectionString: redactConnectionString(connectionString),
+    }
+  );
 
   process.stderr.write(
     `The "${connectionString}" connection string contains options that are typically not set by default and may present a security risk. You are required to confirm this connection attempt. Set --trustedConnectionString to allow connecting to any connection string without confirmation. Do not use this flag if you do not trust the source of the connection string.\n`

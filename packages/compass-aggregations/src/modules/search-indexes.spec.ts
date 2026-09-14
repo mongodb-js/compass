@@ -106,7 +106,7 @@ describe('search-indexes module', function () {
           },
           {
             getSearchIndexes: getSearchIndexesStub,
-          } as any
+          }
         )
       ).plugin.store;
     });

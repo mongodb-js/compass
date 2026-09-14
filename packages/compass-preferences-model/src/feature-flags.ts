@@ -150,18 +150,6 @@ export const FEATURE_FLAG_DEFINITIONS = [
       short: 'Enable settings in compass web',
     },
   },
-
-  /*
-   * Feature flag for enabling the Atlas Connection Error Debugger.
-   */
-  {
-    name: 'enableAtlasConnectionErrorDebugger',
-    stage: 'released',
-    atlasCloudFeatureScope: 'group',
-    description: {
-      short: 'Enable Atlas Connection Error Debugger',
-    },
-  },
 ] as const satisfies ReadonlyArray<FeatureFlagDefinition>;
 
 type FeatureFlagDefinitions = typeof FEATURE_FLAG_DEFINITIONS;
@@ -187,6 +175,7 @@ function featureFlagToPreferenceDefinition(
     cli: true,
     global: true,
     ui: true,
+    exposedInSettingsUI: '*',
     description: featureFlag.description,
     // Only show feature flags in 'preview' stage in --help output
     omitFromHelp: featureFlag.stage !== 'preview',

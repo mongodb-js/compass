@@ -1015,7 +1015,7 @@ export const importReducer: Reducer<ImportState> = (
 
     newState.fields = newState.fields.map((field) => {
       // you can't toggle a placeholder field
-      field = field as FieldFromCSV | FieldFromJSON;
+      // field = field;
 
       if (field.path === action.path) {
         field.checked = !field.checked;
