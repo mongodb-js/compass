@@ -1221,6 +1221,7 @@ export const storedUserPreferencesProps: Required<{
   },
   showHiddenNamespaces: {
     ui: true,
+    exposedInSettingsUI: '*',
     cli: true,
     global: true,
     description: {
