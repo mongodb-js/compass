@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { stringify as javascriptStringify } from 'javascript-stringify';
+import { Binary, UUID } from 'bson';
+import { toJSString } from 'mongodb-query-parser';
 
 import reducer, {
   checkValidator,
@@ -123,12 +124,7 @@ describe('validation module', function () {
             validationLevel: 'off',
           })
         );
-        const checkedValidator = checkValidator('{ name: { $exists: true } }');
-        const validator = javascriptStringify(
-          checkedValidator.validator,
-          null,
-          2
-        );
+        const validator = toJSString({ name: { $exists: true } }, 2);
 
         expect(validation).to.deep.equal({
           isChanged: false,
@@ -144,6 +140,61 @@ describe('validation module', function () {
           syntaxError: null,
           error: null,
         });
+      });
+
+      it('preserves BSON types so that the validator stays queryable (COMPASS-4989)', function () {
+        const keyId = new UUID(
+          '48b481f0-31c7-4b2d-81d4-987ac69262a9'
+        ).toBinary();
+        const encrypt = {
+          encrypt: {
+            keyId: [keyId],
+            algorithm: 'AEAD_AES_256_CBC_HMAC_SHA_512-Deterministic',
+          },
+        };
+        const validation = reducer(
+          undefined,
+          validationFetched({
+            validator: {
+              $jsonSchema: {
+                bsonType: 'object',
+                properties: {
+                  some_item_needing_encryption: encrypt,
+                  anArrayNeedingEncyrptionInside: {
+                    bsonType: 'array',
+                    items: {
+                      bsonType: 'object',
+                      properties: { encryptId: encrypt },
+                    },
+                  },
+                },
+              },
+            },
+            validationAction: 'error',
+            validationLevel: 'strict',
+          })
+        );
+
+        expect(validation.validator).to.include(
+          "UUID('48b481f0-31c7-4b2d-81d4-987ac69262a9')"
+        );
+        expect(validation.validator).to.not.include('$binary');
+
+        const { syntaxError, validator } = checkValidator(validation.validator);
+        expect(syntaxError).to.equal(null);
+
+        const properties = (validator as any).$jsonSchema.properties;
+        for (const parsedKeyId of [
+          properties.some_item_needing_encryption.encrypt.keyId[0],
+          properties.anArrayNeedingEncyrptionInside.items.properties.encryptId
+            .encrypt.keyId[0],
+        ]) {
+          expect(parsedKeyId).to.be.instanceOf(Binary);
+          expect(parsedKeyId.sub_type).to.equal(Binary.SUBTYPE_UUID);
+          expect(parsedKeyId.toString('base64')).to.equal(
+            keyId.toString('base64')
+          );
+        }
       });
     });
 
