@@ -126,8 +126,8 @@ export const ToolToggle: React.FunctionComponent = () => {
     ? 'https://www.mongodb.com/docs/atlas/atlas-ui/query-with-natural-language/data-explorer-ai-assistant/'
     : 'https://www.mongodb.com/docs/compass/query-with-natural-language/compass-ai-assistant/';
   const enableGenAIToolCalling = usePreference('enableGenAIToolCalling');
-  const enableAtlasConnectionErrorDebugger = usePreference(
-    'enableAtlasConnectionErrorDebugger'
+  const enableAtlasConnectionErrorDebuggerTool = usePreference(
+    'enableAtlasConnectionErrorDebuggerTool'
   );
 
   const areToolCallsEnabled =
@@ -148,8 +148,8 @@ export const ToolToggle: React.FunctionComponent = () => {
   );
 
   const availableTools = useMemo(
-    () => getAvailableTools({ enableAtlasConnectionErrorDebugger }),
-    [enableAtlasConnectionErrorDebugger]
+    () => getAvailableTools({ enableAtlasConnectionErrorDebuggerTool }),
+    [enableAtlasConnectionErrorDebuggerTool]
   );
 
   return (
