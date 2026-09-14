@@ -210,10 +210,9 @@ const ScriptScreen = ({
           2. Run the script with <InlineCode>mongosh</InlineCode>
         </Body>
         <Body className={sectionInstructionStyles}>
-          In the same working directory, run the command below in Bash, zsh, or
-          PowerShell on Windows. Replace any placeholders before running.
+          In the same working directory, run the command below.
           {needsUsername &&
-            ' Replace <your-username> with your database username.'}
+            ' Please replace <your-username> with your database username.'}
           {promptsForPassword && ' mongosh will prompt for your password.'}{' '}
           <em>
             Note that this will add data to your cluster and will not be
