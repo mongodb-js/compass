@@ -1226,7 +1226,7 @@ export const storedUserPreferencesProps: Required<{
     global: true,
     description: {
       short: 'Show Hidden Namespaces',
-      long: 'Show internal (__mdb_internal_) databases and system collections in the sidebar.',
+      long: 'Reveal namespaces reserved for internal server or Atlas use. Modifications to these namespaces could lead to unknown issues.',
     },
     validator: z.boolean().default(false),
     type: 'boolean',
