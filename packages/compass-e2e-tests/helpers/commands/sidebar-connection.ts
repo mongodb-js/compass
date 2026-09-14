@@ -59,6 +59,7 @@ export async function selectConnectionMenuItem(
         .$(Selectors.sidebarConnectionMenuButton(connectionName))
         .isDisplayed()
     ) {
+      await browser.hover(selector);
       return true;
     }
 
@@ -76,8 +77,6 @@ export async function selectConnectionMenuItem(
     await browser.hover(selector);
     return false;
   });
-
-  await browser.hover(selector);
 
   // if the action lives outside of the three-dot menu, then there's no need to open the menu
   if (openMenu) {
