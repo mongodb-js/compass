@@ -272,7 +272,7 @@ export function isDebuggerToolCall(type: string): boolean {
 
 export function getToolDescription(toolDisplayName: string): string {
   return (
-    getAvailableTools({ enableAtlasConnectionErrorDebugger: true }).find(
+    getAvailableTools({ enableAtlasConnectionErrorDebuggerTool: true }).find(
       (tool) => tool.name === toolDisplayName
     )?.description || ''
   );

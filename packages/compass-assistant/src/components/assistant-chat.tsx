@@ -264,8 +264,8 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
     chat.messages[chat.messages.length - 1] ?? {};
 
   const { ensureOptInAndSend } = useContext(AssistantActionsContext);
-  const enableAtlasConnectionErrorDebugger = usePreference(
-    'enableAtlasConnectionErrorDebugger'
+  const enableAtlasConnectionErrorDebuggerTool = usePreference(
+    'enableAtlasConnectionErrorDebuggerTool'
   );
   const {
     messages,
@@ -593,7 +593,7 @@ export const AssistantChat: React.FunctionComponent<AssistantChatProps> = ({
       )}
       style={chatContainerOverrideStyle}
     >
-      {enableAtlasConnectionErrorDebugger && <AtlasConnectionStatus />}
+      {enableAtlasConnectionErrorDebuggerTool && <AtlasConnectionStatus />}
       <LeafyGreenChatProvider>
         <ChatWindow>
           <div

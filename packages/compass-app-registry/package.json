@@ -9,9 +9,6 @@
     "url": "https://jira.mongodb.org/projects/COMPASS/issues",
     "email": "compass@mongodb.com"
   },
-  "publishConfig": {
-    "access": "public"
-  },
   "homepage": "https://github.com/mongodb-js/compass",
   "version": "9.13.0",
   "repository": {
@@ -71,5 +68,6 @@
     "mocha": "^10.2.0",
     "sinon": "^9.0.0",
     "typescript": "^6.0.3"
-  }
+  },
+  "private": true
 }

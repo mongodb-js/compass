@@ -1,5 +1,5 @@
 The following third-party software is used by and included in **Mongodb Compass**.
-This document was automatically generated on Thu Sep 10 2026.
+This document was automatically generated on Mon Sep 14 2026.
 
 ## List of dependencies
 
@@ -266,7 +266,7 @@ This document was automatically generated on Thu Sep 10 2026.
 | **[dunder-proto](#390fd69f2035b583e461890d5b0a3230f4adb33b042e6f0d1472dd911bc1de98)**                                       | 1.0.1        | MIT                                 |
 | **[ee-first](#e2746902c758ae8a6f91ffb9618cd53717f936cb33c6323e65b6b7b24f7ebefe)**                                           | 1.1.1        | MIT                                 |
 | **[electron-dl](#e97e034c7b93c63e7a433d75f6f1de3e0668764225ebbd61dbde8d1b55d6f3b7)**                                        | 3.5.0        | MIT                                 |
-| **[electron](#8713c6babffb8178f4cf841a39add7930f1d6fea34933ecb59538a0cdc252ef5)**                                           | 43.4.1       | MIT                                 |
+| **[electron](#d27c65601ce8b2b9ec02e4b45a95184a5bea43a4353adf63c300df3a84856f1b)**                                           | 44.3.0       | MIT                                 |
 | **[encodeurl](#177948a319ae0aeebbd65742c53c62b37c75ec1d021afa5a188d10a7ceae6623)**                                          | 2.0.0        | MIT                                 |
 | **[end-of-stream](#fadc10994f5fa767d06fb25cfff35fb17a895daf3bc3477c782907668ed16563)**                                      | 1.4.4        | MIT                                 |
 | **[ensure-error](#3b1eba5276d89414cef21a1007e85c4f1d6749bf57b300e082ab23975a41dbc9)**                                       | 3.0.1        | MIT                                 |
@@ -421,13 +421,13 @@ This document was automatically generated on Thu Sep 10 2026.
 | **[modify-filename](#7153be07939379ccf0072006c519fba2bdf5ab79ca8bb59bc5273f87a7bacbf6)**                                    | 1.1.0        | MIT                                 |
 | **[mongodb-build-info](#cf01a7167269f57b3dd629626e35d5c269ccd0acd4d20ad5882a2748f3f8296d)**                                 | 1.9.12       | Apache-2.0                          |
 | **[mongodb-client-encryption](#d51bc496aad712aff10716acb139c248545f100815af800ea4cfa8d2e9d73db3)**                          | 7.2.1        | Apache-2.0                          |
-| **[mongodb-cloud-info](#c9e25f02dc496626584a9259e634cb9f6b5fcc7c3288cff4d111296b59fc7309)**                                 | 2.3.16       | Apache-2.0                          |
+| **[mongodb-cloud-info](#43f8aced669f94c41d877c6798ce4ab1dc71fe5152ad90b081727e3ea8b9bc8a)**                                 | 2.3.20       | Apache-2.0                          |
 | **[mongodb-connection-string-url](#296e917903ac3f9373c527dbe188f557395fb620f871b166921cd51aa5db6ce5)**                      | 7.0.1        | Apache-2.0                          |
 | **[mongodb-connection-string-url](#267005f447433080cc6f4777fd158a8ea3dc603ee3a9d3d77cace34dcf82718c)**                      | 7.0.2        | Apache-2.0                          |
 | **[mongodb-log-writer](#29ce1833ae99c6452d014e8847ac7e8e50bbfe6241534fb000c8a313519fa9c4)**                                 | 2.5.14       | Apache-2.0                          |
 | **[mongodb-mcp-server](#170d115701124029e823835d30b7a783037c72cd0f53bf99816bbbe444a3676d)**                                 | 1.10.0       | Apache-2.0                          |
 | **[mongodb-ns](#9658ed4c4d2d38de9ce3cef33fe9341cfa97429730fc4a4638828d4e5b74b329)**                                         | 3.2.1        | Apache-2.0                          |
-| **[mongodb-query-parser](#1ec8ed719ca0a368a7474fda7282181b70e15ac85d3456a528d57e92cda08189)**                               | 5.0.1        | Apache-2.0                          |
+| **[mongodb-query-parser](#9acbfcf6e5702edcce0c3c8d906531d1c2f7931ebf9e108abb4c746b7d93d1c6)**                               | 5.0.5        | Apache-2.0                          |
 | **[mongodb-redact](#7a64fca86edf562f6a1448a1e8435611a12a370751fbc851b2515266424880cd)**                                     | 1.4.6        | Apache-2.0                          |
 | **[mongodb-schema](#e0300e77409789ae795961e8ed90b479d8816c8b4c2e078c0c8679293eae5c9d)**                                     | 12.7.0       | Apache-2.0                          |
 | **[mongodb](#2b6d1321e5706f8de316a1b3f659dfd6e492d154443936866c044e7ac313d9c5)**                                            | 7.5.0        | Apache-2.0                          |
@@ -22987,9 +22987,9 @@ License files:
 
       THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-<a id="8713c6babffb8178f4cf841a39add7930f1d6fea34933ecb59538a0cdc252ef5"></a>
+<a id="d27c65601ce8b2b9ec02e4b45a95184a5bea43a4353adf63c300df3a84856f1b"></a>
 
-### [electron](https://www.npmjs.com/package/electron) (version 43.4.1)
+### [electron](https://www.npmjs.com/package/electron) (version 44.3.0)
 
 License tags: MIT
 
@@ -28658,9 +28658,9 @@ License files:
          See the License for the specific language governing permissions and
          limitations under the License.
 
-<a id="c9e25f02dc496626584a9259e634cb9f6b5fcc7c3288cff4d111296b59fc7309"></a>
+<a id="43f8aced669f94c41d877c6798ce4ab1dc71fe5152ad90b081727e3ea8b9bc8a"></a>
 
-### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.3.16)
+### [mongodb-cloud-info](https://www.npmjs.com/package/mongodb-cloud-info) (version 2.3.20)
 
 License tags: Apache-2.0
 
@@ -29908,9 +29908,9 @@ License files:
       See the License for the specific language governing permissions and
       limitations under the License.
 
-<a id="1ec8ed719ca0a368a7474fda7282181b70e15ac85d3456a528d57e92cda08189"></a>
+<a id="9acbfcf6e5702edcce0c3c8d906531d1c2f7931ebf9e108abb4c746b7d93d1c6"></a>
 
-### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 5.0.1)
+### [mongodb-query-parser](https://www.npmjs.com/package/mongodb-query-parser) (version 5.0.5)
 
 License tags: Apache-2.0
 

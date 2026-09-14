@@ -59,7 +59,7 @@ async function main(argv) {
     description = '',
     isPlugin = false,
     isConfig = false,
-    isPublic = true,
+    isPublic = false,
     isReact = true,
     dependants = [],
     depType,

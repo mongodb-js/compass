@@ -99,7 +99,7 @@ describe('Atlas connection error debugger', function () {
       expect(backendPreset).to.equal('atlas-qa');
 
       await browser.setFeature('enableAtlasSignIn', true);
-      await browser.setFeature('enableAtlasConnectionErrorDebugger', true);
+      await browser.setFeature('enableAtlasConnectionErrorDebuggerTool', true);
       await browser.setFeature('enableGenAIFeatures', true);
       await browser.setFeature('optInGenAIFeatures', true);
       await browser.setFeature('enableGenAIFeaturesAtlasProject', true);
