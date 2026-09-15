@@ -227,10 +227,12 @@ const ScriptScreen = ({
         </Code>
         {!connectionInfo.atlasMetadata && (
           <Body className={sectionInstructionStyles}>
-            Settings outside the connection URI, such as Compass SSH tunnels,
-            proxies, or encryption settings, must be configured separately for
-            mongosh. Make sure any certificate files in the URI are available
-            where you run the command.
+            This command doesn&apos;t reuse connection settings stored
+            separately in Compass. If you can&apos;t connect, see the{' '}
+            <Link href="https://www.mongodb.com/docs/mongodb-shell/connect/">
+              mongosh connection guide
+            </Link>
+            .
           </Body>
         )}
       </section>
