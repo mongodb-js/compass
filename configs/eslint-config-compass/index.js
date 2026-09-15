@@ -42,6 +42,8 @@ const tsRules = {
 
 const tsOverrides = {
   ...common.tsOverrides,
+  // Also treat ESM- and CJS-flavored TypeScript files as TypeScript
+  files: ['**/*.ts', '**/*.mts', '**/*.cts'],
   rules: { ...tsRules },
 };
 

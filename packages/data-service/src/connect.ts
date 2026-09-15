@@ -1,7 +1,7 @@
 import type { ConnectionOptions } from './connection-options';
 import type { DataService } from './data-service';
 import type { DataServiceImplLogger } from './logger';
-import { DataServiceImpl } from './data-service';
+import { DataServiceRenderer } from './data-service-renderer';
 import type { DevtoolsProxyOptions } from '@mongodb-js/devtools-proxy-support';
 
 export default async function connect({
@@ -19,7 +19,7 @@ export default async function connect({
   productName?: string;
   productDocsLink?: string;
 }): Promise<DataService> {
-  const dataService = new DataServiceImpl(
+  const dataService = new DataServiceRenderer(
     connectionOptions,
     logger,
     proxyOptions
