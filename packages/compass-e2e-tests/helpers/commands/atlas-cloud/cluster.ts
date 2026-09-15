@@ -1,11 +1,33 @@
 import { ConnectionString } from 'mongodb-connection-string-url';
+import Debug from 'debug';
 import type { CompassBrowser } from '../../compass-browser.ts';
-import {
-  getCloudUrlsForEnvironment,
-  getCloudUrlsFromContext,
-} from '../../test-runner-context.ts';
+import { getCloudUrlsForEnvironment } from '../../test-runner-context.ts';
 import type { AtlasEnvironment } from '../../test-runner-context.ts';
-import { getProjectIdFromPageUrl, doCloudFetch } from './utils.ts';
+import {
+  getProjectIdFromPageUrl,
+  doCloudFetch,
+  isAtlasCloudPage,
+} from './utils.ts';
+
+const debug = Debug('compass-e2e-tests:atlas-cloud');
+
+type AtlasProject = { env: AtlasEnvironment; projectId: string };
+
+type AtlasClusterListItem = {
+  name: string;
+  state: string;
+  srvAddress: string;
+  isPaused?: boolean;
+};
+
+async function navigateToProject(
+  browser: CompassBrowser,
+  { env, projectId }: AtlasProject
+) {
+  const { cloudUrl } = getCloudUrlsForEnvironment(env);
+  await browser.navigateTo(`${cloudUrl}/v2/${projectId}#/clusters`);
+  await browser.waitUntil(() => isAtlasCloudPage(browser, cloudUrl, projectId));
+}
 
 export async function getClusterConnectionStringsFromNames(
   browser: CompassBrowser,
@@ -36,19 +58,24 @@ export async function getClusterConnectionStringsFromNames(
     });
 }
 
-export async function configureDefaultProjectDbAccess(
+export async function getProjectAccessList(
   browser: CompassBrowser,
-  dbuserUsername: string,
-  dbuserPassword: string
+  project: AtlasProject
+): Promise<{ value: string; comment: string }[]> {
+  await navigateToProject(browser, project);
+  return await doCloudFetch(browser, `/nds/${project.projectId}/ipWhitelist`);
+}
+
+export async function configureProjectDbAccess(
+  browser: CompassBrowser,
+  {
+    env,
+    projectId,
+    dbuserUsername,
+    dbuserPassword,
+  }: AtlasProject & { dbuserUsername: string; dbuserPassword: string }
 ) {
-  const { cloudUrl } = getCloudUrlsFromContext();
-
-  await browser.navigateTo(cloudUrl);
-  await browser.waitUntil(async () => {
-    return (await browser.getUrl()).startsWith(`${cloudUrl}/v2/`);
-  });
-
-  const projectId = await getProjectIdFromPageUrl(browser, cloudUrl);
+  await navigateToProject(browser, { env, projectId });
 
   const { currentIpv4Address } = await doCloudFetch(browser, '/v2/params');
 
@@ -102,21 +129,22 @@ const clusterTypeToTemplate = {
 
 export type ClusterTypes = keyof typeof clusterTypeToTemplate;
 
-export async function createAtlasClusterForDefaultProject(
+/**
+ * Creates a cluster and waits for it to be ready. Returns the srv connection
+ * string without credentials.
+ */
+export async function createAtlasCluster(
   browser: CompassBrowser,
-  dbuserUsername: string,
-  dbuserPassword: string,
-  clusterName: string,
-  clusterType: ClusterTypes = 'Free'
+  {
+    env,
+    projectId,
+    clusterName,
+    clusterType = 'Free',
+  }: AtlasProject & { clusterName: string; clusterType?: ClusterTypes }
 ): Promise<string> {
-  const { cloudUrl } = getCloudUrlsFromContext();
+  const { cloudUrl } = getCloudUrlsForEnvironment(env);
 
-  await browser.navigateTo(cloudUrl);
-  await browser.waitUntil(async () => {
-    return (await browser.getUrl()).startsWith(`${cloudUrl}/v2/`);
-  });
-
-  const projectId = await getProjectIdFromPageUrl(browser, cloudUrl);
+  await navigateToProject(browser, { env, projectId });
 
   /**
    * Get a cluster description template for the cluster creation and start
@@ -236,42 +264,101 @@ export async function createAtlasClusterForDefaultProject(
     { json: clusterDescription }
   );
 
-  // Now wait for cluster to be ready
-  const cluster = await browser.waitUntil(
-    async () => {
-      const clusters = await doCloudFetch<
-        { name: string; state: string; srvAddress: string }[]
-      >(browser, `/nds/clusters/${projectId}`);
-      return clusters.find((cluster) => {
-        return cluster.name === clusterName && cluster.state === 'IDLE';
-      });
-    },
-    {
-      timeout: 1000 * 60 * 30, // cluster creation is a very slow process sometimes
-      interval: 30 * 1000, // no need to check very often
-    }
+  const cluster = await waitForCluster(
+    browser,
+    projectId,
+    clusterName,
+    (cluster) => cluster.state === 'IDLE',
+    'ready'
   );
 
-  if (!cluster?.srvAddress) {
+  if (!cluster.srvAddress) {
     throw new Error(
       'Cluster is ready, but srv connection string is not available'
     );
   }
 
-  const str = new ConnectionString(`mongodb+srv://${cluster.srvAddress}`);
-  str.username = dbuserUsername;
-  str.password = dbuserPassword;
-
-  return str.toString();
+  return `mongodb+srv://${cluster.srvAddress}`;
 }
 
-export async function deleteAtlasClusterForDefaultProject(
+async function waitForCluster(
   browser: CompassBrowser,
-  cloudUrl: string,
-  clusterName: string
+  projectId: string,
+  clusterName: string,
+  predicate: (cluster: AtlasClusterListItem) => boolean,
+  waitingFor: string
+): Promise<AtlasClusterListItem> {
+  return await browser.waitUntil(
+    async () => {
+      const clusters = await doCloudFetch<AtlasClusterListItem[]>(
+        browser,
+        `/nds/clusters/${projectId}`
+      );
+      const cluster = clusters.find((cluster) => cluster.name === clusterName);
+      // Keeps CI output flowing: Evergreen kills tasks idle for 10 minutes and
+      // dedicated clusters take about that long to provision
+      debug(
+        'Waiting for cluster %s to be %s (state: %s, isPaused: %s)',
+        clusterName,
+        waitingFor,
+        cluster?.state,
+        cluster?.isPaused
+      );
+      return cluster && predicate(cluster) ? cluster : undefined;
+    },
+    {
+      timeout: 1000 * 60 * 30, // cluster provisioning is a very slow process sometimes
+      interval: 30 * 1000, // no need to check very often
+    }
+  );
+}
+
+/**
+ * Pauses a cluster (M10+ only) and waits until the pause has been applied
+ */
+export async function pauseAtlasCluster(
+  browser: CompassBrowser,
+  { env, projectId, clusterName }: AtlasProject & { clusterName: string }
 ) {
-  const projectId = await getProjectIdFromPageUrl(browser, cloudUrl);
-  await doCloudFetch(browser, `/nds/clusters/${projectId}/${clusterName}`, {
-    method: 'DELETE',
-  });
+  await navigateToProject(browser, { env, projectId });
+
+  // Same as the Atlas UI: there is no dedicated pause route, isPaused is part
+  // of the cluster description
+  const clusterDescription = await doCloudFetch(
+    browser,
+    `/nds/clusters/${projectId}/${clusterName}`
+  );
+  await doCloudFetch(
+    browser,
+    `/nds/clusters/${projectId}/${clusterName}`,
+    { method: 'PATCH' },
+    { json: { ...clusterDescription, isPaused: true } }
+  );
+
+  // isPaused flips immediately, the cluster leaves IDLE while the plan is
+  // being applied and comes back to IDLE when the pause is done
+  await browser
+    .waitUntil(
+      async () => {
+        const clusters = await doCloudFetch<AtlasClusterListItem[]>(
+          browser,
+          `/nds/clusters/${projectId}`
+        );
+        return clusters.some(
+          (cluster) => cluster.name === clusterName && cluster.state !== 'IDLE'
+        );
+      },
+      { timeout: 1000 * 60 * 2, interval: 5 * 1000 }
+    )
+    // ponytail: if the planner picked the change up between polls we never see
+    // the non-IDLE state; fall through and rely on the paused + IDLE check
+    .catch(() => {});
+
+  await waitForCluster(
+    browser,
+    projectId,
+    clusterName,
+    (cluster) => cluster.isPaused === true && cluster.state === 'IDLE',
+    'paused'
+  );
 }

@@ -9,10 +9,12 @@ import {
   getAtlasCloudEnvironmentFromContext,
   isTestingWebAtlasCloud,
   isTestingDesktop,
+  isTestingDesktopWithAtlasCloud,
   isTestingWeb,
   RUN_ID,
 } from './test-runner-context.ts';
 import { E2E_WORKSPACE_PATH, LOG_PATH } from './test-runner-paths.ts';
+import type { CompassBrowser } from './compass-browser.ts';
 import Debug from 'debug';
 import {
   startTestServer,
@@ -25,12 +27,14 @@ import { isEnterprise } from 'mongodb-build-info';
 import {
   buildCompass,
   compileCompassAssets,
+  createExternalBrowser,
   rebuildNativeModules,
   removeUserDataDir,
   screenshotPathName,
   serverSatisfies,
   startBrowser,
 } from './compass.ts';
+import { ConnectionString } from 'mongodb-connection-string-url';
 import { getConnectionTitle } from '@mongodb-js/connection-info';
 import {
   spawnCompassWebSandbox,
@@ -78,7 +82,45 @@ export function allowServerWarnings(...filters: WarningFilter[]): () => void {
   };
 }
 
-async function createAtlasCloudResources() {
+/**
+ * Creates an Atlas Cloud user for the run (and with it an org and a default
+ * project) and schedules its deletion for the global teardown
+ */
+async function createAtlasCloudUser(browser: CompassBrowser) {
+  debug('Creating Atlas Cloud user...');
+
+  const env = getAtlasCloudEnvironmentFromContext(context);
+  const user = await browser.createAtlasLoginUser(env);
+
+  cleanupFns.push(() => {
+    return browser.deleteAtlasUser(user.username, env);
+  });
+
+  return user;
+}
+
+async function createDesktopAtlasCloudUser() {
+  const browser = await createExternalBrowser(false);
+
+  try {
+    const { username, password, orgId } = await createAtlasCloudUser(browser);
+
+    Object.assign(context, {
+      atlasCloudUsername: username,
+      atlasCloudPassword: password,
+      atlasCloudOrgId: orgId,
+    });
+  } catch (e) {
+    await browser.screenshot(
+      screenshotPathName('Global setup: create Atlas user failed')
+    );
+    throw e;
+  } finally {
+    await browser.deleteSession().catch(() => {});
+  }
+}
+
+async function createWebAtlasCloudResources() {
   assertTestingWebAtlasCloud(context);
 
   debug('Creating Atlas Cloud resources...');
@@ -97,27 +139,14 @@ async function createAtlasCloudResources() {
 
   try {
     if (!usingExistingResources) {
-      debug('Creating user...');
-
-      const {
-        username: atlasCloudUsername,
-        password: atlasCloudPassword,
-        projectId: atlasCloudProjectId,
-      } = await compass.browser.createAtlasLoginUser(
-        getAtlasCloudEnvironmentFromContext(context)
+      const { username, password, projectId } = await createAtlasCloudUser(
+        compass.browser
       );
 
-      cleanupFns.push(() => {
-        return compass.browser.deleteAtlasUser(
-          atlasCloudUsername,
-          getAtlasCloudEnvironmentFromContext(context)
-        );
-      });
-
       Object.assign(context, {
-        atlasCloudProjectId,
-        atlasCloudUsername,
-        atlasCloudPassword,
+        atlasCloudProjectId: projectId,
+        atlasCloudUsername: username,
+        atlasCloudPassword: password,
       });
     } else {
       // If user was provided, sign in before proceeding: some of the next
@@ -187,10 +216,12 @@ async function createAtlasCloudResources() {
   const atlasCloudDbuserUsername = `dbusr-${RUN_ID}`;
   const atlasCloudDbuserPassword = randomBytes(20).toString('hex');
 
-  await compass.browser.configureDefaultProjectDbAccess(
-    atlasCloudDbuserUsername,
-    atlasCloudDbuserPassword
-  );
+  await compass.browser.configureProjectDbAccess({
+    env: getAtlasCloudEnvironmentFromContext(context),
+    projectId: context.atlasCloudProjectId,
+    dbuserUsername: atlasCloudDbuserUsername,
+    dbuserPassword: atlasCloudDbuserPassword,
+  });
 
   throwIfAborted();
 
@@ -209,17 +240,20 @@ async function createAtlasCloudResources() {
       // resources are provisioned automatically
       const testClusterName = `e2e-${RUN_ID}`;
 
-      const connectionString =
-        await compass.browser.createAtlasClusterForDefaultProject(
-          atlasCloudDbuserUsername,
-          atlasCloudDbuserPassword,
-          testClusterName,
-          context.atlasCloudDefaultClusterType as ClusterTypes
-        );
+      const connectionString = new ConnectionString(
+        await compass.browser.createAtlasCluster({
+          env: getAtlasCloudEnvironmentFromContext(context),
+          projectId: context.atlasCloudProjectId,
+          clusterName: testClusterName,
+          clusterType: context.atlasCloudDefaultClusterType as ClusterTypes,
+        })
+      );
+      connectionString.username = atlasCloudDbuserUsername;
+      connectionString.password = atlasCloudDbuserPassword;
 
       DEFAULT_CONNECTIONS.push({
         id: testClusterName,
-        connectionOptions: { connectionString },
+        connectionOptions: { connectionString: connectionString.toString() },
         favorite: { name: testClusterName },
       });
     } else {
@@ -313,7 +347,7 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
           cleanupFns.push(cleanupServer);
         }
 
-        await createAtlasCloudResources();
+        await createWebAtlasCloudResources();
 
         debug('Waiting for the compass-web assets to be available ...');
         await waitForCompassWebStaticAssetsToBeReady(
@@ -367,6 +401,11 @@ export async function mochaGlobalSetup(this: Mocha.Runner) {
     fs.mkdirSync(LOG_PATH, { recursive: true });
 
     if (isTestingDesktop(context)) {
+      if (isTestingDesktopWithAtlasCloud(context)) {
+        await createDesktopAtlasCloudUser();
+        throwIfAborted();
+      }
+
       if (context.testPackagedApp) {
         debug('Maybe building Compass before running the tests ...');
         await buildCompass();
