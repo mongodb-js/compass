@@ -2,7 +2,20 @@ import { expect } from 'chai';
 import fs from 'fs/promises';
 import path from 'path';
 import os from 'os';
-import { EJSON, UUID } from 'bson';
+import {
+  Binary,
+  BSONRegExp,
+  Decimal128,
+  Double,
+  EJSON,
+  Int32,
+  Long,
+  MaxKey,
+  MinKey,
+  ObjectId,
+  Timestamp,
+  UUID,
+} from 'bson';
 import Sinon from 'sinon';
 import { recentQueries, favoriteQueries } from '../test/fixtures/index';
 import {
@@ -18,8 +31,8 @@ const queries = [
     _ns: 'airbnb.listings',
   },
   {
-    filter: { name: 1 },
-    project: { _id: 1 },
+    filter: { name: new Int32(1) },
+    project: { _id: new Int32(1) },
     _id: new UUID().toString(),
     _lastExecuted: new Date(),
     _ns: 'airbnb.listings',
@@ -112,7 +125,7 @@ describe('CompassRecentQueryStorage', function () {
     await Promise.all(queries.map((query) => writeQuery(query)));
 
     const query = {
-      sort: { name: 1 },
+      sort: { name: new Int32(1) },
       _id: new UUID().toString(),
       _lastExecuted: new Date(),
       _ns: 'airbnb.listings',
@@ -242,8 +255,8 @@ describe('CompassFavoriteQueryStorage', function () {
     await queryFavoriteStorage.saveQuery({
       _ns: 'test.test',
       _name: 'my-query',
-      filter: { a: 1 },
-      update: { $set: { a: 2 } },
+      filter: { a: new Int32(1) },
+      update: { $set: { a: new Int32(2) } },
     });
 
     const loaded = await queryFavoriteStorage.loadAll();
@@ -252,22 +265,67 @@ describe('CompassFavoriteQueryStorage', function () {
     const [query] = loaded;
     expect(query._name).to.equal('my-query');
     expect(query._ns).to.equal('test.test');
-    expect(query.filter).to.deep.equal({ a: 1 });
-    expect(query.update).to.deep.equal({ $set: { a: 2 } });
+    expect(query.filter).to.deep.equal({ a: new Int32(1) });
+    expect(query.update).to.deep.equal({ $set: { a: new Int32(2) } });
+  });
+
+  it('keeps a query that has skip / limit', async function () {
+    await queryFavoriteStorage.saveQuery({
+      _ns: 'test.test',
+      _name: 'q',
+      filter: {},
+      limit: 10,
+      skip: 5,
+    });
+
+    const loaded = await queryFavoriteStorage.loadAll();
+    expect(loaded).to.have.lengthOf(1);
+    expect(loaded[0].limit).to.equal(10);
+    expect(loaded[0].skip).to.equal(5);
+  });
+
+  it('preserves BSON types across a save / load round-trip', async function () {
+    const filter = {
+      longNum: Long.fromString('123456789123456789'),
+      int: new Int32(42),
+      double: new Double(1),
+      decimal: Decimal128.fromString('1.5'),
+      objectId: new ObjectId(),
+      uuid: new UUID(),
+      binary: new Binary(Buffer.from('hello'), Binary.SUBTYPE_BYTE_ARRAY),
+      date: new Date('2020-01-01T00:00:00.000Z'),
+      regex: new BSONRegExp('^a', 'i'),
+      timestamp: new Timestamp({ t: 1, i: 2 }),
+      minKey: new MinKey(),
+      maxKey: new MaxKey(),
+      nested: { arr: [new Int32(1), Long.fromString('9223372036854775807')] },
+    };
+
+    await queryFavoriteStorage.saveQuery({
+      _ns: 'test.test',
+      _name: 'my-query',
+      filter,
+    });
+
+    const [query] = await queryFavoriteStorage.loadAll();
+    expect(query.filter).to.deep.equal(filter);
+    expect((query.filter as typeof filter).longNum.toString()).to.equal(
+      '123456789123456789'
+    );
   });
 
   it('should retrieve saved queries only for a specific namespace', async function () {
     const nsTestQuery = {
       _ns: 'test.test',
       _name: 'my-query',
-      filter: { a: 1 },
-      update: { $set: { a: 2 } },
+      filter: { a: new Int32(1) },
+      update: { $set: { a: new Int32(2) } },
     };
     const nsTest1Query = {
       _ns: 'test1.test1',
       _name: 'my-query-1',
-      filter: { a: 1 },
-      update: { $set: { a: 2 } },
+      filter: { a: new Int32(1) },
+      update: { $set: { a: new Int32(2) } },
     };
     await queryFavoriteStorage.saveQuery(nsTestQuery);
     await queryFavoriteStorage.saveQuery(nsTest1Query);
