@@ -26,6 +26,7 @@ type ConfirmationProperties = Partial<
     | 'requiredInputText'
     | 'initialFocus'
     | 'confirmButtonProps'
+    | 'style'
   >
 > & {
   buttonText?: React.ReactNode;
@@ -188,6 +189,7 @@ const ConfirmationModalStateHandler: React.FunctionComponent = ({
         key={confirmationProps.confirmationId}
         data-testid={confirmationProps['data-testid'] ?? 'confirmation-modal'}
         open={confirmationProps.open}
+        style={confirmationProps.style}
         title={confirmationProps.title ?? 'Are you sure?'}
         variant={confirmationProps.variant ?? ConfirmationModalVariant.Default}
         confirmButtonProps={{
