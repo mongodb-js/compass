@@ -16,33 +16,27 @@ import {
   bsonType,
 } from 'bson';
 
-// A null byte is illegal inside a real BSON document (both as a key and as
-// UTF-8 document content), so this can never collide with an actual field
-// coming back from the driver.
-const bsonTypeMarker = '\x00_bsonType_\x00';
-
-// Keyed by the exact string `markBSON` stamped on the marker (the BSON
-// class's own `_bsontype` tag), used to find the right prototype to
-// re-attach.
-const bsonClassesByTag: Record<string, { prototype: object }> = Object.assign(
-  Object.create(null),
-  {
-    ObjectId,
-    Binary,
-    UUID,
-    Decimal128,
-    Double,
-    Int32,
-    Long,
-    Timestamp,
-    Code,
-    DBRef,
-    MinKey,
-    MaxKey,
-    BSONRegExp,
-    BSONSymbol,
-  }
-);
+// Keyed by the exact string `markBSON` records for each BSON class (the
+// BSON class's own `_bsontype` tag), used to find the right prototype to
+// re-attach with `Reflect.setPrototypeOf`.
+const bsonClassesByTag: Record<string, { prototype: object }> = {
+  //@ts-expect-error: null proto
+  __proto__: null,
+  ObjectId,
+  Binary,
+  UUID,
+  Decimal128,
+  Double,
+  Int32,
+  Long,
+  Timestamp,
+  Code,
+  DBRef,
+  MinKey,
+  MaxKey,
+  BSONRegExp,
+  BSONSymbol,
+};
 
 function isSet(s: unknown): s is Set<unknown> {
   return (
@@ -66,9 +60,8 @@ function isMap(m: unknown): m is Map<unknown, unknown> {
  * `Code.scope` and `DBRef.oid`/`fields` are themselves ordinary values that
  * might contain further BSON (e.g. an `ObjectId` inside a `DBRef`'s `oid` or
  * a `Code`'s `scope`). The outer `Code`/`DBRef` is otherwise treated as an
- * opaque leaf by both `markBSON`/`unmarkBSON`, so without this they'd never
- * get visited. Pushes onto `stack` in place, doesn't need to know which
- * direction (mark/unmark) is running.
+ * opaque leaf by the walk, so without this they'd never get visited.
+ * Pushes onto `stack` in place.
  */
 function pushNestedBsonDocuments(
   tag: string,
@@ -83,117 +76,25 @@ function pushNestedBsonDocuments(
 }
 
 /**
- * For every BSON type we need to do the opposite of markBSON
- * find the special `__mdb__bson__primitive__` value and
- * make the BSON type class from it. it's not going to be possible
- * to use the BSON's public API to do this.
- *
- * ex. { _id: ObjectId(), a: 1 }
- * // it will appear across clone as:
- * _id: { __mdb__bson__primitive__: 'ObjectId', i0: 6988827, i1: 3993407, i2: 14016419, i3: 14209164 },
- *
- * Object.setPrototypeOf(o._id, ObjectId.prototype); // lets see how far this kind of code gets us.
+ * Walks `data` and collects every BSON class instance into a `Map` keyed by
+ * the instance itself, valued with its type tag string. Does NOT mutate
+ * `data`. The caller must send `data` and `bsonValues` together in a single
+ * `postMessage` call so that `structuredClone` preserves reference sharing
+ * — after clone, objects in `data` that were BSON instances will be `===`
+ * to their degraded counterpart in the cloned `bsonValues` Map.
  */
-export function unmarkBSON(res: unknown): unknown {
-  const stack: unknown[] = [res];
-  // Guards against shared/circular references causing an infinite loop.
+export function markBSON(data: unknown): {
+  data: unknown;
+  bsonValues: Map<object, string>;
+} {
+  const bsonValues = new Map<object, string>();
+  const stack: unknown[] = [data];
   const visited = new Set<object>();
 
   while (stack.length > 0) {
     const item = stack.pop();
 
     if (item === null || typeof item !== 'object') {
-      // Not an object at all (primitive, undefined, function, ...) — nothing
-      // to unmark and nothing to descend into.
-      continue;
-    }
-
-    if (visited.has(item)) {
-      continue;
-    }
-    visited.add(item);
-
-    if (Reflect.has(item, bsonTypeMarker)) {
-      const tag = Reflect.get(item, bsonTypeMarker) as string;
-      // `UUID` reports the same `_bsontype: 'Binary'` tag as plain `Binary`
-      // (it's implemented as a `Binary` subclass), the only way to tell them
-      // apart afterwards is BSON binary sub_type 4, reserved for UUIDs.
-      const bsonClass =
-        tag === 'Binary' && Reflect.get(item, 'sub_type') === 4
-          ? UUID
-          : bsonClassesByTag[tag];
-
-      if (bsonClass) {
-        Reflect.deleteProperty(item, bsonTypeMarker);
-        Reflect.setPrototypeOf(item, bsonClass.prototype);
-      }
-      // Whether or not we recognized the tag, this was (mostly) a BSON
-      // instance's own internal fields, not a tree to enumerate further,
-      // except for the handful of BSON types that nest further documents.
-      pushNestedBsonDocuments(tag, item, stack);
-      continue;
-    }
-
-    if (Array.isArray(item)) {
-      for (const value of item) {
-        stack.push(value);
-      }
-      continue;
-    }
-
-    if (isMap(item)) {
-      // Native structuredClone already preserves the Map itself, only its
-      // entries (either side of which could be a BSON value) need visiting.
-      for (const [key, value] of item) {
-        stack.push(key, value);
-      }
-      continue;
-    }
-
-    if (isSet(item)) {
-      for (const value of item) {
-        stack.push(value);
-      }
-      continue;
-    }
-
-    const proto = Reflect.getPrototypeOf(item);
-    if (proto === Object.prototype || proto === null) {
-      // A plain object to enumerate. Anything else (Date, RegExp, Map, Set,
-      // Buffer/TypedArray, ...) is left alone, it's a leaf for our purposes.
-      for (const value of Object.values(item)) {
-        stack.push(value);
-      }
-    }
-  }
-
-  return res;
-}
-
-/**
- * In order to get BSON types across the structuredClone boundary we need to
- * make our way through the object/array etc. given here and for every BSON
- * object define a property that exists nowhere else in the tree and set it equal
- * to the name of the BSON class. We will on the other side find all these and
- * reconstruct the BSON.
- *
- * ex. { _id: ObjectId(), a: 1 }
- * // it will appear across clone as:
- * _id: { __mdb__bson__primitive__: 'ObjectId', i0: 6988827, i1: 3993407, i2: 14016419, i3: 14209164 },
- *
- * @param res - potentially any javascript value
- */
-export function markBSON(res: unknown): unknown {
-  const stack: unknown[] = [res];
-  // Guards against shared/circular references causing an infinite loop.
-  const visited = new Set<object>();
-
-  while (stack.length > 0) {
-    const item = stack.pop();
-
-    if (item === null || typeof item !== 'object') {
-      // Not an object at all (primitive, undefined, function, ...) — nothing
-      // to mark and nothing to descend into.
       continue;
     }
 
@@ -203,17 +104,16 @@ export function markBSON(res: unknown): unknown {
     visited.add(item);
 
     if (Reflect.has(item, bsonType)) {
-      // A BSON class instance (ObjectId, Binary, Decimal128, ...). Its own
-      // internal fields aren't a tree we want to enumerate, so mark it and
-      // treat it as a leaf rather than pushing its properties onto the stack,
-      // except for the handful of BSON types that nest further documents.
       const tag = Reflect.get(item, bsonType) as string;
-      Reflect.defineProperty(item, bsonTypeMarker, {
-        value: tag,
-        enumerable: true,
-        writable: true,
-        configurable: true,
-      });
+      // `UUID` reports the same `_bsontype: 'Binary'` tag as plain `Binary`;
+      // record it as 'UUID' so the unmark side restores the right prototype.
+      const recordedTag =
+        tag === 'Binary' && Reflect.get(item, 'sub_type') === 4 ? 'UUID' : tag;
+
+      if (!bsonValues.has(item)) {
+        bsonValues.set(item, recordedTag);
+      }
+
       pushNestedBsonDocuments(tag, item, stack);
       continue;
     }
@@ -226,8 +126,6 @@ export function markBSON(res: unknown): unknown {
     }
 
     if (isMap(item)) {
-      // Native structuredClone already preserves the Map itself, only its
-      // entries (either side of which could be a BSON value) need visiting.
       for (const [key, value] of item) {
         stack.push(key, value);
       }
@@ -243,13 +141,82 @@ export function markBSON(res: unknown): unknown {
 
     const proto = Reflect.getPrototypeOf(item);
     if (proto === Object.prototype || proto === null) {
-      // A plain object to enumerate. Anything else (Date, RegExp, Map, Set,
-      // Buffer/TypedArray, ...) is left alone, it's a leaf for our purposes.
       for (const value of Object.values(item)) {
         stack.push(value);
       }
     }
   }
 
-  return res;
+  return { data, bsonValues };
+}
+
+/**
+ * Walks `data` and restores BSON class prototypes in-place using the type
+ * information in `bsonValues`. The Map must have traveled through the same
+ * `structuredClone` call as `data` so that reference identity is preserved
+ * — objects in `data` that were BSON instances will be `===` to their
+ * degraded counterpart key in the Map.
+ */
+export function unmarkBSON(
+  data: unknown,
+  bsonValues: Map<object, string>
+): unknown {
+  const stack: unknown[] = [data];
+  const visited = new Set<object>();
+
+  while (stack.length > 0) {
+    const item = stack.pop();
+
+    if (item === null || typeof item !== 'object') {
+      continue;
+    }
+
+    if (visited.has(item)) {
+      continue;
+    }
+    visited.add(item);
+
+    const tag = bsonValues.get(item);
+    if (tag !== undefined) {
+      const bsonClass = bsonClassesByTag[tag];
+      if (bsonClass) {
+        Reflect.setPrototypeOf(item, bsonClass.prototype);
+      }
+      // Whether or not we recognized the tag, this was a BSON instance's
+      // own internal fields, not a tree to enumerate further, except for
+      // the handful of BSON types that nest further documents.
+      pushNestedBsonDocuments(tag, item, stack);
+      continue;
+    }
+
+    if (Array.isArray(item)) {
+      for (const value of item) {
+        stack.push(value);
+      }
+      continue;
+    }
+
+    if (isMap(item)) {
+      for (const [key, value] of item) {
+        stack.push(key, value);
+      }
+      continue;
+    }
+
+    if (isSet(item)) {
+      for (const value of item) {
+        stack.push(value);
+      }
+      continue;
+    }
+
+    const proto = Reflect.getPrototypeOf(item);
+    if (proto === Object.prototype || proto === null) {
+      for (const value of Object.values(item)) {
+        stack.push(value);
+      }
+    }
+  }
+
+  return data;
 }

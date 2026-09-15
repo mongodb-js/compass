@@ -21,15 +21,17 @@ const { expect } = chai;
 
 /**
  * Simulates the full trip a value takes across the renderer <-> utility
- * MessagePort: `markBSON` before `postMessage`, the browser/Electron
- * structured clone algorithm that `postMessage` itself uses (here, Node's
- * global `structuredClone`, which behaves the same way: BSON class
- * instances aren't among the types it knows how to clone, so it silently
- * degrades them to a plain object of their own enumerable properties
- * instead of throwing), then `unmarkBSON` on the receiving side.
+ * MessagePort: `markBSON` collects BSON values + type tags (without
+ * mutating the data), then `structuredClone` degrades BSON class instances
+ * to plain objects (preserving reference sharing between `data` and
+ * `bsonValues` since they're cloned in a single call), then `unmarkBSON`
+ * walks the cloned data and restores prototypes in-place using the
+ * identity map.
  */
 function roundTrip(value: unknown): unknown {
-  return unmarkBSON(structuredClone(markBSON(value)));
+  const { data, bsonValues } = markBSON(value);
+  const cloned = structuredClone({ data, bsonValues });
+  return unmarkBSON(cloned.data, cloned.bsonValues);
 }
 
 describe('transfer', function () {
@@ -212,7 +214,8 @@ describe('transfer', function () {
         deep = { child: deep };
       }
 
-      let node = unmarkBSON(markBSON(deep)) as Deep;
+      const { bsonValues } = markBSON(deep);
+      let node = unmarkBSON(deep, bsonValues) as Deep;
       for (let i = 0; i < 100_000; i++) {
         node = node.child as Deep;
       }
@@ -306,23 +309,35 @@ describe('transfer', function () {
     });
   });
 
-  describe('markBSON marker shape', function () {
-    it('stamps a marker key containing a null byte, which cannot collide with a real BSON field name', function () {
+  describe('markBSON return value', function () {
+    it('collects BSON values into a Map keyed by the instance', function () {
       const id = new ObjectId();
-      const marked = markBSON(id) as Record<string, unknown>;
-      const markerKey = Object.getOwnPropertyNames(marked).find((key) =>
-        key.includes('\x00')
-      );
-      expect(markerKey).to.be.a('string');
-      expect(marked[markerKey as string]).to.equal('ObjectId');
+      const { bsonValues } = markBSON({ _id: id, a: 1 });
+      expect(bsonValues.size).to.equal(1);
+      expect(bsonValues.get(id)).to.equal('ObjectId');
     });
 
-    it('does not add a marker to values that are not BSON instances', function () {
-      const marked = markBSON({ a: 1, b: [1, 2, 3] }) as Record<
-        string,
-        unknown
-      >;
-      expect(Object.getOwnPropertyNames(marked)).to.deep.equal(['a', 'b']);
+    it('does not collect non-BSON values', function () {
+      const { bsonValues } = markBSON({ a: 1, b: [1, 2, 3] });
+      expect(bsonValues.size).to.equal(0);
+    });
+
+    it('records UUID sub_type 4 as UUID, not Binary', function () {
+      const uuid = new UUID();
+      const { bsonValues } = markBSON({ u: uuid });
+      expect(bsonValues.get(uuid)).to.equal('UUID');
+    });
+
+    it('records plain Binary (non-sub_type 4) as Binary', function () {
+      const bin = new Binary(Buffer.from([1, 2, 3]), 0);
+      const { bsonValues } = markBSON({ b: bin });
+      expect(bsonValues.get(bin)).to.equal('Binary');
+    });
+
+    it('collects shared references only once', function () {
+      const id = new ObjectId();
+      const { bsonValues } = markBSON({ a: id, b: id });
+      expect(bsonValues.size).to.equal(1);
     });
   });
 });

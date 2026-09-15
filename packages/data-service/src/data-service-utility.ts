@@ -10,9 +10,8 @@
 
 import type { MessagePortMain } from 'electron';
 import { DataServiceImpl } from './data-service';
-import { bsonType } from 'bson';
 import util from 'node:util';
-import { markBSON } from './transfer';
+import { markBSON, unmarkBSON } from './transfer';
 
 util.inspect.defaultOptions.compact = true;
 util.inspect.defaultOptions.breakLength = 100000;
@@ -63,6 +62,9 @@ export class DataServiceUtility extends DataServiceImpl {
   private onMessage({ data }: Electron.MessageEvent) {
     const req = new Message(data);
     console.log('utility-message', data);
+    if (data.bsonValues) {
+      unmarkBSON(req.args, data.bsonValues);
+    }
     // @ts-expect-error: I am not sure why
     this[req.operation](...req.args).then(
       this.onResult.bind(this, req),
@@ -72,10 +74,12 @@ export class DataServiceUtility extends DataServiceImpl {
 
   private onResult(req: Message, res: any) {
     console.log('utility-result', req.requestId, res);
+    const { bsonValues } = markBSON(res);
     this.utilityOptions.port.postMessage({
       responseTo: req.requestId,
       ok: 1,
-      res: markBSON(res),
+      res,
+      bsonValues,
     });
   }
 
