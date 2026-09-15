@@ -13,7 +13,7 @@ describe('getMongoshCommand', () => {
         connectionOptions: { connectionString: uri },
       });
       expect(result.command).to.equal(
-        `mongosh '${DEFAULT_CONNECTION_STRING_FALLBACK}' --file mockdatascript.js`
+        `mongosh "${DEFAULT_CONNECTION_STRING_FALLBACK}" --file mockdatascript.js`
       );
     });
   }

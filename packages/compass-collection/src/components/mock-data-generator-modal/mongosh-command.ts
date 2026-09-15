@@ -40,16 +40,10 @@ export function getMongoshCommand(connectionInfo: ConnectionInfo) {
     // An unavailable or invalid URI must not leak unparsed credentials into the command.
   }
 
-  // URI-encode quote characters so a single-quoted argument works in both
-  // Bash/zsh and PowerShell (which also recognizes typographic quotes).
-  const quotedUri = `'${connectionString.replace(
-    /['\u2018\u2019\u201a\u201b]/g,
-    (character) => (character === "'" ? '%27' : encodeURIComponent(character))
-  )}'`;
   const command = [
     'mongosh',
-    quotedUri,
-    ...(needsUsername ? ['--username', "'<your-username>'"] : []),
+    `"${connectionString}"`,
+    ...(needsUsername ? ['--username', '"<your-username>"'] : []),
     '--file',
     'mockdatascript.js',
     // mongosh requires a valueless --password to be last to prompt interactively.

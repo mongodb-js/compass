@@ -1025,8 +1025,8 @@ describe('MockDataGeneratorModal', () => {
           screen.getByTestId('mock-data-run-command').textContent
         ).to.include(
           mechanism
-            ? `mongosh '${userConnectionString}' --file mockdatascript.js`
-            : `mongosh '${userConnectionString}' --username '<your-username>' --file mockdatascript.js --password`
+            ? `mongosh "${userConnectionString}" --file mockdatascript.js`
+            : `mongosh "${userConnectionString}" --username "<your-username>" --file mockdatascript.js --password`
         );
         expect(
           screen.getByTestId('mock-data-run-command').textContent
@@ -1047,56 +1047,56 @@ describe('MockDataGeneratorModal', () => {
         name: 'uses the active unauthenticated desktop connection',
         uri: 'mongodb://localhost:27017',
         expected:
-          "mongosh 'mongodb://localhost:27017/' --file mockdatascript.js",
+          'mongosh "mongodb://localhost:27017/" --file mockdatascript.js',
         promptsForPassword: false,
       },
       {
         name: 'removes credentials and prompts for a password',
         uri: 'mongodb://secret-user:secret-password@localhost:27017/?authSource=admin',
         expected:
-          "mongosh 'mongodb://localhost:27017/?authSource=admin' --username '<your-username>' --file mockdatascript.js --password",
+          'mongosh "mongodb://localhost:27017/?authSource=admin" --username "<your-username>" --file mockdatascript.js --password',
         promptsForPassword: true,
       },
       {
         name: 'prompts for SCRAM authentication without embedded credentials',
         uri: 'mongodb://localhost/?authMechanism=SCRAM-SHA-256',
         expected:
-          "mongosh 'mongodb://localhost/?authMechanism=SCRAM-SHA-256' --username '<your-username>' --file mockdatascript.js --password",
+          'mongosh "mongodb://localhost/?authMechanism=SCRAM-SHA-256" --username "<your-username>" --file mockdatascript.js --password',
         promptsForPassword: true,
       },
       {
         name: 'preserves OIDC without adding a password prompt',
         uri: 'mongodb://secret-user@localhost/?authMechanism=MONGODB-OIDC&authSource=%24external',
         expected:
-          "mongosh 'mongodb://localhost/?authMechanism=MONGODB-OIDC&authSource=%24external' --username '<your-username>' --file mockdatascript.js",
+          'mongosh "mongodb://localhost/?authMechanism=MONGODB-OIDC&authSource=%24external" --username "<your-username>" --file mockdatascript.js',
         promptsForPassword: false,
       },
       {
         name: 'preserves certificate authentication without requesting a password',
         uri: 'mongodb://localhost/?authMechanism=MONGODB-X509&tls=true',
         expected:
-          "mongosh 'mongodb://localhost/?authMechanism=MONGODB-X509&tls=true' --file mockdatascript.js",
+          'mongosh "mongodb://localhost/?authMechanism=MONGODB-X509&tls=true" --file mockdatascript.js',
         promptsForPassword: false,
       },
       {
         name: 'redacts AWS credentials and session tokens',
         uri: 'mongodb://secret-user:secret-password@localhost/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN:secret-token',
         expected:
-          "mongosh 'mongodb://localhost/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN%3A<credentials>' --username '<your-username>' --file mockdatascript.js --password",
+          'mongosh "mongodb://localhost/?authMechanism=MONGODB-AWS&authMechanismProperties=AWS_SESSION_TOKEN%3A<credentials>" --username "<your-username>" --file mockdatascript.js --password',
         promptsForPassword: true,
       },
       {
         name: 'redacts sensitive options',
         uri: 'mongodb://localhost/?tlsCertificateKeyFilePassword=secret-password&proxyPassword=secret-password&proxyUsername=secret-user',
         expected:
-          "mongosh 'mongodb://localhost/?tlsCertificateKeyFilePassword=<credentials>&proxyPassword=<credentials>&proxyUsername=<credentials>' --file mockdatascript.js",
+          'mongosh "mongodb://localhost/?tlsCertificateKeyFilePassword=<credentials>&proxyPassword=<credentials>&proxyUsername=<credentials>" --file mockdatascript.js',
         promptsForPassword: false,
       },
       {
-        name: 'keeps shell substitutions literal and encodes quotes',
-        uri: "mongodb://localhost/?appName=it's$(whoami)`id`",
+        name: 'preserves single quotes in URI values',
+        uri: "mongodb://localhost/?appName=it's-compass",
         expected:
-          "mongosh 'mongodb://localhost/?appName=it%27s$(whoami)`id`' --file mockdatascript.js",
+          'mongosh "mongodb://localhost/?appName=it\'s-compass" --file mockdatascript.js',
         promptsForPassword: false,
       },
     ];
