@@ -8,13 +8,16 @@ import type {
 import { InMemoryStorage } from './preferences-in-memory-storage';
 import { getActiveUser } from './utils';
 import type { ParsedGlobalPreferencesResult } from './global-config';
+import type { AtlasPreferencesStorage } from './preferences-atlas';
 
 export class CompassWebPreferencesAccess implements PreferencesAccess {
   private _preferences: Preferences;
+  private _persistentStorage?: AtlasPreferencesStorage;
   constructor(
     preferencesOverrides?: Partial<AllPreferences>,
     globalPreferences?: Partial<ParsedGlobalPreferencesResult>,
-    runningEnvironment: CompassRunningEnvironment = 'atlas'
+    runningEnvironment: CompassRunningEnvironment = 'atlas',
+    persistentStorage?: AtlasPreferencesStorage
   ) {
     this._preferences = new Preferences({
       logger: createNoopLogger(),
@@ -22,10 +25,19 @@ export class CompassWebPreferencesAccess implements PreferencesAccess {
       globalPreferences,
       runningEnvironment,
     });
+    this._persistentStorage = persistentStorage;
   }
 
-  savePreferences(_attributes: Partial<UserPreferences>) {
-    return this._preferences.savePreferences(_attributes);
+  async setupStorage(): Promise<void> {
+    await this._persistentStorage?.setup();
+  }
+
+  async savePreferences(attributes: Partial<UserPreferences> = {}) {
+    const result = await this._preferences.savePreferences(attributes);
+    if (this._persistentStorage && Object.keys(attributes).length > 0) {
+      await this._persistentStorage.updatePreferences(attributes);
+    }
+    return result;
   }
 
   refreshPreferences() {
