@@ -53,7 +53,9 @@ function getHeaderPropsForWorkspace(tab: WorkspaceTab) {
   };
 }
 
-const TabCloseHandler: React.FunctionComponent = ({ children }) => {
+const TabCloseHandler: React.FunctionComponent<{
+  children?: React.ReactNode;
+}> = ({ children }) => {
   const mountedRef = useRef(false);
   const [hasInteractedOnce, setHasInteractedOnce] = useTabState(
     'hasInteractedOnce',

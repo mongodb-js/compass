@@ -28,7 +28,7 @@ const CollectionTabComponentsContext =
   React.createContext<CollectionTabComponentsProviderValue>(defaultComponents);
 
 export const CollectionTabsProvider: React.FunctionComponent<
-  Partial<CollectionTabComponentsProviderValue>
+  React.PropsWithChildren<Partial<CollectionTabComponentsProviderValue>>
 > = ({ children, ...props }) => {
   const valueRef = useInitialValue({ ...defaultComponents, ...props });
   return (

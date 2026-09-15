@@ -8,12 +8,12 @@
   },
   "dependencies": {
     "@mongodb-js/compass-web": "file:../../",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@types/react": "^17.0.2",
-    "@types/react-dom": "^17.0.2",
+    "@types/react": "^18.3.31",
+    "@types/react-dom": "^18.3.7",
     "tsd": "^0.31.0",
     "typescript": "^5.0.0"
   }

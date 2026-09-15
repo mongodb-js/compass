@@ -90,6 +90,8 @@ export function getExportPngDataUri(diagram: DiagramInstance): Promise<string> {
 
     const { nodes, edges } = getDiagramNodesAndEdges(diagram);
 
+    // This code also ships in compass-web.
+    // eslint-disable-next-line react/no-deprecated
     ReactDOM.render(
       <DiagramProvider>
         <Diagram

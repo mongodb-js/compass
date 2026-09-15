@@ -16,6 +16,11 @@ function getComboboxByTestId(testId: string) {
   return within(screen.getByTestId(testId)).getByRole('combobox');
 }
 
+async function openNewDiagramModal(store: DataModelingStore) {
+  store.dispatch(createNewDiagram());
+  return await screen.findByTestId('new-diagram-modal');
+}
+
 async function setSetupDiagramStep(
   store: DataModelingStore,
   {
@@ -31,7 +36,7 @@ async function setSetupDiagramStep(
     diagramName?: string;
   }
 ) {
-  store.dispatch(createNewDiagram());
+  await openNewDiagramModal(store);
 
   if (connection) {
     userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
@@ -76,11 +81,10 @@ describe('NewDiagramModal', function () {
     context('enter-name', function () {
       let store: DataModelingStore;
       let modal: HTMLElement;
-      beforeEach(() => {
+      beforeEach(async () => {
         const { store: setupStore } = renderWithStore(<NewDiagramModal />);
         store = setupStore;
-        store.dispatch(createNewDiagram());
-        modal = screen.getByTestId('new-diagram-modal');
+        modal = await openNewDiagramModal(store);
         expect(modal).to.be.visible;
       });
       it('allows user to enter name for the model', async function () {
@@ -119,11 +123,11 @@ describe('NewDiagramModal', function () {
     });
 
     context('select-connection', function () {
-      it('shows error if there are no connections', function () {
+      it('shows error if there are no connections', async function () {
         const { store } = renderWithStore(<NewDiagramModal />, {
           connections: [],
         });
-        store.dispatch(createNewDiagram());
+        await openNewDiagramModal(store);
         expect(
           screen.queryByText(
             /You do not have any connections, create a new connection first./
@@ -131,9 +135,9 @@ describe('NewDiagramModal', function () {
         ).to.exist;
       });
 
-      it('shows list of connections and allows user to select one', function () {
+      it('shows list of connections and allows user to select one', async function () {
         const { store } = renderWithStore(<NewDiagramModal />);
-        store.dispatch(createNewDiagram());
+        await openNewDiagramModal(store);
 
         userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
         expect(screen.getByText('Conn1')).to.exist;
@@ -146,7 +150,7 @@ describe('NewDiagramModal', function () {
         ).to.eq('two');
       });
 
-      it('shows error if it fails to connect', function () {
+      it('shows error if it fails to connect', async function () {
         const { store } = renderWithStore(<NewDiagramModal />, {
           services: {
             connections: {
@@ -162,7 +166,7 @@ describe('NewDiagramModal', function () {
           },
         });
 
-        store.dispatch(createNewDiagram());
+        await openNewDiagramModal(store);
 
         userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
         userEvent.click(screen.getByText('Conn2'));
@@ -175,7 +179,7 @@ describe('NewDiagramModal', function () {
       it('shows list of databases and allows user to select one', async function () {
         const { store } = renderWithStore(<NewDiagramModal />);
 
-        store.dispatch(createNewDiagram());
+        await openNewDiagramModal(store);
 
         userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
         userEvent.click(screen.getByText('Conn2'));
@@ -235,7 +239,7 @@ describe('NewDiagramModal', function () {
           },
         });
 
-        store.dispatch(createNewDiagram());
+        await openNewDiagramModal(store);
 
         userEvent.click(getComboboxByTestId('new-diagram-connection-selector'));
         userEvent.click(screen.getByText('Conn2'));

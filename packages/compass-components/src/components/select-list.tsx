@@ -99,6 +99,7 @@ export function SelectList<T extends SelectItem>(
       <div className={listHeaderStyles}>
         <Checkbox
           className={cx(checkboxStyles, checkboxSelectAllStyles)}
+          id="select-list-all"
           data-testid="select-list-all-checkbox"
           aria-label="Select all"
           onChange={handleSelectAllChange}
@@ -118,9 +119,10 @@ export function SelectList<T extends SelectItem>(
             <Checkbox
               className={checkboxStyles}
               key={`select-${item.id}`}
+              id={`select-${item.id}`}
               name={`select-${item.id}`}
               data-testid={`select-${item.id}`}
-              label={item[label.displayLabelKey]}
+              label={item[label.displayLabelKey] as React.ReactNode}
               aria-label={
                 item[label.ariaLabelKey ?? label.displayLabelKey] as string
               }

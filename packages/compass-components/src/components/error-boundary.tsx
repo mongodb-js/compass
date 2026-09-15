@@ -18,6 +18,7 @@ type Props = {
   className?: string;
   displayName?: string;
   onError?: (error: Error, errorInfo: ErrorInfo) => void;
+  children?: React.ReactNode;
 };
 
 class ErrorBoundary extends React.Component<Props> {

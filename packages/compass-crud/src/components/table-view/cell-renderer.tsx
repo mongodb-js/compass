@@ -221,7 +221,9 @@ class CellRenderer
 
     /* Return internal div because invalid cells should only hightlight text? */
 
-    return <div className={valueClass}>{this.element.currentValue}</div>;
+    return (
+      <div className={valueClass}>{this.element.currentValue?.toString()}</div>
+    );
   }
 
   getLength(): number | undefined {
