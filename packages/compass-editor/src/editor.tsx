@@ -6,7 +6,6 @@ import React, {
   useRef,
   useState,
 } from 'react';
-import { flushSync } from 'react-dom';
 import type { Command, KeyBinding } from '@codemirror/view';
 import {
   keymap,
@@ -1632,15 +1631,12 @@ async function setCodemirrorEditorValue(
     throw new Error('Cannot find editor container');
   }
   const editorView = (element as HTMLElement & { _cm: EditorView })._cm;
-  await waitUntilEditorIsReady(editorView);
-  flushSync(() => {
-    editorView.dispatch({
-      changes: {
-        from: 0,
-        to: editorView.state.doc.length,
-        insert: text,
-      },
-    });
+  await scheduleDispatch(editorView, {
+    changes: {
+      from: 0,
+      to: editorView.state.doc.length,
+      insert: text,
+    },
   });
 }
 
