@@ -3,6 +3,7 @@ export * from './url-builders';
 import React, { createContext, useContext, useMemo } from 'react';
 import type { AtlasAuthService } from './atlas-auth-service';
 import { AtlasService, type AtlasServiceOptions } from './atlas-service';
+import { getAtlasConfigForPreset } from './util';
 import { preferencesLocator } from 'compass-preferences-model/provider';
 import { useLogger } from '@mongodb-js/compass-logging/provider';
 import {
@@ -42,8 +43,18 @@ export const AtlasServiceProvider: React.FC<{
   const initialValueOptions = useInitialValue(options);
 
   const atlasService = useMemo(() => {
-    return new AtlasService(preferences, logger, initialValueOptions);
-  }, [preferences, logger, initialValueOptions]);
+    const preset =
+      initialValueOptions?.atlasServiceBackendPreset ??
+      preferences.getPreferences().atlasServiceBackendPreset;
+    const networkTraffic =
+      initialValueOptions?.networkTraffic ??
+      preferences.getPreferences().networkTraffic;
+    return new AtlasService(
+      logger,
+      { ...initialValueOptions, networkTraffic },
+      getAtlasConfigForPreset(preset ?? 'atlas')
+    );
+  }, [logger, initialValueOptions, preferences]);
 
   return (
     <AtlasServiceContext.Provider value={atlasService}>
